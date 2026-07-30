@@ -1,0 +1,137 @@
+server:
+  port: 9502
+  servlet:
+    context-path: /
+  tomcat:
+    uri-encoding: UTF-8
+
+spring:
+  application:
+    name: erd-online
+  profiles:
+    active: ${SPRING_PROFILES_ACTIVE:dev}
+  # 双数据源：martin（系统库）为主，erd（建模库）为辅。两库表名冲突，按 mapper 包路由。
+  datasource:
+    martin:
+      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_MARTIN:martin}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:martin}
+      password: ${DB_PASSWORD:martin}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      type: com.zaxxer.hikari.HikariDataSource
+      minimum-idle: 5
+      idle-timeout: 180000
+      maximum-pool-size: 20
+      auto-commit: true
+      pool-name: MartinHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 60000
+      connection-test-query: SELECT 1
+    erd:
+      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_ERD:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_ERD_USERNAME:${DB_USERNAME:erd}}
+      password: ${DB_ERD_PASSWORD:${DB_PASSWORD:erd}}
+      driver-class-name: com.mysql.cj.jdbc.Driver
+      type: com.zaxxer.hikari.HikariDataSource
+      minimum-idle: 5
+      idle-timeout: 180000
+      maximum-pool-size: 20
+      auto-commit: true
+      pool-name: ErdHikariCP
+      max-lifetime: 1800000
+      connection-timeout: 60000
+      connection-test-query: SELECT 1
+  redis:
+    host: ${REDIS_HOST:localhost}
+    port: ${REDIS_PORT:6379}
+    database: ${REDIS_DB:0}
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 15MB
+
+# ERD Online 业务开关（原 Martin 配置，去除 feign/message/sentinel）
+martin:
+  swagger:
+    enabled: true
+  resource-server:
+    enabled: true
+  data:
+    enabled: true
+  social:
+    enabled: ${MARTIN_SOCIAL_ENABLED:false}
+  oss:
+    enabled: true
+    type: ${OSS_TYPE:0}
+    endpoint: ${OSS_ENDPOINT:http://localhost:9000/}
+    accessKey: ${OSS_ACCESS_KEY:minio}
+    secretKey: ${OSS_SECRET_KEY:minio123}
+  websocket:
+    enabled: false
+  socketio:
+    enabled: true
+    hostname: ${SOCKETIO_HOST:0.0.0.0}
+    port: ${SOCKETIO_PORT:9092}
+    bossThreads: 0
+    workerThreads: 0
+    upgradeTimeout: 10000
+    pingTimeout: 60000
+    pingInterval: 25000
+    firstDataTimeout: 5000
+    maxHttpContentLength: 65536
+    maxFramePayloadLength: 65536
+  ui:
+    url: ${ERD_UI_URL:http://localhost:8000}
+
+# OpenAI / ChatGPT-SQL 功能（可选，设置 token 后启用）
+openai:
+  token: ${OPENAI_TOKEN:}
+  secret: ${OPENAI_SECRET:}
+  apiHost: ${OPENAI_API_HOST:https://api.openai.com/}
+  proxy:
+    host: ${OPENAI_PROXY_HOST:}
+    port: ${OPENAI_PROXY_PORT:0}
+    timeout: ${OPENAI_PROXY_TIMEOUT:60}
+  limit:
+    exclude: ${OPENAI_LIMIT_EXCLUDE:}
+    times: ${OPENAI_LIMIT_TIMES:10}
+
+mybatis-plus:
+  global-config:
+    banner: false
+    db-config:
+      logic-delete-field: delFlag
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.erdonline: info
+
+# 安全放行 URL（合并自原 auth/system/ncnb 各服务的 ignore-urls）
+security:
+  oauth2:
+    client:
+      ignore-urls:
+        - /oauth/**
+        - /token/**
+        - /actuator/**
+        - /exit
+        - /authentication/**
+        - /oauthLogin
+        - /oauthGrant
+        - /oauth2/**
+        - /register
+        - /user/register
+        - /user/loadUserByUsername/*
+        - /user/loadDynamicSecurity
+        - /user/getUserByWechatOpenId
+        - /user/social/register
+        - /social/**
+        - /endpoint/**
+        - /error
+        - /v2/api-docs
+        - /swagger-resources/**
+        - /swagger-ui.html
+        - /webjars/**

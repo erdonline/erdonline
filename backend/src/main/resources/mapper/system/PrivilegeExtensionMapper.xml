@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erdonline.system.mapper.PrivilegeExtensionMapper">
+    <delete id="deleteOldMenus">
+        delete sp.*
+        from sys_privilege sp
+         inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '1'
+         inner join sys_menu sm on sp.resource_id = sm.id
+         inner join sys_role sr on sp.role_id = sr.id and sr.id = #{roleId}
+    </delete>
+    <delete id="deleteOldOperations">
+        delete sp.*
+        from sys_privilege sp
+         inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '2'
+         inner join sys_operation so on sp.resource_id = so.id
+         inner join sys_role sr on sp.role_id = sr.id and sr.id = #{roleId}
+    </delete>
+    <insert id="saveCheckedMenus">
+        <selectKey keyProperty="dict_id" resultType="java.lang.Integer" order="BEFORE">select sd.id from sys_dict sd
+            where sd.type = 'flag_resource_status' and sd.value = '1'
+        </selectKey>
+        <if test="checkedKeys!=null and checkedKeys.size()>0">
+            INSERT INTO sys_privilege ( type,role_id, resource_id, dict_id)
+            values
+            <foreach collection="checked" item="item" index="index" open="" close="" separator=",">
+                (1,#{roleId},#{item},#{dict_id})
+            </foreach>
+        </if>
+
+    </insert>
+    <insert id="saveCheckedOperations">
+        <selectKey keyProperty="dict_id" resultType="java.lang.Integer" order="BEFORE">select sd.id from sys_dict sd
+            where sd.type = 'flag_resource_status' and sd.value = '2'
+        </selectKey>
+        <if test="checkedKeys!=null and checkedKeys.size()>0">
+            INSERT INTO sys_privilege ( id,type,role_id, resource_id, dict_id)
+            values
+            <foreach collection="checkedKeys" item="item" index="index" open="" close="" separator=",">
+                (UUID_SHORT(),2,#{roleId},#{item},#{dict_id})
+            </foreach>
+        </if>
+
+    </insert>
+    <insert id="initERDAdminPermission" parameterType="java.lang.String">
+        INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
+        select uuid_short(),
+               '2',
+               so.id,
+               #{roleId},
+               '2',
+               '0',
+               '0',
+               '2'
+        from sys_menu sm
+                 inner join sys_operation so
+                            on sm.id = so.menu_id and sm.del_flag = '0' and so.del_flag = '0'
+                 inner join sys_dict sd
+                            on sm.flag_project_group = sd.id and sd.type = 'flag_project_group' and sd.value = '0'
+        where sm.authority in
+              ('erd_project_group', 'erd_project_group_setting', 'erd_design_table_model', 'erd_design_table_version_all',
+               'erd_design_import', 'erd_design_export', 'erd_design_setting');
+    </insert>
+    <insert id="initERDManagerPermission" parameterType="java.lang.String">
+        INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
+        select uuid_short(),
+               '2',
+               so.id,
+               #{roleId},
+               '2',
+               '0',
+               '0',
+               '2'
+        from sys_menu sm
+                 inner join sys_operation so
+                            on sm.id = so.menu_id and sm.del_flag = '0' and so.del_flag = '0'
+                 inner join sys_dict sd
+                            on sm.flag_project_group = sd.id and sd.type = 'flag_project_group' and sd.value = '0'
+        where sm.authority in
+              ('erd_project_group', 'erd_project_group_setting', 'erd_design_table_model', 'erd_design_table_version_all',
+               'erd_design_import', 'erd_design_export', 'erd_design_setting')
+          and so.authority not in ('erd_project_group_del')
+    </insert>
+    <insert id="initERDCommonPermission" parameterType="java.lang.String">
+        INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
+        select uuid_short(),
+               '2',
+               so.id,
+               #{roleId},
+               '2',
+               '0',
+               '0',
+               '2'
+        from sys_menu sm
+                 inner join sys_operation so
+                            on sm.id = so.menu_id and sm.del_flag = '0' and so.del_flag = '0'
+                 inner join sys_dict sd
+                            on sm.flag_project_group = sd.id and sd.type = 'flag_project_group' and sd.value = '0'
+        where sm.authority in
+              ('erd_project_group', 'erd_project_group_setting', 'erd_design_table_model', 'erd_design_table_version_all',
+               'erd_design_import', 'erd_design_export', 'erd_design_setting')
+          and so.authority not in ('erd_project_group_del',
+                                   'erd_project_group_edit',
+                                   'erd_project_roles_page',
+                                   'erd_project_roles_search',
+                                   'erd_project_users_add',
+                                   'erd_project_role_users',
+                                   'erd_project_role_permission',
+                                   'erd_project_role_permission_edit',
+                                   'erd_project_permission_group',
+                                   'erd_hisProject_init',
+                                   'erd_hisProject_rebuild',
+                                   'erd_connector_dbsync',
+                                   'erd_table_setting_db'
+            )
+    </insert>
+    <select id="getPrivilegeByRoles" resultType="com.erdonline.common.bean.system.vo.PrivilegeVO">
+        SELECT sm.authority,sm.url,sd1.label as method
+        FROM sys_privilege sp
+        INNER JOIN sys_role sr ON sp.role_id = sr.id
+        INNER JOIN sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '1'
+        INNER JOIN sys_menu sm on sp.resource_id = sm.id
+        INNER JOIN sys_dict sd1 on sm.flag_request_method = sd1.id and sd1.type = 'flag_request_method'
+        <if test="roleList!=null">
+            WHERE sr.id IN
+            <foreach item="item" collection="roleList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        UNION
+        SELECT so.authority,so.url,sd1.label as method
+        FROM sys_privilege sp
+        INNER JOIN sys_role sr ON sp.role_id = sr.id
+        INNER JOIN sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '2'
+        INNER JOIN sys_operation so on sp.resource_id = so.id
+        INNER JOIN sys_dict sd1 on so.flag_request_method = sd1.id and sd1.type = 'flag_request_method'
+        <if test="roleList!=null">
+            WHERE sr.id IN
+            <foreach item="item" collection="roleList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        UNION
+        SELECT sf.authority,sf.url,sd1.label as method
+        FROM sys_privilege sp
+        INNER JOIN sys_role sr ON sp.role_id = sr.id
+        INNER JOIN sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '3'
+        LEFT JOIN sys_file sf on sp.resource_id = sf.id
+        INNER JOIN sys_dict sd1 on sf.flag_request_method = sd1.id and sd1.type = 'flag_request_method'
+        <if test="roleList!=null">
+            WHERE sr.id IN
+            <foreach item="item" collection="roleList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+        UNION
+        SELECT se.authority,se.url,sd1.label as method
+        FROM sys_privilege sp
+        INNER JOIN sys_role sr ON sp.role_id = sr.id
+        INNER JOIN sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '4'
+        LEFT JOIN sys_element se on sp.resource_id = se.id
+        INNER JOIN sys_dict sd1 on se.flag_request_method = sd1.id and sd1.type = 'flag_request_method'
+        <if test="roleList!=null">
+            WHERE sr.id IN
+            <foreach item="item" collection="roleList" open="(" separator="," close=")">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+</mapper>

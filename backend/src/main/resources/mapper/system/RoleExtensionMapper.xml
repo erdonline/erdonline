@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erdonline.system.mapper.RoleExtensionMapper">
+    <insert id="saveRoleUsers" parameterType="com.erdonline.common.api.dto.RoleUserDto">
+        insert into sys_user_role (id,user_id,role_id) values
+        <foreach collection="userIds" item="item" index="index" separator=",">
+            (
+            UUID_SHORT(),
+            #{item},
+            #{roleId}
+            )
+        </foreach>
+    </insert>
+    <select id="getAllRoles" resultType="com.erdonline.system.vo.RoleCheckbox">
+        select id as value,role_name as label
+        from sys_role
+        where del_flag='0'
+    </select>
+    <select id="getSelectRoles" resultType="com.erdonline.system.vo.RoleCheckbox">
+        select r.id as value,
+            r.role_name as lable
+        from
+            sys_user_role ur
+            inner join sys_user u
+        on
+            ur.user_id = u.id
+            and u.id = #{id} and u.del_flag='0'
+            inner join sys_role r on
+            ur.role_id = r.id and r.del_flag='0'
+    </select>
+    <select id="getALlOperationsByMenus" resultType="com.erdonline.common.bean.system.vo.MenuOperationVo">
+        select sm.id as menuId, sm.name as menuName, so.id as value ,so.name
+        from sys_privilege sp
+            inner join sys_role sr
+        on sp.role_id = sr.id and sr.id = #{roleId}
+            inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '1'
+            inner join sys_menu sm on sp.resource_id = sm.id
+            inner join sys_operation so on sm.id = so.menu_id and sm.del_flag='0' and so.del_flag='0'
+        order by sm.sort, so.sort asc
+    </select>
+    <select id="getCheckedOperationsByMenus" resultType="com.erdonline.common.bean.system.vo.MenuOperationVo">
+        select sm.id as menuId, sm.name as menuName, so.id as value, so.name
+        from sys_privilege sp
+            inner join sys_role sr
+        on sp.role_id = sr.id and sr.id = #{roleId}
+            inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '2'
+            inner join sys_operation so on sp.resource_id = so.id
+            inner join sys_menu sm on so.menu_id = sm.id and sm.id
+        order by sm.sort, so.sort asc
+    </select>
+    <select id="getUsersByRoleId" resultType="com.erdonline.common.bean.system.User">
+        select
+        u.id,u.username,u.avatar,u.title,u.email
+        from
+        sys_user_role ur
+        inner join sys_user u on
+        ur.user_id = u.id
+        inner join sys_role r on
+        ur.role_id = r.id
+        and r.id = #{param.roleId}
+        <where>
+            <if test="param.username!=null and param.username!=''">
+                u.username like CONCAT('%',#{param.username},'%')
+            </if>
+            <if test="param.email!=null and param.email!=''">
+                and u.email like CONCAT('%',#{param.email},'%')
+            </if>
+        </where>
+    </select>
+    <select id="getERDGroupAllPermission" resultType="com.erdonline.common.bean.system.vo.MenuOperationVo"
+            parameterType="java.lang.String">
+        select sm.id as menuId, sm.name as menuName, so.id as value, so.name
+        from sys_menu sm
+            inner join sys_operation so
+        on sm.id = so.menu_id and sm.del_flag='0' and so.del_flag='0'
+            inner join sys_dict sd
+            on sm.flag_project_group = sd.id and sd.type = 'flag_project_group' and sd.value = '0'
+        where sm.authority in
+            ('erd_project_group'
+            , 'erd_project_group_setting'
+            , 'erd_design_table_model'
+            , 'erd_design_table_version_all'
+            , 'erd_design_import'
+            , 'erd_design_export'
+            , 'erd_design_setting')
+        order by sm.id, sm.sort, so.sort asc
+    </select>
+    <select id="getERDGroupRolePermission" resultType="com.erdonline.common.bean.system.vo.MenuOperationVo"
+            parameterType="java.lang.String">
+        select sm.id as menuId, sm.name as menuName, so.id as value, so.name,so.authority as code
+        from sys_privilege sp
+            inner join sys_role sr
+        on sp.role_id = sr.id and sr.id = #{roleId}
+            inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '2'
+            inner join sys_operation so on sp.resource_id = so.id
+            inner join sys_menu sm on so.menu_id = sm.id and sm.id and sm.del_flag='0' and so.del_flag='0'
+            inner join sys_dict sd2 on sm.flag_project_group = sd2.id and sd2.type = 'flag_project_group' and sd2.value = '0'
+        where sm.authority in
+            ('erd_project_group'
+            , 'erd_project_group_setting'
+            , 'erd_design_table_model'
+            , 'erd_design_table_version_all'
+            , 'erd_design_import'
+            , 'erd_design_export'
+            , 'erd_design_setting')
+        order by sm.id, sm.sort, so.sort asc
+    </select>
+</mapper>

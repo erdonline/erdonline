@@ -1,0 +1,7 @@
+# ERD Online 后端 Docker 构建忽略
+target/
+!target/*.jar
+*.iml
+.idea/
+.git/
+logs/

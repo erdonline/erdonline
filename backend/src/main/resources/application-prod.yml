@@ -1,0 +1,11 @@
+# 生产环境：全部通过环境变量注入（见根目录 .env.example / docker-compose.yml）
+spring:
+  thymeleaf:
+    prefix: classpath:/views/
+    suffix: .html
+    cache: true
+
+logging:
+  level:
+    com.erdonline: info
+    root: warn

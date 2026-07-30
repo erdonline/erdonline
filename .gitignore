@@ -1,0 +1,42 @@
+# ===== OS / Editor =====
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.idea/
+*.iml
+.vscode/
+.history/
+
+# ===== Backend (Java / Maven) =====
+backend/target/
+**/target/
+*.class
+*.log
+backend/logs/
+backend/src/main/resources/rebel.xml
+backend/src/main/java/rebel.xml
+
+# ===== Frontend (Node / Umi) =====
+**/node_modules
+frontend/dist/
+frontend/.umi
+frontend/.umi-production
+frontend/src/.umi
+frontend/src/.umi-production
+frontend/.eslintcache
+npm-debug.log*
+yarn-error.log
+frontend/coverage/
+frontend/public/env-config.js
+
+# ===== Docker / Data =====
+docker/data/
+db/data/
+
+# ===== Env =====
+.env.local
+*.local.env
+
+# Tool session/state (not part of project)
+.omc/

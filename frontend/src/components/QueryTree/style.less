@@ -1,0 +1,49 @@
+.tree-container {
+  height: calc(100vh - 170px);
+  overflow-y: auto;
+  overflow-x: hidden;
+
+  // 移除或注释掉可能影响背景色的样式
+  // background-color: xxx;
+}
+
+.tree-node-action {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.ant-tree-node-content-wrapper:hover .tree-node-action {
+  opacity: 1;
+}
+
+.compact-tree {
+  .ant-tree-indent {
+    .ant-tree-indent-unit {
+      width: 20px; // 设置一个较小的缩进值，但不要为0
+    }
+  }
+
+  &.compact-level-1 {
+    .ant-tree-indent {
+      .ant-tree-indent-unit:first-child {
+        width: 15px; // 为第一级设置一个更小的缩进
+      }
+    }
+  }
+
+  &.compact-level-2 {
+    .ant-tree-indent {
+      .ant-tree-indent-unit:nth-child(-n+2) {
+        width: 10px; // 为前两级设置一个更小的缩进
+      }
+    }
+  }
+
+  &.compact-level-3 {
+    .ant-tree-indent {
+      .ant-tree-indent-unit:nth-child(-n+3) {
+        width: 5px; // 为前三级设置一个更小的缩进
+      }
+    }
+  }
+}

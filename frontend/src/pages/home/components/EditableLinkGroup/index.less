@@ -1,0 +1,101 @@
+// 定义颜色变量
+@primary-color: #1890ff;
+@primary-1: #e6f7ff;
+@text-color: rgba(0, 0, 0, 0.85);
+@text-color-secondary: rgba(0, 0, 0, 0.45);
+
+.quickLink {
+  display: flex;
+  align-items: center;
+  padding: 12px;
+  border-radius: 6px;
+  transition: all 0.3s;
+  height: 100%;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  }
+
+  .iconWrapper {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    margin-right: 12px;
+    font-size: 18px;
+  }
+
+  .textWrapper {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .linkTitle {
+    font-size: 14px;
+    font-weight: 500;
+  }
+
+  &.primary {
+    background-color: #e6f7ff;
+    color: #1890ff;
+    .iconWrapper {
+      background-color: #1890ff;
+      color: #fff;
+    }
+  }
+
+  &.secondary {
+    background-color: #f0f2f5;
+    color: rgba(0, 0, 0, 0.85);
+    .iconWrapper {
+      background-color: #d9d9d9;
+      color: rgba(0, 0, 0, 0.85);
+    }
+  }
+
+  &.success {
+    background-color: #f6ffed;
+    color: #52c41a;
+    .iconWrapper {
+      background-color: #52c41a;
+      color: #fff;
+    }
+  }
+
+  &.warning {
+    background-color: #fffbe6;
+    color: #faad14;
+    .iconWrapper {
+      background-color: #faad14;
+      color: #fff;
+    }
+  }
+
+  &.danger {
+    background-color: #fff1f0;
+    color: #f5222d;
+    .iconWrapper {
+      background-color: #f5222d;
+      color: #fff;
+    }
+  }
+
+  &.premium {
+    background: linear-gradient(135deg, #FFD700, #FFA500);
+    color: #fff;
+    .iconWrapper {
+      background-color: rgba(255, 255, 255, 0.2);
+      color: #fff;
+    }
+    .linkTitle {
+      font-weight: 600;
+    }
+    &:hover {
+      transform: translateY(-2px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(255, 165, 0, 0.2);
+    }
+  }
+}
