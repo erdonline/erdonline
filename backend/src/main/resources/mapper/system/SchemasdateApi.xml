@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.erdonline.system.mapper.MenuExtensionMapper">
+    <update id="exchangeSort">
+		update sys_menu m1
+			inner join sys_menu m2 on (m1.id = #{id1} and m2.id = #{id2})
+		set m1.sort=m2.sort , m2.sort = m1.sort
+	</update>
+    <select id="getAllUiMenu" resultType="com.erdonline.common.bean.system.Menu">
+		SELECT m1.icon,
+			   m1.hide_children_in_menu,
+			   m1.ui_key,
+			   m1.sort,
+			   m1.locale,
+			   m1.menu_id,
+			   m1.hide_in_menu,
+			   m1.path,
+			   m1.component,
+			   m1.authority,
+			   m1.NAME,
+			   m2.path as parentKey
+		FROM sys_menu m1
+				 LEFT JOIN sys_menu m2 ON m1.menu_id = m2.id
+		WHERE m1.del_flag = '0'
+		ORDER BY  m1.sort ASC
+    </select>
+    <select id="getAllMenus" resultType="com.erdonline.common.bean.system.Menu">
+		select sm.*
+		from sys_menu sm
+		WHERE sm.del_flag = '0'
+		ORDER BY  sm.sort ASC
+	</select>
+    <select id="getSelectMenus" resultType="com.erdonline.common.bean.system.Menu">
+		select sm.name, sm.id
+		from  sys_privilege sp
+				 inner join sys_role sr on sp.role_id = sr.id and sr.id = #{id} and sr.del_flag='0'
+				 inner join sys_menu sm on sp.resource_id = sm.id and sm.del_flag='0'
+				 inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '1'  and sd.del_flag='0'
+		order by sm.sort asc
+	</select>
+    <select id="getCurrentUserMenusByRoles" resultType="com.erdonline.common.bean.system.Menu">
+        select sm.*
+        from sys_privilege sp
+        inner join sys_role sr on sp.role_id = sr.id and sr.del_flag='0'
+        inner join sys_menu sm on sp.resource_id = sm.id and sm.del_flag='0'
+        inner join sys_dict sd on sp.dict_id = sd.id and sd.type = 'flag_resource_status' and sd.value = '1' and
+        sd.del_flag='0'
+        where sr.id in
+        <foreach item="item" collection="collection" open="(" separator="," close=")">
+            #{item}
+        </foreach>
+        order by sm.sort asc
+    </select>
+	<select id="getMaxSort" resultType="java.lang.Integer">
+		select max(sort) from sys_menu
+	</select>
+</mapper>

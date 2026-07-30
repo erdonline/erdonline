@@ -1,0 +1,78 @@
+import {DatabaseNetwork, EveryUser, HomeTwo, Sphere, Table, Timeline, User, Search} from "@icon-park/react";
+
+export default {
+  route: {
+    path: '/',
+    routes: [
+      {
+        path: '/home',
+        name: '首页',
+        icon: <HomeTwo theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+      },
+      {
+        path: '/dataModels',
+        name: '数据模型',
+        icon: <Table theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+      },
+      {
+        path: '/dataQuery',
+        name: '数据查询',
+        icon: <Search theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+      },
+      
+      {
+        path: '/databaseConfig',
+        name: '数据源',
+        icon: <DatabaseNetwork theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+      },
+      {
+        
+        exact: true,
+        path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
+        name: 'ERD Online 论坛',
+        icon: <Sphere theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>
+      },
+
+    ],
+  },
+  location: {
+    pathname: '/',
+  },
+  appList: [
+    // {
+    //   icon: '/logo.svg',
+    //   title: 'ERD Online',
+    //   desc: '国内第一个开源免费在线建模软件',
+    //   url: 'https://portal.zerocode.net.cn/',
+    //   target: '_blank',
+    // },
+    // {
+    //   icon: '/zerocode.svg',
+    //   title: '零代',
+    //   desc: '国内第一个零代码社区',
+    //   url: 'https://www.zerocode.net.cn/',
+    //   target: '_blank',
+    // },
+    // {
+    //   icon: '/loco.svg',
+    //   title: 'LOCO',
+    //   desc: '类钉钉宜搭的低代码搭建平台',
+    //   url: 'https://loco.zerocode.net.cn/',
+    //   target: '_blank',
+    // },
+    // {
+    //   icon: '/zerocode.svg',
+    //   title: 'Fast Test',
+    //   desc: '接口快速测试平台',
+    //   url: 'https://www.zerocode.net.cn/',
+    //   target: '_blank',
+    // },
+    // {
+    //   icon: '/zerocode.svg',
+    //   title: 'Super BI',
+    //   desc: '超级报表、BI引擎',
+    //   url: 'https://www.zerocode.net.cn/',
+    //   target: '_blank',
+    // },
+  ],
+};

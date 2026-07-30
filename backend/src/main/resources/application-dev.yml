@@ -1,0 +1,13 @@
+# 开发环境：默认连接本机 MySQL/Redis（可被环境变量覆盖）
+# 数据源、redis 的默认值已在 application.yml 中通过 ${VAR:default} 提供，
+# 此处仅覆盖开发期特有配置。
+
+spring:
+  thymeleaf:
+    prefix: classpath:/views/
+    suffix: .html
+    cache: false
+
+logging:
+  level:
+    com.erdonline: debug

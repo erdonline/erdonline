@@ -1,0 +1,422 @@
+import QueryTree from '@/components/QueryTree';
+import useGlobalStore from "@/store/global/globalStore";
+import useProjectStore from "@/store/project/useProjectStore";
+import useShortcutStore from "@/store/shortcut/useShortcutStore";
+import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
+import { history } from "@@/core/history";
+import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
+import { Badge, Button, Dropdown, Empty, Menu, message, Modal, Tooltip, Typography } from 'antd';
+import React, { useEffect, useState } from 'react';
+import shallow from "zustand/shallow";
+import EntityModal from './EntityModal';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
+
+const iconStyle = (color: string) => ({ color, fontSize: '16px' });
+
+export type DataTableProps = {};
+
+const { Text } = Typography;
+
+const DataTable: React.FC<DataTableProps> = (props) => {
+  const { modules, projectDispatch } = useProjectStore(state => ({
+    modules: state.project?.projectJSON?.modules,
+    projectDispatch: state.dispatch,
+  }), shallow);
+  const { tabDispatch } = useTabStore(state => ({ tableTabs: state.tableTabs, tabDispatch: state.dispatch }));
+  const { searchKey, globalDispatch } = useGlobalStore(state => ({
+    searchKey: state.searchKey,
+    globalDispatch: state.dispatch,
+  }), shallow);
+  const { shortcutDispatch } = useShortcutStore(state => ({
+    shortcutDispatch: state.dispatch
+  }));
+
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [modalVisible, setModalVisible] = useState(false);
+  const [modalType, setModalType] = useState<'module' | 'entity' | 'relation'>('module');
+  const [currentNode, setCurrentNode] = useState<any>(null);
+
+  useEffect(() => {
+    setExpandedKeys(projectDispatch.getExpandedKeys(searchKey || ''));
+  }, [searchKey]);
+
+  const activeEntity = (module: any, entity: any) => {
+    projectDispatch.setCurrentModule(module);
+    projectDispatch.setCurrentEntity(module, entity.title || entity.name);  // 使用 title 或 name
+  }
+
+  const handleSelect = (selectedKeys: React.Key[], info: any) => {
+    const node = info.node;
+    if (node.type === "module") {
+      projectDispatch.setCurrentModule(node.module)
+    } else if (node.type === "entity") {
+      // 当选中实体(表)时,打开编辑字段页面
+      tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: node.title });
+      activeEntity(node.module, node)
+    } else if (node.type === "relation") {
+      shortcutDispatch.setShow(false);
+      tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: `关系图-${node.module}` });
+      activeEntity(node.module, node)
+    }
+
+    if (history.location.pathname !== '/design/table/model') {
+      history.push({
+        pathname: '/design/table/model'
+      });
+    }
+  };
+
+  const handleSearch = (value: string) => {
+    globalDispatch.setSearchKey(value);
+  };
+
+  const showModal = (type: 'module' | 'entity' | 'relation', node?: any) => {
+    console.log(47, 'showModal', type, node)
+    setModalType(type);
+    if (type === 'entity') {
+      let defaultModule = node?.module || (modules && modules.length > 0 ? modules[0].name : null);
+      setCurrentNode({
+        type: 'entity',
+        module: defaultModule,
+        isNew: true
+      });
+    } else {
+      setCurrentNode(node);
+    }
+    setModalVisible(true);
+  };
+
+  const handleModalOk = (values: any) => {
+    console.log(47, 'handleModalOk', currentNode, values)
+    const isNew = !currentNode || Object.keys(currentNode).length === 0 || currentNode?.isNew;
+
+    switch (modalType) {
+      case 'module':
+        if (isNew) {
+          projectDispatch.addModule(values);
+        } else {
+          projectDispatch.renameModule({ ...values, oldName: values.name });
+        }
+        break;
+      case 'entity':
+        if (isNew) {
+          projectDispatch.addEntity({
+            ...values,
+            title: values.name,
+            moduleName: values.module || values.moduleName
+          });
+        } else {
+          projectDispatch.renameEntity({
+            oldModuleName: currentNode.module,
+            newModuleName: values.moduleName,
+            oldTitle: currentNode.title,
+            newTitle: values.name,
+            newChnname: values.chnname
+          });
+        }
+        break;
+      case 'relation':
+        // 处理关系添加的逻辑（如果需要）
+        break;
+    }
+    setModalVisible(false);
+    // 刷新树结构
+    const updatedTreeData = projectDispatch.getModuleEntityTree(searchKey || '', true);
+    setExpandedKeys(projectDispatch.getExpandedKeys(searchKey || ''));
+  };
+
+  const handleRename = (node: any) => {
+    console.log(47, 'handleRename', node)
+    setModalType(node.type);
+    setCurrentNode({
+      ...node,
+      isNew: false, // 添加这个标志来区分新增和编辑
+      name: node.title || node.name, // 确保name字段存在
+      chnname: node.chnname // 如果有中文名,也要传递
+    });
+    setModalVisible(true);
+  };
+
+  const handleRemove = (node: any) => {
+    Modal.confirm({
+      title: `确定删除${node.type === 'module' ? '模型' : '表'} "${node.title}" 吗?`,
+      icon: <ExclamationCircleOutlined />,
+      content: '此操作不可逆,请谨慎操作。',
+      okText: '确定',
+      cancelText: '取消',
+      onOk() {
+        if (node.type === 'module') {
+          projectDispatch.removeModule(node.name);
+        } else if (node.type === 'entity') {
+          projectDispatch.removeEntity(node.module, node.title);
+        }
+      },
+    });
+  };
+
+  const handleCopy = (node: any) => {
+    if (node.type === 'module') {
+      projectDispatch.copyModule({
+        name: node.name || node.title,
+        chnname: node.chnname
+      });
+    } else if (node.type === 'entity') {
+      projectDispatch.copyEntity(node.module, node.title);
+    }
+    // 移除这里的 message.success,因为我们在 slice 中已经处理了消息
+  };
+
+  const handleCut = (node: any) => {
+    if (node.type === 'module') {
+      projectDispatch.cutModule({
+        name: node.name || node.title,
+        chnname: node.chnname
+      });
+    } else if (node.type === 'entity') {
+      projectDispatch.cutEntity(node.module, node.title);
+    }
+    message.success('剪切成功');
+  };
+
+  const handlePaste = (node: any) => {
+    if (node.type === 'module') {
+      projectDispatch.pastModule();
+    } else if (node.type === 'entity' || node.type === 'folder') {
+      projectDispatch.pastEntity(node.module);
+    }
+    // 移除这里的 message.success,因为我们在 slice 中已经处理了消息
+  };
+
+  const renderActions = (node: any) => {
+    if (node.type === 'folder' && node.title === '表') {
+      return (
+        <PlusOutlined
+          style={{
+            padding: '0 8px',
+            fontSize: '16px',
+            color: '#52c41a',
+            cursor: 'pointer'
+          }}
+          onClick={(e) => {
+            e.stopPropagation();
+            showModal('entity', { module: node.module });
+          }}
+        />
+      );
+    }
+
+    const menu = (
+      <Menu onClick={(e) => e.domEvent.stopPropagation()}>
+        {node.type !== 'folder' && (
+          <>
+            <Menu.Item key="rename" icon={<EditOutlined style={iconStyle('#1890ff')} />} onClick={() => handleRename(node)}>
+              {node.type === 'module' ? '编辑模型' : node.type === 'entity' ? '编辑表' : '编辑关系'}
+            </Menu.Item>
+            <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle('#13c2c2')} />} onClick={() => handleCopy(node)}>
+              {`复制${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
+            </Menu.Item>
+            <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle('#faad14')} />} onClick={() => handleCut(node)}>
+              {`剪切${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
+            </Menu.Item>
+            {(node.type === 'module' || node.type === 'entity') && (
+              <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle('#722ed1')} />} onClick={() => handlePaste(node)}>
+                {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
+              </Menu.Item>
+            )}
+            <Menu.Divider />
+            <Menu.Item
+              key="remove"
+              icon={<DeleteOutlined style={iconStyle('#ff4d4f')} />}
+              danger
+              onClick={() => handleRemove(node)}
+            >
+              {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
+            </Menu.Item>
+          </>
+        )}
+      </Menu>
+    );
+
+    return node.type !== 'folder' ? (
+      <Dropdown overlay={menu} trigger={['click']}>
+        <EllipsisOutlined
+          style={{ padding: '0 8px', fontSize: '16px' }}
+          onClick={(e) => e.stopPropagation()}
+        />
+      </Dropdown>
+    ) : null;
+  };
+
+  const renderExtraIcons = (node: any) => {
+    console.log(47, 'renderExtraIcons', node)
+    if (node.type === 'folder') {
+      return (
+        <Badge
+          count={node.children.length}
+          size="small"
+          style={{
+            backgroundColor: '#f0f0f0',
+            color: 'rgba(0, 0, 0, 0.65)',
+            boxShadow: 'none',
+          }}
+        />
+      );
+    } else if (node.type === 'module') {
+      const tablesCount = node.children.find((child: any) => child.title === '表')?.children.length || 0;
+      const relationsCount = node.children.find((child: any) => child.title === '关系')?.children.length || 0;
+      return (
+        <Badge
+          count={tablesCount + relationsCount}
+          size="small"
+          style={{
+            backgroundColor: '#f0f0f0',
+            color: 'rgba(0, 0, 0, 0.65)',
+            boxShadow: 'none',
+          }}
+        />
+      );
+    } else if (node.type === 'entity') {
+      const fieldsCount = Array.isArray(node.fields) ? node.fields.length : 0;
+      return (
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}>
+          <Text
+            ellipsis={{ tooltip: node.chnname }}
+            style={{
+              color: 'rgba(0, 0, 0, 0.45)',
+              maxWidth: '100px',
+              marginRight: '8px'
+            }}
+          >
+            {node.chnname}
+          </Text>
+          <Badge
+            count={fieldsCount}
+            size="small"
+            style={{
+              backgroundColor: '#f0f0f0',
+              color: 'rgba(0, 0, 0, 0.65)',
+              boxShadow: 'none',
+            }}
+          />
+        </div>
+      );
+    }
+    return null;
+  };
+
+  const renderIcon = (node: any) => {
+    if (node.type === "module") {
+      return <AppstoreOutlined style={{ color: '#1890ff' }} />;
+    } else if (node.type === "relation") {
+      return <NodeIndexOutlined style={{ color: '#52c41a' }} />;
+    } else if (node.type === "entity") {
+      return <TableOutlined style={{ color: '#faad14' }} />;
+    } else if (node.type === "folder") {
+      if (node.title === '表') {
+        return <DatabaseOutlined style={{ color: '#722ed1' }} />;
+      } else if (node.title === '关系') {
+        return <NodeIndexOutlined style={{ color: '#13c2c2' }} />;
+      }
+      return <FolderOutlined style={{ color: '#8c8c8c' }} />;
+    }
+    return null;
+  };
+
+  const handleAdd = () => {
+    const menu = (
+      <Menu>
+        <Menu.Item
+          key="addModule"
+          icon={<AppstoreOutlined style={{ fontSize: '16px', color: '#1890ff' }} />}
+          onClick={() => showModal('module')}
+        >
+          <div>
+            <div>新增模型</div>
+            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>组织管理表和关系</div>
+          </div>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item
+          key="addEntity"
+          icon={<TableOutlined style={{ fontSize: '16px', color: '#faad14' }} />}
+          onClick={() => showModal('entity')}
+        >
+          <div>
+            <div>新增表</div>
+            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>定义业务实体</div>
+          </div>
+        </Menu.Item>
+        <Menu.Divider />
+        <Menu.Item
+          key="addRelation"
+          icon={<NodeIndexOutlined style={{ fontSize: '16px', color: '#52c41a' }} />}
+          onClick={() => showModal('relation')}
+        >
+          <div>
+            <div>新增关系</div>
+            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>建立数据关联</div>
+          </div>
+        </Menu.Item>
+      </Menu>
+    );
+
+    return (
+      <Dropdown overlay={menu} trigger={['click']}>
+        <Button
+          icon={<PlusOutlined />}
+          style={{ width: '40px' }}
+        >
+        </Button>
+      </Dropdown>
+    );
+  };
+
+  const renderEmptyState = () => (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE} // 请确保有这个SVG文件，或使用 Empty.PRESENTED_IMAGE_SIMPLE
+      imageStyle={{
+        height: 60,
+      }}
+      description={
+        <span>还没有任何模型哦</span>
+      }
+    >
+      <Button 
+        type="primary" 
+        icon={<PlusOutlined />}
+        onClick={() => showModal('module')}
+      >
+        新增模型
+      </Button>
+    </Empty>
+  );
+
+  return (
+    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+      {modules && modules.length > 0 ? (
+        <QueryTree
+          treeData={projectDispatch.getModuleEntityTree(searchKey || '', true)}
+          onSelect={handleSelect}
+          onSearch={handleSearch}
+          renderActions={renderActions}
+          renderExtraIcons={renderExtraIcons}
+          renderIcon={renderIcon}
+          compactLevel={2}
+          onAdd={handleAdd()}
+        />
+      ) : renderEmptyState()}
+      
+      <EntityModal
+        visible={modalVisible}
+        title={`${currentNode && !currentNode.isNew ? '编辑' : '新增'}${modalType === 'module' ? '模型' : modalType === 'entity' ? '表' : '关系'}`}
+        onOk={handleModalOk}
+        onCancel={() => setModalVisible(false)}
+        initialValues={currentNode}
+        modules={modules}
+        modalType={modalType}
+      />
+    </div>
+  );
+}
+
+export default React.memo(DataTable)

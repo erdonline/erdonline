@@ -1,0 +1,80 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: erd-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      TZ: Asia/Shanghai
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_general_ci
+      - --default-authentication-plugin=mysql_native_password
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - erd-mysql-data:/var/lib/mysql
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-root}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:6.2
+    container_name: erd-redis
+    restart: unless-stopped
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - erd-redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    container_name: erd-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_MARTIN: ${DB_MARTIN:-martin}
+      DB_ERD: ${DB_ERD:-erd}
+      DB_USERNAME: ${DB_USERNAME:-martin}
+      DB_PASSWORD: ${DB_PASSWORD:-martin}
+      DB_ERD_USERNAME: ${DB_ERD_USERNAME:-erd}
+      DB_ERD_PASSWORD: ${DB_ERD_PASSWORD:-erd}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "${BACKEND_PORT:-9502}:9502"
+      - "9092:9092"
+
+  frontend:
+    build:
+      context: ./frontend
+    container_name: erd-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      # 留空 = 同源，由 nginx 反代 /oauth /auth /syst /ncnb 到 backend
+      API_URL: ${API_URL:-}
+      ERD_API_URL: ${ERD_API_URL:-}
+    ports:
+      - "${FRONTEND_PORT:-8000}:80"
+
+volumes:
+  erd-mysql-data:
+  erd-redis-data:
