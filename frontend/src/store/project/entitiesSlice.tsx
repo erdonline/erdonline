@@ -192,16 +192,25 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
     // 同步关联与布局中的实体名（画布节点 id = 表名）
     const mod = state.project.projectJSON.modules[oldModuleIndex];
-    (mod.associations || []).forEach((a: any) => {
-      if (a?.from?.entity === oldTitle) a.from.entity = newTitle;
-      if (a?.to?.entity === oldTitle) a.to.entity = newTitle;
+    mod.associations = (mod.associations || []).map((assoc: any) => {
+      const from =
+        assoc?.from?.entity === oldTitle
+          ? { ...assoc.from, entity: newTitle }
+          : assoc?.from;
+      const to =
+        assoc?.to?.entity === oldTitle
+          ? { ...assoc.to, entity: newTitle }
+          : assoc?.to;
+      return { ...assoc, from, to };
     });
-    (mod.graphCanvas?.nodes || []).forEach((n: any) => {
-      if (n.id === oldTitle || (n.title || '').split(':')[0] === oldTitle) {
-        n.id = newTitle;
-        n.title = newTitle;
-      }
-    });
+    if (mod.graphCanvas?.nodes) {
+      mod.graphCanvas.nodes = mod.graphCanvas.nodes.map((node: any) => {
+        if (node.id === oldTitle || (node.title || '').split(':')[0] === oldTitle) {
+          return { ...node, id: newTitle, title: newTitle };
+        }
+        return node;
+      });
+    }
 
     if (oldModuleName !== newModuleName) {
       // 如果模型名称发生变化，我们需要移动实体
@@ -320,15 +329,17 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       return;
     }
 
-    let entityName = data.title || data.name;
+    const modules = state.project.projectJSON.modules;
+    const baseName = data.title || data.name;
+    let entityName = baseName;
     let counter = 0;
-
-    // 检查整个项目中是否存在相同名称的实体
-    while (state.project.projectJSON.modules.some(
-      (m: any) => m.entities.some((e: any) => (e.title || e.name) === entityName)
-    )) {
+    const nameTaken = (name: string) =>
+      modules.some((m: any) =>
+        (m.entities || []).some((e: any) => (e.title || e.name) === name),
+      );
+    while (nameTaken(entityName)) {
       counter++;
-      entityName = `${data.title || data.name}${counter === 1 ? '副本' : `副本${counter}`}`;
+      entityName = `${baseName}${counter === 1 ? '副本' : `副本${counter}`}`;
     }
 
     const newEntity = {
@@ -409,13 +420,17 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     }
     renamePairs.forEach(({ oldName, newName }) => {
       renamedFrom.add(oldName);
-      (state.project.projectJSON.modules[moduleIndex].associations || []).forEach((a: any) => {
-        if (a?.from?.entity === entityTitle && a?.from?.field === oldName) {
-          a.from.field = newName;
+      const modAssocs = state.project.projectJSON.modules[moduleIndex];
+      modAssocs.associations = (modAssocs.associations || []).map((assoc: any) => {
+        let from = assoc?.from;
+        let to = assoc?.to;
+        if (from?.entity === entityTitle && from?.field === oldName) {
+          from = { ...from, field: newName };
         }
-        if (a?.to?.entity === entityTitle && a?.to?.field === oldName) {
-          a.to.field = newName;
+        if (to?.entity === entityTitle && to?.field === oldName) {
+          to = { ...to, field: newName };
         }
+        return { ...assoc, from, to };
       });
     });
     // 真正删除的字段才清关联（改名旧名除外）
@@ -479,12 +494,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       showMessage('error', `表 "${entityTitle}" 不存在`);
       return;
     }
-    if (startRow < endRow) {
-      endRow -= 1;
+    let targetRow = endRow;
+    if (startRow < targetRow) {
+      targetRow -= 1;
     }
-    const item = payload.splice(startRow, 1)[0];
-    payload.splice(endRow, 0, item);
-    state.project.projectJSON.modules[moduleIndex].entities[entityIndex].fields = payload;
+    const nextFields = [...payload];
+    const item = nextFields.splice(startRow, 1)[0];
+    nextFields.splice(targetRow, 0, item);
+    state.project.projectJSON.modules[moduleIndex].entities[entityIndex].fields = nextFields;
     showMessage('success', '字段移动成功');
   })),
   setCurrentEntity: (moduleName: string, entityName: string) => set(produce((state: any) => {
