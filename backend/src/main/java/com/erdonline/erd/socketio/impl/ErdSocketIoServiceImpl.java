@@ -7,6 +7,7 @@ import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.handler.SocketIOException;
 import com.corundumstudio.socketio.listener.DataListener;
+import com.corundumstudio.socketio.listener.DisconnectListener;
 import com.erdonline.common.core.constant.WebsocketConstants;
 import com.erdonline.common.core.support.SpringContextHelper;
 import com.erdonline.common.websocket.socketio.util.ParseHeaderUtil;
@@ -20,18 +21,19 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 /**
- * @author: 零代科技
- * @version: 1.0
- * @date: 2022/4/10 11:50 下午
- * @describtion: ErdSocketIoServiceImpl
+ * 项目协作 SocketIO：进房/离房/断线清名单（ADR-0009）。
  */
 @Slf4j
 @Service
 @RestController
 public class ErdSocketIoServiceImpl implements ErdSocketIoService {
     private final String MODULE = WebsocketConstants.PROJECT_NAMESPACE + "/erd";
+
+    private static final String ATTR_USERNAME = "erd.presence.username";
+    private static final String ATTR_PROJECT = "erd.presence.projectId";
 
     @Autowired
     SocketIOServer socketIOServer;
@@ -48,10 +50,6 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
 
     @Override
     public SocketIOServer setNamespaceEvent(SocketIONamespace socketIONamespace, SocketIOServer socketIOServer) {
-
-        /**
-         * 用户进入页面的事件
-         */
         socketIONamespace.addEventListener(WebsocketConstants.JOIN_ROOM, Map.class, new DataListener<Map>() {
             @Override
             public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
@@ -61,6 +59,8 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
                     client.sendEvent(WebsocketConstants.EVENT_ERROR, "请求参数非法");
                     throw new SocketIOException("请求参数非法");
                 }
+                client.set(ATTR_USERNAME, username);
+                client.set(ATTR_PROJECT, projectId);
                 Set<String> onlineUsers = initOnlineUserSet(client, projectId);
                 client.joinRoom(projectId);
                 onlineUsers.add(username);
@@ -70,58 +70,80 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
                 log.info("用户{}加入协作, online={}", username, roster.length);
             }
         });
-        /**
-         * 用户退出页面的事件
-         */
+
         socketIONamespace.addEventListener(WebsocketConstants.LEAVE_ROOM, Map.class, new DataListener<Map>() {
             @Override
             public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
-                String username = ParseHeaderUtil.parseUserNameFromHeader(client.getHandshakeData());
-                String projectId = ParseHeaderUtil.parseProjectIdFromHeader(client.getHandshakeData());
-                if (StrUtil.isBlank(username) || StrUtil.isBlank(projectId)) {
-                    client.sendEvent(WebsocketConstants.EVENT_ERROR, "请求参数非法");
-                    throw new SocketIOException("请求参数非法");
-                }
-                Set<String> onlineUsers = initOnlineUserSet(client, projectId);
-                client.leaveRoom(projectId);
-                onlineUsers.remove(username);
-                client.getNamespace().getRoomOperations(projectId).sendEvent(WebsocketConstants.LEAVE_ROOM, new JoinLeaveRoomVo(username, onlineUsers.toArray()));
-                log.info("用户{}离开协作", username);
+                leavePresence(client, false);
+            }
+        });
+
+        // 关页/断网：与显式 leave 同路径清名单（多标签同用户仅最后一连接离开才摘名）
+        socketIONamespace.addDisconnectListener(new DisconnectListener() {
+            @Override
+            public void onDisconnect(SocketIOClient client) {
+                leavePresence(client, true);
             }
         });
         return socketIOServer;
     }
 
-    /**
-     * 初始化redis中的onlineUser对象
-     *
-     * @param client
-     * @param projectId
-     * @return
-     */
+    private void leavePresence(SocketIOClient client, boolean fromDisconnect) {
+        String username = client.get(ATTR_USERNAME);
+        String projectId = client.get(ATTR_PROJECT);
+        if (StrUtil.isBlank(username)) {
+            username = ParseHeaderUtil.parseUserNameFromHeader(client.getHandshakeData());
+        }
+        if (StrUtil.isBlank(projectId)) {
+            projectId = ParseHeaderUtil.parseProjectIdFromHeader(client.getHandshakeData());
+        }
+        if (StrUtil.isBlank(username) || StrUtil.isBlank(projectId)) {
+            log.debug("leavePresence skip: missing identity (disconnect={})", fromDisconnect);
+            return;
+        }
+        UUID selfId = client.getSessionId();
+        client.leaveRoom(projectId);
+
+        boolean stillInRoom = false;
+        for (SocketIOClient peer : client.getNamespace().getRoomOperations(projectId).getClients()) {
+            if (selfId.equals(peer.getSessionId())) {
+                continue;
+            }
+            String peerUser = peer.get(ATTR_USERNAME);
+            if (StrUtil.isBlank(peerUser)) {
+                peerUser = ParseHeaderUtil.parseUserNameFromHeader(peer.getHandshakeData());
+            }
+            if (username.equals(peerUser)) {
+                stillInRoom = true;
+                break;
+            }
+        }
+        if (stillInRoom) {
+            log.info("用户{}仍有其它连接在房间{}, 不断名单", username, projectId);
+            return;
+        }
+
+        Set<String> onlineUsers = initOnlineUserSet(client, projectId);
+        onlineUsers.remove(username);
+        Object[] roster = onlineUsers.toArray();
+        client.getNamespace().getRoomOperations(projectId).sendEvent(
+                WebsocketConstants.LEAVE_ROOM, new JoinLeaveRoomVo(username, roster));
+        log.info("用户{}离开协作(disconnect={}), online={}", username, fromDisconnect, roster.length);
+    }
+
     private Set<String> initOnlineUserSet(SocketIOClient client, String projectId) {
         RedissonClient redisson = (RedissonClient) SpringContextHelper.getBean(WebsocketConstants.REDISSON_SPRING_BEAN_NAME);
         return redisson.getSortedSet(getRoomKey(client, projectId));
     }
 
-    /**
-     * 当前房间所有onlineUser的redis键
-     *
-     * @param client
-     * @param projectId
-     * @return
-     */
     private String getRoomKey(SocketIOClient client, String projectId) {
-        return WebsocketConstants.SOCKET_IO_CACHE_PREFIX + client.getNamespace().getName().replace(StrUtil.SLASH, StrUtil.COLON) + StrUtil.COLON + projectId;
-    }
-
-    private String getUserOnlineRedisKey(Map data) {
-        return data.get(WebsocketConstants.PROJECT_ID) + MODULE;
+        return WebsocketConstants.SOCKET_IO_CACHE_PREFIX
+                + client.getNamespace().getName().replace(StrUtil.SLASH, StrUtil.COLON)
+                + StrUtil.COLON + projectId;
     }
 
     @Override
     public String getNamespace() {
         return MODULE;
     }
-
 }
