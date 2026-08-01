@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 设计器顶栏仓库链改 GitHub（2026-08-02）
+
+### 修复
+- 设计器顶栏 star 徽章由旧 Gitee 改为 `https://github.com/erdonline/erdonline`
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — good-first Issue 草稿与投放脚本（2026-08-02）
 
 ### 新增

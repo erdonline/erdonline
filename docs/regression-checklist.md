@@ -48,6 +48,7 @@
 - [x] [空 projectJSON] API 建团队项目未带 JSON → 打开设计器可「新增模型」✅`empty-projectjson.spec.ts`
 - [x] [创建默认 projectJSON] API 建项目无 JSON → GET info `modules=[]` ✅`ProjectEnsureDefaultJsonTest` + curl
 - [x] [开源无升级 CTA] 设计器顶栏无「升级至尊版」✅`presence.spec.ts`
+- [x] [顶栏仓库链] 设计器 GitHub 链指向 `erdonline/erdonline`，无旧 Gitee ✅`presence.spec.ts`
 
 ### 手工
 
