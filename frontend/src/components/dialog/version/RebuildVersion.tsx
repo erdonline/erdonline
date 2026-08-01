@@ -17,7 +17,6 @@ const RebuildVersion: React.FC<RebuildVersionProps> = (props) => {
     <ModalForm
       title={<span>重建版本<span style={{color: "red"}}>（重建版本将会清除当前项目的所有版本信息，该操作不可逆）</span></span>}
       onFinish={async (values: any) => {
-        console.log(29, values);
         const tempValue = {
           version: values.version,
           versionDesc: values.versionDesc,

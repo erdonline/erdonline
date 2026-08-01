@@ -13,20 +13,16 @@ server.on("connection", (socket) => {
   const roomId = socket.handshake.query['roomId'];
   // 加入房间
   socket.join(roomId);
-  console.log(9, roomId);
   server.to(roomId).emit('historyRecord', 'historyRecord:1234');
-  console.log(11, roomId);
 
   // 转发广播消息
   socket.on('msg', msg => {
-    console.log('转发msg', msg)
     server.to(roomId).emit('msg', msg);
 
   });
 
   // 监听用户加入 先发历史记录 再发上线记录
   socket.on('join', m => {
-    console.log(47, m,)
     let info = m;
     // socket.emit('historyRecord', 'server:historyRecord:123');
     server.to(roomId).emit('msg', {
@@ -45,7 +41,6 @@ server.on("connection", (socket) => {
   });
   // 同步
   socket.on('sync',  payload=> {
-    console.log('sync', payload);
     server.to(roomId).emit('sync', payload);
   });
 

@@ -71,7 +71,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const showModal = (type: 'module' | 'entity' | 'relation', node?: any) => {
-    console.log(47, 'showModal', type, node)
     setModalType(type);
     if (type === 'entity') {
       let defaultModule = node?.module || (modules && modules.length > 0 ? modules[0].name : null);
@@ -87,7 +86,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleModalOk = (values: any) => {
-    console.log(47, 'handleModalOk', currentNode, values)
     const isNew = !currentNode || Object.keys(currentNode).length === 0 || currentNode?.isNew;
 
     switch (modalType) {
@@ -136,7 +134,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleRename = (node: any) => {
-    console.log(47, 'handleRename', node)
     setModalType(node.type);
     setCurrentNode({
       ...node,
@@ -260,7 +257,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const renderExtraIcons = (node: any) => {
-    console.log(47, 'renderExtraIcons', node)
     if (node.type === 'folder') {
       return (
         <Badge

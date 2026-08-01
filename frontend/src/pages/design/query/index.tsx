@@ -43,7 +43,6 @@ const Query: React.FC<QueryProps> = (props) => {
 
   }), shallow);
 
-  console.log(130, tables);
 
   const [searchParams] = useSearchParams();
   let projectId = searchParams.get("projectId") || '';
@@ -87,7 +86,6 @@ const Query: React.FC<QueryProps> = (props) => {
         setQueryInfo(r.data);
       }
     });
-    console.log(26, queryInfo);
   }, [])
 
   useEffect(() => {
@@ -137,7 +135,6 @@ const Query: React.FC<QueryProps> = (props) => {
       <span style={{marginRight: 8}}>主题</span>
       <Select key={'topic'} size="small" style={{marginRight: 16, width: 170}} value={theme} onSelect={(e: any) => {
         setTheme(e);
-        console.log(58, e)
       }}>
         {
           EDITOR_THEME.map(v => <Option key={v} value={v}>{v}</Option>)
@@ -163,8 +160,6 @@ const Query: React.FC<QueryProps> = (props) => {
         "schema": "Mysql",
       }
     ).then((result) => {
-      console.log(151, result)
-      console.log(152, queryInfo?.sqlInfo)
       if (result && result.code === 200) {
         setQueryInfo({
           ...queryInfo,
@@ -183,25 +178,19 @@ const Query: React.FC<QueryProps> = (props) => {
   const onDrop = (e: any) => {
     e.preventDefault();
     const data = e.dataTransfer.getData('Text');
-    console.log(283, data)
     if (data.startsWith('entity&')) {
       let moduleName = data.split('&')[1];
       let tableName = data.split('&')[2];
       const tmpModule = _.filter(modules, {'name': moduleName});
-      console.log(283, tmpModule);
       const table = _.filter(tmpModule[0]?.entities, {'title': tableName});
-      console.log(283, table);
       const map = _.map(table[0]?.fields, 'name');
-      console.log(283, map);
       const fields = map?.join(",");
-      console.log(283, fields);
       const template = '{tableName}({fields})';
       // @ts-ignore
       const aiKey = template.render({
         tableName,
         fields
       });
-      console.log(283, aiKey);
       if (_.includes(selectedTable, aiKey)) {
         toast.fail(`表「${tableName}」已经添加！`);
         return;
@@ -275,7 +264,6 @@ const Query: React.FC<QueryProps> = (props) => {
           <Button type="primary" icon={<PlayCircleOutlined/>} onClick={() => {
             // @ts-ignore
             const selectValue = editorRef?.current?.getSelectValue();
-            console.log(267, selectValue);
             if (!selectValue) {
               message.warning('未选中要执行的SQL');
             } else {
@@ -314,7 +302,6 @@ const Query: React.FC<QueryProps> = (props) => {
             } else {
               // @ts-ignore
               const formatSqlInfo = format(selectValue || '', {language: sqlMode});
-              console.log(130, formatSqlInfo);
               // @ts-ignore
               editorRef?.current?.setSelectValue(formatSqlInfo);
             }
@@ -322,7 +309,6 @@ const Query: React.FC<QueryProps> = (props) => {
           <Button icon={<EyeOutlined/>} onClick={() => {
             // @ts-ignore
             const selectValue = editorRef?.current?.getSelectValue();
-            console.log(267, selectValue);
             if (!selectValue) {
               message.warning('未选中要执行的SQL');
             } else {
@@ -415,7 +401,6 @@ const Query: React.FC<QueryProps> = (props) => {
               actions={[<a key={"delete" + index} onClick={() => {
                 let tmp = [...selectedTable];
                 _.pull(tmp, item);
-                console.log(283, tmp);
                 setSelectedTable(tmp);
               }}>删除</a>]}
             >

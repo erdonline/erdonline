@@ -39,11 +39,8 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
   fixProject: (project: any) => set(produce(state => {
     const database = get().project?.projectJSON?.dataTypeDomains?.database || [];
     const defaultDatabaseCode = _.find(database, {"defaultDatabase": true})?.code || database[0]?.code;
-    console.log(45, defaultDatabaseCode);
     const modules = project?.projectJSON?.modules;
-    console.log(38, 'fixProject', modules);
     const tmpModules = get().dispatch.fixModules(modules, null, null);
-    console.log(73, 'modules', modules);
     if (tmpModules) {
       state.project.projectJSON.modules = tmpModules;
     }
@@ -72,9 +69,7 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     datatype = datatype || get().project?.projectJSON?.dataTypeDomains?.datatype || [];
     database = database || get().project?.projectJSON?.dataTypeDomains?.database || [];
     const defaultDatabaseCode = _.find(database, {"defaultDatabase": true})?.code || database[0]?.code;
-    console.log(75,'defaultDatabaseCode', defaultDatabaseCode);
     if(!defaultDatabaseCode){
-      console.log(75,'defaultDatabaseCode不存在', defaultDatabaseCode);
       return data;
     }
     return data?.map((m: any) => {
@@ -160,11 +155,8 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     return delta;
   })),
   patch: (r: any) => set(produce(state => {
-    console.log(148, JSON.parse(JSON.stringify(get().project)));
-    console.log(148, r.delta);
     const patchedProject = jsondiffpatch.patch(JSON.parse(JSON.stringify(get().project)), r.delta);
     patchedProject.timestamp = r.timestamp;
-    console.log(148, patchedProject);
     state.project = patchedProject;
     state.syncing = true;
   })),

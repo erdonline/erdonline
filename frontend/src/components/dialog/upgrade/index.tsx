@@ -43,7 +43,6 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
 
 
   const beforeUpload = (file: RcFile) => {
-    console.log(27, file.name);
     const isLic = file.name.endsWith(".lic");
     if (!isLic) {
       message.error('只能上传 lic 文件!');
@@ -61,9 +60,7 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
       let formData = new FormData();
       // @ts-ignore
       formData.append('file', fileList[0]?.originFileObj);
-      console.log(53, formData);
       UPLOAD("/ncnb/license/upload", formData).then(r => {
-        console.log(54, r);
         if (r?.code === 200) {
           message.success('证书安装成功,重新登陆生效', 3);
           logout();
@@ -105,10 +102,8 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
             }}
             onFinish={async () => {
               const fieldsValue = formRef.current?.getFieldsValue();
-              console.log(40, fieldsValue);
               message.warning("你的邮箱为：" + fieldsValue.email + ",授权对象为：" + fieldsValue.customer, 5);
               GET("/ncnb/license/getServerInfos", {}).then(r => {
-                console.log(45, r);
                 const newVar = {
                   ...transInfo,
                   email: fieldsValue.email,
@@ -116,7 +111,6 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
                   userId: cache.getItem('username') || uuid(),
                   licenseCheckModel: r
                 };
-                console.log(75, newVar);
                 transInfo = newVar;
               });
               return true;
@@ -158,14 +152,12 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
               tooltip="根据需要选择合适的时长"
               fieldProps={{
                 onChange: (e: RadioChangeEvent) => {
-                  console.log(75, e.target.value, transInfo)
                   const newTransInfo = {
                     ...transInfo,
                     productId: e.target.value
                   };
                   transInfo = newTransInfo;
                   POST_ERD("/trans/transaction", newTransInfo).then(r => {
-                    console.log(110, r);
                     if (r?.code === 200) {
                       setQRUrl(r?.data?.WX?.code_url || "");
                       transInfo = {
@@ -225,7 +217,6 @@ const Upgrade: React.FC<UpgradeProps> = (props) => {
                 name: 'file',
                 onChange:
                   (data) => {
-                    console.log(196, data)
                     //限制只上传一个文件
                     setFileList(data.fileList.slice(-1));
                     //更改文件状态

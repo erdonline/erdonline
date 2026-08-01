@@ -61,7 +61,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   });
 
   useEffect(() => {
-    console.log('回首页清空权限');
     tabDispatch.removeAllTab({});
     setInitialState((s: any) => ({...s, access: {}}));
   }, [])
@@ -75,7 +74,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   };
 
   const licence = cache.getItem2object('licence');
-  console.log(154, licence, licence?.licensedTo, licence.licensedStartTime);
 
   useEffect(() => {
     const intervalId = setInterval(() => {

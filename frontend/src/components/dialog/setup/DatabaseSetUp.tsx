@@ -41,7 +41,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
   const dispatch = isGlobal ? globalDatabaseDispatch : projectDispatch;
 
 
-  console.log(36, 'databases', databases);
 
 
   const url = {
@@ -74,11 +73,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
   }
 
   const defaultDbs = getDefaultDbs(null);
-  console.log(57, defaultDbs);
   const defaultData = defaultDbs || databases[0];
-  console.log(60, defaultData);
 
-  console.log(60, defaultDatabase);
 
   const [state, setState] = useState({
     loading: false
@@ -86,10 +82,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
 
   const connectJDBC = () => {
     const newVar = formRef && formRef.current?.validateFields();
-    console.log(78, newVar);
     newVar?.then(() => {
       const {properties} = defaultData;
-      console.log(78, 'properties', properties);
       setState({
         loading: true,
       });
@@ -115,7 +109,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
   // Ant Form 有个臭毛病，form只会加载一次，state变化不会重新加载，用此解决
   const formRef = useRef<ProFormInstance<any>>();
   useEffect(() => {
-    console.log('清除form');
     // @ts-ignore
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     formRef && formRef.current?.resetFields();
@@ -181,7 +174,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
         submitter={{
           // 完全自定义整个区域
           render: (props, doms) => {
-            console.log(props);
             // @ts-ignore
             return _.concat([], [
               <Button disabled={!defaultData} key="rest" loading={state.loading}
@@ -202,7 +194,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
                 <span>{defaultDB ? ` 当前使用的数据源为「${defaultDB.name}」` : databases.length > 0 ? ' 当前未选择默认数据源' : '当前未创建数据源'}</span>}
               itemRender={
                 ({listDom, action}, {record}) => {
-                  console.log(147, 'record', record);
                   return (
                     <ProFormGroup size={8}>
                       <ProFormRadio
@@ -218,7 +209,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
                         fieldProps={{
                           disabled: !record.defaultDB,
                           onChange: (value: any, option: any) => {
-                            console.log(166, value, option);
                             updateDatabase(record.key, {
                               ...record,
                               select: value,
@@ -238,7 +228,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
                           size: "small",
                           disabled: !record.defaultDB,
                           onBlur: (e) => {
-                            console.log(182, e.target.value);
                             updateDatabase(record.key, { ...record, name: e.target.value });
                           }
                         }}
@@ -289,7 +278,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
               placeholder="driver_class_name"
               fieldProps={{
                 onBlur: (e) => {
-                  console.log(225, e.target.value);
                   updateDatabase(defaultDbs.key, {
                     ...defaultDbs,
                     properties: {
@@ -320,7 +308,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
               placeholder="请输入url"
               fieldProps={{
                 onBlur: (e) => {
-                  console.log(254, e.target.value);
                   updateDatabase(defaultDbs.key, {
                     ...defaultDbs,
                     properties: {
@@ -350,7 +337,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
               placeholder="请输入username"
               fieldProps={{
                 onBlur: (e) => {
-                  console.log(281, e.target.value);
                   updateDatabase(defaultDbs.key, {
                     ...defaultDbs,
                     properties: {
@@ -380,7 +366,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
               placeholder="请输入password"
               fieldProps={{
                 onBlur: (e) => {
-                  console.log(308, e.target.value);
                   updateDatabase(defaultDbs.key, {
                     ...defaultDbs,
                     properties: {

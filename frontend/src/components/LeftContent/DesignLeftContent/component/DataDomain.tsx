@@ -21,11 +21,8 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
     datatype: state.project?.projectJSON?.dataTypeDomains?.datatype,
     projectDispatch: state.dispatch,
   }), shallow);
-  console.log('datatype', 115, datatype, database)
 
   const activeDataTypeOrDatabase = (t: string, m: string) => {
-    console.log('t', 68, t);
-    console.log('m', 69, m);
     if (t === "dataType") {
       projectDispatch.setCurrentDatatype(m);
     } else if (t === "database") {
@@ -79,7 +76,6 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
       rootStyle={{textAlign: 'left'}}
       treeData={projectDispatch.getDataTypeTree('')}
       titleRender={(node: any) => {
-        console.log(154, 'node', node);
         return <Dropdown trigger={['contextMenu']}
                          overlay={renderContext(node.code, node.type)}
                          onOpenChange={(open: boolean) => {
@@ -94,7 +90,6 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
             type="text"
             size={"small"}
             onClick={(e) => {
-              console.log(224, 'node', node);
               if (node.type === "dataType" && node.code != '###menu###') {
                 activeDataTypeOrDatabase("dataType", node.code);
                 activeDataTypePanel();

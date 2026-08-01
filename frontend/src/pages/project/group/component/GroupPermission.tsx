@@ -52,7 +52,6 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
   }
 
   function firstAllConfig(data: any, tmpAllIndeterminate: SecondCheckedGroup, tmpLoginRole: number) {
-    console.log(44, data);
     //有部分选中
     const someChecked = _.find(data, function (value) {
       return value?.defaultValue?.length > 0;
@@ -63,21 +62,18 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
     });
 
     if (allChecked.length === data.length) {
-      console.log(54, '全选中')
       tmpAllIndeterminate = {
         indeterminate: false,
         checked: true,
         disabled: tmpLoginRole === 0 ? false : (tmpLoginRole > props.defaultRole || false)
       }
     } else if (someChecked) {
-      console.log(60, '有部分选中')
       tmpAllIndeterminate = {
         indeterminate: true,
         checked: true,
         disabled: tmpLoginRole === 0 ? false : (tmpLoginRole > props.defaultRole || true)
       }
     } else {
-      console.log(66, '全取消')
       tmpAllIndeterminate = {
         indeterminate: false,
         checked: false,
@@ -88,7 +84,6 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
   }
 
   function firstCheckConfig(data: any, tmpAllIndeterminate: SecondCheckedGroup) {
-    console.log(44, data);
     //有部分选中
     const someChecked = _.find(data, function (value) {
       return value?.defaultValue?.length > 0;
@@ -99,21 +94,18 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
     });
 
     if (allChecked.length === data.length) {
-      console.log(54, '全选中')
       tmpAllIndeterminate = {
         ...allIndeterminate,
         indeterminate: false,
         checked: true,
       }
     } else if (someChecked) {
-      console.log(60, '有部分选中')
       tmpAllIndeterminate = {
         ...allIndeterminate,
         indeterminate: true,
         checked: true,
       }
     } else {
-      console.log(66, '全取消')
       tmpAllIndeterminate = {
         ...allIndeterminate,
         indeterminate: false,
@@ -154,7 +146,6 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
               : (indeterminateSecond || value?.defaultValue?.length === 0))//半选或者全不选置灰
         });
       });
-      console.log(43, secondCheckedGroups);
       setIndeterminate(_.omit(secondCheckedGroups));
       setOperationCheckedGroup(checkedGroups);
       setOperationData(data);
@@ -193,9 +184,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
    * @param e
    */
   const onSecondChange = (key: number, e: any) => {
-    console.log(59, key, e);
     if (e.target.checked) {
-      console.log(68, '全部选中二级')
       //全选二级菜单
       indeterminate[key] = {
         ...indeterminate[key],
@@ -210,7 +199,6 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
       };
       setOperationCheckedGroup(operationCheckedGroup);
     } else {
-      console.log(68, '全部取消二级')
       //取消全部二级菜单
       operationCheckedGroup[key] = {
         key,
@@ -239,13 +227,10 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
       checked: operationCheckedGroup[key].checkedKeys?.length > 0
     };
     setIndeterminate(_.omit(indeterminate));
-    console.log(44, checkedValue);
-    console.log(45, operationCheckedGroup[key]?.checkedKeys?.length);
     firstCheckConfig(operationData, _.omit(allIndeterminate));
   };
 
   const getOperation = (operations: any[], parentIndex: number) => {
-    console.log(200, loginRole, props.defaultRole);
     let operations1: any[] = [];
     operations1 = operations.map((operation: any, index: number) =>
       <>
@@ -267,7 +252,6 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
         render: (_, dom) => access.canErdProjectRolePermissionEdit ? <FooterToolbar>{dom}</FooterToolbar> : <></>,
       }}
       onFinish={async (values) => {
-        console.log(269, values, operationCheckedGroup);
 
         let checkedKeys: CheckboxValueType[] = [];
         operationCheckedGroup.forEach((value) => {

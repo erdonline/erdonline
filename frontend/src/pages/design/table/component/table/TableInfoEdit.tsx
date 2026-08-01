@@ -24,10 +24,8 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
     projectDispatch: state.dispatch,
     currentModule: state.currentModule,
   }), shallow);
-  console.log('datatype', 115, datatype)
 
 
-  console.log('entity:useEffect', 148, entity)
 
 
 

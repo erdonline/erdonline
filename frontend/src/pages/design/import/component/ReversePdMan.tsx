@@ -44,7 +44,6 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
           message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
           return false;
         }
-        console.log(41, 'pdmanJsonModules', pdmanJsonModules);
         // @ts-ignore
         const dataSource = projectJSON;
         let resultMsg: any = [];

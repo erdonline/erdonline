@@ -20,7 +20,6 @@ export type TableCodeShowProps = {
 
 const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
   const {dbCode, templateCode} = props;
-  console.log(16, 'templateCode', templateCode, dbCode);
   const {dataSource, dataTable} = useProjectStore(state => ({
     dataTable: state.project?.projectJSON?.modules[state.currentModuleIndex || 0]?.entities[state.currentEntityIndex || 0],
     dataSource: state.project?.projectJSON,
@@ -44,12 +43,9 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
 
   const getChanges = () => {
     const db = dbs?.filter((d: any) => d.defaultDB)[0];
-    console.log(37, dbs, db);
     Save.hisProjectLoad(db).then(r => {
       if (r && r.code === 200) {
-        console.log(44,'versions',r.data)
         getCurrentVersionData(dataSource, r.data, (c: any, o: any) => {
-          console.log(44, c, o)
           setChanges(c);
           setOldDataSource(o);
           setResult(getTableCode(c));

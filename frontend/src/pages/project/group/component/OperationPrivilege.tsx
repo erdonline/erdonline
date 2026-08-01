@@ -71,7 +71,6 @@ const OperationPrivilege = (props: { values: Partial<RoleItem>; }, ref: React.Re
         checkedKeys: checkedValue,
       };
       setOperationCheckedGroup(operationCheckedGroup);
-      console.log(checkedValue);
 
     };
 

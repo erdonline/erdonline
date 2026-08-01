@@ -72,12 +72,10 @@ export type CodeEditorProps = {
 
 const CodeEditor: React.FC<CodeEditorProps> = ({ onRef, ...props }) => {
   const {mode, height, width, name, placeholder, value, theme, ref, onChange, tables} = props;
-  console.log(63, mode || 'mysql');
 
   const editorRef = useRef(null);
 
   const updateAutoCompleteData = (tables: string[], fields: string[]) => {
-    console.log(110, tables, fields)
     if (editorRef.current) {
       const editor = editorRef.current.editor;
       const session = editor.getSession();
@@ -96,12 +94,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({ onRef, ...props }) => {
 
   useImperativeHandle(onRef, () => ({
     getSelectValue: () => {
-      console.log(130, editorRef.current)
       // @ts-ignore
       return editorRef.current.editor.getSelectedText();
     },
     setSelectValue: (value: string) => {
-      console.log(130, editorRef.current)
       // @ts-ignore
       return editorRef.current.editor.insert(value);
     },

@@ -15,7 +15,6 @@ const RemoveVersion: React.FC<RemoveVersionProps> = (props) => {
     versionDispatch: state.dispatch,
   }), shallow);
 
-  console.log(17, 'currentVersion', currentVersion)
   return (<>
     <Popconfirm placement="right" title={`删除版本「${currentVersion.version}」`}
                 onConfirm={() => versionDispatch.updateVersionData(currentVersion, currentVersion, 'delete')} okText="是"

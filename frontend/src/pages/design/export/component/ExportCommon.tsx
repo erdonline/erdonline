@@ -54,7 +54,6 @@ export default () => {
       onItem={(record: any) => {
         return {
           onClick: () => {
-            console.log(record);
             projectDispatch.exportFile(record.key)
           },
         };

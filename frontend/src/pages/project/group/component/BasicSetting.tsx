@@ -22,12 +22,10 @@ const BasicSetting: React.FC<BasicSettingProps> = (props) => {
       submitter={{
         // 完全自定义整个区域
         render: (props, dom) => {
-          console.log(props);
           return access.canErdProjectGroupEdit ? dom : null;
         },
       }}
       onFinish={async (values) => {
-        console.log(values);
         await updateGroupProject({
           id: projectId,
           projectName: values.projectName,
@@ -44,7 +42,6 @@ const BasicSetting: React.FC<BasicSettingProps> = (props) => {
       params={{id: '100'}}
       formKey="base-form-use-demo"
       dateFormatter={(value, valueType) => {
-        console.log('---->', value, valueType);
         return value.format('YYYY/MM/DD HH:mm:ss');
       }}
       request={async (param) => {

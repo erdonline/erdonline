@@ -23,7 +23,6 @@ const ReverseTable: React.FC<ReverseTableProps> = (props) => {
   const {data, exists,} = profileSliceState;
   const module = _.get(data, 'module', '');
 
-  console.log('profileSliceState', profileSliceState);
 
   const columns: ProColumns<TableListItem>[] = [
     {
@@ -65,7 +64,6 @@ const ReverseTable: React.FC<ReverseTableProps> = (props) => {
         // 注释该行则默认不显示下拉选项
         selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
         onChange: (selectedRowKeys, selectedRows) => {
-          console.log(68, 'selectedRows', selectedRows);
           projectDispatch.saveSelectedRowKeys(selectedRowKeys);
         }
       }}

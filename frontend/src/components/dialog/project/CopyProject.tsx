@@ -37,8 +37,6 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
       }
       onFinish={async (values: any) => {
 
-        console.log(39, values);
-        console.log(39, props.projectJSON);
         if (values.type.value === 1) {
           addProject({
             ...emptyProject,
@@ -51,7 +49,6 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
             description: values.description,
             tags: _.join(values.tags, ',')
           }).then((r) => {
-            console.log(54, r);
             if (r.code === 200) {
               message.success(
                 <>
@@ -73,7 +70,6 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
             description: values.description,
             tags: _.join(values.tags, ',')
           }).then((r) => {
-            console.log(54, r);
             if (r.code === 200) {
               message.success(
                 <>

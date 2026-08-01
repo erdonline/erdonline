@@ -24,7 +24,6 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
     <ProForm
       initialValues={profile}
       onFinish={async (values: any) => {
-        console.log(35, values);
         await projectDispatch.updateProfile(values);
         return true;
       }}
@@ -108,7 +107,6 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
               },
               onChange: (e) => {
                 if (e.file.status == 'done') { //上传完成时
-                  console.log(83, 'e.file', e);
                   if (e.file.response.code == 200) {
                     projectDispatch.updateWordTemplateConfig(e.file.response.data);
                   } else {

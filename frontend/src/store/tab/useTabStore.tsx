@@ -46,11 +46,9 @@ const useTabStore = create<TabState>(
     dispatch: {
       addTab: (payload: ModuleEntity) => set(produce(state => {
         if (!state.tableTabs.find((tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload.module)) {
-          console.log('可以新增', payload)
           state.tableTabs.push(payload);
         }
         state.selectTabId = `${payload.module}###${payload.entity}`;
-        console.log('state.selectTabId', state.selectTabId);
       })),
       activeTab: (payload: ModuleEntity) => set(produce(state => {
         state.selectTabId = `${payload.module}###${payload.entity}`;
@@ -59,63 +57,41 @@ const useTabStore = create<TabState>(
           projectDispatch.setCurrentModule(payload.module);
           projectDispatch.setCurrentEntity(payload.entity);
         }
-        console.log('state.selectTabId', state.selectTabId)
       })),
       removeTab: (payload: ModuleEntity) => set(produce(state => {
-        console.log('removeTab.state.tableTabs', state.tableTabs);
-        console.log('removeTab.payload', payload);
         const index = state.tableTabs.findIndex((tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload?.module);
-        console.log('removeTab.index', index);
         if (index > -1) {
           state.tableTabs = state.tableTabs.filter((tab: ModuleEntity, i: number) => i !== index);
-          console.log('removeTab.selectTabId', get().selectTabId);
-          console.log('removeTab.payloadEntity', `${payload?.module}###${payload?.entity}`);
           if (get().selectTabId === `${payload?.module}###${payload?.entity}`) {
             if (index === 0) {
               state.selectTabId = defaultSelectTabId;
             } else if (index > 0) {
-              console.log('removeTab.number', index);
               const tableTab = state.tableTabs[index - 1];
               state.selectTabId = `${tableTab?.module}###${tableTab?.entity}`;
             }
           }
 
         }
-        console.log('removeTab.state.tableTabs.length', state.tableTabs.length);
-        console.log('removeTab.state.tableTabs', state.tableTabs);
       })),
       removeLeftTab: (payload: ModuleEntity) => set(produce(state => {
-        console.log('state.tableTabs', state.tableTabs);
-        console.log('payload', payload);
         const index = state.tableTabs.findIndex((tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload?.module);
-        console.log('index', index);
         if (index > -1) {
           state.tableTabs = state.tableTabs.filter((tab: ModuleEntity, i: number) => i >= index);
         }
-        console.log('state.tableTabs.length', state.tableTabs.length);
         state.selectTabId = `${payload.module}###${payload.entity}`;
-        console.log('state.selectTabId', state.selectTabId);
       })),
       removeRightTab: (payload: ModuleEntity) => set(produce(state => {
-        console.log('state.tableTabs', state.tableTabs);
-        console.log('payload', payload);
         const index = state.tableTabs.findIndex((tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload?.module);
-        console.log('index', index);
         if (index > -1) {
           state.tableTabs = state.tableTabs.filter((tab: ModuleEntity, i: number) => i <= index);
         }
-        console.log('state.tableTabs.length', state.tableTabs.length);
         state.selectTabId = `${payload.module}###${payload.entity}`;
-        console.log('state.selectTabId', state.selectTabId)
       })),
       removeAllTab: (payload: ModuleEntity) => set(produce(state => {
-        console.log('payload', 110, payload)
         state.tableTabs = [];
         state.selectTabId = defaultSelectTabId;
-        console.log('state.tableTabs.length', state.tableTabs.length);
       })),
       containTab: (payload: string) => {
-        console.log('get().tableTabs', get().tableTabs)
         if (get().tableTabs.find((tab: ModuleEntity) => tab.entity === payload)) {
           return true;
         }

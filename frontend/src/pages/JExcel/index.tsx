@@ -30,10 +30,8 @@ const JExcel: React.FC<JExcelProps> = (props) => {
   }), shallow);
 
 
-  console.log('datatype', 115, datatype)
   const {data, columns, saveData, notEmptyColumn} = props;
   const saveValidData = (excelData: any) => {
-    console.log(30, 'excel数据有变动', excelData);
     //正在同步远程数据
     if (syncing) {
       return;
@@ -49,7 +47,6 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         return findIndex > -1;
       });
     }
-    console.log(30, excelData);
     saveData(excelData);
   }
 
@@ -135,7 +132,6 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         tooltip: '在此前插入行',
         onclick: function () {
           const selectedRows = jRef?.current?.jexcel.getSelectedRows();
-          console.log('publish', selectedRows)
 
           if (!selectedRows || !selectedRows[0]?.dataset) {
             message.warning('未选中行');
@@ -151,7 +147,6 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         tooltip: '在此后插入行',
         onclick: function () {
           const selectedRows = jRef?.current?.jexcel.getSelectedRows();
-          console.log('get_app', selectedRows)
 
           if (!selectedRows || !selectedRows[selectedRows.length - 1]?.dataset) {
             message.warning('未选中行');
@@ -236,10 +231,7 @@ const JExcel: React.FC<JExcelProps> = (props) => {
                /** (e.g.) "0", "1" ... */
                rowIndex: string,
                value: CellValue,) => {
-      console.log('onchange', jRef?.current?.jexcel.getJson())
-      console.log(161, columnIndex, rowIndex, value);
       const rowData = jRef?.current?.jexcel.getRowData(rowIndex);
-      console.log(169, datatype, rowData);
       const d = _.find(datatype, {'name': value});
       const defaultDatabaseCode = _.find(database, {"defaultDatabase": true}).code || database[0].code;
       const code = _.get(d, 'code');
@@ -254,27 +246,21 @@ const JExcel: React.FC<JExcelProps> = (props) => {
 
     },
     oninsertrow: () => {
-      console.log('oninsertrow', jRef?.current?.jexcel.getJson())
       // saveValidData(jRef?.current?.jexcel.getJson())
     },
     ondeleterow: () => {
-      console.log('ondeleterow', jRef?.current?.jexcel.getJson())
       saveValidData(jRef?.current?.jexcel.getJson())
     },
     onmoverow: () => {
-      console.log('onmoverow', jRef?.current?.jexcel.getJson())
       saveValidData(jRef?.current?.jexcel.getJson())
     },
     onpaste: () => {
-      console.log('onpaste', jRef?.current?.jexcel.getJson())
       saveValidData(jRef?.current?.jexcel.getJson())
     },
     onundo: () => {
-      console.log('onundo', jRef?.current?.jexcel.getJson())
       saveValidData(jRef?.current?.jexcel.getJson())
     },
     onredo: () => {
-      console.log('onredo', jRef?.current?.jexcel.getJson())
       saveValidData(jRef?.current?.jexcel.getJson())
     },
   };

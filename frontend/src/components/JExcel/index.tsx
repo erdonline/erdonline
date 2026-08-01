@@ -100,7 +100,6 @@ const JExcel: React.FC = () => {
           tooltip:'在此前插入行',
           onclick: function() {
             const selectedRows = jRef?.current?.jexcel.getSelectedRows();
-            console.log('publish',selectedRows)
 
             if(!selectedRows||!selectedRows[0]?.dataset){
               alert('未选中行');
@@ -116,7 +115,6 @@ const JExcel: React.FC = () => {
           tooltip:'在此后插入行',
           onclick: function() {
             const selectedRows = jRef?.current?.jexcel.getSelectedRows();
-            console.log('get_app',selectedRows)
 
             if(!selectedRows||!selectedRows[selectedRows.length-1]?.dataset){
               alert('未选中行');

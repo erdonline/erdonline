@@ -26,7 +26,6 @@ const RenameEntity: React.FC<RenameEntityProps> = (props) => {
                 disabled={props.moduleDisable}>重命名表</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         await projectDispatch.renameEntity({
           title: values.title,
           chnname: values.chnname,

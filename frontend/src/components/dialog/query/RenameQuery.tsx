@@ -25,7 +25,6 @@ const RenameQuery: React.FC<RenameQueryProps> = (props) => {
         >{props.model.isLeaf ? "重命名查询" : "重命名目录"}</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         await queryDispatch.renameQuery({
           id:props.model.id,
           title: values.title,

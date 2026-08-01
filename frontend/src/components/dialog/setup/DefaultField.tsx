@@ -17,7 +17,6 @@ export function handsontableBeforeChange(hotTableComponent: React.MutableRefObje
         const [row, prop, oldValue, newValue] = c;
         // @ts-ignore
         const {hotInstance} = hotTableComponent.current;
-        console.log(163, hotInstance.getDataAtRow(row));
         if (prop === 'typeName' && oldValue !== newValue) {
           const d = _.find(datatype, {'name': newValue});
           const defaultDatabaseCode = _.find(database, {"defaultDatabase": true}).code || database[0].code;
@@ -34,14 +33,11 @@ export function handsontableAfterChange(hotSettings: {
   dropdownMenu: boolean; allowRemoveColumn: boolean; data: any; columns: ({ data: string; validator: (value: any, callback: any) => void } | { data: string; validator: (value: any, callback: any) => void } | { allowEmpty: boolean; data: string; allowInvalid: boolean; source: any; type: string } | { data: string; readOnly: boolean; type: string } | { data: string; readOnly: boolean; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { filter: boolean; trimDropdown: boolean; data: string; allowInvalid: boolean; source: string[]; type: string; strict: boolean; visibleRows: number })[]; allowInvalid: boolean; fixedRowsTop: number; language: string; className: string; manualRowMove: boolean; manualRowResize: boolean; colHeaders: string[]; mergeCells: boolean; height: number; columnSorting: boolean; rowHeaders: boolean; minRows: number; stretchH: string; manualColumnMove: boolean; allowInsertColumn: boolean; filters: boolean; autoWrapRow: boolean; customBorders: boolean; licenseKey: string; contextMenu: boolean; currentRowClassName: string; manualColumnResize: boolean; currentColClassName: string; copyPaste: boolean
 }, afterChange: (payload: any) => void) {
   return (changes: CellChange[] | null, source: ChangeSource) => {
-    console.log(189, changes);
-    console.log(190, source);
     // // @ts-ignore
     // const {hotInstance} = hotTableComponent.current;
     // hotInstance.selectRows(2)
     if (changes) {
       const payload = hotSettings.data;
-      console.log(193, payload);
       if (payload) {
         let payload1 = payload.filter((f: any) => f != null);
         afterChange(JSON.parse(JSON.stringify(payload1)));
@@ -54,12 +50,9 @@ export function handsontableAfterRowMove(hotTableComponent: React.MutableRefObje
   dropdownMenu: boolean; allowRemoveColumn: boolean; data: any; columns: ({ data: string; validator: (value: any, callback: any) => void } | { data: string; validator: (value: any, callback: any) => void } | { allowEmpty: boolean; data: string; allowInvalid: boolean; source: any; type: string } | { data: string; readOnly: boolean; type: string } | { data: string; readOnly: boolean; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { data: string; type: string } | { filter: boolean; trimDropdown: boolean; data: string; allowInvalid: boolean; source: string[]; type: string; strict: boolean; visibleRows: number })[]; allowInvalid: boolean; fixedRowsTop: number; language: string; className: string; manualRowMove: boolean; manualRowResize: boolean; colHeaders: string[]; mergeCells: boolean; height: number; columnSorting: boolean; rowHeaders: boolean; minRows: number; stretchH: string; manualColumnMove: boolean; allowInsertColumn: boolean; filters: boolean; autoWrapRow: boolean; customBorders: boolean; licenseKey: string; contextMenu: boolean; currentRowClassName: string; manualColumnResize: boolean; currentColClassName: string; copyPaste: boolean
 }, afterChange: (payload: any) => void) {
   return (startRow: number, endRow: number) => {
-    console.log(198, startRow[0], endRow);
     // @ts-ignore
     const {hotInstance} = hotTableComponent.current;
     const payload = hotSettings.data;
-    console.log(203, payload);
-    console.log(209, hotInstance);
     const finalData: any[] = [];
     // eslint-disable-next-line @typescript-eslint/no-unused-expressions
     const {_arrayMap} = hotInstance.getPlugin('manualRowMove').rowsMapper;
@@ -73,8 +66,6 @@ export function handsontableAfterRowMove(hotTableComponent: React.MutableRefObje
       // eslint-disable-next-line no-underscore-dangle
       hotInstance.getPlugin('manualRowMove').rowsMapper._arrayMap = _.sortBy(_arrayMap);
       // eslint-disable-next-line no-underscore-dangle
-      console.log(218, 'rowPositions', hotInstance.getPlugin('manualRowMove').rowsMapper._arrayMap);
-      console.log(239, 'finalData', finalData);
       afterChange(finalData);
     }, 200);
 
@@ -84,11 +75,9 @@ export function handsontableAfterRowMove(hotTableComponent: React.MutableRefObje
 // Empty validator
 export const emptyValidator = (value: any, callback: any) => {
   if (!value || value.length === 0) {
-    console.log('false');
     message.error("当前编辑项不允许为空");
     callback(false);
   } else {
-    console.log('true');
     callback(true);
   }
 };
@@ -153,7 +142,6 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     database: state.project?.projectJSON?.dataTypeDomains?.database,
     projectDispatch: state.dispatch,
   }), shallow);
-  console.log('datatype', 115, datatype)
 
   const allDataTypeName = datatype?.map((t: any) => {
     return t.name;
@@ -161,10 +149,8 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
 
   const defaultJson = JSON.stringify(projectDispatch.getDefaultFields().filter((f: any) => f != null) || []);
 
-  console.log(29, 'defaultJson', defaultJson);
 
   const afterChange = (payload: any) => {
-    console.log(32, 'updateDefaultFields', payload);
     projectDispatch.updateDefaultFields(payload);
   }
 

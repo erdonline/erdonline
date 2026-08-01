@@ -14,7 +14,6 @@ const SyncConfig: React.FC<SyncConfigProps> = (props) => {
     projectDispatch: state.dispatch,
 
   }), shallow);
-  console.log(14, 'upgradeType', upgradeType);
 
   return (<>
     <ModalForm
@@ -25,7 +24,6 @@ const SyncConfig: React.FC<SyncConfigProps> = (props) => {
           type={"default"}><ControlOutlined/>同步配置</Button>
       }
       onFinish={async (values: any) => {
-        console.log(32, 'setUpgradeType', values);
         await projectDispatch.setUpgradeType(values);
         return true;
       }}
