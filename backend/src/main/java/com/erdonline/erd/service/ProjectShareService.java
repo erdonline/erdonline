@@ -27,4 +27,9 @@ public interface ProjectShareService extends IService<ProjectShare> {
      * 禁用分享。
      */
     R revoke(String token);
+
+    /**
+     * 登录用户将分享快照 fork 为个人项目（需登录，非匿名）。
+     */
+    R forkFromShare(String token);
 }

@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 分享页 Fork 个人项目（2026-08-02）
+
+### 新增
+- `POST /share/{token}/fork`（需登录）：从分享快照创建个人项目副本（剥离 dbs / defaultDataSourceId）
+- 分享页 CTA「复制到我的项目」；未登录跳转 `/login?redirect=/s/:token`；登录支持 redirect
+  验证点：`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿；curl 匿名 fork 401、登录 fork 得 projectId
+
 ## [Unreleased] — 数据源与 projectJSON 隔离（2026-08-02）
 
 ### 变更

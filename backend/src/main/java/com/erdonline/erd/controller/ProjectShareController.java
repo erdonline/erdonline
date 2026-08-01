@@ -38,4 +38,10 @@ public class ProjectShareController {
     public R revoke(@RequestBody Map<String, String> body) {
         return projectShareService.revoke(body.get("token"));
     }
+
+    /** 登录后将分享复制为个人项目 */
+    @PostMapping("{token}/fork")
+    public R fork(@PathVariable String token) {
+        return projectShareService.forkFromShare(token);
+    }
 }

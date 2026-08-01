@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.security.util.SecurityContextUtil;
+import com.erdonline.erd.dto.ProjectDto;
 import com.erdonline.erd.entity.Project;
 import com.erdonline.erd.entity.ProjectShare;
 import com.erdonline.erd.mapper.ProjectShareMapper;
@@ -157,6 +158,62 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
         share.setEnabled(DISABLED);
         updateById(share);
         return R.ok(Boolean.TRUE);
+    }
+
+    @Override
+    public R forkFromShare(String token) {
+        if (!StringUtils.hasText(token)) {
+            return R.failed("token 无效");
+        }
+        // 强制已登录（匿名会被 Security 拦；此处再防空指针）
+        var accessUser = SecurityContextUtil.getAccessUser();
+        if (accessUser == null || !StringUtils.hasText(accessUser.getUsername())) {
+            return R.failed("请先登录");
+        }
+
+        ProjectShare share = getOne(new LambdaQueryWrapper<ProjectShare>()
+                .eq(ProjectShare::getToken, token)
+                .eq(ProjectShare::getEnabled, ENABLED)
+                .last("LIMIT 1"));
+        if (share == null) {
+            return R.failed("分享不存在或已失效");
+        }
+        if (share.getExpireTime() != null && share.getExpireTime().isBefore(LocalDateTime.now())) {
+            return R.failed("分享已过期");
+        }
+        Project source = projectService.getById(share.getProjectId());
+        if (source == null) {
+            return R.failed("项目不存在");
+        }
+
+        ProjectDto dto = new ProjectDto();
+        String baseName = StringUtils.hasText(source.getProjectName()) ? source.getProjectName() : "分享项目";
+        dto.setProjectName(baseName + " (副本)");
+        dto.setDescription(source.getDescription());
+        dto.setTags("share-fork");
+        Map<String, Object> json = sanitizeProjectJson(source.getProjectJSON());
+        if (json != null) {
+            Object profileObj = json.get("profile");
+            if (profileObj instanceof Map) {
+                @SuppressWarnings("unchecked")
+                Map<String, Object> profile = (Map<String, Object>) profileObj;
+                profile.remove("defaultDataSourceId");
+                profile.put("dbs", java.util.Collections.emptyList());
+            }
+        }
+        dto.setProjectJSON(json);
+        if (source.getConfigJSON() != null) {
+            dto.setConfigJSON(deepCopyMap(source.getConfigJSON()));
+        }
+
+        R created = projectService.initPersonProject(dto);
+        if (created == null || created.invalid()) {
+            return created != null ? created : R.failed("复制项目失败");
+        }
+        Map<String, Object> payload = new HashMap<>(4);
+        payload.put("projectId", created.getData());
+        payload.put("projectName", dto.getProjectName());
+        return R.ok(payload);
     }
 
     private static Map<String, Object> toCreatePayload(String token) {
