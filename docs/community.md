@@ -35,9 +35,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 
 1. **文档站相对链接**：把 `docs/` 内仍指向仓库根相对路径的链接统一成绝对 GitHub URL（参考 roadmap/development 已改写法）  
    验证：`cd website && yarn build`（`onBrokenLinks=throw`）
-2. **登录/注册页副标题去 ChatGPT 噱头**：与愿景「AI 是期权」对齐  
-   文件：`frontend/src/pages/login/index.tsx`、`register/index.tsx`  
-   验证：打开 `/login` `/register` 文案可读
+2. ~~**登录/注册页副标题去 ChatGPT 噱头**~~（已合入；回归见 `smoke.spec.ts`）
 3. **`presence.spec` 清理项目**：用例结束后 `deleteOwnPersonProjects`  
    文件：`frontend/tests/e2e/presence.spec.ts`  
    验证：`npx playwright test tests/e2e/presence.spec.ts --project=chromium`

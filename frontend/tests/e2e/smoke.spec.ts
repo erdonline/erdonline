@@ -20,6 +20,9 @@ test.describe('冒烟：核心旅程', () => {
     await page.goto('/login');
     await expect(page.getByRole('textbox', { name: '用户名' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: '密码' })).toBeVisible();
+    await expect(page.getByText(/Git \+ Figma/)).toBeVisible();
+    await expect(page.getByRole('button', { name: '打开演示' })).toBeVisible();
+    await expect(page.getByText(/ChatGPT/i)).toHaveCount(0);
 
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');

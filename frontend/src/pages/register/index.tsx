@@ -11,7 +11,7 @@ export default () => {
         backgroundImageUrl="../bg2.png"
         logo="../logo.svg"
         title="ERD Online"
-        subTitle="全球第一个开源在线数据库建模平台"
+        subTitle="开源数据库建模：版本与协作，像 Git + Figma"
         onFinish={async (values: any) => {
           let username = values.username;
           let pwd = values.pwd;
@@ -42,8 +42,8 @@ export default () => {
             borderRadius: 8,
             backgroundColor: '#f16824',
           },
-          title: 'ERD Online 5.0.0发布',
-          subTitle: '全新升级，团队协作，权限控制，接入ChatGPT，智能SQL',
+          title: '先看一眼演示',
+          subTitle: '免登录打开示例模型，再决定是否注册',
           action: (
             <Button
               size="large"
@@ -54,10 +54,10 @@ export default () => {
                 width: 120,
               }}
               onClick={() => {
-                window.location.href = "https://github.com/orgs/www-zerocode-net-cn/discussions"
+                window.location.href = '/demo';
               }}
             >
-              去看看
+              打开演示
             </Button>
           ),
         }}
