@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — share E2E 清理断言（2026-08-02）
+
+### 测试
+- `share.spec` finally：双次清理 + 断言个人列表无本次项目名/副本
+  验证点：`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — json2code 入口类型收窄（2026-08-02）
 
 ### 修复

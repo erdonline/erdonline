@@ -20,7 +20,8 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `28-share-spec-cleanup.md` | share.spec 清理更稳 |
+| `29-canvas-history-unit.md` | canvasHistory 纯函数单测 |
+| `30-design-layout-menu-closed-class.md` | 项目菜单关闭态 CSS class |
 
 合入后在对应草稿顶部加：
 
