@@ -5,19 +5,19 @@ import {
   ModalForm,
   ProFormCheckbox,
   ProFormDependency,
-  ProFormInstance,
   ProFormRadio,
   ProFormSelect,
   ProFormText,
   ProFormTreeSelect,
   StepsForm
 } from "@ant-design/pro-components";
+import type { ProFormInstance } from "@ant-design/pro-components";
 import CodeEditor from "@/components/CodeEditor";
 import {Button as AntButton} from "antd";
 import _ from 'lodash';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import {RadioChangeEvent} from "antd/lib/radio/interface";
+import type { RadioChangeEvent } from "antd/lib/radio/interface";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 /** ADR-0008：列表来自 /ncnb/dataSources，不读 profile.dbs */

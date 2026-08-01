@@ -78,7 +78,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 35. ~~**PK 徽标切换 E2E**~~（已合入 `relation.spec`「PK」）
 36. ~~**表头改名 E2E**~~（已合入 `relation.spec`「改名」）
 37. **版本管理页 eslint**（草稿 `24-version-index-eslint.md`）
-38. **ExportDDL 剩余 eslint**（草稿 `25-exportddl-unused-vars.md`）
+38. ~~**ExportDDL 剩余 eslint**~~（已合入）
 
 ## 贡献者怎么认领
 
