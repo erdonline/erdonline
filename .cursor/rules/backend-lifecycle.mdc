@@ -1,0 +1,24 @@
+# 后端生命周期托管（禁止模型亲自启动后端）
+
+后端进程必须活在 **tmux 会话 `erd-be`** 中，与 IDE/agent 的 shell 生命周期解耦。
+模型在任何 shell 里启动的 java 进程都会随会话结束被杀——这是历史上反复重启、浪费 token 的根因。
+
+## 唯一入口：`backend/dev-ensure.sh`（幂等）
+
+| 场景 | 命令 |
+|---|---|
+| 要用后端前（E2E/curl 前） | `./backend/dev-ensure.sh` —— 健康秒退（0 token 成本）；不健康自动拉起 |
+| 改了 Java/yml/mapper | `./backend/dev-ensure.sh --restart` |
+| 看启动日志 | `./backend/dev-ensure.sh --logs` |
+
+## 红线
+
+- **禁止**模型直接执行 `java -cp ...` / `mvn spring-boot:run` / `nohup ... &` 启动后端
+- **禁止**重试循环：脚本失败一次 → 看 `--logs` → 修因 → 再调一次；最多两轮，仍失败停下来报用户
+- **禁止**`pkill`/`kill -9` 后忘记重启：杀进程的唯一合法方式是 `--restart`
+- 健康判定只看 `curl -sf localhost:9502/actuator/health`，不要用 `ps`/`lsof` 轮询猜状态
+
+## 依赖
+
+- `tmux`（brew 已装）；`target/cp.txt` 由 `dev-restart.sh` 首次自动生成
+- pom 依赖变更后仍需先刷新 classpath（见 `dev-loop-speed` 规则）
