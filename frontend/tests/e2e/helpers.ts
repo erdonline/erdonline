@@ -15,9 +15,8 @@ export async function login(page: import('@playwright/test').Page) {
 }
 
 /**
- * 清空个人项目（免费版配额仅 1 个，任一泄漏会让全套件后续建项目 500 连锁失败）。
- * 每个建项目的用例：开头先清（自愈历史泄漏），finally 再清（不留新泄漏）。
- * UI 删除走正式链路（含 VIP 缓存清除），比直接改库更真实。
+ * 清空个人项目，保证用例隔离（开头自愈 + finally 不留泄漏）。
+ * UI 删除走正式链路（含计数缓存清除），比直接改库更真实。
  */
 export async function deleteAllPersonProjects(page: import('@playwright/test').Page) {
   await page.goto('/project/person');

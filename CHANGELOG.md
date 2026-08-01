@@ -107,6 +107,12 @@
 - 首次拉取项目不触发无意义保存
   验证点：`relation.spec` 建表后 `save-status` 为「已保存」
 
+### 开源版取消项目数限制（✅）
+
+- `PersonProjectCountRight` / `GroupProjectCountRight`：`valid()` 恒 true，个人/团队项目不限个数
+- E2E：可连续创建 2 个个人项目
+  验证点：curl 连建 2 个项目均 200；`activation.spec`「可连续创建多个个人项目」
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。

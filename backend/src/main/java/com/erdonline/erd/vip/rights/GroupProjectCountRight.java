@@ -11,15 +11,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author: 零代科技
- * @version: 1.0
- * @date: 2023/5/7 15:59
- * @describtion: GroupProjectCountRight
+ * 团队项目计数权益。
+ * <p>开源版不限制项目个数：{@link #valid} 恒为 true。
  */
 @Slf4j
 @Component
 public class GroupProjectCountRight implements BaseRight<Integer> {
-    private Integer limit = 1;
+    /** 历史商业限制值；开源版 valid() 忽略此上限 */
+    private Integer limit = Integer.MAX_VALUE;
     private String redisItem = "group_project_count";
 
     @Autowired
@@ -55,24 +54,12 @@ public class GroupProjectCountRight implements BaseRight<Integer> {
 
     @Override
     public boolean valid(boolean reset) {
-        Integer count = this.load();
-        if (!reset) {
-            count = count - 1;
-        }
-        return count < limit;
+        // 开源版：不限制团队项目数量
+        return true;
     }
 
     @Override
     public String msg() {
         return StrUtil.format("团队项目已超过{}个", limit);
-    }
-
-    public static void main(String[] args) {
-        Integer count = 12;
-        String s1 = aes.encryptBase64(String.valueOf(12));
-        System.out.println("s1 = " + s1);
-        String s = aes.decryptStr(s1);
-        System.out.println("s = " + s);
-
     }
 }
