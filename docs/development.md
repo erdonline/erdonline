@@ -30,6 +30,17 @@ yarn start
 
 > 后端不要用 `mvn spring-boot:run` 或在普通 shell 里 `nohup`：IDE/agent 会话结束会杀子进程。`dev-ensure.sh` 把进程托管进 tmux 会话 `erd-be`，终端关闭不影响。依赖：`brew install tmux`。
 
+## E2E（Playwright）
+
+```bash
+cd frontend
+yarn test:e2e                 # 多 worker 并发（本地最多 4，CI 默认 2）
+PW_WORKERS=1 yarn test:e2e    # 强制串行排查
+```
+
+- 并发隔离：项目名 `e2e-w{n}-` 前缀，清理只删本 worker
+- 空态/示例用例在 `chromium-serial`（等并行项目结束后再跑，账号锁互斥）
+
 ## 前端如何找到后端
 
 前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb` 代理到 `http://localhost:9502`。

@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { deleteAllPersonProjects, login } from './helpers';
+import { deleteOwnPersonProjects, login, uniqueProjectName } from './helpers';
 
 /**
  * 工单/审批页可达与表头文案（防「我的审批」写成「我的工单」回归）。
@@ -8,10 +8,10 @@ import { deleteAllPersonProjects, login } from './helpers';
 test.describe('版本工单/审批', () => {
   test('侧栏打开我的工单与我的审批，表头正确且有空态引导', async ({ page }) => {
     test.setTimeout(120_000);
-    const projectName = `appr-${Date.now()}`;
+    const projectName = uniqueProjectName('appr');
     try {
       await login(page);
-      await deleteAllPersonProjects(page);
+      await deleteOwnPersonProjects(page);
 
       await page.getByRole('button', { name: /新\s*建/ }).click();
       await page.getByPlaceholder('请输入项目名').fill(projectName);
@@ -38,7 +38,7 @@ test.describe('版本工单/审批', () => {
       await expect(page.locator('.ant-pro-table-list-toolbar-title')).toHaveText('我的审批');
       await expect(page.getByText(/暂无待审/)).toBeVisible();
     } finally {
-      await deleteAllPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 });

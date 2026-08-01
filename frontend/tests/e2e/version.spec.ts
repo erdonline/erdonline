@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { deleteAllPersonProjects, login } from './helpers';
+import { deleteOwnPersonProjects, login, uniqueProjectName } from './helpers';
 
 /**
  * 版本快照零摩擦 + 版本 diff 可视化（北极星：有版本保存的活跃项目）。
@@ -44,10 +44,10 @@ async function saveVersion(page: import('@playwright/test').Page) {
 test.describe('版本快照', () => {
   test('无数据源也可新增版本并在列表可见', async ({ page }) => {
     test.setTimeout(120_000);
-    const projectName = `ver-${Date.now()}`;
+    const projectName = uniqueProjectName('ver');
     try {
       await login(page);
-      await deleteAllPersonProjects(page);
+      await deleteOwnPersonProjects(page);
       await createPersonProject(page, projectName, 'version snapshot');
       await openVersionPage(page);
       await saveVersion(page);
@@ -55,16 +55,16 @@ test.describe('版本快照', () => {
       // 仅一版时比对入口禁用，避免静默空窗
       await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
     } finally {
-      await deleteAllPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 
   test('模型变更后详情展示可视化 diff（增删改着色）', async ({ page }) => {
     test.setTimeout(180_000);
-    const projectName = `vdiff-${Date.now()}`;
+    const projectName = uniqueProjectName('vdiff');
     try {
       await login(page);
-      await deleteAllPersonProjects(page);
+      await deleteOwnPersonProjects(page);
       await createPersonProject(page, projectName, 'version diff');
 
       // 建模块 → 关系图 → 空态建表（与 relation.spec 同路径）
@@ -160,7 +160,7 @@ test.describe('版本快照', () => {
         }),
       ).toHaveCount(0);
     } finally {
-      await deleteAllPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 });

@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { login, deleteAllPersonProjects } from './helpers';
+import { login, deleteOwnPersonProjects, uniqueProjectName } from './helpers';
 
 /**
  * 导出去 G6：Markdown 导出走 DOM+html2canvas（relation2file），
@@ -8,10 +8,10 @@ import { login, deleteAllPersonProjects } from './helpers';
 test.describe('导出（无 G6）', () => {
   test('普通导出 Markdown 成功下载', async ({ page }) => {
     await login(page);
-    await deleteAllPersonProjects(page);
+    await deleteOwnPersonProjects(page);
 
     await page.getByRole('button', { name: /新\s*建/ }).click();
-    const projectName = `export-${Date.now()}`;
+    const projectName = uniqueProjectName('export');
     await page.getByPlaceholder('请输入项目名').fill(projectName);
     await page.locator('.ant-modal .ant-select').first().click();
     await page.locator('.ant-select-item-option', { hasText: '个人项目' }).click();
@@ -36,7 +36,7 @@ test.describe('导出（无 G6）', () => {
       expect(await download.path()).toBeTruthy();
     } finally {
       try {
-        await deleteAllPersonProjects(page);
+        await deleteOwnPersonProjects(page);
       } catch { /* ignore */ }
     }
   });

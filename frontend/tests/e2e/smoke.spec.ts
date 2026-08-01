@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { deleteAllPersonProjects, login } from './helpers';
+import { deleteOwnPersonProjects, login, uniqueProjectName } from './helpers';
 
 /**
  * 核心旅程冒烟（第 0 轮验证基建）
@@ -41,11 +41,11 @@ test.describe('冒烟：核心旅程', () => {
     await login(page);
 
     // 开头先清空个人项目：自愈历史泄漏（免费版配额仅 1，泄漏会让建项目 500）
-    await deleteAllPersonProjects(page);
+    await deleteOwnPersonProjects(page);
 
     // 新建项目
     await page.getByRole('button', { name: /新\s*建/ }).click();
-    const projectName = `smoke-${Date.now()}`;
+    const projectName = uniqueProjectName('smoke');
     await page.getByPlaceholder('请输入项目名').fill(projectName);
     // antd Select 的 placeholder 不是 input 属性：点击选择器容器，按文本精确选「个人项目」
     await page.locator('.ant-modal .ant-select').first().click();
@@ -67,16 +67,16 @@ test.describe('冒烟：核心旅程', () => {
     await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
 
     // 清理：全量清空（比按名找更可靠——中途失败时页面状态不可控）
-    await deleteAllPersonProjects(page);
+    await deleteOwnPersonProjects(page);
     await expect(page.getByText(projectName)).toHaveCount(0);
   });
 
   test('模型树删除表需二次确认（取消不删）', async ({ page }) => {
     test.setTimeout(120_000);
-    const projectName = `del-${Date.now()}`;
+    const projectName = uniqueProjectName('del');
     try {
       await login(page);
-      await deleteAllPersonProjects(page);
+      await deleteOwnPersonProjects(page);
 
       await page.getByRole('button', { name: /新\s*建/ }).click();
       await page.getByPlaceholder('请输入项目名').fill(projectName);
@@ -127,7 +127,7 @@ test.describe('冒烟：核心旅程', () => {
       await dialog.getByRole('button', { name: /取\s*消/ }).click();
       await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
     } finally {
-      await deleteAllPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 });

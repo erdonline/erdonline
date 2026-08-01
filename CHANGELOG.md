@@ -127,6 +127,13 @@
 - 根因：IDE/agent shell 会话结束会杀子进程，nohup 后台化被误杀导致反复重启
   验证点：脚本首跑拉起 → 二跑秒退（幂等）→ curl /login 返回 token
 
+### E2E 多 worker 并发（✅ 开发基建）
+
+- `playwright.config.ts`：`fullyParallel` + 本地最多 4 worker（`PW_WORKERS` 可覆盖；CI 默认 2）
+- 并发隔离：项目名 `e2e-w{n}-` 前缀，`deleteOwnPersonProjects` 只清本 worker
+- 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
+  验证点：`npx playwright test` 出现 `Running N tests using K workers`（K>1）且全绿
+
 ### 缩短建表链路（✅）
 
 - **修 bug**：`addEntity` 曾强制 `fields: []` 冲掉默认字段；现未传/空数组时注入项目默认字段（含主键）
