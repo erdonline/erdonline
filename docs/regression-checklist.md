@@ -46,6 +46,7 @@
 - [x] [协作 sync] `verify-socket-sync.mjs`：A 发 delta B 可 patch 出 T_USER、发送方无回声 ✅
 - [x] [协作 sync 提示] 双人同项目：A 改表后 B 见 info toast ✅`sync-toast.spec.ts`（warning 路径仍手工）
 - [x] [空 projectJSON] API 建团队项目未带 JSON → 打开设计器可「新增模型」✅`empty-projectjson.spec.ts`
+- [x] [创建默认 projectJSON] API 建项目无 JSON → GET info `modules=[]` ✅`ProjectEnsureDefaultJsonTest` + curl
 
 ### 手工
 

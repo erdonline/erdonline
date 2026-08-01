@@ -35,8 +35,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.validation.constraints.NotEmpty;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -300,6 +302,26 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
         // 必须忽略 null：DTO 缺省字段（如创建时的 id）会把实体已赋值的字段覆盖为 null，
         // 曾导致创建项目时显式 setId 被抹掉、接口返回的 id 与库中实际 id 不一致
         BeanUtil.copyProperties(projectDto, project, CopyOptions.create().setIgnoreNullValue(true));
+        ensureDefaultProjectJson(project);
+    }
+
+    /**
+     * 创建/保存时若未带 projectJSON，写入最小骨架（modules=[]），
+     * 避免库内 null；完整数据类型域仍可由前端 defaultData 在打开时补齐。
+     */
+    static void ensureDefaultProjectJson(Project project) {
+        if (project == null) {
+            return;
+        }
+        Map<String, Object> json = project.getProjectJSON();
+        if (json == null) {
+            json = new LinkedHashMap<>();
+            project.setProjectJSON(json);
+        }
+        Object modules = json.get("modules");
+        if (!(modules instanceof List)) {
+            json.put("modules", new ArrayList<>());
+        }
     }
 
     @SneakyThrows
