@@ -134,6 +134,17 @@
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
+### 修：连线后改字段名边消失（✅）
+
+- 根因：association 仍在，但字段 Handle 动态变更后未 `updateNodeInternals`，RF 不渲染边
+- 修复：TableNode 字段签名变化时刷新锚点；边列表改由 associations 派生；改名同步加强（同长按下标）
+- E2E：`relation.spec`「先连线再改名」断言边仍在
+  验证点：`npx playwright test tests/e2e/relation.spec.ts` 通过
+
+### 迭代协议：验完自动续跑
+
+- `.cursor/rules/iteration-protocol.mdc`：commit 后立刻开下一切片，不等「继续」
+
 ### UI 收敛：清除 MUI（✅；Blueprint 另议）
 
 - CRUD 对话框内全部 `@mui/material` / `@mui/icons-material` 替换为 antd（Divider/Button/Row/Col/InboxOutlined）

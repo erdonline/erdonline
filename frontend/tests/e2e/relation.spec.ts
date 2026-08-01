@@ -131,17 +131,18 @@ test.describe('关系图画布（ReactFlow）', () => {
       // 中文名可选：只填表名即可确定（若仍有中文输入框则跳过）
       await tableModal.getByRole('button', { name: /确\s*定/ }).click();
       await expect(page.locator('.react-flow__node', { hasText: 'T_ORDER' })).toBeVisible();
-      // 仅加外键字段（默认 id 作主键侧），先改名再连线（避免改名与边生命周期竞态）
+      // 外键字段：先连线再改名（回归「改名后边消失」）
       await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
       const orderNode = page.locator('.react-flow__node', { hasText: 'T_ORDER' });
+      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
       await orderNode.locator('.erd-field-row[data-field="T1_ID"]').dblclick();
       const renameRow = orderNode.locator('.erd-field-editing');
       await renameRow.locator('.erd-field-input').fill('USER_ID');
       await renameRow.locator('.erd-field-input').press('Enter');
       await expect(orderNode.locator('.erd-field-row[data-field="USER_ID"]')).toBeVisible();
-
-      // 不变量：字段拖连线建关联（外键 → 默认主键 id）
-      await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
+      // 不变量：连线后改字段名，边与关联仍在
       await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
       // 不变量：删边——force 选中（边中点常被节点遮挡）+ Delete，边与关联同步清除

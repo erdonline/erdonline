@@ -12,7 +12,8 @@ alwaysApply: true
 2. 实施：feature 分支 + Conventional Commits，一个 commit 一个意图，随时可 revert
 3. 验证：后端 `mvn verify`；前端 `yarn build` + lint；冒烟测试；关键旅程 dogfood
 4. 度量：对照指标基线（覆盖率/包体积/旅程耗时/静默失败点），确认数字变好
-5. 收尾：CHANGELOG + roadmap 状态标记 + 文档蒸馏 + 向用户汇报，等确认再进下一轮
+5. 收尾：CHANGELOG + roadmap 状态标记 + 文档蒸馏 + 向用户简报结论+证据
+6. **自动续跑**：验证通过并 commit 后，立刻按 ROI 开下一切片，**不要等待**用户再说「继续」。仅在连续两轮指标变差、方向冲突、或用户明确叫停时停下
 
 ## 质量红线（每轮必守）
 

@@ -10,10 +10,12 @@ import ReactFlow, {
   Edge,
   Node,
   useNodesState,
-  useEdgesState,
+  useUpdateNodeInternals,
   applyNodeChanges,
   OnNodesChange,
+  OnEdgesChange,
   NodeChange,
+  EdgeChange,
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
@@ -50,20 +52,44 @@ type EntityData = {
   fields?: FieldData[];
 };
 
+type Association = {
+  relation?: string;
+  from?: { entity?: string; field?: string };
+  to?: { entity?: string; field?: string };
+};
+
+/** associations → ReactFlow edges（字段级 handle） */
+function associationsToEdges(associations: Association[]): Edge[] {
+  return (associations || [])
+    .filter(a => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field)
+    .map((a, i) => ({
+      id: `e-${a.from!.entity}-${a.from!.field}-${a.to!.entity}-${a.to!.field}-${i}`,
+      source: a.from!.entity!,
+      sourceHandle: `${a.from!.field}-src`,
+      target: a.to!.entity!,
+      targetHandle: `${a.to!.field}-tgt`,
+      label: a.relation || '',
+      labelStyle: { fontSize: 10 },
+      animated: false,
+    }));
+}
+
 const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
 
 /** 行内编辑状态：editing === 字段名（改名）| '__NEW__'（新增）| null */
 type EditingState = { key: string; name: string; type: string; pk: boolean } | null;
 
 /** 表节点：字段级 Handle + 内联字段编辑（增/改/删）+ 表头改名 */
-const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
+const TableNode: React.FC<NodeProps> = ({ id, data, selected }) => {
   const entity: EntityData = data.entity;
   const onFieldsChange: (fields: FieldData[]) => void = data.onFieldsChange;
   const onRename: (newTitle: string) => void = data.onRename;
+  const updateNodeInternals = useUpdateNodeInternals();
   const [editing, setEditing] = useState<EditingState>(null);
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
+  const handleSignature = fields.map(f => f.name).join('\0');
   // Enter 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
   const editingRef = useRef<EditingState>(null);
   editingRef.current = editing;
@@ -73,6 +99,11 @@ const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
   useEffect(() => {
     setHeaderName(entity.title);
   }, [entity.title]);
+
+  // 字段增删改名会增删 Handle；必须通知 RF 重算锚点，否则边有 association 却不渲染
+  useEffect(() => {
+    updateNodeInternals(id);
+  }, [id, handleSignature, updateNodeInternals]);
 
   const commit = () => {
     const current = editingRef.current;
@@ -347,20 +378,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     shallow,
   );
   const [nodes, setNodes] = useNodesState([]);
-  const [edges, setEdges] = useEdgesState([]);
+  /** 边选中态（本地）；边列表本身始终从 associations 派生，避免 RF 因 handle 失效清空本地 edges */
+  const [edgeSelected, setEdgeSelected] = useState<Record<string, boolean>>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [cmdOpen, setCmdOpen] = useState(false);
 
   const saveLabel = saving ? '保存中…' : saved ? '已保存' : '未保存';
   const saveTone = saving ? 'saving' : saved ? 'saved' : 'dirty';
 
-  // 实体/关联/坐标 → 画布数据。实体即节点：entities 全集渲染，位置优先级
+  const edges: Edge[] = useMemo(() => {
+    const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
+    return associationsToEdges(module?.associations || []).map(e => ({
+      ...e,
+      selected: !!edgeSelected[e.id],
+    }));
+  }, [projectJSON, moduleEntity.module, edgeSelected]);
+
+  // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
   // graphCanvas 坐标 > 现有画布位置 > 网格自动布局（拖动持久化后 saved==local，无跳变）
   useEffect(() => {
     const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
     const entities: EntityData[] = module?.entities || [];
     const savedNodes: any[] = module?.graphCanvas?.nodes || [];
-    const associations: any[] = module?.associations || [];
     setIsEmpty(entities.length === 0);
 
     // 旧 g6 坐标复用：node.title 形如 "ENTITY:..."，按首段匹配实体
@@ -394,23 +433,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         } as Node;
       })
     );
-
-    // 关联 → 字段级锚点边；from 为外键侧（source），to 为主键侧（target）
-    setEdges(
-      associations
-        .filter(a => a?.from?.entity && a?.to?.entity)
-        .map((a, i) => ({
-          id: `e-${a.from.entity}-${a.from.field}-${a.to.entity}-${a.to.field}-${i}`,
-          source: a.from.entity,
-          sourceHandle: `${a.from.field}-src`,
-          target: a.to.entity,
-          targetHandle: `${a.to.field}-tgt`,
-          label: a.relation || '',
-          labelStyle: { fontSize: 10 },
-          animated: false,
-        }))
-    );
-  }, [projectJSON, moduleEntity.module, setNodes, setEdges, projectDispatch]);
+  }, [projectJSON, moduleEntity.module, setNodes, projectDispatch]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -493,11 +516,29 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     [projectDispatch, moduleEntity.module]
   );
 
-  // 删边（选中按 Delete/Backspace）→ 同步删关联。
-  // 字段改名会导致旧 handle 失效并回调本函数：若字段已不存在则跳过，避免误删已改名的关联。
+  // 边变更：只保留选中态；忽略 RF 因 handle 失效产生的 remove（边列表由 associations 派生）。
+  const onEdgesChange: OnEdgesChange = useCallback((changes: EdgeChange[]) => {
+    setEdgeSelected(prev => {
+      let next = prev;
+      let changed = false;
+      for (const c of changes) {
+        if (c.type === 'select') {
+          if (!changed) {
+            next = { ...prev };
+            changed = true;
+          }
+          next[c.id] = c.selected;
+        }
+      }
+      return changed ? next : prev;
+    });
+  }, []);
+
+  // 用户 Delete/Backspace 删边 → 同步删关联（字段已改名导致的幽灵边不会走到这里）
   const onEdgesDelete = useCallback(
     (deleted: Edge[]) => {
-      const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
+      const liveJson = useProjectStore.getState().project?.projectJSON;
+      const module = (liveJson?.modules || []).find((m: any) => m.name === moduleEntity.module);
       const entities: EntityData[] = module?.entities || [];
       deleted.forEach(e => {
         const fromField = (e.sourceHandle || '').replace(/-src$/, '');
@@ -514,8 +555,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           to: { entity: e.target, field: toField },
         });
       });
+      setEdgeSelected({});
     },
-    [projectDispatch, moduleEntity.module, projectJSON]
+    [projectDispatch, moduleEntity.module]
   );
 
   // 空态 CTA：新建第一张表（智能默认名，创建即上图；改名留待表头内联编辑批次）
@@ -620,6 +662,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onNodesChange={onNodesChange}
         onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
+        onEdgesChange={onEdgesChange}
         onEdgesDelete={onEdgesDelete}
         deleteKeyCode={['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
