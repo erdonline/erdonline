@@ -84,7 +84,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 41. ~~**share.spec 清理更稳**~~（已合入）
 42. ~~**canvasHistory 单测**~~（已合入 `yarn test:unit:canvas-history`）
 43. ~~**项目菜单关闭态 CSS class**~~（已合入 `erd-project-menu--closed`）
-44. **version/approval goto 抽 helpers**（草稿 `31-version-spec-goto-helper.md`）
+44. ~~**version/approval goto 抽 helpers**~~（已合入；回滚同步落库）
 45. **CHANGELOG Unreleased 整理**（草稿 `32-changelog-unreleased-fold.md`）
 
 ## 贡献者怎么认领

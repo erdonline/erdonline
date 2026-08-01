@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 版本回滚落库 + E2E goto helpers（2026-08-02）
+
+### 修复
+- `revertVersionData`：`setModules` 后 `Save.saveProject`（此前仅内存，刷新即丢）
+- E2E：`gotoVersionSub` / `openVersionPage` / `gotoDesignModel` 抽到 helpers
+  验证点：`version.spec` + `approval.spec` 绿
+
 ## [Unreleased] — 项目菜单关闭态 CSS class（2026-08-02）
 
 ### 修复

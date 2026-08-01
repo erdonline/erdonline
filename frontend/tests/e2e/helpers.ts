@@ -255,3 +255,33 @@ export async function deleteAllPersonProjects(page: import('@playwright/test').P
   }
   await expect(page.getByRole('button', { name: /删\s*除/ })).toHaveCount(0, { timeout: 5_000 });
 }
+
+/** 模型页侧栏是树，ProLayout「版本」menuitem 不可见 → 直达 URL */
+export async function gotoVersionSub(
+  page: import('@playwright/test').Page,
+  sub: 'all' | 'order' | 'approval',
+) {
+  const projectId = new URL(page.url()).searchParams.get('projectId');
+  await page.goto(
+    `/design/table/version/${sub}${projectId ? `?projectId=${projectId}` : ''}`,
+  );
+  await expect(page).toHaveURL(new RegExp(`/design/table/version/${sub}`), {
+    timeout: 15_000,
+  });
+}
+
+/** 版本管理页就绪（无 Loading…、可新增版本） */
+export async function openVersionPage(page: import('@playwright/test').Page) {
+  await gotoVersionSub(page, 'all');
+  await expect(page.getByText('Loading...')).toHaveCount(0);
+  await expect(page.getByTestId('add-version-btn')).toBeVisible({ timeout: 15_000 });
+}
+
+/** 从版本等子页回模型（侧栏「模型」menuitem 在部分页不可见） */
+export async function gotoDesignModel(page: import('@playwright/test').Page) {
+  const projectId = new URL(page.url()).searchParams.get('projectId');
+  await page.goto(
+    `/design/table/model${projectId ? `?projectId=${projectId}` : ''}`,
+  );
+  await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+}
