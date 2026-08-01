@@ -39,9 +39,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 4. ~~**协作 sync toast E2E**~~（已合入 `sync-toast.spec.ts`；info 路径）
 5. ~~**前端 eslint warn 定点清零（configJsonSlice）**~~（已合入；其它 store 文件仍可认领）
 6. ~~**`databaseDomainsSlice` eslint warn 清零**~~（已合入）
-7. **协作 sync warning toast E2E**：B 本地有未保存改动时见 warning（info 已覆盖）  
-   参考：`docs/regression-checklist.md`；可扩展 `sync-toast.spec.ts`  
-   验证：`npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium`
+7. ~~**协作 sync warning toast E2E**~~（已合入 `sync-toast.spec.ts`）
 8. ~~**后端创建项目默认 projectJSON**~~（已合入 `ensureDefaultProjectJson` + 单测）
 
 ## 贡献者怎么认领
