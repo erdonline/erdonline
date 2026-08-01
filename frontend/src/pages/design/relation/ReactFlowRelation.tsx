@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -64,38 +64,49 @@ const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
+  // Enter 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
+  const editingRef = useRef<EditingState>(null);
+  editingRef.current = editing;
+  const entityFieldsRef = useRef(entity.fields || []);
+  entityFieldsRef.current = entity.fields || [];
 
   useEffect(() => {
     setHeaderName(entity.title);
   }, [entity.title]);
 
   const commit = () => {
-    if (!editing) {
+    const current = editingRef.current;
+    if (!current) {
       return;
     }
-    const name = editing.name.trim();
+    editingRef.current = null;
+    const name = current.name.trim();
     if (!name) {
       setEditing(null);
       return;
     }
     if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+      editingRef.current = current;
       message.warning('字段名仅支持字母、数字、下划线，且以字母或下划线开头');
       return;
     }
-    const dup = fields.some(f => f.name === name && f.name !== editing.key);
+    const allFields = entityFieldsRef.current;
+    const visible = allFields.filter(f => !f.relationNoShow);
+    const dup = visible.some(f => f.name === name && f.name !== current.key);
     if (dup) {
+      editingRef.current = current;
       message.warning(`字段 ${name} 已存在`);
       return;
     }
-    if (editing.key === '__NEW__') {
+    if (current.key === '__NEW__') {
       // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
-      const pk = editing.pk || editing.type === 'IdOrKey';
-      onFieldsChange([...(entity.fields || []), {
-        name, type: editing.type, chnname: '', remark: '', pk, notNull: pk,
+      const pk = current.pk || current.type === 'IdOrKey';
+      onFieldsChange([...allFields, {
+        name, type: current.type, chnname: '', remark: '', pk, notNull: pk,
       } as FieldData]);
     } else {
-      onFieldsChange((entity.fields || []).map(f => (
-        f.name === editing.key ? { ...f, name, type: editing.type, pk: editing.pk, notNull: editing.pk || f.notNull } : f
+      onFieldsChange(allFields.map(f => (
+        f.name === current.key ? { ...f, name, type: current.type, pk: current.pk, notNull: current.pk || f.notNull } : f
       )));
     }
     setEditing(null);
@@ -247,6 +258,7 @@ const TableNode: React.FC<NodeProps> = ({ data, selected }) => {
               className="erd-field-row"
               onDoubleClick={() => setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk })}
               title="双击编辑字段"
+              data-field={f.name}
             >
               <Handle type="target" id={`${f.name}-tgt`} position={Position.Left} className="erd-field-handle" />
               <span className="erd-field-name">
@@ -481,17 +493,29 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     [projectDispatch, moduleEntity.module]
   );
 
-  // 删边（选中按 Delete/Backspace）→ 同步删关联
+  // 删边（选中按 Delete/Backspace）→ 同步删关联。
+  // 字段改名会导致旧 handle 失效并回调本函数：若字段已不存在则跳过，避免误删已改名的关联。
   const onEdgesDelete = useCallback(
     (deleted: Edge[]) => {
+      const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
+      const entities: EntityData[] = module?.entities || [];
       deleted.forEach(e => {
+        const fromField = (e.sourceHandle || '').replace(/-src$/, '');
+        const toField = (e.targetHandle || '').replace(/-tgt$/, '');
+        const fromEnt = entities.find(x => x.title === e.source || x.name === e.source);
+        const toEnt = entities.find(x => x.title === e.target || x.name === e.target);
+        const fromStill = (fromEnt?.fields || []).some(f => f.name === fromField);
+        const toStill = (toEnt?.fields || []).some(f => f.name === toField);
+        if (!fromStill || !toStill) {
+          return;
+        }
         projectDispatch.removeAssociation(moduleEntity.module, {
-          from: { entity: e.source, field: (e.sourceHandle || '').replace(/-src$/, '') },
-          to: { entity: e.target, field: (e.targetHandle || '').replace(/-tgt$/, '') },
+          from: { entity: e.source, field: fromField },
+          to: { entity: e.target, field: toField },
         });
       });
     },
-    [projectDispatch, moduleEntity.module]
+    [projectDispatch, moduleEntity.module, projectJSON]
   );
 
   // 空态 CTA：新建第一张表（智能默认名，创建即上图；改名留待表头内联编辑批次）
@@ -503,7 +527,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       i += 1;
       title = `T_TABLE_${i}`;
     }
-    projectDispatch.addEntity({ moduleName: moduleEntity.module, title, chnname: '', fields: [] });
+    // fields 留空由 addEntity 注入默认字段（主键等），建表即见结构
+    projectDispatch.addEntity({ moduleName: moduleEntity.module, title, chnname: '' });
   }, [projectJSON, projectDispatch, moduleEntity.module]);
 
   // 一键 dagre 自动布局（布局即持久化）

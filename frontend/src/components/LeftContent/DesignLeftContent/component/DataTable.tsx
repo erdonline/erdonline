@@ -100,11 +100,21 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         break;
       case 'entity':
         if (isNew) {
+          const moduleName = values.module || values.moduleName;
           projectDispatch.addEntity({
             ...values,
             title: values.name,
-            moduleName: values.module || values.moduleName
+            moduleName,
           });
+          // 建表后直开关系图，跳过「双击表→再切关系图」
+          if (moduleName) {
+            shortcutDispatch.setShow(false);
+            tabDispatch.addTab({
+              group: TabGroup.MODEL,
+              module: moduleName,
+              entity: `关系图-${moduleName}`,
+            });
+          }
         } else {
           projectDispatch.renameEntity({
             oldModuleName: currentNode.module,
