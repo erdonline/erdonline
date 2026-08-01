@@ -149,7 +149,10 @@ const Approval: React.FC<ApprovalProps> = (props) => {
         pageSize: 10,
       }}
       dateFormatter="string"
-      headerTitle="我的工单"
+      headerTitle="我的审批"
+      locale={{
+        emptyText: '暂无待审事项。他人在团队项目中发起 SQL 审批后会出现在此。',
+      }}
       toolBarRender={() => []}
     />
   </>);

@@ -132,11 +132,23 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
             type={isDetail ? 'link' : 'default'}
             icon={isDetail ? <FileTextOutlined /> : <DiffOutlined />}
             data-testid={isDetail ? 'version-detail-btn' : 'version-compare-btn'}
-            onClick={() =>
-              isDetail
-                ? versionDispatch.showChanges(SHOW_CHANGE_TYPE.CURRENT, null, null, null)
-                : versionDispatch.compare(state)
+            disabled={isCompare && (!versions || versions.length < 2)}
+            title={
+              isCompare && (!versions || versions.length < 2)
+                ? '至少需要两个版本才能比对'
+                : undefined
             }
+            onClick={() => {
+              if (isCompare && (!versions || versions.length < 2)) {
+                message.warning('至少需要两个版本才能比对');
+                return;
+              }
+              if (isDetail) {
+                versionDispatch.showChanges(SHOW_CHANGE_TYPE.CURRENT, null, null, null);
+              } else {
+                versionDispatch.compare(state);
+              }
+            }}
           >
             {isDetail ? '详情' : '版本比对'}
           </Button>

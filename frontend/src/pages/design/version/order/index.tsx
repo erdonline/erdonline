@@ -16,6 +16,7 @@ const MyOrder: React.FC<MyOrderProps> = (props) => {
     projectName: string;
     approveStatus: number;
     approveRemark: string;
+    approveSql: string;
     approveResult: string;
     approveTime: string;
     createTime: string;
@@ -95,24 +96,34 @@ const MyOrder: React.FC<MyOrderProps> = (props) => {
       width: 200,
       key: 'option',
       fixed: 'right',
-      render: (text, record, _, action) => [
-        record.approveStatus == 0 ?
-          <CancelApproval id={record.id} actionRef={actionRef}/> : '',
-        record.approveStatus == 2 ?
-          <RepeatApproval id={record.id} actionRef={actionRef}/> : '',
-        <a key="view" onClick={() => Modal.info({
-          title: 'sql明细',
-          width: tempWidth * 0.5,
-          content: (
-            <>
-              <CodeEditor
-                mode='mysql'
-                height={`${tempHeight * 0.5}px`}
-                value={record.approveSql}
-              />
-            </>
-          ),
-        })}>
+      render: (text, record) => [
+        record.approveStatus == 0 ? (
+          <CancelApproval id={record.id} actionRef={actionRef} key="cancel" />
+        ) : (
+          ''
+        ),
+        // 撤销(2) 与拒绝(3) 均可复批，避免拒绝后死胡同
+        record.approveStatus == 2 || record.approveStatus == 3 ? (
+          <RepeatApproval id={record.id} actionRef={actionRef} key="repeat" />
+        ) : (
+          ''
+        ),
+        <a
+          key="view"
+          onClick={() =>
+            Modal.info({
+              title: 'sql明细',
+              width: tempWidth * 0.5,
+              content: (
+                <CodeEditor
+                  mode="mysql"
+                  height={`${tempHeight * 0.5}px`}
+                  value={record.approveSql}
+                />
+              ),
+            })
+          }
+        >
           查看
         </a>,
       ],
@@ -151,11 +162,10 @@ const MyOrder: React.FC<MyOrderProps> = (props) => {
       }}
       dateFormatter="string"
       headerTitle="我的工单"
-      toolBarRender={() => [
-        // <Button key="button" icon={<ConsoleSqlOutlined/>} type="primary">
-        //   SQL审批
-        // </Button>,
-      ]}
+      locale={{
+        emptyText: '暂无工单。团队项目可在「版本管理 → 详情」中发起 SQL 审批。',
+      }}
+      toolBarRender={() => []}
     />
   </>);
 };

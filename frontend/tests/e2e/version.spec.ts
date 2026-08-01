@@ -25,7 +25,8 @@ async function createPersonProject(
 }
 
 async function openVersionPage(page: import('@playwright/test').Page) {
-  await page.getByRole('menuitem', { name: '版本' }).click();
+  // exact：避免「版本」子串命中「版本管理」
+  await page.getByRole('menuitem', { name: '版本', exact: true }).click();
   await page.getByRole('link', { name: '版本管理' }).click();
   await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
   await expect(page.getByText('Loading...')).toHaveCount(0);
@@ -51,6 +52,8 @@ test.describe('版本快照', () => {
       await openVersionPage(page);
       await saveVersion(page);
       await expect(page.getByText('1.0.0').first()).toBeVisible({ timeout: 10_000 });
+      // 仅一版时比对入口禁用，避免静默空窗
+      await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
     } finally {
       await deleteAllPersonProjects(page).catch(() => {});
     }
@@ -106,6 +109,35 @@ test.describe('版本快照', () => {
       await expect(page.getByTestId('version-diff-summary')).toBeVisible();
       await expect(page.getByTestId('version-diff-item-add').first()).toBeVisible();
       await expect(page.getByTestId('version-diff-panel')).toContainText('T_TABLE_1');
+      // ModalForm 自定义 footer 无取消键，点右上角关闭
+      await page.locator('.ant-modal-close').click();
+      await expect(page.getByText('版本变更详情')).toHaveCount(0);
+
+      // 回模型树再改字段，存第二版 →「版本比对」
+      await page.getByRole('menuitem', { name: '模型', exact: true }).click();
+      await expect(page.locator('.ant-tree')).toBeVisible({ timeout: 10_000 });
+      await expandNode('商城');
+      await expandNode('关系');
+      await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).last().click();
+      await expect(page.locator('.react-flow')).toBeVisible({ timeout: 10_000 });
+      const node = page.locator('.react-flow__node', { hasText: 'T_TABLE_1' });
+      await node.locator('.erd-field-add').click();
+      const editRow = node.locator('.erd-field-editing');
+      await editRow.locator('.erd-field-type-select').selectOption('String');
+      await editRow.locator('.erd-field-input').fill('REMARK');
+      await editRow.locator('.erd-field-input').press('Enter');
+      await expect(node.locator('.erd-field-name', { hasText: 'REMARK' })).toBeVisible();
+      await page.waitForTimeout(2_000);
+
+      await openVersionPage(page);
+      await saveVersion(page);
+      await expect(page.getByText('1.0.1').first()).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-compare-btn')).toBeEnabled();
+      await page.getByTestId('version-compare-btn').click();
+      await expect(page.getByText('任意版本比较')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-diff-panel')).toBeVisible();
+      await expect(page.getByTestId('version-diff-item-add').first()).toBeVisible();
+      await expect(page.getByTestId('version-diff-panel')).toContainText(/REMARK|T_TABLE_1/);
     } finally {
       await deleteAllPersonProjects(page).catch(() => {});
     }
