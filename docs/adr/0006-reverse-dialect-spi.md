@@ -21,5 +21,5 @@
 - 正面：按库扩展、能力矩阵驱动前端、可单测映射规则
 - 代价：每库需维护一份 Dialect；P0 外库精度不承诺
 - 已落地：`POST /connector/dbReverseMeta` + Schema 选择；JDBC `getImportedKeys` → `associations`
-- MySQL FK：`KEY_COLUMN_USAGE`；PostgreSQL：`referential_constraints`；SQL Server：`sys.foreign_keys`；失败回退 JDBC；复合列保序拆边
-- 后续：Oracle 字典 FK；`AssociationEnd.fields[]` 聚合复合键；表清单按需分页
+- P0 四库字典 FK：MySQL `KEY_COLUMN_USAGE`；PG `referential_constraints`；SQL Server `sys.foreign_keys`；Oracle `ALL_CONSTRAINTS(R)`；失败回退 JDBC；复合列保序拆边
+- 后续：`AssociationEnd.fields[]` 聚合复合键；表清单按需分页

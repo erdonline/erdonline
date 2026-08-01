@@ -57,6 +57,7 @@
 - [ ] [PostgreSQL 逆向] 选数据源后出现 Schema（默认 public）→ 含二级索引表导入 → 预期：`indexs` 正确且不含主键索引
 - [ ] [PostgreSQL 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（字典 KEY_COLUMN_USAGE）
 - [ ] [Oracle 逆向] schema=用户 → 含二级索引表导入 → 预期：`indexs` 正确且不含主键约束索引
+- [ ] [Oracle 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（ALL_CONSTRAINTS R）
 - [ ] [SQL Server 逆向] 默认 dbo → 含二级索引表导入 → 预期：`indexs` 正确且不含主键/INCLUDE 列
 - [ ] [SQL Server 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（sys.foreign_keys）
 - [ ] [其它库兜底] H2/达梦等走 Generic → 表/列/PK 可导入；索引尽力

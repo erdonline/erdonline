@@ -1,24 +1,31 @@
 package com.erdonline.erd.reverse.support;
 
+import com.erdonline.erd.model.Association;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
+import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.TableIdentity;
+import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
- * Oracle 逆向：schema=用户；索引走 ALL_INDEXES / ALL_IND_COLUMNS（排除主键约束索引）。
+ * Oracle 逆向：schema=用户；索引走 ALL_INDEXES；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS。
  *
  * @author erdonline
  */
+@Slf4j
 public class OracleReverseDialect extends AbstractJdbcReverseDialect {
 
     private static final String SQL_SCHEMAS =
@@ -46,6 +53,24 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
                     + "  AND ac.constraint_type = 'P' "
                     + ") "
                     + "ORDER BY i.index_name, c.column_position";
+
+    private static final String SQL_FOREIGN_KEYS =
+            "SELECT a.table_name AS TABLE_NAME, a.column_name AS COLUMN_NAME, "
+                    + "c_pk.table_name AS REFERENCED_TABLE_NAME, "
+                    + "b.column_name AS REFERENCED_COLUMN_NAME, "
+                    + "a.position AS ORDINAL_POSITION, "
+                    + "a.constraint_name AS CONSTRAINT_NAME "
+                    + "FROM all_cons_columns a "
+                    + "JOIN all_constraints c ON a.owner = c.owner "
+                    + "AND a.constraint_name = c.constraint_name "
+                    + "JOIN all_constraints c_pk ON c.r_owner = c_pk.owner "
+                    + "AND c.r_constraint_name = c_pk.constraint_name "
+                    + "JOIN all_cons_columns b ON c_pk.owner = b.owner "
+                    + "AND c_pk.constraint_name = b.constraint_name "
+                    + "AND b.position = a.position "
+                    + "WHERE c.constraint_type = 'R' "
+                    + "AND a.owner = ? AND a.table_name = ? "
+                    + "ORDER BY a.constraint_name, a.position";
 
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
@@ -113,12 +138,7 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
     @Override
     protected List<Index> loadIndexes(Connection connection, TableIdentity table, String nameCaseFlag)
             throws SQLException {
-        String owner = table.getSchema();
-        if (owner == null || owner.isEmpty()) {
-            owner = resolveSchemaPattern(connection, null);
-        } else {
-            owner = owner.toUpperCase(Locale.ROOT);
-        }
+        String owner = resolveOwner(connection, table);
         String tableName = table.getOriginTableName().toUpperCase(Locale.ROOT);
         try (PreparedStatement statement = connection.prepareStatement(SQL_INDEXES)) {
             statement.setString(1, owner);
@@ -127,5 +147,53 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
             }
         }
+    }
+
+    @Override
+    public List<Association> listAssociations(Connection connection, List<TableIdentity> tables,
+                                              String nameCaseFlag) throws SQLException {
+        if (!capability().isSupportsForeignKey() || tables == null || tables.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, String> originToDisplay = buildOriginToDisplay(tables);
+        Map<String, Association> byKey = new LinkedHashMap<>(32);
+        for (TableIdentity table : tables) {
+            String owner = resolveOwner(connection, table);
+            String tableName = table.getOriginTableName().toUpperCase(Locale.ROOT);
+            try (PreparedStatement statement = connection.prepareStatement(SQL_FOREIGN_KEYS)) {
+                statement.setString(1, owner);
+                statement.setString(2, tableName);
+                try (ResultSet rs = statement.executeQuery()) {
+                    for (Association association
+                            : ForeignKeyAssociationMapper.mapFromKeyColumnUsage(
+                            rs, originToDisplay, nameCaseFlag)) {
+                        byKey.putIfAbsent(associationKey(association), association);
+                    }
+                }
+            } catch (SQLException ex) {
+                log.warn("Oracle 字典外键读取失败 {}，回退 JDBC: {}",
+                        table.getOriginTableName(), ex.getMessage());
+                try (ResultSet rs = connection.getMetaData().getImportedKeys(
+                        table.getCatalog(), table.getSchema(), table.getOriginTableName())) {
+                    for (Association association
+                            : ForeignKeyAssociationMapper.mapImportedKeys(
+                            rs, originToDisplay, nameCaseFlag)) {
+                        byKey.putIfAbsent(associationKey(association), association);
+                    }
+                } catch (SQLException jdbcEx) {
+                    log.warn("读取表 {} 外键失败，已跳过: {}",
+                            table.getOriginTableName(), jdbcEx.getMessage());
+                }
+            }
+        }
+        return new ArrayList<>(byKey.values());
+    }
+
+    private String resolveOwner(Connection connection, TableIdentity table) throws SQLException {
+        String owner = table.getSchema();
+        if (owner == null || owner.isEmpty()) {
+            return resolveSchemaPattern(connection, null);
+        }
+        return owner.toUpperCase(Locale.ROOT);
     }
 }
