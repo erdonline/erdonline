@@ -1,20 +1,11 @@
 # [good first] entitiesSlice 定点清 eslint warn（import type）
 
-## 背景
-
-`entitiesSlice.tsx` 仍有十余条 warn；可先只清 `consistent-type-imports`，避免一次改太多。
-
-## 接受标准
-
-- [ ] 文件顶部 zustand / ProjectState 改为 `import type`
-- [ ] 不扩大行为变更；`yarn eslint` 对该文件 warn 数下降
+> **已合入**（勿再投放）：`import type` + 删除未用 validateTable/时间戳；warn 19→8。  
+> 剩余多为 `no-param-reassign` / `no-loop-func`，可另开 Issue。
 
 ## 验证命令
 
 ```bash
 cd frontend && yarn eslint src/store/project/entitiesSlice.tsx --max-warnings 999
+# 期望：problems ≤ 8
 ```
-
-## 相关文件
-
-`frontend/src/store/project/entitiesSlice.tsx`

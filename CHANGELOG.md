@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — entitiesSlice eslint 定点清（2026-08-02）
+
+### 修复
+- `entitiesSlice.tsx`：`import type`；删除未用 `validateTable`/时间戳；辅助函数上移；warn 19→8
+  验证点：`yarn eslint src/store/project/entitiesSlice.tsx --max-warnings 999` 剩余 ≤8
+
 ## [Unreleased] — 开源品牌去「零代科技」文案（2026-08-02）
 
 ### 修复
