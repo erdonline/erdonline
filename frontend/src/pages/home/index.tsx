@@ -15,7 +15,7 @@ import React, {useEffect, useState} from "react";
 import {PageContainer} from "@ant-design/pro-components";
 import {VipOne} from "@icon-park/react";
 import * as cache from "@/utils/cache";
-import Line from "antd/es/progress/Line";
+import { createExampleProjectAndOpen } from '@/utils/exampleProject';
 
 const { Title, Text, Paragraph } = Typography;
 
@@ -23,46 +23,51 @@ const quickLinks = [
   {
     title: '新建模型',
     icon: <PlusOutlined />,
-    href: '/create-model',
-    description: '快速创建新的数据库模型',
+    href: '/project/person',
+    description: '前往个人项目列表新建空模型',
     type: 'primary',
+    testId: 'home-link-new-project',
+  },
+  {
+    title: '示例项目',
+    icon: <DatabaseOutlined />,
+    description: '一键创建含用户/订单表的示例，打开即可建模与保存版本',
+    type: 'success',
+    testId: 'home-link-example',
+    onClick: () => createExampleProjectAndOpen(),
   },
   {
     title: '导入模型',
     icon: <ImportOutlined />,
-    href: '/import-database',
-    description: '导入现有数据库结构',
+    href: '/project/person',
+    description: '打开项目后可在设计器「导入」菜单做逆向解析',
     type: 'secondary',
+    testId: 'home-link-import',
   },
   {
-    title: '模板库',
-    icon: <DatabaseOutlined />,
-    href: '/templates',
-    description: '使用预设模板快速开始',
-    type: 'success',
+    title: '最近项目',
+    icon: <HistoryOutlined />,
+    href: '/project/recent',
+    description: '继续上次未完成的建模',
+    type: 'secondary',
+    testId: 'home-link-recent',
   },
-
   {
-    title: '版本管理',
+    title: '个人项目',
     icon: <BranchesOutlined />,
-    href: '/version-control',
-    description: '追踪和管理模型变更',
+    href: '/project/person',
+    description: '管理个人模型与版本入口',
     type: 'secondary',
-  },
-  {
-    title: '导出模型',
-    icon: <ExportOutlined />,
-    href: '/export',
-    description: '生成专业的模型文档',
-    type: 'secondary',
+    testId: 'home-link-person',
   },
   {
     title: '升级专业',
     icon: <CrownOutlined />,
-    href: '/upgrade',
-    description: '解锁更多高级功能',
+    href: '/account/settings',
+    description: '查看授权与账号设置',
     type: 'premium',
-    hidden: !!cache.getItem2object('licence').licensedStartTime, // Hide if already licensed
+    hidden: !!cache.getItem2object('licence').licensedStartTime,
+    testId: 'home-link-upgrade',
   },
 ];
 
