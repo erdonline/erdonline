@@ -2,7 +2,7 @@ USE erd;
 
 -- 全局数据源配置（设计器/数据库配置页 /ncnb/dataSources）
 CREATE TABLE IF NOT EXISTS `data_sources` (
-  `id` varchar(32) NOT NULL COMMENT '主键',
+  `id` varchar(64) NOT NULL COMMENT '主键（兼容无连字符 UUID 与 RFC4122）',
   `name` varchar(128) DEFAULT NULL COMMENT '数据源名称',
   `type` varchar(32) DEFAULT NULL COMMENT '数据库类型',
   `connection_type` varchar(32) DEFAULT NULL COMMENT '连接方式 host|url',

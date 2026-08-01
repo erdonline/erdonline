@@ -79,6 +79,7 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 - 空态/示例用例在 `chromium-serial`（`workers: 1`），账号 `e2e-serial`
 - 已有库补种子：`mysql -h127.0.0.1 -uroot -proot < db/init/05_e2e_users.sql`
 - 已有库补数据源表：`docker exec -i erd-mysql mysql -uroot -proot < db/init/07_data_sources.sql`
+- 已有库若 `data_sources.id` 仍为 `varchar(32)`（RFC UUID 写入 500）：`docker exec erd-mysql mysql -uerd -perd -e "ALTER TABLE erd.data_sources MODIFY COLUMN id varchar(64) NOT NULL;"`
 - 已有库补公开演示：`docker exec -i erd-mysql mysql -uroot -proot < db/init/08_public_demo.sql`（访问 `/demo`）
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
