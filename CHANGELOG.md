@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 创建项目默认 projectJSON 骨架（2026-08-02）
+
+### 修复
+- `ProjectServiceImpl.ensureDefaultProjectJson`：创建/保存时 null JSON 写入 `modules=[]`
+  验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=ProjectEnsureDefaultJsonTest -Djacoco.skip=true surefire:test` 绿；curl 建团队项目无 JSON 后 GET info 含 `modules`
+
 ## [Unreleased] — 空 projectJSON 可新增模型（2026-08-02）
 
 ### 修复
