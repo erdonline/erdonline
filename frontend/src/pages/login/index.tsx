@@ -5,7 +5,8 @@ import * as cache from '@/utils/cache';
 import {history} from '@@/exports';
 import request from '@/utils/request';
 
-export async function login(username: string, password: string) {
+/** @param redirectOverride 注册成功后调用时传入，避免仍停在 /register 读不到 query */
+export async function login(username: string, password: string, redirectOverride?: string | null) {
   await request.post('/auth/login', {data: {username, password}}).then(res => {
     if (res?.access_token) {
       cache.setItem('Authorization', res.access_token);
@@ -17,10 +18,16 @@ export async function login(username: string, password: string) {
           licensedEndTime: res.licensedEndTime,
         });
       }
-      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      const fromQuery = new URLSearchParams(window.location.search).get('redirect');
+      const redirect = redirectOverride || fromQuery;
       history.push({pathname: redirect && redirect.startsWith('/') ? redirect : '/home'});
     }
   });
+}
+
+function redirectQuery(): string {
+  const r = new URLSearchParams(window.location.search).get('redirect');
+  return r && r.startsWith('/') ? `?redirect=${encodeURIComponent(r)}` : '';
 }
 
 export default () => {
@@ -79,6 +86,11 @@ export default () => {
           placeholder={'密码'}
           rules={[{required: true, message: '请输入密码！'}]}
         />
+        <div style={{marginTop: 16, textAlign: 'center'}}>
+          <a href={`/register${redirectQuery()}`} aria-label="去注册">
+            没有账号？去注册
+          </a>
+        </div>
       </LoginFormPage>
     </div>
   );

@@ -134,14 +134,27 @@ const SharePage: React.FC = () => {
             {data?.projectName || '只读分享'}
           </Typography.Title>
           {!error && data ? (
-            <Button
-              type="primary"
-              loading={forking}
-              onClick={onFork}
-              aria-label="复制到我的项目"
-            >
-              复制到我的项目
-            </Button>
+            <Space>
+              <Button
+                type="primary"
+                loading={forking}
+                onClick={onFork}
+                aria-label="复制到我的项目"
+              >
+                复制到我的项目
+              </Button>
+              {token ? (
+                <Button
+                  type="default"
+                  aria-label="注册并带回"
+                  onClick={() =>
+                    history.push(`/register?redirect=${encodeURIComponent(`/s/${token}`)}`)
+                  }
+                >
+                  注册并带回
+                </Button>
+              ) : null}
+            </Space>
           ) : null}
         </Space>
         <Alert
@@ -149,7 +162,7 @@ const SharePage: React.FC = () => {
           showIcon
           style={{marginBottom: 16}}
           message="只读分享"
-          description="当前为匿名只读视图。登录后可「复制到我的项目」继续编辑并产生版本保存。"
+          description="匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。"
         />
         {data?.description ? (
           <Typography.Paragraph type="secondary">{data.description}</Typography.Paragraph>

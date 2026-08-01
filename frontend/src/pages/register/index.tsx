@@ -30,7 +30,8 @@ export default () => {
           ).then(r => {
             if (r.code === 200) {
               message.success("注册成功！");
-              login(username, pwd);
+              const redirect = new URLSearchParams(window.location.search).get('redirect');
+              login(username, pwd, redirect);
             }
           });
         }}
