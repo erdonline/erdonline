@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 协作 sync warning toast E2E（2026-08-02）
+
+### 新增
+- `sync-toast.spec.ts`：B 阻断自动保存后本地改模型，A 建表 → B 见 warning toast
+  验证点：`npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — databaseDomainsSlice eslint 清零（2026-08-02）
 
 ### 修复

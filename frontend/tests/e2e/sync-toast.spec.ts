@@ -6,6 +6,7 @@ import {
   E2E_SERIAL,
   expectToast,
   login,
+  openRelationCanvas,
   openRelationFromEmpty,
 } from './helpers';
 
@@ -104,6 +105,55 @@ test.describe('协作 sync 提示', () => {
       await expect(ownerPage.getByText('T_TABLE_1').first()).toBeVisible({ timeout: 10_000 });
 
       await expectToast(peerPage, `${E2E_SERIAL.name} 同步了模型变更`, 20_000);
+    } finally {
+      await peerCtx?.close().catch(() => {});
+      await ownerCtx?.close().catch(() => {});
+      await deleteGroup(request, ownerToken, projectId).catch(() => {});
+    }
+  });
+
+  test('双人同项目：B 未保存时见 warning toast', async ({ browser, request }) => {
+    test.setTimeout(120_000);
+    const ownerToken = await apiToken(request, E2E_SERIAL.name, E2E_SERIAL.pass);
+    const { projectId } = await createGroupWithPeer(request, ownerToken);
+    const designUrl = `/design/table/model?projectId=${projectId}`;
+
+    let ownerCtx: Awaited<ReturnType<Browser['newContext']>> | undefined;
+    let peerCtx: Awaited<ReturnType<Browser['newContext']>> | undefined;
+    try {
+      ownerCtx = await browser.newContext();
+      peerCtx = await browser.newContext();
+      const ownerPage = await ownerCtx.newPage();
+      const peerPage = await peerCtx.newPage();
+
+      await login(ownerPage, E2E_SERIAL);
+      await ownerPage.goto(designUrl);
+      await expect(ownerPage.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
+
+      await login(peerPage, PEER);
+      await peerPage.goto(designUrl);
+      await expect(peerPage.getByTestId('collab-presence')).toContainText(E2E_SERIAL.name, {
+        timeout: 20_000,
+      });
+
+      // 阻断 B 自动保存，保持 localDirty
+      await peerPage.route(/\/ncnb\/project\/(group\/)?save/, (route) => route.abort());
+
+      await peerPage.waitForTimeout(1_500);
+      await openRelationFromEmpty(peerPage, { name: 'PEER_M', chnname: 'Peer模块' });
+      await expect(ownerPage.getByText('Peer模块', { exact: true })).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await openRelationCanvas(ownerPage, 'Peer模块');
+      await ownerPage.getByTestId('canvas-empty-create').click();
+      await expect(ownerPage.getByText('T_TABLE_1').first()).toBeVisible({ timeout: 10_000 });
+
+      await expectToast(
+        peerPage,
+        `${E2E_SERIAL.name} 更新了模型；你有未保存改动，请核对后保存`,
+        20_000,
+      );
     } finally {
       await peerCtx?.close().catch(() => {});
       await ownerCtx?.close().catch(() => {});
