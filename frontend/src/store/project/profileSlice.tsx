@@ -35,7 +35,7 @@ export interface IProfileDispatchSlice {
   getCurrentDBName: () => any;
   getCurrentDBData: () => any;
   setProfileSliceState: (profileSlice: any) => void;
-  dbReverseParse: (db: any, dataFormat: string) => void;
+  dbReverseParse: (db: any, dataFormat: string, schema?: string) => void;
   checkField: (data: any) => any;
   getAllTable: (dataSource: any) => any;
   saveSelectedRowKeys: (selectedRowKeys: any) => void;
@@ -130,7 +130,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   setProfileSliceState: (profileSlice: any) => set(produce(state => {
     state.profileSliceState = profileSlice;
   })),
-  dbReverseParse: (db: any, dataFormat: string) => set(produce(state => {
+  dbReverseParse: (db: any, dataFormat: string, schema?: string) => set(produce(state => {
     if (!dataFormat) {
       dataFormat = 'DEFAULT';
     }
@@ -151,6 +151,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       ...dbConfig,
       driverClassName: db.properties['driver_class_name'], // eslint-disable-line
       flag: dataFormat,
+      ...(schema ? {schema} : {}),
     }).then((res) => {
       if (res && res.code === 200) {
         get().dispatch.setProfileSliceState({

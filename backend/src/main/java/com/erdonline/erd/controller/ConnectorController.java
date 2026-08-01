@@ -6,6 +6,7 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.common.vip.annotation.VIP;
 import com.erdonline.common.vip.enums.VIPLevelEnum;
 import com.erdonline.common.vip.enums.VIPModuleEnum;
+import com.erdonline.erd.command.DBReverseMetaCommand;
 import com.erdonline.erd.command.DBReverseParseCommand;
 import com.erdonline.erd.command.DbSqlExecCommand;
 import com.erdonline.erd.command.DbSyncCommand;
@@ -55,6 +56,14 @@ public class ConnectorController {
     public R dbReverseParse(@RequestBody Map map) {
         DBReverseParseCommand dbReverseParseCommand = new DBReverseParseCommand();
         return dbReverseParseCommand.exec(map);
+    }
+
+    /**
+     * 逆向导入元数据：方言能力矩阵 + schema 列表。
+     */
+    @PostMapping("dbReverseMeta")
+    public R dbReverseMeta(@RequestBody Map map) {
+        return new DBReverseMetaCommand().exec(map);
     }
 
     @PostMapping("dbversion")

@@ -75,6 +75,16 @@ export const dbReverseParse = (data) => {
   });
 };
 
+export const dbReverseMeta = (data) => {
+  const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+  return request.post('/ncnb/connector/dbReverseMeta', {
+    data: {
+      ...updateFieldName(data),
+      projectId,
+    }
+  });
+};
+
 export const updateVersion = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
   return request.post('/ncnb/connector/updateVersion', {

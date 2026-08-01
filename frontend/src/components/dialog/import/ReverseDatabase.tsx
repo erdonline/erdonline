@@ -1,6 +1,6 @@
 import {ProForm, ModalForm, ProFormInstance, ProFormSelect, StepsForm} from '@ant-design/pro-components';
 import React, {useRef, useState, useEffect} from 'react';
-import {Button as AntButton, Spin} from 'antd';
+import {Button as AntButton, Spin, message} from 'antd';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -8,29 +8,93 @@ import shallow from "zustand/shallow";
 import _ from 'lodash';
 import ReverseTable from "@/components/TableTransfer/ReverseTable";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
+import { dbReverseMeta } from '@/utils/save';
 
 export type DatabaseReverseProps = {};
 
-const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
+type ReverseMeta = {
+  dialectId?: string;
+  supportsSchema?: boolean;
+  schemas?: string[];
+};
+
+const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const { projectDispatch, profileSliceState } = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     profileSliceState: state.profileSliceState || {},
   }), shallow);
 
   const [dbs, setDbs] = useState([]);
+  const [reverseMeta, setReverseMeta] = useState<ReverseMeta | null>(null);
+  const [metaLoading, setMetaLoading] = useState(false);
+  const [currentDbName, setCurrentDbName] = useState<string | undefined>();
 
   useEffect(() => {
     const fetchDatabases = async () => {
       const databases = await fetchDatabaseConfigs();
       setDbs(databases);
+      const initialName = projectDispatch.getCurrentDBName();
+      if (initialName) {
+        setCurrentDbName(initialName);
+      }
     };
     fetchDatabases();
   }, []);
 
-
   const formRef = useRef<ProFormInstance>();
 
   const {flag, status, loading} = profileSliceState;
+
+  useEffect(() => {
+    let cancelled = false;
+    const loadMeta = async () => {
+      const db: any = dbs.find((d: any) => d.name === currentDbName);
+      if (!db?.properties) {
+        setReverseMeta(null);
+        return;
+      }
+      setMetaLoading(true);
+      try {
+        const dbConfig = _.omit(db.properties, ['driver_class_name']);
+        const res = await dbReverseMeta({
+          ...dbConfig,
+          driverClassName: db.properties['driver_class_name'],
+        });
+        if (cancelled) {
+          return;
+        }
+        if (res && res.code === 200) {
+          const meta = res.data as ReverseMeta;
+          setReverseMeta(meta);
+          const schemas = meta?.schemas || [];
+          const defaultSchema = schemas.includes('public')
+            ? 'public'
+            : schemas.includes('dbo')
+              ? 'dbo'
+              : schemas[0];
+          formRef.current?.setFieldsValue({
+            schema: meta?.supportsSchema ? defaultSchema : undefined,
+          });
+        } else {
+          setReverseMeta(null);
+          message.error('读取数据源 schema 失败：' + (res?.msg || '未知错误'));
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setReverseMeta(null);
+          message.error('读取数据源 schema 失败：' + (e?.message || e));
+        }
+      } finally {
+        if (!cancelled) {
+          setMetaLoading(false);
+        }
+      }
+    };
+    loadMeta();
+    return () => {
+      cancelled = true;
+    };
+  }, [currentDbName, dbs]);
 
 
   return (<>
@@ -92,7 +156,11 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
           onFinish={async () => {
             const fieldsValue = formRef.current?.getFieldsValue();
             const db = dbs.filter((d: any) => d.name === fieldsValue?.currentDB)[0];
-            projectDispatch.dbReverseParse(db, fieldsValue?.dataFormat);
+            projectDispatch.dbReverseParse(
+              db,
+              fieldsValue?.dataFormat,
+              reverseMeta?.supportsSchema ? fieldsValue?.schema : undefined,
+            );
             return true;
           }}
         >
@@ -102,10 +170,23 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
             width="md"
             rules={[{required: true}]}
             initialValue={projectDispatch.getCurrentDBName()}
+            fieldProps={{
+              onChange: (value: string) => setCurrentDbName(value),
+            }}
             request={async () => dbs.map((db: any) => {
               return {label: db.name, value: db.name}
             })}
           />
+          {reverseMeta?.supportsSchema ? (
+            <ProFormSelect
+              name="schema"
+              label="Schema："
+              width="md"
+              rules={[{required: true, message: '请选择 Schema'}]}
+              options={(reverseMeta.schemas || []).map((name) => ({label: name, value: name}))}
+              fieldProps={{ loading: metaLoading }}
+            />
+          ) : null}
           <ProFormSelect
             name="dataFormat"
             label="逻辑名格式："
