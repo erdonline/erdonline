@@ -20,9 +20,11 @@ import {enablePatches, produceWithPatches} from 'immer'
 import {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
-import {connectPresence, disconnectPresence} from "@/services/collabPresence";
+import {connectPresence, disconnectPresence, emitCursor} from "@/services/collabPresence";
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
+
+export type RemoteCursor = { x: number; y: number; ts: number };
 
 
 enablePatches()
@@ -41,11 +43,13 @@ export type ProjectState =
     projectLoading: boolean,
     socket: any,
     onlineUsers: string[],
+    remoteCursors: Record<string, RemoteCursor>,
     syncing: boolean,
     timestamp: number,
     fetch: (projectId?: string) => Promise<void>;
     initSocket: (projectId: string) => Promise<void>;
     closeSocket: (projectId: string) => void;
+    publishCursor: (x: number, y: number) => void;
     sync: (delta: any,) => void;
     dispatch: IProjectJsonDispatchSlice & IConfigJsonDispatchSlice & IModulesDispatchSlice
       & IDataTypeDomainsDispatchSlice & IDatabaseDomainsDispatchSlice & IProfileDispatchSlice
@@ -100,6 +104,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         project: {},
         projectLoading: false,
         onlineUsers: [],
+        remoteCursors: {},
         syncing: false,
         timestamp: Date.now(),
         fetch: async (projectId?: string|null) => {
@@ -134,8 +139,28 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         initSocket: async (projectId: string) => {
           if (get().socket) return;
           try {
-            const socket = await connectPresence(projectId, (users) => {
-              set({ onlineUsers: users });
+            const socket = await connectPresence(projectId, {
+              onRoster: (users, actor) => {
+                const next: Record<string, RemoteCursor> = { ...get().remoteCursors };
+                // 离开者清光标；名单外用户清掉
+                Object.keys(next).forEach((u) => {
+                  if (!users.includes(u)) delete next[u];
+                });
+                if (actor && !users.includes(actor)) {
+                  delete next[actor];
+                }
+                set({ onlineUsers: users, remoteCursors: next });
+              },
+              onCursor: ({ username, x, y }) => {
+                const me = cache.getItem('username');
+                if (me && me === username) return;
+                set({
+                  remoteCursors: {
+                    ...get().remoteCursors,
+                    [username]: { x, y, ts: Date.now() },
+                  },
+                });
+              },
             });
             set({ socket });
           } catch (e: any) {
@@ -152,11 +177,15 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           set({
             socket: null,
             onlineUsers: [],
+            remoteCursors: {},
             project: {}
           })
         },
+        publishCursor: (x: number, y: number) => {
+          emitCursor(get().socket, x, y);
+        },
         sync: (_r: any) => {
-          // 模型增量同步另切（ADR-0009：本切片仅 presence）；勿再连 localhost:3000
+          // 模型增量同步另切；光标已走 martin:event:cursor
         },
         dispatch: {
           updateProjectName: (payload: any) => set((state: any) => {

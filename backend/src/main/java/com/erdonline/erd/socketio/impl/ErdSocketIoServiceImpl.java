@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
@@ -75,6 +76,40 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
             @Override
             public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
                 leavePresence(client, false);
+            }
+        });
+
+        // 协作光标：广播 flow 坐标到同房间其他连接（不含自己）
+        socketIONamespace.addEventListener(WebsocketConstants.CURSOR, Map.class, new DataListener<Map>() {
+            @Override
+            public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
+                String username = client.get(ATTR_USERNAME);
+                String projectId = client.get(ATTR_PROJECT);
+                if (StrUtil.isBlank(username)) {
+                    username = ParseHeaderUtil.parseUserNameFromHeader(client.getHandshakeData());
+                }
+                if (StrUtil.isBlank(projectId)) {
+                    projectId = ParseHeaderUtil.parseProjectIdFromHeader(client.getHandshakeData());
+                }
+                if (StrUtil.isBlank(username) || StrUtil.isBlank(projectId) || data == null) {
+                    return;
+                }
+                Object x = data.get("x");
+                Object y = data.get("y");
+                if (x == null || y == null) {
+                    return;
+                }
+                Map<String, Object> payload = new HashMap<>(4);
+                payload.put("username", username);
+                payload.put("x", x);
+                payload.put("y", y);
+                UUID selfId = client.getSessionId();
+                for (SocketIOClient peer : client.getNamespace().getRoomOperations(projectId).getClients()) {
+                    if (selfId.equals(peer.getSessionId())) {
+                        continue;
+                    }
+                    peer.sendEvent(WebsocketConstants.CURSOR, payload);
+                }
             }
         });
 

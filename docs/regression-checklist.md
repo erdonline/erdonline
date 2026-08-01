@@ -42,6 +42,7 @@
 - [x] [分享 autofork] 登录后打开 `/s/:token?autofork=1` 自动 fork 进设计器 ✅`share.spec.ts`
 - [x] [在线 demo] `/demo` → `/s/public-demo` 见关系图 + 复制 CTA ✅`demo.spec.ts`
 - [x] [协作 presence] 设计器顶栏 `collab-presence` 含当前用户 ✅`presence.spec.ts`；`verify-socket-presence.mjs`（含断线清名单）
+- [x] [协作光标] 双端 `verify-socket-cursor.mjs`：A 发坐标 B 收、发送方无回声 ✅
 
 ### 手工
 
