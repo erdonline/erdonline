@@ -46,7 +46,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 10. ~~**`exportSlice` eslint warn 清零**~~（已合入）
 11. **`profileSlice` eslint warn 清零** → 草稿 `ISSUE_DRAFTS/01-…`
 12. **`dataTypeDomainsSlice` eslint warn 清零** → 草稿 `ISSUE_DRAFTS/02-…`
-13. **设计器顶栏 Gitee star 链更新** → 草稿 `ISSUE_DRAFTS/03-…`
+13. ~~**设计器顶栏 Gitee star 链更新**~~（已合入 → GitHub `erdonline/erdonline`）
 14. **社交登录已删路径 E2E** → 草稿 `ISSUE_DRAFTS/04-…`
 
 ## 贡献者怎么认领
