@@ -12,17 +12,17 @@
 
 <p align="center">
   <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square"></a>
-  <img alt="java" src="https://img.shields.io/badge/Java-8-orange.svg?style=flat-square">
-  <img alt="spring boot" src="https://img.shields.io/badge/Spring%20Boot-2.3-brightgreen.svg?style=flat-square">
+  <img alt="java" src="https://img.shields.io/badge/Java-17-orange.svg?style=flat-square">
+  <img alt="spring boot" src="https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen.svg?style=flat-square">
   <img alt="react" src="https://img.shields.io/badge/React-18-blue.svg?style=flat-square">
   <a href="#"><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square"></a>
 </p>
 
 ---
 
-ERD Online 提供简单易用的元数据设计、关系图设计、SQL 查询等功能，辅以版本管理、导入导出、多数据源、SQL 解析、审计、团队协作等能力，帮助团队快速、安全地管理数据库中的元数据。
+ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁垒，设计器体验是及格线。提供关系图画布（ReactFlow）、版本快照与 diff、导入导出、多数据源与团队权限。
 
-本仓库是 **单体架构（monolith）** 版本：前端 React 应用与后端 Spring Boot 单体服务整合于一个仓库，一条命令即可启动全栈，便于学习、自部署与二次开发。
+本仓库是 **单体架构（monolith）**：前端与 Spring Boot 同仓，docker-compose 一键起全栈。
 
 ## ✨ 特性
 
@@ -42,8 +42,8 @@ ERD Online 提供简单易用的元数据设计、关系图设计、SQL 查询�
 
 | 层 | 技术 |
 |---|---|
-| 前端 | React 18 · UmiJS Max · Ant Design Pro · Zustand · TypeScript |
-| 后端 | Spring Boot 2.3 · Spring Security OAuth2 · MyBatis-Plus · Redis |
+| 前端 | React 18 · UmiJS Max · Ant Design Pro · Zustand · TypeScript · ReactFlow |
+| 后端 | Spring Boot 3.5 · JWT Resource Server · MyBatis-Plus · Redis |
 | 存储 | MySQL 8 · Redis |
 | 部署 | Docker · Docker Compose · Nginx |
 
@@ -73,17 +73,20 @@ docker compose up -d          # 启动 mysql + redis + backend + frontend
 
 - 前端：http://localhost:8000
 - 后端 API：http://localhost:9502
+- 默认账号：`admin` / `123456`
+
+登录后首页点 **「示例项目」**：约 30 秒进入带用户/订单表的关系图，再在「版本 → 版本管理」保存快照。
 
 ### 方式二：本地开发
 
-前置：JDK 8、Maven 3.6+、Node.js 16+、Yarn、MySQL 8、Redis。
+前置：JDK **17**、Maven 3.8+、Node.js **20**、Yarn、MySQL 8、Redis。
 
 ```bash
 # 1. 起数据库（或用本机已有的 MySQL/Redis）
 docker compose up -d mysql redis
 
-# 2. 后端
-cd backend && mvn spring-boot:run
+# 2. 后端（JDK 17；改代码后用 backend/dev-restart.sh 或 mvn compile 热加载）
+cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) SPRING_PROFILES_ACTIVE=dev mvn spring-boot:run
 
 # 3. 前端（另开终端）
 cd frontend && yarn && yarn start
@@ -93,9 +96,9 @@ cd frontend && yarn && yarn start
 
 ## 📖 文档
 
-- [架构说明](docs/architecture.md)
-- [部署指南](docs/deployment.md)
-- [开发指南](docs/development.md)
+- [愿景与路线图](docs/vision.md) · [roadmap](docs/roadmap.md)
+- [架构说明](docs/architecture.md)（若有）
+- [部署指南](docs/deployment.md) · [开发指南](docs/development.md)
 
 ## 🤝 贡献
 
