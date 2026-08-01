@@ -270,6 +270,22 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
     let tempKeys = [...keys];
     let tempData = {...dataSource};
+    const selectedTitles = new Set(keys.map((k: any) => k.title));
+    const incomingAssociations = (_.get(module, 'associations', []) || []).filter((a: any) =>
+      selectedTitles.has(a?.from?.entity) && selectedTitles.has(a?.to?.entity)
+      && a?.from?.field && a?.to?.field);
+    const mergeAssociations = (existing: any[] = [], incoming: any[] = []) => {
+      const merged = [...existing];
+      incoming.forEach((a: any) => {
+        const dup = merged.some((x: any) =>
+          x?.from?.entity === a?.from?.entity && x?.from?.field === a?.from?.field
+          && x?.to?.entity === a?.to?.entity && x?.to?.field === a?.to?.field);
+        if (!dup) {
+          merged.push(a);
+        }
+      });
+      return merged;
+    };
     // 1.循环所有已知的数据表
     let modules = (tempData.modules || []).map((m: any) => ({
       ...m,
@@ -297,9 +313,22 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       modules.push({
         name: module.code,
         chnname: module.name,
-        entities: tempKeys
+        entities: tempKeys,
+        associations: [],
       });
     }
+    // 关联挂到「外键侧实体所在模块」（画布按模块读 associations）
+    modules = modules.map((m: any) => {
+      const titles = new Set((m.entities || []).map((e: any) => e.title));
+      const forModule = incomingAssociations.filter((a: any) => titles.has(a.from.entity));
+      if (forModule.length === 0) {
+        return m;
+      }
+      return {
+        ...m,
+        associations: mergeAssociations(m.associations || [], forModule),
+      };
+    });
     tempData = {
       ...tempData,
       modules,

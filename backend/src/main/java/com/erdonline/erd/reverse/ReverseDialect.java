@@ -1,5 +1,6 @@
 package com.erdonline.erd.reverse;
 
+import com.erdonline.erd.model.Association;
 import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.ParseDataModel;
 
@@ -50,4 +51,12 @@ public interface ReverseDialect {
      */
     void fillEntity(Connection connection, TableIdentity table, Entity entity,
                     ParseDataModel dataModel, String nameCaseFlag) throws SQLException;
+
+    /**
+     * 列出表间关联（外键）。默认空；支持时仅返回两端均在 {@code tables} 内的边。
+     */
+    default List<Association> listAssociations(Connection connection, List<TableIdentity> tables,
+                                               String nameCaseFlag) throws SQLException {
+        return Collections.emptyList();
+    }
 }

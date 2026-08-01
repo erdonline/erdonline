@@ -23,7 +23,8 @@
 - **GenericJdbcReverseDialect**：表/列/PK + `getIndexInfo` 尽力索引
 - `DBReverseParseCommand` 改为委托 Dialect；连接在 finally 关闭；支持可选 `schema` 参数
 - **`POST /ncnb/connector/dbReverseMeta`**：返回方言能力 + schema 列表；导入向导在 `supportsSchema` 时展示 Schema 选择
-  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 9/9 绿；curl MySQL → `dialectId=MYSQL, supportsSchema=false, schemas=[]`
+- **外键逆向**：`getImportedKeys` → `module.associations`（from=子表/FK，to=父表/PK，relation=`1:n`）；导入时挂到外键侧实体所在模块
+  验证点：`ForeignKeyAssociationMapperTest` + Registry/Mapper 单测绿；curl MySQL meta `supportsForeignKey=true`
 
 ## [Unreleased] — eslint 热路径收尾（2026-08-01）
 

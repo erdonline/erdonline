@@ -2,6 +2,7 @@ package com.erdonline.erd.command;
 
 import cn.hutool.core.exceptions.ExceptionUtil;
 import com.erdonline.common.core.api.R;
+import com.erdonline.erd.model.Association;
 import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Module;
 import com.erdonline.erd.model.ParseDataModel;
@@ -68,6 +69,15 @@ public class DBReverseParseCommand extends AbstractDBCommand<R> {
         module.setCode("DB_REVERSE_" + dbType);
         module.setName("逆向解析_" + dbType);
         module.setEntities(entities);
+        if (dialect.capability().isSupportsForeignKey()) {
+            try {
+                List<Association> associations = dialect.listAssociations(connection, tables, nameCaseFlag);
+                module.setAssociations(associations);
+            } catch (SQLException ex) {
+                log.warn("读取外键关联失败，已跳过: {}", ex.getMessage());
+                module.setAssociations(new ArrayList<>(0));
+            }
+        }
         dataModel.setModule(module);
     }
 }

@@ -31,6 +31,7 @@ class ReverseDialectRegistryTest {
         assertEquals(DialectIds.POSTGRESQL, dialect.id());
         assertTrue(dialect.capability().isSupportsSchema());
         assertTrue(dialect.capability().isSupportsIndex());
+        assertTrue(dialect.capability().isSupportsForeignKey());
     }
 
     @Test
@@ -40,6 +41,7 @@ class ReverseDialectRegistryTest {
         assertEquals(DialectIds.ORACLE, dialect.id());
         assertTrue(dialect.capability().isSupportsSchema());
         assertTrue(dialect.capability().isSupportsIndex());
+        assertTrue(dialect.capability().isSupportsForeignKey());
     }
 
     @Test
@@ -49,6 +51,7 @@ class ReverseDialectRegistryTest {
         assertEquals(DialectIds.SQLSERVER, dialect.id());
         assertTrue(dialect.capability().isSupportsSchema());
         assertTrue(dialect.capability().isSupportsIndex());
+        assertTrue(dialect.capability().isSupportsForeignKey());
     }
 
     @Test
@@ -59,10 +62,11 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void mysqlCapability_indexYes_schemaNo() {
+    void mysqlCapability_indexYes_schemaNo_fkYes() {
         DialectCapability capability = ReverseDialectRegistry.resolve("MySQL").capability();
         assertTrue(capability.isSupportsIndex());
         assertTrue(capability.isSupportsAutoIncrement());
+        assertTrue(capability.isSupportsForeignKey());
         assertFalse(capability.isSupportsSchema());
     }
 }
