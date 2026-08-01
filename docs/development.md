@@ -19,7 +19,7 @@
 # 0. Colima（首次需盘镜像；国内勿直连 GitHub）
 #    加速门户：https://github.akams.cn/  （拼法 https://<node>/https://github.com/...）
 #    例：curl -fL -o ~/Downloads/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz \
-#      'https://ghproxy.net/https://github.com/abiosoft/colima-core/releases/download/v0.10.4/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz'
+#      'https://github.dpik.top/https://github.com/abiosoft/colima-core/releases/download/v0.10.4/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz'
 colima start --cpu 4 --memory 8 --disk 40 \
   --disk-image ~/Downloads/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz
 # Docker Hub 国内源：~/.colima/default/colima.yaml → docker.registry-mirrors
