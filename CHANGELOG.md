@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — modulesSlice eslint 清零（2026-08-02）
+
+### 修复
+- `modulesSlice.tsx`：粘贴命名抽出 `nextCopyName` 消 no-loop-func；去未用变量；`storage.tsx` import type；`store/project` warn=0
+- ISSUE_DRAFTS `09`–`10`（版本菜单 E2E / 默认项保存反馈）
+  验证点：`yarn eslint src/store/project --max-warnings 0`；`empty-projectjson.spec.ts` 绿
+
 ## [Unreleased] — useProjectStore eslint 清零（2026-08-02）
 
 ### 修复

@@ -1,5 +1,5 @@
 import {get, set} from 'idb-keyval'
-import {StateStorage} from "zustand/middleware";
+import type {StateStorage} from "zustand/middleware";
 // Custom storage object
 const Storage: StateStorage = {
   getItem: async (name: string): Promise<string | null> => {
