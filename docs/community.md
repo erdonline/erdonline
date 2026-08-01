@@ -56,7 +56,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 20. ~~**`modulesSlice` eslint warn 清零**~~（已合入；`src/store/project` eslint warn=0）
 21. ~~**项目菜单「版本」入口**~~（已合入：跳转版本管理 + E2E）
 22. ~~**默认项设置保存反馈**~~（已合入 E2E「设置成功」；草稿 `10`）
-23. **版本管理页骨架**（草稿 `11-version-page-skeleton.md`）
+23. ~~**版本管理页骨架**~~（已合入；`loading.spec.ts`）
 24. **模型树删表二次确认 E2E**（草稿 `12-tree-delete-confirm.md`）
 
 ## 贡献者怎么认领
