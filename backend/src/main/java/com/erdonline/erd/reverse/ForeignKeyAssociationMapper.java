@@ -13,9 +13,11 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * 将 JDBC {@code DatabaseMetaData#getImportedKeys} 行映射为 {@link Association}。
- * <p>约定列：FKTABLE_NAME / FKCOLUMN_NAME / PKTABLE_NAME / PKCOLUMN_NAME。
- * 仅保留两端均在 {@code originToDisplay} 中的外键；按 from/to 去重。
+ * 将外键 ResultSet 映射为 {@link Association}。
+ * <p>JDBC：{@code getImportedKeys} 列 FKTABLE_NAME / FKCOLUMN_NAME / PKTABLE_NAME / PKCOLUMN_NAME。
+ * <p>字典：INFORMATION_SCHEMA.KEY_COLUMN_USAGE 风格 TABLE_NAME / COLUMN_NAME /
+ * REFERENCED_TABLE_NAME / REFERENCED_COLUMN_NAME（调用方按 CONSTRAINT_NAME, ORDINAL_POSITION 排序）。
+ * 仅保留两端均在 {@code originToDisplay} 中的外键；按 from/to 去重。复合 FK 拆成多条单字段边（保序）。
  *
  * @author erdonline
  */
@@ -32,13 +34,34 @@ public final class ForeignKeyAssociationMapper {
     public static List<Association> mapImportedKeys(ResultSet importedKeysRs,
                                                     Map<String, String> originToDisplay,
                                                     String nameCaseFlag) throws SQLException {
+        return mapRows(importedKeysRs, originToDisplay, nameCaseFlag,
+                "FKTABLE_NAME", "FKCOLUMN_NAME", "PKTABLE_NAME", "PKCOLUMN_NAME");
+    }
+
+    /**
+     * MySQL / 字典 SQL：KEY_COLUMN_USAGE（及同类）列名。
+     */
+    public static List<Association> mapFromKeyColumnUsage(ResultSet keyColumnUsageRs,
+                                                          Map<String, String> originToDisplay,
+                                                          String nameCaseFlag) throws SQLException {
+        return mapRows(keyColumnUsageRs, originToDisplay, nameCaseFlag,
+                "TABLE_NAME", "COLUMN_NAME", "REFERENCED_TABLE_NAME", "REFERENCED_COLUMN_NAME");
+    }
+
+    private static List<Association> mapRows(ResultSet rs,
+                                             Map<String, String> originToDisplay,
+                                             String nameCaseFlag,
+                                             String fkTableCol,
+                                             String fkColumnCol,
+                                             String pkTableCol,
+                                             String pkColumnCol) throws SQLException {
         Set<String> seen = new LinkedHashSet<>(32);
         List<Association> associations = new ArrayList<>(16);
-        while (importedKeysRs.next()) {
-            String fkTable = importedKeysRs.getString("FKTABLE_NAME");
-            String fkColumn = importedKeysRs.getString("FKCOLUMN_NAME");
-            String pkTable = importedKeysRs.getString("PKTABLE_NAME");
-            String pkColumn = importedKeysRs.getString("PKCOLUMN_NAME");
+        while (rs.next()) {
+            String fkTable = readString(rs, fkTableCol);
+            String fkColumn = readString(rs, fkColumnCol);
+            String pkTable = readString(rs, pkTableCol);
+            String pkColumn = readString(rs, pkColumnCol);
             if (fkTable == null || fkColumn == null || pkTable == null || pkColumn == null) {
                 continue;
             }
@@ -59,5 +82,14 @@ public final class ForeignKeyAssociationMapper {
                     new AssociationEnd(toEntity, toField)));
         }
         return associations;
+    }
+
+    private static String readString(ResultSet rs, String column) throws SQLException {
+        try {
+            return rs.getString(column);
+        } catch (SQLException ex) {
+            // 部分驱动/别名大小写不同
+            return rs.getString(column.toLowerCase(Locale.ROOT));
+        }
     }
 }

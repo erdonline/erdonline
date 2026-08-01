@@ -100,14 +100,7 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
         if (!capability().isSupportsForeignKey() || tables == null || tables.isEmpty()) {
             return Collections.emptyList();
         }
-        Map<String, String> originToDisplay = new HashMap<>(tables.size() * 2);
-        for (TableIdentity table : tables) {
-            if (table.getOriginTableName() != null) {
-                originToDisplay.put(
-                        table.getOriginTableName().toUpperCase(Locale.ROOT),
-                        table.getDisplayTableName());
-            }
-        }
+        Map<String, String> originToDisplay = buildOriginToDisplay(tables);
         Map<String, Association> byKey = new LinkedHashMap<>(32);
         DatabaseMetaData metaData = connection.getMetaData();
         for (TableIdentity table : tables) {
@@ -125,12 +118,24 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
         return new ArrayList<>(byKey.values());
     }
 
-    private static String associationKey(Association association) {
+    protected static String associationKey(Association association) {
         String fromEntity = association.getFrom() != null ? association.getFrom().getEntity() : "";
         String fromField = association.getFrom() != null ? association.getFrom().getField() : "";
         String toEntity = association.getTo() != null ? association.getTo().getEntity() : "";
         String toField = association.getTo() != null ? association.getTo().getField() : "";
         return fromEntity + '\0' + fromField + '\0' + toEntity + '\0' + toField;
+    }
+
+    protected static Map<String, String> buildOriginToDisplay(List<TableIdentity> tables) {
+        Map<String, String> originToDisplay = new HashMap<>(tables.size() * 2);
+        for (TableIdentity table : tables) {
+            if (table.getOriginTableName() != null) {
+                originToDisplay.put(
+                        table.getOriginTableName().toUpperCase(Locale.ROOT),
+                        table.getDisplayTableName());
+            }
+        }
+        return originToDisplay;
     }
 
     /**
