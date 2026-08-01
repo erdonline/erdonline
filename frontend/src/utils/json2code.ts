@@ -3,8 +3,9 @@ import _ from 'lodash';
 import doT from 'dot';
 import {message} from "antd";
 
-const getFieldType = (datatype, type, code) => {
-  const data = (datatype || []).filter(dt => dt.code === type)[0];
+/** 方言码 → 字段物理类型（datatypeDomains.apply[code].type） */
+const getFieldType = (datatype: unknown[], type: string, code: string): string => {
+  const data = (datatype || []).filter((dt: { code?: string }) => dt.code === type)[0];
   if (data) {
     return _.get(data, `apply.${code}.type`, '');
   }
@@ -812,12 +813,22 @@ export const getAllDataSQL = (dataSource, code) => {
   return sqlString.endsWith(separator) ? sqlString : sqlString + separator;
 };
 
-export const getAllDataSQLByFilter = (dataSource, code, filter = []) => {
+/**
+ * 按过滤器拼全量 DDL（删表/建表/索引/注释）。
+ * @param dataSource projectJSON 形态
+ * @param code 方言码，如 MYSQL
+ * @param filter 片段键：deleteTable | createTable | createIndex | updateComment
+ */
+export const getAllDataSQLByFilter = (
+  dataSource: Record<string, unknown>,
+  code: string,
+  filter: string[] = [],
+): string => {
   // 获取全量脚本（删表，建表，建索引，表注释）
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
   const database = _.get(dataSource, 'dataTypeDomains.database', [])
-    .filter(db => db.defaultDatabase)[0];
-  const getTemplate = (templateShow) => {
+    .filter((db: { defaultDatabase?: boolean }) => db.defaultDatabase)[0];
+  const getTemplate = (templateShow: string) => {
     return `${(database && database[templateShow]) || ''}`;
   };
   const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';

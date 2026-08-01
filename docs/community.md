@@ -80,7 +80,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 37. ~~**版本管理页 eslint**~~（已合入）
 38. ~~**ExportDDL 剩余 eslint**~~（已合入）
 39. ~~**PageSkeleton aria-busy**~~（已合入）
-40. **json2code 入口类型收窄**（草稿 `27-json2code-no-any-slice.md`）
+40. ~~**json2code 入口类型收窄**~~（已合入）
 41. **share.spec 清理更稳**（草稿 `28-share-spec-cleanup.md`）
 
 ## 贡献者怎么认领
