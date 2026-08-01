@@ -20,6 +20,9 @@ import SyncVersion from "@/components/dialog/version/SyncVersion";
 import ExportWord from "@/components/dialog/export/ExportWord";
 import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
+import { history } from "@@/exports";
+import * as cache from "@/utils/cache";
+import { CONSTANT } from "@/utils/constant";
 
 export const MyIcon = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_1485538_uljgplzg6rm.js', // 在 iconfont.cn 上生成
@@ -71,9 +74,18 @@ const setShortcut = (shortcut: string) => {
 };
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
+  const openVersionManage = () => {
+    const projectId =
+      cache.getItem(CONSTANT.PROJECT_ID) ||
+      new URLSearchParams(window.location.search).get("projectId") ||
+      "";
+    const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : "";
+    history.push(`/design/table/version/all${q}`);
+  };
+
   return (
     <Menu mode="vertical" selectable={false} style={{ minWidth: 160 }}>
-      <Menu.Item key="version" onClick={() => setShortcut(PANEL.VERSION)}>
+      <Menu.Item key="version" onClick={openVersionManage}>
         版本
       </Menu.Item>
       <Menu.SubMenu key="import" title="导入">

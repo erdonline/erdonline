@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 项目菜单「版本」跳转版本管理（2026-08-02）
+
+### 修复
+- 设计器项目菜单「版本」原只改 shortcut（首页用），设计器内无反馈；改为跳转 `/design/table/version/all`
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "版本"` 绿
+
 ## [Unreleased] — modulesSlice eslint 清零（2026-08-02）
 
 ### 修复

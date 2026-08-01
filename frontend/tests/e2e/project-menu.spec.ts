@@ -71,6 +71,31 @@ test.describe('设计器项目菜单', () => {
     }
   });
 
+  test('项目 → 版本 进入版本管理', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('vermenu');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page.getByRole('menuitem', { name: '版本' }).click();
+
+      await expect(page).toHaveURL(
+        new RegExp(`/design/table/version/all\\?projectId=${projectId}`),
+        { timeout: 15_000 },
+      );
+      await expect(page.getByTestId('add-version-btn')).toBeVisible({
+        timeout: 15_000,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('项目 → 设置 → 默认项设置 可打开', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('default');
