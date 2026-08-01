@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — good-first-issue 运营清单（2026-08-02）
+
+### 新增
+- `docs/community.md`：标签约定、双周节奏、种子任务池；Issue 模板 `good_first_issue.yml`；CONTRIBUTING 入口
+  验证点：`cd website && yarn build` 绿（含 community 页）；模板文件存在于 `.github/ISSUE_TEMPLATE/`
+
 ## [Unreleased] — 文档站本地中文搜索（2026-08-02）
 
 ### 新增
