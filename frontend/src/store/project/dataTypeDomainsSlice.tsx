@@ -1,10 +1,20 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
-import produce from "immer";
-import {message} from "antd";
-import _ from "lodash";
-import {Data, DatabasePoint, DataNull, DataUser} from "@icon-park/react";
-import * as cache from "@/utils/cache";
+import type { GetState, SetState } from 'zustand';
+import type { ProjectState } from '@/store/project/useProjectStore';
+import produce from 'immer';
+import { message } from 'antd';
+import { Data, DatabasePoint, DataNull, DataUser } from '@icon-park/react';
+import * as cache from '@/utils/cache';
+
+function uniqueWithSuffix(
+  base: string,
+  exists: (value: string) => boolean,
+): string {
+  let value = base;
+  while (exists(value)) {
+    value = `${value}-副本`;
+  }
+  return value;
+}
 
 export type IDataTypeDomainsSlice = {
   currentDataType?: string;
@@ -37,7 +47,7 @@ export interface IDataTypeDomainsDispatchSlice {
   pastDatatype: () => void;
   setCurrentDatatype: (payload: any) => void,
   updateAllDataTypes: (payload: any) => void,
-  getDataTypeTree: (searchKey: string) => any,
+  getDataTypeTree: () => any,
 
 }
 
@@ -102,18 +112,9 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
     try {
       data = cache.getItem2object(ERD_DATA_TYPE_CLIPBOARD) || {};
       if (currentDataTypeIndex && validateDataType(data)) {
-        let dataTypeCode = data.code;
-        let code = dataTypeCode;
-        while (state.project.projectJSON.dataTypeDomains.datatype.some((m: any) => m.code === dataTypeCode)) {
-          code = `${dataTypeCode}-副本`;
-          dataTypeCode = code;
-        }
-        let dataTypeName = data.name;
-        let name = dataTypeName;
-        while (state.project.projectJSON.dataTypeDomains.datatype.some((m: any) => m.name === dataTypeName)) {
-          name = `${dataTypeName}-副本`;
-          dataTypeName = name;
-        }
+        const list = state.project.projectJSON.dataTypeDomains.datatype;
+        const code = uniqueWithSuffix(data.code, (v) => list.some((m: any) => m.code === v));
+        const name = uniqueWithSuffix(data.name, (v) => list.some((m: any) => m.name === v));
         state.project.projectJSON.dataTypeDomains.datatype.push({
           ...data,
           code,
@@ -128,9 +129,8 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
 
     }
   }),
-  getDataTypeTree: (searchKey: string) => {
-
-    let dataTypes = get().project?.projectJSON?.dataTypeDomains?.datatype?.map((datatype: any) => {
+  getDataTypeTree: () => {
+    const dataTypes = get().project?.projectJSON?.dataTypeDomains?.datatype?.map((datatype: any) => {
       return {
         type: 'dataType',
         code: datatype.code,
@@ -140,7 +140,7 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
         key: `datatype${datatype.name}`,
       }
     });
-    let databases = get().project?.projectJSON?.dataTypeDomains?.database?.map((database: any) => {
+    const databases = get().project?.projectJSON?.dataTypeDomains?.database?.map((database: any) => {
       return {
         type: 'database',
         code: database.code,

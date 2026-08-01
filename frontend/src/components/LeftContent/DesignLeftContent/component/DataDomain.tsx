@@ -74,7 +74,7 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
       height={550}
       defaultExpandedKeys={['database###database']}
       rootStyle={{textAlign: 'left'}}
-      treeData={projectDispatch.getDataTypeTree('')}
+      treeData={projectDispatch.getDataTypeTree()}
       titleRender={(node: any) => {
         return <Dropdown trigger={['contextMenu']}
                          overlay={renderContext(node.code, node.type)}

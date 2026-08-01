@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — dataTypeDomainsSlice eslint 清零（2026-08-02）
+
+### 修复
+- `dataTypeDomainsSlice.tsx`：去掉未用 lodash、粘贴重名逻辑抽出 `uniqueWithSuffix`，eslint warn=0
+  验证点：`yarn eslint src/store/project/dataTypeDomainsSlice.tsx --max-warnings 0`
+
 ## [Unreleased] — profileSlice eslint 清零（2026-08-02）
 
 ### 修复
