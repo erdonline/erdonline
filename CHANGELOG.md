@@ -9,7 +9,8 @@
 - **ADR-0007** + 表 `project_share`；`POST /share/create`、`GET /share/{token}`（匿名）、`POST /share/revoke`
 - Security：`/share/**` 放行匿名读
 - 匿名响应脱敏 `profile.dbs` 口令；前端 `/s/:token` 只读表清单 + 只读关系图 + 设计器「分享」复制链接
-  验证点：登录 create → 匿名 GET `readonly=true` 且 password=`***`；含 associations；`ProjectShareSanitizeTest` 绿
+- 分享按钮：clipboard 不可用时降级展示完整链接（避免创建成功却报失败）；E2E `share.spec.ts`（设计器分享→匿名 `/s/:token` 见关系图）
+  验证点：登录 create → 匿名 GET `readonly=true` 且 password=`***`；含 associations；`ProjectShareSanitizeTest` 绿；`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿
 
 ## [Unreleased] — 开发入口规则（2026-08-01）
 
