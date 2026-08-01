@@ -39,6 +39,7 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
           size="small"
           block
           style={{ textAlign: 'left' }}
+          aria-label="默认项设置"
         >默认项设置</Button>
       }
       initialValues={profile}
