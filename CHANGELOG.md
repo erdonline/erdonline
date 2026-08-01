@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 设计器导出入口 E2E（2026-08-02）
+
+### 新增
+- `project-menu.spec.ts`：项目→导出五项可见且「导出DDL」弹窗；导出按钮补 aria-label
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 设计器导入入口 E2E（2026-08-02）
 
 ### 新增

@@ -18,6 +18,7 @@ const ExportMarkdown: React.FC<ExportFileProps> = () => {
       icon={<MyIcon type="icon-markdown"/>}
       onClick={() => projectDispatch.exportFile('Markdown')}
       style={{ textAlign: 'left' }}
+      aria-label="导出Markdown"
     >导出Markdown</Button>
   );
 };

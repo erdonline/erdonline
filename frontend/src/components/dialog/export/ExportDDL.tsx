@@ -83,6 +83,7 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
                 block
                 icon={<MyIcon type="icon-DDL"/>}
                 style={{ textAlign: 'left' }}
+                aria-label="导出DDL"
               >导出DDL</Button>
             }
             // 完全自定义整个区域

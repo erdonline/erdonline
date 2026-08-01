@@ -70,4 +70,27 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('项目 → 导出 → 五项入口可见且 DDL 可开弹窗', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('export');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page.getByRole('menuitem', { name: '导出' }).hover();
+      await expect(page.getByRole('button', { name: '导出HTML' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '导出Word' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '导出ERD' })).toBeVisible();
+      await page.getByRole('button', { name: '导出DDL' }).click();
+      await expect(page.getByRole('dialog').getByText('SQL导出配置')).toBeVisible({
+        timeout: 10_000,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

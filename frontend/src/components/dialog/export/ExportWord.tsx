@@ -18,6 +18,7 @@ const ExportWord: React.FC<ExportFileProps> = () => {
       icon={<MyIcon type="icon-file-word"/>}
       onClick={() => projectDispatch.exportFile('Word')}
       style={{ textAlign: 'left' }}
+      aria-label="导出Word"
     >导出Word</Button>
   );
 };
