@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — exportSlice eslint 清零（2026-08-02）
+
+### 修复
+- `exportSlice.tsx`：`import type`、reduce 不可变写法、`const`，该文件 eslint warn=0
+  验证点：`yarn eslint src/store/project/exportSlice.tsx --max-warnings 0`
+
 ## [Unreleased] — 开源版去掉升级至尊 CTA（2026-08-02）
 
 ### 修复
