@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 export type ExportJsonProps = {};
 
 const ExportJson: React.FC<ExportJsonProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
@@ -16,7 +18,10 @@ const ExportJson: React.FC<ExportJsonProps> = () => {
       size="small"
       block
       icon={<MyIcon type="icon-JSON"/>}
-      onClick={() => projectDispatch.exportFile('JSON')}
+      onClick={() => {
+        closeProjectMenu();
+        projectDispatch.exportFile('JSON');
+      }}
       style={{ textAlign: 'left' }}
       aria-label="导出ERD"
     >导出ERD</Button>

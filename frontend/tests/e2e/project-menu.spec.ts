@@ -60,13 +60,14 @@ test.describe('设计器项目菜单', () => {
       await openImport('解析PdMan文件');
       const pdman = page.getByRole('dialog');
       await expect(pdman.getByText('解析已有PdMan文件')).toBeVisible();
-      await expect(pdman.getByText(/点击或者拖拽PdMand导出的json文件/)).toBeVisible();
+      // 下拉已关：无需 force 即可点到弹窗内文案
+      await pdman.getByText(/点击或者拖拽PdMand导出的json文件/).click();
       await closeDialog();
 
       await openImport('解析ERD文件');
       const erd = page.getByRole('dialog');
       await expect(erd.getByText('解析已有ERD文件')).toBeVisible();
-      await expect(erd.getByText(/点击或者拖拽ERD导出的json文件/)).toBeVisible();
+      await erd.getByText(/点击或者拖拽ERD导出的json文件/).click();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

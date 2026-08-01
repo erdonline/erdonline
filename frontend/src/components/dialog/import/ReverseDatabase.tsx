@@ -1,5 +1,5 @@
 import {ProForm, ModalForm, ProFormInstance, ProFormSelect, StepsForm} from '@ant-design/pro-components';
-import React, {useRef, useState, useEffect} from 'react';
+import React, {useRef, useState, useEffect, useContext} from 'react';
 import {Button as AntButton, Spin, message} from 'antd';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
@@ -9,6 +9,7 @@ import _ from 'lodash';
 import ReverseTable from "@/components/TableTransfer/ReverseTable";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { dbReverseMeta } from '@/utils/save';
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 export type DatabaseReverseProps = {};
 
@@ -19,6 +20,7 @@ type ReverseMeta = {
 };
 
 const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const { projectDispatch, profileSliceState } = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     profileSliceState: state.profileSliceState || {},
@@ -109,6 +111,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           icon={<MyIcon type="icon-line-height"/>}
           style={{ textAlign: 'left' }}
           aria-label="数据源逆向解析"
+          onClick={() => closeProjectMenu()}
         >数据源逆向解析</Button>
       }
       onFinish={async () => {

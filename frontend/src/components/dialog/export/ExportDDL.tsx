@@ -1,4 +1,4 @@
-import React, {useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef} from 'react';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import {
@@ -18,11 +18,13 @@ import _ from 'lodash';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 
 export type ExportDDLProps = {};
 
 const ExportDDL: React.FC<ExportDDLProps> = (props) => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, dbs, data} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
     projectDispatch: state.dispatch,
@@ -84,6 +86,7 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
                 icon={<MyIcon type="icon-DDL"/>}
                 style={{ textAlign: 'left' }}
                 aria-label="导出DDL"
+                onClick={() => closeProjectMenu()}
               >导出DDL</Button>
             }
             // 完全自定义整个区域
