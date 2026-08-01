@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 删表确认钮「删除」+ dev 关 MFSU（2026-08-02）
+
+### 修复
+- 树删表 `Modal.confirm` 的 `okText` 改为「删除」；E2E 匹配 antd「删 除」空格
+- `config.dev.ts`：`mfsu: false`，避免 eager worker 卡住 / 送出过期模块
+  验证点：`npx playwright test tests/e2e/smoke.spec.ts --project=chromium -g "删除表"` 绿
+
 ## [Unreleased] — 模型树删表确认/取消 E2E（2026-08-02）
 
 ### 修复
