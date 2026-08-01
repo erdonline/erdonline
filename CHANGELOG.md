@@ -78,7 +78,15 @@
 - **列表行摘要**：版本行展示 `+N/-N/~N` 变更计数
 - **首版增量**：无历史时 `calcChanges` 相对空模型计算（详情可见新建表/字段）
 - **清理**：`showChanges` 去掉 `debugger`
-  验证点：`npx playwright test tests/e2e/version.spec.ts` 2 通过（含「详情展示可视化 diff」）
+  验证点：`npx playwright test tests/e2e/version.spec.ts` 通过（含详情 diff + 双版比对）
+
+### 工单/审批打磨（✅）
+
+- **操作反馈**：通过/拒绝/撤销/复批/发起审批成功有 message，失败不关窗、不静默
+- **文案**：审批页 `headerTitle` 由错误的「我的工单」改为「我的审批」；空态引导
+- **可达**：拒绝后也可「复批」；创建审批默认 `approveStatus=0`
+- **比对入口**：不足两版时「版本比对」禁用
+  验证点：`approval.spec.ts` 表头/空态；`version.spec.ts` 单版禁用比对、双版比对出 REMARK
 
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 

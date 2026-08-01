@@ -72,6 +72,10 @@ public class ApprovalController {
     public R create(@ApiParam(value = "", required = true) @Valid @RequestBody Approval approval) {
         String id = SecurityContextUtil.getAccessUser().getId();
         approval.setPromoter(id);
+        // 默认待审批，避免列表 valueEnum 对不上
+        if (approval.getApproveStatus() == null || approval.getApproveStatus().isEmpty()) {
+            approval.setApproveStatus("0");
+        }
         return R.ok(approvalService.save(approval));
     }
 
