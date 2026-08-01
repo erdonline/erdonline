@@ -84,6 +84,11 @@ public final class WebsocketConstants {
     public static final String LEAVE_ROOM_TIP = "离开房间";
 
     /**
+     * 协作光标（flow 坐标 x/y）
+     */
+    public static final String CURSOR = CommonConstants.MARTIN + ":event:cursor";
+
+    /**
      * redisson在Spring容器中的Bean名称
      */
     public static final String REDISSON_SPRING_BEAN_NAME = "redisson";

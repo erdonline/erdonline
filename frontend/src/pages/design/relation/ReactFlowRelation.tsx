@@ -25,6 +25,7 @@ import useGlobalStore from '@/store/global/globalStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
 import { message } from 'antd';
 import shallow from 'zustand/shallow';
+import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import './reactflow-relation.scss';
 
@@ -397,6 +398,7 @@ export type ReactFlowRelationProps = {
 const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) => {
   const projectJSON = useProjectStore(state => state.project?.projectJSON);
   const projectDispatch = useProjectStore(state => state.dispatch);
+  const publishCursor = useProjectStore(state => state.publishCursor);
   const { saved, saving } = useGlobalStore(
     (s) => ({ saved: s.saved, saving: s.saving }),
     shallow,
@@ -630,6 +632,24 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   }, [projectDispatch, cmdOpen]);
 
   const rfRef = useRef<ReactFlowInstance | null>(null);
+  const cursorThrottleRef = useRef(0);
+
+  const onPointerMoveCursor = useCallback(
+    (e: React.PointerEvent) => {
+      const rf = rfRef.current;
+      if (!rf) return;
+      const now = Date.now();
+      if (now - cursorThrottleRef.current < 50) return;
+      cursorThrottleRef.current = now;
+      const bounds = (e.currentTarget as HTMLElement).getBoundingClientRect();
+      const pos = rf.project({
+        x: e.clientX - bounds.left,
+        y: e.clientY - bounds.top,
+      });
+      publishCursor(pos.x, pos.y);
+    },
+    [publishCursor],
+  );
 
   // E2E：静默灌表 + 设视口（单次 setState，避免 N 次 toast）
   useEffect(() => {
@@ -752,6 +772,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onInit={(instance) => {
           rfRef.current = instance;
         }}
+        onPointerMove={onPointerMoveCursor}
         deleteKeyCode={['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
         selectionOnDrag
@@ -767,6 +788,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <Background gap={16} size={1} />
         <Controls />
         <MiniMap pannable zoomable />
+        <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
             <span

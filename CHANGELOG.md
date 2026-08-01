@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 协作光标广播（2026-08-02）
+
+### 新增
+- `martin:event:cursor`：房间内广播 flow 坐标；关系图画布叠加远程光标（`collab-cursors`）
+  验证点：`node scripts/verify-socket-cursor.mjs` PASS；`presence.spec.ts` 仍绿
+
 ## [Unreleased] — Presence 断线清名单（2026-08-02）
 
 ### 修复
