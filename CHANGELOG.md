@@ -67,6 +67,19 @@
 - **E2E**：`version.spec.ts` 登录→进设计器→版本管理→新增→列表见 `1.0.0`
   验证点：`npx playwright test tests/e2e/version.spec.ts` 通过（2026-08-01）
 
+## [Unreleased] — 第 3 轮：版本时光机
+
+> 目标：抬升「每周有版本保存」——看得见模型变更，不只是存了个号。
+
+### 版本 diff 可视化（✅）
+
+- **模型变更面板**：`VersionDiffPanel` 按表分组，新增绿 / 删除红 / 修改黄；摘要 Tag
+- **详情弹窗**：替换纯文本列表 + 去掉 MUI Grid；`CompareVersion` 左右分栏（可视化 + DDL）
+- **列表行摘要**：版本行展示 `+N/-N/~N` 变更计数
+- **首版增量**：无历史时 `calcChanges` 相对空模型计算（详情可见新建表/字段）
+- **清理**：`showChanges` 去掉 `debugger`
+  验证点：`npx playwright test tests/e2e/version.spec.ts` 2 通过（含「详情展示可视化 diff」）
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。

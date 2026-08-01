@@ -167,11 +167,22 @@ const Version: React.FC<VersionProps> = (props) => {
               description: {
                 dataIndex: 'versionDesc',
                 render: (_, row) => {
+                  const ch = Array.isArray(row.changes) ? row.changes : [];
+                  const add = ch.filter((c: any) => c.opt === 'add').length;
+                  const del = ch.filter((c: any) => c.opt === 'delete').length;
+                  const upd = ch.filter((c: any) => c.opt === 'update').length;
                   return (
-                    <Space>
+                    <Space wrap size={[8, 4]}>
                       <span>{row.creator}</span>
                       <span>{row.versionDate}</span>
                       <span>{row.versionDesc}</span>
+                      {ch.length > 0 && (
+                        <Space size={4} data-testid="version-change-summary">
+                          {add > 0 && <Tag color="success">+{add}</Tag>}
+                          {del > 0 && <Tag color="error">-{del}</Tag>}
+                          {upd > 0 && <Tag color="warning">~{upd}</Tag>}
+                        </Space>
+                      )}
                     </Space>
                   );
                 },

@@ -297,19 +297,22 @@ const useVersionStore = create<VersionState>(
               currentDataSource,
               checkDataSource
             );
-            console.log(1000, 'currentDataSource', currentDataSource,checkDataSource,changes);
 
             set(produce(state => {
               state.changes = changes;
             }));
 
-            console.log('Latest version fetched:', latestVersion);
-            console.log('Calculated changes:', changes);
-            return changes || []; // Ensure we always return an array
-          } else {
-            console.error('获取最新版本信息失败');
-            return [];
+            return changes || [];
           }
+          // 尚无历史：相对空模型算增量，首版详情可见「新增表/字段」
+          const changes = get().dispatch.checkVersionData(
+            { ...dataSource },
+            { modules: [] },
+          );
+          set(produce((state) => {
+            state.changes = changes;
+          }));
+          return changes || [];
         } catch (error) {
           message.error(`计算差异失败: ${error.message}`);
           return [];
@@ -502,11 +505,12 @@ const useVersionStore = create<VersionState>(
             message: tempMsg,
             opt: c.opt,
             type: c.type,
+            name: c.name,
+            changeData: c.changeData,
           };
         });
       },
       showChanges: (type: string, change: any, currentVersion: any, lastVersion: any) => {
-        debugger;
         const dataSource = _.get(useProjectStore.getState().project, "projectJSON");
         const {changes, init, currentVersionIndex, versions} = get();
         if (!currentVersion || !lastVersion) {
