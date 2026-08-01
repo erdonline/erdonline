@@ -18,6 +18,7 @@ const ExportJson: React.FC<ExportJsonProps> = () => {
       icon={<MyIcon type="icon-JSON"/>}
       onClick={() => projectDispatch.exportFile('JSON')}
       style={{ textAlign: 'left' }}
+      aria-label="导出ERD"
     >导出ERD</Button>
   );
 };

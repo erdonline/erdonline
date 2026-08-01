@@ -18,6 +18,7 @@ const ExportHTML: React.FC<ExportFileProps> = () => {
       icon={<MyIcon type="icon-HTML"/>}
       onClick={() => projectDispatch.exportFile('Html')}
       style={{ textAlign: 'left' }}
+      aria-label="导出HTML"
     >导出HTML</Button>
   );
 };
