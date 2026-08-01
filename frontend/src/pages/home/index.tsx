@@ -143,7 +143,6 @@ const Home: React.FC<HomeProps> = (props) => {
 
   const fetchStatistic = () => {
     GET("/ncnb/project/statistic", {}).then(r => {
-      console.log(24, r);
       if (r?.code === 200) {
         setStatisticInfo(r.data);
       }
@@ -209,7 +208,6 @@ const Home: React.FC<HomeProps> = (props) => {
     return GET('/syst/user/settings/basic', {});
   });
 
-  console.log(157, recentProject?.data?.records);
   const data = [
     {
       type: '个人',
