@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 设计器导入入口 E2E（2026-08-02）
+
+### 新增
+- `project-menu.spec.ts`：项目→导入→数据源逆向/PdMan/ERD 弹窗与上传区可见；导入按钮补 aria-label
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 设计器项目菜单接线（2026-08-02）
 
 ### 修复

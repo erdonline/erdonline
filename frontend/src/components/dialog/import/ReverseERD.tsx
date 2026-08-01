@@ -101,6 +101,7 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
           block
           icon={<MyIcon type="icon-other_win"/>}
           style={{ textAlign: 'left' }}
+          aria-label="解析ERD文件"
         >解析ERD文件</Button>
       }
 

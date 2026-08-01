@@ -94,6 +94,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
           block
           icon={<MyIcon type="icon-other_win"/>}
           style={{ textAlign: 'left' }}
+          aria-label="解析PdMan文件"
         >解析PdMan文件</Button>
       }
 
