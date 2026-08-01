@@ -25,8 +25,13 @@ const ShareProjectButton: React.FC = () => {
         return;
       }
       const url = `${window.location.origin}/s/${res.data.token}`;
-      await navigator.clipboard.writeText(url);
-      message.success('只读链接已复制');
+      try {
+        await navigator.clipboard.writeText(url);
+        message.success('只读链接已复制');
+      } catch {
+        // 无权限/非安全上下文时仍给出可复制链接，避免创建成功却报失败
+        message.success(`分享链接：${url}`);
+      }
     } catch (e: any) {
       message.error(e?.message || '创建分享失败');
     } finally {
