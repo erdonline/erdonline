@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 版本管理页 eslint 清零（2026-08-02）
+
+### 修复
+- `pages/design/version/index.tsx`：去掉 unused import/死函数与空 `{}` props
+  验证点：`yarn eslint …/version/index.tsx --max-warnings 0`；project-menu「版本」绿
+
 ## [Unreleased] — ExportDDL eslint 清零（2026-08-02）
 
 ### 修复

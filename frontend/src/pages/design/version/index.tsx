@@ -1,69 +1,47 @@
-import React, {useCallback, useEffect, useMemo, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {compareStringVersion} from "@/utils/string";
-import {message, Pagination, Select, Space, Tag} from "antd";
+import {ConfigProvider, message, Space, Tag, Tooltip} from "antd";
 import {ProList} from '@ant-design/pro-components';
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
-import InitVersion from "@/components/dialog/version/InitVersion";
 import RebuildVersion from "@/components/dialog/version/RebuildVersion";
 import CompareVersion, {CompareVersionType} from "@/components/dialog/version/CompareVersion";
 import RenameVersion from "@/components/dialog/version/RenameVersion";
 import RemoveVersion from "@/components/dialog/version/RemoveVersion";
 import SyncVersion from "@/components/dialog/version/SyncVersion";
-import {CheckCircleFilled, CloseCircleFilled, WarningFilled} from "@ant-design/icons";
-import _, { debounce } from "lodash";
+import {CheckCircleFilled, WarningFilled} from "@ant-design/icons";
 import {Access, useAccess} from "@@/plugin-access";
 import RevertVersion from "@/components/dialog/version/RevertVersion";
-import CopyVersion from "@/components/dialog/version/CopyVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
-import { SyncOutlined } from '@ant-design/icons';
-import { Button, Tooltip } from 'antd';
-import { ConfigProvider } from 'antd';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
 import PageSkeleton from '@/components/PageSkeleton';
 
-const {Option, OptGroup} = Select;
-
-export type VersionProps = {};
-
-export type IDatabase = any;
-
-const Version: React.FC<VersionProps> = (props) => {
+const Version: React.FC = () => {
   const {
-    synchronous, 
-    dbVersion, 
-    changes, 
+    synchronous,
+    dbVersion,
+    changes,
     versions,
-    totalVersions,
-    currentPage,
     pageSize,
-    fetch, 
-    setPageSize,
-    versionDispatch, 
-    hasDB,
-    recalculateChanges
+    fetch,
+    versionDispatch,
   } = useVersionStore(state => ({
     synchronous: state.synchronous,
     dbVersion: state.dbVersion || '0.0.0',
     changes: state.changes,
     versions: state.versions,
-    totalVersions: state.totalVersions,
-    currentPage: state.currentPage,
     pageSize: state.pageSize,
     fetch: state.fetch,
-    setPageSize: state.setPageSize,
     versionDispatch: state.dispatch,
-    hasDB: state.hasDB,
-    recalculateChanges: state.dispatch.recalculateChanges,
   }), shallow);
 
   const access = useAccess();
 
-  const [activeKey, setActiveKey] = useState<string>('tab1');
+  const activeKey = 'tab1';
   const [selectedDB, setSelectedDB] = useState<{ value: string; label: string } | undefined>(undefined);
   const [dbs, setDbs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -123,18 +101,6 @@ const Version: React.FC<VersionProps> = (props) => {
     }
   }, [dbs, versionDispatch, fetch, pageSize]);
 
-  const handlePageChange = (page: number, newPageSize?: number) => {
-    const selectedDbObject = dbs.find(db => db.name === selectedDB?.value);
-    if (selectedDbObject) {
-      if (newPageSize !== pageSize) {
-        setPageSize(newPageSize || 10);
-      }
-      fetch(selectedDbObject, page, newPageSize || pageSize);
-    } else {
-      message.error('无法找到选中的数据源信息3');
-    }
-  };
-
   return (
     <ConfigProvider
       theme={{
@@ -167,7 +133,7 @@ const Version: React.FC<VersionProps> = (props) => {
               },
               description: {
                 dataIndex: 'versionDesc',
-                render: (_, row) => {
+                render: (_dom, row) => {
                   const ch = Array.isArray(row.changes) ? row.changes : [];
                   const add = ch.filter((c: any) => c.opt === 'add').length;
                   const del = ch.filter((c: any) => c.opt === 'delete').length;
@@ -190,7 +156,7 @@ const Version: React.FC<VersionProps> = (props) => {
               },
               subTitle: {
                 dataIndex: 'labels',
-                render: (_, row) => {
+                render: (_dom, row) => {
                   return (
                     <Space>
                       {
@@ -209,7 +175,7 @@ const Version: React.FC<VersionProps> = (props) => {
                 search: false,
               },
               actions: {
-                render: (text, row) => [
+                render: (_text, row) => [
                   <CompareVersion key="detail" type={CompareVersionType.DETAIL}/>,
                   <Access
                     key="rename"

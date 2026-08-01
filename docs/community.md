@@ -77,8 +77,11 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 34. ~~**community seed 规则说明**~~（已合入本文「投放规则」）
 35. ~~**PK 徽标切换 E2E**~~（已合入 `relation.spec`「PK」）
 36. ~~**表头改名 E2E**~~（已合入 `relation.spec`「改名」）
-37. **版本管理页 eslint**（草稿 `24-version-index-eslint.md`）
+37. ~~**版本管理页 eslint**~~（已合入）
 38. ~~**ExportDDL 剩余 eslint**~~（已合入）
+39. **PageSkeleton aria-busy**（草稿 `26-loading-spec-aria.md`）
+40. **json2code 入口类型收窄**（草稿 `27-json2code-no-any-slice.md`）
+41. **share.spec 清理更稳**（草稿 `28-share-spec-cleanup.md`）
 
 ## 贡献者怎么认领
 
