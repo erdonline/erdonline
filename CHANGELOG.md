@@ -19,9 +19,10 @@
 - **MysqlReverseDialect**：索引走 `INFORMATION_SCHEMA.STATISTICS`（对齐 DBeaver/jOOQ）；MariaDB 共用
 - **PostgresqlReverseDialect**：`listSchemas` + 默认 `public`；索引走 `pg_catalog`（unnest indkey，排除主键）
 - **OracleReverseDialect**：schema=用户；索引 `ALL_INDEXES`/`ALL_IND_COLUMNS`（排除主键约束索引）
+- **SqlServerReverseDialect**：默认 `dbo`；索引 `sys.indexes`（排除主键与 INCLUDE 列）
 - **GenericJdbcReverseDialect**：表/列/PK + `getIndexInfo` 尽力索引
 - `DBReverseParseCommand` 改为委托 Dialect；连接在 finally 关闭；支持可选 `schema` 参数
-  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 8/8 绿
+  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 9/9 绿
 
 ## [Unreleased] — eslint 热路径收尾（2026-08-01）
 
