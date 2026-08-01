@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — presence E2E 清理项目（2026-08-02）
+
+### 修复
+- `presence.spec.ts`：用例前后 `deleteOwnPersonProjects`，避免 e2e 项目堆积
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 登录/注册去 ChatGPT 噱头（2026-08-02）
 
 ### 修复
