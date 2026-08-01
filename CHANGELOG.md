@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 协作 sync toast E2E（2026-08-02）
+
+### 新增
+- `sync-toast.spec.ts`：团队项目双 context（e2e-serial + e2e15），A 建表后 B 见「同步了模型变更」info toast
+  验证点：`npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — presence E2E 清理项目（2026-08-02）
 
 ### 修复
