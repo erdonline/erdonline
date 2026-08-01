@@ -108,6 +108,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           block
           icon={<MyIcon type="icon-line-height"/>}
           style={{ textAlign: 'left' }}
+          aria-label="数据源逆向解析"
         >数据源逆向解析</Button>
       }
       onFinish={async () => {

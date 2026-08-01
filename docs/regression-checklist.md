@@ -74,7 +74,7 @@
 - [x] 登录/新建项目/设计器/版本/导出/关系图/UX 走查共 15 条 E2E 全绿（4 workers，1.6min）✅自动
 - [x] [设计器顶栏菜单] 项目 → 设置 → 数据源设置 dialog ✅`project-menu.spec.ts`
 - [x] [数据源设置 dialog] ModalForm「数据源连接配置」可打开 ✅`project-menu.spec.ts`
-- [ ] [逆向解析入口] 导入 → 数据源逆向解析/解析PdMan/解析ERD → 预期：弹窗 + Dragger 上传区可见
+- [x] [逆向解析入口] 导入 → 数据源逆向/PdMan/ERD 弹窗可见 ✅`project-menu.spec.ts`
 
 ## 第 2 轮（进行中）
 
