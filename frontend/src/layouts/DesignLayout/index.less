@@ -58,3 +58,9 @@
     padding: 0 !important;
   }
 }
+
+/* destroyPopupOnHide=false：关闭后仍挂载，须禁点击以免挡 Modal */
+.erd-project-menu--closed {
+  pointer-events: none;
+  opacity: 0;
+}

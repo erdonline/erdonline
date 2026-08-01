@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 项目菜单关闭态 CSS class（2026-08-02）
+
+### 修复
+- 项目下拉关闭态改用 `.erd-project-menu--closed`（禁点击 + 透明），替代内联 style
+  验证点：project-menu「导出」2 绿
+
 ## [Unreleased] — canvasHistory 单测（2026-08-02）
 
 ### 测试
