@@ -31,7 +31,7 @@ public class MybatisPlusConfiguration implements MetaObjectHandler {
      */
     @Override
     public void insertFill(MetaObject metaObject) {
-        log.info("start insert fill ....");
+        log.debug("start insert fill ....");
         if (SecurityContextUtil.getUser() != null) {
             this.setFieldValByName(CommonConstants.CREATOR, SecurityContextUtil.getUser().getUsername() + "", metaObject);
         }
@@ -40,7 +40,7 @@ public class MybatisPlusConfiguration implements MetaObjectHandler {
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        log.info("start update fill ....");
+        log.debug("start update fill ....");
         if (SecurityContextUtil.getUser() != null) {
             this.setFieldValByName(CommonConstants.UPDATER, SecurityContextUtil.getUser().getUsername() + "", metaObject);
         }

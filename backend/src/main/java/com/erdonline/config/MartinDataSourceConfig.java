@@ -41,7 +41,8 @@ public class MartinDataSourceConfig {
     @Bean
     @Primary
     public SqlSessionFactory martinSqlSessionFactory(@org.springframework.beans.factory.annotation.Qualifier("martinDataSource") DataSource martinDataSource,
-                                                     MybatisPlusInterceptor mybatisPlusInterceptor) throws Exception {
+                                                     MybatisPlusInterceptor mybatisPlusInterceptor,
+                                                     com.baomidou.mybatisplus.core.handlers.MetaObjectHandler metaObjectHandler) throws Exception {
         com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean factory =
                 new com.baomidou.mybatisplus.extension.spring.MybatisSqlSessionFactoryBean();
         factory.setDataSource(martinDataSource);
@@ -49,7 +50,7 @@ public class MartinDataSourceConfig {
                 .getResources("classpath*:mapper/system/*.xml"));
         factory.setPlugins(mybatisPlusInterceptor);
         factory.setConfiguration(MyBatisConfigSupport.mybatisConfiguration());
-        factory.setGlobalConfig(MyBatisConfigSupport.globalConfig());
+        factory.setGlobalConfig(MyBatisConfigSupport.globalConfig(metaObjectHandler));
         return factory.getObject();
     }
 

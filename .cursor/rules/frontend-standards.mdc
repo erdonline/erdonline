@@ -1,0 +1,14 @@
+---
+description: 前端编码红线：UI 库收敛、类型纪律、交互反馈强制
+globs: frontend/**
+alwaysApply: false
+---
+
+# 前端编码红线
+
+- **UI 库**：只用 antd / @ant-design/*；禁止新增 MUI、Blueprint、ChatUI 等任何 UI 框架依赖；发现旧用法逐步替换
+- **类型**：禁止新增 `any`；改动文件遵循"any 只减不增"；新代码必须 TypeScript + hooks 函数组件
+- **反馈强制**：每个异步操作必须有 UI 状态（loading/成功/失败 message）；危险操作必须二次确认（引用 `docs/design-principles.md` 检查单）
+- **状态**：用 zustand 既有 store 模式，不引入新状态库
+- **样式**：less 模块与现有风格一致；禁止内联 `position: fixed` 做布局
+- **调试残留**：提交前删除 `console.log`

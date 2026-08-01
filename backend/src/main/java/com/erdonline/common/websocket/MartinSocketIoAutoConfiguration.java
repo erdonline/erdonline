@@ -92,11 +92,13 @@ public class MartinSocketIoAutoConfiguration implements InitializingBean {
     private RedissonClient redisson;
 
     /**
-     * 注册一个SocketIOServer，供客户端使用
+     * 注册一个SocketIOServer，供客户端使用。
+     * destroyMethod="stop"：上下文关闭时必须释放 9092 端口，
+     * 否则 devtools 热重启/优雅停机后端口泄漏，下次启动 BindException
      *
      * @return
      */
-    @Bean
+    @Bean(destroyMethod = "stop")
     public SocketIOServer socketIOServer() {
         com.corundumstudio.socketio.Configuration config = configuration();
         SocketIOServer socketIOServer = new SocketIOServer(config);

@@ -1,0 +1,76 @@
+.erd-cmd-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: rgba(15, 23, 42, 0.35);
+  display: flex;
+  justify-content: center;
+  padding-top: 18vh;
+}
+
+.erd-cmd-panel {
+  width: min(520px, 92vw);
+  max-height: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.erd-cmd-input {
+  height: 48px;
+  padding: 0 16px;
+  border: none;
+  border-bottom: 1px solid #eef0f4;
+  font-size: 15px;
+  outline: none;
+}
+
+.erd-cmd-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.erd-cmd-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+
+  &.active,
+  &:hover {
+    background: #f0f5ff;
+  }
+
+  .erd-cmd-title {
+    color: #303133;
+    font-weight: 500;
+  }
+
+  .erd-cmd-hint {
+    color: #98a2b3;
+    font-size: 11px;
+  }
+}
+
+.erd-cmd-empty {
+  padding: 20px;
+  text-align: center;
+  color: #98a2b3;
+  font-size: 13px;
+}
+
+.erd-cmd-footer {
+  padding: 8px 14px;
+  border-top: 1px solid #eef0f4;
+  font-size: 11px;
+  color: #98a2b3;
+}

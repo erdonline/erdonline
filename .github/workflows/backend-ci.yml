@@ -1,25 +1,41 @@
-name: Backend CI
+name: backend-ci
+
+# 质量基线：编译 + 单测门禁（不启全栈）。失败禁止合并。
 
 on:
   push:
-    branches: [main]
-    paths: ['backend/**', '.github/workflows/backend-ci.yml']
+    branches: [main, master]
+    paths:
+      - 'backend/**'
+      - 'db/**'
+      - '.github/workflows/backend-ci.yml'
   pull_request:
-    paths: ['backend/**', '.github/workflows/backend-ci.yml']
+    paths:
+      - 'backend/**'
+      - 'db/**'
+      - '.github/workflows/backend-ci.yml'
 
 jobs:
-  build:
+  test:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up JDK 8
-        uses: actions/setup-java@v4
+      - uses: actions/setup-java@v4
         with:
           distribution: temurin
-          java-version: '8'
+          java-version: '17'
           cache: maven
 
-      - name: Build & test
+      - name: mvn test + jacoco core coverage gate
         working-directory: backend
-        run: mvn -B clean verify
+        run: mvn -B -q test
+
+      - name: Upload jacoco report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: jacoco-report
+          path: backend/target/site/jacoco/
+          if-no-files-found: ignore

@@ -85,7 +85,7 @@ public class MinioOssTemplate implements OssTemplate {
         }
         log.info("fileNamePrefix: {}", fileNamePrefix);
         log.info("fileNameSuffix: {}", fileNameSuffix);
-        String minioFilePath = fileNamePrefix + IdUtil.fastSimpleUUID() + StrUtil.DOT + StrUtil.split(fileNameSuffix, StrUtil.DOT)[1];
+        String minioFilePath = fileNamePrefix + IdUtil.fastSimpleUUID() + StrUtil.DOT + StrUtil.splitToArray(fileNameSuffix, '.')[1];
         log.info("minioFilePath: {}", minioFilePath);
         try {
             makeBucket(bucket);

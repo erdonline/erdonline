@@ -29,6 +29,7 @@ const Table: React.FC = () => {
   const getTab = (tab: ModuleEntity) => {
     if (tab.group === TabGroup.MODEL) {
       if (tab.entity?.startsWith('关系图')) {
+        // ReactFlow 画布（ADR-0001 R3：唯一关系图实现）
         return <Relation moduleEntity={tab}/>
       } else {
         return (

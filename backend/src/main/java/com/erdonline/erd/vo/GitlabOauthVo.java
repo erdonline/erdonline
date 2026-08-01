@@ -3,7 +3,7 @@ package com.erdonline.erd.vo;
 import lombok.Data;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotBlank;
 
 /**
  * @author 狮少

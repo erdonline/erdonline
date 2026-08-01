@@ -7,9 +7,7 @@ import com.erdonline.common.core.constant.WebsocketConstants;
 import com.erdonline.common.websocket.properties.SocketIoProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
-import org.redisson.spring.starter.RedissonAutoConfiguration;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.stereotype.Component;
 
 /**
@@ -23,14 +21,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class SocketIoConnectListener implements ConnectListener {
     @Autowired
-    private DefaultTokenServices remoteTokenServices;
-
-    @Autowired
     private SocketIoProperties socketIoProperties;
 
-    /**
-     * @see RedissonAutoConfiguration#redisson()
-     */
     @Autowired
     private RedissonClient redisson;
 

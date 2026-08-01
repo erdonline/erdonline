@@ -1,9 +1,23 @@
 # 生产环境：全部通过环境变量注入（见根目录 .env.example / docker-compose.yml）
 spring:
+  # 凭证强制环境注入：application.yml 的弱默认值仅供开发，prod 下重新声明为无默认值，
+  # 缺环境变量时启动直接失败（fail-fast），杜绝默认密码随生产部署上线。
+  datasource:
+    martin:
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
+    erd:
+      username: ${DB_ERD_USERNAME:${DB_USERNAME}}
+      password: ${DB_ERD_PASSWORD:${DB_PASSWORD}}
   thymeleaf:
     prefix: classpath:/views/
     suffix: .html
     cache: true
+
+martin:
+  oss:
+    accessKey: ${OSS_ACCESS_KEY}
+    secretKey: ${OSS_SECRET_KEY}
 
 logging:
   level:

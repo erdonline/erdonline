@@ -1,4 +1,4 @@
-﻿export default [
+export default [
   {
     path: '/login',
     routes: [
@@ -6,11 +6,6 @@
         name: 'login',
         path: '/login',
         component: './login',
-      },
-      {
-        name: 'loginSuccess',
-        path: '/login/success',
-        component: './login/success',
       },
       {
         component: './404',

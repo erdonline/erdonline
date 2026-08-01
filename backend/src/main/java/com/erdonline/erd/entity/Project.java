@@ -1,6 +1,5 @@
 package com.erdonline.erd.entity;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -15,6 +14,7 @@ import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.Map;
 
 /**
  * <p>
@@ -39,14 +39,14 @@ public class Project implements Serializable {
     /**
      * 配置JSON
      */
-    @TableField(value = "configJSON",typeHandler = ErdJsonTypeHandler.class)
-    private JSONObject configJSON;
+    @TableField(value = "configJSON", typeHandler = ErdJsonTypeHandler.class)
+    private Map<String, Object> configJSON;
 
     /**
      * 项目JSON
      */
-    @TableField(value = "projectJSON",typeHandler = ErdJsonTypeHandler.class)
-    private JSONObject projectJSON;
+    @TableField(value = "projectJSON", typeHandler = ErdJsonTypeHandler.class)
+    private Map<String, Object> projectJSON;
 
     /**
      * 项目名称

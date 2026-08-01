@@ -29,6 +29,10 @@ npm-debug.log*
 yarn-error.log
 frontend/coverage/
 frontend/public/env-config.js
+frontend/env-config.js
+frontend/test-results/
+frontend/playwright-report/
+.playwright-mcp/
 
 # ===== Docker / Data =====
 docker/data/

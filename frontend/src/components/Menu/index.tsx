@@ -146,18 +146,9 @@ export const ProjectFilterMenu: React.FunctionComponent<IFileMenuProps> = props 
   );
 };
 
+/** 顶栏导航占位（原 ChatSQL/数据域入口依赖缺失组件，先空菜单避免白屏） */
 export const NavigationMenu: React.FC = () => {
-  return (
-    <Menu>
-      <Menu.Item key="chatSql" icon={<MessageOutlined />}>
-        <Link to="/design/chatSql">Chat SQL</Link>
-      </Menu.Item>
-      <Menu.Item key="dataDomain" icon={<AppstoreOutlined />}>
-        <Link to="/design/dataDomain">数据域</Link>
-      </Menu.Item>
-      {/* ... 其他菜单项 */}
-    </Menu>
-  );
+  return <Menu/>;
 };
 
 export const VersionHandle: React.FunctionComponent<IFileMenuProps> = props => {

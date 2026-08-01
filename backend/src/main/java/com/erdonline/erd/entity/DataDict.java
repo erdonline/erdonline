@@ -1,12 +1,11 @@
 package com.erdonline.erd.entity;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import java.time.LocalDateTime;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import java.io.Serializable;
+import java.util.List;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
@@ -56,7 +55,7 @@ public class DataDict implements Serializable {
 
     @ApiModelProperty(value = "字典信息")
     @TableField(value = "dict_info", typeHandler = JacksonTypeHandler.class)
-    private JSONArray dictInfo;
+    private List<Object> dictInfo;
 
     @ApiModelProperty(value = "描述")
     private String description;

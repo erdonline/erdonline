@@ -1,0 +1,37 @@
+---
+description: ERD Online 项目使命与既定战略决策，每次会话对齐用，防止方向漂移
+alwaysApply: true
+---
+
+# 项目使命与战略对齐
+
+## 使命
+
+把 ERD Online 打造成**数据库建模领域最好的开源项目**。定位：**数据库设计的 Git + Figma**（版本 + 协作是壁垒，设计器体验是及格线，AI 是期权）。
+
+## 北极星指标
+
+每周产生版本保存的活跃建模项目数。star 数是虚荣指标。
+
+## 三层用户价值（需求取舍的最高裁判）
+
+1. 首次接触的人 30 秒觉得惊艳
+2. 深度用户离不开（版本 + 协作锁定）
+3. 贡献者愿意提 PR（现代技术栈 + 工程质量）
+
+## 已拍板决策（不得擅自推翻，变更需在 docs/adr/ 记录）
+
+- 设计器：ReactFlow，Strangler 迁移（R0 探针→R1 对等→R2 超越→R3 切换）；旧 G6 只做 S 级止血
+- 后端：Spring Boot 先 2.7，3.x+JDK17 独立里程碑，两大爆破不并行
+- UI：antd 唯一标准；JSON：统一 Jackson，禁止 fastjson 新用法
+- 文档：Docusaurus + GitHub Pages，docs/ 为单一事实源
+- 许可：MIT（采用率优先）
+- i18n：P3 开启，英文优先
+
+## 不做什么
+
+移动端/桌面客户端；闭源云版分心；AI 噱头；dbdiagram 复刻；旧 G6 上 M 级以上投入。
+
+## 权威文档
+
+`docs/vision.md`、`docs/roadmap.md`、`docs/design-principles.md`、`docs/adr/`。不确定时先读它们。

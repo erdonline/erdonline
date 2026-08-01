@@ -22,6 +22,7 @@ import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
 import {io} from "socket.io-client";
 import {jsondiffpatch} from "./jsondiffpatch";
+import {resetCanvasHistory} from "./canvasHistory";
 
 
 enablePatches()
@@ -114,6 +115,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
             console.log(45, res);
             const data = res?.data;
             if (res?.code === 200 && data) {
+              resetCanvasHistory();
               set({
                 project: data
               });

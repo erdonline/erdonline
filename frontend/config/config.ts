@@ -35,8 +35,6 @@ export default defineConfig({
     baidu: '46689e26837885690d97c7f5d08b9a0b',
   },
   headScripts:[
-    '/js/g6.min.js',
-    '/js/g6-plugins.min.js',
     '/js/html2canvas.min.js',
     '/env-config.js?date='+ new Date(),
   ],

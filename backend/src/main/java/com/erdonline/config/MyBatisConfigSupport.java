@@ -3,6 +3,7 @@ package com.erdonline.config;
 import com.baomidou.mybatisplus.core.MybatisConfiguration;
 import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.config.GlobalConfig.DbConfig;
+import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
 /**
  * 双数据源下共享的 MyBatis-Plus 配置工厂。
@@ -22,9 +23,12 @@ final class MyBatisConfigSupport {
         return configuration;
     }
 
-    static GlobalConfig globalConfig() {
+    static GlobalConfig globalConfig(MetaObjectHandler metaObjectHandler) {
         GlobalConfig globalConfig = new GlobalConfig();
         globalConfig.setBanner(false);
+        // MP 自动配置被禁用（双数据源手动建 SqlSessionFactory），字段填充处理器必须显式挂接，
+        // 否则 @TableField(fill = INSERT/UPDATE) 全部失效（create_time/creator 恒为 NULL）
+        globalConfig.setMetaObjectHandler(metaObjectHandler);
         DbConfig dbConfig = new DbConfig();
         dbConfig.setLogicDeleteField("delFlag");
         dbConfig.setLogicDeleteValue("1");

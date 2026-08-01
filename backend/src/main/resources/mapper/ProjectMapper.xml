@@ -53,29 +53,30 @@
     <select id="queryToday" resultType="java.lang.Integer">
         select count(1)
         from project
-        WHERE to_days(update_time) = to_days(now())
+        WHERE del_flag = 0 and to_days(update_time) = to_days(now())
     </select>
     <select id="queryYesterday" resultType="java.lang.Integer">
         select count(1)
         from project
-        WHERE TO_DAYS(NOW()) - TO_DAYS(create_time) &lt;= 1
+        WHERE del_flag = 0 and TO_DAYS(NOW()) - TO_DAYS(create_time) &lt;= 1
     </select>
     <select id="queryMonth" resultType="java.lang.Integer">
         select count(1)
         from project
-        WHERE DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
+        WHERE del_flag = 0 and DATE_FORMAT(create_time, '%Y%m') = DATE_FORMAT(CURDATE(), '%Y%m')
     </select>
     <select id="queryTotal" resultType="java.lang.Integer">
         select count(1)
         from project
+        where del_flag = 0
     </select>
     <select id="queryPersonTotal" resultType="java.lang.Integer">
         select count(1)
-        from project where type=1
+        from project where del_flag = 0 and type=1
     </select>
     <select id="queryGroupTotal" resultType="java.lang.Integer">
         select count(1)
-        from project where type=2
+        from project where del_flag = 0 and type=2
     </select>
     <select id="approvalUserRole" resultType="com.erdonline.erd.entity.ProjectRole">
         SELECT pr.*

@@ -7,10 +7,8 @@ import com.corundumstudio.socketio.SocketIONamespace;
 import com.corundumstudio.socketio.SocketIOServer;
 import com.corundumstudio.socketio.handler.SocketIOException;
 import com.corundumstudio.socketio.listener.DataListener;
-import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.constant.WebsocketConstants;
 import com.erdonline.common.core.support.SpringContextHelper;
-import com.erdonline.common.websocket.socketio.SocketIoService;
 import com.erdonline.common.websocket.socketio.util.ParseHeaderUtil;
 import com.erdonline.common.websocket.socketio.vo.JoinLeaveRoomVo;
 import com.erdonline.erd.socketio.ErdSocketIoService;
@@ -22,7 +20,6 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author: 零代科技
@@ -33,7 +30,7 @@ import java.util.UUID;
 @Slf4j
 @Service
 @RestController
-public class ErdSocketIoServiceImpl implements SocketIoService, ErdSocketIoService {
+public class ErdSocketIoServiceImpl implements ErdSocketIoService {
     private final String MODULE = WebsocketConstants.PROJECT_NAMESPACE + "/erd";
 
     @Autowired
@@ -125,10 +122,4 @@ public class ErdSocketIoServiceImpl implements SocketIoService, ErdSocketIoServi
         return MODULE;
     }
 
-    @Override
-    public R sendSocialLoginSuccessInfo(Map params) {
-        log.info("token_info:{}", params);
-        socketIOServer.getClient(UUID.fromString("daa94b44-219c-44e5-9a21-990a5fe21038")).sendEvent("martin:user:login:success", params);
-        return R.ok("发送成功");
-    }
 }

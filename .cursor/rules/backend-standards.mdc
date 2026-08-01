@@ -1,0 +1,15 @@
+---
+description: 后端编码红线：安全、校验、测试、依赖纪律
+globs: backend/**
+alwaysApply: false
+---
+
+# 后端编码红线
+
+- **JSON**：只用 Jackson（`JsonUtil` / `ObjectMapper`）；**fastjson 已从依赖移除**，禁止再引入
+- **SQL**：禁止新增 `${}` 拼接；一律 `#{}` 参数化；在线 SQL 功能必须走只读白名单（jsqlparser 解析，仅 SELECT/EXPLAIN/SHOW/DESC）
+- **校验**：Controller 入参必须 `@Valid`；全局异常走 `GlobalExceptionHandler`，禁止裸抛
+- **密钥**：密码/密钥只走环境变量（jasypt），禁止入库、入仓、入默认值
+- **测试**：新 Service 必须配单测；修复 bug 必须配回归测试
+- **数据源**：system/auth 走 martin 库，erd 业务走 erd 库，按既有 mapper 包路由，不跨库写
+- **依赖**：新增依赖先查 CVE 与维护状态；禁止 SNAPSHOT

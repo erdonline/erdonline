@@ -73,17 +73,25 @@ const Version: React.FC<VersionProps> = (props) => {
       setIsLoading(true);
       try {
         const databases = await fetchDatabaseConfigs();
-        setDbs(databases);
-        if (databases.length > 0) {
+        setDbs(databases || []);
+        if (databases && databases.length > 0) {
           const firstDb = databases[0];
           setSelectedDB({ value: firstDb.name, label: firstDb.name });
           versionDispatch.initDbs(databases);
           await fetch(firstDb, 1, pageSize);
-          setIsInitialized(true);
+        } else {
+          // 无 JDBC：走模型快照通道，禁止永远 Loading
+          versionDispatch.initDbs([]);
+          await fetch(null, 1, pageSize);
         }
+        setIsInitialized(true);
       } catch (error) {
         console.error('Error fetching database configs:', error);
         message.error('获取数据源配置失败');
+        // 仍进入界面，允许快照保存
+        versionDispatch.initDbs([]);
+        await fetch(null, 1, pageSize);
+        setIsInitialized(true);
       } finally {
         setIsLoading(false);
       }
@@ -138,10 +146,16 @@ const Version: React.FC<VersionProps> = (props) => {
     >
       {isInitialized ? (
         <div style={{ height: '75vh', display: 'flex', flexDirection: 'column' }}>
+          {dbs.length === 0 && (
+            <div style={{ padding: '8px 16px', color: 'rgba(0,0,0,0.65)', fontSize: 13 }}>
+              未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步数据库时再在设置中添加 JDBC。
+            </div>
+          )}
           <ProList<any>
             rowKey="id"
             dataSource={versions}
             pagination={false}
+            locale={{ emptyText: '暂无版本。改完模型后点「新增版本」保存快照。' }}
             style={{
               height: '100%',
               overflowY: 'auto',

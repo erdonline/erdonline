@@ -1,28 +1,20 @@
 package com.erdonline.erd.mapper;
 
-import com.alibaba.fastjson.JSONObject;
 import com.erdonline.erd.entity.Module;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 /**
- * <p>
- * 模块 Mapper 接口
- * </p>
- *
- * @author 零代科技
- * @version 1.0
- * @date 2023-03-04
- * @describtion
- * @since 1.0
+ * 模块 Mapper。
  */
 public interface ModuleMapper extends BaseMapper<Module> {
 
-    JSONObject getModuleById(@Param("id") String id, @Param("name") String name);
+    Map<String, Object> getModuleById(@Param("id") String id, @Param("name") String name);
 
     List<String> getModulePathByName(@Param("id") String id, @Param("name") String name);
 
-    JSONObject getModuleByPath(@Param("id") String id, @Param("name") String name, @Param("path") String path);
+    Map<String, Object> getModuleByPath(@Param("id") String id, @Param("name") String name, @Param("path") String path);
 }

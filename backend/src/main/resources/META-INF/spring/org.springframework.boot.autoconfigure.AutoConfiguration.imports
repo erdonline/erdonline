@@ -1,0 +1,16 @@
+com.erdonline.common.core.support.SpringContextHelper
+com.erdonline.common.data.MartinDataAutoConfiguration
+com.erdonline.common.log.MartinLogAutoConfiguration
+com.erdonline.common.oss.MartinOssAutoConfiguration
+com.erdonline.common.websocket.MartinSocketIoAutoConfiguration
+com.erdonline.common.vip.MartinVIPAutoConfiguration
+com.erdonline.common.vip.event.LicenceInstallListener
+com.erdonline.common.vip.event.LicenceListenerContainer
+com.erdonline.common.vip.license.LicenseCommandLineRunner
+com.erdonline.common.security.MartinSecurityAutoConfiguration
+com.erdonline.common.security.userdetail.MartinUserDetailsService
+com.erdonline.common.security.config.JacksonConfig
+com.erdonline.common.security.exception.GlobalExceptionHandler
+com.erdonline.common.security.config.MybatisPlusConfiguration
+com.erdonline.common.security.jwt.JwtConfig
+com.erdonline.erd.socketio.impl.ErdSocketIoServiceImpl

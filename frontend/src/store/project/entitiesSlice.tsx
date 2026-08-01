@@ -1,9 +1,10 @@
-import {SetState} from "zustand";
-import {ProjectState, wrapWithPatch} from "@/store/project/useProjectStore";
+import {GetState, SetState} from "zustand";
+import {ProjectState} from "@/store/project/useProjectStore";
 import produce from "immer";
 import {message} from "antd";
 import useShortcutStore, {PANEL} from "@/store/shortcut/useShortcutStore";
 import * as cache from "@/utils/cache";
+import {snapshotModules} from "@/store/project/canvasHistory";
 
 export type IEntitiesSlice = {
   currentEntity?: string;
@@ -97,12 +98,13 @@ const showMessage = (type: 'success' | 'error', content: string) => {
   }
 };
 
-const EntitiesSlice = (set: SetState<ProjectState>) => ({
+const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   currentEntity: '',
   currentEntityIndex: -1,
-  addEntity: (payload: any) => set(produce((state: any) => {
+  addEntity: (payload: any) => {
     const { moduleName, ...entityData } = payload;
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     
     if (moduleIndex === -1) {
       showMessage('error', `模型 "${moduleName}" 不存在`);
@@ -117,8 +119,8 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
     const entityName = entityData.name || entityData.title;
     
     // 检查实体名称是否在整个项目中唯一
-    const isEntityNameUnique = state.project.projectJSON.modules.every(module => 
-      module.entities.every(entity => entity.name !== entityName && entity.title !== entityName)
+    const isEntityNameUnique = modules.every((module: any) => 
+      (module.entities || []).every((entity: any) => entity.name !== entityName && entity.title !== entityName)
     );
 
     if (!isEntityNameUnique) {
@@ -126,9 +128,12 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
       return;
     }
 
+    snapshotModules(modules);
+    set(produce((state: any) => {
+    const idx = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     // 确保 entities 数组存在
-    if (!state.project.projectJSON.modules[moduleIndex].entities) {
-      state.project.projectJSON.modules[moduleIndex].entities = [];
+    if (!state.project.projectJSON.modules[idx].entities) {
+      state.project.projectJSON.modules[idx].entities = [];
     }
 
     const newEntity = {
@@ -138,22 +143,23 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
       fields: [],
       indexs: []
     };
-    state.project.projectJSON.modules[moduleIndex].entities.push(newEntity);
+    state.project.projectJSON.modules[idx].entities.push(newEntity);
     
     // 设置当前模型和表
     state.currentModule = moduleName;
-    state.currentModuleIndex = moduleIndex;
+    state.currentModuleIndex = idx;
     state.currentEntity = entityName;
-    state.currentEntityIndex = state.project.projectJSON.modules[moduleIndex].entities.length - 1;
+    state.currentEntityIndex = state.project.projectJSON.modules[idx].entities.length - 1;
     
     showMessage('success', '表添加成功');
-  })),
-  renameEntity: (payload: { oldModuleName: string, newModuleName: string, oldTitle: string, newTitle: string, newChnname: string }) => set(produce((state: any) => {
+    }));
+  },
+  renameEntity: (payload: { oldModuleName: string, newModuleName: string, oldTitle: string, newTitle: string, newChnname: string }) => {
     const { oldModuleName, newModuleName, oldTitle, newTitle, newChnname } = payload;
-    
+    const modules = get().project?.projectJSON?.modules || [];
     // 检查新的表名是否在整个项目中唯一
-    const isNewNameUnique = state.project.projectJSON.modules.every(module => 
-      module.entities.every(entity => (entity.title !== newTitle && entity.name !== newTitle) || entity.title === oldTitle)
+    const isNewNameUnique = modules.every((module: any) =>
+      (module.entities || []).every((entity: any) => (entity.title !== newTitle && entity.name !== newTitle) || entity.title === oldTitle)
     );
 
     if (!isNewNameUnique) {
@@ -161,24 +167,39 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
       return;
     }
 
-    const oldModuleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === oldModuleName);
+    const oldModuleIndex = modules.findIndex((m: any) => m.name === oldModuleName);
     if (oldModuleIndex === -1) {
       showMessage('error', `原模型 "${oldModuleName}" 不存在`);
       return;
     }
 
-    const entityIndex = state.project.projectJSON.modules[oldModuleIndex].entities.findIndex((e: any) => e.title === oldTitle);
+    const entityIndex = modules[oldModuleIndex].entities.findIndex((e: any) => e.title === oldTitle || e.name === oldTitle);
     if (entityIndex === -1) {
       showMessage('error', `表 "${oldTitle}" 不存在于模型 "${oldModuleName}" 中`);
       return;
     }
 
+    snapshotModules(modules);
+    set(produce((state: any) => {
     const entity = state.project.projectJSON.modules[oldModuleIndex].entities[entityIndex];
     
     // 更新实体信息
     entity.title = newTitle;
     entity.name = newTitle;
     entity.chnname = newChnname;
+
+    // 同步关联与布局中的实体名（画布节点 id = 表名）
+    const mod = state.project.projectJSON.modules[oldModuleIndex];
+    (mod.associations || []).forEach((a: any) => {
+      if (a?.from?.entity === oldTitle) a.from.entity = newTitle;
+      if (a?.to?.entity === oldTitle) a.to.entity = newTitle;
+    });
+    (mod.graphCanvas?.nodes || []).forEach((n: any) => {
+      if (n.id === oldTitle || (n.title || '').split(':')[0] === oldTitle) {
+        n.id = newTitle;
+        n.title = newTitle;
+      }
+    });
 
     if (oldModuleName !== newModuleName) {
       // 如果模型名称发生变化，我们需要移动实体
@@ -204,8 +225,12 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
       }
     }
 
-    showMessage('success', `表 "${oldTitle}" 已成功重命名为 "${newTitle}"`);
-  })),
+    // 画布内联改名不弹 toast（UI 即反馈）；跨模块移动等场景仍提示
+    if (oldModuleName !== newModuleName) {
+      showMessage('success', `表 "${oldTitle}" 已成功重命名为 "${newTitle}"`);
+    }
+    }));
+  },
   removeEntity: (moduleName: string, entityTitle: string) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
@@ -324,18 +349,19 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
     state.project.projectJSON.modules[moduleIndex].entities.push(newEntity);
     showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
   })),
-  updateEntityFields: (moduleName: string, entityTitle: string, payload: any) => set(wrapWithPatch((state: any) => {
+  updateEntityFields: (moduleName: string, entityTitle: string, payload: any) => {
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
       showMessage('error', '更新失败：无效的模块名称');
       return;
     }
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
       showMessage('error', `模型 "${moduleName}" 不存在`);
       return;
     }
-    const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle || e.name === entityTitle);
+    const entityIndex = modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle || e.name === entityTitle);
     if (entityIndex === -1) {
       showMessage('error', `表 "${entityTitle}" 不存在`);
       return;
@@ -356,10 +382,42 @@ const EntitiesSlice = (set: SetState<ProjectState>) => ({
       return;
     }
 
-    state.project.projectJSON.modules[moduleIndex].entities[entityIndex].fields = payload;
-    
-    showMessage('success', '字段更新成功');
-  })),
+    snapshotModules(modules);
+    set(produce((state: any) => {
+    const entity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
+    const oldFields: any[] = entity.fields || [];
+    // 字段改名时同步更新本模块 associations（边锚点跟随字段名，避免悬空关联）
+    if (oldFields.length === payload.length) {
+      for (let i = 0; i < oldFields.length; i += 1) {
+        const oldName = oldFields[i]?.name;
+        const newName = payload[i]?.name;
+        if (oldName && newName && oldName !== newName) {
+          (state.project.projectJSON.modules[moduleIndex].associations || []).forEach((a: any) => {
+            if (a?.from?.entity === entityTitle && a?.from?.field === oldName) {
+              a.from.field = newName;
+            }
+            if (a?.to?.entity === entityTitle && a?.to?.field === oldName) {
+              a.to.field = newName;
+            }
+          });
+        }
+      }
+    }
+    // 字段删除时清除涉及该字段的关联
+    const newNames = new Set(payload.map((f: any) => f.name));
+    const removed = oldFields.filter((f: any) => f?.name && !newNames.has(f.name)).map((f: any) => f.name);
+    if (removed.length > 0) {
+      state.project.projectJSON.modules[moduleIndex].associations =
+        (state.project.projectJSON.modules[moduleIndex].associations || []).filter((a: any) => !(
+          (a?.from?.entity === entityTitle && removed.includes(a?.from?.field)) ||
+          (a?.to?.entity === entityTitle && removed.includes(a?.to?.field))
+        ));
+    }
+
+    entity.fields = payload;
+    // 不弹 success：画布内联编辑本身即时可见，toast 噪音会淹没删除守卫等关键提示
+    }));
+  },
   updateEntityIndex: (moduleName: string, entityTitle: string, payload: any) => set(produce((state: any) => {
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);

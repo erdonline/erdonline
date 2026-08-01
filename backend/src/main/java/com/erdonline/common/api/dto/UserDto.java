@@ -2,7 +2,7 @@ package com.erdonline.common.api.dto;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author: liangcan

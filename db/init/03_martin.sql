@@ -3454,4 +3454,21 @@ INSERT INTO `sys_user_role` VALUES ('f89b94fed94f26ef89e8c1dfe404129a', '39bf4ef
 INSERT INTO `sys_user_role` VALUES ('fd46924da1f3cb3563ce136506da1a02', 'ee1043d614750f4dec3ad1192c95533f', '058b1e9d65489c064f6a0a644bc9a1fc', '2022-11-16 03:19:28', NULL, 'ee1043d614750f4dec3ad1192c95533f', NULL);
 COMMIT;
 
+-- 修复：admin（role_id='1'）应拥有全部菜单与操作权限。
+-- 原始种子漏配 42 个 operation + 9 个 menu（含 /project/page），导致 admin 打开个人项目页 403。
+-- 幂等：仅补充缺失映射，可重复执行。
+INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
+SELECT uuid_short(), 1, sm.id, '1', '1', '0', '0', 'seed-fix'
+FROM sys_menu sm
+WHERE sm.del_flag = '0'
+  AND NOT EXISTS (SELECT 1 FROM sys_privilege sp
+                  WHERE sp.role_id = '1' AND sp.resource_id = sm.id AND sp.dict_id = '1');
+
+INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
+SELECT uuid_short(), 2, so.id, '1', '2', '0', '0', 'seed-fix'
+FROM sys_operation so
+WHERE so.del_flag = '0'
+  AND NOT EXISTS (SELECT 1 FROM sys_privilege sp
+                  WHERE sp.role_id = '1' AND sp.resource_id = so.id AND sp.dict_id = '2');
+
 SET FOREIGN_KEY_CHECKS = 1;

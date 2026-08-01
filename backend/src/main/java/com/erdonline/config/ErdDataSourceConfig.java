@@ -37,14 +37,15 @@ public class ErdDataSourceConfig {
 
     @Bean
     public SqlSessionFactory erdSqlSessionFactory(@org.springframework.beans.factory.annotation.Qualifier("erdDataSource") DataSource erdDataSource,
-                                                  MybatisPlusInterceptor mybatisPlusInterceptor) throws Exception {
+                                                  MybatisPlusInterceptor mybatisPlusInterceptor,
+                                                  com.baomidou.mybatisplus.core.handlers.MetaObjectHandler metaObjectHandler) throws Exception {
         MybatisSqlSessionFactoryBean factory = new MybatisSqlSessionFactoryBean();
         factory.setDataSource(erdDataSource);
         factory.setMapperLocations(new PathMatchingResourcePatternResolver()
                 .getResources("classpath*:mapper/*.xml"));
         factory.setPlugins(mybatisPlusInterceptor);
         factory.setConfiguration(MyBatisConfigSupport.mybatisConfiguration());
-        factory.setGlobalConfig(MyBatisConfigSupport.globalConfig());
+        factory.setGlobalConfig(MyBatisConfigSupport.globalConfig(metaObjectHandler));
         return factory.getObject();
     }
 

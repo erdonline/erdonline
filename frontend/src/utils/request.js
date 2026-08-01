@@ -28,43 +28,29 @@ const codeMessage = {
 };
 
 /**
- * 异常处理程序
+ * 异常处理程序：所有 HTTP 错误必须有用户可见反馈（设计原则：零静默失败）
  */
 const errorHandler = error => {
-  console.log(34, 'error', error)
-  const {response = {}} = error;
+  const {response, data} = error;
   if (!response) {
-    if (error) {
-      return;
-    }
-    message.error('请求未响应');
+    message.error('网络异常，请检查网络连接');
     return;
   }
-  const errorText = codeMessage[response.status] || response.statusText;
   const {status, url} = response;
+  // 优先展示后端返回的业务错误信息（R.msg / OAuth error_description），其次状态码通用文案
+  const serverMsg = (data && (data.msg || data.message || data.error_description)) || '';
+  const errorText = serverMsg || codeMessage[status] || response.statusText;
 
-  if (status === 400) {
-    message.error(errorText);
+    if (status === 401) {
+        if (url && (url.indexOf('/auth/login') >= 0 || url.indexOf('/login') >= 0)) {
+            message.error(serverMsg || '用户名或密码错误');
+        } else if (history.location.pathname !== '/login') {
+      message.error('登录已失效，请重新登录');
+      history.push('/login');
+    }
     return;
   }
-  if (status === 401) {
-    history.push("/login");
-    return;
-  }
-  // environment should not be used
-  if (status === 403) {
-    message.error(errorText);
-    return;
-  }
-  if (status <= 504 && status > 500) {
-    console.log(70, 'message');
-    message.error(errorText);
-    return;
-  }
-  if (status >= 404 && status < 422) {
-    message.error(errorText);
-  }
-
+  message.error(errorText);
 };
 
 export const BASE_URL = window._env_.API_URL || API_URL;
@@ -87,54 +73,29 @@ const request_erd = extend({
 
 
 request.interceptors.request.use((url, options) => {
-  // let params = (new URL(document.location)).searchParams;
-  // let projectId = params.get(CONSTANT.PROJECT_ID);
-  if (url.indexOf('/oauth/token') < 0) {
+  const isLogin = url.indexOf('/auth/login') >= 0 || url.endsWith('/login');
+  if (!isLogin) {
     const authorization = cache.getItem('Authorization');
     const projectId = cache.getItem(CONSTANT.PROJECT_ID);
     if (authorization) {
       options.headers = {
         ...options.headers,
         projectId: projectId,
-        'Authorization': `Bearer ${authorization}`
-      }
-      return (
-        {
-          options: {
-            ...options,
-            interceptors: true,
-          },
-        }
-      );
+        Authorization: `Bearer ${authorization}`,
+      };
     }
-  } else {
-    options.headers = {
-      ...options.headers,
-      'Authorization': 'Basic Y2xpZW50MjoxMjM0NTY='
-    }
-    return (
-      {
-        options: {
-          ...options,
-          interceptors: true,
-        },
-      }
-    );
   }
-  return (
-    {
-      options: {
-        ...options,
-        interceptors: true,
-      },
-    }
-  );
+  return { options: { ...options, interceptors: true } };
 });
 
 
 // clone response in response interceptor
 request.interceptors.response.use(async (response, options) => {
   if (options.responseType === 'blob') {
+    return response;
+  }
+  // HTTP 层错误统一由 errorHandler 提示，此处跳过避免同一条错误弹两次
+  if (!response.ok) {
     return response;
   }
   const data = await response.clone().json();

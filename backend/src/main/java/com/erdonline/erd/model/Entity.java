@@ -1,6 +1,6 @@
 package com.erdonline.erd.model;
 
-import com.alibaba.fastjson.annotation.JSONField;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import lombok.Data;
 
 import java.io.Serializable;
@@ -8,22 +8,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Data
+@JsonPropertyOrder({"title", "chnname", "fields"})
 public class Entity implements Serializable {
-    @JSONField(
-            ordinal = 10
-    )
     private String title;
-    @JSONField(
-            ordinal = 20
-    )
     private String chnname;
-    @JSONField(
-            ordinal = 30
-    )
-    private List<Field> fields = new ArrayList();
+    private List<Field> fields = new ArrayList<>();
 
     public Entity() {
     }
-
 }
-
