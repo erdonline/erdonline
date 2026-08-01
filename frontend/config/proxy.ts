@@ -1,31 +1,27 @@
 /**
- * 在生产环境 代理是无法生效的，所以这里没有生产环境的配置
- * -------------------------------
- * The agent cannot take effect in the production environment
- * so there is no configuration of the production environment
- * For details, please see
- * https://pro.ant.design/docs/deploy
+ * 开发环境代理：前端请求走同源相对路径（API_URL 为空），
+ * 由 Umi dev server 代理到后端单体（默认 http://localhost:9502），避免跨域。
+ * 生产环境由 nginx 反代同源，proxy 不生效。
  */
+const BACKEND = process.env.BACKEND_URL || 'http://localhost:9502';
+
+const backendProxy = {
+  target: BACKEND,
+  changeOrigin: true,
+};
+
 export default {
   dev: {
-    '/api/': {
-      target: 'https://preview.pro.ant.design',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
+    '/auth/': backendProxy,
+    '/syst/': backendProxy,
+    '/ncnb/': backendProxy,
+    '/oauth/': backendProxy,
   },
   test: {
-    '/api/': {
-      target: 'https://preview.pro.ant.design',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
-  },
-  pre: {
-    '/api/': {
-      target: 'your pre url',
-      changeOrigin: true,
-      pathRewrite: { '^': '' },
-    },
+    '/auth/': backendProxy,
+    '/syst/': backendProxy,
+    '/ncnb/': backendProxy,
+    '/oauth/': backendProxy,
   },
 };
+
