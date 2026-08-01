@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { deleteAllPersonProjects, login } from './helpers';
+import { deleteOwnPersonProjects, login, uniqueProjectName } from './helpers';
 
 /**
  * 关系图画布回归（ADR-0001 ReactFlow R0/R1/R2）
@@ -58,12 +58,12 @@ test.describe('关系图画布（ReactFlow）', () => {
   test('全旅程：空态引导→建表→内联字段→连线→守卫→持久化', async ({ page }) => {
     // 全旅程含多次落库等待与重载，默认 60s 不足（超时连锁占用配额曾致后续用例失败）
     test.setTimeout(180_000);
-    const projectName = `rf-${Date.now()}`;
+    const projectName = uniqueProjectName('rf');
     try {
       await login(page);
 
       // 开头先清空个人项目：自愈历史泄漏（免费版配额仅 1，泄漏会让建项目 500）
-      await deleteAllPersonProjects(page);
+      await deleteOwnPersonProjects(page);
 
       // 建项目进设计器
       await page.getByRole('button', { name: /新\s*建/ }).click();
@@ -224,7 +224,7 @@ test.describe('关系图画布（ReactFlow）', () => {
     } finally {
       // 清空回收（全量清而非按名找：中途失败时页面状态不可控，全量清最可靠）
       try {
-        await deleteAllPersonProjects(page);
+        await deleteOwnPersonProjects(page);
       } catch { /* 清理失败不掩盖测试结果 */ }
     }
   });

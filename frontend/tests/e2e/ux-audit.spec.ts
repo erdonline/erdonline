@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 import * as fs from 'fs';
 import * as path from 'path';
-import { deleteAllPersonProjects } from './helpers';
+import { ADMIN, deleteOwnPersonProjects, login, uniqueProjectName } from './helpers';
 
 /**
  * UX 走查（playwright-ux-audit 规则的可执行机制）
@@ -13,20 +13,11 @@ import { deleteAllPersonProjects } from './helpers';
  * 新增摩擦点的流程：发现 → 登记 docs/regression-checklist.md → 修复 → 在此追加不变量断言
  */
 
-const ADMIN = { name: 'admin', pass: '123456' };
 const SHOTS_DIR = path.join(__dirname, '..', '..', 'test-results', 'ux-walkthrough');
 
 async function shot(page: import('@playwright/test').Page, name: string) {
   fs.mkdirSync(SHOTS_DIR, { recursive: true });
   await page.screenshot({ path: path.join(SHOTS_DIR, `${name}.png`), fullPage: false });
-}
-
-async function login(page: import('@playwright/test').Page) {
-  await page.goto('/login');
-  await page.getByRole('textbox', { name: '用户名' }).fill(ADMIN.name);
-  await page.getByRole('textbox', { name: '密码' }).fill(ADMIN.pass);
-  await page.getByRole('button', { name: /登\s*录/ }).click();
-  await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
 }
 
 test.describe('UX 走查：核心旅程与不变量', () => {
@@ -41,7 +32,7 @@ test.describe('UX 走查：核心旅程与不变量', () => {
     // 建项目（走查数据载体）
     await page.goto('/project/person');
     await page.getByRole('button', { name: /新\s*建/ }).click();
-    const projectName = `ux-${Date.now()}`;
+    const projectName = uniqueProjectName('ux');
     await page.getByPlaceholder('请输入项目名').fill(projectName);
     await page.locator('.ant-modal .ant-select').first().click();
     await page.locator('.ant-select-item-option', { hasText: '个人项目' }).click();
@@ -74,11 +65,9 @@ test.describe('UX 走查：核心旅程与不变量', () => {
     await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
     await shot(page, '06-designer');
 
-    // 清理
-    await page.goto('/project/person');
-    await page.getByRole('button', { name: /删\s*除/ }).first().click();
-    await page.getByRole('button', { name: '是' }).click();
-    await expect(page.getByText(projectName)).toHaveCount(0);
+    // 清理（只删本用例项目，避免并发误删）
+    await deleteOwnPersonProjects(page, projectName);
+    await expect(page.getByRole('link', { name: projectName, exact: true })).toHaveCount(0);
 
     // 账密泄露断言（登录密码绝不出现在任何 console 输出中）
     const leaked = consoleTexts.filter(t => t.includes(ADMIN.pass));

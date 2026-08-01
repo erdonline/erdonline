@@ -96,11 +96,13 @@ function goQuotaFull() {
   history.push('/project/person');
 }
 
-export async function createExampleProjectAndOpen(): Promise<boolean> {
+export async function createExampleProjectAndOpen(
+  projectName?: string,
+): Promise<boolean> {
   const hide = message.loading('正在创建示例项目…', 0);
   try {
     const res: any = await addProject({
-      projectName: `示例商城-${Date.now().toString().slice(-6)}`,
+      projectName: projectName || `示例商城-${Date.now().toString().slice(-6)}`,
       description: '开箱即用的示例模型：用户/订单与关联，可直接改表并保存版本',
       tags: '示例,入门',
       projectJSON: buildExampleProjectJSON(),
