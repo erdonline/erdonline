@@ -20,4 +20,4 @@
 
 - 正面：按库扩展、能力矩阵驱动前端、可单测映射规则
 - 代价：每库需维护一份 Dialect；P0 外库精度不承诺
-- 后续：PG/Oracle/SQL Server Dialect；导入向导 schema 选择 API
+- 后续：导入向导 schema 选择 API（Capability 驱动）；FK 逆向

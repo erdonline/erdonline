@@ -23,14 +23,15 @@
 ### 已自动化
 
 - [x] IndexResultSetMapper：PRIMARY/统计行跳过、复合索引、STATISTICS LOWCASE ✅自动
-- [x] Registry：MySQL/MariaDB → Mysql；PostgreSQL → Postgresql；Oracle → Oracle；其余 → Generic ✅自动
+- [x] Registry：MySQL/MariaDB → Mysql；PostgreSQL → Postgresql；Oracle → Oracle；SQL Server → SqlServer；其余 → Generic ✅自动
 
 ### 手工
 
 - [ ] [MySQL 逆向含索引] 配置本机 MySQL 数据源 → 导入逆向 → 勾选含二级索引的表 → 预期：实体 `indexs` 有名称/字段/isUnique，PRIMARY 不重复出现
 - [ ] [PostgreSQL 逆向] 指定 schema（默认 public）→ 含二级索引表导入 → 预期：`indexs` 正确且不含主键索引
 - [ ] [Oracle 逆向] schema=用户 → 含二级索引表导入 → 预期：`indexs` 正确且不含主键约束索引
-- [ ] [SQL Server 兜底] 仍走 Generic → 表/列/PK 可导入；索引尽力
+- [ ] [SQL Server 逆向] 默认 dbo → 含二级索引表导入 → 预期：`indexs` 正确且不含主键/INCLUDE 列
+- [ ] [其它库兜底] H2/达梦等走 Generic → 表/列/PK 可导入；索引尽力
 
 ## 第 3 轮（2026-08-01）：Blueprint → antd 清零
 
