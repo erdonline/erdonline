@@ -21,4 +21,5 @@
 - 正面：按库扩展、能力矩阵驱动前端、可单测映射规则
 - 代价：每库需维护一份 Dialect；P0 外库精度不承诺
 - 已落地：`POST /connector/dbReverseMeta` + Schema 选择；JDBC `getImportedKeys` → `associations`
-- 后续：热库字典级 FK SQL（精度）；表清单按需分页
+- MySQL FK：`INFORMATION_SCHEMA.KEY_COLUMN_USAGE` 字典 SQL（失败回退 JDBC）；复合列按 `ORDINAL_POSITION` 拆成多条单字段边
+- 后续：PostgreSQL / Oracle / SQL Server 字典 FK；`AssociationEnd.fields[]` 聚合复合键；表清单按需分页

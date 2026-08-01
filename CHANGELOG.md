@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — MySQL 字典级 FK 逆向（2026-08-02）
+
+### 新增
+- MySQL/MariaDB：`KEY_COLUMN_USAGE` 字典外键（`ORDINAL_POSITION` 保序）；失败回退 JDBC；`mapFromKeyColumnUsage` 单测覆盖复合列
+  验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=ForeignKeyAssociationMapperTest test` 绿
+
 ## [Unreleased] — Sync 冲突提示 + P2 收口（2026-08-02）
 
 ### 新增
