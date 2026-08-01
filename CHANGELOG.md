@@ -134,6 +134,13 @@
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
+### UI 收敛：清除 MUI（✅；Blueprint 另议）
+
+- CRUD 对话框内全部 `@mui/material` / `@mui/icons-material` 替换为 antd（Divider/Button/Row/Col/InboxOutlined）
+- 从 `package.json` 移除 `@mui/*` 与仅为其服务的直连 `@emotion/*`
+- Blueprint 菜单/工具栏残留记后续切片（设计器侧栏触发器暂保留）
+  验证点：`rg '@mui/' frontend/src` 零命中；`yarn lint:js:ci` 过；`version.spec`/`export.spec` 绿（diff 用例偶发已复跑通过）
+
 ### 设计系统：全局加载骨架（✅ 加载半完成；暗色另议）
 
 - 新增 `PageSkeleton`；进设计器 `projectLoading` 时内容区骨架，禁止白屏

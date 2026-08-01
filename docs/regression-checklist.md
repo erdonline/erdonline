@@ -145,3 +145,9 @@
 - [x] [项目列表] 慢网打开 /project/person 见 list loading，完成后可新建 ✅ `loading.spec.ts`
 - [x] [进设计器] 慢网打开模型见 `page-skeleton`，加载后消失 ✅同上
 - [ ] [版本页] 手工：进版本管理首屏见骨架而非 `Loading...` 文案
+
+## UI 收敛 antd（2026-08-01）
+
+- [x] [无 MUI] `rg '@mui/' frontend/src` 零命中；package.json 无 `@mui/*`
+- [ ] [数据源对话框] 手工：设置→数据源设置→测试/确定按钮为 antd 样式；预览编辑抽屉布局正常
+- [x] [版本编辑] 版本页「编辑」仍可打开表单 ✅ `version.spec.ts`（编辑链路覆盖）

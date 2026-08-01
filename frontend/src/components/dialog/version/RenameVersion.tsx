@@ -1,7 +1,5 @@
 import React from 'react';
 import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import {MenuItem} from "@blueprintjs/core";
-import EditIcon from "@mui/icons-material/Edit";
 import useVersionStore from "@/store/version/useVersionStore";
 import shallow from "zustand/shallow";
 import {compareStringVersion} from "@/utils/string";

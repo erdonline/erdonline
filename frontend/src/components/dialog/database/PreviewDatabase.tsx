@@ -1,9 +1,9 @@
 import React, {Ref, useEffect, useImperativeHandle, useRef, useState} from 'react';
-import {Button, Grid} from "@mui/material";
 import {getDataByTemplate, getDemoTemplateData} from "@/utils/json2code";
 import {ProForm, DrawerForm, ProFormRadio} from "@ant-design/pro-components";
 import CodeEditor from "@/components/CodeEditor";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
+import {Button, Col, Row} from "antd";
 import _ from "lodash";
 
 
@@ -47,7 +47,7 @@ const PreviewDatabase: React.FC<PreviewDatabaseProps> = (props) => {
       title="预览编辑"
       formRef={formRef}
       trigger={
-        <Button variant="outlined" color="info" key="preview">预览编辑</Button>
+        <Button key="preview">预览编辑</Button>
       }
       drawerProps={{
         destroyOnClose: true,
@@ -127,24 +127,18 @@ const PreviewDatabase: React.FC<PreviewDatabaseProps> = (props) => {
           ]}
         />
       </ProForm.Group>
-      <Grid container spacing={2}>
-        <Grid item xs={3}>
-          参考数据
-        </Grid>
-        <Grid item xs={6}>
-          模板代码编辑
-        </Grid>
-        <Grid item xs={3}>
-          预览
-        </Grid>
-        <Grid item xs={3}>
+      <Row gutter={16}>
+        <Col span={6}>参考数据</Col>
+        <Col span={12}>模板代码编辑</Col>
+        <Col span={6}>预览</Col>
+        <Col span={6}>
           <CodeEditor
             mode='json'
             height={`${tempHeight * 0.5}px`}
             value={demoTemplateData}
           />
-        </Grid>
-        <Grid item xs={6}>
+        </Col>
+        <Col span={12}>
           <CodeEditor
             mode='mysql'
             height={`${tempHeight * 0.5}px`}
@@ -153,15 +147,15 @@ const PreviewDatabase: React.FC<PreviewDatabaseProps> = (props) => {
               onTemplateEditorChange(event, value, selectTab);
             }}
           />
-        </Grid>
-        <Grid item xs={3}>
+        </Col>
+        <Col span={6}>
           <CodeEditor
             mode='mysql'
             height={`${tempHeight * 0.5}px`}
             value={result}
           />
-        </Grid>
-      </Grid>
+        </Col>
+      </Row>
     </DrawerForm>
   </>);
 }

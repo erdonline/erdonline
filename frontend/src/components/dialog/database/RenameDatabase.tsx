@@ -2,9 +2,9 @@ import React, {Ref, useEffect, useImperativeHandle, useRef, useState} from 'reac
 import {ProForm, ModalForm, ProFormCheckbox, ProFormInstance, ProFormRadio, ProFormText} from '@ant-design/pro-components';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import {Button, Divider} from "@mui/material";
 import _ from 'lodash';
 import {RadioChangeEvent} from "antd/lib/radio/interface";
+import {Button, Divider} from "antd";
 import CodeEditor from "@/components/CodeEditor";
 import PreviewDatabase from "@/components/dialog/database/PreviewDatabase";
 
@@ -111,9 +111,8 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
               setSelectTab={setSelectTab}
               onTemplateEditorChange={onTemplateEditorChange}
             />,
-            <Button variant="outlined" color="warning" key="rest"
-                    onClick={() => props.form?.resetFields()}>重置</Button>,
-            <Button variant="contained" key="submit" onClick={() => props.form?.submit?.()}> 确定 </Button>,
+            <Button key="rest" onClick={() => props.form?.resetFields()}>重置</Button>,
+            <Button type="primary" key="submit" onClick={() => props.form?.submit?.()}>确定</Button>,
           ];
         },
       }}

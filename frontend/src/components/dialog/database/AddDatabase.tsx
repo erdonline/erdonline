@@ -2,12 +2,11 @@ import React, {useEffect, useState} from 'react';
 import {ProForm, ModalForm, ProFormCheckbox, ProFormRadio, ProFormText} from '@ant-design/pro-components';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import {Divider} from '@mui/material';
 import _ from "lodash";
 import CodeEditor from "@/components/CodeEditor";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
 import {PlusOutlined} from "@ant-design/icons";
-import {Button} from "antd";
+import {Button, Divider} from "antd";
 
 export type AddDatabaseProps = {
   moduleDisable: boolean;
