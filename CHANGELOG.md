@@ -2,6 +2,17 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 多库逆向 Dialect SPI（2026-08-01）
+
+### 新增
+
+- **ADR-0006**：多库逆向 Dialect SPI（P0：MySQL/PG/Oracle/SQL Server；Generic JDBC 兜底）
+- 包 `com.erdonline.erd.reverse`：`ReverseDialect` / `DialectCapability` / `ReverseDialectRegistry`
+- **MysqlReverseDialect**：索引走 `INFORMATION_SCHEMA.STATISTICS`（对齐 DBeaver/jOOQ）；MariaDB 共用
+- **GenericJdbcReverseDialect**：表/列/PK + `getIndexInfo` 尽力索引
+- `DBReverseParseCommand` 改为委托 Dialect；连接在 finally 关闭；支持可选 `schema` 参数
+  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 6/6 绿（`mvn -Dtest=... -Djacoco.skip=true test`）
+
 ## [Unreleased] — eslint 热路径收尾（2026-08-01）
 
 ### 变更

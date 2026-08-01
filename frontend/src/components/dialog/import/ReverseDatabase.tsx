@@ -35,7 +35,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
 
   return (<>
     <ModalForm
-      title={<span>解析已有数据源<span style={{color: "red"}}>（暂时不支持索引解析生成）</span></span>}
+      title={<span>解析已有数据源<span style={{color: "#888", fontSize: 12}}>（含非主键索引）</span></span>}
       trigger={
         <Button
           key="reverse"
