@@ -83,6 +83,15 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
+## 文档站（Docusaurus）
+
+```bash
+cd website && yarn && yarn start   # http://localhost:3000/erdonline/
+cd website && yarn build           # 产物 website/build
+```
+
+消费仓库 `docs/`（ADR-0003）；说明见 `website/README.md`。
+
 ## 协作 Presence（SocketIO）
 
 - 端口 `9092`（netty-socketio，与 HTTP `9502` 分离）；前端 `SOCKETIO_URL`（dev 默认 `http://localhost:9092`）

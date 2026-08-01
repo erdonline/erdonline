@@ -19,6 +19,8 @@ backend/src/main/java/rebel.xml
 
 # ===== Frontend (Node / Umi) =====
 **/node_modules
+website/build
+website/.docusaurus
 frontend/dist/
 frontend/.umi
 frontend/.umi-production
