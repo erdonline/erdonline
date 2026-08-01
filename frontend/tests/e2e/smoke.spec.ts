@@ -71,10 +71,63 @@ test.describe('冒烟：核心旅程', () => {
     await expect(page.getByText(projectName)).toHaveCount(0);
   });
 
-  // 第 1 轮已修复：g6 右键删除接线 Modal.confirm。
-  // 暂不自动化：g6 节点渲染在 <canvas> 内，无 DOM 可定位，坐标点击脆弱；
-  // 待第 3-6 轮 ReactFlow 迁移（DOM 节点）后启用。手工验证项见 docs/regression-checklist.md
-  test.fixme('画布删除数据表需二次确认', async () => {
-    // 前置：进入设计器并新建一张表 → 右键删除 → 断言出现确认框
+  test('模型树删除表需二次确认（取消不删）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = `del-${Date.now()}`;
+    try {
+      await login(page);
+      await deleteAllPersonProjects(page);
+
+      await page.getByRole('button', { name: /新\s*建/ }).click();
+      await page.getByPlaceholder('请输入项目名').fill(projectName);
+      await page.locator('.ant-modal .ant-select').first().click();
+      await page.locator('.ant-select-item-option', { hasText: '个人项目' }).click();
+      await page.locator('.ant-modal .ant-select').nth(1).click();
+      await page.keyboard.type('del');
+      await page.keyboard.press('Enter');
+      await page.getByPlaceholder('请输入项目描述').fill('delete confirm');
+      await page.locator('.ant-modal').getByRole('button', { name: /确\s*定/ }).click();
+      await expect(page.getByText(projectName).first()).toBeVisible();
+      await page.getByRole('button', { name: '打开模型' }).first().click();
+      await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
+
+      await page.getByRole('button', { name: /新增模型/ }).click();
+      const moduleModal = page.locator('.ant-modal:visible').last();
+      await moduleModal.locator('input').first().fill('M1');
+      await moduleModal.locator('input').nth(1).fill('模块一');
+      await moduleModal.getByRole('button', { name: /确\s*定/ }).click();
+      await expect(page.locator('.ant-tree')).toContainText('模块一');
+
+      // 展开 → 关系图 → 空态建表
+      const expand = async (title: string) => {
+        const n = page
+          .locator('.ant-tree-treenode', { has: page.getByText(title, { exact: true }) })
+          .first();
+        await n.locator('.ant-tree-switcher').first().click();
+        await page.waitForTimeout(300);
+      };
+      await expand('模块一');
+      await expand('关系');
+      await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).last().click();
+      await expect(page.locator('.react-flow')).toBeVisible({ timeout: 10_000 });
+      await page.locator('.erd-empty-button').click();
+      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
+
+      // 展开「表」文件夹，实体节点才有「…」菜单
+      await expand('表');
+      const entityNode = page
+        .locator('.ant-tree-treenode', { has: page.getByText('T_TABLE_1', { exact: true }) })
+        .first();
+      await expect(entityNode).toBeVisible({ timeout: 5_000 });
+      await entityNode.locator('.anticon-ellipsis').click();
+      await page.getByRole('menuitem', { name: '删除表' }).click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog.getByText(/确定删除表/)).toBeVisible();
+      // antd 按钮文案中间可能有空格：「取 消」
+      await dialog.getByRole('button', { name: /取\s*消/ }).click();
+      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
+    } finally {
+      await deleteAllPersonProjects(page).catch(() => {});
+    }
   });
 });
