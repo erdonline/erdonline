@@ -394,7 +394,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     set(produce((state: any) => {
     const entity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
     const oldFields: any[] = entity.fields || [];
-    // 检测字段改名（旧有新无 ∪ 新有旧无，一对一时视为改名）并同步 associations
+    // 检测字段改名并同步 associations：优先同长按下标对齐；否则「仅一名出/入」启发式
     const oldNameList = oldFields.map((f: any) => f?.name).filter(Boolean);
     const newNameList = payload.map((f: any) => f?.name).filter(Boolean);
     const newNames = new Set(newNameList);
@@ -402,9 +402,18 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const onlyOld = oldNameList.filter((n: string) => !newNames.has(n));
     const onlyNew = newNameList.filter((n: string) => !oldNameSet.has(n));
     const renamedFrom = new Set<string>();
-    if (onlyOld.length === 1 && onlyNew.length === 1) {
-      const [oldName] = onlyOld;
-      const [newName] = onlyNew;
+    const renamePairs: Array<{ oldName: string; newName: string }> = [];
+    if (oldFields.length === payload.length) {
+      oldFields.forEach((of: any, i: number) => {
+        const nf = payload[i];
+        if (of?.name && nf?.name && of.name !== nf.name) {
+          renamePairs.push({ oldName: of.name, newName: nf.name });
+        }
+      });
+    } else if (onlyOld.length === 1 && onlyNew.length === 1) {
+      renamePairs.push({ oldName: onlyOld[0], newName: onlyNew[0] });
+    }
+    renamePairs.forEach(({ oldName, newName }) => {
       renamedFrom.add(oldName);
       (state.project.projectJSON.modules[moduleIndex].associations || []).forEach((a: any) => {
         if (a?.from?.entity === entityTitle && a?.from?.field === oldName) {
@@ -414,7 +423,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
           a.to.field = newName;
         }
       });
-    }
+    });
     // 真正删除的字段才清关联（改名旧名除外）
     const removed = onlyOld.filter((n: string) => !renamedFrom.has(n));
     if (removed.length > 0) {
