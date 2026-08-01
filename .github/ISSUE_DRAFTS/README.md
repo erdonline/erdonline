@@ -18,7 +18,11 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 ## 当前待投放（未标已合入）
 
-（空）— 下一轮再补 3–8 条草稿后投放。
+| 文件 | 标题摘要 |
+|---|---|
+| `23-table-rename-e2e.md` | 关系图表头改名 E2E |
+| `24-version-index-eslint.md` | 版本管理页 eslint 清零 |
+| `25-exportddl-unused-vars.md` | ExportDDL 剩余 eslint warn |
 
 合入后在对应草稿顶部加：
 

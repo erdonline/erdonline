@@ -75,6 +75,10 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 32. ~~**关系图边热区**~~（已合入 `interactionWidth=24`）
 33. ~~**导出 DDL 第二步 E2E**~~（已合入；ExportDDL 对齐 ADR-0008）
 34. ~~**community seed 规则说明**~~（已合入本文「投放规则」）
+35. ~~**PK 徽标切换 E2E**~~（已合入 `relation.spec`「PK」）
+36. **表头改名 E2E**（草稿 `23-table-rename-e2e.md`）
+37. **版本管理页 eslint**（草稿 `24-version-index-eslint.md`）
+38. **ExportDDL 剩余 eslint**（草稿 `25-exportddl-unused-vars.md`）
 
 ## 贡献者怎么认领
 

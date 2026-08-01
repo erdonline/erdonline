@@ -115,7 +115,7 @@
 - [x] [undo] 自动布局后 Cmd/Ctrl+Z → 坐标回到布局前 ✅自动
 - [x] [IdOrKey 默认 PK] 内联加 IdOrKey 字段后 PK 徽标 active ✅自动
 - [ ] [表头改名] 点 ✎ → 改名 → 节点标题更新（MCP 实证 DOM click 有效；Playwright locator.click 被 RF 层吞，自动化待补）
-- [ ] [PK 切换] 点 PK 徽标取消/恢复（功能已落地，自动化待补）
+- [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
 - [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1 ✅自动
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动
 - [x] [R3 切 g6] 打开关系图仅 ReactFlow（无 G6Relation）；relation.spec 全旅程绿 ✅自动
