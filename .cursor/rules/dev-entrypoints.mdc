@@ -57,6 +57,6 @@ alwaysApply: true
 # 改前端后：等待 HMR，不要重启
 ```
 
-MySQL / Redis：`brew services` 或 `docker compose up -d mysql redis`，本规则不替代。
+MySQL / Redis：**只用 Colima + `docker-compose up -d mysql redis`**；禁止 `brew services start mysql/redis`（与容器抢端口）。详见 `docs/development.md`。
 
 与速度纪律的关系：本文件管**入口**；增量验证分层仍遵 `dev-loop-speed.mdc`。

@@ -13,11 +13,20 @@
 
 ## 启动步骤
 
-```bash
-# 1. 起数据库（可用 Docker，也可用本机已有服务）
-docker compose up -d mysql redis
+本地 **MySQL / Redis 只跑在 Colima（Docker）**，不要再用 `brew services` 起本机实例（端口会冲突）。
 
-# 2. 后端（默认端口 9502，profile=dev；tmux 常驻，与终端生命周期解耦）
+```bash
+# 0. Colima（首次需盘镜像；国内可先手动下好再 --disk-image）
+#    镜像：https://github.com/abiosoft/colima-core/releases → ubuntu-*-arm64-docker.raw.gz
+colima start --cpu 4 --memory 8 --disk 40 \
+  --disk-image ~/Downloads/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz
+# Docker Hub 国内源已写在 ~/.colima/default/colima.yaml → docker.registry-mirrors
+# （本机无 compose 插件时用 docker-compose）
+
+# 1. 起数据库
+docker-compose up -d mysql redis
+
+# 2. 后端（默认端口 9502，profile=dev；tmux 常驻）
 ./backend/dev-ensure.sh            # 幂等：健康秒退，不健康自动拉起
 ./backend/dev-ensure.sh --restart  # 改了 Java/yml/mapper 后重启
 ./backend/dev-ensure.sh --logs     # 看启动日志
@@ -73,5 +82,5 @@ com.erdonline
 
 ## 常见问题
 
-- **后端启动报连接 MySQL 失败**：确认 `docker compose up -d mysql redis` 已就绪，且 `application-dev.yml` 数据源指向正确
+- **后端启动报连接 MySQL 失败**：确认 `colima status` 为 running，且 `docker-compose up -d mysql redis` 健康；勿与 brew MySQL 抢 3306
 - **前端登录 401**：确认后端已启动且数据库 `oauth_client_details` 表有 `client2` 记录
