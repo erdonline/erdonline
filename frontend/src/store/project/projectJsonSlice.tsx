@@ -1,19 +1,19 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
+import type {GetState, SetState} from "zustand";
+import type {ProjectState} from "@/store/project/useProjectStore";
 import produce from "immer";
 import ModulesSlice from "@/store/project/modulesSlice";
 import DataTypeDomainsSlice from "@/store/project/dataTypeDomainsSlice";
 import ProfileSlice from "@/store/project/profileSlice";
 import DatabaseDomainsSlice from "@/store/project/databaseDomainsSlice";
 import useGlobalStore from "@/store/global/globalStore";
-import {State} from "zustand/vanilla";
+import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import * as CryptoJS from 'crypto-js';
 import _ from "lodash";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
 
-export type IProjectJsonSlice = {}
+export type IProjectJsonSlice = Record<string, never>;
 
 export interface IProjectJsonDispatchSlice {
   fixProject: (project: any) => void;
@@ -37,14 +37,11 @@ const globalState = useGlobalStore.getState();
 
 const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   fixProject: (project: any) => set(produce(state => {
-    const database = get().project?.projectJSON?.dataTypeDomains?.database || [];
-    const defaultDatabaseCode = _.find(database, {"defaultDatabase": true})?.code || database[0]?.code;
     const modules = project?.projectJSON?.modules;
     const tmpModules = get().dispatch.fixModules(modules, null, null);
     if (tmpModules) {
       state.project.projectJSON.modules = tmpModules;
     }
-
 
     // ADR-0008：打开项目即剥离 profile 内 JDBC 机密，只保留 defaultDataSourceId
     if (state.project?.projectJSON?.profile) {
@@ -57,11 +54,11 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
   getProject: () => set(produce(state => {
     return state.project;
   })),
-  fixModules: (data: any, datatype: any, database: any) => {
-    datatype = datatype || get().project?.projectJSON?.dataTypeDomains?.datatype || [];
-    database = database || get().project?.projectJSON?.dataTypeDomains?.database || [];
+  fixModules: (data: any, datatypeArg: any, databaseArg: any) => {
+    const datatype = datatypeArg || get().project?.projectJSON?.dataTypeDomains?.datatype || [];
+    const database = databaseArg || get().project?.projectJSON?.dataTypeDomains?.database || [];
     const defaultDatabaseCode = _.find(database, {"defaultDatabase": true})?.code || database[0]?.code;
-    if(!defaultDatabaseCode){
+    if (!defaultDatabaseCode) {
       return data;
     }
     return data?.map((m: any) => {
@@ -142,10 +139,8 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     }
     return "";
   },
-  diff: (previousProject: any, project: any) => set(produce(state => {
-    const delta = jsondiffpatch.diff(previousProject, project);
-    return delta;
-  })),
+  diff: (previousProject: any, project: any) =>
+    jsondiffpatch.diff(previousProject, project),
   patch: (r: any) => set(produce(state => {
     const patchedProject = jsondiffpatch.patch(JSON.parse(JSON.stringify(get().project)), r.delta);
     patchedProject.timestamp = r.timestamp;
