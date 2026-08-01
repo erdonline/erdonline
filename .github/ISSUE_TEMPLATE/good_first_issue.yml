@@ -1,0 +1,54 @@
+name: Good first issue
+description: 适合新人的小切片（维护者填写；贡献者认领）
+title: "[good first] "
+labels: ["good first issue"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        请对照 `docs/community.md` 的标准填写。范围要小到 **约 2 小时可验证合入**。
+  - type: textarea
+    id: background
+    attributes:
+      label: 背景
+      description: 为什么要做；用户或贡献者痛点
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: 接受标准
+      description: 可勾选的完成条件
+      placeholder: |
+        - [ ] …
+        - [ ] …
+    validations:
+      required: true
+  - type: textarea
+    id: verify
+    attributes:
+      label: 验证命令
+      description: 可复制命令或页面步骤
+      placeholder: |
+        cd frontend && npx playwright test …
+    validations:
+      required: true
+  - type: input
+    id: files
+    attributes:
+      label: 相关文件 / 目录
+      placeholder: frontend/src/…
+    validations:
+      required: true
+  - type: dropdown
+    id: area
+    attributes:
+      label: 域
+      options:
+        - docs
+        - frontend
+        - backend
+        - e2e
+        - other
+    validations:
+      required: true

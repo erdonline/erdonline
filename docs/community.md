@@ -1,0 +1,55 @@
+# 社区与新手任务
+
+> 目标：让第一次提 PR 的人 **2 小时内能合入** 有意义的改动，抬升贡献者留存（愿景第三层用户价值）。
+
+## 标签约定
+
+| 标签 | 含义 |
+|---|---|
+| `good first issue` | 范围清晰、本地可验证、无需深架构上下文 |
+| `help wanted` | 欢迎外部认领，可稍大 |
+| `docs` / `frontend` / `backend` | 域 |
+| `area:designer` / `area:share` / `area:reverse` | 子域（可选） |
+
+Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 / 接受标准 / 验证命令 / 相关文件**。
+
+## 维护者运营节奏（双周）
+
+- [ ] 扫一遍打开 Issue，给合格项打上 `good first issue`（保持 **3–8** 个开放）
+- [ ] 合并后立刻关 Issue，并在 PR 描述链回 Issue
+- [ ] 双周发版笔记里点名合入的新手 PR（`docs/releases/`）
+- [ ] 文档站「社区」页与本清单同步（改本文件即可）
+
+## 什么样的任务适合 good first
+
+- 改文案、补 aria-label / `data-testid`、修死链、补单测断言
+- 清一处明确 eslint warn（附文件路径）
+- 补 E2E 单条旅程（现有 helpers 可复用）
+- 文档示例可复制命令
+
+**不适合**：改 Security/OAuth、改 projectJSON 主结构、画布协议大改、无复现步骤的模糊 UX。
+
+## 种子任务池（可直接开 Issue）
+
+下列为当前仓库已知低风险债，开 Issue 时复制「接受标准」即可：
+
+1. **文档站相对链接**：把 `docs/` 内仍指向仓库根相对路径的链接统一成绝对 GitHub URL（参考 roadmap/development 已改写法）  
+   验证：`cd website && yarn build`（`onBrokenLinks=throw`）
+2. **登录/注册页副标题去 ChatGPT 噱头**：与愿景「AI 是期权」对齐  
+   文件：`frontend/src/pages/login/index.tsx`、`register/index.tsx`  
+   验证：打开 `/login` `/register` 文案可读
+3. **`presence.spec` 清理项目**：用例结束后 `deleteOwnPersonProjects`  
+   文件：`frontend/tests/e2e/presence.spec.ts`  
+   验证：`npx playwright test tests/e2e/presence.spec.ts --project=chromium`
+4. **协作 sync toast E2E**：双 context 触发远端 sync 见 info/warning（清单项未勾）  
+   参考：`docs/regression-checklist.md`「协作 sync 提示」
+5. **前端 eslint warn 定点清零**：任选 `src/store/project` 下 1 个文件的 `consistent-type-imports` / `no-unused-vars`  
+   验证：`yarn eslint <file>` 对该文件无新增 warn
+
+## 贡献者怎么认领
+
+1. 在 Issue 下留言「我来做」
+2. Fork → `feat/...` 分支 → PR 勾选模板
+3. 按 Issue 验证命令在描述里贴结果摘要
+
+详见 [CONTRIBUTING.md](https://github.com/erdonline/erdonline/blob/main/CONTRIBUTING.md)。

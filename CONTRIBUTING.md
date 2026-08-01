@@ -40,6 +40,12 @@ docs(readme): 补充 Docker 部署说明
 - **前端**：`yarn lint` 通过；组件与 hooks 命名清晰
 - 提交前请确保：后端 `mvn compile` 通过，前端 `yarn build` 通过
 
+## 新手任务（good first issue）
+
+- 浏览带 `good first issue` 标签的 Issue，或阅读运营清单：[docs/community.md](docs/community.md)
+- 认领后按 Issue 内「验证命令」自测，再开 PR
+- 维护者：保持 3–8 个开放新手任务；模板见 `.github/ISSUE_TEMPLATE/good_first_issue.yml`
+
 ## 报告问题
 
 请使用 [Issue 模板](.github/ISSUE_TEMPLATE) 提交 Bug 或功能请求，附上复现步骤、环境信息与期望行为。
