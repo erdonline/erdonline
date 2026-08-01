@@ -58,6 +58,10 @@ com.erdonline
 └── config/                # 全局配置
 ```
 
+## 性能预算
+
+指标与红线见 [performance-budget.md](./performance-budget.md)。改依赖或核心旅程后对照表内命令复测。
+
 ## 提交规范
 
 遵循 [Conventional Commits](https://www.conventionalcommits.org/)，详见 [CONTRIBUTING.md](../CONTRIBUTING.md)。

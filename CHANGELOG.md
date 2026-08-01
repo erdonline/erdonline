@@ -134,6 +134,12 @@
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
+### 性能预算基线（✅）
+
+- 新增 `docs/performance-budget.md`：dist ≤20MB、冒烟 ≤30s、relation ≤60s；热路径禁止 console
+- 本机基线：dist ~14MB；冒烟 ~10.4s；relation ~26s
+  验证点：文档指标表与 `du -sh frontend/dist` / smoke 耗时可对照
+
 ### 性能：设计器热路径去掉 console.log（✅ eslint 清债切片）
 
 - `useProjectStore` immer/`set` 中间件与 fetch/socket 调试日志删除（原先每次模型变更都刷屏）
