@@ -2,7 +2,7 @@ import React from 'react';
 import {Alignment, Button} from "@blueprintjs/core";
 import {MyIcon} from "@/components/Menu";
 import {ModalForm} from '@ant-design/pro-components';
-import {InboxOutlined} from '@mui/icons-material';
+import {InboxOutlined} from '@ant-design/icons';
 import Dragger from "antd/es/upload/Dragger";
 import {message, Modal} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";

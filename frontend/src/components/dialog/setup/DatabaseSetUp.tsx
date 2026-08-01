@@ -8,14 +8,13 @@ import {
   ProFormSelect,
   ProFormText
 } from "@ant-design/pro-components";
-import {Alignment, Button} from "@blueprintjs/core";
+import {Alignment, Button as BpButton} from "@blueprintjs/core";
 import _ from "lodash";
-import {Button as MuiButton, Grid} from "@mui/material";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {uuid} from '@/utils/uuid';
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
-import {Button as AntButton, message, Popconfirm} from 'antd';
+import {Button, Col, message, Popconfirm, Row} from 'antd';
 import * as Save from '@/utils/save';
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 
@@ -167,14 +166,14 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
         formRef={formRef}
         title={<span>数据源连接配置</span>}
         trigger={
-          <Button
+          <BpButton
             key="db"
             icon="database"
             text="数据源设置"
             minimal={true}
             small={true}
             fill={true}
-            alignText={Alignment.LEFT}></Button>
+            alignText={Alignment.LEFT} />
         }
         initialValues={{
           ...defaultDbs?.properties,
@@ -187,17 +186,17 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
             console.log(props);
             // @ts-ignore
             return _.concat([], [
-              <MuiButton disabled={!defaultData} variant="outlined" color="warning" key="rest"
-                         onClick={() => connectJDBC()}>{state.loading ? "正在连接" : "测试"}</MuiButton>,
-              <MuiButton variant="contained" key="submit" onClick={() => {
+              <Button disabled={!defaultData} key="rest" loading={state.loading}
+                      onClick={() => connectJDBC()}>{state.loading ? "正在连接" : "测试"}</Button>,
+              <Button type="primary" key="submit" onClick={() => {
                 message.success("保存成功！");
-              }}> 确定 </MuiButton>,
+              }}>确定</Button>,
             ]);
           },
         }}
       >
-        <Grid container spacing={2}>
-          <Grid item xs={6}>
+        <Row gutter={16}>
+          <Col span={12}>
             <ProFormList
               name="dbs"
               creatorButtonProps={false}
@@ -267,7 +266,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
             >
               <></>
             </ProFormList>
-            <AntButton type="dashed" block icon={<PlusOutlined/>}
+            <Button type="dashed" block icon={<PlusOutlined/>}
                        onClick={() => {
                          addDatabase({
                            name: '',
@@ -281,10 +280,10 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
                              username: ''
                            }
                          });
-                       }}>新增数据源</AntButton>
+                       }}>新增数据源</Button>
 
-          </Grid>
-          <Grid item xs={6}>
+          </Col>
+          <Col span={12}>
             <ProFormText
               width="md"
               name="driver_class_name"
@@ -406,8 +405,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
                 ],
               }}
             />
-          </Grid>
-        </Grid>
+          </Col>
+        </Row>
 
       </ModalForm>
 

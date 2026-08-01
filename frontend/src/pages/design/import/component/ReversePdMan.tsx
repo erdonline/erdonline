@@ -1,5 +1,5 @@
 import React from 'react';
-import {InboxOutlined} from '@mui/icons-material';
+import {InboxOutlined} from '@ant-design/icons';
 import {message, Modal, Upload} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";

@@ -1,5 +1,5 @@
 import React from 'react';
-import {InboxOutlined} from '@mui/icons-material';
+import {InboxOutlined} from '@ant-design/icons';
 import Dragger from "antd/es/upload/Dragger";
 import {message, Modal} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";

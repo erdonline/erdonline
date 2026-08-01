@@ -2,7 +2,7 @@ import React, {Ref, useEffect, useImperativeHandle, useRef, useState} from 'reac
 import {ModalForm, ProForm, ProFormInstance, ProFormText} from '@ant-design/pro-components';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import {Divider} from "@mui/material";
+import {Divider} from "antd";
 import _ from 'lodash';
 
 export type RenameDataTypeProps = {
