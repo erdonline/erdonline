@@ -33,8 +33,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 
 下列为当前仓库已知低风险债，开 Issue 时复制「接受标准」即可：
 
-1. **文档站相对链接**：把 `docs/` 内仍指向仓库根相对路径的链接统一成绝对 GitHub URL（参考 roadmap/development 已改写法）  
-   验证：`cd website && yarn build`（`onBrokenLinks=throw`）
+1. ~~**文档站相对链接**~~（仓库根路径已改绝对 GitHub URL；`docs/` 内 `./` 同目录链路由 `onBrokenLinks=throw` 门禁）
 2. ~~**登录/注册页副标题去 ChatGPT 噱头**~~（已合入；回归见 `smoke.spec.ts`）
 3. ~~**`presence.spec` 清理项目**~~（已合入 `deleteOwnPersonProjects`）
 4. ~~**协作 sync toast E2E**~~（已合入 `sync-toast.spec.ts`；info 路径）

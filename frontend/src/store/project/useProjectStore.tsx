@@ -23,8 +23,29 @@ import {CONSTANT} from "@/utils/constant";
 import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/services/collabPresence";
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
+import defaultData from "@/utils/defaultData.json";
 
 export type RemoteCursor = { x: number; y: number; ts: number };
+
+/** API 新建团队项目等可能留下 null/残缺 projectJSON；打开时补齐默认骨架，避免「新增模型」静默失败 */
+export function ensureProjectJSON(project: any) {
+  if (!project || typeof project !== 'object') return project;
+  if (!project.projectJSON || typeof project.projectJSON !== 'object') {
+    project.projectJSON = JSON.parse(JSON.stringify(defaultData));
+    return project;
+  }
+  const json = project.projectJSON;
+  if (!Array.isArray(json.modules)) {
+    json.modules = [];
+  }
+  if (!json.profile || typeof json.profile !== 'object') {
+    json.profile = JSON.parse(JSON.stringify(defaultData.profile));
+  }
+  if (!json.dataTypeDomains || typeof json.dataTypeDomains !== 'object') {
+    json.dataTypeDomains = JSON.parse(JSON.stringify(defaultData.dataTypeDomains));
+  }
+  return project;
+}
 
 /** 应用远端 sync 时抑制回声广播 */
 let applyingRemoteSync = false;
@@ -125,6 +146,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
               const data = res?.data;
               if (res?.code === 200 && data) {
                 resetCanvasHistory();
+                ensureProjectJSON(data);
                 lastSyncedProjectJson = data.projectJSON
                   ? JSON.parse(JSON.stringify(data.projectJSON))
                   : null;
