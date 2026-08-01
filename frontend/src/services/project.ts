@@ -44,9 +44,9 @@ export const recentProject = (params: any) => {
   });
 };
 
-// 保存项目
+// 保存项目（优先 payload.id，避免多标签页时 cache 指到别的项目）
 export const saveProject = (data: any) => {
-  const id = cache.getItem(CONSTANT.PROJECT_ID);
+  const id = data?.id || cache.getItem(CONSTANT.PROJECT_ID);
   return request.post('/ncnb/project/save', {
     data: {
       ...data,

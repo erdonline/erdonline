@@ -116,12 +116,14 @@ logging:
   level:
     com.erdonline: info
 
-# JWT（生产务必用环境变量覆盖密钥）
+# JWT + 安全开关（生产务必覆盖密钥；e2e 账号默认禁止登录）
 erd:
   jwt:
     secret: ${JWT_SECRET:erd-online-dev-jwt-secret-change-me-32bytes!!}
     expires-in: ${JWT_EXPIRES_IN:43200}
     issuer: erd-online
+  security:
+    e2e-accounts-enabled: ${ERD_E2E_ACCOUNTS_ENABLED:false}
 
 # 安全放行 URL
 security:

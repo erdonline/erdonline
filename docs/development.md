@@ -38,8 +38,10 @@ yarn test:e2e                 # 多 worker 并发（本地最多 4，CI 默认 2
 PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 ```
 
-- 并发隔离：项目名 `e2e-w{n}-` 前缀，清理只删本 worker
-- 空态/示例用例在 `chromium-serial`（等并行项目结束后再跑，账号锁互斥）
+- 并发隔离：每 worker 登录 `e2e{n}`（`db/init/05_e2e_users.sql` 种子 e2e0..e2e9，密码 `123456`）；项目名 `e2e-w{n}-` 前缀
+- 空态/示例用例在 `chromium-serial`，账号 `e2e9`
+- 已有库补种子：`mysql -h127.0.0.1 -uroot < db/init/05_e2e_users.sql`
+- 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 e2e* 登录（防弱口令）
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
 ## 前端如何找到后端

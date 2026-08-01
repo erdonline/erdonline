@@ -1,5 +1,13 @@
 import { expect, test } from '@playwright/test';
-import { deleteAllPersonProjects, login, withExclusiveAccount } from './helpers';
+import {
+  createPersonProject,
+  deleteAllPersonProjects,
+  E2E_SERIAL,
+  expectToast,
+  expandTreeTitle,
+  login,
+  withExclusiveAccount,
+} from './helpers';
 
 /**
  * 新手 30s 激活（账号级操作，走 chromium-serial + withExclusiveAccount）
@@ -11,7 +19,7 @@ test.describe('新手激活', () => {
     test.setTimeout(120_000);
     await withExclusiveAccount(async () => {
       try {
-        await login(page);
+        await login(page, E2E_SERIAL);
         await deleteAllPersonProjects(page);
 
         await page.goto('/home');
@@ -23,22 +31,13 @@ test.describe('新手激活', () => {
 
         await page.getByTestId('home-link-example').click();
         await expect(page).toHaveURL(/\/design\/table/, { timeout: 20_000 });
-        await expect(page.locator('.ant-message')).toContainText(/示例项目已就绪/, {
-          timeout: 15_000,
-        });
+        await expectToast(page, /示例项目已就绪/);
 
-        await expect(page.locator('.ant-tree')).toContainText('示例商城', { timeout: 15_000 });
-        const expand = async (title: string) => {
-          const n = page
-            .locator('.ant-tree-treenode', { has: page.getByText(title, { exact: true }) })
-            .first();
-          await n.locator('.ant-tree-switcher').first().click();
-          await page.waitForTimeout(300);
-        };
-        await expand('示例商城');
-        await expand('关系');
-        await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).last().click();
-        await expect(page.locator('.react-flow')).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText('示例商城', { exact: true })).toBeVisible({ timeout: 15_000 });
+        await expandTreeTitle(page, '示例商城');
+        await expandTreeTitle(page, '关系');
+        await page.getByTestId('tree-open-relation').click();
+        await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
         await expect(page.locator('.react-flow__node', { hasText: 'T_USER' })).toBeVisible();
         await expect(page.locator('.react-flow__node', { hasText: 'T_ORDER' })).toBeVisible();
         await expect(page.locator('.react-flow__edge')).toHaveCount(1);
@@ -54,25 +53,12 @@ test.describe('新手激活', () => {
     const b = `multi-b-${Date.now()}`;
     await withExclusiveAccount(async () => {
       try {
-        await login(page);
+        await login(page, E2E_SERIAL);
         await deleteAllPersonProjects(page);
 
-        const create = async (name: string) => {
-          await page.goto('/project/person');
-          await page.getByRole('button', { name: /新\s*建/ }).click();
-          await page.getByPlaceholder('请输入项目名').fill(name);
-          await page.locator('.ant-modal .ant-select').first().click();
-          await page.locator('.ant-select-item-option', { hasText: '个人项目' }).click();
-          await page.locator('.ant-modal .ant-select').nth(1).click();
-          await page.keyboard.type('m');
-          await page.keyboard.press('Enter');
-          await page.getByPlaceholder('请输入项目描述').fill('no quota');
-          await page.locator('.ant-modal').getByRole('button', { name: /确\s*定/ }).click();
-          await expect(page.getByText(name).first()).toBeVisible({ timeout: 15_000 });
-        };
-
-        await create(a);
-        await create(b);
+        await page.goto('/project/person');
+        await createPersonProject(page, a, 'm', 'no quota');
+        await createPersonProject(page, b, 'm', 'no quota');
         await expect(page.getByRole('button', { name: /删\s*除/ })).toHaveCount(2, {
           timeout: 10_000,
         });

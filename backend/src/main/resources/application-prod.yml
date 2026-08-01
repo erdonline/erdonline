@@ -1,4 +1,10 @@
 # 生产环境：全部通过环境变量注入（见根目录 .env.example / docker-compose.yml）
+
+# 禁止 e2e* 弱口令种子账号登录（即使库里有记录）
+erd:
+  security:
+    e2e-accounts-enabled: false
+
 spring:
   # 凭证强制环境注入：application.yml 的弱默认值仅供开发，prod 下重新声明为无默认值，
   # 缺环境变量时启动直接失败（fail-fast），杜绝默认密码随生产部署上线。

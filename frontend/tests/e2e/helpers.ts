@@ -2,53 +2,100 @@ import { expect, test } from '@playwright/test';
 import * as fs from 'fs';
 
 /**
- * E2E 共享助手（支持多 worker 并发）
+ * E2E 共享助手（多 worker + e2e-locators 纪律）
  *
- * 隔离约定：项目名必须以 `e2e-w{parallelIndex}-` 开头，清理只删本 worker 前缀，
- * 避免并行用例互相 deleteAll 踩踏。
+ * 定位：getByRole / placeholder / getByTestId；禁止依赖 .ant-* 业务选择。
+ * 隔离：每 worker 独立账号 e2e{n}（见 db/init/05_e2e_users.sql）+ 项目名 `e2e-w{n}-`。
  */
 
-export const ADMIN = { name: 'admin', pass: '123456' };
+export const E2E_PASS = '123456';
+/** 兼容旧断言（勿用于并发登录） */
+export const ADMIN = { name: 'admin', pass: E2E_PASS };
+/** chromium-serial：空态/清库类用例（固定 e2e9，避免与并行 worker 抢账号） */
+export const E2E_SERIAL = { name: 'e2e9', pass: E2E_PASS };
 
-/** 当前 worker 的项目名前缀，如 e2e-w0- */
+export type E2eAccount = { name: string; pass: string };
+
+/** 当前 worker 专用账号（parallelIndex → e2e0..e2e7） */
+export function e2eAccount(): E2eAccount {
+  return { name: `e2e${test.info().parallelIndex}`, pass: E2E_PASS };
+}
+
 export function e2ePrefix(): string {
   return `e2e-w${test.info().parallelIndex}-`;
 }
 
-/** 生成本 worker 唯一项目名 */
 export function uniqueProjectName(stem: string): string {
   return `${e2ePrefix()}${stem}-${Date.now().toString(36)}`;
 }
 
-export async function login(page: import('@playwright/test').Page) {
+export async function login(
+  page: import('@playwright/test').Page,
+  account: E2eAccount = e2eAccount(),
+) {
   await page.goto('/login');
-  await page.getByRole('textbox', { name: '用户名' }).fill(ADMIN.name);
-  await page.getByRole('textbox', { name: '密码' }).fill(ADMIN.pass);
+  await page.getByRole('textbox', { name: '用户名' }).fill(account.name);
+  await page.getByRole('textbox', { name: '密码' }).fill(account.pass);
   await page.getByRole('button', { name: /登\s*录/ }).click();
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
 }
 
-/** 个人项目：新建并打开设计器（role/placeholder/testid；类型默认个人故不点 Select） */
+/** 断言 antd message 文案（用户可见文本，不用 .ant-message） */
+export async function expectToast(
+  page: import('@playwright/test').Page,
+  pattern: string | RegExp,
+  timeout = 15_000,
+) {
+  await expect(page.getByText(pattern).first()).toBeVisible({ timeout });
+}
+
+/** 个人项目：新建（默认类型已是个人；标签用 testid） */
+export async function createPersonProject(
+  page: import('@playwright/test').Page,
+  projectName: string,
+  tag = 'e2e',
+  desc?: string,
+) {
+  await page.getByRole('button', { name: /新\s*建/ }).click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible();
+  await dialog.getByPlaceholder('请输入项目名').fill(projectName);
+  // 默认已有「新建」；仅追加不同标签，避免 tags Select 同名输入卡住
+  if (tag && tag !== '新建') {
+    await dialog.getByTestId('project-tags').click();
+    await page.keyboard.type(tag);
+    await page.keyboard.press('Enter');
+  }
+  await dialog.getByPlaceholder('请输入项目描述').fill(desc ?? tag);
+  await dialog.getByRole('button', { name: /确\s*定/ }).click();
+  await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 15_000 });
+}
+
 export async function createAndOpenPersonProject(
   page: import('@playwright/test').Page,
   projectName: string,
   tag = 'e2e',
+  desc?: string,
 ) {
-  await page.getByRole('button', { name: /新\s*建/ }).click();
-  const dialog = page.getByRole('dialog');
-  await dialog.getByPlaceholder('请输入项目名').fill(projectName);
-  // 标签：ProForm tags Select——点容器后键盘确认（无稳定 option role）
-  await dialog.locator('.ant-select').nth(1).click();
-  await page.keyboard.type(tag);
-  await page.keyboard.press('Enter');
-  await dialog.getByPlaceholder('请输入项目描述').fill(tag);
-  await dialog.getByRole('button', { name: /确\s*定/ }).click();
-  await expect(page.getByText(projectName).first()).toBeVisible();
+  await createPersonProject(page, projectName, tag, desc);
   await page.getByTestId('open-project').first().click();
   await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
 }
 
-/** 空态新增模型 → 展开 → 打开关系图 → 可见画布 */
+/** 树节点：点 switcher 展开（结构必要；标题用可见文案） */
+export async function expandTreeTitle(
+  page: import('@playwright/test').Page,
+  title: string,
+) {
+  const node = page
+    .locator('.ant-tree-treenode')
+    .filter({ has: page.getByText(title, { exact: true }) })
+    .first();
+  await node.locator('.ant-tree-switcher').click();
+  await page.waitForTimeout(300);
+}
+
+/** 空态新增模型 → 展开 → 打开关系图 */
 export async function openRelationFromEmpty(
   page: import('@playwright/test').Page,
   opts: { name?: string; chnname?: string } = {},
@@ -60,22 +107,64 @@ export async function openRelationFromEmpty(
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
   await expect(page.getByText(chnname, { exact: true })).toBeVisible();
-  // 展开模块 /「关系」文件夹（点 switcher，避免选中文件夹打开空页）
-  const expandByTitle = async (title: string) => {
-    const node = page.locator('.ant-tree-treenode').filter({ has: page.getByText(title, { exact: true }) }).first();
-    await node.locator('.ant-tree-switcher').click();
-    await page.waitForTimeout(300);
-  };
-  await expandByTitle(chnname);
-  await expandByTitle('关系');
+  await expandTreeTitle(page, chnname);
+  await expandTreeTitle(page, '关系');
   await page.getByTestId('tree-open-relation').click();
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
 }
 
-/**
- * 只删除名称匹配的个人项目（用于并发隔离）。
- * match 为前缀字符串或正则；默认清本 worker 前缀。
- */
+/** 已有模块时打开关系图（需先能看到模块中文名） */
+export async function openRelationCanvas(
+  page: import('@playwright/test').Page,
+  moduleChnname: string,
+) {
+  await expandTreeTitle(page, moduleChnname);
+  await expandTreeTitle(page, '关系');
+  await page.getByTestId('tree-open-relation').click();
+  await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+}
+
+/** ReactFlow 表节点（库结构类名，非 antd） */
+export function rfNode(page: import('@playwright/test').Page, tableName: string) {
+  return page.locator('.react-flow__node', { hasText: tableName });
+}
+
+/** 画布内联加字段 */
+export async function addFieldInline(
+  page: import('@playwright/test').Page,
+  tableName: string,
+  fieldName: string,
+  type = 'String',
+) {
+  const node = rfNode(page, tableName);
+  await node.getByTestId('canvas-add-field').click();
+  const editRow = node.locator('.erd-field-editing');
+  await editRow.locator('.erd-field-type-select').selectOption(type);
+  await editRow.locator('.erd-field-input').fill(fieldName);
+  await editRow.locator('.erd-field-input').press('Enter');
+  await expect(node.locator('.erd-field-name', { hasText: fieldName })).toBeVisible();
+}
+
+/** 字段拖连线：from 右锚点 → to 左锚点 */
+export async function connectFields(
+  page: import('@playwright/test').Page,
+  fromTable: string,
+  fromField: string,
+  toTable: string,
+  toField: string,
+) {
+  await page.getByRole('button', { name: /fit view/i }).or(page.locator('.react-flow__controls-fitview')).click();
+  await page.waitForTimeout(500);
+  const fromRow = rfNode(page, fromTable).locator(`[data-field="${fromField}"]`);
+  const toRow = rfNode(page, toTable).locator(`[data-field="${toField}"]`);
+  const src = fromRow.locator('.react-flow__handle-right');
+  const tgt = toRow.locator('.react-flow__handle-left');
+  await expect(src).toBeVisible();
+  await expect(tgt).toBeVisible();
+  await src.dragTo(tgt, { force: true });
+  await page.waitForTimeout(1_000);
+}
+
 export async function deleteOwnPersonProjects(
   page: import('@playwright/test').Page,
   match: string | RegExp = e2ePrefix(),
@@ -86,7 +175,7 @@ export async function deleteOwnPersonProjects(
     typeof match === 'string' ? name.startsWith(match) : match.test(name);
 
   for (let i = 0; i < 15; i += 1) {
-    const links = page.locator('a[href*="projectId="]');
+    const links = page.getByRole('link', { name: /e2e-w/ });
     const count = await links.count();
     let name = '';
     for (let j = 0; j < count; j += 1) {
@@ -96,12 +185,25 @@ export async function deleteOwnPersonProjects(
         break;
       }
     }
+    // 回退：任意带 projectId 的链接（兼容非 e2e-w 前缀的 match）
+    if (!name) {
+      const all = page.locator('a[href*="projectId="]');
+      const n = await all.count();
+      for (let j = 0; j < n; j += 1) {
+        const text = (await all.nth(j).innerText()).trim();
+        if (text && matches(text)) {
+          name = text;
+          break;
+        }
+      }
+    }
     if (!name) {
       break;
     }
     const row = page
-      .locator('.ant-list-item, .ant-pro-list-row')
+      .locator('div')
       .filter({ has: page.getByRole('link', { name, exact: true }) })
+      .filter({ has: page.getByRole('button', { name: /删\s*除/ }) })
       .first();
     const delBtn = row.getByRole('button', { name: /删\s*除/ }).first();
     if ((await delBtn.count()) === 0 || !(await delBtn.isVisible().catch(() => false))) {
@@ -116,10 +218,6 @@ export async function deleteOwnPersonProjects(
   }
 }
 
-/**
- * 账号级互斥（空态/示例用例）：同一时刻只允许一个测试占用 admin 全量清档。
- * 配合 playwright project dependencies，在并行项目结束后再跑串行文件。
- */
 export async function withExclusiveAccount<T>(fn: () => Promise<T>): Promise<T> {
   const lock = '/tmp/erd-e2e-account.lock';
   const started = Date.now();
@@ -142,9 +240,6 @@ export async function withExclusiveAccount<T>(fn: () => Promise<T>): Promise<T> 
   throw new Error('E2E account lock timeout');
 }
 
-/**
- * 仅串行用例（需全局空态）使用；并发用例请用 deleteOwnPersonProjects
- */
 export async function deleteAllPersonProjects(page: import('@playwright/test').Page) {
   await page.goto('/project/person');
   await page.waitForTimeout(1_500);
