@@ -135,6 +135,11 @@ com.erdonline
 
 遵循 [Conventional Commits](https://www.conventionalcommits.org/)，详见 [CONTRIBUTING.md](https://github.com/erdonline/erdonline/blob/main/CONTRIBUTING.md)。
 
+## 关系图画布（ReactFlow）
+
+- 边命中热区：`EDGE_INTERACTION_WIDTH = 24`（`ReactFlowRelation.tsx`）；视觉描边仍细。极密布局若仍难点中边，可先拖开节点再点，或框选后 Delete。
+- 版本双入口：侧栏「版本管理」与项目菜单「版本」同页（`/design/table/version/all`）。
+
 ## 常见问题
 
 - **后端启动报连接 MySQL 失败**：确认 `colima status` 为 running，且 `docker-compose up -d mysql redis` 健康；勿与 brew MySQL 抢 3306
