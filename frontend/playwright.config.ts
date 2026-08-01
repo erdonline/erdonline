@@ -40,6 +40,8 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       testMatch: ['**/project-activation.spec.ts', '**/activation.spec.ts'],
       fullyParallel: false,
+      // 共用 e2e9：必须单 worker，避免文件锁空等到用例超时
+      workers: 1,
       dependencies: ['chromium'],
     },
   ],

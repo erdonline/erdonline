@@ -8,11 +8,6 @@ import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.constant.CommonConstants;
 import com.erdonline.common.core.exception.StatefulException;
-import com.erdonline.common.security.vip.rights.PersonLoginCountRight;
-import com.erdonline.common.security.vip.rights.PersonRegisterCountRight;
-import com.erdonline.common.vip.annotation.VIP;
-import com.erdonline.common.vip.enums.VIPLevelEnum;
-import com.erdonline.common.vip.enums.VIPModuleEnum;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +42,6 @@ public class MartinUserDetailsService implements UserDetailsService {
      */
     @Override
     @SneakyThrows
-    @VIP(module = VIPModuleEnum.ERD, vipLevel = {VIPLevelEnum.NONE, VIPLevelEnum.PRO}, rights = {PersonLoginCountRight.class}, reset = false)
     public MartinUser loadUserByUsername(String username) throws UsernameNotFoundException {
         R<UserRolePrivilegeVo> r = remoteSystem.loadUserByUsername(username);
         return getUserDetails(r);

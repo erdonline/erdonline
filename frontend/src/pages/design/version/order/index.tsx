@@ -161,7 +161,7 @@ const MyOrder: React.FC<MyOrderProps> = (props) => {
         pageSize: 10,
       }}
       dateFormatter="string"
-      headerTitle="我的工单"
+      headerTitle={<span data-testid="page-title-orders">我的工单</span>}
       locale={{
         emptyText: '暂无工单。团队项目可在「版本管理 → 详情」中发起 SQL 审批。',
       }}

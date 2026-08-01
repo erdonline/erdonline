@@ -346,6 +346,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         {editing === null && (
           <div
             className="erd-field-add nodrag"
+            data-testid="canvas-add-field"
+            role="button"
+            aria-label="添加字段"
             onClick={() => setEditing({ key: '__NEW__', name: '', type: 'String', pk: false })}
           >
             + 添加字段

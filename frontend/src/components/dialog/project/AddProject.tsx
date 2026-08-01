@@ -96,8 +96,9 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
                      }}
                      fieldProps={{
                        mode: "tags",
-                       tokenSeparators: [',']
-                     }}
+                       tokenSeparators: [','],
+                       'data-testid': 'project-tags',
+                     } as any}
       />
 
       <ProFormTextArea

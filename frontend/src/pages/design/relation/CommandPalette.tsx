@@ -65,6 +65,8 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
         <input
           ref={inputRef}
           className="erd-cmd-input"
+          data-testid="cmd-palette-input"
+          aria-label="命令搜索"
           placeholder="输入命令…（建表、布局、撤销）"
           value={query}
           onChange={e => setQuery(e.target.value)}
@@ -92,6 +94,9 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
           {filtered.map((c, i) => (
             <li
               key={c.id}
+              role="option"
+              aria-selected={i === active}
+              data-testid={`cmd-item-${c.id}`}
               className={`erd-cmd-item${i === active ? ' active' : ''}`}
               onMouseEnter={() => setActive(i)}
               onClick={() => run(c)}

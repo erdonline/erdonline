@@ -250,6 +250,8 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     return node.type !== 'folder' ? (
       <Dropdown overlay={menu} trigger={['click']}>
         <EllipsisOutlined
+          data-testid="tree-node-menu"
+          aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}操作`}
           style={{ padding: '0 8px', fontSize: '16px' }}
           onClick={(e) => e.stopPropagation()}
         />

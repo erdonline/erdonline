@@ -237,6 +237,7 @@ const Version: React.FC<VersionProps> = (props) => {
             }}
             onRow={(record: any, index: number) => {
               return {
+                'data-testid': `version-row-${record.version}`,
                 onMouseEnter: () => {
                   versionDispatch.setCurrentVersion(record, index);
                 }, // 鼠标移入行
