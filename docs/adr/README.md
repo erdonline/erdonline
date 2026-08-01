@@ -11,3 +11,5 @@
 | [0004](./0004-license-mit.md) | 维持 MIT 许可证 | 已接受 |
 | [0005](./0005-ui-architecture.md) | UI 架构：antd 守 CRUD，设计器域自研 | 已接受 |
 | [0006](./0006-reverse-dialect-spi.md) | 多库逆向 Dialect SPI（P0 四库 + Generic 兜底） | 已接受 |
+| [0007](./0007-readonly-project-share.md) | 项目只读分享链接 | 已接受 |
+| [0008](./0008-datasource-isolation.md) | 数据源与 projectJSON 隔离（不落 profile.dbs） | 已接受 |

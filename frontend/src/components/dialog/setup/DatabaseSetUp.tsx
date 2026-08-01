@@ -15,33 +15,29 @@ import {uuid} from '@/utils/uuid';
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Col, message, Popconfirm, Row} from 'antd';
 import * as Save from '@/utils/save';
-import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
-
-
 export type DatabaseSetUpProps = {
   isGlobal?: boolean;
 };
 
 
-const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
+/** 设计器菜单「数据源设置」：读写 /ncnb/dataSources（ADR-0008），不写 profile.dbs */
+const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
   const { projectDispatch, } = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
 
   const [databases, setDatabases] = useState([]);
 
+  const reload = async () => {
+    const list = await projectDispatch.refreshDataSources();
+    setDatabases(list || []);
+  };
+
   useEffect(() => {
-    const fetchDatabases = async () => {
-      const databases = await fetchDatabaseConfigs();
-      setDatabases(databases);
-    };
-    fetchDatabases();
+    reload();
   }, []);
 
-  const dispatch = isGlobal ? globalDatabaseDispatch : projectDispatch;
-
-
-
+  const dispatch = projectDispatch;
 
   const url = {
     mysql: {
@@ -128,28 +124,22 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
     }
   });
 
-  const addDatabase = (data: any) => {
-    if (isGlobal) {
-      dispatch.addDatabase(data);
-    } else {
-      dispatch.addDbs(data);
-    }
+  const addDatabase = async (data: any) => {
+    await dispatch.addDbs(data);
+    await reload();
   };
 
-  const removeDatabase = (index: number) => {
-    if (isGlobal) {
-      dispatch.removeDatabase(index);
-    } else {
-      dispatch.removeDbs(index);
-    }
+  const removeDatabase = async (key: string) => {
+    await dispatch.removeDbs(key);
+    await reload();
   };
 
-  const updateDatabase = (index: number, data: any) => {
-    if (isGlobal) {
-      dispatch.updateDatabase(index, data);
-    } else {
-      dispatch.updateDbs(index, data);
+  const updateDatabase = async (key: string, data: any) => {
+    if (data?.defaultDB) {
+      dispatch.setDefaultDb(key);
     }
+    await dispatch.updateDbs(key, data);
+    await reload();
   };
 
 

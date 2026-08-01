@@ -30,5 +30,5 @@
 ## 只读分享
 
 - 创建/吊销需登录且为项目创建人
-- 匿名响应已脱敏 `profile.dbs` 的 `username`/`password` 为 `***`；其余配置仍可读，后续可再收紧
+- 匿名响应按 ADR-0008 **清空** `profile.dbs`（连接只在 `data_sources`）；可保留 `defaultDataSourceId` 引用
 

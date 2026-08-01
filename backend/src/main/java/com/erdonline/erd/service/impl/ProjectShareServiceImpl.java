@@ -102,7 +102,7 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
     }
 
     /**
-     * 脱敏 profile.dbs.*.properties 中的 password / username 敏感字段。
+     * ADR-0008：匿名分享不携带 profile.dbs 连接明细（机密已隔离到 data_sources）。
      */
     @SuppressWarnings("unchecked")
     static Map<String, Object> sanitizeProjectJson(Map<String, Object> projectJson) {
@@ -115,31 +115,8 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
             return copy;
         }
         Map<String, Object> profile = (Map<String, Object>) profileObj;
-        Object dbsObj = profile.get("dbs");
-        if (!(dbsObj instanceof Iterable)) {
-            return copy;
-        }
-        for (Object dbObj : (Iterable<?>) dbsObj) {
-            if (!(dbObj instanceof Map)) {
-                continue;
-            }
-            Map<String, Object> db = (Map<String, Object>) dbObj;
-            Object propsObj = db.get("properties");
-            if (propsObj instanceof Map) {
-                Map<String, Object> props = (Map<String, Object>) propsObj;
-                maskSecret(props, "password");
-                maskSecret(props, "username");
-            }
-            maskSecret(db, "password");
-            maskSecret(db, "username");
-        }
+        profile.put("dbs", java.util.Collections.emptyList());
         return copy;
-    }
-
-    private static void maskSecret(Map<String, Object> map, String key) {
-        if (map.containsKey(key) && map.get(key) != null && !String.valueOf(map.get(key)).isEmpty()) {
-            map.put(key, "***");
-        }
     }
 
     @SuppressWarnings("unchecked")

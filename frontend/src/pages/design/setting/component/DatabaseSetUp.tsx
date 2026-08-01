@@ -17,8 +17,6 @@ import {uuid} from '@/utils/uuid';
 import {DeleteOutlined} from '@ant-design/icons';
 import {Button, Divider, message, Popconfirm} from 'antd';
 import * as Save from '@/utils/save';
-import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
-
 export type DatabaseSetUpProps = {};
 
 
@@ -31,12 +29,13 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
 
   const [tempDBs, setTempDBs] = useState([]);
 
+  const reloadDbs = async () => {
+    const databases = await projectDispatch.refreshDataSources();
+    setTempDBs(databases || []);
+  };
+
   useEffect(() => {
-    const fetchDatabases = async () => {
-      const databases = await fetchDatabaseConfigs();
-      setTempDBs(databases);
-    };
-    fetchDatabases();
+    reloadDbs();
   }, []);
 
 
@@ -141,8 +140,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
           render: (props) => {
             return _.concat([], [
               <Button type="dashed"
-                      onClick={() => {
-                        projectDispatch.addDbs({
+                      onClick={async () => {
+                        await projectDispatch.addDbs({
                           name: '',
                           select: defaultDatabase,
                           key: uuid(),
@@ -154,6 +153,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                             username: ''
                           }
                         });
+                        await reloadDbs();
                       }}>新增</Button>,
               <Button disabled={!defaultData} key="rest"
                       onClick={() => connectJDBC()}>{state.loading ? "正在连接" : "测试"}</Button>,
@@ -176,8 +176,9 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                         <ProFormRadio
                           name="defaultDB"
                           fieldProps={{
-                            onChange: () => {
-                              projectDispatch.setDefaultDb(record.key)
+                            onChange: async () => {
+                              projectDispatch.setDefaultDb(record.key);
+                              await reloadDbs();
                             }
                           }}/>
                         <ProFormSelect
@@ -185,14 +186,17 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                           name="select"
                           fieldProps={{
                             disabled: !record.defaultDB,
-                            onChange: (value: any, option: any) => {
-                              projectDispatch.updateDbs('select', value);
-                              projectDispatch.updateDbs('properties', {
-                                driver_class_name: url[value.toLowerCase()].driver_class_name,
-                                url: url[value.toLowerCase()].url,
-                                username: '',
-                                password: ''
+                            onChange: async (value: any) => {
+                              await projectDispatch.updateDbs(record.key, {
+                                select: value,
+                                properties: {
+                                  driver_class_name: url[value.toLowerCase()].driver_class_name,
+                                  url: url[value.toLowerCase()].url,
+                                  username: '',
+                                  password: ''
+                                }
                               });
+                              await reloadDbs();
                             }
                           }}
                         />
@@ -200,8 +204,9 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                           name="name"
                           fieldProps={{
                             disabled: !record.defaultDB,
-                            onBlur: (e) => {
-                              projectDispatch.updateDbs('name', e.target.value);
+                            onBlur: async (e) => {
+                              await projectDispatch.updateDbs(record.key, {name: e.target.value});
+                              await reloadDbs();
                             }
                           }}
                           rules={[
@@ -212,7 +217,10 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                         />
                         <Popconfirm
                           title={record.defaultDB ? "是否要删除默认数据源？删除之后，系统将不存在默认数据源！" : "是否删除该数据源？"}
-                          onConfirm={() => projectDispatch.removeDbs(record.key)}
+                          onConfirm={async () => {
+                            await projectDispatch.removeDbs(record.key);
+                            await reloadDbs();
+                          }}
                           okText="是"
                           cancelText="否"
                         >
@@ -233,11 +241,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                 label="driver_class_name"
                 placeholder="driver_class_name"
                 fieldProps={{
-                  onBlur: (e) => {
-                    projectDispatch.updateDbs('properties', {
-                      ...defaultDbs.properties,
-                      driver_class_name: e.target.value
+                  onBlur: async (e) => {
+                    if (!defaultDbs?.key) return;
+                    await projectDispatch.updateDbs(defaultDbs.key, {
+                      properties: {
+                        ...defaultDbs.properties,
+                        driver_class_name: e.target.value
+                      }
                     });
+                    await reloadDbs();
                   }
                 }}
                 formItemProps={{
@@ -260,11 +272,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                 label="url"
                 placeholder="请输入url"
                 fieldProps={{
-                  onBlur: (e) => {
-                    projectDispatch.updateDbs('properties', {
-                      ...defaultDbs?.properties,
-                      url: e.target.value
+                  onBlur: async (e) => {
+                    if (!defaultDbs?.key) return;
+                    await projectDispatch.updateDbs(defaultDbs.key, {
+                      properties: {
+                        ...defaultDbs?.properties,
+                        url: e.target.value
+                      }
                     });
+                    await reloadDbs();
                   }
                 }}
                 formItemProps={{
@@ -286,11 +302,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                 label="username"
                 placeholder="请输入username"
                 fieldProps={{
-                  onBlur: (e) => {
-                    projectDispatch.updateDbs('properties', {
-                      ...defaultDbs?.properties,
-                      username: e.target.value
+                  onBlur: async (e) => {
+                    if (!defaultDbs?.key) return;
+                    await projectDispatch.updateDbs(defaultDbs.key, {
+                      properties: {
+                        ...defaultDbs?.properties,
+                        username: e.target.value
+                      }
                     });
+                    await reloadDbs();
                   }
                 }}
                 formItemProps={{
@@ -312,11 +332,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = (props) => {
                 label="password"
                 placeholder="请输入password"
                 fieldProps={{
-                  onBlur: (e) => {
-                    projectDispatch.updateDbs('properties', {
-                      ...defaultDbs?.properties,
-                      password: e.target.value
+                  onBlur: async (e) => {
+                    if (!defaultDbs?.key) return;
+                    await projectDispatch.updateDbs(defaultDbs.key, {
+                      properties: {
+                        ...defaultDbs?.properties,
+                        password: e.target.value
+                      }
                     });
+                    await reloadDbs();
                   }
                 }}
                 formItemProps={{

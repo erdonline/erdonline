@@ -6,7 +6,13 @@ import * as Save from '@/utils/save';
 import {message, Modal} from "antd";
 import request from "@/utils/request";
 import {saveByBlob} from "@/utils/file";
-import { fetchDatabaseConfigs, updateDatabaseConfigs } from "@/utils/databaseUtils";
+import {
+  createDatabaseConfig,
+  deleteDatabaseConfig,
+  fetchDatabaseConfigs,
+  updateDatabaseConfig,
+} from "@/utils/databaseUtils";
+import {markDefaultDataSource} from "@/utils/projectDataSource";
 
 export type IProfileSlice = {
   currentDbKey?: string;
@@ -21,12 +27,14 @@ export interface IProfileDispatchSlice {
   updateDefaultFieldsType: (payload: any) => void;
   updateSqlConfig: (payload: any) => void;
 
-  addDbs: (payload: any) => void;
-  removeDbs: (key: string) => void;
-  updateDbs: (key: string, payload: any) => void;
+  /** ADR-0008：写 dataSources API，不写 profile.dbs 机密 */
+  addDbs: (payload: any) => Promise<void>;
+  removeDbs: (key: string) => Promise<void>;
+  updateDbs: (key: string, payload: any) => Promise<void>;
   updateAllDbs: (payload: any) => void;
   setCurrentDbKey: (payload: string) => void;
   setDefaultDb: (payload: string) => void;
+  refreshDataSources: () => Promise<any[]>;
 
   updateWordTemplateConfig: (payload: any) => void;
   updateProfile: (payload: any) => void;
@@ -64,48 +72,95 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     state.project.projectJSON.profile.sqlConfig = payload;
   })),
 
-  addDbs: (payload: any) => set(produce(async (state) => {
-    const databases = await fetchDatabaseConfigs();
-    databases.push(payload);
-    await updateDatabaseConfigs(databases);
-  })),
-  removeDbs: (key: string) => set(produce(async (state) => {
-    const databases = await fetchDatabaseConfigs();
-    const index = databases.findIndex((db: any) => db.key === key);
-    if (index !== -1) {
-      databases.splice(index, 1);
-      await updateDatabaseConfigs(databases);
+  refreshDataSources: async () => {
+    const list = await fetchDatabaseConfigs();
+    const defaultId = get().project?.projectJSON?.profile?.defaultDataSourceId;
+    const marked = markDefaultDataSource(list, defaultId);
+    try {
+      // 懒加载避免与 useVersionStore ↔ useProjectStore 循环依赖
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const useVersionStore = require('@/store/version/useVersionStore').default;
+      useVersionStore.getState().dispatch.initDbs(marked);
+    } catch (e) {
+      console.warn('refreshDataSources: versionStore unavailable', e);
     }
-  })),
-  updateDbs: (key: string, payload: any) => set(produce(async (state) => {
-    const databases = await fetchDatabaseConfigs();
-    const index = databases.findIndex((db: any) => db.key === key);
-    if (index !== -1) {
-      databases[index] = { ...databases[index], ...payload };
-      await updateDatabaseConfigs(databases);
+    return marked;
+  },
+  addDbs: async (payload: any) => {
+    const ok = await createDatabaseConfig(payload);
+    if (!ok) {
+      message.error('新增数据源失败');
+      return;
     }
-  })),
-  updateAllDbs: (payload: any) => set(produce(state => {
-    state.project.projectJSON.profile.dbs = payload;
-  })),
+    if (payload?.defaultDB || payload?.key) {
+      set(produce(state => {
+        const profile = state.project.projectJSON.profile || (state.project.projectJSON.profile = {});
+        profile.dbs = [];
+        if (payload.defaultDB && payload.key) {
+          profile.defaultDataSourceId = payload.key;
+          state.currentDbKey = payload.key;
+        }
+      }));
+    }
+    await get().dispatch.refreshDataSources();
+  },
+  removeDbs: async (key: string) => {
+    const ok = await deleteDatabaseConfig(key);
+    if (!ok) {
+      message.error('删除数据源失败');
+      return;
+    }
+    set(produce(state => {
+      const profile = state.project.projectJSON.profile || {};
+      profile.dbs = [];
+      if (profile.defaultDataSourceId === key) {
+        profile.defaultDataSourceId = undefined;
+        state.currentDbKey = undefined;
+      }
+      state.project.projectJSON.profile = profile;
+    }));
+    await get().dispatch.refreshDataSources();
+  },
+  /** key = dataSourceId；payload 局部合并后 PUT /dataSources/{id} */
+  updateDbs: async (key: string, payload: any) => {
+    const list = await fetchDatabaseConfigs();
+    const prev = list.find((d: any) => d.key === key);
+    if (!prev) {
+      message.error('数据源不存在');
+      return;
+    }
+    const next = {
+      ...prev,
+      ...payload,
+      key,
+      properties: payload?.properties
+        ? {...(prev.properties || {}), ...payload.properties}
+        : prev.properties,
+    };
+    const ok = await updateDatabaseConfig(next);
+    if (!ok) {
+      message.error('更新数据源失败');
+      return;
+    }
+    set(produce(state => {
+      if (state.project?.projectJSON?.profile) {
+        state.project.projectJSON.profile.dbs = [];
+      }
+    }));
+    await get().dispatch.refreshDataSources();
+  },
+  /** 兼容旧调用：忽略写入 profile.dbs，仅刷新 API 列表 */
+  updateAllDbs: (_payload: any) => {
+    get().dispatch.refreshDataSources();
+  },
   setCurrentDbKey: (payload: string) => set(produce(state => {
     state.currentDbKey = payload;
   })),
   setDefaultDb: (payload: string) => set(produce(state => {
-    state.project.projectJSON.profile.dbs = state.project.projectJSON?.profile?.dbs?.map((db: any) => {
-      if (db.key === payload) {
-        state.currentDbKey = db.key;
-        return {
-          ...db,
-          defaultDB: true
-        };
-      } else {
-        return {
-          ...db,
-          defaultDB: false
-        };
-      }
-    });
+    const profile = state.project.projectJSON.profile || (state.project.projectJSON.profile = {});
+    profile.defaultDataSourceId = payload;
+    profile.dbs = [];
+    state.currentDbKey = payload;
   })),
 
   updateWordTemplateConfig: (payload: any) => set(produce(state => {
@@ -124,7 +179,21 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     return '';
   },
   getCurrentDBData: () => {
-    return get().project.projectJSON?.profile?.dbs?.filter((d: any) => d.defaultDB)[0];
+    const defaultId = get().project?.projectJSON?.profile?.defaultDataSourceId;
+    try {
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const useVersionStore = require('@/store/version/useVersionStore').default;
+      const dbs = useVersionStore.getState().dbs || [];
+      if (defaultId) {
+        const byId = dbs.find((d: any) => d.key === defaultId);
+        if (byId) {
+          return byId;
+        }
+      }
+      return dbs.find((d: any) => d.defaultDB) || dbs[0];
+    } catch {
+      return undefined;
+    }
   },
 
   setProfileSliceState: (profileSlice: any) => set(produce(state => {

@@ -10,8 +10,8 @@ import {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import * as CryptoJS from 'crypto-js';
 import _ from "lodash";
-import {uuid} from "@/utils/uuid";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
+import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
 
 export type IProjectJsonSlice = {}
 
@@ -46,20 +46,12 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     }
 
 
-    const dbs = project?.projectJSON?.profile?.dbs;
-    if (dbs) {
-      //解决导入dbs没有key的问题
-      const modify_dbs = dbs?.map((d: any) => {
-        if (d && !d.key) {
-          return {
-            ...d,
-            key: uuid()
-          }
-        } else {
-          return d;
-        }
-      });
-      state.project.projectJSON.profile.dbs = modify_dbs;
+    // ADR-0008：打开项目即剥离 profile 内 JDBC 机密，只保留 defaultDataSourceId
+    if (state.project?.projectJSON?.profile) {
+      state.project.projectJSON.profile = sanitizeProfileDataSources(state.project.projectJSON.profile);
+      if (state.project.projectJSON.profile.defaultDataSourceId) {
+        state.currentDbKey = state.project.projectJSON.profile.defaultDataSourceId;
+      }
     }
   })),
   getProject: () => set(produce(state => {

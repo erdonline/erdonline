@@ -100,6 +100,27 @@ export const fetchDatabaseConfigs = async (name?: string) => {
   }
 };
 
+/** 新增一条数据源（id 可用客户端 key） */
+export const createDatabaseConfig = async (db: any) => {
+  const body = toDataSourceEntity(db);
+  const res = await ADD(DATABASE_CONFIG_URL, body);
+  return res?.code === 200;
+};
+
+export const updateDatabaseConfig = async (db: any) => {
+  const body = toDataSourceEntity(db);
+  if (!body.id) {
+    return false;
+  }
+  const res = await EDIT(`${DATABASE_CONFIG_URL}/${body.id}`, body);
+  return res?.code === 200;
+};
+
+export const deleteDatabaseConfig = async (id: string) => {
+  const res = await DEL(`${DATABASE_CONFIG_URL}/${id}`, {});
+  return res?.code === 200;
+};
+
 /**
  * 将完整列表同步到 /ncnb/dataSources（按 id 增删改，禁止无 id 的批量 PUT）。
  */
@@ -111,9 +132,7 @@ export const updateDatabaseConfigs = async (databases: any[]) => {
 
     for (const d of existing) {
       if (!nextKeys.has(d.key)) {
-        const delRes = await DEL(`${DATABASE_CONFIG_URL}/${d.key}`, {});
-        if (delRes?.code !== 200) {
-          console.error('delete dataSource failed', d.key, delRes);
+        if (!(await deleteDatabaseConfig(d.key))) {
           return false;
         }
       }
@@ -121,26 +140,12 @@ export const updateDatabaseConfigs = async (databases: any[]) => {
 
     for (const d of databases) {
       const body = toDataSourceEntity(d);
-      if (!body.id) {
-        const addRes = await ADD(DATABASE_CONFIG_URL, body);
-        if (addRes?.code !== 200) {
-          console.error('add dataSource failed', addRes);
+      if (!body.id || !existingKeys.has(body.id)) {
+        if (!(await createDatabaseConfig(d))) {
           return false;
         }
-        continue;
-      }
-      if (existingKeys.has(body.id)) {
-        const editRes = await EDIT(`${DATABASE_CONFIG_URL}/${body.id}`, body);
-        if (editRes?.code !== 200) {
-          console.error('edit dataSource failed', body.id, editRes);
-          return false;
-        }
-      } else {
-        const addRes = await ADD(DATABASE_CONFIG_URL, body);
-        if (addRes?.code !== 200) {
-          console.error('add dataSource failed', addRes);
-          return false;
-        }
+      } else if (!(await updateDatabaseConfig(d))) {
+        return false;
       }
     }
     return true;
