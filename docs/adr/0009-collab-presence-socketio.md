@@ -21,4 +21,5 @@ P3b「协作光标/presence」依赖实时房间；前端曾连 `localhost:3000`
 - 正面：同房可见名单/光标/模型增量；鉴权可部署
 - 断线：namespace `DisconnectListener` 与显式 `leaveRoom` 同路径摘名；同用户多连接时仅最后一连接离开才从名单移除
 - 已知限制：无 OT/CRDT，冲突时后写覆盖；大 delta 未分片
-- 后续：团队项目进房鉴权；光标 idle 超时；冲突提示
+- 冲突提示：远端 sync 成功时 toast（本地 dirty 用 warning）；patch 失败 error
+- 后续：团队项目进房鉴权；光标 idle 超时
