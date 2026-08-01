@@ -2,6 +2,14 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 开发入口规则（2026-08-01）
+
+### 文档 / 规则
+
+- 新增 `.cursor/rules/dev-entrypoints.mdc`：后端唯一入口 `./backend/dev-ensure.sh`（tmux `erd-be`）；前端永不重启、HMR/代理/E2E 强制用法
+- 同步 `dev-loop-speed.mdc`、`docs/development.md`，废弃「直接跑 dev-restart / kill 9502」旁路
+  验证点：`./backend/dev-ensure.sh` 幂等退出 0 且 health UP；`--logs` 可输出
+
 ## [Unreleased] — 多库逆向 Dialect SPI（2026-08-01）
 
 ### 新增

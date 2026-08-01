@@ -9,22 +9,25 @@ alwaysApply: true
 
 ## 服务常驻（禁止惯性重启）
 
-| 服务 | 启动方式 | 改动后动作 |
+| 服务 | 唯一入口 | 改动后动作 |
 |------|---------|-----------|
-| 前端 (8000) | `yarn start` 常驻 | **永不重启**：UmiJS HMR 自动生效（1-3s） |
-| 后端 (9502) | `./dev-restart.sh` 常驻 | 改 Java/yml/mapper 后重跑脚本（~12s）；勿惯性 `mvn spring-boot:run` |
-| MySQL/Redis | brew services 常驻 | 不动 |
+| 前端 (8000) | `cd frontend && yarn start` | **永不重启**：UmiJS HMR |
+| 后端 (9502) | `./backend/dev-ensure.sh` | 改 Java/yml/mapper → `./backend/dev-ensure.sh --restart` |
+| MySQL/Redis | brew / docker compose | 不动 |
 
-例外必须整进程重启的情形：pom.xml 依赖变更、JVM 参数变更、classpath（`target/cp.txt`）过期。
+**强制入口细节**（tmux `erd-be`、禁止旁路 kill/spring-boot:run）见 `dev-entrypoints.mdc`。
+
+例外必须整进程重启的情形：pom.xml 依赖变更、JVM 参数变更、classpath（`target/cp.txt`）过期 → 刷新 classpath 后 `dev-ensure.sh --restart`。
 
 ## 后端工作流
 
 ```bash
-# 推荐：改完后用脚本重启（Boot 3 / JDK 17，绕过 Maven 运行时）
-cd backend && ./dev-restart.sh
+./backend/dev-ensure.sh              # 幂等保障 UP
+./backend/dev-ensure.sh --restart    # 代码生效（内部走 tmux + dev-restart.sh）
 
-# 依赖变更后先刷新 classpath
+# 依赖变更后先刷新 classpath，再 --restart
 cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+./backend/dev-ensure.sh --restart
 ```
 
 ## 增量验证（禁止全量惯性）
