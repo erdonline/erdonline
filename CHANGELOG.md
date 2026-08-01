@@ -150,10 +150,11 @@
 ### 去掉 VIP 限额 + E2E 多账号（✅）
 
 - `VIPRightsAspect` 开源放行（人数/项目数/AI 等不再拦截）；登录路径去掉 `@VIP`
-- 种子 `db/init/05_e2e_users.sql`：`e2e0`..`e2e9`（密码 `123456`，admin 角色）
-- 防漏洞：`erd.security.e2e-accounts-enabled` 仅 `dev` 为 true；`prod`/默认拒绝 `e2e\\d+` 登录
+- 种子 `db/init/05_e2e_users.sql`：`e2e0`..`e2e15` + `e2e-serial`（密码 `123456`，admin 角色）
+- Playwright 本地 worker 上限 16；serial 用 `e2e-serial`
+- 防漏洞：`erd.security.e2e-accounts-enabled` 仅 `dev` 为 true；`prod`/默认拒绝 e2e 种子登录
 - 文档：`docs/security-model.md`、deployment 生产清理说明
-  验证点：`curl` e2e0 在 dev 拿 JWT；prod 配置下 e2e0 401；`admin` 仍可登；相关 E2E 绿
+  验证点：`curl` e2e0/e2e-serial JWT；`npx playwright test` 绿
 
 ### 性能预算基线（✅）
 

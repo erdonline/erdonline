@@ -27,7 +27,7 @@ docker compose logs -f backend   # 查看后端日志
 ## 生产建议
 
 - 修改 `.env` 中所有默认密码（含 `admin`）
-- **删除或改密种子账号** `e2e0`..`e2e9`（初始化脚本写入，弱口令仅供本地/CI；`prod` 默认拒绝其登录，仍建议删库内记录）
+- **删除或改密种子账号** `e2e0`..`e2e15`、`e2e-serial`（弱口令仅供本地/CI；`prod` 默认拒绝登录，仍建议删库内记录）
 - 勿设置 `ERD_E2E_ACCOUNTS_ENABLED=true` 到公网环境
 - 后端 jar 单独部署时，通过环境变量覆盖数据源/redis 配置（见 `application-prod.yml`）
 - 前端可将 `dist/` 部署到任意静态服务器 / CDN，运行时通过 `env-config.js` 注入 `API_URL`

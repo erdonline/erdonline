@@ -9,11 +9,12 @@
 | 账号 | 用途 | 默认密码 |
 |---|---|---|
 | `admin` | 运维/手工 | `123456`（务必在生产修改） |
-| `e2e0`..`e2e9` | Playwright 并发隔离 | `123456` |
+| `e2e0`..`e2e15` | Playwright 并发隔离（≤16 worker） | `123456` |
+| `e2e-serial` | chromium-serial 空态用例 | `123456` |
 
 防护：
 
-- `erd.security.e2e-accounts-enabled`：`dev`=true，`prod`/默认=false → 生产拒绝 `e2e\\d+` 登录
+- `erd.security.e2e-accounts-enabled`：`dev`=true，`prod`/默认=false → 生产拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 公网部署应删除 `e2e*` 用户或改密；见 [deployment.md](./deployment.md)
 
 ## SQL 执行

@@ -6,14 +6,16 @@ import os from 'os';
  * 运行前提：全栈已启动（mysql + redis + backend:9502 + frontend:8000）
  * 本地：yarn test:e2e ｜ CI：由 workflow 先起依赖再执行
  *
- * 并发：默认多 worker；需「账号级空态」的用例放在 chromium-serial（workers=1）。
- * 可用 PW_WORKERS=1 强制串行排查。
+ * 并发：本地上限 16（种子 e2e0..e2e15）；默认取 ceil(CPU/2) 以免打爆 FE/BE。
+ * 满配：PW_WORKERS=16；串行排查：PW_WORKERS=1。
+ * 账号级空态用例 → chromium-serial（workers=1，账号 e2e-serial）。
  */
+const cpuCount = os.cpus().length;
 const parallelWorkers = process.env.PW_WORKERS
   ? Number(process.env.PW_WORKERS)
   : process.env.CI
     ? 2
-    : Math.max(2, Math.min(4, os.cpus().length));
+    : Math.max(2, Math.min(16, Math.ceil(cpuCount / 2)));
 
 export default defineConfig({
   testDir: './tests/e2e',
@@ -40,7 +42,7 @@ export default defineConfig({
       use: { ...devices['Desktop Chrome'] },
       testMatch: ['**/project-activation.spec.ts', '**/activation.spec.ts'],
       fullyParallel: false,
-      // 共用 e2e9：必须单 worker，避免文件锁空等到用例超时
+      // 共用 e2e-serial：必须单 worker，避免文件锁空等到用例超时
       workers: 1,
       dependencies: ['chromium'],
     },
