@@ -1,5 +1,5 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
+import type { GetState, SetState } from 'zustand';
+import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from "immer";
 import _ from "lodash";
 import * as Save from '@/utils/save';
@@ -31,7 +31,7 @@ export interface IProfileDispatchSlice {
   addDbs: (payload: any) => Promise<void>;
   removeDbs: (key: string) => Promise<void>;
   updateDbs: (key: string, payload: any) => Promise<void>;
-  updateAllDbs: (payload: any) => void;
+  updateAllDbs: () => void;
   setCurrentDbKey: (payload: string) => void;
   setDefaultDb: (payload: string) => void;
   refreshDataSources: () => Promise<any[]>;
@@ -150,7 +150,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     await get().dispatch.refreshDataSources();
   },
   /** 兼容旧调用：忽略写入 profile.dbs，仅刷新 API 列表 */
-  updateAllDbs: (_payload: any) => {
+  updateAllDbs: () => {
     get().dispatch.refreshDataSources();
   },
   setCurrentDbKey: (payload: string) => set(produce(state => {
@@ -199,10 +199,8 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   setProfileSliceState: (profileSlice: any) => set(produce(state => {
     state.profileSliceState = profileSlice;
   })),
-  dbReverseParse: (db: any, dataFormat: string, schema?: string) => set(produce(state => {
-    if (!dataFormat) {
-      dataFormat = 'DEFAULT';
-    }
+  dbReverseParse: (db: any, dataFormat: string, schema?: string) => set(produce(() => {
+    const flag = dataFormat || 'DEFAULT';
     if (!db) {
       message.error('未选中或配置数据源');
       return;
@@ -219,7 +217,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     Save.dbReverseParse({
       ...dbConfig,
       driverClassName: db.properties['driver_class_name'], // eslint-disable-line
-      flag: dataFormat,
+      flag,
       ...(schema ? {schema} : {}),
     }).then((res) => {
       if (res && res.code === 200) {
@@ -248,8 +246,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
   })),
   checkField: (data: any) => {
-    let tempExists: any[];
-    tempExists = [];
+    const tempExists: any[] = [];
     const dataSource = get().project?.projectJSON;
     // 当前模型中已经拥有的数据表
     const allTable = get().dispatch.getAllTable(dataSource);

@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — profileSlice eslint 清零（2026-08-02）
+
+### 修复
+- `profileSlice.tsx`：`import type`、未用参数与 prefer-const / no-param-reassign，eslint warn=0
+  验证点：`yarn eslint src/store/project/profileSlice.tsx --max-warnings 0`
+
 ## [Unreleased] — 已删社交登录路径 E2E（2026-08-02）
 
 ### 新增
