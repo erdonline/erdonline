@@ -1,15 +1,23 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
-import produce from "immer";
-import {message} from "antd";
-import useShortcutStore, {PANEL} from "@/store/shortcut/useShortcutStore";
-import * as cache from "@/utils/cache";
-import {snapshotModules} from "@/store/project/canvasHistory";
+import type { GetState, SetState } from 'zustand';
+import type { ProjectState } from '@/store/project/useProjectStore';
+import produce from 'immer';
+import { message } from 'antd';
+import useShortcutStore, { PANEL } from '@/store/shortcut/useShortcutStore';
+import * as cache from '@/utils/cache';
+import { snapshotModules } from '@/store/project/canvasHistory';
 
 export type IEntitiesSlice = {
   currentEntity?: string;
   currentEntityIndex?: number;
 }
+
+const validateEntity = (data: any) => {
+  return data && (data.title || data.name) && Array.isArray(data.fields);
+};
+
+const generateUniqueId = () => {
+  return Math.random().toString(36).substr(2, 9);
+};
 
 export interface IEntitiesDispatchSlice {
   addEntity: (payload: any) => void;
@@ -29,25 +37,11 @@ export interface IEntitiesDispatchSlice {
 
 const ERD_ENTITY_CLIPBOARD = 'erd_entity_clipboard';
 
-const validateTable = (data: any) => {
-  let flag = false;
-  if (data && data.title && typeof data.title === 'string') {
-    if (data.fields && Array.isArray(data.fields)) {
-      flag = true;
-    }
-  }
-  return flag;
-};
-
 const shortcutState = useShortcutStore.getState();
-
-let lastUpdateTime = 0;
-let lastErrorTime = 0;
-const UPDATE_INTERVAL = 1000; // 1秒内只显示一次成功提示或错误提示
 
 let lastMessageTime = 0;
 const MESSAGE_INTERVAL = 1000; // 消息显示的最小间隔时间（毫秒）
-let messageQueue: { type: 'success' | 'error', content: string }[] = [];
+const messageQueue: { type: 'success' | 'error', content: string }[] = [];
 let lastMessage: { type: 'success' | 'error', content: string } | null = null;
 let messageTimeout: NodeJS.Timeout | null = null;
 
@@ -538,15 +532,5 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     shortcutState.dispatch.setPanel(PANEL.DEFAULT);
   })),
 });
-
-// 添加这个辅助函数来验证实体数据
-const validateEntity = (data: any) => {
-  return data && (data.title || data.name) && Array.isArray(data.fields);
-};
-
-// 添加这个函数来生成唯一的字段ID
-const generateUniqueId = () => {
-  return Math.random().toString(36).substr(2, 9);
-};
 
 export default EntitiesSlice;
