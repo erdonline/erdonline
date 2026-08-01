@@ -413,7 +413,6 @@ const useVersionStore = create<VersionState>(
       },
       getCurrentDB: () => {
         const db = get().dispatch.getCurrentDBData();
-        console.log('Current DB:', db);
         if (db) {
           return db.name;
         }
@@ -517,8 +516,6 @@ const useVersionStore = create<VersionState>(
           currentVersion = get().currentVersion;
           lastVersion = currentVersionIndex ? versions[currentVersionIndex + 1] || currentVersion : currentVersion;
         }
-        console.log(471, currentVersion);
-        console.log(472, lastVersion);
         let tempChanges;
         if (type === SHOW_CHANGE_TYPE.CURRENT) {
           tempChanges = currentVersion.changes || [];
@@ -527,19 +524,16 @@ const useVersionStore = create<VersionState>(
         } else {
           tempChanges = [...changes];
         }
-        console.log(496, tempChanges);
         if (tempChanges) {
           _.remove(tempChanges, function (n: any) {
-            const flag =
+            return (
               n?.type === "field"
               && n?.opt === 'update'
-              && (n?.changeData && n?.changeData?.search('undefined=>') > -1);
-            console.log(496, flag, n);
-            return flag;
+              && (n?.changeData && n?.changeData?.search('undefined=>') > -1)
+            );
           });
         }
         const configData = _.get(useProjectStore.getState().project, 'configJSON');
-        console.log(496, tempChanges);
 
         const tempValue = {
           ...(configData?.synchronous || {upgradeType: 'increment'}),
@@ -582,7 +576,6 @@ const useVersionStore = create<VersionState>(
           }
         );
         const dbData = get().dispatch.getCurrentDBData();
-        console.log(514, 'dbData', dbData);
         const code = _.get(dbData, 'select', 'MYSQL');
         let data = '';
         if (init) {
@@ -606,7 +599,6 @@ const useVersionStore = create<VersionState>(
         set({
           data
         })
-        console.log('Processed changes:', init,code,data,dataSource,tempChanges);
       },
       setChanges: (changes: any) => {
         set({
@@ -791,7 +783,6 @@ const useVersionStore = create<VersionState>(
                 content: '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
                 onOk: (m) => {
                   _.set(get().synchronous, `${version.version}`, true);
-                  console.log(673, m);
                   m && m();
                   const configData = _.get(useProjectStore.getState().project, "configJSON");
                   const tempValue = {
@@ -832,14 +823,12 @@ const useVersionStore = create<VersionState>(
                       // todo 暂时取消数据表的中文名以及其他变化时所生成的更新数据
                       tempChanges = tempChanges.filter((c: any) => !(c.type === 'entity' && c.opt === 'update'));
                     }
-                    console.log(771, dbData, _.get(dbData, 'select', 'MYSQL'));
                     data = getCodeByChanges({
                         ..._.get(useProjectStore.getState().project, "projectJSON"),
                         modules: version.projectJSON.modules,
                       }, tempChanges,
                       _.get(dbData, 'select', 'MYSQL'), lastVersion.projectJSON);
                   }
-                  console.log(776, data);
                   get().dispatch.generateSQL(dbData, version, data, updateVersion, () => get().fetch(null,get().currentPage,get().pageSize));
                 }
               });
@@ -955,7 +944,6 @@ const useVersionStore = create<VersionState>(
         });
       },
       initDbs: (dbs: any) => set(produce(state => {
-        console.log('Setting dbs:', dbs);
         state.dbs = dbs || [];
         if (dbs && dbs.length > 0) {
           // Set the first database as default
@@ -966,7 +954,6 @@ const useVersionStore = create<VersionState>(
         }
       })),
       dbChange: (d: any) => {
-        console.log(957,'d',d)
         set(produce(state => {
           state.dbs = state.dbs.map((db: any) => ({
             ...db,
@@ -1101,9 +1088,6 @@ const useVersionStore = create<VersionState>(
             draft.messages = state.dispatch.constructorMessage(newChanges);
           }));
 
-          console.log('Recalculated current changes:', newChanges);
-        } else {
-          console.log('No saved versions to compare against');
         }
       },
     }
