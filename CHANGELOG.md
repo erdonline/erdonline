@@ -113,6 +113,20 @@
 - E2E：可连续创建 2 个个人项目
   验证点：curl 连建 2 个项目均 200；`activation.spec`「可连续创建多个个人项目」
 
+### 项目激活链路打磨（✅）
+
+- **个人项目空态引导**：无项目时展示「立即创建 / 一键示例」双入口（`project/person` Empty）
+- **新建表单减负**：默认个人项目 + 默认标签，必填只剩项目名/描述；创建成功/失败均有 message 反馈（不再静默）
+- **E2E**：`project-activation.spec.ts` 空态一键示例进设计器见 T_USER/T_ORDER；表单默认值 + 创建反馈
+  验证点：`npx playwright test` 全量 14/14 通过
+
+### 后端生命周期托管（✅ 开发基建）
+
+- 新增 `backend/dev-ensure.sh`：幂等保证后端常驻 tmux 会话 `erd-be`（`--restart` 重启 / `--logs` 看日志）
+- 新增规则 `.cursor/rules/backend-lifecycle.mdc`：禁止模型直接启动 java，唯一入口 dev-ensure.sh
+- 根因：IDE/agent shell 会话结束会杀子进程，nohup 后台化被误杀导致反复重启
+  验证点：脚本首跑拉起 → 二跑秒退（幂等）→ curl /login 返回 token
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。

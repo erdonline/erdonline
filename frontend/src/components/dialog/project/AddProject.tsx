@@ -1,12 +1,10 @@
 import React from 'react';
 import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
-import useProjectStore from "@/store/project/useProjectStore";
 import defaultData from "@/utils/defaultData.json";
-import {Button} from "antd";
+import {Button, message} from "antd";
 import _ from "lodash";
 import {addProject} from "@/services/project";
 import {addGroupProject} from "@/services/group-project";
-import { Select } from 'antd';
 
 export type AddProjectProps = {
   fetchProjects: any;
@@ -25,30 +23,33 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
     "configJSON": {synchronous: {upgradeType: "increment"}},
   }
 
-  const handleChange = (value: string) => {
-    console.log(`selected ${value}`);
-  };
-
   return (<>
     <ModalForm
       title="新增项目"
       trigger={
-        <Button type="primary">新建</Button>
+        <Button type="primary" data-testid="project-create-trigger">新建</Button>
       }
+      initialValues={{
+        type: 1,
+        tags: ['新建'],
+      }}
       onFinish={async (values: any) => {
-        console.log(39, values);
         const addFunction = values.type === 1 ? addProject : addGroupProject;
-        
-        addFunction({
+        const res: any = await addFunction({
           ...emptyProject,
           projectName: values.projectName,
           description: values.description,
           tags: _.join(values.tags, ',')
-        }).then(() => {
-          props.fetchProjects();
         });
-        
-        return true;
+        if (res?.code === 200) {
+          message.success('创建成功');
+          props.fetchProjects();
+          return true;
+        }
+        if (!res?.msg && !res?.message) {
+          message.error('创建失败');
+        }
+        return false;
       }}
     >
       <ProFormSelect
@@ -95,7 +96,6 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
                      }}
                      fieldProps={{
                        mode: "tags",
-                       onChange: handleChange,
                        tokenSeparators: [',']
                      }}
       />
