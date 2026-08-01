@@ -8,7 +8,22 @@ REPO=owner/repo ./scripts/seed-good-first-issues.sh
 DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 ```
 
-每个 `*.md`（除本 README）首行必须是 `# 标题`，正文即 Issue body。  
-标签默认：`good first issue`；可用 frontmatter 覆盖（见脚本注释）。
+每个 `NN-*.md` 首行必须是 `# 标题`，正文即 Issue body。  
+标签默认：`good first issue`。
 
-草稿与 `docs/community.md` 种子池同步；合入后把对应草稿标为已完成或删除。
+## 跳过规则
+
+草稿正文以 `> **已合入**` 开头的引用块标记为已完成时，脚本会 `SKIP (done)`，不会投放。  
+正文其它处出现「已合入」字样**不会**跳过。
+
+## 当前待投放（未标已合入）
+
+（空）— 16–17 已合入；下一轮再补 3–8 条草稿后投放。
+
+合入后在对应草稿顶部加：
+
+```markdown
+> **已合入**（勿再投放）：一句话说明。
+```
+
+并与 `docs/community.md` 种子池同步。

@@ -61,8 +61,8 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 25. ~~**导入/导出开弹窗关下拉遮罩**~~（已合入）
 26. ~~**删除确认主按钮改「删除」**~~（已合入；E2E `/删\s*除/`）
 27. ~~**侧栏与项目菜单「版本」叙事对齐**~~（已合入）
-28. **导出 DDL 向导按钮 aria-label**（草稿 `16-export-ddl-steps-aria.md`）
-29. **ISSUE_DRAFTS README 与投放清单**（草稿 `17-seed-issues-readme.md`）
+28. ~~**导出 DDL 向导按钮 aria-label**~~（已合入）
+29. ~~**ISSUE_DRAFTS README 与投放清单**~~（已合入；seed 仅认行首 `> **已合入**`）
 
 ## 贡献者怎么认领
 

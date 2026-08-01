@@ -56,7 +56,11 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
         render: (props) => {
           if (props.step === 0) {
             return (
-              <AntButton type="primary" onClick={() => props.onSubmit?.()}>
+              <AntButton
+                type="primary"
+                aria-label="下一步"
+                onClick={() => props.onSubmit?.()}
+              >
                 下一步
               </AntButton>
             );
@@ -64,10 +68,19 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
 
 
           return [
-            <AntButton key="gotoTwo" onClick={() => props.onPre?.()}>
+            <AntButton
+              key="gotoTwo"
+              aria-label="上一步"
+              onClick={() => props.onPre?.()}
+            >
               上一步
             </AntButton>,
-            <AntButton type="primary" key="goToTree" onClick={() => props.onSubmit?.()}>
+            <AntButton
+              type="primary"
+              key="goToTree"
+              aria-label="导出"
+              onClick={() => props.onSubmit?.()}
+            >
               导出
             </AntButton>,
           ];
