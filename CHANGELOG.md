@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 导出 DDL 向导 aria + Issue 投放脚本（2026-08-02）
+
+### 修复 / 体验
+- 导出 DDL StepsForm「下一步 / 上一步 / 导出」补 `aria-label`
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导出"` 绿
+
+### 工具
+- `seed-good-first-issues.sh` 仅跳过行首 `> **已合入**`（避免正文误判）
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` → `Done: 0`
+
 ## [Unreleased] — 版本双入口说明（2026-08-02）
 
 ### 文档

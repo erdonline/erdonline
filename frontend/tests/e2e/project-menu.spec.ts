@@ -159,9 +159,11 @@ test.describe('设计器项目菜单', () => {
       await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
       await expect(page.getByRole('button', { name: '导出ERD' })).toBeVisible();
       await page.getByRole('button', { name: '导出DDL' }).click();
-      await expect(page.getByRole('dialog').getByText('SQL导出配置')).toBeVisible({
+      const dlg = page.getByRole('dialog');
+      await expect(dlg.getByText('SQL导出配置')).toBeVisible({
         timeout: 10_000,
       });
+      await expect(dlg.getByRole('button', { name: '下一步' })).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

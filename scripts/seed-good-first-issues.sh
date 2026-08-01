@@ -30,7 +30,8 @@ fi
 
 created=0
 for f in "${files[@]}"; do
-  if grep -q '\*\*已合入\*\*' "$f"; then
+  # 仅认草稿顶部引用块标记（正文提到「已合入」不算完成）
+  if grep -qE '^>[[:space:]]*\*\*已合入\*\*' "$f"; then
     echo "SKIP (done): $(basename "$f")"
     continue
   fi
