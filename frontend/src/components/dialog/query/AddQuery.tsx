@@ -34,7 +34,6 @@ const AddQuery: React.FC<AddQueryProps> = (props) => {
         >新建查询</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         await queryDispatch.addQuery({
           title: values.title,
           isLeaf: true,

@@ -37,10 +37,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
   //   fetchDatabases();
   // }, []);
 
-  // 删除这两行 console.log
-  // console.log(27, 'dbs', dbs);
-  // console.log(28, 'projectDispatch.getCurrentDBName()', projectDispatch.getCurrentDBName());
-
   return (<>
     {/*    <ModalForm
       title={<span>解析已有数据源<span style={{color: "red"}}>（暂时不支持索引解析生成）</span></span>}
@@ -103,7 +99,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
         title="选择数据源"
         onFinish={async () => {
           const fieldsValue = formRef.current?.getFieldsValue();
-          console.log(82, fieldsValue);
           projectDispatch.dbReverseParse(selectedDb, fieldsValue?.dataFormat);
           return true;
         }}
@@ -117,11 +112,9 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
             value={selectedDbValue}
             onChange={(value) => {
               setSelectedDbValue(value);
-              console.log('Selected database:', value?.value);
             }}
             onDbChange={(db) => {
               setSelectedDb(db);
-              console.log('Selected database object:', db);
             }}
             style={{ width: '328px' }}  // 设置固定宽度
           />
@@ -143,7 +136,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
         name="parse"
         title="解析数据源"
         onFinish={async () => {
-          console.log(formRef.current?.getFieldsValue());
           return true;
         }}
 

@@ -15,7 +15,6 @@ const MenuPrivilege = (props: { values: Partial<RoleItem>; }, ref: React.Ref<unk
         await POST('/syst/role/saveCheckedMenus',
           {checkedKeys: checkedKeys, roleId: props.values.id}
         ).then((result) => {
-          console.log(result)
           if (result.code === 200) {
             message.success("123");
           } else {
@@ -39,7 +38,6 @@ const MenuPrivilege = (props: { values: Partial<RoleItem>; }, ref: React.Ref<unk
 
     // @ts-ignore
     const onCheck = (checkedKeysValue) => {
-      console.log('onCheck', checkedKeysValue);
       setCheckedKeys(checkedKeysValue);
     };
 

@@ -74,7 +74,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
         name="database"
         title="选择数据源及导出的表"
         onFinish={async () => {
-          console.log(formRef.current?.getFieldsValue());
           return true;
         }}
       >
@@ -87,12 +86,10 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
             value={selectedDbValue}
             onChange={(value) => {
               setSelectedDbValue(value);
-              console.log('Selected database:', value?.value);
             }}
             onDbChange={(db) => {
               setSelectedDb(db);
               projectDispatch.onDBChange(db.key);
-              console.log('Selected database object:', db);
             }}
             style={{ width: '100%' }}
           />
@@ -105,7 +102,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
           rules={[{required: true}]}
           request={async () => {
             const initAllKeys = projectDispatch.initAllKeys();
-            console.log(115, initAllKeys);
             return initAllKeys || [];
           }}
           fieldProps={{
@@ -122,13 +118,10 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
               label: 'title',
             },
             onChange: (value: any, labelList: any, extra: any) => {
-              console.log(187, value);
               const selectTable = value.map((m: any) => {
                 return m.label;
               });
               projectDispatch.onSelectTableChange(selectTable);
-              console.log(188, labelList);
-              console.log(189, extra);
             }
           }}
         />
@@ -137,7 +130,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
         name="db1"
         title="导出配置"
         onFinish={async () => {
-          console.log(formRef.current?.getFieldsValue());
           return true;
         }}
       >
@@ -158,14 +150,12 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
           ]}
           fieldProps={{
             onChange: (e: RadioChangeEvent) => {
-              console.log(174, e);
               projectDispatch.onExportTypeChange(e.target.value);
             }
           }}
         />
         <ProFormDependency name={['exportType']}>
           {({exportType}) => {
-            console.log(173, exportType);
             if (exportType === 'customer') {
               return (
                 <ProFormCheckbox.Group
@@ -188,7 +178,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
                   ]}
                   fieldProps={{
                     onChange: (checkedValue: any) => {
-                      console.log(197, checkedValue);
                       projectDispatch.onCustomTypeChange(checkedValue);
                     }
                   }}

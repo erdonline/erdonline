@@ -27,7 +27,6 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
   const [modalVisit, setModalVisit] = useState(false);
   const [refreshCheckBox, setRefreshCheckBox] = useState(false);
 
-  console.log('currentDatabaseIndex', 28, currentDatabaseIndex);
 
 
   const getInitValue = (params: any) => {
@@ -35,7 +34,6 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
     // @ts-ignore
     initValue = _.assign(initValue, database[params.currentDatabaseIndex]);
     setTemplate(initValue);
-    console.log('initValue', 36, initValue);
     return initValue;
   }
 
@@ -50,15 +48,12 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
   const previewRef = useRef();
 
   const onTemplateEditorChange = (e: any, value: any, tab: any) => {
-    console.log(48, value);
-    console.log(49, tab);
     setTemplate({
       ...template,
       [tab]: value
     });
     // @ts-ignore
     previewRef.current.reSetResult();
-    console.log(55, template);
   };
 
 
@@ -66,7 +61,6 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
   const dataFormRef = useRef<ProFormInstance>();
   useEffect(() => {
     dataFormRef && dataFormRef.current?.resetFields?.();
-    console.log(68, '页面刷新');
     //@ts-ignore
   }, [currentDatabaseIndex,template?.defaultDatabase,template?.fileShow]);
 
@@ -77,7 +71,6 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
       layout="horizontal"
       visible={modalVisit}
       onFinish={async (values: any) => {
-        console.log(72, values);
         await projectDispatch.updateDatabase({
           ...template,
           code: values.code,
@@ -102,7 +95,6 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
       submitter={{
         // 完全自定义整个区域
         render: (props, doms) => {
-          console.log(props);
           return [
             <PreviewDatabase
               onRef={previewRef}

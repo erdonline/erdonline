@@ -89,8 +89,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
             submitter={{
               // 完全自定义整个区域
               render: (props, doms) => {
-                console.log(props);
-                console.log('submitter69', submitter);
                 // @ts-ignore
                 return _.concat(submitter, []);
               },
@@ -105,7 +103,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
         name="database"
         title="选择数据源及导出的表"
         onFinish={async () => {
-          console.log(formRef.current?.getFieldsValue());
           return true;
         }}
       >
@@ -120,8 +117,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
           })}
           fieldProps={{
             onChange: (value: any, option: any) => {
-              console.log(108, value);
-              console.log(109, option);
               projectDispatch.onDBChange(value);
             }
           }}
@@ -135,7 +130,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
           rules={[{required: true}]}
           request={async () => {
             const initAllKeys = projectDispatch.initAllKeys();
-            console.log(115, initAllKeys);
             return initAllKeys || [];
           }}
           // tree-select args
@@ -152,14 +146,11 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
               label: 'title',
             },
             onChange: (value: any, labelList: any, extra: any) => {
-              console.log(187, value);
               const selectTable = value.map((m: any) => {
                 return m.label;
               });
               projectDispatch.onSelectTableChange(selectTable);
               //`${d.name}/${c.title}`
-              console.log(188, labelList);
-              console.log(189, extra);
             }
           }}
         />
@@ -168,7 +159,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
         name="db1"
         title="导出配置"
         onFinish={async () => {
-          console.log(formRef.current?.getFieldsValue());
           return true;
         }}
       >
@@ -189,14 +179,12 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
           ]}
           fieldProps={{
             onChange: (e: RadioChangeEvent) => {
-              console.log(174, e);
               projectDispatch.onExportTypeChange(e.target.value);
             }
           }}
         />
         <ProFormDependency name={['exportType']}>
           {({exportType}) => {
-            console.log(173, exportType);
             if (exportType === 'customer') {
               return (
                 <ProFormCheckbox.Group
@@ -219,7 +207,6 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
                   ]}
                   fieldProps={{
                     onChange: (checkedValue: any) => {
-                      console.log(197, checkedValue);
                       projectDispatch.onCustomTypeChange(checkedValue);
                     }
                   }}

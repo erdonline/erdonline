@@ -19,7 +19,6 @@ export default <State extends BaseState, Action extends BaseAction>(
       actions[event.type](draft, ...event.payload);
     });
   let useStore = create(devtools(redux(reducer, initialState), storeName));
-  console.log('useStore', useStore)
   const api = useStore as typeof useStore & {
     dispatch: (action: Action) => Action;
   };

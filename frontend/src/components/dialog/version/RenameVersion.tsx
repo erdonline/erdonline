@@ -17,14 +17,11 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
     versionDispatch: state.dispatch,
   }), shallow);
 
-  console.log(17, 'currentVersion', currentVersion)
-  console.log(22, 'currentVersionIndex', currentVersionIndex)
 
   return (<>
     <ModalForm
       title="编辑版本"
       onFinish={async (values: any) => {
-        console.log(39, values);
         const tempValue = {
           ...currentVersion,
           version: values.version,

@@ -12,7 +12,6 @@ export type DbTabProps = {
 
 const DbTab: React.FC<DbTabProps> = (props) => {
   const {dbCode, moduleEntity} = props;
-  console.log(15, dbCode, moduleEntity);
   return (
     <>
       <Tabs

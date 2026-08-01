@@ -36,7 +36,6 @@ const Identification: React.FC<IdentificationProps> = (props) => {
   });
 
   const licence = cache.getItem2object('licence');
-  console.log(37, licence, licence?.licensedTo, licence.licensedStartTime);
   let title = '';
   let subTitle = '';
   let extra: any[] = [];

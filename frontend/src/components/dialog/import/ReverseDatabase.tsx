@@ -27,8 +27,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
     fetchDatabases();
   }, []);
 
-  console.log(27, 'dbs', dbs);
-  console.log(28, 'projectDispatch.getCurrentDBName()', projectDispatch.getCurrentDBName());
 
   const formRef = useRef<ProFormInstance>();
 
@@ -93,7 +91,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
           title="选择数据源"
           onFinish={async () => {
             const fieldsValue = formRef.current?.getFieldsValue();
-            console.log(82, fieldsValue);
             const db = dbs.filter((d: any) => d.name === fieldsValue?.currentDB)[0];
             projectDispatch.dbReverseParse(db, fieldsValue?.dataFormat);
             return true;
@@ -126,7 +123,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
           name="parse"
           title="解析数据源"
           onFinish={async () => {
-            console.log(formRef.current?.getFieldsValue());
             return true;
           }}
 

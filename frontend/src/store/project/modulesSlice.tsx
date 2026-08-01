@@ -75,7 +75,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   })),
   removeModule: () => set(produce(state => {
     const {currentModuleIndex} = state;
-    console.log(42, currentModuleIndex);
     state.project.projectJSON.modules =
       state.project.projectJSON.modules?.filter((e: any, index: number) => index !== currentModuleIndex) || [];
   })),
@@ -267,14 +266,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   })),
   updateAllModules: (payload: any) => set(produce(state => {
     const modules = get().dispatch.fixModules(payload, null, null);
-    console.log(73, 'modules', modules);
     if (modules) {
       state.project.projectJSON.modules = modules;
     }
   })),
   getModuleEntityTree: (searchKey: string, groupByType: boolean) => {
     const tempExpandedKeys: any = [];
-    console.log(70, get().project);
     const tableLimit = get().project?.projectJSON?.profile?.tableLimit || 1000;
     let tmp_table_count=0;
 
@@ -405,7 +402,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
         let entities = match_entities.map((entity: any) => {
           const tableNameFormat = get().project?.projectJSON?.profile?.tableNameFormat || '{name} {chnname}';
-          console.log(102, tableNameFormat?.render(entity))
           return {
             type: 'entity',
             module: module.name,
@@ -424,7 +420,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return moduleNode;
     });
 
-    console.log(82, 'getModuleEntityTree', map);
     return map;
   },
   getModuleEntityFieldTree: () => set(produce(state => {
@@ -442,7 +437,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
   })),
   setExpandedKey: (expandedKey: string) => set(produce(state => {
-    console.log(129, get());
     // state.expandedKeys?.push(expandedKey);
   })),
   setExpandedKeys: (expandedKeys: any) => set(produce(state => {
@@ -450,7 +444,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   })),
   getExpandedKeys: (searchKey: string) => {
     const tempExpandedKeys: any = [];
-    console.log(70, get().project)
     get().project.projectJSON?.modules?.forEach((module: any) => {
       module?.entities?.filter((f: any) => {
         if (searchKey && searchKey.length > 0) {
@@ -464,7 +457,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         }
       })
     });
-    console.log(155, 'tempExpandedKeys', tempExpandedKeys);
     return tempExpandedKeys;
   },
   ...EntitiesSlice(set, get),

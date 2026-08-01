@@ -23,7 +23,6 @@ const EntityModal: React.FC<EntityModalProps> = ({
     const [form] = Form.useForm();
 
     useEffect(() => {
-        console.log(47, 'initialValues', initialValues)
         if (visible) {
             if (modalType === 'entity') {
                 form.setFieldsValue({

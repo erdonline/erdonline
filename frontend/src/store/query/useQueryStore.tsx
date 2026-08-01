@@ -50,7 +50,6 @@ const useQueryStore = create<QueryState>(
       updateSqlInfo: (model) => {
         EDIT('/ncnb/queryInfo/' + model.id, model).then(r => {
           if (r?.code === 200) {
-            console.log('41', '保存成功');
             message.success('保存成功');
           }
         });
@@ -128,7 +127,6 @@ const useQueryStore = create<QueryState>(
         state.querySearchKey = querySearchKey;
       })),
       onSelectNode: (selectedKeys, info) => set(produce(state => {
-        console.log(49, selectedKeys, info);
         const tabDispatch = useTabStore.getState().dispatch;
         if (info.node.isLeaf) {
           tabDispatch.addTab({group: TabGroup.QUERY, module: info.node.key + '', entity: info.node.title + ''});

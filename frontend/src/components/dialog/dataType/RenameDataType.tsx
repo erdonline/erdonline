@@ -23,7 +23,6 @@ const RenameDataType: React.FC<RenameDataTypeProps> = (props) => {
   const [count, setCount] = useState(0);
   const [modalVisit, setModalVisit] = useState(false);
 
-  console.log('currentDataTypeIndex', 26, currentDataTypeIndex);
 
   const allCode = {};
 
@@ -40,7 +39,6 @@ const RenameDataType: React.FC<RenameDataTypeProps> = (props) => {
 
     });
     setCount(count + 1);
-    console.log('initValue', 37, initValue);
     return initValue;
   }
 
@@ -65,17 +63,14 @@ const RenameDataType: React.FC<RenameDataTypeProps> = (props) => {
       title="数据字典"
       visible={modalVisit}
       onFinish={async (values: any) => {
-        console.log(39, values,);
         const apply = _.omit(values, ['code', 'code']);
         const datatype = {
           name: values.name,
           code: values.code,
         };
         _.forIn(apply, function (value, key) {
-          console.log(key, value);
           _.set(datatype, key, value);
         });
-        console.log(87, datatype,);
 
         await projectDispatch.updateDatatype(datatype);
         return true;
@@ -136,7 +131,6 @@ const RenameDataType: React.FC<RenameDataTypeProps> = (props) => {
             key={d.code}
             fieldProps={{
               onChange: e => {
-                console.log(e.target.value, null, d.code)
               },
             }}
             width="md"

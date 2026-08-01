@@ -34,7 +34,6 @@ const QueryTree: React.FC<QueryTreeProps> = (props) => {
   }
 
 
-  console.log(46, querySearchKey)
   useEffect(() => {
     queryDispatch.fetchTreeData({projectId});
   }, [querySearchKey])
@@ -70,7 +69,6 @@ const QueryTree: React.FC<QueryTreeProps> = (props) => {
           // onRightClick={onRightClick}
           style={{width: `${siderWidth - 50}px`}}
           titleRender={(node: any) => {
-            console.log(101, 'node', node);
 
             return <Dropdown trigger={['contextMenu']}
                              overlay={

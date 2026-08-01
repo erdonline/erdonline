@@ -36,7 +36,6 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
           // @ts-ignore
           originJson = projectDispatch.decrypt('AES', reader.result.toString());
         } catch (e) {
-          console.log(39, e);
           message.error(`ERD文件解密失败！`)
           return false;
         }
@@ -54,7 +53,6 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
           message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
           return false;
         }
-        console.log(41, 'erdJsonModules', erdJsonModules);
         // @ts-ignore
         const dataSource = projectJSON;
         let resultMsg: any = [];

@@ -53,8 +53,6 @@ const AddDataType: React.FC<AddDataTypeProps> = (props) => {
       }
       onFinish={async (values: any) => {
 
-        console.log(47, values);
-        console.log(59, apply);
         await projectDispatch.addDatatype({
           ...emptyDataType,
           name: values.name,

@@ -30,13 +30,10 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     projectId = cache.getItem(CONSTANT.PROJECT_ID) || '';
   }
 
-  console.log(19, 'projectId', projectId);
-  console.log(24, initialState);
   useEffect(() => {
     GET("/ncnb/project/group/currentRolePermission", {
       projectId
     }).then(r => {
-      console.log(29, r);
       if (r?.code === 200) {
         r?.data?.permission?.push('initialized');
         setInitialState((s: any) => ({...s, access: r.data}));
@@ -45,10 +42,8 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
   }, [access.initialized, defaultProps.route.routes])
 
   //权限初始化之后再过滤路由
-  console.log(106, 'access.initialized', access);
   if (access.initialized) {
     defaultProps.route.routes = fixRouteAccess(defaultProps, access);
-    console.log(54, defaultProps)
   }
 
   const settings: ProSettings | undefined = {
@@ -61,7 +56,6 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
   };
 
   const licence = cache.getItem2object('licence');
-  console.log(154, licence, licence?.licensedTo, licence.licensedStartTime);
 
 
   return (
@@ -111,9 +105,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
 
               <div
                 onClick={() => {
-                  console.log(153, item);
                   setPathname(item.path || '/home');
-                  console.log(85, searchParams);
                 }}
               >
                 <Link to={item?.path + "?projectId=" + projectId || '/home'}>{dom}</Link>

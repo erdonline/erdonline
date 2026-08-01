@@ -33,7 +33,6 @@ const AddQueryFolder: React.FC<AddQueryFolderProps> = (props) => {
         >新建目录</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         await queryDispatch.addQuery({
           title: values.title,
           projectId,

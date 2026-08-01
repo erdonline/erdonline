@@ -273,7 +273,6 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
           separator
         });
       } else if (c.opt === 'update') {
-        console.log(403,c.name)
         const tmpChange = (c.name || '').split('.');
         const changeData = (c.changeData || '').split('=>');
 
@@ -425,7 +424,6 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
     }).join('');
 
   templateResult += '\r\n';
-  console.log(304, 'filed', templateResult);
 
   return templateResult;
 };
@@ -511,7 +509,6 @@ export const getCodeByDataTable = (dataSource, module, dataTable, code, template
     message.error('数据库模板出错，请参考Dot.js配置模板信息');
     sqlString = JSON.stringify(e.message);
   }
-  console.log(499, sqlString);
   return sqlString;
 };
 
@@ -755,7 +752,6 @@ export const getDemoTemplateData = (templateShow) => {
     default:
       break;
   }
-  console.log(683, templateShow, data);
   return data;
 };
 
@@ -781,7 +777,6 @@ export const getAllDataSQL = (dataSource, code) => {
   let sqlString = '';
   // 1.获取所有的表
   let allTable = getAllTable(dataSource, 'name');
-  console.log(726, 'alltable', allTable);
   const tempEntities = allTable.map((entity) => {
     return {
       ...entity,

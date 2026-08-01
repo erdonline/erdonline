@@ -28,13 +28,10 @@ const AddDatabase: React.FC<AddDatabaseProps> = (props) => {
   });
 
   const onChange = (e: any, value: any, tab: any) => {
-    console.log(48, value);
-    console.log(49, tab);
     setTemplate({
       ...template,
       [tab]: value
     })
-    console.log(55, template);
   };
 
 
@@ -50,7 +47,6 @@ const AddDatabase: React.FC<AddDatabaseProps> = (props) => {
       }
       onFinish={async (values: any) => {
 
-        console.log(42, values);
         await projectDispatch.addDatabase({
           ...template,
           code: values.code,

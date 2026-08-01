@@ -31,7 +31,6 @@ const BaseView: React.FC = () => {
     return GET('/syst/user/settings/basic', {});
   });
 
-  console.log(50, r);
 
   const getAvatarURL = () => {
     if (r) {
@@ -45,7 +44,6 @@ const BaseView: React.FC = () => {
   };
 
   const handleFinish = async (values: any) => {
-    console.log(48, values);
     POST('/syst/user/settings/update', values).then(r => {
       if (r && r.code === 200) {
         message.success('更新基本信息成功');

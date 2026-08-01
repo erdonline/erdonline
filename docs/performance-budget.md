@@ -9,7 +9,7 @@
 | `frontend/dist` 总体积 | ≤ 20 MB | ~14 MB | `du -sh frontend/dist`（`yarn build` 后） |
 | 冒烟「登录→新建→进设计器」 | ≤ 30 s | ~10.4 s（本机） | `npx playwright test tests/e2e/smoke.spec.ts -g "登录 → 新建"` |
 | 关系图全旅程 E2E | ≤ 60 s | ~26 s（本机） | `npx playwright test tests/e2e/relation.spec.ts` |
-| 设计器热路径 `console.log` | 0（store immer/set、DesignLayout 渲染） | ✅ 已清 | `rg console.log src/store/project/useProjectStore.tsx src/layouts/DesignLayout` |
+| 设计器热路径 `console.log` | 0（全 src `log/debug/info`） | ✅ 已清 | `rg 'console\.(log\|debug\|info)' src` |
 
 ## 红线
 

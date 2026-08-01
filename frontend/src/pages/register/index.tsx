@@ -13,7 +13,6 @@ export default () => {
         title="ERD Online"
         subTitle="全球第一个开源在线数据库建模平台"
         onFinish={async (values: any) => {
-          console.log(29, values);
           let username = values.username;
           let pwd = values.pwd;
           let pwdCK = values.pwdCK;
@@ -31,7 +30,6 @@ export default () => {
           ).then(r => {
             if (r.code === 200) {
               message.success("注册成功！");
-              setTimeout(() => console.log('注册成功'), 1000);
               login(username, pwd);
             }
           });

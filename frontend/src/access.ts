@@ -10,7 +10,6 @@ let projectState = useProjectStore.getState();
 
 export default function access(initialState: and) {
   let {permission, person} = initialState?.access || [];
-  console.log(6, 'permission', person, permission);
   if (!permission) {
     permission = false;
   }

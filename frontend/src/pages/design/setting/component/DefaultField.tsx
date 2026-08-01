@@ -10,11 +10,9 @@ export type DefaultFieldProps = {};
 // Empty validator
 export const emptyValidator = (value: any, callback: any) => {
   if (!value || value.length === 0) {
-    console.log('false');
     message.error("当前编辑项不允许为空");
     callback(false);
   } else {
-    console.log('true');
     callback(true);
   }
 };
@@ -89,7 +87,6 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     database: state.project?.projectJSON?.dataTypeDomains?.database,
     projectDispatch: state.dispatch,
   }), shallow);
-  console.log('datatype', 115, datatype)
 
   const allDataTypeName = datatype?.map((t: any) => {
     return t.name;
@@ -97,12 +94,10 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
 
   const defaultJson = JSON.stringify(projectDispatch.getDefaultFields().filter((f: any) => f != null) || []);
 
-  console.log(29, 'defaultJson', defaultJson);
   const data = JSON.parse(defaultJson);
 
 
   const afterChange = (payload: any) => {
-    console.log(32, 'updateDefaultFields', payload);
     projectDispatch.updateDefaultFields(payload);
   }
 

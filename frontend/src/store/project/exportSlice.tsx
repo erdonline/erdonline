@@ -74,7 +74,6 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         }, {});
         const projectId = cache.getItem(CONSTANT.PROJECT_ID);
         const defaultDatabase = get().dispatch.getCurrentDBData();
-        console.log(59, defaultDatabase);
         request.post('/ncnb/doc/gendocx', {
           method: 'POST',
           responseType: 'blob',
@@ -110,7 +109,6 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
       });
     } else if (type === 'JSON') {
       let tempDataSource = {...dataSource}
-      console.log(113, tempDataSource);
       const originERDJson = JSON.stringify(tempDataSource, null, 2);
       const secret = get().dispatch.encrypt("AES", originERDJson);
       File.save(secret, `${project}.erd.json`);
@@ -179,14 +177,12 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
   onExportTypeChange: (exportType: string) => {
     const allType = ['deleteTable', 'createTable', 'createIndex', 'updateComment'];
     let customType = get().exportSliceState?.customType;
-    console.log(186, customType);
     // 如果是自定义的，之前选中过，按之前的算；没选中过，给个空的
     if (exportType === 'customer') {
       customType = [];
     } else {
       customType = allType;
     }
-    console.log(196, customType);
 
     get().dispatch.setExportSliceState({
       ...get().exportSliceState,
@@ -232,7 +228,6 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     const {projectJSON: dataSource} = get().project;
     const {defaultDb, selectTable, customType} = get()?.exportSliceState || {};
     let tempDataSource = {...dataSource};
-    console.log(212, selectTable);
     if (selectTable) {
       tempDataSource = {
         ...tempDataSource,
@@ -248,12 +243,10 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     const data = getAllDataSQLByFilter(tempDataSource,
       defaultDb || get()?.dispatch.getCurrentDBName(),
       customType || ['deleteTable', 'createTable', 'createIndex', 'updateComment']);
-    console.log(213, data);
     get().dispatch.setExportSliceState({
       ...get().exportSliceState,
       data: data
     });
-    console.log(214, get());
 
   },
   getExportData: () => {

@@ -14,7 +14,6 @@ const Design: React.FC<DesignProps> = (props) => {
   }), shallow);
 
   const rightContent = () => {
-    console.log(17, "panel", panel);
     switch (panel) {
       case PANEL.DEFAULT:
         return <TemplateSquare/>;

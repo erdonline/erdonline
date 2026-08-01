@@ -94,7 +94,7 @@
 
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
-- [ ] [存量 console.log] 488 处，配 `yarn lint:js` 批量清除（P2）
+- [x] [存量 console.log] 已清零（`rg console\.(log|debug|info) src` = 0；`lint:js:ci` 0 error）✅自动
 - [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS`；prod profile 必须注入 DB_USERNAME/DB_PASSWORD/OSS 密钥否则启动失败（fail-fast 设计）
 - [ ] [生产凭证 fail-fast] 待 Docker 部署验证：`docker-compose up`（compose 显式传 env，应正常启动）
 

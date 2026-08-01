@@ -32,11 +32,9 @@ const Test3: React.FC<TES3Props> = (props) => {
 
 
   const onSelect: DirectoryTreeProps['onSelect'] = (keys, info) => {
-    console.log('Trigger Select', keys, info);
   };
 
   const onExpand: DirectoryTreeProps['onExpand'] = (keys, info) => {
-    console.log('Trigger Expand', keys, info);
   };
 
   return (<>
@@ -50,12 +48,10 @@ const Test3: React.FC<TES3Props> = (props) => {
       />
       <div className="droptarget"
            onDrop={(e) => {
-             console.log('放下')
            }}
            onDragOver={
              (e) => {
                e.preventDefault();
-               console.log('经过')
 
              }
            }>lallal</div>

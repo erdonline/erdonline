@@ -18,7 +18,6 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
         <Button type="link">修改</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         updateProject({
           id: props.project.id,
           projectName: values.projectName,

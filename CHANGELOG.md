@@ -2,6 +2,15 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — eslint 热路径收尾（2026-08-01）
+
+### 变更
+
+- 修 `lint:js:ci` 阻断：`entitiesSlice` `Array<T>` → `T[]`
+- 清零 `console.log/debug/info`：82 文件约 380 行调试输出；删死代码 `pages/design/test/Test3`
+- 保留 `console.warn`/`console.error`（业务错误路径）
+  验证点：`yarn lint:js:ci` 通过；`rg 'console\.(log|debug|info)' src` = 0
+
 ## [Unreleased] — 第 3 轮：Blueprint 清零（2026-08-01）
 
 ### 变更

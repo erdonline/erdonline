@@ -22,22 +22,18 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
 
     // 默认的关闭方法
     const defaultOnTabClose = useCallback((tab: ModuleEntity) => {
-        console.log('currentEntity19', tab);
         tabDispatch.removeTab(tab);
     }, [tabDispatch]);
 
     const defaultOnCloseLeft = useCallback((tab: ModuleEntity) => {
-        console.log('currentEntity 29', tab);
         tabDispatch.removeLeftTab(tab);
     }, [tabDispatch]);
 
     const defaultOnCloseRight = useCallback((tab: ModuleEntity) => {
-        console.log('currentEntity 34', tab);
         tabDispatch.removeRightTab(tab);
     }, [tabDispatch]);
 
     const defaultOnCloseAll = useCallback((tab: ModuleEntity) => {
-        console.log('currentEntity 37', tab);
         tabDispatch.removeAllTab(tab);
     }, [tabDispatch]);
 

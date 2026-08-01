@@ -16,7 +16,6 @@ const CodeTab: React.FC<CodeTabProps> = (props) => {
     database: state.project?.projectJSON?.dataTypeDomains?.database,
     projectDispatch: state.dispatch,
   }), shallow);
-  console.log('database', 15, database)
 
   return (
     <>

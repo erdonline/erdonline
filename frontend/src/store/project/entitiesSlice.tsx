@@ -402,7 +402,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const onlyOld = oldNameList.filter((n: string) => !newNames.has(n));
     const onlyNew = newNameList.filter((n: string) => !oldNameSet.has(n));
     const renamedFrom = new Set<string>();
-    const renamePairs: Array<{ oldName: string; newName: string }> = [];
+    const renamePairs: { oldName: string; newName: string }[] = [];
     if (oldFields.length === payload.length) {
       oldFields.forEach((of: any, i: number) => {
         const nf = payload[i];

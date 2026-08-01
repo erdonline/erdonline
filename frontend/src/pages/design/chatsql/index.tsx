@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from "react";
+import React, {useState} from "react";
 import Chat, {Bubble, Button, Card, CardActions, MessageProps, Modal, toast, useMessages} from '@chatui/core';
 import '@chatui/core/es/styles/index.less';
 import '@chatui/core/dist/index.css';
@@ -43,9 +43,6 @@ const ChatSQL: React.FC<ChatSQLProps> = (props) => {
 
   const [selectedTable, setSelectedTable] = useState([]);
 
-  useEffect(
-    () => console.log('283参数变化', mode, selectedTable, chatId), [mode, selectedTable.length]
-  );
   const askQuickReplies = [
     {
       name: '问答模式',
@@ -93,7 +90,6 @@ const ChatSQL: React.FC<ChatSQLProps> = (props) => {
           "schema": "Mysql",
         }
       ).then((result) => {
-        console.log(result)
         if (result && result.code === 200) {
           appendMsg({
             type: 'sql',
@@ -245,25 +241,19 @@ const ChatSQL: React.FC<ChatSQLProps> = (props) => {
   const onDrop = (e: any) => {
     e.preventDefault();
     const data = e.dataTransfer.getData('Text');
-    console.log(283, data)
     if (data.startsWith('entity&')) {
       let moduleName = data.split('&')[1];
       let tableName = data.split('&')[2];
       const tmpModule = _.filter(modules, {'name': moduleName});
-      console.log(283, tmpModule);
       const table = _.filter(tmpModule[0]?.entities, {'title': tableName});
-      console.log(283, table);
       const map = _.map(table[0]?.fields, 'name');
-      console.log(283, map);
       const fields = map?.join(",");
-      console.log(283, fields);
       const template = '{tableName}({fields})';
       // @ts-ignore
       const aiKey = template.render({
         tableName,
         fields
       });
-      console.log(283, aiKey);
       if (_.includes(selectedTable, aiKey)) {
         toast.fail(`表「${tableName}」已经添加！`);
         return;
@@ -334,7 +324,6 @@ const ChatSQL: React.FC<ChatSQLProps> = (props) => {
               actions={[<a key={"delete" + index} onClick={() => {
                 let tmp = [...selectedTable];
                 _.pull(tmp, item);
-                console.log(283, tmp);
                 setSelectedTable(tmp);
               }}>删除</a>]}
             >

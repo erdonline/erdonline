@@ -30,7 +30,6 @@ const Settings: React.FC = () => {
 
   const [searchParams] = useSearchParams();
   let selectKey = searchParams.get("selectKey") || 'base';
-  console.log(34, selectKey);
 
   const [initConfig, setInitConfig] = useState<SettingsState>({
     mode: 'inline',
@@ -92,7 +91,6 @@ const Settings: React.FC = () => {
 
 
   const licence = cache.getItem2object('licence');
-  console.log(154, licence, licence?.licensedTo, licence.licensedStartTime);
 
   const handleLogoClick = () => {
     history.push('/');

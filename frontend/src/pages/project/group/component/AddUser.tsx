@@ -22,7 +22,6 @@ const AddUser: React.FC<AddUserProps> = (props) => {
       autoFocusFirstInput
       modalProps={{
         destroyOnClose: true,
-        onCancel: () => console.log('run'),
       }}
       submitter={{
         resetButtonProps: {
@@ -31,13 +30,11 @@ const AddUser: React.FC<AddUserProps> = (props) => {
       }}
       submitTimeout={2000}
       onFinish={async (values: any) => {
-        console.log(values.user);
         await POST('/ncnb/project/group/role/users', {
           projectId: props.projectId,
           roleId: props.roleId,
           userIds: values.user,
         }).then((resp) => {
-          console.log(34, props.actionRef);
           if (resp?.code === 200) {
             message.success("保存成功");
             props.actionRef.current?.reload();

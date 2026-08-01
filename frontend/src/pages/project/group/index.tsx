@@ -42,7 +42,6 @@ export default () => {
     pageGroupProject(params || state).then(res => {
       if (res) {
         if (res.data) {
-          console.log(44, 'projects', res);
           setState({
               ...state,
               total: res.data.total,

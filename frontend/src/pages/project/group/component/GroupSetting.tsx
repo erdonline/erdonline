@@ -21,7 +21,6 @@ const GroupSetting: React.FC<GroupSettingProps> = (props) => {
   const canErdProjectRolesPage = access.canErdProjectRolesPage;
   const canErdProjectRolePermission = access.canErdProjectRolePermission;
   const children = (roleId: string, isAdmin: boolean, defaultRole: string) => {
-    console.log(22, 'access', access);
     const tmpTabs = [];
     if (canErdProjectRolesPage) {
       tmpTabs.push({
@@ -62,7 +61,6 @@ const GroupSetting: React.FC<GroupSettingProps> = (props) => {
           children: children(d.roleId, isAdmin, d.roleCode.split('_')[1]),
         }
       });
-      console.log(62, 'tmpItems', tmpItems);
       setItems(tmpItems);
     });
   }, []);

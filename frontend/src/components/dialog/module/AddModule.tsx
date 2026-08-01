@@ -38,7 +38,6 @@ const AddModule: React.FC<AddModuleProps> = (props) => {
 
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
         await projectDispatch.addModule({
           ...emptyModule,
           name: values.name,

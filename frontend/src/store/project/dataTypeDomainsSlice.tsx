@@ -44,12 +44,7 @@ export interface IDataTypeDomainsDispatchSlice {
 const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   addDatatype: (payload: any) => set(produce(state => {
     const datatypeName = payload.name;
-    console.log('datatypeName', 29, datatypeName);
-    console.log('code', 29, payload.code);
-    console.log('state.currentDataTypeIndex', 29, state.currentDataTypeIndex);
     const findIndex = state.project.projectJSON.dataTypeDomains?.datatype?.findIndex((m: any) => m.name === datatypeName || m.code === payload.code);
-    console.log('findIndex', 31, findIndex)
-    console.log('dataType', 32, state.project.projectJSON.dataTypeDomains?.datatype)
     if (findIndex === -1) {
       state.project.projectJSON.dataTypeDomains?.datatype?.push(payload);
       message.success('提交成功');
@@ -66,7 +61,6 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
   })),
   removeDatatype: () => set(produce(state => {
     const {currentDataTypeIndex} = state;
-    console.log(46, currentDataTypeIndex);
     state.project.projectJSON.dataTypeDomains.datatype =
       state.project.projectJSON.dataTypeDomains?.datatype?.filter((e: any, index: number) => index !== currentDataTypeIndex) || [];
   })),
@@ -93,7 +87,6 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
   cutDatatype: () => set(produce(state => {
     const currentDataTypeIndex = state.currentDataTypeIndex;
     const currentDataType = state.project.projectJSON.dataTypeDomains.datatype[currentDataTypeIndex];
-    console.log(85, currentDataType)
     if (currentDataType) {
       cache.setItem(ERD_DATA_TYPE_CLIPBOARD, currentDataType);
       state.project.projectJSON.dataTypeDomains.datatype =
@@ -121,7 +114,6 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
           name = `${dataTypeName}-副本`;
           dataTypeName = name;
         }
-        console.log(124, code,name);
         state.project.projectJSON.dataTypeDomains.datatype.push({
           ...data,
           code,
@@ -132,13 +124,11 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
         message.success('粘贴失败');
       }
     } catch (err) {
-      console.log('数据格式错误，无法粘贴', err);
       message.error('数据格式错误，无法粘贴');
 
     }
   }),
   getDataTypeTree: (searchKey: string) => {
-    console.log(70, get().project)
 
     let dataTypes = get().project?.projectJSON?.dataTypeDomains?.datatype?.map((datatype: any) => {
       return {
@@ -160,7 +150,6 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
         key: `database${database.code}`,
       }
     });
-    console.log(73, 'getDataTypeTree', dataTypes, databases);
 
     return [{
       type: 'dataType',

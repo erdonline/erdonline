@@ -92,9 +92,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     state.currentDbKey = payload;
   })),
   setDefaultDb: (payload: string) => set(produce(state => {
-    console.log(74, 'defaultDbIndex', payload);
     state.project.projectJSON.profile.dbs = state.project.projectJSON?.profile?.dbs?.map((db: any) => {
-      console.log(76, 'db.key', db.key)
       if (db.key === payload) {
         state.currentDbKey = db.key;
         return {
@@ -108,29 +106,24 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         };
       }
     });
-    console.log(70, state.project.projectJSON?.profile?.dbs);
   })),
 
   updateWordTemplateConfig: (payload: any) => set(produce(state => {
     state.project.projectJSON.profile.wordTemplateConfig = payload;
   })),
   updateProfile: (payload: any) => set(produce(state => {
-    console.log(131, payload);
     const profile = _.assign(state.project.projectJSON.profile, payload);
-    console.log(133, profile);
     state.project.projectJSON.profile = profile;
     message.success('设置成功');
   })),
   getCurrentDBName: () => {
     const db = get().dispatch.getCurrentDBData();
-    console.log(118, 'db', db);
     if (db) {
       return db.name;
     }
     return '';
   },
   getCurrentDBData: () => {
-    console.log(125, get().project.projectJSON?.profile?.dbs?.filter((d: any) => d.defaultDB));
     return get().project.projectJSON?.profile?.dbs?.filter((d: any) => d.defaultDB)[0];
   },
 
@@ -160,7 +153,6 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       flag: dataFormat,
     }).then((res) => {
       if (res && res.code === 200) {
-        console.log(153, 'data', res.data);
         get().dispatch.setProfileSliceState({
           ...get().profileSliceState,
           data: res.data || res,
@@ -189,7 +181,6 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     let tempExists: any[];
     tempExists = [];
     const dataSource = get().project?.projectJSON;
-    console.log(167, 'dataSource', dataSource);
     // 当前模型中已经拥有的数据表
     const allTable = get().dispatch.getAllTable(dataSource);
     // 从数据库解析中获取到的数据表
@@ -216,7 +207,6 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   },
   getSelectedEntity: () => {
     const keys = get().profileSliceState?.keys || [];
-    console.log(221, keys);
     if (keys.length === 0) {
       message.warning('未选中要导入数据表');
       return false;
@@ -318,23 +308,18 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         database,
       },
     };
-    console.log(311, 'moudles', modules);
-    console.log(312, 'dataTypes', dataTypes);
     get().dispatch.updateAllDataTypes(currentDataTypes.concat(dataTypes));
     get().dispatch.updateAllModules(modules);
 
-    console.log(313, tempData);
     message.success('操作成功！')
   },
   getDefaultFields: () => {
     const defaultDatabaseCode = get().dispatch.getDefaultDatabaseCode();
-    console.log(30, 'defaultDatabaseCode', defaultDatabaseCode);
     const defaultFields = get().project?.projectJSON?.profile?.defaultFields || [];
     const datatype = get().project?.projectJSON?.dataTypeDomains?.datatype || [];
     return defaultFields.filter((f: any) => f != null).map((d: any) => {
       const defaultField = _.find(datatype, ['code', d.type]);
       if (defaultField) {
-        console.log(31, 'defaultField', defaultField);
         return {
           ...d,
           dataType: defaultDatabaseCode ? _.get(defaultField, `apply.${defaultDatabaseCode}.type`) : '',
@@ -347,7 +332,6 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   downloadWordTemplate: () => {
     // 获取word的目录
     const doctpl = get().project?.projectJSON?.profile.wordTemplateConfig;
-    console.log(29, 'doctpl', doctpl)
     request('/ncnb/doc/downloadWordTemplate', {
       method: 'GET',
       responseType: 'blob',

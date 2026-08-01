@@ -15,7 +15,6 @@ const CopyVersion: React.FC<CopyVersionProps> = (props) => {
     versionDispatch: state.dispatch,
   }), shallow);
 
-  console.log(17, 'currentVersion', currentVersion)
   return (<>
     <Popconfirm placement="right" title={`基于版本『${currentVersion.version}』创建新项目`}
                 onConfirm={() => versionDispatch.updateVersionData(currentVersion, currentVersion, 'delete')} okText="是"

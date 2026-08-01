@@ -10,7 +10,6 @@ export async function PAGE(url: string, params: any, sorter: Record<string, Sort
   if (!isSort) {
     Object.keys(sorter).map((v, i) => {
       let value = sorter[v];
-      console.log(value);
       if (value === 'ascend') {
         orders.push({'column': v, 'asc': true});
       }

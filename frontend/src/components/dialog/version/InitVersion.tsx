@@ -18,7 +18,6 @@ const InitVersion: React.FC<InitVersionProps> = (props) => {
 
   }), shallow);
 
-  console.log(21, hasDB, init);
   const {projectJSON} = useProjectStore(state => ({
     projectJSON: state.project?.projectJSON,
 
@@ -34,7 +33,6 @@ const InitVersion: React.FC<InitVersionProps> = (props) => {
         ><AimOutlined/>初始化基线</Button>
       }
       onFinish={async (values: any) => {
-        console.log(32, 'setUpgradeType', values);
         // 基线文件只需要存储modules信息
         const currentDBData = versionDispatch.getCurrentDBData();
         if (!currentDBData) {
