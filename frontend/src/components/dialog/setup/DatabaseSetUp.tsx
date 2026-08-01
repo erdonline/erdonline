@@ -244,12 +244,17 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
             >
               <></>
             </ProFormList>
-            <Button type="dashed" block icon={<PlusOutlined/>}
-                       onClick={() => {
+            <Button
+              type="dashed"
+              block
+              icon={<PlusOutlined/>}
+              aria-label="新增数据源"
+              onClick={() => {
                          addDatabase({
-                           name: '',
+                           name: `数据源_${Date.now().toString(36).slice(-6)}`,
                            select: defaultDatabase,
-                           key: uuid(),
+                           // 表 id 历史为 varchar(32)；紧凑 32 位更稳妥（schema 已扩至 64）
+                           key: uuid(32),
                            defaultDB: databases.findIndex((db: any) => db.defaultDB) === -1,
                            properties: {
                              driver_class_name: defaultDBData.driver_class_name,

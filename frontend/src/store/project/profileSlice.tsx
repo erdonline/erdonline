@@ -12,7 +12,9 @@ import {
   fetchDatabaseConfigs,
   updateDatabaseConfig,
 } from "@/utils/databaseUtils";
-import {markDefaultDataSource} from "@/utils/projectDataSource";
+import { markDefaultDataSource } from '@/utils/projectDataSource';
+import * as cache from '@/utils/cache';
+import { CONSTANT } from '@/utils/constant';
 
 export type IProfileSlice = {
   currentDbKey?: string;
@@ -103,6 +105,17 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }));
     }
     await get().dispatch.refreshDataSources();
+    // 默认数据源 id 需落库；needSave=false 时 autosave 不会触发
+    const project = get().project;
+    const projectId = project?.id || cache.getItem(CONSTANT.PROJECT_ID);
+    if (projectId && payload?.defaultDB && payload?.key) {
+      await Save.saveProject({
+        ...project,
+        id: projectId,
+        // 个人项目 type=1；缺省时走 group/save 会失败或写错表
+        type: project?.type ?? 1,
+      });
+    }
   },
   removeDbs: async (key: string) => {
     const ok = await deleteDatabaseConfig(key);

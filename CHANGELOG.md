@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — ADR-0008 设计器新增数据源落库（2026-08-02）
+
+### 修复
+- `data_sources.id` 扩至 `varchar(64)`：原 `varchar(32)` 无法容纳 RFC4122 UUID（36），`POST /ncnb/dataSources` 截断 500
+- 设计器「新增数据源」使用紧凑 32 位 id + 默认名称；`addDbs` 成功后显式 `saveProject` 写入 `defaultDataSourceId`
+  验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 设计器导出入口 E2E（2026-08-02）
 
 ### 新增
