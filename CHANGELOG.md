@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — good-first Issue 草稿与投放脚本（2026-08-02）
+
+### 新增
+- `.github/ISSUE_DRAFTS/`（4 篇）+ `scripts/seed-good-first-issues.sh`；community/roadmap 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 打印 4 条标题
+
 ## [Unreleased] — exportSlice eslint 清零（2026-08-02）
 
 ### 修复
