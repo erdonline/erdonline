@@ -18,7 +18,7 @@
 | 第 2 轮：质量基线 | 让贡献者敢改 | ~~Boot 3.5.16 + JDK 17 + JWT~~✅；~~删死代码~~✅；~~fastjson→Jackson~~✅；~~核心单测≥50%+Jacoco~~✅；~~CI coverage/lint:js:ci~~✅；~~版本快照零摩擦~~✅ | ✅ |
 | 第 3-6 轮：ReactFlow 画布 | 设计器现代化 | ~~R0~~✅ → ~~R1~~✅ → ~~R2~~✅ → ~~R3~~✅（画布 + 导出去 G6） | ✅ 闭环 |
 | 第 3 轮：版本时光机 | 抬升「每周有版本保存」 | ~~快照零摩擦~~✅；~~版本 diff 可视化~~✅；~~工单/审批打磨~~✅ | ✅ 2026-08-01 |
-| P2：体验深水区 | 让用户爱用 | ~~首页示例项目 30s 激活~~✅；~~自动保存状态可见~~✅；~~开源不限项目数~~✅；~~项目空态引导 + 新建表单减负~~✅；~~缩短建表链路（默认字段+直开关系图）~~✅；~~加载骨架统一~~✅（暗色📋 ADR 另议）；~~清 MUI→antd~~✅；~~清 Blueprint→antd~~✅；~~连线后改字段名跟边~~✅；~~性能预算基线~~✅（见 `docs/performance-budget.md`）；~~画布视口裁剪（≥24 表）~~✅；~~eslint 热路径 console~~✅；~~存量 console.log 清零~~✅（其余 eslint warn 另切）；~~核心接口连通（dataSources 表 / 注册放行 / queryHistory 方法 / audit 脚本）~~✅（设计器 DB 设置与 `profile.dbs` 双轨待收口） | 🚧 |
+| P2：体验深水区 | 让用户爱用 | ~~首页示例项目 30s 激活~~✅；~~自动保存状态可见~~✅；~~开源不限项目数~~✅；~~项目空态引导 + 新建表单减负~~✅；~~缩短建表链路（默认字段+直开关系图）~~✅；~~加载骨架统一~~✅（暗色📋 ADR 另议）；~~清 MUI→antd~~✅；~~清 Blueprint→antd~~✅；~~连线后改字段名跟边~~✅；~~性能预算基线~~✅（见 `docs/performance-budget.md`）；~~画布视口裁剪（≥24 表）~~✅；~~eslint 热路径 console~~✅；~~存量 console.log 清零~~✅（其余 eslint warn 另切）；~~核心接口连通（dataSources 表 / 注册放行 / queryHistory 方法 / audit 脚本）~~✅；~~数据源隔离（ADR-0008：JDBC 只进 data_sources，`profile` 仅 `defaultDataSourceId`）~~✅ | 🚧 |
 | P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；协作光标（P3b）；~~只读分享链接~~✅（ADR-0007；API+脱敏+`/s/:token`+`share.spec.ts`）；~~反向解析 Dialect SPI + schema API + FK~~✅（ADR-0006；字典级 FK/复合键待打磨）；AI📋；i18n📋 | 🚧 |
 | P3a：获客与传播 | 陌生人能试用并产生版本 | 在线 demo；分享页 → fork/注册；双周发版笔记（从 P4 前移） | 📋 |
 | P4：社区与生态 | 让项目长大 | 文档站（Docusaurus）；good-first-issue 运营；发版节奏固化 | 📋 |

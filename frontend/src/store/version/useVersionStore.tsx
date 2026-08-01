@@ -944,23 +944,22 @@ const useVersionStore = create<VersionState>(
         });
       },
       initDbs: (dbs: any) => set(produce(state => {
-        state.dbs = dbs || [];
-        if (dbs && dbs.length > 0) {
-          // Set the first database as default
-          state.dbs = state.dbs.map((db, index) => ({
-            ...db,
-            defaultDB: index === 0
-          }));
-        }
+        const defaultId = useProjectStore.getState().project?.projectJSON?.profile?.defaultDataSourceId;
+        const {markDefaultDataSource} = require('@/utils/projectDataSource');
+        state.dbs = markDefaultDataSource(dbs || [], defaultId);
       })),
       dbChange: (d: any) => {
+        const selected = get().dbs.find((db: any) => db.name === d.value || db.key === d.value);
+        if (selected?.key) {
+          useProjectStore.getState().dispatch.setDefaultDb(selected.key);
+        }
         set(produce(state => {
           state.dbs = state.dbs.map((db: any) => ({
             ...db,
-            defaultDB: db.name === d.value
+            defaultDB: db.name === d.value || db.key === d.value,
           }));
         }));
-        get().fetch(d,get().currentPage,get().pageSize);
+        get().fetch(selected || d, get().currentPage, get().pageSize);
       },
       resolveDb: () => set(produce(state => {
         state.hasDB = state.dbs && state.dbs.length > 0;

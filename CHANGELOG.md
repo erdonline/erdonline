@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 数据源与 projectJSON 隔离（2026-08-02）
+
+### 变更
+- **ADR-0008**：JDBC 只存 `data_sources` / `/ncnb/dataSources`；`profile.dbs` 不再存连接；项目仅 `defaultDataSourceId`
+- 打开/保存项目剥离机密；设计器数据源设置走 API；分享响应清空 `dbs`
+  验证点：`ProjectShareSanitizeTest` 绿；`./scripts/audit-fe-apis.sh` 绿；手工：设置数据源后保存项目 JSON 无 password
+
 ## [Unreleased] — 前后端接口连通性（2026-08-02）
 
 ### 修复

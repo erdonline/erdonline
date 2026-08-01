@@ -34,15 +34,23 @@ export const pageProject = (params) => {
   });
 };
 
-// 保存项目
+// 保存项目（ADR-0008：落库前剥掉 profile 内 JDBC 机密）
 export const saveProject = (data) => {
+  const {sanitizeProfileDataSources} = require('@/utils/projectDataSource');
+  const payload = data ? {...data} : data;
+  if (payload?.projectJSON?.profile) {
+    payload.projectJSON = {
+      ...payload.projectJSON,
+      profile: sanitizeProfileDataSources(payload.projectJSON.profile),
+    };
+  }
   if (data.type == 1) {
     return request.post('/ncnb/project/save', {
-      data
+      data: payload
     });
   } else {
     return request.post('/ncnb/project/group/save', {
-      data
+      data: payload
     });
   }
 };

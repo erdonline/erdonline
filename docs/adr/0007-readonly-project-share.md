@@ -13,7 +13,7 @@
 2. API：`POST /share/create`（登录+创建人）；`GET /share/{token}`（匿名，返回 `readonly` + projectJSON）；`POST /share/revoke`
 3. Security：`/share/**` 加入 ignore-urls（匿名仅安全读；写仍需登录）
 4. 前端匿名页 `/s/:token`：表清单 + 只读 ReactFlow 关系图；设计器顶栏「分享」复制链接
-5. 匿名响应脱敏 `profile.dbs` 的 username/password → `***`
+5. 匿名响应脱敏：见 ADR-0008，分享 JSON **清空** `profile.dbs`（不再打码后仍带连接块）
 
 ## 后果
 
