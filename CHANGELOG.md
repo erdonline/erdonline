@@ -22,7 +22,8 @@
 - **SqlServerReverseDialect**：默认 `dbo`；索引 `sys.indexes`（排除主键与 INCLUDE 列）
 - **GenericJdbcReverseDialect**：表/列/PK + `getIndexInfo` 尽力索引
 - `DBReverseParseCommand` 改为委托 Dialect；连接在 finally 关闭；支持可选 `schema` 参数
-  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 9/9 绿
+- **`POST /ncnb/connector/dbReverseMeta`**：返回方言能力 + schema 列表；导入向导在 `supportsSchema` 时展示 Schema 选择
+  验证点：`IndexResultSetMapperTest` + `ReverseDialectRegistryTest` 9/9 绿；curl MySQL → `dialectId=MYSQL, supportsSchema=false, schemas=[]`
 
 ## [Unreleased] — eslint 热路径收尾（2026-08-01）
 

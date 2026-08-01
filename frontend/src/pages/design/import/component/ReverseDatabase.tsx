@@ -1,22 +1,31 @@
 import {ProFormInstance, ProFormSelect, StepsForm} from '@ant-design/pro-components';
 import React, {useRef, useState, useEffect} from 'react';
-import {Button as AntButton, Spin, Form} from 'antd';
+import {Button as AntButton, Spin, Form, message} from 'antd';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import ReverseTable from "@/components/TableTransfer/ReverseTable";
 import { DataSourceSelect } from "@/components/DataSourceSelect";
-// 移除 fetchDatabaseConfigs 的导入，因为我们不再直接使用它
+import { dbReverseMeta } from '@/utils/save';
+import _ from 'lodash';
 
 export type DatabaseReverseProps = {};
 
-const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
+type ReverseMeta = {
+  dialectId?: string;
+  supportsSchema?: boolean;
+  schemas?: string[];
+};
+
+const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const {projectDispatch, profileSliceState} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     profileSliceState: state.profileSliceState || {},
   }), shallow);
 
-  const [selectedDb, setSelectedDb] = useState(null);
-  const [selectedDbValue, setSelectedDbValue] = useState(null);
+  const [selectedDb, setSelectedDb] = useState<any>(null);
+  const [selectedDbValue, setSelectedDbValue] = useState<any>(null);
+  const [reverseMeta, setReverseMeta] = useState<ReverseMeta | null>(null);
+  const [metaLoading, setMetaLoading] = useState(false);
 
   const formRef = useRef<ProFormInstance>();
 
@@ -28,32 +37,58 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
     }
   }, [selectedDbValue]);
 
-  // 移除整个 useEffect 钩子
-  // useEffect(() => {
-  //   const fetchDatabases = async () => {
-  //     const databases = await fetchDatabaseConfigs();
-  //     setDbs(databases);
-  //   };
-  //   fetchDatabases();
-  // }, []);
+  useEffect(() => {
+    let cancelled = false;
+    const loadMeta = async () => {
+      if (!selectedDb?.properties) {
+        setReverseMeta(null);
+        formRef.current?.setFieldsValue({ schema: undefined });
+        return;
+      }
+      setMetaLoading(true);
+      try {
+        const dbConfig = _.omit(selectedDb.properties, ['driver_class_name']);
+        const res = await dbReverseMeta({
+          ...dbConfig,
+          driverClassName: selectedDb.properties['driver_class_name'],
+        });
+        if (cancelled) {
+          return;
+        }
+        if (res && res.code === 200) {
+          const meta = res.data as ReverseMeta;
+          setReverseMeta(meta);
+          const schemas = meta?.schemas || [];
+          const defaultSchema = schemas.includes('public')
+            ? 'public'
+            : schemas.includes('dbo')
+              ? 'dbo'
+              : schemas[0];
+          formRef.current?.setFieldsValue({
+            schema: meta?.supportsSchema ? defaultSchema : undefined,
+          });
+        } else {
+          setReverseMeta(null);
+          message.error('读取数据源 schema 失败：' + (res?.msg || '未知错误'));
+        }
+      } catch (e: any) {
+        if (!cancelled) {
+          setReverseMeta(null);
+          message.error('读取数据源 schema 失败：' + (e?.message || e));
+        }
+      } finally {
+        if (!cancelled) {
+          setMetaLoading(false);
+        }
+      }
+    };
+    loadMeta();
+    return () => {
+      cancelled = true;
+    };
+  }, [selectedDb]);
 
   return (<>
-    {/*    <ModalForm
-      title={<span>解析已有数据源<span style={{color: "red"}}>（含非主键索引）</span></span>}
-      trigger={
-        <Button
-          key="reverse"
-          icon={<MyIcon type="icon-line-height"/>}
-          text="数据源逆向解析"
-          minimal={true}
-          small={true}
-          fill={true}
-          alignText={Alignment.LEFT}></Button>
-      }
-      onFinish={async () => {
-        return projectDispatch.getSelectedEntity();
-      }}
-    >*/}
     <span>解析已有数据源<span style={{color: "red"}}>（含非主键索引）</span></span>
     <StepsForm
       formRef={formRef}
@@ -99,7 +134,11 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
         title="选择数据源"
         onFinish={async () => {
           const fieldsValue = formRef.current?.getFieldsValue();
-          projectDispatch.dbReverseParse(selectedDb, fieldsValue?.dataFormat);
+          projectDispatch.dbReverseParse(
+            selectedDb,
+            fieldsValue?.dataFormat,
+            reverseMeta?.supportsSchema ? fieldsValue?.schema : undefined,
+          );
           return true;
         }}
       >
@@ -116,13 +155,24 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
             onDbChange={(db) => {
               setSelectedDb(db);
             }}
-            style={{ width: '328px' }}  // 设置固定宽度
+            style={{ width: '328px' }}
           />
         </Form.Item>
+        {reverseMeta?.supportsSchema ? (
+          <ProFormSelect
+            name="schema"
+            label="Schema"
+            width={328}
+            rules={[{required: true, message: '请选择 Schema'}]}
+            options={(reverseMeta.schemas || []).map((name) => ({label: name, value: name}))}
+            fieldProps={{ loading: metaLoading }}
+            extra={reverseMeta.dialectId ? `方言：${reverseMeta.dialectId}` : undefined}
+          />
+        ) : null}
         <ProFormSelect
           name="dataFormat"
           label="逻辑名格式"
-          width={328}  // 使用相同的宽度
+          width={328}
           rules={[{required: true, message: '请选择逻辑名格式'}]}
           initialValue="DEFAULT"
           options={[
@@ -152,9 +202,6 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
       </StepsForm.StepForm>
 
     </StepsForm>
-    {/*
-    </ModalForm>
-*/}
   </>);
 }
 
