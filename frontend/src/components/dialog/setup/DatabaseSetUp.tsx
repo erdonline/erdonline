@@ -8,7 +8,6 @@ import {
   ProFormSelect,
   ProFormText
 } from "@ant-design/pro-components";
-import {Alignment, Button as BpButton} from "@blueprintjs/core";
 import _ from "lodash";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
@@ -166,14 +165,13 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({ isGlobal = false }) => {
         formRef={formRef}
         title={<span>数据源连接配置</span>}
         trigger={
-          <BpButton
+          <Button
             key="db"
-            icon="database"
-            text="数据源设置"
-            minimal={true}
-            small={true}
-            fill={true}
-            alignText={Alignment.LEFT} />
+            type="text"
+            size="small"
+            block
+            style={{ textAlign: 'left' }}
+          >数据源设置</Button>
         }
         initialValues={{
           ...defaultDbs?.properties,

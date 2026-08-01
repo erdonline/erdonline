@@ -1,28 +1,25 @@
 import React from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 
-
 export type ExportJsonProps = {};
 
-const ExportJson: React.FC<ExportJsonProps> = (props) => {
+const ExportJson: React.FC<ExportJsonProps> = () => {
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
-  return (<>
+  return (
     <Button
-      key="JSON"
+      type="text"
+      size="small"
+      block
       icon={<MyIcon type="icon-JSON"/>}
-      text="导出ERD"
-      minimal={true}
-      small={true}
-      fill={true}
-      onClick={()=>projectDispatch.exportFile('JSON')}
-      alignText={Alignment.LEFT}
-    ></Button>
-  </>);
-}
+      onClick={() => projectDispatch.exportFile('JSON')}
+      style={{ textAlign: 'left' }}
+    >导出ERD</Button>
+  );
+};
 
-export default React.memo(ExportJson)
+export default React.memo(ExportJson);

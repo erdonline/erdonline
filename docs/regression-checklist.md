@@ -18,6 +18,15 @@
 - [x] [statistic 不含已删项目] 有软删除项目时 `GET /ncnb/project/statistic` → 预期：total/personTotal 只计 del_flag=0，与 /project/recent 列表数一致（2026-08-01 curl 验证通过）
 - [ ] [VIP 计数缓存失效] 建项目 → 删除 → 立即再建 → 预期：不报「个人项目已超过1个」
 
+## 第 3 轮（2026-08-01）：Blueprint → antd 清零
+
+### 已自动化
+
+- [x] 登录/新建项目/设计器/版本/导出/关系图/UX 走查共 15 条 E2E 全绿（4 workers，1.6min）✅自动
+- [ ] [设计器顶栏菜单] 进设计器 → 点「项目」下拉 → 预期：弹出版本/导入/导出/设置菜单，各 dialog 可打开
+- [ ] [数据源设置 dialog] 设置 → 数据源设置 → 预期：ModalForm 弹出，表单可交互
+- [ ] [逆向解析入口] 导入 → 数据源逆向解析/解析PdMan/解析ERD → 预期：弹窗 + Dragger 上传区可见
+
 ## 第 2 轮（进行中）
 
 ### 质量基线 · Jackson / 单测

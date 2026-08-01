@@ -1,7 +1,6 @@
 import React from "react";
-import {AnchorButton, Button, ButtonGroup, Icon, Menu, MenuDivider, MenuItem, Props} from "@blueprintjs/core";
-import {createFromIconfontCN} from "@ant-design/icons";
-import {history} from 'umi';
+import { Button, Menu } from "antd";
+import { createFromIconfontCN } from "@ant-design/icons";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
 import InitVersion from "@/components/dialog/version/InitVersion";
@@ -12,12 +11,9 @@ import ExportHTML from "@/components/dialog/export/ExportHTML";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
 import ExportJson from "@/components/dialog/export/ExportJson";
 import DatabaseSetUp from "@/components/dialog/setup/DatabaseSetUp";
-import {Popover2} from "@blueprintjs/popover2";
-import {IconName} from "@blueprintjs/icons";
-import {MaybeElement} from "@blueprintjs/core/src/common/props";
 import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
-import useShortcutStore, {PANEL} from "@/store/shortcut/useShortcutStore";
-import CompareVersion, {CompareVersionType} from "@/components/dialog/version/CompareVersion";
+import useShortcutStore, { PANEL } from "@/store/shortcut/useShortcutStore";
+import CompareVersion, { CompareVersionType } from "@/components/dialog/version/CompareVersion";
 import RenameVersion from "@/components/dialog/version/RenameVersion";
 import RemoveVersion from "@/components/dialog/version/RemoveVersion";
 import SyncVersion from "@/components/dialog/version/SyncVersion";
@@ -29,143 +25,98 @@ export const MyIcon = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_1485538_uljgplzg6rm.js', // 在 iconfont.cn 上生成
 });
 
-export interface IFileMenuProps extends Props {
+export interface IFileMenuProps {
+  className?: string;
   shouldDismissPopover?: boolean;
 }
 
-export const VersionMenu: React.FunctionComponent<IFileMenuProps> = props => (
+export const VersionMenu: React.FunctionComponent<IFileMenuProps> = () => (
   <>
-    <AddVersion trigger="bp"/>
-    <SyncConfig/>
-    <InitVersion/>
-    <RebuildVersion/>
+    <AddVersion trigger="bp" />
+    <SyncConfig />
+    <InitVersion />
+    <RebuildVersion />
   </>
 );
 
-export const ImportMenu: React.FunctionComponent<IFileMenuProps> = props => (
-  <Menu className={props.className}>
-    <ReverseDatabase/>
-    {/*<ReversePDM/>*/}
-    {/*<ReverseERWin/>*/}
-    <ReversePdMan/>
-    <ReverseERD/>
+export const ImportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
+  <Menu className={props.className} mode="vertical">
+    <ReverseDatabase />
+    <ReversePdMan />
+    <ReverseERD />
   </Menu>
 );
 
-export const ExportMenu: React.FunctionComponent<IFileMenuProps> = props => (
-  <Menu className={props.className}>
-    <ExportHTML/>
-    <ExportWord/>
-    <ExportMarkdown/>
-    <ExportDDL/>
-    <ExportJson/>
+export const ExportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
+  <Menu className={props.className} mode="vertical">
+    <ExportHTML />
+    <ExportWord />
+    <ExportMarkdown />
+    <ExportDDL />
+    <ExportJson />
   </Menu>
 );
 
-export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = props => (
-  <Menu className={props.className}>
-    <DatabaseSetUp/>
-    <DefaultSetUp/>
+export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
+  <Menu className={props.className} mode="vertical">
+    <DatabaseSetUp />
+    <DefaultSetUp />
   </Menu>
-);
-
-export const HelpMenu: React.FunctionComponent<IFileMenuProps> = props => (
-/*  <Menu className={props.className}>
-    <MenuItem key="video" text="教程" icon="video" {...props} ></MenuItem>
-    {/!*<MenuItem key="default" text="快捷键" icon="key-command" {...props} />*!/}
-  </Menu>*/
-  <AnchorButton
-    href="https://portal.zerocode.net.cn/docs/getting-started"
-    icon="share"
-    target="_blank"
-    minimal={true}
-    text={"教程"}
-  />
 );
 
 const shortcutState = useShortcutStore.getState();
 
 const setShortcut = (shortcut: string) => {
-  shortcutState.dispatch.setPanel(shortcut)
-}
-
-const renderButton = (icon: IconName | MaybeElement, text: string, content: string | JSX.Element, shortcut?: string) => {
-  return (
-    <Popover2
-      autoFocus={false}
-      enforceFocus={false}
-      hasBackdrop={true}
-      content={content}
-      position="right"
-    >
-      <Button rightIcon="caret-right" icon={icon} text={text} onClick={() => {
-        if (shortcut) {
-          setShortcut(shortcut)
-        }
-      }}/>
-    </Popover2>
-  );
-}
-
-export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = props => {
-  return (
-    false ? <Menu>
-        <MenuItem key="history" shouldDismissPopover={false} text="版本" icon="history"
-                  onMouseOver={() => setShortcut(PANEL.VERSION)}><VersionMenu/></MenuItem>
-        <MenuItem key="import" shouldDismissPopover={false} text="导入" icon="import"
-                  onMouseOver={() => setShortcut(PANEL.DEFAULT)}><ImportMenu/></MenuItem>
-        <MenuItem key="export" shouldDismissPopover={false} text="导出" icon="export"><ExportMenu/></MenuItem>
-        <MenuItem key="cog" shouldDismissPopover={false} text="设置" icon="cog"><SetUpMenu/></MenuItem>
-      </Menu>
-      : <ButtonGroup vertical={true}>
-        {renderButton("history", "版本", <VersionMenu/>, PANEL.VERSION)}
-        {renderButton("import", "导入", <ImportMenu/>, PANEL.DEFAULT)}
-        {renderButton("export", "导出", <ExportMenu/>)}
-        {renderButton("cog", "设置", <SetUpMenu/>)}
-      </ButtonGroup>
-  );
+  shortcutState.dispatch.setPanel(shortcut);
 };
 
-export const ProjectSortMenu: React.FunctionComponent<IFileMenuProps> = props => {
+export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
   return (
-    <Menu>
-      <MenuItem text="创建时间" icon="time"/>
-      <MenuItem text="最近修改" icon="updated"/>
+    <Menu mode="vertical" selectable={false}>
+      <Menu.Item key="version" onClick={() => setShortcut(PANEL.VERSION)}>
+        版本
+      </Menu.Item>
+      <Menu.Item key="import" onClick={() => setShortcut(PANEL.DEFAULT)}>
+        导入
+      </Menu.Item>
+      <Menu.Item key="export">导出</Menu.Item>
+      <Menu.Item key="setup">设置</Menu.Item>
     </Menu>
   );
 };
 
-export const ProjectFilterMenu: React.FunctionComponent<IFileMenuProps> = props => {
-  return (
-    <Menu>
-      <MenuItem key="history" shouldDismissPopover={false} text="过滤1" icon="history"
-                onMouseOver={() => setShortcut(PANEL.VERSION)}></MenuItem>
-      <MenuItem key="import" shouldDismissPopover={false} text="过滤2" icon="import"
-                onMouseOver={() => setShortcut(PANEL.DEFAULT)}></MenuItem>
-    </Menu>
-  );
-};
+export const ProjectSortMenu: React.FunctionComponent<IFileMenuProps> = () => (
+  <Menu mode="vertical">
+    <Menu.Item key="time">创建时间</Menu.Item>
+    <Menu.Item key="updated">最近修改</Menu.Item>
+  </Menu>
+);
+
+export const ProjectFilterMenu: React.FunctionComponent<IFileMenuProps> = () => (
+  <Menu mode="vertical">
+    <Menu.Item key="filter1" onClick={() => setShortcut(PANEL.VERSION)}>
+      过滤1
+    </Menu.Item>
+    <Menu.Item key="filter2" onClick={() => setShortcut(PANEL.DEFAULT)}>
+      过滤2
+    </Menu.Item>
+  </Menu>
+);
 
 /** 顶栏导航占位（原 ChatSQL/数据域入口依赖缺失组件，先空菜单避免白屏） */
 export const NavigationMenu: React.FC = () => {
-  return <Menu/>;
+  return <Menu mode="horizontal" />;
 };
 
-export const VersionHandle: React.FunctionComponent<IFileMenuProps> = props => {
+export const VersionHandle: React.FunctionComponent<IFileMenuProps> = () => {
   return (
-    true ? <Menu>
-        <CompareVersion type={CompareVersionType.DETAIL}/>
-        <CompareVersion type={CompareVersionType.COMPARE}/>
-        <RenameVersion/>
-        <RemoveVersion/>
-        <SyncVersion/>
-      </Menu>
-      : <ButtonGroup vertical={true}>
-        {renderButton("history", "版本", <VersionMenu/>, PANEL.VERSION)}
-        {renderButton("import", "导入", <ImportMenu/>, PANEL.DEFAULT)}
-        {renderButton("export", "导出", <ExportMenu/>)}
-        {renderButton("cog", "设置", <SetUpMenu/>)}
-      </ButtonGroup>
+    <Menu mode="vertical">
+      <CompareVersion type={CompareVersionType.DETAIL} />
+      <CompareVersion type={CompareVersionType.COMPARE} />
+      <RenameVersion />
+      <RemoveVersion />
+      <SyncVersion />
+    </Menu>
   );
-}
+};
 

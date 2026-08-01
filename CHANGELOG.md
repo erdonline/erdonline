@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 第 3 轮：Blueprint 清零（2026-08-01）
+
+### 变更
+
+- **UI 栈统一 antd**：移除 `@blueprintjs/core`/`popover2`/`select`/`docs-theme` 依赖（-4 个包），src 下 0 处引用
+- 删除死代码：`pages/test/index.tsx`、`pages/design/test/Test2.tsx`、`FieldMultiSelect.tsx`、`TableObjectList.tsx`（零引用）
+- `components/Menu`：Blueprint Menu/Popover2 → antd Menu/Dropdown；`DesignHeader`：Navbar/InputGroup → antd Layout.Header + Input；`ProjectHeader`/`ProjectLeftContent`：简化 antd 化
+- 15 个 dialog 的 Blueprint Button trigger（`minimal/small/fill/alignText`）→ antd `type="text" size="small" block`
+  验证点：`yarn tsc --noEmit` 0 src 错误；`yarn build` 通过（28s）；15 条核心 E2E（smoke/relation/version/export/ux-audit 等）15/15 全绿
+
 ## [Unreleased] — 第 0 轮：验证基建（2026-08-01）
 
 > 目标：建立"一切迭代的前提"——全栈可起、核心旅程有自动化冒烟守护。

@@ -1,5 +1,5 @@
 import React, {useState} from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {ModalForm, ProFormFieldSet, ProFormSwitch, ProFormText, ProFormUploadButton} from "@ant-design/pro-components";
 import ProCard from "@ant-design/pro-components";
 import "./index.less";
@@ -29,12 +29,11 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
       trigger={
         <Button
           key="default"
-          icon="code-block"
-          text="默认项设置"
-          minimal={true}
-          small={true}
-          fill={true}
-          alignText={Alignment.LEFT}></Button>
+          type="text"
+          size="small"
+          block
+          style={{ textAlign: 'left' }}
+        >默认项设置</Button>
       }
       initialValues={profile}
       onFinish={async (values: any) => {

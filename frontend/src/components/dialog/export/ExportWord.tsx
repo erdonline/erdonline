@@ -1,27 +1,25 @@
 import React from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 
-
 export type ExportFileProps = {};
 
-const ExportHTML: React.FC<ExportFileProps> = (props) => {
+const ExportWord: React.FC<ExportFileProps> = () => {
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
-  return (<>
+  return (
     <Button
-      key="word"
+      type="text"
+      size="small"
+      block
       icon={<MyIcon type="icon-file-word"/>}
-      text="导出Word"
-      minimal={true}
-      small={true}
-      fill={true}
       onClick={() => projectDispatch.exportFile('Word')}
-      alignText={Alignment.LEFT}></Button>
-  </>);
-}
+      style={{ textAlign: 'left' }}
+    >导出Word</Button>
+  );
+};
 
-export default React.memo(ExportHTML)
+export default React.memo(ExportWord);

@@ -1,29 +1,23 @@
 import React from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button, message } from "antd";
 import {MyIcon} from "@/components/Menu";
-import {message} from "antd";
-
 
 export type ReverseERWinProps = {};
 
-const ReverseERWin: React.FC<ReverseERWinProps> = (props) => {
-
+const ReverseERWin: React.FC<ReverseERWinProps> = () => {
   const readPDMfile = () => {
     message.warning('此功能正在玩命开发中，敬请期待...');
   };
-  return (<>
-
+  return (
     <Button
-      key="other_win"
+      type="text"
+      size="small"
+      block
       icon={<MyIcon type="icon-other_win"/>}
-      text="解析ERWin文件"
-      minimal={true}
-      small={true}
-      fill={true}
-      alignText={Alignment.LEFT}
       onClick={readPDMfile}
-    ></Button>
-  </>);
-}
+      style={{ textAlign: 'left' }}
+    >解析ERWin文件</Button>
+  );
+};
 
-export default React.memo(ReverseERWin)
+export default React.memo(ReverseERWin);
