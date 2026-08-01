@@ -108,6 +108,9 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.locator('.erd-empty-button').click();
       await expect(page.locator('.erd-empty-cta')).toHaveCount(0);
       await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
+      // 自动保存状态可见：编辑后最终「已保存」
+      await expect(page.getByTestId('save-status')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
 
       // 不变量：节点即编辑器——内联加字段立即生效（告别双击开标签+handsontable）
       await addFieldInline(page, 'T_TABLE_1', 'ID', 'IdOrKey');

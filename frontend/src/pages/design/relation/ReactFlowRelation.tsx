@@ -18,8 +18,10 @@ import ReactFlow, {
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
+import useGlobalStore from '@/store/global/globalStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
 import { message } from 'antd';
+import shallow from 'zustand/shallow';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import './reactflow-relation.scss';
 
@@ -328,10 +330,17 @@ export type ReactFlowRelationProps = {
 const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) => {
   const projectJSON = useProjectStore(state => state.project?.projectJSON);
   const projectDispatch = useProjectStore(state => state.dispatch);
+  const { saved, saving } = useGlobalStore(
+    (s) => ({ saved: s.saved, saving: s.saving }),
+    shallow,
+  );
   const [nodes, setNodes] = useNodesState([]);
   const [edges, setEdges] = useEdgesState([]);
   const [isEmpty, setIsEmpty] = useState(true);
   const [cmdOpen, setCmdOpen] = useState(false);
+
+  const saveLabel = saving ? '保存中…' : saved ? '已保存' : '未保存';
+  const saveTone = saving ? 'saving' : saved ? 'saved' : 'dirty';
 
   // 实体/关联/坐标 → 画布数据。实体即节点：entities 全集渲染，位置优先级
   // graphCanvas 坐标 > 现有画布位置 > 网格自动布局（拖动持久化后 saved==local，无跳变）
@@ -603,6 +612,13 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <MiniMap pannable zoomable />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
+            <span
+              className={`erd-save-status erd-save-status--${saveTone}`}
+              data-testid="save-status"
+              title="模型变更会自动保存到服务器"
+            >
+              {saveLabel}
+            </span>
             <button className="erd-canvas-tool" onClick={() => setCmdOpen(true)} title="命令面板 (Cmd/Ctrl+K)">
               命令
             </button>
