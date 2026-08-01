@@ -9,7 +9,8 @@
 - 新增 `.cursor/rules/dev-entrypoints.mdc`：后端唯一入口 `./backend/dev-ensure.sh`（tmux `erd-be`）；前端永不重启、HMR/代理/E2E 强制用法
 - 同步 `dev-loop-speed.mdc`、`docs/development.md`，废弃「直接跑 dev-restart / kill 9502」旁路
 - 本地基建改为 **Colima + docker-compose** 托管 MySQL/Redis；禁止 brew 常驻抢端口；文档给出 `--disk-image` 与国内 registry-mirrors
-  验证点：`colima status` running；`erd-mysql`/`erd-redis` healthy；`./backend/dev-ensure.sh` health UP
+- 逆向验证栈：`docker-compose --profile reverse`（PostgreSQL / Azure SQL Edge）+ `db/reverse-fixtures` + `scripts/dev-reverse-dbs.sh`
+  验证点：`colima` + `erd-mysql/redis` healthy；MySQL/PG `dbReverseParse` 产出 indexs + associations（已 curl）
 
 ## [Unreleased] — 多库逆向 Dialect SPI（2026-08-01）
 

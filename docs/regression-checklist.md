@@ -26,6 +26,9 @@
 - [x] Registry：MySQL/MariaDB → Mysql；PostgreSQL → Postgresql；Oracle → Oracle；SQL Server → SqlServer；其余 → Generic ✅自动
 - [x] `dbReverseMeta` MySQL：`supportsSchema=false` 且 `schemas=[]` ✅curl
 - [x] FK 映射：两端在表集内才产出、去重、字段 UPPERCASE ✅`ForeignKeyAssociationMapperTest`
+- [x] Colima MySQL `reverse_demo`：indexs + associations 1:n ✅curl
+- [x] Colima PostgreSQL `reverse_demo`：meta schemas=[public]；indexs + associations ✅curl
+- [ ] Colima SQL Server（Azure SQL Edge）拉起后同样 curl 验证
 
 ### 手工
 
