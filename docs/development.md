@@ -87,7 +87,7 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 
 - 端口 `9092`（netty-socketio，与 HTTP `9502` 分离）；前端 `SOCKETIO_URL`（dev 默认 `http://localhost:9092`）
 - 握手：先 `POST /auth/socket-ticket`（Bearer JWT）拿短票，再连 namespace `/project/erd`（见 ADR-0009）
-- 验证：`node scripts/verify-socket-presence.mjs`；`node scripts/verify-socket-cursor.mjs`；E2E `tests/e2e/presence.spec.ts`
+- 验证：`node scripts/verify-socket-presence.mjs`；`verify-socket-cursor.mjs`；`verify-socket-sync.mjs`；E2E `presence.spec.ts`
 
 ## 前端如何找到后端
 

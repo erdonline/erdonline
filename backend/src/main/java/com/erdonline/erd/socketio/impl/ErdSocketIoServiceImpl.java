@@ -83,14 +83,8 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
         socketIONamespace.addEventListener(WebsocketConstants.CURSOR, Map.class, new DataListener<Map>() {
             @Override
             public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
-                String username = client.get(ATTR_USERNAME);
-                String projectId = client.get(ATTR_PROJECT);
-                if (StrUtil.isBlank(username)) {
-                    username = ParseHeaderUtil.parseUserNameFromHeader(client.getHandshakeData());
-                }
-                if (StrUtil.isBlank(projectId)) {
-                    projectId = ParseHeaderUtil.parseProjectIdFromHeader(client.getHandshakeData());
-                }
+                String username = resolveUsername(client);
+                String projectId = resolveProjectId(client);
                 if (StrUtil.isBlank(username) || StrUtil.isBlank(projectId) || data == null) {
                     return;
                 }
@@ -103,13 +97,28 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
                 payload.put("username", username);
                 payload.put("x", x);
                 payload.put("y", y);
-                UUID selfId = client.getSessionId();
-                for (SocketIOClient peer : client.getNamespace().getRoomOperations(projectId).getClients()) {
-                    if (selfId.equals(peer.getSessionId())) {
-                        continue;
-                    }
-                    peer.sendEvent(WebsocketConstants.CURSOR, payload);
+                broadcastToPeers(client, projectId, WebsocketConstants.CURSOR, payload);
+            }
+        });
+
+        // 模型增量：广播 projectJSON 的 jsondiffpatch delta
+        socketIONamespace.addEventListener(WebsocketConstants.SYNC, Map.class, new DataListener<Map>() {
+            @Override
+            public void onData(SocketIOClient client, Map data, AckRequest ackRequest) {
+                String username = resolveUsername(client);
+                String projectId = resolveProjectId(client);
+                if (StrUtil.isBlank(username) || StrUtil.isBlank(projectId) || data == null) {
+                    return;
                 }
+                Object delta = data.get("delta");
+                if (delta == null) {
+                    return;
+                }
+                Map<String, Object> payload = new HashMap<>(4);
+                payload.put("username", username);
+                payload.put("timestamp", data.get("timestamp") != null ? data.get("timestamp") : System.currentTimeMillis());
+                payload.put("delta", delta);
+                broadcastToPeers(client, projectId, WebsocketConstants.SYNC, payload);
             }
         });
 
@@ -121,6 +130,32 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
             }
         });
         return socketIOServer;
+    }
+
+    private String resolveUsername(SocketIOClient client) {
+        String username = client.get(ATTR_USERNAME);
+        if (StrUtil.isBlank(username)) {
+            username = ParseHeaderUtil.parseUserNameFromHeader(client.getHandshakeData());
+        }
+        return username;
+    }
+
+    private String resolveProjectId(SocketIOClient client) {
+        String projectId = client.get(ATTR_PROJECT);
+        if (StrUtil.isBlank(projectId)) {
+            projectId = ParseHeaderUtil.parseProjectIdFromHeader(client.getHandshakeData());
+        }
+        return projectId;
+    }
+
+    private void broadcastToPeers(SocketIOClient client, String projectId, String event, Object payload) {
+        UUID selfId = client.getSessionId();
+        for (SocketIOClient peer : client.getNamespace().getRoomOperations(projectId).getClients()) {
+            if (selfId.equals(peer.getSessionId())) {
+                continue;
+            }
+            peer.sendEvent(event, payload);
+        }
     }
 
     private void leavePresence(SocketIOClient client, boolean fromDisconnect) {

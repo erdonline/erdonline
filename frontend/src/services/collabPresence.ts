@@ -7,6 +7,7 @@ import request from '@/utils/request';
 export const JOIN_ROOM = 'martin:event:joinRoom';
 export const LEAVE_ROOM = 'martin:event:leaveRoom';
 export const CURSOR = 'martin:event:cursor';
+export const SYNC = 'martin:event:sync';
 export const EVENT_ERROR = 'martin:event:error';
 
 const SOCKET_URL =
@@ -25,9 +26,16 @@ export type CursorPayload = {
   y: number;
 };
 
+export type SyncPayload = {
+  username: string;
+  timestamp: number;
+  delta: any;
+};
+
 export type PresenceHandlers = {
   onRoster: (users: string[], actor?: string) => void;
   onCursor?: (cursor: CursorPayload) => void;
+  onSync?: (payload: SyncPayload) => void;
 };
 
 /**
@@ -40,6 +48,7 @@ export async function connectPresence(
 ): Promise<any> {
   const onRoster = typeof handlers === 'function' ? handlers : handlers.onRoster;
   const onCursor = typeof handlers === 'function' ? undefined : handlers.onCursor;
+  const onSync = typeof handlers === 'function' ? undefined : handlers.onSync;
 
   const r = (await request.post('/auth/socket-ticket', { data: {} })) as TicketResp;
   const ticket = r?.data?.ticket;
@@ -76,6 +85,15 @@ export async function connectPresence(
       onCursor({ username: String(u), x, y });
     });
   }
+  if (onSync) {
+    socket.on(SYNC, (payload: any) => {
+      const u = payload?.username;
+      const delta = payload?.delta;
+      const timestamp = Number(payload?.timestamp);
+      if (!u || delta == null || Number.isNaN(timestamp)) return;
+      onSync({ username: String(u), timestamp, delta });
+    });
+  }
   socket.on(EVENT_ERROR, (msg: unknown) => {
     // eslint-disable-next-line no-console
     console.warn('[presence]', msg);
@@ -87,6 +105,11 @@ export async function connectPresence(
 export function emitCursor(socket: any, x: number, y: number) {
   if (!socket?.connected) return;
   socket.emit(CURSOR, { x, y });
+}
+
+export function emitSync(socket: any, timestamp: number, delta: any) {
+  if (!socket?.connected || delta == null) return;
+  socket.emit(SYNC, { timestamp, delta });
 }
 
 export function disconnectPresence(socket: any, _username?: string) {

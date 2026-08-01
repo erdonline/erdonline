@@ -7,7 +7,7 @@
 
 工程与设计器为**可用雏形**：核心旅程可跑；数据源已按 ADR-0008 隔离。联调基线：`./scripts/audit-fe-apis.sh`。
 
-**下一阶段战略（服务北极星，不推翻愿景）**：P3a 获客已收口；推进 **P3b 协作锁定**（~~presence+光标~~✅ → 增量 sync）并清 P2 残留（eslint warn / 暗色 ADR）；AI / i18n 后置。
+**下一阶段战略（服务北极星，不推翻愿景）**：P3a / P3b 实时协作（presence+光标+增量 sync）已雏形；清 P2 残留（eslint warn / 暗色 ADR）并打磨冲突体验；AI / i18n 后置。
 
 ## 阶段总览
 
@@ -19,7 +19,7 @@
 | 第 3-6 轮：ReactFlow 画布 | 设计器现代化 | ~~R0~~✅ → ~~R1~~✅ → ~~R2~~✅ → ~~R3~~✅（画布 + 导出去 G6） | ✅ 闭环 |
 | 第 3 轮：版本时光机 | 抬升「每周有版本保存」 | ~~快照零摩擦~~✅；~~版本 diff 可视化~~✅；~~工单/审批打磨~~✅ | ✅ 2026-08-01 |
 | P2：体验深水区 | 让用户爱用 | ~~首页示例项目 30s 激活~~✅；~~自动保存状态可见~~✅；~~开源不限项目数~~✅；~~项目空态引导 + 新建表单减负~~✅；~~缩短建表链路（默认字段+直开关系图）~~✅；~~加载骨架统一~~✅（暗色📋 ADR 另议）；~~清 MUI→antd~~✅；~~清 Blueprint→antd~~✅；~~连线后改字段名跟边~~✅；~~性能预算基线~~✅（见 `docs/performance-budget.md`）；~~画布视口裁剪（≥24 表）~~✅；~~eslint 热路径 console~~✅；~~存量 console.log 清零~~✅（其余 eslint warn 另切）；~~核心接口连通（dataSources 表 / 注册放行 / queryHistory 方法 / audit 脚本）~~✅；~~数据源隔离（ADR-0008：JDBC 只进 data_sources，`profile` 仅 `defaultDataSourceId`）~~✅ | 🚧 |
-| P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；~~协作 presence+光标（ADR-0009）~~✅（增量 sync 待续）；~~只读分享链接~~✅（ADR-0007）；~~反向解析 Dialect SPI + schema API + FK~~✅（ADR-0006；字典级 FK/复合键待打磨）；AI📋；i18n📋 | 🚧 |
+| P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；~~协作 presence+光标+增量 sync（ADR-0009）~~✅；~~只读分享链接~~✅（ADR-0007）；~~反向解析 Dialect SPI + schema API + FK~~✅（ADR-0006；字典级 FK/复合键待打磨）；AI📋；i18n📋 | 🚧 |
 | P3a：获客与传播 | 陌生人能试用并产生版本 | ~~在线 demo（`/demo`→`/s/public-demo`）~~✅；~~分享页 → fork + autofork~~✅；~~注册转化（redirect 闭环）~~✅；~~双周发版笔记~~✅ | ✅ |
 | P4：社区与生态 | 让项目长大 | 文档站（Docusaurus）；good-first-issue 运营；发版节奏固化 | 📋 |
 
