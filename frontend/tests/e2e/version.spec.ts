@@ -4,9 +4,11 @@ import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   expectToast,
+  gotoDesignModel,
   login,
   openRelationCanvas,
   openRelationFromEmpty,
+  openVersionPage,
   rfNode,
   uniqueProjectName,
 } from './helpers';
@@ -15,15 +17,6 @@ import {
  * 版本快照零摩擦 + 版本 diff 可视化
  * 定位：e2e-locators
  */
-
-async function openVersionPage(page: import('@playwright/test').Page) {
-  // 直接 goto：子菜单「版本管理」在并发重排时可能被 overflow 挡住
-  const projectId = new URL(page.url()).searchParams.get('projectId');
-  await page.goto(`/design/table/version/all${projectId ? `?projectId=${projectId}` : ''}`);
-  await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
-  await expect(page.getByText('Loading...')).toHaveCount(0);
-  await expect(page.getByTestId('add-version-btn')).toBeVisible({ timeout: 15_000 });
-}
 
 async function saveVersion(page: import('@playwright/test').Page) {
   await page.getByTestId('add-version-btn').click();
@@ -89,7 +82,7 @@ test.describe('版本快照', () => {
       await expect(page.getByTestId('version-diff-panel')).toContainText('T_TABLE_1');
       await closeVersionDialog(page, '版本变更详情');
 
-      await page.getByRole('menuitem', { name: '模型', exact: true }).click();
+      await gotoDesignModel(page);
       await openRelationCanvas(page, '商城');
       await addFieldInline(page, 'T_TABLE_1', 'REMARK');
       await page.waitForTimeout(2_000);
@@ -111,12 +104,13 @@ test.describe('版本快照', () => {
       await page.getByRole('button', { name: '是' }).click();
       await expectToast(page, /成功回滚/);
 
-      await page.getByRole('menuitem', { name: '模型', exact: true }).click();
+      await gotoDesignModel(page);
+      await page.reload({ waitUntil: 'domcontentloaded' });
       await openRelationCanvas(page, '商城');
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'REMARK' })).toHaveCount(
-        0,
-      );
+      await expect(
+        rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'REMARK' }),
+      ).toHaveCount(0, { timeout: 15_000 });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

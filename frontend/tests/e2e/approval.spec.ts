@@ -2,23 +2,10 @@ import { expect, test } from '@playwright/test';
 import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
+  gotoVersionSub,
   login,
   uniqueProjectName,
 } from './helpers';
-
-/** 模型页侧栏是树，ProLayout「版本」menuitem 不可见；与 version.spec 一致用 goto */
-async function gotoVersionSub(
-  page: import('@playwright/test').Page,
-  sub: 'order' | 'approval',
-) {
-  const projectId = new URL(page.url()).searchParams.get('projectId');
-  await page.goto(
-    `/design/table/version/${sub}${projectId ? `?projectId=${projectId}` : ''}`,
-  );
-  await expect(page).toHaveURL(new RegExp(`/design/table/version/${sub}`), {
-    timeout: 15_000,
-  });
-}
 
 test.describe('版本工单/审批', () => {
   test('侧栏打开我的工单与我的审批，表头正确且有空态引导', async ({ page }) => {

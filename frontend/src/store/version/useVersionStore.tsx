@@ -759,8 +759,18 @@ const useVersionStore = create<VersionState>(
         const modules = ver?.projectJSON?.modules;
         if (modules instanceof Array && modules.length > 0) {
           useProjectStore.getState().dispatch.setModules(modules);
-          message.success(`成功回滚至「${ver?.version}」`);
-          get().fetch(null, get().currentPage, get().pageSize);
+          const project = useProjectStore.getState().project;
+          // 须落库：否则切路由/刷新会冲掉仅内存的回滚
+          void Save.saveProject(project).then((res: any) => {
+            if (res?.code === 200) {
+              message.success(`成功回滚至「${ver?.version}」`);
+            } else {
+              message.error(res?.msg || res?.message || '回滚已应用但保存失败');
+            }
+            get().fetch(null, get().currentPage, get().pageSize);
+          }).catch((err: any) => {
+            message.error(`回滚保存失败：${err?.message || err}`);
+          });
           return;
         }
         message.error('该版本无可用模型快照，无法回滚');

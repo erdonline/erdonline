@@ -20,7 +20,6 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `31-version-spec-goto-helper.md` | version/approval goto 抽 helpers |
 | `32-changelog-unreleased-fold.md` | CHANGELOG Unreleased 整理 |
 
 合入后在对应草稿顶部加：
