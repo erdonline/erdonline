@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — canvasHistory 单测（2026-08-02）
+
+### 测试
+- `canvasHistory.test.ts` + `yarn test:unit:canvas-history`（tsx；覆盖空栈/去重/undo-redo/截断）
+  验证点：`cd frontend && yarn test:unit:canvas-history` 输出 all passed
+
 ## [Unreleased] — share E2E 清理断言（2026-08-02）
 
 ### 测试

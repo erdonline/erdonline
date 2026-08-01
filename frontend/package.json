@@ -36,6 +36,7 @@
     "test:all": "node ./tests/run-tests.js",
     "test:component": "max test ./src/components",
     "test:e2e": "playwright test",
+    "test:unit:canvas-history": "npx --yes tsx src/store/project/canvasHistory.test.ts",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
