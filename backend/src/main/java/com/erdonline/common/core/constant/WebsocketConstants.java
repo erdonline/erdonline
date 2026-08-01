@@ -17,6 +17,9 @@ public final class WebsocketConstants {
 
     public static final String TOKEN = "token";
 
+    /** 短票（见 SocketTicketService），替代超长 JWT query */
+    public static final String TICKET = "ticket";
+
     public static final String USER_NAME = "username";
 
     /**

@@ -6,7 +6,8 @@ export default defineConfig({
   define: {
     // 空 = 前端用同源相对路径，由 config/proxy.ts 代理到后端，避免跨域
     API_URL: '',
-    ERD_API_URL: ''
+    ERD_API_URL: '',
+    SOCKETIO_URL: process.env.SOCKETIO_URL || 'http://localhost:9092',
   },
   // Fast Refresh 热更新
   fastRefresh: true,

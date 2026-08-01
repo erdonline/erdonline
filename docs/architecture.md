@@ -3,12 +3,13 @@
 ERD Online 采用**前后端分离**的单体架构：
 
 ```
-┌─────────────┐   HTTP/WS         ┌──────────────────────────┐
+┌─────────────┐  HTTP :9502       ┌──────────────────────────┐
 │  Frontend   │ ────────────────▶ │   Backend (Spring Boot)   │
 │ React/Umi   │ /auth /syst /ncnb │  单进程 Monolith          │
-│ (Nginx)     │ ◀──────────────── │                           │
-└─────────────┘                   │  ┌─────────────────────┐  │
-                                  │  │ auth  (OAuth2)      │  │
+│ (Nginx)     │ SocketIO :9092    │  + netty-socketio         │
+└─────────────┘  /project/erd     │  （presence，ADR-0009）   │
+                                  │  ┌─────────────────────┐  │
+                                  │  │ auth  (JWT + 短票)  │  │
                                   │  │ system(用户/权限)   │  │
                                   │  │ erd   (建模核心)    │  │
                                   │  │ common(核心公共库)  │  │
@@ -17,13 +18,14 @@ ERD Online 采用**前后端分离**的单体架构：
                                            │         │
                                      ┌─────▼───┐ ┌───▼────┐
                                      │ MySQL 8 │ │ Redis  │
-                                     │ erd +   │ │ token  │
-                                     │ martin  │ │ cache  │
+                                     │ erd +   │ │ token/ │
+                                     │ martin  │ │ ticket │
                                      └─────────┘ └────────┘
 ```
 
 > 前端沿用原网关的路径前缀 `/auth`、`/syst`、`/ncnb`，由后端的 `GatewayPrefixStripFilter`
 > 在进程内剥离前缀（等价于原网关的 `StripPrefix=1`），无需独立网关。
+> 协作 Presence 走独立端口 `9092`（短票鉴权，见 ADR-0009），不经 HTTP 代理。
 
 ## 后端模块（单体内的业务分包）
 

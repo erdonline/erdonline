@@ -1,7 +1,10 @@
 package com.erdonline.common.websocket.socketio.util;
 
+import cn.hutool.core.util.StrUtil;
 import com.corundumstudio.socketio.HandshakeData;
 import com.erdonline.common.core.constant.WebsocketConstants;
+import com.erdonline.common.core.support.SpringContextHelper;
+import com.erdonline.erd.socketio.SocketTicketService;
 import lombok.extern.slf4j.Slf4j;
 
 /**
@@ -14,20 +17,27 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class ParseHeaderUtil {
     public static String parseTokenFromHeader(HandshakeData handshakeData) {
-        String token = handshakeData.getSingleUrlParam(WebsocketConstants.TOKEN);
-        log.info("Authorization, token: {}", token);
-        return token;
+        return handshakeData.getSingleUrlParam(WebsocketConstants.TOKEN);
+    }
+
+    public static String parseTicketFromHeader(HandshakeData handshakeData) {
+        return handshakeData.getSingleUrlParam(WebsocketConstants.TICKET);
     }
 
     public static String parseUserNameFromHeader(HandshakeData handshakeData) {
-        String userName = handshakeData.getSingleUrlParam(WebsocketConstants.USER_NAME);
-        log.info("userName: {}", userName);
-        return userName;
+        String ticket = parseTicketFromHeader(handshakeData);
+        if (StrUtil.isNotBlank(ticket)) {
+            try {
+                SocketTicketService tickets = SpringContextHelper.getBean(SocketTicketService.class);
+                return tickets.resolveUsername(ticket).orElse(null);
+            } catch (Exception e) {
+                log.warn("resolve username from ticket failed: {}", e.getMessage());
+            }
+        }
+        return handshakeData.getSingleUrlParam(WebsocketConstants.USER_NAME);
     }
 
     public static String parseProjectIdFromHeader(HandshakeData handshakeData) {
-        String projectId = handshakeData.getSingleUrlParam(WebsocketConstants.PROJECT_ID);
-        log.info("projectId: {}", projectId);
-        return projectId;
+        return handshakeData.getSingleUrlParam(WebsocketConstants.PROJECT_ID);
     }
 }

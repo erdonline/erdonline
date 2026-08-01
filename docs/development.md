@@ -83,6 +83,12 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
+## 协作 Presence（SocketIO）
+
+- 端口 `9092`（netty-socketio，与 HTTP `9502` 分离）；前端 `SOCKETIO_URL`（dev 默认 `http://localhost:9092`）
+- 握手：先 `POST /auth/socket-ticket`（Bearer JWT）拿短票，再连 namespace `/project/erd`（见 ADR-0009）
+- 验证：`node scripts/verify-socket-presence.mjs`；E2E `tests/e2e/presence.spec.ts`
+
 ## 前端如何找到后端
 
 前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb`、`/auth` 代理到 `http://localhost:9502`。

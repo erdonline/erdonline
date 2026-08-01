@@ -6,6 +6,7 @@ export default defineConfig({
   define: {
     API_URL: 'https://app.erdonline.com',
     ERD_API_URL: 'https://app.erdonline.com',
+    SOCKETIO_URL: process.env.SOCKETIO_URL || 'https://app.erdonline.com',
   },
   // 打包时移除 console
   extraBabelPlugins: ['transform-remove-console'],

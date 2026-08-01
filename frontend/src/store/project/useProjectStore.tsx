@@ -20,7 +20,7 @@ import {enablePatches, produceWithPatches} from 'immer'
 import {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
-import {io} from "socket.io-client";
+import {connectPresence, disconnectPresence} from "@/services/collabPresence";
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 
@@ -40,6 +40,7 @@ export type ProjectState =
     project: any,
     projectLoading: boolean,
     socket: any,
+    onlineUsers: string[],
     syncing: boolean,
     timestamp: number,
     fetch: (projectId?: string) => Promise<void>;
@@ -98,6 +99,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         tables: [],
         project: {},
         projectLoading: false,
+        onlineUsers: [],
         syncing: false,
         timestamp: Date.now(),
         fetch: async (projectId?: string|null) => {
@@ -130,58 +132,31 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           }
         },
         initSocket: async (projectId: string) => {
-          let socket = get().socket;
-          if (socket) return;
-          socket = io(`http://localhost:3000?roomId=${projectId}`);
-          const username = cache.getItem('username');
-          message.success(`当前您的身份为${username}`);
-          // socket.on('historyRecord', (value: any) => message.success(`init ${value}`));
-          // 发送加入消息
-          socket.emit('join', username);
-          // 监听消息
-          socket.on('msg', (r: any) => {
-            if (username != r.username) {
-              message.success(`${r.msg}`);
-            }
-          });
-          // 监听消息
-          socket.on('sync', (r: any) => {
-            if (username != r.username && r.delta && r.timestamp != get().timestamp && JSON.stringify(r.delta) !== '{}') {
-              get().dispatch.patch(r);
-            }
-          });
-          set({
-            socket
-          })
+          if (get().socket) return;
+          try {
+            const socket = await connectPresence(projectId, (users) => {
+              set({ onlineUsers: users });
+            });
+            set({ socket });
+          } catch (e: any) {
+            message.warning(e?.message || '协作在线状态连接失败');
+          }
         },
         closeSocket: (projectId: string) => {
-          if (!get().socket) return;
-          const username = cache.getItem('username');
-          // 发送加入消息
-          get().socket.emit('leave', username);
-          get().socket.close();
+          const username = cache.getItem('username') || undefined;
+          disconnectPresence(get().socket, username);
           const project = get().project;
           if (project) {
             Save.saveProject(project);
           }
           set({
             socket: null,
+            onlineUsers: [],
             project: {}
           })
         },
-        sync: (r: any,) => {
-          if (get().socket) {
-            if (get().project.type === '2') {
-              const username = cache.getItem('username');
-              const timestamp = Date.now();
-              set({timestamp});
-              get().socket.emit('sync', {
-                timestamp: r.timestamp,
-                username,
-                delta: r.delta
-              })
-            }
-          }
+        sync: (_r: any) => {
+          // 模型增量同步另切（ADR-0009：本切片仅 presence）；勿再连 localhost:3000
         },
         dispatch: {
           updateProjectName: (payload: any) => set((state: any) => {
