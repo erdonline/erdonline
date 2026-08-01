@@ -267,6 +267,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         {headerEditing ? (
           <input
             className="erd-header-input"
+            aria-label="表名"
             autoFocus
             value={headerName}
             onChange={e => setHeaderName(e.target.value)}
@@ -294,6 +295,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             <button
               type="button"
               className="erd-header-edit nodrag nopan"
+              data-testid="table-rename-btn"
+              aria-label="修改表名"
               title="修改表名"
               onClick={e => {
                 e.stopPropagation();

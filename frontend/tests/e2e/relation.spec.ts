@@ -145,6 +145,33 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表头 ✎ 可改名', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('rename');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'rename', 'table rename');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      const renameBtn = node.getByTestId('table-rename-btn');
+      await expect(renameBtn).toBeVisible({ timeout: 10_000 });
+      // pointer 易被 RF 吞；DOM click 可靠。改名后节点无可见文案，勿再挂 rfNode 链
+      await renameBtn.evaluate((el: HTMLElement) => el.click());
+      const nameInput = page.getByRole('textbox', { name: '表名' });
+      await expect(nameInput).toBeVisible({ timeout: 10_000 });
+      await nameInput.fill('T_USER');
+      await nameInput.press('Enter');
+      await expect(rfNode(page, 'T_USER')).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('PK 徽标可取消再恢复', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('pk');

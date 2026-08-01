@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 表头改名 E2E（2026-08-02）
+
+### 体验 / 测试
+- 表头 ✎ 补 `data-testid` / aria；`relation.spec`「表头 ✎ 可改名」（改名中用 page 级 textbox）
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "改名"` 绿
+
 ## [Unreleased] — PK 徽标可访问名 + E2E（2026-08-02）
 
 ### 体验

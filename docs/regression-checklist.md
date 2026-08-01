@@ -114,7 +114,7 @@
 - [ ] [旧坐标复用] 含 g6 graphCanvas 坐标的老项目打开新画布，节点位置应保持（无老数据样本）
 - [x] [undo] 自动布局后 Cmd/Ctrl+Z → 坐标回到布局前 ✅自动
 - [x] [IdOrKey 默认 PK] 内联加 IdOrKey 字段后 PK 徽标 active ✅自动
-- [ ] [表头改名] 点 ✎ → 改名 → 节点标题更新（MCP 实证 DOM click 有效；Playwright locator.click 被 RF 层吞，自动化待补）
+- [x] [表头改名] ✎ DOM click → 改名；改名中勿用 `rfNode(旧名)` 链 ✅ `relation.spec`「改名」
 - [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
 - [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1 ✅自动
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动
