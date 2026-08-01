@@ -11,15 +11,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 /**
- * @author: 零代科技
- * @version: 1.0
- * @date: 2023/5/7 15:59
- * @describtion: PersonProjectCountRight
+ * 个人项目计数权益。
+ * <p>开源版不限制项目个数：{@link #valid} 恒为 true。
+ * 仍保留计数加载/重置逻辑，便于商业版或自部署方重新设限。
  */
 @Slf4j
 @Component
 public class PersonProjectCountRight implements BaseRight<Integer> {
-    private Integer limit = 1;
+    /** 历史商业限制值；开源版 valid() 忽略此上限 */
+    private Integer limit = Integer.MAX_VALUE;
     private String redisItem = "person_project_count";
 
     @Autowired
@@ -55,11 +55,8 @@ public class PersonProjectCountRight implements BaseRight<Integer> {
 
     @Override
     public boolean valid(boolean reset) {
-        Integer count = this.load();
-        if (!reset) {
-            count = count - 1;
-        }
-        return count < limit;
+        // 开源版：不限制个人项目数量
+        return true;
     }
 
     @Override

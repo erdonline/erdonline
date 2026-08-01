@@ -82,8 +82,20 @@ export function buildExampleProjectJSON() {
 
 /**
  * 创建示例项目并进入设计器（服务 30s 激活与「存版本」北极星入口）。
- * 免费版仅 1 个个人项目：若配额满，提示先到个人项目清理。
+ * 开源版不限项目数；若自部署重新开启配额，仍给出清理引导。
  */
+function isQuotaExceeded(code: unknown, msg: unknown): boolean {
+  const c = Number(code);
+  const m = String(msg || '');
+  return c === 888801 || /VIP|限额|上限|免费|超过|名额|\d+\s*个/i.test(m);
+}
+
+function goQuotaFull() {
+  message.destroy();
+  message.error('个人项目名额已满，请先到「个人项目」删除后再试示例');
+  history.push('/project/person');
+}
+
 export async function createExampleProjectAndOpen(): Promise<boolean> {
   const hide = message.loading('正在创建示例项目…', 0);
   try {
@@ -95,24 +107,33 @@ export async function createExampleProjectAndOpen(): Promise<boolean> {
       configJSON: { synchronous: { upgradeType: 'increment' } },
     });
     hide();
-    if (res?.code !== 200 || !res?.data) {
-      const msg = res?.msg || res?.message || '创建失败';
-      if (/VIP|限额|上限|免费|一个/i.test(String(msg))) {
-        message.error('个人项目名额已满，请先到「个人项目」删除后再试示例');
-        history.push('/project/person');
-        return false;
-      }
-      message.error(msg);
+    const code = res?.code;
+    const msg = res?.msg || res?.message || '';
+    const id = res?.data;
+    if (code === 200 && id) {
+      cache.setItem(CONSTANT.PROJECT_ID, String(id));
+      message.success('示例项目已就绪，开始探索吧');
+      history.push(`/design/table/model?projectId=${id}`);
+      return true;
+    }
+    if (isQuotaExceeded(code, msg)) {
+      goQuotaFull();
       return false;
     }
-    const projectId = String(res.data);
-    cache.setItem(CONSTANT.PROJECT_ID, projectId);
-    message.success('示例项目已就绪，开始探索吧');
-    history.push(`/design/table/model?projectId=${projectId}`);
-    return true;
+    // request 拦截器可能已弹过后端 msg；无文案时再补一条
+    if (!msg) {
+      message.error('创建示例项目失败');
+    }
+    return false;
   } catch (e: any) {
     hide();
-    message.error(e?.message || '创建示例项目失败');
+    const code = e?.data?.code ?? e?.code;
+    const msg = e?.data?.msg || e?.message || '';
+    if (isQuotaExceeded(code, msg)) {
+      goQuotaFull();
+      return false;
+    }
+    message.error(msg || '创建示例项目失败');
     return false;
   }
 }

@@ -45,4 +45,34 @@ test.describe('新手激活', () => {
       await deleteAllPersonProjects(page).catch(() => {});
     }
   });
+
+  test('开源版可连续创建多个个人项目', async ({ page }) => {
+    test.setTimeout(120_000);
+    const a = `multi-a-${Date.now()}`;
+    const b = `multi-b-${Date.now()}`;
+    try {
+      await login(page);
+      await deleteAllPersonProjects(page);
+
+      const create = async (name: string) => {
+        await page.goto('/project/person');
+        await page.getByRole('button', { name: /新\s*建/ }).click();
+        await page.getByPlaceholder('请输入项目名').fill(name);
+        await page.locator('.ant-modal .ant-select').first().click();
+        await page.locator('.ant-select-item-option', { hasText: '个人项目' }).click();
+        await page.locator('.ant-modal .ant-select').nth(1).click();
+        await page.keyboard.type('m');
+        await page.keyboard.press('Enter');
+        await page.getByPlaceholder('请输入项目描述').fill('no quota');
+        await page.locator('.ant-modal').getByRole('button', { name: /确\s*定/ }).click();
+        await expect(page.getByText(name).first()).toBeVisible({ timeout: 15_000 });
+      };
+
+      await create(a);
+      await create(b);
+      await expect(page.getByRole('button', { name: /删\s*除/ })).toHaveCount(2, { timeout: 10_000 });
+    } finally {
+      await deleteAllPersonProjects(page).catch(() => {});
+    }
+  });
 });
