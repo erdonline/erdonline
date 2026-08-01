@@ -20,3 +20,10 @@
 ## SQL 执行
 
 设计器内 JDBC/同步仍走既有权限与审批路径；不因去掉 VIP 限额而放宽 SQL 执行白名单。
+
+## 只读分享
+
+- `GET /share/{token}`（及 `/ncnb/share/{token}`）匿名可读，见 ADR-0007
+- 创建/吊销需登录且为项目创建人
+- 已知风险：响应含完整 `projectJSON`（可能含数据源口令）→ 前端页落地前须脱敏 `profile.dbs`
+
