@@ -5,9 +5,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
-export type ExportJsonProps = {};
-
-const ExportJson: React.FC<ExportJsonProps> = () => {
+const ExportJson: React.FC = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,

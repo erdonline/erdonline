@@ -210,22 +210,28 @@ const Version: React.FC<VersionProps> = (props) => {
               },
               actions: {
                 render: (text, row) => [
-                  <CompareVersion type={CompareVersionType.DETAIL}/>,
+                  <CompareVersion key="detail" type={CompareVersionType.DETAIL}/>,
                   <Access
+                    key="rename"
                     accessible={access.canErdHisprojectEdit}
                     fallback={<></>}
                   >
                     <RenameVersion/>
                   </Access>,
                   <Access
+                    key="remove"
                     accessible={access.canErdHisprojectDel}
                     fallback={<></>}
                   >
                     <RemoveVersion/>
                   </Access>,
-                  <CopyProject projectJSON={row.projectJSON}/>,
-                  <RevertVersion synced={compareStringVersion(row.version, dbVersion) > 0}/>,
+                  <CopyProject key="copy" projectJSON={row.projectJSON}/>,
+                  <RevertVersion
+                    key="revert"
+                    synced={compareStringVersion(row.version, dbVersion) > 0}
+                  />,
                   <Access
+                    key="sync"
                     accessible={access.canErdConnectorDbsync}
                     fallback={<></>}
                   >
@@ -284,25 +290,27 @@ const Version: React.FC<VersionProps> = (props) => {
               },
               actions: [
                 <Access
-                accessible={access.canErdHisprojectAdd}
-                fallback={<></>}
+                  key="add-version"
+                  accessible={access.canErdHisprojectAdd}
+                  fallback={<></>}
                 >
                   <AddVersion trigger="bp"/>
                 </Access>,
-                <CompareVersion type={CompareVersionType.COMPARE}/>,
+                <CompareVersion key="compare" type={CompareVersionType.COMPARE}/>,
                 <Access
+                  key="sync-config"
                   accessible={access.canErdHisprojectConfig}
                   fallback={<></>}
                 >
                   <SyncConfig/>
                 </Access>,
                 <Access
+                  key="rebuild"
                   accessible={access.canErdHisprojectRebuild}
                   fallback={<></>}
                 >
                   <RebuildVersion/>
                 </Access>,
-
               ],
             }}
           />

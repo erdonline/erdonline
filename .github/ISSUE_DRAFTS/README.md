@@ -18,7 +18,13 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 ## 当前待投放（未标已合入）
 
-（空）— 16–17 已合入；下一轮再补 3–8 条草稿后投放。
+| 文件 | 标题摘要 |
+|---|---|
+| `18-version-order-eslint.md` | 版本排序页 eslint warn 清零 |
+| `19-canvas-history-types.md` | canvasHistory 去掉 any |
+| `20-edge-hit-area.md` | 关系图边热区 / 文档说明 |
+| `21-export-ddl-step2-e2e.md` | 导出 DDL 第二步 E2E |
+| （共 4 条，正式仓投放后应落在 3–8 目标内） |
 
 合入后在对应草稿顶部加：
 

@@ -7,7 +7,7 @@
 
 工程与设计器为**可用雏形**：核心旅程可跑；数据源已按 ADR-0008 隔离。联调基线：`./scripts/audit-fe-apis.sh`。
 
-**下一阶段战略（服务北极星，不推翻愿景）**：P4 文档站已齐；`store/project` eslint 已清；Issue 草稿池暂空，需补 3–8 条后再投放；正式仓就绪后 `REPO=… ./scripts/seed-good-first-issues.sh`；AI / i18n 后置。
+**下一阶段战略（服务北极星，不推翻愿景）**：P4 文档站已齐；Issue 草稿待投放 18–21（4 条）；正式仓就绪后 `REPO=… ./scripts/seed-good-first-issues.sh`；AI / i18n 后置。
 
 ## 阶段总览
 
