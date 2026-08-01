@@ -7,6 +7,7 @@ import java.time.LocalDateTime;
 
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.baomidou.mybatisplus.annotation.TableName;
 import java.io.Serializable;
 import com.erdonline.common.bean.system.User;
 import com.erdonline.common.core.annotation.BindField;
@@ -31,6 +32,7 @@ import lombok.experimental.Accessors;
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
+@TableName("data_sources")
 @ApiModel(value="DataSources对象", description="数据源")
 public class DataSources implements Serializable {
 

@@ -21,9 +21,14 @@
 
 设计器内 JDBC/同步仍走既有权限与审批路径；不因去掉 VIP 限额而放宽 SQL 执行白名单。
 
+## 匿名放行（前缀剥离后路径）
+
+- 登录/退出：`/login`、`/auth/login`、`/exit`
+- 注册：`/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）
+- 只读分享：`GET /share/{token}`（及冗余 `/ncnb/share/{token}`），见 ADR-0007
+
 ## 只读分享
 
-- `GET /share/{token}`（及 `/ncnb/share/{token}`）匿名可读，见 ADR-0007
 - 创建/吊销需登录且为项目创建人
 - 匿名响应已脱敏 `profile.dbs` 的 `username`/`password` 为 `***`；其余配置仍可读，后续可再收紧
 
