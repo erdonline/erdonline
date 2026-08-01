@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — PK 徽标可访问名 + E2E（2026-08-02）
+
+### 体验
+- 关系图 PK 徽标改为 `button` + `aria-label`（取消/设为主键）；补「PK 徽标可取消再恢复」E2E
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "PK|全旅程"` 绿
+
 ## [Unreleased] — 关系图边命中热区 24px（2026-08-02）
 
 ### 体验

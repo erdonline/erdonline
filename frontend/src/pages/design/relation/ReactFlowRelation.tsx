@@ -319,8 +319,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             >
               <Handle type="target" id={`${f.name}-tgt`} position={Position.Left} className="erd-field-handle" />
               <span className="erd-field-name">
-                <span
+                <button
+                  type="button"
                   className={`erd-pk-badge nodrag${f.pk ? ' active' : ' inactive'}`}
+                  aria-label={f.pk ? '取消主键' : '设为主键'}
                   title={f.pk ? '取消主键' : '设为主键'}
                   onClick={e => {
                     e.stopPropagation();
@@ -328,7 +330,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                   }}
                 >
                   PK
-                </span>
+                </button>
                 {f.name}
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
               </span>

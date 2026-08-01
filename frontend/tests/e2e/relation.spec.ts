@@ -144,4 +144,30 @@ test.describe('关系图画布（ReactFlow）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('PK 徽标可取消再恢复', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('pk');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'pk', 'pk toggle');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+
+      const pkOff = node.getByRole('button', { name: '取消主键' });
+      await expect(pkOff).toBeVisible();
+      await pkOff.click();
+      await expect(node.getByRole('button', { name: '设为主键' })).toBeVisible();
+
+      // inactive 仅 hover 可见
+      await node.locator('[data-field="id"]').hover();
+      await node.getByRole('button', { name: '设为主键' }).click();
+      await expect(node.getByRole('button', { name: '取消主键' })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

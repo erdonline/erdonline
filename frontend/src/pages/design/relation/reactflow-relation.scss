@@ -116,6 +116,8 @@
         color: #303133;
 
         .erd-pk-badge {
+          appearance: none;
+          font-family: inherit;
           font-size: 10px;
           font-weight: 600;
           border-radius: 3px;
