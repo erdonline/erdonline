@@ -10,3 +10,4 @@
 | [0003](./0003-docs-docusaurus.md) | 文档发布体系选型 Docusaurus | 已接受 |
 | [0004](./0004-license-mit.md) | 维持 MIT 许可证 | 已接受 |
 | [0005](./0005-ui-architecture.md) | UI 架构：antd 守 CRUD，设计器域自研 | 已接受 |
+| [0006](./0006-reverse-dialect-spi.md) | 多库逆向 Dialect SPI（P0 四库 + Generic 兜底） | 已接受 |

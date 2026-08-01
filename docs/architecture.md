@@ -32,6 +32,7 @@ ERD Online 采用**前后端分离**的单体架构：
 | `com.erdonline.auth` | OAuth2 授权服务器 + 资源服务器（同进程） | 原 martin-biz-auth |
 | `com.erdonline.system` | 用户 / 角色 / 菜单 / 字典 | 原 martin-biz-system |
 | `com.erdonline.erd` | ERD 建模核心、SQL、版本、协作 | 原 martin-extension-ncnb |
+| `com.erdonline.erd.reverse` | 多库逆向 Dialect SPI（MySQL 字典索引 + Generic JDBC 兜底） | ADR-0006 |
 | `com.erdonline.common` | core/bean/data/log/security/vip/websocket/oss/swagger | 原 martin-common-* |
 | `com.erdonline.config` | Security / CORS / Swagger / MyBatis / WebSocket 配置 | 合并新增 |
 

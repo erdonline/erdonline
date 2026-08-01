@@ -5,11 +5,14 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.exception.StatefulException;
 import com.erdonline.common.security.jwt.JwtTokenService;
 import com.erdonline.common.security.userdetail.MartinUser;
+import com.erdonline.config.ErdSecurityProperties;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.junit.jupiter.MockitoSettings;
+import org.mockito.quality.Strictness;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -31,6 +34,7 @@ import static org.mockito.Mockito.when;
  * JWT 登录控制器：空参 / 错密 / 成功签发。
  */
 @ExtendWith(MockitoExtension.class)
+@MockitoSettings(strictness = Strictness.LENIENT)
 class AuthLoginControllerTest {
 
     @Mock
@@ -42,7 +46,9 @@ class AuthLoginControllerTest {
 
     @BeforeEach
     void setUp() {
-        controller = new AuthLoginController(authenticationManager, jwtTokenService);
+        ErdSecurityProperties erdSecurityProperties = new ErdSecurityProperties();
+        erdSecurityProperties.setE2eAccountsEnabled(true);
+        controller = new AuthLoginController(authenticationManager, jwtTokenService, erdSecurityProperties);
     }
 
     @Test
