@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import {ModalForm} from '@ant-design/pro-components';
@@ -8,11 +8,13 @@ import {message, Modal} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import _ from "lodash";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 
 export type ReversePdManProps = {};
 
 const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, projectJSON} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     projectJSON: state.project.projectJSON || {},
@@ -95,6 +97,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
           icon={<MyIcon type="icon-other_win"/>}
           style={{ textAlign: 'left' }}
           aria-label="解析PdMan文件"
+          onClick={() => closeProjectMenu()}
         >解析PdMan文件</Button>
       }
 

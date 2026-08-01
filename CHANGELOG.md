@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 导入/导出打开时关闭项目下拉（2026-08-02）
+
+### 修复
+- 导入三项与导出五项触发时调用 `closeProjectMenu()`，避免菜单层挡住弹窗
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导入"` 绿（弹窗内文案可点）
+
 ## [Unreleased] — 删表确认钮「删除」+ dev 关 MFSU（2026-08-02）
 
 ### 修复

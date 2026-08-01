@@ -1,12 +1,14 @@
-import React from 'react';
+import React, {useContext} from 'react';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 export type ExportFileProps = {};
 
 const ExportHTML: React.FC<ExportFileProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
@@ -16,7 +18,10 @@ const ExportHTML: React.FC<ExportFileProps> = () => {
       size="small"
       block
       icon={<MyIcon type="icon-HTML"/>}
-      onClick={() => projectDispatch.exportFile('Html')}
+      onClick={() => {
+        closeProjectMenu();
+        projectDispatch.exportFile('Html');
+      }}
       style={{ textAlign: 'left' }}
       aria-label="导出HTML"
     >导出HTML</Button>
