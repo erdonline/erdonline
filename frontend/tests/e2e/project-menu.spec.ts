@@ -5,6 +5,7 @@ import {
   e2eAccount,
   expectToast,
   login,
+  openRelationFromEmpty,
   uniqueProjectName,
 } from './helpers';
 
@@ -165,6 +166,73 @@ test.describe('设计器项目菜单', () => {
       });
       await expect(dlg.getByRole('button', { name: '下一步' })).toBeVisible();
     } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('导出 DDL：有数据源与表时可进入第二步', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const API = process.env.API_URL || 'http://localhost:9502';
+    const projectName = uniqueProjectName('exportddl');
+    let dsId = '';
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(page.getByText('T_TABLE_1').first()).toBeVisible({ timeout: 15_000 });
+
+      const token = await page.evaluate(() => localStorage.getItem('Authorization'));
+      expect(token).toBeTruthy();
+      dsId = crypto.randomUUID();
+      const createDs = await request.post(`${API}/ncnb/dataSources`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: {
+          id: dsId,
+          name: `e2e-ddl-${Date.now().toString(36)}`,
+          type: 'MYSQL',
+          url: 'jdbc:mysql://127.0.0.1:3306/e2e',
+          username: 'e2e',
+          password: 'e2e',
+          driverClassName: 'com.mysql.cj.jdbc.Driver',
+        },
+      });
+      expect(createDs.status()).toBe(200);
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page.getByRole('menuitem', { name: '导出' }).hover();
+      await page.getByRole('button', { name: '导出DDL' }).click();
+      const dlg = page.getByRole('dialog');
+      await expect(dlg.getByText('SQL导出配置')).toBeVisible({ timeout: 10_000 });
+      // 打开弹窗会 refreshDataSources；默认选中刚创建的数据源
+      await expect(dlg.getByTitle(/e2e-ddl-/)).toBeVisible({ timeout: 10_000 });
+
+      // antd Form 必填星号会进 accessible name（"* 导出数据表"）
+      await dlg.getByRole('combobox', { name: /导出数据表/ }).click();
+      const exportTree = page.getByRole('tree').filter({ hasText: /SHOP/ });
+      await expect(exportTree).toBeVisible({ timeout: 10_000 });
+      // 勿用裸 getByText('T_TABLE_1')：会命中画布节点
+      const tableOpt = exportTree.getByText('T_TABLE_1', { exact: true });
+      await expect(tableOpt).toBeVisible({ timeout: 10_000 });
+      await tableOpt.click();
+
+      await dlg.getByRole('button', { name: '下一步' }).click();
+      await expect(dlg.getByRole('button', { name: '上一步' })).toBeVisible({ timeout: 10_000 });
+      await expect(dlg.getByRole('button', { name: '导出' })).toBeVisible();
+      await expect(dlg.getByText('导出配置', { exact: true })).toBeVisible();
+    } finally {
+      if (dsId) {
+        const token = await page.evaluate(() => localStorage.getItem('Authorization')).catch(() => null);
+        if (token) {
+          await request
+            .delete(`${API}/ncnb/dataSources/${dsId}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            })
+            .catch(() => {});
+        }
+      }
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });

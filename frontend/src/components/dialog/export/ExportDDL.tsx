@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useRef} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import {
@@ -20,21 +20,42 @@ import shallow from "zustand/shallow";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
+/** ADR-0008：列表来自 /ncnb/dataSources，不读 profile.dbs */
+type ExportDbOption = {
+  key: string;
+  name: string;
+  select?: string;
+};
 
 const ExportDDL: React.FC = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const {projectDispatch, dbs, data} = useProjectStore(state => ({
+  const {projectDispatch, data} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
     projectDispatch: state.dispatch,
-    dbs: state.project.projectJSON?.profile?.dbs || [],
   }), shallow);
-
+  const [dbs, setDbs] = useState<ExportDbOption[]>([]);
 
   useEffect(() => {
-    projectDispatch.setExportData();
+    let cancelled = false;
+    (async () => {
+      const list = (await projectDispatch.refreshDataSources()) as ExportDbOption[];
+      if (cancelled) {
+        return;
+      }
+      setDbs(list || []);
+      const current = projectDispatch.getCurrentDBData() as ExportDbOption | undefined;
+      const picked = current || list?.[0];
+      if (picked?.select) {
+        projectDispatch.onDBChange(picked.select);
+      }
+      projectDispatch.setExportData();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [projectDispatch]);
 
-  });
-
+  const currentDb = projectDispatch.getCurrentDBData() as ExportDbOption | undefined;
   const formRef = useRef<ProFormInstance>();
   return (<>
 
@@ -103,8 +124,7 @@ const ExportDDL: React.FC = () => {
             // 完全自定义整个区域
             submitter={{
               // 完全自定义整个区域
-              render: (props, doms) => {
-                // @ts-ignore
+              render: () => {
                 return _.concat(submitter, []);
               },
             }}
@@ -126,13 +146,18 @@ const ExportDDL: React.FC = () => {
           label="数据源"
           width="md"
           rules={[{required: true}]}
-          initialValue={projectDispatch.getCurrentDBName()}
-          request={async () => dbs.map((db: any) => {
-            return {label: db.name, value: db.key}
-          })}
+          initialValue={currentDb?.key}
+          params={{dbs}}
+          request={async () => dbs.map((db) => ({
+            label: db.name,
+            value: db.key,
+          }))}
           fieldProps={{
-            onChange: (value: any, option: any) => {
-              projectDispatch.onDBChange(value);
+            'aria-label': '数据源',
+            onChange: (value: string) => {
+              const db = dbs.find((d) => d.key === value);
+              // json2code 需要方言码（MYSQL…），不是 dataSource id
+              projectDispatch.onDBChange(db?.select || value);
             }
           }}
         />
@@ -149,12 +174,15 @@ const ExportDDL: React.FC = () => {
           }}
           // tree-select args
           fieldProps={{
+            'aria-label': '导出数据表',
+            'data-testid': 'export-ddl-tables',
             filterTreeNode: true,
             labelInValue: true,
             multiple: true,
             showArrow: true,
             maxTagCount: 10,
             treeCheckable: true,
+            treeDefaultExpandAll: true,
             dropdownStyle: {maxHeight: 400, overflow: 'auto'},
             treeNodeFilterProp: 'title',
             fieldNames: {
