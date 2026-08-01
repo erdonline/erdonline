@@ -53,7 +53,9 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 17. ~~**设计器「项目」菜单接线**~~（已合入；数据源设置可开）
 18. ~~**`projectJsonSlice` eslint warn 清零**~~（已合入；草稿 `06` 已标完成）
 19. ~~**`useProjectStore` eslint warn 清零**~~（已合入；草稿 `07` 已标完成）
-20. **`modulesSlice` eslint warn 清零**（草稿 `08-modulesSlice-eslint.md`）
+20. ~~**`modulesSlice` eslint warn 清零**~~（已合入；`src/store/project` eslint warn=0）
+21. **项目菜单「版本」入口 E2E**（草稿 `09-version-menu-e2e.md`）
+22. **默认项设置保存反馈**（草稿 `10-default-setup-aria.md`）
 
 ## 贡献者怎么认领
 

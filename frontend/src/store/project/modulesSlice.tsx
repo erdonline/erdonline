@@ -1,5 +1,5 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
+import type {GetState, SetState} from "zustand";
+import type {ProjectState} from "@/store/project/useProjectStore";
 import produce from "immer";
 import EntitiesSlice from "@/store/project/entitiesSlice";
 import {message} from "antd";
@@ -16,6 +16,17 @@ export type IModulesSlice = {
 
 const validateModule = (data: any) => {
   return data && typeof data.name === 'string' && Array.isArray(data.entities);
+};
+
+/** 生成不与现有名冲突的「副本」后缀名 */
+const nextCopyName = (base: string, taken: (name: string) => boolean) => {
+  let name = base;
+  let counter = 0;
+  while (taken(name)) {
+    counter += 1;
+    name = `${base}${counter === 1 ? '副本' : `副本${counter}`}`;
+  }
+  return { name, counter };
 };
 
 
@@ -37,7 +48,7 @@ export interface IModulesDispatchSlice {
   updateAllModules: (payload: any) => void,
   getModuleEntityTree: (searchKey: string, groupByType: boolean) => any,
   getModuleEntityFieldTree: () => any,
-  setExpandedKey: (expandedKey: string) => any,
+  setExpandedKey: () => any,
   setExpandedKeys: (expandedKey: any) => any,
   getExpandedKeys: (expandedKey: any) => any,
 };
@@ -140,32 +151,24 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return;
     }
 
-    let moduleName = data.name;
-    let counter = 0;
-    
-    const isCut = data._isCut;
     delete data._isCut;
 
-    // 查找可用的模块名
-    while (state.project.projectJSON.modules.some((m: any) => m.name === moduleName)) {
-      counter++;
-      moduleName = `${data.name}${counter === 1 ? '副本' : `副本${counter}`}`;
-    }
+    const modules = state.project.projectJSON.modules;
+    const { name: moduleName, counter } = nextCopyName(data.name, (n) =>
+      modules.some((m: any) => m.name === n),
+    );
 
     const newModule = {
       ...data,
       name: moduleName,
       chnname: counter === 0 ? data.chnname : `${data.chnname || data.name}${counter === 1 ? '副本' : `副本${counter}`}`,
       entities: (data.entities || []).map((entity: any) => {
-        let entityName = entity.title || entity.name;
-        let entityCounter = 0;
-        // 检查整个项目中是否存在相同名称的实体
-        while (state.project.projectJSON.modules.some((m: any) => 
-          m.entities.some((e: any) => (e.title || e.name) === entityName)
-        )) {
-          entityCounter++;
-          entityName = `${entity.title || entity.name}${entityCounter === 1 ? '副本' : `副本${entityCounter}`}`;
-        }
+        const baseEntity = entity.title || entity.name;
+        const { name: entityName, counter: entityCounter } = nextCopyName(baseEntity, (n) =>
+          modules.some((m: any) =>
+            (m.entities || []).some((e: any) => (e.title || e.name) === n),
+          ),
+        );
         return {
           ...entity,
           title: entityName,
@@ -281,7 +284,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const tableLimit = get().project?.projectJSON?.profile?.tableLimit || 1000;
     let tmp_table_count=0;
 
-    let map = get().project.projectJSON?.modules?.map((module: any) => {
+    const map = get().project.projectJSON?.modules?.map((module: any) => {
       const moduleNode = {
         key: module.name,
         title: module.chnname || module.name,
@@ -375,7 +378,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       } else {
         const match_entities: any = [];
 
-        let relation = {
+        const relation = {
           type: 'relation',
           module: module.name,
           title: '关系图',
@@ -406,7 +409,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           });
         }
 
-        let entities = match_entities.map((entity: any) => {
+        const entities = match_entities.map((entity: any) => {
           const tableNameFormat = get().project?.projectJSON?.profile?.tableNameFormat || '{name} {chnname}';
           return {
             type: 'entity',
@@ -419,7 +422,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
             isLeaf: true
           }
         });
-        const moduleNameFormat = get().project?.projectJSON?.profile?.moduleNameFormat || '{name} {chnname}';
         moduleNode.children = [relation, ...entities];
       }
 
@@ -430,8 +432,8 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   },
   getModuleEntityFieldTree: () => set(produce(state => {
     return state.project?.projectJSON?.modules?.map((module: any) => {
-      let relation = {type: 'relation', title: '关系图', key: `${module.name}###relation`, isLeaf: true};
-      let entities = module?.entities?.map((entity: any) => {
+      const relation = {type: 'relation', title: '关系图', key: `${module.name}###relation`, isLeaf: true};
+      const entities = module?.entities?.map((entity: any) => {
         return {type: 'entity', title: entity.name || entity.title, key: entity.name || entity.title, isLeaf: true}
       });
       return {
@@ -442,8 +444,8 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
     });
   })),
-  setExpandedKey: (expandedKey: string) => set(produce(state => {
-    // state.expandedKeys?.push(expandedKey);
+  setExpandedKey: () => set(produce(() => {
+    // 历史 API：曾写入 expandedKeys，现由 setExpandedKeys 统一管理
   })),
   setExpandedKeys: (expandedKeys: any) => set(produce(state => {
     state.expandedKeys = expandedKeys;
