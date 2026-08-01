@@ -16,12 +16,15 @@
 本地 **MySQL / Redis 只跑在 Colima（Docker）**，不要再用 `brew services` 起本机实例（端口会冲突）。
 
 ```bash
-# 0. Colima（首次需盘镜像；国内可先手动下好再 --disk-image）
-#    镜像：https://github.com/abiosoft/colima-core/releases → ubuntu-*-arm64-docker.raw.gz
+# 0. Colima（首次需盘镜像；国内勿直连 GitHub）
+#    加速门户：https://github.akams.cn/  （拼法 https://<node>/https://github.com/...）
+#    例：curl -fL -o ~/Downloads/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz \
+#      'https://ghproxy.net/https://github.com/abiosoft/colima-core/releases/download/v0.10.4/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz'
 colima start --cpu 4 --memory 8 --disk 40 \
   --disk-image ~/Downloads/ubuntu-24.04-minimal-cloudimg-arm64-docker.raw.gz
-# Docker Hub 国内源已写在 ~/.colima/default/colima.yaml → docker.registry-mirrors
+# Docker Hub 国内源：~/.colima/default/colima.yaml → docker.registry-mirrors
 # （本机无 compose 插件时用 docker-compose）
+# Agent 全局规则：~/.cursor/rules/github-download-proxy.mdc
 
 # 1. 起数据库
 docker-compose up -d mysql redis
