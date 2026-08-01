@@ -87,10 +87,10 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 
 ```bash
 cd website && yarn && yarn start   # http://localhost:3000/erdonline/
-cd website && yarn build           # 产物 website/build
+cd website && yarn build           # 产物 website/build；死链会失败
 ```
 
-消费仓库 `docs/`（ADR-0003）；说明见 `website/README.md`。
+消费仓库 `docs/`（ADR-0003）。CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub Pages）。仓库 Settings → Pages → Source 选 **GitHub Actions**。
 
 ## 协作 Presence（SocketIO）
 
@@ -129,7 +129,7 @@ com.erdonline
 
 ## 提交规范
 
-遵循 [Conventional Commits](https://www.conventionalcommits.org/)，详见 [CONTRIBUTING.md](../CONTRIBUTING.md)。
+遵循 [Conventional Commits](https://www.conventionalcommits.org/)，详见 [CONTRIBUTING.md](https://github.com/erdonline/erdonline/blob/main/CONTRIBUTING.md)。
 
 ## 常见问题
 

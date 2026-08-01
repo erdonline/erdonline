@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 文档站死链门禁 + Pages 工作流（2026-08-02）
+
+### 新增
+- `.github/workflows/docs-site.yml`：PR/`main` 构建 `website/`；`main` 部署 GitHub Pages
+- docs 外链改为绝对 GitHub URL；Docusaurus `onBrokenLinks=throw`
+  验证点：`cd website && yarn build` 无 broken links 成功
+
 ## [Unreleased] — 文档站骨架 + 复合 FK 延期（2026-08-02）
 
 ### 新增

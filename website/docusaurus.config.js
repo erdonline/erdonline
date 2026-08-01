@@ -7,10 +7,11 @@ const config = {
   baseUrl: '/erdonline/',
   organizationName: 'erdonline',
   projectName: 'erdonline',
-  onBrokenLinks: 'warn',
+  // CI / Pages：死链应失败；本地改文档时可临时改为 warn
+  onBrokenLinks: 'throw',
   markdown: {
     hooks: {
-      onBrokenMarkdownLinks: 'warn',
+      onBrokenMarkdownLinks: 'throw',
     },
   },
   i18n: {
