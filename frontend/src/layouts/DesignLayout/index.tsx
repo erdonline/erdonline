@@ -1,4 +1,3 @@
-import Upgrade from "@/components/dialog/upgrade";
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
@@ -25,12 +24,10 @@ import defaultProps from './_defaultProps';
 import './index.less';
 
 export const siderWidth = 400;
-const licence = cache.getItem2object('licence');
 
 export const headRightContent = [
   <CollabPresence key="presence" />,
   <ShareProjectButton key="share" />,
-  licence?.licensedStartTime ? '' : <Upgrade />,
   <Popover placement="bottom" title="公众号" content={<Image src="/mp.jpg" />} trigger="hover">
     <TwoDimensionalCodeOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} />
   </Popover>,

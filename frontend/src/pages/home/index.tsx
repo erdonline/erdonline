@@ -1,7 +1,7 @@
 import type {FC} from 'react';
 import {Avatar, Card, Col, List, Skeleton, Row, Statistic, Tag, Space, Typography, Progress} from 'antd';
 import {Radar, Pie} from '@ant-design/charts';
-import { RocketOutlined, BarChartOutlined, ProjectOutlined, GlobalOutlined, NotificationOutlined, CompassOutlined, PieChartOutlined, PlusOutlined, ImportOutlined, HistoryOutlined, BookOutlined, BranchesOutlined, ExportOutlined, SafetyOutlined, ReadOutlined, CustomerServiceOutlined, CrownOutlined, DatabaseOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import { RocketOutlined, BarChartOutlined, ProjectOutlined, GlobalOutlined, NotificationOutlined, CompassOutlined, PieChartOutlined, PlusOutlined, ImportOutlined, HistoryOutlined, BookOutlined, BranchesOutlined, ExportOutlined, SafetyOutlined, ReadOutlined, CustomerServiceOutlined, DatabaseOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 
 import moment from 'moment';
 import EditableLinkGroup from './components/EditableLinkGroup';
@@ -61,13 +61,12 @@ const quickLinks = [
     testId: 'home-link-person',
   },
   {
-    title: '升级专业',
-    icon: <CrownOutlined />,
-    href: '/account/settings',
-    description: '查看授权与账号设置',
-    type: 'premium',
-    hidden: !!cache.getItem2object('licence').licensedStartTime,
-    testId: 'home-link-upgrade',
+    title: '团队项目',
+    icon: <TeamOutlined />,
+    href: '/project/group',
+    description: '协作建模与成员权限',
+    type: 'secondary',
+    testId: 'home-link-group',
   },
 ];
 

@@ -19,6 +19,8 @@ test.describe('协作 presence', () => {
       const presence = page.getByTestId('collab-presence');
       await expect(presence).toBeVisible({ timeout: 20_000 });
       await expect(presence).toContainText(account.name, { timeout: 20_000 });
+      // 开源版不展示商业升级 CTA
+      await expect(page.getByText('升级至尊版')).toHaveCount(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 开源版去掉升级至尊 CTA（2026-08-02）
+
+### 修复
+- 设计器顶栏移除「升级至尊版」；删除 `dialog/upgrade`；账号页改为「开源版」文案；首页入口改为「团队项目」
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿（断言无「升级至尊版」）
+
 ## [Unreleased] — 协作 sync warning toast E2E（2026-08-02）
 
 ### 新增

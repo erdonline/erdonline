@@ -1,62 +1,42 @@
-import React, {useState} from "react";
-import {Result} from "antd";
-import {useRequest} from "@umijs/hooks";
-import {GET} from "@/services/crud";
-
-import {LightMember, PeopleTopCard, VipOne} from "@icon-park/react";
-import * as cache from "@/utils/cache";
-import Upgrade from "@/components/dialog/upgrade";
-import PageSkeleton from "@/components/PageSkeleton";
-
+import React from 'react';
+import { Result } from 'antd';
+import { useRequest } from '@umijs/hooks';
+import { GET } from '@/services/crud';
+import { PeopleTopCard } from '@icon-park/react';
+import * as cache from '@/utils/cache';
+import PageSkeleton from '@/components/PageSkeleton';
 
 export type IdentificationProps = {};
-const IdentificationType = {
-  free: <PeopleTopCard theme="filled" size="66" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
-  pro: <LightMember theme="filled" size="66" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
-  enterprise: <VipOne theme="filled" size="66" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
-};
-const Identification: React.FC<IdentificationProps> = (props) => {
-  const {data: r, loading} = useRequest(() => {
+
+const Identification: React.FC<IdentificationProps> = () => {
+  const { loading } = useRequest(() => {
     return GET('/syst/user/settings/basic', {});
   });
 
-  type ModeKeys = 'free' | 'pro' | 'enterprise';
-  type ModeState = {
-    mode: ModeKeys;
-    title: string;
-    subTitle: string;
-    icon: React.ReactNode;
-  };
-
-  const [initConfig, setInitConfig] = useState<ModeState>({
-    mode: 'free',
-    title: '',
-    subTitle: '',
-    icon: IdentificationType.free
-  });
-
   const licence = cache.getItem2object('licence');
-  let title = '';
-  let subTitle = '';
-  let extra: any[] = [];
-  if (!licence.licensedStartTime) {
-    title = '未取得授权：';
-    subTitle = '未获取授权，您可以免费使用ERD Online全部功能，只能新建有限数量的模型';
-    extra.push(<Upgrade/>);
-  } else {
-    title = '已取得授权：';
-    subTitle = '授权给: ' + licence?.licensedTo + ', 有效期：' + licence.licensedStartTime + ' ~ ' + licence.licensedEndTime;
-  }
+  const licensed = !!licence?.licensedStartTime;
+  const title = licensed ? '已取得授权' : '开源版';
+  const subTitle = licensed
+    ? `授权给: ${licence?.licensedTo}，有效期：${licence.licensedStartTime} ~ ${licence.licensedEndTime}`
+    : 'MIT 开源：不限个人/团队项目数量；版本与协作可用';
 
-
-  return (loading ? <PageSkeleton rows={3} /> : <>
+  return loading ? (
+    <PageSkeleton rows={3} />
+  ) : (
     <Result
-      icon={initConfig.icon}
+      icon={
+        <PeopleTopCard
+          theme="filled"
+          size="66"
+          fill="#DE2910"
+          strokeWidth={2}
+          strokeLinejoin="miter"
+        />
+      }
       title={title}
       subTitle={subTitle}
-      extra={extra}
     />
-  </>);
+  );
 };
 
-export default React.memo(Identification)
+export default React.memo(Identification);
