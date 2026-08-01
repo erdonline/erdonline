@@ -48,6 +48,8 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 12. ~~**`dataTypeDomainsSlice` eslint warn 清零**~~（已合入）
 13. ~~**设计器顶栏 Gitee star 链更新**~~（已合入 → GitHub `erdonline/erdonline`）
 14. ~~**社交登录已删路径 E2E**~~（已合入 `dead-auth-routes.spec.ts`）
+15. ~~**页脚/ChatSQL 去「零代科技」商业文案**~~（已合入；页脚 `ERD Online · MIT`）
+16. **`entitiesSlice` eslint 定点清** → 草稿 `ISSUE_DRAFTS/05-…`
 
 ## 贡献者怎么认领
 

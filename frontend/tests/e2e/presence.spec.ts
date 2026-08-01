@@ -26,6 +26,7 @@ test.describe('协作 presence', () => {
         'https://github.com/erdonline/erdonline',
       );
       await expect(page.locator('a[href*="gitee.com/MARTIN-88"]')).toHaveCount(0);
+      await expect(page.getByText('零代科技')).toHaveCount(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

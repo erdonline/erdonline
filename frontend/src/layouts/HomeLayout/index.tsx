@@ -144,7 +144,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           }}>
             <Space split={<Text type="secondary"> | </Text>} wrap>
               <Text type="secondary">{currentSlogan}</Text>
-              <Text type="secondary">© 2024 Made with 零代科技</Text>
+              <Text type="secondary">© 2026 ERD Online · MIT</Text>
               <Text type="secondary">ERD Online</Text>
             </Space>
           </div>

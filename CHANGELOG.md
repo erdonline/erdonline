@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 开源品牌去「零代科技」文案（2026-08-02）
+
+### 修复
+- 布局/设置页脚改为 `© 2026 ERD Online · MIT`；ChatSQL「联系人工」改为指向 GitHub 社区
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿（无「零代科技」）
+
 ## [Unreleased] — dataTypeDomainsSlice eslint 清零（2026-08-02）
 
 ### 修复
