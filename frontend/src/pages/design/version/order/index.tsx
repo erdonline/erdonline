@@ -7,9 +7,10 @@ import CancelApproval from "@/components/dialog/approval/CancelApproval";
 import RepeatApproval from "@/components/dialog/approval/RepeatApproval";
 import CodeEditor from "@/components/CodeEditor";
 
-export type MyOrderProps = {};
-const MyOrder: React.FC<MyOrderProps> = (props) => {
+const MyOrder: React.FC = () => {
   const actionRef = useRef<ActionType>();
+  const tempHeight = document.body.clientHeight - 25;
+  const tempWidth = document.body.clientWidth - 25;
 
   type ApprovalItem = {
     id: string;
@@ -129,11 +130,6 @@ const MyOrder: React.FC<MyOrderProps> = (props) => {
       ],
     },
   ];
-
-  const height = document.body.clientHeight;
-  const width = document.body.clientWidth;
-  const tempHeight = height - 25;
-  const tempWidth = width - 25;
 
   return (<>
     <ProTable

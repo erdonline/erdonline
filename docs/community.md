@@ -70,7 +70,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 27. ~~**侧栏与项目菜单「版本」叙事对齐**~~（已合入）
 28. ~~**导出 DDL 向导按钮 aria-label**~~（已合入）
 29. ~~**ISSUE_DRAFTS README 与投放清单**~~（已合入；seed 仅认行首 `> **已合入**`）
-30. **版本排序页 eslint**（草稿 `18-version-order-eslint.md`）
+30. ~~**版本排序页 eslint**~~（已合入）
 31. **canvasHistory 去 any**（草稿 `19-canvas-history-types.md`）
 32. **关系图边热区 / 已知限制文档**（草稿 `20-edge-hit-area.md`）
 33. **导出 DDL 第二步 E2E**（草稿 `21-export-ddl-step2-e2e.md`）
