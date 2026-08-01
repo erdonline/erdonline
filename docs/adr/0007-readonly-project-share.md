@@ -12,10 +12,10 @@
 1. 表 `project_share`：`token` 唯一；`enabled` / 可选 `expire_time`
 2. API：`POST /share/create`（登录+创建人）；`GET /share/{token}`（匿名，返回 `readonly` + projectJSON）；`POST /share/revoke`
 3. Security：`/share/**` 加入 ignore-urls（匿名仅安全读；写仍需登录）
-4. 前端匿名页 `/s/:token`（表清单）；设计器顶栏「分享」复制链接
+4. 前端匿名页 `/s/:token`：表清单 + 只读 ReactFlow 关系图；设计器顶栏「分享」复制链接
 5. 匿名响应脱敏 `profile.dbs` 的 username/password → `***`
 
 ## 后果
 
-- 正面：可分享可打开；密码不落匿名响应
-- 后续：只读关系图画布；进一步剥离敏感配置块
+- 正面：可分享可打开；密码不落匿名响应；画布只读不可连线/拖拽改模型
+- 后续：进一步剥离敏感配置块；分享过期策略 UI
