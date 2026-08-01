@@ -2,6 +2,14 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 导出 DDL 对齐 ADR-0008 + 第二步 E2E（2026-08-02）
+
+### 修复
+- ExportDDL 从 `/ncnb/dataSources` 拉列表（不再读空的 `profile.dbs`）；选中项写入方言码；表树默认展开
+- 项目菜单 `destroyPopupOnHide=false` 关闭后 `pointer-events: none`，避免挡弹窗
+- 去掉 `json2code.getAllDataSQLByFilter` 内遗留 `debugger`
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导出"` 2 绿
+
 ## [Unreleased] — canvasHistory 去掉 any（2026-08-02）
 
 ### 修复

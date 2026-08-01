@@ -18,4 +18,5 @@
 
 - 正面：分享/版本 JSON 不再天然含口令；配置与模型生命周期分离
 - 迁移：打开旧项目时剥离 `profile.dbs.*.properties`，若有 `defaultDB` 则回填 `defaultDataSourceId`
+- UI：设计器「导出 DDL」下拉须 `refreshDataSources()`（`/ncnb/dataSources`），禁止再读 `profile.dbs`
 - 后续：导入 ERD 时禁止再合并对方 `profile.dbs` 机密；可选一键「导入到 dataSources」

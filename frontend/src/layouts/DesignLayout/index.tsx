@@ -112,9 +112,20 @@ const ProjectMenuDropdown: React.FC = () => {
           }
           setOpen(next);
         }}
-        // 菜单内 ModalForm 依赖挂载；关闭下拉时勿销毁，否则弹窗一并卸掉
+        // 菜单内 ModalForm 依赖挂载；关闭下拉时勿销毁，否则弹窗一并卸掉。
+        // 关闭后须禁点击，否则残留层会挡住弹窗（导出 DDL TreeSelect 等）。
         destroyPopupOnHide={false}
-        dropdownRender={() => <ProjectMenu />}
+        dropdownRender={() => (
+          <div
+            aria-hidden={!open}
+            style={{
+              pointerEvents: open ? 'auto' : 'none',
+              opacity: open ? 1 : 0,
+            }}
+          >
+            <ProjectMenu />
+          </div>
+        )}
       >
         <Button type="text" aria-label="项目菜单">
           项目 <CaretDownOutlined />
