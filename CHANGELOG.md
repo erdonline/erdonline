@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 版本双入口说明（2026-08-02）
+
+### 文档
+- 版本页与 `docs/development.md` 标明：侧栏「版本管理」= 项目菜单「版本」
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "版本"` 绿
+
 ## [Unreleased] — 导入/导出打开时关闭项目下拉（2026-08-02）
 
 ### 修复

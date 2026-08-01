@@ -65,7 +65,8 @@ yarn start
 
 > 后端不要用 `mvn spring-boot:run` 或在普通 shell 里 `nohup`：IDE/agent 会话结束会杀子进程。`dev-ensure.sh` 把进程托管进 tmux 会话 `erd-be`，终端关闭不影响。依赖：`brew install tmux`。  
 > Agent/人强制入口见 `.cursor/rules/dev-entrypoints.mdc`：后端只调 `dev-ensure.sh`；前端 `yarn start` 常驻、改代码靠 HMR、禁止为生效而重启。  
-> 本地 `config.dev.ts` 已设 `mfsu: false`（MFSU eager 曾卡住 build worker / 送旧模块）；改该开关后需重启一次 `yarn start`。
+> 本地 `config.dev.ts` 已设 `mfsu: false`（MFSU eager 曾卡住 build worker / 送旧模块）；改该开关后需重启一次 `yarn start`。  
+> 设计器进版本管理：侧栏「版本 → 版本管理」，或顶栏项目菜单「版本」（均打开 `/design/table/version/all`）。
 
 ## E2E（Playwright）
 

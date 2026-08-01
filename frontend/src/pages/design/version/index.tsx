@@ -149,7 +149,7 @@ const Version: React.FC<VersionProps> = (props) => {
         <div style={{ height: '75vh', display: 'flex', flexDirection: 'column' }}>
           {dbs.length === 0 && (
             <div style={{ padding: '8px 16px', color: 'rgba(0,0,0,0.65)', fontSize: 13 }}>
-              未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步数据库时再在设置中添加 JDBC。
+              未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步数据库时再在设置中添加 JDBC。入口：侧栏「版本管理」或项目菜单「版本」。
             </div>
           )}
           <ProList<any>
