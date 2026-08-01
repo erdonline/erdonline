@@ -16,6 +16,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 ## 维护者运营节奏（双周）
 
 - [ ] 扫一遍打开 Issue，给合格项打上 `good first issue`（保持 **3–8** 个开放）
+- [ ] 正式仓就绪后：`REPO=owner/name ./scripts/seed-good-first-issues.sh`（草稿在 `.github/ISSUE_DRAFTS/`）
 - [ ] 合并后立刻关 Issue，并在 PR 描述链回 Issue
 - [ ] 双周发版笔记里点名合入的新手 PR（`docs/releases/`）
 - [ ] 文档站「社区」页与本清单同步（改本文件即可）
@@ -43,6 +44,10 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 8. ~~**后端创建项目默认 projectJSON**~~（已合入 `ensureDefaultProjectJson` + 单测）
 9. ~~**去掉开源版「升级至尊」CTA**~~（已合入；`dialog/upgrade` 已删）
 10. ~~**`exportSlice` eslint warn 清零**~~（已合入）
+11. **`profileSlice` eslint warn 清零** → 草稿 `ISSUE_DRAFTS/01-…`
+12. **`dataTypeDomainsSlice` eslint warn 清零** → 草稿 `ISSUE_DRAFTS/02-…`
+13. **设计器顶栏 Gitee star 链更新** → 草稿 `ISSUE_DRAFTS/03-…`
+14. **社交登录已删路径 E2E** → 草稿 `ISSUE_DRAFTS/04-…`
 
 ## 贡献者怎么认领
 

@@ -7,7 +7,7 @@
 
 工程与设计器为**可用雏形**：核心旅程可跑；数据源已按 ADR-0008 隔离。联调基线：`./scripts/audit-fe-apis.sh`。
 
-**下一阶段战略（服务北极星，不推翻愿景）**：P4 文档站骨架/Pages/搜索已齐；用 `docs/community.md` 养 good-first-issue；存量 eslint warn / AI / i18n 后置。
+**下一阶段战略（服务北极星，不推翻愿景）**：P4 文档站与 Issue 草稿已齐；正式仓就绪后 `REPO=… ./scripts/seed-good-first-issues.sh` 投放；存量 eslint warn / AI / i18n 后置。
 
 ## 阶段总览
 
@@ -21,7 +21,7 @@
 | P2：体验深水区 | 让用户爱用 | ~~首页示例项目 30s 激活~~✅；~~自动保存状态可见~~✅；~~开源不限项目数~~✅；~~项目空态引导 + 新建表单减负~~✅；~~缩短建表链路~~✅；~~加载骨架统一~~✅；~~暗色延期（ADR-0010）~~✅；~~清 MUI/Blueprint→antd~~✅；~~连线后改字段名跟边~~✅；~~性能预算 / 视口裁剪~~✅；~~eslint 热路径 console / 存量 log 清零~~✅（其余 warn→P4）；~~核心接口连通~~✅；~~数据源隔离（ADR-0008）~~✅ | ✅ |
 | P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；~~协作 presence+光标+增量 sync（ADR-0009）~~✅；~~远端同步冲突提示~~✅；~~只读分享链接~~✅（ADR-0007）；~~反向解析 + P0 四库字典 FK~~✅（ADR-0006；~~复合 fields[] 延期 ADR-0011~~✅）；AI📋；i18n📋 | 🚧 |
 | P3a：获客与传播 | 陌生人能试用并产生版本 | ~~在线 demo（`/demo`→`/s/public-demo`）~~✅；~~分享页 → fork + autofork~~✅；~~注册转化（redirect 闭环）~~✅；~~双周发版笔记~~✅ | ✅ |
-| P4：社区与生态 | 让项目长大 | ~~文档站骨架 / Pages / 本地搜索~~✅；~~good-first-issue 运营清单（`docs/community.md` + Issue 模板）~~✅；在 GitHub 持续投放 3–8 个标签 Issue📋；发版节奏固化✅ | 🚧 |
+| P4：社区与生态 | 让项目长大 | ~~文档站骨架 / Pages / 本地搜索~~✅；~~good-first-issue 运营清单（`docs/community.md` + Issue 模板）~~✅；~~Issue 草稿 + `seed-good-first-issues.sh`~~✅；正式 GitHub 仓就绪后投放 3–8 个标签 Issue📋；发版节奏固化✅ | 🚧 |
 
 ## 完整用户旅程（我们关注用户的每一步）
 
