@@ -1,7 +1,8 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Alert, Card, Empty, Segmented, Spin, Table, Typography} from 'antd';
-import {useParams} from '@umijs/max';
+import {Alert, Button, Card, Empty, Segmented, Space, Spin, Table, Typography, message} from 'antd';
+import {useParams, history} from '@umijs/max';
 import ShareRelationCanvas from './ShareRelationCanvas';
+import * as cache from '@/utils/cache';
 
 type ModuleData = {
   name?: string;
@@ -23,6 +24,7 @@ type SharePayload = {
 const SharePage: React.FC = () => {
   const {token} = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
+  const [forking, setForking] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SharePayload | null>(null);
   const [moduleKey, setModuleKey] = useState<string>('');
@@ -88,18 +90,66 @@ const SharePage: React.FC = () => {
     return list;
   }, [modules]);
 
+  const onFork = async () => {
+    if (!token) {
+      return;
+    }
+    const auth = cache.getItem('Authorization');
+    if (!auth) {
+      history.push(`/login?redirect=${encodeURIComponent(`/s/${token}`)}`);
+      return;
+    }
+    setForking(true);
+    try {
+      const res = await fetch(`/ncnb/share/${encodeURIComponent(token)}/fork`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${auth}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const json = await res.json();
+      if (res.status === 401 || json?.code === 401) {
+        history.push(`/login?redirect=${encodeURIComponent(`/s/${token}`)}`);
+        return;
+      }
+      if (json?.code !== 200 || !json?.data?.projectId) {
+        message.error(json?.msg || '复制失败');
+        return;
+      }
+      message.success('已复制到我的项目');
+      history.push(`/design/table/model?projectId=${json.data.projectId}`);
+    } catch (e: any) {
+      message.error(e?.message || '复制失败');
+    } finally {
+      setForking(false);
+    }
+  };
+
   return (
     <div style={{minHeight: '100vh', background: '#f5f5f5', padding: 24}}>
       <Card style={{maxWidth: 1100, margin: '0 auto'}}>
-        <Typography.Title level={3} style={{marginTop: 0}}>
-          {data?.projectName || '只读分享'}
-        </Typography.Title>
+        <Space style={{width: '100%', justifyContent: 'space-between', marginBottom: 8}} align="start">
+          <Typography.Title level={3} style={{marginTop: 0, marginBottom: 0}}>
+            {data?.projectName || '只读分享'}
+          </Typography.Title>
+          {!error && data ? (
+            <Button
+              type="primary"
+              loading={forking}
+              onClick={onFork}
+              aria-label="复制到我的项目"
+            >
+              复制到我的项目
+            </Button>
+          ) : null}
+        </Space>
         <Alert
           type="info"
           showIcon
           style={{marginBottom: 16}}
           message="只读分享"
-          description="当前为匿名只读视图（含关系图），无法编辑或保存。"
+          description="当前为匿名只读视图。登录后可「复制到我的项目」继续编辑并产生版本保存。"
         />
         {data?.description ? (
           <Typography.Paragraph type="secondary">{data.description}</Typography.Paragraph>

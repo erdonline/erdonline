@@ -17,7 +17,8 @@ export async function login(username: string, password: string) {
           licensedEndTime: res.licensedEndTime,
         });
       }
-      history.push({pathname: '/home'});
+      const redirect = new URLSearchParams(window.location.search).get('redirect');
+      history.push({pathname: redirect && redirect.startsWith('/') ? redirect : '/home'});
     }
   });
 }
