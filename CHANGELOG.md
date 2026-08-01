@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 协作模型增量 sync（2026-08-02）
+
+### 新增
+- `martin:event:sync`：房间广播 `projectJSON` 的 jsondiffpatch delta；设计器防抖发送、远端 patch、timestamp 去重回声
+  验证点：`node scripts/verify-socket-sync.mjs` PASS；`presence.spec.ts` 仍绿
+
 ## [Unreleased] — 协作光标广播（2026-08-02）
 
 ### 新增

@@ -89,6 +89,11 @@ public final class WebsocketConstants {
     public static final String CURSOR = CommonConstants.MARTIN + ":event:cursor";
 
     /**
+     * 模型增量同步（jsondiffpatch delta，作用域 projectJSON）
+     */
+    public static final String SYNC = CommonConstants.MARTIN + ":event:sync";
+
+    /**
      * redisson在Spring容器中的Bean名称
      */
     public static final String REDISSON_SPRING_BEAN_NAME = "redisson";

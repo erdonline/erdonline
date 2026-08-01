@@ -20,11 +20,17 @@ import {enablePatches, produceWithPatches} from 'immer'
 import {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
-import {connectPresence, disconnectPresence, emitCursor} from "@/services/collabPresence";
+import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/services/collabPresence";
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 
 export type RemoteCursor = { x: number; y: number; ts: number };
+
+/** 应用远端 sync 时抑制回声广播 */
+let applyingRemoteSync = false;
+let syncEmitTimer: ReturnType<typeof setTimeout> | null = null;
+/** 上次已广播的 projectJSON 快照（防抖合并后 diff） */
+let lastSyncedProjectJson: any = null;
 
 
 enablePatches()
@@ -117,6 +123,9 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
               const data = res?.data;
               if (res?.code === 200 && data) {
                 resetCanvasHistory();
+                lastSyncedProjectJson = data.projectJSON
+                  ? JSON.parse(JSON.stringify(data.projectJSON))
+                  : null;
                 set({
                   project: data
                 });
@@ -161,6 +170,37 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                   },
                 });
               },
+              onSync: ({ username, timestamp, delta }) => {
+                const me = cache.getItem('username');
+                if (me && me === username) return;
+                if (!delta || timestamp <= get().timestamp) return;
+                const project = get().project;
+                if (!project?.projectJSON) return;
+                try {
+                  applyingRemoteSync = true;
+                  const nextJson = jsondiffpatch.patch(
+                    JSON.parse(JSON.stringify(project.projectJSON)),
+                    delta,
+                  );
+                  lastSyncedProjectJson = JSON.parse(JSON.stringify(nextJson));
+                  set({
+                    timestamp,
+                    syncing: true,
+                    project: { ...project, projectJSON: nextJson },
+                  });
+                } catch (err) {
+                  // eslint-disable-next-line no-console
+                  console.warn('[sync] patch failed', err);
+                } finally {
+                  // 下一 macrotask 再放开，避免 subscribe 同轮回声
+                  setTimeout(() => {
+                    applyingRemoteSync = false;
+                    if (typeof get().dispatch.setSyncing === 'function') {
+                      get().dispatch.setSyncing(false);
+                    }
+                  }, 0);
+                }
+              },
             });
             set({ socket });
           } catch (e: any) {
@@ -170,6 +210,11 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         closeSocket: (projectId: string) => {
           const username = cache.getItem('username') || undefined;
           disconnectPresence(get().socket, username);
+          if (syncEmitTimer) {
+            clearTimeout(syncEmitTimer);
+            syncEmitTimer = null;
+          }
+          lastSyncedProjectJson = null;
           const project = get().project;
           if (project) {
             Save.saveProject(project);
@@ -184,8 +229,16 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         publishCursor: (x: number, y: number) => {
           emitCursor(get().socket, x, y);
         },
-        sync: (_r: any) => {
-          // 模型增量同步另切；光标已走 martin:event:cursor
+        sync: (r: any) => {
+          if (!get().socket?.connected || applyingRemoteSync) return;
+          if (!r?.delta || JSON.stringify(r.delta) === '{}') return;
+          const timestamp = Date.now();
+          set({ timestamp });
+          emitSync(get().socket, timestamp, r.delta);
+          const json = get().project?.projectJSON;
+          if (json) {
+            lastSyncedProjectJson = JSON.parse(JSON.stringify(json));
+          }
         },
         dispatch: {
           updateProjectName: (payload: any) => set((state: any) => {
@@ -216,6 +269,26 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
     useGlobalStore.getState().dispatch.setSaving(false);
     return;
   }
+
+  // 协作增量：仅同步 projectJSON（防抖）；远端 patch 不回声
+  if (!applyingRemoteSync && project.projectJSON) {
+    if (syncEmitTimer) clearTimeout(syncEmitTimer);
+    syncEmitTimer = setTimeout(() => {
+      const st = useProjectStore.getState();
+      const current = st.project?.projectJSON;
+      if (!current || !st.socket?.connected || applyingRemoteSync) return;
+      const base = lastSyncedProjectJson;
+      if (!base) {
+        lastSyncedProjectJson = JSON.parse(JSON.stringify(current));
+        return;
+      }
+      const delta = jsondiffpatch.diff(base, current);
+      if (delta && JSON.stringify(delta) !== '{}') {
+        st.sync({ delta, timestamp: Date.now() });
+      }
+    }, 280);
+  }
+
   if (!useGlobalStore.getState().needSave) {
     return;
   }
