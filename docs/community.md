@@ -82,7 +82,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 39. ~~**PageSkeleton aria-busy**~~（已合入）
 40. ~~**json2code 入口类型收窄**~~（已合入）
 41. ~~**share.spec 清理更稳**~~（已合入）
-42. **canvasHistory 单测**（草稿 `29-canvas-history-unit.md`）
+42. ~~**canvasHistory 单测**~~（已合入 `yarn test:unit:canvas-history`）
 43. **项目菜单关闭态 CSS class**（草稿 `30-design-layout-menu-closed-class.md`）
 
 ## 贡献者怎么认领

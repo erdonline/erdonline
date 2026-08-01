@@ -68,6 +68,14 @@ yarn start
 > 本地 `config.dev.ts` 已设 `mfsu: false`（MFSU eager 曾卡住 build worker / 送旧模块）；改该开关后需重启一次 `yarn start`。  
 > 设计器进版本管理：侧栏「版本 → 版本管理」，或顶栏项目菜单「版本」（均打开 `/design/table/version/all`）。
 
+## 前端单测（轻量）
+
+`max test` 依赖的 PuppeteerEnvironment 已不可用；画布 undo 栈用：
+
+```bash
+cd frontend && yarn test:unit:canvas-history
+```
+
 ## E2E（Playwright）
 
 ```bash
