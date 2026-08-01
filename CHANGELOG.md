@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 双周发版笔记（2026-08-02）
+
+### 文档
+- `docs/releases/` + `scripts/cut-release-notes.sh`：从 CHANGELOG Unreleased 生成用户向双周笔记
+  验证点：`./scripts/cut-release-notes.sh --dry-run` 有输出；`docs/releases/2026-08-02.md` 存在
+
 ## [Unreleased] — 分享页 Fork 个人项目（2026-08-02）
 
 ### 新增

@@ -20,7 +20,7 @@
 | 第 3 轮：版本时光机 | 抬升「每周有版本保存」 | ~~快照零摩擦~~✅；~~版本 diff 可视化~~✅；~~工单/审批打磨~~✅ | ✅ 2026-08-01 |
 | P2：体验深水区 | 让用户爱用 | ~~首页示例项目 30s 激活~~✅；~~自动保存状态可见~~✅；~~开源不限项目数~~✅；~~项目空态引导 + 新建表单减负~~✅；~~缩短建表链路（默认字段+直开关系图）~~✅；~~加载骨架统一~~✅（暗色📋 ADR 另议）；~~清 MUI→antd~~✅；~~清 Blueprint→antd~~✅；~~连线后改字段名跟边~~✅；~~性能预算基线~~✅（见 `docs/performance-budget.md`）；~~画布视口裁剪（≥24 表）~~✅；~~eslint 热路径 console~~✅；~~存量 console.log 清零~~✅（其余 eslint warn 另切）；~~核心接口连通（dataSources 表 / 注册放行 / queryHistory 方法 / audit 脚本）~~✅；~~数据源隔离（ADR-0008：JDBC 只进 data_sources，`profile` 仅 `defaultDataSourceId`）~~✅ | 🚧 |
 | P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；协作光标（P3b）；~~只读分享链接~~✅（ADR-0007；API+脱敏+`/s/:token`+`share.spec.ts`）；~~反向解析 Dialect SPI + schema API + FK~~✅（ADR-0006；字典级 FK/复合键待打磨）；AI📋；i18n📋 | 🚧 |
-| P3a：获客与传播 | 陌生人能试用并产生版本 | 在线 demo；~~分享页 → fork + autofork~~✅；~~注册转化（redirect 闭环）~~✅；双周发版笔记 | 🚧 |
+| P3a：获客与传播 | 陌生人能试用并产生版本 | 在线 demo；~~分享页 → fork + autofork~~✅；~~注册转化（redirect 闭环）~~✅；~~双周发版笔记（`docs/releases/` + `cut-release-notes.sh`）~~✅ | 🚧 |
 | P4：社区与生态 | 让项目长大 | 文档站（Docusaurus）；good-first-issue 运营；发版节奏固化 | 📋 |
 
 ## 完整用户旅程（我们关注用户的每一步）
