@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — projectJsonSlice eslint 清零（2026-08-02）
+
+### 修复
+- `projectJsonSlice.tsx`：`import type`、去掉未用变量、`fixModules` 不重赋参数、`diff` 改为纯函数；eslint warn=0
+  验证点：`yarn eslint src/store/project/projectJsonSlice.tsx --max-warnings 0`；`empty-projectjson.spec.ts` 绿
+
 ## [Unreleased] — 默认项设置 E2E + Issue 草稿补池（2026-08-02）
 
 ### 新增
