@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 登录/注册去 ChatGPT 噱头（2026-08-02）
+
+### 修复
+- 登录/注册副标题与活动区对齐愿景（Git + Figma）；活动 CTA 改「打开演示」→`/demo`，去掉 ChatGPT 营销文案
+  验证点：`npx playwright test tests/e2e/smoke.spec.ts -g "登录页渲染" --project=chromium` 绿
+
 ## [Unreleased] — good-first-issue 运营清单（2026-08-02）
 
 ### 新增
