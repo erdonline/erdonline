@@ -236,9 +236,8 @@ const Version: React.FC<VersionProps> = (props) => {
             }}
             onRow={(record: any, index: number) => {
               return {
-                onMouseEnter: (event) => {
+                onMouseEnter: () => {
                   versionDispatch.setCurrentVersion(record, index);
-                  console.log(123)
                 }, // 鼠标移入行
               };
             }}
