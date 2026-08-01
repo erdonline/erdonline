@@ -30,6 +30,10 @@ fi
 
 created=0
 for f in "${files[@]}"; do
+  if grep -q '\*\*已合入\*\*' "$f"; then
+    echo "SKIP (done): $(basename "$f")"
+    continue
+  fi
   title="$(head -n 1 "$f" | sed -E 's/^#[[:space:]]*//' | sed -E 's/^[[:space:]]+|[[:space:]]+$//g')"
   body="$(tail -n +2 "$f")"
   if [[ -z "$title" ]]; then
