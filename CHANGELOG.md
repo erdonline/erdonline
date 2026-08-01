@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 文档站骨架 + 复合 FK 延期（2026-08-02）
+
+### 新增
+- `website/`：Docusaurus 3.7 消费 `docs/`（ADR-0003）；**ADR-0011** 复合 `fields[]` 延期（保持字段级多边）
+  验证点：`cd website && yarn && yarn build` 成功
+
 ## [Unreleased] — Oracle 字典级 FK 逆向（2026-08-02）
 
 ### 新增

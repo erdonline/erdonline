@@ -15,3 +15,4 @@
 | [0008](./0008-datasource-isolation.md) | 数据源与 projectJSON 隔离（不落 profile.dbs） | 已接受 |
 | [0009](./0009-collab-presence-socketio.md) | 协作 Presence：后端 SocketIO + 短票 | 已接受 |
 | [0010](./0010-defer-dark-mode.md) | 暗色模式延期（不阻塞 P2） | 已接受 |
+| [0011](./0011-defer-composite-fk-fields-array.md) | 复合 FK 暂不改为 fields[] | 已接受 |
