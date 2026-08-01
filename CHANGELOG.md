@@ -94,6 +94,13 @@
 - **删表确认 E2E**：模型树「…→删除表」出现确认框，取消不删（替换原 g6 canvas fixme）
   验证点：`version.spec` 回滚后 REMARK 消失；`smoke`「模型树删除表需二次确认」通过
 
+### 新手 30s：首页示例项目（✅）
+
+- **快速操作去死链**：指向真实路由（个人/最近项目等）
+- **一键示例**：`createExampleProjectAndOpen` 创建含用户/订单+关联的模型并进设计器
+- **E2E**：`activation.spec.ts` 首页点示例 → 关系图见 2 节点 1 边
+  验证点：`npx playwright test tests/e2e/activation.spec.ts` 通过
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。
