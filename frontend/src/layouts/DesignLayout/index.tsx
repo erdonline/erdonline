@@ -2,6 +2,7 @@ import Upgrade from "@/components/dialog/upgrade";
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
+import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { menuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
@@ -26,6 +27,7 @@ export const siderWidth = 400;
 const licence = cache.getItem2object('licence');
 
 export const headRightContent = [
+  <ShareProjectButton key="share" />,
   licence?.licensedStartTime ? '' : <Upgrade />,
   <Popover placement="bottom" title="公众号" content={<Image src="/mp.jpg" />} trigger="hover">
     <TwoDimensionalCodeOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} />
@@ -34,6 +36,7 @@ export const headRightContent = [
     src='https://gitee.com/MARTIN-88/erd-online/badge/star.svg?theme=white' alt='star'></img></a>,
 
 ];
+
 
 export interface DesignLayoutLayoutProps {
   children: any;

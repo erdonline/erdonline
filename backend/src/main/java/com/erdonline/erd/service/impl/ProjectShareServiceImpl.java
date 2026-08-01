@@ -96,9 +96,74 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
         payload.put("projectId", project.getId());
         payload.put("projectName", project.getProjectName());
         payload.put("description", project.getDescription());
-        payload.put("projectJSON", project.getProjectJSON());
+        payload.put("projectJSON", sanitizeProjectJson(project.getProjectJSON()));
         payload.put("configJSON", project.getConfigJSON());
         return R.ok(payload);
+    }
+
+    /**
+     * 脱敏 profile.dbs.*.properties 中的 password / username 敏感字段。
+     */
+    @SuppressWarnings("unchecked")
+    static Map<String, Object> sanitizeProjectJson(Map<String, Object> projectJson) {
+        if (projectJson == null || projectJson.isEmpty()) {
+            return projectJson;
+        }
+        Map<String, Object> copy = deepCopyMap(projectJson);
+        Object profileObj = copy.get("profile");
+        if (!(profileObj instanceof Map)) {
+            return copy;
+        }
+        Map<String, Object> profile = (Map<String, Object>) profileObj;
+        Object dbsObj = profile.get("dbs");
+        if (!(dbsObj instanceof Iterable)) {
+            return copy;
+        }
+        for (Object dbObj : (Iterable<?>) dbsObj) {
+            if (!(dbObj instanceof Map)) {
+                continue;
+            }
+            Map<String, Object> db = (Map<String, Object>) dbObj;
+            Object propsObj = db.get("properties");
+            if (propsObj instanceof Map) {
+                Map<String, Object> props = (Map<String, Object>) propsObj;
+                maskSecret(props, "password");
+                maskSecret(props, "username");
+            }
+            maskSecret(db, "password");
+            maskSecret(db, "username");
+        }
+        return copy;
+    }
+
+    private static void maskSecret(Map<String, Object> map, String key) {
+        if (map.containsKey(key) && map.get(key) != null && !String.valueOf(map.get(key)).isEmpty()) {
+            map.put(key, "***");
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    private static Map<String, Object> deepCopyMap(Map<String, Object> source) {
+        Map<String, Object> result = new HashMap<>(source.size() * 2);
+        for (Map.Entry<String, Object> entry : source.entrySet()) {
+            Object value = entry.getValue();
+            if (value instanceof Map) {
+                result.put(entry.getKey(), deepCopyMap((Map<String, Object>) value));
+            } else if (value instanceof Iterable && !(value instanceof String)) {
+                java.util.List<Object> list = new java.util.ArrayList<>();
+                for (Object item : (Iterable<?>) value) {
+                    if (item instanceof Map) {
+                        list.add(deepCopyMap((Map<String, Object>) item));
+                    } else {
+                        list.add(item);
+                    }
+                }
+                result.put(entry.getKey(), list);
+            } else {
+                result.put(entry.getKey(), value);
+            }
+        }
+        return result;
     }
 
     @Override

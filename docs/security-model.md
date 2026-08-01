@@ -25,5 +25,5 @@
 
 - `GET /share/{token}`（及 `/ncnb/share/{token}`）匿名可读，见 ADR-0007
 - 创建/吊销需登录且为项目创建人
-- 已知风险：响应含完整 `projectJSON`（可能含数据源口令）→ 前端页落地前须脱敏 `profile.dbs`
+- 匿名响应已脱敏 `profile.dbs` 的 `username`/`password` 为 `***`；其余配置仍可读，后续可再收紧
 

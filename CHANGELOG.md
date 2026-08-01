@@ -8,7 +8,8 @@
 
 - **ADR-0007** + 表 `project_share`；`POST /share/create`、`GET /share/{token}`（匿名）、`POST /share/revoke`
 - Security：`/share/**` 放行匿名读
-  验证点：登录 create → 无 Bearer GET 返回 `readonly=true` + projectName；匿名 create → 401
+- 匿名响应脱敏 `profile.dbs` 口令；前端 `/s/:token` 只读表清单 + 设计器「分享」复制链接
+  验证点：登录 create → 无 Bearer GET `readonly=true`；`ProjectShareSanitizeTest` 绿；匿名 create → 401
 
 ## [Unreleased] — 开发入口规则（2026-08-01）
 
