@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 文档站本地中文搜索（2026-08-02）
+
+### 新增
+- `website`：`@easyops-cn/docusaurus-search-local`（`language: en,zh`，`docsRouteBasePath: docs`）
+  验证点：`cd website && yarn build` 成功；`build` 下存在 `search-index*.json`
+
 ## [Unreleased] — 文档站死链门禁 + Pages 工作流（2026-08-02）
 
 ### 新增

@@ -5,8 +5,8 @@
 ```bash
 cd website
 yarn
-yarn start    # http://localhost:3000
-yarn build    # 产物 website/build
+yarn start    # http://localhost:3000/erdonline/
+yarn build && yarn serve   # 验证本地搜索（构建后才有完整索引）
 ```
 
 GitHub Pages：`baseUrl` 默认 `/erdonline/`，按实际仓库名调整 `docusaurus.config.js`。  
