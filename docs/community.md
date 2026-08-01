@@ -50,6 +50,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 14. ~~**社交登录已删路径 E2E**~~（已合入 `dead-auth-routes.spec.ts`）
 15. ~~**页脚/ChatSQL 去「零代科技」商业文案**~~（已合入；页脚 `ERD Online · MIT`）
 16. ~~**`entitiesSlice` eslint 清零**~~（已合入；warn=0）
+17. ~~**设计器「项目」菜单接线**~~（已合入；数据源设置可开）
 
 ## 贡献者怎么认领
 

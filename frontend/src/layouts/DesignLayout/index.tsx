@@ -4,6 +4,7 @@ import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
+import { ProjectMenu } from "@/components/Menu";
 import { menuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -17,7 +18,8 @@ import {
   useUnmount
 } from '@umijs/hooks';
 import { Link, useModel } from "@umijs/max";
-import { Dropdown, Image, Popover } from "antd";
+import { CaretDownOutlined } from "@ant-design/icons";
+import { Button, Dropdown, Image, Popover } from "antd";
 import React, { useEffect, useState } from 'react';
 import shallow from "zustand/shallow";
 import defaultProps from './_defaultProps';
@@ -194,6 +196,16 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
         menu={{
           type: 'group',
         }}
+        headerContentRender={() => (
+          <Dropdown
+            trigger={['click']}
+            dropdownRender={() => <ProjectMenu />}
+          >
+            <Button type="text" aria-label="项目菜单">
+              项目 <CaretDownOutlined />
+            </Button>
+          </Dropdown>
+        )}
         avatarProps={{
           src: <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2} />,
           size: 'small',
