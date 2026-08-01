@@ -61,7 +61,8 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(orderNode.locator('[data-field="USER_ID"]')).toBeVisible();
       await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
-      await page.locator('.react-flow__edge').first().click({ force: true });
+      // interactionWidth=24：常规 click 应能选中边（勿 force）
+      await page.locator('.react-flow__edge').first().click();
       await page.keyboard.press('Delete');
       await expect(page.locator('.react-flow__edge')).toHaveCount(0);
 

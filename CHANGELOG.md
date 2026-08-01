@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 关系图边命中热区 24px（2026-08-02）
+
+### 体验
+- ReactFlow 边 `interactionWidth=24`；`relation.spec` 删边改为常规 click（不再 force）
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "全旅程"` 绿
+
 ## [Unreleased] — 导出 DDL 对齐 ADR-0008 + 第二步 E2E（2026-08-02）
 
 ### 修复

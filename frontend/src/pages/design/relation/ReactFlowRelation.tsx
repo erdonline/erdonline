@@ -61,6 +61,9 @@ type Association = {
 };
 
 /** associations → ReactFlow edges（字段级 handle） */
+/** 边命中热区宽度（px）；视觉描边仍细，改善中点被节点贴近时的可点性 */
+export const EDGE_INTERACTION_WIDTH = 24;
+
 function associationsToEdges(associations: Association[]): Edge[] {
   return (associations || [])
     .filter(a => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field)
@@ -73,6 +76,7 @@ function associationsToEdges(associations: Association[]): Edge[] {
       label: a.relation || '',
       labelStyle: { fontSize: 10 },
       animated: false,
+      interactionWidth: EDGE_INTERACTION_WIDTH,
     }));
 }
 
@@ -783,6 +787,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         fitViewOptions={{ maxZoom: 1, padding: 0.15 }}
         minZoom={0.2}
         maxZoom={2}
+        defaultEdgeOptions={{ interactionWidth: EDGE_INTERACTION_WIDTH }}
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={16} size={1} />

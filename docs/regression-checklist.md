@@ -110,7 +110,7 @@
 
 ### 待办
 
-- [ ] [边点击区域] 边中点被节点遮挡时 force 才能点（P2，可提高边交互热区）
+- [x] [边点击区域] `interactionWidth=24`；`relation.spec` 删边不再 `force` ✅
 - [ ] [旧坐标复用] 含 g6 graphCanvas 坐标的老项目打开新画布，节点位置应保持（无老数据样本）
 - [x] [undo] 自动布局后 Cmd/Ctrl+Z → 坐标回到布局前 ✅自动
 - [x] [IdOrKey 默认 PK] 内联加 IdOrKey 字段后 PK 徽标 active ✅自动
