@@ -154,6 +154,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
             size="small"
             block
             style={{ textAlign: 'left' }}
+            aria-label="数据源设置"
           >数据源设置</Button>
         }
         initialValues={{

@@ -72,15 +72,26 @@ const setShortcut = (shortcut: string) => {
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
   return (
-    <Menu mode="vertical" selectable={false}>
+    <Menu mode="vertical" selectable={false} style={{ minWidth: 160 }}>
       <Menu.Item key="version" onClick={() => setShortcut(PANEL.VERSION)}>
         版本
       </Menu.Item>
-      <Menu.Item key="import" onClick={() => setShortcut(PANEL.DEFAULT)}>
-        导入
-      </Menu.Item>
-      <Menu.Item key="export">导出</Menu.Item>
-      <Menu.Item key="setup">设置</Menu.Item>
+      <Menu.SubMenu key="import" title="导入">
+        <ReverseDatabase />
+        <ReversePdMan />
+        <ReverseERD />
+      </Menu.SubMenu>
+      <Menu.SubMenu key="export" title="导出">
+        <ExportHTML />
+        <ExportWord />
+        <ExportMarkdown />
+        <ExportDDL />
+        <ExportJson />
+      </Menu.SubMenu>
+      <Menu.SubMenu key="setup" title="设置">
+        <DatabaseSetUp />
+        <DefaultSetUp />
+      </Menu.SubMenu>
     </Menu>
   );
 };

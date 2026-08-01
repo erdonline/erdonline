@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 设计器项目菜单接线（2026-08-02）
+
+### 修复
+- DesignLayout 挂载「项目」下拉；导入/导出/设置 SubMenu 接上既有 dialog；修复 DefaultSetUp `ProCard` 错误导入导致白屏
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — entitiesSlice eslint 清零（2026-08-02）
 
 ### 修复

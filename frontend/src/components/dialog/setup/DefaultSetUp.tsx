@@ -1,8 +1,14 @@
 import React, {useState} from 'react';
 import { Button } from "antd";
-import {ModalForm, ProFormFieldSet, ProFormSwitch, ProFormText, ProFormUploadButton} from "@ant-design/pro-components";
-import ProCard from "@ant-design/pro-components";
-import "./index.less";
+import {
+  ModalForm,
+  ProCard,
+  ProFormFieldSet,
+  ProFormSwitch,
+  ProFormText,
+  ProFormUploadButton,
+} from '@ant-design/pro-components';
+import './index.less';
 import DefaultField from "@/components/dialog/setup/DefaultField";
 import * as cache from "@/utils/cache";
 import {Button as AntButton, message} from "antd";
