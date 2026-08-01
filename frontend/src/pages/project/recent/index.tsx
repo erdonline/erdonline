@@ -5,6 +5,9 @@ import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import OpenProject from "@/components/dialog/project/OpenProject";
 import {ProjectListProps} from "@/pages/project/person";
 import {recentProject} from "@/services/project";
+import * as cache from "@/utils/cache";
+import {CONSTANT} from "@/utils/constant";
+import {history} from "@@/core/history";
 
 type ProjectItem = {
   id: number;
@@ -100,6 +103,16 @@ export default () => {
       title: {
         dataIndex: 'projectName',
         title: '项目名称',
+        render: (text, row) => (
+          <a
+            href={'/design/table/model?projectId=' + row.id}
+            onClick={(e) => {
+              e.preventDefault();
+              cache.setItem(CONSTANT.PROJECT_ID, row.id);
+              history.push({pathname: '/design/table/model?projectId=' + row.id});
+            }}
+          >{text}</a>
+        ),
       },
       avatar: {
         dataIndex: 'avatar',

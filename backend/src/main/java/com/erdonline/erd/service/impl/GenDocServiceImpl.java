@@ -23,6 +23,7 @@ import com.erdonline.erd.model.ModuleImage;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.GenDocService;
 import com.erdonline.erd.service.ProjectService;
+import com.erdonline.erd.util.JsonUtil;
 import com.erdonline.erd.util.StringKit;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +37,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.ServletOutputStream;
+import jakarta.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Comparator;
@@ -198,7 +199,7 @@ public class GenDocServiceImpl implements GenDocService {
         wrapper.eq("id", projectId);
         Project project = projectService.getOne(wrapper);
 
-        JSON projectJson = JSONUtil.parse(project.getProjectJSON());
+        JSON projectJson = JSONUtil.parse(JsonUtil.generate(project.getProjectJSON()));
         List<JSONObject> modules = projectJson.getByPath("modules", List.class);
         Map result = new HashMap(2);
         result.put("modules", modules);

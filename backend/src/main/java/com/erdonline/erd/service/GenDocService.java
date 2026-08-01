@@ -3,7 +3,7 @@ package com.erdonline.erd.service;
 import com.erdonline.common.core.api.R;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletResponse;
 import java.util.Map;
 
 /**

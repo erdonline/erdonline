@@ -2,7 +2,7 @@ package com.erdonline.system.dto;
 
 import lombok.Data;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 
 /**
  * @author: 零代科技

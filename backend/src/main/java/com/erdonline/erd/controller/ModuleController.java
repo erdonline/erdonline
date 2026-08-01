@@ -1,6 +1,5 @@
 package com.erdonline.erd.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.constant.ProjectConstants;
 import com.erdonline.common.log.annotation.MartinLog;
@@ -22,7 +21,9 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
+
+import java.util.Map;
 
 
 /**
@@ -48,8 +49,8 @@ public class ModuleController {
     @RequestMapping(value = "/project/{id}/module", method = RequestMethod.POST)
     @MartinLog("新增模块")
     public R create(@ApiParam(value = "id", required = true) @PathVariable("id") String id,
-                    @ApiParam(value = "json", required = true) @Valid @RequestBody JSONObject json) {
-        return jsonBaseService.insertJson(id, json, ProjectConstants.PROJECT_MODULE_PATH,ProjectConstants.PROJECT_MODULE_SCHEMA);
+                    @ApiParam(value = "json", required = true) @Valid @RequestBody Map<String, Object> json) {
+        return jsonBaseService.insertJson(id, json, ProjectConstants.PROJECT_MODULE_PATH, ProjectConstants.PROJECT_MODULE_SCHEMA);
     }
 
     @ApiOperation(value = "删除模块", nickname = "delete", notes = "删除模块", tags = {"module",})
@@ -82,9 +83,9 @@ public class ModuleController {
     @MartinLog("编辑模块Json")
     public R updateJson(@ApiParam(value = "id", required = true) @PathVariable("id") String id,
                         @ApiParam(value = "name", required = true) @RequestParam("name") String name,
-                        @ApiParam(value = "json", required = true) @RequestBody JSONObject json,
-                        @ApiParam(value = "path", required = false) @RequestParam(value = "path",required = false) String path) {
-        return jsonBaseService.updateJson(id, name, path, json, ProjectConstants.PROJECT_MODULE_NAME_PATH,ProjectConstants.PROJECT_MODULE_SCHEMA);
+                        @ApiParam(value = "json", required = true) @RequestBody Map<String, Object> json,
+                        @ApiParam(value = "path", required = false) @RequestParam(value = "path", required = false) String path) {
+        return jsonBaseService.updateJson(id, name, path, json, ProjectConstants.PROJECT_MODULE_NAME_PATH, ProjectConstants.PROJECT_MODULE_SCHEMA);
     }
 
 //    @ApiOperation(value = "模块", nickname = "update", notes = "修改模块属性", tags = {"module",})

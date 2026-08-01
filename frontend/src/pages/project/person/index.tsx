@@ -8,6 +8,9 @@ import RenameProject from "@/components/dialog/project/RenameProject";
 import RemoveProject from "@/components/dialog/project/RemoveProject";
 import OpenProject from "@/components/dialog/project/OpenProject";
 import {searchProjects} from "@/pages/project/recent";
+import * as cache from "@/utils/cache";
+import {CONSTANT} from "@/utils/constant";
+import {history} from "@@/core/history";
 
 export type ProjectListProps = {
   page?: number;
@@ -109,7 +112,16 @@ export default () => {
       title: {
         dataIndex: 'projectName',
         title: '项目名称',
-
+        render: (text, row) => (
+          <a
+            href={'/design/table/model?projectId=' + row.id}
+            onClick={(e) => {
+              e.preventDefault();
+              cache.setItem(CONSTANT.PROJECT_ID, row.id);
+              history.push({pathname: '/design/table/model?projectId=' + row.id});
+            }}
+          >{text}</a>
+        ),
       },
       avatar: {
         dataIndex: 'avatar',

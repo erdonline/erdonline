@@ -26,7 +26,7 @@ public class DbSyncCommand extends AbstractDBCommand<R> {
         Connection conn = JdbcKit.getConnection(this.driverClassName, this.url, this.username, this.password);
         String separator = params.get("separator");
         String sql = params.get("sql");
-        String[] sqls = StrUtil.split(sql, separator);
+        String[] sqls = StrUtil.splitToArray(sql, separator);
         List<String> sqlList = new ArrayList<>();
         for (String s : sqls) {
             if (StrUtil.isNotBlank(s)) {

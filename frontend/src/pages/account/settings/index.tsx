@@ -2,7 +2,6 @@ import React, {useLayoutEffect, useRef, useState} from 'react';
 import {GridContent} from '@ant-design/pro-layout';
 import {Dropdown, Menu} from 'antd';
 import BaseView from './components/base';
-import BindingView from './components/binding';
 import SecurityView from './components/security';
 import styles from './style.less';
 import Identification from "@/pages/account/settings/components/identification";
@@ -16,7 +15,7 @@ import { history } from 'umi';
 
 const {Item} = Menu;
 
-type SettingsStateKeys = 'base' | 'security' | 'binding' | 'identification';
+type SettingsStateKeys = 'base' | 'security' | 'identification';
 type SettingsState = {
   mode: 'inline' | 'horizontal';
   selectKey: SettingsStateKeys;
@@ -26,7 +25,6 @@ const Settings: React.FC = () => {
   const menuMap: Record<string, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
-    // binding: '账号绑定',
     identification: '授权类型',
   };
 
@@ -79,8 +77,6 @@ const Settings: React.FC = () => {
         return <BaseView/>;
       case 'security':
         return <SecurityView/>;
-      case 'binding':
-        return <BindingView/>;
       case 'identification':
         return <Identification/>;
       default:

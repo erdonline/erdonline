@@ -1,6 +1,5 @@
 package com.erdonline.common.data.mybatis.bean;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -12,9 +11,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotEmpty;
-import javax.validation.constraints.NotNull;
+import java.util.Map;
 
 /**
  * @author: 零代科技
@@ -43,7 +40,7 @@ public class JsonBase {
             updateStrategy = FieldStrategy.NEVER,
             select = false,
             typeHandler = ErdJsonTypeHandler.class)
-    protected JSONObject json;
+    protected Map<String, Object> json;
 
 //    @ApiModelProperty(value = "value")
 //    protected Object value;

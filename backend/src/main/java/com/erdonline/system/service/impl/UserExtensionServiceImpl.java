@@ -4,8 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
-import cn.hutool.core.util.IdUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -15,19 +13,16 @@ import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.erdonline.system.mapper.UserExtensionMapper;
 import com.erdonline.system.service.PrivilegeExtensionService;
-import com.erdonline.system.service.RoleService;
 import com.erdonline.system.service.UserExtensionService;
 import com.erdonline.system.service.UserRoleService;
 import com.erdonline.common.api.dto.ProjectUserDto;
 import com.erdonline.common.api.dto.UserDto;
-import com.erdonline.common.bean.system.Role;
 import com.erdonline.common.bean.system.User;
 import com.erdonline.common.bean.system.UserRole;
 import com.erdonline.common.bean.system.vo.PrivilegeVO;
 import com.erdonline.common.bean.system.vo.UserRolePrivilegeVo;
 import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
-import com.erdonline.common.core.constant.SocialLoginConstants;
 import com.erdonline.common.data.mybatis.service.impl.MartinServiceImpl;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
@@ -60,8 +55,6 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
     private PrivilegeExtensionService privilegeExtensionService;
     @Autowired
     private UserRoleService userRoleService;
-    @Autowired
-    private RoleService roleService;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -118,8 +111,7 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
         }
         Map<String, List<UserRole>> roles = roleList.stream().collect(Collectors.groupingBy(UserRole::getRoleId));
         log.info("roles: {}", roles);
-        // 单体化后为进程内本地调用（原 Feign 经 JSON 序列化会转成普通集合），
-        // HashMap.keySet() 返回的视图不可序列化，存入 RedisTokenStore 会抛 NotSerializableException，故复制为 HashSet
+        // 单体化后为进程内本地调用；复制为 HashSet，避免 keySet 视图带来的序列化问题
         Set<String> roleIds = new java.util.HashSet<>(roles.keySet());
         log.info("roleIds: {}", roleIds);
         userRolePrivilegeVo.setRoles(roleIds);
@@ -136,45 +128,6 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
     @Override
     public R<Set<PrivilegeVO>> loadSecurity() {
         return R.ok(privilegeExtensionService.getAllPrivilege());
-    }
-
-    @Override
-    public User getUserByWechatOpenid(Map params) {
-        String column = (String) params.get(SocialLoginConstants.OPENID_COLUMN);
-        String openid = (String) params.get(SocialLoginConstants.OPENID);
-        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq(column, openid);
-        return this.baseMapper.selectOne(queryWrapper);
-    }
-
-    @Override
-    public R<User> register(User user) {
-        //配置初始密码
-        user.setPwd(passwordEncoder.encode(SocialLoginConstants.INIT_PASSWORD));
-        String userId = IdUtil.fastSimpleUUID();
-        user.setId(userId);
-        log.info("userId: {}", userId);
-        this.baseMapper.insert(user);
-        LambdaQueryWrapper<Role> roleWrapper = new LambdaQueryWrapper<>();
-        roleWrapper.eq(Role::getRoleCode, SocialLoginConstants.ROLE_NEW_REGISTER);
-        String roleId = null;
-        Role dbRole = roleService.getOne(roleWrapper);
-        if (ObjectUtil.isNull(dbRole)) {
-            roleId = IdUtil.fastSimpleUUID();
-            Role tmpRole = new Role();
-            tmpRole.setId(roleId);
-            tmpRole.setRoleName(SocialLoginConstants.ROLE_NEW_REGISTER);
-            tmpRole.setRoleCode(SocialLoginConstants.ROLE_NEW_REGISTER);
-            roleService.save(tmpRole);
-        } else {
-            roleId = dbRole.getId();
-        }
-        log.info("roleId: {}", dbRole);
-        UserRole userRole = new UserRole();
-        userRole.setUserId(userId);
-        userRole.setRoleId(roleId);
-        userRoleService.save(userRole);
-        return R.ok(user);
     }
 
     @Override

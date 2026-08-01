@@ -1,8 +1,6 @@
 package com.erdonline.common.websocket.config;
 
 import com.erdonline.common.security.util.SecurityContextUtil;
-import jdk.nashorn.internal.objects.annotations.Constructor;
-import lombok.AllArgsConstructor;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
 import org.springframework.messaging.simp.stomp.StompCommand;

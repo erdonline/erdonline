@@ -11,6 +11,7 @@ import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { PAGE, POST } from "@/services/crud";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
+import { SNAPSHOT_DB, SNAPSHOT_DB_KEY } from "@/utils/versionConstants";
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -77,7 +78,7 @@ export type VersionState =
     messages: any;
     data: any;
     dbVersion: string | undefined;
-    changes: Array<{ version: string, changes: any[] }>;
+    changes: { version: string, changes: any[] }[];
     currentChanges: any[];
     dbs: any;
     synchronous: any;
@@ -107,44 +108,39 @@ const useVersionStore = create<VersionState>(
     incrementVersionData: {},
     synchronous: {},
     fetch: async (db: any, current = 1, pageSize = 10) => {
-      debugger
-      const currentDB = db || get().dispatch.getCurrentDBData();
-      console.log(957,'currentDB',currentDB)
+      const currentDB = db?.key ? db : get().dispatch.getCurrentDBData();
       if (!currentDB || !currentDB.key) {
-        // message.error('无法获取到数据源信息，请切换尝试数据源');
         return;
       }
+      const isSnapshot = currentDB.isSnapshot || currentDB.key === SNAPSHOT_DB_KEY;
       try {
-        const res = await POST(DB_CHANGE_URL,
-          {
-            dbKey: currentDB.key,
-            projectId: cache.getItem(CONSTANT.PROJECT_ID),
-            current,
-              size: pageSize,
-              orders: [
-                {
-                  column: "version",
-                  asc: false
-                }
-              ]
-             });
-        if (res && res.data&& res.data.records) {
-          set(produce(state => {
+        const res = await POST(DB_CHANGE_URL, {
+          dbKey: currentDB.key,
+          projectId: cache.getItem(CONSTANT.PROJECT_ID),
+          current,
+          size: pageSize,
+          orders: [{ column: 'version', asc: false }],
+        });
+        if (res && res.data && res.data.records) {
+          set(produce((state) => {
             state.versions = res.data.records;
             state.totalVersions = res.data.total;
             state.currentPage = current;
             state.pageSize = pageSize;
           }));
-          get().dispatch.getDBVersion();
+          if (!isSnapshot) {
+            get().dispatch.getDBVersion();
+          } else {
+            set({ dbVersion: '0.0.0', hasDB: false, init: false });
+          }
           get().dispatch.checkBaseVersion(currentDB);
-          // 每次获取版本列表后，重新计算差异
           get().dispatch.calcChanges(null);
         } else {
           message.error('获取版本信息失败');
           get().dispatch.checkBaseVersion(currentDB);
         }
-      } catch (error) {
-        message.error(`获取版本信息失败: ${error.message}`);
+      } catch (error: any) {
+        message.error(`获取版本信息失败: ${error?.message || error}`);
         get().dispatch.checkBaseVersion(currentDB);
       }
     },
@@ -319,14 +315,10 @@ const useVersionStore = create<VersionState>(
           return [];
         }
       },
-      getDBVersion: () => set(produce(state => {
+      getDBVersion: () => set(produce(() => {
         const dbData = get().dispatch.getCurrentDBData();
-        if (!dbData) {
-          set({
-            dbVersion: '',
-            hasDB: false,
-          });
-          message.error('未配置数据库源，请先配置数据源！');
+        if (!dbData || dbData.isSnapshot || dbData.key === SNAPSHOT_DB_KEY) {
+          set({ dbVersion: '0.0.0', hasDB: false });
           return;
         }
 
@@ -358,8 +350,12 @@ const useVersionStore = create<VersionState>(
       checkBaseVersion: async (db: any) => {
         const currentDB = db || get().dispatch.getCurrentDBData();
         if (!currentDB || !currentDB.key) {
-          message.error('无法获取到数据源信息，请切换尝试数据源');
-          set({ init: true }); // 设置 init 为 true，因为无法检查
+          set({ init: false });
+          return;
+        }
+        if (currentDB.isSnapshot || currentDB.key === SNAPSHOT_DB_KEY) {
+          // 快照通道不要求 JDBC 基线，允许直接保存版本
+          set({ init: false });
           return;
         }
         try {
@@ -421,8 +417,9 @@ const useVersionStore = create<VersionState>(
         return '';
       },
       getCurrentDBData: () => {
-        console.log(366, 'dbs', get().dbs);
-        return get().dbs?.find((d: any) => d.defaultDB) || null;
+        const found = get().dbs?.find((d: any) => d.defaultDB);
+        // 未配置 JDBC 时走模型快照通道，保证「保存版本」零摩擦
+        return found || { ...SNAPSHOT_DB };
       },
       dropVersionTable: () => {
         const dbData = get().dispatch.getCurrentDBData();
@@ -864,10 +861,7 @@ const useVersionStore = create<VersionState>(
 
         try {
           const changes = await get().dispatch.calcChanges(get().versions);
-          console.log(1000, changes);
-
           const changesArray = Array.isArray(changes) ? changes : [];
-
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
 
@@ -876,7 +870,7 @@ const useVersionStore = create<VersionState>(
               modules: projectState?.project?.projectJSON?.modules || [],
             },
             dbKey: dbData.key,
-            baseVersion: false,
+            baseVersion: get().versions.length === 0,
             version: tempValue.version,
             versionDesc: tempValue.versionDesc,
             changes: changesArray,
@@ -886,16 +880,14 @@ const useVersionStore = create<VersionState>(
           const res = await Save.hisProjectSave(version);
           if (res && res.code === 200) {
             get().dispatch.getVersionMessage(res.data);
-            set({
-              changes: [],
-            });
+            set({ changes: [] });
             message.success('当前版本保存成功');
-            await get().fetch(null, get().currentPage, get().pageSize);
+            await get().fetch(dbData, get().currentPage, get().pageSize);
           } else {
             message.error('当前版本保存失败');
           }
-        } catch (err) {
-          message.error(`当前版本保存失败: ${err.message}`);
+        } catch (err: any) {
+          message.error(`当前版本保存失败: ${err?.message || err}`);
         }
       },
       rebuild: (tempValue: any) => {
@@ -910,7 +902,6 @@ const useVersionStore = create<VersionState>(
         });
       },
       initBase: (tempValue: any, msg: any) => {
-        debugger
         if (!tempValue.version || !tempValue.versionDesc) {
           message.error('版本号和版本描述不能为空');
         } else {

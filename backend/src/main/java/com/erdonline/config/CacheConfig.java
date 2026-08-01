@@ -15,8 +15,7 @@ import java.time.Duration;
 /**
  * 缓存配置。
  *
- * <p>单体化后统一使用基于 Redis 的 {@link RedisCacheManager}，支持按名称动态创建缓存
- * （如 OAuth2 客户端详情缓存 {@code martin:oauth2:client_details}）。
+ * <p>单体化后统一使用基于 Redis 的 {@link RedisCacheManager}，支持按名称动态创建缓存。
  * 原微服务依赖运行时动态缓存，此处显式提供 CacheManager 以恢复该行为。</p>
  */
 @Configuration

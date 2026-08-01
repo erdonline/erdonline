@@ -1,6 +1,5 @@
 package com.erdonline.common.data.mybatis.config;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.Assert;
 import com.baomidou.mybatisplus.extension.handlers.AbstractJsonTypeHandler;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -14,37 +13,33 @@ import org.apache.ibatis.type.MappedTypes;
 import java.util.Map;
 
 /**
- * @author: 零代科技
- * @version: 1.0
- * @date: 2023/2/25 21:44
- * @describtion: ErdJsonTypeHandler
+ * MyBatis JSON 列 TypeHandler（Jackson），用于 projectJSON / configJSON 等对象列。
  */
-@MappedTypes({JSONObject.class})
+@MappedTypes({Map.class})
 @MappedJdbcTypes({JdbcType.BLOB})
 @Slf4j
-public class ErdJsonTypeHandler extends AbstractJsonTypeHandler<JSONObject> {
-    private static ObjectMapper objectMapper = new ObjectMapper();
+public class ErdJsonTypeHandler extends AbstractJsonTypeHandler<Map<String, Object>> {
+    private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private static final TypeReference<Map<String, Object>> MAP_TYPE = new TypeReference<Map<String, Object>>() {
+    };
 
-
-    public ErdJsonTypeHandler(Class<JSONObject> type) {
+    public ErdJsonTypeHandler(Class<?> type) {
         super(type);
         if (log.isTraceEnabled()) {
-            log.trace("JacksonTypeHandler(" + type + ")");
+            log.trace("ErdJsonTypeHandler({})", type);
         }
-
         Assert.notNull(type, "Type argument cannot be null", new Object[0]);
     }
 
     @SneakyThrows
     @Override
-    public JSONObject parse(String json) {
-        return objectMapper.readValue(json, new TypeReference<JSONObject>(){});
+    public Map<String, Object> parse(String json) {
+        return OBJECT_MAPPER.readValue(json, MAP_TYPE);
     }
 
     @SneakyThrows
     @Override
-    public String toJson(JSONObject obj) {
-        return objectMapper.writeValueAsString(obj);
+    public String toJson(Map<String, Object> obj) {
+        return OBJECT_MAPPER.writeValueAsString(obj);
     }
-
 }

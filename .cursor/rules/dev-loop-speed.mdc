@@ -1,0 +1,40 @@
+---
+description: 开发回路速度纪律——服务常驻、热加载优先、增量验证，禁止无效重启
+alwaysApply: true
+---
+
+# 开发回路速度（Dev Loop Speed）
+
+验证回路每快 10 倍，迭代质量上一个数量级。任何"重启/全量"操作前，先问：有没有更轻的验证方式？
+
+## 服务常驻（禁止惯性重启）
+
+| 服务 | 启动方式 | 改动后动作 |
+|------|---------|-----------|
+| 前端 (8000) | `yarn start` 常驻 | **永不重启**：UmiJS HMR 自动生效（1-3s） |
+| 后端 (9502) | `./dev-restart.sh` 常驻 | 改 Java/yml/mapper 后重跑脚本（~12s）；勿惯性 `mvn spring-boot:run` |
+| MySQL/Redis | brew services 常驻 | 不动 |
+
+例外必须整进程重启的情形：pom.xml 依赖变更、JVM 参数变更、classpath（`target/cp.txt`）过期。
+
+## 后端工作流
+
+```bash
+# 推荐：改完后用脚本重启（Boot 3 / JDK 17，绕过 Maven 运行时）
+cd backend && ./dev-restart.sh
+
+# 依赖变更后先刷新 classpath
+cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q dependency:build-classpath -Dmdep.outputFile=target/cp.txt
+```
+
+## 增量验证（禁止全量惯性）
+
+- E2E：`npx playwright test --grep "关键字"` 跑单条，而非全量
+- 后端编译检查：`mvn compile`（秒级）优先于 `mvn verify`（分钟级）
+- 分层验证：curl 接口断言（秒级）→ 单测 → E2E（分钟级）→ Docker 全栈（最慢，仅部署验证）
+
+## 环境一次到位
+
+踩过的环境坑必须沉淀为脚本/配置，禁止下次再踩：
+- JDK 版本：`JAVA_HOME=$(/usr/libexec/java_home -v 17)`（Boot 3.5 必须 17+；`./dev-restart.sh` 已内置）
+- 端口占用：9502（后端）/9092（SocketIO）残留进程 `lsof -ti:<port> | xargs kill -9`

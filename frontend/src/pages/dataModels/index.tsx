@@ -158,7 +158,15 @@ export default () => {
         title: {
           dataIndex: 'projectName',
           title: '项目名称',
-          render: (text) => <a>{text}</a>, 
+          render: (text, row) => (
+            <a
+              href={'/design/table/model?projectId=' + row.id}
+              onClick={(e) => {
+                e.preventDefault();
+                openProject(row);
+              }}
+            >{text}</a>
+          ),
         },
         avatar: {
           dataIndex: 'avatar',

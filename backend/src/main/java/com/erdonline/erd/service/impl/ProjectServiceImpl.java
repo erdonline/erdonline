@@ -1,6 +1,7 @@
 package com.erdonline.erd.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -33,7 +34,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotEmpty;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,28 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
     @Autowired
     private ProjectRoleService projectRoleService;
 
+    @Autowired
+    private com.erdonline.common.data.redis.RedisUtil redisUtil;
+
+    /**
+     * 删除项目后清除 VIP 项目计数缓存。
+     * 计数缓存（martin:vip:right:{userId}）只增不减，删除项目不失效会导致免费版额度被永久占用。
+     */
+    @Override
+    public boolean removeById(java.io.Serializable id) {
+        boolean result = super.removeById(id);
+        if (result) {
+            try {
+                String userId = SecurityContextUtil.getAccessUser().getId();
+                redisUtil.hashDelete(StrUtil.format("martin:vip:right:{}", userId),
+                        "person_project_count", "group_project_count");
+            } catch (Exception e) {
+                // 缓存清除失败不阻断删除；计数缓存 24h 后自然过期
+                log.warn("清除 VIP 项目计数缓存失败: {}", e.getMessage());
+            }
+        }
+        return result;
+    }
 
     @Override
     public R projectService(String projectId) {
@@ -202,8 +225,9 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
         String projectId = project.getId();
         List<Role> roles = Arrays.stream(ProjectConstants.ROLE_NAME).map(f -> {
             Role role = new Role();
-            role.setRoleName(StrUtil.split(f, ":")[0]);
-            role.setRoleCode(ProjectConstants.buildRoleCode(StrUtil.split(f, ":")[1], projectId));
+            String[] parts = StrUtil.splitToArray(f, ':');
+            role.setRoleName(parts[0]);
+            role.setRoleCode(ProjectConstants.buildRoleCode(parts[1], projectId));
             return role;
         }).collect(Collectors.toList());
         R<List<Role>> register = remoteSystemRole.register(roles);
@@ -273,7 +297,9 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
      * @throws JsonProcessingException
      */
     public void configProject(ProjectDto projectDto, Project project) throws JsonProcessingException {
-        BeanUtil.copyProperties(projectDto, project);
+        // 必须忽略 null：DTO 缺省字段（如创建时的 id）会把实体已赋值的字段覆盖为 null，
+        // 曾导致创建项目时显式 setId 被抹掉、接口返回的 id 与库中实际 id 不一致
+        BeanUtil.copyProperties(projectDto, project, CopyOptions.create().setIgnoreNullValue(true));
     }
 
     @SneakyThrows

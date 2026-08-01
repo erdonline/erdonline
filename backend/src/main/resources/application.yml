@@ -10,6 +10,13 @@ spring:
     name: erd-online
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  # Boot 2.7 默认禁止循环依赖；OAuth2 Autoconfig 过渡期先放开，后续拆 TokenStore 解环
+  main:
+    allow-circular-references: true
+  # Boot 2.7 默认 PathPatternParser 与 springfox 2.9 不兼容，退回 AntPathMatcher
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
   # 双数据源：martin（系统库）为主，erd（建模库）为辅。两库表名冲突，按 mapper 包路由。
   datasource:
     martin:
@@ -109,29 +116,28 @@ logging:
   level:
     com.erdonline: info
 
-# 安全放行 URL（合并自原 auth/system/ncnb 各服务的 ignore-urls）
+# JWT（生产务必用环境变量覆盖密钥）
+erd:
+  jwt:
+    secret: ${JWT_SECRET:erd-online-dev-jwt-secret-change-me-32bytes!!}
+    expires-in: ${JWT_EXPIRES_IN:43200}
+    issuer: erd-online
+
+# 安全放行 URL
 security:
   oauth2:
     client:
       ignore-urls:
-        - /oauth/**
-        - /token/**
+        - /login
+        - /auth/login
         - /actuator/**
         - /exit
-        - /authentication/**
-        - /oauthLogin
-        - /oauthGrant
-        - /oauth2/**
         - /register
         - /user/register
         - /user/loadUserByUsername/*
-        - /user/loadDynamicSecurity
-        - /user/getUserByWechatOpenId
-        - /user/social/register
-        - /social/**
         - /endpoint/**
         - /error
-        - /v2/api-docs
-        - /swagger-resources/**
+        - /v3/api-docs/**
+        - /swagger-ui/**
         - /swagger-ui.html
         - /webjars/**

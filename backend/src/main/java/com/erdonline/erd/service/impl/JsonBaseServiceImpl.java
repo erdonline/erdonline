@@ -2,7 +2,6 @@ package com.erdonline.erd.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.conditions.query.QueryChainWrapper;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.constant.ProjectConstants;
@@ -13,11 +12,13 @@ import com.erdonline.erd.entity.Project;
 import com.erdonline.erd.mapper.JsonBaseMapper;
 import com.erdonline.erd.service.JsonBaseService;
 import com.erdonline.erd.service.ProjectService;
+import com.erdonline.erd.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author: 零代科技
@@ -76,8 +77,8 @@ public class JsonBaseServiceImpl extends MartinServiceImpl<JsonBaseMapper, JsonB
     }
 
     @Override
-    public R updateJson(String id, String name, String path, JSONObject json, String jsonPath, String jsonSchema) {
-        boolean flag = baseMapper.jsonSchemaValid(jsonSchema, json.toJSONString());
+    public R updateJson(String id, String name, String path, Map<String, Object> json, String jsonPath, String jsonSchema) {
+        boolean flag = baseMapper.jsonSchemaValid(jsonSchema, JsonUtil.generate(json));
         if (!flag) {
             return R.failed("json schema 验证未通过");
         }
@@ -126,15 +127,16 @@ public class JsonBaseServiceImpl extends MartinServiceImpl<JsonBaseMapper, JsonB
     }
 
     @Override
-    public R insertJson(String id, JSONObject json, String jsonPath, String jsonSchema) {
+    public R insertJson(String id, Map<String, Object> json, String jsonPath, String jsonSchema) {
         if (json == null) {
             return R.failed("不能添加空json");
         }
-        boolean flag = baseMapper.jsonSchemaValid(jsonSchema, json.toJSONString());
+        String jsonText = JsonUtil.generate(json);
+        boolean flag = baseMapper.jsonSchemaValid(jsonSchema, jsonText);
         if (!flag) {
             return R.failed("json schema 验证未通过");
         }
         log.info("id: {},json: {},jsonPath: {},jsonSchema: {}", id, "", jsonPath, jsonSchema);
-        return R.ok(baseMapper.insertJson(id, jsonPath, json.toJSONString()));
+        return R.ok(baseMapper.insertJson(id, jsonPath, jsonText));
     }
 }

@@ -1,0 +1,26 @@
+---
+description: 交互中的全部改动点必须沉淀为未来回归测试点，收尾时逐一验证
+alwaysApply: true
+---
+
+# 改动点即测试点
+
+每次会话中的**每一个改动点**（bug 修复、行为变更、配置调整、SQL/种子修改）都必须同时登记为"回归检查点"，禁止只改不验。
+
+## 执行要求
+
+1. **改动时登记**：在 `CHANGELOG.md` 的 Unreleased 区记录改动，并以「验证点：」标注如何验证（接口断言 / 页面操作 / SQL 查询）
+2. **能自动化的必须自动化**：核心旅程相关改动 → 追加/更新 `frontend/tests/e2e/` 用例；接口逻辑改动 → 给出可重复执行的 curl 断言或单测
+3. **不能自动化的进手工清单**：追加到 `docs/regression-checklist.md`，格式：`- [ ] [改动点] 操作步骤 → 预期结果`
+4. **收尾必查**：会话收尾前，逐项过一遍本次全部改动点的验证（自动测试 + 手工清单），有任何一项未验证不得宣称完成
+5. **历史改动点累积**：`docs/regression-checklist.md` 中的既有项在涉及同一模块时必须重验
+
+## 示例
+
+```
+### 修复
+- VIP 计数缓存删除项目后不清除（ProjectServiceImpl.removeById）
+  验证点：建项目 → 删除 → 再建应成功（已由 smoke.spec.ts「登录→新建→设计器→清理」覆盖，连跑 2 次通过）
+- statistic 接口统计含已删项目（ProjectMapper.xml 6 处 SQL 补 del_flag=0）
+  验证点：curl /ncnb/project/statistic 的 total 等于 project 表 del_flag=0 行数
+```

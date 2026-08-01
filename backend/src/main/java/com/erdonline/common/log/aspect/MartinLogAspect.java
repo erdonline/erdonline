@@ -2,7 +2,7 @@ package com.erdonline.common.log.aspect;
 
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.URLUtil;
-import cn.hutool.extra.servlet.ServletUtil;
+import cn.hutool.extra.servlet.JakartaServletUtil;
 import cn.hutool.http.HttpStatus;
 import cn.hutool.http.HttpUtil;
 import com.erdonline.common.bean.system.Log;
@@ -18,7 +18,7 @@ import org.springframework.web.context.request.RequestAttributes;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * @author 狮少
@@ -60,7 +60,7 @@ public class MartinLogAspect {
     public Log initLog() {
         Log log = new Log();
         HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
-        log.setRemoteAddr(ServletUtil.getClientIP(request));
+        log.setRemoteAddr(JakartaServletUtil.getClientIP(request));
         log.setRequestUri(URLUtil.getPath(request.getRequestURI()));
         log.setMethod(request.getMethod());
         log.setUserAgent(request.getHeader("user-agent"));

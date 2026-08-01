@@ -1,33 +1,22 @@
 package com.erdonline.erd.entity;
 
-import cn.hutool.core.date.DateTime;
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import com.erdonline.common.bean.system.User;
-import com.erdonline.common.core.annotation.BindField;
-import com.erdonline.common.core.constant.CommonConstants;
-import com.erdonline.common.data.mybatis.config.ErdJsonTypeHandler;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
-import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 /**
- * <p>
- * 版本表
- * </p>
- *
- * @author 狮少
- * @since 2020-10-28
+ * 版本表。
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
@@ -44,7 +33,7 @@ public class DbChange implements Serializable {
      * 版本变动
      */
     @TableField(value = "changes", typeHandler = JacksonTypeHandler.class)
-    private JSONArray changes;
+    private List<Object> changes;
 
     /**
      * project主键
@@ -60,7 +49,7 @@ public class DbChange implements Serializable {
      * project配置
      */
     @TableField(value = "projectJSON", typeHandler = JacksonTypeHandler.class)
-    private JSONObject projectJSON;
+    private Map<String, Object> projectJSON;
 
     /**
      * 版本号
@@ -88,6 +77,4 @@ public class DbChange implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
-
-
 }

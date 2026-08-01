@@ -5,6 +5,7 @@ import EntitiesSlice from "@/store/project/entitiesSlice";
 import {message} from "antd";
 import _ from 'lodash';
 import * as cache from '../../utils/cache';
+import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasHistory";
 
 
 export type IModulesSlice = {
@@ -27,6 +28,11 @@ export interface IModulesDispatchSlice {
   cutModule: (payload: any) => void;
   pastModule: () => void;
   updateRelation: (payload: any) => void;
+  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[]) => void;
+  addAssociation: (moduleName: string, association: any) => void;
+  removeAssociation: (moduleName: string, association: any) => void;
+  undoCanvas: () => void;
+  redoCanvas: () => void;
   setCurrentModule: (payload: any) => any,
   updateAllModules: (payload: any) => void,
   getModuleEntityTree: (searchKey: string, groupByType: boolean) => any,
@@ -175,6 +181,86 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       state.project.projectJSON.modules[state.currentModuleIndex].associations = payload.associations;
     }
   })),
+  // 按模块名 upsert 画布布局（graphCanvas 只存坐标，实体以 entities 为准——ADR-0001 补充决策）。
+  // 不用 currentModuleIndex：关系图 tab 的模块与当前选中模块可能不同（A 模块画布开着、B 模块被选中）。
+  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[]) => {
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      if (!module.graphCanvas) {
+        module.graphCanvas = { nodes: [], edges: [] };
+      }
+      const layout = (module.graphCanvas.nodes || []) as any[];
+      layoutNodes.forEach(n => {
+        const idx = layout.findIndex((s: any) => (s.title || '').split(':')[0] === n.id || s.id === n.id);
+        const entry = { id: n.id, title: n.id, x: Math.round(n.position.x), y: Math.round(n.position.y) };
+        if (idx >= 0) {
+          layout[idx] = { ...layout[idx], ...entry };
+        } else {
+          layout.push(entry);
+        }
+      });
+      module.graphCanvas.nodes = layout;
+    }));
+  },
+  // 追加关联（按 from/to 去重）；按模块名定位，理由同 updateGraphCanvasLayout
+  addAssociation: (moduleName: string, association: any) => {
+    const modules = get().project?.projectJSON?.modules;
+    const module = modules?.find((m: any) => m?.name === moduleName);
+    if (!module) {
+      return;
+    }
+    const exists = (module.associations || []).some((a: any) =>
+      a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
+      a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field);
+    if (exists) {
+      return;
+    }
+    snapshotModules(modules);
+    set(produce(state => {
+      const m = state.project.projectJSON?.modules?.find((x: any) => x?.name === moduleName);
+      if (!m) {
+        return;
+      }
+      m.associations = [...(m.associations || []), association];
+    }));
+  },
+  // 删除关联（画布删边）
+  removeAssociation: (moduleName: string, association: any) => {
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      module.associations = (module.associations || []).filter((a: any) => !(
+        a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
+        a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field));
+    }));
+  },
+  undoCanvas: () => {
+    const restored = undoModules(get().project?.projectJSON?.modules);
+    if (!restored) {
+      message.info('没有可撤销的操作');
+      return;
+    }
+    set(produce(state => {
+      state.project.projectJSON.modules = restored;
+    }));
+  },
+  redoCanvas: () => {
+    const restored = redoModules(get().project?.projectJSON?.modules);
+    if (!restored) {
+      message.info('没有可重做的操作');
+      return;
+    }
+    set(produce(state => {
+      state.project.projectJSON.modules = restored;
+    }));
+  },
   setCurrentModule: (payload: any) => set(produce(state => {
     state.currentModule = payload
     state.currentModuleIndex = state.project.projectJSON?.modules?.findIndex((m: any) => m?.name === payload);
@@ -254,6 +340,17 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
             }
           });
         }
+
+        // 关系图入口始终置顶：画布是核心功能，文件夹模式下也必须可达
+        // （修复：此前仅 groupByType=false 的扁平模式才有此叶子，而界面恒用文件夹模式，关系图无任何入口）
+        relationsNode.children.unshift({
+          key: `${module.name}###relation`,
+          title: '关系图',
+          formatName: '关系图',
+          type: 'relation',
+          module: module.name,
+          isLeaf: true,
+        });
 
         if (module.graphCanvas && module.graphCanvas.edges) {
           module.graphCanvas.edges.forEach((edge: any) => {
@@ -368,7 +465,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     console.log(155, 'tempExpandedKeys', tempExpandedKeys);
     return tempExpandedKeys;
   },
-  ...EntitiesSlice(set),
+  ...EntitiesSlice(set, get),
 });
 
 

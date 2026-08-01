@@ -1,6 +1,5 @@
 package com.erdonline.erd.entity;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -17,7 +16,6 @@ import com.erdonline.common.core.annotation.BindField;
 import com.erdonline.common.core.constant.CommonConstants;
 import com.erdonline.common.core.constant.ProjectConstants;
 import com.erdonline.common.data.mybatis.bean.JsonBase;
-import com.erdonline.common.data.mybatis.config.ErdJsonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;

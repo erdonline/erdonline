@@ -3,7 +3,6 @@ package com.erdonline.erd.service.impl;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpStatus;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.ApiDesign;
 import com.erdonline.erd.exception.CDException;
@@ -11,7 +10,6 @@ import com.erdonline.erd.service.ApiDesignService;
 import com.erdonline.erd.service.GitlabService;
 import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.util.JsonUtil;
-import com.erdonline.common.core.api.R;
 import com.erdonline.erd.vo.GitlabOauthVo;
 import lombok.extern.slf4j.Slf4j;
 import org.gitlab4j.api.CommitsApi;
@@ -65,8 +63,8 @@ public class GitlabServiceImpl implements GitlabService {
                             .setProjectId(projectId)
                             .setGitlabConfig(JsonUtil.generate(gitlabOauthVo).getBytes());
                     apiDesignService.saveOrUpdate(apiDesign);
-                } catch (JsonProcessingException e) {
-                    log.error("", e);
+                } catch (IllegalStateException e) {
+                    log.error("无法序列化 gitlab 配置", e);
                     return R.failed("无法保存 gitlab 信息，请查看服务端日志");
                 }
             }

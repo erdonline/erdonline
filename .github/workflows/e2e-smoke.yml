@@ -1,0 +1,96 @@
+name: e2e-smoke
+
+# 核心旅程冒烟：登录 → 新建项目 → 进入设计器 → 清理
+# 全栈起服务（mysql + redis + backend:9502 + frontend:8000）后跑 Playwright。
+# 红线：此 workflow 失败 = 核心旅程断裂，禁止合并。
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ALLOW_EMPTY_PASSWORD: yes
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd "mysqladmin ping -h127.0.0.1 -uroot"
+          --health-interval 10s --health-timeout 5s --health-retries 10
+          --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
+      redis:
+        image: redis:6.2
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s --health-timeout 5s --health-retries 5
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: maven
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Init databases（建库/建表/种子/账号，顺序执行）
+        run: |
+          set -e
+          for f in db/init/*.sql; do
+            echo ">>> $f"
+            mysql -h127.0.0.1 -uroot < "$f"
+          done
+
+      - name: Start backend（等待 actuator 就绪）
+        working-directory: backend
+        run: |
+          SPRING_PROFILES_ACTIVE=dev nohup mvn -B spring-boot:run > backend.log 2>&1 &
+          for i in $(seq 1 60); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9502/actuator/health || true)
+            if [ "$code" = "200" ]; then echo "backend UP"; exit 0; fi
+            sleep 5
+          done
+          echo "backend FAILED to start"; tail -200 backend.log; exit 1
+
+      - name: Install frontend deps
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      - name: Install Playwright chromium
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
+      - name: Start frontend dev server（等待 8000 就绪）
+        working-directory: frontend
+        run: |
+          nohup yarn start > frontend.log 2>&1 &
+          for i in $(seq 1 90); do
+            code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000 || true)
+            if [ "$code" = "200" ]; then echo "frontend UP"; exit 0; fi
+            sleep 5
+          done
+          echo "frontend FAILED to start"; tail -200 frontend.log; exit 1
+
+      - name: Run smoke tests
+        working-directory: frontend
+        run: npx playwright test
+
+      - name: Upload failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-artifacts
+          path: frontend/test-results/
+          retention-days: 7

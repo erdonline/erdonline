@@ -1,6 +1,5 @@
 package com.erdonline.erd.entity;
 
-import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -12,32 +11,23 @@ import lombok.EqualsAndHashCode;
 import lombok.experimental.Accessors;
 
 import java.io.Serializable;
+import java.util.Map;
 
 /**
- * <p>
- * 
- * </p>
- *
- * @author 零代科技
- * @version 1.0
- * @date 2023-02-26
- * @describtion
- * @since 1.0
+ * JSON 列试点实体。
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@ApiModel(value="TestJson对象", description="")
-@TableName(value = "test_json",autoResultMap = true)
+@ApiModel(value = "TestJson对象", description = "")
+@TableName(value = "test_json", autoResultMap = true)
 public class TestJson implements Serializable {
 
-    private static final long serialVersionUID=1L;
+    private static final long serialVersionUID = 1L;
 
     @TableId(value = "id", type = IdType.AUTO)
     private Integer id;
 
     @TableField(typeHandler = ErdJsonTypeHandler.class)
-    private JSONObject test;
-
-
+    private Map<String, Object> test;
 }
