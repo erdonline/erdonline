@@ -43,9 +43,14 @@ const QueryTree: React.FC<QueryTreeProps> = ({
         <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, marginRight: '8px' }}>
           {renderIcon && renderIcon(nodeData)}
 
-          <Text ellipsis={{ tooltip: nodeData?.title }} style={{ marginLeft: '8px', flex: 1, minWidth: 0 ,width: 120}}>
-            {nodeData.title}
-          </Text>
+          <span
+            data-testid={(nodeData as { testId?: string }).testId}
+            style={{ marginLeft: 8, flex: 1, minWidth: 0, width: 120, display: 'inline-flex' }}
+          >
+            <Text ellipsis={{ tooltip: nodeData?.title }} style={{ width: '100%' }}>
+              {nodeData.title}
+            </Text>
+          </span>
 
           {renderExtraIcons && renderExtraIcons(nodeData)}
         </div>

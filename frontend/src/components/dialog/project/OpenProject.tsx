@@ -11,7 +11,11 @@ const OpenProject: React.FC<OpenProjectProps> = (props) => {
 
 
   return (<>
-    <Button type="primary" ghost onClick={() => {
+    <Button
+      type="primary"
+      ghost
+      data-testid="open-project"
+      onClick={() => {
       cache.setItem("projectId", props.project.id);
       history.push({
         pathname: '/design/table/model?projectId=' + props.project.id

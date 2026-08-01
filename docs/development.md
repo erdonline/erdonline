@@ -40,6 +40,7 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 
 - 并发隔离：项目名 `e2e-w{n}-` 前缀，清理只删本 worker
 - 空态/示例用例在 `chromium-serial`（等并行项目结束后再跑，账号锁互斥）
+- 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
 ## 前端如何找到后端
 

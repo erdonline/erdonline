@@ -1,0 +1,40 @@
+---
+description: E2E 定位优先级——role/可访问名优先，data-testid 兜底，禁止 ant 类名
+alwaysApply: true
+---
+
+# E2E 定位纪律（Playwright + antd）
+
+行业标准（Playwright / Testing Library）与 antd 组件现实对齐。写/改 E2E 或为测试补选择器时必须遵守。
+
+## 定位优先级（高 → 低）
+
+1. **`getByRole(role, { name })`** — 首选；按钮、链接、菜单项、选项、对话框
+2. **`getByLabel` / `getByPlaceholder` / `getByText`** — 表单与可见文案
+3. **`getByTestId`** — 仅当用户看不到稳定语义时（树叶子、画布容器、纯图标按钮）
+4. **禁止**：`.ant-*` / 哈希类名、深层 CSS、XPath、`nth` 碰运气
+
+## 产品侧怎么配合
+
+- 用户可点控件：保证**可访问名**（按钮可见文案、`aria-label`、Form `label`）
+- 语义天然缺失（树「关系图」、RF 空态 CTA、图标 +）：加 `aria-label` **或** `data-testid`（二选一即可，优先 aria）
+- antd 透传：`data-testid` / `aria-*` 挂在触发器上；Select/DatePicker 弹层用 `getByRole('option')`，勿扫 `.ant-select-dropdown`
+- Modal/Drawer：`getByRole('dialog')` 再链式 `getByRole('button', { name })`
+
+## 正反例
+
+```ts
+// ✅
+await page.getByRole('button', { name: '打开模型' }).click();
+await page.getByPlaceholder('请输入项目名').fill(name);
+await page.getByTestId('tree-open-relation').click(); // 树叶子无稳定 role 名时
+
+// ❌
+await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).click();
+await page.locator('.ant-btn-primary').nth(2).click();
+```
+
+## 与既有规则
+
+- 旅程走查仍遵 `playwright-ux-audit.mdc`
+- 改动点须有自动化/清单：`change-points-as-tests.mdc`
