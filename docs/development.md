@@ -35,6 +35,15 @@ colima start --cpu 4 --memory 8 --disk 40 \
 
 选题规则在 `scripts/agent-loop-vision.prompt.md`：每 tick **从 roadmap/CHANGELOG/git 现场推导目标**，不写死功能主线；改 prompt 文件即可，不必重启循环。
 
+双周发版笔记（用户向）：
+
+```bash
+./scripts/cut-release-notes.sh --dry-run
+./scripts/cut-release-notes.sh          # → docs/releases/YYYY-MM-DD.md
+```
+
+说明见 `docs/releases/README.md`。
+
 # 1. 起数据库
 docker-compose up -d mysql redis
 
