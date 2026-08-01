@@ -17,9 +17,10 @@
 # 1. 起数据库（可用 Docker，也可用本机已有服务）
 docker compose up -d mysql redis
 
-# 2. 后端（默认端口 9502，profile=dev）
-cd backend
-mvn spring-boot:run
+# 2. 后端（默认端口 9502，profile=dev；tmux 常驻，与终端生命周期解耦）
+./backend/dev-ensure.sh            # 幂等：健康秒退，不健康自动拉起
+./backend/dev-ensure.sh --restart  # 改了 Java/yml/mapper 后重启
+./backend/dev-ensure.sh --logs     # 看启动日志
 
 # 3. 前端（默认端口 8000）
 cd frontend
@@ -27,7 +28,7 @@ yarn
 yarn start
 ```
 
-或一键：`./scripts/dev.sh`
+> 后端不要用 `mvn spring-boot:run` 或在普通 shell 里 `nohup`：IDE/agent 会话结束会杀子进程。`dev-ensure.sh` 把进程托管进 tmux 会话 `erd-be`，终端关闭不影响。依赖：`brew install tmux`。
 
 ## 前端如何找到后端
 
