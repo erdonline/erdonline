@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 模型树删表确认/取消 E2E（2026-08-02）
+
+### 修复
+- 删表确认文案统一「不可逆」；`okType: danger`；补确认删除成功路径 E2E
+  验证点：`npx playwright test tests/e2e/smoke.spec.ts --project=chromium -g "删除表"` 绿
+
 ## [Unreleased] — 版本管理首屏骨架 E2E（2026-08-02）
 
 ### 新增

@@ -148,8 +148,9 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     Modal.confirm({
       title: `确定删除${node.type === 'module' ? '模型' : '表'} "${node.title}" 吗?`,
       icon: <ExclamationCircleOutlined />,
-      content: '此操作不可逆,请谨慎操作。',
+      content: '此操作不可逆，请谨慎操作。',
       okText: '确定',
+      okType: 'danger',
       cancelText: '取消',
       onOk() {
         if (node.type === 'module') {

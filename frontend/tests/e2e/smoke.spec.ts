@@ -69,8 +69,35 @@ test.describe('冒烟：核心旅程', () => {
       await page.getByRole('menuitem', { name: '删除表' }).click();
       const dialog = page.getByRole('dialog');
       await expect(dialog.getByText(/确定删除表/)).toBeVisible();
+      await expect(dialog.getByText(/不可逆/)).toBeVisible();
+      await expect(dialog.getByRole('button', { name: /确\s*定/ })).toBeVisible();
       await dialog.getByRole('button', { name: /取\s*消/ }).click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('模型树删除表确认后移除并提示成功', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('delok');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'delok', 'delete ok');
+      await openRelationFromEmpty(page, { name: 'M1', chnname: '模块一' });
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await expandTreeTitle(page, '表');
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '删除表' }).click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog.getByText(/不可逆/)).toBeVisible();
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, '表删除成功');
+      await expect(page.getByRole('tree').getByText('T_TABLE_1', { exact: true })).toHaveCount(0);
+      await expect(rfNode(page, 'T_TABLE_1')).toHaveCount(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
