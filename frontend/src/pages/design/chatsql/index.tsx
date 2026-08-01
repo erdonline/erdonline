@@ -127,13 +127,8 @@ const ChatSQL: React.FC<ChatSQLProps> = (props) => {
             appendMsg({
               type: 'text',
               user: {avatar: '/logo.svg'},
-              content: {text: '亲，关注微信公众号`零代科技`，公众号右下角VIP选项可开启人工服务~'},
-            });
-            appendMsg({
-              type: 'image',
-              user: {avatar: '/logo.svg'},
               content: {
-                picUrl: '/mp.jpg',
+                text: '开源社区答疑：请到 GitHub Issues / Discussions 提问（erdonline/erdonline）。',
               },
             });
           }, 500);

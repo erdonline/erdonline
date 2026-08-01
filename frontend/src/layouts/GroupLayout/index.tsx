@@ -91,7 +91,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
                 paddingBlockStart: 12,
               }}
             >
-              <div>© 2024 Made with 零代科技</div>
+              <div>© 2026 ERD Online · MIT</div>
               <div>ERD Online</div>
             </div>
           );
