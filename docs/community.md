@@ -36,9 +36,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 1. **文档站相对链接**：把 `docs/` 内仍指向仓库根相对路径的链接统一成绝对 GitHub URL（参考 roadmap/development 已改写法）  
    验证：`cd website && yarn build`（`onBrokenLinks=throw`）
 2. ~~**登录/注册页副标题去 ChatGPT 噱头**~~（已合入；回归见 `smoke.spec.ts`）
-3. **`presence.spec` 清理项目**：用例结束后 `deleteOwnPersonProjects`  
-   文件：`frontend/tests/e2e/presence.spec.ts`  
-   验证：`npx playwright test tests/e2e/presence.spec.ts --project=chromium`
+3. ~~**`presence.spec` 清理项目**~~（已合入 `deleteOwnPersonProjects`）
 4. **协作 sync toast E2E**：双 context 触发远端 sync 见 info/warning（清单项未勾）  
    参考：`docs/regression-checklist.md`「协作 sync 提示」
 5. **前端 eslint warn 定点清零**：任选 `src/store/project` 下 1 个文件的 `consistent-type-imports` / `no-unused-vars`  
