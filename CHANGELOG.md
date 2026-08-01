@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — PostgreSQL 字典级 FK 逆向（2026-08-02）
+
+### 新增
+- PostgreSQL：`information_schema.key_column_usage` 字典外键（保序，失败回退 JDBC）
+  验证点：`mvn -q -Dtest=ForeignKeyAssociationMapperTest,ReverseDialectRegistryTest -Djacoco.skip=true surefire:test` 绿
+
 ## [Unreleased] — MySQL 字典级 FK 逆向（2026-08-02）
 
 ### 新增
