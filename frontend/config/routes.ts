@@ -4,6 +4,12 @@ export default [
     layout: false,
     component: './share',
   },
+  /** 免登录在线演示 → 固定只读分享 token（见 db/init/08_public_demo.sql） */
+  {
+    path: '/demo',
+    layout: false,
+    redirect: '/s/public-demo',
+  },
   {
     path: '/login',
     routes: [

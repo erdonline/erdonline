@@ -90,6 +90,10 @@ export default () => {
           <a href={`/register${redirectQuery()}`} aria-label="去注册">
             没有账号？去注册
           </a>
+          {' · '}
+          <a href="/demo" aria-label="先看演示">
+            先看演示（免登录）
+          </a>
         </div>
       </LoginFormPage>
     </div>
