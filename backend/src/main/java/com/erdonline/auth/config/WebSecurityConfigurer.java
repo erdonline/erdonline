@@ -34,7 +34,10 @@ public class WebSecurityConfigurer extends WebSecurityConfigurerAdapter {
 
     @Override
     protected void configure(HttpSecurity http) throws Exception {
-        http.authorizeRequests()
+        http.cors()
+                .and()
+                .authorizeRequests()
+                .antMatchers(org.springframework.http.HttpMethod.OPTIONS).permitAll()
                 .antMatchers(
                         "/**/*.js",
                         "/**/*.css",

@@ -58,11 +58,13 @@ public class DynamicSecurityMetadataSource implements FilterInvocationSecurityMe
                 configAttributes.add(configAttributeMap.get(pattern));
             }
         });
-        //防止数据库中没有配置当前url权限数据，不能进行权限拦截
+        //防止数据库中没有配置当前url权限数据时，误拦截所有人。
+        //单体开源版策略：未在权限表登记的 URL，对已通过认证的用户放行
+        //（返回 null，AbstractSecurityInterceptor 会跳过鉴权 decide）。
+        //数据隔离由业务层的项目级权限（project_user / project_role）负责，不依赖此处的功能权限。
         if (CollUtil.isEmpty(configAttributes)) {
-            log.debug("数据库中没有配置权限数据,系统即将自动干预权限系统");
-            ConfigAttribute configAttribute = new SecurityConfig("ROLE_NO_USER");
-            configAttributes.add(configAttribute);
+            log.debug("URL[{}]未在权限表登记，对已认证用户放行", path);
+            return null;
         }
         return configAttributes;
     }

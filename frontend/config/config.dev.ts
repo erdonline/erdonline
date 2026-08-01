@@ -4,8 +4,9 @@ import { defineConfig } from '@umijs/max';
 export default defineConfig({
   publicPath: '/',
   define: {
-    API_URL: 'http://localhost:9502',
-    ERD_API_URL: 'http://localhost:9502'
+    // 空 = 前端用同源相对路径，由 config/proxy.ts 代理到后端，避免跨域
+    API_URL: '',
+    ERD_API_URL: ''
   },
   // Fast Refresh 热更新
   fastRefresh: true,
