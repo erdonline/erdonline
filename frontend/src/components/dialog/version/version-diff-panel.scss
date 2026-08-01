@@ -1,0 +1,90 @@
+.version-diff-panel {
+  height: 450px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.version-diff-summary {
+  margin-bottom: 12px;
+}
+
+.version-diff-tree {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.version-diff-table {
+  margin-bottom: 12px;
+  border: 1px solid #f0f0f0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+.version-diff-table-title {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 6px 10px;
+  background: #fafafa;
+  font-weight: 600;
+}
+
+.version-diff-table-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 13px;
+}
+
+.version-diff-items {
+  list-style: none;
+  margin: 0;
+  padding: 4px 0;
+}
+
+.version-diff-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 6px;
+  padding: 4px 10px;
+  font-size: 13px;
+  border-left: 3px solid transparent;
+}
+
+.version-diff-item--add {
+  border-left-color: #52c41a;
+  background: rgba(82, 196, 26, 0.06);
+}
+
+.version-diff-item--delete {
+  border-left-color: #ff4d4f;
+  background: rgba(255, 77, 79, 0.06);
+}
+
+.version-diff-item--update {
+  border-left-color: #faad14;
+  background: rgba(250, 173, 20, 0.06);
+}
+
+.version-diff-opt {
+  margin-inline-end: 0 !important;
+}
+
+.version-diff-type {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+}
+
+.version-diff-name {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-weight: 500;
+}
+
+.version-diff-detail {
+  color: rgba(0, 0, 0, 0.55);
+  font-size: 12px;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
