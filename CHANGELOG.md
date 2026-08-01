@@ -2,6 +2,14 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 只读分享 API（2026-08-02）
+
+### 新增
+
+- **ADR-0007** + 表 `project_share`；`POST /share/create`、`GET /share/{token}`（匿名）、`POST /share/revoke`
+- Security：`/share/**` 放行匿名读
+  验证点：登录 create → 无 Bearer GET 返回 `readonly=true` + projectName；匿名 create → 401
+
 ## [Unreleased] — 开发入口规则（2026-08-01）
 
 ### 文档 / 规则

@@ -29,6 +29,8 @@
 - [x] Colima MySQL `reverse_demo`：indexs + associations 1:n ✅curl
 - [x] Colima PostgreSQL `reverse_demo`：meta schemas=[public]；indexs + associations ✅curl
 - [ ] Colima SQL Server（Azure SQL Edge）拉起后同样 curl 验证
+- [x] 只读分享：create + 匿名 GET `readonly=true`；匿名 create 401 ✅curl
+- [ ] [只读分享前端] 设计器「分享」按钮 → 复制链接 → 未登录打开只读关系图
 
 ### 手工
 
