@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — PageSkeleton 可访问名（2026-08-02）
+
+### 体验
+- `PageSkeleton`：`role="status"` + `aria-label="页面加载中"`（已有 `aria-busy`）
+  验证点：`loading.spec`「设计器」断言 aria 属性绿
+
 ## [Unreleased] — 版本管理页 eslint 清零（2026-08-02）
 
 ### 修复

@@ -39,7 +39,10 @@ test.describe('加载态骨架', () => {
     });
 
     await page.getByTestId('open-project').first().click();
-    await expect(page.getByTestId('page-skeleton')).toBeVisible({ timeout: 5_000 });
+    const skel = page.getByTestId('page-skeleton');
+    await expect(skel).toBeVisible({ timeout: 5_000 });
+    await expect(skel).toHaveAttribute('aria-busy', 'true');
+    await expect(skel).toHaveAttribute('aria-label', '页面加载中');
     await expect(page).toHaveURL(/\/design\/table/, { timeout: 20_000 });
     await expect(page.getByTestId('page-skeleton')).toHaveCount(0, { timeout: 15_000 });
 

@@ -13,7 +13,13 @@ export type PageSkeletonProps = {
  * 按钮级异步仍可用 Button loading / Spin。
  */
 const PageSkeleton: React.FC<PageSkeletonProps> = ({ rows = 4, avatar = false }) => (
-  <div data-testid="page-skeleton" aria-busy="true" style={{ padding: 24 }}>
+  <div
+    data-testid="page-skeleton"
+    role="status"
+    aria-busy="true"
+    aria-label="页面加载中"
+    style={{ padding: 24 }}
+  >
     <Space direction="vertical" size="large" style={{ width: '100%' }}>
       {avatar ? (
         <>
