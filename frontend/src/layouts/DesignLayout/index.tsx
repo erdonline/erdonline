@@ -117,11 +117,12 @@ const ProjectMenuDropdown: React.FC = () => {
         destroyPopupOnHide={false}
         dropdownRender={() => (
           <div
+            className={
+              open
+                ? 'erd-project-menu'
+                : 'erd-project-menu erd-project-menu--closed'
+            }
             aria-hidden={!open}
-            style={{
-              pointerEvents: open ? 'auto' : 'none',
-              opacity: open ? 1 : 0,
-            }}
           >
             <ProjectMenu />
           </div>
