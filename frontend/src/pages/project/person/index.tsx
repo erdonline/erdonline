@@ -1,5 +1,5 @@
 import {ProList} from '@ant-design/pro-components';
-import {message, Space, Tag} from 'antd';
+import {Button, Empty, message, Space, Tag} from 'antd';
 import {useEffect, useState} from "react";
 import {pageProject} from "@/utils/save";
 import {TeamOutlined, UserOutlined} from "@ant-design/icons";
@@ -11,6 +11,7 @@ import {searchProjects} from "@/pages/project/recent";
 import * as cache from "@/utils/cache";
 import {CONSTANT} from "@/utils/constant";
 import {history} from "@@/core/history";
+import {createExampleProjectAndOpen} from "@/utils/exampleProject";
 
 export type ProjectListProps = {
   page?: number;
@@ -96,18 +97,37 @@ export default () => {
       ],
     }}
     rowKey="projectName"
-    dataSource={state.projects}
-    pagination={{
-      pageSize: state.limit,
-      total: state.total,
-      onChange: (page: number, pageSize: number) => {
-        setState({
-          ...state,
-          page,
-          limit: pageSize
-        })
-      }
-    }}
+      dataSource={state.projects}
+      locale={{
+        emptyText: (
+          <Empty
+            image={Empty.PRESENTED_IMAGE_SIMPLE}
+            description="还没有项目，立即创建或体验示例"
+          >
+            <Space>
+              <Button type="primary" data-testid="person-empty-create" onClick={() => {
+                (document.querySelector('[data-testid=project-create-trigger]') as HTMLElement)?.click();
+              }}>
+                立即创建
+              </Button>
+              <Button data-testid="person-empty-example" onClick={() => createExampleProjectAndOpen()}>
+                一键示例
+              </Button>
+            </Space>
+          </Empty>
+        )
+      }}
+      pagination={{
+        pageSize: state.limit,
+        total: state.total,
+        onChange: (page: number, pageSize: number) => {
+          setState({
+            ...state,
+            page,
+            limit: pageSize
+          })
+        }
+      }}
     metas={{
       title: {
         dataIndex: 'projectName',
