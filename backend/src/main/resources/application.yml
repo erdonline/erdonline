@@ -78,6 +78,7 @@ martin:
     enabled: true
     hostname: ${SOCKETIO_HOST:0.0.0.0}
     port: ${SOCKETIO_PORT:9092}
+    origin: ${SOCKETIO_ORIGIN:*}
     bossThreads: 0
     workerThreads: 0
     upgradeTimeout: 10000

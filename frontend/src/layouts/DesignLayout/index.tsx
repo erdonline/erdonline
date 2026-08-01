@@ -2,6 +2,7 @@ import Upgrade from "@/components/dialog/upgrade";
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
+import CollabPresence from "@/components/CollabPresence";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { menuHeaderDropdown } from "@/layouts/HomeLayout";
@@ -27,6 +28,7 @@ export const siderWidth = 400;
 const licence = cache.getItem2object('licence');
 
 export const headRightContent = [
+  <CollabPresence key="presence" />,
   <ShareProjectButton key="share" />,
   licence?.licensedStartTime ? '' : <Upgrade />,
   <Popover placement="bottom" title="公众号" content={<Image src="/mp.jpg" />} trigger="hover">
@@ -116,8 +118,10 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
 
 
   useEffect(() => {
-    if (project && project.type === '2') {
-      initSocket(projectId);
+    if (!project || !projectId) return;
+    // P3b：任意设计器会话进房间 presence（不再依赖 localhost:3000）
+    initSocket(projectId);
+    if (project.type === '2') {
       GET("/ncnb/project/group/currentRolePermission", {
         projectId
       }).then(r => {
@@ -126,7 +130,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
           setInitialState((s: any) => ({ ...s, access: { ...r.data, person: false } }));
         }
       })
-      //权限初始化之后再过滤路由
       if (access.initialized) {
         defaultProps.route.routes = fixRouteAccess(defaultProps, access);
       }

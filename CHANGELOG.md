@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 协作 Presence 短票（2026-08-02）
+
+### 新增
+- **ADR-0009**：设计器 Presence 接后端 SocketIO `:9092`（`/project/erd`）；`POST /auth/socket-ticket` 短票握手（避免超长 JWT query 断连）
+- 顶栏在线名单 `collab-presence`；`socket.io-client@2.5` 对齐 netty-socketio；移除死代码 `frontend/src/socket-io` / `socket.io@4`
+  验证点：`node scripts/verify-socket-presence.mjs` PASS；`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 在线 Demo（2026-08-02）
 
 ### 新增

@@ -64,8 +64,10 @@ public class ErdSocketIoServiceImpl implements ErdSocketIoService {
                 Set<String> onlineUsers = initOnlineUserSet(client, projectId);
                 client.joinRoom(projectId);
                 onlineUsers.add(username);
-                client.getNamespace().getRoomOperations(projectId).sendEvent(WebsocketConstants.JOIN_ROOM, new JoinLeaveRoomVo(username, onlineUsers.toArray()));
-                log.info("用户{}加入协作", username);
+                Object[] roster = onlineUsers.toArray();
+                client.getNamespace().getRoomOperations(projectId).sendEvent(
+                        WebsocketConstants.JOIN_ROOM, new JoinLeaveRoomVo(username, roster));
+                log.info("用户{}加入协作, online={}", username, roster.length);
             }
         });
         /**
