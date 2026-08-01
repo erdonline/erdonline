@@ -38,6 +38,7 @@ export type ProjectState =
   {
     tables: any[],
     project: any,
+    projectLoading: boolean,
     socket: any,
     syncing: boolean,
     timestamp: number,
@@ -104,33 +105,39 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
       (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
         tables: [],
         project: {},
+        projectLoading: false,
         syncing: false,
         timestamp: Date.now(),
         fetch: async (projectId?: string|null) => {
           if (!projectId) {
             projectId = cache.getItem(CONSTANT.PROJECT_ID);
           }
-          await request.get(`/ncnb/project/info/${projectId}`).then((res: any) => {
-            console.log(45, res);
-            const data = res?.data;
-            if (res?.code === 200 && data) {
-              resetCanvasHistory();
-              set({
-                project: data
-              });
-              get().dispatch.fixProject(data);
-              //计算全部表名
-              const tables = _.flatMapDepth(data?.projectJSON?.modules, (m) => {
-                console.log(130, m);
-                return _.map(m.entities, 'title')
-              }, 2);
-              set({
-                tables
-              });
-            } else {
-              message.error('获取项目信息失败');
-            }
-          });
+          set({ projectLoading: true });
+          try {
+            await request.get(`/ncnb/project/info/${projectId}`).then((res: any) => {
+              console.log(45, res);
+              const data = res?.data;
+              if (res?.code === 200 && data) {
+                resetCanvasHistory();
+                set({
+                  project: data
+                });
+                get().dispatch.fixProject(data);
+                //计算全部表名
+                const tables = _.flatMapDepth(data?.projectJSON?.modules, (m) => {
+                  console.log(130, m);
+                  return _.map(m.entities, 'title')
+                }, 2);
+                set({
+                  tables
+                });
+              } else {
+                message.error('获取项目信息失败');
+              }
+            });
+          } finally {
+            set({ projectLoading: false });
+          }
         },
         initSocket: async (projectId: string) => {
           let socket = get().socket;

@@ -139,3 +139,9 @@
 
 - [x] [后端常驻] `./backend/dev-ensure.sh` 首跑拉起、二跑秒退（幂等）；终端关闭后 curl /actuator/health 仍 UP（tmux 会话 erd-be）
 - [ ] [保存失败] 手工：断网后改模型 → 见「未保存」且有错误提示
+
+## 加载骨架（2026-08-01）
+
+- [x] [项目列表] 慢网打开 /project/person 见 list loading，完成后可新建 ✅ `loading.spec.ts`
+- [x] [进设计器] 慢网打开模型见 `page-skeleton`，加载后消失 ✅同上
+- [ ] [版本页] 手工：进版本管理首屏见骨架而非 `Loading...` 文案

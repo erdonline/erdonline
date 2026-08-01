@@ -1,12 +1,12 @@
 import React from 'react';
 import {UploadOutlined} from '@ant-design/icons';
-import {Button, message, Spin, Upload} from 'antd';
+import {Button, message, Upload} from 'antd';
 import ProForm, {ProFormText,} from '@ant-design/pro-form';
 
 import styles from './BaseView.less';
 import {useRequest} from "@umijs/hooks";
 import {GET, POST} from "@/services/crud";
-import {values} from "idb-keyval";
+import PageSkeleton from "@/components/PageSkeleton";
 
 // 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({avatar}: { avatar: string }) => (
@@ -54,7 +54,7 @@ const BaseView: React.FC = () => {
   };
   return (
     <div className={styles.baseView}>
-      {loading ? <Spin></Spin> : (
+      {loading ? <PageSkeleton rows={4} /> : (
         <>
           <div className={styles.left}>
             <ProForm
