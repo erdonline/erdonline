@@ -1,5 +1,5 @@
 import React from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import {ModalForm} from '@ant-design/pro-components';
 import {InboxOutlined} from '@ant-design/icons';
@@ -90,12 +90,12 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
       trigger={
         <Button
           key="pdman"
+          type="text"
+          size="small"
+          block
           icon={<MyIcon type="icon-other_win"/>}
-          text="解析PdMan文件"
-          minimal={true}
-          small={true}
-          fill={true}
-          alignText={Alignment.LEFT}></Button>
+          style={{ textAlign: 'left' }}
+        >解析PdMan文件</Button>
       }
 
     >

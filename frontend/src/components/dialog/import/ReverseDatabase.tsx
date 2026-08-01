@@ -1,7 +1,7 @@
 import {ProForm, ModalForm, ProFormInstance, ProFormSelect, StepsForm} from '@ant-design/pro-components';
 import React, {useRef, useState, useEffect} from 'react';
 import {Button as AntButton, Spin} from 'antd';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
@@ -41,12 +41,12 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = (props) => {
       trigger={
         <Button
           key="reverse"
+          type="text"
+          size="small"
+          block
           icon={<MyIcon type="icon-line-height"/>}
-          text="数据源逆向解析"
-          minimal={true}
-          small={true}
-          fill={true}
-          alignText={Alignment.LEFT}></Button>
+          style={{ textAlign: 'left' }}
+        >数据源逆向解析</Button>
       }
       onFinish={async () => {
         return projectDispatch.getSelectedEntity();

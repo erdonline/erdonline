@@ -1,5 +1,5 @@
 import React, {useEffect, useRef} from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button } from "antd";
 import {MyIcon} from "@/components/Menu";
 import {
   ModalForm,
@@ -78,12 +78,12 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
             trigger={
               <Button
                 key="DDL"
+                type="text"
+                size="small"
+                block
                 icon={<MyIcon type="icon-DDL"/>}
-                text="导出DDL"
-                minimal={true}
-                small={true}
-                fill={true}
-                alignText={Alignment.LEFT}></Button>
+                style={{ textAlign: 'left' }}
+              >导出DDL</Button>
             }
             // 完全自定义整个区域
             submitter={{

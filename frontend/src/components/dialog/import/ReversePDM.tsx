@@ -1,30 +1,23 @@
 import React from 'react';
-import {Alignment, Button} from "@blueprintjs/core";
+import { Button, message } from "antd";
 import {MyIcon} from "@/components/Menu";
-import {message} from "antd";
-
 
 export type ReversePDMProps = {};
 
-const ReversePDM: React.FC<ReversePDMProps> = (props) => {
-
+const ReversePDM: React.FC<ReversePDMProps> = () => {
   const readPDMfile = () => {
     message.warning('此功能正在玩命开发中，敬请期待...');
   };
-  return (<>
-
+  return (
     <Button
-      key="pdm"
+      type="text"
+      size="small"
+      block
       icon={<MyIcon type="icon-PDM"/>}
-      text="解析PDM文件"
-      minimal={true}
-      small={true}
-      fill={true}
-      alignText={Alignment.LEFT}
       onClick={readPDMfile}
-    ></Button>
+      style={{ textAlign: 'left' }}
+    >解析PDM文件</Button>
+  );
+};
 
-  </>);
-}
-
-export default React.memo(ReversePDM)
+export default React.memo(ReversePDM);
