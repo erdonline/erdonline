@@ -31,7 +31,8 @@ import java.util.regex.Pattern;
 @RequiredArgsConstructor
 public class AuthLoginController {
 
-    private static final Pattern E2E_ACCOUNT = Pattern.compile("^e2e\\d+$");
+    /** e2e0..e2e15 与 e2e-serial 种子账号 */
+    private static final Pattern E2E_ACCOUNT = Pattern.compile("^e2e(\\d+|-serial)$");
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;

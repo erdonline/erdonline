@@ -5,14 +5,14 @@ import * as fs from 'fs';
  * E2E 共享助手（多 worker + e2e-locators 纪律）
  *
  * 定位：getByRole / placeholder / getByTestId；禁止依赖 .ant-* 业务选择。
- * 隔离：每 worker 独立账号 e2e{n}（见 db/init/05_e2e_users.sql）+ 项目名 `e2e-w{n}-`。
+ * 隔离：每 worker 独立账号 e2e{n}（e2e0..e2e15，见 db/init/05_e2e_users.sql）+ 项目名 `e2e-w{n}-`。
  */
 
 export const E2E_PASS = '123456';
 /** 兼容旧断言（勿用于并发登录） */
 export const ADMIN = { name: 'admin', pass: E2E_PASS };
-/** chromium-serial：空态/清库类用例（固定 e2e9，避免与并行 worker 抢账号） */
-export const E2E_SERIAL = { name: 'e2e9', pass: E2E_PASS };
+/** chromium-serial：空态/清库类用例（独立账号，不与 worker 0..15 冲突） */
+export const E2E_SERIAL = { name: 'e2e-serial', pass: E2E_PASS };
 
 export type E2eAccount = { name: string; pass: string };
 

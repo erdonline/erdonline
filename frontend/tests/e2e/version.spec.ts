@@ -17,8 +17,9 @@ import {
  */
 
 async function openVersionPage(page: import('@playwright/test').Page) {
-  await page.getByRole('menuitem', { name: '版本', exact: true }).click();
-  await page.getByRole('link', { name: '版本管理' }).click();
+  // 直接 goto：子菜单「版本管理」在并发重排时可能被 overflow 挡住
+  const projectId = new URL(page.url()).searchParams.get('projectId');
+  await page.goto(`/design/table/version/all${projectId ? `?projectId=${projectId}` : ''}`);
   await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
   await expect(page.getByText('Loading...')).toHaveCount(0);
   await expect(page.getByTestId('add-version-btn')).toBeVisible({ timeout: 15_000 });
