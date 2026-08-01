@@ -2,6 +2,7 @@ package com.erdonline.erd.reverse;
 
 import com.erdonline.erd.reverse.support.GenericJdbcReverseDialect;
 import com.erdonline.erd.reverse.support.MysqlReverseDialect;
+import com.erdonline.erd.reverse.support.OracleReverseDialect;
 import com.erdonline.erd.reverse.support.PostgresqlReverseDialect;
 import org.junit.jupiter.api.Test;
 
@@ -32,8 +33,17 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void resolve_unknownFallsBackToGeneric() {
+    void resolve_oracle() {
         ReverseDialect dialect = ReverseDialectRegistry.resolve("Oracle");
+        assertInstanceOf(OracleReverseDialect.class, dialect);
+        assertEquals(DialectIds.ORACLE, dialect.id());
+        assertTrue(dialect.capability().isSupportsSchema());
+        assertTrue(dialect.capability().isSupportsIndex());
+    }
+
+    @Test
+    void resolve_unknownFallsBackToGeneric() {
+        ReverseDialect dialect = ReverseDialectRegistry.resolve("Microsoft SQL Server");
         assertInstanceOf(GenericJdbcReverseDialect.class, dialect);
         assertEquals(DialectIds.GENERIC, dialect.id());
     }
