@@ -1,6 +1,7 @@
 import Upgrade from "@/components/dialog/upgrade";
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
+import PageSkeleton from "@/components/PageSkeleton";
 import Theme from "@/components/Theme";
 import { menuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
@@ -93,10 +94,11 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
 
   console.log(19, 'final:projectId', projectId);
 
-  const { fetch, project, initSocket, closeSocket } = useProjectStore(
+  const { fetch, project, projectLoading, initSocket, closeSocket } = useProjectStore(
     state => ({
       fetch: state.fetch,
       project: state.project,
+      projectLoading: state.projectLoading,
       initSocket: state.initSocket,
       closeSocket: state.closeSocket,
     }), shallow);
@@ -179,7 +181,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
         layout="mix"  // 改为混合布局,顶部+侧边栏
         navTheme="light"  // 导航主题改为亮色
         headerTheme="light"  // 头部主题改为亮色
-        primaryColor="#1890ff"  // 主色调设置为蓝色
+        primaryColor="#DE2910"
         contentWidth="Fluid"  // 内容区域宽度改为流式
         fixedHeader  // 固定头部
         headerHeight={64}  // 设置头部高度
@@ -274,7 +276,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
             className="no-margin-card"
           >
             <Theme />
-            {props.children}
+            {projectLoading ? <PageSkeleton rows={6} /> : props.children}
           </ProCard>
         </PageContainer>
       </ProLayout>

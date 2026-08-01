@@ -35,8 +35,10 @@ export default () => {
     projects: [],
     order: "createTime"
   });
+  const [listLoading, setListLoading] = useState(true);
 
   const fetchProjects = (params: any) => {
+    setListLoading(true);
     pageGroupProject(params || state).then(res => {
       if (res) {
         if (res.data) {
@@ -57,7 +59,7 @@ export default () => {
           message.error('获取项目信息失败');
         }
       }
-    });
+    }).finally(() => setListLoading(false));
 
   }
 
@@ -67,6 +69,7 @@ export default () => {
 
   return <ProList<ProjectItem>
     size={'large'}
+    loading={listLoading}
     toolbar={{
       menu: {
         items: [

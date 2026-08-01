@@ -132,7 +132,16 @@
 - `playwright.config.ts`：`fullyParallel` + 本地最多 4 worker（`PW_WORKERS` 可覆盖；CI 默认 2）
 - 并发隔离：项目名 `e2e-w{n}-` 前缀，`deleteOwnPersonProjects` 只清本 worker
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
-  验证点：`npx playwright test` 出现 `Running N tests using K workers`（K>1）且全绿
+  验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
+
+### 设计系统：全局加载骨架（✅ 加载半完成；暗色另议）
+
+- 新增 `PageSkeleton`；进设计器 `projectLoading` 时内容区骨架，禁止白屏
+- 个人/团队/最近项目列表请求中 `ProList loading`，禁止空态闪一下
+- 版本页裸 `Loading...`、账号设置空 `<Spin>` → `PageSkeleton`
+- DesignLayout 主色对齐品牌红 `#DE2910`（原错误蓝 `#1890ff`）
+- 暗色：ADR-0005 写明 CRUD 不换肤，本切片不做 toggle
+  验证点：`loading.spec.ts` 2/2；连带依赖跑全量 chromium 14/14 绿（含 smoke/project-activation）
 
 ### 缩短建表链路（✅）
 

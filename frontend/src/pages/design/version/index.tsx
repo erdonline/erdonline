@@ -24,6 +24,7 @@ import { SyncOutlined } from '@ant-design/icons';
 import { Button, Tooltip } from 'antd';
 import { ConfigProvider } from 'antd';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
+import PageSkeleton from '@/components/PageSkeleton';
 
 const {Option, OptGroup} = Select;
 
@@ -306,7 +307,7 @@ const Version: React.FC<VersionProps> = (props) => {
           />
         </div>
       ) : (
-        <div>Loading...</div>
+        <PageSkeleton rows={5} />
       )}
     </ConfigProvider>
   );

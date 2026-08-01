@@ -1,11 +1,12 @@
 import React, {useState} from "react";
-import {Button, Result, Spin} from "antd";
+import {Result} from "antd";
 import {useRequest} from "@umijs/hooks";
 import {GET} from "@/services/crud";
 
 import {LightMember, PeopleTopCard, VipOne} from "@icon-park/react";
 import * as cache from "@/utils/cache";
 import Upgrade from "@/components/dialog/upgrade";
+import PageSkeleton from "@/components/PageSkeleton";
 
 
 export type IdentificationProps = {};
@@ -49,7 +50,7 @@ const Identification: React.FC<IdentificationProps> = (props) => {
   }
 
 
-  return (loading ? <Spin></Spin> : <>
+  return (loading ? <PageSkeleton rows={3} /> : <>
     <Result
       icon={initConfig.icon}
       title={title}

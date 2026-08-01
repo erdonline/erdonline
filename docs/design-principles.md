@@ -47,6 +47,7 @@
 画布操作跟手（60fps）；页面过渡有动画；加载用骨架屏而不是转圈。
 
 - ✅ 悬浮工具栏实时显示缩放比例，一键适应屏幕
+- ✅ CRUD / 进设计器等待用 `PageSkeleton`（或列表 `loading`）；按钮级异步可用 Spin / Button loading
 - ❌ 用 `position: fixed` 把提示文字钉死在视窗上，不随布局响应（历史问题）
 
 ---
