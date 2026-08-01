@@ -1,4 +1,4 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {
   ModalForm,
   ProFormGroup,
@@ -15,6 +15,7 @@ import {uuid} from '@/utils/uuid';
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Col, message, Popconfirm, Row} from 'antd';
 import * as Save from '@/utils/save';
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 export type DatabaseSetUpProps = {
   isGlobal?: boolean;
 };
@@ -22,6 +23,7 @@ export type DatabaseSetUpProps = {
 
 /** 设计器菜单「数据源设置」：读写 /ncnb/dataSources（ADR-0008），不写 profile.dbs */
 const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const { projectDispatch, } = useProjectStore(state => ({
     projectDispatch: state.dispatch,
   }), shallow);
@@ -155,6 +157,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
             block
             style={{ textAlign: 'left' }}
             aria-label="数据源设置"
+            onClick={() => closeProjectMenu()}
           >数据源设置</Button>
         }
         initialValues={{
