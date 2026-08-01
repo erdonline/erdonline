@@ -46,8 +46,13 @@ test.describe('只读分享', () => {
         await expect(anonPage.getByText('T_TABLE_1').first()).toBeVisible();
         await expect(anonPage.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
         // 未登录点复制 → 登录页带 redirect
+        await expect(anonPage.getByRole('button', { name: '注册并带回' })).toBeVisible();
+        await anonPage.getByRole('button', { name: '注册并带回' }).click();
+        await expect(anonPage).toHaveURL(/\/register\?redirect=/);
+        await anonPage.goto(`/s/${token}`);
         await anonPage.getByRole('button', { name: '复制到我的项目' }).click();
         await expect(anonPage).toHaveURL(/\/login\?redirect=/);
+        await expect(anonPage.getByRole('link', { name: '去注册' })).toBeVisible();
       } finally {
         await anon.close();
       }
