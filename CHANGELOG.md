@@ -2,11 +2,17 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — approval E2E 改为 goto（2026-08-02）
+
+### 修复
+- `approval.spec`：模型页侧栏为树，「版本」menuitem 不可见 → 与 `version.spec` 一样直达 `/version/order|approval`
+  验证点：`npx playwright test tests/e2e/approval.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 我的工单页 eslint 清零（2026-08-02）
 
 ### 修复
 - `pages/design/version/order`：去掉空 `{}` props；模态宽高常量提前定义（消 `no-use-before-define`）
-  验证点：`yarn eslint src/pages/design/version/order --max-warnings 0`；`approval.spec`「工单」绿
+  验证点：`yarn eslint src/pages/design/version/order --max-warnings 0`；`approval.spec`（修后）绿
 
 ## [Unreleased] — 导出组件 ban-types + 版本行 key + Issue 草稿 18–21（2026-08-02）
 
