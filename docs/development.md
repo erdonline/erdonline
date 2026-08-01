@@ -26,6 +26,15 @@ colima start --cpu 4 --memory 8 --disk 40 \
 # （本机无 compose 插件时用 docker-compose）
 # Agent 全局规则：~/.cursor/rules/github-download-proxy.mdc
 
+## 5 分钟 Vision 自迭代（可选）
+
+```bash
+./scripts/agent-loop-vision.sh   # 默认每 300s 唤醒；PROMPT 每次读 scripts/agent-loop-vision.prompt.md
+# AGENT_LOOP_VISION_INTERVAL=600 ./scripts/agent-loop-vision.sh
+```
+
+选题规则在 `scripts/agent-loop-vision.prompt.md`：每 tick **从 roadmap/CHANGELOG/git 现场推导目标**，不写死功能主线；改 prompt 文件即可，不必重启循环。
+
 # 1. 起数据库
 docker-compose up -d mysql redis
 
