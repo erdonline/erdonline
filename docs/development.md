@@ -90,7 +90,8 @@ cd website && yarn && yarn start   # http://localhost:3000/erdonline/
 cd website && yarn build           # 产物 website/build；死链会失败
 ```
 
-消费仓库 `docs/`（ADR-0003）。CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub Pages）。仓库 Settings → Pages → Source 选 **GitHub Actions**。
+消费仓库 `docs/`（ADR-0003）。本地中文搜索：`@easyops-cn/docusaurus-search-local`（需 `yarn build && yarn serve` 验证索引；dev 下索引可能不全）。  
+CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub Pages）。仓库 Settings → Pages → Source 选 **GitHub Actions**。
 
 ## 协作 Presence（SocketIO）
 
