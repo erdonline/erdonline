@@ -2,14 +2,16 @@ package com.erdonline.erd.reverse;
 
 import com.erdonline.erd.reverse.support.GenericJdbcReverseDialect;
 import com.erdonline.erd.reverse.support.MysqlReverseDialect;
+import com.erdonline.erd.reverse.support.PostgresqlReverseDialect;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 方言注册：MySQL/MariaDB 命中，其余走 Generic。
+ * 方言注册：MySQL/MariaDB、PostgreSQL 命中，其余走 Generic。
  */
 class ReverseDialectRegistryTest {
 
@@ -21,8 +23,17 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void resolve_unknownFallsBackToGeneric() {
+    void resolve_postgresql() {
         ReverseDialect dialect = ReverseDialectRegistry.resolve("PostgreSQL");
+        assertInstanceOf(PostgresqlReverseDialect.class, dialect);
+        assertEquals(DialectIds.POSTGRESQL, dialect.id());
+        assertTrue(dialect.capability().isSupportsSchema());
+        assertTrue(dialect.capability().isSupportsIndex());
+    }
+
+    @Test
+    void resolve_unknownFallsBackToGeneric() {
+        ReverseDialect dialect = ReverseDialectRegistry.resolve("Oracle");
         assertInstanceOf(GenericJdbcReverseDialect.class, dialect);
         assertEquals(DialectIds.GENERIC, dialect.id());
     }
@@ -32,6 +43,6 @@ class ReverseDialectRegistryTest {
         DialectCapability capability = ReverseDialectRegistry.resolve("MySQL").capability();
         assertTrue(capability.isSupportsIndex());
         assertTrue(capability.isSupportsAutoIncrement());
-        assertEquals(false, capability.isSupportsSchema());
+        assertFalse(capability.isSupportsSchema());
     }
 }

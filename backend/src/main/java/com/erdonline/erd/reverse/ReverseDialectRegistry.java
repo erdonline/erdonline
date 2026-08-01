@@ -2,6 +2,7 @@ package com.erdonline.erd.reverse;
 
 import com.erdonline.erd.reverse.support.GenericJdbcReverseDialect;
 import com.erdonline.erd.reverse.support.MysqlReverseDialect;
+import com.erdonline.erd.reverse.support.PostgresqlReverseDialect;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -20,7 +21,8 @@ public final class ReverseDialectRegistry {
     static {
         List<ReverseDialect> list = new ArrayList<>(8);
         list.add(new MysqlReverseDialect());
-        // P0 后续：PostgreSQL / Oracle / SQL Server
+        list.add(new PostgresqlReverseDialect());
+        // P0 后续：Oracle / SQL Server
         list.add(new GenericJdbcReverseDialect());
         DIALECTS = Collections.unmodifiableList(list);
     }
