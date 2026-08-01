@@ -1,7 +1,7 @@
-import {GetState, SetState} from "zustand";
-import {ProjectState} from "@/store/project/useProjectStore";
-import produce from "immer";
-import {message} from "antd";
+import type { GetState, SetState } from 'zustand';
+import type { ProjectState } from '@/store/project/useProjectStore';
+import produce from 'immer';
+import { message } from 'antd';
 import _ from 'lodash';
 
 export type IDatabaseDomainsSlice = {
@@ -67,7 +67,7 @@ const DatabaseDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
   getDefaultDatabaseCode: () => {
     const defaultDatabase = get().dispatch.getDefaultDatabase();
     if (defaultDatabase) {
-      return defaultDatabase['code'];
+      return defaultDatabase.code;
     } else {
       return undefined;
     }
