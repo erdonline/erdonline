@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 导出组件 ban-types + 版本行 key + Issue 草稿 18–21（2026-08-02）
+
+### 修复
+- 导出 HTML/Word/Markdown/ERD 去掉空 `{}` props 类型；版本管理行/工具栏 action 补 `key`
+  验证点：`yarn eslint` 上述 4 个 Export* 文件 `--max-warnings 0`；`project-menu`「版本」「导出」绿
+
+### 文档
+- `docs/community.md` 补 Issue 草稿投放规则；草稿 18–21 待投放
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` → Done: 4
+
 ## [Unreleased] — 导出 DDL 向导 aria + Issue 投放脚本（2026-08-02）
 
 ### 修复 / 体验

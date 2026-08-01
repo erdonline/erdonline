@@ -21,9 +21,7 @@ import {RadioChangeEvent} from "antd/lib/radio/interface";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 
-export type ExportDDLProps = {};
-
-const ExportDDL: React.FC<ExportDDLProps> = (props) => {
+const ExportDDL: React.FC = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, dbs, data} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
@@ -162,12 +160,11 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
             fieldNames: {
               label: 'title',
             },
-            onChange: (value: any, labelList: any, extra: any) => {
+            onChange: (value: any) => {
               const selectTable = value.map((m: any) => {
                 return m.label;
               });
               projectDispatch.onSelectTableChange(selectTable);
-              //`${d.name}/${c.title}`
             }
           }}
         />
