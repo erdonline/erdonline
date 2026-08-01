@@ -20,7 +20,6 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `27-json2code-no-any-slice.md` | json2code 入口类型收窄 |
 | `28-share-spec-cleanup.md` | share.spec 清理更稳 |
 
 合入后在对应草稿顶部加：

@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — json2code 入口类型收窄（2026-08-02）
+
+### 修复
+- `getAllDataSQLByFilter` / `getFieldType` 补显式参数与返回类型（文件仍 `@ts-nocheck`，文档化入口）
+  验证点：project-menu「导出 DDL」绿
+
 ## [Unreleased] — PageSkeleton 可访问名（2026-08-02）
 
 ### 体验
