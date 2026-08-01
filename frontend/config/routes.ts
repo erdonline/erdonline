@@ -1,5 +1,10 @@
 export default [
   {
+    path: '/s/:token',
+    layout: false,
+    component: './share',
+  },
+  {
     path: '/login',
     routes: [
       {
