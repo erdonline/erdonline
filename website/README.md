@@ -9,4 +9,5 @@ yarn start    # http://localhost:3000
 yarn build    # 产物 website/build
 ```
 
-GitHub Pages：`baseUrl` 默认 `/erdonline/`，按实际仓库名调整 `docusaurus.config.js`。
+GitHub Pages：`baseUrl` 默认 `/erdonline/`，按实际仓库名调整 `docusaurus.config.js`。  
+部署：合并到 `main` 后由 `docs-site.yml` 上传；首次需在仓库 Settings → Pages 启用 Actions。
