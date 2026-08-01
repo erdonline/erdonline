@@ -53,29 +53,47 @@ public final class IndexResultSetMapper {
     }
 
     /**
-     * 映射 INFORMATION_SCHEMA.STATISTICS 风格结果（MySQL/MariaDB）。
-     * <p>约定列：INDEX_NAME / COLUMN_NAME / NON_UNIQUE / SEQ_IN_INDEX（调用方需已 ORDER BY）。
+     * 映射字典表风格索引结果（MySQL STATISTICS / PostgreSQL pg_catalog 查询）。
+     * <p>约定列名不区分大小写：INDEX_NAME / COLUMN_NAME / NON_UNIQUE（0=唯一）。
+     * 调用方需已按索引名、序号 ORDER BY。
      */
     public static List<Index> mapFromStatistics(ResultSet statisticsRs, String nameCaseFlag) throws SQLException {
         Map<String, Index> byName = new LinkedHashMap<>(16);
         while (statisticsRs.next()) {
-            String indexName = statisticsRs.getString("INDEX_NAME");
+            String indexName = readStringIgnoreCase(statisticsRs, "INDEX_NAME");
             if (indexName == null || indexName.isEmpty()) {
                 continue;
             }
             if (INDEX_PRIMARY.equalsIgnoreCase(indexName)) {
                 continue;
             }
-            String columnName = statisticsRs.getString("COLUMN_NAME");
+            String columnName = readStringIgnoreCase(statisticsRs, "COLUMN_NAME");
             if (columnName == null || columnName.isEmpty()) {
                 continue;
             }
             // NON_UNIQUE: 0 唯一，1 非唯一
-            boolean nonUnique = statisticsRs.getInt("NON_UNIQUE") != 0;
+            int nonUniqueFlag = readIntIgnoreCase(statisticsRs, "NON_UNIQUE");
+            boolean nonUnique = nonUniqueFlag != 0;
             String adjustedName = NameCaseAdjuster.adjust(indexName, nameCaseFlag);
             Index index = byName.computeIfAbsent(adjustedName, name -> new Index(name, !nonUnique));
             index.getFields().add(NameCaseAdjuster.adjust(columnName, nameCaseFlag));
         }
         return new ArrayList<>(byName.values());
+    }
+
+    private static String readStringIgnoreCase(ResultSet rs, String label) throws SQLException {
+        try {
+            return rs.getString(label);
+        } catch (SQLException ignore) {
+            return rs.getString(label.toLowerCase(java.util.Locale.ROOT));
+        }
+    }
+
+    private static int readIntIgnoreCase(ResultSet rs, String label) throws SQLException {
+        try {
+            return rs.getInt(label);
+        } catch (SQLException ignore) {
+            return rs.getInt(label.toLowerCase(java.util.Locale.ROOT));
+        }
     }
 }
