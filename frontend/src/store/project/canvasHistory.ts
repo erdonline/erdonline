@@ -7,9 +7,17 @@
  * 用法：变更 modules 前调用 snapshot(modules)；undo/redo 返回要恢复的 modules 或 null。
  */
 
+/** projectJSON.modules 的序列化快照形态（结构由调用方解释） */
+export type ModulesSnapshot = unknown[];
+
 const MAX = 40;
 let past: string[] = [];
 let future: string[] = [];
+
+function parseModules(json: string): ModulesSnapshot {
+  const parsed: unknown = JSON.parse(json);
+  return Array.isArray(parsed) ? parsed : [];
+}
 
 export function resetCanvasHistory() {
   past = [];
@@ -17,7 +25,7 @@ export function resetCanvasHistory() {
 }
 
 /** 变更前调用：把当前 modules 压入 past，清空 future */
-export function snapshotModules(modules: any) {
+export function snapshotModules(modules: ModulesSnapshot | null | undefined) {
   if (!modules) {
     return;
   }
@@ -32,20 +40,24 @@ export function snapshotModules(modules: any) {
   future = [];
 }
 
-export function undoModules(currentModules: any): any[] | null {
+export function undoModules(
+  currentModules: ModulesSnapshot | null | undefined,
+): ModulesSnapshot | null {
   if (past.length === 0) {
     return null;
   }
   future.push(JSON.stringify(currentModules || []));
-  return JSON.parse(past.pop() as string);
+  return parseModules(past.pop() as string);
 }
 
-export function redoModules(currentModules: any): any[] | null {
+export function redoModules(
+  currentModules: ModulesSnapshot | null | undefined,
+): ModulesSnapshot | null {
   if (future.length === 0) {
     return null;
   }
   past.push(JSON.stringify(currentModules || []));
-  return JSON.parse(future.pop() as string);
+  return parseModules(future.pop() as string);
 }
 
 export function canvasHistorySize() {

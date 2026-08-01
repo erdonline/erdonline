@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — canvasHistory 去掉 any（2026-08-02）
+
+### 修复
+- `canvasHistory.ts`：`ModulesSnapshot = unknown[]`，undo/redo 经 `parseModules`
+  验证点：`yarn eslint …/canvasHistory.ts --max-warnings 0`；`relation.spec`「全旅程」绿（含撤销布局）
+
 ## [Unreleased] — approval E2E 改为 goto（2026-08-02）
 
 ### 修复
