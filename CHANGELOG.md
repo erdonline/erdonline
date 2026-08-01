@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 默认项设置 E2E + Issue 草稿补池（2026-08-02）
+
+### 新增
+- `project-menu.spec.ts`：项目→设置→默认项设置可开（默认字段/默认配置 tab）；按钮补 aria-label
+- ISSUE_DRAFTS `06`–`08`（projectJsonSlice / useProjectStore / modulesSlice eslint）；community 种子池同步
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿；`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 打印 3 条待投放标题
+
 ## [Unreleased] — ADR-0008 设计器新增数据源落库（2026-08-02）
 
 ### 修复
