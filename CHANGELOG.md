@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 已删社交登录路径 E2E（2026-08-02）
+
+### 新增
+- `dead-auth-routes.spec.ts`：`/login/success`、微信绑定页 404；`/auth/oauth2/**` 非 200
+  验证点：`npx playwright test tests/e2e/dead-auth-routes.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 设计器顶栏仓库链改 GitHub（2026-08-02）
 
 ### 修复
