@@ -38,8 +38,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 2. ~~**登录/注册页副标题去 ChatGPT 噱头**~~（已合入；回归见 `smoke.spec.ts`）
 3. ~~**`presence.spec` 清理项目**~~（已合入 `deleteOwnPersonProjects`）
 4. ~~**协作 sync toast E2E**~~（已合入 `sync-toast.spec.ts`；info 路径）
-5. **前端 eslint warn 定点清零**：任选 `src/store/project` 下 1 个文件的 `consistent-type-imports` / `no-unused-vars`  
-   验证：`yarn eslint <file>` 对该文件无新增 warn
+5. ~~**前端 eslint warn 定点清零（configJsonSlice）**~~（已合入；其它 store 文件仍可认领）
 
 ## 贡献者怎么认领
 
