@@ -1,6 +1,8 @@
-import create, {GetState, SetState} from "zustand";
+import type {GetState, SetState} from "zustand";
+import create from "zustand";
 
-import {StoreApiWithSubscribeWithSelector, subscribeWithSelector} from 'zustand/middleware';
+import type {StoreApiWithSubscribeWithSelector} from 'zustand/middleware';
+import { subscribeWithSelector} from 'zustand/middleware';
 
 import type {IProjectJsonDispatchSlice, IProjectJsonSlice} from "./projectJsonSlice";
 import ProjectJsonSlice from "./projectJsonSlice";
@@ -17,7 +19,7 @@ import request from "@/utils/request";
 import * as Save from '@/utils/save';
 import useGlobalStore from "@/store/global/globalStore";
 import {enablePatches, produceWithPatches} from 'immer'
-import {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
+import type {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
 import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/services/collabPresence";
@@ -31,20 +33,37 @@ export type RemoteCursor = { x: number; y: number; ts: number };
 export function ensureProjectJSON(project: any) {
   if (!project || typeof project !== 'object') return project;
   if (!project.projectJSON || typeof project.projectJSON !== 'object') {
-    project.projectJSON = JSON.parse(JSON.stringify(defaultData));
-    return project;
+    return {
+      ...project,
+      projectJSON: JSON.parse(JSON.stringify(defaultData)),
+    };
   }
   const json = project.projectJSON;
-  if (!Array.isArray(json.modules)) {
-    json.modules = [];
+  const modules = Array.isArray(json.modules) ? json.modules : [];
+  const profile =
+    json.profile && typeof json.profile === 'object'
+      ? json.profile
+      : JSON.parse(JSON.stringify(defaultData.profile));
+  const dataTypeDomains =
+    json.dataTypeDomains && typeof json.dataTypeDomains === 'object'
+      ? json.dataTypeDomains
+      : JSON.parse(JSON.stringify(defaultData.dataTypeDomains));
+  if (
+    modules === json.modules &&
+    profile === json.profile &&
+    dataTypeDomains === json.dataTypeDomains
+  ) {
+    return project;
   }
-  if (!json.profile || typeof json.profile !== 'object') {
-    json.profile = JSON.parse(JSON.stringify(defaultData.profile));
-  }
-  if (!json.dataTypeDomains || typeof json.dataTypeDomains !== 'object') {
-    json.dataTypeDomains = JSON.parse(JSON.stringify(defaultData.dataTypeDomains));
-  }
-  return project;
+  return {
+    ...project,
+    projectJSON: {
+      ...json,
+      modules,
+      profile,
+      dataTypeDomains,
+    },
+  };
 }
 
 /** 应用远端 sync 时抑制回声广播 */
@@ -137,16 +156,14 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         syncing: false,
         timestamp: Date.now(),
         fetch: async (projectId?: string|null) => {
-          if (!projectId) {
-            projectId = cache.getItem(CONSTANT.PROJECT_ID);
-          }
+          const resolvedId = projectId || cache.getItem(CONSTANT.PROJECT_ID);
           set({ projectLoading: true });
           try {
-            await request.get(`/ncnb/project/info/${projectId}`).then((res: any) => {
-              const data = res?.data;
-              if (res?.code === 200 && data) {
+            await request.get(`/ncnb/project/info/${resolvedId}`).then((res: any) => {
+              const raw = res?.data;
+              if (res?.code === 200 && raw) {
                 resetCanvasHistory();
-                ensureProjectJSON(data);
+                const data = ensureProjectJSON(raw);
                 lastSyncedProjectJson = data.projectJSON
                   ? JSON.parse(JSON.stringify(data.projectJSON))
                   : null;
@@ -244,7 +261,8 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
             message.warning(e?.message || '协作在线状态连接失败');
           }
         },
-        closeSocket: (_projectId: string) => {
+        closeSocket: (projectId: string) => {
+          void projectId;
           const username = cache.getItem('username') || undefined;
           disconnectPresence(get().socket, username);
           if (syncEmitTimer) {

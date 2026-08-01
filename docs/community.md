@@ -52,7 +52,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 16. ~~**`entitiesSlice` eslint 清零**~~（已合入；warn=0）
 17. ~~**设计器「项目」菜单接线**~~（已合入；数据源设置可开）
 18. ~~**`projectJsonSlice` eslint warn 清零**~~（已合入；草稿 `06` 已标完成）
-19. **`useProjectStore` eslint warn 清零**（草稿 `07-useProjectStore-eslint.md`）
+19. ~~**`useProjectStore` eslint warn 清零**~~（已合入；草稿 `07` 已标完成）
 20. **`modulesSlice` eslint warn 清零**（草稿 `08-modulesSlice-eslint.md`）
 
 ## 贡献者怎么认领
