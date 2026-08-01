@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — Sync 冲突提示 + P2 收口（2026-08-02）
+
+### 新增
+- 收到远端 sync：已保存 → info「同步了模型变更」；本地未保存 → warning 提示核对；patch 失败 → error（3s 节流）
+- **ADR-0010**：暗色模式延期；P2 体验深水区标 ✅
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿；`verify-socket-sync.mjs` PASS
+
 ## [Unreleased] — 协作模型增量 sync（2026-08-02）
 
 ### 新增

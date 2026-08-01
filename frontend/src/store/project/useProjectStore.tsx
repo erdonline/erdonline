@@ -31,6 +31,8 @@ let applyingRemoteSync = false;
 let syncEmitTimer: ReturnType<typeof setTimeout> | null = null;
 /** 上次已广播的 projectJSON 快照（防抖合并后 diff） */
 let lastSyncedProjectJson: any = null;
+/** 远端同步提示节流 */
+let lastRemoteSyncToastAt = 0;
 
 
 enablePatches()
@@ -176,6 +178,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 if (!delta || timestamp <= get().timestamp) return;
                 const project = get().project;
                 if (!project?.projectJSON) return;
+                const localDirty = !useGlobalStore.getState().saved;
                 try {
                   applyingRemoteSync = true;
                   const nextJson = jsondiffpatch.patch(
@@ -188,9 +191,21 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                     syncing: true,
                     project: { ...project, projectJSON: nextJson },
                   });
+                  const now = Date.now();
+                  if (now - lastRemoteSyncToastAt > 3000) {
+                    lastRemoteSyncToastAt = now;
+                    if (localDirty) {
+                      message.warning(
+                        `${username} 更新了模型；你有未保存改动，请核对后保存`,
+                      );
+                    } else {
+                      message.info(`${username} 同步了模型变更`);
+                    }
+                  }
                 } catch (err) {
                   // eslint-disable-next-line no-console
                   console.warn('[sync] patch failed', err);
+                  message.error('同步模型失败，请刷新页面重试');
                 } finally {
                   // 下一 macrotask 再放开，避免 subscribe 同轮回声
                   setTimeout(() => {
@@ -207,7 +222,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
             message.warning(e?.message || '协作在线状态连接失败');
           }
         },
-        closeSocket: (projectId: string) => {
+        closeSocket: (_projectId: string) => {
           const username = cache.getItem('username') || undefined;
           disconnectPresence(get().socket, username);
           if (syncEmitTimer) {
