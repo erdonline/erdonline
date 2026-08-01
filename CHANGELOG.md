@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — Presence 断线清名单（2026-08-02）
+
+### 修复
+- Socket 断线/关页后房间名单残留：namespace DisconnectListener 与 leaveRoom 同路径摘名（多标签同用户保活）
+  验证点：`node scripts/verify-socket-presence.mjs`（双人进房→一人断线→名单只剩留守者）PASS
+
 ## [Unreleased] — 协作 Presence 短票（2026-08-02）
 
 ### 新增
