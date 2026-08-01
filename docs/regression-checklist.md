@@ -136,7 +136,7 @@
 - [x] [SocketIO 端口释放] 后端重启后 9092 可重绑，无 BindException（2026-08-01 验证通过）
 - [x] [登录契约 JWT] `POST /auth/login` JSON → access_token；Bearer 访问业务接口 200（替代旧 `/oauth/token`）
 - [x] [社交登录已删] `/login/success`、微信绑定页 404；`/auth/oauth2/**` 非 200 ✅`dead-auth-routes.spec.ts`
-- [ ] [画布删除二次确认] ReactFlow 节点 Delete 已守卫（不删表）；树侧删表确认另查
+- [x] [画布删除二次确认] ReactFlow Delete 不删表；树侧确认含不可逆文案 ✅`smoke`「删除表」取消/确认
 - [x] [画布撤销/重做] relation.spec.ts 覆盖 ✅自动
 - [x] [登录 console 无账密] ux-audit / smoke 覆盖 ✅自动
 
