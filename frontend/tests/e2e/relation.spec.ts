@@ -41,10 +41,10 @@ async function connectFields(
   await page.waitForTimeout(500);
   const fromRow = page
     .locator('.react-flow__node', { hasText: fromTable })
-    .locator('.erd-field-row', { hasText: fromField });
+    .locator(`.erd-field-row[data-field="${fromField}"]`);
   const toRow = page
     .locator('.react-flow__node', { hasText: toTable })
-    .locator('.erd-field-row', { hasText: toField });
+    .locator(`.erd-field-row[data-field="${toField}"]`);
   const src = fromRow.locator('.react-flow__handle-right');
   const tgt = toRow.locator('.react-flow__handle-left');
   await expect(src).toBeVisible();
@@ -103,47 +103,45 @@ test.describe('关系图画布（ReactFlow）', () => {
       };
       await openRelation();
 
-      // 不变量：空态有可操作引导（非静态插图）→ 点击即建表上图
+      // 不变量：空态有可操作引导（非静态插图）→ 点击即建表上图，且带默认主键字段
       await expect(page.locator('.erd-empty-cta')).toBeVisible();
       await page.locator('.erd-empty-button').click();
       await expect(page.locator('.erd-empty-cta')).toHaveCount(0);
-      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
+      const firstNode = page.locator('.react-flow__node', { hasText: 'T_TABLE_1' });
+      await expect(firstNode).toBeVisible();
+      await expect(firstNode).toContainText(/id|主键/i);
       // 自动保存状态可见：编辑后最终「已保存」
       await expect(page.getByTestId('save-status')).toBeVisible();
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
 
-      // 不变量：节点即编辑器——内联加字段立即生效（告别双击开标签+handsontable）
-      await addFieldInline(page, 'T_TABLE_1', 'ID', 'IdOrKey');
-      // IdOrKey 默认即 PK
-      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' }).locator('.erd-pk-badge.active')).toHaveCount(1);
+      // 不变量：建表即带默认主键；节点即编辑器——内联加业务字段立即生效
+      await expect(
+        page.locator('.react-flow__node', { hasText: 'T_TABLE_1' }).locator('.erd-pk-badge.active')
+      ).toHaveCount(1);
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       // 表头改名 / PK 切换：浏览器 MCP 已实证；RF 节点层吞 Playwright click，改名自动化待命令面板轮补
 
-      // 第二张表：左侧 + 菜单（既有入口），画布开着即建即上图
+      // 第二张表：左侧 + 菜单（既有入口），画布开着即建即上图（中文名可选）
       await page.locator('button:has(.anticon-plus)').last().click();
       await page.getByRole('menuitem', { name: /新增表/ }).click();
       const tableModal = page.locator('.ant-modal:visible').last();
       const inputs = tableModal.locator('input');
       const n = await inputs.count();
       await inputs.nth(n - 2).fill('T_ORDER');
-      await inputs.nth(n - 1).fill('订单表');
+      // 中文名可选：只填表名即可确定（若仍有中文输入框则跳过）
       await tableModal.getByRole('button', { name: /确\s*定/ }).click();
       await expect(page.locator('.react-flow__node', { hasText: 'T_ORDER' })).toBeVisible();
-      // 仅加外键字段（避免两表都有 ID 时手柄定位歧义）
+      // 仅加外键字段（默认 id 作主键侧），先改名再连线（避免改名与边生命周期竞态）
       await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
-
-      // 不变量：字段拖连线建关联（外键 → 主键）
-      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'ID');
-      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
-
-      // 不变量：内联改字段名——双击 → 改名 → 立即可见（associations 锚点同步在 store 内完成）
       const orderNode = page.locator('.react-flow__node', { hasText: 'T_ORDER' });
-      await orderNode.locator('.erd-field-row', { hasText: 'T1_ID' }).dblclick();
+      await orderNode.locator('.erd-field-row[data-field="T1_ID"]').dblclick();
       const renameRow = orderNode.locator('.erd-field-editing');
       await renameRow.locator('.erd-field-input').fill('USER_ID');
       await renameRow.locator('.erd-field-input').press('Enter');
-      await expect(orderNode.locator('.erd-field-name', { hasText: 'USER_ID' })).toBeVisible();
-      // 改名后边应仍在（锚点跟随字段名）
+      await expect(orderNode.locator('.erd-field-row[data-field="USER_ID"]')).toBeVisible();
+
+      // 不变量：字段拖连线建关联（外键 → 默认主键 id）
+      await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
       await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
       // 不变量：删边——force 选中（边中点常被节点遮挡）+ Delete，边与关联同步清除

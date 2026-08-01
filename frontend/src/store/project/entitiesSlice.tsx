@@ -128,6 +128,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       return;
     }
 
+    // 未传字段或空数组时用项目默认字段（含主键），避免「建表即空壳」再多走一步
+    const defaultFields = (get().dispatch.getDefaultFields?.() || []).filter((f: any) => f != null);
+    const fields =
+      Array.isArray(entityData.fields) && entityData.fields.length > 0
+        ? entityData.fields
+        : defaultFields;
+    const indexs = Array.isArray(entityData.indexs) ? entityData.indexs : [];
+
     snapshotModules(modules);
     set(produce((state: any) => {
     const idx = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
@@ -140,8 +148,8 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       ...entityData,
       name: entityName,
       title: entityName,
-      fields: [],
-      indexs: []
+      fields: JSON.parse(JSON.stringify(fields)),
+      indexs: JSON.parse(JSON.stringify(indexs)),
     };
     state.project.projectJSON.modules[idx].entities.push(newEntity);
     
@@ -386,26 +394,29 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     set(produce((state: any) => {
     const entity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
     const oldFields: any[] = entity.fields || [];
-    // 字段改名时同步更新本模块 associations（边锚点跟随字段名，避免悬空关联）
-    if (oldFields.length === payload.length) {
-      for (let i = 0; i < oldFields.length; i += 1) {
-        const oldName = oldFields[i]?.name;
-        const newName = payload[i]?.name;
-        if (oldName && newName && oldName !== newName) {
-          (state.project.projectJSON.modules[moduleIndex].associations || []).forEach((a: any) => {
-            if (a?.from?.entity === entityTitle && a?.from?.field === oldName) {
-              a.from.field = newName;
-            }
-            if (a?.to?.entity === entityTitle && a?.to?.field === oldName) {
-              a.to.field = newName;
-            }
-          });
+    // 检测字段改名（旧有新无 ∪ 新有旧无，一对一时视为改名）并同步 associations
+    const oldNameList = oldFields.map((f: any) => f?.name).filter(Boolean);
+    const newNameList = payload.map((f: any) => f?.name).filter(Boolean);
+    const newNames = new Set(newNameList);
+    const oldNameSet = new Set(oldNameList);
+    const onlyOld = oldNameList.filter((n: string) => !newNames.has(n));
+    const onlyNew = newNameList.filter((n: string) => !oldNameSet.has(n));
+    const renamedFrom = new Set<string>();
+    if (onlyOld.length === 1 && onlyNew.length === 1) {
+      const [oldName] = onlyOld;
+      const [newName] = onlyNew;
+      renamedFrom.add(oldName);
+      (state.project.projectJSON.modules[moduleIndex].associations || []).forEach((a: any) => {
+        if (a?.from?.entity === entityTitle && a?.from?.field === oldName) {
+          a.from.field = newName;
         }
-      }
+        if (a?.to?.entity === entityTitle && a?.to?.field === oldName) {
+          a.to.field = newName;
+        }
+      });
     }
-    // 字段删除时清除涉及该字段的关联
-    const newNames = new Set(payload.map((f: any) => f.name));
-    const removed = oldFields.filter((f: any) => f?.name && !newNames.has(f.name)).map((f: any) => f.name);
+    // 真正删除的字段才清关联（改名旧名除外）
+    const removed = onlyOld.filter((n: string) => !renamedFrom.has(n));
     if (removed.length > 0) {
       state.project.projectJSON.modules[moduleIndex].associations =
         (state.project.projectJSON.modules[moduleIndex].associations || []).filter((a: any) => !(

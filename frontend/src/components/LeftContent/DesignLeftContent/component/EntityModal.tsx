@@ -99,9 +99,9 @@ const EntityModal: React.FC<EntityModalProps> = ({
                 <Form.Item
                     name="chnname"
                     label="中文名"
-                    rules={[{ required: true, message: '请输入中文名！' }]}
+                    rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
                 >
-                    <Input />
+                    <Input placeholder={modalType === 'entity' ? '可选' : undefined} />
                 </Form.Item>
                 {modalType === 'relation' && (
                     <>

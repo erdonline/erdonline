@@ -1,8 +1,9 @@
 import React from 'react';
 import {ProForm, ModalForm, ProFormText} from '@ant-design/pro-components';
 import useProjectStore from "@/store/project/useProjectStore";
+import useTabStore, {TabGroup} from "@/store/tab/useTabStore";
 import shallow from "zustand/shallow";
-import {Button} from "antd";
+import {Button, message} from "antd";
 import {PlusOutlined} from "@ant-design/icons";
 
 export type AddEntityProps = {
@@ -10,22 +11,11 @@ export type AddEntityProps = {
 };
 
 const AddEntity: React.FC<AddEntityProps> = (props) => {
-  const {projectDispatch, currentModuleIndex} = useProjectStore(state => ({
+  const {projectDispatch, currentModule} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
-    currentModuleIndex: state.currentModuleIndex || -1
+    currentModule: state.currentModule,
   }), shallow);
-
-  console.log('currentModuleIndex', 21, currentModuleIndex);
-
-
-  const emptyEntity = {
-    "title": "",
-    "fields": projectDispatch.getDefaultFields() || [],
-    "indexs": [],
-    "headers": [],
-    "chnname": ""
-  }
-
+  const tabDispatch = useTabStore(state => state.dispatch);
 
   return (<>
     <ModalForm
@@ -34,14 +24,24 @@ const AddEntity: React.FC<AddEntityProps> = (props) => {
         <Button icon={<PlusOutlined />}
                 type="text"
                 size={"small"}
+                data-testid="add-entity-trigger"
                 disabled={props.moduleDisable}>新建表</Button>
       }
       onFinish={async (values: any) => {
-        console.log(39, values);
-        await projectDispatch.addEntity({
-          ...emptyEntity,
+        if (!currentModule) {
+          message.error('请先选择模型');
+          return false;
+        }
+        projectDispatch.addEntity({
           title: values.title,
-          chnname: values.chnname,
+          chnname: values.chnname || '',
+          moduleName: currentModule,
+        });
+        // 建表后直开关系图，跳过「双击表→再切关系图」两步
+        tabDispatch.addTab({
+          group: TabGroup.MODEL,
+          module: currentModule,
+          entity: `关系图-${currentModule}`,
         });
         return true;
       }}
@@ -50,7 +50,7 @@ const AddEntity: React.FC<AddEntityProps> = (props) => {
         <ProFormText width="md"
                      name="title"
                      label="表名「英文名」"
-                     placeholder="请输入表名"
+                     placeholder="请输入表名，如 T_USER"
                      formItemProps={{
                        rules: [
                          {
@@ -68,13 +68,9 @@ const AddEntity: React.FC<AddEntityProps> = (props) => {
           width="md"
           name="chnname"
           label="中文名称"
-          placeholder="请输入中文名称"
+          placeholder="可选，便于阅读"
           formItemProps={{
             rules: [
-              {
-                required: true,
-                message: '不能为空',
-              },
               {
                 max: 100,
                 message: '不能大于 100 个字符',
