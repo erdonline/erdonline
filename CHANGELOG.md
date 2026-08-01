@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 版本管理首屏骨架 E2E（2026-08-02）
+
+### 新增
+- `loading.spec.ts`：慢网进版本管理见 `page-skeleton`，无 `Loading...` 文案残留
+  验证点：`npx playwright test tests/e2e/loading.spec.ts --project=chromium -g "版本管理"` 绿
+
 ## [Unreleased] — 默认项设置保存反馈 E2E（2026-08-02）
 
 ### 修复

@@ -45,4 +45,29 @@ test.describe('加载态骨架', () => {
 
     await deleteOwnPersonProjects(page);
   });
+
+  test('版本管理首屏慢网见骨架且无 Loading 文案', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('verskel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'vsk', 'version skeleton');
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await page.route('**/ncnb/dataSources**', async (route) => {
+        await new Promise((r) => setTimeout(r, 1200));
+        await route.continue();
+      });
+
+      await page.goto(`/design/table/version/all?projectId=${projectId}`);
+      await expect(page.getByTestId('page-skeleton')).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByText('Loading...')).toHaveCount(0);
+      await expect(page.getByTestId('add-version-btn')).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByTestId('page-skeleton')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
