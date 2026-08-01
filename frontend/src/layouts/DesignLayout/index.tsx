@@ -42,7 +42,6 @@ export interface DesignLayoutLayoutProps {
 export function fixRouteAccess(defaultPropsTmp: any, access: any) {
   const routes = defaultPropsTmp.route.routes.map((m: any) => {
     const pathAccess = access[m?.access];
-    console.log(48, pathAccess, m);
     if (pathAccess !== false) {
       return {
         ...m,
@@ -79,20 +78,16 @@ export function getNowTimeParse() {
 const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
   const access = useAccess();
 
-  console.log(17, props);
   const [pathname, setPathname] = useState('/design/table/model');
   const [searchParams] = useSearchParams();
   let projectId = searchParams.get("projectId") || '';
-  console.log(19, 'searchParams:projectId', projectId);
 
   if (!projectId || projectId === '') {
     projectId = cache.getItem(CONSTANT.PROJECT_ID) || '';
-    console.log(19, 'cache:projectId', projectId);
   } else {
     cache.setItem(CONSTANT.PROJECT_ID, projectId);
   }
 
-  console.log(19, 'final:projectId', projectId);
 
   const { fetch, project, projectLoading, initSocket, closeSocket } = useProjectStore(
     state => ({
@@ -106,7 +101,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
   useEffect(() => {
     fetch(projectId);
   }, [projectId]);
-  console.log(34, project);
 
 
   const settings: Partial<ProSettings> | undefined = {
@@ -119,23 +113,19 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
 
 
   useEffect(() => {
-    console.log(69, access, project.type)
     if (project && project.type === '2') {
       initSocket(projectId);
       GET("/ncnb/project/group/currentRolePermission", {
         projectId
       }).then(r => {
-        console.log(29, r);
         if (r?.code === 200) {
           r?.data?.permission?.push('initialized');
           setInitialState((s: any) => ({ ...s, access: { ...r.data, person: false } }));
         }
       })
       //权限初始化之后再过滤路由
-      console.log(106, 'access.initialized', access);
       if (access.initialized) {
         defaultProps.route.routes = fixRouteAccess(defaultProps, access);
-        console.log(54, defaultProps)
       }
     } else {
       setInitialState((s: any) => ({ ...s, access: { person: true } }));
@@ -145,12 +135,10 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
 
   // 页面卸载
   useUnmount(() => {
-    console.log(165, 'useUnmount');
     closeSocket(projectId);
   });
 
   const licence = cache.getItem2object('licence');
-  console.log(154, licence, licence?.licensedTo, licence.licensedStartTime);
 
 
   return (
@@ -205,7 +193,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
           </Dropdown>,
         }}
         menuExtraRender={(props) => {
-          console.log(118, props)
           return (
             pathname === '/design/table/model' || pathname === '/design/table/chatsql'
               ? <DesignLeftContent collapsed={props.collapsed} />
@@ -237,7 +224,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
         }}
         onMenuHeaderClick={(e) => history.push("/")}
         itemRender={(route, params, routes, paths) => {
-          console.log(141, route, params, routes, paths)
           const first = routes.indexOf(route) === 0;
           return first ? (
             <Link to={paths.join('/')}>{route.breadcrumbName}</Link>
@@ -255,7 +241,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
               :
               <div
                 onClick={() => {
-                  console.log(153, item);
                   setPathname(item?.path || pathname);
                 }}
               >

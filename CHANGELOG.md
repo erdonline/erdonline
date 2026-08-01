@@ -134,6 +134,13 @@
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
+### 性能：设计器热路径去掉 console.log（✅ eslint 清债切片）
+
+- `useProjectStore` immer/`set` 中间件与 fetch/socket 调试日志删除（原先每次模型变更都刷屏）
+- `DesignLayout` 渲染路径调试日志删除
+- 全仓 `no-console` warn：约 407 → 375
+  验证点：`yarn eslint` 上述两文件 0×no-console；`relation.spec` 仍绿
+
 ### 修：连线后改字段名边消失（✅）
 
 - 根因：association 仍在，但字段 Handle 动态变更后未 `updateNodeInternals`，RF 不渲染边

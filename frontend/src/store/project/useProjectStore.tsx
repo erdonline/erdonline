@@ -65,8 +65,6 @@ const backPatches: any[] = []
 export const wrapWithPatch = (fn: (store: ProjectState) => void) => {
   return (store: ProjectState) => {
     const [newStore, patches, invPatches] = produceWithPatches(fn)(store)
-    console.log(65, patches, 'patches')
-    console.log(65, invPatches, 'invPatches')
     forwardPatches.push(...patches)
     backPatches.push(...invPatches)
     return newStore
@@ -76,13 +74,9 @@ export const wrapWithPatch = (fn: (store: ProjectState) => void) => {
 // Turn the set method into an immer proxy
 // @ts-ignore
 export const immer = config => (set, get, api) => config((partial, replace) => {
-  console.log(50, "s",)
-  console.log(51, "partial", partial)
-  console.log(51, "replace", replace)
   const nextState = typeof partial === 'function'
     ? wrapWithPatch(partial)
     : partial;
-  console.log(51, "nextState", nextState)
   return set(nextState, replace);
 }, get, api)
 
@@ -92,8 +86,6 @@ export const immer = config => (set, get, api) => config((partial, replace) => {
 export const patch = config => (set, get, api) => config((fn: (store: ProjectState) => ProjectState) => {
   return (store: ProjectState) => {
     const [newStore, patches, invPatches] = produceWithPatches(fn)(store)
-    console.log(78, patches, 'patches')
-    console.log(79, invPatches, 'invPatches')
     forwardPatches.push(...patches)
     backPatches.push(...invPatches)
     return newStore
@@ -115,7 +107,6 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           set({ projectLoading: true });
           try {
             await request.get(`/ncnb/project/info/${projectId}`).then((res: any) => {
-              console.log(45, res);
               const data = res?.data;
               if (res?.code === 200 && data) {
                 resetCanvasHistory();
@@ -125,7 +116,6 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 get().dispatch.fixProject(data);
                 //计算全部表名
                 const tables = _.flatMapDepth(data?.projectJSON?.modules, (m) => {
-                  console.log(130, m);
                   return _.map(m.entities, 'title')
                 }, 2);
                 set({
@@ -141,13 +131,8 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
         },
         initSocket: async (projectId: string) => {
           let socket = get().socket;
-          console.log(165, socket);
           if (socket) return;
           socket = io(`http://localhost:3000?roomId=${projectId}`);
-          // client-side
-          socket.on("connect", () => {
-            console.log(socket?.id); // x8WIv7-mJelg7on_ALbx
-          });
           const username = cache.getItem('username');
           message.success(`当前您的身份为${username}`);
           // socket.on('historyRecord', (value: any) => message.success(`init ${value}`));
@@ -155,14 +140,12 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           socket.emit('join', username);
           // 监听消息
           socket.on('msg', (r: any) => {
-            console.log(149, r);
             if (username != r.username) {
               message.success(`${r.msg}`);
             }
           });
           // 监听消息
           socket.on('sync', (r: any) => {
-            console.log(148, 'sync', r);
             if (username != r.username && r.delta && r.timestamp != get().timestamp && JSON.stringify(r.delta) !== '{}') {
               get().dispatch.patch(r);
             }
@@ -172,7 +155,6 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           })
         },
         closeSocket: (projectId: string) => {
-          console.log(165, 'leave', get().socket)
           if (!get().socket) return;
           const username = cache.getItem('username');
           // 发送加入消息
@@ -188,10 +170,8 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           })
         },
         sync: (r: any,) => {
-          console.log(62, 'sync', get().socket, r.delta);
           if (get().socket) {
             if (get().project.type === '2') {
-              console.log(62, 'ws 已激活', r);
               const username = cache.getItem('username');
               const timestamp = Date.now();
               set({timestamp});
