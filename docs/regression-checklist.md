@@ -47,6 +47,7 @@
 - [x] [协作 sync 提示] 双人同项目：A 改表后 B 见 info / 未保存见 warning ✅`sync-toast.spec.ts`
 - [x] [空 projectJSON] API 建团队项目未带 JSON → 打开设计器可「新增模型」✅`empty-projectjson.spec.ts`
 - [x] [创建默认 projectJSON] API 建项目无 JSON → GET info `modules=[]` ✅`ProjectEnsureDefaultJsonTest` + curl
+- [x] [开源无升级 CTA] 设计器顶栏无「升级至尊版」✅`presence.spec.ts`
 
 ### 手工
 

@@ -41,6 +41,10 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 6. ~~**`databaseDomainsSlice` eslint warn 清零**~~（已合入）
 7. ~~**协作 sync warning toast E2E**~~（已合入 `sync-toast.spec.ts`）
 8. ~~**后端创建项目默认 projectJSON**~~（已合入 `ensureDefaultProjectJson` + 单测）
+9. ~~**去掉开源版「升级至尊」CTA**~~（已合入；`dialog/upgrade` 已删）
+10. **`exportSlice` eslint warn 清零**：`import type` / `prefer-const` / `no-param-reassign`  
+    文件：`frontend/src/store/project/exportSlice.tsx`  
+    验证：`yarn eslint src/store/project/exportSlice.tsx --max-warnings 0`
 
 ## 贡献者怎么认领
 
