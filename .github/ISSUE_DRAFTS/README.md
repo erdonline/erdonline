@@ -21,7 +21,6 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 | 文件 | 标题摘要 |
 |---|---|
 | `24-version-index-eslint.md` | 版本管理页 eslint 清零 |
-| `25-exportddl-unused-vars.md` | ExportDDL 剩余 eslint warn |
 
 合入后在对应草稿顶部加：
 

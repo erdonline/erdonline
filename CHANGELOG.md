@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — ExportDDL eslint 清零（2026-08-02）
+
+### 修复
+- `ExportDDL.tsx`：`ProFormInstance` / `RadioChangeEvent` 改为 `import type`
+  验证点：`yarn eslint …/ExportDDL.tsx --max-warnings 0`；project-menu「导出」2 绿
+
 ## [Unreleased] — 表头改名 E2E（2026-08-02）
 
 ### 体验 / 测试
