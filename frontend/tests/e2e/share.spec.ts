@@ -70,8 +70,12 @@ test.describe('只读分享', () => {
       expect(forked.data?.projectId).toBeTruthy();
       await expect(page).toHaveURL(new RegExp(`projectId=${forked.data.projectId}`), { timeout: 15_000 });
     } finally {
+      // 失败路径也清：含 fork 副本；连跑两轮防残留
+      await deleteOwnPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
       await page.goto('/project/person');
-      await deleteOwnPersonProjects(page).catch(() => undefined);
+      const escaped = projectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      await expect(page.getByRole('link', { name: new RegExp(escaped) })).toHaveCount(0);
     }
   });
 });
