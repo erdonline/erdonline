@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 在线 Demo（2026-08-02）
+
+### 新增
+- 免登录 `/demo` → `/s/public-demo`；种子 `db/init/08_public_demo.sql`；登录/注册入口「先看演示」
+  验证点：`npx playwright test tests/e2e/demo.spec.ts --project=chromium` 绿；`curl` GET share `public-demo` 200
+
 ## [Unreleased] — 双周发版笔记（2026-08-02）
 
 ### 文档

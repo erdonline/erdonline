@@ -74,8 +74,11 @@ docker compose up -d          # 启动 mysql + redis + backend + frontend
 - 前端：http://localhost:8000
 - 后端 API：http://localhost:9502
 - 默认账号：`admin` / `123456`
+- **免登录演示**：http://localhost:8000/demo（只读分享；可「复制到我的项目」）
 
 登录后首页点 **「示例项目」**：约 30 秒进入带用户/订单表的关系图，再在「版本 → 版本管理」保存快照。
+
+已有库需补演示种子时：`docker exec -i erd-mysql mysql -uroot -proot < db/init/08_public_demo.sql`
 
 ### 方式二：本地开发
 

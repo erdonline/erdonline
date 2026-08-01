@@ -157,8 +157,11 @@ export default () => {
             ],
           }}
         />
-
-
+        <div style={{marginTop: 16, textAlign: 'center'}}>
+          <a href="/demo" aria-label="先看演示">
+            先看演示（免登录）
+          </a>
+        </div>
       </LoginFormPage>
     </div>
   );
