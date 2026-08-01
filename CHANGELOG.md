@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — useProjectStore eslint 清零（2026-08-02）
+
+### 修复
+- `useProjectStore.tsx`：`import type`；`ensureProjectJSON` 不可变补齐；fetch 用局部 id；eslint warn=0
+  验证点：`yarn eslint src/store/project/useProjectStore.tsx --max-warnings 0`；`empty-projectjson` + `sync-toast` 绿
+
 ## [Unreleased] — projectJsonSlice eslint 清零（2026-08-02）
 
 ### 修复
