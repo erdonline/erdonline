@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useContext, useState} from 'react';
 import { Button } from "antd";
 import {
   ModalForm,
@@ -15,6 +15,7 @@ import {Button as AntButton, message} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {CONSTANT} from "@/utils/constant";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 
 export type DefaultSetUpProps = {};
@@ -22,6 +23,7 @@ export type DefaultSetUpProps = {};
 const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
   const [tab, setTab] = useState('tab1');
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
 
   const {projectDispatch, profile} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
@@ -40,6 +42,7 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = (props) => {
           block
           style={{ textAlign: 'left' }}
           aria-label="默认项设置"
+          onClick={() => closeProjectMenu()}
         >默认项设置</Button>
       }
       initialValues={profile}

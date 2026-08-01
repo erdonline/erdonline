@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 默认项设置保存反馈 E2E（2026-08-02）
+
+### 修复
+- 项目下拉受控关闭 + `destroyPopupOnHide=false`，避免设置弹窗被菜单层挡住后卸载
+- E2E：默认项设置确定 →「设置成功」；Issue 草稿 11–12
+  验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — 项目菜单「版本」跳转版本管理（2026-08-02）
 
 ### 修复

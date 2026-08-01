@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import { Button, Menu } from "antd";
 import { createFromIconfontCN } from "@ant-design/icons";
 import AddVersion from "@/components/dialog/version/AddVersion";
@@ -23,6 +23,7 @@ import ReverseERD from "@/components/dialog/import/ReverseERD";
 import { history } from "@@/exports";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 export const MyIcon = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_1485538_uljgplzg6rm.js', // 在 iconfont.cn 上生成
@@ -74,7 +75,9 @@ const setShortcut = (shortcut: string) => {
 };
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const openVersionManage = () => {
+    closeProjectMenu();
     const projectId =
       cache.getItem(CONSTANT.PROJECT_ID) ||
       new URLSearchParams(window.location.search).get("projectId") ||

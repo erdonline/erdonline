@@ -5,6 +5,7 @@ import CollabPresence from "@/components/CollabPresence";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { ProjectMenu } from "@/components/Menu";
+import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import { menuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -88,6 +89,40 @@ export function getNowTimeParse() {
 
   return `${YYYY}-${MM}-${DD}T${hh}:${mm}:${ss}.${ms}`;
 }
+
+const ProjectMenuDropdown: React.FC = () => {
+  const [open, setOpen] = useState(false);
+  const ignoreOpenRef = React.useRef(false);
+  // 菜单内点开 Modal 后关闭下拉；短时忽略随后的 onOpenChange(true) 回声
+  const closeMenu = () => {
+    ignoreOpenRef.current = true;
+    setOpen(false);
+    window.setTimeout(() => {
+      ignoreOpenRef.current = false;
+    }, 400);
+  };
+  return (
+    <ProjectMenuCloseContext.Provider value={closeMenu}>
+      <Dropdown
+        trigger={['click']}
+        open={open}
+        onOpenChange={(next) => {
+          if (next && ignoreOpenRef.current) {
+            return;
+          }
+          setOpen(next);
+        }}
+        // 菜单内 ModalForm 依赖挂载；关闭下拉时勿销毁，否则弹窗一并卸掉
+        destroyPopupOnHide={false}
+        dropdownRender={() => <ProjectMenu />}
+      >
+        <Button type="text" aria-label="项目菜单">
+          项目 <CaretDownOutlined />
+        </Button>
+      </Dropdown>
+    </ProjectMenuCloseContext.Provider>
+  );
+};
 
 const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
   const access = useAccess();
@@ -197,14 +232,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
           type: 'group',
         }}
         headerContentRender={() => (
-          <Dropdown
-            trigger={['click']}
-            dropdownRender={() => <ProjectMenu />}
-          >
-            <Button type="text" aria-label="项目菜单">
-              项目 <CaretDownOutlined />
-            </Button>
-          </Dropdown>
+          <ProjectMenuDropdown />
         )}
         avatarProps={{
           src: <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2} />,

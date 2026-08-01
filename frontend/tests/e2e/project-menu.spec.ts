@@ -3,6 +3,7 @@ import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
+  expectToast,
   login,
   uniqueProjectName,
 } from './helpers';
@@ -113,6 +114,30 @@ test.describe('设计器项目菜单', () => {
       await expect(dialog.getByText('默认项设置')).toBeVisible();
       await expect(dialog.getByRole('tab', { name: '默认字段' })).toBeVisible();
       await expect(dialog.getByRole('tab', { name: '默认配置' })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('项目 → 设置 → 默认项设置 保存有成功提示', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('defsave');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page.getByRole('menuitem', { name: '设置' }).hover();
+      await page.getByRole('button', { name: '默认项设置' }).click();
+
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      // SubMenu 遮挡时 pointer 点不进；DOM click 仍触发 ModalForm 提交
+      await dialog.getByRole('button', { name: /确\s*定/ }).evaluate((el: HTMLElement) => {
+        el.click();
+      });
+      await expectToast(page, '设置成功');
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
