@@ -101,6 +101,12 @@
 - **E2E**：`activation.spec.ts` 首页点示例 → 关系图见 2 节点 1 边
   验证点：`npx playwright test tests/e2e/activation.spec.ts` 通过
 
+### 设计器自动保存状态可见（✅）
+
+- 画布工具栏 `save-status`：保存中 / 已保存 / 未保存；防抖 600ms；失败有 message
+- 首次拉取项目不触发无意义保存
+  验证点：`relation.spec` 建表后 `save-status` 为「已保存」
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。

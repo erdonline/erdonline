@@ -98,7 +98,6 @@ export const patch = config => (set, get, api) => config((fn: (store: ProjectSta
     return newStore
   }
 }, get, api)
-const globalState = useGlobalStore.getState();
 const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<ProjectState>, StoreApiWithSubscribeWithSelector<ProjectState>>(
   subscribeWithSelector(
     immer(
@@ -211,27 +210,63 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
 );
 
 
+/** 自动保存防抖：合并连续编辑，状态条可见「保存中 / 已保存 / 未保存」 */
+let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+let autosaveSeq = 0;
+
 // @ts-ignore
 useProjectStore.subscribe(state => state.project, (project, previousProject) => {
-  console.log(109, project);
-  console.log(110, previousProject);
-  console.log(110, globalState.needSave);
-  // const delta = jsondiffpatch.diff(previousProject, project);
-  //
-  // console.log(172, 'delta', delta);
-  // if (delta && delta.projectJSON
-  //   && ((!previousProject.timestamp && !project.timestamp) || previousProject.timestamp != project.timestamp)) {
-  //   console.log(172, '开启同步', delta);
-  //   useProjectStore.getState().sync({
-  //     delta: delta,
-  //     timestamp: project.timestamp
-  //   });
-  //   console.log(172, '开启保存', delta);
-
-  // }
-  if (project&&JSON.stringify(project) != "{}") {
-    Save.saveProject(project);
+  if (!project || JSON.stringify(project) === '{}') {
+    return;
   }
+  // 首次拉取项目：previous 为空对象，避免刚加载就打一枪保存
+  if (!previousProject || JSON.stringify(previousProject) === '{}') {
+    useGlobalStore.getState().dispatch.setSaved(true);
+    useGlobalStore.getState().dispatch.setSaving(false);
+    return;
+  }
+  if (!useGlobalStore.getState().needSave) {
+    return;
+  }
+
+  useGlobalStore.getState().dispatch.setSaved(false);
+  useGlobalStore.getState().dispatch.setSaving(true);
+
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+  }
+  const seq = ++autosaveSeq;
+  autosaveTimer = setTimeout(() => {
+    const latest = useProjectStore.getState().project;
+    if (!latest || JSON.stringify(latest) === '{}') {
+      return;
+    }
+    Save.saveProject(latest)
+      .then((res: any) => {
+        if (seq !== autosaveSeq) {
+          return;
+        }
+        if (res?.code === 200) {
+          useGlobalStore.getState().dispatch.setSaved(true);
+          useGlobalStore.getState().dispatch.setSaving(false);
+        } else {
+          useGlobalStore.getState().dispatch.setSaving(false);
+          useGlobalStore.getState().dispatch.setSaved(false);
+          message.error(res?.msg || res?.message || '自动保存失败');
+        }
+      })
+      .catch((err: any) => {
+        if (seq !== autosaveSeq) {
+          return;
+        }
+        useGlobalStore.getState().dispatch.setSaving(false);
+        useGlobalStore.getState().dispatch.setSaved(false);
+        // request errorHandler 已弹过网络错误时避免重复；无 message 再补
+        if (err && !err.response) {
+          message.error(err?.message || '自动保存失败');
+        }
+      });
+  }, 600);
 });
 
 
