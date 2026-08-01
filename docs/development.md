@@ -29,6 +29,11 @@ colima start --cpu 4 --memory 8 --disk 40 \
 # 1. 起数据库
 docker-compose up -d mysql redis
 
+# 1b. （可选）逆向方言验证库：PostgreSQL + SQL Server
+#     ./scripts/dev-reverse-dbs.sh
+#     或仅 PG：docker-compose --profile reverse up -d postgres
+#     连接见脚本输出；MySQL 验证库 reverse_demo（root/root）
+
 # 2. 后端（默认端口 9502，profile=dev；tmux 常驻）
 ./backend/dev-ensure.sh            # 幂等：健康秒退，不健康自动拉起
 ./backend/dev-ensure.sh --restart  # 改了 Java/yml/mapper 后重启

@@ -75,6 +75,53 @@ services:
     ports:
       - "${FRONTEND_PORT:-8000}:80"
 
+  # 逆向方言验证（profile=reverse）：PostgreSQL + SQL Server
+  # 用法：docker-compose --profile reverse up -d postgres sqlserver
+  postgres:
+    profiles: ["reverse"]
+    image: postgres:16
+    container_name: erd-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: reverse
+      POSTGRES_PASSWORD: reverse
+      POSTGRES_DB: reverse_demo
+      TZ: Asia/Shanghai
+    ports:
+      - "${POSTGRES_PORT:-5432}:5432"
+    volumes:
+      - erd-postgres-data:/var/lib/postgresql/data
+      - ./db/reverse-fixtures/postgres:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U reverse -d reverse_demo"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  # Azure SQL Edge：Apple Silicon / Colima arm64 可用；能力接近 SQL Server（验证 Dialect）
+  sqlserver:
+    profiles: ["reverse"]
+    image: mcr.microsoft.com/azure-sql-edge:latest
+    container_name: erd-sqlserver
+    restart: unless-stopped
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Reverse_Passw0rd"
+    ports:
+      - "${SQLSERVER_PORT:-1433}:1433"
+    volumes:
+      - erd-sqlserver-data:/var/opt/mssql
+      - ./db/reverse-fixtures/sqlserver:/fixtures:ro
+    # Edge 镜像未必带 sqlcmd；用 bash TCP 探活，种子由 scripts/dev-reverse-dbs.sh 灌入
+    healthcheck:
+      test: ["CMD-SHELL", "timeout 1 bash -c '</dev/tcp/127.0.0.1/1433' || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 30s
+
 volumes:
   erd-mysql-data:
   erd-redis-data:
+  erd-postgres-data:
+  erd-sqlserver-data:
