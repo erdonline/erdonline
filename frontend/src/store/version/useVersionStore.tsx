@@ -763,15 +763,15 @@ const useVersionStore = create<VersionState>(
         get().fetch(null,get().currentPage,get().pageSize);
       },
       revertVersionData: () => {
-        console.log(754, get().currentVersion);
-        // get().dispatch.s
-        // useProjectStore.getState().dispatch.setProjectJson({});
-        const modules = get()?.currentVersion?.projectJSON?.modules;
+        const ver = get()?.currentVersion;
+        const modules = ver?.projectJSON?.modules;
         if (modules instanceof Array && modules.length > 0) {
           useProjectStore.getState().dispatch.setModules(modules);
-          message.success(`成功回滚至「${get()?.currentVersion?.version}」`);
-          get().fetch(null,get().currentPage,get().pageSize);
+          message.success(`成功回滚至「${ver?.version}」`);
+          get().fetch(null, get().currentPage, get().pageSize);
+          return;
         }
+        message.error('该版本无可用模型快照，无法回滚');
       },
       readDb: (status: any, version: any, lastVersion: any, changes = [], initVersion: any, updateVersion: any) => {
         if (!status) {

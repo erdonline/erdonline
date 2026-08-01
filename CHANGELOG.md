@@ -88,6 +88,12 @@
 - **比对入口**：不足两版时「版本比对」禁用
   验证点：`approval.spec.ts` 表头/空态；`version.spec.ts` 单版禁用比对、双版比对出 REMARK
 
+### 版本回滚 + 删表确认（✅）
+
+- **回滚**：无快照时 `message.error`；去掉 debug console；`data-testid=version-revert-btn`
+- **删表确认 E2E**：模型树「…→删除表」出现确认框，取消不删（替换原 g6 canvas fixme）
+  验证点：`version.spec` 回滚后 REMARK 消失；`smoke`「模型树删除表需二次确认」通过
+
 ## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。

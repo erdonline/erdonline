@@ -138,6 +138,27 @@ test.describe('版本快照', () => {
       await expect(page.getByTestId('version-diff-panel')).toBeVisible();
       await expect(page.getByTestId('version-diff-item-add').first()).toBeVisible();
       await expect(page.getByTestId('version-diff-panel')).toContainText(/REMARK|T_TABLE_1/);
+      await page.locator('.ant-modal-close').click();
+
+      // 回滚到 1.0.0：字段 REMARK 应从模型消失
+      const v100 = page.locator('.ant-list-item', { hasText: '1.0.0' }).first();
+      await v100.hover();
+      await v100.getByTestId('version-revert-btn').click();
+      await page.getByRole('button', { name: '是' }).click();
+      await expect(page.locator('.ant-message')).toContainText(/成功回滚/, { timeout: 10_000 });
+
+      await page.getByRole('menuitem', { name: '模型', exact: true }).click();
+      await expect(page.locator('.ant-tree')).toBeVisible({ timeout: 10_000 });
+      await expandNode('商城');
+      await expandNode('关系');
+      await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).last().click();
+      await expect(page.locator('.react-flow')).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator('.react-flow__node', { hasText: 'T_TABLE_1' })).toBeVisible();
+      await expect(
+        page.locator('.react-flow__node', { hasText: 'T_TABLE_1' }).locator('.erd-field-name', {
+          hasText: 'REMARK',
+        }),
+      ).toHaveCount(0);
     } finally {
       await deleteAllPersonProjects(page).catch(() => {});
     }
