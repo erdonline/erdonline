@@ -10,7 +10,8 @@
 - 同步 `dev-loop-speed.mdc`、`docs/development.md`，废弃「直接跑 dev-restart / kill 9502」旁路
 - 本地基建改为 **Colima + docker-compose** 托管 MySQL/Redis；禁止 brew 常驻抢端口；文档给出 `--disk-image` 与国内 registry-mirrors
 - 逆向验证栈：`docker-compose --profile reverse`（PostgreSQL / Azure SQL Edge）+ `db/reverse-fixtures` + `scripts/dev-reverse-dbs.sh`
-  验证点：`colima` + `erd-mysql/redis` healthy；MySQL/PG `dbReverseParse` 产出 indexs + associations（已 curl）
+- Vision 5m 循环：`scripts/agent-loop-vision.sh` + `agent-loop-vision.prompt.md`（现场读 roadmap 选题，禁止写死主线）
+  验证点：`colima` + `erd-mysql/redis` healthy；MySQL/PG `dbReverseParse` 产出 indexs + associations（已 curl）；旧写死 prompt 循环已停、新脚本 PID 可查
 
 ## [Unreleased] — 多库逆向 Dialect SPI（2026-08-01）
 
