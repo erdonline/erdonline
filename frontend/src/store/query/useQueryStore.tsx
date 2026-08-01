@@ -39,7 +39,7 @@ const useQueryStore = create<QueryState>(
     treeData: [],
     dispatch: {
       queryHistory: (model) => {
-        return GET('/ncnb/queryHistory', model);
+        return POST('/ncnb/queryHistory', model);
       },
       explain: (model) => {
         return POST('/ncnb/queryInfo/explain', model);

@@ -68,14 +68,23 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 
 - 并发隔离：本地上限 16 worker（默认 `ceil(CPU/2)`，满配 `PW_WORKERS=16`）；每 worker 登录 `e2e{n}`（`e2e0`..`e2e15`）；项目名 `e2e-w{n}-` 前缀
 - 空态/示例用例在 `chromium-serial`（`workers: 1`），账号 `e2e-serial`
-- 已有库补种子：`mysql -h127.0.0.1 -uroot < db/init/05_e2e_users.sql`
+- 已有库补种子：`mysql -h127.0.0.1 -uroot -proot < db/init/05_e2e_users.sql`
+- 已有库补数据源表：`docker exec -i erd-mysql mysql -uroot -proot < db/init/07_data_sources.sql`
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
 ## 前端如何找到后端
 
-前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb` 代理到 `http://localhost:9502`。
+前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb`、`/auth` 代理到 `http://localhost:9502`。
+后端 `GatewayPrefixStripFilter` 剥离 `/ncnb`|`/auth`|`/syst` 前缀后再进 Controller。
 生产环境通过 `public/env-config.js`（由 `.env` 生成）注入 `window._env_.API_URL`。
+
+联调探测（登录后打常用接口，期望无 404/405/500）：
+
+```bash
+./scripts/audit-fe-apis.sh
+# 或指定：./scripts/audit-fe-apis.sh http://localhost:9502 e2e0 123456
+```
 
 ## 后端包结构
 

@@ -2,6 +2,16 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 前后端接口连通性（2026-08-02）
+
+### 修复
+- `GET /ncnb/dataSources` 500：缺表 `erd.data_sources` → 新增 `db/init/07_data_sources.sql` + `@TableName`
+- 注册匿名 401：`ignore-urls` 补 `/project/group/user/register`（前缀剥离后）
+- `queryHistory`：FE 误用 GET → 统一 POST（与 Controller 一致）
+- `updateDatabaseConfigs`：禁止无 id 批量 PUT，改为按 id 增删改
+- 探测脚本 `scripts/audit-fe-apis.sh`
+  验证点：`./scripts/audit-fe-apis.sh` 全 OK；`GET /ncnb/dataSources?size=10&current=1` 200
+
 ## [Unreleased] — 只读分享 API（2026-08-02）
 
 ### 新增

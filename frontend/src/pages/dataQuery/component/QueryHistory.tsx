@@ -1,6 +1,6 @@
 import {ProColumns, ProTable} from "@ant-design/pro-components";
 import React, {useEffect} from "react";
-import {GET} from "@/services/crud";
+import {POST} from "@/services/crud";
 import {useSearchParams} from "@@/exports";
 import * as cache from "@/utils/cache";
 import {CONSTANT} from "@/utils/constant";
@@ -65,7 +65,7 @@ const QueryHistory: React.FC<QueryHistoryProps> = (props) => {
       rowKey="id"
       request={
         async (params) => {
-          const result = await GET('/ncnb/queryHistory', {
+          const result = await POST('/ncnb/queryHistory', {
             ...params,
             size: params.pageSize,
             queryId: props.queryId,

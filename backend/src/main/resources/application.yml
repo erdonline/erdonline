@@ -136,6 +136,8 @@ security:
         - /exit
         - /register
         - /user/register
+        # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）
+        - /project/group/user/register
         - /user/loadUserByUsername/*
         - /endpoint/**
         - /error
