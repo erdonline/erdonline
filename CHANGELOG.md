@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — 空 projectJSON 可新增模型（2026-08-02）
+
+### 修复
+- 打开项目时 `ensureProjectJSON` 补齐 null/残缺骨架；`addModule` 防 `modules` 未定义误报「已存在」
+  验证点：`npx playwright test tests/e2e/empty-projectjson.spec.ts --project=chromium` 绿
+
 ## [Unreleased] — configJsonSlice eslint 清零（2026-08-02）
 
 ### 修复

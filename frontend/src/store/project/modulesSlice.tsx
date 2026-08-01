@@ -50,7 +50,13 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   currentModuleIndex: -1,
   addModule: (payload: any) => set(produce(state => {
     const moduleName = payload.name;
-    const findIndex = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
+    if (!state.project.projectJSON || typeof state.project.projectJSON !== 'object') {
+      state.project.projectJSON = { modules: [] };
+    }
+    if (!Array.isArray(state.project.projectJSON.modules)) {
+      state.project.projectJSON.modules = [];
+    }
+    const findIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (findIndex === -1) {
       state.project.projectJSON.modules.push({
         ...payload,
