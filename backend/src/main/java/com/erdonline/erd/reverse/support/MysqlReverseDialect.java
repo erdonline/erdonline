@@ -30,7 +30,7 @@ public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(false)
             .supportsIndex(true)
-            .supportsForeignKey(false)
+            .supportsForeignKey(true)
             .supportsAutoIncrement(true)
             .build();
 

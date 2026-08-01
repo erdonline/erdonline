@@ -50,7 +50,7 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
-            .supportsForeignKey(false)
+            .supportsForeignKey(true)
             .supportsAutoIncrement(false)
             .build();
 

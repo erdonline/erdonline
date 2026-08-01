@@ -1,10 +1,12 @@
 package com.erdonline.erd.reverse.support;
 
+import com.erdonline.erd.model.Association;
 import com.erdonline.erd.model.DataType;
 import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.NameCaseAdjuster;
 import com.erdonline.erd.reverse.ReverseDialect;
@@ -19,7 +21,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -88,6 +92,45 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
         } else {
             entity.setIndexs(new ArrayList<>(0));
         }
+    }
+
+    @Override
+    public List<Association> listAssociations(Connection connection, List<TableIdentity> tables,
+                                              String nameCaseFlag) throws SQLException {
+        if (!capability().isSupportsForeignKey() || tables == null || tables.isEmpty()) {
+            return Collections.emptyList();
+        }
+        Map<String, String> originToDisplay = new HashMap<>(tables.size() * 2);
+        for (TableIdentity table : tables) {
+            if (table.getOriginTableName() != null) {
+                originToDisplay.put(
+                        table.getOriginTableName().toUpperCase(Locale.ROOT),
+                        table.getDisplayTableName());
+            }
+        }
+        Map<String, Association> byKey = new LinkedHashMap<>(32);
+        DatabaseMetaData metaData = connection.getMetaData();
+        for (TableIdentity table : tables) {
+            try (ResultSet rs = metaData.getImportedKeys(
+                    table.getCatalog(), table.getSchema(), table.getOriginTableName())) {
+                for (Association association
+                        : ForeignKeyAssociationMapper.mapImportedKeys(rs, originToDisplay, nameCaseFlag)) {
+                    String key = associationKey(association);
+                    byKey.putIfAbsent(key, association);
+                }
+            } catch (SQLException ex) {
+                log.warn("读取表 {} 外键失败，已跳过: {}", table.getOriginTableName(), ex.getMessage());
+            }
+        }
+        return new ArrayList<>(byKey.values());
+    }
+
+    private static String associationKey(Association association) {
+        String fromEntity = association.getFrom() != null ? association.getFrom().getEntity() : "";
+        String fromField = association.getFrom() != null ? association.getFrom().getField() : "";
+        String toEntity = association.getTo() != null ? association.getTo().getEntity() : "";
+        String toField = association.getTo() != null ? association.getTo().getField() : "";
+        return fromEntity + '\0' + fromField + '\0' + toEntity + '\0' + toField;
     }
 
     /**
