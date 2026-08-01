@@ -17,7 +17,11 @@
 - 核心旅程 E2E 连续两轮变慢 > 20%：停下来查回归（见迭代协议漂移防控）
 - 禁止在 zustand `set` / 布局 render 路径恢复调试 `console.log`
 
-## 尚未立项（大项目）
+## 画布规模
 
-- 画布节点虚拟化（表数量 > 100）：见 roadmap「画布大项目虚拟化」
-- Lighthouse CI：待文档站/demo 稳定后接入
+| 指标 | 预算 | 当前 |
+|---|---|---|
+| 视口裁剪阈值 | ≥24 表开启 `onlyRenderVisibleElements` | ✅ |
+| 放大后 DOM 节点 | < 逻辑表数 | ✅ `canvas-scale.spec.ts` |
+
+完整虚拟化（表 >100、字段极多）仍可继续压；Lighthouse CI 待 demo 站稳定后接入。

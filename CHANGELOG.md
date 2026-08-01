@@ -134,6 +134,13 @@
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
+### 画布视口裁剪 + E2E 定位纪律（✅）
+
+- 规则：`.cursor/rules/e2e-locators.mdc`（role 优先，testid 兜底）
+- 设计器关键入口补 `data-testid` / `aria-label`（新增模型、关系图、空态建表、打开模型）
+- 节点≥24 开启 `onlyRenderVisibleElements`；TableNode `React.memo`；E2E `canvas-scale.spec.ts`
+  验证点：`canvas-scale.spec` 绿（~15s）；`relation.spec` 回归绿
+
 ### 性能预算基线（✅）
 
 - 新增 `docs/performance-budget.md`：dist ≤20MB、冒烟 ≤30s、relation ≤60s；热路径禁止 console

@@ -16,6 +16,7 @@ import ReactFlow, {
   OnEdgesChange,
   NodeChange,
   EdgeChange,
+  ReactFlowInstance,
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
@@ -79,12 +80,32 @@ const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'Date
 /** 行内编辑状态：editing === 字段名（改名）| '__NEW__'（新增）| null */
 type EditingState = { key: string; name: string; type: string; pk: boolean } | null;
 
-/** 表节点：字段级 Handle + 内联字段编辑（增/改/删）+ 表头改名 */
-const TableNode: React.FC<NodeProps> = ({ id, data, selected }) => {
-  const entity: EntityData = data.entity;
-  const onFieldsChange: (fields: FieldData[]) => void = data.onFieldsChange;
-  const onRename: (newTitle: string) => void = data.onRename;
+/** 视口裁剪阈值：小图开启 onlyRenderVisibleElements 反而更慢（RF 官方/实践） */
+export const VIEWPORT_CULL_THRESHOLD = 24;
+
+type TableNodeData = {
+  entity: EntityData;
+  moduleName: string;
+};
+
+/** 表节点：字段级 Handle + 内联字段编辑（增/改/删）+ 表头改名。memo 避免拖动画布时全量重渲。 */
+const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, selected }) => {
+  const entity = data.entity;
+  const moduleName = data.moduleName;
   const updateNodeInternals = useUpdateNodeInternals();
+
+  const onFieldsChange = (fields: FieldData[]) => {
+    useProjectStore.getState().dispatch.updateEntityFields(moduleName, entity.title, fields);
+  };
+  const onRename = (newTitle: string) => {
+    useProjectStore.getState().dispatch.renameEntity({
+      oldModuleName: moduleName,
+      newModuleName: moduleName,
+      oldTitle: entity.title,
+      newTitle,
+      newChnname: entity.chnname || '',
+    });
+  };
   const [editing, setEditing] = useState<EditingState>(null);
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
@@ -333,7 +354,7 @@ const TableNode: React.FC<NodeProps> = ({ id, data, selected }) => {
       </div>
     </div>
   );
-};
+});
 
 const nodeTypes = { table: TableNode };
 
@@ -415,25 +436,17 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           id: entity.title,
           type: 'table',
           position: posOf(entity.title) || live?.position || gridPosition(i),
+          // 仅放 entity + moduleName：回调走 getState，便于 TableNode memo
           data: {
             entity,
-            onFieldsChange: (newFields: FieldData[]) =>
-              projectDispatch.updateEntityFields(moduleEntity.module, entity.title, newFields),
-            onRename: (newTitle: string) =>
-              projectDispatch.renameEntity({
-                oldModuleName: moduleEntity.module,
-                newModuleName: moduleEntity.module,
-                oldTitle: entity.title,
-                newTitle,
-                newChnname: entity.chnname || '',
-              }),
+            moduleName: moduleEntity.module,
           },
           // 重建必须保留交互态（selected），否则点击选中立即被重建抹掉（已实证）
           selected: live?.selected,
         } as Node;
       })
     );
-  }, [projectJSON, moduleEntity.module, setNodes, projectDispatch]);
+  }, [projectJSON, moduleEntity.module, setNodes]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -613,6 +626,69 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     return () => window.removeEventListener('keydown', onKey);
   }, [projectDispatch, cmdOpen]);
 
+  const rfRef = useRef<ReactFlowInstance | null>(null);
+
+  // E2E：静默灌表 + 设视口（单次 setState，避免 N 次 toast）
+  useEffect(() => {
+    const w = window as Window & {
+      __ERD_E2E__?: {
+        ensureTables: (total: number) => number;
+        setViewport: (vp: { x: number; y: number; zoom: number }) => void;
+      };
+    };
+    w.__ERD_E2E__ = {
+      ensureTables: (total: number) => {
+        const state = useProjectStore.getState();
+        const modName = moduleEntity.module;
+        const project = state.project;
+        const modules = project?.projectJSON?.modules || [];
+        const modIdx = modules.findIndex((m: any) => m.name === modName);
+        if (modIdx < 0) {
+          return 0;
+        }
+        const current = modules[modIdx].entities || [];
+        if (current.length >= total) {
+          return current.length;
+        }
+        const defaultFields = JSON.parse(
+          JSON.stringify(state.dispatch.getDefaultFields?.() || [])
+        );
+        const nextEntities = [...current];
+        while (nextEntities.length < total) {
+          const title = `T_LOAD_${nextEntities.length}`;
+          nextEntities.push({
+            title,
+            name: title,
+            chnname: '',
+            fields: defaultFields,
+            indexs: [],
+          });
+        }
+        const nextModules = modules.map((m: any, i: number) =>
+          i === modIdx ? { ...m, entities: nextEntities } : m
+        );
+        useProjectStore.setState({
+          project: {
+            ...project,
+            projectJSON: {
+              ...project.projectJSON,
+              modules: nextModules,
+            },
+          },
+        });
+        return nextEntities.length;
+      },
+      setViewport: (vp) => {
+        rfRef.current?.setViewport(vp, { duration: 0 });
+      },
+    };
+    return () => {
+      delete w.__ERD_E2E__;
+    };
+  }, [moduleEntity.module]);
+
+  const cullViewport = nodes.length >= VIEWPORT_CULL_THRESHOLD;
+
   const commands: CommandItem[] = useMemo(() => [
     {
       id: 'new-table',
@@ -653,7 +729,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   ], [createFirstTable, autoLayout, alignSelected, projectDispatch]);
 
   return (
-    <div className="erd-reactflow-container">
+    <div
+      className="erd-reactflow-container"
+      data-testid="reactflow-canvas"
+      data-node-total={nodes.length}
+      data-viewport-cull={cullViewport ? '1' : '0'}
+    >
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} commands={commands} />
       <ReactFlow
         nodes={nodes}
@@ -664,6 +745,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onConnect={onConnect}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={onEdgesDelete}
+        onlyRenderVisibleElements={cullViewport}
+        onInit={(instance) => {
+          rfRef.current = instance;
+        }}
         deleteKeyCode={['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
         selectionOnDrag
@@ -673,6 +758,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         // 后续节点增长后右侧节点连同字段手柄被推出画布可视区（连线手柄不可点，已实证）
         fitViewOptions={{ maxZoom: 1, padding: 0.15 }}
         minZoom={0.2}
+        maxZoom={2}
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={16} size={1} />
@@ -728,7 +814,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             <div className="erd-empty-cta">
               <div className="erd-empty-title">画布还是空的</div>
               <div className="erd-empty-desc">创建第一张表，立即上图建模</div>
-              <button className="erd-empty-button nodrag" onClick={createFirstTable}>
+              <button
+                className="erd-empty-button nodrag"
+                data-testid="canvas-empty-create"
+                aria-label="新建第一张表"
+                onClick={createFirstTable}
+              >
                 + 新建第一张表
               </button>
             </div>

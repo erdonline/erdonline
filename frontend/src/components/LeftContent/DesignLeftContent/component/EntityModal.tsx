@@ -69,9 +69,11 @@ const EntityModal: React.FC<EntityModalProps> = ({
     return (
         <Modal
             title={getModalTitle()}
-            visible={visible}
+            open={visible}
             onOk={handleOk}
             onCancel={onCancel}
+            data-testid="entity-modal"
+            okButtonProps={{ 'data-testid': 'entity-modal-ok' } as any}
         >
             <Form form={form} layout="vertical">
                 {modalType === 'entity' && (
@@ -94,14 +96,17 @@ const EntityModal: React.FC<EntityModalProps> = ({
                     label="名称"
                     rules={[{ required: true, message: '请输入名称！' }]}
                 >
-                    <Input />
+                    <Input data-testid="entity-modal-name" />
                 </Form.Item>
                 <Form.Item
                     name="chnname"
                     label="中文名"
                     rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
                 >
-                    <Input placeholder={modalType === 'entity' ? '可选' : undefined} />
+                    <Input
+                      data-testid="entity-modal-chnname"
+                      placeholder={modalType === 'entity' ? '可选' : undefined}
+                    />
                 </Form.Item>
                 {modalType === 'relation' && (
                     <>

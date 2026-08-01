@@ -350,6 +350,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           type: 'relation',
           module: module.name,
           isLeaf: true,
+          testId: 'tree-open-relation',
         });
 
         if (module.graphCanvas && module.graphCanvas.edges) {
@@ -377,7 +378,8 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           title: '关系图',
           formatName: '关系图',
           key: `${module.name}###relation`,
-          isLeaf: true
+          isLeaf: true,
+          testId: 'tree-open-relation',
         };
 
         // 添加防护措，确保 module.entities 存在

@@ -337,6 +337,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       <Menu>
         <Menu.Item
           key="addModule"
+          data-testid="menu-add-module"
           icon={<AppstoreOutlined style={{ fontSize: '16px', color: '#1890ff' }} />}
           onClick={() => showModal('module')}
         >
@@ -348,6 +349,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <Menu.Divider />
         <Menu.Item
           key="addEntity"
+          data-testid="menu-add-entity"
           icon={<TableOutlined style={{ fontSize: '16px', color: '#faad14' }} />}
           onClick={() => showModal('entity')}
         >
@@ -375,8 +377,9 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <Button
           icon={<PlusOutlined />}
           style={{ width: '40px' }}
-        >
-        </Button>
+          aria-label="新增"
+          data-testid="design-tree-add"
+        />
       </Dropdown>
     );
   };
@@ -391,10 +394,11 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <span>还没有任何模型哦</span>
       }
     >
-      <Button 
-        type="primary" 
+      <Button
+        type="primary"
         icon={<PlusOutlined />}
         onClick={() => showModal('module')}
+        data-testid="add-module-empty"
       >
         新增模型
       </Button>

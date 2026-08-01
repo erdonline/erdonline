@@ -28,6 +28,50 @@ export async function login(page: import('@playwright/test').Page) {
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
 }
 
+/** 个人项目：新建并打开设计器（role/placeholder/testid；类型默认个人故不点 Select） */
+export async function createAndOpenPersonProject(
+  page: import('@playwright/test').Page,
+  projectName: string,
+  tag = 'e2e',
+) {
+  await page.getByRole('button', { name: /新\s*建/ }).click();
+  const dialog = page.getByRole('dialog');
+  await dialog.getByPlaceholder('请输入项目名').fill(projectName);
+  // 标签：ProForm tags Select——点容器后键盘确认（无稳定 option role）
+  await dialog.locator('.ant-select').nth(1).click();
+  await page.keyboard.type(tag);
+  await page.keyboard.press('Enter');
+  await dialog.getByPlaceholder('请输入项目描述').fill(tag);
+  await dialog.getByRole('button', { name: /确\s*定/ }).click();
+  await expect(page.getByText(projectName).first()).toBeVisible();
+  await page.getByTestId('open-project').first().click();
+  await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
+}
+
+/** 空态新增模型 → 展开 → 打开关系图 → 可见画布 */
+export async function openRelationFromEmpty(
+  page: import('@playwright/test').Page,
+  opts: { name?: string; chnname?: string } = {},
+) {
+  const name = opts.name || 'SHOP';
+  const chnname = opts.chnname || '商城';
+  await page.getByTestId('add-module-empty').click();
+  await page.getByTestId('entity-modal-name').fill(name);
+  await page.getByTestId('entity-modal-chnname').fill(chnname);
+  await page.getByTestId('entity-modal-ok').click();
+  await expect(page.getByText(chnname, { exact: true })).toBeVisible();
+  // 展开模块 /「关系」文件夹（点 switcher，避免选中文件夹打开空页）
+  const expandByTitle = async (title: string) => {
+    const node = page.locator('.ant-tree-treenode').filter({ has: page.getByText(title, { exact: true }) }).first();
+    await node.locator('.ant-tree-switcher').click();
+    await page.waitForTimeout(300);
+  };
+  await expandByTitle(chnname);
+  await expandByTitle('关系');
+  await page.getByTestId('tree-open-relation').click();
+  await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+}
+
 /**
  * 只删除名称匹配的个人项目（用于并发隔离）。
  * match 为前缀字符串或正则；默认清本 worker 前缀。
