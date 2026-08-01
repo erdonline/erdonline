@@ -8,6 +8,7 @@
 - `POST /share/{token}/fork`（需登录）：从分享快照创建个人项目副本（剥离 dbs / defaultDataSourceId）
 - 分享页 CTA「复制到我的项目」；未登录跳转 `/login?redirect=/s/:token`；登录支持 redirect
 - 注册转化：分享页「注册并带回」→ `/register?redirect=`；登录页「去注册」保留 redirect；注册成功后 `login(..., redirect)`
+- 登录/注册回跳带 `?autofork=1`，分享页自动 fork，少点一次
   验证点：`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿；curl 匿名 fork 401、登录 fork 得 projectId
 
 ## [Unreleased] — 数据源与 projectJSON 隔离（2026-08-02）

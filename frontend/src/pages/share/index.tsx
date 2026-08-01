@@ -28,6 +28,47 @@ const SharePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SharePayload | null>(null);
   const [moduleKey, setModuleKey] = useState<string>('');
+  const [autoForkDone, setAutoForkDone] = useState(false);
+
+  const shareReturnPath = token
+    ? `/s/${token}?autofork=1`
+    : '/';
+
+  const onFork = async () => {
+    if (!token) {
+      return;
+    }
+    const auth = cache.getItem('Authorization');
+    if (!auth) {
+      history.push(`/login?redirect=${encodeURIComponent(shareReturnPath)}`);
+      return;
+    }
+    setForking(true);
+    try {
+      const res = await fetch(`/ncnb/share/${encodeURIComponent(token)}/fork`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${auth}`,
+          'Content-Type': 'application/json',
+        },
+      });
+      const json = await res.json();
+      if (res.status === 401 || json?.code === 401) {
+        history.push(`/login?redirect=${encodeURIComponent(shareReturnPath)}`);
+        return;
+      }
+      if (json?.code !== 200 || !json?.data?.projectId) {
+        message.error(json?.msg || '复制失败');
+        return;
+      }
+      message.success('已复制到我的项目');
+      history.push(`/design/table/model?projectId=${json.data.projectId}`);
+    } catch (e: any) {
+      message.error(e?.message || '复制失败');
+    } finally {
+      setForking(false);
+    }
+  };
 
   useEffect(() => {
     let cancelled = false;
@@ -69,6 +110,19 @@ const SharePage: React.FC = () => {
     };
   }, [token]);
 
+  // 登录/注册带回 ?autofork=1 时自动复制，少点一次
+  useEffect(() => {
+    if (loading || error || !data || !token || autoForkDone || forking) {
+      return;
+    }
+    const want = new URLSearchParams(window.location.search).get('autofork') === '1';
+    if (!want || !cache.getItem('Authorization')) {
+      return;
+    }
+    setAutoForkDone(true);
+    onFork();
+  }, [loading, error, data, token, autoForkDone, forking]);
+
   const modules = data?.projectJSON?.modules || [];
   const currentModule = useMemo(
     () => modules.find(m => (m.name || m.chnname) === moduleKey) || modules[0],
@@ -89,42 +143,6 @@ const SharePage: React.FC = () => {
     });
     return list;
   }, [modules]);
-
-  const onFork = async () => {
-    if (!token) {
-      return;
-    }
-    const auth = cache.getItem('Authorization');
-    if (!auth) {
-      history.push(`/login?redirect=${encodeURIComponent(`/s/${token}`)}`);
-      return;
-    }
-    setForking(true);
-    try {
-      const res = await fetch(`/ncnb/share/${encodeURIComponent(token)}/fork`, {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${auth}`,
-          'Content-Type': 'application/json',
-        },
-      });
-      const json = await res.json();
-      if (res.status === 401 || json?.code === 401) {
-        history.push(`/login?redirect=${encodeURIComponent(`/s/${token}`)}`);
-        return;
-      }
-      if (json?.code !== 200 || !json?.data?.projectId) {
-        message.error(json?.msg || '复制失败');
-        return;
-      }
-      message.success('已复制到我的项目');
-      history.push(`/design/table/model?projectId=${json.data.projectId}`);
-    } catch (e: any) {
-      message.error(e?.message || '复制失败');
-    } finally {
-      setForking(false);
-    }
-  };
 
   return (
     <div style={{minHeight: '100vh', background: '#f5f5f5', padding: 24}}>
@@ -148,7 +166,7 @@ const SharePage: React.FC = () => {
                   type="default"
                   aria-label="注册并带回"
                   onClick={() =>
-                    history.push(`/register?redirect=${encodeURIComponent(`/s/${token}`)}`)
+                    history.push(`/register?redirect=${encodeURIComponent(shareReturnPath)}`)
                   }
                 >
                   注册并带回

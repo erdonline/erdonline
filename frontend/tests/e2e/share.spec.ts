@@ -52,17 +52,17 @@ test.describe('只读分享', () => {
         await anonPage.goto(`/s/${token}`);
         await anonPage.getByRole('button', { name: '复制到我的项目' }).click();
         await expect(anonPage).toHaveURL(/\/login\?redirect=/);
+        expect(decodeURIComponent(anonPage.url())).toContain('autofork=1');
         await expect(anonPage.getByRole('link', { name: '去注册' })).toBeVisible();
       } finally {
         await anon.close();
       }
 
-      // 已登录 fork → 进入设计器
+      // 已登录 + autofork → 自动 fork 进设计器
       const forkRespPromise = page.waitForResponse(
         (r) => r.url().includes(`/share/${token}/fork`) && r.request().method() === 'POST',
       );
-      await page.goto(`/s/${token}`);
-      await page.getByRole('button', { name: '复制到我的项目' }).click();
+      await page.goto(`/s/${token}?autofork=1`);
       const forkResp = await forkRespPromise;
       expect(forkResp.ok()).toBeTruthy();
       const forked = await forkResp.json();
