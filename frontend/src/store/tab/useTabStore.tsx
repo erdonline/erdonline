@@ -16,6 +16,8 @@ type actions = {
   removeRightTab: (payload: ModuleEntity) => void,
   removeAllTab: (payload: ModuleEntity) => void,
   containTab: (payload: string) => boolean,
+  /** 同模块关系图 tab 就地切换 diagram（不新开签，ADR-0017） */
+  switchRelationDiagram: (module: string, entity: string) => void,
 }
 
 export enum TabGroup {
@@ -94,7 +96,27 @@ const useTabStore = create<TabState>(
           return true;
         }
         return false;
-      }
+      },
+      switchRelationDiagram: (module: string, entity: string) => set(produce(state => {
+        const relationTabs = state.tableTabs
+          .map((tab: ModuleEntity, i: number) => ({ tab, i }))
+          .filter(({ tab }) => tab.module === module && (tab.entity || '').startsWith('关系图'));
+        if (relationTabs.length === 0) {
+          state.tableTabs.push({ group: TabGroup.MODEL, module, entity });
+          state.selectTabId = `${module}###${entity}`;
+          return;
+        }
+        const keep = relationTabs[0].i;
+        state.tableTabs[keep].entity = entity;
+        // 合并多余关系图签
+        state.tableTabs = state.tableTabs.filter((tab: ModuleEntity, i: number) => {
+          if (tab.module !== module || !(tab.entity || '').startsWith('关系图')) {
+            return true;
+          }
+          return i === keep;
+        });
+        state.selectTabId = `${module}###${entity}`;
+      })),
     },
   })
 );

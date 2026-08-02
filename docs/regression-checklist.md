@@ -17,6 +17,19 @@
 - [ ] [大模型树滚动] 灌 100+ 表（`__ERD_E2E__.ensureTables`）→ 左树滚动流畅、搜索命中可见
 - [ ] [工作区留白] 模型设计/表设计页四边有 12px 留白，画布圆角面板不贴边
 
+## 多关系图 / ADR-0017 Phase 2a（2026-08-02）
+
+### 已自动化
+
+- [x] 工具栏新建/重命名/切换关系图 + 树图列表 + 布局按图持久化/刷新 ✅`multi-diagram.spec.ts`
+- [x] `getActiveDiagram` 懒迁移 / tab entity 往返 ✅`diagram.test.ts`
+- [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
+
+### 手工
+
+- [ ] [旧项目打开] 仅有 `graphCanvas`、无 `diagrams` 的项目 → 打开画布见主关系图，拖动后 projectJSON 出现 `diagrams[0]`
+- [ ] [分享页] 含 `diagrams` 的项目分享链接 → 只读画布用主图布局
+
 ## 第 0 轮（2026-08-01）
 
 ### 已自动化（`yarn test:e2e` / CI e2e-smoke）

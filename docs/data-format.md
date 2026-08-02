@@ -46,10 +46,35 @@
 | `chnname` | string | 显示名 |
 | `entities` | `Entity[]` | 表列表（必填数组） |
 | `associations` | `Association[]` | 表间关联 |
-| `graphCanvas` | object | 画布布局；**实体以 `entities` 为准，此处只存坐标**（ADR-0001） |
+| `graphCanvas` | object | **遗留**主图布局；**实体以 `entities` 为准，此处只存坐标**（ADR-0001）。新写路径走 `diagrams`（ADR-0017） |
+| `diagrams` | `Diagram[]` | **可选**多关系图视图（ADR-0017）；缺省时前端懒迁移 `graphCanvas` → `diagrams[0]` |
 
 `graphCanvas.nodes[]`：`{ id, title?, x, y }`（`id` 通常等于实体 `title`）。  
-`graphCanvas.edges[]`：可选；运行时可见 `source` / `target`。
+`graphCanvas.edges[]`：可选；运行时可见 `source` / `target`（边事实源仍是 `associations`）。
+
+### Diagram（`modules[].diagrams[]`，ADR-0017）
+
+同一模块 schema 的多个「视图」：实体/关联只有一份，图只存布局与可选过滤子集。
+
+```json
+{
+  "id": "main",
+  "name": "主关系图",
+  "includeEntities": ["AUTH_USER", "AUTH_ROLE"],
+  "layout": { "nodes": [{ "id": "AUTH_USER", "x": 0, "y": 0 }] },
+  "groups": []
+}
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | string | 模块内唯一 |
+| `name` | string | 显示名 |
+| `includeEntities` | `string[]` | 可选；缺省=模块全部实体 |
+| `layout.nodes` | `{ id, x, y }[]` | 本图坐标 |
+| `groups` | `Frame[]` | 可选图内视觉框（Phase 2b） |
+
+兼容：无 `diagrams` 的旧项目行为不变；读路径 `getActiveDiagram(module)` 虚拟迁移，写路径物化后**只写 `diagrams`**（禁止与 `graphCanvas` 双写漂移）。
 
 ### Entity
 

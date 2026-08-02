@@ -20,10 +20,16 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
-import { ModuleEntity } from '@/store/tab/useTabStore';
+import useTabStore, { ModuleEntity } from '@/store/tab/useTabStore';
 import { erdColors } from '@/theme/tokens';
+import {
+  getActiveDiagramLayoutNodes,
+  listDiagrams,
+  parseDiagramIdFromTabEntity,
+  relationTabEntity,
+} from '@/utils/diagram';
 import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
-import { message } from 'antd';
+import { Input, Modal, Select, message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import ZhControls from './ZhControls';
@@ -416,15 +422,67 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const projectJSON = useProjectStore(state => state.project?.projectJSON);
   const projectDispatch = useProjectStore(state => state.dispatch);
   const publishCursor = useProjectStore(state => state.publishCursor);
+  const tabDispatch = useTabStore(state => state.dispatch);
   const [nodes, setNodes] = useNodesState([]);
   /** 边选中态（本地）；边列表本身始终从 associations 派生，避免 RF 因 handle 失效清空本地 edges */
   const [edgeSelected, setEdgeSelected] = useState<Record<string, boolean>>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [diagramModal, setDiagramModal] = useState<
+    null | { mode: 'create' | 'rename'; name: string; diagramId?: string }
+  >(null);
+
+  const moduleName = moduleEntity.module || '';
+  const diagramIdFromTab = parseDiagramIdFromTabEntity(moduleName, moduleEntity.entity);
+  const [activeDiagramId, setActiveDiagramId] = useState(diagramIdFromTab);
+
+  useEffect(() => {
+    setActiveDiagramId(diagramIdFromTab);
+  }, [diagramIdFromTab]);
+
+  const currentModule = useMemo(
+    () => (projectJSON?.modules || []).find((m: any) => m.name === moduleName),
+    [projectJSON, moduleName],
+  );
+  const diagrams = useMemo(() => listDiagrams(currentModule), [currentModule]);
+
+  const switchDiagram = useCallback(
+    (nextId: string) => {
+      setActiveDiagramId(nextId);
+      tabDispatch.switchRelationDiagram(moduleName, relationTabEntity(moduleName, nextId));
+    },
+    [moduleName, tabDispatch],
+  );
+
+  const onCreateDiagram = useCallback(() => {
+    setDiagramModal({ mode: 'create', name: '关系图' });
+  }, []);
+
+  const onRenameDiagram = useCallback(() => {
+    const current = diagrams.find((d) => d.id === activeDiagramId) || diagrams[0];
+    if (!current) return;
+    setDiagramModal({ mode: 'rename', name: current.name, diagramId: current.id });
+  }, [activeDiagramId, diagrams]);
+
+  const onDiagramModalOk = useCallback(() => {
+    if (!diagramModal) return;
+    const name = (diagramModal.name || '').trim() || '关系图';
+    if (diagramModal.mode === 'create') {
+      const id = projectDispatch.createDiagram(moduleName, name);
+      setDiagramModal(null);
+      if (id) {
+        switchDiagram(id);
+      }
+      return;
+    }
+    if (diagramModal.diagramId) {
+      projectDispatch.renameDiagram(moduleName, diagramModal.diagramId, name);
+    }
+    setDiagramModal(null);
+  }, [diagramModal, moduleName, projectDispatch, switchDiagram]);
 
   const edges: Edge[] = useMemo(() => {
-    const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
-    return associationsToEdges(module?.associations || []).map(e => {
+    return associationsToEdges(currentModule?.associations || []).map(e => {
       const selected = !!edgeSelected[e.id];
       const stroke = selected ? erdColors.brand : erdColors.ink600;
       return {
@@ -439,15 +497,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         },
       };
     });
-  }, [projectJSON, moduleEntity.module, edgeSelected]);
+  }, [currentModule, edgeSelected]);
 
   // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
-  // graphCanvas 坐标 > 现有画布位置 > dagre 补缺（导入/逆向无坐标时分层；并持久化）
+  // 当前图 layout 坐标 > 现有画布位置 > dagre 补缺（导入/逆向无坐标时分层；并持久化到 diagrams）
   useEffect(() => {
-    const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
+    const module = currentModule;
     const entities: EntityData[] = module?.entities || [];
     const associations: Association[] = module?.associations || [];
-    const savedNodes: any[] = module?.graphCanvas?.nodes || [];
+    const savedNodes: any[] = getActiveDiagramLayoutNodes(module, activeDiagramId);
     setIsEmpty(entities.length === 0);
 
     const { positions, didAutoLayout } = resolveEntityPositions(
@@ -472,11 +530,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return {
           id: entity.title,
           type: 'table',
-          position: hasSaved ? saved : (live?.position || saved),
+          // 切图/自动补坐标时禁止沿用上一图的 live 坐标
+          position: hasSaved
+            ? saved
+            : (didAutoLayout ? saved : (live?.position || saved)),
           // entity + moduleName + fkFields：回调走 getState，便于 TableNode memo
           data: {
             entity,
-            moduleName: moduleEntity.module,
+            moduleName,
             fkFields: fkMap.get(entity.title) || [],
           },
           // 重建必须保留交互态（selected），否则点击选中立即被重建抹掉（已实证）
@@ -487,14 +548,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
     if (didAutoLayout && entities.length > 0) {
       projectDispatch.updateGraphCanvasLayout(
-        moduleEntity.module,
+        moduleName,
         entities.map((e) => ({
           id: e.title,
           position: positions[e.title],
         })),
+        activeDiagramId,
       );
     }
-  }, [projectJSON, moduleEntity.module, setNodes, projectDispatch]);
+  }, [currentModule, moduleName, activeDiagramId, setNodes, projectDispatch]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -514,11 +576,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const onNodeDragStop = useCallback(
     (_: any, __: Node, allNodes: Node[]) => {
       projectDispatch.updateGraphCanvasLayout(
-        moduleEntity.module,
-        allNodes.map(n => ({ id: n.id, position: n.position }))
+        moduleName,
+        allNodes.map(n => ({ id: n.id, position: n.position })),
+        activeDiagramId,
       );
     },
-    [projectDispatch, moduleEntity.module]
+    [projectDispatch, moduleName, activeDiagramId]
   );
 
   const selectedCount = nodes.filter(n => n.selected).length;
@@ -554,12 +617,13 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return { ...n, position: { x: Math.round(x), y: Math.round(y) } };
       });
       projectDispatch.updateGraphCanvasLayout(
-        moduleEntity.module,
-        next.map(n => ({ id: n.id, position: n.position }))
+        moduleName,
+        next.map(n => ({ id: n.id, position: n.position })),
+        activeDiagramId,
       );
       return next;
     });
-  }, [projectDispatch, moduleEntity.module, setNodes]);
+  }, [projectDispatch, moduleName, activeDiagramId, setNodes]);
 
   // 字段拖连线 → 建关联：from=外键侧（source 右锚点），to=主键侧（target 左锚点）
   const onConnect = useCallback(
@@ -634,7 +698,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     projectDispatch.addEntity({ moduleName: moduleEntity.module, title, chnname: '' });
   }, [projectJSON, projectDispatch, moduleEntity.module]);
 
-  // 一键 dagre 自动布局（布局即持久化）
+  // 一键 dagre 自动布局（布局即持久化到当前图）
   const autoLayout = useCallback(() => {
     setNodes(prev => {
       const entities = prev.map(n => n.data?.entity || { title: n.id });
@@ -645,12 +709,13 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       const positions = dagrePositions(entities, associations);
       const next = prev.map(n => ({ ...n, position: positions[n.id] || n.position }));
       projectDispatch.updateGraphCanvasLayout(
-        moduleEntity.module,
-        next.map(n => ({ id: n.id, position: n.position }))
+        moduleName,
+        next.map(n => ({ id: n.id, position: n.position })),
+        activeDiagramId,
       );
       return next;
     });
-  }, [edges, projectDispatch, moduleEntity.module, setNodes]);
+  }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
   // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K 命令面板（输入框内不拦截）
   useEffect(() => {
@@ -840,6 +905,37 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
+            <span className="erd-diagram-switcher" data-testid="diagram-switcher">
+              <Select
+                size="small"
+                value={activeDiagramId}
+                onChange={switchDiagram}
+                style={{ minWidth: 120 }}
+                options={diagrams.map((d) => ({ value: d.id, label: d.name }))}
+                popupMatchSelectWidth={false}
+                getPopupContainer={() => document.body}
+                // 仅挂 input/combobox，避免外层 div 与 search input 双 aria-label
+                aria-label="切换关系图"
+              />
+              <button
+                type="button"
+                className="erd-canvas-tool"
+                onClick={onCreateDiagram}
+                title="新建关系图"
+                aria-label="新建关系图"
+              >
+                新建图
+              </button>
+              <button
+                type="button"
+                className="erd-canvas-tool"
+                onClick={onRenameDiagram}
+                title="重命名当前关系图"
+                aria-label="重命名关系图"
+              >
+                重命名
+              </button>
+            </span>
             <button
               type="button"
               className="erd-canvas-tool"
@@ -955,6 +1051,26 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           </Panel>
         )}
       </ReactFlow>
+      <Modal
+        title={diagramModal?.mode === 'rename' ? '重命名关系图' : '新建关系图'}
+        open={!!diagramModal}
+        onOk={onDiagramModalOk}
+        onCancel={() => setDiagramModal(null)}
+        okText={diagramModal?.mode === 'rename' ? '保存' : '创建'}
+        cancelText="取消"
+        destroyOnClose
+        okButtonProps={{ 'data-testid': 'diagram-modal-ok' } as any}
+      >
+        <Input
+          aria-label="关系图名称"
+          placeholder="例如：鉴权域"
+          value={diagramModal?.name || ''}
+          onChange={(e) =>
+            setDiagramModal((prev) => (prev ? { ...prev, name: e.target.value } : prev))
+          }
+          onPressEnter={onDiagramModalOk}
+        />
+      </Modal>
     </div>
   );
 };

@@ -11,6 +11,7 @@ import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
+import { relationTabEntity } from '@/utils/diagram';
 
 const iconStyle = (color: string) => ({ color, fontSize: '16px' });
 
@@ -71,7 +72,11 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: node.title });
       activeEntity(node.module, node)
     } else if (node.type === "relation") {
-      tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: `关系图-${node.module}` });
+      // 同模块关系图就地切签（ADR-0017），避免堆多个 canvas
+      tabDispatch.switchRelationDiagram(
+        node.module,
+        relationTabEntity(node.module, node.diagramId),
+      );
       activeEntity(node.module, node)
     }
 
@@ -125,7 +130,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
             tabDispatch.addTab({
               group: TabGroup.MODEL,
               module: moduleName,
-              entity: `关系图-${moduleName}`,
+              entity: relationTabEntity(moduleName),
             });
           }
         } else {

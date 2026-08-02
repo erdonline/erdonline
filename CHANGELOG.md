@@ -8,6 +8,29 @@
 
 ### 2026-08-02
 
+#### 功能：多关系图 Phase 2a（ADR-0017）— diagrams[] + 切换器 + 树图列表
+
+**功能**
+
+- `module.diagrams[]` 加法字段（schema + `data-format.md`）；懒迁移 `graphCanvas` → `diagrams[0]`
+- 单一 selector `getActiveDiagram` / 写路径只写 `diagrams`（`updateGraphCanvasLayout(module, nodes, diagramId?)`）
+- 画布工具栏：切换关系图 Select + 新建图 / 重命名；左树「关系」改图列表（不再逐边叶子）
+- 每图独立布局坐标；切图 / 刷新后保持
+
+**测试 / 文档**
+
+- 单测：`frontend/src/utils/diagram.test.ts`
+- E2E：`multi-diagram.spec.ts`（新建/重命名/切换 + 持久化）
+- ADR-0017 状态推进 Phase 2a ✅；Frame 留 Phase 2b
+
+验证点：`node scripts/validate-projectjson.mjs` → 绿；`cd frontend && npx tsx src/utils/diagram.test.ts` → 绿；`cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --workers=1 --retries=0` → 绿（10.2s）
+
+#### 修复：自动布局 E2E 在 dagre-on-create 后假阳性
+
+- `relation.spec.ts`：点「自动布局」前先拖乱节点，再断言坐标变化（避免已是 dagre 结果时 after===before）
+
+验证点：随 `relation.spec.ts`「全旅程」或自动布局相关用例
+
 #### 功能：模型设计 UX（ADR-0017 Phase 1）— 默认展开 + 虚拟滚动 + 三签美化 + erd 色调
 
 **功能 / 体验**
