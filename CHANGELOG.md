@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 功能：关系图表节点视觉打磨（ADR-0016）
+
+**功能**
+
+- 表名/字段名/类型走 `--erd-font-mono`；行高与 padding 收紧；表头左侧 brand 强调条
+- PK 琥珀 / FK 青绿徽章（`association.from` → FK）；PK/FK 行轻微底色；token 补 `warning-bg` / `success-bg` / `font-mono`
+- 边：`smoothstep` + 闭合箭头；选中时描边/箭头转 brand；标签底 `surfaceSunk`
+- 设计器与分享只读画布同视觉
+
+**测试 / 文档**
+
+- E2E：`表节点视觉：PK/FK 与边样式` + 截图 `ux-walkthrough/diagram-node-polish.png`
+- `design-principles` 原则 7、roadmap、ADR-0016 后果段对齐
+
+验证点：`npx playwright test --grep "表节点视觉：PK/FK" --project=chromium --workers=1` → 绿
+
 #### 功能：导入/逆向 dagre 自动布局（ADR-0016）
 
 **功能**

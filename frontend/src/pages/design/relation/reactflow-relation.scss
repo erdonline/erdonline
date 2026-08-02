@@ -13,6 +13,8 @@
   .react-flow__edge-path {
     stroke: var(--erd-ink-600);
     stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
   }
 
   .react-flow__edge.selected .react-flow__edge-path {
@@ -23,7 +25,13 @@
   .react-flow__edge-text {
     fill: var(--erd-ink-400) !important;
     font-size: 10px !important;
-    font-family: var(--erd-font-ui);
+    font-family: var(--erd-font-mono) !important;
+    letter-spacing: 0.02em;
+  }
+
+  .react-flow__edge-textbg {
+    fill: var(--erd-surface-sunk) !important;
+    fill-opacity: 0.94 !important;
   }
 
   .react-flow__handle {
@@ -51,7 +59,8 @@
 }
 
 .erd-table-node {
-  min-width: 228px;
+  min-width: 220px;
+  max-width: 320px;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
@@ -68,25 +77,44 @@
   }
 
   .erd-table-header {
+    position: relative;
     display: flex;
     align-items: baseline;
     gap: 8px;
-    padding: 9px 12px;
+    padding: 8px 12px 8px 14px;
     background: linear-gradient(180deg, #f3f5f7 0%, var(--erd-surface-sunk) 100%);
     border-bottom: 1px solid var(--erd-line);
     border-radius: var(--erd-radius) var(--erd-radius) 0 0;
 
+    // 品牌左侧强调条：截图一眼认出「我们的图」
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      width: 3px;
+      background: var(--erd-brand);
+      border-radius: var(--erd-radius) 0 0 0;
+    }
+
     .erd-table-title {
-      font-weight: 600;
+      font-weight: 650;
       font-size: 13px;
       letter-spacing: 0.01em;
       color: var(--erd-ink-900);
+      font-family: var(--erd-font-mono);
+      line-height: 1.3;
     }
 
     .erd-table-chnname {
       color: var(--erd-ink-400);
       font-size: 11px;
       font-weight: 400;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      max-width: 120px;
     }
 
     .erd-header-input {
@@ -97,13 +125,14 @@
       border-radius: var(--erd-radius-sm);
       font-size: 13px;
       font-weight: 600;
-      font-family: var(--erd-font-ui);
+      font-family: var(--erd-font-mono);
       color: var(--erd-ink-900);
       outline: none;
     }
 
     .erd-header-edit {
       margin-left: auto;
+      flex-shrink: 0;
       padding: 0 4px;
       border: none;
       background: transparent;
@@ -119,7 +148,7 @@
   }
 
   .erd-table-fields {
-    padding: 4px 0;
+    padding: 2px 0 4px;
     border-radius: 0 0 var(--erd-radius) var(--erd-radius);
 
     .erd-field-row {
@@ -127,34 +156,63 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 4px 12px;
-      line-height: 20px;
+      gap: 8px;
+      padding: 3px 28px 3px 12px;
+      line-height: 18px;
+      min-height: 24px;
 
       &:hover {
         background: rgba(11, 28, 44, 0.03);
       }
 
+      &.erd-field-pk {
+        background: rgba(212, 136, 6, 0.04);
+      }
+
+      &.erd-field-fk {
+        background: rgba(47, 143, 123, 0.04);
+      }
+
+      &.erd-field-pk.erd-field-fk {
+        background: linear-gradient(
+          90deg,
+          rgba(212, 136, 6, 0.05) 0%,
+          rgba(47, 143, 123, 0.05) 100%
+        );
+      }
+
       .erd-field-name {
         display: flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
+        min-width: 0;
         color: var(--erd-ink-900);
+        font-family: var(--erd-font-mono);
+        font-size: 12px;
         font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
 
-        .erd-pk-badge {
+        .erd-pk-badge,
+        .erd-fk-badge {
           appearance: none;
-          font-family: inherit;
-          font-size: 10px;
-          font-weight: 600;
+          flex-shrink: 0;
+          font-family: var(--erd-font-ui);
+          font-size: 9px;
+          font-weight: 700;
           border-radius: 3px;
           padding: 0 4px;
           line-height: 14px;
+          letter-spacing: 0.04em;
+          cursor: default;
+        }
+
+        .erd-pk-badge {
           cursor: pointer;
 
           &.active {
             color: var(--erd-warning);
-            background: #fff7e6;
-            border: 1px solid #ffe58f;
+            background: var(--erd-warning-bg);
+            border: 1px solid var(--erd-warning-border);
           }
 
           &.inactive {
@@ -165,8 +223,19 @@
           }
         }
 
+        .erd-fk-badge {
+          color: var(--erd-success);
+          background: var(--erd-success-bg);
+          border: 1px solid var(--erd-success-border);
+        }
+
         .erd-field-chnname {
           color: var(--erd-ink-400);
+          font-family: var(--erd-font-ui);
+          font-size: 11px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
         }
       }
 
@@ -176,10 +245,12 @@
       }
 
       .erd-field-type {
+        flex-shrink: 0;
         color: var(--erd-ink-400);
-        font-size: 11px;
-        margin-left: 16px;
+        font-size: 10px;
+        font-family: var(--erd-font-mono);
         font-variant-numeric: tabular-nums;
+        letter-spacing: 0.01em;
       }
 
       .erd-field-handle {
@@ -238,6 +309,7 @@
 
     .erd-field-editing {
       gap: 6px;
+      padding-right: 12px;
 
       .erd-field-pk-toggle {
         display: flex;
@@ -257,7 +329,7 @@
         border: 1px solid var(--erd-brand);
         border-radius: var(--erd-radius-sm);
         font-size: 12px;
-        font-family: var(--erd-font-ui);
+        font-family: var(--erd-font-mono);
         outline: none;
       }
 
@@ -265,19 +337,19 @@
         height: 22px;
         border: 1px solid var(--erd-line);
         border-radius: var(--erd-radius-sm);
-        font-size: 12px;
+        font-size: 11px;
         color: var(--erd-ink-600);
         background: var(--erd-surface);
-        font-family: var(--erd-font-ui);
+        font-family: var(--erd-font-mono);
       }
     }
 
     .erd-field-add {
       margin: 4px 8px 6px;
-      padding: 4px 0;
+      padding: 3px 0;
       text-align: center;
       color: var(--erd-ink-400);
-      font-size: 12px;
+      font-size: 11px;
       border: 1px dashed var(--erd-line);
       border-radius: var(--erd-radius-sm);
       cursor: pointer;
