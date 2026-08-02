@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：编辑态自增勾选即时 save-status（建模回路）
+
+- 选题：编辑态已有 PK/NN 即时落盘；`autoIncrement` 只能绕表设计签改，画布回路缺自增开关（隐藏 `relationNoShow` 勾上即离画布，ROI 低于自增）
+- 编辑态加 AI（自增）勾选；已有字段勾/取消 → 立刻 `updateEntityFields`，顶栏 `save-status` 即时「已保存」
+- 空名 toast / Tab 跳行路径不变；字段级仍无 unique（唯一在索引）
+- E2E：`relation`「编辑态自增勾选即时 save-status；空名 toast 保留」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "编辑态自增" --workers=1 --retries=0`
+
 #### 体验：编辑态非空勾选即时 save-status（建模回路）
 
 - 选题：字段编辑态仅有 PK 元数据可即时落盘；`notNull` 只能绕表设计签改，画布回路缺非空开关

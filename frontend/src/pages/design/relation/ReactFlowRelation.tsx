@@ -84,6 +84,7 @@ type FieldData = {
   chnname?: string;
   pk?: boolean;
   notNull?: boolean;
+  autoIncrement?: boolean;
   relationNoShow?: boolean;
 };
 
@@ -116,7 +117,14 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
 const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
 
 /** 行内编辑状态：editing === 字段名（改名）| '__NEW__'（新增）| null */
-type EditingState = { key: string; name: string; type: string; pk: boolean; notNull: boolean } | null;
+type EditingState = {
+  key: string;
+  name: string;
+  type: string;
+  pk: boolean;
+  notNull: boolean;
+  autoIncrement: boolean;
+} | null;
 
 /** 视口裁剪阈值：小图开启 onlyRenderVisibleElements 反而更慢（RF 官方/实践） */
 export const VIEWPORT_CULL_THRESHOLD = 24;
@@ -169,7 +177,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     updateNodeInternals(id);
   }, [id, handleSignature, updateNodeInternals]);
 
-  const startEditField = (f: { name: string; type?: string; pk?: boolean; notNull?: boolean }) => {
+  const startEditField = (f: {
+    name: string;
+    type?: string;
+    pk?: boolean;
+    notNull?: boolean;
+    autoIncrement?: boolean;
+  }) => {
     const pk = !!f.pk;
     setEditing({
       key: f.name,
@@ -177,15 +191,22 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       type: f.type || 'String',
       pk,
       notNull: pk || !!f.notNull,
+      autoIncrement: !!f.autoIncrement,
     });
   };
 
-  /** 已有字段改类型/PK/非空：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
-  const persistFieldMeta = (key: string, type: string, pk: boolean, notNull: boolean) => {
+  /** 已有字段改类型/PK/非空/自增：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
+  const persistFieldMeta = (
+    key: string,
+    type: string,
+    pk: boolean,
+    notNull: boolean,
+    autoIncrement: boolean,
+  ) => {
     if (key === '__NEW__') return;
     const allFields = entityFieldsRef.current;
     onFieldsChange(allFields.map(f => (
-      f.name === key ? { ...f, type, pk, notNull: pk || notNull } : f
+      f.name === key ? { ...f, type, pk, notNull: pk || notNull, autoIncrement } : f
     )));
   };
 
@@ -227,6 +248,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       const notNull = pk || current.notNull;
       const created = {
         name, type: current.type, chnname: '', remark: '', pk, notNull,
+        autoIncrement: current.autoIncrement,
       } as FieldData;
       nextFields = [...allFields, created];
       onFieldsChange(nextFields);
@@ -239,6 +261,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type: current.type,
             pk: current.pk,
             notNull: current.pk || current.notNull,
+            autoIncrement: current.autoIncrement,
           }
           : f
       ));
@@ -258,6 +281,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           type: f.type || 'String',
           pk,
           notNull: pk || !!f.notNull,
+          autoIncrement: !!f.autoIncrement,
         };
         ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
@@ -268,7 +292,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
       // 末行 Tab → 开新建行（表格式建模回路；空名 toast 仍走 commit 校验）
       if (advance === 'next' && idx >= 0 && targetIdx >= visibleAfter.length) {
-        const nextEdit = { key: '__NEW__', name: '', type: 'String', pk: false, notNull: false };
+        const nextEdit = {
+          key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
+        };
         ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
         setEditing(nextEdit);
@@ -347,7 +373,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             const next = { ...current, pk, notNull };
             editingRef.current = next;
             setEditing(next);
-            persistFieldMeta(current.key, current.type, pk, notNull);
+            persistFieldMeta(current.key, current.type, pk, notNull, current.autoIncrement);
           }}
           onKeyDown={e => e.stopPropagation()}
         />
@@ -366,11 +392,29 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             const next = { ...current, notNull };
             editingRef.current = next;
             setEditing(next);
-            persistFieldMeta(current.key, current.type, current.pk, notNull);
+            persistFieldMeta(current.key, current.type, current.pk, notNull, current.autoIncrement);
           }}
           onKeyDown={e => e.stopPropagation()}
         />
         NN
+      </label>
+      <label className="erd-field-meta-toggle erd-field-ai-toggle" title="自增">
+        <input
+          type="checkbox"
+          aria-label="自增"
+          checked={!!editing?.autoIncrement}
+          onChange={e => {
+            const current = editingRef.current;
+            if (!current) return;
+            const autoIncrement = e.target.checked;
+            const next = { ...current, autoIncrement };
+            editingRef.current = next;
+            setEditing(next);
+            persistFieldMeta(current.key, current.type, current.pk, current.notNull, autoIncrement);
+          }}
+          onKeyDown={e => e.stopPropagation()}
+        />
+        AI
       </label>
       <input
         className="erd-field-input"
@@ -393,7 +437,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           const next = { ...current, type };
           editingRef.current = next;
           setEditing(next);
-          persistFieldMeta(current.key, type, current.pk, current.notNull);
+          persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement);
         }}
         onKeyDown={onFieldEditKeyDown}
         onBlur={onFieldEditBlur}
@@ -542,7 +586,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-add-field"
             role="button"
             aria-label="添加字段"
-            onClick={() => setEditing({ key: '__NEW__', name: '', type: 'String', pk: false, notNull: false })}
+            onClick={() => setEditing({
+              key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
+            })}
           >
             + 添加字段
           </div>

@@ -222,6 +222,7 @@
 - [x] [末行 Tab 新建字段] 末字段 Tab → 空新建行；填名再 Tab → 落盘并再开新建；空名 toast 保留 ✅ `relation.spec`「字段 Tab」
 - [x] [编辑态 PK 即时保存] ✎ 内勾/取消主键 → save-status 已保存；空名 toast 保留 ✅ `relation.spec`「编辑态 PK」
 - [x] [编辑态非空即时保存] ✎ 内勾/取消非空 → save-status 已保存；PK 时 NN 禁用；空名 toast 保留 ✅ `relation.spec`「编辑态非空」
+- [x] [编辑态自增即时保存] ✎ 内勾/取消自增 → save-status 已保存；空名 toast 保留 ✅ `relation.spec`「编辑态自增」
 - [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
 - [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1；工具条「命令」/Esc ✅自动（`relation.spec`「命令面板」）
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动
