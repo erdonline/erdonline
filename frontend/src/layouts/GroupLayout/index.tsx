@@ -107,19 +107,26 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
         }}
         onMenuHeaderClick={(e) => history.push("/")}
         menuItemRender={(item, dom) => {
+          if (item.path?.startsWith('http') || item.exact) {
+            return <a href={item?.path || '/project'} target={'_blank'} rel="noreferrer">{dom}</a>;
+          }
+          // 返回列表不带 projectId；打开模型写入缓存供设计器兜底
+          const to =
+            item.path === '/dataModels'
+              ? '/dataModels'
+              : `${item?.path || '/home'}?projectId=${projectId}`;
           return (
-            item.path?.startsWith('http') || item.exact
-              ? <a href={item?.path || '/project'} target={'_blank'}>{dom}</a>
-              :
-
-              <div
-                onClick={() => {
-                  setPathname(item.path || '/home');
-                }}
-              >
-                <Link to={item?.path + "?projectId=" + projectId || '/home'}>{dom}</Link>
-              </div>
-          )
+            <div
+              onClick={() => {
+                setPathname(item.path || '/home');
+                if (item.path === '/design/table/model' && projectId) {
+                  cache.setItem(CONSTANT.PROJECT_ID, projectId);
+                }
+              }}
+            >
+              <Link to={to}>{dom}</Link>
+            </div>
+          );
         }}
 
         {...settings}

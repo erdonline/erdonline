@@ -2,6 +2,23 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 权限组 / GroupLayout 导航 / 404 闭环（2026-08-02）
+
+### 修复
+- 团队权限组：等 GroupLayout `access.initialized` 后再拉 roles 并挂「用户组成员」「权限配置」，消除竞态空嵌套页签；roles 失败有 toast
+  验证点：`group-layout-nav.spec`「权限组」见角色 tab + 用户组成员/权限配置 +「全选」/「团队基础设置」
+- GroupLayout 菜单：「返回项目列表」→ `/dataModels`（不带 projectId）；「打开模型」写入 `projectId` 缓存并进设计器
+  验证点：`group-layout-nav.spec`「返回/打开」
+
+### 测试
+- 新增 `group-layout-nav.spec.ts`、`not-found.spec.ts`（未知路径 404 +「返回首页」）
+  验证点：`npx playwright test tests/e2e/group-layout-nav.spec.ts tests/e2e/not-found.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：上述 4 行 → ✅；统计 ✅89 / 🚧0 / 🗑6 / 📋7（合计 102）
+- `docs/roadmap.md` P2b：矩阵 🚧=0
+- `docs/regression-checklist.md`：权限组/导航/404 自动化
+
 ## [Unreleased] — W6 `/project/group/setting/basic` 保存 toast（2026-08-02）
 
 ### 修复

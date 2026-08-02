@@ -1,6 +1,6 @@
 import {ProCard} from '@ant-design/pro-components';
 import React, {useEffect, useState} from 'react';
-import {Space, Tabs, Typography} from "antd";
+import {message, Space, Tabs, Typography} from "antd";
 import GroupUser from "@/pages/project/group/component/GroupUser";
 import GroupPermission from "@/pages/project/group/component/GroupPermission";
 import {GET} from "@/services/crud";
@@ -8,78 +8,98 @@ import {CONSTANT} from "@/utils/constant";
 import {useSearchParams} from "@@/exports";
 import {useAccess} from "@@/plugin-access";
 
-const {Text, Title} = Typography;
+const {Title} = Typography;
 
+type RoleTabItem = {
+  label: string;
+  key: string;
+  children: React.ReactNode;
+};
 
 export type GroupSettingProps = {};
-const GroupSetting: React.FC<GroupSettingProps> = (props) => {
-  const [tab, setTab] = useState('admin');
-  const [items, setItems] = useState([]);
+const GroupSetting: React.FC<GroupSettingProps> = () => {
+  const [tab, setTab] = useState('');
+  const [items, setItems] = useState<RoleTabItem[]>([]);
   const access = useAccess();
-
   const [searchParams] = useSearchParams();
-  const canErdProjectRolesPage = access.canErdProjectRolesPage;
-  const canErdProjectRolePermission = access.canErdProjectRolePermission;
-  const children = (roleId: string, isAdmin: boolean, defaultRole: string) => {
-    const tmpTabs = [];
-    if (canErdProjectRolesPage) {
-      tmpTabs.push({
-        label: <Text strong>用户组成员</Text>,
-        key: '1',
-        children: <GroupUser roleId={roleId} isAdmin={isAdmin}/>,
-      })
-
-    }
-    if (canErdProjectRolePermission) {
-      tmpTabs.push({
-        label: <Text strong>权限配置</Text>,
-        key: '3',
-        children: <GroupPermission isAdmin={isAdmin} defaultRole={Number(defaultRole)} values={{"id": roleId}}/>,
-      })
-    }
-
-    return <Tabs
-      defaultActiveKey="1"
-      items={tmpTabs}
-    />;
-  }
+  const projectId = searchParams.get(CONSTANT.PROJECT_ID);
 
   useEffect(() => {
-    GET('/ncnb/project/group/roles', {
-      projectId: searchParams.get(CONSTANT.PROJECT_ID),
-    }).then(resp => {
-      const tmpItems = resp?.data?.map((d: {
-        roleId: string; roleName: string; roleCode: string;
+    // GroupLayout 异步写入 permission 后才有 canErd*；过早拉取会得到空嵌套页签
+    if (!access.initialized || !projectId) {
+      return;
+    }
+    const canRoles = access.canErdProjectRolesPage;
+    const canPerm = access.canErdProjectRolePermission;
+
+    GET('/ncnb/project/group/roles', {projectId}).then((resp) => {
+      if (!resp || resp.code !== 200) {
+        message.error(resp?.msg || '获取用户组失败');
+        return;
+      }
+      let ownerKey = '';
+      const tmpItems: RoleTabItem[] = (resp.data || []).map((d: {
+        roleId: string;
+        roleName: string;
+        roleCode: string;
       }) => {
         const isAdmin = d.roleCode.includes('_0');
         if (isAdmin) {
-          setTab(d.roleCode);
+          ownerKey = d.roleCode;
+        }
+        const roleDefault = Number(d.roleCode.split('_')[1]);
+        const nested: RoleTabItem[] = [];
+        if (canRoles) {
+          nested.push({
+            label: '用户组成员',
+            key: '1',
+            children: <GroupUser roleId={d.roleId} isAdmin={isAdmin}/>,
+          });
+        }
+        if (canPerm) {
+          nested.push({
+            label: '权限配置',
+            key: '3',
+            children: (
+              <GroupPermission
+                isAdmin={isAdmin}
+                defaultRole={roleDefault}
+                values={{id: d.roleId}}
+              />
+            ),
+          });
         }
         return {
           label: d.roleName,
           key: d.roleCode,
-          children: children(d.roleId, isAdmin, d.roleCode.split('_')[1]),
-        }
+          children: <Tabs defaultActiveKey={nested[0]?.key} items={nested}/>,
+        };
       });
       setItems(tmpItems);
+      if (ownerKey) {
+        setTab(ownerKey);
+      } else if (tmpItems[0]) {
+        setTab(tmpItems[0].key);
+      }
     });
-  }, []);
-
+  }, [
+    access.initialized,
+    access.canErdProjectRolesPage,
+    access.canErdProjectRolePermission,
+    projectId,
+  ]);
 
   return (
     <div>
       <Space size={'large'}>
-        <Title level={4}>用户组 </Title>
-        {/*
-        <Title level={3}> <PlusCircleTwoTone/></Title>
-*/}
+        <Title level={4}>用户组</Title>
       </Space>
       <br/>
       <ProCard
         tabs={{
           tabPosition: 'left',
           activeKey: tab,
-          items: items,
+          items,
           onChange: (key) => {
             setTab(key);
           },

@@ -229,6 +229,13 @@
 - [x] [基本设置保存成功 toast] API 建团队项目→/project/group/setting/basic →改项目名→提 交→「修改成功」✅ `group-basic-setting.spec.ts`
 - [x] [基本设置保存失败 toast] mock update 非 200 →「修改失败」✅同上
 
+## W6 权限组 / GroupLayout 导航 / 404（2026-08-02）
+
+- [x] [权限组成员可见] `/project/group/setting/permission` 见角色 tab +「用户组成员」「权限配置」；权限配置见「全选」「团队基础设置」✅ `group-layout-nav.spec.ts`
+- [x] [返回项目列表] GroupLayout「返回项目列表」→ `/dataModels`（无 projectId）✅同上
+- [x] [打开模型] GroupLayout「打开模型」→ `/design/table/model?projectId=` 设计器可见✅同上
+- [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径✅ `not-found.spec.ts`
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
