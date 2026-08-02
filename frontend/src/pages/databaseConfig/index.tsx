@@ -6,10 +6,21 @@ import {
   PlusOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
-import { ProTable } from '@ant-design/pro-components';
-import { PageContainer } from '@ant-design/pro-layout';
-import { Badge, Button, Card, Drawer, message, Modal, Space, Tooltip, Typography } from 'antd';
-import React, { useRef, useState } from 'react';
+import {
+  Badge,
+  Button,
+  Card,
+  Drawer,
+  Input,
+  Space,
+  Table,
+  Tooltip,
+  Typography,
+  message,
+  Modal,
+} from 'antd';
+import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DatabaseConfigForm from './DatabaseConfigForm';
 
 const { Link } = Typography;
@@ -35,15 +46,89 @@ interface DatabaseConfigItem {
 type ConnectionStatus = 'online' | 'offline' | 'error';
 
 const DatabaseConfigPage: React.FC = () => {
-  const actionRef = useRef();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DatabaseConfigItem | null>(null);
-  const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
   const [syncingId, setSyncingId] = useState<string | null>(null);
   const [statusOverrides, setStatusOverrides] = useState<Record<string, ConnectionStatus>>({});
+  const [data, setData] = useState<DatabaseConfigItem[]>([]);
+  const [total, setTotal] = useState(0);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [keyword, setKeyword] = useState('');
+  const pageRef = useRef({ page: 1, pageSize: 10, keyword: '' });
 
   const resolveStatus = (record: DatabaseConfigItem): ConnectionStatus =>
     statusOverrides[record.id] ?? record.status;
+
+  const loadData = useCallback(async (nextPage?: number, nextSize?: number, nextKeyword?: string) => {
+    const p = nextPage ?? pageRef.current.page;
+    const size = nextSize ?? pageRef.current.pageSize;
+    const name = (nextKeyword ?? pageRef.current.keyword).trim();
+    setLoading(true);
+    try {
+      // PAGE 第三参 sorter；params 需同时带 pageSize/size（与旧 ProTable request 对齐）
+      const res = await PAGE(
+        DATABASE_CONFIG_URL,
+        {
+          current: p,
+          pageSize: size,
+          size,
+          ...(name ? { name } : {}),
+        },
+        {},
+      );
+      if (res?.code === 200 && res.data) {
+        const updatedRecords = await Promise.all(
+          (res.data.records || []).map(async (record: DatabaseConfigItem) => {
+            try {
+              const pingParams = {
+                driverClassName: getDriverClassName(record.type),
+                url:
+                  record.url ||
+                  generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
+                username: record.username,
+                password: record.password,
+              };
+              const success = await pingDatabase(pingParams);
+              return {
+                ...record,
+                status: (success ? 'online' : 'error') as ConnectionStatus,
+              };
+            } catch (error) {
+              console.error('Ping error:', error);
+              return {
+                ...record,
+                status: 'error' as ConnectionStatus,
+              };
+            }
+          }),
+        );
+        setData(updatedRecords);
+        setTotal(res.data.total);
+      } else {
+        message.error('获取数据库配置信息失败');
+        setData([]);
+        setTotal(0);
+      }
+    } catch {
+      message.error('获取数据库配置信息失败');
+      setData([]);
+      setTotal(0);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  const reload = useCallback(() => {
+    void loadData();
+  }, [loadData]);
+
+  useEffect(() => {
+    pageRef.current = { page, pageSize, keyword };
+    void loadData(page, pageSize, keyword);
+  }, [page, pageSize, keyword, loadData]);
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -56,7 +141,7 @@ const DatabaseConfigPage: React.FC = () => {
           const res = await DEL(`${DATABASE_CONFIG_URL}/${id}`);
           if (res.code === 200) {
             message.success('删除成功');
-            actionRef.current?.reload();
+            reload();
           } else {
             message.error('删除失败');
           }
@@ -80,7 +165,7 @@ const DatabaseConfigPage: React.FC = () => {
           if (res.code === 200) {
             message.success(`成功删除 ${selectedRowKeys.length} 条记录`);
             setSelectedRowKeys([]);
-            actionRef.current?.reload();
+            reload();
           } else {
             message.error('批量删除失败');
           }
@@ -122,12 +207,12 @@ const DatabaseConfigPage: React.FC = () => {
     }
   };
 
-  const columns = [
+  const columns: ColumnsType<DatabaseConfigItem> = [
     {
       title: '连接名称',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string, record: DatabaseConfigItem) => (
+      render: (text: string, record) => (
         <Link
           onClick={() => {
             setEditingRecord(record);
@@ -138,64 +223,51 @@ const DatabaseConfigPage: React.FC = () => {
           {text}
         </Link>
       ),
-      search: true,
     },
     {
       title: '数据库类型',
       dataIndex: 'type',
       key: 'type',
-      valueType: 'select',
-      valueEnum: {
-        MySQL: { text: 'MySQL' },
-        PostgreSQL: { text: 'PostgreSQL' },
-        Oracle: { text: 'Oracle' },
-        SQLServer: { text: 'SQL Server' },
-      },
-      filters: true,
+      filters: [
+        { text: 'MySQL', value: 'MySQL' },
+        { text: 'PostgreSQL', value: 'PostgreSQL' },
+        { text: 'Oracle', value: 'Oracle' },
+        { text: 'SQL Server', value: 'SQLServer' },
+      ],
       filterMultiple: false,
-      search: true,
+      onFilter: (value, record) => record.type === value,
     },
     {
       title: '主机',
       dataIndex: 'host',
       key: 'host',
-      search: true,
     },
     {
       title: '端口',
       dataIndex: 'port',
       key: 'port',
-      search: true,
     },
     {
       title: '用户名',
       dataIndex: 'username',
       key: 'username',
-      search: true,
     },
     {
       title: '数据库',
       dataIndex: 'databaseName',
       key: 'databaseName',
-      search: true,
     },
     {
       title: '驱动类名',
       dataIndex: 'driverClassName',
       key: 'driverClassName',
-      search: true,
+      ellipsis: true,
     },
     {
       title: '状态',
       dataIndex: 'status',
       key: 'status',
-      valueType: 'select',
-      valueEnum: {
-        online: { text: '在线', status: 'Success' },
-        offline: { text: '离线', status: 'Default' },
-        error: { text: '错误', status: 'Error' },
-      },
-      render: (_, record: DatabaseConfigItem) => {
+      render: (_status, record) => {
         const status = resolveStatus(record);
         return (
           <Badge
@@ -204,13 +276,11 @@ const DatabaseConfigPage: React.FC = () => {
           />
         );
       },
-      search: false,
     },
     {
       title: '操作',
       key: 'action',
-      search: false,
-      render: (_, record: DatabaseConfigItem) => (
+      render: (_text, record) => (
         <Space size="middle">
           <Tooltip title="编辑">
             <Button
@@ -247,26 +317,43 @@ const DatabaseConfigPage: React.FC = () => {
     },
   ];
 
+  const onTableChange = (pagination: TablePaginationConfig) => {
+    setPage(pagination.current || 1);
+    setPageSize(pagination.pageSize || 10);
+  };
+
   return (
-    <PageContainer
-      title={
-        <Space>
+    <div data-testid="database-config-page">
+      <div style={{ marginBottom: 16 }}>
+        <Typography.Title level={4} style={{ margin: 0 }}>
           数据库连接管理
-        </Space>
-      }
-      subTitle="管理和监控您的所有数据库连接"
-    >
+        </Typography.Title>
+        <Typography.Text type="secondary">管理和监控您的所有数据库连接</Typography.Text>
+      </div>
       <Card>
-        <ProTable<DatabaseConfigItem>
-          headerTitle="数据库连接列表"
-          actionRef={actionRef}
-          rowKey="id"
-          search={{
-            labelWidth: 'auto',
+        <div
+          style={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            marginBottom: 16,
+            gap: 12,
+            flexWrap: 'wrap',
           }}
-          toolBarRender={() => [
+        >
+          <Typography.Text strong>数据库连接列表</Typography.Text>
+          <Space wrap>
+            <Input.Search
+              allowClear
+              placeholder="搜索连接名称"
+              aria-label="搜索连接名称"
+              style={{ width: 220 }}
+              onSearch={(value) => {
+                setPage(1);
+                setKeyword(value);
+              }}
+            />
             <Button
-              key="add"
               type="primary"
               icon={<PlusOutlined />}
               onClick={() => {
@@ -275,73 +362,32 @@ const DatabaseConfigPage: React.FC = () => {
               }}
             >
               新建连接
-            </Button>,
+            </Button>
             <Button
-              key="batchDelete"
               danger
               disabled={selectedRowKeys.length === 0}
               onClick={handleBatchDelete}
             >
               批量删除
-            </Button>,
-          ]}
-          request={async (params, sorter) => {
-            const { current, pageSize, ...restParams } = params;
-            const res = await PAGE(
-              DATABASE_CONFIG_URL,
-              {
-                current,
-                size: pageSize,
-                ...restParams,
-              },
-              sorter,
-            );
-            if (res.code === 200 && res.data) {
-              // 对每个记录进行状态同步
-              const updatedRecords = await Promise.all(
-                res.data.records.map(async (record) => {
-                  try {
-                    const pingParams = {
-                      driverClassName: getDriverClassName(record.type),
-                      url:
-                        record.url ||
-                        generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
-                      username: record.username,
-                      password: record.password,
-                    };
-                    const success = await pingDatabase(pingParams);
-                    return {
-                      ...record,
-                      status: success ? 'online' : 'error',
-                    };
-                  } catch (error) {
-                    console.error('Ping error:', error);
-                    return {
-                      ...record,
-                      status: 'error',
-                    };
-                  }
-                }),
-              );
-
-              return {
-                data: updatedRecords,
-                success: true,
-                total: res.data.total,
-              };
-            }
-            message.error('获取数据库配置信息失败');
-            return { data: [], success: false };
-          }}
+            </Button>
+          </Space>
+        </div>
+        <Table<DatabaseConfigItem>
+          rowKey="id"
+          loading={loading}
           columns={columns}
+          dataSource={data}
           rowSelection={{
             selectedRowKeys,
             onChange: setSelectedRowKeys,
           }}
           pagination={{
-            pageSize: 10,
+            current: page,
+            pageSize,
+            total,
+            showSizeChanger: false,
           }}
-          dateFormatter="string"
+          onChange={onTableChange}
         />
       </Card>
       <Drawer
@@ -352,18 +398,18 @@ const DatabaseConfigPage: React.FC = () => {
           setDrawerVisible(false);
           setEditingRecord(null);
         }}
-        visible={drawerVisible}
+        open={drawerVisible}
       >
         <DatabaseConfigForm
           initialValues={editingRecord}
           onFinish={() => {
             setDrawerVisible(false);
             setEditingRecord(null);
-            actionRef.current?.reload();
+            reload();
           }}
         />
       </Drawer>
-    </PageContainer>
+    </div>
   );
 };
 

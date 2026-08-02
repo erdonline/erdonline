@@ -68,8 +68,9 @@ test.describe('冒烟：核心旅程', () => {
       await page.getByLabel('表操作').click();
       await page.getByRole('menuitem', { name: '删除表' }).click();
       const dialog = page.getByRole('dialog');
-      await expect(dialog.getByText(/确定删除表/)).toBeVisible();
-      await expect(dialog.getByText(/不可逆/)).toBeVisible();
+      // Modal.confirm 会有一份隐藏的 ant-modal-title，只断言可见文案
+      await expect(dialog.getByText(/确定删除表/).filter({ visible: true })).toBeVisible();
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
       // antd 中文 locale 常把按钮渲染成「删 除」
       await expect(dialog.getByRole('button', { name: /删\s*除/ })).toBeVisible();
       await dialog.getByRole('button', { name: /取\s*消/ }).click();
