@@ -85,8 +85,8 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 42. ~~**canvasHistory 单测**~~（已合入 `yarn test:unit:canvas-history`）
 43. ~~**项目菜单关闭态 CSS class**~~（已合入 `erd-project-menu--closed`）
 44. ~~**version/approval goto 抽 helpers**~~（已合入；回滚同步落库）
-45. **CHANGELOG Unreleased 整理**（草稿 `32-changelog-unreleased-fold.md`）
-46. **控件矩阵 🚧 行**（见 [`docs/control-matrix.md`](./control-matrix.md)）：适合拆成 good-first（aria/删死入口/单条 E2E）；P2b 进行中时优先从矩阵取题，而非空转 Issue 投放
+45. ~~**CHANGELOG Unreleased 整理**~~（已合入：按日 `### YYYY-MM-DD` + 文首维护约定；草稿 `32`）
+46. ~~**控件矩阵 🚧 行**~~（P2b 矩阵 🚧=0；余 📋 延期不拆阻断 Issue）——下一刀种子：小 a11y / E2E 加固，见 `.github/ISSUE_DRAFTS/README.md`
 
 ## 贡献者怎么认领
 
