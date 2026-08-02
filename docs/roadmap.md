@@ -36,10 +36,11 @@
 - 版本工作流：分支式演进、~~版本标签/里程碑~~✅（`db_change.tag` 逗号分隔多标签 + chips 筛选；无跨版本唯一）、跨版本 diff 的导出📋
 - 协作 → 版本已启动（下一季③ 🚧），继续自然收口
 
-### UI 水位（Strangler，不重写）📋
+### UI 水位（Strangler，不重写）🚧
 
 - CRUD 壳维持 antd（ADR-0005），设计域沉淀自研视觉系统（节点/工具条/命令面板已成体系）
 - 逐页抬水位：每轮迭代顺带提升所在页密度与反馈，禁止全站大改版
+- Home / 模型页重设计简报：[ui-home-model-redesign.md](./ui-home-model-redesign.md) ✅（2026-08-02；决策：Home 走工作台式亮色系统，落地页保留深色门面；实施按 S1–S6 分片推进）
 
 ### 开放（Openness）📋 — API/MCP 见 ADR-0013
 
