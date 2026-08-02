@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 修复：Home 顶栏不再显示设计器动作（SaveStatus / 分享 / presence）
+
+**修复**
+
+- `HomeLayout.actionsRender` 不再复用 `DesignLayout.headRightContent`；首页仅保留头像/用户菜单
+- SaveStatus、保存版本、CollabPresence、只读分享仅留在 `DesignLayout`
+  验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts --grep "HomeLayout" --project=chromium --workers=1` → 断言 `/home` 无 `save-status` / `collab-presence` /「只读分享」
+
+**文档**
+
+- `docs/regression-checklist.md` / `docs/control-matrix.md` 登记 Home 顶栏裁剪
+
 #### 修复：版本管理页空白过大 +「返回模型」导航
 
 **修复**

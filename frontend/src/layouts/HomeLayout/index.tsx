@@ -4,7 +4,6 @@ import defaultProps from './_defaultProps';
 import {history, Link} from "@@/exports";
 import {PageContainer, ProCard, ProLayout, ProSettings, WaterMark} from '@ant-design/pro-components';
 import {Me} from "@icon-park/react";
-import {headRightContent} from "@/layouts/DesignLayout";
 import {Dropdown, Menu, Typography, Space} from "antd";
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
@@ -112,9 +111,9 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             </div>
           </Dropdown>,
         }}
-        actionsRender={(props) => {
-          if (props.isMobile) return [];
-          return headRightContent;
+        actionsRender={() => {
+          // Home 仅头像/用户菜单；SaveStatus / 分享 / presence 仅 DesignLayout
+          return [];
         }}
         onMenuHeaderClick={() => history.push('/home')}
         menuItemRender={(item, dom) => (
