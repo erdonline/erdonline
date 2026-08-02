@@ -35,12 +35,20 @@ export default defineConfig({
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
       // 需账号级空态的用例等并行项目跑完再跑（dependencies）
-      testIgnore: ['**/project-activation.spec.ts', '**/activation.spec.ts'],
+      testIgnore: [
+        '**/project-activation.spec.ts',
+        '**/activation.spec.ts',
+        '**/export-feedback.spec.ts',
+      ],
     },
     {
       name: 'chromium-serial',
       use: { ...devices['Desktop Chrome'] },
-      testMatch: ['**/project-activation.spec.ts', '**/activation.spec.ts'],
+      testMatch: [
+        '**/project-activation.spec.ts',
+        '**/activation.spec.ts',
+        '**/export-feedback.spec.ts',
+      ],
       fullyParallel: false,
       // 共用 e2e-serial：必须单 worker，避免文件锁空等到用例超时
       workers: 1,

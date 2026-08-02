@@ -42,7 +42,8 @@ const ExportDDL: React.FC<ExportDDLProps> = (props) => {
     <StepsForm
       formRef={formRef}
       onFinish={async () => {
-        projectDispatch.exportSQL();
+        // false 时 StepsForm 不视为完成（失败可见）
+        return projectDispatch.exportSQL();
       }}
       formProps={{
         validateMessages: {
