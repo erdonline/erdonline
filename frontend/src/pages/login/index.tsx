@@ -116,24 +116,30 @@ export default () => {
           <Form.Item
             name="username"
             label="用户名"
+            htmlFor="login-username"
             rules={[{required: true, message: '请输入用户名!'}]}
           >
             <Input
+              id="login-username"
               size="large"
               prefix={<UserOutlined />}
               placeholder="用户名"
+              aria-label="用户名"
               autoComplete="username"
             />
           </Form.Item>
           <Form.Item
             name="password"
             label="密码"
+            htmlFor="login-password"
             rules={[{required: true, message: '请输入密码！'}]}
           >
             <Input.Password
+              id="login-password"
               size="large"
               prefix={<LockOutlined />}
               placeholder="密码"
+              aria-label="密码"
               autoComplete="current-password"
             />
           </Form.Item>

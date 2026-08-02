@@ -111,17 +111,24 @@ export default () => {
           <Form.Item
             name="username"
             label="用户名"
+            htmlFor="register-username"
             tooltip="最长为 18 位"
             rules={[
               {required: true, message: '不能为空'},
               {max: 18, message: '不能大于 18 个字符'},
             ]}
           >
-            <Input placeholder="请输入用户名" autoComplete="username" />
+            <Input
+              id="register-username"
+              placeholder="请输入用户名"
+              aria-label="用户名"
+              autoComplete="username"
+            />
           </Form.Item>
           <Form.Item
             name="pwd"
             label="密码"
+            htmlFor="register-pwd"
             tooltip="密码至少包含 数字和英文，长度6-20"
             rules={[
               {required: true, message: '密码不能为空'},
@@ -131,11 +138,17 @@ export default () => {
               },
             ]}
           >
-            <Input.Password placeholder="请输入密码" autoComplete="new-password" />
+            <Input.Password
+              id="register-pwd"
+              placeholder="请输入密码"
+              aria-label="密码"
+              autoComplete="new-password"
+            />
           </Form.Item>
           <Form.Item
             name="pwdCK"
             label="确认密码"
+            htmlFor="register-pwdCK"
             tooltip="密码至少包含 数字和英文，长度6-20"
             rules={[
               {required: true, message: '密码不能为空'},
@@ -145,11 +158,17 @@ export default () => {
               },
             ]}
           >
-            <Input.Password placeholder="请输入密码" autoComplete="new-password" />
+            <Input.Password
+              id="register-pwdCK"
+              placeholder="请输入密码"
+              aria-label="确认密码"
+              autoComplete="new-password"
+            />
           </Form.Item>
           <Form.Item
             name="email"
             label="邮箱"
+            htmlFor="register-email"
             tooltip="标准邮箱地址"
             rules={[
               {required: true, message: '邮箱不能为空'},
@@ -159,11 +178,17 @@ export default () => {
               },
             ]}
           >
-            <Input placeholder="请输入邮箱" autoComplete="email" />
+            <Input
+              id="register-email"
+              placeholder="请输入邮箱"
+              aria-label="邮箱"
+              autoComplete="email"
+            />
           </Form.Item>
           <Form.Item
             name="phone"
             label="手机号码"
+            htmlFor="register-phone"
             tooltip="标准手机号码"
             rules={[
               {required: true, message: '手机号码不能为空'},
@@ -173,7 +198,12 @@ export default () => {
               },
             ]}
           >
-            <Input placeholder="请输入手机号码" autoComplete="tel" />
+            <Input
+              id="register-phone"
+              placeholder="请输入手机号码"
+              aria-label="手机号码"
+              autoComplete="tel"
+            />
           </Form.Item>
           <Form.Item>
             <Button type="primary" htmlType="submit" size="large" block loading={submitting}>

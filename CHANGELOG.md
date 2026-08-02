@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 修复：Pro 摘除后登录 SPA 白屏 / E2E 找不到「用户名」
+
+**修复**
+
+- `app.tsx`：移除无效 runtime `layout`（`config.layout` / presets 已删，触发 `invalid key layout`）
+- 登录/注册：`htmlFor` + `aria-label` 稳定可访问名；`settings/base` 摘残留 `@ant-design/pro-form`
+- `global.tsx`：去掉失效 `useIntl`；`resolutions.@ant-design/cssinjs=1.24.0` 对齐 antd 5.29
+  验证点：Playwright 登录页 `textbox「用户名」` 可见可填；`smoke`「登录页渲染」「错误凭证登录出现」绿
+
 #### 重构：W4 切片 15 — Pro 清零 + 移除 `@ant-design/pro-components`
 
 **重构**
