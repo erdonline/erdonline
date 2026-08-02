@@ -26,9 +26,10 @@ spring:
   # 双数据源：martin（系统库）为主，erd（建模库）为辅。两库表名冲突，按 mapper 包路由。
   datasource:
     martin:
-      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_MARTIN:martin}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_USERNAME:martin}
-      password: ${DB_PASSWORD:martin}
+      # DB_* 优先；回退 Railway MySQL 插件名（MYSQLHOST…）与常见别名 DB_USER
+      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_MARTIN:${MYSQLDATABASE:martin}}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:${DB_USER:${MYSQLUSER:martin}}}
+      password: ${DB_PASSWORD:${MYSQLPASSWORD:martin}}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -40,9 +41,9 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
     erd:
-      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_ERD:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_ERD_USERNAME:${DB_USERNAME:erd}}
-      password: ${DB_ERD_PASSWORD:${DB_PASSWORD:erd}}
+      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_ERD:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_ERD_USERNAME:${DB_USERNAME:${DB_USER:${MYSQLUSER:erd}}}}
+      password: ${DB_ERD_PASSWORD:${DB_PASSWORD:${MYSQLPASSWORD:erd}}}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -53,11 +54,15 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 60000
       connection-test-query: SELECT 1
-  redis:
-    host: ${REDIS_HOST:localhost}
-    port: ${REDIS_PORT:6379}
-    password: ${REDIS_PASSWORD:}
-    database: ${REDIS_DB:0}
+  # Boot 3 / Redisson 只认 spring.data.redis.*（spring.redis.* 已 error 级废弃，绑不上 → 永远 localhost）
+  data:
+    redis:
+      host: ${REDIS_HOST:${REDISHOST:localhost}}
+      port: ${REDIS_PORT:${REDISPORT:6379}}
+      password: ${REDIS_PASSWORD:${REDISPASSWORD:}}
+      username: ${REDIS_USERNAME:${REDIS_USER:${REDISUSER:}}}
+      database: ${REDIS_DB:0}
+      # REDIS_URL 由 RedisUrlAliasEnvironmentPostProcessor 注入（勿写 url: ${REDIS_URL:} 空串）
   servlet:
     multipart:
       max-file-size: 10MB
