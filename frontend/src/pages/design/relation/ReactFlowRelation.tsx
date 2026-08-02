@@ -21,10 +21,8 @@ import ReactFlow, {
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
-import useGlobalStore from '@/store/global/globalStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
 import { message } from 'antd';
-import shallow from 'zustand/shallow';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import './reactflow-relation.scss';
@@ -408,18 +406,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const projectJSON = useProjectStore(state => state.project?.projectJSON);
   const projectDispatch = useProjectStore(state => state.dispatch);
   const publishCursor = useProjectStore(state => state.publishCursor);
-  const { saved, saving } = useGlobalStore(
-    (s) => ({ saved: s.saved, saving: s.saving }),
-    shallow,
-  );
   const [nodes, setNodes] = useNodesState([]);
   /** 边选中态（本地）；边列表本身始终从 associations 派生，避免 RF 因 handle 失效清空本地 edges */
   const [edgeSelected, setEdgeSelected] = useState<Record<string, boolean>>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [cmdOpen, setCmdOpen] = useState(false);
-
-  const saveLabel = saving ? '保存中…' : saved ? '已保存' : '未保存';
-  const saveTone = saving ? 'saving' : saved ? 'saved' : 'dirty';
 
   const edges: Edge[] = useMemo(() => {
     const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
@@ -801,13 +792,6 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
-            <span
-              className={`erd-save-status erd-save-status--${saveTone}`}
-              data-testid="save-status"
-              title="模型变更会自动保存到服务器"
-            >
-              {saveLabel}
-            </span>
             <button className="erd-canvas-tool" onClick={() => setCmdOpen(true)} title="命令面板 (Cmd/Ctrl+K)">
               命令
             </button>

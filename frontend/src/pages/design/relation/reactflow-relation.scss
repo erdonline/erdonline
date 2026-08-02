@@ -267,35 +267,6 @@
   max-width: 560px;
 }
 
-.erd-save-status {
-  padding: 5px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  line-height: 1.2;
-  border: 1px solid transparent;
-  background: #fff;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
-  user-select: none;
-
-  &--saved {
-    color: #389e0d;
-    border-color: #b7eb8f;
-    background: #f6ffed;
-  }
-
-  &--saving {
-    color: #0958d9;
-    border-color: #91caff;
-    background: #e6f4ff;
-  }
-
-  &--dirty {
-    color: #d48806;
-    border-color: #ffe58f;
-    background: #fffbe6;
-  }
-}
-
 .erd-align-group {
   display: inline-flex;
   gap: 4px;

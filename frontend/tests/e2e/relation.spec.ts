@@ -32,13 +32,21 @@ test.describe('关系图画布（ReactFlow）', () => {
       await openRelationFromEmpty(page);
 
       await expect(page.getByTestId('canvas-empty-create')).toBeVisible();
+      // 放慢落库，确保顶栏能看到「保存中…」→「已保存」
+      await page.route('**/ncnb/project/save', async (route) => {
+        await new Promise((r) => setTimeout(r, 600));
+        await route.continue();
+      });
       await page.getByTestId('canvas-empty-create').click();
       await expect(page.getByTestId('canvas-empty-create')).toHaveCount(0);
       const firstNode = rfNode(page, 'T_TABLE_1');
       await expect(firstNode).toBeVisible();
       await expect(firstNode).toContainText(/id|主键/i);
-      await expect(page.getByTestId('save-status')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      const saveStatus = page.getByTestId('save-status');
+      await expect(saveStatus).toBeVisible();
+      await expect(saveStatus).toHaveText('保存中…', { timeout: 5_000 });
+      await expect(saveStatus).toHaveText('已保存', { timeout: 15_000 });
+      await page.unroute('**/ncnb/project/save');
 
       await expect(firstNode.locator('.erd-pk-badge.active')).toHaveCount(1);
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
