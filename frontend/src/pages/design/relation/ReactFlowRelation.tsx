@@ -1383,7 +1383,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 size="small"
                 value={activeDiagramId}
                 onChange={switchDiagram}
-                style={{ minWidth: 120 }}
+                style={{ minWidth: 96 }}
                 options={diagrams.map((d) => ({ value: d.id, label: d.name }))}
                 popupMatchSelectWidth={false}
                 getPopupContainer={() => document.body}

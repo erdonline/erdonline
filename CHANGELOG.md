@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：画布工具栏再收（ADR-0016）
+
+- `.erd-canvas-tool`：height 22 / font 11 / padding `0 8`；gap 4；与 Controls/Frame chrome 同阶
+- 关系图 Select：selector 22、字号 11、`minWidth` 96；禁 5×12 松按钮盖截图
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "工具栏" --workers=1 --retries=0`
+
 #### 修复：`02_tables.sql` 中文 DEFAULT 在 latin1 客户端导入失败
 
 - `sys_user.title`、`project.description` 的中文 `DEFAULT '…'` 在客户端字符集为 latin1（常见于未加 `--default-character-set=utf8mb4` 的手动 `mysql <`）时触发 `ERROR 1067 Invalid default value`

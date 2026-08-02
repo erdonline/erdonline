@@ -61,6 +61,7 @@
 - [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC`；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
 - [x] [Controls 面板密度] 按钮 ≤22×22、面板 `surface`（禁 RF `#fefefe`）；截图 `diagram-controls-dense.png` ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [选中光晕统一] 表 / Frame `box-shadow` 环均为 brand a18（`--erd-selection-ring`）；禁 Frame a12 ✅`diagram-frame.spec`「选中表→新建分组」+ `relation.spec`「品牌 token」
+- [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
 - [x] [导入 Frame 建议] 前缀表 DBML → toast「已建议 N 个分组」+ 画布 2 个 `diagram-frame`（sys/biz）；截图 `diagram-import-frame-suggest.png` ✅`dbml-import.spec`「前缀表」+ `suggestImportFrames.test` / `yarn test:unit:dbml`
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
