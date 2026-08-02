@@ -173,7 +173,7 @@
 | `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |
 | `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
-| `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | 🚧 | |
+| `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | ✅ | `account-settings.spec` 头像→security/identification |
 | `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | 🚧 | |
 | `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | 🚧 | |
 | GroupLayout 菜单 | 返回项目列表 | → `/dataModels` | | 🚧 | |
@@ -199,8 +199,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 68 |
-| 🚧 | 24 |
+| ✅ | 69 |
+| 🚧 | 23 |
 | 🗑 | 7 |
 | 📋 | 4 |
 | **合计** | **103** |

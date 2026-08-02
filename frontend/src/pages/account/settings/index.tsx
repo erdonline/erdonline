@@ -1,4 +1,4 @@
-import React, {useLayoutEffect, useRef, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {GridContent} from '@ant-design/pro-layout';
 import {Dropdown, Menu} from 'antd';
 import BaseView from './components/base';
@@ -21,22 +21,38 @@ type SettingsState = {
   selectKey: SettingsStateKeys;
 };
 
+const SETTINGS_KEYS: SettingsStateKeys[] = ['base', 'security', 'identification'];
+
+function parseSelectKey(raw: string | null): SettingsStateKeys {
+  if (raw && SETTINGS_KEYS.includes(raw as SettingsStateKeys)) {
+    return raw as SettingsStateKeys;
+  }
+  return 'base';
+}
+
 const Settings: React.FC = () => {
-  const menuMap: Record<string, React.ReactNode> = {
+  const menuMap: Record<SettingsStateKeys, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
     identification: '授权类型',
   };
 
   const [searchParams] = useSearchParams();
-  let selectKey = searchParams.get("selectKey") || 'base';
+  const selectKeyFromUrl = parseSelectKey(searchParams.get('selectKey'));
 
   const [initConfig, setInitConfig] = useState<SettingsState>({
     mode: 'inline',
-    // @ts-ignore
-    selectKey,
+    selectKey: selectKeyFromUrl,
   });
   const dom = useRef<HTMLDivElement>();
+
+  useEffect(() => {
+    setInitConfig((prev) =>
+      prev.selectKey === selectKeyFromUrl
+        ? prev
+        : {...prev, selectKey: selectKeyFromUrl},
+    );
+  }, [selectKeyFromUrl]);
 
   const resize = () => {
     requestAnimationFrame(() => {
@@ -51,7 +67,9 @@ const Settings: React.FC = () => {
       if (window.innerWidth < 768 && offsetWidth > 400) {
         mode = 'horizontal';
       }
-      setInitConfig({...initConfig, mode: mode as SettingsState['mode']});
+      setInitConfig((prev) =>
+        prev.mode === mode ? prev : {...prev, mode},
+      );
     });
   };
 
@@ -66,7 +84,7 @@ const Settings: React.FC = () => {
   }, [dom.current]);
 
   const getMenu = () => {
-    return Object.keys(menuMap).map((item) => <Item key={item}>{menuMap[item]}</Item>);
+    return SETTINGS_KEYS.map((item) => <Item key={item}>{menuMap[item]}</Item>);
   };
 
   const renderChildren = () => {
@@ -87,13 +105,18 @@ const Settings: React.FC = () => {
     layout: 'top',
     splitMenus: true,
   };
-  const [pathname, setPathname] = useState('/home');
+  const [pathname] = useState('/home');
 
 
   const licence = cache.getItem2object('licence');
 
   const handleLogoClick = () => {
     history.push('/');
+  };
+
+  const selectTab = (key: SettingsStateKeys) => {
+    setInitConfig((prev) => ({...prev, selectKey: key}));
+    history.replace(`/account/settings?selectKey=${key}`);
   };
 
   return (
@@ -176,10 +199,7 @@ const Settings: React.FC = () => {
                     mode={initConfig.mode}
                     selectedKeys={[initConfig.selectKey]}
                     onClick={({key}) => {
-                      setInitConfig({
-                        ...initConfig,
-                        selectKey: key as SettingsStateKeys,
-                      });
+                      selectTab(key as SettingsStateKeys);
                     }}
                   >
                     {getMenu()}

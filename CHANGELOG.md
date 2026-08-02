@@ -2,6 +2,22 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/account/settings` 其它页签可切换（2026-08-02）
+
+### 修复
+- `/account/settings`：侧栏切换同步 `?selectKey=`；URL 与内容对齐；resize 不再因闭包打回旧页签
+  验证点：头像→个人中心→「安全设置」URL=`selectKey=security` 且见「账户密码」/「修改」；「授权类型」见「开源版」或「已取得授权」
+- 删除未接线死组件 `notification.tsx`（菜单无通知页签）
+
+### 测试
+- `account-settings.spec.ts`：头像菜单进入后切换 security / identification 有内容；授权信息直达
+  验证点：`npx playwright test tests/e2e/account-settings.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：其它 selectKey 页签 → ✅；统计 ✅69 / 🚧23 / 📋4
+- `docs/roadmap.md` P2b 长尾已收 settings 其它页签
+- `docs/regression-checklist.md`：页签切换自动化
+
 ## [Unreleased] — W6 Home `/dataQuery` 主导航裁剪（2026-08-02）
 
 ### 修复
