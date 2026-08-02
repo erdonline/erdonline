@@ -1,4 +1,6 @@
-# [good first] CHANGELOG Unreleased 按日折叠小节标题
+# [good first] CHANGELOG Unreleased 按日折叠日报标题
+
+> **已合入**（勿再投放）：`CHANGELOG.md` 单节 `[Unreleased]` + `### YYYY-MM-DD`；文首维护约定；验证点保留。
 
 ## 背景
 
@@ -6,8 +8,8 @@
 
 ## 接受标准
 
-- [ ] Unreleased 更易扫读；不丢验证点
-- [ ] 中文为主
+- [x] Unreleased 更易扫读；不丢验证点
+- [x] 中文为主
 
 ## 验证命令
 

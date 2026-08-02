@@ -20,9 +20,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `32-changelog-unreleased-fold.md` | CHANGELOG Unreleased 整理 |
+| （空） | 草稿 `01`–`32` 均已合入；下一刀从矩阵 📋 / 小 a11y 债补 1–2 条 `33+` |
 
-P2b 控件闭环进行中时：新人任务可从 [`docs/control-matrix.md`](../../docs/control-matrix.md) 的 🚧 / 💀 行拆草稿（优先于再堆杂务 Issue）。
+P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery）不宜再拆阻断型 good-first。优先小 a11y / 文案 / E2E 加固，或 roadmap P4 正式仓投放。
 
 合入后在对应草稿顶部加：
 

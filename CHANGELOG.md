@@ -2,106 +2,138 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
-## [Unreleased] — P2b 收口：公告页闭环 + roadmap/vision 选题（2026-08-02）
+> **维护约定**：`[Unreleased]` 下按日用 `### YYYY-MM-DD` 分组；同日多轮迭代保留为该日下的 `####` 小节，**勿丢「验证点」**；发版时将段落迁入 `## [x.y.z] — YYYY-MM-DD`，勿改已发版历史。
 
-### 修复
+## [Unreleased]
+
+### 2026-08-02
+
+#### CHANGELOG Unreleased 按日折叠
+
+**文档**
+
+- 多段 `## [Unreleased] — …` 合并为单节，同日归入 `### YYYY-MM-DD`；保留全部验证点
+  验证点：`head -n 80 CHANGELOG.md` 见维护约定 + `### 2026-08-02`；`rg -c '^## \[Unreleased\]' CHANGELOG.md` = 1
+
+#### P2b 收口：公告页闭环 + roadmap/vision 选题
+
+**修复**
+
 - `/project/notice`：加载失败明确 toast（`加载公告失败`），避免静默空列表
   验证点：`project-notice.spec`「加载失败有 toast」
 
-### 测试
+**测试**
+
 - 新增 `project-notice.spec.ts`：首页「更多公告」→ 列表见种子公告；失败 toast
   验证点：`npx playwright test tests/e2e/project-notice.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/roadmap.md` P2b：矩阵 🚧=0；📋 延期项简述；下一阶段战略改指 P4 Issue / AI·i18n
 - `scripts/agent-loop-vision.prompt.md`：矩阵 🚧=0 后优先可行动 📋 或 roadmap 📋
 - `docs/control-matrix.md`：公告 → ✅；🗑 六行确认代码已不存在；统计 ✅90 / 🚧0 / 🗑6 / 📋6
 - `docs/regression-checklist.md`：公告页自动化
 
-## [Unreleased] — W6 权限组 / GroupLayout 导航 / 404 闭环（2026-08-02）
+#### W6 权限组 / GroupLayout 导航 / 404 闭环
 
-### 修复
+**修复**
+
 - 团队权限组：等 GroupLayout `access.initialized` 后再拉 roles 并挂「用户组成员」「权限配置」，消除竞态空嵌套页签；roles 失败有 toast
   验证点：`group-layout-nav.spec`「权限组」见角色 tab + 用户组成员/权限配置 +「全选」/「团队基础设置」
 - GroupLayout 菜单：「返回项目列表」→ `/dataModels`（不带 projectId）；「打开模型」写入 `projectId` 缓存并进设计器
   验证点：`group-layout-nav.spec`「返回/打开」
 
-### 测试
+**测试**
+
 - 新增 `group-layout-nav.spec.ts`、`not-found.spec.ts`（未知路径 404 +「返回首页」）
   验证点：`npx playwright test tests/e2e/group-layout-nav.spec.ts tests/e2e/not-found.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：上述 4 行 → ✅；统计 ✅89 / 🚧0 / 🗑6 / 📋7（合计 102）
 - `docs/roadmap.md` P2b：矩阵 🚧=0
 - `docs/regression-checklist.md`：权限组/导航/404 自动化
 
-## [Unreleased] — W6 `/project/group/setting/basic` 保存 toast（2026-08-02）
+#### W6 `/project/group/setting/basic` 保存 toast
 
-### 修复
+**修复**
+
 - 团队项目基本设置：保存成功「修改成功」；失败走全局拦截器 toast，无 msg 时组件兜底「修改失败」；GET 返回的 tags 字符串拆成 Select tags 数组
   验证点：`group-basic-setting.spec` 成功/失败 toast
 
-### 测试
+**测试**
+
 - 新增 `group-basic-setting.spec.ts`：API 建团队项目→改项目名提交→toast；mock update 失败 toast
   验证点：`npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：保存基本设置 → ✅；统计 ✅85 / 🚧4 / 🗑6 / 📋7（合计 102）
 - `docs/roadmap.md` P2b 长尾已收群组基本设置 toast
 - `docs/regression-checklist.md`：群组基本设置保存自动化
 
-## [Unreleased] — W6 `/account/settings` 其它页签可切换（2026-08-02）
+#### W6 `/account/settings` 其它页签可切换
 
-### 修复
+**修复**
+
 - `/account/settings`：侧栏切换同步 `?selectKey=`；URL 与内容对齐；resize 不再因闭包打回旧页签
   验证点：头像→个人中心→「安全设置」URL=`selectKey=security` 且见「账户密码」/「修改」；「授权类型」见「开源版」或「已取得授权」
 - 删除未接线死组件 `notification.tsx`（菜单无通知页签）
 
-### 测试
+**测试**
+
 - `account-settings.spec.ts`：头像菜单进入后切换 security / identification 有内容；授权信息直达
   验证点：`npx playwright test tests/e2e/account-settings.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：其它 selectKey 页签 → ✅；统计重算 ✅84 / 🚧5 / 🗑6 / 📋7（合计 102）
 - `docs/roadmap.md` P2b 长尾已收 settings 其它页签
 - `docs/regression-checklist.md`：页签切换自动化
 
-## [Unreleased] — W6 Home `/dataQuery` 主导航裁剪（2026-08-02）
+#### W6 Home `/dataQuery` 主导航裁剪
 
-### 修复
+**修复**
+
 - HomeLayout `_defaultProps`：移除「数据查询」菜单（与设计器查询同策略）
   原因：`QueryInfoServiceImpl.exec` 经 MyBatis 打**应用库**，忽略前端所选数据源；非北极星主路径
   验证点：`/home` 主导航无 link「数据查询」；仍有「数据模型」「数据源」
 - `/dataQuery`：加「实验功能」Alert（`data-testid=home-data-query-page`）；路由保留深链
   验证点：直达页见「实验功能」
 
-### 测试
+**测试**
+
 - 新增 `home-data-query.spec.ts`：主导航无「数据查询」+ 深链实验提示
   验证点：`npx playwright test tests/e2e/home-data-query.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：Home 数据查询菜单 → ✅；页内实验 📋；统计 ✅68 / 🚧24 / 📋4
 - `docs/roadmap.md` P2b 长尾已收 Home 数据查询裁剪
 - `docs/regression-checklist.md`：Home 数据查询裁剪自动化
 
-## [Unreleased] — W6 `/account/settings` 基本资料保存 toast（2026-08-02）
+#### W6 `/account/settings` 基本资料保存 toast
 
-### 修复
+**修复**
+
 - `/account/settings` 基本资料：保存成功 `更新基本信息成功`；失败走全局拦截器 toast，无 msg 时组件兜底「更新基本信息失败」（头像保持「头像上传暂未开放」，不恢复假 Upload）
   验证点：`account-settings.spec` 成功/失败 toast；页内无「更换头像」/file input
 
-### 测试
+**测试**
+
 - 新增 `account-settings.spec.ts`：保存成功 toast + 路由 mock 失败 toast + 头像裁剪态
   验证点：`npx playwright test tests/e2e/account-settings.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：基本资料保存 → ✅；统计 ✅67 / 🚧25 / 📋4
 - `docs/roadmap.md` P2b 长尾已收账户基本资料 toast
 - `docs/regression-checklist.md`：账户设置保存自动化
 
-## [Unreleased] — W6 `/design/table/query` 侧栏裁剪（2026-08-02）
+#### W6 `/design/table/query` 侧栏裁剪
 
-### 修复
+**修复**
+
 - DesignLayout `_defaultProps`：移除「查询」菜单（与 Chat SQL / 数据域同策略）
   原因：`QueryInfoServiceImpl.exec` 经 MyBatis `${sql}` 打**应用库**，忽略前端所选数据源；非北极星主路径
   验证点：项目菜单无 menuitem「查询」；无 `link`「查询」
@@ -110,18 +142,21 @@
 - 设计器查询 / Home `/dataQuery`：运行、执行计划、保存 SQL 失败/成功均有 antd message（消除静默失败）
   验证点：手工清单「深链运行失败有 toast」；见 regression-checklist
 
-### 测试
+**测试**
+
 - 新增 `design-query.spec.ts`：项目菜单无「查询」+ 深链实验提示
   验证点：`npx playwright test tests/e2e/design-query.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：查询菜单 → ✅；页内实验 📋；统计 ✅66 / 🚧26 / 📋4
 - `docs/roadmap.md` P2b 长尾已收查询侧栏裁剪
 - `docs/regression-checklist.md`：查询裁剪自动化 + 失败 toast 手工项
 
-## [Unreleased] — W6 `/design/dataDomain` 侧栏裁剪（2026-08-02）
+#### W6 `/design/dataDomain` 侧栏裁剪
 
-### 修复
+**修复**
+
 - DesignLayout `_defaultProps`：移除「数据域」路由菜单项（与 Chat SQL 同策略；不服务「版本保存」北极星主路径）
   验证点：项目菜单无 menuitem「数据域」；无 `link`「数据域」
 - `/design/dataDomain`：加「实验功能」Alert；路由保留深链，不扩类型域编辑 E2E
@@ -129,30 +164,35 @@
 - 数据域相关对话框 store 选择器空安全（`project?.projectJSON?.…`），避免硬导航白屏
   验证点：深链 `/design/dataDomain` 不再报 `dataTypeDomains` TypeError
 
-### 测试
+**测试**
+
 - 新增 `data-domain.spec.ts`：项目菜单无「数据域」+ 深链实验提示
   验证点：`npx playwright test tests/e2e/data-domain.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：数据域菜单 → ✅；页内实验 📋；统计 ✅65 / 🚧27 / 📋3
 - `docs/roadmap.md` P2b 长尾已收数据域侧栏裁剪
 - `docs/regression-checklist.md`：数据域裁剪自动化
 
-## [Unreleased] — W4 工单/审批有数据全链路（2026-08-02）
+#### W4 工单/审批有数据全链路
 
-### 测试
+**测试**
+
 - `approval.spec`：API `POST /ncnb/approval` 种子待审（自审）→ 审批页见行 → UI「拒绝」toast「已拒绝」→ 工单页「复批」toast「已重新提交审批」
   验证点：`npx playwright test tests/e2e/approval.spec.ts --project=chromium`
   说明：「通过」会走 JDBC 执行 SQL，本切片不覆盖；发起 UI（版本详情 SQL审批）依赖数据源+团队成员，种子用真实创建 API 代替
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：工单/审批有数据全链路 → ✅；统计 ✅64 / 🚧28
 - `docs/roadmap.md` P2b 长尾已收工单有数据拒绝/复批
 - `docs/regression-checklist.md`：有数据拒绝/复批自动化；UI 发起+通过仍手工
 
-## [Unreleased] — W6 `/design/table/setting/defaultField` 闭环（2026-08-02）
+#### W6 `/design/table/setting/defaultField` 闭环
 
-### 修复
+**修复**
+
 - 默认字段表格编辑后防抖 toast「默认字段已更新」（页路由与项目菜单弹窗共用 `updateDefaultFields`）
   验证点：改主键英文字段名 → toast；新建表节点含新字段名
 - DesignLayout：硬导航首帧在 `projectJSON` 未就绪时不挂载子页，避免 JExcel 空表只 init 一次
@@ -160,111 +200,134 @@
 - `getDefaultFields`：兼容嵌套数组旧数据；类型域无匹配时仍保留字段
   验证点：设置页不再空白
 
-### 测试
+**测试**
+
 - 新增 `default-field.spec.ts`：进设置页 → 改 `id`→`e2e_pk` → toast → 空态建表见 `e2e_pk`
   验证点：`npx playwright test tests/e2e/default-field.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：`/design/table/setting/defaultField` → ✅；`docs/roadmap.md` P2b 长尾已收默认字段
 
-## [Unreleased] — W3 命令面板/快捷键矩阵收口（2026-08-02）
+#### W3 命令面板/快捷键矩阵收口
 
-### 修复
+**修复**
+
 - 清除 `useShortcutStore.show` / `setShow` 死状态（写入从未被读取；关系图开合不依赖该字段）
   验证点：开关系图 / 建表直开关系图行为不变
 
-### 测试
+**测试**
+
 - `relation.spec` 新增「命令面板：Cmd+K 打开并执行新建表」：快捷键开合 → 执行「新建表」节点 +1 → 工具条「命令」再开 → Esc 关
   验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "命令面板" --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：DesignLayout 命令面板/快捷键 → ✅；`docs/roadmap.md` P2b 长尾已收命令面板
 
-## [Unreleased] — W3 DesignLayout 顶栏自动保存状态（2026-08-02）
+#### W3 DesignLayout 顶栏自动保存状态
 
-### 修复
+**修复**
+
 - 自动保存状态从画布工具栏迁至 DesignLayout 顶栏：模型变更后可见「保存中…」→「已保存」（失败为「未保存」+ message）
   验证点：`relation.spec` 空态建表后顶栏 `save-status` 先「保存中…」再「已保存」
 
-### 测试
+**测试**
+
 - `relation.spec`：拦截 `/ncnb/project/save` 放慢 600ms，断言顶栏状态流转
   验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "全旅程" --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：DesignLayout 自动保存状态 → ✅；`docs/roadmap.md` P2b 长尾标注已收
 
-## [Unreleased] — W5 `/databaseConfig` 同步状态闭环（2026-08-02）
+#### W5 `/databaseConfig` 同步状态闭环
 
-### 修复
+**修复**
+
 - `/databaseConfig` 同步状态钮：点击后 loading；本地更新在线/错误徽章；成功/不可达均有明确 toast（不再全表 reload 重 ping）
   验证点：`adr0008-datasource.spec`「同步状态钮有可见反馈」
 
-### 测试
+**测试**
+
 - `adr0008-datasource.spec`：新建假 JDBC → 点「同步状态」→ 等待 ping → toast + 行内状态文案
   验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --grep "同步状态" --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：同步状态钮 → ✅；`docs/roadmap.md` P2b 长尾标注已收
 
-## [Unreleased] — W5 `/databaseConfig` 编辑/删除闭环（2026-08-02）
+#### W5 `/databaseConfig` 编辑/删除闭环
 
-### 修复
+**修复**
+
 - `/databaseConfig`：行内编辑/删除/同步图标钮补 `aria-label`；连接名称链可点打开编辑（原死 affordance）
   验证点：`adr0008-datasource.spec`「编辑保存 + 删除确认」
 
-### 测试
+**测试**
+
 - `adr0008-datasource.spec`：新建 → 编辑改名 PUT → toast「更新成功」→ 删除二次确认 →「删除成功」行消失
   验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --grep "编辑保存" --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：编辑/删除/批量删 → ✅；`docs/roadmap.md` P2b 长尾标注数据源编辑删已收
 
-## [Unreleased] — W5 逆向解析提交闭环（2026-08-02）
+#### W5 逆向解析提交闭环
 
-### 修复
+**修复**
+
 - `DataSourceSelect`：Option/`onChange` 按 `key`（dataSource id）匹配，修复侧栏逆向页选库后 `onDbChange` 失效
   验证点：`import-reverse.spec` 侧栏页自动选中 `reverse_demo` 数据源并解析出表
 
-### 测试
+**测试**
+
 - 新增 `import-reverse.spec.ts`：POST dataSources → `/design/table/import/reverse` → 选 `t_user`/`t_order` → 等待 autosave → 模型树可见「逆向解析_MYSQL」
   验证点：`npx playwright test tests/e2e/import-reverse.spec.ts --project=chromium`（1 passed；依赖 Colima MySQL `reverse_demo`）
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：`/design/table/import/reverse` → ✅；`docs/roadmap.md` P2b 长尾标注逆向已收
 
-## [Unreleased] — W4 对比版本矩阵收口（2026-08-02）
+#### W4 对比版本矩阵收口
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：W4「对比版本」→ ✅（既有 `version.spec` 双版比对已覆盖）
 - `docs/roadmap.md`：P2b 长尾去掉「对比版本」
   验证点：`npx playwright test tests/e2e/version.spec.ts --grep "可视化 diff|无数据源也可新增" --project=chromium`（2 passed）
 
-## [Unreleased] — W5 ERD 导入闭环（2026-08-02）
+#### W5 ERD 导入闭环
 
-### 修复
+**修复**
+
 - `ReverseERD`（菜单弹窗 + 侧栏页）：上传校验接受 `.json` / `.erd.json` 文件名（OS/Playwright 常不带 `application/json` MIME）
   验证点：`npx playwright test tests/e2e/import-erd.spec.ts --project=chromium`
 
-### 测试
+**测试**
+
 - 新增 `import-erd.spec.ts` + fixture `minimal.erd.json`（默认密码 AES）：上传后树可见「ERD导入」/ `T_ERD_ITEM`
   验证点：同上，chromium 绿
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：`/design/table/import/erd` → ✅；`docs/roadmap.md` P2b 长尾标注 ERD 导入已收
 
-## [Unreleased] — P2b W2 项目面闭环（2026-08-02）
+#### P2b W2 项目面闭环
 
-### 测试
+**测试**
+
 - 新增 `project-surface.spec.ts`：`/project/new`→person；home 快捷个人/最近/团队；最近项目打开设计器；主导航数据模型/数据源
   验证点：`npx playwright test tests/e2e/project-surface.spec.ts --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md` / `docs/roadmap.md`：P2b W0–W6 波次收口 ✅（长尾 📋 保留）
 
-## [Unreleased] — P2b W3–W5 控件闭环（2026-08-02）
+#### P2b W3–W5 控件闭环
 
+**测试**
 
-### 测试
 - 版本：`RenameVersion`/`RemoveVersion` 补 `data-testid`；`version.spec` 重命名描述 + 删除版本 + toast/行消失
   验证点：`npx playwright test tests/e2e/version.spec.ts --grep "重命名" --project=chromium`
 - 导出：`export.spec` 补导出 HTML / ERD 下载；`project-menu.spec` DDL 终步 `.sql` 下载
@@ -276,13 +339,15 @@
 - 关系图：`relation.spec` 删边后刷新仍 0 条边
   验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "删边" --project=chromium`
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：W3 删边/undo、W4 重命名删除、W5 PdMan/HTML/ERD/DDL/测试连接 → ✅
 - `docs/roadmap.md`：P2b W3/W4/W5 子项进度
 
-## [Unreleased] — P2b W6 外围裁剪（2026-08-02）
+#### P2b W6 外围裁剪
 
-### 修复
+**修复**
+
 - `Menu/index.tsx`：删除无调用方导出 `ProjectSortMenu` / `ProjectFilterMenu` / `NavigationMenu` / `VersionHandle`
 - 删除 `ReverseERWin.tsx`（零引用 stub）
 - `/databaseConfig`：移除顶栏无 onClick 的「数据库使用分析」「帮助」按钮
@@ -290,463 +355,538 @@
 - DesignLayout 侧栏：隐藏 Chat SQL 导航项（路由 `/design/table/chatsql` 保留实验页，不扩 AI）
 - `/project/new`：redirect→`/project/person`；删除 ZeroCode 占位页目录
 
-### 文档
+**文档**
+
 - `docs/control-matrix.md`：W6 裁剪行 💀→🗑/✅；统计更新
 - `docs/roadmap.md`：P2b W6 进度标注
   验证点：`rg` 已删符号零引用；`yarn eslint` 受影响文件 `--max-warnings 0`；`npx playwright test tests/e2e/smoke.spec.ts --grep "登录" --project=chromium`
 
-## [Unreleased] — HomeLayout/GroupLayout 子路由出口（2026-08-02）
+#### HomeLayout/GroupLayout 子路由出口
 
-### 修复
+**修复**
+
 - `HomeLayout` / `GroupLayout`：对齐 DesignLayout，在 Theme 旁显式渲染 `props.children`（消除仅靠 Theme 内 Outlet 的隐患）
   验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium` 绿（`/home` 见新建模型 CTA；`/project/person` 见新建；`/project/group/setting/basic` 见「基本设置」且 count=1）
 
-## [Unreleased] — W1 会话闭环（2026-08-02）
+#### W1 会话闭环
 
-### 修复
+**修复**
+
 - `logout()`：`cache.clear()` 清 JWT/用户名（此前仅清 projectId/licence，刷新仍像已登录）
 - 注册页提交文案改为「注册」；补「已有账号？去登录」；邮箱正则放宽
 - 顶栏用户菜单 trigger：`aria-label` + `data-testid=user-menu-trigger`
 - **注册后无法登录**：`userRegister` 写入默认 `dept_id=1`；`JwtTokenService` 拒 null claim；种子 `09_erd_user_new_privileges.sql` 给 `ERD_USER_NEW` 复制 admin 权限（此前 JWT/无权限被误报账密错误）
 
-### 测试
+**测试**
+
 - 新增 `session.spec.ts`：去注册、注册→/home、头像菜单三项、退出清会话
   验证点：`npx playwright test tests/e2e/session.spec.ts --project=chromium`；curl 注册→登录拿 `access_token`
 
-## [Unreleased] — P2b 控件矩阵与 Vision 选题（2026-08-02）
+#### P2b 控件矩阵与 Vision 选题
 
-### 文档
+**文档**
+
 - 新增 `docs/control-matrix.md` v1（全挂载路由 + Home/Design 菜单；标 💀 死表面）
 - `docs/roadmap.md` 增加 **P2b：全站控件闭环** 🚧（W0–W6；W0 已随布局修复勾选）
 - `scripts/agent-loop-vision.prompt.md`：P2b 🚧 时优先啃矩阵 🚧 行
 - `docs/community.md` / ISSUE_DRAFTS：矩阵可拆 good-first
   验证点：矩阵数据行合计见文末统计；`control-inventory.spec.ts` 默认 skip（仅 `PW_CONTROL_INVENTORY=1`）
 
-### 测试
+**测试**
+
 - `frontend/tests/e2e/control-inventory.spec.ts`：手工采集 clickables，不进 CI
 
-## [Unreleased] — 版本回滚落库 + E2E goto helpers（2026-08-02）
+#### 版本回滚落库 + E2E goto helpers
 
-### 修复
+**修复**
+
 - `revertVersionData`：`setModules` 后 `Save.saveProject`（此前仅内存，刷新即丢）
 - E2E：`gotoVersionSub` / `openVersionPage` / `gotoDesignModel` 抽到 helpers
   验证点：`version.spec` + `approval.spec` 绿
 
-## [Unreleased] — 项目菜单关闭态 CSS class（2026-08-02）
+#### 项目菜单关闭态 CSS class
 
-### 修复
+**修复**
+
 - 项目下拉关闭态改用 `.erd-project-menu--closed`（禁点击 + 透明），替代内联 style
   验证点：project-menu「导出」2 绿
 
-## [Unreleased] — canvasHistory 单测（2026-08-02）
+#### canvasHistory 单测
 
-### 测试
+**测试**
+
 - `canvasHistory.test.ts` + `yarn test:unit:canvas-history`（tsx；覆盖空栈/去重/undo-redo/截断）
   验证点：`cd frontend && yarn test:unit:canvas-history` 输出 all passed
 
-## [Unreleased] — share E2E 清理断言（2026-08-02）
+#### share E2E 清理断言
 
-### 测试
+**测试**
+
 - `share.spec` finally：双次清理 + 断言个人列表无本次项目名/副本
   验证点：`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿
 
-## [Unreleased] — json2code 入口类型收窄（2026-08-02）
+#### json2code 入口类型收窄
 
-### 修复
+**修复**
+
 - `getAllDataSQLByFilter` / `getFieldType` 补显式参数与返回类型（文件仍 `@ts-nocheck`，文档化入口）
   验证点：project-menu「导出 DDL」绿
 
-## [Unreleased] — PageSkeleton 可访问名（2026-08-02）
+#### PageSkeleton 可访问名
 
-### 体验
+**体验**
+
 - `PageSkeleton`：`role="status"` + `aria-label="页面加载中"`（已有 `aria-busy`）
   验证点：`loading.spec`「设计器」断言 aria 属性绿
 
-## [Unreleased] — 版本管理页 eslint 清零（2026-08-02）
+#### 版本管理页 eslint 清零
 
-### 修复
+**修复**
+
 - `pages/design/version/index.tsx`：去掉 unused import/死函数与空 `{}` props
   验证点：`yarn eslint …/version/index.tsx --max-warnings 0`；project-menu「版本」绿
 
-## [Unreleased] — ExportDDL eslint 清零（2026-08-02）
+#### ExportDDL eslint 清零
 
-### 修复
+**修复**
+
 - `ExportDDL.tsx`：`ProFormInstance` / `RadioChangeEvent` 改为 `import type`
   验证点：`yarn eslint …/ExportDDL.tsx --max-warnings 0`；project-menu「导出」2 绿
 
-## [Unreleased] — 表头改名 E2E（2026-08-02）
+#### 表头改名 E2E
 
-### 体验 / 测试
+**体验 / 测试**
+
 - 表头 ✎ 补 `data-testid` / aria；`relation.spec`「表头 ✎ 可改名」（改名中用 page 级 textbox）
   验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "改名"` 绿
 
-## [Unreleased] — PK 徽标可访问名 + E2E（2026-08-02）
+#### PK 徽标可访问名 + E2E
 
-### 体验
+**体验**
+
 - 关系图 PK 徽标改为 `button` + `aria-label`（取消/设为主键）；补「PK 徽标可取消再恢复」E2E
   验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "PK|全旅程"` 绿
 
-## [Unreleased] — 关系图边命中热区 24px（2026-08-02）
+#### 关系图边命中热区 24px
 
-### 体验
+**体验**
+
 - ReactFlow 边 `interactionWidth=24`；`relation.spec` 删边改为常规 click（不再 force）
   验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "全旅程"` 绿
 
-## [Unreleased] — 导出 DDL 对齐 ADR-0008 + 第二步 E2E（2026-08-02）
+#### 导出 DDL 对齐 ADR-0008 + 第二步 E2E
 
-### 修复
+**修复**
+
 - ExportDDL 从 `/ncnb/dataSources` 拉列表（不再读空的 `profile.dbs`）；选中项写入方言码；表树默认展开
 - 项目菜单 `destroyPopupOnHide=false` 关闭后 `pointer-events: none`，避免挡弹窗
 - 去掉 `json2code.getAllDataSQLByFilter` 内遗留 `debugger`
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导出"` 2 绿
 
-## [Unreleased] — canvasHistory 去掉 any（2026-08-02）
+#### canvasHistory 去掉 any
 
-### 修复
+**修复**
+
 - `canvasHistory.ts`：`ModulesSnapshot = unknown[]`，undo/redo 经 `parseModules`
   验证点：`yarn eslint …/canvasHistory.ts --max-warnings 0`；`relation.spec`「全旅程」绿（含撤销布局）
 
-## [Unreleased] — approval E2E 改为 goto（2026-08-02）
+#### approval E2E 改为 goto
 
-### 修复
+**修复**
+
 - `approval.spec`：模型页侧栏为树，「版本」menuitem 不可见 → 与 `version.spec` 一样直达 `/version/order|approval`
   验证点：`npx playwright test tests/e2e/approval.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 我的工单页 eslint 清零（2026-08-02）
+#### 我的工单页 eslint 清零
 
-### 修复
+**修复**
+
 - `pages/design/version/order`：去掉空 `{}` props；模态宽高常量提前定义（消 `no-use-before-define`）
   验证点：`yarn eslint src/pages/design/version/order --max-warnings 0`；`approval.spec`（修后）绿
 
-## [Unreleased] — 导出组件 ban-types + 版本行 key + Issue 草稿 18–21（2026-08-02）
+#### 导出组件 ban-types + 版本行 key + Issue 草稿 18–21
 
-### 修复
+**修复**
+
 - 导出 HTML/Word/Markdown/ERD 去掉空 `{}` props 类型；版本管理行/工具栏 action 补 `key`
   验证点：`yarn eslint` 上述 4 个 Export* 文件 `--max-warnings 0`；`project-menu`「版本」「导出」绿
 
-### 文档
+**文档**
+
 - `docs/community.md` 补 Issue 草稿投放规则；草稿 18–21 待投放
   验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` → Done: 4
 
-## [Unreleased] — 导出 DDL 向导 aria + Issue 投放脚本（2026-08-02）
+#### 导出 DDL 向导 aria + Issue 投放脚本
 
-### 修复 / 体验
+**修复 / 体验**
+
 - 导出 DDL StepsForm「下一步 / 上一步 / 导出」补 `aria-label`
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导出"` 绿
 
-### 工具
+**工具**
+
 - `seed-good-first-issues.sh` 仅跳过行首 `> **已合入**`（避免正文误判）
   验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` → `Done: 0`
 
-## [Unreleased] — 版本双入口说明（2026-08-02）
+#### 版本双入口说明
 
-### 文档
+**文档**
+
 - 版本页与 `docs/development.md` 标明：侧栏「版本管理」= 项目菜单「版本」
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "版本"` 绿
 
-## [Unreleased] — 导入/导出打开时关闭项目下拉（2026-08-02）
+#### 导入/导出打开时关闭项目下拉
 
-### 修复
+**修复**
+
 - 导入三项与导出五项触发时调用 `closeProjectMenu()`，避免菜单层挡住弹窗
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "导入"` 绿（弹窗内文案可点）
 
-## [Unreleased] — 删表确认钮「删除」+ dev 关 MFSU（2026-08-02）
+#### 删表确认钮「删除」+ dev 关 MFSU
 
-### 修复
+**修复**
+
 - 树删表 `Modal.confirm` 的 `okText` 改为「删除」；E2E 匹配 antd「删 除」空格
 - `config.dev.ts`：`mfsu: false`，避免 eager worker 卡住 / 送出过期模块
   验证点：`npx playwright test tests/e2e/smoke.spec.ts --project=chromium -g "删除表"` 绿
 
-## [Unreleased] — 模型树删表确认/取消 E2E（2026-08-02）
+#### 模型树删表确认/取消 E2E
 
-### 修复
+**修复**
+
 - 删表确认文案统一「不可逆」；`okType: danger`；补确认删除成功路径 E2E
   验证点：`npx playwright test tests/e2e/smoke.spec.ts --project=chromium -g "删除表"` 绿
 
-## [Unreleased] — 版本管理首屏骨架 E2E（2026-08-02）
+#### 版本管理首屏骨架 E2E
 
-### 新增
+**新增**
+
 - `loading.spec.ts`：慢网进版本管理见 `page-skeleton`，无 `Loading...` 文案残留
   验证点：`npx playwright test tests/e2e/loading.spec.ts --project=chromium -g "版本管理"` 绿
 
-## [Unreleased] — 默认项设置保存反馈 E2E（2026-08-02）
+#### 默认项设置保存反馈 E2E
 
-### 修复
+**修复**
+
 - 项目下拉受控关闭 + `destroyPopupOnHide=false`，避免设置弹窗被菜单层挡住后卸载
 - E2E：默认项设置确定 →「设置成功」；Issue 草稿 11–12
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 项目菜单「版本」跳转版本管理（2026-08-02）
+#### 项目菜单「版本」跳转版本管理
 
-### 修复
+**修复**
+
 - 设计器项目菜单「版本」原只改 shortcut（首页用），设计器内无反馈；改为跳转 `/design/table/version/all`
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium -g "版本"` 绿
 
-## [Unreleased] — modulesSlice eslint 清零（2026-08-02）
+#### modulesSlice eslint 清零
 
-### 修复
+**修复**
+
 - `modulesSlice.tsx`：粘贴命名抽出 `nextCopyName` 消 no-loop-func；去未用变量；`storage.tsx` import type；`store/project` warn=0
 - ISSUE_DRAFTS `09`–`10`（版本菜单 E2E / 默认项保存反馈）
   验证点：`yarn eslint src/store/project --max-warnings 0`；`empty-projectjson.spec.ts` 绿
 
-## [Unreleased] — useProjectStore eslint 清零（2026-08-02）
+#### useProjectStore eslint 清零
 
-### 修复
+**修复**
+
 - `useProjectStore.tsx`：`import type`；`ensureProjectJSON` 不可变补齐；fetch 用局部 id；eslint warn=0
   验证点：`yarn eslint src/store/project/useProjectStore.tsx --max-warnings 0`；`empty-projectjson` + `sync-toast` 绿
 
-## [Unreleased] — projectJsonSlice eslint 清零（2026-08-02）
+#### projectJsonSlice eslint 清零
 
-### 修复
+**修复**
+
 - `projectJsonSlice.tsx`：`import type`、去掉未用变量、`fixModules` 不重赋参数、`diff` 改为纯函数；eslint warn=0
   验证点：`yarn eslint src/store/project/projectJsonSlice.tsx --max-warnings 0`；`empty-projectjson.spec.ts` 绿
 
-## [Unreleased] — 默认项设置 E2E + Issue 草稿补池（2026-08-02）
+#### 默认项设置 E2E + Issue 草稿补池
 
-### 新增
+**新增**
+
 - `project-menu.spec.ts`：项目→设置→默认项设置可开（默认字段/默认配置 tab）；按钮补 aria-label
 - ISSUE_DRAFTS `06`–`08`（projectJsonSlice / useProjectStore / modulesSlice eslint）；community 种子池同步
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿；`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 打印 3 条待投放标题
 
-## [Unreleased] — ADR-0008 设计器新增数据源落库（2026-08-02）
+#### ADR-0008 设计器新增数据源落库
 
-### 修复
+**修复**
+
 - `data_sources.id` 扩至 `varchar(64)`：原 `varchar(32)` 无法容纳 RFC4122 UUID（36），`POST /ncnb/dataSources` 截断 500
 - 设计器「新增数据源」使用紧凑 32 位 id + 默认名称；`addDbs` 成功后显式 `saveProject` 写入 `defaultDataSourceId`
   验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 设计器导出入口 E2E（2026-08-02）
+#### 设计器导出入口 E2E
 
-### 新增
+**新增**
+
 - `project-menu.spec.ts`：项目→导出五项可见且「导出DDL」弹窗；导出按钮补 aria-label
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 设计器导入入口 E2E（2026-08-02）
+#### 设计器导入入口 E2E
 
-### 新增
+**新增**
+
 - `project-menu.spec.ts`：项目→导入→数据源逆向/PdMan/ERD 弹窗与上传区可见；导入按钮补 aria-label
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 设计器项目菜单接线（2026-08-02）
+#### 设计器项目菜单接线
 
-### 修复
+**修复**
+
 - DesignLayout 挂载「项目」下拉；导入/导出/设置 SubMenu 接上既有 dialog；修复 DefaultSetUp `ProCard` 错误导入导致白屏
   验证点：`npx playwright test tests/e2e/project-menu.spec.ts --project=chromium` 绿
 
-## [Unreleased] — entitiesSlice eslint 清零（2026-08-02）
+#### entitiesSlice eslint 清零
 
-### 修复
+**修复**
+
 - `entitiesSlice.tsx`：`import type`、删死代码；改名/粘贴/移字段写法消 no-param-reassign；warn=0
   验证点：`yarn eslint src/store/project/entitiesSlice.tsx --max-warnings 0`；`empty-projectjson.spec.ts` 绿
 
-## [Unreleased] — 开源品牌去「零代科技」文案（2026-08-02）
+#### 开源品牌去「零代科技」文案
 
-### 修复
+**修复**
+
 - 布局/设置页脚改为 `© 2026 ERD Online · MIT`；ChatSQL「联系人工」改为指向 GitHub 社区
   验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿（无「零代科技」）
 
-## [Unreleased] — dataTypeDomainsSlice eslint 清零（2026-08-02）
+#### dataTypeDomainsSlice eslint 清零
 
-### 修复
+**修复**
+
 - `dataTypeDomainsSlice.tsx`：去掉未用 lodash、粘贴重名逻辑抽出 `uniqueWithSuffix`，eslint warn=0
   验证点：`yarn eslint src/store/project/dataTypeDomainsSlice.tsx --max-warnings 0`
 
-## [Unreleased] — profileSlice eslint 清零（2026-08-02）
+#### profileSlice eslint 清零
 
-### 修复
+**修复**
+
 - `profileSlice.tsx`：`import type`、未用参数与 prefer-const / no-param-reassign，eslint warn=0
   验证点：`yarn eslint src/store/project/profileSlice.tsx --max-warnings 0`
 
-## [Unreleased] — 已删社交登录路径 E2E（2026-08-02）
+#### 已删社交登录路径 E2E
 
-### 新增
+**新增**
+
 - `dead-auth-routes.spec.ts`：`/login/success`、微信绑定页 404；`/auth/oauth2/**` 非 200
   验证点：`npx playwright test tests/e2e/dead-auth-routes.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 设计器顶栏仓库链改 GitHub（2026-08-02）
+#### 设计器顶栏仓库链改 GitHub
 
-### 修复
+**修复**
+
 - 设计器顶栏 star 徽章由旧 Gitee 改为 `https://github.com/erdonline/erdonline`
   验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
 
-## [Unreleased] — good-first Issue 草稿与投放脚本（2026-08-02）
+#### good-first Issue 草稿与投放脚本
 
-### 新增
+**新增**
+
 - `.github/ISSUE_DRAFTS/`（4 篇）+ `scripts/seed-good-first-issues.sh`；community/roadmap 同步
   验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 打印 4 条标题
 
-## [Unreleased] — exportSlice eslint 清零（2026-08-02）
+#### exportSlice eslint 清零
 
-### 修复
+**修复**
+
 - `exportSlice.tsx`：`import type`、reduce 不可变写法、`const`，该文件 eslint warn=0
   验证点：`yarn eslint src/store/project/exportSlice.tsx --max-warnings 0`
 
-## [Unreleased] — 开源版去掉升级至尊 CTA（2026-08-02）
+#### 开源版去掉升级至尊 CTA
 
-### 修复
+**修复**
+
 - 设计器顶栏移除「升级至尊版」；删除 `dialog/upgrade`；账号页改为「开源版」文案；首页入口改为「团队项目」
   验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿（断言无「升级至尊版」）
 
-## [Unreleased] — 协作 sync warning toast E2E（2026-08-02）
+#### 协作 sync warning toast E2E
 
-### 新增
+**新增**
+
 - `sync-toast.spec.ts`：B 阻断自动保存后本地改模型，A 建表 → B 见 warning toast
   验证点：`npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium` 绿
 
-## [Unreleased] — databaseDomainsSlice eslint 清零（2026-08-02）
+#### databaseDomainsSlice eslint 清零
 
-### 修复
+**修复**
+
 - `databaseDomainsSlice.tsx`：`import type` + 点号访问 `code`，该文件 eslint warn=0
   验证点：`yarn eslint src/store/project/databaseDomainsSlice.tsx --max-warnings 0`
 
-## [Unreleased] — 创建项目默认 projectJSON 骨架（2026-08-02）
+#### 创建项目默认 projectJSON 骨架
 
-### 修复
+**修复**
+
 - `ProjectServiceImpl.ensureDefaultProjectJson`：创建/保存时 null JSON 写入 `modules=[]`
   验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=ProjectEnsureDefaultJsonTest -Djacoco.skip=true surefire:test` 绿；curl 建团队项目无 JSON 后 GET info 含 `modules`
 
-## [Unreleased] — 空 projectJSON 可新增模型（2026-08-02）
+#### 空 projectJSON 可新增模型
 
-### 修复
+**修复**
+
 - 打开项目时 `ensureProjectJSON` 补齐 null/残缺骨架；`addModule` 防 `modules` 未定义误报「已存在」
   验证点：`npx playwright test tests/e2e/empty-projectjson.spec.ts --project=chromium` 绿
 
-## [Unreleased] — configJsonSlice eslint 清零（2026-08-02）
+#### configJsonSlice eslint 清零
 
-### 修复
+**修复**
+
 - `configJsonSlice.tsx`：`import type`、去掉空 `{}` 类型与未用 `get`，该文件 eslint warn=0
   验证点：`yarn eslint src/store/project/configJsonSlice.tsx --max-warnings 0`
 
-## [Unreleased] — 协作 sync toast E2E（2026-08-02）
+#### 协作 sync toast E2E
 
-### 新增
+**新增**
+
 - `sync-toast.spec.ts`：团队项目双 context（e2e-serial + e2e15），A 建表后 B 见「同步了模型变更」info toast
   验证点：`npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium` 绿
 
-## [Unreleased] — presence E2E 清理项目（2026-08-02）
+#### presence E2E 清理项目
 
-### 修复
+**修复**
+
 - `presence.spec.ts`：用例前后 `deleteOwnPersonProjects`，避免 e2e 项目堆积
   验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 登录/注册去 ChatGPT 噱头（2026-08-02）
+#### 登录/注册去 ChatGPT 噱头
 
-### 修复
+**修复**
+
 - 登录/注册副标题与活动区对齐愿景（Git + Figma）；活动 CTA 改「打开演示」→`/demo`，去掉 ChatGPT 营销文案
   验证点：`npx playwright test tests/e2e/smoke.spec.ts -g "登录页渲染" --project=chromium` 绿
 
-## [Unreleased] — good-first-issue 运营清单（2026-08-02）
+#### good-first-issue 运营清单
 
-### 新增
+**新增**
+
 - `docs/community.md`：标签约定、双周节奏、种子任务池；Issue 模板 `good_first_issue.yml`；CONTRIBUTING 入口
   验证点：`cd website && yarn build` 绿（含 community 页）；模板文件存在于 `.github/ISSUE_TEMPLATE/`
 
-## [Unreleased] — 文档站本地中文搜索（2026-08-02）
+#### 文档站本地中文搜索
 
-### 新增
+**新增**
+
 - `website`：`@easyops-cn/docusaurus-search-local`（`language: en,zh`，`docsRouteBasePath: docs`）
   验证点：`cd website && yarn build` 成功；`build` 下存在 `search-index*.json`
 
-## [Unreleased] — 文档站死链门禁 + Pages 工作流（2026-08-02）
+#### 文档站死链门禁 + Pages 工作流
 
-### 新增
+**新增**
+
 - `.github/workflows/docs-site.yml`：PR/`main` 构建 `website/`；`main` 部署 GitHub Pages
 - docs 外链改为绝对 GitHub URL；Docusaurus `onBrokenLinks=throw`
   验证点：`cd website && yarn build` 无 broken links 成功
 
-## [Unreleased] — 文档站骨架 + 复合 FK 延期（2026-08-02）
+#### 文档站骨架 + 复合 FK 延期
 
-### 新增
+**新增**
+
 - `website/`：Docusaurus 3.7 消费 `docs/`（ADR-0003）；**ADR-0011** 复合 `fields[]` 延期（保持字段级多边）
   验证点：`cd website && yarn && yarn build` 成功
 
-## [Unreleased] — Oracle 字典级 FK 逆向（2026-08-02）
+#### Oracle 字典级 FK 逆向
 
-### 新增
+**新增**
+
 - Oracle：`ALL_CONSTRAINTS(R)` + `ALL_CONS_COLUMNS` 字典外键（`position` 保序）；失败回退 JDBC；P0 四库字典 FK 齐套
   验证点：`mvn -q -Dtest=ForeignKeyAssociationMapperTest,ReverseDialectRegistryTest -Djacoco.skip=true surefire:test` 绿
 
-## [Unreleased] — SQL Server 字典级 FK 逆向（2026-08-02）
+#### SQL Server 字典级 FK 逆向
 
-### 新增
+**新增**
+
 - SQL Server：`sys.foreign_keys` / `sys.foreign_key_columns` 字典外键（`constraint_column_id` 保序）；失败回退 JDBC
   验证点：`mvn -q -Dtest=ForeignKeyAssociationMapperTest,ReverseDialectRegistryTest -Djacoco.skip=true surefire:test` 绿
 
-## [Unreleased] — PostgreSQL 字典级 FK 逆向（2026-08-02）
+#### PostgreSQL 字典级 FK 逆向
 
-### 新增
+**新增**
+
 - PostgreSQL：`information_schema.key_column_usage` 字典外键（保序，失败回退 JDBC）
   验证点：`mvn -q -Dtest=ForeignKeyAssociationMapperTest,ReverseDialectRegistryTest -Djacoco.skip=true surefire:test` 绿
 
-## [Unreleased] — MySQL 字典级 FK 逆向（2026-08-02）
+#### MySQL 字典级 FK 逆向
 
-### 新增
+**新增**
+
 - MySQL/MariaDB：`KEY_COLUMN_USAGE` 字典外键（`ORDINAL_POSITION` 保序）；失败回退 JDBC；`mapFromKeyColumnUsage` 单测覆盖复合列
   验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=ForeignKeyAssociationMapperTest test` 绿
 
-## [Unreleased] — Sync 冲突提示 + P2 收口（2026-08-02）
+#### Sync 冲突提示 + P2 收口
 
-### 新增
+**新增**
+
 - 收到远端 sync：已保存 → info「同步了模型变更」；本地未保存 → warning 提示核对；patch 失败 → error（3s 节流）
 - **ADR-0010**：暗色模式延期；P2 体验深水区标 ✅
   验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿；`verify-socket-sync.mjs` PASS
 
-## [Unreleased] — 协作模型增量 sync（2026-08-02）
+#### 协作模型增量 sync
 
-### 新增
+**新增**
+
 - `martin:event:sync`：房间广播 `projectJSON` 的 jsondiffpatch delta；设计器防抖发送、远端 patch、timestamp 去重回声
   验证点：`node scripts/verify-socket-sync.mjs` PASS；`presence.spec.ts` 仍绿
 
-## [Unreleased] — 协作光标广播（2026-08-02）
+#### 协作光标广播
 
-### 新增
+**新增**
+
 - `martin:event:cursor`：房间内广播 flow 坐标；关系图画布叠加远程光标（`collab-cursors`）
   验证点：`node scripts/verify-socket-cursor.mjs` PASS；`presence.spec.ts` 仍绿
 
-## [Unreleased] — Presence 断线清名单（2026-08-02）
+#### Presence 断线清名单
 
-### 修复
+**修复**
+
 - Socket 断线/关页后房间名单残留：namespace DisconnectListener 与 leaveRoom 同路径摘名（多标签同用户保活）
   验证点：`node scripts/verify-socket-presence.mjs`（双人进房→一人断线→名单只剩留守者）PASS
 
-## [Unreleased] — 协作 Presence 短票（2026-08-02）
+#### 协作 Presence 短票
 
-### 新增
+**新增**
+
 - **ADR-0009**：设计器 Presence 接后端 SocketIO `:9092`（`/project/erd`）；`POST /auth/socket-ticket` 短票握手（避免超长 JWT query 断连）
 - 顶栏在线名单 `collab-presence`；`socket.io-client@2.5` 对齐 netty-socketio；移除死代码 `frontend/src/socket-io` / `socket.io@4`
   验证点：`node scripts/verify-socket-presence.mjs` PASS；`npx playwright test tests/e2e/presence.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 在线 Demo（2026-08-02）
+#### 在线 Demo
 
-### 新增
+**新增**
+
 - 免登录 `/demo` → `/s/public-demo`；种子 `db/init/08_public_demo.sql`；登录/注册入口「先看演示」
   验证点：`npx playwright test tests/e2e/demo.spec.ts --project=chromium` 绿；`curl` GET share `public-demo` 200
 
-## [Unreleased] — 双周发版笔记（2026-08-02）
+#### 双周发版笔记
 
-### 文档
+**文档**
+
 - `docs/releases/` + `scripts/cut-release-notes.sh`：从 CHANGELOG Unreleased 生成用户向双周笔记
   验证点：`./scripts/cut-release-notes.sh --dry-run` 有输出；`docs/releases/2026-08-02.md` 存在
 
-## [Unreleased] — 分享页 Fork 个人项目（2026-08-02）
+#### 分享页 Fork 个人项目
 
-### 新增
+**新增**
+
 - `POST /share/{token}/fork`（需登录）：从分享快照创建个人项目副本（剥离 dbs / defaultDataSourceId）
 - 分享页 CTA「复制到我的项目」；未登录跳转 `/login?redirect=/s/:token`；登录支持 redirect
 - 注册转化：分享页「注册并带回」→ `/register?redirect=`；登录页「去注册」保留 redirect；注册成功后 `login(..., redirect)`
 - 登录/注册回跳带 `?autofork=1`，分享页自动 fork，少点一次
   验证点：`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿；curl 匿名 fork 401、登录 fork 得 projectId
 
-## [Unreleased] — 数据源与 projectJSON 隔离（2026-08-02）
+#### 数据源与 projectJSON 隔离
 
-### 变更
+**变更**
+
 - **ADR-0008**：JDBC 只存 `data_sources` / `/ncnb/dataSources`；`profile.dbs` 不再存连接；项目仅 `defaultDataSourceId`
 - 打开/保存项目剥离机密；设计器数据源设置走 API；分享响应清空 `dbs`
   验证点：`ProjectShareSanitizeTest` 绿；`./scripts/audit-fe-apis.sh` 绿；手工：设置数据源后保存项目 JSON 无 password
 
-## [Unreleased] — 前后端接口连通性（2026-08-02）
+#### 前后端接口连通性
 
-### 修复
+**修复**
+
 - `GET /ncnb/dataSources` 500：缺表 `erd.data_sources` → 新增 `db/init/07_data_sources.sql` + `@TableName`
 - 注册匿名 401：`ignore-urls` 补 `/project/group/user/register`（前缀剥离后）
 - `queryHistory`：FE 误用 GET → 统一 POST（与 Controller 一致）
@@ -754,9 +894,9 @@
 - 探测脚本 `scripts/audit-fe-apis.sh`
   验证点：`./scripts/audit-fe-apis.sh` 全 OK；`GET /ncnb/dataSources?size=10&current=1` 200
 
-## [Unreleased] — 只读分享 API（2026-08-02）
+#### 只读分享 API
 
-### 新增
+**新增**
 
 - **ADR-0007** + 表 `project_share`；`POST /share/create`、`GET /share/{token}`（匿名）、`POST /share/revoke`
 - Security：`/share/**` 放行匿名读
@@ -764,9 +904,11 @@
 - 分享按钮：clipboard 不可用时降级展示完整链接（避免创建成功却报失败）；E2E `share.spec.ts`（设计器分享→匿名 `/s/:token` 见关系图）
   验证点：登录 create → 匿名 GET `readonly=true` 且 password=`***`；含 associations；`ProjectShareSanitizeTest` 绿；`npx playwright test tests/e2e/share.spec.ts --project=chromium` 绿
 
-## [Unreleased] — 开发入口规则（2026-08-01）
+### 2026-08-01
 
-### 文档 / 规则
+#### 开发入口规则
+
+**文档 / 规则**
 
 - 新增 `.cursor/rules/dev-entrypoints.mdc`：后端唯一入口 `./backend/dev-ensure.sh`（tmux `erd-be`）；前端永不重启、HMR/代理/E2E 强制用法
 - 同步 `dev-loop-speed.mdc`、`docs/development.md`，废弃「直接跑 dev-restart / kill 9502」旁路
@@ -775,9 +917,9 @@
 - Vision 5m 循环：`scripts/agent-loop-vision.sh` + `agent-loop-vision.prompt.md`（现场读 roadmap 选题，禁止写死主线）
   验证点：`colima` + `erd-mysql/redis` healthy；MySQL/PG `dbReverseParse` 产出 indexs + associations（已 curl）；旧写死 prompt 循环已停、新脚本 PID 可查
 
-## [Unreleased] — 多库逆向 Dialect SPI（2026-08-01）
+#### 多库逆向 Dialect SPI
 
-### 新增
+**新增**
 
 - **ADR-0006**：多库逆向 Dialect SPI（P0：MySQL/PG/Oracle/SQL Server；Generic JDBC 兜底）
 - 包 `com.erdonline.erd.reverse`：`ReverseDialect` / `DialectCapability` / `ReverseDialectRegistry`
@@ -791,18 +933,18 @@
 - **外键逆向**：`getImportedKeys` → `module.associations`（from=子表/FK，to=父表/PK，relation=`1:n`）；导入时挂到外键侧实体所在模块
   验证点：`ForeignKeyAssociationMapperTest` + Registry/Mapper 单测绿；curl MySQL meta `supportsForeignKey=true`
 
-## [Unreleased] — eslint 热路径收尾（2026-08-01）
+#### eslint 热路径收尾
 
-### 变更
+**变更**
 
 - 修 `lint:js:ci` 阻断：`entitiesSlice` `Array<T>` → `T[]`
 - 清零 `console.log/debug/info`：82 文件约 380 行调试输出；删死代码 `pages/design/test/Test3`
 - 保留 `console.warn`/`console.error`（业务错误路径）
   验证点：`yarn lint:js:ci` 通过；`rg 'console\.(log|debug|info)' src` = 0
 
-## [Unreleased] — 第 3 轮：Blueprint 清零（2026-08-01）
+#### 第 3 轮：Blueprint 清零
 
-### 变更
+**变更**
 
 - **UI 栈统一 antd**：移除 `@blueprintjs/core`/`popover2`/`select`/`docs-theme` 依赖（-4 个包），src 下 0 处引用
 - 删除死代码：`pages/test/index.tsx`、`pages/design/test/Test2.tsx`、`FieldMultiSelect.tsx`、`TableObjectList.tsx`（零引用）
@@ -810,17 +952,17 @@
 - 15 个 dialog 的 Blueprint Button trigger（`minimal/small/fill/alignText`）→ antd `type="text" size="small" block`
   验证点：`yarn tsc --noEmit` 0 src 错误；`yarn build` 通过（28s）；15 条核心 E2E（smoke/relation/version/export/ux-audit 等）15/15 全绿
 
-## [Unreleased] — 第 0 轮：验证基建（2026-08-01）
+#### 第 0 轮：验证基建
 
 > 目标：建立"一切迭代的前提"——全栈可起、核心旅程有自动化冒烟守护。
 
-### 新增
+**新增**
 
 - **E2E 冒烟测试**（Playwright）：覆盖核心旅程「登录 → 新建项目 → 进入设计器 → 清理删除」，自清理可重复运行（`frontend/tests/e2e/smoke.spec.ts`，`yarn test:e2e`）
 - **CI 冒烟门禁**（`.github/workflows/e2e-smoke.yml`）：GitHub Actions 全栈起 mysql/redis/backend/frontend 后执行冒烟，失败禁止合并
 - 两个 `test.fixme` 用例标记第 1 轮修复目标：错误凭证无提示、画布删除无二次确认
 
-### 修复（冒烟测试抓出的真实 bug）
+**修复（冒烟测试抓出的真实 bug）**
 
 - **新克隆无法启动前端**：`yarn start`/`build:prod` 依赖的 `env.local.sh`/`env.sh` 未入库，已补回（生成 `env-config.js`，开发态走同源代理）
 - **admin 打开个人项目页 403**：权限种子漏配 admin 角色的 42 个 operation + 9 个 menu（含 `/project/page`），`db/init/03_martin.sql` 追加幂等补全
@@ -828,13 +970,13 @@
 - **首页统计与项目列表数据不一致**：`/project/statistic` 的 6 个统计 SQL 未过滤 `del_flag`，软删除项目仍被计数（列表显示 0 个、统计却显示 2 个），已全部补上 `del_flag = 0`
   验证点：有软删除数据时 statistic 各计数 = 项目表 del_flag=0 行数（已 curl 验证一致）
 
-### 文档
+**文档**
 
 - 新增 `docs/vision.md`、`docs/roadmap.md`、`docs/design-principles.md`
 - 新增 ADR：`0001` ReactFlow 设计器迁移、`0002` 后端升级路径、`0003` Docusaurus 文档站、`0004` MIT 协议
 - 新增 Cursor 规则：项目上下文、迭代协议、前端/后端编码红线、文档自动维护
 
-### 已知问题（记入第 1 轮急救包）
+**已知问题（记入第 1 轮急救包）**
 
 - 登录接口用 GET + query 传密码（`?password=` 会进代理/浏览器历史日志）
 - 错误凭证登录、表单校验失败、VIP 限额触发等场景前端静默失败，无任何提示
@@ -842,18 +984,18 @@
 - 项目 `create_time`/`creator` 未写入（列表时间为空）
 - 登录页存在 `console.log` 调试残留（登录提交打印明文账密！）
 
-## [Unreleased] — 第 2 轮（进行中）：质量基线 · Boot 3 + JWT（ADR-0002）
+#### 第 2 轮（进行中）：质量基线 · Boot 3 + JWT（ADR-0002）
 
 > 目标：直上 Spring Boot 3.5 + JWT Resource Server；删掉无法带走的旧 OAuth/社交死代码。
 
-### 认证与栈
+**认证与栈**
 
 - **Boot 3.5.16 + JDK 17**：`POST /auth/login`（JSON）签发 HS256 JWT；请求头仍 `Authorization: Bearer`
 - **删除**：password-grant `/oauth/token`、Redis opaque token、社交登录整包（`common.social`）、SocialDetails CRUD、微信绑定页、`/login/success` 回调路由、模板页 `pages/user/Login`
 - **CI**：backend-ci / e2e-smoke / release 统一 Java 17
   验证点：curl 登录拿 JWT → `/ncnb/project/statistic` 200；错误密码 401；`smoke.spec.ts` 3 过 1 跳过；`relation.spec.ts` 绿（2026-08-01）
 
-### fastjson → Jackson（✅）
+**fastjson → Jackson（✅）**
 
 - **核心持久化**：`ErdJsonTypeHandler` / `Project` / `JsonBase` 改为 `Map<String,Object>`；Module API `@RequestBody Map`
 - **实体对齐**：`DbChange` / `DataDict` 数组字段改 `List`；逆向模型 `@JSONField` → `@JsonPropertyOrder`
@@ -861,25 +1003,25 @@
 - **单测**：`JsonUtilTest`、`ErdJsonTypeHandlerTest`；`GatewayPrefixStripFilterTest` 改断言 `/auth/login`
   验证点：`mvn test -Dtest=JsonUtilTest,ErdJsonTypeHandlerTest,GatewayPrefixStripFilterTest` 通过；登录后 GET 项目 `projectJSON` 为对象且可进设计器（smoke/relation）
 
-### 核心单测 + Jacoco 门禁（✅）
+**核心单测 + Jacoco 门禁（✅）**
 
 - **Jacoco**：`pom` 对 JWT / 登录 / 网关前缀 / JsonUtil / ErdJsonTypeHandler 行覆盖率 ≥50%（实测核心包 ~78%）
 - **用例**：`AuthLoginControllerTest`、`JwtTokenServiceTest`、`JwtConfigTest`、`AuthEndpointTest`、`TokenServiceTest`；网关前缀补 `/syst` `/ncnb`
 - **CI**：`backend-ci` 跑 `mvn test`（含 check）并上传 jacoco 报告；`frontend-ci` Node 20 + `yarn lint:js:ci`（`--quiet`，存量 warn 不挡）
   验证点：本地 `mvn test` BUILD SUCCESS；jacoco check-core 通过；`yarn lint:js:ci` 0 error
 
-### 版本快照零摩擦（✅ 北极星）
+**版本快照零摩擦（✅ 北极星）**
 
 - **无 JDBC 也可保存版本**：`SNAPSHOT_DB_KEY` 通道；版本页不再永远 Loading；空态引导文案
 - **新增版本**：自动建议下一 semver + 默认描述；去掉 debugger / 明文 console
 - **E2E**：`version.spec.ts` 登录→进设计器→版本管理→新增→列表见 `1.0.0`
   验证点：`npx playwright test tests/e2e/version.spec.ts` 通过（2026-08-01）
 
-## [Unreleased] — 第 3 轮：版本时光机
+#### 第 3 轮：版本时光机
 
 > 目标：抬升「每周有版本保存」——看得见模型变更，不只是存了个号。
 
-### 版本 diff 可视化（✅）
+**版本 diff 可视化（✅）**
 
 - **模型变更面板**：`VersionDiffPanel` 按表分组，新增绿 / 删除红 / 修改黄；摘要 Tag
 - **详情弹窗**：替换纯文本列表 + 去掉 MUI Grid；`CompareVersion` 左右分栏（可视化 + DDL）
@@ -888,7 +1030,7 @@
 - **清理**：`showChanges` 去掉 `debugger`
   验证点：`npx playwright test tests/e2e/version.spec.ts` 通过（含详情 diff + 双版比对）
 
-### 工单/审批打磨（✅）
+**工单/审批打磨（✅）**
 
 - **操作反馈**：通过/拒绝/撤销/复批/发起审批成功有 message，失败不关窗、不静默
 - **文案**：审批页 `headerTitle` 由错误的「我的工单」改为「我的审批」；空态引导
@@ -896,66 +1038,66 @@
 - **比对入口**：不足两版时「版本比对」禁用
   验证点：`approval.spec.ts` 表头/空态；`version.spec.ts` 单版禁用比对、双版比对出 REMARK
 
-### 版本回滚 + 删表确认（✅）
+**版本回滚 + 删表确认（✅）**
 
 - **回滚**：无快照时 `message.error`；去掉 debug console；`data-testid=version-revert-btn`
 - **删表确认 E2E**：模型树「…→删除表」出现确认框，取消不删（替换原 g6 canvas fixme）
   验证点：`version.spec` 回滚后 REMARK 消失；`smoke`「模型树删除表需二次确认」通过
 
-### 新手 30s：首页示例项目（✅）
+**新手 30s：首页示例项目（✅）**
 
 - **快速操作去死链**：指向真实路由（个人/最近项目等）
 - **一键示例**：`createExampleProjectAndOpen` 创建含用户/订单+关联的模型并进设计器
 - **E2E**：`activation.spec.ts` 首页点示例 → 关系图见 2 节点 1 边
   验证点：`npx playwright test tests/e2e/activation.spec.ts` 通过
 
-### 设计器自动保存状态可见（✅）
+**设计器自动保存状态可见（✅）**
 
 - 画布工具栏 `save-status`：保存中 / 已保存 / 未保存；防抖 600ms；失败有 message
 - 首次拉取项目不触发无意义保存
   验证点：`relation.spec` 建表后 `save-status` 为「已保存」
 
-### 开源版取消项目数限制（✅）
+**开源版取消项目数限制（✅）**
 
 - `PersonProjectCountRight` / `GroupProjectCountRight`：`valid()` 恒 true，个人/团队项目不限个数
 - E2E：可连续创建 2 个个人项目
   验证点：curl 连建 2 个项目均 200；`activation.spec`「可连续创建多个个人项目」
 
-### 项目激活链路打磨（✅）
+**项目激活链路打磨（✅）**
 
 - **个人项目空态引导**：无项目时展示「立即创建 / 一键示例」双入口（`project/person` Empty）
 - **新建表单减负**：默认个人项目 + 默认标签，必填只剩项目名/描述；创建成功/失败均有 message 反馈（不再静默）
 - **E2E**：`project-activation.spec.ts` 空态一键示例进设计器见 T_USER/T_ORDER；表单默认值 + 创建反馈
   验证点：`npx playwright test` 全量 14/14 通过
 
-### 后端生命周期托管（✅ 开发基建）
+**后端生命周期托管（✅ 开发基建）**
 
 - 新增 `backend/dev-ensure.sh`：幂等保证后端常驻 tmux 会话 `erd-be`（`--restart` 重启 / `--logs` 看日志）
 - 新增规则 `.cursor/rules/backend-lifecycle.mdc`：禁止模型直接启动 java，唯一入口 dev-ensure.sh
 - 根因：IDE/agent shell 会话结束会杀子进程，nohup 后台化被误杀导致反复重启
   验证点：脚本首跑拉起 → 二跑秒退（幂等）→ curl /login 返回 token
 
-### E2E 多 worker 并发（✅ 开发基建）
+**E2E 多 worker 并发（✅ 开发基建）**
 
 - `playwright.config.ts`：`fullyParallel` + 本地最多 4 worker（`PW_WORKERS` 可覆盖；CI 默认 2）
 - 并发隔离：项目名 `e2e-w{n}-` 前缀，`deleteOwnPersonProjects` 只清本 worker
 - 空态/示例用例：`chromium-serial`（依赖并行项目跑完）+ `withExclusiveAccount` 文件锁
   验证点：`npx playwright test` → `Running 14 tests using 4 workers`，14 passed（~2.6m）
 
-### 画布视口裁剪 + E2E 定位纪律（✅）
+**画布视口裁剪 + E2E 定位纪律（✅）**
 
 - 规则：`.cursor/rules/e2e-locators.mdc`（role 优先，testid 兜底）
 - 设计器关键入口补 `data-testid` / `aria-label`（新增模型、关系图、空态建表、打开模型）
 - 节点≥24 开启 `onlyRenderVisibleElements`；TableNode `React.memo`；E2E `canvas-scale.spec.ts`
   验证点：`canvas-scale.spec` 绿（~15s）；`relation.spec` 回归绿
 
-### E2E 全量按定位纪律改写（🚧）
+**E2E 全量按定位纪律改写（🚧）**
 
 - `helpers`：建项/开关系图/toast/内联字段/连线；specs 去掉 `.ant-modal` / `.ant-tree [class*=title]` / xpath
 - 产品侧：`version-row-{ver}`、`tree-node-menu`、命令面板 `cmd-palette-input` / `role=option`
   验证点：`npx playwright test` 全量绿
 
-### 去掉 VIP 限额 + E2E 多账号（✅）
+**去掉 VIP 限额 + E2E 多账号（✅）**
 
 - `VIPRightsAspect` 开源放行（人数/项目数/AI 等不再拦截）；登录路径去掉 `@VIP`
 - 种子 `db/init/05_e2e_users.sql`：`e2e0`..`e2e15` + `e2e-serial`（密码 `123456`，admin 角色）
@@ -964,38 +1106,38 @@
 - 文档：`docs/security-model.md`、deployment 生产清理说明
   验证点：`curl` e2e0/e2e-serial JWT；`npx playwright test` 绿
 
-### 性能预算基线（✅）
+**性能预算基线（✅）**
 
 - 新增 `docs/performance-budget.md`：dist ≤20MB、冒烟 ≤30s、relation ≤60s；热路径禁止 console
 - 本机基线：dist ~14MB；冒烟 ~10.4s；relation ~26s
   验证点：文档指标表与 `du -sh frontend/dist` / smoke 耗时可对照
 
-### 性能：设计器热路径去掉 console.log（✅ eslint 清债切片）
+**性能：设计器热路径去掉 console.log（✅ eslint 清债切片）**
 
 - `useProjectStore` immer/`set` 中间件与 fetch/socket 调试日志删除（原先每次模型变更都刷屏）
 - `DesignLayout` 渲染路径调试日志删除
 - 全仓 `no-console` warn：约 407 → 375
   验证点：`yarn eslint` 上述两文件 0×no-console；`relation.spec` 仍绿
 
-### 修：连线后改字段名边消失（✅）
+**修：连线后改字段名边消失（✅）**
 
 - 根因：association 仍在，但字段 Handle 动态变更后未 `updateNodeInternals`，RF 不渲染边
 - 修复：TableNode 字段签名变化时刷新锚点；边列表改由 associations 派生；改名同步加强（同长按下标）
 - E2E：`relation.spec`「先连线再改名」断言边仍在
   验证点：`npx playwright test tests/e2e/relation.spec.ts` 通过
 
-### 迭代协议：验完自动续跑
+**迭代协议：验完自动续跑**
 
 - `.cursor/rules/iteration-protocol.mdc`：commit 后立刻开下一切片，不等「继续」
 
-### UI 收敛：清除 MUI（✅；Blueprint 另议）
+**UI 收敛：清除 MUI（✅；Blueprint 另议）**
 
 - CRUD 对话框内全部 `@mui/material` / `@mui/icons-material` 替换为 antd（Divider/Button/Row/Col/InboxOutlined）
 - 从 `package.json` 移除 `@mui/*` 与仅为其服务的直连 `@emotion/*`
 - Blueprint 菜单/工具栏残留记后续切片（设计器侧栏触发器暂保留）
   验证点：`rg '@mui/' frontend/src` 零命中；`yarn lint:js:ci` 过；`version.spec`/`export.spec` 绿（diff 用例偶发已复跑通过）
 
-### 设计系统：全局加载骨架（✅ 加载半完成；暗色另议）
+**设计系统：全局加载骨架（✅ 加载半完成；暗色另议）**
 
 - 新增 `PageSkeleton`；进设计器 `projectLoading` 时内容区骨架，禁止白屏
 - 个人/团队/最近项目列表请求中 `ProList loading`，禁止空态闪一下
@@ -1004,7 +1146,7 @@
 - 暗色：ADR-0005 写明 CRUD 不换肤，本切片不做 toggle
   验证点：`loading.spec.ts` 2/2；连带依赖跑全量 chromium 14/14 绿（含 smoke/project-activation）
 
-### 缩短建表链路（✅）
+**缩短建表链路（✅）**
 
 - **修 bug**：`addEntity` 曾强制 `fields: []` 冲掉默认字段；现未传/空数组时注入项目默认字段（含主键）
 - **建表即见结构**：画布空态「新建第一张表」带默认主键；树/弹窗建表后自动打开关系图
@@ -1012,18 +1154,18 @@
 - **稳健性**：内联编辑 Enter+blur 防双提交；删边时若字段已改名则不误清关联
   验证点：`relation.spec` 空态建表节点含 id/主键；全量 playwright 14/14
 
-## [Unreleased] — 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
+#### 第 2 轮（进行中）：ReactFlow 迁移（ADR-0001）
 
 > 目标：用现代画布重建核心建模体验，根治「实体上不了画布」断裂。
 
-### R3 默认切换（2026-08-01 ✅）
+**R3 默认切换（2026-08-01 ✅）**
 
 - **关系图唯一实现**：`relation/index.tsx` 重导出 ReactFlow；删除 `g6.js` / Contex / ModalWrapper / RelationEdit 等旧接线
 - **入口统一**：设计器标签经 `pages/design/relation` 进入新画布
 - **导出去 G6**：`relation2file.saveImage` 改为 DOM 卡片 + SVG 连线 + html2canvas；`document.ejs` / `config.ts` 移除 g6 全局脚本
   验证点：`export.spec.ts` 设计器「导出 Markdown」成功下载 `.md`；`relation.spec.ts` 仍绿
 
-### R0 探针（2026-08-01 ✅）
+**R0 探针（2026-08-01 ✅）**
 
 - **ReactFlow 只读画布上线**：`relation/ReactFlowRelation.tsx` + `reactflow-relation.scss`，替换设计器「关系图」标签（旧 g6 文件保留未接线，R3 删除）
 - **实体即节点（核心设计约束落地）**：`module.entities` 全集即画布节点，**建表即上图**（画布开着建表，节点即时出现，E2E 实证）；`graphCanvas` 只用于复用旧坐标，无坐标节点网格自动布局
@@ -1034,7 +1176,7 @@
 - 测试：新增 `tests/e2e/relation.spec.ts`（实体即节点不变量 + finally 清理防配额泄漏），全量 5 通过 1 跳过
 - 走查存档：`test-results/ux-walkthrough/r0-reactflow-canvas.png`
 
-### R1 功能对等·第一批（2026-08-01 ✅）
+**R1 功能对等·第一批（2026-08-01 ✅）**
 
 - **节点拖动 + 位置持久化**：`onNodeDragStop` → `updateGraphCanvasLayout`（graphCanvas 只存布局），store 订阅自动落库；重载后坐标精确保持（E2E 断言画布 transform）
 - **字段拖连线建关联**：字段行左 target/右 source 手柄，`onConnect` → `addAssociation`（去重），边删除（Delete 键）→ `removeAssociation`；curl 实证 `{from:{T_B.A_ID}, to:{T_A.ID}}` 落库与清除
@@ -1042,7 +1184,7 @@
 - **走查抓出并修复两个真 bug**：① 节点 `overflow:hidden` 把半探出的字段手柄埋住不可点（连线不可能）；② 节点点击不选中——重建节点时未保留 `selected` 交互态
 - ADR-0005 落定 UI 架构：antd 守 CRUD、设计器域自研、暂缓 Tailwind
 
-### R2 超越·第一批（2026-08-01 ✅）
+**R2 超越·第一批（2026-08-01 ✅）**
 
 - **节点即编辑器**：字段增/改/删全部画布内联（`+ 添加字段` / 双击改名改类型 / × 删字段），告别「双击开标签 + handsontable」4 步链路
 - **空态可操作引导**：0 表时「+ 新建第一张表」CTA（非静态插图），创建即上图
@@ -1058,11 +1200,11 @@
   验证点：`relation.spec.ts` Shift 多选两表 → 左齐 → transform x 相同（已通过）
 - **E2E 全旅程**：`relation.spec.ts` 覆盖空态→建表→内联字段→连线→改字段名跟边→删边→删除守卫→拖动持久化→自动布局→撤销→多选对齐→命令面板建表
 
-## [Unreleased] — 第 1 轮：交互急救包 + P0 安全（2026-08-01）
+#### 第 1 轮：交互急救包 + P0 安全
 
 > 目标：消灭静默失败与高危残留；建立秒级开发验证回路。
 
-### 修复（第 0 轮登记的已知问题，逐条核销）
+**修复（第 0 轮登记的已知问题，逐条核销）**
 
 - **静默失败 → 统一错误反馈**（`utils/request.js`）：重写 `errorHandler`——401 区分登录接口（提示后端业务文案，不跳转）与登录态失效（提示+跳登录）；补 500 处理盲区；透传 `msg`/`message`/`error_description`；网络层失败提示「网络异常」。响应拦截器跳过非 2xx（修同一条错误弹两次）。验证点：E2E「错误凭证登录出现明确错误提示」含**仅弹一次**断言，已通过
 - **登录页打印明文账密**：`pages/login/index.tsx` 删除 `console.log(29, values)`；`.eslintrc.js` 新增 `no-console` 规则防新增（存量 488 处记 P2 批量清除）。验证点：E2E 登录流程 console 无账密输出
@@ -1071,21 +1213,21 @@
 - **画布删除无确认**：g6 右键删除表/连接线接线 `Modal.confirm`（红按钮、提示可撤销）。同时补 `Modal` 导入（`Modal.error` 两处调用原为 ReferenceError 隐患）。验证点：代码审查通过；自动化待 ReactFlow 迁移（canvas 无 DOM 节点），见检查单手工项
 - **画布撤销/重做快捷键**：Cmd/Ctrl+Z 撤销、Cmd/Ctrl+Shift+Z 重做（输入框内不拦截）
 
-### 新增
+**新增**
 
 - **秒级后端验证回路**：`backend/dev-restart.sh`——`mvn compile -o` + 直接 `java -cp` 启动，全流程 ~20s（原 `mvn spring-boot:run` 冷启动 3-4 分钟）
 - **SocketIO 端口泄漏修复**：`socketIOServer` Bean 加 `destroyMethod="stop"`，上下文关闭释放 9092（原来每次重启必 BindException）
 - `.cursor/rules/dev-loop-speed.mdc`：服务常驻/热加载/增量验证/环境一次到位纪律
 
-### 技术决策记录（为什么不用 spring-boot-devtools）
+**技术决策记录（为什么不用 spring-boot-devtools）**
 
 试装 devtools 后发现致命冲突：`RedisTokenStore` 用 JDK 序列化存 `Authentication`（内含本项目 `MartinUser`），`ObjectInputStream` 按调用栈把类解析到基础类加载器，而 devtools 业务代码在 `RestartClassLoader`——同名类双加载器，**所有登录态请求必报 ClassCastException**，且 `restart.exclude` 不支持按包排除目录类。已卸载，改用 `dev-restart.sh` 方案。TCCL 过滤器方案已实证无效（`latestUserDefinedLoader` 不读 TCCL）。
 
-### 新发现问题（登记待办）
+**新发现问题（登记待办）**
 
 - 存量 488 处 `console.log`（P2，配合 `no-console` 规则批量清除）
 
-### 追加修复（2026-08-01 下午，走查驱动）
+**追加修复（2026-08-01 下午，走查驱动）**
 
 - **[P0] 关系图入口缺失（核心功能不可达）**：`getModuleEntityTree` 仅 `groupByType=false` 扁平模式返回「关系图」叶子，而界面恒用文件夹模式 → 画布无任何入口。已在「关系」文件夹置顶「关系图」入口（`modulesSlice.tsx`），浏览器实证画布打开渲染（3 canvas 元素）
 - **[P0 登记] 实体永远无法上图（旧画布建模回路全断）**：前端无任何拖拽源（树节点 draggable=false）+ `addEntity` 不写 `graphCanvas` → 新建实体上不了画布。**决策：不修补 g6**，ReactFlow 轮根治——实体即节点、`graphCanvas` 只存布局（ADR-0001 补充决策已写入）
@@ -1094,7 +1236,7 @@
 - **[语义修正] /oauth/token 500→401**：`MartinOauthResponseExceptionTranslator`——StatefulException 9404xxx 业务码（查无此用户等）与 InvalidGrantException（密码错误）由 500 改 401；前端 errorHandler 同步透传后端业务文案。curl + E2E 双验证
 - **[文档] CSRF 关闭合理性**：`WebSecurityConfigurer` 补注释——Bearer token 无 Cookie 会话，CSRF 可安全关闭；引入 Cookie 时必须恢复
 
-### UX 走查机制（playwright-ux-audit 规则首轮运转）
+**UX 走查机制（playwright-ux-audit 规则首轮运转）**
 
 - 新增 `.cursor/rules/playwright-ux-audit.mdc`：页面级改动必须 Playwright 真实旅程走查；摩擦分类判据表（静默失败/死 affordance/重复反馈/多余步骤/空态/破坏无确认/文案不清）；P0/P1/P2 分级处理
 - 新增 `tests/e2e/ux-audit.spec.ts`：UX 不变量断言（卡片标题真链接可键盘聚焦、标题直达设计器、全旅程 console 无账密）+ 6 张全旅程截图存档
