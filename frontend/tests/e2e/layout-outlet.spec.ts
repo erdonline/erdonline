@@ -21,8 +21,8 @@ async function apiToken(request: APIRequestContext, username: string, password: 
 }
 
 /**
- * Wave 0：Home / Group / Design 布局壳必须渲染主内容（非仅水印）。
- * Theme 内 Outlet；DesignLayout 已摘 ProLayout，顶栏保留 save/share/presence。
+ * Wave 0：Home / Group / Design 布局壳必须渲染主内容。
+ * Theme 内 Outlet；三壳同 erd chrome（顶栏 64、无水印 clutter）。
  */
 test.describe('布局壳子路由出口', () => {
   test('HomeLayout：/home 与 /project/person 主内容可见', async ({ page }) => {
@@ -45,6 +45,37 @@ test.describe('布局壳子路由出口', () => {
     // 列表工具栏「新建」或空态「立即创建」——任一可见即证明子路由已挂载
     const createBtn = page.getByRole('button', { name: /新\s*建|立即创建/ }).first();
     await expect(createBtn).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('三壳同语言：顶栏 64 + 无水印 + Home 表面 token', async ({ page }) => {
+    await login(page);
+    await page.goto('/home');
+    await expect(page.getByTestId('home-page')).toBeVisible({ timeout: 15_000 });
+
+    const homeChrome = await page.evaluate(() => {
+      const layout = document.querySelector('[data-testid="home-layout"]');
+      const header = document.querySelector('.erd-chrome-header');
+      const root = getComputedStyle(document.documentElement);
+      return {
+        hasWatermark: Boolean(document.querySelector('.ant-watermark')),
+        headerH: header ? Math.round(header.getBoundingClientRect().height) : 0,
+        brand: root.getPropertyValue('--erd-brand').trim(),
+        surfaceSunk: root.getPropertyValue('--erd-surface-sunk').trim(),
+        layoutBg: layout ? getComputedStyle(layout).backgroundColor : '',
+        fontUi: root.getPropertyValue('--erd-font-ui').trim(),
+      };
+    });
+    expect(homeChrome.hasWatermark).toBe(false);
+    expect(homeChrome.headerH).toBe(64);
+    expect(homeChrome.brand.toLowerCase()).toBe('#de2910');
+    // surface-sunk #fafbfc → rgb(250, 251, 252)
+    expect(homeChrome.layoutBg).toMatch(/250,\s*251,\s*252/);
+    expect(homeChrome.fontUi).toMatch(/IBM Plex Sans/i);
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/home-chrome-tokens.png',
+      fullPage: false,
+    });
   });
 
   test('GroupLayout：/project/group/setting/basic 主内容可见', async ({ page, request }) => {

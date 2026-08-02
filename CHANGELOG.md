@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 功能：三壳同语言 chrome（ADR-0016）
+
+**功能**
+
+- Home / Group / Design 共用 `layouts/erd-chrome.less`：顶栏 64px、品牌/用户区同一套 `--erd-*`
+- 去掉三壳全页 `Watermark`；Home 页脚收成一行版权；GitHub 外链图 → 文本链（去 shields / `marginTop:-10px`）
+- Home 内容区 `max-width: 1200` 居中 + surface 卡片；项目 Tag 走 ink/success token（禁默认蓝绿）
+- Group 去侧栏页脚 clutter；Design 顶栏对齐同一 chrome 高度
+
+**测试 / 文档**
+
+- E2E：`三壳同语言：顶栏 64 + 无水印 + Home 表面 token` + 截图 `ux-walkthrough/home-chrome-tokens.png`
+- `design-principles` 原则 7、`ui-layout-redesign`、ADR-0016 后果、roadmap 对齐
+
+验证点：`npx playwright test --grep "三壳同语言|HomeLayout：/home" --project=chromium --workers=1` → 绿
+
 #### 功能：关系图表节点视觉打磨（ADR-0016）
 
 **功能**

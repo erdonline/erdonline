@@ -20,12 +20,13 @@ import { Me } from "@icon-park/react";
 import { useUnmount } from '@umijs/hooks';
 import { Link, useModel } from "@umijs/max";
 import { CaretDownOutlined, MoreOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Menu, Watermark } from "antd";
+import { Button, Dropdown, Layout, Menu } from "antd";
 import type { MenuProps } from "antd";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from "react-router-dom";
 import shallow from "zustand/shallow";
 import defaultProps, { secondaryRoutes } from './_defaultProps';
+import '../erd-chrome.less';
 import './index.less';
 
 const { Header, Sider, Content } = Layout;
@@ -262,7 +263,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
     closeSocket(projectId);
   });
 
-  const licence = cache.getItem2object('licence');
   const primaryRoutes = ((defaultProps.route.routes || []) as DesignRoute[]).filter(Boolean);
   const allNavRoutes = useMemo(() => {
     const secondary = filterAccessibleRoutes(
@@ -330,112 +330,105 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
   const showSiderNav = siderChildRoutes.length > 0;
   const showSider = showDesignLeft || showSiderNav;
 
-  const watermarkContent = [
-    licence?.licensedTo ? licence.licensedTo : 'ERD Online',
-    APP_VERSION_LABEL,
-  ];
-
   return (
-    <Watermark content={watermarkContent}>
-      <Layout className="design-layout">
-        <Header className="design-layout__header">
-          <div
-            className="design-layout__brand"
-            role="link"
-            tabIndex={0}
-            aria-label="ERD Online 首页"
-            onClick={() => history.push('/home')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                history.push('/home');
+    <Layout className="design-layout" data-testid="design-layout">
+      <Header className="erd-chrome-header design-layout__header">
+        <div
+          className="erd-chrome-brand"
+          role="link"
+          tabIndex={0}
+          aria-label="ERD Online 首页"
+          onClick={() => history.push('/home')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              history.push('/home');
+            }
+          }}
+        >
+          <img src="/logo.svg" alt="" width={28} height={28} />
+          <span>ERD Online</span>
+        </div>
+        <ProjectMenuDropdown projectName={project?.projectName} />
+        <div className="design-layout__top-menu-wrap" data-testid="design-top-tabs">
+          <Menu
+            mode="horizontal"
+            selectedKeys={topSelectedKey ? [topSelectedKey] : []}
+            items={topMenuItems}
+            className="design-layout__top-menu"
+            onClick={({ key }) => {
+              const route = primaryRoutes.find((r) => r.path === key);
+              if (!route?.path || route.path.startsWith('http') || route.exact) {
+                return;
               }
+              // 有子路由时进第一个子页（对齐 ProLayout splitMenus 点击父项行为）
+              const firstChild = (route.routes || []).filter(Boolean)[0] as DesignRoute | undefined;
+              const target = firstChild?.path || route.path;
+              history.push(`${target}?projectId=${projectId}`);
             }}
+          />
+        </div>
+        <div className="erd-chrome-actions design-layout__actions">
+          <SaveStatus key="save-status" />
+          <SaveVersionButton key="save-version" />
+          <CollabPresence key="presence" />
+          <ShareProjectButton key="share" />
+          <ChromeOverflow />
+          <Dropdown
+            placement="bottom"
+            arrow={{ pointAtCenter: true }}
+            overlay={menuHeaderDropdown}
           >
-            <img src="/logo.svg" alt="" width={28} height={28} />
-            <span>ERD Online</span>
-          </div>
-          <ProjectMenuDropdown projectName={project?.projectName} />
-          <div className="design-layout__top-menu-wrap" data-testid="design-top-tabs">
-            <Menu
-              mode="horizontal"
-              selectedKeys={topSelectedKey ? [topSelectedKey] : []}
-              items={topMenuItems}
-              className="design-layout__top-menu"
-              onClick={({ key }) => {
-                const route = primaryRoutes.find((r) => r.path === key);
-                if (!route?.path || route.path.startsWith('http') || route.exact) {
-                  return;
-                }
-                // 有子路由时进第一个子页（对齐 ProLayout splitMenus 点击父项行为）
-                const firstChild = (route.routes || []).filter(Boolean)[0] as DesignRoute | undefined;
-                const target = firstChild?.path || route.path;
-                history.push(`${target}?projectId=${projectId}`);
-              }}
-            />
-          </div>
-          <div className="design-layout__actions">
-            <SaveStatus key="save-status" />
-            <SaveVersionButton key="save-version" />
-            <CollabPresence key="presence" />
-            <ShareProjectButton key="share" />
-            <ChromeOverflow />
-            <Dropdown
-              placement="bottom"
-              arrow={{ pointAtCenter: true }}
-              overlay={menuHeaderDropdown}
+            <div
+              className="erd-chrome-user"
+              role="button"
+              tabIndex={0}
+              aria-label="用户菜单"
+              data-testid="user-menu-trigger"
             >
-              <div
-                className="design-layout__user"
-                role="button"
-                tabIndex={0}
-                aria-label="用户菜单"
-                data-testid="user-menu-trigger"
-              >
-                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2} />
-                {cache.getItem('username')}
-              </div>
-            </Dropdown>
-          </div>
-        </Header>
-        <Layout>
-          {showSider ? (
-            <Sider
-              width={siderWidth}
-              collapsible
-              collapsed={collapsed}
-              onCollapse={setCollapsed}
-              className="design-layout__sider"
-              theme="light"
-            >
-              <div className="design-layout__sider-inner">
-                {showDesignLeft ? (
-                  <DesignLeftContent collapsed={collapsed} />
-                ) : null}
-                {showSiderNav ? (
-                  <Menu
-                    mode="inline"
-                    selectedKeys={siderSelectedKey ? [siderSelectedKey] : []}
-                    items={siderMenuItems}
-                    className="design-layout__sider-menu"
-                  />
-                ) : null}
-              </div>
-            </Sider>
-          ) : null}
-          <Content className="design-layout__content">
-            <Theme>
-              {/* 硬导航首帧 store 仍为空且 projectLoading 尚未置 true；勿挂载子页（JExcel 等只 init 一次） */}
-              {projectLoading || !project?.projectJSON ? (
-                <PageSkeleton rows={6} />
-              ) : (
-                <Outlet />
-              )}
-            </Theme>
-          </Content>
-        </Layout>
+              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2} />
+              {cache.getItem('username')}
+            </div>
+          </Dropdown>
+        </div>
+      </Header>
+      <Layout>
+        {showSider ? (
+          <Sider
+            width={siderWidth}
+            collapsible
+            collapsed={collapsed}
+            onCollapse={setCollapsed}
+            className="design-layout__sider"
+            theme="light"
+          >
+            <div className="design-layout__sider-inner">
+              {showDesignLeft ? (
+                <DesignLeftContent collapsed={collapsed} />
+              ) : null}
+              {showSiderNav ? (
+                <Menu
+                  mode="inline"
+                  selectedKeys={siderSelectedKey ? [siderSelectedKey] : []}
+                  items={siderMenuItems}
+                  className="design-layout__sider-menu"
+                />
+              ) : null}
+            </div>
+          </Sider>
+        ) : null}
+        <Content className="design-layout__content">
+          <Theme>
+            {/* 硬导航首帧 store 仍为空且 projectLoading 尚未置 true；勿挂载子页（JExcel 等只 init 一次） */}
+            {projectLoading || !project?.projectJSON ? (
+              <PageSkeleton rows={6} />
+            ) : (
+              <Outlet />
+            )}
+          </Theme>
+        </Content>
       </Layout>
-    </Watermark>
+    </Layout>
   );
 }
 export default React.memo(DesignLayout)

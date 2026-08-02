@@ -3,7 +3,7 @@ import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link} from "@@/exports";
 import {Me, TwoDimensionalCodeOne} from "@icon-park/react";
-import {Dropdown, Image, Layout, Menu, Popover, Typography, Space, Watermark} from "antd";
+import {Dropdown, Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
@@ -11,8 +11,8 @@ import {useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
-import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
+import '../erd-chrome.less';
 import './index.less';
 
 const {Header, Content} = Layout;
@@ -32,21 +32,18 @@ export const homeRightContent = [
     trigger="hover"
   >
     <span role="img" aria-label="公众号" style={{ display: 'inline-flex', cursor: 'pointer' }}>
-      <TwoDimensionalCodeOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} />
+      <TwoDimensionalCodeOne theme="filled" size="18" fill={erdColors.brand} strokeWidth={2} />
     </span>
   </Popover>,
   <a
     key="github"
-    style={{ marginTop: '-10px' }}
+    className="erd-chrome-link"
     target="_blank"
     rel="noreferrer"
     href="https://github.com/erdonline/erdonline"
     aria-label="GitHub 仓库"
   >
-    <img
-      src="https://img.shields.io/github/stars/erdonline/erdonline?style=social"
-      alt="GitHub stars"
-    />
+    GitHub
   </a>,
 ];
 
@@ -94,8 +91,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     setInitialState((s: any) => ({...s, access: {}}));
   }, [])
 
-  const licence = cache.getItem2object('licence');
-
   const routes = (defaultProps.route.routes || []) as HomeRoute[];
 
   const menuItems: MenuProps['items'] = useMemo(
@@ -125,70 +120,62 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     return match?.path || '/home';
   }, [pathname, routes]);
 
-  const watermarkContent = [
-    licence?.licensedTo ? licence.licensedTo : 'ERD Online',
-    APP_VERSION_LABEL,
-  ];
-
   return (
-    <Watermark content={watermarkContent}>
-      <Layout className="home-layout">
-        <Header className="home-layout__header">
-          <div
-            className="home-layout__brand"
-            role="link"
-            tabIndex={0}
-            aria-label="ERD Online 首页"
-            onClick={() => history.push('/home')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                history.push('/home');
-              }
-            }}
+    <Layout className="home-layout" data-testid="home-layout">
+      <Header className="erd-chrome-header home-layout__header">
+        <div
+          className="erd-chrome-brand"
+          role="link"
+          tabIndex={0}
+          aria-label="ERD Online 首页"
+          onClick={() => history.push('/home')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              history.push('/home');
+            }
+          }}
+        >
+          <img src="/logo.svg" alt="" width={28} height={28} />
+          <span>ERD Online</span>
+        </div>
+        <Menu
+          mode="horizontal"
+          selectedKeys={[selectedKey]}
+          items={menuItems}
+          className="home-layout__menu"
+        />
+        <div className="erd-chrome-actions">
+          {homeRightContent}
+          <Dropdown
+            placement="bottomRight"
+            arrow={{pointAtCenter: true}}
+            overlay={menuHeaderDropdown}
           >
-            <img src="/logo.svg" alt="" width={28} height={28} />
-            <span>ERD Online</span>
-          </div>
-          <Menu
-            mode="horizontal"
-            selectedKeys={[selectedKey]}
-            items={menuItems}
-            className="home-layout__menu"
-          />
-          <div className="home-layout__actions">
-            {homeRightContent}
-            <Dropdown
-              placement="bottomRight"
-              arrow={{pointAtCenter: true}}
-              overlay={menuHeaderDropdown}
+            <div
+              className="erd-chrome-user"
+              role="button"
+              tabIndex={0}
+              aria-label="用户菜单"
+              data-testid="user-menu-trigger"
             >
-              <div
-                className="home-layout__user"
-                role="button"
-                tabIndex={0}
-                aria-label="用户菜单"
-                data-testid="user-menu-trigger"
-              >
-                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
-                {cache.getItem('username')}
-              </div>
-            </Dropdown>
-          </div>
-        </Header>
-        <Content className="home-layout__content">
+              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
+              {cache.getItem('username')}
+            </div>
+          </Dropdown>
+        </div>
+      </Header>
+      <Content className="home-layout__content">
+        <div className="home-layout__shell">
           <div className="home-layout__body">
             <Theme />
-            <div className="home-layout__footer">
-              <Space split={<Text type="secondary"> | </Text>} wrap>
-                <Text type="secondary">© 2026 ERD Online · MIT</Text>
-                <Text type="secondary">ERD Online</Text>
-              </Space>
-            </div>
           </div>
-        </Content>
-      </Layout>
-    </Watermark>
+          <div className="home-layout__footer">
+            <Text type="secondary">© 2026 ERD Online · MIT</Text>
+          </div>
+        </div>
+      </Content>
+    </Layout>
   );
 }
 

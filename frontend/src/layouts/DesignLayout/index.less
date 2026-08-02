@@ -4,6 +4,7 @@
   display: flex;
   flex-direction: column;
   background: var(--erd-surface-sunk);
+  font-family: var(--erd-font-ui);
 }
 
 .design-layout > .ant-layout {
@@ -12,34 +13,10 @@
 }
 
 .design-layout__header {
-  display: flex;
-  align-items: center;
+  /* height/border from .erd-chrome-header；设计器左右更紧 */
   gap: 8px;
-  height: 56px;
-  flex-shrink: 0;
   padding: 0 16px 0 0;
-  line-height: 56px;
-  background: var(--erd-surface);
-  border-bottom: 1px solid var(--erd-line);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-}
-
-.design-layout__brand {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
   flex-shrink: 0;
-  padding: 0 16px;
-  cursor: pointer;
-  font-weight: 600;
-  color: var(--erd-ink-900);
-  white-space: nowrap;
-}
-
-.design-layout__brand img {
-  display: block;
 }
 
 .design-layout__project {
@@ -68,7 +45,7 @@
 .design-layout__top-menu {
   border-bottom: none !important;
   background: transparent;
-  line-height: 54px;
+  line-height: calc(var(--erd-chrome-header-h) - 2px);
 }
 
 .design-layout__overflow {
@@ -83,20 +60,8 @@
 }
 
 .design-layout__actions {
-  display: flex;
-  align-items: center;
   gap: 12px;
-  flex-shrink: 0;
-  margin-left: auto;
   padding-right: 8px;
-}
-
-.design-layout__user {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  cursor: pointer;
-  color: var(--erd-ink-900);
 }
 
 .design-layout__sider {

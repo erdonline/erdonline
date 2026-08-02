@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from "react";
 import {useLocation} from "react-router-dom";
 import defaultProps from './_defaultProps';
 import {Me} from "@icon-park/react";
-import {Dropdown, Layout, Menu, Watermark} from "antd";
+import {Dropdown, Layout, Menu} from "antd";
 import type {MenuProps} from "antd";
 import * as cache from "@/utils/cache";
 import {fixRouteAccess, headRightContent} from "@/layouts/DesignLayout";
@@ -12,8 +12,8 @@ import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
-import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {menuHeaderDropdown} from "@/layouts/HomeLayout";
+import '../erd-chrome.less';
 import './index.less';
 
 const {Header, Sider, Content} = Layout;
@@ -57,7 +57,6 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     defaultProps.route.routes = fixRouteAccess(defaultProps, access);
   }
 
-  const licence = cache.getItem2object('licence');
   const routes = (defaultProps.route.routes || []) as GroupRoute[];
 
   const menuItems: MenuProps['items'] = useMemo(
@@ -108,74 +107,63 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     return match?.path || pathname;
   }, [routes, location.pathname, pathname]);
 
-  const watermarkContent = [
-    licence?.licensedTo ? licence.licensedTo : 'ERD Online',
-    APP_VERSION_LABEL,
-  ];
-
   return (
-    <Watermark content={watermarkContent}>
-      <Layout className="group-layout">
-        <Header className="group-layout__header">
-          <div
-            className="group-layout__brand"
-            role="link"
-            tabIndex={0}
-            aria-label="ERD Online 首页"
-            onClick={() => history.push('/home')}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                history.push('/home');
-              }
-            }}
+    <Layout className="group-layout" data-testid="group-layout">
+      <Header className="erd-chrome-header group-layout__header">
+        <div
+          className="erd-chrome-brand group-layout__brand"
+          role="link"
+          tabIndex={0}
+          aria-label="ERD Online 首页"
+          onClick={() => history.push('/home')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              history.push('/home');
+            }
+          }}
+        >
+          <img src="/logo.svg" alt="" width={28} height={28} />
+          <span>ERD Online</span>
+        </div>
+        <div className="erd-chrome-actions">
+          {headRightContent}
+          <Dropdown
+            placement="bottom"
+            arrow={{pointAtCenter: true}}
+            overlay={menuHeaderDropdown}
           >
-            <img src="/logo.svg" alt="" width={28} height={28} />
-            <span>ERD Online</span>
-          </div>
-          <div className="group-layout__actions">
-            {headRightContent}
-            <Dropdown
-              placement="bottom"
-              arrow={{pointAtCenter: true}}
-              overlay={menuHeaderDropdown}
+            <div
+              className="erd-chrome-user"
+              role="button"
+              tabIndex={0}
+              aria-label="用户菜单"
+              data-testid="user-menu-trigger"
             >
-              <div
-                className="group-layout__user"
-                role="button"
-                tabIndex={0}
-                aria-label="用户菜单"
-                data-testid="user-menu-trigger"
-              >
-                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
-                {cache.getItem('username')}
-              </div>
-            </Dropdown>
+              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
+              {cache.getItem('username')}
+            </div>
+          </Dropdown>
+        </div>
+      </Header>
+      <Layout>
+        <Sider width={220} className="group-layout__sider" theme="light">
+          <div className="group-layout__sider-inner">
+            <Menu
+              mode="inline"
+              selectedKeys={[selectedKey]}
+              items={menuItems}
+              className="group-layout__sider-menu"
+            />
           </div>
-        </Header>
-        <Layout>
-          <Sider width={220} className="group-layout__sider" theme="light">
-            <div className="group-layout__sider-inner">
-              <Menu
-                mode="inline"
-                selectedKeys={[selectedKey]}
-                items={menuItems}
-                className="group-layout__sider-menu"
-              />
-              <div className="group-layout__sider-footer">
-                <div>© 2026 ERD Online · MIT</div>
-                <div>ERD Online</div>
-              </div>
-            </div>
-          </Sider>
-          <Content className="group-layout__content">
-            <div className="group-layout__body">
-              <Theme />
-            </div>
-          </Content>
-        </Layout>
+        </Sider>
+        <Content className="group-layout__content">
+          <div className="group-layout__body">
+            <Theme />
+          </div>
+        </Content>
       </Layout>
-    </Watermark>
+    </Layout>
   );
 };
 
