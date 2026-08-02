@@ -121,7 +121,7 @@
 | DesignLayout 菜单 | 版本管理 | → `/design/table/version/all` | | ✅ | `project-menu` / `version` / `loading` |
 | `/design/table/version/all` | 新增版本（无数据源） | 列表可见新版本 | 北极星 | ✅ | `version.spec`「新增」 |
 | `/design/table/version/all` | 版本详情 diff | 增删改着色 | | ✅ | `version.spec`「diff」 |
-| `/design/table/version/all` | 重命名/删除版本 | 列表更新+toast | VersionHandle | ✅ | `version.spec`「重命名与删除」 |
+| `/design/table/version/all` | 重命名/删除版本 | 列表更新+toast；最新版改号成功；重复号 toast 且弹窗不关 | VersionHandle | ✅ | `version.spec`「重命名与删除」 |
 | `/design/table/version/all` | 对比版本 | 对比结果可见 | | ✅ | `version.spec`「可视化 diff」双版比对（`version-compare-btn`→任意版本比较） |
 | `/design/table/version/all` | 回滚 | 落库；刷新后模型仍回滚 | | ✅ | 回滚落库；version/approval 绿 |
 | DesignLayout 菜单 | 我的工单 | → `/design/table/version/order` 空态引导 | | ✅ | `approval.spec` |

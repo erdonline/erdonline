@@ -136,11 +136,26 @@ test.describe('版本快照', () => {
       await row101.getByTestId('version-rename-btn').click();
       const renameDlg = page.getByRole('dialog').filter({ hasText: '编辑版本' });
       await expect(renameDlg).toBeVisible();
+      await renameDlg.getByRole('textbox', { name: '版本号' }).fill('1.0.2');
       await renameDlg.getByRole('textbox', { name: '版本描述' }).fill('E2E 重命名描述');
       await renameDlg.getByRole('button', { name: /确\s*定/ }).click();
       await expectToast(page, /版本信息更新成功/);
       await expect(renameDlg).toHaveCount(0, { timeout: 10_000 });
-      await expect(row101.getByText('E2E 重命名描述')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-row-1.0.1')).toHaveCount(0, { timeout: 10_000 });
+      const row102 = page.getByTestId('version-row-1.0.2');
+      await expect(row102).toBeVisible({ timeout: 10_000 });
+      await expect(row102.getByText('E2E 重命名描述')).toBeVisible({ timeout: 10_000 });
+
+      await row102.hover();
+      await row102.getByTestId('version-rename-btn').click();
+      await expect(renameDlg).toBeVisible();
+      await renameDlg.getByRole('textbox', { name: '版本号' }).fill('1.0.0');
+      await renameDlg.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, /该版本号已经存在了/);
+      await expect(renameDlg).toBeVisible();
+      await renameDlg.getByRole('button', { name: /Close|关闭/ }).click();
+      await expect(renameDlg).toHaveCount(0, { timeout: 10_000 });
+      await expect(page.getByTestId('version-row-1.0.2')).toBeVisible();
 
       const row100 = page.getByTestId('version-row-1.0.0');
       await row100.hover();
@@ -148,7 +163,7 @@ test.describe('版本快照', () => {
       await page.getByRole('button', { name: '是' }).click();
       await expectToast(page, /版本信息删除成功/);
       await expect(page.getByTestId('version-row-1.0.0')).toHaveCount(0, { timeout: 10_000 });
-      await expect(page.getByTestId('version-row-1.0.1')).toBeVisible();
+      await expect(page.getByTestId('version-row-1.0.2')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
