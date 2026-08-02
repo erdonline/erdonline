@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：版本列表行密度（ADR-0016）
+
+- 选题：设计器版本管理列表行/工具条密度（与 22–28 chrome / CommonTabs 同阶）
+- `.version-page`：顶栏 min-height 28、工具条 pad 2/4、控件 28/12；列表行 pad 4×8、标题 13/行高 22、meta gap 2 / prose 12；禁 8×12 松行 + 16 标题
+- `version.spec`「版本列表行密度」补密度断言 + 截图 `diagram-version-list-dense.png`；`version-row-*` / `version-list` / role 定位不变
+
+验证点：`cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "版本列表行密度" --workers=1 --retries=0`
+
 #### 体验：关系线 Crow's foot 端点（ADR-0016）
 
 - 选题：边端一眼可读行业 ER 基数；chip 保留编辑；不新增持久化字段

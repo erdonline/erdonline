@@ -319,7 +319,7 @@ const Version: React.FC = () => {
           </div>
 
           <div className="version-page__toolbar" data-testid="version-toolbar">
-            <Space wrap size={[8, 8]} className="version-page__toolbar-status">
+            <Space wrap size={[4, 4]} className="version-page__toolbar-status">
               {changes.length > 0 ? (
                 <Tooltip title="当前内容与上一版本的内容有变化，但未保存同步版本！">
                   <Tag color="red" data-testid="version-dirty-tag">
@@ -338,18 +338,19 @@ const Version: React.FC = () => {
                 <DataSourceSelect
                   value={selectedDB}
                   onChange={handleDbChange}
-                  style={{ width: 200 }}
+                  style={{ width: 180 }}
                   loading={isLoading}
                 />
               </Space>
             </Space>
-            <Space wrap size={[8, 8]} className="version-page__toolbar-actions">
+            <Space wrap size={[4, 4]} className="version-page__toolbar-actions">
               <Input
                 allowClear
+                size="small"
                 placeholder="按标签筛选"
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
-                style={{ width: 160 }}
+                style={{ width: 140 }}
                 data-testid="version-tag-filter"
                 aria-label="按标签筛选"
               />
@@ -390,7 +391,7 @@ const Version: React.FC = () => {
               >
                 <List.Item.Meta
                   title={
-                    <Space size={8} wrap>
+                    <Space size={4} wrap>
                       <strong className="version-row-title">{row.version}</strong>
                       {renderSyncTag(row)}
                     </Space>
