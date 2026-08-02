@@ -86,6 +86,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 43. ~~**项目菜单关闭态 CSS class**~~（已合入 `erd-project-menu--closed`）
 44. ~~**version/approval goto 抽 helpers**~~（已合入；回滚同步落库）
 45. **CHANGELOG Unreleased 整理**（草稿 `32-changelog-unreleased-fold.md`）
+46. **控件矩阵 🚧 行**（见 [`docs/control-matrix.md`](./control-matrix.md)）：适合拆成 good-first（aria/删死入口/单条 E2E）；P2b 进行中时优先从矩阵取题，而非空转 Issue 投放
 
 ## 贡献者怎么认领
 
