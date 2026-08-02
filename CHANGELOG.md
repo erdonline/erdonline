@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 修复：Railway MySQL 双库接线（去掉 MYSQLDATABASE 误绑）
+
+- 现象：`HikariPool.checkFailFast` → `PrimaryDatasource` → `Cannot resolve … erdSqlSessionFactory`（JDBC 打不开的级联）
+- 根因：双 DS（`martin`/`erd`）不读 `SPRING_DATASOURCE_URL`/`MYSQL_URL`；插件默认库常为 `railway`；旧 yml `DB_MARTIN` 回退 `MYSQLDATABASE` 会把 martin JDBC 指错库
+- 改动：`application.yml` 库名仅 `${DB_MARTIN:martin}` / `${DB_ERD:erd}`；host/user/password 仍回退 `MYSQLHOST`/`MYSQLUSER`/`MYSQLPASSWORD`
+- 文档：`deployment.md`「Railway MySQL 正确接法」+ Variable Reference 表 + 建库/`db/init` 步骤
+
+验证点：对照 yml 占位符无 `MYSQLDATABASE`；Dashboard 按文档设 `DB_HOST`←`MYSQLHOST` 等并建 `martin`/`erd` 后 Redeploy → 日志 `Started ErdOnlineApplication`，无 `checkFailFast`；`curl /actuator/health` UP
+
 #### 体验：登录/注册品牌壳对齐 erd tokens（W5 切片 4）
 
 - `AuthBrandShell`：左 40% 暗色品牌面板（`--erd-ink-900`×brand 渐变 + logo/叙事/`ErdEmptyDiagram` +「打开演示」文字链）+ 右 Form
