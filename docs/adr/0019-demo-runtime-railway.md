@@ -31,4 +31,4 @@ ADR-0018 已定：文档 / 静态 demo 走 Cloudflare Pages，镜像走 GHCR，*
 - 代价：须发版 tag 后 GHCR 才有可拉镜像；空库须手工/`mysql` 灌 `db/init`（Flyway 只覆盖 erd 增量）；跨域须配 `CORS_ALLOWED_ORIGINS`；SocketIO `:9092` 在单 HTTP 端口平台上可能不可用（demo 以 REST 为主）
 - Dashboard 硬性设置（无法写进 toml）：App **Root Directory = `backend`**；**Config as Code = `/backend/railway.toml`**。否则 monorepo 根构建会失败；首个 `v*` 前勿用尚不存在的 GHCR Image
 - 与既有 ADR：补全 ADR-0018「公网 demo API」空档；不改变自托管 compose 真相源
-- 操作步骤：见 [deployment.md — Railway 部署官方 demo](../deployment.md#railway-demo)
+- 操作步骤：见 [deployment.md — Railway 部署官方 demo](../deployment.md#railway-demo)；中国区备选见 [Zeabur](../deployment.md#zeabur-demo)

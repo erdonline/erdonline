@@ -11,6 +11,9 @@ RUN mvn -s /root/.m2/settings.xml clean package -DskipTests -B
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/erd-online.jar app.jar
-# Local / compose default 9502; Railway (and similar) inject PORT — Boot must follow it.
-EXPOSE 9502 9092
+# Local / compose default 9502. PaaS (Railway / Zeabur) inject PORT — Boot must follow it.
+# Expose only the HTTP port: Zeabur Git services route a single port from Dockerfile EXPOSE
+# (dual EXPOSE 9502+9092 confuses port selection). SocketIO still binds SOCKETIO_PORT in-process;
+# compose publishes 9092:9092 separately when needed.
+EXPOSE 9502
 ENTRYPOINT ["sh", "-c", "exec java -jar app.jar --server.port=${PORT:-9502}"]

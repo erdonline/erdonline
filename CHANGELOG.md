@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 文档：Zeabur demo 怎么用（根路径 404 ≠ 挂了）
+
+**现象**：`erdonline.zeabur.app` 预览「This page can't be found」；curl `/`、`/actuator/health`、`/doc.html` 若**全部** 404（Caddy 空 body）→ 公网未打到 Boot（常见 Root Directory=`/` 误检前端）。若仅 `/` 404 而 health 为 `UP` → 正常（API-only，无欢迎页）。
+
+**文档 / 配置**
+
+- `deployment.md` 扩写 Zeabur：预期 vs 真挂对照、Root Directory=`backend`、`PORT`、MySQL/Redis、env 同 Railway 表、`DEMO_API_URL` → CF Pages
+- `backend/Dockerfile`：只 `EXPOSE 9502`（去掉 9092），避免 Zeabur 单端口 Git 服务选错口
+
+验证点：`curl -sS https://YOUR.zeabur.app/actuator/health` → `{"status":"UP"}`；`docker build -t erd-be ./backend`
+
 #### 修复：Railway demo 构建失败（monorepo Root Directory + PORT）
 
 **原因**
