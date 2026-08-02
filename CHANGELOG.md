@@ -8,6 +8,13 @@
 
 ### 2026-08-02
 
+#### 规则：新增 model-routing 子任务模型路由规则
+
+**规则**
+
+- `.cursor/rules/model-routing.mdc`（alwaysApply）：规划类子任务（选题/ROI/roadmap/ADR/取舍）派 `kimi-k3-high`；执行类（实现/bugfix/E2E/commit/文档蒸馏）省略 `model` 走 Auto；仅允许三个既有 slug
+  验证点：`git status` 仅新增 1 个 `.mdc` + CHANGELOG 一行
+
 #### 文档：roadmap 新增「下一季只做三件事」+ agent-loop 选题规则对齐
 
 **文档**

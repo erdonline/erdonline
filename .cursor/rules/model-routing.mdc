@@ -1,0 +1,27 @@
+---
+description: 子任务模型路由：规划/取舍走 kimi-k3-high，执行/验证/提交走 Auto（省略 model）
+alwaysApply: true
+---
+
+# 模型路由（子任务分工）
+
+派发 Task 子任务时按任务性质选模型，只用下表三个 slug，禁止杜撰其它模型名。
+
+## 路由表
+
+| 任务性质 | Task tool `model` 参数 |
+|---|---|
+| 规划类：选题 / ROI 排序 / roadmap 梳理 / ADR 起草 / 技术取舍 / Vision tick 选题 / 架构评审 | `"kimi-k3-high"` |
+| 执行类：实现 / bugfix / E2E 编写与修复 / 回归验证 / commit / 文档蒸馏落地 / 清死代码 | 省略 `model`（走 Auto，跟随父级默认） |
+
+## 可用 slug（仅此三个）
+
+- `composer-2.5-fast`
+- `cursor-grok-4.5-high-fast`
+- `kimi-k3-high`
+
+## 纪律
+
+- 拿不准归类时省略 `model`（Auto），不要硬塞规划模型
+- 用户点名模型时才用其指定的 slug；不在上表则说明不可用并给出上表
+- 对用户沟通时用用户自己的叫法，不暴露内部调度细节
