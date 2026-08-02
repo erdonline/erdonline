@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 度量：激活旅程「30 秒进版本保存」计时收口（下一季 bet①）
+
+**新增 / 文档**
+
+- `frontend/tests/e2e/activation-30s.spec.ts`：落地 → demo → 登录 → 示例就绪 → 保存首版本；`Date.now` 分段墙钟 + ≤30s 断言
+- `docs/performance-budget.md`：激活旅程预算与分段基线；`docs/roadmap.md` 下一季① 🚧→✅
+
+验证点：`npx playwright test tests/e2e/activation-30s.spec.ts --project=chromium` → **1 passed**；计时段 ~3.5s（landing/demo/login/example_ready/save_version），预算 30s
+
 #### 文档 / 开放：projectJSON schema-as-code 初稿（ADR-0012）
 
 **新增**
