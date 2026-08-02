@@ -438,7 +438,7 @@
 
       &:hover {
         color: var(--erd-brand);
-        background: rgba(222, 41, 16, 0.08);
+        background: var(--erd-frame-fill-brand);
       }
     }
 
@@ -498,7 +498,7 @@
       &:hover {
         color: var(--erd-brand);
         border-color: var(--erd-brand);
-        background: rgba(222, 41, 16, 0.04);
+        background: color-mix(in srgb, var(--erd-brand) 4%, transparent);
       }
     }
   }
