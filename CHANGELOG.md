@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 文档：Schema 双源约定（db/init vs Flyway）
+
+**文档**
+
+- `docs/development.md` / `docs/deployment.md`：明确 `db/init`=空卷首启+应急手工；Flyway=`erd` 增量真相源；新变更优先 Flyway only，双写须一致幂等；冻结新增 `07/08/09` 风格 init 补丁
+  验证点：两文含「双源」与「优先 Flyway」表述；本切片无 schema 改写
+
+
 #### 修复：落地页 hero 全幅构图 + 已登录疏导（P0/P1）
 
 **修复**
