@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：团队项目列表行密度（ADR-0016）
+
+- 选题：`/project/group` 页头/搜索/列表行密度（复用 `.project-list-page`，与 person/recent 同阶）
+- 标题 13/22、工具条/搜索/新建 28、行 pad 4×8、头像 28、名 13/22、描述/Tag 12、打开钮 28；禁 Title level4 + List `large`
+- `project-group-page` / `open-project` / ConfigProject / aria「搜索项目名」保留
+- `project-surface`「团队项目列表行密度」；截图 `project-group-list-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/project-surface.spec.ts --project=chromium --grep "团队项目列表行密度" --workers=1 --retries=0`
+
 #### 体验：个人/最近项目列表行密度（ADR-0016）
 
 - 选题：`/project/person` + `/project/recent` 页头/搜索/列表行密度（与 22–28 chrome / `.setting-common-page` 同阶）

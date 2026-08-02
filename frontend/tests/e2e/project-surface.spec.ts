@@ -1,11 +1,52 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import {
   clickAndExpectUrl,
   createPersonProject,
   deleteOwnPersonProjects,
+  e2eAccount,
   login,
   uniqueProjectName,
 } from './helpers';
+
+const API = process.env.API_URL || 'http://localhost:9502';
+
+async function apiToken(request: APIRequestContext, username: string, password: string) {
+  const r = await request.post(`${API}/auth/login`, {
+    data: { username, password },
+  });
+  const j = await r.json();
+  if (!j.access_token) throw new Error(`login failed: ${username}`);
+  return j.access_token as string;
+}
+
+async function createGroupProject(
+  request: APIRequestContext,
+  token: string,
+  name: string,
+) {
+  const add = await request.post(`${API}/ncnb/project/group/add`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { projectName: name, description: 'group list dens e2e', tags: 'e2e' },
+  });
+  const addJson = await add.json();
+  expect(addJson.code).toBe(200);
+  const projectId = addJson.data as string;
+  expect(projectId).toBeTruthy();
+  return projectId;
+}
+
+async function deleteGroupProject(
+  request: APIRequestContext,
+  token: string,
+  projectId: string,
+) {
+  await request
+    .post(`${API}/ncnb/project/group/delete`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { id: projectId },
+    })
+    .catch(() => {});
+}
 
 /**
  * W2：项目面闭环（home 快捷、recent、/project/new redirect）
@@ -180,6 +221,70 @@ test.describe('项目面闭环', () => {
       await assertDense('project-recent-page', 'project-recent-list-dense.png');
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('团队项目列表行密度：与 22–28 chrome 同阶', async ({ page, request }) => {
+    test.setTimeout(90_000);
+    const account = e2eAccount();
+    const projectName = uniqueProjectName('groupdens');
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(request, token, projectName);
+    try {
+      await login(page, account);
+      await page.goto('/project/group');
+      const pageEl = page.getByTestId('project-group-page');
+      await expect(pageEl).toBeVisible({ timeout: 15_000 });
+      const row = pageEl
+        .getByRole('listitem')
+        .filter({ has: page.getByRole('link', { name: projectName, exact: true }) });
+      await expect(row).toBeVisible({ timeout: 15_000 });
+      await expect(row.getByRole('button', { name: '打开模型' })).toBeVisible();
+
+      const metrics = await row.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const title = el.querySelector('.ant-list-item-meta-title');
+        const titleCs = title ? getComputedStyle(title) : null;
+        const pageRoot = el.closest('.project-list-page') as HTMLElement | null;
+        const pageTitle = pageRoot?.querySelector(
+          '.project-list-page__title',
+        ) as HTMLElement | null;
+        const toolbar = pageRoot?.querySelector(
+          '.project-list-page__toolbar',
+        ) as HTMLElement | null;
+        const openBtn = el.querySelector(
+          '[data-testid="open-project"]',
+        ) as HTMLElement | null;
+        const tcs = pageTitle ? getComputedStyle(pageTitle) : null;
+        return {
+          padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+          padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+          titleFont: titleCs ? parseFloat(titleCs.fontSize) : -1,
+          titleLh: titleCs ? parseFloat(titleCs.lineHeight) : -1,
+          pageTitleFont: tcs ? parseFloat(tcs.fontSize) : -1,
+          pageTitleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
+          toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+          openBtnH: openBtn ? openBtn.getBoundingClientRect().height : -1,
+        };
+      });
+      expect(metrics.padBlock).toBeLessThanOrEqual(10);
+      expect(metrics.padBlock).toBeGreaterThanOrEqual(4);
+      expect(metrics.padInline).toBeLessThanOrEqual(20);
+      expect(metrics.titleFont).toBeLessThanOrEqual(14);
+      expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+      expect(metrics.titleLh).toBeLessThanOrEqual(24);
+      expect(metrics.pageTitleFont).toBeLessThanOrEqual(14);
+      expect(metrics.pageTitleLh).toBeLessThanOrEqual(24);
+      expect(metrics.toolbarH).toBeLessThanOrEqual(40);
+      expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
+      expect(metrics.openBtnH).toBeLessThanOrEqual(32);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/project-group-list-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteGroupProject(request, token, projectId);
     }
   });
 
