@@ -1,0 +1,10 @@
+{
+  "name": "erdonline-projectjson-schema",
+  "private": true,
+  "description": "ajv (draft 2020-12) for scripts/validate-projectjson.mjs",
+  "type": "module",
+  "devDependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1"
+  }
+}

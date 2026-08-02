@@ -26,7 +26,7 @@ ADR-0012 将「API/MCP 开放」列为平台级能力：agent 可读 schema、�
 
 1. 公开落地页已上线，叙事与「开放」卖点对齐
 2. 有可验证的 API/MCP 需求（外部贡献者或内部 dogfood）
-3. schema-as-code 文档（`data-format.md` 对外规范）至少可引用草稿
+3. ~~schema-as-code 文档（`data-format.md` 对外规范）至少可引用草稿~~ ✅（2026-08-02：[`docs/data-format.md`](../data-format.md) + [`schema/projectjson.schema.json`](../../schema/projectjson.schema.json) 初稿可引用）
 
 ## 决策（未决）
 

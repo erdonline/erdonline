@@ -136,6 +136,15 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub 
 - 握手：先 `POST /auth/socket-ticket`（Bearer JWT）拿短票，再连 namespace `/project/erd`（见 ADR-0009）
 - 验证：`node scripts/verify-socket-presence.mjs`；`verify-socket-cursor.mjs`；`verify-socket-sync.mjs`；E2E `presence.spec.ts`
 
+## projectJSON schema（agent 可读）
+
+对外规范：[data-format.md](./data-format.md)。改 `schema/projectjson.schema.json` 或示例后：
+
+```bash
+node scripts/validate-projectjson.mjs
+# 或：cd frontend && yarn validate:projectjson
+```
+
 ## 前端如何找到后端
 
 前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb`、`/auth` 代理到 `http://localhost:9502`。

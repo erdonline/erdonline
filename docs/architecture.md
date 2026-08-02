@@ -46,6 +46,16 @@ ERD Online 采用**前后端分离**的单体架构：
 - **OAuth2**：授权服务器与资源服务器合并，同一 RedisTokenStore 本地签发/校验
 - **Sentinel / Skywalking**：移除
 
+## 项目模型事实源（projectJSON）
+
+ERD 项目的表/字段/关联/画布布局以 JSON 列 `project.projectJSON` 为事实源（非关系表拆分）。对外规范与机器可校验 schema：
+
+- 文档：[data-format.md](./data-format.md)（仅加法兼容、密钥纪律）
+- Schema：[`schema/projectjson.schema.json`](../schema/projectjson.schema.json)
+- 校验：`node scripts/validate-projectjson.mjs`
+
+JDBC 机密不进 projectJSON（ADR-0008）；连接在 `data_sources`。
+
 ## 数据存储
 
 采用**双数据源**（同一 MySQL 实例内两个库），因两库存在同名表（如 `sys_user`、`sys_role`）但结构不同，无法合并：
