@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：Frame 主题色板 + 三壳清硬编码（ADR-0016）
+
+- `erdColors` 增 `frameFill` / `frameFillInk` / `frameFillWarning` / `frameFillBrand` + `FRAME_COLOR_PALETTE`；新建 Frame 按序轮换
+- demo Frame 去掉 Ant 蓝 `rgba(37,99,235)`；命令面板 / TableTab / MiniMap / Home 卡片阴影 / Design sider 图标 → `--erd-*` / `erdColors`
+- Frame chrome 轻表面条；设计器/分享共用 token 默认底
+
+验证点：`cd frontend && npx tsx src/utils/diagram.test.ts`；`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`；`rg '37,\\s*99,\\s*235|#f0f5ff' frontend/src schema/examples/demo.projectjson.json` = 0
+
 #### 体验：几何择柄消竖叠 circle-route（ADR-0016）
 
 - 字段双侧 `src/tgt` 手柄；`pickPortSides`：水平对向 lr/rl，同列短竖叠走同侧短 U

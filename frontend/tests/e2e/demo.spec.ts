@@ -18,6 +18,20 @@ test.describe('在线演示', () => {
     await expect(page.getByTestId('diagram-frame')).toHaveCount(4);
     await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' })).toBeVisible();
     await expect(page.getByTestId('diagram-frame').filter({ hasText: '主体' })).toBeVisible();
+    // ADR-0016：Frame 色板走 erd token（禁 Ant 蓝 37,99,235）
+    const frameBgs = await page.getByTestId('diagram-frame').evaluateAll((els) =>
+      els.map((el) => getComputedStyle(el).backgroundColor),
+    );
+    for (const bg of frameBgs) {
+      expect(bg, `Frame 底色不得含 Ant 蓝：${bg}`).not.toMatch(/37,\s*99,\s*235/);
+    }
+    expect(
+      frameBgs.some((bg) => /47,\s*143,\s*123/.test(bg)),
+      `应有 success frameFill（got ${JSON.stringify(frameBgs)}）`,
+    ).toBeTruthy();
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
+    });
     // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1200（旧手排 1280）
     const spanX = await page.locator('.react-flow__node-table').evaluateAll((els) => {
       const xs = els

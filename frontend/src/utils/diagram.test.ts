@@ -6,6 +6,7 @@ import assert from 'node:assert/strict';
 import {
   DEFAULT_DIAGRAM_ID,
   DEFAULT_DIAGRAM_NAME,
+  DEFAULT_FRAME_COLOR,
   DEFAULT_FRAME_W,
   FRAME_PADDING,
   addFrameToDiagram,
@@ -121,6 +122,15 @@ async function main() {
     assert.equal(f.name, '鉴权');
     assert.deepEqual(f.memberEntityIds, ['U', 'R']);
     assert.equal(d.groups?.length, 1);
+    assert.equal(f.color, DEFAULT_FRAME_COLOR, '首个 Frame 用 frameFill');
+
+    const f2 = addFrameToDiagram(d, { name: '二组' });
+    assert.equal(f2.color, 'rgba(11, 28, 44, 0.06)', '第二 Frame 用 frameFillInk（禁 Ant 蓝）');
+    const f3 = addFrameToDiagram(d, { name: '三组' });
+    assert.equal(f3.color, 'rgba(212, 136, 6, 0.10)', '第三 Frame 用 frameFillWarning');
+    const f4 = addFrameToDiagram(d, { name: '四组' });
+    assert.equal(f4.color, 'rgba(222, 41, 16, 0.08)', '第四 Frame 用 frameFillBrand');
+    // 后续断言仍针对首个 Frame f
 
     addMembersToFrame(d, f.id, ['P']);
     assert.deepEqual(f.memberEntityIds, ['U', 'R', 'P']);

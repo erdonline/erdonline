@@ -447,7 +447,7 @@ const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = ({ data, selecte
         style={{
           width: '100%',
           height: '100%',
-          background: f.color || 'rgba(47, 143, 123, 0.10)',
+          background: f.color || erdColors.frameFill,
         }}
         aria-label={`分组 ${f.name}`}
       >
@@ -1323,7 +1323,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           ariaLabel="画布缩略图"
           nodeColor={erdColors.surface}
           nodeStrokeColor={erdColors.line}
-          maskColor="rgba(11, 28, 44, 0.06)"
+          maskColor={erdColors.inkA06}
         />
         <CollabCursors />
         <Panel position="top-right">

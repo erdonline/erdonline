@@ -51,6 +51,7 @@
 ### 手工
 
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
+- [x] [Frame 主题色] demo Frame 底无 Ant 蓝；含 success `frameFill`；截图 `demo-frame-theme-tokens.png` ✅`demo.spec.ts` + `diagram.test.ts` 色板轮换
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
 ## 第 0 轮（2026-08-01）

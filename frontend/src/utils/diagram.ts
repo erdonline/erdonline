@@ -4,6 +4,8 @@
  * 读写收敛于本文件 selector，禁止旁路双写 graphCanvas。
  */
 
+import { erdColors, frameColorAt } from '@/theme/tokens';
+
 export type DiagramLayoutNode = {
   id: string;
   x: number;
@@ -44,8 +46,8 @@ export const DEFAULT_FRAME_H = 200;
 /** 顶边略大，露出标题栏便于点选（表 z-index 更高时仍可点到框） */
 /** Frame 相对成员的默认内边距（分享密度：勿过大留白） */
 export const FRAME_PADDING = 32;
-/** 成功色浅底（与 erdColors.success 同语系） */
-export const DEFAULT_FRAME_COLOR = 'rgba(47, 143, 123, 0.10)';
+/** Frame 默认浅底 = erdColors.frameFill（success @ 10%） */
+export const DEFAULT_FRAME_COLOR = erdColors.frameFill;
 
 type GraphCanvasNode = { id?: string; title?: string; x?: number; y?: number };
 
@@ -261,7 +263,7 @@ export function addFrameToDiagram(
   const frame: DiagramFrame = {
     id: opts.id || newFrameId(),
     name: (opts.name || '').trim() || `分组${n}`,
-    color: opts.color || DEFAULT_FRAME_COLOR,
+    color: opts.color || frameColorAt(diagram.groups.length),
     x: typeof opts.x === 'number' ? Math.round(opts.x) : 40,
     y: typeof opts.y === 'number' ? Math.round(opts.y) : 40,
     w: typeof opts.w === 'number' ? Math.round(opts.w) : DEFAULT_FRAME_W,

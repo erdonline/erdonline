@@ -105,7 +105,7 @@ const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.me
       style={{
         width: '100%',
         height: '100%',
-        background: f.color || 'rgba(47, 143, 123, 0.10)',
+        background: f.color || erdColors.frameFill,
       }}
       aria-label={`分组 ${f.name}`}
     >
@@ -206,7 +206,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
           ariaLabel="画布缩略图"
           nodeColor={erdColors.surface}
           nodeStrokeColor={erdColors.line}
-          maskColor="rgba(11, 28, 44, 0.06)"
+          maskColor={erdColors.inkA06}
         />
       </ReactFlow>
     </div>

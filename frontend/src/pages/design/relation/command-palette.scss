@@ -2,7 +2,7 @@
   position: fixed;
   inset: 0;
   z-index: 2000;
-  background: rgba(15, 23, 42, 0.35);
+  background: color-mix(in srgb, var(--erd-ink-900) 35%, transparent);
   display: flex;
   justify-content: center;
   padding-top: 18vh;
@@ -11,9 +11,10 @@
 .erd-cmd-panel {
   width: min(520px, 92vw);
   max-height: 420px;
-  background: #fff;
+  background: var(--erd-surface);
   border-radius: 12px;
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.18);
+  box-shadow: 0 16px 48px var(--erd-ink-a06);
+  border: 1px solid var(--erd-line);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -23,9 +24,12 @@
   height: 48px;
   padding: 0 16px;
   border: none;
-  border-bottom: 1px solid #eef0f4;
+  border-bottom: 1px solid var(--erd-line);
   font-size: 15px;
+  font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
   outline: none;
+  background: var(--erd-surface);
 }
 
 .erd-cmd-list {
@@ -47,16 +51,17 @@
 
   &.active,
   &:hover {
-    background: #f0f5ff;
+    // 禁 #f0f5ff Ant 蓝浅底；走 surfaceMuted / brand 轻染
+    background: var(--erd-surface-muted);
   }
 
   .erd-cmd-title {
-    color: #303133;
+    color: var(--erd-ink-900);
     font-weight: 500;
   }
 
   .erd-cmd-hint {
-    color: #98a2b3;
+    color: var(--erd-ink-400);
     font-size: 11px;
   }
 }
@@ -64,13 +69,13 @@
 .erd-cmd-empty {
   padding: 20px;
   text-align: center;
-  color: #98a2b3;
+  color: var(--erd-ink-400);
   font-size: 13px;
 }
 
 .erd-cmd-footer {
   padding: 8px 14px;
-  border-top: 1px solid #eef0f4;
+  border-top: 1px solid var(--erd-line);
   font-size: 11px;
-  color: #98a2b3;
+  color: var(--erd-ink-400);
 }
