@@ -314,6 +314,14 @@
 - [x] [ExportDDL 非 StepsForm] 菜单「导出DDL」弹窗两步 + 下载 `.sql` ✅ `project-menu` 导出DDL
 - [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 8 ✅
 
+## W4 切片 15 — Pro 清零 + 依赖移除（2026-08-02）
+
+- [x] [account/settings 非 ProLayout] `/account/settings` 基本资料 toast + 页签切换；挂 HomeLayout ✅ `account-settings.spec.ts`
+- [x] [GroupUser/Permission 非 Pro] 权限组「用户组成员/权限配置/全选」可见 ✅ `group-layout-nav`
+- [x] [逆向非 StepsForm] `/design/table/import/reverse` reverse_demo 导入 t_user/t_order ✅ `import-reverse.spec.ts`
+- [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}'` → **0** ✅
+- [x] [依赖移除] `package.json` 无 `@ant-design/pro-components` / `umi-presets-pro`；`config.ts` 无 presets/layout 空壳 ✅
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`

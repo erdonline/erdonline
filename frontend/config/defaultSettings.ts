@@ -1,24 +1,13 @@
-import {Settings as LayoutSettings} from '@ant-design/pro-layout';
-
-const Settings: LayoutSettings & {
+/** 全局轻量设置（原 ProLayout Settings 类型已移除，见 ADR-0014） */
+const Settings: {
   pwa?: boolean;
   logo?: string;
+  title?: string;
+  iconfontUrl?: string;
 } = {
-  "navTheme": "light",
-  "headerTheme": "light",
-  "primaryColor": "#1890ff",
-  "layout": "side",
-  "contentWidth": "Fluid",
-  "fixedHeader": false,
-  "fixSiderbar": true,
-  "title": "Zero Code",
-  "pwa": false,
-  "iconfontUrl": "//at.alicdn.com/t/font_2750460_b2lnxw12jxe.js",
-  "menu": {
-    "locale": false
-  },
-  "headerHeight": 50,
-  "splitMenus": true
+  title: 'ERD Online',
+  pwa: false,
+  iconfontUrl: '//at.alicdn.com/t/font_2750460_b2lnxw12jxe.js',
 };
 
 export default Settings;
