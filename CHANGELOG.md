@@ -8,6 +8,28 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 3 — AddProject ModalForm → antd Form+Modal
+
+**重构**
+
+- `AddProject`（新增项目弹窗）：摘 `ModalForm` / `ProFormSelect` / `ProFormText` / `ProFormTextArea` → antd `Modal` + `Form` + `Select mode="tags"`；宽度 520；`type` 初值尊重调用方（个人/团队页）；标签 `notFoundContent={null}`；失败不关窗（受控 `open`）；`data-testid`（`project-create-trigger` / `project-tags`）与校验文案不变
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 3 ✅；`createPersonProject` 写 tags 内 input + 断言 chip 后再填描述
+  验证点：`rg 'ModalForm|ProForm' frontend/src/components/dialog/project/AddProject.tsx` = 0；`npx playwright test --grep "登录 → 新建项目|新建项目表单可创建成功" --project=chromium --workers=1`
+
+#### 修复：多标签版本 E2E（Escape 遮罩 / 标签未落盘）
+
+**修复**
+
+- `saveVersion`：tags 回车后断言 chip 可见，再点「版本描述」失焦关下拉；**禁止 Escape**（antd Select「暂无数据」遮罩挡「确定」，偶发清掉未提交输入 → `1.0.1` 无 `release` 被筛选隐藏）
+- `AddVersion` / `RenameVersion`：`Select notFoundContent={null}`；`AddVersion` 保存失败改为 `return` 不 `reject`（对齐 RenameVersion，避免 webpack overlay）
+
+**测试**
+
+  验证点：`npx playwright test tests/e2e/version.spec.ts --grep "多标签" --project=chromium --workers=1` → passed
+
 #### 重构：W4 切片 2 — RenameVersion ModalForm → antd Form+Modal
 
 **重构**

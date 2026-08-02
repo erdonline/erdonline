@@ -1,126 +1,138 @@
-import React from 'react';
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
-import defaultData from "@/utils/defaultData.json";
-import {Button, message} from "antd";
-import _ from "lodash";
-import {addProject} from "@/services/project";
-import {addGroupProject} from "@/services/group-project";
+import React, {useState} from 'react';
+import {Button, Form, Input, Modal, Select, message} from 'antd';
+import defaultData from '@/utils/defaultData.json';
+import _ from 'lodash';
+import {addProject} from '@/services/project';
+import {addGroupProject} from '@/services/group-project';
 
 export type AddProjectProps = {
-  fetchProjects: any;
-  trigger: string;
+  fetchProjects: () => void;
+  trigger?: string;
+  /** 初始项目类型：1 个人 / 2 团队；调用方传入时用作表单初值 */
+  type?: 1 | 2;
+};
+
+type FormValues = {
+  type?: 1 | 2;
+  projectName?: string;
+  tags?: string[];
+  description?: string;
+};
+
+const emptyProject = {
+  projectName: '',
+  description: '',
+  tags: '',
+  projectJSON: {
+    ...defaultData,
+  },
+  configJSON: {synchronous: {upgradeType: 'increment'}},
 };
 
 const AddProject: React.FC<AddProjectProps> = (props) => {
+  const initialType = props.type ?? 1;
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
 
-  const emptyProject = {
-    "projectName": "",
-    "description": "",
-    "tags": "",
-    "projectJSON": {
-      ...defaultData
-    },
-    "configJSON": {synchronous: {upgradeType: "increment"}},
-  }
+  const openModal = () => {
+    form.setFieldsValue({
+      type: initialType,
+      tags: ['新建'],
+      projectName: undefined,
+      description: undefined,
+    });
+    setOpen(true);
+  };
 
-  return (<>
-    <ModalForm
-      title="新增项目"
-      trigger={
-        <Button type="primary" data-testid="project-create-trigger">新建</Button>
-      }
-      initialValues={{
-        type: 1,
-        tags: ['新建'],
-      }}
-      onFinish={async (values: any) => {
-        const addFunction = values.type === 1 ? addProject : addGroupProject;
-        const res: any = await addFunction({
-          ...emptyProject,
-          projectName: values.projectName,
-          description: values.description,
-          tags: _.join(values.tags, ',')
-        });
-        if (res?.code === 200) {
-          message.success('创建成功');
-          props.fetchProjects();
-          return true;
-        }
-        if (!res?.msg && !res?.message) {
-          message.error('创建失败');
-        }
-        return false;
-      }}
-    >
-      <ProFormSelect
-        width="md"
-        name="type"
-        label="项目类型"
-        placeholder="请选择项目类型"
-        options={[
-          { label: '个人项目', value: 1 },
-          { label: '团队项目', value: 2 },
-        ]}
-        rules={[{ required: true, message: '请选择项目类型' }]}
-      />
-      
-      <ProFormText width="md"
-                   name="projectName"
-                   label="项目名"
-                   placeholder="请输入项目名"
-                   formItemProps={{
-                     rules: [
-                       {
-                         required: true,
-                         message: '不能为空',
-                       },
-                       {
-                         max: 100,
-                         message: '不能大于 100 个字符',
-                       },
-                     ],
-                   }}
-      />
+  const closeModal = () => {
+    setOpen(false);
+  };
 
-      <ProFormSelect width="md"
-                     name="tags"
-                     label="标签"
-                     placeholder="请输入项目标签,按回车分割"
-                     formItemProps={{
-                       rules: [
-                         {
-                           required: true,
-                           message: '不能为空',
-                         },
-                       ],
-                     }}
-                     fieldProps={{
-                       mode: "tags",
-                       tokenSeparators: [','],
-                       'data-testid': 'project-tags',
-                     } as any}
-      />
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    const addFunction = values.type === 1 ? addProject : addGroupProject;
+    const res = await addFunction({
+      ...emptyProject,
+      projectName: values.projectName,
+      description: values.description,
+      tags: _.join(values.tags, ','),
+    });
+    if (res?.code === 200) {
+      message.success('创建成功');
+      props.fetchProjects();
+      setOpen(false);
+      return;
+    }
+    if (!res?.msg && !res?.message) {
+      message.error('创建失败');
+    }
+  };
 
-      <ProFormTextArea
-        width="md"
-        name="description"
-        label="项目描述"
-        placeholder="请输入项目描述"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-    </ModalForm>
-  </>);
-}
+  return (
+    <>
+      <Button type="primary" data-testid="project-create-trigger" onClick={openModal}>
+        新建
+      </Button>
+      <Modal
+        title="新增项目"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="type"
+            label="项目类型"
+            rules={[{required: true, message: '请选择项目类型'}]}
+          >
+            <Select
+              placeholder="请选择项目类型"
+              options={[
+                {label: '个人项目', value: 1},
+                {label: '团队项目', value: 2},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            name="projectName"
+            label="项目名"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input placeholder="请输入项目名" />
+          </Form.Item>
+          <Form.Item
+            name="tags"
+            label="标签"
+            rules={[{required: true, message: '不能为空'}]}
+          >
+            <Select
+              mode="tags"
+              tokenSeparators={[',']}
+              placeholder="请输入项目标签,按回车分割"
+              data-testid="project-tags"
+              notFoundContent={null}
+            />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="项目描述"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
 
-export default React.memo(AddProject)
+export default React.memo(AddProject);
