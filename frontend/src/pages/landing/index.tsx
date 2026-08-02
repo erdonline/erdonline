@@ -45,28 +45,32 @@ const LandingPage: React.FC = () => {
             alt="ERD Online 设计器关系图画布"
             width={1600}
             height={1000}
-            fetchPriority="high"
+            // React 17 DOM: camelCase fetchPriority leaks a warning; use lowercase attr
+            {...{fetchpriority: 'high' as const}}
           />
           <div className="landingHeroScrim" aria-hidden="true" />
         </div>
         <div className="landingHeroInner">
           <p className="landingHeroBrand landingBrand">ERD Online</p>
-          <h1 className="landingHeroTitle">
-            数据库设计的 Git + Figma，AI 时代的开源事实源
-          </h1>
+          <h1 className="landingHeroTitle">数据库设计的 Git + Figma</h1>
           <p className="landingHeroLead">
             版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。
           </p>
           <div className="landingCtas">
-            <Link className="landingBtnPrimary" to="/demo" aria-label="在线试用 demo">
-              在线试用（免注册）
-            </Link>
             {authed ? (
-              <Link className="landingBtnGhost" to="/home" aria-label="进入工作台">
-                进入工作台
-              </Link>
+              <>
+                <Link className="landingBtnPrimary" to="/home" aria-label="进入工作台">
+                  进入工作台
+                </Link>
+                <Link className="landingBtnGhost" to="/demo" aria-label="在线试用 demo">
+                  打开演示
+                </Link>
+              </>
             ) : (
               <>
+                <Link className="landingBtnPrimary" to="/demo" aria-label="在线试用 demo">
+                  在线试用
+                </Link>
                 <Link className="landingBtnGhost" to="/register" aria-label="注册">
                   注册
                 </Link>
@@ -75,15 +79,6 @@ const LandingPage: React.FC = () => {
                 </Link>
               </>
             )}
-            <a
-              className="landingBtnText"
-              href={GITHUB_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="GitHub 仓库"
-            >
-              GitHub
-            </a>
           </div>
         </div>
       </section>
@@ -192,7 +187,7 @@ const LandingPage: React.FC = () => {
           <a href={`${GITHUB_URL}/discussions`} target="_blank" rel="noreferrer">
             社区
           </a>
-          <Link to="/login">登录</Link>
+          {authed ? <Link to="/home">进入工作台</Link> : <Link to="/login">登录</Link>}
         </nav>
       </footer>
     </div>

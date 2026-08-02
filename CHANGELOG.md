@@ -8,6 +8,25 @@
 
 ### 2026-08-02
 
+#### 修复：落地页 hero 全幅构图 + 已登录疏导（P0/P1）
+
+**修复**
+
+- hero 由侧栏嵌图改为全幅背景截图 + 可读 scrim；去掉 hero 内 GitHub / 重复 CTA，收束为试用+注册+登录
+- 标题压到「数据库设计的 Git + Figma」；副文案保留 AI 事实源一句
+- 已登录：顶栏 / hero 主 CTA / 页脚均为「进入工作台」→ `/home`（不硬跳转）
+  验证点：`cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --workers=1` → 2 passed；截图 `frontend/test-results/ux-walkthrough/landing-hero-audit.png`
+
+**测试**
+
+- `landing.spec.ts` 增补：localStorage 带 Authorization 时主 CTA → `/home`
+  验证点：同上
+
+**文档**
+
+- `docs/landing.md` / `docs/roadmap.md` 同步全幅 hero 与已登录 CTA
+  验证点：landing.md 含「全幅」与「进入工作台」
+
 #### 功能：公开落地页 `/`（P5 叙事先行）
 
 **功能**
