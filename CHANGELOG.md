@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 重构：W5 切片 1 — 404/403 标准 Result + 示例 demo CTA
+
+**重构**
+
+- `404` / `403`：删 `antd/dist/reset.css` 与自定义 svg；`Result` 用标准 status 图标
+- extra：主按钮「返回首页」+ 次按钮「打开示例 demo」→ `/demo`（激活漏斗）
+- 删除零引用 `public/no-found.svg` / `no-access.svg`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `product-capability-map` / `regression-checklist`：W5 切片 1 ✅
+  验证点：`npx playwright test tests/e2e/not-found.spec.ts --project=chromium` → **2 passed**；页面源无 `antd/dist/reset.css` / `no-found.svg`
+
 #### 修复：创建项目卡在「新增项目」+ 团队/写接口偶发 HTML 400
 
 **根因**

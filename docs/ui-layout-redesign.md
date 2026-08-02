@@ -113,8 +113,7 @@
 
 ### 404 / 403（品牌壳 · W5）
 
-- 现状：antd `Result` + 自定义 `no-found.svg`，引了整份 `antd/dist/reset.css`（冗余，ConfigProvider 已全局注入）
-- 目标：删 `import 'antd/dist/reset.css'`；`status="404"` 标准图标（删自定义 img 或保留 svg 但去 `title="404"` 重复）；extra 加次按钮「打开示例 demo」；403 同构
+- ✅ **W5 切片 1**（2026-08-02）：删 `antd/dist/reset.css`；`Result` 标准 status 图标（删 `no-found.svg` / `no-access.svg`）；extra「返回首页」+「打开示例 demo」→ `/demo`；403 同构
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
@@ -173,6 +172,7 @@
 | └ **W4 切片 14** ✅（2026-08-02） | **approval/order** `ProTable`→Table；**home** 摘 `PageContainer`；**login/register** 摘 `LoginFormPage`；**databaseConfig** 摘 ProTable/`pro-layout` PageContainer；**ExportDDL**（对话框+页）摘 StepsForm | 8 个优先 Pro 文件 | `approval` + `session`/`smoke` 登录注册 + `adr0008-datasource` databaseConfig + `project-menu` 导出DDL + `project-surface` home；Pro 文件数 15→8 |
 | └ **W4 切片 15** ✅（2026-08-02） | 末批清零：`account/settings`→HomeLayout；`GroupUser`/`GroupPermission`；双 `ReverseDatabase`+`ReverseTable`；删死码 `StandardFieldLibrary`；移除 `@ant-design/pro-components` + `umi-presets-pro` | 7→0 + 依赖移除 | `account-settings` + `group-layout-nav` + `import-reverse`；`rg …pro-components` = 0 |
 | **W5** 登录/分享/404 打磨 | 登录注册品牌壳再打磨；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result（**Pro 依赖已在 W4 切片 15 移除**） | 视觉/分享/404 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图 |
+| └ **W5 切片 1** ✅（2026-08-02） | **404/403**：去 `reset.css`；标准 Result 图标；次按钮「打开示例 demo」；删自定义 svg | — | `not-found.spec`「返回首页」+「打开示例 demo」→ `/demo`\|`/s/public-demo` |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
 

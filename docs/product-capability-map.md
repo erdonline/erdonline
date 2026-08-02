@@ -23,7 +23,8 @@
 | 只读分享创建 | `POST /share/create`（token 匿名读，ADR-0007） | 设计器顶栏「分享」一键复制 ✅ | ✅ |
 | 分享**吊销 / 链接管理** | `POST /share/revoke` | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
 | 分享 → fork | `POST /share/{token}/fork` | 分享页 fork + autofork ✅ | ✅ |
-| 分享失效态 | `GET /share/{token}` | `Result` 403/404 ✅（W5 顺带打磨） | ✅ |
+| 分享失效态 | `GET /share/{token}` | 失效文案 ✅；W5 待对齐 `Result` +「打开示例 demo」（与 404/403 切片 1 同构） | thin（W5 续） |
+| 404 / 403 页 | 路由 `/*` / `403.tsx` | 标准 Result +「返回首页」+「打开示例 demo」✅（W5 切片 1）；无 `reset.css` | ✅ |
 
 ## 协作
 
