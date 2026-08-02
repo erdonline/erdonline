@@ -77,31 +77,30 @@ warning      #D48806
 
 ## Home 信息架构（改造后）
 
-单页一个任务：**让用户 5 秒内继续建模**。自上而下三个区块：
+单页一个任务：**让用户 5 秒内继续建模**。自上而下：
 
-1. **Hero 条**（替换 `PageHeaderContent` + `ExtraContent`）
-   - 左：`Syne 28px`「欢迎回来，{username}」+ 一句话上下文（最近编辑的项目名 + 更新时间）
-   - 右：主 CTA `继续上次建模`（brand 实心，直达最近项目画布）+ 次 CTA `新建模型` + 文字链 `从示例开始`
-   - 指标只留 3 个安静数字（活跃模型 / 模型总数 / 团队项目），小号、无图标、ink-900，排在问候语下方一行
-   - **删除**：随机 slogan 轮转、VIP 图标塞进标题、页脚三段次要文案（版权保留一行即可）
-2. **进行中的项目**（主体，替换 `Card.Grid` 嵌套）
-   - 桌面 3 列紧凑卡片网格：项目名（16px strong）+ 类型 tag（个人 ink / 团队 teal）+ 描述一行截断 + 「更新于 x 前」+ 卡片右上角悬停显「打开」
-   - 整卡可点（一个 `<Link>` 包卡片，不用嵌套 Card）；悬停 1px 边框 → md 阴影 + 上移 1px
-   - 空态 = 插画 + 一句话 + 主按钮「新建模型」（沿用 design-principles §4）
-   - 「查看全部」保留在卡头右侧
-3. **右侧窄栏（xl 8）**
-   - 快速操作收编为一张卡，6 项链接压成 2 列小按钮（沿用现有 quickLinks 数据与 testId）
-   - **删除「项目概览」整卡**（与 hero 指标重复，pie 图仅 two-slice 无信息量）
-   - 公告卡保留但降为 `size=small` 列表 + 「更多公告」链接
+1. **Hero 条**（一构图）
+   - 左：`Syne 28px`「欢迎回来，{username}」+ 一句话上下文（最近编辑的项目名 + 更新时间）+ 3 安静指标
+   - 右：**唯一** CTA 簇 — 主按钮 `继续上次建模` + 次级 `新建模型`（`home-link-new-project`）+ 文字链 `从示例开始`（`home-link-example`）
+   - **删除**：快速操作色块墙（与 hero CTA 重复；窄栏曾把中文竖排）、彩虹统计、slogan 轮转
+2. **次级入口**（一行水平文字链，非磁贴）
+   - `个人项目 · 最近项目 · 团队项目 · 导入模型`（保留 `home-link-*` testId）；中文永不竖排/旋转
+3. **进行中的项目**（首屏视觉锚点，全宽）
+   - 桌面 3 列：类型 pill（个人 ink / 团队 teal）+ 项目名 16px + 描述一行 + 「更新于」；悬停显「打开」+ md 阴影
+   - 整卡一个 `<Link>`；空态 = Empty +「新建模型」/「从示例开始」
+4. **公告**（默认降权）
+   - 仅当存在 **90 天内** 公告时渲染小列表；过期/空则整段隐藏（不再用三年前条目占 Home）
+
+顶栏：HomeLayout 整壳包 `ConfigProvider`（`erdTheme`），水平 Menu 选中色/下划线走 brand `#DE2910`，禁止默认 Ant 蓝。
 
 Before/After 原则对照：
 
 | 原则 | Before | After |
 |---|---|---|
-| §4 零摩擦默认 | 首屏 4 张卡 + 2 组重复统计，不知点哪 | 一个主 CTA「继续上次建模」 |
-| §1 即时反馈 | 数字彩虹色抢戏，无信息层级 | 指标安静、CTA 唯一高亮 |
-| §6 流畅动效 | 静态卡片无悬停态 | 卡片 hover 升层，100ms 过渡 |
-| 氛围无 clutter | slogan 轮转 + 装饰图 + 双份统计 | 每区块一职，留白是有意的 |
+| §4 零摩擦默认 | hero CTA + 右侧 6 磁贴重复，不知点哪 | 一簇主 CTA + 项目网格锚点 |
+| §1 即时反馈 | 色块墙 + 陈旧公告抢戏 | 指标安静、公告可隐 |
+| §6 流畅动效 | Card.Grid 嵌套无悬停 | 卡片 hover 升层 |
+| 氛围无 clutter | 竖排中文磁贴 + 模板蓝下划线 | 水平链 + brand 导航 |
 
 ## Model 页（`/design/table/model` + DesignLayout）信息架构
 
@@ -148,7 +147,7 @@ Before/After 原则对照：
 | S1 | tokens 地基 ✅ | `theme/tokens.ts` + `ConfigProvider` 接入 + `theme/css-vars.less`；剪除 Pro scaffold 死 less；全站视觉应**无可见变化**或仅圆角/主色归一 | `yarn build` 绿；`layout-outlet.spec` + home 相关 smoke 不回归 |
 | S1b | DesignLayout 摘 Pro ✅ | `ProLayout` → antd `Layout`/`Menu`/`Watermark`；保留 save/share/presence/`homeRightContent`/项目菜单；less 读 `var(--erd-*)` | `layout-outlet` DesignLayout 用例 + `presence` / `project-menu` |
 | S2 | Home hero 条 ✅ | 问候 + 主 CTA「继续上次建模」直达最近项目画布 + 3 安静指标；删 ExtraContent 彩虹 / VIP 塞标题；快捷链改 tokens | `project-surface`「Home hero：继续上次建模…」；`rg '#1890ff\|#52c41a\|#faad14' pages/home` = 0 |
-| S3 | Home 项目网格 | 去 Card.Grid 嵌套，紧凑网格 + hover 升层；删「项目概览」卡 | 卡片整卡可点；`home-link-*` testId 用例不回归 |
+| S3 | Home 项目网格 + IA 收口 ✅ | 去 Card.Grid / 快速操作墙；3 列项目锚点；次级水平链；公告 90 天隐藏；Menu brand 下划线 | `project-surface` + `layout-outlet`；截图 `home-redesign.png`；无竖排中文 |
 | S4 | DesignLayout 去杂 | 删 `bgLayoutImgList`、sider 400→320、删 sider footer、徽标对齐去魔法数 | `layout-outlet.spec` 全绿；设计器截图对比 |
 | S5 | 树面板头 + tabs 密度 + 画布 flex 高度 | 「+ 新建」露出；tabs 40px；删 `calc(100vh-104px)` | 新建表旅程 E2E（smoke「登录→新建→设计器」）不回归；空态 CTA 唯一 |
 | S6 | 走查收口 | 全核心旅程 UX 走查截图 + `regression-checklist.md` 登记 + 本简报勾掉完成片 | `ux-audit.spec` 绿；截图人工过一遍 |

@@ -69,6 +69,10 @@ export const erdTheme: ThemeConfig = {
     },
     Menu: {
       itemBorderRadius: 6,
+      horizontalItemSelectedColor: erdColors.brand,
+      horizontalItemHoverColor: erdColors.brand,
+      itemSelectedColor: erdColors.brand,
+      itemHoverColor: erdColors.brand,
     },
   },
 };

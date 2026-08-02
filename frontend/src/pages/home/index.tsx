@@ -1,30 +1,33 @@
 import type {FC} from 'react';
-import {Avatar, Button, Card, Col, List, Skeleton, Row, Space, Statistic, Tag, Typography, message} from 'antd';
 import {
-  RocketOutlined,
-  NotificationOutlined,
-  CompassOutlined,
-  PlusOutlined,
-  ImportOutlined,
-  HistoryOutlined,
-  BranchesOutlined,
-  DatabaseOutlined,
-  TeamOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+  Avatar,
+  Button,
+  Col,
+  Empty,
+  List,
+  Row,
+  Skeleton,
+  Space,
+  Statistic,
+  Typography,
+  message,
+} from 'antd';
+import {PlusOutlined} from '@ant-design/icons';
 
 import moment from 'moment';
-import EditableLinkGroup from './components/EditableLinkGroup';
 import styles from './style.less';
 import type {ActivitiesType, CurrentUser} from './data.d';
 import {useRequest} from '@umijs/hooks';
 import {Link, history} from '@@/exports';
 import {GET, POST_ERD} from '@/services/crud';
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {createExampleProjectAndOpen} from '@/utils/exampleProject';
 import {erdColors} from '@/theme/tokens';
 
 const {Title, Text, Paragraph} = Typography;
+
+/** 公告超过该天数则不占默认 Home（避免三年前条目拖垮产品感） */
+const ANNOUNCEMENT_MAX_AGE_DAYS = 90;
 
 type RecentRecord = {
   id: string;
@@ -34,55 +37,17 @@ type RecentRecord = {
   updateTime?: string;
 };
 
-const quickLinks = [
-  {
-    title: '新建模型',
-    icon: <PlusOutlined />,
-    href: '/project/person',
-    description: '前往个人项目列表新建空模型',
-    type: 'primary' as const,
-    testId: 'home-link-new-project',
-  },
-  {
-    title: '示例项目',
-    icon: <DatabaseOutlined />,
-    description: '一键创建含用户/订单表的示例，打开即可建模与保存版本',
-    type: 'success' as const,
-    testId: 'home-link-example',
-    onClick: () => createExampleProjectAndOpen(),
-  },
-  {
-    title: '导入模型',
-    icon: <ImportOutlined />,
-    href: '/project/person',
-    description: '打开项目后可在设计器「导入」菜单做逆向解析',
-    type: 'secondary' as const,
-    testId: 'home-link-import',
-  },
-  {
-    title: '最近项目',
-    icon: <HistoryOutlined />,
-    href: '/project/recent',
-    description: '继续上次未完成的建模',
-    type: 'secondary' as const,
-    testId: 'home-link-recent',
-  },
-  {
-    title: '个人项目',
-    icon: <BranchesOutlined />,
-    href: '/project/person',
-    description: '管理个人模型与版本入口',
-    type: 'secondary' as const,
-    testId: 'home-link-person',
-  },
-  {
-    title: '团队项目',
-    icon: <TeamOutlined />,
-    href: '/project/group',
-    description: '协作建模与成员权限',
-    type: 'secondary' as const,
-    testId: 'home-link-group',
-  },
+type NavLink = {
+  title: string;
+  href: string;
+  testId: string;
+};
+
+const secondaryNav: NavLink[] = [
+  {title: '个人项目', href: '/project/person', testId: 'home-link-person'},
+  {title: '最近项目', href: '/project/recent', testId: 'home-link-recent'},
+  {title: '团队项目', href: '/project/group', testId: 'home-link-group'},
+  {title: '导入模型', href: '/project/person', testId: 'home-link-import'},
 ];
 
 const PageHeaderContent: FC<{
@@ -103,7 +68,7 @@ const PageHeaderContent: FC<{
   return (
     <div className={styles.pageHeaderContent}>
       <div className={styles.avatar}>
-        <Avatar size="large" src={currentUser?.avatar || '/logo.svg'} />
+        <Avatar size={56} src={currentUser?.avatar || '/logo.svg'} />
       </div>
       <div className={styles.content}>
         <Title level={2} className={styles.heroTitle}>
@@ -119,6 +84,7 @@ const PageHeaderContent: FC<{
 
 export type HomeProps = {};
 
+/** 公告列表项（`/project/notice` 复用） */
 export const renderActivities = (item: ActivitiesType) => {
   return (
     <List.Item key={item.id}>
@@ -126,7 +92,7 @@ export const renderActivities = (item: ActivitiesType) => {
         title={
           <Row>
             <Col span={20}>
-              <a className={styles.username} href={item?.url} target={'_blank'}>
+              <a className={styles.username} href={item?.url} target={'_blank'} rel="noreferrer">
                 {item?.title}
               </a>
             </Col>
@@ -143,6 +109,11 @@ export const renderActivities = (item: ActivitiesType) => {
 };
 
 const quietStatStyle = {color: erdColors.ink900, fontSize: 20};
+
+const isFreshAnnouncement = (item: ActivitiesType) => {
+  if (!item?.createTime) return false;
+  return moment().diff(moment(item.createTime), 'days') <= ANNOUNCEMENT_MAX_AGE_DAYS;
+};
 
 const Home: React.FC<HomeProps> = () => {
   const [statisticInfo, setStatisticInfo] = useState({
@@ -174,7 +145,8 @@ const Home: React.FC<HomeProps> = () => {
     });
   });
 
-  const latest: RecentRecord | undefined = recentProject?.data?.records?.[0];
+  const records: RecentRecord[] = recentProject?.data?.records || [];
+  const latest: RecentRecord | undefined = records[0];
 
   const continueLastProject = () => {
     if (!latest?.id) {
@@ -197,14 +169,21 @@ const Home: React.FC<HomeProps> = () => {
     });
   });
 
+  const freshAnnouncements = useMemo(() => {
+    const list = (activities?.data?.records || []) as ActivitiesType[];
+    return list.filter(isFreshAnnouncement);
+  }, [activities]);
+
+  const showAnnouncements = !activitiesLoading && freshAnnouncements.length > 0;
+
   const {data: r} = useRequest(() => {
     return GET('/syst/user/settings/basic', {});
   });
 
   return (
-    <div data-testid="home-page">
-      <Row gutter={24} align="middle" style={{marginBottom: 16}}>
-        <Col xs={24} md={14} lg={15}>
+    <div data-testid="home-page" className={styles.homePage}>
+      <section className={styles.hero}>
+        <div className={styles.heroMain}>
           <PageHeaderContent currentUser={r?.data} latest={latest} />
           <div className={styles.heroStats} data-testid="home-quiet-stats">
             <Statistic title="活跃模型" value={statisticInfo.today} valueStyle={quietStatStyle} />
@@ -215,123 +194,137 @@ const Home: React.FC<HomeProps> = () => {
               valueStyle={quietStatStyle}
             />
           </div>
-        </Col>
-        <Col xs={24} md={10} lg={9}>
-          <Space direction="vertical" size={12} style={{width: '100%'}} className={styles.heroActions}>
-            <Button
-              type="primary"
-              size="large"
-              block
-              onClick={continueLastProject}
-              loading={projectLoading}
-              disabled={!projectLoading && !latest?.id}
-              data-testid="home-continue-modeling"
-            >
-              继续上次建模
-            </Button>
-            <Space wrap>
-              <Button onClick={() => history.push('/project/person')}>新建模型</Button>
-              <Button type="link" onClick={() => createExampleProjectAndOpen()}>
-                从示例开始
-              </Button>
-            </Space>
-          </Space>
-        </Col>
-      </Row>
-      <Row gutter={16}>
-        <Col xl={16} lg={24} md={24} sm={24} xs={24}>
-          <Card
-            className={styles.projectList}
-            style={{marginBottom: 24}}
-            title={
-              <Space>
-                <RocketOutlined />
-                <Title level={4}>进行中的项目</Title>
-              </Space>
-            }
-            bordered={false}
-            extra={<Link to="/dataModels">查看全部</Link>}
+        </div>
+        <div className={styles.heroActions}>
+          <Button
+            type="primary"
+            size="large"
+            onClick={continueLastProject}
             loading={projectLoading}
-            bodyStyle={{padding: 0}}
+            disabled={!projectLoading && !latest?.id}
+            data-testid="home-continue-modeling"
           >
-            {recentProject?.data?.records?.map((item: RecentRecord) => (
-              <Card.Grid key={item.id}>
-                <Link to={'/design/table/model?projectId=' + item.id}>
-                  <Card key={item.id} bordered={false} style={{boxShadow: 'none'}}>
-                    <Card.Meta
-                      title={
-                        <div className={styles.cardTitle}>
-                          <Tag
-                            key={item.id}
-                            className={
-                              item.type === '1' ? styles.tagPerson : styles.tagTeam
-                            }
-                          >
-                            {item.type === '1' ? <UserOutlined /> : <TeamOutlined />}
-                            {item.type === '1' ? '个人' : '团队'}
-                          </Tag>
-                          <Text strong>{item.projectName}</Text>
-                        </div>
-                      }
-                      description={
-                        <Typography.Paragraph
-                          type="secondary"
-                          ellipsis={{rows: 2, expandable: false, symbol: '...'}}
-                        >
-                          {item.description || '无描述'}
-                        </Typography.Paragraph>
-                      }
-                    />
-                    <div className={styles.projectItemContent}>
-                      {item.updateTime && (
-                        <Text type="secondary" title={item.updateTime}>
-                          更新于 {moment(item.updateTime).fromNow()}
-                        </Text>
-                      )}
-                    </div>
-                  </Card>
-                </Link>
-              </Card.Grid>
+            继续上次建模
+          </Button>
+          <div className={styles.heroSecondary}>
+            <Link
+              to="/project/person"
+              className={styles.heroSecondaryBtn}
+              data-testid="home-link-new-project"
+            >
+              <PlusOutlined /> 新建模型
+            </Link>
+            <button
+              type="button"
+              className={styles.heroTextLink}
+              data-testid="home-link-example"
+              onClick={() => void createExampleProjectAndOpen()}
+            >
+              从示例开始
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <nav className={styles.secondaryNav} aria-label="项目入口">
+        {secondaryNav.map((item, i) => (
+          <React.Fragment key={item.testId}>
+            {i > 0 ? <span className={styles.secondarySep} aria-hidden>·</span> : null}
+            <Link to={item.href} data-testid={item.testId} className={styles.secondaryLink}>
+              {item.title}
+            </Link>
+          </React.Fragment>
+        ))}
+      </nav>
+
+      <section className={styles.projectSection}>
+        <div className={styles.sectionHead}>
+          <Title level={4} className={styles.sectionTitle}>
+            进行中的项目
+          </Title>
+          <Link to="/dataModels" className={styles.sectionExtra}>
+            查看全部
+          </Link>
+        </div>
+        {projectLoading ? (
+          <div className={styles.projectGrid}>
+            {[0, 1, 2].map((k) => (
+              <div key={k} className={styles.projectCard}>
+                <Skeleton active paragraph={{rows: 2}} />
+              </div>
             ))}
-          </Card>
-          <Card
-            bodyStyle={{padding: 0}}
-            bordered={false}
-            className={styles.activeCard}
-            title={
+          </div>
+        ) : records.length === 0 ? (
+          <div className={styles.emptyState}>
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              description="还没有进行中的项目"
+            >
               <Space>
-                <NotificationOutlined />
-                <Title level={4}>最新公告</Title>
+                <Button type="primary" onClick={() => history.push('/project/person')}>
+                  新建模型
+                </Button>
+                <Button onClick={() => void createExampleProjectAndOpen()}>从示例开始</Button>
               </Space>
-            }
-            loading={activitiesLoading}
-            extra={<Link to="/project/notice">更多公告</Link>}
-          >
-            <List<ActivitiesType>
-              size="small"
-              loading={activitiesLoading}
-              renderItem={(item) => renderActivities(item)}
-              dataSource={activities?.data?.records}
-              className={styles.activitiesList}
-            />
-          </Card>
-        </Col>
-        <Col xl={8} lg={24} md={24} sm={24} xs={24}>
-          <Card
-            style={{marginBottom: 16}}
-            title={
-              <Space>
-                <CompassOutlined />
-                <Title level={4}>快速操作</Title>
-              </Space>
-            }
-            bordered={false}
-            bodyStyle={{padding: 16}}
-          >
-            <EditableLinkGroup links={quickLinks} />
-          </Card>
-        </Col>
-      </Row>
+            </Empty>
+          </div>
+        ) : (
+          <div className={styles.projectGrid}>
+            {records.map((item) => (
+              <Link
+                key={item.id}
+                to={`/design/table/model?projectId=${item.id}`}
+                className={styles.projectCard}
+              >
+                <div className={styles.cardTop}>
+                  <span
+                    className={
+                      item.type === '1' ? styles.typePerson : styles.typeTeam
+                    }
+                  >
+                    {item.type === '1' ? '个人' : '团队'}
+                  </span>
+                  <span className={styles.openHint}>打开</span>
+                </div>
+                <Text strong className={styles.cardName}>
+                  {item.projectName}
+                </Text>
+                <p className={styles.cardDesc}>{item.description || '无描述'}</p>
+                {item.updateTime ? (
+                  <Text type="secondary" className={styles.cardMeta} title={item.updateTime}>
+                    更新于 {moment(item.updateTime).fromNow()}
+                  </Text>
+                ) : null}
+              </Link>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {showAnnouncements ? (
+        <section className={styles.announceSection} aria-label="最新公告">
+          <div className={styles.sectionHead}>
+            <Title level={5} className={styles.sectionTitleSm}>
+              最新公告
+            </Title>
+            <Link to="/project/notice" className={styles.sectionExtra}>
+              更多公告
+            </Link>
+          </div>
+          <ul className={styles.announceList}>
+            {freshAnnouncements.map((item) => (
+              <li key={item.id}>
+                <a href={item?.url} target="_blank" rel="noreferrer" className={styles.announceTitle}>
+                  {item?.title}
+                </a>
+                <span className={styles.announceTime} title={item.createTime}>
+                  {moment(item.createTime).fromNow()}
+                </span>
+              </li>
+            ))}
+          </ul>
+        </section>
+      ) : null}
     </div>
   );
 };
