@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：设计器项目 ▾ 最近项目切换
+
+**功能**
+
+- ProjectMenu：打开时拉 `recentProject`（最多 5 条）；「最近项目」区当前项标 ✓，点其它项切 `/design/table/model?projectId=`（点当前仅关菜单）；加载/失败/空态各一行提示
+- 菜单序：全部项目 → 最近项目 → 导入/导出/设置；保留 `ProjectMenuCloseContext` 关下拉
+
+**测试 / 文档**
+
+- `project-menu.spec`：当前项 ✓ +「最近项目可切换到另一项目」；`ui-layout-redesign` 导航模式补切换说明
+
+验证点：`npx playwright test --grep "项目菜单：全部项目|项目菜单：最近项目可切换" --project=chromium --workers=1` → 绿
+
 #### 工程：Vision 5m 循环 PM 持续迭代指令
 
 **改动**

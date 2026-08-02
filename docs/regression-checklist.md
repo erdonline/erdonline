@@ -387,6 +387,11 @@
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`
 
+## 设计器项目 ▾ 最近切换（2026-08-02）
+
+- [x] [最近项目当前项] 项目菜单见「最近项目」+ `✓ <当前项目名>` ✅ `project-menu`「全部项目可达」
+- [x] [最近项目切换] 建 A/B → 在 B 菜单点 A → URL `projectId=A` 且顶栏名变 A、面板关闭 ✅ `project-menu`「最近项目可切换」
+
 ## W6 账户设置基本资料（2026-08-02）
 
 - [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`

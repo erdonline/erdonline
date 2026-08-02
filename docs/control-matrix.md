@@ -102,7 +102,9 @@
 | `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
 | `/design/table/model` | 删边 | 确认后边消失并落库 | | ✅ | `relation`「删边后刷新仍无边」 |
 | DesignLayout | 项目菜单按钮 | 下拉打开 | | ✅ | `project-menu.spec` |
-| 项目菜单 | 版本 | → 版本管理 | | ✅ | `project-menu`「版本」 |
+| 项目菜单 | 全部项目 | → `/project/recent` | | ✅ | `project-menu`「全部项目」 |
+| 项目菜单 | 最近项目 | 最多 5 条；当前 ✓；点其它项切设计器 | | ✅ | `project-menu`「最近项目可切换」 |
+| 项目菜单 | 版本（已迁顶栏） | 顶栏「版本」→ 版本管理；菜单内无「版本」 | | ✅ | `project-menu`「全部项目…顶栏版本」 |
 | 项目菜单 | 导入→三项 | 弹窗可开、关下拉不挡 | | ✅ | `project-menu`「导入」 |
 | 项目菜单 | 导出→五项 | 可见；DDL 可开 | | ✅ | `project-menu`「导出」 |
 | 项目菜单 | 设置→数据源设置 | 弹窗可开 | ADR-0008 | ✅ | `project-menu`「数据源设置」 |

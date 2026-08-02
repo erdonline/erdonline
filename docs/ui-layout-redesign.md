@@ -34,8 +34,9 @@
 ## 导航模式
 
 - **全局**：工作台壳顶栏一级导航（首页 / 项目 / 数据源配置 / 账号），当前项 brand 下划线 2px，悬停 ink-900
-- **设计器内（单一 chrome）**：左 logo→`/home` + **项目名 ▾**（`aria-label=项目菜单`：全部项目 / 导入·导出·设置弹层）；中主 tabs **仅 模型 | 版本**（版本含 sider 子导航）；右 SaveStatus / **保存版本** / presence / 分享 / `⋯`（公众号·GitHub·版本号）/ 用户。导入·导出·设置页仍可深链，不占顶栏
-- **层级收口**：项目列表卡片整卡 `<Link>` 直达设计器；设计器返回走顶栏 logo /「全部项目」，不新增「返回」按钮
+- **设计器内（单一 chrome）**：左 logo→`/home` + **项目名 ▾**（`aria-label=项目菜单`：全部项目 → **最近项目（最多 5 条，当前项 ✓，点其它项切 `/design/table/model?projectId=`）** → 导入·导出·设置弹层）；中主 tabs **仅 模型 | 版本**（版本含 sider 子导航）；右 SaveStatus / **保存版本** / presence / 分享 / `⋯`（公众号·GitHub·版本号）/ 用户。导入·导出·设置页仍可深链，不占顶栏
+- **层级收口**：项目列表卡片整卡 `<Link>` 直达设计器；设计器内切项目走 ▾「最近项目」；返回列表走「全部项目」/ logo，不新增「返回」按钮
+
 
 ## 空态规范（每页一句话 + 一个主 CTA）
 
@@ -92,6 +93,7 @@
 - ✅ **W2 切片 3**（2026-08-02）：删主区嵌套 `Splitter`/`DataTable`（左树唯一 = sider）；删 sider footer；sider 400→320；`CommonTabs` 栏 40px；设计器壳 `calc(100vh-*)` → flex 填满；树头「新建」(`design-tree-add`) 常显
 - ✅ **W2 切片 4**（2026-08-02）：清设计器内残留 `calc(100vh)`——修 `EmptyStateAnimation` 内容态高度链断裂；`QueryTree` / `version` / ReactFlow 改 flex/`height:100%`（度量「W1 后设计器 0」收口）
 - ✅ **顶栏 IA 收口**（2026-08-02）：去掉「项目 ▾」与水平五 tab 双导航；项目名 switcher + 模型|版本 + 右区北极星 CTA + `⋯` 溢出（见「导航模式」）
+- ✅ **项目 ▾ 最近切换**（2026-08-02）：菜单内「最近项目」最多 5 条（`recentProject`）；当前项 ✓；点其它项切 `/design/table/model?projectId=`；「全部项目」/导入·导出·设置保留
 
 ### 版本 version / 导入 import / 导出 export / 设置 setting（设计器壳标签页 · W3/W4）
 

@@ -127,6 +127,10 @@ test.describe('设计器项目菜单', () => {
 
       const panel = await openProjectMenu(page);
       await expect(panel.getByRole('menuitem', { name: '全部项目' })).toBeVisible();
+      await expect(panel.getByText('最近项目')).toBeVisible();
+      await expect(
+        panel.getByRole('menuitem', { name: new RegExp(`✓\\s*${projectName}`) }),
+      ).toBeVisible({ timeout: 10_000 });
       await expect(panel.getByRole('menuitem', { name: '版本' })).toHaveCount(0);
       await panel.getByRole('menuitem', { name: '全部项目' }).click();
       await expect(page).toHaveURL(/\/project\/recent/, { timeout: 15_000 });
@@ -143,6 +147,45 @@ test.describe('设计器项目菜单', () => {
       await expect(page.getByTestId('add-version-btn')).toBeVisible({
         timeout: 15_000,
       });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('项目菜单：最近项目可切换到另一项目', async ({ page }) => {
+    test.setTimeout(120_000);
+    const nameA = uniqueProjectName('swA');
+    const nameB = uniqueProjectName('swB');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, nameA);
+      const idA = new URL(page.url()).searchParams.get('projectId');
+      expect(idA).toBeTruthy();
+
+      await page.goto('/project/person');
+      await createAndOpenPersonProject(page, nameB);
+      const idB = new URL(page.url()).searchParams.get('projectId');
+      expect(idB).toBeTruthy();
+      expect(idB).not.toBe(idA);
+
+      const panel = await openProjectMenu(page);
+      await expect(panel.getByText('最近项目')).toBeVisible();
+      await expect(
+        panel.getByRole('menuitem', { name: new RegExp(`✓\\s*${nameB}`) }),
+      ).toBeVisible({ timeout: 10_000 });
+      await panel.getByRole('menuitem', { name: nameA, exact: true }).click();
+      await expect(page).toHaveURL(
+        new RegExp(`/design/table/model\\?projectId=${idA}`),
+        { timeout: 15_000 },
+      );
+      await expect(page.getByTestId('project-menu-panel')).toBeHidden({
+        timeout: 5_000,
+      });
+      await expect(page.getByRole('button', { name: '项目菜单' })).toContainText(
+        nameA,
+        { timeout: 15_000 },
+      );
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
