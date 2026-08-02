@@ -48,9 +48,9 @@
 | 设计器画布 | ER 剪影插画 + 「新建第一张表」主按钮 + 「导入 DBML」次按钮 + 「从数据源逆向」文字链（空态隐藏 MiniMap）；导入后直开关系图并 fitView |
 | version 列表 | 「还没有版本」+ 「保存第一个版本」主按钮（与顶栏入口同一动作） |
 | share（链接失效） | `AuthBrandShell` + 「打开示例 demo」主按钮 + 「返回首页」；空模块/无模型 → ER 剪影 + 同 CTA |
-| 404 | 见下「逐页」 |
+| 404 / 403 | `AuthBrandShell` + 「打开示例 demo」主按钮 + 「返回首页」（与分享失效门同构） |
 
-统一用 antd `Empty`/`Result`，插画沿用现有 svg 资产；空态 CTA 必须可达（`getByRole('button', { name })`）。
+统一用品牌壳 / ER 剪影空态；插画沿用现有资产；空态 CTA 必须可达（`getByRole('button', { name })`）。禁裸 antd `Result` 做品牌门。
 
 ## 逐页方案
 
@@ -120,6 +120,7 @@
 ### 404 / 403（品牌壳 · W5）
 
 - ✅ **W5 切片 1**（2026-08-02）：删 `antd/dist/reset.css`；`Result` 标准 status 图标（删 `no-found.svg` / `no-access.svg`）；extra「返回首页」+「打开示例 demo」→ `/demo`；403 同构
+- ✅ **404/403 品牌对齐**（2026-08-03）：改 `AuthBrandShell`（去裸 Result）；主 CTA「打开示例 demo」+「返回首页」；与分享失效门同语言；路由不变
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
@@ -182,6 +183,7 @@
 | └ **W4 切片 15** ✅（2026-08-02） | 末批清零：`account/settings`→HomeLayout；`GroupUser`/`GroupPermission`；双 `ReverseDatabase`+`ReverseTable`；删死码 `StandardFieldLibrary`；移除 `@ant-design/pro-components` + `umi-presets-pro` | 7→0 + 依赖移除 | `account-settings` + `group-layout-nav` + `import-reverse`；`rg …pro-components` = 0 |
 | **W5** 登录/分享/404 打磨 | 登录注册品牌壳再打磨；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result（**Pro 依赖已在 W4 切片 15 移除**） | 视觉/分享/404 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图 |
 | └ **W5 切片 1** ✅（2026-08-02） | **404/403**：去 `reset.css`；标准 Result 图标；次按钮「打开示例 demo」；删自定义 svg | — | `not-found.spec`「返回首页」+「打开示例 demo」→ `/demo`\|`/s/public-demo` |
+| └ **404/403 品牌对齐** ✅（2026-08-03） | **404/403**：改 `AuthBrandShell`（去裸 Result）；与分享失效门同 CTA | — | `not-found.spec` 品牌壳 ~40% + `exception-404-gate` |
 | └ **W5 切片 2** ✅（2026-08-02） | **分享失效态**：无效/吊销 token → `Result` 403 +「返回首页」+「打开示例 demo」；成功态 chrome 不动 | — | `share.spec`「无效 token…示例 demo」+「创建→吊销后…」见 Result CTA |
 | └ **W5 切片 3** ✅（2026-08-03） | **分享顶栏品牌对齐**：64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链；轻 chrome 无工作台导航 | — | `share.spec`「设计器分享后…」断言 header 64px + logo/登录/注册；`demo.spec` chrome 可见 |
 | └ **W5 切片 4** ✅（2026-08-03） | **登录/注册品牌壳**：`AuthBrandShell` 左 40% 暗色面板 + 右 Form；清 `bg2`/`#1677FF`；删 `public/bg2.png` | — | `smoke`「登录页渲染」品牌壳 ~40% + 无硬编码；`session`「去注册」同壳 |

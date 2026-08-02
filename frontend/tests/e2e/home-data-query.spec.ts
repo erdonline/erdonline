@@ -20,7 +20,7 @@ test.describe('Home 数据查询导航裁剪', () => {
     await expect(page.getByRole('link', { name: '数据查询' })).toHaveCount(0);
 
     await page.goto('/dataQuery');
-    await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('exception-404-gate')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
   });
 });

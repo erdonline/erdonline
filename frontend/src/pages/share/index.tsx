@@ -200,7 +200,7 @@ const SharePage: React.FC = () => {
   if (error) {
     return (
       <AuthBrandShell title="分享不可用" subtitle={error}>
-        <div className="share-page__gate-actions" data-testid="share-invalid-gate">
+        <div className="auth-shell__gate-actions" data-testid="share-invalid-gate">
           <Button type="primary" block onClick={() => history.push('/demo')}>
             打开示例 demo
           </Button>

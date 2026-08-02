@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：404/403 对齐 AuthBrandShell（ADR-0016）
+
+- 选题：`pages/404`/`403` 仍裸 antd `Result`，与登录/分享失效门 / 三壳 token 割裂
+- 未知路径 / 无权访问 → 复用 `AuthBrandShell`（「页面不存在」/「无权访问」+ 主 CTA「打开示例 demo」+「返回首页」）；`exception-404-gate` / `exception-403-gate`
+- 右侧 CTA 栈样式收口 `.auth-shell__gate-actions`（分享失效门同用）；路由表不变
+- E2E：`not-found.spec` 品牌壳 ~40% + CTA；深链/死认证路径断言改 `exception-404-gate`；截图 `exception-404-brand-shell.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/not-found.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/dead-auth-routes.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：分享失效/空态对齐 AuthBrandShell（ADR-0016）
 
 - 选题：失效页仍裸 antd `Result` 403，与登录品牌壳 / 三壳 token 割裂；空模块仅灰字无剪影

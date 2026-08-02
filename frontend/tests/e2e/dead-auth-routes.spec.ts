@@ -8,11 +8,11 @@ const API = process.env.API_URL || 'http://localhost:9502';
 test.describe('已删认证路径', () => {
   test('前端无登录成功页与微信绑定页', async ({ page }) => {
     await page.goto('/login/success');
-    await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('exception-404-gate')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
 
     await page.goto('/account/settings/wechat');
-    await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('exception-404-gate')).toBeVisible({ timeout: 10_000 });
     await expect(page.getByText(/微信绑定|绑定微信/)).toHaveCount(0);
   });
 

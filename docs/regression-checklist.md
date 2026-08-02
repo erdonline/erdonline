@@ -356,6 +356,12 @@
 - [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `not-found.spec.ts`
 - [x] [403/404] 无 `antd/dist/reset.css`、无自定义 `no-found`/`no-access` svg（标准 Result）✅ 源码断言
 
+## W5 404/403 品牌对齐（2026-08-03）
+
+- [x] [404] 未知路径见 `AuthBrandShell`「页面不存在」+ `exception-404-gate`；品牌面板 ~40%；主 CTA「打开示例 demo」→ `/demo`|`/s/public-demo`；「返回首页」离开该路径✅ `not-found.spec.ts`
+- [x] [403] `pages/403.tsx` 同构 `AuthBrandShell`「无权访问」+ `exception-403-gate`（路由表未新增入口）✅ 源码
+- [x] [深链/死认证] 空壳深链与 `/login/success` 等见 `exception-404-gate`（非裸 Result「404」）✅ `data-domain`/`design-query`/`home-data-query`/`dead-auth-routes`
+
 ## W5 切片 2 — 分享失效态（2026-08-02）
 
 - [x] [无效 token] `/s/not-a-real-…` 见 Result「403」+ 失效文案；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec.ts`
@@ -399,7 +405,7 @@
 - [x] [权限组成员可见] `/project/group/setting/permission` 见角色 tab +「用户组成员」「权限配置」；权限配置见「全选」「团队基础设置」✅ `group-layout-nav.spec.ts`
 - [x] [返回项目列表] GroupLayout「返回项目列表」→ `/dataModels`（无 projectId）✅同上
 - [x] [打开模型] GroupLayout「打开模型」→ `/design/table/model?projectId=` 设计器可见✅同上
-- [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径✅ `not-found.spec.ts`
+- [x] [404] 未知路径见「页面不存在」/`exception-404-gate`；「返回首页」离开该路径✅ `not-found.spec.ts`
 
 ## W2 项目公告（2026-08-02）
 
