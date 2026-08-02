@@ -18,11 +18,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 ## 当前待投放（未标已合入）
 
-| 文件 | 标题摘要 |
-|---|---|
-| `39-cmd-palette-listbox.md` | 命令面板选项列表 listbox |
+（空）— a11y 微切片边际收益已低，暂不续堆草稿；正式仓就绪后可按 `docs/community.md` 从既有合入项以外选题。
 
-`01`–`38` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
+`01`–`39` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
 
 合入后在对应草稿顶部加：
 

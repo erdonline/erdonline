@@ -89,8 +89,12 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
             }
           }}
         />
-        <ul className="erd-cmd-list">
-          {filtered.length === 0 && <li className="erd-cmd-empty">无匹配命令</li>}
+        <ul className="erd-cmd-list" role="listbox" aria-label="命令列表">
+          {filtered.length === 0 && (
+            <li className="erd-cmd-empty" aria-live="polite">
+              无匹配命令
+            </li>
+          )}
           {filtered.map((c, i) => (
             <li
               key={c.id}
