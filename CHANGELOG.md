@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 文档：布局策略 v2 重估（能力暴露优先）+ 产品能力对照表
+
+**文档**
+
+- 新增 `docs/product-capability-map.md`：能力 → API/SQL → UI 暴露面 → 缺口（missing/thin/overbuilt/✅）；结论：北极星直接相关的 UI 缺口只有版本域收口（跨版本 diff 导出、审批入口）与分享吊销/管理两类
+- `docs/ui-layout-redesign.md` v2：推翻三个假设（①Home 密度单列一波 ②逐页抬水位=组件平移 ③Pro 清零驱动波次）；新增「后端已能、UI 埋没或缺失」（分享吊销 missing、diff 导出 missing、数据字典 thin）与「空壳清单」（query/dataQuery/chatsql/dataDomain/JExcel/test/home Radar+mock/settings geographic 先删后美）；分波重排：W2=能力暴露+空壳清除（替代旧 Home 密度）→ W3=版本域收口（旧 W4 提前+diff 导出）→ W4=项目列表/数据源平移 → W5=登录/分享/404+Pro 依赖一次性移除；Pro import 清零降为副产品指标
+- `roadmap.md` P5 UI 水位条目同步 v2 分波
+  验证点：仅文档改动，无产品代码；证据：grep 后端控制器（ProjectShareController `/share/revoke` 无前端调用；RevertVersion/diff/dbsync/gendocx 已暴露 ✅；DataDictController 全 CRUD 仅实验页）+ `frontend/src/pages` 死壳清单 + Flyway V1/V2（db_change.tag）
+
 #### 文档：全站布局重设计总纲（ui-layout-redesign.md）
 
 **文档**
