@@ -331,44 +331,6 @@
         </plugins>
     </build>
 
-    <!-- 公共依赖优先走阿里云；与 .mvn/settings.xml + maven.config 互补（覆盖本机 JD Artifactory 镜像） -->
-    <repositories>
-        <repository>
-            <id>aliyun-public</id>
-            <name>Aliyun Public</name>
-            <url>https://maven.aliyun.com/repository/public</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>aliyun-central</id>
-            <name>Aliyun Central</name>
-            <url>https://maven.aliyun.com/repository/central</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-        <repository>
-            <id>aliyun-spring</id>
-            <name>Aliyun Spring</name>
-            <url>https://maven.aliyun.com/repository/spring</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </repository>
-    </repositories>
-    <pluginRepositories>
-        <pluginRepository>
-            <id>aliyun-public</id>
-            <name>Aliyun Public</name>
-            <url>https://maven.aliyun.com/repository/public</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </pluginRepository>
-        <pluginRepository>
-            <id>aliyun-central</id>
-            <name>Aliyun Central</name>
-            <url>https://maven.aliyun.com/repository/central</url>
-            <releases><enabled>true</enabled></releases>
-            <snapshots><enabled>false</enabled></snapshots>
-        </pluginRepository>
-    </pluginRepositories>
+    <!-- 仓库：默认 Maven Central（Docker / Railway 构建）。国内本机加速见 .mvn/settings.xml + maven.config，勿写回 pom。 -->
 </project>
+

@@ -3,12 +3,13 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
     <!--
-      ERD Online 后端专用 Maven 配置（经 .mvn/maven.config 的 -s 自动启用）。
-      用途：覆盖机器全局 ~/.m2/settings.xml 里指向内网 Artifactory 的镜像，
-            改用阿里云公共仓库，便于任何人在公网环境构建。
+      仅供本机（尤其国内）mvn / dev-ensure：经 .mvn/maven.config 的 -s 自动启用。
+      覆盖 ~/.m2 内网 Artifactory，改走阿里云公共仓。
+      Docker / Railway 构建禁止 COPY 本文件（海外 Aliyun 极慢）；镜像内用 Maven Central。
       若日后引入私有仓库：在下方 repositories 声明其 id，并把 mirrorOf 改为
             *,!<private-id>（勿用裸 * 吞掉私库）。
     -->
+
     <mirrors>
         <mirror>
             <id>aliyun-public</id>

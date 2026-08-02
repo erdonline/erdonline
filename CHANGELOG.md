@@ -8,7 +8,16 @@
 
 ### 2026-08-02
 
+#### 修复：Railway/Docker Maven 走 Central（勿阿里云）
+
+- `backend/Dockerfile`：不再 COPY / `-s` `.mvn/settings.xml`（海外 Aliyun 慢/错）
+- `pom.xml`：移除硬编码 `maven.aliyun.com` repositories；国内本机仍靠 `.mvn/settings.xml` + `maven.config`
+- `docs/deployment.md`：注明 Railway 构建用 Central
+
+验证点：`rg 'COPY.*settings|-s /root' backend/Dockerfile` = 0；`rg 'maven\.aliyun' backend/pom.xml` = 0；`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests help:evaluate -Dexpression=project.version -DforceStdout`（本机仍走 settings/Aliyun）
+
 #### 体验：导入后 Frame 自动建议（ADR-0016）
+
 
 - 选题：空态构图 vs 导入 Frame → 选后者（分享首印象：导入多表立刻有分组层次，空态 CTA 已可用）
 - `suggestImportFrames`：表名前缀优先（`sys_*`/`biz_*`），否则 ≥2 连通分量；禁单前缀/单分量整图大框
