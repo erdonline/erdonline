@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：连线失败可见反馈（重复关联 / 非法锚点，建模回路）
+
+- 选题：拖连线重复同一对或落到非法锚点时静默无反馈，用户以为坏了
+- `addAssociation` 重复 → toast「该字段关联已存在，无需重复连线」；缺模块也提示
+- 画布 `onConnect` 角色/不完整 → 可行动 warning；`onConnectStart/End`：非法锚点或表体未对准接入点有 toast，空白处取消不打扰
+- 合法连线路径不变；E2E：`relation`「连线失败反馈：重复关联与非法锚点有 toast」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "连线失败反馈" --workers=1 --retries=0`
+
 #### 体验：画布工具栏「新建表」一键上图（建模回路，ADR-0016）
 
 - 选题：空态有「新建第一张表」，非空画布却无建表 CTA → 只能左树弹层或 Cmd+K（多余步骤 / CTA 不清）

@@ -439,17 +439,19 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       renameFrameInDiagram(diagram, frameId, next);
     }));
   },
-  // 追加关联（按 from/to 去重）；按模块名定位，理由同 updateGraphCanvasLayout
+  // 追加关联（按 from/to 去重）；重复时 toast，禁止静默失败
   addAssociation: (moduleName: string, association: any) => {
     const modules = get().project?.projectJSON?.modules;
     const module = modules?.find((m: any) => m?.name === moduleName);
     if (!module) {
+      message.warning('未找到当前模块，无法建立关联');
       return;
     }
     const exists = (module.associations || []).some((a: any) =>
       a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
       a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field);
     if (exists) {
+      message.warning('该字段关联已存在，无需重复连线');
       return;
     }
     snapshotModules(modules);
