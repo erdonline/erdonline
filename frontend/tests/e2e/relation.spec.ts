@@ -326,6 +326,44 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016：障碍避让几何由 relationEdgeRoute 单测覆盖；E2E 验设计器接线
+  test('边路由：erdSmooth 暴露 route-mode', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('edgeroute');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'edgeroute', 'edge route mode wire');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+      await expect(page.locator('.react-flow__edge').first()).toHaveClass(/react-flow__edge-erdSmooth/);
+
+      const modeEl = page.getByTestId('erd-edge-route-mode');
+      await expect(modeEl).toBeAttached();
+      await expect(modeEl).toHaveAttribute('data-mode', /^(default|centerX|bypass)$/);
+
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-edge-obstacle.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('save-status：aria-live 播报自动保存状态', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('savestatus');
