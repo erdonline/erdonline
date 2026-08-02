@@ -54,16 +54,14 @@ spring:
       max-lifetime: 1800000
       connection-timeout: 60000
       connection-test-query: SELECT 1
-  # Boot 3 / Redisson 只认 spring.data.redis.*（spring.redis.* 已 error 级废弃，绑不上 → 永远 localhost）
-  # Railway 插件变量名优先（Variable Reference 同名即可）：REDISHOST / REDISPORT；本地可用 REDIS_HOST
+  # Boot 3 / Redisson 只认 spring.data.redis.*（spring.redis.* 已 error 级废弃）
+  # 本地/compose：host/port（无密码）。Railway：设环境变量 SPRING_DATA_REDIS_URL（Boot 松散绑定 → url，覆盖 host/port/user/password）
+  # 勿在 yml 写 url/password 的 ${VAR:} 空默认（空串 ≠ unset → WRONGPASS / 坏本地无密码 Redis）
   data:
     redis:
-      host: ${REDISHOST:${REDIS_HOST:localhost}}
-      port: ${REDISPORT:${REDIS_PORT:6379}}
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
       database: ${REDIS_DB:0}
-      # password / username / url：勿写 ${VAR:} 空默认（会绑成 "" → WRONGPASS / 弄坏本地无密码 Redis）。
-      # RedisUrlAliasEnvironmentPostProcessor 仅非空注入，且 REDIS_URL|REDIS_PUBLIC_URL 会覆盖 host/port：
-      # REDISPASSWORD|REDIS_PASSWORD、REDISUSER|REDIS_USERNAME
   servlet:
     multipart:
       max-file-size: 10MB
