@@ -369,7 +369,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <Button
           icon={<PlusOutlined />}
           style={{ width: '40px' }}
-          aria-label="新增"
+          aria-label="新建"
           data-testid="design-tree-add"
         />
       </Dropdown>

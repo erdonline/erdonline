@@ -4,6 +4,7 @@ import {
   deleteOwnPersonProjects,
   e2eAccount,
   login,
+  openRelationFromEmpty,
   uniqueProjectName,
 } from './helpers';
 
@@ -100,6 +101,28 @@ test.describe('布局壳子路由出口', () => {
           .or(page.getByTestId('add-module-empty'))
           .first(),
       ).toBeVisible({ timeout: 20_000 });
+      // W2 chrome：侧栏唯一左树，主区不再嵌套第二份 DataTable
+      await expect(page.getByTestId('add-module-empty')).toHaveCount(1);
+      await expect(page.locator('.design-layout__sider')).toHaveCSS('width', '320px');
+      await expect(page.locator('.design-layout__sider-footer')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('DesignLayout：模型树唯一 + 新建入口常显', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('chrome-tree');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+      await openRelationFromEmpty(page, { name: 'CHROME', chnname: '铬' });
+      // 树头「新建」唯一（页内另有「新建」勿用 role name 计数）
+      await expect(page.getByTestId('design-tree-add')).toHaveCount(1);
+      await expect(page.getByTestId('design-tree-add')).toHaveAttribute('aria-label', '新建');
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+      await expect(page.getByRole('tree')).toHaveCount(1);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

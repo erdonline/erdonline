@@ -1,8 +1,9 @@
 import React, { useCallback, useMemo } from 'react';
-import { Dropdown, Menu, Tabs, TabsProps, message, Typography, Tooltip } from 'antd';
+import { Dropdown, Menu, Tabs, TabsProps, Typography, Tooltip } from 'antd';
 import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { CommonTabsProps } from './interface';
 import { CloseOutlined, LeftOutlined, RightOutlined, CloseCircleOutlined, EllipsisOutlined } from '@ant-design/icons';
+import './index.less';
 
 const { TabPane } = Tabs;
 const { Text } = Typography;
@@ -117,18 +118,22 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
     }, [handleTabClose]);
 
     return (
-        <Tabs
-            type="editable-card"
-            hideAdd
-            onEdit={handleEdit}
-            activeKey={activeKey}
-            onChange={onTabChange}
-            renderTabBar={renderTabBar}
-            tabBarGutter={-1}
-            moreIcon={<Tooltip title="更多标签页"><EllipsisOutlined /></Tooltip>}
-        >
-            {tabPanes}
-        </Tabs>
+        <div className="erd-common-tabs" style={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+            <Tabs
+                type="editable-card"
+                hideAdd
+                onEdit={handleEdit}
+                activeKey={activeKey}
+                onChange={onTabChange}
+                renderTabBar={renderTabBar}
+                tabBarGutter={-1}
+                className="erd-common-tabs__tabs"
+                style={{ height: '100%' }}
+                moreIcon={<Tooltip title="更多标签页"><EllipsisOutlined /></Tooltip>}
+            >
+                {tabPanes}
+            </Tabs>
+        </div>
     );
 };
 

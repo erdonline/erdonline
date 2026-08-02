@@ -1,0 +1,35 @@
+/* 设计器壳：tabs 栏 40px，内容区 flex 填满 */
+.erd-common-tabs {
+  .erd-common-tabs__tabs {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .ant-tabs-nav {
+    height: 40px;
+    margin: 0 !important;
+    flex-shrink: 0;
+  }
+
+  .ant-tabs-nav-wrap,
+  .ant-tabs-nav-list {
+    height: 40px;
+  }
+
+  .ant-tabs-tab {
+    padding: 8px 12px !important;
+    line-height: 24px;
+  }
+
+  .ant-tabs-content-holder {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+  }
+
+  .ant-tabs-content,
+  .ant-tabs-tabpane {
+    height: 100%;
+  }
+}
