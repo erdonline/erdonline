@@ -51,7 +51,8 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
     const values = await form.validateFields();
     const tag = joinVersionTags(values.tags);
     if (tag && tag.length > 255) {
-      return Promise.reject(new Error('标签总长度不能大于 255 个字符'));
+      // 受控 open：不关窗；勿 reject（webpack overlay 会挡后续操作）
+      return;
     }
     const ok = await versionDispatch.saveNewVersion({
       version: values.version,
@@ -60,7 +61,7 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
     });
     if (ok === false) {
       // 拒绝关闭（对齐 ModalForm onFinish 返回 false）；受控 open 须自行关
-      return Promise.reject(new Error('save failed'));
+      return;
     }
     setOpen(false);
   };
@@ -131,6 +132,7 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
               placeholder="可选，回车添加多个标签"
               data-testid="version-tag-input"
               aria-label="版本标签"
+              notFoundContent={null}
             />
           </Form.Item>
         </Form>
