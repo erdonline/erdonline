@@ -19,6 +19,7 @@
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」
+- [x] dataTypeDomains 树图标 fill ≡ `erdColors.brand`（禁裸 `#DE2910`；UI 入口暂未挂载）✅`dataTypeDomainsSlice.test.ts`
 - [x] 设置页 chrome 密度：标题 ≤14 / 输入·保存钮 ≤32 / 表单项 mb ≤16；截图 `diagram-setting-page-dense.png` ✅`default-field.spec.ts`
 - [x] 数据库配置页密度：标题 ≤14 / 工具条钮 ≤32 / 抽屉输入·保存钮 ≤32；截图 `database-config-page-dense.png` ✅`database-config.spec.ts`
 - [x] 账号设置 / Home 项目卡密度：标题 ≤14 / 输入·保存钮 ≤32 / 安全行 padY ≤16；卡 padY ≤28；截图 `account-settings-page-dense.png` / `home-project-cards-dense.png` ✅`account-settings` + `layout-outlet`

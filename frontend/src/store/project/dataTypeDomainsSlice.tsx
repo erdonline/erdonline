@@ -4,6 +4,10 @@ import produce from 'immer';
 import { message } from 'antd';
 import { Data, DatabasePoint, DataNull, DataUser } from '@icon-park/react';
 import * as cache from '@/utils/cache';
+import { erdColors } from '@/theme/tokens';
+
+/** 与 DesignLayout / Home·Group `brandFill` 同源；禁组件内硬编码 #DE2910 */
+const brandFill = erdColors.brand;
 
 function uniqueWithSuffix(
   base: string,
@@ -134,7 +138,7 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
       return {
         type: 'dataType',
         code: datatype.code,
-        icon: <DataNull theme="filled" size="13" fill="#DE2910" strokeWidth={2}/>,
+        icon: <DataNull theme="filled" size="13" fill={brandFill} strokeWidth={2}/>,
         title: datatype.name,
         isLeaf: true,
         key: `datatype${datatype.name}`,
@@ -144,7 +148,7 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
       return {
         type: 'database',
         code: database.code,
-        icon: <DatabasePoint theme="filled" size="13" fill="#DE2910" strokeWidth={2}/>,
+        icon: <DatabasePoint theme="filled" size="13" fill={brandFill} strokeWidth={2}/>,
         title: database.code,
         isLeaf: true,
         key: `database${database.code}`,
@@ -154,7 +158,7 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
     return [{
       type: 'dataType',
       title: '数据字典',
-      icon: <DataUser theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+      icon: <DataUser theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       code: '###menu###',
       isLeaf: false,
       key: `datatype###datatype`,
@@ -163,7 +167,7 @@ const DataTypeDomainsSlice = (set: SetState<ProjectState>, get: GetState<Project
       type: 'database',
       code: '###menu###',
       title: '数据模板',
-      icon: <Data theme="filled" size="13" fill="#DE2910" strokeWidth={2}/>,
+      icon: <Data theme="filled" size="13" fill={brandFill} strokeWidth={2}/>,
       isLeaf: false,
       key: `database###database`,
       children: databases

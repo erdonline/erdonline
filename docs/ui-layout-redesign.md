@@ -109,6 +109,7 @@
 - 目标：antd `Tabs`（左侧 vertical：基本资料 / 修改密码）+ `Form layout="vertical"`；头像上传沿用；摘全部 ProForm；删除「地理/电话」等无后端字段（先 grep 确认无引用）
 - ✅ **授权类型密度对齐**（2026-08-03）：`identification` 去裸 `Result` / `#DE2910`；密度状态面板（13/22 + `--erd-brand`）；`account-settings-identification`
 - ✅ **Export / Home·Group 图标 token**（2026-08-03）：`ExportCommon` 图标 `currentColor`→`--erd-brand`；Home/Group `_defaultProps` 对齐 DesignLayout `erdColors.brand`
+- ✅ **dataTypeDomains 树图标 token**（2026-08-03）：`getDataTypeTree` `brandFill = erdColors.brand`；禁裸 `#DE2910`
 
 ### 分享 share（品牌壳-lite · W5）
 
