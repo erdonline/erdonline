@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：空态面板再收（ADR-0016）
+
+- 选题：空态面板再收 vs 命令面板密度 → 选前者（首印象/截图构图；命令面板后置）
+- `.erd-empty-cta`：padding 14/18/12、max-width 300、radius token；标题 14 / 描述 12；主次按钮 height 26 / font 12；顶距 `min(10vh, 88)`
+- `ErdEmptyDiagram` compact 168→132；禁 28/32 松卡片盖首屏
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 体验：画布工具栏再收（ADR-0016）
 
 - `.erd-canvas-tool`：height 22 / font 11 / padding `0 8`；gap 4；与 Controls/Frame chrome 同阶
