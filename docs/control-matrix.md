@@ -136,7 +136,7 @@
 
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
-| `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | 🚧 | 待「假库/文件→模型可见」 |
+| `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | ✅ | `import-reverse.spec`（MySQL `reverse_demo`） |
 | `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
 | `/design/table/import/erd` | 上传 ERD | 模型可见 | | ✅ | `import-erd.spec` |
 | `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | W6 已删 |
@@ -197,8 +197,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 57 |
-| 🚧 | 35 |
+| ✅ | 58 |
+| 🚧 | 34 |
 | 🗑 | 7 |
 | 📋 | 2 |
 | **合计** | **101** |

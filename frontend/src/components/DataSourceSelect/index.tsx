@@ -64,14 +64,17 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
     onChange?.(undefined);
   };
 
-  const handleChange = (selectedValue: any) => {
+  const handleChange = (selectedValue: { value?: string; label?: string } | undefined) => {
     onChange?.(selectedValue);
-    if (selectedValue && selectedValue.value) {
-      const selectedDb = dataSources.find((db: any) => db.name === selectedValue.value);
+    if (selectedValue?.value) {
+      const selectedDb = dataSources.find(
+        (db: { key?: string; name?: string }) =>
+          db.key === selectedValue.value || db.name === selectedValue.value,
+      );
       if (selectedDb) {
         onDbChange?.(selectedDb);
       } else {
-        message.error('无法找到选中的数据源信息1');
+        message.error('无法找到选中的数据源信息');
       }
     }
   };
@@ -94,8 +97,8 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
     >
       {Object.entries(groupedDataSources).map(([group, databases]) => (
         <OptGroup key={group} label={group}>
-          {databases.map((db: any) => (
-            <Option key={db.id} value={db.id}>{db.name}</Option>
+          {databases.map((db: { key: string; name: string }) => (
+            <Option key={db.key} value={db.key}>{db.name}</Option>
           ))}
         </OptGroup>
       ))}

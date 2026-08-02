@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W5 逆向解析提交闭环（2026-08-02）
+
+### 修复
+- `DataSourceSelect`：Option/`onChange` 按 `key`（dataSource id）匹配，修复侧栏逆向页选库后 `onDbChange` 失效
+  验证点：`import-reverse.spec` 侧栏页自动选中 `reverse_demo` 数据源并解析出表
+
+### 测试
+- 新增 `import-reverse.spec.ts`：POST dataSources → `/design/table/import/reverse` → 选 `t_user`/`t_order` → 等待 autosave → 模型树可见「逆向解析_MYSQL」
+  验证点：`npx playwright test tests/e2e/import-reverse.spec.ts --project=chromium`（1 passed；依赖 Colima MySQL `reverse_demo`）
+
+### 文档
+- `docs/control-matrix.md`：`/design/table/import/reverse` → ✅；`docs/roadmap.md` P2b 长尾标注逆向已收
+
 ## [Unreleased] — W4 对比版本矩阵收口（2026-08-02）
 
 ### 文档
