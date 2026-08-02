@@ -8,6 +8,25 @@
 
 ### 2026-08-02
 
+#### 战略 + 功能：ADR-0016「敢分享的美图」+ 关系图表节点品牌视觉
+
+**决策 / 文档**
+
+- ADR-0016：ICP 混合 — 主体验注=图颜值+三壳同语言；能力轨=维护版本保存/分享/presence；本季禁版本分支/双向 sync/MCP 产品码；证伪 sync 主注与「UI 是 P2」
+- `agent-loop-vision` / `agent-loop-ux`：双轨等权、禁止开放式问方向、禁止碎活凑数
+- `vision.md`：设计器是主战场之一；`design-principles` 增原则 7；roadmap 对齐 ADR-0016
+
+**功能（切片 A）**
+
+- 关系图 / 分享只读画布：表节点、边、背景、空态 CTA、工具条改走 `--erd-*` / `erdColors`（去掉默认蓝主色）；选中 brand 描边；边 ink600
+- 修复 PK 空态徽章悬停不显示（选择器曾误嵌在 `.erd-field-name` 内）
+
+**测试**
+
+- `relation.spec`：表节点标题色 = ink900、画布底 = surfaceSunk；截图 `ux-walkthrough/diagram-shareable-tokens.png`
+
+验证点：`npx playwright test --grep "表节点视觉：品牌 token" --project=chromium --workers=1` → 绿；`rg '#4096ff|#1d39c4' frontend/src/pages/design/relation/reactflow-relation.scss` = 0
+
 #### 功能：设计器项目 ▾ 最近项目切换
 
 **功能**

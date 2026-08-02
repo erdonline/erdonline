@@ -180,6 +180,48 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016：画布主色走品牌 ink，禁默认蓝
+  test('表节点视觉：品牌 token', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('viz');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'viz', 'shareable diagram tokens');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const titleColor = await node.locator('.erd-table-title').evaluate(
+        (el) => getComputedStyle(el).color,
+      );
+      // ink900 #0B1C2C
+      expect(titleColor).toBe('rgb(11, 28, 44)');
+
+      const canvasBg = await page.getByTestId('reactflow-canvas').evaluate(
+        (el) => getComputedStyle(el).backgroundColor,
+      );
+      // surfaceSunk #FAFBFC
+      expect(canvasBg).toBe('rgb(250, 251, 252)');
+
+      await node.click();
+      const border = await node.locator('.erd-table-node').evaluate(
+        (el) => getComputedStyle(el).borderColor,
+      );
+      // brand #DE2910
+      expect(border).toContain('rgb(222, 41, 16)');
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-shareable-tokens.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('save-status：aria-live 播报自动保存状态', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('savestatus');

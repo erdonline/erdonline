@@ -20,3 +20,4 @@
 | [0013](./0013-public-api-mcp.md) | 公开 API / MCP（鉴权·限流·scope） | 📋 已规划 |
 | [0014](./0014-drop-or-strangle-ant-pro.md) | @ant-design/pro-components Strangler 摘除（依赖已移除） | ✅ 已落地 · B |
 | [0015](./0015-tomcat-max-http-header-size.md) | Boot 3 提高 `max-http-request-header-size`（JWT 头溢出→HTML 400） | 已接受 |
+| [0016](./0016-experience-first-shareable-diagram.md) | 体验优先：「敢分享的美图」主线（ICP 混合） | 已接受 |

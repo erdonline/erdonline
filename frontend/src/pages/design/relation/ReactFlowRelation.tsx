@@ -21,6 +21,7 @@ import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
+import { erdColors } from '@/theme/tokens';
 import { message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
@@ -72,7 +73,8 @@ function associationsToEdges(associations: Association[]): Edge[] {
       target: a.to!.entity!,
       targetHandle: `${a.to!.field}-tgt`,
       label: a.relation || '',
-      labelStyle: { fontSize: 10 },
+      labelStyle: { fontSize: 10, fill: erdColors.ink400 },
+      style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
       animated: false,
       interactionWidth: EDGE_INTERACTION_WIDTH,
     }));
@@ -788,7 +790,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         defaultEdgeOptions={{ interactionWidth: EDGE_INTERACTION_WIDTH }}
         proOptions={{ hideAttribution: true }}
       >
-        <Background gap={16} size={1} />
+        <Background gap={20} size={1} color={erdColors.line} />
         <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
         <MiniMap pannable zoomable ariaLabel="画布缩略图" />
         <CollabCursors />

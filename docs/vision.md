@@ -45,6 +45,8 @@ Star 数是滞后的虚荣指标；这个指标才是产品真实生命力。辅
 
 见 [design-principles.md](./design-principles.md)。所有交互改动必须过这六条原则的检查。
 
+**设计器是主战场之一**（与 Home / 落地同为壳层）：关系图本身的可读与「敢分享」美学、自动布局质量，与版本/协作能力并列为产品杠杆；本季投注权重见 [ADR-0016](./adr/0016-experience-first-shareable-diagram.md)。
+
 ## 技术路线要点
 
 - 设计器画布迁移至 **ReactFlow**（Strangler 策略，新旧并行后切换）

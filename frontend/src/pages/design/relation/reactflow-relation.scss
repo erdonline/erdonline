@@ -1,18 +1,37 @@
-// ReactFlow 画布与表节点样式（设计原则：节点即文档——字段信息一眼读完）
+// ReactFlow 画布与表节点（ADR-0016：敢分享的美图；颜色只认 --erd-* tokens）
 .erd-reactflow-container {
   width: 100%;
-  // CommonTabs 内容区已 flex 填满（W2）；height:100% 链不再塌成 0
   height: 100%;
   min-height: 0;
-  background: #fafafa;
+  background: var(--erd-surface-sunk);
+  font-family: var(--erd-font-ui);
+
+  .react-flow__background {
+    background: var(--erd-surface-sunk) !important;
+  }
+
+  .react-flow__edge-path {
+    stroke: var(--erd-ink-600);
+    stroke-width: 1.5;
+  }
+
+  .react-flow__edge.selected .react-flow__edge-path {
+    stroke: var(--erd-brand);
+    stroke-width: 2;
+  }
+
+  .react-flow__edge-text {
+    fill: var(--erd-ink-400) !important;
+    font-size: 10px !important;
+    font-family: var(--erd-font-ui);
+  }
 
   .react-flow__handle {
-    // 12px + 透明扩大热区：8px 过小导致拖连线命中率低（E2E/真人都会失手）
+    // 12px + 透明扩大热区：8px 过小导致拖连线命中率低
     width: 12px;
     height: 12px;
-    background: #c0c4cc;
-    border: 1.5px solid #fff;
-    // 常显弱可见：opacity:0 时部分浏览器命中异常；悬停再强化
+    background: var(--erd-ink-400);
+    border: 1.5px solid var(--erd-surface);
     opacity: 0.45;
     transition: opacity 0.15s, background 0.15s;
     z-index: 10;
@@ -27,54 +46,59 @@
   .erd-table-node:hover .react-flow__handle,
   .react-flow__handle.connecting {
     opacity: 1;
-    background: #4096ff;
+    background: var(--erd-brand);
   }
 }
 
 .erd-table-node {
-  min-width: 220px;
-  background: #fff;
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
-  // 不可 overflow:hidden：字段手柄半探出节点边缘，裁剪会使其不可点
+  min-width: 228px;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
+  box-shadow: 0 1px 2px rgba(11, 28, 44, 0.04), 0 4px 12px rgba(11, 28, 44, 0.06);
+  // 不可 overflow:hidden：字段手柄半探出节点边缘
   overflow: visible;
   font-size: 12px;
+  font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
 
   &.selected {
-    border-color: #4096ff;
-    box-shadow: 0 0 0 2px rgba(64, 150, 255, 0.2);
+    border-color: var(--erd-brand);
+    box-shadow: 0 0 0 2px rgba(222, 41, 16, 0.18), 0 4px 14px rgba(11, 28, 44, 0.08);
   }
 
   .erd-table-header {
     display: flex;
     align-items: baseline;
     gap: 8px;
-    padding: 8px 12px;
-    background: linear-gradient(180deg, #f0f5ff 0%, #e6f0ff 100%);
-    border-bottom: 1px solid #dbe6fb;
-    border-radius: 8px 8px 0 0;
+    padding: 9px 12px;
+    background: linear-gradient(180deg, #f3f5f7 0%, var(--erd-surface-sunk) 100%);
+    border-bottom: 1px solid var(--erd-line);
+    border-radius: var(--erd-radius) var(--erd-radius) 0 0;
 
     .erd-table-title {
       font-weight: 600;
       font-size: 13px;
-      color: #1d39c4;
+      letter-spacing: 0.01em;
+      color: var(--erd-ink-900);
     }
 
     .erd-table-chnname {
-      color: #7a88a8;
+      color: var(--erd-ink-400);
       font-size: 11px;
+      font-weight: 400;
     }
 
     .erd-header-input {
       width: 100%;
       height: 24px;
       padding: 0 6px;
-      border: 1px solid #4096ff;
-      border-radius: 4px;
+      border: 1px solid var(--erd-brand);
+      border-radius: var(--erd-radius-sm);
       font-size: 13px;
       font-weight: 600;
-      color: #1d39c4;
+      font-family: var(--erd-font-ui);
+      color: var(--erd-ink-900);
       outline: none;
     }
 
@@ -83,20 +107,20 @@
       padding: 0 4px;
       border: none;
       background: transparent;
-      color: #b0b8c4;
+      color: var(--erd-ink-400);
       font-size: 12px;
       cursor: pointer;
       line-height: 1;
 
       &:hover {
-        color: #4096ff;
+        color: var(--erd-brand);
       }
     }
   }
 
   .erd-table-fields {
     padding: 4px 0;
-    border-radius: 0 0 8px 8px;
+    border-radius: 0 0 var(--erd-radius) var(--erd-radius);
 
     .erd-field-row {
       position: relative;
@@ -107,14 +131,15 @@
       line-height: 20px;
 
       &:hover {
-        background: #f5f8ff;
+        background: rgba(11, 28, 44, 0.03);
       }
 
       .erd-field-name {
         display: flex;
         align-items: center;
         gap: 6px;
-        color: #303133;
+        color: var(--erd-ink-900);
+        font-variant-numeric: tabular-nums;
 
         .erd-pk-badge {
           appearance: none;
@@ -127,35 +152,36 @@
           cursor: pointer;
 
           &.active {
-            color: #d48806;
+            color: var(--erd-warning);
             background: #fff7e6;
             border: 1px solid #ffe58f;
           }
 
           &.inactive {
-            color: #c0c4cc;
-            background: #f5f5f5;
-            border: 1px solid #e8e8e8;
+            color: var(--erd-ink-400);
+            background: var(--erd-surface-sunk);
+            border: 1px solid var(--erd-line);
             opacity: 0;
           }
         }
 
-        .erd-field-row:hover .erd-pk-badge.inactive {
-          opacity: 1;
-        }
-
         .erd-field-chnname {
-          color: #98a2b3;
+          color: var(--erd-ink-400);
         }
+      }
+
+      // PK 空态：悬停行才显（须挂在 .erd-field-row 下，勿嵌进 .erd-field-name）
+      &:hover .erd-pk-badge.inactive {
+        opacity: 1;
       }
 
       .erd-field-type {
-        color: #98a2b3;
+        color: var(--erd-ink-400);
         font-size: 11px;
         margin-left: 16px;
+        font-variant-numeric: tabular-nums;
       }
 
-      // 字段行上的连接点贴边定位
       .erd-field-handle {
         top: 50%;
         transform: translateY(-50%);
@@ -172,12 +198,10 @@
 
     .erd-field-empty {
       padding: 8px 12px;
-      color: #b6bcc8;
+      color: var(--erd-ink-400);
       text-align: center;
     }
 
-    // 字段删除：悬停行才出现的轻量 ×（低破坏操作免确认，与电子表格工具一致）
-    // z-index 高于右侧 Handle，避免 RF 连接点吞点击
     .erd-field-delete {
       appearance: none;
       font-family: inherit;
@@ -194,7 +218,7 @@
       height: 16px;
       line-height: 14px;
       text-align: center;
-      color: #c0c4cc;
+      color: var(--erd-ink-400);
       border-radius: 3px;
       cursor: pointer;
       opacity: 0;
@@ -202,8 +226,8 @@
       pointer-events: none;
 
       &:hover {
-        color: #f5222d;
-        background: #fff1f0;
+        color: var(--erd-brand);
+        background: rgba(222, 41, 16, 0.08);
       }
     }
 
@@ -212,7 +236,6 @@
       pointer-events: auto;
     }
 
-    // 行内编辑态
     .erd-field-editing {
       gap: 6px;
 
@@ -221,7 +244,7 @@
         align-items: center;
         gap: 3px;
         font-size: 11px;
-        color: #d48806;
+        color: var(--erd-warning);
         white-space: nowrap;
         cursor: pointer;
       }
@@ -231,44 +254,44 @@
         min-width: 0;
         height: 22px;
         padding: 0 6px;
-        border: 1px solid #4096ff;
-        border-radius: 4px;
+        border: 1px solid var(--erd-brand);
+        border-radius: var(--erd-radius-sm);
         font-size: 12px;
+        font-family: var(--erd-font-ui);
         outline: none;
       }
 
       .erd-field-type-select {
         height: 22px;
-        border: 1px solid #d9d9d9;
-        border-radius: 4px;
+        border: 1px solid var(--erd-line);
+        border-radius: var(--erd-radius-sm);
         font-size: 12px;
-        color: #606266;
-        background: #fff;
+        color: var(--erd-ink-600);
+        background: var(--erd-surface);
+        font-family: var(--erd-font-ui);
       }
     }
 
-    // 添加字段入口：常驻弱提示，悬停强化（空表也有明确下一步）
     .erd-field-add {
       margin: 4px 8px 6px;
       padding: 4px 0;
       text-align: center;
-      color: #98a2b3;
+      color: var(--erd-ink-400);
       font-size: 12px;
-      border: 1px dashed #e4e7ed;
-      border-radius: 4px;
+      border: 1px dashed var(--erd-line);
+      border-radius: var(--erd-radius-sm);
       cursor: pointer;
-      transition: all 0.15s;
+      transition: color 0.15s, border-color 0.15s, background 0.15s;
 
       &:hover {
-        color: #4096ff;
-        border-color: #4096ff;
-        background: #f5f8ff;
+        color: var(--erd-brand);
+        border-color: var(--erd-brand);
+        background: rgba(222, 41, 16, 0.04);
       }
     }
   }
 }
 
-// 画布工具条（撤销/重做/自动布局）
 .erd-canvas-toolbar {
   display: flex;
   flex-wrap: wrap;
@@ -282,58 +305,60 @@
   display: inline-flex;
   gap: 4px;
   padding-left: 6px;
-  border-left: 1px solid #e4e7ed;
+  border-left: 1px solid var(--erd-line);
 }
 
 .erd-canvas-tool {
   padding: 5px 12px;
-  background: #fff;
-  border: 1px solid #d9d9d9;
-  border-radius: 6px;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius-sm);
   font-size: 12px;
-  color: #303133;
+  font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
   cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 3px rgba(11, 28, 44, 0.06);
 
   &:hover {
-    color: #4096ff;
-    border-color: #4096ff;
+    color: var(--erd-brand);
+    border-color: var(--erd-brand);
   }
 }
 
-// 空态引导（P2 摩擦修复：静态插图 → 可操作引导）
 .erd-empty-cta {
   margin-top: 120px;
   padding: 28px 40px;
   text-align: center;
-  background: #fff;
-  border: 1px solid #e4e7ed;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 16px rgba(11, 28, 44, 0.08);
+  font-family: var(--erd-font-ui);
 
   .erd-empty-title {
     font-size: 15px;
     font-weight: 600;
-    color: #303133;
+    color: var(--erd-ink-900);
   }
 
   .erd-empty-desc {
     margin: 6px 0 16px;
     font-size: 12px;
-    color: #98a2b3;
+    color: var(--erd-ink-400);
   }
 
   .erd-empty-button {
     padding: 8px 20px;
-    background: #4096ff;
+    background: var(--erd-brand);
     color: #fff;
     border: none;
-    border-radius: 6px;
+    border-radius: var(--erd-radius-sm);
     font-size: 13px;
+    font-family: var(--erd-font-ui);
     cursor: pointer;
 
     &:hover {
-      background: #1677ff;
+      background: var(--erd-brand-hover);
     }
   }
 }
