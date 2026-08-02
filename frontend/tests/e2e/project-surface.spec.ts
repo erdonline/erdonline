@@ -21,10 +21,30 @@ test.describe('项目面闭环', () => {
     });
   });
 
+  test('Home hero：继续上次建模直达设计器', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('home-continue');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createPersonProject(page, projectName, 'home-continue', 'continue CTA');
+
+      await page.goto('/home');
+      const continueBtn = page.getByRole('button', { name: '继续上次建模' });
+      await expect(continueBtn).toBeVisible({ timeout: 15_000 });
+      await expect(continueBtn).toBeEnabled({ timeout: 15_000 });
+      await continueBtn.click();
+      await expect(page).toHaveURL(/\/design\/table\/model\?projectId=/, { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('首页快捷链：个人/最近/团队可达', async ({ page }) => {
     await login(page);
     await page.goto('/home');
     await expect(page.getByTestId('home-link-new-project')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('button', { name: '继续上次建模' })).toBeVisible();
 
     await clickAndExpectUrl(
       page,

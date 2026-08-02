@@ -1,20 +1,14 @@
-// 定义颜色变量
-@primary-color: #1890ff;
-@primary-1: #e6f7ff;
-@text-color: rgba(0, 0, 0, 0.85);
-@text-color-secondary: rgba(0, 0, 0, 0.45);
-
 .quickLink {
   display: flex;
   align-items: center;
   padding: 12px;
-  border-radius: 6px;
-  transition: all 0.3s;
+  border-radius: var(--erd-radius-sm, 6px);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
   height: 100%;
 
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 16px rgba(11, 28, 44, 0.1);
   }
 
   .iconWrapper {
@@ -23,7 +17,7 @@
     justify-content: center;
     width: 36px;
     height: 36px;
-    border-radius: 8px;
+    border-radius: var(--erd-radius, 8px);
     margin-right: 12px;
     font-size: 18px;
   }
@@ -39,63 +33,60 @@
   }
 
   &.primary {
-    background-color: #e6f7ff;
-    color: #1890ff;
+    background-color: rgba(222, 41, 16, 0.08);
+    color: var(--erd-brand);
     .iconWrapper {
-      background-color: #1890ff;
+      background-color: var(--erd-brand);
       color: #fff;
     }
   }
 
   &.secondary {
-    background-color: #f0f2f5;
-    color: rgba(0, 0, 0, 0.85);
+    background-color: var(--erd-surface-sunk);
+    color: var(--erd-ink-900);
     .iconWrapper {
-      background-color: #d9d9d9;
-      color: rgba(0, 0, 0, 0.85);
+      background-color: var(--erd-line);
+      color: var(--erd-ink-600);
     }
   }
 
   &.success {
-    background-color: #f6ffed;
-    color: #52c41a;
+    background-color: rgba(47, 143, 123, 0.1);
+    color: var(--erd-success);
     .iconWrapper {
-      background-color: #52c41a;
+      background-color: var(--erd-success);
       color: #fff;
     }
   }
 
   &.warning {
-    background-color: #fffbe6;
-    color: #faad14;
+    background-color: rgba(212, 136, 6, 0.1);
+    color: var(--erd-warning);
     .iconWrapper {
-      background-color: #faad14;
+      background-color: var(--erd-warning);
       color: #fff;
     }
   }
 
   &.danger {
-    background-color: #fff1f0;
-    color: #f5222d;
+    background-color: rgba(222, 41, 16, 0.08);
+    color: var(--erd-brand);
     .iconWrapper {
-      background-color: #f5222d;
+      background-color: var(--erd-brand);
       color: #fff;
     }
   }
 
   &.premium {
-    background: linear-gradient(135deg, #FFD700, #FFA500);
-    color: #fff;
+    background-color: var(--erd-surface-sunk);
+    color: var(--erd-ink-900);
+    border: 1px solid var(--erd-line);
     .iconWrapper {
-      background-color: rgba(255, 255, 255, 0.2);
+      background-color: var(--erd-ink-400);
       color: #fff;
     }
     .linkTitle {
       font-weight: 600;
-    }
-    &:hover {
-      transform: translateY(-2px) scale(1.02);
-      box-shadow: 0 4px 12px rgba(255, 165, 0, 0.2);
     }
   }
 }

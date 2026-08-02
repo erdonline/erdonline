@@ -255,6 +255,11 @@
 - [x] [基本设置保存成功 toast] API 建团队项目→/project/group/setting/basic →改项目名→提 交→「修改成功」✅ `group-basic-setting.spec.ts`
 - [x] [基本设置保存失败 toast] mock update 非 200 →「修改失败」✅同上
 
+## Home S2 hero CTA（2026-08-02）
+
+- [x] [继续上次建模] 有最近项目时 Home 主按钮可达 → 直达 `/design/table/model?projectId=` ✅ `project-surface.spec.ts`
+- [x] [彩虹色清零] `pages/home` 无 `#1890ff/#52c41a/#faad14` ✅rg
+
 ## W5 404/403（2026-08-02）
 
 - [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `not-found.spec.ts`
