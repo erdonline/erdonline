@@ -230,6 +230,40 @@ test.describe('在线演示', () => {
     expect(fieldScan!.typeAlign).toBe('right');
     expect(fieldScan!.typeOpacity).toBeLessThan(1);
     expect(fieldScan!.typeMinW).toBeGreaterThanOrEqual(40);
+    // ADR-0016：分享只读同 SCSS — PK/FK 徽章角色标列扫读
+    const sharePk = shareUser.locator('[data-field="id"] .erd-pk-badge.active');
+    await expect(sharePk).toBeVisible();
+    const sharePkLook = await sharePk.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        fontSize: parseFloat(s.fontSize),
+        fontWeight: parseInt(s.fontWeight, 10),
+        minW: parseFloat(s.minWidth),
+        color: s.color,
+      };
+    });
+    expect(sharePkLook.fontSize).toBeGreaterThanOrEqual(10);
+    expect(sharePkLook.fontWeight).toBeGreaterThanOrEqual(700);
+    expect(sharePkLook.minW).toBeGreaterThanOrEqual(22);
+    expect(sharePkLook.color).toBe('rgb(212, 136, 6)'); // warning
+    const shareFkRow = page
+      .getByTestId('share-relation-canvas')
+      .getByTestId('rf__node-sys_user_role')
+      .locator('[data-field="user_id"]');
+    await expect(shareFkRow.locator('.erd-fk-badge')).toBeVisible();
+    const shareFkLook = await shareFkRow.locator('.erd-fk-badge').evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        fontSize: parseFloat(s.fontSize),
+        fontWeight: parseInt(s.fontWeight, 10),
+        minW: parseFloat(s.minWidth),
+        color: s.color,
+      };
+    });
+    expect(shareFkLook.fontSize).toBe(sharePkLook.fontSize);
+    expect(shareFkLook.fontWeight).toBeGreaterThanOrEqual(700);
+    expect(shareFkLook.minW).toBeGreaterThanOrEqual(22);
+    expect(shareFkLook.color).toBe('rgb(47, 143, 123)'); // success
     // ADR-0016：默认关系线权重/对比（分享可读；ink900 + ≥2px）
     const shareEdgePath = page
       .getByTestId('share-relation-canvas')
@@ -251,6 +285,9 @@ test.describe('在线演示', () => {
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-field-scanability.png',
+    });
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-pk-fk-badge-hierarchy.png',
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',

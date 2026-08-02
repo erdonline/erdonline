@@ -84,11 +84,14 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
                 f.pk ? 'erd-field-pk' : '',
                 fkSet.has(f.name) ? 'erd-field-fk' : '',
               ].filter(Boolean).join(' ')}
+              data-field={f.name}
             >
               <Handle type="source" id={`${f.name}-src-l`} position={Position.Left} className="erd-field-handle erd-handle-src"/>
               <Handle type="target" id={`${f.name}-tgt-l`} position={Position.Left} className="erd-field-handle erd-handle-tgt"/>
               <span className="erd-field-name">
-                {f.pk ? <span className="erd-pk-badge active">PK</span> : null}
+                {f.pk ? (
+                  <span className="erd-pk-badge active" title="主键" aria-label="主键">PK</span>
+                ) : null}
                 {fkSet.has(f.name) ? (
                   <span className="erd-fk-badge" title="外键" aria-label="外键">FK</span>
                 ) : null}
