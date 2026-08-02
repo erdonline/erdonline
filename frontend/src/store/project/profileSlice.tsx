@@ -56,6 +56,9 @@ export interface IProfileDispatchSlice {
 }
 
 
+/** 表格编辑会连触发多次 update；合并为一次可见成功提示 */
+let defaultFieldsToastTimer: ReturnType<typeof setTimeout> | undefined;
+
 const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   addDefaultFields: (defaultFieldsIndex: number, payload: any) => set(produce(state => {
     state.project.projectJSON.profile.defaultFields[defaultFieldsIndex].push(payload);
@@ -63,9 +66,18 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   removeDefaultFields: (defaultFieldsIndex: number) => set(produce(state => {
     delete state.project.projectJSON.profile.defaultFields[defaultFieldsIndex];
   })),
-  updateDefaultFields: (payload: any) => set(produce(state => {
-    state.project.projectJSON.profile.defaultFields = payload;
-  })),
+  updateDefaultFields: (payload: any) => {
+    set(produce(state => {
+      state.project.projectJSON.profile.defaultFields = payload;
+    }));
+    if (defaultFieldsToastTimer) {
+      clearTimeout(defaultFieldsToastTimer);
+    }
+    defaultFieldsToastTimer = setTimeout(() => {
+      message.success('默认字段已更新');
+      defaultFieldsToastTimer = undefined;
+    }, 500);
+  },
 
   updateDefaultFieldsType: (payload: any) => set(produce(state => {
     state.project.projectJSON.profile.defaultFieldsType = payload;
@@ -426,17 +438,22 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const defaultDatabaseCode = get().dispatch.getDefaultDatabaseCode();
     const defaultFields = get().project?.projectJSON?.profile?.defaultFields || [];
     const datatype = get().project?.projectJSON?.dataTypeDomains?.datatype || [];
-    return defaultFields.filter((f: any) => f != null).map((d: any) => {
+    // 兼容误存成 [[fields]] 的旧数据
+    const flat = Array.isArray(defaultFields[0])
+      ? _.flatten(defaultFields)
+      : defaultFields;
+    return flat.filter((f: any) => f != null && typeof f === 'object').map((d: any) => {
       const defaultField = _.find(datatype, ['code', d.type]);
       if (defaultField) {
         return {
           ...d,
-          dataType: defaultDatabaseCode ? _.get(defaultField, `apply.${defaultDatabaseCode}.type`) : '',
-          typeName: defaultField.name || ''
+          dataType: defaultDatabaseCode ? _.get(defaultField, `apply.${defaultDatabaseCode}.type`) : d.dataType || '',
+          typeName: defaultField.name || d.typeName || ''
         };
       }
+      // 无匹配类型域时仍保留字段，避免设置页空白
+      return d;
     });
-
   },
   downloadWordTemplate: () => {
     // 获取word的目录

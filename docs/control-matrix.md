@@ -166,7 +166,7 @@
 | DesignLayout 菜单 | 查询 | → `/design/table/query` 执行有结果/错误 | | 🚧 | |
 | DesignLayout 菜单 | Chat SQL | 侧栏已隐藏；路由保留实验页 | AI 后置 | ✅ | W6 裁剪导航 |
 | `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
-| `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | 🚧 | |
+| `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | ✅ | `default-field.spec`「编辑保存有 toast」 |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 查询 CRUD/执行 | 有反馈 | Home 菜单 | 🚧 | |
 | `/account/settings` | 基本资料保存 | toast | | 🚧 | |

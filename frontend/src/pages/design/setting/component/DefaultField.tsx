@@ -92,12 +92,30 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     return t.name;
   })
 
-  const defaultJson = JSON.stringify(projectDispatch.getDefaultFields().filter((f: any) => f != null) || []);
-
-  const data = JSON.parse(defaultJson);
-
+  const rawDefaultFields = useProjectStore(
+    (s) => s.project?.projectJSON?.profile?.defaultFields,
+    shallow,
+  );
+  const data = (projectDispatch.getDefaultFields() || []).filter(
+    (f: any) => f != null && typeof f === 'object',
+  );
+  // 原始 profile 有字段但映射结果为空时，回退展示原始行，避免空白表
+  const sheetData =
+    data.length > 0
+      ? data
+      : (Array.isArray(rawDefaultFields?.[0])
+          ? (rawDefaultFields as any[]).flat()
+          : rawDefaultFields || []
+        ).filter((f: any) => f != null && typeof f === 'object');
 
   const afterChange = (payload: any) => {
+    // 禁止空表写回冲掉已有默认字段（JExcel 空态 onchange / 过滤后 []）
+    if (
+      (!payload || payload.length === 0) &&
+      (rawDefaultFields?.length || sheetData.length)
+    ) {
+      return;
+    }
     projectDispatch.updateDefaultFields(payload);
   }
 
@@ -112,9 +130,19 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     ...column2
   ];
 
-  return (
-    <JExcel data={data} columns={columns} saveData={afterChange} notEmptyColumn={['chnname', 'name', 'typeName']}/>
+  // key：项目字段就绪后再挂载表格，避免空 init 后不再刷新
+  const sheetKey = `df-${sheetData.length}-${sheetData[0]?.name || 'empty'}`;
 
+  return (
+    <div data-testid="default-field-page" data-field-count={sheetData.length}>
+      <JExcel
+        key={sheetKey}
+        data={sheetData}
+        columns={columns}
+        saveData={afterChange}
+        notEmptyColumn={['chnname', 'name', 'typeName']}
+      />
+    </div>
   )
 }
 
