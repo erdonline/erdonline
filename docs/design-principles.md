@@ -57,7 +57,7 @@
 - ✅ 表头 ink、选中 brand 描边、边 stroke 走 ink600；禁散落默认蓝 `#4096ff` 当画布主色
 - ✅ 逆向 / DBML 导入按 FK 做 dagre 分层布局（外键侧→主键侧，默认 `nodesep` 64 / `ranksep` 120），不是无关联网格散点
 - ✅ 公开 demo / 示例主图手排收紧（列间距约 44px、Frame padding 32），截图不「空旷」
-- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让）+ 箭头边；行高紧凑可截图
+- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 同通道干道 bundling）+ 箭头边；行高紧凑可截图
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度；弹窗外置；禁「大图标+副标题」卡片项；子菜单不得串台（导出≠导入）

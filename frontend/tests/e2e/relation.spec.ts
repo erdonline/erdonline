@@ -352,11 +352,69 @@ test.describe('关系图画布（ReactFlow）', () => {
       const modeEl = page.getByTestId('erd-edge-route-mode');
       await expect(modeEl).toBeAttached();
       await expect(modeEl).toHaveAttribute('data-mode', /^(default|centerX|bypass)$/);
+      await expect(modeEl).toHaveAttribute('data-bundle', /^-?\d+(\.\d+)?$/);
 
       await page.getByRole('button', { name: '适应画布' }).click();
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-edge-obstacle.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  // ADR-0016：同竖向走廊多 FK 干道 bundling（跨表对）
+  test('边路由：干道 bundling 暴露 data-bundle', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('edgebundle');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'edgebundle', 'trunk bundle lanes');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ITEM');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ITEM')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
+      await addFieldInline(page, 'T_ITEM', 'T1_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'id');
+      await connectFields(page, 'T_ITEM', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+
+      const modes = page.getByTestId('erd-edge-route-mode');
+      await expect(modes).toHaveCount(2);
+      const b0 = await modes.nth(0).getAttribute('data-bundle');
+      const b1 = await modes.nth(1).getAttribute('data-bundle');
+      expect(b0, 'bundle 应存在').toBeTruthy();
+      expect(b1, 'bundle 应存在').toBeTruthy();
+      // 两表对若落入同 midX 通道则偏移非全零且互异；否则各自 0（仍接线）
+      if (b0 !== '0' || b1 !== '0') {
+        expect(b0).not.toBe(b1);
+      }
+
+      const paths = page.locator('.react-flow__edge-path');
+      const d0 = await paths.nth(0).getAttribute('d');
+      const d1 = await paths.nth(1).getAttribute('d');
+      expect(d0).not.toBe(d1);
+
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-edge-bundle.png',
         fullPage: false,
       });
     } finally {

@@ -21,6 +21,46 @@ export const EDGE_OBSTACLE_PAD = 8;
 export const EDGE_CENTER_STEP = 20;
 /** bypass 相对障碍额外空隙 */
 export const EDGE_BYPASS_GAP = 24;
+/** 同竖向走廊多边干道 bundling 步长（px） */
+export const EDGE_BUNDLE_STEP = 12;
+/** midX 量化桶宽：落入同桶的边共享干道并分流 */
+export const EDGE_CHANNEL_QUANT = 48;
+
+/** 同通道多边 → 居中 trunk 偏移列表 */
+export function trunkBundleOffsetsForCount(
+  n: number,
+  step = EDGE_BUNDLE_STEP,
+): number[] {
+  if (n <= 1) return n === 1 ? [0] : [];
+  return Array.from({ length: n }, (_, i) => (i - (n - 1) / 2) * step);
+}
+
+export function channelKey(midX: number, quant = EDGE_CHANNEL_QUANT): number {
+  return Math.round(midX / quant);
+}
+
+/**
+ * 按 midX 通道分组，为每条边分配干道 bundle 偏移（同桶居中分流）。
+ * 纯函数，供设计器 / 单测共用。
+ */
+export function assignTrunkBundleOffsets(
+  items: Array<{ id: string; midX: number }>,
+): Map<string, number> {
+  const groups = new Map<number, string[]>();
+  for (const it of items) {
+    const k = channelKey(it.midX);
+    const list = groups.get(k);
+    if (list) list.push(it.id);
+    else groups.set(k, [it.id]);
+  }
+  const out = new Map<string, number>();
+  for (const ids of groups.values()) {
+    ids.sort();
+    const offs = trunkBundleOffsetsForCount(ids.length);
+    ids.forEach((id, i) => out.set(id, offs[i] ?? 0));
+  }
+  return out;
+}
 
 export function expandObstacle(r: ObstacleRect, pad = EDGE_OBSTACLE_PAD): ObstacleRect {
   return {
@@ -229,8 +269,35 @@ export type ErdRouteResult = {
   mode: 'default' | 'centerX' | 'bypass';
 };
 
+function pathWithCenterX(
+  sourceX: number,
+  sourceY: number,
+  targetX: number,
+  targetY: number,
+  sourcePosition: Position,
+  targetPosition: Position,
+  offset: number,
+  borderRadius: number,
+  centerX: number,
+  mode: ErdRouteResult['mode'],
+): ErdRouteResult {
+  const [path, labelX, labelY] = getSmoothStepPath({
+    sourceX,
+    sourceY,
+    targetX,
+    targetY,
+    sourcePosition,
+    targetPosition,
+    borderRadius,
+    offset,
+    centerX,
+  });
+  return { path, labelX, labelY, mode };
+}
+
 /**
  * 计算避障 smoothstep path。非对向左右手柄时退回 RF 默认。
+ * `trunkBundleOffset`：同竖向走廊多边干道分流（X 肘 / bypass 的 Y）。
  */
 export function routeErdSmoothStep(opts: {
   sourceX: number;
@@ -242,6 +309,8 @@ export function routeErdSmoothStep(opts: {
   offset: number;
   borderRadius?: number;
   obstacles?: ObstacleRect[];
+  /** 同通道干道偏移（px）；竖肘加到 centerX，绕行加到 bypassY */
+  trunkBundleOffset?: number;
 }): ErdRouteResult {
   const {
     sourceX,
@@ -253,6 +322,7 @@ export function routeErdSmoothStep(opts: {
     offset,
     borderRadius = EDGE_BORDER_RADIUS,
     obstacles: raw = [],
+    trunkBundleOffset = 0,
   } = opts;
 
   const fallback = (): ErdRouteResult => {
@@ -269,12 +339,32 @@ export function routeErdSmoothStep(opts: {
     return { path, labelX, labelY, mode: 'default' };
   };
 
-  if (!isOppositeHorizontal(sourcePosition, targetPosition) || raw.length === 0) {
+  if (!isOppositeHorizontal(sourcePosition, targetPosition)) {
     return fallback();
   }
 
+  const baseCenterX = (sourceX + targetX) / 2;
+  const defaultCenterX = baseCenterX + trunkBundleOffset;
+
+  const bundledDefault = () =>
+    pathWithCenterX(
+      sourceX,
+      sourceY,
+      targetX,
+      targetY,
+      sourcePosition,
+      targetPosition,
+      offset,
+      borderRadius,
+      defaultCenterX,
+      'default',
+    );
+
+  if (raw.length === 0) {
+    return trunkBundleOffset !== 0 ? bundledDefault() : fallback();
+  }
+
   const obstacles = raw.map((r) => expandObstacle(r));
-  const defaultCenterX = (sourceX + targetX) / 2;
   const sxDir = sourcePosition === Position.Left ? -1 : 1;
   const txDir = targetPosition === Position.Left ? -1 : 1;
   const sourceGappedX = sourceX + sxDir * offset;
@@ -294,7 +384,7 @@ export function routeErdSmoothStep(opts: {
     targetPosition,
   );
   if (!polylineHitsObstacles(defaultPts, obstacles)) {
-    return fallback();
+    return trunkBundleOffset !== 0 ? bundledDefault() : fallback();
   }
 
   // 水平走廊已被挡（同行中间表）时，平移 centerX 无效，直接 bypass
@@ -322,18 +412,18 @@ export function routeErdSmoothStep(opts: {
         targetPosition,
       );
       if (!polylineHitsObstacles(pts, obstacles)) {
-        const [path, labelX, labelY] = getSmoothStepPath({
+        return pathWithCenterX(
           sourceX,
           sourceY,
           targetX,
           targetY,
           sourcePosition,
           targetPosition,
-          borderRadius,
           offset,
-          centerX: cx,
-        });
-        return { path, labelX, labelY, mode: 'centerX' };
+          borderRadius,
+          cx,
+          'centerX',
+        );
       }
     }
   }
@@ -345,13 +435,14 @@ export function routeErdSmoothStep(opts: {
     hiX,
     obstacles,
   )) {
+    const by = bypassY + trunkBundleOffset;
     const bypassPts = bypassLRWaypoints(
       sourceX,
       sourceY,
       targetX,
       targetY,
       offset,
-      bypassY,
+      by,
       sourcePosition,
       targetPosition,
     );
@@ -362,5 +453,5 @@ export function routeErdSmoothStep(opts: {
   }
 
   // 仍撞：退回默认（极端重叠布局）
-  return fallback();
+  return trunkBundleOffset !== 0 ? bundledDefault() : fallback();
 }
