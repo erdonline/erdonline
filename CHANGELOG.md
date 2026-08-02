@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：边标签 / 基数 chip 碰撞避让（ADR-0016）
+
+- 选题：干道 bundling 步长 12 ≪ chip 宽 ~36，密图最长段中点标签叠字；crow's foot + 路由分流不够
+- `edgeLabelBundleStretch` / `edgeLabelLaneStretch` + `resolveEdgeLabelOffsets`（AABB 迭代）；`ErdRelationEdge` 应用后暴露 `erd-edge-label-nudge`
+- 单测：`relationEdges.test`；E2E：`demo.spec` 非零 nudge + 标签 AABB 零重叠；截图 `demo-edge-label-collision.png`
+
+验证点：
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：分享展开表清单行密度（ADR-0016）
 
 - 选题：表清单折叠后展开态仍用 16 pad + 14 标题 + antd 默认松行，与 22–28 / project-list 不同阶
