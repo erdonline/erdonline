@@ -50,7 +50,7 @@
   box-sizing: border-box;
 }
 
-/* 顶栏下整屏舞台：图为主平面，表清单落在折线下 */
+/* 顶栏下整屏舞台：图为主平面；底条折叠入口常驻，表清单展开后落折线下 */
 .share-page__stage {
   height: calc(100vh - var(--erd-chrome-header-h));
   display: flex;
@@ -114,15 +114,59 @@
   overflow: hidden;
 }
 
+/* 舞台底边折叠条：可见 affordance，不抢画布高度 */
+.share-page__tables-toggle {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  align-self: center;
+  margin: 8px 0 10px;
+  padding: 0 14px;
+  min-height: 28px;
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
+  background: var(--erd-surface);
+  color: var(--erd-ink-600);
+  font-family: var(--erd-font-ui);
+  font-size: 12px;
+  line-height: 1;
+  cursor: pointer;
+  transition: color 0.15s ease, background 0.15s ease, border-color 0.15s ease;
+
+  &:hover {
+    color: var(--erd-ink-900);
+    background: var(--erd-surface-muted);
+    border-color: var(--erd-ink-400);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: 2px;
+  }
+
+  &[aria-expanded='true'] {
+    margin-bottom: 0;
+    border-bottom: none;
+    border-radius: var(--erd-radius) var(--erd-radius) 0 0;
+  }
+}
+
+.share-page__tables-toggle-label {
+  font-weight: 500;
+}
+
 .share-page__tables {
-  margin: 16px auto 32px;
+  margin: 0 auto 32px;
   padding: 16px;
   width: calc(100% - 40px);
   max-width: 1200px;
   box-sizing: border-box;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
-  border-radius: var(--erd-radius);
+  border-top: none;
+  border-radius: 0 0 var(--erd-radius) var(--erd-radius);
 }
 
 .share-page__tables-title {

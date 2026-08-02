@@ -18,7 +18,9 @@ test.describe('在线演示', () => {
     const vh = await page.evaluate(() => window.innerHeight);
     expect(canvasH.h, `画布高应 >480，得 ${canvasH.h}`).toBeGreaterThan(480);
     expect(canvasH.h, `画布应占视口过半，得 ${canvasH.h}/${vh}`).toBeGreaterThan(vh * 0.5);
-    expect(canvasH.top + canvasH.h, '画布应贴近视口底').toBeGreaterThan(vh - 24);
+    // 底边折叠条常驻（~38px）；画布下缘贴条上方而非贴死视口底
+    expect(canvasH.top + canvasH.h, '画布应贴近视口底（含折叠条）').toBeGreaterThan(vh - 56);
+    await expect(page.getByRole('button', { name: /展开表清单/ })).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_permission')).toBeVisible();
@@ -176,6 +178,24 @@ test.describe('在线演示', () => {
     });
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-share-canvas-viewport.png',
+      fullPage: false,
+    });
+    // ADR-0016：只读表清单默认折叠，底条展开 affordance；展开后可见清单区
+    const tablesToggle = page.getByRole('button', { name: /展开表清单/ });
+    await expect(tablesToggle).toBeVisible();
+    await expect(tablesToggle).toHaveAttribute('aria-expanded', 'false');
+    await expect(page.getByTestId('share-tables-panel')).toHaveCount(0);
+    await tablesToggle.click();
+    await expect(page.getByRole('button', { name: '收起表清单' })).toHaveAttribute(
+      'aria-expanded',
+      'true',
+    );
+    const tablesPanel = page.getByTestId('share-tables-panel');
+    await expect(tablesPanel).toBeVisible();
+    await expect(tablesPanel.getByRole('columnheader', { name: '表' })).toBeVisible();
+    await expect(tablesPanel.getByRole('cell', { name: 'sys_user', exact: true })).toBeVisible();
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/demo-share-tables-fold.png',
       fullPage: false,
     });
   });
