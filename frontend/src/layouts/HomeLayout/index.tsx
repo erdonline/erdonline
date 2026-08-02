@@ -1,20 +1,22 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link} from "@@/exports";
-import {PageContainer, ProCard, ProLayout, ProSettings, WaterMark} from '@ant-design/pro-components';
 import {Me, TwoDimensionalCodeOne} from "@icon-park/react";
-import {Dropdown, Image, Menu, Popover, Typography, Space} from "antd";
+import {Dropdown, Image, Layout, Menu, Popover, Typography, Space, Watermark} from "antd";
+import type {MenuProps} from 'antd';
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
 import {useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import Theme from "@/components/Theme";
+import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 import businessSlogansData from './businessSlogans.json';
+import './index.less';
 
-const { Text } = Typography;
-
+const {Header, Content} = Layout;
+const {Text} = Typography;
 
 export interface HomeLayoutLayoutProps {
   children?: React.ReactNode;
@@ -74,13 +76,19 @@ export const menuHeaderDropdown = (
   </Menu>
 );
 
+type HomeRoute = {
+  path?: string;
+  name?: string;
+  icon?: React.ReactNode;
+  exact?: boolean;
+};
+
 const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   const location = useLocation();
-  const [pathname, setPathname] = useState(location.pathname);
+  const pathname = location.pathname;
   const {setInitialState} = useModel('@@initialState');
   const {tabDispatch} = useTabStore(state => ({tabDispatch: state.dispatch}));
   const [currentSlogan, setCurrentSlogan] = useState(() => {
-    // 初始化时随机选择一条话术
     return businessSlogansData.slogans[Math.floor(Math.random() * businessSlogansData.slogans.length)];
   });
 
@@ -89,100 +97,117 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     setInitialState((s: any) => ({...s, access: {}}));
   }, [])
 
-  const settings: ProSettings | undefined = {
-    "layout": "top", // Changed from "mix" to "top"
-    "navTheme": "light",
-    "contentWidth": "Fluid",
-    "fixedHeader": true,
-    // Removed "fixSiderbar" and "siderMenuType" as they're not applicable to top layout
-  };
-
   const licence = cache.getItem2object('licence');
 
   useEffect(() => {
     const intervalId = setInterval(() => {
       setCurrentSlogan(() => {
-        // 每次更新时随机选择一条新的话术
         let newSlogan;
         do {
           newSlogan = businessSlogansData.slogans[Math.floor(Math.random() * businessSlogansData.slogans.length)];
-        } while (newSlogan === currentSlogan); // 确保新选择的话术与当前的不同
+        } while (newSlogan === currentSlogan);
         return newSlogan;
       });
-    }, 10000); // 每10秒更换一次话术
+    }, 10000);
 
     return () => clearInterval(intervalId);
   }, [currentSlogan]);
 
-  return (
-    <WaterMark content={[licence?.licensedTo?licence?.licensedTo:'ERD Online', 'V5.0.0']}>
-      <ProLayout
-        logo={"/logo.svg"}
-        title={"ERD Online"}
-        {...defaultProps}
-        location={{
-          pathname,
-        }}
-        avatarProps={{
-          src: <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2}/>,
-          title: <Dropdown
-            placement="bottomRight" // Changed from "bottom" to "bottomRight"
-            arrow={{pointAtCenter: true}}
-            overlay={menuHeaderDropdown}>
-            <div
-              role="button"
-              tabIndex={0}
-              aria-label="用户菜单"
-              data-testid="user-menu-trigger"
-            >
-              {cache.getItem('username')}
-            </div>
-          </Dropdown>,
-        }}
-        actionsRender={() => {
-          // 保留公众号 + GitHub；SaveStatus / 分享 / presence 仅 DesignLayout
-          return homeRightContent;
-        }}
-        onMenuHeaderClick={() => history.push('/home')}
-        menuItemRender={(item, dom) => (
-          <Link to={item.path || '/home'}>{dom}</Link>
-        )}
-        {...settings}
-      >
-        <PageContainer
-          title={false}
-          style={{
-            height: 'calc(100vh - 70px)', // 减去头部导航的高度
-            display: 'flex',
-            flexDirection: 'column',
-            overflow: 'hidden', // 防止出现滚动条
+  const routes = (defaultProps.route.routes || []) as HomeRoute[];
 
-          }}
-        >
-          <ProCard
-            style={{
-              flex: 1,
-              display: 'flex',
-              flexDirection: 'column',
-              overflow: 'hidden', // 防止出现滚动条
+  const menuItems: MenuProps['items'] = useMemo(
+    () =>
+      routes.map((r) => {
+        const isExternal = Boolean(r.exact) || Boolean(r.path?.startsWith('http'));
+        const label = isExternal ? (
+          <a href={r.path} target="_blank" rel="noreferrer">
+            {r.name}
+          </a>
+        ) : (
+          <Link to={r.path || '/home'}>{r.name}</Link>
+        );
+        return {
+          key: r.path || String(r.name),
+          icon: r.icon,
+          label,
+        };
+      }),
+    [routes],
+  );
+
+  const selectedKey = useMemo(() => {
+    const match = routes.find(
+      (r) => r.path && !r.path.startsWith('http') && pathname.startsWith(r.path),
+    );
+    return match?.path || '/home';
+  }, [pathname, routes]);
+
+  const watermarkContent = [
+    licence?.licensedTo ? licence.licensedTo : 'ERD Online',
+    APP_VERSION_LABEL,
+  ];
+
+  return (
+    <Watermark content={watermarkContent}>
+      <Layout className="home-layout">
+        <Header className="home-layout__header">
+          <div
+            className="home-layout__brand"
+            role="link"
+            tabIndex={0}
+            aria-label="ERD Online 首页"
+            onClick={() => history.push('/home')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                history.push('/home');
+              }
             }}
           >
-            <div style={{ flex: 1, overflow: 'auto' }}>
-              <Theme />
-              {props.children}
-              <div style={{ textAlign: 'center' }}>
-                <Space split={<Text type="secondary"> | </Text>} wrap>
-                  <Text type="secondary">{currentSlogan}</Text>
-                  <Text type="secondary">© 2026 ERD Online · MIT</Text>
-                  <Text type="secondary">ERD Online</Text>
-                </Space>
+            <img src="/logo.svg" alt="" width={28} height={28} />
+            <span>ERD Online</span>
+          </div>
+          <Menu
+            mode="horizontal"
+            selectedKeys={[selectedKey]}
+            items={menuItems}
+            className="home-layout__menu"
+          />
+          <div className="home-layout__actions">
+            {homeRightContent}
+            <Dropdown
+              placement="bottomRight"
+              arrow={{pointAtCenter: true}}
+              overlay={menuHeaderDropdown}
+            >
+              <div
+                className="home-layout__user"
+                role="button"
+                tabIndex={0}
+                aria-label="用户菜单"
+                data-testid="user-menu-trigger"
+              >
+                <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2}/>
+                {cache.getItem('username')}
               </div>
+            </Dropdown>
+          </div>
+        </Header>
+        <Content className="home-layout__content">
+          <div className="home-layout__body">
+            <Theme />
+            {props.children}
+            <div className="home-layout__footer">
+              <Space split={<Text type="secondary"> | </Text>} wrap>
+                <Text type="secondary">{currentSlogan}</Text>
+                <Text type="secondary">© 2026 ERD Online · MIT</Text>
+                <Text type="secondary">ERD Online</Text>
+              </Space>
             </div>
-          </ProCard>
-
-        </PageContainer>
-      </ProLayout>
-    </WaterMark>
+          </div>
+        </Content>
+      </Layout>
+    </Watermark>
   );
 }
 
