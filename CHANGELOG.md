@@ -15,6 +15,13 @@
 - `docs/development.md` / `docs/deployment.md`：明确 `db/init`=空卷首启+应急手工；Flyway=`erd` 增量真相源；新变更优先 Flyway only，双写须一致幂等；冻结新增 `07/08/09` 风格 init 补丁
   验证点：两文含「双源」与「优先 Flyway」表述；本切片无 schema 改写
 
+#### 规则：Flyway 单写 Cursor rule
+
+**规则**
+
+- 新增 `.cursor/rules/schema-migration.mdc`（`alwaysApply: true`）：增量 schema 只写 `backend/.../db/migration/erd/`；冻结 `db/init` 新编号补丁；应急双写须与 Flyway 一致且幂等；Flyway 仅绑 erd（默认关闭防打 martin）；验证走 `./backend/dev-ensure.sh --restart`
+  验证点：规则文件存在且含「真相源」「冻结」「martin vs erd」；`docs/development.md` / `docs/deployment.md` 已含双源约定（与 a7107c9 对齐，本切片无冲突改写）
+
 
 #### 修复：落地页 hero 全幅构图 + 已登录疏导（P0/P1）
 
