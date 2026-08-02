@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 文档：Home/模型页 UI 重设计简报
+
+**文档**
+
+- 新增 `docs/ui-home-model-redesign.md`：视觉 tokens（brand `#DE2910` 归一、Syne/IBM Plex Sans 字族、4pt 网格、三级阴影）、Home IA（hero 条 + 紧凑项目网格，去彩虹统计/重复概览卡/slogan 轮转）、模型页 IA（删装饰背景图、sider 400→320、树面板「+ 新建」露出、画布 flex 高度替魔法数）、S1–S6 Strangler 分片
+- 关键决策：Home 走工作台式亮色系统（Figma-like hub），落地页保留深色品牌门面；一个系统两种曝光
+- `docs/roadmap.md` P5「UI 水位」📋→🚧 并挂简报指针
+  验证点：纯文档切片，无代码改动；简报含每片验证点与度量基线（彩虹色 grep 清零、画布 +80px、高度魔法数 1→0）
+
 #### 修复：Home 顶栏保留公众号/GitHub，排除设计器动作
 
 **修复**
