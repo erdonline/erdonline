@@ -223,7 +223,7 @@
 ## 布局壳子路由（2026-08-02）
 
 - [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`
-- [x] [HomeLayout 顶栏] `/home` 无 `save-status` / `collab-presence` /「只读分享」（设计器动作仅 DesignLayout）✅ `layout-outlet.spec.ts`
+- [x] [HomeLayout 顶栏] `/home` 无 `save-status` / `collab-presence` /「只读分享」；仍有「GitHub 仓库」与「公众号」（`homeRightContent`）✅ `layout-outlet.spec.ts`
 - [x] [GroupLayout 主内容] 登录→/project/group/setting/basic?projectId= 见「基本设置」+「项目名」且不双挂载 ✅同上
 
 ## W6 团队项目基本设置（2026-08-02）

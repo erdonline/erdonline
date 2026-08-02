@@ -3,8 +3,8 @@ import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link} from "@@/exports";
 import {PageContainer, ProCard, ProLayout, ProSettings, WaterMark} from '@ant-design/pro-components';
-import {Me} from "@icon-park/react";
-import {Dropdown, Menu, Typography, Space} from "antd";
+import {Me, TwoDimensionalCodeOne} from "@icon-park/react";
+import {Dropdown, Image, Menu, Popover, Typography, Space} from "antd";
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
 import {useModel} from "@umijs/max";
@@ -19,6 +19,34 @@ const { Text } = Typography;
 export interface HomeLayoutLayoutProps {
   children?: React.ReactNode;
 }
+
+/** Home 顶栏安全子集：公众号 + GitHub；不含 SaveStatus / 分享 / presence */
+export const homeRightContent = [
+  <Popover
+    key="mp"
+    placement="bottom"
+    title="公众号"
+    content={<Image src="/mp.jpg" />}
+    trigger="hover"
+  >
+    <span role="img" aria-label="公众号" style={{ display: 'inline-flex', cursor: 'pointer' }}>
+      <TwoDimensionalCodeOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} />
+    </span>
+  </Popover>,
+  <a
+    key="github"
+    style={{ marginTop: '-10px' }}
+    target="_blank"
+    rel="noreferrer"
+    href="https://github.com/erdonline/erdonline"
+    aria-label="GitHub 仓库"
+  >
+    <img
+      src="https://img.shields.io/github/stars/erdonline/erdonline?style=social"
+      alt="GitHub stars"
+    />
+  </a>,
+];
 
 export const menuHeaderDropdown = (
   <Menu selectedKeys={[]}>
@@ -112,8 +140,8 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           </Dropdown>,
         }}
         actionsRender={() => {
-          // Home 仅头像/用户菜单；SaveStatus / 分享 / presence 仅 DesignLayout
-          return [];
+          // 保留公众号 + GitHub；SaveStatus / 分享 / presence 仅 DesignLayout
+          return homeRightContent;
         }}
         onMenuHeaderClick={() => history.push('/home')}
         menuItemRender={(item, dom) => (
