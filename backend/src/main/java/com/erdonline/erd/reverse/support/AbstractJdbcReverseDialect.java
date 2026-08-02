@@ -6,6 +6,7 @@ import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.reverse.DefaultValueMapper;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.NameCaseAdjuster;
@@ -197,6 +198,10 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
         if (supportsAutoIncrementColumn()) {
             String autoIncrement = rs.getString("IS_AUTOINCREMENT");
             field.setAutoIncrement(autoIncrement != null && !"NO".equalsIgnoreCase(autoIncrement));
+        }
+        String defaultValue = DefaultValueMapper.normalizeJdbcColumnDef(rs.getString("COLUMN_DEF"));
+        if (defaultValue != null) {
+            field.setDefaultValue(defaultValue);
         }
         DataType domainType = touchDataType(typeName, dataType, columnSize, decimalDigits, dataModel);
         field.setType(domainType.getCode());
