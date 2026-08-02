@@ -139,6 +139,8 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub 
 ## 前端如何找到后端
 
 前端通过 `frontend/config/proxy.ts` 在开发环境把 `/api`、`/ncnb`、`/auth` 代理到 `http://localhost:9502`。
+
+JWT 含全量权限时 `Authorization` 头可达 8KB+；Boot 3 须配置 `server.max-http-request-header-size`（本仓 64KB，见 ADR-0015）。若写接口返回 **HTML 400**，先查该配置是否生效（`./backend/dev-ensure.sh --restart`），再查代理是否把 SPA HTML 误回给 `/ncnb/*`。
 后端 `GatewayPrefixStripFilter` 剥离 `/ncnb`|`/auth`|`/syst` 前缀后再进 Controller。
 生产环境通过 `public/env-config.js`（由 `.env` 生成）注入 `window._env_.API_URL`。
 

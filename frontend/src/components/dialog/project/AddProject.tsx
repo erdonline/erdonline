@@ -78,6 +78,8 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
+        okText="确定"
+        cancelText="取消"
         destroyOnClose
         width={520}
         forceRender

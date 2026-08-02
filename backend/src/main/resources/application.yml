@@ -2,8 +2,11 @@ server:
   port: 9502
   servlet:
     context-path: /
+  # Boot 3：请求头上限（非 server.tomcat.*）。JWT 含 authorities 时常 >8KB，默认拒成 HTML 400
+  max-http-request-header-size: 64KB
   tomcat:
     uri-encoding: UTF-8
+    max-http-response-header-size: 64KB
 
 spring:
   application:

@@ -98,7 +98,27 @@ request.interceptors.response.use(async (response, options) => {
   if (!response.ok) {
     return response;
   }
-  const data = await response.clone().json();
+  // 代理/historyApiFallback 偶发把 SPA HTML 当 200 返回；.json() 会炸死后续旅程
+  const contentType = response.headers.get('content-type') || '';
+  if (!contentType.includes('application/json')) {
+    const peek = (await response.clone().text()).trimStart();
+    if (peek.startsWith('<!') || peek.startsWith('<html') || peek.startsWith('<HTML')) {
+      message.error('接口返回了页面而非 JSON，请确认后端已启动且代理指向 9502');
+      const err = new Error('Non-JSON API response');
+      err.name = 'NonJsonApiError';
+      err.response = response;
+      throw err;
+    }
+  }
+  let data;
+  try {
+    data = await response.clone().json();
+  } catch (e) {
+    message.error('接口响应解析失败（非 JSON）');
+    const err = e instanceof Error ? e : new Error('JSON parse failed');
+    err.response = response;
+    throw err;
+  }
   if (data) {
     const {code, msg} = data;
     if (code && code !== 200) {
