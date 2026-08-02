@@ -321,6 +321,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('design-tree-add').click();
       await page.getByTestId('menu-add-entity').click();
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-chnname').fill('订单');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
 
@@ -341,6 +342,34 @@ test.describe('关系图画布（ReactFlow）', () => {
       });
       expect(pkAccent.w).toBe('2px');
       expect(pkAccent.bg).toBe('rgb(212, 136, 6)');
+
+      // ADR-0016：表头标题层次 — 实体名主标题 vs muted 中文 meta
+      const headerHierarchy = await orderNode.locator('.erd-table-header').evaluate((el) => {
+        const title = el.querySelector('.erd-table-title');
+        const chn = el.querySelector('.erd-table-chnname');
+        if (!title || !chn) return null;
+        const ts = getComputedStyle(title);
+        const cs = getComputedStyle(chn);
+        return {
+          titleSize: parseFloat(ts.fontSize),
+          titleWeight: parseInt(ts.fontWeight, 10),
+          titleColor: ts.color,
+          chnSize: parseFloat(cs.fontSize),
+          chnWeight: parseInt(cs.fontWeight, 10),
+          chnColor: cs.color,
+          chnOpacity: parseFloat(cs.opacity),
+          chnText: (chn.textContent || '').trim(),
+        };
+      });
+      expect(headerHierarchy).not.toBeNull();
+      expect(headerHierarchy!.chnText).toBe('订单');
+      expect(headerHierarchy!.titleSize).toBeGreaterThanOrEqual(14);
+      expect(headerHierarchy!.titleWeight).toBeGreaterThanOrEqual(700);
+      expect(headerHierarchy!.titleColor).toBe('rgb(11, 28, 44)'); // ink900
+      expect(headerHierarchy!.chnSize).toBeLessThan(headerHierarchy!.titleSize);
+      expect(headerHierarchy!.chnWeight).toBeLessThan(headerHierarchy!.titleWeight);
+      expect(headerHierarchy!.chnOpacity).toBeLessThan(1);
+      expect(headerHierarchy!.chnColor).toBe('rgb(138, 151, 163)'); // ink400
 
       // ADR-0016：字段行再压一档（min-height 22，与 FIELD_ROW_H=26 估算对齐）
       const fieldRowBox = await fkRow.evaluate((el) => {
@@ -386,6 +415,13 @@ test.describe('关系图画布（ReactFlow）', () => {
         (el) => getComputedStyle(el).fontFamily,
       );
       expect(titleFont.toLowerCase()).toMatch(/mono|menlo|consolas/);
+
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-table-header-hierarchy.png',
+        fullPage: false,
+      });
 
       const edge = page.locator('.react-flow__edge').first();
       await expect(edge).toHaveClass(/react-flow__edge-erdSmooth/);
