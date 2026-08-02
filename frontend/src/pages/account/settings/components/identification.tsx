@@ -1,10 +1,10 @@
 import React from 'react';
-import { Result } from 'antd';
 import { useRequest } from '@umijs/hooks';
 import { GET } from '@/services/crud';
 import { PeopleTopCard } from '@icon-park/react';
 import * as cache from '@/utils/cache';
 import PageSkeleton from '@/components/PageSkeleton';
+import styles from './identification.less';
 
 export type IdentificationProps = {};
 
@@ -23,19 +23,24 @@ const Identification: React.FC<IdentificationProps> = () => {
   return loading ? (
     <PageSkeleton rows={3} />
   ) : (
-    <Result
-      icon={
+    <div
+      className={styles.panel}
+      data-testid="account-settings-identification"
+      role="status"
+      aria-live="polite"
+    >
+      <span className={styles.icon} aria-hidden data-testid="identification-icon">
         <PeopleTopCard
           theme="filled"
-          size="66"
-          fill="#DE2910"
+          size="40"
+          fill="currentColor"
           strokeWidth={2}
           strokeLinejoin="miter"
         />
-      }
-      title={title}
-      subTitle={subTitle}
-    />
+      </span>
+      <h3 className={styles.title}>{title}</h3>
+      <p className={styles.sub}>{subTitle}</p>
+    </div>
   );
 };
 

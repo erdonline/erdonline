@@ -202,4 +202,61 @@ test.describe('账户设置', () => {
       timeout: 15_000,
     });
   });
+
+  test('授权类型：密度面板 + brand token，无裸 Result', async ({ page }) => {
+    test.setTimeout(60_000);
+    await login(page, e2eAccount());
+    await page.goto('/account/settings?selectKey=identification');
+
+    const panel = page.getByTestId('account-settings-identification');
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    await expect(panel.getByRole('heading', { name: /开源版|已取得授权/ })).toBeVisible();
+    await expect(panel.getByText(/MIT 开源|授权给/)).toBeVisible();
+    await expect(page.locator('.ant-result')).toHaveCount(0);
+
+    const metrics = await panel.evaluate((el) => {
+      const title = el.querySelector('h3') as HTMLElement | null;
+      const sub = el.querySelector('p') as HTMLElement | null;
+      const icon = el.querySelector(
+        '[data-testid="identification-icon"]',
+      ) as HTMLElement | null;
+      const tcs = title ? getComputedStyle(title) : null;
+      const scs = sub ? getComputedStyle(sub) : null;
+      const ics = icon ? getComputedStyle(icon) : null;
+      const brand = getComputedStyle(document.documentElement)
+        .getPropertyValue('--erd-brand')
+        .trim()
+        .toLowerCase();
+      return {
+        titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+        titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+        subFont: scs ? parseFloat(scs.fontSize) : NaN,
+        iconColor: ics ? ics.color.replace(/\s/g, '').toLowerCase() : '',
+        brand,
+      };
+    });
+    expect(
+      metrics.titleFont,
+      `授权标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`,
+    ).toBeLessThanOrEqual(14);
+    expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+    expect(
+      metrics.titleLh,
+      `授权标题行高应 ≤24（目标 22），得 ${metrics.titleLh}`,
+    ).toBeLessThanOrEqual(24);
+    expect(
+      metrics.subFont,
+      `授权副文案字号应 ≤13（目标 12），得 ${metrics.subFont}`,
+    ).toBeLessThanOrEqual(13);
+    expect(metrics.brand.length).toBeGreaterThan(0);
+    // currentColor → rgb；与 --erd-brand 同源（禁硬编码 #DE2910 字面量）
+    expect(metrics.iconColor).toMatch(/^rgb/);
+    expect(metrics.iconColor).not.toBe('rgba(0,0,0,0)');
+    expect(metrics.iconColor).not.toBe('transparent');
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/account-settings-identification.png',
+      fullPage: false,
+    });
+  });
 });

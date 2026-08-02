@@ -1,0 +1,32 @@
+// ADR-0016：授权态与 22–28 / 账号设置同阶；禁裸 Result + 硬编码 #DE2910
+.panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 0;
+  max-width: 520px;
+  font-family: var(--erd-font-ui);
+}
+
+.icon {
+  display: inline-flex;
+  color: var(--erd-brand);
+  line-height: 0;
+  margin-bottom: 2px;
+}
+
+.title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.sub {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
