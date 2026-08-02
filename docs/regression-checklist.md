@@ -28,6 +28,7 @@
 - [x] FK 映射：两端在表集内才产出、去重、字段 UPPERCASE ✅`ForeignKeyAssociationMapperTest`
 - [x] Colima MySQL `reverse_demo`：indexs + associations 1:n ✅curl
 - [x] Colima PostgreSQL `reverse_demo`：meta schemas=[public]；indexs + associations ✅curl
+- [x] Colima PostgreSQL `reverse_demo`：表/列 COMMENT → `entity.chnname` / `fields[].chnname`（字典 obj/col_description）✅curl
 - [ ] Colima SQL Server（Azure SQL Edge）拉起后同样 curl 验证
 - [x] 只读分享：create + 匿名 GET `readonly=true`；匿名 create 401 ✅curl
 - [x] 分享脱敏：dbs password/username → `***` 且不污染原 Map ✅`ProjectShareSanitizeTest`

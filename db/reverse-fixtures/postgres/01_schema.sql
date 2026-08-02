@@ -20,5 +20,13 @@ CREATE INDEX idx_order_user ON t_order (user_id);
 ALTER TABLE t_order
     ADD CONSTRAINT fk_order_user FOREIGN KEY (user_id) REFERENCES t_user (id);
 
+COMMENT ON TABLE t_user IS '用户表';
+COMMENT ON COLUMN t_user.id IS '主键';
+COMMENT ON COLUMN t_user.code IS '用户编码';
+COMMENT ON COLUMN t_user.email IS '邮箱';
+COMMENT ON TABLE t_order IS '订单表';
+COMMENT ON COLUMN t_order.user_id IS '用户外键';
+COMMENT ON COLUMN t_order.amount IS '订单金额';
+
 INSERT INTO t_user (code, email) VALUES ('u001', 'u001@example.com');
 INSERT INTO t_order (user_id, amount, status) VALUES (1, 99.50, 'PAID');

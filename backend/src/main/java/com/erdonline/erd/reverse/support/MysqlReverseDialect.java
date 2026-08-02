@@ -53,6 +53,7 @@ public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(true)
+            .supportsComment(true)
             .build();
 
     @Override
