@@ -4,12 +4,14 @@ import { compareStringVersion } from '@/utils/string';
 import useVersionStore, { SHOW_CHANGE_TYPE } from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
-import { Button, Col, Divider, Row, Typography, message } from 'antd';
+import { Button, Col, Divider, Dropdown, Row, Typography, message } from 'antd';
+import type { MenuProps } from 'antd';
 import moment from 'moment';
 import * as File from '@/utils/file';
 import {
   CloudUploadOutlined,
   DiffOutlined,
+  DownOutlined,
   ExportOutlined,
   FileTextOutlined,
   FlagOutlined,
@@ -20,6 +22,7 @@ import { useSearchParams } from '@@/exports';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 import VersionDiffPanel from './VersionDiffPanel';
+import { formatVersionDiffMarkdown } from './formatVersionDiffMarkdown';
 
 const { Paragraph } = Typography;
 
@@ -84,9 +87,52 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     });
   };
 
-  const onSave = () => {
-    File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
+  const isDetail = props.type === CompareVersionType.DETAIL;
+  const isCompare = props.type === CompareVersionType.COMPARE;
+
+  const stamp = () => moment().format('YYYY-MM-DD-HHmmss');
+
+  const versionRangeLabel = () => {
+    if (isCompare && state.initVersion && state.incrementVersion) {
+      return `${state.initVersion}-to-${state.incrementVersion}`;
+    }
+    if (currentVersion?.version) {
+      return String(currentVersion.version);
+    }
+    return 'diff';
   };
+
+  const exportSql = () => {
+    const sql = data != null ? String(data).trim() : '';
+    if (!sql) {
+      message.warning('当前无可导出的变化脚本');
+      return;
+    }
+    File.save(sql, `version-diff-${versionRangeLabel()}-${stamp()}.sql`);
+    message.success('已导出 SQL');
+  };
+
+  const exportDiffMarkdown = () => {
+    const sql = data != null ? String(data).trim() : '';
+    const list = Array.isArray(messages) ? messages : [];
+    if (!list.length && !sql) {
+      message.warning('当前无变更可导出');
+      return;
+    }
+    const md = formatVersionDiffMarkdown({
+      messages: list,
+      fromVersion: isCompare ? state.initVersion : undefined,
+      toVersion: isCompare ? state.incrementVersion : currentVersion?.version,
+      sql,
+    });
+    File.save(md, `version-diff-${versionRangeLabel()}-${stamp()}.md`);
+    message.success('已导出变更清单');
+  };
+
+  const exportMenuItems: MenuProps['items'] = [
+    { key: 'md', label: '导出变更清单（Markdown）', onClick: exportDiffMarkdown },
+    { key: 'sql', label: '仅导出 SQL', onClick: exportSql },
+  ];
 
   const execSQL = (updateDBVersion: any, type: string) => {
     const flag = versionDispatch.checkVersionCount(currentVersion);
@@ -109,9 +155,6 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       message.error('当前操作的版本之前还有版本尚未同步，请不要跨版本操作!');
     }
   };
-
-  const isDetail = props.type === CompareVersionType.DETAIL;
-  const isCompare = props.type === CompareVersionType.COMPARE;
 
   const [searchParams] = useSearchParams();
   let projectId = searchParams.get('projectId') || '';
@@ -170,10 +213,23 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
                   }
                 />
               </Access>,
-              <Button type="primary" key="save" onClick={onSave}>
+              <Dropdown.Button
+                key="export"
+                type="primary"
+                icon={<DownOutlined />}
+                menu={{ items: exportMenuItems }}
+                onClick={exportDiffMarkdown}
+                buttonsRender={([leftButton, rightButton]) => [
+                  React.cloneElement(leftButton as React.ReactElement, {
+                    'data-testid': 'version-diff-export-btn',
+                    'aria-label': '导出变更清单',
+                  }),
+                  rightButton,
+                ]}
+              >
                 <ExportOutlined />
                 导出
-              </Button>,
+              </Dropdown.Button>,
               <Access accessible={access.canErdConnectorDbsync} fallback={<></>} key="sync">
                 <Button
                   type="primary"

@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 功能：W3 切片 1 — 跨版本 diff 导出 + 零引用图表依赖清理
+
+**功能**
+
+- CompareVersion diff 弹层「导出」：主按钮下载 Markdown 变更清单（结构化模型变更 + 变化脚本 SQL）；下拉「仅导出 SQL」；空内容 `message.warning`，成功 toast
+- 新增 `formatVersionDiffMarkdown`（纯函数）复用既有 `File.save` 管道；`data-testid=version-diff-export-btn` / `aria-label=导出变更清单`
+
+**清理**
+
+- 移除零引用依赖 `bizcharts`、`@ant-design/plots`（Radar 已随 W2 切片 2 删除）；清 `bizcharts-plugin-slider` typings
+
+**测试 / 文档**
+
+- `version.spec` 详情弹层断言 download `.md` +「已导出变更清单」；`formatVersionDiffMarkdown.test.ts`
+- `product-capability-map` / `ui-layout-redesign` / `roadmap`：diff 导出 → ✅（W3 切片 1）
+  验证点：`cd frontend && npx tsx src/components/dialog/version/formatVersionDiffMarkdown.test.ts`；`npx playwright test tests/e2e/version.spec.ts --grep "可视化 diff" --project=chromium --workers=1`；`rg 'bizcharts|@ant-design/plots|@ant-design/charts|@chatui/core' package.json src` = 0
+
 #### 清理：W2 切片 2 — Home 死码 + 实验页源文件物理删除
 
 **清理**
