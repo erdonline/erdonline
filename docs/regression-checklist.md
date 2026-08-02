@@ -371,8 +371,8 @@
 
 ## DBML 导入/导出互通（2026-08-02）
 
-- [x] [DBML→projectJSON] Table/fields/note→chnname/Ref→1:n；schema 可选校验 ✅ `yarn test:unit:dbml`
-- [x] [projectJSON→DBML] 逻辑类型反查 + Ref；round-trip 实体/字段/FK 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
+- [x] [DBML→projectJSON] Table/fields/note→chnname/Ref→1:n/Indexes→indexs；schema 可选校验 ✅ `yarn test:unit:dbml`
+- [x] [projectJSON→DBML] 逻辑类型反查 + Ref + indexs；round-trip 实体/字段/FK/indexs 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`

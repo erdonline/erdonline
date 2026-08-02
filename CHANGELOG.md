@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：DBML Indexes ↔ projectJSON `indexs` 双向映射
+
+**功能**
+
+- `toProjectJSON`：DBML `indexes { }` → `entities[].indexs[]`（`name` / `isUnique` / `fields`）；跳过 `pk` 索引与表达式列；无名索引生成 `idx_<table>_<cols>`
+- `fromProjectJSON`：`indexs` → `indexes { (cols) [name, unique] }` 块
+- fixture `minimal.dbml` 补 `idx_users_name`，round-trip 覆盖 indexs
+
+**测试 / 文档**
+
+- 单测导入/导出/round-trip；`data-format.md` 映射表；roadmap DBML index 收口；regression-checklist
+
+验证点：`cd frontend && yarn test:unit:dbml` → all passed；`npx playwright test --grep "DBML" --project=chromium --workers=1` → 2 passed
+
 #### 功能：自部署可观测薄切片 — health + info（P5 缺口 ✅）
 
 **功能**

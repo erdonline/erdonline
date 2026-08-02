@@ -1,12 +1,13 @@
 /**
- * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note）。
- * 与 toProjectJSON 同范围：不映射 enum / index / trigger。
+ * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note / indexs→Indexes）。
+ * 与 toProjectJSON 同范围：不映射 enum / trigger。
  */
 
 import type {
   ProjectJsonAssociation,
   ProjectJsonEntity,
   ProjectJsonField,
+  ProjectJsonIndex,
   ProjectJsonModule,
 } from './toProjectJSON';
 
@@ -69,11 +70,33 @@ function formatField(field: ProjectJsonField): string {
   return `  ${name} ${type} [${settings.join(', ')}]`;
 }
 
+function formatIndex(index: ProjectJsonIndex): string | null {
+  const fields = (index.fields || [])
+    .map((f) => String(f || '').trim())
+    .filter(Boolean);
+  if (fields.length === 0) return null;
+  const cols = fields.map(quoteIdent).join(', ');
+  const settings: string[] = [];
+  const name = String(index.name || '').trim();
+  if (name) settings.push(`name: '${escapeNote(name)}'`);
+  if (index.isUnique) settings.push('unique');
+  if (settings.length === 0) return `    (${cols})`;
+  return `    (${cols}) [${settings.join(', ')}]`;
+}
+
 function formatTable(entity: ProjectJsonEntity): string {
   const title = quoteIdent(entity.title || entity.name);
   const lines = [`Table ${title} {`];
   for (const f of entity.fields || []) {
     lines.push(formatField(f));
+  }
+  const indexLines = (entity.indexs || [])
+    .map(formatIndex)
+    .filter((line): line is string => line != null);
+  if (indexLines.length > 0) {
+    lines.push('  indexes {');
+    lines.push(...indexLines);
+    lines.push('  }');
   }
   const tableNote = String(entity.chnname || '').trim();
   if (tableNote) {
