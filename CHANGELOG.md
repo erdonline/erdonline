@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 文档：ADR-0012 AI 时代数据结构平台（待确认）+ roadmap P5 + 落地页草稿
+
+**文档**
+
+- 新增 `docs/adr/0012-ai-era-data-structure-platform.md`（状态**待确认**）：定位升级选项 A/B/C，推荐 B（Git+Figma+agent 可读的开源事实源，开放+安全）；明确「AI 噱头不做 vs 平台级 AI 能力做」的边界；含 vision.md 拟议修改 diff（未批准不生效）
+- `docs/vision.md` 一句话定位下追加「待确认」注记指向 ADR-0012（未改写定位本身）
+- `docs/roadmap.md` 新增 **P5：AI 时代数据结构平台（待确认）**：落地页（品牌 hero，禁 AI slop 模板）/ 产品深度 / UI 水位（Strangler）/ 开放（API/MCP/schema-as-code/DBML 互通）/ 安全（token/CSRF/SQL 信任链/密钥）/ 用户没说的缺口（贡献者漏斗、schema 版本化承诺、agent 可读 projectJSON、可观测性、自部署 DX、竞品对比）
+- 新增 `docs/landing.md`：落地页 IA + hero 文案方向草稿（不含实现）
+- `docs/adr/README.md` 索引补 0012
+  验证点：`git status` 仅 docs/CHANGELOG 五处变更；`docs/adr/0012-*.md` 状态为「待确认」；roadmap 含「P5：AI 时代数据结构平台（待确认）」小节
+
 #### 功能：协作 sync 提示带「保存版本」直达（下一季③）
 
 **功能**
