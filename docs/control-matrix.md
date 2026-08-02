@@ -81,7 +81,7 @@
 | `/project/recent` | 列表/打开 | 打开最近项目进设计器 | | ✅ | `project-surface` |
 | `/project/group` | 团队项目列表/打开 | 进设计器或设置 | 权限 | ✅ | `project-surface` 可达；`empty-projectjson` |
 | `/project/group` | 进入团队设置 | → `/project/group/setting/basic` | GroupLayout | ✅ | `layout-outlet` |
-| `/project/notice` | 通知列表 | 可读/可点处理 | | 📋 | 非北极星主路径 |
+| `/project/notice` | 通知列表 | 首页「更多公告」→列表可读；失败 toast | | ✅ | `project-notice.spec` |
 | `/project/new` | （整页） | redirect→`/project/person`；占位页已删 | W2 新建走 person | ✅ | `project-surface` |
 | `/dataModels` | 模型列表入口 | 与项目列表等价可用 | | ✅ | `project-surface` |
 
@@ -108,9 +108,9 @@
 | 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
 | DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存 | P2 | ✅ | `relation.spec`「保存中…→已保存」 |
 | DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K 开合；执行有结果 | RF CommandPalette | ✅ | `relation.spec`「命令面板」；全旅程亦覆盖 |
-| `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | W6 已删 |
-| `ProjectFilterMenu` | 过滤1/过滤2 | 已从 Menu 导出删除 | 死代码 | 🗑 | W6 已删 |
-| `NavigationMenu` | （空水平菜单） | 已从 Menu 导出删除 | | 🗑 | W6 已删 |
+| `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
+| `ProjectFilterMenu` | 过滤1/过滤2 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
+| `NavigationMenu` | （空水平菜单） | 已从 Menu 导出删除 | | 🗑 | 代码已不存在（grep 零命中） |
 
 ---
 
@@ -139,7 +139,7 @@
 | `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | ✅ | `import-reverse.spec`（MySQL `reverse_demo`） |
 | `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
 | `/design/table/import/erd` | 上传 ERD | 模型可见 | | ✅ | `import-erd.spec` |
-| `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | W6 已删 |
+| `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | 代码已不存在（grep 零命中） |
 | `/design/table/export/common` | 导出 Markdown | 文件下载 | 无 G6 | ✅ | `export.spec` |
 | `/design/table/export/common` | 导出 HTML/Word/ERD | 下载或明确失败 | | ✅ | `export.spec` HTML+ERD |
 | `/design/table/export/more` | 高级导出 DDL | 有源+表时可进第二步 | ADR-0008 | ✅ | `project-menu`「DDL 第二步」 |
@@ -153,8 +153,8 @@
 | `/databaseConfig` | 测试连接 | 成功/失败 toast | | ✅ | `adr0008-datasource.spec`「测试连接」 |
 | `/databaseConfig` | 编辑/删除/批量删 | 列表更新+确认；行内 aria | | ✅ | `adr0008-datasource`「编辑保存 + 删除确认」 |
 | `/databaseConfig` | 同步状态钮 | ping + toast + 徽章更新 | | ✅ | `adr0008-datasource`「同步状态」 |
-| `/databaseConfig` 顶栏 | 「统计」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
-| `/databaseConfig` 顶栏 | 「帮助」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
+| `/databaseConfig` 顶栏 | 「统计」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | 顶栏无该按钮（仅表单「需要帮助？」文案） |
+| `/databaseConfig` 顶栏 | 「帮助」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | 顶栏无该按钮（仅表单「需要帮助？」文案） |
 
 ---
 
@@ -199,10 +199,11 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 89 |
+| ✅ | 90 |
 | 🚧 | 0 |
 | 🗑 | 6 |
-| 📋 | 7 |
+| 📋 | 6 |
 | **合计** | **102** |
 
-Vision loop：有 P2b 🚧 时，优先啃本表下一行可验证 🚧 切片（见 `scripts/agent-loop-vision.prompt.md`）。
+📋 延期（本阶段不啃）：论坛外链、VIP 角标、dataDomain / query / chatsql / dataQuery。  
+Vision loop：矩阵 🚧=0 时，优先可行动矩阵 📋 或 roadmap 下一 📋（Issue seed / AI），见 `scripts/agent-loop-vision.prompt.md`。

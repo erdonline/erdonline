@@ -236,6 +236,11 @@
 - [x] [打开模型] GroupLayout「打开模型」→ `/design/table/model?projectId=` 设计器可见✅同上
 - [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径✅ `not-found.spec.ts`
 
+## W2 项目公告（2026-08-02）
+
+- [x] [更多公告] `/home`「更多公告」→ `/project/notice` 见「公告」+ 种子标题链（含 ERDOnline）✅ `project-notice.spec.ts`
+- [x] [公告加载失败 toast] mock `/syst/sysAnnouncement` 非 200 →「加载公告失败」✅同上
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
