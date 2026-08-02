@@ -173,8 +173,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk });
   };
 
-  /** 已有字段只改类型：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
-  const persistTypeOnly = (key: string, type: string, pk: boolean) => {
+  /** 已有字段改类型/PK：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
+  const persistFieldMeta = (key: string, type: string, pk: boolean) => {
     if (key === '__NEW__') return;
     const allFields = entityFieldsRef.current;
     onFieldsChange(allFields.map(f => (
@@ -314,8 +314,17 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       <label className="erd-field-pk-toggle" title="主键">
         <input
           type="checkbox"
+          aria-label="主键"
           checked={!!editing?.pk}
-          onChange={e => setEditing(prev => (prev ? { ...prev, pk: e.target.checked } : prev))}
+          onChange={e => {
+            const pk = e.target.checked;
+            const current = editingRef.current;
+            if (!current) return;
+            const next = { ...current, pk };
+            editingRef.current = next;
+            setEditing(next);
+            persistFieldMeta(current.key, current.type, pk);
+          }}
           onKeyDown={e => e.stopPropagation()}
         />
         PK
@@ -341,7 +350,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           const next = { ...current, type };
           editingRef.current = next;
           setEditing(next);
-          persistTypeOnly(current.key, type, current.pk);
+          persistFieldMeta(current.key, type, current.pk);
         }}
         onKeyDown={onFieldEditKeyDown}
         onBlur={onFieldEditBlur}

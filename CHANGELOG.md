@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：编辑态 PK 勾选即时 save-status（建模回路）
+
+- 选题：字段编辑态勾 PK 只改本地 state，要等 Enter/blur 才落盘；类型已即时保存，PK 不对齐
+- 已有字段编辑态勾选/取消主键 → 立刻 `updateEntityFields`，顶栏 `save-status` 即时「已保存」；新建行仍等命名提交
+- 空名 toast / Tab 跳行路径不变
+- E2E：`relation`「编辑态 PK 勾选即时 save-status；空名 toast 保留」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "编辑态 PK" --workers=1 --retries=0`
+
 #### 体验：末行 Tab 新建字段（建模回路）
 
 - 选题：字段 Tab 已能跳行，但末行 Tab 只退出编辑 → 还要再点「+ 添加字段」打断键盘回路
