@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：空态 CTA 层次（唯一主操作 + 次链，ADR-0016）
+
+- 选题：画布空态「新建」实心钮与「导入 DBML」描边钮同阶抢焦点；分享空态一句 ink600 无主次；停色 token，攻一眼可读
+- 设计器：标题 14/700；desc 11/ink400；唯一 `.erd-empty-button`；导入/逆向并入 `.erd-empty-links` 次链（ink600）；删 `.erd-empty-outline`
+- 分享：`ShareEmptyState` 主标题 ink900/700 + hint ink400 + 唯一 primary；设计器/分享同构图语言
+- E2E：`relation`「空态构图」、`share`「空模块分享」断言层次；截图 `diagram-empty-composition.png` / `share-empty-module.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "空模块分享" --workers=1 --retries=0`
+
 #### 体验：表头标题层次（实体名主标题 vs muted meta，ADR-0016）
 
 - 选题：表节点表头实体名与中文名字号/字重接近，muted 表头上扫读不先落实体名；停色 token，攻标题层次

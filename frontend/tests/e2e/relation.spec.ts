@@ -179,6 +179,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('button', { name: '从数据源逆向' })).toBeVisible();
       await expect(page.getByLabel('画布缩略图')).toHaveCount(0);
 
+      // ADR-0016：唯一实心主 CTA；导入/逆向降为次链，禁 outline 第二钮抢焦点
+      await expect(empty.locator('.erd-empty-button')).toHaveCount(1);
+      await expect(empty.locator('.erd-empty-outline')).toHaveCount(0);
+      await expect(empty.locator('.erd-empty-secondary')).toHaveCount(2);
+
       const titleColor = await empty.locator('.erd-empty-title').evaluate(
         (el) => getComputedStyle(el).color,
       );
@@ -187,18 +192,27 @@ test.describe('关系图画布（ReactFlow）', () => {
       // ADR-0016：空态面板再收（与 22 chrome 同阶）；禁 28/32 松卡片盖首屏
       const emptyMetrics = await empty.evaluate((el) => {
         const cs = getComputedStyle(el);
+        const title = el.querySelector('.erd-empty-title') as HTMLElement | null;
+        const desc = el.querySelector('.erd-empty-desc') as HTMLElement | null;
         const btn = el.querySelector('.erd-empty-button') as HTMLElement | null;
+        const sec = el.querySelector('.erd-empty-secondary') as HTMLElement | null;
         const bcs = btn ? getComputedStyle(btn) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        const dcs = desc ? getComputedStyle(desc) : null;
+        const scs = sec ? getComputedStyle(sec) : null;
         const svg = el.querySelector('[data-testid="erd-empty-diagram"]');
         return {
           padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
           padX: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
           maxW: parseFloat(cs.maxWidth),
-          titleSize: parseFloat(
-            getComputedStyle(el.querySelector('.erd-empty-title') as Element).fontSize,
-          ),
+          titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+          titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
+          descSize: dcs ? parseFloat(dcs.fontSize) : 0,
+          descColor: dcs ? dcs.color : '',
           btnH: bcs ? parseFloat(bcs.height) : 0,
           btnFont: bcs ? parseFloat(bcs.fontSize) : 0,
+          btnWeight: bcs ? parseInt(bcs.fontWeight, 10) : 0,
+          secColor: scs ? scs.color : '',
           svgW: svg ? parseFloat((svg as SVGElement).getAttribute('width') || '0') : 0,
         };
       });
@@ -206,8 +220,13 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(emptyMetrics.padX).toBeLessThanOrEqual(40);
       expect(emptyMetrics.maxW).toBeLessThanOrEqual(300);
       expect(emptyMetrics.titleSize).toBeLessThanOrEqual(14);
+      expect(emptyMetrics.titleWeight).toBeGreaterThanOrEqual(700);
+      expect(emptyMetrics.descSize).toBeLessThanOrEqual(12);
+      expect(emptyMetrics.descColor).toBe('rgb(138, 151, 163)'); // ink400
       expect(emptyMetrics.btnH).toBeLessThanOrEqual(28);
       expect(emptyMetrics.btnFont).toBeLessThanOrEqual(12);
+      expect(emptyMetrics.btnWeight).toBeGreaterThanOrEqual(600);
+      expect(emptyMetrics.secColor).toBe('rgb(68, 82, 95)'); // ink600，次链不抢 brand
       expect(emptyMetrics.svgW).toBeLessThanOrEqual(140);
 
       await page.screenshot({
