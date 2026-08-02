@@ -56,30 +56,43 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 12px 16px 0;
+  padding: 8px 12px 0;
   box-sizing: border-box;
 }
 
+/* meta 再收：hint/描述与 22 chrome 同阶，把纵向留给画布 */
 .share-page__meta {
   flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto;
+  margin: 0 auto 4px;
 }
 
 .share-page__desc {
-  margin-bottom: 12px !important;
+  margin: 0 !important;
+  font-size: 12px;
+  line-height: 18px;
   color: var(--erd-ink-600);
 }
 
 .share-page__hint {
-  margin-bottom: 12px;
-  font-size: 13px;
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
   color: var(--erd-ink-600);
 }
 
 .share-page__module-switch {
-  margin-bottom: 12px;
+  align-self: flex-start;
+
+  .ant-segmented-item-label {
+    min-height: 22px;
+    line-height: 22px;
+    padding: 0 10px;
+  }
 }
 
 /* 只读切图：Segmented 密度对齐 22 chrome（无新建/重命名） */
@@ -87,7 +100,6 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  margin-bottom: 8px;
   min-height: 22px;
 
   .ant-segmented {
@@ -120,11 +132,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  gap: 6px;
   align-self: center;
-  margin: 8px 0 10px;
-  padding: 0 14px;
-  min-height: 28px;
+  margin: 6px 0 8px;
+  padding: 0 12px;
+  min-height: 24px;
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
   background: var(--erd-surface);

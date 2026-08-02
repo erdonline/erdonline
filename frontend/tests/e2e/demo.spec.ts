@@ -10,7 +10,12 @@ test.describe('在线演示', () => {
     await expect(page).toHaveURL(/\/s\/public-demo/);
     await expect(page.getByText('功能鉴权示例').first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('share-relation-canvas')).toBeVisible();
-    // ADR-0016：分享画布铺满顶栏下视口（禁固定 480）
+    // ADR-0016：meta（hint/描述/切图）再收 → 画布吃满顶栏下视口
+    const meta = page.getByTestId('share-page-meta');
+    await expect(meta).toBeVisible();
+    await expect(meta.getByText(/匿名只读/)).toBeVisible();
+    const metaH = await meta.evaluate((el) => el.getBoundingClientRect().height);
+    expect(metaH, `share meta 高应 ≤72（含切图条），得 ${metaH}`).toBeLessThanOrEqual(72);
     const canvasH = await page.getByTestId('share-relation-canvas').evaluate((el) => {
       const r = el.getBoundingClientRect();
       return {h: r.height, top: r.top};
@@ -18,8 +23,14 @@ test.describe('在线演示', () => {
     const vh = await page.evaluate(() => window.innerHeight);
     expect(canvasH.h, `画布高应 >480，得 ${canvasH.h}`).toBeGreaterThan(480);
     expect(canvasH.h, `画布应占视口过半，得 ${canvasH.h}/${vh}`).toBeGreaterThan(vh * 0.5);
-    // 底边折叠条常驻（~38px）；画布下缘贴条上方而非贴死视口底
-    expect(canvasH.top + canvasH.h, '画布应贴近视口底（含折叠条）').toBeGreaterThan(vh - 56);
+    // meta 收紧后画布应更接近视口主导（禁 hint/描述松距抢高）
+    expect(canvasH.h, `画布应 ≥视口 55%，得 ${canvasH.h}/${vh}`).toBeGreaterThanOrEqual(vh * 0.55);
+    // 底边折叠条常驻（~32px）；画布下缘贴条上方而非贴死视口底
+    expect(canvasH.top + canvasH.h, '画布应贴近视口底（含折叠条）').toBeGreaterThan(vh - 48);
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/demo-share-meta-dense.png',
+      fullPage: false,
+    });
     await expect(page.getByRole('button', { name: /展开表清单/ })).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
