@@ -6,6 +6,7 @@ import SaveStatus from "@/components/SaveStatus";
 import SaveVersionButton from "@/components/SaveVersionButton";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
+import { APP_VERSION_LABEL } from "@/constants/appVersion";
 import { ProjectMenu } from "@/components/Menu";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import { homeRightContent, menuHeaderDropdown } from "@/layouts/HomeLayout";
@@ -194,7 +195,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
 
 
   return (
-    <WaterMark content={[licence?.licensedTo ? licence?.licensedTo : 'ERD Online', 'V5.0.0']}>
+    <WaterMark content={[licence?.licensedTo ? licence?.licensedTo : 'ERD Online', APP_VERSION_LABEL]}>
       <ProLayout
         logo={"/logo.svg"}
         title={'ERD Online'}

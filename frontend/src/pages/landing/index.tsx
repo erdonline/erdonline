@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
 import {Link} from '@umijs/max';
 import * as cache from '@/utils/cache';
+import {APP_VERSION_LABEL} from '@/constants/appVersion';
 import './index.less';
 
 const GITHUB_URL = 'https://github.com/erdonline/erdonline';
@@ -176,7 +177,7 @@ const LandingPage: React.FC = () => {
       </section>
 
       <footer className="landingFooter">
-        <span className="landingBrand">ERD Online · MIT</span>
+        <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>
         <nav aria-label="页脚链接">
           <a href={DOCS_URL} target="_blank" rel="noreferrer">
             文档

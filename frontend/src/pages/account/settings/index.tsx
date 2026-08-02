@@ -10,6 +10,7 @@ import {headRightContent} from "@/layouts/DesignLayout";
 import {Me} from "@icon-park/react";
 import * as cache from "@/utils/cache";
 import {menuHeaderDropdown} from "@/layouts/HomeLayout";
+import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {useSearchParams} from "@@/exports";
 import { history } from 'umi';
 
@@ -120,7 +121,7 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <WaterMark content={[licence?.licensedTo?licence?.licensedTo:'ERD Online', 'V5.0.0']}>
+    <WaterMark content={[licence?.licensedTo?licence?.licensedTo:'ERD Online', APP_VERSION_LABEL]}>
 
       <ProLayout
         logo={"/logo.svg"}
