@@ -261,7 +261,7 @@ function ErdRelationEdge({
   const chipBg =
     (labelBgStyle?.fill as string | undefined) || 'var(--erd-surface)';
   const chipColor =
-    (labelStyle?.fill as string | undefined) || 'var(--erd-ink-600)';
+    (labelStyle?.fill as string | undefined) || 'var(--erd-ink-900)';
 
   const currentValue: Cardinality | string = isCardinality(displayLabel)
     ? displayLabel

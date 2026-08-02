@@ -40,18 +40,18 @@ export const PORT_VERTICAL_STACK_DX = NODE_WIDTH * 0.55;
 /** 竖向至少拉开这么多才触发同侧（避免近邻对角误判） */
 export const PORT_VERTICAL_STACK_DY = 48;
 
-/** 边标签 chip（基数 1:n 等）：截图可读；禁整块 opacity 冲淡文字 */
-export const EDGE_LABEL_FONT_SIZE = 11;
+/** 边标签 chip（基数 1:n 等）：截图扫读；禁整块 opacity 冲淡文字 */
+export const EDGE_LABEL_FONT_SIZE = 12;
 /** [水平, 垂直] padding px；密 FK 图再压一档，勿胀成大块 */
 export const EDGE_LABEL_BG_PADDING: [number, number] = [4, 2];
 export const EDGE_LABEL_BG_RADIUS = 3;
 
 /**
- * 基数 chip 近似外接盒（font 11 + pad[4,2] + 1px border；"n:1" 量级）。
+ * 基数 chip 近似外接盒（font 12/600 + pad[4,2] + 1px border；"n:1" 量级）。
  * 干道 bundling 步长（12）远小于 chip 宽 → 须拉伸/避让，否则密图标签叠成一团。
  */
-export const EDGE_LABEL_CHIP_W = 36;
-export const EDGE_LABEL_CHIP_H = 18;
+export const EDGE_LABEL_CHIP_W = 40;
+export const EDGE_LABEL_CHIP_H = 20;
 /** chip AABB 之间最小间隙 */
 export const EDGE_LABEL_COLLISION_GAP = 4;
 
@@ -472,7 +472,7 @@ export function associationsToEdges(
       data,
       labelStyle: {
         fontSize: EDGE_LABEL_FONT_SIZE,
-        fill: erdColors.ink600,
+        fill: erdColors.ink900,
         fontFamily: 'var(--erd-font-mono)',
       },
       // 底用 surface 白底（相对画布 sunk）；fillOpacity 仅语义保留，渲染不整块套 opacity

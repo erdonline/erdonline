@@ -29,17 +29,17 @@
     stroke-width: 2.5;
   }
 
-  // 基数标签 chip：白底 + 描边，浮在 sunk 画布上；禁整块半透明冲淡字
+  // 基数标签 chip：白底 + ink900，浮在 sunk 画布上；禁整块半透明冲淡字
   .erd-edge-label {
     position: absolute;
     z-index: 10;
     pointer-events: all;
     font-family: var(--erd-font-mono);
-    font-weight: 500;
-    font-size: 11px;
+    font-weight: 600;
+    font-size: 12px;
     line-height: 1.2;
     letter-spacing: 0.02em;
-    color: var(--erd-ink-600);
+    color: var(--erd-ink-900);
     background: var(--erd-surface);
     border: 1px solid var(--erd-line);
     box-shadow: 0 1px 2px var(--erd-ink-a06);
@@ -65,23 +65,25 @@
 
   .erd-edge-cardinality-select {
     .ant-select-selector {
-      height: 22px !important;
-      min-height: 22px !important;
+      height: 24px !important;
+      min-height: 24px !important;
       padding: 0 6px !important;
-      font-size: 11px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
       font-family: var(--erd-font-mono) !important;
     }
 
     .ant-select-selection-item {
-      line-height: 20px !important;
-      font-size: 11px !important;
+      line-height: 22px !important;
+      font-size: 12px !important;
+      font-weight: 600 !important;
     }
   }
 
   .react-flow__edge-text {
-    fill: var(--erd-ink-600) !important;
-    font-size: 11px !important;
-    font-weight: 500 !important;
+    fill: var(--erd-ink-900) !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
     font-family: var(--erd-font-mono) !important;
     letter-spacing: 0.02em;
   }

@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：基数 chip 扫读层次（字号/字重/对比，ADR-0016）
+
+- 选题：分享截图上 `n:1` 等 chip 11/500/ink600 偏淡，干道 ink900 后字更不抢眼；停色 token 碎活，攻扫读
+- `.erd-edge-label` 12px / 600 / ink900；白底 + line 描边不变；`EDGE_LABEL_CHIP_W/H` 40×20 跟字号（碰撞 nudge / crow's foot 不动）
+- 设计器 / 分享共用 `associationsToEdges` + SCSS；E2E：`relation`/`demo`；截图 `diagram-edge-label-chip.png` / `demo-edge-label-chip.png`
+
+验证点：
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：空态 CTA 层次（唯一主操作 + 次链，ADR-0016）
 
 - 选题：画布空态「新建」实心钮与「导入 DBML」描边钮同阶抢焦点；分享空态一句 ink600 无主次；停色 token，攻一眼可读
