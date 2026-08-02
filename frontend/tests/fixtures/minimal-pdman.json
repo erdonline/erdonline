@@ -1,0 +1,40 @@
+{
+  "modules": [
+    {
+      "name": "E2E_PD",
+      "chnname": "PdMan导入",
+      "entities": [
+        {
+          "title": "T_PD_ITEM",
+          "chnname": "PdMan表",
+          "fields": [
+            {
+              "name": "ID",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "TITLE",
+              "chnname": "标题",
+              "type": "String",
+              "pk": false,
+              "notNull": false
+            }
+          ]
+        }
+      ],
+      "graphCanvas": {
+        "nodes": [{ "id": "T_PD_ITEM", "x": 100, "y": 100 }],
+        "edges": []
+      },
+      "associations": []
+    }
+  ],
+  "dataTypeDomains": {
+    "datatype": [],
+    "database": []
+  },
+  "profile": {}
+}

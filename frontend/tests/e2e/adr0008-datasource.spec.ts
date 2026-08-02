@@ -92,4 +92,33 @@ test.describe('ADR-0008 数据源', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('测试连接：假 JDBC 有可见 toast（成功或失败）', async ({ page }) => {
+    test.setTimeout(90_000);
+    try {
+      await login(page, e2eAccount());
+      await page.goto('/databaseConfig');
+      await expect(page.getByText('数据库连接列表')).toBeVisible({ timeout: 15_000 });
+
+      await page.getByRole('button', { name: '新建连接' }).click();
+      await expect(page.getByPlaceholder('例如：生产环境主数据库')).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await page.getByPlaceholder('例如：生产环境主数据库').fill(`e2e-ping-${Date.now().toString(36)}`);
+      await page.getByPlaceholder('例如：localhost 或 192.168.1.1').fill('127.0.0.1');
+      await page.getByPlaceholder('例如：3306').fill('59999');
+      await page.getByPlaceholder('例如：mydatabase').fill('e2e_fake');
+      await page.getByPlaceholder('例如：com.mysql.cj.jdbc.Driver').fill('com.mysql.cj.jdbc.Driver');
+      await page.getByPlaceholder('用户名').fill('e2e');
+      await page.getByPlaceholder('密码').fill('e2e');
+
+      await page.getByRole('button', { name: '测试连接' }).click();
+      await expect(
+        page.getByText(/连接测试成功|连接测试失败|表单验证失败/).first(),
+      ).toBeVisible({ timeout: 20_000 });
+    } finally {
+      /* 未保存，无需清理 */
+    }
+  });
 });

@@ -2,6 +2,24 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — P2b W3–W5 控件闭环（2026-08-02）
+
+### 测试
+- 版本：`RenameVersion`/`RemoveVersion` 补 `data-testid`；`version.spec` 重命名描述 + 删除版本 + toast/行消失
+  验证点：`npx playwright test tests/e2e/version.spec.ts --grep "重命名" --project=chromium`
+- 导出：`export.spec` 补导出 HTML / ERD 下载；`project-menu.spec` DDL 终步 `.sql` 下载
+  验证点：`npx playwright test tests/e2e/export.spec.ts tests/e2e/project-menu.spec.ts --grep "导出|DDL" --project=chromium`
+- 数据源：`adr0008-datasource.spec` 测试连接 toast（假 JDBC 失败亦可）；`DatabaseConfigForm` 测试连接 `aria-label`
+  验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --grep "测试连接" --project=chromium`
+- PdMan：`tests/fixtures/minimal-pdman.json` + `import-pdman.spec` 上传后树可见
+  验证点：`npx playwright test tests/e2e/import-pdman.spec.ts --project=chromium`
+- 关系图：`relation.spec` 删边后刷新仍 0 条边
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "删边" --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：W3 删边/undo、W4 重命名删除、W5 PdMan/HTML/ERD/DDL/测试连接 → ✅
+- `docs/roadmap.md`：P2b W3/W4/W5 子项进度
+
 ## [Unreleased] — P2b W6 外围裁剪（2026-08-02）
 
 ### 修复

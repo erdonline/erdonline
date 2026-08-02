@@ -296,7 +296,12 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
               <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
                 {initialValues ? '更新连接' : '保存连接'}
               </Button>
-              <Button onClick={testConnection} icon={<LinkOutlined />} loading={testing}>
+              <Button
+                onClick={testConnection}
+                icon={<LinkOutlined />}
+                loading={testing}
+                aria-label="测试连接"
+              >
                 测试连接
               </Button>
               <Button onClick={onFinish}>取消</Button>

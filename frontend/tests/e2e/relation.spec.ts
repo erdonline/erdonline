@@ -197,4 +197,45 @@ test.describe('关系图画布（ReactFlow）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('删边后刷新关系图仍无边', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('edgedel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'edge', 'edge delete persist');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 20_000 });
+      await page.waitForTimeout(1_000);
+
+      await page.locator('.react-flow__edge').first().click();
+      await page.keyboard.press('Delete');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(0);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await page.waitForTimeout(1_500);
+
+      const designUrl = page.url();
+      await page.goto(designUrl, { waitUntil: 'networkidle' });
+      await openRelationCanvas(page, '商城');
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+      await expect(page.locator('.react-flow__edge')).toHaveCount(0, { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
