@@ -27,6 +27,7 @@
   - `docs/control-matrix.md` 可行动 📋、`docs/roadmap.md` 📋 /「待续」
   - 设计器 chrome 债与 `docs/ui-layout-redesign.md` 续波（顶栏落地后继续打磨：密度、可达名、次要入口、分享/保存路径）
   - CHANGELOG / 用户最近抱怨 / git 现场未闭环项
+- **UX 进化块（每 tick 不可跳过）**：深度旅程走查与摩擦消除的完整方法见 `scripts/agent-loop-ux.prompt.md`（可独立以 `agent-loop-ux.sh` 30m 心跳运行）。本循环每 tick 至少消费**一条**走查/摩擦信号：要么把一个已登记摩擦切成可验证切片，要么用 Playwright 走一段受影响旅程补一条新证据（截图存 `frontend/test-results/ux-walkthrough/`）；两者都做不到需在简报说明原因。
 - **唯一可暂停**（暂停 = 本 tick 简报说明并**等待用户**，不是退出循环；shell 仍会按 5m 唤醒）：
   1. 用户明确说 stop / 叫停 / 先别动；
   2. **安全闸**：连续两轮指标或关键旅程体验变差 → **与用户重议方向**（drift），勿静默死去、勿假装 idle 没事。
