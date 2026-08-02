@@ -21,7 +21,13 @@ import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
 
-type FieldData = { name: string; type?: string; pk?: boolean; chnname?: string };
+type FieldData = {
+  name: string;
+  type?: string;
+  pk?: boolean;
+  chnname?: string;
+  relationNoShow?: boolean;
+};
 type EntityData = { title: string; chnname?: string; fields?: FieldData[] };
 type Association = {
   relation?: string;
@@ -57,7 +63,8 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
 const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: string[] }>> = React.memo(
   ({data, selected}) => {
     const entity = data.entity;
-    const fields = entity.fields || [];
+    // 与设计器对齐：隐藏 relationNoShow，截图更密（ADR-0016）
+    const fields = (entity.fields || []).filter((f) => !f.relationNoShow);
     const fkSet = useMemo(() => new Set(data.fkFields || []), [data.fkFields]);
     return (
       <div className={`erd-table-node${selected ? ' selected' : ''}`}>
@@ -191,6 +198,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
+        fitViewOptions={{padding: 0.08, maxZoom: 1.15}}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
@@ -198,8 +206,8 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         zoomOnScroll
         proOptions={{hideAttribution: true}}
       >
-        <Background gap={20} size={1} color={erdColors.line}/>
-        <ZhControls showInteractive={false}/>
+        <Background gap={16} size={1} color={erdColors.line}/>
+        <ZhControls showInteractive={false} fitViewOptions={{padding: 0.08, maxZoom: 1.15}}/>
         <MiniMap
           pannable
           zoomable

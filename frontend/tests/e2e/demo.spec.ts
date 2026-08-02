@@ -32,7 +32,7 @@ test.describe('在线演示', () => {
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });
-    // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1200（旧手排 1280）
+    // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1100（列间距 ~28px）
     const spanX = await page.locator('.react-flow__node-table').evaluateAll((els) => {
       const xs = els
         .map((el) => {
@@ -44,8 +44,12 @@ test.describe('在线演示', () => {
         .filter((n) => Number.isFinite(n));
       return Math.max(...xs) - Math.min(...xs);
     });
-    expect(spanX, `主图节点 x 跨度应更密，得 ${spanX}`).toBeLessThan(1200);
+    expect(spanX, `主图节点 x 跨度应更密，得 ${spanX}`).toBeLessThan(1100);
     expect(spanX).toBeGreaterThan(900);
+    // ADR-0016：分享只读隐藏 relationNoShow（与设计器同密）
+    await expect(
+      page.getByTestId('rf__node-sys_user').getByText('del_flag'),
+    ).toHaveCount(0);
     // ADR-0016：分享只读与设计器同用 ErdRelationEdge / relationEdgeRoute
     const modes = page
       .getByTestId('share-relation-canvas')

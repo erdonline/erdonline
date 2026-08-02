@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：密图密度微调（demo/分享截图 / ADR-0016）
+
+- 示例主图手排再收：列间距 ~44→~28px，x 跨度 1136→1072；会话图同步收紧；Frame 包围盒贴成员（padding 24）
+- dagre 默认 `nodesep` 56 / `ranksep` 108；`FRAME_PADDING` 32→24
+- 分享只读：过滤 `relationNoShow`（与设计器同密）+ `fitView` padding 0.08 / maxZoom 1.15 + 网格 gap 16
+- 同步 `frontend/src/utils/demo.projectjson.json`（`node scripts/sync-demo-projectjson.mjs`）；本地 erd 库需重灌公开 demo 种子
+
+验证点：`cd frontend && npx tsx src/utils/graphLayout.test.ts && npx tsx src/utils/diagram.test.ts`；`npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`（spanX&lt;1100 + 无 `del_flag` + 截图 `demo-layout-density.png`）
+
 #### 运维：Railway MySQL 一键灌 `db/init`
 
 - 新增 `scripts/railway-mysql-init.sh`：接受 `MYSQL_URL` 或 `MYSQLHOST`/`MYSQLPORT`/`MYSQLUSER`/`MYSQLPASSWORD`；建 `martin`/`erd`（utf8mb4）；按序导入 `02→03→06…09`；跳过 `05_e2e_users.sql`；默认跳过 `04_privileges.sql`（`--with-privileges` 可选）

@@ -100,8 +100,8 @@ async function main() {
       dense.width <= airy.width && dense.height <= airy.height,
       `默认 ${dense.width}x${dense.height} 应 ≤ 旧走廊 ${airy.width}x${airy.height}`,
     );
-    assert.equal(DAGRE_NODESEP, 64);
-    assert.equal(DAGRE_RANKSEP, 120);
+    assert.equal(DAGRE_NODESEP, 56);
+    assert.equal(DAGRE_RANKSEP, 108);
   });
 
   await run('demo 主图节点水平跨度更密（可分享截图）', () => {
@@ -111,8 +111,8 @@ async function main() {
     assert.equal(nodes.length, 8);
     const xs = nodes.map((n) => n.x);
     const span = Math.max(...xs) - Math.min(...xs);
-    // 旧手排 1360-80=1280；新排 1176-40=1136
-    assert.ok(span < 1200, `主图 x 跨度应 <1200，得 ${span}`);
+    // 旧手排 1280 → 1136 → 1072（列间距 ~28px）
+    assert.ok(span < 1100, `主图 x 跨度应 <1100，得 ${span}`);
     assert.ok(span >= 1000, `主图仍应铺满叙事列，得 ${span}`);
   });
 
