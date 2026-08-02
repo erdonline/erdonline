@@ -86,14 +86,20 @@ test.describe('布局壳子路由出口', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName);
 
-      await expect(page.getByRole('button', { name: '项目菜单' })).toBeVisible({
-        timeout: 15_000,
-      });
+      const projectMenuBtn = page.getByRole('button', { name: '项目菜单' });
+      await expect(projectMenuBtn).toBeVisible({ timeout: 15_000 });
+      await expect(projectMenuBtn).toContainText(projectName);
       await expect(page.getByTestId('save-status')).toBeVisible();
+      await expect(page.getByRole('button', { name: '保存版本' })).toBeVisible();
       await expect(page.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByRole('button', { name: '只读分享' })).toBeVisible();
+      // 主 tabs 仅 模型 | 版本；公众号/GitHub 收进「更多」
+      const topTabs = page.getByTestId('design-top-tabs');
+      await expect(topTabs.getByRole('menuitem', { name: '模型' })).toBeVisible();
+      await expect(topTabs.getByRole('menuitem', { name: '版本' })).toBeVisible();
+      await expect(topTabs.getByRole('menuitem')).toHaveCount(2);
+      await page.getByRole('button', { name: '更多' }).click();
       await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toBeVisible();
-      await expect(page.getByRole('menuitem', { name: '模型' })).toBeVisible();
       await expect(page).toHaveURL(/\/design\/table\/model/);
       // 子路由已挂载：模型页欢迎空态或侧栏「新增模型」
       await expect(

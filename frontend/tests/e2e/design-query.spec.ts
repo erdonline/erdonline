@@ -26,7 +26,7 @@ test.describe('设计器查询导航裁剪', () => {
 
       await page.getByRole('button', { name: '项目菜单' }).click();
       const projectMenu = page.getByTestId('project-menu-panel');
-      await expect(projectMenu.getByRole('menuitem', { name: '版本' })).toBeVisible({
+      await expect(projectMenu.getByRole('menuitem', { name: '全部项目' })).toBeVisible({
         timeout: 5_000,
       });
       await expect(projectMenu.getByRole('menuitem', { name: '查询' })).toHaveCount(0);

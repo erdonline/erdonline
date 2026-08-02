@@ -42,12 +42,44 @@
   display: block;
 }
 
-.design-layout__top-menu {
+.design-layout__project {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  max-width: 200px;
+  flex-shrink: 1;
+  min-width: 0;
+  font-weight: 500;
+  color: var(--erd-ink-900);
+}
+
+.design-layout__project-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  max-width: 160px;
+}
+
+.design-layout__top-menu-wrap {
   flex: 1;
   min-width: 0;
+}
+
+.design-layout__top-menu {
   border-bottom: none !important;
   background: transparent;
   line-height: 54px;
+}
+
+.design-layout__overflow {
+  color: var(--erd-ink-600);
+}
+
+.design-layout__overflow-extras {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 4px 0;
 }
 
 .design-layout__actions {

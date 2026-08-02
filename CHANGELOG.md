@@ -18,6 +18,20 @@
 
 验证点：`bash -n scripts/agent-loop-vision.sh`；`AGENT_LOOP_VISION_INTERVAL=1` 短跑确认连续两 tick 仍 emit（Ctrl-C 停）
 
+#### 功能：设计器顶栏单一 chrome（模型|版本）
+
+**功能**
+
+- DesignLayout：左 logo + **项目名 ▾**（`project.projectName`，fallback「项目」；`aria-label=项目菜单`）；中主 tabs **仅 模型 | 版本**；右 SaveStatus / 保存版本 / presence / 分享 / `⋯`（公众号·GitHub·`APP_VERSION_LABEL`）/ 用户
+- ProjectMenu：加「全部项目」→ `/project/recent`；去掉面板「版本」；导入/导出/设置弹层不变
+- `_defaultProps`：导入/导出/设置移入 `secondaryRoutes`（深链 + sider 仍可用，不占顶栏）
+
+**测试 / 文档**
+
+- `layout-outlet` / `project-menu` / `presence` / `design-query` / `data-domain` / `export-feedback` 对齐新 IA；`ui-layout-redesign` 导航模式更新
+
+验证点：`npx playwright test --grep "DesignLayout：顶栏|项目菜单：全部项目|设计器项目菜单|协作 presence" --project=chromium --workers=1` → 绿
+
 #### 功能：Home S2 —「继续上次建模」主 CTA + 安静指标
 
 **功能**

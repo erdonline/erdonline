@@ -18,8 +18,6 @@ import ExportDBML from "@/components/dialog/export/ExportDBML";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
 import ReverseDBML from "@/components/dialog/import/ReverseDBML";
 import { history } from "@@/exports";
-import * as cache from "@/utils/cache";
-import { CONSTANT } from "@/utils/constant";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 export const MyIcon = createFromIconfontCN({
@@ -69,14 +67,9 @@ export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const openVersionManage = () => {
+  const openAllProjects = () => {
     closeProjectMenu();
-    const projectId =
-      cache.getItem(CONSTANT.PROJECT_ID) ||
-      new URLSearchParams(window.location.search).get("projectId") ||
-      "";
-    const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : "";
-    history.push(`/design/table/version/all${q}`);
+    history.push('/project/recent');
   };
 
   return (
@@ -87,8 +80,8 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
       triggerSubMenuAction="click"
       style={{ minWidth: 160 }}
     >
-      <Menu.Item key="version" onClick={openVersionManage}>
-        版本
+      <Menu.Item key="all-projects" onClick={openAllProjects}>
+        全部项目
       </Menu.Item>
       <Menu.SubMenu key="import" title="导入">
         <ReverseDatabase />

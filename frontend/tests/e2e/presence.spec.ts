@@ -21,8 +21,9 @@ test.describe('协作 presence', () => {
       await expect(presence).toContainText(account.name, { timeout: 20_000 });
       await expect(presence).toHaveAttribute('aria-live', 'polite');
       await expect(presence).toHaveAttribute('role', 'status');
-      // 开源版不展示商业升级 CTA；顶栏仓库链指向 GitHub 而非旧 Gitee
+      // 开源版不展示商业升级 CTA；仓库链在「更多」溢出菜单
       await expect(page.getByText('升级至尊版')).toHaveCount(0);
+      await page.getByRole('button', { name: '更多' }).click();
       await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toHaveAttribute(
         'href',
         'https://github.com/erdonline/erdonline',
