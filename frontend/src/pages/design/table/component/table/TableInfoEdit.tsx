@@ -54,7 +54,11 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   ], [datatype]);
 
   return (
-    <div ref={containerRef} style={{ width: '100%', height: '640px', overflow: 'auto' }}>
+    <div
+      ref={containerRef}
+      data-testid="table-field-edit"
+      style={{ width: '100%', height: '640px', overflow: 'auto' }}
+    >
         <JExcel
           data={data}
           columns={columns}

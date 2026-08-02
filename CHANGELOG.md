@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布打开表设计「字段」签（对称入口）
+
+- 选题：索引签已有画布入口；全量表格编辑 / 从索引切回字段仍需绕左树或粘滞内签
+- 表节点底栏并排「字段 | 索引」（同高不叠行）：`canvas-open-field` / `aria-label=打开字段` → `designPane: field`；索引按钮不变
+- `TableInfoEdit` 加 `data-testid=table-field-edit`（对称 `table-index-edit`）
+- E2E：`relation`「画布打开字段签：直达表设计字段；无死 affordance」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布打开字段签|画布打开索引签" --workers=1 --retries=0`
+
 #### 体验：画布打开表设计「索引」签（建模回路）
 
 - 选题：字段已在节点内联；唯一/复合索引仍只在表设计「索引」签，画布无入口 → 左树绕路或死 affordance 感

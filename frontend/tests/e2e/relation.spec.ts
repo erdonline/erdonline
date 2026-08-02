@@ -1226,6 +1226,53 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fldnav');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fldnav', 'canvas open field');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const openField = node.getByTestId('canvas-open-field');
+      await expect(openField).toBeVisible();
+      await expect(openField).toHaveAttribute('aria-label', '打开字段');
+      await openField.evaluate((el: HTMLElement) => el.click());
+
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-field-edit')).toBeVisible();
+
+      // 切到索引后再经画布「字段」仍落字段（对称；非粘滞）
+      await designer.getByRole('tab', { name: '索引' }).click();
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await rfNode(page, 'T_TABLE_1')
+        .getByTestId('canvas-open-field')
+        .evaluate((el: HTMLElement) => el.click());
+      await expect(page.getByTestId('table-design').getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-field-edit')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('字段默认值内联编辑；Tab 入 default；Escape 丢弃', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdef');
