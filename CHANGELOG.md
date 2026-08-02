@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 决策：ADR-0014 @ant-design/pro-components Strangler 摘除（文档）
+
+**文档**
+
+- 新增 `docs/adr/0014-drop-or-strangle-ant-pro.md`（⏳ 待确认，建议选项 B）：grep 基线 ~70 文件直接 import Pro——`ModalForm/ProForm*` 弹窗表单 ~32（`components/dialog/**`）、`ProCard` ~12、`ProTable` ~10、`ProLayout/PageContainer` ~6（三个 Layout + home/settings）、其余（ProList/StepsForm/LoginForm/FooterToolbar/WaterMark）~18
+- 结论：A（全量移除）爆破面过大拒绝；C（保留）与 ADR-0005 重叠且是 antd 升级耦合点拒绝；B Strangler——冻结新增、`package.json` 版本冻结 2.8.10 不随 umi/antd 升级、chrome → 表单 → 表格 → 登录注册 分域摘除、附 Pro→antd 迁移映射表（`WaterMark` antd 5 原生可直接换）
+- 澄清：`@umijs/max` 不内置 Pro，它是独立直接依赖，移除不影响 umi/antd 升级路径
+- `docs/ui-home-model-redesign.md` 增 S0 前置片（只升 umi+antd、冻结 Pro 用量）+ 依赖序 S0→S1；ADR README 索引登记
+- 中断指令：umi+antd+pro 升级中的执行停止升 Pro，仅升 umi+antd
+  验证点：纯文档切片，无代码改动；grep 基线 `rg -c "@ant-design/pro-" frontend/src` ≈ 70 文件，供后续摘除对照
+
 #### 文档：Home/模型页 UI 重设计简报
 
 **文档**
