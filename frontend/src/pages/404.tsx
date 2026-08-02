@@ -1,21 +1,22 @@
-import { Button, Result, Space } from 'antd';
+import AuthBrandShell from '@/components/AuthBrandShell';
+import { Button } from 'antd';
 import React from 'react';
 import { history } from 'umi';
 
+/**
+ * 未知路径：AuthBrandShell 同语言（ADR-0016）；激活漏斗主 CTA = 打开示例
+ */
 const NoFoundPage: React.FC = () => (
-  <Result
-    status="404"
-    title="404"
-    subTitle="抱歉，你访问的页面不存在"
-    extra={
-      <Space>
-        <Button type="primary" onClick={() => history.push('/')}>
-          返回首页
-        </Button>
-        <Button onClick={() => history.push('/demo')}>打开示例 demo</Button>
-      </Space>
-    }
-  />
+  <AuthBrandShell title="页面不存在" subtitle="抱歉，你访问的页面不存在">
+    <div className="auth-shell__gate-actions" data-testid="exception-404-gate">
+      <Button type="primary" block onClick={() => history.push('/demo')}>
+        打开示例 demo
+      </Button>
+      <Button block onClick={() => history.push('/')}>
+        返回首页
+      </Button>
+    </div>
+  </AuthBrandShell>
 );
 
 export default NoFoundPage;

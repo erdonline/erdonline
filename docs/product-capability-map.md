@@ -26,7 +26,7 @@
 | 分享失效态 | `GET /share/{token}` | 无效/吊销 → `AuthBrandShell`「分享不可用」+ 主 CTA「打开示例 demo」+「返回首页」✅（ADR-0016 品牌对齐；W5 切片 2 能力保留） | ✅ |
 | 分享只读空态 | 无模型 / 模块 0 表 | `ShareEmptyState`（`ErdEmptyDiagram` + 主 CTA）✅ | ✅ |
 | 分享成功态顶栏 | 只读 `/s/:token` | 64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链 ✅（W5 切片 3） | ✅ |
-| 404 / 403 页 | 路由 `/*` / `403.tsx` | 标准 Result +「返回首页」+「打开示例 demo」✅（W5 切片 1）；无 `reset.css` | ✅ |
+| 404 / 403 页 | 路由 `/*` / `403.tsx` | `AuthBrandShell` +「打开示例 demo」+「返回首页」✅（ADR-0016 品牌对齐；W5 切片 1 能力保留） | ✅ |
 | 登录/注册品牌壳 | `/login` `/register` | 左 40% 暗色品牌面板 + 右 Form；`--erd-*`；无 `bg2`/`#1677FF` ✅（W5 切片 4） | ✅ |
 | 落地页色板 | `/` | 深色门面构图不变；less 只读 `--erd-*`（ink/brand/success/warning + font）✅（2026-08-03） | ✅ |
 | 竞品对照 | `/compare`（落地摘要 `#compare`） | 诚实对照表 + demo/自部署 CTA；`LandingChrome` 共用壳 ✅ | ✅ |

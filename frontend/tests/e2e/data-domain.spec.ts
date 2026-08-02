@@ -33,7 +33,8 @@ test.describe('数据域导航裁剪', () => {
       await page.keyboard.press('Escape');
 
       await page.goto(`/design/dataDomain?projectId=${projectId}`);
-      await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('exception-404-gate')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('heading', { name: '页面不存在' })).toBeVisible();
       await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
