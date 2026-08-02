@@ -89,6 +89,7 @@
 - [x] [前端 lint:js:ci] `yarn lint:js:ci`（--quiet）0 error 进 frontend-ci ✅自动
 - [x] [版本快照零摩擦] 无 JDBC → 版本管理非 Loading → 新增版本 → 列表见版本号 ✅`version.spec.ts`
 - [x] [version antd List 空态] 无版本时见「还没有版本」+「保存第一个版本」；保存后空态消失、行可见 ✅`version.spec.ts`「无数据源也可新增版本」
+- [x] [AddVersion antd Form] 保存版本弹窗非 Pro ModalForm；标签逗号/回车、校验、确定→保存成功 toast ✅`version.spec.ts` saveVersion 路径
 
 ### 已自动化（`yarn test:e2e`）
 

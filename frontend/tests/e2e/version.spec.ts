@@ -26,15 +26,19 @@ async function saveVersion(
   const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
   await expect(dialog).toBeVisible();
   if (opts?.tags?.length) {
-    const tagInput = dialog.getByTestId('version-tag-input');
+    // antd Select tags：点根节点易误点已有 chip 的关闭；写入内部 input
+    const tagInput = dialog.getByTestId('version-tag-input').locator('input');
     for (const t of opts.tags) {
       await tagInput.click();
       await page.keyboard.type(t);
       await page.keyboard.press('Enter');
     }
+    // 关闭 tags 下拉，避免 option 层挡住「确定」
+    await page.keyboard.press('Escape');
   }
   await dialog.getByRole('button', { name: /确\s*定/ }).click();
   await expectToast(page, /保存成功/);
+  await expect(dialog).toHaveCount(0);
 }
 
 async function closeVersionDialog(
