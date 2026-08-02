@@ -10,16 +10,27 @@
     background: var(--erd-surface-sunk) !important;
   }
 
+  // 边在 Frame(0) 之上、表节点(2) 之下，减少穿表观感
+  .react-flow__edges {
+    z-index: 1;
+  }
+
   .react-flow__edge-path {
     stroke: var(--erd-ink-600);
     stroke-width: 1.5;
     stroke-linecap: round;
     stroke-linejoin: round;
+    transition: stroke 0.12s, stroke-width 0.12s;
   }
 
+  .react-flow__edge:hover .react-flow__edge-path,
   .react-flow__edge.selected .react-flow__edge-path {
     stroke: var(--erd-brand);
     stroke-width: 2;
+  }
+
+  .erd-edge-label {
+    z-index: 1;
   }
 
   .react-flow__edge-text {

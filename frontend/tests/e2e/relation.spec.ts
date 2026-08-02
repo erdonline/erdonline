@@ -230,7 +230,7 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
-  // ADR-0016：节点密度 / PK·FK 徽章 / smoothstep 箭头边 — 敢分享截图
+  // ADR-0016：节点密度 / PK·FK 徽章 / 自定义边 + 箭头 — 敢分享截图
   test('表节点视觉：PK/FK 与边样式', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('polish');
@@ -265,6 +265,8 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(titleFont.toLowerCase()).toMatch(/mono|menlo|consolas/);
 
+      const edge = page.locator('.react-flow__edge').first();
+      await expect(edge).toHaveClass(/react-flow__edge-erdSmooth/);
       const edgePath = page.locator('.react-flow__edge-path').first();
       await expect(edgePath).toBeVisible();
       const marker = await edgePath.getAttribute('marker-end');
@@ -274,6 +276,49 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-node-polish.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  // ADR-0016：同表对多 FK → 肘距分流（边路由）
+  test('边路由：同表对双 FK 肘距分流', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('edgelane');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'edgelane', 'parallel edge lanes');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'A_ID', 'IdOrKey');
+      await addFieldInline(page, 'T_ORDER', 'B_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'A_ID', 'T_TABLE_1', 'id');
+      await connectFields(page, 'T_ORDER', 'B_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(2);
+
+      const paths = page.locator('.react-flow__edge-path');
+      await expect(paths).toHaveCount(2);
+      const d0 = await paths.nth(0).getAttribute('d');
+      const d1 = await paths.nth(1).getAttribute('d');
+      expect(d0, '边 path 应存在').toBeTruthy();
+      expect(d1, '边 path 应存在').toBeTruthy();
+      expect(d0).not.toBe(d1);
+
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-edge-lanes.png',
         fullPage: false,
       });
     } finally {

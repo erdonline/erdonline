@@ -5,9 +5,7 @@ import ReactFlow, {
   Handle,
   Position,
   NodeProps,
-  Edge,
   Node,
-  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {erdColors} from '@/theme/tokens';
@@ -18,6 +16,8 @@ import {
   getActiveDiagramLayoutNodes,
 } from '@/utils/diagram';
 import {resolveEntityPositions} from '@/utils/graphLayout';
+import {ERD_EDGE_TYPE, associationsToEdges} from '@/utils/relationEdges';
+import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
 
@@ -52,32 +52,6 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
     map.set(entity, list);
   }
   return map;
-}
-
-function associationsToEdges(associations: Association[]): Edge[] {
-  return (associations || [])
-    .filter(a => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field)
-    .map((a, i) => ({
-      id: `e-${a.from!.entity}-${a.from!.field}-${a.to!.entity}-${a.to!.field}-${i}`,
-      source: a.from!.entity!,
-      sourceHandle: `${a.from!.field}-src`,
-      target: a.to!.entity!,
-      targetHandle: `${a.to!.field}-tgt`,
-      type: 'smoothstep',
-      label: a.relation || '',
-      labelStyle: {fontSize: 10, fill: erdColors.ink400},
-      labelBgStyle: {fill: erdColors.surfaceSunk, fillOpacity: 0.94},
-      labelBgPadding: [4, 2] as [number, number],
-      labelBgBorderRadius: 3,
-      style: {stroke: erdColors.ink600, strokeWidth: 1.5},
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 14,
-        height: 14,
-        color: erdColors.ink600,
-      },
-      animated: false,
-    }));
 }
 
 const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: string[] }>> = React.memo(
@@ -144,6 +118,7 @@ const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.me
 });
 
 const nodeTypes = {table: ReadOnlyTableNode, frame: ReadOnlyFrameNode};
+const edgeTypes = {[ERD_EDGE_TYPE]: ErdRelationEdge};
 
 function layoutNodes(
   entities: EntityData[],
@@ -211,6 +186,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         fitView
         nodesDraggable={false}
         nodesConnectable={false}
@@ -221,7 +197,14 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
       >
         <Background gap={20} size={1} color={erdColors.line}/>
         <ZhControls showInteractive={false}/>
-        <MiniMap pannable zoomable ariaLabel="画布缩略图"/>
+        <MiniMap
+          pannable
+          zoomable
+          ariaLabel="画布缩略图"
+          nodeColor={erdColors.surface}
+          nodeStrokeColor={erdColors.line}
+          maskColor="rgba(11, 28, 44, 0.06)"
+        />
       </ReactFlow>
     </div>
   );
