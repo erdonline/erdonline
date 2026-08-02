@@ -357,6 +357,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setHeaderEditing(false);
   };
 
+  /** Escape：丢弃未提交的字段名，禁止 blur 再走 commit（否则取消变静默落盘） */
+  const cancelFieldEdit = () => {
+    ignoreBlurRef.current = true;
+    editingRef.current = null;
+    setEditing(null);
+    setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+  };
+
   const onFieldEditKeyDown = (e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter') {
@@ -364,7 +372,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       return;
     }
     if (e.key === 'Escape') {
-      setEditing(null);
+      e.preventDefault();
+      cancelFieldEdit();
       return;
     }
     if (e.key === 'Tab') {
