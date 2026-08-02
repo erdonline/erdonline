@@ -1,27 +1,24 @@
 import React, {useEffect, useState} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
-import {history, Link, Outlet} from "@@/exports";
+import {history, Link} from "@@/exports";
 import {PageContainer, ProCard, ProLayout, ProSettings, WaterMark} from '@ant-design/pro-components';
 import {Me} from "@icon-park/react";
 import {headRightContent} from "@/layouts/DesignLayout";
-import {Button, ConfigProvider, Dropdown, Menu, theme, Typography, Space} from "antd";
+import {Dropdown, Menu, Typography, Space} from "antd";
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
 import {useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import Theme from "@/components/Theme";
-import {LogoutOutlined, SettingOutlined, UserOutlined} from "@ant-design/icons";
-import { Layout } from 'antd';
+import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 import businessSlogansData from './businessSlogans.json';
 
 const { Text } = Typography;
 
-const { Footer } = Layout;
-
 
 export interface HomeLayoutLayoutProps {
-  children: any;
+  children?: React.ReactNode;
 }
 
 export const menuHeaderDropdown = (
@@ -137,17 +134,15 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             }}
           >
             <div style={{ flex: 1, overflow: 'auto' }}>
-              <Theme/>
-
-            <div style={{ 
-            textAlign: 'center', 
-          }}>
-            <Space split={<Text type="secondary"> | </Text>} wrap>
-              <Text type="secondary">{currentSlogan}</Text>
-              <Text type="secondary">© 2026 ERD Online · MIT</Text>
-              <Text type="secondary">ERD Online</Text>
-            </Space>
-          </div>
+              <Theme />
+              {props.children}
+              <div style={{ textAlign: 'center' }}>
+                <Space split={<Text type="secondary"> | </Text>} wrap>
+                  <Text type="secondary">{currentSlogan}</Text>
+                  <Text type="secondary">© 2026 ERD Online · MIT</Text>
+                  <Text type="secondary">ERD Online</Text>
+                </Space>
+              </div>
             </div>
           </ProCard>
 
