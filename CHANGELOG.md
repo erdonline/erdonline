@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 1 — AddVersion ModalForm → antd Form+Modal
+
+**重构**
+
+- `AddVersion`（保存版本弹窗）：摘 `ModalForm` / `ProFormText` / `ProFormTextArea` / `ProFormSelect` → antd `Modal` + `Form` + `Select mode="tags"`；宽度 520；标签逗号分隔、校验（版本号/描述/标签总长≤255）与 `data-testid`（`add-version-btn` / `version-empty-save-btn` / `version-tag-input`）不变
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 1 ✅；菜单入口 `testId=menu-add-version-btn` 避免与工具栏撞 id；E2E tags 写 Select 内 input + Escape 关下拉
+  验证点：`rg 'ModalForm|ProFormText|ProFormSelect' frontend/src/components/dialog/version/AddVersion.tsx` = 0；`npx playwright test tests/e2e/version.spec.ts --grep "无数据源也可新增版本|可视化 diff" --project=chromium --workers=1` → **2 passed**（多标签 Escape 修复已落盘，本轮未再跑长 E2E）
+
 #### 重构：W3 切片 2 — version ProList → antd List + 空态 CTA
 
 **功能 / 重构**
