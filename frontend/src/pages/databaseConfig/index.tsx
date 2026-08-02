@@ -26,16 +26,24 @@ interface DatabaseConfigItem {
   username: string;
   password: string;
   databaseName: string;
+  driverClassName?: string;
   status: 'online' | 'offline' | 'error';
   createTime: string;
   updateTime: string;
 }
+
+type ConnectionStatus = 'online' | 'offline' | 'error';
 
 const DatabaseConfigPage: React.FC = () => {
   const actionRef = useRef();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DatabaseConfigItem | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<string[]>([]);
+  const [syncingId, setSyncingId] = useState<string | null>(null);
+  const [statusOverrides, setStatusOverrides] = useState<Record<string, ConnectionStatus>>({});
+
+  const resolveStatus = (record: DatabaseConfigItem): ConnectionStatus =>
+    statusOverrides[record.id] ?? record.status;
 
   const handleDelete = (id: string) => {
     Modal.confirm({
@@ -85,9 +93,13 @@ const DatabaseConfigPage: React.FC = () => {
   };
 
   const handleSyncStatus = async (record: DatabaseConfigItem) => {
+    if (syncingId) {
+      return;
+    }
+    setSyncingId(record.id);
     try {
       const pingParams = {
-        driverClassName: getDriverClassName(record.type),
+        driverClassName: getDriverClassName(record.type) || record.driverClassName,
         url:
           record.url || generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
         username: record.username,
@@ -95,16 +107,18 @@ const DatabaseConfigPage: React.FC = () => {
       };
 
       const success = await pingDatabase(pingParams);
-
+      const nextStatus: ConnectionStatus = success ? 'online' : 'error';
+      setStatusOverrides((prev) => ({ ...prev, [record.id]: nextStatus }));
       if (success) {
-        message.success('连接状态已更新');
-        actionRef.current?.reload();
+        message.success('连接在线，状态已更新');
       } else {
-        message.error('更新连接状态失败');
+        message.warning('连接不可达，状态已更新为错误');
       }
     } catch (error) {
       console.error('同步状态出错:', error);
       message.error('同步状态出错，请稍后重试');
+    } finally {
+      setSyncingId(null);
     }
   };
 
@@ -181,18 +195,15 @@ const DatabaseConfigPage: React.FC = () => {
         offline: { text: '离线', status: 'Default' },
         error: { text: '错误', status: 'Error' },
       },
-      render: (_, record) => (
-        <Badge
-          status={
-            record.status === 'online'
-              ? 'success'
-              : record.status === 'offline'
-              ? 'default'
-              : 'error'
-          }
-          text={record.status === 'online' ? '在线' : record.status === 'offline' ? '离线' : '错误'}
-        />
-      ),
+      render: (_, record: DatabaseConfigItem) => {
+        const status = resolveStatus(record);
+        return (
+          <Badge
+            status={status === 'online' ? 'success' : status === 'offline' ? 'default' : 'error'}
+            text={status === 'online' ? '在线' : status === 'offline' ? '离线' : '错误'}
+          />
+        );
+      },
       search: false,
     },
     {
@@ -224,8 +235,10 @@ const DatabaseConfigPage: React.FC = () => {
           <Tooltip title="同步状态">
             <Button
               type="link"
-              icon={<SyncOutlined />}
+              icon={<SyncOutlined spin={syncingId === record.id} />}
               aria-label="同步状态"
+              loading={syncingId === record.id}
+              disabled={syncingId !== null && syncingId !== record.id}
               onClick={() => handleSyncStatus(record)}
             />
           </Tooltip>

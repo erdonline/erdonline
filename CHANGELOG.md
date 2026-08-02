@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W5 `/databaseConfig` 同步状态闭环（2026-08-02）
+
+### 修复
+- `/databaseConfig` 同步状态钮：点击后 loading；本地更新在线/错误徽章；成功/不可达均有明确 toast（不再全表 reload 重 ping）
+  验证点：`adr0008-datasource.spec`「同步状态钮有可见反馈」
+
+### 测试
+- `adr0008-datasource.spec`：新建假 JDBC → 点「同步状态」→ 等待 ping → toast + 行内状态文案
+  验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --grep "同步状态" --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：同步状态钮 → ✅；`docs/roadmap.md` P2b 长尾标注已收
+
 ## [Unreleased] — W5 `/databaseConfig` 编辑/删除闭环（2026-08-02）
 
 ### 修复

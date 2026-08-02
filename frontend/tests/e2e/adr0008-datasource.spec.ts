@@ -122,6 +122,84 @@ test.describe('ADR-0008 数据源', () => {
     }
   });
 
+  test('/databaseConfig：同步状态钮有可见反馈', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const stem = `e2e-w${test.info().parallelIndex}-sync-${Date.now().toString(36)}`;
+    const name = `${stem}-ds`;
+    try {
+      await login(page, e2eAccount());
+      const token = await page.evaluate(() => localStorage.getItem('Authorization'));
+      expect(token).toBeTruthy();
+      const list = await request.get(`${API}/ncnb/dataSources?size=100&current=1`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const listJson = await list.json();
+      for (const row of listJson?.data?.records || []) {
+        await request.delete(`${API}/ncnb/dataSources/${row.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
+      await page.goto('/databaseConfig');
+      await expect(page.getByText('数据库连接列表')).toBeVisible({ timeout: 20_000 });
+
+      await page.getByRole('button', { name: '新建连接' }).click();
+      await expect(page.getByPlaceholder('例如：生产环境主数据库')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByPlaceholder('例如：生产环境主数据库').fill(name);
+      await page.getByPlaceholder('例如：localhost 或 192.168.1.1').fill('127.0.0.1');
+      await page.getByPlaceholder('例如：3306').fill('59999');
+      await page.getByPlaceholder('例如：mydatabase').fill('e2e_fake');
+      await page.getByPlaceholder('例如：com.mysql.cj.jdbc.Driver').fill('com.mysql.cj.jdbc.Driver');
+      await page.getByPlaceholder('用户名').fill('e2e');
+      await page.getByPlaceholder('密码').fill('e2e');
+
+      const postWait = page.waitForResponse(
+        (r) =>
+          r.url().includes('/ncnb/dataSources') &&
+          r.request().method() === 'POST' &&
+          !r.url().includes('ping'),
+        { timeout: 20_000 },
+      );
+      await page.getByRole('button', { name: '保存连接' }).click();
+      const postRes = await postWait;
+      expect(postRes.status()).toBe(200);
+      await expect(page.getByText('添加成功').first()).toBeVisible({ timeout: 15_000 });
+
+      const row = page.getByRole('row', { name: new RegExp(name) });
+      await expect(row).toBeVisible({ timeout: 45_000 });
+
+      const pingWait = page.waitForResponse(
+        (r) => r.url().includes('/ncnb/connector/ping') && r.request().method() === 'POST',
+        { timeout: 30_000 },
+      );
+      await row.getByRole('button', { name: '同步状态' }).click();
+      await pingWait;
+      await expect(
+        page
+          .getByText(/连接在线，状态已更新|连接不可达，状态已更新为错误|同步状态出错/)
+          .first(),
+      ).toBeVisible({ timeout: 15_000 });
+      await expect(row.getByText(/在线|错误|离线/)).toBeVisible({ timeout: 5_000 });
+    } finally {
+      const token = await page.evaluate(() => localStorage.getItem('Authorization')).catch(() => null);
+      if (token) {
+        const list = await request.get(`${API}/ncnb/dataSources?size=100&current=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const listJson = await list.json();
+        for (const row of listJson?.data?.records || []) {
+          if (String(row.name || '').includes(stem)) {
+            await request.delete(`${API}/ncnb/dataSources/${row.id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
+        }
+      }
+    }
+  });
+
   test('/databaseConfig：编辑保存 + 删除确认闭环', async ({ page, request }) => {
     test.setTimeout(120_000);
     const stem = `e2e-w${test.info().parallelIndex}-ds-${Date.now().toString(36)}`;
