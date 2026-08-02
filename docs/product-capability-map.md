@@ -21,7 +21,7 @@
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
 | 只读分享创建 | `POST /share/create`（token 匿名读，ADR-0007） | 设计器顶栏「分享」一键复制 ✅ | ✅ |
-| 分享**吊销 / 链接管理** | `POST /share/revoke` | **无 UI** | **missing** → W2（安全模型承诺的一半不可达） |
+| 分享**吊销 / 链接管理** | `POST /share/revoke` | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
 | 分享 → fork | `POST /share/{token}/fork` | 分享页 fork + autofork ✅ | ✅ |
 | 分享失效态 | `GET /share/{token}` | `Result` 403/404 ✅（W5 顺带打磨） | ✅ |
 
@@ -58,14 +58,14 @@
 
 | 对象 | 现状 | 处置 |
 |---|---|---|
-| `pages/design/query`、`pages/dataQuery` | 实验页延期但仍在路由/导航 | W2 隐藏或删除 |
-| `pages/design/chatsql` | ADR-0012 明说不做营销包装 | W2 隐藏 |
-| `pages/design/dataDomain` | 实验页延期 | W2 隐藏 |
-| `pages/JExcel`、`pages/design/test`、`pages/test` | 演示/测试残留 | W2 删除 |
-| Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie` config | 死代码；统计区两处重复（hero + 项目概览卡） | W2 删除，**不做密度重设计** |
-| `account/settings/geographic`（province/city json） | 无后端字段 | W2 删除（先 grep 零引用） |
+| `pages/design/query`、`pages/dataQuery` | 实验页延期 | W2 切片 1：路由已下线（404）；页面文件待清死代码切片删 |
+| `pages/design/chatsql` | ADR-0012 明说不做营销包装 | W2 切片 1：路由已下线（404） |
+| `pages/design/dataDomain` | 实验页延期 | W2 切片 1：路由已下线（404） |
+| `pages/design/test`、`pages/test` | 演示/测试残留 | W2 切片 1：已删（`pages/JExcel` 为表编辑组件，保留） |
+| Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie` config | 死代码；统计区两处重复（hero + 项目概览卡） | W2 后续切片删除，**不做密度重设计** |
+| `account/settings/geographic`（province/city json） | 无后端字段 | W2 切片 1：已删 |
 | `plaza/Material*` 后端控制器 | 前端零引用 | 记入死代码候选，独立切片评估（不动表） |
 
 ## 北极星对齐结论
 
-直接服务「每周版本保存」的 UI 缺口只有两类：**版本域收口（diff 导出、审批入口）** 与 **分享吊销/管理**。其余 W 波工作（组件平移、密度抛光）不直接移动北极星，排序一律靠后。
+直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；剩余主要为 **版本域收口（diff 导出、审批入口）** → W3。其余 W 波工作（组件平移、密度抛光）不直接移动北极星，排序一律靠后。

@@ -25,10 +25,10 @@
 
 - 登录/退出：`/login`、`/auth/login`、`/exit`
 - 注册：`/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）
-- 只读分享：`GET /share/{token}`（及冗余 `/ncnb/share/{token}`），见 ADR-0007
+- 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
 
 ## 只读分享
 
-- 创建/吊销需登录且为项目创建人
+- 创建/吊销需登录且为项目创建人（UI：设计器顶栏「分享」弹层）
 - 匿名响应按 ADR-0008 **清空** `profile.dbs`（连接只在 `data_sources`）；可保留 `defaultDataSourceId` 引用
 

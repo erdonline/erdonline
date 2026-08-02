@@ -3,16 +3,6 @@ export type TagType = {
   label: string;
 };
 
-export type GeographicItemType = {
-  name: string;
-  id: string;
-};
-
-export type GeographicType = {
-  province: GeographicItemType;
-  city: GeographicItemType;
-};
-
 export type NoticeType = {
   id: string;
   title: string;
@@ -37,7 +27,6 @@ export type CurrentUser = {
   notifyCount: number;
   unreadCount: number;
   country: string;
-  geographic: GeographicType;
   address: string;
   phone: string;
 };

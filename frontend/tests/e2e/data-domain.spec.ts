@@ -8,13 +8,12 @@ import {
 } from './helpers';
 
 /**
- * W6 `/design/dataDomain`：低北极星价值 → DesignLayout 路由菜单裁剪；深链保留实验页
- * （DesignLayout 顶栏水平 Menu；以项目菜单 + 深链为准）
+ * W2：`/design/dataDomain` 实验空壳下线路由 → 404；项目菜单无「数据域」
  */
 test.describe('数据域导航裁剪', () => {
   test.describe.configure({ retries: 1 });
 
-  test('项目菜单无「数据域」；深链见实验提示', async ({ page }) => {
+  test('项目菜单无「数据域」；深链 404', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('datadomain');
     try {
@@ -34,14 +33,8 @@ test.describe('数据域导航裁剪', () => {
       await page.keyboard.press('Escape');
 
       await page.goto(`/design/dataDomain?projectId=${projectId}`);
-      await expect(page).toHaveURL(/\/design\/dataDomain/, { timeout: 15_000 });
-      const sheet = page.getByTestId('data-domain-page');
-      await expect(sheet).toBeVisible({ timeout: 15_000 });
-      await expect(sheet.getByText('实验功能')).toBeVisible();
-      // 深链可达，但不挂主菜单入口（无指向本页的导航 link）
-      await expect(
-        page.getByRole('link', { name: '数据域' }),
-      ).toHaveCount(0);
+      await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

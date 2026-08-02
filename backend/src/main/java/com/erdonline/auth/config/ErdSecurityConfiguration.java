@@ -52,6 +52,8 @@ public class ErdSecurityConfiguration {
                         .accessDeniedHandler(new RestfulAccessDeniedHandler()))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
+                    // 只读分享：匿名仅 GET /share/{token}（及 /ncnb 前缀变体）；写操作需登录
+                    auth.requestMatchers(HttpMethod.GET, "/share/*", "/ncnb/share/*").permitAll();
                     for (String url : ignore) {
                         auth.requestMatchers(url).permitAll();
                     }

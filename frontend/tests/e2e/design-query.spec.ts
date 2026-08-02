@@ -8,13 +8,12 @@ import {
 } from './helpers';
 
 /**
- * W6 `/design/table/query`：exec 忽略所选数据源、打应用库 → 侧栏裁剪；深链保留实验页
- * （与 dataDomain / Chat SQL 同策略；不扩「真·数据源 SELECT」E2E）
+ * W2：`/design/table/query` 实验空壳下线路由 → 404；项目菜单无「查询」
  */
 test.describe('设计器查询导航裁剪', () => {
   test.describe.configure({ retries: 1 });
 
-  test('项目菜单无「查询」；深链见实验提示', async ({ page }) => {
+  test('项目菜单无「查询」；深链 404', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('designquery');
     try {
@@ -34,11 +33,12 @@ test.describe('设计器查询导航裁剪', () => {
       await page.keyboard.press('Escape');
 
       await page.goto(`/design/table/query?projectId=${projectId}`);
-      await expect(page).toHaveURL(/\/design\/table\/query/, { timeout: 15_000 });
-      const sheet = page.getByTestId('design-query-page');
-      await expect(sheet).toBeVisible({ timeout: 15_000 });
-      await expect(sheet.getByText('实验功能')).toBeVisible();
-      await expect(page.getByRole('link', { name: '查询' })).toHaveCount(0);
+      await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
+
+      await page.goto(`/design/table/chatsql?projectId=${projectId}`);
+      await expect(page.getByText('404', { exact: true })).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByText('抱歉，你访问的页面不存在')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

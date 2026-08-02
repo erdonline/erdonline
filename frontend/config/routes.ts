@@ -103,10 +103,7 @@ export default [
         path: '/design/table/model',
         component: './design/table',
       },
-      {
-        path: '/design/dataDomain',
-        component: './design/dataDomain',
-      },
+      // W2：dataDomain / query / chatsql 实验空壳已下线路由（深链 → 404）；页面文件待清死代码切片删除
       {
         path: '/design/table/version',
         routes: [
@@ -185,14 +182,6 @@ export default [
       },
 
       {
-        path: '/design/table/query',
-        component: './design/table',
-      },
-      {
-        path: '/design/table/chatsql',
-        component: './design/chatsql',
-      },
-      {
         component: './404',
       },
     ],
@@ -207,16 +196,7 @@ export default [
       },
     ]
   },
-  {
-    path: '/dataQuery',
-    component: '../layouts/HomeLayout',
-    routes: [
-      {
-        path: '/dataQuery',
-        component: './dataQuery',
-      },
-    ]
-  },
+  // W2：/dataQuery 实验空壳下线路由（深链 → 404）
   {
     path: '/home',
     component: '../layouts/HomeLayout',

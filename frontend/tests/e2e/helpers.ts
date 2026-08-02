@@ -142,7 +142,8 @@ export async function openRelationFromEmpty(
   await page.getByTestId('entity-modal-name').fill(name);
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
-  await expect(page.getByText(chnname, { exact: true })).toBeVisible();
+  // 树与主区可能各有一份中文名，取第一条即可
+  await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
   await expandTreeTitle(page, '关系');
   await page.getByTestId('tree-open-relation').click();

@@ -149,6 +149,5 @@ security:
         - /swagger-ui/**
         - /swagger-ui.html
         - /webjars/**
-        # 只读分享：匿名 GET（前缀剥离后为 /share/**）
-        - /share/**
-        - /ncnb/share/**
+        # 只读分享：匿名仅 GET token（create/revoke/fork 需登录；见 ErdSecurityConfiguration）
+        # 不再用 /share/** 全方法放行，避免匿名 POST revoke
