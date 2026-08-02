@@ -174,7 +174,7 @@ const Approval: React.FC<ApprovalProps> = () => {
         }}
         onChange={onTableChange}
         locale={{
-          emptyText: '暂无待审事项。他人在团队项目中发起 SQL 审批后会出现在此。',
+          emptyText: '暂无待审事项。他人在团队项目版本行「提交工单」发起 SQL 审批后会出现在此。',
         }}
         scroll={{x: true}}
       />

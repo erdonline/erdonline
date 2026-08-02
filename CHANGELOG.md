@@ -8,6 +8,21 @@
 
 ### 2026-08-02
 
+#### 功能：W3 切片 3 — 审批/工单入口理顺（版本域收口 ✅）
+
+**功能**
+
+- 版本页顶栏「我的工单 / 我的审批」直达（`version-nav-orders` / `version-nav-approvals`）；侧栏既有 menuitem 不变
+- 团队项目未同步版本行「提交工单」→ 打开变更详情，footer「SQL审批」（`version-submit-order-btn` / `sql-approval-btn`）
+- 工单/审批空态文案对齐「版本行提交工单」；GroupLayout 无工单菜单（设计器域入口，不扩）
+
+**测试 / 文档**
+
+- `approval.spec` 新增「版本页：提交工单入口可达且审批 tab 可见」；既有工单/审批用例不回归
+- `product-capability-map` 工单提交/审批 thin→✅；`roadmap` W3 ✅ + 落地页 🚧→✅（实现+E2E 已齐）；`ui-layout-redesign` W3 切片 3 ✅
+
+验证点：`cd frontend && npx playwright test --grep "approval|工单" --project=chromium --workers=1` → **4 passed**
+
 #### 测试：协作 sync → 保存版本全路径 + 节流回归（下一季③ close）
 
 **测试 / 文档**

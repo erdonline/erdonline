@@ -29,6 +29,9 @@ export const CompareVersionType = { DETAIL: 'detail', COMPARE: 'compare' };
 
 export type CompareVersionProps = {
   type: string;
+  /** 覆盖触发按钮文案（默认：详情 / 版本比对） */
+  buttonLabel?: string;
+  testId?: string;
 };
 
 const CompareVersion: React.FC<CompareVersionProps> = (props) => {
@@ -259,7 +262,12 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         size={isDetail ? 'small' : 'middle'}
         type={isDetail ? 'link' : 'default'}
         icon={isDetail ? <FileTextOutlined /> : <DiffOutlined />}
-        data-testid={isDetail ? 'version-detail-btn' : 'version-compare-btn'}
+        data-testid={
+          props.testId || (isDetail ? 'version-detail-btn' : 'version-compare-btn')
+        }
+        aria-label={
+          props.buttonLabel || (isDetail ? '详情' : '版本比对')
+        }
         disabled={isCompare && (!versions || versions.length < 2)}
         title={
           isCompare && (!versions || versions.length < 2)
@@ -268,7 +276,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         }
         onClick={openModal}
       >
-        {isDetail ? '详情' : '版本比对'}
+        {props.buttonLabel || (isDetail ? '详情' : '版本比对')}
       </Button>
       <Modal
         title={isDetail ? '版本变更详情' : '任意版本比较'}

@@ -122,14 +122,24 @@ const Version: React.FC = () => {
     }
   }, [dbs, versionDispatch, fetch, pageSize]);
 
-  const goBackToModel = useCallback(() => {
+  const projectIdQuery = useCallback(() => {
     const projectId =
       new URLSearchParams(window.location.search).get('projectId') ||
       cache.getItem(CONSTANT.PROJECT_ID) ||
       '';
-    const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
-    history.push(`/design/table/model${q}`);
+    return projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
   }, []);
+
+  const goBackToModel = useCallback(() => {
+    history.push(`/design/table/model${projectIdQuery()}`);
+  }, [projectIdQuery]);
+
+  const goVersionSub = useCallback(
+    (sub: 'order' | 'approval') => {
+      history.push(`/design/table/version/${sub}${projectIdQuery()}`);
+    },
+    [projectIdQuery],
+  );
 
   const setRowCurrent = useCallback((record: VersionRow) => {
     const fullIndex = (versions as VersionRow[]).findIndex((v) => v.id === record.id);
@@ -198,35 +208,46 @@ const Version: React.FC = () => {
     );
   };
 
-  const renderRowActions = (row: VersionRow) => [
-    <CompareVersion key="detail" type={CompareVersionType.DETAIL}/>,
-    <Access
-      key="rename"
-      accessible={access.canErdHisprojectEdit}
-      fallback={<></>}
-    >
-      <RenameVersion/>
-    </Access>,
-    <Access
-      key="remove"
-      accessible={access.canErdHisprojectDel}
-      fallback={<></>}
-    >
-      <RemoveVersion/>
-    </Access>,
-    <CopyProject key="copy" projectJSON={row.projectJSON}/>,
-    <RevertVersion
-      key="revert"
-      synced={compareStringVersion(row.version, dbVersion) > 0}
-    />,
-    <Access
-      key="sync"
-      accessible={access.canErdConnectorDbsync}
-      fallback={<></>}
-    >
-      <SyncVersion synced={compareStringVersion(row.version, dbVersion) <= 0}/>
-    </Access>,
-  ];
+  const renderRowActions = (row: VersionRow) => {
+    const unsynced = compareStringVersion(row.version, dbVersion) > 0;
+    return [
+      <CompareVersion key="detail" type={CompareVersionType.DETAIL} />,
+      <Access key="submit-order" accessible={access.enterprise} fallback={<></>}>
+        {unsynced ? (
+          <CompareVersion
+            type={CompareVersionType.DETAIL}
+            buttonLabel="提交工单"
+            testId="version-submit-order-btn"
+          />
+        ) : (
+          <></>
+        )}
+      </Access>,
+      <Access
+        key="rename"
+        accessible={access.canErdHisprojectEdit}
+        fallback={<></>}
+      >
+        <RenameVersion />
+      </Access>,
+      <Access
+        key="remove"
+        accessible={access.canErdHisprojectDel}
+        fallback={<></>}
+      >
+        <RemoveVersion />
+      </Access>,
+      <CopyProject key="copy" projectJSON={row.projectJSON} />,
+      <RevertVersion key="revert" synced={unsynced} />,
+      <Access
+        key="sync"
+        accessible={access.canErdConnectorDbsync}
+        fallback={<></>}
+      >
+        <SyncVersion synced={!unsynced} />
+      </Access>,
+    ];
+  };
 
   const emptyNode = tagFilter.trim() ? (
     <div data-testid="version-empty-filter">
@@ -270,6 +291,26 @@ const Version: React.FC = () => {
             >
               返回模型
             </Button>
+            <Space size={4} className="version-page__trust-nav" wrap>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => goVersionSub('order')}
+                aria-label="我的工单"
+                data-testid="version-nav-orders"
+              >
+                我的工单
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                onClick={() => goVersionSub('approval')}
+                aria-label="我的审批"
+                data-testid="version-nav-approvals"
+              >
+                我的审批
+              </Button>
+            </Space>
             {dbs.length === 0 && (
               <span className="version-page__hint">
                 未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步时再在设置中添加 JDBC。
