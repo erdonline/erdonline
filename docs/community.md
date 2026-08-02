@@ -94,8 +94,9 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 51. ~~**顶栏 SaveStatus aria-live**~~（已合入；`role="status"` + `aria-live="polite"`；`relation.spec`「save-status」；草稿 `37`）
 52. ~~**顶栏 CollabPresence aria-live**~~（已合入；`role="status"` + `aria-live="polite"`；`presence.spec`；草稿 `38`）
 53. ~~**命令面板 listbox 语义**~~（已合入；`role="listbox"` + 空态 `aria-live`；`relation.spec`「命令面板」；草稿 `39`）
+54. ~~**`lint:js:ci` 分享页 Array 类型 + DataDomain hooks**~~（已合入；`yarn lint:js:ci` 0 error；`share.spec`）
 
-> 种子池暂空：设计器 a11y 微切片（草稿 33–39）边际收益已低，不续堆；正式仓投放时从合入项外另选题。
+> 种子池暂空：设计器 a11y 微切片（草稿 33–39）边际收益已低，不续堆；正式仓投放时从合入项外另选题。Word 导出真实下载 E2E 依赖 MinIO 默认模板，环境未就绪前不拆 Issue。
 
 ## 贡献者怎么认领
 

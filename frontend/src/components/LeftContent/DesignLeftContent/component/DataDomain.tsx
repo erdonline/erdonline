@@ -23,6 +23,9 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
     ready: Boolean(state.project?.projectJSON),
   }), shallow);
 
+  const dataTypeRef = useRef();
+  const databaseRef = useRef();
+
   if (!ready) {
     return null;
   }
@@ -35,12 +38,10 @@ const DataDomain: React.FC<DataDomainProps> = (props) => {
     }
   }
 
-  const dataTypeRef = useRef();
   const activeDataTypePanel = () => {
     // @ts-ignore
     dataTypeRef.current.setModalVisit(true);
   }
-  const databaseRef = useRef();
   const activeDatabasePanel = () => {
     // @ts-ignore
     databaseRef.current.setModalVisit(true);

@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 修复：`lint:js:ci` 7 error（分享页 Array 类型 + DataDomain hooks）
+
+**修复**
+
+- `share/index.tsx` / `ShareRelationCanvas.tsx`：`Array<T>` → `T[]`（`@typescript-eslint/array-type`）
+- `DataDomain.tsx`：`useRef` 挪到 `ready` 早退之前（`react-hooks/rules-of-hooks`）；行为不变
+  验证点：`cd frontend && yarn lint:js:ci`（0 error）；`npx playwright test tests/e2e/share.spec.ts --project=chromium`
+
+**文档**
+
+- 本条；不续 a11y 草稿。Word 导出 E2E 本 tick 不可验（本机 MinIO 未起，`gendocx` 依赖默认模板）
+  验证点：同上 lint + share.spec
+
 #### P4 good-first：命令面板 listbox 语义（草稿 39）
 
 **修复**

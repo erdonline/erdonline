@@ -24,7 +24,7 @@ type ModuleData = {
   name?: string;
   entities?: EntityData[];
   associations?: Association[];
-  graphCanvas?: { nodes?: Array<{ id: string; x?: number; y?: number }> };
+  graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
 };
 
 const NODE_W = 220;
@@ -74,7 +74,7 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData }>> = React.mem
 
 const nodeTypes = {table: ReadOnlyTableNode};
 
-function layoutNodes(entities: EntityData[], layout: Array<{ id: string; x?: number; y?: number }>): Node[] {
+function layoutNodes(entities: EntityData[], layout: { id: string; x?: number; y?: number }[]): Node[] {
   const pos = new Map(layout.map(n => [n.id, n]));
   const needDagre = entities.some(e => {
     const p = pos.get(e.title);

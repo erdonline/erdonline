@@ -7,9 +7,9 @@ import * as cache from '@/utils/cache';
 type ModuleData = {
   name?: string;
   chnname?: string;
-  entities?: Array<{ title?: string; chnname?: string; fields?: unknown[] }>;
+  entities?: { title?: string; chnname?: string; fields?: unknown[] }[];
   associations?: unknown[];
-  graphCanvas?: { nodes?: Array<{ id: string; x?: number; y?: number }> };
+  graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
 };
 
 type SharePayload = {
@@ -130,7 +130,7 @@ const SharePage: React.FC = () => {
   );
 
   const rows = useMemo(() => {
-    const list: Array<{ key: string; module: string; table: string; fields: number }> = [];
+    const list: { key: string; module: string; table: string; fields: number }[] = [];
     modules.forEach((m, mi) => {
       (m.entities || []).forEach((e, ei) => {
         list.push({
