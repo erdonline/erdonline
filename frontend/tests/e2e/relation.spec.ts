@@ -1257,6 +1257,44 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('编辑态隐藏即时 save-status；toast + 表底恢复显示', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fhide');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fhide', 'edit relationNoShow hide');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('NAME');
+
+      // 勾选后行立刻卸下；勿用 .check()（会等 checked，而控件已卸载且始终受控 false）
+      await node.getByRole('checkbox', { name: '在关系图中隐藏' }).evaluate((el: HTMLElement) => el.click());
+      await expectToast(page, '已在关系图中隐藏「NAME」');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
+      // 默认字段可能已有若干 relationNoShow；只断言 NAME 进表底列表并可恢复
+      await expect(node.getByTestId('field-hidden-toggle')).toBeVisible();
+      await expect(node.getByRole('button', { name: /已隐藏 \d+ 个字段/ })).toBeVisible();
+      await expect(node.getByTestId('field-hidden-NAME')).toBeVisible();
+      await node.getByRole('button', { name: '在关系图中显示 NAME' }).evaluate((el: HTMLElement) => el.click());
+      await expectToast(page, '已在关系图中显示「NAME」');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(node.locator('[data-field="NAME"]')).toBeVisible();
+      await expect(node.getByTestId('field-hidden-NAME')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');
