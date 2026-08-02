@@ -11,6 +11,7 @@ import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
+import { erdColors } from "@/theme/tokens";
 import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {menuHeaderDropdown} from "@/layouts/HomeLayout";
 import './index.less';
@@ -146,7 +147,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
                 aria-label="用户菜单"
                 data-testid="user-menu-trigger"
               >
-                <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2}/>
+                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
                 {cache.getItem('username')}
               </div>
             </Dropdown>
@@ -170,7 +171,6 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
           <Content className="group-layout__content">
             <div className="group-layout__body">
               <Theme />
-              {props.children}
             </div>
           </Content>
         </Layout>

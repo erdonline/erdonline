@@ -68,6 +68,17 @@ yarn start
 > 本地 `config.dev.ts` 已设 `mfsu: false`（MFSU eager 曾卡住 build worker / 送旧模块）；改该开关后需重启一次 `yarn start`。  
 > 设计器进版本管理：侧栏「版本 → 版本管理」，或顶栏项目菜单「版本」（均打开 `/design/table/version/all`）。版本页顶栏「返回模型」回 `/design/table/model?projectId=…`（侧栏「模型」常被树遮挡，勿只依赖侧栏）。
 
+## 前端样式（token first）
+
+工作台样式优先 antd 5 **ConfigProvider theme tokens**，少维护散落 less。
+
+| 真相源 | 路径 |
+|---|---|
+| antd tokens | `frontend/src/theme/tokens.ts` → `components/Theme`（`ConfigProvider`） |
+| CSS 变量（与上同值） | `frontend/src/theme/css-vars.less`（由 `global.less` 引入） |
+
+布局 chrome（Home/Group 已 BEM + `var(--erd-*)`；DesignLayout 待 Pro 摘除后对齐）;**落地页** `pages/landing/index.less` 为品牌例外，可保留 scoped less。新颜色/圆角先改 `tokens.ts`，勿在业务 less 里发明第二套色板。细则与例外表见 [ui-home-model-redesign.md](./ui-home-model-redesign.md)#样式策略token-first。
+
 ## 前端单测（轻量）
 
 `max test` 依赖的 PuppeteerEnvironment 已不可用；画布 undo 栈用：

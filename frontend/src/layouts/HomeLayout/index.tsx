@@ -10,6 +10,7 @@ import * as cache from "@/utils/cache";
 import {useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import Theme from "@/components/Theme";
+import { erdColors } from "@/theme/tokens";
 import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 import businessSlogansData from './businessSlogans.json';
@@ -187,7 +188,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
                 aria-label="用户菜单"
                 data-testid="user-menu-trigger"
               >
-                <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2}/>
+                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
                 {cache.getItem('username')}
               </div>
             </Dropdown>
@@ -196,7 +197,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
         <Content className="home-layout__content">
           <div className="home-layout__body">
             <Theme />
-            {props.children}
             <div className="home-layout__footer">
               <Space split={<Text type="secondary"> | </Text>} wrap>
                 <Text type="secondary">{currentSlogan}</Text>
