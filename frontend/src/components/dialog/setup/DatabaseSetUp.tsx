@@ -1,37 +1,78 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
-import {
-  ModalForm,
-  ProFormGroup,
-  ProFormInstance,
-  ProFormList,
-  ProFormRadio,
-  ProFormSelect,
-  ProFormText
-} from "@ant-design/pro-components";
-import _ from "lodash";
-import useProjectStore from "@/store/project/useProjectStore";
-import shallow from "zustand/shallow";
-import {uuid} from '@/utils/uuid';
+import React, {useContext, useEffect, useState} from 'react';
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
-import {Button, Col, message, Popconfirm, Row} from 'antd';
+import {Button, Col, Form, Input, Modal, Popconfirm, Radio, Row, Select, Space, message} from 'antd';
+import _ from 'lodash';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
+import {uuid} from '@/utils/uuid';
 import * as Save from '@/utils/save';
-import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
+import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+
 export type DatabaseSetUpProps = {
   isGlobal?: boolean;
 };
 
+type DbProperties = {
+  driver_class_name?: string;
+  url?: string;
+  username?: string;
+  password?: string;
+};
+
+type DataSourceRow = {
+  key: string;
+  name?: string;
+  select?: string;
+  defaultDB?: boolean;
+  properties?: DbProperties;
+};
+
+type DialectRow = {
+  code?: string;
+  defaultDatabase?: boolean;
+};
+
+type FormValues = DbProperties & {
+  dbs?: DataSourceRow[];
+};
+
+const URL_TEMPLATES: Record<string, {url: string; driver_class_name: string}> = {
+  mysql: {
+    url: 'jdbc:mysql://IP地址:端口号/数据库名?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC',
+    driver_class_name: 'com.mysql.jdbc.Driver',
+  },
+  oracle: {
+    url: 'jdbc:oracle:thin:@IP地址:端口号/数据库名',
+    driver_class_name: 'oracle.jdbc.driver.OracleDriver',
+  },
+  sqlserver: {
+    url: 'jdbc:sqlserver://IP地址:端口号;DatabaseName=数据库名',
+    driver_class_name: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+  },
+  postgresql: {
+    url: 'jdbc:postgresql://IP地址:端口号/数据库名',
+    driver_class_name: 'org.postgresql.Driver',
+  },
+};
 
 /** 设计器菜单「数据源设置」：读写 /ncnb/dataSources（ADR-0008），不写 profile.dbs */
 const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const { projectDispatch, } = useProjectStore(state => ({
-    projectDispatch: state.dispatch,
-  }), shallow);
+  const {projectDispatch, dialects} = useProjectStore(
+    (state) => ({
+      projectDispatch: state.dispatch,
+      dialects: (state.project?.projectJSON?.dataTypeDomains?.database || []) as DialectRow[],
+    }),
+    shallow,
+  );
 
-  const [databases, setDatabases] = useState([]);
+  const [open, setOpen] = useState(false);
+  const [databases, setDatabases] = useState<DataSourceRow[]>([]);
+  const [pingLoading, setPingLoading] = useState(false);
+  const [form] = Form.useForm<FormValues>();
 
   const reload = async () => {
-    const list = await projectDispatch.refreshDataSources();
+    const list = (await projectDispatch.refreshDataSources()) as DataSourceRow[] | undefined;
     setDatabases(list || []);
   };
 
@@ -39,362 +80,334 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
     reload();
   }, []);
 
-  const dispatch = projectDispatch;
+  const defaultDatabase =
+    _.find(dialects, {defaultDatabase: true})?.code || dialects[0]?.code || 'MYSQL';
+  const defaultDBData = URL_TEMPLATES[defaultDatabase.toLowerCase()] || URL_TEMPLATES.mysql;
 
-  const url = {
-    mysql: {
-      url: 'jdbc:mysql://IP地址:端口号/数据库名?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC',
-      driver_class_name: 'com.mysql.jdbc.Driver',
-    },
-    oracle: {
-      url: 'jdbc:oracle:thin:@IP地址:端口号/数据库名',
-      driver_class_name: 'oracle.jdbc.driver.OracleDriver',
-    },
-    sqlserver: {
-      url: 'jdbc:sqlserver://IP地址:端口号;DatabaseName=数据库名',
-      driver_class_name: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-    },
-    postgresql: {
-      url: 'jdbc:postgresql://IP地址:端口号/数据库名',
-      driver_class_name: 'org.postgresql.Driver',
-    },
-  };
+  const defaultDbs = databases.find((d) => d.defaultDB) || databases[0];
+  const defaultDB = databases.find((d) => d.defaultDB);
 
-  const defaultDatabase = _.find(databases, {"defaultDatabase": true})?.code || databases[0]?.code || 'MYSQL';
-
-  const dbName = defaultDatabase.toLocaleLowerCase();
-  const defaultDBData = url[dbName] || {};
-
-  const getDefaultDbs = (db: any) => {
-    db = db ? db : databases;
-    return db.filter((d: any) => d.defaultDB)[0];
-  }
-
-  const defaultDbs = getDefaultDbs(null);
-  const defaultData = defaultDbs || databases[0];
-
-
-  const [state, setState] = useState({
-    loading: false
-  });
+  useEffect(() => {
+    form.setFieldsValue({
+      ...(defaultDbs?.properties || {}),
+      dbs: databases,
+    });
+  }, [databases, defaultDbs, form]);
 
   const connectJDBC = () => {
-    const newVar = formRef && formRef.current?.validateFields();
-    newVar?.then(() => {
-      const {properties} = defaultData;
-      setState({
-        loading: true,
-      });
+    form.validateFields().then(() => {
+      const {properties} = defaultDbs || {};
+      setPingLoading(true);
       Save.ping({
-        ...properties
-      }).then((res: any) => {
-        if (res.code !== 200) {
-          message.error('连接失败:' + res.msg);
-        } else {
-          message.success('连接成功');
-        }
-      }).catch((err) => {
-        message.error('连接失败！');
-      }).finally(() => {
-        setState({
-          loading: false,
+        ...properties,
+      })
+        .then((res: {code?: number; msg?: string}) => {
+          if (res.code !== 200) {
+            message.error('连接失败:' + res.msg);
+          } else {
+            message.success('连接成功');
+          }
+        })
+        .catch(() => {
+          message.error('连接失败！');
+        })
+        .finally(() => {
+          setPingLoading(false);
         });
-      });
     });
-
   };
 
-  // Ant Form 有个臭毛病，form只会加载一次，state变化不会重新加载，用此解决
-  const formRef = useRef<ProFormInstance<any>>();
-  useEffect(() => {
-    // @ts-ignore
-    // eslint-disable-next-line @typescript-eslint/no-unused-expressions
-    formRef && formRef.current?.resetFields();
-  }, [databases]);
+  const dialectOptions = dialects.map((d) => ({
+    label: d.code,
+    value: d.code,
+  }));
 
-
-  const getData = () => {
-    return databases.filter((d: any) => d.defaultDB)[0];
-  };
-
-  const defaultDB = getData();
-
-  const databaseSelect = databases.map((d: any) => {
-    return {
-      label: d.code,
-      value: d.code,
-    }
-  });
-
-  const addDatabase = async (data: any) => {
-    await dispatch.addDbs(data);
+  const addDatabase = async (data: DataSourceRow) => {
+    await projectDispatch.addDbs(data);
     await reload();
   };
 
   const removeDatabase = async (key: string) => {
-    await dispatch.removeDbs(key);
+    await projectDispatch.removeDbs(key);
     await reload();
   };
 
-  const updateDatabase = async (key: string, data: any) => {
+  const updateDatabase = async (key: string, data: DataSourceRow) => {
     if (data?.defaultDB) {
-      dispatch.setDefaultDb(key);
+      projectDispatch.setDefaultDb(key);
     }
-    await dispatch.updateDbs(key, data);
+    await projectDispatch.updateDbs(key, data);
     await reload();
   };
 
+  const openModal = () => {
+    closeProjectMenu();
+    setOpen(true);
+    void reload();
+  };
 
-  return (<>
-      <ModalForm
-        formRef={formRef}
-        title={<span>数据源连接配置</span>}
-        trigger={
-          <Button
-            key="db"
-            type="text"
-            size="small"
-            block
-            style={{ textAlign: 'left' }}
-            aria-label="数据源设置"
-            onClick={() => closeProjectMenu()}
-          >数据源设置</Button>
-        }
-        initialValues={{
-          ...defaultDbs?.properties,
-          dbs: databases
-        }}
-        // 完全自定义整个区域
-        submitter={{
-          // 完全自定义整个区域
-          render: (props, doms) => {
-            // @ts-ignore
-            return _.concat([], [
-              <Button disabled={!defaultData} key="rest" loading={state.loading}
-                      onClick={() => connectJDBC()}>{state.loading ? "正在连接" : "测试"}</Button>,
-              <Button type="primary" key="submit" onClick={() => {
-                message.success("保存成功！");
-              }}>确定</Button>,
-            ]);
-          },
-        }}
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const listLabel = defaultDB
+    ? ` 当前使用的数据源为「${defaultDB.name}」`
+    : databases.length > 0
+      ? ' 当前未选择默认数据源'
+      : '当前未创建数据源';
+
+  return (
+    <>
+      <Button
+        key="db"
+        type="text"
+        size="small"
+        block
+        style={{textAlign: 'left'}}
+        aria-label="数据源设置"
+        onClick={openModal}
       >
-        <Row gutter={16}>
-          <Col span={12}>
-            <ProFormList
-              name="dbs"
-              creatorButtonProps={false}
-              label={
-                <span>{defaultDB ? ` 当前使用的数据源为「${defaultDB.name}」` : databases.length > 0 ? ' 当前未选择默认数据源' : '当前未创建数据源'}</span>}
-              itemRender={
-                ({listDom, action}, {record}) => {
-                  return (
-                    <ProFormGroup size={8}>
-                      <ProFormRadio
-                        name="defaultDB"
-                        fieldProps={{
-                          onChange: () => {
-                            updateDatabase(record.key, { ...record, defaultDB: true });
-                          }
-                        }}/>
-                      <ProFormSelect
-                        options={databaseSelect || []}
-                        name="select"
-                        fieldProps={{
-                          disabled: !record.defaultDB,
-                          onChange: (value: any, option: any) => {
-                            updateDatabase(record.key, {
-                              ...record,
-                              select: value,
-                              properties: {
-                                driver_class_name: url[value.toLowerCase()].driver_class_name,
-                                url: url[value.toLowerCase()].url,
-                                username: '',
-                                password: ''
+        数据源设置
+      </Button>
+      <Modal
+        title="数据源连接配置"
+        open={open}
+        onCancel={closeModal}
+        destroyOnClose
+        width={960}
+        forceRender
+        footer={[
+          <Button
+            disabled={!defaultDbs}
+            key="test"
+            loading={pingLoading}
+            onClick={() => connectJDBC()}
+          >
+            {pingLoading ? '正在连接' : '测试'}
+          </Button>,
+          <Button
+            type="primary"
+            key="submit"
+            onClick={() => {
+              message.success('保存成功！');
+            }}
+          >
+            确定
+          </Button>,
+        ]}
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Row gutter={16}>
+            <Col span={12}>
+              <Form.Item label={listLabel}>
+                <Form.List name="dbs">
+                  {(fields) => (
+                    <>
+                      {fields.map((field) => {
+                        const record =
+                          (form.getFieldValue(['dbs', field.name]) as DataSourceRow | undefined) ||
+                          databases[field.name];
+                        return (
+                          <Space
+                            key={field.key}
+                            size={8}
+                            style={{display: 'flex', marginBottom: 8}}
+                            align="start"
+                          >
+                            <Form.Item
+                              name={[field.name, 'defaultDB']}
+                              valuePropName="checked"
+                              noStyle
+                            >
+                              <Radio
+                                onChange={() => {
+                                  if (!record?.key) return;
+                                  updateDatabase(record.key, {...record, defaultDB: true});
+                                }}
+                              />
+                            </Form.Item>
+                            <Form.Item name={[field.name, 'select']} noStyle>
+                              <Select
+                                options={dialectOptions}
+                                disabled={!record?.defaultDB}
+                                style={{width: 120}}
+                                onChange={(value: string) => {
+                                  if (!record?.key) return;
+                                  const tpl =
+                                    URL_TEMPLATES[value.toLowerCase()] || defaultDBData;
+                                  updateDatabase(record.key, {
+                                    ...record,
+                                    select: value,
+                                    properties: {
+                                      driver_class_name: tpl.driver_class_name,
+                                      url: tpl.url,
+                                      username: '',
+                                      password: '',
+                                    },
+                                  });
+                                }}
+                              />
+                            </Form.Item>
+                            <Form.Item
+                              name={[field.name, 'name']}
+                              rules={[{required: true}]}
+                              noStyle
+                            >
+                              <Input
+                                size="small"
+                                disabled={!record?.defaultDB}
+                                onBlur={(e) => {
+                                  if (!record?.key) return;
+                                  updateDatabase(record.key, {
+                                    ...record,
+                                    name: e.target.value,
+                                  });
+                                }}
+                              />
+                            </Form.Item>
+                            <Popconfirm
+                              title={
+                                record?.defaultDB
+                                  ? '是否要删除默认数据源？删除之后，系统将不存在默认数据源！'
+                                  : '是否删除该数据源？'
                               }
-                            });
-                          }
-                        }}
-                      />
-                      <ProFormText
-                        name="name"
-                        fieldProps={{
-                          size: "small",
-                          disabled: !record.defaultDB,
-                          onBlur: (e) => {
-                            updateDatabase(record.key, { ...record, name: e.target.value });
-                          }
-                        }}
-                        rules={[
-                          {
-                            required: true,
-                          },
-                        ]}
-                      />
-                      <Popconfirm
-                        title={record.defaultDB ? "是否要删除默认数据源？删除之后，系统将不存在默认数据源！" : "是否删除该数据源？"}
-                        onConfirm={() => removeDatabase(record.key)}
-                        okText="是"
-                        cancelText="否"
-                      >
-                        <a><DeleteOutlined title={"删除"}/></a>
-                      </Popconfirm>
-                    </ProFormGroup>
-                  );
-                }
-              }
-              copyIconProps={false}
-            >
-              <></>
-            </ProFormList>
-            <Button
-              type="dashed"
-              block
-              icon={<PlusOutlined/>}
-              aria-label="新增数据源"
-              onClick={() => {
-                         addDatabase({
-                           name: `数据源_${Date.now().toString(36).slice(-6)}`,
-                           select: defaultDatabase,
-                           // 表 id 历史为 varchar(32)；紧凑 32 位更稳妥（schema 已扩至 64）
-                           key: uuid(32),
-                           defaultDB: databases.findIndex((db: any) => db.defaultDB) === -1,
-                           properties: {
-                             driver_class_name: defaultDBData.driver_class_name,
-                             url: defaultDBData.url,
-                             password: '',
-                             username: ''
-                           }
-                         });
-                       }}>新增数据源</Button>
-
-          </Col>
-          <Col span={12}>
-            <ProFormText
-              width="md"
-              name="driver_class_name"
-              label="driver_class_name"
-              placeholder="driver_class_name"
-              fieldProps={{
-                onBlur: (e) => {
-                  updateDatabase(defaultDbs.key, {
-                    ...defaultDbs,
+                              onConfirm={() => record?.key && removeDatabase(record.key)}
+                              okText="是"
+                              cancelText="否"
+                            >
+                              <a>
+                                <DeleteOutlined title="删除" />
+                              </a>
+                            </Popconfirm>
+                          </Space>
+                        );
+                      })}
+                    </>
+                  )}
+                </Form.List>
+              </Form.Item>
+              <Button
+                type="dashed"
+                block
+                icon={<PlusOutlined />}
+                aria-label="新增数据源"
+                onClick={async () => {
+                  // 以 API 列表为准，避免闭包里 databases 过期导致首条未标 defaultDB、不落盘 defaultDataSourceId
+                  const latest =
+                    ((await projectDispatch.refreshDataSources()) as DataSourceRow[] | undefined) ||
+                    [];
+                  await addDatabase({
+                    name: `数据源_${Date.now().toString(36).slice(-6)}`,
+                    select: defaultDatabase,
+                    key: uuid(32),
+                    defaultDB: latest.findIndex((db) => db.defaultDB) === -1,
                     properties: {
-                      ...defaultDbs.properties,
-                      driver_class_name: e.target.value
-                    }
+                      driver_class_name: defaultDBData.driver_class_name,
+                      url: defaultDBData.url,
+                      password: '',
+                      username: '',
+                    },
                   });
-                }
-              }}
-              formItemProps={{
-                rules: [
-                  {
-                    required: true,
-                    message: '不能为空',
-                  },
-                  {
-                    max: 300,
-                    message: '不能大于 300 个字符',
-                  },
-                ],
-
-              }}
-            />
-            <ProFormText
-              width="md"
-              name="url"
-              label="url"
-              placeholder="请输入url"
-              fieldProps={{
-                onBlur: (e) => {
-                  updateDatabase(defaultDbs.key, {
-                    ...defaultDbs,
-                    properties: {
-                      ...defaultDbs.properties,
-                      url: e.target.value
-                    }
-                  });
-                }
-              }}
-              formItemProps={{
-                rules: [
-                  {
-                    required: true,
-                    message: '不能为空',
-                  },
-                  {
-                    max: 300,
-                    message: '不能大于 300 个字符',
-                  },
-                ],
-              }}
-            />
-            <ProFormText
-              width="md"
-              name="username"
-              label="username"
-              placeholder="请输入username"
-              fieldProps={{
-                onBlur: (e) => {
-                  updateDatabase(defaultDbs.key, {
-                    ...defaultDbs,
-                    properties: {
-                      ...defaultDbs.properties,
-                      username: e.target.value
-                    }
-                  });
-                }
-              }}
-              formItemProps={{
-                rules: [
-                  {
-                    required: true,
-                    message: '不能为空',
-                  },
-                  {
-                    max: 100,
-                    message: '不能大于 100 个字符',
-                  },
-                ],
-              }}
-            />
-            <ProFormText.Password
-              width="md"
-              name="password"
-              label="password"
-              placeholder="请输入password"
-              fieldProps={{
-                onBlur: (e) => {
-                  updateDatabase(defaultDbs.key, {
-                    ...defaultDbs,
-                    properties: {
-                      ...defaultDbs.properties,
-                      password: e.target.value
-                    }
-                  });
-                }
-              }}
-              formItemProps={{
-                rules: [
-                  {
-                    required: true,
-                    message: '不能为空',
-                  },
-                  {
-                    max: 100,
-                    message: '不能大于 100 个字符',
-                  },
-                ],
-              }}
-            />
-          </Col>
-        </Row>
-
-      </ModalForm>
-
-
+                }}
+              >
+                新增数据源
+              </Button>
+            </Col>
+            <Col span={12}>
+              <Form.Item
+                name="driver_class_name"
+                label="driver_class_name"
+                rules={[
+                  {required: true, message: '不能为空'},
+                  {max: 300, message: '不能大于 300 个字符'},
+                ]}
+              >
+                <Input
+                  placeholder="driver_class_name"
+                  onBlur={(e) => {
+                    if (!defaultDbs?.key) return;
+                    updateDatabase(defaultDbs.key, {
+                      ...defaultDbs,
+                      properties: {
+                        ...defaultDbs.properties,
+                        driver_class_name: e.target.value,
+                      },
+                    });
+                  }}
+                />
+              </Form.Item>
+              <Form.Item
+                name="url"
+                label="url"
+                rules={[
+                  {required: true, message: '不能为空'},
+                  {max: 300, message: '不能大于 300 个字符'},
+                ]}
+              >
+                <Input
+                  placeholder="请输入url"
+                  onBlur={(e) => {
+                    if (!defaultDbs?.key) return;
+                    updateDatabase(defaultDbs.key, {
+                      ...defaultDbs,
+                      properties: {
+                        ...defaultDbs.properties,
+                        url: e.target.value,
+                      },
+                    });
+                  }}
+                />
+              </Form.Item>
+              <Form.Item
+                name="username"
+                label="username"
+                rules={[
+                  {required: true, message: '不能为空'},
+                  {max: 100, message: '不能大于 100 个字符'},
+                ]}
+              >
+                <Input
+                  placeholder="请输入username"
+                  onBlur={(e) => {
+                    if (!defaultDbs?.key) return;
+                    updateDatabase(defaultDbs.key, {
+                      ...defaultDbs,
+                      properties: {
+                        ...defaultDbs.properties,
+                        username: e.target.value,
+                      },
+                    });
+                  }}
+                />
+              </Form.Item>
+              <Form.Item
+                name="password"
+                label="password"
+                rules={[
+                  {required: true, message: '不能为空'},
+                  {max: 100, message: '不能大于 100 个字符'},
+                ]}
+              >
+                <Input.Password
+                  placeholder="请输入password"
+                  onBlur={(e) => {
+                    if (!defaultDbs?.key) return;
+                    updateDatabase(defaultDbs.key, {
+                      ...defaultDbs,
+                      properties: {
+                        ...defaultDbs.properties,
+                        password: e.target.value,
+                      },
+                    });
+                  }}
+                />
+              </Form.Item>
+            </Col>
+          </Row>
+        </Form>
+      </Modal>
     </>
   );
 };
 
-export default React.memo(DatabaseSetUp)
+export default React.memo(DatabaseSetUp);

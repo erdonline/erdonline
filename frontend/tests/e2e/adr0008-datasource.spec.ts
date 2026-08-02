@@ -35,8 +35,9 @@ test.describe('ADR-0008 数据源', () => {
       const projectId = new URL(page.url()).searchParams.get('projectId');
       expect(projectId).toBeTruthy();
 
+      // 产品侧 SubMenu 为 click 展开（非 hover）
       await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '设置' }).hover();
+      await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '设置' }).click();
       await page.getByRole('button', { name: '数据源设置' }).click();
       await expect(page.getByRole('dialog').getByText('数据源连接配置')).toBeVisible();
 
@@ -47,13 +48,6 @@ test.describe('ADR-0008 数据源', () => {
           !r.url().includes('ping'),
         { timeout: 20_000 },
       );
-      const saveWait = page.waitForRequest(
-        (r) =>
-          (r.url().includes('/ncnb/project/save') ||
-            r.url().includes('/ncnb/project/group/save')) &&
-          r.method() === 'POST',
-        { timeout: 25_000 },
-      );
       await page.getByRole('button', { name: '新增数据源' }).click();
 
       const postRes = await postWait;
@@ -63,10 +57,24 @@ test.describe('ADR-0008 数据源', () => {
       const dsId = postRes.request().postDataJSON()?.id as string;
       expect(dsId).toBeTruthy();
 
-      const saveReq = await saveWait;
-      const saveBody = saveReq.postDataJSON();
-      const savedProfile = saveBody?.projectJSON?.profile || {};
-      expect(savedProfile.defaultDataSourceId).toBe(dsId);
+      // 忽略打开项目时的无关 autosave；只认带上本条 defaultDataSourceId 的落盘
+      const saveReq = await page.waitForRequest(
+        (r) => {
+          if (
+            !(
+              r.url().includes('/ncnb/project/save') ||
+              r.url().includes('/ncnb/project/group/save')
+            ) ||
+            r.method() !== 'POST'
+          ) {
+            return false;
+          }
+          const profile = r.postDataJSON()?.projectJSON?.profile || {};
+          return profile.defaultDataSourceId === dsId;
+        },
+        { timeout: 25_000 },
+      );
+      const savedProfile = saveReq.postDataJSON()?.projectJSON?.profile || {};
       expect(savedProfile.dbs === undefined || savedProfile.dbs?.length === 0).toBeTruthy();
 
       await expect
@@ -272,8 +280,8 @@ test.describe('ADR-0008 数据源', () => {
 
       const rowB = page.getByRole('row', { name: new RegExp(nameB) });
       await rowB.getByRole('button', { name: '删除' }).click();
-      const dialog = page.getByRole('dialog');
-      await expect(dialog.getByText('确认删除')).toBeVisible();
+      // Modal.confirm 会复制一份隐藏 title；以正文 + 确认钮为准
+      const dialog = page.getByRole('dialog').filter({ hasText: /不可逆/ });
       await expect(dialog.getByText(/不可逆/)).toBeVisible();
       await dialog.getByRole('button', { name: /确\s*认/ }).click();
       await expect(page.getByText('删除成功').first()).toBeVisible({ timeout: 15_000 });
