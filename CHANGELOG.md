@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 体验：关系图/设计器空态构图打磨（ADR-0016）
+
+- 选题：空态构图（设计器首印象）— 替换粉红卡通 `EmptyStateAnimation`，画布空态补 ER 剪影 + 主/次 CTA
+- `ErdEmptyDiagram`：幽灵表 + 虚线关联 + Frame 浅底，走 `--erd-*`
+- 画布空态：标题「开始你的第一张关系图」+「新建第一张表」+「从数据源逆向」；空态隐藏 MiniMap
+- 截图 `diagram-empty-composition.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 修复：Railway/Docker Maven 走 Central（勿阿里云）
 
 - `backend/Dockerfile`：不再 COPY / `-s` `.mvn/settings.xml`（海外 Aliyun 慢/错）
@@ -17,7 +26,6 @@
 验证点：`rg 'COPY.*settings|-s /root' backend/Dockerfile` = 0；`rg 'maven\.aliyun' backend/pom.xml` = 0；`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests help:evaluate -Dexpression=project.version -DforceStdout`（本机仍走 settings/Aliyun）
 
 #### 体验：导入后 Frame 自动建议（ADR-0016）
-
 
 - 选题：空态构图 vs 导入 Frame → 选后者（分享首印象：导入多表立刻有分组层次，空态 CTA 已可用）
 - `suggestImportFrames`：表名前缀优先（`sys_*`/`biz_*`），否则 ≥2 连通分量；禁单前缀/单分量整图大框

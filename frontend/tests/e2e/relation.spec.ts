@@ -161,6 +161,41 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('空态构图：ER 剪影 + 主次 CTA', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('emptyviz');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'emptyviz', 'empty composition');
+      await openRelationFromEmpty(page);
+
+      const empty = page.getByTestId('canvas-empty-state');
+      await expect(empty).toBeVisible();
+      await expect(page.getByTestId('erd-empty-diagram')).toBeVisible();
+      await expect(empty.getByText('开始你的第一张关系图')).toBeVisible();
+      await expect(page.getByTestId('canvas-empty-create')).toBeVisible();
+      await expect(page.getByRole('button', { name: '从数据源逆向' })).toBeVisible();
+      await expect(page.getByLabel('画布缩略图')).toHaveCount(0);
+
+      const titleColor = await empty.locator('.erd-empty-title').evaluate(
+        (el) => getComputedStyle(el).color,
+      );
+      expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-empty-composition.png',
+        fullPage: false,
+      });
+
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(page.getByTestId('canvas-empty-state')).toHaveCount(0);
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByLabel('画布缩略图')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('表头 ✎ 可改名', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('rename');
