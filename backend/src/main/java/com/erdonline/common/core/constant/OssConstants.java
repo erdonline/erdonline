@@ -19,9 +19,14 @@ public final class OssConstants {
     public static final String DEFAULT_BUCKET = CommonConstants.MARTIN;
 
     /**
-     * 默认word模板路径
+     * 默认word模板路径（MinIO 对象键；缺席时回落 classpath）
      */
     public static final String DEFAULT_WORD_PATH = DEFAULT_BUCKET + StrUtil.SLASH + "default" + StrUtil.SLASH + "defaultWorldTemplate.docx";
+
+    /**
+     * 内置默认 Word 模板（无 MinIO 时 gendocx / downloadWordTemplate 降级使用）
+     */
+    public static final String CLASSPATH_DEFAULT_WORD_TEMPLATE = "templates/word/defaultWorldTemplate.docx";
 
     /**
      * 默认桶

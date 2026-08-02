@@ -97,7 +97,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 54. ~~**`lint:js:ci` 分享页 Array 类型 + DataDomain hooks**~~（已合入；`yarn lint:js:ci` 0 error；`share.spec`）
 55. ~~**编辑版本号校验失败仍关弹窗**~~（已合入；`RenameVersion` `onFinish` 失败返回 false；`version.spec`「重命名」）
 
-> 种子池暂空：a11y 微切片停；本 tick 已收口版本编辑校验。Word 导出真实下载 E2E 依赖本机 MinIO（`docker-compose` 未挂服务），环境未就绪前不拆 Issue。正式仓投放时从合入项外另选题。
+> 种子池暂空：a11y 微切片停。Word 导出已去 MinIO 硬依赖（classpath 默认模板）；真实 Word 下载 E2E 可另开切片覆盖。正式仓投放时从合入项外另选题。
 
 ## 贡献者怎么认领
 
