@@ -59,9 +59,8 @@ export default [
         component: './project/group',
       },
       {
-        name: 'new',
         path: '/project/new',
-        component: './project/new',
+        redirect: '/project/person',
       },
       {
         component: './404',

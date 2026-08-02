@@ -1,7 +1,7 @@
 # 全站控件矩阵（单一事实源）
 
 > 服务 P2b「全站控件闭环」。每波收口同步改本表。  
-> 状态：✅ 已有 E2E/自动化覆盖 · 🚧 开放待闭环 · 💀 已知死表面 · 🗑 待删除 · 📋 延期  
+> 状态：✅ 已有 E2E/自动化覆盖 · 🚧 开放待闭环 · 🗑 已裁剪/待删 · 📋 延期  
 > 采集：手工可跑 `frontend/tests/e2e/control-inventory.spec.ts`（默认 skip，不进 CI）。
 
 ## 波次索引
@@ -82,7 +82,7 @@
 | `/project/group` | 团队项目列表/打开 | 进设计器或设置 | 权限 | 🚧 | `empty-projectjson` API 侧 |
 | `/project/group` | 进入团队设置 | → `/project/group/setting/basic` | GroupLayout | 🚧 | 依赖 W0 |
 | `/project/notice` | 通知列表 | 可读/可点处理 | | 🚧 | |
-| `/project/new` | （整页） | 无真实新建闭环（ZeroCode 占位栅格） | 应删或 redirect→person | 💀 | W2：🗑 或 redirect |
+| `/project/new` | （整页） | redirect→`/project/person`；占位页已删 | W2 新建走 person | ✅ | W6 裁剪 |
 | `/dataModels` | 模型列表入口 | 与项目列表等价可用 | | 🚧 | |
 
 ---
@@ -98,8 +98,8 @@
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新 | | ✅ | `relation`「改名」 |
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后移除+toast | | ✅ | `smoke` 取消/确认 |
-| `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | 🚧 | 单测有；E2E 待 |
-| `/design/table/model` | 删边 | 确认后边消失并落库 | | 🚧 | |
+| `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
+| `/design/table/model` | 删边 | 确认后边消失并落库 | | ✅ | `relation`「删边后刷新仍无边」 |
 | DesignLayout | 项目菜单按钮 | 下拉打开 | | ✅ | `project-menu.spec` |
 | 项目菜单 | 版本 | → 版本管理 | | ✅ | `project-menu`「版本」 |
 | 项目菜单 | 导入→三项 | 弹窗可开、关下拉不挡 | | ✅ | `project-menu`「导入」 |
@@ -108,9 +108,9 @@
 | 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
 | DesignLayout | 自动保存状态 | 可见保存中/已保存 | P2 | 🚧 | checklist |
 | DesignLayout | 命令面板/快捷键 | 面板切换有反馈 | shortcut store | 🚧 | |
-| `ProjectSortMenu` | 创建时间/最近修改 | 无调用方；项无排序行为 | 死代码 | 💀 | W6 🗑 |
-| `ProjectFilterMenu` | 过滤1/过滤2 | 无调用方；仅切 shortcut 面板 | 死代码 | 💀 | W6 🗑 |
-| `NavigationMenu` | （空水平菜单） | 占位防白屏，无入口 | | 💀 | W6 🗑 |
+| `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | W6 已删 |
+| `ProjectFilterMenu` | 过滤1/过滤2 | 已从 Menu 导出删除 | 死代码 | 🗑 | W6 已删 |
+| `NavigationMenu` | （空水平菜单） | 已从 Menu 导出删除 | | 🗑 | W6 已删 |
 
 ---
 
@@ -121,7 +121,7 @@
 | DesignLayout 菜单 | 版本管理 | → `/design/table/version/all` | | ✅ | `project-menu` / `version` / `loading` |
 | `/design/table/version/all` | 新增版本（无数据源） | 列表可见新版本 | 北极星 | ✅ | `version.spec`「新增」 |
 | `/design/table/version/all` | 版本详情 diff | 增删改着色 | | ✅ | `version.spec`「diff」 |
-| `/design/table/version/all` | 重命名/删除版本 | 列表更新+toast | VersionHandle | 🚧 | |
+| `/design/table/version/all` | 重命名/删除版本 | 列表更新+toast | VersionHandle | ✅ | `version.spec`「重命名与删除」 |
 | `/design/table/version/all` | 对比版本 | 对比结果可见 | | 🚧 | |
 | `/design/table/version/all` | 回滚 | 落库；刷新后模型仍回滚 | | ✅ | 回滚落库；version/approval 绿 |
 | DesignLayout 菜单 | 我的工单 | → `/design/table/version/order` 空态引导 | | ✅ | `approval.spec` |
@@ -137,24 +137,24 @@
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
 | `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | 🚧 | 待「假库/文件→模型可见」 |
-| `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | 🚧 | |
+| `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
 | `/design/table/import/erd` | 上传 ERD | 模型可见 | | 🚧 | |
-| `ReverseERWin` | 解析 ERWin 文件 | 仅 toast「开发中」；菜单未挂 | stub | 💀 | W6 🗑 |
+| `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | W6 已删 |
 | `/design/table/export/common` | 导出 Markdown | 文件下载 | 无 G6 | ✅ | `export.spec` |
-| `/design/table/export/common` | 导出 HTML/Word/ERD | 下载或明确失败 | | 🚧 | 菜单入口✅；终步待 |
+| `/design/table/export/common` | 导出 HTML/Word/ERD | 下载或明确失败 | | ✅ | `export.spec` HTML+ERD |
 | `/design/table/export/more` | 高级导出 DDL | 有源+表时可进第二步 | ADR-0008 | ✅ | `project-menu`「DDL 第二步」 |
-| `/design/table/export/more` | DDL 终步下载 | 产出 SQL 文件 | | 🚧 | 终步待 |
+| `/design/table/export/more` | DDL 终步下载 | 产出 SQL 文件 | | ✅ | `project-menu`「DDL 下载」 |
 
 ### `/databaseConfig`
 
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
 | `/databaseConfig` | 新建/保存数据源 | POST dataSources；profile 无 password | ADR-0008 | ✅ | `adr0008-datasource.spec` |
-| `/databaseConfig` | 测试连接 | 成功/失败 toast | | 🚧 | |
+| `/databaseConfig` | 测试连接 | 成功/失败 toast | | ✅ | `adr0008-datasource.spec`「测试连接」 |
 | `/databaseConfig` | 编辑/删除/批量删 | 列表更新 | | 🚧 | |
 | `/databaseConfig` | 同步状态钮 | 状态刷新 | | 🚧 | |
-| `/databaseConfig` 顶栏 | 「统计」按钮 | 无 onClick | 死 affordance | 💀 | W6 接线或 🗑 |
-| `/databaseConfig` 顶栏 | 「帮助」按钮 | 无 onClick | 死 affordance | 💀 | W6 接线或 🗑 |
+| `/databaseConfig` 顶栏 | 「统计」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
+| `/databaseConfig` 顶栏 | 「帮助」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
 
 ---
 
@@ -164,13 +164,13 @@
 |---|---|---|---|---|---|
 | DesignLayout 菜单 | 数据域 | → `/design/dataDomain` 可编辑保存 | | 🚧 | 无价值则裁剪导航 |
 | DesignLayout 菜单 | 查询 | → `/design/table/query` 执行有结果/错误 | | 🚧 | |
-| DesignLayout 菜单 | Chat SQL | 实验面；默认不扩能力 | AI 后置 | 💀 | 隐藏或标实验 |
+| DesignLayout 菜单 | Chat SQL | 侧栏已隐藏；路由保留实验页 | AI 后置 | ✅ | W6 裁剪导航 |
 | `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | 🚧 | |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 查询 CRUD/执行 | 有反馈 | Home 菜单 | 🚧 | |
 | `/account/settings` | 基本资料保存 | toast | | 🚧 | |
-| `/account/settings` | 「更换头像」Upload | 无 action/上传逻辑（空壳） | | 💀 | W6 接线或 🗑 |
+| `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
 | `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | 🚧 | |
 | `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | 🚧 | |
 | `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | 🚧 | |
@@ -197,10 +197,10 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 45 |
+| ✅ | 48 |
 | 🚧 | 44 |
-| 💀 | 9 |
+| 🗑 | 7 |
 | 📋 | 2 |
-| **合计** | **100** |
+| **合计** | **101** |
 
 Vision loop：有 P2b 🚧 时，优先啃本表下一行可验证 🚧 切片（见 `scripts/agent-loop-vision.prompt.md`）。
