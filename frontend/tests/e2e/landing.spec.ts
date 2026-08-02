@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test';
 
 /**
- * P5 落地页：公开叙事 + CTA → demo / 登录
+ * P5 落地页：公开叙事 + CTA → demo / 登录；已登录主 CTA → /home
  */
 test.describe('落地页', () => {
   test('加载可见品牌与主文案；CTA 可达 demo 与登录', async ({ page }) => {
@@ -26,4 +26,17 @@ test.describe('落地页', () => {
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByTestId('landing-page')).toBeVisible();
   });
+
+  test('已登录时主 CTA 进入工作台，不被营销页困住', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('Authorization', 'e2e-landing-session');
+    });
+    await page.goto('/');
+    await expect(page.getByTestId('landing-page')).toBeVisible();
+    const heroPrimary = page.locator('.landingHero .landingBtnPrimary');
+    await expect(heroPrimary).toHaveAttribute('href', /\/home/);
+    await expect(heroPrimary).toHaveAccessibleName('进入工作台');
+    await expect(page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: '进入工作台' })).toBeVisible();
+  });
 });
+
