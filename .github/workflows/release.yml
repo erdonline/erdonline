@@ -119,7 +119,7 @@ jobs:
             type=sha,prefix=,format=short,enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build and push backend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./backend
           push: true
@@ -140,7 +140,7 @@ jobs:
             type=sha,prefix=,format=short,enable=${{ github.event_name == 'workflow_dispatch' }}
 
       - name: Build and push frontend
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: ./frontend
           push: true
