@@ -16,6 +16,7 @@ import ReactFlow, {
   NodeChange,
   EdgeChange,
   ReactFlowInstance,
+  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -63,6 +64,20 @@ type Association = {
 /** 边命中热区宽度（px）；视觉描边仍细，改善中点被节点贴近时的可点性 */
 export const EDGE_INTERACTION_WIDTH = 24;
 
+/** from 侧字段 = FK；按实体聚合，供节点徽章 */
+function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
+  const map = new Map<string, string[]>();
+  for (const a of associations || []) {
+    const entity = a?.from?.entity;
+    const field = a?.from?.field;
+    if (!entity || !field) continue;
+    const list = map.get(entity) || [];
+    if (!list.includes(field)) list.push(field);
+    map.set(entity, list);
+  }
+  return map;
+}
+
 function associationsToEdges(associations: Association[]): Edge[] {
   return (associations || [])
     .filter(a => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field)
@@ -72,9 +87,19 @@ function associationsToEdges(associations: Association[]): Edge[] {
       sourceHandle: `${a.from!.field}-src`,
       target: a.to!.entity!,
       targetHandle: `${a.to!.field}-tgt`,
+      type: 'smoothstep',
       label: a.relation || '',
-      labelStyle: { fontSize: 10, fill: erdColors.ink400 },
+      labelStyle: { fontSize: 10, fill: erdColors.ink400, fontFamily: 'var(--erd-font-mono)' },
+      labelBgStyle: { fill: erdColors.surfaceSunk, fillOpacity: 0.94 },
+      labelBgPadding: [4, 2] as [number, number],
+      labelBgBorderRadius: 3,
       style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
+      markerEnd: {
+        type: MarkerType.ArrowClosed,
+        width: 14,
+        height: 14,
+        color: erdColors.ink600,
+      },
       animated: false,
       interactionWidth: EDGE_INTERACTION_WIDTH,
     }));
@@ -91,12 +116,15 @@ export const VIEWPORT_CULL_THRESHOLD = 24;
 type TableNodeData = {
   entity: EntityData;
   moduleName: string;
+  /** 本表作为 association.from 的字段名（外键） */
+  fkFields?: string[];
 };
 
 /** 表节点：字段级 Handle + 内联字段编辑（增/改/删）+ 表头改名。memo 避免拖动画布时全量重渲。 */
 const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, selected }) => {
   const entity = data.entity;
   const moduleName = data.moduleName;
+  const fkSet = useMemo(() => new Set(data.fkFields || []), [data.fkFields]);
   const updateNodeInternals = useUpdateNodeInternals();
 
   const onFieldsChange = (fields: FieldData[]) => {
@@ -315,7 +343,11 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           ) : (
             <div
               key={f.name}
-              className="erd-field-row"
+              className={[
+                'erd-field-row',
+                f.pk ? 'erd-field-pk' : '',
+                fkSet.has(f.name) ? 'erd-field-fk' : '',
+              ].filter(Boolean).join(' ')}
               onDoubleClick={() => setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk })}
               title="双击编辑字段"
               data-field={f.name}
@@ -334,6 +366,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 >
                   PK
                 </button>
+                {fkSet.has(f.name) ? (
+                  <span className="erd-fk-badge" title="外键" aria-label="外键">FK</span>
+                ) : null}
                 {f.name}
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
               </span>
@@ -389,10 +424,21 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
   const edges: Edge[] = useMemo(() => {
     const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
-    return associationsToEdges(module?.associations || []).map(e => ({
-      ...e,
-      selected: !!edgeSelected[e.id],
-    }));
+    return associationsToEdges(module?.associations || []).map(e => {
+      const selected = !!edgeSelected[e.id];
+      const stroke = selected ? erdColors.brand : erdColors.ink600;
+      return {
+        ...e,
+        selected,
+        style: { ...e.style, stroke, strokeWidth: selected ? 2 : 1.5 },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 14,
+          height: 14,
+          color: stroke,
+        },
+      };
+    });
   }, [projectJSON, moduleEntity.module, edgeSelected]);
 
   // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
@@ -409,6 +455,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       associations,
       savedNodes,
     );
+    const fkMap = fkFieldsByEntity(associations);
 
     setNodes(prev =>
       entities.map((entity) => {
@@ -426,10 +473,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           id: entity.title,
           type: 'table',
           position: hasSaved ? saved : (live?.position || saved),
-          // 仅放 entity + moduleName：回调走 getState，便于 TableNode memo
+          // entity + moduleName + fkFields：回调走 getState，便于 TableNode memo
           data: {
             entity,
             moduleName: moduleEntity.module,
+            fkFields: fkMap.get(entity.title) || [],
           },
           // 重建必须保留交互态（selected），否则点击选中立即被重建抹掉（已实证）
           selected: live?.selected,

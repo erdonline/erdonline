@@ -222,6 +222,57 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016：节点密度 / PK·FK 徽章 / smoothstep 箭头边 — 敢分享截图
+  test('表节点视觉：PK/FK 与边样式', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('polish');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'polish', 'node visual polish');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
+      const orderNode = rfNode(page, 'T_ORDER');
+      const fkRow = orderNode.locator('[data-field="T1_ID"]');
+      await expect(fkRow.locator('.erd-fk-badge')).toBeVisible();
+      await expect(fkRow).toHaveClass(/erd-field-fk/);
+
+      const pkRow = rfNode(page, 'T_TABLE_1').locator('.erd-field-row.erd-field-pk').first();
+      await expect(pkRow.locator('.erd-pk-badge.active')).toBeVisible();
+
+      const titleFont = await orderNode.locator('.erd-table-title').evaluate(
+        (el) => getComputedStyle(el).fontFamily,
+      );
+      expect(titleFont.toLowerCase()).toMatch(/mono|menlo|consolas/);
+
+      const edgePath = page.locator('.react-flow__edge-path').first();
+      await expect(edgePath).toBeVisible();
+      const marker = await edgePath.getAttribute('marker-end');
+      expect(marker, '边应带闭合箭头 marker').toBeTruthy();
+
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-node-polish.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('save-status：aria-live 播报自动保存状态', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('savestatus');
