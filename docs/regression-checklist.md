@@ -225,6 +225,7 @@
 - [x] [编辑态自增即时保存] ✎ 内勾/取消自增 → save-status 已保存；空名 toast 保留 ✅ `relation.spec`「编辑态自增」
 - [x] [编辑态隐藏即时保存] ✎ 内勾「在关系图中隐藏」→ 行离画布 + toast + save-status；表底「已隐藏」→「显示」恢复 ✅ `relation.spec`「编辑态隐藏」
 - [x] [编辑态 Escape 取消] ✎ 改名后 Escape → 原名保留、不经 blur 落盘；新建行 Escape 不落盘 ✅ `relation.spec`「编辑态 Escape」
+- [x] [删字段二次确认] × / 选中 Delete·Backspace → 确认才删；取消保留；编辑态 Backspace 只改字；空名 toast / Escape 保留 ✅ `relation.spec`「删除字段」
 - [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
 - [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1；工具条「命令」/Esc ✅自动（`relation.spec`「命令面板」）
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动

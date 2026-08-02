@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：Delete/Backspace 删字段二次确认（建模回路）
+
+- 选题：画布「×」删字段无确认；键盘 Delete/Backspace 只能删边/Frame，字段无键盘删除回路；编辑态 Backspace 必须仍只改字
+- 浏览态单击选中字段 → Delete/Backspace → `Modal.confirm`（不可逆文案）；取消不删；「删除字段」按钮同确认
+- 编辑态 input Backspace 不弹确认、不删行；Escape / Tab / 空名 toast 路径不变
+- E2E：`relation`「删除字段：按钮二次确认；选中 Delete/Backspace；编辑态 Backspace 不删」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "删除字段" --workers=1 --retries=0`
+
 #### 体验：编辑态 Escape 取消改名（建模回路）
 
 - 选题：字段 Escape 只 `setEditing(null)`，卸 input 时 blur 仍走 `commit` → 取消变静默落盘（改名/新建草稿误保存）
