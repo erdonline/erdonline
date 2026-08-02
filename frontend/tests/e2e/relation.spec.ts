@@ -640,6 +640,25 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('button', { name: '重做' })).toBeVisible();
       await expect(page.getByRole('button', { name: '自动布局' })).toBeVisible();
 
+      // ADR-0016：画布工具栏密度（≤22）与 Controls/Frame chrome 同阶；禁 5×12 松按钮
+      const toolMetrics = await page
+        .getByRole('button', { name: '撤销' })
+        .evaluate((el) => {
+          const cs = getComputedStyle(el);
+          return {
+            h: parseFloat(cs.height),
+            padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+            fontSize: parseFloat(cs.fontSize),
+          };
+        });
+      expect(
+        toolMetrics.h,
+        `工具栏按钮高应 ≤22，得 ${toolMetrics.h}`,
+      ).toBeLessThanOrEqual(22);
+      expect(toolMetrics.h).toBeGreaterThanOrEqual(18);
+      expect(toolMetrics.padY).toBeLessThanOrEqual(4);
+      expect(toolMetrics.fontSize).toBeLessThanOrEqual(11);
+
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       await page.getByTestId('design-tree-add').click();
@@ -658,6 +677,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('button', { name: '顶对齐' })).toBeVisible();
       await expect(page.getByRole('button', { name: '垂直居中' })).toBeVisible();
       await expect(page.getByRole('button', { name: '底对齐' })).toBeVisible();
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-canvas-toolbar-dense.png',
+        fullPage: false,
+      });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
