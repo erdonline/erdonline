@@ -23,9 +23,15 @@ import useProjectStore from '@/store/project/useProjectStore';
 import useTabStore, { ModuleEntity } from '@/store/tab/useTabStore';
 import { erdColors } from '@/theme/tokens';
 import {
+  DiagramFrame,
+  computeFrameBoundsFromNodes,
+  frameNodeId,
+  getActiveDiagramFrames,
   getActiveDiagramLayoutNodes,
+  isFrameNodeId,
   listDiagrams,
   parseDiagramIdFromTabEntity,
+  parseFrameIdFromNodeId,
   relationTabEntity,
 } from '@/utils/diagram';
 import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
@@ -412,7 +418,30 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   );
 });
 
-const nodeTypes = { table: TableNode };
+/** 视觉框：z-index 低于表；成员显式记录，拖框不带动成员（ADR-0017） */
+const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.memo(({ data, selected }) => {
+  const f = data.frame;
+  return (
+    <div
+      className={`erd-frame-node${selected ? ' selected' : ''}`}
+      data-testid="diagram-frame"
+      data-frame-id={f.id}
+      style={{
+        width: '100%',
+        height: '100%',
+        background: f.color || 'rgba(47, 143, 123, 0.10)',
+      }}
+      aria-label={`分组 ${f.name}`}
+    >
+      <div className="erd-frame-label">{f.name}</div>
+      {(f.memberEntityIds?.length || 0) > 0 ? (
+        <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+      ) : null}
+    </div>
+  );
+});
+
+const nodeTypes = { table: TableNode, frame: FrameNode };
 
 export type ReactFlowRelationProps = {
   moduleEntity: ModuleEntity;
@@ -431,6 +460,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [diagramModal, setDiagramModal] = useState<
     null | { mode: 'create' | 'rename'; name: string; diagramId?: string }
   >(null);
+  const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
 
   const moduleName = moduleEntity.module || '';
   const diagramIdFromTab = parseDiagramIdFromTabEntity(moduleName, moduleEntity.entity);
@@ -445,6 +475,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     [projectJSON, moduleName],
   );
   const diagrams = useMemo(() => listDiagrams(currentModule), [currentModule]);
+  const frames = useMemo(
+    () => getActiveDiagramFrames(currentModule, activeDiagramId),
+    [currentModule, activeDiagramId],
+  );
 
   const switchDiagram = useCallback(
     (nextId: string) => {
@@ -515,8 +549,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     );
     const fkMap = fkFieldsByEntity(associations);
 
-    setNodes(prev =>
-      entities.map((entity) => {
+    const diagramFrames = getActiveDiagramFrames(module, activeDiagramId);
+
+    setNodes(prev => {
+      const tableNodes = entities.map((entity) => {
         const live = prev.find(n => n.id === entity.title);
         const saved = positions[entity.title];
         // 已有持久坐标时以 saved 为准；仅缺坐标且 live 已有拖动中位置时保留 live
@@ -530,6 +566,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return {
           id: entity.title,
           type: 'table',
+          zIndex: 2,
           // 切图/自动补坐标时禁止沿用上一图的 live 坐标
           position: hasSaved
             ? saved
@@ -543,8 +580,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           // 重建必须保留交互态（selected），否则点击选中立即被重建抹掉（已实证）
           selected: live?.selected,
         } as Node;
-      })
-    );
+      });
+
+      const frameNodes: Node[] = diagramFrames.map((f) => {
+        const nid = frameNodeId(f.id);
+        const live = prev.find((n) => n.id === nid);
+        return {
+          id: nid,
+          type: 'frame',
+          zIndex: 0,
+          position: { x: f.x, y: f.y },
+          style: { width: f.w, height: f.h, zIndex: 0 },
+          data: { frame: f },
+          draggable: true,
+          selectable: true,
+          connectable: false,
+          selected: live?.selected,
+        };
+      });
+
+      // 框在下、表在上（渲染顺序 + zIndex）
+      return [...frameNodes, ...tableNodes];
+    });
 
     if (didAutoLayout && entities.length > 0) {
       projectDispatch.updateGraphCanvasLayout(
@@ -560,36 +617,101 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // 画布上禁止按键删节点：实体即节点，删节点=删表（破坏性），不能交给一次误按。
-      // 表的删除统一走左侧模型树（有上下文、可回收），此处拦截并提示
-      const nodeRemoved = changes.some(c => c.type === 'remove');
-      if (nodeRemoved) {
+      // 表：禁止按键删除（走模型树）。Frame：Delete → 写路径 removeFrame，由 store 重建。
+      const removes = changes.filter((c) => c.type === 'remove') as Array<{ type: 'remove'; id: string }>;
+      const tableRemoves = removes.filter((c) => !isFrameNodeId(c.id));
+      const frameRemoves = removes.filter((c) => isFrameNodeId(c.id));
+      if (tableRemoves.length) {
         message.info('数据表的删除请在左侧模型树中操作');
       }
-      const safe = changes.filter(c => c.type !== 'remove');
-      setNodes(prev => applyNodeChanges(safe, prev));
+      frameRemoves.forEach((c) => {
+        projectDispatch.removeFrame(moduleName, activeDiagramId, parseFrameIdFromNodeId(c.id));
+      });
+      const safe = changes.filter((c) => c.type !== 'remove');
+      setNodes((prev) => applyNodeChanges(safe, prev));
     },
-    [setNodes]
+    [setNodes, projectDispatch, moduleName, activeDiagramId],
   );
 
-  // 拖动结束 → 布局持久化（含多选拖动：第三个参数为全部节点当前坐标）
+  // 拖动结束 → 表写 layout；框写 groups（不重父化成员）
   const onNodeDragStop = useCallback(
     (_: any, __: Node, allNodes: Node[]) => {
-      projectDispatch.updateGraphCanvasLayout(
-        moduleName,
-        allNodes.map(n => ({ id: n.id, position: n.position })),
-        activeDiagramId,
-      );
+      const tables = allNodes.filter((n) => n.type === 'table');
+      const movedFrames = allNodes.filter((n) => n.type === 'frame');
+      if (tables.length) {
+        projectDispatch.updateGraphCanvasLayout(
+          moduleName,
+          tables.map((n) => ({ id: n.id, position: n.position })),
+          activeDiagramId,
+        );
+      }
+      if (movedFrames.length) {
+        projectDispatch.updateFrameBounds(
+          moduleName,
+          activeDiagramId,
+          movedFrames.map((n) => ({
+            id: parseFrameIdFromNodeId(n.id),
+            x: n.position.x,
+            y: n.position.y,
+            w: typeof n.width === 'number' ? n.width : undefined,
+            h: typeof n.height === 'number' ? n.height : undefined,
+          })),
+        );
+      }
     },
-    [projectDispatch, moduleName, activeDiagramId]
+    [projectDispatch, moduleName, activeDiagramId],
   );
 
-  const selectedCount = nodes.filter(n => n.selected).length;
+  const selectedTables = nodes.filter((n) => n.selected && n.type === 'table');
+  const selectedCount = selectedTables.length;
 
-  // 多选对齐：以选中集的包围盒为基准，改坐标后持久化
+  const onCreateFrame = useCallback(() => {
+    const selected = nodes.filter((n) => n.selected && n.type === 'table');
+    const memberEntityIds = selected.map((n) => n.id);
+    const bounds = computeFrameBoundsFromNodes(selected);
+    projectDispatch.createFrame(moduleName, activeDiagramId, {
+      name: `分组${frames.length + 1}`,
+      memberEntityIds,
+      ...bounds,
+    });
+  }, [nodes, frames.length, projectDispatch, moduleName, activeDiagramId]);
+
+  const onAssignToFrame = useCallback(() => {
+    const selected = nodes.filter((n) => n.selected && n.type === 'table');
+    if (!selected.length) {
+      message.info('请先选中要加入分组的表');
+      return;
+    }
+    if (!frames.length) {
+      message.info('请先新建分组');
+      return;
+    }
+    const selectedFrame = nodes.find((n) => n.selected && n.type === 'frame');
+    if (selectedFrame) {
+      projectDispatch.addFrameMembers(
+        moduleName,
+        activeDiagramId,
+        parseFrameIdFromNodeId(selectedFrame.id),
+        selected.map((n) => n.id),
+      );
+      return;
+    }
+    if (frames.length === 1) {
+      projectDispatch.addFrameMembers(
+        moduleName,
+        activeDiagramId,
+        frames[0].id,
+        selected.map((n) => n.id),
+      );
+      return;
+    }
+    setFrameAssignModal({ frameId: frames[0].id });
+  }, [nodes, frames, projectDispatch, moduleName, activeDiagramId]);
+
+  // 多选对齐：仅表节点；以选中集的包围盒为基准，改坐标后持久化
   const alignSelected = useCallback((mode: 'left' | 'right' | 'top' | 'bottom' | 'hcenter' | 'vcenter') => {
     setNodes(prev => {
-      const selected = prev.filter(n => n.selected);
+      const selected = prev.filter(n => n.selected && n.type === 'table');
       if (selected.length < 2) {
         message.info('请先选中至少两张表（Shift+点击或框选）');
         return prev;
@@ -602,9 +724,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       const maxB = Math.max(...selected.map(n => n.position.y + h(n)));
       const midX = (minX + maxR) / 2;
       const midY = (minY + maxB) / 2;
+      const selectedIds = new Set(selected.map((n) => n.id));
 
       const next = prev.map(n => {
-        if (!n.selected) {
+        if (!selectedIds.has(n.id)) {
           return n;
         }
         let { x, y } = n.position;
@@ -618,7 +741,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       });
       projectDispatch.updateGraphCanvasLayout(
         moduleName,
-        next.map(n => ({ id: n.id, position: n.position })),
+        next.filter((n) => n.type === 'table').map(n => ({ id: n.id, position: n.position })),
         activeDiagramId,
       );
       return next;
@@ -698,22 +821,24 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     projectDispatch.addEntity({ moduleName: moduleEntity.module, title, chnname: '' });
   }, [projectJSON, projectDispatch, moduleEntity.module]);
 
-  // 一键 dagre 自动布局（布局即持久化到当前图）
+  // 一键 dagre 自动布局（仅表；Frame 坐标不动）
   const autoLayout = useCallback(() => {
     setNodes(prev => {
-      const entities = prev.map(n => n.data?.entity || { title: n.id });
+      const tables = prev.filter((n) => n.type === 'table');
+      const rest = prev.filter((n) => n.type !== 'table');
+      const entities = tables.map(n => n.data?.entity || { title: n.id });
       const associations = edges.map(e => ({
         from: { entity: e.source },
         to: { entity: e.target },
       }));
       const positions = dagrePositions(entities, associations);
-      const next = prev.map(n => ({ ...n, position: positions[n.id] || n.position }));
+      const nextTables = tables.map(n => ({ ...n, position: positions[n.id] || n.position }));
       projectDispatch.updateGraphCanvasLayout(
         moduleName,
-        next.map(n => ({ id: n.id, position: n.position })),
+        nextTables.map(n => ({ id: n.id, position: n.position })),
         activeDiagramId,
       );
-      return next;
+      return [...rest, ...nextTables];
     });
   }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
@@ -770,9 +895,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       __ERD_E2E__?: {
         ensureTables: (total: number) => number;
         setViewport: (vp: { x: number; y: number; zoom: number }) => void;
+        getDiagramGroups: () => DiagramFrame[];
       };
     };
     w.__ERD_E2E__ = {
+      getDiagramGroups: () => getActiveDiagramFrames(currentModule, activeDiagramId),
       ensureTables: (total: number) => {
         const state = useProjectStore.getState();
         const modName = moduleEntity.module;
@@ -821,9 +948,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     return () => {
       delete w.__ERD_E2E__;
     };
-  }, [moduleEntity.module]);
+  }, [moduleEntity.module, currentModule, activeDiagramId]);
 
-  const cullViewport = nodes.length >= VIEWPORT_CULL_THRESHOLD;
+  const tableNodeCount = nodes.filter((n) => n.type === 'table').length;
+  const cullViewport = tableNodeCount >= VIEWPORT_CULL_THRESHOLD;
 
   const commands: CommandItem[] = useMemo(() => [
     {
@@ -868,7 +996,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     <div
       className="erd-reactflow-container"
       data-testid="reactflow-canvas"
-      data-node-total={nodes.length}
+      data-node-total={tableNodeCount}
       data-viewport-cull={cullViewport ? '1' : '0'}
     >
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} commands={commands} />
@@ -936,6 +1064,26 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 重命名
               </button>
             </span>
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              data-testid="create-frame"
+              onClick={onCreateFrame}
+              title="新建分组（可选先选中表）"
+              aria-label="新建分组"
+            >
+              新建分组
+            </button>
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              data-testid="assign-frame"
+              onClick={onAssignToFrame}
+              title="将选中表加入分组"
+              aria-label="加入分组"
+            >
+              加入分组
+            </button>
             <button
               type="button"
               className="erd-canvas-tool"
@@ -1069,6 +1217,35 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             setDiagramModal((prev) => (prev ? { ...prev, name: e.target.value } : prev))
           }
           onPressEnter={onDiagramModalOk}
+        />
+      </Modal>
+      <Modal
+        title="加入分组"
+        open={!!frameAssignModal}
+        onOk={() => {
+          if (!frameAssignModal) return;
+          const selected = nodes.filter((n) => n.selected && n.type === 'table');
+          projectDispatch.addFrameMembers(
+            moduleName,
+            activeDiagramId,
+            frameAssignModal.frameId,
+            selected.map((n) => n.id),
+          );
+          setFrameAssignModal(null);
+        }}
+        onCancel={() => setFrameAssignModal(null)}
+        okText="加入"
+        cancelText="取消"
+        destroyOnClose
+        okButtonProps={{ 'data-testid': 'frame-assign-ok' } as any}
+      >
+        <Select
+          aria-label="选择分组"
+          style={{ width: '100%' }}
+          value={frameAssignModal?.frameId}
+          onChange={(id) => setFrameAssignModal({ frameId: id })}
+          options={frames.map((f) => ({ value: f.id, label: f.name }))}
+          getPopupContainer={() => document.body}
         />
       </Modal>
     </div>

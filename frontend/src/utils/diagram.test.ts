@@ -1,16 +1,26 @@
 /**
- * ADR-0017 Phase 2a：getActiveDiagram / 懒迁移
+ * ADR-0017 Phase 2：getActiveDiagram / Frame helpers
  * 运行：npx tsx src/utils/diagram.test.ts
  */
 import assert from 'node:assert/strict';
 import {
   DEFAULT_DIAGRAM_ID,
   DEFAULT_DIAGRAM_NAME,
+  DEFAULT_FRAME_W,
+  addFrameToDiagram,
+  addMembersToFrame,
+  computeFrameBoundsFromNodes,
   ensureDiagrams,
+  frameNodeId,
   getActiveDiagram,
+  getActiveDiagramFrames,
+  isFrameNodeId,
   listDiagrams,
   parseDiagramIdFromTabEntity,
+  parseFrameIdFromNodeId,
+  purgeFrameMemberId,
   relationTabEntity,
+  renameFrameMemberIds,
   upsertDiagramLayout,
 } from './diagram';
 
@@ -76,6 +86,76 @@ async function main() {
     const list = listDiagrams({ graphCanvas: { nodes: [] } });
     assert.equal(list.length, 1);
     assert.equal(list[0].id, DEFAULT_DIAGRAM_ID);
+  });
+
+  await run('Frame：包围盒 + 成员显式 + 不改节点坐标', () => {
+    const nodes = [
+      { position: { x: 100, y: 50 }, width: 220, height: 80 },
+      { position: { x: 400, y: 200 }, width: 220, height: 80 },
+    ];
+    const before = nodes.map((n) => ({ ...n.position }));
+    const bounds = computeFrameBoundsFromNodes(nodes, 40);
+    assert.equal(bounds.x, 60);
+    assert.equal(bounds.y, 10);
+    assert.equal(bounds.w, 600);
+    assert.equal(bounds.h, 310);
+    assert.deepEqual(
+      nodes.map((n) => n.position),
+      before,
+      '不得重父化/改写成员坐标',
+    );
+
+    const empty = computeFrameBoundsFromNodes([]);
+    assert.equal(empty.w, DEFAULT_FRAME_W);
+
+    const d = { id: 'main', name: '主', layout: { nodes: [] as any[] }, groups: [] as any[] };
+    const f = addFrameToDiagram(d, {
+      name: '鉴权',
+      memberEntityIds: ['U', 'R', 'U'],
+      ...bounds,
+    });
+    assert.equal(f.name, '鉴权');
+    assert.deepEqual(f.memberEntityIds, ['U', 'R']);
+    assert.equal(d.groups?.length, 1);
+
+    addMembersToFrame(d, f.id, ['P']);
+    assert.deepEqual(f.memberEntityIds, ['U', 'R', 'P']);
+
+    renameFrameMemberIds(d, 'U', 'USER');
+    assert.ok(f.memberEntityIds.includes('USER'));
+    assert.ok(!f.memberEntityIds.includes('U'));
+
+    purgeFrameMemberId(d, 'R');
+    assert.ok(!f.memberEntityIds.includes('R'));
+
+    const nid = frameNodeId(f.id);
+    assert.ok(isFrameNodeId(nid));
+    assert.equal(parseFrameIdFromNodeId(nid), f.id);
+  });
+
+  await run('getActiveDiagramFrames：读 groups', () => {
+    const mod = {
+      diagrams: [
+        {
+          id: 'main',
+          name: '主',
+          layout: { nodes: [] },
+          groups: [
+            {
+              id: 'f1',
+              name: 'G',
+              x: 0,
+              y: 0,
+              w: 100,
+              h: 80,
+              memberEntityIds: ['A'],
+            },
+          ],
+        },
+      ],
+    };
+    assert.equal(getActiveDiagramFrames(mod).length, 1);
+    assert.equal(getActiveDiagramFrames(mod)[0].name, 'G');
   });
 
   console.log('diagram.test: all passed');

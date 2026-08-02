@@ -220,6 +220,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         includeEntities: Array.isArray(d.includeEntities)
           ? d.includeEntities.map((t: string) => (t === oldTitle ? newTitle : t))
           : d.includeEntities,
+        groups: Array.isArray(d.groups)
+          ? d.groups.map((g: any) => ({
+              ...g,
+              memberEntityIds: (g.memberEntityIds || []).map((t: string) =>
+                t === oldTitle ? newTitle : t,
+              ),
+            }))
+          : d.groups,
       }));
     }
     if (mod.graphCanvas?.nodes) {
@@ -262,8 +270,17 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       showMessage('error', `型 "${moduleName}" 不存在`);
       return;
     }
-    state.project.projectJSON.modules[moduleIndex].entities =
-      state.project.projectJSON.modules[moduleIndex].entities.filter((e: any) => e.title !== entityTitle);
+    const mod = state.project.projectJSON.modules[moduleIndex];
+    mod.entities = mod.entities.filter((e: any) => e.title !== entityTitle);
+    // ADR-0017：从各图 Frame 成员中剔除
+    if (Array.isArray(mod.diagrams)) {
+      mod.diagrams.forEach((d: any) => {
+        if (!Array.isArray(d.groups)) return;
+        d.groups.forEach((g: any) => {
+          g.memberEntityIds = (g.memberEntityIds || []).filter((t: string) => t !== entityTitle);
+        });
+      });
+    }
     showMessage('success', '表删除成功');
   })),
   removeIndex: (moduleName: string, entityTitle: string, index: number) => set(produce((state: any) => {

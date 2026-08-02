@@ -11,7 +11,12 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {erdColors} from '@/theme/tokens';
-import {getActiveDiagramLayoutNodes} from '@/utils/diagram';
+import {
+  DiagramFrame,
+  frameNodeId,
+  getActiveDiagramFrames,
+  getActiveDiagramLayoutNodes,
+} from '@/utils/diagram';
 import {resolveEntityPositions} from '@/utils/graphLayout';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
@@ -28,7 +33,12 @@ type ModuleData = {
   entities?: EntityData[];
   associations?: Association[];
   graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
-  diagrams?: Array<{ id: string; name: string; layout?: { nodes?: { id: string; x?: number; y?: number }[] } }>;
+  diagrams?: Array<{
+    id: string;
+    name: string;
+    layout?: { nodes?: { id: string; x?: number; y?: number }[] };
+    groups?: DiagramFrame[];
+  }>;
 };
 
 function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
@@ -109,23 +119,59 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
   },
 );
 
-const nodeTypes = {table: ReadOnlyTableNode};
+const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.memo(({data}) => {
+  const f = data.frame;
+  return (
+    <div
+      className="erd-frame-node"
+      data-testid="diagram-frame"
+      data-frame-id={f.id}
+      style={{
+        width: '100%',
+        height: '100%',
+        background: f.color || 'rgba(47, 143, 123, 0.10)',
+      }}
+      aria-label={`分组 ${f.name}`}
+    >
+      <div className="erd-frame-label">{f.name}</div>
+      {(f.memberEntityIds?.length || 0) > 0 ? (
+        <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+      ) : null}
+    </div>
+  );
+});
+
+const nodeTypes = {table: ReadOnlyTableNode, frame: ReadOnlyFrameNode};
 
 function layoutNodes(
   entities: EntityData[],
   associations: Association[],
   layout: { id: string; x?: number; y?: number }[],
+  frames: DiagramFrame[] = [],
 ): Node[] {
   const {positions} = resolveEntityPositions(entities, associations, layout);
   const fkMap = fkFieldsByEntity(associations);
-  return entities.map((e) => ({
+  const frameNodes: Node[] = frames.map((f) => ({
+    id: frameNodeId(f.id),
+    type: 'frame',
+    zIndex: 0,
+    position: {x: f.x, y: f.y},
+    style: {width: f.w, height: f.h, zIndex: 0},
+    data: {frame: f},
+    draggable: false,
+    selectable: false,
+    connectable: false,
+  }));
+  const tableNodes: Node[] = entities.map((e) => ({
     id: e.title,
     type: 'table',
+    zIndex: 2,
     position: positions[e.title] || {x: 0, y: 0},
     data: {entity: e, fkFields: fkMap.get(e.title) || []},
     draggable: false,
     connectable: false,
   }));
+  return [...frameNodes, ...tableNodes];
 }
 
 export type ShareRelationCanvasProps = {
@@ -137,13 +183,15 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
     const entities = module.entities || [];
     const associations = module.associations || [];
     const layout = getActiveDiagramLayoutNodes(module);
+    const frames = getActiveDiagramFrames(module);
     return {
-      nodes: layoutNodes(entities, associations, layout),
+      nodes: layoutNodes(entities, associations, layout, frames),
       edges: associationsToEdges(associations),
     };
   }, [module]);
 
-  if (!nodes.length) {
+  const tableCount = nodes.filter((n) => n.type === 'table').length;
+  if (!tableCount) {
     return (
       <div style={{padding: 24, color: 'var(--erd-ink-400)', fontFamily: 'var(--erd-font-ui)'}}>
         该模块暂无表

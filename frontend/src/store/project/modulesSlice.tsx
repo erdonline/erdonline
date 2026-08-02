@@ -9,9 +9,13 @@ import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasH
 import {
   DEFAULT_DIAGRAM_ID,
   DEFAULT_DIAGRAM_NAME,
+  addFrameToDiagram,
+  addMembersToFrame,
   ensureDiagrams,
   listDiagrams,
   newDiagramId,
+  removeFrameFromDiagram,
+  updateFrameBounds as applyFrameBounds,
   upsertDiagramLayout,
 } from "@/utils/diagram";
 
@@ -51,6 +55,32 @@ export interface IModulesDispatchSlice {
   createDiagram: (moduleName: string, name?: string) => string | undefined;
   renameDiagram: (moduleName: string, diagramId: string, name: string) => void;
   removeDiagram: (moduleName: string, diagramId: string) => void;
+  /** ADR-0017 Phase 2b：图内 Frame */
+  createFrame: (
+    moduleName: string,
+    diagramId: string | undefined,
+    opts?: {
+      name?: string;
+      memberEntityIds?: string[];
+      x?: number;
+      y?: number;
+      w?: number;
+      h?: number;
+      color?: string;
+    },
+  ) => string | undefined;
+  addFrameMembers: (
+    moduleName: string,
+    diagramId: string | undefined,
+    frameId: string,
+    memberEntityIds: string[],
+  ) => void;
+  updateFrameBounds: (
+    moduleName: string,
+    diagramId: string | undefined,
+    frames: Array<{ id: string; x: number; y: number; w?: number; h?: number }>,
+  ) => void;
+  removeFrame: (moduleName: string, diagramId: string | undefined, frameId: string) => void;
   addAssociation: (moduleName: string, association: any) => void;
   removeAssociation: (moduleName: string, association: any) => void;
   undoCanvas: () => void;
@@ -274,6 +304,75 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
       module.diagrams = diagrams.filter((d) => d.id !== diagramId);
     }));
+  },
+  createFrame: (moduleName, diagramId, opts) => {
+    let createdId: string | undefined;
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      const frame = addFrameToDiagram(diagram, opts || {});
+      createdId = frame.id;
+    }));
+    if (createdId) {
+      message.success('已新建分组');
+    }
+    return createdId;
+  },
+  addFrameMembers: (moduleName, diagramId, frameId, memberEntityIds) => {
+    if (!memberEntityIds.length) {
+      message.info('请先选中要加入分组的表');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      const frame = addMembersToFrame(diagram, frameId, memberEntityIds);
+      if (!frame) {
+        message.warning('未找到分组');
+        return;
+      }
+      message.success(`已加入「${frame.name}」`);
+    }));
+  },
+  updateFrameBounds: (moduleName, diagramId, frames) => {
+    if (!frames.length) return;
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      frames.forEach((f) => applyFrameBounds(diagram, f.id, f));
+    }));
+  },
+  removeFrame: (moduleName, diagramId, frameId) => {
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      removeFrameFromDiagram(diagram, frameId);
+    }));
+    message.success('已删除分组');
   },
   // 追加关联（按 from/to 去重）；按模块名定位，理由同 updateGraphCanvasLayout
   addAssociation: (moduleName: string, association: any) => {
