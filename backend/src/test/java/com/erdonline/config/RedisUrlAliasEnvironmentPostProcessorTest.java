@@ -32,6 +32,54 @@ class RedisUrlAliasEnvironmentPostProcessorTest {
     }
 
     @Test
+    void prefersPrivateUrlOverPublicRedisUrl() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDIS_URL", "redis://:pub@public.example:6379");
+        env.setProperty("REDIS_PRIVATE_URL", "redis://default:secret@redis.railway.internal:6379");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertEquals(
+                "redis://default:secret@redis.railway.internal:6379",
+                env.getProperty("spring.data.redis.url"));
+    }
+
+    @Test
+    void injectsPasswordAndAclUsernameWhenSet() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDIS_PASSWORD", "s3cret");
+        env.setProperty("REDISUSER", "default");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertEquals("s3cret", env.getProperty("spring.data.redis.password"));
+        assertEquals("default", env.getProperty("spring.data.redis.username"));
+    }
+
+    @Test
+    void fallsBackToPluginPasswordName() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDISPASSWORD", "plugin-pass");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertEquals("plugin-pass", env.getProperty("spring.data.redis.password"));
+    }
+
+    @Test
+    void doesNotInjectBlankPasswordOrUsername() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDIS_PASSWORD", "   ");
+        env.setProperty("REDISUSER", "");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertNull(env.getProperty("spring.data.redis.password"));
+        assertNull(env.getProperty("spring.data.redis.username"));
+        assertFalse(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
+    }
+
+    @Test
     void doesNotOverrideExplicitSpringDataRedisUrl() {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("spring.data.redis.url", "redis://explicit:6379");
@@ -40,7 +88,6 @@ class RedisUrlAliasEnvironmentPostProcessorTest {
         processor.postProcessEnvironment(env, application);
 
         assertEquals("redis://explicit:6379", env.getProperty("spring.data.redis.url"));
-        assertFalse(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
     }
 
     @Test
@@ -55,7 +102,7 @@ class RedisUrlAliasEnvironmentPostProcessorTest {
     }
 
     @Test
-    void noOpWhenNoRedisUrl() {
+    void noOpWhenNoRedisEnv() {
         MockEnvironment env = new MockEnvironment();
         Map<String, Object> before = new HashMap<>();
         env.getPropertySources().forEach(ps -> before.put(ps.getName(), Boolean.TRUE));
