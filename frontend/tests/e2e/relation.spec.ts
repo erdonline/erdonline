@@ -1007,6 +1007,53 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('字段 ✎ 可改名；空名有 toast', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fedit');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fedit', 'field edit affordance');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await expect(nameRow).toBeVisible();
+
+      // hover 露 ✎；DOM click 避开 RF Handle 吞指针（对齐表头改名）
+      await nameRow.hover();
+      const editBtn = nameRow.getByRole('button', { name: '编辑字段' });
+      await expect(editBtn).toBeVisible();
+      await editBtn.evaluate((el: HTMLElement) => el.click());
+      const nameInput = node.getByRole('textbox', { name: '字段名' });
+      await expect(nameInput).toBeVisible();
+      await nameInput.fill('NICK');
+      await nameInput.press('Enter');
+      await expect(node.locator('[data-field="NICK"]')).toBeVisible();
+      await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // 空名不得静默丢改动
+      const nickRow = node.locator('[data-field="NICK"]');
+      await nickRow.hover();
+      await nickRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      const emptyInput = node.getByRole('textbox', { name: '字段名' });
+      await emptyInput.fill('');
+      await emptyInput.press('Enter');
+      await expectToast(page, '字段名不能为空');
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await emptyInput.fill('NICK');
+      await emptyInput.press('Escape');
+      await expect(node.locator('[data-field="NICK"]')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');

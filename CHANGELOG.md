@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：字段行内编辑 affordance + 空名反馈（建模回路）
+
+- 选题：字段只能双击进编辑，空名 blur/Enter 静默退出丢改动；表头已有 ✎，字段行不对齐
+- 字段行 hover 露 ✎（`编辑字段`）→ 进内联编辑；双击仍可用；输入/类型补 aria-label
+- 改已有字段空名 → toast「字段名不能为空」并留在编辑（新增空名仍=取消）
+- 成功改名后靠顶栏 `save-status`「已保存」；E2E：`relation`「字段 ✎ 可改名；空名有 toast」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段 ✎ 可改名" --workers=1 --retries=0`
+
 #### 体验：连线失败可见反馈（重复关联 / 非法锚点，建模回路）
 
 - 选题：拖连线重复同一对或落到非法锚点时静默无反馈，用户以为坏了
