@@ -19,42 +19,41 @@
 
 **依赖外部或后置**：AI、i18n、正式仓 Issue 投放（`REPO=… ./scripts/seed-good-first-issues.sh`，待正式仓就绪）。
 
-## P5：AI 时代数据结构平台（待确认）
+## P5：AI 时代数据结构平台 🚧
 
-> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**待确认**）：升级为「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。下列条目在 ADR 批准前不动工产品代码（落地页文案稿除外）。
+> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 受 [ADR-0013](./adr/0013-public-api-mcp.md)（📋）约束，需求清晰前不实现。
 
-### 落地页（公开，品牌优先，一个构图）
+### 落地页（公开，品牌优先，一个构图）🚧
 
 - 面向陌生人的公开叙事页：一句话定位 + 「30 秒试 demo」主 CTA + 版本/协作/开放三卖点
 - 实现约束：遵守前端设计纪律——品牌 hero（真实产品构图/画布截图），禁止紫色渐变 AI slop 模板；静态优先、首屏预算受 `performance-budget.md` 约束
-- 文案草稿见 [landing.md](./landing.md)
+- 文案见 [landing.md](./landing.md)
 
-### 产品深度（走出「thin CRUD」）
+### 产品深度（走出「thin CRUD」）📋
 
 - 数据字典 / 治理：字段级文档、枚举域、跨表复用（承接 📋 dataDomain 实验页的定位重估）
 - 逆向保真：复合 FK `fields[]`（ADR-0011 解封条件）、注释/索引/触发器保真度
 - 版本工作流：分支式演进、版本标签/里程碑、跨版本 diff 的导出
 - 协作 → 版本已启动（下一季③ 🚧），继续自然收口
 
-### UI 水位（Strangler，不重写）
+### UI 水位（Strangler，不重写）📋
 
 - CRUD 壳维持 antd（ADR-0005），设计域沉淀自研视觉系统（节点/工具条/命令面板已成体系）
 - 逐页抬水位：每轮迭代顺带提升所在页密度与反馈，禁止全站大改版
 
-### 开放（Openness）
+### 开放（Openness）📋 — API/MCP 见 ADR-0013
 
 - projectJSON 公开 schema 文档化（schema-as-code，`data-format.md` 升级为对外规范）
-- 只读 API：拉项目/拉版本/拉 diff（token 鉴权）
-- MCP server：agent 读 schema、提交新版本（先读后写，分两个里程碑）
+- 只读 API / MCP server：鉴权、限流、scope **待 ADR-0013 拍板**；本阶段不写实现代码
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置
 
-### 安全（Security）
+### 安全（Security）📋
 
-- 分享 token：只读分享（ADR-0007）+ 未来 API token 的 scope/吊销/过期模型
+- 分享 token：只读分享（ADR-0007）+ 未来 API token 的 scope/吊销/过期模型（随 ADR-0013）
 - CSRF/CORS 已收敛（第 1 轮 ✅），SQL 执行信任链已修（审批失败不落通过 ✅）——写入型 API 沿用同级约束
 - 密钥纪律：连接信息不进 projectJSON（ADR-0008 已隔离），文档化对外承诺
 
-### 用户没说的缺口（主动补齐）
+### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
 - Schema 版本化对外承诺：projectJSON 兼容性政策成文（agent 依赖稳定性）
