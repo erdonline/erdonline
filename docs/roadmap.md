@@ -40,7 +40,7 @@
 
 - CRUD 壳维持 antd（ADR-0005），设计域沉淀自研视觉系统（节点/工具条/命令面板已成体系）；[ADR-0016](./adr/0016-experience-first-shareable-diagram.md) 美图主线：品牌 token ✅ → 导入/逆向 dagre 分层布局 ✅ → **节点密度/PK·FK 徽章/箭头边 ✅** → 边路由/避让续推
 - 逐页抬水位：每轮迭代顺带提升所在页密度与反馈，禁止全站大改版
-- Home / 模型页重设计简报：[ui-home-model-redesign.md](./ui-home-model-redesign.md) ✅（2026-08-02；决策：Home 走工作台式亮色系统，落地页保留深色门面；**S1 tokens ✅**，**S2 Home hero CTA ✅**，S3–S6 续推）
+- Home / 模型页重设计简报：[ui-home-model-redesign.md](./ui-home-model-redesign.md) ✅（2026-08-02；决策：Home 走工作台式亮色系统，落地页保留深色门面；**S1 tokens ✅**，**S2 Home hero CTA ✅**，**三壳 chrome 同语言 ✅**（顶栏 64 / 去水印 / `erd-chrome-*`），S3 网格等续推）
 - **全站布局重设计总纲**：[ui-layout-redesign.md](./ui-layout-redesign.md)（2026-08-02 v2 重估：能力暴露优先于表现层；分波 W1 设计器壳 ✅ → **W2 能力暴露+空壳清除**（切片 1–4 ✅：分享吊销、Home 死码/实验页删除、设计器 chrome 左树去重+sider 320+tabs 40+flex、设计器内 `calc(100vh)` 清零）→ **W3 版本域收口** ✅（切片 1 ✅ 跨版本 diff 导出；切片 2 ✅ version ProList→antd List + 空态 CTA；切片 3 ✅ 审批/工单入口理顺）→ **W4** 项目列表/数据源平移（切片 1–15 ✅；切片 15 ✅ 末 7 文件清零 + 依赖移除）→ **W5** 登录/分享/404 打磨（切片 1 ✅ 404/403；切片 2 ✅ 分享失效态 Result+demo CTA；待：登录品牌壳再打磨、share 顶栏对齐）；能力对照见 [product-capability-map.md](./product-capability-map.md)）
 - **Pro Strangler**（[ADR-0014](./adr/0014-drop-or-strangle-ant-pro.md) ✅ 已落地 · B）：`@ant-design/pro-components` / `umi-presets-pro` 已从 `package.json` 移除；`rg …pro-components` = 0；自研 Home/Group/Design Layout + antd 表单/表格承接
 

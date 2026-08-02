@@ -26,7 +26,7 @@
 | 随机鸡汤轮转 | `HomeLayout` 每 10s 换一条 slogan，页脚 `Space` 塞 3 段次要文案 | 内部工具的自娱自乐，分散注意力 |
 | 装饰性背景图 | `DesignLayout` `bgLayoutImgList` 三张 `ant-*.png` 铺在设计器底 | Pro 模板残留，画布之上纯噪音 |
 | 嵌套卡片 + 去阴影补丁 | Home 项目 `Card.Grid` 内再套 `Card` + `boxShadow:none` | 用错误组件再打补丁，密度失控 |
-| 徽标硬编码 hack | GitHub stars `<img>` 配 `marginTop:-10px` | 布局靠负数魔法数对齐 |
+| 徽标硬编码 hack | ~~GitHub stars `<img>` 配 `marginTop:-10px`~~ → 文本链 `erd-chrome-link` ✅ | 布局靠负数魔法数对齐 |
 | 画布高度魔法数 | `reactflow-relation.scss` `height: calc(100vh - 104px)` | 顶栏/tabs 一变就破，非 flex 思维 |
 | 侧栏过宽 | `DesignLayout siderWidth = 400` | 树最多占 1/5 屏，400px 挤占画布 |
 

@@ -261,7 +261,12 @@ const Home: React.FC<HomeProps> = () => {
                     <Card.Meta
                       title={
                         <div className={styles.cardTitle}>
-                          <Tag color={item.type === '1' ? 'blue' : 'green'} key={item.id}>
+                          <Tag
+                            key={item.id}
+                            className={
+                              item.type === '1' ? styles.tagPerson : styles.tagTeam
+                            }
+                          >
                             {item.type === '1' ? <UserOutlined /> : <TeamOutlined />}
                             {item.type === '1' ? '个人' : '团队'}
                           </Tag>

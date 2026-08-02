@@ -246,6 +246,7 @@
 
 - [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`
 - [x] [HomeLayout 顶栏] `/home` 无 `save-status` / `collab-presence` /「只读分享」；仍有「GitHub 仓库」与「公众号」（`homeRightContent`）✅ `layout-outlet.spec.ts`
+- [x] [三壳 chrome 同语言] Home/Group/Design 顶栏 64、无 `.ant-watermark`；Home 底色 surfaceSunk；GitHub 为文本链非 shields ✅ `layout-outlet`「三壳同语言」
 - [x] [Pro Strangler 切片1] HomeLayout/GroupLayout 无 `@ant-design/pro-components`；antd Layout+Watermark；主导航「数据模型/数据源」可达 ✅ `layout-outlet` + `project-surface`（2026-08-02）
 - [x] [S0 依赖矩阵] installed `@umijs/max@4.6.84` / `antd@5.29.3` / `@ant-design/pro-components@2.8.10` / `rc-util@5.44.4`；`yarn build` 绿 ✅
 - [x] [GroupLayout 主内容] 登录→/project/group/setting/basic?projectId= 见「基本设置」+「项目名」且不双挂载 ✅同上
