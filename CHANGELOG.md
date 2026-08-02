@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 6 — CopyProject ModalForm → antd Form+Modal
+
+**重构**
+
+- `CopyProject`（版本行「复刻」弹窗）：摘 `ModalForm` / `ProFormSelect` / `ProFormText` / `ProFormTextArea` → antd `Modal` + `Form` + `Select mode="tags"`；宽度 520；项目类型用数值（对齐 AddProject，不再 `labelInValue`）；失败 toast 且不关窗；`data-testid`（`project-copy-trigger` / `project-copy-tags`）；props 去掉 `any`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 6 ✅；`version.spec` 新增「版本行复刻弹窗可创建个人项目」
+  验证点：`rg 'ModalForm|ProForm' frontend/src/components/dialog/project/CopyProject.tsx` = 0；`npx playwright test tests/e2e/version.spec.ts --grep "复刻" --project=chromium --workers=1`
+
 #### 重构：W4 切片 5 — 清除零引用 module/entity/database ModalForm
 
 **重构**

@@ -1,156 +1,162 @@
-import React from 'react';
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
-import defaultData from "@/utils/defaultData.json";
-import {Button, message} from "antd";
-import _ from "lodash";
-import {addProject} from "@/services/project";
-import {addGroupProject} from "@/services/group-project";
-import {CopyOutlined} from "@ant-design/icons";
-import useProjectStore from "@/store/project/useProjectStore";
-import shallow from "zustand/shallow";
+import React, {useState} from 'react';
+import {Button, Form, Input, Modal, Select, message} from 'antd';
+import defaultData from '@/utils/defaultData.json';
+import _ from 'lodash';
+import {addProject} from '@/services/project';
+import {addGroupProject} from '@/services/group-project';
+import {CopyOutlined} from '@ant-design/icons';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
 
 export type CopyProjectProps = {
-  projectJSON: any;
+  projectJSON?: {
+    modules?: unknown;
+  };
+};
+
+type FormValues = {
+  type?: 1 | 2;
+  projectName?: string;
+  tags?: string[];
+  description?: string;
+};
+
+const emptyProject = {
+  projectName: '',
+  description: '',
+  tags: '',
+  projectJSON: {
+    ...defaultData,
+  },
+  configJSON: {synchronous: {upgradeType: 'increment'}},
 };
 
 const CopyProject: React.FC<CopyProjectProps> = (props) => {
-  const {profile, dataTypeDomains} = useProjectStore(state => ({
-    profile: state.project?.projectJSON?.profile,
-    dataTypeDomains: state.project?.projectJSON?.dataTypeDomains,
-  }), shallow);
-  const emptyProject = {
-    "projectName": "",
-    "description": "",
-    "tags": "",
-    "projectJSON": {
-      ...defaultData
-    },
-    "configJSON": {synchronous: {upgradeType: "increment"}},
-  }
+  const {profile, dataTypeDomains} = useProjectStore(
+    (state) => ({
+      profile: state.project?.projectJSON?.profile,
+      dataTypeDomains: state.project?.projectJSON?.dataTypeDomains,
+    }),
+    shallow,
+  );
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
 
+  const openModal = () => {
+    form.setFieldsValue({
+      type: 1,
+      tags: undefined,
+      projectName: undefined,
+      description: undefined,
+    });
+    setOpen(true);
+  };
 
-  return (<>
-    <ModalForm
-      title="复刻为新项目(从当前版本创建新项目)"
-      trigger={
-        <Button key="copy" size={"small"} type={"link"} icon={<CopyOutlined/>}>复刻</Button>
-      }
-      onFinish={async (values: any) => {
+  const closeModal = () => {
+    setOpen(false);
+  };
 
-        if (values.type.value === 1) {
-          addProject({
-            ...emptyProject,
-            projectJSON: {
-              profile,
-              dataTypeDomains,
-              modules: props.projectJSON?.modules || emptyProject.projectJSON.modules
-            },
-            projectName: values.projectName,
-            description: values.description,
-            tags: _.join(values.tags, ',')
-          }).then((r) => {
-            if (r.code === 200) {
-              message.success(
-                <>
-                  复刻成功，
-                  <a href="/project/recent">立即打开</a>
-                </>, 5
-              );
-            }
-          });
-        } else {
-          addGroupProject({
-            ...emptyProject,
-            projectJSON: {
-              profile,
-              dataTypeDomains,
-              modules: props.projectJSON?.modules || emptyProject.projectJSON.modules
-            },
-            projectName: values.projectName,
-            description: values.description,
-            tags: _.join(values.tags, ',')
-          }).then((r) => {
-            if (r.code === 200) {
-              message.success(
-                <>
-                  复刻成功，
-                  <a href="/project/recent">立即打开</a>
-                </>, 5
-              );
-            }
-          });
-        }
-      }}
-    >
-      <ProFormText
-        width="md"
-        name="projectName"
-        label="项目名"
-        placeholder="请输入项目名"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-      <ProFormSelect
-        name="type"
-        width="md"
-        label="项目类型"
-        fieldProps={{
-          labelInValue: true,
-        }}
-        options={[
-          {label: '个人项目', value: 1},
-          {label: '团队项目', value: 2},
-        ]}
-      />
-      <ProFormSelect
-        width="md"
-        name="tags"
-        label="标签"
-        placeholder="请输入项目标签,按回车分割"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-          ],
-        }}
-        fieldProps={{
-          mode: "tags",
-          tokenSeparators: [',']
-        }}
-      />
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    const addFunction = values.type === 1 ? addProject : addGroupProject;
+    const res = await addFunction({
+      ...emptyProject,
+      projectJSON: {
+        profile,
+        dataTypeDomains,
+        modules: props.projectJSON?.modules || emptyProject.projectJSON.modules,
+      },
+      projectName: values.projectName,
+      description: values.description,
+      tags: _.join(values.tags, ','),
+    });
+    if (res?.code === 200) {
+      message.success(
+        <>
+          复刻成功，
+          <a href="/project/recent">立即打开</a>
+        </>,
+        5,
+      );
+      setOpen(false);
+      return;
+    }
+    message.error(res?.message || res?.msg || '复刻失败');
+  };
 
-      <ProFormTextArea
-        width="md"
-        name="description"
-        label="项目描述"
-        placeholder="请输入项目描述"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-    </ModalForm>
-  </>);
-}
+  return (
+    <>
+      <Button
+        key="copy"
+        size="small"
+        type="link"
+        icon={<CopyOutlined />}
+        data-testid="project-copy-trigger"
+        aria-label="复刻"
+        onClick={openModal}
+      >
+        复刻
+      </Button>
+      <Modal
+        title="复刻为新项目(从当前版本创建新项目)"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="projectName"
+            label="项目名"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input placeholder="请输入项目名" />
+          </Form.Item>
+          <Form.Item
+            name="type"
+            label="项目类型"
+            rules={[{required: true, message: '请选择项目类型'}]}
+          >
+            <Select
+              placeholder="请选择项目类型"
+              options={[
+                {label: '个人项目', value: 1},
+                {label: '团队项目', value: 2},
+              ]}
+            />
+          </Form.Item>
+          <Form.Item
+            name="tags"
+            label="标签"
+            rules={[{required: true, message: '不能为空'}]}
+          >
+            <Select
+              mode="tags"
+              tokenSeparators={[',']}
+              placeholder="请输入项目标签,按回车分割"
+              data-testid="project-copy-tags"
+              notFoundContent={null}
+            />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="项目描述"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
 
-export default React.memo(CopyProject)
+export default React.memo(CopyProject);

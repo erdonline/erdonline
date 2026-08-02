@@ -282,4 +282,48 @@ test.describe('版本快照', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('版本行复刻弹窗可创建个人项目', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('vercopy');
+    const copyName = `${projectName}-fork`;
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'vercopy', 'version copy');
+      await openVersionPage(page);
+      await saveVersion(page);
+
+      const row = page.getByTestId('version-row-1.0.0');
+      await expect(row).toBeVisible({ timeout: 10_000 });
+      await row.hover();
+      await row.getByTestId('project-copy-trigger').click();
+
+      const dialog = page.getByRole('dialog', {
+        name: '复刻为新项目(从当前版本创建新项目)',
+      });
+      await expect(dialog).toBeVisible();
+      await dialog.getByPlaceholder('请输入项目名').fill(copyName);
+      const tagSelect = dialog.getByTestId('project-copy-tags');
+      const tagInput = tagSelect.locator('input');
+      await tagInput.click();
+      await tagInput.fill('');
+      await page.keyboard.type('fork,');
+      await expect(
+        tagSelect.locator('.ant-select-selection-item').filter({ hasText: 'fork' }),
+      ).toBeVisible();
+      await dialog.getByPlaceholder('请输入项目描述').fill('fork from version');
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+
+      await expectToast(page, /复刻成功/);
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
+
+      await page.goto('/project/person');
+      await expect(
+        page.getByRole('link', { name: copyName, exact: true }).first(),
+      ).toBeVisible({ timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
