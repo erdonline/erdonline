@@ -364,8 +364,16 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(edge).toHaveClass(/react-flow__edge-erdSmooth/);
       const edgePath = page.locator('.react-flow__edge-path').first();
       await expect(edgePath).toBeVisible();
-      const marker = await edgePath.getAttribute('marker-end');
-      expect(marker, '边应带闭合箭头 marker').toBeTruthy();
+      await expect(page.getByTestId('erd-crowfoot-markers')).toBeAttached();
+      // 默认 n:1 → 源 crow's foot(many) / 靶 one（IE）；chip 仍可编辑
+      const crow = page.getByTestId('erd-edge-crowfoot');
+      await expect(crow).toHaveAttribute('data-relation', 'n:1');
+      await expect(crow).toHaveAttribute('data-marker-start', /erd-cf-many/);
+      await expect(crow).toHaveAttribute('data-marker-end', /erd-cf-one/);
+      const markerEnd = await edgePath.getAttribute('marker-end');
+      const markerStart = await edgePath.getAttribute('marker-start');
+      expect(markerEnd, '边端应带 crow foot marker').toMatch(/erd-cf-one/);
+      expect(markerStart, '边源应带 crow foot marker').toMatch(/erd-cf-many/);
 
       // ADR-0016：连线后基数标签 chip 可读（默认 n:1）
       const edgeLabel = page.getByTestId('erd-edge-label');
@@ -396,12 +404,24 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
       await page.getByRole('option', { name: '1:1' }).click();
       await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1');
+      await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
+        'data-marker-start',
+        /erd-cf-one/,
+      );
+      await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
+        'data-marker-end',
+        /erd-cf-one/,
+      );
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
       await page.getByTestId('tree-open-relation').click();
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 15_000 });
       await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1', { timeout: 15_000 });
+      await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
+        'data-relation',
+        '1:1',
+      );
 
       // 默认新建表常竖叠：几何择柄应走同侧短 U（消 circle-route）
       const portEl = page.getByTestId('erd-edge-route-mode');

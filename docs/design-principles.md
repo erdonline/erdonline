@@ -23,9 +23,10 @@
 右键菜单、悬停操作、内联编辑优先；能不用弹窗就不用弹窗。
 
 - ✅ 画布表节点上直接内联编辑字段，Tab 跳下一行
-- ✅ 关系基数：点边标签 chip 内联选 `1:1`/`1:n`/`n:1`/`n:n`（不弹窗）；拖连线默认 `n:1`
+- ✅ 关系基数：点边标签 chip 内联选 `1:1`/`1:n`/`n:1`/`n:n`（不弹窗）；拖连线默认 `n:1`；两端 Crow's foot（IE）随基数变
 - ✅ Frame 标题双击内联重命名
 - ❌ 建一条关系要打开弹窗手工配置基数（历史问题）
+- ❌ 关系线只有闭合箭头、扫一眼读不出基数（历史问题）
 - ❌ 双击打开表的方法存在但从未传入组件，双击是死链（历史问题）
 
 ## 4. 零摩擦默认
@@ -59,7 +60,7 @@
 - ✅ 表头 ink、选中 brand 描边、边 stroke 走 ink600；禁散落默认蓝 `#4096ff` 当画布主色
 - ✅ 逆向 / DBML 导入按 FK 做 dagre 分层布局（外键侧→主键侧，默认 `nodesep` 56 / `ranksep` 108），不是无关联网格散点
 - ✅ 公开 demo / 示例主图手排收紧（列间距约 28px、Frame padding 20），截图不「空旷」；分享只读隐藏 `relationNoShow`
-- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ 箭头边；设计器与分享只读同路由；字段行 `min-height` 22 / `FIELD_ROW_H` 26（再压一档，截图更密）
+- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ **Crow's foot 端点**（IE：one=竖线 / many=鸦爪，随 `association.relation`）；设计器与分享只读同路由；字段行 `min-height` 22 / `FIELD_ROW_H` 26（再压一档，截图更密）
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink600`；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字；**可点选改基数**（设计器）
 - ✅ Frame 标题栏 chrome：height 22 / label 11 / meta 10；轻表面条可读；禁占高顶栏挤成员；**双击标题重命名**

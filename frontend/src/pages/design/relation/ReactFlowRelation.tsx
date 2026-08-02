@@ -17,7 +17,6 @@ import ReactFlow, {
   NodeChange,
   EdgeChange,
   ReactFlowInstance,
-  MarkerType,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -47,6 +46,7 @@ import {
   EDGE_INTERACTION_WIDTH,
   ERD_EDGE_TYPE,
   associationsToEdges,
+  crowFootMarkersForRelation,
   parseFieldHandle,
 } from '@/utils/relationEdges';
 import {
@@ -60,6 +60,7 @@ import { Input, Modal, Select, message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
+import ErdCrowFootMarkers from './ErdCrowFootMarkers';
 import ErdRelationEdge from './ErdRelationEdge';
 import ZhControls from './ZhControls';
 import './reactflow-relation.scss';
@@ -626,6 +627,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     return associationsToEdges(associations, { positions }).map((e) => {
       const selected = !!edgeSelected[e.id];
       const stroke = selected ? erdColors.brand : erdColors.ink600;
+      const relation =
+        typeof e.label === 'string' ? e.label : DEFAULT_RELATION;
+      const markers = crowFootMarkersForRelation(
+        relation,
+        selected ? 'brand' : 'ink',
+      );
       return {
         ...e,
         selected,
@@ -635,12 +642,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           moduleName,
         },
         style: { ...e.style, stroke, strokeWidth: selected ? 2 : 1.5 },
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          width: 14,
-          height: 14,
-          color: stroke,
-        },
+        ...markers,
       };
     });
   }, [currentModule, edgeSelected, moduleName]);
@@ -1424,6 +1426,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         defaultEdgeOptions={{ interactionWidth: EDGE_INTERACTION_WIDTH }}
         proOptions={{ hideAttribution: true }}
       >
+        <ErdCrowFootMarkers />
         <Background gap={20} size={1} color={erdColors.line} />
         <ZhControls fitViewOptions={{ ...FIT_VIEW_SHAREABLE }} />
         {!isEmpty && (

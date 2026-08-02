@@ -1,6 +1,6 @@
 /**
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
- * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；分享只读。
+ * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；两端 Crow's foot（IE）；分享只读。
  */
 import React, { memo, useCallback, useState } from 'react';
 import {
@@ -20,6 +20,7 @@ import {
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
   ErdEdgeData,
+  crowFootMarkersForRelation,
   isCardinality,
   normalizeRelation,
 } from '@/utils/relationEdges';
@@ -62,12 +63,14 @@ function ErdRelationEdge({
   sourcePosition,
   targetPosition,
   style,
+  markerStart,
   markerEnd,
   label,
   labelStyle,
   labelBgStyle,
   labelBgPadding,
   labelBgBorderRadius,
+  selected,
   data,
 }: EdgeProps<ErdEdgeData>) {
   const lane = data?.laneOffset ?? 0;
@@ -164,6 +167,12 @@ function ErdRelationEdge({
     ? displayLabel
     : displayLabel || 'n:1';
 
+  // 选中用 brand 鸦爪；props 未带 marker 时按 label 回落（防分享/旧边）
+  const tone = selected ? 'brand' : 'ink';
+  const fallback = crowFootMarkersForRelation(displayLabel || 'n:1', tone);
+  const startMarker = markerStart || fallback.markerStart;
+  const endMarker = markerEnd || fallback.markerEnd;
+
   const commitRelation = (next: string) => {
     const mod = data?.moduleName;
     const from = data?.assocFrom;
@@ -182,7 +191,13 @@ function ErdRelationEdge({
 
   return (
     <>
-      <BaseEdge id={id} path={path} style={style} markerEnd={markerEnd} />
+      <BaseEdge
+        id={id}
+        path={path}
+        style={style}
+        markerStart={startMarker}
+        markerEnd={endMarker}
+      />
       <span
         data-testid="erd-edge-route-mode"
         data-mode={mode}
@@ -190,6 +205,13 @@ function ErdRelationEdge({
         data-hub-fan={String(hubFan)}
         data-port={portMode}
         data-edge-id={id}
+        hidden
+      />
+      <span
+        data-testid="erd-edge-crowfoot"
+        data-marker-start={String(startMarker)}
+        data-marker-end={String(endMarker)}
+        data-relation={displayLabel || 'n:1'}
         hidden
       />
       {hasLabel || editable ? (
