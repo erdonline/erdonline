@@ -284,10 +284,18 @@ test.describe('关系图画布（ReactFlow）', () => {
       const marker = await edgePath.getAttribute('marker-end');
       expect(marker, '边应带闭合箭头 marker').toBeTruthy();
 
+      // 默认新建表常竖叠：几何择柄应走同侧短 U（消 circle-route）
+      const portEl = page.getByTestId('erd-edge-route-mode');
+      await expect(portEl).toHaveAttribute('data-port', 'same');
+
       await page.getByRole('button', { name: '适应画布' }).click();
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-node-polish.png',
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-port-same-side.png',
         fullPage: false,
       });
     } finally {

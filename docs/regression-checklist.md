@@ -3,7 +3,9 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
-## 模型设计 UX / ADR-0017 Phase 1（2026-08-02）
+## 图本身可读可分享 / ADR-0016（续）
+
+- [x] [几何择柄] 竖叠同列表 FK → `data-port=same`；截图 `diagram-port-same-side.png` ✅`relation.spec.ts`「PK/FK 与边样式」
 
 ### 已自动化
 

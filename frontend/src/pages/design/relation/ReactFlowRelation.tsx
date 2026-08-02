@@ -44,6 +44,7 @@ import {
   EDGE_INTERACTION_WIDTH,
   ERD_EDGE_TYPE,
   associationsToEdges,
+  parseFieldHandle,
 } from '@/utils/relationEdges';
 
 export { EDGE_INTERACTION_WIDTH } from '@/utils/relationEdges';
@@ -346,7 +347,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               title="双击编辑字段"
               data-field={f.name}
             >
-              <Handle type="target" id={`${f.name}-tgt`} position={Position.Left} className="erd-field-handle" />
+              {/* 双侧 src/tgt：左靶在上（易落点）、右源在上（易拖出）；几何择柄消竖叠 circle-route */}
+              <Handle type="source" id={`${f.name}-src-l`} position={Position.Left} className="erd-field-handle erd-handle-src" />
+              <Handle type="target" id={`${f.name}-tgt-l`} position={Position.Left} className="erd-field-handle erd-handle-tgt" />
               <span className="erd-field-name">
                 <button
                   type="button"
@@ -379,7 +382,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               >
                 ×
               </button>
-              <Handle type="source" id={`${f.name}-src`} position={Position.Right} className="erd-field-handle" />
+              <Handle type="target" id={`${f.name}-tgt-r`} position={Position.Right} className="erd-field-handle erd-handle-tgt" />
+              <Handle type="source" id={`${f.name}-src-r`} position={Position.Right} className="erd-field-handle erd-handle-src" />
             </div>
           )
         )}
@@ -1022,17 +1026,22 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     });
   }, [projectDispatch, moduleName, activeDiagramId, setNodes]);
 
-  // 字段拖连线 → 建关联：from=外键侧（source 右锚点），to=主键侧（target 左锚点）
+  // 字段拖连线 → 建关联：from=外键侧（source），to=主键侧（target）；侧由几何择柄重绑
   const onConnect = useCallback(
     (connection: { source?: string | null; sourceHandle?: string | null; target?: string | null; targetHandle?: string | null }) => {
       const { source, sourceHandle, target, targetHandle } = connection;
       if (!source || !target || !sourceHandle || !targetHandle) {
         return;
       }
+      const fromH = parseFieldHandle(sourceHandle);
+      const toH = parseFieldHandle(targetHandle);
+      if (!fromH || fromH.role !== 'src' || !toH || toH.role !== 'tgt') {
+        return;
+      }
       projectDispatch.addAssociation(moduleEntity.module, {
         relation: '0,n:1',
-        from: { entity: source, field: sourceHandle.replace(/-src$/, '') },
-        to: { entity: target, field: targetHandle.replace(/-tgt$/, '') },
+        from: { entity: source, field: fromH.field },
+        to: { entity: target, field: toH.field },
       });
     },
     [projectDispatch, moduleEntity.module]
@@ -1063,8 +1072,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       const module = (liveJson?.modules || []).find((m: any) => m.name === moduleEntity.module);
       const entities: EntityData[] = module?.entities || [];
       deleted.forEach(e => {
-        const fromField = (e.sourceHandle || '').replace(/-src$/, '');
-        const toField = (e.targetHandle || '').replace(/-tgt$/, '');
+        const fromH = parseFieldHandle(e.sourceHandle || '');
+        const toH = parseFieldHandle(e.targetHandle || '');
+        const fromField = fromH?.field || '';
+        const toField = toH?.field || '';
         const fromEnt = entities.find(x => x.title === e.source || x.name === e.source);
         const toEnt = entities.find(x => x.title === e.target || x.name === e.target);
         const fromStill = (fromEnt?.fields || []).some(f => f.name === fromField);

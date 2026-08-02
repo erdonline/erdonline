@@ -294,6 +294,11 @@
       .erd-field-handle {
         top: 50%;
         transform: translateY(-50%);
+        // 同侧叠放：左靶/右源高于默认 10，保证经典右→左拖连可命中
+        &.erd-handle-tgt.react-flow__handle-left,
+        &.erd-handle-src.react-flow__handle-right {
+          z-index: 12;
+        }
 
         &.react-flow__handle-left {
           left: -4px;

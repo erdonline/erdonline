@@ -75,7 +75,8 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
                 fkSet.has(f.name) ? 'erd-field-fk' : '',
               ].filter(Boolean).join(' ')}
             >
-              <Handle type="target" id={`${f.name}-tgt`} position={Position.Left} className="erd-field-handle"/>
+              <Handle type="source" id={`${f.name}-src-l`} position={Position.Left} className="erd-field-handle erd-handle-src"/>
+              <Handle type="target" id={`${f.name}-tgt-l`} position={Position.Left} className="erd-field-handle erd-handle-tgt"/>
               <span className="erd-field-name">
                 {f.pk ? <span className="erd-pk-badge active">PK</span> : null}
                 {fkSet.has(f.name) ? (
@@ -84,7 +85,8 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
                 {f.name}
               </span>
               <span className="erd-field-type">{f.type}</span>
-              <Handle type="source" id={`${f.name}-src`} position={Position.Right} className="erd-field-handle"/>
+              <Handle type="target" id={`${f.name}-tgt-r`} position={Position.Right} className="erd-field-handle erd-handle-tgt"/>
+              <Handle type="source" id={`${f.name}-src-r`} position={Position.Right} className="erd-field-handle erd-handle-src"/>
             </div>
           ))}
         </div>
