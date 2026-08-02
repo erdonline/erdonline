@@ -2,6 +2,7 @@ import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
+import SaveStatus from "@/components/SaveStatus";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { ProjectMenu } from "@/components/Menu";
@@ -29,6 +30,7 @@ import './index.less';
 export const siderWidth = 400;
 
 export const headRightContent = [
+  <SaveStatus key="save-status" />,
   <CollabPresence key="presence" />,
   <ShareProjectButton key="share" />,
   <Popover placement="bottom" title="公众号" content={<Image src="/mp.jpg" />} trigger="hover">

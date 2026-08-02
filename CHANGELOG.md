@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W3 DesignLayout 顶栏自动保存状态（2026-08-02）
+
+### 修复
+- 自动保存状态从画布工具栏迁至 DesignLayout 顶栏：模型变更后可见「保存中…」→「已保存」（失败为「未保存」+ message）
+  验证点：`relation.spec` 空态建表后顶栏 `save-status` 先「保存中…」再「已保存」
+
+### 测试
+- `relation.spec`：拦截 `/ncnb/project/save` 放慢 600ms，断言顶栏状态流转
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "全旅程" --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：DesignLayout 自动保存状态 → ✅；`docs/roadmap.md` P2b 长尾标注已收
+
 ## [Unreleased] — W5 `/databaseConfig` 同步状态闭环（2026-08-02）
 
 ### 修复
