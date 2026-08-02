@@ -344,4 +344,69 @@ test.describe('版本快照', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('版本列表行密度（22–28 chrome）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('verdens');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'verdens', 'version density');
+      await openVersionPage(page);
+      await saveVersion(page);
+
+      const row = page.getByTestId('version-row-1.0.0');
+      await expect(row).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-list')).toBeVisible();
+      await expect(page.getByTestId('version-toolbar')).toBeVisible();
+      await expect(page.getByRole('button', { name: '返回模型' })).toBeVisible();
+
+      // ADR-0016：版本行 pad/标题与 22–28 chrome 同阶；禁 8×12 + 16 标题松行
+      const metrics = await row.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const title = el.querySelector('.version-row-title');
+        const titleCs = title ? getComputedStyle(title) : null;
+        const bar = document.querySelector('.version-page__bar');
+        const toolbar = document.querySelector('.version-page__toolbar');
+        return {
+          padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+          padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+          titleFont: titleCs ? parseFloat(titleCs.fontSize) : -1,
+          titleLh: titleCs ? parseFloat(titleCs.lineHeight) : -1,
+          barH: bar ? bar.getBoundingClientRect().height : -1,
+          toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+        };
+      });
+      expect(
+        metrics.padBlock,
+        `版本行 padding-block 合计应 ≤10（目标 4+4），得 ${metrics.padBlock}`,
+      ).toBeLessThanOrEqual(10);
+      expect(metrics.padBlock).toBeGreaterThanOrEqual(4);
+      expect(
+        metrics.padInline,
+        `版本行 padding-inline 合计应 ≤20（目标 8+8），得 ${metrics.padInline}`,
+      ).toBeLessThanOrEqual(20);
+      expect(
+        metrics.titleFont,
+        `版本号字号应 ≤14（目标 13），得 ${metrics.titleFont}`,
+      ).toBeLessThanOrEqual(14);
+      expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+      expect(
+        metrics.titleLh,
+        `版本号行高应 ≤24（目标 22），得 ${metrics.titleLh}`,
+      ).toBeLessThanOrEqual(24);
+      expect(
+        metrics.barH,
+        `版本顶栏高应 ≤36（目标 ~28），得 ${metrics.barH}`,
+      ).toBeLessThanOrEqual(36);
+      expect(metrics.barH).toBeGreaterThanOrEqual(22);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-version-list-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

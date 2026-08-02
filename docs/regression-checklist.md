@@ -15,6 +15,7 @@
 - [x] 树虚拟滚动：`.ant-tree-list-holder` 承载（100+ 表不卡）✅`model-design-ux.spec.ts`
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`
 - [x] CommonTabs / 表设计签头密度：签栏 ≤30（目标 ~28）+ 签头 ≤32；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`
+- [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤36；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
 
