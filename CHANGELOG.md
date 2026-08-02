@@ -24,6 +24,14 @@
 
 验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests package -s .mvn/settings.xml`；`docker build -t erd-be ./backend`；Dashboard 改 Root Directory 后 Deploy 成功
 
+#### 体验：关系图边障碍避让（ADR-0016 erdSmooth）
+
+- `utils/relationEdgeRoute`：对向左右手柄正交折线检测中间表包围盒；水平走廊畅通时平移 `centerX`，同行穿表则 `bypassY` 上/下绕行
+- 设计器 + 分享只读画布共用 `ErdRelationEdge`（读 RF 表节点尺寸，取实测与估算较大值）
+- 几何断言在 `relationEdgeRoute.test.ts`；E2E「边路由：erdSmooth 暴露 route-mode」验接线 + 截图
+
+验证点：`cd frontend && npx tsx src/utils/relationEdgeRoute.test.ts`；`cd frontend && npx tsx src/utils/relationEdges.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "边路由" --workers=1 --retries=0`
+
 #### 体验：示例/默认布局密度（ADR-0016 敢分享截图）
 
 - `schema/examples/demo.projectjson.json`：主图/会话图手排收紧（列间距 ~44px，x 跨度 1280→1136）；Frame 包围盒贴成员

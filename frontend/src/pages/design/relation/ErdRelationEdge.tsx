@@ -1,21 +1,32 @@
 /**
- * 自定义 smoothstep 边：更大圆角 + 同表对多 FK 肘部分流（ADR-0016 边路由）。
+ * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 中间表障碍避让（ADR-0016）。
  */
-import React, { memo } from 'react';
+import React, { memo, useCallback } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
-  getSmoothStepPath,
+  useStore,
 } from 'reactflow';
 import {
   EDGE_BORDER_RADIUS,
   EDGE_STEP_OFFSET,
   ErdEdgeData,
 } from '@/utils/relationEdges';
+import {
+  ObstacleRect,
+  routeErdSmoothStep,
+} from '@/utils/relationEdgeRoute';
+import { NODE_WIDTH, estimateNodeHeight } from '@/utils/graphLayout';
+
+type TableNodeData = {
+  entity?: { title?: string; fields?: Array<{ name?: string; relationNoShow?: boolean }> };
+};
 
 function ErdRelationEdge({
   id,
+  source,
+  target,
   sourceX,
   sourceY,
   targetX,
@@ -35,15 +46,51 @@ function ErdRelationEdge({
   const stepOffset = data?.stepOffset ?? EDGE_STEP_OFFSET;
   // 轻微 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
-  const [path, labelX, labelY] = getSmoothStepPath({
+
+  const obstacles = useStore(
+    useCallback(
+      (s): ObstacleRect[] => {
+        const out: ObstacleRect[] = [];
+        for (const n of s.getNodes()) {
+          if (n.id === source || n.id === target) continue;
+          if (n.type !== 'table') continue;
+          if (n.hidden) continue;
+          const entity = (n.data as TableNodeData | undefined)?.entity;
+          // 取实测与估算较大值，避免矮估导致误判「水平走廊畅通」
+          const estimatedH = estimateNodeHeight(entity);
+          const w = Math.max(n.width && n.width > 0 ? n.width : 0, NODE_WIDTH);
+          const h = Math.max(n.height && n.height > 0 ? n.height : 0, estimatedH);
+          const abs = (n as { positionAbsolute?: { x: number; y: number } }).positionAbsolute;
+          const x = abs?.x ?? n.position.x;
+          const y = abs?.y ?? n.position.y;
+          out.push({ id: n.id, x, y, width: w, height: h });
+        }
+        return out;
+      },
+      [source, target],
+    ),
+    (a, b) =>
+      a.length === b.length &&
+      a.every(
+        (r, i) =>
+          r.id === b[i].id &&
+          r.x === b[i].x &&
+          r.y === b[i].y &&
+          r.width === b[i].width &&
+          r.height === b[i].height,
+      ),
+  );
+
+  const { path, labelX, labelY, mode } = routeErdSmoothStep({
     sourceX,
     sourceY: sourceY + yShift,
     targetX,
     targetY: targetY + yShift,
     sourcePosition,
     targetPosition,
-    borderRadius: EDGE_BORDER_RADIUS,
     offset: stepOffset,
+    borderRadius: EDGE_BORDER_RADIUS,
+    obstacles,
   });
 
   const pad = labelBgPadding || [4, 2];
@@ -52,6 +99,12 @@ function ErdRelationEdge({
   return (
     <>
       <BaseEdge id={id} path={path} style={style} markerEnd={markerEnd} />
+      <span
+        data-testid="erd-edge-route-mode"
+        data-mode={mode}
+        data-edge-id={id}
+        hidden
+      />
       {hasLabel ? (
         <EdgeLabelRenderer>
           <div
