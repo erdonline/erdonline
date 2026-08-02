@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：字段默认值（defaultValue）内联编辑（建模回路）
+
+- 选题：常见默认值只能开表设计/EntityModal；画布编辑态缺 `defaultValue`，主栏已满（PK/NN/AI/隐 + 名/中文名/类型）再挤横向会糊
+- 编辑态次行「默认」input（`aria-label=默认值`）；Enter/blur 与名/中文名同批落盘；Escape 丢弃草稿（已即时落盘的类型/PK/NN/AI/隐不受影响）
+- Tab：字段名 → 中文名 → 类型 → 默认值 → 下一行（末行仍新建）；Shift+Tab 逆序；名/中文名/类型序不变
+- 浏览态类型旁 muted `=值`；可空清除
+- E2E：`relation`「字段默认值内联编辑；Tab 入 default；Escape 丢弃」+「字段 Tab」同步 Tab 序
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段默认值|字段 Tab 跳下一行" --workers=1 --retries=0`
+
 #### 体验：表头实体中文名（chnname）内联编辑（建模回路）
 
 - 选题：表头 ✎ 只能改实体名；中文名只能开 EntityModal / 表设计；字段 chnname 已内联后表头仍断环

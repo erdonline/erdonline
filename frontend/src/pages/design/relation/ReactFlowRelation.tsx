@@ -82,6 +82,7 @@ type FieldData = {
   name: string;
   type?: string;
   chnname?: string;
+  defaultValue?: string;
   pk?: boolean;
   notNull?: boolean;
   autoIncrement?: boolean;
@@ -122,6 +123,7 @@ type EditingState = {
   name: string;
   chnname: string;
   type: string;
+  defaultValue: string;
   pk: boolean;
   notNull: boolean;
   autoIncrement: boolean;
@@ -197,6 +199,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     name: string;
     chnname?: string;
     type?: string;
+    defaultValue?: string;
     pk?: boolean;
     notNull?: boolean;
     autoIncrement?: boolean;
@@ -208,6 +211,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       name: f.name,
       chnname: f.chnname || '',
       type: f.type || 'String',
+      defaultValue: f.defaultValue || '',
       pk,
       notNull: pk || !!f.notNull,
       autoIncrement: !!f.autoIncrement,
@@ -283,6 +287,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     }
 
     const chnname = (current.chnname || '').trim();
+    const defaultValue = (current.defaultValue || '').trim();
     // 跳行：先锁 blur/ref，再落盘（避免 store 同步重渲把 editingRef 打回旧行）
     if (advance) {
       ignoreBlurRef.current = true;
@@ -293,7 +298,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       const pk = current.pk || current.type === 'IdOrKey';
       const notNull = pk || current.notNull;
       const created = {
-        name, type: current.type, chnname, remark: '', pk, notNull,
+        name, type: current.type, chnname, defaultValue, remark: '', pk, notNull,
         autoIncrement: current.autoIncrement,
       } as FieldData;
       nextFields = [...allFields, created];
@@ -305,6 +310,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             ...f,
             name,
             chnname,
+            defaultValue,
             type: current.type,
             pk: current.pk,
             notNull: current.pk || current.notNull,
@@ -327,6 +333,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           name: f.name,
           chnname: f.chnname || '',
           type: f.type || 'String',
+          defaultValue: f.defaultValue || '',
           pk,
           notNull: pk || !!f.notNull,
           autoIncrement: !!f.autoIncrement,
@@ -340,7 +347,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       // 末行 Tab → 开新建行（表格式建模回路；空名 toast 仍走 commit 校验）
       if (advance === 'next' && idx >= 0 && targetIdx >= visibleAfter.length) {
         const nextEdit = {
-          key: '__NEW__', name: '', chnname: '', type: 'String',
+          key: '__NEW__', name: '', chnname: '', type: 'String', defaultValue: '',
           pk: false, notNull: false, autoIncrement: false,
         };
         editingRef.current = nextEdit;
@@ -473,15 +480,17 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setTimeout(() => { ignoreBlurRef.current = false; }, 0);
   };
 
-  /** 行内焦点：名 → 中文名 → 类型；跳行仍从类型 Tab（与既有稳定路径一致） */
-  const focusEditPart = (part: 'name' | 'chnname' | 'type') => {
+  /** 行内焦点：名 → 中文名 → 类型 → 默认值；跳行仍从默认值 Tab（与既有稳定路径一致） */
+  const focusEditPart = (part: 'name' | 'chnname' | 'type' | 'default') => {
     ignoreBlurRef.current = true;
     const root = document.activeElement?.closest('.erd-field-editing');
     const sel = part === 'name'
       ? 'input[aria-label="字段名"]'
       : part === 'chnname'
         ? 'input[aria-label="中文名"]'
-        : 'select[aria-label="字段类型"]';
+        : part === 'type'
+          ? 'select[aria-label="字段类型"]'
+          : 'input[aria-label="默认值"]';
     // 等当前 keydown 结束再 focus，避免与 blur 竞态
     setTimeout(() => {
       (root?.querySelector(sel) as HTMLElement | null)?.focus();
@@ -519,7 +528,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           focusEditPart('type');
           return;
         }
-        // 类型 Tab → 提交并跳下一行
+        // 类型 Tab → 默认值（不跳行；默认放次行避免挤爆主栏）
+        if (label === '字段类型') {
+          focusEditPart('default');
+          return;
+        }
+        // 默认值 Tab → 提交并跳下一行
         commit('next');
         return;
       }
@@ -529,6 +543,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
       if (label === '字段类型') {
         focusEditPart('chnname');
+        return;
+      }
+      if (label === '默认值') {
+        focusEditPart('type');
         return;
       }
       commit('prev');
@@ -550,134 +568,156 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   const editRow = (rowKey: string) => (
     <div className="erd-field-row erd-field-editing nodrag">
-      <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
-        <input
-          type="checkbox"
-          aria-label="主键"
-          checked={!!editing?.pk}
-          onChange={e => {
-            const pk = e.target.checked;
-            const current = editingRef.current;
-            if (!current) return;
-            const notNull = pk || current.notNull;
-            const next = { ...current, pk, notNull };
-            editingRef.current = next;
-            setEditing(next);
-            persistFieldMeta(current.key, current.type, pk, notNull, current.autoIncrement);
-          }}
-          onKeyDown={e => e.stopPropagation()}
-        />
-        PK
-      </label>
-      <label className="erd-field-meta-toggle erd-field-nn-toggle" title="非空">
-        <input
-          type="checkbox"
-          aria-label="非空"
-          checked={!!editing?.notNull}
-          disabled={!!editing?.pk}
-          onChange={e => {
-            const current = editingRef.current;
-            if (!current || current.pk) return;
-            const notNull = e.target.checked;
-            const next = { ...current, notNull };
-            editingRef.current = next;
-            setEditing(next);
-            persistFieldMeta(current.key, current.type, current.pk, notNull, current.autoIncrement);
-          }}
-          onKeyDown={e => e.stopPropagation()}
-        />
-        NN
-      </label>
-      <label className="erd-field-meta-toggle erd-field-ai-toggle" title="自增">
-        <input
-          type="checkbox"
-          aria-label="自增"
-          checked={!!editing?.autoIncrement}
-          onChange={e => {
-            const current = editingRef.current;
-            if (!current) return;
-            const autoIncrement = e.target.checked;
-            const next = { ...current, autoIncrement };
-            editingRef.current = next;
-            setEditing(next);
-            persistFieldMeta(current.key, current.type, current.pk, current.notNull, autoIncrement);
-          }}
-          onKeyDown={e => e.stopPropagation()}
-        />
-        AI
-      </label>
-      {editing?.key !== '__NEW__' ? (
-        <label className="erd-field-meta-toggle erd-field-hide-toggle" title="在关系图中隐藏">
+      <div className="erd-field-edit-main">
+        <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
           <input
             type="checkbox"
-            aria-label="在关系图中隐藏"
-            checked={false}
+            aria-label="主键"
+            checked={!!editing?.pk}
             onChange={e => {
-              if (!e.target.checked) return;
+              const pk = e.target.checked;
               const current = editingRef.current;
-              if (!current || current.key === '__NEW__') return;
-              persistHideOnCanvas(current.key);
+              if (!current) return;
+              const notNull = pk || current.notNull;
+              const next = { ...current, pk, notNull };
+              editingRef.current = next;
+              setEditing(next);
+              persistFieldMeta(current.key, current.type, pk, notNull, current.autoIncrement);
             }}
             onKeyDown={e => e.stopPropagation()}
           />
-          隐
+          PK
         </label>
-      ) : null}
-      <input
-        className="erd-field-input"
-        aria-label="字段名"
-        autoFocus
-        placeholder="字段名"
-        value={editing?.name ?? ''}
-        onChange={e => {
-          const nextName = e.target.value;
-          setEditing(prev => {
-            if (!prev) return prev;
-            const next = { ...prev, name: nextName };
+        <label className="erd-field-meta-toggle erd-field-nn-toggle" title="非空">
+          <input
+            type="checkbox"
+            aria-label="非空"
+            checked={!!editing?.notNull}
+            disabled={!!editing?.pk}
+            onChange={e => {
+              const current = editingRef.current;
+              if (!current || current.pk) return;
+              const notNull = e.target.checked;
+              const next = { ...current, notNull };
+              editingRef.current = next;
+              setEditing(next);
+              persistFieldMeta(current.key, current.type, current.pk, notNull, current.autoIncrement);
+            }}
+            onKeyDown={e => e.stopPropagation()}
+          />
+          NN
+        </label>
+        <label className="erd-field-meta-toggle erd-field-ai-toggle" title="自增">
+          <input
+            type="checkbox"
+            aria-label="自增"
+            checked={!!editing?.autoIncrement}
+            onChange={e => {
+              const current = editingRef.current;
+              if (!current) return;
+              const autoIncrement = e.target.checked;
+              const next = { ...current, autoIncrement };
+              editingRef.current = next;
+              setEditing(next);
+              persistFieldMeta(current.key, current.type, current.pk, current.notNull, autoIncrement);
+            }}
+            onKeyDown={e => e.stopPropagation()}
+          />
+          AI
+        </label>
+        {editing?.key !== '__NEW__' ? (
+          <label className="erd-field-meta-toggle erd-field-hide-toggle" title="在关系图中隐藏">
+            <input
+              type="checkbox"
+              aria-label="在关系图中隐藏"
+              checked={false}
+              onChange={e => {
+                if (!e.target.checked) return;
+                const current = editingRef.current;
+                if (!current || current.key === '__NEW__') return;
+                persistHideOnCanvas(current.key);
+              }}
+              onKeyDown={e => e.stopPropagation()}
+            />
+            隐
+          </label>
+        ) : null}
+        <input
+          className="erd-field-input"
+          aria-label="字段名"
+          autoFocus
+          placeholder="字段名"
+          value={editing?.name ?? ''}
+          onChange={e => {
+            const nextName = e.target.value;
+            setEditing(prev => {
+              if (!prev) return prev;
+              const next = { ...prev, name: nextName };
+              editingRef.current = next;
+              return next;
+            });
+          }}
+          onKeyDown={onFieldEditKeyDown}
+          onBlur={e => onFieldEditBlur(e, rowKey)}
+        />
+        <input
+          className="erd-field-chnname-input"
+          aria-label="中文名"
+          placeholder="中文名"
+          value={editing?.chnname ?? ''}
+          onChange={e => {
+            const chnname = e.target.value;
+            setEditing(prev => {
+              if (!prev) return prev;
+              const next = { ...prev, chnname };
+              editingRef.current = next;
+              return next;
+            });
+          }}
+          onKeyDown={onFieldEditKeyDown}
+          onBlur={e => onFieldEditBlur(e, rowKey)}
+        />
+        <select
+          className="erd-field-type-select"
+          aria-label="字段类型"
+          value={editing?.type ?? 'String'}
+          onChange={e => {
+            const type = e.target.value;
+            const current = editingRef.current;
+            if (!current) return;
+            const next = { ...current, type };
             editingRef.current = next;
-            return next;
-          });
-        }}
-        onKeyDown={onFieldEditKeyDown}
-        onBlur={e => onFieldEditBlur(e, rowKey)}
-      />
-      <input
-        className="erd-field-chnname-input"
-        aria-label="中文名"
-        placeholder="中文名"
-        value={editing?.chnname ?? ''}
-        onChange={e => {
-          const chnname = e.target.value;
-          setEditing(prev => {
-            if (!prev) return prev;
-            const next = { ...prev, chnname };
-            editingRef.current = next;
-            return next;
-          });
-        }}
-        onKeyDown={onFieldEditKeyDown}
-        onBlur={e => onFieldEditBlur(e, rowKey)}
-      />
-      <select
-        className="erd-field-type-select"
-        aria-label="字段类型"
-        value={editing?.type ?? 'String'}
-        onChange={e => {
-          const type = e.target.value;
-          const current = editingRef.current;
-          if (!current) return;
-          const next = { ...current, type };
-          editingRef.current = next;
-          setEditing(next);
-          persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement);
-        }}
-        onKeyDown={onFieldEditKeyDown}
-        onBlur={e => onFieldEditBlur(e, rowKey)}
-      >
-        {FIELD_TYPES.map(t => (
-          <option key={t} value={t}>{t}</option>
-        ))}
-      </select>
+            setEditing(next);
+            persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement);
+          }}
+          onKeyDown={onFieldEditKeyDown}
+          onBlur={e => onFieldEditBlur(e, rowKey)}
+        >
+          {FIELD_TYPES.map(t => (
+            <option key={t} value={t}>{t}</option>
+          ))}
+        </select>
+      </div>
+      <div className="erd-field-edit-default">
+        <span className="erd-field-default-label" aria-hidden>默认</span>
+        <input
+          className="erd-field-default-input"
+          aria-label="默认值"
+          placeholder="默认值（可选）"
+          value={editing?.defaultValue ?? ''}
+          onChange={e => {
+            const defaultValue = e.target.value;
+            setEditing(prev => {
+              if (!prev) return prev;
+              const next = { ...prev, defaultValue };
+              editingRef.current = next;
+              return next;
+            });
+          }}
+          onKeyDown={onFieldEditKeyDown}
+          onBlur={e => onFieldEditBlur(e, rowKey)}
+        />
+      </div>
     </div>
   );
 
@@ -797,7 +837,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 {f.name}
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
               </span>
-              <span className="erd-field-type">{f.type}</span>
+              <span className="erd-field-type">
+                {f.type}
+                {f.defaultValue ? (
+                  <span className="erd-field-default" title={`默认 ${f.defaultValue}`}>
+                    {' '}={f.defaultValue}
+                  </span>
+                ) : null}
+              </span>
               <button
                 type="button"
                 className="erd-field-edit nodrag"
@@ -838,7 +885,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             onClick={() => {
               setSelectedField(null);
               setEditing({
-                key: '__NEW__', name: '', chnname: '', type: 'String',
+                key: '__NEW__', name: '', chnname: '', type: 'String', defaultValue: '',
                 pk: false, notNull: false, autoIncrement: false,
               });
             }}
