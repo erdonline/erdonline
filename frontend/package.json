@@ -56,7 +56,7 @@
     "@ant-design/compatible": "^5.1.1",
     "@ant-design/icons": "^5.3.1",
     "@ant-design/plots": "^2.1.13",
-    "@ant-design/pro-components": "^2.6.49",
+    "@ant-design/pro-components": "2.8.10",
     "@chatui/core": "^2.4.2",
     "@handsontable/react": "^5.0.0",
     "@icon-park/react": "^1.4.2",
@@ -64,7 +64,7 @@
     "@umijs/hooks": "^1.9.3",
     "@umijs/route-utils": "^1.0.36",
     "ace-builds": "^1.4.12",
-    "antd": "^5.21.0",
+    "antd": "5.29.3",
     "bizcharts": "^4.1.22",
     "classnames": "^2.2.6",
     "copy-to-clipboard": "^3.3.3",
@@ -86,7 +86,7 @@
     "moment": "^2.25.3",
     "omit.js": "^2.0.2",
     "rc-resize-observer": "^1.2.0",
-    "rc-util": "^5.24.4",
+    "rc-util": "5.44.4",
     "react": "^18.2.0",
     "react-ace": "^9.4.4",
     "react-dom": "^18.2.0",
@@ -118,7 +118,7 @@
     "@types/react": "^18.0.0",
     "@types/react-dom": "^18.0.0",
     "@types/react-helmet": "^6.1.0",
-    "@umijs/max": "^4.0.65",
+    "@umijs/max": "4.6.84",
     "@umijs/yorkie": "^2.0.0",
     "babel-plugin-transform-remove-console": "^6.9.4",
     "carlo": "^0.9.46",
@@ -140,12 +140,15 @@
     "sass": "^1.55.0",
     "stylelint": "^13.0.0",
     "typescript": "^4.2.2",
-    "umi-presets-pro": "^1.0.8",
+    "umi-presets-pro": "2.0.3",
     "url-loader": "^4.1.1"
   },
   "engines": {
     "node": ">=14",
     "pnpm": ">=7"
+  },
+  "resolutions": {
+    "rc-util": "5.44.4"
   },
   "peerDependencies": {
     "@babel/core": "^7.0.0-0",
