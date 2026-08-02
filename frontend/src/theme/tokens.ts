@@ -25,9 +25,11 @@ export const erdColors = {
   frameFillBrand: 'rgba(222, 41, 16, 0.08)',
   frameFillWarning: 'rgba(212, 136, 6, 0.10)',
   frameFillInk: 'rgba(11, 28, 44, 0.06)',
-  /** 轻阴影 / MiniMap mask / 选中光晕 */
+  /** 轻阴影 / MiniMap mask */
   inkA06: 'rgba(11, 28, 44, 0.06)',
+  /** 浅 brand 叠色（非选中环；选中统一 brandA18） */
   brandA12: 'rgba(222, 41, 16, 0.12)',
+  /** 表 / Frame 共用选中光晕环（CSS `--erd-selection-ring`） */
   brandA18: 'rgba(222, 41, 16, 0.18)',
 } as const;
 
