@@ -11,5 +11,6 @@ RUN mvn -s /root/.m2/settings.xml clean package -DskipTests -B
 FROM eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=build /app/target/erd-online.jar app.jar
+# Local / compose default 9502; Railway (and similar) inject PORT — Boot must follow it.
 EXPOSE 9502 9092
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["sh", "-c", "exec java -jar app.jar --server.port=${PORT:-9502}"]

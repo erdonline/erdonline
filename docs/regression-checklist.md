@@ -285,7 +285,8 @@
 ## 官方 Demo 运行时 Railway（2026-08-02）
 
 - [x] [ADR-0019 + deployment] 文档站可打开 ADR-0019；`deployment.md` 含 Railway 五步与 env 对照；`yarn build`（website）无 MDX 失败 ✅ 2026-08-02
-- [ ] [Railway Dashboard] New Project → 镜像/Dockerfile + MySQL + Redis → Variables → 公网 9502 → `actuator/health` UP → 设 `DEMO_API_URL`
+- [x] [Railway monorepo 构建] `backend/railway.toml` + Dockerfile 跟 `PORT`；文档写明 Root Directory=`backend`、Config=`/backend/railway.toml`；本地 `mvn -DskipTests package` + `docker build ./backend` ✅ 2026-08-02
+- [ ] [Railway Dashboard] Root Directory=`backend` + Config=`/backend/railway.toml` → Deploy → MySQL/Redis Variables → Public → `actuator/health` UP → 设 `DEMO_API_URL`
 
 ## 创建项目 / JWT 头（2026-08-02）
 

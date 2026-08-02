@@ -132,11 +132,20 @@ docker compose up -d
 
 ### Dashboard 五步（最短路径）
 
-1. **New Project** → **Deploy from GitHub**（选 `erdonline/erdonline`）或空项目后 **Add service → Docker Image**，镜像填：
-   `ghcr.io/erdonline/erdonline-backend:latest`  
-   > 注意：镜像在首次 `v*` release（`release.yml` → GHCR）之前**可能不存在**；可暂用仓库根 `backend/Dockerfile` 从 GitHub 构建同一服务。
-2. **Add Plugin → MySQL**（MySQL 8）与 **Add Plugin → Redis**；等插件 Ready。
-3. 在 MySQL 上建双库并灌基线（插件通常只给一个库）。用 Railway 提供的连接串/`mysql` 客户端执行：
+> **构建失败先看这里**：仓库是 monorepo。若 Root Directory 留空（`/`），Railway 会按仓库根做 Railpack/Nixpacks（常误检前端）或用错 Docker context（`COPY pom.xml` 找不到）。**必须**把后端服务指到 `backend/`。另：`ghcr.io/erdonline/erdonline-backend` 在首次打 `v*` tag 跑 `release.yml` 之前**不存在**（404）——在此之前请用 **Dockerfile 从 GitHub 构建**，不要选 Docker Image。
+
+1. **New Project** → **Deploy from GitHub**（选 `erdonline/erdonline`）。**不要**先选 Docker Image（镜像尚未发布时会拉取失败）。
+2. 打开 **App 服务 → Settings**，按下面三项改（改完会触发重建）：
+
+   | 设置项 | 必填值 | 说明 |
+   |---|---|---|
+   | **Root Directory** | `backend` | 构建上下文 = `backend/`（与 `docker-compose` / `backend/Dockerfile` 一致） |
+   | **Config as Code** / Railway config file | `/backend/railway.toml` | 强制 `DOCKERFILE` builder；config **不**跟随 Root Directory，须写绝对路径 |
+   | **Watch Paths**（可选） | `/backend/**` | 仅后端变更触发部署；toml 里已有同款 |
+
+   确认 Builder 为 **Dockerfile**、`Dockerfile` 路径为 `Dockerfile`（相对 Root Directory）。
+3. **Add Plugin → MySQL**（MySQL 8）与 **Add Plugin → Redis**；等插件 Ready。
+4. 在 MySQL 上建双库并灌基线（插件通常只给一个库）。用 Railway 提供的连接串/`mysql` 客户端执行：
    ```bash
    # 建库（与 db/init/01_schema.sql 一致）
    CREATE DATABASE IF NOT EXISTS erd DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
@@ -144,13 +153,15 @@ docker compose up -d
    # 再按序导入仓库 db/init/02_erd.sql … 09_*.sql（公网勿灌 05_e2e_users.sql）
    ```
    后端启动时 Flyway 只迁移 **erd** 增量；**martin** 基线必须来自 `db/init`。
-4. 在 **App 服务 → Variables** 写入下表环境变量（把插件变量引用成 Spring 名；值以 Dashboard 实际为准）。
-5. **Settings → Networking → Public**，端口填 **9502**（`backend/Dockerfile` `EXPOSE 9502`）；生成 `*.up.railway.app` HTTPS。验收：
+5. 在 **App 服务 → Variables** 写入下表环境变量（把插件变量引用成 Spring 名；值以 Dashboard 实际为准）。
+6. **Settings → Networking → Public Networking** 生成 `*.up.railway.app` HTTPS。容器入口已读平台 `PORT`（`backend/Dockerfile`）；**不必**再手填 9502。验收：
    ```bash
    curl -sS https://YOUR-APP.up.railway.app/actuator/health
    # 期望 {"status":"UP"}
    ```
    随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://YOUR-APP.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
+
+可选（首个 `v*` release 且 GHCR 已有包之后）：空项目 → **Add service → Docker Image** → `ghcr.io/erdonline/erdonline-backend:latest`，跳过本地 Dockerfile 构建。
 
 ### 环境变量对照（Spring Boot）
 
@@ -174,7 +185,7 @@ docker compose up -d
 | `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 任意非空占位（如 `demo`/`demo`） | `prod` profile 强制存在；无 MinIO 时 Word 自定义上传不可用，内置模板仍可导出 |
 | `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
-容器监听 **9502**。若平台注入 `PORT` 且要求进程跟它走，可设 `SERVER_PORT` 与公开端口一致（Boot 识别 `SERVER_PORT`），或启动命令加 `-Dserver.port=$PORT`。本仓库**未**提交 `railway.toml`，避免臆造易碎配置；用 Dashboard 变量 + 镜像/`backend/Dockerfile` 即可。
+本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。
 
 ### 接 CF Pages
 
