@@ -3,17 +3,62 @@
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.0.0 https://maven.apache.org/xsd/settings-1.0.0.xsd">
     <!--
-      ERD Online 后端专用 Maven 配置。
-      用途：绕过机器全局 ~/.m2/settings.xml 里指向内网 artifactory 的镜像，
+      ERD Online 后端专用 Maven 配置（经 .mvn/maven.config 的 -s 自动启用）。
+      用途：覆盖机器全局 ~/.m2/settings.xml 里指向内网 Artifactory 的镜像，
             改用阿里云公共仓库，便于任何人在公网环境构建。
-      用法：mvn -s .mvn/settings.xml <goal>
+      若日后引入私有仓库：在下方 repositories 声明其 id，并把 mirrorOf 改为
+            *,!<private-id>（勿用裸 * 吞掉私库）。
     -->
     <mirrors>
         <mirror>
             <id>aliyun-public</id>
             <name>Aliyun Public</name>
             <url>https://maven.aliyun.com/repository/public</url>
-            <mirrorOf>*</mirrorOf>
+            <!-- 公共构件走阿里云；排除 id 以便未来私库直连 -->
+            <mirrorOf>*,!erd-private</mirrorOf>
         </mirror>
     </mirrors>
+
+    <profiles>
+        <profile>
+            <id>aliyun</id>
+            <repositories>
+                <repository>
+                    <id>aliyun-public</id>
+                    <url>https://maven.aliyun.com/repository/public</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+                <repository>
+                    <id>aliyun-central</id>
+                    <url>https://maven.aliyun.com/repository/central</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+                <repository>
+                    <id>aliyun-spring</id>
+                    <url>https://maven.aliyun.com/repository/spring</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </repository>
+            </repositories>
+            <pluginRepositories>
+                <pluginRepository>
+                    <id>aliyun-public</id>
+                    <url>https://maven.aliyun.com/repository/public</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </pluginRepository>
+                <pluginRepository>
+                    <id>aliyun-central</id>
+                    <url>https://maven.aliyun.com/repository/central</url>
+                    <releases><enabled>true</enabled></releases>
+                    <snapshots><enabled>false</enabled></snapshots>
+                </pluginRepository>
+            </pluginRepositories>
+        </profile>
+    </profiles>
+    <activeProfiles>
+        <activeProfile>aliyun</activeProfile>
+    </activeProfiles>
 </settings>
