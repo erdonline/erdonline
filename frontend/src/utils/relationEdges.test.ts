@@ -7,6 +7,9 @@ import { NODE_WIDTH } from './graphLayout';
 import {
   EDGE_HUB_FAN_MIN,
   EDGE_HUB_FAN_STEP,
+  EDGE_LABEL_BG_PADDING,
+  EDGE_LABEL_BG_RADIUS,
+  EDGE_LABEL_FONT_SIZE,
   EDGE_LANE_STEP,
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
@@ -21,6 +24,7 @@ import {
   stepOffsetForLane,
   targetHandleId,
 } from './relationEdges';
+import { erdColors } from '@/theme/tokens';
 
 async function run(name: string, fn: () => void | Promise<void>) {
   try {
@@ -118,6 +122,22 @@ async function main() {
     assert.notStrictEqual(steps[0], steps[1], '并行边肘距应不同');
     const lanes = edges.map((e) => (e.data as { laneOffset: number }).laneOffset);
     assert.strictEqual(lanes[0] + lanes[1], 0, '双边 lane 应对称');
+  });
+
+  await run('associationsToEdges：边标签 chip 可读默认', () => {
+    const [edge] = associationsToEdges([
+      { relation: '1:n', from: { entity: 'a', field: 'b_id' }, to: { entity: 'b', field: 'id' } },
+    ]);
+    assert.strictEqual(edge.label, '1:n');
+    assert.strictEqual(edge.labelStyle?.fontSize, EDGE_LABEL_FONT_SIZE);
+    assert.ok(EDGE_LABEL_FONT_SIZE >= 11);
+    assert.strictEqual(edge.labelStyle?.fill, erdColors.ink600);
+    assert.notStrictEqual(edge.labelStyle?.fill, erdColors.ink400, '禁低对比 ink400');
+    assert.strictEqual(edge.labelBgStyle?.fill, erdColors.surface);
+    assert.notStrictEqual(edge.labelBgStyle?.fill, erdColors.surfaceSunk, '禁与画布 sunk 同色');
+    assert.strictEqual(edge.labelBgStyle?.fillOpacity, 1);
+    assert.deepStrictEqual(edge.labelBgPadding, EDGE_LABEL_BG_PADDING);
+    assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
   });
 
   await run('associationsToEdges：不同 pair 互不抢 lane', () => {

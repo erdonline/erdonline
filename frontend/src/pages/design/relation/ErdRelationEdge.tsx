@@ -10,6 +10,9 @@ import {
 } from 'reactflow';
 import {
   EDGE_BORDER_RADIUS,
+  EDGE_LABEL_BG_PADDING,
+  EDGE_LABEL_BG_RADIUS,
+  EDGE_LABEL_FONT_SIZE,
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
   ErdEdgeData,
@@ -133,8 +136,13 @@ function ErdRelationEdge({
     trunkBundleOffset,
   });
 
-  const pad = labelBgPadding || [4, 2];
+  const pad = labelBgPadding || EDGE_LABEL_BG_PADDING;
   const hasLabel = typeof label === 'string' && label.length > 0;
+  // 勿把 fillOpacity 套到整块 div（会冲淡文字）；chip 样式以 .erd-edge-label 为准
+  const chipBg =
+    (labelBgStyle?.fill as string | undefined) || 'var(--erd-surface)';
+  const chipColor =
+    (labelStyle?.fill as string | undefined) || 'var(--erd-ink-600)';
 
   return (
     <>
@@ -154,17 +162,12 @@ function ErdRelationEdge({
             className="erd-edge-label nodrag nopan"
             data-testid="erd-edge-label"
             style={{
-              position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
-              pointerEvents: 'all',
-              fontSize: (labelStyle?.fontSize as number) || 10,
-              fontFamily: 'var(--erd-font-mono)',
-              color: (labelStyle?.fill as string) || 'var(--erd-ink-400)',
-              background: (labelBgStyle?.fill as string) || 'var(--erd-surface-sunk)',
-              opacity: (labelBgStyle?.fillOpacity as number) ?? 0.94,
+              fontSize: (labelStyle?.fontSize as number) || EDGE_LABEL_FONT_SIZE,
+              color: chipColor,
+              background: chipBg,
               padding: `${pad[1]}px ${pad[0]}px`,
-              borderRadius: labelBgBorderRadius ?? 3,
-              letterSpacing: '0.02em',
+              borderRadius: labelBgBorderRadius ?? EDGE_LABEL_BG_RADIUS,
             }}
           >
             {label}

@@ -33,6 +33,12 @@ export const PORT_VERTICAL_STACK_DX = NODE_WIDTH * 0.55;
 /** 竖向至少拉开这么多才触发同侧（避免近邻对角误判） */
 export const PORT_VERTICAL_STACK_DY = 48;
 
+/** 边标签 chip（基数 1:n 等）：截图可读；禁整块 opacity 冲淡文字 */
+export const EDGE_LABEL_FONT_SIZE = 11;
+/** [水平, 垂直] padding px */
+export const EDGE_LABEL_BG_PADDING: [number, number] = [6, 3];
+export const EDGE_LABEL_BG_RADIUS = 4;
+
 export type PortSide = 'l' | 'r';
 /** lr=右→左；rl=左→右；same=同侧短 U（竖叠） */
 export type PortMode = 'lr' | 'rl' | 'same';
@@ -267,13 +273,14 @@ export function associationsToEdges(
       label: a.relation || '',
       data,
       labelStyle: {
-        fontSize: 10,
-        fill: erdColors.ink400,
+        fontSize: EDGE_LABEL_FONT_SIZE,
+        fill: erdColors.ink600,
         fontFamily: 'var(--erd-font-mono)',
       },
-      labelBgStyle: { fill: erdColors.surfaceSunk, fillOpacity: 0.94 },
-      labelBgPadding: [4, 2] as [number, number],
-      labelBgBorderRadius: 3,
+      // 底用 surface 白底（相对画布 sunk）；fillOpacity 仅语义保留，渲染不整块套 opacity
+      labelBgStyle: { fill: erdColors.surface, fillOpacity: 1 },
+      labelBgPadding: EDGE_LABEL_BG_PADDING,
+      labelBgBorderRadius: EDGE_LABEL_BG_RADIUS,
       style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
       markerEnd: {
         type: MarkerType.ArrowClosed,

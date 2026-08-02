@@ -284,6 +284,24 @@ test.describe('关系图画布（ReactFlow）', () => {
       const marker = await edgePath.getAttribute('marker-end');
       expect(marker, '边应带闭合箭头 marker').toBeTruthy();
 
+      // ADR-0016：连线后基数标签 chip 可读
+      const edgeLabel = page.getByTestId('erd-edge-label');
+      await expect(edgeLabel).toBeVisible();
+      await expect(edgeLabel).toHaveText(/0,\s*n:1|0,n:1/);
+      const labelLook = await edgeLabel.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          color: s.color,
+          bg: s.backgroundColor,
+          opacity: s.opacity,
+          fontSize: parseFloat(s.fontSize),
+        };
+      });
+      expect(labelLook.opacity).toBe('1');
+      expect(labelLook.color).toBe('rgb(68, 82, 95)');
+      expect(labelLook.bg).toBe('rgb(255, 255, 255)');
+      expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
+
       // 默认新建表常竖叠：几何择柄应走同侧短 U（消 circle-route）
       const portEl = page.getByTestId('erd-edge-route-mode');
       await expect(portEl).toHaveAttribute('data-port', 'same');
@@ -292,6 +310,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-node-polish.png',
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-edge-label-chip.png',
         fullPage: false,
       });
       await page.screenshot({
