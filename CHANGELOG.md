@@ -8,6 +8,21 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd
+
+**重构**
+
+- 版本比对「SQL审批」`SqlApproval`：摘 `ModalForm` / `ProForm*` → antd `Modal` + `Form` + `Select`（远程审批人）；失败 toast 不关窗；触发 aria 不变
+- 团队「基本设置」`BasicSetting`：摘 `ProForm*` → antd `Form` + `Select mode="tags"`；提交按钮文案「提 交」与权限门控不变
+- 团队「用户组」`GroupSetting`：摘 `ProCard` tabs → antd `Tabs tabPosition="left"`
+- 公告页 `project/notice`：摘 `ProList` → antd `List` + 分页；失败 toast 不变
+- 表编辑 `TableTab`：摘无业务 `ProCard` 外壳 → `div`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 12 ✅；Pro 文件数 25→20
+  验证点：`rg '@ant-design/pro-components' …SqlApproval/BasicSetting/GroupSetting/notice/TableTab` = 0；`rg -l … | wc -l` → **20**；`npx playwright test group-basic-setting group-layout-nav project-notice layout-outlet -g "基本设置|权限组|更多公告|GroupLayout|加载失败"` → **7 passed**
+
 #### 重构：W4 切片 11 — ResetPassword / AddUser / ReversePdMan / ReverseERD → antd
 
 **重构**
