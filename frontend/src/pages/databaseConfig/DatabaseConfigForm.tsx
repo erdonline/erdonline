@@ -3,7 +3,6 @@ import { generateJdbcUrl, getDriverClassName, pingDatabase } from '@/utils/datab
 import { LinkOutlined, QuestionCircleOutlined, SaveOutlined } from '@ant-design/icons';
 import {
   Button,
-  Card,
   Col,
   Divider,
   Form,
@@ -14,17 +13,15 @@ import {
   Select,
   Space,
   Tooltip,
-  Typography,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
 
 const { Option } = Select;
-const { Text } = Typography;
 
 const DATABASE_CONFIG_URL = '/ncnb/dataSources';
 
 interface DatabaseConfigFormProps {
-  initialValues?: any;
+  initialValues?: Record<string, unknown> & { id?: string; connectionType?: string };
   onFinish: () => void;
 }
 
@@ -33,7 +30,7 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
   const [connectionType, setConnectionType] = useState(initialValues?.connectionType || 'host');
   const [testing, setTesting] = useState(false);
 
-  const handleSubmit = async (values: any) => {
+  const handleSubmit = async (values: Record<string, unknown>) => {
     const action = initialValues ? EDIT : ADD;
     const url = initialValues ? `${DATABASE_CONFIG_URL}/${initialValues.id}` : DATABASE_CONFIG_URL;
     const res = await action(url, values);
@@ -76,7 +73,6 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
     postgresql: 'PostgreSQL',
     oracle: 'Oracle',
     sqlserver: 'SQLServer',
-    // Add more mappings as needed
   };
 
   const getDefaultPort = (dbType: string) => {
@@ -85,14 +81,12 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
       postgresql: '5432',
       oracle: '1521',
       sqlserver: '1433',
-      // Add more default ports for other database types as needed
     };
     return defaultPorts[dbType.toLowerCase()] || '';
   };
 
   const parseUrl = (url: string) => {
     try {
-      // General JDBC URL pattern
       const regex = /jdbc:([^:]+):\/\/([^:/]+)(?::(\d+))?(?:\/([^?]+))?/;
       const match = url.match(regex);
 
@@ -112,7 +106,6 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
     }
   };
 
-  // Update JDBC URL when form values change
   const updateJdbcUrl = () => {
     if (connectionType === 'host') {
       const type = form.getFieldValue('type');
@@ -148,179 +141,168 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
   }, [initialValues]);
 
   return (
-    <Card>
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Form
-          form={form}
-          layout="vertical"
-          onFinish={handleSubmit}
-          initialValues={{
-            connectionType: 'host',
-            type: 'MySQL',
-            port: 3306,
-            ...initialValues,
-          }}
-          onValuesChange={(changedValues) => {
-            if (connectionType === 'host' && !changedValues.url) {
-              updateJdbcUrl();
-            }
-          }}
-        >
-          <Row gutter={16}>
-            <Col span={12}>
-              <Form.Item
-                name="name"
-                label={
-                  <Space>
-                    连接名称
-                    <Tooltip title="为您的连接起一个易记的名字">
-                      <QuestionCircleOutlined />
-                    </Tooltip>
-                  </Space>
-                }
-                rules={[{ required: true, message: '请输入连接名称' }]}
-              >
-                <Input placeholder="例如：生产环境主数据库" />
-              </Form.Item>
-            </Col>
-            <Col span={12}>
-              <Form.Item
-                name="type"
-                label="数据库类型"
-                rules={[{ required: true, message: '请选择数据库类型' }]}
-              >
-                <Select>
-                  <Option value="MySQL">MySQL</Option>
-                  <Option value="PostgreSQL">PostgreSQL</Option>
-                  <Option value="Oracle">Oracle</Option>
-                  <Option value="SQLServer">SQL Server</Option>
-                </Select>
-              </Form.Item>
-            </Col>
-          </Row>
-
-          <Form.Item name="connectionType" label="连接方式" initialValue="host">
-            <Radio.Group onChange={(e) => setConnectionType(e.target.value)}>
-              <Radio value="host">主机</Radio>
-              <Radio value="url">URL</Radio>
-            </Radio.Group>
-          </Form.Item>
-
-          {connectionType === 'url' ? (
-            <Form.Item
-              name="url"
-              label="URL"
-              rules={[{ required: true, message: '请输入数据库URL' }]}
-              extra="例如：jdbc:mysql://localhost:3306/mydatabase"
-            >
-              <Input
-                placeholder="jdbc:mysql://localhost:3306/mydatabase"
-                onChange={(e) => {
-                  const parsedData = parseUrl(e.target.value);
-                  if (parsedData) {
-                    form.setFieldsValue(parsedData);
-                  }
-                }}
-              />
-            </Form.Item>
-          ) : (
-            <>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item
-                    name="host"
-                    label="主机"
-                    rules={[{ required: true, message: '请输入主机地址' }]}
-                  >
-                    <Input placeholder="例如：localhost 或 192.168.1.1" />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item
-                    name="port"
-                    label="端口"
-                    rules={[{ required: true, message: '请输入端口号' }]}
-                  >
-                    <Input type="number" placeholder="例如：3306" />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Form.Item
-                name="databaseName"
-                label="数据库名称"
-                rules={[{ required: true, message: '请输入数据库名称' }]}
-              >
-                <Input placeholder="例如：mydatabase" />
-              </Form.Item>
-            </>
-          )}
-
+    <Form
+      form={form}
+      layout="vertical"
+      size="small"
+      className="database-config-form"
+      onFinish={handleSubmit}
+      initialValues={{
+        connectionType: 'host',
+        type: 'MySQL',
+        port: 3306,
+        ...initialValues,
+      }}
+      onValuesChange={(changedValues) => {
+        if (connectionType === 'host' && !changedValues.url) {
+          updateJdbcUrl();
+        }
+      }}
+    >
+      <Row gutter={12}>
+        <Col span={12}>
           <Form.Item
-            name="driverClassName"
+            name="name"
             label={
-              <Space>
-                驱动类名
-                <Tooltip title="数据库驱动的完整类名">
+              <Space size={4}>
+                连接名称
+                <Tooltip title="为您的连接起一个易记的名字">
                   <QuestionCircleOutlined />
                 </Tooltip>
               </Space>
             }
-            rules={[{ required: true, message: '请输入驱动类名' }]}
+            rules={[{ required: true, message: '请输入连接名称' }]}
           >
-            <Input placeholder="例如：com.mysql.cj.jdbc.Driver" />
+            <Input placeholder="例如：生产环境主数据库" />
           </Form.Item>
+        </Col>
+        <Col span={12}>
+          <Form.Item
+            name="type"
+            label="数据库类型"
+            rules={[{ required: true, message: '请选择数据库类型' }]}
+          >
+            <Select>
+              <Option value="MySQL">MySQL</Option>
+              <Option value="PostgreSQL">PostgreSQL</Option>
+              <Option value="Oracle">Oracle</Option>
+              <Option value="SQLServer">SQL Server</Option>
+            </Select>
+          </Form.Item>
+        </Col>
+      </Row>
 
-          <Form.Item label="认证信息">
-            <Input.Group compact>
+      <Form.Item name="connectionType" label="连接方式" initialValue="host">
+        <Radio.Group onChange={(e) => setConnectionType(e.target.value)}>
+          <Radio value="host">主机</Radio>
+          <Radio value="url">URL</Radio>
+        </Radio.Group>
+      </Form.Item>
+
+      {connectionType === 'url' ? (
+        <Form.Item
+          name="url"
+          label="URL"
+          rules={[{ required: true, message: '请输入数据库URL' }]}
+          extra="例如：jdbc:mysql://localhost:3306/mydatabase"
+        >
+          <Input
+            placeholder="jdbc:mysql://localhost:3306/mydatabase"
+            onChange={(e) => {
+              const parsedData = parseUrl(e.target.value);
+              if (parsedData) {
+                form.setFieldsValue(parsedData);
+              }
+            }}
+          />
+        </Form.Item>
+      ) : (
+        <>
+          <Row gutter={12}>
+            <Col span={12}>
               <Form.Item
-                name="username"
-                noStyle
-                rules={[{ required: true, message: '请输入用户名' }]}
+                name="host"
+                label="主机"
+                rules={[{ required: true, message: '请输入主机地址' }]}
               >
-                <Input placeholder="用户名" style={{ width: '50%' }} />
+                <Input placeholder="例如：localhost 或 192.168.1.1" />
               </Form.Item>
+            </Col>
+            <Col span={12}>
               <Form.Item
-                name="password"
-                noStyle
-                rules={[{ required: true, message: '请输入密码' }]}
+                name="port"
+                label="端口"
+                rules={[{ required: true, message: '请输入端口号' }]}
               >
-                <Input.Password placeholder="密码" style={{ width: '50%' }} />
+                <Input type="number" placeholder="例如：3306" />
               </Form.Item>
-            </Input.Group>
+            </Col>
+          </Row>
+          <Form.Item
+            name="databaseName"
+            label="数据库名称"
+            rules={[{ required: true, message: '请输入数据库名称' }]}
+          >
+            <Input placeholder="例如：mydatabase" />
           </Form.Item>
+        </>
+      )}
 
-          <Divider />
+      <Form.Item
+        name="driverClassName"
+        label={
+          <Space size={4}>
+            驱动类名
+            <Tooltip title="数据库驱动的完整类名">
+              <QuestionCircleOutlined />
+            </Tooltip>
+          </Space>
+        }
+        rules={[{ required: true, message: '请输入驱动类名' }]}
+      >
+        <Input placeholder="例如：com.mysql.cj.jdbc.Driver" />
+      </Form.Item>
 
-          <Form.Item>
-            <Space>
-              <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
-                {initialValues ? '更新连接' : '保存连接'}
-              </Button>
-              <Button
-                onClick={testConnection}
-                icon={<LinkOutlined />}
-                loading={testing}
-                aria-label="测试连接"
-              >
-                测试连接
-              </Button>
-              <Button onClick={onFinish}>取消</Button>
-            </Space>
+      <Form.Item label="认证信息">
+        <Input.Group compact>
+          <Form.Item
+            name="username"
+            noStyle
+            rules={[{ required: true, message: '请输入用户名' }]}
+          >
+            <Input placeholder="用户名" style={{ width: '50%' }} />
           </Form.Item>
-        </Form>
+          <Form.Item
+            name="password"
+            noStyle
+            rules={[{ required: true, message: '请输入密码' }]}
+          >
+            <Input.Password placeholder="密码" style={{ width: '50%' }} />
+          </Form.Item>
+        </Input.Group>
+      </Form.Item>
 
-        <Text type="secondary">
-          需要帮助？查看我们的{' '}
-          <a href="/docs" target="_blank">
-            文档
-          </a>{' '}
-          或{' '}
-          <a href="/support" target="_blank">
-            联系支持
-          </a>
-        </Text>
-      </Space>
-    </Card>
+      <Divider />
+
+      <Form.Item>
+        <Space size={8}>
+          <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
+            {initialValues ? '更新连接' : '保存连接'}
+          </Button>
+          <Button
+            onClick={testConnection}
+            icon={<LinkOutlined />}
+            loading={testing}
+            aria-label="测试连接"
+          >
+            测试连接
+          </Button>
+          <Button onClick={onFinish}>取消</Button>
+        </Space>
+      </Form.Item>
+
+      <p className="database-config-form__hint">保存后可在列表中同步状态或批量管理连接</p>
+    </Form>
   );
 };
 

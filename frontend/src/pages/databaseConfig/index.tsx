@@ -9,7 +9,6 @@ import {
 import {
   Badge,
   Button,
-  Card,
   Drawer,
   Input,
   Space,
@@ -22,6 +21,7 @@ import {
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import DatabaseConfigForm from './DatabaseConfigForm';
+import './database-config.scss';
 
 const { Link } = Typography;
 
@@ -281,7 +281,7 @@ const DatabaseConfigPage: React.FC = () => {
       title: '操作',
       key: 'action',
       render: (_text, record) => (
-        <Space size="middle">
+        <Space size={4}>
           <Tooltip title="编辑">
             <Button
               type="link"
@@ -323,31 +323,18 @@ const DatabaseConfigPage: React.FC = () => {
   };
 
   return (
-    <div data-testid="database-config-page">
-      <div style={{ marginBottom: 16 }}>
-        <Typography.Title level={4} style={{ margin: 0 }}>
-          数据库连接管理
-        </Typography.Title>
-        <Typography.Text type="secondary">管理和监控您的所有数据库连接</Typography.Text>
-      </div>
-      <Card>
-        <div
-          style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: 16,
-            gap: 12,
-            flexWrap: 'wrap',
-          }}
-        >
-          <Typography.Text strong>数据库连接列表</Typography.Text>
-          <Space wrap>
+    <div className="database-config-page" data-testid="database-config-page">
+      <h2 className="database-config-page__title">数据库连接管理</h2>
+      <p className="database-config-page__hint">管理和监控您的所有数据库连接</p>
+      <div className="database-config-page__sheet">
+        <div className="database-config-page__toolbar">
+          <p className="database-config-page__toolbar-title">数据库连接列表</p>
+          <Space size={8} wrap>
             <Input.Search
               allowClear
+              size="small"
               placeholder="搜索连接名称"
               aria-label="搜索连接名称"
-              style={{ width: 220 }}
               onSearch={(value) => {
                 setPage(1);
                 setKeyword(value);
@@ -355,6 +342,7 @@ const DatabaseConfigPage: React.FC = () => {
             />
             <Button
               type="primary"
+              size="small"
               icon={<PlusOutlined />}
               onClick={() => {
                 setEditingRecord(null);
@@ -365,6 +353,7 @@ const DatabaseConfigPage: React.FC = () => {
             </Button>
             <Button
               danger
+              size="small"
               disabled={selectedRowKeys.length === 0}
               onClick={handleBatchDelete}
             >
@@ -374,6 +363,7 @@ const DatabaseConfigPage: React.FC = () => {
         </div>
         <Table<DatabaseConfigItem>
           rowKey="id"
+          size="small"
           loading={loading}
           columns={columns}
           dataSource={data}
@@ -386,19 +376,22 @@ const DatabaseConfigPage: React.FC = () => {
             pageSize,
             total,
             showSizeChanger: false,
+            size: 'small',
           }}
           onChange={onTableChange}
         />
-      </Card>
+      </div>
       <Drawer
+        className="database-config-drawer"
         title={editingRecord ? '编辑数据库连接' : '新建数据库连接'}
         placement="right"
-        width={600}
+        width={520}
         onClose={() => {
           setDrawerVisible(false);
           setEditingRecord(null);
         }}
         open={drawerVisible}
+        destroyOnClose
       >
         <DatabaseConfigForm
           initialValues={editingRecord}
