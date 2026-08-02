@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：设置页 chrome 密度（DefaultSetUp / DefaultField，ADR-0016）
+
+- 选题：`/design/table/setting/defaultField` + `/default` 页头与表单密度（与 22–28 chrome / `.erd-io-modal` 同阶）
+- `.setting-common-page`：标题 13/22、hint 12、页 pad 8×12；表单项 margin 12、Input/Password/InputNumber/按钮 28；`default-setup-page` / `default-field-page` testid 保留
+- 菜单「默认项设置」Modal 挂 `.erd-io-modal` + Tabs/Form `size=small`；role/aria（「默认项设置」/两 Tab/保存 toast）不变
+- `default-field.spec`「设置页密度」；截图 `diagram-setting-page-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/default-field.spec.ts --project=chromium --grep "设置页密度" --workers=1 --retries=0`
+
 #### 体验：普通导出页 ExportCommon 卡片密度（ADR-0016）
 
 - 选题：`/design/table/export/common` 页头与导出卡片密度（与 22–28 chrome / `.erd-io-modal` 同阶）

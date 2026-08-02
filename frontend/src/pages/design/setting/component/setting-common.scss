@@ -1,0 +1,87 @@
+// ADR-0016：设置页 chrome 与 22–28 / .erd-io-modal 同阶；禁默认 Form 24 间距 + 大号控件
+.setting-common-page {
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+  max-width: 960px;
+}
+
+.setting-common-page__title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.setting-common-page__hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.setting-common-form {
+  max-width: 640px;
+
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px;
+
+    > label {
+      font-size: 12px;
+      height: auto;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+    }
+  }
+
+  .ant-form-item-extra {
+    font-size: 12px;
+    line-height: 18px;
+    margin-top: 2px;
+  }
+
+  .ant-input:not(textarea),
+  .ant-input-affix-wrapper {
+    font-size: 12px !important;
+  }
+
+  .ant-input:not(textarea) {
+    height: 28px;
+    padding: 0 8px;
+  }
+
+  .ant-input-affix-wrapper {
+    padding-block: 0;
+    min-height: 28px;
+
+    .ant-input {
+      height: 26px;
+    }
+  }
+
+  .ant-input-number {
+    width: 100%;
+    font-size: 12px;
+
+    .ant-input-number-input {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 8px;
+    }
+  }
+
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+}
+
+.setting-common-page__sheet {
+  min-height: 0;
+}
