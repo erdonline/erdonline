@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 4 — RenameProject ModalForm → antd Form+Modal
+
+**重构**
+
+- `RenameProject`（修改项目弹窗）：摘 `ModalForm` / `ProFormSelect` / `ProFormText` / `ProFormTextArea` → antd `Modal` + `Form` + `Select mode="tags"`；宽度 520；打开时拆分 `tags` 字符串回填；失败 toast 且不关窗；`data-testid`（`project-rename-trigger` / `project-rename-tags`）；props 去掉 `any`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 4 ✅；`project-surface` 新增「个人项目：修改弹窗可改名并回列表」
+  验证点：`rg 'ModalForm|ProForm' frontend/src/components/dialog/project/RenameProject.tsx` = 0；`npx playwright test tests/e2e/project-surface.spec.ts --grep "修改弹窗" --project=chromium --workers=1`
+
 #### 重构：W4 切片 3 — AddProject ModalForm → antd Form+Modal
 
 **重构**

@@ -1,95 +1,126 @@
-import React from 'react';
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from '@ant-design/pro-components';
-import {Button, message} from "antd";
-import {updateProject} from "@/services/project";
-import _ from "lodash";
+import React, {useState} from 'react';
+import {Button, Form, Input, Modal, Select, message} from 'antd';
+import {updateProject} from '@/services/project';
+import _ from 'lodash';
 
 export type RenameProjectProps = {
-  fetchProjects: any;
-  trigger: string;
-  project: any;
+  fetchProjects: () => void;
+  trigger?: string;
+  project: {
+    id: string;
+    projectName?: string;
+    description?: string;
+    tags?: string;
+  };
 };
 
-const RenameProject: React.FC<RenameProjectProps> = (props) => {
-  return (<>
-    <ModalForm
-      title="修改项目"
-      trigger={
-        <Button type="link">修改</Button>
-      }
-      onFinish={async (values: any) => {
-        updateProject({
-          id: props.project.id,
-          projectName: values.projectName,
-          description: values.description,
-          tags: _.join(values.tags, ',')
-        }).then((r) => {
-          if (r.code === 200) {
-            props.fetchProjects();
-            message.success('修改成功');
-          } else {
-            message.error(r.message || '修改失败');
-          }
-        });
-        return true;
-      }}
-      initialValues={props.project}
+type FormValues = {
+  projectName?: string;
+  tags?: string[];
+  description?: string;
+};
 
-    >
-      <ProFormText width="md"
-                   name="projectName"
-                   label="项目名"
-                   placeholder="请输入项目名"
-                   formItemProps={{
-                     rules: [
-                       {
-                         required: true,
-                         message: '不能为空',
-                       },
-                       {
-                         max: 100,
-                         message: '不能大于 100 个字符',
-                       },
-                     ],
-                   }}
-      />
-      <ProFormSelect width="md"
-                     name="tags"
-                     label="标签"
-                     placeholder="请输入项目标签,按回车分割"
-                     formItemProps={{
-                       rules: [
-                         {
-                           required: true,
-                           message: '不能为空',
-                         },
-                       ],
-                     }}
-                     fieldProps={{
-                       mode: "tags",
-                       tokenSeparators: [","]
-                     }}
-      />
-      <ProFormTextArea
-        width="md"
-        name="description"
-        label="项目描述"
-        placeholder="请输入项目描述"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-    </ModalForm>
-  </>);
+function splitProjectTags(tags?: string): string[] {
+  if (!tags) {
+    return [];
+  }
+  return tags
+    .split(',')
+    .map((t) => t.trim())
+    .filter(Boolean);
 }
 
-export default React.memo(RenameProject)
+const RenameProject: React.FC<RenameProjectProps> = (props) => {
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
+
+  const openModal = () => {
+    form.setFieldsValue({
+      projectName: props.project.projectName,
+      description: props.project.description,
+      tags: splitProjectTags(props.project.tags),
+    });
+    setOpen(true);
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    const res = await updateProject({
+      id: props.project.id,
+      projectName: values.projectName,
+      description: values.description,
+      tags: _.join(values.tags, ','),
+    });
+    if (res?.code === 200) {
+      props.fetchProjects();
+      message.success('修改成功');
+      setOpen(false);
+      return;
+    }
+    message.error(res?.message || res?.msg || '修改失败');
+  };
+
+  return (
+    <>
+      <Button
+        type="link"
+        data-testid="project-rename-trigger"
+        aria-label="修改项目"
+        onClick={openModal}
+      >
+        修改
+      </Button>
+      <Modal
+        title="修改项目"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="projectName"
+            label="项目名"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input placeholder="请输入项目名" />
+          </Form.Item>
+          <Form.Item
+            name="tags"
+            label="标签"
+            rules={[{required: true, message: '不能为空'}]}
+          >
+            <Select
+              mode="tags"
+              tokenSeparators={[',']}
+              placeholder="请输入项目标签,按回车分割"
+              data-testid="project-rename-tags"
+              notFoundContent={null}
+            />
+          </Form.Item>
+          <Form.Item
+            name="description"
+            label="项目描述"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
+export default React.memo(RenameProject);
