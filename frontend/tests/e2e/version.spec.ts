@@ -261,7 +261,8 @@ test.describe('版本快照', () => {
       await renameDlg.getByRole('button', { name: /确\s*定/ }).click();
       await expectToast(page, /该版本号已经存在了/);
       await expect(renameDlg).toBeVisible();
-      await renameDlg.getByRole('button', { name: /Close|关闭/ }).click();
+      // X 关闭偶发被顶栏 GitHub stars iframe 挡点击；Escape 关 Modal
+      await page.keyboard.press('Escape');
       await expect(renameDlg).toHaveCount(0, { timeout: 10_000 });
       await expect(page.getByTestId('version-row-1.0.2')).toBeVisible();
 

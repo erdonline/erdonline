@@ -1,143 +1,156 @@
-import React from 'react';
-import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import useVersionStore from "@/store/version/useVersionStore";
-import shallow from "zustand/shallow";
-import {compareStringVersion} from "@/utils/string";
-import {Button, message} from "antd";
-import {EditOutlined} from "@ant-design/icons";
-import {joinVersionTags, splitVersionTags} from "@/utils/versionTags";
+import React, {useState} from 'react';
+import {EditOutlined} from '@ant-design/icons';
+import {Button, Form, Input, Modal, Select, message} from 'antd';
+import useVersionStore from '@/store/version/useVersionStore';
+import shallow from 'zustand/shallow';
+import {compareStringVersion} from '@/utils/string';
+import {joinVersionTags, splitVersionTags} from '@/utils/versionTags';
 
 export type RenameVersionProps = {};
 
+type FormValues = {
+  version?: string;
+  versionDesc?: string;
+  tags?: string[];
+};
+
 const RenameVersion: React.FC<RenameVersionProps> = () => {
-  const {currentVersionIndex, currentVersion, versions, versionDispatch} = useVersionStore(state => ({
-    currentVersionIndex: state.currentVersionIndex,
-    currentVersion: state.currentVersion,
-    versions: state.versions,
-    versionDispatch: state.dispatch,
-  }), shallow);
+  const {currentVersionIndex, currentVersion, versions, versionDispatch} = useVersionStore(
+    (state) => ({
+      currentVersionIndex: state.currentVersionIndex,
+      currentVersion: state.currentVersion,
+      versions: state.versions,
+      versionDispatch: state.dispatch,
+    }),
+    shallow,
+  );
 
-  return (<>
-    <ModalForm
-      title="编辑版本"
-      onFinish={async (values: { version?: string; versionDesc?: string; tags?: string[] }) => {
-        const tag = joinVersionTags(values.tags);
-        if (tag && tag.length > 255) {
-          message.error('标签总长度不能大于 255 个字符');
-          return false;
-        }
-        const tempValue = {
-          ...currentVersion,
-          version: values.version,
-          versionDesc: values.versionDesc,
-          tag: tag || undefined,
-        };
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
+  const versionReadonly = currentVersionIndex !== 0;
 
-        const tempVersions = versions.slice(1);
-        if (currentVersionIndex !== 0) {
-          versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
-          return true;
-        }
-        if (tempVersions.map((v: { version?: string }) => v.version).includes(tempValue.version)) {
-          message.error('该版本号已经存在了');
-          return false;
-        }
-        if (
-          tempVersions[0] &&
-          compareStringVersion(tempValue.version, tempVersions[0].version) <= 0
-        ) {
-          message.error('新版本不能小于或等于已经存在的版本');
-          return false;
-        }
-        versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
-        return true;
-      }}
-      trigger={
-        <Button
-          key="editor"
-          size={"small"}
-          type={"link"}
-          icon={<EditOutlined />}
-          data-testid="version-rename-btn"
-          aria-label="编辑版本"
-        >
-          编辑
-        </Button>
-      }
-      request={async () => {
-        return {
-          ...currentVersion,
-          tags: splitVersionTags(currentVersion?.tag),
-        };
-      }}
-    >
-      <ProFormText
-        width="md"
-        name="version"
-        label="版本号"
-        placeholder="请输入版本号"
-        readonly={currentVersionIndex !== 0}
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              pattern: new RegExp(/^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/),
-              message: '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-      <ProFormTextArea
-        width="md"
-        name="versionDesc"
-        label="版本描述"
-        placeholder="请输入版本描述"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-      <ProFormSelect
-        width="md"
-        name="tags"
-        label="版本标签"
-        placeholder="可选，回车添加多个标签"
-        formItemProps={{
-          rules: [
-            {
-              validator: async (_: unknown, value: string[] | undefined) => {
-                const joined = joinVersionTags(value);
-                if (joined && joined.length > 255) {
-                  throw new Error('标签总长度不能大于 255 个字符');
-                }
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const openModal = () => {
+    form.setFieldsValue({
+      ...currentVersion,
+      tags: splitVersionTags(currentVersion?.tag),
+    });
+    setOpen(true);
+  };
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    const tag = joinVersionTags(values.tags);
+    if (tag && tag.length > 255) {
+      message.error('标签总长度不能大于 255 个字符');
+      // 受控 open：不 setOpen(false) 即保持弹窗；勿 reject（webpack overlay 会挡后续操作）
+      return;
+    }
+    const tempValue = {
+      ...currentVersion,
+      version: values.version,
+      versionDesc: values.versionDesc,
+      tag: tag || undefined,
+    };
+
+    const tempVersions = versions.slice(1);
+    if (currentVersionIndex !== 0) {
+      versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
+      setOpen(false);
+      return;
+    }
+    if (tempVersions.map((v: {version?: string}) => v.version).includes(tempValue.version)) {
+      message.error('该版本号已经存在了');
+      return;
+    }
+    if (
+      tempVersions[0] &&
+      compareStringVersion(tempValue.version, tempVersions[0].version) <= 0
+    ) {
+      message.error('新版本不能小于或等于已经存在的版本');
+      return;
+    }
+    versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Button
+        key="editor"
+        size="small"
+        type="link"
+        icon={<EditOutlined />}
+        data-testid="version-rename-btn"
+        aria-label="编辑版本"
+        onClick={openModal}
+      >
+        编辑
+      </Button>
+      <Modal
+        title="编辑版本"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="version"
+            label="版本号"
+            rules={[
+              {required: true, message: '不能为空'},
+              {
+                pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
+                message:
+                  '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
               },
-            },
-          ],
-        }}
-        fieldProps={{
-          mode: 'tags',
-          tokenSeparators: [','],
-          'data-testid': 'version-tag-input',
-          'aria-label': '版本标签',
-        }}
-      />
-    </ModalForm>
-  </>);
-}
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input placeholder="请输入版本号" readOnly={versionReadonly} />
+          </Form.Item>
+          <Form.Item
+            name="versionDesc"
+            label="版本描述"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input.TextArea placeholder="请输入版本描述" rows={3} />
+          </Form.Item>
+          <Form.Item
+            name="tags"
+            label="版本标签"
+            rules={[
+              {
+                validator: async (_: unknown, value: string[] | undefined) => {
+                  const joined = joinVersionTags(value);
+                  if (joined && joined.length > 255) {
+                    return Promise.reject(new Error('标签总长度不能大于 255 个字符'));
+                  }
+                },
+              },
+            ]}
+          >
+            <Select
+              mode="tags"
+              tokenSeparators={[',']}
+              placeholder="可选，回车添加多个标签"
+              data-testid="version-tag-input"
+              aria-label="版本标签"
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
 
-export default React.memo(RenameVersion)
+export default React.memo(RenameVersion);
