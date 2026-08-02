@@ -170,7 +170,7 @@ test.describe('设计器项目菜单', () => {
     }
   });
 
-  test('项目 → 导出 → 五项入口可见且 DDL 可开弹窗', async ({ page }) => {
+  test('项目 → 导出 → 六项入口可见且 DDL 可开弹窗', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('export');
     try {
@@ -183,6 +183,7 @@ test.describe('设计器项目菜单', () => {
       await expect(page.getByRole('button', { name: '导出Word' })).toBeVisible();
       await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
       await expect(page.getByRole('button', { name: '导出ERD' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '导出DBML' })).toBeVisible();
       await page.getByRole('button', { name: '导出DDL' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('SQL导出配置')).toBeVisible({
