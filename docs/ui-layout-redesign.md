@@ -34,7 +34,7 @@
 ## 导航模式
 
 - **全局**：工作台壳顶栏一级导航（首页 / 项目 / 数据源配置 / 账号），当前项 brand 下划线 2px，悬停 ink-900
-- **设计器内（单一 chrome）**：左 logo→`/home` + **项目名 ▾**（`aria-label=项目菜单`：全部项目 → **最近项目（最多 5 条，当前项 ✓，点其它项切 `/design/table/model?projectId=`）** → 导入·导出·设置弹层）；中主 tabs **仅 模型 | 版本**（版本含 sider 子导航）；右 SaveStatus / **保存版本** / presence / 分享 / `⋯`（公众号·GitHub·版本号）/ 用户。导入·导出·设置页仍可深链，不占顶栏
+- **设计器内（单一 chrome）**：左 logo→`/home` + **项目名 ▾**（`aria-label=项目菜单`：全部项目 → **最近项目（最多 5 条，当前项 ✓，点其它项切 `/design/table/model?projectId=`）** → 导入·导出·设置弹层，`items` API + 子弹外置，子菜单 click 且同时只开一个）；中主 tabs **仅 模型 | 版本**（版本含 sider 子导航）；右 SaveStatus / **保存版本** / presence / 分享 / **我的工单·待审批·通知**（`/design/table/version/order|approval`、`/project/notice`）/ `⋯`（公众号·GitHub·版本号）/ 用户。导入·导出·设置页仍可深链，不占顶栏
 - **层级收口**：项目列表卡片整卡 `<Link>` 直达设计器；设计器内切项目走 ▾「最近项目」；返回列表走「全部项目」/ logo，不新增「返回」按钮
 
 

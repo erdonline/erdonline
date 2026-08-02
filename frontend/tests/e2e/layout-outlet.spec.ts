@@ -134,6 +134,11 @@ test.describe('布局壳子路由出口', () => {
       await expect(page.getByRole('button', { name: '保存版本' })).toBeVisible();
       await expect(page.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByRole('button', { name: '只读分享' })).toBeVisible();
+      // 顶栏右：工单 / 待审批 / 通知（真实路由）
+      const workflow = page.getByTestId('design-workflow-links');
+      await expect(workflow.getByRole('button', { name: '我的工单' })).toBeVisible();
+      await expect(workflow.getByRole('button', { name: '待审批工单' })).toBeVisible();
+      await expect(workflow.getByRole('button', { name: '通知' })).toBeVisible();
       // 主 tabs 仅 模型 | 版本；公众号/GitHub 收进「更多」
       const topTabs = page.getByTestId('design-top-tabs');
       await expect(topTabs.getByRole('menuitem', { name: '模型' })).toBeVisible();
@@ -141,6 +146,7 @@ test.describe('布局壳子路由出口', () => {
       await expect(topTabs.getByRole('menuitem')).toHaveCount(2);
       await page.getByRole('button', { name: '更多' }).click();
       await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toBeVisible();
+      await page.keyboard.press('Escape');
       await expect(page).toHaveURL(/\/design\/table\/model/);
       // 子路由已挂载：模型页欢迎空态或侧栏「新增模型」
       await expect(
@@ -153,6 +159,15 @@ test.describe('布局壳子路由出口', () => {
       await expect(page.getByTestId('add-module-empty')).toHaveCount(1);
       await expect(page.locator('.design-layout__sider')).toHaveCSS('width', '320px');
       await expect(page.locator('.design-layout__sider-footer')).toHaveCount(0);
+
+      await workflow.getByRole('button', { name: '我的工单' }).click();
+      await expect(page).toHaveURL(/\/design\/table\/version\/order/);
+      await expect(page.getByTestId('page-title-orders')).toBeVisible({ timeout: 15_000 });
+      await page.getByTestId('design-workflow-links').getByRole('button', { name: '待审批工单' }).click();
+      await expect(page).toHaveURL(/\/design\/table\/version\/approval/);
+      await expect(page.getByTestId('page-title-approvals')).toBeVisible({ timeout: 15_000 });
+      await page.getByTestId('design-workflow-links').getByRole('button', { name: '通知' }).click();
+      await expect(page).toHaveURL(/\/project\/notice/);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

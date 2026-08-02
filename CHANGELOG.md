@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 修复：设计器项目菜单导出/导入串台 + chrome 入口
+
+**修复 / 体验**
+
+- P0：项目 ▾「导出」子菜单曾显示导入项 → `ProjectMenu` 改 antd `items` + 弹窗外置 + `openKeys` 同时只开一个子菜单
+- 侧栏「+」下拉去掉副标题卡片，改为紧凑 Menu items
+- 设计器顶栏右：可发现入口「我的工单 / 待审批 / 通知」→ 既有路由
+- 头像菜单审计：仅保留个人中心 / 授权信息 / 退出（无假项）
+
+**测试 / 文档**
+
+- E2E：`project-menu` 导出六项 + 断言无导入串台；叶子改 `menuitem`；`layout-outlet` 工单/审批/通知深链
+- `ui-layout-redesign.md`、`design-principles` 菜单密度
+
+验证点：`cd frontend && npx playwright test tests/e2e/project-menu.spec.ts tests/e2e/layout-outlet.spec.ts --project=chromium --grep "导出|DesignLayout：顶栏|项目 →" --workers=1`
+
 #### 功能：Home 工作台 IA 重设计（去模板脸）
 
 **功能**

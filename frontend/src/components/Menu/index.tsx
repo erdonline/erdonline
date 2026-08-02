@@ -1,5 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Menu } from "antd";
+import type { MenuProps } from "antd";
 import { createFromIconfontCN } from "@ant-design/icons";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
@@ -7,11 +8,11 @@ import InitVersion from "@/components/dialog/version/InitVersion";
 import RebuildVersion from "@/components/dialog/version/RebuildVersion";
 import ReverseDatabase from "../dialog/import/ReverseDatabase";
 import ReversePdMan from "@/components/dialog/import/ReversePdMan";
-import ExportHTML from "@/components/dialog/export/ExportHTML";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
 import ExportJson from "@/components/dialog/export/ExportJson";
 import DatabaseSetUp from "@/components/dialog/setup/DatabaseSetUp";
 import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
+import ExportHTML from "@/components/dialog/export/ExportHTML";
 import ExportWord from "@/components/dialog/export/ExportWord";
 import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
 import ExportDBML from "@/components/dialog/export/ExportDBML";
@@ -23,9 +24,20 @@ import { recentProject } from "@/services/project";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
+import shallow from "zustand/shallow";
 
 type RecentRow = { id: string; projectName: string };
 type RecentStatus = 'idle' | 'loading' | 'ok' | 'error';
+
+type DialogKey =
+  | 'import-reverse'
+  | 'import-pdman'
+  | 'import-erd'
+  | 'import-dbml'
+  | 'export-ddl'
+  | 'export-dbml'
+  | 'setup-db'
+  | 'setup-default';
 
 export const MyIcon = createFromIconfontCN({
   scriptUrl: '//at.alicdn.com/t/font_1485538_uljgplzg6rm.js', // 在 iconfont.cn 上生成
@@ -47,6 +59,7 @@ export const VersionMenu: React.FunctionComponent<IFileMenuProps> = () => (
   </>
 );
 
+/** @deprecated Prefer ProjectMenu items; kept for rare standalone mounts */
 export const ImportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
   <Menu className={props.className} mode="vertical">
     <ReverseDatabase />
@@ -76,15 +89,22 @@ export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
+  const { projectDispatch } = useProjectStore(
+    (s) => ({ projectDispatch: s.dispatch }),
+    shallow,
+  );
   const currentId =
     useProjectStore((s) => s.project?.id) ||
     cache.getItem(CONSTANT.PROJECT_ID) ||
     '';
   const [recent, setRecent] = useState<RecentRow[]>([]);
   const [status, setStatus] = useState<RecentStatus>('idle');
+  const [openKeys, setOpenKeys] = useState<string[]>([]);
+  const [dialog, setDialog] = useState<DialogKey | null>(null);
 
   useEffect(() => {
     if (props.open === false) {
+      setOpenKeys([]);
       return;
     }
     let cancelled = false;
@@ -115,6 +135,14 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     };
   }, [props.open, currentId]);
 
+  const openDialog = (key: DialogKey) => {
+    closeProjectMenu();
+    setOpenKeys([]);
+    setDialog(key);
+  };
+
+  const closeDialog = () => setDialog(null);
+
   const openAllProjects = () => {
     closeProjectMenu();
     history.push('/project/recent');
@@ -129,75 +157,206 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     history.push(`/design/table/model?projectId=${id}`);
   };
 
+  const exportFile = (type: 'Html' | 'Word' | 'Markdown' | 'JSON') => {
+    closeProjectMenu();
+    setOpenKeys([]);
+    projectDispatch.exportFile(type);
+  };
+
+  const items: MenuProps['items'] = useMemo(() => {
+    const recentChildren: MenuProps['items'] =
+      status === 'loading' || status === 'idle'
+        ? [{ key: 'recent-loading', label: '加载中…', disabled: true }]
+        : status === 'error'
+          ? [
+              {
+                key: 'recent-error',
+                label: '加载失败，点全部项目查看',
+                disabled: true,
+              },
+            ]
+          : recent.length === 0
+            ? [{ key: 'recent-empty', label: '暂无最近项目', disabled: true }]
+            : recent.map((p) => {
+                const isCurrent = p.id === currentId;
+                return {
+                  key: `recent-${p.id}`,
+                  label: isCurrent ? `✓ ${p.projectName}` : p.projectName,
+                  title: p.projectName,
+                  onClick: () => switchTo(p.id),
+                };
+              });
+
+    return [
+      {
+        key: 'all-projects',
+        label: '全部项目',
+        onClick: openAllProjects,
+      },
+      { type: 'divider' },
+      {
+        type: 'group',
+        label: '最近项目',
+        children: recentChildren,
+      },
+      { type: 'divider' },
+      {
+        key: 'import',
+        label: '导入',
+        children: [
+          {
+            key: 'import-reverse',
+            label: '数据源逆向解析',
+            onClick: () => openDialog('import-reverse'),
+          },
+          {
+            key: 'import-pdman',
+            label: '解析PdMan文件',
+            onClick: () => openDialog('import-pdman'),
+          },
+          {
+            key: 'import-erd',
+            label: '解析ERD文件',
+            onClick: () => openDialog('import-erd'),
+          },
+          {
+            key: 'import-dbml',
+            label: '导入DBML',
+            onClick: () => openDialog('import-dbml'),
+          },
+        ],
+      },
+      {
+        key: 'export',
+        label: '导出',
+        children: [
+          {
+            key: 'export-html',
+            label: '导出HTML',
+            onClick: () => exportFile('Html'),
+          },
+          {
+            key: 'export-word',
+            label: '导出Word',
+            onClick: () => exportFile('Word'),
+          },
+          {
+            key: 'export-md',
+            label: '导出Markdown',
+            onClick: () => exportFile('Markdown'),
+          },
+          {
+            key: 'export-ddl',
+            label: '导出DDL',
+            onClick: () => openDialog('export-ddl'),
+          },
+          {
+            key: 'export-erd',
+            label: '导出ERD',
+            onClick: () => exportFile('JSON'),
+          },
+          {
+            key: 'export-dbml',
+            label: '导出DBML',
+            onClick: () => openDialog('export-dbml'),
+          },
+        ],
+      },
+      {
+        key: 'setup',
+        label: '设置',
+        children: [
+          {
+            key: 'setup-db',
+            label: '数据源设置',
+            onClick: () => openDialog('setup-db'),
+          },
+          {
+            key: 'setup-default',
+            label: '默认项设置',
+            onClick: () => openDialog('setup-default'),
+          },
+        ],
+      },
+    ];
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [status, recent, currentId, projectDispatch]);
+
   return (
-    <Menu
-      mode="vertical"
-      selectable={false}
-      // click 展开：避免 hover 途经邻项粘住子菜单（设计器 Dropdown 内）
-      triggerSubMenuAction="click"
-      style={{ minWidth: 200 }}
-    >
-      <Menu.Item key="all-projects" onClick={openAllProjects}>
-        全部项目
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.ItemGroup key="recent" title="最近项目">
-        {status === 'loading' || status === 'idle' ? (
-          <Menu.Item key="recent-loading" disabled>
-            加载中…
-          </Menu.Item>
-        ) : null}
-        {status === 'error' ? (
-          <Menu.Item key="recent-error" disabled>
-            加载失败，点全部项目查看
-          </Menu.Item>
-        ) : null}
-        {status === 'ok' && recent.length === 0 ? (
-          <Menu.Item key="recent-empty" disabled>
-            暂无最近项目
-          </Menu.Item>
-        ) : null}
-        {status === 'ok'
-          ? recent.map((p) => {
-              const isCurrent = p.id === currentId;
-              const label = isCurrent ? `✓ ${p.projectName}` : p.projectName;
-              return (
-                <Menu.Item
-                  key={`recent-${p.id}`}
-                  onClick={() => switchTo(p.id)}
-                  title={p.projectName}
-                  style={{
-                    maxWidth: 280,
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                    whiteSpace: 'nowrap',
-                  }}
-                >
-                  {label}
-                </Menu.Item>
-              );
-            })
-          : null}
-      </Menu.ItemGroup>
-      <Menu.Divider />
-      <Menu.SubMenu key="import" title="导入">
-        <ReverseDatabase />
-        <ReversePdMan />
-        <ReverseERD />
-        <ReverseDBML />
-      </Menu.SubMenu>
-      <Menu.SubMenu key="export" title="导出">
-        <ExportHTML />
-        <ExportWord />
-        <ExportMarkdown />
-        <ExportDDL />
-        <ExportJson />
-        <ExportDBML />
-      </Menu.SubMenu>
-      <Menu.SubMenu key="setup" title="设置">
-        <DatabaseSetUp />
-        <DefaultSetUp />
-      </Menu.SubMenu>
-    </Menu>
+    <>
+      <Menu
+        mode="vertical"
+        selectable={false}
+        // click 展开：避免 hover 途经邻项粘住子菜单
+        triggerSubMenuAction="click"
+        openKeys={openKeys}
+        onOpenChange={(keys) => {
+          const sub = keys.filter((k) =>
+            ['import', 'export', 'setup'].includes(k),
+          );
+          // 同时只开一个子菜单，杜绝「导出高亮却显示导入项」
+          setOpenKeys(sub.length ? [sub[sub.length - 1]] : []);
+        }}
+        items={items}
+        style={{ minWidth: 200 }}
+        className="erd-project-menu__list"
+      />
+      <ReverseDatabase
+        hideTrigger
+        open={dialog === 'import-reverse'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <ReversePdMan
+        hideTrigger
+        open={dialog === 'import-pdman'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <ReverseERD
+        hideTrigger
+        open={dialog === 'import-erd'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <ReverseDBML
+        hideTrigger
+        open={dialog === 'import-dbml'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <ExportDDL
+        hideTrigger
+        open={dialog === 'export-ddl'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <ExportDBML
+        hideTrigger
+        open={dialog === 'export-dbml'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <DatabaseSetUp
+        hideTrigger
+        open={dialog === 'setup-db'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <DefaultSetUp
+        hideTrigger
+        open={dialog === 'setup-default'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+    </>
   );
 };

@@ -19,8 +19,14 @@ import { useAccess } from "@@/plugin-access";
 import { Me } from "@icon-park/react";
 import { useUnmount } from '@umijs/hooks';
 import { Link, useModel } from "@umijs/max";
-import { CaretDownOutlined, MoreOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Layout, Menu } from "antd";
+import {
+  AuditOutlined,
+  BellOutlined,
+  CaretDownOutlined,
+  MoreOutlined,
+  OrderedListOutlined,
+} from "@ant-design/icons";
+import { Button, Dropdown, Layout, Menu, Tooltip } from "antd";
 import type { MenuProps } from "antd";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from "react-router-dom";
@@ -373,9 +379,51 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />
+          <div className="design-layout__workflow" data-testid="design-workflow-links">
+            <Tooltip title="我的工单">
+              <Button
+                type="text"
+                size="small"
+                className="design-layout__workflow-btn"
+                icon={<OrderedListOutlined />}
+                aria-label="我的工单"
+                onClick={() =>
+                  history.push(`/design/table/version/order?projectId=${projectId}`)
+                }
+              >
+                我的工单
+              </Button>
+            </Tooltip>
+            <Tooltip title="待审批工单">
+              <Button
+                type="text"
+                size="small"
+                className="design-layout__workflow-btn"
+                icon={<AuditOutlined />}
+                aria-label="待审批工单"
+                onClick={() =>
+                  history.push(`/design/table/version/approval?projectId=${projectId}`)
+                }
+              >
+                待审批
+              </Button>
+            </Tooltip>
+            <Tooltip title="通知">
+              <Button
+                type="text"
+                size="small"
+                className="design-layout__workflow-btn"
+                icon={<BellOutlined />}
+                aria-label="通知"
+                onClick={() => history.push('/project/notice')}
+              >
+                通知
+              </Button>
+            </Tooltip>
+          </div>
           <ChromeOverflow />
           <Dropdown
-            placement="bottom"
+            placement="bottomRight"
             arrow={{ pointAtCenter: true }}
             overlay={menuHeaderDropdown}
           >

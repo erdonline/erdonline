@@ -47,30 +47,39 @@ export const homeRightContent = [
   </a>,
 ];
 
+/** 头像菜单：仅保留已接线入口（个人中心 / 授权信息 / 退出）；无假项 */
 export const menuHeaderDropdown = (
-  <Menu selectedKeys={[]}>
-    <Menu.Item key="center" onClick={()=>{
-      history.push("/account/settings?selectKey=base")
-    }}>
-      <UserOutlined/>
-      个人中心
-    </Menu.Item>
-    <Menu.Divider/>
-    <Menu.Item key="vip" onClick={()=>{
-      history.push("/account/settings?selectKey=identification")
-    }}>
-      <UserOutlined/>
-      授权信息
-    </Menu.Item>
-    <Menu.Divider/>
-
-    <Menu.Item key="logout" onClick={() => {
-      logout();
-    }}>
-      <LogoutOutlined/>
-      退出登录
-    </Menu.Item>
-  </Menu>
+  <Menu
+    selectedKeys={[]}
+    style={{ minWidth: 160 }}
+    items={[
+      {
+        key: 'center',
+        icon: <UserOutlined />,
+        label: '个人中心',
+        onClick: () => {
+          history.push('/account/settings?selectKey=base');
+        },
+      },
+      {
+        key: 'vip',
+        icon: <UserOutlined />,
+        label: '授权信息',
+        onClick: () => {
+          history.push('/account/settings?selectKey=identification');
+        },
+      },
+      { type: 'divider' },
+      {
+        key: 'logout',
+        icon: <LogoutOutlined />,
+        label: '退出登录',
+        onClick: () => {
+          logout();
+        },
+      },
+    ]}
+  />
 );
 
 type HomeRoute = {

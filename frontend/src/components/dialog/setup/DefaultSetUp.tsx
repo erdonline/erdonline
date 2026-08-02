@@ -1,4 +1,4 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useEffect, useState} from 'react';
 import {Button, Form, Input, Modal, Switch, Tabs, Upload, message} from 'antd';
 import './index.less';
 import DefaultField from '@/components/dialog/setup/DefaultField';
@@ -7,8 +7,9 @@ import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {CONSTANT} from '@/utils/constant';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 
-export type DefaultSetUpProps = {};
+export type DefaultSetUpProps = MenuDialogControl;
 
 type FormValues = {
   erdPassword?: string;
@@ -16,9 +17,20 @@ type FormValues = {
   operationMode?: boolean;
 };
 
-const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
+const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const [tab, setTab] = useState('tab1');
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [form] = Form.useForm<FormValues>();
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
@@ -31,14 +43,20 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
     shallow,
   );
 
-  const openModal = () => {
-    closeProjectMenu();
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
     form.setFieldsValue({
       erdPassword: profile?.erdPassword,
       sqlConfig: profile?.sqlConfig,
       operationMode: profile?.operationMode,
     });
     setTab('tab1');
+  }, [open, form, profile]);
+
+  const openModal = () => {
+    closeProjectMenu();
     setOpen(true);
   };
 
@@ -58,17 +76,19 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
 
   return (
     <>
-      <Button
-        key="default"
-        type="text"
-        size="small"
-        block
-        style={{textAlign: 'left'}}
-        aria-label="默认项设置"
-        onClick={openModal}
-      >
-        默认项设置
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="default"
+          type="text"
+          size="small"
+          block
+          style={{textAlign: 'left'}}
+          aria-label="默认项设置"
+          onClick={openModal}
+        >
+          默认项设置
+        </Button>
+      )}
       <Modal
         title="默认项设置"
         open={open}

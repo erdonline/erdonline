@@ -110,7 +110,7 @@ test.describe('导出失败反馈', () => {
 
         await page.getByRole('button', { name: '项目菜单' }).click();
         await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '导出' }).click();
-        await page.getByRole('button', { name: '导出DDL' }).click();
+        await page.getByRole('menuitem', { name: '导出DDL' }).click();
         const dlg = page.getByRole('dialog');
         await expect(dlg.getByText('SQL导出配置')).toBeVisible({ timeout: 10_000 });
         await expect(dlg.getByTitle(/e2e-ddl-fail-/)).toBeVisible({ timeout: 10_000 });

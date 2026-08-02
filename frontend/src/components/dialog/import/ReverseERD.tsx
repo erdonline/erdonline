@@ -6,16 +6,28 @@ import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import _ from 'lodash';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 
 const {Dragger} = Upload;
 
-export type ReverseERDProps = {};
+export type ReverseERDProps = MenuDialogControl;
 
 type ModuleLike = {name?: string};
 
-const ReverseERD: React.FC<ReverseERDProps> = () => {
+const ReverseERD: React.FC<ReverseERDProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const {projectDispatch, projectJSON} = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -125,18 +137,20 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
 
   return (
     <>
-      <Button
-        key="erd"
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-other_win" />}
-        style={{textAlign: 'left'}}
-        aria-label="解析ERD文件"
-        onClick={openModal}
-      >
-        解析ERD文件
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="erd"
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-other_win" />}
+          style={{textAlign: 'left'}}
+          aria-label="解析ERD文件"
+          onClick={openModal}
+        >
+          解析ERD文件
+        </Button>
+      )}
       <Modal
         title="解析已有ERD文件"
         open={open}

@@ -38,7 +38,7 @@ test.describe('ADR-0008 数据源', () => {
       // 产品侧 SubMenu 为 click 展开（非 hover）
       await page.getByRole('button', { name: '项目菜单' }).click();
       await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '设置' }).click();
-      await page.getByRole('button', { name: '数据源设置' }).click();
+      await page.getByRole('menuitem', { name: '数据源设置' }).click();
       await expect(page.getByRole('dialog').getByText('数据源连接配置')).toBeVisible();
 
       const postWait = page.waitForResponse(

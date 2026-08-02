@@ -7,10 +7,11 @@ import shallow from 'zustand/shallow';
 import {uuid} from '@/utils/uuid';
 import * as Save from '@/utils/save';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 
 export type DatabaseSetUpProps = {
   isGlobal?: boolean;
-};
+} & MenuDialogControl;
 
 type DbProperties = {
   driver_class_name?: string;
@@ -56,7 +57,11 @@ const URL_TEMPLATES: Record<string, {url: string; driver_class_name: string}> = 
 };
 
 /** 设计器菜单「数据源设置」：读写 /ncnb/dataSources（ADR-0008），不写 profile.dbs */
-const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
+const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, dialects} = useProjectStore(
     (state) => ({
@@ -66,7 +71,14 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
     shallow,
   );
 
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [databases, setDatabases] = useState<DataSourceRow[]>([]);
   const [pingLoading, setPingLoading] = useState(false);
   const [form] = Form.useForm<FormValues>();
@@ -140,10 +152,16 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
     await reload();
   };
 
+  useEffect(() => {
+    if (open) {
+      void reload();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
+
   const openModal = () => {
     closeProjectMenu();
     setOpen(true);
-    void reload();
   };
 
   const closeModal = () => {
@@ -158,17 +176,19 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = () => {
 
   return (
     <>
-      <Button
-        key="db"
-        type="text"
-        size="small"
-        block
-        style={{textAlign: 'left'}}
-        aria-label="数据源设置"
-        onClick={openModal}
-      >
-        数据源设置
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="db"
+          type="text"
+          size="small"
+          block
+          style={{textAlign: 'left'}}
+          aria-label="数据源设置"
+          onClick={openModal}
+        >
+          数据源设置
+        </Button>
+      )}
       <Modal
         title="数据源连接配置"
         open={open}

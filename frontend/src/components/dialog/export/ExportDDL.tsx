@@ -16,6 +16,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import type { RadioChangeEvent } from "antd/lib/radio/interface";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
+import type { MenuDialogControl } from "@/components/Menu/menuDialog";
 
 /** ADR-0008：列表来自 /ncnb/dataSources，不读 profile.dbs */
 type ExportDbOption = {
@@ -34,14 +35,25 @@ type Step2Values = {
   customer?: string[];
 };
 
-const ExportDDL: React.FC = () => {
+const ExportDDL: React.FC<MenuDialogControl> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, data} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
     projectDispatch: state.dispatch,
   }), shallow);
   const [dbs, setDbs] = useState<ExportDbOption[]>([]);
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [step, setStep] = useState(0);
   const [exporting, setExporting] = useState(false);
   const [exportType, setExportType] = useState('all');
@@ -58,11 +70,17 @@ const ExportDDL: React.FC = () => {
 
   const openModal = () => {
     closeProjectMenu();
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
     setStep(0);
     setExportType('all');
     form2.setFieldsValue({ exportType: 'all', customer: undefined });
-    setOpen(true);
-  };
+  }, [open, form2]);
 
   useEffect(() => {
     if (!open) {
@@ -112,18 +130,20 @@ const ExportDDL: React.FC = () => {
 
   return (
     <>
-      <Button
-        key="DDL"
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-DDL"/>}
-        style={{ textAlign: 'left' }}
-        aria-label="导出DDL"
-        onClick={openModal}
-      >
-        导出DDL
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="DDL"
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-DDL"/>}
+          style={{ textAlign: 'left' }}
+          aria-label="导出DDL"
+          onClick={openModal}
+        >
+          导出DDL
+        </Button>
+      )}
       <Modal
         title="SQL导出配置"
         open={open}

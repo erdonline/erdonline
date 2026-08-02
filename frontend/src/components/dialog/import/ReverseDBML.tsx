@@ -5,19 +5,31 @@ import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
 import type {DbmlProjectJSON} from '@/utils/dbml/toProjectJSON';
 
 const {Dragger} = Upload;
 const {TextArea} = Input;
 
-export type ReverseDBMLProps = {};
+export type ReverseDBMLProps = MenuDialogControl;
 
 type ModuleLike = {name?: string};
 
-const ReverseDBML: React.FC<ReverseDBMLProps> = () => {
+const ReverseDBML: React.FC<ReverseDBMLProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [paste, setPaste] = useState('');
   const [loading, setLoading] = useState(false);
   const {projectDispatch, projectJSON} = useProjectStore(
@@ -148,18 +160,20 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = () => {
 
   return (
     <>
-      <Button
-        key="dbml"
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-other_win" />}
-        style={{textAlign: 'left'}}
-        aria-label="导入DBML"
-        onClick={openModal}
-      >
-        导入DBML
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="dbml"
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-other_win" />}
+          style={{textAlign: 'left'}}
+          aria-label="导入DBML"
+          onClick={openModal}
+        >
+          导入DBML
+        </Button>
+      )}
       <Modal
         title="导入 DBML"
         open={open}

@@ -5,6 +5,7 @@ import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
 import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Empty, Menu, message, Modal, Tooltip, Typography } from 'antd';
+import type { MenuProps } from 'antd';
 import React, { useEffect, useState } from 'react';
 import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
@@ -325,47 +326,29 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleAdd = () => {
-    const menu = (
-      <Menu>
-        <Menu.Item
-          key="addModule"
-          data-testid="menu-add-module"
-          icon={<AppstoreOutlined style={{ fontSize: '16px', color: '#1890ff' }} />}
-          onClick={() => showModal('module')}
-        >
-          <div>
-            <div>新增模型</div>
-            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>组织管理表和关系</div>
-          </div>
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="addEntity"
-          data-testid="menu-add-entity"
-          icon={<TableOutlined style={{ fontSize: '16px', color: '#faad14' }} />}
-          onClick={() => showModal('entity')}
-        >
-          <div>
-            <div>新增表</div>
-            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>定义业务实体</div>
-          </div>
-        </Menu.Item>
-        <Menu.Divider />
-        <Menu.Item
-          key="addRelation"
-          icon={<NodeIndexOutlined style={{ fontSize: '16px', color: '#52c41a' }} />}
-          onClick={() => showModal('relation')}
-        >
-          <div>
-            <div>新增关系</div>
-            <div style={{ fontSize: '12px', color: '#8c8c8c' }}>建立数据关联</div>
-          </div>
-        </Menu.Item>
-      </Menu>
-    );
+    const items: MenuProps['items'] = [
+      {
+        key: 'addModule',
+        icon: <AppstoreOutlined />,
+        label: <span data-testid="menu-add-module">新增模型</span>,
+        onClick: () => showModal('module'),
+      },
+      {
+        key: 'addEntity',
+        icon: <TableOutlined />,
+        label: <span data-testid="menu-add-entity">新增表</span>,
+        onClick: () => showModal('entity'),
+      },
+      {
+        key: 'addRelation',
+        icon: <NodeIndexOutlined />,
+        label: '新增关系',
+        onClick: () => showModal('relation'),
+      },
+    ];
 
     return (
-      <Dropdown overlay={menu} trigger={['click']}>
+      <Dropdown menu={{ items }} trigger={['click']} placement="bottomLeft">
         <Button
           icon={<PlusOutlined />}
           style={{ width: '40px' }}
