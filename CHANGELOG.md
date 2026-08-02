@@ -24,6 +24,14 @@
 
 验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests package -s .mvn/settings.xml`；`docker build -t erd-be ./backend`；Dashboard 改 Root Directory 后 Deploy 成功
 
+#### 体验：关系图边路由 — 同表对多 FK 肘距分流（ADR-0016）
+- 共享 `utils/relationEdges`：设计器 + 分享只读画布统一建边；自定义 `erdSmooth`（更大圆角 + lane→stepOffset）
+- 同无向表对多条 FK：居中 lane，肘部错开，path `d` 不再完全重叠
+- dagre 默认 `nodesep` 80 / `ranksep` 160，走廊略宽；MiniMap 走 erd token（去默认蓝）
+- E2E：`边路由：同表对双 FK 肘距分流` + 截图 `ux-walkthrough/diagram-edge-lanes.png`；既有 PK/FK 边用例断言 `erdSmooth`
+
+验证点：`cd frontend && npx tsx src/utils/relationEdges.test.ts`；`cd frontend && npx tsx src/utils/graphLayout.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "边路由|PK/FK 与边样式" --workers=1 --retries=0`
+
 #### 基础设施：官方 Demo 运行时 Railway-only（ADR-0019）
 
 **决策 / 文档**

@@ -32,8 +32,9 @@ export function dagrePositions(
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: opts?.rankdir ?? 'LR',
-    nodesep: opts?.nodesep ?? 60,
-    ranksep: opts?.ranksep ?? 140,
+    // 略增走廊：边更不易贴穿邻表（ADR-0016 边路由）
+    nodesep: opts?.nodesep ?? 80,
+    ranksep: opts?.ranksep ?? 160,
     marginx: 40,
     marginy: 40,
   });

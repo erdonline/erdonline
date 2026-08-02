@@ -40,9 +40,17 @@ import {
   relationTabEntity,
 } from '@/utils/diagram';
 import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
+import {
+  EDGE_INTERACTION_WIDTH,
+  ERD_EDGE_TYPE,
+  associationsToEdges,
+} from '@/utils/relationEdges';
+
+export { EDGE_INTERACTION_WIDTH } from '@/utils/relationEdges';
 import { Input, Modal, Select, message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
+import ErdRelationEdge from './ErdRelationEdge';
 import ZhControls from './ZhControls';
 import './reactflow-relation.scss';
 
@@ -77,10 +85,6 @@ type Association = {
   to?: { entity?: string; field?: string };
 };
 
-/** associations → ReactFlow edges（字段级 handle） */
-/** 边命中热区宽度（px）；视觉描边仍细，改善中点被节点贴近时的可点性 */
-export const EDGE_INTERACTION_WIDTH = 24;
-
 /** from 侧字段 = FK；按实体聚合，供节点徽章 */
 function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
   const map = new Map<string, string[]>();
@@ -93,33 +97,6 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
     map.set(entity, list);
   }
   return map;
-}
-
-function associationsToEdges(associations: Association[]): Edge[] {
-  return (associations || [])
-    .filter(a => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field)
-    .map((a, i) => ({
-      id: `e-${a.from!.entity}-${a.from!.field}-${a.to!.entity}-${a.to!.field}-${i}`,
-      source: a.from!.entity!,
-      sourceHandle: `${a.from!.field}-src`,
-      target: a.to!.entity!,
-      targetHandle: `${a.to!.field}-tgt`,
-      type: 'smoothstep',
-      label: a.relation || '',
-      labelStyle: { fontSize: 10, fill: erdColors.ink400, fontFamily: 'var(--erd-font-mono)' },
-      labelBgStyle: { fill: erdColors.surfaceSunk, fillOpacity: 0.94 },
-      labelBgPadding: [4, 2] as [number, number],
-      labelBgBorderRadius: 3,
-      style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 14,
-        height: 14,
-        color: erdColors.ink600,
-      },
-      animated: false,
-      interactionWidth: EDGE_INTERACTION_WIDTH,
-    }));
 }
 
 const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
@@ -484,6 +461,7 @@ const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = ({ data, selecte
 };
 
 const nodeTypes = { table: TableNode, frame: FrameNode };
+const edgeTypes = { [ERD_EDGE_TYPE]: ErdRelationEdge };
 
 export type ReactFlowRelationProps = {
   moduleEntity: ModuleEntity;
@@ -1296,6 +1274,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         nodes={nodes}
         edges={edges}
         nodeTypes={nodeTypes}
+        edgeTypes={edgeTypes}
         onNodesChange={onNodesChange}
         onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
@@ -1323,7 +1302,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       >
         <Background gap={20} size={1} color={erdColors.line} />
         <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
-        <MiniMap pannable zoomable ariaLabel="画布缩略图" />
+        <MiniMap
+          pannable
+          zoomable
+          ariaLabel="画布缩略图"
+          nodeColor={erdColors.surface}
+          nodeStrokeColor={erdColors.line}
+          maskColor="rgba(11, 28, 44, 0.06)"
+        />
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
