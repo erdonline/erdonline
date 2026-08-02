@@ -9,8 +9,55 @@ import {
 } from './helpers';
 
 /**
- * ADR-0017 Phase 2b：图内 Frame — 新建分组 / 分配成员 / 持久化
+ * ADR-0017 Phase 2b：图内 Frame — 新建 / 分配 / 缩放 / 拖框带表 / 适应成员
  */
+
+type DiagramGroupE2E = {
+  memberEntityIds: string[];
+  name: string;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+};
+
+async function getDiagramGroups(page: import('@playwright/test').Page): Promise<DiagramGroupE2E[]> {
+  return page.evaluate(() => {
+    const api = (
+      window as unknown as {
+        __ERD_E2E__?: { getDiagramGroups?: () => DiagramGroupE2E[] };
+      }
+    ).__ERD_E2E__;
+    return api?.getDiagramGroups?.() || [];
+  });
+}
+
+async function ensureTwoTablesOnCanvas(page: import('@playwright/test').Page) {
+  await openRelationFromEmpty(page);
+  await page.getByTestId('canvas-empty-create').click();
+  await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+  await page.getByRole('button', { name: '命令' }).click();
+  await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
+  await page.getByTestId('cmd-palette-input').fill('新建');
+  await page.getByRole('option', { name: /新建表/ }).click();
+  await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
+}
+
+/** 表节点 z-index 更高，点框需 force；选中后框抬升，后续交互正常 */
+async function selectFrame(page: import('@playwright/test').Page) {
+  await page.locator('.react-flow__node-frame').click({ position: { x: 16, y: 12 }, force: true });
+  await expect(page.getByRole('button', { name: '适应成员' })).toBeVisible({ timeout: 5_000 });
+}
+
+/** RF 节点 flow 坐标（不受 viewport 漂移影响） */
+async function rfFlowPos(page: import('@playwright/test').Page, nodeId: string) {
+  return page.evaluate((id) => {
+    const el = document.querySelector(`[data-id="${id}"]`) as HTMLElement | null;
+    if (!el?.style?.transform) return null;
+    const m = /translate\(([-\d.]+)px,\s*([-\d.]+)px\)/.exec(el.style.transform);
+    return m ? { x: parseFloat(m[1]), y: parseFloat(m[2]) } : null;
+  }, nodeId);
+}
 
 test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
   test.describe.configure({ retries: 0 });
@@ -23,16 +70,7 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'fr', 'frame group');
 
-      await openRelationFromEmpty(page);
-      await page.getByTestId('canvas-empty-create').click();
-      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-
-      // 第二张表（命令面板）
-      await page.getByRole('button', { name: '命令' }).click();
-      await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
-      await page.getByTestId('cmd-palette-input').fill('新建');
-      await page.getByRole('option', { name: /新建表/ }).click();
-      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
+      await ensureTwoTablesOnCanvas(page);
 
       await rfNode(page, 'T_TABLE_1').click();
       await rfNode(page, 'T_TABLE_2').click({ modifiers: ['Shift'] });
@@ -43,14 +81,7 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await expect(frame).toContainText('分组');
       await expect(frame).toContainText('2 张表');
 
-      const groups = await page.evaluate(() => {
-        const api = (
-          window as unknown as {
-            __ERD_E2E__?: { getDiagramGroups?: () => Array<{ memberEntityIds: string[]; name: string }> };
-          }
-        ).__ERD_E2E__;
-        return api?.getDiagramGroups?.() || [];
-      });
+      const groups = await getDiagramGroups(page);
       expect(groups.length).toBeGreaterThanOrEqual(1);
       expect(groups[0].memberEntityIds.sort()).toEqual(['T_TABLE_1', 'T_TABLE_2']);
 
@@ -87,15 +118,99 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await page.getByRole('button', { name: '加入分组' }).click();
       await expect(page.getByTestId('diagram-frame')).toContainText('1 张表', { timeout: 10_000 });
 
-      const groups = await page.evaluate(() => {
-        const api = (
-          window as unknown as {
-            __ERD_E2E__?: { getDiagramGroups?: () => Array<{ memberEntityIds: string[] }> };
-          }
-        ).__ERD_E2E__;
-        return api?.getDiagramGroups?.() || [];
-      });
+      const groups = await getDiagramGroups(page);
       expect(groups[0]?.memberEntityIds).toContain('T_TABLE_1');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
+
+  test('选中分组→缩放手柄→w/h 写入 groups', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('frame-rz');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'frz', 'frame resize');
+
+      await ensureTwoTablesOnCanvas(page);
+      await rfNode(page, 'T_TABLE_1').click();
+      await rfNode(page, 'T_TABLE_2').click({ modifiers: ['Shift'] });
+      await page.getByRole('button', { name: '新建分组' }).click();
+      await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 10_000 });
+
+      const before = (await getDiagramGroups(page))[0];
+      expect(before?.w).toBeGreaterThan(0);
+
+      await selectFrame(page);
+
+      // RF 将 position 拆成独立 class：bottom + right（不是 bottom-right）
+      const handle = page.locator('.react-flow__resize-control.handle.bottom.right');
+      await expect(handle).toBeVisible({ timeout: 5_000 });
+      const hb = await handle.boundingBox();
+      expect(hb).toBeTruthy();
+      await page.mouse.move(hb!.x + hb!.width / 2, hb!.y + hb!.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(hb!.x + 90, hb!.y + 70, { steps: 8 });
+      await page.mouse.up();
+      await page.waitForTimeout(400);
+
+      await expect
+        .poll(async () => (await getDiagramGroups(page))[0]?.w ?? 0, { timeout: 8_000 })
+        .toBeGreaterThan(before.w + 20);
+      const after = (await getDiagramGroups(page))[0];
+      expect(after.h).toBeGreaterThan(before.h + 10);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
+
+  test('拖框→成员表同向平移；适应成员', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('frame-mv');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'frm', 'frame move');
+
+      await ensureTwoTablesOnCanvas(page);
+      await rfNode(page, 'T_TABLE_1').click();
+      await rfNode(page, 'T_TABLE_2').click({ modifiers: ['Shift'] });
+      await page.getByRole('button', { name: '新建分组' }).click();
+      await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 10_000 });
+
+      const tableBefore = await rfFlowPos(page, 'T_TABLE_1');
+      const frameBefore = (await getDiagramGroups(page))[0];
+      expect(tableBefore).toBeTruthy();
+      expect(frameBefore).toBeTruthy();
+
+      await selectFrame(page);
+
+      const chrome = page.locator('.react-flow__node-frame .erd-frame-chrome');
+      await expect(chrome).toBeVisible();
+      const start = await chrome.boundingBox();
+      expect(start).toBeTruthy();
+      // 用 mouse 绝对坐标拖；dragHandle 仅顶栏可启拖
+      await page.mouse.move(start!.x + 20, start!.y + start!.height / 2);
+      await page.mouse.down();
+      await page.mouse.move(start!.x + 20 + 120, start!.y + start!.height / 2 + 80, { steps: 15 });
+      await page.mouse.up();
+      await page.waitForTimeout(700);
+
+      await expect
+        .poll(async () => (await getDiagramGroups(page))[0]?.x ?? 0, { timeout: 8_000 })
+        .toBeGreaterThan(frameBefore.x + 40);
+
+      const tableAfter = await rfFlowPos(page, 'T_TABLE_1');
+      expect(tableAfter).toBeTruthy();
+      expect(tableAfter!.x).toBeGreaterThan(tableBefore!.x + 40);
+      expect(tableAfter!.y).toBeGreaterThan(tableBefore!.y + 40);
+
+      await selectFrame(page);
+      await page.getByRole('button', { name: '适应成员' }).click();
+      await expect(page.getByText('已适应成员')).toBeVisible({ timeout: 5_000 });
+      const groups = await getDiagramGroups(page);
+      expect(groups[0]?.memberEntityIds.sort()).toEqual(['T_TABLE_1', 'T_TABLE_2']);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }

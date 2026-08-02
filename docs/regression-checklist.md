@@ -37,14 +37,17 @@
 
 - [x] 选中表→新建分组→`memberEntityIds` 写入 + 刷新仍见框 ✅`diagram-frame.spec.ts`
 - [x] 空分组→选表→加入分组 ✅`diagram-frame.spec.ts`
-- [x] Frame helpers（包围盒不改成员坐标 / 成员去重改名剔除）✅`diagram.test.ts`
+- [x] 选中分组→NodeResizer 拉大→`w`/`h` 持久化 ✅`diagram-frame.spec.ts`
+- [x] 拖框→成员表同向平移 ✅`diagram-frame.spec.ts`
+- [x] 选中分组→「适应成员」重算包围盒 ✅`diagram-frame.spec.ts`
+- [x] Frame helpers（包围盒 / 扩边 / 点落框 / 成员去重改名剔除）✅`diagram.test.ts`
 - [x] schema `diagramFrame` ✅`validate-projectjson.mjs`
 - [x] 公开 demo / 示例：主图 4 Frame（主体/RBAC/会话审计/业务） ✅`demo.spec.ts` / `activation.spec.ts`
 
 ### 手工
 
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
-- [ ] [拖框] 拖动分组框 → 表节点坐标不变；刷新后框位置保持
+- [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
 ## 第 0 轮（2026-08-01）
 

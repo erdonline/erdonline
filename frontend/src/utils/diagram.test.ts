@@ -11,15 +11,18 @@ import {
   addMembersToFrame,
   computeFrameBoundsFromNodes,
   ensureDiagrams,
+  expandFrameBoundsToNodes,
   frameNodeId,
   getActiveDiagram,
   getActiveDiagramFrames,
   isFrameNodeId,
+  isPointInFrameBounds,
   listDiagrams,
   parseDiagramIdFromTabEntity,
   parseFrameIdFromNodeId,
   purgeFrameMemberId,
   relationTabEntity,
+  removeMembersFromFrame,
   renameFrameMemberIds,
   upsertDiagramLayout,
 } from './diagram';
@@ -94,11 +97,11 @@ async function main() {
       { position: { x: 400, y: 200 }, width: 220, height: 80 },
     ];
     const before = nodes.map((n) => ({ ...n.position }));
-    const bounds = computeFrameBoundsFromNodes(nodes, 40);
-    assert.equal(bounds.x, 60);
-    assert.equal(bounds.y, 10);
-    assert.equal(bounds.w, 600);
-    assert.equal(bounds.h, 310);
+    const bounds = computeFrameBoundsFromNodes(nodes, 48);
+    assert.equal(bounds.x, 52);
+    assert.equal(bounds.y, 2);
+    assert.equal(bounds.w, 616);
+    assert.equal(bounds.h, 326);
     assert.deepEqual(
       nodes.map((n) => n.position),
       before,
@@ -121,6 +124,9 @@ async function main() {
     addMembersToFrame(d, f.id, ['P']);
     assert.deepEqual(f.memberEntityIds, ['U', 'R', 'P']);
 
+    removeMembersFromFrame(d, f.id, ['P']);
+    assert.deepEqual(f.memberEntityIds, ['U', 'R']);
+
     renameFrameMemberIds(d, 'U', 'USER');
     assert.ok(f.memberEntityIds.includes('USER'));
     assert.ok(!f.memberEntityIds.includes('U'));
@@ -131,6 +137,19 @@ async function main() {
     const nid = frameNodeId(f.id);
     assert.ok(isFrameNodeId(nid));
     assert.equal(parseFrameIdFromNodeId(nid), f.id);
+
+    assert.ok(isPointInFrameBounds(100, 100, { x: 0, y: 0, w: 200, h: 200 }));
+    assert.ok(!isPointInFrameBounds(300, 100, { x: 0, y: 0, w: 200, h: 200 }));
+
+    const expanded = expandFrameBoundsToNodes(
+      { x: 0, y: 0, w: 100, h: 100 },
+      [{ position: { x: 80, y: 80 }, width: 220, height: 80 }],
+      40,
+    );
+    assert.ok(expanded.w > 100);
+    assert.ok(expanded.h > 100);
+    assert.equal(expanded.x, 0);
+    assert.equal(expanded.y, 0);
   });
 
   await run('getActiveDiagramFrames：读 groups', () => {

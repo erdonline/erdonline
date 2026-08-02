@@ -76,7 +76,7 @@
 
 #### Frame（`diagrams[].groups[]`）
 
-视觉分组矩形；**成员显式列表**，不做坐标重父化（拖框不带动表节点）。
+视觉分组矩形；**成员显式列表**，不做 RF parent 重父化。拖框时前端按同一 Δ 平移成员在 `layout.nodes` 中的绝对坐标；选中可缩放 `w`/`h`。
 
 ```json
 {
@@ -96,8 +96,8 @@
 | `id` | string | 图内唯一 |
 | `name` | string | 显示名 |
 | `color` | string | 可选底色 |
-| `x` / `y` / `w` / `h` | number | 绝对画布坐标与尺寸 |
-| `memberEntityIds` | `string[]` | 成员实体 `title`；改名/删表时前端同步 |
+| `x` / `y` / `w` / `h` | number | 绝对画布坐标与尺寸（可 NodeResizer /「适应成员」更新） |
+| `memberEntityIds` | `string[]` | 成员实体 `title`；改名/删表时前端同步；拖表入/出框会增删 |
 
 兼容：无 `diagrams` 的旧项目行为不变；读路径 `getActiveDiagram(module)` 虚拟迁移，写路径物化后**只写 `diagrams`**（禁止与 `graphCanvas` 双写漂移）。
 

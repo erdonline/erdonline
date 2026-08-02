@@ -11,7 +11,10 @@ export type DiagramLayoutNode = {
   title?: string;
 };
 
-/** Phase 2b：图内视觉框；成员显式列表，不做 RF 坐标重父化 */
+/**
+ * Phase 2b：图内视觉框；成员显式列表，不做 RF parent/child 重父化。
+ * 拖框时平移成员绝对坐标（仍写 layout.nodes），见 ADR-0017 后果修订。
+ */
 export type DiagramFrame = {
   id: string;
   name: string;
@@ -38,7 +41,8 @@ export const DEFAULT_DIAGRAM_NAME = '主关系图';
 export const FRAME_NODE_PREFIX = 'erd-frame-';
 export const DEFAULT_FRAME_W = 320;
 export const DEFAULT_FRAME_H = 200;
-export const FRAME_PADDING = 40;
+/** 顶边略大，露出标题栏便于点选（表 z-index 更高时仍可点到框） */
+export const FRAME_PADDING = 48;
 /** 成功色浅底（与 erdColors.success 同语系） */
 export const DEFAULT_FRAME_COLOR = 'rgba(47, 143, 123, 0.10)';
 
@@ -281,6 +285,52 @@ export function addMembersToFrame(
   });
   frame.memberEntityIds = [...set];
   return frame;
+}
+
+/** 剔除成员；框不存在则 no-op */
+export function removeMembersFromFrame(
+  diagram: Diagram,
+  frameId: string,
+  memberEntityIds: string[],
+): DiagramFrame | undefined {
+  const frame = (diagram.groups || []).find((g) => g.id === frameId);
+  if (!frame) return undefined;
+  const drop = new Set(memberEntityIds.filter(Boolean));
+  frame.memberEntityIds = (frame.memberEntityIds || []).filter((id) => !drop.has(id));
+  return frame;
+}
+
+/** 点是否落在框内（含边界） */
+export function isPointInFrameBounds(
+  px: number,
+  py: number,
+  frame: { x: number; y: number; w: number; h: number },
+): boolean {
+  return px >= frame.x && px <= frame.x + frame.w && py >= frame.y && py <= frame.y + frame.h;
+}
+
+/**
+ * 扩大框以覆盖节点包围盒（只扩不缩）；无节点时保持原 bounds。
+ */
+export function expandFrameBoundsToNodes(
+  current: { x: number; y: number; w: number; h: number },
+  nodes: Array<{ position: { x: number; y: number }; width?: number; height?: number }>,
+  padding = FRAME_PADDING,
+): { x: number; y: number; w: number; h: number } {
+  if (!nodes.length) {
+    return { ...current };
+  }
+  const next = computeFrameBoundsFromNodes(nodes, padding);
+  const minX = Math.min(current.x, next.x);
+  const minY = Math.min(current.y, next.y);
+  const maxR = Math.max(current.x + current.w, next.x + next.w);
+  const maxB = Math.max(current.y + current.h, next.y + next.h);
+  return {
+    x: Math.round(minX),
+    y: Math.round(minY),
+    w: Math.round(maxR - minX),
+    h: Math.round(maxB - minY),
+  };
 }
 
 export function updateFrameBounds(

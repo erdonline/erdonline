@@ -8,6 +8,27 @@
 
 ### 2026-08-02
 
+#### 体验：Frame 可缩放 / 拖框带表 / 适应成员 / 拖入拖出（ADR-0017）
+
+**问题**
+
+- 分组框无法调节大小；拖框不带动成员、与表归属脱节，配合使用不流畅
+
+**功能**
+
+- 选中 Frame：`NodeResizer` 八角手柄，持久化 `groups[].w/h`（及 NW 侧 `x/y`）
+- 拖框：按同一 Δ 平移 `memberEntityIds` 表节点并写 `layout.nodes`（仍非 RF parent）
+- 工具栏「适应成员」：按成员包围盒 + padding 重算框；「加入分组」只扩不缩
+- 拖表中心入框 → `addFrameMembers` + 扩边；拖出 → `removeFrameMembers` + toast
+- ADR-0017 / `data-format.md` 后果修订：拖框带表为正式行为
+
+**测试**
+
+- `diagram.test.ts`：`removeMembersFromFrame` / `expandFrameBoundsToNodes` / `isPointInFrameBounds`
+- `diagram-frame.spec.ts`：缩放持久化、拖框带表、「适应成员」
+
+验证点：`cd frontend && npx tsx src/utils/diagram.test.ts`；`cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 示例：demo projectJSON 升级为多图 + Frame（ADR-0017 Phase 2a/2b）
 
 **功能 / 数据**
