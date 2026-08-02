@@ -66,6 +66,8 @@
 | Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie`、重复「项目概览」、slogan 轮转 | 死代码 | W2 切片 2：已删；`@ant-design/charts` 移除 |
 | `account/settings/geographic`（province/city json） | 无后端字段 | W2 切片 1：已删 |
 | `plaza/Material*` 后端控制器 | 前端零引用 | 记入死代码候选，独立切片评估（不动表） |
+| `dialog/import/ReversePDM`（「玩命开发中」） | 菜单零引用 | ✅ 已删（2026-08-02） |
+| `pages/design/import/index.tsx` 空壳 | 路由不引用 | ✅ 已删；`component/*` 仍服务 sider 深链，勿整目录删 |
 
 ## 北极星对齐结论
 

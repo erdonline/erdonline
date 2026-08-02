@@ -8,6 +8,21 @@
 
 ### 2026-08-02
 
+#### 功能：自部署可观测薄切片 — health + info（P5 缺口 ✅）
+
+**功能**
+
+- `management.endpoints.web.exposure.include=health,info`；`health.show-details=never`（匿名面不泄数据源）
+- `ErdAppInfoContributor`：`/actuator/info` → `app.name=erd-online` + `app.version`（jar Manifest / 本地 `dev`）
+- `GlobalExceptionHandler`：`NoResourceFoundException` → **404**（未暴露 actuator 子路径不再假 500）
+- 顺手清死码：未接线 `ReversePDM` 桩、空壳 `pages/design/import/index.tsx`（sider `component/*` 保留）
+
+**测试 / 文档**
+
+- 单测 `ErdAppInfoContributorTest`；`deployment.md` 验收 curl；`security-model` actuator 面；roadmap 可观测性 ✅
+
+验证点：`mvn -Dtest=ErdAppInfoContributorTest -Djacoco.skip=true test` → passed；`./backend/dev-ensure.sh --restart` 后 `curl /actuator/health` → UP；`curl /actuator/info` → 含 `erd-online`；`curl /actuator/env` → HTTP 404 + code 404
+
 #### 功能：DBML 导出镜像 — projectJSON → DBML + 设计器入口（互通闭环 ✅）
 
 **功能**

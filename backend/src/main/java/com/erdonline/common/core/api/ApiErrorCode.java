@@ -18,6 +18,8 @@ public enum ApiErrorCode implements IErrorCode {
 
     FORBIDDEN(403, "当前用户权限不够，无法操作此功能"),
 
+    NOT_FOUND(404, "资源不存在"),
+
     METHOD_NOT_ALLOWED(405, "request请求方法不支持"),
 
     PAGE_LIMIT_ERROR(1000001, "分页参数过大"),

@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 import jakarta.servlet.http.HttpServletRequest;
 import java.sql.SQLIntegrityConstraintViolationException;
@@ -45,6 +46,14 @@ public class GlobalExceptionHandler {
     public R defaultErrorHandler(HttpServletRequest req, Exception e) throws Exception {
         log.error("", e);
         return R.failed(ApiErrorCode.FAIL);
+    }
+
+    /** Boot 3：未匹配路由/静态资源勿伪装成 500（如未暴露的 actuator 子路径） */
+    @ExceptionHandler(NoResourceFoundException.class)
+    @ResponseBody
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public R noResourceFoundHandler(NoResourceFoundException e) {
+        return R.failed(ApiErrorCode.NOT_FOUND);
     }
 
     @ExceptionHandler(value = AccessDeniedException.class)
