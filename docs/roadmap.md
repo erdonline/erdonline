@@ -41,7 +41,7 @@
 - CRUD 壳维持 antd（ADR-0005），设计域沉淀自研视觉系统（节点/工具条/命令面板已成体系）
 - 逐页抬水位：每轮迭代顺带提升所在页密度与反馈，禁止全站大改版
 - Home / 模型页重设计简报：[ui-home-model-redesign.md](./ui-home-model-redesign.md) ✅（2026-08-02；决策：Home 走工作台式亮色系统，落地页保留深色门面；**S1 tokens 地基 ✅**，S2–S6 续推）
-- **全站布局重设计总纲**：[ui-layout-redesign.md](./ui-layout-redesign.md)（2026-08-02 v2 重估：能力暴露优先于表现层；分波 W1 设计器壳 ✅ → **W2 能力暴露+空壳清除**（切片 1 ✅ 分享吊销；切片 2 ✅ Home 死码/实验页源文件物理删除 + charts/chatui 依赖移除；待：设计器 chrome 收尾）→ **W3 版本域收口**（切片 1 ✅ 跨版本 diff 导出；切片 2 ✅ version ProList→antd List + 空态 CTA；待：审批入口理顺）→ **W4** 项目列表/数据源平移（切片 1 ✅ AddVersion→antd Form+Modal）→ W5 登录/分享/404 + Pro 依赖一次性移除；能力对照见 [product-capability-map.md](./product-capability-map.md)）
+- **全站布局重设计总纲**：[ui-layout-redesign.md](./ui-layout-redesign.md)（2026-08-02 v2 重估：能力暴露优先于表现层；分波 W1 设计器壳 ✅ → **W2 能力暴露+空壳清除**（切片 1 ✅ 分享吊销；切片 2 ✅ Home 死码/实验页源文件物理删除 + charts/chatui 依赖移除；待：设计器 chrome 收尾）→ **W3 版本域收口**（切片 1 ✅ 跨版本 diff 导出；切片 2 ✅ version ProList→antd List + 空态 CTA；待：审批入口理顺）→ **W4** 项目列表/数据源平移（切片 1 ✅ AddVersion→antd Form+Modal；切片 2 ✅ RenameVersion→antd Form+Modal）→ W5 登录/分享/404 + Pro 依赖一次性移除；能力对照见 [product-capability-map.md](./product-capability-map.md)）
 - **Pro Strangler**（[ADR-0014](./adr/0014-drop-or-strangle-ant-pro.md) ✅ B）：冻结 `@ant-design/pro-components@2.8.10`；S0 只升 umi+antd；chrome 片先行摘除 ProLayout/PageContainer/WaterMark（HomeLayout/GroupLayout ✅ 切片 1；**DesignLayout ✅ 切片 2** antd Layout；`account/settings` / 表单域后置 → 已由 W3–W5 分波承接）
 
 ### 开放（Openness）📋 — API/MCP 见 ADR-0013

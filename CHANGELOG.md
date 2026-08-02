@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 2 — RenameVersion ModalForm → antd Form+Modal
+
+**重构**
+
+- `RenameVersion`（编辑版本弹窗）：摘 `ModalForm` / `ProFormText` / `ProFormTextArea` / `ProFormSelect` → antd `Modal` + `Form` + `Select mode="tags"`；宽度 520；打开时回填当前版本与标签；非最新版版本号 `readOnly`；业务失败（重复号 / 版本过低 / 标签超长）toast 且不关窗（受控 `open`，勿 `reject` 以免 webpack overlay）；`data-testid`（`version-rename-btn` / `version-tag-input`）与校验文案不变
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 2 ✅；E2E 失败关窗改 Escape（更稳）
+  验证点：`rg 'ModalForm|ProFormText|ProFormSelect' frontend/src/components/dialog/version/RenameVersion.tsx` = 0；`npx playwright test tests/e2e/version.spec.ts --grep "重命名描述" --project=chromium --workers=1`
+
 #### 重构：W4 切片 1 — AddVersion ModalForm → antd Form+Modal
 
 **重构**
