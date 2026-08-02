@@ -243,6 +243,15 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         setTimeout(() => { ignoreBlurRef.current = false; }, 0);
         return;
       }
+      // 末行 Tab → 开新建行（表格式建模回路；空名 toast 仍走 commit 校验）
+      if (advance === 'next' && idx >= 0 && targetIdx >= visibleAfter.length) {
+        const nextEdit = { key: '__NEW__', name: '', type: 'String', pk: false };
+        ignoreBlurRef.current = true;
+        editingRef.current = nextEdit;
+        setEditing(nextEdit);
+        setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+        return;
+      }
     }
     setEditing(null);
   };

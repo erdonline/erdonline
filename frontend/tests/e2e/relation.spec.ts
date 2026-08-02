@@ -1054,7 +1054,7 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
-  test('字段 Tab 跳下一行；类型即时 save-status', async ({ page }) => {
+  test('字段 Tab 跳下一行；末行新建；类型即时 save-status', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('ftab');
     try {
@@ -1087,8 +1087,18 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expectToast(page, '字段名不能为空');
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).fill('AGE');
+
+      // 末行 Tab → 开新建行；填名再 Tab → 落盘并再开新建
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('');
+      await node.getByRole('textbox', { name: '字段名' }).fill('CODE');
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await expect(node.locator('[data-field="CODE"]')).toBeVisible();
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
-      await expect(node.locator('[data-field="AGE"]')).toBeVisible();
 
       // 仅改类型：不必 Enter/blur，顶栏 save-status 即时回到已保存
       await nameRow.hover();
