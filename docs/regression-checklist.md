@@ -19,6 +19,7 @@
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] 设置页 chrome 密度：标题 ≤14 / 输入·保存钮 ≤32 / 表单项 mb ≤16；截图 `diagram-setting-page-dense.png` ✅`default-field.spec.ts`
+- [x] 数据库配置页密度：标题 ≤14 / 工具条钮 ≤32 / 抽屉输入·保存钮 ≤32；截图 `database-config-page-dense.png` ✅`database-config.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
 

@@ -1,0 +1,186 @@
+// ADR-0016：数据库配置页 chrome 与 22–28 / .setting-common-page / .erd-io-modal 同阶
+.database-config-page {
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+}
+
+.database-config-page__title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.database-config-page__hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.database-config-page__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.database-config-page__toolbar-title {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.database-config-page__sheet {
+  border: 1px solid var(--erd-line, #e5e7eb);
+  border-radius: 6px;
+  padding: 8px 10px;
+  background: #fff;
+}
+
+.database-config-page {
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+
+  .ant-btn-link {
+    height: auto;
+    padding: 0 4px;
+  }
+
+  .ant-input-search {
+    width: 220px;
+
+    .ant-input-affix-wrapper {
+      min-height: 28px;
+      padding-block: 0;
+      font-size: 12px;
+    }
+
+    .ant-input {
+      font-size: 12px;
+      height: 26px;
+    }
+
+    .ant-input-search-button {
+      height: 28px;
+      font-size: 12px;
+    }
+  }
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 6px 8px !important;
+    font-size: 12px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 4px 8px !important;
+  }
+
+  .ant-badge-status-text {
+    font-size: 12px;
+  }
+}
+
+.database-config-form {
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px;
+
+    > label {
+      font-size: 12px;
+      height: auto;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+    }
+  }
+
+  .ant-form-item-extra {
+    font-size: 12px;
+    line-height: 18px;
+    margin-top: 2px;
+  }
+
+  .ant-input:not(textarea),
+  .ant-input-affix-wrapper {
+    font-size: 12px !important;
+  }
+
+  .ant-input:not(textarea) {
+    height: 28px;
+    padding: 0 8px;
+  }
+
+  .ant-input-affix-wrapper {
+    padding-block: 0;
+    min-height: 28px;
+
+    .ant-input {
+      height: 26px;
+    }
+  }
+
+  .ant-select-selector {
+    font-size: 12px !important;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 28px !important;
+    padding-inline: 8px;
+  }
+
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    line-height: 26px !important;
+    font-size: 12px;
+  }
+
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+
+  .ant-divider {
+    margin: 8px 0 12px;
+  }
+
+  .database-config-form__hint {
+    margin: 0;
+    font-size: 12px;
+    line-height: 18px;
+    color: rgba(0, 0, 0, 0.45);
+  }
+}
+
+.database-config-drawer {
+  .ant-drawer-header {
+    padding: 10px 14px 8px;
+  }
+
+  .ant-drawer-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 22px;
+  }
+
+  .ant-drawer-body {
+    padding: 12px 14px;
+  }
+}

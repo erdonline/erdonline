@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：数据库配置页密度（/databaseConfig + 数据源设置，ADR-0016）
+
+- 选题：`/databaseConfig` 页头/列表/抽屉表单密度（与 22–28 chrome / `.setting-common-page` / `.erd-io-modal` 同阶）；数据类型域实验页已下线，本切片收数据库配置
+- `.database-config-page`：标题 13/22、hint 12、页 pad 8×12、sheet pad 8×10；工具条钮/搜索 28；表行 pad 4×8；禁 Title level4 + 松 Card
+- 抽屉表单：`size=small`、输入/Select/按钮 28、表单项 mb 12；去嵌套 Card 与死链「文档/支持」
+- 菜单「数据源设置」Modal 挂 `.erd-io-modal` + Form `size=small`；role/aria（新建/编辑/测试连接/同步状态）不变
+- `database-config.spec`「页密度」；截图 `database-config-page-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/database-config.spec.ts --project=chromium --grep "页密度" --workers=1 --retries=0`
+
 #### 体验：设置页 chrome 密度（DefaultSetUp / DefaultField，ADR-0016）
 
 - 选题：`/design/table/setting/defaultField` + `/default` 页头与表单密度（与 22–28 chrome / `.erd-io-modal` 同阶）

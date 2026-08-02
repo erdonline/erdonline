@@ -8,6 +8,7 @@ import {uuid} from '@/utils/uuid';
 import * as Save from '@/utils/save';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
+import '../io-modal.scss';
 
 export type DatabaseSetUpProps = {
   isGlobal?: boolean;
@@ -194,12 +195,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
         open={open}
         onCancel={closeModal}
         destroyOnClose
-        width={960}
+        width={880}
         forceRender
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
         footer={[
           <Button
             disabled={!defaultDbs}
             key="test"
+            size="small"
             loading={pingLoading}
             onClick={() => connectJDBC()}
           >
@@ -208,6 +212,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
           <Button
             type="primary"
             key="submit"
+            size="small"
             onClick={() => {
               message.success('保存成功！');
             }}
@@ -216,8 +221,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
           </Button>,
         ]}
       >
-        <Form form={form} layout="vertical" preserve={false}>
-          <Row gutter={16}>
+        <Form form={form} layout="vertical" size="small" preserve={false}>
+          <Row gutter={12}>
             <Col span={12}>
               <Form.Item label={listLabel}>
                 <Form.List name="dbs">
@@ -309,6 +314,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
               <Button
                 type="dashed"
                 block
+                size="small"
                 icon={<PlusOutlined />}
                 aria-label="新增数据源"
                 onClick={async () => {
