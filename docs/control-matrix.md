@@ -126,7 +126,7 @@
 | `/design/table/version/all` | 回滚 | 落库；刷新后模型仍回滚 | | ✅ | 回滚落库；version/approval 绿 |
 | DesignLayout 菜单 | 我的工单 | → `/design/table/version/order` 空态引导 | | ✅ | `approval.spec` |
 | DesignLayout 菜单 | 我的审批 | → `.../approval` 空态引导 | | ✅ | `approval.spec` |
-| 工单/审批 | 提交→通过/拒绝全链路 | 状态变更可见 | 需有数据 | 🚧 | 空态已覆盖；有数据链路待 |
+| 工单/审批 | 提交→通过/拒绝全链路 | 状态变更可见 | 需有数据 | ✅ | `approval.spec`：API 种子→UI 拒绝 toast→工单复批（通过=JDBC 过重未覆盖） |
 
 ---
 
@@ -197,8 +197,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 63 |
-| 🚧 | 29 |
+| ✅ | 64 |
+| 🚧 | 28 |
 | 🗑 | 7 |
 | 📋 | 2 |
 | **合计** | **101** |
