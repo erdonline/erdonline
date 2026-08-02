@@ -8,6 +8,18 @@
 - `HomeLayout` / `GroupLayout`：对齐 DesignLayout，在 Theme 旁显式渲染 `props.children`（消除仅靠 Theme 内 Outlet 的隐患）
   验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium` 绿（`/home` 见新建模型 CTA；`/project/person` 见新建；`/project/group/setting/basic` 见「基本设置」且 count=1）
 
+## [Unreleased] — W1 会话闭环（2026-08-02）
+
+### 修复
+- `logout()`：`cache.clear()` 清 JWT/用户名（此前仅清 projectId/licence，刷新仍像已登录）
+- 注册页提交文案改为「注册」；补「已有账号？去登录」；邮箱正则放宽
+- 顶栏用户菜单 trigger：`aria-label` + `data-testid=user-menu-trigger`
+- **注册后无法登录**：`userRegister` 写入默认 `dept_id=1`；`JwtTokenService` 拒 null claim；种子 `09_erd_user_new_privileges.sql` 给 `ERD_USER_NEW` 复制 admin 权限（此前 JWT/无权限被误报账密错误）
+
+### 测试
+- 新增 `session.spec.ts`：去注册、注册→/home、头像菜单三项、退出清会话
+  验证点：`npx playwright test tests/e2e/session.spec.ts --project=chromium`；curl 注册→登录拿 `access_token`
+
 ## [Unreleased] — P2b 控件矩阵与 Vision 选题（2026-08-02）
 
 ### 文档

@@ -3,6 +3,10 @@ import {Button, message} from 'antd';
 import {POST} from "@/services/crud";
 import {login} from "@/pages/login";
 
+function loginQuery(): string {
+  const r = new URLSearchParams(window.location.search).get('redirect');
+  return r && r.startsWith('/') ? `?redirect=${encodeURIComponent(r)}` : '';
+}
 
 export default () => {
   return (
@@ -12,6 +16,7 @@ export default () => {
         logo="../logo.svg"
         title="ERD Online"
         subTitle="开源数据库建模：版本与协作，像 Git + Figma"
+        submitter={{ searchConfig: { submitText: '注册' } }}
         onFinish={async (values: any) => {
           let username = values.username;
           let pwd = values.pwd;
@@ -132,7 +137,7 @@ export default () => {
                 message: '邮箱不能为空',
               },
               {
-                pattern: /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+((.[a-zA-Z0-9_-]{2,3}){1,2})$/,
+                pattern: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
                 message: '请输入正确的邮箱地址'
               }
             ],
@@ -158,6 +163,10 @@ export default () => {
           }}
         />
         <div style={{marginTop: 16, textAlign: 'center'}}>
+          <a href={`/login${loginQuery()}`} aria-label="去登录">
+            已有账号？去登录
+          </a>
+          {' · '}
           <a href="/demo" aria-label="先看演示">
             先看演示（免登录）
           </a>

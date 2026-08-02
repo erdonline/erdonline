@@ -9,7 +9,7 @@
 | 波 | 范围 | roadmap |
 |---|---|---|
 | W0 | HomeLayout / GroupLayout 子路由壳 | ✅ |
-| W1 | 获客与会话（登录/注册/退出/头像） | 🚧 |
+| W1 | 获客与会话（登录/注册/退出/头像） | ✅ |
 | W2 | 项目面（home / person / group / recent / new） | 🚧 |
 | W3 | 设计器核心（模型树/关系图/项目菜单） | 🚧 |
 | W4 | 版本时光机（版本/工单/审批） | 🚧 |
@@ -33,13 +33,13 @@
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
 | `/login` | 登录按钮 | 成功进 `/home`；错误凭证单次明确提示 | JWT 会话 | ✅ | `smoke`「错误凭证」「登录→新建」 |
-| `/login` | 注册链接 | 导航 `/register` | 转化漏斗 | 🚧 | checklist |
-| `/register` | 注册提交 | 成功进设计器或带 redirect | `share` autofork | 🚧 | 部分：`share` redirect 断言；注册全链路待补 |
+| `/login` | 注册链接 | 导航 `/register` | 转化漏斗 | ✅ | `session.spec`「去注册」 |
+| `/register` | 注册提交 | 成功进 `/home`；可带 redirect | `share` autofork | ✅ | `session.spec`「注册成功」；`share` redirect |
 | `/demo` | 重定向 | → `/s/public-demo` 只读图 + 复制 CTA | ADR-0007 | ✅ | `demo.spec` |
 | `/s/:token` | 复制到我的项目 | 未登录→注册 redirect；登录→fork | 分享 fork | ✅ | `share.spec` |
-| 头像菜单 | 个人中心 | → `/account/settings?selectKey=base` | account | 🚧 | |
-| 头像菜单 | 授权信息 | → `selectKey=identification` | licence | 🚧 | |
-| 头像菜单 | 退出登录 | 清会话回 `/login` | `logout()` | 🚧 | 待 E2E |
+| 头像菜单 | 个人中心 | → `/account/settings?selectKey=base` | account | ✅ | `session.spec` |
+| 头像菜单 | 授权信息 | → `selectKey=identification` | licence | ✅ | `session.spec` |
+| 头像菜单 | 退出登录 | `cache.clear()` 回 `/login` | `logout()` | ✅ | `session.spec` |
 | DesignLayout 顶栏 | GitHub stars 链 | 外链 `erdonline/erdonline` | 社区 | ✅ | 文案/链已合入 |
 | DesignLayout 顶栏 | 分享按钮 | 生成只读链接 | ADR-0007 | ✅ | `share.spec` |
 | DesignLayout 顶栏 | 协作 presence | 可见在线名单 | ADR-0009 | ✅ | `presence.spec` |
