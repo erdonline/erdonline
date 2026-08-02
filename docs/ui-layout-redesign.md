@@ -161,6 +161,7 @@
 | └ **W4 切片 2** ✅（2026-08-02） | **RenameVersion**（编辑版本弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；回填/非最新只读版本号/失败不关窗；testid 不变 | RenameVersion ProForm | `version.spec`「重命名描述与删除版本」 |
 | └ **W4 切片 3** ✅（2026-08-02） | **AddProject**（新增项目弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；个人/团队 `type` 初值；tags Select + testid 不变 | AddProject ProForm | `smoke` / `project-activation` `createPersonProject` |
 | └ **W4 切片 4** ✅（2026-08-02） | **RenameProject**（修改项目弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；tags 拆分回填；失败不关窗；testid 新增 | RenameProject ProForm | `project-surface`「修改弹窗可改名并回列表」 |
+| └ **W4 切片 5** ✅（2026-08-02） | **死码清除**：零挂载 `DataDomain`/`DynamicDialog` + `dialog/module|entity|database|dataType` ModalForm 整簇删除（模型/表已由 `EntityModal` antd Form+Modal 承接；勿平移不可见页） | 死 ModalForm 簇 | `empty-projectjson`「无 JSON 团队项目可新增模型」；`rg dialog/(module\|entity\|database\|dataType)` = 0 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。

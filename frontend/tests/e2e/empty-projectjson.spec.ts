@@ -33,13 +33,18 @@ test.describe('空 projectJSON 打开', () => {
     try {
       await login(page, { name: E2E_SERIAL.name, pass: E2E_PASS });
       await page.goto(`/design/table/model?projectId=${projectId}`);
-      await expect(page.getByTestId('add-module-empty')).toBeVisible({ timeout: 15_000 });
-      await page.getByTestId('add-module-empty').click();
+      await expect(page.getByRole('main').getByTestId('add-module-empty')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByRole('main').getByTestId('add-module-empty').click();
+      // W4 切片 5：模型弹窗为 EntityModal（antd Modal+Form），非已删 ModalForm AddModule
+      const dialog = page.getByRole('dialog', { name: '新增模型' });
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
       await page.getByTestId('entity-modal-name').fill('EMPTY_M');
       await page.getByTestId('entity-modal-chnname').fill('空JSON模块');
       await page.getByTestId('entity-modal-ok').click();
       await expectToast(page, '模型添加成功');
-      await expect(page.getByText('空JSON模块', { exact: true })).toBeVisible();
+      await expect(page.getByText('空JSON模块', { exact: true }).first()).toBeVisible();
     } finally {
       await request
         .post(`${API}/ncnb/project/group/delete`, {
