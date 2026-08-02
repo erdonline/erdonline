@@ -62,7 +62,7 @@ jobs:
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@v4
+        uses: actions/deploy-pages@v5
 
   # Primary docs host (free tier). Gate: repo Variable CLOUDFLARE_PAGES_DEPLOY=true
   # + secrets CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID — see docs/deployment.md.
