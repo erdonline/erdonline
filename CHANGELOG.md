@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 文档：接受 ADR-0012 选项 B + ADR-0013 stub + vision/roadmap 对齐
+
+**文档**
+
+- `docs/adr/0012-ai-era-data-structure-platform.md`：状态 → **已接受**；决策记录选项 B + 日期 2026-08-02
+- `docs/vision.md`：一句话定位改为「Git + Figma + AI 时代开源事实源」；「不做 AI 噱头」按 ADR 精确改写；移除「待确认」阻断注记
+- `docs/roadmap.md` P5：待确认 → 🚧；落地页为首个 🚧 子项；开放 API/MCP 注明受 ADR-0013 约束
+- 新增 `docs/adr/0013-public-api-mcp.md`（📋）：鉴权/限流/scope 待定；触发条件为落地页上线且需求清晰；本切片不实现
+- `docs/landing.md` / `docs/adr/README.md` 同步状态
+  验证点：`rg '已接受|选项 B' docs/adr/0012-ai-era-data-structure-platform.md`；`rg '待确认' docs/vision.md docs/roadmap.md` → 无 P5/vision 阻断注记；`test -f docs/adr/0013-public-api-mcp.md`
+
 #### 文档：ADR-0012 AI 时代数据结构平台（待确认）+ roadmap P5 + 落地页草稿
 
 **文档**
