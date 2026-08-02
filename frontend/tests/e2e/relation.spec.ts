@@ -108,6 +108,14 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(reloadedTransform, '拖动后的画布坐标必须在重载后保持').toBe(draggedTransform);
 
+      // dagre-on-create 后坐标已是分层结果；先拖乱再自动布局，避免 after===before 假阳性
+      const orderBeforeDrag = rfNode(page, 'T_ORDER');
+      const orderBox = await orderBeforeDrag.boundingBox();
+      await page.mouse.move(orderBox!.x + 40, orderBox!.y + 16);
+      await page.mouse.down();
+      await page.mouse.move(orderBox!.x + 220, orderBox!.y + 180, { steps: 6 });
+      await page.mouse.up();
+      await page.waitForTimeout(400);
       const beforeLayout = await rfNode(page, 'T_ORDER').evaluate(
         (el) => (el as HTMLElement).style.transform,
       );
@@ -116,7 +124,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       const afterLayout = await rfNode(page, 'T_ORDER').evaluate(
         (el) => (el as HTMLElement).style.transform,
       );
-      expect(afterLayout).not.toBe(beforeLayout);
+      expect(afterLayout, '拖乱后自动布局应改变坐标').not.toBe(beforeLayout);
 
       await page.keyboard.press(process.platform === 'darwin' ? 'Meta+z' : 'Control+z');
       await page.waitForTimeout(500);
