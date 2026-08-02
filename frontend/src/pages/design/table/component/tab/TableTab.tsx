@@ -35,7 +35,7 @@ const TableTab: React.FC<TableTabProps> = (props) => {
       <Tabs
         id="tableNav"
         defaultActiveKey="field"
-        size="middle"
+        size="small"
         className="erd-table-design__tabs"
       >
         <TabPane key="field" tab="字段">

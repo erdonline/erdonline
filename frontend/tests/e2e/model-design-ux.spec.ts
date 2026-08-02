@@ -97,6 +97,27 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await expect(designer.locator('.erd-table-design__title')).toHaveText('T_ORDER');
       await expect(designer.locator('.erd-table-design__module')).toHaveText('SHOP');
 
+      // ADR-0016：CommonTabs 签头 ~28（原 40）+ 表设计签头密度
+      const chromeMetrics = await page.evaluate(() => {
+        const nav = document.querySelector('.erd-common-tabs .ant-tabs-nav');
+        const header = document.querySelector('.erd-table-design__header');
+        if (!nav || !header) return { navH: -1, headerH: -1 };
+        return {
+          navH: nav.getBoundingClientRect().height,
+          headerH: header.getBoundingClientRect().height,
+        };
+      });
+      expect(
+        chromeMetrics.navH,
+        `CommonTabs 栏高应 ≤30（目标 ~28），得 ${chromeMetrics.navH}`,
+      ).toBeLessThanOrEqual(30);
+      expect(chromeMetrics.navH).toBeGreaterThanOrEqual(24);
+      expect(
+        chromeMetrics.headerH,
+        `表设计签头高应 ≤32（目标 ~28），得 ${chromeMetrics.headerH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(chromeMetrics.headerH).toBeGreaterThanOrEqual(22);
+
       for (const name of ['字段', '索引', '元数据应用']) {
         await expect(designer.getByRole('tab', { name })).toBeVisible();
       }
@@ -110,6 +131,11 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         'aria-selected',
         'true',
       );
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-common-tabs-dense.png',
+        fullPage: false,
+      });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

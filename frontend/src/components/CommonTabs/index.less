@@ -1,5 +1,7 @@
-/* 设计器壳：tabs 栏 40px，内容区 flex 填满 */
+/* ADR-0016：设计器签头与 22 chrome 同阶；禁历史 40px 松栏 */
 .erd-common-tabs {
+  --erd-tabs-h: 28px;
+
   .erd-common-tabs__tabs {
     height: 100%;
     display: flex;
@@ -7,19 +9,41 @@
   }
 
   .ant-tabs-nav {
-    height: 40px;
+    height: var(--erd-tabs-h);
     margin: 0 !important;
     flex-shrink: 0;
+    background: var(--erd-surface-muted);
+    border-bottom: 1px solid var(--erd-line);
   }
 
   .ant-tabs-nav-wrap,
   .ant-tabs-nav-list {
-    height: 40px;
+    height: var(--erd-tabs-h);
   }
 
   .ant-tabs-tab {
-    padding: 8px 12px !important;
-    line-height: 24px;
+    padding: 3px 8px !important;
+    line-height: 20px;
+    font-size: 12px;
+    border-radius: 0 !important;
+  }
+
+  .ant-tabs-tab-btn {
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  .ant-tabs-tab-remove {
+    margin-left: 2px;
+    margin-right: 0;
+    font-size: 10px;
+    width: 14px;
+    height: 14px;
+  }
+
+  .ant-tabs-nav-more {
+    padding: 0 6px !important;
+    height: var(--erd-tabs-h);
   }
 
   .ant-tabs-content-holder {
