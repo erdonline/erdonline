@@ -1,3 +1,43 @@
+/* 失效门：AuthBrandShell 右侧 CTA 栈 */
+.share-page__gate-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+}
+
+/* 只读空态：ER 剪影 + 一句 + 主 CTA（与设计器空态同语言） */
+.share-page__empty {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  box-sizing: border-box;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
+  font-family: var(--erd-font-ui);
+}
+
+.share-page__empty-msg {
+  margin: 0 !important;
+  max-width: 280px;
+  text-align: center;
+  font-size: 13px;
+  line-height: 22px;
+  color: var(--erd-ink-600);
+}
+
+.share-page__empty .ant-btn {
+  height: 28px;
+  font-size: 12px;
+  padding: 0 14px;
+}
+
 /* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5）；画布铺满视口（ADR-0016） */
 .share-page {
   min-height: 100vh;

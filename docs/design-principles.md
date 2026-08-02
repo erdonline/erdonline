@@ -85,6 +85,7 @@
 - ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；禁 Title level4 + List `large`
 - ✅ 分享 meta 密度：hint/描述 12/18、meta gap 4、描述单行 ellipsis；stage pad 8×12；禁 13px + 12 间距抢画布高
 - ✅ 分享展开表清单密度：标题 13/22、panel pad 8×12、表头/行 pad 4×8 / font 12（行高 ∈22–28）；默认仍折叠；禁 16 pad + 14 标题松表
+- ✅ 分享失效/空态：无效·吊销 → `AuthBrandShell`（左暗色品牌面板 + 右「分享不可用」+ 主 CTA「打开示例 demo」）；无模型/无表 → `ErdEmptyDiagram` + 同 CTA；禁裸 antd `Result` 403 与登录壳割裂
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
@@ -115,6 +116,7 @@
 - ❌ 个人/最近/团队/公告列表 Title level4 + List large 松行，与 22–28 chrome 不同阶（历史问题）
 - ❌ 分享页 hint 13px + 12 间距 / 描述无 ellipsis 抢画布高（历史问题）
 - ❌ 分享展开表清单 16 pad + 14 标题 + antd 默认松行，与 22–28 / project-list 不同阶（历史问题）
+- ❌ 分享失效页裸 `Result` 403，与登录 `AuthBrandShell` / 三壳 token 割裂（历史问题）
 - ❌ 表选中 a18、Frame 选中 a12 光晕分叉（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 

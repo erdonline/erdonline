@@ -10,16 +10,84 @@ import {
 } from './helpers';
 
 /**
- * 只读分享（ADR-0007 / W2 / W5）：创建→复制→匿名可读；吊销→失效 Result + demo CTA
+ * 只读分享（ADR-0007 / W2 / W5 / ADR-0016）：创建→复制→匿名可读；
+ * 吊销/无效 → AuthBrandShell 失效门；空模块 → ER 剪影空态
  */
 test.describe('只读分享', () => {
-  test('无效 token 见 403 Result 并可打开示例 demo', async ({ page }) => {
+  test('无效 token 见品牌壳失效态并可打开示例 demo', async ({ page }) => {
     await page.goto(`/s/not-a-real-share-token-${Date.now().toString(36)}`);
-    await expect(page.getByText('403', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('auth-brand-panel')).toBeVisible();
+    await expect(page.getByTestId('share-invalid-gate')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '分享不可用' })).toBeVisible();
     await expect(page.getByText(/分享不存在或已失效|分享已过期|分享链接无效|加载失败/)).toBeVisible();
     await expect(page.getByTestId('share-relation-canvas')).toHaveCount(0);
+    await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
+
+    const brandMetrics = await page.getByTestId('auth-brand-panel').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      return {
+        widthRatio: el.getBoundingClientRect().width / window.innerWidth,
+        ink900: root.getPropertyValue('--erd-ink-900').trim(),
+        bgImage: cs.backgroundImage,
+      };
+    });
+    expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
+    expect(brandMetrics.widthRatio).toBeLessThan(0.48);
+    expect(brandMetrics.ink900).toBe('#0b1c2c');
+    expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/share-invalid-brand-shell.png',
+      fullPage: false,
+    });
+
     await page.getByRole('button', { name: '打开示例 demo' }).click();
     await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
+  });
+
+  test('空模块分享见 ER 剪影空态', async ({ page, browser }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('shareempty');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'share', 'empty share e2e');
+      // 不建表：分享空模块
+
+      const createRespPromise = page.waitForResponse(
+        (r) => r.url().includes('/share/create') && r.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: '只读分享' }).click();
+      const createResp = await createRespPromise;
+      expect(createResp.ok()).toBeTruthy();
+      const created = await createResp.json();
+      expect(created.code).toBe(200);
+      const token = created.data?.token as string;
+      expect(token).toBeTruthy();
+
+      const anon = await browser.newContext();
+      const anonPage = await anon.newPage();
+      try {
+        await anonPage.goto(`/s/${token}`);
+        await expect(anonPage.getByText(projectName).first()).toBeVisible({ timeout: 15_000 });
+        await expect(anonPage.getByTestId('share-chrome-header')).toBeVisible();
+        await expect(anonPage.getByTestId('share-empty-module')).toBeVisible();
+        await expect(anonPage.getByTestId('erd-empty-diagram')).toBeVisible();
+        await expect(anonPage.getByText(/该分享暂无模型|该模块暂无表/)).toBeVisible();
+        await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
+        await expect(anonPage.getByRole('button', { name: '打开示例 demo' })).toBeVisible();
+        await anonPage.screenshot({
+          path: 'test-results/ux-walkthrough/share-empty-module.png',
+          fullPage: false,
+        });
+      } finally {
+        await anon.close();
+      }
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
   });
 
   test('设计器分享后匿名打开可见只读关系图', async ({ page, browser }) => {
@@ -162,7 +230,9 @@ test.describe('只读分享', () => {
       const anonPage = await anon.newPage();
       try {
         await anonPage.goto(`/s/${token}`);
-        await expect(anonPage.getByText('403', { exact: true })).toBeVisible({ timeout: 15_000 });
+        await expect(anonPage.getByTestId('auth-brand-shell')).toBeVisible({ timeout: 15_000 });
+        await expect(anonPage.getByTestId('share-invalid-gate')).toBeVisible();
+        await expect(anonPage.getByRole('heading', { name: '分享不可用' })).toBeVisible();
         await expect(anonPage.getByText(/分享不存在或已失效|分享已过期|分享链接无效/)).toBeVisible();
         await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
         await expect(anonPage.getByRole('button', { name: '打开示例 demo' })).toBeVisible();

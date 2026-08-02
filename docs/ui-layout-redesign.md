@@ -47,7 +47,7 @@
 | databaseConfig | 「还没有数据源」+ 「新建数据源」主按钮 |
 | 设计器画布 | ER 剪影插画 + 「新建第一张表」主按钮 + 「导入 DBML」次按钮 + 「从数据源逆向」文字链（空态隐藏 MiniMap）；导入后直开关系图并 fitView |
 | version 列表 | 「还没有版本」+ 「保存第一个版本」主按钮（与顶栏入口同一动作） |
-| share（链接失效） | `Result` 403/404 + 「打开示例 demo」次按钮 |
+| share（链接失效） | `AuthBrandShell` + 「打开示例 demo」主按钮 + 「返回首页」；空模块/无模型 → ER 剪影 + 同 CTA |
 | 404 | 见下「逐页」 |
 
 统一用 antd `Empty`/`Result`，插画沿用现有 svg 资产；空态 CTA 必须可达（`getByRole('button', { name })`）。
@@ -114,6 +114,7 @@
 - ✅ **W5 切片 2**（2026-08-02）：链接失效/无效 token → `Result` 403 +「返回首页」+「打开示例 demo」（与 404/403 同构）
 - ✅ **W5 切片 3**（2026-08-03）：成功态顶栏对齐设计器壳——`erd-chrome-header` 64px、logo→落地、项目名 +「只读」Tag、「复制到我的项目」主按钮、未登录「登录/注册」文字链（带 autofork redirect）；去 Card/`Alert` 厚壳，画布为门面主体
 - ✅ **W5 切片 4**（2026-08-03）：登录/注册品牌壳——左暗色面板 + 右 Form；见上节
+- ✅ **分享失效/空态品牌对齐**（2026-08-03）：失效门改 `AuthBrandShell`（去裸 403 Result）；无模型/无表 → `ShareEmptyState`（`ErdEmptyDiagram` + 主 CTA）；`--erd-*` 同语言
 - 分享页是给陌生人的产品门面，保持轻 chrome，不加工作台导航
 
 ### 404 / 403（品牌壳 · W5）

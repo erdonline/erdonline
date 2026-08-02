@@ -21,6 +21,7 @@ import {FIT_VIEW_SHAREABLE} from '@/utils/canvasFit';
 import ErdCrowFootMarkers from '../design/relation/ErdCrowFootMarkers';
 import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
+import ShareEmptyState from './ShareEmptyState';
 import '../design/relation/reactflow-relation.scss';
 
 type FieldData = {
@@ -183,11 +184,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
 
   const tableCount = nodes.filter((n) => n.type === 'table').length;
   if (!tableCount) {
-    return (
-      <div style={{padding: 24, color: 'var(--erd-ink-400)', fontFamily: 'var(--erd-font-ui)'}}>
-        该模块暂无表
-      </div>
-    );
+    return <ShareEmptyState message="该模块暂无表" />;
   }
 
   // key：切图时 remount → fitView 铺满；高度由 .share-page__stage flex 铺满视口（ADR-0016）
