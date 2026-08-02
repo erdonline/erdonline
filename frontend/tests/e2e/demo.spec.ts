@@ -66,6 +66,32 @@ test.describe('在线演示', () => {
       hubFans.some((n) => n !== 0),
       `分享页 hub 扇出应有非零 data-hub-fan（got ${JSON.stringify(hubFans)}）`,
     ).toBeTruthy();
+    // ADR-0016：边基数标签 chip 可读（白底 + ink600，禁整块半透明）
+    const labels = page
+      .getByTestId('share-relation-canvas')
+      .getByTestId('erd-edge-label');
+    const labelCount = await labels.count();
+    expect(labelCount, '分享画布应有边标签').toBeGreaterThan(0);
+    const labelLook = await labels.first().evaluate((el) => {
+      const s = getComputedStyle(el);
+      return {
+        color: s.color,
+        bg: s.backgroundColor,
+        opacity: s.opacity,
+        fontSize: parseFloat(s.fontSize),
+        border: s.borderTopWidth,
+        fontWeight: s.fontWeight,
+      };
+    });
+    expect(labelLook.opacity, '标签不得整块半透明').toBe('1');
+    expect(labelLook.color).toBe('rgb(68, 82, 95)'); // ink600
+    expect(labelLook.bg).toBe('rgb(255, 255, 255)'); // surface
+    expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
+    expect(parseInt(labelLook.fontWeight, 10)).toBeGreaterThanOrEqual(500);
+    expect(parseFloat(labelLook.border)).toBeGreaterThanOrEqual(1);
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',
+    });
     await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-layout-density.png',

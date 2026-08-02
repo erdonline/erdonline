@@ -8,6 +8,13 @@
 
 ### 2026-08-02
 
+#### 体验：边标签 chip 可读性（ADR-0016）
+
+- 基数标签：白底 `surface` + `line` 描边 + `ink600` 字 + 11px/500；禁与画布 `surfaceSunk` 同色、禁整块 `opacity` 冲淡文字
+- `EDGE_LABEL_*` 常量；设计器/分享共用 `.erd-edge-label`；截图 `demo-edge-label-chip.png` / `diagram-edge-label-chip.png`
+
+验证点：`cd frontend && npx tsx src/utils/relationEdges.test.ts`；`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK" --workers=1 --retries=0`
+
 #### 体验：Frame 主题色板 + 三壳清硬编码（ADR-0016）
 
 - `erdColors` 增 `frameFill` / `frameFillInk` / `frameFillWarning` / `frameFillBrand` + `FRAME_COLOR_PALETTE`；新建 Frame 按序轮换

@@ -29,20 +29,37 @@
     stroke-width: 2;
   }
 
+  // 基数标签 chip：白底 + 描边，浮在 sunk 画布上；禁整块半透明冲淡字
   .erd-edge-label {
-    z-index: 1;
+    position: absolute;
+    z-index: 10;
+    pointer-events: all;
+    font-family: var(--erd-font-mono);
+    font-weight: 500;
+    font-size: 11px;
+    line-height: 1.2;
+    letter-spacing: 0.02em;
+    color: var(--erd-ink-600);
+    background: var(--erd-surface);
+    border: 1px solid var(--erd-line);
+    box-shadow: 0 1px 2px var(--erd-ink-a06);
+    white-space: nowrap;
+    user-select: none;
   }
 
   .react-flow__edge-text {
-    fill: var(--erd-ink-400) !important;
-    font-size: 10px !important;
+    fill: var(--erd-ink-600) !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
     font-family: var(--erd-font-mono) !important;
     letter-spacing: 0.02em;
   }
 
   .react-flow__edge-textbg {
-    fill: var(--erd-surface-sunk) !important;
-    fill-opacity: 0.94 !important;
+    fill: var(--erd-surface) !important;
+    fill-opacity: 1 !important;
+    stroke: var(--erd-line);
+    stroke-width: 1;
   }
 
   .react-flow__handle {

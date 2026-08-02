@@ -59,6 +59,7 @@
 - ✅ 公开 demo / 示例主图手排收紧（列间距约 44px、Frame padding 32），截图不「空旷」
 - ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ 箭头边；设计器与分享只读同路由；行高紧凑可截图
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
+- ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink600`；禁与画布 sunk 同色、禁整块半透明冲淡字
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度；弹窗外置；禁「大图标+副标题」卡片项；子菜单不得串台（导出≠导入）
@@ -69,6 +70,7 @@
 - ❌ 表头散落 `#f3f5f7`、字段糊成一块无行界（历史问题）
 - ❌ 竖叠同列表仍固定右源左靶，边绕一大圈（circle-route，历史问题）
 - ❌ Frame / 命令面板散落 Ant 蓝浅底（`#f0f5ff` / `rgba(37,99,235)`，历史问题）
+- ❌ 边标签与画布同色 sunk + 整块 0.94 opacity + ink400，截图基数看不清（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 
 ---
