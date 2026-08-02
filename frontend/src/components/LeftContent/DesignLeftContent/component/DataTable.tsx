@@ -398,7 +398,16 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   );
 
   return (
-    <div style={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+    <div
+      className="design-left-data"
+      style={{
+        height: '100%',
+        flex: 1,
+        minHeight: 0,
+        display: 'flex',
+        flexDirection: 'column',
+      }}
+    >
       {modules && modules.length > 0 ? (
         <QueryTree
           treeData={projectDispatch.getModuleEntityTree(searchKey || '', true)}
@@ -411,7 +420,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           onAdd={handleAdd()}
         />
       ) : renderEmptyState()}
-      
+
       <EntityModal
         visible={modalVisible}
         title={`${currentNode && !currentNode.isNew ? '编辑' : '新增'}${modalType === 'module' ? '模型' : modalType === 'entity' ? '表' : '关系'}`}

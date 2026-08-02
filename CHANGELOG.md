@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 重构：W2 切片 4 — 设计器壳 calc(100vh) 清零（树 + 版本页 flex）
+
+**修复 / 重构**
+
+- `EmptyStateAnimation` 内容态补 `flex:1; height:100%`——此前打断高度链，画布靠 `calc(100vh)` 遮羞
+- `QueryTree` / `version-page` / ReactFlow：去掉 `calc(100vh-*)`，改 flex / `height:100%` 填满壳层
+- sider-inner：`overflow:hidden` + 左树子节点 flex，避免与壳层双滚动
+
+**测试 / 文档**
+
+- `layout-outlet`：新增「模型树与版本页 flex 填满」
+- `ui-layout-redesign` / `roadmap` / `product-capability-map` / `regression-checklist`：W2 切片 4 ✅
+  验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts -g "flex 填满" --project=chromium`；`rg 'calc\\(100vh' frontend/src/components/QueryTree frontend/src/pages/design` = 0
+
 #### 重构：W2 切片 3 — 设计器 chrome 左树去重 + sider 320 + flex
 
 **重构**

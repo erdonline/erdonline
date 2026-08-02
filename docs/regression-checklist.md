@@ -262,6 +262,11 @@
 - [x] [左树唯一] 空项目仅 1 份 `add-module-empty`；有模块后仅 1 份 `tree-open-relation` / `design-tree-add` / `role=tree`✅ `layout-outlet.spec.ts`
 - [x] [sider 320 + 无 footer] `.design-layout__sider` width 320px；无 `.design-layout__sider-footer`✅同上
 
+## W2 切片 4 — 设计器 calc(100vh) 清零（2026-08-02）
+
+- [x] [树填满 sider] 有模块后 `.tree-container` 底边距 sider-inner ≤24px；无 `calc(100vh)`✅ `layout-outlet.spec.ts`
+- [x] [版本页填满 content] `version-page` 高度与 `.design-layout__content` 差 <8px✅同上
+
 ## W6 权限组 / GroupLayout 导航 / 404（2026-08-02）
 
 - [x] [权限组成员可见] `/project/group/setting/permission` 见角色 tab +「用户组成员」「权限配置」；权限配置见「全选」「团队基础设置」✅ `group-layout-nav.spec.ts`

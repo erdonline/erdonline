@@ -3,6 +3,7 @@ import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
+  gotoVersionSub,
   login,
   openRelationFromEmpty,
   uniqueProjectName,
@@ -123,6 +124,57 @@ test.describe('布局壳子路由出口', () => {
       await expect(page.getByTestId('design-tree-add')).toHaveAttribute('aria-label', '新建');
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
       await expect(page.getByRole('tree')).toHaveCount(1);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('DesignLayout：模型树与版本页 flex 填满（无 calc(100vh)）', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('chrome-flex');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+      await openRelationFromEmpty(page, { name: 'FLEX', chnname: '弹性' });
+
+      await expect(page.getByTestId('query-tree')).toBeVisible({ timeout: 15_000 });
+      await expect(page.locator('.erd-reactflow-container')).toBeVisible({ timeout: 15_000 });
+      const fills = await page.evaluate(() => {
+        const tree = document.querySelector('.tree-container');
+        const sider = document.querySelector('.design-layout__sider-inner');
+        const canvas = document.querySelector('.erd-reactflow-container');
+        const content = document.querySelector('.design-layout__content');
+        if (!tree || !sider || !canvas || !content) {
+          return { treeGap: -1, canvasOk: false, canvasH: 0 };
+        }
+        const treeGap = sider.getBoundingClientRect().bottom - tree.getBoundingClientRect().bottom;
+        const canvasH = canvas.getBoundingClientRect().height;
+        const contentH = content.getBoundingClientRect().height;
+        // tabs 栏约 40px；画布应接近 content 高度（允许工具条/边距）
+        return {
+          treeGap,
+          canvasOk: canvasH > 200 && canvasH > contentH * 0.5,
+          canvasH,
+        };
+      });
+      expect(fills.treeGap >= 0 && fills.treeGap < 24, `tree fill gap=${fills.treeGap}`).toBe(true);
+      expect(fills.canvasOk, `canvas height=${fills.canvasH}`).toBe(true);
+
+      await gotoVersionSub(page, 'all');
+      await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+      const versionFill = await page.evaluate(() => {
+        const version = document.querySelector('[data-testid="version-page"]');
+        const content = document.querySelector('.design-layout__content');
+        if (!version || !content) return { ok: false, delta: -1 };
+        const delta = Math.abs(
+          version.getBoundingClientRect().height - content.getBoundingClientRect().height,
+        );
+        return { ok: delta < 8, delta };
+      });
+      expect(versionFill.ok, `version-page should fill content (delta=${versionFill.delta})`).toBe(
+        true,
+      );
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

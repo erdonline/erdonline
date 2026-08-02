@@ -86,8 +86,8 @@ const QueryTree: React.FC<QueryTreeProps> = ({
   };
 
   return (
-    <>
-      <div style={{ paddingBottom: '16px', paddingRight: '16px', display: 'flex' }}>
+    <div className="query-tree" data-testid="query-tree">
+      <div className="query-tree__toolbar">
         <Search
           placeholder="搜索"
           onSearch={onSearch}
@@ -107,7 +107,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
           blockNode
         />
       </div>
-    </>
+    </div>
   );
 };
 
