@@ -288,6 +288,14 @@
 - [x] [PdMan/ERD 导入非 ModalForm] 项目菜单导入子弹窗 + 上传 fixture 成功 toast；无 `@ant-design/pro-components` ✅ `import-pdman` / `import-erd` / `project-menu`
 - [ ] [添加成员非 ModalForm] 团队项目角色页「添加成员」→ antd dialog 可搜索用户（手工；需团队项目）
 
+## W4 切片 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd（2026-08-02）
+
+- [x] [基本设置非 ProForm] `/project/group/setting/basic` 保存成功/失败 toast ✅ `group-basic-setting.spec.ts`
+- [x] [用户组非 ProCard] `/project/group/setting/permission` 角色 tab + 用户组成员/权限配置可见 ✅ `group-layout-nav.spec.ts`
+- [x] [公告非 ProList] `/project/notice` 列表可见 + 加载失败 toast ✅ `project-notice.spec.ts`
+- [x] [SqlApproval/TableTab 无 Pro] `rg '@ant-design/pro-components' …SqlApproval TableTab` = 0 ✅
+- [ ] [SQL审批非 ModalForm] 版本比对弹层「SQL审批」→ antd dialog 见审批人/库/说明（手工；需有 SQL 变更）
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
