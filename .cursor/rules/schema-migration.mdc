@@ -1,38 +1,37 @@
 ---
-description: Schema 增量只写 Flyway；冻结 db/init 新编号补丁；martin/erd 双库注意
+description: Schema 增量只写 Flyway；db/init 仅 schema；单一业务库 erd
 alwaysApply: true
 ---
 
 # Schema 迁移（Flyway 单写）
 
-长期策略：**增量 schema 只写 Flyway**；`db/init` 不再扩编号补丁。
+长期策略：**增量 schema 与种子只写 Flyway**；`db/init` 仅空卷 CREATE DATABASE + CREATE TABLE（ADR-0020）。
 
 ## 真相源
 
 | 路径 | 职责 |
 |---|---|
-| `backend/src/main/resources/db/migration/erd/`（`V*__*.sql`） | **增量 schema 唯一真相源**；后端启动由 `ErdFlywayConfig` 打到 **erd** 库 |
-| `db/init/*.sql` | MySQL **空 data 卷**首启 bootstrap；已有库不自动重跑；**仅应急**手工 `mysql < …` |
+| `backend/src/main/resources/db/migration/erd/`（`V*__*.sql`） | **增量 schema + 种子**唯一真相源；`ErdFlywayConfig` → 单一业务库 |
+| `db/init/01_create_database.sql` + `02_tables.sql` | MySQL **空 data 卷**首启 bootstrap；已有库不自动重跑 |
 
 ## 强制纪律
 
-1. **新 schema → 只加 Flyway `V*__*.sql`**，不要新增 `db/init/07` / `08` / `09` 风格编号补丁
-2. **冻结 init 补丁**：常规功能禁止再往 `db/init/` 加新序号文件；种子类（如 `05_e2e_users.sql`）除外
-3. **应急逃生口**：若必须双写 `db/init`，脚本须与对应 `V*__*.sql` **字节级一致且幂等**（可重复执行）
-4. **验证**：改迁移后 `./backend/dev-ensure.sh --restart`；确认列/表已存在（如 `SHOW COLUMNS …`）
-5. **文档**：涉及部署/开发流程时同步 `docs/development.md` / `docs/deployment.md`
+1. **新 schema / 种子 → 只加 Flyway `V*__*.sql`**，不要往 `db/init/` 加编号补丁或 INSERT
+2. **`db/init` 冻结为 schema-only**：禁止再塞 privileges / demo / e2e SQL
+3. **验证**：改迁移后 `./backend/dev-ensure.sh --restart`；确认列/表已存在
+4. **文档**：涉及部署/开发流程时同步 `docs/development.md` / `docs/deployment.md`
 
-## martin vs erd
+## 单一业务库
 
-- Boot 默认 Flyway **关闭**（`spring.flyway.enabled=false`），避免误打到 **martin** 主库
-- 仅 `ErdFlywayConfig` 绑定 `erdDataSource`，迁移目录为 `classpath:db/migration/erd`
-- **禁止**给 martin 库加 Flyway，除非另开独立里程碑与 ADR
+- Boot 默认 Flyway **关闭**（`spring.flyway.enabled=false`）
+- 仅 `ErdFlywayConfig` 绑定 `erdDataSource`（与系统 DS 同 `DB_NAME`）
+- 过渡期仍保留两套 SqlSessionFactory（按 mapper 包），见 ADR-0020
 
 ## 正反例
 
 ```text
-✅  backend/.../db/migration/erd/V2__foo_add_bar.sql
-✅  空卷首启依赖既有 db/init/02_erd.sql（可把终态列写进基线表定义）
+✅  backend/.../db/migration/erd/V7__foo_add_bar.sql
+✅  空卷首启依赖 db/init/02_tables.sql（终态列写进基线表定义）
 ❌  常规功能再加 db/init/10_whatever.sql
 ❌  只改 db/init、不写 Flyway（已有部署永远升不上）
 ```

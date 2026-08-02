@@ -1,5 +1,4 @@
-USE erd;
-
+-- Formerly db/init/08_public_demo.sql
 -- 公开只读演示（P3a /demo → /s/public-demo）。creator=admin，便于维护者续签分享。
 -- 真相源：schema/examples/demo.projectjson.json（改完请跑 node scripts/sync-demo-projectjson.mjs）
 SET NAMES utf8mb4;

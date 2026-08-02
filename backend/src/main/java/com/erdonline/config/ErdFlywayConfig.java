@@ -9,8 +9,10 @@ import org.springframework.context.annotation.DependsOn;
 import javax.sql.DataSource;
 
 /**
- * 建模库（erd）Schema 迁移。双数据源下禁用 Boot 默认 Flyway（见 application.yml），
- * 仅对 {@code erdDataSource} 执行 {@code classpath:db/migration/erd}。
+ * 业务库 Schema / 种子迁移（单一数据库 {@code erd}，见 ADR-0020）。
+ *
+ * <p>禁用 Boot 默认 Flyway（{@code spring.flyway.enabled=false}），仅对本
+ * {@code erdDataSource} 执行 {@code classpath:db/migration/erd}。</p>
  */
 @Configuration
 public class ErdFlywayConfig {

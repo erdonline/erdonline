@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 架构：单一业务库 `erd`（取消 martin/erd 双库 · ADR-0020）
+
+- JDBC：`DB_NAME`（默认 `erd`）；两套 Hikari/SqlSessionFactory 过渡期同库；兼容旧 `DB_ERD`/`DB_MARTIN` 回退
+- `db/init`：仅 `01_create_database.sql` + `02_tables.sql`（schema-only）；丢弃 erd 侧未用 `sys_*` 桩表与 junk 表
+- 种子迁 Flyway：`V3` 系统基线、`V4` ERD_USER_NEW 权限、`V5` 公开 demo、`V6` E2E 账号
+- `railway-mysql-init.sh` / compose / `.env.example` / deployment·development·architecture 同步；无仓库硬编码生产密钥
+
+验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests compile`；`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run` 仅导入 `01`+`02`；`rg -n 'CREATE DATABASE.*martin|DB_MARTIN:martin' backend/src/main/resources/application.yml db/init` = 0
+
 #### 功能：竞品对照子页 `/compare`（获客诚实对照）
 
 - 公开路由 `/compare`：协作 / 版本 / 审批审计 / 只读分享 / 开源自部署 / DBML / Agent 事实源 vs dbdiagram / dbml

@@ -107,11 +107,8 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 
 - 并发隔离：本地上限 16 worker（默认 `ceil(CPU/2)`，满配 `PW_WORKERS=16`）；每 worker 登录 `e2e{n}`（`e2e0`..`e2e15`）；项目名 `e2e-w{n}-` 前缀
 - 空态/示例/导出失败用例在 `chromium-serial`（config 内 `workers: 1`，账号 `e2e-serial`）；**不要**给该 project 配 `dependencies: ['chromium']`（曾导致 `--project=chromium-serial` 先跑完整套 chromium）；CI 全量顺序见 `e2e-smoke.yml` 两步
-- 已有库补种子：`mysql -h127.0.0.1 -uroot -proot < db/init/05_e2e_users.sql`
-- 已有库补数据源表：`docker exec -i erd-mysql mysql -uroot -proot < db/init/07_data_sources.sql`
-- 已有库若 `data_sources.id` 仍为 `varchar(32)`（RFC UUID 写入 500）：`docker exec erd-mysql mysql -uerd -perd -e "ALTER TABLE erd.data_sources MODIFY COLUMN id varchar(64) NOT NULL;"`
-- 已有库补公开演示：`docker exec -i erd-mysql mysql -uroot -proot < db/init/08_public_demo.sql`（访问 `/demo`）
-- 改公开/登录示例模型：先改 `schema/examples/demo.projectjson.json`，再 `node scripts/sync-demo-projectjson.mjs`，最后重跑上条 SQL
+- E2E / 公开 demo 种子：空卷由后端 Flyway `V5`/`V6` 写入；已有库可 `./backend/dev-ensure.sh --restart` 或查 `flyway_schema_history`
+- 改公开/登录示例模型：先改 `schema/examples/demo.projectjson.json`，再 `node scripts/sync-demo-projectjson.mjs`，再确保 Flyway `V5` 已应用（或对新库重建卷）
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
@@ -119,15 +116,14 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 
 | 来源 | 路径 | 职责 |
 |---|---|---|
-| 空卷首启 / 应急补丁 | `db/init/*.sql` | MySQL 容器**空 data 卷**首次挂载时按文件名顺序执行；已有库**不**自动重跑。仅作紧急手工 `mysql < …` 逃生口 |
-| 增量 schema 真相源 | `backend/src/main/resources/db/migration/erd/`（`V*__*.sql`） | 后端启动时由 `ErdFlywayConfig` 打到 `erd` 库；**新 schema 变更优先只写这里** |
+| 空卷首启（schema-only） | `db/init/01_create_database.sql` + `02_tables.sql` | MySQL **空 data 卷**首次挂载执行；只建库 + CREATE TABLE（ADR-0020） |
+| 增量 schema **与种子** | `backend/src/main/resources/db/migration/erd/`（`V*__*.sql`） | `ErdFlywayConfig` 打到单一业务库；**新变更只写这里** |
 
 约定：
 
-- **优先 Flyway only**：日常增量不要再新增 `07` / `08` / `09` 风格的 `db/init` 补丁（种子数据如 `05_e2e_users.sql` 除外）
-- **双写逃生口（可选）**：若仍往 `db/init` 放同变更，脚本须与对应 `V*__*.sql` **内容一致且幂等**（可重复执行、不因已存在而失败）
-- **冻结建议**：停止为新功能追加 init 序号补丁；已有 `07`/`08` 保留给空卷首启与应急，不扩写职责
-- 配置：`spring.flyway.enabled=false`（避免默认打到 martin）；`ErdFlywayConfig` 只绑 `erdDataSource`
+- **`db/init` 禁止再加种子 / privileges**；日常增量只加 Flyway `V*__*.sql`
+- 配置：`spring.flyway.enabled=false`；`ErdFlywayConfig` 绑 `erdDataSource`（与系统 DS 同库）
+- 从旧双库升级：见 ADR-0020「后果」；本地最快路径 `docker compose down -v && docker compose up -d`
 - 改迁移后：`./backend/dev-ensure.sh --restart`（pom 变更先刷新 `target/cp.txt`）
 
 ## 文档站（Docusaurus）

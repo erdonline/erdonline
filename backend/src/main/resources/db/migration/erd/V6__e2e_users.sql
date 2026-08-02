@@ -1,10 +1,9 @@
+-- Formerly db/init/05_e2e_users.sql; prod rejects login via e2e-accounts-enabled=false
 -- E2E / 本地开发种子账号
 -- e2e0..e2e15 → Playwright worker parallelIndex 0..15（本地上限 16）
 -- e2e-serial → chromium-serial 空态用例（不与 worker 抢号）
 -- 密码与 admin 相同：123456（仅开发/CI；生产 erd.security.e2e-accounts-enabled=false 拒绝登录）
 -- 幂等：可对已有库重复执行
-USE martin;
-
 SET NAMES utf8mb4;
 
 SET @e2e_pwd := '{bcrypt}$2a$10$vAxxCnKsa0MLdCLoP9A2UOsBMdsVLOaodDIezhtyFhkLdLilo6Mce';

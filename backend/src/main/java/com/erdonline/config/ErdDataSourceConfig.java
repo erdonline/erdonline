@@ -14,11 +14,13 @@ import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
 import javax.sql.DataSource;
 
 /**
- * 建模库（erd）数据源配置。
+ * 建模表数据源配置（SqlSessionFactory 名 erd*）。
  *
- * <p>负责 {@code com.erdonline.erd.mapper}，对应 MySQL 的 {@code erd} 库（项目/表模型/版本等建模元数据）。</p>
+ * <p>ADR-0020：与系统表同属单一业务库 {@code erd}；本配置负责 {@code com.erdonline.erd.mapper}。
+ * Flyway（{@link ErdFlywayConfig}）绑本 DS，迁移含基线种子与增量 schema。</p>
  *
  * @see MartinDataSourceConfig
+ * @see docs/adr/0020-single-database.md
  */
 @Configuration
 @MapperScan(
