@@ -1,0 +1,3 @@
+# Cloudflare Pages: never cache runtime API injection
+/env-config.js
+  Cache-Control: no-store

@@ -26,6 +26,9 @@ ERD Online 采用**前后端分离**的单体架构：
 > 前端沿用原网关的路径前缀 `/auth`、`/syst`、`/ncnb`，由后端的 `GatewayPrefixStripFilter`
 > 在进程内剥离前缀（等价于原网关的 `StripPrefix=1`），无需独立网关。
 > 协作 Presence 走独立端口 `9092`（短票鉴权，见 ADR-0009），不经 HTTP 代理。
+>
+> **官方托管（无 VPS）**：文档 / 静态 demo → Cloudflare Pages（GH Pages 回退）；运行时镜像 → GHCR；
+> 数据面仅自托管。见 [ADR-0018](./adr/0018-hosting-topology-no-vps.md) 与 [deployment.md](./deployment.md)。
 
 ## 后端模块（单体内的业务分包）
 

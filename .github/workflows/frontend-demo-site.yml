@@ -1,0 +1,60 @@
+name: Frontend demo site
+
+# Static SPA → Cloudflare Pages (project: erdonline-demo).
+# Demo API backend is optional (Render / self-host later); empty API_URL still ships landing.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'frontend/**'
+      - '.github/workflows/frontend-demo-site.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  deployments: write
+
+concurrency:
+  group: frontend-demo-pages
+  cancel-in-progress: true
+
+jobs:
+  deploy-cloudflare:
+    # Gate: Variable CLOUDFLARE_PAGES_DEPLOY=true (+ CF secrets). See docs/deployment.md.
+    if: >
+      (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+      && github.ref == 'refs/heads/main'
+      && vars.CLOUDFLARE_PAGES_DEPLOY == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+          cache-dependency-path: frontend/yarn.lock
+
+      - name: Install dependencies
+        working-directory: frontend
+        run: yarn install --frozen-lockfile
+
+      # Runtime injection pattern: env.sh → public/env-config.js → bundled into dist/.
+      # Set repo Variable DEMO_API_URL when a public demo backend exists (step 4+).
+      # Until then leave unset: landing/docs links work; API calls have no backend.
+      - name: Build production static site
+        working-directory: frontend
+        env:
+          API_URL: ${{ vars.DEMO_API_URL }}
+          ERD_API_URL: ${{ vars.DEMO_API_URL }}
+        run: yarn build:prod
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy frontend/dist --project-name=erdonline-demo
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}

@@ -18,6 +18,7 @@ permissions:
   contents: read
   pages: write
   id-token: write
+  deployments: write
 
 concurrency:
   group: pages
@@ -36,8 +37,11 @@ jobs:
           cache: yarn
           cache-dependency-path: website/yarn.lock
 
-      - name: Install and build
+      - name: Install and build (GitHub Pages baseUrl)
         working-directory: website
+        env:
+          DOCUSAURUS_URL: https://erdonline.github.io
+          DOCUSAURUS_BASE_URL: /erdonline/
         run: |
           yarn install --frozen-lockfile
           yarn build
@@ -48,7 +52,7 @@ jobs:
         with:
           path: website/build
 
-  deploy:
+  deploy-github-pages:
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
@@ -59,3 +63,42 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  # Primary docs host (free tier). Gate: repo Variable CLOUDFLARE_PAGES_DEPLOY=true
+  # + secrets CLOUDFLARE_API_TOKEN / CLOUDFLARE_ACCOUNT_ID — see docs/deployment.md.
+  # Without the Variable, only GitHub Pages above runs.
+  deploy-cloudflare:
+    if: >
+      github.event_name == 'push' && github.ref == 'refs/heads/main'
+      && vars.CLOUDFLARE_PAGES_DEPLOY == 'true'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      deployments: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: yarn
+          cache-dependency-path: website/yarn.lock
+
+      - name: Install and build (Cloudflare Pages root baseUrl)
+        working-directory: website
+        env:
+          DOCUSAURUS_URL: https://erdonline-docs.pages.dev
+          DOCUSAURUS_BASE_URL: /
+        run: |
+          yarn install --frozen-lockfile
+          yarn build
+
+      - name: Deploy to Cloudflare Pages
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          command: pages deploy website/build --project-name=erdonline-docs
+          gitHubToken: ${{ secrets.GITHUB_TOKEN }}
