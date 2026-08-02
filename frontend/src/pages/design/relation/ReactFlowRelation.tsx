@@ -930,27 +930,50 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             ))}
           </div>
         )}
-        <button
-          type="button"
-          className="erd-open-index nodrag nopan"
-          data-testid="canvas-open-index"
-          aria-label="打开索引"
-          title="打开表设计 · 索引"
-          onClick={e => {
-            e.stopPropagation();
-            const projectDispatch = useProjectStore.getState().dispatch;
-            projectDispatch.setCurrentModule(moduleName);
-            projectDispatch.setCurrentEntity(moduleName, entity.title);
-            useTabStore.getState().dispatch.addTab({
-              group: TabGroup.MODEL,
-              module: moduleName,
-              entity: entity.title,
-              designPane: 'index',
-            });
-          }}
-        >
-          索引
-        </button>
+        <div className="erd-open-design nodrag nopan" role="group" aria-label="打开表设计">
+          <button
+            type="button"
+            className="erd-open-design__btn"
+            data-testid="canvas-open-field"
+            aria-label="打开字段"
+            title="打开表设计 · 字段"
+            onClick={e => {
+              e.stopPropagation();
+              const projectDispatch = useProjectStore.getState().dispatch;
+              projectDispatch.setCurrentModule(moduleName);
+              projectDispatch.setCurrentEntity(moduleName, entity.title);
+              useTabStore.getState().dispatch.addTab({
+                group: TabGroup.MODEL,
+                module: moduleName,
+                entity: entity.title,
+                designPane: 'field',
+              });
+            }}
+          >
+            字段
+          </button>
+          <button
+            type="button"
+            className="erd-open-design__btn"
+            data-testid="canvas-open-index"
+            aria-label="打开索引"
+            title="打开表设计 · 索引"
+            onClick={e => {
+              e.stopPropagation();
+              const projectDispatch = useProjectStore.getState().dispatch;
+              projectDispatch.setCurrentModule(moduleName);
+              projectDispatch.setCurrentEntity(moduleName, entity.title);
+              useTabStore.getState().dispatch.addTab({
+                group: TabGroup.MODEL,
+                module: moduleName,
+                entity: entity.title,
+                designPane: 'index',
+              });
+            }}
+          >
+            索引
+          </button>
+        </div>
       </div>
     </div>
   );

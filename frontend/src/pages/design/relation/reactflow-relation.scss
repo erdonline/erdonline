@@ -739,24 +739,32 @@
       }
     }
 
-    /* 画布 → 表设计「索引」签（建模回路；禁死 affordance） */
-    .erd-open-index {
-      display: block;
+    /* 画布 → 表设计「字段/索引」签（对称入口；并排不叠高） */
+    .erd-open-design {
+      display: flex;
       width: calc(100% - 16px);
       margin: 0 8px 6px;
-      padding: 2px 0;
-      border: 0;
       border-top: 1px solid var(--erd-line);
-      background: transparent;
-      color: var(--erd-ink-400);
-      font: inherit;
-      font-size: 11px;
-      text-align: center;
-      cursor: pointer;
-      transition: color 0.15s;
 
-      &:hover {
-        color: var(--erd-brand);
+      &__btn {
+        flex: 1;
+        padding: 2px 0;
+        border: 0;
+        background: transparent;
+        color: var(--erd-ink-400);
+        font: inherit;
+        font-size: 11px;
+        text-align: center;
+        cursor: pointer;
+        transition: color 0.15s;
+
+        &:hover {
+          color: var(--erd-brand);
+        }
+
+        & + & {
+          border-left: 1px solid var(--erd-line);
+        }
       }
     }
   }
