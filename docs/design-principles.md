@@ -60,6 +60,8 @@
 - ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ 箭头边；设计器与分享只读同路由；字段行 `min-height` 22 / `FIELD_ROW_H` 26（再压一档，截图更密）
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink600`；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字
+- ✅ Frame 标题栏 chrome：height 22 / label 11 / meta 10；轻表面条可读；禁占高顶栏挤成员
+- ✅ MiniMap：底色 `surfaceSunk` + `line` 描边；禁 RF 默认白底与 sunk 画布割裂
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 一句引导 + 主 CTA「新建第一张表」+ 次 CTA「导入 DBML」+「从数据源逆向」文字链；禁粉红卡通 / 空态 MiniMap clutter
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
@@ -75,6 +77,7 @@
 - ❌ 竖叠同列表仍固定右源左靶，边绕一大圈（circle-route，历史问题）
 - ❌ Frame / 命令面板散落 Ant 蓝浅底（`#f0f5ff` / `rgba(37,99,235)`，历史问题）
 - ❌ 边标签与画布同色 sunk + 整块 0.94 opacity + ink400，截图基数看不清（历史问题）
+- ❌ MiniMap 默认白底 `#fff` 贴在 sunk 画布上成白块（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 
 ---

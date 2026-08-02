@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：Frame 标题栏密度 + MiniMap sunk 对齐（ADR-0016）
+
+- Frame chrome：height 28→22、label 11 / meta 10、内边距收紧；少占成员上方空白
+- MiniMap：背景改 `surfaceSunk`（禁 RF 默认 `#fff` 白块）+ `line` 描边；设计器/分享同款
+
+验证点：`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`；`npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "MiniMap" --workers=1 --retries=0`；`npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "选中表→新建分组" --workers=1 --retries=0`
+
 #### 体验：边标签密度 + Frame 内边距微调（ADR-0016）
 
 - `EDGE_LABEL_BG_PADDING` `[6,3]`→`[4,2]`，`EDGE_LABEL_BG_RADIUS` 4→3；字号仍 ≥11（可读底线）

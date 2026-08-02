@@ -574,10 +574,22 @@ test.describe('关系图画布（ReactFlow）', () => {
       await createAndOpenPersonProject(page, projectName, 'mmap', 'rf minimap zh aria');
       await openRelationFromEmpty(page);
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
+      // 空态故意隐藏 MiniMap；先建表再验 aria + sunk 底色
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
       await expect(page.getByRole('img', { name: '画布缩略图' })).toBeVisible();
       await expect(page.getByLabel('React Flow mini map')).toHaveCount(0);
       await expect(page.getByText('React Flow mini map')).toHaveCount(0);
+      // ADR-0016：MiniMap 与 sunk 画布同底（背景在 panel）
+      const miniBg = await page
+        .locator('.react-flow__minimap')
+        .evaluate((el) => getComputedStyle(el).backgroundColor);
+      expect(miniBg).toBe('rgb(250, 251, 252)');
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-minimap-sunk.png',
+        fullPage: false,
+      });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

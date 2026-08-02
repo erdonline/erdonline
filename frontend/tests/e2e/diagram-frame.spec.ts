@@ -80,6 +80,11 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await expect(frame).toBeVisible({ timeout: 10_000 });
       await expect(frame).toContainText('分组');
       await expect(frame).toContainText('2 张表');
+      // ADR-0016：Frame 标题栏密度（≤22px）
+      const chromeH = await frame.locator('.erd-frame-chrome').evaluate((el) =>
+        parseFloat(getComputedStyle(el).height),
+      );
+      expect(chromeH).toBeLessThanOrEqual(22);
 
       const groups = await getDiagramGroups(page);
       expect(groups.length).toBeGreaterThanOrEqual(1);
