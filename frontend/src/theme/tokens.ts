@@ -10,6 +10,8 @@ export const erdColors = {
   line: '#E4E7ED',
   surface: '#FFFFFF',
   surfaceSunk: '#FAFBFC',
+  /** 表头 / 次级面板（略深于 sunk，截图层次更清晰） */
+  surfaceMuted: '#F3F5F7',
   success: '#2F8F7B',
   warning: '#D48806',
   /** PK 徽章底 / 描边（与 warning 成对） */

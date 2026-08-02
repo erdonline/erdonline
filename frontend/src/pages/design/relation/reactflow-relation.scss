@@ -93,7 +93,8 @@
     align-items: baseline;
     gap: 8px;
     padding: 8px 12px 8px 14px;
-    background: linear-gradient(180deg, #f3f5f7 0%, var(--erd-surface-sunk) 100%);
+    // muted 实底：比 sunk 多一档层次，禁散落 #f3f5f7
+    background: var(--erd-surface-muted);
     border-bottom: 1px solid var(--erd-line);
     border-radius: var(--erd-radius) var(--erd-radius) 0 0;
 
@@ -171,6 +172,12 @@
       padding: 3px 28px 3px 12px;
       line-height: 18px;
       min-height: 24px;
+      // 行间发丝线：schema 清单可读，分享截图不糊成一块
+      box-shadow: inset 0 -1px 0 var(--erd-line);
+
+      &:last-child {
+        box-shadow: none;
+      }
 
       &:hover {
         background: rgba(11, 28, 44, 0.03);
@@ -178,6 +185,18 @@
 
       &.erd-field-pk {
         background: rgba(212, 136, 6, 0.04);
+
+        // PK 琥珀左边条（与表头 brand 条同构）
+        &::before {
+          content: '';
+          position: absolute;
+          left: 0;
+          top: 2px;
+          bottom: 2px;
+          width: 2px;
+          background: var(--erd-warning);
+          border-radius: 1px;
+        }
       }
 
       &.erd-field-fk {
@@ -190,6 +209,14 @@
           rgba(212, 136, 6, 0.05) 0%,
           rgba(47, 143, 123, 0.05) 100%
         );
+
+        &::before {
+          background: linear-gradient(
+            180deg,
+            var(--erd-warning) 0%,
+            var(--erd-success) 100%
+          );
+        }
       }
 
       .erd-field-name {
