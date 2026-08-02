@@ -8,16 +8,33 @@
 
 ### 2026-08-02
 
-#### 决策：ADR-0014 @ant-design/pro-components Strangler 摘除（文档）
+#### 决策：ADR-0014 已接受 · B + S0 umi/antd 升级 + Pro Strangler 切片 1
+
+**决策 / 文档**
+
+- `docs/adr/0014-drop-or-strangle-ant-pro.md`：**✅ 已接受 · 选项 B**；Pro 钉死 `2.8.10`；ADR README / roadmap P5 UI 水位登记
+- 版本单源：`frontend/src/constants/appVersion.ts` 读 `package.json` → `APP_VERSION_LABEL`（layouts / landing / settings）
+
+**依赖（S0）**
+
+- `@umijs/max` `^4.0.65` → `4.6.84`；`antd` `^5.21.0` → `5.29.3`；`umi-presets-pro` → `2.0.3`
+- `@ant-design/pro-components` **钉死 `2.8.10`**（不随 umi/antd 升级；WIP 误升 2.7.19 已纠正）
+- `rc-util` `^5.24.4`（锁到 5.30）→ `5.44.4` + `resolutions`（修 antd 5.29 `set.merge is not a function`）
+
+**重构（Strangler 切片 1）**
+
+- `HomeLayout` / `GroupLayout`：去掉 `ProLayout` / `PageContainer` / `ProCard` / Pro `WaterMark` → antd `Layout` + `Menu` + `Watermark`
+- `DesignLayout` / `account/settings` / 表单域仍用 Pro（后置切片）
+  验证点：`yarn build`；`node -e` 断言 installed `pro===2.8.10`、`antd===5.29.3`、`max===4.6.84`；`npx playwright test tests/e2e/layout-outlet.spec.ts tests/e2e/project-surface.spec.ts --grep "HomeLayout|GroupLayout|主导航" --project=chromium --workers=1`
+
+#### 决策：ADR-0014 @ant-design/pro-components Strangler 摘除（文档草案）
 
 **文档**
 
-- 新增 `docs/adr/0014-drop-or-strangle-ant-pro.md`（⏳ 待确认，建议选项 B）：grep 基线 ~70 文件直接 import Pro——`ModalForm/ProForm*` 弹窗表单 ~32（`components/dialog/**`）、`ProCard` ~12、`ProTable` ~10、`ProLayout/PageContainer` ~6（三个 Layout + home/settings）、其余（ProList/StepsForm/LoginForm/FooterToolbar/WaterMark）~18
-- 结论：A（全量移除）爆破面过大拒绝；C（保留）与 ADR-0005 重叠且是 antd 升级耦合点拒绝；B Strangler——冻结新增、`package.json` 版本冻结 2.8.10 不随 umi/antd 升级、chrome → 表单 → 表格 → 登录注册 分域摘除、附 Pro→antd 迁移映射表（`WaterMark` antd 5 原生可直接换）
-- 澄清：`@umijs/max` 不内置 Pro，它是独立直接依赖，移除不影响 umi/antd 升级路径
-- `docs/ui-home-model-redesign.md` 增 S0 前置片（只升 umi+antd、冻结 Pro 用量）+ 依赖序 S0→S1；ADR README 索引登记
-- 中断指令：umi+antd+pro 升级中的执行停止升 Pro，仅升 umi+antd
-  验证点：纯文档切片，无代码改动；grep 基线 `rg -c "@ant-design/pro-" frontend/src` ≈ 70 文件，供后续摘除对照
+- 新增 `docs/adr/0014-drop-or-strangle-ant-pro.md`（草案建议 B）：grep 基线 ~70 文件直接 import Pro——`ModalForm/ProForm*` ~32、`ProCard` ~12、`ProTable` ~10、`ProLayout/PageContainer` ~6、其余 ~18
+- 结论：A 拒绝 / C 拒绝 / B Strangler——冻结新增、钉死 2.8.10、chrome → 表单 → 表格 → 登录注册
+- `docs/ui-home-model-redesign.md` 增 S0 前置片；ADR README 索引登记
+  验证点：纯文档切片（已被上方「已接受」条目覆盖）
 
 #### 文档：Home/模型页 UI 重设计简报
 
