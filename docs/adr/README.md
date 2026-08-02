@@ -23,3 +23,4 @@
 | [0016](./0016-experience-first-shareable-diagram.md) | 体验优先：「敢分享的美图」主线（ICP 混合） | 已接受 |
 | [0017](./0017-multi-diagram-and-entity-editor.md) | 多关系图 + 实体编辑器（含图内分组 Frame） | 已接受 · 分阶段 |
 | [0018](./0018-hosting-topology-no-vps.md) | 托管拓扑：GitHub + Cloudflare 免费档，不买生产 VPS | 已接受 |
+| [0019](./0019-demo-runtime-railway.md) | 官方 Demo 运行时：Railway-only（真 MySQL 8）；拒三厂商；Zeabur 为 CN 备选 | 已接受 |

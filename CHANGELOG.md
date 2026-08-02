@@ -8,6 +8,16 @@
 
 ### 2026-08-02
 
+#### 基础设施：官方 Demo 运行时 Railway-only（ADR-0019）
+
+**决策 / 文档**
+
+- ADR-0019：官方试用后端默认 **Railway**（App + MySQL 8 插件 + Redis）；拒绝 TiDB+Upstash 三厂商；Zeabur 仅作中国区备选；用户生产仍走 docker compose（ADR-0018）
+- `deployment.md`：中文「Railway 部署官方 demo」五步 + Spring 环境变量对照（`DB_*`/`REDIS_*`/`JWT_*`/`CORS_ALLOWED_ORIGINS` 等）+ 接 CF Pages `DEMO_API_URL`；短述 Zeabur
+- MDX：`regression-checklist.md` 裸 `<…` 改为行内代码，避免 Docusaurus 解析失败
+
+验证点：目视 ADR-0019 / `deployment.md#railway-demo`；`cd website && yarn build`（若本机有 website deps）无 MDX 报错
+
 #### 体验：Frame 可缩放 / 拖框带表 / 适应成员 / 拖入拖出（ADR-0017）
 
 **问题**
