@@ -23,7 +23,7 @@
 ## 视觉约束
 
 - 全幅产品截图 + 左侧可读 scrim；禁止 inset/卡片式 hero、紫色渐变 AI slop
-- 色板：墨蓝底 + 橙强调（非紫 / 非 cream-serif）
+- 色板同源 `theme/css-vars.less`：底 `--erd-ink-900`、主 CTA `--erd-brand`、点缀 success/warning；字族 `--erd-font-ui` / `--erd-font-display`；禁止落地页自造第二套色
 
 ## 不做
 

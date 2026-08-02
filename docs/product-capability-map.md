@@ -27,6 +27,7 @@
 | 分享成功态顶栏 | 只读 `/s/:token` | 64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链 ✅（W5 切片 3） | ✅ |
 | 404 / 403 页 | 路由 `/*` / `403.tsx` | 标准 Result +「返回首页」+「打开示例 demo」✅（W5 切片 1）；无 `reset.css` | ✅ |
 | 登录/注册品牌壳 | `/login` `/register` | 左 40% 暗色品牌面板 + 右 Form；`--erd-*`；无 `bg2`/`#1677FF` ✅（W5 切片 4） | ✅ |
+| 落地页色板 | `/` | 深色门面构图不变；less 只读 `--erd-*`（ink/brand/success/warning + font）✅（2026-08-03） | ✅ |
 
 ## 协作
 

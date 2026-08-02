@@ -337,6 +337,11 @@
 - [x] [登录壳] `/login` 见 `auth-brand-shell`；左面板 ~40%；无 `bg2.png`/`#1677FF`；「打开演示」为 link✅ `smoke.spec.ts`
 - [x] [注册同构] 登录「去注册」→ `/register` 同壳 +「打开演示」✅ `session.spec.ts`
 
+## 落地页 token 同源（2026-08-03）
+
+- [x] [色板] `/` 底色 = `--erd-ink-900`；主 CTA = `--erd-brand`；第三柱 mark = `--erd-warning`；字族含 IBM Plex Sans✅ `landing.spec.ts`
+- [x] [源码] `pages/landing/index.less` 无 `@ink`/`@accent`/`#e85d04`/`#4aa3c8`✅ `rg`
+
 ## W2 切片 3 — 设计器 chrome（2026-08-02）
 
 - [x] [左树唯一] 空项目仅 1 份 `add-module-empty`；有模块后仅 1 份 `tree-open-relation` / `design-tree-add` / `role=tree`✅ `layout-outlet.spec.ts`

@@ -15,6 +15,29 @@ test.describe('落地页', () => {
       page.getByRole('img', { name: 'ERD Online 设计器关系图画布' }),
     ).toBeVisible();
 
+    // 落地页色板同源 --erd-*；主 CTA = brand（非橙魔法色）
+    const tokenMetrics = await page.getByTestId('landing-page').evaluate((el) => {
+      const root = getComputedStyle(document.documentElement);
+      const pageCs = getComputedStyle(el);
+      const primary = el.querySelector('.landingBtnPrimary');
+      const mark3 = el.querySelector('.landingPillar:nth-child(3) .landingPillarMark');
+      return {
+        ink900: root.getPropertyValue('--erd-ink-900').trim(),
+        brand: root.getPropertyValue('--erd-brand').trim(),
+        warning: root.getPropertyValue('--erd-warning').trim(),
+        pageBg: pageCs.backgroundColor,
+        primaryBg: primary ? getComputedStyle(primary).backgroundColor : '',
+        fontUi: pageCs.fontFamily,
+        mark3Bg: mark3 ? getComputedStyle(mark3).backgroundColor : '',
+      };
+    });
+    expect(tokenMetrics.ink900).toBe('#0b1c2c');
+    expect(tokenMetrics.brand.toLowerCase()).toBe('#de2910');
+    expect(tokenMetrics.pageBg).toMatch(/rgb\(\s*11,\s*28,\s*44\s*\)/);
+    expect(tokenMetrics.primaryBg).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+    expect(tokenMetrics.fontUi.toLowerCase()).toMatch(/ibm plex sans/);
+    expect(tokenMetrics.mark3Bg).toMatch(/rgb\(\s*212,\s*136,\s*6\s*\)/); // --erd-warning
+
     await page.getByRole('link', { name: '在线试用 demo' }).click();
     await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
 

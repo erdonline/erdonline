@@ -56,7 +56,8 @@
 
 ### 落地页 `/`（品牌壳 · 不动构图）
 
-- 保持深色全幅品牌构图与 `landing-hero.jpg`（roadmap P5 已定）；本轮**只做 token 对齐**：字族/点缀色与 tokens 同源，禁新增紫色渐变/AI slop
+- 保持深色全幅品牌构图与 `landing-hero.jpg`（roadmap P5 已定）
+- ✅ **落地页 token 同源**（2026-08-03）：`pages/landing/index.less` 清 `@ink`/`@accent`/`#4aa3c8` 等魔法色 → `--erd-*` + `color-mix`；主 CTA 改 brand 红；三柱点缀 success/brand/warning；字族走 `--erd-font-*`
 - 页脚一行版权，链接收进「资源」列
 
 ### 登录 / 注册（品牌壳 · W5）
@@ -192,6 +193,6 @@
 
 - **首要**：能力暴露缺口数（product-capability-map 中 missing/thin 项）逐波下降；空壳页面/死码文件数 → 0
 - Pro import 文件数：基线 65（S0 冻结）→ 随 W2–W5 自然下降 → W5 末 0（**副产品指标，不为它排波次**）
-- 内联 hex 直写：`grep -rn '#[0-9a-fA-F]\{6\}' frontend/src/pages | wc -l` 逐波下降；W5 后仅落地页 less 保留品牌色
+- 内联 hex 直写：`grep -rn '#[0-9a-fA-F]\{6\}' frontend/src/pages | wc -l` 逐波下降；落地页 less 已改读 `--erd-*`（hex 仅留在 `theme/tokens.ts` / `css-vars.less`）
 - 高度/对齐魔法数（`calc(100vh -`、负 margin）：W1 后设计器 0；W5 后全站 0
 - 不新增 `any`；不新增 UI 依赖；`yarn build` 体积不增

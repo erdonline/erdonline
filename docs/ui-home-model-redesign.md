@@ -40,7 +40,7 @@
 |---|---|---|
 | 1 | antd 5 `ConfigProvider` `theme={{ token, components }}`（`theme/tokens.ts`） | 色、圆角、字号、组件级 token |
 | 2 | `:root` CSS 变量（`theme/css-vars.less`，与 tokens 同值） | 布局 BEM less、设计域 scss 需读同一色板时 |
-| 例外 | 保留 scoped less | **落地页** `pages/landing/index.less`（深色品牌门面）；复杂表格/编辑器（JExcel、QueryTree、version ProList 深 hack 待摘）；业务局部动画 |
+| 例外 | 保留 scoped less | **落地页** `pages/landing/index.less`（深色门面构图；色/字已读 `--erd-*`）；复杂表格/编辑器（JExcel、QueryTree）；业务局部动画 |
 
 禁止：为已摘除的 Pro chrome 新增 `.ant-pro-*` / `.ant-*` 深层覆盖；新颜色勿直写 hex（先加 token）。
 
