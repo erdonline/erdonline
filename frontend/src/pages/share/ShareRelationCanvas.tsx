@@ -220,6 +220,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
           ariaLabel="画布缩略图"
           nodeColor={erdColors.surface}
           nodeStrokeColor={erdColors.line}
+          nodeStrokeWidth={1.5}
           maskColor={erdColors.inkA06}
           style={{ backgroundColor: erdColors.surfaceSunk }}
         />

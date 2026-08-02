@@ -66,9 +66,9 @@
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink900` 字 / 12px / 600；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字；**可点选改基数**（设计器）；**干道 bundle 拉伸 + AABB 迭代避让**（`resolveEdgeLabelOffsets`），密图 chip 不叠字
 - ✅ Frame 标题栏 chrome：height 22 / label 11 / meta 10；轻表面条可读；禁占高顶栏挤成员；**双击标题重命名**
 - ✅ 边路由：同侧短 U 外肘避障（`sameSide`）；bypass 叠表缝显式 mid-corridor；绕行倍率 1.85 竞短
-- ✅ MiniMap：底色 `surfaceSunk` + `line` 描边；禁 RF 默认白底与 sunk 画布割裂
-- ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；禁 RF `#fefefe` 松柱与画布割裂
-- ✅ 画布工具栏：按钮 height 22 / font 11 / padding 0 8；禁 5×12 松按钮盖截图
+- ✅ MiniMap：底色 `surfaceSunk` + `line` 描边 + 128×96 紧凑；禁 RF 默认白底与 sunk 画布割裂
+- ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；图标 12px；**适应画布** muted 底 + ink900 主操作，缩放/锁次要 ink600；禁 RF `#fefefe` 松柱与画布割裂
+- ✅ 画布工具栏：单块 surface chrome（与 Controls 同语言）；按钮 height 22 / font 11；次要 ink600，**自动布局** 600/ink900；禁散粒描边钮 + 5×12 松按钮盖截图
 - ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
@@ -105,8 +105,8 @@
 - ❌ 边标签与画布同色 sunk + 整块 0.94 opacity + ink400，截图基数看不清（历史问题）
 - ❌ 密图干道 bundling 后基数 chip 仍叠在最长段中点（历史问题）
 - ❌ MiniMap 默认白底 `#fff` 贴在 sunk 画布上成白块（历史问题）
-- ❌ Controls 默认 `#fefefe` 松柱（content-box 26px）与 sunk 画布割裂（历史问题）
-- ❌ 画布工具栏 `padding: 5px 12px` 松按钮与 22 chrome 不同阶（历史问题）
+- ❌ Controls 默认 `#fefefe` 松柱（content-box 26px）与 sunk 画布割裂；四钮等权无主操作（历史问题）
+- ❌ 画布工具栏散粒描边钮 + `padding: 5px 12px` 松按钮，截图主操作扫不过（历史问题）
 - ❌ 空态面板 `padding: 28px 32px` 松卡片盖首屏（历史问题）
 - ❌ 命令面板输入 height 48 / 行 pad 10×12 松卡片，与 22 chrome 不同阶（历史问题）
 - ❌ 实体新建弹层默认 520 宽 + Form 24 间距松卡片，与 22 chrome 不同阶（历史问题）

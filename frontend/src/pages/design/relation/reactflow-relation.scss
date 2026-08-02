@@ -118,13 +118,15 @@
     background: var(--erd-brand);
   }
 
-  // MiniMap 与 sunk 画布同底，禁 RF 默认 #fff 白块
+  // MiniMap：sunk 底 + 紧凑尺寸，禁 RF 默认 #fff 白块盖截图
   .react-flow__minimap {
     background-color: var(--erd-surface-sunk) !important;
     border: 1px solid var(--erd-line);
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 1px 2px var(--erd-ink-a06);
+    width: 128px !important;
+    height: 96px !important;
   }
 
   // Controls：与 MiniMap 同角 chrome；禁 RF #fefefe 白柱 + 松 padding
@@ -144,6 +146,7 @@
     width: 22px;
     height: 22px;
     padding: 0;
+    // 缩放/锁：次要；适应画布见 --primary
     color: var(--erd-ink-600);
 
     &:last-child {
@@ -157,8 +160,14 @@
 
     svg {
       fill: currentColor;
-      max-width: 10px;
-      max-height: 10px;
+      max-width: 12px;
+      max-height: 12px;
+    }
+
+    // 主操作：适应画布 — muted 底 + ink900，截图一眼扫到
+    &.erd-controls-primary {
+      color: var(--erd-ink-900);
+      background: var(--erd-surface-muted);
     }
 
     &:disabled svg {
@@ -661,23 +670,28 @@
   }
 }
 
-// 画布顶栏工具：与 Controls/Frame chrome 同 22 密度；禁 5×12 松按钮占截图
+// 画布顶栏：单块 chrome（与 Controls 同语言）；禁散粒描边钮抢截图扫读
 .erd-canvas-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
-  gap: 4px;
+  gap: 1px;
   max-width: 780px;
+  padding: 2px;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: 6px;
+  box-shadow: 0 1px 2px var(--erd-ink-a06);
 }
 
 .erd-diagram-switcher {
   display: inline-flex;
   align-items: center;
-  gap: 3px;
-  padding-right: 4px;
+  gap: 1px;
+  padding-right: 3px;
+  margin-right: 1px;
   border-right: 1px solid var(--erd-line);
-  margin-right: 0;
 
   .ant-select-selector {
     font-family: var(--erd-font-ui) !important;
@@ -699,8 +713,9 @@
 
 .erd-align-group {
   display: inline-flex;
-  gap: 3px;
-  padding-left: 4px;
+  gap: 1px;
+  padding-left: 3px;
+  margin-left: 1px;
   border-left: 1px solid var(--erd-line);
 }
 
@@ -708,21 +723,28 @@
   box-sizing: border-box;
   min-height: 22px;
   height: 22px;
-  padding: 0 8px;
-  background: var(--erd-surface);
-  border: 1px solid var(--erd-line);
-  border-radius: 6px;
+  padding: 0 7px;
+  background: transparent;
+  border: none;
+  border-radius: 4px;
   font-size: 11px;
+  font-weight: 400;
   line-height: 20px;
   font-family: var(--erd-font-ui);
-  color: var(--erd-ink-900);
+  // 次要默认真 ink600；主操作见 --primary
+  color: var(--erd-ink-600);
   cursor: pointer;
-  box-shadow: 0 1px 2px var(--erd-ink-a06);
+  box-shadow: none;
 
   &:hover {
     color: var(--erd-brand);
-    border-color: var(--erd-brand);
     background: var(--erd-surface-muted);
+  }
+
+  // 主操作：自动布局 — 600 + ink900，截图先扫到排布 CTA
+  &--primary {
+    color: var(--erd-ink-900);
+    font-weight: 600;
   }
 }
 
