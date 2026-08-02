@@ -856,11 +856,7 @@ const useVersionStore = create<VersionState>(
           return false;
         }
 
-        const tag = (tempValue.tag || '').trim();
-        if (tag && get().versions.some((v: any) => (v.tag || '').trim() === tag)) {
-          message.error('该版本标签已经存在了');
-          return false;
-        }
+        const tag = (tempValue.tag || '').trim() || undefined;
 
         if (get().versions[0] && compareStringVersion(tempValue.version, get().versions[0].version) <= 0) {
           message.error('新版本不能小于或等于已经存在的版本');

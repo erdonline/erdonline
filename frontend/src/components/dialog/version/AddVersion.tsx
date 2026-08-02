@@ -1,10 +1,11 @@
 import React, {useMemo} from 'react';
-import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import useVersionStore from "@/store/version/useVersionStore";
 import shallow from "zustand/shallow";
 import {PlusOutlined} from '@ant-design/icons';
-import {Button, message} from "antd";
+import {Button} from "antd";
 import {suggestNextVersion} from "@/utils/versionConstants";
+import {joinVersionTags} from "@/utils/versionTags";
 
 export type AddVersionProps = {
   trigger: string;
@@ -24,19 +25,18 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
       initialValues={{
         version: initialVersion,
         versionDesc: '模型快照',
-        tag: '',
+        tags: [],
       }}
       modalProps={{ destroyOnClose: true }}
-      onFinish={async (values: { version?: string; versionDesc?: string; tag?: string }) => {
-        const tag = (values.tag || '').trim();
-        if (tag && versions.some((v: { tag?: string }) => (v.tag || '').trim() === tag)) {
-          message.error('该版本标签已经存在了');
+      onFinish={async (values: { version?: string; versionDesc?: string; tags?: string[] }) => {
+        const tag = joinVersionTags(values.tags);
+        if (tag && tag.length > 255) {
           return false;
         }
         const ok = await versionDispatch.saveNewVersion({
           version: values.version,
           versionDesc: values.versionDesc,
-          tag: tag || undefined,
+          tag,
         });
         return ok !== false;
       }}
@@ -78,19 +78,28 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
           ],
         }}
       />
-      <ProFormText
+      <ProFormSelect
         width="md"
-        name="tag"
+        name="tags"
         label="版本标签"
-        placeholder="可选，如 v1.0 / 里程碑"
-        fieldProps={{
-          'data-testid': 'version-tag-input',
-          maxLength: 64,
-        }}
+        placeholder="可选，回车添加多个标签"
         formItemProps={{
           rules: [
-            { max: 64, message: '不能大于 64 个字符' },
+            {
+              validator: async (_: unknown, value: string[] | undefined) => {
+                const joined = joinVersionTags(value);
+                if (joined && joined.length > 255) {
+                  throw new Error('标签总长度不能大于 255 个字符');
+                }
+              },
+            },
           ],
+        }}
+        fieldProps={{
+          mode: 'tags',
+          tokenSeparators: [','],
+          'data-testid': 'version-tag-input',
+          'aria-label': '版本标签',
         }}
       />
     </ModalForm>

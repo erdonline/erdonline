@@ -1,6 +1,5 @@
 package com.erdonline.erd.service.impl;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.mapper.DbChangeMapper;
@@ -15,11 +14,9 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -41,22 +38,22 @@ class DbChangeServiceImplTagTest {
     }
 
     @Test
-    void saveVersion_rejectsDuplicateTagInSameProject() {
-        when(dbChangeMapper.selectCount(any())).thenReturn(1L);
+    void saveVersion_normalizesMultiTagsAndAllowsReuse() {
+        when(dbChangeMapper.insert(any(DbChange.class))).thenReturn(1);
 
         DbChange incoming = new DbChange();
         incoming.setProjectId("p1");
         incoming.setDbKey("SNAPSHOT");
-        incoming.setVersion("1.0.1");
+        incoming.setVersion("1.0.0");
         incoming.setVersionDesc("desc");
-        incoming.setTag("里程碑");
+        incoming.setTag(" 里程碑 , release ; 里程碑 ");
 
         R<?> result = dbChangeService.saveVersion(incoming);
 
-        assertTrue(result.getCode() != 200);
-        assertTrue(result.getMsg().contains("标签"));
-        verify(dbChangeMapper, never()).insert(any(DbChange.class));
-        verify(dbChangeMapper, never()).updateById(any(DbChange.class));
+        assertEquals(200, result.getCode());
+        ArgumentCaptor<DbChange> captor = ArgumentCaptor.forClass(DbChange.class);
+        verify(dbChangeMapper).insert(captor.capture());
+        assertEquals("里程碑,release", captor.getValue().getTag());
     }
 
     @Test
@@ -79,15 +76,25 @@ class DbChangeServiceImplTagTest {
     }
 
     @Test
-    void isTagTaken_falseWhenBlank() {
-        assertFalse(dbChangeService.isTagTaken("p1", "  ", null));
-        assertFalse(dbChangeService.isTagTaken(null, "t", null));
+    void saveVersion_rejectsTagLongerThan255() {
+        DbChange incoming = new DbChange();
+        incoming.setProjectId("p1");
+        incoming.setDbKey("SNAPSHOT");
+        incoming.setVersion("1.0.0");
+        incoming.setVersionDesc("desc");
+        incoming.setTag("a".repeat(256));
+
+        R<?> result = dbChangeService.saveVersion(incoming);
+
+        assertTrue(result.getCode() != 200);
+        assertTrue(result.getMsg().contains("255"));
     }
 
     @Test
-    @SuppressWarnings("unchecked")
-    void isTagTaken_trueWhenCountPositive() {
-        when(dbChangeMapper.selectCount(any(LambdaQueryWrapper.class))).thenReturn(1L);
-        assertTrue(dbChangeService.isTagTaken("p1", "v1.0", "other-id"));
+    void normalizeTag_splitsAndDedupesCaseInsensitive() {
+        DbChange change = new DbChange();
+        change.setTag("A,a;B");
+        DbChangeServiceImpl.normalizeTag(change);
+        assertEquals("A,B", change.getTag());
     }
 }

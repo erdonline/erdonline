@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：版本多标签（逗号分隔，复用）
+
+**功能**
+
+- `db_change.tag` 仍为单列 varchar，语义改为逗号分隔多标签；Flyway `V2__db_change_tag_multi_relax.sql` 去掉 `uk_db_change_project_tag` 并加宽至 255（允许多标签跨版本复用，不再做同项目唯一）
+- 保存/编辑用 antd Select `mode="tags"`；列表拆成 Tag chips（`data-testid=version-tags` +「标签」前缀）；变更摘要改为散文计数（`version-change-summary` +「变更」前缀），与标签 chips 视觉/语义分离
+- 筛选按任一 token 子串匹配（客户端 split）；后端 `normalizeTag`：trim / 去空 / 忽略大小写去重后 `join(',')`
+  验证点：`mvn -Dtest=DbChangeServiceImplTagTest -Djacoco.skip=true test` → 4 passed；`./backend/dev-ensure.sh --restart` → health UP + Flyway v2 + 无 `uk_db_change_project_tag`；`npx tsx src/utils/versionTags.test.ts`；`npx playwright test tests/e2e/version.spec.ts --grep "多标签" --project=chromium --workers=1` → 1 passed（断言 `version-tags` 与 `version-change-summary` 并存且可区分）
+
+**文档**
+
+- `docs/roadmap.md` P5 版本标签说明改为逗号分隔多标签
+
 #### 构建：Maven 默认走阿里云（绕过 JD Artifactory）
 
 **构建**
