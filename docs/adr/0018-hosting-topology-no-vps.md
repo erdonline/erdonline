@@ -30,3 +30,4 @@
 - 代价：完整在线试用依赖后续 demo API；CF / GH 免费额度与域名需维护 secrets。
 - 风险：空 `DEMO_API_URL` 时静态站仅展示落地/引导，API 旅程不可用——须在文档写清，避免「坏掉的 demo」预期。
 - 与既有 ADR：不推翻 ADR-0003（Docusaurus）；宿主从「仅 GH Pages」扩展为「CF 主 + GH 回退」。
+- 操作清单（Token / Pages 项目 / GitHub Secrets / 验收 URL）：见 [deployment.md — GitHub Actions × Cloudflare Pages 配置](../deployment.md#cf-pages-setup)。

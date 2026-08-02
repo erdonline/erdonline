@@ -15,5 +15,5 @@ yarn build && yarn serve   # 验证本地搜索（构建后才有完整索引）
 DOCUSAURUS_URL=https://erdonline-docs.pages.dev DOCUSAURUS_BASE_URL=/ yarn build
 ```
 
-部署：合并到 `main` 后由 `docs-site.yml` 推送 **GitHub Pages**（回退）与 **Cloudflare Pages**（项目 `erdonline-docs`，需 `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`）。  
-首次 GH Pages：仓库 Settings → Pages → Source 选 **GitHub Actions**。详见 `docs/deployment.md`。
+部署：合并到 `main` 后由 `docs-site.yml` 推送 **GitHub Pages**（回退）与 **Cloudflare Pages**（项目 `erdonline-docs`）。  
+首次配置（Token / Variable `CLOUDFLARE_PAGES_DEPLOY` / Pages Direct Upload）：见 [docs/deployment.md#cf-pages-setup](../docs/deployment.md#cf-pages-setup)。

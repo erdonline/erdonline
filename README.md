@@ -101,7 +101,7 @@ cd frontend && yarn && yarn start
 
 - [愿景与路线图](docs/vision.md) · [roadmap](docs/roadmap.md)
 - [架构说明](docs/architecture.md)（若有）
-- [部署指南](docs/deployment.md) · [开发指南](docs/development.md)
+- [部署指南](docs/deployment.md)（含 [CF Pages / GitHub Secrets 清单](docs/deployment.md#cf-pages-setup)）· [开发指南](docs/development.md)
 
 ## 🤝 贡献
 
