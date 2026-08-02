@@ -161,9 +161,10 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
     const associations = module.associations || [];
     const layout = getActiveDiagramLayoutNodes(module);
     const frames = getActiveDiagramFrames(module);
+    const {positions} = resolveEntityPositions(entities, associations, layout);
     return {
       nodes: layoutNodes(entities, associations, layout, frames),
-      edges: associationsToEdges(associations),
+      edges: associationsToEdges(associations, {positions}),
     };
   }, [module]);
 

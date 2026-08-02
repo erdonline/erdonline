@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：分享只读同路由 + 密 hub 扇出（ADR-0016）
+
+- 确认设计器 / 分享共用 `ErdRelationEdge` + `associationsToEdges`；两侧传入 layout `positions` 作 hub 扇出提示
+- `hubFanOffsetsForAssociations`：度数 ≥ `EDGE_HUB_FAN_MIN`(3) 的端点按对端 Y 居中扇出（`EDGE_HUB_FAN_STEP` 10px），并入 `laneOffset`；`data-hub-fan` 供 E2E
+- `/demo` 断言分享画布 `erd-edge-route-mode` 接线 + 非零 hub 扇出；截图 `demo-share-edge-routing.png`
+
+验证点：`cd frontend && npx tsx src/utils/relationEdges.test.ts`；`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：密 FK 导入走查 + 绕行竞短（ADR-0016）
 
 - fixture `dense-fk.dbml`（12 表 / 20 FK）+ E2E `dense-fk-import.spec.ts`；截图 `diagram-dense-fk-canvas.png`

@@ -32,10 +32,33 @@ test.describe('在线演示', () => {
     });
     expect(spanX, `主图节点 x 跨度应更密，得 ${spanX}`).toBeLessThan(1200);
     expect(spanX).toBeGreaterThan(900);
+    // ADR-0016：分享只读与设计器同用 ErdRelationEdge / relationEdgeRoute
+    const modes = page
+      .getByTestId('share-relation-canvas')
+      .getByTestId('erd-edge-route-mode');
+    const modeCount = await modes.count();
+    expect(modeCount, '分享画布应暴露 erdSmooth route-mode').toBeGreaterThan(0);
+    const modeList = await modes.evaluateAll((els) =>
+      els.map((el) => el.getAttribute('data-mode') || ''),
+    );
+    for (const m of modeList) {
+      expect(m).toMatch(/^(default|centerX|bypass|twoBend|astar)$/);
+    }
+    // 演示图含 hub（用户/角色等）：至少一条 hub 扇出非 0
+    const hubFans = await modes.evaluateAll((els) =>
+      els.map((el) => Number(el.getAttribute('data-hub-fan') || '0')),
+    );
+    expect(
+      hubFans.some((n) => n !== 0),
+      `分享页 hub 扇出应有非零 data-hub-fan（got ${JSON.stringify(hubFans)}）`,
+    ).toBeTruthy();
     await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-layout-density.png',
       fullPage: false,
+    });
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-share-edge-routing.png',
     });
   });
 });

@@ -57,6 +57,7 @@ function ErdRelationEdge({
 }: EdgeProps<ErdEdgeData>) {
   const lane = data?.laneOffset ?? 0;
   const stepOffset = data?.stepOffset ?? EDGE_STEP_OFFSET;
+  const hubFan = data?.hubFanOffset ?? 0;
   // 轻微 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
 
@@ -141,6 +142,7 @@ function ErdRelationEdge({
         data-testid="erd-edge-route-mode"
         data-mode={mode}
         data-bundle={String(trunkBundleOffset)}
+        data-hub-fan={String(hubFan)}
         data-edge-id={id}
         hidden
       />
