@@ -15,6 +15,7 @@ import {
 import { markDefaultDataSource } from '@/utils/projectDataSource';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
+import { resolveEntityPositions } from '@/utils/graphLayout';
 
 export type IProfileSlice = {
   currentDbKey?: string;
@@ -418,6 +419,33 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return {
         ...m,
         associations: mergeAssociations(m.associations || [], forModule),
+      };
+    });
+    // ADR-0016：逆向导入后缺坐标的表用 dagre 按 FK 分层（保留用户已拖坐标）
+    modules = modules.map((m: any) => {
+      const ents = m.entities || [];
+      if (ents.length === 0) {
+        return m;
+      }
+      const { positions, didAutoLayout } = resolveEntityPositions(
+        ents,
+        m.associations || [],
+        m.graphCanvas?.nodes || [],
+      );
+      if (!didAutoLayout) {
+        return m;
+      }
+      return {
+        ...m,
+        graphCanvas: {
+          nodes: ents.map((e: any) => ({
+            id: e.title,
+            title: e.title,
+            x: positions[e.title].x,
+            y: positions[e.title].y,
+          })),
+          edges: m.graphCanvas?.edges || [],
+        },
       };
     });
     tempData = {

@@ -1,7 +1,10 @@
 /**
  * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs / default→defaultValue）。
  * @dbml/core 经 dynamic import 懒加载，避免设计器首屏打包体积膨胀。
+ * graphCanvas 坐标走共享 dagre（ADR-0016），按 FK 分层而非网格散点。
  */
+
+import { graphCanvasNodesFromDagre } from '../graphLayout';
 
 export type ProjectJsonField = {
   name: string;
@@ -280,17 +283,6 @@ function mapAssociation(ref: DbmlRef): ProjectJsonAssociation | null {
   };
 }
 
-function layoutNodes(entities: ProjectJsonEntity[]) {
-  const COLS = 3;
-  const DX = 280;
-  const DY = 220;
-  return entities.map((e, i) => ({
-    id: e.title,
-    x: 80 + (i % COLS) * DX,
-    y: 80 + Math.floor(i / COLS) * DY,
-  }));
-}
-
 /** 将已解析的 Database 对象映射为 projectJSON（供单测注入假对象） */
 export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
   const schemas = database.schemas || [];
@@ -315,7 +307,7 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
     entities,
     associations,
     graphCanvas: {
-      nodes: layoutNodes(entities),
+      nodes: graphCanvasNodesFromDagre(entities, associations),
       edges: [],
     },
   };

@@ -383,6 +383,7 @@
 - [x] [projectJSON→DBML] 逻辑类型反查 + Ref + indexs + default；round-trip 实体/字段/FK/indexs/default 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
 - [x] [DBML default 双向] string/number/expression → defaultValue；导出还原；fixture `guest` round-trip ✅ `yarn test:unit:dbml`
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
+- [x] [导入自动布局] DBML 导入后 `posts.x < users.x`（dagre LR，非网格散点）+ 截图 ✅ `dbml-import.spec.ts` / `yarn test:unit:dbml`
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`

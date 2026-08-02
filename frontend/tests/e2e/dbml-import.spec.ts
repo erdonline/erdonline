@@ -71,6 +71,23 @@ test.describe('DBML 导入', () => {
       );
       expect(total).toBeGreaterThanOrEqual(2);
 
+      // ADR-0016：导入后按 FK dagre LR（posts→users ⇒ posts.x < users.x）；旧 3 列网格 posts@360 > users@80
+      const parseTx = (t: string) => {
+        const m = t.match(/translate\(([-\d.]+)px,\s*([-\d.]+)px/);
+        return m ? { x: Number(m[1]), y: Number(m[2]) } : { x: NaN, y: NaN };
+      };
+      const postsTx = parseTx(
+        await rfNode(page, 'posts').evaluate((el) => (el as HTMLElement).style.transform),
+      );
+      const usersTx = parseTx(
+        await rfNode(page, 'users').evaluate((el) => (el as HTMLElement).style.transform),
+      );
+      expect(postsTx.x, '外键侧 posts 应在主键侧 users 左侧（dagre LR）').toBeLessThan(usersTx.x);
+
+      await page
+        .getByTestId('reactflow-canvas')
+        .screenshot({ path: 'test-results/ux-walkthrough/diagram-autolayout-import.png' });
+
       await expandByTitle(page, '表');
       await expect(tree.getByText('users', { exact: true })).toBeVisible({
         timeout: 10_000,

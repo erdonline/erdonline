@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 功能：导入/逆向 dagre 自动布局（ADR-0016）
+
+**功能**
+
+- 共享 `utils/graphLayout`：按 FK 做 dagre LR 分层；DBML 导入、数据库逆向、设计器/分享画布无坐标兜底共用
+- 替换 DBML 旧 3 列网格与画布 `gridPosition` 散点；保留用户已拖坐标，只补缺表
+- 分享只读画布 dagre 补上 association 边（此前只排节点、无视关系）
+
+**测试 / 文档**
+
+- 单测：`graphLayout.test` + `toProjectJSON` 断言 `posts.x < users.x`
+- E2E：`dbml-import` 画布 transform 分层断言 + 截图 `ux-walkthrough/diagram-autolayout-import.png`
+- `design-principles` 原则 7、ADR-0016 后果段对齐
+
+验证点：`yarn test:unit:dbml` → 绿；`npx playwright test --grep "上传 minimal.dbml" --project=chromium --workers=1` → 绿
+
 #### 战略 + 功能：ADR-0016「敢分享的美图」+ 关系图表节点品牌视觉
 
 **决策 / 文档**

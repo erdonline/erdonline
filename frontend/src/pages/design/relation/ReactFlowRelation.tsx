@@ -17,11 +17,11 @@ import ReactFlow, {
   EdgeChange,
   ReactFlowInstance,
 } from 'reactflow';
-import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
 import { erdColors } from '@/theme/tokens';
+import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
 import { message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
@@ -33,7 +33,7 @@ import './reactflow-relation.scss';
  *
  * 核心设计决策（区别于旧 g6 的致命缺陷）：
  * **实体即节点**——module.entities 全集即画布节点，创建即上图；
- * graphCanvas 只存布局（坐标），无坐标节点自动网格布局。
+ * graphCanvas 只存布局（坐标）；无坐标时 dagre 按关联分层（ADR-0016），不再网格散点。
  * R2：节点即编辑器——字段的增/改/删全部在节点上内联完成，
  * 不再跳转「双击开标签页 + handsontable」的 4 步长链路。
  */
@@ -373,35 +373,6 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
 const nodeTypes = { table: TableNode };
 
-/** 无坐标节点自动网格布局（兜底；dagre 布局为主） */
-function gridPosition(index: number) {
-  const col = index % 4;
-  const row = Math.floor(index / 4);
-  return { x: 60 + col * 300, y: 60 + row * 260 };
-}
-
-const NODE_WIDTH = 240;
-const nodeHeight = (entity?: EntityData) => 52 + Math.max((entity?.fields || []).filter(f => !f.relationNoShow).length, 1) * 28 + 36;
-
-/** dagre 分层布局（LR），返回 {id: {x, y}}（左上角坐标） */
-function dagreLayout(nodes: Node[], edges: Edge[]) {
-  const g = new dagre.graphlib.Graph();
-  g.setGraph({ rankdir: 'LR', nodesep: 60, ranksep: 140, marginx: 40, marginy: 40 });
-  g.setDefaultEdgeLabel(() => ({}));
-  nodes.forEach(n => {
-    const h = nodeHeight(n.data?.entity);
-    g.setNode(n.id, { width: NODE_WIDTH, height: h });
-  });
-  edges.forEach(e => g.setEdge(e.source, e.target));
-  dagre.layout(g);
-  const positions: Record<string, { x: number; y: number }> = {};
-  nodes.forEach(n => {
-    const d = g.node(n.id);
-    positions[n.id] = { x: d.x - NODE_WIDTH / 2, y: d.y - nodeHeight(n.data?.entity) / 2 };
-  });
-  return positions;
-}
-
 export type ReactFlowRelationProps = {
   moduleEntity: ModuleEntity;
 };
@@ -425,26 +396,36 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   }, [projectJSON, moduleEntity.module, edgeSelected]);
 
   // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
-  // graphCanvas 坐标 > 现有画布位置 > 网格自动布局（拖动持久化后 saved==local，无跳变）
+  // graphCanvas 坐标 > 现有画布位置 > dagre 补缺（导入/逆向无坐标时分层；并持久化）
   useEffect(() => {
     const module = (projectJSON?.modules || []).find((m: any) => m.name === moduleEntity.module);
     const entities: EntityData[] = module?.entities || [];
+    const associations: Association[] = module?.associations || [];
     const savedNodes: any[] = module?.graphCanvas?.nodes || [];
     setIsEmpty(entities.length === 0);
 
-    // 旧 g6 坐标复用：node.title 形如 "ENTITY:..."，按首段匹配实体
-    const posOf = (title: string) => {
-      const saved = savedNodes.filter(n => (n.title || '').split(':')[0] === title)[0];
-      return saved && typeof saved.x === 'number' ? { x: saved.x, y: saved.y } : null;
-    };
+    const { positions, didAutoLayout } = resolveEntityPositions(
+      entities,
+      associations,
+      savedNodes,
+    );
 
     setNodes(prev =>
-      entities.map((entity, i) => {
+      entities.map((entity) => {
         const live = prev.find(n => n.id === entity.title);
+        const saved = positions[entity.title];
+        // 已有持久坐标时以 saved 为准；仅缺坐标且 live 已有拖动中位置时保留 live
+        const hasSaved =
+          savedNodes.some(
+            (n: any) =>
+              ((n.title || '').split(':')[0] === entity.title || n.id === entity.title) &&
+              typeof n.x === 'number' &&
+              typeof n.y === 'number',
+          );
         return {
           id: entity.title,
           type: 'table',
-          position: posOf(entity.title) || live?.position || gridPosition(i),
+          position: hasSaved ? saved : (live?.position || saved),
           // 仅放 entity + moduleName：回调走 getState，便于 TableNode memo
           data: {
             entity,
@@ -455,7 +436,17 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         } as Node;
       })
     );
-  }, [projectJSON, moduleEntity.module, setNodes]);
+
+    if (didAutoLayout && entities.length > 0) {
+      projectDispatch.updateGraphCanvasLayout(
+        moduleEntity.module,
+        entities.map((e) => ({
+          id: e.title,
+          position: positions[e.title],
+        })),
+      );
+    }
+  }, [projectJSON, moduleEntity.module, setNodes, projectDispatch]);
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -598,7 +589,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   // 一键 dagre 自动布局（布局即持久化）
   const autoLayout = useCallback(() => {
     setNodes(prev => {
-      const positions = dagreLayout(prev, edges);
+      const entities = prev.map(n => n.data?.entity || { title: n.id });
+      const associations = edges.map(e => ({
+        from: { entity: e.source },
+        to: { entity: e.target },
+      }));
+      const positions = dagrePositions(entities, associations);
       const next = prev.map(n => ({ ...n, position: positions[n.id] || n.position }));
       projectDispatch.updateGraphCanvasLayout(
         moduleEntity.module,

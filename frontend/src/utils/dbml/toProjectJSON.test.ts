@@ -166,6 +166,14 @@ async function main() {
       to: { entity: 'users', field: 'id' },
     });
     assert.equal(mod.graphCanvas.nodes.length, 2);
+    // ADR-0016：dagre LR，外键侧 posts.x < 主键侧 users.x（旧网格 posts 在右列更大 x）
+    const postsNode = mod.graphCanvas.nodes.find((n) => n.id === 'posts');
+    const usersNode = mod.graphCanvas.nodes.find((n) => n.id === 'users');
+    assert.ok(postsNode && usersNode);
+    assert.ok(
+      postsNode!.x < usersNode!.x,
+      `期望 posts.x < users.x，得 ${postsNode!.x} / ${usersNode!.x}`,
+    );
     tryValidateSchema(json);
   });
 
