@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：索引签空态 CTA（建模回路）
+
+- 选题：`indexs: []` 时 JExcel 吃空数组 → 白屏/死 affordance；无「加第一条」引导
+- 空态：`还没有索引` + 主 CTA「添加第一个索引」（`index-empty-add` / `aria-label`）
+- CTA：用首字段种子 `{name: <表>_IDX1, fields: [首字段]}` 写回；无字段则仅展开空表
+- E2E：`relation`「索引签空态 CTA：画布→索引→添加第一个索引」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "索引签空态 CTA" --workers=1 --retries=0`
+
 #### 体验：画布打开表设计「字段」签（对称入口）
 
 - 选题：索引签已有画布入口；全量表格编辑 / 从索引切回字段仍需绕左树或粘滞内签
