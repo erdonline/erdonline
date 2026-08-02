@@ -63,6 +63,7 @@
 - ✅ Frame 标题栏 chrome：height 22 / label 11 / meta 10；轻表面条可读；禁占高顶栏挤成员
 - ✅ MiniMap：底色 `surfaceSunk` + `line` 描边；禁 RF 默认白底与 sunk 画布割裂
 - ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；禁 RF `#fefefe` 松柱与画布割裂
+- ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 一句引导 + 主 CTA「新建第一张表」+ 次 CTA「导入 DBML」+「从数据源逆向」文字链；禁粉红卡通 / 空态 MiniMap clutter
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
@@ -80,6 +81,7 @@
 - ❌ 边标签与画布同色 sunk + 整块 0.94 opacity + ink400，截图基数看不清（历史问题）
 - ❌ MiniMap 默认白底 `#fff` 贴在 sunk 画布上成白块（历史问题）
 - ❌ Controls 默认 `#fefefe` 松柱（content-box 26px）与 sunk 画布割裂（历史问题）
+- ❌ 表选中 a18、Frame 选中 a12 光晕分叉（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 
 ---

@@ -149,7 +149,8 @@
 
   &.selected {
     border-color: var(--erd-brand);
-    box-shadow: 0 0 0 2px var(--erd-brand-a18), 0 4px 14px var(--erd-ink-a06);
+    // 选中环与 Frame 共用 --erd-selection-ring（a18）；表另加抬升阴影
+    box-shadow: var(--erd-selection-ring), 0 4px 14px var(--erd-ink-a06);
   }
 
   .erd-table-header {
@@ -485,7 +486,8 @@
   &.selected {
     border-color: var(--erd-brand);
     border-style: solid;
-    box-shadow: 0 0 0 2px var(--erd-brand-a12);
+    // 与表节点同环强度（a18）；禁 a12 弱光晕分叉
+    box-shadow: var(--erd-selection-ring);
   }
 
   .erd-frame-chrome {

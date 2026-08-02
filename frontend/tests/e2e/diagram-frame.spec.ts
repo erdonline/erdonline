@@ -86,6 +86,18 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       );
       expect(chromeH).toBeLessThanOrEqual(22);
 
+      // ADR-0016：Frame 选中光晕与表同环（--erd-selection-ring = brand a18）
+      // 仅采 Frame（testid 即 .erd-frame-node）；表环由 relation.spec「品牌 token」覆盖
+      await selectFrame(page);
+      const frameRing = await frame.evaluate((el) => {
+        const shadow = getComputedStyle(el).boxShadow;
+        const m = shadow.match(/rgba?\([^)]+\)\s+0px\s+0px\s+0px\s+2px/);
+        return m?.[0] ?? shadow;
+      });
+      expect(frameRing, `Frame 选中环应为 brand a18：${frameRing}`).toMatch(
+        /rgba\(222,\s*41,\s*16,\s*0\.18\)/,
+      );
+
       const groups = await getDiagramGroups(page);
       expect(groups.length).toBeGreaterThanOrEqual(1);
       expect(groups[0].memberEntityIds.sort()).toEqual(['T_TABLE_1', 'T_TABLE_2']);

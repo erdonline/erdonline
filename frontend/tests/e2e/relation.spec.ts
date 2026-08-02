@@ -262,6 +262,13 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       // brand #DE2910
       expect(border).toContain('rgb(222, 41, 16)');
+      // ADR-0016：选中环 brand a18（与 Frame 共用 --erd-selection-ring）
+      const tableRing = await node.locator('.erd-table-node').evaluate((el) => {
+        const shadow = getComputedStyle(el).boxShadow;
+        const m = shadow.match(/rgba?\([^)]+\)\s+0px\s+0px\s+0px\s+2px/);
+        return m?.[0] ?? shadow;
+      });
+      expect(tableRing).toMatch(/rgba\(222,\s*41,\s*16,\s*0\.18\)/);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-shareable-tokens.png',
