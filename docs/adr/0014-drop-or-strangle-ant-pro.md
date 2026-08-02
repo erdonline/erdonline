@@ -17,7 +17,7 @@
 | 组件 | 文件数 | 主要位置 |
 |---|---|---|
 | `ModalForm` / `ProForm*`（弹窗表单家族） | ~32 | `components/dialog/**`（项目/模块/实体/版本/数据库等全部对话框） |
-| `ProCard` | ~12 | `layouts/*`、`pages/design/query`、`dataQuery`、`account/settings` 等 |
+| `ProCard` | ~12 | `layouts/*`、`account/settings` 等（`design/query`/`dataQuery` 已于 W2 删除） |
 | `ProTable` | ~10 | `databaseConfig`、版本 order/approval、查询历史/结果、`TableTransfer` |
 | `ProLayout` / `PageContainer` | ~6 | `HomeLayout` / `DesignLayout` / `GroupLayout` / `home` / `account/settings` |
 | `ProList` / `StepsForm` / `LoginForm(Page)` / `FooterToolbar` / `WaterMark` | ~18 | 登录/注册、逆向导入向导、导出 DDL、项目组页等 |

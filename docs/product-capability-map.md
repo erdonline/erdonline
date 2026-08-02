@@ -46,23 +46,23 @@
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
 | 工单提交/审批 | ApprovalController CRUD；通过必须先 SQL 成功再落库/sync（✅ 已修） | 设计器 version/order/approval tab | thin：入口深埋，W3 平移 + 理顺 |
-| 在线 SQL（只读白名单） | `POST /connector/sqlexec`（jsqlparser，仅 SELECT/EXPLAIN/SHOW/DESC） | `design/query` + `dataQuery` 两实验页 | **overbuilt 候选**：control-matrix 📋 延期 → W2 隐藏/删除，不抛光 |
+| 在线 SQL（只读白名单） | `POST /connector/sqlexec`（jsqlparser，仅 SELECT/EXPLAIN/SHOW/DESC） | UI 实验页已删（W2）；后端接口保留供版本审批 SQL | **overbuilt 已裁**：control-matrix 📋 延期，本阶段不恢复查询台 |
 
 ## 数据字典 / 治理
 
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
-| 数据字典 CRUD | DataDictController 全量 CRUD + tree | 仅 `design/dataDomain` 实验页（📋 延期） | thin：本阶段不扩，也不许抛光；P5 产品深度再重估 |
+| 数据字典 CRUD | DataDictController 全量 CRUD + tree | 实验页 `dataDomain` 已删（W2）；后端 CRUD 保留 | thin：本阶段不扩 UI；P5 产品深度再重估 |
 
 ## 死壳与过度建设（只删不增）
 
 | 对象 | 现状 | 处置 |
 |---|---|---|
-| `pages/design/query`、`pages/dataQuery` | 实验页延期 | W2 切片 1：路由已下线（404）；页面文件待清死代码切片删 |
-| `pages/design/chatsql` | ADR-0012 明说不做营销包装 | W2 切片 1：路由已下线（404） |
-| `pages/design/dataDomain` | 实验页延期 | W2 切片 1：路由已下线（404） |
+| `pages/design/query`、`pages/dataQuery` | 实验页延期 | W2 切片 2：源文件 + QueryLeftContent/dialog/query/useQueryStore 已删；路由 404 |
+| `pages/design/chatsql` | ADR-0012 明说不做营销包装 | W2 切片 2：源文件已删；依赖 `@chatui/core` 移除 |
+| `pages/design/dataDomain` | 实验页延期 | W2 切片 2：源文件已删；路由 404 |
 | `pages/design/test`、`pages/test` | 演示/测试残留 | W2 切片 1：已删（`pages/JExcel` 为表编辑组件，保留） |
-| Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie` config | 死代码；统计区两处重复（hero + 项目概览卡） | W2 后续切片删除，**不做密度重设计** |
+| Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie`、重复「项目概览」、slogan 轮转 | 死代码 | W2 切片 2：已删；`@ant-design/charts` 移除 |
 | `account/settings/geographic`（province/city json） | 无后端字段 | W2 切片 1：已删 |
 | `plaza/Material*` 后端控制器 | 前端零引用 | 记入死代码候选，独立切片评估（不动表） |
 

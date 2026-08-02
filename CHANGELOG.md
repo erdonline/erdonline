@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 清理：W2 切片 2 — Home 死码 + 实验页源文件物理删除
+
+**清理**
+
+- Home：删 `components/Radar/`、`_mock.ts`、`service.ts`（fakeChartData）、未渲染 Pie config、重复「项目概览」卡；摘 `@ant-design/charts`
+- HomeLayout：删 slogan 轮转与 `businessSlogans.json`（页脚仅版权）
+- 实验页源文件删除：`pages/design/query`、`chatsql`、`dataDomain`、`pages/dataQuery`，连带 `QueryLeftContent`、`dialog/query`、`store/query`、`TabGroup.QUERY`
+- 依赖移除：`@ant-design/charts`、`@chatui/core`（ChatSQL 唯一消费者）
+
+**文档**
+
+- `ui-layout-redesign.md` W2 切片 2 ✅；`product-capability-map.md` / `roadmap.md` / ADR-0014 同步
+  验证点：`cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --workers=1` → **3 passed**；`rg '@ant-design/charts|@chatui/core|useQueryStore|pages/design/query' src package.json` = 0（activation 属 chromium-serial，本切片未阻塞提交）
+
 #### 功能：W2 切片 1 — 分享吊销接线 + 实验空壳下线路由
 
 **功能**

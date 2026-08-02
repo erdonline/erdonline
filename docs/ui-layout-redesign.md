@@ -130,18 +130,18 @@
 |---|---|---|---|
 | 只读分享**吊销/管理** | `POST /share/revoke`（ProjectShareController）；security-model 明文「创建/吊销需登录且为项目创建人」 | `ShareProjectButton` 只有创建+复制；无吊销、无已有链接查看 | **missing** — 安全模型承诺的一半不可达 |
 | 跨版本 diff **导出** | 版本 diff 可视化 ✅（CompareVersion）；db_change.tag 多标签 ✅（Flyway V1/V2） | diff 只能屏上看，无导出 | **missing** — roadmap 📋 项，版本信任链缺口 |
-| 数据字典 | `/dataDict` 全 CRUD（DataDictController） | 仅 `design/dataDomain` 实验页（control-matrix 📋 延期） | **thin** — 本阶段不扩，但也不许为其抛光 |
+| 数据字典 | `/dataDict` 全 CRUD（DataDictController） | 实验页已删（W2）；本阶段无 UI | **thin** — 本阶段不扩，但也不许为其抛光 |
 | 审批流 | approval CRUD + SQL 信任链（SQL 失败不落通过 ✅） | 入口深埋设计器 version/order/approval tab | thin — 可用，W3 平移时顺带理顺入口 |
 | 版本回滚 / 标签 / 同步 / 逆向 / Word 导出 | RevertVersion、tag chips、dbsync/rebaseline、dbReverseParse、`/doc/gendocx` | 均已暴露 ✅ | 无缺口，勿重复投资 |
 
 ### 空壳清单（先删后美；删之前禁止投入任何 UI 打磨）
 
-- `pages/design/query`、`pages/dataQuery`：在线 SQL 实验页，control-matrix 已 📋 延期 → 从导航/路由隐藏或删除
-- `pages/design/chatsql`：ADR-0012 明说不做 ChatSQL 营销包装 → 隐藏，不升级不美化
-- `pages/design/dataDomain`：实验页延期 → 隐藏
-- `pages/JExcel`、`pages/design/test`、`pages/test`：演示/测试残留 → 删
-- Home 死码：`components/Radar/`、`_mock.ts`、`service.ts` `fakeChartData`、未渲染的 `Pie` config 与 `@ant-design/charts` import → 删
-- `account/settings/geographic`（province/city json）与无后端字段 → 删（grep 确认零引用后）
+- `pages/design/query`、`pages/dataQuery`：在线 SQL 实验页 → W2 ✅ 已删（含 QueryLeftContent / dialog/query / useQueryStore）
+- `pages/design/chatsql`：ADR-0012 不做营销包装 → W2 ✅ 已删（`@chatui/core` 已移除）
+- `pages/design/dataDomain`：实验页延期 → W2 ✅ 已删
+- `pages/design/test`、`pages/test`：演示/测试残留 → W2 ✅ 已删（`pages/JExcel` 为表编辑组件保留）
+- Home 死码：`components/Radar/`、`_mock.ts`、`service.ts`、`Pie` config、`@ant-design/charts`、重复「项目概览」、slogan 轮转 → W2 ✅ 已删
+- `account/settings/geographic`（province/city json）与无后端字段 → W2 ✅ 已删
 
 ## 分波（Auto 可逐波执行）
 
@@ -151,7 +151,8 @@
 |---|---|---|---|
 | **W1** 设计器壳 ✅ | DesignLayout 摘 ProLayout → antd Layout（2026-08-02 已 ✅） | ProLayout/PageContainer/ProCard/WaterMark ✅ | `layout-outlet.spec` + smoke「登录→新建→设计器」 |
 | **W2** 能力暴露 + 空壳清除（重定义，替代旧「Home 密度」） | ① 分享管理：顶栏「分享」→ 弹层（创建/复制/**吊销**接线 `/share/revoke`/查看当前链接）；② 删空壳：query/dataQuery/chatsql/dataDomain 隐藏或删除，JExcel/test 页、home Radar/_mock/Pie 死码、settings geographic 删除；③ Home 只做**删**：重复统计卡、slogan 轮转、死 import；④ 设计器 chrome 收尾：删 `bgLayoutImgList`/sider footer、sider 320、tabs 40px、画布 flex、面板头「+ 新建」露出 | 被删页面/组件携带的 Pro 用量一并清除 | 分享「创建→复制→吊销→链接失效 403」E2E；空壳路由 404/不可达断言；`home-link-*` 不回归；新建表旅程 smoke 不回归；`@ant-design/charts` 若无剩余引用则从依赖移除 |
-| └ **W2 切片 1** ✅（2026-08-02） | ① 分享弹层+吊销+后端创建人校验+匿名 GET-only；② 空壳路由下线（query/chatsql/dataDomain/dataQuery→404）+ 删 test 页与 settings geographic（`pages/JExcel` 为表编辑组件保留） | 随删路由清 Query 左栏特例 | `share.spec`（含吊销失效）+ `design-query`/`data-domain`/`home-data-query` 404；③④ 与实验页源文件物理删除 → 后续切片 |
+| └ **W2 切片 1** ✅（2026-08-02） | ① 分享弹层+吊销+后端创建人校验+匿名 GET-only；② 空壳路由下线（query/chatsql/dataDomain/dataQuery→404）+ 删 test 页与 settings geographic（`pages/JExcel` 为表编辑组件保留） | 随删路由清 Query 左栏特例 | `share.spec`（含吊销失效）+ `design-query`/`data-domain`/`home-data-query` 404 |
+| └ **W2 切片 2** ✅（2026-08-02） | ③ Home 只删：Radar/_mock/service/Pie config/「项目概览」重复卡 + HomeLayout slogan 轮转；实验页源文件物理删除（query/chatsql/dataDomain/dataQuery + QueryLeftContent/dialog/query/useQueryStore）；依赖移除 `@ant-design/charts`、`@chatui/core` | 随删清 TabGroup.QUERY | `activation` + `layout-outlet`；空壳 404 不回归；`grep charts/chatui/useQueryStore` = 0 |
 | **W3** 版本域收口（旧 W4 提前，目标改写） | version ProList → antd List；**跨版本 diff 导出**（版本信任链）；审批/order 表单 `ProForm*` → antd Form 平移；审批入口理顺 | version ProList + 版本/审批域 ProForm | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
 | **W4** 项目列表 + 数据源（旧 W3，降为纯平移波） | dataModels + project/* `ProList` → antd List；databaseConfig `ProTable`/`PageContainer` → antd Table + 工作台壳；import/export/setting/account 剩余 `ProForm*` 逐个平移 | 4 页 ProList + 1 ProTable + 剩余 ProForm | 项目「列表→打开→重命名→删除」E2E；数据源「新建→ping→删除」E2E；每对话框对应 E2E 不回归 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |

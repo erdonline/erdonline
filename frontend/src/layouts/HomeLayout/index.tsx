@@ -1,4 +1,4 @@
-import React, {useEffect, useMemo, useState} from 'react';
+import React, {useEffect, useMemo} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link} from "@@/exports";
@@ -13,7 +13,6 @@ import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
 import {APP_VERSION_LABEL} from "@/constants/appVersion";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
-import businessSlogansData from './businessSlogans.json';
 import './index.less';
 
 const {Header, Content} = Layout;
@@ -89,9 +88,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   const pathname = location.pathname;
   const {setInitialState} = useModel('@@initialState');
   const {tabDispatch} = useTabStore(state => ({tabDispatch: state.dispatch}));
-  const [currentSlogan, setCurrentSlogan] = useState(() => {
-    return businessSlogansData.slogans[Math.floor(Math.random() * businessSlogansData.slogans.length)];
-  });
 
   useEffect(() => {
     tabDispatch.removeAllTab({});
@@ -99,20 +95,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   }, [])
 
   const licence = cache.getItem2object('licence');
-
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCurrentSlogan(() => {
-        let newSlogan;
-        do {
-          newSlogan = businessSlogansData.slogans[Math.floor(Math.random() * businessSlogansData.slogans.length)];
-        } while (newSlogan === currentSlogan);
-        return newSlogan;
-      });
-    }, 10000);
-
-    return () => clearInterval(intervalId);
-  }, [currentSlogan]);
 
   const routes = (defaultProps.route.routes || []) as HomeRoute[];
 
@@ -199,7 +181,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             <Theme />
             <div className="home-layout__footer">
               <Space split={<Text type="secondary"> | </Text>} wrap>
-                <Text type="secondary">{currentSlogan}</Text>
                 <Text type="secondary">© 2026 ERD Online · MIT</Text>
                 <Text type="secondary">ERD Online</Text>
               </Space>
