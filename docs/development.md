@@ -91,8 +91,24 @@ PW_WORKERS=1 yarn test:e2e    # 强制串行排查
 - 已有库补数据源表：`docker exec -i erd-mysql mysql -uroot -proot < db/init/07_data_sources.sql`
 - 已有库若 `data_sources.id` 仍为 `varchar(32)`（RFC UUID 写入 500）：`docker exec erd-mysql mysql -uerd -perd -e "ALTER TABLE erd.data_sources MODIFY COLUMN id varchar(64) NOT NULL;"`
 - 已有库补公开演示：`docker exec -i erd-mysql mysql -uroot -proot < db/init/08_public_demo.sql`（访问 `/demo`）
+- 已有库补版本标签列（**应急手工**；日常靠后端启动 Flyway）：`docker exec -i erd-mysql mysql -uroot -proot < db/init/09_db_change_tag.sql`
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
+
+### Schema 双源（`db/init` vs Flyway）
+
+| 来源 | 路径 | 职责 |
+|---|---|---|
+| 空卷首启 / 应急补丁 | `db/init/*.sql` | MySQL 容器**空 data 卷**首次挂载时按文件名顺序执行；已有库**不**自动重跑。仅作紧急手工 `mysql < …` 逃生口 |
+| 增量 schema 真相源 | `backend/src/main/resources/db/migration/erd/`（`V*__*.sql`） | 后端启动时由 `ErdFlywayConfig` 打到 `erd` 库；**新 schema 变更优先只写这里** |
+
+约定：
+
+- **优先 Flyway only**：日常增量不要再新增 `07` / `08` / `09` 风格的 `db/init` 补丁（种子数据如 `05_e2e_users.sql` 除外）
+- **双写逃生口（可选）**：若仍往 `db/init` 放同变更，脚本须与对应 `V*__*.sql` **内容一致且幂等**（可重复执行、不因已存在而失败）
+- **冻结建议**：停止为新功能追加 init 序号补丁；已有 `07`/`08`/`09` 保留给空卷首启与应急，不扩写职责
+- 配置：`spring.flyway.enabled=false`（避免默认打到 martin）；`ErdFlywayConfig` 只绑 `erdDataSource`
+- 改迁移后：`./backend/dev-ensure.sh --restart`（pom 变更先刷新 `target/cp.txt`）
 
 ## 文档站（Docusaurus）
 

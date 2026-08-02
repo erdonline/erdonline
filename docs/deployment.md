@@ -8,7 +8,14 @@ docker compose up -d      # mysql + redis + backend + frontend
 docker compose logs -f backend   # 查看后端日志
 ```
 
-首次启动时，MySQL 会自动执行 `db/init/` 下的初始化脚本，创建 `erd` 与 `martin` 库。
+**Schema 双源（自部署必读）**
+
+| 来源 | 何时生效 | 说明 |
+|---|---|---|
+| `db/init/` | MySQL **空 data 卷**首次启动 | 建库建表 + 种子；卷已存在时**不会**再跑。应急可手工 `mysql < db/init/0x_*.sql` |
+| Flyway（`backend/.../db/migration/erd/`） | **后端每次启动**（`ErdFlywayConfig` → `erd` 库） | 增量 schema 的**真相源**；升级已有部署靠后端拉起即可，不必手跑 init |
+
+新变更优先只加 Flyway 脚本。若为逃生口双写 `db/init`，须与 Flyway 脚本一致且幂等。勿再为常规功能追加 `07`/`08`/`09` 类 init 补丁（除非紧急）。
 
 访问：
 
