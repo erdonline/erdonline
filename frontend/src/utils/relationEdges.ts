@@ -1,10 +1,12 @@
 /**
  * 关系图边（ADR-0016）：设计器 + 分享只读画布共用。
  * 同表对多 FK 用 lane → 不同 smoothstep offset，肘部分流，减少叠线；
- * 高度数 hub 按对端 Y（或名）扇出，密 FK 星型不再贴成一捆。
+ * 高度数 hub 按对端 Y（或名）扇出，密 FK 星型不再贴成一捆；
+ * 几何择柄：竖叠同列走同侧短 U，避免固定右→左绕圈（circle-route P0）。
  */
 import { Edge, MarkerType } from 'reactflow';
 import { erdColors } from '@/theme/tokens';
+import { NODE_WIDTH } from '@/utils/graphLayout';
 
 export const ERD_EDGE_TYPE = 'erdSmooth';
 
@@ -23,6 +25,24 @@ export const EDGE_HUB_FAN_MIN = 3;
 /** hub 扇出步长（px），并入 laneOffset 做 Y 分流 */
 export const EDGE_HUB_FAN_STEP = 10;
 
+/**
+ * 中心 X 差 ≤ 此值（相对 NODE_WIDTH）→ 视为同列竖叠，走同侧短 U。
+ * 0.55≈半表宽，容忍手排/dagre 轻微错位。
+ */
+export const PORT_VERTICAL_STACK_DX = NODE_WIDTH * 0.55;
+/** 竖向至少拉开这么多才触发同侧（避免近邻对角误判） */
+export const PORT_VERTICAL_STACK_DY = 48;
+
+export type PortSide = 'l' | 'r';
+/** lr=右→左；rl=左→右；same=同侧短 U（竖叠） */
+export type PortMode = 'lr' | 'rl' | 'same';
+
+export type PortChoice = {
+  sourceSide: PortSide;
+  targetSide: PortSide;
+  mode: PortMode;
+};
+
 export type RelationAssociation = {
   relation?: string;
   from?: { entity?: string; field?: string };
@@ -36,11 +56,15 @@ export type ErdEdgeData = {
   stepOffset: number;
   /** 仅 hub 扇出分量（供 E2E / 探针） */
   hubFanOffset?: number;
+  /** 几何择柄模式（供 E2E / 探针） */
+  portMode?: PortMode;
 };
 
 export type EdgeLayoutHint = {
-  /** 表中心或左上角均可；只比相对 Y */
+  /** 表中心或左上角均可；只比相对 Y / 几何择柄比相对 X */
   positions?: Record<string, { x: number; y: number }>;
+  /** 择柄用表宽；默认 NODE_WIDTH */
+  nodeWidth?: number;
 };
 
 function pairKey(a: string, b: string): string {
@@ -53,6 +77,67 @@ function validAssociations(
   return (associations || []).filter(
     (a) => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field,
   );
+}
+
+/** 默认 LR（历史右源左靶） */
+export const DEFAULT_PORT_CHOICE: PortChoice = {
+  sourceSide: 'r',
+  targetSide: 'l',
+  mode: 'lr',
+};
+
+/**
+ * 按两表左上角几何选手柄侧：水平对向优先；同列短竖叠走同侧，消 circle-route。
+ */
+export function pickPortSides(
+  source: { x: number; y: number },
+  target: { x: number; y: number },
+  nodeWidth = NODE_WIDTH,
+): PortChoice {
+  const half = nodeWidth / 2;
+  const dx = target.x + half - (source.x + half);
+  const dy = Math.abs(target.y - source.y);
+  const stackDx = Math.max(PORT_VERTICAL_STACK_DX, nodeWidth * 0.55);
+
+  if (Math.abs(dx) <= stackDx && dy >= PORT_VERTICAL_STACK_DY) {
+    // 略偏右 → 右侧短 U；否则左侧（与 LR 主图走廊错开）
+    const side: PortSide = dx > 8 ? 'r' : 'l';
+    return { sourceSide: side, targetSide: side, mode: 'same' };
+  }
+  if (dx >= 0) {
+    return { sourceSide: 'r', targetSide: 'l', mode: 'lr' };
+  }
+  return { sourceSide: 'l', targetSide: 'r', mode: 'rl' };
+}
+
+export function sourceHandleId(field: string, side: PortSide): string {
+  return `${field}-src-${side}`;
+}
+
+export function targetHandleId(field: string, side: PortSide): string {
+  return `${field}-tgt-${side}`;
+}
+
+/**
+ * 解析字段手柄 id（含几何择柄后缀；兼容旧 `-src`/`-tgt`）。
+ */
+export function parseFieldHandle(
+  handleId: string,
+): { field: string; role: 'src' | 'tgt'; side?: PortSide } | null {
+  if (!handleId) return null;
+  const m = handleId.match(/^(.*)-(src|tgt)-(l|r)$/);
+  if (m) {
+    return {
+      field: m[1],
+      role: m[2] as 'src' | 'tgt',
+      side: m[3] as PortSide,
+    };
+  }
+  const legacy = handleId.match(/^(.*)-(src|tgt)$/);
+  if (legacy) {
+    return { field: legacy[1], role: legacy[2] as 'src' | 'tgt' };
+  }
+  return null;
 }
 
 /** 同无向表对 → 居中 laneOffset 列表（供单测） */
@@ -148,6 +233,7 @@ export function associationsToEdges(
 
   const hubFans = hubFanOffsetsForAssociations(valid, hint?.positions);
 
+  const nodeWidth = hint?.nodeWidth ?? NODE_WIDTH;
   const pairIndex = new Map<string, number>();
   return valid.map((a, i) => {
     const source = a.from!.entity!;
@@ -160,14 +246,23 @@ export function associationsToEdges(
     const hubFanOffset = hubFans[i] ?? 0;
     const laneOffset = pairLane + hubFanOffset;
     const stepOffset = stepOffsetForLane(laneOffset, idx);
-    const data: ErdEdgeData = { laneOffset, stepOffset, hubFanOffset };
+    const sp = hint?.positions?.[source];
+    const tp = hint?.positions?.[target];
+    const ports =
+      sp && tp ? pickPortSides(sp, tp, nodeWidth) : DEFAULT_PORT_CHOICE;
+    const data: ErdEdgeData = {
+      laneOffset,
+      stepOffset,
+      hubFanOffset,
+      portMode: ports.mode,
+    };
 
     return {
       id: `e-${source}-${a.from!.field}-${target}-${a.to!.field}-${i}`,
       source,
-      sourceHandle: `${a.from!.field}-src`,
+      sourceHandle: sourceHandleId(a.from!.field!, ports.sourceSide),
       target,
-      targetHandle: `${a.to!.field}-tgt`,
+      targetHandle: targetHandleId(a.to!.field!, ports.targetSide),
       type: ERD_EDGE_TYPE,
       label: a.relation || '',
       data,

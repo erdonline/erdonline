@@ -197,7 +197,7 @@ export async function addFieldInline(
   await expect(node.locator('.erd-field-name', { hasText: fieldName })).toBeVisible();
 }
 
-/** 字段拖连线：from 右锚点 → to 左锚点 */
+/** 字段拖连线：默认右源→左靶（建关联）；渲染侧由几何择柄重绑 */
 export async function connectFields(
   page: import('@playwright/test').Page,
   fromTable: string,
@@ -207,14 +207,21 @@ export async function connectFields(
 ) {
   await page.getByRole('button', { name: '适应画布' }).click();
   await page.waitForTimeout(500);
-  const fromRow = rfNode(page, fromTable).locator(`[data-field="${fromField}"]`);
-  const toRow = rfNode(page, toTable).locator(`[data-field="${toField}"]`);
-  const src = fromRow.locator('.react-flow__handle-right');
-  const tgt = toRow.locator('.react-flow__handle-left');
+  const fromNode = rfNode(page, fromTable);
+  const toNode = rfNode(page, toTable);
+  await fromNode.hover();
+  const fromRow = fromNode.locator(`[data-field="${fromField}"]`);
+  const toRow = toNode.locator(`[data-field="${toField}"]`);
+  const src = fromRow.locator(`[data-handleid="${fromField}-src-r"]`);
+  const tgt = toRow.locator(`[data-handleid="${toField}-tgt-l"]`);
   await expect(src).toBeVisible();
+  await toNode.hover();
   await expect(tgt).toBeVisible();
-  await src.dragTo(tgt, { force: true });
-  await page.waitForTimeout(1_000);
+  const before = await page.locator('.react-flow__edge').count();
+  await src.dragTo(tgt, { force: true, steps: 12 });
+  await expect(page.locator('.react-flow__edge')).toHaveCount(before + 1, {
+    timeout: 8_000,
+  });
 }
 
 export async function deleteOwnPersonProjects(

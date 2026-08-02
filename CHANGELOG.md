@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：几何择柄消竖叠 circle-route（ADR-0016）
+
+- 字段双侧 `src/tgt` 手柄；`pickPortSides`：水平对向 lr/rl，同列短竖叠走同侧短 U
+- `associationsToEdges` 按 layout 坐标绑 `*-src-l/r` / `*-tgt-l/r`；`data-port` 供 E2E；设计器/分享同构
+- 连线/删边解析兼容新旧 handle id
+
+验证点：`cd frontend && npx tsx src/utils/relationEdges.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK|边路由" --workers=1 --retries=0`
+
 #### 体验：表节点卡片层次（ADR-0016 敢分享的美图）
 
 - 新增 `surfaceMuted` / `--erd-surface-muted`；表头实底替换 `#f3f5f7` 渐变

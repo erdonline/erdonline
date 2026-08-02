@@ -1,19 +1,25 @@
 /**
- * relationEdges 单测：同表对多 FK lane 居中分流 + hub 扇出
+ * relationEdges 单测：同表对多 FK lane + hub 扇出 + 几何择柄
  * 运行：npx tsx src/utils/relationEdges.test.ts
  */
 import assert from 'assert';
+import { NODE_WIDTH } from './graphLayout';
 import {
   EDGE_HUB_FAN_MIN,
   EDGE_HUB_FAN_STEP,
   EDGE_LANE_STEP,
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
+  PORT_VERTICAL_STACK_DY,
   associationsToEdges,
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
+  parseFieldHandle,
+  pickPortSides,
+  sourceHandleId,
   stepOffsetForLane,
+  targetHandleId,
 } from './relationEdges';
 
 async function run(name: string, fn: () => void | Promise<void>) {
@@ -55,13 +61,59 @@ async function main() {
     assert.strictEqual(stepOffsetForLane(99, 2), EDGE_STEP_OFFSET + 2 * EDGE_LANE_STEP);
   });
 
-  await run('associationsToEdges：同 pair 两边不同 stepOffset', () => {
+  await run('pickPortSides：水平右靶 → lr', () => {
+    const p = pickPortSides({ x: 0, y: 0 }, { x: NODE_WIDTH + 80, y: 0 });
+    assert.deepStrictEqual(p, { sourceSide: 'r', targetSide: 'l', mode: 'lr' });
+  });
+
+  await run('pickPortSides：水平左靶 → rl', () => {
+    const p = pickPortSides({ x: NODE_WIDTH + 80, y: 0 }, { x: 0, y: 0 });
+    assert.deepStrictEqual(p, { sourceSide: 'l', targetSide: 'r', mode: 'rl' });
+  });
+
+  await run('pickPortSides：同列竖叠 → same（左）', () => {
+    assert.ok(PORT_VERTICAL_STACK_DY <= 200);
+    const p = pickPortSides({ x: 40, y: 40 }, { x: 48, y: 280 });
+    assert.strictEqual(p.mode, 'same');
+    assert.strictEqual(p.sourceSide, p.targetSide);
+    assert.strictEqual(p.sourceSide, 'l');
+  });
+
+  await run('pickPortSides：同列略偏右 → same（右）', () => {
+    const p = pickPortSides({ x: 40, y: 40 }, { x: 60, y: 280 });
+    assert.strictEqual(p.mode, 'same');
+    assert.strictEqual(p.sourceSide, 'r');
+    assert.strictEqual(p.targetSide, 'r');
+  });
+
+  await run('parseFieldHandle：新/旧 id', () => {
+    assert.deepStrictEqual(parseFieldHandle('user_id-src-r'), {
+      field: 'user_id',
+      role: 'src',
+      side: 'r',
+    });
+    assert.deepStrictEqual(parseFieldHandle('id-tgt-l'), {
+      field: 'id',
+      role: 'tgt',
+      side: 'l',
+    });
+    assert.deepStrictEqual(parseFieldHandle('id-tgt'), {
+      field: 'id',
+      role: 'tgt',
+    });
+    assert.strictEqual(parseFieldHandle(''), null);
+  });
+
+  await run('associationsToEdges：无坐标默认 lr 手柄', () => {
     const edges = associationsToEdges([
       { relation: 'n:1', from: { entity: 'orders', field: 'user_id' }, to: { entity: 'users', field: 'id' } },
       { relation: 'n:1', from: { entity: 'orders', field: 'owner_id' }, to: { entity: 'users', field: 'id' } },
     ]);
     assert.strictEqual(edges.length, 2);
     assert.ok(edges.every((e) => e.type === ERD_EDGE_TYPE));
+    assert.ok(edges.every((e) => e.sourceHandle === sourceHandleId('user_id', 'r') || e.sourceHandle === sourceHandleId('owner_id', 'r')));
+    assert.ok(edges.every((e) => e.targetHandle === targetHandleId('id', 'l')));
+    assert.ok(edges.every((e) => (e.data as { portMode: string }).portMode === 'lr'));
     const steps = edges.map((e) => (e.data as { stepOffset: number }).stepOffset);
     assert.notStrictEqual(steps[0], steps[1], '并行边肘距应不同');
     const lanes = edges.map((e) => (e.data as { laneOffset: number }).laneOffset);
@@ -123,6 +175,29 @@ async function main() {
     assert.deepStrictEqual(fans, [-EDGE_HUB_FAN_STEP, 0, EDGE_HUB_FAN_STEP]);
     const lanes = edges.map((e) => (e.data as { laneOffset: number }).laneOffset);
     assert.deepStrictEqual(lanes, fans, '无 pair 叠边时 lane = hubFan');
+    assert.ok(edges.every((e) => (e.data as { portMode: string }).portMode === 'lr'));
+  });
+
+  await run('associationsToEdges：竖叠同列 → same 侧手柄', () => {
+    const edges = associationsToEdges(
+      [
+        {
+          relation: '0,n:1',
+          from: { entity: 'T_ORDER', field: 'T1_ID' },
+          to: { entity: 'T_TABLE_1', field: 'id' },
+        },
+      ],
+      {
+        positions: {
+          T_TABLE_1: { x: 40, y: 40 },
+          T_ORDER: { x: 40, y: 280 },
+        },
+      },
+    );
+    assert.strictEqual(edges.length, 1);
+    assert.strictEqual((edges[0].data as { portMode: string }).portMode, 'same');
+    assert.strictEqual(edges[0].sourceHandle, sourceHandleId('T1_ID', 'l'));
+    assert.strictEqual(edges[0].targetHandle, targetHandleId('id', 'l'));
   });
 
   console.log('all relationEdges tests passed');
