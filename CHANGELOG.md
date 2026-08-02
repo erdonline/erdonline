@@ -8,6 +8,16 @@
 
 ### 2026-08-02
 
+#### 工程：Vision 5m 循环 PM 持续迭代指令
+
+**改动**
+
+- `scripts/agent-loop-vision.prompt.md`：产品经理人格；每 tick 必交付；禁止默认 idle；化妆品伤首印象/IA = 产品工作；安全闸仅「用户叫停 / 连续两轮变差重议」
+- `scripts/agent-loop-vision.sh`：emit 失败不杀循环；payload 注入永不因 idle 停心跳；`set +e` 主体常驻
+- `docs/roadmap.md` / `docs/development.md` / iteration-protocol：对齐「三件事 ✅ 后不 idle」
+
+验证点：`bash -n scripts/agent-loop-vision.sh`；`AGENT_LOOP_VISION_INTERVAL=1` 短跑确认连续两 tick 仍 emit（Ctrl-C 停）
+
 #### 功能：Home S2 —「继续上次建模」主 CTA + 安静指标
 
 **功能**

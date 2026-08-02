@@ -33,7 +33,7 @@ colima start --cpu 4 --memory 8 --disk 40 \
 # AGENT_LOOP_VISION_INTERVAL=600 ./scripts/agent-loop-vision.sh
 ```
 
-选题规则在 `scripts/agent-loop-vision.prompt.md`：每 tick **从 roadmap/CHANGELOG/git 现场推导目标**，不写死功能主线；改 prompt 文件即可，不必重启循环。
+选题规则在 `scripts/agent-loop-vision.prompt.md`：**PM 持续迭代**——每 tick 产品发现→按激活/建模 UX/版本北极星排序→交付可验证切片；禁止默认 idle；改 prompt 即可，不必重启。shell 在 agent 回报 idle 时也**不退出**，5m 继续唤醒。
 
 双周发版笔记（用户向）：
 
