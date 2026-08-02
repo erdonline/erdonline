@@ -430,6 +430,36 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(pkNameWeight).toBeGreaterThanOrEqual(600);
 
+      // ADR-0016：PK/FK 徽章扫读层次 — 角色标列 ≥10/700 + min-width 对齐；字段名字重不动
+      const pkBadgeLook = await pkRow.locator('.erd-pk-badge.active').evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          fontSize: parseFloat(s.fontSize),
+          fontWeight: parseInt(s.fontWeight, 10),
+          minW: parseFloat(s.minWidth),
+          color: s.color,
+        };
+      });
+      expect(pkBadgeLook.fontSize).toBeGreaterThanOrEqual(10);
+      expect(pkBadgeLook.fontWeight).toBeGreaterThanOrEqual(700);
+      expect(pkBadgeLook.minW).toBeGreaterThanOrEqual(22);
+      expect(pkBadgeLook.color).toBe('rgb(212, 136, 6)'); // warning
+      expect(pkBadgeLook.fontSize).toBeLessThan(12); // 仍小于字段名 12，不抢主列
+
+      const fkBadgeLook = await fkRow.locator('.erd-fk-badge').evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          fontSize: parseFloat(s.fontSize),
+          fontWeight: parseInt(s.fontWeight, 10),
+          minW: parseFloat(s.minWidth),
+          color: s.color,
+        };
+      });
+      expect(fkBadgeLook.fontSize).toBe(pkBadgeLook.fontSize);
+      expect(fkBadgeLook.fontWeight).toBeGreaterThanOrEqual(700);
+      expect(fkBadgeLook.minW).toBeGreaterThanOrEqual(22);
+      expect(fkBadgeLook.color).toBe('rgb(47, 143, 123)'); // success
+
       const titleFont = await orderNode.locator('.erd-table-title').evaluate(
         (el) => getComputedStyle(el).fontFamily,
       );
@@ -439,6 +469,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-table-header-hierarchy.png',
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-pk-fk-badge-hierarchy.png',
         fullPage: false,
       });
 

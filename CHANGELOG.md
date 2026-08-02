@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：PK/FK 徽章扫读层次（角色标列，ADR-0016）
+
+- 选题：字段行 PK/FK 徽章 9px 偏小、无列宽对齐，分享截图角色标扫不过字段名；停色 token，攻徽章层次；字段名 500/PK 600 不动
+- `.erd-pk-badge` / `.erd-fk-badge`：10px / 700、`min-width` 22 + inline-flex 居中、pad 0 5 / line-height 15；warning / success 色不变
+- 设计器 / 分享只读共用 `reactflow-relation.scss`；E2E：`relation`/`demo`；截图 `diagram-pk-fk-badge-hierarchy.png` / `demo-pk-fk-badge-hierarchy.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：基数 chip 扫读层次（字号/字重/对比，ADR-0016）
 
 - 选题：分享截图上 `n:1` 等 chip 11/500/ink600 偏淡，干道 ink900 后字更不抢眼；停色 token 碎活，攻扫读

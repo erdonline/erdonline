@@ -343,17 +343,24 @@
         font-variant-numeric: tabular-nums;
         letter-spacing: -0.01em;
 
+        // 角色标列：PK/FK 先于字段名入眼；字号仍 < 名 12，不抢主列字重
         .erd-pk-badge,
         .erd-fk-badge {
           appearance: none;
+          box-sizing: border-box;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
           flex-shrink: 0;
+          min-width: 22px;
           font-family: var(--erd-font-ui);
-          font-size: 9px;
+          font-size: 10px;
           font-weight: 700;
           border-radius: 3px;
-          padding: 0 4px;
-          line-height: 14px;
-          letter-spacing: 0.04em;
+          padding: 0 5px;
+          line-height: 15px;
+          letter-spacing: 0.03em;
+          text-align: center;
           cursor: default;
         }
 

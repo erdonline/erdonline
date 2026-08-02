@@ -71,6 +71,7 @@
 
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
 - [x] [Frame 主题色] demo Frame 底无 Ant 蓝；含 success `frameFill`；截图 `demo-frame-theme-tokens.png` ✅`demo.spec.ts` + `diagram.test.ts` 色板轮换
+- [x] [PK/FK 徽章扫读] 设计器/分享 `.erd-pk-badge`/`.erd-fk-badge`：≥10px/700、min-width≥22、warning/success；字段名 500/PK 600 不动；截图 `diagram-pk-fk-badge-hierarchy.png` / `demo-pk-fk-badge-hierarchy.png` ✅`relation.spec` PK/FK + `demo.spec`
 - [x] [边标签可读] 分享/设计器 `erd-edge-label`：白底 + ink900 + opacity=1 + ≥12px/600；截图 `demo-edge-label-chip.png` ✅`demo.spec.ts` + `relation.spec` PK/FK
 - [x] [边标签碰撞避让] 密图 `erd-edge-label-nudge` 非零 + 标签 AABB 零重叠；截图 `demo-edge-label-collision.png` ✅`relationEdges.test` + `demo.spec.ts`
 - [x] [边标签密度] chip padding ≤4/2、radius ≤3；碰撞盒跟字号（40×20）✅`relationEdges.test.ts` + `demo.spec` / `relation.spec` 表节点视觉
