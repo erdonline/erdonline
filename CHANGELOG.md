@@ -14,7 +14,7 @@
   验证点：`npx playwright test tests/e2e/account-settings.spec.ts --project=chromium`
 
 ### 文档
-- `docs/control-matrix.md`：其它 selectKey 页签 → ✅；统计 ✅69 / 🚧23 / 📋4
+- `docs/control-matrix.md`：其它 selectKey 页签 → ✅；统计重算 ✅84 / 🚧5 / 🗑6 / 📋7（合计 102）
 - `docs/roadmap.md` P2b 长尾已收 settings 其它页签
 - `docs/regression-checklist.md`：页签切换自动化
 
