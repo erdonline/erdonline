@@ -175,6 +175,30 @@ test.describe('版本快照', () => {
     }
   });
 
+  test('重建版本弹窗可打开（antd Modal+Form）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('rebuild');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'rebuild', 'rebuild dialog');
+      await openVersionPage(page);
+      // 有版本后 init=false，「重建版本」才可点
+      await saveVersion(page);
+      const rebuildBtn = page.getByTestId('version-rebuild-btn');
+      await expect(rebuildBtn).toBeEnabled({ timeout: 10_000 });
+      await rebuildBtn.click();
+      const dlg = page.getByRole('dialog').filter({ hasText: '重建版本' });
+      await expect(dlg).toBeVisible({ timeout: 10_000 });
+      await expect(dlg.getByRole('textbox', { name: '版本号' })).toBeVisible();
+      await expect(dlg.getByRole('textbox', { name: '版本描述' })).toBeVisible();
+      await dlg.getByRole('button', { name: /取\s*消/ }).click();
+      await expect(dlg).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('返回模型可从版本页回到模型列表', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('verback');

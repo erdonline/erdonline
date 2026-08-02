@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 10 — RebuildVersion / InitVersion / setting DefaultSetUp → antd
+
+**重构**
+
+- 版本工具栏「重建版本」`RebuildVersion`：摘 `ModalForm` / `ProForm*` → antd `Modal` + `Form`；testid `version-rebuild-btn`；提交仍走 `versionDispatch.rebuild`（二次确认不变）
+- 项目菜单「初始化基线」`InitVersion`：摘 `ModalForm` / `ProForm*` → antd `Modal` + `Form`；testid `version-init-btn`；无数据源 toast 且不关窗；异步保存行为对齐原 ModalForm
+- 设计器设置页「系统默认项」`pages/design/setting/component/DefaultSetUp`：摘 `ProForm*` → antd `Form` + `InputNumber` / `Upload`（路由 `/design/table/setting/default` 保留）
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 10 ✅；`version.spec` 新增「重建版本弹窗可打开」
+  验证点：`rg '@ant-design/pro-components' frontend/src/components/dialog/version/RebuildVersion.tsx InitVersion.tsx frontend/src/pages/design/setting/component/DefaultSetUp.tsx` = 0；`rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l`；`npx playwright test tests/e2e/version.spec.ts --grep "重建版本弹窗|同步配置" --project=chromium --workers=1`
+
 #### 重构：W4 切片 9 — CompareVersion / SyncConfig ModalForm → antd Modal+Form
 
 **重构**
