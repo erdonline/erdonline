@@ -10,6 +10,7 @@ import {
   openRelationFromEmpty,
   openVersionPage,
   rfNode,
+  saveVersion,
   uniqueProjectName,
 } from './helpers';
 
@@ -17,34 +18,6 @@ import {
  * 版本快照零摩擦 + 版本 diff 可视化
  * 定位：e2e-locators
  */
-
-async function saveVersion(
-  page: import('@playwright/test').Page,
-  opts?: { tags?: string[] },
-) {
-  await page.getByTestId('add-version-btn').click();
-  const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
-  await expect(dialog).toBeVisible();
-  if (opts?.tags?.length) {
-    // antd Select tags：写内部 input；用逗号触发 tokenSeparators（比 Enter 稳，避免只停在 search mirror）
-    const tagSelect = dialog.getByTestId('version-tag-input');
-    const tagInput = tagSelect.locator('input');
-    for (const t of opts.tags) {
-      await tagInput.click();
-      await tagInput.fill('');
-      await page.keyboard.type(`${t},`);
-      // 确认 chip 已落盘（勿用 Escape：会留下「暂无数据」遮罩挡「确定」）
-      await expect(
-        tagSelect.locator('.ant-select-selection-item').filter({ hasText: t }),
-      ).toBeVisible();
-    }
-    // 失焦关下拉，再点确定
-    await dialog.getByRole('textbox', { name: '版本描述' }).click();
-  }
-  await dialog.getByRole('button', { name: /确\s*定/ }).click();
-  await expectToast(page, /保存成功/);
-  await expect(dialog).toHaveCount(0);
-}
 
 async function closeVersionDialog(
   page: import('@playwright/test').Page,

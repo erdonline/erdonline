@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 测试：协作 sync → 保存版本全路径 + 节流回归（下一季③ close）
+
+**测试 / 文档**
+
+- `sync-toast.spec.ts`：info toast → `sync-save-version-cta` → AddVersion → `POST /ncnb/hisProject/save` 200 + `version-row-1.0.0`；60s 内二次模型变更 peer toast / CTA 仍为 0 再弹
+- `helpers.saveVersion` 抽出供 version / sync 共用；`docs/roadmap.md` 下一季③ 🚧→✅
+
+验证点：`npx playwright test --grep "协作 sync 提示" --project=chromium --workers=1` → **3 passed**（~42s）
+
 #### 度量：激活旅程「30 秒进版本保存」计时收口（下一季 bet①）
 
 **新增 / 文档**

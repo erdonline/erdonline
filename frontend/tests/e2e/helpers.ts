@@ -323,6 +323,33 @@ export async function openVersionPage(page: import('@playwright/test').Page) {
   await expect(page.getByTestId('add-version-btn')).toBeVisible({ timeout: 15_000 });
 }
 
+/** 版本页：打开「新增版本」并保存（默认标签可选） */
+export async function saveVersion(
+  page: import('@playwright/test').Page,
+  opts?: { tags?: string[]; triggerTestId?: string },
+) {
+  const trigger = opts?.triggerTestId || 'add-version-btn';
+  await page.getByTestId(trigger).click();
+  const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
+  await expect(dialog).toBeVisible();
+  if (opts?.tags?.length) {
+    const tagSelect = dialog.getByTestId('version-tag-input');
+    const tagInput = tagSelect.locator('input');
+    for (const t of opts.tags) {
+      await tagInput.click();
+      await tagInput.fill('');
+      await page.keyboard.type(`${t},`);
+      await expect(
+        tagSelect.locator('.ant-select-selection-item').filter({ hasText: t }),
+      ).toBeVisible();
+    }
+    await dialog.getByRole('textbox', { name: '版本描述' }).click();
+  }
+  await dialog.getByRole('button', { name: /确\s*定/ }).click();
+  await expectToast(page, /保存成功/);
+  await expect(dialog).toHaveCount(0);
+}
+
 /** 从版本等子页回模型（侧栏「模型」menuitem 在部分页不可见） */
 export async function gotoDesignModel(page: import('@playwright/test').Page) {
   const projectId = new URL(page.url()).searchParams.get('projectId');
