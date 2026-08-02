@@ -55,14 +55,15 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
   # Boot 3 / Redisson 只认 spring.data.redis.*（spring.redis.* 已 error 级废弃，绑不上 → 永远 localhost）
+  # Railway 插件变量名优先（Variable Reference 同名即可）：REDISHOST / REDISPORT；本地可用 REDIS_HOST
   data:
     redis:
-      host: ${REDIS_HOST:${REDISHOST:localhost}}
-      port: ${REDIS_PORT:${REDISPORT:6379}}
+      host: ${REDISHOST:${REDIS_HOST:localhost}}
+      port: ${REDISPORT:${REDIS_PORT:6379}}
       database: ${REDIS_DB:0}
-      # password / username / url：勿写 ${VAR:} 空默认（会绑成 ""，Redisson 对空用户名发 AUTH "" pass → Redis 6 WRONGPASS；
-      # 空密码 AUTH "" 也会弄坏本地无密码 Redis）。由 RedisUrlAliasEnvironmentPostProcessor 仅在非空时注入：
-      # REDIS_PRIVATE_URL|REDIS_URL、REDIS_PASSWORD|REDISPASSWORD、REDIS_USERNAME|REDISUSER
+      # password / username / url：勿写 ${VAR:} 空默认（会绑成 "" → WRONGPASS / 弄坏本地无密码 Redis）。
+      # RedisUrlAliasEnvironmentPostProcessor 仅非空注入，且 REDIS_URL|REDIS_PUBLIC_URL 会覆盖 host/port：
+      # REDISPASSWORD|REDIS_PASSWORD、REDISUSER|REDIS_USERNAME
   servlet:
     multipart:
       max-file-size: 10MB
