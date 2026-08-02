@@ -13,7 +13,7 @@
 **修复**
 
 - `playwright.config.ts`：去掉 `chromium-serial` 的 `dependencies: ['chromium']`；单条 `--project=chromium-serial` 不再先跑 ~101 条并行套件
-- 全量顺序改由 `yarn test:e2e` / CI 两步显式保证：`--project=chromium` → `--project=chromium-serial`
+- 全量顺序改由 CI（`e2e-smoke.yml`）两步显式保证：`--project=chromium` → `--project=chromium-serial`；本地 `yarn test:e2e` 一次跑两 project（无 deps）
 - 新增 `yarn test:e2e:serial`；`workers: 1` 仍在 serial project config（共享 `e2e-serial`）
 - `docs/development.md`、agent-loop vision/ux prompt、`dev-loop-speed` / `dev-entrypoints` 同步正确跑法（无需再传 `--no-deps`）
 

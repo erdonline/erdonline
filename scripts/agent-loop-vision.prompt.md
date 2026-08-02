@@ -59,7 +59,7 @@
 - 并行用例：`--project=chromium` + 文件路径 + `--grep`
 - 串行/空态/activation/export-feedback：`--project=chromium-serial`（或 `yarn test:e2e:serial`）；config 已 `workers: 1`（共享 `e2e-serial`）
 - **禁止**省略 `--project` 后只靠文件路径/grep（易误跑两 project）；**不必**再传 `--no-deps`（`chromium-serial` 已无 deps）
-- 全量：`yarn test:e2e`（先 chromium 再 serial 两步）
+- 全量：`yarn test:e2e`；CI 为 chromium → serial 两步
 
 ## 每 tick 必做
 
