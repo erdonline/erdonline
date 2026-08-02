@@ -234,3 +234,9 @@
 - [x] [无查询入口] 设计器项目菜单无 menuitem「查询」；无导航 link「查询」✅ `design-query.spec.ts`
 - [x] [深链实验页] `/design/table/query` 见「实验功能」+ `design-query-page` ✅同上
 - [ ] [深链运行失败有 toast] 打开查询叶子 → 选非法 SQL 运行 → 见 error toast（手工；后端仍打应用库）
+
+## W6 账户设置基本资料（2026-08-02）
+
+- [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`
+- [x] [基本资料保存失败 toast] mock update 非 200 →「更新基本信息失败」✅同上
+- [x] [头像无假 Upload] 见「头像上传暂未开放」；无「更换头像」/file input ✅同上

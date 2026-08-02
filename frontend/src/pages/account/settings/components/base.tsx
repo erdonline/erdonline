@@ -36,12 +36,24 @@ const BaseView: React.FC = () => {
     return '/logo.svg';
   };
 
-  const handleFinish = async (values: any) => {
-    POST('/syst/user/settings/update', values).then((res) => {
-      if (res && res.code === 200) {
+  const handleFinish = async (values: {
+    username?: string;
+    email?: string;
+    phone?: string;
+  }) => {
+    try {
+      const res = await POST('/syst/user/settings/update', values);
+      if (res?.code === 200) {
         message.success('更新基本信息成功');
+        return;
       }
-    });
+      // 业务码非 200：全局 response 拦截器已 toast msg；此处兜底无 msg 的静默失败
+      if (!res?.msg) {
+        message.error('更新基本信息失败');
+      }
+    } catch {
+      // HTTP/网络：request errorHandler 已 toast
+    }
   };
   return (
     <div className={styles.baseView}>

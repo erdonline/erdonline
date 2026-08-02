@@ -171,7 +171,7 @@
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | ✅ | `default-field.spec`「编辑保存有 toast」 |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 查询 CRUD/执行 | 有反馈 | Home 菜单 | 🚧 | |
-| `/account/settings` | 基本资料保存 | toast | | 🚧 | |
+| `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |
 | `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
 | `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | 🚧 | |
 | `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | 🚧 | |
@@ -199,8 +199,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 66 |
-| 🚧 | 26 |
+| ✅ | 67 |
+| 🚧 | 25 |
 | 🗑 | 7 |
 | 📋 | 4 |
 | **合计** | **103** |
