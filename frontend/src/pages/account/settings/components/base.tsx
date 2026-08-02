@@ -1,6 +1,5 @@
 import React from 'react';
-import {UploadOutlined} from '@ant-design/icons';
-import {Button, message, Upload} from 'antd';
+import {Typography, message} from 'antd';
 import ProForm, {ProFormText,} from '@ant-design/pro-form';
 
 import styles from './BaseView.less';
@@ -8,21 +7,15 @@ import {useRequest} from "@umijs/hooks";
 import {GET, POST} from "@/services/crud";
 import PageSkeleton from "@/components/PageSkeleton";
 
-// 头像组件 方便以后独立，增加裁剪之类的功能
 const AvatarView = ({avatar}: { avatar: string }) => (
   <>
     <div className={styles.avatar_title}>头像</div>
     <div className={styles.avatar}>
       <img src={avatar} alt="avatar"/>
     </div>
-    <Upload showUploadList={false}>
-      <div className={styles.button_view}>
-        <Button>
-          <UploadOutlined/>
-          更换头像
-        </Button>
-      </div>
-    </Upload>
+    <Typography.Text type="secondary" className={styles.button_view}>
+      头像上传暂未开放
+    </Typography.Text>
   </>
 );
 
@@ -44,8 +37,8 @@ const BaseView: React.FC = () => {
   };
 
   const handleFinish = async (values: any) => {
-    POST('/syst/user/settings/update', values).then(r => {
-      if (r && r.code === 200) {
+    POST('/syst/user/settings/update', values).then((res) => {
+      if (res && res.code === 200) {
         message.success('更新基本信息成功');
       }
     });

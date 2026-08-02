@@ -1,22 +1,18 @@
 import { DEL, PAGE } from '@/services/crud';
 import { generateJdbcUrl, getDriverClassName, pingDatabase } from '@/utils/databaseUtils';
 import {
-  ArrowLeftOutlined,
-  BarChartOutlined,
   DeleteOutlined,
   EditOutlined,
   PlusOutlined,
-  QuestionCircleOutlined,
   SyncOutlined,
 } from '@ant-design/icons';
 import { ProTable } from '@ant-design/pro-components';
 import { PageContainer } from '@ant-design/pro-layout';
 import { Badge, Button, Card, Drawer, message, Modal, Space, Tooltip, Typography } from 'antd';
 import React, { useRef, useState } from 'react';
-import { history } from 'umi';
 import DatabaseConfigForm from './DatabaseConfigForm';
 
-const { Text, Link } = Typography;
+const { Link } = Typography;
 
 const DATABASE_CONFIG_URL = '/ncnb/dataSources';
 
@@ -229,14 +225,6 @@ const DatabaseConfigPage: React.FC = () => {
         </Space>
       }
       subTitle="管理和监控您的所有数据库连接"
-      extra={[
-        <Button key="1" type="primary" icon={<BarChartOutlined />}>
-          数据库使用分析
-        </Button>,
-        <Tooltip key="2" title="了解如何管理数据库连接">
-          <Button icon={<QuestionCircleOutlined />}>帮助</Button>
-        </Tooltip>,
-      ]}
     >
       <Card>
         <ProTable<DatabaseConfigItem>
@@ -267,7 +255,7 @@ const DatabaseConfigPage: React.FC = () => {
               批量删除
             </Button>,
           ]}
-          request={async (params, sorter, filter) => {
+          request={async (params, sorter) => {
             const { current, pageSize, ...restParams } = params;
             const res = await PAGE(
               DATABASE_CONFIG_URL,

@@ -2,6 +2,21 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — P2b W6 外围裁剪（2026-08-02）
+
+### 修复
+- `Menu/index.tsx`：删除无调用方导出 `ProjectSortMenu` / `ProjectFilterMenu` / `NavigationMenu` / `VersionHandle`
+- 删除 `ReverseERWin.tsx`（零引用 stub）
+- `/databaseConfig`：移除顶栏无 onClick 的「数据库使用分析」「帮助」按钮
+- `/account/settings` 基本资料：假 Upload 改为「头像上传暂未开放」文案
+- DesignLayout 侧栏：隐藏 Chat SQL 导航项（路由 `/design/table/chatsql` 保留实验页，不扩 AI）
+- `/project/new`：redirect→`/project/person`；删除 ZeroCode 占位页目录
+
+### 文档
+- `docs/control-matrix.md`：W6 裁剪行 💀→🗑/✅；统计更新
+- `docs/roadmap.md`：P2b W6 进度标注
+  验证点：`rg` 已删符号零引用；`yarn eslint` 受影响文件 `--max-warnings 0`；`npx playwright test tests/e2e/smoke.spec.ts --grep "登录" --project=chromium`
+
 ## [Unreleased] — HomeLayout/GroupLayout 子路由出口（2026-08-02）
 
 ### 修复

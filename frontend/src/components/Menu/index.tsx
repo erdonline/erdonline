@@ -1,5 +1,5 @@
 import React, { useContext } from "react";
-import { Button, Menu } from "antd";
+import { Menu } from "antd";
 import { createFromIconfontCN } from "@ant-design/icons";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
@@ -12,11 +12,6 @@ import ExportDDL from "@/components/dialog/export/ExportDDL";
 import ExportJson from "@/components/dialog/export/ExportJson";
 import DatabaseSetUp from "@/components/dialog/setup/DatabaseSetUp";
 import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
-import useShortcutStore, { PANEL } from "@/store/shortcut/useShortcutStore";
-import CompareVersion, { CompareVersionType } from "@/components/dialog/version/CompareVersion";
-import RenameVersion from "@/components/dialog/version/RenameVersion";
-import RemoveVersion from "@/components/dialog/version/RemoveVersion";
-import SyncVersion from "@/components/dialog/version/SyncVersion";
 import ExportWord from "@/components/dialog/export/ExportWord";
 import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
@@ -68,12 +63,6 @@ export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
   </Menu>
 );
 
-const shortcutState = useShortcutStore.getState();
-
-const setShortcut = (shortcut: string) => {
-  shortcutState.dispatch.setPanel(shortcut);
-};
-
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const openVersionManage = () => {
@@ -110,39 +99,3 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
     </Menu>
   );
 };
-
-export const ProjectSortMenu: React.FunctionComponent<IFileMenuProps> = () => (
-  <Menu mode="vertical">
-    <Menu.Item key="time">创建时间</Menu.Item>
-    <Menu.Item key="updated">最近修改</Menu.Item>
-  </Menu>
-);
-
-export const ProjectFilterMenu: React.FunctionComponent<IFileMenuProps> = () => (
-  <Menu mode="vertical">
-    <Menu.Item key="filter1" onClick={() => setShortcut(PANEL.VERSION)}>
-      过滤1
-    </Menu.Item>
-    <Menu.Item key="filter2" onClick={() => setShortcut(PANEL.DEFAULT)}>
-      过滤2
-    </Menu.Item>
-  </Menu>
-);
-
-/** 顶栏导航占位（原 ChatSQL/数据域入口依赖缺失组件，先空菜单避免白屏） */
-export const NavigationMenu: React.FC = () => {
-  return <Menu mode="horizontal" />;
-};
-
-export const VersionHandle: React.FunctionComponent<IFileMenuProps> = () => {
-  return (
-    <Menu mode="vertical">
-      <CompareVersion type={CompareVersionType.DETAIL} />
-      <CompareVersion type={CompareVersionType.COMPARE} />
-      <RenameVersion />
-      <RemoveVersion />
-      <SyncVersion />
-    </Menu>
-  );
-};
-

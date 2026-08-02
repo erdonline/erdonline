@@ -1,7 +1,6 @@
 import {
   Audit,
   Column,
-  DatabaseConfig,
   DatabaseDownload,
   DatabaseNetwork, DatabaseSearch,
   DataDisplay,
@@ -124,11 +123,6 @@ export default {
       {
         path: '/design/table/query',
         name: '查询',
-        icon: <DatabaseSearch theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
-      },
-      {
-        path: '/design/table/chatsql',
-        name: 'Chat SQL',
         icon: <DatabaseSearch theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
       },
     ],
