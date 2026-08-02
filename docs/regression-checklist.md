@@ -361,6 +361,13 @@
 - [x] [无效 token] `/s/not-a-real-…` 见 Result「403」+ 失效文案；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec.ts`
 - [x] [吊销后] 创建→吊销→匿名打开见 Result「403」+「打开示例 demo」/「返回首页」；无画布✅ `share.spec.ts`
 
+## 分享失效/空态品牌对齐（2026-08-03 · ADR-0016）
+
+- [x] [无效 token] `/s/not-a-real-…` 见 `auth-brand-shell` +「分享不可用」+ `share-invalid-gate`；左面板 ~40%；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec`「无效 token…」
+- [x] [空模块] 新建空项目分享 → 匿名见 `share-empty-module` + `erd-empty-diagram` +「该分享暂无模型|该模块暂无表」+ 主 CTA✅ `share.spec`「空模块分享…」
+- [x] [吊销后] 创建→吊销→匿名见品牌壳失效门（非裸 403）✅ `share.spec`「创建→吊销后…」
+- [x] [成功态不回归] 有表分享仍见 chrome 64 + 画布 + 表清单折叠✅ `share.spec`「设计器分享后…」
+
 ## W5 切片 4 — 登录/注册品牌壳（2026-08-03）
 
 - [x] [登录壳] `/login` 见 `auth-brand-shell`；左面板 ~40%；无 `bg2.png`/`#1677FF`；「打开演示」为 link✅ `smoke.spec.ts`

@@ -1,8 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {DownOutlined, UpOutlined} from '@ant-design/icons';
-import {Button, Result, Segmented, Space, Spin, Table, Tag, Typography, message} from 'antd';
+import {Button, Segmented, Spin, Table, Tag, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
+import AuthBrandShell from '@/components/AuthBrandShell';
 import ShareRelationCanvas from './ShareRelationCanvas';
+import ShareEmptyState from './ShareEmptyState';
 import {listDiagrams} from '@/utils/diagram';
 import * as cache from '@/utils/cache';
 import '@/layouts/erd-chrome.less';
@@ -194,33 +196,19 @@ const SharePage: React.FC = () => {
     );
   }
 
-  // 失效 / 无效：与 404/403 同构 Result + 激活漏斗 CTA（W5 切片 2）
+  // 失效 / 无效：AuthBrandShell 同语言（ADR-0016）；激活漏斗主 CTA = 打开示例
   if (error) {
     return (
-      <div
-        style={{
-          minHeight: '100vh',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          background: 'var(--erd-surface-sunk)',
-          padding: 24,
-        }}
-      >
-        <Result
-          status="403"
-          title="403"
-          subTitle={error}
-          extra={
-            <Space>
-              <Button type="primary" onClick={() => history.push('/')}>
-                返回首页
-              </Button>
-              <Button onClick={() => history.push('/demo')}>打开示例 demo</Button>
-            </Space>
-          }
-        />
-      </div>
+      <AuthBrandShell title="分享不可用" subtitle={error}>
+        <div className="share-page__gate-actions" data-testid="share-invalid-gate">
+          <Button type="primary" block onClick={() => history.push('/demo')}>
+            打开示例 demo
+          </Button>
+          <Button block onClick={() => history.push('/')}>
+            返回首页
+          </Button>
+        </div>
+      </AuthBrandShell>
     );
   }
 
@@ -339,7 +327,9 @@ const SharePage: React.FC = () => {
               module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']}
               diagramId={activeDiagramId}
             />
-          ) : null}
+          ) : (
+            <ShareEmptyState message="该分享暂无模型" />
+          )}
           <button
             type="button"
             className="share-page__tables-toggle"

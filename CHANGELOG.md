@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：分享失效/空态对齐 AuthBrandShell（ADR-0016）
+
+- 选题：失效页仍裸 antd `Result` 403，与登录品牌壳 / 三壳 token 割裂；空模块仅灰字无剪影
+- 失效/无效/吊销 → 复用 `AuthBrandShell`（「分享不可用」+ 主 CTA「打开示例 demo」+「返回首页」）；`share-invalid-gate`
+- 无模型 / 模块 0 表 → `ShareEmptyState`（`ErdEmptyDiagram` + 同 CTA）；成功态 chrome/画布不变
+- E2E：`share.spec` 无效 token 品牌壳 ~40% + 空模块剪影；吊销/happy-path 不回归；截图 `share-invalid-brand-shell.png` / `share-empty-module.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：边标签 / 基数 chip 碰撞避让（ADR-0016）
 
 - 选题：干道 bundling 步长 12 ≪ chip 宽 ~36，密图最长段中点标签叠字；crow's foot + 路由分流不够

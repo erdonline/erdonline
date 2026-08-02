@@ -23,7 +23,8 @@
 | 只读分享创建 | `POST /share/create`（token 匿名读，ADR-0007） | 设计器顶栏「分享」一键复制 ✅ | ✅ |
 | 分享**吊销 / 链接管理** | `POST /share/revoke` | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
 | 分享 → fork | `POST /share/{token}/fork` | 分享页 fork + autofork ✅ | ✅ |
-| 分享失效态 | `GET /share/{token}` | `Result` 403 +「返回首页」+「打开示例 demo」✅（W5 切片 2，与 404/403 同构） | ✅ |
+| 分享失效态 | `GET /share/{token}` | 无效/吊销 → `AuthBrandShell`「分享不可用」+ 主 CTA「打开示例 demo」+「返回首页」✅（ADR-0016 品牌对齐；W5 切片 2 能力保留） | ✅ |
+| 分享只读空态 | 无模型 / 模块 0 表 | `ShareEmptyState`（`ErdEmptyDiagram` + 主 CTA）✅ | ✅ |
 | 分享成功态顶栏 | 只读 `/s/:token` | 64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链 ✅（W5 切片 3） | ✅ |
 | 404 / 403 页 | 路由 `/*` / `403.tsx` | 标准 Result +「返回首页」+「打开示例 demo」✅（W5 切片 1）；无 `reset.css` | ✅ |
 | 登录/注册品牌壳 | `/login` `/register` | 左 40% 暗色品牌面板 + 右 Form；`--erd-*`；无 `bg2`/`#1677FF` ✅（W5 切片 4） | ✅ |
