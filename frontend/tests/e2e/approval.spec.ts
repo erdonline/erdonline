@@ -43,6 +43,7 @@ async function seedApproval(
   projectId: string,
   approverId: string,
   remark: string,
+  dbInfo: Record<string, string> = { url: 'jdbc:mysql://127.0.0.1:3306/erd' },
 ): Promise<string> {
   const create = await request.post(`${API}/ncnb/approval`, {
     headers: { Authorization: `Bearer ${token}` },
@@ -51,8 +52,7 @@ async function seedApproval(
       approver: approverId,
       approveRemark: remark,
       approveSql: 'SELECT 1',
-      // 拒绝链路不执行 SQL；占位即可（通过会走 JDBC，本用例不覆盖）
-      dbInfo: JSON.stringify({ url: 'jdbc:mysql://127.0.0.1:3306/erd' }),
+      dbInfo: JSON.stringify(dbInfo),
     },
   });
   const createJson = await create.json();
@@ -148,6 +148,54 @@ test.describe('版本工单/审批', () => {
       await page.getByRole('button', { name: '是' }).click();
       await expectToast(page, '已重新提交审批');
       await expect(orderRow.getByText('复批', { exact: true })).toBeVisible({ timeout: 10_000 });
+    } finally {
+      if (approvalId) {
+        await deleteApproval(request, token, approvalId).catch(() => {});
+      }
+      await deleteGroup(request, token, projectId).catch(() => {});
+    }
+  });
+
+  /**
+   * 审批通过路径：目标库不可达时必须失败可见，且状态仍为待审批（不落通过、不静默）。
+   */
+  test('审批通过 SQL 失败：toast 可见且状态仍待审批', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const account = e2eAccount();
+    const approverId = `e2e-user-${test.info().parallelIndex}`;
+    const projectName = uniqueProjectName('appr-fail');
+    const remark = `e2e-appr-fail-${Date.now().toString(36)}`;
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(request, token, projectName);
+    let approvalId = '';
+
+    try {
+      approvalId = await seedApproval(request, token, projectId, approverId, remark, {
+        url: 'jdbc:mysql://127.0.0.1:1/nope',
+        driverClassName: 'com.mysql.cj.jdbc.Driver',
+        username: 'x',
+        password: 'y',
+      });
+
+      await login(page, account);
+      await page.goto(`/design/table/model?projectId=${projectId}`);
+      await expect(page).toHaveURL(/projectId=/, { timeout: 15_000 });
+
+      await gotoVersionSub(page, 'approval');
+      const approvalRow = page.getByRole('row').filter({ hasText: remark });
+      await expect(approvalRow).toBeVisible({ timeout: 15_000 });
+      await expect(approvalRow.getByText('待审批')).toBeVisible();
+
+      await approvalRow.getByRole('button', { name: '通过' }).click();
+      await page.getByRole('button', { name: '是' }).click();
+      await expectToast(page, /连接失败|SQL执行失败|驱动加载失败|Communications link failure/);
+      await expect(approvalRow.getByText('待审批')).toBeVisible({ timeout: 10_000 });
+
+      const read = await request.get(`${API}/ncnb/approval/${approvalId}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const readJson = await read.json();
+      expect(String(readJson.data?.approveStatus)).toBe('0');
     } finally {
       if (approvalId) {
         await deleteApproval(request, token, approvalId).catch(() => {});

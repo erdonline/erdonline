@@ -147,25 +147,39 @@ public class ApprovalController {
         wrapper.eq(Approval::getId, id);
         if (StrUtil.equalsAny(approval.getApproveStatus(), "1", "3")) {
             approval.setApproveTime(LocalDateTime.now());
-            //通过
+            //通过：必须先 SQL 成功，再 sync / 落库；失败不改 approve_status
             if (StrUtil.equals(approval.getApproveStatus(), "1")) {
                 if (StrUtil.isBlank(approval.getDbInfo())) {
                     return R.failed("未配置目标数据源信息");
-                }
-                //从版本页面发起的审核，需要处理保本信息
-                if (StrUtil.isNotBlank(approval.getVersionId())) {
-                    approvalService.syncBdVersion(approval.getVersionId());
                 }
                 JSONObject dbInfo = JSONUtil.parseObj(approval.getDbInfo());
                 Map map = dbInfo.toBean(Map.class);
                 map.put("separator", param.get("separator"));
                 map.put("sql", approval.getApproveSql());
-                //表结构语句不受事务控制，放到最后执行
-                DbSqlExecCommand dbSqlExecCommand = new DbSqlExecCommand();
-                dbSqlExecCommand.exec(map);
+                R execResult;
+                try {
+                    execResult = execApproveSql(map);
+                } catch (Exception e) {
+                    log.error("审批通过 SQL 执行异常 id={}", id, e);
+                    return R.failed(StrUtil.blankToDefault(e.getMessage(), "SQL执行失败"));
+                }
+                if (execResult == null || execResult.invalid()) {
+                    String msg = execResult != null ? execResult.getMsg() : null;
+                    return R.failed(StrUtil.blankToDefault(msg, "SQL执行失败"));
+                }
+                //从版本页面发起的审核，需要处理版本信息（仅 SQL 成功后）
+                if (StrUtil.isNotBlank(approval.getVersionId())) {
+                    approvalService.syncBdVersion(approval.getVersionId());
+                }
             }
         }
         return R.ok(approvalService.update(approval, wrapper));
+    }
+
+    /** 可覆盖：单测注入失败/成功结果，避免真实 JDBC */
+    R execApproveSql(Map map) {
+        DbSqlExecCommand dbSqlExecCommand = new DbSqlExecCommand();
+        return dbSqlExecCommand.exec(map);
     }
 }
 

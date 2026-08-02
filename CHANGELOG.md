@@ -8,6 +8,24 @@
 
 ### 2026-08-02
 
+#### 修复：审批通过路径校验 SQL 执行结果（失败不落通过、不 sync）
+
+**修复**
+
+- `ApprovalController.update`：通过（`approveStatus=1`）时先执行 `DbSqlExecCommand.exec` 并检查结果；失败/`exec` 抛异常 → `R.failed`，**不**更新 `approve_status`、**不** `syncBdVersion`；成功后再 sync 并落库
+  验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q test -Dtest=ApprovalControllerTest -Djacoco.skip=true` → 通过；curl：坏 JDBC 审批 `PUT /ncnb/approval/{id}` → code=500（连接失败）且读回 `approveStatus=0`；`npx playwright test approval.spec.ts --grep "SQL 失败" --project=chromium --workers=1` → 1 passed
+
+**测试**
+
+- 新增 `ApprovalControllerTest`：SQL 失败/抛异常不 sync 不 update；成功才 sync+update；空 dbInfo 直接失败
+- `approval.spec.ts`：坏数据源点「通过」→ 失败 toast 可见 + 状态仍待审批 + API `approveStatus=0`
+  验证点：同上
+
+**文档**
+
+- `docs/roadmap.md` 下一季② 子项「审批通过路径」✅，整体 ✅
+  验证点：roadmap ② 行含本切片 ✅ 日期
+
 #### 修复：Word 导出去 MinIO 硬依赖（classpath 默认模板 + 缺席降级）
 
 **修复**
