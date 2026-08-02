@@ -233,8 +233,11 @@ test.describe('设计器项目菜单', () => {
       const tableOpt = exportTree.getByText('T_TABLE_1', { exact: true });
       await expect(tableOpt).toBeVisible({ timeout: 10_000 });
       await tableOpt.click();
+      // TreeSelect 多选下拉会挡住 Modal footer；点标题收起（勿 Escape，会关 Modal）
+      await dlg.getByText('SQL导出配置').click();
+      await expect(exportTree).toBeHidden({ timeout: 5_000 });
 
-      await dlg.getByRole('button', { name: '下一步' }).click();
+      await dlg.getByRole('button', { name: '下一步' }).click({ force: true });
       await expect(dlg.getByRole('button', { name: '上一步' })).toBeVisible({ timeout: 10_000 });
       await expect(dlg.getByRole('button', { name: '导出' })).toBeVisible();
       await expect(dlg.getByText('导出配置', { exact: true })).toBeVisible();

@@ -305,6 +305,15 @@
 - [x] [列表 loading] 个人项目慢网见 `aria-busy` ✅ `loading.spec.ts`
 - [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 15 ✅
 
+## W4 切片 14 — approval/order/home/login/register/databaseConfig/ExportDDL → antd（2026-08-02）
+
+- [x] [审批/工单非 ProTable] 侧栏「我的工单/我的审批」表头 + 空态；种子拒绝/复批/SQL 失败仍待审 ✅ `approval.spec.ts`
+- [x] [Home 非 PageContainer] `/home` 快捷入口 `home-link-*` 可见 ✅ `project-surface` / `activation`
+- [x] [登录/注册非 LoginFormPage] 错误凭证 toast；去注册导航；注册进 home ✅ `smoke` / `session`
+- [x] [databaseConfig 非 ProTable] `/databaseConfig` 新建连接 + 同步状态 + 编辑删除 ✅ `adr0008-datasource`
+- [x] [ExportDDL 非 StepsForm] 菜单「导出DDL」弹窗两步 + 下载 `.sql` ✅ `project-menu` 导出DDL
+- [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 8 ✅
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`

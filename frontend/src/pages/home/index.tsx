@@ -10,7 +10,6 @@ import {useRequest} from "@umijs/hooks";
 import {Link} from "@@/exports";
 import {GET, POST_ERD} from "@/services/crud";
 import React, {useEffect, useState} from "react";
-import {PageContainer} from "@ant-design/pro-components";
 import {VipOne} from "@icon-park/react";
 import * as cache from "@/utils/cache";
 import { createExampleProjectAndOpen } from '@/utils/exampleProject';
@@ -206,21 +205,17 @@ const Home: React.FC<HomeProps> = () => {
   });
 
   return (
-    <PageContainer
-      title={false}
-      content={
-        <Row gutter={24} align="middle">
-          <Col xs={24} sm={24} md={12} lg={12} xl={10}>
-            <PageHeaderContent
-              currentUser={r?.data}
-            />
-          </Col>
-          <Col xs={24} sm={24} md={12} lg={12} xl={14}>
-            <ExtraContent />
-          </Col>
-        </Row>
-      }
-    >
+    <div data-testid="home-page">
+      <Row gutter={24} align="middle" style={{marginBottom: 24}}>
+        <Col xs={24} sm={24} md={12} lg={12} xl={10}>
+          <PageHeaderContent
+            currentUser={r?.data}
+          />
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12} xl={14}>
+          <ExtraContent />
+        </Col>
+      </Row>
       <Row gutter={16}>
         <Col xl={16} lg={24} md={24} sm={24} xs={24}>
           <Card
@@ -307,7 +302,7 @@ const Home: React.FC<HomeProps> = () => {
           </Card>
         </Col>
       </Row>
-    </PageContainer>
+    </div>
   );
 }
 

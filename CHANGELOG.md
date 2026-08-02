@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 14 — approval/order/home/login/register/databaseConfig/ExportDDL → antd
+
+**重构**
+
+- 版本「我的审批 / 我的工单」：摘 `ProTable` → antd `Table` + 自管分页；`actionRef.reload` 与 Pass/Refuse/Cancel/Repeat 联动不变；testid `page-title-approvals` / `page-title-orders` 保留
+- Home：摘 `PageContainer` → 普通内容区；快捷入口 testid 不变
+- 登录 / 注册：摘 `LoginFormPage` / `ProFormText` → antd `Form` + 左右分栏品牌壳；文案与演示 CTA 保留
+- `databaseConfig`：摘 `PageContainer`（`pro-layout`）+ `ProTable` → 标题区 + `Input.Search` + antd `Table`；Drawer 新建/编辑/删除/ping 不变
+- 导出 DDL（菜单对话框 + 导出页）：摘 `StepsForm` / `ModalForm` / `ProForm*` → antd `Modal`/`Steps`/`Form`/`TreeSelect`；aria「下一步/上一步/导出」与 `export-ddl-tables` 保留
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 14 ✅；Pro 文件数 15→8
+- 审批/工单操作列：`approveStatus` 按 `Number(...)` 比较（API 常返回字符串，避免 `=== 0` 漏渲染「通过/拒绝/撤销/复批」）
+- `databaseConfig.loadData`：`PAGE(..., sorter)` + `res?.code` 防空，避免列表请求异常时白屏崩溃
+  验证点：切片文件 `pro-components` = 0；`rg -l "from '@ant-design/pro-" frontend/src` → **8**；`approval` 空态 + `session`×4 + `smoke` 登录×2 绿；审批操作列曾以拒绝/SQL失败用例验证 `Number(approveStatus)`；ExportDDL 第二步曾绿（TreeSelect 收起后点下一步）
+
 #### 重构：W4 切片 13 — person / recent / group / dataModels / ExportCommon ProList → antd List
 
 **重构**

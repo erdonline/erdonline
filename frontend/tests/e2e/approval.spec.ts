@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext } from '@playwright/test';
 import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
+  E2E_SERIAL,
   e2eAccount,
   expectToast,
   gotoVersionSub,
@@ -86,10 +87,12 @@ async function deleteGroup(request: APIRequestContext, token: string, projectId:
 test.describe('版本工单/审批', () => {
   test('侧栏打开我的工单与我的审批，表头正确且有空态引导', async ({ page }) => {
     test.setTimeout(90_000);
-    const projectName = uniqueProjectName('approval');
+    // 空态断言用独立账号，避免并行种子工单污染 worker 账号
+    const account = E2E_SERIAL;
+    const projectName = `e2e-serial-approval-${Date.now().toString(36)}`;
     try {
-      await login(page);
-      await deleteOwnPersonProjects(page);
+      await login(page, account);
+      await deleteOwnPersonProjects(page, /^e2e-serial-/);
       await createAndOpenPersonProject(page, projectName, 'approval', 'approval pages');
 
       await gotoVersionSub(page, 'order');
@@ -100,7 +103,7 @@ test.describe('版本工单/审批', () => {
       await expect(page.getByTestId('page-title-approvals')).toHaveText('我的审批');
       await expect(page.getByText(/暂无待审/)).toBeVisible();
     } finally {
-      await deleteOwnPersonProjects(page).catch(() => {});
+      await deleteOwnPersonProjects(page, /^e2e-serial-/).catch(() => {});
     }
   });
 

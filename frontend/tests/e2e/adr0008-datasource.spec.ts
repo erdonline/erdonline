@@ -151,7 +151,8 @@ test.describe('ADR-0008 数据源', () => {
       await page.goto('/databaseConfig');
       await expect(page.getByText('数据库连接列表')).toBeVisible({ timeout: 20_000 });
 
-      await page.getByRole('button', { name: '新建连接' }).click();
+      // HomeLayout GitHub badge iframe 偶发盖住按钮
+      await page.getByRole('button', { name: '新建连接' }).click({ force: true });
       await expect(page.getByPlaceholder('例如：生产环境主数据库')).toBeVisible({
         timeout: 15_000,
       });
