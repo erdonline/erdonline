@@ -121,4 +121,102 @@ test.describe('ADR-0008 数据源', () => {
       /* 未保存，无需清理 */
     }
   });
+
+  test('/databaseConfig：编辑保存 + 删除确认闭环', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const stem = `e2e-w${test.info().parallelIndex}-ds-${Date.now().toString(36)}`;
+    const nameA = `${stem}-a`;
+    const nameB = `${stem}-b`;
+    try {
+      await login(page, e2eAccount());
+      const token = await page.evaluate(() => localStorage.getItem('Authorization'));
+      expect(token).toBeTruthy();
+      const list = await request.get(`${API}/ncnb/dataSources?size=100&current=1`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      const listJson = await list.json();
+      for (const row of listJson?.data?.records || []) {
+        await request.delete(`${API}/ncnb/dataSources/${row.id}`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+      }
+
+      await page.goto('/databaseConfig');
+      await expect(page.getByText('数据库连接列表')).toBeVisible({ timeout: 20_000 });
+
+      await page.getByRole('button', { name: '新建连接' }).click();
+      await expect(page.getByPlaceholder('例如：生产环境主数据库')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByPlaceholder('例如：生产环境主数据库').fill(nameA);
+      await page.getByPlaceholder('例如：localhost 或 192.168.1.1').fill('127.0.0.1');
+      await page.getByPlaceholder('例如：3306').fill('59999');
+      await page.getByPlaceholder('例如：mydatabase').fill('e2e_fake');
+      await page.getByPlaceholder('例如：com.mysql.cj.jdbc.Driver').fill('com.mysql.cj.jdbc.Driver');
+      await page.getByPlaceholder('用户名').fill('e2e');
+      await page.getByPlaceholder('密码').fill('e2e');
+
+      const postWait = page.waitForResponse(
+        (r) =>
+          r.url().includes('/ncnb/dataSources') &&
+          r.request().method() === 'POST' &&
+          !r.url().includes('ping'),
+        { timeout: 20_000 },
+      );
+      await page.getByRole('button', { name: '保存连接' }).click();
+      const postRes = await postWait;
+      expect(postRes.status()).toBe(200);
+      await expect(page.getByText('添加成功').first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('row', { name: new RegExp(nameA) })).toBeVisible({
+        timeout: 30_000,
+      });
+
+      const rowA = page.getByRole('row', { name: new RegExp(nameA) });
+      await rowA.getByRole('button', { name: '编辑' }).click();
+      await expect(page.getByText('编辑数据库连接')).toBeVisible({ timeout: 10_000 });
+      await page.getByPlaceholder('例如：生产环境主数据库').fill(nameB);
+
+      const putWait = page.waitForResponse(
+        (r) =>
+          r.url().includes('/ncnb/dataSources/') &&
+          r.request().method() === 'PUT' &&
+          !r.url().includes('ping'),
+        { timeout: 20_000 },
+      );
+      await page.getByRole('button', { name: '更新连接' }).click();
+      const putRes = await putWait;
+      expect(putRes.status()).toBe(200);
+      await expect(page.getByText('更新成功').first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('row', { name: new RegExp(nameB) })).toBeVisible({
+        timeout: 30_000,
+      });
+      await expect(page.getByRole('row', { name: new RegExp(nameA) })).toHaveCount(0);
+
+      const rowB = page.getByRole('row', { name: new RegExp(nameB) });
+      await rowB.getByRole('button', { name: '删除' }).click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog.getByText('确认删除')).toBeVisible();
+      await expect(dialog.getByText(/不可逆/)).toBeVisible();
+      await dialog.getByRole('button', { name: /确\s*认/ }).click();
+      await expect(page.getByText('删除成功').first()).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('row', { name: new RegExp(nameB) })).toHaveCount(0, {
+        timeout: 30_000,
+      });
+    } finally {
+      const token = await page.evaluate(() => localStorage.getItem('Authorization')).catch(() => null);
+      if (token) {
+        const list = await request.get(`${API}/ncnb/dataSources?size=100&current=1`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const listJson = await list.json();
+        for (const row of listJson?.data?.records || []) {
+          if (String(row.name || '').includes(stem)) {
+            await request.delete(`${API}/ncnb/dataSources/${row.id}`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+          }
+        }
+      }
+    }
+  });
 });

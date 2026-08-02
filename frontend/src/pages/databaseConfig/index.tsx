@@ -113,7 +113,17 @@ const DatabaseConfigPage: React.FC = () => {
       title: '连接名称',
       dataIndex: 'name',
       key: 'name',
-      render: (text: string) => <Link>{text}</Link>,
+      render: (text: string, record: DatabaseConfigItem) => (
+        <Link
+          onClick={() => {
+            setEditingRecord(record);
+            setDrawerVisible(true);
+          }}
+          aria-label={`编辑连接 ${text}`}
+        >
+          {text}
+        </Link>
+      ),
       search: true,
     },
     {
@@ -195,6 +205,7 @@ const DatabaseConfigPage: React.FC = () => {
             <Button
               type="link"
               icon={<EditOutlined />}
+              aria-label="编辑"
               onClick={() => {
                 setEditingRecord(record);
                 setDrawerVisible(true);
@@ -206,11 +217,17 @@ const DatabaseConfigPage: React.FC = () => {
               type="link"
               danger
               icon={<DeleteOutlined />}
+              aria-label="删除"
               onClick={() => handleDelete(record.id)}
             />
           </Tooltip>
           <Tooltip title="同步状态">
-            <Button type="link" icon={<SyncOutlined />} onClick={() => handleSyncStatus(record)} />
+            <Button
+              type="link"
+              icon={<SyncOutlined />}
+              aria-label="同步状态"
+              onClick={() => handleSyncStatus(record)}
+            />
           </Tooltip>
         </Space>
       ),

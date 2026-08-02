@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W5 `/databaseConfig` 编辑/删除闭环（2026-08-02）
+
+### 修复
+- `/databaseConfig`：行内编辑/删除/同步图标钮补 `aria-label`；连接名称链可点打开编辑（原死 affordance）
+  验证点：`adr0008-datasource.spec`「编辑保存 + 删除确认」
+
+### 测试
+- `adr0008-datasource.spec`：新建 → 编辑改名 PUT → toast「更新成功」→ 删除二次确认 →「删除成功」行消失
+  验证点：`npx playwright test tests/e2e/adr0008-datasource.spec.ts --grep "编辑保存" --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：编辑/删除/批量删 → ✅；`docs/roadmap.md` P2b 长尾标注数据源编辑删已收
+
 ## [Unreleased] — W5 逆向解析提交闭环（2026-08-02）
 
 ### 修复
