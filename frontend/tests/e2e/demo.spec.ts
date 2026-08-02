@@ -180,12 +180,37 @@ test.describe('在线演示', () => {
       }
     }
     expect(overlapPairs, `边标签 AABB 重叠对数应为 0（got ${overlapPairs}）`).toBe(0);
-    // ADR-0016：分享只读同 SCSS — 字段名主列 / 类型右对齐次要栏
-    const shareField = page
+    // ADR-0016：分享只读同 SCSS — 表头实体名主标题 vs 中文 meta
+    const shareUser = page
       .getByTestId('share-relation-canvas')
-      .getByTestId('rf__node-sys_user')
-      .locator('.erd-field-row')
-      .first();
+      .getByTestId('rf__node-sys_user');
+    await expect(shareUser).toBeVisible();
+    const headerHierarchy = await shareUser.locator('.erd-table-header').evaluate((el) => {
+      const title = el.querySelector('.erd-table-title');
+      const chn = el.querySelector('.erd-table-chnname');
+      if (!title || !chn) return null;
+      const ts = getComputedStyle(title);
+      const cs = getComputedStyle(chn);
+      return {
+        titleSize: parseFloat(ts.fontSize),
+        titleWeight: parseInt(ts.fontWeight, 10),
+        titleColor: ts.color,
+        chnSize: parseFloat(cs.fontSize),
+        chnWeight: parseInt(cs.fontWeight, 10),
+        chnOpacity: parseFloat(cs.opacity),
+        chnText: (chn.textContent || '').trim(),
+      };
+    });
+    expect(headerHierarchy).not.toBeNull();
+    expect(headerHierarchy!.chnText).toBe('用户');
+    expect(headerHierarchy!.titleSize).toBeGreaterThanOrEqual(14);
+    expect(headerHierarchy!.titleWeight).toBeGreaterThanOrEqual(700);
+    expect(headerHierarchy!.titleColor).toBe('rgb(11, 28, 44)'); // ink900
+    expect(headerHierarchy!.chnSize).toBeLessThan(headerHierarchy!.titleSize);
+    expect(headerHierarchy!.chnWeight).toBeLessThan(headerHierarchy!.titleWeight);
+    expect(headerHierarchy!.chnOpacity).toBeLessThan(1);
+    // ADR-0016：分享只读同 SCSS — 字段名主列 / 类型右对齐次要栏
+    const shareField = shareUser.locator('.erd-field-row').first();
     await expect(shareField).toBeVisible();
     const fieldScan = await shareField.evaluate((el) => {
       const name = el.querySelector('.erd-field-name');
@@ -220,6 +245,9 @@ test.describe('在线演示', () => {
     expect(shareStroke.width).toBeLessThanOrEqual(2.5);
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-stroke.png',
+    });
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-table-header-hierarchy.png',
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-field-scanability.png',

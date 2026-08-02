@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：表头标题层次（实体名主标题 vs muted meta，ADR-0016）
+
+- 选题：表节点表头实体名与中文名字号/字重接近，muted 表头上扫读不先落实体名；停色 token，攻标题层次
+- `.erd-table-title` 14px / 700 / ink900；`.erd-table-chnname` 10px / 400 / ink400 + opacity 0.88；改名 input 对齐主标题
+- 设计器 / 分享只读共用 `reactflow-relation.scss`；E2E：`relation` 建表填中文名、`demo` 断言 sys_user「用户」；截图 `diagram-table-header-hierarchy.png` / `demo-table-header-hierarchy.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：关系线默认描边权重/对比（ADR-0016）
 
 - 选题：默认关系干道 `ink600` + 1.5px 在 sunk 画布/分享截图偏淡；停色 token 碎活，攻可读
