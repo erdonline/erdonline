@@ -20,10 +20,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `33-field-delete-button-a11y.md` | 画布「删除字段」改为可访问按钮 |
 | `34-rf-controls-zh-aria.md` | ReactFlow Controls 中文可访问名 |
 
-`01`–`32` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
+`01`–`33` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
 
 合入后在对应草稿顶部加：
 

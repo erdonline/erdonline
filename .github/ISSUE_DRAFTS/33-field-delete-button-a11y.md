@@ -1,5 +1,7 @@
 # [good first] 画布「删除字段」改为可访问按钮
 
+> **已合入**（勿再投放）：`erd-field-delete` 改为 `button` + `aria-label`；E2E 见 `relation.spec.ts`「删除字段」。
+
 ## 背景
 
 关系图表节点上，删除字段控件是带 `×` 的 `<span>`，仅有 `title="删除字段"`，没有 `role` / `aria-label`，键盘与读屏无法稳定操作；也不符合仓库 E2E 定位纪律（优先 `getByRole`）。
@@ -8,9 +10,9 @@
 
 ## 接受标准
 
-- [ ] 「删除字段」可用 `getByRole('button', { name: '删除字段' })` 定位（同表多字段时用 `locator` 限定在目标字段行内）
-- [ ] 点击后字段从节点消失；不改删除确认策略（现状无二次确认则保持）
-- [ ] 不扩大 `any`；不改 projectJSON 结构
+- [x] 「删除字段」可用 `getByRole('button', { name: '删除字段' })` 定位（同表多字段时用 `locator` 限定在目标字段行内）
+- [x] 点击后字段从节点消失；不改删除确认策略（现状无二次确认则保持）
+- [x] 不扩大 `any`；不改 projectJSON 结构
 
 ## 验证命令
 

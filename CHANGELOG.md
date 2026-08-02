@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：画布「删除字段」可访问按钮（草稿 33）
+
+**修复**
+
+- 关系图表节点 `erd-field-delete`：`span` → `button` + `aria-label="删除字段"`（保留无二次确认）
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "删除字段"`
+
+**测试**
+
+- `relation.spec.ts`：新增「删除字段：可访问按钮移除字段行」
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `33` 标已合入；README / `docs/community.md` 种子 47 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `34`（`33` 为 SKIP）
+
 #### P4 社区：补 good-first 草稿 33–34
 
 **文档**

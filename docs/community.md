@@ -87,7 +87,7 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 44. ~~**version/approval goto 抽 helpers**~~（已合入；回滚同步落库）
 45. ~~**CHANGELOG Unreleased 整理**~~（已合入：按日 `### YYYY-MM-DD` + 文首维护约定；草稿 `32`）
 46. ~~**控件矩阵 🚧 行**~~（P2b 矩阵 🚧=0；余 📋 延期不拆阻断 Issue）
-47. **画布「删除字段」可访问按钮**（草稿 `33`：span→button + aria + E2E）
+47. ~~**画布「删除字段」可访问按钮**~~（已合入；`relation.spec`「删除字段」；草稿 `33`）
 48. **ReactFlow Controls 中文 aria**（草稿 `34`：自定义 ControlButton，禁英文 zoom in 等）
 
 ## 贡献者怎么认领

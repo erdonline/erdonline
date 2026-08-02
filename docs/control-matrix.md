@@ -94,7 +94,7 @@
 | DesignLayout 菜单 | 模型 | → `/design/table/model` | 关系图 | ✅ | `relation` / `smoke` |
 | `/design/table/model` | 树「关系图」`tree-open-relation` | 打开画布标签 | RF | ✅ | `relation.spec` |
 | `/design/table/model` | 空态建表 CTA | 表节点出现 | | ✅ | `relation` 全旅程 |
-| `/design/table/model` | 内联字段/连线/守卫 | 持久化刷新仍在 | | ✅ | `relation` |
+| `/design/table/model` | 内联字段/连线/守卫 | 持久化刷新仍在；删字段 `getByRole('button', { name: '删除字段' })` | | ✅ | `relation` |
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新 | | ✅ | `relation`「改名」 |
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后移除+toast | | ✅ | `smoke` 取消/确认 |

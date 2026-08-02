@@ -180,6 +180,36 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('删除字段：可访问按钮移除字段行', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fdel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fdel', 'field delete a11y');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await expect(nameRow).toBeVisible();
+
+      // 删除钮仅 hover 可见；限定在字段行内避免同表多字段歧义
+      await nameRow.hover();
+      const delBtn = nameRow.getByRole('button', { name: '删除字段' });
+      await expect(delBtn).toBeVisible();
+      // 右侧 Handle 易挡指针；DOM click 与表头改名一致
+      await delBtn.evaluate((el: HTMLElement) => el.click());
+      await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
+      await expect(node.locator('[data-field="id"]')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('PK 徽标可取消再恢复', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('pk');
