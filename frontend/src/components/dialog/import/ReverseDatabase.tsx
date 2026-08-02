@@ -9,6 +9,7 @@ import {fetchDatabaseConfigs} from '@/utils/databaseUtils';
 import {dbReverseMeta} from '@/utils/save';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
+import '../io-modal.scss';
 
 export type DatabaseReverseProps = MenuDialogControl;
 
@@ -188,7 +189,11 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
         open={open}
         onCancel={() => setOpen(false)}
         destroyOnClose
-        width={720}
+        width={640}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
+        transitionName=""
+        maskTransitionName=""
         footer={
           step === 0
             ? [
@@ -215,13 +220,14 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
         <Steps
           current={step}
           size="small"
-          style={{marginBottom: 24}}
+          className="erd-io-modal__steps"
           items={[{title: '选择数据源'}, {title: '解析数据源'}]}
         />
         {step === 0 && (
           <Form
             form={form1}
             layout="vertical"
+            size="small"
             initialValues={{
               currentDB: projectDispatch.getCurrentDBName(),
               dataFormat: 'DEFAULT',

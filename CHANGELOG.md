@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：导入/导出弹层密度（ADR-0016）
+
+- 选题：项目菜单导入/导出 Modal 头脚与控件密度（与 22–28 chrome / EntityModal 同阶）
+- 共享 `io-modal.scss`（`.erd-io-modal`）：标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧；挂 DBML/ERD/PdMan/逆向/DDL 弹层
+- `dbml-import`「导入弹层密度」+ `dbml-export`「导出弹层密度」；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png`；role/aria 定位不变
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "导入弹层密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/dbml-export.spec.ts --project=chromium --grep "导出弹层密度" --workers=1 --retries=0`
+
 #### 体验：版本列表行密度（ADR-0016）
 
 - 选题：设计器版本管理列表行/工具条密度（与 22–28 chrome / CommonTabs 同阶）

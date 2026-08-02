@@ -11,6 +11,7 @@ import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
 import {relationTabEntity} from '@/utils/diagram';
 import type {DbmlProjectJSON} from '@/utils/dbml/toProjectJSON';
+import '../io-modal.scss';
 
 const {Dragger} = Upload;
 const {TextArea} = Input;
@@ -204,7 +205,11 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         open={open}
         onCancel={closeModal}
         destroyOnClose
-        width={560}
+        width={520}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
+        transitionName=""
+        maskTransitionName=""
         okText="解析并导入"
         cancelText="取消"
         confirmLoading={loading}
@@ -215,9 +220,9 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
           placeholder="粘贴 DBML 文本（Table / Ref / Note）…"
           value={paste}
           onChange={(e) => setPaste(e.target.value)}
-          rows={8}
+          rows={6}
           disabled={loading}
-          style={{marginBottom: 12}}
+          className="erd-io-modal__field"
         />
         <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">
