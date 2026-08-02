@@ -325,7 +325,7 @@
 ## W2 切片 4 — 设计器 calc(100vh) 清零（2026-08-02）
 
 - [x] [树填满 sider] 有模块后 `.tree-container` 底边距 sider-inner ≤24px；无 `calc(100vh)`✅ `layout-outlet.spec.ts`
-- [x] [版本页填满 content] `version-page` 高度与 `.design-layout__content` 差 <8px✅同上
+- [x] [版本页填满 content] `version-page` 高度与 `.design-layout__content` 差 `<8px`✅同上
 
 ## W6 权限组 / GroupLayout 导航 / 404（2026-08-02）
 
