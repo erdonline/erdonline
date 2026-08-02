@@ -11,7 +11,7 @@ import {
   Outbound,
   SettingConfig,
   SettingTwo,
-  Sphere, TransactionOrder,
+  TransactionOrder,
   Warehousing
 } from "@icon-park/react";
 
@@ -24,12 +24,7 @@ export default {
         icon: <DatabaseNetwork theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
         // 移除了子路由,使其直接跳转
       },
-      {
-        path: '/design/dataDomain',
-        name: '数据域',
-        icon: <Sphere theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
-        // 移除了子路由,使其直接跳转
-      },
+      // 数据域：侧栏已隐藏；路由 `/design/dataDomain` 保留实验页（不服务北极星主路径）
       {
         path: '/design/table/version',
         name: '版本',

@@ -18,7 +18,7 @@ const RenameDatabase: React.FC<RenameDatabaseProps> = (props) => {
   }
     = useProjectStore(state => ({
     projectDispatch: state.dispatch,
-    database: state.project.projectJSON.dataTypeDomains?.database || [],
+    database: state.project?.projectJSON?.dataTypeDomains?.database || [],
     currentDatabaseIndex: state.currentDatabaseIndex,
   }), shallow);
 

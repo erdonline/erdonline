@@ -223,3 +223,8 @@
 
 - [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`
 - [x] [GroupLayout 主内容] 登录→/project/group/setting/basic?projectId= 见「基本设置」+「项目名」且不双挂载 ✅同上
+
+## W6 数据域裁剪（2026-08-02）
+
+- [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
+- [x] [深链实验页] `/design/dataDomain` 见「实验功能」✅同上
