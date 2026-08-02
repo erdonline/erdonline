@@ -16,14 +16,13 @@ import javax.sql.DataSource;
 /**
  * 建模库（erd）数据源配置。
  *
- * <p>负责 {@code com.erdonline.erd.mapper} 与 {@code com.erdonline.erd.plaza.mapper}，
- * 对应 MySQL 的 {@code erd} 库（项目/表模型/版本等建模元数据）。</p>
+ * <p>负责 {@code com.erdonline.erd.mapper}，对应 MySQL 的 {@code erd} 库（项目/表模型/版本等建模元数据）。</p>
  *
  * @see MartinDataSourceConfig
  */
 @Configuration
 @MapperScan(
-        basePackages = {"com.erdonline.erd.mapper", "com.erdonline.erd.plaza.mapper"},
+        basePackages = "com.erdonline.erd.mapper",
         sqlSessionFactoryRef = "erdSqlSessionFactory",
         nameGenerator = FullyQualifiedMapperNameGenerator.class
 )

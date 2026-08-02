@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 清理：删除零引用 `plaza/Material*` 死码
+
+**功能**
+
+- 删除 `com.erdonline.erd.plaza` 整包（Material 控制器/服务/实体/Mapper）与 7 个 `Material*.xml`
+- `ErdDataSourceConfig` MapperScan 仅保留 `com.erdonline.erd.mapper`（表不动）
+
+**测试 / 文档**
+
+- `architecture.md` / `product-capability-map`；regression-checklist
+
+验证点：`mvn -q -DskipTests compile` → 绿；`./backend/dev-ensure.sh --restart` 后 `GET /actuator/health` → UP；`GET /material` → 404（非 500）；`rg 'erd\.plaza|MaterialController' backend/src` = 0
+
 #### 功能：逆向保真 — JDBC `COLUMN_DEF` → `fields[].defaultValue`
 
 **功能**
