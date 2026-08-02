@@ -89,6 +89,7 @@
 
 - W1：DesignLayout 摘 ProLayout → antd Layout（**✅**，见 CHANGELOG 2026-08-02）；顶栏保留 save/share/presence/`homeRightContent`/项目菜单
 - ✅ **W2 切片 3**（2026-08-02）：删主区嵌套 `Splitter`/`DataTable`（左树唯一 = sider）；删 sider footer；sider 400→320；`CommonTabs` 栏 40px；设计器壳 `calc(100vh-*)` → flex 填满；树头「新建」(`design-tree-add`) 常显
+- ✅ **W2 切片 4**（2026-08-02）：清设计器内残留 `calc(100vh)`——修 `EmptyStateAnimation` 内容态高度链断裂；`QueryTree` / `version` / ReactFlow 改 flex/`height:100%`（度量「W1 后设计器 0」收口）
 
 ### 版本 version / 导入 import / 导出 export / 设置 setting（设计器壳标签页 · W3/W4）
 
@@ -128,7 +129,7 @@
 
 | 能力 | 后端证据 | UI 现状 | 缺口 |
 |---|---|---|---|
-| 只读分享**吊销/管理** | `POST /share/revoke`（ProjectShareController）；security-model 明文「创建/吊销需登录且为项目创建人」 | `ShareProjectButton` 只有创建+复制；无吊销、无已有链接查看 | **missing** — 安全模型承诺的一半不可达 |
+| 只读分享**吊销/管理** | `POST /share/revoke`（ProjectShareController）；security-model 明文「创建/吊销需登录且为项目创建人」 | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
 | 跨版本 diff **导出** | 版本 diff 可视化 ✅（CompareVersion）；db_change.tag 多标签 ✅（Flyway V1/V2） | CompareVersion「导出」Markdown/SQL ✅（W3 切片 1） | ✅ |
 | 数据字典 | `/dataDict` 全 CRUD（DataDictController） | 实验页已删（W2）；本阶段无 UI | **thin** — 本阶段不扩，但也不许为其抛光 |
 | 审批流 | approval CRUD + SQL 信任链（SQL 失败不落通过 ✅） | 入口深埋设计器 version/order/approval tab | thin — 可用，W3 平移时顺带理顺入口 |
@@ -154,6 +155,7 @@
 | └ **W2 切片 1** ✅（2026-08-02） | ① 分享弹层+吊销+后端创建人校验+匿名 GET-only；② 空壳路由下线（query/chatsql/dataDomain/dataQuery→404）+ 删 test 页与 settings geographic（`pages/JExcel` 为表编辑组件保留） | 随删路由清 Query 左栏特例 | `share.spec`（含吊销失效）+ `design-query`/`data-domain`/`home-data-query` 404 |
 | └ **W2 切片 2** ✅（2026-08-02） | ③ Home 只删：Radar/_mock/service/Pie config/「项目概览」重复卡 + HomeLayout slogan 轮转；实验页源文件物理删除（query/chatsql/dataDomain/dataQuery + QueryLeftContent/dialog/query/useQueryStore）；依赖移除 `@ant-design/charts`、`@chatui/core` | 随删清 TabGroup.QUERY | `activation` + `layout-outlet`；空壳 404 不回归；`grep charts/chatui/useQueryStore` = 0 |
 | └ **W2 切片 3** ✅（2026-08-02） | ④ 设计器 chrome：主区去重嵌套 `DataTable`；sider footer 删除；sider 400→320；tabs 40px；壳层 flex 填满；树头「新建」常显 | — | `layout-outlet`「顶栏…」+「模型树唯一 + 新建入口常显」；`openRelationFromEmpty` 断言单树 |
+| └ **W2 切片 4** ✅（2026-08-02） | ⑤ 设计器 `calc(100vh)` 清零：`QueryTree` / `version-page` / ReactFlow 画布 → flex/`height:100%`；sider-inner `overflow:hidden` | — | `layout-outlet`「模型树与版本页 flex 填满」；`rg 'calc\\(100vh' frontend/src/components/QueryTree frontend/src/pages/design` = 0 |
 | **W3** 版本域收口（旧 W4 提前，目标改写） | version ProList → antd List ✅；**跨版本 diff 导出** ✅；审批/order 表单 `ProForm*` → antd Form 平移；审批入口理顺 | 版本/审批域 ProForm（version ProList 已摘） | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
 | └ **W3 切片 1** ✅（2026-08-02） | **跨版本 diff 导出**：diff 弹层「导出」主按钮落 Markdown（模型变更+SQL），下拉「仅导出 SQL」；复用 `File.save`；顺带移除零引用 `bizcharts` / `@ant-design/plots` | — | `version.spec` 详情弹层 download `.md` + toast；`formatVersionDiffMarkdown.test.ts` |
 | └ **W3 切片 2** ✅（2026-08-02） | version `ProList` → antd `List`：工具栏（脏标记/数据源/标签筛选/新增/对比/同步配置/重建）+ 行（版本号 strong + 同步 Tag + 标签 chips + 变更摘要 + 行尾操作）；空态「还没有版本」+「保存第一个版本」主按钮 | version ProList | `version.spec`「无数据源也可新增版本」空态 CTA + 列表行不回归；`rg ProList pages/design/version` = 0 |

@@ -1,8 +1,9 @@
 // ReactFlow 画布与表节点样式（设计原则：节点即文档——字段信息一眼读完）
 .erd-reactflow-container {
   width: 100%;
-  // 显式视口高度：antd Tabs 内容区为 auto 高度，height:100% 链会塌成 0（空态下画布不可见）
-  height: calc(100vh - 104px);
+  // CommonTabs 内容区已 flex 填满（W2）；height:100% 链不再塌成 0
+  height: 100%;
+  min-height: 0;
   background: #fafafa;
 
   .react-flow__handle {

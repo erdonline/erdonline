@@ -1,10 +1,23 @@
+.query-tree {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  height: 100%;
+}
+
+.query-tree__toolbar {
+  flex: none;
+  display: flex;
+  padding-bottom: 16px;
+  padding-right: 16px;
+}
+
 .tree-container {
-  height: calc(100vh - 170px);
+  flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
-
-  // 移除或注释掉可能影响背景色的样式
-  // background-color: xxx;
 }
 
 .tree-node-action {
