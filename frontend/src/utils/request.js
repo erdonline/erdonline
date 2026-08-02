@@ -113,11 +113,13 @@ request.interceptors.response.use(async (response, options) => {
 export const logout = () => {
   request("/auth/exit", {
     method: 'POST',
+  }).catch(() => {
+    /* 退出接口失败仍清本地会话 */
   });
-  cache.setItem(CONSTANT.PROJECT_ID, "");
-  cache.setItem('licence', "");
-  history.push("/login");
-}
+  // 必须清掉 JWT / 用户名，否则刷新后仍像已登录
+  cache.clear();
+  history.push('/login');
+};
 
 export {request_erd};
 export default request;

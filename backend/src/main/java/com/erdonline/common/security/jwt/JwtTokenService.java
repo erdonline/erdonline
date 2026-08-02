@@ -37,9 +37,13 @@ public class JwtTokenService {
                 .subject(user.getUsername())
                 .claim(SecurityConstants.TOKEN_USER_ID, user.getId())
                 .claim(SecurityConstants.TOKEN_USERNAME, user.getUsername())
-                .claim(SecurityConstants.TOKEN_DEPT_ID, user.getDeptId())
-                .claim(SecurityConstants.TOKEN_ROLE_IDS, user.getRoleIds())
-                .claim(SecurityConstants.TOKEN_TENANT_ID, user.getTenantId())
+                // JwtClaimsSet 拒绝 null claim；旧注册用户可能无 dept_id
+                .claim(SecurityConstants.TOKEN_DEPT_ID,
+                        user.getDeptId() != null ? user.getDeptId() : "")
+                .claim(SecurityConstants.TOKEN_ROLE_IDS,
+                        user.getRoleIds() != null ? user.getRoleIds() : java.util.Set.of())
+                .claim(SecurityConstants.TOKEN_TENANT_ID,
+                        user.getTenantId() != null ? user.getTenantId() : "0")
                 .claim("authorities", user.getAuthorities().stream()
                         .map(a -> a.getAuthority()).collect(Collectors.toList()));
 

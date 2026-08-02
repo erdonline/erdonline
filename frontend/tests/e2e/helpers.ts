@@ -49,6 +49,37 @@ export async function expectToast(
   await expect(page.getByText(pattern).first()).toBeVisible({ timeout });
 }
 
+/** 点击后期望 URL 匹配 */
+export async function clickAndExpectUrl(
+  page: import('@playwright/test').Page,
+  locator: import('@playwright/test').Locator,
+  url: string | RegExp,
+  timeout = 15_000,
+) {
+  await locator.click();
+  await expect(page).toHaveURL(url, { timeout });
+}
+
+/** 点击后期望对话框可见 */
+export async function clickAndExpectDialog(
+  page: import('@playwright/test').Page,
+  locator: import('@playwright/test').Locator,
+  timeout = 10_000,
+) {
+  await locator.click();
+  const dialog = page.getByRole('dialog');
+  await expect(dialog).toBeVisible({ timeout });
+  return dialog;
+}
+
+/** 打开顶栏用户菜单（Home/Design/Group 共用 trigger） */
+export async function openUserMenu(page: import('@playwright/test').Page) {
+  await page.getByTestId('user-menu-trigger').click();
+  await expect(page.getByRole('menuitem', { name: '退出登录' })).toBeVisible({
+    timeout: 5_000,
+  });
+}
+
 /** 个人项目：新建（默认类型已是个人；标签用 testid） */
 export async function createPersonProject(
   page: import('@playwright/test').Page,

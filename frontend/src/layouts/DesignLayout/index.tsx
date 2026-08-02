@@ -254,7 +254,14 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
             arrow={{ pointAtCenter: true }}
             overlay={menuHeaderDropdown}
           >
-            <div>{cache.getItem('username')}</div>
+            <div
+              role="button"
+              tabIndex={0}
+              aria-label="用户菜单"
+              data-testid="user-menu-trigger"
+            >
+              {cache.getItem('username')}
+            </div>
           </Dropdown>,
         }}
         menuExtraRender={(props) => {

@@ -1,28 +1,29 @@
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import {LoginFormPage, ProFormText} from '@ant-design/pro-components';
-import {Button} from 'antd';
+import {Button, message} from 'antd';
 import * as cache from '@/utils/cache';
 import {history} from '@@/exports';
 import request from '@/utils/request';
 
 /** @param redirectOverride 注册成功后调用时传入，避免仍停在 /register 读不到 query */
 export async function login(username: string, password: string, redirectOverride?: string | null) {
-  await request.post('/auth/login', {data: {username, password}}).then(res => {
-    if (res?.access_token) {
-      cache.setItem('Authorization', res.access_token);
-      cache.setItem('username', username);
-      if (res.licensedStartTime && res.licensedEndTime) {
-        cache.setItem('licence', {
-          licensedTo: res.licensedTo,
-          licensedStartTime: res.licensedStartTime,
-          licensedEndTime: res.licensedEndTime,
-        });
-      }
-      const fromQuery = new URLSearchParams(window.location.search).get('redirect');
-      const redirect = redirectOverride || fromQuery;
-      history.push({pathname: redirect && redirect.startsWith('/') ? redirect : '/home'});
+  const res = await request.post('/auth/login', { data: { username, password } });
+  if (res?.access_token) {
+    cache.setItem('Authorization', res.access_token);
+    cache.setItem('username', username);
+    if (res.licensedStartTime && res.licensedEndTime) {
+      cache.setItem('licence', {
+        licensedTo: res.licensedTo,
+        licensedStartTime: res.licensedStartTime,
+        licensedEndTime: res.licensedEndTime,
+      });
     }
-  });
+    const fromQuery = new URLSearchParams(window.location.search).get('redirect');
+    const redirect = redirectOverride || fromQuery;
+    history.push({ pathname: redirect && redirect.startsWith('/') ? redirect : '/home' });
+    return;
+  }
+  message.error(res?.msg || '登录失败，请检查用户名和密码');
 }
 
 function redirectQuery(): string {

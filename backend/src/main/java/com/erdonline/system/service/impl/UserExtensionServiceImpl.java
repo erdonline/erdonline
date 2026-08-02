@@ -156,6 +156,10 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
             User user = new User();
             BeanUtil.copyProperties(userDto, user);
             user.setPwd(passwordEncoder.encode(userDto.getPwd()));
+            // JWT claim 不允许 null；缺省部门与种子账号一致，否则注册后登录被误报为账密错误
+            if (StrUtil.isBlank(user.getDeptId())) {
+                user.setDeptId("1");
+            }
             this.baseMapper.insert(user);
             Integer count = this.baseMapper.bindRole(user.getId());
             log.info("count: {}", count);
