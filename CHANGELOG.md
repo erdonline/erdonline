@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：编辑态 Escape 取消改名（建模回路）
+
+- 选题：字段 Escape 只 `setEditing(null)`，卸 input 时 blur 仍走 `commit` → 取消变静默落盘（改名/新建草稿误保存）
+- Escape → `ignoreBlur` + 清空 editingRef 再退出；未提交字段名丢弃；已即时落盘的类型/PK/NN/AI/隐不受影响
+- E2E：`relation`「编辑态 Escape 取消改名；不经 blur 落盘」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "编辑态 Escape" --workers=1 --retries=0`
+
 #### 体验：编辑态隐藏即时 save-status + 表底恢复（建模回路）
 
 - 选题：编辑态已有 PK/NN/AI 即时落盘；`relationNoShow` 只能绕表设计签改，画布缺隐藏开关；隐藏后行离画布需明确反馈与可发现恢复

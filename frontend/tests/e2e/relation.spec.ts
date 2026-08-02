@@ -1257,6 +1257,43 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('编辑态 Escape 取消改名；不经 blur 落盘', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fesc');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fesc', 'field escape cancel');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      const nameInput = node.getByRole('textbox', { name: '字段名' });
+      await expect(nameInput).toHaveValue('NAME');
+      await nameInput.fill('OTHER');
+      await nameInput.press('Escape');
+      await expect(node.locator('.erd-field-editing')).toHaveCount(0);
+      await expect(node.locator('[data-field="NAME"]')).toBeVisible();
+      await expect(node.locator('[data-field="OTHER"]')).toHaveCount(0);
+
+      // 新建行 Escape：不得经 blur 落盘
+      await node.getByTestId('canvas-add-field').click();
+      await expect(node.getByRole('textbox', { name: '字段名' })).toBeVisible();
+      await node.getByRole('textbox', { name: '字段名' }).fill('DRAFT');
+      await node.getByRole('textbox', { name: '字段名' }).press('Escape');
+      await expect(node.locator('.erd-field-editing')).toHaveCount(0);
+      await expect(node.locator('[data-field="DRAFT"]')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('编辑态隐藏即时 save-status；toast + 表底恢复显示', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fhide');
