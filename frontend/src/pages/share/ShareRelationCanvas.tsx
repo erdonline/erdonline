@@ -190,12 +190,11 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
     );
   }
 
-  // key：切图时 remount → fitView 铺满（与设计器切图同密）
+  // key：切图时 remount → fitView 铺满；高度由 .share-page__stage flex 铺满视口（ADR-0016）
   return (
     <div
       key={diagramId || 'main'}
-      className="erd-reactflow-container"
-      style={{height: 480}}
+      className="erd-reactflow-container share-relation-canvas"
       data-testid="share-relation-canvas"
     >
       <ReactFlow

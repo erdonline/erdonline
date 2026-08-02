@@ -1,4 +1,4 @@
-/* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5） */
+/* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5）；画布铺满视口（ADR-0016） */
 .share-page {
   min-height: 100vh;
   display: flex;
@@ -43,11 +43,28 @@
 
 .share-page__body {
   flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/* 顶栏下整屏舞台：图为主平面，表清单落在折线下 */
+.share-page__stage {
+  height: calc(100vh - var(--erd-chrome-header-h));
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+  padding: 12px 16px 0;
+  box-sizing: border-box;
+}
+
+.share-page__meta {
+  flex-shrink: 0;
   width: 100%;
   max-width: 1200px;
   margin: 0 auto;
-  padding: 16px 20px 32px;
-  box-sizing: border-box;
 }
 
 .share-page__desc {
@@ -59,6 +76,10 @@
   margin-bottom: 12px;
   font-size: 13px;
   color: var(--erd-ink-600);
+}
+
+.share-page__module-switch {
+  margin-bottom: 12px;
 }
 
 /* 只读切图：Segmented 密度对齐 22 chrome（无新建/重命名） */
@@ -82,9 +103,23 @@
   }
 }
 
+.share-relation-canvas {
+  flex: 1 1 auto;
+  /* 覆盖 .erd-reactflow-container height:100%，由 flex 吃剩余视口 */
+  height: auto !important;
+  min-height: 0;
+  width: 100%;
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
+  overflow: hidden;
+}
+
 .share-page__tables {
-  margin-top: 20px;
+  margin: 16px auto 32px;
   padding: 16px;
+  width: calc(100% - 40px);
+  max-width: 1200px;
+  box-sizing: border-box;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);

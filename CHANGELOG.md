@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：分享只读画布视口铺满（ADR-0016）
+
+- 选题：`/s/:token` 只读关系图固定 `height: 480`，图非主平面、首屏被表清单抢戏
+- `ShareRelationCanvas` 去掉固定高；`.share-page__stage` = `calc(100vh - chrome)` + flex，画布 `flex:1` 铺满顶栏下视口；表清单落到折线下
+- Segmented 切图 / `diagram-switcher` 仍在 meta；`demo.spec` 断言 canvasH >480 且占视口过半；截图 `demo-share-canvas-viewport.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：分享只读多关系图切换（ADR-0016 / ADR-0017）
 
 - 选题：分享走查发现 `/demo` 有「鉴权核心 / 会话与审计」两图但只读页无切换器（相对设计器死能力）
