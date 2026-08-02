@@ -64,9 +64,19 @@ test.describe('设计器项目菜单', () => {
     };
     const closeDialog = async () => {
       const dialog = page.getByRole('dialog');
-      await dialog.getByRole('button', { name: /取\s*消|关\s*闭/ }).first().click().catch(async () => {
+      // 逆向弹窗无「取消」，仅有 antd Close；勿对缺失按钮硬等 actionTimeout
+      const dismiss = dialog
+        .getByRole('button', { name: /取\s*消|关\s*闭|^Close$/i })
+        .first();
+      if (await dismiss.count()) {
+        await dismiss.click();
+      } else {
         await page.keyboard.press('Escape');
-      });
+      }
+      // 残留导入 SubMenu 再 Esc 一层
+      if (await dialog.isVisible().catch(() => false)) {
+        await page.keyboard.press('Escape');
+      }
       await expect(dialog).toBeHidden({ timeout: 10_000 });
     };
 
@@ -103,7 +113,9 @@ test.describe('设计器项目菜单', () => {
     }
   });
 
-  test('项目 → 版本 进入版本管理', async ({ page }) => {
+  test('项目菜单：全部项目可达；面板无「版本」；顶栏版本进版本管理', async ({
+    page,
+  }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('vermenu');
     try {
@@ -114,8 +126,16 @@ test.describe('设计器项目菜单', () => {
       expect(projectId).toBeTruthy();
 
       const panel = await openProjectMenu(page);
-      await panel.getByRole('menuitem', { name: '版本' }).click();
+      await expect(panel.getByRole('menuitem', { name: '全部项目' })).toBeVisible();
+      await expect(panel.getByRole('menuitem', { name: '版本' })).toHaveCount(0);
+      await panel.getByRole('menuitem', { name: '全部项目' }).click();
+      await expect(page).toHaveURL(/\/project\/recent/, { timeout: 15_000 });
 
+      await page.goto(`/design/table/model?projectId=${projectId}`);
+      await expect(page.getByRole('button', { name: '项目菜单' })).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByTestId('design-top-tabs').getByRole('menuitem', { name: '版本' }).click();
       await expect(page).toHaveURL(
         new RegExp(`/design/table/version/all\\?projectId=${projectId}`),
         { timeout: 15_000 },

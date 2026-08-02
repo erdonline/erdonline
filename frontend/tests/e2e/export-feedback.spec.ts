@@ -109,7 +109,7 @@ test.describe('导出失败反馈', () => {
         expect(createDs.status()).toBe(200);
 
         await page.getByRole('button', { name: '项目菜单' }).click();
-        await page.getByRole('menuitem', { name: '导出' }).hover();
+        await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '导出' }).click();
         await page.getByRole('button', { name: '导出DDL' }).click();
         const dlg = page.getByRole('dialog');
         await expect(dlg.getByText('SQL导出配置')).toBeVisible({ timeout: 10_000 });
@@ -119,8 +119,11 @@ test.describe('导出失败反馈', () => {
         const exportTree = page.getByRole('tree').filter({ hasText: /SHOP/ });
         await expect(exportTree).toBeVisible({ timeout: 10_000 });
         await exportTree.getByText('T_TABLE_1', { exact: true }).click();
+        // TreeSelect 下拉挡住 Modal footer（与 project-menu DDL 用例同）
+        await dlg.getByText('SQL导出配置').click();
+        await expect(exportTree).toBeHidden({ timeout: 5_000 });
 
-        await dlg.getByRole('button', { name: '下一步' }).click();
+        await dlg.getByRole('button', { name: '下一步' }).click({ force: true });
         await expect(dlg.getByRole('button', { name: '导出' })).toBeVisible({ timeout: 10_000 });
 
         // 自定义且不勾选任何内容 → SQL 为空 → 失败路径

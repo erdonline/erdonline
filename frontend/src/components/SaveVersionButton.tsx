@@ -19,7 +19,7 @@ const SaveVersionButton: React.FC = () => {
 
   return (
     <Button
-      type="link"
+      type="primary"
       size="small"
       data-testid="design-header-save-version"
       aria-label="保存版本"

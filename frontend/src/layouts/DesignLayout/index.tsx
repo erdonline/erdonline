@@ -19,20 +19,20 @@ import { useAccess } from "@@/plugin-access";
 import { Me } from "@icon-park/react";
 import { useUnmount } from '@umijs/hooks';
 import { Link, useModel } from "@umijs/max";
-import { CaretDownOutlined } from "@ant-design/icons";
+import { CaretDownOutlined, MoreOutlined } from "@ant-design/icons";
 import { Button, Dropdown, Layout, Menu, Watermark } from "antd";
 import type { MenuProps } from "antd";
 import React, { useEffect, useMemo, useState } from 'react';
 import { useLocation } from "react-router-dom";
 import shallow from "zustand/shallow";
-import defaultProps from './_defaultProps';
+import defaultProps, { secondaryRoutes } from './_defaultProps';
 import './index.less';
 
 const { Header, Sider, Content } = Layout;
 
 export const siderWidth = 320;
 
-/** 设计器完整顶栏：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
+/** GroupLayout 等复用：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
 export const headRightContent = [
   <SaveStatus key="save-status" />,
   <SaveVersionButton key="save-version" />,
@@ -55,24 +55,32 @@ type DesignRoute = {
   routes?: DesignRoute[];
 };
 
-export function fixRouteAccess(defaultPropsTmp: any, access: any) {
-  const routes = defaultPropsTmp.route.routes.map((m: any) => {
-    const pathAccess = access[m?.access];
-    if (pathAccess !== false) {
+function filterAccessibleRoutes(routes: DesignRoute[], access: Record<string, unknown>): DesignRoute[] {
+  return routes
+    .map((m) => {
+      const pathAccess = m?.access ? access[m.access] : undefined;
+      if (pathAccess === false) {
+        return undefined;
+      }
       return {
         ...m,
-        routes: m?.routes?.map((m1: any) => {
-          const pathAccess1 = access[m1?.access];
-          if (pathAccess1 !== false) {
+        routes: m?.routes
+          ?.map((m1) => {
+            const pathAccess1 = m1?.access ? access[m1.access] : undefined;
+            if (pathAccess1 === false) {
+              return undefined;
+            }
             return m1;
-          }
-        })
+          })
+          .filter(Boolean) as DesignRoute[] | undefined,
       };
-    }
-  });
+    })
+    .filter(Boolean) as DesignRoute[];
+}
 
+export function fixRouteAccess(defaultPropsTmp: { route: { routes: DesignRoute[] } }, access: Record<string, unknown>) {
+  const routes = filterAccessibleRoutes(defaultPropsTmp.route.routes || [], access);
   return routes;
-
 }
 
 export function getNowTimeParse() {
@@ -91,7 +99,7 @@ export function getNowTimeParse() {
   return `${YYYY}-${MM}-${DD}T${hh}:${mm}:${ss}.${ms}`;
 }
 
-const ProjectMenuDropdown: React.FC = () => {
+const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }) => {
   const [open, setOpen] = useState(false);
   const ignoreOpenRef = React.useRef(false);
   // 菜单内点开 Modal 后关闭下拉；短时忽略随后的 onOpenChange(true) 回声
@@ -102,6 +110,7 @@ const ProjectMenuDropdown: React.FC = () => {
       ignoreOpenRef.current = false;
     }, 400);
   };
+  const label = projectName?.trim() || '项目';
   return (
     <ProjectMenuCloseContext.Provider value={closeMenu}>
       <Dropdown
@@ -130,11 +139,46 @@ const ProjectMenuDropdown: React.FC = () => {
           </div>
         )}
       >
-        <Button type="text" aria-label="项目菜单">
-          项目 <CaretDownOutlined />
+        <Button type="text" aria-label="项目菜单" className="design-layout__project">
+          <span className="design-layout__project-name">{label}</span>
+          <CaretDownOutlined />
         </Button>
       </Dropdown>
     </ProjectMenuCloseContext.Provider>
+  );
+};
+
+const ChromeOverflow: React.FC = () => {
+  const items: MenuProps['items'] = useMemo(
+    () => [
+      {
+        key: 'extras',
+        type: 'group',
+        label: (
+          <div className="design-layout__overflow-extras" onClick={(e) => e.stopPropagation()}>
+            {homeRightContent}
+          </div>
+        ),
+      },
+      { type: 'divider' },
+      {
+        key: 'app-version',
+        label: APP_VERSION_LABEL,
+        disabled: true,
+      },
+    ],
+    [],
+  );
+
+  return (
+    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+      <Button
+        type="text"
+        className="design-layout__overflow"
+        aria-label="更多"
+        icon={<MoreOutlined />}
+      />
+    </Dropdown>
   );
 };
 
@@ -202,7 +246,10 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
         }
       })
       if (access.initialized) {
-        defaultProps.route.routes = fixRouteAccess(defaultProps, access);
+        defaultProps.route.routes = fixRouteAccess(
+          defaultProps,
+          access as Record<string, unknown>,
+        ) as typeof defaultProps.route.routes;
       }
     } else {
       setInitialState((s: any) => ({ ...s, access: { person: true } }));
@@ -216,31 +263,46 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
   });
 
   const licence = cache.getItem2object('licence');
-  const routes = ((defaultProps.route.routes || []) as DesignRoute[]).filter(Boolean);
+  const primaryRoutes = ((defaultProps.route.routes || []) as DesignRoute[]).filter(Boolean);
+  const allNavRoutes = useMemo(() => {
+    const secondary = filterAccessibleRoutes(
+      secondaryRoutes as DesignRoute[],
+      access as Record<string, unknown>,
+    );
+    return [...primaryRoutes, ...secondary];
+    // primaryRoutes 来自可变 defaultProps；access.initialized 变化时需重算
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [access.initialized, primaryRoutes.length, access]);
 
   const topMenuItems: MenuProps['items'] = useMemo(
     () =>
-      routes.map((r) => ({
+      primaryRoutes.map((r) => ({
         key: r.path || String(r.name),
         icon: r.icon,
         label: r.name,
       })),
-    // routes 来自可变 defaultProps；access.initialized 变化时需重算
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [access.initialized, routes.length],
+    [access.initialized, primaryRoutes.length],
   );
 
   const activeTopRoute = useMemo(() => {
-    const match = routes.find(
+    const match = allNavRoutes.find(
       (r) =>
         r.path &&
         !r.path.startsWith('http') &&
         (pathname === r.path || pathname.startsWith(`${r.path}/`)),
     );
     return match;
-  }, [routes, pathname]);
+  }, [allNavRoutes, pathname]);
 
-  const topSelectedKey = activeTopRoute?.path || '/design/table/model';
+  const topSelectedKey = useMemo(() => {
+    const match = primaryRoutes.find(
+      (r) =>
+        r.path &&
+        (pathname === r.path || pathname.startsWith(`${r.path}/`)),
+    );
+    return match?.path;
+  }, [primaryRoutes, pathname]);
 
   const siderChildRoutes = useMemo(
     () => (activeTopRoute?.routes || []).filter(Boolean) as DesignRoute[],
@@ -293,25 +355,31 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
             <img src="/logo.svg" alt="" width={28} height={28} />
             <span>ERD Online</span>
           </div>
-          <ProjectMenuDropdown />
-          <Menu
-            mode="horizontal"
-            selectedKeys={[topSelectedKey]}
-            items={topMenuItems}
-            className="design-layout__top-menu"
-            onClick={({ key }) => {
-              const route = routes.find((r) => r.path === key);
-              if (!route?.path || route.path.startsWith('http') || route.exact) {
-                return;
-              }
-              // 有子路由时进第一个子页（对齐 ProLayout splitMenus 点击父项行为）
-              const firstChild = (route.routes || []).filter(Boolean)[0] as DesignRoute | undefined;
-              const target = firstChild?.path || route.path;
-              history.push(`${target}?projectId=${projectId}`);
-            }}
-          />
+          <ProjectMenuDropdown projectName={project?.projectName} />
+          <div className="design-layout__top-menu-wrap" data-testid="design-top-tabs">
+            <Menu
+              mode="horizontal"
+              selectedKeys={topSelectedKey ? [topSelectedKey] : []}
+              items={topMenuItems}
+              className="design-layout__top-menu"
+              onClick={({ key }) => {
+                const route = primaryRoutes.find((r) => r.path === key);
+                if (!route?.path || route.path.startsWith('http') || route.exact) {
+                  return;
+                }
+                // 有子路由时进第一个子页（对齐 ProLayout splitMenus 点击父项行为）
+                const firstChild = (route.routes || []).filter(Boolean)[0] as DesignRoute | undefined;
+                const target = firstChild?.path || route.path;
+                history.push(`${target}?projectId=${projectId}`);
+              }}
+            />
+          </div>
           <div className="design-layout__actions">
-            {headRightContent}
+            <SaveStatus key="save-status" />
+            <SaveVersionButton key="save-version" />
+            <CollabPresence key="presence" />
+            <ShareProjectButton key="share" />
+            <ChromeOverflow />
             <Dropdown
               placement="bottom"
               arrow={{ pointAtCenter: true }}
