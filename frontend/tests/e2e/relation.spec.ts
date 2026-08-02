@@ -560,6 +560,30 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByLabel('zoom out')).toHaveCount(0);
       await expect(page.getByLabel('fit view')).toHaveCount(0);
       await expect(page.getByLabel('toggle interactivity')).toHaveCount(0);
+      // ADR-0016：Controls 密度（22px）+ surface 底，禁 RF 默认 #fefefe 松柱
+      const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const btn = el.querySelector('.react-flow__controls-button');
+        const bs = btn ? getComputedStyle(btn) : null;
+        return {
+          bg: cs.backgroundColor,
+          btnH: bs ? parseFloat(bs.height) : NaN,
+          btnW: bs ? parseFloat(bs.width) : NaN,
+        };
+      });
+      expect(ctrl.bg, `Controls 底色不得为 RF 白：${ctrl.bg}`).not.toBe(
+        'rgb(254, 254, 254)',
+      );
+      expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
+      expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
+        22,
+      );
+      expect(ctrl.btnH).toBeGreaterThanOrEqual(18);
+      expect(ctrl.btnW).toBeLessThanOrEqual(22);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-controls-dense.png',
+        fullPage: false,
+      });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

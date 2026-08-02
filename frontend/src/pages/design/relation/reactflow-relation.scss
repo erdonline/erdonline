@@ -93,6 +93,45 @@
     overflow: hidden;
     box-shadow: 0 1px 2px var(--erd-ink-a06);
   }
+
+  // Controls：与 MiniMap 同角 chrome；禁 RF #fefefe 白柱 + 松 padding
+  .react-flow__controls {
+    background: var(--erd-surface);
+    border: 1px solid var(--erd-line);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px var(--erd-ink-a06);
+  }
+
+  .react-flow__controls-button {
+    background: var(--erd-surface);
+    border: none;
+    border-bottom: 1px solid var(--erd-line);
+    box-sizing: border-box;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    color: var(--erd-ink-600);
+
+    &:last-child {
+      border-bottom: none;
+    }
+
+    &:hover {
+      background: var(--erd-surface-muted);
+      color: var(--erd-brand);
+    }
+
+    svg {
+      fill: currentColor;
+      max-width: 10px;
+      max-height: 10px;
+    }
+
+    &:disabled svg {
+      fill-opacity: 0.35;
+    }
+  }
 }
 
 .erd-table-node {
