@@ -35,7 +35,60 @@
           "type": "array",
           "items": { "$ref": "#/$defs/association" }
         },
-        "graphCanvas": { "$ref": "#/$defs/graphCanvas" }
+        "graphCanvas": { "$ref": "#/$defs/graphCanvas" },
+        "diagrams": {
+          "type": "array",
+          "description": "多关系图视图（ADR-0017）；实体/关联仍以 entities/associations 为准。缺省时运行时懒迁移 graphCanvas → diagrams[0]。",
+          "items": { "$ref": "#/$defs/diagram" }
+        }
+      }
+    },
+    "diagram": {
+      "type": "object",
+      "required": ["id", "name", "layout"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string", "description": "图逻辑键（模块内唯一）" },
+        "name": { "type": "string", "description": "显示名" },
+        "includeEntities": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "可选：视图过滤的实体 title 列表；缺省=模块全部实体"
+        },
+        "layout": {
+          "type": "object",
+          "required": ["nodes"],
+          "additionalProperties": true,
+          "properties": {
+            "nodes": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/graphNode" }
+            }
+          }
+        },
+        "groups": {
+          "type": "array",
+          "description": "图内视觉框 Frame（ADR-0017 Phase 2b）",
+          "items": { "$ref": "#/$defs/diagramFrame" }
+        }
+      }
+    },
+    "diagramFrame": {
+      "type": "object",
+      "required": ["id", "name", "x", "y", "w", "h", "memberEntityIds"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "color": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" },
+        "w": { "type": "number" },
+        "h": { "type": "number" },
+        "memberEntityIds": {
+          "type": "array",
+          "items": { "type": "string" }
+        }
       }
     },
     "entity": {

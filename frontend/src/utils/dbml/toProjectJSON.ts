@@ -1,9 +1,10 @@
 /**
  * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs / default→defaultValue）。
  * @dbml/core 经 dynamic import 懒加载，避免设计器首屏打包体积膨胀。
- * graphCanvas 坐标走共享 dagre（ADR-0016），按 FK 分层而非网格散点。
+ * 布局坐标走共享 dagre（ADR-0016）；写入 diagrams[0]（ADR-0017），同步 graphCanvas 供旧读路径。
  */
 
+import { DEFAULT_DIAGRAM_ID, DEFAULT_DIAGRAM_NAME } from '../diagram';
 import { graphCanvasNodesFromDagre } from '../graphLayout';
 
 export type ProjectJsonField = {
@@ -46,6 +47,11 @@ export type ProjectJsonModule = {
     nodes: Array<{ id: string; x: number; y: number }>;
     edges: unknown[];
   };
+  diagrams: Array<{
+    id: string;
+    name: string;
+    layout: { nodes: Array<{ id: string; x: number; y: number }> };
+  }>;
 };
 
 export type DbmlProjectJSON = {
@@ -301,15 +307,23 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
   const moduleName = sanitizeModuleName(database.name);
   const moduleChn = noteToChnname(database.note) || 'DBML导入';
 
+  const layoutNodes = graphCanvasNodesFromDagre(entities, associations);
   const mod: ProjectJsonModule = {
     name: moduleName,
     chnname: moduleChn,
     entities,
     associations,
     graphCanvas: {
-      nodes: graphCanvasNodesFromDagre(entities, associations),
+      nodes: layoutNodes,
       edges: [],
     },
+    diagrams: [
+      {
+        id: DEFAULT_DIAGRAM_ID,
+        name: DEFAULT_DIAGRAM_NAME,
+        layout: { nodes: layoutNodes },
+      },
+    ],
   };
 
   return {

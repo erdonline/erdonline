@@ -11,6 +11,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import {erdColors} from '@/theme/tokens';
+import {getActiveDiagramLayoutNodes} from '@/utils/diagram';
 import {resolveEntityPositions} from '@/utils/graphLayout';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
@@ -27,6 +28,7 @@ type ModuleData = {
   entities?: EntityData[];
   associations?: Association[];
   graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
+  diagrams?: Array<{ id: string; name: string; layout?: { nodes?: { id: string; x?: number; y?: number }[] } }>;
 };
 
 function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
@@ -134,7 +136,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
   const {nodes, edges} = useMemo(() => {
     const entities = module.entities || [];
     const associations = module.associations || [];
-    const layout = module.graphCanvas?.nodes || [];
+    const layout = getActiveDiagramLayoutNodes(module);
     return {
       nodes: layoutNodes(entities, associations, layout),
       edges: associationsToEdges(associations),

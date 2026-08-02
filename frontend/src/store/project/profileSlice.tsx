@@ -15,6 +15,12 @@ import {
 import { markDefaultDataSource } from '@/utils/projectDataSource';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
+import {
+  DEFAULT_DIAGRAM_ID,
+  ensureDiagrams,
+  getActiveDiagramLayoutNodes,
+  upsertDiagramLayout,
+} from '@/utils/diagram';
 import { resolveEntityPositions } from '@/utils/graphLayout';
 
 export type IProfileSlice = {
@@ -421,32 +427,33 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         associations: mergeAssociations(m.associations || [], forModule),
       };
     });
-    // ADR-0016：逆向导入后缺坐标的表用 dagre 按 FK 分层（保留用户已拖坐标）
+    // ADR-0016 / 0017：逆向导入后缺坐标用 dagre；写 diagrams（懒迁移兼容 graphCanvas）
     modules = modules.map((m: any) => {
       const ents = m.entities || [];
       if (ents.length === 0) {
         return m;
       }
+      const saved = getActiveDiagramLayoutNodes(m);
       const { positions, didAutoLayout } = resolveEntityPositions(
         ents,
         m.associations || [],
-        m.graphCanvas?.nodes || [],
+        saved,
       );
       if (!didAutoLayout) {
         return m;
       }
-      return {
-        ...m,
-        graphCanvas: {
-          nodes: ents.map((e: any) => ({
-            id: e.title,
-            title: e.title,
-            x: positions[e.title].x,
-            y: positions[e.title].y,
-          })),
-          edges: m.graphCanvas?.edges || [],
-        },
-      };
+      const next = { ...m };
+      ensureDiagrams(next);
+      const diagram =
+        next.diagrams.find((d: any) => d.id === DEFAULT_DIAGRAM_ID) || next.diagrams[0];
+      upsertDiagramLayout(
+        diagram,
+        ents.map((e: any) => ({
+          id: e.title,
+          position: positions[e.title],
+        })),
+      );
+      return next;
     });
     tempData = {
       ...tempData,

@@ -1,6 +1,6 @@
 # ADR-0017：多关系图 + 图内分组 + 实体编辑器与模型树密度
 
-- 状态：已接受（2026-08-02）；Phase 1 已落地，Phase 2 为计划
+- 状态：已接受（2026-08-02）；Phase 1 已落地；Phase 2a（多图切换器 + `diagrams[]`）已落地，Phase 2b（Frame）仍为计划
 - 决策者：项目维护者；承接 ADR-0016「敢分享的美图」主线
 
 ## 背景
@@ -26,16 +26,28 @@
 4. 表设计三签（字段 / 索引 / 元数据应用）美化：签头加表名 + 中文名 + 所属模型层级条，签体统一内边距，全部走 `erd-*` tokens。
 5. 树图标 / 徽章 / 菜单图标色值从 antd 默认蓝绿黄切换到 `erdColors`（模块 ink900、表 warning、关系 success、删除 brand），与画布 PK/FK 徽章同语言。
 
-### Phase 2（计划，schema-additive，纯前端 projectJSON）
+### Phase 2a（已落地，schema-additive，纯前端 projectJSON）
 
 1. **多关系图**：`module.diagrams?: Diagram[]` 新增可选字段；`Diagram = { id, name, includeEntities?: string[], layout: { nodes: [{ id, x, y }] }, groups?: Frame[] }`。
    - 实体与关联仍唯一存于 `module.entities` / `module.associations`（单一事实源，ADR-0001 不变）。
    - 旧 `module.graphCanvas` 视为「主关系图」布局，懒迁移进 `diagrams[0]`；无 `diagrams` 的项目行为完全不变（向后兼容、可回滚）。
-   - UI：画布工具条加图切换器（Select + 新建/重命名/删除）；左树「关系」文件夹子节点从「逐边列表」改为「图列表」，点击开对应图 tab（`关系图-${module}-${diagramId}`）。
+   - 单一 selector：`getActiveDiagram(module, diagramId?)`（`frontend/src/utils/diagram.ts`）；写路径 `updateGraphCanvasLayout` 只写 `diagrams`。
+   - UI：画布工具条图切换器（Select + 新建/重命名）；左树「关系」子节点为图列表（主图 `tree-open-relation`）；tab：`关系图-${module}` / `关系图-${module}-${diagramId}`。
+   - `includeEntities` / 删除主图：类型与 API 已留，过滤 UI 与 Frame 渲染归 Phase 2b。
+   - 同模块关系图 tab 就地切换（`switchRelationDiagram`），工具栏与左树不堆多 canvas。
+
+### Phase 2b（计划 / 未做）
+
+- Frame 视觉框渲染与成员拖入
+- `includeEntities` 视图过滤 UI
+- 删除非主图的确认流打磨（`removeDiagram` API 已有）
+
+### Phase 2b（计划）
+
 2. **图内分组（Frame）**：`Frame = { id, name, color?, x, y, w, h, memberEntityIds: string[] }`。
    - 渲染为 ReactFlow 自研底层框节点（z-index 低于表节点），**不做 RF subflow 坐标重父化**（避免相对坐标迁移成本；Workbench Layer 同此语义）。
    - 成员显式列表 → 后续可接「按分组过滤视图」（dbdiagram DiagramView+TableGroup 模式）。
-3. 实施时同步 `docs/data-format.md`；不需要 Flyway（projectJSON 是文档列，additive 字段由前端读写）。
+3. `docs/data-format.md` / schema 已随 2a 更新；不需要 Flyway（projectJSON 是文档列，additive 字段由前端读写）。
 
 ## 后果
 

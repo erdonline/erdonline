@@ -6,6 +6,14 @@ import {message} from "antd";
 import _ from 'lodash';
 import * as cache from '../../utils/cache';
 import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasHistory";
+import {
+  DEFAULT_DIAGRAM_ID,
+  DEFAULT_DIAGRAM_NAME,
+  ensureDiagrams,
+  listDiagrams,
+  newDiagramId,
+  upsertDiagramLayout,
+} from "@/utils/diagram";
 
 
 export type IModulesSlice = {
@@ -38,7 +46,11 @@ export interface IModulesDispatchSlice {
   cutModule: (payload: any) => void;
   pastModule: () => void;
   updateRelation: (payload: any) => void;
-  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[]) => void;
+  /** 写当前图布局（ADR-0017：只写 diagrams；diagramId 缺省=main） */
+  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[], diagramId?: string) => void;
+  createDiagram: (moduleName: string, name?: string) => string | undefined;
+  renameDiagram: (moduleName: string, diagramId: string, name: string) => void;
+  removeDiagram: (moduleName: string, diagramId: string) => void;
   addAssociation: (moduleName: string, association: any) => void;
   removeAssociation: (moduleName: string, association: any) => void;
   undoCanvas: () => void;
@@ -184,29 +196,83 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       state.project.projectJSON.modules[state.currentModuleIndex].associations = payload.associations;
     }
   })),
-  // 按模块名 upsert 画布布局（graphCanvas 只存坐标，实体以 entities 为准——ADR-0001 补充决策）。
+  // 按模块名 upsert 画布布局（只写 diagrams；实体以 entities 为准——ADR-0001 / ADR-0017）。
   // 不用 currentModuleIndex：关系图 tab 的模块与当前选中模块可能不同（A 模块画布开着、B 模块被选中）。
-  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[]) => {
+  updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[], diagramId?: string) => {
     snapshotModules(get().project?.projectJSON?.modules);
     set(produce(state => {
       const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
         return;
       }
-      if (!module.graphCanvas) {
-        module.graphCanvas = { nodes: [], edges: [] };
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      upsertDiagramLayout(diagram, layoutNodes);
+    }));
+  },
+  createDiagram: (moduleName: string, name?: string) => {
+    let createdId: string | undefined;
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
       }
-      const layout = (module.graphCanvas.nodes || []) as any[];
-      layoutNodes.forEach(n => {
-        const idx = layout.findIndex((s: any) => (s.title || '').split(':')[0] === n.id || s.id === n.id);
-        const entry = { id: n.id, title: n.id, x: Math.round(n.position.x), y: Math.round(n.position.y) };
-        if (idx >= 0) {
-          layout[idx] = { ...layout[idx], ...entry };
-        } else {
-          layout.push(entry);
-        }
-      });
-      module.graphCanvas.nodes = layout;
+      const diagrams = ensureDiagrams(module);
+      const id = newDiagramId();
+      const base = (name || '关系图').trim() || '关系图';
+      let display = base;
+      let n = 2;
+      while (diagrams.some((d) => d.name === display)) {
+        display = `${base}${n}`;
+        n += 1;
+      }
+      diagrams.push({ id, name: display, layout: { nodes: [] } });
+      createdId = id;
+    }));
+    if (createdId) {
+      message.success('已新建关系图');
+    }
+    return createdId;
+  },
+  renameDiagram: (moduleName: string, diagramId: string, name: string) => {
+    const next = (name || '').trim();
+    if (!next) {
+      message.warning('图名称不能为空');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const d = diagrams.find((x) => x.id === diagramId);
+      if (!d) {
+        return;
+      }
+      d.name = next;
+    }));
+  },
+  removeDiagram: (moduleName: string, diagramId: string) => {
+    if (diagramId === DEFAULT_DIAGRAM_ID) {
+      message.warning('主关系图不可删除');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      if (diagrams.length <= 1) {
+        message.warning('至少保留一张关系图');
+        return;
+      }
+      module.diagrams = diagrams.filter((d) => d.id !== diagramId);
     }));
   },
   // 追加关联（按 from/to 去重）；按模块名定位，理由同 updateGraphCanvasLayout
@@ -342,30 +408,21 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           });
         }
 
-        // 关系图入口始终置顶：画布是核心功能，文件夹模式下也必须可达
-        // （修复：此前仅 groupByType=false 的扁平模式才有此叶子，而界面恒用文件夹模式，关系图无任何入口）
-        relationsNode.children.unshift({
-          key: `${module.name}###relation`,
-          title: '关系图',
-          formatName: '关系图',
-          type: 'relation',
-          module: module.name,
-          isLeaf: true,
-          testId: 'tree-open-relation',
-        });
-
-        if (module.graphCanvas && module.graphCanvas.edges) {
-          module.graphCanvas.edges.forEach((edge: any) => {
-            const relationNode = {
-              key: `${module.name}-relation-${edge.source}-${edge.target}`,
-              title: `${edge.source} - ${edge.target}`,
-              type: 'relation',
-              module: module.name,
-              isLeaf: true,
-            };
-            relationsNode.children.push(relationNode);
+        // ADR-0017：关系文件夹列「图列表」，不再逐边堆叶子（边归画布）
+        const diagrams = listDiagrams(module);
+        diagrams.forEach((d, idx) => {
+          relationsNode.children.push({
+            key: `${module.name}###relation###${d.id}`,
+            title: d.name || DEFAULT_DIAGRAM_NAME,
+            formatName: d.name || DEFAULT_DIAGRAM_NAME,
+            type: 'relation',
+            module: module.name,
+            diagramId: d.id,
+            isLeaf: true,
+            // 主图保留稳定 testId，兼容既有 E2E
+            testId: idx === 0 || d.id === DEFAULT_DIAGRAM_ID ? 'tree-open-relation' : undefined,
           });
-        }
+        });
 
         // 无论是否有表或关系，都添加这两个文件夹
         moduleNode.children.push(tablesNode);
@@ -376,9 +433,10 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         const relation = {
           type: 'relation',
           module: module.name,
-          title: '关系图',
-          formatName: '关系图',
-          key: `${module.name}###relation`,
+          title: DEFAULT_DIAGRAM_NAME,
+          formatName: DEFAULT_DIAGRAM_NAME,
+          key: `${module.name}###relation###${DEFAULT_DIAGRAM_ID}`,
+          diagramId: DEFAULT_DIAGRAM_ID,
           isLeaf: true,
           testId: 'tree-open-relation',
         };
@@ -427,7 +485,15 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   },
   getModuleEntityFieldTree: () => set(produce(state => {
     return state.project?.projectJSON?.modules?.map((module: any) => {
-      const relation = {type: 'relation', title: '关系图', key: `${module.name}###relation`, isLeaf: true};
+      const diagrams = listDiagrams(module);
+      const relations = diagrams.map((d, idx) => ({
+        type: 'relation',
+        title: d.name || DEFAULT_DIAGRAM_NAME,
+        key: `${module.name}###relation###${d.id}`,
+        diagramId: d.id,
+        isLeaf: true,
+        testId: idx === 0 || d.id === DEFAULT_DIAGRAM_ID ? 'tree-open-relation' : undefined,
+      }));
       const entities = module?.entities?.map((entity: any) => {
         return {type: 'entity', title: entity.name || entity.title, key: entity.name || entity.title, isLeaf: true}
       });
@@ -435,7 +501,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         type: 'module',
         title: module.name,
         key: module.name,
-        children: _.concat(relation, entities)
+        children: _.concat(relations, entities)
       }
     });
   })),

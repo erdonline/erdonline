@@ -370,7 +370,21 @@
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  max-width: 560px;
+  max-width: 720px;
+}
+
+.erd-diagram-switcher {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding-right: 6px;
+  border-right: 1px solid var(--erd-line);
+  margin-right: 2px;
+
+  .ant-select-selector {
+    font-family: var(--erd-font-ui) !important;
+    font-size: 12px !important;
+  }
 }
 
 .erd-align-group {

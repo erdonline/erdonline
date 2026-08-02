@@ -203,13 +203,27 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
           : assoc?.to;
       return { ...assoc, from, to };
     });
+    // ADR-0017：布局在 diagrams；同步遗留 graphCanvas（只读兼容，不双写新坐标）
+    const renameLayoutNode = (node: any) => {
+      if (node.id === oldTitle || (node.title || '').split(':')[0] === oldTitle) {
+        return { ...node, id: newTitle, title: newTitle };
+      }
+      return node;
+    };
+    if (Array.isArray(mod.diagrams)) {
+      mod.diagrams = mod.diagrams.map((d: any) => ({
+        ...d,
+        layout: {
+          ...(d.layout || {}),
+          nodes: (d.layout?.nodes || []).map(renameLayoutNode),
+        },
+        includeEntities: Array.isArray(d.includeEntities)
+          ? d.includeEntities.map((t: string) => (t === oldTitle ? newTitle : t))
+          : d.includeEntities,
+      }));
+    }
     if (mod.graphCanvas?.nodes) {
-      mod.graphCanvas.nodes = mod.graphCanvas.nodes.map((node: any) => {
-        if (node.id === oldTitle || (node.title || '').split(':')[0] === oldTitle) {
-          return { ...node, id: newTitle, title: newTitle };
-        }
-        return node;
-      });
+      mod.graphCanvas.nodes = mod.graphCanvas.nodes.map(renameLayoutNode);
     }
 
     if (oldModuleName !== newModuleName) {
