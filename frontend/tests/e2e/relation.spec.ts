@@ -391,6 +391,17 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(edge).toHaveClass(/react-flow__edge-erdSmooth/);
       const edgePath = page.locator('.react-flow__edge-path').first();
       await expect(edgePath).toBeVisible();
+      // ADR-0016：默认关系线权重/对比（ink900 + ≥2px；选中更粗但不胀撞 crow/chip）
+      const edgeStroke = await edgePath.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          stroke: s.stroke,
+          width: parseFloat(s.strokeWidth),
+        };
+      });
+      expect(edgeStroke.stroke).toBe('rgb(11, 28, 44)'); // ink900
+      expect(edgeStroke.width).toBeGreaterThanOrEqual(2);
+      expect(edgeStroke.width).toBeLessThanOrEqual(2.5);
       await expect(page.getByTestId('erd-crowfoot-markers')).toBeAttached();
       // 默认 n:1 → 源 crow's foot(many) / 靶 one（IE）；chip 仍可编辑
       const crow = page.getByTestId('erd-edge-crowfoot');
@@ -402,7 +413,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(markerEnd, '边端应带 crow foot marker').toMatch(/erd-cf-one/);
       expect(markerStart, '边源应带 crow foot marker').toMatch(/erd-cf-many/);
 
-      // ADR-0016：连线后基数标签 chip 可读（默认 n:1）
+      // ADR-0016：连线后基数标签 chip 可读（默认 n:1）；白底 + ink600 字，不与粗干道抢色
       const edgeLabel = page.getByTestId('erd-edge-label');
       await expect(edgeLabel).toBeVisible();
       await expect(edgeLabel).toHaveText(/n:1/);
@@ -456,6 +467,10 @@ test.describe('关系图画布（ReactFlow）', () => {
 
       await page.getByRole('button', { name: '适应画布' }).click();
       await page.waitForTimeout(400);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-edge-stroke.png',
+        fullPage: false,
+      });
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-node-polish.png',
         fullPage: false,

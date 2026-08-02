@@ -16,8 +16,8 @@
   }
 
   .react-flow__edge-path {
-    stroke: var(--erd-ink-600);
-    stroke-width: 1.5;
+    stroke: var(--erd-ink-900);
+    stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
     transition: stroke 0.12s, stroke-width 0.12s;
@@ -26,7 +26,7 @@
   .react-flow__edge:hover .react-flow__edge-path,
   .react-flow__edge.selected .react-flow__edge-path {
     stroke: var(--erd-brand);
-    stroke-width: 2;
+    stroke-width: 2.5;
   }
 
   // 基数标签 chip：白底 + 描边，浮在 sunk 画布上；禁整块半透明冲淡字
