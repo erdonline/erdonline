@@ -26,10 +26,6 @@
 
 验证点：`mvn -q -Djacoco.skip=true -Dtest=RedisDataPropertiesBindingTest test`；Redeploy 后日志 `url=set password=set`
 
-#### 文档/诊断：Railway Redis 正确接法（NOAUTH = 缺密码，非代码 bug）
-
-- （已被上一小节取代：改为 `SPRING_DATA_REDIS_URL` 标准绑定，删除 EPP）
-
 ### 2026-08-02
 
 #### 修复：Railway Redis 变量同名 + URL 强制覆盖 host

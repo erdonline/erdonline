@@ -56,12 +56,22 @@ test.describe('只读分享', () => {
       try {
         await anonPage.goto(`/s/${token}`);
         await expect(anonPage.getByText(projectName).first()).toBeVisible({ timeout: 15_000 });
+        // W5：分享顶栏对齐设计器壳（64px chrome + logo + Fork CTA + 登录/注册）
+        const chrome = anonPage.getByTestId('share-chrome-header');
+        await expect(chrome).toBeVisible();
+        await expect(chrome.getByRole('link', { name: 'ERD Online 首页' })).toBeVisible();
+        await expect(chrome.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
+        await expect(chrome.getByRole('link', { name: '登录' })).toBeVisible();
+        await expect(chrome.getByRole('link', { name: '注册' })).toBeVisible();
+        const headerH = await chrome.evaluate((el) => getComputedStyle(el).height);
+        expect(headerH).toBe('64px');
         await expect(anonPage.getByTestId('share-relation-canvas')).toBeVisible();
         await expect(anonPage.getByText('T_TABLE_1').first()).toBeVisible();
-        await expect(anonPage.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
-        // 未登录点复制 → 登录页带 redirect
-        await expect(anonPage.getByRole('button', { name: '注册并带回' })).toBeVisible();
-        await anonPage.getByRole('button', { name: '注册并带回' }).click();
+        await anonPage.screenshot({
+          path: 'test-results/ux-walkthrough/share-chrome-brand.png',
+          fullPage: false,
+        });
+        await anonPage.getByRole('link', { name: '注册' }).click();
         await expect(anonPage).toHaveURL(/\/register\?redirect=/);
         await anonPage.goto(`/s/${token}`);
         await anonPage.getByRole('button', { name: '复制到我的项目' }).click();

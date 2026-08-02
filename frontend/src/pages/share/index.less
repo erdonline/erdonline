@@ -1,0 +1,77 @@
+/* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5） */
+.share-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--erd-surface-sunk);
+  font-family: var(--erd-font-ui);
+}
+
+.share-page__header {
+  flex-shrink: 0;
+}
+
+.share-page__project {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  overflow: hidden;
+}
+
+.share-page__project-name {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 600;
+  color: var(--erd-ink-900);
+  line-height: 1.2 !important;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.share-page__readonly-tag {
+  flex-shrink: 0;
+  margin: 0 !important;
+  font-size: 12px;
+  line-height: 20px;
+  border-color: var(--erd-line);
+  color: var(--erd-ink-600);
+  background: var(--erd-surface-muted);
+}
+
+.share-page__body {
+  flex: 1;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 16px 20px 32px;
+  box-sizing: border-box;
+}
+
+.share-page__desc {
+  margin-bottom: 12px !important;
+  color: var(--erd-ink-600);
+}
+
+.share-page__hint {
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--erd-ink-600);
+}
+
+.share-page__tables {
+  margin-top: 20px;
+  padding: 16px;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
+}
+
+.share-page__tables-title {
+  margin: 0 0 12px !important;
+  font-size: 14px !important;
+  font-weight: 600;
+  color: var(--erd-ink-900);
+}
