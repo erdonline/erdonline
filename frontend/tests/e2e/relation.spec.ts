@@ -270,6 +270,59 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表头中文名内联编辑；Tab 入；Escape 丢弃', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('tchn');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'tchn', 'table chnname inline');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      let node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // 编辑态标题进 input，勿用 hasText 链；用 page 级 role
+      await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
+      const nameInput = page.getByRole('textbox', { name: '表名' });
+      const chnInput = page.getByRole('textbox', { name: '表中文名' });
+      await expect(nameInput).toBeVisible({ timeout: 10_000 });
+      await expect(chnInput).toBeVisible();
+
+      // Tab 入中文名；Enter 落盘；浏览态可见 + save-status
+      await nameInput.press('Tab');
+      await expect(chnInput).toBeFocused();
+      await chnInput.fill('用户表');
+      await chnInput.press('Enter');
+      await expect(page.getByRole('textbox', { name: '表中文名' })).toHaveCount(0);
+      node = rfNode(page, 'T_TABLE_1');
+      await expect(node.locator('.erd-table-chnname')).toHaveText('用户表');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // Escape：中文名草稿不经 blur 落盘
+      await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
+      await expect(page.getByRole('textbox', { name: '表中文名' })).toHaveValue('用户表');
+      await page.getByRole('textbox', { name: '表名' }).press('Tab');
+      await page.getByRole('textbox', { name: '表中文名' }).fill('别名草稿');
+      await page.getByRole('textbox', { name: '表中文名' }).press('Escape');
+      await expect(page.getByRole('textbox', { name: '表中文名' })).toHaveCount(0);
+      node = rfNode(page, 'T_TABLE_1');
+      await expect(node.locator('.erd-table-chnname')).toHaveText('用户表');
+
+      // 中文名可空提交
+      await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
+      await page.getByRole('textbox', { name: '表名' }).press('Tab');
+      await page.getByRole('textbox', { name: '表中文名' }).fill('');
+      await page.getByRole('textbox', { name: '表中文名' }).press('Enter');
+      node = rfNode(page, 'T_TABLE_1');
+      await expect(node.locator('.erd-table-chnname')).toHaveCount(0);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   // ADR-0016：画布主色走品牌 ink，禁默认蓝
   test('表节点视觉：品牌 token', async ({ page }) => {
     test.setTimeout(90_000);
