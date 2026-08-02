@@ -75,7 +75,7 @@
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
-  box-shadow: 0 1px 2px rgba(11, 28, 44, 0.04), 0 4px 12px rgba(11, 28, 44, 0.06);
+  box-shadow: 0 1px 2px var(--erd-ink-a06), 0 4px 12px var(--erd-ink-a06);
   // 不可 overflow:hidden：字段手柄半探出节点边缘
   overflow: visible;
   font-size: 12px;
@@ -84,7 +84,7 @@
 
   &.selected {
     border-color: var(--erd-brand);
-    box-shadow: 0 0 0 2px rgba(222, 41, 16, 0.18), 0 4px 14px rgba(11, 28, 44, 0.08);
+    box-shadow: 0 0 0 2px var(--erd-brand-a18), 0 4px 14px var(--erd-ink-a06);
   }
 
   .erd-table-header {
@@ -410,6 +410,7 @@
 // ADR-0017 Phase 2b：图内视觉框（底层；拖框平移成员绝对坐标，非 RF parent）
 .erd-frame-node {
   box-sizing: border-box;
+  background: var(--erd-frame-fill);
   border: 2px dashed var(--erd-success);
   border-radius: 10px;
   font-family: var(--erd-font-ui);
@@ -419,7 +420,7 @@
   &.selected {
     border-color: var(--erd-brand);
     border-style: solid;
-    box-shadow: 0 0 0 2px rgba(222, 41, 16, 0.12);
+    box-shadow: 0 0 0 2px var(--erd-brand-a12);
   }
 
   .erd-frame-chrome {
@@ -433,6 +434,9 @@
     justify-content: space-between;
     padding: 0 8px;
     border-radius: 6px;
+    // 轻表面条：分组名可读，截图不糊成色块
+    background: color-mix(in srgb, var(--erd-surface) 78%, transparent);
+    border: 1px solid color-mix(in srgb, var(--erd-line) 70%, transparent);
     cursor: grab;
     // 顶栏 = dragHandle；避开四周 NodeResizer 边线
     pointer-events: auto;
@@ -478,7 +482,7 @@
 }
 
 .erd-frame-resize-line {
-  border-color: rgba(222, 41, 16, 0.35) !important;
+  border-color: color-mix(in srgb, var(--erd-brand) 35%, transparent) !important;
   opacity: 0;
   pointer-events: none;
 

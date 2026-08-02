@@ -1,4 +1,5 @@
 import useProjectStore from '@/store/project/useProjectStore';
+import { erdColors } from '@/theme/tokens';
 import React from 'react';
 import shallow from 'zustand/shallow';
 
@@ -27,7 +28,7 @@ const CollabPresence: React.FC = () => {
         textOverflow: 'ellipsis',
         whiteSpace: 'nowrap',
         fontSize: 13,
-        color: 'rgba(0,0,0,0.65)',
+        color: erdColors.ink600,
       }}
       title={label}
     >

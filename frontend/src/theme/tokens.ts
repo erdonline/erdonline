@@ -20,7 +20,29 @@ export const erdColors = {
   /** FK 徽章底 / 描边（与 success 成对） */
   successBg: '#E8F5F1',
   successBorder: '#B7DFD4',
+  /** Frame 浅底（ADR-0016：禁 Ant 蓝等散落色） */
+  frameFill: 'rgba(47, 143, 123, 0.10)',
+  frameFillBrand: 'rgba(222, 41, 16, 0.08)',
+  frameFillWarning: 'rgba(212, 136, 6, 0.10)',
+  frameFillInk: 'rgba(11, 28, 44, 0.06)',
+  /** 轻阴影 / MiniMap mask / 选中光晕 */
+  inkA06: 'rgba(11, 28, 44, 0.06)',
+  brandA12: 'rgba(222, 41, 16, 0.12)',
+  brandA18: 'rgba(222, 41, 16, 0.18)',
 } as const;
+
+/** 新建 Frame 按序轮换；demo 分组同序 */
+export const FRAME_COLOR_PALETTE = [
+  erdColors.frameFill,
+  erdColors.frameFillInk,
+  erdColors.frameFillWarning,
+  erdColors.frameFillBrand,
+] as const;
+
+export function frameColorAt(index: number): string {
+  const i = ((index % FRAME_COLOR_PALETTE.length) + FRAME_COLOR_PALETTE.length) % FRAME_COLOR_PALETTE.length;
+  return FRAME_COLOR_PALETTE[i];
+}
 
 export const erdFontFamily =
   "'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', sans-serif";
