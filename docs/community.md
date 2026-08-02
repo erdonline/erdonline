@@ -91,7 +91,8 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 48. ~~**ReactFlow Controls 中文 aria**~~（已合入；`ZhControls` + `relation.spec`「Controls」；草稿 `34`）
 49. ~~**ReactFlow MiniMap 中文 aria**~~（已合入；`ariaLabel="画布缩略图"` + `relation.spec`「MiniMap」；草稿 `35`）
 50. ~~**画布工具栏撤销/重做/排布/对齐 aria**~~（已合入；`relation.spec`「工具栏」；草稿 `36`）
-51. **顶栏 SaveStatus aria-live**（草稿 `37`：`role="status"` + `aria-live="polite"`）
+51. ~~**顶栏 SaveStatus aria-live**~~（已合入；`role="status"` + `aria-live="polite"`；`relation.spec`「save-status」；草稿 `37`）
+52. **顶栏 CollabPresence aria-live**（草稿 `38`：`role="status"` + `aria-live="polite"`；对齐 SaveStatus）
 
 ## 贡献者怎么认领
 
