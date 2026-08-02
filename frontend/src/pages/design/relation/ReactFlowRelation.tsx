@@ -336,8 +336,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
               </span>
               <span className="erd-field-type">{f.type}</span>
-              <span
+              <button
+                type="button"
                 className="erd-field-delete nodrag"
+                aria-label="删除字段"
                 title="删除字段"
                 onClick={e => {
                   e.stopPropagation();
@@ -345,7 +347,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 }}
               >
                 ×
-              </span>
+              </button>
               <Handle type="source" id={`${f.name}-src`} position={Position.Right} className="erd-field-handle" />
             </div>
           )

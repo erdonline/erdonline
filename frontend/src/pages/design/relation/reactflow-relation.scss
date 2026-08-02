@@ -176,11 +176,19 @@
     }
 
     // 字段删除：悬停行才出现的轻量 ×（低破坏操作免确认，与电子表格工具一致）
+    // z-index 高于右侧 Handle，避免 RF 连接点吞点击
     .erd-field-delete {
+      appearance: none;
+      font-family: inherit;
+      font-size: inherit;
+      padding: 0;
+      border: none;
+      background: transparent;
       position: absolute;
       right: 6px;
       top: 50%;
       transform: translateY(-50%);
+      z-index: 2;
       width: 16px;
       height: 16px;
       line-height: 14px;
@@ -190,6 +198,7 @@
       cursor: pointer;
       opacity: 0;
       transition: opacity 0.15s;
+      pointer-events: none;
 
       &:hover {
         color: #f5222d;
@@ -199,6 +208,7 @@
 
     .erd-field-row:hover .erd-field-delete {
       opacity: 1;
+      pointer-events: auto;
     }
 
     // 行内编辑态
