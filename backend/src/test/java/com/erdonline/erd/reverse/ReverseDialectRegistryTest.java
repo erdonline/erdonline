@@ -53,6 +53,7 @@ class ReverseDialectRegistryTest {
         assertTrue(dialect.capability().isSupportsSchema());
         assertTrue(dialect.capability().isSupportsIndex());
         assertTrue(dialect.capability().isSupportsForeignKey());
+        assertTrue(dialect.capability().isSupportsComment());
     }
 
     @Test

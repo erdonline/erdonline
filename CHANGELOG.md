@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：逆向保真切片 2 — SQL Server 字典级表/列注释 → chnname
+
+**功能**
+
+- `SqlServerReverseDialect`：`supportsComment(true)`；`SQL_TABLE_COMMENTS` / `SQL_COLUMN_COMMENTS` 经 `sys.extended_properties`（`MS_Description`）；`listTables`/`fillEntity` 回填，失败 warn+回退 JDBC
+- 复用方言无关 `CommentResultSetMapper`；`reverse-fixtures/sqlserver` 补 `sp_addextendedproperty` 中文注释
+
+**文档**
+
+- ADR-0006 / roadmap 逆向保真：SQL Server 注释 ✅；Oracle 注释另切片
+
+验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn test -Dtest='CommentResultSetMapperTest,*Reverse*'` → Comment/Registry 绿（SqlServer `supportsComment`）。curl `dbReverseParse` chnname：**延期**（本机 `azure-sql-edge` 镜像拉取 >15min 未完成；fixture 已备，`./scripts/dev-reverse-dbs.sh` 可用后补验）
+
 #### 功能：逆向保真切片 1 — PostgreSQL 字典级表/列注释 → chnname
 
 **功能**
