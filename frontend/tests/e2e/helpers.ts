@@ -270,17 +270,33 @@ export async function withExclusiveAccount<T>(fn: () => Promise<T>): Promise<T> 
   while (Date.now() - started < 180_000) {
     try {
       fs.writeFileSync(lock, String(process.pid), { flag: 'wx' });
+    } catch (e: any) {
+      // 仅重试锁冲突；勿吞掉 fn() 断言失败（否则会空转到 test timeout）
+      if (e?.code !== 'EEXIST') throw e;
       try {
-        return await fn();
-      } finally {
-        try {
-          fs.unlinkSync(lock);
-        } catch {
-          /* ignore */
+        const holder = Number(fs.readFileSync(lock, 'utf8'));
+        if (holder && !Number.isNaN(holder)) {
+          try {
+            process.kill(holder, 0);
+          } catch {
+            fs.unlinkSync(lock);
+            continue;
+          }
         }
+      } catch {
+        /* ignore */
       }
-    } catch {
       await new Promise((r) => setTimeout(r, 400));
+      continue;
+    }
+    try {
+      return await fn();
+    } finally {
+      try {
+        fs.unlinkSync(lock);
+      } catch {
+        /* ignore */
+      }
     }
   }
   throw new Error('E2E account lock timeout');

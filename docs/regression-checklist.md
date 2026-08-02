@@ -349,6 +349,7 @@
 
 - [x] [审批/工单非 ProTable] 侧栏「我的工单/我的审批」表头 + 空态；种子拒绝/复批/SQL 失败仍待审 ✅ `approval.spec.ts`
 - [x] [Home 非 PageContainer] `/home` 快捷入口 `home-link-*` 可见 ✅ `project-surface` / `activation`
+- [x] [Home IA 重设计] `/home` 无「快速操作」色块墙；无竖排中文；hero 唯一 CTA 簇；过期公告隐藏；截图 `home-redesign.png` ✅ `layout-outlet`
 - [x] [登录/注册非 LoginFormPage] 错误凭证 toast；去注册导航；注册进 home ✅ `smoke` / `session`
 - [x] [databaseConfig 非 ProTable] `/databaseConfig` 新建连接 + 同步状态 + 编辑删除 ✅ `adr0008-datasource`
 - [x] [ExportDDL 非 StepsForm] 菜单「导出DDL」弹窗两步 + 下载 `.sql` ✅ `project-menu` 导出DDL
