@@ -344,12 +344,18 @@ test.describe('关系图画布（ReactFlow）', () => {
           bg: s.backgroundColor,
           opacity: s.opacity,
           fontSize: parseFloat(s.fontSize),
+          padX: parseFloat(s.paddingLeft),
+          padY: parseFloat(s.paddingTop),
+          radius: parseFloat(s.borderTopLeftRadius),
         };
       });
       expect(labelLook.opacity).toBe('1');
       expect(labelLook.color).toBe('rgb(68, 82, 95)');
       expect(labelLook.bg).toBe('rgb(255, 255, 255)');
       expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
+      expect(labelLook.padX).toBeLessThanOrEqual(4);
+      expect(labelLook.padY).toBeLessThanOrEqual(2);
+      expect(labelLook.radius).toBeLessThanOrEqual(3);
 
       // 默认新建表常竖叠：几何择柄应走同侧短 U（消 circle-route）
       const portEl = page.getByTestId('erd-edge-route-mode');

@@ -99,6 +99,8 @@ async function main() {
       { position: { x: 400, y: 200 }, width: 220, height: 80 },
     ];
     const before = nodes.map((n) => ({ ...n.position }));
+    assert.equal(FRAME_PADDING, 20, 'Frame 默认内边距再贴成员一档');
+    assert.ok(FRAME_PADDING <= 20);
     const bounds = computeFrameBoundsFromNodes(nodes, FRAME_PADDING);
     assert.equal(bounds.x, 100 - FRAME_PADDING);
     assert.equal(bounds.y, 50 - FRAME_PADDING);

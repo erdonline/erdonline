@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：边标签密度 + Frame 内边距微调（ADR-0016）
+
+- `EDGE_LABEL_BG_PADDING` `[6,3]`→`[4,2]`，`EDGE_LABEL_BG_RADIUS` 4→3；字号仍 ≥11（可读底线）
+- `FRAME_PADDING` 24→20（适应成员 / 导入建议更贴表）；既有 demo 烘焙坐标不动
+
+验证点：`cd frontend && npx tsx src/utils/relationEdges.test.ts && npx tsx src/utils/diagram.test.ts`；`npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉" --workers=1 --retries=0`；`npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 架构：单一业务库 `erd`（取消 martin/erd 双库 · ADR-0020）
 
 - JDBC：`DB_NAME`（默认 `erd`）；两套 Hikari/SqlSessionFactory 过渡期同库；兼容旧 `DB_ERD`/`DB_MARTIN` 回退

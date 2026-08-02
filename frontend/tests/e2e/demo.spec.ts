@@ -85,6 +85,9 @@ test.describe('在线演示', () => {
         fontSize: parseFloat(s.fontSize),
         border: s.borderTopWidth,
         fontWeight: s.fontWeight,
+        padX: parseFloat(s.paddingLeft),
+        padY: parseFloat(s.paddingTop),
+        radius: parseFloat(s.borderTopLeftRadius),
       };
     });
     expect(labelLook.opacity, '标签不得整块半透明').toBe('1');
@@ -93,6 +96,9 @@ test.describe('在线演示', () => {
     expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
     expect(parseInt(labelLook.fontWeight, 10)).toBeGreaterThanOrEqual(500);
     expect(parseFloat(labelLook.border)).toBeGreaterThanOrEqual(1);
+    expect(labelLook.padX, '密图 chip 水平 padding').toBeLessThanOrEqual(4);
+    expect(labelLook.padY, '密图 chip 垂直 padding').toBeLessThanOrEqual(2);
+    expect(labelLook.radius).toBeLessThanOrEqual(3);
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',
     });
