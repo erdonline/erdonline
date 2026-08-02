@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 运维：Railway MySQL 一键灌 `db/init`
+
+- 新增 `scripts/railway-mysql-init.sh`：接受 `MYSQL_URL` 或 `MYSQLHOST`/`MYSQLPORT`/`MYSQLUSER`/`MYSQLPASSWORD`；建 `martin`/`erd`（utf8mb4）；按序导入 `02→03→06…09`；跳过 `05_e2e_users.sql`；默认跳过 `04_privileges.sql`（`--with-privileges` 可选）
+- `docs/deployment.md` Railway MySQL「建库 + 灌基线」链到该脚本
+
+验证点：`chmod +x scripts/railway-mysql-init.sh`；`./scripts/railway-mysql-init.sh --help` 退出 0；`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run` 打印导入清单且不连库
+
 #### 体验：落地页 less 对齐 `--erd-*` tokens
 
 - `pages/landing/index.less`：删除 `@ink`/`@accent`/`@teal`/`#4aa3c8` 等自造色；底/scrim/字族/主 CTA/三柱点缀一律 `var(--erd-*)` + `color-mix`
