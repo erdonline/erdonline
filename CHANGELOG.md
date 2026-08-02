@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：字段 Tab 跳下一行 + 类型即时 save-status（建模回路）
+
+- 选题：字段内联编辑只能 Enter/blur 提交；Tab 不进下一行；仅改类型无即时保存反馈
+- Tab / Shift+Tab：校验通过后提交并进下一/上一字段编辑；空名仍 toast「字段名不能为空」并留编辑
+- 已有字段改类型 → 立刻 `updateEntityFields`，顶栏 `save-status` 即时「已保存」（不必等 Enter）
+- E2E：`relation`「字段 Tab 跳下一行；类型即时 save-status」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段 Tab 跳下一行" --workers=1 --retries=0`
+
 #### 体验：字段行内编辑 affordance + 空名反馈（建模回路）
 
 - 选题：字段只能双击进编辑，空名 blur/Enter 静默退出丢改动；表头已有 ✎，字段行不对齐
