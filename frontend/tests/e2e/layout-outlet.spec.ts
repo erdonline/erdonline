@@ -25,10 +25,12 @@ test.describe('布局壳子路由出口', () => {
     await expect(homeCta).toBeVisible({ timeout: 15_000 });
     await expect(homeCta).toHaveCount(1);
     await expect(page.getByRole('link', { name: '新建模型' })).toBeVisible();
-    // Home 不得挂载设计器顶栏动作（曾误复用 DesignLayout.headRightContent）
+    // Home 不得挂载设计器顶栏动作；仍保留公众号 + GitHub
     await expect(page.getByTestId('save-status')).toHaveCount(0);
     await expect(page.getByTestId('collab-presence')).toHaveCount(0);
     await expect(page.getByRole('button', { name: '只读分享' })).toHaveCount(0);
+    await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toBeVisible();
+    await expect(page.getByRole('img', { name: '公众号' })).toBeVisible();
 
     await page.goto('/project/person');
     await expect(page.getByText('个人项目').first()).toBeVisible({ timeout: 15_000 });

@@ -8,7 +8,7 @@ import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { ProjectMenu } from "@/components/Menu";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
-import { menuHeaderDropdown } from "@/layouts/HomeLayout";
+import { homeRightContent, menuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as cache from "@/utils/cache";
@@ -16,13 +16,13 @@ import { CONSTANT } from "@/utils/constant";
 import { history, useSearchParams } from "@@/exports";
 import { useAccess } from "@@/plugin-access";
 import { PageContainer, ProCard, ProLayout, ProSettings, WaterMark } from "@ant-design/pro-components";
-import { Me, TwoDimensionalCodeOne } from "@icon-park/react";
+import { Me } from "@icon-park/react";
 import {
   useUnmount
 } from '@umijs/hooks';
 import { Link, useModel } from "@umijs/max";
 import { CaretDownOutlined } from "@ant-design/icons";
-import { Button, Dropdown, Image, Popover } from "antd";
+import { Button, Dropdown } from "antd";
 import React, { useEffect, useState } from 'react';
 import shallow from "zustand/shallow";
 import defaultProps from './_defaultProps';
@@ -30,27 +30,13 @@ import './index.less';
 
 export const siderWidth = 400;
 
+/** 设计器完整顶栏：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
 export const headRightContent = [
   <SaveStatus key="save-status" />,
   <SaveVersionButton key="save-version" />,
   <CollabPresence key="presence" />,
   <ShareProjectButton key="share" />,
-  <Popover placement="bottom" title="公众号" content={<Image src="/mp.jpg" />} trigger="hover">
-    <TwoDimensionalCodeOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} />
-  </Popover>,
-  <a
-    key="github"
-    style={{ marginTop: '-10px' }}
-    target="_blank"
-    rel="noreferrer"
-    href="https://github.com/erdonline/erdonline"
-    aria-label="GitHub 仓库"
-  >
-    <img
-      src="https://img.shields.io/github/stars/erdonline/erdonline?style=social"
-      alt="GitHub stars"
-    />
-  </a>,
+  ...homeRightContent,
 ];
 
 
