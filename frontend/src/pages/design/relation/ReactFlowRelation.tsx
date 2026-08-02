@@ -792,7 +792,13 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
-            <button className="erd-canvas-tool" onClick={() => setCmdOpen(true)} title="命令面板 (Cmd/Ctrl+K)">
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              onClick={() => setCmdOpen(true)}
+              title="命令面板 (Cmd/Ctrl+K)"
+              aria-label="命令"
+            >
               命令
             </button>
             <button className="erd-canvas-tool" onClick={() => projectDispatch.undoCanvas()} title="撤销 (Cmd/Ctrl+Z)">

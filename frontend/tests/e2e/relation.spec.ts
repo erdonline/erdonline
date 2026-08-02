@@ -206,6 +206,36 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('命令面板：Cmd+K 打开并执行新建表', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('cmdk');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'cmd', 'command palette');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.locator('.erd-table-node')).toHaveCount(1);
+
+      await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
+      const palette = page.getByRole('dialog', { name: '命令面板' });
+      await expect(palette).toBeVisible();
+      await page.getByTestId('cmd-palette-input').fill('新建');
+      await page.getByRole('option', { name: /新建表/ }).click();
+      await expect(palette).toHaveCount(0);
+      await expect(page.locator('.erd-table-node')).toHaveCount(2);
+
+      // 工具条入口可再次打开
+      await page.getByRole('button', { name: '命令' }).click();
+      await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
+      await page.keyboard.press('Escape');
+      await expect(page.getByRole('dialog', { name: '命令面板' })).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删边后刷新关系图仍无边', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('edgedel');
