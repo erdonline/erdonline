@@ -790,7 +790,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       >
         <Background gap={16} size={1} />
         <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
-        <MiniMap pannable zoomable />
+        <MiniMap pannable zoomable ariaLabel="画布缩略图" />
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">

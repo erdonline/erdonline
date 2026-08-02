@@ -89,7 +89,8 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 46. ~~**控件矩阵 🚧 行**~~（P2b 矩阵 🚧=0；余 📋 延期不拆阻断 Issue）
 47. ~~**画布「删除字段」可访问按钮**~~（已合入；`relation.spec`「删除字段」；草稿 `33`）
 48. ~~**ReactFlow Controls 中文 aria**~~（已合入；`ZhControls` + `relation.spec`「Controls」；草稿 `34`）
-49. **ReactFlow MiniMap 中文 aria**（草稿 `35`：`ariaLabel` 改中文，禁「React Flow mini map」）
+49. ~~**ReactFlow MiniMap 中文 aria**~~（已合入；`ariaLabel="画布缩略图"` + `relation.spec`「MiniMap」；草稿 `35`）
+50. **画布工具栏撤销/重做/排布/对齐 aria**（草稿 `36`：工具栏按钮补中文 `aria-label`）
 
 ## 贡献者怎么认领
 

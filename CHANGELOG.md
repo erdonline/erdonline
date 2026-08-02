@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：ReactFlow MiniMap 中文可访问名（草稿 35）
+
+**修复**
+
+- 设计器与分享页 `<MiniMap />` 增加 `ariaLabel="画布缩略图"`（覆盖库默认 `React Flow mini map`）
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "MiniMap|缩略图"`
+
+**测试**
+
+- `relation.spec.ts`：新增「MiniMap：中文可访问名」；断言 `getByRole('img', { name: '画布缩略图' })`，英文文案 count=0
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `35` 标已合入；补草稿 `36`（画布工具栏 aria）；README / `docs/community.md` 种子 49–50 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `36`（`35` 为 SKIP）
+
 #### P4 good-first：ReactFlow Controls 中文可访问名（草稿 34）
 
 **修复**

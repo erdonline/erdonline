@@ -203,6 +203,24 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('MiniMap：中文可访问名（画布缩略图）', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('mmap');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'mmap', 'rf minimap zh aria');
+      await openRelationFromEmpty(page);
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
+
+      await expect(page.getByRole('img', { name: '画布缩略图' })).toBeVisible();
+      await expect(page.getByLabel('React Flow mini map')).toHaveCount(0);
+      await expect(page.getByText('React Flow mini map')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');

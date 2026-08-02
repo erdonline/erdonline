@@ -157,7 +157,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
       >
         <Background/>
         <ZhControls showInteractive={false}/>
-        <MiniMap pannable zoomable/>
+        <MiniMap pannable zoomable ariaLabel="画布缩略图"/>
       </ReactFlow>
     </div>
   );
