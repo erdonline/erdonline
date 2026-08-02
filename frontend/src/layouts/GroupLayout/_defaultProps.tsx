@@ -1,4 +1,7 @@
 import {DatabaseNetwork, LeftC, Permissions, SettingOne, Sphere} from "@icon-park/react";
+import {erdColors} from '@/theme/tokens';
+
+const brandFill = erdColors.brand;
 
 export default {
   route: {
@@ -7,29 +10,29 @@ export default {
       {
         path: '/dataModels',
         name: '返回项目列表',
-        icon: <LeftC theme="filled" size="18" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <LeftC theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
       },
       {
         path: '/project/group/setting/basic',
         name: '基本设置',
-        icon: <SettingOne theme="filled" size="18" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <SettingOne theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
       },
       {
         path: '/project/group/setting/permission',
         name: '权限组',
-        icon: <Permissions theme="filled" size="18" fill="#DE2910" strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <Permissions theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
         access: 'canErdProjectPermissionGroup'
       },
       {
         path: '/design/table/model',
         name: '打开模型',
-        icon: <DatabaseNetwork theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+        icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         exact: true,
         path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
         name: 'ERD Online 论坛',
-        icon: <Sphere theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>
+        icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
       },
     ],
   },

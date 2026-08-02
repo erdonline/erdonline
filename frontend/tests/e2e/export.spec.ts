@@ -128,8 +128,15 @@ test.describe('导出（无 G6）', () => {
       const metrics = await pageRoot.evaluate((el) => {
         const title = el.querySelector('.export-common-page__title') as HTMLElement | null;
         const card = el.querySelector('.export-common-card') as HTMLElement | null;
+        const avatar = el.querySelector('.ant-list-item-meta-avatar') as HTMLElement | null;
+        const svgPath = avatar?.querySelector('path');
         const tcs = title ? getComputedStyle(title) : null;
         const ccs = card ? getComputedStyle(card) : null;
+        const acs = avatar ? getComputedStyle(avatar) : null;
+        const brand = getComputedStyle(document.documentElement)
+          .getPropertyValue('--erd-brand')
+          .trim()
+          .toLowerCase();
         return {
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
           titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
@@ -141,6 +148,9 @@ test.describe('导出（无 G6）', () => {
             : NaN,
           pagePadY: parseFloat(getComputedStyle(el).paddingTop) +
             parseFloat(getComputedStyle(el).paddingBottom),
+          avatarColor: acs ? acs.color.replace(/\s/g, '').toLowerCase() : '',
+          pathFillAttr: (svgPath?.getAttribute('fill') || '').toLowerCase(),
+          brand,
         };
       });
       expect(metrics.titleFont, `页标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`).toBeLessThanOrEqual(
@@ -163,6 +173,12 @@ test.describe('导出（无 G6）', () => {
         metrics.pagePadY,
         `页 chrome padY 应 ≤24（目标 8+…），得 ${metrics.pagePadY}`,
       ).toBeLessThanOrEqual(24);
+      expect(metrics.brand.length).toBeGreaterThan(0);
+      // currentColor → rgb；与 --erd-brand 同源（禁硬编码 #DE2910 字面量）
+      expect(metrics.pathFillAttr).toBe('currentcolor');
+      expect(metrics.avatarColor).toMatch(/^rgb/);
+      expect(metrics.avatarColor).not.toBe('rgba(0,0,0,0)');
+      expect(metrics.avatarColor).not.toBe('transparent');
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-export-common-dense.png',

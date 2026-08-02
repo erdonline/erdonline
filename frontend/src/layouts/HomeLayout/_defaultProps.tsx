@@ -1,4 +1,7 @@
 import {DatabaseNetwork, HomeTwo, Sphere, Table} from "@icon-park/react";
+import {erdColors} from '@/theme/tokens';
+
+const brandFill = erdColors.brand;
 
 export default {
   route: {
@@ -7,24 +10,24 @@ export default {
       {
         path: '/home',
         name: '首页',
-        icon: <HomeTwo theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+        icon: <HomeTwo theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         path: '/dataModels',
         name: '数据模型',
-        icon: <Table theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+        icon: <Table theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         path: '/databaseConfig',
         name: '数据源',
-        icon: <DatabaseNetwork theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
+        icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         
         exact: true,
         path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
         name: 'ERD Online 论坛',
-        icon: <Sphere theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>
+        icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
       },
 
     ],

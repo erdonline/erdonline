@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：Export / Home·Group 壳清 `#DE2910` 硬编码（ADR-0016）
+
+- 选题：`ExportCommon` 与 Home/Group `_defaultProps` 导航图标仍裸 `#DE2910`，与 DesignLayout `erdColors.brand` / `--erd-brand` 割裂
+- Export 卡片图标 `currentColor` → `.ant-list-item-meta-avatar { color: var(--erd-brand) }`；Home/Group 主导航对齐 DesignLayout `brandFill = erdColors.brand`
+- E2E：`export` 密度用例断言 path fill=`currentColor` + avatar color；`layout-outlet` 三壳断言导航图标 fill ≡ `--erd-brand`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/export.spec.ts --project=chromium --grep "普通导出页密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "三壳同语言" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：账号设置授权类型对齐密度 token（ADR-0016）
 
 - 选题：`identification` 仍裸 antd `Result` + 硬编码 `#DE2910`，与账号设置 22–28 / `--erd-*` 割裂（嵌入页不适配全屏 AuthBrandShell）

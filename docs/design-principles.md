@@ -78,7 +78,8 @@
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条 pad 8 / 控件 28；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行
 - ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 28、字 12；表头 pad 4×12 / title 13；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 28；禁 8×12 松行 + 16 标题
-- ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；禁 16 pad + Title level4 松卡片
+- ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
+- ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
 - ✅ 设置页 chrome 密度：`.setting-common-page` 标题 13/22、页 pad 8×12、表单项 margin 12、Input/按钮 28；菜单「默认项设置」挂 `.erd-io-modal`；禁默认 Form 24 间距 + 大号控件
 - ✅ 数据库配置页密度：`.database-config-page` 标题 13/22、页 pad 8×12、工具条钮 28、表行 pad 4×8；抽屉表单同阶；菜单「数据源设置」挂 `.erd-io-modal`；禁 Title level4 + 松 Card
 - ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡
@@ -111,7 +112,8 @@
 - ❌ 左树默认 ~28 行高 + 16 工具条松距，与 22 chrome 不同阶（历史问题）
 - ❌ CommonTabs 栏 40px + 表设计签头 10×16 松距，与 22 chrome 不同阶（历史问题）
 - ❌ 版本列表 8×12 松行 + 16 标题，与 22–28 chrome 不同阶（历史问题）
-- ❌ 普通导出页 16 pad + Title level4 松卡片，与 22–28 chrome 不同阶（历史问题）
+- ❌ 普通导出页 16 pad + Title level4 松卡片 / 图标裸 `#DE2910`，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
+- ❌ Home / Group 导航图标硬编码 `#DE2910`，与 DesignLayout `erdColors.brand` 割裂（历史问题）
 - ❌ 设置页默认 Form 24 间距 + 大号控件，与 22–28 chrome 不同阶（历史问题）
 - ❌ 账号设置 20 标题 + 14 松行 / Home 项目卡 16×18 pad，与 22–28 chrome 不同阶（历史问题）
 - ❌ 授权类型裸 `Result` + 硬编码 `#DE2910`，与账号设置密度 / `--erd-*` 割裂（历史问题）
