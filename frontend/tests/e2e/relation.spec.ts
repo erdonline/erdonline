@@ -180,6 +180,26 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('save-status：aria-live 播报自动保存状态', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('savestatus');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'save', 'save-status aria-live');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      const saveStatus = page.getByTestId('save-status');
+      await expect(saveStatus).toHaveText('已保存', { timeout: 15_000 });
+      await expect(saveStatus).toHaveAttribute('aria-live', 'polite');
+      await expect(saveStatus).toHaveAttribute('role', 'status');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('Controls：中文可访问名（放大/缩小/适应画布/切换交互）', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('ctrl');

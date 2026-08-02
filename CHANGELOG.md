@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：顶栏 SaveStatus aria-live（草稿 37）
+
+**修复**
+
+- `SaveStatus`：补 `role="status"` + `aria-live="polite"`，读屏可播报「保存中… / 已保存 / 未保存」；不改样式与自动保存逻辑
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "save-status|aria-live"`
+
+**测试**
+
+- `relation.spec.ts`：新增「save-status：aria-live 播报自动保存状态」；建表后断言「已保存」及 `aria-live` / `role`
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `37` 标已合入；补草稿 `38`（CollabPresence aria-live）；README / `docs/community.md` 种子 51–52 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `38`（`37` 为 SKIP）
+
 #### P4 good-first：画布工具栏撤销/重做/对齐 aria（草稿 36）
 
 **修复**

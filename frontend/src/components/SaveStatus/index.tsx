@@ -15,6 +15,8 @@ const SaveStatus: React.FC = () => {
     <span
       className={`erd-save-status erd-save-status--${tone}`}
       data-testid="save-status"
+      role="status"
+      aria-live="polite"
       aria-label={`自动保存：${label}`}
       title="模型变更会自动保存到服务器"
     >
