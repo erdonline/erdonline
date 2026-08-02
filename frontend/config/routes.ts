@@ -5,6 +5,11 @@ export default [
     component: './landing',
   },
   {
+    path: '/compare',
+    layout: false,
+    component: './landing/compare',
+  },
+  {
     path: '/s/:token',
     layout: false,
     component: './share',

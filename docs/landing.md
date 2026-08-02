@@ -4,13 +4,19 @@
 
 ## 信息架构（IA）
 
-单页叙事，自上而下：
+主叙事在 `/`，对照深链 `/compare`（共用落地壳，不做更多营销子页）：
 
 1. **Hero**：品牌 ERD Online（hero 级）+ 一句定位 + 主/次 CTA；**全幅**真实设计器截图作背景（`/landing-hero.jpg`），非侧栏嵌图
 2. **三卖点**：版本 / 协作 / 开放（API/MCP 路线图，见 ADR-0013）
 3. **30 秒动线**：`/demo` + 自部署文档外链
-4. **对比**：vs dbdiagram / dbml
-5. **Footer**：文档、Roadmap、社区、登录（已登录则「进入工作台」）
+4. **对比摘要**：vs dbdiagram / dbml 四行表 +「查看完整对照」→ `/compare`
+5. **Footer**：文档、Roadmap、对照、社区、登录（已登录则「进入工作台」）
+
+### `/compare` 子页
+
+- 诚实对照表：协作 / 版本 / 审批审计 / 只读分享 / 开源自部署 / DBML / Agent 事实源
+- CTA：打开演示 / 自部署指南 / 返回首页
+- 实现：`frontend/src/pages/landing/compare.tsx` + `LandingChrome`；E2E `compare.spec.ts`
 
 ## Hero 文案
 
@@ -27,6 +33,6 @@
 
 ## 不做
 
-- 不做多页营销站（单页 + 文档站分流）
+- 不做多页营销站（`/` 主叙事 + 仅允许 `/compare` 对照深链；其余进文档站）
 - 不做夸大的 AI 生成演示动画；AI 叙事只讲「开放 + 可审计」
 - 不做硬跳转把已登录用户踢出落地页（用主 CTA 疏导即可）

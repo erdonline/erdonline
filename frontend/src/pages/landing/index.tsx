@@ -1,11 +1,8 @@
 import React, {useEffect, useState} from 'react';
 import {Link} from '@umijs/max';
 import * as cache from '@/utils/cache';
-import {APP_VERSION_LABEL} from '@/constants/appVersion';
+import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
-
-const GITHUB_URL = 'https://github.com/erdonline/erdonline';
-const DOCS_URL = 'https://erdonline.github.io/erdonline/';
 
 const LandingPage: React.FC = () => {
   const [authed, setAuthed] = useState(false);
@@ -15,30 +12,7 @@ const LandingPage: React.FC = () => {
   }, []);
 
   return (
-    <div className="landing" data-testid="landing-page">
-      <header className="landingNav">
-        <a className="landingNavBrand landingBrand" href="/" aria-label="ERD Online 首页">
-          <img src="/logo.svg" alt="" width={28} height={28} />
-          ERD Online
-        </a>
-        <nav className="landingNavLinks" aria-label="落地页导航">
-          <a href="#pillars">卖点</a>
-          <a href="#compare">对比</a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            GitHub
-          </a>
-          {authed ? (
-            <Link className="landingBtnGhost landingNavCta" to="/home" aria-label="进入工作台">
-              进入工作台
-            </Link>
-          ) : (
-            <Link className="landingBtnGhost landingNavCta" to="/login" aria-label="登录">
-              登录
-            </Link>
-          )}
-        </nav>
-      </header>
-
+    <LandingChrome variant="hero" testId="landing-page">
       <section className="landingHero" aria-label="产品介绍">
         <div className="landingHeroVisual">
           <img
@@ -136,7 +110,7 @@ const LandingPage: React.FC = () => {
       <section className="landingSection" id="compare" aria-labelledby="compare-title">
         <h2 id="compare-title">诚实对照</h2>
         <p className="landingSectionLead">
-          极简画图工具已够用时不必换；需要版本、协作与开源事实源时再来。
+          极简画图够用时不必换；要版本、协作与开源事实源时再来。
         </p>
         <table className="landingCompare">
           <thead>
@@ -174,24 +148,13 @@ const LandingPage: React.FC = () => {
             </tr>
           </tbody>
         </table>
+        <div className="landingCtas landingCompareMore">
+          <Link className="landingBtnGhost" to="/compare" aria-label="查看完整对照">
+            查看完整对照
+          </Link>
+        </div>
       </section>
-
-      <footer className="landingFooter">
-        <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>
-        <nav aria-label="页脚链接">
-          <a href={DOCS_URL} target="_blank" rel="noreferrer">
-            文档
-          </a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            Roadmap
-          </a>
-          <a href={`${GITHUB_URL}/discussions`} target="_blank" rel="noreferrer">
-            社区
-          </a>
-          {authed ? <Link to="/home">进入工作台</Link> : <Link to="/login">登录</Link>}
-        </nav>
-      </footer>
-    </div>
+    </LandingChrome>
   );
 };
 

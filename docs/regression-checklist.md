@@ -340,6 +340,12 @@
 - [x] [登录壳] `/login` 见 `auth-brand-shell`；左面板 ~40%；无 `bg2.png`/`#1677FF`；「打开演示」为 link✅ `smoke.spec.ts`
 - [x] [注册同构] 登录「去注册」→ `/register` 同壳 +「打开演示」✅ `session.spec.ts`
 
+## 竞品对照子页（2026-08-03）
+
+- [x] [路由] `/compare` 可见对照表（版本/开源自部署等）+ CTA→demo/首页✅ `compare.spec.ts`
+- [x] [入口] 落地顶栏「对比」与「查看完整对照」进 `/compare`✅ `compare.spec.ts`
+- [x] [落地回归] `/` hero/CTA 仍绿✅ `landing.spec.ts`
+
 ## 落地页 token 同源（2026-08-03）
 
 - [x] [色板] `/` 底色 = `--erd-ink-900`；主 CTA = `--erd-brand`；第三柱 mark = `--erd-warning`；字族含 IBM Plex Sans✅ `landing.spec.ts`

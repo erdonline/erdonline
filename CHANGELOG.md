@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 功能：竞品对照子页 `/compare`（获客诚实对照）
+
+- 公开路由 `/compare`：协作 / 版本 / 审批审计 / 只读分享 / 开源自部署 / DBML / Agent 事实源 vs dbdiagram / dbml
+- 抽出 `LandingChrome`（顶栏+页脚）；落地 `#compare` 保留四行摘要 +「查看完整对照」
+- 顶栏「对比」→ `/compare`；页脚加「对照」链；CTA → demo / 自部署 / 首页
+
+验证点：`cd frontend && npx playwright test tests/e2e/compare.spec.ts tests/e2e/landing.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：导入后首屏打磨（空态导入 CTA + fitView / ADR-0016）
 
 - 空态次 CTA「导入 DBML」→ 同菜单弹窗；文案强调导入后铺满首屏
