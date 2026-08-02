@@ -355,6 +355,33 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(fieldRowBox.lineH).toBe(16);
       expect(fieldRowBox.padTop).toBe(2);
 
+      // ADR-0016：字段行扫读层次 — 名主列 500+、类型右对齐次要栏
+      const fkScan = await fkRow.evaluate((el) => {
+        const name = el.querySelector('.erd-field-name');
+        const type = el.querySelector('.erd-field-type');
+        if (!name || !type) return null;
+        const ns = getComputedStyle(name);
+        const ts = getComputedStyle(type);
+        return {
+          nameWeight: parseInt(ns.fontWeight, 10),
+          typeAlign: ts.textAlign,
+          typeOpacity: parseFloat(ts.opacity),
+          typeMinW: parseFloat(ts.minWidth),
+          typeSize: parseFloat(ts.fontSize),
+        };
+      });
+      expect(fkScan).not.toBeNull();
+      expect(fkScan!.nameWeight).toBeGreaterThanOrEqual(500);
+      expect(fkScan!.typeAlign).toBe('right');
+      expect(fkScan!.typeOpacity).toBeLessThan(1);
+      expect(fkScan!.typeMinW).toBeGreaterThanOrEqual(4 * 10); // ≥4em @10px
+      expect(fkScan!.typeSize).toBe(10);
+
+      const pkNameWeight = await pkRow.locator('.erd-field-name').evaluate((el) =>
+        parseInt(getComputedStyle(el).fontWeight, 10),
+      );
+      expect(pkNameWeight).toBeGreaterThanOrEqual(600);
+
       const titleFont = await orderNode.locator('.erd-table-title').evaluate(
         (el) => getComputedStyle(el).fontFamily,
       );

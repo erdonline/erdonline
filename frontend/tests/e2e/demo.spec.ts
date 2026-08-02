@@ -180,6 +180,34 @@ test.describe('在线演示', () => {
       }
     }
     expect(overlapPairs, `边标签 AABB 重叠对数应为 0（got ${overlapPairs}）`).toBe(0);
+    // ADR-0016：分享只读同 SCSS — 字段名主列 / 类型右对齐次要栏
+    const shareField = page
+      .getByTestId('share-relation-canvas')
+      .getByTestId('rf__node-sys_user')
+      .locator('.erd-field-row')
+      .first();
+    await expect(shareField).toBeVisible();
+    const fieldScan = await shareField.evaluate((el) => {
+      const name = el.querySelector('.erd-field-name');
+      const type = el.querySelector('.erd-field-type');
+      if (!name || !type) return null;
+      const ns = getComputedStyle(name);
+      const ts = getComputedStyle(type);
+      return {
+        nameWeight: parseInt(ns.fontWeight, 10),
+        typeAlign: ts.textAlign,
+        typeOpacity: parseFloat(ts.opacity),
+        typeMinW: parseFloat(ts.minWidth),
+      };
+    });
+    expect(fieldScan).not.toBeNull();
+    expect(fieldScan!.nameWeight).toBeGreaterThanOrEqual(500);
+    expect(fieldScan!.typeAlign).toBe('right');
+    expect(fieldScan!.typeOpacity).toBeLessThan(1);
+    expect(fieldScan!.typeMinW).toBeGreaterThanOrEqual(40);
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-field-scanability.png',
+    });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',
     });

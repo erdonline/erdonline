@@ -294,6 +294,10 @@
           background: var(--erd-warning);
           border-radius: 1px;
         }
+
+        .erd-field-name {
+          font-weight: 600;
+        }
       }
 
       &.erd-field-fk {
@@ -321,9 +325,12 @@
         align-items: center;
         gap: 5px;
         min-width: 0;
+        flex: 1 1 auto;
         color: var(--erd-ink-900);
         font-family: var(--erd-font-mono);
         font-size: 12px;
+        // 扫读主列：比类型重一档，分享截图字段名先入眼
+        font-weight: 500;
         font-variant-numeric: tabular-nums;
         letter-spacing: -0.01em;
 
@@ -380,12 +387,17 @@
       }
 
       .erd-field-type {
-        flex-shrink: 0;
+        flex: 0 0 auto;
+        min-width: 4.25em;
+        text-align: right;
         color: var(--erd-ink-400);
         font-size: 10px;
+        font-weight: 400;
         font-family: var(--erd-font-mono);
         font-variant-numeric: tabular-nums;
         letter-spacing: 0.01em;
+        // 次要栏：与字段名拉开层次，避免密表糊成一块
+        opacity: 0.88;
       }
 
       .erd-field-handle {

@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：字段行扫读层次（名主列 / 类型次要右对齐，ADR-0016）
+
+- 选题：表节点字段名与类型字重/对齐几乎同阶，密表与分享截图扫读糊成一块；停色 token，攻可读
+- `.erd-field-name` font-weight 500（PK 行 600）；`.erd-field-type` 右对齐 + min-width 4.25em + opacity 0.88
+- 设计器 / 分享只读共用 `reactflow-relation.scss`；截图 `demo-field-scanability.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：关系图 PK/FK/hover 行浅底 color-mix（ADR-0016）
 
 - 选题：`reactflow-relation.scss` PK/FK/hover 行与空态阴影仍裸 `rgba(warning/success/ink,…)`，与 `--erd-warning` / `--erd-success` / `--erd-ink-900` 割裂
