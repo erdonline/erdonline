@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：公告列表行密度（ADR-0016）
+
+- 选题：`/project/notice` 页头/列表行密度（复用 `.project-list-page`，与 person/recent/group 同阶）
+- 标题 13/22、工具条 ~28、行 pad 4×8、公告链/时间 13/12；禁 Title level4 + List 默认松行
+- 内联渲染公告行；删除 Home 死导出 `renderActivities`（及无样式 `username`/`datetime`）
+- `project-notice-page` / heading「公告」/ 种子链 `ERDOnline` / 失败 toast 保留
+- Home「更多公告」缺省（无 90 天内公告）时直达 `/project/notice` 仍验收列表
+- `project-notice`「公告列表行密度」；截图 `project-notice-list-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/project-notice.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：团队项目列表行密度（ADR-0016）
 
 - 选题：`/project/group` 页头/搜索/列表行密度（复用 `.project-list-page`，与 person/recent 同阶）

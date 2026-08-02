@@ -1,4 +1,4 @@
-// ADR-0016：个人/最近/团队项目列表与 22–28 chrome 同阶；禁 Title level4 + List large 松行
+// ADR-0016：个人/最近/团队项目列表 + 公告页与 22–28 chrome 同阶；禁 Title level4 + List large 松行
 .project-list-page {
   padding: 8px 12px;
   box-sizing: border-box;
@@ -152,4 +152,29 @@
   color: rgba(0, 0, 0, 0.45);
   font-size: 12px;
   line-height: 18px;
+}
+
+.project-list-page__notice-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  min-width: 0;
+
+  > a {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+
+    &:hover {
+      color: var(--erd-brand, #de2910);
+    }
+  }
+
+  .project-list-page__time {
+    flex-shrink: 0;
+  }
 }

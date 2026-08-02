@@ -21,7 +21,7 @@
 - [x] 设置页 chrome 密度：标题 ≤14 / 输入·保存钮 ≤32 / 表单项 mb ≤16；截图 `diagram-setting-page-dense.png` ✅`default-field.spec.ts`
 - [x] 数据库配置页密度：标题 ≤14 / 工具条钮 ≤32 / 抽屉输入·保存钮 ≤32；截图 `database-config-page-dense.png` ✅`database-config.spec.ts`
 - [x] 账号设置 / Home 项目卡密度：标题 ≤14 / 输入·保存钮 ≤32 / 安全行 padY ≤16；卡 padY ≤28；截图 `account-settings-page-dense.png` / `home-project-cards-dense.png` ✅`account-settings` + `layout-outlet`
-- [x] 个人/最近/团队项目列表行密度：行 pad-block ≤10 / 标题 ≤14 / 打开钮 ≤32；截图 `project-person-list-dense.png` / `project-recent-list-dense.png` / `project-group-list-dense.png` ✅`project-surface.spec.ts`
+- [x] 个人/最近/团队/公告列表行密度：行 pad-block ≤10 / 标题 ≤14 / 打开钮 ≤32；截图 `project-person-list-dense.png` / `project-recent-list-dense.png` / `project-group-list-dense.png` / `project-notice-list-dense.png` ✅`project-surface.spec.ts` + `project-notice.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
 
@@ -393,8 +393,9 @@
 
 ## W2 项目公告（2026-08-02）
 
-- [x] [更多公告] `/home`「更多公告」→ `/project/notice` 见「公告」+ 种子标题链（含 ERDOnline）✅ `project-notice.spec.ts`
+- [x] [更多公告] `/home`「更多公告」→ `/project/notice` 见 heading「公告」+ 种子标题链（含 ERDOnline）✅ `project-notice.spec.ts`
 - [x] [公告加载失败 toast] mock `/syst/sysAnnouncement` 非 200 →「加载公告失败」✅同上
+- [x] [公告列表行密度] 行 pad / 页标题 / 工具条与 22–28 同阶；截图 `project-notice-list-dense.png` ✅同上「公告列表行密度」
 
 ## W4 切片 5 — module/entity/database 死 ModalForm（2026-08-02）
 
