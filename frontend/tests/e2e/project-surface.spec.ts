@@ -77,4 +77,37 @@ test.describe('项目面闭环', () => {
     await page.getByRole('link', { name: '数据源' }).click();
     await expect(page).toHaveURL(/\/databaseConfig/, { timeout: 15_000 });
   });
+
+  test('个人项目：修改弹窗可改名并回列表', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('rename');
+    const renamed = `${projectName}-renamed`;
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createPersonProject(page, projectName, 'rn', 'rename surface');
+
+      const row = page
+        .getByRole('listitem')
+        .filter({ has: page.getByRole('link', { name: projectName, exact: true }) });
+      await expect(row).toBeVisible({ timeout: 15_000 });
+      await row.getByTestId('project-rename-trigger').click();
+
+      const dialog = page.getByRole('dialog', { name: '修改项目' });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByPlaceholder('请输入项目名')).toHaveValue(projectName);
+      await dialog.getByPlaceholder('请输入项目名').fill(renamed);
+      await dialog.getByPlaceholder('请输入项目描述').fill('renamed desc');
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+
+      await expect(page.getByText('修改成功').first()).toBeVisible({ timeout: 10_000 });
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
+      await expect(
+        page.getByRole('link', { name: renamed, exact: true }).first(),
+      ).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('link', { name: projectName, exact: true })).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

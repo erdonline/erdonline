@@ -93,6 +93,7 @@
 - [x] [RenameVersion antd Form] 编辑版本弹窗非 Pro ModalForm；改号成功 toast；重复号 toast 且弹窗不关 ✅`version.spec.ts`「重命名描述」
 - [x] [多标签 Escape 遮罩] 保存带标签版本勿 Escape 关下拉；chip 可见后失焦再确定；筛选 release 同时见 1.0.0/1.0.1 ✅`version.spec.ts`「多标签」
 - [x] [AddProject antd Form] 新建项目弹窗非 Pro ModalForm；个人项目创建成功进列表 ✅`smoke` / `project-activation` createPersonProject
+- [x] [RenameProject antd Form] 修改项目弹窗非 Pro ModalForm；改名成功 toast + 列表见新名、旧名消失 ✅`project-surface.spec.ts`「修改弹窗可改名并回列表」
 
 ### 已自动化（`yarn test:e2e`）
 
