@@ -285,8 +285,8 @@
       justify-content: space-between;
       align-items: center;
       gap: 6px;
-      // 密表再压：pad 1 / lh 15 / minH 20；徽章 10/700 仍先于字段名
-      padding: 1px 26px 1px 10px;
+      // 密表再压：pad 1 / lh 15 / minH 20；徽章 10/700 仍先于字段名；右留 ✎+×
+      padding: 1px 44px 1px 10px;
       line-height: 15px;
       min-height: 20px;
       // 行间发丝线：schema 清单可读，分享截图不糊成一块
@@ -452,6 +452,7 @@
       text-align: center;
     }
 
+    .erd-field-edit,
     .erd-field-delete {
       appearance: none;
       font-family: inherit;
@@ -460,7 +461,6 @@
       border: none;
       background: transparent;
       position: absolute;
-      right: 6px;
       top: 50%;
       transform: translateY(-50%);
       z-index: 2;
@@ -481,6 +481,17 @@
       }
     }
 
+    .erd-field-edit {
+      right: 24px;
+      font-size: 11px;
+      line-height: 1;
+    }
+
+    .erd-field-delete {
+      right: 6px;
+    }
+
+    .erd-field-row:hover .erd-field-edit,
     .erd-field-row:hover .erd-field-delete {
       opacity: 1;
       pointer-events: auto;

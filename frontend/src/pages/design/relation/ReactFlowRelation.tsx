@@ -167,6 +167,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     updateNodeInternals(id);
   }, [id, handleSignature, updateNodeInternals]);
 
+  const startEditField = (f: { name: string; type?: string; pk?: boolean }) => {
+    setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk });
+  };
+
   const commit = () => {
     const current = editingRef.current;
     if (!current) {
@@ -175,7 +179,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     editingRef.current = null;
     const name = current.name.trim();
     if (!name) {
-      setEditing(null);
+      // 新增空名 = 取消；改已有字段空名 = 静默丢改动（历史摩擦）→ toast 并留在编辑
+      if (current.key === '__NEW__') {
+        setEditing(null);
+        return;
+      }
+      editingRef.current = current;
+      message.warning('字段名不能为空');
       return;
     }
     if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
@@ -245,6 +255,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       </label>
       <input
         className="erd-field-input"
+        aria-label="字段名"
         autoFocus
         placeholder="字段名"
         value={editing?.name ?? ''}
@@ -265,9 +276,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       />
       <select
         className="erd-field-type-select"
+        aria-label="字段类型"
         value={editing?.type ?? 'String'}
         onChange={e => setEditing(prev => (prev ? { ...prev, type: e.target.value } : prev))}
-        onKeyDown={e => e.stopPropagation()}
+        onKeyDown={e => {
+          e.stopPropagation();
+          if (e.key === 'Enter') commit();
+          if (e.key === 'Escape') setEditing(null);
+        }}
         onBlur={e => {
           const next = e.relatedTarget as HTMLElement | null;
           if (next && next.closest('.erd-field-editing')) {
@@ -356,8 +372,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 f.pk ? 'erd-field-pk' : '',
                 fkSet.has(f.name) ? 'erd-field-fk' : '',
               ].filter(Boolean).join(' ')}
-              onDoubleClick={() => setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk })}
-              title="双击编辑字段"
+              onDoubleClick={() => startEditField(f)}
+              title="双击或点 ✎ 编辑字段"
               data-field={f.name}
             >
               {/* 双侧 src/tgt：左靶在上（易落点）、右源在上（易拖出）；几何择柄消竖叠 circle-route */}
@@ -383,6 +399,19 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
               </span>
               <span className="erd-field-type">{f.type}</span>
+              <button
+                type="button"
+                className="erd-field-edit nodrag"
+                data-testid="field-edit-btn"
+                aria-label="编辑字段"
+                title="编辑字段"
+                onClick={e => {
+                  e.stopPropagation();
+                  startEditField(f);
+                }}
+              >
+                ✎
+              </button>
               <button
                 type="button"
                 className="erd-field-delete nodrag"
