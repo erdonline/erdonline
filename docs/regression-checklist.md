@@ -529,5 +529,6 @@
 
 - [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`
 - [x] [security/identification 页签] 头像→个人中心→「安全设置」见账户密码/修改→密码弹窗；「授权类型」见开源版/已授权；头像「授权信息」直达 identification ✅ `account-settings.spec.ts`
+- [x] [identification 密度/token] `/account/settings?selectKey=identification` 见 `account-settings-identification`（无 `.ant-result`）；标题 13/22；图标色走 `--erd-brand`（非硬编码字面量）✅ `account-settings.spec.ts`
 - [x] [基本资料保存失败 toast] mock update 非 200 →「更新基本信息失败」✅同上
 - [x] [头像无假 Upload] 见「头像上传暂未开放」；无「更换头像」/file input ✅同上

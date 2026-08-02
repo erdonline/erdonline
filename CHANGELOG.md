@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：账号设置授权类型对齐密度 token（ADR-0016）
+
+- 选题：`identification` 仍裸 antd `Result` + 硬编码 `#DE2910`，与账号设置 22–28 / `--erd-*` 割裂（嵌入页不适配全屏 AuthBrandShell）
+- 改密度状态面板：`account-settings-identification` + `role="status"`；图标 `currentColor` → `--erd-brand`；标题 13/22、副文案 12/18
+- E2E：`account-settings`「授权类型：密度面板 + brand token，无裸 Result」；截图 `account-settings-identification.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep "授权类型" --workers=1 --retries=0`
+
 #### 体验：404/403 对齐 AuthBrandShell（ADR-0016）
 
 - 选题：`pages/404`/`403` 仍裸 antd `Result`，与登录/分享失效门 / 三壳 token 割裂
