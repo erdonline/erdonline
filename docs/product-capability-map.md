@@ -9,7 +9,7 @@
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
 | 保存版本（快照） | `POST /hisProject/save`（HisProjectController → db_change） | 设计器顶栏「保存版本」常驻 ✅；示例项目通知卡直达 ✅ | ✅ |
-| 版本列表 + 多标签筛选 | `POST /dbChange` 分页；`db_change.tag`（Flyway V1 加列、V2 多标签放宽） | 设计器 version tab，tag chips + 筛选 ✅ | ✅ |
+| 版本列表 + 多标签筛选 | `POST /dbChange` 分页；`db_change.tag`（Flyway V1 加列、V2 多标签放宽） | 设计器 version tab：antd List（W3 切片 2）+ tag chips + 筛选 + 空态「保存第一个版本」✅ | ✅ |
 | 版本 diff | CompareVersion / VersionDiffPanel | version 页行操作 ✅ | ✅（屏上） |
 | 跨版本 diff **导出** | 同 diff 数据，`File.save` 管道 | CompareVersion「导出」→ Markdown 变更清单（模型变更+SQL）/ 仅 SQL ✅（W3 切片 1） | ✅ |
 | 版本回滚 | RevertVersion → `hisProject/load` + save | version 页行操作「回滚」✅ | ✅ |
@@ -68,4 +68,4 @@
 
 ## 北极星对齐结论
 
-直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；跨版本 diff 导出已 ✅（W3 切片 1）。剩余主要为 **版本域收口（ProList→List、审批入口理顺）** → W3 续片。其余 W 波工作（组件平移、密度抛光）不直接移动北极星，排序一律靠后。
+直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；跨版本 diff 导出已 ✅（W3 切片 1）；version ProList→List + 空态 CTA 已 ✅（W3 切片 2）。剩余 **审批入口理顺**（thin）→ W3 续片或顺带；其余 W 波（组件平移、密度抛光）不直接移动北极星，排序一律靠后。
