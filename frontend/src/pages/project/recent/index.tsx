@@ -1,4 +1,4 @@
-import {Avatar, Input, List, message, Space, Tag, Typography} from 'antd';
+import {Avatar, Input, List, message, Tag} from 'antd';
 import {useEffect, useState} from "react";
 import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import OpenProject from "@/components/dialog/project/OpenProject";
@@ -7,6 +7,7 @@ import {recentProject} from "@/services/project";
 import * as cache from "@/utils/cache";
 import {CONSTANT} from "@/utils/constant";
 import {history} from "@@/core/history";
+import '../project-list.scss';
 
 type ProjectItem = {
   id: number;
@@ -69,22 +70,21 @@ export default () => {
   }, [state.page, state.order]);
 
   return (
-    <div data-testid="project-recent-page">
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8}}>
-        <Typography.Title level={4} style={{margin: 0}}>最近项目 「个人 + 团队」</Typography.Title>
+    <div className="project-list-page" data-testid="project-recent-page">
+      <div className="project-list-page__toolbar">
+        <h2 className="project-list-page__title">最近项目 「个人 + 团队」</h2>
         <Input.Search
-          size="middle"
           placeholder="项目名"
           allowClear
           onSearch={(value: string) => {
             searchProjects(fetchProjects, state, value);
           }}
-          style={{width: 200}}
           aria-label="搜索项目名"
         />
       </div>
       <List<ProjectItem>
-        size="large"
+        className="project-list-page__list"
+        size="small"
         loading={listLoading}
         itemLayout="horizontal"
         rowKey="id"
@@ -108,7 +108,7 @@ export default () => {
             ]}
           >
             <List.Item.Meta
-              avatar={<Avatar src={row.avatar || '/logo.svg'} />}
+              avatar={<Avatar size={28} src={row.avatar || '/logo.svg'} />}
               title={
                 <a
                   href={'/design/table/model?projectId=' + row.id}
@@ -120,18 +120,18 @@ export default () => {
                 >{row.projectName}</a>
               }
               description={
-                <Space direction="vertical" size={4}>
+                <div className="project-list-page__meta">
                   <span>{row.description}</span>
-                  <Space size={0} wrap>
+                  <div className="project-list-page__tags">
                     <Tag color={'blue'} key={row.projectName}>
                       {row.type === '1' ? <UserOutlined/> : <TeamOutlined/>}
                     </Tag>
                     {row.tags?.split(",").filter(Boolean).map((m: string, i: number) => {
                       return <Tag color={i % 2 == 0 ? "#5BD8A6" : "blue"} key={m + i}>{m}</Tag>
                     })}
-                  </Space>
-                  <div style={{color: '#00000073'}}>{row.updateTime}</div>
-                </Space>
+                  </div>
+                  <div className="project-list-page__time">{row.updateTime}</div>
+                </div>
               }
             />
           </List.Item>

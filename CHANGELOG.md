@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：个人/最近项目列表行密度（ADR-0016）
+
+- 选题：`/project/person` + `/project/recent` 页头/搜索/列表行密度（与 22–28 chrome / `.setting-common-page` 同阶）
+- 共享 `.project-list-page`：标题 13/22、工具条/搜索/新建 28、行 pad 4×8、头像 28、名 13/22、描述/Tag 12、打开钮 28；禁 Title level4 + List `large`
+- `project-person-page` / `project-recent-page` / `open-project` / `project-rename-trigger` / aria「搜索项目名」保留
+- `project-surface`「个人/最近项目列表行密度」；截图 `project-person-list-dense.png` / `project-recent-list-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/project-surface.spec.ts --project=chromium --grep "列表行密度" --workers=1 --retries=0`
+
 #### 体验：账号设置 + Home 项目卡密度（ADR-0016）
 
 - 选题：`/account/settings` 页头/表单/安全行 + Home「进行中的项目」卡密度（与 22–28 chrome / `.setting-common-page` / `.erd-io-modal` 同阶）
