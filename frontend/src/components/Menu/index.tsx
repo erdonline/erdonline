@@ -14,6 +14,7 @@ import DatabaseSetUp from "@/components/dialog/setup/DatabaseSetUp";
 import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
 import ExportWord from "@/components/dialog/export/ExportWord";
 import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
+import ExportDBML from "@/components/dialog/export/ExportDBML";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
 import ReverseDBML from "@/components/dialog/import/ReverseDBML";
 import { history } from "@@/exports";
@@ -55,6 +56,7 @@ export const ExportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
     <ExportMarkdown />
     <ExportDDL />
     <ExportJson />
+    <ExportDBML />
   </Menu>
 );
 
@@ -100,6 +102,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
         <ExportMarkdown />
         <ExportDDL />
         <ExportJson />
+        <ExportDBML />
       </Menu.SubMenu>
       <Menu.SubMenu key="setup" title="设置">
         <DatabaseSetUp />

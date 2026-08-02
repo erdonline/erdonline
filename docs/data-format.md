@@ -202,19 +202,19 @@ cd frontend && yarn validate:projectjson
 }
 ```
 
-## DBML 互通（导入，薄切片）
+## DBML 互通（导入 / 导出）
 
-设计器「导入 → 导入DBML」将 [DBML](https://dbml.dbdiagram.io/) 文本解析为 `projectJSON` 模块后合并进当前项目（`@dbml/core`，前端懒加载）。
+设计器「导入 → 导入DBML」将 [DBML](https://dbml.dbdiagram.io/) 文本解析为 `projectJSON` 模块后合并进当前项目（`@dbml/core`，前端懒加载）。「导出 → 导出DBML」将选定模块反向生成为 `.dbml`（纯函数，本地下载 / 复制）。
 
 | DBML | projectJSON |
 |---|---|
 | `Table` | `modules[].entities[]`（`title`/`name` = 表名） |
-| 列 | `fields[]`（物理类型薄映射为逻辑 `type` code） |
-| `Note` / `[note: …]` | **仅**写入 `chnname`（表/列显示名） |
+| 列 | `fields[]`（物理类型 ↔ 逻辑 `type` code 薄双向映射；未知导入回落 `String`，导出回落 `varchar`） |
+| `Note` / `[note: …]` | **仅**与 `chnname` 互通（表/列显示名） |
 | `Ref` / 列上 `[ref: …]` | `associations[]`（`1:1` / `1:n` / `n:n`；`from`=多端持 FK） |
 | `Project` 名 / Note | 模块 `name` / `chnname`（缺省 `DBML` / `DBML导入`） |
 
-**本切片不映射**：enum、index、trigger、表级 check、导出 DBML。合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
+**不映射**：enum、index、trigger、表级 check、复合 FK。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
 
 ## 非目标（本规范不覆盖）
 

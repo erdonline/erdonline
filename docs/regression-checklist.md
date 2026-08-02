@@ -368,11 +368,14 @@
 - [x] [无数据查询入口] `/home` 主导航无 link「数据查询」；仍有「数据模型」「数据源」✅ `home-data-query.spec.ts`
 - [x] [深链实验页] `/dataQuery` 见「实验功能」+ `home-data-query-page` ✅同上
 
-## DBML 导入薄切片（2026-08-02）
+## DBML 导入/导出互通（2026-08-02）
 
 - [x] [DBML→projectJSON] Table/fields/note→chnname/Ref→1:n；schema 可选校验 ✅ `yarn test:unit:dbml`
+- [x] [projectJSON→DBML] 逻辑类型反查 + Ref；round-trip 实体/字段/FK 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
+- [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
+- [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`
 
 ## W6 账户设置基本资料（2026-08-02）
 

@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：DBML 导出镜像 — projectJSON → DBML + 设计器入口（互通闭环 ✅）
+
+**功能**
+
+- `frontend/src/utils/dbml/fromProjectJSON.ts`：纯映射 Table/fields/`[pk,increment,not null,note]`/associations→`Ref`、chnname→note；逻辑类型薄反查（未知→`varchar`）
+- `ExportDBML`：模块 Select + 预览 + 下载 `.dbml` / 复制；loading/失败 message；项目菜单「导出DBML」
+- 未做：enum/index/trigger、复合 FK、后端、旧 `pages/design/import` 清理
+
+**测试 / 文档**
+
+- 单测 `fromProjectJSON.test.ts`（含 fixture round-trip）；E2E `dbml-export.spec.ts`；roadmap DBML 🚧→✅；`data-format.md` 双向映射；regression-checklist
+
+验证点：`cd frontend && yarn test:unit:dbml` → **all passed**（含 round-trip）；`npx playwright test --grep "DBML" --project=chromium --workers=1` → **2 passed**（导出~10s / 导入~10s）
+
 #### 功能：DBML 导入薄切片 — DBML → projectJSON + 设计器入口
 
 **功能**
