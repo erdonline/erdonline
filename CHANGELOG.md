@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：分享只读表清单折叠（ADR-0016）
+
+- 选题：视口铺满后表清单仍展开占纵向注意力；图应为主、清单按需展开
+- 默认折叠；舞台底边 `展开表清单（N）` / `收起表清单`（`aria-expanded` + region）；展开后清单落折线下
+- Segmented `diagram-switcher` / 画布铺满断言保留；`demo.spec` + `share.spec` 覆盖折叠/展开；截图 `demo-share-tables-fold.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "设计器分享后匿名打开" --workers=1 --retries=0`
+
 #### 体验：分享只读画布视口铺满（ADR-0016）
 
 - 选题：`/s/:token` 只读关系图固定 `height: 480`，图非主平面、首屏被表清单抢戏

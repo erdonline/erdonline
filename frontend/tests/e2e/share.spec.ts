@@ -67,6 +67,16 @@ test.describe('只读分享', () => {
         expect(headerH).toBe('64px');
         await expect(anonPage.getByTestId('share-relation-canvas')).toBeVisible();
         await expect(anonPage.getByText('T_TABLE_1').first()).toBeVisible();
+        // ADR-0016：表清单默认折叠；展开后可见只读清单
+        const tablesToggle = anonPage.getByRole('button', { name: /展开表清单/ });
+        await expect(tablesToggle).toBeVisible();
+        await expect(tablesToggle).toHaveAttribute('aria-expanded', 'false');
+        await expect(anonPage.getByTestId('share-tables-panel')).toHaveCount(0);
+        await tablesToggle.click();
+        await expect(anonPage.getByTestId('share-tables-panel')).toBeVisible();
+        await expect(
+          anonPage.getByTestId('share-tables-panel').getByRole('cell', { name: 'T_TABLE_1' }),
+        ).toBeVisible();
         await anonPage.screenshot({
           path: 'test-results/ux-walkthrough/share-chrome-brand.png',
           fullPage: false,

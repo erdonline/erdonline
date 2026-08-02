@@ -1,4 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
+import {DownOutlined, UpOutlined} from '@ant-design/icons';
 import {Button, Result, Segmented, Space, Spin, Table, Tag, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
 import ShareRelationCanvas from './ShareRelationCanvas';
@@ -40,6 +41,8 @@ const SharePage: React.FC = () => {
   const [diagramId, setDiagramId] = useState<string>('');
   const [autoForkDone, setAutoForkDone] = useState(false);
   const [authed, setAuthed] = useState(() => Boolean(cache.getItem('Authorization')));
+  /** 默认折叠：图为主平面；展开后表清单落在视口折线下 */
+  const [tablesOpen, setTablesOpen] = useState(false);
 
   const shareReturnPath = token
     ? `/s/${token}?autofork=1`
@@ -331,23 +334,46 @@ const SharePage: React.FC = () => {
               diagramId={activeDiagramId}
             />
           ) : null}
+          <button
+            type="button"
+            className="share-page__tables-toggle"
+            data-testid="share-tables-toggle"
+            aria-expanded={tablesOpen}
+            aria-controls="share-tables-panel"
+            onClick={() => setTablesOpen((open) => !open)}
+          >
+            <span className="share-page__tables-toggle-label">
+              {tablesOpen
+                ? '收起表清单'
+                : `展开表清单（${rows.length}）`}
+            </span>
+            {tablesOpen ? <UpOutlined aria-hidden /> : <DownOutlined aria-hidden />}
+          </button>
         </div>
-        <div className="share-page__tables">
-          <Typography.Title level={5} className="share-page__tables-title">
-            表清单
-          </Typography.Title>
-          <Table
-            size="small"
-            pagination={false}
-            dataSource={rows}
-            locale={{emptyText: '暂无表'}}
-            columns={[
-              {title: '模块', dataIndex: 'module'},
-              {title: '表', dataIndex: 'table'},
-              {title: '字段数', dataIndex: 'fields', width: 90},
-            ]}
-          />
-        </div>
+        {tablesOpen ? (
+          <div
+            id="share-tables-panel"
+            className="share-page__tables"
+            data-testid="share-tables-panel"
+            role="region"
+            aria-label="表清单"
+          >
+            <Typography.Title level={5} className="share-page__tables-title">
+              表清单
+            </Typography.Title>
+            <Table
+              size="small"
+              pagination={false}
+              dataSource={rows}
+              locale={{emptyText: '暂无表'}}
+              columns={[
+                {title: '模块', dataIndex: 'module'},
+                {title: '表', dataIndex: 'table'},
+                {title: '字段数', dataIndex: 'fields', width: 90},
+              ]}
+            />
+          </div>
+        ) : null}
       </main>
     </div>
   );
