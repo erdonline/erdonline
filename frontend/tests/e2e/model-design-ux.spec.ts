@@ -37,6 +37,28 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       // 虚拟滚动：Tree 带 height 后由 rc-virtual-list 承载
       await expect(page.locator('.ant-tree-list-holder')).toHaveCount(1);
 
+      // ADR-0016：左树行高密度（与 22 chrome 同阶）；禁默认 ~28 松行
+      const rowMetrics = await page.locator('.ant-tree-treenode').first().evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          h: el.getBoundingClientRect().height,
+          mb: parseFloat(cs.marginBottom),
+          fontSize: parseFloat(cs.fontSize),
+        };
+      });
+      expect(
+        rowMetrics.h,
+        `树行高应 ≤24（目标 ~22），得 ${rowMetrics.h}`,
+      ).toBeLessThanOrEqual(24);
+      expect(rowMetrics.h).toBeGreaterThanOrEqual(18);
+      expect(rowMetrics.mb).toBeLessThanOrEqual(2);
+      expect(rowMetrics.fontSize).toBeLessThanOrEqual(13);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-left-tree-dense.png',
+        fullPage: false,
+      });
+
       // 用户手动折叠不被默认逻辑回顶
       const moduleNode = page
         .locator('.ant-tree-treenode')

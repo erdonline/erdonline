@@ -13,7 +13,7 @@ import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
 import { relationTabEntity } from '@/utils/diagram';
 
-const iconStyle = (color: string) => ({ color, fontSize: '16px' });
+const iconStyle = (color: string) => ({ color, fontSize: 12 });
 
 /** 树计数徽章：erd 中性色（ADR-0017；禁 antd 默认灰蓝散落） */
 const countBadgeStyle: React.CSSProperties = {
@@ -217,8 +217,8 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       return (
         <PlusOutlined
           style={{
-            padding: '0 8px',
-            fontSize: '16px',
+            padding: '0 4px',
+            fontSize: 12,
             color: erdColors.brand,
             cursor: 'pointer'
           }}
@@ -267,7 +267,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <EllipsisOutlined
           data-testid="tree-node-menu"
           aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}操作`}
-          style={{ padding: '0 8px', fontSize: '16px' }}
+          style={{ padding: '0 4px', fontSize: 12 }}
           onClick={(e) => e.stopPropagation()}
         />
       </Dropdown>
@@ -361,8 +361,8 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     return (
       <Dropdown menu={{ items }} trigger={['click']} placement="bottomLeft">
         <Button
+          size="small"
           icon={<PlusOutlined />}
-          style={{ width: '40px' }}
           aria-label="新建"
           data-testid="design-tree-add"
         />
