@@ -1,11 +1,12 @@
 # ---- build stage ----
+# Railway / overseas builders: Maven Central only.
+# Do NOT COPY .mvn/settings.xml here — that file mirrors Aliyun for local China (maven.config).
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
 COPY pom.xml .
-COPY .mvn/settings.xml /root/.m2/settings.xml
-RUN mvn -s /root/.m2/settings.xml dependency:go-offline -B || true
+RUN mvn dependency:go-offline -B || true
 COPY src ./src
-RUN mvn -s /root/.m2/settings.xml clean package -DskipTests -B
+RUN mvn clean package -DskipTests -B
 
 # ---- runtime stage ----
 FROM eclipse-temurin:17-jre
