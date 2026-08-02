@@ -25,7 +25,11 @@ test.describe('ERD 导入', () => {
       await createAndOpenPersonProject(page, projectName, 'erdimp', 'erd import');
 
       await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '导入' }).hover();
+      // 顶栏亦有「导入」menuitem；项目菜单用 panel + click（非 hover）
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导入' })
+        .click();
       await page.getByRole('button', { name: '解析ERD文件' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('解析已有ERD文件')).toBeVisible({ timeout: 10_000 });
@@ -36,12 +40,13 @@ test.describe('ERD 导入', () => {
         page.keyboard.press('Escape');
       });
 
-      await expect(page.getByText('ERD导入', { exact: true })).toBeVisible({
+      const tree = page.getByRole('complementary');
+      await expect(tree.getByText('ERD导入', { exact: true })).toBeVisible({
         timeout: 15_000,
       });
       await expandTreeTitle(page, 'ERD导入');
       await expandTreeTitle(page, '表');
-      await expect(page.getByText('T_ERD_ITEM', { exact: true })).toBeVisible({
+      await expect(tree.getByText('T_ERD_ITEM', { exact: true })).toBeVisible({
         timeout: 10_000,
       });
     } finally {

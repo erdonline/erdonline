@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 11 — ResetPassword / AddUser / ReversePdMan / ReverseERD → antd
+
+**重构**
+
+- 账户「修改密码」`ResetPassword`：摘 `ModalForm` / `ProFormText.Password` → antd `Modal` + `Form` + `Input.Password`；两次密码不一致不关窗；校验文案不变
+- 团队「添加成员」`AddUser`：摘 `ModalForm` / `ProFormSelect` → antd `Modal` + `Form` + `Select mode="multiple"`（远程搜索）；去掉 props `any`
+- 项目菜单「解析PdMan / 解析ERD」对话框：摘 `ModalForm` → antd `Modal` + `Upload.Dragger`；本地解析、`beforeUpload` 返回 false 防误上传；触发 aria 与成功 toast 不变
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 11 ✅；`account-settings` 安全页增「修改密码」弹窗可打开；`import-pdman`/`import-erd` 改走 `project-menu-panel` click（消歧顶栏「导入」）；Pro 文件数 29→25
+  验证点：`rg '@ant-design/pro-components' …ResetPassword/AddUser/ReversePdMan/ReverseERD` = 0；`rg -l … | wc -l` → **25**；`npx playwright test … -g "PdMan|ERD|页签可切换|导入 → 三项"` → **4 passed**
+
 #### 重构：W4 切片 10 — RebuildVersion / InitVersion / setting DefaultSetUp → antd
 
 **重构**

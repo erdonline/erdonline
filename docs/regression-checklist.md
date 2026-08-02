@@ -282,6 +282,12 @@
 - [x] [初始化基线非 ModalForm] `InitVersion` 无 `@ant-design/pro-components`；testid `version-init-btn` ✅ rg
 - [x] [设置页系统默认项非 ProForm] `/design/table/setting/default` 仍可打开；无 `@ant-design/pro-components` ✅ rg
 
+## W4 切片 11 — ResetPassword / AddUser / ReversePdMan / ReverseERD → antd（2026-08-02）
+
+- [x] [修改密码非 ModalForm] 安全设置 →「修改」→ antd dialog 见密码/确认密码；「取消」关窗 ✅ `account-settings.spec.ts`
+- [x] [PdMan/ERD 导入非 ModalForm] 项目菜单导入子弹窗 + 上传 fixture 成功 toast；无 `@ant-design/pro-components` ✅ `import-pdman` / `import-erd` / `project-menu`
+- [ ] [添加成员非 ModalForm] 团队项目角色页「添加成员」→ antd dialog 可搜索用户（手工；需团队项目）
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
@@ -301,6 +307,6 @@
 ## W6 账户设置基本资料（2026-08-02）
 
 - [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`
-- [x] [security/identification 页签] 头像→个人中心→「安全设置」见账户密码/修改；「授权类型」见开源版/已授权；头像「授权信息」直达 identification ✅ `account-settings.spec.ts`
+- [x] [security/identification 页签] 头像→个人中心→「安全设置」见账户密码/修改→密码弹窗；「授权类型」见开源版/已授权；头像「授权信息」直达 identification ✅ `account-settings.spec.ts`
 - [x] [基本资料保存失败 toast] mock update 非 200 →「更新基本信息失败」✅同上
 - [x] [头像无假 Upload] 见「头像上传暂未开放」；无「更换头像」/file input ✅同上

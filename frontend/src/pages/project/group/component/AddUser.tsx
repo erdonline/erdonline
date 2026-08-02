@@ -1,77 +1,121 @@
-import React from "react";
+import React, {useState} from 'react';
 import {PlusOutlined} from '@ant-design/icons';
-import {ModalForm, ProForm, ProFormSelect,} from '@ant-design/pro-components';
-import {Button, message} from 'antd';
-import {GET, POST} from "@/services/crud";
+import {Button, Form, Modal, Select, message} from 'antd';
+import {GET, POST} from '@/services/crud';
+
+type ReloadableRef = {
+  current?: {reload?: () => void} | null;
+};
 
 export type AddUserProps = {
   projectId: string;
   roleId: string;
-  actionRef: any;
+  actionRef: ReloadableRef;
 };
+
+type FormValues = {
+  user?: string[];
+};
+
+type UserOption = {
+  value: string;
+  label: string;
+};
+
 const AddUser: React.FC<AddUserProps> = (props) => {
-  return (<>
-    <ModalForm
-      title="添加成员"
-      trigger={
-        <Button key="add-user" type="primary">
-          <PlusOutlined/>
-          添加成员
-        </Button>
-      }
-      autoFocusFirstInput
-      modalProps={{
-        destroyOnClose: true,
-      }}
-      submitter={{
-        resetButtonProps: {
-          type: 'dashed',
-        },
-      }}
-      submitTimeout={2000}
-      onFinish={async (values: any) => {
-        await POST('/ncnb/project/group/role/users', {
-          projectId: props.projectId,
-          roleId: props.roleId,
-          userIds: values.user,
-        }).then((resp) => {
-          if (resp?.code === 200) {
-            message.success("保存成功");
-            props.actionRef.current?.reload();
-          }
-        });
-        return true;
-      }}
-    >
-      <ProForm.Group>
-        <ProFormSelect
-          width="md"
-          name="user"
-          label="选择用户"
-          mode="multiple"
-          showSearch
-          request={
-            async (param) => {
-              const result = await GET('/ncnb/project/group/users', {
-                pageSize: 6,
-                current: 1,
-                username: param.keyWords,
-                roleId: props.roleId
-              });
-              return result?.data?.records.map((m: { id: any; username: any; email: any; }) => {
-                return {
-                  value: m.id,
-                  label: `${m.username}  -  ${m.email}`
-                }
-              })
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
+  const [options, setOptions] = useState<UserOption[]>([]);
+  const [fetching, setFetching] = useState(false);
 
-            }
-          }
-          placeholder="添加用户"
-          rules={[{required: true, message: '请选择用户'}]}
-        />
-      </ProForm.Group>
-    </ModalForm></>);
+  const fetchUsers = async (username?: string) => {
+    setFetching(true);
+    try {
+      const result = await GET('/ncnb/project/group/users', {
+        pageSize: 6,
+        current: 1,
+        username,
+        roleId: props.roleId,
+      });
+      const records = result?.data?.records ?? [];
+      setOptions(
+        records.map((m: {id: string; username: string; email: string}) => ({
+          value: m.id,
+          label: `${m.username}  -  ${m.email}`,
+        })),
+      );
+    } finally {
+      setFetching(false);
+    }
+  };
+
+  const openModal = () => {
+    form.resetFields();
+    setOptions([]);
+    setOpen(true);
+    void fetchUsers();
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    const resp = await POST('/ncnb/project/group/role/users', {
+      projectId: props.projectId,
+      roleId: props.roleId,
+      userIds: values.user,
+    });
+    if (resp?.code === 200) {
+      message.success('保存成功');
+      props.actionRef.current?.reload?.();
+      setOpen(false);
+      return;
+    }
+    // 对齐原 ModalForm：非 200 仍关窗
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Button key="add-user" type="primary" aria-label="添加成员" onClick={openModal}>
+        <PlusOutlined />
+        添加成员
+      </Button>
+      <Modal
+        title="添加成员"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="user"
+            label="选择用户"
+            rules={[{required: true, message: '请选择用户'}]}
+          >
+            <Select
+              mode="multiple"
+              showSearch
+              filterOption={false}
+              onSearch={(kw) => {
+                void fetchUsers(kw);
+              }}
+              options={options}
+              loading={fetching}
+              placeholder="添加用户"
+              aria-label="选择用户"
+              notFoundContent={fetching ? '加载中…' : null}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
 };
 
-export default React.memo(AddUser)
+export default React.memo(AddUser);

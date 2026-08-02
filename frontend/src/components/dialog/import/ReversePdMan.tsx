@@ -1,30 +1,45 @@
-import React, {useContext} from 'react';
-import { Button } from "antd";
-import {MyIcon} from "@/components/Menu";
-import {ModalForm} from '@ant-design/pro-components';
+import React, {useContext, useState} from 'react';
+import {Button, Modal, Upload, message} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
-import Dragger from "antd/es/upload/Dragger";
-import {message, Modal} from "antd";
-import useProjectStore from "@/store/project/useProjectStore";
-import shallow from "zustand/shallow";
-import _ from "lodash";
-import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
+import {MyIcon} from '@/components/Menu';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
+import _ from 'lodash';
+import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 
+const {Dragger} = Upload;
 
 export type ReversePdManProps = {};
 
-const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
-  const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const {projectDispatch, projectJSON} = useProjectStore(state => ({
-    projectDispatch: state.dispatch,
-    projectJSON: state.project.projectJSON || {},
-  }), shallow);
+type ModuleLike = {name?: string};
 
-  const prop = {
+const ReversePdMan: React.FC<ReversePdManProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
+  const [open, setOpen] = useState(false);
+  const {projectDispatch, projectJSON} = useProjectStore(
+    (state) => ({
+      projectDispatch: state.dispatch,
+      projectJSON: state.project.projectJSON || {},
+    }),
+    shallow,
+  );
+
+  const openModal = () => {
+    closeProjectMenu();
+    setOpen(true);
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const uploadProps = {
     multiple: false,
     maxCount: 1,
-    beforeUpload(file: any) {
-      const isJSON = file.type === 'application/json';
+    beforeUpload(file: File) {
+      const name = String(file?.name || '').toLowerCase();
+      const isJSON =
+        file.type === 'application/json' || name.endsWith('.json');
       if (!isJSON) {
         message.error('请确认上传文件是PDMan导出的标准json文件!');
         return false;
@@ -33,88 +48,106 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        // @ts-ignore
-        let pdmanJson = JSON.parse(reader.result.toString());
-        let pdmanJsonModules = pdmanJson['modules'];
+        let pdmanJson: {
+          modules?: ModuleLike[];
+          dataTypeDomains?: unknown;
+          profile?: unknown;
+        };
+        try {
+          pdmanJson = JSON.parse(String(reader.result));
+        } catch {
+          message.error('您导入的是非法的PDMan文件!');
+          return;
+        }
+        const pdmanJsonModules = pdmanJson.modules;
         if (!pdmanJsonModules) {
           message.error('您导入的是非法的PDMan文件!');
-          return false;
+          return;
         }
         if (!(pdmanJsonModules instanceof Array)) {
           message.error('您导入的是非法的PDMan文件!');
-          return false;
+          return;
         }
         if (pdmanJsonModules.length <= 0) {
           message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
-          return false;
+          return;
         }
-        // @ts-ignore
-        const dataSource = projectJSON;
-        let resultMsg: any = [];
-        let resultModules: any = [];
-        pdmanJsonModules.forEach(module => {
-          let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
+        const dataSource = projectJSON as {
+          modules?: ModuleLike[];
+          dataTypeDomains?: unknown;
+          profile?: unknown;
+        };
+        const resultMsg: string[] = [];
+        const resultModules: ModuleLike[] = [];
+        pdmanJsonModules.forEach((module) => {
+          const hasMulti = (dataSource.modules || []).some(
+            (module1) => module.name === module1.name,
+          );
           if (!hasMulti) {
             resultModules.push(module);
           } else {
-            resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+            resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
           }
         });
 
         projectDispatch.setProjectJson({
           modules: (dataSource.modules || []).concat(resultModules),
-          dataTypeDomains: _.merge(dataSource.dataTypeDomains, pdmanJson['dataTypeDomains']),
-          profile: _.merge(dataSource.profile, pdmanJson['profile']),
+          dataTypeDomains: _.merge(dataSource.dataTypeDomains, pdmanJson.dataTypeDomains),
+          profile: _.merge(dataSource.profile, pdmanJson.profile),
         });
-        if (resultMsg != '') {
+        if (resultMsg.length > 0) {
           Modal.warning({
             title: '重要提示',
-            content: <>{resultMsg.map((m: any) => {
-              return <p>{m}</p>
-            })}</>,
-            okText: null,
-            cancelText: null,
+            content: (
+              <>
+                {resultMsg.map((m) => (
+                  <p key={m}>{m}</p>
+                ))}
+              </>
+            ),
           });
         } else {
           message.success('PdMan文件导入成功！');
         }
-        return true;
       };
-      return true;
+      return false;
     },
   };
 
-
-  return (<>
-    <ModalForm
-      title={<span>解析已有PdMan文件</span>}
-      trigger={
-        <Button
-          key="pdman"
-          type="text"
-          size="small"
-          block
-          icon={<MyIcon type="icon-other_win"/>}
-          style={{ textAlign: 'left' }}
-          aria-label="解析PdMan文件"
-          onClick={() => closeProjectMenu()}
-        >解析PdMan文件</Button>
-      }
-
-    >
-
-      <Dragger {...prop}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined/>
-        </p>
-        <p className="ant-upload-text">点击或者拖拽PdMand导出的json文件到此区域以上传</p>
-        <p className="ant-upload-hint">
-          上传完毕后，系统会自动开始解析；每次仅支持解析一个PdMan文件。
-        </p>
-      </Dragger>
-
-    </ModalForm>
-  </>);
+  return (
+    <>
+      <Button
+        key="pdman"
+        type="text"
+        size="small"
+        block
+        icon={<MyIcon type="icon-other_win" />}
+        style={{textAlign: 'left'}}
+        aria-label="解析PdMan文件"
+        onClick={openModal}
+      >
+        解析PdMan文件
+      </Button>
+      <Modal
+        title="解析已有PdMan文件"
+        open={open}
+        onOk={closeModal}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+      >
+        <Dragger {...uploadProps}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">点击或者拖拽PdMand导出的json文件到此区域以上传</p>
+          <p className="ant-upload-hint">
+            上传完毕后，系统会自动开始解析；每次仅支持解析一个PdMan文件。
+          </p>
+        </Dragger>
+      </Modal>
+    </>
+  );
 };
 
-export default React.memo(ReversePdMan)
+export default React.memo(ReversePdMan);

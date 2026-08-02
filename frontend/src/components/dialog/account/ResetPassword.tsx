@@ -1,72 +1,81 @@
-import React from "react";
-import {Button, message} from "antd";
-import {ModalForm, ProFormText} from "@ant-design/pro-components";
-import {POST} from "@/services/crud";
+import React, {useState} from 'react';
+import {Button, Form, Input, Modal, message} from 'antd';
+import {POST} from '@/services/crud';
 
 export type ResetPasswordProps = {};
 
-const ResetPassword: React.FC<ResetPasswordProps> = (props) => {
-  return (<>
-    <ModalForm
-      title="修改密码"
-      trigger={
-        <Button type="link">修改</Button>
-      }
-      onFinish={async (values: any) => {
-        let pwd = values.pwd;
-        let pwdCK = values.pwdCK;
-        if (pwd !== pwdCK) {
-          message.error("两次输入的密码不一致")
-          return;
-        }
-        POST('/syst/user/settings/update', values).then(r => {
-          if (r && r.code === 200) {
-            message.success('更新密码信息成功');
-          }
-        });
-        return true;
-      }}
-    >
-      <ProFormText.Password
-        width="md"
-        name="pwd"
-        label="密码"
-        tooltip="密码至少包含 数字和英文，长度6-20"
-        placeholder="请输入密码"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '密码不能为空',
-            },
-            {
-              pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-              message: '密码至少包含 数字和英文，长度6-20',
-            },
-          ],
-        }}
-      />
-      <ProFormText.Password
-        width="md"
-        name="pwdCK"
-        label="确认密码"
-        tooltip="密码至少包含 数字和英文，长度6-20"
-        placeholder="请输入密码"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '密码不能为空',
-            },
-            {
-              pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-              message: '密码至少包含 数字和英文，长度6-20',
-            },
-          ],
-        }}
-      />
-    </ModalForm>
-  </>);
+type FormValues = {
+  pwd?: string;
+  pwdCK?: string;
 };
 
-export default React.memo(ResetPassword)
+const pwdRules = [
+  {required: true, message: '密码不能为空'},
+  {
+    pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+    message: '密码至少包含 数字和英文，长度6-20',
+  },
+];
+
+const ResetPassword: React.FC<ResetPasswordProps> = () => {
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    if (values.pwd !== values.pwdCK) {
+      message.error('两次输入的密码不一致');
+      return;
+    }
+    const r = await POST('/syst/user/settings/update', values);
+    if (r && r.code === 200) {
+      message.success('更新密码信息成功');
+      setOpen(false);
+      return;
+    }
+    // 对齐原 ModalForm：接口非 200 仍关窗
+    setOpen(false);
+  };
+
+  return (
+    <>
+      <Button type="link" onClick={() => setOpen(true)}>
+        修改
+      </Button>
+      <Modal
+        title="修改密码"
+        open={open}
+        onOk={handleOk}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+        forceRender
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="pwd"
+            label="密码"
+            tooltip="密码至少包含 数字和英文，长度6-20"
+            rules={pwdRules}
+          >
+            <Input.Password placeholder="请输入密码" />
+          </Form.Item>
+          <Form.Item
+            name="pwdCK"
+            label="确认密码"
+            tooltip="密码至少包含 数字和英文，长度6-20"
+            rules={pwdRules}
+          >
+            <Input.Password placeholder="请输入密码" />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
+export default React.memo(ResetPassword);

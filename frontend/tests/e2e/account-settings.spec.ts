@@ -69,6 +69,14 @@ test.describe('账户设置', () => {
     await expect(page.getByText('账户密码')).toBeVisible();
     await expect(page.getByRole('button', { name: '修改' })).toBeVisible();
 
+    await page.getByRole('button', { name: '修改' }).click();
+    const pwdDlg = page.getByRole('dialog');
+    await expect(pwdDlg.getByText('修改密码')).toBeVisible({ timeout: 10_000 });
+    await expect(pwdDlg.getByLabel('密码', { exact: true })).toBeVisible();
+    await expect(pwdDlg.getByLabel('确认密码', { exact: true })).toBeVisible();
+    await pwdDlg.getByRole('button', { name: '取 消' }).click();
+    await expect(pwdDlg).toBeHidden({ timeout: 10_000 });
+
     await page.getByRole('menuitem', { name: '授权类型' }).click();
     await expect(page).toHaveURL(/selectKey=identification/);
     await expect(page.getByText(/开源版|已取得授权/)).toBeVisible({

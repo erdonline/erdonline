@@ -1,29 +1,42 @@
-import React, {useContext} from 'react';
-import { Button } from "antd";
-import {MyIcon} from "@/components/Menu";
-import {ModalForm} from '@ant-design/pro-components';
+import React, {useContext, useState} from 'react';
+import {Button, Modal, Upload, message} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
-import Dragger from "antd/es/upload/Dragger";
-import {message, Modal} from "antd";
-import useProjectStore from "@/store/project/useProjectStore";
-import shallow from "zustand/shallow";
-import _ from "lodash";
-import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
+import {MyIcon} from '@/components/Menu';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
+import _ from 'lodash';
+import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 
+const {Dragger} = Upload;
 
 export type ReverseERDProps = {};
 
-const ReverseERD: React.FC<ReverseERDProps> = (props) => {
-  const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const {projectDispatch, projectJSON} = useProjectStore(state => ({
-    projectDispatch: state.dispatch,
-    projectJSON: state.project.projectJSON || {},
-  }), shallow);
+type ModuleLike = {name?: string};
 
-  const prop = {
+const ReverseERD: React.FC<ReverseERDProps> = () => {
+  const closeProjectMenu = useContext(ProjectMenuCloseContext);
+  const [open, setOpen] = useState(false);
+  const {projectDispatch, projectJSON} = useProjectStore(
+    (state) => ({
+      projectDispatch: state.dispatch,
+      projectJSON: state.project.projectJSON || {},
+    }),
+    shallow,
+  );
+
+  const openModal = () => {
+    closeProjectMenu();
+    setOpen(true);
+  };
+
+  const closeModal = () => {
+    setOpen(false);
+  };
+
+  const uploadProps = {
     multiple: false,
     maxCount: 1,
-    beforeUpload(file: any) {
+    beforeUpload(file: File) {
       const name = String(file?.name || '').toLowerCase();
       const isJSON =
         file.type === 'application/json' ||
@@ -37,95 +50,113 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        let originJson;
+        let originJson: string;
         try {
-          // @ts-ignore
-          originJson = projectDispatch.decrypt('AES', reader.result.toString());
-        } catch (e) {
-          message.error(`ERD文件解密失败！`)
-          return false;
+          originJson = projectDispatch.decrypt('AES', String(reader.result));
+        } catch {
+          message.error('ERD文件解密失败！');
+          return;
         }
-        let erdJson = JSON.parse(originJson);
-        let erdJsonModules = erdJson['modules'];
+        let erdJson: {
+          modules?: ModuleLike[];
+          dataTypeDomains?: unknown;
+          profile?: unknown;
+        };
+        try {
+          erdJson = JSON.parse(originJson);
+        } catch {
+          message.error('您导入的是非法的ERD文件!');
+          return;
+        }
+        const erdJsonModules = erdJson.modules;
         if (!erdJsonModules) {
           message.error('您导入的是非法的ERD文件!');
-          return false;
+          return;
         }
         if (!(erdJsonModules instanceof Array)) {
           message.error('您导入的是非法的ERD文件!');
-          return false;
+          return;
         }
         if (erdJsonModules.length <= 0) {
           message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
-          return false;
+          return;
         }
-        // @ts-ignore
-        const dataSource = projectJSON;
-        let resultMsg: any = [];
-        let resultModules: any = [];
-        erdJsonModules.forEach(module => {
-          let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
+        const dataSource = projectJSON as {
+          modules?: ModuleLike[];
+          dataTypeDomains?: unknown;
+          profile?: unknown;
+        };
+        const resultMsg: string[] = [];
+        const resultModules: ModuleLike[] = [];
+        erdJsonModules.forEach((module) => {
+          const hasMulti = (dataSource.modules || []).some(
+            (module1) => module.name === module1.name,
+          );
           if (!hasMulti) {
             resultModules.push(module);
           } else {
-            resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+            resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
           }
         });
 
         projectDispatch.setProjectJson({
           modules: (dataSource.modules || []).concat(resultModules),
-          dataTypeDomains: _.merge(dataSource.dataTypeDomains, erdJson['dataTypeDomains']),
-          profile: _.merge(dataSource.profile, erdJson['profile']),
+          dataTypeDomains: _.merge(dataSource.dataTypeDomains, erdJson.dataTypeDomains),
+          profile: _.merge(dataSource.profile, erdJson.profile),
         });
-        if (resultMsg != '') {
+        if (resultMsg.length > 0) {
           Modal.warning({
             title: '重要提示',
-            content: <>{resultMsg.map((m: any) => {
-              return <p>{m}</p>
-            })}</>,
-            okText: null,
-            cancelText: null,
+            content: (
+              <>
+                {resultMsg.map((m) => (
+                  <p key={m}>{m}</p>
+                ))}
+              </>
+            ),
           });
         } else {
           message.success('ERD文件导入成功！');
         }
-        return true;
       };
-      return true;
+      return false;
     },
   };
 
-
-  return (<>
-    <ModalForm
-      title={<span>解析已有ERD文件</span>}
-      trigger={
-        <Button
-          key="erd"
-          type="text"
-          size="small"
-          block
-          icon={<MyIcon type="icon-other_win"/>}
-          style={{ textAlign: 'left' }}
-          aria-label="解析ERD文件"
-          onClick={() => closeProjectMenu()}
-        >解析ERD文件</Button>
-      }
-
-    >
-
-      <Dragger {...prop}>
-        <p className="ant-upload-drag-icon">
-          <InboxOutlined/>
-        </p>
-        <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
-        <p className="ant-upload-hint">
-          上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
-        </p>
-      </Dragger>
-
-    </ModalForm>
-  </>);
+  return (
+    <>
+      <Button
+        key="erd"
+        type="text"
+        size="small"
+        block
+        icon={<MyIcon type="icon-other_win" />}
+        style={{textAlign: 'left'}}
+        aria-label="解析ERD文件"
+        onClick={openModal}
+      >
+        解析ERD文件
+      </Button>
+      <Modal
+        title="解析已有ERD文件"
+        open={open}
+        onOk={closeModal}
+        onCancel={closeModal}
+        destroyOnClose
+        width={520}
+      >
+        <Dragger {...uploadProps}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined />
+          </p>
+          <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
+          <p className="ant-upload-hint">
+            上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
+          </p>
+        </Dragger>
+      </Modal>
+    </>
+  );
 };
 
-export default React.memo(ReverseERD)
+export default React.memo(ReverseERD);
