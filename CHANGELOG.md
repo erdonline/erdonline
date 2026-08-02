@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：密 FK 导入走查 + 绕行竞短（ADR-0016）
+
+- fixture `dense-fk.dbml`（12 表 / 20 FK）+ E2E `dense-fk-import.spec.ts`；截图 `diagram-dense-fk-canvas.png`
+- `routeErdSmoothStep`：bypass 取曼哈顿最短；密障或绕行倍率 > `EDGE_BYPASS_DETOUR_RATIO` 时与 twoBend/A* 竞短（修「绕底一圈」抢先返回）
+- DBML 导入 E2E：勿点已自动展开的树标题（`expandAction=click` 会收起）
+
+验证点：`cd frontend && npx tsx src/utils/relationEdgeRoute.test.ts`；`cd frontend && npx playwright test tests/e2e/dense-fk-import.spec.ts tests/e2e/dbml-import.spec.ts tests/e2e/relation.spec.ts --project=chromium --grep "密 FK|DBML 导入|边路由" --workers=1 --retries=0`（dense modes 含 astar/twoBend）
+
 #### 体验：关系图边稀疏 Hanan A*（ADR-0016）
 
 - `routeErdSmoothStep`：`twoBend` 仍无解时 → `astar`（走廊外轴候选 + 正交 A* + 折弯代价）

@@ -31,6 +31,11 @@ export const EDGE_CHANNEL_QUANT = 48;
 export const EDGE_ASTAR_MAX_AXIS = 16;
 /** A* 折弯代价（鼓励少弯） */
 export const EDGE_ASTAR_BEND_COST = 28;
+/**
+ * bypass 路径相对直线曼哈顿超此倍率时，继续试 twoBend/A* 并取更短解
+ * （避免密 FK 簇「绕底一圈」仍抢先返回）
+ */
+export const EDGE_BYPASS_DETOUR_RATIO = 2.15;
 
 /** 同通道多边 → 居中 trunk 偏移列表 */
 export function trunkBundleOffsetsForCount(
@@ -200,6 +205,17 @@ export function twoBendLRWaypoints(
 
 function dist(a: RoutePoint, b: RoutePoint): number {
   return Math.hypot(b.x - a.x, b.y - a.y);
+}
+
+/** 正交折线曼哈顿长度（选最短绕行） */
+export function manhattanPolyline(points: RoutePoint[]): number {
+  let len = 0;
+  for (let i = 0; i < points.length - 1; i++) {
+    len +=
+      Math.abs(points[i + 1].x - points[i].x) +
+      Math.abs(points[i + 1].y - points[i].y);
+  }
+  return len;
 }
 
 function bendSvg(a: RoutePoint, b: RoutePoint, c: RoutePoint, size: number): string {
@@ -699,6 +715,10 @@ export function routeErdSmoothStep(opts: {
     obstacles,
   );
 
+  type Cand = { mode: ErdRouteResult['mode']; pts: RoutePoint[]; len: number };
+  const cands: Cand[] = [];
+
+  // 所有畅通 bypass → 取曼哈顿最短（勿「近 midY 先返回」导致绕底更长）
   for (const bypassY of bypassYs) {
     const by = bypassY + trunkBundleOffset;
     const bypassPts = bypassLRWaypoints(
@@ -712,74 +732,110 @@ export function routeErdSmoothStep(opts: {
       targetPosition,
     );
     if (!polylineHitsObstacles(bypassPts, obstacles)) {
-      const [path, labelX, labelY] = pathFromWaypoints(bypassPts, borderRadius);
-      return { path, labelX, labelY, mode: 'bypass' };
+      cands.push({
+        mode: 'bypass',
+        pts: bypassPts,
+        len: manhattanPolyline(bypassPts),
+      });
     }
   }
 
-  // 单 bypass 竖腿仍撞：两弯逃逸（escapeX → bypassY → 对端）
-  const escapes = collectEscapeXCandidates(sourceGappedX, targetGappedX, obstacles);
-  for (const bypassY of bypassYs) {
-    const by = bypassY + trunkBundleOffset;
-    for (const escapeSX of escapes) {
-      for (const escapeTX of escapes) {
-        if (
-          Math.abs(escapeSX - sourceGappedX) < 0.5 &&
-          Math.abs(escapeTX - targetGappedX) < 0.5
-        ) {
-          continue; // 已在单 bypass 试过
+  const directLen =
+    Math.abs(targetX - sourceX) + Math.abs(targetY - sourceY);
+  const bestBypass = cands
+    .filter((c) => c.mode === 'bypass')
+    .sort((a, b) => a.len - b.len)[0];
+
+  // 无 bypass，或绕行过长，或密障：两弯 / A* 一并竞短（修「绕底一圈」抢先返回）
+  const needDeeper =
+    !bestBypass ||
+    bestBypass.len > directLen * EDGE_BYPASS_DETOUR_RATIO ||
+    obstacles.length >= 3;
+
+  // 单 bypass 竖腿仍撞，或 bypass 绕行过长 / 密障：两弯 / A* 竞短
+  if (needDeeper) {
+    const escapes = collectEscapeXCandidates(
+      sourceGappedX,
+      targetGappedX,
+      obstacles,
+    );
+    for (const bypassY of bypassYs) {
+      const by = bypassY + trunkBundleOffset;
+      for (const escapeSX of escapes) {
+        for (const escapeTX of escapes) {
+          if (
+            Math.abs(escapeSX - sourceGappedX) < 0.5 &&
+            Math.abs(escapeTX - targetGappedX) < 0.5
+          ) {
+            continue;
+          }
+          const pts = twoBendLRWaypoints(
+            sourceX,
+            sourceY,
+            targetX,
+            targetY,
+            offset,
+            escapeSX,
+            escapeTX,
+            by,
+            sourcePosition,
+            targetPosition,
+          );
+          if (!polylineHitsObstacles(pts, obstacles)) {
+            cands.push({
+              mode: 'twoBend',
+              pts,
+              len: manhattanPolyline(pts),
+            });
+          }
         }
-        const pts = twoBendLRWaypoints(
-          sourceX,
-          sourceY,
-          targetX,
-          targetY,
-          offset,
-          escapeSX,
-          escapeTX,
-          by,
-          sourcePosition,
-          targetPosition,
-        );
-        if (!polylineHitsObstacles(pts, obstacles)) {
-          const [path, labelX, labelY] = pathFromWaypoints(pts, borderRadius);
-          return { path, labelX, labelY, mode: 'twoBend' };
-        }
+      }
+    }
+
+    const { xs, ys } = collectAstarAxisCandidates(
+      sourceGappedX,
+      targetGappedX,
+      sourceY,
+      targetY,
+      obstacles,
+    );
+    const ysBundled =
+      trunkBundleOffset === 0
+        ? ys
+        : [...new Set(ys.map((y) => y + trunkBundleOffset))];
+    const core = routeOrthogonalAstar(
+      { x: sourceGappedX, y: sourceY },
+      { x: targetGappedX, y: targetY },
+      obstacles,
+      xs,
+      ysBundled,
+    );
+    if (core && core.length >= 2) {
+      const full: RoutePoint[] = [
+        { x: sourceX, y: sourceY },
+        ...core,
+        { x: targetX, y: targetY },
+      ];
+      const simplified = simplifyOrthogonalPath(full);
+      if (!polylineHitsObstacles(simplified, obstacles)) {
+        cands.push({
+          mode: 'astar',
+          pts: simplified,
+          len: manhattanPolyline(simplified),
+        });
       }
     }
   }
 
-  // 两弯仍无解：稀疏 Hanan A*（含走廊外轴）
-  const { xs, ys } = collectAstarAxisCandidates(
-    sourceGappedX,
-    targetGappedX,
-    sourceY,
-    targetY,
-    obstacles,
-  );
-  // 干道偏移：把 bypass 类 Y 候选微移，避免多边叠线
-  const ysBundled =
-    trunkBundleOffset === 0
-      ? ys
-      : [...new Set(ys.map((y) => y + trunkBundleOffset))];
-  const core = routeOrthogonalAstar(
-    { x: sourceGappedX, y: sourceY },
-    { x: targetGappedX, y: targetY },
-    obstacles,
-    xs,
-    ysBundled,
-  );
-  if (core && core.length >= 2) {
-    const full: RoutePoint[] = [
-      { x: sourceX, y: sourceY },
-      ...core,
-      { x: targetX, y: targetY },
-    ];
-    const simplified = simplifyOrthogonalPath(full);
-    if (!polylineHitsObstacles(simplified, obstacles)) {
-      const [path, labelX, labelY] = pathFromWaypoints(simplified, borderRadius);
-      return { path, labelX, labelY, mode: 'astar' };
-    }
+  if (cands.length > 0) {
+    const rank = (m: ErdRouteResult['mode']) =>
+      m === 'bypass' ? 0 : m === 'twoBend' ? 1 : m === 'astar' ? 2 : 3;
+    cands.sort(
+      (a, b) => a.len - b.len || rank(a.mode) - rank(b.mode),
+    );
+    const win = cands[0];
+    const [path, labelX, labelY] = pathFromWaypoints(win.pts, borderRadius);
+    return { path, labelX, labelY, mode: win.mode };
   }
 
   // 仍撞：退回默认（极端重叠布局）

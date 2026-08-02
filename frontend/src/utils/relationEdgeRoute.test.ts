@@ -174,7 +174,10 @@ async function main() {
       offset: EDGE_STEP_OFFSET,
       obstacles: [mid, low, wallUp, wallDown],
     });
-    assert.strictEqual(r.mode, 'twoBend', `expected twoBend got ${r.mode}`);
+    assert.ok(
+      r.mode === 'twoBend' || r.mode === 'astar',
+      `expected twoBend|astar got ${r.mode}`,
+    );
     assert.ok(r.path.startsWith('M'));
     assert.ok(r.path.length > 20);
   });
@@ -197,6 +200,36 @@ async function main() {
     assert.strictEqual(r.mode, 'astar', `expected astar got ${r.mode}`);
     assert.ok(r.path.startsWith('M'));
     assert.ok(r.path.length > 30);
+  });
+
+  await run('密簇绕底过长 → 竞短取 shorter 非首个远 bypass', () => {
+    // 走廊全堵：仅顶/底外绕畅通；底绕更远。应取顶绕（短）而非「先返回」的远底
+    const wall = { id: 'W', x: 300, y: -40, width: 200, height: 200 };
+    const r = routeErdSmoothStep({
+      sourceX: 240,
+      sourceY: 40,
+      targetX: 600,
+      targetY: 40,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      offset: EDGE_STEP_OFFSET,
+      obstacles: [wall],
+    });
+    assert.ok(
+      r.mode === 'bypass' || r.mode === 'twoBend' || r.mode === 'astar',
+      `mode=${r.mode}`,
+    );
+    // 顶绕 path 的中段 Y 应偏上（绕底会把大段画在 y≫40）
+    const nums = [...r.path.matchAll(/(-?\d+(?:\.\d+)?)/g)].map((m) =>
+      Number(m[1]),
+    );
+    const ys = nums.filter((_, i) => i % 2 === 1);
+    const maxY = Math.max(...ys);
+    const minY = Math.min(...ys);
+    assert.ok(
+      maxY < 200 || Math.abs(minY) <= Math.abs(maxY - 40),
+      `expected prefer top/short detour, minY=${minY} maxY=${maxY} path=${r.path}`,
+    );
   });
 
   console.log('all relationEdgeRoute tests passed');

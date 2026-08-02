@@ -447,6 +447,7 @@
 - [x] [边路由干道 bundling] `assignTrunkBundleOffsets` 同 midX 通道分流；`data-bundle` + path 互异；截图 `diagram-edge-bundle.png` ✅ `relation.spec.ts`「边路由：干道 bundling」
 - [x] [边路由两弯 / mid-corridor] `pickBypassYCandidates` 含叠表缝；竖挡堵单 bypass → `mode=twoBend`；E2E `data-mode` 允许 `twoBend` ✅ `relationEdgeRoute.test.ts` + `relation.spec.ts`「边路由」
 - [x] [边路由稀疏 A*] 走廊内外封堵两弯 → `mode=astar`；E2E `data-mode` 允许 `astar` ✅ `relationEdgeRoute.test.ts` + `relation.spec.ts`「边路由」
+- [x] [密 FK 导入走查 + 绕行竞短] `dense-fk.dbml` 12 表/20 FK → modes 含 `astar|twoBend`；截图 `diagram-dense-fk-canvas.png`；DBML 树勿点已展开标题 ✅ `dense-fk-import.spec.ts` + `dbml-import.spec.ts`
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`

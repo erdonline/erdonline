@@ -10,18 +10,6 @@ import {
   uniqueProjectName,
 } from './helpers';
 
-/** DirectoryTree expandAction=click：点标题展开，避免 switcher 图标恒为 down 的误导 */
-async function expandByTitle(
-  page: import('@playwright/test').Page,
-  title: string,
-) {
-  const tree = page.getByTestId('query-tree');
-  const label = tree.getByText(title, { exact: true }).first();
-  await expect(label).toBeVisible({ timeout: 15_000 });
-  await label.click();
-  await page.waitForTimeout(400);
-}
-
 /**
  * DBML 导入：上传 fixture → 模型树 + 画布 N 实体
  */
@@ -54,12 +42,10 @@ test.describe('DBML 导入', () => {
         timeout: 15_000,
       });
 
-      await expandByTitle(page, 'DBML导入');
-      await expect(tree.getByText('关系', { exact: true })).toBeVisible({
-        timeout: 10_000,
-      });
-      await expandByTitle(page, '关系');
-      await page.getByTestId('tree-open-relation').click();
+      // ADR-0017：导入后自动展开；勿点标题（会收起）
+      const openRelation = page.getByTestId('tree-open-relation');
+      await expect(openRelation).toBeVisible({ timeout: 15_000 });
+      await openRelation.click();
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible({
         timeout: 10_000,
       });
@@ -88,7 +74,6 @@ test.describe('DBML 导入', () => {
         .getByTestId('reactflow-canvas')
         .screenshot({ path: 'test-results/ux-walkthrough/diagram-autolayout-import.png' });
 
-      await expandByTitle(page, '表');
       await expect(tree.getByText('users', { exact: true })).toBeVisible({
         timeout: 10_000,
       });

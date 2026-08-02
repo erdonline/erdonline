@@ -1,0 +1,82 @@
+Project DenseFK {
+  database_type: 'MySQL'
+  Note: '密FK走查'
+}
+
+Table org {
+  id integer [pk]
+  name varchar
+}
+
+Table dept {
+  id integer [pk]
+  org_id integer [ref: > org.id]
+  name varchar
+}
+
+Table users {
+  id integer [pk]
+  org_id integer [ref: > org.id]
+  dept_id integer [ref: > dept.id]
+  name varchar
+}
+
+Table role {
+  id integer [pk]
+  org_id integer [ref: > org.id]
+  code varchar
+}
+
+Table permission {
+  id integer [pk]
+  code varchar
+}
+
+Table user_role {
+  id integer [pk]
+  user_id integer [ref: > users.id]
+  role_id integer [ref: > role.id]
+}
+
+Table role_perm {
+  id integer [pk]
+  role_id integer [ref: > role.id]
+  permission_id integer [ref: > permission.id]
+}
+
+Table project {
+  id integer [pk]
+  org_id integer [ref: > org.id]
+  owner_id integer [ref: > users.id]
+  name varchar
+}
+
+Table task {
+  id integer [pk]
+  project_id integer [ref: > project.id]
+  assignee_id integer [ref: > users.id]
+  reporter_id integer [ref: > users.id]
+  title varchar
+}
+
+Table comment {
+  id integer [pk]
+  task_id integer [ref: > task.id]
+  author_id integer [ref: > users.id]
+  body varchar
+}
+
+Table attachment {
+  id integer [pk]
+  task_id integer [ref: > task.id]
+  uploader_id integer [ref: > users.id]
+  path varchar
+}
+
+Table audit_log {
+  id integer [pk]
+  org_id integer [ref: > org.id]
+  actor_id integer [ref: > users.id]
+  project_id integer [ref: > project.id]
+  action varchar
+}
