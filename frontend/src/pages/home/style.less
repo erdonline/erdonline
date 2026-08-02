@@ -159,13 +159,16 @@
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  margin-bottom: 16px;
+  margin-bottom: 10px;
+  min-height: 22px;
 }
 
 .sectionTitle {
   margin: 0 !important;
   font-family: var(--erd-font-display);
-  font-size: 18px !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 22px !important;
   color: var(--erd-ink-900);
   letter-spacing: -0.01em;
 }
@@ -187,21 +190,22 @@
   }
 }
 
+// ADR-0016：Home 项目卡与 22–28 chrome 同阶；禁 16×18 pad + 16 标题松卡
 .projectGrid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 16px;
+  gap: 10px;
 }
 
 .projectCard {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  min-height: 128px;
-  padding: 16px 18px;
+  gap: 4px;
+  min-height: 96px;
+  padding: 10px 12px;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
-  border-radius: var(--erd-radius, 8px);
+  border-radius: 6px;
   box-shadow: 0 1px 2px var(--erd-ink-a06);
   text-decoration: none;
   color: inherit;
@@ -226,7 +230,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 2px;
+  min-height: 22px;
+  margin-bottom: 0;
 }
 
 .typePerson,
@@ -260,15 +265,17 @@
 }
 
 .cardName {
-  font-size: 16px !important;
-  line-height: 24px;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 22px;
   color: var(--erd-ink-900);
   .textOverflow();
 }
 
 .cardDesc {
-  font-size: 13px !important;
-  line-height: 20px;
+  margin: 0;
+  font-size: 12px !important;
+  line-height: 18px;
   color: var(--erd-ink-400) !important;
   display: -webkit-box;
   -webkit-line-clamp: 1;
@@ -278,8 +285,9 @@
 
 .cardMeta {
   margin-top: auto !important;
-  padding-top: 8px;
-  font-size: 12px !important;
+  padding-top: 4px;
+  font-size: 11px !important;
+  line-height: 18px;
   color: var(--erd-ink-400) !important;
 }
 

@@ -1,52 +1,107 @@
-@import '~antd/es/style/reset.css';
-
+// ADR-0016：账号设置 chrome 与 22–28 / .setting-common-page 同阶；禁 20 标题 + 14 松行
 .main {
   display: flex;
   width: 100%;
   height: 100%;
-  padding-top: 16px;
-  padding-bottom: 16px;
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
 
   .leftMenu {
-    width: 224px;
+    width: 180px;
+    flex: none;
 
     :global {
       .ant-menu-inline {
         border: none;
       }
 
+      .ant-menu-item {
+        height: 28px;
+        line-height: 28px;
+        margin-block: 2px;
+        font-size: 12px;
+        padding-inline: 12px !important;
+      }
+
       .ant-menu:not(.ant-menu-horizontal) .ant-menu-item-selected {
-        font-weight: bold;
+        font-weight: 600;
+      }
+
+      .ant-menu-horizontal > .ant-menu-item {
+        height: 28px;
+        line-height: 28px;
+        padding-inline: 10px;
+        font-size: 12px;
       }
     }
   }
 
   .right {
     flex: 1;
-    padding: 8px 40px;
+    min-width: 0;
+    padding: 0 16px 0 20px;
 
     .title {
-      margin-bottom: 12px;
-      font-weight: 500;
-      font-size: 20px;
-      line-height: 28px;
+      margin: 0 0 8px;
+      font-weight: 600;
+      font-size: 13px;
+      line-height: 22px;
+      color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
     }
   }
 
   :global {
-    .ant-list-split .ant-list-item:last-child {
+    .ant-list-item {
+      padding-top: 6px;
+      padding-bottom: 6px;
+      padding-inline: 0;
     }
 
-    .ant-list-item {
-      padding-top: 14px;
-      padding-bottom: 14px;
+    .ant-list-item-meta-title {
+      margin-bottom: 2px !important;
+      font-size: 13px;
+      line-height: 22px;
+    }
+
+    .ant-list-item-meta-description {
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .ant-list-item-action {
+      margin-inline-start: 8px;
+
+      > li {
+        padding: 0 4px;
+        font-size: 12px;
+      }
+
+      .ant-btn-link {
+        height: 22px;
+        padding: 0 4px;
+        font-size: 12px;
+      }
+    }
+
+    .ant-result {
+      padding: 16px 8px;
+    }
+
+    .ant-result-title {
+      font-size: 16px;
+      line-height: 24px;
+    }
+
+    .ant-result-subtitle {
+      font-size: 12px;
+      line-height: 18px;
     }
   }
 }
 
 :global {
   .ant-list-item-meta {
-    // 账号绑定图标
     .taobao {
       display: block;
       color: #ff4000;
@@ -69,15 +124,4 @@
       line-height: 48px;
     }
   }
-
-  // 密码强度
-  font.strong {
-  }
-
-  font.medium {
-  }
-
-  font.weak {
-  }
 }
-

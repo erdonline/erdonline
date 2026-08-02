@@ -81,6 +81,7 @@
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；禁 16 pad + Title level4 松卡片
 - ✅ 设置页 chrome 密度：`.setting-common-page` 标题 13/22、页 pad 8×12、表单项 margin 12、Input/按钮 28；菜单「默认项设置」挂 `.erd-io-modal`；禁默认 Form 24 间距 + 大号控件
 - ✅ 数据库配置页密度：`.database-config-page` 标题 13/22、页 pad 8×12、工具条钮 28、表行 pad 4×8；抽屉表单同阶；菜单「数据源设置」挂 `.erd-io-modal`；禁 Title level4 + 松 Card
+- ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
@@ -106,6 +107,7 @@
 - ❌ 版本列表 8×12 松行 + 16 标题，与 22–28 chrome 不同阶（历史问题）
 - ❌ 普通导出页 16 pad + Title level4 松卡片，与 22–28 chrome 不同阶（历史问题）
 - ❌ 设置页默认 Form 24 间距 + 大号控件，与 22–28 chrome 不同阶（历史问题）
+- ❌ 账号设置 20 标题 + 14 松行 / Home 项目卡 16×18 pad，与 22–28 chrome 不同阶（历史问题）
 - ❌ 表选中 a18、Frame 选中 a12 光晕分叉（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 

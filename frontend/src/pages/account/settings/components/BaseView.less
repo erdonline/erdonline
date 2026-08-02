@@ -1,53 +1,100 @@
-@import '~antd/es/style/reset.css';
-
+// ADR-0016：基本资料表单与 22–28 / .setting-common-form 同阶
 .baseView {
   display: flex;
-  padding-top: 12px;
-
-  :global {
-    .ant-legacy-form-item .ant-legacy-form-item-control-wrapper {
-      width: 100%;
-    }
-  }
+  gap: 24px;
+  padding-top: 0;
+  font-family: var(--erd-font-ui);
 
   .left {
     min-width: 224px;
-    max-width: 448px;
+    max-width: 360px;
+    flex: 1 1 auto;
   }
 
   .right {
-    flex: 1;
-    padding-left: 104px;
+    flex: 0 0 auto;
+    padding-left: 0;
 
     .avatar_title {
       height: 22px;
-      margin-bottom: 8px;
+      margin-bottom: 6px;
       line-height: 22px;
+      font-size: 12px;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
     }
 
     .avatar {
-      width: 144px;
-      height: 144px;
-      margin-bottom: 12px;
+      width: 96px;
+      height: 96px;
+      margin-bottom: 8px;
       overflow: hidden;
+      border-radius: 6px;
+      border: 1px solid var(--erd-line, #e5e7eb);
 
       img {
         width: 100%;
+        height: 100%;
+        object-fit: cover;
       }
     }
 
     .button_view {
-      width: 144px;
+      display: block;
+      width: 96px;
       text-align: center;
+      font-size: 12px;
+      line-height: 18px;
+    }
+  }
+
+  :global {
+    .account-settings-form {
+      .ant-form-item {
+        margin-bottom: 12px;
+      }
+
+      .ant-form-item-label {
+        padding-bottom: 2px;
+
+        > label {
+          font-size: 12px;
+          height: auto;
+          color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+        }
+      }
+
+      .ant-input:not(textarea),
+      .ant-input-affix-wrapper {
+        font-size: 12px !important;
+      }
+
+      .ant-input:not(textarea) {
+        height: 28px;
+        padding: 0 8px;
+      }
+
+      .ant-input-affix-wrapper {
+        padding-block: 0;
+        min-height: 28px;
+
+        .ant-input {
+          height: 26px;
+        }
+      }
+
+      .ant-btn {
+        height: 28px;
+        font-size: 12px;
+        padding: 0 12px;
+        border-radius: 6px;
+      }
     }
   }
 }
 
-.area_code {
-  width: 72px;
+@media screen and (max-width: 640px) {
+  .baseView {
+    flex-direction: column-reverse;
+    gap: 16px;
+  }
 }
-
-.phone_number {
-  width: 214px;
-}
-

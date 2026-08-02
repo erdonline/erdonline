@@ -239,9 +239,7 @@ const Home: React.FC<HomeProps> = () => {
 
       <section className={styles.projectSection}>
         <div className={styles.sectionHead}>
-          <Title level={4} className={styles.sectionTitle}>
-            进行中的项目
-          </Title>
+          <h2 className={styles.sectionTitle}>进行中的项目</h2>
           <Link to="/dataModels" className={styles.sectionExtra}>
             查看全部
           </Link>
@@ -275,6 +273,7 @@ const Home: React.FC<HomeProps> = () => {
                 key={item.id}
                 to={`/design/table/model?projectId=${item.id}`}
                 className={styles.projectCard}
+                data-testid="home-project-card"
               >
                 <div className={styles.cardTop}>
                   <span

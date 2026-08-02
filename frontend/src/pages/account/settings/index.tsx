@@ -120,7 +120,9 @@ const Settings: React.FC = () => {
         </Menu>
       </div>
       <div className={styles.right}>
-        <div className={styles.title}>{menuMap[initConfig.selectKey]}</div>
+        <div className={`${styles.title} account-settings-page__title`}>
+          {menuMap[initConfig.selectKey]}
+        </div>
         {renderChildren()}
       </div>
     </div>

@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {Button, Form, Input, Modal, message} from 'antd';
 import {POST} from '@/services/crud';
+import '../io-modal.scss';
 
 export type ResetPasswordProps = {};
 
@@ -52,17 +53,19 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
         onOk={handleOk}
         onCancel={closeModal}
         destroyOnClose
-        width={520}
+        width={400}
         forceRender
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
       >
-        <Form form={form} layout="vertical" preserve={false}>
+        <Form form={form} layout="vertical" size="small" preserve={false}>
           <Form.Item
             name="pwd"
             label="密码"
             tooltip="密码至少包含 数字和英文，长度6-20"
             rules={pwdRules}
           >
-            <Input.Password placeholder="请输入密码" />
+            <Input.Password placeholder="请输入密码" aria-label="密码" />
           </Form.Item>
           <Form.Item
             name="pwdCK"
@@ -70,7 +73,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
             tooltip="密码至少包含 数字和英文，长度6-20"
             rules={pwdRules}
           >
-            <Input.Password placeholder="请输入密码" />
+            <Input.Password placeholder="请输入密码" aria-label="确认密码" />
           </Form.Item>
         </Form>
       </Modal>
