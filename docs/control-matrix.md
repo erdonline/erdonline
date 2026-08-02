@@ -188,7 +188,7 @@
 |---|---|---|---|---|---|
 | 已删认证路径 | `/login/success` 等 | 前端无页；后端不可用 | 清死代码 | ✅ | `dead-auth-routes.spec` |
 | 画布大项目 | 视口裁剪 | 离屏节点不渲染 | 性能预算 | ✅ | `canvas-scale.spec` |
-| 协作 sync | 远端改动 toast | info / warning | ADR-0009 | ✅ | `sync-toast.spec` |
+| 协作 sync | 远端改动 toast | info / warning +「保存版本」→ version/all（≤1/min） | ADR-0009 | ✅ | `sync-toast.spec` |
 | 加载骨架 | 列表/设计器/版本 | `aria-busy` + 可访问名 | | ✅ | `loading.spec` |
 | UX 不变量 | 死 affordance/账密 | 全旅程截图+断言 | | ✅ | `ux-audit.spec` |
 | 空 projectJSON | 团队项目加模型 | 可新增模型 | | ✅ | `empty-projectjson.spec` |

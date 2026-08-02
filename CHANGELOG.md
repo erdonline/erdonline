@@ -8,6 +8,24 @@
 
 ### 2026-08-02
 
+#### 功能：协作 sync 提示带「保存版本」直达（下一季③）
+
+**功能**
+
+- 远端 sync toast 改为 notification：info / dirty warning 均附主按钮「保存版本」（`data-testid="sync-save-version-cta"`），点击直达 `/design/table/version/all`
+- 节流由 3s 调整为同会话 ≤1 次/分钟，避免协作噪声打断
+  验证点：`cd frontend && npx playwright test tests/e2e/sync-toast.spec.ts --project=chromium --workers=1` → 2 passed（info/warning CTA → 版本页）
+
+**测试**
+
+- `sync-toast.spec.ts`：info / warning 路径均断言 CTA 可见并跳转 `version/all?projectId=…`
+  验证点：同上
+
+**文档**
+
+- `docs/roadmap.md` 下一季③ → 🚧，子项「sync 提示→保存版本」✅
+  验证点：roadmap ③ 行含 🚧 与本切片 ✅ 日期
+
 #### 修复：审批通过路径校验 SQL 执行结果（失败不落通过、不 sync）
 
 **修复**

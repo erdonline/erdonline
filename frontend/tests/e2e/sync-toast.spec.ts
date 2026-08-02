@@ -105,6 +105,11 @@ test.describe('协作 sync 提示', () => {
       await expect(ownerPage.getByText('T_TABLE_1').first()).toBeVisible({ timeout: 10_000 });
 
       await expectToast(peerPage, `${E2E_SERIAL.name} 同步了模型变更`, 20_000);
+      await peerPage.getByTestId('sync-save-version-cta').click();
+      await expect(peerPage).toHaveURL(
+        new RegExp(`/design/table/version/all\\?projectId=${projectId}`),
+        { timeout: 15_000 },
+      );
     } finally {
       await peerCtx?.close().catch(() => {});
       await ownerCtx?.close().catch(() => {});
@@ -153,6 +158,11 @@ test.describe('协作 sync 提示', () => {
         peerPage,
         `${E2E_SERIAL.name} 更新了模型；你有未保存改动，请核对后保存`,
         20_000,
+      );
+      await peerPage.getByTestId('sync-save-version-cta').click();
+      await expect(peerPage).toHaveURL(
+        new RegExp(`/design/table/version/all\\?projectId=${projectId}`),
+        { timeout: 15_000 },
       );
     } finally {
       await peerCtx?.close().catch(() => {});
