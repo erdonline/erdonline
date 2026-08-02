@@ -19,6 +19,7 @@ import CopyProject from "@/components/dialog/project/CopyProject";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
 import PageSkeleton from '@/components/PageSkeleton';
+import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
 
 const Version: React.FC = () => {
   const {
@@ -49,11 +50,7 @@ const Version: React.FC = () => {
   const [tagFilter, setTagFilter] = useState('');
 
   const filteredVersions = React.useMemo(() => {
-    const q = tagFilter.trim().toLowerCase();
-    if (!q) {
-      return versions;
-    }
-    return versions.filter((v: { tag?: string }) => (v.tag || '').toLowerCase().includes(q));
+    return versions.filter((v: { tag?: string }) => versionTagsMatchFilter(v.tag, tagFilter));
   }, [versions, tagFilter]);
 
   useEffect(() => {
@@ -144,27 +141,53 @@ const Version: React.FC = () => {
                 dataIndex: 'versionDesc',
                 render: (_dom, row) => {
                   const ch = Array.isArray(row.changes) ? row.changes : [];
-                  const add = ch.filter((c: any) => c.opt === 'add').length;
-                  const del = ch.filter((c: any) => c.opt === 'delete').length;
-                  const upd = ch.filter((c: any) => c.opt === 'update').length;
+                  const add = ch.filter((c: { opt?: string }) => c.opt === 'add').length;
+                  const del = ch.filter((c: { opt?: string }) => c.opt === 'delete').length;
+                  const upd = ch.filter((c: { opt?: string }) => c.opt === 'update').length;
+                  const tags = splitVersionTags(row.tag);
                   return (
-                    <Space wrap size={[8, 4]}>
-                      <span>{row.creator}</span>
-                      <span>{row.versionDate}</span>
-                      <span>{row.versionDesc}</span>
-                      {row.tag && (
-                        <Tag color="purple" data-testid={`version-tag-${row.tag}`}>
-                          {row.tag}
-                        </Tag>
+                    <div className="version-row-meta">
+                      <div className="version-row-prose">
+                        <span>{row.creator}</span>
+                        <span>{row.versionDate}</span>
+                        <span>{row.versionDesc}</span>
+                      </div>
+                      {tags.length > 0 && (
+                        <div
+                          className="version-row-tags"
+                          data-testid="version-tags"
+                          aria-label="版本标签"
+                        >
+                          <span className="version-row-tags__label">标签</span>
+                          <Space size={[4, 4]} wrap>
+                            {tags.map((t: string) => (
+                              <Tag
+                                color="purple"
+                                key={t}
+                                className="version-row-tags__chip"
+                                data-testid={`version-tag-${t}`}
+                              >
+                                {t}
+                              </Tag>
+                            ))}
+                          </Space>
+                        </div>
                       )}
                       {ch.length > 0 && (
-                        <Space size={4} data-testid="version-change-summary">
-                          {add > 0 && <Tag color="success">+{add}</Tag>}
-                          {del > 0 && <Tag color="error">-{del}</Tag>}
-                          {upd > 0 && <Tag color="warning">~{upd}</Tag>}
-                        </Space>
+                        <div
+                          className="version-row-changes"
+                          data-testid="version-change-summary"
+                          aria-label="变更摘要"
+                        >
+                          <span className="version-row-changes__label">变更</span>
+                          <span className="version-row-changes__text">
+                            {add > 0 && <span className="version-row-changes__add">+{add}</span>}
+                            {del > 0 && <span className="version-row-changes__del">−{del}</span>}
+                            {upd > 0 && <span className="version-row-changes__upd">~{upd}</span>}
+                          </span>
+                        </div>
                       )}
-                    </Space>
+                    </div>
                   );
                 },
               },

@@ -67,7 +67,7 @@ public class DbChange implements Serializable {
     private String versionDesc;
 
     /**
-     * 版本标签 / 里程碑（同项目内非空唯一；空则落库为 null）
+     * 版本标签（逗号分隔，可多个；空则落库为 null；跨版本可复用）
      */
     private String tag;
 

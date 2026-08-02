@@ -1,15 +1,15 @@
 import React from 'react';
-import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
+import {ModalForm, ProFormSelect, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
 import useVersionStore from "@/store/version/useVersionStore";
 import shallow from "zustand/shallow";
 import {compareStringVersion} from "@/utils/string";
 import {Button, message} from "antd";
 import {EditOutlined} from "@ant-design/icons";
-
+import {joinVersionTags, splitVersionTags} from "@/utils/versionTags";
 
 export type RenameVersionProps = {};
 
-const RenameVersion: React.FC<RenameVersionProps> = (props) => {
+const RenameVersion: React.FC<RenameVersionProps> = () => {
   const {currentVersionIndex, currentVersion, versions, versionDispatch} = useVersionStore(state => ({
     currentVersionIndex: state.currentVersionIndex,
     currentVersion: state.currentVersion,
@@ -17,12 +17,15 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
     versionDispatch: state.dispatch,
   }), shallow);
 
-
   return (<>
     <ModalForm
       title="编辑版本"
-      onFinish={async (values: { version?: string; versionDesc?: string; tag?: string }) => {
-        const tag = (values.tag || '').trim();
+      onFinish={async (values: { version?: string; versionDesc?: string; tags?: string[] }) => {
+        const tag = joinVersionTags(values.tags);
+        if (tag && tag.length > 255) {
+          message.error('标签总长度不能大于 255 个字符');
+          return false;
+        }
         const tempValue = {
           ...currentVersion,
           version: values.version,
@@ -31,14 +34,6 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
         };
 
         const tempVersions = versions.slice(1);
-        const tagTaken = tag && versions.some(
-          (v: { id?: string; tag?: string }) =>
-            v.id !== currentVersion?.id && (v.tag || '').trim() === tag,
-        );
-        if (tagTaken) {
-          message.error('该版本标签已经存在了');
-          return false;
-        }
         if (currentVersionIndex !== 0) {
           versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
           return true;
@@ -69,8 +64,11 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
           编辑
         </Button>
       }
-      request={async (params) => {
-        return currentVersion;
+      request={async () => {
+        return {
+          ...currentVersion,
+          tags: splitVersionTags(currentVersion?.tag),
+        };
       }}
     >
       <ProFormText
@@ -114,22 +112,28 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
           ],
         }}
       />
-      <ProFormText
+      <ProFormSelect
         width="md"
-        name="tag"
+        name="tags"
         label="版本标签"
-        placeholder="可选，如 v1.0 / 里程碑"
-        fieldProps={{
-          'data-testid': 'version-tag-input',
-          maxLength: 64,
-        }}
+        placeholder="可选，回车添加多个标签"
         formItemProps={{
           rules: [
             {
-              max: 64,
-              message: '不能大于 64 个字符',
+              validator: async (_: unknown, value: string[] | undefined) => {
+                const joined = joinVersionTags(value);
+                if (joined && joined.length > 255) {
+                  throw new Error('标签总长度不能大于 255 个字符');
+                }
+              },
             },
           ],
+        }}
+        fieldProps={{
+          mode: 'tags',
+          tokenSeparators: [','],
+          'data-testid': 'version-tag-input',
+          'aria-label': '版本标签',
         }}
       />
     </ModalForm>

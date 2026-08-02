@@ -2,7 +2,6 @@ package com.erdonline.erd.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.erdonline.common.core.api.R;
@@ -16,8 +15,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.stream.Collectors;
 
@@ -100,9 +102,8 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
     @Override
     public R saveVersion(DbChange dbChange) {
         normalizeTag(dbChange);
-        if (StrUtil.isNotBlank(dbChange.getTag())
-                && isTagTaken(dbChange.getProjectId(), dbChange.getTag(), dbChange.getId())) {
-            return R.failed("该版本标签已经存在了");
+        if (dbChange.getTag() != null && dbChange.getTag().length() > 255) {
+            return R.failed("版本标签总长度不能超过 255 个字符");
         }
         if (StrUtil.isBlank(dbChange.getId())) {
             this.save(dbChange);
@@ -112,30 +113,31 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         return R.ok("保存成功");
     }
 
-    @Override
-    public boolean isTagTaken(String projectId, String tag, String excludeId) {
-        if (StrUtil.isBlank(projectId) || StrUtil.isBlank(tag)) {
-            return false;
-        }
-        LambdaQueryWrapper<DbChange> wrapper = new LambdaQueryWrapper<>();
-        wrapper.eq(DbChange::getProjectId, projectId);
-        wrapper.eq(DbChange::getTag, tag.trim());
-        if (StrUtil.isNotBlank(excludeId)) {
-            wrapper.ne(DbChange::getId, excludeId);
-        }
-        return this.count(wrapper) > 0;
-    }
-
-    private static void normalizeTag(DbChange dbChange) {
+    /**
+     * 规范化逗号/分号分隔标签：trim、去空、按忽略大小写去重，空则 null。
+     */
+    static void normalizeTag(DbChange dbChange) {
         if (dbChange == null) {
             return;
         }
         String tag = dbChange.getTag();
         if (tag == null || tag.trim().isEmpty()) {
             dbChange.setTag(null);
-        } else {
-            dbChange.setTag(tag.trim());
+            return;
         }
+        LinkedHashSet<String> seen = new LinkedHashSet<>();
+        List<String> parts = new ArrayList<>();
+        for (String raw : tag.split("[,;]")) {
+            String t = raw == null ? "" : raw.trim();
+            if (t.isEmpty()) {
+                continue;
+            }
+            String key = t.toLowerCase(Locale.ROOT);
+            if (seen.add(key)) {
+                parts.add(t);
+            }
+        }
+        dbChange.setTag(parts.isEmpty() ? null : String.join(",", parts));
     }
 
     @Override

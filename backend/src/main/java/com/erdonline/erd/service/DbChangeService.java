@@ -61,12 +61,7 @@ public interface DbChangeService extends MartinService<DbChange> {
     R getHashMapsByDbChanges(List<DbChange> dbChanges);
 
     /**
-     * 保存或更新历史版本；同项目内非空 tag 唯一，冲突时返回失败且不落库。
+     * 保存或更新历史版本；tag 为逗号分隔多标签，不做跨版本唯一校验。
      */
     R saveVersion(DbChange dbChange);
-
-    /**
-     * 同项目内是否已存在相同非空标签（更新时排除自身）。
-     */
-    boolean isTagTaken(String projectId, String tag, String excludeId);
 }

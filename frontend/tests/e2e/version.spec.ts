@@ -20,13 +20,18 @@ import {
 
 async function saveVersion(
   page: import('@playwright/test').Page,
-  opts?: { tag?: string },
+  opts?: { tags?: string[] },
 ) {
   await page.getByTestId('add-version-btn').click();
   const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
   await expect(dialog).toBeVisible();
-  if (opts?.tag) {
-    await dialog.getByTestId('version-tag-input').fill(opts.tag);
+  if (opts?.tags?.length) {
+    const tagInput = dialog.getByTestId('version-tag-input');
+    for (const t of opts.tags) {
+      await tagInput.click();
+      await page.keyboard.type(t);
+      await page.keyboard.press('Enter');
+    }
   }
   await dialog.getByRole('button', { name: /确\s*定/ }).click();
   await expectToast(page, /保存成功/);
@@ -122,35 +127,50 @@ test.describe('版本快照', () => {
     }
   });
 
-  test('保存带标签版本可筛选且重复标签拦截不关窗', async ({ page }) => {
+  test('保存多标签版本展示 chips 可筛选且标签可跨版本复用', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('vertag');
-    const tag = `里程碑-${Date.now().toString(36)}`;
+    const tags = ['里程碑', 'release'];
     try {
       await login(page);
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'vertag', 'version tag');
+
+      // 造一条模型变更，使列表同时出现「标签」chips 与「变更」摘要
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.waitForTimeout(2_000);
+
       await openVersionPage(page);
+      await saveVersion(page, { tags });
+      const row100 = page.getByTestId('version-row-1.0.0');
+      await expect(row100).toBeVisible({ timeout: 10_000 });
 
-      await saveVersion(page, { tag });
-      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId(`version-tag-${tag}`)).toBeVisible();
+      const tagsBox = row100.getByTestId('version-tags');
+      const changeBox = row100.getByTestId('version-change-summary');
+      await expect(tagsBox).toBeVisible();
+      await expect(changeBox).toBeVisible();
+      await expect(tagsBox).toContainText('标签');
+      await expect(changeBox).toContainText('变更');
+      await expect(tagsBox.getByTestId('version-tag-里程碑')).toBeVisible();
+      await expect(tagsBox.getByTestId('version-tag-release')).toBeVisible();
+      // 变更摘要是散文计数，不是 Tag chip 容器
+      await expect(changeBox.getByTestId('version-tag-里程碑')).toHaveCount(0);
+      await expect(changeBox).toContainText(/\+|−|~/);
 
-      await page.getByTestId('version-tag-filter').fill(tag);
+      await page.getByTestId('version-tag-filter').fill('release');
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible();
       await page.getByTestId('version-tag-filter').fill('__no_such_tag__');
       await expect(page.getByTestId('version-row-1.0.0')).toHaveCount(0);
       await page.getByTestId('version-tag-filter').fill('');
 
-      await page.getByTestId('add-version-btn').click();
-      const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
-      await expect(dialog).toBeVisible();
-      await dialog.getByTestId('version-tag-input').fill(tag);
-      await dialog.getByRole('button', { name: /确\s*定/ }).click();
-      await expectToast(page, /该版本标签已经存在了/);
-      await expect(dialog).toBeVisible();
-      await dialog.getByRole('button', { name: /Close|关闭/ }).click();
-      await expect(dialog).toHaveCount(0);
+      // 跨版本复用同一标签，不再拦截
+      await saveVersion(page, { tags: ['release'] });
+      await expect(page.getByTestId('version-row-1.0.1')).toBeVisible({ timeout: 10_000 });
+      await page.getByTestId('version-tag-filter').fill('release');
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible();
+      await expect(page.getByTestId('version-row-1.0.1')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
