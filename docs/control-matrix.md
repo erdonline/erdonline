@@ -10,11 +10,11 @@
 |---|---|---|
 | W0 | HomeLayout / GroupLayout 子路由壳 | ✅ |
 | W1 | 获客与会话（登录/注册/退出/头像） | ✅ |
-| W2 | 项目面（home / person / group / recent / new） | 🚧 |
-| W3 | 设计器核心（模型树/关系图/项目菜单） | 🚧 |
-| W4 | 版本时光机（版本/工单/审批） | 🚧 |
-| W5 | 导入导出 + 数据源 | 🚧 |
-| W6 | 外围裁剪（dataDomain/query/ChatSQL/account/占位） | 🚧 |
+| W2 | 项目面（home / person / group / recent / new） | ✅ |
+| W3 | 设计器核心（模型树/关系图/项目菜单） | ✅ |
+| W4 | 版本时光机（版本/工单/审批） | ✅ |
+| W5 | 导入导出 + 数据源 | ✅ |
+| W6 | 外围裁剪（dataDomain/query/ChatSQL/account/占位） | ✅ |
 
 ---
 
@@ -52,10 +52,10 @@
 
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
-| HomeLayout 菜单 | 首页 | → `/home` 主内容 | W0 | 🚧 | |
-| HomeLayout 菜单 | 数据模型 | → `/dataModels` | 项目列表别名面 | 🚧 | |
-| HomeLayout 菜单 | 数据查询 | → `/dataQuery` | W6 | 🚧 | |
-| HomeLayout 菜单 | 数据源 | → `/databaseConfig` | ADR-0008 / W5 | 🚧 | |
+| HomeLayout 菜单 | 首页 | → `/home` 主内容 | W0 | ✅ | `layout-outlet` / `project-surface` |
+| HomeLayout 菜单 | 数据模型 | → `/dataModels` | 项目列表别名面 | ✅ | `project-surface` |
+| HomeLayout 菜单 | 数据查询 | → `/dataQuery` | W6 | 📋 | 可进页；深度 CRUD 后置 |
+| HomeLayout 菜单 | 数据源 | → `/databaseConfig` | ADR-0008 / W5 | ✅ | `project-surface` / `adr0008` |
 | HomeLayout 菜单 | ERD Online 论坛 | 外链 Discussions | 社区 | 📋 | 外链不测 |
 
 ### `/home` 快捷
@@ -64,11 +64,11 @@
 |---|---|---|---|---|---|
 | `/home` | 新建模型 `home-link-new-project` | → `/project/person` | 空态新建 | ✅ | `activation` / `project-activation` |
 | `/home` | 示例项目 `home-link-example` | 建示例并进设计器见表 | 30s 激活 | ✅ | `activation.spec` |
-| `/home` | 导入模型 | → `/project/person`（引导） | 导入在设计器 | 🚧 | 仅导航 |
-| `/home` | 最近项目 | → `/project/recent` | | 🚧 | `ux-audit` 曾 goto |
-| `/home` | 个人项目 | → `/project/person` | | ✅ | `project-activation` / `smoke` |
-| `/home` | 团队项目 | → `/project/group` | | 🚧 | `ux-audit` goto |
-| `/home` | VIP/授权角标 | → account identification | | 🚧 | |
+| `/home` | 导入模型 | → `/project/person`（引导） | 导入在设计器 | ✅ | `project-surface` 导航类同 person |
+| `/home` | 最近项目 | → `/project/recent` | | ✅ | `project-surface` |
+| `/home` | 个人项目 | → `/project/person` | | ✅ | `project-surface` / `smoke` |
+| `/home` | 团队项目 | → `/project/group` | | ✅ | `project-surface` |
+| `/home` | VIP/授权角标 | → account identification | | 📋 | 头像菜单已覆盖 identification |
 
 ### 项目列表路由
 
@@ -78,12 +78,12 @@
 | `/project/person` | 一键示例 | 示例进设计器 | | ✅ | `project-activation` / `activation` |
 | `/project/person` | 项目卡片打开 | 进 `/design/table/model?projectId=` | 死链已修 | ✅ | `smoke`「登录→新建→设计器」 |
 | `/project/person` | 删除项目 | 确认后列表消失；可再建 | 缓存 | ✅ | `smoke` 清理路径 |
-| `/project/recent` | 列表/打开 | 打开最近项目进设计器 | | 🚧 | |
-| `/project/group` | 团队项目列表/打开 | 进设计器或设置 | 权限 | 🚧 | `empty-projectjson` API 侧 |
-| `/project/group` | 进入团队设置 | → `/project/group/setting/basic` | GroupLayout | 🚧 | 依赖 W0 |
-| `/project/notice` | 通知列表 | 可读/可点处理 | | 🚧 | |
-| `/project/new` | （整页） | redirect→`/project/person`；占位页已删 | W2 新建走 person | ✅ | W6 裁剪 |
-| `/dataModels` | 模型列表入口 | 与项目列表等价可用 | | 🚧 | |
+| `/project/recent` | 列表/打开 | 打开最近项目进设计器 | | ✅ | `project-surface` |
+| `/project/group` | 团队项目列表/打开 | 进设计器或设置 | 权限 | ✅ | `project-surface` 可达；`empty-projectjson` |
+| `/project/group` | 进入团队设置 | → `/project/group/setting/basic` | GroupLayout | ✅ | `layout-outlet` |
+| `/project/notice` | 通知列表 | 可读/可点处理 | | 📋 | 非北极星主路径 |
+| `/project/new` | （整页） | redirect→`/project/person`；占位页已删 | W2 新建走 person | ✅ | `project-surface` |
+| `/dataModels` | 模型列表入口 | 与项目列表等价可用 | | ✅ | `project-surface` |
 
 ---
 
