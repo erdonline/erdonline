@@ -199,8 +199,9 @@
     position: relative;
     display: flex;
     align-items: baseline;
-    gap: 8px;
-    padding: 8px 12px 8px 14px;
+    gap: 6px;
+    // 分享截图再压一档：竖向 6，标题 14/700 层次不动
+    padding: 6px 10px 6px 12px;
     // muted 实底：比 sunk 多一档层次，禁散落 #f3f5f7
     background: var(--erd-surface-muted);
     border-bottom: 1px solid var(--erd-line);
@@ -246,7 +247,7 @@
 
     .erd-header-input {
       width: 100%;
-      height: 24px;
+      height: 22px;
       padding: 0 6px;
       border: 1px solid var(--erd-brand);
       border-radius: var(--erd-radius-sm);
@@ -275,7 +276,7 @@
   }
 
   .erd-table-fields {
-    padding: 2px 0 4px;
+    padding: 1px 0 2px;
     border-radius: 0 0 var(--erd-radius) var(--erd-radius);
 
     .erd-field-row {
@@ -283,10 +284,11 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      gap: 8px;
-      padding: 2px 28px 2px 12px;
-      line-height: 16px;
-      min-height: 22px;
+      gap: 6px;
+      // 密表再压：pad 1 / lh 15 / minH 20；徽章 10/700 仍先于字段名
+      padding: 1px 26px 1px 10px;
+      line-height: 15px;
+      min-height: 20px;
       // 行间发丝线：schema 清单可读，分享截图不糊成一块
       box-shadow: inset 0 -1px 0 var(--erd-line);
 
@@ -306,8 +308,8 @@
           content: '';
           position: absolute;
           left: 0;
-          top: 2px;
-          bottom: 2px;
+          top: 1px;
+          bottom: 1px;
           width: 2px;
           background: var(--erd-warning);
           border-radius: 1px;
@@ -341,7 +343,7 @@
       .erd-field-name {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 4px;
         min-width: 0;
         flex: 1 1 auto;
         color: var(--erd-ink-900);
@@ -366,8 +368,8 @@
           font-size: 10px;
           font-weight: 700;
           border-radius: 3px;
-          padding: 0 5px;
-          line-height: 15px;
+          padding: 0 4px;
+          line-height: 14px;
           letter-spacing: 0.03em;
           text-align: center;
           cursor: default;
@@ -445,7 +447,7 @@
     }
 
     .erd-field-empty {
-      padding: 8px 12px;
+      padding: 6px 10px;
       color: var(--erd-ink-400);
       text-align: center;
     }
@@ -522,8 +524,8 @@
     }
 
     .erd-field-add {
-      margin: 4px 8px 6px;
-      padding: 3px 0;
+      margin: 2px 8px 4px;
+      padding: 2px 0;
       text-align: center;
       color: var(--erd-ink-400);
       font-size: 11px;
