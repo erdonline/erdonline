@@ -202,6 +202,20 @@ cd frontend && yarn validate:projectjson
 }
 ```
 
+## DBML 互通（导入，薄切片）
+
+设计器「导入 → 导入DBML」将 [DBML](https://dbml.dbdiagram.io/) 文本解析为 `projectJSON` 模块后合并进当前项目（`@dbml/core`，前端懒加载）。
+
+| DBML | projectJSON |
+|---|---|
+| `Table` | `modules[].entities[]`（`title`/`name` = 表名） |
+| 列 | `fields[]`（物理类型薄映射为逻辑 `type` code） |
+| `Note` / `[note: …]` | **仅**写入 `chnname`（表/列显示名） |
+| `Ref` / 列上 `[ref: …]` | `associations[]`（`1:1` / `1:n` / `n:n`；`from`=多端持 FK） |
+| `Project` 名 / Note | 模块 `name` / `chnname`（缺省 `DBML` / `DBML导入`） |
+
+**本切片不映射**：enum、index、trigger、表级 check、导出 DBML。合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
+
 ## 非目标（本规范不覆盖）
 
 - `configJSON`（导出/同步偏好，与模型事实源分离）

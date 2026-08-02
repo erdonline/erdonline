@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：DBML 导入薄切片 — DBML → projectJSON + 设计器入口
+
+**功能**
+
+- 依赖 `@dbml/core@^9.1.1`（Holistics 持续维护）；`frontend/src/utils/dbml/toProjectJSON.ts` 纯映射（dynamic import 懒加载）：Table/fields/Ref→FK、note→chnname
+- `ReverseDBML`：粘贴 + Dragger；复用 `importModuleAndProfile`；loading/成功/失败反馈；项目菜单「导入DBML」
+- 未做：导出、后端、enum/index/trigger 映射
+
+**测试 / 文档**
+
+- 单测 `toProjectJSON.test.ts`（tsx）；E2E `dbml-import.spec.ts`；roadmap 开放 DBML 📋→🚧；`data-format.md` 互通说明；regression-checklist
+
+验证点：`cd frontend && yarn test:unit:dbml` → **all passed**（含 schema 校验）；`npx playwright test --grep "DBML 导入" --project=chromium --workers=1` → **1 passed**（~15s，画布 `data-node-total≥2`）
+
 #### 功能：逆向保真切片 2 — SQL Server 字典级表/列注释 → chnname
 
 **功能**

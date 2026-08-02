@@ -55,7 +55,7 @@ test.describe('设计器项目菜单', () => {
     }
   });
 
-  test('项目 → 导入 → 三项入口可开弹窗', async ({ page }) => {
+  test('项目 → 导入 → 四项入口可开弹窗', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('import');
 
@@ -92,6 +92,12 @@ test.describe('设计器项目菜单', () => {
       const erd = page.getByRole('dialog');
       await expect(erd.getByText('解析已有ERD文件')).toBeVisible();
       await erd.getByText(/点击或者拖拽ERD导出的json文件/).click();
+      await closeDialog();
+
+      await openImport('导入DBML');
+      const dbml = page.getByRole('dialog');
+      await expect(dbml.getByText('导入 DBML')).toBeVisible();
+      await expect(dbml.getByLabel('DBML文本')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
