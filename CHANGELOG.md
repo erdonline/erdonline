@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：设计器顶栏「保存版本」常驻入口（关通知不丢激活路径）
+
+**功能**
+
+- 新增 `SaveVersionButton`（`data-testid="design-header-save-version"`），挂入 `DesignLayout` 顶栏右侧（SaveStatus 旁）；直达 `/design/table/version/all`
+- 示例就绪通知文案提示顶栏备用入口；关闭按钮补 `data-testid="example-ready-dismiss"`
+  验证点：`cd frontend && npx playwright test activation.spec.ts --project=chromium-serial --no-deps` → 含新用例「关闭示例就绪通知后仍可经顶栏保存版本」全绿
+
+**测试**
+
+- `activation.spec`：关通知 → CTA 消失 → 顶栏「保存版本」→ 新增版本 → `version-row-1.0.0`
+  验证点：同上
+
 #### 功能：示例项目就绪后直达「保存第一个版本」（下一季①首屏叙事→30s 进版本保存）
 
 **功能**

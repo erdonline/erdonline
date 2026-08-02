@@ -75,6 +75,38 @@ test.describe('新手激活', () => {
     });
   });
 
+  test('关闭示例就绪通知后仍可经顶栏保存版本', async ({ page }) => {
+    test.setTimeout(120_000);
+    await withExclusiveAccount(async () => {
+      try {
+        await login(page, E2E_SERIAL);
+        await deleteAllPersonProjects(page);
+
+        await page.goto('/home');
+        await page.getByTestId('home-link-example').click();
+        await expect(page).toHaveURL(/\/design\/table/, { timeout: 20_000 });
+        await expectToast(page, /示例项目已就绪/);
+        await expect(page.getByTestId('design-header-save-version')).toBeVisible();
+
+        await page.getByTestId('example-ready-dismiss').click();
+        await expect(page.getByTestId('example-save-version-cta')).toHaveCount(0);
+
+        await page.getByTestId('design-header-save-version').click();
+        await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
+        await expect(page.getByText('Loading...')).toHaveCount(0);
+
+        await page.getByTestId('add-version-btn').click({ timeout: 15_000 });
+        const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
+        await expect(dialog).toBeVisible();
+        await dialog.getByRole('button', { name: /确\s*定/ }).click();
+        await expectToast(page, /保存成功/);
+        await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+      } finally {
+        await deleteAllPersonProjects(page).catch(() => {});
+      }
+    });
+  });
+
   test('开源版可连续创建多个个人项目', async ({ page }) => {
     test.setTimeout(120_000);
     const a = `multi-a-${Date.now()}`;
