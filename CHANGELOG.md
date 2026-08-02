@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 构建：Maven 默认走阿里云（绕过 JD Artifactory）
+
+**构建**
+
+- `backend/.mvn/maven.config` 自动 `-s .mvn/settings.xml`；settings 镜像阿里云 `public`/`central`/`spring`；`pom.xml` 补齐同名 repositories + pluginRepositories
+  验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q dependency:get -Dartifact=org.flywaydb:flyway-core:11.7.2` 成功（Boot 3.5.16 管理版本）
+
+**文档**
+
+- `docs/development.md` Maven 行注明项目级阿里云 settings，绕过本机 JD Artifactory
+
 #### 文档：Schema 双源约定（db/init vs Flyway）
 
 **文档**

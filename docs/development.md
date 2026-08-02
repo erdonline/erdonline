@@ -5,7 +5,7 @@
 | 工具 | 版本 |
 |---|---|
 | JDK | 8 |
-| Maven | 3.6+ |
+| Maven | 3.6+（`backend/.mvn/maven.config` 自动 `-s .mvn/settings.xml`，走阿里云公共仓，绕过本机 JD Artifactory） |
 | Node.js | 16+ |
 | Yarn | 1.x |
 | MySQL | 8 |
