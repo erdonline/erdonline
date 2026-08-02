@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 修复：Railway healthcheck 连续失败（liveness + Redis 密码 + logback）
+
+- 现象：镜像推送 OK，`/actuator/health` Attempt #1–#8 service unavailable（约 2min+）→ 进程未听端口或聚合 health 因 db/redis DOWN 返回 503
+- 日志 WARN `Could not find … com.erdonline.common.log/base-logback.xml`：**不阻断启动**；根因是目录名以 `.log` 结尾被根 `.gitignore` 的 `*.log` 忽略，Git/Docker 构建缺资源 → 无 appender、真实 DB 错误看不见
+- 崩溃循环证据：Martin banner + logback WARN 约每 10s 重复、从未 `Started` → 进程退出被 Railway 拉起；**不是** health 路径本身
+- `logback-spring.xml` → include 已入库 `base-logback.xml`（旧路径目录名以 `.log` 结尾被 `*.log` gitignore，Docker 镜像缺文件）
+- `base-logback.xml`：`prod` 仅 STDOUT（避免修好 include 后写 `logs/` 再在只读容器翻车）
+- probes + `railway.toml` → `/actuator/health/liveness`；`REDIS_PASSWORD`；`deployment.md` 自查表
+
+验证点：`jar tf … | rg base-logback` 命中根路径；本地 `curl …/health/liveness` → UP；Redeploy 后日志应出现正常 Boot 行或真实 DB/Redis 错误（不再只有 No appenders）
+
 #### 体验：关系图/设计器空态构图打磨（ADR-0016）
 
 - 选题：空态构图（设计器首印象）— 替换粉红卡通 `EmptyStateAnimation`，画布空态补 ER 剪影 + 主/次 CTA

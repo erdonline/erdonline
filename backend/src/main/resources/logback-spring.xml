@@ -3,7 +3,9 @@
     <!-- 定义模块名-->
     <springProperty scop="context" name="SPRING_APPLICATION_NAME" source="spring.application.name"
                     defaultValue="martin-extension-ncnb"/>
-    <!--引用公共日志-->
-    <include resource="com.erdonline.common.log/base-logback.xml"/>
+    <!-- 引用 classpath 根下已入库的 base-logback.xml。
+         勿用 com.erdonline.common.log/…：目录名以 .log 结尾会被根 .gitignore 的 *.log 整目录忽略，
+         Docker/Railway 从 Git 构建时 include 失败 → No appenders。 -->
+    <include resource="base-logback.xml"/>
 
 </configuration>

@@ -56,6 +56,7 @@ spring:
   redis:
     host: ${REDIS_HOST:localhost}
     port: ${REDIS_PORT:6379}
+    password: ${REDIS_PASSWORD:}
     database: ${REDIS_DB:0}
   servlet:
     multipart:
@@ -133,6 +134,15 @@ management:
     health:
       # actuator 已在 ignore-urls 匿名可达：只给 UP/DOWN，不泄露数据源细节
       show-details: never
+      # PaaS（Railway）部署门禁用 liveness（进程已听端口即可）；
+      # 聚合 /actuator/health 仍含 db/redis，依赖未就绪时会 503
+      probes:
+        enabled: true
+  health:
+    livenessstate:
+      enabled: true
+    readinessstate:
+      enabled: true
   info:
     env:
       enabled: false
