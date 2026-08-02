@@ -1,5 +1,5 @@
 /**
- * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs）。
+ * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs / default→defaultValue）。
  * @dbml/core 经 dynamic import 懒加载，避免设计器首屏打包体积膨胀。
  */
 
@@ -10,6 +10,8 @@ export type ProjectJsonField = {
   pk: boolean;
   notNull: boolean;
   autoIncrement: boolean;
+  /** 默认值；字符串字面量带单引号（如 `'pending'`），表达式/数字原样 */
+  defaultValue?: string;
 };
 
 export type ProjectJsonIndex = {
@@ -54,6 +56,11 @@ type DbmlType = {
   args?: string | null;
 };
 
+type DbmlDefault = {
+  type?: string;
+  value?: string | number | boolean | null;
+};
+
 type DbmlField = {
   name: string;
   type?: DbmlType;
@@ -61,6 +68,7 @@ type DbmlField = {
   not_null?: boolean;
   increment?: boolean;
   note?: string | null;
+  dbdefault?: DbmlDefault | null;
 };
 
 type DbmlIndexColumn = {
@@ -168,9 +176,32 @@ function relationCode(a: string | undefined, b: string | undefined): '1:1' | '1:
   return '1:n';
 }
 
+/** DBML dbdefault → projectJSON defaultValue（对齐 DDL 模板约定） */
+export function mapDbmlDefault(dbdefault: DbmlDefault | null | undefined): string | undefined {
+  if (dbdefault == null || dbdefault.value === undefined || dbdefault.value === null) {
+    return undefined;
+  }
+  const kind = String(dbdefault.type || '').toLowerCase();
+  const raw = dbdefault.value;
+  if (kind === 'string') {
+    const s = String(raw).replace(/'/g, "''");
+    return `'${s}'`;
+  }
+  if (kind === 'number') {
+    return String(raw);
+  }
+  if (kind === 'boolean') {
+    return raw === true || raw === 'true' ? 'TRUE' : 'FALSE';
+  }
+  // expression 及其它：原样（如 now() / CURRENT_TIMESTAMP）
+  const expr = String(raw).trim();
+  return expr || undefined;
+}
+
 function mapField(field: DbmlField): ProjectJsonField {
   const pk = Boolean(field.pk);
-  return {
+  const defaultValue = mapDbmlDefault(field.dbdefault);
+  const mapped: ProjectJsonField = {
     name: field.name,
     chnname: noteToChnname(field.note),
     type: mapDbmlTypeName(field.type?.type_name),
@@ -178,6 +209,10 @@ function mapField(field: DbmlField): ProjectJsonField {
     notNull: pk || Boolean(field.not_null),
     autoIncrement: Boolean(field.increment),
   };
+  if (defaultValue !== undefined) {
+    mapped.defaultValue = defaultValue;
+  }
+  return mapped;
 }
 
 function mapIndex(index: DbmlIndex, tableName: string): ProjectJsonIndex | null {

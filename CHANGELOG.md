@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：DBML `default` ↔ `fields[].defaultValue` 双向映射
+
+**功能**
+
+- `toProjectJSON`：`[default: …]` / `dbdefault` → `defaultValue`（string→`'…'`，number 原样，expression 原样，boolean→`TRUE`/`FALSE`）
+- `fromProjectJSON`：`defaultValue` → `[default: …]`（字面量/数字/表达式分别还原）
+- fixture `minimal.dbml` 补 `name` 默认 `'guest'`；导入/导出弹层文案同步（索引已映射，不再写「不导入索引」）
+
+**测试 / 文档**
+
+- 单测 `mapDbmlDefault` / `formatDefaultAttr` + round-trip 含 default；`data-format.md` 映射表；roadmap DBML default 收口；regression-checklist
+
+验证点：`cd frontend && yarn test:unit:dbml` → all passed；`npx playwright test --grep "DBML" --project=chromium --workers=1` → 2 passed
+
 #### 功能：自部署 DX — 验收脚本 + 升级路径演练（P5 缺口 ✅）
 
 **功能**
