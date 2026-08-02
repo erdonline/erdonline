@@ -501,14 +501,26 @@
       gap: 6px;
       padding-right: 12px;
 
-      .erd-field-pk-toggle {
+      .erd-field-pk-toggle,
+      .erd-field-meta-toggle {
         display: flex;
         align-items: center;
         gap: 3px;
         font-size: 11px;
-        color: var(--erd-warning);
         white-space: nowrap;
         cursor: pointer;
+      }
+
+      .erd-field-pk-toggle {
+        color: var(--erd-warning);
+      }
+
+      .erd-field-nn-toggle {
+        color: var(--erd-ink-600);
+
+        input:disabled {
+          cursor: not-allowed;
+        }
       }
 
       .erd-field-input {

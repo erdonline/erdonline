@@ -1160,6 +1160,55 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('编辑态非空勾选即时 save-status；空名 toast 保留', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fnn');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fnn', 'edit notNull save-status');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('NAME');
+
+      const nnBox = node.getByRole('checkbox', { name: '非空' });
+      await expect(nnBox).not.toBeChecked();
+      await expect(nnBox).toBeEnabled();
+      await nnBox.check();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await node.getByRole('textbox', { name: '字段名' }).press('Escape');
+
+      // 再进编辑：非空仍勾选；取消后即时落盘；空名 toast 路径不变
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('checkbox', { name: '非空' })).toBeChecked();
+      await node.getByRole('checkbox', { name: '非空' }).uncheck();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await node.getByRole('textbox', { name: '字段名' }).fill('');
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await expectToast(page, '字段名不能为空');
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await node.getByRole('textbox', { name: '字段名' }).fill('NAME');
+      await node.getByRole('textbox', { name: '字段名' }).press('Escape');
+
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('checkbox', { name: '非空' })).not.toBeChecked();
+      await node.getByRole('textbox', { name: '字段名' }).press('Escape');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');
