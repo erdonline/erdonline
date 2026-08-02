@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 基础设施：托管拓扑 1–3（ADR-0018）— CF Pages + GHCR，无 VPS
+
+**功能 / 运维**
+
+- 文档站：`docs-site.yml` 保留 GitHub Pages，并在配置 secrets 后部署 Cloudflare Pages（`erdonline-docs`）；`DOCUSAURUS_*` 区分 baseUrl
+- 静态 demo：`frontend-demo-site.yml` → CF Pages `erdonline-demo`；`DEMO_API_URL` 可选（可空）
+- 发版：`release.yml` Node 20、先 `test` 再打包；推送 `ghcr.io/erdonline/erdonline-{backend,frontend}`
+- `docker-compose.yml` 默认 `image: ghcr.io/...`，本地仍可 `build`
+- Dockerfile：backend Temurin 17；frontend Node 20 + `build:prod`
+- ADR-0018 + `deployment.md` 官方托管拓扑 / secrets 说明
+
+验证点：`actionlint` 检查 `docs-site.yml` / `frontend-demo-site.yml` / `release.yml` → 无 error（CF 部署以 Variable `CLOUDFLARE_PAGES_DEPLOY=true` 门闸，避免 job-level secrets 上下文问题）
+
 #### 功能：图内分组 Frame Phase 2b（ADR-0017）— 视觉框 + 显式成员
 
 **功能**

@@ -9,5 +9,11 @@ yarn start    # http://localhost:3000/erdonline/
 yarn build && yarn serve   # 验证本地搜索（构建后才有完整索引）
 ```
 
-GitHub Pages：`baseUrl` 默认 `/erdonline/`，按实际仓库名调整 `docusaurus.config.js`。  
-部署：合并到 `main` 后由 `docs-site.yml` 上传；首次需在仓库 Settings → Pages 启用 Actions。
+`baseUrl` / `url` 可由环境变量覆盖（默认 GH Pages：`/erdonline/`）：
+
+```bash
+DOCUSAURUS_URL=https://erdonline-docs.pages.dev DOCUSAURUS_BASE_URL=/ yarn build
+```
+
+部署：合并到 `main` 后由 `docs-site.yml` 推送 **GitHub Pages**（回退）与 **Cloudflare Pages**（项目 `erdonline-docs`，需 `CLOUDFLARE_API_TOKEN` + `CLOUDFLARE_ACCOUNT_ID`）。  
+首次 GH Pages：仓库 Settings → Pages → Source 选 **GitHub Actions**。详见 `docs/deployment.md`。

@@ -3,8 +3,9 @@
 const config = {
   title: 'ERD Online',
   tagline: '数据库设计的 Git + Figma',
-  url: 'https://erdonline.github.io',
-  baseUrl: '/erdonline/',
+  // GH Pages: /erdonline/；Cloudflare Pages（根域）: DOCUSAURUS_BASE_URL=/
+  url: process.env.DOCUSAURUS_URL || 'https://erdonline.github.io',
+  baseUrl: process.env.DOCUSAURUS_BASE_URL || '/erdonline/',
   organizationName: 'erdonline',
   projectName: 'erdonline',
   // CI / Pages：死链应失败；本地改文档时可临时改为 warn

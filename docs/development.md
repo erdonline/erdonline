@@ -138,7 +138,9 @@ cd website && yarn build           # 产物 website/build；死链会失败
 ```
 
 消费仓库 `docs/`（ADR-0003）。本地中文搜索：`@easyops-cn/docusaurus-search-local`（需 `yarn build && yarn serve` 验证索引；dev 下索引可能不全）。  
-CI：`.github/workflows/docs-site.yml`（PR 构建；`main` 推送部署 GitHub Pages）。仓库 Settings → Pages → Source 选 **GitHub Actions**。
+CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → GitHub Pages **且**（若已配 secrets）Cloudflare Pages `erdonline-docs`）。  
+回退：无 `CLOUDFLARE_*` secrets 时仅 GH Pages。仓库 Settings → Pages → Source 选 **GitHub Actions**。  
+静态 demo：`.github/workflows/frontend-demo-site.yml` → CF 项目 `erdonline-demo`（见 [deployment.md](./deployment.md) 托管拓扑）。
 
 ## 协作 Presence（SocketIO）
 

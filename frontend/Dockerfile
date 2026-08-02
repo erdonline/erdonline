@@ -1,10 +1,13 @@
 # ---- build stage ----
-FROM node:16-alpine AS build
+FROM node:20-alpine AS build
 WORKDIR /app
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile
 COPY . .
-RUN yarn build
+# Empty bake-in; compose/k8s rewrite via docker-entrypoint.sh at container start.
+ENV API_URL=
+ENV ERD_API_URL=
+RUN yarn build:prod
 
 # ---- runtime stage ----
 FROM nginx:stable-alpine

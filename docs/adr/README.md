@@ -21,3 +21,5 @@
 | [0014](./0014-drop-or-strangle-ant-pro.md) | @ant-design/pro-components Strangler 摘除（依赖已移除） | ✅ 已落地 · B |
 | [0015](./0015-tomcat-max-http-header-size.md) | Boot 3 提高 `max-http-request-header-size`（JWT 头溢出→HTML 400） | 已接受 |
 | [0016](./0016-experience-first-shareable-diagram.md) | 体验优先：「敢分享的美图」主线（ICP 混合） | 已接受 |
+| [0017](./0017-multi-diagram-and-entity-editor.md) | 多关系图 + 实体编辑器（含图内分组 Frame） | 已接受 · 分阶段 |
+| [0018](./0018-hosting-topology-no-vps.md) | 托管拓扑：GitHub + Cloudflare 免费档，不买生产 VPS | 已接受 |

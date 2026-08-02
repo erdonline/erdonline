@@ -36,6 +36,8 @@ services:
       retries: 10
 
   backend:
+    # Prefer prebuilt GHCR image; `docker compose build backend` still builds from ./backend
+    image: ghcr.io/erdonline/erdonline-backend:${ERD_IMAGE_TAG:-latest}
     build:
       context: ./backend
     container_name: erd-backend
@@ -62,6 +64,7 @@ services:
       - "9092:9092"
 
   frontend:
+    image: ghcr.io/erdonline/erdonline-frontend:${ERD_IMAGE_TAG:-latest}
     build:
       context: ./frontend
     container_name: erd-frontend
