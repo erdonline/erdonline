@@ -1,5 +1,3 @@
-USE `erd`;
-
 CREATE TABLE `oauth_client_details` (
                                         `ID` varchar(45) NOT NULL COMMENT '主键',
                                         `CLIENT_ID` varchar(48) NOT NULL COMMENT '客户端唯一标识',

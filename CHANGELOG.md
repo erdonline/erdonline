@@ -10,8 +10,9 @@
 
 #### 运维：`db/init/02_tables.sql` 仅 CREATE TABLE
 
-- 去掉 `--`/`/* */`、`SET NAMES`、`SET FOREIGN_KEY_CHECKS`、全部 `DROP TABLE`；仅保留 `USE erd` + `CREATE TABLE`（内联索引）；QRTZ 表按 FK 拓扑重排
-  验证点：`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run`；临时库 `erd_schema_test` 导入成功（47 表，含 `sys_user`/`project`/`QRTZ_TRIGGERS`）
+- 去掉 `--`/`/* */`、`SET NAMES`、`SET FOREIGN_KEY_CHECKS`、全部 `DROP TABLE`、以及 `USE`；仅保留 `CREATE TABLE`（含表内索引；列/表 `COMMENT '…'` 元数据保留）；QRTZ 含 FK 子表排在 `QRTZ_TRIGGERS` 之后
+- `railway-mysql-init.sh` 导入 `02` 时显式指定库 `erd`（docker 空卷靠 `MYSQL_DATABASE=erd`）
+  验证点：`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run`；临时库导入 `02_tables.sql` 成功（47 表，含 `sys_user`/`project`/`project_share`/`data_sources`）；文件无 `SET`/`DROP`/`USE`/`--` 注释
 
 #### 体验：选中光晕统一（表 a18 = Frame a18 · ADR-0016）
 
