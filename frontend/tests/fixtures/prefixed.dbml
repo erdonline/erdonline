@@ -1,0 +1,30 @@
+Project PrefixedFrames {
+  database_type: 'MySQL'
+  Note: '前缀分组导入'
+}
+
+Table sys_user {
+  id integer [pk, increment]
+  name varchar
+  Note: '用户'
+}
+
+Table sys_role {
+  id integer [pk]
+  code varchar
+  Note: '角色'
+}
+
+Table biz_order {
+  id integer [pk]
+  user_id integer [ref: > sys_user.id]
+  amount integer
+  Note: '订单'
+}
+
+Table biz_item {
+  id integer [pk]
+  order_id integer [ref: > biz_order.id]
+  title varchar
+  Note: '明细'
+}

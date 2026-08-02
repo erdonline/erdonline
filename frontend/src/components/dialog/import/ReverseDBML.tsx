@@ -104,7 +104,16 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         const ents = (m as {entities?: unknown[]}).entities;
         return acc + (Array.isArray(ents) ? ents.length : 0);
       }, 0);
-      message.success(`DBML 导入成功（${n} 张表）`);
+      const frameN = resultModules.reduce((acc, m) => {
+        const diagrams = (m as {diagrams?: Array<{groups?: unknown[]}>}).diagrams;
+        const groups = diagrams?.[0]?.groups;
+        return acc + (Array.isArray(groups) ? groups.length : 0);
+      }, 0);
+      message.success(
+        frameN > 0
+          ? `DBML 导入成功（${n} 张表，已建议 ${frameN} 个分组）`
+          : `DBML 导入成功（${n} 张表）`,
+      );
     }
     setOpen(false);
     setPaste('');

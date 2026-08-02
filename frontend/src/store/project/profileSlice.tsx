@@ -22,6 +22,7 @@ import {
   upsertDiagramLayout,
 } from '@/utils/diagram';
 import { resolveEntityPositions } from '@/utils/graphLayout';
+import { suggestImportFrames } from '@/utils/suggestImportFrames';
 
 export type IProfileSlice = {
   currentDbKey?: string;
@@ -453,6 +454,21 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           position: positions[e.title],
         })),
       );
+      // ADR-0016：逆向自动布局后若尚无 Frame，按前缀/连通分量建议分组
+      if (!Array.isArray(diagram.groups) || diagram.groups.length === 0) {
+        const suggested = suggestImportFrames({
+          entities: ents,
+          associations: m.associations || [],
+          layoutNodes: ents.map((e: any) => ({
+            id: e.title,
+            x: positions[e.title]?.x ?? 0,
+            y: positions[e.title]?.y ?? 0,
+          })),
+        });
+        if (suggested.length > 0) {
+          diagram.groups = suggested;
+        }
+      }
       return next;
     });
     tempData = {

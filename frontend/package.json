@@ -38,7 +38,7 @@
     "test:e2e": "playwright test",
     "test:e2e:serial": "playwright test --project=chromium-serial",
     "test:unit:canvas-history": "npx --yes tsx src/store/project/canvasHistory.test.ts",
-    "test:unit:dbml": "npx --yes tsx src/utils/graphLayout.test.ts && npx --yes tsx src/utils/dbml/toProjectJSON.test.ts && npx --yes tsx src/utils/dbml/fromProjectJSON.test.ts",
+    "test:unit:dbml": "npx --yes tsx src/utils/graphLayout.test.ts && npx --yes tsx src/utils/suggestImportFrames.test.ts && npx --yes tsx src/utils/dbml/toProjectJSON.test.ts && npx --yes tsx src/utils/dbml/fromProjectJSON.test.ts",
     "validate:projectjson": "node ../scripts/validate-projectjson.mjs",
     "tsc": "tsc --noEmit"
   },

@@ -174,7 +174,68 @@ async function main() {
       postsNode!.x < usersNode!.x,
       `期望 posts.x < users.x，得 ${postsNode!.x} / ${usersNode!.x}`,
     );
+    assert.equal(
+      mod.diagrams[0].groups?.length ?? 0,
+      0,
+      'users/posts 无前缀簇、单连通分量 → 不建议 Frame',
+    );
     tryValidateSchema(json);
+  });
+
+  await run('databaseToProjectJSON：前缀表建议 Frame', () => {
+    const json = databaseToProjectJSON({
+      name: 'prefixed',
+      note: '前缀',
+      schemas: [
+        {
+          tables: [
+            {
+              name: 'sys_user',
+              fields: [{ name: 'id', pk: true, type: { type_name: 'integer' } }],
+            },
+            {
+              name: 'sys_role',
+              fields: [{ name: 'id', pk: true, type: { type_name: 'integer' } }],
+            },
+            {
+              name: 'biz_order',
+              fields: [
+                { name: 'id', pk: true, type: { type_name: 'integer' } },
+                { name: 'user_id', type: { type_name: 'integer' } },
+              ],
+            },
+            {
+              name: 'biz_item',
+              fields: [
+                { name: 'id', pk: true, type: { type_name: 'integer' } },
+                { name: 'order_id', type: { type_name: 'integer' } },
+              ],
+            },
+          ],
+          refs: [
+            {
+              endpoints: [
+                { tableName: 'biz_order', fieldNames: ['user_id'], relation: '*' },
+                { tableName: 'sys_user', fieldNames: ['id'], relation: '1' },
+              ],
+            },
+            {
+              endpoints: [
+                { tableName: 'biz_item', fieldNames: ['order_id'], relation: '*' },
+                { tableName: 'biz_order', fieldNames: ['id'], relation: '1' },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    const groups = json.modules[0].diagrams[0].groups || [];
+    assert.equal(groups.length, 2);
+    const names = groups.map((g) => g.name).sort();
+    assert.deepEqual(names, ['biz', 'sys']);
+    const sys = groups.find((g) => g.name === 'sys')!;
+    assert.deepEqual(sys.memberEntityIds.sort(), ['sys_role', 'sys_user']);
+    assert.ok(sys.w > 0 && sys.h > 0);
   });
 
   await run('dbmlToProjectJSON：真实 @dbml/core 解析含 indexes + default', async () => {

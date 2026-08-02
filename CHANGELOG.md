@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 体验：导入后 Frame 自动建议（ADR-0016）
+
+- 选题：空态构图 vs 导入 Frame → 选后者（分享首印象：导入多表立刻有分组层次，空态 CTA 已可用）
+- `suggestImportFrames`：表名前缀优先（`sys_*`/`biz_*`），否则 ≥2 连通分量；禁单前缀/单分量整图大框
+- DBML `databaseToProjectJSON` 与 JDBC 逆向自动布局路径写入 `diagrams[].groups`；toast「已建议 N 个分组」
+- fixture `prefixed.dbml`；截图 `diagram-import-frame-suggest.png`
+
+验证点：`cd frontend && yarn test:unit:dbml`；`cd frontend && npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "前缀表" --workers=1 --retries=0`
+
 #### 体验：边标签 chip 可读性（ADR-0016）
 
 - 基数标签：白底 `surface` + `line` 描边 + `ink600` 字 + 11px/500；禁与画布 `surfaceSunk` 同色、禁整块 `opacity` 冲淡文字

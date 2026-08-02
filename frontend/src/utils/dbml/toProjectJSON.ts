@@ -6,6 +6,7 @@
 
 import { DEFAULT_DIAGRAM_ID, DEFAULT_DIAGRAM_NAME } from '../diagram';
 import { graphCanvasNodesFromDagre } from '../graphLayout';
+import { suggestImportFrames } from '../suggestImportFrames';
 
 export type ProjectJsonField = {
   name: string;
@@ -51,6 +52,16 @@ export type ProjectJsonModule = {
     id: string;
     name: string;
     layout: { nodes: Array<{ id: string; x: number; y: number }> };
+    groups?: Array<{
+      id: string;
+      name: string;
+      color?: string;
+      x: number;
+      y: number;
+      w: number;
+      h: number;
+      memberEntityIds: string[];
+    }>;
   }>;
 };
 
@@ -308,6 +319,11 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
   const moduleChn = noteToChnname(database.note) || 'DBML导入';
 
   const layoutNodes = graphCanvasNodesFromDagre(entities, associations);
+  const suggestedGroups = suggestImportFrames({
+    entities,
+    associations,
+    layoutNodes,
+  });
   const mod: ProjectJsonModule = {
     name: moduleName,
     chnname: moduleChn,
@@ -322,6 +338,7 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
         id: DEFAULT_DIAGRAM_ID,
         name: DEFAULT_DIAGRAM_NAME,
         layout: { nodes: layoutNodes },
+        ...(suggestedGroups.length > 0 ? { groups: suggestedGroups } : {}),
       },
     ],
   };
