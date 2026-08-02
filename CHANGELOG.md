@@ -8,6 +8,13 @@
 
 ### 2026-08-02
 
+#### 体验：表节点卡片层次（ADR-0016 敢分享的美图）
+
+- 新增 `surfaceMuted` / `--erd-surface-muted`；表头实底替换 `#f3f5f7` 渐变
+- 字段行发丝分隔 + PK（及 PK+FK）左侧色条，与表头 brand 条同构；设计器/分享共用 `reactflow-relation.scss`
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉" --workers=1 --retries=0`
+
 #### 体验：分享只读同路由 + 密 hub 扇出（ADR-0016）
 
 - 确认设计器 / 分享共用 `ErdRelationEdge` + `associationsToEdges`；两侧传入 layout `positions` 作 hub 扇出提示

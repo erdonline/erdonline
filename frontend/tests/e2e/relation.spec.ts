@@ -208,6 +208,12 @@ test.describe('关系图画布（ReactFlow）', () => {
       // ink900 #0B1C2C
       expect(titleColor).toBe('rgb(11, 28, 44)');
 
+      const headerBg = await node.locator('.erd-table-header').evaluate(
+        (el) => getComputedStyle(el).backgroundColor,
+      );
+      // surfaceMuted #F3F5F7
+      expect(headerBg).toBe('rgb(243, 245, 247)');
+
       const canvasBg = await page.getByTestId('reactflow-canvas').evaluate(
         (el) => getComputedStyle(el).backgroundColor,
       );
@@ -259,6 +265,12 @@ test.describe('关系图画布（ReactFlow）', () => {
 
       const pkRow = rfNode(page, 'T_TABLE_1').locator('.erd-field-row.erd-field-pk').first();
       await expect(pkRow.locator('.erd-pk-badge.active')).toBeVisible();
+      const pkAccent = await pkRow.evaluate((el) => {
+        const before = getComputedStyle(el, '::before');
+        return { w: before.width, bg: before.backgroundColor };
+      });
+      expect(pkAccent.w).toBe('2px');
+      expect(pkAccent.bg).toBe('rgb(212, 136, 6)');
 
       const titleFont = await orderNode.locator('.erd-table-title').evaluate(
         (el) => getComputedStyle(el).fontFamily,
