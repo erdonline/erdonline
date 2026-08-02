@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：分享 meta hint/描述密度（ADR-0016）
+
+- 选题：视口铺满 + 表清单折叠后，hint/描述仍用 13px + 12 间距抢纵向；画布应再涨一截
+- `.share-page__meta`：gap 4、hint/描述 12/18、描述单行 ellipsis+tooltip；stage pad 8×12；模块 Segmented `small`；折叠条 24
+- Segmented `diagram-switcher` / 表清单折叠 affordance 保留；`demo.spec` 断言 metaH≤72 且画布 ≥视口 55%；截图 `demo-share-meta-dense.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "设计器分享后匿名打开" --workers=1 --retries=0`
+
 #### 体验：分享只读表清单折叠（ADR-0016）
 
 - 选题：视口铺满后表清单仍展开占纵向注意力；图应为主、清单按需展开

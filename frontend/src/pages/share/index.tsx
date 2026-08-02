@@ -291,15 +291,21 @@ const SharePage: React.FC = () => {
       </header>
       <main className="share-page__body">
         <div className="share-page__stage" data-testid="share-canvas-stage">
-          <div className="share-page__meta">
+          <div className="share-page__meta" data-testid="share-page-meta">
             <p className="share-page__hint">
-              匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。
+              匿名只读 · 登录后可「复制到我的项目」继续编辑并保存版本
             </p>
             {data?.description ? (
-              <Typography.Paragraph className="share-page__desc">{data.description}</Typography.Paragraph>
+              <Typography.Paragraph
+                className="share-page__desc"
+                ellipsis={{ rows: 1, tooltip: true }}
+              >
+                {data.description}
+              </Typography.Paragraph>
             ) : null}
             {modules.length > 1 ? (
               <Segmented
+                size="small"
                 className="share-page__module-switch"
                 value={moduleKey}
                 onChange={(v) => onModuleChange(String(v))}
