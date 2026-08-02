@@ -1,6 +1,7 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Button, Form, Input, Modal, Switch, Tabs, Upload, message} from 'antd';
 import './index.less';
+import '../io-modal.scss';
 import DefaultField from '@/components/dialog/setup/DefaultField';
 import * as cache from '@/utils/cache';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -97,9 +98,12 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
         destroyOnClose
         width={720}
         forceRender
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
       >
-        <Form form={form} layout="vertical" preserve={false}>
+        <Form form={form} layout="vertical" size="small" preserve={false}>
           <Tabs
+            size="small"
             activeKey={tab}
             onChange={setTab}
             items={[

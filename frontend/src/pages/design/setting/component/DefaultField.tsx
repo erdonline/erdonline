@@ -3,6 +3,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {message} from "antd";
 import JExcel from "@/pages/JExcel";
+import './setting-common.scss';
 
 
 export type DefaultFieldProps = {};
@@ -134,14 +135,22 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
   const sheetKey = `df-${sheetData.length}-${sheetData[0]?.name || 'empty'}`;
 
   return (
-    <div data-testid="default-field-page" data-field-count={sheetData.length}>
-      <JExcel
-        key={sheetKey}
-        data={sheetData}
-        columns={columns}
-        saveData={afterChange}
-        notEmptyColumn={['chnname', 'name', 'typeName']}
-      />
+    <div
+      className="setting-common-page"
+      data-testid="default-field-page"
+      data-field-count={sheetData.length}
+    >
+      <h2 className="setting-common-page__title">默认字段设置</h2>
+      <p className="setting-common-page__hint">新建表时自动带入下列字段；编辑后即时保存</p>
+      <div className="setting-common-page__sheet">
+        <JExcel
+          key={sheetKey}
+          data={sheetData}
+          columns={columns}
+          saveData={afterChange}
+          notEmptyColumn={['chnname', 'name', 'typeName']}
+        />
+      </div>
     </div>
   )
 }
