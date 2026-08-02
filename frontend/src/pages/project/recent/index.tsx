@@ -1,5 +1,4 @@
-import {ProList} from '@ant-design/pro-components';
-import {message, Space, Tag} from 'antd';
+import {Avatar, Input, List, message, Space, Tag, Typography} from 'antd';
 import {useEffect, useState} from "react";
 import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import OpenProject from "@/components/dialog/project/OpenProject";
@@ -19,6 +18,7 @@ type ProjectItem = {
   updateTime: string;
   creator: string;
   createTime: string;
+  avatar?: string;
 };
 
 export function searchProjects(fetchProjects: (params: any) => void, state: ProjectListProps, value: string) {
@@ -68,94 +68,75 @@ export default () => {
     fetchProjects(state);
   }, [state.page, state.order]);
 
-  return <ProList<ProjectItem>
-    size={'large'}
-    loading={listLoading}
-    toolbar={{
-      menu: {
-        items: [
-          {
-            key: 'tab1',
-            label: <span>最近项目 「个人 + 团队」</span>,
-          },
-        ],
-      },
-      search: {
-        size: 'middle',
-        placeholder: '项目名',
-        onSearch: (value: string) => {
-          searchProjects(fetchProjects, state, value);
-        },
-      },
-    }}
-    rowKey="projectName"
-    dataSource={state.projects}
-    pagination={{
-      pageSize: state.limit,
-      total: state.total,
-      onChange: (page: number, pageSize: number) => {
-        setState({
-          ...state,
-          page,
-          limit: pageSize
-        })
-      }
-    }}
-    metas={{
-      title: {
-        dataIndex: 'projectName',
-        title: '项目名称',
-        render: (text, row) => (
-          <a
-            href={'/design/table/model?projectId=' + row.id}
-            onClick={(e) => {
-              e.preventDefault();
-              cache.setItem(CONSTANT.PROJECT_ID, row.id);
-              history.push({pathname: '/design/table/model?projectId=' + row.id});
-            }}
-          >{text}</a>
-        ),
-      },
-      avatar: {
-        dataIndex: 'avatar',
-        search: false,
-
-      },
-      description: {
-        dataIndex: 'description',
-        search: false,
-
-      },
-      content: {
-        dataIndex: 'updateTime',
-        render: (text) => (
-          <div key="updateTime" style={{color: '#00000073'}}>{text}</div>
-        ),
-      },
-      subTitle: {
-        render: (_, row) => {
-
-          return (
-            <Space size={0}>
-              <Tag color={'blue'} key={row.projectName}>
-                {row.type === '1' ? <UserOutlined/> : <TeamOutlined/>}
-              </Tag>
-              {row.tags?.split(",").map((m: string, i: number) => {
-                return <Tag color={i % 2 == 0 ? "#5BD8A6" : "blue"} key={m + i}>{m}</Tag>
-              })}
-            </Space>
-
-          );
-        },
-        dataIndex: 'type',
-        search: false,
-      },
-      actions: {
-        render: (text, row) => [
-          <OpenProject project={row} key={'OpenProject' + row.id}/>
-        ],
-        search: false,
-      },
-    }}
-  />
+  return (
+    <div data-testid="project-recent-page">
+      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8}}>
+        <Typography.Title level={4} style={{margin: 0}}>最近项目 「个人 + 团队」</Typography.Title>
+        <Input.Search
+          size="middle"
+          placeholder="项目名"
+          allowClear
+          onSearch={(value: string) => {
+            searchProjects(fetchProjects, state, value);
+          }}
+          style={{width: 200}}
+          aria-label="搜索项目名"
+        />
+      </div>
+      <List<ProjectItem>
+        size="large"
+        loading={listLoading}
+        itemLayout="horizontal"
+        rowKey="id"
+        dataSource={state.projects}
+        pagination={{
+          pageSize: state.limit,
+          total: state.total,
+          current: state.page,
+          onChange: (page: number, pageSize: number) => {
+            setState({
+              ...state,
+              page,
+              limit: pageSize
+            })
+          }
+        }}
+        renderItem={(row) => (
+          <List.Item
+            actions={[
+              <OpenProject project={row} key={'OpenProject' + row.id}/>
+            ]}
+          >
+            <List.Item.Meta
+              avatar={<Avatar src={row.avatar || '/logo.svg'} />}
+              title={
+                <a
+                  href={'/design/table/model?projectId=' + row.id}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    cache.setItem(CONSTANT.PROJECT_ID, row.id);
+                    history.push({pathname: '/design/table/model?projectId=' + row.id});
+                  }}
+                >{row.projectName}</a>
+              }
+              description={
+                <Space direction="vertical" size={4}>
+                  <span>{row.description}</span>
+                  <Space size={0} wrap>
+                    <Tag color={'blue'} key={row.projectName}>
+                      {row.type === '1' ? <UserOutlined/> : <TeamOutlined/>}
+                    </Tag>
+                    {row.tags?.split(",").filter(Boolean).map((m: string, i: number) => {
+                      return <Tag color={i % 2 == 0 ? "#5BD8A6" : "blue"} key={m + i}>{m}</Tag>
+                    })}
+                  </Space>
+                  <div style={{color: '#00000073'}}>{row.updateTime}</div>
+                </Space>
+              }
+            />
+          </List.Item>
+        )}
+      />
+    </div>
+  );
 };

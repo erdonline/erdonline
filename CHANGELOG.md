@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 13 — person / recent / group / dataModels / ExportCommon ProList → antd List
+
+**重构**
+
+- 个人/最近/团队项目列表：摘 `ProList` → antd `List` + 标题行 + `Input.Search`；行操作（改名/删除/打开/配置）与失败 toast 不变；个人空态 CTA testid 不变
+- 数据模型页 `dataModels`：摘 `ProList` 网格 → antd `List grid`；类型 `Select` + 搜索 + 行操作不变
+- 普通导出 `ExportCommon`：摘 `ProList` → antd `List grid`；`data-testid=export-common-*` + 键盘可点；标题「导出文件」不变
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 13 ✅；Pro 文件数 20→15
+  验证点：`rg '@ant-design/pro-components' …person/recent/group/dataModels/ExportCommon` = 0；`rg -l … | wc -l` → **15**；`npx playwright test project-surface layout-outlet loading export --project=chromium -g "个人项目|最近项目|HomeLayout|列表请求中|导出 Markdown|导出 HTML|/project/new|首页快捷|数据模型"` → **9 passed**（`project-activation` chromium-serial 空态因账号锁超时未计入；空态 CTA testid 代码保留）
+
 #### 重构：W4 切片 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd
 
 **重构**

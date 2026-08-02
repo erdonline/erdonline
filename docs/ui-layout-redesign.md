@@ -169,6 +169,7 @@
 | └ **W4 切片 10** ✅（2026-08-02） | **RebuildVersion** + **InitVersion** + setting 页 **DefaultSetUp**：`ModalForm`/`ProForm*` → antd `Modal`/`Form`；设置页路由保留 | RebuildVersion + InitVersion + setting DefaultSetUp | `version.spec`「重建版本弹窗可打开」；Pro 文件数 32→29 |
 | └ **W4 切片 11** ✅（2026-08-02） | **ResetPassword** + **AddUser** + dialog **ReversePdMan** / **ReverseERD**：`ModalForm`/`ProForm*` → antd `Modal` + `Form`/`Upload.Dragger` | 4 个对话框 ProForm | `import-pdman` / `import-erd` / `project-menu` 导入子菜单 + `account-settings` 修改密码弹窗；Pro 文件数 29→25 |
 | └ **W4 切片 12** ✅（2026-08-02） | **SqlApproval** + **BasicSetting** + **GroupSetting** + **notice** + **TableTab**：`ModalForm`/`ProForm`/`ProCard`/`ProList` → antd `Modal`/`Form`/`Tabs`/`List` | 5 个 Pro 文件 | `group-basic-setting` + `group-layout-nav` 权限组 + `project-notice` + `layout-outlet` GroupLayout basic；Pro 文件数 25→20 |
+| └ **W4 切片 13** ✅（2026-08-02） | **person / recent / group / dataModels / ExportCommon**：`ProList` → antd `List` + 标题行/`Input.Search`；空态 CTA 与 testid 不变 | 5 个 ProList 页 | `project-surface` + `project-activation` 空态 + `layout-outlet` person + `loading` 列表 loading + `export` 普通导出；Pro 文件数 20→15 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
