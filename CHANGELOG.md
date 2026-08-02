@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：dataTypeDomains 树图标清 `#DE2910` 硬编码（ADR-0016）
+
+- 选题：`getDataTypeTree` 四枚 icon-park 仍裸 `#DE2910`，与 DesignLayout / Home·Group `erdColors.brand` 割裂
+- `brandFill = erdColors.brand`；源码区无裸字面量（`tokens.ts` / `--erd-brand` 为唯一真相源）
+- 左树 UI 暂未挂载该入口 → 单测锁 fill；无 E2E
+
+验证点：
+- `cd frontend && npx tsx src/store/project/dataTypeDomainsSlice.test.ts`
+- `rg -n '#DE2910' frontend/src/store/project/dataTypeDomainsSlice.tsx` → 0（仅注释可提 brand）
+
 #### 体验：Export / Home·Group 壳清 `#DE2910` 硬编码（ADR-0016）
 
 - 选题：`ExportCommon` 与 Home/Group `_defaultProps` 导航图标仍裸 `#DE2910`，与 DesignLayout `erdColors.brand` / `--erd-brand` 割裂
