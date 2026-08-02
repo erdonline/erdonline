@@ -464,6 +464,18 @@
         letter-spacing: 0.01em;
         // 次要栏：与字段名拉开层次，避免密表糊成一块
         opacity: 0.88;
+
+        .erd-field-default {
+          color: var(--erd-ink-400);
+          font-weight: 400;
+          opacity: 0.92;
+          max-width: 5.5em;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          vertical-align: bottom;
+          display: inline-block;
+        }
       }
 
       .erd-field-handle {
@@ -537,8 +549,53 @@
     }
 
     .erd-field-editing {
-      gap: 6px;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 4px;
       padding-right: 12px;
+      // 编辑态双行：主栏控件 + 默认值次行（横向已满，禁止再挤名/中文名/类型）
+      min-height: auto;
+      height: auto;
+
+      .erd-field-edit-main {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+      }
+
+      .erd-field-edit-default {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        min-width: 0;
+        padding-left: 2px;
+      }
+
+      .erd-field-default-label {
+        flex: 0 0 auto;
+        color: var(--erd-ink-400);
+        font-size: 10px;
+        font-family: var(--erd-font-ui);
+        letter-spacing: 0.02em;
+      }
+
+      .erd-field-default-input {
+        flex: 1;
+        min-width: 0;
+        height: 22px;
+        padding: 0 6px;
+        border: 1px solid var(--erd-line);
+        border-radius: var(--erd-radius-sm);
+        font-size: 11px;
+        color: var(--erd-ink-600);
+        font-family: var(--erd-font-mono);
+        outline: none;
+
+        &:focus {
+          border-color: var(--erd-brand);
+        }
+      }
 
       .erd-field-pk-toggle,
       .erd-field-meta-toggle {
