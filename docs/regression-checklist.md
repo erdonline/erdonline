@@ -235,6 +235,11 @@
 - [x] [深链实验页] `/design/table/query` 见「实验功能」+ `design-query-page` ✅同上
 - [ ] [深链运行失败有 toast] 打开查询叶子 → 选非法 SQL 运行 → 见 error toast（手工；后端仍打应用库）
 
+## W6 Home 数据查询裁剪（2026-08-02）
+
+- [x] [无数据查询入口] `/home` 主导航无 link「数据查询」；仍有「数据模型」「数据源」✅ `home-data-query.spec.ts`
+- [x] [深链实验页] `/dataQuery` 见「实验功能」+ `home-data-query-page` ✅同上
+
 ## W6 账户设置基本资料（2026-08-02）
 
 - [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`
