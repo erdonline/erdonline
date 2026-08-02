@@ -125,7 +125,7 @@ export async function createAndOpenPersonProject(
   await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
 }
 
-/** 树节点：点 switcher 展开（结构必要；标题用可见文案） */
+/** 树节点：点 switcher 展开（幂等——默认展开后已开的节点不再点，否则会折叠） */
 export async function expandTreeTitle(
   page: import('@playwright/test').Page,
   title: string,
@@ -134,8 +134,14 @@ export async function expandTreeTitle(
     .locator('.ant-tree-treenode')
     .filter({ has: page.getByText(title, { exact: true }) })
     .first();
-  await node.locator('.ant-tree-switcher').click();
-  await page.waitForTimeout(300);
+  const switcher = node.locator('.ant-tree-switcher');
+  const expanded = await node.evaluate((el) =>
+    el.classList.contains('ant-tree-treenode-switcher-open'),
+  );
+  if (!expanded) {
+    await switcher.click();
+    await page.waitForTimeout(300);
+  }
 }
 
 /** 空态新增模型 → 展开 → 打开关系图 */

@@ -9,7 +9,6 @@ import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasH
 
 
 export type IModulesSlice = {
-  expandedKeys?: string[];
   currentModule?: string;
   currentModuleIndex?: number;
 }
@@ -48,15 +47,11 @@ export interface IModulesDispatchSlice {
   updateAllModules: (payload: any) => void,
   getModuleEntityTree: (searchKey: string, groupByType: boolean) => any,
   getModuleEntityFieldTree: () => any,
-  setExpandedKey: () => any,
-  setExpandedKeys: (expandedKey: any) => any,
-  getExpandedKeys: (expandedKey: any) => any,
 };
 
 const ERD_MODULE_CLIPBOARD = 'erd_module_clipboard';
 
 const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
-  expandedKeys: [],
   currentModule: '',
   currentModuleIndex: -1,
   addModule: (payload: any) => set(produce(state => {
@@ -444,29 +439,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
     });
   })),
-  setExpandedKey: () => set(produce(() => {
-    // 历史 API：曾写入 expandedKeys，现由 setExpandedKeys 统一管理
-  })),
-  setExpandedKeys: (expandedKeys: any) => set(produce(state => {
-    state.expandedKeys = expandedKeys;
-  })),
-  getExpandedKeys: (searchKey: string) => {
-    const tempExpandedKeys: any = [];
-    get().project.projectJSON?.modules?.forEach((module: any) => {
-      module?.entities?.filter((f: any) => {
-        if (searchKey && searchKey.length > 0) {
-          const flag = (f.name || f.title).search(_.escapeRegExp(searchKey)) >= 0;
-          if (flag) {
-            tempExpandedKeys.push(`module${module.name}`);
-          }
-          return flag
-        } else {
-          return true;
-        }
-      })
-    });
-    return tempExpandedKeys;
-  },
   ...EntitiesSlice(set, get),
 });
 

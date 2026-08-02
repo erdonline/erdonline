@@ -3,6 +3,20 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 模型设计 UX / ADR-0017 Phase 1（2026-08-02）
+
+### 已自动化
+
+- [x] 模型树「表/关系」默认展开：不点 switcher 即见三层 + `tree-open-relation` ✅`model-design-ux.spec.ts`
+- [x] 树虚拟滚动：`.ant-tree-list-holder` 承载（100+ 表不卡）✅`model-design-ux.spec.ts`
+- [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
+- [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
+
+### 手工
+
+- [ ] [大模型树滚动] 灌 100+ 表（`__ERD_E2E__.ensureTables`）→ 左树滚动流畅、搜索命中可见
+- [ ] [工作区留白] 模型设计/表设计页四边有 12px 留白，画布圆角面板不贴边
+
 ## 第 0 轮（2026-08-01）
 
 ### 已自动化（`yarn test:e2e` / CI e2e-smoke）
