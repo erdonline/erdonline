@@ -2,6 +2,26 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/design/table/query` 侧栏裁剪（2026-08-02）
+
+### 修复
+- DesignLayout `_defaultProps`：移除「查询」菜单（与 Chat SQL / 数据域同策略）
+  原因：`QueryInfoServiceImpl.exec` 经 MyBatis `${sql}` 打**应用库**，忽略前端所选数据源；非北极星主路径
+  验证点：项目菜单无 menuitem「查询」；无 `link`「查询」
+- `/design/table/query`：加「实验功能」Alert（`data-testid=design-query-page`）；路由保留深链
+  验证点：直达页见「实验功能」
+- 设计器查询 / Home `/dataQuery`：运行、执行计划、保存 SQL 失败/成功均有 antd message（消除静默失败）
+  验证点：手工清单「深链运行失败有 toast」；见 regression-checklist
+
+### 测试
+- 新增 `design-query.spec.ts`：项目菜单无「查询」+ 深链实验提示
+  验证点：`npx playwright test tests/e2e/design-query.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：查询菜单 → ✅；页内实验 📋；统计 ✅66 / 🚧26 / 📋4
+- `docs/roadmap.md` P2b 长尾已收查询侧栏裁剪
+- `docs/regression-checklist.md`：查询裁剪自动化 + 失败 toast 手工项
+
 ## [Unreleased] — W6 `/design/dataDomain` 侧栏裁剪（2026-08-02）
 
 ### 修复

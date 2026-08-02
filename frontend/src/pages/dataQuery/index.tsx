@@ -259,7 +259,12 @@ const DataQuery: React.FC<QueryProps> = (props) => {
           pageSize: size
         });
         setTab("result");
+        message.success(`执行成功，共 ${r.data.tableData.total ?? 0} 行`);
+      } else {
+        message.error(r?.msg || 'SQL 执行失败');
       }
+    }).catch(() => {
+      message.error('SQL 执行出错');
     });
   };
 
@@ -313,7 +318,12 @@ const DataQuery: React.FC<QueryProps> = (props) => {
                     total: r?.data?.tableData?.length
                   });
                   setTab("plan");
+                  message.success('执行计划已生成');
+                } else {
+                  message.error(r?.msg || '查看执行计划失败');
                 }
+              }).catch(() => {
+                message.error('查看执行计划出错');
               });
             }
           }

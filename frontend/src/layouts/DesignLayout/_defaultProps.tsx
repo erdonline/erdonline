@@ -2,7 +2,7 @@ import {
   Audit,
   Column,
   DatabaseDownload,
-  DatabaseNetwork, DatabaseSearch,
+  DatabaseNetwork,
   DataDisplay,
   Export,
   FileJpg,
@@ -115,11 +115,8 @@ export default {
           },
         ],
       },
-      {
-        path: '/design/table/query',
-        name: '查询',
-        icon: <DatabaseSearch theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
-      },
+      // 查询：侧栏已隐藏；路由 `/design/table/query` 保留实验深链。
+      // 原因：exec 走应用库 MyBatis `${sql}`，忽略所选数据源；失败曾静默；非北极星主路径。
     ],
   },
   location: {

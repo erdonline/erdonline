@@ -1,5 +1,5 @@
 import React, { ReactNode } from "react";
-import { Flex, Empty } from "antd";
+import { Flex, Empty, Alert } from "antd";
 import { Splitter } from 'antd';
 import "./index.scss";
 import TableTab from "@/pages/design/table/component/tab/TableTab";
@@ -10,6 +10,7 @@ import CommonTabs from '@/components/CommonTabs';
 import DataTable from '@/components/LeftContent/DesignLeftContent/component/DataTable';
 import EmptyStateAnimation from '@/components/EmptyStateAnimation';
 import useProjectStore from "@/store/project/useProjectStore";
+import { useLocation } from "@@/exports";
 
 // 修改 EmptyStateAnimation 的类型定义
 interface EmptyStateAnimationProps {
@@ -20,6 +21,8 @@ interface EmptyStateAnimationProps {
 }
 
 const Table: React.FC = () => {
+  const location = useLocation();
+  const isQueryExperimental = location.pathname === '/design/table/query';
   const tableTabs = useTabStore(state => state.tableTabs);
   const selectTabId = useTabStore(state => state.selectTabId);
   const tabDispatch = useTabStore(state => state.dispatch);
@@ -67,39 +70,50 @@ const Table: React.FC = () => {
   };
 
   return (
-    <Flex style={{ height: '100%' }}>
-      <Splitter>
-        <Splitter.Panel defaultSize="20%" min="10%" max="40%">
-          <DataTable />
-        </Splitter.Panel>
-        <Splitter.Panel style={{ overflow: 'hidden' }}>
-          <EmptyStateAnimation 
-            show={!selectTabId && modules && modules.length > 0}
-            description="快去创建/打开一个表吧！"
-          >
-            {modules && modules.length > 0 ? (
-              <CommonTabs
-                tabs={tableTabs}
-                activeKey={selectTabId}
-                onTabChange={onChange}
-                onTabEdit={onEdit}
-                renderTabContent={getTab}
-              />
-            ) : (
-              <EmptyStateAnimation 
-                show={true}
-                title="欢迎使用数据建模工具"
-                description={
-                  <span>
-                    从左侧开始创建一个模型，或者
-                    <a href="/design/table/import/reverse">从数据源逆向解析</a>
-                  </span>
-                }
-              />
-            )}
-          </EmptyStateAnimation>
-        </Splitter.Panel>
-      </Splitter>
+    <Flex vertical style={{ height: '100%' }} data-testid={isQueryExperimental ? 'design-query-page' : undefined}>
+      {isQueryExperimental && (
+        <Alert
+          type="info"
+          showIcon
+          style={{ margin: '8px 12px 0' }}
+          message="实验功能"
+          description="设计器「查询」侧栏入口已隐藏。本页仅深链保留：当前 SQL 执行走应用库而非所选数据源，勿当作生产查询台；主旅程请用建模 / 版本 / 逆向。"
+        />
+      )}
+      <Flex style={{ height: '100%', minHeight: 0, flex: 1 }}>
+        <Splitter>
+          <Splitter.Panel defaultSize="20%" min="10%" max="40%">
+            <DataTable />
+          </Splitter.Panel>
+          <Splitter.Panel style={{ overflow: 'hidden' }}>
+            <EmptyStateAnimation
+              show={!selectTabId && modules && modules.length > 0}
+              description="快去创建/打开一个表吧！"
+            >
+              {modules && modules.length > 0 ? (
+                <CommonTabs
+                  tabs={tableTabs}
+                  activeKey={selectTabId}
+                  onTabChange={onChange}
+                  onTabEdit={onEdit}
+                  renderTabContent={getTab}
+                />
+              ) : (
+                <EmptyStateAnimation
+                  show={true}
+                  title="欢迎使用数据建模工具"
+                  description={
+                    <span>
+                      从左侧开始创建一个模型，或者
+                      <a href="/design/table/import/reverse">从数据源逆向解析</a>
+                    </span>
+                  }
+                />
+              )}
+            </EmptyStateAnimation>
+          </Splitter.Panel>
+        </Splitter>
+      </Flex>
     </Flex>
   );
 }

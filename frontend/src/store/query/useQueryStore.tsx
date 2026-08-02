@@ -51,7 +51,11 @@ const useQueryStore = create<QueryState>(
         EDIT('/ncnb/queryInfo/' + model.id, model).then(r => {
           if (r?.code === 200) {
             message.success('保存成功');
+          } else {
+            message.error(r?.msg || '保存失败');
           }
+        }).catch(() => {
+          message.error('保存出错');
         });
       },
       renameQuery: async (model) => {

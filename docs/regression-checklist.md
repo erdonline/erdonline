@@ -228,3 +228,9 @@
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
 - [x] [深链实验页] `/design/dataDomain` 见「实验功能」✅同上
+
+## W6 设计器查询裁剪（2026-08-02）
+
+- [x] [无查询入口] 设计器项目菜单无 menuitem「查询」；无导航 link「查询」✅ `design-query.spec.ts`
+- [x] [深链实验页] `/design/table/query` 见「实验功能」+ `design-query-page` ✅同上
+- [ ] [深链运行失败有 toast] 打开查询叶子 → 选非法 SQL 运行 → 见 error toast（手工；后端仍打应用库）
