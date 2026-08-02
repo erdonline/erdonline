@@ -786,6 +786,41 @@ test.describe('关系图画布（ReactFlow）', () => {
       const palette = page.getByRole('dialog', { name: '命令面板' });
       await expect(palette).toBeVisible();
       await expect(palette.getByRole('listbox', { name: '命令列表' })).toBeVisible();
+
+      // ADR-0016：命令面板密度（与 22 chrome / 空态同阶）；禁 48 高输入 + 10/12 松行
+      const cmdMetrics = await palette.evaluate((el) => {
+        const panel = el as HTMLElement;
+        const input = el.querySelector('.erd-cmd-input') as HTMLElement | null;
+        const item = el.querySelector('.erd-cmd-item') as HTMLElement | null;
+        const footer = el.querySelector('.erd-cmd-footer') as HTMLElement | null;
+        const ics = input ? getComputedStyle(input) : null;
+        const mcs = item ? getComputedStyle(item) : null;
+        const fcs = footer ? getComputedStyle(footer) : null;
+        return {
+          panelW: panel.getBoundingClientRect().width,
+          panelMaxH: parseFloat(getComputedStyle(panel).maxHeight),
+          inputH: ics ? parseFloat(ics.height) : NaN,
+          inputFont: ics ? parseFloat(ics.fontSize) : NaN,
+          itemPadY: mcs
+            ? parseFloat(mcs.paddingTop) + parseFloat(mcs.paddingBottom)
+            : NaN,
+          itemFont: mcs ? parseFloat(mcs.fontSize) : NaN,
+          footerFont: fcs ? parseFloat(fcs.fontSize) : NaN,
+        };
+      });
+      expect(cmdMetrics.panelW, `面板宽应 ≤460，得 ${cmdMetrics.panelW}`).toBeLessThanOrEqual(
+        460,
+      );
+      expect(cmdMetrics.panelMaxH).toBeLessThanOrEqual(360);
+      expect(cmdMetrics.inputH, `输入高应 ≤40，得 ${cmdMetrics.inputH}`).toBeLessThanOrEqual(
+        40,
+      );
+      expect(cmdMetrics.inputH).toBeGreaterThanOrEqual(32);
+      expect(cmdMetrics.inputFont).toBeLessThanOrEqual(13);
+      expect(cmdMetrics.itemPadY).toBeLessThanOrEqual(16);
+      expect(cmdMetrics.itemFont).toBeLessThanOrEqual(12);
+      expect(cmdMetrics.footerFont).toBeLessThanOrEqual(11);
+
       await page.getByTestId('cmd-palette-input').fill('新建');
       await page.getByRole('option', { name: /新建表/ }).click();
       await expect(palette).toHaveCount(0);
@@ -798,6 +833,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       const empty = page.getByText('无匹配命令');
       await expect(empty).toBeVisible();
       await expect(empty).toHaveAttribute('aria-live', 'polite');
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-cmd-palette-dense.png',
+        fullPage: false,
+      });
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog', { name: '命令面板' })).toHaveCount(0);
     } finally {

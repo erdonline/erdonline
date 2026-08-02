@@ -5,15 +5,15 @@
   background: color-mix(in srgb, var(--erd-ink-900) 35%, transparent);
   display: flex;
   justify-content: center;
-  padding-top: 18vh;
+  padding-top: 14vh;
 }
 
 .erd-cmd-panel {
-  width: min(520px, 92vw);
-  max-height: 420px;
+  width: min(440px, 92vw);
+  max-height: 360px;
   background: var(--erd-surface);
-  border-radius: 12px;
-  box-shadow: 0 16px 48px var(--erd-ink-a06);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px var(--erd-ink-a06);
   border: 1px solid var(--erd-line);
   display: flex;
   flex-direction: column;
@@ -21,11 +21,11 @@
 }
 
 .erd-cmd-input {
-  height: 48px;
-  padding: 0 16px;
+  height: 36px;
+  padding: 0 12px;
   border: none;
   border-bottom: 1px solid var(--erd-line);
-  font-size: 15px;
+  font-size: 13px;
   font-family: var(--erd-font-ui);
   color: var(--erd-ink-900);
   outline: none;
@@ -35,7 +35,7 @@
 .erd-cmd-list {
   list-style: none;
   margin: 0;
-  padding: 6px;
+  padding: 4px;
   overflow-y: auto;
   flex: 1;
 }
@@ -44,10 +44,10 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 10px 12px;
-  border-radius: 8px;
+  padding: 6px 8px;
+  border-radius: 4px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 12px;
 
   &.active,
   &:hover {
@@ -62,20 +62,20 @@
 
   .erd-cmd-hint {
     color: var(--erd-ink-400);
-    font-size: 11px;
+    font-size: 10px;
   }
 }
 
 .erd-cmd-empty {
-  padding: 20px;
+  padding: 12px;
   text-align: center;
   color: var(--erd-ink-400);
-  font-size: 13px;
+  font-size: 12px;
 }
 
 .erd-cmd-footer {
-  padding: 8px 14px;
+  padding: 6px 10px;
   border-top: 1px solid var(--erd-line);
-  font-size: 11px;
+  font-size: 10px;
   color: var(--erd-ink-400);
 }
