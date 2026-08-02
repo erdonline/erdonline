@@ -64,7 +64,7 @@
 - ❌ 字段行 PK/FK 徽章 9px 无列宽、角色标糊进字段名（历史问题）
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink900` 字 / 12px / 600；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字；**可点选改基数**（设计器）；**干道 bundle 拉伸 + AABB 迭代避让**（`resolveEdgeLabelOffsets`），密图 chip 不叠字
-- ✅ Frame 标题栏 chrome：height 22 / label 11 / meta 10；轻表面条可读；禁占高顶栏挤成员；**双击标题重命名**
+- ✅ Frame 标题栏 chrome：height 22 / **label 12/700** vs **meta 10/400+0.88**（分组名主标题、张数 muted）；pad 0 8；轻表面条；禁占高顶栏挤成员；**双击标题重命名**
 - ✅ 边路由：同侧短 U 外肘避障（`sameSide`）；bypass 叠表缝显式 mid-corridor；绕行倍率 1.85 竞短
 - ✅ MiniMap：底色 `surfaceSunk` + `line` 描边 + 128×96 紧凑；禁 RF 默认白底与 sunk 画布割裂
 - ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；图标 12px；**适应画布** muted 底 + ink900 主操作，缩放/锁次要 ink600；禁 RF `#fefefe` 松柱与画布割裂

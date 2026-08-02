@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：Frame 标题扫读层次（分组名 vs muted meta，ADR-0016）
+
+- 选题：Frame chrome label 11/600 与 meta 10 同阶，分享截图分组名扫不过；停色 token，攻字重/字号/padding vs muted
+- `.erd-frame-label` 12px / 700；`.erd-frame-meta` 10/400 + opacity 0.88；chrome pad 0 8、height 仍 22；rename input 对齐主标题
+- 双击重命名回路不动；设计器 / 分享只读共用 `reactflow-relation.scss`
+- E2E：`diagram-frame` 层次 + 重命名、`demo` RBAC Frame；截图 `diagram-frame-title-hierarchy.png` / `demo-frame-title-hierarchy.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "新建分组|重命名" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：表节点密表再压（分享截图密度，ADR-0016）
 
 - 选题：表头 pad 8 + 字段行 minH 22 在多字段分享截图仍偏松；停色 token，攻密度且保留标题/徽章层次

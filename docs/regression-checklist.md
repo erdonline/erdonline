@@ -77,6 +77,7 @@
 - [x] [边标签碰撞避让] 密图 `erd-edge-label-nudge` 非零 + 标签 AABB 零重叠；截图 `demo-edge-label-collision.png` ✅`relationEdges.test` + `demo.spec.ts`
 - [x] [边标签密度] chip padding ≤4/2、radius ≤3；碰撞盒跟字号（40×20）✅`relationEdges.test.ts` + `demo.spec` / `relation.spec` 表节点视觉
 - [x] [Frame 标题栏密度] `.erd-frame-chrome` height ≤22；截图 `demo-frame-theme-tokens.png` ✅`demo.spec` + `diagram-frame.spec`
+- [x] [Frame 标题扫读] label ≥12/700 vs meta 更小/更轻 + opacity<1；padX≥8；双击重命名仍在；截图 `diagram-frame-title-hierarchy.png` / `demo-frame-title-hierarchy.png` ✅`diagram-frame.spec`「新建分组」+ 重命名 + `demo.spec`
 - [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC` + ≤128×96 紧凑；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
 - [x] [Controls 面板密度] 按钮 ≤22×22、面板 `surface`（禁 RF `#fefefe`）；截图 `diagram-controls-dense.png` ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [Controls 扫读层次]「适应画布」`.erd-controls-primary` ink900 + muted 底；图标 ≥12；aria 不变 ✅`relation.spec`「Controls」+ `demo.spec`

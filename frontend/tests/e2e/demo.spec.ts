@@ -51,13 +51,39 @@ test.describe('在线演示', () => {
       frameBgs.some((bg) => /47,\s*143,\s*123/.test(bg)),
       `应有 success frameFill（got ${JSON.stringify(frameBgs)}）`,
     ).toBeTruthy();
-    // ADR-0016：Frame 标题栏再压（height ≤22）
-    const chromeH = await page
+    // ADR-0016：Frame 标题扫读（label 12/700 vs muted meta；chrome ≤22）
+    const frameLook = await page
+      .getByTestId('diagram-frame')
+      .filter({ hasText: 'RBAC' })
       .locator('.erd-frame-chrome')
-      .first()
-      .evaluate((el) => parseFloat(getComputedStyle(el).height));
-    expect(chromeH, `Frame chrome 应 ≤22px，得 ${chromeH}`).toBeLessThanOrEqual(22);
-    expect(chromeH).toBeGreaterThanOrEqual(18);
+      .evaluate((el) => {
+        const label = el.querySelector('.erd-frame-label');
+        const meta = el.querySelector('.erd-frame-meta');
+        if (!label || !meta) return null;
+        const cs = getComputedStyle(el);
+        const ls = getComputedStyle(label);
+        const ms = getComputedStyle(meta);
+        return {
+          chromeH: parseFloat(cs.height),
+          padX: parseFloat(cs.paddingLeft),
+          labelSize: parseFloat(ls.fontSize),
+          labelWeight: parseInt(ls.fontWeight, 10),
+          labelText: (label.textContent || '').trim(),
+          metaSize: parseFloat(ms.fontSize),
+          metaWeight: parseInt(ms.fontWeight, 10),
+          metaOpacity: parseFloat(ms.opacity),
+        };
+      });
+    expect(frameLook).not.toBeNull();
+    expect(frameLook!.labelText).toBe('RBAC');
+    expect(frameLook!.chromeH, `Frame chrome 应 ≤22px，得 ${frameLook!.chromeH}`).toBeLessThanOrEqual(22);
+    expect(frameLook!.chromeH).toBeGreaterThanOrEqual(18);
+    expect(frameLook!.padX).toBeGreaterThanOrEqual(8);
+    expect(frameLook!.labelSize).toBeGreaterThanOrEqual(12);
+    expect(frameLook!.labelWeight).toBeGreaterThanOrEqual(700);
+    expect(frameLook!.metaSize).toBeLessThan(frameLook!.labelSize);
+    expect(frameLook!.metaWeight).toBeLessThan(frameLook!.labelWeight);
+    expect(frameLook!.metaOpacity).toBeLessThan(1);
     // MiniMap 与 sunk 画布同底（禁 RF 默认 #fff；背景在 panel）+ 紧凑尺寸
     const mini = await page.locator('.react-flow__minimap').evaluate((el) => {
       const cs = getComputedStyle(el);
@@ -94,6 +120,12 @@ test.describe('在线演示', () => {
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });
+    await page
+      .getByTestId('diagram-frame')
+      .filter({ hasText: 'RBAC' })
+      .screenshot({
+        path: 'test-results/ux-walkthrough/demo-frame-title-hierarchy.png',
+      });
     // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1100（列间距 ~28px）
     const spanX = await page.locator('.react-flow__node-table').evaluateAll((els) => {
       const xs = els
