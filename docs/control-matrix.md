@@ -162,9 +162,10 @@
 
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
-| DesignLayout 菜单 | 数据域 | → `/design/dataDomain` 可编辑保存 | | 🚧 | 无价值则裁剪导航 |
+| DesignLayout 菜单 | 数据域 | `_defaultProps` 已摘；路由保留实验页 | 北极星弱 | ✅ | `data-domain.spec`；深链见「实验功能」 |
 | DesignLayout 菜单 | 查询 | → `/design/table/query` 执行有结果/错误 | | 🚧 | |
 | DesignLayout 菜单 | Chat SQL | 侧栏已隐藏；路由保留实验页 | AI 后置 | ✅ | W6 裁剪导航 |
+| `/design/dataDomain` | 页内类型域树 | 实验；不扩主旅程闭环 | | 📋 | 不扩 E2E 编辑 |
 | `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | ✅ | `default-field.spec`「编辑保存有 toast」 |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
@@ -197,10 +198,10 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 64 |
-| 🚧 | 28 |
+| ✅ | 65 |
+| 🚧 | 27 |
 | 🗑 | 7 |
-| 📋 | 2 |
-| **合计** | **101** |
+| 📋 | 3 |
+| **合计** | **102** |
 
 Vision loop：有 P2b 🚧 时，优先啃本表下一行可验证 🚧 切片（见 `scripts/agent-loop-vision.prompt.md`）。

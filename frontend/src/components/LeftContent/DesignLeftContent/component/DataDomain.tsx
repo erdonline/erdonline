@@ -16,11 +16,16 @@ import PastDataType from "@/components/dialog/dataType/PastDataType";
 export type DataDomainProps = {};
 
 const DataDomain: React.FC<DataDomainProps> = (props) => {
-  const {datatype, database, projectDispatch} = useProjectStore(state => ({
+  const {datatype, database, projectDispatch, ready} = useProjectStore(state => ({
     database: state.project?.projectJSON?.dataTypeDomains?.database,
     datatype: state.project?.projectJSON?.dataTypeDomains?.datatype,
     projectDispatch: state.dispatch,
+    ready: Boolean(state.project?.projectJSON),
   }), shallow);
+
+  if (!ready) {
+    return null;
+  }
 
   const activeDataTypeOrDatabase = (t: string, m: string) => {
     if (t === "dataType") {

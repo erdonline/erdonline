@@ -15,8 +15,8 @@ const RenameDataType: React.FC<RenameDataTypeProps> = (props) => {
   }
     = useProjectStore(state => ({
     projectDispatch: state.dispatch,
-    database: state.project.projectJSON.dataTypeDomains?.database || [],
-    datatype: state.project.projectJSON.dataTypeDomains?.datatype || [],
+    database: state.project?.projectJSON?.dataTypeDomains?.database || [],
+    datatype: state.project?.projectJSON?.dataTypeDomains?.datatype || [],
     currentDataTypeIndex: state.currentDataTypeIndex,
   }), shallow);
 

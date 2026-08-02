@@ -2,6 +2,25 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/design/dataDomain` 侧栏裁剪（2026-08-02）
+
+### 修复
+- DesignLayout `_defaultProps`：移除「数据域」路由菜单项（与 Chat SQL 同策略；不服务「版本保存」北极星主路径）
+  验证点：项目菜单无 menuitem「数据域」；无 `link`「数据域」
+- `/design/dataDomain`：加「实验功能」Alert；路由保留深链，不扩类型域编辑 E2E
+  验证点：直达页见 `data-testid=data-domain-page` +「实验功能」
+- 数据域相关对话框 store 选择器空安全（`project?.projectJSON?.…`），避免硬导航白屏
+  验证点：深链 `/design/dataDomain` 不再报 `dataTypeDomains` TypeError
+
+### 测试
+- 新增 `data-domain.spec.ts`：项目菜单无「数据域」+ 深链实验提示
+  验证点：`npx playwright test tests/e2e/data-domain.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：数据域菜单 → ✅；页内实验 📋；统计 ✅65 / 🚧27 / 📋3
+- `docs/roadmap.md` P2b 长尾已收数据域侧栏裁剪
+- `docs/regression-checklist.md`：数据域裁剪自动化
+
 ## [Unreleased] — W4 工单/审批有数据全链路（2026-08-02）
 
 ### 测试

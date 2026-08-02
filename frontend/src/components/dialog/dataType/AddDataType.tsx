@@ -13,7 +13,7 @@ export type AddDataTypeProps = {
 const AddDataType: React.FC<AddDataTypeProps> = (props) => {
   const {projectDispatch, database} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
-    database: state.project.projectJSON.dataTypeDomains?.database || [],
+    database: state.project?.projectJSON?.dataTypeDomains?.database || [],
 
   }), shallow);
 

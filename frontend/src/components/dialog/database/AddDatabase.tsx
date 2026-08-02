@@ -15,7 +15,7 @@ export type AddDatabaseProps = {
 const AddDatabase: React.FC<AddDatabaseProps> = (props) => {
   const {projectDispatch, database, currentDatabaseIndex} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
-    database: state.project.projectJSON.dataTypeDomains?.database || [],
+    database: state.project?.projectJSON?.dataTypeDomains?.database || [],
     currentDatabaseIndex: state.currentDatabaseIndex
   }), shallow);
 
