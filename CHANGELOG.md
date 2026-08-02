@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：自部署 DX — 验收脚本 + 升级路径演练（P5 缺口 ✅）
+
+**功能**
+
+- `scripts/verify-self-deploy.sh`：health UP、info `erd-online`、未暴露 actuator→404、前端 `/`→200；可选断言 `erd.flyway_schema_history` 最新成功版本
+- `deployment.md`：一键验收命令 + 已有卷升级演练（停服备份 → build/up → 验收 → 查 Flyway 历史）；明确**不**靠重跑 `db/init`
+
+**测试 / 文档**
+
+- roadmap 自部署 DX ✅；regression-checklist
+
+验证点：`./scripts/verify-self-deploy.sh` → ok=5 fail=0（含 flyway version=2）
+
 #### 功能：DBML Indexes ↔ projectJSON `indexs` 双向映射
 
 **功能**

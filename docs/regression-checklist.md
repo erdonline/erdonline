@@ -14,6 +14,7 @@
 ### 手工/接口断言项
 
 - [x] [自部署可观测] `GET /actuator/health` → `{"status":"UP"}`；`GET /actuator/info` → `app.name=erd-online`；未暴露 `/actuator/env` → HTTP 404（非假 500）✅curl 2026-08-02
+- [x] [自部署 DX 验收] `./scripts/verify-self-deploy.sh` → health/info/404/FE + `flyway_schema_history` 有成功版本 ✅脚本 2026-08-02（ok=5）
 - [ ] [env 脚本补回] 全新克隆 → `yarn start` 直接可起 → 预期：8000 端口可访问，不报 env.local.sh 缺失
 - [ ] [admin 权限种子补全] 全新初始化 DB → admin 登录进 /project/person → 预期：列表 200，无「权限不够」红提示
 - [x] [statistic 不含已删项目] 有软删除项目时 `GET /ncnb/project/statistic` → 预期：total/personTotal 只计 del_flag=0，与 /project/recent 列表数一致（2026-08-01 curl 验证通过）
