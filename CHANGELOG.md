@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 重构：W3 切片 2 — version ProList → antd List + 空态 CTA
+
+**功能 / 重构**
+
+- `pages/design/version`：摘 `ProList` → antd `List`；工具栏（脏标记/数据源/标签筛选/新增/对比/同步配置/重建）与行（版本号 strong、同步 Tag、标签 chips、变更摘要、行尾操作）平移，行为与 testid 不变
+- 空态：「还没有版本」+ 主按钮「保存第一个版本」（`version-empty-save-btn`，与「新增版本」同一 `AddVersion` 动作）；标签筛选无匹配另文案
+- `AddVersion` 支持可选 `label` / `testId`（空态与工具栏按钮不撞 testid）
+
+**测试 / 文档**
+
+- `version.spec`「无数据源也可新增版本」：断言 `version-list` / `version-empty` /「保存第一个版本」→ 保存后空态消失
+- `ui-layout-redesign` / `product-capability-map` / `roadmap`：W3 切片 2 ✅
+  验证点：`cd frontend && npx playwright test tests/e2e/version.spec.ts --grep "无数据源也可新增版本|可视化 diff" --project=chromium --workers=1`；`rg 'ProList' src/pages/design/version` = 0
+
 #### 功能：W3 切片 1 — 跨版本 diff 导出 + 零引用图表依赖清理
 
 **功能**

@@ -130,7 +130,14 @@ test.describe('版本快照', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'ver', 'version snapshot');
       await openVersionPage(page);
+      // W3 切片 2：antd List 空态 CTA（与工具栏「新增版本」同一保存动作）
+      await expect(page.getByTestId('version-list')).toBeVisible();
+      await expect(page.getByTestId('version-empty')).toBeVisible();
+      await expect(
+        page.getByRole('button', { name: '保存第一个版本' }),
+      ).toBeVisible();
       await saveVersion(page);
+      await expect(page.getByTestId('version-empty')).toHaveCount(0);
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
     } finally {

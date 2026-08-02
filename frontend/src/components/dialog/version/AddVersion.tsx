@@ -9,9 +9,14 @@ import {joinVersionTags} from "@/utils/versionTags";
 
 export type AddVersionProps = {
   trigger: string;
+  /** 触发按钮文案；空态 CTA 用「保存第一个版本」 */
+  label?: string;
+  /** 触发按钮 testid；默认 add-version-btn，空态用 version-empty-save-btn 避免重复 */
+  testId?: string;
 };
 
 const AddVersion: React.FC<AddVersionProps> = (props) => {
+  const { label = '新增版本', testId = 'add-version-btn' } = props;
   const {versions, versionDispatch} = useVersionStore(state => ({
     versions: state.versions,
     versionDispatch: state.dispatch,
@@ -44,9 +49,10 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
         <Button
           key="artifact"
           type="primary"
-          data-testid="add-version-btn"
+          data-testid={testId}
+          aria-label={label}
         >
-          <PlusOutlined/>新增版本
+          <PlusOutlined/>{label}
         </Button>
       }
     >

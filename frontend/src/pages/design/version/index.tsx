@@ -3,8 +3,7 @@ import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {compareStringVersion} from "@/utils/string";
-import {Button, ConfigProvider, Input, message, Space, Tag, Tooltip} from "antd";
-import {ProList} from '@ant-design/pro-components';
+import {Button, Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
 import RebuildVersion from "@/components/dialog/version/RebuildVersion";
@@ -23,6 +22,20 @@ import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
 import { history } from '@@/core/history';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
+
+type VersionChange = { opt?: string };
+type VersionRow = {
+  id: string;
+  version: string;
+  versionDesc?: string;
+  versionDate?: string;
+  creator?: string;
+  tag?: string;
+  changes?: VersionChange[];
+  projectJSON?: unknown;
+};
+
+type DbOption = { name: string; value?: string; label?: string };
 
 const Version: React.FC = () => {
   const {
@@ -45,15 +58,14 @@ const Version: React.FC = () => {
 
   const access = useAccess();
 
-  const activeKey = 'tab1';
   const [selectedDB, setSelectedDB] = useState<{ value: string; label: string } | undefined>(undefined);
-  const [dbs, setDbs] = useState<any[]>([]);
+  const [dbs, setDbs] = useState<DbOption[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
   const [tagFilter, setTagFilter] = useState('');
 
   const filteredVersions = React.useMemo(() => {
-    return versions.filter((v: { tag?: string }) => versionTagsMatchFilter(v.tag, tagFilter));
+    return (versions as VersionRow[]).filter((v) => versionTagsMatchFilter(v.tag, tagFilter));
   }, [versions, tagFilter]);
 
   useEffect(() => {
@@ -92,16 +104,16 @@ const Version: React.FC = () => {
     if (!value || !value.value) {
       return;
     }
-    
+
     setSelectedDB(value);
     versionDispatch.dbChange({ value: value.value });
-    
+
     const updatedDbs = [
       ...dbs.filter(db => db.name === value.value),
       ...dbs.filter(db => db.name !== value.value)
     ];
     versionDispatch.initDbs(updatedDbs);
-  
+
     const selectedDbObject = dbs.find(db => db.name === value.value);
     if (selectedDbObject) {
       fetch(selectedDbObject, 1, pageSize);
@@ -119,16 +131,132 @@ const Version: React.FC = () => {
     history.push(`/design/table/model${q}`);
   }, []);
 
-  return (
-    <ConfigProvider
-      theme={{
-        components: {
-          List: {
-            paddingLG: 0,
-          },
-        },
-      }}
+  const setRowCurrent = useCallback((record: VersionRow) => {
+    const fullIndex = (versions as VersionRow[]).findIndex((v) => v.id === record.id);
+    versionDispatch.setCurrentVersion(record, fullIndex >= 0 ? fullIndex : 0);
+  }, [versions, versionDispatch]);
+
+  const renderSyncTag = (row: VersionRow) => {
+    if (compareStringVersion(row.version, dbVersion) <= 0) {
+      return <Tag title="已同步到数据源" color="blue">已同步</Tag>;
+    }
+    if (synchronous[row.version]) {
+      return <Tag title="正在同步到数据源" color="lime">正在同步</Tag>;
+    }
+    return <Tag title="未同到数据源" color="red">未同步</Tag>;
+  };
+
+  const renderRowMeta = (row: VersionRow) => {
+    const ch = Array.isArray(row.changes) ? row.changes : [];
+    const add = ch.filter((c) => c.opt === 'add').length;
+    const del = ch.filter((c) => c.opt === 'delete').length;
+    const upd = ch.filter((c) => c.opt === 'update').length;
+    const tags = splitVersionTags(row.tag);
+    return (
+      <div className="version-row-meta">
+        <div className="version-row-prose">
+          <span>{row.creator}</span>
+          <span>{row.versionDate}</span>
+          <span>{row.versionDesc}</span>
+        </div>
+        {tags.length > 0 && (
+          <div
+            className="version-row-tags"
+            data-testid="version-tags"
+            aria-label="版本标签"
+          >
+            <span className="version-row-tags__label">标签</span>
+            <Space size={[4, 4]} wrap>
+              {tags.map((t: string) => (
+                <Tag
+                  color="purple"
+                  key={t}
+                  className="version-row-tags__chip"
+                  data-testid={`version-tag-${t}`}
+                >
+                  {t}
+                </Tag>
+              ))}
+            </Space>
+          </div>
+        )}
+        {ch.length > 0 && (
+          <div
+            className="version-row-changes"
+            data-testid="version-change-summary"
+            aria-label="变更摘要"
+          >
+            <span className="version-row-changes__label">变更</span>
+            <span className="version-row-changes__text">
+              {add > 0 && <span className="version-row-changes__add">+{add}</span>}
+              {del > 0 && <span className="version-row-changes__del">−{del}</span>}
+              {upd > 0 && <span className="version-row-changes__upd">~{upd}</span>}
+            </span>
+          </div>
+        )}
+      </div>
+    );
+  };
+
+  const renderRowActions = (row: VersionRow) => [
+    <CompareVersion key="detail" type={CompareVersionType.DETAIL}/>,
+    <Access
+      key="rename"
+      accessible={access.canErdHisprojectEdit}
+      fallback={<></>}
     >
+      <RenameVersion/>
+    </Access>,
+    <Access
+      key="remove"
+      accessible={access.canErdHisprojectDel}
+      fallback={<></>}
+    >
+      <RemoveVersion/>
+    </Access>,
+    <CopyProject key="copy" projectJSON={row.projectJSON}/>,
+    <RevertVersion
+      key="revert"
+      synced={compareStringVersion(row.version, dbVersion) > 0}
+    />,
+    <Access
+      key="sync"
+      accessible={access.canErdConnectorDbsync}
+      fallback={<></>}
+    >
+      <SyncVersion synced={compareStringVersion(row.version, dbVersion) <= 0}/>
+    </Access>,
+  ];
+
+  const emptyNode = tagFilter.trim() ? (
+    <div data-testid="version-empty-filter">
+      <Empty
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        description="无匹配标签的版本"
+      />
+    </div>
+  ) : (
+    <div data-testid="version-empty">
+      <Empty
+        image={Empty.PRESENTED_IMAGE_SIMPLE}
+        description="还没有版本"
+      >
+        <Access
+          accessible={access.canErdHisprojectAdd}
+          fallback={<></>}
+        >
+          <AddVersion
+            trigger="empty"
+            label="保存第一个版本"
+            testId="version-empty-save-btn"
+          />
+        </Access>
+      </Empty>
+    </div>
+  );
+
+  return (
+    <>
       {isInitialized ? (
         <div className="version-page" data-testid="version-page">
           <div className="version-page__bar">
@@ -148,212 +276,94 @@ const Version: React.FC = () => {
               </span>
             )}
           </div>
-          <ProList<any>
-            className="version-page__list"
-            rowKey="id"
-            dataSource={filteredVersions}
-            pagination={false}
-            locale={{ emptyText: tagFilter.trim() ? '无匹配标签的版本' : '暂无版本。改完模型后点「新增版本」保存快照。' }}
-            metas={{
-              title: {
-                dataIndex: 'version',
-              },
-              description: {
-                dataIndex: 'versionDesc',
-                render: (_dom, row) => {
-                  const ch = Array.isArray(row.changes) ? row.changes : [];
-                  const add = ch.filter((c: { opt?: string }) => c.opt === 'add').length;
-                  const del = ch.filter((c: { opt?: string }) => c.opt === 'delete').length;
-                  const upd = ch.filter((c: { opt?: string }) => c.opt === 'update').length;
-                  const tags = splitVersionTags(row.tag);
-                  return (
-                    <div className="version-row-meta">
-                      <div className="version-row-prose">
-                        <span>{row.creator}</span>
-                        <span>{row.versionDate}</span>
-                        <span>{row.versionDesc}</span>
-                      </div>
-                      {tags.length > 0 && (
-                        <div
-                          className="version-row-tags"
-                          data-testid="version-tags"
-                          aria-label="版本标签"
-                        >
-                          <span className="version-row-tags__label">标签</span>
-                          <Space size={[4, 4]} wrap>
-                            {tags.map((t: string) => (
-                              <Tag
-                                color="purple"
-                                key={t}
-                                className="version-row-tags__chip"
-                                data-testid={`version-tag-${t}`}
-                              >
-                                {t}
-                              </Tag>
-                            ))}
-                          </Space>
-                        </div>
-                      )}
-                      {ch.length > 0 && (
-                        <div
-                          className="version-row-changes"
-                          data-testid="version-change-summary"
-                          aria-label="变更摘要"
-                        >
-                          <span className="version-row-changes__label">变更</span>
-                          <span className="version-row-changes__text">
-                            {add > 0 && <span className="version-row-changes__add">+{add}</span>}
-                            {del > 0 && <span className="version-row-changes__del">−{del}</span>}
-                            {upd > 0 && <span className="version-row-changes__upd">~{upd}</span>}
-                          </span>
-                        </div>
-                      )}
-                    </div>
-                  );
-                },
-              },
-              subTitle: {
-                dataIndex: 'labels',
-                render: (_dom, row) => {
-                  return (
-                    <Space>
-                      {
-                        // eslint-disable-next-line no-nested-ternary
-                        compareStringVersion(row.version, dbVersion) <= 0 ?
-                          <Tag title={"已同步到数据源"} color="blue">已同步</Tag>
-                          :
-                          synchronous[row.version] ?
-                            <Tag title={"正在同步到数据源"} color="lime">正在同步</Tag>
-                            :
-                            <Tag title={"未同到数据源"} color="red">未同步</Tag>
-                      }
-                    </Space>
-                  );
-                },
-                search: false,
-              },
-              actions: {
-                render: (_text, row) => [
-                  <CompareVersion key="detail" type={CompareVersionType.DETAIL}/>,
-                  <Access
-                    key="rename"
-                    accessible={access.canErdHisprojectEdit}
-                    fallback={<></>}
-                  >
-                    <RenameVersion/>
-                  </Access>,
-                  <Access
-                    key="remove"
-                    accessible={access.canErdHisprojectDel}
-                    fallback={<></>}
-                  >
-                    <RemoveVersion/>
-                  </Access>,
-                  <CopyProject key="copy" projectJSON={row.projectJSON}/>,
-                  <RevertVersion
-                    key="revert"
-                    synced={compareStringVersion(row.version, dbVersion) > 0}
-                  />,
-                  <Access
-                    key="sync"
-                    accessible={access.canErdConnectorDbsync}
-                    fallback={<></>}
-                  >
-                    <SyncVersion synced={compareStringVersion(row.version, dbVersion) <= 0}/>
-                  </Access>
 
-                ],
-              },
-            }}
-            onRow={(record: any) => {
-              return {
-                'data-testid': `version-row-${record.version}`,
-                onMouseEnter: () => {
-                  const fullIndex = versions.findIndex((v: { id?: string }) => v.id === record.id);
-                  versionDispatch.setCurrentVersion(record, fullIndex >= 0 ? fullIndex : 0);
-                },
-              };
-            }}
-            toolbar={{
-              menu: {
-                activeKey,
-                items: [
-                  {
-                    key: 'tab1',
-                    label: (
-                      <Space>
-                        {changes.length > 0 ? (
-                          <Tooltip title="当前内容与上一版本的内容有变化，但未保存同步版本！">
-                            <Tag color="red">
-                              <WarningFilled />
-                            </Tag>
-                          </Tooltip>
-                        ) : (
-                          <Tooltip title="当前内容与上一版本内容无变化">
-                            <Tag color="blue">
-                              <CheckCircleFilled />
-                            </Tag>
-                          </Tooltip>
-                        )}
-                      </Space>
-                    ),
-                  },
-                  {
-                    key: 'tab2',
-                    label: 
-                      <Space>
-                        数据源
-                        <DataSourceSelect
-                          value={selectedDB}
-                          onChange={handleDbChange}
-                          style={{ width: 200 }}
-                          loading={isLoading}
-                        />
-                      </Space>
-                  },
-                ]
-              },
-              actions: [
-                <Input
-                  key="tag-filter"
-                  allowClear
-                  placeholder="按标签筛选"
-                  value={tagFilter}
-                  onChange={(e) => setTagFilter(e.target.value)}
-                  style={{ width: 160 }}
-                  data-testid="version-tag-filter"
-                  aria-label="按标签筛选"
-                />,
-                <Access
-                  key="add-version"
-                  accessible={access.canErdHisprojectAdd}
-                  fallback={<></>}
-                >
-                  <AddVersion trigger="bp"/>
-                </Access>,
-                <CompareVersion key="compare" type={CompareVersionType.COMPARE}/>,
-                <Access
-                  key="sync-config"
-                  accessible={access.canErdHisprojectConfig}
-                  fallback={<></>}
-                >
-                  <SyncConfig/>
-                </Access>,
-                <Access
-                  key="rebuild"
-                  accessible={access.canErdHisprojectRebuild}
-                  fallback={<></>}
-                >
-                  <RebuildVersion/>
-                </Access>,
-              ],
-            }}
+          <div className="version-page__toolbar" data-testid="version-toolbar">
+            <Space wrap size={[8, 8]} className="version-page__toolbar-status">
+              {changes.length > 0 ? (
+                <Tooltip title="当前内容与上一版本的内容有变化，但未保存同步版本！">
+                  <Tag color="red" data-testid="version-dirty-tag">
+                    <WarningFilled /> 未保存变更
+                  </Tag>
+                </Tooltip>
+              ) : (
+                <Tooltip title="当前内容与上一版本内容无变化">
+                  <Tag color="blue" data-testid="version-clean-tag">
+                    <CheckCircleFilled /> 已与最新版本一致
+                  </Tag>
+                </Tooltip>
+              )}
+              <Space size={4}>
+                <span className="version-page__toolbar-label">数据源</span>
+                <DataSourceSelect
+                  value={selectedDB}
+                  onChange={handleDbChange}
+                  style={{ width: 200 }}
+                  loading={isLoading}
+                />
+              </Space>
+            </Space>
+            <Space wrap size={[8, 8]} className="version-page__toolbar-actions">
+              <Input
+                allowClear
+                placeholder="按标签筛选"
+                value={tagFilter}
+                onChange={(e) => setTagFilter(e.target.value)}
+                style={{ width: 160 }}
+                data-testid="version-tag-filter"
+                aria-label="按标签筛选"
+              />
+              <Access
+                accessible={access.canErdHisprojectAdd}
+                fallback={<></>}
+              >
+                <AddVersion trigger="bp"/>
+              </Access>
+              <CompareVersion type={CompareVersionType.COMPARE}/>
+              <Access
+                accessible={access.canErdHisprojectConfig}
+                fallback={<></>}
+              >
+                <SyncConfig/>
+              </Access>
+              <Access
+                accessible={access.canErdHisprojectRebuild}
+                fallback={<></>}
+              >
+                <RebuildVersion/>
+              </Access>
+            </Space>
+          </div>
+
+          <List
+            className="version-page__list"
+            data-testid="version-list"
+            itemLayout="horizontal"
+            dataSource={filteredVersions}
+            locale={{ emptyText: emptyNode }}
+            renderItem={(row) => (
+              <List.Item
+                key={row.id}
+                data-testid={`version-row-${row.version}`}
+                onMouseEnter={() => setRowCurrent(row)}
+                actions={renderRowActions(row)}
+              >
+                <List.Item.Meta
+                  title={
+                    <Space size={8} wrap>
+                      <strong className="version-row-title">{row.version}</strong>
+                      {renderSyncTag(row)}
+                    </Space>
+                  }
+                  description={renderRowMeta(row)}
+                />
+              </List.Item>
+            )}
           />
         </div>
       ) : (
         <PageSkeleton rows={5} />
       )}
-    </ConfigProvider>
+    </>
   );
 }
 
