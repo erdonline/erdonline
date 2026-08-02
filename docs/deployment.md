@@ -228,6 +228,8 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 **建库 + schema**（插件空实例必做一次；种子由 App Flyway `V3+` 写入）：
 
+> **用户不在 `db/init`**：`admin` 等系统用户 → `backend/.../db/migration/erd/V3__system_baseline_seed.sql`；公开 demo 项目 → `V5__public_demo.sql`；E2E 账号 → `V6__e2e_users.sql`（App Redeploy / 启动时 `ErdFlywayConfig` 自动打；勿手灌进 init）。
+
 > **与本地 compose 的区别**：`docker-compose` 已把 `db/init` 挂到 MySQL **空 data 卷**首启；本地不必再跑本脚本。Railway / 远程插件库无该挂载，须用下列脚本或手工导入 **仅 schema**。
 
 ```bash
