@@ -1,25 +1,15 @@
 #!/usr/bin/env bash
-# Railway / 远程 MySQL：建 martin+erd 并按序导入 db/init 基线（不含 E2E 种子）。
+# Railway / 远程 MySQL：建单一业务库 `erd` 并导入 schema-only 基线（db/init）。
+# 种子 / demo / E2E 账号由后端启动时 Flyway（classpath:db/migration/erd）写入，本脚本不灌。
 #
 # 用法（在仓库根执行）：
-#   # 公网 URL（Dashboard → MySQL → Connect / TCP Proxy；勿写入 App 的 DB_HOST）
 #   MYSQL_URL='mysql://root:PASSWORD@HOST:PORT/railway' ./scripts/railway-mysql-init.sh
-#
-#   # 或拆开变量（与 Railway 插件名一致）
 #   MYSQLHOST=… MYSQLPORT=3306 MYSQLUSER=root MYSQLPASSWORD=… ./scripts/railway-mysql-init.sh
-#
-#   # 显式参数（覆盖 env）
 #   ./scripts/railway-mysql-init.sh --url 'mysql://root:PASSWORD@HOST:PORT/railway'
-#   ./scripts/railway-mysql-init.sh --host HOST --port 3306 --user root --password PASS
-#
-#   # 仅打印将执行的步骤（不连库）
-#   ./scripts/railway-mysql-init.sh --dry-run --help
 #   MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run
 #
-# 导入顺序（与 docs/deployment.md 一致；本目录实际文件）：
-#   建库（等同 01_schema.sql）→ 02_erd → 03_martin → 06…09
-#   跳过 05_e2e_users.sql（公网 demo 勿灌）
-#   默认跳过 04_privileges.sql（root 可直接用；非 root 可加 --with-privileges）
+# 导入顺序：
+#   建库（01_create_database.sql）→ 02_tables.sql（CREATE TABLE only）
 #
 # 依赖：本机已装 mysql 客户端（mysql --version）。
 # 无本机客户端时用：./scripts/railway-mysql-init.docker.sh（同参/同 env）。
@@ -36,7 +26,6 @@ MYSQL_USER="${MYSQLUSER:-${MYSQL_USER:-}}"
 MYSQL_PASS="${MYSQLPASSWORD:-${MYSQL_PASSWORD:-${MYSQL_PASS:-}}}"
 MYSQL_URL_VAL="${MYSQL_URL:-}"
 DRY_RUN=0
-WITH_PRIVILEGES=0
 SHOW_HELP=0
 
 usage() {
@@ -79,7 +68,6 @@ parse_mysql_url() {
     user="${creds%%:*}"
     if [[ "$creds" == *:* ]]; then
       pass="${creds#*:}"
-      # Prefer MYSQLPASSWORD / --password if URL has %XX-encoded secrets
     else
       pass=""
     fi
@@ -114,7 +102,7 @@ while [[ $# -gt 0 ]]; do
       shift
       ;;
     --with-privileges)
-      WITH_PRIVILEGES=1
+      echo "WARN: --with-privileges ignored (ADR-0020: no dual-DB privilege script; use root or MYSQL_USER)" >&2
       shift
       ;;
     --url)
@@ -159,7 +147,6 @@ fi
 
 [[ -n "$MYSQL_HOST" ]] || die "missing host: set MYSQL_URL or MYSQLHOST / --host"
 [[ -n "$MYSQL_USER" ]] || die "missing user: set MYSQL_URL or MYSQLUSER / --user"
-# Password may be empty for some local setups; warn but allow.
 if [[ -z "$MYSQL_PASS" ]]; then
   echo "WARN: empty password (MYSQLPASSWORD / --password)" >&2
 fi
@@ -168,14 +155,9 @@ command -v mysql >/dev/null 2>&1 || die "mysql client not found; install MySQL c
 
 [[ -d "$INIT_DIR" ]] || die "init directory not found: $INIT_DIR"
 
-# Ordered imports (actual files under db/init/; skip 05; 04 optional)
 IMPORT_FILES=(
-  02_erd.sql
-  03_martin.sql
-  06_project_share.sql
-  07_data_sources.sql
-  08_public_demo.sql
-  09_erd_user_new_privileges.sql
+  01_create_database.sql
+  02_tables.sql
 )
 
 for f in "${IMPORT_FILES[@]}"; do
@@ -185,17 +167,10 @@ done
 echo "== railway-mysql-init =="
 echo "host=$MYSQL_HOST port=$MYSQL_PORT user=$MYSQL_USER"
 echo "init_dir=$INIT_DIR"
-echo "skip: 05_e2e_users.sql"
-if [[ "$WITH_PRIVILEGES" -eq 1 ]]; then
-  echo "privileges: will import 04_privileges.sql"
-  [[ -f "$INIT_DIR/04_privileges.sql" ]] || die "missing $INIT_DIR/04_privileges.sql"
-else
-  echo "privileges: skip 04_privileges.sql (root path; use --with-privileges if needed)"
-fi
+echo "database: erd (single DB; seeds via Flyway on App start)"
 [[ "$DRY_RUN" -eq 1 ]] && echo "mode: dry-run (no connection)"
 
 run_mysql() {
-  # stdin = SQL; args after -- forwarded to mysql
   if [[ "$DRY_RUN" -eq 1 ]]; then
     echo "DRY-RUN: mysql -h $MYSQL_HOST -P $MYSQL_PORT -u $MYSQL_USER … $*"
     return 0
@@ -211,21 +186,6 @@ run_mysql() {
     "$@"
 }
 
-echo "-- create databases martin + erd (utf8mb4)"
-run_mysql -e "
-CREATE DATABASE IF NOT EXISTS \`erd\`    DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-CREATE DATABASE IF NOT EXISTS \`martin\` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-"
-
-if [[ "$WITH_PRIVILEGES" -eq 1 ]]; then
-  echo "-- import 04_privileges.sql"
-  if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "DRY-RUN: < $INIT_DIR/04_privileges.sql"
-  else
-    run_mysql < "$INIT_DIR/04_privileges.sql" || die "failed importing 04_privileges.sql"
-  fi
-fi
-
 for f in "${IMPORT_FILES[@]}"; do
   echo "-- import $f"
   if [[ "$DRY_RUN" -eq 1 ]]; then
@@ -240,10 +200,11 @@ if [[ "$DRY_RUN" -eq 1 ]]; then
   exit 0
 fi
 
-echo "-- verify"
-count="$(run_mysql -N -e "SELECT COUNT(*) FROM martin.sys_user;" 2>/dev/null || true)"
-if [[ -z "$count" || "$count" == "0" ]]; then
-  die "verify failed: martin.sys_user count empty/zero (expected seed from 03_martin.sql)"
+echo "-- verify schema"
+count="$(run_mysql -N -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='erd' AND table_name='sys_user';" 2>/dev/null || true)"
+if [[ "$count" != "1" ]]; then
+  die "verify failed: erd.sys_user table missing (expected CREATE from 02_tables.sql)"
 fi
-echo "OK martin.sys_user count=$count"
-echo "OK init complete. Redeploy Railway App after DB_HOST/DB_MARTIN/DB_ERD are set (see docs/deployment.md)."
+echo "OK erd.sys_user table exists"
+echo "OK schema init complete. Redeploy App so Flyway applies V3+ seeds (see docs/deployment.md / ADR-0020)."
+echo "    Set DB_NAME=erd (or rely on default); DB_HOST←MYSQLHOST; same user/password for both JDBC pools."

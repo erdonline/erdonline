@@ -15,13 +15,14 @@ import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import javax.sql.DataSource;
 
 /**
- * 系统库（martin）数据源配置 —— 主数据源。
+ * 系统库表数据源配置 —— 主数据源（SqlSessionFactory 名 martin* 为历史命名）。
  *
- * <p>单体化后 system 与 erd 两个业务库表名冲突（sys_user/sys_role 等 schema 不同），
- * 因此保留双数据源：本配置负责 {@code com.erdonline.system.mapper} 及公共库表，
- * 对应 MySQL 的 {@code martin} 库。</p>
+ * <p>ADR-0020：物理上与建模表同属单一业务库 {@code erd}；本配置仍负责
+ * {@code com.erdonline.system.mapper}。两套 DS 指向同一 {@code DB_NAME}，
+ * 按 mapper 包路由避免历史包结构大爆炸。</p>
  *
  * @see ErdDataSourceConfig
+ * @see docs/adr/0020-single-database.md
  */
 @Configuration
 @MapperScan(

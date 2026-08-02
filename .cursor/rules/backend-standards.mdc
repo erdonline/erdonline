@@ -11,5 +11,5 @@ alwaysApply: false
 - **校验**：Controller 入参必须 `@Valid`；全局异常走 `GlobalExceptionHandler`，禁止裸抛
 - **密钥**：密码/密钥只走环境变量（jasypt），禁止入库、入仓、入默认值
 - **测试**：新 Service 必须配单测；修复 bug 必须配回归测试
-- **数据源**：system/auth 走 martin 库，erd 业务走 erd 库，按既有 mapper 包路由，不跨库写
+- **数据源**：单一业务库 `erd`（ADR-0020）；system/auth 与 erd mapper 分 SqlSessionFactory，但同 `DB_NAME`，不跨实例写
 - **依赖**：新增依赖先查 CVE 与维护状态；禁止 SNAPSHOT

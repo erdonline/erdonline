@@ -1,7 +1,6 @@
+-- Formerly db/init/09_erd_user_new_privileges.sql
 -- 新注册角色 ERD_USER_NEW 需具备与 admin 同等业务权限，否则 loadUserByUsername 因无 privilege 失败，
 -- 注册成功后无法登录（表现为「用户名不存在或者密码错误」）。
-USE `martin`;
-
 INSERT INTO `sys_role_privilege` (`id`, `role_id`, `resource_id`, `dict_id`, `tenant_id`, `del_flag`, `create_time`, `creator`)
 SELECT REPLACE(UUID(), '-', ''),
        '100024597134442524',

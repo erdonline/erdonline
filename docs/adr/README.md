@@ -24,3 +24,4 @@
 | [0017](./0017-multi-diagram-and-entity-editor.md) | 多关系图 + 实体编辑器（含图内分组 Frame） | 已接受 · 分阶段 |
 | [0018](./0018-hosting-topology-no-vps.md) | 托管拓扑：GitHub + Cloudflare 免费档，不买生产 VPS | 已接受 |
 | [0019](./0019-demo-runtime-railway.md) | 官方 Demo 运行时：Railway-only（真 MySQL 8）；拒三厂商；Zeabur 为 CN 备选 | 已接受 |
+| [0020](./0020-single-database.md) | 单一业务库 `erd`（取消 martin/erd 双库）；init schema-only；种子走 Flyway | 已接受 |

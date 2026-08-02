@@ -5,6 +5,10 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+      # 单一业务库 + 应用账号（空卷首启由镜像创建；schema 见 db/init 挂载）
+      MYSQL_DATABASE: ${DB_NAME:-erd}
+      MYSQL_USER: ${DB_USERNAME:-erd}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-erd}
       TZ: Asia/Shanghai
     command:
       - --character-set-server=utf8mb4
@@ -51,12 +55,9 @@ services:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
       DB_HOST: mysql
       DB_PORT: 3306
-      DB_MARTIN: ${DB_MARTIN:-martin}
-      DB_ERD: ${DB_ERD:-erd}
-      DB_USERNAME: ${DB_USERNAME:-martin}
-      DB_PASSWORD: ${DB_PASSWORD:-martin}
-      DB_ERD_USERNAME: ${DB_ERD_USERNAME:-erd}
-      DB_ERD_PASSWORD: ${DB_ERD_PASSWORD:-erd}
+      DB_NAME: ${DB_NAME:-erd}
+      DB_USERNAME: ${DB_USERNAME:-erd}
+      DB_PASSWORD: ${DB_PASSWORD:-erd}
       REDIS_HOST: redis
       REDIS_PORT: 6379
     ports:

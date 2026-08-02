@@ -1,33 +1,7 @@
-USE martin;
-
-/*
-去navicate导出结构+数据
-*/
-
+-- Baseline seed formerly in db/init/03_martin.sql (system/auth rows).
+-- Runs once on single-DB `erd` via ErdFlywayConfig.
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
-
--- ----------------------------
--- Table structure for oauth_client_details
--- ----------------------------
-DROP TABLE IF EXISTS `oauth_client_details`;
-CREATE TABLE `oauth_client_details` (
-                                        `ID` varchar(45) NOT NULL COMMENT '主键',
-                                        `CLIENT_ID` varchar(48) NOT NULL COMMENT '客户端唯一标识',
-                                        `CLIENT_SECRET` varchar(256) NOT NULL COMMENT '客户端密码,必须要有前缀代表加密方式',
-                                        `RESOURCE_IDS` varchar(256) DEFAULT NULL COMMENT '客户端能访问的资源id集合,不能为空，用逗号分隔',
-                                        `SCOPE` varchar(256) NOT NULL COMMENT '围client的权限范围',
-                                        `AUTHORIZED_GRANT_TYPES` varchar(256) DEFAULT NULL COMMENT '授权模式(可选值 授权码模式:authorization_code,密码模式:password,刷新token: refresh_token, 隐式模式: implicit: 客户端模式: client_credentials。支持多个用逗号分隔)',
-                                        `WEB_SERVER_REDIRECT_URI` varchar(256) DEFAULT NULL COMMENT '客户端重定向uri',
-                                        `AUTHORITIES` varchar(256) DEFAULT NULL COMMENT '指定用户的权限范围，implicit和client_credentials需要',
-                                        `ACCESS_TOKEN_VALIDITY` int DEFAULT NULL COMMENT '设置access_token的有效时间(秒),默认(606012,12小时)',
-                                        `REFRESH_TOKEN_VALIDITY` int DEFAULT NULL COMMENT '设置refresh_token有效期(秒)，默认(606024*30, 30填)',
-                                        `ADDITIONAL_INFORMATION` varchar(4096) DEFAULT NULL COMMENT '额外的信息，值必须是json格式',
-                                        `AUTOAPPROVE` varchar(256) DEFAULT NULL COMMENT '默认false,适用于authorization_code模式,设置用户是否自动approval操作,设置true跳过用户确认授权操作页面，直接跳到redirect_uri',
-                                        `CREATOR` varchar(45) DEFAULT NULL COMMENT '创建人',
-                                        `UPDATER` varchar(45) DEFAULT NULL COMMENT '修改人',
-                                        PRIMARY KEY (`ID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='oauth2客户端 ';
 
 -- ----------------------------
 -- Records of oauth_client_details
@@ -38,58 +12,16 @@ INSERT INTO `oauth_client_details` VALUES ('2', 'client2', '{bcrypt}$2a$10$gESiy
 INSERT INTO `oauth_client_details` VALUES ('3', 'client3', '{bcrypt}$2a$10$gESiyFVZEXfaE9RWHoRhxOLxv7YKSg.n1bd0gWRqwZgGPcN2Rcn5i', NULL, 'select', 'authorization_code,refresh_token', 'http://127.0.0.1:9402/login,http://127.0.0.1:9403/login', NULL, NULL, NULL, NULL, NULL, '2', '2');
 INSERT INTO `oauth_client_details` VALUES ('4', 'client4', '{bcrypt}$2a$10$gESiyFVZEXfaE9RWHoRhxOLxv7YKSg.n1bd0gWRqwZgGPcN2Rcn5i', NULL, 'select', 'implicit', NULL, NULL, NULL, NULL, NULL, NULL, '2', '2');
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_BLOB_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_BLOB_TRIGGERS`;
-CREATE TABLE `QRTZ_BLOB_TRIGGERS` (
-                                      `SCHED_NAME` varchar(120) NOT NULL,
-                                      `TRIGGER_NAME` varchar(190) NOT NULL,
-                                      `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                      `BLOB_DATA` blob,
-                                      PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                      KEY `SCHED_NAME` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                      CONSTRAINT `qrtz_blob_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_BLOB_TRIGGERS
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_CALENDARS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_CALENDARS`;
-CREATE TABLE `QRTZ_CALENDARS` (
-                                  `SCHED_NAME` varchar(120) NOT NULL,
-                                  `CALENDAR_NAME` varchar(190) NOT NULL,
-                                  `CALENDAR` blob NOT NULL,
-                                  PRIMARY KEY (`SCHED_NAME`,`CALENDAR_NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_CALENDARS
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_CRON_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_CRON_TRIGGERS`;
-CREATE TABLE `QRTZ_CRON_TRIGGERS` (
-                                      `SCHED_NAME` varchar(120) NOT NULL,
-                                      `TRIGGER_NAME` varchar(190) NOT NULL,
-                                      `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                      `CRON_EXPRESSION` varchar(120) NOT NULL,
-                                      `TIME_ZONE_ID` varchar(80) DEFAULT NULL,
-                                      PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                      CONSTRAINT `qrtz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_CRON_TRIGGERS
 -- ----------------------------
@@ -98,34 +30,6 @@ INSERT INTO `QRTZ_CRON_TRIGGERS` VALUES ('MartinScheduler', 'martinjob', 'martin
 INSERT INTO `QRTZ_CRON_TRIGGERS` VALUES ('MartinScheduler', 'martinjob1', 'martin1', '*/5 * * * * ?', 'Asia/Shanghai');
 INSERT INTO `QRTZ_CRON_TRIGGERS` VALUES ('MartinScheduler', 'martinjob2', 'martin2', '*/5 * * * * ?', 'Asia/Shanghai');
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_FIRED_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_FIRED_TRIGGERS`;
-CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
-                                       `SCHED_NAME` varchar(120) NOT NULL,
-                                       `ENTRY_ID` varchar(95) NOT NULL,
-                                       `TRIGGER_NAME` varchar(190) NOT NULL,
-                                       `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                       `INSTANCE_NAME` varchar(190) NOT NULL,
-                                       `FIRED_TIME` bigint NOT NULL,
-                                       `SCHED_TIME` bigint NOT NULL,
-                                       `PRIORITY` int NOT NULL,
-                                       `STATE` varchar(16) NOT NULL,
-                                       `JOB_NAME` varchar(190) DEFAULT NULL,
-                                       `JOB_GROUP` varchar(190) DEFAULT NULL,
-                                       `IS_NONCONCURRENT` varchar(1) DEFAULT NULL,
-                                       `REQUESTS_RECOVERY` varchar(1) DEFAULT NULL,
-                                       PRIMARY KEY (`SCHED_NAME`,`ENTRY_ID`),
-                                       KEY `IDX_QRTZ_FT_TRIG_INST_NAME` (`SCHED_NAME`,`INSTANCE_NAME`),
-                                       KEY `IDX_QRTZ_FT_INST_JOB_REQ_RCVRY` (`SCHED_NAME`,`INSTANCE_NAME`,`REQUESTS_RECOVERY`),
-                                       KEY `IDX_QRTZ_FT_J_G` (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
-                                       KEY `IDX_QRTZ_FT_JG` (`SCHED_NAME`,`JOB_GROUP`),
-                                       KEY `IDX_QRTZ_FT_T_G` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                       KEY `IDX_QRTZ_FT_TG` (`SCHED_NAME`,`TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_FIRED_TRIGGERS
 -- ----------------------------
@@ -133,56 +37,11 @@ BEGIN;
 INSERT INTO `QRTZ_FIRED_TRIGGERS` VALUES ('MartinScheduler', 'NON_CLUSTERED1616062562260', 'MT_1f656a551tyd5', 'DEFAULT', 'NON_CLUSTERED', 1616063202163, 1616063160459, 5, 'EXECUTING', 'martinjob', 'martin', '0', '0');
 INSERT INTO `QRTZ_FIRED_TRIGGERS` VALUES ('MartinScheduler', 'NON_CLUSTERED1616062562264', 'MT_dall0dj69ht85', 'DEFAULT', 'NON_CLUSTERED', 1616063202339, 1616063184057, 5, 'EXECUTING', 'martinjob', 'martin', '0', '0');
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_HISTORY
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_HISTORY`;
-CREATE TABLE `QRTZ_HISTORY` (
-                                `ID` int NOT NULL AUTO_INCREMENT COMMENT '主键',
-                                `SCHED_NAME` varchar(120) NOT NULL COMMENT '调度器名称',
-                                `TRIGGER_NAME` varchar(190) NOT NULL COMMENT '触发器名称',
-                                `TRIGGER_GROUP` varchar(190) NOT NULL COMMENT '触发器分组',
-                                `JOB_NAME` varchar(190) NOT NULL COMMENT '任务名称',
-                                `JOB_GROUP` varchar(190) NOT NULL COMMENT '任务分组',
-                                `JOB_STATUS` varchar(10) DEFAULT NULL COMMENT '任务执行状态',
-                                `NEXT_FIRE_TIME` bigint DEFAULT NULL COMMENT '下次执行时间',
-                                `PREV_FIRE_TIME` bigint DEFAULT NULL COMMENT '上次执行时间',
-                                `JOB_DATA` varchar(200) DEFAULT NULL COMMENT '任务执行记录日志',
-                                `DEL_FLAG` char(1) DEFAULT NULL COMMENT '删除标识（0-正常,1-删除）',
-                                `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-                                `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
-                                `CREATOR` varchar(45) DEFAULT NULL COMMENT '创建人',
-                                `UPDATER` varchar(45) DEFAULT NULL COMMENT '修改人',
-                                PRIMARY KEY (`ID`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1031 DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_HISTORY
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_JOB_DETAILS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_JOB_DETAILS`;
-CREATE TABLE `QRTZ_JOB_DETAILS` (
-                                    `SCHED_NAME` varchar(120) NOT NULL,
-                                    `JOB_NAME` varchar(190) NOT NULL,
-                                    `JOB_GROUP` varchar(190) NOT NULL,
-                                    `DESCRIPTION` varchar(250) DEFAULT NULL,
-                                    `JOB_CLASS_NAME` varchar(250) NOT NULL,
-                                    `IS_DURABLE` varchar(1) NOT NULL,
-                                    `IS_NONCONCURRENT` varchar(1) NOT NULL,
-                                    `IS_UPDATE_DATA` varchar(1) NOT NULL,
-                                    `REQUESTS_RECOVERY` varchar(1) NOT NULL,
-                                    `JOB_DATA` blob,
-                                    PRIMARY KEY (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
-                                    KEY `IDX_QRTZ_J_REQ_RECOVERY` (`SCHED_NAME`,`REQUESTS_RECOVERY`),
-                                    KEY `IDX_QRTZ_J_GRP` (`SCHED_NAME`,`JOB_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_JOB_DETAILS
 -- ----------------------------
@@ -191,34 +50,12 @@ INSERT INTO `QRTZ_JOB_DETAILS` VALUES ('MartinScheduler', 'martinjob', 'martin',
 INSERT INTO `QRTZ_JOB_DETAILS` VALUES ('MartinScheduler', 'martinjob1', 'martin1', NULL, 'com.java2e.martin.extension.quartz.job.TestJob', '0', '0', '0', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787000737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F40000000000010770800000010000000007800);
 INSERT INTO `QRTZ_JOB_DETAILS` VALUES ('MartinScheduler', 'martinjob2', 'martin2', NULL, 'com.java2e.martin.extension.quartz.job.TestJob', '0', '0', '0', '0', 0xACED0005737200156F72672E71756172747A2E4A6F62446174614D61709FB083E8BFA9B0CB020000787200266F72672E71756172747A2E7574696C732E537472696E674B65794469727479466C61674D61708208E8C3FBC55D280200015A0013616C6C6F77735472616E7369656E74446174617872001D6F72672E71756172747A2E7574696C732E4469727479466C61674D617013E62EAD28760ACE0200025A000564697274794C00036D617074000F4C6A6176612F7574696C2F4D61703B787000737200116A6176612E7574696C2E486173684D61700507DAC1C31660D103000246000A6C6F6164466163746F724900097468726573686F6C6478703F40000000000010770800000010000000007800);
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_LOCKS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_LOCKS`;
-CREATE TABLE `QRTZ_LOCKS` (
-                              `SCHED_NAME` varchar(120) NOT NULL,
-                              `LOCK_NAME` varchar(40) NOT NULL,
-                              PRIMARY KEY (`SCHED_NAME`,`LOCK_NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_LOCKS
 -- ----------------------------
 BEGIN;
 INSERT INTO `QRTZ_LOCKS` VALUES ('MartinScheduler', 'TRIGGER_ACCESS');
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_PAUSED_TRIGGER_GRPS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_PAUSED_TRIGGER_GRPS`;
-CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS` (
-                                            `SCHED_NAME` varchar(120) NOT NULL,
-                                            `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                            PRIMARY KEY (`SCHED_NAME`,`TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_PAUSED_TRIGGER_GRPS
 -- ----------------------------
@@ -229,40 +66,11 @@ INSERT INTO `QRTZ_PAUSED_TRIGGER_GRPS` VALUES ('MartinScheduler', 'martin1');
 INSERT INTO `QRTZ_PAUSED_TRIGGER_GRPS` VALUES ('MartinScheduler', 'martin2');
 INSERT INTO `QRTZ_PAUSED_TRIGGER_GRPS` VALUES ('MartinScheduler', '_$_ALL_GROUPS_PAUSED_$_');
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_SCHEDULER_STATE
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_SCHEDULER_STATE`;
-CREATE TABLE `QRTZ_SCHEDULER_STATE` (
-                                        `SCHED_NAME` varchar(120) NOT NULL,
-                                        `INSTANCE_NAME` varchar(190) NOT NULL,
-                                        `LAST_CHECKIN_TIME` bigint NOT NULL,
-                                        `CHECKIN_INTERVAL` bigint NOT NULL,
-                                        PRIMARY KEY (`SCHED_NAME`,`INSTANCE_NAME`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_SCHEDULER_STATE
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_SIMPLE_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_SIMPLE_TRIGGERS`;
-CREATE TABLE `QRTZ_SIMPLE_TRIGGERS` (
-                                        `SCHED_NAME` varchar(120) NOT NULL,
-                                        `TRIGGER_NAME` varchar(190) NOT NULL,
-                                        `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                        `REPEAT_COUNT` bigint NOT NULL,
-                                        `REPEAT_INTERVAL` bigint NOT NULL,
-                                        `TIMES_TRIGGERED` bigint NOT NULL,
-                                        PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                        CONSTRAINT `qrtz_simple_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_SIMPLE_TRIGGERS
 -- ----------------------------
@@ -271,73 +79,11 @@ INSERT INTO `QRTZ_SIMPLE_TRIGGERS` VALUES ('MartinScheduler', 'MT_1f656a551tyd5'
 INSERT INTO `QRTZ_SIMPLE_TRIGGERS` VALUES ('MartinScheduler', 'MT_dall0dj69ht85', 'DEFAULT', 0, 0, 1);
 INSERT INTO `QRTZ_SIMPLE_TRIGGERS` VALUES ('MartinScheduler', 'MT_fn5l5ytnguv', 'DEFAULT', 0, 0, 0);
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_SIMPROP_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_SIMPROP_TRIGGERS`;
-CREATE TABLE `QRTZ_SIMPROP_TRIGGERS` (
-                                         `SCHED_NAME` varchar(120) NOT NULL,
-                                         `TRIGGER_NAME` varchar(190) NOT NULL,
-                                         `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                         `STR_PROP_1` varchar(512) DEFAULT NULL,
-                                         `STR_PROP_2` varchar(512) DEFAULT NULL,
-                                         `STR_PROP_3` varchar(512) DEFAULT NULL,
-                                         `INT_PROP_1` int DEFAULT NULL,
-                                         `INT_PROP_2` int DEFAULT NULL,
-                                         `LONG_PROP_1` bigint DEFAULT NULL,
-                                         `LONG_PROP_2` bigint DEFAULT NULL,
-                                         `DEC_PROP_1` decimal(13,4) DEFAULT NULL,
-                                         `DEC_PROP_2` decimal(13,4) DEFAULT NULL,
-                                         `BOOL_PROP_1` varchar(1) DEFAULT NULL,
-                                         `BOOL_PROP_2` varchar(1) DEFAULT NULL,
-                                         PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                         CONSTRAINT `qrtz_simprop_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_SIMPROP_TRIGGERS
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for QRTZ_TRIGGERS
--- ----------------------------
-DROP TABLE IF EXISTS `QRTZ_TRIGGERS`;
-CREATE TABLE `QRTZ_TRIGGERS` (
-                                 `SCHED_NAME` varchar(120) NOT NULL,
-                                 `TRIGGER_NAME` varchar(190) NOT NULL,
-                                 `TRIGGER_GROUP` varchar(190) NOT NULL,
-                                 `JOB_NAME` varchar(190) NOT NULL,
-                                 `JOB_GROUP` varchar(190) NOT NULL,
-                                 `DESCRIPTION` varchar(250) DEFAULT NULL,
-                                 `NEXT_FIRE_TIME` bigint DEFAULT NULL,
-                                 `PREV_FIRE_TIME` bigint DEFAULT NULL,
-                                 `PRIORITY` int DEFAULT NULL,
-                                 `TRIGGER_STATE` varchar(16) NOT NULL,
-                                 `TRIGGER_TYPE` varchar(8) NOT NULL,
-                                 `START_TIME` bigint NOT NULL,
-                                 `END_TIME` bigint DEFAULT NULL,
-                                 `CALENDAR_NAME` varchar(190) DEFAULT NULL,
-                                 `MISFIRE_INSTR` smallint DEFAULT NULL,
-                                 `JOB_DATA` blob,
-                                 PRIMARY KEY (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`),
-                                 KEY `IDX_QRTZ_T_J` (`SCHED_NAME`,`JOB_NAME`,`JOB_GROUP`),
-                                 KEY `IDX_QRTZ_T_JG` (`SCHED_NAME`,`JOB_GROUP`),
-                                 KEY `IDX_QRTZ_T_C` (`SCHED_NAME`,`CALENDAR_NAME`),
-                                 KEY `IDX_QRTZ_T_G` (`SCHED_NAME`,`TRIGGER_GROUP`),
-                                 KEY `IDX_QRTZ_T_STATE` (`SCHED_NAME`,`TRIGGER_STATE`),
-                                 KEY `IDX_QRTZ_T_N_STATE` (`SCHED_NAME`,`TRIGGER_NAME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
-                                 KEY `IDX_QRTZ_T_N_G_STATE` (`SCHED_NAME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
-                                 KEY `IDX_QRTZ_T_NEXT_FIRE_TIME` (`SCHED_NAME`,`NEXT_FIRE_TIME`),
-                                 KEY `IDX_QRTZ_T_NFT_ST` (`SCHED_NAME`,`TRIGGER_STATE`,`NEXT_FIRE_TIME`),
-                                 KEY `IDX_QRTZ_T_NFT_MISFIRE` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`),
-                                 KEY `IDX_QRTZ_T_NFT_ST_MISFIRE` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`,`TRIGGER_STATE`),
-                                 KEY `IDX_QRTZ_T_NFT_ST_MISFIRE_GRP` (`SCHED_NAME`,`MISFIRE_INSTR`,`NEXT_FIRE_TIME`,`TRIGGER_GROUP`,`TRIGGER_STATE`),
-                                 CONSTRAINT `qrtz_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `QRTZ_JOB_DETAILS` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
-
 -- ----------------------------
 -- Records of QRTZ_TRIGGERS
 -- ----------------------------
@@ -349,25 +95,6 @@ INSERT INTO `QRTZ_TRIGGERS` VALUES ('MartinScheduler', 'MT_1f656a551tyd5', 'DEFA
 INSERT INTO `QRTZ_TRIGGERS` VALUES ('MartinScheduler', 'MT_dall0dj69ht85', 'DEFAULT', 'martinjob', 'martin', NULL, -1, 1616063184057, 5, 'COMPLETE', 'SIMPLE', 1616063184057, 0, NULL, 0, '');
 INSERT INTO `QRTZ_TRIGGERS` VALUES ('MartinScheduler', 'MT_fn5l5ytnguv', 'DEFAULT', 'martinjob', 'martin', NULL, 1616063215849, -1, 5, 'PAUSED', 'SIMPLE', 1616063215849, 0, NULL, 0, '');
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_announcement
--- ----------------------------
-DROP TABLE IF EXISTS `sys_announcement`;
-CREATE TABLE `sys_announcement` (
-                                    `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
-                                    `title` varchar(128) COLLATE utf8mb4_general_ci NOT NULL COMMENT '标题',
-                                    `content` varchar(1024) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '内容',
-                                    `url` varchar(1024) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '跳转地址',
-                                    `del_flag` char(1) COLLATE utf8mb4_general_ci DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                                    `revision` int DEFAULT NULL COMMENT '乐观锁',
-                                    `creator` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '创建人',
-                                    `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                    `updater` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '更新人',
-                                    `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                                    PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='公告表 ';
-
 -- ----------------------------
 -- Records of sys_announcement
 -- ----------------------------
@@ -382,85 +109,16 @@ INSERT INTO `sys_announcement` VALUES ('1709844318207873025', 'ERD Online 元数
 INSERT INTO `sys_announcement` VALUES ('1709844581379477505', '解锁ERD Online 高级隐藏功能', NULL, 'https://mp.weixin.qq.com/s/tnIU_tpH5b52uySggVWc2Q', '0', NULL, NULL, '2023-10-05 16:14:50', NULL, NULL);
 INSERT INTO `sys_announcement` VALUES ('1709844686702645250', 'ERDOnline对接ChatGPT，实现AI建模SQL自由', NULL, 'https://mp.weixin.qq.com/s/QC5d8OxUSZ-erhh2NKxK7A', '0', NULL, NULL, '2023-10-05 16:15:15', NULL, NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_code
--- ----------------------------
-DROP TABLE IF EXISTS `sys_code`;
-CREATE TABLE `sys_code` (
-                            `id` varchar(45) NOT NULL COMMENT '主键',
-                            `table_name` varchar(255) DEFAULT '' COMMENT '表名',
-                            `table_comment` varchar(255) DEFAULT '' COMMENT '表注释',
-                            `table_prefix` varchar(255) DEFAULT '' COMMENT '表前缀',
-                            `module_name` varchar(255) DEFAULT '' COMMENT '所属模块',
-                            `module_code` varchar(255) DEFAULT '' COMMENT '模块编码',
-                            `parent` varchar(255) DEFAULT '' COMMENT '包名',
-                            `author` varchar(50) DEFAULT NULL COMMENT '作者',
-                            `db_url` varchar(200) DEFAULT NULL COMMENT 'url',
-                            `db_driver_name` varchar(100) DEFAULT NULL COMMENT '驱动名称',
-                            `db_username` varchar(100) DEFAULT NULL COMMENT '用户名',
-                            `db_password` varchar(100) DEFAULT NULL COMMENT '密码',
-                            `tenant_id` varchar(45) DEFAULT '0' COMMENT '所属租户',
-                            `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                            `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                            `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                            `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                            `menu` varchar(255) DEFAULT NULL COMMENT '按钮',
-                            PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统代码生成表';
-
 -- ----------------------------
 -- Records of sys_code
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_config
--- ----------------------------
-DROP TABLE IF EXISTS `sys_config`;
-CREATE TABLE `sys_config` (
-                              `ID` varchar(45) NOT NULL COMMENT '主键',
-                              `NAME` varchar(50) DEFAULT NULL COMMENT '名称',
-                              `VALUE` varchar(100) DEFAULT NULL COMMENT '配置值',
-                              `TYPE` varchar(40) NOT NULL COMMENT '配置关键字',
-                              `TENANT_ID` varchar(45) NOT NULL DEFAULT '0' COMMENT '租户',
-                              `DEL_FLAG` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                              `CREATE_TIME` datetime DEFAULT NULL COMMENT '创建时间',
-                              `UPDATE_TIME` datetime DEFAULT NULL COMMENT '更新时间',
-                              `CREATOR` varchar(45) DEFAULT NULL COMMENT '创建人',
-                              `UPDATER` varchar(45) DEFAULT NULL COMMENT '修改人',
-                              PRIMARY KEY (`ID`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统配置 ';
-
 -- ----------------------------
 -- Records of sys_config
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_dept
--- ----------------------------
-DROP TABLE IF EXISTS `sys_dept`;
-CREATE TABLE `sys_dept` (
-                            `id` varchar(11) NOT NULL COMMENT '主键',
-                            `name` varchar(50) DEFAULT NULL COMMENT '部门名称',
-                            `address` varchar(200) DEFAULT NULL COMMENT '部门所在地',
-                            `phone` varchar(50) DEFAULT NULL COMMENT '部门电话',
-                            `dept_level` int DEFAULT NULL COMMENT '部门级别',
-                            `sort` int DEFAULT NULL COMMENT '排序',
-                            `dept_id` varchar(45) DEFAULT NULL COMMENT '上级部门id',
-                            `tenant_id` varchar(45) DEFAULT NULL COMMENT '所属租户',
-                            `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                            `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                            `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                            `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                            PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统部门';
-
 -- ----------------------------
 -- Records of sys_dept
 -- ----------------------------
@@ -471,77 +129,16 @@ INSERT INTO `sys_dept` VALUES ('3', '上海', '上海', '1111', 1, 2, '2', NULL,
 INSERT INTO `sys_dept` VALUES ('4', '美国', '1', '1', 1, 1, NULL, NULL, '0', '2020-09-22 14:43:59', NULL, '2', NULL);
 INSERT INTO `sys_dept` VALUES ('5', '顺应', '北京', '111', 1, 3, '3', NULL, '0', '2021-04-21 11:24:50', NULL, '2', NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_dept_role
--- ----------------------------
-DROP TABLE IF EXISTS `sys_dept_role`;
-CREATE TABLE `sys_dept_role` (
-                                 `id` varchar(45) NOT NULL COMMENT '主键',
-                                 `dept_id` varchar(45) NOT NULL COMMENT '部门id',
-                                 `role_id` varchar(45) NOT NULL COMMENT '角色id',
-                                 `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                 `update_time` datetime DEFAULT NULL COMMENT '修改时间',
-                                 `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                                 `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                                 PRIMARY KEY (`id`) USING BTREE,
-                                 KEY `fk_sys_dept_has_sys_role_sys_role1_idx` (`role_id`) USING BTREE,
-                                 KEY `fk_sys_dept_has_sys_role_sys_dept1_idx` (`dept_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统部门角色关系';
-
 -- ----------------------------
 -- Records of sys_dept_role
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_dept_user
--- ----------------------------
-DROP TABLE IF EXISTS `sys_dept_user`;
-CREATE TABLE `sys_dept_user` (
-                                 `id` varchar(45) NOT NULL COMMENT '主键',
-                                 `user_id` varchar(45) NOT NULL COMMENT '用户id',
-                                 `dept_id` varchar(45) NOT NULL COMMENT '部门id',
-                                 `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                                 `update_time` datetime DEFAULT NULL COMMENT '修改时间',
-                                 `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                                 `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                                 PRIMARY KEY (`id`) USING BTREE,
-                                 KEY `fk_sys_user_has_sys_dept_sys_dept1_idx` (`dept_id`) USING BTREE,
-                                 KEY `fk_sys_user_has_sys_dept_sys_user1_idx` (`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统用户部门关系';
-
 -- ----------------------------
 -- Records of sys_dept_user
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_dict
--- ----------------------------
-DROP TABLE IF EXISTS `sys_dict`;
-CREATE TABLE `sys_dict` (
-                            `id` varchar(45) NOT NULL COMMENT '主键',
-                            `value` varchar(100) NOT NULL COMMENT '数据值',
-                            `label` varchar(100) NOT NULL COMMENT '标签名',
-                            `type` varchar(100) NOT NULL COMMENT '类型',
-                            `description` varchar(100) NOT NULL COMMENT '描述',
-                            `sort` int NOT NULL COMMENT '排序（升序）',
-                            `remarks` varchar(255) DEFAULT NULL COMMENT '备注信息',
-                            `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-                            `del_flag` char(1) NOT NULL DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                            `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-                            `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                            `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                            PRIMARY KEY (`id`) USING BTREE,
-                            KEY `sys_dict_value` (`value`) USING BTREE,
-                            KEY `sys_dict_label` (`label`) USING BTREE,
-                            KEY `sys_dict_del_flag` (`del_flag`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统字典';
-
 -- ----------------------------
 -- Records of sys_dict
 -- ----------------------------
@@ -569,28 +166,6 @@ INSERT INTO `sys_dict` VALUES ('7', '2', 'none', 'flag_dev_status', '不区分�
 INSERT INTO `sys_dict` VALUES ('8', '_blank', 'blank', 'flag_html_target', '浏览器总在一个新打开、未命名的窗口中载入目标文档', 1, NULL, '0', '0', '2020-09-23 16:01:49', '2020-09-23 16:14:29', '2', '2');
 INSERT INTO `sys_dict` VALUES ('9', '_self', 'self', 'flag_html_target', '这个目标的值对所有没有指定目标的 <a> 标签是默认目标', 1, NULL, '0', '0', '2020-09-23 16:04:07', '2020-09-23 16:04:07', '2', NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_element
--- ----------------------------
-DROP TABLE IF EXISTS `sys_element`;
-CREATE TABLE `sys_element` (
-                               `id` varchar(45) NOT NULL COMMENT '主键',
-                               `name` varchar(32) NOT NULL COMMENT '页面元素名称',
-                               `authority` varchar(32) NOT NULL COMMENT '权限编码',
-                               `flag_request_method` varchar(45) DEFAULT NULL COMMENT '请求类型',
-                               `url` varchar(250) DEFAULT NULL COMMENT '页面元素路径',
-                               `sort` int DEFAULT '1' COMMENT '排序值',
-                               `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-                               `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                               `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                               `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                               `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                               `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                               PRIMARY KEY (`id`) USING BTREE,
-                               UNIQUE KEY `code_UNIQUE` (`authority`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统页面元素';
-
 -- ----------------------------
 -- Records of sys_element
 -- ----------------------------
@@ -598,96 +173,11 @@ BEGIN;
 INSERT INTO `sys_element` VALUES ('3', '个人VIP', 'ele_person_vip', NULL, '', 1, '0', '0', '2021-07-12 15:53:27', NULL, '2', NULL);
 INSERT INTO `sys_element` VALUES ('4', '企业VIP', 'ele_enterprise_vip', NULL, '', 1, '0', '0', '2021-07-12 15:54:17', NULL, '2', NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_file
--- ----------------------------
-DROP TABLE IF EXISTS `sys_file`;
-CREATE TABLE `sys_file` (
-                            `id` varchar(45) NOT NULL COMMENT '主键',
-                            `name` varchar(32) NOT NULL COMMENT '文件名称',
-                            `authority` varchar(32) NOT NULL COMMENT '权限编码',
-                            `flag_request_method` int DEFAULT NULL COMMENT '请求类型',
-                            `url` varchar(250) DEFAULT NULL COMMENT '文件路径',
-                            `sort` int DEFAULT '1' COMMENT '排序值',
-                            `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-                            `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                            `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                            `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                            `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                            `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                            PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统文件';
-
 -- ----------------------------
 -- Records of sys_file
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_log
--- ----------------------------
-DROP TABLE IF EXISTS `sys_log`;
-CREATE TABLE `sys_log` (
-                           `id` varchar(45) NOT NULL COMMENT '主键',
-                           `type` int DEFAULT NULL COMMENT '日志状态',
-                           `title` varchar(255) DEFAULT '' COMMENT '日志标题',
-                           `remote_addr` varchar(255) DEFAULT NULL COMMENT '操作IP地址',
-                           `user_agent` varchar(1000) DEFAULT NULL COMMENT '用户代理',
-                           `request_uri` varchar(255) DEFAULT NULL COMMENT '请求URI',
-                           `method` varchar(10) DEFAULT NULL COMMENT '操作方式',
-                           `params` text COMMENT '操作提交的数据',
-                           `body` varchar(4000) DEFAULT NULL COMMENT '请求body体',
-                           `time` bigint DEFAULT NULL COMMENT '执行时间(ms)',
-                           `exception` text COMMENT '异常信息',
-                           `tenant_id` varchar(45) DEFAULT '0' COMMENT '所属租户',
-                           `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-                           `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-                           `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-                           `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-                           `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-                           PRIMARY KEY (`id`) USING BTREE,
-                           KEY `sys_log_type` (`type`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统日志';
-
-
-
--- ----------------------------
--- Table structure for sys_menu
--- ----------------------------
-DROP TABLE IF EXISTS `sys_menu`;
-CREATE TABLE `sys_menu` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `name` varchar(32) NOT NULL COMMENT '菜单名称',
-  `authority` varchar(50) NOT NULL COMMENT '权限编码',
-  `flag_project_group` varchar(45) DEFAULT NULL COMMENT '所属项目分组',
-  `flag_request_method` varchar(45) DEFAULT NULL COMMENT '请求类型',
-  `url` varchar(250) DEFAULT NULL COMMENT '后端权限url',
-  `path` varchar(128) DEFAULT NULL COMMENT '前端URL',
-  `target` varchar(50) DEFAULT '_blank' COMMENT '重定向操作',
-  `table_name` varchar(50) DEFAULT NULL COMMENT '绑定表名',
-  `menu_id` varchar(45) DEFAULT NULL COMMENT '父菜单ID',
-  `icon` varchar(32) DEFAULT NULL COMMENT '图标',
-  `locale` varchar(45) DEFAULT NULL COMMENT '国际化字段',
-  `parent_key` varchar(200) DEFAULT NULL COMMENT '父菜单路径',
-  `ui_key` varchar(100) DEFAULT NULL COMMENT '任意值',
-  `component` varchar(64) DEFAULT NULL COMMENT '前端组件',
-  `sort` int DEFAULT '1' COMMENT '排序值',
-  `hide_in_menu` bit(1) DEFAULT b'0' COMMENT '是否隐藏菜单',
-  `hide_children_in_menu` bit(1) DEFAULT b'0' COMMENT '是否隐藏子菜单',
-  `dev` bit(1) NOT NULL DEFAULT b'0' COMMENT '是否为演示数据',
-  `flag_is_gent_operation` bit(1) DEFAULT b'0' COMMENT '是否已生成按钮',
-  `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `uk_authority` (`authority`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统菜单';
-
 -- ----------------------------
 -- Records of sys_menu
 -- ----------------------------
@@ -768,33 +258,6 @@ INSERT INTO `sys_menu` VALUES ('194', '调度记录', 'QRTZ_HISTORY_page', NULL,
 INSERT INTO `sys_menu` VALUES ('195', '任务管理', 'quartz_quartz', NULL, NULL, NULL, '/quartz/quartz', '_blank', 'QRTZ_JOB_DETAILS', '193', 'icon-wangluotiaodushitu', 'menu.quartz.quartz', NULL, NULL, NULL, 57, b'0', b'0', b'0', b'0', '0', '0', '2021-03-18 17:13:41', '2021-03-18 18:39:52', '2', '2');
 INSERT INTO `sys_menu` VALUES ('196', 'ERD权限管理', 'erd', '22', NULL, NULL, '/dashboard1', '_blank', NULL, NULL, 'icon-gongzuotaishouye', 'menu.dashboard', NULL, NULL, NULL, 1, b'0', b'0', b'0', b'0', '0', '0', '2021-05-13 10:20:42', NULL, '2', NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_operation
--- ----------------------------
-DROP TABLE IF EXISTS `sys_operation`;
-CREATE TABLE `sys_operation` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `name` varchar(32) NOT NULL COMMENT '操作名称',
-  `authority` varchar(64) DEFAULT NULL COMMENT '权限编码',
-  `flag_request_method` varchar(45) DEFAULT NULL COMMENT '请求类型',
-  `url` varchar(250) DEFAULT NULL COMMENT '后端权限url',
-  `parent_id` varchar(45) DEFAULT NULL COMMENT '父操作id',
-  `menu_id` varchar(45) DEFAULT NULL COMMENT '所属菜单',
-  `icon` varchar(32) DEFAULT NULL COMMENT '图标',
-  `component` varchar(64) DEFAULT NULL COMMENT '前端组件',
-  `sort` int DEFAULT '1' COMMENT '排序值',
-  `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `code_UNIQUE` (`authority`) USING BTREE,
-  KEY `sys_operation_menu_id_index` (`menu_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统操作';
-
 -- ----------------------------
 -- Records of sys_operation
 -- ----------------------------
@@ -976,29 +439,6 @@ INSERT INTO `sys_operation` VALUES ('97', '查询', 'sys_user_role_get', '16', N
 INSERT INTO `sys_operation` VALUES ('98', '分页', 'sys_user_role_page', '16', NULL, '0', NULL, NULL, NULL, 1, '0', '0', '2019-10-30 15:45:39', NULL, '2', '2');
 INSERT INTO `sys_operation` VALUES ('99', '批量删除', 'sys_user_role_deleteBatch', '19', NULL, '0', NULL, NULL, NULL, 1, '0', '0', '2019-10-30 15:45:39', NULL, '2', '2');
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_privilege
--- ----------------------------
-DROP TABLE IF EXISTS `sys_privilege`;
-CREATE TABLE `sys_privilege` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `type` varchar(50) NOT NULL COMMENT '权限类型',
-  `resource_id` varchar(45) NOT NULL COMMENT '资源id',
-  `role_id` varchar(45) NOT NULL COMMENT '角色id',
-  `dict_id` varchar(45) NOT NULL COMMENT '权限类型',
-  `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-  `del_flag` char(1) NOT NULL DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `sys_dict_del_flag` (`del_flag`) USING BTREE,
-  KEY `fk_sys_privilege_sys_dict1_idx` (`dict_id`) USING BTREE,
-  KEY `sys_privilege_role_id_index` (`role_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统权限';
-
 -- ----------------------------
 -- Records of sys_privilege
 -- ----------------------------
@@ -3118,29 +2558,6 @@ INSERT INTO `sys_privilege` VALUES ('980', '1', '169', '3', '1', '0', '0', '2020
 INSERT INTO `sys_privilege` VALUES ('981', '1', '170', '3', '1', '0', '0', '2020-09-02 17:26:31', '2020-09-18 16:16:47', '2', '2');
 INSERT INTO `sys_privilege` VALUES ('982', '1', '172', '3', '1', '0', '0', '2020-09-02 17:26:31', '2020-09-18 16:16:47', '2', '2');
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_role
--- ----------------------------
-DROP TABLE IF EXISTS `sys_role`;
-CREATE TABLE `sys_role` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `role_name` varchar(64) NOT NULL COMMENT '角色名称',
-  `role_code` varchar(64) NOT NULL COMMENT '角色编码',
-  `role_desc` varchar(255) DEFAULT NULL COMMENT '角色描述',
-  `ds_type` char(1) NOT NULL DEFAULT '2' COMMENT '数据权限类型',
-  `ds_scope` varchar(255) DEFAULT NULL COMMENT '数据权限范围',
-  `project_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '0' COMMENT '所属项目',
-  `tenant_id` varchar(45) DEFAULT NULL COMMENT '所属租户',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '更新时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `role_idx1_role_code` (`role_code`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统角色';
-
 -- ----------------------------
 -- Records of sys_role
 -- ----------------------------
@@ -3246,28 +2663,6 @@ INSERT INTO `sys_role` VALUES ('faad43a531b1cb59553b6d0dee4d3f41', '团队管理
 INSERT INTO `sys_role` VALUES ('ff48340bff93b8c75b1d53d791ea8fd2', '团队普通成员', 'fcc39073_COMMON', NULL, '2', NULL, '0', NULL, '0', '2022-10-29 12:22:38', NULL, '2', NULL);
 INSERT INTO `sys_role` VALUES ('ff4ea4bc28bb3709177562e19049e86b', '团队管理员', 'b0634f19_1', NULL, '2', NULL, '0', NULL, '0', '2023-01-08 10:30:58', NULL, 'admin7', NULL);
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_role_privilege
--- ----------------------------
-DROP TABLE IF EXISTS `sys_role_privilege`;
-CREATE TABLE `sys_role_privilege` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `role_id` varchar(45) NOT NULL COMMENT '角色id',
-  `resource_id` varchar(45) DEFAULT NULL COMMENT '资源id',
-  `dict_id` varchar(45) DEFAULT NULL COMMENT '权限类型',
-  `tenant_id` varchar(45) DEFAULT '0' COMMENT '所属租户',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  KEY `fk_sys_role_has_sys_privilege_sys_role1_idx` (`role_id`) USING BTREE,
-  KEY `sys_role_privilege_dict_id_index` (`dict_id`) USING BTREE,
-  KEY `sys_role_privilege_resource_id_index` (`resource_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统角色权限关系--废弃';
-
 -- ----------------------------
 -- Records of sys_role_privilege
 -- ----------------------------
@@ -3289,97 +2684,17 @@ INSERT INTO `sys_role_privilege` VALUES ('7', '1', '134', NULL, NULL, '0', '2020
 INSERT INTO `sys_role_privilege` VALUES ('8', '1', '134', NULL, NULL, '0', '2020-09-01 18:40:46', NULL, '2', '2');
 INSERT INTO `sys_role_privilege` VALUES ('9', '1', '135', NULL, NULL, '0', '2020-09-01 18:40:46', NULL, '2', '2');
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_social_details
--- ----------------------------
-DROP TABLE IF EXISTS `sys_social_details`;
-CREATE TABLE `sys_social_details` (
-  `id` varchar(45) NOT NULL COMMENT '主鍵',
-  `type` varchar(16) NOT NULL COMMENT '类型',
-  `remark` varchar(64) DEFAULT NULL COMMENT '描述',
-  `app_id` varchar(64) NOT NULL COMMENT 'appid',
-  `app_secret` varchar(64) NOT NULL COMMENT 'app_secret',
-  `redirect_url` varchar(128) DEFAULT NULL COMMENT '回调地址',
-  `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-  `del_flag` char(1) NOT NULL DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统社交账号';
-
 -- ----------------------------
 -- Records of sys_social_details
 -- ----------------------------
 BEGIN;
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_user
--- ----------------------------
-DROP TABLE IF EXISTS `sys_user`;
-CREATE TABLE `sys_user` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `name` varchar(50) DEFAULT NULL COMMENT '姓名',
-  `username` varchar(64) NOT NULL COMMENT '用户名',
-  `nickname` varchar(100) DEFAULT NULL COMMENT '昵称',
-  `gender` char(1) DEFAULT NULL COMMENT '性别',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
-  `blog` varchar(255) DEFAULT NULL COMMENT '博客',
-  `company` varchar(64) DEFAULT NULL COMMENT '公司',
-  `location` varchar(255) DEFAULT NULL COMMENT '地址',
-  `email` varchar(50) DEFAULT NULL COMMENT '邮箱',
-  `pwd` varchar(255) NOT NULL COMMENT '密码',
-  `salt` varchar(255) DEFAULT NULL COMMENT '随机盐',
-  `age` int DEFAULT NULL COMMENT '年纪',
-  `signature` varchar(100) DEFAULT NULL COMMENT '签名',
-  `title` varchar(45) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '全球第一个开源在线数据库建模平台' COMMENT '头衔',
-  `classification` varchar(100) DEFAULT NULL COMMENT '分类',
-  `phone` varchar(20) DEFAULT NULL COMMENT '电话',
-  `dept_id` varchar(45) DEFAULT NULL COMMENT '部门ID',
-  `wechat_openid` varchar(32) DEFAULT NULL COMMENT '微信openid',
-  `qq_openid` varchar(32) DEFAULT NULL COMMENT 'QQ openid',
-  `tenant_id` varchar(45) NOT NULL DEFAULT '0' COMMENT '所属租户',
-  `lock_flag` char(1) DEFAULT '0' COMMENT '0-正常，9-锁定',
-  `del_flag` char(1) DEFAULT '0' COMMENT '删除标识（0-正常,1-删除）',
-  `create_time` datetime DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` datetime DEFAULT NULL COMMENT '修改时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `username_UNIQUE` (`username`) USING BTREE,
-  KEY `user_wx_openid` (`wechat_openid`) USING BTREE,
-  KEY `user_qq_openid` (`qq_openid`) USING BTREE,
-  KEY `user_idx1_username` (`username`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统用户';
-
 -- ----------------------------
 -- Records of sys_user
 -- ----------------------------
 BEGIN;
 INSERT INTO `sys_user` VALUES ('2', NULL, 'admin', NULL, NULL, '', NULL, NULL, '北京市海淀区双清路30号', 'martincloud@martin.com', '{bcrypt}$2a$10$vAxxCnKsa0MLdCLoP9A2UOsBMdsVLOaodDIezhtyFhkLdLilo6Mce', '1', 28, '多多支持，点点star', '一站式微服务专家', '专家', '0010-8888888', '1', 'oDOGms-6yCnGrRovBj2yHij5JL6E', 'oDOGms-6yCnGrRovBj2yHij5JL6E', '0', '0', '0', '2019-09-18 15:01:37', '2021-05-10 16:40:53', '2', '2');
 COMMIT;
-
--- ----------------------------
--- Table structure for sys_user_role
--- ----------------------------
-DROP TABLE IF EXISTS `sys_user_role`;
-CREATE TABLE `sys_user_role` (
-  `id` varchar(45) NOT NULL COMMENT '主键',
-  `user_id` varchar(45) NOT NULL COMMENT '用户id',
-  `role_id` varchar(45) NOT NULL COMMENT '角色id',
-  `create_time` timestamp NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
-  `update_time` timestamp NULL DEFAULT NULL COMMENT '修改时间',
-  `creator` varchar(45) DEFAULT NULL COMMENT '创建人',
-  `updater` varchar(45) DEFAULT NULL COMMENT '修改人',
-  PRIMARY KEY (`id`) USING BTREE,
-  UNIQUE KEY `sys_user_role_pk` (`user_id`,`role_id`) USING BTREE,
-  KEY `fk_sys_user_has_sys_role_sys_role1_idx` (`role_id`) USING BTREE,
-  KEY `fk_sys_user_has_sys_role_sys_user_idx` (`user_id`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统用户角色关系';
-
 -- ----------------------------
 -- Records of sys_user_role
 -- ----------------------------
@@ -3453,7 +2768,6 @@ INSERT INTO `sys_user_role` VALUES ('f32cd93a7c4f8424478d8e9ca5522d16', 'ee1043d
 INSERT INTO `sys_user_role` VALUES ('f89b94fed94f26ef89e8c1dfe404129a', '39bf4ef1d6154cd3ac49e324fb7e7f7e', '8', '2022-05-04 03:30:53', NULL, NULL, NULL);
 INSERT INTO `sys_user_role` VALUES ('fd46924da1f3cb3563ce136506da1a02', 'ee1043d614750f4dec3ad1192c95533f', '058b1e9d65489c064f6a0a644bc9a1fc', '2022-11-16 03:19:28', NULL, 'ee1043d614750f4dec3ad1192c95533f', NULL);
 COMMIT;
-
 -- 修复：admin（role_id='1'）应拥有全部菜单与操作权限。
 -- 原始种子漏配 42 个 operation + 9 个 menu（含 /project/page），导致 admin 打开个人项目页 403。
 -- 幂等：仅补充缺失映射，可重复执行。
@@ -3463,7 +2777,6 @@ FROM sys_menu sm
 WHERE sm.del_flag = '0'
   AND NOT EXISTS (SELECT 1 FROM sys_privilege sp
                   WHERE sp.role_id = '1' AND sp.resource_id = sm.id AND sp.dict_id = '1');
-
 INSERT INTO sys_privilege (id, type, resource_id, role_id, dict_id, tenant_id, del_flag, creator)
 SELECT uuid_short(), 2, so.id, '1', '2', '0', '0', 'seed-fix'
 FROM sys_operation so

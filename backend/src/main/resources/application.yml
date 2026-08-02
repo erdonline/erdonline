@@ -13,7 +13,7 @@ spring:
     name: erd-online
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
-  # 双数据源：禁用默认 Flyway（会打到 martin 主库）；erd 库由 ErdFlywayConfig 迁移
+  # 单库：禁用 Boot 默认 Flyway；由 ErdFlywayConfig 打到业务库（ADR-0020）
   flyway:
     enabled: false
   # Boot 2.7 默认禁止循环依赖；OAuth2 Autoconfig 过渡期先放开，后续拆 TokenStore 解环
@@ -23,16 +23,15 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  # 双数据源：martin（系统库）为主，erd（建模库）为辅。两库表名冲突，按 mapper 包路由。
-  # Railway：host/user/password 回退 MYSQLHOST/MYSQLUSER/MYSQLPASSWORD；库名只用 DB_MARTIN/DB_ERD
-  # （勿回退 MYSQLDATABASE——插件默认库名常为 railway，会把 martin JDBC 指错库）
-  # 双库无法用单条 SPRING_DATASOURCE_URL / MYSQL_URL（Boot 也不会绑到自定义 martin/erd 前缀）
+  # 单一业务库 `erd`（ADR-0020）。仍保留两套 Hikari/SqlSessionFactory（按 mapper 包路由），
+  # 但 JDBC 指向同一 DB_NAME。host/user/password 回退 MYSQLHOST/MYSQLUSER/MYSQLPASSWORD。
+  # 勿把插件 MYSQLDATABASE（常为 railway）当业务库；勿依赖 SPRING_DATASOURCE_URL / MYSQL_URL。
+  # 兼容旧部署：DB_NAME 缺省时可回退 DB_ERD / DB_MARTIN（均应改为同一库名）。
   datasource:
     martin:
-      # DB_* 优先；回退 Railway MySQL 插件名（MYSQLHOST…）与常见别名 DB_USER
-      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_MARTIN:martin}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_USERNAME:${DB_USER:${MYSQLUSER:martin}}}
-      password: ${DB_PASSWORD:${MYSQLPASSWORD:martin}}
+      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_NAME:${DB_ERD:${DB_MARTIN:erd}}}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:${DB_USER:${MYSQLUSER:erd}}}
+      password: ${DB_PASSWORD:${MYSQLPASSWORD:erd}}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -44,7 +43,7 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
     erd:
-      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_ERD:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_NAME:${DB_ERD:${DB_MARTIN:erd}}}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
       username: ${DB_ERD_USERNAME:${DB_USERNAME:${DB_USER:${MYSQLUSER:erd}}}}
       password: ${DB_ERD_PASSWORD:${DB_PASSWORD:${MYSQLPASSWORD:erd}}}
       driver-class-name: com.mysql.cj.jdbc.Driver
