@@ -1,14 +1,8 @@
--- ERD Online schema-only bootstrap (single database `erd`).
--- Seeds / demo / privileges live in Flyway: classpath:db/migration/erd
 USE `erd`;
 
--- ========== former martin (system/auth) ==========
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
 
--- ----------------------------
--- Table structure for oauth_client_details
--- ----------------------------
 DROP TABLE IF EXISTS `oauth_client_details`;
 CREATE TABLE `oauth_client_details` (
                                         `ID` varchar(45) NOT NULL COMMENT '主键',
@@ -28,9 +22,6 @@ CREATE TABLE `oauth_client_details` (
                                         PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='oauth2客户端 ';
 
--- ----------------------------
--- Table structure for QRTZ_BLOB_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_BLOB_TRIGGERS`;
 CREATE TABLE `QRTZ_BLOB_TRIGGERS` (
                                       `SCHED_NAME` varchar(120) NOT NULL,
@@ -42,9 +33,6 @@ CREATE TABLE `QRTZ_BLOB_TRIGGERS` (
                                       CONSTRAINT `qrtz_blob_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_CALENDARS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_CALENDARS`;
 CREATE TABLE `QRTZ_CALENDARS` (
                                   `SCHED_NAME` varchar(120) NOT NULL,
@@ -53,9 +41,6 @@ CREATE TABLE `QRTZ_CALENDARS` (
                                   PRIMARY KEY (`SCHED_NAME`,`CALENDAR_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_CRON_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_CRON_TRIGGERS`;
 CREATE TABLE `QRTZ_CRON_TRIGGERS` (
                                       `SCHED_NAME` varchar(120) NOT NULL,
@@ -67,9 +52,6 @@ CREATE TABLE `QRTZ_CRON_TRIGGERS` (
                                       CONSTRAINT `qrtz_cron_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_FIRED_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_FIRED_TRIGGERS`;
 CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
                                        `SCHED_NAME` varchar(120) NOT NULL,
@@ -94,9 +76,6 @@ CREATE TABLE `QRTZ_FIRED_TRIGGERS` (
                                        KEY `IDX_QRTZ_FT_TG` (`SCHED_NAME`,`TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_HISTORY
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_HISTORY`;
 CREATE TABLE `QRTZ_HISTORY` (
                                 `ID` int NOT NULL AUTO_INCREMENT COMMENT '主键',
@@ -117,9 +96,6 @@ CREATE TABLE `QRTZ_HISTORY` (
                                 PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1031 DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_JOB_DETAILS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_JOB_DETAILS`;
 CREATE TABLE `QRTZ_JOB_DETAILS` (
                                     `SCHED_NAME` varchar(120) NOT NULL,
@@ -137,9 +113,6 @@ CREATE TABLE `QRTZ_JOB_DETAILS` (
                                     KEY `IDX_QRTZ_J_GRP` (`SCHED_NAME`,`JOB_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_LOCKS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_LOCKS`;
 CREATE TABLE `QRTZ_LOCKS` (
                               `SCHED_NAME` varchar(120) NOT NULL,
@@ -147,9 +120,6 @@ CREATE TABLE `QRTZ_LOCKS` (
                               PRIMARY KEY (`SCHED_NAME`,`LOCK_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_PAUSED_TRIGGER_GRPS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_PAUSED_TRIGGER_GRPS`;
 CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS` (
                                             `SCHED_NAME` varchar(120) NOT NULL,
@@ -157,9 +127,6 @@ CREATE TABLE `QRTZ_PAUSED_TRIGGER_GRPS` (
                                             PRIMARY KEY (`SCHED_NAME`,`TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_SCHEDULER_STATE
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_SCHEDULER_STATE`;
 CREATE TABLE `QRTZ_SCHEDULER_STATE` (
                                         `SCHED_NAME` varchar(120) NOT NULL,
@@ -169,9 +136,6 @@ CREATE TABLE `QRTZ_SCHEDULER_STATE` (
                                         PRIMARY KEY (`SCHED_NAME`,`INSTANCE_NAME`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_SIMPLE_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_SIMPLE_TRIGGERS`;
 CREATE TABLE `QRTZ_SIMPLE_TRIGGERS` (
                                         `SCHED_NAME` varchar(120) NOT NULL,
@@ -184,9 +148,6 @@ CREATE TABLE `QRTZ_SIMPLE_TRIGGERS` (
                                         CONSTRAINT `qrtz_simple_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_SIMPROP_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_SIMPROP_TRIGGERS`;
 CREATE TABLE `QRTZ_SIMPROP_TRIGGERS` (
                                          `SCHED_NAME` varchar(120) NOT NULL,
@@ -207,9 +168,6 @@ CREATE TABLE `QRTZ_SIMPROP_TRIGGERS` (
                                          CONSTRAINT `qrtz_simprop_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`) REFERENCES `QRTZ_TRIGGERS` (`SCHED_NAME`, `TRIGGER_NAME`, `TRIGGER_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for QRTZ_TRIGGERS
--- ----------------------------
 DROP TABLE IF EXISTS `QRTZ_TRIGGERS`;
 CREATE TABLE `QRTZ_TRIGGERS` (
                                  `SCHED_NAME` varchar(120) NOT NULL,
@@ -244,9 +202,6 @@ CREATE TABLE `QRTZ_TRIGGERS` (
                                  CONSTRAINT `qrtz_triggers_ibfk_1` FOREIGN KEY (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`) REFERENCES `QRTZ_JOB_DETAILS` (`SCHED_NAME`, `JOB_NAME`, `JOB_GROUP`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
--- ----------------------------
--- Table structure for sys_announcement
--- ----------------------------
 DROP TABLE IF EXISTS `sys_announcement`;
 CREATE TABLE `sys_announcement` (
                                     `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -262,9 +217,6 @@ CREATE TABLE `sys_announcement` (
                                     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='公告表 ';
 
--- ----------------------------
--- Table structure for sys_code
--- ----------------------------
 DROP TABLE IF EXISTS `sys_code`;
 CREATE TABLE `sys_code` (
                             `id` varchar(45) NOT NULL COMMENT '主键',
@@ -289,9 +241,6 @@ CREATE TABLE `sys_code` (
                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统代码生成表';
 
--- ----------------------------
--- Table structure for sys_config
--- ----------------------------
 DROP TABLE IF EXISTS `sys_config`;
 CREATE TABLE `sys_config` (
                               `ID` varchar(45) NOT NULL COMMENT '主键',
@@ -307,9 +256,6 @@ CREATE TABLE `sys_config` (
                               PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统配置 ';
 
--- ----------------------------
--- Table structure for sys_dept
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dept`;
 CREATE TABLE `sys_dept` (
                             `id` varchar(11) NOT NULL COMMENT '主键',
@@ -328,9 +274,6 @@ CREATE TABLE `sys_dept` (
                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统部门';
 
--- ----------------------------
--- Table structure for sys_dept_role
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dept_role`;
 CREATE TABLE `sys_dept_role` (
                                  `id` varchar(45) NOT NULL COMMENT '主键',
@@ -345,9 +288,6 @@ CREATE TABLE `sys_dept_role` (
                                  KEY `fk_sys_dept_has_sys_role_sys_dept1_idx` (`dept_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统部门角色关系';
 
--- ----------------------------
--- Table structure for sys_dept_user
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dept_user`;
 CREATE TABLE `sys_dept_user` (
                                  `id` varchar(45) NOT NULL COMMENT '主键',
@@ -362,9 +302,6 @@ CREATE TABLE `sys_dept_user` (
                                  KEY `fk_sys_user_has_sys_dept_sys_user1_idx` (`user_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统用户部门关系';
 
--- ----------------------------
--- Table structure for sys_dict
--- ----------------------------
 DROP TABLE IF EXISTS `sys_dict`;
 CREATE TABLE `sys_dict` (
                             `id` varchar(45) NOT NULL COMMENT '主键',
@@ -386,9 +323,6 @@ CREATE TABLE `sys_dict` (
                             KEY `sys_dict_del_flag` (`del_flag`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统字典';
 
--- ----------------------------
--- Table structure for sys_element
--- ----------------------------
 DROP TABLE IF EXISTS `sys_element`;
 CREATE TABLE `sys_element` (
                                `id` varchar(45) NOT NULL COMMENT '主键',
@@ -407,9 +341,6 @@ CREATE TABLE `sys_element` (
                                UNIQUE KEY `code_UNIQUE` (`authority`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统页面元素';
 
--- ----------------------------
--- Table structure for sys_file
--- ----------------------------
 DROP TABLE IF EXISTS `sys_file`;
 CREATE TABLE `sys_file` (
                             `id` varchar(45) NOT NULL COMMENT '主键',
@@ -427,9 +358,6 @@ CREATE TABLE `sys_file` (
                             PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统文件';
 
--- ----------------------------
--- Table structure for sys_log
--- ----------------------------
 DROP TABLE IF EXISTS `sys_log`;
 CREATE TABLE `sys_log` (
                            `id` varchar(45) NOT NULL COMMENT '主键',
@@ -453,9 +381,6 @@ CREATE TABLE `sys_log` (
                            KEY `sys_log_type` (`type`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统日志';
 
--- ----------------------------
--- Table structure for sys_menu
--- ----------------------------
 DROP TABLE IF EXISTS `sys_menu`;
 CREATE TABLE `sys_menu` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -488,9 +413,6 @@ CREATE TABLE `sys_menu` (
   UNIQUE KEY `uk_authority` (`authority`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统菜单';
 
--- ----------------------------
--- Table structure for sys_operation
--- ----------------------------
 DROP TABLE IF EXISTS `sys_operation`;
 CREATE TABLE `sys_operation` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -514,9 +436,6 @@ CREATE TABLE `sys_operation` (
   KEY `sys_operation_menu_id_index` (`menu_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统操作';
 
--- ----------------------------
--- Table structure for sys_privilege
--- ----------------------------
 DROP TABLE IF EXISTS `sys_privilege`;
 CREATE TABLE `sys_privilege` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -536,9 +455,6 @@ CREATE TABLE `sys_privilege` (
   KEY `sys_privilege_role_id_index` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统权限';
 
--- ----------------------------
--- Table structure for sys_role
--- ----------------------------
 DROP TABLE IF EXISTS `sys_role`;
 CREATE TABLE `sys_role` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -558,9 +474,6 @@ CREATE TABLE `sys_role` (
   UNIQUE KEY `role_idx1_role_code` (`role_code`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统角色';
 
--- ----------------------------
--- Table structure for sys_role_privilege
--- ----------------------------
 DROP TABLE IF EXISTS `sys_role_privilege`;
 CREATE TABLE `sys_role_privilege` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -579,9 +492,6 @@ CREATE TABLE `sys_role_privilege` (
   KEY `sys_role_privilege_resource_id_index` (`resource_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统角色权限关系--废弃';
 
--- ----------------------------
--- Table structure for sys_social_details
--- ----------------------------
 DROP TABLE IF EXISTS `sys_social_details`;
 CREATE TABLE `sys_social_details` (
   `id` varchar(45) NOT NULL COMMENT '主鍵',
@@ -599,9 +509,6 @@ CREATE TABLE `sys_social_details` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统社交账号';
 
--- ----------------------------
--- Table structure for sys_user
--- ----------------------------
 DROP TABLE IF EXISTS `sys_user`;
 CREATE TABLE `sys_user` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -638,9 +545,6 @@ CREATE TABLE `sys_user` (
   KEY `user_idx1_username` (`username`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 ROW_FORMAT=DYNAMIC COMMENT='系统用户';
 
--- ----------------------------
--- Table structure for sys_user_role
--- ----------------------------
 DROP TABLE IF EXISTS `sys_user_role`;
 CREATE TABLE `sys_user_role` (
   `id` varchar(45) NOT NULL COMMENT '主键',
@@ -658,10 +562,6 @@ CREATE TABLE `sys_user_role` (
 
 SET FOREIGN_KEY_CHECKS = 1;
 
--- ========== former erd (modeling) ==========
--- ----------------------------
--- Table structure for db_approval
--- ----------------------------
 DROP TABLE IF EXISTS `db_approval`;
 CREATE TABLE `db_approval` (
                                `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -686,9 +586,6 @@ CREATE TABLE `db_approval` (
                                KEY `idx_promoter_approver_id` (`promoter`,`approver`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='元数据审批 ';
 
--- ----------------------------
--- Table structure for db_change
--- ----------------------------
 DROP TABLE IF EXISTS `db_change`;
 CREATE TABLE `db_change` (
                              `id` varchar(64) NOT NULL COMMENT '主键',
@@ -707,9 +604,6 @@ CREATE TABLE `db_change` (
                              UNIQUE KEY `uni_versin_projectid_dbkey` (`project_id`,`db_key`,`version`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='变动表';
 
--- ----------------------------
--- Table structure for db_version
--- ----------------------------
 DROP TABLE IF EXISTS `db_version`;
 CREATE TABLE `db_version` (
                               `id` varchar(64) NOT NULL,
@@ -723,9 +617,6 @@ CREATE TABLE `db_version` (
                               UNIQUE KEY `db_version_project_key_uk` (`db_version`,`project_id`,`db_key`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='版本表';
 
--- ----------------------------
--- Table structure for erd_json_schema
--- ----------------------------
 DROP TABLE IF EXISTS `erd_json_schema`;
 CREATE TABLE `erd_json_schema` (
                                    `id` int NOT NULL AUTO_INCREMENT,
@@ -736,9 +627,6 @@ CREATE TABLE `erd_json_schema` (
                                    PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
--- ----------------------------
--- Table structure for project
--- ----------------------------
 DROP TABLE IF EXISTS `project`;
 CREATE TABLE `project` (
                            `id` varchar(64) NOT NULL COMMENT '主键',
@@ -758,9 +646,6 @@ CREATE TABLE `project` (
                            KEY `project_project_name_uindex` (`project_name`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='项目表';
 
--- ----------------------------
--- Table structure for project_role
--- ----------------------------
 DROP TABLE IF EXISTS `project_role`;
 CREATE TABLE `project_role` (
                                 `id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -773,9 +658,6 @@ CREATE TABLE `project_role` (
                                 KEY `idx_role_id` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci ROW_FORMAT=DYNAMIC;
 
--- ----------------------------
--- Table structure for project_user
--- ----------------------------
 DROP TABLE IF EXISTS `project_user`;
 CREATE TABLE `project_user` (
                                 `id` varchar(32) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键 ',
@@ -792,9 +674,6 @@ CREATE TABLE `project_user` (
                                 KEY `idx_role_id` (`role_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='项目用户中间表 ';
 
--- ----------------------------
--- Table structure for query_history
--- ----------------------------
 DROP TABLE IF EXISTS `query_history`;
 CREATE TABLE `query_history` (
                                  `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -812,9 +691,6 @@ CREATE TABLE `query_history` (
                                  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='sql执行记录表 ';
 
--- ----------------------------
--- Table structure for query_info
--- ----------------------------
 DROP TABLE IF EXISTS `query_info`;
 CREATE TABLE `query_info` (
                               `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -833,9 +709,6 @@ CREATE TABLE `query_info` (
                               UNIQUE KEY `uni_idx_title` (`title`,`project_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='sql信息表 ';
 
--- ----------------------------
--- Table structure for t_datatype
--- ----------------------------
 DROP TABLE IF EXISTS `t_datatype`;
 CREATE TABLE `t_datatype` (
                               `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -848,9 +721,6 @@ CREATE TABLE `t_datatype` (
                               PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='数据域';
 
--- ----------------------------
--- Table structure for t_entity
--- ----------------------------
 DROP TABLE IF EXISTS `t_entity`;
 CREATE TABLE `t_entity` (
                             `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -863,9 +733,6 @@ CREATE TABLE `t_entity` (
                             PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='元数据';
 
--- ----------------------------
--- Table structure for t_field
--- ----------------------------
 DROP TABLE IF EXISTS `t_field`;
 CREATE TABLE `t_field` (
                            `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -878,9 +745,6 @@ CREATE TABLE `t_field` (
                            PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='字段 ';
 
--- ----------------------------
--- Table structure for t_module
--- ----------------------------
 DROP TABLE IF EXISTS `t_module`;
 CREATE TABLE `t_module` (
                             `id` varchar(32) COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键',
@@ -893,9 +757,6 @@ CREATE TABLE `t_module` (
                             PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='模块';
 
--- ----------------------------
--- Table structure for team
--- ----------------------------
 DROP TABLE IF EXISTS `team`;
 CREATE TABLE `team` (
                         `REVISION` int DEFAULT NULL COMMENT '乐观锁',
@@ -907,10 +768,6 @@ CREATE TABLE `team` (
                         `name` varchar(32) COLLATE utf8mb4_general_ci DEFAULT NULL COMMENT '项目名称'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='123 ';
 
-
--- ========== additive tables (share / data_sources) ==========
--- from 06_project_share.sql
--- 只读分享链接（P3）：凭 token 匿名拉取项目快照字段
 CREATE TABLE IF NOT EXISTS `project_share` (
   `id` varchar(32) NOT NULL COMMENT '主键',
   `token` varchar(64) NOT NULL COMMENT '分享令牌',
@@ -927,8 +784,6 @@ CREATE TABLE IF NOT EXISTS `project_share` (
   KEY `idx_project_id` (`project_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci COMMENT='项目只读分享';
 
--- from 07_data_sources.sql
--- 全局数据源配置（设计器/数据库配置页 /ncnb/dataSources）
 CREATE TABLE IF NOT EXISTS `data_sources` (
   `id` varchar(64) NOT NULL COMMENT '主键（兼容无连字符 UUID 与 RFC4122）',
   `name` varchar(128) DEFAULT NULL COMMENT '数据源名称',

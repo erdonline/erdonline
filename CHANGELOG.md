@@ -8,6 +8,11 @@
 
 ### 2026-08-03
 
+#### 运维：`db/init/02_tables.sql` 去注释（仅 DDL）
+
+- 剥离全部 `--` / `/* */` 注释，保留 CREATE/DROP TABLE 与内联索引等可执行 DDL（列/表 `COMMENT '…'` 元数据保留）；`railway-mysql-init.sh` 仍只导入 `01`+`02`
+  验证点：`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run`；临时库 `erd_schema_test` 导入 `02_tables.sql` 成功且含 `sys_user`/`project`/`project_share`/`data_sources`
+
 #### 体验：Controls 面板密度（ADR-0016）
 
 - `.react-flow__controls`：`surface` + `line` 描边圆角；按钮 22×22（禁 RF `#fefefe` content-box 松柱）；图标 `ink600` / hover brand
