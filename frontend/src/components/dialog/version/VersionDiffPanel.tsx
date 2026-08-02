@@ -1,14 +1,14 @@
 import React, { useMemo } from 'react';
 import { Empty, Space, Tag, Typography } from 'antd';
 import './version-diff-panel.scss';
+import {
+  fieldOf,
+  tableOf,
+  type VersionDiffItem,
+} from './formatVersionDiffMarkdown';
 
-export type VersionDiffItem = {
-  message: string;
-  opt: 'add' | 'delete' | 'update' | string;
-  type: 'entity' | 'field' | 'index' | string;
-  name?: string;
-  changeData?: string;
-};
+export type { VersionDiffItem } from './formatVersionDiffMarkdown';
+export { formatVersionDiffMarkdown } from './formatVersionDiffMarkdown';
 
 const OPT_META: Record<string, { color: string; label: string }> = {
   add: { color: 'success', label: '新增' },
@@ -21,24 +21,6 @@ const TYPE_LABEL: Record<string, string> = {
   field: '字段',
   index: '索引',
 };
-
-function tableOf(item: VersionDiffItem): string {
-  if (item.type === 'entity') {
-    return item.name || '未知表';
-  }
-  const n = item.name || '';
-  const i = n.indexOf('.');
-  return i > 0 ? n.slice(0, i) : n || '未知表';
-}
-
-function fieldOf(item: VersionDiffItem): string {
-  if (item.type === 'entity') {
-    return '';
-  }
-  const n = item.name || '';
-  const i = n.indexOf('.');
-  return i >= 0 ? n.slice(i + 1) : n;
-}
 
 export type VersionDiffPanelProps = {
   messages: VersionDiffItem[];

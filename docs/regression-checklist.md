@@ -176,6 +176,7 @@
 ## 第 3 轮：版本 diff 可视化（2026-08-01）
 
 - [x] [详情可视化] 建表→保存版本→点「详情」→ 见 `version-diff-panel` 着色项与表名 ✅ `version.spec.ts`
+- [x] [跨版本 diff 导出] 详情弹层点「导出」→ download `version-diff-*.md` + toast「已导出变更清单」 ✅ `version.spec.ts`
 - [x] [列表摘要] 有 changes 的版本行显示 `+N/-N/~N` Tag ✅同上
 - [x] [任意版本比对] 单版禁用；双版比对见增量字段 ✅ `version.spec.ts`
 - [x] [工单/审批表头] 侧栏「我的工单」「我的审批」表头正确 + 空态引导 ✅ `approval.spec.ts`

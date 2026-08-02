@@ -75,6 +75,17 @@ test.describe('版本快照', () => {
       await expect(page.getByTestId('version-diff-summary')).toBeVisible();
       await expect(page.getByTestId('version-diff-item-add').first()).toBeVisible();
       await expect(page.getByTestId('version-diff-panel')).toContainText('T_TABLE_1');
+
+      // W3：跨版本/详情 diff 导出变更清单（Markdown，含模型变更 + SQL）
+      const exportBtn = page.getByTestId('version-diff-export-btn');
+      await expect(exportBtn).toBeVisible();
+      const [download] = await Promise.all([
+        page.waitForEvent('download', { timeout: 15_000 }),
+        exportBtn.click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/version-diff-.*\.md$/i);
+      expect(await download.path()).toBeTruthy();
+      await expectToast(page, /已导出变更清单/);
       await closeVersionDialog(page, '版本变更详情');
 
       await gotoDesignModel(page);

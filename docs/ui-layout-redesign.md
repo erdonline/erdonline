@@ -129,7 +129,7 @@
 | 能力 | 后端证据 | UI 现状 | 缺口 |
 |---|---|---|---|
 | 只读分享**吊销/管理** | `POST /share/revoke`（ProjectShareController）；security-model 明文「创建/吊销需登录且为项目创建人」 | `ShareProjectButton` 只有创建+复制；无吊销、无已有链接查看 | **missing** — 安全模型承诺的一半不可达 |
-| 跨版本 diff **导出** | 版本 diff 可视化 ✅（CompareVersion）；db_change.tag 多标签 ✅（Flyway V1/V2） | diff 只能屏上看，无导出 | **missing** — roadmap 📋 项，版本信任链缺口 |
+| 跨版本 diff **导出** | 版本 diff 可视化 ✅（CompareVersion）；db_change.tag 多标签 ✅（Flyway V1/V2） | CompareVersion「导出」Markdown/SQL ✅（W3 切片 1） | ✅ |
 | 数据字典 | `/dataDict` 全 CRUD（DataDictController） | 实验页已删（W2）；本阶段无 UI | **thin** — 本阶段不扩，但也不许为其抛光 |
 | 审批流 | approval CRUD + SQL 信任链（SQL 失败不落通过 ✅） | 入口深埋设计器 version/order/approval tab | thin — 可用，W3 平移时顺带理顺入口 |
 | 版本回滚 / 标签 / 同步 / 逆向 / Word 导出 | RevertVersion、tag chips、dbsync/rebaseline、dbReverseParse、`/doc/gendocx` | 均已暴露 ✅ | 无缺口，勿重复投资 |
@@ -154,6 +154,7 @@
 | └ **W2 切片 1** ✅（2026-08-02） | ① 分享弹层+吊销+后端创建人校验+匿名 GET-only；② 空壳路由下线（query/chatsql/dataDomain/dataQuery→404）+ 删 test 页与 settings geographic（`pages/JExcel` 为表编辑组件保留） | 随删路由清 Query 左栏特例 | `share.spec`（含吊销失效）+ `design-query`/`data-domain`/`home-data-query` 404 |
 | └ **W2 切片 2** ✅（2026-08-02） | ③ Home 只删：Radar/_mock/service/Pie config/「项目概览」重复卡 + HomeLayout slogan 轮转；实验页源文件物理删除（query/chatsql/dataDomain/dataQuery + QueryLeftContent/dialog/query/useQueryStore）；依赖移除 `@ant-design/charts`、`@chatui/core` | 随删清 TabGroup.QUERY | `activation` + `layout-outlet`；空壳 404 不回归；`grep charts/chatui/useQueryStore` = 0 |
 | **W3** 版本域收口（旧 W4 提前，目标改写） | version ProList → antd List；**跨版本 diff 导出**（版本信任链）；审批/order 表单 `ProForm*` → antd Form 平移；审批入口理顺 | version ProList + 版本/审批域 ProForm | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
+| └ **W3 切片 1** ✅（2026-08-02） | **跨版本 diff 导出**：diff 弹层「导出」主按钮落 Markdown（模型变更+SQL），下拉「仅导出 SQL」；复用 `File.save`；顺带移除零引用 `bizcharts` / `@ant-design/plots` | — | `version.spec` 详情弹层 download `.md` + toast；`formatVersionDiffMarkdown.test.ts` |
 | **W4** 项目列表 + 数据源（旧 W3，降为纯平移波） | dataModels + project/* `ProList` → antd List；databaseConfig `ProTable`/`PageContainer` → antd Table + 工作台壳；import/export/setting/account 剩余 `ProForm*` 逐个平移 | 4 页 ProList + 1 ProTable + 剩余 ProForm | 项目「列表→打开→重命名→删除」E2E；数据源「新建→ping→删除」E2E；每对话框对应 E2E 不回归 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
