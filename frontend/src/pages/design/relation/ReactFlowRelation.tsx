@@ -536,7 +536,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   }, [diagramModal, moduleName, projectDispatch, switchDiagram]);
 
   const edges: Edge[] = useMemo(() => {
-    return associationsToEdges(currentModule?.associations || []).map(e => {
+    const associations = currentModule?.associations || [];
+    const entities = currentModule?.entities || [];
+    const layout = getActiveDiagramLayoutNodes(currentModule);
+    const { positions } = resolveEntityPositions(entities, associations, layout);
+    return associationsToEdges(associations, { positions }).map((e) => {
       const selected = !!edgeSelected[e.id];
       const stroke = selected ? erdColors.brand : erdColors.ink600;
       return {
