@@ -15,6 +15,7 @@ import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
 import ExportWord from "@/components/dialog/export/ExportWord";
 import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
+import ReverseDBML from "@/components/dialog/import/ReverseDBML";
 import { history } from "@@/exports";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
@@ -43,6 +44,7 @@ export const ImportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
     <ReverseDatabase />
     <ReversePdMan />
     <ReverseERD />
+    <ReverseDBML />
   </Menu>
 );
 
@@ -90,6 +92,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
         <ReverseDatabase />
         <ReversePdMan />
         <ReverseERD />
+        <ReverseDBML />
       </Menu.SubMenu>
       <Menu.SubMenu key="export" title="导出">
         <ExportHTML />

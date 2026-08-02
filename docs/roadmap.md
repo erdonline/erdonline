@@ -48,7 +48,7 @@
 
 - ~~projectJSON 公开 schema 文档化（schema-as-code，`data-format.md` 升级为对外规范）~~✅（2026-08-02：[`data-format.md`](./data-format.md) + [`schema/projectjson.schema.json`](../schema/projectjson.schema.json) + `scripts/validate-projectjson.mjs`；解锁 ADR-0013 触发条件 #3）
 - 只读 API / MCP server：鉴权、限流、scope **待 ADR-0013 拍板**；本阶段不写实现代码
-- 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置
+- 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — 🚧（2026-08-02：前端薄导入 DBML→projectJSON + 设计器「导入DBML」入口；导出与 enum/index 映射另切片）
 
 ### 安全（Security）📋
 

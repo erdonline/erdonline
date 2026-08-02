@@ -37,6 +37,7 @@
     "test:component": "max test ./src/components",
     "test:e2e": "playwright test",
     "test:unit:canvas-history": "npx --yes tsx src/store/project/canvasHistory.test.ts",
+    "test:unit:dbml": "npx --yes tsx src/utils/dbml/toProjectJSON.test.ts",
     "validate:projectjson": "node ../scripts/validate-projectjson.mjs",
     "tsc": "tsc --noEmit"
   },
@@ -55,6 +56,7 @@
   "dependencies": {
     "@ant-design/compatible": "^5.1.1",
     "@ant-design/icons": "^5.3.1",
+    "@dbml/core": "^9.1.1",
     "@handsontable/react": "^5.0.0",
     "@icon-park/react": "^1.4.2",
     "@reduxjs/toolkit": "^1.8.6",
