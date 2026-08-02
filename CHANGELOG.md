@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 文档 / 开放：projectJSON schema-as-code 初稿（ADR-0012）
+
+**新增**
+
+- `docs/data-format.md`：对外规范（modules / entities / fields / associations / profile / dataTypeDomains；仅加法兼容；密钥纪律引 ADR-0008）
+- `schema/projectjson.schema.json`：JSON Schema draft 2020-12（字段蒸馏自运行时 + `defaultData.json`，不发明键）
+- `schema/examples/demo.projectjson.json`：公开 demo 同构正例；`invalid.projectjson.json` 负例
+- `scripts/validate-projectjson.mjs`（ajv@8）：正例通过、负例非零退出
+- roadmap P5 开放/缺口与 ADR-0013 触发条件 #3 标记解锁；architecture / security-model / development 交叉引用
+
+验证点：`node scripts/validate-projectjson.mjs` → 正例 PASS、负例「invalid as expected」、exit 0
+
 #### 重构：W2 切片 4 — 设计器壳 calc(100vh) 清零（树 + 版本页 flex）
 
 **修复 / 重构**

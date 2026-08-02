@@ -1,0 +1,240 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://erdonline.dev/schemas/projectjson.schema.json",
+  "title": "ERD Online projectJSON",
+  "description": "项目模型事实源（agent 可读）。字段集蒸馏自 frontend 默认骨架与运行时用法；未在产品中出现的键不得加入本 schema。兼容政策：仅加法演进，禁止原地破坏（见 docs/data-format.md）。",
+  "type": "object",
+  "required": ["modules", "profile", "dataTypeDomains"],
+  "additionalProperties": true,
+  "properties": {
+    "modules": {
+      "type": "array",
+      "description": "模型（模块）列表；每个模块含实体、关联与画布布局。",
+      "items": { "$ref": "#/$defs/module" }
+    },
+    "profile": {
+      "$ref": "#/$defs/profile"
+    },
+    "dataTypeDomains": {
+      "$ref": "#/$defs/dataTypeDomains"
+    }
+  },
+  "$defs": {
+    "module": {
+      "type": "object",
+      "required": ["name", "entities"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string", "description": "模块英文名（逻辑键）" },
+        "chnname": { "type": "string", "description": "模块显示名" },
+        "entities": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/entity" }
+        },
+        "associations": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/association" }
+        },
+        "graphCanvas": { "$ref": "#/$defs/graphCanvas" }
+      }
+    },
+    "entity": {
+      "type": "object",
+      "description": "表/实体。校验要求至少有 title 或 name，且 fields 为数组（与运行时 validateEntity 对齐）。",
+      "additionalProperties": true,
+      "properties": {
+        "title": { "type": "string", "description": "表名（画布节点 id 通常等于 title）" },
+        "name": { "type": "string", "description": "实体名；常与 title 同步" },
+        "chnname": { "type": "string" },
+        "remark": { "type": "string" },
+        "fields": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/field" }
+        },
+        "indexs": {
+          "type": "array",
+          "description": "索引列表（历史拼写 indexs，非 indexes）",
+          "items": { "$ref": "#/$defs/index" }
+        }
+      },
+      "anyOf": [
+        { "required": ["title", "fields"] },
+        { "required": ["name", "fields"] }
+      ]
+    },
+    "field": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "chnname": { "type": "string" },
+        "typeName": { "type": "string", "description": "数据类型显示名" },
+        "type": { "type": "string", "description": "逻辑类型 code，对应 dataTypeDomains.datatype[].code" },
+        "dataType": { "type": "string", "description": "当前库方言下的物理类型字符串" },
+        "remark": { "type": "string" },
+        "pk": { "type": "boolean" },
+        "notNull": { "type": "boolean" },
+        "autoIncrement": { "type": "boolean" },
+        "relationNoShow": { "type": "boolean" },
+        "defaultValue": { "type": ["string", "null"] },
+        "uiHint": { "type": "string" },
+        "addAfter": { "type": "string", "description": "DDL 模板用：AFTER 列名" }
+      }
+    },
+    "index": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "isUnique": { "type": "boolean" },
+        "fields": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "索引列名列表"
+        }
+      }
+    },
+    "association": {
+      "type": "object",
+      "required": ["relation", "from", "to"],
+      "additionalProperties": true,
+      "properties": {
+        "relation": {
+          "type": "string",
+          "description": "关系基数，如 1:1、1:n、n:n"
+        },
+        "from": { "$ref": "#/$defs/assocEnd" },
+        "to": { "$ref": "#/$defs/assocEnd" }
+      }
+    },
+    "assocEnd": {
+      "type": "object",
+      "required": ["entity", "field"],
+      "additionalProperties": true,
+      "properties": {
+        "entity": { "type": "string", "description": "实体 title" },
+        "field": { "type": "string", "description": "字段 name" }
+      }
+    },
+    "graphCanvas": {
+      "type": "object",
+      "description": "画布布局；实体以 entities 为准，此处只存坐标（ADR-0001）。",
+      "additionalProperties": true,
+      "properties": {
+        "nodes": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graphNode" }
+        },
+        "edges": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/graphEdge" }
+        }
+      }
+    },
+    "graphNode": {
+      "type": "object",
+      "required": ["id"],
+      "additionalProperties": true,
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "x": { "type": "number" },
+        "y": { "type": "number" }
+      }
+    },
+    "graphEdge": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "source": { "type": "string" },
+        "target": { "type": "string" }
+      }
+    },
+    "profile": {
+      "type": "object",
+      "description": "项目级配置。JDBC 机密（url/username/password/driver）不得出现（ADR-0008）；连接事实源为 data_sources 表。",
+      "additionalProperties": true,
+      "properties": {
+        "defaultFields": {
+          "type": "array",
+          "description": "新建实体时注入的默认字段列表（Field 对象数组）",
+          "items": { "$ref": "#/$defs/field" }
+        },
+        "defaultFieldsType": {},
+        "sqlConfig": {},
+        "wordTemplateConfig": {},
+        "dbs": {
+          "type": "array",
+          "description": "遗留槽位；保存/分享时应为空数组，不得含 JDBC 机密（ADR-0008）",
+          "default": []
+        },
+        "defaultDataSourceId": {
+          "type": ["string", "null"],
+          "description": "项目默认数据源 id，对应 data_sources.id"
+        },
+        "erdPassword": {
+          "type": "string",
+          "description": "历史加密派生用口令（遗留）；非 JDBC 密码"
+        },
+        "tableLimit": { "type": "number" },
+        "tableNameFormat": { "type": "string" }
+      }
+    },
+    "dataTypeDomains": {
+      "type": "object",
+      "additionalProperties": true,
+      "properties": {
+        "datatype": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/datatype" }
+        },
+        "database": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/databaseDialect" }
+        }
+      }
+    },
+    "datatype": {
+      "type": "object",
+      "required": ["name", "code"],
+      "additionalProperties": true,
+      "properties": {
+        "name": { "type": "string" },
+        "code": { "type": "string" },
+        "apply": {
+          "type": "object",
+          "description": "按方言 code 映射物理类型，如 MYSQL/ORACLE/PostgreSQL/SQLServer/JAVA",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string" }
+            },
+            "additionalProperties": true
+          }
+        }
+      }
+    },
+    "databaseDialect": {
+      "type": "object",
+      "required": ["code"],
+      "additionalProperties": true,
+      "properties": {
+        "code": { "type": "string" },
+        "defaultDatabase": { "type": "boolean" },
+        "fileShow": { "type": "boolean" },
+        "template": { "type": "string" },
+        "createTableTemplate": { "type": "string" },
+        "deleteTableTemplate": { "type": "string" },
+        "rebuildTableTemplate": { "type": "string" },
+        "createFieldTemplate": { "type": "string" },
+        "updateFieldTemplate": { "type": "string" },
+        "deleteFieldTemplate": { "type": "string" },
+        "deleteIndexTemplate": { "type": "string" },
+        "createIndexTemplate": { "type": "string" },
+        "updateTableComment": { "type": "string" },
+        "createPkTemplate": { "type": "string" },
+        "deletePkTemplate": { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "modules": [
+    {
+      "name": "SHOP",
+      "chnname": "Demo",
+      "entities": [
+        {
+          "title": "T_USER",
+          "chnname": "User",
+          "fields": [
+            { "name": "ID", "type": "IdOrKey", "pk": true },
+            { "name": "NAME", "type": "String" }
+          ]
+        },
+        {
+          "title": "T_ORDER",
+          "chnname": "Order",
+          "fields": [
+            { "name": "ID", "type": "IdOrKey", "pk": true },
+            { "name": "USER_ID", "type": "IdOrKey" },
+            { "name": "AMOUNT", "type": "Double" }
+          ]
+        }
+      ],
+      "associations": [
+        {
+          "relation": "1:n",
+          "from": { "entity": "T_ORDER", "field": "USER_ID" },
+          "to": { "entity": "T_USER", "field": "ID" }
+        }
+      ],
+      "graphCanvas": {
+        "nodes": [
+          { "id": "T_USER", "x": 80, "y": 80 },
+          { "id": "T_ORDER", "x": 360, "y": 120 }
+        ],
+        "edges": []
+      }
+    }
+  ],
+  "profile": {
+    "dbs": [],
+    "defaultFields": []
+  },
+  "dataTypeDomains": {
+    "datatype": [],
+    "database": [{ "code": "MYSQL", "defaultDatabase": true }]
+  }
+}

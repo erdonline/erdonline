@@ -32,3 +32,7 @@
 - 创建/吊销需登录且为项目创建人（UI：设计器顶栏「分享」弹层）
 - 匿名响应按 ADR-0008 **清空** `profile.dbs`（连接只在 `data_sources`）；可保留 `defaultDataSourceId` 引用
 
+## projectJSON 密钥纪律
+
+JDBC 连接机密（url / username / password / driver）**不得**写入 `projectJSON`（[ADR-0008](./adr/0008-datasource-isolation.md)）。对外字段说明与兼容政策见 [data-format.md](./data-format.md)。
+

@@ -46,7 +46,7 @@
 
 ### 开放（Openness）📋 — API/MCP 见 ADR-0013
 
-- projectJSON 公开 schema 文档化（schema-as-code，`data-format.md` 升级为对外规范）
+- ~~projectJSON 公开 schema 文档化（schema-as-code，`data-format.md` 升级为对外规范）~~✅（2026-08-02：[`data-format.md`](./data-format.md) + [`schema/projectjson.schema.json`](../schema/projectjson.schema.json) + `scripts/validate-projectjson.mjs`；解锁 ADR-0013 触发条件 #3）
 - 只读 API / MCP server：鉴权、限流、scope **待 ADR-0013 拍板**；本阶段不写实现代码
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置
 
@@ -54,13 +54,13 @@
 
 - 分享 token：只读分享（ADR-0007）+ 未来 API token 的 scope/吊销/过期模型（随 ADR-0013）
 - CSRF/CORS 已收敛（第 1 轮 ✅），SQL 执行信任链已修（审批失败不落通过 ✅）——写入型 API 沿用同级约束
-- 密钥纪律：连接信息不进 projectJSON（ADR-0008 已隔离），文档化对外承诺
+- ~~密钥纪律：连接信息不进 projectJSON（ADR-0008 已隔离），文档化对外承诺~~✅（[`data-format.md`](./data-format.md)「密钥纪律」+ [security-model.md](./security-model.md)）
 
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
-- Schema 版本化对外承诺：projectJSON 兼容性政策成文（agent 依赖稳定性）
-- Agent 可读 projectJSON：机器可校验的 JSON Schema + 示例
+- ~~Schema 版本化对外承诺：projectJSON 兼容性政策成文（agent 依赖稳定性）~~✅（`data-format.md`「仅加法 / 禁止原地破坏」）
+- ~~Agent 可读 projectJSON：机器可校验的 JSON Schema + 示例~~✅（`schema/` + `node scripts/validate-projectjson.mjs`）
 - 可观测性：自部署者的健康检查/指标端点（少量、低成本）
 - 自部署 DX：docker-compose 一键起的文档化验收 + 升级路径演练
 - 竞品对比页：vs dbdiagram / dbml 的诚实对照（协作/版本/开放/自部署），落地页子页
