@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 5 — 清除零引用 module/entity/database ModalForm
+
+**重构**
+
+- 删除零挂载 `DataDomain` / `DynamicDialog` 及仅被其引用的 `dialog/module|entity|database|dataType`（含 ModalForm：`AddModule`/`RenameModule`/`AddEntity`/`RenameEntity`/`AddDatabase`/`RenameDatabase`/`AddDataType`/`RenameDataType` 等）
+- 模型/表 CRUD 已由左树 `EntityModal`（antd `Modal`+`Form`）承接；禁止为凑 Pro 清零而平移不可见弹窗
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 5 ✅；`empty-projectjson` 断言 EntityModal 路径
+  验证点：`test -d frontend/src/components/dialog/module` 等目录不存在；`rg 'dialog/(module|entity|database|dataType)|DataDomain|DynamicDialog' frontend/src` = 0；`npx playwright test tests/e2e/empty-projectjson.spec.ts --project=chromium --workers=1`
+
 #### 重构：W4 切片 4 — RenameProject ModalForm → antd Form+Modal
 
 **重构**
