@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：落地页 less 对齐 `--erd-*` tokens
+
+- `pages/landing/index.less`：删除 `@ink`/`@accent`/`@teal`/`#4aa3c8` 等自造色；底/scrim/字族/主 CTA/三柱点缀一律 `var(--erd-*)` + `color-mix`
+- 主 CTA 橙 → brand 红，与登录壳/工作台同源；构图与全幅 hero 不动
+
+验证点：`cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --workers=1 --retries=0`；`rg -n '#[0-9a-fA-F]{3,8}|@ink|@accent' frontend/src/pages/landing/index.less` = 0
+
 #### 修复：Railway MySQL 双库接线（去掉 MYSQLDATABASE 误绑）
 
 - 现象：`HikariPool.checkFailFast` → `PrimaryDatasource` → `Cannot resolve … erdSqlSessionFactory`（JDBC 打不开的级联）
