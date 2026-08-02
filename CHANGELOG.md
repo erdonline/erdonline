@@ -2,6 +2,21 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/project/group/setting/basic` 保存 toast（2026-08-02）
+
+### 修复
+- 团队项目基本设置：保存成功「修改成功」；失败走全局拦截器 toast，无 msg 时组件兜底「修改失败」；GET 返回的 tags 字符串拆成 Select tags 数组
+  验证点：`group-basic-setting.spec` 成功/失败 toast
+
+### 测试
+- 新增 `group-basic-setting.spec.ts`：API 建团队项目→改项目名提交→toast；mock update 失败 toast
+  验证点：`npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：保存基本设置 → ✅；统计 ✅85 / 🚧4 / 🗑6 / 📋7（合计 102）
+- `docs/roadmap.md` P2b 长尾已收群组基本设置 toast
+- `docs/regression-checklist.md`：群组基本设置保存自动化
+
 ## [Unreleased] — W6 `/account/settings` 其它页签可切换（2026-08-02）
 
 ### 修复

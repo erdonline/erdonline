@@ -174,7 +174,7 @@
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |
 | `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
 | `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | ✅ | `account-settings.spec` 头像→security/identification |
-| `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | 🚧 | |
+| `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | ✅ | `group-basic-setting.spec` |
 | `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | 🚧 | |
 | GroupLayout 菜单 | 返回项目列表 | → `/dataModels` | | 🚧 | |
 | GroupLayout 菜单 | 打开模型 | → 设计器 | projectId | 🚧 | |
@@ -199,8 +199,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 84 |
-| 🚧 | 5 |
+| ✅ | 85 |
+| 🚧 | 4 |
 | 🗑 | 6 |
 | 📋 | 7 |
 | **合计** | **102** |

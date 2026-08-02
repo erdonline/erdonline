@@ -26,27 +26,45 @@ const BasicSetting: React.FC<BasicSettingProps> = (props) => {
         },
       }}
       onFinish={async (values) => {
-        await updateGroupProject({
-          id: projectId,
-          projectName: values.projectName,
-          description: values.description,
-          tags: _.join(values.tags, ',')
-        }).then(r => {
-          if (r.code === 200) {
+        try {
+          const r = await updateGroupProject({
+            id: projectId,
+            projectName: values.projectName,
+            description: values.description,
+            tags: _.join(values.tags, ','),
+          });
+          if (r?.code === 200) {
             message.success('修改成功');
-          } else {
-            message.error(r.message || '修改失败')
+            return;
           }
-        })
+          // 业务码非 200：全局拦截器已 toast msg；此处兜底无 msg 的静默失败
+          if (!r?.msg) {
+            message.error('修改失败');
+          }
+        } catch {
+          // HTTP/网络：request errorHandler 已 toast
+        }
       }}
       params={{id: '100'}}
       formKey="base-form-use-demo"
       dateFormatter={(value, valueType) => {
         return value.format('YYYY/MM/DD HH:mm:ss');
       }}
-      request={async (param) => {
+      request={async () => {
         const result = await GET('/ncnb/project/group/get/' + projectId, {});
-        return result?.data
+        const data = result?.data;
+        if (!data) return {};
+        const tags = data.tags;
+        return {
+          ...data,
+          tags:
+            typeof tags === 'string'
+              ? tags
+                  .split(/[,;]/)
+                  .map((t: string) => t.trim())
+                  .filter(Boolean)
+              : tags,
+        };
       }}
       autoFocusFirstInput
     >
