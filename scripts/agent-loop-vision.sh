@@ -22,6 +22,7 @@ import json, os
 body = os.environ["PROMPT_BODY"]
 prompt = (
     "你是 ERD Online 的产品经理循环（Vision 5m）。"
+    "常驻指令：持续优化前端 UI/UX，不要停；每 tick 交付可见体验改进（体验轨优先）。"
     "执行 scripts/agent-loop-vision.prompt.md 的完整指令（正文附后）。"
     "本 tick 必须交付一个可验证切片；禁止以 idle / 没事可做 / 只剩化妆品 结束。"
     "目标从 docs/roadmap.md、capability-map、UX 走查、git 现场推导；禁止写死功能清单。"
