@@ -56,8 +56,9 @@
 - [x] [ADR-0008 设计器] 设置→数据源：增改测连写到 `/ncnb/dataSources`；保存项目后 `profile` 无 password/url，有 `defaultDataSourceId` ✅`adr0008-datasource.spec.ts`
 
 
-- [ ] [MySQL 逆向含索引] 配置本机 MySQL 数据源 → 导入逆向 → 勾选含二级索引的表 → 预期：实体 `indexs` 有名称/字段/isUnique，PRIMARY 不重复出现；向导不显示 Schema
-- [ ] [MySQL 逆向含外键] 勾选父子表一并导入 → 预期：子表模块 `associations` 有 `1:n` 边，关系图画布可见连线（字典 KEY_COLUMN_USAGE）
+- [x] [MySQL 逆向提交闭环] `reverse_demo` 数据源 → `/design/table/import/reverse` 选 `t_user`/`t_order` → 模型树可见 ✅`import-reverse.spec.ts`
+- [ ] [MySQL 逆向含索引] 配置本机 MySQL 数据源 → 导入逆向 → 勾选含二级索引的表 → 预期：实体 `indexs` 有名称/字段/isUnique，PRIMARY 不重复出现；向导不显示 Schema（API curl 已覆盖；UI 深度后置）
+- [ ] [MySQL 逆向含外键] 勾选父子表一并导入 → 预期：子表模块 `associations` 有 `1:n` 边，关系图画布可见连线（字典 KEY_COLUMN_USAGE；API curl 已覆盖）
 - [x] [MySQL 复合 FK 列序] `ForeignKeyAssociationMapperTest#mapFromKeyColumnUsage_keepsCompositeOrder` ✅
 - [ ] [PostgreSQL 逆向] 选数据源后出现 Schema（默认 public）→ 含二级索引表导入 → 预期：`indexs` 正确且不含主键索引
 - [ ] [PostgreSQL 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（字典 KEY_COLUMN_USAGE）
