@@ -9,7 +9,7 @@
 #   MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run
 #
 # 导入顺序：
-#   建库（01_create_database.sql）→ 02_tables.sql（CREATE TABLE only）
+#   建库（01_create_database.sql）→ 02_tables.sql（CREATE TABLE only，无 USE；导入时指定库 erd）
 #
 # 依赖：本机已装 mysql 客户端（mysql --version）。
 # 无本机客户端时用：./scripts/railway-mysql-init.docker.sh（同参/同 env）。
@@ -188,10 +188,15 @@ run_mysql() {
 
 for f in "${IMPORT_FILES[@]}"; do
   echo "-- import $f"
+  # 02_tables.sql 不含 USE；必须显式选库（docker 空卷靠 MYSQL_DATABASE=erd）
+  db_args=()
+  if [[ "$f" == "02_tables.sql" ]]; then
+    db_args=(erd)
+  fi
   if [[ "$DRY_RUN" -eq 1 ]]; then
-    echo "DRY-RUN: < $INIT_DIR/$f"
+    echo "DRY-RUN: mysql … ${db_args[*]:-} < $INIT_DIR/$f"
   else
-    run_mysql < "$INIT_DIR/$f" || die "failed importing $f"
+    run_mysql "${db_args[@]}" < "$INIT_DIR/$f" || die "failed importing $f"
   fi
 done
 
