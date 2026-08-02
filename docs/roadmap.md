@@ -62,7 +62,7 @@
 - ~~Schema 版本化对外承诺：projectJSON 兼容性政策成文（agent 依赖稳定性）~~✅（`data-format.md`「仅加法 / 禁止原地破坏」）
 - ~~Agent 可读 projectJSON：机器可校验的 JSON Schema + 示例~~✅（`schema/` + `node scripts/validate-projectjson.mjs`）
 - ~~可观测性：自部署者的健康检查/指标端点（少量、低成本）~~✅（`/actuator/health` + `/actuator/info` app/version；未暴露路径 404；见 [deployment.md](./deployment.md)）
-- 自部署 DX：docker-compose 一键起的文档化验收 + 升级路径演练
+- ~~自部署 DX：docker-compose 一键起的文档化验收 + 升级路径演练~~✅（`scripts/verify-self-deploy.sh` + [deployment.md](./deployment.md) 验收/升级演练；Flyway 不靠重跑 `db/init`）
 - 竞品对比页：vs dbdiagram / dbml 的诚实对照（协作/版本/开放/自部署），落地页子页
 
 ## 阶段总览

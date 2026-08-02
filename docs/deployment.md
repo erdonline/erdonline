@@ -37,6 +37,43 @@ curl -sS http://localhost:9502/actuator/info
 
 未暴露的 actuator 子路径返回 **404**（勿再伪装成 500「操作发生错误」）。
 
+### 一键验收脚本
+
+栈拉起后（`docker compose up -d` **或** 本地 `mysql/redis` + `./backend/dev-ensure.sh` + `yarn start`）跑：
+
+```bash
+./scripts/verify-self-deploy.sh
+# 期望：health UP、info 含 erd-online、/actuator/env → 404、前端 / → 200；
+#       若存在容器 erd-mysql，再断言 erd.flyway_schema_history 有成功版本
+```
+
+可选环境变量：`API_BASE` / `FE_BASE` / `SKIP_FE=1` / `SKIP_FLYWAY=1` / `MYSQL_CONTAINER`。
+
+### 升级路径演练（已有 data 卷）
+
+自部署升级**不**重跑 `db/init/`（卷已存在时 MySQL 入口脚本不会再次执行）。增量 schema 靠后端启动时 Flyway 打到 **erd** 库。
+
+```bash
+# 1) 备份（示例：具名卷）
+docker compose stop
+docker run --rm -v erdonline_erd-mysql-data:/v -v "$(pwd)":/b alpine \
+  tar czf /b/erd-mysql-backup-$(date +%Y%m%d).tgz -C /v .
+
+# 2) 拉新代码 / 重建镜像
+git pull
+docker compose build backend frontend
+docker compose up -d
+
+# 3) 验收（含 Flyway 最新成功版本号）
+./scripts/verify-self-deploy.sh
+
+# 4) 可选：看迁移历史
+docker exec erd-mysql mysql -uerd -perd erd \
+  -e "SELECT installed_rank,version,description,success FROM flyway_schema_history ORDER BY installed_rank;"
+```
+
+本地开发（非 compose 全栈）升级同样只需 `./backend/dev-ensure.sh --restart`（classpath 有新 `V*__*.sql` 即 migrate），再跑同一验收脚本。
+
 ## 服务说明
 
 | 服务 | 端口 | 说明 |
