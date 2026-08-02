@@ -145,6 +145,7 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
               placeholder="可选，回车添加多个标签"
               data-testid="version-tag-input"
               aria-label="版本标签"
+              notFoundContent={null}
             />
           </Form.Item>
         </Form>

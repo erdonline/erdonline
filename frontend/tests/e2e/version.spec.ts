@@ -26,15 +26,20 @@ async function saveVersion(
   const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
   await expect(dialog).toBeVisible();
   if (opts?.tags?.length) {
-    // antd Select tags：点根节点易误点已有 chip 的关闭；写入内部 input
-    const tagInput = dialog.getByTestId('version-tag-input').locator('input');
+    // antd Select tags：写内部 input；用逗号触发 tokenSeparators（比 Enter 稳，避免只停在 search mirror）
+    const tagSelect = dialog.getByTestId('version-tag-input');
+    const tagInput = tagSelect.locator('input');
     for (const t of opts.tags) {
       await tagInput.click();
-      await page.keyboard.type(t);
-      await page.keyboard.press('Enter');
+      await tagInput.fill('');
+      await page.keyboard.type(`${t},`);
+      // 确认 chip 已落盘（勿用 Escape：会留下「暂无数据」遮罩挡「确定」）
+      await expect(
+        tagSelect.locator('.ant-select-selection-item').filter({ hasText: t }),
+      ).toBeVisible();
     }
-    // 关闭 tags 下拉，避免 option 层挡住「确定」
-    await page.keyboard.press('Escape');
+    // 失焦关下拉，再点确定
+    await dialog.getByRole('textbox', { name: '版本描述' }).click();
   }
   await dialog.getByRole('button', { name: /确\s*定/ }).click();
   await expectToast(page, /保存成功/);
