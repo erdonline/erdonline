@@ -159,6 +159,7 @@
 | **W4** 项目列表 + 数据源（旧 W3，降为纯平移波） | dataModels + project/* `ProList` → antd List；databaseConfig `ProTable`/`PageContainer` → antd Table + 工作台壳；import/export/setting/account 剩余 `ProForm*` 逐个平移（含保存版本 AddVersion） | 4 页 ProList + 1 ProTable + 剩余 ProForm | 项目「列表→打开→重命名→删除」E2E；数据源「新建→ping→删除」E2E；每对话框对应 E2E 不回归 |
 | └ **W4 切片 1** ✅（2026-08-02） | **AddVersion**（保存版本弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；标签 `Select mode=tags` + 逗号分隔、校验与 testid 不变 | AddVersion ProForm | `version.spec` 保存路径（无数据源新增 / 多标签 / 可视化 diff 内 saveVersion） |
 | └ **W4 切片 2** ✅（2026-08-02） | **RenameVersion**（编辑版本弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；回填/非最新只读版本号/失败不关窗；testid 不变 | RenameVersion ProForm | `version.spec`「重命名描述与删除版本」 |
+| └ **W4 切片 3** ✅（2026-08-02） | **AddProject**（新增项目弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；个人/团队 `type` 初值；tags Select + testid 不变 | AddProject ProForm | `smoke` / `project-activation` `createPersonProject` |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。

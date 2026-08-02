@@ -93,10 +93,17 @@ export async function createPersonProject(
   await dialog.getByPlaceholder('请输入项目名').fill(projectName);
   // 默认已有「新建」；仅追加不同标签，避免 tags Select 同名输入卡住
   if (tag && tag !== '新建') {
-    await dialog.getByTestId('project-tags').click();
-    await page.keyboard.type(tag);
-    await page.keyboard.press('Enter');
+    const tagSelect = dialog.getByTestId('project-tags');
+    const tagInput = tagSelect.locator('input');
+    await tagInput.click();
+    await tagInput.fill('');
+    // 逗号走 tokenSeparators，比 Enter 更稳
+    await page.keyboard.type(`${tag},`);
+    await expect(
+      tagSelect.locator('.ant-select-selection-item').filter({ hasText: tag }),
+    ).toBeVisible();
   }
+  // 填描述顺带失焦 tags，避免下拉遮罩挡「确定」
   await dialog.getByPlaceholder('请输入项目描述').fill(desc ?? tag);
   await dialog.getByRole('button', { name: /确\s*定/ }).click();
   await expect(page.getByText(projectName).first()).toBeVisible({ timeout: 15_000 });
