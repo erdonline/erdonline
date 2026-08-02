@@ -86,7 +86,9 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 43. ~~**项目菜单关闭态 CSS class**~~（已合入 `erd-project-menu--closed`）
 44. ~~**version/approval goto 抽 helpers**~~（已合入；回滚同步落库）
 45. ~~**CHANGELOG Unreleased 整理**~~（已合入：按日 `### YYYY-MM-DD` + 文首维护约定；草稿 `32`）
-46. ~~**控件矩阵 🚧 行**~~（P2b 矩阵 🚧=0；余 📋 延期不拆阻断 Issue）——下一刀种子：小 a11y / E2E 加固，见 `.github/ISSUE_DRAFTS/README.md`
+46. ~~**控件矩阵 🚧 行**~~（P2b 矩阵 🚧=0；余 📋 延期不拆阻断 Issue）
+47. **画布「删除字段」可访问按钮**（草稿 `33`：span→button + aria + E2E）
+48. **ReactFlow Controls 中文 aria**（草稿 `34`：自定义 ControlButton，禁英文 zoom in 等）
 
 ## 贡献者怎么认领
 

@@ -8,6 +8,13 @@
 
 ### 2026-08-02
 
+#### P4 社区：补 good-first 草稿 33–34
+
+**文档**
+
+- 新增 ISSUE_DRAFTS `33`（画布删除字段 a11y）/ `34`（RF Controls 中文 aria）；同步 README 待投放表与 `docs/community.md` 种子 47–48
+  验证点：`ls .github/ISSUE_DRAFTS/3[34]-*.md`；`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 列出上述两标题且非 SKIP
+
 #### CHANGELOG Unreleased 按日折叠
 
 **文档**
