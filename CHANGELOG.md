@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：末行 Tab 新建字段（建模回路）
+
+- 选题：字段 Tab 已能跳行，但末行 Tab 只退出编辑 → 还要再点「+ 添加字段」打断键盘回路
+- 末行（或新建提交后仍无下一行）Tab → 开 `__NEW__` 空行；填名再 Tab → 落盘并再开新建
+- 空名 toast「字段名不能为空」路径不变（改已有字段）；新增空名仍=取消
+- E2E：`relation`「字段 Tab 跳下一行；末行新建；类型即时 save-status」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段 Tab" --workers=1 --retries=0`
+
 #### 体验：字段 Tab 跳下一行 + 类型即时 save-status（建模回路）
 
 - 选题：字段内联编辑只能 Enter/blur 提交；Tab 不进下一行；仅改类型无即时保存反馈
