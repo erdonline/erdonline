@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：导入后首屏打磨（空态导入 CTA + fitView / ADR-0016）
+
+- 空态次 CTA「导入 DBML」→ 同菜单弹窗；文案强调导入后铺满首屏
+- DBML 导入成功后直开导入模块关系图（菜单/空态同路径）
+- 切图 / 自动布局 / 导入后 `fitView`：多表用 `FIT_VIEW_SHAREABLE`（padding 0.08 / maxZoom 1.15，与分享只读同源 `utils/canvasFit`）
+- 控件「适应画布」改走分享密；空画布 init 仍 `FIT_VIEW_INIT`（防单节点放大过头）
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`；`npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "空态导入 DBML" --workers=1 --retries=0`
+
 #### 体验：设计器字段行再压一档（ADR-0016 节点密度）
 
 - `.erd-field-row`：`min-height` 24→22、`padding` 竖 3→2、`line-height` 18→16（设计器与分享只读同 scss）
@@ -24,12 +33,13 @@
 
 验证点：`cd frontend && npx tsx src/utils/graphLayout.test.ts && npx tsx src/utils/diagram.test.ts`；`npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`（spanX&lt;1100 + 无 `del_flag` + 截图 `demo-layout-density.png`）
 
-#### 运维：Railway MySQL 一键灌 `db/init`
+#### 运维：Railway MySQL 一键灌 `db/init`（含 Docker 路径）
 
 - 新增 `scripts/railway-mysql-init.sh`：接受 `MYSQL_URL` 或 `MYSQLHOST`/`MYSQLPORT`/`MYSQLUSER`/`MYSQLPASSWORD`；建 `martin`/`erd`（utf8mb4）；按序导入 `02→03→06…09`；跳过 `05_e2e_users.sql`；默认跳过 `04_privileges.sql`（`--with-privileges` 可选）
-- `docs/deployment.md` Railway MySQL「建库 + 灌基线」链到该脚本
+- 新增 `scripts/railway-mysql-init.docker.sh`：无本机 mysql 时用 `mysql:8` 容器挂载仓库跑同一脚本；可读仓库根 `.env`（`/.env` 已 gitignore）；**禁止**硬编码密码
+- `docs/deployment.md`：Docker 方式 + 与本地 compose 空卷首启挂载 `db/init` 的区分说明
 
-验证点：`chmod +x scripts/railway-mysql-init.sh`；`./scripts/railway-mysql-init.sh --help` 退出 0；`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run` 打印导入清单且不连库
+验证点：`chmod +x scripts/railway-mysql-init.sh scripts/railway-mysql-init.docker.sh`；`./scripts/railway-mysql-init.sh --help` 退出 0；`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run` 与 `./scripts/railway-mysql-init.docker.sh --dry-run` 均打印导入清单且不连库；`rg -n 'root:[^$\"'\'']' scripts/railway-mysql-init*.sh` 无真实密码字面量
 
 #### 体验：落地页 less 对齐 `--erd-*` tokens
 
