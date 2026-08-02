@@ -8,6 +8,15 @@
 
 ### 2026-08-02
 
+#### 修复：Redis 仍连 localhost（Boot 3 属性前缀）
+
+- 根因：`application.yml` 写在废弃的 `spring.redis.*`（Boot 3 error 级、不绑定）；Redisson 读 `spring.data.redis.*` → 永远默认 `localhost:6379`，与 Railway 是否已设 `REDIS_HOST` 无关
+- 改绑 `spring.data.redis.host/port/password`，占位符 `REDIS_*` 回退 `REDISHOST`/`REDISPORT`/`REDISPASSWORD`；`REDIS_URL` 经 `RedisUrlAliasEnvironmentPostProcessor` 注入
+- MySQL：`DB_HOST`/`DB_USERNAME` 回退 `MYSQLHOST`/`MYSQLUSER`/`DB_USER`，避免下一脚踩 localhost / placeholder
+- `docs/deployment.md` Variables 表改为 Add Variable Reference 示例
+
+验证点：`mvn -q -Dtest=RedisUrlAliasEnvironmentPostProcessorTest,RedisDataPropertiesBindingTest test`；本地默认仍 `localhost`/`redis`（compose `REDIS_HOST=redis`）
+
 #### 修复：Railway healthcheck 连续失败（liveness + Redis 密码 + logback）
 
 - 现象：镜像推送 OK，`/actuator/health` Attempt #1–#8 service unavailable（约 2min+）→ 进程未听端口或聚合 health 因 db/redis DOWN 返回 503
