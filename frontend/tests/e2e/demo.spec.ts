@@ -119,7 +119,7 @@ test.describe('在线演示', () => {
       hubFans.some((n) => n !== 0),
       `分享页 hub 扇出应有非零 data-hub-fan（got ${JSON.stringify(hubFans)}）`,
     ).toBeTruthy();
-    // ADR-0016：边基数标签 chip 可读（白底 + ink600，禁整块半透明）
+    // ADR-0016：边基数标签 chip 扫读（白底 + ink900/600，禁整块半透明）
     const labels = page
       .getByTestId('share-relation-canvas')
       .getByTestId('erd-edge-label');
@@ -140,10 +140,10 @@ test.describe('在线演示', () => {
       };
     });
     expect(labelLook.opacity, '标签不得整块半透明').toBe('1');
-    expect(labelLook.color).toBe('rgb(68, 82, 95)'); // ink600
+    expect(labelLook.color).toBe('rgb(11, 28, 44)'); // ink900
     expect(labelLook.bg).toBe('rgb(255, 255, 255)'); // surface
-    expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
-    expect(parseInt(labelLook.fontWeight, 10)).toBeGreaterThanOrEqual(500);
+    expect(labelLook.fontSize).toBeGreaterThanOrEqual(12);
+    expect(parseInt(labelLook.fontWeight, 10)).toBeGreaterThanOrEqual(600);
     expect(parseFloat(labelLook.border)).toBeGreaterThanOrEqual(1);
     expect(labelLook.padX, '密图 chip 水平 padding').toBeLessThanOrEqual(4);
     expect(labelLook.padY, '密图 chip 垂直 padding').toBeLessThanOrEqual(2);

@@ -468,7 +468,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(markerEnd, '边端应带 crow foot marker').toMatch(/erd-cf-one/);
       expect(markerStart, '边源应带 crow foot marker').toMatch(/erd-cf-many/);
 
-      // ADR-0016：连线后基数标签 chip 可读（默认 n:1）；白底 + ink600 字，不与粗干道抢色
+      // ADR-0016：连线后基数标签 chip 扫读（默认 n:1）；白底 + ink900/600 字重，碰撞 nudge 不动
       const edgeLabel = page.getByTestId('erd-edge-label');
       await expect(edgeLabel).toBeVisible();
       await expect(edgeLabel).toHaveText(/n:1/);
@@ -479,15 +479,17 @@ test.describe('关系图画布（ReactFlow）', () => {
           bg: s.backgroundColor,
           opacity: s.opacity,
           fontSize: parseFloat(s.fontSize),
+          fontWeight: s.fontWeight,
           padX: parseFloat(s.paddingLeft),
           padY: parseFloat(s.paddingTop),
           radius: parseFloat(s.borderTopLeftRadius),
         };
       });
       expect(labelLook.opacity).toBe('1');
-      expect(labelLook.color).toBe('rgb(68, 82, 95)');
+      expect(labelLook.color).toBe('rgb(11, 28, 44)'); // ink900
       expect(labelLook.bg).toBe('rgb(255, 255, 255)');
-      expect(labelLook.fontSize).toBeGreaterThanOrEqual(11);
+      expect(labelLook.fontSize).toBeGreaterThanOrEqual(12);
+      expect(parseInt(labelLook.fontWeight, 10)).toBeGreaterThanOrEqual(600);
       expect(labelLook.padX).toBeLessThanOrEqual(4);
       expect(labelLook.padY).toBeLessThanOrEqual(2);
       expect(labelLook.radius).toBeLessThanOrEqual(3);

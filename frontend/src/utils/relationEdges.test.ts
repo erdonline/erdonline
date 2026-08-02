@@ -145,9 +145,11 @@ async function main() {
     ]);
     assert.strictEqual(edge.label, '1:n');
     assert.strictEqual(edge.labelStyle?.fontSize, EDGE_LABEL_FONT_SIZE);
-    assert.ok(EDGE_LABEL_FONT_SIZE >= 11);
-    assert.strictEqual(edge.labelStyle?.fill, erdColors.ink600);
+    assert.ok(EDGE_LABEL_FONT_SIZE >= 12, '截图扫读字号 ≥12');
+    assert.strictEqual(edge.labelStyle?.fill, erdColors.ink900);
+    assert.notStrictEqual(edge.labelStyle?.fill, erdColors.ink600, '禁回退低对比 ink600 字');
     assert.notStrictEqual(edge.labelStyle?.fill, erdColors.ink400, '禁低对比 ink400');
+    assert.ok(EDGE_LABEL_CHIP_W >= 40 && EDGE_LABEL_CHIP_H >= 20, '碰撞盒跟字号抬一档');
     assert.strictEqual(edge.labelBgStyle?.fill, erdColors.surface);
     assert.notStrictEqual(edge.labelBgStyle?.fill, erdColors.surfaceSunk, '禁与画布 sunk 同色');
     assert.strictEqual(edge.labelBgStyle?.fillOpacity, 1);
