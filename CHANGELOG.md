@@ -2,6 +2,22 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — P2b 收口：公告页闭环 + roadmap/vision 选题（2026-08-02）
+
+### 修复
+- `/project/notice`：加载失败明确 toast（`加载公告失败`），避免静默空列表
+  验证点：`project-notice.spec`「加载失败有 toast」
+
+### 测试
+- 新增 `project-notice.spec.ts`：首页「更多公告」→ 列表见种子公告；失败 toast
+  验证点：`npx playwright test tests/e2e/project-notice.spec.ts --project=chromium`
+
+### 文档
+- `docs/roadmap.md` P2b：矩阵 🚧=0；📋 延期项简述；下一阶段战略改指 P4 Issue / AI·i18n
+- `scripts/agent-loop-vision.prompt.md`：矩阵 🚧=0 后优先可行动 📋 或 roadmap 📋
+- `docs/control-matrix.md`：公告 → ✅；🗑 六行确认代码已不存在；统计 ✅90 / 🚧0 / 🗑6 / 📋6
+- `docs/regression-checklist.md`：公告页自动化
+
 ## [Unreleased] — W6 权限组 / GroupLayout 导航 / 404 闭环（2026-08-02）
 
 ### 修复
