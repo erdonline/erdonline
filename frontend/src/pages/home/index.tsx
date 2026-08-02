@@ -1,16 +1,14 @@
 import type {FC} from 'react';
-import {Avatar, Card, Col, List, Skeleton, Row, Statistic, Tag, Space, Typography, Progress} from 'antd';
-import {Radar, Pie} from '@ant-design/charts';
-import { RocketOutlined, BarChartOutlined, ProjectOutlined, GlobalOutlined, NotificationOutlined, CompassOutlined, PieChartOutlined, PlusOutlined, ImportOutlined, HistoryOutlined, BookOutlined, BranchesOutlined, ExportOutlined, SafetyOutlined, ReadOutlined, CustomerServiceOutlined, DatabaseOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
+import {Avatar, Card, Col, List, Skeleton, Row, Statistic, Tag, Space, Typography} from 'antd';
+import { RocketOutlined, BarChartOutlined, ProjectOutlined, GlobalOutlined, NotificationOutlined, CompassOutlined, PlusOutlined, ImportOutlined, HistoryOutlined, BranchesOutlined, DatabaseOutlined, TeamOutlined, UserOutlined } from '@ant-design/icons';
 
 import moment from 'moment';
 import EditableLinkGroup from './components/EditableLinkGroup';
 import styles from './style.less';
 import type {ActivitiesType, CurrentUser} from './data.d';
-import {queryProjectNotice, queryActivities, fakeChartData} from './service';
 import {useRequest} from "@umijs/hooks";
 import {Link} from "@@/exports";
-import {GET, GET_ERD, POST_ERD} from "@/services/crud";
+import {GET, POST_ERD} from "@/services/crud";
 import React, {useEffect, useState} from "react";
 import {PageContainer} from "@ant-design/pro-components";
 import {VipOne} from "@icon-park/react";
@@ -128,7 +126,7 @@ export const renderActivities = (item: ActivitiesType) => {
   );
 };
 
-const Home: React.FC<HomeProps> = (props) => {
+const Home: React.FC<HomeProps> = () => {
 
   const [statisticInfo, setStatisticInfo] = useState({
     yesterday: 0,
@@ -152,7 +150,7 @@ const Home: React.FC<HomeProps> = (props) => {
     fetchStatistic();
   }, [statisticInfo.total])
 
-  const ExtraContent: FC<Record<string, any>> = () => (
+  const ExtraContent: FC<Record<string, never>> = () => (
     <div className={styles.extraContent}>
       <Row gutter={24} justify="end">
         <Col span={8} >
@@ -203,43 +201,9 @@ const Home: React.FC<HomeProps> = (props) => {
     })
   });
 
-  const {data: r, userInfoLoading} = useRequest(() => {
+  const {data: r} = useRequest(() => {
     return GET('/syst/user/settings/basic', {});
   });
-
-  const data = [
-    {
-      type: '个人',
-      value: statisticInfo.personTotal,
-    },
-    {
-      type: '团队',
-      value: statisticInfo.groupTotal,
-    },
-
-  ];
-  const config = {
-    appendPadding: 10,
-    data,
-    angleField: 'value',
-    colorField: 'type',
-    radius: 0.9,
-    label: {
-      type: 'inner',
-      offset: '-30%',
-      content: ({ percent }) => `${(percent * 100).toFixed(0)}%`,
-      style: {
-        fontSize: 16,
-        textAlign: 'center',
-      },
-    },
-    interactions: [
-      {
-        type: 'element-active',
-      },
-    ],
-  };
-
 
   return (
     <PageContainer
@@ -273,7 +237,7 @@ const Home: React.FC<HomeProps> = (props) => {
             loading={projectLoading}
             bodyStyle={{padding: 0}}
           >
-            {recentProject?.data?.records?.map((item: any) => (
+            {recentProject?.data?.records?.map((item: { id: string; type: string; projectName: string; description?: string; updateTime?: string }) => (
               <Card.Grid key={item.id}>
                 <Link to={'/design/table/model?projectId=' + item.id}>
                   <Card key={item.id} bordered={false} style={{boxShadow: 'none'}}>
@@ -340,50 +304,6 @@ const Home: React.FC<HomeProps> = (props) => {
             bodyStyle={{padding: 16}}
           >
             <EditableLinkGroup links={quickLinks}/>
-          </Card>
-          <Card
-            bordered={false}
-            title={
-              <Space>
-                <PieChartOutlined />
-                <Title level={4}>项目概览</Title>
-              </Space>
-            }
-            bodyStyle={{padding: 16}}
-          >
-            <Row gutter={[8, 16]}>
-              <Col span={12}>
-                <Statistic 
-                  title="个人项目" 
-                  value={statisticInfo.personTotal} 
-                  prefix={<UserOutlined />} 
-                  valueStyle={{ color: '#1890ff' }}
-                />
-              </Col>
-              <Col span={12}>
-                <Statistic 
-                  title="团队项目" 
-                  value={statisticInfo.groupTotal} 
-                  prefix={<TeamOutlined />} 
-                  valueStyle={{ color: '#52c41a' }}
-                />
-              </Col>
-              <Col span={18}>
-                <Progress 
-                  percent={statisticInfo.personTotal / (statisticInfo.personTotal + statisticInfo.groupTotal) * 100} 
-                  strokeColor={{
-                    '0%': '#1890ff',
-                    '100%': '#52c41a',
-                  }}
-                  format={(percent) => `${percent?.toFixed(1)}% 个人项目`}
-                />
-              </Col>
-              <Col span={24}>
-                <Text type="secondary">
-                  总项目数: {statisticInfo.personTotal + statisticInfo.groupTotal}
-                </Text>
-              </Col>
-            </Row>
           </Card>
         </Col>
       </Row>

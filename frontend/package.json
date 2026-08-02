@@ -52,12 +52,10 @@
     "not ie <= 10"
   ],
   "dependencies": {
-    "@ant-design/charts": "^2.0.3",
     "@ant-design/compatible": "^5.1.1",
     "@ant-design/icons": "^5.3.1",
     "@ant-design/plots": "^2.1.13",
     "@ant-design/pro-components": "2.8.10",
-    "@chatui/core": "^2.4.2",
     "@handsontable/react": "^5.0.0",
     "@icon-park/react": "^1.4.2",
     "@reduxjs/toolkit": "^1.8.6",

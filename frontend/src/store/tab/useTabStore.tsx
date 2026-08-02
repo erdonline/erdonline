@@ -20,11 +20,9 @@ type actions = {
 
 export enum TabGroup {
   MODEL,
-  QUERY,
 }
 
 export const defaultSelectTabId = '';
-export const QUERY_MODULE = 'ERD-ONLINE-SQL-QUERY';
 
 export type ModuleEntity = {
   group?: TabGroup;

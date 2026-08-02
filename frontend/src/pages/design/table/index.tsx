@@ -1,32 +1,19 @@
-import React, { ReactNode } from "react";
-import { Flex, Empty, Alert } from "antd";
+import React from "react";
+import { Flex, Empty } from "antd";
 import { Splitter } from 'antd';
 import "./index.scss";
 import TableTab from "@/pages/design/table/component/tab/TableTab";
 import useTabStore, { ModuleEntity, TabGroup } from "@/store/tab/useTabStore";
 import Relation from "@/pages/design/relation";
-import Query from "@/pages/design/query";
 import CommonTabs from '@/components/CommonTabs';
 import DataTable from '@/components/LeftContent/DesignLeftContent/component/DataTable';
 import EmptyStateAnimation from '@/components/EmptyStateAnimation';
 import useProjectStore from "@/store/project/useProjectStore";
-import { useLocation } from "@@/exports";
-
-// 修改 EmptyStateAnimation 的类型定义
-interface EmptyStateAnimationProps {
-  show: boolean;
-  title?: string;
-  description?: string | ReactNode;
-  children?: ReactNode;
-}
 
 const Table: React.FC = () => {
-  const location = useLocation();
-  const isQueryExperimental = location.pathname === '/design/table/query';
   const tableTabs = useTabStore(state => state.tableTabs);
   const selectTabId = useTabStore(state => state.selectTabId);
   const tabDispatch = useTabStore(state => state.dispatch);
-  const closeCurrent = useTabStore(state => state.closeCurrent);
   const modules = useProjectStore(state => state.project?.projectJSON?.modules);
 
   const getTab = (tab: ModuleEntity) => {
@@ -41,10 +28,6 @@ const Table: React.FC = () => {
           </div>
         );
       }
-    }
-
-    if (tab.group === TabGroup.QUERY) {
-      return <Query id={tab.module + ''}/>;
     }
 
     return <Empty
@@ -65,21 +48,12 @@ const Table: React.FC = () => {
 
   const onEdit = (targetKey: any, action: 'add' | 'remove') => {
     if (action === 'remove') {
-      closeCurrent(getModuleEntity(targetKey));
+      tabDispatch.removeTab(getModuleEntity(targetKey));
     }
   };
 
   return (
-    <Flex vertical style={{ height: '100%' }} data-testid={isQueryExperimental ? 'design-query-page' : undefined}>
-      {isQueryExperimental && (
-        <Alert
-          type="info"
-          showIcon
-          style={{ margin: '8px 12px 0' }}
-          message="实验功能"
-          description="设计器「查询」侧栏入口已隐藏。本页仅深链保留：当前 SQL 执行走应用库而非所选数据源，勿当作生产查询台；主旅程请用建模 / 版本 / 逆向。"
-        />
-      )}
+    <Flex vertical style={{ height: '100%' }}>
       <Flex style={{ height: '100%', minHeight: 0, flex: 1 }}>
         <Splitter>
           <Splitter.Panel defaultSize="20%" min="10%" max="40%">
