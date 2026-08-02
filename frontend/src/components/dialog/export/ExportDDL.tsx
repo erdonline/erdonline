@@ -17,6 +17,7 @@ import shallow from "zustand/shallow";
 import type { RadioChangeEvent } from "antd/lib/radio/interface";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import type { MenuDialogControl } from "@/components/Menu/menuDialog";
+import '../io-modal.scss';
 
 /** ADR-0008：列表来自 /ncnb/dataSources，不读 profile.dbs */
 type ExportDbOption = {
@@ -149,7 +150,11 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
         open={open}
         onCancel={() => setOpen(false)}
         destroyOnClose
-        width={720}
+        width={640}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
+        transitionName=""
+        maskTransitionName=""
         footer={
           step === 0
             ? [
@@ -176,14 +181,14 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
         <Steps
           current={step}
           size="small"
-          style={{ marginBottom: 24 }}
+          className="erd-io-modal__steps"
           items={[
             { title: '选择数据源及导出的表' },
             { title: '导出配置' },
           ]}
         />
         {step === 0 && (
-          <Form form={form1} layout="vertical" requiredMark>
+          <Form form={form1} layout="vertical" size="small" requiredMark>
             <Form.Item
               name="currentDB"
               label="数据源"
@@ -232,6 +237,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
           <Form
             form={form2}
             layout="vertical"
+            size="small"
             initialValues={{ exportType: 'all' }}
           >
             <Form.Item name="exportType" label="导出内容">

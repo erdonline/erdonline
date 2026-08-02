@@ -7,6 +7,7 @@ import shallow from 'zustand/shallow';
 import _ from 'lodash';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
+import '../io-modal.scss';
 
 const {Dragger} = Upload;
 
@@ -157,7 +158,11 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
         onOk={closeModal}
         onCancel={closeModal}
         destroyOnClose
-        width={520}
+        width={480}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
+        transitionName=""
+        maskTransitionName=""
       >
         <Dragger {...uploadProps}>
           <p className="ant-upload-drag-icon">

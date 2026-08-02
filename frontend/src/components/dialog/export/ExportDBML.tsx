@@ -6,6 +6,7 @@ import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import * as File from '@/utils/file';
+import '../io-modal.scss';
 
 const {TextArea} = Input;
 
@@ -153,7 +154,11 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
         open={open}
         onCancel={closeModal}
         destroyOnClose
-        width={640}
+        width={560}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
+        transitionName=""
+        maskTransitionName=""
         footer={
           <Space>
             <Button onClick={closeModal} disabled={loading}>
@@ -178,9 +183,10 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           </Space>
         }
       >
-        <div style={{marginBottom: 12}}>
+        <div className="erd-io-modal__field">
           <Select
             aria-label="导出模型"
+            size="small"
             style={{width: '100%'}}
             placeholder="选择要导出的模型"
             value={moduleName || undefined}
@@ -193,11 +199,11 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           aria-label="DBML预览"
           value={preview}
           readOnly
-          rows={14}
+          rows={10}
           placeholder="选择模型后在此预览 DBML…"
           disabled={loading}
         />
-        <p style={{marginTop: 8, marginBottom: 0, color: 'rgba(0,0,0,0.45)'}}>
+        <p className="erd-io-modal__hint">
           导出表、字段、默认值、索引、外键与注释（chnname→note）；枚举/触发器本切片不导出。
         </p>
       </Modal>
