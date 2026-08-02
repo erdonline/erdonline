@@ -46,7 +46,7 @@
 
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
-| 工单提交/审批 | ApprovalController CRUD；通过必须先 SQL 成功再落库/sync（✅ 已修） | 设计器 version/order/approval tab | thin：入口深埋，W3 平移 + 理顺 |
+| 工单提交/审批 | ApprovalController CRUD；通过必须先 SQL 成功再落库/sync（✅ 已修） | 设计器 version 页：未同步行「提交工单」→ 详情「SQL审批」；工具栏/侧栏「我的工单」「我的审批」直达 ✅（W3 切片 3） | ✅ |
 | 在线 SQL（只读白名单） | `POST /connector/sqlexec`（jsqlparser，仅 SELECT/EXPLAIN/SHOW/DESC） | UI 实验页已删（W2）；后端接口保留供版本审批 SQL | **overbuilt 已裁**：control-matrix 📋 延期，本阶段不恢复查询台 |
 
 ## 数据字典 / 治理
@@ -69,4 +69,4 @@
 
 ## 北极星对齐结论
 
-直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；设计器 chrome 左树去重 + 画布空间回收已 ✅（W2 切片 3）；设计器内 `calc(100vh)` 清零（树/版本页 flex）已 ✅（W2 切片 4）；跨版本 diff 导出已 ✅（W3 切片 1）；version ProList→List + 空态 CTA 已 ✅（W3 切片 2）。剩余 **审批入口理顺**（thin，菜单已有「我的工单/我的审批」）→ 仅排序洁癖；W5 登录品牌壳 / share 顶栏为纯表现层，靠后。
+直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；设计器 chrome 左树去重 + 画布空间回收已 ✅（W2 切片 3）；设计器内 `calc(100vh)` 清零（树/版本页 flex）已 ✅（W2 切片 4）；跨版本 diff 导出已 ✅（W3 切片 1）；version ProList→List + 空态 CTA 已 ✅（W3 切片 2）；审批/工单入口理顺已 ✅（W3 切片 3）。W5 登录品牌壳 / share 顶栏为纯表现层，靠后。

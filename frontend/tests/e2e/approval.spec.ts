@@ -7,6 +7,8 @@ import {
   expectToast,
   gotoVersionSub,
   login,
+  openVersionPage,
+  saveVersion,
   uniqueProjectName,
 } from './helpers';
 
@@ -104,6 +106,47 @@ test.describe('版本工单/审批', () => {
       await expect(page.getByText(/暂无待审/)).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page, /^e2e-serial-/).catch(() => {});
+    }
+  });
+
+  /**
+   * W3 收口：信任链入口可发现 —— 版本页工具栏直达工单/审批；
+   * 团队项目未同步版本行可见「提交工单」→ 详情弹层「SQL审批」。
+   */
+  test('版本页：提交工单入口可达且审批 tab 可见', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const account = e2eAccount();
+    const projectName = uniqueProjectName('appr-entry');
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(request, token, projectName);
+
+    try {
+      await login(page, account);
+      await page.goto(`/design/table/model?projectId=${projectId}`);
+      await expect(page).toHaveURL(/projectId=/, { timeout: 15_000 });
+
+      await openVersionPage(page);
+      await expect(page.getByTestId('version-nav-orders')).toBeVisible();
+      await expect(page.getByTestId('version-nav-approvals')).toBeVisible();
+      await expect(
+        page.getByRole('menuitem', { name: '我的审批' }),
+      ).toBeVisible();
+
+      await saveVersion(page);
+      const submitBtn = page.getByTestId('version-submit-order-btn');
+      await expect(submitBtn).toBeVisible({ timeout: 15_000 });
+      await submitBtn.click();
+      const detail = page.getByRole('dialog').filter({ hasText: '版本变更详情' });
+      await expect(detail).toBeVisible();
+      await expect(detail.getByTestId('sql-approval-btn')).toBeVisible();
+
+      await gotoVersionSub(page, 'approval');
+      await expect(page.getByTestId('page-title-approvals')).toHaveText('我的审批');
+      await expect(
+        page.getByRole('menuitem', { name: '我的审批' }),
+      ).toBeVisible();
+    } finally {
+      await deleteGroup(request, token, projectId).catch(() => {});
     }
   });
 

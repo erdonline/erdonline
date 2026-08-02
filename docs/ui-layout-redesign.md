@@ -132,7 +132,7 @@
 | 只读分享**吊销/管理** | `POST /share/revoke`（ProjectShareController）；security-model 明文「创建/吊销需登录且为项目创建人」 | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
 | 跨版本 diff **导出** | 版本 diff 可视化 ✅（CompareVersion）；db_change.tag 多标签 ✅（Flyway V1/V2） | CompareVersion「导出」Markdown/SQL ✅（W3 切片 1） | ✅ |
 | 数据字典 | `/dataDict` 全 CRUD（DataDictController） | 实验页已删（W2）；本阶段无 UI | **thin** — 本阶段不扩，但也不许为其抛光 |
-| 审批流 | approval CRUD + SQL 信任链（SQL 失败不落通过 ✅） | 入口深埋设计器 version/order/approval tab | thin — 可用，W3 平移时顺带理顺入口 |
+| 审批流 | approval CRUD + SQL 信任链（SQL 失败不落通过 ✅） | 版本行「提交工单」+ 顶栏/侧栏工单·审批直达 ✅（W3 切片 3） | ✅ |
 | 版本回滚 / 标签 / 同步 / 逆向 / Word 导出 | RevertVersion、tag chips、dbsync/rebaseline、dbReverseParse、`/doc/gendocx` | 均已暴露 ✅ | 无缺口，勿重复投资 |
 
 ### 空壳清单（先删后美；删之前禁止投入任何 UI 打磨）
@@ -156,9 +156,10 @@
 | └ **W2 切片 2** ✅（2026-08-02） | ③ Home 只删：Radar/_mock/service/Pie config/「项目概览」重复卡 + HomeLayout slogan 轮转；实验页源文件物理删除（query/chatsql/dataDomain/dataQuery + QueryLeftContent/dialog/query/useQueryStore）；依赖移除 `@ant-design/charts`、`@chatui/core` | 随删清 TabGroup.QUERY | `activation` + `layout-outlet`；空壳 404 不回归；`grep charts/chatui/useQueryStore` = 0 |
 | └ **W2 切片 3** ✅（2026-08-02） | ④ 设计器 chrome：主区去重嵌套 `DataTable`；sider footer 删除；sider 400→320；tabs 40px；壳层 flex 填满；树头「新建」常显 | — | `layout-outlet`「顶栏…」+「模型树唯一 + 新建入口常显」；`openRelationFromEmpty` 断言单树 |
 | └ **W2 切片 4** ✅（2026-08-02） | ⑤ 设计器 `calc(100vh)` 清零：`QueryTree` / `version-page` / ReactFlow 画布 → flex/`height:100%`；sider-inner `overflow:hidden` | — | `layout-outlet`「模型树与版本页 flex 填满」；`rg 'calc\\(100vh' frontend/src/components/QueryTree frontend/src/pages/design` = 0 |
-| **W3** 版本域收口（旧 W4 提前，目标改写） | version ProList → antd List ✅；**跨版本 diff 导出** ✅；审批/order 表单 `ProForm*` → antd Form 平移；审批入口理顺 | 版本/审批域 ProForm（version ProList 已摘） | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
+| **W3** 版本域收口 ✅（旧 W4 提前，目标改写） | version ProList → antd List ✅；**跨版本 diff 导出** ✅；审批/order 表单 `ProForm*` → antd Form 平移 ✅；审批入口理顺 ✅ | 版本/审批域 ProForm（已摘） | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
 | └ **W3 切片 1** ✅（2026-08-02） | **跨版本 diff 导出**：diff 弹层「导出」主按钮落 Markdown（模型变更+SQL），下拉「仅导出 SQL」；复用 `File.save`；顺带移除零引用 `bizcharts` / `@ant-design/plots` | — | `version.spec` 详情弹层 download `.md` + toast；`formatVersionDiffMarkdown.test.ts` |
 | └ **W3 切片 2** ✅（2026-08-02） | version `ProList` → antd `List`：工具栏（脏标记/数据源/标签筛选/新增/对比/同步配置/重建）+ 行（版本号 strong + 同步 Tag + 标签 chips + 变更摘要 + 行尾操作）；空态「还没有版本」+「保存第一个版本」主按钮 | version ProList | `version.spec`「无数据源也可新增版本」空态 CTA + 列表行不回归；`rg ProList pages/design/version` = 0 |
+| └ **W3 切片 3** ✅（2026-08-02） | **审批/工单入口理顺**：版本页顶栏「我的工单/我的审批」直达；团队未同步版本行「提交工单」→ 详情「SQL审批」；空态文案对齐 | — | `approval.spec`「版本页：提交工单入口可达且审批 tab 可见」+ 既有工单/审批用例 |
 | **W4** 项目列表 + 数据源（旧 W3，降为纯平移波） | dataModels + project/* `ProList` → antd List；databaseConfig `ProTable`/`PageContainer` → antd Table + 工作台壳；import/export/setting/account 剩余 `ProForm*` 逐个平移（含保存版本 AddVersion） | 4 页 ProList + 1 ProTable + 剩余 ProForm | 项目「列表→打开→重命名→删除」E2E；数据源「新建→ping→删除」E2E；每对话框对应 E2E 不回归 |
 | └ **W4 切片 1** ✅（2026-08-02） | **AddVersion**（保存版本弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；标签 `Select mode=tags` + 逗号分隔、校验与 testid 不变 | AddVersion ProForm | `version.spec` 保存路径（无数据源新增 / 多标签 / 可视化 diff 内 saveVersion） |
 | └ **W4 切片 2** ✅（2026-08-02） | **RenameVersion**（编辑版本弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；回填/非最新只读版本号/失败不关窗；testid 不变 | RenameVersion ProForm | `version.spec`「重命名描述与删除版本」 |

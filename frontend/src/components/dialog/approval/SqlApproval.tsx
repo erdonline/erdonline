@@ -122,6 +122,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
         type="primary"
         style={{display: props.display}}
         aria-label="SQL审批"
+        data-testid="sql-approval-btn"
         onClick={openModal}
       >
         <ConsoleSqlOutlined />

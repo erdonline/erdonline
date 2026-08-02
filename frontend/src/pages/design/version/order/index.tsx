@@ -176,7 +176,7 @@ const MyOrder: React.FC = () => {
         }}
         onChange={onTableChange}
         locale={{
-          emptyText: '暂无工单。团队项目可在「版本管理 → 详情」中发起 SQL 审批。',
+          emptyText: '暂无工单。团队项目可在「版本管理」版本行点「提交工单」发起 SQL 审批。',
         }}
         scroll={{x: true}}
       />
