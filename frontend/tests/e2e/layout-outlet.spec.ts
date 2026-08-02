@@ -88,6 +88,62 @@ test.describe('布局壳子路由出口', () => {
     });
   });
 
+  test('Home 项目卡密度：与 22–28 chrome 同阶', async ({ page }) => {
+    test.setTimeout(60_000);
+    await login(page, e2eAccount());
+    await page.goto('/home');
+    await expect(page.getByTestId('home-page')).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole('heading', { name: '进行中的项目' }),
+    ).toBeVisible();
+
+    // 有卡则验卡密度；空态仍验区标题行高
+    const metrics = await page.evaluate(() => {
+      const pageEl = document.querySelector(
+        '[data-testid="home-page"]',
+      ) as HTMLElement | null;
+      const title = pageEl?.querySelector('h2') as HTMLElement | null;
+      const card = pageEl?.querySelector(
+        '[data-testid="home-project-card"]',
+      ) as HTMLElement | null;
+      const tcs = title ? getComputedStyle(title) : null;
+      const ccs = card ? getComputedStyle(card) : null;
+      return {
+        titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+        titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+        cardPadY: ccs
+          ? parseFloat(ccs.paddingTop) + parseFloat(ccs.paddingBottom)
+          : null,
+        cardMinH: ccs ? parseFloat(ccs.minHeight) : null,
+        hasCard: Boolean(card),
+      };
+    });
+    expect(
+      metrics.titleFont,
+      `区标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`,
+    ).toBeLessThanOrEqual(14);
+    expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+    expect(
+      metrics.titleLh,
+      `区标题行高应 ≤24（目标 22），得 ${metrics.titleLh}`,
+    ).toBeLessThanOrEqual(24);
+    if (metrics.hasCard) {
+      expect(
+        metrics.cardPadY,
+        `项目卡 padY 应 ≤28（目标 ~20），得 ${metrics.cardPadY}`,
+      ).toBeLessThanOrEqual(28);
+      expect(
+        metrics.cardMinH,
+        `项目卡 min-height 应 ≤110（目标 96），得 ${metrics.cardMinH}`,
+      ).toBeLessThanOrEqual(110);
+    }
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/home-project-cards-dense.png',
+      fullPage: false,
+    });
+  });
+
   test('GroupLayout：/project/group/setting/basic 主内容可见', async ({ page, request }) => {
     const account = e2eAccount();
     const token = await apiToken(request, account.name, account.pass);

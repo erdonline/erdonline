@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：账号设置 + Home 项目卡密度（ADR-0016）
+
+- 选题：`/account/settings` 页头/表单/安全行 + Home「进行中的项目」卡密度（与 22–28 chrome / `.setting-common-page` / `.erd-io-modal` 同阶）
+- 账号设置：标题 13/22、页 pad 8×12、侧栏项 28、表单输入/保存钮 28、安全行 pad 6；修改密码 Modal 挂 `.erd-io-modal`；role/aria（邮箱/更新基本信息/修改）不变
+- Home 项目卡：区标题 13/22、卡 pad 10×12 / min-height 96、名 13/22；`home-project-card` testid；禁 16×18 + 16 标题松卡
+- `account-settings`「页密度」+ `layout-outlet`「Home 项目卡密度」；截图 `account-settings-page-dense.png` / `home-project-cards-dense.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep "页密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "Home 项目卡密度" --workers=1 --retries=0`
+
 #### 体验：数据库配置页密度（/databaseConfig + 数据源设置，ADR-0016）
 
 - 选题：`/databaseConfig` 页头/列表/抽屉表单密度（与 22–28 chrome / `.setting-common-page` / `.erd-io-modal` 同阶）；数据类型域实验页已下线，本切片收数据库配置

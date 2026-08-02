@@ -63,9 +63,11 @@ const BaseView: React.FC = () => {
           <div className={styles.left}>
             <Form
               layout="vertical"
+              size="small"
               requiredMark={false}
               initialValues={{...r?.data}}
               onFinish={handleFinish}
+              className="account-settings-form"
               style={{maxWidth: 328}}
             >
               <Form.Item
