@@ -844,6 +844,86 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('实体新建弹层密度：与 22 chrome 同阶', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('emodal');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'em', 'entity modal density');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      const dialog = page.getByRole('dialog', { name: '新增表' });
+      await expect(dialog).toBeVisible();
+      await expect(page.getByTestId('entity-modal-name')).toBeVisible();
+
+      // ADR-0016：实体弹层密度（与命令面板 / 22 chrome 同阶）；禁 520 宽 + 24 pad 松卡片
+      // 量 style/computed（勿用 zoom 中的 getBoundingClientRect）
+      const metrics = await page.evaluate(() => {
+        const root =
+          (document.querySelector('.erd-entity-modal-root .ant-modal') as HTMLElement) ||
+          (document.querySelector('.erd-entity-modal') as HTMLElement);
+        if (!root) return { err: 'no-modal' } as const;
+        const title = root.querySelector('.ant-modal-title') as HTMLElement | null;
+        const body = root.querySelector('.ant-modal-body') as HTMLElement | null;
+        const item = root.querySelector('.ant-form-item') as HTMLElement | null;
+        const input = root.querySelector(
+          '[data-testid="entity-modal-name"]',
+        ) as HTMLElement | null;
+        const ok = document.querySelector(
+          '[data-testid="entity-modal-ok"]',
+        ) as HTMLElement | null;
+        const styleW = parseFloat(root.style.width || '') || NaN;
+        const cssW = parseFloat(getComputedStyle(root).width) || NaN;
+        const bcs = body ? getComputedStyle(body) : null;
+        const ics = item ? getComputedStyle(item) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        return {
+          width: Number.isFinite(styleW) ? styleW : cssW,
+          titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          bodyPadY: bcs
+            ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
+            : NaN,
+          itemMarginB: ics ? parseFloat(ics.marginBottom) : NaN,
+          inputH: input ? parseFloat(getComputedStyle(input).height) : NaN,
+          okH: ok ? parseFloat(getComputedStyle(ok).height) : NaN,
+          cls: root.className,
+        };
+      });
+      expect(metrics, '应找到 .erd-entity-modal').not.toHaveProperty('err');
+      expect(
+        metrics.width,
+        `弹层宽应 ∈[360,420]，得 ${metrics.width} cls=${(metrics as any).cls}`,
+      ).toBeGreaterThanOrEqual(360);
+      expect(metrics.width).toBeLessThanOrEqual(420);
+      expect(metrics.titleFont).toBeLessThanOrEqual(14);
+      expect(metrics.bodyPadY, `body padY 应 ≤28，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
+        28,
+      );
+      expect(metrics.itemMarginB).toBeLessThanOrEqual(14);
+      expect(metrics.inputH, `输入高应 ≤32，得 ${metrics.inputH}`).toBeLessThanOrEqual(
+        32,
+      );
+      expect(metrics.inputH).toBeGreaterThanOrEqual(24);
+      expect(metrics.okH).toBeLessThanOrEqual(32);
+
+      await page.getByTestId('entity-modal-name').fill('T_DENSE');
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-entity-modal-dense.png',
+        fullPage: false,
+      });
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(dialog).toHaveCount(0);
+      await expect(rfNode(page, 'T_DENSE')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删边后刷新关系图仍无边', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('edgedel');
