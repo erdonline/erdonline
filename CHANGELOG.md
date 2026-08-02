@@ -2,6 +2,18 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W4 工单/审批有数据全链路（2026-08-02）
+
+### 测试
+- `approval.spec`：API `POST /ncnb/approval` 种子待审（自审）→ 审批页见行 → UI「拒绝」toast「已拒绝」→ 工单页「复批」toast「已重新提交审批」
+  验证点：`npx playwright test tests/e2e/approval.spec.ts --project=chromium`
+  说明：「通过」会走 JDBC 执行 SQL，本切片不覆盖；发起 UI（版本详情 SQL审批）依赖数据源+团队成员，种子用真实创建 API 代替
+
+### 文档
+- `docs/control-matrix.md`：工单/审批有数据全链路 → ✅；统计 ✅64 / 🚧28
+- `docs/roadmap.md` P2b 长尾已收工单有数据拒绝/复批
+- `docs/regression-checklist.md`：有数据拒绝/复批自动化；UI 发起+通过仍手工
+
 ## [Unreleased] — W6 `/design/table/setting/defaultField` 闭环（2026-08-02）
 
 ### 修复
