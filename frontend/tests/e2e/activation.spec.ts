@@ -41,8 +41,18 @@ test.describe('新手激活', () => {
         // hasText 'sys_user' 会误匹配 sys_user_role；用 RF data-testid
         await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
         await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
-        await expect(page.locator('.react-flow__node')).toHaveCount(8);
+        // 双图切换器 + 主图 Frame（ADR-0017）
+        await expect(page.getByTestId('diagram-switcher')).toBeVisible();
+        await expect(page.getByTestId('diagram-switcher')).toContainText('鉴权核心');
+        await expect(page.locator('.react-flow__node-table')).toHaveCount(8);
+        await expect(page.getByTestId('diagram-frame')).toHaveCount(4);
+        await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' })).toBeVisible();
         await expect(page.locator('.react-flow__edge')).toHaveCount(7);
+        // 切到「会话与审计」仍见 Frame
+        await page.getByTestId('diagram-switcher').locator('.ant-select-selector').click();
+        await page.getByRole('option', { name: '会话与审计' }).click();
+        await expect(page.getByTestId('diagram-switcher')).toContainText('会话与审计');
+        await expect(page.getByTestId('diagram-frame').filter({ hasText: '会话审计' })).toBeVisible();
       } finally {
         await deleteAllPersonProjects(page).catch(() => {});
       }

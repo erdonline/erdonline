@@ -24,11 +24,12 @@
 - [x] 工具栏新建/重命名/切换关系图 + 树图列表 + 布局按图持久化/刷新 ✅`multi-diagram.spec.ts`
 - [x] `getActiveDiagram` 懒迁移 / tab entity 往返 ✅`diagram.test.ts`
 - [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
+- [x] 公开 demo / 示例：双图「鉴权核心」「会话与审计」+ 切换器 ✅`demo.spec.ts` / `activation.spec.ts`
 
 ### 手工
 
 - [ ] [旧项目打开] 仅有 `graphCanvas`、无 `diagrams` 的项目 → 打开画布见主关系图，拖动后 projectJSON 出现 `diagrams[0]`
-- [ ] [分享页] 含 `diagrams` 的项目分享链接 → 只读画布用主图布局
+- [x] [分享页] 含 `diagrams` 的项目分享链接 → 只读画布用主图布局 ✅`demo.spec.ts`（/demo）
 
 ## 图内分组 Frame / ADR-0017 Phase 2b（2026-08-02）
 
@@ -38,10 +39,11 @@
 - [x] 空分组→选表→加入分组 ✅`diagram-frame.spec.ts`
 - [x] Frame helpers（包围盒不改成员坐标 / 成员去重改名剔除）✅`diagram.test.ts`
 - [x] schema `diagramFrame` ✅`validate-projectjson.mjs`
+- [x] 公开 demo / 示例：主图 4 Frame（主体/RBAC/会话审计/业务） ✅`demo.spec.ts` / `activation.spec.ts`
 
 ### 手工
 
-- [ ] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框
+- [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
 - [ ] [拖框] 拖动分组框 → 表节点坐标不变；刷新后框位置保持
 
 ## 第 0 轮（2026-08-01）

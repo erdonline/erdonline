@@ -8,6 +8,21 @@
 
 ### 2026-08-02
 
+#### 示例：demo projectJSON 升级为多图 + Frame（ADR-0017 Phase 2a/2b）
+
+**功能 / 数据**
+
+- `schema/examples/demo.projectjson.json`：`modules[0].diagrams[]` 双图叙事——「鉴权核心」（主图）/「会话与审计」；各含 Frame「主体」「RBAC」「会话审计」「业务」与 `memberEntityIds`
+- 主图 LR 分层坐标 + 框包围盒不叠压；遗留 `graphCanvas` 与主图布局对齐
+- `node scripts/sync-demo-projectjson.mjs` → 前端副本 + `db/init/08_public_demo.sql`；`data-format.md` 示例说明同步
+
+**测试**
+
+- `demo.spec.ts`：8 表 + 4 Frame（只读分享）
+- `activation.spec.ts`：示例打开可见 `diagram-switcher`、Frame，并可切到「会话与审计」
+
+验证点：`node scripts/validate-projectjson.mjs` → 绿；`docker exec -i erd-mysql mysql -uroot -proot < db/init/08_public_demo.sql`；`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`；`cd frontend && npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --grep '首页示例项目' --retries=0`
+
 #### 基础设施：托管拓扑 1–3（ADR-0018）— CF Pages + GHCR，无 VPS
 
 **功能 / 运维**

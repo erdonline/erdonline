@@ -10,11 +10,14 @@ test.describe('在线演示', () => {
     await expect(page).toHaveURL(/\/s\/public-demo/);
     await expect(page.getByText('功能鉴权示例').first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('share-relation-canvas')).toBeVisible();
-    await expect(page.getByText('sys_user').first()).toBeVisible();
-    await expect(page.getByText('sys_role').first()).toBeVisible();
-    await expect(page.getByText('sys_permission').first()).toBeVisible();
-    // RBAC + 会话/审计 + 业务订单 ≥ 6 表
-    await expect(page.locator('.react-flow__node')).toHaveCount(8, { timeout: 15_000 });
+    await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
+    await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
+    await expect(page.getByTestId('rf__node-sys_permission')).toBeVisible();
+    // 8 表 + 主图 4 Frame（主体 / RBAC / 会话审计 / 业务）
+    await expect(page.locator('.react-flow__node-table')).toHaveCount(8, { timeout: 15_000 });
+    await expect(page.getByTestId('diagram-frame')).toHaveCount(4);
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: '主体' })).toBeVisible();
     await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
   });
 });
