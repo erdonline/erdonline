@@ -176,8 +176,9 @@ docker compose up -d
 | `Could not find … base-logback.xml` / `No appenders` | Logback include 失败（已修：改 include 根路径）；**不阻断启动**，但后面真实错误可能看不见 | 拉含本修复的 commit 后 Redeploy；仍失败再往下看 |
 | `Started ErdOnlineApplication` | 进程已起来 | 再 curl `/actuator/health/liveness`；若公网仍 502 → Networking/域名 |
 | `Communications link failure` / `Connection refused` / `Unknown database` | MySQL 未通或未建 `martin`/`erd` | 映射 `DB_*`；执行建库 + `db/init` |
-| `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 变量未进容器，或旧镜像仍用废弃 `spring.redis.*`；日志无 `[erd] Redis target host=…` / `via=REDIS_URL\|REDISHOST` | 确认 Deployments commit 含本修复；App Variables 用**插件同名** `REDISHOST`/`REDIS_URL` 等；**Redeploy** |
-| `WRONGPASS invalid username-password pair` | 主机已通但鉴权错：手填错密码、空用户名 `AUTH ""`、或未引用插件密码 | **Variable Reference 同名**：`REDIS_URL` 或 `REDISPASSWORD`+`REDISUSER`（勿手打）；改完 **Redeploy** |
+| `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未设 `SPRING_DATA_REDIS_URL`（裸 `REDIS_URL` **不会**绑到 Boot）；或旧镜像仍用废弃 `spring.redis.*` | App 增加 **`SPRING_DATA_REDIS_URL`** ← `${{Redis.REDIS_URL}}`；**Redeploy** |
+| `NOAUTH Authentication required` | 主机通但未带密码（只挂了 host，或 URL 无凭证） | 日志 `url=missing`/`password=missing` → 按「正确接法」设 `SPRING_DATA_REDIS_URL`；**Redeploy** |
+| `WRONGPASS invalid username-password pair` | 已发 AUTH 但密码错（手填 / 空串） | 删手填密码；只用 Variable Reference 到插件 `REDIS_URL`；**Redeploy** |
 | `Could not resolve placeholder 'DB_USERNAME'` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | 用 `DB_USERNAME`（不是 `DB_USER`）或插件 `MYSQLUSER`；补 `OSS_*` |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
@@ -199,18 +200,38 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 与根目录 `.env.example`、`docker-compose.yml`、`application.yml` / `application-prod.yml` 对齐。
 
-**怎么加（Railway App 服务 → Variables）**：点 **Add Variable** → **Add Variable Reference**，在搜索框输入 `redis`，勾选插件变量。**变量名保持插件同名**（不必改成 `REDIS_HOST`）——应用原生读这些名字。
+**怎么加（Railway App 服务 → Variables）**：点 **Add Variable** → **Add Variable Reference**。
 
-Boot 3 / Redisson 读 **`spring.data.redis.*`**。yml 优先 `REDISHOST`/`REDISPORT`；密码与 URL 由 `RedisUrlAliasEnvironmentPostProcessor` **仅非空**注入。`REDIS_URL` / `REDIS_PUBLIC_URL` 会**强制覆盖** host/port（避免只设 URL、删了 host 又回落 localhost）。启动日志应出现 `[erd] Redis target host=… via=REDIS_URL|REDISHOST` 与 INFO `Redis bound host=…`。
+### Railway Redis 正确接法（唯一推荐）
 
-**Redis（立刻自查 — 最简单做法）**：
+**为什么曾经有 `RedisUrlAliasEnvironmentPostProcessor`**：临时把 Railway 插件名（`REDISHOST` / `REDIS_URL`…）桥进 `spring.data.redis.*`。那是补丁，不是标准做法，已删除。
 
-1. App → Variables → **Add Variable Reference** → 搜索 `redis`。
-2. **同名引用**（左侧变量名 = 插件名，不要改名）：
-   - **推荐一条**：`REDIS_URL` ← Redis.`REDIS_URL`（含账号密码；桥接会解析出 host）
-   - **或拆分**：`REDISHOST`、`REDISPORT`、`REDISPASSWORD`、可选 `REDISUSER`（多为 `default`）
-   - 也可用 `REDIS_PUBLIC_URL` / `REDIS_PASSWORD`（picker 里有的都认）
-3. Deployments 确认 commit 含本修复；**Redeploy**（改变量不会进已跑容器）。
+**正确做法（Spring Boot 3 标准）**：环境变量 **`SPRING_DATA_REDIS_URL`** 经 [松散绑定](https://docs.spring.io/spring-boot/reference/features/external-config.html) → `spring.data.redis.url`。设了 url 后，host/port/username/password **以 URL 为准**（[Boot Redis 文档](https://docs.spring.io/spring-boot/reference/data/nosql.html)）。Redisson starter 读同一套 `RedisProperties` / `RedisConnectionDetails`。
+
+**注意**：插件变量名 `REDIS_URL` **不会**自动变成 `spring.data.redis.url`。左侧应用变量名必须写成 **`SPRING_DATA_REDIS_URL`**，值再 Reference 插件的 `REDIS_URL`。
+
+**Dashboard 只做这一条**：
+
+1. 打开 **App 服务**（不是 Redis）→ **Variables**
+2. **Add Variable** → **Add Variable Reference**
+3. 左侧名称填 **`SPRING_DATA_REDIS_URL`**（不要填 `REDIS_URL`）
+4. 右侧选 Redis 插件的 **`REDIS_URL`**（私网，含 `default:密码@….railway.internal`）
+5. 删掉仅 host、无密码的旧变量（`REDISHOST`  alone 会 NOAUTH）；不必再挂拆分密码
+6. **Redeploy**
+
+期望日志：
+
+```text
+Redis bound host=….railway.internal port=6379 database=0 url=set password=set
+```
+
+| 现象 | 含义 |
+|---|---|
+| `url=set` + `password=set` | 正确 |
+| `url=missing` + host=`localhost` | 未设 `SPRING_DATA_REDIS_URL` |
+| `url=missing` + 内网 host + `password=missing` | 只挂了 host → NOAUTH |
+
+**备选（不推荐）**：`SPRING_DATA_REDIS_HOST` / `_PORT` / `_PASSWORD` / `_USERNAME`（同样是 Boot 松散绑定名）。本地 compose 继续 `REDIS_HOST=redis`（yml 默认，无密码）。
 
 | 应用变量（填这个名） | Variable Reference 示例 | 说明 |
 |---|---|---|
@@ -222,12 +243,7 @@ Boot 3 / Redisson 读 **`spring.data.redis.*`**。yml 优先 `REDISHOST`/`REDISP
 | `DB_USERNAME` | `${{MySQL.MYSQLUSER}}` | martin 账号；别名 `DB_USER` / `MYSQLUSER` 也可 |
 | `DB_PASSWORD` | `${{MySQL.MYSQLPASSWORD}}` | 别名 `MYSQLPASSWORD` |
 | `DB_ERD_USERNAME` / `DB_ERD_PASSWORD` | 同 `DB_USERNAME`/`DB_PASSWORD` 或专用 | 可与 martin 同账号（须两库授权） |
-| `REDIS_URL`（**推荐一条搞定**） | `${{Redis.REDIS_URL}}` | **同名**；含用户/密码 URI；强制覆盖 host/port |
-| `REDIS_PUBLIC_URL` | `${{Redis.REDIS_PUBLIC_URL}}` | picker 有；无 `REDIS_URL` 时用；公网代理主机 |
-| `REDISHOST` | `${{Redis.REDISHOST}}` | **同名**；无 URL 时 → host；本地也可用 `REDIS_HOST` |
-| `REDISPORT` | `${{Redis.REDISPORT}}` | **同名**；本地也可用 `REDIS_PORT` |
-| `REDISPASSWORD` | `${{Redis.REDISPASSWORD}}` | **同名**；勿手填；亦认 `REDIS_PASSWORD` |
-| `REDISUSER`（可选） | `${{Redis.REDISUSER}}` | **同名**；Redis 6 ACL，多为 `default` |
+| `SPRING_DATA_REDIS_URL`（**唯一推荐**） | `${{Redis.REDIS_URL}}` | Boot 标准；左侧名必须是这个；值引用插件私网 URL |
 | `JWT_SECRET` | 随机 ≥32 字节（手填） | **必改**；勿用仓库默认值 |
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
@@ -237,6 +253,8 @@ Boot 3 / Redisson 读 **`spring.data.redis.*`**。yml 优先 `REDISHOST`/`REDISP
 | `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
 > **MySQL 注意**：`MYSQL_URL` / `DB_NAME` **不够**。本应用是双库 JDBC（`DB_MARTIN` + `DB_ERD`），必须有 `DB_HOST`（或 `MYSQLHOST`）与 `DB_USERNAME`（或 `DB_USER`/`MYSQLUSER`）+ 密码。`MYSQL_URL` 可留作备忘，应用不读。
+
+> **Redis 注意**：同项目用私网 `REDIS_URL` 作 **Reference 的值**；应用侧变量名是 **`SPRING_DATA_REDIS_URL`**。`REDIS_PUBLIC_URL` 仅本机连公网代理。
 
 本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
 

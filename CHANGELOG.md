@@ -6,6 +6,30 @@
 
 ## [Unreleased]
 
+### 2026-08-03
+
+#### 体验：分享页顶栏品牌对齐设计器壳（W5 切片 3 / ADR-0016）
+
+- 选题：登录壳 vs 分享顶栏 → 选后者（陌生人门面「敢分享」首印象；登录壳下一刀）
+- 成功态：`erd-chrome-header` 64px + logo→落地 + 项目名/「只读」Tag +「复制到我的项目」+ 未登录「登录/注册」文字链（autofork redirect）；去 Card/`Alert` 厚壳
+- 截图 `share-chrome-brand.png` / `share-chrome-brand-demo.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "设计器分享后匿名打开" --workers=1 --retries=0`；`demo.spec`「免登录 /demo」chrome 64px
+
+#### 重构：删除 RedisUrlAliasEnvironmentPostProcessor，改用 Boot 标准绑定
+
+- 根因：自定义 EPP 是临时把 Railway `REDIS_*` 桥进 `spring.data.redis.*`；标准做法是环境变量 **`SPRING_DATA_REDIS_URL`** → 松散绑定 `spring.data.redis.url`（裸 `REDIS_URL` **不会**自动映射）
+- 删除：`RedisUrlAliasEnvironmentPostProcessor` + `META-INF/...EnvironmentPostProcessor` 注册 + 对应单测
+- yml：仅本地 `REDIS_HOST`/`REDIS_PORT`；**不**写 url/password 空默认
+- 文档：`deployment.md`「Railway Redis 正确接法」唯一推荐 `SPRING_DATA_REDIS_URL`←`${{Redis.REDIS_URL}}`
+- 保留：`RedisResolvedConnectionLogger` 打印 `url=set|missing` / `password=set|missing`
+
+验证点：`mvn -q -Djacoco.skip=true -Dtest=RedisDataPropertiesBindingTest test`；Redeploy 后日志 `url=set password=set`
+
+#### 文档/诊断：Railway Redis 正确接法（NOAUTH = 缺密码，非代码 bug）
+
+- （已被上一小节取代：改为 `SPRING_DATA_REDIS_URL` 标准绑定，删除 EPP）
+
 ### 2026-08-02
 
 #### 修复：Railway Redis 变量同名 + URL 强制覆盖 host
