@@ -22,7 +22,9 @@ import ReactFlow, {
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
 import useTabStore, { ModuleEntity } from '@/store/tab/useTabStore';
+import { history } from 'umi';
 import { erdColors } from '@/theme/tokens';
+import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
 import {
   DEFAULT_FRAME_H,
   DEFAULT_FRAME_W,
@@ -1317,14 +1319,16 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       >
         <Background gap={20} size={1} color={erdColors.line} />
         <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
-        <MiniMap
-          pannable
-          zoomable
-          ariaLabel="画布缩略图"
-          nodeColor={erdColors.surface}
-          nodeStrokeColor={erdColors.line}
-          maskColor={erdColors.inkA06}
-        />
+        {!isEmpty && (
+          <MiniMap
+            pannable
+            zoomable
+            ariaLabel="画布缩略图"
+            nodeColor={erdColors.surface}
+            nodeStrokeColor={erdColors.line}
+            maskColor={erdColors.inkA06}
+          />
+        )}
         <CollabCursors />
         <Panel position="top-right">
           <div className="erd-canvas-toolbar">
@@ -1490,17 +1494,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           </div>
         </Panel>
         {isEmpty && (
-          <Panel position="top-center">
-            <div className="erd-empty-cta">
-              <div className="erd-empty-title">画布还是空的</div>
-              <div className="erd-empty-desc">创建第一张表，立即上图建模</div>
+          <Panel position="top-center" className="erd-empty-panel">
+            <div className="erd-empty-cta" data-testid="canvas-empty-state">
+              <ErdEmptyDiagram size="compact" />
+              <div className="erd-empty-title">开始你的第一张关系图</div>
+              <div className="erd-empty-desc">一张表就能上图；导入后自动布局，截图敢分享</div>
               <button
+                type="button"
                 className="erd-empty-button nodrag"
                 data-testid="canvas-empty-create"
                 aria-label="新建第一张表"
                 onClick={createFirstTable}
               >
                 + 新建第一张表
+              </button>
+              <button
+                type="button"
+                className="erd-empty-secondary nodrag"
+                data-testid="canvas-empty-reverse"
+                aria-label="从数据源逆向"
+                onClick={() => history.push('/design/table/import/reverse')}
+              >
+                从数据源逆向
               </button>
             </div>
           </Panel>

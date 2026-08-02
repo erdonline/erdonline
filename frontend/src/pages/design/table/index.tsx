@@ -55,7 +55,8 @@ const Table: React.FC = () => {
     <Flex vertical className="erd-design-workspace" style={{ height: '100%', minHeight: 0, flex: 1 }}>
       <EmptyStateAnimation
         show={!selectTabId && modules && modules.length > 0}
-        description="快去创建/打开一个表吧！"
+        title="还没有打开的表"
+        description="从左侧树打开关系图，或新建第一张表"
       >
         {modules && modules.length > 0 ? (
           <CommonTabs
@@ -71,8 +72,8 @@ const Table: React.FC = () => {
             title="欢迎使用数据建模工具"
             description={
               <span>
-                从左侧开始创建一个模型，或者
-                <a href="/design/table/import/reverse">从数据源逆向解析</a>
+                从左侧创建一个模型，或{' '}
+                <a href="/design/table/import/reverse">从数据源逆向</a>
               </span>
             }
           />
