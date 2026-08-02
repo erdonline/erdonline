@@ -858,6 +858,8 @@ test.describe('关系图画布（ReactFlow）', () => {
       await openRelationFromEmpty(page);
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
 
+      await expect(page.getByRole('button', { name: '新建表' })).toBeVisible();
+      await expect(page.getByTestId('canvas-create-table')).toBeVisible();
       await expect(page.getByRole('button', { name: '撤销' })).toBeVisible();
       await expect(page.getByRole('button', { name: '重做' })).toBeVisible();
       await expect(page.getByRole('button', { name: '自动布局' })).toBeVisible();
@@ -926,6 +928,28 @@ test.describe('关系图画布（ReactFlow）', () => {
         path: 'test-results/ux-walkthrough/diagram-canvas-toolbar-dense.png',
         fullPage: false,
       });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  // ADR-0016 建模回路：非空画布不必再绕左树/Cmd+K 建第二张表
+  test('工具栏新建表：非空画布一键上图', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('newtbl');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'newtbl', 'toolbar create table');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.locator('.erd-table-node')).toHaveCount(1);
+
+      await page.getByTestId('canvas-create-table').click();
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
+      await expect(page.locator('.erd-table-node')).toHaveCount(2);
+      await expectToast(page, '表添加成功');
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

@@ -524,6 +524,7 @@
 - [x] [表节点卡片层次] 表头 `surfaceMuted` rgb(243,245,247)；PK `::before` 2px warning；截图 `diagram-node-polish.png` / `diagram-shareable-tokens.png` ✅ `relation.spec.ts`「表节点视觉」
 - [x] [空态构图] 画布见 `erd-empty-diagram` +「开始你的第一张关系图」+ **唯一**主 CTA + 次链「导入 DBML · 从数据源逆向」；禁 outline 第二钮；空态无 MiniMap；截图 `diagram-empty-composition.png` ✅ `relation.spec.ts`「空态构图」
 - [x] [空态 CTA 层次] 标题 14/700 + desc ink400；主钮 weight≥600；次链 ink600；分享空态 title/hint 同构 ✅ `relation`「空态构图」+ `share`「空模块分享」
+- [x] [画布工具栏新建表] 非空画布点 `canvas-create-table` → `T_TABLE_2` 上图 + toast「表添加成功」；工具栏可访问名含「新建表」 ✅ `relation.spec.ts`「工具栏新建表」
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`
