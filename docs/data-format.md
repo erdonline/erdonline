@@ -210,6 +210,7 @@ cd frontend && yarn validate:projectjson
 |---|---|
 | `Table` | `modules[].entities[]`（`title`/`name` = 表名） |
 | 列 | `fields[]`（物理类型 ↔ 逻辑 `type` code 薄双向映射；未知导入回落 `String`，导出回落 `varchar`） |
+| `[default: …]` | `fields[].defaultValue`（string→`'…'`；number→数字串；expression→原样如 `now()`；导出时字符串/数字/表达式分别还原） |
 | `Note` / `[note: …]` | **仅**与 `chnname` 互通（表/列显示名） |
 | `Ref` / 列上 `[ref: …]` | `associations[]`（`1:1` / `1:n` / `n:n`；`from`=多端持 FK） |
 | `indexes { … }` | `entities[].indexs[]`（`name` / `isUnique` / `fields[]`；跳过 pk 索引与表达式列） |

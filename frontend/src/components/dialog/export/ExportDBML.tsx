@@ -184,7 +184,7 @@ const ExportDBML: React.FC = () => {
           disabled={loading}
         />
         <p style={{marginTop: 8, marginBottom: 0, color: 'rgba(0,0,0,0.45)'}}>
-          仅导出表、字段、外键与注释（chnname→note）；枚举/索引/触发器本切片不导出。
+          导出表、字段、默认值、索引、外键与注释（chnname→note）；枚举/触发器本切片不导出。
         </p>
       </Modal>
     </>

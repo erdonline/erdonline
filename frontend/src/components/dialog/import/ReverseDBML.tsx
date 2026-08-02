@@ -186,7 +186,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = () => {
           </p>
           <p className="ant-upload-text">点击或拖拽 .dbml 文件到此区域</p>
           <p className="ant-upload-hint">
-            仅映射表、字段、外键与注释（note→显示名）；枚举/索引/触发器本切片不导入。
+            映射表、字段、默认值、索引、外键与注释（note→显示名）；枚举/触发器本切片不导入。
           </p>
         </Dragger>
       </Modal>

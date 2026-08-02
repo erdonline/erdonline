@@ -5,7 +5,11 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
-import { mapLogicalTypeToDbml, projectJSONToDbml } from './fromProjectJSON';
+import {
+  formatDefaultAttr,
+  mapLogicalTypeToDbml,
+  projectJSONToDbml,
+} from './fromProjectJSON';
 import { dbmlToProjectJSON } from './toProjectJSON';
 
 function run(name: string, fn: () => void | Promise<void>) {
@@ -26,6 +30,14 @@ async function main() {
     assert.equal(mapLogicalTypeToDbml('YesNo'), 'boolean');
     assert.equal(mapLogicalTypeToDbml('DateTime'), 'timestamp');
     assert.equal(mapLogicalTypeToDbml('Unknown'), 'varchar');
+  });
+
+  await run('formatDefaultAttr：string/number/expression', () => {
+    assert.equal(formatDefaultAttr("'guest'"), "default: 'guest'");
+    assert.equal(formatDefaultAttr('1'), 'default: 1');
+    assert.equal(formatDefaultAttr('now()'), 'default: `now()`');
+    assert.equal(formatDefaultAttr('CURRENT_TIMESTAMP'), 'default: `CURRENT_TIMESTAMP`');
+    assert.equal(formatDefaultAttr(''), null);
   });
 
   await run('projectJSONToDbml：表/字段/chnname→note/Ref/indexs', () => {
@@ -55,6 +67,7 @@ async function main() {
                   pk: false,
                   notNull: false,
                   autoIncrement: false,
+                  defaultValue: "'guest'",
                 },
                 {
                   name: 'email',
@@ -63,6 +76,24 @@ async function main() {
                   pk: false,
                   notNull: false,
                   autoIncrement: false,
+                },
+                {
+                  name: 'qty',
+                  chnname: '',
+                  type: 'Integer',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                  defaultValue: '1',
+                },
+                {
+                  name: 'created_at',
+                  chnname: '',
+                  type: 'DateTime',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                  defaultValue: 'now()',
                 },
               ],
               indexs: [
@@ -119,7 +150,12 @@ async function main() {
     assert.match(dbml, /Note: '商店'/);
     assert.match(dbml, /Table users/);
     assert.match(dbml, /id integer \[pk, increment, not null, note: '主键'\]/);
-    assert.match(dbml, /name varchar \[note: '姓名'\]/);
+    assert.match(
+      dbml,
+      /name varchar \[default: 'guest', note: '姓名'\]/,
+    );
+    assert.match(dbml, /qty integer \[default: 1\]/);
+    assert.match(dbml, /created_at timestamp \[default: `now\(\)`\]/);
     assert.match(dbml, /Note: '用户表'/);
     assert.match(dbml, /indexes \{/);
     assert.match(
@@ -155,7 +191,7 @@ async function main() {
     );
   });
 
-  await run('round-trip：fixture 导入→导出→再导入，实体/FK/indexs 稳定', async () => {
+  await run('round-trip：fixture 导入→导出→再导入，实体/FK/indexs/default 稳定', async () => {
     const fixture = path.resolve(
       __dirname,
       '../../../tests/fixtures/minimal.dbml',
@@ -186,6 +222,7 @@ async function main() {
           pk: f.pk,
           notNull: f.notNull,
           autoIncrement: f.autoIncrement,
+          defaultValue: f.defaultValue || '',
         })),
         ent.fields.map((f) => ({
           name: f.name,
@@ -194,6 +231,7 @@ async function main() {
           pk: f.pk,
           notNull: f.notNull,
           autoIncrement: f.autoIncrement,
+          defaultValue: f.defaultValue || '',
         })),
       );
       assert.deepEqual(peer!.indexs, ent.indexs);
@@ -201,10 +239,12 @@ async function main() {
 
     const users = e1.find((e) => e.title === 'users');
     assert.ok(users);
+    assert.equal(users!.fields.find((f) => f.name === 'name')?.defaultValue, "'guest'");
     assert.deepEqual(users!.indexs, [
       { name: 'idx_users_name', isUnique: false, fields: ['name'] },
     ]);
     assert.match(exported, /idx_users_name/);
+    assert.match(exported, /default: 'guest'/);
 
     const a1 = first.modules[0].associations;
     const a2 = second.modules[0].associations;

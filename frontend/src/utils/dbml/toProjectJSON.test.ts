@@ -9,6 +9,7 @@ import path from 'node:path';
 import {
   databaseToProjectJSON,
   dbmlToProjectJSON,
+  mapDbmlDefault,
   mapDbmlTypeName,
 } from './toProjectJSON';
 
@@ -55,6 +56,15 @@ async function main() {
     assert.equal(mapDbmlTypeName('timestamp'), 'DateTime');
   });
 
+  await run('mapDbmlDefault：string/number/expression/boolean', () => {
+    assert.equal(mapDbmlDefault({ type: 'string', value: 'pending' }), "'pending'");
+    assert.equal(mapDbmlDefault({ type: 'string', value: "O'Brien" }), "'O''Brien'");
+    assert.equal(mapDbmlDefault({ type: 'number', value: 1 }), '1');
+    assert.equal(mapDbmlDefault({ type: 'expression', value: 'now()' }), 'now()');
+    assert.equal(mapDbmlDefault({ type: 'boolean', value: true }), 'TRUE');
+    assert.equal(mapDbmlDefault(undefined), undefined);
+  });
+
   await run('databaseToProjectJSON：表/字段/note→chnname/Ref→1:n/Indexes→indexs', () => {
     const json = databaseToProjectJSON({
       name: 'shop_demo',
@@ -77,10 +87,21 @@ async function main() {
                   name: 'name',
                   type: { type_name: 'varchar' },
                   note: '姓名',
+                  dbdefault: { type: 'string', value: 'guest' },
                 },
                 {
                   name: 'email',
                   type: { type_name: 'varchar' },
+                },
+                {
+                  name: 'qty',
+                  type: { type_name: 'integer' },
+                  dbdefault: { type: 'number', value: 1 },
+                },
+                {
+                  name: 'created_at',
+                  type: { type_name: 'timestamp' },
+                  dbdefault: { type: 'expression', value: 'now()' },
                 },
               ],
               indexes: [
@@ -131,6 +152,9 @@ async function main() {
     assert.equal(mod.entities[0].fields[0].chnname, '主键');
     assert.equal(mod.entities[0].fields[0].type, 'Integer');
     assert.equal(mod.entities[0].fields[0].pk, true);
+    assert.equal(mod.entities[0].fields[1].defaultValue, "'guest'");
+    assert.equal(mod.entities[0].fields[3].defaultValue, '1');
+    assert.equal(mod.entities[0].fields[4].defaultValue, 'now()');
     assert.deepEqual(mod.entities[0].indexs, [
       { name: 'idx_users_email', isUnique: true, fields: ['email'] },
     ]);
@@ -145,7 +169,7 @@ async function main() {
     tryValidateSchema(json);
   });
 
-  await run('dbmlToProjectJSON：真实 @dbml/core 解析含 indexes', async () => {
+  await run('dbmlToProjectJSON：真实 @dbml/core 解析含 indexes + default', async () => {
     const dbml = `
 Project erd_dbml {
   database_type: 'MySQL'
@@ -153,8 +177,10 @@ Project erd_dbml {
 }
 Table users {
   id integer [pk, increment, not null, note: '主键']
-  name varchar [note: '姓名']
+  name varchar [default: 'guest', note: '姓名']
   email varchar
+  qty integer [default: 1]
+  created_at timestamp [default: \`now()\`]
   indexes {
     (email) [name: 'idx_users_email', unique]
     (name, email) [name: 'idx_users_name_email']
@@ -178,6 +204,9 @@ Table posts {
     assert.equal(assoc.to.entity, 'users');
     const users = json.modules[0].entities.find((e) => e.title === 'users');
     assert.ok(users);
+    assert.equal(users!.fields.find((f) => f.name === 'name')?.defaultValue, "'guest'");
+    assert.equal(users!.fields.find((f) => f.name === 'qty')?.defaultValue, '1');
+    assert.equal(users!.fields.find((f) => f.name === 'created_at')?.defaultValue, 'now()');
     assert.deepEqual(users!.indexs, [
       { name: 'idx_users_email', isUnique: true, fields: ['email'] },
       { name: 'idx_users_name_email', isUnique: false, fields: ['name', 'email'] },

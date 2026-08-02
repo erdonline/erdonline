@@ -1,5 +1,5 @@
 /**
- * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note / indexs→Indexes）。
+ * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note / indexs→Indexes / defaultValue→default）。
  * 与 toProjectJSON 同范围：不映射 enum / trigger。
  */
 
@@ -57,12 +57,38 @@ function formatNoteAttr(chnname: string | undefined): string | null {
   return `note: '${escapeNote(n)}'`;
 }
 
+/** projectJSON defaultValue → DBML `[default: …]` 片段（不含方括号） */
+export function formatDefaultAttr(defaultValue: string | undefined): string | null {
+  const raw = String(defaultValue || '').trim();
+  if (!raw) return null;
+  // 字符串字面量 '…' / "…"
+  const single = raw.match(/^'(.*)'$/s);
+  if (single) {
+    return `default: '${escapeNote(single[1])}'`;
+  }
+  const dbl = raw.match(/^"(.*)"$/s);
+  if (dbl) {
+    return `default: '${escapeNote(dbl[1])}'`;
+  }
+  if (/^(TRUE|FALSE|NULL)$/i.test(raw)) {
+    return `default: ${raw.toUpperCase()}`;
+  }
+  if (/^-?\d+(\.\d+)?$/.test(raw)) {
+    return `default: ${raw}`;
+  }
+  // 表达式：DBML 反引号
+  const expr = raw.replace(/`/g, '');
+  return `default: \`${expr}\``;
+}
+
 function formatField(field: ProjectJsonField): string {
   const type = mapLogicalTypeToDbml(field.type);
   const settings: string[] = [];
   if (field.pk) settings.push('pk');
   if (field.autoIncrement) settings.push('increment');
   if (field.notNull) settings.push('not null');
+  const def = formatDefaultAttr(field.defaultValue);
+  if (def) settings.push(def);
   const note = formatNoteAttr(field.chnname);
   if (note) settings.push(note);
   const name = quoteIdent(field.name);
