@@ -4,7 +4,7 @@
  * 高度数 hub 按对端 Y（或名）扇出，密 FK 星型不再贴成一捆；
  * 几何择柄：竖叠同列走同侧短 U，避免固定右→左绕圈（circle-route P0）。
  */
-import { Edge, MarkerType } from 'reactflow';
+import { Edge } from 'reactflow';
 import { erdColors } from '@/theme/tokens';
 import { NODE_WIDTH } from '@/utils/graphLayout';
 
@@ -63,6 +63,58 @@ export function normalizeRelation(raw: string | undefined | null): string {
 
 export function isCardinality(v: string): v is Cardinality {
   return (CARDINALITY_OPTIONS as readonly string[]).includes(v);
+}
+
+/** Crow's foot 端点：one=单竖线；many=鸦爪三叉 */
+export type CrowFootEnd = 'one' | 'many';
+
+/**
+ * from→to 基数 → 两端 Crow's foot（IE 记法）。
+ * 未知串回落 DEFAULT_RELATION（n:1 → 源 many / 靶 one）。
+ */
+export function crowFootEnds(
+  relation: string | undefined | null,
+): { source: CrowFootEnd; target: CrowFootEnd } {
+  const n = normalizeRelation(relation);
+  const card: Cardinality = isCardinality(n) ? n : DEFAULT_RELATION;
+  const [from, to] = card.split(':') as [string, string];
+  return {
+    source: from === 'n' ? 'many' : 'one',
+    target: to === 'n' ? 'many' : 'one',
+  };
+}
+
+export type CrowFootMarkerRole = 'start' | 'end';
+export type CrowFootMarkerTone = 'ink' | 'brand';
+
+/** SVG marker id（与 ErdCrowFootMarkers defs 对齐） */
+export function crowFootMarkerId(
+  end: CrowFootEnd,
+  role: CrowFootMarkerRole,
+  tone: CrowFootMarkerTone = 'ink',
+): string {
+  return `erd-cf-${end}-${tone}-${role}`;
+}
+
+/** BaseEdge / path 用的 `url(#…)` */
+export function crowFootMarkerUrl(
+  end: CrowFootEnd,
+  role: CrowFootMarkerRole,
+  tone: CrowFootMarkerTone = 'ink',
+): string {
+  return `url(#${crowFootMarkerId(end, role, tone)})`;
+}
+
+/** 由基数串直接得到 markerStart / markerEnd */
+export function crowFootMarkersForRelation(
+  relation: string | undefined | null,
+  tone: CrowFootMarkerTone = 'ink',
+): { markerStart: string; markerEnd: string } {
+  const ends = crowFootEnds(relation);
+  return {
+    markerStart: crowFootMarkerUrl(ends.source, 'start', tone),
+    markerEnd: crowFootMarkerUrl(ends.target, 'end', tone),
+  };
 }
 
 export type PortSide = 'l' | 'r';
@@ -317,12 +369,7 @@ export function associationsToEdges(
       labelBgPadding: EDGE_LABEL_BG_PADDING,
       labelBgBorderRadius: EDGE_LABEL_BG_RADIUS,
       style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
-      markerEnd: {
-        type: MarkerType.ArrowClosed,
-        width: 14,
-        height: 14,
-        color: erdColors.ink600,
-      },
+      ...crowFootMarkersForRelation(relationLabel, 'ink'),
       animated: false,
       interactionWidth: EDGE_INTERACTION_WIDTH,
     };

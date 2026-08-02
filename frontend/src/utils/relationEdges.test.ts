@@ -6,6 +6,9 @@ import assert from 'assert';
 import { NODE_WIDTH } from './graphLayout';
 import {
   CARDINALITY_OPTIONS,
+  crowFootEnds,
+  crowFootMarkerId,
+  crowFootMarkersForRelation,
   DEFAULT_RELATION,
   EDGE_HUB_FAN_MIN,
   EDGE_HUB_FAN_STEP,
@@ -156,6 +159,25 @@ async function main() {
     assert.ok(CARDINALITY_OPTIONS.includes('n:n'));
   });
 
+  await run('crowFootEnds：四基数 → 两端 IE 记法', () => {
+    assert.deepStrictEqual(crowFootEnds('1:1'), { source: 'one', target: 'one' });
+    assert.deepStrictEqual(crowFootEnds('1:n'), { source: 'one', target: 'many' });
+    assert.deepStrictEqual(crowFootEnds('n:1'), { source: 'many', target: 'one' });
+    assert.deepStrictEqual(crowFootEnds('n:n'), { source: 'many', target: 'many' });
+    assert.deepStrictEqual(crowFootEnds('0,n:1'), { source: 'many', target: 'one' });
+    assert.deepStrictEqual(crowFootEnds(''), { source: 'many', target: 'one' });
+    assert.deepStrictEqual(crowFootEnds(undefined), { source: 'many', target: 'one' });
+  });
+
+  await run('crowFootMarkersForRelation：url + id 对齐 defs', () => {
+    const m = crowFootMarkersForRelation('n:1', 'ink');
+    assert.strictEqual(m.markerStart, `url(#${crowFootMarkerId('many', 'start', 'ink')})`);
+    assert.strictEqual(m.markerEnd, `url(#${crowFootMarkerId('one', 'end', 'ink')})`);
+    const brand = crowFootMarkersForRelation('1:n', 'brand');
+    assert.strictEqual(brand.markerStart, `url(#${crowFootMarkerId('one', 'start', 'brand')})`);
+    assert.strictEqual(brand.markerEnd, `url(#${crowFootMarkerId('many', 'end', 'brand')})`);
+  });
+
   await run('associationsToEdges：0,n:1 归一展示 + assoc 键', () => {
     const [edge] = associationsToEdges([
       {
@@ -168,6 +190,8 @@ async function main() {
     const d = edge.data as { assocFrom: { entity: string }; assocTo: { entity: string } };
     assert.strictEqual(d.assocFrom.entity, 'a');
     assert.strictEqual(d.assocTo.entity, 'b');
+    assert.strictEqual(edge.markerStart, crowFootMarkersForRelation('n:1').markerStart);
+    assert.strictEqual(edge.markerEnd, crowFootMarkersForRelation('n:1').markerEnd);
   });
 
   await run('associationsToEdges：不同 pair 互不抢 lane', () => {

@@ -48,6 +48,7 @@
 - [x] 选中分组→「适应成员」重算包围盒 ✅`diagram-frame.spec.ts`
 - [x] 双击 Frame 标题重命名 → `groups[].name` 持久化 ✅`diagram-frame.spec.ts`「重命名」
 - [x] 边基数 chip 可改 `1:1|1:n|n:1|n:n` + 刷新仍在 ✅`relation.spec.ts`「表节点视觉」
+- [x] Crow's foot：默认 `n:1` → 源 many / 靶 one；改 `1:1` 两端 one ✅`relation.spec.ts`「表节点视觉」+ `relationEdges.test.ts`
 - [x] Frame helpers（包围盒 / 扩边 / 点落框 / 成员去重改名剔除 / renameFrame）✅`diagram.test.ts`
 - [x] schema `diagramFrame` ✅`validate-projectjson.mjs`
 - [x] 公开 demo 主图节点 x 跨度更密（&lt;1100）✅`demo.spec.ts` + 截图 `ux-walkthrough/demo-layout-density.png`
@@ -481,7 +482,7 @@
 - [x] [DBML default 双向] string/number/expression → defaultValue；导出还原；fixture `guest` round-trip ✅ `yarn test:unit:dbml`
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
 - [x] [导入自动布局] DBML 导入后 `posts.x < users.x`（dagre LR，非网格散点）+ 截图 ✅ `dbml-import.spec.ts` / `yarn test:unit:dbml`
-- [x] [表节点视觉打磨] 连线后 FK 徽章可见、PK 行有 `.erd-field-pk`、边带 marker-end、表名等宽字体；截图 `diagram-node-polish.png` ✅ `relation.spec.ts`「表节点视觉：PK/FK」
+- [x] [表节点视觉打磨] 连线后 FK 徽章可见、PK 行有 `.erd-field-pk`、边带 Crow's foot marker、表名等宽字体；截图 `diagram-node-polish.png` ✅ `relation.spec.ts`「表节点视觉：PK/FK」
 - [x] [边路由肘距分流] 同表对双 FK → 两条 `.react-flow__edge-path` 的 `d` 不同 + `erdSmooth`；截图 `diagram-edge-lanes.png` ✅ `relation.spec.ts`「边路由：同表对双 FK」
 - [x] [边路由障碍避让] `relationEdgeRoute` 单测（穿表 bypass / 竖肘 centerX）；E2E `erd-edge-route-mode` 接线 + 截图 `diagram-edge-obstacle.png` ✅ `relation.spec.ts`「边路由：erdSmooth 暴露 route-mode」
 - [x] [边路由干道 bundling] `assignTrunkBundleOffsets` 同 midX 通道分流；`data-bundle` + path 互异；截图 `diagram-edge-bundle.png` ✅ `relation.spec.ts`「边路由：干道 bundling」

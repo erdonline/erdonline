@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：关系线 Crow's foot 端点（ADR-0016）
+
+- 选题：边端一眼可读行业 ER 基数；chip 保留编辑；不新增持久化字段
+- IE 记法：`one`=竖线 / `many`=鸦爪；由 `association.relation`（from→to）映射两端；选中 brand 色
+- `ErdCrowFootMarkers` defs + `crowFootEnds` / `crowFootMarkersForRelation`；设计器与分享同用；弃闭合箭头
+
+验证点：
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉：PK/FK" --workers=1 --retries=0`
+
 #### 功能：关系基数可编辑 + Frame 重命名 + 边路由再收（ADR-0016 P0）
 
 - 选题：连线不全是死 `1:n`；Frame 名可改；绕行少折弯（Vision tick 不切 chrome 密度）

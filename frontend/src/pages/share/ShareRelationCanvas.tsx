@@ -18,6 +18,7 @@ import {
 import {resolveEntityPositions} from '@/utils/graphLayout';
 import {ERD_EDGE_TYPE, associationsToEdges} from '@/utils/relationEdges';
 import {FIT_VIEW_SHAREABLE} from '@/utils/canvasFit';
+import ErdCrowFootMarkers from '../design/relation/ErdCrowFootMarkers';
 import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
@@ -207,6 +208,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         zoomOnScroll
         proOptions={{hideAttribution: true}}
       >
+        <ErdCrowFootMarkers />
         <Background gap={16} size={1} color={erdColors.line}/>
         <ZhControls showInteractive={false} fitViewOptions={{...FIT_VIEW_SHAREABLE}}/>
         <MiniMap
