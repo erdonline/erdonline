@@ -23,6 +23,7 @@
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
 | HomeLayout | 子路由内容区 | 渲染 `props.children`，主内容可见（非仅 slogan） | `/home` 等 Home 路由 | ✅ | `layout-outlet.spec` `/home` |
+| HomeLayout | 顶栏 actions | 无 SaveStatus / presence / 只读分享（仅头像菜单） | `/home` | ✅ | `layout-outlet.spec` `/home` |
 | GroupLayout | 子路由内容区 | 同上 | `/project/group/setting/*` | ✅ | `layout-outlet.spec` basic |
 | DesignLayout | `props.children` | 设计器主区渲染 | 已正确接线 | ✅ | `smoke` / `relation` / `loading` |
 
