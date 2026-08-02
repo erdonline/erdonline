@@ -1,7 +1,6 @@
 import React, {useMemo} from 'react';
 import ReactFlow, {
   Background,
-  Controls,
   MiniMap,
   Handle,
   Position,
@@ -11,6 +10,7 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
+import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
 
 type FieldData = { name: string; type?: string; pk?: boolean; chnname?: string };
@@ -156,7 +156,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         proOptions={{hideAttribution: true}}
       >
         <Background/>
-        <Controls showInteractive={false}/>
+        <ZhControls showInteractive={false}/>
         <MiniMap pannable zoomable/>
       </ReactFlow>
     </div>

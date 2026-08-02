@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：ReactFlow Controls 中文可访问名（草稿 34）
+
+**修复**
+
+- 新增 `ZhControls`：自定义 ControlButton，`aria-label`/`title` 为「放大」「缩小」「适应画布」「切换交互」；设计器与分享页替换默认 `<Controls />`
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "Controls"`
+
+**测试**
+
+- `relation.spec.ts`：新增「Controls：中文可访问名」；`helpers.connectFields` 改点「适应画布」
+  验证点：同上；英文 `zoom in` 等 `getByLabel` count=0
+
+**文档**
+
+- ISSUE_DRAFTS `34` 标已合入；补草稿 `35`（MiniMap 中文 aria）；README / `docs/community.md` 种子 48–49 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `35`（`34` 为 SKIP）
+
 #### P4 good-first：画布「删除字段」可访问按钮（草稿 33）
 
 **修复**

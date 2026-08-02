@@ -22,7 +22,7 @@
 | **P2b：全站控件闭环** | 可点即可达结果；死入口修或删 | 控件矩阵 [control-matrix.md](./control-matrix.md)；~~W0–W6~~✅；矩阵 **🚧=0**；📋 延期（非本阶段闭环）：论坛外链（正式仓 Discussions 未就绪）、VIP 角标（头像 identification 已覆盖）、实验页 dataDomain/query/ChatSQL/dataQuery | ✅ 2026-08-02 |
 | P3：功能深度 | 比竞品强 | ~~版本 diff 可视化~~✅（第 3 轮）；~~协作 presence+光标+增量 sync（ADR-0009）~~✅；~~远端同步冲突提示~~✅；~~只读分享链接~~✅（ADR-0007）；~~反向解析 + P0 四库字典 FK~~✅（ADR-0006；~~复合 fields[] 延期 ADR-0011~~✅）；AI📋；i18n📋 | 🚧 |
 | P3a：获客与传播 | 陌生人能试用并产生版本 | ~~在线 demo（`/demo`→`/s/public-demo`）~~✅；~~分享页 → fork + autofork~~✅；~~注册转化（redirect 闭环）~~✅；~~双周发版笔记~~✅ | ✅ |
-| P4：社区与生态 | 让项目长大 | ~~文档站骨架 / Pages / 本地搜索~~✅；~~good-first-issue 运营清单（`docs/community.md` + Issue 模板）~~✅；~~Issue 草稿 + `seed-good-first-issues.sh`~~✅；~~CHANGELOG Unreleased 按日折叠~~✅；~~草稿 `33` 删字段 a11y~~✅；草稿池待投放 `34`（Controls 中文 aria）；正式仓就绪后 `seed-good-first-issues.sh` 投放 3–8 个📋；发版节奏固化✅ | 🚧 |
+| P4：社区与生态 | 让项目长大 | ~~文档站骨架 / Pages / 本地搜索~~✅；~~good-first-issue 运营清单（`docs/community.md` + Issue 模板）~~✅；~~Issue 草稿 + `seed-good-first-issues.sh`~~✅；~~CHANGELOG Unreleased 按日折叠~~✅；~~草稿 `33` 删字段 a11y~~✅；~~草稿 `34` Controls 中文 aria~~✅；草稿池待投放 `35`（MiniMap 中文 aria）；正式仓就绪后 `seed-good-first-issues.sh` 投放 3–8 个📋；发版节奏固化✅ | 🚧 |
 
 ## 完整用户旅程（我们关注用户的每一步）
 

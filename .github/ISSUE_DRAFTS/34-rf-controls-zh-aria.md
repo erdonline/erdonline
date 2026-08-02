@@ -1,5 +1,7 @@
 # [good first] ReactFlow Controls 中文可访问名
 
+> **已合入**（勿再投放）：`ZhControls` 自定义 ControlButton 中文 aria；设计器+分享页；E2E `relation.spec`「Controls」。
+
 ## 背景
 
 关系图画布使用默认 `<Controls />`。库内按钮硬编码英文 `aria-label` / `title`（`zoom in` / `zoom out` / `fit view` / `toggle interactivity`），中文产品界面读屏与键盘用户会听到英文。
@@ -8,10 +10,10 @@ RF v11 的 `Controls` **没有** `ariaLabels` prop。推荐：`showZoom={false}`
 
 ## 接受标准
 
-- [ ] 画布左下角仍有放大 / 缩小 / 适应 / 交互切换
-- [ ] `getByRole('button', { name: '放大' })`（及缩小、适应画布、切换交互）可定位
-- [ ] 页面上不再出现 `aria-label="zoom in"` 等英文控件名（可用 Playwright `getByLabel` 断言 count=0）
-- [ ] 不扩大 `any`；分享页只读画布若也用了 Controls，一并改或注明范围
+- [x] 画布左下角仍有放大 / 缩小 / 适应 / 交互切换
+- [x] `getByRole('button', { name: '放大' })`（及缩小、适应画布、切换交互）可定位
+- [x] 页面上不再出现 `aria-label="zoom in"` 等英文控件名（可用 Playwright `getByLabel` 断言 count=0）
+- [x] 不扩大 `any`；分享页只读画布若也用了 Controls，一并改或注明范围
 
 ## 验证命令
 
@@ -24,5 +26,6 @@ cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium
 ## 相关文件
 
 - `frontend/src/pages/design/relation/ReactFlowRelation.tsx`
-- `frontend/src/pages/share/ShareRelationCanvas.tsx`（若有 `<Controls />`）
+- `frontend/src/pages/design/relation/ZhControls.tsx`
+- `frontend/src/pages/share/ShareRelationCanvas.tsx`
 - `frontend/tests/e2e/relation.spec.ts`

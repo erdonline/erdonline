@@ -180,6 +180,29 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('Controls：中文可访问名（放大/缩小/适应画布/切换交互）', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('ctrl');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'ctrl', 'rf controls zh aria');
+      await openRelationFromEmpty(page);
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
+
+      await expect(page.getByRole('button', { name: '放大' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '缩小' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '适应画布' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '切换交互' })).toBeVisible();
+      await expect(page.getByLabel('zoom in')).toHaveCount(0);
+      await expect(page.getByLabel('zoom out')).toHaveCount(0);
+      await expect(page.getByLabel('fit view')).toHaveCount(0);
+      await expect(page.getByLabel('toggle interactivity')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');
