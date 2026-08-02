@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：关系图 SCSS 清 brand 裸 rgba（ADR-0016）
+
+- 选题：`reactflow-relation.scss` 字段删/加行 hover 仍裸 `rgba(222,41,16,…)`，与 `--erd-frame-fill-brand` / `--erd-brand` 割裂；分享画布同引该文件
+- `.erd-field-delete:hover` → `var(--erd-frame-fill-brand)`；`.erd-field-add:hover` → `color-mix(… var(--erd-brand) 4%)`
+- PK/FK 行浅底等非 brand rgba 留作下一微刀
+
+验证点：
+- `rg -n 'rgba\(222,\s*41,\s*16' frontend/src/pages/design/relation/reactflow-relation.scss` → 0
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "品牌 token" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`（轻量，分享同 SCSS）
+
 #### 体验：dataTypeDomains 树图标清 `#DE2910` 硬编码（ADR-0016）
 
 - 选题：`getDataTypeTree` 四枚 icon-park 仍裸 `#DE2910`，与 DesignLayout / Home·Group `erdColors.brand` 割裂
