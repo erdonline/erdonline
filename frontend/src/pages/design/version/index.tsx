@@ -3,7 +3,7 @@ import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {compareStringVersion} from "@/utils/string";
-import {ConfigProvider, Input, message, Space, Tag, Tooltip} from "antd";
+import {Button, ConfigProvider, Input, message, Space, Tag, Tooltip} from "antd";
 import {ProList} from '@ant-design/pro-components';
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
@@ -12,7 +12,7 @@ import CompareVersion, {CompareVersionType} from "@/components/dialog/version/Co
 import RenameVersion from "@/components/dialog/version/RenameVersion";
 import RemoveVersion from "@/components/dialog/version/RemoveVersion";
 import SyncVersion from "@/components/dialog/version/SyncVersion";
-import {CheckCircleFilled, WarningFilled} from "@ant-design/icons";
+import {ArrowLeftOutlined, CheckCircleFilled, WarningFilled} from "@ant-design/icons";
 import {Access, useAccess} from "@@/plugin-access";
 import RevertVersion from "@/components/dialog/version/RevertVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
@@ -20,6 +20,9 @@ import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
 import PageSkeleton from '@/components/PageSkeleton';
 import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
+import { history } from '@@/core/history';
+import * as cache from '@/utils/cache';
+import { CONSTANT } from '@/utils/constant';
 
 const Version: React.FC = () => {
   const {
@@ -107,6 +110,15 @@ const Version: React.FC = () => {
     }
   }, [dbs, versionDispatch, fetch, pageSize]);
 
+  const goBackToModel = useCallback(() => {
+    const projectId =
+      new URLSearchParams(window.location.search).get('projectId') ||
+      cache.getItem(CONSTANT.PROJECT_ID) ||
+      '';
+    const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+    history.push(`/design/table/model${q}`);
+  }, []);
+
   return (
     <ConfigProvider
       theme={{
@@ -118,21 +130,30 @@ const Version: React.FC = () => {
       }}
     >
       {isInitialized ? (
-        <div style={{ height: '75vh', display: 'flex', flexDirection: 'column' }}>
-          {dbs.length === 0 && (
-            <div style={{ padding: '8px 16px', color: 'rgba(0,0,0,0.65)', fontSize: 13 }}>
-              未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步数据库时再在设置中添加 JDBC。入口：侧栏「版本管理」或项目菜单「版本」。
-            </div>
-          )}
+        <div className="version-page" data-testid="version-page">
+          <div className="version-page__bar">
+            <Button
+              type="link"
+              size="small"
+              icon={<ArrowLeftOutlined />}
+              onClick={goBackToModel}
+              aria-label="返回模型"
+              data-testid="version-back-to-model"
+            >
+              返回模型
+            </Button>
+            {dbs.length === 0 && (
+              <span className="version-page__hint">
+                未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步时再在设置中添加 JDBC。
+              </span>
+            )}
+          </div>
           <ProList<any>
+            className="version-page__list"
             rowKey="id"
             dataSource={filteredVersions}
             pagination={false}
             locale={{ emptyText: tagFilter.trim() ? '无匹配标签的版本' : '暂无版本。改完模型后点「新增版本」保存快照。' }}
-            style={{
-              height: '100%',
-              overflowY: 'auto',
-            }}
             metas={{
               title: {
                 dataIndex: 'version',

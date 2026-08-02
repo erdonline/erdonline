@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 修复：版本管理页空白过大 +「返回模型」导航
+
+**修复**
+
+- 去掉 `75vh` 固定高与空态大边距；版本页用 `version-page` 填满视口剩余高度，列表行/工具栏/空态 padding 收紧
+- 页顶增加可访问「返回模型」→ `/design/table/model?projectId=…`（不依赖易被树遮挡的侧栏「模型」）
+  验证点：`npx playwright test tests/e2e/version.spec.ts --grep "返回模型" --project=chromium --workers=1` → 1 passed；多标签用例不回归：`--grep "多标签"` → 1 passed
+
+**文档**
+
+- `docs/development.md` 注明版本页「返回模型」入口
+
 #### 功能：版本多标签（逗号分隔，复用）
 
 **功能**

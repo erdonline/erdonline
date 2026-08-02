@@ -207,6 +207,7 @@
 - [x] [项目列表] 慢网打开 /project/person 见 list loading，完成后可新建 ✅ `loading.spec.ts`
 - [x] [进设计器] 慢网打开模型见 `page-skeleton`，加载后消失 ✅同上
 - [x] [版本页] 进版本管理首屏见骨架而非 `Loading...` ✅`loading.spec.ts`「版本管理首屏慢网」
+- [x] [版本页返回模型] 「返回模型」→ `/design/table/model?projectId=` 且见模型空态/树 ✅`version.spec.ts`「返回模型」
 
 ## UI 收敛 antd（2026-08-01）
 
