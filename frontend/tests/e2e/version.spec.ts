@@ -154,6 +154,27 @@ test.describe('版本快照', () => {
     }
   });
 
+  test('同步配置弹窗可保存升级方式', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('syncfg');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'syncfg', 'sync config');
+      await openVersionPage(page);
+      await page.getByRole('button', { name: '同步配置' }).click();
+      const dlg = page.getByRole('dialog').filter({ hasText: '同步配置' });
+      await expect(dlg).toBeVisible({ timeout: 10_000 });
+      await dlg.getByRole('radio', { name: '重建数据表' }).check();
+      // antd Modal okText 无障碍名为「确 定」（中间空格）
+      await dlg.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, '设置成功');
+      await expect(dlg).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('返回模型可从版本页回到模型列表', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('verback');

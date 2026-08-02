@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 9 — CompareVersion / SyncConfig ModalForm → antd Modal+Form
+
+**重构**
+
+- 版本「详情 / 版本比对」`CompareVersion`：摘 `ModalForm` / `ProFormSelect` → antd `Modal` + `Select`；自定义 footer（导出/同步/审批）与 testid 不变
+- 版本工具栏「同步配置」`SyncConfig`：摘 `ModalForm` / `ProFormRadio` → antd `Modal` + `Form` + `Radio.Group`；保存仍 `setUpgradeType` →「设置成功」
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 9 ✅；`version.spec` 新增「同步配置弹窗可保存升级方式」
+  验证点：`rg '@ant-design/pro-components' frontend/src/components/dialog/version/CompareVersion.tsx SyncConfig.tsx` = 0；`rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l`；`npx playwright test tests/e2e/version.spec.ts --grep "可视化 diff|同步配置" --project=chromium --workers=1`
+
 #### 重构：W4 切片 8 — DefaultSetUp ModalForm → antd Form+Modal
 
 **重构**
