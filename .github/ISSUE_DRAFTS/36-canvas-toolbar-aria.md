@@ -1,5 +1,7 @@
 # [good first] 画布工具栏撤销/重做/排布/对齐补 aria-label
 
+> **已合入**（勿再投放）：工具栏撤销/重做/自动布局/对齐六钮补中文 `aria-label`；E2E `relation.spec`「工具栏」。
+
 ## 背景
 
 关系图右上角工具栏（`ReactFlowRelation` `Panel`）里，「撤销」「重做」「自动排布」及对齐组内按钮目前只有 `title`，没有 `aria-label`。读屏/键盘用户依赖可访问名时不如「命令」「对齐」组稳定；E2E 也更难 `getByRole('button', { name })`。
@@ -8,9 +10,9 @@
 
 ## 接受标准
 
-- [ ] 「撤销」「重做」「自动排布」（或等价中文）按钮可用 `getByRole('button', { name })` 定位
-- [ ] 对齐组内各按钮（左对齐 / 水平居中 / 右对齐 / 顶对齐 / 垂直居中 / 底对齐）均有中文 `aria-label`（可与 `title` 相同）
-- [ ] 不扩大 `any`；不改点击行为与 `data-testid`（`align-left` / `align-top` 可保留）
+- [x] 「撤销」「重做」「自动排布」（或等价中文）按钮可用 `getByRole('button', { name })` 定位
+- [x] 对齐组内各按钮（左对齐 / 水平居中 / 右对齐 / 顶对齐 / 垂直居中 / 底对齐）均有中文 `aria-label`（可与 `title` 相同）
+- [x] 不扩大 `any`；不改点击行为与 `data-testid`（`align-left` / `align-top` 可保留）
 
 ## 验证命令
 

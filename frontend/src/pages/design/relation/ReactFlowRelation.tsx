@@ -803,33 +803,89 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             >
               命令
             </button>
-            <button className="erd-canvas-tool" onClick={() => projectDispatch.undoCanvas()} title="撤销 (Cmd/Ctrl+Z)">
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              onClick={() => projectDispatch.undoCanvas()}
+              title="撤销 (Cmd/Ctrl+Z)"
+              aria-label="撤销"
+            >
               撤销
             </button>
-            <button className="erd-canvas-tool" onClick={() => projectDispatch.redoCanvas()} title="重做 (Cmd/Ctrl+Shift+Z)">
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              onClick={() => projectDispatch.redoCanvas()}
+              title="重做 (Cmd/Ctrl+Shift+Z)"
+              aria-label="重做"
+            >
               重做
             </button>
-            <button className="erd-canvas-tool" onClick={autoLayout} title="按关联关系自动排布全部表">
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              onClick={autoLayout}
+              title="按关联关系自动排布全部表"
+              aria-label="自动布局"
+            >
               自动布局
             </button>
             {selectedCount >= 2 && (
               <span className="erd-align-group" role="group" aria-label="对齐">
-                <button className="erd-canvas-tool" data-testid="align-left" onClick={() => alignSelected('left')} title="左对齐">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  data-testid="align-left"
+                  onClick={() => alignSelected('left')}
+                  title="左对齐"
+                  aria-label="左对齐"
+                >
                   左齐
                 </button>
-                <button className="erd-canvas-tool" onClick={() => alignSelected('hcenter')} title="水平居中">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  onClick={() => alignSelected('hcenter')}
+                  title="水平居中"
+                  aria-label="水平居中"
+                >
                   水平中
                 </button>
-                <button className="erd-canvas-tool" onClick={() => alignSelected('right')} title="右对齐">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  onClick={() => alignSelected('right')}
+                  title="右对齐"
+                  aria-label="右对齐"
+                >
                   右齐
                 </button>
-                <button className="erd-canvas-tool" data-testid="align-top" onClick={() => alignSelected('top')} title="顶对齐">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  data-testid="align-top"
+                  onClick={() => alignSelected('top')}
+                  title="顶对齐"
+                  aria-label="顶对齐"
+                >
                   顶齐
                 </button>
-                <button className="erd-canvas-tool" onClick={() => alignSelected('vcenter')} title="垂直居中">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  onClick={() => alignSelected('vcenter')}
+                  title="垂直居中"
+                  aria-label="垂直居中"
+                >
                   垂直中
                 </button>
-                <button className="erd-canvas-tool" onClick={() => alignSelected('bottom')} title="底对齐">
+                <button
+                  type="button"
+                  className="erd-canvas-tool"
+                  onClick={() => alignSelected('bottom')}
+                  title="底对齐"
+                  aria-label="底对齐"
+                >
                   底齐
                 </button>
               </span>
