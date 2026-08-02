@@ -1,7 +1,6 @@
 import QueryTree from '@/components/QueryTree';
 import useGlobalStore from "@/store/global/globalStore";
 import useProjectStore from "@/store/project/useProjectStore";
-import useShortcutStore from "@/store/shortcut/useShortcutStore";
 import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
 import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
@@ -27,10 +26,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     searchKey: state.searchKey,
     globalDispatch: state.dispatch,
   }), shallow);
-  const { shortcutDispatch } = useShortcutStore(state => ({
-    shortcutDispatch: state.dispatch
-  }));
-
   const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'module' | 'entity' | 'relation'>('module');
@@ -54,7 +49,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: node.title });
       activeEntity(node.module, node)
     } else if (node.type === "relation") {
-      shortcutDispatch.setShow(false);
       tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: `关系图-${node.module}` });
       activeEntity(node.module, node)
     }
@@ -106,7 +100,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           });
           // 建表后直开关系图，跳过「双击表→再切关系图」
           if (moduleName) {
-            shortcutDispatch.setShow(false);
             tabDispatch.addTab({
               group: TabGroup.MODEL,
               module: moduleName,

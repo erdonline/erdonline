@@ -118,7 +118,7 @@
 - [x] [IdOrKey 默认 PK] 内联加 IdOrKey 字段后 PK 徽标 active ✅自动
 - [x] [表头改名] ✎ DOM click → 改名；改名中勿用 `rfNode(旧名)` 链 ✅ `relation.spec`「改名」
 - [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
-- [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1 ✅自动
+- [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1；工具条「命令」/Esc ✅自动（`relation.spec`「命令面板」）
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动
 - [x] [R3 切 g6] 打开关系图仅 ReactFlow（无 G6Relation）；relation.spec 全旅程绿 ✅自动
 - [x] [导出去 G6] 设计器导出 Markdown 下载 .md（DOM+html2canvas）✅自动 export.spec.ts

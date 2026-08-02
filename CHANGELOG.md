@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W3 命令面板/快捷键矩阵收口（2026-08-02）
+
+### 修复
+- 清除 `useShortcutStore.show` / `setShow` 死状态（写入从未被读取；关系图开合不依赖该字段）
+  验证点：开关系图 / 建表直开关系图行为不变
+
+### 测试
+- `relation.spec` 新增「命令面板：Cmd+K 打开并执行新建表」：快捷键开合 → 执行「新建表」节点 +1 → 工具条「命令」再开 → Esc 关
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --grep "命令面板" --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：DesignLayout 命令面板/快捷键 → ✅；`docs/roadmap.md` P2b 长尾已收命令面板
+
 ## [Unreleased] — W3 DesignLayout 顶栏自动保存状态（2026-08-02）
 
 ### 修复
