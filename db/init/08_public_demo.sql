@@ -1,6 +1,7 @@
 USE erd;
 
 -- 公开只读演示（P3a /demo → /s/public-demo）。creator=admin，便于维护者续签分享。
+-- 真相源：schema/examples/demo.projectjson.json（改完请跑 node scripts/sync-demo-projectjson.mjs）
 SET NAMES utf8mb4;
 
 INSERT INTO `project` (
@@ -8,49 +9,12 @@ INSERT INTO `project` (
   `revision`, `del_flag`, `creator`, `updater`
 ) VALUES (
   'demo-project-public',
-  CAST('{
-    "modules": [{
-      "name": "SHOP",
-      "chnname": "Demo",
-      "entities": [
-        {
-          "title": "T_USER",
-          "chnname": "User",
-          "fields": [
-            {"name": "ID", "type": "IdOrKey", "pk": true},
-            {"name": "NAME", "type": "String"}
-          ]
-        },
-        {
-          "title": "T_ORDER",
-          "chnname": "Order",
-          "fields": [
-            {"name": "ID", "type": "IdOrKey", "pk": true},
-            {"name": "USER_ID", "type": "IdOrKey"},
-            {"name": "AMOUNT", "type": "Double"}
-          ]
-        }
-      ],
-      "associations": [{
-        "relation": "1:n",
-        "from": {"entity": "T_ORDER", "field": "USER_ID"},
-        "to": {"entity": "T_USER", "field": "ID"}
-      }],
-      "graphCanvas": {
-        "nodes": [
-          {"id": "T_USER", "x": 80, "y": 80},
-          {"id": "T_ORDER", "x": 360, "y": 120}
-        ]
-      }
-    }],
-    "profile": {"dbs": [], "defaultFields": [[]]},
-    "dataTypeDomains": {"datatype": [], "database": [{"code": "MYSQL", "defaultDatabase": true}]}
-  }' AS JSON),
+  CAST('{"modules":[{"name":"AUTHZ","chnname":"功能鉴权","entities":[{"title":"sys_user","chnname":"用户","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"username","chnname":"登录名","type":"MiddleString","notNull":true},{"name":"password_hash","chnname":"密码哈希","type":"LongString","notNull":true},{"name":"email","chnname":"邮箱","type":"MiddleString"},{"name":"display_name","chnname":"显示名","type":"MiddleString"},{"name":"status","chnname":"状态","type":"Char","notNull":true,"defaultValue":"''1''"},{"name":"del_flag","chnname":"删除标识","type":"Char","defaultValue":"''0''","relationNoShow":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"},{"name":"update_time","chnname":"更新时间","type":"DateTime"}],"indexs":[{"name":"uk_sys_user_username","isUnique":true,"fields":["username"]},{"name":"idx_sys_user_email","isUnique":false,"fields":["email"]}]},{"title":"sys_role","chnname":"角色","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"code","chnname":"角色编码","type":"MiddleString","notNull":true},{"name":"name","chnname":"角色名称","type":"MiddleString","notNull":true},{"name":"remark","chnname":"备注","type":"LongString"},{"name":"status","chnname":"状态","type":"Char","notNull":true,"defaultValue":"''1''"},{"name":"del_flag","chnname":"删除标识","type":"Char","defaultValue":"''0''","relationNoShow":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"uk_sys_role_code","isUnique":true,"fields":["code"]}]},{"title":"sys_permission","chnname":"权限","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"code","chnname":"权限编码","type":"MiddleString","notNull":true},{"name":"name","chnname":"权限名称","type":"MiddleString","notNull":true},{"name":"resource_type","chnname":"资源类型","type":"ShortString","notNull":true,"defaultValue":"''api''"},{"name":"resource_path","chnname":"资源路径","type":"LongString"},{"name":"action","chnname":"动作","type":"ShortString","notNull":true,"defaultValue":"''read''"},{"name":"del_flag","chnname":"删除标识","type":"Char","defaultValue":"''0''","relationNoShow":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"uk_sys_permission_code","isUnique":true,"fields":["code"]}]},{"title":"sys_user_role","chnname":"用户角色","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"user_id","chnname":"用户ID","type":"IdOrKey","notNull":true},{"name":"role_id","chnname":"角色ID","type":"IdOrKey","notNull":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"uk_sys_user_role","isUnique":true,"fields":["user_id","role_id"]},{"name":"idx_sys_user_role_role","isUnique":false,"fields":["role_id"]}]},{"title":"sys_role_permission","chnname":"角色权限","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"role_id","chnname":"角色ID","type":"IdOrKey","notNull":true},{"name":"permission_id","chnname":"权限ID","type":"IdOrKey","notNull":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"uk_sys_role_permission","isUnique":true,"fields":["role_id","permission_id"]},{"name":"idx_sys_role_perm_perm","isUnique":false,"fields":["permission_id"]}]},{"title":"sys_session","chnname":"登录会话","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"user_id","chnname":"用户ID","type":"IdOrKey","notNull":true},{"name":"token","chnname":"会话令牌","type":"LongString","notNull":true},{"name":"client_ip","chnname":"客户端IP","type":"ShortString"},{"name":"user_agent","chnname":"UA","type":"LongString"},{"name":"expire_time","chnname":"过期时间","type":"DateTime","notNull":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"uk_sys_session_token","isUnique":true,"fields":["token"]},{"name":"idx_sys_session_user","isUnique":false,"fields":["user_id"]}]},{"title":"sys_audit_log","chnname":"审计日志","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"user_id","chnname":"操作用户","type":"IdOrKey"},{"name":"action","chnname":"动作","type":"MiddleString","notNull":true},{"name":"resource","chnname":"资源","type":"MiddleString"},{"name":"detail","chnname":"详情","type":"LongText"},{"name":"success","chnname":"是否成功","type":"YesNo","notNull":true,"defaultValue":"''1''"},{"name":"create_time","chnname":"发生时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"}],"indexs":[{"name":"idx_sys_audit_user_action","isUnique":false,"fields":["user_id","action"]},{"name":"idx_sys_audit_time","isUnique":false,"fields":["create_time"]}]},{"title":"biz_order","chnname":"业务订单","fields":[{"name":"id","chnname":"主键","type":"IdOrKey","pk":true,"notNull":true},{"name":"order_no","chnname":"订单号","type":"MiddleString","notNull":true},{"name":"user_id","chnname":"下单用户","type":"IdOrKey","notNull":true},{"name":"amount","chnname":"金额","type":"Money","notNull":true,"defaultValue":"0"},{"name":"status","chnname":"订单状态","type":"ShortString","notNull":true,"defaultValue":"''created''"},{"name":"del_flag","chnname":"删除标识","type":"Char","defaultValue":"''0''","relationNoShow":true},{"name":"create_time","chnname":"创建时间","type":"DateTime","defaultValue":"CURRENT_TIMESTAMP"},{"name":"update_time","chnname":"更新时间","type":"DateTime"}],"indexs":[{"name":"uk_biz_order_no","isUnique":true,"fields":["order_no"]},{"name":"idx_biz_order_user","isUnique":false,"fields":["user_id"]}]}],"associations":[{"relation":"1:n","from":{"entity":"sys_user_role","field":"user_id"},"to":{"entity":"sys_user","field":"id"}},{"relation":"1:n","from":{"entity":"sys_user_role","field":"role_id"},"to":{"entity":"sys_role","field":"id"}},{"relation":"1:n","from":{"entity":"sys_role_permission","field":"role_id"},"to":{"entity":"sys_role","field":"id"}},{"relation":"1:n","from":{"entity":"sys_role_permission","field":"permission_id"},"to":{"entity":"sys_permission","field":"id"}},{"relation":"1:n","from":{"entity":"sys_session","field":"user_id"},"to":{"entity":"sys_user","field":"id"}},{"relation":"1:n","from":{"entity":"sys_audit_log","field":"user_id"},"to":{"entity":"sys_user","field":"id"}},{"relation":"1:n","from":{"entity":"biz_order","field":"user_id"},"to":{"entity":"sys_user","field":"id"}}],"graphCanvas":{"nodes":[{"id":"sys_user","x":80,"y":80},{"id":"sys_role","x":80,"y":420},{"id":"sys_permission","x":80,"y":760},{"id":"sys_user_role","x":420,"y":240},{"id":"sys_role_permission","x":420,"y":600},{"id":"sys_session","x":760,"y":40},{"id":"sys_audit_log","x":760,"y":280},{"id":"biz_order","x":760,"y":560}],"edges":[]}}],"profile":{"dbs":[],"defaultFields":[]},"dataTypeDomains":{"datatype":[],"database":[{"code":"MYSQL","defaultDatabase":true}]}}' AS JSON),
   NULL,
-  'Public Demo',
-  'Anonymous readonly demo for /demo',
+  '功能鉴权示例',
+  'RBAC 功能鉴权演示：用户/角色/权限/会话/审计 + 业务订单',
   '1',
-  'demo,public',
+  'demo,public,authz',
   0,
   '0',
   'admin',

@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 功能：功能鉴权示例 projectJSON（8 表 RBAC）
+
+**功能**
+
+- 公开 demo /「从示例开始」由 2 表商城升级为功能鉴权域：`sys_user` / `sys_role` / `sys_permission` / `sys_user_role` / `sys_role_permission` / `sys_session` / `sys_audit_log` / `biz_order`
+- 含 1:n 关联、唯一/普通索引、`defaultValue`、LR 分层坐标；中文 `chnname`
+- 真相源 `schema/examples/demo.projectjson.json`；`scripts/sync-demo-projectjson.mjs` 同步前端副本与 `db/init/08_public_demo.sql`
+
+**测试 / 文档**
+
+- E2E：`demo.spec` 断言 8 节点；`activation` / `project-activation` 对齐新模块名
+- `data-format.md` 示例表清单；已有库需重跑 `08_public_demo.sql`
+
+验证点：`node scripts/validate-projectjson.mjs` → 绿；`npx playwright test tests/e2e/demo.spec.ts --project=chromium` → 绿；`npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --grep '首页示例项目' --no-deps` → 绿
+
+
 #### 修复：chromium-serial 不再依赖全量 chromium（Playwright footgun）
 
 **修复**

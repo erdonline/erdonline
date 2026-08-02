@@ -34,7 +34,7 @@
 | `profile` | `object` | 项目级配置（默认字段、默认数据源绑定等） |
 | `dataTypeDomains` | `object` | 逻辑类型与库方言 / DDL 模板 |
 
-完整骨架参考：`frontend/src/utils/defaultData.json`。最小可打开示例：[`schema/examples/demo.projectjson.json`](../schema/examples/demo.projectjson.json)（源自公开 demo 种子 `db/init/08_public_demo.sql`，`profile.defaultFields` 规范为空数组）。
+完整骨架参考：`frontend/src/utils/defaultData.json`。公开 demo /「从示例开始」正例：[`schema/examples/demo.projectjson.json`](../schema/examples/demo.projectjson.json)（功能鉴权 RBAC；同步到 `db/init/08_public_demo.sql` 与前端请跑 `node scripts/sync-demo-projectjson.mjs`；`profile.defaultFields` 规范为空数组）。
 
 ## modules / entities / fields / associations
 
@@ -156,52 +156,20 @@ cd frontend && yarn validate:projectjson
 
 ## 示例（公开 demo）
 
-与 `/demo` → `/s/public-demo` 种子同构的最小 JSON：
+与 `/demo` → `/s/public-demo` 及登录态「从示例开始」同构的正例见 [`schema/examples/demo.projectjson.json`](../schema/examples/demo.projectjson.json)。
 
-```json
-{
-  "modules": [{
-    "name": "SHOP",
-    "chnname": "Demo",
-    "entities": [
-      {
-        "title": "T_USER",
-        "chnname": "User",
-        "fields": [
-          { "name": "ID", "type": "IdOrKey", "pk": true },
-          { "name": "NAME", "type": "String" }
-        ]
-      },
-      {
-        "title": "T_ORDER",
-        "chnname": "Order",
-        "fields": [
-          { "name": "ID", "type": "IdOrKey", "pk": true },
-          { "name": "USER_ID", "type": "IdOrKey" },
-          { "name": "AMOUNT", "type": "Double" }
-        ]
-      }
-    ],
-    "associations": [{
-      "relation": "1:n",
-      "from": { "entity": "T_ORDER", "field": "USER_ID" },
-      "to": { "entity": "T_USER", "field": "ID" }
-    }],
-    "graphCanvas": {
-      "nodes": [
-        { "id": "T_USER", "x": 80, "y": 80 },
-        { "id": "T_ORDER", "x": 360, "y": 120 }
-      ],
-      "edges": []
-    }
-  }],
-  "profile": { "dbs": [], "defaultFields": [] },
-  "dataTypeDomains": {
-    "datatype": [],
-    "database": [{ "code": "MYSQL", "defaultDatabase": true }]
-  }
-}
-```
+| 表 | 中文名 | 角色 |
+|---|---|---|
+| `sys_user` | 用户 | 主体 |
+| `sys_role` | 角色 | RBAC |
+| `sys_permission` | 权限 | RBAC |
+| `sys_user_role` | 用户角色 | n:m 中间表 |
+| `sys_role_permission` | 角色权限 | n:m 中间表 |
+| `sys_session` | 登录会话 | 认证态 |
+| `sys_audit_log` | 审计日志 | 可追溯 |
+| `biz_order` | 业务订单 | 业务切片（挂 `user_id`） |
+
+模块名 `AUTHZ` / 显示名「功能鉴权」；含 `indexs`、`defaultValue` 与 LR 分层坐标，打开即可分享截图（ADR-0016）。
 
 ## DBML 互通（导入 / 导出）
 
