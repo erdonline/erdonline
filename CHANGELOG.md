@@ -2,6 +2,13 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W4 对比版本矩阵收口（2026-08-02）
+
+### 文档
+- `docs/control-matrix.md`：W4「对比版本」→ ✅（既有 `version.spec` 双版比对已覆盖）
+- `docs/roadmap.md`：P2b 长尾去掉「对比版本」
+  验证点：`npx playwright test tests/e2e/version.spec.ts --grep "可视化 diff|无数据源也可新增" --project=chromium`（2 passed）
+
 ## [Unreleased] — W5 ERD 导入闭环（2026-08-02）
 
 ### 修复
