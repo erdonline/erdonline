@@ -1,12 +1,15 @@
 import React, {useContext, useState} from 'react';
 import {Button, Input, Modal, Upload, message} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
+import {history} from 'umi';
 import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
+import useTabStore, {TabGroup} from '@/store/tab/useTabStore';
 import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
+import {relationTabEntity} from '@/utils/diagram';
 import type {DbmlProjectJSON} from '@/utils/dbml/toProjectJSON';
 
 const {Dragger} = Upload;
@@ -114,6 +117,19 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
           ? `DBML 导入成功（${n} 张表，已建议 ${frameN} 个分组）`
           : `DBML 导入成功（${n} 张表）`,
       );
+    }
+    // ADR-0016：导入后直开关系图首屏（空态 CTA / 菜单导入同路径）
+    const firstName = resultModules[0]?.name;
+    if (firstName) {
+      useTabStore.getState().dispatch.addTab({
+        group: TabGroup.MODEL,
+        module: firstName,
+        entity: relationTabEntity(firstName),
+      });
+      projectDispatch.setCurrentModule(firstName);
+      if (history.location.pathname !== '/design/table/model') {
+        history.push({pathname: '/design/table/model'});
+      }
     }
     setOpen(false);
     setPaste('');

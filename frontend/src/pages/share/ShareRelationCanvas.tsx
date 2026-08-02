@@ -17,6 +17,7 @@ import {
 } from '@/utils/diagram';
 import {resolveEntityPositions} from '@/utils/graphLayout';
 import {ERD_EDGE_TYPE, associationsToEdges} from '@/utils/relationEdges';
+import {FIT_VIEW_SHAREABLE} from '@/utils/canvasFit';
 import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
@@ -198,7 +199,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         nodeTypes={nodeTypes}
         edgeTypes={edgeTypes}
         fitView
-        fitViewOptions={{padding: 0.08, maxZoom: 1.15}}
+        fitViewOptions={{...FIT_VIEW_SHAREABLE}}
         nodesDraggable={false}
         nodesConnectable={false}
         elementsSelectable
@@ -207,7 +208,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         proOptions={{hideAttribution: true}}
       >
         <Background gap={16} size={1} color={erdColors.line}/>
-        <ZhControls showInteractive={false} fitViewOptions={{padding: 0.08, maxZoom: 1.15}}/>
+        <ZhControls showInteractive={false} fitViewOptions={{...FIT_VIEW_SHAREABLE}}/>
         <MiniMap
           pannable
           zoomable

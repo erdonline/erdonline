@@ -48,10 +48,16 @@ import {
   associationsToEdges,
   parseFieldHandle,
 } from '@/utils/relationEdges';
+import {
+  FIT_VIEW_INIT,
+  FIT_VIEW_SHAREABLE,
+  fitViewOptionsForTableCount,
+} from '@/utils/canvasFit';
 
 export { EDGE_INTERACTION_WIDTH } from '@/utils/relationEdges';
 import { Input, Modal, Select, message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
+import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import ErdRelationEdge from './ErdRelationEdge';
 import ZhControls from './ZhControls';
@@ -487,6 +493,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     null | { mode: 'create' | 'rename'; name: string; diagramId?: string }
   >(null);
   const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
+  const [dbmlImportOpen, setDbmlImportOpen] = useState(false);
+  /** >0 = 待 fitView 的表数（导入/自动布局后首屏铺满） */
+  const pendingFitRef = useRef(0);
+  const fitDiagramKeyRef = useRef('');
+  const rfRef = useRef<ReactFlowInstance | null>(null);
 
   const moduleName = moduleEntity.module || '';
   const diagramIdFromTab = parseDiagramIdFromTabEntity(moduleName, moduleEntity.entity);
@@ -495,6 +506,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   useEffect(() => {
     setActiveDiagramId(diagramIdFromTab);
   }, [diagramIdFromTab]);
+
+  const scheduleFitView = useCallback((tableCount: number, duration = 200) => {
+    const opts = { ...fitViewOptionsForTableCount(tableCount), duration };
+    requestAnimationFrame(() => {
+      window.setTimeout(() => {
+        rfRef.current?.fitView(opts);
+      }, 50);
+    });
+  }, []);
 
   const currentModule = useMemo(
     () => (projectJSON?.modules || []).find((m: any) => m.name === moduleName),
@@ -649,6 +669,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         })),
         activeDiagramId,
       );
+      pendingFitRef.current = entities.length;
     }
   }, [currentModule, moduleName, activeDiagramId, setNodes, projectDispatch]);
 
@@ -1125,6 +1146,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         nextTables.map(n => ({ id: n.id, position: n.position })),
         activeDiagramId,
       );
+      pendingFitRef.current = nextTables.length;
       return [...rest, ...nextTables];
     });
   }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
@@ -1156,8 +1178,31 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     return () => window.removeEventListener('keydown', onKey);
   }, [projectDispatch, cmdOpen]);
 
-  const rfRef = useRef<ReactFlowInstance | null>(null);
   const cursorThrottleRef = useRef(0);
+
+  // 切图 / 导入直开：有表则铺满首屏（与分享只读同密 padding）
+  useEffect(() => {
+    const entityCount = (currentModule?.entities || []).length;
+    const key = `${moduleName}::${activeDiagramId}`;
+    const switched = fitDiagramKeyRef.current !== key;
+    fitDiagramKeyRef.current = key;
+    if (entityCount === 0) {
+      return;
+    }
+    if (switched) {
+      scheduleFitView(entityCount);
+    }
+  }, [moduleName, activeDiagramId, currentModule, scheduleFitView]);
+
+  // didAutoLayout / 一键布局：节点落盘后再 fit
+  useEffect(() => {
+    const n = pendingFitRef.current;
+    if (n <= 0) {
+      return;
+    }
+    pendingFitRef.current = 0;
+    scheduleFitView(n);
+  }, [nodes, scheduleFitView]);
 
   const onPointerMoveCursor = useCallback(
     (e: React.PointerEvent) => {
@@ -1311,14 +1356,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         fitView
         // maxZoom 上限 1：空画布 fitView 对单个空节点可放大到 scale>2，
         // 后续节点增长后右侧节点连同字段手柄被推出画布可视区（连线手柄不可点，已实证）
-        fitViewOptions={{ maxZoom: 1, padding: 0.15 }}
+        fitViewOptions={{ ...FIT_VIEW_INIT }}
         minZoom={0.2}
         maxZoom={2}
         defaultEdgeOptions={{ interactionWidth: EDGE_INTERACTION_WIDTH }}
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={20} size={1} color={erdColors.line} />
-        <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
+        <ZhControls fitViewOptions={{ ...FIT_VIEW_SHAREABLE }} />
         {!isEmpty && (
           <MiniMap
             pannable
@@ -1498,7 +1543,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             <div className="erd-empty-cta" data-testid="canvas-empty-state">
               <ErdEmptyDiagram size="compact" />
               <div className="erd-empty-title">开始你的第一张关系图</div>
-              <div className="erd-empty-desc">一张表就能上图；导入后自动布局，截图敢分享</div>
+              <div className="erd-empty-desc">
+                一张表就能上图；导入 DBML 后自动铺满首屏，截图敢分享
+              </div>
               <button
                 type="button"
                 className="erd-empty-button nodrag"
@@ -1507,6 +1554,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 onClick={createFirstTable}
               >
                 + 新建第一张表
+              </button>
+              <button
+                type="button"
+                className="erd-empty-outline nodrag"
+                data-testid="canvas-empty-import-dbml"
+                aria-label="导入 DBML"
+                onClick={() => setDbmlImportOpen(true)}
+              >
+                导入 DBML
               </button>
               <button
                 type="button"
@@ -1521,6 +1577,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           </Panel>
         )}
       </ReactFlow>
+      <ReverseDBML
+        hideTrigger
+        open={dbmlImportOpen}
+        onOpenChange={setDbmlImportOpen}
+      />
       <Modal
         title={diagramModal?.mode === 'rename' ? '重命名关系图' : '新建关系图'}
         open={!!diagramModal}

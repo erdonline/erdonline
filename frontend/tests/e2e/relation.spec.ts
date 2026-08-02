@@ -175,6 +175,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByTestId('erd-empty-diagram')).toBeVisible();
       await expect(empty.getByText('开始你的第一张关系图')).toBeVisible();
       await expect(page.getByTestId('canvas-empty-create')).toBeVisible();
+      await expect(page.getByRole('button', { name: '导入 DBML' })).toBeVisible();
       await expect(page.getByRole('button', { name: '从数据源逆向' })).toBeVisible();
       await expect(page.getByLabel('画布缩略图')).toHaveCount(0);
 

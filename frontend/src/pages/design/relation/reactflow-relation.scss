@@ -631,6 +631,24 @@
     }
   }
 
+  .erd-empty-outline {
+    margin-top: 10px;
+    padding: 8px 20px;
+    background: transparent;
+    color: var(--erd-brand);
+    border: 1px solid color-mix(in srgb, var(--erd-brand) 55%, transparent);
+    border-radius: var(--erd-radius-sm);
+    font-size: 13px;
+    font-weight: 500;
+    font-family: var(--erd-font-ui);
+    cursor: pointer;
+
+    &:hover {
+      border-color: var(--erd-brand);
+      background: color-mix(in srgb, var(--erd-brand) 6%, transparent);
+    }
+  }
+
   .erd-empty-secondary {
     margin-top: 12px;
     padding: 0;
