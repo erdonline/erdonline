@@ -127,6 +127,32 @@ test.describe('版本快照', () => {
     }
   });
 
+  test('返回模型可从版本页回到模型列表', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('verback');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'verback', 'back to model');
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await openVersionPage(page);
+      const back = page.getByRole('button', { name: '返回模型' });
+      await expect(back).toBeVisible();
+      await expect(back).toBeEnabled();
+      await back.click();
+      await expect(page).toHaveURL(
+        new RegExp(`/design/table/model\\?projectId=${projectId}`),
+        { timeout: 15_000 },
+      );
+      // 新建空项目：模型页空态（尚无模块树，无 tree-open-relation）
+      await expect(page.getByTestId('add-module-empty')).toBeVisible({ timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('保存多标签版本展示 chips 可筛选且标签可跨版本复用', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('vertag');
