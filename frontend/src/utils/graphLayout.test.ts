@@ -6,7 +6,9 @@ import assert from 'assert';
 import {
   DAGRE_NODESEP,
   DAGRE_RANKSEP,
+  FIELD_ROW_H,
   dagrePositions,
+  estimateNodeHeight,
   graphCanvasNodesFromDagre,
   layoutBoundingSize,
   resolveEntityPositions,
@@ -24,6 +26,17 @@ async function run(name: string, fn: () => void | Promise<void>) {
 }
 
 async function main() {
+  await run('FIELD_ROW_H：字段行再压一档（与 .erd-field-row 对齐）', () => {
+    assert.equal(FIELD_ROW_H, 26);
+    const h1 = estimateNodeHeight({ title: 't', fields: [{ name: 'a' }] });
+    const h3 = estimateNodeHeight({
+      title: 't',
+      fields: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
+    });
+    assert.equal(h1, 52 + 26 + 36);
+    assert.equal(h3 - h1, 2 * FIELD_ROW_H);
+  });
+
   await run('dagre：posts→users 时 posts.x < users.x（非网格散点）', () => {
     const entities = [
       { title: 'users', fields: [{ name: 'id' }, { name: 'name' }] },

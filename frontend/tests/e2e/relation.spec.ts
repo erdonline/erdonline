@@ -307,6 +307,19 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(pkAccent.w).toBe('2px');
       expect(pkAccent.bg).toBe('rgb(212, 136, 6)');
 
+      // ADR-0016：字段行再压一档（min-height 22，与 FIELD_ROW_H=26 估算对齐）
+      const fieldRowBox = await fkRow.evaluate((el) => {
+        const s = getComputedStyle(el);
+        return {
+          minH: parseFloat(s.minHeight),
+          lineH: parseFloat(s.lineHeight),
+          padTop: parseFloat(s.paddingTop),
+        };
+      });
+      expect(fieldRowBox.minH).toBe(22);
+      expect(fieldRowBox.lineH).toBe(16);
+      expect(fieldRowBox.padTop).toBe(2);
+
       const titleFont = await orderNode.locator('.erd-table-title').evaluate(
         (el) => getComputedStyle(el).fontFamily,
       );

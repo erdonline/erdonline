@@ -57,7 +57,7 @@
 - ✅ 表头 ink、选中 brand 描边、边 stroke 走 ink600；禁散落默认蓝 `#4096ff` 当画布主色
 - ✅ 逆向 / DBML 导入按 FK 做 dagre 分层布局（外键侧→主键侧，默认 `nodesep` 56 / `ranksep` 108），不是无关联网格散点
 - ✅ 公开 demo / 示例主图手排收紧（列间距约 28px、Frame padding 24），截图不「空旷」；分享只读隐藏 `relationNoShow`
-- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ 箭头边；设计器与分享只读同路由；行高紧凑可截图
+- ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ 箭头边；设计器与分享只读同路由；字段行 `min-height` 22 / `FIELD_ROW_H` 26（再压一档，截图更密）
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink600`；禁与画布 sunk 同色、禁整块半透明冲淡字
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框

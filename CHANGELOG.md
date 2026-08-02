@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：设计器字段行再压一档（ADR-0016 节点密度）
+
+- `.erd-field-row`：`min-height` 24→22、`padding` 竖 3→2、`line-height` 18→16（设计器与分享只读同 scss）
+- `FIELD_ROW_H` 28→26；`estimateNodeHeight` / dense-fk probe 对齐
+
+验证点：`cd frontend && npx tsx src/utils/graphLayout.test.ts`；`npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉" --workers=1 --retries=0`
+
 #### 体验：密图密度微调（demo/分享截图 / ADR-0016）
 
 - 示例主图手排再收：列间距 ~44→~28px，x 跨度 1136→1072；会话图同步收紧；Frame 包围盒贴成员（padding 24）
