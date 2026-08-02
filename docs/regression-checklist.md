@@ -17,6 +17,7 @@
 - [x] CommonTabs / 表设计签头密度：签栏 ≤30（目标 ~28）+ 签头 ≤32；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤36；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
+- [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
 

@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：普通导出页 ExportCommon 卡片密度（ADR-0016）
+
+- 选题：`/design/table/export/common` 页头与导出卡片密度（与 22–28 chrome / `.erd-io-modal` 同阶）
+- `.export-common-page`：标题 13/22、hint 12、页 pad 8×12；卡片 pad 8×10 / 圆角 6 / 边框；grid gutter 8；禁 16 pad + Title level4 松卡片
+- `export.spec`「普通导出页密度」；截图 `diagram-export-common-dense.png`；`export-common-*` / role=button /「导出文件」文案不变
+
+验证点：`cd frontend && npx playwright test tests/e2e/export.spec.ts --project=chromium --grep "普通导出页密度" --workers=1 --retries=0`
+
 #### 体验：导入/导出弹层密度（ADR-0016）
 
 - 选题：项目菜单导入/导出 Modal 头脚与控件密度（与 22–28 chrome / EntityModal 同阶）

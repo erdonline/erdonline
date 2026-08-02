@@ -107,4 +107,69 @@ test.describe('导出（无 G6）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('普通导出页密度：与 22–28 chrome 同阶', async ({ page }) => {
+    test.setTimeout(90_000);
+    await login(page);
+    await deleteOwnPersonProjects(page);
+    const projectName = uniqueProjectName('exdense');
+    await createAndOpenPersonProject(page, projectName, 'export', 'export dense');
+
+    try {
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      await page.goto(`/design/table/export/common?projectId=${projectId}`);
+      const pageRoot = page.getByTestId('export-common-page');
+      await expect(pageRoot).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByRole('heading', { name: '导出文件' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
+      await expect(page.getByTestId('export-common-markdown')).toBeVisible();
+
+      // ADR-0016：页头 13/22、卡片 pad ≤10×12；禁 16 pad + Title level4 松卡片
+      const metrics = await pageRoot.evaluate((el) => {
+        const title = el.querySelector('.export-common-page__title') as HTMLElement | null;
+        const card = el.querySelector('.export-common-card') as HTMLElement | null;
+        const tcs = title ? getComputedStyle(title) : null;
+        const ccs = card ? getComputedStyle(card) : null;
+        return {
+          titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+          cardPadY: ccs
+            ? parseFloat(ccs.paddingTop) + parseFloat(ccs.paddingBottom)
+            : NaN,
+          cardPadX: ccs
+            ? parseFloat(ccs.paddingLeft) + parseFloat(ccs.paddingRight)
+            : NaN,
+          pagePadY: parseFloat(getComputedStyle(el).paddingTop) +
+            parseFloat(getComputedStyle(el).paddingBottom),
+        };
+      });
+      expect(metrics.titleFont, `页标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`).toBeLessThanOrEqual(
+        14,
+      );
+      expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+      expect(metrics.titleLh, `页标题行高应 ≤24（目标 22），得 ${metrics.titleLh}`).toBeLessThanOrEqual(
+        24,
+      );
+      expect(
+        metrics.cardPadY,
+        `卡片 padding-block 合计应 ≤20（目标 8+8），得 ${metrics.cardPadY}`,
+      ).toBeLessThanOrEqual(20);
+      expect(metrics.cardPadY).toBeGreaterThanOrEqual(12);
+      expect(
+        metrics.cardPadX,
+        `卡片 padding-inline 合计应 ≤24（目标 10+10），得 ${metrics.cardPadX}`,
+      ).toBeLessThanOrEqual(24);
+      expect(
+        metrics.pagePadY,
+        `页 chrome padY 应 ≤24（目标 8+…），得 ${metrics.pagePadY}`,
+      ).toBeLessThanOrEqual(24);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-export-common-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

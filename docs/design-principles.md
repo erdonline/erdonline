@@ -78,6 +78,7 @@
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条 pad 8 / 控件 28；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行
 - ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 28、字 12；表头 pad 4×12 / title 13；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 28；禁 8×12 松行 + 16 标题
+- ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；禁 16 pad + Title level4 松卡片
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
@@ -101,6 +102,7 @@
 - ❌ 左树默认 ~28 行高 + 16 工具条松距，与 22 chrome 不同阶（历史问题）
 - ❌ CommonTabs 栏 40px + 表设计签头 10×16 松距，与 22 chrome 不同阶（历史问题）
 - ❌ 版本列表 8×12 松行 + 16 标题，与 22–28 chrome 不同阶（历史问题）
+- ❌ 普通导出页 16 pad + Title level4 松卡片，与 22–28 chrome 不同阶（历史问题）
 - ❌ 表选中 a18、Frame 选中 a12 光晕分叉（历史问题）
 - ❌ 工作台铺满水印 + GitHub stars 外链图，模板脸盖过产品感（历史问题）
 
