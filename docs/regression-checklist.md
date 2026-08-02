@@ -296,6 +296,15 @@
 - [x] [SqlApproval/TableTab 无 Pro] `rg '@ant-design/pro-components' …SqlApproval TableTab` = 0 ✅
 - [ ] [SQL审批非 ModalForm] 版本比对弹层「SQL审批」→ antd dialog 见审批人/库/说明（手工；需有 SQL 变更）
 
+## W4 切片 13 — person / recent / group / dataModels / ExportCommon ProList → antd（2026-08-02）
+
+- [x] [项目列表非 ProList] `/project/person|recent|group` 标题+搜索+行链接/操作 ✅ `project-surface` / `layout-outlet`
+- [ ] [个人空态 CTA] `/project/person` 无项目时见 `person-empty-create`/`person-empty-example`（`project-activation` chromium-serial；本轮账号锁超时未重验）
+- [x] [dataModels 非 ProList] `/dataModels`「最近项目」Select 可见 ✅ `project-surface`
+- [x] [ExportCommon 非 ProList] `/design/table/export/common`「导出文件」+ 点击导出 ✅ `export.spec.ts`
+- [x] [列表 loading] 个人项目慢网见 `aria-busy` ✅ `loading.spec.ts`
+- [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 15 ✅
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`

@@ -1,13 +1,21 @@
-import {ProList} from '@ant-design/pro-components';
-import {Tag} from 'antd';
+import type {ReactNode} from 'react';
+import {List, Tag, Typography} from 'antd';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {FileDisplay, FileLock, FileWord, HtmlFive} from "@icon-park/react";
 
 
+type ExportItem = {
+  key: string;
+  title: string;
+  subTitle: ReactNode;
+  avatar: ReactNode;
+  content: ReactNode;
+};
+
 export default () => {
 
-  const data = [
+  const data: ExportItem[] = [
     {
       key: 'JSON',
       title: '导出ERD',
@@ -48,27 +56,42 @@ export default () => {
   }), shallow);
 
   return (
-
-    <ProList<any>
-      grid={{gutter: 16, column: 2}}
-      onItem={(record: any) => {
-        return {
-          'data-testid': `export-common-${String(record.key).toLowerCase()}`,
-          onClick: () => {
-            projectDispatch.exportFile(record.key)
-          },
-        };
-      }}
-      metas={{
-        title: {},
-        subTitle: {},
-        type: {},
-        avatar: {},
-        content: {},
-      }}
-      headerTitle="导出文件"
-      tooltip="单击下方区块即可导出"
-      dataSource={data}
-    />
+    <div data-testid="export-common-page">
+      <Typography.Title level={4} style={{marginTop: 0}}>导出文件</Typography.Title>
+      <Typography.Paragraph type="secondary">单击下方区块即可导出</Typography.Paragraph>
+      <List<ExportItem>
+        grid={{gutter: 16, column: 2}}
+        dataSource={data}
+        renderItem={(record) => (
+          <List.Item>
+            <div
+              role="button"
+              tabIndex={0}
+              data-testid={`export-common-${String(record.key).toLowerCase()}`}
+              style={{cursor: 'pointer', padding: 16}}
+              onClick={() => {
+                projectDispatch.exportFile(record.key)
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  projectDispatch.exportFile(record.key);
+                }
+              }}
+            >
+              <List.Item.Meta
+                avatar={record.avatar}
+                title={
+                  <span>
+                    {record.title} {record.subTitle}
+                  </span>
+                }
+                description={record.content}
+              />
+            </div>
+          </List.Item>
+        )}
+      />
+    </div>
   );
 };
