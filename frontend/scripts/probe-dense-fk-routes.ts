@@ -57,7 +57,8 @@ async function main() {
     const ent = byTitle.get(box.title)!;
     const fields = (ent.fields || []).filter((f) => !f.relationNoShow);
     const idx = Math.max(0, fields.findIndex((f) => f.name === field));
-    return box.y + 36 + idx * FIELD_ROW_H + FIELD_ROW_H / 2;
+    // 表头 chrome ≈ NODE_CHROME_H 的可视部分；密表再压后用 32
+    return box.y + 32 + idx * FIELD_ROW_H + FIELD_ROW_H / 2;
   };
 
   const modes: Record<string, number> = {};

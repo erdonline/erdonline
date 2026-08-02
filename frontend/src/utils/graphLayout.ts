@@ -18,8 +18,14 @@ export type LayoutPoint = { x: number; y: number };
 
 export const NODE_WIDTH = 240;
 
-/** 表节点字段行高（与 `.erd-field-row` min-height/padding 对齐；ADR-0016 再压一档） */
-export const FIELD_ROW_H = 26;
+/** 表节点字段行高（与 `.erd-field-row` min-height/padding 对齐；ADR-0016 密表再压） */
+export const FIELD_ROW_H = 24;
+
+/** 表头+字段区顶底估算（与 `.erd-table-header` pad 6 + 标题行对齐） */
+export const NODE_CHROME_H = 48;
+
+/** 字段列表底部「添加」区估算 */
+export const NODE_FOOTER_H = 32;
 
 /** 默认走廊：够边肘分流，又不过稀（ADR-0016 分享密度） */
 export const DAGRE_NODESEP = 56;
@@ -28,7 +34,7 @@ export const DAGRE_MARGIN = 24;
 
 export function estimateNodeHeight(entity?: LayoutEntity): number {
   const fields = (entity?.fields || []).filter((f) => !f.relationNoShow);
-  return 52 + Math.max(fields.length, 1) * FIELD_ROW_H + 36;
+  return NODE_CHROME_H + Math.max(fields.length, 1) * FIELD_ROW_H + NODE_FOOTER_H;
 }
 
 /** 节点包围盒宽高（用于密度断言 / Frame 烘焙） */

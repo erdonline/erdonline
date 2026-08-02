@@ -7,6 +7,8 @@ import {
   DAGRE_NODESEP,
   DAGRE_RANKSEP,
   FIELD_ROW_H,
+  NODE_CHROME_H,
+  NODE_FOOTER_H,
   dagrePositions,
   estimateNodeHeight,
   graphCanvasNodesFromDagre,
@@ -26,14 +28,16 @@ async function run(name: string, fn: () => void | Promise<void>) {
 }
 
 async function main() {
-  await run('FIELD_ROW_H：字段行再压一档（与 .erd-field-row 对齐）', () => {
-    assert.equal(FIELD_ROW_H, 26);
+  await run('FIELD_ROW_H：密表再压（与 .erd-field-row minH 20 对齐）', () => {
+    assert.equal(FIELD_ROW_H, 24);
+    assert.equal(NODE_CHROME_H, 48);
+    assert.equal(NODE_FOOTER_H, 32);
     const h1 = estimateNodeHeight({ title: 't', fields: [{ name: 'a' }] });
     const h3 = estimateNodeHeight({
       title: 't',
       fields: [{ name: 'a' }, { name: 'b' }, { name: 'c' }],
     });
-    assert.equal(h1, 52 + 26 + 36);
+    assert.equal(h1, NODE_CHROME_H + FIELD_ROW_H + NODE_FOOTER_H);
     assert.equal(h3 - h1, 2 * FIELD_ROW_H);
   });
 

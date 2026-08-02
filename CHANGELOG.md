@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：表节点密表再压（分享截图密度，ADR-0016）
+
+- 选题：表头 pad 8 + 字段行 minH 22 在多字段分享截图仍偏松；停色 token，攻密度且保留标题/徽章层次
+- `.erd-table-header` pad 6×10/12、gap 6；`.erd-field-row` minH 20 / lh 15 / pad 1；徽章仍 10/700/`min-width` 22（lh 14）
+- 布局估算：`FIELD_ROW_H=24`、`NODE_CHROME_H=48`、`NODE_FOOTER_H=32`；设计器/分享同 SCSS
+- E2E：`relation`/`demo` 断言密度 + 层次；截图 `diagram-table-node-density.png` / `demo-table-node-density.png`
+
+验证点：
+- `cd frontend && npx tsx src/utils/graphLayout.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：画布工具栏/Controls 扫读层次（ADR-0016）
 
 - 选题：顶栏散粒描边钮 + Controls 四钮等权，分享截图主操作扫不过；停色 token，攻 chrome 层次

@@ -362,14 +362,17 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(pkAccent.w).toBe('2px');
       expect(pkAccent.bg).toBe('rgb(212, 136, 6)');
 
-      // ADR-0016：表头标题层次 — 实体名主标题 vs muted 中文 meta
+      // ADR-0016：表头标题层次 — 实体名主标题 vs muted 中文 meta；密度 pad ≤6
       const headerHierarchy = await orderNode.locator('.erd-table-header').evaluate((el) => {
         const title = el.querySelector('.erd-table-title');
         const chn = el.querySelector('.erd-table-chnname');
         if (!title || !chn) return null;
+        const hs = getComputedStyle(el);
         const ts = getComputedStyle(title);
         const cs = getComputedStyle(chn);
         return {
+          padTop: parseFloat(hs.paddingTop),
+          padBottom: parseFloat(hs.paddingBottom),
           titleSize: parseFloat(ts.fontSize),
           titleWeight: parseInt(ts.fontWeight, 10),
           titleColor: ts.color,
@@ -382,6 +385,8 @@ test.describe('关系图画布（ReactFlow）', () => {
       });
       expect(headerHierarchy).not.toBeNull();
       expect(headerHierarchy!.chnText).toBe('订单');
+      expect(headerHierarchy!.padTop).toBeLessThanOrEqual(6);
+      expect(headerHierarchy!.padBottom).toBeLessThanOrEqual(6);
       expect(headerHierarchy!.titleSize).toBeGreaterThanOrEqual(14);
       expect(headerHierarchy!.titleWeight).toBeGreaterThanOrEqual(700);
       expect(headerHierarchy!.titleColor).toBe('rgb(11, 28, 44)'); // ink900
@@ -390,7 +395,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(headerHierarchy!.chnOpacity).toBeLessThan(1);
       expect(headerHierarchy!.chnColor).toBe('rgb(138, 151, 163)'); // ink400
 
-      // ADR-0016：字段行再压一档（min-height 22，与 FIELD_ROW_H=26 估算对齐）
+      // ADR-0016：字段行密表再压（minH 20 / lh 15 / pad 1；与 FIELD_ROW_H=24 对齐）
       const fieldRowBox = await fkRow.evaluate((el) => {
         const s = getComputedStyle(el);
         return {
@@ -399,9 +404,9 @@ test.describe('关系图画布（ReactFlow）', () => {
           padTop: parseFloat(s.paddingTop),
         };
       });
-      expect(fieldRowBox.minH).toBe(22);
-      expect(fieldRowBox.lineH).toBe(16);
-      expect(fieldRowBox.padTop).toBe(2);
+      expect(fieldRowBox.minH).toBe(20);
+      expect(fieldRowBox.lineH).toBe(15);
+      expect(fieldRowBox.padTop).toBe(1);
 
       // ADR-0016：字段行扫读层次 — 名主列 500+、类型右对齐次要栏
       const fkScan = await fkRow.evaluate((el) => {
@@ -469,6 +474,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.waitForTimeout(400);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-table-header-hierarchy.png',
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-table-node-density.png',
         fullPage: false,
       });
       await page.screenshot({

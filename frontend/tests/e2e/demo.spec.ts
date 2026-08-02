@@ -193,7 +193,7 @@ test.describe('在线演示', () => {
       }
     }
     expect(overlapPairs, `边标签 AABB 重叠对数应为 0（got ${overlapPairs}）`).toBe(0);
-    // ADR-0016：分享只读同 SCSS — 表头实体名主标题 vs 中文 meta
+    // ADR-0016：分享只读同 SCSS — 表头实体名主标题 vs 中文 meta；密度 pad ≤6
     const shareUser = page
       .getByTestId('share-relation-canvas')
       .getByTestId('rf__node-sys_user');
@@ -202,9 +202,12 @@ test.describe('在线演示', () => {
       const title = el.querySelector('.erd-table-title');
       const chn = el.querySelector('.erd-table-chnname');
       if (!title || !chn) return null;
+      const hs = getComputedStyle(el);
       const ts = getComputedStyle(title);
       const cs = getComputedStyle(chn);
       return {
+        padTop: parseFloat(hs.paddingTop),
+        padBottom: parseFloat(hs.paddingBottom),
         titleSize: parseFloat(ts.fontSize),
         titleWeight: parseInt(ts.fontWeight, 10),
         titleColor: ts.color,
@@ -216,22 +219,28 @@ test.describe('在线演示', () => {
     });
     expect(headerHierarchy).not.toBeNull();
     expect(headerHierarchy!.chnText).toBe('用户');
+    expect(headerHierarchy!.padTop).toBeLessThanOrEqual(6);
+    expect(headerHierarchy!.padBottom).toBeLessThanOrEqual(6);
     expect(headerHierarchy!.titleSize).toBeGreaterThanOrEqual(14);
     expect(headerHierarchy!.titleWeight).toBeGreaterThanOrEqual(700);
     expect(headerHierarchy!.titleColor).toBe('rgb(11, 28, 44)'); // ink900
     expect(headerHierarchy!.chnSize).toBeLessThan(headerHierarchy!.titleSize);
     expect(headerHierarchy!.chnWeight).toBeLessThan(headerHierarchy!.titleWeight);
     expect(headerHierarchy!.chnOpacity).toBeLessThan(1);
-    // ADR-0016：分享只读同 SCSS — 字段名主列 / 类型右对齐次要栏
+    // ADR-0016：分享只读同 SCSS — 字段行密度 + 名主列 / 类型次要栏
     const shareField = shareUser.locator('.erd-field-row').first();
     await expect(shareField).toBeVisible();
     const fieldScan = await shareField.evaluate((el) => {
       const name = el.querySelector('.erd-field-name');
       const type = el.querySelector('.erd-field-type');
       if (!name || !type) return null;
+      const rs = getComputedStyle(el);
       const ns = getComputedStyle(name);
       const ts = getComputedStyle(type);
       return {
+        minH: parseFloat(rs.minHeight),
+        lineH: parseFloat(rs.lineHeight),
+        padTop: parseFloat(rs.paddingTop),
         nameWeight: parseInt(ns.fontWeight, 10),
         typeAlign: ts.textAlign,
         typeOpacity: parseFloat(ts.opacity),
@@ -239,6 +248,9 @@ test.describe('在线演示', () => {
       };
     });
     expect(fieldScan).not.toBeNull();
+    expect(fieldScan!.minH).toBe(20);
+    expect(fieldScan!.lineH).toBe(15);
+    expect(fieldScan!.padTop).toBe(1);
     expect(fieldScan!.nameWeight).toBeGreaterThanOrEqual(500);
     expect(fieldScan!.typeAlign).toBe('right');
     expect(fieldScan!.typeOpacity).toBeLessThan(1);
@@ -295,6 +307,9 @@ test.describe('在线演示', () => {
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-table-header-hierarchy.png',
+    });
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-table-node-density.png',
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-field-scanability.png',
