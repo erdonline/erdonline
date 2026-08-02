@@ -116,9 +116,9 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           if (props.isMobile) return [];
           return headRightContent;
         }}
-        onMenuHeaderClick={() => history.push('/')}
+        onMenuHeaderClick={() => history.push('/home')}
         menuItemRender={(item, dom) => (
-          <Link to={item.path || '/'}>{dom}</Link>
+          <Link to={item.path || '/home'}>{dom}</Link>
         )}
         {...settings}
       >

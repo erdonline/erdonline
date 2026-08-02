@@ -298,7 +298,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
             </div>
           );
         }}
-        onMenuHeaderClick={(e) => history.push("/")}
+        onMenuHeaderClick={(e) => history.push('/home')}
         itemRender={(route, params, routes, paths) => {
           const first = routes.indexOf(route) === 0;
           return first ? (

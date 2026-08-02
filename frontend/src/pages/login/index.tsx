@@ -95,6 +95,10 @@ export default () => {
           <a href="/demo" aria-label="先看演示">
             先看演示（免登录）
           </a>
+          {' · '}
+          <a href="/" aria-label="了解产品">
+            了解产品
+          </a>
         </div>
       </LoginFormPage>
     </div>
