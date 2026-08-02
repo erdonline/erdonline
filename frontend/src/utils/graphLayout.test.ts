@@ -4,10 +4,14 @@
  */
 import assert from 'assert';
 import {
+  DAGRE_NODESEP,
+  DAGRE_RANKSEP,
   dagrePositions,
   graphCanvasNodesFromDagre,
+  layoutBoundingSize,
   resolveEntityPositions,
 } from './graphLayout';
+import demoProject from './demo.projectjson.json';
 
 async function run(name: string, fn: () => void | Promise<void>) {
   try {
@@ -75,6 +79,41 @@ async function main() {
     );
     assert.equal(didAutoLayout, false);
     assert.deepEqual(positions.a, { x: 1, y: 2 });
+  });
+
+  await run('dagre 默认间距比旧走廊更密（同图宽更小）', () => {
+    const entities = [
+      { title: 'a', fields: [{ name: 'id' }, { name: 'n' }] },
+      { title: 'b', fields: [{ name: 'id' }, { name: 'a_id' }, { name: 't' }] },
+      { title: 'c', fields: [{ name: 'id' }, { name: 'b_id' }] },
+    ];
+    const associations = [
+      { from: { entity: 'b' }, to: { entity: 'a' } },
+      { from: { entity: 'c' }, to: { entity: 'b' } },
+    ];
+    const dense = layoutBoundingSize(dagrePositions(entities, associations), entities);
+    const airy = layoutBoundingSize(
+      dagrePositions(entities, associations, { nodesep: 80, ranksep: 160 }),
+      entities,
+    );
+    assert.ok(
+      dense.width <= airy.width && dense.height <= airy.height,
+      `默认 ${dense.width}x${dense.height} 应 ≤ 旧走廊 ${airy.width}x${airy.height}`,
+    );
+    assert.equal(DAGRE_NODESEP, 64);
+    assert.equal(DAGRE_RANKSEP, 120);
+  });
+
+  await run('demo 主图节点水平跨度更密（可分享截图）', () => {
+    const mod = (demoProject as { modules: Array<{ diagrams?: Array<{ id: string; layout?: { nodes?: Array<{ id: string; x: number; y: number }> } }> }> }).modules[0];
+    const main = mod.diagrams?.find((d) => d.id === 'main');
+    const nodes = main?.layout?.nodes || [];
+    assert.equal(nodes.length, 8);
+    const xs = nodes.map((n) => n.x);
+    const span = Math.max(...xs) - Math.min(...xs);
+    // 旧手排 1360-80=1280；新排 1176-40=1136
+    assert.ok(span < 1200, `主图 x 跨度应 <1200，得 ${span}`);
+    assert.ok(span >= 1000, `主图仍应铺满叙事列，得 ${span}`);
   });
 
   console.log('graphLayout.test.ts OK');

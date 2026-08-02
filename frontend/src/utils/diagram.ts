@@ -42,7 +42,8 @@ export const FRAME_NODE_PREFIX = 'erd-frame-';
 export const DEFAULT_FRAME_W = 320;
 export const DEFAULT_FRAME_H = 200;
 /** 顶边略大，露出标题栏便于点选（表 z-index 更高时仍可点到框） */
-export const FRAME_PADDING = 48;
+/** Frame 相对成员的默认内边距（分享密度：勿过大留白） */
+export const FRAME_PADDING = 32;
 /** 成功色浅底（与 erdColors.success 同语系） */
 export const DEFAULT_FRAME_COLOR = 'rgba(47, 143, 123, 0.10)';
 

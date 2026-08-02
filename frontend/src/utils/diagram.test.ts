@@ -7,6 +7,7 @@ import {
   DEFAULT_DIAGRAM_ID,
   DEFAULT_DIAGRAM_NAME,
   DEFAULT_FRAME_W,
+  FRAME_PADDING,
   addFrameToDiagram,
   addMembersToFrame,
   computeFrameBoundsFromNodes,
@@ -97,11 +98,11 @@ async function main() {
       { position: { x: 400, y: 200 }, width: 220, height: 80 },
     ];
     const before = nodes.map((n) => ({ ...n.position }));
-    const bounds = computeFrameBoundsFromNodes(nodes, 48);
-    assert.equal(bounds.x, 52);
-    assert.equal(bounds.y, 2);
-    assert.equal(bounds.w, 616);
-    assert.equal(bounds.h, 326);
+    const bounds = computeFrameBoundsFromNodes(nodes, FRAME_PADDING);
+    assert.equal(bounds.x, 100 - FRAME_PADDING);
+    assert.equal(bounds.y, 50 - FRAME_PADDING);
+    assert.equal(bounds.w, 400 + 220 - 100 + FRAME_PADDING * 2);
+    assert.equal(bounds.h, 200 + 80 - 50 + FRAME_PADDING * 2);
     assert.deepEqual(
       nodes.map((n) => n.position),
       before,
