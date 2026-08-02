@@ -30,7 +30,7 @@ import './index.less';
 
 const { Header, Sider, Content } = Layout;
 
-export const siderWidth = 400;
+export const siderWidth = 320;
 
 /** 设计器完整顶栏：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
 export const headRightContent = [
@@ -351,13 +351,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
                     items={siderMenuItems}
                     className="design-layout__sider-menu"
                   />
-                ) : null}
-                {!collapsed ? (
-                  <div className="design-layout__sider-footer">
-                    <div>{project.projectName}</div>
-                    <div>© 2026 ERD Online · MIT</div>
-                    <div>ERD Online</div>
-                  </div>
                 ) : null}
               </div>
             </Sider>

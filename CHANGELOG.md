@@ -8,6 +8,21 @@
 
 ### 2026-08-02
 
+#### 重构：W2 切片 3 — 设计器 chrome 左树去重 + sider 320 + flex
+
+**重构**
+
+- 模型页去掉嵌套 `Splitter`/`DataTable`：左树唯一来源 = `DesignLayout` sider（`DesignLeftContent`）
+- sider 400→320；删除 sider footer；设计器壳 `calc(100vh-56px)` → flex 填满；`CommonTabs` 栏高 40px
+- 树头「新建」`aria-label`（`design-tree-add`）常显
+
+**测试 / 文档**
+
+- `layout-outlet`：空态单份 `add-module-empty` + sider 320px + 无 footer；新增「模型树唯一 + 新建入口常显」
+- `helpers.openRelationFromEmpty`：断言单树 / 单关系图入口
+- `ui-layout-redesign` / `roadmap` / `product-capability-map` / `regression-checklist`：W2 切片 3 ✅
+  验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts -g "DesignLayout" --project=chromium` → **2 passed**
+
 #### 重构：W5 切片 2 — 分享失效态 Result + 示例 demo CTA
 
 **重构**

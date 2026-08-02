@@ -1,6 +1,14 @@
 .design-layout {
   min-height: 100vh;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   background: var(--erd-surface-sunk);
+}
+
+.design-layout > .ant-layout {
+  flex: 1;
+  min-height: 0;
 }
 
 .design-layout__header {
@@ -8,6 +16,7 @@
   align-items: center;
   gap: 8px;
   height: 56px;
+  flex-shrink: 0;
   padding: 0 16px 0 0;
   line-height: 56px;
   background: var(--erd-surface);
@@ -66,7 +75,7 @@
 .design-layout__sider-inner {
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 56px);
+  height: 100%;
   overflow: auto;
 }
 
@@ -75,18 +84,20 @@
   border-inline-end: none !important;
 }
 
-.design-layout__sider-footer {
-  text-align: center;
-  padding: 12px 8px 16px;
-  color: var(--erd-ink-400);
-  font-size: 12px;
-  margin-top: auto;
+.design-layout__content {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  background: var(--erd-surface);
 }
 
-.design-layout__content {
-  min-height: calc(100vh - 56px);
-  overflow: auto;
-  background: var(--erd-surface);
+.design-layout__content > * {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 /* destroyPopupOnHide=false：关闭后仍挂载，须禁点击以免挡 Modal */

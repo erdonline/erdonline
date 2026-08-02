@@ -85,10 +85,10 @@
 - 目标：摘 `PageContainer` → 工作台壳；`ProTable` → antd `Table`（columns 平移，工具条改为标题行 + 右侧「新建数据源」主按钮 + 搜索 `Input.Search`）；Drawer 表单内的 `ProForm*` 留到 W4 统一摘
 - 列宽用 `Table` 默认自适应，禁止定死 px 总宽
 
-### 设计器 chrome + model（设计器壳 · W1 ✅ / W2 收尾）
+### 设计器 chrome + model（设计器壳 · W1 ✅ / W2 收尾 ✅）
 
 - W1：DesignLayout 摘 ProLayout → antd Layout（**✅**，见 CHANGELOG 2026-08-02）；顶栏保留 save/share/presence/`homeRightContent`/项目菜单
-- W2 收尾（删除 + 暴露性质）：删 `bgLayoutImgList`、删 sider footer；sider 400→320；tabs 40px；画布 `calc(100vh-104px)` → flex 填满；面板头「+ 新建」常显（新建表入口现埋树右键，属能力暴露，细节见 tokens 简报 S4/S5）
+- ✅ **W2 切片 3**（2026-08-02）：删主区嵌套 `Splitter`/`DataTable`（左树唯一 = sider）；删 sider footer；sider 400→320；`CommonTabs` 栏 40px；设计器壳 `calc(100vh-*)` → flex 填满；树头「新建」(`design-tree-add`) 常显
 
 ### 版本 version / 导入 import / 导出 export / 设置 setting（设计器壳标签页 · W3/W4）
 
@@ -153,6 +153,7 @@
 | **W2** 能力暴露 + 空壳清除（重定义，替代旧「Home 密度」） | ① 分享管理：顶栏「分享」→ 弹层（创建/复制/**吊销**接线 `/share/revoke`/查看当前链接）；② 删空壳：query/dataQuery/chatsql/dataDomain 隐藏或删除，JExcel/test 页、home Radar/_mock/Pie 死码、settings geographic 删除；③ Home 只做**删**：重复统计卡、slogan 轮转、死 import；④ 设计器 chrome 收尾：删 `bgLayoutImgList`/sider footer、sider 320、tabs 40px、画布 flex、面板头「+ 新建」露出 | 被删页面/组件携带的 Pro 用量一并清除 | 分享「创建→复制→吊销→链接失效 403」E2E；空壳路由 404/不可达断言；`home-link-*` 不回归；新建表旅程 smoke 不回归；`@ant-design/charts` 若无剩余引用则从依赖移除 |
 | └ **W2 切片 1** ✅（2026-08-02） | ① 分享弹层+吊销+后端创建人校验+匿名 GET-only；② 空壳路由下线（query/chatsql/dataDomain/dataQuery→404）+ 删 test 页与 settings geographic（`pages/JExcel` 为表编辑组件保留） | 随删路由清 Query 左栏特例 | `share.spec`（含吊销失效）+ `design-query`/`data-domain`/`home-data-query` 404 |
 | └ **W2 切片 2** ✅（2026-08-02） | ③ Home 只删：Radar/_mock/service/Pie config/「项目概览」重复卡 + HomeLayout slogan 轮转；实验页源文件物理删除（query/chatsql/dataDomain/dataQuery + QueryLeftContent/dialog/query/useQueryStore）；依赖移除 `@ant-design/charts`、`@chatui/core` | 随删清 TabGroup.QUERY | `activation` + `layout-outlet`；空壳 404 不回归；`grep charts/chatui/useQueryStore` = 0 |
+| └ **W2 切片 3** ✅（2026-08-02） | ④ 设计器 chrome：主区去重嵌套 `DataTable`；sider footer 删除；sider 400→320；tabs 40px；壳层 flex 填满；树头「新建」常显 | — | `layout-outlet`「顶栏…」+「模型树唯一 + 新建入口常显」；`openRelationFromEmpty` 断言单树 |
 | **W3** 版本域收口（旧 W4 提前，目标改写） | version ProList → antd List ✅；**跨版本 diff 导出** ✅；审批/order 表单 `ProForm*` → antd Form 平移；审批入口理顺 | 版本/审批域 ProForm（version ProList 已摘） | 版本「保存→打标签→diff→导出→回滚」旅程 E2E；审批「提交→通过→SQL 失败不落通过」回归 |
 | └ **W3 切片 1** ✅（2026-08-02） | **跨版本 diff 导出**：diff 弹层「导出」主按钮落 Markdown（模型变更+SQL），下拉「仅导出 SQL」；复用 `File.save`；顺带移除零引用 `bizcharts` / `@ant-design/plots` | — | `version.spec` 详情弹层 download `.md` + toast；`formatVersionDiffMarkdown.test.ts` |
 | └ **W3 切片 2** ✅（2026-08-02） | version `ProList` → antd `List`：工具栏（脏标记/数据源/标签筛选/新增/对比/同步配置/重建）+ 行（版本号 strong + 同步 Tag + 标签 chips + 变更摘要 + 行尾操作）；空态「还没有版本」+「保存第一个版本」主按钮 | version ProList | `version.spec`「无数据源也可新增版本」空态 CTA + 列表行不回归；`rg ProList pages/design/version` = 0 |

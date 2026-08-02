@@ -145,15 +145,16 @@ export async function openRelationFromEmpty(
 ) {
   const name = opts.name || 'SHOP';
   const chnname = opts.chnname || '商城';
-  // 左树与主区空态可能各有一份 CTA；优先主区
-  await page.getByRole('main').getByTestId('add-module-empty').click();
+  // 左树唯一来源 = DesignLayout sider（W2 chrome 收尾后主区不再嵌套 DataTable）
+  await expect(page.getByTestId('add-module-empty')).toHaveCount(1);
+  await page.getByTestId('add-module-empty').click();
   await page.getByTestId('entity-modal-name').fill(name);
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
-  // 树与主区可能各有一份中文名，取第一条即可
   await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
   await expandTreeTitle(page, '关系');
+  await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
   await page.getByTestId('tree-open-relation').click();
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
 }
