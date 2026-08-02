@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：命令面板密度（ADR-0016）
+
+- 选题：命令面板密度（Cmd/Ctrl+K 快捷回路与 22 chrome 同阶；空态/工具栏已收）
+- `.erd-cmd-panel`：宽 440 / max-height 360 / radius 8；输入 height 36 / font 13；行 pad 6×8 / font 12；hint/footer 10；禁 48 高输入 + 10×12 松行
+- `relation.spec`「命令面板」补密度断言 + 截图 `diagram-cmd-palette-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
+
 #### 体验：空态面板再收（ADR-0016）
 
 - 选题：空态面板再收 vs 命令面板密度 → 选前者（首印象/截图构图；命令面板后置）
