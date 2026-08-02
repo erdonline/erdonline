@@ -8,6 +8,12 @@
 
 ### 2026-08-03
 
+#### 修复：`02_tables.sql` 中文 DEFAULT 在 latin1 客户端导入失败
+
+- `sys_user.title`、`project.description` 的中文 `DEFAULT '…'` 在客户端字符集为 latin1（常见于未加 `--default-character-set=utf8mb4` 的手动 `mysql <`）时触发 `ERROR 1067 Invalid default value`
+- 两处改为 `DEFAULT NULL`（仍仅 CREATE TABLE；应用插入会显式写字段）
+  验证点：临时库 `erd_tmp_import` 分别以 `--default-character-set=latin1` 与 `utf8mb4` 导入 `02_tables.sql` 均成功（47 表）；`SHOW CREATE TABLE` 确认 `title`/`description` 为 `DEFAULT NULL`
+
 #### 运维：`db/init/02_tables.sql` 仅 CREATE TABLE
 
 - 去掉 `--`/`/* */`、`SET NAMES`、`SET FOREIGN_KEY_CHECKS`、全部 `DROP TABLE`、以及 `USE`；仅保留 `CREATE TABLE`（含表内索引；列/表 `COMMENT '…'` 元数据保留）；QRTZ 含 FK 子表排在 `QRTZ_TRIGGERS` 之后
