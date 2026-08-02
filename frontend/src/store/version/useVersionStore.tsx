@@ -52,7 +52,7 @@ export type IVersionSlice = {
   updateVersionData: (newVersion: any, oldVersion: any, status: any) => void;
   revertVersionData: () => void;
   readDb: (status: any, version: any, lastVersion: any, changes: any, initVersion: any, updateVersion: any) => void;
-  saveNewVersion: (version: any) => void;
+  saveNewVersion: (version: any) => Promise<boolean>;
   rebuild: (tempValue: any) => void;
   initBase: (tempValue: any, msg?: string) => void;
   initSave: (version: any, msg: any) => void;
@@ -720,20 +720,19 @@ const useVersionStore = create<VersionState>(
           Save.hisProjectSave({...newVersion, dbKey: dbData.key}).then((res) => {
             if (res.code === 200) {
               message.success('版本信息更新成功');
+              set({
+                versions: get().versions.map((v: any, vIndex: any) => {
+                  if (vIndex === get().currentVersionIndex) {
+                    return newVersion;
+                  }
+                  return v;
+                }),
+              });
             } else {
-              message.error('版本信息更新失败');
+              message.error(res?.msg || res?.message || '版本信息更新失败');
             }
           }).catch((err) => {
             message.error(`版本信息更新失败${err.message}`);
-          }).finally(() => {
-            set({
-              versions: get().versions.map((v: any, vIndex: any) => {
-                if (vIndex === get().currentVersionIndex) {
-                  return newVersion;
-                }
-                return v;
-              }),
-            })
           });
         } else {
           // 删除原来的
@@ -849,17 +848,23 @@ const useVersionStore = create<VersionState>(
       saveNewVersion: async (tempValue: any) => {
         if (!tempValue.version || !tempValue.versionDesc) {
           message.error('版本号和版本描述不能为空');
-          return;
+          return false;
         }
 
         if (get().versions.map((v: any) => v.version).includes(tempValue.version)) {
           message.error('该版本号已经存在了');
-          return;
+          return false;
+        }
+
+        const tag = (tempValue.tag || '').trim();
+        if (tag && get().versions.some((v: any) => (v.tag || '').trim() === tag)) {
+          message.error('该版本标签已经存在了');
+          return false;
         }
 
         if (get().versions[0] && compareStringVersion(tempValue.version, get().versions[0].version) <= 0) {
           message.error('新版本不能小于或等于已经存在的版本');
-          return;
+          return false;
         }
 
         try {
@@ -876,6 +881,7 @@ const useVersionStore = create<VersionState>(
             baseVersion: get().versions.length === 0,
             version: tempValue.version,
             versionDesc: tempValue.versionDesc,
+            tag: tag || undefined,
             changes: changesArray,
             versionDate: moment().format('YYYY/M/D H:m:s'),
           };
@@ -886,11 +892,13 @@ const useVersionStore = create<VersionState>(
             set({ changes: [] });
             message.success('当前版本保存成功');
             await get().fetch(dbData, get().currentPage, get().pageSize);
-          } else {
-            message.error('当前版本保存失败');
+            return true;
           }
+          message.error(res?.msg || res?.message || '当前版本保存失败');
+          return false;
         } catch (err: any) {
           message.error(`当前版本保存失败: ${err?.message || err}`);
+          return false;
         }
       },
       rebuild: (tempValue: any) => {

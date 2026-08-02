@@ -21,14 +21,24 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
   return (<>
     <ModalForm
       title="编辑版本"
-      onFinish={async (values: { version?: string; versionDesc?: string }) => {
+      onFinish={async (values: { version?: string; versionDesc?: string; tag?: string }) => {
+        const tag = (values.tag || '').trim();
         const tempValue = {
           ...currentVersion,
           version: values.version,
           versionDesc: values.versionDesc,
+          tag: tag || undefined,
         };
 
         const tempVersions = versions.slice(1);
+        const tagTaken = tag && versions.some(
+          (v: { id?: string; tag?: string }) =>
+            v.id !== currentVersion?.id && (v.tag || '').trim() === tag,
+        );
+        if (tagTaken) {
+          message.error('该版本标签已经存在了');
+          return false;
+        }
         if (currentVersionIndex !== 0) {
           versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
           return true;
@@ -100,6 +110,24 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
             {
               max: 100,
               message: '不能大于 100 个字符',
+            },
+          ],
+        }}
+      />
+      <ProFormText
+        width="md"
+        name="tag"
+        label="版本标签"
+        placeholder="可选，如 v1.0 / 里程碑"
+        fieldProps={{
+          'data-testid': 'version-tag-input',
+          maxLength: 64,
+        }}
+        formItemProps={{
+          rules: [
+            {
+              max: 64,
+              message: '不能大于 64 个字符',
             },
           ],
         }}

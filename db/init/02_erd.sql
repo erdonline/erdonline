@@ -75,10 +75,12 @@ CREATE TABLE `db_change` (
                              `version` varchar(20) NOT NULL COMMENT '版本号',
                              `version_date` varchar(20) DEFAULT NULL COMMENT '版本创建时间',
                              `version_desc` varchar(500) DEFAULT NULL COMMENT '版本描述',
+                             `tag` varchar(64) DEFAULT NULL COMMENT '版本标签/里程碑',
                              `create_time` datetime DEFAULT NULL COMMENT '创建时间',
                              `creator` varchar(32) DEFAULT NULL COMMENT '创建人',
                              PRIMARY KEY (`id`) USING BTREE,
-                             UNIQUE KEY `uni_versin_projectid_dbkey` (`project_id`,`db_key`,`version`) USING BTREE
+                             UNIQUE KEY `uni_versin_projectid_dbkey` (`project_id`,`db_key`,`version`) USING BTREE,
+                             UNIQUE KEY `uk_db_change_project_tag` (`project_id`,`tag`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='变动表';
 
 -- ----------------------------

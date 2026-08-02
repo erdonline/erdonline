@@ -67,6 +67,11 @@ public class DbChange implements Serializable {
     private String versionDesc;
 
     /**
+     * 版本标签 / 里程碑（同项目内非空唯一；空则落库为 null）
+     */
+    private String tag;
+
+    /**
      * 创建人
      */
     @TableField(fill = FieldFill.INSERT)

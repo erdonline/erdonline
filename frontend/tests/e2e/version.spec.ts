@@ -18,10 +18,16 @@ import {
  * 定位：e2e-locators
  */
 
-async function saveVersion(page: import('@playwright/test').Page) {
+async function saveVersion(
+  page: import('@playwright/test').Page,
+  opts?: { tag?: string },
+) {
   await page.getByTestId('add-version-btn').click();
   const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
   await expect(dialog).toBeVisible();
+  if (opts?.tag) {
+    await dialog.getByTestId('version-tag-input').fill(opts.tag);
+  }
   await dialog.getByRole('button', { name: /确\s*定/ }).click();
   await expectToast(page, /保存成功/);
 }
@@ -111,6 +117,40 @@ test.describe('版本快照', () => {
       await saveVersion(page);
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('保存带标签版本可筛选且重复标签拦截不关窗', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('vertag');
+    const tag = `里程碑-${Date.now().toString(36)}`;
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'vertag', 'version tag');
+      await openVersionPage(page);
+
+      await saveVersion(page, { tag });
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId(`version-tag-${tag}`)).toBeVisible();
+
+      await page.getByTestId('version-tag-filter').fill(tag);
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible();
+      await page.getByTestId('version-tag-filter').fill('__no_such_tag__');
+      await expect(page.getByTestId('version-row-1.0.0')).toHaveCount(0);
+      await page.getByTestId('version-tag-filter').fill('');
+
+      await page.getByTestId('add-version-btn').click();
+      const dialog = page.getByRole('dialog').filter({ hasText: '新增版本' });
+      await expect(dialog).toBeVisible();
+      await dialog.getByTestId('version-tag-input').fill(tag);
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, /该版本标签已经存在了/);
+      await expect(dialog).toBeVisible();
+      await dialog.getByRole('button', { name: /Close|关闭/ }).click();
+      await expect(dialog).toHaveCount(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

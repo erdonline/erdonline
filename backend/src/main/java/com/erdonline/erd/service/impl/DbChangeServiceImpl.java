@@ -1,6 +1,8 @@
 package com.erdonline.erd.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.erdonline.common.core.api.R;
@@ -93,6 +95,47 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         wrapper.eq(DbChange::getDbKey, dbChange.getDbKey());
         int delete = this.baseMapper.delete(wrapper);
         return R.ok(delete);
+    }
+
+    @Override
+    public R saveVersion(DbChange dbChange) {
+        normalizeTag(dbChange);
+        if (StrUtil.isNotBlank(dbChange.getTag())
+                && isTagTaken(dbChange.getProjectId(), dbChange.getTag(), dbChange.getId())) {
+            return R.failed("该版本标签已经存在了");
+        }
+        if (StrUtil.isBlank(dbChange.getId())) {
+            this.save(dbChange);
+        } else {
+            this.updateById(dbChange);
+        }
+        return R.ok("保存成功");
+    }
+
+    @Override
+    public boolean isTagTaken(String projectId, String tag, String excludeId) {
+        if (StrUtil.isBlank(projectId) || StrUtil.isBlank(tag)) {
+            return false;
+        }
+        LambdaQueryWrapper<DbChange> wrapper = new LambdaQueryWrapper<>();
+        wrapper.eq(DbChange::getProjectId, projectId);
+        wrapper.eq(DbChange::getTag, tag.trim());
+        if (StrUtil.isNotBlank(excludeId)) {
+            wrapper.ne(DbChange::getId, excludeId);
+        }
+        return this.count(wrapper) > 0;
+    }
+
+    private static void normalizeTag(DbChange dbChange) {
+        if (dbChange == null) {
+            return;
+        }
+        String tag = dbChange.getTag();
+        if (tag == null || tag.trim().isEmpty()) {
+            dbChange.setTag(null);
+        } else {
+            dbChange.setTag(tag.trim());
+        }
     }
 
     @Override
