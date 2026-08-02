@@ -9,7 +9,6 @@ module.exports = {
     '**/_mock.ts',
     '**/_mock.js',
     '**/service-worker.js',
-    '**/pages/design/test/**',
     '**/pages/test/**',
     '**/pages/JExcel/**',
   ],

@@ -30,7 +30,17 @@
 
 ## 视觉方向（tokens）
 
-单一事实源：新增 `frontend/src/theme/tokens.ts`（antd `ConfigProvider.theme.token`）+ 同值 less 变量。设计域 scss 从这里取值，不再散落魔法数。
+单一事实源：`frontend/src/theme/tokens.ts`（antd `ConfigProvider.theme`）+ 同值 `theme/css-vars.less`。工作台经 `components/Theme` 注入；设计域 scss / 布局 less 读 CSS 变量，不再散落魔法数。
+
+### 样式策略（token first）
+
+| 优先级 | 做法 | 适用 |
+|---|---|---|
+| 1 | antd 5 `ConfigProvider` `theme={{ token, components }}`（`theme/tokens.ts`） | 色、圆角、字号、组件级 token |
+| 2 | `:root` CSS 变量（`theme/css-vars.less`，与 tokens 同值） | 布局 BEM less、设计域 scss 需读同一色板时 |
+| 例外 | 保留 scoped less | **落地页** `pages/landing/index.less`（深色品牌门面）；复杂表格/编辑器（JExcel、QueryTree、version ProList 深 hack 待摘）；业务局部动画 |
+
+禁止：为已摘除的 Pro chrome 新增 `.ant-pro-*` / `.ant-*` 深层覆盖；新颜色勿直写 hex（先加 token）。
 
 ### 色彩
 
@@ -133,7 +143,7 @@ Before/After 原则对照：
 | # | 切片 | 范围 | 验证点 |
 |---|---|---|---|
 | S0 | 依赖升级（前置，ADR-0014）✅ | **只升 umi + antd，不升 `@ant-design/pro-components`**；冻结 Pro 新增用量；`rc-util@5.44.4` 解 peer；chrome 切片 1 已摘 Home/Group | `yarn build` 绿；pro=`2.8.10`；Pro import 文件数 65 ≤ 基线 70 |
-| S1 | tokens 地基 | `theme/tokens.ts` + `ConfigProvider` 接入 + less 变量；全站视觉应**无可见变化**或仅圆角/主色归一 | `yarn build` 绿；`landing.spec` + `layout-outlet.spec` 不回归 |
+| S1 | tokens 地基 ✅ | `theme/tokens.ts` + `ConfigProvider` 接入 + `theme/css-vars.less`；剪除 Pro scaffold 死 less；全站视觉应**无可见变化**或仅圆角/主色归一 | `yarn build` 绿；`layout-outlet.spec` + home 相关 smoke 不回归 |
 | S2 | Home hero 条 | 问候 + 主 CTA + 3 指标；删 slogan 轮转、ExtraContent 彩虹、页脚压缩 | Home 截图前后对比；`getByRole('button', {name:'继续上次建模'})` 可达 |
 | S3 | Home 项目网格 | 去 Card.Grid 嵌套，紧凑网格 + hover 升层；删「项目概览」卡 | 卡片整卡可点；`home-link-*` testId 用例不回归 |
 | S4 | DesignLayout 去杂 | 删 `bgLayoutImgList`、sider 400→320、删 sider footer、徽标对齐去魔法数 | `layout-outlet.spec` 全绿；设计器截图对比 |

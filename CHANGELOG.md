@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：S1 tokens 地基 + 剪除 Pro scaffold 死 less
+
+**重构**
+
+- 新增 `frontend/src/theme/tokens.ts` + `css-vars.less`；`components/Theme` 用 antd 5 `ConfigProvider` 注入 `token`/`components`（无 children 时渲染 `Outlet`）
+- Home/Group 布局 less 改读 `var(--erd-*)`；`global.less` 去掉渐变滚动条魔法色，保留 settings 仍需的 Pro 头像留白
+- 删除未引用 Pro scaffold：`NoticeIcon`/`RightContent`/`HeaderSearch`/`HeaderDropdown`/`Footer`、`ProjectLayout` 树、`components/JExcel` 演示、`Welcome.less`、空 less（login/register/export/import/DarkTheme）、死 `Radar`/`PhoneView`/`design/test`
+- 文档：`ui-home-model-redesign.md` S1 ✅ + 样式策略；`development.md` token-first 入口
+- DesignLayout Pro 摘除 WIP 已 `git stash`（`stash@{0}: wip-pro-designlayout`），本提交不含
+  验证点：`cd frontend && yarn build`；`npx playwright test tests/e2e/layout-outlet.spec.ts tests/e2e/project-surface.spec.ts --grep "HomeLayout|GroupLayout|主导航" --project=chromium --workers=1`；`find src -name '*.less' | wc -l` 由 36 → 20（DesignLayout less 仍在，未计入删）
+
 #### 决策：ADR-0014 已接受 · B + S0 umi/antd 升级 + Pro Strangler 切片 1
 
 **决策 / 文档**

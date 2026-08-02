@@ -1,5 +1,5 @@
 .home-layout {
-  background: #fafbfc;
+  background: var(--erd-surface-sunk);
 }
 
 .home-layout__header {
@@ -9,8 +9,8 @@
   height: 56px;
   padding: 0 20px;
   line-height: 56px;
-  background: #fff;
-  border-bottom: 1px solid #e4e7ed;
+  background: var(--erd-surface);
+  border-bottom: 1px solid var(--erd-line);
   position: sticky;
   top: 0;
   z-index: 100;
@@ -23,7 +23,7 @@
   flex-shrink: 0;
   cursor: pointer;
   font-weight: 600;
-  color: #0b1c2c;
+  color: var(--erd-ink-900);
   white-space: nowrap;
 }
 
@@ -52,7 +52,7 @@
   align-items: center;
   gap: 6px;
   cursor: pointer;
-  color: #0b1c2c;
+  color: var(--erd-ink-900);
 }
 
 .home-layout__content {
@@ -68,9 +68,9 @@
   overflow: auto;
   margin: 16px;
   padding: 16px 20px;
-  background: #fff;
-  border: 1px solid #e4e7ed;
-  border-radius: 8px;
+  background: var(--erd-surface);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius);
 }
 
 .home-layout__footer {
