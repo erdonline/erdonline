@@ -129,6 +129,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
                 tabBarGutter={-1}
                 className="erd-common-tabs__tabs"
                 style={{ height: '100%' }}
+                destroyOnHidden
                 moreIcon={<Tooltip title="更多标签页"><EllipsisOutlined /></Tooltip>}
             >
                 {tabPanes}
