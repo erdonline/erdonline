@@ -527,6 +527,10 @@
         color: var(--erd-ink-600);
       }
 
+      .erd-field-hide-toggle {
+        color: var(--erd-ink-600);
+      }
+
       .erd-field-input {
         flex: 1;
         min-width: 0;
@@ -565,6 +569,60 @@
         color: var(--erd-brand);
         border-color: var(--erd-brand);
         background: color-mix(in srgb, var(--erd-brand) 4%, transparent);
+      }
+    }
+
+    .erd-field-hidden-bar {
+      margin: 2px 8px 6px;
+      padding: 4px 6px;
+      border-top: 1px solid var(--erd-line);
+      font-size: 11px;
+    }
+
+    .erd-field-hidden-toggle {
+      display: block;
+      width: 100%;
+      padding: 0;
+      border: 0;
+      background: transparent;
+      color: var(--erd-ink-400);
+      text-align: left;
+      cursor: pointer;
+      font: inherit;
+
+      &:hover {
+        color: var(--erd-ink-600);
+      }
+    }
+
+    .erd-field-hidden-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-top: 4px;
+      color: var(--erd-ink-600);
+      font-family: var(--erd-font-mono);
+    }
+
+    .erd-field-hidden-name {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .erd-field-unhide {
+      flex-shrink: 0;
+      padding: 0 4px;
+      border: 0;
+      background: transparent;
+      color: var(--erd-brand);
+      cursor: pointer;
+      font: inherit;
+
+      &:hover {
+        text-decoration: underline;
       }
     }
   }

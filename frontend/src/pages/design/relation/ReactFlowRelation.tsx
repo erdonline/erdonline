@@ -158,7 +158,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const [editing, setEditing] = useState<EditingState>(null);
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
+  /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
+  const [showHiddenFields, setShowHiddenFields] = useState(false);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
+  const hiddenFields = (entity.fields || []).filter(f => !!f.relationNoShow);
   const handleSignature = fields.map(f => f.name).join('\0');
   // Enter/Tab 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
   const editingRef = useRef<EditingState>(null);
@@ -208,6 +211,28 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     onFieldsChange(allFields.map(f => (
       f.name === key ? { ...f, type, pk, notNull: pk || notNull, autoIncrement } : f
     )));
+  };
+
+  /** 已有字段在关系图中隐藏：立刻落盘并退出编辑（行会从画布消失） */
+  const persistHideOnCanvas = (fieldName: string) => {
+    if (!fieldName || fieldName === '__NEW__') return;
+    const allFields = entityFieldsRef.current;
+    onFieldsChange(allFields.map(f => (
+      f.name === fieldName ? { ...f, relationNoShow: true } : f
+    )));
+    ignoreBlurRef.current = true;
+    editingRef.current = null;
+    setEditing(null);
+    setShowHiddenFields(true);
+    setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+    message.info(`已在关系图中隐藏「${fieldName}」；可点表底「已隐藏」恢复，或在表设计「字段」签取消隐藏`);
+  };
+
+  const unhideOnCanvas = (fieldName: string) => {
+    onFieldsChange((entityFieldsRef.current || []).map(f => (
+      f.name === fieldName ? { ...f, relationNoShow: false } : f
+    )));
+    message.success(`已在关系图中显示「${fieldName}」`);
   };
 
   const commit = (advance?: 'next' | 'prev') => {
@@ -416,6 +441,23 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         />
         AI
       </label>
+      {editing?.key !== '__NEW__' ? (
+        <label className="erd-field-meta-toggle erd-field-hide-toggle" title="在关系图中隐藏">
+          <input
+            type="checkbox"
+            aria-label="在关系图中隐藏"
+            checked={false}
+            onChange={e => {
+              if (!e.target.checked) return;
+              const current = editingRef.current;
+              if (!current || current.key === '__NEW__') return;
+              persistHideOnCanvas(current.key);
+            }}
+            onKeyDown={e => e.stopPropagation()}
+          />
+          隐
+        </label>
+      ) : null}
       <input
         className="erd-field-input"
         aria-label="字段名"
@@ -591,6 +633,43 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             })}
           >
             + 添加字段
+          </div>
+        )}
+        {hiddenFields.length > 0 && (
+          <div className="erd-field-hidden-bar nodrag">
+            <button
+              type="button"
+              className="erd-field-hidden-toggle"
+              data-testid="field-hidden-toggle"
+              aria-expanded={showHiddenFields}
+              aria-label={`已隐藏 ${hiddenFields.length} 个字段`}
+              onClick={e => {
+                e.stopPropagation();
+                setShowHiddenFields(v => !v);
+              }}
+            >
+              已隐藏 {hiddenFields.length} 个字段
+            </button>
+            {showHiddenFields && hiddenFields.map(f => (
+              <div
+                key={f.name}
+                className="erd-field-hidden-row"
+                data-testid={`field-hidden-${f.name}`}
+              >
+                <span className="erd-field-hidden-name">{f.name}</span>
+                <button
+                  type="button"
+                  className="erd-field-unhide"
+                  aria-label={`在关系图中显示 ${f.name}`}
+                  onClick={e => {
+                    e.stopPropagation();
+                    unhideOnCanvas(f.name);
+                  }}
+                >
+                  显示
+                </button>
+              </div>
+            ))}
           </div>
         )}
       </div>

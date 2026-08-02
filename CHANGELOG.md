@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：编辑态隐藏即时 save-status + 表底恢复（建模回路）
+
+- 选题：编辑态已有 PK/NN/AI 即时落盘；`relationNoShow` 只能绕表设计签改，画布缺隐藏开关；隐藏后行离画布需明确反馈与可发现恢复
+- 编辑态加「隐」勾选（已有字段）；勾选 → 立刻 `relationNoShow` + 退出编辑，顶栏 `save-status` 即时「已保存」；toast 提示表底「已隐藏」/表设计可恢复
+- 表节点底栏「已隐藏 N 个字段」展开 →「显示」取消隐藏（仍可走表设计「字段」签）
+- E2E：`relation`「编辑态隐藏即时 save-status；toast + 表底恢复显示」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "编辑态隐藏" --workers=1 --retries=0`
+
 #### 体验：编辑态自增勾选即时 save-status（建模回路）
 
 - 选题：编辑态已有 PK/NN 即时落盘；`autoIncrement` 只能绕表设计签改，画布回路缺自增开关（隐藏 `relationNoShow` 勾上即离画布，ROI 低于自增）
