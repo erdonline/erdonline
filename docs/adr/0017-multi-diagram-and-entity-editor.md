@@ -39,19 +39,22 @@
 ### Phase 2b（已落地，schema-additive）
 
 2. **图内分组（Frame）**：`Frame = { id, name, color?, x, y, w, h, memberEntityIds: string[] }`，存于 `diagram.groups[]`。
-   - 渲染为 ReactFlow 自研底层框节点（`type: 'frame'`，z-index 低于表），**不做 RF subflow 坐标重父化**；拖框不带动成员。
-   - 最小 UI：工具栏「新建分组」（可选先选中表 → 包围盒 + 成员）/「加入分组」（单图多框时弹选择）；Delete 可删框。
-   - 写路径：`createFrame` / `addFrameMembers` / `updateFrameBounds` / `removeFrame`（`modulesSlice`）；实体改名/删除同步 `memberEntityIds`。
-   - 分享只读画布同样渲染 `groups`。
+   - 渲染为 ReactFlow 自研底层框节点（`type: 'frame'`，z-index 低于表），**不做 RF subflow / parent 坐标重父化**（成员仍写绝对 `layout.nodes`）。
+   - **拖框平移成员**：拖动 Frame 时按同一 Δ 平移 `memberEntityIds` 内表节点并持久化（Figma Frame 心智；仍非 parentId）。
+   - **缩放**：选中 Frame 显示 NodeResizer 八角手柄，`w`/`h`（及 NW 侧 `x`/`y`）写入 `groups[]`。
+   - **适应成员**：工具栏「适应成员」按成员包围盒 + padding 重算框；「加入分组」/拖表入框时只扩不缩。
+   - **归属**：拖表中心落入框 → `addFrameMembers`；拖出原成员框 → `removeFrameMembers`；工具栏「新建分组」「加入分组」保留；Delete 删框。
+   - 写路径：`createFrame` / `addFrameMembers` / `removeFrameMembers` / `updateFrameBounds` / `removeFrame`；实体改名/删除同步 `memberEntityIds`。
+   - 分享只读画布同样渲染 `groups`（无缩放/拖框编辑）。
 
 ### 仍可另切片
 
 - `includeEntities` 视图过滤 UI
 - 删除非主图的确认流打磨（`removeDiagram` API 已有）
-- 拖框带动成员 / 框随成员自动扩边（ADR 明确本轮不做）
+- Frame 折叠 / 嵌套 / 多框批量对齐
 
 ## 后果
 
-- 正面：大模型可用性（虚拟滚动 + 默认展开 + 多图）与颜值（tokens + 留白 + 三签）双收；多图数据模型与 dbdiagram/Workbench 心智一致，分享图可按主题出图。
-- 代价：Phase 2 需动 tab key 规则与树「关系」子节点语义（有 E2E 覆盖点：`tree-open-relation`）；frame 不做重父化意味着拖动框不带动成员（Phase 2b 再议）。
+- 正面：大模型可用性（虚拟滚动 + 默认展开 + 多图）与颜值（tokens + 留白 + 三签）双收；多图数据模型与 dbdiagram/Workbench 心智一致，分享图可按主题出图；Frame 可调大小、拖框带表、拖入拖出归属，分组与表配合接近 Figma。
+- 代价：Phase 2 需动 tab key 规则与树「关系」子节点语义（有 E2E 覆盖点：`tree-open-relation`）；拖框带表会改写成员绝对坐标（可撤销）；仍非 RF parent，故无「相对坐标」与自动 clip。
 - 风险：多图懒迁移若写路径遗漏会产生双写漂移 → 迁移收敛在单一 selector（`getActiveDiagram(module)`），写路径只写 diagrams。

@@ -364,7 +364,7 @@
   }
 }
 
-// ADR-0017 Phase 2b：图内视觉框（底层；不做坐标重父化）
+// ADR-0017 Phase 2b：图内视觉框（底层；拖框平移成员绝对坐标，非 RF parent）
 .erd-frame-node {
   box-sizing: border-box;
   border: 2px dashed var(--erd-success);
@@ -379,10 +379,27 @@
     box-shadow: 0 0 0 2px rgba(222, 41, 16, 0.12);
   }
 
-  .erd-frame-label {
+  .erd-frame-chrome {
     position: absolute;
-    top: 8px;
-    left: 12px;
+    top: 4px;
+    left: 8px;
+    right: 8px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 8px;
+    border-radius: 6px;
+    cursor: grab;
+    // 顶栏 = dragHandle；避开四周 NodeResizer 边线
+    pointer-events: auto;
+
+    &:active {
+      cursor: grabbing;
+    }
+  }
+
+  .erd-frame-label {
     font-size: 12px;
     font-weight: 600;
     color: var(--erd-success);
@@ -391,9 +408,6 @@
   }
 
   .erd-frame-meta {
-    position: absolute;
-    top: 8px;
-    right: 12px;
     font-size: 11px;
     color: var(--erd-ink-400);
     user-select: none;
@@ -401,6 +415,50 @@
 
   &.selected .erd-frame-label {
     color: var(--erd-brand);
+  }
+}
+
+.erd-frame-resize-handle {
+  width: 9px !important;
+  height: 9px !important;
+  border-radius: 2px;
+  border-width: 1.5px !important;
+  background: var(--erd-surface) !important;
+  z-index: 3;
+  opacity: 0;
+  pointer-events: none;
+
+  &.is-active {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+.erd-frame-resize-line {
+  border-color: rgba(222, 41, 16, 0.35) !important;
+  opacity: 0;
+  pointer-events: none;
+
+  &.is-active {
+    opacity: 1;
+    pointer-events: all;
+  }
+}
+
+// 未选中时整组手柄不占命中（NodeResizer 始终挂载）
+.react-flow__node-frame:not(.selected) {
+  .erd-frame-resize-handle,
+  .erd-frame-resize-line {
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+}
+
+.react-flow__node-frame.selected {
+  .erd-frame-resize-handle,
+  .erd-frame-resize-line {
+    opacity: 1 !important;
+    pointer-events: all !important;
   }
 }
 

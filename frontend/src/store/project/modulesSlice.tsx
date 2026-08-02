@@ -15,6 +15,7 @@ import {
   listDiagrams,
   newDiagramId,
   removeFrameFromDiagram,
+  removeMembersFromFrame,
   updateFrameBounds as applyFrameBounds,
   upsertDiagramLayout,
 } from "@/utils/diagram";
@@ -70,6 +71,12 @@ export interface IModulesDispatchSlice {
     },
   ) => string | undefined;
   addFrameMembers: (
+    moduleName: string,
+    diagramId: string | undefined,
+    frameId: string,
+    memberEntityIds: string[],
+  ) => void;
+  removeFrameMembers: (
     moduleName: string,
     diagramId: string | undefined,
     frameId: string,
@@ -330,6 +337,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return;
     }
     snapshotModules(get().project?.projectJSON?.modules);
+    let frameName: string | undefined;
     set(produce(state => {
       const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
@@ -340,11 +348,36 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
       const frame = addMembersToFrame(diagram, frameId, memberEntityIds);
       if (!frame) {
-        message.warning('未找到分组');
         return;
       }
-      message.success(`已加入「${frame.name}」`);
+      frameName = frame.name;
     }));
+    if (frameName) {
+      message.success(`已加入「${frameName}」`);
+    } else {
+      message.warning('未找到分组');
+    }
+  },
+  removeFrameMembers: (moduleName, diagramId, frameId, memberEntityIds) => {
+    if (!memberEntityIds.length) return;
+    snapshotModules(get().project?.projectJSON?.modules);
+    let frameName: string | undefined;
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      const frame = removeMembersFromFrame(diagram, frameId, memberEntityIds);
+      if (frame) {
+        frameName = frame.name;
+      }
+    }));
+    if (frameName) {
+      message.info(`已移出「${frameName}」`);
+    }
   },
   updateFrameBounds: (moduleName, diagramId, frames) => {
     if (!frames.length) return;

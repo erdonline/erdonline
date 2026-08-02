@@ -133,10 +133,12 @@ const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.me
       }}
       aria-label={`分组 ${f.name}`}
     >
-      <div className="erd-frame-label">{f.name}</div>
-      {(f.memberEntityIds?.length || 0) > 0 ? (
-        <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
-      ) : null}
+      <div className="erd-frame-chrome">
+        <div className="erd-frame-label">{f.name}</div>
+        {(f.memberEntityIds?.length || 0) > 0 ? (
+          <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+        ) : null}
+      </div>
     </div>
   );
 });

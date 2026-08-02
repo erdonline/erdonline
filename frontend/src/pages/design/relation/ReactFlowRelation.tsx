@@ -8,6 +8,7 @@ import ReactFlow, {
   NodeProps,
   Edge,
   Node,
+  NodeResizer,
   useNodesState,
   useUpdateNodeInternals,
   applyNodeChanges,
@@ -23,12 +24,16 @@ import useProjectStore from '@/store/project/useProjectStore';
 import useTabStore, { ModuleEntity } from '@/store/tab/useTabStore';
 import { erdColors } from '@/theme/tokens';
 import {
+  DEFAULT_FRAME_H,
+  DEFAULT_FRAME_W,
   DiagramFrame,
   computeFrameBoundsFromNodes,
+  expandFrameBoundsToNodes,
   frameNodeId,
   getActiveDiagramFrames,
   getActiveDiagramLayoutNodes,
   isFrameNodeId,
+  isPointInFrameBounds,
   listDiagrams,
   parseDiagramIdFromTabEntity,
   parseFrameIdFromNodeId,
@@ -418,28 +423,65 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   );
 });
 
-/** 视觉框：z-index 低于表；成员显式记录，拖框不带动成员（ADR-0017） */
-const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.memo(({ data, selected }) => {
+function frameNodeSize(n: Node): { w: number; h: number } {
+  const styleW = typeof n.style?.width === 'number' ? n.style.width : undefined;
+  const styleH = typeof n.style?.height === 'number' ? n.style.height : undefined;
+  return {
+    w: n.width || styleW || DEFAULT_FRAME_W,
+    h: n.height || styleH || DEFAULT_FRAME_H,
+  };
+}
+
+function tableNodeSize(n: Node): { w: number; h: number } {
+  return { w: n.width || 220, h: n.height || 80 };
+}
+
+/** RF Node.width 可为 null；交给包围盒 helper 前归一化 */
+function nodesForBounds(nodes: Node[]): Array<{ position: { x: number; y: number }; width?: number; height?: number }> {
+  return nodes.map((n) => {
+    const { w, h } = n.type === 'frame' ? frameNodeSize(n) : tableNodeSize(n);
+    return { position: n.position, width: w, height: h };
+  });
+}
+
+/** 视觉框：默认在表下方；选中后抬升以便缩放/拖框（表不再拦截命中） */
+const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = ({ data, selected }) => {
   const f = data.frame;
   return (
-    <div
-      className={`erd-frame-node${selected ? ' selected' : ''}`}
-      data-testid="diagram-frame"
-      data-frame-id={f.id}
-      style={{
-        width: '100%',
-        height: '100%',
-        background: f.color || 'rgba(47, 143, 123, 0.10)',
-      }}
-      aria-label={`分组 ${f.name}`}
-    >
-      <div className="erd-frame-label">{f.name}</div>
-      {(f.memberEntityIds?.length || 0) > 0 ? (
-        <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
-      ) : null}
-    </div>
+    <>
+      {/* 始终挂载手柄；未选中时用 CSS 隐藏，避免 selected 与 RF 内部态短暂不一致 */}
+      <NodeResizer
+        isVisible
+        minWidth={140}
+        minHeight={100}
+        color={erdColors.brand}
+        handleClassName={`erd-frame-resize-handle${selected ? ' is-active' : ''}`}
+        lineClassName={`erd-frame-resize-line${selected ? ' is-active' : ''}`}
+      />
+      <div
+        className={`erd-frame-node${selected ? ' selected' : ''}`}
+        data-testid="diagram-frame"
+        data-frame-id={f.id}
+        data-selected={selected ? '1' : '0'}
+        style={{
+          width: '100%',
+          height: '100%',
+          background: f.color || 'rgba(47, 143, 123, 0.10)',
+        }}
+        aria-label={`分组 ${f.name}`}
+      >
+        <div className="erd-frame-chrome">
+          <div className="erd-frame-label">{f.name}</div>
+          {(f.memberEntityIds?.length || 0) > 0 ? (
+            <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+          ) : (
+            <div className="erd-frame-meta">拖表入框或点「加入分组」</div>
+          )}
+        </div>
+      </div>
+    </>
   );
-});
+};
 
 const nodeTypes = { table: TableNode, frame: FrameNode };
 
@@ -585,17 +627,24 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       const frameNodes: Node[] = diagramFrames.map((f) => {
         const nid = frameNodeId(f.id);
         const live = prev.find((n) => n.id === nid);
+        const selected = !!live?.selected;
+        // 选中时抬到表上方，否则缩放手柄/拖框会被表节点挡住
+        const z = selected ? 3 : 0;
         return {
           id: nid,
           type: 'frame',
-          zIndex: 0,
+          zIndex: z,
           position: { x: f.x, y: f.y },
-          style: { width: f.w, height: f.h, zIndex: 0 },
+          width: f.w,
+          height: f.h,
+          style: { width: f.w, height: f.h, zIndex: z },
           data: { frame: f },
           draggable: true,
+          /** 仅顶栏拖动，避免与 NodeResizer 边线抢手势 */
+          dragHandle: '.erd-frame-chrome',
           selectable: true,
           connectable: false,
-          selected: live?.selected,
+          selected,
         };
       });
 
@@ -615,6 +664,17 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     }
   }, [currentModule, moduleName, activeDiagramId, setNodes, projectDispatch]);
 
+  /** 拖框起始：绝对坐标平移成员（非 RF parent） */
+  const frameDragRef = useRef<{
+    nodeId: string;
+    startX: number;
+    startY: number;
+    memberStarts: Record<string, { x: number; y: number }>;
+  } | null>(null);
+  /** RF onNodeDrag* 第三参是「正在拖的节点」，不是全量；成员坐标从这里取 */
+  const nodesRef = useRef(nodes);
+  nodesRef.current = nodes;
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
       // 表：禁止按键删除（走模型树）。Frame：Delete → 写路径 removeFrame，由 store 重建。
@@ -628,16 +688,195 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         projectDispatch.removeFrame(moduleName, activeDiagramId, parseFrameIdFromNodeId(c.id));
       });
       const safe = changes.filter((c) => c.type !== 'remove');
-      setNodes((prev) => applyNodeChanges(safe, prev));
+      const resizeEndedIds = new Set(
+        changes
+          .filter(
+            (c): c is NodeChange & { type: 'dimensions'; id: string; resizing?: boolean } =>
+              c.type === 'dimensions' && isFrameNodeId(c.id) && c.resizing === false,
+          )
+          .map((c) => c.id),
+      );
+      const selectionTouched = changes.some((c) => c.type === 'select');
+      setNodes((prev) => {
+        let next = applyNodeChanges(safe, prev);
+        // 选中态变化时同步 Frame zIndex（表不再挡住手柄）
+        if (selectionTouched) {
+          next = next.map((n) => {
+            if (n.type !== 'frame') return n;
+            const z = n.selected ? 3 : 0;
+            return {
+              ...n,
+              zIndex: z,
+              style: { ...n.style, width: n.width ?? n.style?.width, height: n.height ?? n.style?.height, zIndex: z },
+            };
+          });
+        }
+        if (resizeEndedIds.size) {
+          const updates = next
+            .filter((n) => n.type === 'frame' && resizeEndedIds.has(n.id))
+            .map((n) => {
+              const { w, h } = frameNodeSize(n);
+              return {
+                id: parseFrameIdFromNodeId(n.id),
+                x: n.position.x,
+                y: n.position.y,
+                w,
+                h,
+              };
+            });
+          if (updates.length) {
+            queueMicrotask(() => {
+              projectDispatch.updateFrameBounds(moduleName, activeDiagramId, updates);
+            });
+          }
+        }
+        return next;
+      });
     },
     [setNodes, projectDispatch, moduleName, activeDiagramId],
   );
 
-  // 拖动结束 → 表写 layout；框写 groups（不重父化成员）
+  const onNodeDragStart = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      if (node.type !== 'frame' && !isFrameNodeId(node.id)) {
+        frameDragRef.current = null;
+        return;
+      }
+      const fid = parseFrameIdFromNodeId(node.id);
+      const fromData = (node.data?.frame as DiagramFrame | undefined)?.memberEntityIds;
+      const fromStore = frames.find((f) => f.id === fid)?.memberEntityIds;
+      const memberIds = fromData?.length ? fromData : fromStore || [];
+      const memberStarts: Record<string, { x: number; y: number }> = {};
+      nodesRef.current.forEach((n) => {
+        if (n.type === 'table' && memberIds.includes(n.id)) {
+          memberStarts[n.id] = { x: n.position.x, y: n.position.y };
+        }
+      });
+      frameDragRef.current = {
+        nodeId: node.id,
+        startX: node.position.x,
+        startY: node.position.y,
+        memberStarts,
+      };
+    },
+    [frames],
+  );
+
+  const onNodeDrag = useCallback(
+    (_: React.MouseEvent, node: Node) => {
+      const origin = frameDragRef.current;
+      if (!origin || node.id !== origin.nodeId || !Object.keys(origin.memberStarts).length) {
+        return;
+      }
+      const dx = node.position.x - origin.startX;
+      const dy = node.position.y - origin.startY;
+      setNodes((prev) =>
+        prev.map((n) => {
+          const start = origin.memberStarts[n.id];
+          if (!start) return n;
+          return {
+            ...n,
+            position: { x: Math.round(start.x + dx), y: Math.round(start.y + dy) },
+          };
+        }),
+      );
+    },
+    [setNodes],
+  );
+
+  /** 拖表结束：中心落在框内 → 加入并扩边；拖出原成员框 → 移出 */
+  const syncTableFrameMembership = useCallback(
+    (allNodes: Node[], draggedTableIds: string[]) => {
+      if (!draggedTableIds.length) return;
+      const frameNodes = allNodes.filter((n) => n.type === 'frame');
+      if (!frameNodes.length) return;
+
+      type Bound = { x: number; y: number; w: number; h: number };
+      const frameBound = (n: Node): Bound => {
+        const { w, h } = frameNodeSize(n);
+        return { x: n.position.x, y: n.position.y, w, h };
+      };
+
+      for (const tableId of draggedTableIds) {
+        const table = allNodes.find((n) => n.id === tableId && n.type === 'table');
+        if (!table) continue;
+        const { w, h } = tableNodeSize(table);
+        const cx = table.position.x + w / 2;
+        const cy = table.position.y + h / 2;
+
+        const containing = frameNodes
+          .filter((fn) => isPointInFrameBounds(cx, cy, frameBound(fn)))
+          .sort((a, b) => {
+            const sa = frameNodeSize(a);
+            const sb = frameNodeSize(b);
+            return sa.w * sa.h - sb.w * sb.h;
+          });
+        const target = containing[0];
+        const targetFrameId = target ? parseFrameIdFromNodeId(target.id) : null;
+
+        for (const fn of frameNodes) {
+          const fid = parseFrameIdFromNodeId(fn.id);
+          const members: string[] = fn.data?.frame?.memberEntityIds || [];
+          const isMember = members.includes(tableId);
+          if (targetFrameId === fid) {
+            if (!isMember) {
+              projectDispatch.addFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
+              const expanded = expandFrameBoundsToNodes(frameBound(fn), nodesForBounds([table]));
+              projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [
+                { id: fid, ...expanded },
+              ]);
+            }
+          } else if (isMember) {
+            projectDispatch.removeFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
+          }
+        }
+      }
+    },
+    [projectDispatch, moduleName, activeDiagramId],
+  );
+
+  // 拖动结束 → 表写 layout；框写 groups；拖框按起始 Δ 平移成员（兜底，避免 onNodeDrag 被挡）
   const onNodeDragStop = useCallback(
-    (_: any, __: Node, allNodes: Node[]) => {
-      const tables = allNodes.filter((n) => n.type === 'table');
-      const movedFrames = allNodes.filter((n) => n.type === 'frame');
+    (_: any, node: Node, draggedNodes: Node[]) => {
+      const origin = frameDragRef.current;
+      const wasFrameDrag = !!(origin && origin.nodeId === node.id);
+      // 第三参仅含拖动项；合并进全量 nodes 再持久化
+      const byId = new Map(nodesRef.current.map((n) => [n.id, n]));
+      draggedNodes.forEach((n) => byId.set(n.id, n));
+      let persistNodes = [...byId.values()];
+      if (wasFrameDrag && origin && (node.type === 'frame' || isFrameNodeId(node.id))) {
+        const dx = node.position.x - origin.startX;
+        const dy = node.position.y - origin.startY;
+        if (dx !== 0 || dy !== 0) {
+          let starts = origin.memberStarts;
+          if (!Object.keys(starts).length) {
+            const fid = parseFrameIdFromNodeId(node.id);
+            const ids =
+              (node.data?.frame as DiagramFrame | undefined)?.memberEntityIds ||
+              frames.find((f) => f.id === fid)?.memberEntityIds ||
+              [];
+            starts = {};
+            nodesRef.current.forEach((n) => {
+              if (n.type === 'table' && ids.includes(n.id)) {
+                starts[n.id] = { x: n.position.x - dx, y: n.position.y - dy };
+              }
+            });
+          }
+          persistNodes = persistNodes.map((n) => {
+            const start = starts[n.id];
+            if (!start) return n;
+            return {
+              ...n,
+              position: { x: Math.round(start.x + dx), y: Math.round(start.y + dy) },
+            };
+          });
+          setNodes(persistNodes);
+        }
+      }
+      frameDragRef.current = null;
+
+      const tables = persistNodes.filter((n) => n.type === 'table');
+      const movedFrames = persistNodes.filter((n) => n.type === 'frame');
       if (tables.length) {
         projectDispatch.updateGraphCanvasLayout(
           moduleName,
@@ -649,32 +888,80 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         projectDispatch.updateFrameBounds(
           moduleName,
           activeDiagramId,
-          movedFrames.map((n) => ({
-            id: parseFrameIdFromNodeId(n.id),
-            x: n.position.x,
-            y: n.position.y,
-            w: typeof n.width === 'number' ? n.width : undefined,
-            h: typeof n.height === 'number' ? n.height : undefined,
-          })),
+          movedFrames.map((n) => {
+            const { w, h } = frameNodeSize(n);
+            return {
+              id: parseFrameIdFromNodeId(n.id),
+              x: n.position.x,
+              y: n.position.y,
+              w,
+              h,
+            };
+          }),
         );
       }
+      // 拖表（非拖框连带）时同步归属
+      if (!wasFrameDrag && node.type === 'table') {
+        syncTableFrameMembership(persistNodes, [node.id]);
+      }
     },
-    [projectDispatch, moduleName, activeDiagramId],
+    [projectDispatch, moduleName, activeDiagramId, syncTableFrameMembership, setNodes, frames],
   );
 
   const selectedTables = nodes.filter((n) => n.selected && n.type === 'table');
   const selectedCount = selectedTables.length;
+  const selectedFrame = nodes.find((n) => n.selected && n.type === 'frame');
+
+  const expandFrameForMembers = useCallback(
+    (frameId: string, memberNodes: Node[]) => {
+      const frameNode = nodes.find((n) => n.type === 'frame' && parseFrameIdFromNodeId(n.id) === frameId);
+      const frameMeta = frames.find((f) => f.id === frameId);
+      if (!frameMeta || !memberNodes.length) return;
+      const size = frameNode ? frameNodeSize(frameNode) : { w: frameMeta.w, h: frameMeta.h };
+      const expanded = expandFrameBoundsToNodes(
+        {
+          x: frameNode?.position.x ?? frameMeta.x,
+          y: frameNode?.position.y ?? frameMeta.y,
+          ...size,
+        },
+        nodesForBounds(memberNodes),
+      );
+      projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [{ id: frameId, ...expanded }]);
+    },
+    [nodes, frames, projectDispatch, moduleName, activeDiagramId],
+  );
 
   const onCreateFrame = useCallback(() => {
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
     const memberEntityIds = selected.map((n) => n.id);
-    const bounds = computeFrameBoundsFromNodes(selected);
+    const bounds = computeFrameBoundsFromNodes(nodesForBounds(selected));
     projectDispatch.createFrame(moduleName, activeDiagramId, {
       name: `分组${frames.length + 1}`,
       memberEntityIds,
       ...bounds,
     });
   }, [nodes, frames.length, projectDispatch, moduleName, activeDiagramId]);
+
+  const onFitSelectedFrame = useCallback(() => {
+    const frameNode = nodes.find((n) => n.selected && n.type === 'frame');
+    if (!frameNode) {
+      message.info('请先选中一个分组');
+      return;
+    }
+    const frame = frameNode.data?.frame as DiagramFrame;
+    const members = nodes.filter(
+      (n) => n.type === 'table' && (frame.memberEntityIds || []).includes(n.id),
+    );
+    if (!members.length) {
+      message.info('分组内还没有表，可拖表进入或点「加入分组」');
+      return;
+    }
+    const bounds = computeFrameBoundsFromNodes(nodesForBounds(members));
+    projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [
+      { id: frame.id, ...bounds },
+    ]);
+    message.success('已适应成员');
+  }, [nodes, projectDispatch, moduleName, activeDiagramId]);
 
   const onAssignToFrame = useCallback(() => {
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
@@ -686,27 +973,32 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       message.info('请先新建分组');
       return;
     }
-    const selectedFrame = nodes.find((n) => n.selected && n.type === 'frame');
-    if (selectedFrame) {
+    const applyJoin = (frameId: string) => {
       projectDispatch.addFrameMembers(
         moduleName,
         activeDiagramId,
-        parseFrameIdFromNodeId(selectedFrame.id),
+        frameId,
         selected.map((n) => n.id),
       );
+      const frameMeta = frames.find((f) => f.id === frameId);
+      const allMemberIds = new Set([
+        ...(frameMeta?.memberEntityIds || []),
+        ...selected.map((n) => n.id),
+      ]);
+      const memberNodes = nodes.filter((n) => n.type === 'table' && allMemberIds.has(n.id));
+      expandFrameForMembers(frameId, memberNodes);
+    };
+    const selFrame = nodes.find((n) => n.selected && n.type === 'frame');
+    if (selFrame) {
+      applyJoin(parseFrameIdFromNodeId(selFrame.id));
       return;
     }
     if (frames.length === 1) {
-      projectDispatch.addFrameMembers(
-        moduleName,
-        activeDiagramId,
-        frames[0].id,
-        selected.map((n) => n.id),
-      );
+      applyJoin(frames[0].id);
       return;
     }
     setFrameAssignModal({ frameId: frames[0].id });
-  }, [nodes, frames, projectDispatch, moduleName, activeDiagramId]);
+  }, [nodes, frames, projectDispatch, moduleName, activeDiagramId, expandFrameForMembers]);
 
   // 多选对齐：仅表节点；以选中集的包围盒为基准，改坐标后持久化
   const alignSelected = useCallback((mode: 'left' | 'right' | 'top' | 'bottom' | 'hcenter' | 'vcenter') => {
@@ -1005,6 +1297,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         edges={edges}
         nodeTypes={nodeTypes}
         onNodesChange={onNodesChange}
+        onNodeDragStart={onNodeDragStart}
+        onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
         onConnect={onConnect}
         onEdgesChange={onEdgesChange}
@@ -1079,11 +1373,23 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               className="erd-canvas-tool"
               data-testid="assign-frame"
               onClick={onAssignToFrame}
-              title="将选中表加入分组"
+              title="将选中表加入分组（框自动扩边）"
               aria-label="加入分组"
             >
               加入分组
             </button>
+            {selectedFrame && (
+              <button
+                type="button"
+                className="erd-canvas-tool"
+                data-testid="fit-frame"
+                onClick={onFitSelectedFrame}
+                title="按成员表包围盒调整分组大小"
+                aria-label="适应成员"
+              >
+                适应成员
+              </button>
+            )}
             <button
               type="button"
               className="erd-canvas-tool"
@@ -1225,12 +1531,20 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onOk={() => {
           if (!frameAssignModal) return;
           const selected = nodes.filter((n) => n.selected && n.type === 'table');
+          const frameId = frameAssignModal.frameId;
           projectDispatch.addFrameMembers(
             moduleName,
             activeDiagramId,
-            frameAssignModal.frameId,
+            frameId,
             selected.map((n) => n.id),
           );
+          const frameMeta = frames.find((f) => f.id === frameId);
+          const allMemberIds = new Set([
+            ...(frameMeta?.memberEntityIds || []),
+            ...selected.map((n) => n.id),
+          ]);
+          const memberNodes = nodes.filter((n) => n.type === 'table' && allMemberIds.has(n.id));
+          expandFrameForMembers(frameId, memberNodes);
           setFrameAssignModal(null);
         }}
         onCancel={() => setFrameAssignModal(null)}
