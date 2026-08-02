@@ -8,6 +8,26 @@
 
 ### 2026-08-02
 
+#### 修复：Word 导出去 MinIO 硬依赖（classpath 默认模板 + 缺席降级）
+
+**修复**
+
+- `GenDocServiceImpl`：`gendocx` / `downloadWordTemplate` 在 MinIO 缺席或默认模板下载失败时回落 `classpath:templates/word/defaultWorldTemplate.docx`；自定义模板仍走 MinIO；`uploadWordTemplate` 在 MinIO 缺席时返回明确文案（不再 NPE）
+- 内置 `defaultWorldTemplate.docx`（项目名/当前版本占位）
+  验证点：`JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q test -Dtest=GenDocServiceImplTest` → 通过；curl（无 MinIO）：`POST /ncnb/doc/gendocx` → 200 + `PK` 魔数；`downloadWordTemplate` → 200；`uploadWordTemplate` → msg 含「MinIO」；`export.spec` Word 下载绿
+
+**测试**
+
+- 新增 `GenDocServiceImplTest`：classpath 降级、自定义模板缺 MinIO 报错、上传失败文案、MinIO 优先/失败回落、无 MinIO 导出/下载
+- `export.spec.ts`：无 MinIO 时「导出 Word」真实下载（OOXML `PK`）
+  验证点：同上
+
+**文档**
+
+- `docs/deployment.md`：MinIO 标为可选；说明内置模板与上传前置条件
+- `docs/roadmap.md` 下一季② 子项「Word/MinIO 解耦」✅
+  验证点：roadmap ② 行含本切片 ✅ 日期
+
 #### 修复：导出失败可见（Word/DDL/ExportCommon，不再静默/空白）
 
 **修复**

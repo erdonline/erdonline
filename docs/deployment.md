@@ -23,6 +23,33 @@ docker compose logs -f backend   # 查看后端日志
 | backend | 9502 | Spring Boot 单体 |
 | mysql | 3306 | 数据库（erd + martin） |
 | redis | 6379 | token / 缓存 |
+| MinIO（可选） | 9000 | 对象存储；**非 compose 默认依赖** |
+
+### MinIO（可选）
+
+默认 `docker compose` **不含** MinIO。Word 导出与「下载默认模板」使用后端 classpath 内置模板（`templates/word/defaultWorldTemplate.docx`），无 MinIO 亦可导出。
+
+需要**上传自定义 Word 模板**或把默认模板托管到对象存储时，再配置：
+
+```bash
+# 环境变量示例（需同时满足 Bean 条件 martin.oss.minio.endpoint）
+OSS_ENDPOINT=http://localhost:9000
+OSS_ACCESS_KEY=minio
+OSS_SECRET_KEY=...
+```
+
+并在 `application.yml` / 覆盖配置中声明嵌套项，例如：
+
+```yaml
+martin:
+  oss:
+    minio:
+      endpoint: ${OSS_ENDPOINT}
+      accessKey: ${OSS_ACCESS_KEY}
+      secretKey: ${OSS_SECRET_KEY}
+```
+
+未配置时：`gendocx` / `downloadWordTemplate` 降级走内置模板；`uploadWordTemplate` 返回明确错误（提示配置 MinIO），不再 NPE。
 
 ## 生产建议
 

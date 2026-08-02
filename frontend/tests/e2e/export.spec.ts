@@ -79,4 +79,32 @@ test.describe('导出（无 G6）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('导出 Word 成功下载（无 MinIO，classpath 默认模板）', async ({ page }) => {
+    test.setTimeout(180_000);
+    await login(page);
+    await deleteOwnPersonProjects(page);
+    const projectName = uniqueProjectName('exword');
+    await createAndOpenPersonProject(page, projectName, 'export', 'export word');
+
+    try {
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      await page.goto(`/design/table/export/common?projectId=${projectId}`);
+      await expect(page.getByText('导出文件')).toBeVisible({ timeout: 15_000 });
+
+      const [download] = await Promise.all([
+        page.waitForEvent('download', { timeout: 120_000 }),
+        page.getByText('导出Word').click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/\.doc$/i);
+      const path = await download.path();
+      expect(path).toBeTruthy();
+      const fs = await import('fs');
+      const buf = fs.readFileSync(path!);
+      expect(buf[0]).toBe(0x50); // P
+      expect(buf[1]).toBe(0x4b); // K — OOXML zip
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

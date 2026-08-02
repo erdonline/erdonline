@@ -34,6 +34,7 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.xmlbeans.XmlException;
 import org.apache.xmlbeans.XmlToken;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -59,6 +60,8 @@ import java.util.stream.Collectors;
 public class GenDocServiceImpl implements GenDocService {
     private String waterMark = "<w:r><w:rPr><w:noProof/></w:rPr><w:pict w14:anchorId=\"58771E30\"><v:shapetype id=\"_x0000_t136\" coordsize=\"21600,21600\" o:spt=\"136\" adj=\"10800\" path=\"m@7,l@8,m@5,21600l@6,21600e\"><v:formulas><v:f eqn=\"sum #0 0 10800\"/><v:f eqn=\"prod #0 2 1\"/><v:f eqn=\"sum 21600 0 @1\"/><v:f eqn=\"sum 0 0 @2\"/><v:f eqn=\"sum 21600 0 @3\"/><v:f eqn=\"if @0 @3 0\"/><v:f eqn=\"if @0 21600 @1\"/><v:f eqn=\"if @0 0 @2\"/><v:f eqn=\"if @0 @4 21600\"/><v:f eqn=\"mid @5 @6\"/><v:f eqn=\"mid @8 @5\"/><v:f eqn=\"mid @7 @8\"/><v:f eqn=\"mid @6 @7\"/><v:f eqn=\"sum @6 0 @5\"/></v:formulas><v:path textpathok=\"t\" o:connecttype=\"custom\" o:connectlocs=\"@9,0;@10,10800;@11,21600;@12,10800\" o:connectangles=\"270,180,90,0\"/><v:textpath on=\"t\" fitshape=\"t\"/><v:handles><v:h position=\"#0,bottomRight\" xrange=\"6629,14971\"/></v:handles><o:lock v:ext=\"edit\" text=\"t\" shapetype=\"t\"/></v:shapetype><v:shape id=\"PowerPlusWaterMarkObject1584793859\" o:spid=\"_x0000_s2049\" type=\"#_x0000_t136\" style=\"position:absolute;left:0;text-align:left;margin-left:0;margin-top:0;width:470.5pt;height:115pt;rotation:315;z-index:-251657216;mso-position-horizontal:center;mso-position-horizontal-relative:margin;mso-position-vertical:center;mso-position-vertical-relative:margin\" o:allowincell=\"f\" fillcolor=\"silver\" stroked=\"f\"><v:fill opacity=\".5\"/><v:textpath style=\"font-family:&quot;宋体&quot;;font-size:1pt\" string=\"水印\"/></v:shape></w:pict></w:r></xml-fragment>";
 
+    static final String MINIO_REQUIRED_MSG = "对象存储（MinIO）未配置，无法上传自定义 Word 模板。请配置 martin.oss.minio.endpoint 后重试，或使用内置默认模板导出。";
+
     @Autowired(required = false)
     private OssTemplate minioOssTemplate;
 
@@ -76,14 +79,7 @@ public class GenDocServiceImpl implements GenDocService {
         String doctpl = StringKit.nvl(params.get("doctpl"), "");
         Map imgs = (Map) params.get("imgs");
         Assert.notBlank(projectId, "导出word文档：projectId为空");
-        if (StrUtil.isBlank(doctpl)) {
-            doctpl = OssConstants.DEFAULT_WORD_PATH;
-        }
-        String bucket = StrUtil.subBefore(doctpl, StrUtil.SLASH, false);
-        log.info("bucket: {}", bucket);
-        String fileName = StrUtil.subAfter(doctpl, StrUtil.SLASH, false);
-        log.info("fileName: {}", fileName);
-        InputStream tplIo = minioOssTemplate.download(bucket, fileName);
+        InputStream tplIo = openTemplateStream(doctpl);
         //添加水印
         XWPFDocument xwpfDocument = addWaterMark(tplIo);
         //解析module和项目名称
@@ -119,7 +115,6 @@ public class GenDocServiceImpl implements GenDocService {
 
         ServletOutputStream outputStream = response.getOutputStream();
 
-        String type = (String) params.get("type");
         response.setContentType("application/octet-stream");
         response.setHeader("Content-Disposition", "attachment;filename=\"" + "out_template.docx" + "\"");
         template.write(outputStream);
@@ -129,31 +124,39 @@ public class GenDocServiceImpl implements GenDocService {
 
     @Override
     public void downloadWordTemplate(String doctpl, HttpServletResponse response) {
-        if (StrUtil.isBlank(doctpl)) {
-            doctpl = OssConstants.DEFAULT_WORD_PATH;
+        String resolved = normalizeDoctpl(doctpl);
+        log.info("doctpl: {},response: {}", resolved, response);
+        String fileName = StrUtil.subAfter(resolved, StrUtil.SLASH, false);
+        if (StrUtil.isBlank(fileName)) {
+            fileName = "defaultWorldTemplate.docx";
         }
-        log.info("doctpl: {},response: {}", doctpl, response);
-        String bucket = StrUtil.subBefore(doctpl, StrUtil.SLASH, false);
-        log.info("bucket: {}", bucket);
-        String fileName = StrUtil.subAfter(doctpl, StrUtil.SLASH, false);
-        log.info("fileName: {}", fileName);
-        InputStream fis = minioOssTemplate.download(bucket, fileName);
+        InputStream fis = null;
         XWPFDocument xwpfDocument = null;
         try {
+            fis = openTemplateStream(doctpl);
             xwpfDocument = addWaterMark(fis);
             response.setContentType("application/octet-stream");
             response.addHeader("Content-Disposition", "attachment;fileName=" + fileName);
             xwpfDocument.write(response.getOutputStream());
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error("download template fail", e);
+            throw new IllegalStateException("下载 Word 模板失败：" + e.getMessage(), e);
         } catch (XmlException e) {
             log.error("download template fail:{}", e);
+            throw new IllegalStateException("下载 Word 模板失败：" + e.getMessage(), e);
         } finally {
             if (xwpfDocument != null) {
                 try {
                     xwpfDocument.close();
                 } catch (IOException e) {
                     log.error("close xwpfDocument fail:{}", e);
+                }
+            }
+            if (fis != null) {
+                try {
+                    fis.close();
+                } catch (IOException ignored) {
+                    // ignore
                 }
             }
         }
@@ -163,10 +166,59 @@ public class GenDocServiceImpl implements GenDocService {
     @Override
     public R uploadWordTemplate(MultipartFile file, String projectId) {
         log.info("file: {},projectId: {}", file, projectId);
+        if (minioOssTemplate == null) {
+            return R.failed(MINIO_REQUIRED_MSG);
+        }
         String fileName = file.getOriginalFilename();
         InputStream inputStream = file.getInputStream();
         String minioFileName = OssConstants.PROJECT_MODULE_ERD_BUCKET + projectId + StrUtil.SLASH + fileName;
         return R.ok(minioOssTemplate.upload(OssConstants.DEFAULT_BUCKET, minioFileName, inputStream, false));
+    }
+
+    /**
+     * 解析模板流：优先 MinIO；默认模板在 MinIO 缺席或下载失败时回落 classpath。
+     * 自定义模板在 MinIO 缺席时明确失败。
+     */
+    InputStream openTemplateStream(String doctpl) throws IOException {
+        String resolved = normalizeDoctpl(doctpl);
+        boolean defaultTpl = OssConstants.DEFAULT_WORD_PATH.equals(resolved);
+
+        if (minioOssTemplate != null) {
+            String bucket = StrUtil.subBefore(resolved, StrUtil.SLASH, false);
+            String fileName = StrUtil.subAfter(resolved, StrUtil.SLASH, false);
+            log.info("bucket: {}, fileName: {}", bucket, fileName);
+            try {
+                InputStream fromOss = minioOssTemplate.download(bucket, fileName);
+                if (fromOss != null) {
+                    return fromOss;
+                }
+                log.warn("MinIO 返回空流：{}", resolved);
+            } catch (Exception e) {
+                if (!defaultTpl) {
+                    throw e instanceof IOException ? (IOException) e : new IOException("从对象存储下载 Word 模板失败：" + e.getMessage(), e);
+                }
+                log.warn("MinIO 下载默认模板失败，回落 classpath：{}", e.getMessage());
+            }
+            if (!defaultTpl) {
+                throw new IOException("自定义 Word 模板不存在或无法从对象存储下载：" + resolved);
+            }
+        } else if (!defaultTpl) {
+            throw new IllegalStateException(MINIO_REQUIRED_MSG);
+        }
+
+        ClassPathResource resource = new ClassPathResource(OssConstants.CLASSPATH_DEFAULT_WORD_TEMPLATE);
+        if (!resource.exists()) {
+            throw new IllegalStateException("内置 Word 模板缺失：" + OssConstants.CLASSPATH_DEFAULT_WORD_TEMPLATE);
+        }
+        log.info("使用 classpath 默认 Word 模板：{}", OssConstants.CLASSPATH_DEFAULT_WORD_TEMPLATE);
+        return resource.getInputStream();
+    }
+
+    static String normalizeDoctpl(String doctpl) {
+        if (StrUtil.isBlank(doctpl)) {
+            return OssConstants.DEFAULT_WORD_PATH;
+        }
+        return doctpl;
     }
 
     /**
@@ -212,7 +264,14 @@ public class GenDocServiceImpl implements GenDocService {
         XWPFDocument xwpfDocument = new XWPFDocument(tplIo);
         XWPFHeaderFooterPolicy xFooter = new XWPFHeaderFooterPolicy(xwpfDocument);
         XWPFHeader header = xFooter.getHeader(XWPFHeaderFooterPolicy.DEFAULT);
+        if (header == null) {
+            header = xFooter.createHeader(XWPFHeaderFooterPolicy.DEFAULT);
+        }
         List<XWPFParagraph> paragraphs = header.getParagraphs();
+        if (CollUtil.isEmpty(paragraphs)) {
+            header.createParagraph();
+            paragraphs = header.getParagraphs();
+        }
         for (XWPFParagraph graph : paragraphs) {
             String paraText = graph.getCTP().xmlText();
             //如果已经有水印了，那么就进行替换
