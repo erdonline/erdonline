@@ -22,6 +22,21 @@ docker compose logs -f backend   # 查看后端日志
 - 前端 http://localhost:8000
 - 后端 API http://localhost:9502
 
+### 健康检查 / 版本信息（自部署验收）
+
+后端已挂 Spring Actuator，**仅**暴露 `health` 与 `info`（匿名可读；不暴露 env/beans/metrics）。compose 或独立 jar 拉起后：
+
+```bash
+# 存活：期望 {"status":"UP"}
+curl -sS http://localhost:9502/actuator/health
+
+# 应用名 + 版本（本地 classpath 常为 "dev"；正式 jar 为 Manifest 版本）
+curl -sS http://localhost:9502/actuator/info
+# 期望含 "app":{"name":"erd-online","version":"..."}
+```
+
+未暴露的 actuator 子路径返回 **404**（勿再伪装成 500「操作发生错误」）。
+
 ## 服务说明
 
 | 服务 | 端口 | 说明 |

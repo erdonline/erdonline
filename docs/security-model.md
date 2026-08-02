@@ -26,6 +26,7 @@
 - 登录/退出：`/login`、`/auth/login`、`/exit`
 - 注册：`/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
+- Actuator：`/actuator/**` 放行，但 **exposure 仅 `health,info`**；`health` 不 `show-details`；`info` 仅 app name/version（无密钥）。禁止扩大到 env/beans/heapdump
 
 ## 只读分享
 

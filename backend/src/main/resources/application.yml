@@ -123,6 +123,20 @@ logging:
   level:
     com.erdonline: info
 
+# 自部署可观测（少量、低成本）：仅 health + info；勿暴露 env/beans/heapdump
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      # actuator 已在 ignore-urls 匿名可达：只给 UP/DOWN，不泄露数据源细节
+      show-details: never
+  info:
+    env:
+      enabled: false
+
 # JWT + 安全开关（生产务必覆盖密钥；e2e 账号默认禁止登录）
 erd:
   jwt:
