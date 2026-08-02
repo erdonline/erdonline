@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 修复：Railway Redis 变量同名 + URL 强制覆盖 host
+
+- 现象：只挂 `REDIS_URL`、删掉 `REDIS_HOST` 后又连 `localhost:127.0.0.1:6379`
+- 改动：yml 优先 `REDISHOST`/`REDISPORT`；EPP 解析 `REDIS_URL`/`REDIS_PUBLIC_URL` 并**强制**写入 host/port/password/username；密码优先 `REDISPASSWORD`；启动打印 `[erd] Redis target host=… via=…` + INFO `Redis bound host=…`
+- 文档：Variable Reference **保持插件同名**（不必改名成 `REDIS_HOST`）
+
+验证点：`mvn -q -Dtest=RedisUrlAliasEnvironmentPostProcessorTest,RedisDataPropertiesBindingTest test`；Redeploy 后日志 `via=REDIS_URL` 或 `via=REDISHOST`，不再 localhost
+
 #### 修复：Railway Redis WRONGPASS（URL 优先 + 禁止空串 ACL）
 
 - 现象：已连 `redis.railway.internal`，仍 `RedisWrongPasswordException: WRONGPASS invalid username-password pair`

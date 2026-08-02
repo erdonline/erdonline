@@ -176,8 +176,8 @@ docker compose up -d
 | `Could not find … base-logback.xml` / `No appenders` | Logback include 失败（已修：改 include 根路径）；**不阻断启动**，但后面真实错误可能看不见 | 拉含本修复的 commit 后 Redeploy；仍失败再往下看 |
 | `Started ErdOnlineApplication` | 进程已起来 | 再 curl `/actuator/health/liveness`；若公网仍 502 → Networking/域名 |
 | `Communications link failure` / `Connection refused` / `Unknown database` | MySQL 未通或未建 `martin`/`erd` | 映射 `DB_*`；执行建库 + `db/init` |
-| `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | **属性前缀错误**（旧 `spring.redis.*` 在 Boot 3 不绑定）或变量未进容器 | 拉含 `spring.data.redis` 修复的 commit 后 **Redeploy**；变量已是 `REDIS_HOST` 也要重部署才能吃到新 jar |
-| `WRONGPASS invalid username-password pair` | 主机已通（如 `redis.railway.internal`）但鉴权错：手填错密码、或空用户名 `AUTH ""`、或未用插件密码 | **优先** Variable Reference：`REDIS_URL` ← Redis.`REDIS_URL`（或 `REDIS_PRIVATE_URL`）；否则 `REDIS_PASSWORD` ← Redis.`REDISPASSWORD`（点开眼睛核对与 Redis 服务 Variables 一致，勿手打）；可选 `REDIS_USERNAME` ← Redis.`REDISUSER`（多为 `default`）。改完 **Redeploy** |
+| `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 变量未进容器，或旧镜像仍用废弃 `spring.redis.*`；日志无 `[erd] Redis target host=…` / `via=REDIS_URL\|REDISHOST` | 确认 Deployments commit 含本修复；App Variables 用**插件同名** `REDISHOST`/`REDIS_URL` 等；**Redeploy** |
+| `WRONGPASS invalid username-password pair` | 主机已通但鉴权错：手填错密码、空用户名 `AUTH ""`、或未引用插件密码 | **Variable Reference 同名**：`REDIS_URL` 或 `REDISPASSWORD`+`REDISUSER`（勿手打）；改完 **Redeploy** |
 | `Could not resolve placeholder 'DB_USERNAME'` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | 用 `DB_USERNAME`（不是 `DB_USER`）或插件 `MYSQLUSER`；补 `OSS_*` |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
@@ -199,18 +199,18 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 与根目录 `.env.example`、`docker-compose.yml`、`application.yml` / `application-prod.yml` 对齐。
 
-**怎么加（Railway App 服务 → Variables）**：点 **Add Variable** → **Add Variable Reference**，选 Redis / MySQL 服务里的插件变量，映射成下表左侧「应用认的名字」。服务名以 Dashboard 为准（常见 `Redis` / `MySQL`）。
+**怎么加（Railway App 服务 → Variables）**：点 **Add Variable** → **Add Variable Reference**，在搜索框输入 `redis`，勾选插件变量。**变量名保持插件同名**（不必改成 `REDIS_HOST`）——应用原生读这些名字。
 
-Boot 3 / Redisson 读的是 **`spring.data.redis.*`**。`REDIS_URL` / `REDIS_PRIVATE_URL` / 密码 / ACL 用户名由启动桥接注入（**仅非空时**；空串会导致 Redis 6 `WRONGPASS`）。仅设插件原名 `REDISHOST` 也能工作（yml 有 host 回退）；**已设 `REDIS_HOST` 却仍连 localhost** → 旧镜像还在用废弃的 `spring.redis.*`，拉新 commit 后 Redeploy。
+Boot 3 / Redisson 读 **`spring.data.redis.*`**。yml 优先 `REDISHOST`/`REDISPORT`；密码与 URL 由 `RedisUrlAliasEnvironmentPostProcessor` **仅非空**注入。`REDIS_URL` / `REDIS_PUBLIC_URL` 会**强制覆盖** host/port（避免只设 URL、删了 host 又回落 localhost）。启动日志应出现 `[erd] Redis target host=… via=REDIS_URL|REDISHOST` 与 INFO `Redis bound host=…`。
 
-**Redis 鉴权（立刻自查）**：
+**Redis（立刻自查 — 最简单做法）**：
 
-1. App 服务 → Variables：删掉手填的错误 `REDIS_PASSWORD`（若有）。
-2. **Add Variable Reference**（不要手打密码）：
-   - **推荐一条搞定**：`REDIS_URL` = `${{Redis.REDIS_URL}}`（或内网 `REDIS_PRIVATE_URL` = `${{Redis.REDIS_PRIVATE_URL}}`）
-   - 或拆分：`REDIS_HOST` ← `REDISHOST`，`REDIS_PORT` ← `REDISPORT`，`REDIS_PASSWORD` ← **`REDISPASSWORD`**（插件变量名，不是自己编的），可选 `REDIS_USERNAME` ← `REDISUSER`（一般为 `default`）
-3. 点开 `REDIS_PASSWORD` 眼睛图标，与 **Redis 服务** Variables 里的 `REDISPASSWORD` **逐字一致**。
-4. **Redeploy** App（改变量不会自动进已跑容器）。
+1. App → Variables → **Add Variable Reference** → 搜索 `redis`。
+2. **同名引用**（左侧变量名 = 插件名，不要改名）：
+   - **推荐一条**：`REDIS_URL` ← Redis.`REDIS_URL`（含账号密码；桥接会解析出 host）
+   - **或拆分**：`REDISHOST`、`REDISPORT`、`REDISPASSWORD`、可选 `REDISUSER`（多为 `default`）
+   - 也可用 `REDIS_PUBLIC_URL` / `REDIS_PASSWORD`（picker 里有的都认）
+3. Deployments 确认 commit 含本修复；**Redeploy**（改变量不会进已跑容器）。
 
 | 应用变量（填这个名） | Variable Reference 示例 | 说明 |
 |---|---|---|
@@ -222,12 +222,12 @@ Boot 3 / Redisson 读的是 **`spring.data.redis.*`**。`REDIS_URL` / `REDIS_PRI
 | `DB_USERNAME` | `${{MySQL.MYSQLUSER}}` | martin 账号；别名 `DB_USER` / `MYSQLUSER` 也可 |
 | `DB_PASSWORD` | `${{MySQL.MYSQLPASSWORD}}` | 别名 `MYSQLPASSWORD` |
 | `DB_ERD_USERNAME` / `DB_ERD_PASSWORD` | 同 `DB_USERNAME`/`DB_PASSWORD` 或专用 | 可与 martin 同账号（须两库授权） |
-| `REDIS_URL`（**推荐**） | `${{Redis.REDIS_URL}}` | 含用户/密码的完整 URI → `spring.data.redis.url`；优先于拆分变量 |
-| `REDIS_PRIVATE_URL`（推荐内网） | `${{Redis.REDIS_PRIVATE_URL}}` | 与上同，主机为 `*.railway.internal`；桥接时优先于 `REDIS_URL` |
-| `REDIS_HOST` | `${{Redis.REDISHOST}}` | 无 URL 时用；→ `spring.data.redis.host`；别名 `REDISHOST` |
-| `REDIS_PORT` | `${{Redis.REDISPORT}}` | → `spring.data.redis.port`；别名 `REDISPORT` |
-| `REDIS_PASSWORD` | `${{Redis.REDISPASSWORD}}` | **Variable Reference**，勿手填；别名 `REDISPASSWORD` |
-| `REDIS_USERNAME`（可选） | `${{Redis.REDISUSER}}` | Redis 6 ACL，多为 `default`；别名 `REDISUSER` |
+| `REDIS_URL`（**推荐一条搞定**） | `${{Redis.REDIS_URL}}` | **同名**；含用户/密码 URI；强制覆盖 host/port |
+| `REDIS_PUBLIC_URL` | `${{Redis.REDIS_PUBLIC_URL}}` | picker 有；无 `REDIS_URL` 时用；公网代理主机 |
+| `REDISHOST` | `${{Redis.REDISHOST}}` | **同名**；无 URL 时 → host；本地也可用 `REDIS_HOST` |
+| `REDISPORT` | `${{Redis.REDISPORT}}` | **同名**；本地也可用 `REDIS_PORT` |
+| `REDISPASSWORD` | `${{Redis.REDISPASSWORD}}` | **同名**；勿手填；亦认 `REDIS_PASSWORD` |
+| `REDISUSER`（可选） | `${{Redis.REDISUSER}}` | **同名**；Redis 6 ACL，多为 `default` |
 | `JWT_SECRET` | 随机 ≥32 字节（手填） | **必改**；勿用仓库默认值 |
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |

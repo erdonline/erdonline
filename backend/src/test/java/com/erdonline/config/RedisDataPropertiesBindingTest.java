@@ -12,18 +12,18 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.mock.env.MockEnvironment;
 
 /**
- * Ensures REDIS_* land on Boot 3 {@code spring.data.redis.*} (what Redisson reads),
- * and empty password/username stay null (local no-auth Redis + Redis 6 ACL).
+ * Ensures Railway plugin names ({@code REDISHOST} …) and local {@code REDIS_HOST}
+ * bind under Boot 3 {@code spring.data.redis.*} (what Redisson reads).
  */
 class RedisDataPropertiesBindingTest {
 
     @Test
-    void redisHostPlaceholderBindsUnderSpringDataRedis() {
+    void railwayPluginHostBindsPrimarily() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("REDIS_HOST", "redis.railway.internal");
-        env.setProperty("REDIS_PORT", "6379");
-        env.setProperty("spring.data.redis.host", "${REDIS_HOST:${REDISHOST:localhost}}");
-        env.setProperty("spring.data.redis.port", "${REDIS_PORT:${REDISPORT:6379}}");
+        env.setProperty("REDISHOST", "redis.railway.internal");
+        env.setProperty("REDISPORT", "6379");
+        env.setProperty("spring.data.redis.host", "${REDISHOST:${REDIS_HOST:localhost}}");
+        env.setProperty("spring.data.redis.port", "${REDISPORT:${REDIS_PORT:6379}}");
         env.setProperty("spring.data.redis.password", "s3cret");
         env.setProperty("spring.data.redis.username", "default");
 
@@ -38,21 +38,33 @@ class RedisDataPropertiesBindingTest {
     }
 
     @Test
-    void railwayPluginNamesFallbackWhenRedisUnderscoreUnset() {
+    void localRedisHostFallbackWhenPluginNameUnset() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDIS_HOST", "redis");
+        env.setProperty("REDIS_PORT", "6379");
+        env.setProperty("spring.data.redis.host", "${REDISHOST:${REDIS_HOST:localhost}}");
+        env.setProperty("spring.data.redis.port", "${REDISPORT:${REDIS_PORT:6379}}");
+
+        RedisProperties props = Binder.get(env)
+                .bind("spring.data.redis", Bindable.of(RedisProperties.class))
+                .get();
+
+        assertEquals("redis", props.getHost());
+        assertEquals(6379, props.getPort());
+    }
+
+    @Test
+    void pluginNameWinsOverLocalAliasWhenBothSet() {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("REDISHOST", "plugin-host");
-        env.setProperty("REDISPORT", "6380");
-        env.setProperty("spring.data.redis.host", "${REDIS_HOST:${REDISHOST:localhost}}");
-        env.setProperty("spring.data.redis.port", "${REDIS_PORT:${REDISPORT:6379}}");
-        env.setProperty("spring.data.redis.password", "plugin-pass");
+        env.setProperty("REDIS_HOST", "local-alias");
+        env.setProperty("spring.data.redis.host", "${REDISHOST:${REDIS_HOST:localhost}}");
 
         RedisProperties props = Binder.get(env)
                 .bind("spring.data.redis", Bindable.of(RedisProperties.class))
                 .get();
 
         assertEquals("plugin-host", props.getHost());
-        assertEquals(6380, props.getPort());
-        assertEquals("plugin-pass", props.getPassword());
     }
 
     @Test
@@ -61,8 +73,8 @@ class RedisDataPropertiesBindingTest {
         env.getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource(
                 "defaults",
                 java.util.Map.of(
-                        "spring.data.redis.host", "${REDIS_HOST:${REDISHOST:localhost}}",
-                        "spring.data.redis.port", "${REDIS_PORT:${REDISPORT:6379}}")));
+                        "spring.data.redis.host", "${REDISHOST:${REDIS_HOST:localhost}}",
+                        "spring.data.redis.port", "${REDISPORT:${REDIS_PORT:6379}}")));
 
         RedisProperties props = Binder.get(env)
                 .bind("spring.data.redis", Bindable.of(RedisProperties.class))
@@ -76,7 +88,6 @@ class RedisDataPropertiesBindingTest {
 
     @Test
     void deprecatedSpringRedisPrefixDoesNotFeedRedisProperties() {
-        // Regression lock: Boot 3 error-deprecates spring.redis.* — must not silently bind.
         new ApplicationContextRunner()
                 .withPropertyValues(
                         "spring.redis.host=should-be-ignored",

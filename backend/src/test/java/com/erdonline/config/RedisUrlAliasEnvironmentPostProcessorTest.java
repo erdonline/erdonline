@@ -1,11 +1,8 @@
 package com.erdonline.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
-
-import java.util.HashMap;
-import java.util.Map;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.SpringApplication;
@@ -17,53 +14,87 @@ class RedisUrlAliasEnvironmentPostProcessorTest {
     private final SpringApplication application = new SpringApplication();
 
     @Test
-    void mapsRedisUrlToSpringDataRedisUrl() {
+    void redisUrlForcesHostPortPasswordOverLocalhostDefault() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("REDIS_URL", "redis://:secret@redis.railway.internal:6379");
+        env.setProperty("spring.data.redis.host", "localhost");
+        env.setProperty("REDIS_URL", "redis://default:s3cret@redis.railway.internal:6379/0");
 
         processor.postProcessEnvironment(env, application);
 
+        assertEquals("redis://default:s3cret@redis.railway.internal:6379/0", env.getProperty("spring.data.redis.url"));
+        assertEquals("redis.railway.internal", env.getProperty("spring.data.redis.host"));
+        assertEquals("6379", env.getProperty("spring.data.redis.port"));
+        assertEquals("default", env.getProperty("spring.data.redis.username"));
+        assertEquals("s3cret", env.getProperty("spring.data.redis.password"));
+        assertEquals("REDIS_URL", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_SOURCE_PROPERTY));
         assertEquals(
-                "redis://:secret@redis.railway.internal:6379",
-                env.getProperty("spring.data.redis.url"));
-        assertEquals(
-                RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME,
-                env.getPropertySources().iterator().next().getName());
+                "redis.railway.internal",
+                env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_HOST_PROPERTY));
     }
 
     @Test
-    void prefersPrivateUrlOverPublicRedisUrl() {
+    void prefersPrivateUrlThenRedisUrlThenPublicUrl() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("REDIS_URL", "redis://:pub@public.example:6379");
-        env.setProperty("REDIS_PRIVATE_URL", "redis://default:secret@redis.railway.internal:6379");
+        env.setProperty("REDIS_PUBLIC_URL", "redis://:pub@public.example:6379");
+        env.setProperty("REDIS_URL", "redis://default:u@redis.railway.internal:6379");
+        env.setProperty("REDIS_PRIVATE_URL", "redis://default:p@private.internal:6379");
 
         processor.postProcessEnvironment(env, application);
 
-        assertEquals(
-                "redis://default:secret@redis.railway.internal:6379",
-                env.getProperty("spring.data.redis.url"));
+        assertEquals("private.internal", env.getProperty("spring.data.redis.host"));
+        assertEquals("REDIS_PRIVATE_URL", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_SOURCE_PROPERTY));
     }
 
     @Test
-    void injectsPasswordAndAclUsernameWhenSet() {
+    void publicUrlUsedWhenOnlyPublicSet() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("REDIS_PASSWORD", "s3cret");
+        env.setProperty("REDIS_PUBLIC_URL", "redis://default:x@caboose.proxy.rlwy.net:12345");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertEquals("caboose.proxy.rlwy.net", env.getProperty("spring.data.redis.host"));
+        assertEquals("12345", env.getProperty("spring.data.redis.port"));
+        assertEquals("REDIS_PUBLIC_URL", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_SOURCE_PROPERTY));
+    }
+
+    @Test
+    void redisUrlWinsOverExplicitSpringDataRedisUrl() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("spring.data.redis.url", "redis://explicit:6379");
+        env.setProperty("REDIS_URL", "redis://default:secret@other.internal:6380");
+
+        processor.postProcessEnvironment(env, application);
+
+        assertEquals("redis://default:secret@other.internal:6380", env.getProperty("spring.data.redis.url"));
+        assertEquals("other.internal", env.getProperty("spring.data.redis.host"));
+    }
+
+    @Test
+    void pluginSplitNamesInjectHostPortPasswordUser() {
+        MockEnvironment env = new MockEnvironment();
+        env.setProperty("REDISHOST", "redis.railway.internal");
+        env.setProperty("REDISPORT", "6379");
+        env.setProperty("REDISPASSWORD", "plugin-pass");
         env.setProperty("REDISUSER", "default");
 
         processor.postProcessEnvironment(env, application);
 
-        assertEquals("s3cret", env.getProperty("spring.data.redis.password"));
+        assertEquals("redis.railway.internal", env.getProperty("spring.data.redis.host"));
+        assertEquals("6379", env.getProperty("spring.data.redis.port"));
+        assertEquals("plugin-pass", env.getProperty("spring.data.redis.password"));
         assertEquals("default", env.getProperty("spring.data.redis.username"));
+        assertEquals("REDISHOST", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_SOURCE_PROPERTY));
     }
 
     @Test
-    void fallsBackToPluginPasswordName() {
+    void prefersPluginPasswordNameOverUnderscore() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("REDISPASSWORD", "plugin-pass");
+        env.setProperty("REDISPASSWORD", "plugin");
+        env.setProperty("REDIS_PASSWORD", "underscore");
 
         processor.postProcessEnvironment(env, application);
 
-        assertEquals("plugin-pass", env.getProperty("spring.data.redis.password"));
+        assertEquals("plugin", env.getProperty("spring.data.redis.password"));
     }
 
     @Test
@@ -76,40 +107,29 @@ class RedisUrlAliasEnvironmentPostProcessorTest {
 
         assertNull(env.getProperty("spring.data.redis.password"));
         assertNull(env.getProperty("spring.data.redis.username"));
-        assertFalse(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
+        assertEquals("localhost", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_HOST_PROPERTY));
+        assertEquals("default", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_SOURCE_PROPERTY));
     }
 
     @Test
-    void doesNotOverrideExplicitSpringDataRedisUrl() {
-        MockEnvironment env = new MockEnvironment();
-        env.setProperty("spring.data.redis.url", "redis://explicit:6379");
-        env.setProperty("REDIS_URL", "redis://:secret@other:6379");
-
-        processor.postProcessEnvironment(env, application);
-
-        assertEquals("redis://explicit:6379", env.getProperty("spring.data.redis.url"));
-    }
-
-    @Test
-    void ignoresBlankRedisUrl() {
+    void ignoresBlankRedisUrlFallsBackToHostEnv() {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("REDIS_URL", "   ");
+        env.setProperty("REDISHOST", "from-host");
 
         processor.postProcessEnvironment(env, application);
 
         assertNull(env.getProperty("spring.data.redis.url"));
-        assertFalse(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
+        assertEquals("from-host", env.getProperty("spring.data.redis.host"));
     }
 
     @Test
-    void noOpWhenNoRedisEnv() {
+    void alwaysRegistersDiagnosticsPropertySource() {
         MockEnvironment env = new MockEnvironment();
-        Map<String, Object> before = new HashMap<>();
-        env.getPropertySources().forEach(ps -> before.put(ps.getName(), Boolean.TRUE));
 
         processor.postProcessEnvironment(env, application);
 
-        assertFalse(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
-        assertEquals(before.size(), env.getPropertySources().size());
+        assertTrue(env.getPropertySources().contains(RedisUrlAliasEnvironmentPostProcessor.PROPERTY_SOURCE_NAME));
+        assertEquals("localhost", env.getProperty(RedisUrlAliasEnvironmentPostProcessor.RESOLVED_HOST_PROPERTY));
     }
 }
