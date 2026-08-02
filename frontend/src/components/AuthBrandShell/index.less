@@ -1,0 +1,169 @@
+/* 登录/注册品牌壳（W5）：左暗色品牌面板 + 右 Form；颜色只认 --erd-* */
+.auth-shell {
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  background: var(--erd-surface);
+  font-family: var(--erd-font-ui);
+}
+
+.auth-shell__brand {
+  flex: 0 0 40%;
+  max-width: 40%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 20px;
+  padding: 48px 40px;
+  color: var(--erd-surface);
+  background: linear-gradient(
+    160deg,
+    var(--erd-ink-900) 0%,
+    color-mix(in srgb, var(--erd-ink-900) 86%, var(--erd-brand)) 100%
+  );
+}
+
+.auth-shell__brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--erd-surface);
+  text-decoration: none;
+}
+
+.auth-shell__brand-logo:hover {
+  color: var(--erd-surface);
+  opacity: 0.92;
+}
+
+.auth-shell__brand-name {
+  font-family: var(--erd-font-display);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.auth-shell__brand-title {
+  margin: 0 !important;
+  font-family: var(--erd-font-display) !important;
+  font-size: 28px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  color: var(--erd-surface) !important;
+}
+
+.auth-shell__brand-lead {
+  margin: 0 !important;
+  max-width: 360px;
+  font-size: 15px;
+  line-height: 1.55;
+  color: color-mix(in srgb, var(--erd-surface) 78%, transparent);
+}
+
+.auth-shell__brand-thumb {
+  align-self: flex-start;
+  margin-top: 8px;
+  padding: 16px;
+  background: color-mix(in srgb, var(--erd-surface) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--erd-surface) 16%, transparent);
+  border-radius: var(--erd-radius);
+}
+
+.auth-shell__brand-cta {
+  align-self: flex-start;
+  margin-top: 4px;
+  color: var(--erd-surface);
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.auth-shell__brand-cta:hover {
+  color: color-mix(in srgb, var(--erd-surface) 88%, var(--erd-brand));
+}
+
+.auth-shell__form {
+  flex: 1;
+  min-width: 0;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 48px 40px;
+  background: var(--erd-surface);
+  overflow-y: auto;
+}
+
+.auth-shell__form-inner {
+  width: 100%;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.auth-shell__form-header {
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.auth-shell__form-header img {
+  display: block;
+  margin: 0 auto;
+}
+
+.auth-shell__form-title {
+  margin: 12px 0 4px !important;
+  font-family: var(--erd-font-display) !important;
+  color: var(--erd-ink-900) !important;
+}
+
+.auth-shell__form-desc {
+  margin-bottom: 0 !important;
+  color: var(--erd-ink-600) !important;
+}
+
+.auth-shell__form-links {
+  margin-top: 16px;
+  text-align: center;
+  font-size: 14px;
+  color: var(--erd-ink-400);
+  line-height: 1.7;
+}
+
+.auth-shell__form-links a {
+  color: var(--erd-brand);
+  text-decoration: none;
+}
+
+.auth-shell__form-links a:hover {
+  color: var(--erd-brand-hover);
+  text-decoration: underline;
+}
+
+@media (max-width: 860px) {
+  .auth-shell {
+    flex-direction: column;
+  }
+
+  .auth-shell__brand {
+    flex: none;
+    max-width: none;
+    width: 100%;
+    padding: 32px 24px 28px;
+    gap: 14px;
+  }
+
+  .auth-shell__brand-title {
+    font-size: 22px !important;
+  }
+
+  .auth-shell__brand-thumb {
+    display: none;
+  }
+
+  .auth-shell__form {
+    padding: 32px 24px 40px;
+  }
+}

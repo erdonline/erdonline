@@ -61,10 +61,7 @@
 
 ### 登录 / 注册（品牌壳 · W5）
 
-- 现状：`LoginFormPage`（Pro）+ `bg2.png` 背景 + 内联 style 魔法色（`#f16824` 活动条、`#1677FF` 按钮）
-- 目标：左 40% 深色品牌面板（落地页同源：logo + 一句话叙事 + 画布截图缩略），右 60% 白色 antd `Form`（用户名/密码、主按钮「登录」brand 实心、文字链「注册新账号 / 先看演示」）
-- 摘 `LoginFormPage` → 纯 antd `Form` + `Card`（平级无阴影）；`activityConfig` 活动条改为品牌面板内一行文字链；清除全部内联 hex
-- 注册页同构复用；`redirect` 闭环逻辑不变
+- ✅ **W5 切片 4**（2026-08-03）：`AuthBrandShell` 左 40% 暗色品牌面板（`--erd-ink-900` 渐变 + logo/叙事/`ErdEmptyDiagram` 缩略 +「打开演示」文字链）+ 右 60% 白色 antd `Form`；清 `bg2.png` / `#1677FF` 硬编码；注册页同构；`redirect` 闭环不变
 
 ### Home `/home`（工作台壳 · W2，删除优先）
 
@@ -115,7 +112,7 @@
 - 现状：只读画布 + 顶栏， fork 入口已通（P3a ✅）
 - ✅ **W5 切片 2**（2026-08-02）：链接失效/无效 token → `Result` 403 +「返回首页」+「打开示例 demo」（与 404/403 同构）
 - ✅ **W5 切片 3**（2026-08-03）：成功态顶栏对齐设计器壳——`erd-chrome-header` 64px、logo→落地、项目名 +「只读」Tag、「复制到我的项目」主按钮、未登录「登录/注册」文字链（带 autofork redirect）；去 Card/`Alert` 厚壳，画布为门面主体
-- 待：登录品牌壳再打磨（左品牌面板 + 右 Form）
+- ✅ **W5 切片 4**（2026-08-03）：登录/注册品牌壳——左暗色面板 + 右 Form；见上节
 - 分享页是给陌生人的产品门面，保持轻 chrome，不加工作台导航
 
 ### 404 / 403（品牌壳 · W5）
@@ -185,6 +182,7 @@
 | └ **W5 切片 1** ✅（2026-08-02） | **404/403**：去 `reset.css`；标准 Result 图标；次按钮「打开示例 demo」；删自定义 svg | — | `not-found.spec`「返回首页」+「打开示例 demo」→ `/demo`\|`/s/public-demo` |
 | └ **W5 切片 2** ✅（2026-08-02） | **分享失效态**：无效/吊销 token → `Result` 403 +「返回首页」+「打开示例 demo」；成功态 chrome 不动 | — | `share.spec`「无效 token…示例 demo」+「创建→吊销后…」见 Result CTA |
 | └ **W5 切片 3** ✅（2026-08-03） | **分享顶栏品牌对齐**：64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链；轻 chrome 无工作台导航 | — | `share.spec`「设计器分享后…」断言 header 64px + logo/登录/注册；`demo.spec` chrome 可见 |
+| └ **W5 切片 4** ✅（2026-08-03） | **登录/注册品牌壳**：`AuthBrandShell` 左 40% 暗色面板 + 右 Form；清 `bg2`/`#1677FF`；删 `public/bg2.png` | — | `smoke`「登录页渲染」品牌壳 ~40% + 无硬编码；`session`「去注册」同壳 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
 

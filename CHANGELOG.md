@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：登录/注册品牌壳对齐 erd tokens（W5 切片 4）
+
+- `AuthBrandShell`：左 40% 暗色品牌面板（`--erd-ink-900`×brand 渐变 + logo/叙事/`ErdEmptyDiagram` +「打开演示」文字链）+ 右 Form
+- 清 `bg2.png` 背景与 `#1677FF` 硬编码；删除 `public/bg2.png`；注册页同构复用
+- `redirect` 闭环与可访问名不变
+
+验证点：`cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`；`session.spec`「去注册」同壳
+
 #### 体验：分享页顶栏品牌对齐设计器壳（W5 切片 3 / ADR-0016）
 
 - 选题：登录壳 vs 分享顶栏 → 选后者（陌生人门面「敢分享」首印象；登录壳下一刀）

@@ -18,11 +18,34 @@ import {
 test.describe('冒烟：核心旅程', () => {
   test('登录页渲染；错误凭证停留在登录页', async ({ page }) => {
     await page.goto('/login');
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible();
+    await expect(page.getByTestId('auth-brand-panel')).toBeVisible();
     await expect(page.getByRole('textbox', { name: '用户名' })).toBeVisible();
     await expect(page.getByRole('textbox', { name: '密码' })).toBeVisible();
-    await expect(page.getByText(/Git \+ Figma/)).toBeVisible();
-    await expect(page.getByRole('button', { name: '打开演示' })).toBeVisible();
+    await expect(page.getByText(/Git \+ Figma/).first()).toBeVisible();
+    await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
     await expect(page.getByText(/ChatGPT/i)).toHaveCount(0);
+
+    // W5：左品牌面板 ~40%；无 bg2 / Ant 蓝硬编码
+    const brandMetrics = await page.getByTestId('auth-brand-panel').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const root = getComputedStyle(document.documentElement);
+      const shell = document.querySelector('[data-testid="auth-brand-shell"]');
+      const shellHtml = shell?.outerHTML ?? '';
+      return {
+        widthRatio: el.getBoundingClientRect().width / window.innerWidth,
+        bgImage: cs.backgroundImage,
+        ink900: root.getPropertyValue('--erd-ink-900').trim(),
+        shellHasBg2: /bg2\.png/i.test(shellHtml),
+        shellHas1677: /#1677FF/i.test(shellHtml),
+      };
+    });
+    expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
+    expect(brandMetrics.widthRatio).toBeLessThan(0.48);
+    expect(brandMetrics.bgImage).not.toMatch(/bg2\.png/i);
+    expect(brandMetrics.shellHasBg2).toBe(false);
+    expect(brandMetrics.shellHas1677).toBe(false);
+    expect(brandMetrics.ink900).toBe('#0b1c2c');
 
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');

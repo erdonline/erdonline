@@ -19,8 +19,10 @@ test.describe('会话闭环', () => {
       page.getByRole('link', { name: '去注册' }),
       /\/register/,
     );
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible();
     await expect(page.getByRole('button', { name: /注\s*册/ })).toBeVisible();
     await expect(page.getByRole('link', { name: '去登录' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
   });
 
   test('注册成功进入 /home', async ({ page }) => {
