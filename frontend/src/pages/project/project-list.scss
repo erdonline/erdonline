@@ -1,0 +1,155 @@
+// ADR-0016：个人/最近项目列表与 22–28 chrome 同阶；禁 Title level4 + List large 松行
+.project-list-page {
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+}
+
+.project-list-page__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 28px;
+}
+
+.project-list-page__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.project-list-page__toolbar {
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+
+  .ant-input-search {
+    width: 200px;
+
+    .ant-input-affix-wrapper {
+      min-height: 28px;
+      padding-block: 0;
+      font-size: 12px;
+    }
+
+    .ant-input {
+      font-size: 12px;
+      height: 26px;
+    }
+
+    .ant-input-search-button {
+      height: 28px;
+      font-size: 12px;
+    }
+  }
+}
+
+.project-list-page__list {
+  .ant-list-empty-text {
+    padding: 24px 12px;
+  }
+
+  .ant-list-item {
+    padding-block: 4px;
+    padding-inline: 8px;
+    align-items: flex-start;
+  }
+
+  .ant-list-item-meta {
+    margin-block: 0;
+    align-items: flex-start;
+  }
+
+  .ant-list-item-meta-avatar {
+    margin-inline-end: 10px;
+
+    .ant-avatar {
+      width: 28px;
+      height: 28px;
+      line-height: 28px;
+      font-size: 12px;
+    }
+  }
+
+  .ant-list-item-meta-title {
+    margin-bottom: 2px !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 22px;
+
+    > a {
+      color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+
+      &:hover {
+        color: var(--erd-brand, #de2910);
+      }
+    }
+  }
+
+  .ant-list-item-meta-description {
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+  }
+
+  .ant-list-item-action {
+    margin-inline-start: 8px;
+    margin-block-start: 0;
+
+    > li {
+      padding: 0 4px;
+      font-size: 12px;
+    }
+
+    .ant-btn {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 10px;
+    }
+
+    .ant-btn-link {
+      height: 22px;
+      padding: 0 4px;
+      font-size: 12px;
+    }
+  }
+
+  .ant-tag {
+    margin-inline-end: 4px;
+    line-height: 18px;
+    font-size: 11px;
+    padding-inline: 4px;
+  }
+
+  .ant-pagination {
+    margin-block: 8px 0;
+    font-size: 12px;
+  }
+}
+
+.project-list-page__meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.project-list-page__tags {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 2px;
+}
+
+.project-list-page__time {
+  color: rgba(0, 0, 0, 0.45);
+  font-size: 12px;
+  line-height: 18px;
+}
