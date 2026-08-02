@@ -33,14 +33,16 @@ test.describe('新手激活', () => {
         await expect(page).toHaveURL(/\/design\/table/, { timeout: 20_000 });
         await expectToast(page, /示例项目已就绪/);
 
-        await expect(page.getByText('示例商城', { exact: true })).toBeVisible({ timeout: 15_000 });
-        await expandTreeTitle(page, '示例商城');
+        await expect(page.getByText('功能鉴权', { exact: true })).toBeVisible({ timeout: 15_000 });
+        await expandTreeTitle(page, '功能鉴权');
         await expandTreeTitle(page, '关系');
         await page.getByTestId('tree-open-relation').click();
         await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
-        await expect(page.locator('.react-flow__node', { hasText: 'T_USER' })).toBeVisible();
-        await expect(page.locator('.react-flow__node', { hasText: 'T_ORDER' })).toBeVisible();
-        await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+        // hasText 'sys_user' 会误匹配 sys_user_role；用 RF data-testid
+        await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
+        await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
+        await expect(page.locator('.react-flow__node')).toHaveCount(8);
+        await expect(page.locator('.react-flow__edge')).toHaveCount(7);
       } finally {
         await deleteAllPersonProjects(page).catch(() => {});
       }

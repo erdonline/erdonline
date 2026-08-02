@@ -199,7 +199,7 @@
 
 ## 新手激活（2026-08-01）
 
-- [x] [首页示例] 登录→/home→示例项目→设计器关系图见 T_USER/T_ORDER + 边 ✅ `activation.spec.ts`
+- [x] [首页示例] 登录→/home→示例项目→设计器关系图见 sys_user 等 8 表 + 7 边 ✅ `activation.spec.ts`
 - [x] [去死链] 「新建模型」href 指向 `/project/person` ✅同上
 - [x] [多项目] 开源版可连续创建 ≥2 个个人项目 ✅ `activation.spec.ts`
 - [x] [30s 计时] 落地→demo→登录→示例就绪→保存首版本；计时段 ≤30s（基线 ~3.5s） ✅ `activation-30s.spec.ts`
@@ -210,7 +210,7 @@
 
 ## 项目激活链路（2026-08-01）
 
-- [x] [空态引导] 清空个人项目 → /project/person 见「立即创建/一键示例」→ 一键示例进设计器树见 T_USER/T_ORDER ✅ `project-activation.spec.ts`
+- [x] [空态引导] 清空个人项目 → /project/person 见「立即创建/一键示例」→ 一键示例进设计器树见 sys_user/sys_role/sys_permission/biz_order ✅ `project-activation.spec.ts`
 - [x] [新建表单减负] 打开新建弹窗 → 类型默认个人项目、标签已填 → 只填名称/描述可创建，成功有「创建成功」提示 ✅同上
 
 ## 开发基建（2026-08-01）

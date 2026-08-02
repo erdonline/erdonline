@@ -1,82 +1,21 @@
 import defaultData from '@/utils/defaultData.json';
+import demoProjectJSON from '@/utils/demo.projectjson.json';
 import { addProject } from '@/services/project';
 import { history } from '@@/core/history';
 import { Button, message, notification } from 'antd';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 
-/** 示例商城模型：2 表 + 1 关联，打开关系图即有画布内容 */
+/**
+ * 功能鉴权示例：RBAC（用户/角色/权限/中间表）+ 会话/审计 + 业务订单。
+ * 模块真相源：schema/examples/demo.projectjson.json（同步见 scripts/sync-demo-projectjson.mjs）
+ */
 export function buildExampleProjectJSON() {
   const base = JSON.parse(JSON.stringify(defaultData));
-  base.modules = [
-    {
-      name: 'SHOP',
-      chnname: '示例商城',
-      entities: [
-        {
-          title: 'T_USER',
-          chnname: '用户',
-          fields: [
-            {
-              name: 'ID',
-              chnname: '主键',
-              type: 'IdOrKey',
-              pk: true,
-              notNull: true,
-            },
-            {
-              name: 'NAME',
-              chnname: '用户名',
-              type: 'String',
-              pk: false,
-              notNull: true,
-            },
-          ],
-        },
-        {
-          title: 'T_ORDER',
-          chnname: '订单',
-          fields: [
-            {
-              name: 'ID',
-              chnname: '主键',
-              type: 'IdOrKey',
-              pk: true,
-              notNull: true,
-            },
-            {
-              name: 'USER_ID',
-              chnname: '用户ID',
-              type: 'IdOrKey',
-              pk: false,
-              notNull: true,
-            },
-            {
-              name: 'AMOUNT',
-              chnname: '金额',
-              type: 'Decimal',
-              pk: false,
-              notNull: false,
-            },
-          ],
-        },
-      ],
-      graphCanvas: {
-        nodes: [
-          { id: 'T_USER', x: 80, y: 80 },
-          { id: 'T_ORDER', x: 420, y: 80 },
-        ],
-        edges: [],
-      },
-      associations: [
-        {
-          relation: '1:n',
-          from: { entity: 'T_ORDER', field: 'USER_ID' },
-          to: { entity: 'T_USER', field: 'ID' },
-        },
-      ],
-    },
-  ];
+  base.modules = JSON.parse(JSON.stringify(demoProjectJSON.modules));
+  if (base.profile) {
+    base.profile.dbs = [];
+  }
   return base;
 }
 
@@ -102,9 +41,10 @@ export async function createExampleProjectAndOpen(
   const hide = message.loading('正在创建示例项目…', 0);
   try {
     const res: any = await addProject({
-      projectName: projectName || `示例商城-${Date.now().toString().slice(-6)}`,
-      description: '开箱即用的示例模型：用户/订单与关联，可直接改表并保存版本',
-      tags: '示例,入门',
+      projectName: projectName || `功能鉴权示例-${Date.now().toString().slice(-6)}`,
+      description:
+        'RBAC 功能鉴权示例：用户/角色/权限/会话/审计与业务订单，可直接改表并保存版本',
+      tags: '示例,鉴权,RBAC',
       projectJSON: buildExampleProjectJSON(),
       configJSON: { synchronous: { upgradeType: 'increment' } },
     });
@@ -121,7 +61,7 @@ export async function createExampleProjectAndOpen(
         key,
         message: '示例项目已就绪',
         description:
-          '表结构与关系已建好。下一步：保存你的第一个版本（也可点顶栏「保存版本」）。',
+          '鉴权域表结构与关系已建好。下一步：保存你的第一个版本（也可点顶栏「保存版本」）。',
         duration: 0,
         placement: 'bottomRight',
         closeIcon: (

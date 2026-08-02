@@ -26,11 +26,13 @@ test.describe('项目激活', () => {
 
         await page.getByTestId('person-empty-example').click();
         await expect(page).toHaveURL(/\/design\/table\/model\?projectId=/, { timeout: 15_000 });
-        await expect(page.getByText('示例商城', { exact: true })).toBeVisible({ timeout: 15_000 });
-        await expandTreeTitle(page, '示例商城');
+        await expect(page.getByText('功能鉴权', { exact: true })).toBeVisible({ timeout: 15_000 });
+        await expandTreeTitle(page, '功能鉴权');
         await expandTreeTitle(page, '表');
-        await expect(page.getByText('T_USER', { exact: true })).toBeVisible({ timeout: 10_000 });
-        await expect(page.getByText('T_ORDER', { exact: true })).toBeVisible();
+        await expect(page.getByText('sys_user', { exact: true })).toBeVisible({ timeout: 10_000 });
+        await expect(page.getByText('sys_role', { exact: true })).toBeVisible();
+        await expect(page.getByText('sys_permission', { exact: true })).toBeVisible();
+        await expect(page.getByText('biz_order', { exact: true })).toBeVisible();
       } finally {
         await deleteAllPersonProjects(page).catch(() => {});
       }
