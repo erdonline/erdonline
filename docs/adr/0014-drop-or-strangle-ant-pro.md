@@ -1,7 +1,7 @@
 # ADR-0014：@ant-design/pro-components 去留（Strangler 摘除）
 
-- 状态：**⏳ 待确认（建议选项 B）**（2026-08-02）
-- 决策者：待定
+- 状态：**✅ 已接受 · 选项 B**（2026-08-02）
+- 决策者：产品负责人
 - 前置：[ADR-0005](./0005-ui-architecture.md)（UI 架构：antd 守 CRUD，设计器域自研）
 
 ## 背景
@@ -22,18 +22,18 @@
 | `ProLayout` / `PageContainer` | ~6 | `HomeLayout` / `DesignLayout` / `GroupLayout` / `home` / `account/settings` |
 | `ProList` / `StepsForm` / `LoginForm(Page)` / `FooterToolbar` / `WaterMark` | ~18 | 登录/注册、逆向导入向导、导出 DDL、项目组页等 |
 
-## 决策（建议：选项 B —— Strangler 摘除）
+## 决策：选项 B —— Strangler 摘除
 
 三个候选：
 
 - **A 本里程碑全量移除**：替换为 antd `Layout/Table/Form` + 薄封装。拒绝——70 文件、300+ 处用量的爆破与「一次只做一件事」冲突，且与 ReactFlow 画布、北极星三件事抢迭代带宽。
-- **B Strangler（建议）**：冻结 Pro 新增用量；Home/模型 chrome 随 `ui-home-model-redesign` S 片优先摘除（S2–S5 本就要重写这些 chrome）；表单/表格域后续按迁移映射逐域收口；最终移除依赖单独切片。
+- **B Strangler（已接受）**：冻结 Pro 新增用量；Home/模型 chrome 随 `ui-home-model-redesign` S 片优先摘除（S2–S5 本就要重写这些 chrome）；表单/表格域后续按迁移映射逐域收口；最终移除依赖单独切片。
 - **C 保留 Pro**：仅当 Pro 对本栈不可替代。拒绝——Pro 的价值（模板化 CRUD）与 ADR-0005「antd 守 CRUD + 设计域自研」重叠，且它是 antd 升级的版本耦合点。
 
 **B 的约束条款**：
 
 1. **冻结**：新代码禁止新增 `@ant-design/pro-components` import（lint 规则 `no-restricted-imports` 跟进）
-2. **版本冻结**：升级 umi + antd 时**不升级 Pro**；若出现 peer 冲突，优先降 antd 升级幅度或加速摘除 chrome 域，不为 Pro 让路
+2. **版本冻结**：`@ant-design/pro-components` **钉死 `2.8.10`**；升级 umi + antd 时**不升级 Pro**；若出现 peer 冲突，优先降 antd 升级幅度或加速摘除 chrome 域，不为 Pro 让路
 3. **摘除顺序**：chrome（ProLayout/PageContainer/ProCard in layouts + home）→ 表单对话框（ModalForm/ProForm*）→ 表格（ProTable）→ 登录注册（LoginForm）
 4. **移除判据**：grep 基线清零后从 `package.json` 删除依赖，单独 commit
 
@@ -49,11 +49,11 @@
 | `ProList` | antd `List` |
 | `LoginForm(Page)` | antd `Form` 直写（登录/注册页本就轻） |
 | `FooterToolbar` | 薄 fixed 底栏组件 |
-| `WaterMark` | antd 5 原生 `WaterMark`（免费，直接换 import） |
+| `WaterMark` | antd 5 原生 `Watermark`（免费，直接换 import） |
 
 ## 后果
 
 - 正面：解除 antd 升级耦合；chrome 自研与 ADR-0005 对齐；包体积最终下降
 - 代价：冻结期内 Pro/antd 双写并存；迁移期同站两种表单写法（薄封装先行收敛）
 - 风险：Pro 2.8.x 对新版 antd 的 peer 警告——容忍警告，不升级 Pro
-- 对实现者的中断指令：下一轮 Auto 若在做 umi+antd+pro 升级，**停止升级 Pro**，只升 umi+antd；新切片一律走迁移映射，不再加深 Pro 用量
+- 对实现者的中断指令：执行 umi+antd 升级时**停止升级 Pro**，只升 umi+antd；新切片一律走迁移映射，不再加深 Pro 用量

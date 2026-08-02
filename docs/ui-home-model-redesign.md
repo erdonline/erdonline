@@ -132,7 +132,7 @@ Before/After 原则对照：
 
 | # | 切片 | 范围 | 验证点 |
 |---|---|---|---|
-| S0 | 依赖升级（前置，ADR-0014） | **只升 umi + antd，不升 `@ant-design/pro-components`**；冻结 Pro 新增用量；出现 peer 冲突优先加速 chrome 摘除而非升 Pro | `yarn build` 绿；`@ant-design/pro-components` 版本仍为 2.8.10；Pro import 文件数 ≤ 基线 70 |
+| S0 | 依赖升级（前置，ADR-0014）✅ | **只升 umi + antd，不升 `@ant-design/pro-components`**；冻结 Pro 新增用量；`rc-util@5.44.4` 解 peer；chrome 切片 1 已摘 Home/Group | `yarn build` 绿；pro=`2.8.10`；Pro import 文件数 65 ≤ 基线 70 |
 | S1 | tokens 地基 | `theme/tokens.ts` + `ConfigProvider` 接入 + less 变量；全站视觉应**无可见变化**或仅圆角/主色归一 | `yarn build` 绿；`landing.spec` + `layout-outlet.spec` 不回归 |
 | S2 | Home hero 条 | 问候 + 主 CTA + 3 指标；删 slogan 轮转、ExtraContent 彩虹、页脚压缩 | Home 截图前后对比；`getByRole('button', {name:'继续上次建模'})` 可达 |
 | S3 | Home 项目网格 | 去 Card.Grid 嵌套，紧凑网格 + hover 升层；删「项目概览」卡 | 卡片整卡可点；`home-link-*` testId 用例不回归 |
