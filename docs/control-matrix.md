@@ -175,10 +175,10 @@
 | `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
 | `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | ✅ | `account-settings.spec` 头像→security/identification |
 | `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | ✅ | `group-basic-setting.spec` |
-| `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | 🚧 | |
-| GroupLayout 菜单 | 返回项目列表 | → `/dataModels` | | 🚧 | |
-| GroupLayout 菜单 | 打开模型 | → 设计器 | projectId | 🚧 | |
-| `/*` | 404 页 | 未知路径友好提示 | | 🚧 | |
+| `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | ✅ | `group-layout-nav`「权限组」 |
+| GroupLayout 菜单 | 返回项目列表 | → `/dataModels` | | ✅ | `group-layout-nav`「返回/打开」 |
+| GroupLayout 菜单 | 打开模型 | → 设计器 | projectId | ✅ | `group-layout-nav`「返回/打开」 |
+| `/*` | 404 页 | 未知路径友好提示 | | ✅ | `not-found.spec` |
 
 ---
 
@@ -199,8 +199,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 85 |
-| 🚧 | 4 |
+| ✅ | 89 |
+| 🚧 | 0 |
 | 🗑 | 6 |
 | 📋 | 7 |
 | **合计** | **102** |
