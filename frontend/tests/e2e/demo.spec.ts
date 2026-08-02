@@ -29,6 +29,18 @@ test.describe('在线演示', () => {
       frameBgs.some((bg) => /47,\s*143,\s*123/.test(bg)),
       `应有 success frameFill（got ${JSON.stringify(frameBgs)}）`,
     ).toBeTruthy();
+    // ADR-0016：Frame 标题栏再压（height ≤22）
+    const chromeH = await page
+      .locator('.erd-frame-chrome')
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).height));
+    expect(chromeH, `Frame chrome 应 ≤22px，得 ${chromeH}`).toBeLessThanOrEqual(22);
+    expect(chromeH).toBeGreaterThanOrEqual(18);
+    // MiniMap 与 sunk 画布同底（禁 RF 默认 #fff；背景在 panel，非 svg）
+    const miniBg = await page
+      .locator('.react-flow__minimap')
+      .evaluate((el) => getComputedStyle(el).backgroundColor);
+    expect(miniBg).toBe('rgb(250, 251, 252)'); // surfaceSunk
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });

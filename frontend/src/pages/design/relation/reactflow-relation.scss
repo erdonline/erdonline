@@ -84,6 +84,15 @@
     opacity: 1;
     background: var(--erd-brand);
   }
+
+  // MiniMap 与 sunk 画布同底，禁 RF 默认 #fff 白块
+  .react-flow__minimap {
+    background-color: var(--erd-surface-sunk) !important;
+    border: 1px solid var(--erd-line);
+    border-radius: 6px;
+    overflow: hidden;
+    box-shadow: 0 1px 2px var(--erd-ink-a06);
+  }
 }
 
 .erd-table-node {
@@ -442,15 +451,16 @@
 
   .erd-frame-chrome {
     position: absolute;
-    top: 4px;
-    left: 8px;
-    right: 8px;
-    height: 28px;
+    top: 3px;
+    left: 6px;
+    right: 6px;
+    // 密图再压：28→22，标题栏少占成员上方空白
+    height: 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 8px;
-    border-radius: 6px;
+    padding: 0 6px;
+    border-radius: 4px;
     // 轻表面条：分组名可读，截图不糊成色块
     background: color-mix(in srgb, var(--erd-surface) 78%, transparent);
     border: 1px solid color-mix(in srgb, var(--erd-line) 70%, transparent);
@@ -464,17 +474,19 @@
   }
 
   .erd-frame-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
     color: var(--erd-success);
     letter-spacing: 0.02em;
     user-select: none;
+    line-height: 1.2;
   }
 
   .erd-frame-meta {
-    font-size: 11px;
+    font-size: 10px;
     color: var(--erd-ink-400);
     user-select: none;
+    line-height: 1.2;
   }
 
   &.selected .erd-frame-label {

@@ -216,6 +216,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
           nodeColor={erdColors.surface}
           nodeStrokeColor={erdColors.line}
           maskColor={erdColors.inkA06}
+          style={{ backgroundColor: erdColors.surfaceSunk }}
         />
       </ReactFlow>
     </div>

@@ -1372,6 +1372,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             nodeColor={erdColors.surface}
             nodeStrokeColor={erdColors.line}
             maskColor={erdColors.inkA06}
+            style={{ backgroundColor: erdColors.surfaceSunk }}
           />
         )}
         <CollabCursors />
