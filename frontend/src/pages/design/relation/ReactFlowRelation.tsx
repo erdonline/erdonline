@@ -156,6 +156,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     });
   };
   const [editing, setEditing] = useState<EditingState>(null);
+  /** 浏览态选中字段：Delete/Backspace → 二次确认删除（编辑态 Backspace 仍只改字） */
+  const [selectedField, setSelectedField] = useState<string | null>(null);
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
   /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
@@ -188,6 +190,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     autoIncrement?: boolean;
   }) => {
     const pk = !!f.pk;
+    setSelectedField(null);
     setEditing({
       key: f.name,
       name: f.name,
@@ -332,6 +335,21 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   const removeField = (fieldName: string) => {
     onFieldsChange((entity.fields || []).filter(f => f.name !== fieldName));
+    setSelectedField(prev => (prev === fieldName ? null : prev));
+  };
+
+  /** 破坏性：按钮 / 浏览态 Delete·Backspace 共用二次确认 */
+  const confirmRemoveField = (fieldName: string) => {
+    Modal.confirm({
+      title: `确定删除字段 "${fieldName}" 吗?`,
+      content: '此操作不可逆，请谨慎操作。',
+      okText: '删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        removeField(fieldName);
+      },
+    });
   };
 
   const togglePk = (fieldName: string) => {
@@ -572,9 +590,29 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 'erd-field-row',
                 f.pk ? 'erd-field-pk' : '',
                 fkSet.has(f.name) ? 'erd-field-fk' : '',
+                selectedField === f.name ? 'erd-field-selected' : '',
               ].filter(Boolean).join(' ')}
+              tabIndex={0}
+              aria-label={`字段 ${f.name}`}
+              aria-current={selectedField === f.name ? 'true' : undefined}
+              onClick={e => {
+                const t = e.target as HTMLElement;
+                // 控件/锚点点击不抢选中（PK/✎/× 自带动作）
+                if (t.closest('button, a, input, select, label, .react-flow__handle')) return;
+                setSelectedField(f.name);
+                (e.currentTarget as HTMLElement).focus();
+              }}
               onDoubleClick={() => startEditField(f)}
-              title="双击或点 ✎ 编辑字段"
+              onKeyDown={e => {
+                // 拦 RF deleteKeyCode；子控件（PK/✎/×）聚焦时不误删
+                e.stopPropagation();
+                if (e.key !== 'Delete' && e.key !== 'Backspace') return;
+                const t = e.target as HTMLElement;
+                if (t.closest('button, input, select, textarea')) return;
+                e.preventDefault();
+                confirmRemoveField(f.name);
+              }}
+              title="单击选中后 Delete/Backspace 删除；双击或点 ✎ 编辑"
               data-field={f.name}
             >
               {/* 双侧 src/tgt：左靶在上（易落点）、右源在上（易拖出）；几何择柄消竖叠 circle-route */}
@@ -620,7 +658,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 title="删除字段"
                 onClick={e => {
                   e.stopPropagation();
-                  removeField(f.name);
+                  confirmRemoveField(f.name);
                 }}
               >
                 ×
@@ -637,9 +675,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-add-field"
             role="button"
             aria-label="添加字段"
-            onClick={() => setEditing({
-              key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
-            })}
+            onClick={() => {
+              setSelectedField(null);
+              setEditing({
+                key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
+              });
+            }}
           >
             + 添加字段
           </div>

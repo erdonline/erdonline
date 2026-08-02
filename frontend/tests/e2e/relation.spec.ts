@@ -1332,13 +1332,13 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
-  test('删除字段：可访问按钮移除字段行', async ({ page }) => {
-    test.setTimeout(90_000);
+  test('删除字段：按钮二次确认；选中 Delete/Backspace；编辑态 Backspace 不删', async ({ page }) => {
+    test.setTimeout(120_000);
     const projectName = uniqueProjectName('fdel');
     try {
       await login(page);
       await deleteOwnPersonProjects(page);
-      await createAndOpenPersonProject(page, projectName, 'fdel', 'field delete a11y');
+      await createAndOpenPersonProject(page, projectName, 'fdel', 'field delete confirm');
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
@@ -1349,14 +1349,53 @@ test.describe('关系图画布（ReactFlow）', () => {
       const nameRow = node.locator('[data-field="NAME"]');
       await expect(nameRow).toBeVisible();
 
-      // 删除钮仅 hover 可见；限定在字段行内避免同表多字段歧义
+      // 按钮：二次确认；取消不删
       await nameRow.hover();
       const delBtn = nameRow.getByRole('button', { name: '删除字段' });
       await expect(delBtn).toBeVisible();
-      // 右侧 Handle 易挡指针；DOM click 与表头改名一致
       await delBtn.evaluate((el: HTMLElement) => el.click());
+      const dialog = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await expect(dialog.getByText(/确定删除字段/).filter({ visible: true })).toBeVisible();
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).click();
+      await expect(node.locator('[data-field="NAME"]')).toBeVisible();
+
+      // 浏览态选中 → Backspace → 确认删除
+      await nameRow.click({ position: { x: 40, y: 8 } });
+      await expect(nameRow).toBeFocused();
+      await page.keyboard.press('Backspace');
+      const dialogBs = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await expect(dialogBs.getByText(/确定删除字段/).filter({ visible: true })).toBeVisible();
+      await dialogBs.getByRole('button', { name: /删\s*除/ }).click();
       await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
       await expect(node.locator('[data-field="id"]')).toBeVisible();
+
+      // 再加字段：编辑态 Backspace 只改字，不弹删确认
+      await addFieldInline(page, 'T_TABLE_1', 'TITLE');
+      const titleRow = node.locator('[data-field="TITLE"]');
+      await titleRow.hover();
+      await titleRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      const titleInput = node.getByRole('textbox', { name: '字段名' });
+      await expect(titleInput).toHaveValue('TITLE');
+      await titleInput.press('Backspace');
+      await expect(page.getByRole('dialog').filter({ hasText: /不可逆/ })).toHaveCount(0);
+      await expect(titleInput).toHaveValue('TITL');
+      // Escape / 空名路径保留
+      await titleInput.fill('');
+      await titleInput.press('Tab');
+      await expectToast(page, '字段名不能为空');
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await titleInput.fill('TITLE');
+      await titleInput.press('Escape');
+      await expect(node.locator('[data-field="TITLE"]')).toBeVisible();
+
+      // Delete 键确认删
+      await titleRow.click({ position: { x: 40, y: 8 } });
+      await page.keyboard.press('Delete');
+      const dialogDel = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await expect(dialogDel.getByText(/确定删除字段/).filter({ visible: true })).toBeVisible();
+      await dialogDel.getByRole('button', { name: /删\s*除/ }).click();
+      await expect(node.locator('[data-field="TITLE"]')).toHaveCount(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

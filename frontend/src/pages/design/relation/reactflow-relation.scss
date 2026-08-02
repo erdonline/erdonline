@@ -300,6 +300,16 @@
         background: color-mix(in srgb, var(--erd-ink-900) 3%, transparent);
       }
 
+      // 浏览态选中（Delete/Backspace 删字段）；复用 ink 浅底，非新 token
+      &.erd-field-selected {
+        background: color-mix(in srgb, var(--erd-ink-900) 6%, transparent);
+      }
+
+      &:focus-visible {
+        outline: 1px solid color-mix(in srgb, var(--erd-brand) 40%, transparent);
+        outline-offset: -1px;
+      }
+
       &.erd-field-pk {
         background: color-mix(in srgb, var(--erd-warning) 4%, transparent);
 
