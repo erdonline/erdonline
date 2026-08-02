@@ -135,7 +135,7 @@ const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }
             data-testid="project-menu-panel"
             aria-hidden={!open}
           >
-            <ProjectMenu />
+            <ProjectMenu open={open} />
           </div>
         )}
       >
