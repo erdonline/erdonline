@@ -8,9 +8,9 @@ import ReactFlow, {
   Edge,
   Node,
 } from 'reactflow';
-import dagre from 'dagre';
 import 'reactflow/dist/style.css';
 import {erdColors} from '@/theme/tokens';
+import {resolveEntityPositions} from '@/utils/graphLayout';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
 
@@ -27,10 +27,6 @@ type ModuleData = {
   associations?: Association[];
   graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
 };
-
-const NODE_W = 220;
-const NODE_H_BASE = 48;
-const ROW_H = 22;
 
 function associationsToEdges(associations: Association[]): Edge[] {
   return (associations || [])
@@ -76,49 +72,20 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData }>> = React.mem
 
 const nodeTypes = {table: ReadOnlyTableNode};
 
-function layoutNodes(entities: EntityData[], layout: { id: string; x?: number; y?: number }[]): Node[] {
-  const pos = new Map(layout.map(n => [n.id, n]));
-  const needDagre = entities.some(e => {
-    const p = pos.get(e.title);
-    return p?.x == null || p?.y == null;
-  });
-  if (needDagre && entities.length > 0) {
-    const g = new dagre.graphlib.Graph();
-    g.setDefaultEdgeLabel(() => ({}));
-    g.setGraph({rankdir: 'LR', nodesep: 40, ranksep: 80});
-    entities.forEach(e => {
-      const h = NODE_H_BASE + (e.fields?.length || 0) * ROW_H;
-      g.setNode(e.title, {width: NODE_W, height: h});
-    });
-    dagre.layout(g);
-    return entities.map(e => {
-      const n = g.node(e.title);
-      const saved = pos.get(e.title);
-      const h = NODE_H_BASE + (e.fields?.length || 0) * ROW_H;
-      return {
-        id: e.title,
-        type: 'table',
-        position: {
-          x: saved?.x ?? (n.x - NODE_W / 2),
-          y: saved?.y ?? (n.y - h / 2),
-        },
-        data: {entity: e},
-        draggable: false,
-        connectable: false,
-      };
-    });
-  }
-  return entities.map((e, i) => {
-    const saved = pos.get(e.title);
-    return {
-      id: e.title,
-      type: 'table',
-      position: {x: saved?.x ?? (i % 3) * 260, y: saved?.y ?? Math.floor(i / 3) * 220},
-      data: {entity: e},
-      draggable: false,
-      connectable: false,
-    };
-  });
+function layoutNodes(
+  entities: EntityData[],
+  associations: Association[],
+  layout: { id: string; x?: number; y?: number }[],
+): Node[] {
+  const {positions} = resolveEntityPositions(entities, associations, layout);
+  return entities.map((e) => ({
+    id: e.title,
+    type: 'table',
+    position: positions[e.title] || {x: 0, y: 0},
+    data: {entity: e},
+    draggable: false,
+    connectable: false,
+  }));
 }
 
 export type ShareRelationCanvasProps = {
@@ -128,10 +95,11 @@ export type ShareRelationCanvasProps = {
 const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
   const {nodes, edges} = useMemo(() => {
     const entities = module.entities || [];
+    const associations = module.associations || [];
     const layout = module.graphCanvas?.nodes || [];
     return {
-      nodes: layoutNodes(entities, layout),
-      edges: associationsToEdges(module.associations || []),
+      nodes: layoutNodes(entities, associations, layout),
+      edges: associationsToEdges(associations),
     };
   }, [module]);
 
