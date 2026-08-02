@@ -134,7 +134,7 @@
 }
 ```
 
-`relation` 为基数字符串（如 `1:1`、`1:n`、`n:n`）；`from` / `to` 的 `entity` 为实体 `title`，`field` 为字段 `name`。
+`relation` 为基数字符串：`1:1` · `1:n` · `n:1` · `n:n`（from→to 方向；画布拖 FK→PK 默认 `n:1`；历史 `0,n:1` 展示时归一为 `n:1`）。`from` / `to` 的 `entity` 为实体 `title`，`field` 为字段 `name`。设计器可点边标签 chip 改基数并写回本字段。
 
 ### Index（`indexs[]`）
 

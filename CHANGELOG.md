@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 功能：关系基数可编辑 + Frame 重命名 + 边路由再收（ADR-0016 P0）
+
+- 选题：连线不全是死 `1:n`；Frame 名可改；绕行少折弯（Vision tick 不切 chrome 密度）
+- 基数：`association.relation` ∈ `1:1|1:n|n:1|n:n`；拖连线默认 `n:1`；点 `erd-edge-label` → Select；历史 `0,n:1` 归一展示；DBML from→to 对齐 `n:1`
+- Frame：双击标题内联改名 → `renameFrame` / `groups[].name`；导入 Frame 不受影响
+- 路由：同侧短 U `sameSide` 外肘避障；叠表缝显式 mid-corridor；`EDGE_BYPASS_DETOUR_RATIO` 2.15→1.85
+
+验证点：
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts && npx tsx src/utils/relationEdgeRoute.test.ts && npx tsx src/utils/diagram.test.ts && npx tsx src/utils/dbml/toProjectJSON.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "重命名" --workers=1 --retries=0`
+
 #### 体验：CommonTabs / 表设计签头密度（ADR-0016）
 
 - 选题：设计器签栏 40→~28（22 chrome 同阶）+ 表设计签头收紧；Vision 常驻「持续 UI/UX」写入 loop prompt

@@ -1,14 +1,18 @@
 /**
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
+ * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；分享只读。
  */
-import React, { memo, useCallback } from 'react';
+import React, { memo, useCallback, useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
   EdgeProps,
   useStore,
 } from 'reactflow';
+import { Select } from 'antd';
 import {
+  CARDINALITY_OPTIONS,
+  Cardinality,
   EDGE_BORDER_RADIUS,
   EDGE_LABEL_BG_PADDING,
   EDGE_LABEL_BG_RADIUS,
@@ -16,6 +20,8 @@ import {
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
   ErdEdgeData,
+  isCardinality,
+  normalizeRelation,
 } from '@/utils/relationEdges';
 import {
   ObstacleRect,
@@ -23,6 +29,7 @@ import {
   routeErdSmoothStep,
 } from '@/utils/relationEdgeRoute';
 import { NODE_WIDTH, estimateNodeHeight } from '@/utils/graphLayout';
+import useProjectStore from '@/store/project/useProjectStore';
 
 type TableNodeData = {
   entity?: { title?: string; fields?: Array<{ name?: string; relationNoShow?: boolean }> };
@@ -38,6 +45,11 @@ function nodeCenterX(n: {
   const w = Math.max(n.width && n.width > 0 ? n.width : 0, NODE_WIDTH);
   return x + w / 2;
 }
+
+const CARDINALITY_SELECT_OPTIONS = CARDINALITY_OPTIONS.map((v) => ({
+  value: v,
+  label: v,
+}));
 
 function ErdRelationEdge({
   id,
@@ -62,7 +74,9 @@ function ErdRelationEdge({
   const stepOffset = data?.stepOffset ?? EDGE_STEP_OFFSET;
   const hubFan = data?.hubFanOffset ?? 0;
   const portMode = data?.portMode ?? 'lr';
-  // 轻微 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
+  const editable = !!data?.editable;
+  const [editing, setEditing] = useState(false);
+  // 垂直 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
 
   const obstacles = useStore(
@@ -137,12 +151,34 @@ function ErdRelationEdge({
   });
 
   const pad = labelBgPadding || EDGE_LABEL_BG_PADDING;
-  const hasLabel = typeof label === 'string' && label.length > 0;
+  const rawLabel = typeof label === 'string' ? label : '';
+  const displayLabel = normalizeRelation(rawLabel) || rawLabel;
+  const hasLabel = displayLabel.length > 0;
   // 勿把 fillOpacity 套到整块 div（会冲淡文字）；chip 样式以 .erd-edge-label 为准
   const chipBg =
     (labelBgStyle?.fill as string | undefined) || 'var(--erd-surface)';
   const chipColor =
     (labelStyle?.fill as string | undefined) || 'var(--erd-ink-600)';
+
+  const currentValue: Cardinality | string = isCardinality(displayLabel)
+    ? displayLabel
+    : displayLabel || 'n:1';
+
+  const commitRelation = (next: string) => {
+    const mod = data?.moduleName;
+    const from = data?.assocFrom;
+    const to = data?.assocTo;
+    if (!mod || !from || !to) {
+      setEditing(false);
+      return;
+    }
+    useProjectStore.getState().dispatch.updateAssociationRelation(
+      mod,
+      { from, to },
+      next,
+    );
+    setEditing(false);
+  };
 
   return (
     <>
@@ -156,21 +192,67 @@ function ErdRelationEdge({
         data-edge-id={id}
         hidden
       />
-      {hasLabel ? (
+      {hasLabel || editable ? (
         <EdgeLabelRenderer>
           <div
-            className="erd-edge-label nodrag nopan"
+            className={`erd-edge-label nodrag nopan${editable ? ' erd-edge-label--editable' : ''}${
+              editing ? ' erd-edge-label--editing' : ''
+            }`}
             data-testid="erd-edge-label"
+            role={editable ? 'button' : undefined}
+            aria-label={editable ? `关系基数 ${displayLabel || '未设'}，点击修改` : undefined}
+            tabIndex={editable ? 0 : undefined}
+            onClick={
+              editable && !editing
+                ? (e) => {
+                    e.stopPropagation();
+                    setEditing(true);
+                  }
+                : undefined
+            }
+            onKeyDown={
+              editable && !editing
+                ? (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      setEditing(true);
+                    }
+                  }
+                : undefined
+            }
             style={{
               transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
               fontSize: (labelStyle?.fontSize as number) || EDGE_LABEL_FONT_SIZE,
               color: chipColor,
               background: chipBg,
-              padding: `${pad[1]}px ${pad[0]}px`,
+              padding: editing
+                ? 0
+                : `${pad[1]}px ${pad[0]}px`,
               borderRadius: labelBgBorderRadius ?? EDGE_LABEL_BG_RADIUS,
             }}
           >
-            {label}
+            {editing && editable ? (
+              <Select
+                size="small"
+                autoFocus
+                open
+                className="erd-edge-cardinality-select"
+                data-testid="erd-edge-cardinality"
+                aria-label="选择关系基数"
+                value={isCardinality(String(currentValue)) ? currentValue : 'n:1'}
+                options={CARDINALITY_SELECT_OPTIONS}
+                onChange={(v) => commitRelation(String(v))}
+                onDropdownVisibleChange={(vis) => {
+                  if (!vis) setEditing(false);
+                }}
+                getPopupContainer={() => document.body}
+                style={{ width: 72, fontSize: EDGE_LABEL_FONT_SIZE }}
+                popupMatchSelectWidth={false}
+              />
+            ) : (
+              displayLabel || 'n:1'
+            )}
           </div>
         </EdgeLabelRenderer>
       ) : null}

@@ -354,6 +354,20 @@ export function removeFrameFromDiagram(diagram: Diagram, frameId: string): void 
   diagram.groups = diagram.groups.filter((g) => g.id !== frameId);
 }
 
+/** 重命名 Frame；空名 no-op；返回更新后的框 */
+export function renameFrameInDiagram(
+  diagram: Diagram,
+  frameId: string,
+  name: string,
+): DiagramFrame | undefined {
+  const frame = (diagram.groups || []).find((g) => g.id === frameId);
+  if (!frame) return undefined;
+  const next = (name || '').trim();
+  if (!next) return frame;
+  frame.name = next;
+  return frame;
+}
+
 /** 实体改名时同步 groups.memberEntityIds */
 export function renameFrameMemberIds(diagram: Diagram, oldTitle: string, newTitle: string): void {
   if (!diagram.groups?.length) return;

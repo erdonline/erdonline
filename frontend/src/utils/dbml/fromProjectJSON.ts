@@ -135,6 +135,7 @@ function formatTable(entity: ProjectJsonEntity): string {
 function refOperator(relation: ProjectJsonAssociation['relation']): string {
   if (relation === '1:1') return '-';
   if (relation === 'n:n') return '<>';
+  // n:1 与 1:n 在 DBML 均用 >；方向由 from/to 表字段表达
   return '>';
 }
 

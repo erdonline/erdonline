@@ -46,7 +46,9 @@
 - [x] 选中分组→NodeResizer 拉大→`w`/`h` 持久化 ✅`diagram-frame.spec.ts`
 - [x] 拖框→成员表同向平移 ✅`diagram-frame.spec.ts`
 - [x] 选中分组→「适应成员」重算包围盒 ✅`diagram-frame.spec.ts`
-- [x] Frame helpers（包围盒 / 扩边 / 点落框 / 成员去重改名剔除）✅`diagram.test.ts`
+- [x] 双击 Frame 标题重命名 → `groups[].name` 持久化 ✅`diagram-frame.spec.ts`「重命名」
+- [x] 边基数 chip 可改 `1:1|1:n|n:1|n:n` + 刷新仍在 ✅`relation.spec.ts`「表节点视觉」
+- [x] Frame helpers（包围盒 / 扩边 / 点落框 / 成员去重改名剔除 / renameFrame）✅`diagram.test.ts`
 - [x] schema `diagramFrame` ✅`validate-projectjson.mjs`
 - [x] 公开 demo 主图节点 x 跨度更密（&lt;1100）✅`demo.spec.ts` + 截图 `ux-walkthrough/demo-layout-density.png`
 - [x] 分享只读隐藏 `relationNoShow`（无 `del_flag`）✅`demo.spec.ts`

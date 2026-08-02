@@ -5,6 +5,8 @@
 import assert from 'assert';
 import { NODE_WIDTH } from './graphLayout';
 import {
+  CARDINALITY_OPTIONS,
+  DEFAULT_RELATION,
   EDGE_HUB_FAN_MIN,
   EDGE_HUB_FAN_STEP,
   EDGE_LABEL_BG_PADDING,
@@ -18,6 +20,7 @@ import {
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
+  normalizeRelation,
   parseFieldHandle,
   pickPortSides,
   sourceHandleId,
@@ -141,6 +144,30 @@ async function main() {
     assert.ok(EDGE_LABEL_BG_PADDING[0] <= 4 && EDGE_LABEL_BG_PADDING[1] <= 2);
     assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
     assert.ok(EDGE_LABEL_BG_RADIUS <= 3, 'chip 圆角勿过大');
+  });
+
+  await run('normalizeRelation：历史 0,n:1 → n:1；行业集合保留', () => {
+    assert.strictEqual(normalizeRelation('0,n:1'), 'n:1');
+    assert.strictEqual(normalizeRelation('0,1:1'), '1:1');
+    assert.strictEqual(normalizeRelation('1:N'), '1:n');
+    assert.strictEqual(normalizeRelation('n:m'), 'n:n');
+    assert.strictEqual(DEFAULT_RELATION, 'n:1');
+    assert.ok(CARDINALITY_OPTIONS.includes('1:1'));
+    assert.ok(CARDINALITY_OPTIONS.includes('n:n'));
+  });
+
+  await run('associationsToEdges：0,n:1 归一展示 + assoc 键', () => {
+    const [edge] = associationsToEdges([
+      {
+        relation: '0,n:1',
+        from: { entity: 'a', field: 'b_id' },
+        to: { entity: 'b', field: 'id' },
+      },
+    ]);
+    assert.strictEqual(edge.label, 'n:1');
+    const d = edge.data as { assocFrom: { entity: string }; assocTo: { entity: string } };
+    assert.strictEqual(d.assocFrom.entity, 'a');
+    assert.strictEqual(d.assocTo.entity, 'b');
   });
 
   await run('associationsToEdges：不同 pair 互不抢 lane', () => {

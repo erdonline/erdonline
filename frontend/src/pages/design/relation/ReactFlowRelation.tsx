@@ -43,6 +43,7 @@ import {
 } from '@/utils/diagram';
 import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
 import {
+  DEFAULT_RELATION,
   EDGE_INTERACTION_WIDTH,
   ERD_EDGE_TYPE,
   associationsToEdges,
@@ -433,9 +434,30 @@ function nodesForBounds(nodes: Node[]): Array<{ position: { x: number; y: number
   });
 }
 
+type FrameNodeData = {
+  frame: DiagramFrame;
+  moduleName?: string;
+  diagramId?: string;
+};
+
 /** 视觉框：默认在表下方；选中后抬升以便缩放/拖框（表不再拦截命中） */
-const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = ({ data, selected }) => {
+const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
   const f = data.frame;
+  const [renaming, setRenaming] = useState(false);
+  const [draft, setDraft] = useState(f.name);
+
+  const commitRename = useCallback(() => {
+    const next = draft.trim();
+    setRenaming(false);
+    if (!next || next === f.name) {
+      setDraft(f.name);
+      return;
+    }
+    const mod = data.moduleName;
+    if (!mod) return;
+    useProjectStore.getState().dispatch.renameFrame(mod, data.diagramId, f.id, next);
+  }, [data.diagramId, data.moduleName, draft, f.id, f.name]);
+
   return (
     <>
       {/* 始终挂载手柄；未选中时用 CSS 隐藏，避免 selected 与 RF 内部态短暂不一致 */}
@@ -460,7 +482,42 @@ const FrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = ({ data, selecte
         aria-label={`分组 ${f.name}`}
       >
         <div className="erd-frame-chrome">
-          <div className="erd-frame-label">{f.name}</div>
+          {renaming ? (
+            <input
+              className="erd-frame-rename nodrag nopan"
+              data-testid="frame-rename-input"
+              aria-label="分组名称"
+              value={draft}
+              autoFocus
+              onChange={(e) => setDraft(e.target.value)}
+              onBlur={commitRename}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  commitRename();
+                } else if (e.key === 'Escape') {
+                  e.preventDefault();
+                  setDraft(f.name);
+                  setRenaming(false);
+                }
+              }}
+              onClick={(e) => e.stopPropagation()}
+              onMouseDown={(e) => e.stopPropagation()}
+            />
+          ) : (
+            <div
+              className="erd-frame-label"
+              data-testid="frame-rename-label"
+              title="双击重命名"
+              onDoubleClick={(e) => {
+                e.stopPropagation();
+                setDraft(f.name);
+                setRenaming(true);
+              }}
+            >
+              {f.name}
+            </div>
+          )}
           {(f.memberEntityIds?.length || 0) > 0 ? (
             <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
           ) : (
@@ -572,6 +629,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       return {
         ...e,
         selected,
+        data: {
+          ...e.data,
+          editable: true,
+          moduleName,
+        },
         style: { ...e.style, stroke, strokeWidth: selected ? 2 : 1.5 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
@@ -581,7 +643,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         },
       };
     });
-  }, [currentModule, edgeSelected]);
+  }, [currentModule, edgeSelected, moduleName]);
 
   // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
   // 当前图 layout 坐标 > 现有画布位置 > dagre 补缺（导入/逆向无坐标时分层；并持久化到 diagrams）
@@ -646,7 +708,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           width: f.w,
           height: f.h,
           style: { width: f.w, height: f.h, zIndex: z },
-          data: { frame: f },
+          data: { frame: f, moduleName, diagramId: activeDiagramId },
           draggable: true,
           /** 仅顶栏拖动，避免与 NodeResizer 边线抢手势 */
           dragHandle: '.erd-frame-chrome',
@@ -1062,7 +1124,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return;
       }
       projectDispatch.addAssociation(moduleEntity.module, {
-        relation: '0,n:1',
+        relation: DEFAULT_RELATION,
         from: { entity: source, field: fromH.field },
         to: { entity: target, field: toH.field },
       });
