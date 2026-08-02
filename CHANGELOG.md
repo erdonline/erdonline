@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：关系图 PK/FK/hover 行浅底 color-mix（ADR-0016）
+
+- 选题：`reactflow-relation.scss` PK/FK/hover 行与空态阴影仍裸 `rgba(warning/success/ink,…)`，与 `--erd-warning` / `--erd-success` / `--erd-ink-900` 割裂
+- 字段行 hover → `color-mix(… ink-900 3%)`；PK/FK 浅底 → warning/success 4%；PK+FK 渐变 → 各 5%；空态 CTA 阴影同 ink-900 mix
+- 视觉强度与原 rgba 对齐；不新增 alpha token
+
+验证点：
+- `rg -n 'rgba\((212,\s*136,\s*6|47,\s*143,\s*123|11,\s*28,\s*44)' frontend/src/pages/design/relation/reactflow-relation.scss` → 0
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "品牌 token|PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：关系图 SCSS 清 brand 裸 rgba（ADR-0016）
 
 - 选题：`reactflow-relation.scss` 字段删/加行 hover 仍裸 `rgba(222,41,16,…)`，与 `--erd-frame-fill-brand` / `--erd-brand` 割裂；分享画布同引该文件
