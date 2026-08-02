@@ -213,7 +213,7 @@ test.describe('布局壳子路由出口', () => {
         const treeGap = sider.getBoundingClientRect().bottom - tree.getBoundingClientRect().bottom;
         const canvasH = canvas.getBoundingClientRect().height;
         const contentH = content.getBoundingClientRect().height;
-        // tabs 栏约 40px；画布应接近 content 高度（允许工具条/边距）
+        // CommonTabs 签头 ~28（原 40）；画布应接近 content 高度（允许工具条/边距）
         return {
           treeGap,
           canvasOk: canvasH > 200 && canvasH > contentH * 0.5,

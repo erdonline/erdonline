@@ -19,7 +19,7 @@
 
 1. **品牌壳（Brand Shell）**：无导航 chrome，内容居中/分栏。用于落地页、登录/注册、404/403。
 2. **工作台壳（Workspace Shell）**：顶栏 64px（`--erd-chrome-header-h`；logo + 主导航 + 右侧用户区）+ 内容区 `max-width: 1200px` 居中 + 页脚一行版权。用于 Home、dataModels、project/*、databaseConfig、account/settings。实现 = `HomeLayout` + 共享 `layouts/erd-chrome.less`（GroupLayout 同 chrome；**无全页 Watermark**）。
-3. **设计器壳（Designer Shell）**：顶栏 64px（同 chrome）+ 左树 320px + tabs 40px + flex 画布。用于 `/design/*`（含 version / import / export / setting 标签页）。实现 = `DesignLayout`（antd Layout，W1 已摘 Pro；版本号在「更多」，无水印 clutter）。
+3. **设计器壳（Designer Shell）**：顶栏 64px（同 chrome）+ 左树 320px + tabs ~28px（`--erd-tabs-h`，原 40，ADR-0016 密度）+ flex 画布。用于 `/design/*`（含 version / import / export / setting 标签页）。实现 = `DesignLayout`（antd Layout，W1 已摘 Pro；版本号在「更多」，无水印 clutter）。
 
 **禁止发明第四种壳**；禁止回到 ProLayout/PageContainer 包裹任何页面（ADR-0014）。
 

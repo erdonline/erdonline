@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：CommonTabs / 表设计签头密度（ADR-0016）
+
+- 选题：设计器签栏 40→~28（22 chrome 同阶）+ 表设计签头收紧；Vision 常驻「持续 UI/UX」写入 loop prompt
+- `CommonTabs`：`--erd-tabs-h: 28`、字 12、关闭钮 14；禁历史 40 松栏
+- `TableTab`：签头 pad 4×12 / title 13 / min-height 28；内签 `size=small`
+- `model-design-ux`「表设计三签」补密度断言 + 截图 `diagram-common-tabs-dense.png`
+- `agent-loop-vision.prompt.md` / `development.md`：常驻指令持续优化 UI/UX、体验轨偏置
+
+验证点：`cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计三签" --workers=1 --retries=0`
+
 #### 体验：左树行高密度（ADR-0016）
 
 - 选题：设计器左树（实体/模块）行高密度（与 22 chrome / EntityModal 同阶）
