@@ -14,7 +14,6 @@ export default {
         name: '数据模型',
         icon: <Table theme="filled" size="18" fill="#DE2910" strokeWidth={2}/>,
       },
-      // `/dataQuery`：路由保留实验深链；主导航已摘（exec 打应用库、忽略所选 DS，同设计器查询）
       {
         path: '/databaseConfig',
         name: '数据源',

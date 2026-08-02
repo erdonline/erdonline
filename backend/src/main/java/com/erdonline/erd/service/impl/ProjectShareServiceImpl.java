@@ -149,11 +149,27 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
         if (!StringUtils.hasText(token)) {
             return R.failed("token 无效");
         }
+        var accessUser = SecurityContextUtil.getAccessUser();
+        if (accessUser == null || !StringUtils.hasText(accessUser.getUsername())) {
+            return R.failed("请先登录");
+        }
         ProjectShare share = getOne(new LambdaQueryWrapper<ProjectShare>()
                 .eq(ProjectShare::getToken, token)
                 .last("LIMIT 1"));
         if (share == null) {
             return R.failed("分享不存在");
+        }
+        Project project = projectService.getById(share.getProjectId());
+        if (project == null) {
+            return R.failed("项目不存在");
+        }
+        String userId = accessUser.getId();
+        String username = accessUser.getUsername();
+        String creator = project.getCreator();
+        if (creator != null
+                && !creator.equals(userId)
+                && !creator.equals(username)) {
+            return R.failed("仅项目创建人可吊销分享");
         }
         share.setEnabled(DISABLED);
         updateById(share);

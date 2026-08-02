@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 /**
- * 只读分享（ADR-0007）：设计器创建链接 → 匿名上下文打开 /s/:token 见关系图
+ * 只读分享（ADR-0007 / W2）：创建→复制→匿名可读；吊销→链接失效
  */
 test.describe('只读分享', () => {
   test('设计器分享后匿名打开可见只读关系图', async ({ page, browser }) => {
@@ -35,6 +35,11 @@ test.describe('只读分享', () => {
       expect(created.code).toBe(200);
       const token = created.data?.token as string;
       expect(token).toBeTruthy();
+
+      const dialog = page.getByRole('dialog', { name: '只读分享' });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByLabel('分享链接')).toHaveValue(new RegExp(`/s/${token}$`));
+      await dialog.getByRole('button', { name: '复制链接' }).click();
       await expectToast(page, /只读链接已复制|分享链接：/);
 
       const anon = await browser.newContext();
@@ -76,6 +81,60 @@ test.describe('只读分享', () => {
       await page.goto('/project/person');
       const escaped = projectName.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       await expect(page.getByRole('link', { name: new RegExp(escaped) })).toHaveCount(0);
+    }
+  });
+
+  test('创建→吊销后匿名链接失效', async ({ page, browser }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('sharerevoke');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'share', 'revoke e2e');
+
+      const createRespPromise = page.waitForResponse(
+        (r) => r.url().includes('/share/create') && r.request().method() === 'POST',
+      );
+      await page.getByRole('button', { name: '只读分享' }).click();
+      const createResp = await createRespPromise;
+      expect(createResp.ok()).toBeTruthy();
+      const created = await createResp.json();
+      expect(created.code).toBe(200);
+      const token = created.data?.token as string;
+      expect(token).toBeTruthy();
+
+      const dialog = page.getByRole('dialog', { name: '只读分享' });
+      await expect(dialog).toBeVisible();
+      await expect(dialog.getByLabel('分享链接')).toHaveValue(new RegExp(`/s/${token}$`));
+      await expect(dialog.getByRole('button', { name: '吊销分享' })).toBeEnabled();
+
+      const revokeRespPromise = page.waitForResponse(
+        (r) => r.url().includes('/share/revoke') && r.request().method() === 'POST',
+      );
+      await dialog.getByRole('button', { name: '吊销分享' }).click();
+      const confirm = page.getByRole('dialog', { name: '确认吊销分享？' });
+      await expect(confirm).toBeVisible();
+      // antd 两字按钮 accessible name 常带空格（「吊 销」）
+      await confirm.getByRole('button', { name: /吊\s*销/ }).click();
+      const revokeResp = await revokeRespPromise;
+      expect(revokeResp.ok()).toBeTruthy();
+      const revoked = await revokeResp.json();
+      expect(revoked.code).toBe(200);
+      await expectToast(page, /分享已吊销/);
+
+      const anon = await browser.newContext();
+      const anonPage = await anon.newPage();
+      try {
+        await anonPage.goto(`/s/${token}`);
+        await expect(anonPage.getByText(/分享不存在或已失效|分享已过期|分享链接无效/)).toBeVisible({
+          timeout: 15_000,
+        });
+        await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
+      } finally {
+        await anon.close();
+      }
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 });

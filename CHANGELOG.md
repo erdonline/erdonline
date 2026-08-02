@@ -8,6 +8,28 @@
 
 ### 2026-08-02
 
+#### 功能：W2 切片 1 — 分享吊销接线 + 实验空壳下线路由
+
+**功能**
+
+- `ShareProjectButton`：顶栏「分享」→ 弹层（创建/查看链接/复制/**吊销** → `POST /share/revoke`）
+- 后端 `revoke`：登录 + 项目创建人校验（对齐 security-model）；匿名放行收窄为 **GET** `/share/*`（去掉 `/share/**` 全方法放行）
+
+**清理**
+
+- 下线路由：`/design/table/query`、`/design/table/chatsql`、`/design/dataDomain`、`/dataQuery`（深链 → 404）；删 `pages/test`、`pages/design/test`、`account/settings/geographic` 与无引用 province/city API
+- `DesignLayout` 去掉 Query 左栏 / chatsql 特例（路由已无）
+
+**测试**
+
+- `share.spec`：原 fork 旅程适配弹层；新增「创建→吊销→匿名失效」
+- `design-query` / `data-domain` / `home-data-query`：深链断言改为 404
+  验证点：`./backend/dev-ensure.sh --restart`；`cd frontend && npx playwright test tests/e2e/share.spec.ts tests/e2e/design-query.spec.ts tests/e2e/data-domain.spec.ts tests/e2e/home-data-query.spec.ts --project=chromium --workers=1`
+
+**文档**
+
+- `product-capability-map.md` 分享吊销 → ✅；`ui-layout-redesign.md` W2 切片 1 进度；`roadmap.md` 同步；`security-model.md` 匿名放行改为 GET-only
+
 #### 文档：布局策略 v2 重估（能力暴露优先）+ 产品能力对照表
 
 **文档**

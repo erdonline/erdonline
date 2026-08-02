@@ -1,5 +1,4 @@
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
-import QueryLeftContent from "@/components/LeftContent/QueryLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
 import SaveStatus from "@/components/SaveStatus";
@@ -265,11 +264,9 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
     return match?.path;
   }, [siderChildRoutes, pathname]);
 
-  const showDesignLeft =
-    pathname === '/design/table/model' || pathname === '/design/table/chatsql';
-  const showQueryLeft = pathname === '/design/table/query';
+  const showDesignLeft = pathname === '/design/table/model';
   const showSiderNav = siderChildRoutes.length > 0;
-  const showSider = showDesignLeft || showQueryLeft || showSiderNav;
+  const showSider = showDesignLeft || showSiderNav;
 
   const watermarkContent = [
     licence?.licensedTo ? licence.licensedTo : 'ERD Online',
@@ -346,9 +343,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
               <div className="design-layout__sider-inner">
                 {showDesignLeft ? (
                   <DesignLeftContent collapsed={collapsed} />
-                ) : null}
-                {showQueryLeft ? (
-                  <QueryLeftContent collapsed={collapsed} />
                 ) : null}
                 {showSiderNav ? (
                   <Menu
