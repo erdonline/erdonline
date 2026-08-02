@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：顶栏 CollabPresence aria-live（草稿 38）
+
+**修复**
+
+- `CollabPresence`：补 `role="status"` + `aria-live="polite"`，读屏可播报在线名单变化；不改样式与 presence 订阅逻辑
+  验证点：`npx playwright test tests/e2e/presence.spec.ts --project=chromium`
+
+**测试**
+
+- `presence.spec.ts`：既有「设计器顶栏可见在线名单」加 `aria-live` / `role=status` 属性断言
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `38` 标已合入；补草稿 `39`（命令面板 listbox）；README / `docs/community.md` 种子 52–53 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `39`（`38` 为 SKIP）
+
 #### P4 good-first：顶栏 SaveStatus aria-live（草稿 37）
 
 **修复**

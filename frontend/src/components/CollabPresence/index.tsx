@@ -18,6 +18,8 @@ const CollabPresence: React.FC = () => {
   return (
     <span
       data-testid="collab-presence"
+      role="status"
+      aria-live="polite"
       aria-label={label}
       style={{
         maxWidth: 280,

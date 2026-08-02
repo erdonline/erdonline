@@ -20,9 +20,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `38-collab-presence-aria-live.md` | 顶栏协作在线状态 aria-live |
+| `39-cmd-palette-listbox.md` | 命令面板选项列表 listbox |
 
-`01`–`37` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
+`01`–`38` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
 
 合入后在对应草稿顶部加：
 
