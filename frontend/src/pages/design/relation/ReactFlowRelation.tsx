@@ -1120,16 +1120,29 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     });
   }, [projectDispatch, moduleName, activeDiagramId, setNodes]);
 
+  /** 拖连线进行中；成功 onConnect 置位，失败落点由 onConnectEnd 给反馈（取消空白处不打扰） */
+  const connectAttemptRef = useRef<{ active: boolean; connected: boolean }>({
+    active: false,
+    connected: false,
+  });
+
+  const onConnectStart = useCallback(() => {
+    connectAttemptRef.current = { active: true, connected: false };
+  }, []);
+
   // 字段拖连线 → 建关联：from=外键侧（source），to=主键侧（target）；侧由几何择柄重绑
   const onConnect = useCallback(
     (connection: { source?: string | null; sourceHandle?: string | null; target?: string | null; targetHandle?: string | null }) => {
+      connectAttemptRef.current.connected = true;
       const { source, sourceHandle, target, targetHandle } = connection;
       if (!source || !target || !sourceHandle || !targetHandle) {
+        message.warning('连线未完成，请从外键字段拖到主键字段的接入点');
         return;
       }
       const fromH = parseFieldHandle(sourceHandle);
       const toH = parseFieldHandle(targetHandle);
       if (!fromH || fromH.role !== 'src' || !toH || toH.role !== 'tgt') {
+        message.warning('请从外键字段实心锚点拖出，接到主键字段空心接入点');
         return;
       }
       projectDispatch.addAssociation(moduleEntity.module, {
@@ -1140,6 +1153,35 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     },
     [projectDispatch, moduleEntity.module]
   );
+
+  const onConnectEnd = useCallback((event: MouseEvent | TouchEvent) => {
+    const attempt = connectAttemptRef.current;
+    connectAttemptRef.current = { active: false, connected: false };
+    if (!attempt.active || attempt.connected) {
+      return;
+    }
+    // mouseup 的 target 常是 pane/连线层；用坐标判断是否落在表节点上（含被连线层盖住）
+    const point =
+      'changedTouches' in event
+        ? { x: event.changedTouches[0]?.clientX, y: event.changedTouches[0]?.clientY }
+        : { x: (event as MouseEvent).clientX, y: (event as MouseEvent).clientY };
+    if (point.x == null || point.y == null) {
+      return;
+    }
+    const overNode = Array.from(document.querySelectorAll('.react-flow__node')).some((n) => {
+      const r = n.getBoundingClientRect();
+      return point.x >= r.left && point.x <= r.right && point.y >= r.top && point.y <= r.bottom;
+    });
+    if (!overNode) {
+      return; // 空白处松开 = 取消
+    }
+    const el = document.elementFromPoint(point.x, point.y);
+    if (el && typeof el.closest === 'function' && el.closest('.react-flow__handle')) {
+      message.warning('请拖到目标字段的接入点（空心圆）；不能接到同类型锚点');
+      return;
+    }
+    message.warning('请对准字段旁的接入点（空心圆）松开，才能建立关联');
+  }, []);
 
   // 边变更：只保留选中态；忽略 RF 因 handle 失效产生的 remove（边列表由 associations 派生）。
   const onEdgesChange: OnEdgesChange = useCallback((changes: EdgeChange[]) => {
@@ -1412,7 +1454,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onNodeDragStart={onNodeDragStart}
         onNodeDrag={onNodeDrag}
         onNodeDragStop={onNodeDragStop}
+        onConnectStart={onConnectStart}
         onConnect={onConnect}
+        onConnectEnd={onConnectEnd}
         onEdgesChange={onEdgesChange}
         onEdgesDelete={onEdgesDelete}
         onlyRenderVisibleElements={cullViewport}

@@ -955,6 +955,58 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016 建模回路：连线失败不得静默（重复关联 / 非法锚点）
+  test('连线失败反馈：重复关联与非法锚点有 toast', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('connfb');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'connfb', 'connect fail feedback');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+      await addFieldInline(page, 'T_ORDER', 'T1_ID', 'IdOrKey');
+
+      // 非法：拖到目标表体（未对准接入点）→ 可行动 toast；边不增加
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(500);
+      const orderNode = rfNode(page, 'T_ORDER');
+      const t1Node = rfNode(page, 'T_TABLE_1');
+      await orderNode.hover();
+      const src = orderNode.locator('[data-field="T1_ID"]').locator('[data-handleid="T1_ID-src-r"]');
+      await expect(src).toBeVisible();
+      const header = t1Node.locator('.erd-table-header');
+      await expect(header).toBeVisible();
+      await src.dragTo(header, { force: true, steps: 12 });
+      await expectToast(page, /接入点|空心圆/);
+      await expect(page.locator('.react-flow__edge')).toHaveCount(0);
+
+      // 合法连线一次
+      await connectFields(page, 'T_ORDER', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
+      // 重复同一对：边不变 + 明确 toast
+      await page.getByRole('button', { name: '适应画布' }).click();
+      await page.waitForTimeout(400);
+      await orderNode.hover();
+      const src2 = orderNode.locator('[data-field="T1_ID"]').locator('[data-handleid="T1_ID-src-r"]');
+      await t1Node.hover();
+      const tgt = t1Node.locator('[data-field="id"]').locator('[data-handleid="id-tgt-l"]');
+      await src2.dragTo(tgt, { force: true, steps: 12 });
+      await expectToast(page, /关联已存在|无需重复连线/);
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');
