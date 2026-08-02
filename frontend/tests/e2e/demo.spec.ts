@@ -18,6 +18,24 @@ test.describe('在线演示', () => {
     await expect(page.getByTestId('diagram-frame')).toHaveCount(4);
     await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' })).toBeVisible();
     await expect(page.getByTestId('diagram-frame').filter({ hasText: '主体' })).toBeVisible();
+    // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1200（旧手排 1280）
+    const spanX = await page.locator('.react-flow__node-table').evaluateAll((els) => {
+      const xs = els
+        .map((el) => {
+          const m = (el as HTMLElement).style.transform.match(
+            /translate\(([-\d.]+)px/,
+          );
+          return m ? Number(m[1]) : NaN;
+        })
+        .filter((n) => Number.isFinite(n));
+      return Math.max(...xs) - Math.min(...xs);
+    });
+    expect(spanX, `主图节点 x 跨度应更密，得 ${spanX}`).toBeLessThan(1200);
+    expect(spanX).toBeGreaterThan(900);
     await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/demo-layout-density.png',
+      fullPage: false,
+    });
   });
 });

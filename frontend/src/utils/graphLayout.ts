@@ -18,9 +18,39 @@ export type LayoutPoint = { x: number; y: number };
 
 export const NODE_WIDTH = 240;
 
+/** 默认走廊：够边肘分流，又不过稀（ADR-0016 分享密度） */
+export const DAGRE_NODESEP = 64;
+export const DAGRE_RANKSEP = 120;
+export const DAGRE_MARGIN = 24;
+
 export function estimateNodeHeight(entity?: LayoutEntity): number {
   const fields = (entity?.fields || []).filter((f) => !f.relationNoShow);
   return 52 + Math.max(fields.length, 1) * 28 + 36;
+}
+
+/** 节点包围盒宽高（用于密度断言 / Frame 烘焙） */
+export function layoutBoundingSize(
+  positions: Record<string, LayoutPoint>,
+  entities: LayoutEntity[],
+): { width: number; height: number } {
+  if (entities.length === 0) return { width: 0, height: 0 };
+  let minX = Infinity;
+  let maxX = -Infinity;
+  let minY = Infinity;
+  let maxY = -Infinity;
+  entities.forEach((e) => {
+    const p = positions[e.title];
+    if (!p) return;
+    const h = estimateNodeHeight(e);
+    minX = Math.min(minX, p.x);
+    maxX = Math.max(maxX, p.x + NODE_WIDTH);
+    minY = Math.min(minY, p.y);
+    maxY = Math.max(maxY, p.y + h);
+  });
+  return {
+    width: Math.round(maxX - minX),
+    height: Math.round(maxY - minY),
+  };
 }
 
 /** dagre 分层布局（默认 LR），返回表 title → 左上角坐标 */
@@ -32,11 +62,10 @@ export function dagrePositions(
   const g = new dagre.graphlib.Graph();
   g.setGraph({
     rankdir: opts?.rankdir ?? 'LR',
-    // 略增走廊：边更不易贴穿邻表（ADR-0016 边路由）
-    nodesep: opts?.nodesep ?? 80,
-    ranksep: opts?.ranksep ?? 160,
-    marginx: 40,
-    marginy: 40,
+    nodesep: opts?.nodesep ?? DAGRE_NODESEP,
+    ranksep: opts?.ranksep ?? DAGRE_RANKSEP,
+    marginx: DAGRE_MARGIN,
+    marginy: DAGRE_MARGIN,
   });
   g.setDefaultEdgeLabel(() => ({}));
   const ids = new Set(entities.map((e) => e.title));
