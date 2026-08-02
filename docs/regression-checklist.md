@@ -331,6 +331,11 @@
 - [x] [无效 token] `/s/not-a-real-…` 见 Result「403」+ 失效文案；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec.ts`
 - [x] [吊销后] 创建→吊销→匿名打开见 Result「403」+「打开示例 demo」/「返回首页」；无画布✅ `share.spec.ts`
 
+## W5 切片 4 — 登录/注册品牌壳（2026-08-03）
+
+- [x] [登录壳] `/login` 见 `auth-brand-shell`；左面板 ~40%；无 `bg2.png`/`#1677FF`；「打开演示」为 link✅ `smoke.spec.ts`
+- [x] [注册同构] 登录「去注册」→ `/register` 同壳 +「打开演示」✅ `session.spec.ts`
+
 ## W2 切片 3 — 设计器 chrome（2026-08-02）
 
 - [x] [左树唯一] 空项目仅 1 份 `add-module-empty`；有模块后仅 1 份 `tree-open-relation` / `design-tree-add` / `role=tree`✅ `layout-outlet.spec.ts`
