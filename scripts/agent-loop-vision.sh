@@ -1,34 +1,49 @@
 #!/usr/bin/env bash
-# 5 分钟 vision 自迭代心跳：prompt 每次从文件读取，随进度改文件即可，无需重启循环。
-set -euo pipefail
+# Vision 5m 心跳：永久 tick。Agent 回报 idle / 失败 / 空转也绝不退出；
+# 每次重新读 prompt 文件，改文件即生效，无需重启本进程。
+set -uo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 PROMPT_FILE="${ROOT}/scripts/agent-loop-vision.prompt.md"
 INTERVAL="${AGENT_LOOP_VISION_INTERVAL:-300}"
 
+# 永不因单次 emit 失败而退出循环（禁用 set -e 对本脚本主体的影响）
 emit() {
   if [[ ! -f "$PROMPT_FILE" ]]; then
-    echo "AGENT_LOOP_TICK_VISION {\"prompt\":\"缺少 ${PROMPT_FILE}；请恢复该文件后继续。\"}"
-    return
+    echo "AGENT_LOOP_TICK_VISION {\"prompt\":\"缺少 ${PROMPT_FILE}；请恢复该文件。循环继续，下一 tick 再试。\"}"
+    return 0
   fi
-  # 注入：先读仓库现场选题文件，再执行（避免 payload 写死具体功能）
-  local body
-  body=$(cat "$PROMPT_FILE")
-  local payload
-  payload=$(PROMPT_BODY="$body" python3 - <<'PY'
+  local body payload
+  if ! body=$(cat "$PROMPT_FILE" 2>/dev/null); then
+    echo "AGENT_LOOP_TICK_VISION {\"prompt\":\"无法读取 ${PROMPT_FILE}；循环继续。\"}"
+    return 0
+  fi
+  if ! payload=$(PROMPT_BODY="$body" python3 - <<'PY'
 import json, os
 body = os.environ["PROMPT_BODY"]
 prompt = (
-    "执行本仓库 scripts/agent-loop-vision.prompt.md 的完整指令（刚读到的正文如下）。"
-    "目标必须从 docs/roadmap.md / CHANGELOG / git 现状现场推导，禁止使用任何写死的功能优先级清单。\n\n"
+    "你是 ERD Online 的产品经理循环（Vision 5m）。"
+    "执行 scripts/agent-loop-vision.prompt.md 的完整指令（正文附后）。"
+    "本 tick 必须交付一个可验证切片；禁止以 idle / 没事可做 / 只剩化妆品 结束。"
+    "目标从 docs/roadmap.md、capability-map、UX 走查、git 现场推导；禁止写死功能清单。"
+    "Agent 回报 idle 不会停止本 shell——下一轮 5m 仍会唤醒；你应直接开工而非空转。\n\n"
     + body
 )
 print(json.dumps({"prompt": prompt}, ensure_ascii=False))
 PY
-)
+  ); then
+    echo "AGENT_LOOP_TICK_VISION {\"prompt\":\"emit 编码失败；循环继续，下一 tick 再试。\"}"
+    return 0
+  fi
   echo "AGENT_LOOP_TICK_VISION ${payload}"
+  return 0
 }
 
+# 忽略常见终止信号以外的逻辑：本循环刻意常驻；仅 SIGTERM/SIGINT 由运维显式杀掉
+trap '' SIGHUP
+
+echo "agent-loop-vision: started interval=${INTERVAL}s prompt=${PROMPT_FILE} (never exits on agent idle)" >&2
+
 while true; do
-  sleep "$INTERVAL"
-  emit
+  sleep "$INTERVAL" || true
+  emit || true
 done
