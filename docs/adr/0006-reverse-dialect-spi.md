@@ -23,4 +23,5 @@
 - 已落地：`POST /connector/dbReverseMeta` + Schema 选择；JDBC `getImportedKeys` → `associations`
 - P0 四库字典 FK：MySQL `KEY_COLUMN_USAGE`；PG `referential_constraints`；SQL Server `sys.foreign_keys`；Oracle `ALL_CONSTRAINTS(R)`；失败回退 JDBC；复合列保序拆边
 - 注释保真：`DialectCapability.supportsComment`；MySQL 走 JDBC `REMARKS`；PostgreSQL 字典 `obj_description` / `col_description`；SQL Server 字典 `sys.extended_properties`（`MS_Description`）→ `entity.chnname` / `fields[].chnname`（失败回退 JDBC）；Oracle 注释字典化另切片
+- 列默认值：JDBC `COLUMN_DEF` → `fields[].defaultValue`（`DefaultValueMapper`：字符串加引号、数字/表达式原样；PG `::type` 剥离）
 - 复合 FK `fields[]`：见 ADR-0011（延期）；表清单按需分页另议

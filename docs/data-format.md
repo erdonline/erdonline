@@ -72,6 +72,7 @@
 
 - `type`：逻辑类型 code，对齐 `dataTypeDomains.datatype[].code`
 - `dataType`：当前方言下的物理类型字符串（如 `VARCHAR(32)`）
+- `defaultValue`：列默认值字符串。约定：字符串字面量带单引号（`'NEW'`）；数字原样（`0` / `0.00`）；表达式原样（`CURRENT_TIMESTAMP` / `now()`）。**逆向**自 JDBC `COLUMN_DEF`（`DefaultValueMapper`）；**DBML** 双向见下文映射表
 
 ### Association
 

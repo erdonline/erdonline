@@ -29,6 +29,7 @@
 - [x] `dbReverseMeta` MySQL：`supportsSchema=false` 且 `schemas=[]` ✅curl
 - [x] FK 映射：两端在表集内才产出、去重、字段 UPPERCASE ✅`ForeignKeyAssociationMapperTest`
 - [x] Colima MySQL `reverse_demo`：indexs + associations 1:n ✅curl
+- [x] Colima MySQL `reverse_demo`：`COLUMN_DEF` → `fields[].defaultValue`（`status='NEW'` / `amount=0.00` / `created_at=CURRENT_TIMESTAMP`）✅curl + `DefaultValueMapperTest`
 - [x] Colima PostgreSQL `reverse_demo`：meta schemas=[public]；indexs + associations ✅curl
 - [x] Colima PostgreSQL `reverse_demo`：表/列 COMMENT → `entity.chnname` / `fields[].chnname`（字典 obj/col_description）✅curl
 - [ ] Colima SQL Server（Azure SQL Edge）：meta `supportsComment=true`；`MS_Description` → `entity.chnname` / `fields[].chnname`（单测/fixture 已备；curl 待镜像可用）

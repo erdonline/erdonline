@@ -8,6 +8,19 @@
 
 ### 2026-08-02
 
+#### 功能：逆向保真 — JDBC `COLUMN_DEF` → `fields[].defaultValue`
+
+**功能**
+
+- `DefaultValueMapper`：规范化 JDBC 列默认值（空/NULL 跳过；无引号字符串加 `'…'`；数字原样；`CURRENT_TIMESTAMP`/`now()` 等表达式原样；PG `'x'::type` 剥离）
+- `AbstractJdbcReverseDialect.buildField` 写入 `Field.defaultValue`（四库 + Generic 共用）
+
+**测试 / 文档**
+
+- 单测 `DefaultValueMapperTest`；ADR-0006 / `data-format.md` / roadmap 逆向保真；regression-checklist
+
+验证点：`mvn -Dtest=DefaultValueMapperTest,*Reverse* -Djacoco.skip=true test` → 绿；curl MySQL `reverse_demo` `dbReverseParse`：`t_order.status.defaultValue='NEW'`、`amount=0.00`、`t_user.created_at=CURRENT_TIMESTAMP`
+
 #### 功能：DBML `default` ↔ `fields[].defaultValue` 双向映射
 
 **功能**
