@@ -5,10 +5,12 @@
 import assert from 'assert';
 import { Position } from 'reactflow';
 import {
+  EDGE_BYPASS_GAP,
   EDGE_OBSTACLE_PAD,
   assignTrunkBundleOffsets,
   collectCenterXCandidates,
   oppositeLRWaypoints,
+  pickBypassYCandidates,
   polylineHitsObstacles,
   routeErdSmoothStep,
   segmentIntersectsRect,
@@ -142,6 +144,39 @@ async function main() {
     assert.strictEqual(r0.mode, 'default');
     assert.strictEqual(r1.mode, 'default');
     assert.notStrictEqual(r0.path, r1.path);
+  });
+
+  await run('pickBypassYCandidates：叠表缝 mid-corridor', () => {
+    const ys = pickBypassYCandidates(40, 40, 268, 572, [
+      { id: 'M', x: 300, y: 0, width: 200, height: 80 },
+      { id: 'L', x: 300, y: 200, width: 200, height: 80 },
+    ]);
+    assert.ok(
+      ys.some((y) => y > 80 && y < 200),
+      `expected gap Y in (80,200), got ${ys.join(',')}`,
+    );
+    assert.ok(ys.includes(0 - EDGE_BYPASS_GAP) || ys.includes(280 + EDGE_BYPASS_GAP));
+  });
+
+  await run('端点旁竖挡堵单 bypass → twoBend', () => {
+    // Mid 挡水平；WallUp/Down 挡源侧竖腿；缝在 Wall 与 Mid 之间可逃逸
+    const mid = { id: 'M', x: 320, y: 0, width: 180, height: 80 };
+    const low = { id: 'L', x: 320, y: 200, width: 180, height: 80 };
+    const wallUp = { id: 'WU', x: 250, y: -100, width: 30, height: 90 };
+    const wallDown = { id: 'WD', x: 250, y: 55, width: 30, height: 250 };
+    const r = routeErdSmoothStep({
+      sourceX: 240,
+      sourceY: 40,
+      targetX: 600,
+      targetY: 40,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      offset: EDGE_STEP_OFFSET,
+      obstacles: [mid, low, wallUp, wallDown],
+    });
+    assert.strictEqual(r.mode, 'twoBend', `expected twoBend got ${r.mode}`);
+    assert.ok(r.path.startsWith('M'));
+    assert.ok(r.path.length > 20);
   });
 
   console.log('all relationEdgeRoute tests passed');

@@ -351,7 +351,7 @@ test.describe('关系图画布（ReactFlow）', () => {
 
       const modeEl = page.getByTestId('erd-edge-route-mode');
       await expect(modeEl).toBeAttached();
-      await expect(modeEl).toHaveAttribute('data-mode', /^(default|centerX|bypass)$/);
+      await expect(modeEl).toHaveAttribute('data-mode', /^(default|centerX|bypass|twoBend)$/);
       await expect(modeEl).toHaveAttribute('data-bundle', /^-?\d+(\.\d+)?$/);
 
       await page.getByRole('button', { name: '适应画布' }).click();

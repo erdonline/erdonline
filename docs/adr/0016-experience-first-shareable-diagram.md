@@ -38,5 +38,5 @@
 
 - 正面：激活与口碑（截图传播）有清晰主线；能力资产不丢；agent 循环停止方向抖动。
 - 代价：本季少做「同步/分支/MCP 产品码」与审批深水；部分 chrome 债后置。
-- 风险：只化妆不动建模回路 → 用走查+E2E 约束「图可读可分享」必须可验证；布局质量：导入/逆向/无坐标兜底已接共享 dagre（`utils/graphLayout`，默认 `nodesep` 64 / `ranksep` 120）；示例主图手排收紧 + Frame padding 32；节点密度/PK·FK 徽章/自定义 `erdSmooth` 边（同表对多 FK 肘距分流 + 中间表 `centerX`/`bypassY` 避让 + 同 midX 通道干道 bundling）已落地；三壳 chrome（顶栏 64 / 去水印 / Home 表面 token）已对齐；多弯全局路由 / A* 续切片。
+- 风险：只化妆不动建模回路 → 用走查+E2E 约束「图可读可分享」必须可验证；布局质量：导入/逆向/无坐标兜底已接共享 dagre（`utils/graphLayout`，默认 `nodesep` 64 / `ranksep` 120）；示例主图手排收紧 + Frame padding 32；节点密度/PK·FK 徽章/自定义 `erdSmooth` 边（同表对多 FK 肘距分流 + 中间表 `centerX`/`bypassY` 避让 + 同 midX 通道干道 bundling + 叠表缝 mid-corridor / 两弯 `escapeX`）已落地；三壳 chrome（顶栏 64 / 去水印 / Home 表面 token）已对齐；全图 A* 续切片。
 - 与既有 ADR：不推翻 ADR-0001（ReactFlow）、ADR-0012（定位）、ADR-0013（MCP 规划不实现）；本篇只定**本季投注权重**。
