@@ -19,8 +19,8 @@ export type LayoutPoint = { x: number; y: number };
 export const NODE_WIDTH = 240;
 
 /** 默认走廊：够边肘分流，又不过稀（ADR-0016 分享密度） */
-export const DAGRE_NODESEP = 64;
-export const DAGRE_RANKSEP = 120;
+export const DAGRE_NODESEP = 56;
+export const DAGRE_RANKSEP = 108;
 export const DAGRE_MARGIN = 24;
 
 export function estimateNodeHeight(entity?: LayoutEntity): number {

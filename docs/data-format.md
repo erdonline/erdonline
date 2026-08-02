@@ -219,7 +219,7 @@ cd frontend && yarn validate:projectjson
 | `sys_audit_log` | 审计日志 | 可追溯 |
 | `biz_order` | 业务订单 | 业务切片（挂 `user_id`） |
 
-模块名 `AUTHZ` / 显示名「功能鉴权」；含 `indexs`、`defaultValue`，以及 `diagrams[]` 双图（「鉴权核心」「会话与审计」）+ Frame 分组（主体 / RBAC / 会话审计 / 业务）；主图节点水平跨度约 1136（列间距 ~44px、Frame padding 32），`graphCanvas` 与主图布局对齐。打开即可分享截图（ADR-0016 / ADR-0017）。
+模块名 `AUTHZ` / 显示名「功能鉴权」；含 `indexs`、`defaultValue`，以及 `diagrams[]` 双图（「鉴权核心」「会话与审计」）+ Frame 分组（主体 / RBAC / 会话审计 / 业务）；主图节点水平跨度约 1072（列间距 ~28px、Frame padding 24），`graphCanvas` 与主图布局对齐。打开即可分享截图（ADR-0016 / ADR-0017）。
 
 ## DBML 互通（导入 / 导出）
 

@@ -44,9 +44,10 @@
 - [x] 选中分组→「适应成员」重算包围盒 ✅`diagram-frame.spec.ts`
 - [x] Frame helpers（包围盒 / 扩边 / 点落框 / 成员去重改名剔除）✅`diagram.test.ts`
 - [x] schema `diagramFrame` ✅`validate-projectjson.mjs`
-- [x] 公开 demo 主图节点 x 跨度更密（<1200）✅`demo.spec.ts` + 截图 `ux-walkthrough/demo-layout-density.png`
+- [x] 公开 demo 主图节点 x 跨度更密（&lt;1100）✅`demo.spec.ts` + 截图 `ux-walkthrough/demo-layout-density.png`
+- [x] 分享只读隐藏 `relationNoShow`（无 `del_flag`）✅`demo.spec.ts`
 - [x] dagre 默认间距 ≤ 旧走廊 80/160 ✅`graphLayout.test.ts`
-- [x] Frame 默认 padding 32（适应成员更贴表）✅`diagram.test.ts`
+- [x] Frame 默认 padding 24（适应成员更贴表）✅`diagram.test.ts`
 
 ### 手工
 
