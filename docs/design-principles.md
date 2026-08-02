@@ -70,8 +70,8 @@
 - ✅ 画布工具栏：按钮 height 22 / font 11 / padding 0 8；禁 5×12 松按钮盖截图
 - ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
-- ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 一句引导 + 主 CTA「新建第一张表」+ 次 CTA「导入 DBML」+「从数据源逆向」文字链；禁粉红卡通 / 空态 MiniMap clutter
-- ✅ 空态面板密度：padding 14/18/12、max-width 300、标题 14 / CTA height 26、剪影 compact 132；禁 28/32 松卡片盖首屏
+- ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
+- ✅ 空态面板密度：padding 14/18/12、max-width 300、标题 14/700 / CTA height 26、剪影 compact 132；禁 28/32 松卡片盖首屏
 - ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 10；禁 48 高输入 + 10/12 松行盖快捷回路
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
 - ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧）；禁默认头脚松距盖项目菜单回路

@@ -1616,9 +1616,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             <div className="erd-empty-cta" data-testid="canvas-empty-state">
               <ErdEmptyDiagram size="compact" />
               <div className="erd-empty-title">开始你的第一张关系图</div>
-              <div className="erd-empty-desc">
-                一张表就能上图；导入 DBML 后自动铺满首屏，截图敢分享
-              </div>
+              <div className="erd-empty-desc">一张表即可上图；也可导入或逆向</div>
               <button
                 type="button"
                 className="erd-empty-button nodrag"
@@ -1628,24 +1626,29 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               >
                 + 新建第一张表
               </button>
-              <button
-                type="button"
-                className="erd-empty-outline nodrag"
-                data-testid="canvas-empty-import-dbml"
-                aria-label="导入 DBML"
-                onClick={() => setDbmlImportOpen(true)}
-              >
-                导入 DBML
-              </button>
-              <button
-                type="button"
-                className="erd-empty-secondary nodrag"
-                data-testid="canvas-empty-reverse"
-                aria-label="从数据源逆向"
-                onClick={() => history.push('/design/table/import/reverse')}
-              >
-                从数据源逆向
-              </button>
+              <div className="erd-empty-links">
+                <button
+                  type="button"
+                  className="erd-empty-secondary nodrag"
+                  data-testid="canvas-empty-import-dbml"
+                  aria-label="导入 DBML"
+                  onClick={() => setDbmlImportOpen(true)}
+                >
+                  导入 DBML
+                </button>
+                <span className="erd-empty-links-sep" aria-hidden="true">
+                  ·
+                </span>
+                <button
+                  type="button"
+                  className="erd-empty-secondary nodrag"
+                  data-testid="canvas-empty-reverse"
+                  aria-label="从数据源逆向"
+                  onClick={() => history.push('/design/table/import/reverse')}
+                >
+                  从数据源逆向
+                </button>
+              </div>
             </div>
           </Panel>
         )}

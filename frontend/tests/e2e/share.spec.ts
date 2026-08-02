@@ -78,6 +78,34 @@ test.describe('只读分享', () => {
         await expect(anonPage.getByText(/该分享暂无模型|该模块暂无表/)).toBeVisible();
         await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
         await expect(anonPage.getByRole('button', { name: '打开示例 demo' })).toBeVisible();
+
+        // ADR-0016：主标题 ink900/700 + hint muted；唯一实心主 CTA
+        const empty = anonPage.getByTestId('share-empty-module');
+        const shareEmptyMetrics = await empty.evaluate((el) => {
+          const title = el.querySelector('.share-page__empty-title') as HTMLElement | null;
+          const hint = el.querySelector('.share-page__empty-hint') as HTMLElement | null;
+          const btn = el.querySelector('.ant-btn-primary') as HTMLElement | null;
+          const tcs = title ? getComputedStyle(title) : null;
+          const hcs = hint ? getComputedStyle(hint) : null;
+          const bcs = btn ? getComputedStyle(btn) : null;
+          return {
+            titleColor: tcs?.color || '',
+            titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
+            titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+            hintColor: hcs?.color || '',
+            hintSize: hcs ? parseFloat(hcs.fontSize) : 0,
+            primaryCount: el.querySelectorAll('.ant-btn-primary').length,
+            btnWeight: bcs ? parseInt(bcs.fontWeight, 10) : 0,
+          };
+        });
+        expect(shareEmptyMetrics.titleColor).toBe('rgb(11, 28, 44)'); // ink900
+        expect(shareEmptyMetrics.titleWeight).toBeGreaterThanOrEqual(700);
+        expect(shareEmptyMetrics.titleSize).toBeLessThanOrEqual(14);
+        expect(shareEmptyMetrics.hintColor).toBe('rgb(138, 151, 163)'); // ink400
+        expect(shareEmptyMetrics.hintSize).toBeLessThanOrEqual(12);
+        expect(shareEmptyMetrics.primaryCount).toBe(1);
+        expect(shareEmptyMetrics.btnWeight).toBeGreaterThanOrEqual(600);
+
         await anonPage.screenshot({
           path: 'test-results/ux-walkthrough/share-empty-module.png',
           fullPage: false,

@@ -372,7 +372,7 @@
 ## 分享失效/空态品牌对齐（2026-08-03 · ADR-0016）
 
 - [x] [无效 token] `/s/not-a-real-…` 见 `auth-brand-shell` +「分享不可用」+ `share-invalid-gate`；左面板 ~40%；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec`「无效 token…」
-- [x] [空模块] 新建空项目分享 → 匿名见 `share-empty-module` + `erd-empty-diagram` +「该分享暂无模型|该模块暂无表」+ 主 CTA✅ `share.spec`「空模块分享…」
+- [x] [空模块] 新建空项目分享 → 匿名见 `share-empty-module` + `erd-empty-diagram` + 主标题「该分享暂无模型|该模块暂无表」+ hint + 唯一主 CTA✅ `share.spec`「空模块分享…」
 - [x] [吊销后] 创建→吊销→匿名见品牌壳失效门（非裸 403）✅ `share.spec`「创建→吊销后…」
 - [x] [成功态不回归] 有表分享仍见 chrome 64 + 画布 + 表清单折叠✅ `share.spec`「设计器分享后…」
 
@@ -517,7 +517,8 @@
 - [x] [密 FK 导入走查 + 绕行竞短] `dense-fk.dbml` 12 表/20 FK → modes 含 `astar|twoBend`；截图 `diagram-dense-fk-canvas.png`；DBML 树勿点已展开标题 ✅ `dense-fk-import.spec.ts` + `dbml-import.spec.ts`
 - [x] [分享只读同路由 + hub 扇出] `/demo` 暴露 `erd-edge-route-mode`（同设计器允许集）+ 非零 `data-hub-fan`；截图 `demo-share-edge-routing.png`；`hubFanOffsetsForAssociations` 单测 ✅ `demo.spec.ts` + `relationEdges.test.ts`
 - [x] [表节点卡片层次] 表头 `surfaceMuted` rgb(243,245,247)；PK `::before` 2px warning；截图 `diagram-node-polish.png` / `diagram-shareable-tokens.png` ✅ `relation.spec.ts`「表节点视觉」
-- [x] [空态构图] 画布见 `erd-empty-diagram` +「开始你的第一张关系图」+ 主 CTA +「导入 DBML」+「从数据源逆向」；空态无 MiniMap；截图 `diagram-empty-composition.png` ✅ `relation.spec.ts`「空态构图」
+- [x] [空态构图] 画布见 `erd-empty-diagram` +「开始你的第一张关系图」+ **唯一**主 CTA + 次链「导入 DBML · 从数据源逆向」；禁 outline 第二钮；空态无 MiniMap；截图 `diagram-empty-composition.png` ✅ `relation.spec.ts`「空态构图」
+- [x] [空态 CTA 层次] 标题 14/700 + desc ink400；主钮 weight≥600；次链 ink600；分享空态 title/hint 同构 ✅ `relation`「空态构图」+ `share`「空模块分享」
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`
