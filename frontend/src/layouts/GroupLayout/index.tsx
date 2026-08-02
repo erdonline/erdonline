@@ -6,7 +6,7 @@ import {Button, Dropdown} from "antd";
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
 import {fixRouteAccess, headRightContent} from "@/layouts/DesignLayout";
-import {history, Link, Outlet, useModel, useSearchParams} from "@umijs/max";
+import {history, Link, useModel, useSearchParams} from "@umijs/max";
 import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
@@ -14,7 +14,9 @@ import Theme from "@/components/Theme";
 import {menuHeaderDropdown} from "@/layouts/HomeLayout";
 
 
-export type GroupLayoutProps = {};
+export type GroupLayoutProps = {
+  children?: React.ReactNode;
+};
 
 const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
   const {initialState, setInitialState} = useModel('@@initialState');
@@ -124,7 +126,8 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
               minHeight: '85vh',
             }}
           >
-            <Theme/>
+            <Theme />
+            {props.children}
           </ProCard>
         </PageContainer>
       </ProLayout>

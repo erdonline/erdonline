@@ -215,3 +215,8 @@
 
 - [x] [大图裁剪] 30 表 + 放大视口 → DOM `.react-flow__node` < 30；`data-viewport-cull=1` ✅ `canvas-scale.spec.ts`
 - [x] [E2E 定位] 新建模型/开关系图走 testid，不依赖 `.ant-tree [class*=title]` ✅同上
+
+## 布局壳子路由（2026-08-02）
+
+- [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`
+- [x] [GroupLayout 主内容] 登录→/project/group/setting/basic?projectId= 见「基本设置」+「项目名」且不双挂载 ✅同上

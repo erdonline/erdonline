@@ -2,6 +2,12 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — HomeLayout/GroupLayout 子路由出口（2026-08-02）
+
+### 修复
+- `HomeLayout` / `GroupLayout`：对齐 DesignLayout，在 Theme 旁显式渲染 `props.children`（消除仅靠 Theme 内 Outlet 的隐患）
+  验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium` 绿（`/home` 见新建模型 CTA；`/project/person` 见新建；`/project/group/setting/basic` 见「基本设置」且 count=1）
+
 ## [Unreleased] — 版本回滚落库 + E2E goto helpers（2026-08-02）
 
 ### 修复
