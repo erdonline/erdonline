@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 重构：W5 切片 2 — 分享失效态 Result + 示例 demo CTA
+
+**重构**
+
+- 分享页无效/吊销 token：`Empty` → antd `Result` status 403；extra「返回首页」+「打开示例 demo」→ `/demo`（与 404/403 同构）
+- 加载中全页 `Spin`；成功态 chrome / fork / Alert 不变；背景改用 `--erd-surface-sunk`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `product-capability-map` / `regression-checklist`：W5 切片 2 ✅
+  验证点：`npx playwright test tests/e2e/share.spec.ts -g "无效 token|吊销" --project=chromium` → **2 passed**
+
 #### 重构：W5 切片 1 — 404/403 标准 Result + 示例 demo CTA
 
 **重构**

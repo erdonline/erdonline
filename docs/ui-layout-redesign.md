@@ -108,7 +108,8 @@
 ### 分享 share（品牌壳-lite · W5）
 
 - 现状：只读画布 + 顶栏， fork 入口已通（P3a ✅）
-- 目标：顶栏对齐设计器壳（64px、logo + 项目名 + 「Fork 到我的项目」主按钮 + 「登录/注册」文字链）；只读水印/提示条用 antd `Alert` type info 一条；链接失效态 `Result` 403 + 「打开示例 demo」
+- ✅ **W5 切片 2**（2026-08-02）：链接失效/无效 token → `Result` 403 +「返回首页」+「打开示例 demo」（与 404/403 同构）；成功态仍 `Alert` info 一条
+- 待：顶栏对齐设计器壳（64px、logo + 项目名 + 「Fork 到我的项目」主按钮 + 「登录/注册」文字链）
 - 分享页是给陌生人的产品门面，保持轻 chrome，不加工作台导航
 
 ### 404 / 403（品牌壳 · W5）
@@ -173,6 +174,7 @@
 | └ **W4 切片 15** ✅（2026-08-02） | 末批清零：`account/settings`→HomeLayout；`GroupUser`/`GroupPermission`；双 `ReverseDatabase`+`ReverseTable`；删死码 `StandardFieldLibrary`；移除 `@ant-design/pro-components` + `umi-presets-pro` | 7→0 + 依赖移除 | `account-settings` + `group-layout-nav` + `import-reverse`；`rg …pro-components` = 0 |
 | **W5** 登录/分享/404 打磨 | 登录注册品牌壳再打磨；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result（**Pro 依赖已在 W4 切片 15 移除**） | 视觉/分享/404 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图 |
 | └ **W5 切片 1** ✅（2026-08-02） | **404/403**：去 `reset.css`；标准 Result 图标；次按钮「打开示例 demo」；删自定义 svg | — | `not-found.spec`「返回首页」+「打开示例 demo」→ `/demo`\|`/s/public-demo` |
+| └ **W5 切片 2** ✅（2026-08-02） | **分享失效态**：无效/吊销 token → `Result` 403 +「返回首页」+「打开示例 demo」；成功态 chrome 不动 | — | `share.spec`「无效 token…示例 demo」+「创建→吊销后…」见 Result CTA |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
 

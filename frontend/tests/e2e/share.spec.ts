@@ -10,9 +10,18 @@ import {
 } from './helpers';
 
 /**
- * 只读分享（ADR-0007 / W2）：创建→复制→匿名可读；吊销→链接失效
+ * 只读分享（ADR-0007 / W2 / W5）：创建→复制→匿名可读；吊销→失效 Result + demo CTA
  */
 test.describe('只读分享', () => {
+  test('无效 token 见 403 Result 并可打开示例 demo', async ({ page }) => {
+    await page.goto(`/s/not-a-real-share-token-${Date.now().toString(36)}`);
+    await expect(page.getByText('403', { exact: true })).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText(/分享不存在或已失效|分享已过期|分享链接无效|加载失败/)).toBeVisible();
+    await expect(page.getByTestId('share-relation-canvas')).toHaveCount(0);
+    await page.getByRole('button', { name: '打开示例 demo' }).click();
+    await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
+  });
+
   test('设计器分享后匿名打开可见只读关系图', async ({ page, browser }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('share');
@@ -126,10 +135,11 @@ test.describe('只读分享', () => {
       const anonPage = await anon.newPage();
       try {
         await anonPage.goto(`/s/${token}`);
-        await expect(anonPage.getByText(/分享不存在或已失效|分享已过期|分享链接无效/)).toBeVisible({
-          timeout: 15_000,
-        });
+        await expect(anonPage.getByText('403', { exact: true })).toBeVisible({ timeout: 15_000 });
+        await expect(anonPage.getByText(/分享不存在或已失效|分享已过期|分享链接无效/)).toBeVisible();
         await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
+        await expect(anonPage.getByRole('button', { name: '打开示例 demo' })).toBeVisible();
+        await expect(anonPage.getByRole('button', { name: '返回首页' })).toBeVisible();
       } finally {
         await anon.close();
       }

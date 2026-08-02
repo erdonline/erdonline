@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Alert, Button, Card, Empty, Segmented, Space, Spin, Table, Typography, message} from 'antd';
+import {Alert, Button, Card, Result, Segmented, Space, Spin, Table, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
 import ShareRelationCanvas from './ShareRelationCanvas';
 import * as cache from '@/utils/cache';
@@ -63,8 +63,8 @@ const SharePage: React.FC = () => {
       }
       message.success('已复制到我的项目');
       history.push(`/design/table/model?projectId=${json.data.projectId}`);
-    } catch (e: any) {
-      message.error(e?.message || '复制失败');
+    } catch (e: unknown) {
+      message.error(e instanceof Error ? e.message : '复制失败');
     } finally {
       setForking(false);
     }
@@ -94,9 +94,9 @@ const SharePage: React.FC = () => {
           setModuleKey(mods[0]?.name || mods[0]?.chnname || '');
           setError(null);
         }
-      } catch (e: any) {
+      } catch (e: unknown) {
         if (!cancelled) {
-          setError(e?.message || '加载失败');
+          setError(e instanceof Error ? e.message : '加载失败');
         }
       } finally {
         if (!cancelled) {
@@ -144,14 +144,60 @@ const SharePage: React.FC = () => {
     return list;
   }, [modules]);
 
+  if (loading) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--erd-surface-sunk)',
+        }}
+      >
+        <Spin size="large" tip="加载分享…" />
+      </div>
+    );
+  }
+
+  // 失效 / 无效：与 404/403 同构 Result + 激活漏斗 CTA（W5 切片 2）
+  if (error) {
+    return (
+      <div
+        style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          background: 'var(--erd-surface-sunk)',
+          padding: 24,
+        }}
+      >
+        <Result
+          status="403"
+          title="403"
+          subTitle={error}
+          extra={
+            <Space>
+              <Button type="primary" onClick={() => history.push('/')}>
+                返回首页
+              </Button>
+              <Button onClick={() => history.push('/demo')}>打开示例 demo</Button>
+            </Space>
+          }
+        />
+      </div>
+    );
+  }
+
   return (
-    <div style={{minHeight: '100vh', background: '#f5f5f5', padding: 24}}>
+    <div style={{minHeight: '100vh', background: 'var(--erd-surface-sunk)', padding: 24}}>
       <Card style={{maxWidth: 1100, margin: '0 auto'}}>
         <Space style={{width: '100%', justifyContent: 'space-between', marginBottom: 8}} align="start">
           <Typography.Title level={3} style={{marginTop: 0, marginBottom: 0}}>
             {data?.projectName || '只读分享'}
           </Typography.Title>
-          {!error && data ? (
+          {data ? (
             <Space>
               <Button
                 type="primary"
@@ -185,38 +231,30 @@ const SharePage: React.FC = () => {
         {data?.description ? (
           <Typography.Paragraph type="secondary">{data.description}</Typography.Paragraph>
         ) : null}
-        <Spin spinning={loading}>
-          {error ? (
-            <Empty description={error}/>
-          ) : (
-            <>
-              {modules.length > 1 ? (
-                <Segmented
-                  style={{marginBottom: 12}}
-                  value={moduleKey}
-                  onChange={(v) => setModuleKey(String(v))}
-                  options={modules.map(m => ({
-                    label: m.chnname || m.name || '模块',
-                    value: m.name || m.chnname || '',
-                  }))}
-                />
-              ) : null}
-              {currentModule ? <ShareRelationCanvas module={currentModule as any}/> : null}
-              <Typography.Title level={5} style={{marginTop: 20}}>表清单</Typography.Title>
-              <Table
-                size="small"
-                pagination={false}
-                dataSource={rows}
-                locale={{emptyText: '暂无表'}}
-                columns={[
-                  {title: '模块', dataIndex: 'module'},
-                  {title: '表', dataIndex: 'table'},
-                  {title: '字段数', dataIndex: 'fields', width: 90},
-                ]}
-              />
-            </>
-          )}
-        </Spin>
+        {modules.length > 1 ? (
+          <Segmented
+            style={{marginBottom: 12}}
+            value={moduleKey}
+            onChange={(v) => setModuleKey(String(v))}
+            options={modules.map(m => ({
+              label: m.chnname || m.name || '模块',
+              value: m.name || m.chnname || '',
+            }))}
+          />
+        ) : null}
+        {currentModule ? <ShareRelationCanvas module={currentModule as any}/> : null}
+        <Typography.Title level={5} style={{marginTop: 20}}>表清单</Typography.Title>
+        <Table
+          size="small"
+          pagination={false}
+          dataSource={rows}
+          locale={{emptyText: '暂无表'}}
+          columns={[
+            {title: '模块', dataIndex: 'module'},
+            {title: '表', dataIndex: 'table'},
+            {title: '字段数', dataIndex: 'fields', width: 90},
+          ]}
+        />
       </Card>
     </div>
   );
