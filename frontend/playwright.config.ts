@@ -4,10 +4,11 @@ import os from 'os';
 /**
  * ERD Online E2E 配置
  * 运行前提：全栈已启动（mysql + redis + backend:9502 + frontend:8000）
- * 本地：yarn test:e2e ｜ CI：由 workflow 先起依赖再执行
+ * 本地：yarn test:e2e（chromium → chromium-serial 两步）｜ CI：workflow 同序
+ * 单条串行：yarn test:e2e:serial 或 --project=chromium-serial（无 deps，不拉全量）
  *
  * 并发：本地上限 16（种子 e2e0..e2e15）；默认取 ceil(CPU/2) 以免打爆 FE/BE。
- * 满配：PW_WORKERS=16；串行排查：PW_WORKERS=1。
+ * 满配：PW_WORKERS=16；串行排查并行段：PW_WORKERS=1。
  * 账号级空态用例 → chromium-serial（workers=1，账号 e2e-serial）。
  */
 const cpuCount = os.cpus().length;
@@ -34,7 +35,8 @@ export default defineConfig({
     {
       name: 'chromium',
       use: { ...devices['Desktop Chrome'] },
-      // 需账号级空态的用例等并行项目跑完再跑（dependencies）
+      // 账号级空态/导出失败用例归 chromium-serial（见下）；勿用 dependencies 串联，
+      // 否则 --project=chromium-serial 单条跑会先拉整套 chromium。
       testIgnore: [
         '**/project-activation.spec.ts',
         '**/activation.spec.ts',
@@ -52,7 +54,7 @@ export default defineConfig({
       fullyParallel: false,
       // 共用 e2e-serial：必须单 worker，避免文件锁空等到用例超时
       workers: 1,
-      dependencies: ['chromium'],
+      // 无 dependencies：targeted 串行跑不膨胀；全量顺序由 CI / yarn test:e2e 两步保证
     },
   ],
 });

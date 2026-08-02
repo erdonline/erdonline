@@ -37,7 +37,7 @@
    定位：`getByRole` > label/placeholder/text > `getByTestId`；禁 `.ant-*` / 哈希类 / XPath / `nth` 碰运气
 2. **选题**：一个摩擦；P0 当 tick 必修；P1 本 tick 或候选；P2 记 roadmap（但「图颜值」按 ADR-0016 **不是**可永久扔的 P2）
 3. **交付**：前端 HMR；后端按需 `dev-ensure`；视觉只认 `frontend/src/theme/tokens.ts` / `--erd-*`；禁第四种壳；勿抢并行未提交大块
-4. **验证**：相关 E2E `--grep`；交互改动前后截图；未验证不 commit
+4. **验证**：相关 E2E 必须带 `--project`（并行=`chromium`；空态/activation/export-feedback=`chromium-serial` 或 `yarn test:e2e:serial`）+ 文件路径 + `--grep`；serial 的 `workers: 1` 已在 config，**勿**再依赖 `--no-deps`；交互改动前后截图；未验证不 commit
 5. **蒸馏**：可复用原则 → `design-principles.md`；CHANGELOG；commit；简报含**下一 tick 候选**
 
 ## NOT 清单

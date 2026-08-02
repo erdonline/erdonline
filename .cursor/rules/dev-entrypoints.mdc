@@ -41,7 +41,7 @@ alwaysApply: true
 | **启动** | `cd frontend && yarn start`（内部会跑 `env.local.sh` 生成 `public/env-config.js`） |
 | **代理** | 开发态走 `frontend/config/proxy.ts` → `http://localhost:9502`；勿改乱指生产 |
 | **构建** | `yarn build`；生产 env 用 `env.sh` / `build:prod`，勿手改 `env-config.js` 当源 |
-| **E2E** | `yarn test:e2e` 或 `npx playwright test --grep "关键字"`；定位纪律见 `e2e-locators.mdc` |
+| **E2E** | 全量 `yarn test:e2e`；串行 `yarn test:e2e:serial`；单条须 `--project=chromium` 或 `chromium-serial` + grep；定位见 `e2e-locators.mdc` |
 | **禁止** | 为「让改动生效」而杀 8000 / 重跑 `yarn start`；禁止用 `.ant-*` 写业务 E2E |
 
 ## 一页速查
