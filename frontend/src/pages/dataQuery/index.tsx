@@ -13,7 +13,7 @@ import { uuid } from "@/utils/uuid";
 import { ApiOutlined, BarChartOutlined, BarsOutlined, CodeOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FolderOutlined, LockOutlined, MoreOutlined, PlayCircleOutlined, PlusOutlined, SaveOutlined } from "@ant-design/icons";
 import { ProCard } from "@ant-design/pro-components";
 import { Data, HistoryQuery, Plan } from "@icon-park/react";
-import { Button, Checkbox, Dropdown, Empty, Form, Input, Layout, List, message, Modal, Select, Spin, Tooltip, TreeSelect, Typography } from "antd";
+import { Alert, Button, Checkbox, Dropdown, Empty, Form, Input, Layout, List, message, Modal, Select, Spin, Tooltip, TreeSelect, Typography } from "antd";
 import type { DataNode } from 'antd/es/tree';
 import _ from "lodash";
 import moment from "moment";
@@ -696,7 +696,14 @@ const DataQuery: React.FC<QueryProps> = (props) => {
   );
 
   return (
-    <>
+    <div data-testid="home-data-query-page">
+      <Alert
+        type="info"
+        showIcon
+        style={{ margin: '8px 12px 0' }}
+        message="实验功能"
+        description="Home「数据查询」主导航已隐藏。本页仅深链保留：当前 SQL 执行走应用库而非所选数据源，勿当作生产查询台；主旅程请用建模 / 数据源 / 逆向。"
+      />
       <ProCard
       >
         <Layout style={{ minHeight: '100vh' }}>
@@ -784,7 +791,7 @@ const DataQuery: React.FC<QueryProps> = (props) => {
           </Form.Item>
         </Form>
       </Modal>
-    </>
+    </div>
   );
 };
 

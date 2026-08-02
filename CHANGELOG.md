@@ -2,6 +2,24 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 Home `/dataQuery` 主导航裁剪（2026-08-02）
+
+### 修复
+- HomeLayout `_defaultProps`：移除「数据查询」菜单（与设计器查询同策略）
+  原因：`QueryInfoServiceImpl.exec` 经 MyBatis 打**应用库**，忽略前端所选数据源；非北极星主路径
+  验证点：`/home` 主导航无 link「数据查询」；仍有「数据模型」「数据源」
+- `/dataQuery`：加「实验功能」Alert（`data-testid=home-data-query-page`）；路由保留深链
+  验证点：直达页见「实验功能」
+
+### 测试
+- 新增 `home-data-query.spec.ts`：主导航无「数据查询」+ 深链实验提示
+  验证点：`npx playwright test tests/e2e/home-data-query.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：Home 数据查询菜单 → ✅；页内实验 📋；统计 ✅68 / 🚧24 / 📋4
+- `docs/roadmap.md` P2b 长尾已收 Home 数据查询裁剪
+- `docs/regression-checklist.md`：Home 数据查询裁剪自动化
+
 ## [Unreleased] — W6 `/account/settings` 基本资料保存 toast（2026-08-02）
 
 ### 修复

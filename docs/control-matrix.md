@@ -54,7 +54,7 @@
 |---|---|---|---|---|---|
 | HomeLayout 菜单 | 首页 | → `/home` 主内容 | W0 | ✅ | `layout-outlet` / `project-surface` |
 | HomeLayout 菜单 | 数据模型 | → `/dataModels` | 项目列表别名面 | ✅ | `project-surface` |
-| HomeLayout 菜单 | 数据查询 | → `/dataQuery` | W6 | 📋 | 可进页；深度 CRUD 后置 |
+| HomeLayout 菜单 | 数据查询 | `_defaultProps` 已摘；路由保留实验深链 | exec 忽略所选 DS | ✅ | `home-data-query.spec` |
 | HomeLayout 菜单 | 数据源 | → `/databaseConfig` | ADR-0008 / W5 | ✅ | `project-surface` / `adr0008` |
 | HomeLayout 菜单 | ERD Online 论坛 | 外链 Discussions | 社区 | 📋 | 外链不测 |
 
@@ -170,7 +170,7 @@
 | `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段 | | ✅ | `default-field.spec`「编辑保存有 toast」 |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
-| `/dataQuery` | 查询 CRUD/执行 | 有反馈 | Home 菜单 | 🚧 | |
+| `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |
 | `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
 | `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | 🚧 | |
@@ -199,8 +199,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 67 |
-| 🚧 | 25 |
+| ✅ | 68 |
+| 🚧 | 24 |
 | 🗑 | 7 |
 | 📋 | 4 |
 | **合计** | **103** |
