@@ -115,27 +115,31 @@
             <charset>${LOG_CHARSET}</charset>
         </encoder>
     </appender>
-    <!-- 开发、测试环境. -->
+    <!-- 本地开发：控制台 + 文件 -->
     <springProfile name="dev,sit,uat">
         <logger name="com.erdonline" level="${LOG_ROOT_LEVEL}" additivity="false">
             <appender-ref ref="STDOUT"/>
             <appender-ref ref="FILE_MARTIN"/>
         </logger>
-    </springProfile>
-    <!-- 生产环境. -->
-    <springProfile name="release">
-        <logger name="com.erdonline" level="ERROR" additivity="false">
+        <root level="${LOG_ROOT_LEVEL}">
             <appender-ref ref="STDOUT"/>
-            <appender-ref ref="FILE_MARTIN"/>
-        </logger>
+            <appender-ref ref="FILE_ALL"/>
+            <appender-ref ref="FILE_ERROR"/>
+        </root>
     </springProfile>
-
-    <!-- ${LOG_ROOT_LEVEL} 日志级别 -->
-    <root level="${LOG_ROOT_LEVEL}">
-        <appender-ref ref="STDOUT"/>
-        <!-- FILE_ALL 日志输出添加到 logger -->
-        <appender-ref ref="FILE_ALL"/>
-        <!-- FILE_ERROR 日志输出添加到 logger -->
-        <appender-ref ref="FILE_ERROR"/>
-    </root>
+    <!-- prod / Railway：仅 STDOUT（平台收容器日志；避免只读 FS 写 logs/ 失败） -->
+    <springProfile name="prod,release">
+        <logger name="com.erdonline" level="${LOG_ROOT_LEVEL}" additivity="false">
+            <appender-ref ref="STDOUT"/>
+        </logger>
+        <root level="${LOG_ROOT_LEVEL}">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
+    <!-- 无 profile 时至少保证控制台有输出 -->
+    <springProfile name="default">
+        <root level="${LOG_ROOT_LEVEL}">
+            <appender-ref ref="STDOUT"/>
+        </root>
+    </springProfile>
 </included>

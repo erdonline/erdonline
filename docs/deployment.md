@@ -156,12 +156,43 @@ docker compose up -d
 5. 在 **App 服务 → Variables** 写入下表环境变量（把插件变量引用成 Spring 名；值以 Dashboard 实际为准）。
 6. **Settings → Networking → Public Networking** 生成 `*.up.railway.app` HTTPS。容器入口已读平台 `PORT`（`backend/Dockerfile`）；**不必**再手填 9502。验收：
    ```bash
+   curl -sS https://YOUR-APP.up.railway.app/actuator/health/liveness
+   # 期望 {"status":"UP"}  （部署门禁；railway.toml 也指向此路径）
    curl -sS https://YOUR-APP.up.railway.app/actuator/health
-   # 期望 {"status":"UP"}
+   # 期望 {"status":"UP"}  （含 db/redis；未接线时 503，业务未就绪）
    ```
    随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://YOUR-APP.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
 
 可选（首个 `v*` release 且 GHCR 已有包之后）：空项目 → **Add service → Docker Image** → `ghcr.io/erdonline/erdonline-backend:latest`，跳过本地 Dockerfile 构建。
+
+### Healthcheck 连续失败（立刻自查）{#railway-health-fail}
+
+`healthcheckTimeout = 300`（5 分钟）内 **Attempt #1–#8 全是 service unavailable** ≈ **2 分钟仍无人听端口**，**不是**「JVM 慢一点」。正常 Boot 冷启约 30–90s；超过约 2–3 分钟日志里还没有 `Started ErdOnlineApplication` → **卡在 DB/Redis 或 prod 缺环境变量，进程在崩溃重试**。
+
+**现在就看**：Deployments → 当前部署 → **View logs**，搜这些关键词：
+
+| 日志关键词 | 含义 | 怎么修 |
+|---|---|---|
+| `Could not find … base-logback.xml` / `No appenders` | Logback include 失败（已修：改 include 根路径）；**不阻断启动**，但后面真实错误可能看不见 | 拉含本修复的 commit 后 Redeploy；仍失败再往下看 |
+| `Started ErdOnlineApplication` | 进程已起来 | 再 curl `/actuator/health/liveness`；若公网仍 502 → Networking/域名 |
+| `Communications link failure` / `Connection refused` / `Unknown database` | MySQL 未通或未建 `martin`/`erd` | 映射 `DB_*`；执行建库 + `db/init` |
+| `Unable to connect to Redis` / `NOAUTH` / `WRONGPASS` | Redis 未通或没密码 | 映射 `REDIS_HOST`/`PORT`/`PASSWORD`（插件名是 `REDISPASSWORD`） |
+| `Could not resolve placeholder 'DB_USERNAME'` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | 按下一节表格补齐 |
+| 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
+
+容器内（Railway Shell）：
+
+```bash
+echo "PORT=$PORT"
+curl -sS -o /dev/null -w "%{http_code}\n" "http://127.0.0.1:${PORT}/actuator/health/liveness"
+curl -sS "http://127.0.0.1:${PORT}/actuator/health"
+```
+
+说明：
+
+- **部署门禁**用 `/actuator/health/liveness`（进程存活即可；`railway.toml` 已改）。
+- **业务就绪**仍看 `/actuator/health`（含 db/redis）。**不要**靠 `management.health.db.enabled=false` 瞒过接线问题——优先把 MySQL/Redis 变量与双库灌好。
+- Dockerfile 已 `--server.port=${PORT:-9502}`；Security 已放行 `/actuator/**`。连续失败时优先查日志与 Variables，而不是改路径。
 
 ### 环境变量对照（Spring Boot）
 
@@ -176,7 +207,8 @@ docker compose up -d
 | `DB_ERD` | `erd` | 建模库名 |
 | `DB_USERNAME` / `DB_PASSWORD` | 插件用户/密码 | martin 库账号 |
 | `DB_ERD_USERNAME` / `DB_ERD_PASSWORD` | 同上或专用 erd 用户 | 可与 martin 同账号（须两库授权） |
-| `REDIS_HOST` / `REDIS_PORT` | Redis 插件 host/port | 缓存；可选 `REDIS_DB=0` |
+| `REDIS_HOST` / `REDIS_PORT` | `${{Redis.REDISHOST}}` / `${{Redis.REDISPORT}}` | 缓存；可选 `REDIS_DB=0` |
+| `REDIS_PASSWORD` | `${{Redis.REDISPASSWORD}}` | **必填**（Railway Redis 有密码）；漏配则 Redisson 启动失败、永不听端口 |
 | `JWT_SECRET` | 随机 ≥32 字节 | **必改**；勿用仓库默认值 |
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
@@ -185,12 +217,12 @@ docker compose up -d
 | `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 任意非空占位（如 `demo`/`demo`） | `prod` profile 强制存在；无 MinIO 时 Word 自定义上传不可用，内置模板仍可导出 |
 | `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
-本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
-
+本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
 
 ### 接 CF Pages
 
-1. Railway health 绿、登录/注册可通（或至少 `actuator/health` UP）
+
+1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
 2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = Railway 公网根 URL
 3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）
 4. 打开 https://erdonline-demo.pages.dev ，确认会请求该 API（Network）
@@ -271,10 +303,14 @@ docker compose logs -f backend   # 查看后端日志
 
 ### 健康检查 / 版本信息（自部署验收）
 
-后端已挂 Spring Actuator，**仅**暴露 `health` 与 `info`（匿名可读；不暴露 env/beans/metrics）。compose 或独立 jar 拉起后：
+后端已挂 Spring Actuator，**仅**暴露 `health` 与 `info`（匿名可读；不暴露 env/beans/metrics）。已开 Boot probes。compose 或独立 jar 拉起后：
 
 ```bash
-# 存活：期望 {"status":"UP"}
+# 部署门禁 / 存活（不含 db/redis）
+curl -sS http://localhost:9502/actuator/health/liveness
+# 期望 {"status":"UP"}
+
+# 业务就绪（含 db/redis；依赖挂则 503）
 curl -sS http://localhost:9502/actuator/health
 
 # 应用名 + 版本（本地 classpath 常为 "dev"；正式 jar 为 Manifest 版本）

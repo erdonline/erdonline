@@ -10,7 +10,9 @@ dockerfilePath = "Dockerfile"
 watchPatterns = ["/backend/**"]
 
 [deploy]
-healthcheckPath = "/actuator/health"
+# Liveness only（Boot probes）：进程已监听即绿。勿用聚合 /actuator/health——
+# db/redis DOWN 会 503，PaaS 误判为部署失败。业务就绪仍看 /actuator/health。
+healthcheckPath = "/actuator/health/liveness"
 healthcheckTimeout = 300
 restartPolicyType = "ON_FAILURE"
 restartPolicyMaxRetries = 5
