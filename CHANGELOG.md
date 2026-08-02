@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：字段中文名（chnname）内联编辑（建模回路）
+
+- 选题：字段别名/注释只能开 EntityModal 或表设计签；画布编辑态缺 chnname，Tab 直接跳行跳过中文名
+- 编辑态加「中文名」input（`aria-label`）；Enter/blur 与字段名同批落盘；Escape 丢弃未提交别名（已即时落盘的 PK/NN/AI/隐不受影响）
+- Tab：字段名 → 中文名 → 类型 → 下一行（末行仍新建）；字段名空 + Tab 仍走空名 toast；Shift+Tab 逆序
+- E2E：`relation`「字段中文名内联编辑；Tab 入 chnname；Escape 丢弃」+「字段 Tab」同步 Tab 序
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段中文名|字段 Tab 跳下一行" --workers=1 --retries=0`
+
 #### 体验：Delete/Backspace 删字段二次确认（建模回路）
 
 - 选题：画布「×」删字段无确认；键盘 Delete/Backspace 只能删边/Frame，字段无键盘删除回路；编辑态 Backspace 必须仍只改字

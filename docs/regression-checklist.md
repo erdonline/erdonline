@@ -218,8 +218,9 @@
 - [x] [IdOrKey 默认 PK] 内联加 IdOrKey 字段后 PK 徽标 active ✅自动
 - [x] [表头改名] ✎ DOM click → 改名；改名中勿用 `rfNode(旧名)` 链 ✅ `relation.spec`「改名」
 - [x] [字段 ✎ 改名] hover「编辑字段」→ 改名；空名 toast 留编辑；save-status 已保存 ✅ `relation.spec`「字段 ✎」
-- [x] [字段 Tab / 类型即时保存] Tab 进下一字段；空名 toast；仅改类型 → save-status 已保存 ✅ `relation.spec`「字段 Tab」
-- [x] [末行 Tab 新建字段] 末字段 Tab → 空新建行；填名再 Tab → 落盘并再开新建；空名 toast 保留 ✅ `relation.spec`「字段 Tab」
+- [x] [字段 Tab / 类型即时保存] Tab 字段名→中文名→类型→下一字段；空名 toast；仅改类型 → save-status 已保存 ✅ `relation.spec`「字段 Tab」
+- [x] [末行 Tab 新建字段] 末字段经类型 Tab → 空新建行；填名再走完 Tab → 落盘并再开新建；空名 toast 保留 ✅ `relation.spec`「字段 Tab」
+- [x] [字段中文名内联] ✎ → Tab 入中文名 → Enter 落盘可见；Escape 丢弃别名草稿；空名 toast；中文名可清空 ✅ `relation.spec`「字段中文名」
 - [x] [编辑态 PK 即时保存] ✎ 内勾/取消主键 → save-status 已保存；空名 toast 保留 ✅ `relation.spec`「编辑态 PK」
 - [x] [编辑态非空即时保存] ✎ 内勾/取消非空 → save-status 已保存；PK 时 NN 禁用；空名 toast 保留 ✅ `relation.spec`「编辑态非空」
 - [x] [编辑态自增即时保存] ✎ 内勾/取消自增 → save-status 已保存；空名 toast 保留 ✅ `relation.spec`「编辑态自增」

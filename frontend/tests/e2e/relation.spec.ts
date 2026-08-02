@@ -1071,29 +1071,37 @@ test.describe('关系图画布（ReactFlow）', () => {
       await addFieldInline(page, 'T_TABLE_1', 'AGE');
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
 
-      // Tab：提交当前行并进入下一字段编辑
+      // Tab：字段名 → 中文名 → 类型 → 提交并进下一字段
       const nameRow = node.locator('[data-field="NAME"]');
       await nameRow.hover();
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       const nameInput = node.getByRole('textbox', { name: '字段名' });
       await expect(nameInput).toHaveValue('NAME');
       await nameInput.press('Tab');
+      await expect(node.getByRole('textbox', { name: '中文名' })).toBeFocused();
+      await node.getByRole('textbox', { name: '中文名' }).press('Tab');
+      await expect(node.getByRole('combobox', { name: '字段类型' })).toBeFocused();
+      await node.getByRole('combobox', { name: '字段类型' }).press('Tab');
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('AGE');
 
-      // 空名 toast 仍保留（Tab 同路径）
+      // 空名 toast 仍保留（字段名空 + Tab 同路径）
       await node.getByRole('textbox', { name: '字段名' }).fill('');
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
       await expectToast(page, '字段名不能为空');
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).fill('AGE');
 
-      // 末行 Tab → 开新建行；填名再 Tab → 落盘并再开新建
+      // 末行：名→中文名→类型 Tab → 新建行；填名后再走完 Tab 落盘
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await node.getByRole('textbox', { name: '中文名' }).press('Tab');
+      await node.getByRole('combobox', { name: '字段类型' }).press('Tab');
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('');
       await node.getByRole('textbox', { name: '字段名' }).fill('CODE');
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await node.getByRole('textbox', { name: '中文名' }).press('Tab');
+      await node.getByRole('combobox', { name: '字段类型' }).press('Tab');
       await expect(node.locator('[data-field="CODE"]')).toBeVisible();
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('');
@@ -1109,6 +1117,66 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
       await expect(node.locator('[data-field="NAME"] .erd-field-type')).toHaveText('Integer');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('字段中文名内联编辑；Tab 入 chnname；Escape 丢弃', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fchn');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fchn', 'field chnname inline');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      const nameRow = node.locator('[data-field="NAME"]');
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('NAME');
+
+      // Tab 入中文名；Enter 落盘；浏览态可见
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      const chnInput = node.getByRole('textbox', { name: '中文名' });
+      await expect(chnInput).toBeFocused();
+      await chnInput.fill('姓名');
+      await chnInput.press('Enter');
+      await expect(node.locator('.erd-field-editing')).toHaveCount(0);
+      await expect(nameRow.locator('.erd-field-chnname')).toHaveText(/\s*姓名/);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // Escape：中文名草稿不经 blur 落盘；PK 即时落盘仍保留
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(node.getByRole('textbox', { name: '中文名' })).toHaveValue('姓名');
+      await node.getByRole('checkbox', { name: '主键' }).check();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await node.getByRole('textbox', { name: '中文名' }).fill('别名草稿');
+      await node.getByRole('textbox', { name: '中文名' }).press('Escape');
+      await expect(node.locator('.erd-field-editing')).toHaveCount(0);
+      await expect(nameRow.locator('.erd-field-chnname')).toHaveText(/\s*姓名/);
+      await expect(nameRow.getByRole('button', { name: '取消主键' })).toBeVisible();
+
+      // 空名 toast；中文名可空提交
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await node.getByRole('textbox', { name: '字段名' }).fill('');
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await expectToast(page, '字段名不能为空');
+      await expect(node.locator('.erd-field-editing')).toBeVisible();
+      await node.getByRole('textbox', { name: '字段名' }).fill('NAME');
+      await node.getByRole('textbox', { name: '字段名' }).press('Tab');
+      await node.getByRole('textbox', { name: '中文名' }).fill('');
+      await node.getByRole('textbox', { name: '中文名' }).press('Enter');
+      await expect(nameRow.locator('.erd-field-chnname')).toHaveCount(0);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

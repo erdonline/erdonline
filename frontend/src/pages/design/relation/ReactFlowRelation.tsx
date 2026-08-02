@@ -120,6 +120,7 @@ const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'Date
 type EditingState = {
   key: string;
   name: string;
+  chnname: string;
   type: string;
   pk: boolean;
   notNull: boolean;
@@ -167,11 +168,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const handleSignature = fields.map(f => f.name).join('\0');
   // Enter/Tab 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
   const editingRef = useRef<EditingState>(null);
-  editingRef.current = editing;
-  const entityFieldsRef = useRef(entity.fields || []);
-  entityFieldsRef.current = entity.fields || [];
   // Tab 跳行会换掉编辑行，旧 input blur 不得把下一行误提交关掉
   const ignoreBlurRef = useRef(false);
+  // ignoreBlur 期间禁止用 state 回写 ref（onFieldsChange 同步重渲会把 advance 目标打回旧行）
+  if (!ignoreBlurRef.current) {
+    editingRef.current = editing;
+  }
+  const entityFieldsRef = useRef(entity.fields || []);
+  entityFieldsRef.current = entity.fields || [];
 
   useEffect(() => {
     setHeaderName(entity.title);
@@ -184,6 +188,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   const startEditField = (f: {
     name: string;
+    chnname?: string;
     type?: string;
     pk?: boolean;
     notNull?: boolean;
@@ -194,6 +199,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setEditing({
       key: f.name,
       name: f.name,
+      chnname: f.chnname || '',
       type: f.type || 'String',
       pk,
       notNull: pk || !!f.notNull,
@@ -269,13 +275,18 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       return;
     }
 
+    const chnname = (current.chnname || '').trim();
+    // 跳行：先锁 blur/ref，再落盘（避免 store 同步重渲把 editingRef 打回旧行）
+    if (advance) {
+      ignoreBlurRef.current = true;
+    }
     let nextFields: FieldData[];
     if (current.key === '__NEW__') {
       // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
       const pk = current.pk || current.type === 'IdOrKey';
       const notNull = pk || current.notNull;
       const created = {
-        name, type: current.type, chnname: '', remark: '', pk, notNull,
+        name, type: current.type, chnname, remark: '', pk, notNull,
         autoIncrement: current.autoIncrement,
       } as FieldData;
       nextFields = [...allFields, created];
@@ -286,6 +297,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           ? {
             ...f,
             name,
+            chnname,
             type: current.type,
             pk: current.pk,
             notNull: current.pk || current.notNull,
@@ -306,29 +318,30 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         const nextEdit = {
           key: f.name,
           name: f.name,
+          chnname: f.chnname || '',
           type: f.type || 'String',
           pk,
           notNull: pk || !!f.notNull,
           autoIncrement: !!f.autoIncrement,
         };
-        ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
         setEditing(nextEdit);
-        // 等 React 卸掉旧 input 的 blur 过完再放行（microtask 可能早于 commit）
-        setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+        // 等旧行卸载 blur + 新行 autoFocus 落稳（0ms 偶发早于 blur）
+        setTimeout(() => { ignoreBlurRef.current = false; }, 50);
         return;
       }
       // 末行 Tab → 开新建行（表格式建模回路；空名 toast 仍走 commit 校验）
       if (advance === 'next' && idx >= 0 && targetIdx >= visibleAfter.length) {
         const nextEdit = {
-          key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
+          key: '__NEW__', name: '', chnname: '', type: 'String',
+          pk: false, notNull: false, autoIncrement: false,
         };
-        ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
         setEditing(nextEdit);
-        setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+        setTimeout(() => { ignoreBlurRef.current = false; }, 50);
         return;
       }
+      ignoreBlurRef.current = false;
     }
     setEditing(null);
   };
@@ -383,6 +396,22 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setTimeout(() => { ignoreBlurRef.current = false; }, 0);
   };
 
+  /** 行内焦点：名 → 中文名 → 类型；跳行仍从类型 Tab（与既有稳定路径一致） */
+  const focusEditPart = (part: 'name' | 'chnname' | 'type') => {
+    ignoreBlurRef.current = true;
+    const root = document.activeElement?.closest('.erd-field-editing');
+    const sel = part === 'name'
+      ? 'input[aria-label="字段名"]'
+      : part === 'chnname'
+        ? 'input[aria-label="中文名"]'
+        : 'select[aria-label="字段类型"]';
+    // 等当前 keydown 结束再 focus，避免与 blur 竞态
+    setTimeout(() => {
+      (root?.querySelector(sel) as HTMLElement | null)?.focus();
+      ignoreBlurRef.current = false;
+    }, 0);
+  };
+
   const onFieldEditKeyDown = (e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter') {
@@ -396,12 +425,44 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     }
     if (e.key === 'Tab') {
       e.preventDefault();
-      commit(e.shiftKey ? 'prev' : 'next');
+      const label = (e.currentTarget as HTMLElement).getAttribute('aria-label');
+      const nameTrim = (editingRef.current?.name ?? '').trim();
+      if (!e.shiftKey) {
+        // 字段名 Tab → 中文名；空名仍走 commit 校验（保留空名 toast）
+        if (label === '字段名') {
+          if (!nameTrim) {
+            commit();
+            return;
+          }
+          focusEditPart('chnname');
+          return;
+        }
+        // 中文名 Tab → 类型（不跳行）
+        if (label === '中文名') {
+          focusEditPart('type');
+          return;
+        }
+        // 类型 Tab → 提交并跳下一行
+        commit('next');
+        return;
+      }
+      if (label === '中文名') {
+        focusEditPart('name');
+        return;
+      }
+      if (label === '字段类型') {
+        focusEditPart('chnname');
+        return;
+      }
+      commit('prev');
     }
   };
 
-  const onFieldEditBlur = (e: React.FocusEvent) => {
+  const onFieldEditBlur = (e: React.FocusEvent, rowKey: string) => {
     if (ignoreBlurRef.current) return;
+    // Tab 跳行/Escape 后旧 input 卸载 blur：行 key 已变则忽略，避免关掉刚打开的下一行
+    if (editingRef.current?.key !== rowKey) return;
+    if (!(e.target as HTMLElement).isConnected) return;
     // 焦点移到同行控件时不提交，避免「改类型/勾 PK」误触发空名 commit
     const next = e.relatedTarget as HTMLElement | null;
     if (next && next.closest('.erd-field-editing')) {
@@ -410,7 +471,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     commit();
   };
 
-  const editRow = (_key: string) => (
+  const editRow = (rowKey: string) => (
     <div className="erd-field-row erd-field-editing nodrag">
       <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
         <input
@@ -491,9 +552,34 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         autoFocus
         placeholder="字段名"
         value={editing?.name ?? ''}
-        onChange={e => setEditing(prev => (prev ? { ...prev, name: e.target.value } : prev))}
+        onChange={e => {
+          const nextName = e.target.value;
+          setEditing(prev => {
+            if (!prev) return prev;
+            const next = { ...prev, name: nextName };
+            editingRef.current = next;
+            return next;
+          });
+        }}
         onKeyDown={onFieldEditKeyDown}
-        onBlur={onFieldEditBlur}
+        onBlur={e => onFieldEditBlur(e, rowKey)}
+      />
+      <input
+        className="erd-field-chnname-input"
+        aria-label="中文名"
+        placeholder="中文名"
+        value={editing?.chnname ?? ''}
+        onChange={e => {
+          const chnname = e.target.value;
+          setEditing(prev => {
+            if (!prev) return prev;
+            const next = { ...prev, chnname };
+            editingRef.current = next;
+            return next;
+          });
+        }}
+        onKeyDown={onFieldEditKeyDown}
+        onBlur={e => onFieldEditBlur(e, rowKey)}
       />
       <select
         className="erd-field-type-select"
@@ -509,7 +595,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement);
         }}
         onKeyDown={onFieldEditKeyDown}
-        onBlur={onFieldEditBlur}
+        onBlur={e => onFieldEditBlur(e, rowKey)}
       >
         {FIELD_TYPES.map(t => (
           <option key={t} value={t}>{t}</option>
@@ -678,7 +764,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             onClick={() => {
               setSelectedField(null);
               setEditing({
-                key: '__NEW__', name: '', type: 'String', pk: false, notNull: false, autoIncrement: false,
+                key: '__NEW__', name: '', chnname: '', type: 'String',
+                pk: false, notNull: false, autoIncrement: false,
               });
             }}
           >
