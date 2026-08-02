@@ -2,6 +2,19 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W5 ERD 导入闭环（2026-08-02）
+
+### 修复
+- `ReverseERD`（菜单弹窗 + 侧栏页）：上传校验接受 `.json` / `.erd.json` 文件名（OS/Playwright 常不带 `application/json` MIME）
+  验证点：`npx playwright test tests/e2e/import-erd.spec.ts --project=chromium`
+
+### 测试
+- 新增 `import-erd.spec.ts` + fixture `minimal.erd.json`（默认密码 AES）：上传后树可见「ERD导入」/ `T_ERD_ITEM`
+  验证点：同上，chromium 绿
+
+### 文档
+- `docs/control-matrix.md`：`/design/table/import/erd` → ✅；`docs/roadmap.md` P2b 长尾标注 ERD 导入已收
+
 ## [Unreleased] — P2b W2 项目面闭环（2026-08-02）
 
 ### 测试
