@@ -47,6 +47,10 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         return findIndex > -1;
       });
     }
+    // 过滤后为空时不写回，避免冲掉已有默认字段/元数据
+    if (!excelData || excelData.length === 0) {
+      return;
+    }
     saveData(excelData);
   }
 

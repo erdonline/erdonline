@@ -2,6 +2,23 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/design/table/setting/defaultField` 闭环（2026-08-02）
+
+### 修复
+- 默认字段表格编辑后防抖 toast「默认字段已更新」（页路由与项目菜单弹窗共用 `updateDefaultFields`）
+  验证点：改主键英文字段名 → toast；新建表节点含新字段名
+- DesignLayout：硬导航首帧在 `projectJSON` 未就绪时不挂载子页，避免 JExcel 空表只 init 一次
+  验证点：直达 `/design/table/setting/defaultField` 可见默认 `id` 行
+- `getDefaultFields`：兼容嵌套数组旧数据；类型域无匹配时仍保留字段
+  验证点：设置页不再空白
+
+### 测试
+- 新增 `default-field.spec.ts`：进设置页 → 改 `id`→`e2e_pk` → toast → 空态建表见 `e2e_pk`
+  验证点：`npx playwright test tests/e2e/default-field.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：`/design/table/setting/defaultField` → ✅；`docs/roadmap.md` P2b 长尾已收默认字段
+
 ## [Unreleased] — W3 命令面板/快捷键矩阵收口（2026-08-02）
 
 ### 修复

@@ -335,7 +335,12 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = props => {
             className="no-margin-card"
           >
             <Theme />
-            {projectLoading ? <PageSkeleton rows={6} /> : props.children}
+            {/* 硬导航首帧 store 仍为空且 projectLoading 尚未置 true；勿挂载子页（JExcel 等只 init 一次） */}
+            {projectLoading || !project?.projectJSON ? (
+              <PageSkeleton rows={6} />
+            ) : (
+              props.children
+            )}
           </ProCard>
         </PageContainer>
       </ProLayout>
