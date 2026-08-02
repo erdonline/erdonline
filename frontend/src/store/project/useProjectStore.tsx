@@ -20,12 +20,50 @@ import * as Save from '@/utils/save';
 import useGlobalStore from "@/store/global/globalStore";
 import {enablePatches, produceWithPatches} from 'immer'
 import type {IExportDispatchSlice, IExportSlice} from "@/store/project/exportSlice";
-import {message} from "antd";
+import {Button, message, notification} from "antd";
+import {history} from "@@/core/history";
 import {CONSTANT} from "@/utils/constant";
 import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/services/collabPresence";
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 import defaultData from "@/utils/defaultData.json";
+
+const REMOTE_SYNC_TOAST_KEY = 'remote-sync-toast';
+/** 远端同步提示节流：同会话 ≤1 次/分钟 */
+const REMOTE_SYNC_TOAST_THROTTLE_MS = 60_000;
+
+function goSaveVersionFromSyncToast() {
+  notification.destroy(REMOTE_SYNC_TOAST_KEY);
+  const projectId =
+    cache.getItem(CONSTANT.PROJECT_ID) ||
+    new URLSearchParams(window.location.search).get('projectId') ||
+    '';
+  const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+  history.push(`/design/table/version/all${q}`);
+}
+
+function showRemoteSyncToast(username: string, localDirty: boolean) {
+  const text = localDirty
+    ? `${username} 更新了模型；你有未保存改动，请核对后保存`
+    : `${username} 同步了模型变更`;
+  notification.open({
+    key: REMOTE_SYNC_TOAST_KEY,
+    type: localDirty ? 'warning' : 'info',
+    message: text,
+    duration: 8,
+    btn: (
+      <Button
+        type="primary"
+        size="small"
+        data-testid="sync-save-version-cta"
+        aria-label="保存版本"
+        onClick={goSaveVersionFromSyncToast}
+      >
+        保存版本
+      </Button>
+    ),
+  });
+}
 
 export type RemoteCursor = { x: number; y: number; ts: number };
 
@@ -231,15 +269,9 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                     project: { ...project, projectJSON: nextJson },
                   });
                   const now = Date.now();
-                  if (now - lastRemoteSyncToastAt > 3000) {
+                  if (now - lastRemoteSyncToastAt > REMOTE_SYNC_TOAST_THROTTLE_MS) {
                     lastRemoteSyncToastAt = now;
-                    if (localDirty) {
-                      message.warning(
-                        `${username} 更新了模型；你有未保存改动，请核对后保存`,
-                      );
-                    } else {
-                      message.info(`${username} 同步了模型变更`);
-                    }
+                    showRemoteSyncToast(username, localDirty);
                   }
                 } catch (err) {
                   // eslint-disable-next-line no-console
