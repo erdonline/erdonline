@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 功能：Home 工作台 IA 重设计（去模板脸）
+
+**功能**
+
+- 首屏一构图：问候 + 安静指标 + 唯一 CTA 簇（继续上次 / 新建 / 从示例）；删右侧「快速操作」色块墙与竖排中文
+- 项目列表全宽 3 列作视觉锚点（去 Card.Grid 嵌套）；次级入口改水平文字链（`home-link-*` 保留）
+- 「最新公告」仅展示 90 天内条目，过期/空则整段隐藏
+- HomeLayout 整壳 `erdTheme`；水平 Menu 选中/下划线走 brand，不再 Ant 蓝
+- 删除死组件 `EditableLinkGroup`
+
+**测试 / 文档**
+
+- E2E：`project-surface` / `layout-outlet` + 截图 `ux-walkthrough/home-redesign.png`
+- `ui-home-model-redesign.md` / `ui-layout-redesign.md` / `design-principles` IA 对齐
+
+验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts tests/e2e/project-surface.spec.ts --project=chromium --grep "Home|HomeLayout|三壳同语言|首页快捷|继续上次" --workers=1` → 绿
+
 #### 修复：chromium-serial 不再依赖全量 chromium（Playwright footgun）
 
 **修复**

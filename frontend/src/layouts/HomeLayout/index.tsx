@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
-import {history, Link} from "@@/exports";
+import {history, Link, Outlet} from "@@/exports";
 import {Me, TwoDimensionalCodeOne} from "@icon-park/react";
 import {Dropdown, Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
@@ -121,61 +121,63 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   }, [pathname, routes]);
 
   return (
-    <Layout className="home-layout" data-testid="home-layout">
-      <Header className="erd-chrome-header home-layout__header">
-        <div
-          className="erd-chrome-brand"
-          role="link"
-          tabIndex={0}
-          aria-label="ERD Online 首页"
-          onClick={() => history.push('/home')}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' || e.key === ' ') {
-              e.preventDefault();
-              history.push('/home');
-            }
-          }}
-        >
-          <img src="/logo.svg" alt="" width={28} height={28} />
-          <span>ERD Online</span>
-        </div>
-        <Menu
-          mode="horizontal"
-          selectedKeys={[selectedKey]}
-          items={menuItems}
-          className="home-layout__menu"
-        />
-        <div className="erd-chrome-actions">
-          {homeRightContent}
-          <Dropdown
-            placement="bottomRight"
-            arrow={{pointAtCenter: true}}
-            overlay={menuHeaderDropdown}
+    <Theme>
+      <Layout className="home-layout" data-testid="home-layout">
+        <Header className="erd-chrome-header home-layout__header">
+          <div
+            className="erd-chrome-brand"
+            role="link"
+            tabIndex={0}
+            aria-label="ERD Online 首页"
+            onClick={() => history.push('/home')}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                history.push('/home');
+              }
+            }}
           >
-            <div
-              className="erd-chrome-user"
-              role="button"
-              tabIndex={0}
-              aria-label="用户菜单"
-              data-testid="user-menu-trigger"
+            <img src="/logo.svg" alt="" width={28} height={28} />
+            <span>ERD Online</span>
+          </div>
+          <Menu
+            mode="horizontal"
+            selectedKeys={[selectedKey]}
+            items={menuItems}
+            className="home-layout__menu"
+          />
+          <div className="erd-chrome-actions">
+            {homeRightContent}
+            <Dropdown
+              placement="bottomRight"
+              arrow={{pointAtCenter: true}}
+              overlay={menuHeaderDropdown}
             >
-              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
-              {cache.getItem('username')}
+              <div
+                className="erd-chrome-user"
+                role="button"
+                tabIndex={0}
+                aria-label="用户菜单"
+                data-testid="user-menu-trigger"
+              >
+                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
+                {cache.getItem('username')}
+              </div>
+            </Dropdown>
+          </div>
+        </Header>
+        <Content className="home-layout__content">
+          <div className="home-layout__shell">
+            <div className="home-layout__body">
+              <Outlet />
             </div>
-          </Dropdown>
-        </div>
-      </Header>
-      <Content className="home-layout__content">
-        <div className="home-layout__shell">
-          <div className="home-layout__body">
-            <Theme />
+            <div className="home-layout__footer">
+              <Text type="secondary">© 2026 ERD Online · MIT</Text>
+            </div>
           </div>
-          <div className="home-layout__footer">
-            <Text type="secondary">© 2026 ERD Online · MIT</Text>
-          </div>
-        </div>
-      </Content>
-    </Layout>
+        </Content>
+      </Layout>
+    </Theme>
   );
 }
 

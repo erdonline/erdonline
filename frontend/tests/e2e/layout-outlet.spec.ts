@@ -76,6 +76,16 @@ test.describe('布局壳子路由出口', () => {
       path: 'test-results/ux-walkthrough/home-chrome-tokens.png',
       fullPage: false,
     });
+
+    // Home IA：无快速操作墙 / 无竖排磁贴；CTA 在 hero
+    await expect(page.getByText('快速操作')).toHaveCount(0);
+    await expect(page.getByRole('button', { name: '继续上次建模' })).toBeVisible();
+    await expect(page.getByTestId('home-link-new-project')).toBeVisible();
+    await expect(page.getByTestId('home-link-example')).toBeVisible();
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/home-redesign.png',
+      fullPage: false,
+    });
   });
 
   test('GroupLayout：/project/group/setting/basic 主内容可见', async ({ page, request }) => {

@@ -58,6 +58,7 @@
 - ✅ 逆向 / DBML 导入按 FK 做 dagre 分层布局（外键侧→主键侧），不是无关联网格散点
 - ✅ 表名/字段名等宽（`--erd-font-mono`）；PK 琥珀 / FK 青绿徽章；smoothstep + 箭头边；行高紧凑可截图
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
+- ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ❌ 画布一套 Ant 蓝、Home 一套品牌红，截图不像同一产品（历史问题）
 - ❌ 导入多表后按序号铺网格，关联线交叉成毛线团（历史问题）
 - ❌ 关联字段无 FK 标识、边无线头，截图像白板连线（历史问题）

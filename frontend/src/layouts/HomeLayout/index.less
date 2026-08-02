@@ -16,8 +16,26 @@
   background: transparent;
   line-height: calc(var(--erd-chrome-header-h) - 2px);
 
+  :global(.ant-menu-item) {
+    color: var(--erd-ink-600);
+  }
+
+  :global(.ant-menu-item:hover),
+  :global(.ant-menu-item-active),
   :global(.ant-menu-item-selected) {
     color: var(--erd-brand) !important;
+  }
+
+  /* 覆盖 antd 默认蓝下划线 → brand orange */
+  :global(.ant-menu-item::after) {
+    border-bottom-color: transparent !important;
+  }
+
+  :global(.ant-menu-item:hover::after),
+  :global(.ant-menu-item-active::after),
+  :global(.ant-menu-item-selected::after) {
+    border-bottom-width: 2px !important;
+    border-bottom-color: var(--erd-brand) !important;
   }
 }
 
