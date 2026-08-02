@@ -262,6 +262,11 @@
 
 - [x] [复刻弹窗非 ModalForm] 版本行「复刻」→ antd dialog；填名/标签/描述 → toast「复刻成功」→ `/project/person` 见新项目 ✅ `version.spec.ts`
 
+## W4 切片 7 — DatabaseSetUp antd Form+Modal（2026-08-02）
+
+- [x] [数据源设置非 ModalForm] 项目菜单→数据源设置 → dialog「数据源连接配置」；「新增数据源」POST `/ncnb/dataSources` 且 profile 无 password ✅ `adr0008-datasource.spec.ts` + `project-menu.spec.ts`
+- [x] [setting 死页已删] `pages/design/setting/component/DatabaseSetUp.tsx` 不存在 ✅
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`

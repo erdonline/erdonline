@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 7 — DatabaseSetUp ModalForm → antd Form+Modal
+
+**重构**
+
+- 设计器菜单「数据源设置」`dialog/setup/DatabaseSetUp`：摘 `ModalForm` / `ProFormList` / `ProForm*` → antd `Modal` + `Form` + `Form.List`；触发/标题/「新增数据源」aria 与 blur 写 `/ncnb/dataSources` 行为不变；方言选项改从 `dataTypeDomains.database`（对齐原 setting 页正确源）
+- 删除零引用 `pages/design/setting/component/DatabaseSetUp.tsx`（ProForm/ProCard 死页）
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 7 ✅
+  验证点：`rg 'ModalForm|ProForm' frontend/src/components/dialog/setup/DatabaseSetUp.tsx` = 0；`test ! -f frontend/src/pages/design/setting/component/DatabaseSetUp.tsx`；`npx playwright test tests/e2e/adr0008-datasource.spec.ts tests/e2e/project-menu.spec.ts --grep "数据源" --project=chromium --workers=1`
+
 #### 重构：W4 切片 6 — CopyProject ModalForm → antd Form+Modal
 
 **重构**
