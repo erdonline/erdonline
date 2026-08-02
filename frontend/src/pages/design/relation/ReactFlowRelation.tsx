@@ -116,7 +116,7 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
 const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
 
 /** 行内编辑状态：editing === 字段名（改名）| '__NEW__'（新增）| null */
-type EditingState = { key: string; name: string; type: string; pk: boolean } | null;
+type EditingState = { key: string; name: string; type: string; pk: boolean; notNull: boolean } | null;
 
 /** 视口裁剪阈值：小图开启 onlyRenderVisibleElements 反而更慢（RF 官方/实践） */
 export const VIEWPORT_CULL_THRESHOLD = 24;
@@ -169,16 +169,23 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     updateNodeInternals(id);
   }, [id, handleSignature, updateNodeInternals]);
 
-  const startEditField = (f: { name: string; type?: string; pk?: boolean }) => {
-    setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk });
+  const startEditField = (f: { name: string; type?: string; pk?: boolean; notNull?: boolean }) => {
+    const pk = !!f.pk;
+    setEditing({
+      key: f.name,
+      name: f.name,
+      type: f.type || 'String',
+      pk,
+      notNull: pk || !!f.notNull,
+    });
   };
 
-  /** 已有字段改类型/PK：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
-  const persistFieldMeta = (key: string, type: string, pk: boolean) => {
+  /** 已有字段改类型/PK/非空：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
+  const persistFieldMeta = (key: string, type: string, pk: boolean, notNull: boolean) => {
     if (key === '__NEW__') return;
     const allFields = entityFieldsRef.current;
     onFieldsChange(allFields.map(f => (
-      f.name === key ? { ...f, type, pk, notNull: pk || f.notNull } : f
+      f.name === key ? { ...f, type, pk, notNull: pk || notNull } : f
     )));
   };
 
@@ -217,14 +224,23 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     if (current.key === '__NEW__') {
       // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
       const pk = current.pk || current.type === 'IdOrKey';
+      const notNull = pk || current.notNull;
       const created = {
-        name, type: current.type, chnname: '', remark: '', pk, notNull: pk,
+        name, type: current.type, chnname: '', remark: '', pk, notNull,
       } as FieldData;
       nextFields = [...allFields, created];
       onFieldsChange(nextFields);
     } else {
       nextFields = allFields.map(f => (
-        f.name === current.key ? { ...f, name, type: current.type, pk: current.pk, notNull: current.pk || f.notNull } : f
+        f.name === current.key
+          ? {
+            ...f,
+            name,
+            type: current.type,
+            pk: current.pk,
+            notNull: current.pk || current.notNull,
+          }
+          : f
       ));
       onFieldsChange(nextFields);
     }
@@ -235,7 +251,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       const targetIdx = advance === 'next' ? idx + 1 : idx - 1;
       if (idx >= 0 && targetIdx >= 0 && targetIdx < visibleAfter.length) {
         const f = visibleAfter[targetIdx];
-        const nextEdit = { key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk };
+        const pk = !!f.pk;
+        const nextEdit = {
+          key: f.name,
+          name: f.name,
+          type: f.type || 'String',
+          pk,
+          notNull: pk || !!f.notNull,
+        };
         ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
         setEditing(nextEdit);
@@ -245,7 +268,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
       // 末行 Tab → 开新建行（表格式建模回路；空名 toast 仍走 commit 校验）
       if (advance === 'next' && idx >= 0 && targetIdx >= visibleAfter.length) {
-        const nextEdit = { key: '__NEW__', name: '', type: 'String', pk: false };
+        const nextEdit = { key: '__NEW__', name: '', type: 'String', pk: false, notNull: false };
         ignoreBlurRef.current = true;
         editingRef.current = nextEdit;
         setEditing(nextEdit);
@@ -311,7 +334,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   const editRow = (_key: string) => (
     <div className="erd-field-row erd-field-editing nodrag">
-      <label className="erd-field-pk-toggle" title="主键">
+      <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
         <input
           type="checkbox"
           aria-label="主键"
@@ -320,14 +343,34 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             const pk = e.target.checked;
             const current = editingRef.current;
             if (!current) return;
-            const next = { ...current, pk };
+            const notNull = pk || current.notNull;
+            const next = { ...current, pk, notNull };
             editingRef.current = next;
             setEditing(next);
-            persistFieldMeta(current.key, current.type, pk);
+            persistFieldMeta(current.key, current.type, pk, notNull);
           }}
           onKeyDown={e => e.stopPropagation()}
         />
         PK
+      </label>
+      <label className="erd-field-meta-toggle erd-field-nn-toggle" title="非空">
+        <input
+          type="checkbox"
+          aria-label="非空"
+          checked={!!editing?.notNull}
+          disabled={!!editing?.pk}
+          onChange={e => {
+            const current = editingRef.current;
+            if (!current || current.pk) return;
+            const notNull = e.target.checked;
+            const next = { ...current, notNull };
+            editingRef.current = next;
+            setEditing(next);
+            persistFieldMeta(current.key, current.type, current.pk, notNull);
+          }}
+          onKeyDown={e => e.stopPropagation()}
+        />
+        NN
       </label>
       <input
         className="erd-field-input"
@@ -350,7 +393,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           const next = { ...current, type };
           editingRef.current = next;
           setEditing(next);
-          persistFieldMeta(current.key, type, current.pk);
+          persistFieldMeta(current.key, type, current.pk, current.notNull);
         }}
         onKeyDown={onFieldEditKeyDown}
         onBlur={onFieldEditBlur}
@@ -499,7 +542,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-add-field"
             role="button"
             aria-label="添加字段"
-            onClick={() => setEditing({ key: '__NEW__', name: '', type: 'String', pk: false })}
+            onClick={() => setEditing({ key: '__NEW__', name: '', type: 'String', pk: false, notNull: false })}
           >
             + 添加字段
           </div>
