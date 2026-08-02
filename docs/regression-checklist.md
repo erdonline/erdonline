@@ -228,6 +228,12 @@
 - [x] [大图裁剪] 30 表 + 放大视口 → DOM `.react-flow__node` < 30；`data-viewport-cull=1` ✅ `canvas-scale.spec.ts`
 - [x] [E2E 定位] 新建模型/开关系图走 testid，不依赖 `.ant-tree [class*=title]` ✅同上
 
+## 创建项目 / JWT 头（2026-08-02）
+
+- [x] [新增项目 Modal 中文按钮] `/project/person`→新建→见「确定/取消」（非 OK/Cancel）→创建成功关窗 ✅ `smoke`「登录→新建→设计器」
+- [x] [大 JWT POST 非 HTML] Authorization≈8KB 时 `POST /ncnb/project/add|group/add` 返回 JSON 非 Tomcat HTML 400 ✅ curl + ADR-0015
+- [x] [DesignLayout 出口] 登录→新建→设计器见顶栏 save/share/presence + 模型空态 ✅ `layout-outlet` DesignLayout
+
 ## 布局壳子路由（2026-08-02）
 
 - [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`

@@ -8,6 +8,25 @@
 
 ### 2026-08-02
 
+#### 修复：创建项目卡在「新增项目」+ 团队/写接口偶发 HTML 400
+
+**根因**
+
+1. Pro/presets 摘除后 `Theme` 的 `ConfigProvider` 未注入 `zh_CN`，Modal 默认 `OK`/`Cancel`，E2E/旅程按「确定」定位超时
+2. JWT 含全量 `authorities`/`role_ids`（Authorization ≈8KB+），Boot 3 默认 `server.max-http-request-header-size=8KB`，POST 被 Tomcat 以 **HTML 400** 拒掉（创建/删除/团队 API）
+
+**修复**
+
+- `Theme`：`ConfigProvider locale={zhCN}`；`AddProject` 显式 `okText`/`cancelText`
+- `application.yml`：`server.max-http-request-header-size` / `tomcat.max-http-response-header-size` → **64KB**（ADR-0015）
+- `request.js`：非 JSON / HTML 200 响应 toast 后抛错，避免 `.json()` 静默炸掉
+
+**验证点**
+
+- `npx playwright test tests/e2e/smoke.spec.ts -g "登录 → 新建项目 → 进入设计器" --project=chromium` → **1 passed**
+- `npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --workers=1` → **3 passed**
+- curl：e2e0（tok≈8KB）`POST /ncnb/project/add|delete|group/add` → `application/json` code=200（非 text/html 400）
+
 #### 修复：Pro 摘除后登录 SPA 白屏 / E2E 找不到「用户名」
 
 **修复**
