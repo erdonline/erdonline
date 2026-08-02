@@ -16,10 +16,11 @@ const ROLES: CrowFootMarkerRole[] = ['start', 'end'];
 const TONES: CrowFootMarkerTone[] = ['ink', 'brand'];
 
 function markerStroke(tone: CrowFootMarkerTone): string {
-  return tone === 'brand' ? erdColors.brand : erdColors.ink600;
+  // ink 与 EDGE_STROKE（ink900）对齐，避免粗干道 + 淡爪头
+  return tone === 'brand' ? erdColors.brand : erdColors.ink900;
 }
 
-/** one：端点竖线；many：鸦爪三叉（趾尖朝实体） */
+/** one：端点竖线；many：鸦爪三叉（趾尖朝实体）；线宽贴合 EDGE_STROKE_WIDTH，marker 盒仍 14 不胀撞 chip */
 function MarkerPaths({ end, stroke }: { end: CrowFootEnd; stroke: string }) {
   if (end === 'one') {
     return (
@@ -27,7 +28,7 @@ function MarkerPaths({ end, stroke }: { end: CrowFootEnd; stroke: string }) {
         d="M9 1.5 V10.5"
         fill="none"
         stroke={stroke}
-        strokeWidth={1.75}
+        strokeWidth={2}
         strokeLinecap="round"
       />
     );
@@ -37,7 +38,7 @@ function MarkerPaths({ end, stroke }: { end: CrowFootEnd; stroke: string }) {
       d="M1.5 6 L10.5 1.5 M1.5 6 L10.5 6 M1.5 6 L10.5 10.5"
       fill="none"
       stroke={stroke}
-      strokeWidth={1.5}
+      strokeWidth={2}
       strokeLinecap="round"
       strokeLinejoin="round"
     />

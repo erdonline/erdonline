@@ -10,8 +10,15 @@ import { NODE_WIDTH } from '@/utils/graphLayout';
 
 export const ERD_EDGE_TYPE = 'erdSmooth';
 
-/** 边命中热区宽度（px）；视觉描边仍细 */
+/** 边命中热区宽度（px）；视觉描边见 EDGE_STROKE_* */
 export const EDGE_INTERACTION_WIDTH = 24;
+
+/** 默认关系线描边（分享截图可读；勿再细于 2） */
+export const EDGE_STROKE_WIDTH = 2;
+/** 选中 / hover 略粗，保持层级且不胀到撞 chip */
+export const EDGE_STROKE_WIDTH_SELECTED = 2.5;
+/** 默认描边色：ink900 相对 sunk 画布对比度高于 ink600 */
+export const EDGE_STROKE = erdColors.ink900;
 
 /** smoothstep 圆角 / 默认肘距 */
 export const EDGE_BORDER_RADIUS = 10;
@@ -472,7 +479,7 @@ export function associationsToEdges(
       labelBgStyle: { fill: erdColors.surface, fillOpacity: 1 },
       labelBgPadding: EDGE_LABEL_BG_PADDING,
       labelBgBorderRadius: EDGE_LABEL_BG_RADIUS,
-      style: { stroke: erdColors.ink600, strokeWidth: 1.5 },
+      style: { stroke: EDGE_STROKE, strokeWidth: EDGE_STROKE_WIDTH },
       ...crowFootMarkersForRelation(relationLabel, 'ink'),
       animated: false,
       interactionWidth: EDGE_INTERACTION_WIDTH,

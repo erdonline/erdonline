@@ -44,6 +44,9 @@ import { dagrePositions, resolveEntityPositions } from '@/utils/graphLayout';
 import {
   DEFAULT_RELATION,
   EDGE_INTERACTION_WIDTH,
+  EDGE_STROKE,
+  EDGE_STROKE_WIDTH,
+  EDGE_STROKE_WIDTH_SELECTED,
   ERD_EDGE_TYPE,
   associationsToEdges,
   crowFootMarkersForRelation,
@@ -626,7 +629,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     const { positions } = resolveEntityPositions(entities, associations, layout);
     return associationsToEdges(associations, { positions }).map((e) => {
       const selected = !!edgeSelected[e.id];
-      const stroke = selected ? erdColors.brand : erdColors.ink600;
+      const stroke = selected ? erdColors.brand : EDGE_STROKE;
       const relation =
         typeof e.label === 'string' ? e.label : DEFAULT_RELATION;
       const markers = crowFootMarkersForRelation(
@@ -641,7 +644,11 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           editable: true,
           moduleName,
         },
-        style: { ...e.style, stroke, strokeWidth: selected ? 2 : 1.5 },
+        style: {
+          ...e.style,
+          stroke,
+          strokeWidth: selected ? EDGE_STROKE_WIDTH_SELECTED : EDGE_STROKE_WIDTH,
+        },
         ...markers,
       };
     });

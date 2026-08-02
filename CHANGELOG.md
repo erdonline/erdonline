@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：关系线默认描边权重/对比（ADR-0016）
+
+- 选题：默认关系干道 `ink600` + 1.5px 在 sunk 画布/分享截图偏淡；停色 token 碎活，攻可读
+- `EDGE_STROKE`=`ink900`、`EDGE_STROKE_WIDTH` 2 / 选中 2.5；设计器与分享共用 `associationsToEdges` + SCSS
+- Crow's foot ink 色与线宽对齐干道；marker 盒仍 14，chip 仍白底 ink600（不抢色、不胀撞）
+- 单测：`relationEdges.test`；E2E：`relation`/`demo` 断言 stroke；截图 `diagram-edge-stroke.png` / `demo-edge-stroke.png`
+
+验证点：
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "PK/FK 与边样式" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：字段行扫读层次（名主列 / 类型次要右对齐，ADR-0016）
 
 - 选题：表节点字段名与类型字重/对齐几乎同阶，密表与分享截图扫读糊成一块；停色 token，攻可读

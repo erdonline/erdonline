@@ -205,6 +205,22 @@ test.describe('在线演示', () => {
     expect(fieldScan!.typeAlign).toBe('right');
     expect(fieldScan!.typeOpacity).toBeLessThan(1);
     expect(fieldScan!.typeMinW).toBeGreaterThanOrEqual(40);
+    // ADR-0016：默认关系线权重/对比（分享可读；ink900 + ≥2px）
+    const shareEdgePath = page
+      .getByTestId('share-relation-canvas')
+      .locator('.react-flow__edge-path')
+      .first();
+    await expect(shareEdgePath).toBeVisible();
+    const shareStroke = await shareEdgePath.evaluate((el) => {
+      const s = getComputedStyle(el);
+      return { stroke: s.stroke, width: parseFloat(s.strokeWidth) };
+    });
+    expect(shareStroke.stroke).toBe('rgb(11, 28, 44)'); // ink900
+    expect(shareStroke.width).toBeGreaterThanOrEqual(2);
+    expect(shareStroke.width).toBeLessThanOrEqual(2.5);
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-edge-stroke.png',
+    });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-field-scanability.png',
     });

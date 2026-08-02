@@ -20,6 +20,9 @@ import {
   EDGE_LABEL_FONT_SIZE,
   EDGE_LANE_STEP,
   EDGE_STEP_OFFSET,
+  EDGE_STROKE,
+  EDGE_STROKE_WIDTH,
+  EDGE_STROKE_WIDTH_SELECTED,
   ERD_EDGE_TYPE,
   PORT_VERTICAL_STACK_DY,
   associationsToEdges,
@@ -153,6 +156,19 @@ async function main() {
     assert.ok(EDGE_LABEL_BG_PADDING[0] <= 4 && EDGE_LABEL_BG_PADDING[1] <= 2);
     assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
     assert.ok(EDGE_LABEL_BG_RADIUS <= 3, 'chip 圆角勿过大');
+  });
+
+  await run('associationsToEdges：默认描边权重/对比（分享可读）', () => {
+    const [edge] = associationsToEdges([
+      { relation: 'n:1', from: { entity: 'a', field: 'b_id' }, to: { entity: 'b', field: 'id' } },
+    ]);
+    assert.strictEqual(edge.style?.stroke, EDGE_STROKE);
+    assert.strictEqual(EDGE_STROKE, erdColors.ink900, '默认干道用 ink900 对比 sunk');
+    assert.notStrictEqual(EDGE_STROKE, erdColors.ink600, '禁回退低对比 ink600 干道');
+    assert.strictEqual(edge.style?.strokeWidth, EDGE_STROKE_WIDTH);
+    assert.ok(EDGE_STROKE_WIDTH >= 2, '默认线宽 ≥2');
+    assert.ok(EDGE_STROKE_WIDTH_SELECTED > EDGE_STROKE_WIDTH, '选中须更粗');
+    assert.ok(EDGE_STROKE_WIDTH_SELECTED <= 2.5, '选中勿胀到撞 crow/chip');
   });
 
   await run('edgeLabelBundleStretch：bundle 步长短于 chip → 拉伸到安全间距', () => {
