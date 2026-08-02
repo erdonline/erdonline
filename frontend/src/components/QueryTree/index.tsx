@@ -8,6 +8,9 @@ import './style.less';
 const { Text } = Typography;
 const { Search } = Input;
 
+/** ADR-0016：左树行高与 22 chrome 同阶；须与虚拟滚动 itemHeight / CSS 行高一致 */
+export const TREE_ROW_HEIGHT = 22;
+
 interface QueryTreeProps {
   treeData: DataNode[];
   onSelect: (selectedKeys: React.Key[], info: any) => void;
@@ -53,24 +56,31 @@ const QueryTree: React.FC<QueryTreeProps> = ({
 
   const titleRender = (nodeData: DataNode) => {
     const level = nodeData.key.toString().split('-').length - 1;
-    const paddingLeft = Math.max(0, (level - compactLevel) * 24);
+    const paddingLeft = Math.max(0, (level - compactLevel) * 16);
 
     return (
-      <div style={{
-        display: 'flex',
-        alignItems: 'center',
-        width: '100%',
-        justifyContent: 'space-between',
-        paddingLeft: `${paddingLeft}px`
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, marginRight: '8px' }}>
+      <div
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          justifyContent: 'space-between',
+          paddingLeft: `${paddingLeft}px`,
+          minHeight: TREE_ROW_HEIGHT,
+          lineHeight: `${TREE_ROW_HEIGHT}px`,
+        }}
+      >
+        <div style={{ display: 'flex', alignItems: 'center', flex: 1, minWidth: 0, marginRight: 4 }}>
           {renderIcon && renderIcon(nodeData)}
 
           <span
             data-testid={(nodeData as { testId?: string }).testId}
-            style={{ marginLeft: 8, flex: 1, minWidth: 0, width: 120, display: 'inline-flex' }}
+            style={{ marginLeft: 4, flex: 1, minWidth: 0, width: 120, display: 'inline-flex' }}
           >
-            <Text ellipsis={{ tooltip: nodeData?.title }} style={{ width: '100%' }}>
+            <Text
+              ellipsis={{ tooltip: nodeData?.title }}
+              style={{ width: '100%', fontSize: 12, lineHeight: `${TREE_ROW_HEIGHT}px` }}
+            >
               {nodeData.title}
             </Text>
           </span>
@@ -78,7 +88,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
           {renderExtraIcons && renderExtraIcons(nodeData)}
         </div>
         {renderActions && (
-          <div style={{ flexShrink: 0, width: '24px', textAlign: 'center' }}>
+          <div style={{ flexShrink: 0, width: 20, textAlign: 'center' }}>
             {renderActions(nodeData)}
           </div>
         )}
@@ -97,9 +107,10 @@ const QueryTree: React.FC<QueryTreeProps> = ({
     if (typeof onAdd === 'function') {
       return (
         <Button
+          size="small"
           icon={<PlusOutlined />}
           onClick={onAdd}
-          style={{ width: '40px' }}
+          aria-label="新建"
         />
       );
     } else if (React.isValidElement(onAdd)) {
@@ -112,9 +123,11 @@ const QueryTree: React.FC<QueryTreeProps> = ({
     <div className="query-tree" data-testid="query-tree">
       <div className="query-tree__toolbar">
         <Search
+          size="small"
           placeholder="搜索"
           onSearch={onSearch}
-          style={{ flex: 1, marginRight: '8px' }}
+          style={{ flex: 1 }}
+          allowClear
         />
         {renderAddButton()}
       </div>
@@ -125,7 +138,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
         {treeHeight > 0 && (
           <Tree.DirectoryTree
             showIcon={false}
-            switcherIcon={<DownOutlined />}
+            switcherIcon={<DownOutlined style={{ fontSize: 10 }} />}
             onSelect={onSelect}
             treeData={treeData}
             expandAction="click"
@@ -134,6 +147,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
             expandedKeys={expandedKeys}
             onExpand={onExpand}
             height={treeHeight}
+            itemHeight={TREE_ROW_HEIGHT}
             blockNode
           />
         )}

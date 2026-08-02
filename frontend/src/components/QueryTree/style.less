@@ -1,16 +1,39 @@
+// ADR-0016：设计器左树与 22 chrome 同阶；禁默认 ~28 行 + 16 工具条松距
 .query-tree {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-height: 0;
   height: 100%;
+  font-family: var(--erd-font-ui);
 }
 
 .query-tree__toolbar {
   flex: none;
   display: flex;
-  padding-bottom: 16px;
-  padding-right: 16px;
+  align-items: center;
+  padding-bottom: 8px;
+  padding-right: 8px;
+  gap: 4px;
+
+  .ant-input-search {
+    .ant-input {
+      height: 28px;
+      font-size: 12px;
+    }
+
+    .ant-input-search-button {
+      height: 28px;
+      width: 28px;
+    }
+  }
+
+  .ant-btn {
+    width: 28px !important;
+    height: 28px;
+    min-width: 28px;
+    padding: 0;
+  }
 }
 
 .tree-container {
@@ -30,16 +53,60 @@
 }
 
 .compact-tree {
+  .ant-tree {
+    font-size: 12px;
+    background: transparent;
+    color: var(--erd-ink-900);
+  }
+
+  // 虚拟滚动 itemHeight=22 必须与视觉行高对齐，否则错位/空隙
+  .ant-tree-treenode {
+    padding: 0 !important;
+    margin-bottom: 0 !important;
+    min-height: 22px;
+    line-height: 22px;
+    align-items: center;
+
+    &::before {
+      height: 0 !important;
+    }
+  }
+
+  .ant-tree-switcher {
+    width: 22px;
+    height: 22px;
+    line-height: 22px;
+    margin-inline-end: 0;
+  }
+
+  .ant-tree-node-content-wrapper {
+    min-height: 22px !important;
+    line-height: 22px;
+    padding-inline: 4px;
+  }
+
+  .ant-tree-iconEle,
+  .ant-tree-icon__customize {
+    width: 22px !important;
+    height: 22px !important;
+    line-height: 22px !important;
+  }
+
+  .ant-tree-title {
+    font-size: 12px;
+    line-height: 22px;
+  }
+
   .ant-tree-indent {
     .ant-tree-indent-unit {
-      width: 20px; // 设置一个较小的缩进值，但不要为0
+      width: 20px;
     }
   }
 
   &.compact-level-1 {
     .ant-tree-indent {
       .ant-tree-indent-unit:first-child {
-        width: 15px; // 为第一级设置一个更小的缩进
+        width: 15px;
       }
     }
   }
@@ -47,7 +114,7 @@
   &.compact-level-2 {
     .ant-tree-indent {
       .ant-tree-indent-unit:nth-child(-n+2) {
-        width: 10px; // 为前两级设置一个更小的缩进
+        width: 10px;
       }
     }
   }
@@ -55,7 +122,7 @@
   &.compact-level-3 {
     .ant-tree-indent {
       .ant-tree-indent-unit:nth-child(-n+3) {
-        width: 5px; // 为前三级设置一个更小的缩进
+        width: 5px;
       }
     }
   }

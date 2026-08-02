@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：左树行高密度（ADR-0016）
+
+- 选题：设计器左树（实体/模块）行高密度（与 22 chrome / EntityModal 同阶）
+- `QueryTree`：`itemHeight`/`TREE_ROW_HEIGHT` 22；treenode 去 margin；字号 12；工具条 pad 8 / 搜索·新建 28；禁默认 ~28 松行 + 16 工具条
+- `model-design-ux`「模型树」补密度断言 + 截图 `diagram-left-tree-dense.png`；展开/`tree-open-relation` 定位不变
+
+验证点：`cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "模型树" --workers=1 --retries=0`
+
 #### 体验：实体新建弹层密度（ADR-0016）
 
 - 选题：实体/模型新建弹层密度（建模回路入口与 22 chrome / 命令面板同阶）
