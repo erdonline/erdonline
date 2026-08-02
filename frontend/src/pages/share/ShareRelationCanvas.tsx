@@ -164,20 +164,22 @@ function layoutNodes(
 
 export type ShareRelationCanvasProps = {
   module: ModuleData;
+  /** 多关系图 id；缺省主图（listDiagrams[0]） */
+  diagramId?: string | null;
 };
 
-const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
+const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagramId}) => {
   const {nodes, edges} = useMemo(() => {
     const entities = module.entities || [];
     const associations = module.associations || [];
-    const layout = getActiveDiagramLayoutNodes(module);
-    const frames = getActiveDiagramFrames(module);
+    const layout = getActiveDiagramLayoutNodes(module, diagramId);
+    const frames = getActiveDiagramFrames(module, diagramId);
     const {positions} = resolveEntityPositions(entities, associations, layout);
     return {
       nodes: layoutNodes(entities, associations, layout, frames),
       edges: associationsToEdges(associations, {positions}),
     };
-  }, [module]);
+  }, [module, diagramId]);
 
   const tableCount = nodes.filter((n) => n.type === 'table').length;
   if (!tableCount) {
@@ -188,8 +190,10 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
     );
   }
 
+  // key：切图时 remount → fitView 铺满（与设计器切图同密）
   return (
     <div
+      key={diagramId || 'main'}
       className="erd-reactflow-container"
       style={{height: 480}}
       data-testid="share-relation-canvas"

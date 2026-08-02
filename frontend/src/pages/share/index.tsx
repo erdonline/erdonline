@@ -2,6 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Result, Segmented, Space, Spin, Table, Tag, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
 import ShareRelationCanvas from './ShareRelationCanvas';
+import {listDiagrams} from '@/utils/diagram';
 import * as cache from '@/utils/cache';
 import '@/layouts/erd-chrome.less';
 import './index.less';
@@ -36,6 +37,7 @@ const SharePage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<SharePayload | null>(null);
   const [moduleKey, setModuleKey] = useState<string>('');
+  const [diagramId, setDiagramId] = useState<string>('');
   const [autoForkDone, setAutoForkDone] = useState(false);
   const [authed, setAuthed] = useState(() => Boolean(cache.getItem('Authorization')));
 
@@ -104,7 +106,10 @@ const SharePage: React.FC = () => {
         } else {
           setData(json.data);
           const mods = json.data?.projectJSON?.modules || [];
-          setModuleKey(mods[0]?.name || mods[0]?.chnname || '');
+          const firstMod = mods[0];
+          setModuleKey(firstMod?.name || firstMod?.chnname || '');
+          const firstDiagram = listDiagrams(firstMod)[0];
+          setDiagramId(firstDiagram?.id || '');
           setError(null);
         }
       } catch (e: unknown) {
@@ -141,6 +146,19 @@ const SharePage: React.FC = () => {
     () => modules.find(m => (m.name || m.chnname) === moduleKey) || modules[0],
     [modules, moduleKey],
   );
+  const diagrams = useMemo(() => listDiagrams(currentModule), [currentModule]);
+  const activeDiagramId = useMemo(() => {
+    if (diagramId && diagrams.some((d) => d.id === diagramId)) {
+      return diagramId;
+    }
+    return diagrams[0]?.id || '';
+  }, [diagramId, diagrams]);
+
+  const onModuleChange = (v: string) => {
+    setModuleKey(v);
+    const next = modules.find((m) => (m.name || m.chnname) === v) || modules[0];
+    setDiagramId(listDiagrams(next)[0]?.id || '');
+  };
 
   const rows = useMemo(() => {
     const list: { key: string; module: string; table: string; fields: number }[] = [];
@@ -279,15 +297,36 @@ const SharePage: React.FC = () => {
           <Segmented
             style={{marginBottom: 12}}
             value={moduleKey}
-            onChange={(v) => setModuleKey(String(v))}
+            onChange={(v) => onModuleChange(String(v))}
             options={modules.map(m => ({
               label: m.chnname || m.name || '模块',
               value: m.name || m.chnname || '',
             }))}
           />
         ) : null}
+        {diagrams.length > 1 ? (
+          <div
+            className="share-page__diagram-bar"
+            data-testid="diagram-switcher"
+            role="group"
+            aria-label="切换关系图"
+          >
+            <Segmented
+              size="small"
+              value={activeDiagramId}
+              onChange={(v) => setDiagramId(String(v))}
+              options={diagrams.map((d) => ({
+                label: d.name,
+                value: d.id,
+              }))}
+            />
+          </div>
+        ) : null}
         {currentModule ? (
-          <ShareRelationCanvas module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']} />
+          <ShareRelationCanvas
+            module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']}
+            diagramId={activeDiagramId}
+          />
         ) : null}
         <div className="share-page__tables">
           <Typography.Title level={5} className="share-page__tables-title">

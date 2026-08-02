@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：分享只读多关系图切换（ADR-0016 / ADR-0017）
+
+- 选题：分享走查发现 `/demo` 有「鉴权核心 / 会话与审计」两图但只读页无切换器（相对设计器死能力）
+- `ShareRelationCanvas` 接 `diagramId`；`listDiagrams` + 只读 `Segmented`（`role=group` / `diagram-switcher`）；切图 remount + `fitView`；无新建/重命名
+- `demo.spec` 点「会话与审计」断言 layout x 变化 + Frame；截图 `demo-share-diagram-switch.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：公告列表行密度（ADR-0016）
 
 - 选题：`/project/notice` 页头/列表行密度（复用 `.project-list-page`，与 person/recent/group 同阶）

@@ -5,7 +5,7 @@ import { expect, test } from '@playwright/test';
  */
 test.describe('在线演示', () => {
   test('免登录 /demo 可见演示关系图与复制 CTA', async ({ page }) => {
-    test.setTimeout(60_000);
+    test.setTimeout(90_000);
     await page.goto('/demo');
     await expect(page).toHaveURL(/\/s\/public-demo/);
     await expect(page.getByText('功能鉴权示例').first()).toBeVisible({ timeout: 15_000 });
@@ -143,6 +143,27 @@ test.describe('在线演示', () => {
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-share-edge-routing.png',
+    });
+    // ADR-0017 / 0016：分享只读 Segmented 切多关系图（与设计器同 diagrams[]，无新建/重命名）
+    const switcher = page.getByTestId('diagram-switcher');
+    await expect(switcher).toBeVisible();
+    await expect(switcher).toContainText('鉴权核心');
+    const xMain = await page.getByTestId('rf__node-sys_user').evaluate((el) => {
+      const m = (el as HTMLElement).style.transform.match(/translate\(([-\d.]+)px/);
+      return m ? Number(m[1]) : NaN;
+    });
+    await switcher.scrollIntoViewIfNeeded();
+    await switcher.getByText('会话与审计', { exact: true }).click();
+    await expect(page.getByTestId('rf__node-sys_user')).toBeVisible({ timeout: 10_000 });
+    const xAlt = await page.getByTestId('rf__node-sys_user').evaluate((el) => {
+      const m = (el as HTMLElement).style.transform.match(/translate\(([-\d.]+)px/);
+      return m ? Number(m[1]) : NaN;
+    });
+    expect(Number.isFinite(xMain) && Number.isFinite(xAlt)).toBeTruthy();
+    expect(xAlt, `切图后 layout 应变（main=${xMain} alt=${xAlt}）`).not.toBe(xMain);
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: '会话审计' })).toBeVisible();
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-share-diagram-switch.png',
     });
   });
 });
