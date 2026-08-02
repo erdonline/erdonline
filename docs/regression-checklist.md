@@ -76,10 +76,12 @@
 - [x] [边标签碰撞避让] 密图 `erd-edge-label-nudge` 非零 + 标签 AABB 零重叠；截图 `demo-edge-label-collision.png` ✅`relationEdges.test` + `demo.spec.ts`
 - [x] [边标签密度] chip padding ≤4/2、radius ≤3；碰撞盒跟字号（40×20）✅`relationEdges.test.ts` + `demo.spec` / `relation.spec` 表节点视觉
 - [x] [Frame 标题栏密度] `.erd-frame-chrome` height ≤22；截图 `demo-frame-theme-tokens.png` ✅`demo.spec` + `diagram-frame.spec`
-- [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC`；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
+- [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC` + ≤128×96 紧凑；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
 - [x] [Controls 面板密度] 按钮 ≤22×22、面板 `surface`（禁 RF `#fefefe`）；截图 `diagram-controls-dense.png` ✅`relation.spec`「Controls」+ `demo.spec`
+- [x] [Controls 扫读层次]「适应画布」`.erd-controls-primary` ink900 + muted 底；图标 ≥12；aria 不变 ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [选中光晕统一] 表 / Frame `box-shadow` 环均为 brand a18（`--erd-selection-ring`）；禁 Frame a12 ✅`diagram-frame.spec`「选中表→新建分组」+ `relation.spec`「品牌 token」
 - [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
+- [x] [画布工具栏扫读层次] 单块 chrome；次要 ink600；「自动布局」600/ink900；禁散粒描边 ✅`relation.spec`「工具栏」
 - [x] [空态面板密度] `.erd-empty-cta` padY≤30 / maxW≤300 / 标题≤14 / CTA≤28 / 剪影≤140；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
 - [x] [命令面板密度] 面板宽≤460 / maxH≤360、输入高≤40 / font≤13、行 padY≤16 / font≤12；截图 `diagram-cmd-palette-dense.png` ✅`relation.spec`「命令面板」
 - [x] [实体新建弹层密度] 宽≤420、标题≤14、body padY≤28、表单项 margin≤14、输入/OK 高≤32；截图 `diagram-entity-modal-dense.png` ✅`relation.spec`「实体新建弹层密度」

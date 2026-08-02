@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：画布工具栏/Controls 扫读层次（ADR-0016）
+
+- 选题：顶栏散粒描边钮 + Controls 四钮等权，分享截图主操作扫不过；停色 token，攻 chrome 层次
+- `.erd-canvas-toolbar`：单块 surface chrome；工具无独立描边；次要 ink600，`自动布局` `--primary` 600/ink900
+- Controls：图标 12px；`适应画布` `.erd-controls-primary` muted 底 + ink900；缩放/锁次要 ink600
+- MiniMap：128×96 紧凑 + `nodeStrokeWidth` 1.5；设计器/分享同款；aria 定位不变
+- E2E：`relation` Controls/MiniMap/工具栏 + `demo`；截图 `diagram-controls-dense.png` / `diagram-minimap-sunk.png` / `diagram-canvas-toolbar-dense.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "Controls|MiniMap|工具栏" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`
+
 #### 体验：PK/FK 徽章扫读层次（角色标列，ADR-0016）
 
 - 选题：字段行 PK/FK 徽章 9px 偏小、无列宽对齐，分享截图角色标扫不过字段名；停色 token，攻徽章层次；字段名 500/PK 600 不动

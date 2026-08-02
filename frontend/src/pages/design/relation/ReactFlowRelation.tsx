@@ -1443,6 +1443,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             ariaLabel="画布缩略图"
             nodeColor={erdColors.surface}
             nodeStrokeColor={erdColors.line}
+            nodeStrokeWidth={1.5}
             maskColor={erdColors.inkA06}
             style={{ backgroundColor: erdColors.surfaceSunk }}
           />
@@ -1542,7 +1543,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             </button>
             <button
               type="button"
-              className="erd-canvas-tool"
+              className="erd-canvas-tool erd-canvas-tool--primary"
               onClick={autoLayout}
               title="按关联关系自动排布全部表"
               aria-label="自动布局"

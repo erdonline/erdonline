@@ -58,19 +58,30 @@ test.describe('在线演示', () => {
       .evaluate((el) => parseFloat(getComputedStyle(el).height));
     expect(chromeH, `Frame chrome 应 ≤22px，得 ${chromeH}`).toBeLessThanOrEqual(22);
     expect(chromeH).toBeGreaterThanOrEqual(18);
-    // MiniMap 与 sunk 画布同底（禁 RF 默认 #fff；背景在 panel，非 svg）
-    const miniBg = await page
-      .locator('.react-flow__minimap')
-      .evaluate((el) => getComputedStyle(el).backgroundColor);
-    expect(miniBg).toBe('rgb(250, 251, 252)'); // surfaceSunk
-    // Controls：surface + 密按钮（与 MiniMap 同角 chrome）
+    // MiniMap 与 sunk 画布同底（禁 RF 默认 #fff；背景在 panel）+ 紧凑尺寸
+    const mini = await page.locator('.react-flow__minimap').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        bg: cs.backgroundColor,
+        w: parseFloat(cs.width),
+        h: parseFloat(cs.height),
+      };
+    });
+    expect(mini.bg).toBe('rgb(250, 251, 252)'); // surfaceSunk
+    expect(mini.w, `MiniMap 宽应 ≤128，得 ${mini.w}`).toBeLessThanOrEqual(128);
+    expect(mini.h, `MiniMap 高应 ≤96，得 ${mini.h}`).toBeLessThanOrEqual(96);
+    // Controls：surface + 密按钮；适应画布为主操作
     const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
       const cs = getComputedStyle(el);
       const btn = el.querySelector('.react-flow__controls-button');
+      const fit = el.querySelector('.erd-controls-primary');
       const bs = btn ? getComputedStyle(btn) : null;
+      const fs = fit ? getComputedStyle(fit) : null;
       return {
         bg: cs.backgroundColor,
         btnH: bs ? parseFloat(bs.height) : NaN,
+        fitColor: fs?.color ?? '',
+        fitBg: fs?.backgroundColor ?? '',
       };
     });
     expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
@@ -78,6 +89,8 @@ test.describe('在线演示', () => {
     expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
       22,
     );
+    expect(ctrl.fitColor).toBe('rgb(11, 28, 44)'); // ink900
+    expect(ctrl.fitBg).toBe('rgb(243, 245, 247)'); // surface-muted
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });

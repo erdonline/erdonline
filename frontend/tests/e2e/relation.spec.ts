@@ -759,15 +759,22 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByLabel('zoom out')).toHaveCount(0);
       await expect(page.getByLabel('fit view')).toHaveCount(0);
       await expect(page.getByLabel('toggle interactivity')).toHaveCount(0);
-      // ADR-0016：Controls 密度（22px）+ surface 底，禁 RF 默认 #fefefe 松柱
+      // ADR-0016：Controls 密度（22px）+ surface 底；适应画布为主操作
       const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
         const cs = getComputedStyle(el);
         const btn = el.querySelector('.react-flow__controls-button');
+        const fit = el.querySelector('.erd-controls-primary');
         const bs = btn ? getComputedStyle(btn) : null;
+        const fs = fit ? getComputedStyle(fit) : null;
+        const svg = fit?.querySelector('svg');
+        const svgMax = svg ? parseFloat(getComputedStyle(svg).maxWidth) : NaN;
         return {
           bg: cs.backgroundColor,
           btnH: bs ? parseFloat(bs.height) : NaN,
           btnW: bs ? parseFloat(bs.width) : NaN,
+          fitColor: fs?.color ?? '',
+          fitBg: fs?.backgroundColor ?? '',
+          svgMax,
         };
       });
       expect(ctrl.bg, `Controls 底色不得为 RF 白：${ctrl.bg}`).not.toBe(
@@ -779,6 +786,12 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(ctrl.btnH).toBeGreaterThanOrEqual(18);
       expect(ctrl.btnW).toBeLessThanOrEqual(22);
+      // 适应画布：ink900 + muted 底（扫读主操作）
+      expect(ctrl.fitColor).toBe('rgb(11, 28, 44)'); // --erd-ink-900
+      expect(ctrl.fitBg).toBe('rgb(243, 245, 247)'); // --erd-surface-muted
+      expect(ctrl.svgMax, `Controls 图标应 ≥12，得 ${ctrl.svgMax}`).toBeGreaterThanOrEqual(
+        12,
+      );
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-controls-dense.png',
         fullPage: false,
@@ -804,11 +817,19 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('img', { name: '画布缩略图' })).toBeVisible();
       await expect(page.getByLabel('React Flow mini map')).toHaveCount(0);
       await expect(page.getByText('React Flow mini map')).toHaveCount(0);
-      // ADR-0016：MiniMap 与 sunk 画布同底（背景在 panel）
-      const miniBg = await page
-        .locator('.react-flow__minimap')
-        .evaluate((el) => getComputedStyle(el).backgroundColor);
-      expect(miniBg).toBe('rgb(250, 251, 252)');
+      // ADR-0016：MiniMap 与 sunk 画布同底（背景在 panel）+ 紧凑尺寸
+      const mini = await page.locator('.react-flow__minimap').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          bg: cs.backgroundColor,
+          w: parseFloat(cs.width),
+          h: parseFloat(cs.height),
+        };
+      });
+      expect(mini.bg).toBe('rgb(250, 251, 252)');
+      expect(mini.w, `MiniMap 宽应 ≤128，得 ${mini.w}`).toBeLessThanOrEqual(128);
+      expect(mini.h, `MiniMap 高应 ≤96，得 ${mini.h}`).toBeLessThanOrEqual(96);
+      expect(mini.w).toBeGreaterThanOrEqual(100);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-minimap-sunk.png',
         fullPage: false,
@@ -832,24 +853,46 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('button', { name: '重做' })).toBeVisible();
       await expect(page.getByRole('button', { name: '自动布局' })).toBeVisible();
 
-      // ADR-0016：画布工具栏密度（≤22）与 Controls/Frame chrome 同阶；禁 5×12 松按钮
-      const toolMetrics = await page
-        .getByRole('button', { name: '撤销' })
-        .evaluate((el) => {
-          const cs = getComputedStyle(el);
+      // ADR-0016：单块 chrome + 自动布局主操作层次；禁散粒描边钮
+      const barMetrics = await page
+        .locator('.erd-canvas-toolbar')
+        .evaluate((bar) => {
+          const cs = getComputedStyle(bar);
+          const primary = bar.querySelector('.erd-canvas-tool--primary');
+          const undo = Array.from(bar.querySelectorAll('.erd-canvas-tool')).find(
+            (el) => el.getAttribute('aria-label') === '撤销',
+          );
+          const ps = primary ? getComputedStyle(primary) : null;
+          const us = undo ? getComputedStyle(undo) : null;
           return {
-            h: parseFloat(cs.height),
-            padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
-            fontSize: parseFloat(cs.fontSize),
+            barBorder: cs.borderTopWidth,
+            barBg: cs.backgroundColor,
+            primaryFw: ps ? parseInt(ps.fontWeight, 10) : NaN,
+            primaryColor: ps?.color ?? '',
+            undoFw: us ? parseInt(us.fontWeight, 10) : NaN,
+            undoColor: us?.color ?? '',
+            undoH: us ? parseFloat(us.height) : NaN,
+            undoPadY: us
+              ? parseFloat(us.paddingTop) + parseFloat(us.paddingBottom)
+              : NaN,
+            undoFont: us ? parseFloat(us.fontSize) : NaN,
+            undoBorder: us ? us.borderTopWidth : '',
           };
         });
+      expect(barMetrics.barBg).toBe('rgb(255, 255, 255)'); // surface chrome
+      expect(parseFloat(barMetrics.barBorder)).toBeGreaterThanOrEqual(1);
       expect(
-        toolMetrics.h,
-        `工具栏按钮高应 ≤22，得 ${toolMetrics.h}`,
+        barMetrics.undoH,
+        `工具栏按钮高应 ≤22，得 ${barMetrics.undoH}`,
       ).toBeLessThanOrEqual(22);
-      expect(toolMetrics.h).toBeGreaterThanOrEqual(18);
-      expect(toolMetrics.padY).toBeLessThanOrEqual(4);
-      expect(toolMetrics.fontSize).toBeLessThanOrEqual(11);
+      expect(barMetrics.undoH).toBeGreaterThanOrEqual(18);
+      expect(barMetrics.undoPadY).toBeLessThanOrEqual(4);
+      expect(barMetrics.undoFont).toBeLessThanOrEqual(11);
+      expect(barMetrics.undoBorder).toBe('0px'); // 禁散粒描边
+      expect(barMetrics.primaryFw).toBeGreaterThanOrEqual(600);
+      expect(barMetrics.primaryColor).toBe('rgb(11, 28, 44)'); // ink900
+      expect(barMetrics.undoFw).toBeLessThan(600);
+      expect(barMetrics.undoColor).toBe('rgb(68, 82, 95)'); // ink600
 
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();

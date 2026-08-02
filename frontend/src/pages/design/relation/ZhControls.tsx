@@ -91,7 +91,7 @@ const ZhControls: React.FC<ZhControlsProps> = ({
         <MinusIcon />
       </ControlButton>
       <ControlButton
-        className="react-flow__controls-fitview"
+        className="react-flow__controls-fitview erd-controls-primary"
         onClick={() => fitView(fitViewOptions)}
         title="适应画布"
         aria-label="适应画布"
