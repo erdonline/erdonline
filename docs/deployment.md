@@ -234,8 +234,13 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 - Railway CLI：`railway connect MySQL`（或 Dashboard → MySQL → Connect）
 - 本机 `mysql`：用插件 **TCP Proxy / 公网** URL（勿把公网 URL 写进 App 的 `DB_HOST`；App 用私网 `MYSQLHOST`）
+- **推荐脚本**（仓库根）：[`scripts/railway-mysql-init.sh`](../scripts/railway-mysql-init.sh) — 建 `martin`/`erd` 并按序导入 `02→03→06…09`（跳过 `05_e2e_users.sql`；root 默认跳过 `04_privileges.sql`）
 
 ```bash
+# 一键（公网 URL；密码勿提交仓库）
+MYSQL_URL='mysql://root:PASSWORD@HOST:PORT/railway' ./scripts/railway-mysql-init.sh
+
+# 或手工逐步：
 # 1) 建库（等同 db/init/01_schema.sql）
 CREATE DATABASE IF NOT EXISTS `erd`    DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
 CREATE DATABASE IF NOT EXISTS `martin` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
