@@ -221,6 +221,43 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('工具栏：撤销/重做/自动布局与对齐可访问名', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('tbar');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'tbar', 'canvas toolbar aria');
+      await openRelationFromEmpty(page);
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
+
+      await expect(page.getByRole('button', { name: '撤销' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '重做' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '自动布局' })).toBeVisible();
+
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await rfNode(page, 'T_TABLE_1').click();
+      await rfNode(page, 'T_ORDER').click({ modifiers: ['Shift'] });
+      await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
+      await expect(page.getByRole('group', { name: '对齐' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '左对齐' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '水平居中' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '右对齐' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '顶对齐' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '垂直居中' })).toBeVisible();
+      await expect(page.getByRole('button', { name: '底对齐' })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('删除字段：可访问按钮移除字段行', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdel');

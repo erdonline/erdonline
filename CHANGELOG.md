@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：画布工具栏撤销/重做/对齐 aria（草稿 36）
+
+**修复**
+
+- `erd-canvas-toolbar`：撤销 / 重做 / 自动布局及对齐六钮补中文 `aria-label`（对齐与 `title` 一致；可见「自动布局」可访问名同步）
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "工具栏"`
+
+**测试**
+
+- `relation.spec.ts`：新增「工具栏：撤销/重做/自动布局与对齐可访问名」；多选后断言对齐组与六钮 `getByRole`
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `36` 标已合入；补草稿 `37`（SaveStatus aria-live）；README / `docs/community.md` 种子 50–51 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 仅列 `37`（`36` 为 SKIP）
+
 #### P4 good-first：ReactFlow MiniMap 中文可访问名（草稿 35）
 
 **修复**
