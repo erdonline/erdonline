@@ -120,9 +120,15 @@ export async function createExampleProjectAndOpen(
       notification.open({
         key,
         message: '示例项目已就绪',
-        description: '表结构与关系已建好。下一步：保存你的第一个版本，留住当前模型。',
+        description:
+          '表结构与关系已建好。下一步：保存你的第一个版本（也可点顶栏「保存版本」）。',
         duration: 0,
         placement: 'bottomRight',
+        closeIcon: (
+          <span data-testid="example-ready-dismiss" aria-label="关闭示例就绪通知">
+            ×
+          </span>
+        ),
         btn: (
           <Button
             type="primary"
