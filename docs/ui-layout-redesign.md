@@ -164,6 +164,7 @@
 | └ **W4 切片 5** ✅（2026-08-02） | **死码清除**：零挂载 `DataDomain`/`DynamicDialog` + `dialog/module|entity|database|dataType` ModalForm 整簇删除（模型/表已由 `EntityModal` antd Form+Modal 承接；勿平移不可见页） | 死 ModalForm 簇 | `empty-projectjson`「无 JSON 团队项目可新增模型」；`rg dialog/(module\|entity\|database\|dataType)` = 0 |
 | └ **W4 切片 6** ✅（2026-08-02） | **CopyProject**（版本行复刻弹窗）：`ModalForm`/`ProForm*` → antd `Modal` + `Form`；类型数值化；tags Select + testid；失败不关窗 | CopyProject ProForm | `version.spec`「版本行复刻弹窗可创建个人项目」 |
 | └ **W4 切片 7** ✅（2026-08-02） | **DatabaseSetUp**（设计器「数据源设置」）：`ModalForm`/`ProFormList`/`ProForm*` → antd `Modal` + `Form` + `Form.List`；删零引用 setting 页孪生文件 | dialog DatabaseSetUp ProForm | `adr0008-datasource`「新增数据源」+ `project-menu`「数据源设置可打开」 |
+| └ **W4 切片 8** ✅（2026-08-02） | **DefaultSetUp**（设计器「默认项设置」）：`ModalForm`/`ProCard`/`ProForm*` → antd `Modal` + `Form` + `Tabs`；字段/配置两 Tab 与保存提示不变 | dialog DefaultSetUp ProForm | `project-menu`「默认项设置可打开」+「保存有成功提示」 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。

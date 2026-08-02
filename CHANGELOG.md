@@ -8,6 +8,17 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 8 — DefaultSetUp ModalForm → antd Form+Modal
+
+**重构**
+
+- 设计器菜单「默认项设置」`dialog/setup/DefaultSetUp`：摘 `ModalForm` / `ProCard` / `ProForm*` → antd `Modal` + `Form` + `Tabs`；触发 aria、两 Tab（默认字段/默认配置）、保存 `updateProfile` →「设置成功」不变；WORD 上传仍走 `updateWordTemplateConfig`
+
+**测试 / 文档**
+
+- `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 8 ✅
+  验证点：`rg '@ant-design/pro-components' frontend/src/components/dialog/setup/DefaultSetUp.tsx` = 0；`rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l`；`npx playwright test tests/e2e/project-menu.spec.ts --grep "默认项设置" --project=chromium --workers=1`
+
 #### 重构：W4 切片 7 — DatabaseSetUp ModalForm → antd Form+Modal
 
 **重构**
