@@ -151,7 +151,7 @@
 |---|---|---|---|---|---|
 | `/databaseConfig` | 新建/保存数据源 | POST dataSources；profile 无 password | ADR-0008 | ✅ | `adr0008-datasource.spec` |
 | `/databaseConfig` | 测试连接 | 成功/失败 toast | | ✅ | `adr0008-datasource.spec`「测试连接」 |
-| `/databaseConfig` | 编辑/删除/批量删 | 列表更新 | | 🚧 | |
+| `/databaseConfig` | 编辑/删除/批量删 | 列表更新+确认；行内 aria | | ✅ | `adr0008-datasource`「编辑保存 + 删除确认」 |
 | `/databaseConfig` | 同步状态钮 | 状态刷新 | | 🚧 | |
 | `/databaseConfig` 顶栏 | 「统计」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
 | `/databaseConfig` 顶栏 | 「帮助」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | W6 已删 |
@@ -197,8 +197,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 58 |
-| 🚧 | 34 |
+| ✅ | 59 |
+| 🚧 | 33 |
 | 🗑 | 7 |
 | 📋 | 2 |
 | **合计** | **101** |
