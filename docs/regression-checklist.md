@@ -220,7 +220,7 @@
 
 ### 走查发现（本轮新摩擦）
 
-- [x] [假链接] 卡片标题首版修复用 `<a onClick>` 无 href，无 link role、不可键盘聚焦 → 已改真链接（走查首轮即抓出，P1 已修）
+- [x] [假链接] 卡片标题首版修复用 `` `<a onClick>` `` 无 href，无 link role、不可键盘聚焦 → 已改真链接（走查首轮即抓出，P1 已修）
 - [x] [关系图入口缺失] 文件夹模式树下无「关系图」节点（`getModuleEntityTree` 仅扁平模式返回入口，而界面恒用文件夹模式）→ 已在「关系」文件夹置顶入口，浏览器验证画布可打开渲染（P0 已修）
 - [ ] [实体无法上图·核心断裂] 前端无拖拽源 + `addEntity` 不写 `graphCanvas` → 新建实体永远上不了画布（旧画布建模回路全断）→ **不修补 g6**，ReactFlow 轮按 ADR-0001 补充决策根治：实体即节点、graphCanvas 只存布局
 - [x] [设计器空态] 0 表时「新建第一张表」可点且建表即上图（含默认主键）✅ `relation.spec.ts`
@@ -279,8 +279,13 @@
 
 ## 画布视口裁剪（2026-08-01）
 
-- [x] [大图裁剪] 30 表 + 放大视口 → DOM `.react-flow__node` < 30；`data-viewport-cull=1` ✅ `canvas-scale.spec.ts`
+- [x] [大图裁剪] 30 表 + 放大视口 → DOM `.react-flow__node` 数量 `< 30`；`data-viewport-cull=1` ✅ `canvas-scale.spec.ts`
 - [x] [E2E 定位] 新建模型/开关系图走 testid，不依赖 `.ant-tree [class*=title]` ✅同上
+
+## 官方 Demo 运行时 Railway（2026-08-02）
+
+- [x] [ADR-0019 + deployment] 文档站可打开 ADR-0019；`deployment.md` 含 Railway 五步与 env 对照；`yarn build`（website）无 MDX 失败 ✅ 2026-08-02
+- [ ] [Railway Dashboard] New Project → 镜像/Dockerfile + MySQL + Redis → Variables → 公网 9502 → `actuator/health` UP → 设 `DEMO_API_URL`
 
 ## 创建项目 / JWT 头（2026-08-02）
 

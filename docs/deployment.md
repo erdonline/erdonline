@@ -9,13 +9,19 @@
        └─► GitHub Pages（/erdonline/）         [回退]
 
 静态 demo ─► Cloudflare Pages（erdonline-demo）
-             env-config.js ← Variables: DEMO_API_URL（可空）
+             env-config.js ← Variables: DEMO_API_URL
+                  └─► 指向 Railway 公网后端（ADR-0019）
+
+官方 demo API ─► Railway（App + MySQL 8 插件 + Redis 插件）
+  镜像：ghcr.io/erdonline/erdonline-backend:latest
+  备选（CN）：Zeabur，同镜像思路
 
 运行时镜像 ─► GHCR
   ghcr.io/erdonline/erdonline-backend
   ghcr.io/erdonline/erdonline-frontend
 
 自托管数据面 ─► 用户自己的 docker compose（MySQL/Redis + 上列镜像）
+  ← 用户生产仍走这条；Railway 只服务官方试用
 ```
 
 | 表面 | 工作流 | 所需配置 |
@@ -118,9 +124,70 @@ docker compose build backend frontend
 docker compose up -d
 ```
 
-> 公网 demo API（Render 等）**尚未**作为官方步骤部署；静态站可先上，API 旅程随后。
+## Railway 部署官方 demo {#railway-demo}
 
-## Docker Compose（推荐）
+决策见 [ADR-0019](./adr/0019-demo-runtime-railway.md)。项目方用 **Railway 单项目**跑官方试用后端（真 MySQL 8 + Redis）；用户生产仍用下方 **Docker Compose**。
+
+成本：Hobby 量级约 **\$5–10/月**（App + MySQL + Redis，以 [Railway 定价](https://railway.app/pricing) 账单为准）。
+
+### Dashboard 五步（最短路径）
+
+1. **New Project** → **Deploy from GitHub**（选 `erdonline/erdonline`）或空项目后 **Add service → Docker Image**，镜像填：
+   `ghcr.io/erdonline/erdonline-backend:latest`  
+   > 注意：镜像在首次 `v*` release（`release.yml` → GHCR）之前**可能不存在**；可暂用仓库根 `backend/Dockerfile` 从 GitHub 构建同一服务。
+2. **Add Plugin → MySQL**（MySQL 8）与 **Add Plugin → Redis**；等插件 Ready。
+3. 在 MySQL 上建双库并灌基线（插件通常只给一个库）。用 Railway 提供的连接串/`mysql` 客户端执行：
+   ```bash
+   # 建库（与 db/init/01_schema.sql 一致）
+   CREATE DATABASE IF NOT EXISTS erd DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   CREATE DATABASE IF NOT EXISTS martin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   # 再按序导入仓库 db/init/02_erd.sql … 09_*.sql（公网勿灌 05_e2e_users.sql）
+   ```
+   后端启动时 Flyway 只迁移 **erd** 增量；**martin** 基线必须来自 `db/init`。
+4. 在 **App 服务 → Variables** 写入下表环境变量（把插件变量引用成 Spring 名；值以 Dashboard 实际为准）。
+5. **Settings → Networking → Public**，端口填 **9502**（`backend/Dockerfile` `EXPOSE 9502`）；生成 `*.up.railway.app` HTTPS。验收：
+   ```bash
+   curl -sS https://YOUR-APP.up.railway.app/actuator/health
+   # 期望 {"status":"UP"}
+   ```
+   随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://YOUR-APP.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
+
+### 环境变量对照（Spring Boot）
+
+与根目录 `.env.example`、`docker-compose.yml`、`application.yml` / `application-prod.yml` 对齐。Railway MySQL/Redis 插件常见变量名是 `MYSQLHOST` / `REDISHOST` 等——**不要**直接指望 Spring 识别它们，请显式映射：
+
+| 变量 | 示例 / 来源 | 说明 |
+|---|---|---|
+| `SPRING_PROFILES_ACTIVE` | `prod` | 生产 fail-fast；须显式给齐凭证 |
+| `DB_HOST` | `${{MySQL.MYSQLHOST}}`（插件引用写法以 UI 为准） | JDBC 主机 |
+| `DB_PORT` | `${{MySQL.MYSQLPORT}}` | 默认 3306 |
+| `DB_MARTIN` | `martin` | 系统/认证库名 |
+| `DB_ERD` | `erd` | 建模库名 |
+| `DB_USERNAME` / `DB_PASSWORD` | 插件用户/密码 | martin 库账号 |
+| `DB_ERD_USERNAME` / `DB_ERD_PASSWORD` | 同上或专用 erd 用户 | 可与 martin 同账号（须两库授权） |
+| `REDIS_HOST` / `REDIS_PORT` | Redis 插件 host/port | 缓存；可选 `REDIS_DB=0` |
+| `JWT_SECRET` | 随机 ≥32 字节 | **必改**；勿用仓库默认值 |
+| `JWT_EXPIRES_IN` | `43200` | 可选 |
+| `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
+| `CORS_ALLOWED_ORIGINS` | `https://erdonline-demo.pages.dev` | 逗号分隔；静态 demo 跨域必需 |
+| `ERD_UI_URL` | 同上 CF Pages URL | 业务回调/UI 提示用 |
+| `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 任意非空占位（如 `demo`/`demo`） | `prod` profile 强制存在；无 MinIO 时 Word 自定义上传不可用，内置模板仍可导出 |
+| `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
+
+容器监听 **9502**。若平台注入 `PORT` 且要求进程跟它走，可设 `SERVER_PORT` 与公开端口一致（Boot 识别 `SERVER_PORT`），或启动命令加 `-Dserver.port=$PORT`。本仓库**未**提交 `railway.toml`，避免臆造易碎配置；用 Dashboard 变量 + 镜像/`backend/Dockerfile` 即可。
+
+### 接 CF Pages
+
+1. Railway health 绿、登录/注册可通（或至少 `actuator/health` UP）
+2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = Railway 公网根 URL
+3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）
+4. 打开 https://erdonline-demo.pages.dev ，确认会请求该 API（Network）
+
+### Zeabur 备选（中国区）
+
+国内网络下可用 [Zeabur](https://zeabur.com/) 作**非默认**备选：新建项目 → 部署同一 GHCR 镜像 `ghcr.io/erdonline/erdonline-backend:latest`（或 Dockerfile）→ 挂载托管 MySQL 8 + Redis → 环境变量表与上节相同 → 公网 HTTPS 后再填 `DEMO_API_URL`。官方文档与默认运维路径仍以 **Railway** 为准（ADR-0019）。
+
+## Docker Compose（推荐 · 用户自托管 / 生产）
 
 ```bash
 cp .env.example .env      # 修改端口 / 密码；可选 ERD_IMAGE_TAG
