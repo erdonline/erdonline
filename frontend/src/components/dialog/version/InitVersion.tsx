@@ -1,117 +1,143 @@
-import React from 'react';
-import {ModalForm, ProFormText, ProFormTextArea} from "@ant-design/pro-components";
-import useVersionStore from "@/store/version/useVersionStore";
-import shallow from "zustand/shallow";
+import React, {useState} from 'react';
+import {AimOutlined} from '@ant-design/icons';
+import {Button, Form, Input, Modal, message} from 'antd';
 import moment from 'moment';
-import useProjectStore from "@/store/project/useProjectStore";
+import useVersionStore from '@/store/version/useVersionStore';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
 import * as Save from '@/utils/save';
-import {Button, message} from "antd";
-import {AimOutlined} from "@ant-design/icons";
 
 export type InitVersionProps = {};
 
-const InitVersion: React.FC<InitVersionProps> = (props) => {
-  const {hasDB, init, versionDispatch} = useVersionStore(state => ({
-    hasDB: state.hasDB,
-    init: state.init,
-    versionDispatch: state.dispatch
+type FormValues = {
+  version?: string;
+  versionDesc?: string;
+};
 
-  }), shallow);
+const InitVersion: React.FC<InitVersionProps> = () => {
+  const {hasDB, init, versionDispatch} = useVersionStore(
+    (state) => ({
+      hasDB: state.hasDB,
+      init: state.init,
+      versionDispatch: state.dispatch,
+    }),
+    shallow,
+  );
 
-  const {projectJSON} = useProjectStore(state => ({
-    projectJSON: state.project?.projectJSON,
+  const {projectJSON} = useProjectStore(
+    (state) => ({
+      projectJSON: state.project?.projectJSON,
+    }),
+    shallow,
+  );
 
-  }), shallow);
-  return (<>
-    <ModalForm
-      title="初始化基线"
-      trigger={
-        <Button
-          type={"primary"}
-          key="selection"
-          disabled={!hasDB || !init}
-        ><AimOutlined/>初始化基线</Button>
-      }
-      onFinish={async (values: any) => {
-        // 基线文件只需要存储modules信息
-        const currentDBData = versionDispatch.getCurrentDBData();
-        if (!currentDBData) {
-          message.warning("未配置数据库源，请先配置数据源！");
-          return false;
+  const [open, setOpen] = useState(false);
+  const [form] = Form.useForm<FormValues>();
+
+  const openModal = () => {
+    form.resetFields();
+    setOpen(true);
+  };
+
+  const handleOk = async () => {
+    const values = await form.validateFields();
+    // 基线文件只需要存储 modules 信息
+    const currentDBData = versionDispatch.getCurrentDBData();
+    if (!currentDBData) {
+      message.warning('未配置数据库源，请先配置数据源！');
+      return;
+    }
+    const version = {
+      projectJSON: {
+        modules: projectJSON.modules || [],
+      },
+      dbKey: currentDBData.key || '',
+      baseVersion: true,
+      version: values.version,
+      versionDesc: values.versionDesc,
+      changes: [],
+      versionDate: moment().format('YYYY/M/D H:m:s'),
+    };
+    // 对齐原 ModalForm：先关窗再异步保存（失败仍 toast）
+    setOpen(false);
+    Save.hisProjectSave(version)
+      .then((res) => {
+        if (res.code === 200) {
+          message.success('初始化基线成功');
+          versionDispatch.getVersionMessage(res.data, true);
+          versionDispatch.setState({
+            changes: [],
+            init: false,
+            versions: res.data,
+          });
+          versionDispatch.dropVersionTable();
+        } else {
+          message.error('操作失败！');
         }
-        const version = {
-          projectJSON: {
-            modules: projectJSON.modules || [],
-          },
-          dbKey: currentDBData.key || '',
-          baseVersion: true,
-          version: values.version,
-          versionDesc: values.versionDesc,
-          changes: [],
-          versionDate: moment().format('YYYY/M/D H:m:s'),
-        };
-        Save.hisProjectSave(version).then((res) => {
-          if (res.code === 200) {
-            message.success('初始化基线成功');
-            versionDispatch.getVersionMessage(res.data, true);
-            versionDispatch.setState({
-              changes: [],
-              init: false,
-              versions: res.data,
-            });
-            // 更新版本表
-            versionDispatch.dropVersionTable();
-          } else {
-            message.error('操作失败！');
-          }
-        }).catch((err) => {
-          message.error(`操作失败:${err.message}`);
-        });
-        return true;
-      }}
-    >
-      <ProFormText
-        width="md"
-        name="version"
-        label="版本号"
-        placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              pattern: new RegExp(/^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/),
-              message: '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
-            },
-            {
-              max: 100,
-              message: '不能大于 200 个字符',
-            },
-          ],
-        }}
-      />
-      <ProFormTextArea
-        width="md"
-        name="versionDesc"
-        label="版本描述"
-        placeholder="'例如：初始化当前项目版本"
-        formItemProps={{
-          rules: [
-            {
-              required: true,
-              message: '不能为空',
-            },
-            {
-              max: 100,
-              message: '不能大于 100 个字符',
-            },
-          ],
-        }}
-      />
-    </ModalForm>
-  </>);
-}
+      })
+      .catch((err: Error) => {
+        message.error(`操作失败:${err.message}`);
+      });
+  };
 
-export default React.memo(InitVersion)
+  return (
+    <>
+      <Button
+        type="primary"
+        key="selection"
+        disabled={!hasDB || !init}
+        data-testid="version-init-btn"
+        aria-label="初始化基线"
+        onClick={openModal}
+      >
+        <AimOutlined />
+        初始化基线
+      </Button>
+      <Modal
+        title="初始化基线"
+        open={open}
+        onOk={handleOk}
+        onCancel={() => setOpen(false)}
+        destroyOnClose
+        width={520}
+      >
+        <Form form={form} layout="vertical" preserve={false}>
+          <Form.Item
+            name="version"
+            label="版本号"
+            rules={[
+              {required: true, message: '不能为空'},
+              {
+                pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
+                message:
+                  '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
+              },
+              {max: 100, message: '不能大于 200 个字符'},
+            ]}
+          >
+            <Input
+              aria-label="版本号"
+              placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
+            />
+          </Form.Item>
+          <Form.Item
+            name="versionDesc"
+            label="版本描述"
+            rules={[
+              {required: true, message: '不能为空'},
+              {max: 100, message: '不能大于 100 个字符'},
+            ]}
+          >
+            <Input.TextArea
+              aria-label="版本描述"
+              placeholder="'例如：初始化当前项目版本"
+              rows={3}
+            />
+          </Form.Item>
+        </Form>
+      </Modal>
+    </>
+  );
+};
+
+export default React.memo(InitVersion);

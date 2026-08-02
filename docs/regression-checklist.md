@@ -276,6 +276,12 @@
 - [x] [版本详情/比对非 ModalForm] 行「详情」/工具栏「版本比对」→ antd dialog；diff 面板 + 导出 `.md` 不变 ✅ `version.spec.ts` 可视化 diff
 - [x] [同步配置非 ModalForm] 工具栏「同步配置」→ antd dialog；选「重建数据表」→ toast「设置成功」 ✅ `version.spec.ts`「同步配置弹窗可保存升级方式」
 
+## W4 切片 10 — RebuildVersion / InitVersion / setting DefaultSetUp → antd（2026-08-02）
+
+- [x] [重建版本非 ModalForm] 有版本后工具栏「重建版本」→ antd dialog 见版本号/描述；取消关窗（不真重建） ✅ `version.spec.ts`「重建版本弹窗可打开」
+- [x] [初始化基线非 ModalForm] `InitVersion` 无 `@ant-design/pro-components`；testid `version-init-btn` ✅ rg
+- [x] [设置页系统默认项非 ProForm] `/design/table/setting/default` 仍可打开；无 `@ant-design/pro-components` ✅ rg
+
 ## W6 数据域裁剪（2026-08-02）
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`

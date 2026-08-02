@@ -166,6 +166,7 @@
 | └ **W4 切片 7** ✅（2026-08-02） | **DatabaseSetUp**（设计器「数据源设置」）：`ModalForm`/`ProFormList`/`ProForm*` → antd `Modal` + `Form` + `Form.List`；删零引用 setting 页孪生文件 | dialog DatabaseSetUp ProForm | `adr0008-datasource`「新增数据源」+ `project-menu`「数据源设置可打开」 |
 | └ **W4 切片 8** ✅（2026-08-02） | **DefaultSetUp**（设计器「默认项设置」）：`ModalForm`/`ProCard`/`ProForm*` → antd `Modal` + `Form` + `Tabs`；字段/配置两 Tab 与保存提示不变 | dialog DefaultSetUp ProForm | `project-menu`「默认项设置可打开」+「保存有成功提示」 |
 | └ **W4 切片 9** ✅（2026-08-02） | **CompareVersion** + **SyncConfig**：详情/比对弹窗与同步配置 `ModalForm`/`ProForm*` → antd `Modal` + `Select`/`Form`/`Radio`；导出 footer 与 testid 不变 | CompareVersion + SyncConfig ProForm | `version.spec` 可视化 diff +「同步配置弹窗可保存升级方式」 |
+| └ **W4 切片 10** ✅（2026-08-02） | **RebuildVersion** + **InitVersion** + setting 页 **DefaultSetUp**：`ModalForm`/`ProForm*` → antd `Modal`/`Form`；设置页路由保留 | RebuildVersion + InitVersion + setting DefaultSetUp | `version.spec`「重建版本弹窗可打开」；Pro 文件数 32→29 |
 | **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | LoginFormPage + 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
