@@ -203,6 +203,7 @@ test.describe('设计器项目菜单', () => {
 
       await page.getByRole('button', { name: '项目菜单' }).click();
       await page.getByRole('menuitem', { name: '导出' }).hover();
+      await expect(page.getByRole('button', { name: '导出DDL' })).toBeVisible({ timeout: 15_000 });
       await page.getByRole('button', { name: '导出DDL' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('SQL导出配置')).toBeVisible({ timeout: 10_000 });
@@ -222,6 +223,14 @@ test.describe('设计器项目菜单', () => {
       await expect(dlg.getByRole('button', { name: '上一步' })).toBeVisible({ timeout: 10_000 });
       await expect(dlg.getByRole('button', { name: '导出' })).toBeVisible();
       await expect(dlg.getByText('导出配置', { exact: true })).toBeVisible();
+
+      const [download] = await Promise.all([
+        page.waitForEvent('download', { timeout: 30_000 }),
+        dlg.getByRole('button', { name: '导出' }).click(),
+      ]);
+      expect(download.suggestedFilename()).toMatch(/\.sql$/i);
+      expect(await download.path()).toBeTruthy();
+      await expectToast(page, /导出成功/);
     } finally {
       if (dsId) {
         const token = await page.evaluate(() => localStorage.getItem('Authorization')).catch(() => null);

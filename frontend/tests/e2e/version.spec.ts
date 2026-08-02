@@ -36,22 +36,6 @@ async function closeVersionDialog(
 }
 
 test.describe('版本快照', () => {
-  test('无数据源也可新增版本并在列表可见', async ({ page }) => {
-    test.setTimeout(120_000);
-    const projectName = uniqueProjectName('ver');
-    try {
-      await login(page);
-      await deleteOwnPersonProjects(page);
-      await createAndOpenPersonProject(page, projectName, 'ver', 'version snapshot');
-      await openVersionPage(page);
-      await saveVersion(page);
-      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
-    } finally {
-      await deleteOwnPersonProjects(page).catch(() => {});
-    }
-  });
-
   test('模型变更后详情展示可视化 diff（增删改着色）', async ({ page }) => {
     test.setTimeout(180_000);
     const projectName = uniqueProjectName('vdiff');
@@ -111,6 +95,60 @@ test.describe('版本快照', () => {
       await expect(
         rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'REMARK' }),
       ).toHaveCount(0, { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('无数据源也可新增版本并在列表可见', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('ver');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'ver', 'version snapshot');
+      await openVersionPage(page);
+      await saveVersion(page);
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-compare-btn')).toBeDisabled();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('重命名描述与删除版本有 toast 且行消失', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('verdel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'verdel', 'rename delete');
+      await openVersionPage(page);
+
+      await saveVersion(page);
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+
+      await saveVersion(page);
+      await expect(page.getByTestId('version-row-1.0.1')).toBeVisible({ timeout: 10_000 });
+
+      const row101 = page.getByTestId('version-row-1.0.1');
+      await row101.hover();
+      await row101.getByTestId('version-rename-btn').click();
+      const renameDlg = page.getByRole('dialog').filter({ hasText: '编辑版本' });
+      await expect(renameDlg).toBeVisible();
+      await renameDlg.getByRole('textbox', { name: '版本描述' }).fill('E2E 重命名描述');
+      await renameDlg.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, /版本信息更新成功/);
+      await expect(renameDlg).toHaveCount(0, { timeout: 10_000 });
+      await expect(row101.getByText('E2E 重命名描述')).toBeVisible({ timeout: 10_000 });
+
+      const row100 = page.getByTestId('version-row-1.0.0');
+      await row100.hover();
+      await row100.getByTestId('version-delete-btn').click();
+      await page.getByRole('button', { name: '是' }).click();
+      await expectToast(page, /版本信息删除成功/);
+      await expect(page.getByTestId('version-row-1.0.0')).toHaveCount(0, { timeout: 10_000 });
+      await expect(page.getByTestId('version-row-1.0.1')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

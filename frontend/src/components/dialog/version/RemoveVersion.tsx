@@ -19,7 +19,16 @@ const RemoveVersion: React.FC<RemoveVersionProps> = (props) => {
     <Popconfirm placement="right" title={`删除版本「${currentVersion.version}」`}
                 onConfirm={() => versionDispatch.updateVersionData(currentVersion, currentVersion, 'delete')} okText="是"
                 cancelText="否">
-      <Button key="delete" size={"small"} type={"link"} icon={<DeleteOutlined/>}>删除</Button>
+      <Button
+        key="delete"
+        size={"small"}
+        type={"link"}
+        icon={<DeleteOutlined/>}
+        data-testid="version-delete-btn"
+        aria-label="删除版本"
+      >
+        删除
+      </Button>
     </Popconfirm>
   </>);
 }
