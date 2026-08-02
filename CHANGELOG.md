@@ -16,7 +16,7 @@
 
 验证点：
 - `cd frontend && npx tsx src/store/project/dataTypeDomainsSlice.test.ts`
-- `rg -n '#DE2910' frontend/src/store/project/dataTypeDomainsSlice.tsx` → 0（仅注释可提 brand）
+- `rg -n 'fill="#DE2910"' frontend/src/store/project/dataTypeDomainsSlice.tsx` → 0
 
 #### 体验：Export / Home·Group 壳清 `#DE2910` 硬编码（ADR-0016）
 
