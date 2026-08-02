@@ -22,6 +22,7 @@
 #   默认跳过 04_privileges.sql（root 可直接用；非 root 可加 --with-privileges）
 #
 # 依赖：本机已装 mysql 客户端（mysql --version）。
+# 无本机客户端时用：./scripts/railway-mysql-init.docker.sh（同参/同 env）。
 # 禁止把密码提交进仓库；本脚本不写任何凭证到磁盘。
 
 set -euo pipefail

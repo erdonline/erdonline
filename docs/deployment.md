@@ -230,15 +230,24 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 **建库 + 灌基线**（插件空实例必做一次；后端 Flyway **只**迁 erd 增量，martin 基线必须来自 `db/init`）：
 
+> **与本地 compose 的区别**：`docker-compose` 已把 `db/init` 挂到 MySQL **空 data 卷**首启（见下方「一键自部署」），本地不必再跑本脚本。Railway / 远程插件库无该挂载，须用下列脚本或手工导入。
+
 连库方式任选其一：
 
 - Railway CLI：`railway connect MySQL`（或 Dashboard → MySQL → Connect）
 - 本机 `mysql`：用插件 **TCP Proxy / 公网** URL（勿把公网 URL 写进 App 的 `DB_HOST`；App 用私网 `MYSQLHOST`）
 - **推荐脚本**（仓库根）：[`scripts/railway-mysql-init.sh`](../scripts/railway-mysql-init.sh) — 建 `martin`/`erd` 并按序导入 `02→03→06…09`（跳过 `05_e2e_users.sql`；root 默认跳过 `04_privileges.sql`）
+- **无本机 mysql 客户端**：[`scripts/railway-mysql-init.docker.sh`](../scripts/railway-mysql-init.docker.sh) — 用 `mysql:8` 容器跑同一逻辑；凭证只走环境变量或仓库根 `.env`（`/.env` 已 gitignore，**禁止**把 root 密码写进已跟踪文件）
 
 ```bash
-# 一键（公网 URL；密码勿提交仓库）
-MYSQL_URL='mysql://root:PASSWORD@HOST:PORT/railway' ./scripts/railway-mysql-init.sh
+# 一键（公网 URL；密码用环境变量，勿提交仓库）
+MYSQL_URL="mysql://root:${MYSQLPASSWORD}@HOST:PORT/railway" ./scripts/railway-mysql-init.sh
+
+# Docker 方式（本机只需 Docker；同上用 env，勿硬编码密码）
+MYSQL_URL="mysql://root:${MYSQLPASSWORD}@HOST:PORT/railway" ./scripts/railway-mysql-init.docker.sh
+
+# 或把 MYSQL_URL / MYSQLHOST+MYSQLPASSWORD 写入本地 .env 后：
+#   ./scripts/railway-mysql-init.docker.sh
 
 # 或手工逐步：
 # 1) 建库（等同 db/init/01_schema.sql）
