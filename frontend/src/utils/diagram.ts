@@ -44,8 +44,8 @@ export const FRAME_NODE_PREFIX = 'erd-frame-';
 export const DEFAULT_FRAME_W = 320;
 export const DEFAULT_FRAME_H = 200;
 /** 顶边略大，露出标题栏便于点选（表 z-index 更高时仍可点到框） */
-/** Frame 相对成员的默认内边距（分享密度：勿过大留白） */
-export const FRAME_PADDING = 24;
+/** Frame 相对成员的默认内边距（分享密度：勿过大留白；字段行压矮后再贴一档） */
+export const FRAME_PADDING = 20;
 /** Frame 默认浅底 = erdColors.frameFill（success @ 10%） */
 export const DEFAULT_FRAME_COLOR = erdColors.frameFill;
 

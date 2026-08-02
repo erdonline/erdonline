@@ -35,9 +35,9 @@ export const PORT_VERTICAL_STACK_DY = 48;
 
 /** 边标签 chip（基数 1:n 等）：截图可读；禁整块 opacity 冲淡文字 */
 export const EDGE_LABEL_FONT_SIZE = 11;
-/** [水平, 垂直] padding px */
-export const EDGE_LABEL_BG_PADDING: [number, number] = [6, 3];
-export const EDGE_LABEL_BG_RADIUS = 4;
+/** [水平, 垂直] padding px；密 FK 图再压一档，勿胀成大块 */
+export const EDGE_LABEL_BG_PADDING: [number, number] = [4, 2];
+export const EDGE_LABEL_BG_RADIUS = 3;
 
 export type PortSide = 'l' | 'r';
 /** lr=右→左；rl=左→右；same=同侧短 U（竖叠） */

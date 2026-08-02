@@ -137,7 +137,10 @@ async function main() {
     assert.notStrictEqual(edge.labelBgStyle?.fill, erdColors.surfaceSunk, '禁与画布 sunk 同色');
     assert.strictEqual(edge.labelBgStyle?.fillOpacity, 1);
     assert.deepStrictEqual(edge.labelBgPadding, EDGE_LABEL_BG_PADDING);
+    assert.deepStrictEqual(EDGE_LABEL_BG_PADDING, [4, 2], 'chip 水平/垂直 padding 再压密');
+    assert.ok(EDGE_LABEL_BG_PADDING[0] <= 4 && EDGE_LABEL_BG_PADDING[1] <= 2);
     assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
+    assert.ok(EDGE_LABEL_BG_RADIUS <= 3, 'chip 圆角勿过大');
   });
 
   await run('associationsToEdges：不同 pair 互不抢 lane', () => {

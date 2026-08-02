@@ -49,13 +49,14 @@
 - [x] 公开 demo 主图节点 x 跨度更密（&lt;1100）✅`demo.spec.ts` + 截图 `ux-walkthrough/demo-layout-density.png`
 - [x] 分享只读隐藏 `relationNoShow`（无 `del_flag`）✅`demo.spec.ts`
 - [x] dagre 默认间距 ≤ 旧走廊 80/160 ✅`graphLayout.test.ts`
-- [x] Frame 默认 padding 24（适应成员更贴表）✅`diagram.test.ts`
+- [x] Frame 默认 padding 20（适应成员更贴表）✅`diagram.test.ts`
 
 ### 手工
 
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
 - [x] [Frame 主题色] demo Frame 底无 Ant 蓝；含 success `frameFill`；截图 `demo-frame-theme-tokens.png` ✅`demo.spec.ts` + `diagram.test.ts` 色板轮换
 - [x] [边标签可读] 分享/设计器 `erd-edge-label`：白底 + ink600 + opacity=1 + ≥11px；截图 `demo-edge-label-chip.png` ✅`demo.spec.ts` + `relation.spec` PK/FK
+- [x] [边标签密度] chip padding ≤4/2、radius ≤3 ✅`relationEdges.test.ts` + `demo.spec` / `relation.spec` 表节点视觉
 - [x] [导入 Frame 建议] 前缀表 DBML → toast「已建议 N 个分组」+ 画布 2 个 `diagram-frame`（sys/biz）；截图 `diagram-import-frame-suggest.png` ✅`dbml-import.spec`「前缀表」+ `suggestImportFrames.test` / `yarn test:unit:dbml`
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
