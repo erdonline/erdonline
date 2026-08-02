@@ -4,15 +4,27 @@ import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import * as File from '@/utils/file';
 
 const {TextArea} = Input;
 
 type ModuleOpt = {name: string; chnname?: string; entities?: unknown[]};
 
-const ExportDBML: React.FC = () => {
+const ExportDBML: React.FC<MenuDialogControl> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [moduleName, setModuleName] = useState<string>('');
   const [preview, setPreview] = useState('');
   const [loading, setLoading] = useState(false);
@@ -123,17 +135,19 @@ const ExportDBML: React.FC = () => {
 
   return (
     <>
-      <Button
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-other_win" />}
-        style={{textAlign: 'left'}}
-        aria-label="导出DBML"
-        onClick={openModal}
-      >
-        导出DBML
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-other_win" />}
+          style={{textAlign: 'left'}}
+          aria-label="导出DBML"
+          onClick={openModal}
+        >
+          导出DBML
+        </Button>
+      )}
       <Modal
         title="导出 DBML"
         open={open}

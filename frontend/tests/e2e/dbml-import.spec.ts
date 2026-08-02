@@ -41,7 +41,7 @@ test.describe('DBML 导入', () => {
         .getByTestId('project-menu-panel')
         .getByRole('menuitem', { name: '导入' })
         .click();
-      await page.getByRole('button', { name: '导入DBML' }).click();
+      await page.getByRole('menuitem', { name: '导入DBML' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('导入 DBML')).toBeVisible({ timeout: 10_000 });
 

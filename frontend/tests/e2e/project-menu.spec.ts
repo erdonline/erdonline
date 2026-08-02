@@ -31,9 +31,10 @@ async function openProjectSubEntry(
   entry: string,
 ) {
   await revealProjectSubmenu(page, submenu);
-  const entryBtn = page.getByRole('button', { name: entry });
-  await expect(entryBtn).toBeVisible({ timeout: 10_000 });
-  await entryBtn.click();
+  // items API：叶子为 menuitem（不再嵌 Button）
+  const entryItem = page.getByRole('menuitem', { name: entry });
+  await expect(entryItem).toBeVisible({ timeout: 10_000 });
+  await entryItem.click();
 }
 
 test.describe('设计器项目菜单', () => {
@@ -233,7 +234,7 @@ test.describe('设计器项目菜单', () => {
     }
   });
 
-  test('项目 → 导出 → 六项入口可见且 DDL 可开弹窗', async ({ page }) => {
+  test('项目 → 导出 → 六项入口可见且 DDL 可开弹窗（不串导入项）', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('export');
     try {
@@ -242,12 +243,15 @@ test.describe('设计器项目菜单', () => {
       await createAndOpenPersonProject(page, projectName);
 
       await revealProjectSubmenu(page, '导出');
-      await expect(page.getByRole('button', { name: '导出HTML' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '导出Word' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '导出ERD' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '导出DBML' })).toBeVisible();
-      await page.getByRole('button', { name: '导出DDL' }).click();
+      await expect(page.getByRole('menuitem', { name: '导出HTML' })).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: '导出Word' })).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: '导出Markdown' })).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: '导出ERD' })).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: '导出DBML' })).toBeVisible();
+      // P0：导出子菜单不得出现导入项
+      await expect(page.getByRole('menuitem', { name: '数据源逆向解析' })).toHaveCount(0);
+      await expect(page.getByRole('menuitem', { name: '导入DBML' })).toHaveCount(0);
+      await page.getByRole('menuitem', { name: '导出DDL' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('SQL导出配置')).toBeVisible({
         timeout: 10_000,

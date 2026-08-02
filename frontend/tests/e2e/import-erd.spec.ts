@@ -30,7 +30,7 @@ test.describe('ERD 导入', () => {
         .getByTestId('project-menu-panel')
         .getByRole('menuitem', { name: '导入' })
         .click();
-      await page.getByRole('button', { name: '解析ERD文件' }).click();
+      await page.getByRole('menuitem', { name: '解析ERD文件' }).click();
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('解析已有ERD文件')).toBeVisible({ timeout: 10_000 });
 

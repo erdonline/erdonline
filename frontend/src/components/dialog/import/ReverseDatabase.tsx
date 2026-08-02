@@ -8,8 +8,9 @@ import ReverseTable from '@/components/TableTransfer/ReverseTable';
 import {fetchDatabaseConfigs} from '@/utils/databaseUtils';
 import {dbReverseMeta} from '@/utils/save';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 
-export type DatabaseReverseProps = {};
+export type DatabaseReverseProps = MenuDialogControl;
 
 type ReverseMeta = {
   dialectId?: string;
@@ -23,7 +24,11 @@ type Step1Values = {
   dataFormat: string;
 };
 
-const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
+const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, profileSliceState} = useProjectStore(
     (state) => ({
@@ -37,7 +42,14 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const [reverseMeta, setReverseMeta] = useState<ReverseMeta | null>(null);
   const [metaLoading, setMetaLoading] = useState(false);
   const [currentDbName, setCurrentDbName] = useState<string | undefined>();
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form1] = Form.useForm<Step1Values>();
@@ -110,14 +122,20 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
     };
   }, [currentDbName, dbs, open, form1]);
 
-  const openModal = () => {
-    closeProjectMenu();
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
     setStep(0);
     form1.setFieldsValue({
       currentDB: projectDispatch.getCurrentDBName(),
       dataFormat: 'DEFAULT',
     });
     setCurrentDbName(projectDispatch.getCurrentDBName());
+  }, [open, form1, projectDispatch]);
+
+  const openModal = () => {
+    closeProjectMenu();
     setOpen(true);
   };
 
@@ -146,18 +164,20 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
 
   return (
     <>
-      <Button
-        key="reverse"
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-line-height" />}
-        style={{textAlign: 'left'}}
-        aria-label="数据源逆向解析"
-        onClick={openModal}
-      >
-        数据源逆向解析
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="reverse"
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-line-height" />}
+          style={{textAlign: 'left'}}
+          aria-label="数据源逆向解析"
+          onClick={openModal}
+        >
+          数据源逆向解析
+        </Button>
+      )}
       <Modal
         title={
           <span>

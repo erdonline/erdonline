@@ -28,7 +28,7 @@ test.describe('DBML 导出', () => {
         .getByTestId('project-menu-panel')
         .getByRole('menuitem', { name: '导入' })
         .click();
-      await page.getByRole('button', { name: '导入DBML' }).click();
+      await page.getByRole('menuitem', { name: '导入DBML' }).click();
       const importDlg = page.getByRole('dialog');
       await expect(importDlg.getByText('导入 DBML')).toBeVisible({
         timeout: 10_000,
@@ -42,7 +42,7 @@ test.describe('DBML 导出', () => {
         .getByTestId('project-menu-panel')
         .getByRole('menuitem', { name: '导出' })
         .click();
-      await page.getByRole('button', { name: '导出DBML' }).click();
+      await page.getByRole('menuitem', { name: '导出DBML' }).click();
 
       const exportDlg = page.getByRole('dialog');
       await expect(exportDlg.getByText('导出 DBML')).toBeVisible({

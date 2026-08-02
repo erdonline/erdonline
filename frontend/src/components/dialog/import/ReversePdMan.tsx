@@ -6,16 +6,28 @@ import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import _ from 'lodash';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 
 const {Dragger} = Upload;
 
-export type ReversePdManProps = {};
+export type ReversePdManProps = MenuDialogControl;
 
 type ModuleLike = {name?: string};
 
-const ReversePdMan: React.FC<ReversePdManProps> = () => {
+const ReversePdMan: React.FC<ReversePdManProps> = ({
+  hideTrigger,
+  open: openProp,
+  onOpenChange,
+}) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const [open, setOpen] = useState(false);
+  const [innerOpen, setInnerOpen] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const {projectDispatch, projectJSON} = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -116,18 +128,20 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
 
   return (
     <>
-      <Button
-        key="pdman"
-        type="text"
-        size="small"
-        block
-        icon={<MyIcon type="icon-other_win" />}
-        style={{textAlign: 'left'}}
-        aria-label="解析PdMan文件"
-        onClick={openModal}
-      >
-        解析PdMan文件
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          key="pdman"
+          type="text"
+          size="small"
+          block
+          icon={<MyIcon type="icon-other_win" />}
+          style={{textAlign: 'left'}}
+          aria-label="解析PdMan文件"
+          onClick={openModal}
+        >
+          解析PdMan文件
+        </Button>
+      )}
       <Modal
         title="解析已有PdMan文件"
         open={open}
