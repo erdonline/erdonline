@@ -194,9 +194,55 @@ docker compose up -d
 3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）
 4. 打开 https://erdonline-demo.pages.dev ，确认会请求该 API（Network）
 
-### Zeabur 备选（中国区）
+### Zeabur 备选（中国区）{#zeabur-demo}
 
-国内网络下可用 [Zeabur](https://zeabur.com/) 作**非默认**备选：新建项目 → 部署同一 GHCR 镜像 `ghcr.io/erdonline/erdonline-backend:latest`（或 Dockerfile）→ 挂载托管 MySQL 8 + Redis → 环境变量表与上节相同 → 公网 HTTPS 后再填 `DEMO_API_URL`。官方文档与默认运维路径仍以 **Railway** 为准（ADR-0019）。
+国内网络下可用 [Zeabur](https://zeabur.com/) 作**非默认**备选；官方默认仍以 **Railway** 为准（ADR-0019）。
+
+**这个 URL 是什么**：Zeabur 服务 = **后端 API only**，不是完整产品站。浏览器打开 `https://xxx.zeabur.app/` 看到 404 **常常正常**（Spring Boot 无落地页）。前端试用站仍是 Cloudflare Pages，靠 `DEMO_API_URL` 指向此 API。
+
+#### 预期 404 vs 真挂了
+
+| 现象 | 含义 | 你该做什么 |
+|---|---|---|
+| `/` → 404，但 `/actuator/health` → `{"status":"UP"}` | API 已通 | 设 `DEMO_API_URL`，用 CF Pages 前端 |
+| `/`、`/actuator/health`、`/doc.html` **全部** 404（空 body、`server: Caddy`） | 公网没打到 Boot（常见：Root Directory 仍是仓库根，zbpack 误检前端） | 按下方 Dashboard 必改重建 |
+| health 502 / 连不上 | 未听 `PORT`，或缺 DB/Redis 启动失败 | 看「日志」；补 MySQL/Redis 与环境变量 |
+
+```bash
+curl -sS -D- -o /dev/null https://YOUR.zeabur.app/            # 可为 404
+curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status":"UP"}
+```
+
+#### Dashboard 必改（monorepo）
+
+仓库根有 `frontend/`、**无**根级 Dockerfile。Root Directory 留空时 Zeabur 常按 Node 前端构建 → Dashboard「运行中」但 API 全 404。
+
+1. Deploy from GitHub（`erdonline/erdonline`）
+2. **设置 → Root Directory** = `backend`（与 `backend/Dockerfile` / compose 一致）；改完会重建
+3. 确认走 **Dockerfile**；若仍误检，环境变量加 `ZBPACK_DOCKERFILE_PATH=Dockerfile`
+4. **网络**绑定公网域名。入口已读平台 `PORT`（`--server.port=${PORT:-9502}`），不必手填 9502
+5. 首个 `v*` 且 GHCR 有包后，也可改用镜像 `ghcr.io/erdonline/erdonline-backend:latest`
+
+#### MySQL + Redis + 环境变量
+
+与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`DB_*`、`REDIS_*`、`JWT_SECRET`、`CORS_ALLOWED_ORIGINS`、`ERD_UI_URL`、`OSS_*` 占位、`ERD_E2E_ACCOUNTS_ENABLED=false`）。
+
+1. 同项目添加 **MySQL 8** + **Redis**
+2. 建双库并灌基线（公网勿灌 `05_e2e_users.sql`）：
+   ```sql
+   CREATE DATABASE IF NOT EXISTS erd DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   CREATE DATABASE IF NOT EXISTS martin DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+   ```
+   再导入 `db/init/02_*.sql` …；Flyway 只迁 **erd** 增量，**martin** 须来自 init
+3. 把平台 MySQL/Redis 的 host/port/密码**显式映射**成 `DB_HOST` / `REDIS_HOST` 等 Spring 名
+4. `CORS_ALLOWED_ORIGINS` / `ERD_UI_URL` = CF Pages demo 源（如 `https://erdonline-demo.pages.dev`）
+5. health 绿后：GitHub Actions Variable `DEMO_API_URL=https://YOUR.zeabur.app`（无尾斜杠）→ 重跑 `frontend-demo-site.yml`
+
+#### 最短路径
+
+1. Root Directory=`backend` + MySQL + Redis + 上表变量 → 域名 PROVISIONED  
+2. `curl …/actuator/health` 见 `UP`（预览窗打开 `/` 的 404 可忽略）  
+3. `DEMO_API_URL` → 打开 CF Pages demo 试用  
 
 ## Docker Compose（推荐 · 用户自托管 / 生产）
 
