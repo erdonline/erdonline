@@ -205,8 +205,15 @@ test.describe('在线演示', () => {
     await expect(tablesPanel).toBeVisible();
     await expect(tablesPanel.getByRole('columnheader', { name: '表' })).toBeVisible();
     await expect(tablesPanel.getByRole('cell', { name: 'sys_user', exact: true })).toBeVisible();
+    // ADR-0016：展开后行密度对齐 22–28 / project-list（禁 antd small 默认松行）
+    const rowH = await tablesPanel
+      .locator('.ant-table-tbody tr')
+      .first()
+      .evaluate((el) => el.getBoundingClientRect().height);
+    expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeGreaterThanOrEqual(22);
+    expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeLessThanOrEqual(28);
     await page.screenshot({
-      path: 'test-results/ux-walkthrough/demo-share-tables-fold.png',
+      path: 'test-results/ux-walkthrough/demo-share-tables-dense.png',
       fullPage: false,
     });
   });
