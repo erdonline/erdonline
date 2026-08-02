@@ -8,10 +8,17 @@
 
 ### 2026-08-03
 
-#### 运维：`db/init/02_tables.sql` 去注释（仅 DDL）
+#### 运维：`db/init/02_tables.sql` 仅 CREATE TABLE
 
-- 剥离全部 `--` / `/* */` 注释，保留 CREATE/DROP TABLE 与内联索引等可执行 DDL（列/表 `COMMENT '…'` 元数据保留）；`railway-mysql-init.sh` 仍只导入 `01`+`02`
-  验证点：`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run`；临时库 `erd_schema_test` 导入 `02_tables.sql` 成功且含 `sys_user`/`project`/`project_share`/`data_sources`
+- 去掉 `--`/`/* */`、`SET NAMES`、`SET FOREIGN_KEY_CHECKS`、全部 `DROP TABLE`；仅保留 `USE erd` + `CREATE TABLE`（内联索引）；QRTZ 表按 FK 拓扑重排
+  验证点：`MYSQL_URL='mysql://root:x@example:3306/railway' ./scripts/railway-mysql-init.sh --dry-run`；临时库 `erd_schema_test` 导入成功（47 表，含 `sys_user`/`project`/`QRTZ_TRIGGERS`）
+
+#### 体验：选中光晕统一（表 a18 = Frame a18 · ADR-0016）
+
+- Frame 选中环 `--erd-brand-a12` → 与表同 `--erd-brand-a18`；抽出 `--erd-selection-ring` 防分叉
+- 表保留抬升阴影层；环强度与 Frame 一致
+
+验证点：`cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "选中表→新建分组" --workers=1 --retries=0`；`npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "品牌 token" --workers=1 --retries=0`
 
 #### 体验：Controls 面板密度（ADR-0016）
 
