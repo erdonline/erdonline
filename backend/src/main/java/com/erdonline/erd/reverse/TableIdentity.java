@@ -41,4 +41,11 @@ public class TableIdentity {
     public String getRemarks() {
         return remarks;
     }
+
+    /**
+     * 以字典注释回填后的不可变副本（catalog/schema/表名不变）。
+     */
+    public TableIdentity withRemarks(String newRemarks) {
+        return new TableIdentity(catalog, schema, originTableName, displayTableName, newRemarks);
+    }
 }

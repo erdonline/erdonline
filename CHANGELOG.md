@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：逆向保真切片 1 — PostgreSQL 字典级表/列注释 → chnname
+
+**功能**
+
+- `PostgresqlReverseDialect`：`SQL_TABLE_COMMENTS`（`obj_description`）/ `SQL_COLUMN_COMMENTS`（`col_description`）；`listTables`/`fillEntity` 后回填 remarks，失败回退 JDBC
+- `DialectCapability.supportsComment` + `dbReverseMeta.supportsComment`（MySQL JDBC ✅；PG 字典 ✅）
+- `CommentResultSetMapper` + 单测；`reverse-fixtures/postgres` 补 `COMMENT ON`
+
+**文档**
+
+- ADR-0006 补注释字典化一行；roadmap 逆向保真 🚧（本切片 PG 注释 ✅）
+
+验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn test -Dtest='CommentResultSetMapperTest,*Reverse*'` → Comment/Registry/Index/FK 绿；docker PG `dbReverseParse`：`t_user.chnname=用户表`、`id/code/email` chnname=主键/用户编码/邮箱；MySQL `reverse_demo` 解析不回归
+
 #### 功能：W3 切片 3 — 审批/工单入口理顺（版本域收口 ✅）
 
 **功能**

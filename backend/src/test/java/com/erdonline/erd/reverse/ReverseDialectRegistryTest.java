@@ -32,6 +32,7 @@ class ReverseDialectRegistryTest {
         assertTrue(dialect.capability().isSupportsSchema());
         assertTrue(dialect.capability().isSupportsIndex());
         assertTrue(dialect.capability().isSupportsForeignKey());
+        assertTrue(dialect.capability().isSupportsComment());
     }
 
     @Test
@@ -62,11 +63,12 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void mysqlCapability_indexYes_schemaNo_fkYes() {
+    void mysqlCapability_indexYes_schemaNo_fkYes_commentYes() {
         DialectCapability capability = ReverseDialectRegistry.resolve("MySQL").capability();
         assertTrue(capability.isSupportsIndex());
         assertTrue(capability.isSupportsAutoIncrement());
         assertTrue(capability.isSupportsForeignKey());
+        assertTrue(capability.isSupportsComment());
         assertFalse(capability.isSupportsSchema());
     }
 }

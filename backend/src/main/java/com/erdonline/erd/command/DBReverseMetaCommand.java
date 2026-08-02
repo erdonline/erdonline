@@ -44,6 +44,7 @@ public class DBReverseMetaCommand extends AbstractDBCommand<R> {
             payload.put("supportsIndex", capability.isSupportsIndex());
             payload.put("supportsForeignKey", capability.isSupportsForeignKey());
             payload.put("supportsAutoIncrement", capability.isSupportsAutoIncrement());
+            payload.put("supportsComment", capability.isSupportsComment());
             payload.put("schemas", schemas);
             return R.ok(payload);
         } catch (Exception ex) {

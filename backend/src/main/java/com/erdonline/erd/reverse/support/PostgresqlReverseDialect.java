@@ -1,7 +1,11 @@
 package com.erdonline.erd.reverse.support;
 
 import com.erdonline.erd.model.Association;
+import com.erdonline.erd.model.Entity;
+import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
+import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.reverse.CommentResultSetMapper;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
@@ -21,7 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * PostgreSQL 逆向：schema 一等公民；索引走 pg_catalog；FK 走 KEY_COLUMN_USAGE。
+ * PostgreSQL 逆向：schema 一等公民；索引走 pg_catalog；FK 走 KEY_COLUMN_USAGE；
+ * 注释走 obj_description / col_description（pgjdbc getColumns REMARKS 不可靠）。
  *
  * @author erdonline
  */
@@ -74,11 +79,34 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
                     + "WHERE kcu.table_schema = ? AND kcu.table_name = ? "
                     + "ORDER BY rc.constraint_name, kcu.ordinal_position";
 
+    /**
+     * 表注释：obj_description(pg_class)；仅返回有 COMMENT 的行。
+     */
+    private static final String SQL_TABLE_COMMENTS =
+            "SELECT c.relname AS TABLE_NAME, obj_description(c.oid, 'pg_class') AS REMARKS "
+                    + "FROM pg_class c "
+                    + "JOIN pg_namespace n ON n.oid = c.relnamespace "
+                    + "WHERE n.nspname = ? AND c.relkind IN ('r', 'p') "
+                    + "AND obj_description(c.oid, 'pg_class') IS NOT NULL";
+
+    /**
+     * 列注释：col_description；仅返回有 COMMENT 的行。
+     */
+    private static final String SQL_COLUMN_COMMENTS =
+            "SELECT a.attname AS COLUMN_NAME, col_description(c.oid, a.attnum) AS REMARKS "
+                    + "FROM pg_class c "
+                    + "JOIN pg_namespace n ON n.oid = c.relnamespace "
+                    + "JOIN pg_attribute a ON a.attrelid = c.oid "
+                    + "WHERE n.nspname = ? AND c.relname = ? "
+                    + "AND a.attnum > 0 AND NOT a.attisdropped "
+                    + "AND col_description(c.oid, a.attnum) IS NOT NULL";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(true)
+            .supportsComment(true)
             .build();
 
     @Override
@@ -113,6 +141,36 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
             }
         }
         return schemas;
+    }
+
+    @Override
+    public List<TableIdentity> listTables(Connection connection, String schema, String nameCaseFlag)
+            throws SQLException {
+        List<TableIdentity> tables = super.listTables(connection, schema, nameCaseFlag);
+        if (!capability().isSupportsComment() || tables.isEmpty()) {
+            return tables;
+        }
+        try {
+            return backfillTableComments(connection, tables, schema);
+        } catch (SQLException ex) {
+            log.warn("PostgreSQL 字典表注释读取失败，回退 JDBC: {}", ex.getMessage());
+            return tables;
+        }
+    }
+
+    @Override
+    public void fillEntity(Connection connection, TableIdentity table, Entity entity,
+                           ParseDataModel dataModel, String nameCaseFlag) throws SQLException {
+        super.fillEntity(connection, table, entity, dataModel, nameCaseFlag);
+        if (!capability().isSupportsComment()) {
+            return;
+        }
+        try {
+            backfillColumnComments(connection, table, entity, nameCaseFlag);
+        } catch (SQLException ex) {
+            log.warn("PostgreSQL 字典列注释读取失败 {}，回退 JDBC: {}",
+                    table.getOriginTableName(), ex.getMessage());
+        }
     }
 
     @Override
@@ -183,6 +241,53 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
             }
         }
         return new ArrayList<>(byKey.values());
+    }
+
+    private List<TableIdentity> backfillTableComments(Connection connection, List<TableIdentity> tables,
+                                                      String schema) throws SQLException {
+        String schemaName = (schema != null && !schema.isEmpty()) ? schema : DEFAULT_SCHEMA;
+        Map<String, String> comments;
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TABLE_COMMENTS)) {
+            statement.setString(1, schemaName);
+            try (ResultSet rs = statement.executeQuery()) {
+                comments = CommentResultSetMapper.mapTableComments(rs);
+            }
+        }
+        if (comments.isEmpty()) {
+            return tables;
+        }
+        List<TableIdentity> filled = new ArrayList<>(tables.size());
+        for (TableIdentity table : tables) {
+            String remark = comments.get(table.getOriginTableName());
+            if (remark != null && !remark.isEmpty()) {
+                filled.add(table.withRemarks(remark));
+            } else {
+                filled.add(table);
+            }
+        }
+        return filled;
+    }
+
+    private void backfillColumnComments(Connection connection, TableIdentity table, Entity entity,
+                                        String nameCaseFlag) throws SQLException {
+        String schemaName = resolvePgSchema(table);
+        Map<String, String> comments;
+        try (PreparedStatement statement = connection.prepareStatement(SQL_COLUMN_COMMENTS)) {
+            statement.setString(1, schemaName);
+            statement.setString(2, table.getOriginTableName());
+            try (ResultSet rs = statement.executeQuery()) {
+                comments = CommentResultSetMapper.mapColumnComments(rs, nameCaseFlag);
+            }
+        }
+        if (comments.isEmpty() || entity.getFields() == null) {
+            return;
+        }
+        for (Field field : entity.getFields()) {
+            String remark = comments.get(field.getName());
+            if (remark != null && !remark.isEmpty()) {
+                field.setChnname(remark);
+            }
+        }
     }
 
     private static String resolvePgSchema(TableIdentity table) {
