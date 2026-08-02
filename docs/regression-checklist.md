@@ -70,6 +70,7 @@
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
 - [x] [Frame 主题色] demo Frame 底无 Ant 蓝；含 success `frameFill`；截图 `demo-frame-theme-tokens.png` ✅`demo.spec.ts` + `diagram.test.ts` 色板轮换
 - [x] [边标签可读] 分享/设计器 `erd-edge-label`：白底 + ink600 + opacity=1 + ≥11px；截图 `demo-edge-label-chip.png` ✅`demo.spec.ts` + `relation.spec` PK/FK
+- [x] [边标签碰撞避让] 密图 `erd-edge-label-nudge` 非零 + 标签 AABB 零重叠；截图 `demo-edge-label-collision.png` ✅`relationEdges.test` + `demo.spec.ts`
 - [x] [边标签密度] chip padding ≤4/2、radius ≤3 ✅`relationEdges.test.ts` + `demo.spec` / `relation.spec` 表节点视觉
 - [x] [Frame 标题栏密度] `.erd-frame-chrome` height ≤22；截图 `demo-frame-theme-tokens.png` ✅`demo.spec` + `diagram-frame.spec`
 - [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC`；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`

@@ -148,8 +148,43 @@ test.describe('在线演示', () => {
     expect(labelLook.padX, '密图 chip 水平 padding').toBeLessThanOrEqual(4);
     expect(labelLook.padY, '密图 chip 垂直 padding').toBeLessThanOrEqual(2);
     expect(labelLook.radius).toBeLessThanOrEqual(3);
+    // ADR-0016：基数 chip 碰撞避让（bundle 拉伸 + AABB）；密图标签 AABB 不得两两重叠
+    const nudges = page
+      .getByTestId('share-relation-canvas')
+      .getByTestId('erd-edge-label-nudge');
+    await expect(nudges.first()).toBeAttached();
+    const nudgeVals = await nudges.evaluateAll((els) =>
+      els.map((el) => ({
+        dx: Number(el.getAttribute('data-dx') || '0'),
+        dy: Number(el.getAttribute('data-dy') || '0'),
+      })),
+    );
+    expect(
+      nudgeVals.some((n) => n.dx !== 0 || n.dy !== 0),
+      `密 FK 演示图应有非零 label nudge（got ${JSON.stringify(nudgeVals.slice(0, 8))}）`,
+    ).toBeTruthy();
+    const labelBoxes = await labels.evaluateAll((els) =>
+      els.map((el) => {
+        const r = el.getBoundingClientRect();
+        return { x: r.x, y: r.y, w: r.width, h: r.height };
+      }),
+    );
+    let overlapPairs = 0;
+    for (let i = 0; i < labelBoxes.length; i++) {
+      for (let j = i + 1; j < labelBoxes.length; j++) {
+        const a = labelBoxes[i];
+        const b = labelBoxes[j];
+        const overlapX = Math.min(a.x + a.w, b.x + b.w) - Math.max(a.x, b.x);
+        const overlapY = Math.min(a.y + a.h, b.y + b.h) - Math.max(a.y, b.y);
+        if (overlapX > 1 && overlapY > 1) overlapPairs += 1;
+      }
+    }
+    expect(overlapPairs, `边标签 AABB 重叠对数应为 0（got ${overlapPairs}）`).toBe(0);
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',
+    });
+    await page.getByTestId('share-relation-canvas').screenshot({
+      path: 'test-results/ux-walkthrough/demo-edge-label-collision.png',
     });
     const chrome = page.getByTestId('share-chrome-header');
     await expect(chrome).toBeVisible();

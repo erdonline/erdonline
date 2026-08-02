@@ -2,7 +2,7 @@
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
  * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；两端 Crow's foot（IE）；分享只读。
  */
-import React, { memo, useCallback, useState } from 'react';
+import React, { memo, useCallback, useMemo, useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -19,12 +19,17 @@ import {
   EDGE_LABEL_FONT_SIZE,
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
+  EdgeLabelAnchor,
   ErdEdgeData,
   crowFootMarkersForRelation,
+  edgeLabelBundleStretch,
+  edgeLabelLaneStretch,
   isCardinality,
   normalizeRelation,
+  resolveEdgeLabelOffsets,
 } from '@/utils/relationEdges';
 import {
+  EDGE_BUNDLE_STEP,
   ObstacleRect,
   assignTrunkBundleOffsets,
   routeErdSmoothStep,
@@ -45,6 +50,20 @@ function nodeCenterX(n: {
   const x = abs?.x ?? n.position.x;
   const w = Math.max(n.width && n.width > 0 ? n.width : 0, NODE_WIDTH);
   return x + w / 2;
+}
+
+function nodeCenterY(n: {
+  position: { y: number };
+  positionAbsolute?: { y: number };
+  height?: number;
+  data?: unknown;
+}): number {
+  const abs = n.positionAbsolute;
+  const y = abs?.y ?? n.position.y;
+  const entity = (n.data as TableNodeData | undefined)?.entity;
+  const estimatedH = estimateNodeHeight(entity);
+  const h = Math.max(n.height && n.height > 0 ? n.height : 0, estimatedH);
+  return y + h / 2;
 }
 
 const CARDINALITY_SELECT_OPTIONS = CARDINALITY_OPTIONS.map((v) => ({
@@ -140,6 +159,60 @@ function ErdRelationEdge({
     ),
   );
 
+  // 兄弟边近似锚点（中心 + bundle/lane 拉伸）；当前边用精确 path 标签点覆盖
+  const siblingLabelAnchors = useStore(
+    useCallback(
+      (s): EdgeLabelAnchor[] => {
+        const nodes = s.getNodes();
+        const byId = new Map(nodes.map((n) => [n.id, n]));
+        const midItems: Array<{ id: string; midX: number }> = [];
+        for (const e of s.edges) {
+          if (e.type && e.type !== ERD_EDGE_TYPE) continue;
+          const sn = byId.get(e.source);
+          const tn = byId.get(e.target);
+          if (!sn || !tn) continue;
+          if (sn.type !== 'table' || tn.type !== 'table') continue;
+          if (sn.hidden || tn.hidden) continue;
+          midItems.push({
+            id: e.id,
+            midX: (nodeCenterX(sn) + nodeCenterX(tn)) / 2,
+          });
+        }
+        const bundles = assignTrunkBundleOffsets(midItems);
+        const anchors: EdgeLabelAnchor[] = [];
+        for (const e of s.edges) {
+          if (e.type && e.type !== ERD_EDGE_TYPE) continue;
+          const sn = byId.get(e.source);
+          const tn = byId.get(e.target);
+          if (!sn || !tn) continue;
+          if (sn.type !== 'table' || tn.type !== 'table') continue;
+          if (sn.hidden || tn.hidden) continue;
+          const eLane =
+            (e.data as ErdEdgeData | undefined)?.laneOffset ?? 0;
+          const bundle = bundles.get(e.id) ?? 0;
+          anchors.push({
+            id: e.id,
+            x:
+              (nodeCenterX(sn) + nodeCenterX(tn)) / 2 +
+              edgeLabelBundleStretch(bundle, EDGE_BUNDLE_STEP),
+            y:
+              (nodeCenterY(sn) + nodeCenterY(tn)) / 2 +
+              eLane * 0.4 +
+              edgeLabelLaneStretch(eLane),
+          });
+        }
+        return anchors;
+      },
+      [],
+    ),
+    (a, b) =>
+      a.length === b.length &&
+      a.every(
+        (r, i) =>
+          r.id === b[i].id && r.x === b[i].x && r.y === b[i].y,
+      ),
+  );
+
   const { path, labelX, labelY, mode } = routeErdSmoothStep({
     sourceX,
     sourceY: sourceY + yShift,
@@ -152,6 +225,33 @@ function ErdRelationEdge({
     obstacles,
     trunkBundleOffset,
   });
+
+  const labelStretchX = edgeLabelBundleStretch(
+    trunkBundleOffset,
+    EDGE_BUNDLE_STEP,
+  );
+  const labelStretchY = edgeLabelLaneStretch(lane);
+  const labelNudge = useMemo(() => {
+    const anchors = siblingLabelAnchors.map((a) =>
+      a.id === id
+        ? {
+            id,
+            x: labelX + labelStretchX,
+            y: labelY + labelStretchY,
+          }
+        : a,
+    );
+    return resolveEdgeLabelOffsets(anchors).get(id) ?? { dx: 0, dy: 0 };
+  }, [
+    siblingLabelAnchors,
+    id,
+    labelX,
+    labelY,
+    labelStretchX,
+    labelStretchY,
+  ]);
+  const labelDrawX = labelX + labelStretchX + labelNudge.dx;
+  const labelDrawY = labelY + labelStretchY + labelNudge.dy;
 
   const pad = labelBgPadding || EDGE_LABEL_BG_PADDING;
   const rawLabel = typeof label === 'string' ? label : '';
@@ -214,6 +314,13 @@ function ErdRelationEdge({
         data-relation={displayLabel || 'n:1'}
         hidden
       />
+      <span
+        data-testid="erd-edge-label-nudge"
+        data-edge-id={id}
+        data-dx={String(labelStretchX + labelNudge.dx)}
+        data-dy={String(labelStretchY + labelNudge.dy)}
+        hidden
+      />
       {hasLabel || editable ? (
         <EdgeLabelRenderer>
           <div
@@ -244,7 +351,7 @@ function ErdRelationEdge({
                 : undefined
             }
             style={{
-              transform: `translate(-50%, -50%) translate(${labelX}px,${labelY}px)`,
+              transform: `translate(-50%, -50%) translate(${labelDrawX}px,${labelDrawY}px)`,
               fontSize: (labelStyle?.fontSize as number) || EDGE_LABEL_FONT_SIZE,
               color: chipColor,
               background: chipBg,

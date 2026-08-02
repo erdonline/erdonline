@@ -14,18 +14,24 @@ import {
   EDGE_HUB_FAN_STEP,
   EDGE_LABEL_BG_PADDING,
   EDGE_LABEL_BG_RADIUS,
+  EDGE_LABEL_CHIP_H,
+  EDGE_LABEL_CHIP_W,
+  EDGE_LABEL_COLLISION_GAP,
   EDGE_LABEL_FONT_SIZE,
   EDGE_LANE_STEP,
   EDGE_STEP_OFFSET,
   ERD_EDGE_TYPE,
   PORT_VERTICAL_STACK_DY,
   associationsToEdges,
+  edgeLabelBundleStretch,
+  edgeLabelLaneStretch,
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
   normalizeRelation,
   parseFieldHandle,
   pickPortSides,
+  resolveEdgeLabelOffsets,
   sourceHandleId,
   stepOffsetForLane,
   targetHandleId,
@@ -147,6 +153,62 @@ async function main() {
     assert.ok(EDGE_LABEL_BG_PADDING[0] <= 4 && EDGE_LABEL_BG_PADDING[1] <= 2);
     assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
     assert.ok(EDGE_LABEL_BG_RADIUS <= 3, 'chip 圆角勿过大');
+  });
+
+  await run('edgeLabelBundleStretch：bundle 步长短于 chip → 拉伸到安全间距', () => {
+    assert.strictEqual(edgeLabelBundleStretch(0, 12), 0);
+    assert.strictEqual(
+      edgeLabelBundleStretch(12, 12),
+      EDGE_LABEL_CHIP_W + EDGE_LABEL_COLLISION_GAP,
+    );
+    assert.strictEqual(
+      edgeLabelBundleStretch(-6, 12),
+      -0.5 * (EDGE_LABEL_CHIP_W + EDGE_LABEL_COLLISION_GAP),
+    );
+    assert.ok(
+      Math.abs(edgeLabelBundleStretch(12, 12)) * 2 >=
+        EDGE_LABEL_CHIP_W + EDGE_LABEL_COLLISION_GAP,
+      '双侧外缘间距应 ≥ chip+gap',
+    );
+  });
+
+  await run('edgeLabelLaneStretch：lane 非零 → 额外 Y', () => {
+    assert.strictEqual(edgeLabelLaneStretch(0), 0);
+    assert.ok(edgeLabelLaneStretch(EDGE_LANE_STEP) > 0);
+    assert.ok(edgeLabelLaneStretch(-EDGE_LANE_STEP) < 0);
+  });
+
+  await run('resolveEdgeLabelOffsets：重合锚点沿轴推开至无重叠', () => {
+    const m = resolveEdgeLabelOffsets([
+      { id: 'a', x: 100, y: 100 },
+      { id: 'b', x: 100, y: 100 },
+      { id: 'c', x: 100, y: 100 },
+    ]);
+    const pos = ['a', 'b', 'c'].map((id) => {
+      const n = m.get(id)!;
+      return { id, x: 100 + n.dx, y: 100 + n.dy };
+    });
+    const minDx = EDGE_LABEL_CHIP_W + EDGE_LABEL_COLLISION_GAP;
+    const minDy = EDGE_LABEL_CHIP_H + EDGE_LABEL_COLLISION_GAP;
+    for (let i = 0; i < pos.length; i++) {
+      for (let j = i + 1; j < pos.length; j++) {
+        const dx = Math.abs(pos[j].x - pos[i].x);
+        const dy = Math.abs(pos[j].y - pos[i].y);
+        assert.ok(
+          dx >= minDx - 0.01 || dy >= minDy - 0.01,
+          `pair ${pos[i].id}/${pos[j].id} still overlap dx=${dx} dy=${dy}`,
+        );
+      }
+    }
+  });
+
+  await run('resolveEdgeLabelOffsets：已分离锚点不动', () => {
+    const m = resolveEdgeLabelOffsets([
+      { id: 'a', x: 0, y: 0 },
+      { id: 'b', x: 200, y: 0 },
+    ]);
+    assert.deepStrictEqual(m.get('a'), { dx: 0, dy: 0 });
+    assert.deepStrictEqual(m.get('b'), { dx: 0, dy: 0 });
   });
 
   await run('normalizeRelation：历史 0,n:1 → n:1；行业集合保留', () => {

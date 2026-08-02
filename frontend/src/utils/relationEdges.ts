@@ -40,6 +40,110 @@ export const EDGE_LABEL_BG_PADDING: [number, number] = [4, 2];
 export const EDGE_LABEL_BG_RADIUS = 3;
 
 /**
+ * 基数 chip 近似外接盒（font 11 + pad[4,2] + 1px border；"n:1" 量级）。
+ * 干道 bundling 步长（12）远小于 chip 宽 → 须拉伸/避让，否则密图标签叠成一团。
+ */
+export const EDGE_LABEL_CHIP_W = 36;
+export const EDGE_LABEL_CHIP_H = 18;
+/** chip AABB 之间最小间隙 */
+export const EDGE_LABEL_COLLISION_GAP = 4;
+
+export type EdgeLabelAnchor = { id: string; x: number; y: number };
+export type EdgeLabelNudge = { dx: number; dy: number };
+
+/**
+ * 把 path 级 trunkBundleOffset 拉伸到 chip 安全间距（标签可略离路径，保可读）。
+ * `bundleStep` 与 `EDGE_BUNDLE_STEP` 对齐，由调用方传入以免循环依赖。
+ */
+export function edgeLabelBundleStretch(
+  trunkBundleOffset: number,
+  bundleStep: number,
+  chipW = EDGE_LABEL_CHIP_W,
+  gap = EDGE_LABEL_COLLISION_GAP,
+): number {
+  if (!trunkBundleOffset || !bundleStep) return 0;
+  const targetStep = chipW + gap;
+  return (trunkBundleOffset / bundleStep) * targetStep;
+}
+
+/**
+ * 同 pair / hub 扇出：path 仅 yShift=lane×0.4，chip 再加一截 Y，避免多 FK 标签贴死。
+ */
+export function edgeLabelLaneStretch(laneOffset: number): number {
+  if (!laneOffset) return 0;
+  return laneOffset * 0.55;
+}
+
+/**
+ * 迭代 AABB 分离：重叠则沿穿透更浅的轴对推（稳定、按 id 破平）。
+ * 返回相对输入锚点的 {dx,dy}；无重叠则为 0。
+ */
+export function resolveEdgeLabelOffsets(
+  anchors: EdgeLabelAnchor[],
+  opts?: {
+    chipW?: number;
+    chipH?: number;
+    gap?: number;
+    maxIter?: number;
+  },
+): Map<string, EdgeLabelNudge> {
+  const chipW = opts?.chipW ?? EDGE_LABEL_CHIP_W;
+  const chipH = opts?.chipH ?? EDGE_LABEL_CHIP_H;
+  const gap = opts?.gap ?? EDGE_LABEL_COLLISION_GAP;
+  const maxIter = opts?.maxIter ?? 24;
+  const minDx = chipW + gap;
+  const minDy = chipH + gap;
+  const n = anchors.length;
+  const out = new Map<string, EdgeLabelNudge>();
+  if (n === 0) return out;
+
+  const ids = anchors.map((a) => a.id);
+  const xs = anchors.map((a) => a.x);
+  const ys = anchors.map((a) => a.y);
+  const order = Array.from({ length: n }, (_, i) => i).sort(
+    (a, b) => ids[a].localeCompare(ids[b]) || a - b,
+  );
+
+  for (let iter = 0; iter < maxIter; iter++) {
+    let moved = false;
+    for (let ai = 0; ai < n; ai++) {
+      for (let bi = ai + 1; bi < n; bi++) {
+        const i = order[ai];
+        const j = order[bi];
+        const dx = xs[j] - xs[i];
+        const dy = ys[j] - ys[i];
+        const overlapX = minDx - Math.abs(dx);
+        const overlapY = minDy - Math.abs(dy);
+        if (overlapX <= 0 || overlapY <= 0) continue;
+        if (overlapX < overlapY) {
+          const push = overlapX / 2;
+          let sx = Math.sign(dx);
+          if (sx === 0) sx = ids[i] < ids[j] ? -1 : 1;
+          xs[i] -= sx * push;
+          xs[j] += sx * push;
+        } else {
+          const push = overlapY / 2;
+          let sy = Math.sign(dy);
+          if (sy === 0) sy = ids[i] < ids[j] ? -1 : 1;
+          ys[i] -= sy * push;
+          ys[j] += sy * push;
+        }
+        moved = true;
+      }
+    }
+    if (!moved) break;
+  }
+
+  for (let i = 0; i < n; i++) {
+    out.set(ids[i], {
+      dx: xs[i] - anchors[i].x,
+      dy: ys[i] - anchors[i].y,
+    });
+  }
+  return out;
+}
+
+/**
  * 行业 ER 基数字符串（from→to 方向；画布拖 FK→PK 默认 n:1）。
  * 兼容历史 `0,n:1` / `0,1:1`（可选性前缀）→ 归一到下列集合。
  */
