@@ -179,6 +179,26 @@ async function main() {
     assert.ok(r.path.length > 20);
   });
 
+  await run('走廊内外封堵两弯 → astar 走廊外绕行', () => {
+    // 中段巨障 + 上下封顶，走廊内逃逸无解；仅走廊左侧外可上绕
+    const big = { id: 'B', x: 280, y: -150, width: 280, height: 300 };
+    const ceil = { id: 'C', x: 200, y: -400, width: 400, height: 250 };
+    const floor = { id: 'F', x: 200, y: 150, width: 400, height: 250 };
+    const r = routeErdSmoothStep({
+      sourceX: 240,
+      sourceY: 40,
+      targetX: 600,
+      targetY: 40,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      offset: EDGE_STEP_OFFSET,
+      obstacles: [big, ceil, floor],
+    });
+    assert.strictEqual(r.mode, 'astar', `expected astar got ${r.mode}`);
+    assert.ok(r.path.startsWith('M'));
+    assert.ok(r.path.length > 30);
+  });
+
   console.log('all relationEdgeRoute tests passed');
 }
 

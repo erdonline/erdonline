@@ -446,6 +446,7 @@
 - [x] [边路由障碍避让] `relationEdgeRoute` 单测（穿表 bypass / 竖肘 centerX）；E2E `erd-edge-route-mode` 接线 + 截图 `diagram-edge-obstacle.png` ✅ `relation.spec.ts`「边路由：erdSmooth 暴露 route-mode」
 - [x] [边路由干道 bundling] `assignTrunkBundleOffsets` 同 midX 通道分流；`data-bundle` + path 互异；截图 `diagram-edge-bundle.png` ✅ `relation.spec.ts`「边路由：干道 bundling」
 - [x] [边路由两弯 / mid-corridor] `pickBypassYCandidates` 含叠表缝；竖挡堵单 bypass → `mode=twoBend`；E2E `data-mode` 允许 `twoBend` ✅ `relationEdgeRoute.test.ts` + `relation.spec.ts`「边路由」
+- [x] [边路由稀疏 A*] 走廊内外封堵两弯 → `mode=astar`；E2E `data-mode` 允许 `astar` ✅ `relationEdgeRoute.test.ts` + `relation.spec.ts`「边路由」
 - [x] [设计器导出] 导入后「导出DBML」预览含 Table/Ref → 下载 `.dbml` ✅ `dbml-export.spec.ts`
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`

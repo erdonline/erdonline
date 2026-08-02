@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：关系图边稀疏 Hanan A*（ADR-0016）
+
+- `routeErdSmoothStep`：`twoBend` 仍无解时 → `astar`（走廊外轴候选 + 正交 A* + 折弯代价）
+- `collectAstarAxisCandidates` / `routeOrthogonalAstar`：每轴最多 16 点，非全像素栅格
+- `ErdRelationEdge` `data-mode` 增 `astar`；E2E 允许集同步
+
+验证点：`cd frontend && npx tsx src/utils/relationEdgeRoute.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "边路由" --workers=1 --retries=0`
+
 #### 体验：关系图边两弯绕行 / mid-corridor（ADR-0016）
 
 - `pickBypassYCandidates`：并集外沿之外补各障顶/底，叠表缝可走 mid-corridor
