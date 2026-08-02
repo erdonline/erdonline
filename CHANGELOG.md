@@ -33,6 +33,7 @@
 - `docker-compose.yml` 默认 `image: ghcr.io/...`，本地仍可 `build`
 - Dockerfile：backend Temurin 17；frontend Node 20 + `build:prod`
 - ADR-0018 + `deployment.md` 官方托管拓扑 / secrets 说明
+- `deployment.md`：补全「GitHub Actions × Cloudflare Pages」可复制配置清单（Token / Direct Upload / Secrets / 验收 URL）
 
 验证点：`actionlint` 检查 `docs-site.yml` / `frontend-demo-site.yml` / `release.yml` → 无 error（CF 部署以 Variable `CLOUDFLARE_PAGES_DEPLOY=true` 门闸，避免 job-level secrets 上下文问题）
 

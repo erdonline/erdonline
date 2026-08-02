@@ -20,27 +20,79 @@
 
 | 表面 | 工作流 | 所需配置 |
 |---|---|---|
-| 文档 | `.github/workflows/docs-site.yml` | 见下「Cloudflare secrets」；无 secrets 时仅 GH Pages |
+| 文档 | `.github/workflows/docs-site.yml`（Jobs: `deploy-github-pages` / `deploy-cloudflare`） | 见下清单；无 CF 门闸时仅 GH Pages |
 | 静态 demo | `.github/workflows/frontend-demo-site.yml` | 同上 + 可选 Variable `DEMO_API_URL` |
-| 发版镜像 | `.github/workflows/release.yml`（tag `v*`） | `GITHUB_TOKEN` 写 GHCR（默认可用） |
+| 发版镜像 | `.github/workflows/release.yml`（tag `v*`，job `ghcr`） | `GITHUB_TOKEN` + `packages:write`（通常无需额外 Secret） |
 
-### Cloudflare secrets / 项目
+### GitHub Actions × Cloudflare Pages 配置 {#cf-pages-setup}
 
-在 GitHub 仓库 **Settings → Secrets and variables → Actions** 配置：
+一次性清单（复制勾选）。配置完成后 push `main` 才会真正跑部署 job。
 
-| Name | 类型 | 用途 |
+#### 1. Cloudflare API Token
+
+1. [Cloudflare Dashboard](https://dash.cloudflare.com/) → **My Profile** → **API Tokens** → **Create Token**
+2. 选用模板 **Edit Cloudflare Workers**（含 Workers / Pages 写权限）
+3. **Account Resources**：Include → All accounts（或指定本账号）
+4. **Zone Resources**：All zones，或留空不限（Direct Upload 不绑域名亦可）
+5. **Client IP Address Filtering**：不填；**TTL**：空（不过期）
+6. 建议改名：`erdonline-pages-deploy` → Create Token → **立刻复制**（只显示一次）
+
+#### 2. Account ID
+
+Workers & Pages 左侧边栏底部（或 Overview）复制 **Account ID**。
+
+#### 3. 创建两个 Pages 项目（Direct Upload）
+
+Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Upload（**不要**接 Git 仓库；由 Actions + Wrangler 推送）：
+
+| 项目名（须一字不差） | 用途 | 工作流 |
 |---|---|---|
-| `CLOUDFLARE_PAGES_DEPLOY` | Variable | 设为 `true` 才跑 CF 部署 job（无此变量时仅 GitHub Pages / 跳过 demo） |
-| `CLOUDFLARE_API_TOKEN` | Secret | Pages 部署；权限至少 Account → Cloudflare Pages → Edit |
-| `CLOUDFLARE_ACCOUNT_ID` | Secret | Cloudflare 账户 ID |
-| `DEMO_API_URL` | Variable（可选） | 静态 demo 构建时写入 `public/env-config.js`；**未设置则 API 为空**（落地页仍可访问；完整试用待公网后端） |
+| `erdonline-docs` | Docusaurus 文档（主） | `docs-site.yml` → `pages deploy … --project-name=erdonline-docs` |
+| `erdonline-demo` | 前端静态 demo | `frontend-demo-site.yml` → `--project-name=erdonline-demo` |
 
-Cloudflare Dashboard 预先创建 Pages 项目（Direct Upload / 空项目即可，由 Actions 推送）：
+#### 4. GitHub Secrets / Variables
 
-- `erdonline-docs` — 文档
-- `erdonline-demo` — 前端静态站
+仓库 **Settings → Secrets and variables → Actions**：
 
-文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`（GH 构建用 `/erdonline/`，CF 构建用 `/`）。
+| Name | 类型 | 值 |
+|---|---|---|
+| `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true`（门闸；未设则跳过 CF job，文档仍走 GH Pages） |
+| `CLOUDFLARE_API_TOKEN` | **Secret** | 步骤 1 的 Token |
+| `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
+| `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
+
+#### 5. GitHub Pages 回退
+
+**Settings → Pages → Build and deployment → Source** = **GitHub Actions**（对应 `docs-site.yml` 的 `deploy-github-pages`）。
+
+文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`（GH：`https://erdonline.github.io` + `/erdonline/`；CF：`https://erdonline-docs.pages.dev` + `/`）。
+
+#### 6. 远程与触发
+
+```bash
+git remote -v   # 须指向将跑 Actions 的 GitHub 仓库
+git push origin main
+```
+
+- `docs-site.yml`：`push` 到 `main` 且改动 `docs/**` / `website/**` / 本 workflow 时构建；CF job 另需 `CLOUDFLARE_PAGES_DEPLOY=true`
+- `frontend-demo-site.yml`：同样门闸；可 `workflow_dispatch` 手动跑
+- 无 `git remote` / 未 push `main` → Actions 不会跑
+
+#### 7. 验收 URL
+
+| 表面 | URL |
+|---|---|
+| 文档（CF 主） | https://erdonline-docs.pages.dev |
+| 静态 demo | https://erdonline-demo.pages.dev |
+| 文档（GH 回退） | https://erdonline.github.io/erdonline/ |
+
+Actions 页确认 `Docs site` / `Frontend demo site` 对应 job 绿。
+
+#### 8. GHCR（镜像，与 Pages 无关）
+
+- 触发：推送 tag `v*`（或 `release.yml` 的 `workflow_dispatch`）
+- 权限：workflow 已声明 `packages: write`；登录用 `GITHUB_TOKEN`，**通常不必再配 Secret**
+- 镜像：`ghcr.io/erdonline/erdonline-backend`、`ghcr.io/erdonline/erdonline-frontend`
 
 ### 自托管者拉取 GHCR（推荐）
 
