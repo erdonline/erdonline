@@ -61,6 +61,27 @@
   color: var(--erd-ink-600);
 }
 
+/* 只读切图：Segmented 密度对齐 22 chrome（无新建/重命名） */
+.share-page__diagram-bar {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+  min-height: 22px;
+
+  .ant-segmented {
+    font-family: var(--erd-font-ui);
+    font-size: 12px;
+    background: var(--erd-surface-muted);
+  }
+
+  .ant-segmented-item-label {
+    min-height: 22px;
+    line-height: 22px;
+    padding: 0 10px;
+  }
+}
+
 .share-page__tables {
   margin-top: 20px;
   padding: 16px;
