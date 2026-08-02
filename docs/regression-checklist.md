@@ -195,6 +195,7 @@
 - [x] [首页示例] 登录→/home→示例项目→设计器关系图见 T_USER/T_ORDER + 边 ✅ `activation.spec.ts`
 - [x] [去死链] 「新建模型」href 指向 `/project/person` ✅同上
 - [x] [多项目] 开源版可连续创建 ≥2 个个人项目 ✅ `activation.spec.ts`
+- [x] [30s 计时] 落地→demo→登录→示例就绪→保存首版本；计时段 ≤30s（基线 ~3.5s） ✅ `activation-30s.spec.ts`
 
 ## 设计器保存状态（2026-08-01）
 
