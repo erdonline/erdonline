@@ -46,16 +46,44 @@
     top: 4px;
     flex: 1 1 auto;
     margin-left: 24px;
-    color: @text-color-secondary;
+    color: var(--erd-ink-600);
     line-height: 22px;
     .contentTitle {
       margin-bottom: 12px;
-      color: @heading-color;
+      color: var(--erd-ink-900);
       font-weight: 500;
       font-size: 20px;
       line-height: 28px;
     }
   }
+}
+
+.heroTitle {
+  margin: 0 0 4px !important;
+  font-family: Syne, 'PingFang SC', sans-serif;
+  letter-spacing: -0.02em;
+}
+
+.heroContext {
+  margin-bottom: 12px !important;
+}
+
+.heroStats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 32px;
+  margin: 8px 0 0 96px;
+
+  :global(.ant-statistic-title) {
+    color: var(--erd-ink-400);
+    font-size: 12px;
+    margin-bottom: 0;
+  }
+}
+
+.heroActions {
+  max-width: 320px;
+  margin-left: auto;
 }
 
 .extraContent {

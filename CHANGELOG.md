@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 功能：Home S2 —「继续上次建模」主 CTA + 安静指标
+
+**功能**
+
+- Home hero：主按钮「继续上次建模」直达最近项目设计器；次操作「新建模型」/「从示例开始」
+- 指标改为活跃模型 / 模型总数 / 团队项目，ink-900、无彩虹色/无图标前缀；问候上下文带最近项目名
+- 快捷链色板对齐 `erd-*` tokens（去掉 `#1890ff/#52c41a/#faad14`）
+
+**测试 / 文档**
+
+- `project-surface.spec` 新增 hero CTA→设计器；`ui-home-model-redesign` S2 ✅；roadmap S2 标记
+
+验证点：`npx playwright test --grep "Home hero：继续上次建模" --project=chromium --workers=1` → 绿；`rg '#1890ff|#52c41a|#faad14' frontend/src/pages/home` = 0
+
 #### 清理：删除零引用 `plaza/Material*` 死码
 
 **功能**

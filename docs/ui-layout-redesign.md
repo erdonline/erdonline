@@ -67,8 +67,9 @@
 
 ### Home `/home`（工作台壳 · W2，删除优先）
 
-- 区块级 IA 见 `ui-home-model-redesign.md` §Home 信息架构（hero 条 + 3 列项目网格 + 右窄栏）；本波**只做删除**：重复统计卡（「项目概览」）、slogan 轮转、`components/Radar/`、`_mock.ts`、未渲染的 `Pie` config 与 `@ant-design/charts` 死 import；hero 主 CTA「继续上次建模」保留
-- 网格 hover 升层等密度细节降为顺手活，不单列切片；禁止为 Home 新增视觉设计工时
+- 区块级 IA 见 `ui-home-model-redesign.md` §Home 信息架构（hero 条 + 3 列项目网格 + 右窄栏）；W2 **只做删除**：重复统计卡（「项目概览」）、slogan 轮转、`components/Radar/`、`_mock.ts`、未渲染的 `Pie` config 与 `@ant-design/charts` 死 import
+- ✅ **S2 Home hero**（2026-08-02）：主 CTA「继续上次建模」直达最近项目画布 + 安静三指标；快捷链改 tokens（非 W5 表现层）
+- 网格 hover 升层等密度细节降为顺手活，不单列切片；禁止为 Home 新增额外视觉设计工时（S3 网格另片）
 - 验证锚点：`getByRole('button', { name: '继续上次建模' })`、`home-link-*` testId
 
 ### 项目列表 dataModels + project/*（工作台壳 · W4）
