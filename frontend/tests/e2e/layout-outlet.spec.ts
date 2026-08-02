@@ -1,5 +1,11 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
-import { E2E_PASS, e2eAccount, login } from './helpers';
+import {
+  createAndOpenPersonProject,
+  deleteOwnPersonProjects,
+  e2eAccount,
+  login,
+  uniqueProjectName,
+} from './helpers';
 
 const API = process.env.API_URL || 'http://localhost:9502';
 
@@ -13,8 +19,8 @@ async function apiToken(request: APIRequestContext, username: string, password: 
 }
 
 /**
- * Wave 0：HomeLayout / GroupLayout 必须渲染子路由主内容（非仅水印/slogan）。
- * Theme 内 Outlet + layout 显式 children 对齐 DesignLayout。
+ * Wave 0：Home / Group / Design 布局壳必须渲染主内容（非仅水印）。
+ * Theme 内 Outlet；DesignLayout 已摘 ProLayout，顶栏保留 save/share/presence。
  */
 test.describe('布局壳子路由出口', () => {
   test('HomeLayout：/home 与 /project/person 主内容可见', async ({ page }) => {
@@ -67,6 +73,35 @@ test.describe('布局壳子路由出口', () => {
           data: { id: projectId },
         })
         .catch(() => {});
+    }
+  });
+
+  test('DesignLayout：顶栏动作与子路由出口可见', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('design-layout');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await expect(page.getByRole('button', { name: '项目菜单' })).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect(page.getByTestId('save-status')).toBeVisible();
+      await expect(page.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
+      await expect(page.getByRole('button', { name: '只读分享' })).toBeVisible();
+      await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toBeVisible();
+      await expect(page.getByRole('menuitem', { name: '模型' })).toBeVisible();
+      await expect(page).toHaveURL(/\/design\/table\/model/);
+      // 子路由已挂载：模型页欢迎空态或侧栏「新增模型」
+      await expect(
+        page
+          .getByText('欢迎使用数据建模工具')
+          .or(page.getByTestId('add-module-empty'))
+          .first(),
+      ).toBeVisible({ timeout: 20_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
 });

@@ -82,9 +82,10 @@
 - 目标：摘 `PageContainer` → 工作台壳；`ProTable` → antd `Table`（columns 平移，工具条改为标题行 + 右侧「新建数据源」主按钮 + 搜索 `Input.Search`）；Drawer 表单内的 `ProForm*` 留到 W4 统一摘
 - 列宽用 `Table` 默认自适应，禁止定死 px 总宽
 
-### 设计器 chrome + model（设计器壳 · W1 ✅ 进行中 / W2 收尾）
+### 设计器 chrome + model（设计器壳 · W1 ✅ / W2 收尾）
 
-- W1：DesignLayout 摘 ProLayout → antd Layout（**进行中，见 CHANGELOG 2026-08-02**）；续做：sider 400→320、删 `bgLayoutImgList`、删 sider footer、tabs 40px、画布 `calc(100vh-104px)` → flex 填满、面板头「+ 新建」常显（细节见 tokens 简报 S4/S5）
+- W1：DesignLayout 摘 ProLayout → antd Layout（**✅**，见 CHANGELOG 2026-08-02）；顶栏保留 save/share/presence/`homeRightContent`/项目菜单
+- W2（勿与 W1 混提）：sider 400→320、删 `bgLayoutImgList`、删 sider footer、tabs 40px、画布 `calc(100vh-104px)` → flex 填满、面板头「+ 新建」常显（细节见 tokens 简报 S4/S5）
 
 ### 版本 version / 导入 import / 导出 export / 设置 setting（设计器壳标签页 · W4）
 

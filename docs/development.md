@@ -77,7 +77,7 @@ yarn start
 | antd tokens | `frontend/src/theme/tokens.ts` → `components/Theme`（`ConfigProvider`） |
 | CSS 变量（与上同值） | `frontend/src/theme/css-vars.less`（由 `global.less` 引入） |
 
-布局 chrome（Home/Group 已 BEM + `var(--erd-*)`；DesignLayout 待 Pro 摘除后对齐）;**落地页** `pages/landing/index.less` 为品牌例外，可保留 scoped less。新颜色/圆角先改 `tokens.ts`，勿在业务 less 里发明第二套色板。细则与例外表见 [ui-home-model-redesign.md](./ui-home-model-redesign.md)#样式策略token-first。
+布局 chrome（Home/Group/Design 已 BEM + `var(--erd-*)`；`account/settings` 仍挂 ProLayout）;**落地页** `pages/landing/index.less` 为品牌例外，可保留 scoped less。新颜色/圆角先改 `tokens.ts`，勿在业务 less 里发明第二套色板。细则与例外表见 [ui-home-model-redesign.md](./ui-home-model-redesign.md)#样式策略token-first。
 
 ## 前端单测（轻量）
 

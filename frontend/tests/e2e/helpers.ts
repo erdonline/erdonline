@@ -109,8 +109,13 @@ export async function createAndOpenPersonProject(
   desc?: string,
 ) {
   await createPersonProject(page, projectName, tag, desc);
-  await page.getByTestId('open-project').first().click();
-  await expect(page).toHaveURL(/\/design\/table/, { timeout: 15_000 });
+  // 个人项目是 List 非 Table；按项目名定位「打开模型」，勿用裸 .first()
+  await page
+    .getByRole('listitem')
+    .filter({ has: page.getByRole('link', { name: projectName, exact: true }) })
+    .getByTestId('open-project')
+    .click();
+  await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
 }
 
 /** 树节点：点 switcher 展开（结构必要；标题用可见文案） */

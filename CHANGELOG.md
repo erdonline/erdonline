@@ -15,7 +15,7 @@
 - 新增 `docs/ui-layout-redesign.md`：全站页面（落地/登录注册/Home/dataModels/project/*/databaseConfig/设计器 chrome/version/import/export/setting/account/share/404）布局重设计总纲；三种壳（品牌/工作台/设计器）+ 密度/导航/空态规范；分波 W1–W5，W5 完成后 Pro 依赖可移除
 - `ui-home-model-redesign.md` 头部加总纲指针（本文保留 Home/模型页区块级 IA 与 tokens 定义）
 - `roadmap.md` P5 UI 水位登记总纲与 W1–W5 分波
-  验证点：仅文档改动；W1 进行中（DesignLayout 摘 Pro，见同日条目）
+  验证点：仅文档改动；W1 DesignLayout 摘 Pro 见同日重构条目（已 ✅）
 
 #### 重构：DesignLayout 摘 ProLayout → antd Layout（Strangler 切片 2）
 
@@ -25,12 +25,13 @@
 - 顶栏保留 `headRightContent`（SaveStatus / 保存版本 / CollabPresence / 只读分享 + `homeRightContent`）与项目菜单 Dropdown；用户菜单复用 `menuHeaderDropdown`
 - less 对齐 token-first：BEM + `var(--erd-*)`，去掉 `antd/dist/reset.css`；头像色用 `erdColors.brand`
 - 清 `_defaultProps.appList`（Pro 应用抽屉死配置）
-- `layout-outlet.spec` 增 DesignLayout 顶栏/出口断言
-  验证点：`cd frontend && yarn build`；`npx playwright test tests/e2e/layout-outlet.spec.ts tests/e2e/presence.spec.ts tests/e2e/project-menu.spec.ts --grep "DesignLayout|协作 presence|项目 → 设置 → 数据源|项目 → 版本" --project=chromium --workers=1`
+- `ProjectMenu` SubMenu `triggerSubMenuAction="click"`（Dropdown 内 hover 途经邻项易粘住）
+- `layout-outlet.spec` 增 DesignLayout 顶栏/出口断言；项目菜单面板 `data-testid="project-menu-panel"`（与顶栏「版本」menuitem 消歧）；`createAndOpenPersonProject` 按项目名 listitem 定位打开
+  验证点：`cd frontend && yarn build`（已绿）；`npx playwright test tests/e2e/layout-outlet.spec.ts tests/e2e/presence.spec.ts tests/e2e/project-menu.spec.ts --grep "DesignLayout|协作 presence|项目 → 设置 → 数据源|项目 → 版本" --project=chromium --workers=1` → **4 passed**
 
 **文档**
 
-- `roadmap.md` Pro Strangler DesignLayout ✅；`ui-home-model-redesign.md` S1b；`development.md` Design chrome 已对齐 tokens
+- `roadmap.md` Pro Strangler DesignLayout ✅；`ui-home-model-redesign.md` S1b；`development.md` Design chrome 已对齐 tokens；`ui-layout-redesign.md` W1 ✅（W2 未开）
 
 #### 重构：S1 tokens 地基 + 剪除 Pro scaffold 死 less
 

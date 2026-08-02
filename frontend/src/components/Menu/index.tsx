@@ -76,7 +76,13 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = () => {
   };
 
   return (
-    <Menu mode="vertical" selectable={false} style={{ minWidth: 160 }}>
+    <Menu
+      mode="vertical"
+      selectable={false}
+      // click 展开：避免 hover 途经邻项粘住子菜单（设计器 Dropdown 内）
+      triggerSubMenuAction="click"
+      style={{ minWidth: 160 }}
+    >
       <Menu.Item key="version" onClick={openVersionManage}>
         版本
       </Menu.Item>
