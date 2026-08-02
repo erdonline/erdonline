@@ -20,9 +20,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 | 文件 | 标题摘要 |
 |---|---|
-| `34-rf-controls-zh-aria.md` | ReactFlow Controls 中文可访问名 |
+| `35-minimap-zh-aria.md` | ReactFlow MiniMap 中文可访问名 |
 
-`01`–`33` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
+`01`–`34` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
 
 合入后在对应草稿顶部加：
 

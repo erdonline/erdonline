@@ -184,7 +184,7 @@ export async function connectFields(
   toTable: string,
   toField: string,
 ) {
-  await page.getByRole('button', { name: /fit view/i }).or(page.locator('.react-flow__controls-fitview')).click();
+  await page.getByRole('button', { name: '适应画布' }).click();
   await page.waitForTimeout(500);
   const fromRow = rfNode(page, fromTable).locator(`[data-field="${fromField}"]`);
   const toRow = rfNode(page, toTable).locator(`[data-field="${toField}"]`);

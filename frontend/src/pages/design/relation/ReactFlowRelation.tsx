@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
-  Controls,
   MiniMap,
   Panel,
   Handle,
@@ -25,6 +24,7 @@ import { ModuleEntity } from '@/store/tab/useTabStore';
 import { message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import CommandPalette, { CommandItem } from './CommandPalette';
+import ZhControls from './ZhControls';
 import './reactflow-relation.scss';
 
 /**
@@ -789,7 +789,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={16} size={1} />
-        <Controls />
+        <ZhControls fitViewOptions={{ maxZoom: 1, padding: 0.15 }} />
         <MiniMap pannable zoomable />
         <CollabCursors />
         <Panel position="top-right">
