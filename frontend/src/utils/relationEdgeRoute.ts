@@ -1,7 +1,8 @@
 /**
  * erdSmooth 障碍避让（ADR-0016）：正交肘线绕开中间表包围盒。
  * 优先平移 centerX；走廊仍穿表时走 bypassY（含叠表缝 mid-corridor）；
- * 单水平绕行仍撞竖挡时走两弯逃逸（escapeX + bypassY，轻量非全图 A*）。
+ * 单水平绕行仍撞竖挡时走两弯逃逸（escapeX + bypassY）；
+ * 仍无解时走稀疏 Hanan 网格 A*（走廊外候选轴，非全像素栅格）。
  */
 import { Position, getSmoothStepPath } from 'reactflow';
 import { EDGE_BORDER_RADIUS } from './relationEdges';
@@ -26,6 +27,10 @@ export const EDGE_BYPASS_GAP = 24;
 export const EDGE_BUNDLE_STEP = 12;
 /** midX 量化桶宽：落入同桶的边共享干道并分流 */
 export const EDGE_CHANNEL_QUANT = 48;
+/** A* 每轴最多保留的候选坐标数（控搜索规模） */
+export const EDGE_ASTAR_MAX_AXIS = 16;
+/** A* 折弯代价（鼓励少弯） */
+export const EDGE_ASTAR_BEND_COST = 28;
 
 /** 同通道多边 → 居中 trunk 偏移列表 */
 export function trunkBundleOffsetsForCount(
@@ -334,9 +339,198 @@ export type ErdRouteResult = {
   path: string;
   labelX: number;
   labelY: number;
-  /** default | centerX | bypass | twoBend — 供单测 / 调试 */
-  mode: 'default' | 'centerX' | 'bypass' | 'twoBend';
+  /** default | centerX | bypass | twoBend | astar — 供单测 / 调试 */
+  mode: 'default' | 'centerX' | 'bypass' | 'twoBend' | 'astar';
 };
+
+function pointInExpandedObstacle(x: number, y: number, r: ObstacleRect): boolean {
+  return x >= r.x && x <= r.x + r.width && y >= r.y && y <= r.y + r.height;
+}
+
+/** 轴候选：端点 + 障沿 ±gap + 走廊外沿；近 mid 优先截断 */
+export function collectAstarAxisCandidates(
+  sourceGappedX: number,
+  targetGappedX: number,
+  sourceY: number,
+  targetY: number,
+  obstacles: ObstacleRect[],
+  maxAxis = EDGE_ASTAR_MAX_AXIS,
+): { xs: number[]; ys: number[] } {
+  const midX = (sourceGappedX + targetGappedX) / 2;
+  const midY = (sourceY + targetY) / 2;
+  const xSet = new Set<number>();
+  const ySet = new Set<number>();
+  const pushX = (v: number) => xSet.add(Math.round(v * 100) / 100);
+  const pushY = (v: number) => ySet.add(Math.round(v * 100) / 100);
+
+  pushX(sourceGappedX);
+  pushX(targetGappedX);
+  pushY(sourceY);
+  pushY(targetY);
+
+  const lo = Math.min(sourceGappedX, targetGappedX);
+  const hi = Math.max(sourceGappedX, targetGappedX);
+  // 走廊外侧：两弯搜不到的绕簇路径
+  pushX(lo - EDGE_BYPASS_GAP);
+  pushX(hi + EDGE_BYPASS_GAP);
+
+  for (const r of obstacles) {
+    pushX(r.x - 1);
+    pushX(r.x + r.width + 1);
+    pushX(r.x - EDGE_BYPASS_GAP);
+    pushX(r.x + r.width + EDGE_BYPASS_GAP);
+    pushY(r.y - 1);
+    pushY(r.y + r.height + 1);
+    pushY(r.y - EDGE_BYPASS_GAP);
+    pushY(r.y + r.height + EDGE_BYPASS_GAP);
+  }
+
+  const trim = (vals: number[], mid: number) =>
+    [...vals].sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid)).slice(0, maxAxis);
+
+  return { xs: trim([...xSet], midX), ys: trim([...ySet], midY) };
+}
+
+function keyXY(x: number, y: number): string {
+  return `${x},${y}`;
+}
+
+/** 去掉共线中间点 */
+export function simplifyOrthogonalPath(points: RoutePoint[]): RoutePoint[] {
+  if (points.length <= 2) return points;
+  const out: RoutePoint[] = [points[0]];
+  for (let i = 1; i < points.length - 1; i++) {
+    const a = out[out.length - 1];
+    const b = points[i];
+    const c = points[i + 1];
+    const colinear =
+      (a.x === b.x && b.x === c.x) || (a.y === b.y && b.y === c.y);
+    if (!colinear) out.push(b);
+  }
+  out.push(points[points.length - 1]);
+  return out;
+}
+
+/**
+ * 稀疏正交 A*：Hanan 候选格点上搜避障折线。
+ * start/goal 允许贴障（手柄出边）；中间格点不得落入障碍。
+ */
+export function routeOrthogonalAstar(
+  start: RoutePoint,
+  goal: RoutePoint,
+  obstacles: ObstacleRect[],
+  xs: number[],
+  ys: number[],
+): RoutePoint[] | null {
+  if (xs.length === 0 || ys.length === 0) return null;
+
+  type Node = { x: number; y: number };
+  const nodes: Node[] = [];
+  const index = new Map<string, number>();
+  const addNode = (x: number, y: number, allowInside: boolean) => {
+    const k = keyXY(x, y);
+    if (index.has(k)) return;
+    if (
+      !allowInside &&
+      obstacles.some((r) => pointInExpandedObstacle(x, y, r))
+    ) {
+      return;
+    }
+    index.set(k, nodes.length);
+    nodes.push({ x, y });
+  };
+
+  addNode(start.x, start.y, true);
+  addNode(goal.x, goal.y, true);
+  for (const x of xs) {
+    for (const y of ys) {
+      addNode(x, y, false);
+    }
+  }
+  // 保证起终点轴落入网格邻接
+  for (const y of ys) {
+    addNode(start.x, y, false);
+    addNode(goal.x, y, false);
+  }
+  for (const x of xs) {
+    addNode(x, start.y, false);
+    addNode(x, goal.y, false);
+  }
+
+  const startId = index.get(keyXY(start.x, start.y));
+  const goalId = index.get(keyXY(goal.x, goal.y));
+  if (startId === undefined || goalId === undefined) return null;
+
+  // 邻接：同 X 或同 Y，段不穿障
+  const adj: Array<Array<{ to: number; w: number }>> = nodes.map(() => []);
+  const tryLink = (i: number, j: number) => {
+    if (i === j) return;
+    const a = nodes[i];
+    const b = nodes[j];
+    if (a.x !== b.x && a.y !== b.y) return;
+    if (obstacles.some((r) => segmentIntersectsRect(a.x, a.y, b.x, b.y, r))) return;
+    const w = dist(a, b);
+    adj[i].push({ to: j, w });
+  };
+  // O(n²) 可接受：轴≤16 → 格点约数百
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      tryLink(i, j);
+      tryLink(j, i);
+    }
+  }
+
+  const heuristic = (i: number) => dist(nodes[i], goal);
+  const gScore = new Float64Array(nodes.length).fill(Infinity);
+  const fScore = new Float64Array(nodes.length).fill(Infinity);
+  const came = new Int32Array(nodes.length).fill(-1);
+  /** 进入该点的方向：0 无 / 1 水平 / 2 垂直 */
+  const inDir = new Int8Array(nodes.length).fill(0);
+  const open = new Set<number>([startId]);
+  gScore[startId] = 0;
+  fScore[startId] = heuristic(startId);
+
+  while (open.size > 0) {
+    let cur = -1;
+    let bestF = Infinity;
+    for (const id of open) {
+      if (fScore[id] < bestF) {
+        bestF = fScore[id];
+        cur = id;
+      }
+    }
+    if (cur < 0) break;
+    if (cur === goalId) {
+      const path: RoutePoint[] = [];
+      let c = cur;
+      while (c >= 0) {
+        path.push(nodes[c]);
+        c = came[c];
+      }
+      path.reverse();
+      return simplifyOrthogonalPath(path);
+    }
+    open.delete(cur);
+    const cx = nodes[cur].x;
+    const cy = nodes[cur].y;
+    for (const { to, w } of adj[cur]) {
+      const nx = nodes[to].x;
+      const ny = nodes[to].y;
+      const dir = nx === cx ? 2 : 1;
+      const bend =
+        inDir[cur] !== 0 && inDir[cur] !== dir ? EDGE_ASTAR_BEND_COST : 0;
+      const tentative = gScore[cur] + w + bend;
+      if (tentative < gScore[to]) {
+        came[to] = cur;
+        inDir[to] = dir as 0 | 1 | 2;
+        gScore[to] = tentative;
+        fScore[to] = tentative + heuristic(to);
+        open.add(to);
+      }
+    }
+  }
+  return null;
+}
 
 function pathWithCenterX(
   sourceX: number,
@@ -552,6 +746,39 @@ export function routeErdSmoothStep(opts: {
           return { path, labelX, labelY, mode: 'twoBend' };
         }
       }
+    }
+  }
+
+  // 两弯仍无解：稀疏 Hanan A*（含走廊外轴）
+  const { xs, ys } = collectAstarAxisCandidates(
+    sourceGappedX,
+    targetGappedX,
+    sourceY,
+    targetY,
+    obstacles,
+  );
+  // 干道偏移：把 bypass 类 Y 候选微移，避免多边叠线
+  const ysBundled =
+    trunkBundleOffset === 0
+      ? ys
+      : [...new Set(ys.map((y) => y + trunkBundleOffset))];
+  const core = routeOrthogonalAstar(
+    { x: sourceGappedX, y: sourceY },
+    { x: targetGappedX, y: targetY },
+    obstacles,
+    xs,
+    ysBundled,
+  );
+  if (core && core.length >= 2) {
+    const full: RoutePoint[] = [
+      { x: sourceX, y: sourceY },
+      ...core,
+      { x: targetX, y: targetY },
+    ];
+    const simplified = simplifyOrthogonalPath(full);
+    if (!polylineHitsObstacles(simplified, obstacles)) {
+      const [path, labelX, labelY] = pathFromWaypoints(simplified, borderRadius);
+      return { path, labelX, labelY, mode: 'astar' };
     }
   }
 

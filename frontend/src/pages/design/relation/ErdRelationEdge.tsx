@@ -1,5 +1,5 @@
 /**
- * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend）+ 干道 bundling（ADR-0016）。
+ * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
  */
 import React, { memo, useCallback } from 'react';
 import {
