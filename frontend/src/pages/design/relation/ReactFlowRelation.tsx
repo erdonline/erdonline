@@ -1485,6 +1485,16 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             <button
               type="button"
               className="erd-canvas-tool"
+              data-testid="canvas-create-table"
+              onClick={createFirstTable}
+              title="新建表并立即上图"
+              aria-label="新建表"
+            >
+              新建表
+            </button>
+            <button
+              type="button"
+              className="erd-canvas-tool"
               data-testid="create-frame"
               onClick={onCreateFrame}
               title="新建分组（可选先选中表）"

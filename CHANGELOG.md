@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布工具栏「新建表」一键上图（建模回路，ADR-0016）
+
+- 选题：空态有「新建第一张表」，非空画布却无建表 CTA → 只能左树弹层或 Cmd+K（多余步骤 / CTA 不清）
+- 工具栏加 `canvas-create-table`（aria「新建表」）→ 复用 `createFirstTable`，创建即上图 + toast「表添加成功」
+- 不改色 token / 密度；自动布局仍为工具栏 `--primary`
+- E2E：`relation`「工具栏新建表：非空画布一键上图」+ 工具栏可访问名含「新建表」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "工具栏新建表|工具栏：撤销" --workers=1 --retries=0`
+
 #### 体验：Frame 标题扫读层次（分组名 vs muted meta，ADR-0016）
 
 - 选题：Frame chrome label 11/600 与 meta 10 同阶，分享截图分组名扫不过；停色 token，攻字重/字号/padding vs muted
