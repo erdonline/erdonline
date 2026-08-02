@@ -22,6 +22,8 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 |---|---|
 | `32-changelog-unreleased-fold.md` | CHANGELOG Unreleased 整理 |
 
+P2b 控件闭环进行中时：新人任务可从 [`docs/control-matrix.md`](../../docs/control-matrix.md) 的 🚧 / 💀 行拆草稿（优先于再堆杂务 Issue）。
+
 合入后在对应草稿顶部加：
 
 ```markdown

@@ -8,6 +8,18 @@
 - `HomeLayout` / `GroupLayout`：对齐 DesignLayout，在 Theme 旁显式渲染 `props.children`（消除仅靠 Theme 内 Outlet 的隐患）
   验证点：`npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium` 绿（`/home` 见新建模型 CTA；`/project/person` 见新建；`/project/group/setting/basic` 见「基本设置」且 count=1）
 
+## [Unreleased] — P2b 控件矩阵与 Vision 选题（2026-08-02）
+
+### 文档
+- 新增 `docs/control-matrix.md` v1（全挂载路由 + Home/Design 菜单；标 💀 死表面）
+- `docs/roadmap.md` 增加 **P2b：全站控件闭环** 🚧（W0–W6；W0 已随布局修复勾选）
+- `scripts/agent-loop-vision.prompt.md`：P2b 🚧 时优先啃矩阵 🚧 行
+- `docs/community.md` / ISSUE_DRAFTS：矩阵可拆 good-first
+  验证点：矩阵数据行合计见文末统计；`control-inventory.spec.ts` 默认 skip（仅 `PW_CONTROL_INVENTORY=1`）
+
+### 测试
+- `frontend/tests/e2e/control-inventory.spec.ts`：手工采集 clickables，不进 CI
+
 ## [Unreleased] — 版本回滚落库 + E2E goto helpers（2026-08-02）
 
 ### 修复
