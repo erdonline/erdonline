@@ -10,6 +10,15 @@ test.describe('在线演示', () => {
     await expect(page).toHaveURL(/\/s\/public-demo/);
     await expect(page.getByText('功能鉴权示例').first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('share-relation-canvas')).toBeVisible();
+    // ADR-0016：分享画布铺满顶栏下视口（禁固定 480）
+    const canvasH = await page.getByTestId('share-relation-canvas').evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return {h: r.height, top: r.top};
+    });
+    const vh = await page.evaluate(() => window.innerHeight);
+    expect(canvasH.h, `画布高应 >480，得 ${canvasH.h}`).toBeGreaterThan(480);
+    expect(canvasH.h, `画布应占视口过半，得 ${canvasH.h}/${vh}`).toBeGreaterThan(vh * 0.5);
+    expect(canvasH.top + canvasH.h, '画布应贴近视口底').toBeGreaterThan(vh - 24);
     await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_permission')).toBeVisible();
@@ -164,6 +173,10 @@ test.describe('在线演示', () => {
     await expect(page.getByTestId('diagram-frame').filter({ hasText: '会话审计' })).toBeVisible();
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-share-diagram-switch.png',
+    });
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/demo-share-canvas-viewport.png',
+      fullPage: false,
     });
   });
 });

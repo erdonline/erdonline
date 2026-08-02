@@ -287,47 +287,51 @@ const SharePage: React.FC = () => {
         </div>
       </header>
       <main className="share-page__body">
-        <p className="share-page__hint">
-          匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。
-        </p>
-        {data?.description ? (
-          <Typography.Paragraph className="share-page__desc">{data.description}</Typography.Paragraph>
-        ) : null}
-        {modules.length > 1 ? (
-          <Segmented
-            style={{marginBottom: 12}}
-            value={moduleKey}
-            onChange={(v) => onModuleChange(String(v))}
-            options={modules.map(m => ({
-              label: m.chnname || m.name || '模块',
-              value: m.name || m.chnname || '',
-            }))}
-          />
-        ) : null}
-        {diagrams.length > 1 ? (
-          <div
-            className="share-page__diagram-bar"
-            data-testid="diagram-switcher"
-            role="group"
-            aria-label="切换关系图"
-          >
-            <Segmented
-              size="small"
-              value={activeDiagramId}
-              onChange={(v) => setDiagramId(String(v))}
-              options={diagrams.map((d) => ({
-                label: d.name,
-                value: d.id,
-              }))}
-            />
+        <div className="share-page__stage" data-testid="share-canvas-stage">
+          <div className="share-page__meta">
+            <p className="share-page__hint">
+              匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。
+            </p>
+            {data?.description ? (
+              <Typography.Paragraph className="share-page__desc">{data.description}</Typography.Paragraph>
+            ) : null}
+            {modules.length > 1 ? (
+              <Segmented
+                className="share-page__module-switch"
+                value={moduleKey}
+                onChange={(v) => onModuleChange(String(v))}
+                options={modules.map(m => ({
+                  label: m.chnname || m.name || '模块',
+                  value: m.name || m.chnname || '',
+                }))}
+              />
+            ) : null}
+            {diagrams.length > 1 ? (
+              <div
+                className="share-page__diagram-bar"
+                data-testid="diagram-switcher"
+                role="group"
+                aria-label="切换关系图"
+              >
+                <Segmented
+                  size="small"
+                  value={activeDiagramId}
+                  onChange={(v) => setDiagramId(String(v))}
+                  options={diagrams.map((d) => ({
+                    label: d.name,
+                    value: d.id,
+                  }))}
+                />
+              </div>
+            ) : null}
           </div>
-        ) : null}
-        {currentModule ? (
-          <ShareRelationCanvas
-            module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']}
-            diagramId={activeDiagramId}
-          />
-        ) : null}
+          {currentModule ? (
+            <ShareRelationCanvas
+              module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']}
+              diagramId={activeDiagramId}
+            />
+          ) : null}
+        </div>
         <div className="share-page__tables">
           <Typography.Title level={5} className="share-page__tables-title">
             表清单
