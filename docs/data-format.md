@@ -212,9 +212,10 @@ cd frontend && yarn validate:projectjson
 | 列 | `fields[]`（物理类型 ↔ 逻辑 `type` code 薄双向映射；未知导入回落 `String`，导出回落 `varchar`） |
 | `Note` / `[note: …]` | **仅**与 `chnname` 互通（表/列显示名） |
 | `Ref` / 列上 `[ref: …]` | `associations[]`（`1:1` / `1:n` / `n:n`；`from`=多端持 FK） |
+| `indexes { … }` | `entities[].indexs[]`（`name` / `isUnique` / `fields[]`；跳过 pk 索引与表达式列） |
 | `Project` 名 / Note | 模块 `name` / `chnname`（缺省 `DBML` / `DBML导入`） |
 
-**不映射**：enum、index、trigger、表级 check、复合 FK。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
+**不映射**：enum、trigger、表级 check、复合 FK、索引表达式列。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
 
 ## 非目标（本规范不覆盖）
 

@@ -6,6 +6,9 @@ Project E2E_DBML {
 Table users {
   id integer [pk, increment, not null, note: '主键']
   name varchar [note: '姓名']
+  indexes {
+    (name) [name: 'idx_users_name']
+  }
   Note: '用户表'
 }
 

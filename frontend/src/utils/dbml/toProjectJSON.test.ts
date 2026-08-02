@@ -55,7 +55,7 @@ async function main() {
     assert.equal(mapDbmlTypeName('timestamp'), 'DateTime');
   });
 
-  await run('databaseToProjectJSON：表/字段/note→chnname/Ref→1:n', () => {
+  await run('databaseToProjectJSON：表/字段/note→chnname/Ref→1:n/Indexes→indexs', () => {
     const json = databaseToProjectJSON({
       name: 'shop_demo',
       note: '商店',
@@ -77,6 +77,26 @@ async function main() {
                   name: 'name',
                   type: { type_name: 'varchar' },
                   note: '姓名',
+                },
+                {
+                  name: 'email',
+                  type: { type_name: 'varchar' },
+                },
+              ],
+              indexes: [
+                {
+                  name: 'idx_users_email',
+                  unique: true,
+                  columns: [{ type: 'column', value: 'email' }],
+                },
+                {
+                  name: 'pk_skip',
+                  pk: true,
+                  columns: [{ type: 'column', value: 'id' }],
+                },
+                {
+                  name: 'expr_skip',
+                  columns: [{ type: 'expression', value: 'LOWER(email)' }],
                 },
               ],
             },
@@ -111,6 +131,10 @@ async function main() {
     assert.equal(mod.entities[0].fields[0].chnname, '主键');
     assert.equal(mod.entities[0].fields[0].type, 'Integer');
     assert.equal(mod.entities[0].fields[0].pk, true);
+    assert.deepEqual(mod.entities[0].indexs, [
+      { name: 'idx_users_email', isUnique: true, fields: ['email'] },
+    ]);
+    assert.deepEqual(mod.entities[1].indexs, []);
     assert.equal(mod.associations.length, 1);
     assert.deepEqual(mod.associations[0], {
       relation: '1:n',
@@ -121,7 +145,7 @@ async function main() {
     tryValidateSchema(json);
   });
 
-  await run('dbmlToProjectJSON：真实 @dbml/core 解析', async () => {
+  await run('dbmlToProjectJSON：真实 @dbml/core 解析含 indexes', async () => {
     const dbml = `
 Project erd_dbml {
   database_type: 'MySQL'
@@ -130,6 +154,11 @@ Project erd_dbml {
 Table users {
   id integer [pk, increment, not null, note: '主键']
   name varchar [note: '姓名']
+  email varchar
+  indexes {
+    (email) [name: 'idx_users_email', unique]
+    (name, email) [name: 'idx_users_name_email']
+  }
   Note: '用户表'
 }
 Table posts {
@@ -147,6 +176,12 @@ Table posts {
     const assoc = json.modules[0].associations[0];
     assert.equal(assoc.from.entity, 'posts');
     assert.equal(assoc.to.entity, 'users');
+    const users = json.modules[0].entities.find((e) => e.title === 'users');
+    assert.ok(users);
+    assert.deepEqual(users!.indexs, [
+      { name: 'idx_users_email', isUnique: true, fields: ['email'] },
+      { name: 'idx_users_name_email', isUnique: false, fields: ['name', 'email'] },
+    ]);
     tryValidateSchema(json);
   });
 

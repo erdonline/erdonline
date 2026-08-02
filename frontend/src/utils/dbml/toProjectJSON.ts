@@ -1,5 +1,5 @@
 /**
- * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname）。
+ * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs）。
  * @dbml/core 经 dynamic import 懒加载，避免设计器首屏打包体积膨胀。
  */
 
@@ -12,11 +12,18 @@ export type ProjectJsonField = {
   autoIncrement: boolean;
 };
 
+export type ProjectJsonIndex = {
+  name: string;
+  isUnique: boolean;
+  fields: string[];
+};
+
 export type ProjectJsonEntity = {
   title: string;
   name: string;
   chnname: string;
   fields: ProjectJsonField[];
+  indexs: ProjectJsonIndex[];
 };
 
 export type ProjectJsonAssociation = {
@@ -56,10 +63,23 @@ type DbmlField = {
   note?: string | null;
 };
 
+type DbmlIndexColumn = {
+  type?: string;
+  value?: string;
+};
+
+type DbmlIndex = {
+  name?: string | null;
+  unique?: boolean;
+  pk?: boolean;
+  columns?: DbmlIndexColumn[];
+};
+
 type DbmlTable = {
   name: string;
   note?: string | null;
   fields?: DbmlField[];
+  indexes?: DbmlIndex[];
 };
 
 type DbmlEndpoint = {
@@ -160,12 +180,34 @@ function mapField(field: DbmlField): ProjectJsonField {
   };
 }
 
+function mapIndex(index: DbmlIndex, tableName: string): ProjectJsonIndex | null {
+  // pk 索引由 fields[].pk 承接；表达式列（type≠column）本切片不映射
+  if (index.pk) return null;
+  const fields = (index.columns || [])
+    .filter((c) => (c.type || 'column') === 'column' && String(c.value || '').trim())
+    .map((c) => String(c.value).trim());
+  if (fields.length === 0) return null;
+  const rawName = String(index.name || '').trim();
+  const name =
+    rawName ||
+    `idx_${tableName}_${fields.join('_')}`.replace(/[^\w.-]+/g, '_').slice(0, 64);
+  return {
+    name,
+    isUnique: Boolean(index.unique),
+    fields,
+  };
+}
+
 function mapEntity(table: DbmlTable): ProjectJsonEntity {
+  const indexs = (table.indexes || [])
+    .map((ix) => mapIndex(ix, table.name))
+    .filter((ix): ix is ProjectJsonIndex => ix != null);
   return {
     title: table.name,
     name: table.name,
     chnname: noteToChnname(table.note),
     fields: (table.fields || []).map(mapField),
+    indexs,
   };
 }
 

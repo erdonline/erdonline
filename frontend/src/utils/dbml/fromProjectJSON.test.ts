@@ -28,7 +28,7 @@ async function main() {
     assert.equal(mapLogicalTypeToDbml('Unknown'), 'varchar');
   });
 
-  await run('projectJSONToDbml：表/字段/chnname→note/Ref', () => {
+  await run('projectJSONToDbml：表/字段/chnname→note/Ref/indexs', () => {
     const dbml = projectJSONToDbml({
       modules: [
         {
@@ -56,6 +56,26 @@ async function main() {
                   notNull: false,
                   autoIncrement: false,
                 },
+                {
+                  name: 'email',
+                  chnname: '',
+                  type: 'String',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                },
+              ],
+              indexs: [
+                {
+                  name: 'idx_users_email',
+                  isUnique: true,
+                  fields: ['email'],
+                },
+                {
+                  name: 'idx_users_name_email',
+                  isUnique: false,
+                  fields: ['name', 'email'],
+                },
               ],
             },
             {
@@ -80,6 +100,7 @@ async function main() {
                   autoIncrement: false,
                 },
               ],
+              indexs: [],
             },
           ],
           associations: [
@@ -100,6 +121,15 @@ async function main() {
     assert.match(dbml, /id integer \[pk, increment, not null, note: '主键'\]/);
     assert.match(dbml, /name varchar \[note: '姓名'\]/);
     assert.match(dbml, /Note: '用户表'/);
+    assert.match(dbml, /indexes \{/);
+    assert.match(
+      dbml,
+      /\(email\) \[name: 'idx_users_email', unique\]/,
+    );
+    assert.match(
+      dbml,
+      /\(name, email\) \[name: 'idx_users_name_email'\]/,
+    );
     assert.match(dbml, /Ref: posts\.user_id > users\.id/);
   });
 
@@ -125,7 +155,7 @@ async function main() {
     );
   });
 
-  await run('round-trip：fixture 导入→导出→再导入，实体/FK 稳定', async () => {
+  await run('round-trip：fixture 导入→导出→再导入，实体/FK/indexs 稳定', async () => {
     const fixture = path.resolve(
       __dirname,
       '../../../tests/fixtures/minimal.dbml',
@@ -166,7 +196,15 @@ async function main() {
           autoIncrement: f.autoIncrement,
         })),
       );
+      assert.deepEqual(peer!.indexs, ent.indexs);
     }
+
+    const users = e1.find((e) => e.title === 'users');
+    assert.ok(users);
+    assert.deepEqual(users!.indexs, [
+      { name: 'idx_users_name', isUnique: false, fields: ['name'] },
+    ]);
+    assert.match(exported, /idx_users_name/);
 
     const a1 = first.modules[0].associations;
     const a2 = second.modules[0].associations;
