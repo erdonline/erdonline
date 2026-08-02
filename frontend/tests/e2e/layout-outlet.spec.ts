@@ -55,6 +55,9 @@ test.describe('布局壳子路由出口', () => {
     const homeChrome = await page.evaluate(() => {
       const layout = document.querySelector('[data-testid="home-layout"]');
       const header = document.querySelector('.erd-chrome-header');
+      const menuIcon = document.querySelector(
+        '.home-layout__menu .ant-menu-item .i-icon svg path, .home-layout__menu .ant-menu-item svg path',
+      );
       const root = getComputedStyle(document.documentElement);
       return {
         hasWatermark: Boolean(document.querySelector('.ant-watermark')),
@@ -63,11 +66,14 @@ test.describe('布局壳子路由出口', () => {
         surfaceSunk: root.getPropertyValue('--erd-surface-sunk').trim(),
         layoutBg: layout ? getComputedStyle(layout).backgroundColor : '',
         fontUi: root.getPropertyValue('--erd-font-ui').trim(),
+        navIconFill: (menuIcon?.getAttribute('fill') || '').toLowerCase(),
       };
     });
     expect(homeChrome.hasWatermark).toBe(false);
     expect(homeChrome.headerH).toBe(64);
     expect(homeChrome.brand.toLowerCase()).toBe('#de2910');
+    // 主导航图标走 erdColors.brand（与 --erd-brand 同源；禁组件内硬编码字面量）
+    expect(homeChrome.navIconFill).toBe(homeChrome.brand.toLowerCase());
     // surface-sunk #fafbfc → rgb(250, 251, 252)
     expect(homeChrome.layoutBg).toMatch(/250,\s*251,\s*252/);
     expect(homeChrome.fontUi).toMatch(/IBM Plex Sans/i);
