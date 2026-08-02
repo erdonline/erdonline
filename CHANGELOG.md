@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 修复：编辑版本号校验失败仍关弹窗
+
+**修复**
+
+- `RenameVersion`：最新版改号时若「版本号已存在」或「不能 ≤ 已有版本」，`onFinish` 返回 `false` 保持弹窗；成功路径才关闭
+  验证点：`cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium -g "重命名描述"`
+
+**测试**
+
+- `version.spec`「重命名与删除」：最新版 `1.0.1`→`1.0.2` 成功；再改回 `1.0.0` 见「该版本号已经存在了」且弹窗仍开
+  验证点：同上
+
+**文档**
+
+- `docs/control-matrix.md` W4 重命名行；`docs/community.md` 种子 55；不续 a11y 草稿；Word 导出仍依赖本机 MinIO（compose 未挂）
+  验证点：同上 E2E
+
 #### 修复：`lint:js:ci` 7 error（分享页 Array 类型 + DataDomain hooks）
 
 **修复**

@@ -21,7 +21,7 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
   return (<>
     <ModalForm
       title="编辑版本"
-      onFinish={async (values: any) => {
+      onFinish={async (values: { version?: string; versionDesc?: string }) => {
         const tempValue = {
           ...currentVersion,
           version: values.version,
@@ -31,14 +31,20 @@ const RenameVersion: React.FC<RenameVersionProps> = (props) => {
         const tempVersions = versions.slice(1);
         if (currentVersionIndex !== 0) {
           versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
-        } else if (tempVersions.map((v: any) => v.version).includes(tempValue.version)) {
-          message.error('该版本号已经存在了');
-        } else if (tempVersions[0] &&
-          compareStringVersion(tempValue.version, tempVersions[0].version) <= 0) {
-          message.error('新版本不能小于或等于已经存在的版本');
-        } else {
-          versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
+          return true;
         }
+        if (tempVersions.map((v: { version?: string }) => v.version).includes(tempValue.version)) {
+          message.error('该版本号已经存在了');
+          return false;
+        }
+        if (
+          tempVersions[0] &&
+          compareStringVersion(tempValue.version, tempVersions[0].version) <= 0
+        ) {
+          message.error('新版本不能小于或等于已经存在的版本');
+          return false;
+        }
+        versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
         return true;
       }}
       trigger={
