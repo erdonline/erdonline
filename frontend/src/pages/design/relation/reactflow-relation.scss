@@ -364,13 +364,53 @@
   }
 }
 
+// ADR-0017 Phase 2b：图内视觉框（底层；不做坐标重父化）
+.erd-frame-node {
+  box-sizing: border-box;
+  border: 2px dashed var(--erd-success);
+  border-radius: 10px;
+  font-family: var(--erd-font-ui);
+  position: relative;
+  pointer-events: all;
+
+  &.selected {
+    border-color: var(--erd-brand);
+    border-style: solid;
+    box-shadow: 0 0 0 2px rgba(222, 41, 16, 0.12);
+  }
+
+  .erd-frame-label {
+    position: absolute;
+    top: 8px;
+    left: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--erd-success);
+    letter-spacing: 0.02em;
+    user-select: none;
+  }
+
+  .erd-frame-meta {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    font-size: 11px;
+    color: var(--erd-ink-400);
+    user-select: none;
+  }
+
+  &.selected .erd-frame-label {
+    color: var(--erd-brand);
+  }
+}
+
 .erd-canvas-toolbar {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-end;
   gap: 6px;
-  max-width: 720px;
+  max-width: 860px;
 }
 
 .erd-diagram-switcher {

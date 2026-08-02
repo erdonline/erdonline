@@ -1,6 +1,6 @@
 # ADR-0017：多关系图 + 图内分组 + 实体编辑器与模型树密度
 
-- 状态：已接受（2026-08-02）；Phase 1 已落地；Phase 2a（多图切换器 + `diagrams[]`）已落地，Phase 2b（Frame）仍为计划
+- 状态：已接受（2026-08-02）；Phase 1 ✅；Phase 2a（多图切换器 + `diagrams[]`）✅；Phase 2b（Frame 视觉框）✅；`includeEntities` 过滤 UI / 删图打磨仍可另切片
 - 决策者：项目维护者；承接 ADR-0016「敢分享的美图」主线
 
 ## 背景
@@ -36,18 +36,19 @@
    - `includeEntities` / 删除主图：类型与 API 已留，过滤 UI 与 Frame 渲染归 Phase 2b。
    - 同模块关系图 tab 就地切换（`switchRelationDiagram`），工具栏与左树不堆多 canvas。
 
-### Phase 2b（计划 / 未做）
+### Phase 2b（已落地，schema-additive）
 
-- Frame 视觉框渲染与成员拖入
+2. **图内分组（Frame）**：`Frame = { id, name, color?, x, y, w, h, memberEntityIds: string[] }`，存于 `diagram.groups[]`。
+   - 渲染为 ReactFlow 自研底层框节点（`type: 'frame'`，z-index 低于表），**不做 RF subflow 坐标重父化**；拖框不带动成员。
+   - 最小 UI：工具栏「新建分组」（可选先选中表 → 包围盒 + 成员）/「加入分组」（单图多框时弹选择）；Delete 可删框。
+   - 写路径：`createFrame` / `addFrameMembers` / `updateFrameBounds` / `removeFrame`（`modulesSlice`）；实体改名/删除同步 `memberEntityIds`。
+   - 分享只读画布同样渲染 `groups`。
+
+### 仍可另切片
+
 - `includeEntities` 视图过滤 UI
 - 删除非主图的确认流打磨（`removeDiagram` API 已有）
-
-### Phase 2b（计划）
-
-2. **图内分组（Frame）**：`Frame = { id, name, color?, x, y, w, h, memberEntityIds: string[] }`。
-   - 渲染为 ReactFlow 自研底层框节点（z-index 低于表节点），**不做 RF subflow 坐标重父化**（避免相对坐标迁移成本；Workbench Layer 同此语义）。
-   - 成员显式列表 → 后续可接「按分组过滤视图」（dbdiagram DiagramView+TableGroup 模式）。
-3. `docs/data-format.md` / schema 已随 2a 更新；不需要 Flyway（projectJSON 是文档列，additive 字段由前端读写）。
+- 拖框带动成员 / 框随成员自动扩边（ADR 明确本轮不做）
 
 ## 后果
 

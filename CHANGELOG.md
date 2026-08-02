@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 功能：图内分组 Frame Phase 2b（ADR-0017）— 视觉框 + 显式成员
+
+**功能**
+
+- `diagram.groups[]` / `DiagramFrame`：视觉框节点（RF `type: 'frame'`，z-index 低于表），成员 `memberEntityIds` 显式记录，**不做坐标重父化**
+- 工具栏「新建分组」「加入分组」；Delete 删框；拖框只改框 bounds
+- 写路径：`createFrame` / `addFrameMembers` / `updateFrameBounds` / `removeFrame`；实体改名/删除同步成员列表
+- 分享只读画布渲染 Frame
+
+**测试 / 文档**
+
+- 单测扩展：`diagram.test.ts`（包围盒 / 成员 / nodeId）
+- E2E：`diagram-frame.spec.ts`
+- ADR-0017 / `data-format.md` / regression-checklist 推进 Phase 2b ✅
+
+验证点：`node scripts/validate-projectjson.mjs` → 绿；`cd frontend && npx tsx src/utils/diagram.test.ts` → 绿；`cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --workers=1 --retries=0` → 绿（2 passed, 19.3s）
+
 #### 功能：多关系图 Phase 2a（ADR-0017）— diagrams[] + 切换器 + 树图列表
 
 **功能**

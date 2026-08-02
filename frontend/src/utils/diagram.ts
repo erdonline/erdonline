@@ -11,7 +11,7 @@ export type DiagramLayoutNode = {
   title?: string;
 };
 
-/** Phase 2b：图内视觉框；Phase 2a 仅占位类型 */
+/** Phase 2b：图内视觉框；成员显式列表，不做 RF 坐标重父化 */
 export type DiagramFrame = {
   id: string;
   name: string;
@@ -34,7 +34,53 @@ export type Diagram = {
 export const DEFAULT_DIAGRAM_ID = 'main';
 export const DEFAULT_DIAGRAM_NAME = '主关系图';
 
+/** RF 节点 id 前缀，避免与实体 title 碰撞 */
+export const FRAME_NODE_PREFIX = 'erd-frame-';
+export const DEFAULT_FRAME_W = 320;
+export const DEFAULT_FRAME_H = 200;
+export const FRAME_PADDING = 40;
+/** 成功色浅底（与 erdColors.success 同语系） */
+export const DEFAULT_FRAME_COLOR = 'rgba(47, 143, 123, 0.10)';
+
 type GraphCanvasNode = { id?: string; title?: string; x?: number; y?: number };
+
+export function frameNodeId(frameId: string): string {
+  return `${FRAME_NODE_PREFIX}${frameId}`;
+}
+
+export function isFrameNodeId(nodeId: string): boolean {
+  return nodeId.startsWith(FRAME_NODE_PREFIX);
+}
+
+export function parseFrameIdFromNodeId(nodeId: string): string {
+  return isFrameNodeId(nodeId) ? nodeId.slice(FRAME_NODE_PREFIX.length) : nodeId;
+}
+
+export function newFrameId(): string {
+  return `f_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
+}
+
+/** 按成员节点包围盒算框（绝对坐标；不改成员 position） */
+export function computeFrameBoundsFromNodes(
+  nodes: Array<{ position: { x: number; y: number }; width?: number; height?: number }>,
+  padding = FRAME_PADDING,
+): { x: number; y: number; w: number; h: number } {
+  if (!nodes.length) {
+    return { x: 40, y: 40, w: DEFAULT_FRAME_W, h: DEFAULT_FRAME_H };
+  }
+  const wOf = (n: { width?: number }) => n.width || 220;
+  const hOf = (n: { height?: number }) => n.height || 80;
+  const minX = Math.min(...nodes.map((n) => n.position.x));
+  const minY = Math.min(...nodes.map((n) => n.position.y));
+  const maxR = Math.max(...nodes.map((n) => n.position.x + wOf(n)));
+  const maxB = Math.max(...nodes.map((n) => n.position.y + hOf(n)));
+  return {
+    x: Math.round(minX - padding),
+    y: Math.round(minY - padding),
+    w: Math.round(maxR - minX + padding * 2),
+    h: Math.round(maxB - minY + padding * 2),
+  };
+}
 
 function nodeId(n: GraphCanvasNode): string {
   if (n.id) return n.id;
@@ -180,4 +226,95 @@ export function upsertDiagramLayout(
     }
   });
   diagram.layout.nodes = layout;
+}
+
+export function getActiveDiagramFrames(
+  module: { diagrams?: Diagram[]; graphCanvas?: { nodes?: GraphCanvasNode[] } } | null | undefined,
+  diagramId?: string | null,
+): DiagramFrame[] {
+  return getActiveDiagram(module, diagramId).groups || [];
+}
+
+/** 在图上追加 Frame（写路径；调用方已 ensureDiagrams） */
+export function addFrameToDiagram(
+  diagram: Diagram,
+  opts: {
+    name?: string;
+    memberEntityIds?: string[];
+    x?: number;
+    y?: number;
+    w?: number;
+    h?: number;
+    color?: string;
+    id?: string;
+  } = {},
+): DiagramFrame {
+  if (!diagram.groups) {
+    diagram.groups = [];
+  }
+  const n = diagram.groups.length + 1;
+  const frame: DiagramFrame = {
+    id: opts.id || newFrameId(),
+    name: (opts.name || '').trim() || `分组${n}`,
+    color: opts.color || DEFAULT_FRAME_COLOR,
+    x: typeof opts.x === 'number' ? Math.round(opts.x) : 40,
+    y: typeof opts.y === 'number' ? Math.round(opts.y) : 40,
+    w: typeof opts.w === 'number' ? Math.round(opts.w) : DEFAULT_FRAME_W,
+    h: typeof opts.h === 'number' ? Math.round(opts.h) : DEFAULT_FRAME_H,
+    memberEntityIds: [...new Set(opts.memberEntityIds || [])],
+  };
+  diagram.groups.push(frame);
+  return frame;
+}
+
+/** 合并成员（去重）；框不存在则 no-op */
+export function addMembersToFrame(
+  diagram: Diagram,
+  frameId: string,
+  memberEntityIds: string[],
+): DiagramFrame | undefined {
+  const frame = (diagram.groups || []).find((g) => g.id === frameId);
+  if (!frame) return undefined;
+  const set = new Set(frame.memberEntityIds || []);
+  memberEntityIds.forEach((id) => {
+    if (id) set.add(id);
+  });
+  frame.memberEntityIds = [...set];
+  return frame;
+}
+
+export function updateFrameBounds(
+  diagram: Diagram,
+  frameId: string,
+  bounds: { x: number; y: number; w?: number; h?: number },
+): void {
+  const frame = (diagram.groups || []).find((g) => g.id === frameId);
+  if (!frame) return;
+  frame.x = Math.round(bounds.x);
+  frame.y = Math.round(bounds.y);
+  if (typeof bounds.w === 'number' && bounds.w > 0) frame.w = Math.round(bounds.w);
+  if (typeof bounds.h === 'number' && bounds.h > 0) frame.h = Math.round(bounds.h);
+}
+
+export function removeFrameFromDiagram(diagram: Diagram, frameId: string): void {
+  if (!diagram.groups) return;
+  diagram.groups = diagram.groups.filter((g) => g.id !== frameId);
+}
+
+/** 实体改名时同步 groups.memberEntityIds */
+export function renameFrameMemberIds(diagram: Diagram, oldTitle: string, newTitle: string): void {
+  if (!diagram.groups?.length) return;
+  diagram.groups.forEach((g) => {
+    g.memberEntityIds = (g.memberEntityIds || []).map((id) =>
+      id === oldTitle ? newTitle : id,
+    );
+  });
+}
+
+/** 实体删除时从成员列表剔除 */
+export function purgeFrameMemberId(diagram: Diagram, entityTitle: string): void {
+  if (!diagram.groups?.length) return;
+  diagram.groups.forEach((g) => {
+    g.memberEntityIds = (g.memberEntityIds || []).filter((id) => id !== entityTitle);
+  });
 }

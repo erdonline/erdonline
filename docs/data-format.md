@@ -72,7 +72,32 @@
 | `name` | string | 显示名 |
 | `includeEntities` | `string[]` | 可选；缺省=模块全部实体 |
 | `layout.nodes` | `{ id, x, y }[]` | 本图坐标 |
-| `groups` | `Frame[]` | 可选图内视觉框（Phase 2b） |
+| `groups` | `Frame[]` | 可选图内视觉框（ADR-0017 Phase 2b） |
+
+#### Frame（`diagrams[].groups[]`）
+
+视觉分组矩形；**成员显式列表**，不做坐标重父化（拖框不带动表节点）。
+
+```json
+{
+  "id": "f_abc",
+  "name": "鉴权域",
+  "color": "rgba(47, 143, 123, 0.10)",
+  "x": 40,
+  "y": 40,
+  "w": 480,
+  "h": 320,
+  "memberEntityIds": ["AUTH_USER", "AUTH_ROLE"]
+}
+```
+
+| 字段 | 类型 | 说明 |
+|---|---|---|
+| `id` | string | 图内唯一 |
+| `name` | string | 显示名 |
+| `color` | string | 可选底色 |
+| `x` / `y` / `w` / `h` | number | 绝对画布坐标与尺寸 |
+| `memberEntityIds` | `string[]` | 成员实体 `title`；改名/删表时前端同步 |
 
 兼容：无 `diagrams` 的旧项目行为不变；读路径 `getActiveDiagram(module)` 虚拟迁移，写路径物化后**只写 `diagrams`**（禁止与 `graphCanvas` 双写漂移）。
 
