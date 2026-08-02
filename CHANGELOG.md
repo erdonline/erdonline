@@ -14,6 +14,7 @@
 - DBML 导入成功后直开导入模块关系图（菜单/空态同路径）
 - 切图 / 自动布局 / 导入后 `fitView`：多表用 `FIT_VIEW_SHAREABLE`（padding 0.08 / maxZoom 1.15，与分享只读同源 `utils/canvasFit`）
 - 控件「适应画布」改走分享密；空画布 init 仍 `FIT_VIEW_INIT`（防单节点放大过头）
+- CommonTabs `destroyOnHidden`：切签销毁非活动画布，避免空态 CTA 残留 DOM
 
 验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`；`npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "空态导入 DBML" --workers=1 --retries=0`
 
