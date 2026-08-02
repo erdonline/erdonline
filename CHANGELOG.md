@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：表头实体中文名（chnname）内联编辑（建模回路）
+
+- 选题：表头 ✎ 只能改实体名；中文名只能开 EntityModal / 表设计；字段 chnname 已内联后表头仍断环
+- 表头编辑态双栏：表名 +「表中文名」；Tab 表名→中文名→提交；Enter/blur 经 `renameEntity` 落盘；Escape 丢弃草稿（拦 blur）
+- 仅改中文名也触发 save-status；中文名可空；空表名 toast 并留在编辑
+- E2E：`relation`「表头中文名内联编辑；Tab 入；Escape 丢弃」；既有「表头 ✎ 可改名」仍绿
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表头中文名|表头 ✎ 可改名" --workers=1 --retries=0`
+
 #### 体验：字段中文名（chnname）内联编辑（建模回路）
 
 - 选题：字段别名/注释只能开 EntityModal 或表设计签；画布编辑态缺 chnname，Tab 直接跳行跳过中文名
