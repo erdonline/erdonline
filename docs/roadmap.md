@@ -7,7 +7,17 @@
 
 工程与设计器为**可用雏形**：核心旅程可跑；数据源已按 ADR-0008 隔离。联调基线：`./scripts/audit-fe-apis.sh`。
 
-**下一阶段战略（服务北极星，不推翻愿景）**：P2b 矩阵 🚧 已清零（见 [control-matrix.md](./control-matrix.md)）；余下矩阵 📋 为延期（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery 等，见矩阵）。下一刀优先 roadmap 📋：**P4 Issue 投放**（正式仓就绪后 `REPO=… ./scripts/seed-good-first-issues.sh`）或 **P3 AI / i18n**（后置）。
+**下一阶段战略（服务北极星，不推翻愿景）**：P2b 矩阵 🚧 已清零（见 [control-matrix.md](./control-matrix.md)）；余下矩阵 📋 为延期（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery 等，见矩阵）。
+
+## 下一季只做三件事（北极星杠杆）
+
+按序推进，一次只做一件；三件全被外部依赖阻断时才允许 idle：
+
+1. **首屏叙事 + 示例项目 → 30 秒进版本保存**（激活；服务「30s 惊艳」+「每周版本」北极星）
+2. **导出/版本信任链打穿**（Word/MinIO 解耦或降级、审批通过路径、导出失败可见）
+3. **协作 → 版本自然发生**（presence 到「本周一起改并保存」的引导，不扩 AI）
+
+**依赖外部或后置**：AI、i18n、正式仓 Issue 投放（`REPO=… ./scripts/seed-good-first-issues.sh`，待正式仓就绪）。
 
 ## 阶段总览
 
