@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布打开表设计「索引」签（建模回路）
+
+- 选题：字段已在节点内联；唯一/复合索引仍只在表设计「索引」签，画布无入口 → 左树绕路或死 affordance 感
+- 表节点底栏「索引」按钮（`data-testid=canvas-open-index` / `aria-label=打开索引`）→ `addTab` + `designPane: index`，直达表设计索引签
+- `ModuleEntity.designPane` + `consumeDesignPane`（用户切换内签后清除）；树打开不带 pane 时清定位
+- E2E：`relation`「画布打开索引签：直达表设计索引；无死 affordance」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布打开索引签" --workers=1 --retries=0`
+
 #### 体验：字段默认值（defaultValue）内联编辑（建模回路）
 
 - 选题：常见默认值只能开表设计/EntityModal；画布编辑态缺 `defaultValue`，主栏已满（PK/NN/AI/隐 + 名/中文名/类型）再挤横向会糊

@@ -27,6 +27,7 @@
 - [x] 个人/最近/团队/公告列表行密度：行 pad-block ≤10 / 标题 ≤14 / 打开钮 ≤32；截图 `project-person-list-dense.png` / `project-recent-list-dense.png` / `project-group-list-dense.png` / `project-notice-list-dense.png` ✅`project-surface.spec.ts` + `project-notice.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
+- [x] 画布「索引」→ 表设计索引签（无死 affordance；再入仍落索引）✅`relation.spec.ts`「画布打开索引签」
 
 ### 手工
 

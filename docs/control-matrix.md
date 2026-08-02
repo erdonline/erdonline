@@ -96,6 +96,7 @@
 | `/design/table/model` | 树「关系图」`tree-open-relation` | 打开画布标签 | RF | ✅ | `relation.spec` |
 | `/design/table/model` | 空态建表 CTA | 表节点出现 | | ✅ | `relation` 全旅程 |
 | `/design/table/model` | 内联字段/连线/守卫 | 持久化刷新仍在；chnname/defaultValue 行内；删字段二次确认（× / 选中 Delete·Backspace） | | ✅ | `relation` |
+| `/design/table/model` | 表节点「索引」`canvas-open-index` | 直达表设计索引签（`aria-selected`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开索引签」 |
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新；chnname 双栏内联 | | ✅ | `relation`「改名」/「表头中文名」 |
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后移除+toast | | ✅ | `smoke` 取消/确认 |

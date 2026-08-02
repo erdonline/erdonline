@@ -57,12 +57,14 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   ];
 
   return (
-    <JExcel 
-      data={data} 
-      columns={columns} 
-      saveData={afterChange} 
-      notEmptyColumn={['name', 'fields']}
-    />
+    <div data-testid="table-index-edit">
+      <JExcel
+        data={data}
+        columns={columns}
+        saveData={afterChange}
+        notEmptyColumn={['name', 'fields']}
+      />
+    </div>
   );
 }
 
