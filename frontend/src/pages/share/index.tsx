@@ -1,8 +1,10 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {Alert, Button, Card, Result, Segmented, Space, Spin, Table, Typography, message} from 'antd';
+import {Button, Result, Segmented, Space, Spin, Table, Tag, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
 import ShareRelationCanvas from './ShareRelationCanvas';
 import * as cache from '@/utils/cache';
+import '@/layouts/erd-chrome.less';
+import './index.less';
 
 type ModuleData = {
   name?: string;
@@ -10,6 +12,12 @@ type ModuleData = {
   entities?: { title?: string; chnname?: string; fields?: unknown[] }[];
   associations?: unknown[];
   graphCanvas?: { nodes?: { id: string; x?: number; y?: number }[] };
+  diagrams?: Array<{
+    id: string;
+    name: string;
+    layout?: { nodes?: { id: string; x?: number; y?: number }[] };
+    groups?: unknown[];
+  }>;
 };
 
 type SharePayload = {
@@ -29,6 +37,7 @@ const SharePage: React.FC = () => {
   const [data, setData] = useState<SharePayload | null>(null);
   const [moduleKey, setModuleKey] = useState<string>('');
   const [autoForkDone, setAutoForkDone] = useState(false);
+  const [authed, setAuthed] = useState(() => Boolean(cache.getItem('Authorization')));
 
   const shareReturnPath = token
     ? `/s/${token}?autofork=1`
@@ -69,6 +78,10 @@ const SharePage: React.FC = () => {
       setForking(false);
     }
   };
+
+  useEffect(() => {
+    setAuthed(Boolean(cache.getItem('Authorization')));
+  }, [loading, error, data]);
 
   useEffect(() => {
     let cancelled = false;
@@ -190,46 +203,77 @@ const SharePage: React.FC = () => {
     );
   }
 
+  const projectName = data?.projectName || '只读分享';
+  const redirectQ = `?redirect=${encodeURIComponent(shareReturnPath)}`;
+
   return (
-    <div style={{minHeight: '100vh', background: 'var(--erd-surface-sunk)', padding: 24}}>
-      <Card style={{maxWidth: 1100, margin: '0 auto'}}>
-        <Space style={{width: '100%', justifyContent: 'space-between', marginBottom: 8}} align="start">
-          <Typography.Title level={3} style={{marginTop: 0, marginBottom: 0}}>
-            {data?.projectName || '只读分享'}
+    <div className="share-page">
+      <header className="erd-chrome-header share-page__header" data-testid="share-chrome-header">
+        <div
+          className="erd-chrome-brand"
+          role="link"
+          tabIndex={0}
+          aria-label="ERD Online 首页"
+          onClick={() => history.push('/')}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              history.push('/');
+            }
+          }}
+        >
+          <img src="/logo.svg" alt="" width={28} height={28} />
+          <span>ERD Online</span>
+        </div>
+        <div className="share-page__project">
+          <Typography.Title level={4} className="share-page__project-name">
+            {projectName}
           </Typography.Title>
-          {data ? (
-            <Space>
-              <Button
-                type="primary"
-                loading={forking}
-                onClick={onFork}
-                aria-label="复制到我的项目"
+          <Tag className="share-page__readonly-tag">只读</Tag>
+        </div>
+        <div className="erd-chrome-actions">
+          <Button
+            type="primary"
+            loading={forking}
+            onClick={onFork}
+            aria-label="复制到我的项目"
+          >
+            复制到我的项目
+          </Button>
+          {!authed ? (
+            <>
+              <a
+                className="erd-chrome-link"
+                href={`/login${redirectQ}`}
+                aria-label="登录"
+                onClick={(e) => {
+                  e.preventDefault();
+                  history.push(`/login${redirectQ}`);
+                }}
               >
-                复制到我的项目
-              </Button>
-              {token ? (
-                <Button
-                  type="default"
-                  aria-label="注册并带回"
-                  onClick={() =>
-                    history.push(`/register?redirect=${encodeURIComponent(shareReturnPath)}`)
-                  }
-                >
-                  注册并带回
-                </Button>
-              ) : null}
-            </Space>
+                登录
+              </a>
+              <a
+                className="erd-chrome-link"
+                href={`/register${redirectQ}`}
+                aria-label="注册"
+                onClick={(e) => {
+                  e.preventDefault();
+                  history.push(`/register${redirectQ}`);
+                }}
+              >
+                注册
+              </a>
+            </>
           ) : null}
-        </Space>
-        <Alert
-          type="info"
-          showIcon
-          style={{marginBottom: 16}}
-          message="只读分享"
-          description="匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。"
-        />
+        </div>
+      </header>
+      <main className="share-page__body">
+        <p className="share-page__hint">
+          匿名只读。登录或注册后可「复制到我的项目」继续编辑并产生版本保存。
+        </p>
         {data?.description ? (
-          <Typography.Paragraph type="secondary">{data.description}</Typography.Paragraph>
+          <Typography.Paragraph className="share-page__desc">{data.description}</Typography.Paragraph>
         ) : null}
         {modules.length > 1 ? (
           <Segmented
@@ -242,20 +286,26 @@ const SharePage: React.FC = () => {
             }))}
           />
         ) : null}
-        {currentModule ? <ShareRelationCanvas module={currentModule as any}/> : null}
-        <Typography.Title level={5} style={{marginTop: 20}}>表清单</Typography.Title>
-        <Table
-          size="small"
-          pagination={false}
-          dataSource={rows}
-          locale={{emptyText: '暂无表'}}
-          columns={[
-            {title: '模块', dataIndex: 'module'},
-            {title: '表', dataIndex: 'table'},
-            {title: '字段数', dataIndex: 'fields', width: 90},
-          ]}
-        />
-      </Card>
+        {currentModule ? (
+          <ShareRelationCanvas module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']} />
+        ) : null}
+        <div className="share-page__tables">
+          <Typography.Title level={5} className="share-page__tables-title">
+            表清单
+          </Typography.Title>
+          <Table
+            size="small"
+            pagination={false}
+            dataSource={rows}
+            locale={{emptyText: '暂无表'}}
+            columns={[
+              {title: '模块', dataIndex: 'module'},
+              {title: '表', dataIndex: 'table'},
+              {title: '字段数', dataIndex: 'fields', width: 90},
+            ]}
+          />
+        </div>
+      </main>
     </div>
   );
 };

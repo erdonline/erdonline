@@ -92,10 +92,17 @@ test.describe('在线演示', () => {
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-edge-label-chip.png',
     });
-    await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
+    const chrome = page.getByTestId('share-chrome-header');
+    await expect(chrome).toBeVisible();
+    await expect(chrome.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
+    await expect(chrome.getByRole('link', { name: 'ERD Online 首页' })).toBeVisible();
+    expect(await chrome.evaluate((el) => getComputedStyle(el).height)).toBe('64px');
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-layout-density.png',
       fullPage: false,
+    });
+    await chrome.screenshot({
+      path: 'test-results/ux-walkthrough/share-chrome-brand-demo.png',
     });
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-share-edge-routing.png',
