@@ -24,13 +24,11 @@ export default defineConfig({
   manifest: {
     basePath: '/',
   },
-  layout:{},
   model: {},
   access: {},
   // access 插件依赖 initial State 所以需要同时开启
   initialState: {},
   deadCode: {},
-  presets: ['umi-presets-pro'],
   analytics: {
     baidu: '46689e26837885690d97c7f5d08b9a0b',
   },

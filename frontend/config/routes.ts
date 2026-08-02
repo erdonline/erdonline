@@ -221,6 +221,7 @@ export default [
     name: 'account',
     icon: 'user',
     path: '/account',
+    component: '../layouts/HomeLayout',
     routes: [
       {
         path: '/account',

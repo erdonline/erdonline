@@ -1,18 +1,11 @@
 import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
-import {GridContent} from '@ant-design/pro-layout';
-import {Dropdown, Menu} from 'antd';
+import {Menu} from 'antd';
 import BaseView from './components/base';
 import SecurityView from './components/security';
 import styles from './style.less';
-import Identification from "@/pages/account/settings/components/identification";
-import {PageContainer, ProCard, ProLayout, ProSettings, WaterMark} from '@ant-design/pro-components';
-import {headRightContent} from "@/layouts/DesignLayout";
-import {Me} from "@icon-park/react";
-import * as cache from "@/utils/cache";
-import {menuHeaderDropdown} from "@/layouts/HomeLayout";
-import {APP_VERSION_LABEL} from "@/constants/appVersion";
-import {useSearchParams} from "@@/exports";
-import { history } from 'umi';
+import Identification from '@/pages/account/settings/components/identification';
+import {useSearchParams} from '@@/exports';
+import {history} from 'umi';
 
 const {Item} = Menu;
 
@@ -68,9 +61,7 @@ const Settings: React.FC = () => {
       if (window.innerWidth < 768 && offsetWidth > 400) {
         mode = 'horizontal';
       }
-      setInitConfig((prev) =>
-        prev.mode === mode ? prev : {...prev, mode},
-      );
+      setInitConfig((prev) => (prev.mode === mode ? prev : {...prev, mode}));
     });
   };
 
@@ -92,27 +83,14 @@ const Settings: React.FC = () => {
     const {selectKey} = initConfig;
     switch (selectKey) {
       case 'base':
-        return <BaseView/>;
+        return <BaseView />;
       case 'security':
-        return <SecurityView/>;
+        return <SecurityView />;
       case 'identification':
-        return <Identification/>;
+        return <Identification />;
       default:
         return null;
     }
-  };
-  const settings: ProSettings | undefined = {
-    fixSiderbar: true,
-    layout: 'top',
-    splitMenus: true,
-  };
-  const [pathname] = useState('/home');
-
-
-  const licence = cache.getItem2object('licence');
-
-  const handleLogoClick = () => {
-    history.push('/home');
   };
 
   const selectTab = (key: SettingsStateKeys) => {
@@ -121,102 +99,31 @@ const Settings: React.FC = () => {
   };
 
   return (
-    <WaterMark content={[licence?.licensedTo?licence?.licensedTo:'ERD Online', APP_VERSION_LABEL]}>
-
-      <ProLayout
-        logo={"/logo.svg"}
-        title={"ERD Online"}
-        onMenuHeaderClick={handleLogoClick}
-        bgLayoutImgList={[
-          {
-            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
-            left: 85,
-            bottom: 100,
-            height: '303px',
-          },
-          {
-            src: 'https://img.alicdn.com/imgextra/i2/O1CN01O4etvp1DvpFLKfuWq_!!6000000000279-2-tps-609-606.png',
-            bottom: -68,
-            right: -45,
-            height: '303px',
-          },
-          {
-            src: 'https://img.alicdn.com/imgextra/i3/O1CN018NxReL1shX85Yz6Cx_!!6000000005798-2-tps-884-496.png',
-            bottom: 0,
-            left: 0,
-            width: '331px',
-          },
-        ]}
-        location={{
-          pathname,
-        }}
-        avatarProps={{
-          src: <Me theme="filled" size="28" fill="#DE2910" strokeWidth={2}/>,
-          title: <Dropdown
-            placement="bottom"
-            arrow={{pointAtCenter: true}}
-            overlay={menuHeaderDropdown}>
-            <div>{cache.getItem('username')}</div>
-          </Dropdown>,
-        }}
-        actionsRender={(props) => {
-          if (props.isMobile) return [];
-          return headRightContent;
-        }}
-        menuFooterRender={(props) => {
-          if (props?.collapsed) return undefined;
-          return (
-            <div
-              style={{
-                textAlign: 'center',
-                paddingBlockStart: 12,
-              }}
-            >
-              <div>© 2026 ERD Online · MIT</div>
-              <div>ERD Online</div>
-            </div>
-          );
-        }}
-        {...settings}
-      >
-        <PageContainer title={false}>
-          <ProCard
-            style={{
-              height: '80vh',
-              minHeight: 800,
-            }}
-          >
-            <GridContent>
-              <div
-                className={styles.main}
-                ref={(ref) => {
-                  if (ref) {
-                    dom.current = ref;
-                  }
-                }}
-              >
-                <div className={styles.leftMenu}>
-                  <Menu
-                    mode={initConfig.mode}
-                    selectedKeys={[initConfig.selectKey]}
-                    onClick={({key}) => {
-                      selectTab(key as SettingsStateKeys);
-                    }}
-                  >
-                    {getMenu()}
-                  </Menu>
-                </div>
-                <div className={styles.right}>
-                  <div className={styles.title}>{menuMap[initConfig.selectKey]}</div>
-                  {renderChildren()}
-                </div>
-              </div>
-            </GridContent>
-          </ProCard>
-        </PageContainer>
-      </ProLayout>
-    </WaterMark>
-
+    <div
+      className={styles.main}
+      data-testid="account-settings-page"
+      ref={(ref) => {
+        if (ref) {
+          dom.current = ref;
+        }
+      }}
+    >
+      <div className={styles.leftMenu}>
+        <Menu
+          mode={initConfig.mode}
+          selectedKeys={[initConfig.selectKey]}
+          onClick={({key}) => {
+            selectTab(key as SettingsStateKeys);
+          }}
+        >
+          {getMenu()}
+        </Menu>
+      </div>
+      <div className={styles.right}>
+        <div className={styles.title}>{menuMap[initConfig.selectKey]}</div>
+        {renderChildren()}
+      </div>
+    </div>
   );
 };
 export default Settings;

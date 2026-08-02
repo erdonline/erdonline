@@ -8,6 +8,22 @@
 
 ### 2026-08-02
 
+#### 重构：W4 切片 15 — Pro 清零 + 移除 `@ant-design/pro-components`
+
+**重构**
+
+- `account/settings`：摘 `ProLayout`/`PageContainer`/`ProCard`/`WaterMark`/`pro-layout` GridContent；路由挂入 `HomeLayout`；页签 URL/`selectKey` 不变
+- 团队 `GroupUser`：摘 `ProList` → antd `List` + 搜索/分页；`AddUser`/`移除` 联动 `reload` 不变
+- 团队 `GroupPermission`：摘 `ProForm`/`FooterToolbar` → antd `Form` + sticky 提交栏
+- 逆向解析（菜单对话框 + `/design/table/import/reverse`）：摘 `ModalForm`/`StepsForm`/`ProFormSelect` → antd `Modal`/`Steps`/`Form`/`Select`；`ReverseTable` 摘 `ProTable` → antd `Table`
+- 删除零引用死码 `StandardFieldLibrary`（Pro 题库 demo）及其 `index.less`
+- `package.json` 移除 `@ant-design/pro-components`、`umi-presets-pro`；`config.ts` 去掉 `presets`/`layout:{}`；`defaultSettings` 去 `pro-layout` 类型
+
+**测试 / 文档**
+
+- ADR-0014 / `ui-layout-redesign` / `roadmap` / `regression-checklist`：W4 切片 15 ✅；Pro 文件数 7→0；依赖移除
+  验证点：`rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}'` → **0**；`npx playwright test account-settings group-layout-nav import-reverse --project=chromium`
+
 #### 重构：W4 切片 14 — approval/order/home/login/register/databaseConfig/ExportDDL → antd
 
 **重构**

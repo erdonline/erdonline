@@ -18,4 +18,4 @@
 | [0011](./0011-defer-composite-fk-fields-array.md) | 复合 FK 暂不改为 fields[] | 已接受 |
 | [0012](./0012-ai-era-data-structure-platform.md) | 升级为「AI 时代的数据结构平台」（Git+Figma+agent 事实源） | 已接受 · B |
 | [0013](./0013-public-api-mcp.md) | 公开 API / MCP（鉴权·限流·scope） | 📋 已规划 |
-| [0014](./0014-drop-or-strangle-ant-pro.md) | @ant-design/pro-components Strangler 摘除（冻结新增、钉死 2.8.10） | ✅ 已接受 · B |
+| [0014](./0014-drop-or-strangle-ant-pro.md) | @ant-design/pro-components Strangler 摘除（依赖已移除） | ✅ 已落地 · B |

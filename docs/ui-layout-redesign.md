@@ -171,7 +171,8 @@
 | └ **W4 切片 12** ✅（2026-08-02） | **SqlApproval** + **BasicSetting** + **GroupSetting** + **notice** + **TableTab**：`ModalForm`/`ProForm`/`ProCard`/`ProList` → antd `Modal`/`Form`/`Tabs`/`List` | 5 个 Pro 文件 | `group-basic-setting` + `group-layout-nav` 权限组 + `project-notice` + `layout-outlet` GroupLayout basic；Pro 文件数 25→20 |
 | └ **W4 切片 13** ✅（2026-08-02） | **person / recent / group / dataModels / ExportCommon**：`ProList` → antd `List` + 标题行/`Input.Search`；空态 CTA 与 testid 不变 | 5 个 ProList 页 | `project-surface` + `project-activation` 空态 + `layout-outlet` person + `loading` 列表 loading + `export` 普通导出；Pro 文件数 20→15 |
 | └ **W4 切片 14** ✅（2026-08-02） | **approval/order** `ProTable`→Table；**home** 摘 `PageContainer`；**login/register** 摘 `LoginFormPage`；**databaseConfig** 摘 ProTable/`pro-layout` PageContainer；**ExportDDL**（对话框+页）摘 StepsForm | 8 个优先 Pro 文件 | `approval` + `session`/`smoke` 登录注册 + `adr0008-datasource` databaseConfig + `project-menu` 导出DDL + `project-surface` home；Pro 文件数 15→8 |
-| **W5** 登录/分享/404 打磨 + Pro 依赖移除 | 登录注册左右分栏品牌壳（壳已由 W4 切片 14 落地，W5 再打磨视觉）；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result；**grep 清零后一次性从 `package.json` 移除 `@ant-design/pro-components`（单独 commit）** | 全部残留清零 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图；`grep -r "@ant-design/pro-components" src` = 0 |
+| └ **W4 切片 15** ✅（2026-08-02） | 末批清零：`account/settings`→HomeLayout；`GroupUser`/`GroupPermission`；双 `ReverseDatabase`+`ReverseTable`；删死码 `StandardFieldLibrary`；移除 `@ant-design/pro-components` + `umi-presets-pro` | 7→0 + 依赖移除 | `account-settings` + `group-layout-nav` + `import-reverse`；`rg …pro-components` = 0 |
+| **W5** 登录/分享/404 打磨 | 登录注册品牌壳再打磨；share 顶栏对齐 + 失效态；404/403 去 reset.css + 标准 Result（**Pro 依赖已在 W4 切片 15 移除**） | 视觉/分享/404 | `landing.spec` + 登录 redirect 闭环 E2E；share fork 旅程；404 截图 |
 
 依赖序：W1 ✅ → **W2 → W3 → W4 → W5**。W2 与 W3/W4 无文件重叠可并行；W5 依赖 W1 的顶栏模式沉淀，且必须是最后一波（依赖移除以清零为前提）。
 
