@@ -24,7 +24,11 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
     multiple: false,
     maxCount: 1,
     beforeUpload(file: any) {
-      const isJSON = file.type === 'application/json';
+      const name = String(file?.name || '').toLowerCase();
+      const isJSON =
+        file.type === 'application/json' ||
+        name.endsWith('.json') ||
+        name.endsWith('.erd.json');
       if (!isJSON) {
         message.error('请确认上传文件是ERD导出的标准json文件!');
         return false;

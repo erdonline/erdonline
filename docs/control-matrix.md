@@ -138,7 +138,7 @@
 |---|---|---|---|---|---|
 | `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | 🚧 | 待「假库/文件→模型可见」 |
 | `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
-| `/design/table/import/erd` | 上传 ERD | 模型可见 | | 🚧 | |
+| `/design/table/import/erd` | 上传 ERD | 模型可见 | | ✅ | `import-erd.spec` |
 | `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | W6 已删 |
 | `/design/table/export/common` | 导出 Markdown | 文件下载 | 无 G6 | ✅ | `export.spec` |
 | `/design/table/export/common` | 导出 HTML/Word/ERD | 下载或明确失败 | | ✅ | `export.spec` HTML+ERD |
@@ -197,8 +197,8 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 55 |
-| 🚧 | 37 |
+| ✅ | 56 |
+| 🚧 | 36 |
 | 🗑 | 7 |
 | 📋 | 2 |
 | **合计** | **101** |
