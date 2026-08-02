@@ -4,7 +4,7 @@ import os from 'os';
 /**
  * ERD Online E2E 配置
  * 运行前提：全栈已启动（mysql + redis + backend:9502 + frontend:8000）
- * 本地：yarn test:e2e（chromium → chromium-serial 两步）｜ CI：workflow 同序
+ * 本地：yarn test:e2e ｜ CI：chromium 再 chromium-serial 两步（无 project deps）
  * 单条串行：yarn test:e2e:serial 或 --project=chromium-serial（无 deps，不拉全量）
  *
  * 并发：本地上限 16（种子 e2e0..e2e15）；默认取 ceil(CPU/2) 以免打爆 FE/BE。
@@ -54,7 +54,7 @@ export default defineConfig({
       fullyParallel: false,
       // 共用 e2e-serial：必须单 worker，避免文件锁空等到用例超时
       workers: 1,
-      // 无 dependencies：targeted 串行跑不膨胀；全量顺序由 CI / yarn test:e2e 两步保证
+      // 无 dependencies：targeted 串行跑不膨胀；CI 全量顺序由 workflow 两步保证
     },
   ],
 });
