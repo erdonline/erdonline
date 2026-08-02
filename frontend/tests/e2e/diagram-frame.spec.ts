@@ -80,11 +80,35 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await expect(frame).toBeVisible({ timeout: 10_000 });
       await expect(frame).toContainText('分组');
       await expect(frame).toContainText('2 张表');
-      // ADR-0016：Frame 标题栏密度（≤22px）
-      const chromeH = await frame.locator('.erd-frame-chrome').evaluate((el) =>
-        parseFloat(getComputedStyle(el).height),
-      );
-      expect(chromeH).toBeLessThanOrEqual(22);
+      // ADR-0016：Frame 标题扫读（label 主标题 vs muted meta；chrome ≤22）
+      const frameLook = await frame.locator('.erd-frame-chrome').evaluate((el) => {
+        const label = el.querySelector('.erd-frame-label');
+        const meta = el.querySelector('.erd-frame-meta');
+        if (!label || !meta) return null;
+        const cs = getComputedStyle(el);
+        const ls = getComputedStyle(label);
+        const ms = getComputedStyle(meta);
+        return {
+          chromeH: parseFloat(cs.height),
+          padX: parseFloat(cs.paddingLeft),
+          labelSize: parseFloat(ls.fontSize),
+          labelWeight: parseInt(ls.fontWeight, 10),
+          metaSize: parseFloat(ms.fontSize),
+          metaWeight: parseInt(ms.fontWeight, 10),
+          metaOpacity: parseFloat(ms.opacity),
+        };
+      });
+      expect(frameLook).not.toBeNull();
+      expect(frameLook!.chromeH).toBeLessThanOrEqual(22);
+      expect(frameLook!.padX).toBeGreaterThanOrEqual(8);
+      expect(frameLook!.labelSize).toBeGreaterThanOrEqual(12);
+      expect(frameLook!.labelWeight).toBeGreaterThanOrEqual(700);
+      expect(frameLook!.metaSize).toBeLessThan(frameLook!.labelSize);
+      expect(frameLook!.metaWeight).toBeLessThan(frameLook!.labelWeight);
+      expect(frameLook!.metaOpacity).toBeLessThan(1);
+      await frame.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-frame-title-hierarchy.png',
+      });
 
       // ADR-0016：Frame 选中光晕与表同环（--erd-selection-ring = brand a18）
       // 仅采 Frame（testid 即 .erd-frame-node）；表环由 relation.spec「品牌 token」覆盖

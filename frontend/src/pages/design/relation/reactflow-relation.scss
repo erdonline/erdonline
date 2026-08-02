@@ -565,12 +565,13 @@
     top: 3px;
     left: 6px;
     right: 6px;
-    // 密图再压：28→22，标题栏少占成员上方空白
+    // 密图顶栏：22 内抬标题扫读（12/700），少占成员上方空白
     height: 22px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: 0 6px;
+    gap: 8px;
+    padding: 0 8px;
     border-radius: 4px;
     // 轻表面条：分组名可读，截图不糊成色块
     background: color-mix(in srgb, var(--erd-surface) 78%, transparent);
@@ -584,13 +585,14 @@
     }
   }
 
+  // 主标题：分享截图先扫分组名；色仍 success/选中 brand（禁色 token 碎活）
   .erd-frame-label {
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     color: var(--erd-success);
-    letter-spacing: 0.02em;
+    letter-spacing: 0.01em;
     user-select: none;
-    line-height: 1.2;
+    line-height: 16px;
     cursor: text;
     max-width: 70%;
     overflow: hidden;
@@ -609,18 +611,22 @@
     border-radius: 2px;
     background: var(--erd-surface);
     color: var(--erd-ink);
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 12px;
+    font-weight: 700;
     font-family: inherit;
     line-height: 16px;
     outline: none;
   }
 
+  // muted meta：张数次要，不与标题抢扫读
   .erd-frame-meta {
     font-size: 10px;
+    font-weight: 400;
     color: var(--erd-ink-400);
+    opacity: 0.88;
     user-select: none;
-    line-height: 1.2;
+    line-height: 16px;
+    flex-shrink: 0;
   }
 
   &.selected .erd-frame-label {
