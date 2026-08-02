@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 体验：实体新建弹层密度（ADR-0016）
+
+- 选题：实体/模型新建弹层密度（建模回路入口与 22 chrome / 命令面板同阶）
+- `.erd-entity-modal`：宽 400；header/body/footer pad 收紧；标题 13；表单项 margin 12；输入/Select/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片
+- `relation.spec`「实体新建弹层密度」补密度断言 + 截图 `diagram-entity-modal-dense.png`
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "实体新建弹层密度" --workers=1 --retries=0`
+
 #### 体验：命令面板密度（ADR-0016）
 
 - 选题：命令面板密度（Cmd/Ctrl+K 快捷回路与 22 chrome 同阶；空态/工具栏已收）

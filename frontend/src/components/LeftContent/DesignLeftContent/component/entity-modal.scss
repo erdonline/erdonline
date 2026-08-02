@@ -1,0 +1,87 @@
+// ADR-0016：实体/模型新建弹层与 22 chrome 同阶；禁默认 520 宽 + 24 pad 松卡片
+.erd-entity-modal-root .erd-entity-modal {
+  .ant-modal-content {
+    border-radius: 8px;
+    border: 1px solid var(--erd-line);
+    box-shadow: 0 8px 28px var(--erd-ink-a06);
+    padding: 0;
+  }
+
+  .ant-modal-header {
+    padding: 10px 14px 8px;
+    margin: 0;
+    border-bottom: 1px solid var(--erd-line);
+  }
+
+  .ant-modal-title {
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 22px;
+    color: var(--erd-ink-900);
+  }
+
+  .ant-modal-body {
+    padding: 12px 14px;
+  }
+
+  .ant-modal-footer {
+    padding: 8px 14px;
+    margin: 0;
+    border-top: 1px solid var(--erd-line);
+  }
+
+  .ant-modal-footer .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+
+  .ant-modal-close {
+    top: 10px;
+    inset-inline-end: 12px;
+    width: 22px;
+    height: 22px;
+  }
+
+  .erd-entity-modal__form {
+    .ant-form-item {
+      margin-bottom: 12px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    .ant-form-item-label {
+      padding-bottom: 2px;
+
+      > label {
+        font-size: 12px;
+        height: auto;
+        color: var(--erd-ink-600);
+      }
+    }
+
+    .ant-input,
+    .ant-select-selector {
+      font-size: 12px !important;
+    }
+
+    .ant-input {
+      height: 28px;
+      padding: 0 8px;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      height: 28px !important;
+      padding-inline: 8px;
+    }
+
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      line-height: 26px !important;
+      font-size: 12px;
+    }
+  }
+}

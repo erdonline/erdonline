@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
+import './entity-modal.scss';
 
 interface EntityModalProps {
     visible: boolean;
@@ -71,10 +72,17 @@ const EntityModal: React.FC<EntityModalProps> = ({
             open={visible}
             onOk={handleOk}
             onCancel={onCancel}
+            width={400}
+            className="erd-entity-modal"
+            rootClassName="erd-entity-modal-root"
+            // 小表单无需 zoom 戏剧感；亦避免 E2E 量到 scale 中的 bbox
+            transitionName=""
+            maskTransitionName=""
+            destroyOnHidden
             data-testid="entity-modal"
             okButtonProps={{ 'data-testid': 'entity-modal-ok' } as any}
         >
-            <Form form={form} layout="vertical">
+            <Form form={form} layout="vertical" size="small" className="erd-entity-modal__form">
                 {modalType === 'entity' && (
                     <Form.Item
                         name="moduleName"
