@@ -1,5 +1,5 @@
 /**
- * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 中间表障碍避让（ADR-0016）。
+ * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 中间表障碍避让 + 干道 bundling（ADR-0016）。
  */
 import React, { memo, useCallback } from 'react';
 import {
@@ -11,10 +11,12 @@ import {
 import {
   EDGE_BORDER_RADIUS,
   EDGE_STEP_OFFSET,
+  ERD_EDGE_TYPE,
   ErdEdgeData,
 } from '@/utils/relationEdges';
 import {
   ObstacleRect,
+  assignTrunkBundleOffsets,
   routeErdSmoothStep,
 } from '@/utils/relationEdgeRoute';
 import { NODE_WIDTH, estimateNodeHeight } from '@/utils/graphLayout';
@@ -22,6 +24,17 @@ import { NODE_WIDTH, estimateNodeHeight } from '@/utils/graphLayout';
 type TableNodeData = {
   entity?: { title?: string; fields?: Array<{ name?: string; relationNoShow?: boolean }> };
 };
+
+function nodeCenterX(n: {
+  position: { x: number };
+  positionAbsolute?: { x: number };
+  width?: number;
+}): number {
+  const abs = n.positionAbsolute;
+  const x = abs?.x ?? n.position.x;
+  const w = Math.max(n.width && n.width > 0 ? n.width : 0, NODE_WIDTH);
+  return x + w / 2;
+}
 
 function ErdRelationEdge({
   id,
@@ -81,6 +94,30 @@ function ErdRelationEdge({
       ),
   );
 
+  const trunkBundleOffset = useStore(
+    useCallback(
+      (s): number => {
+        const nodes = s.getNodes();
+        const byId = new Map(nodes.map((n) => [n.id, n]));
+        const items: Array<{ id: string; midX: number }> = [];
+        for (const e of s.edges) {
+          if (e.type && e.type !== ERD_EDGE_TYPE) continue;
+          const sn = byId.get(e.source);
+          const tn = byId.get(e.target);
+          if (!sn || !tn) continue;
+          if (sn.type !== 'table' || tn.type !== 'table') continue;
+          if (sn.hidden || tn.hidden) continue;
+          items.push({
+            id: e.id,
+            midX: (nodeCenterX(sn) + nodeCenterX(tn)) / 2,
+          });
+        }
+        return assignTrunkBundleOffsets(items).get(id) ?? 0;
+      },
+      [id],
+    ),
+  );
+
   const { path, labelX, labelY, mode } = routeErdSmoothStep({
     sourceX,
     sourceY: sourceY + yShift,
@@ -91,6 +128,7 @@ function ErdRelationEdge({
     offset: stepOffset,
     borderRadius: EDGE_BORDER_RADIUS,
     obstacles,
+    trunkBundleOffset,
   });
 
   const pad = labelBgPadding || [4, 2];
@@ -102,6 +140,7 @@ function ErdRelationEdge({
       <span
         data-testid="erd-edge-route-mode"
         data-mode={mode}
+        data-bundle={String(trunkBundleOffset)}
         data-edge-id={id}
         hidden
       />

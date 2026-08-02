@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：关系图边干道 bundling（ADR-0016）
+
+- `assignTrunkBundleOffsets`：按表对 midX 量化通道，同桶居中分流（`EDGE_BUNDLE_STEP` 12px）
+- `routeErdSmoothStep({ trunkBundleOffset })`：无障碍/默认竖肘偏移 `centerX`，bypass 偏移水平干道 Y
+- `ErdRelationEdge` 读 RF 边集分配偏移；`data-bundle` 供 E2E；截图 `diagram-edge-bundle.png`
+
+验证点：`cd frontend && npx tsx src/utils/relationEdgeRoute.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "边路由" --workers=1 --retries=0`
+
 #### 文档：Zeabur demo 怎么用（根路径 404 ≠ 挂了）
 
 **现象**：`erdonline.zeabur.app` 预览「This page can't be found」；curl `/`、`/actuator/health`、`/doc.html` 若**全部** 404（Caddy 空 body）→ 公网未打到 Boot（常见 Root Directory=`/` 误检前端）。若仅 `/` 404 而 health 为 `UP` → 正常（API-only，无欢迎页）。

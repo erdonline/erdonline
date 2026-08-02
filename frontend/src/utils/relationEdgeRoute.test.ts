@@ -6,11 +6,13 @@ import assert from 'assert';
 import { Position } from 'reactflow';
 import {
   EDGE_OBSTACLE_PAD,
+  assignTrunkBundleOffsets,
   collectCenterXCandidates,
   oppositeLRWaypoints,
   polylineHitsObstacles,
   routeErdSmoothStep,
   segmentIntersectsRect,
+  trunkBundleOffsetsForCount,
 } from './relationEdgeRoute';
 import { EDGE_STEP_OFFSET } from './relationEdges';
 
@@ -105,6 +107,41 @@ async function main() {
     ]);
     assert.ok(c.includes(420) || Math.abs(c[0] - 420) < 1);
     assert.ok(c[0] === 420 || Math.abs(c[0] - 420) <= Math.abs(c[1] - 420));
+  });
+
+  await run('trunkBundleOffsetsForCount：双线 ±step/2', () => {
+    assert.deepStrictEqual(trunkBundleOffsetsForCount(1), [0]);
+    assert.deepStrictEqual(trunkBundleOffsetsForCount(2, 12), [-6, 6]);
+    assert.deepStrictEqual(trunkBundleOffsetsForCount(3, 12), [-12, 0, 12]);
+  });
+
+  await run('assignTrunkBundleOffsets：同通道分流、异通道独立', () => {
+    const m = assignTrunkBundleOffsets([
+      { id: 'a', midX: 100 },
+      { id: 'b', midX: 110 },
+      { id: 'c', midX: 400 },
+    ]);
+    assert.strictEqual(m.get('a'), -6);
+    assert.strictEqual(m.get('b'), 6);
+    assert.strictEqual(m.get('c'), 0);
+  });
+
+  await run('trunkBundleOffset：无障碍时 path 随偏移变化', () => {
+    const base = {
+      sourceX: 240,
+      sourceY: 40,
+      targetX: 600,
+      targetY: 40,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Left,
+      offset: EDGE_STEP_OFFSET,
+      obstacles: [] as [],
+    };
+    const r0 = routeErdSmoothStep({ ...base, trunkBundleOffset: 0 });
+    const r1 = routeErdSmoothStep({ ...base, trunkBundleOffset: 12 });
+    assert.strictEqual(r0.mode, 'default');
+    assert.strictEqual(r1.mode, 'default');
+    assert.notStrictEqual(r0.path, r1.path);
   });
 
   console.log('all relationEdgeRoute tests passed');
