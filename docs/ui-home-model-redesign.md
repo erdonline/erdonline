@@ -1,5 +1,7 @@
 # Home / Model 重设计简报
 
+> **总纲已扩至全站**：所有页面的布局/密度/导航/空态规范与 W1–W5 分波见 [ui-layout-redesign.md](./ui-layout-redesign.md)；本文保留 Home 与模型页的区块级 IA 细节与 tokens 定义。
+
 > 读者：执行下一轮 UI 切片的实现者（Auto）。回答一个问题：Home 与模型页如何从现在「内部工具感」抬到「一流产品感」。
 > 约束：ADR-0005（CRUD 壳用 antd，设计域可自研视觉）、ADR-0010（本阶段无暗色切换）、不重写框架、Strangler 逐页抬水位。
 
@@ -142,8 +144,9 @@ Before/After 原则对照：
 
 | # | 切片 | 范围 | 验证点 |
 |---|---|---|---|
-| S0 | 依赖升级（前置，ADR-0014）✅ | **只升 umi + antd，不升 `@ant-design/pro-components`**；冻结 Pro 新增用量；`rc-util@5.44.4` 解 peer；chrome 切片 1 已摘 Home/Group | `yarn build` 绿；pro=`2.8.10`；Pro import 文件数 65 ≤ 基线 70 |
+| S0 | 依赖升级（前置，ADR-0014）✅ | **只升 umi + antd，不升 `@ant-design/pro-components`**；冻结 Pro 新增用量；`rc-util@5.44.4` 解 peer；chrome 切片 1–2 已摘 Home/Group/Design | `yarn build` 绿；pro=`2.8.10`；Pro import 文件数 65 ≤ 基线 70 |
 | S1 | tokens 地基 ✅ | `theme/tokens.ts` + `ConfigProvider` 接入 + `theme/css-vars.less`；剪除 Pro scaffold 死 less；全站视觉应**无可见变化**或仅圆角/主色归一 | `yarn build` 绿；`layout-outlet.spec` + home 相关 smoke 不回归 |
+| S1b | DesignLayout 摘 Pro ✅ | `ProLayout` → antd `Layout`/`Menu`/`Watermark`；保留 save/share/presence/`homeRightContent`/项目菜单；less 读 `var(--erd-*)` | `layout-outlet` DesignLayout 用例 + `presence` / `project-menu` |
 | S2 | Home hero 条 | 问候 + 主 CTA + 3 指标；删 slogan 轮转、ExtraContent 彩虹、页脚压缩 | Home 截图前后对比；`getByRole('button', {name:'继续上次建模'})` 可达 |
 | S3 | Home 项目网格 | 去 Card.Grid 嵌套，紧凑网格 + hover 升层；删「项目概览」卡 | 卡片整卡可点；`home-link-*` testId 用例不回归 |
 | S4 | DesignLayout 去杂 | 删 `bgLayoutImgList`、sider 400→320、删 sider footer、徽标对齐去魔法数 | `layout-outlet.spec` 全绿；设计器截图对比 |
