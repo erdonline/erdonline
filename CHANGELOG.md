@@ -8,6 +8,18 @@
 
 ### 2026-08-02
 
+#### 功能：示例项目就绪后直达「保存第一个版本」（下一季①首屏叙事→30s 进版本保存）
+
+**功能**
+
+- `utils/exampleProject.ts → .tsx`：示例项目创建成功进入设计器后，弹出常驻通知卡（message「示例项目已就绪」+ 主按钮「保存第一个版本」`data-testid="example-save-version-cta"`），点击直达 `/design/table/version/all`；取代原「开始探索吧」toast（消除进设计器后找不到版本入口的断点）
+  验证点：`cd frontend && npx playwright test activation.spec.ts --project=chromium-serial --no-deps` → 5 passed（45.1s），含新用例
+
+**测试**
+
+- `activation.spec` 新增「示例项目一键直达保存第一个版本（30s 激活闭环）」：/home → 一键示例 → 通知 CTA → 版本页 → 新增版本 → `version-row-1.0.0` 可见
+  验证点：同上 5 passed；全量套件两轮连跑（69/72 passed）失败均为 export/loading 既有 flaky，与本改动无关
+
 #### 规则：新增 model-routing 子任务模型路由规则
 
 **规则**
