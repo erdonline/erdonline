@@ -7,7 +7,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { Position } from 'reactflow';
 import { dbmlToProjectJSON } from '../src/utils/dbml/toProjectJSON';
-import { NODE_WIDTH, estimateNodeHeight } from '../src/utils/graphLayout';
+import { FIELD_ROW_H, NODE_WIDTH, estimateNodeHeight } from '../src/utils/graphLayout';
 import {
   expandObstacle,
   bypassLRWaypoints,
@@ -57,7 +57,7 @@ async function main() {
     const ent = byTitle.get(box.title)!;
     const fields = (ent.fields || []).filter((f) => !f.relationNoShow);
     const idx = Math.max(0, fields.findIndex((f) => f.name === field));
-    return box.y + 36 + idx * 28 + 14;
+    return box.y + 36 + idx * FIELD_ROW_H + FIELD_ROW_H / 2;
   };
 
   const modes: Record<string, number> = {};

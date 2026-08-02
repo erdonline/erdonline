@@ -6,6 +6,7 @@
 ## 图本身可读可分享 / ADR-0016（续）
 
 - [x] [几何择柄] 竖叠同列表 FK → `data-port=same`；截图 `diagram-port-same-side.png` ✅`relation.spec.ts`「PK/FK 与边样式」
+- [x] [字段行再压一档] `.erd-field-row` min-height 22 / line-height 16 / pad 2；`FIELD_ROW_H=26` ✅`graphLayout.test.ts` + `relation.spec.ts`「表节点视觉」
 
 ### 已自动化
 
