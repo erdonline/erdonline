@@ -9,6 +9,42 @@
   overflow-x: hidden;
 }
 
+/* 对照等子页：顶栏相对定位，不叠 hero */
+.landing--subpage .landingNav {
+  position: relative;
+  border-bottom: 1px solid color-mix(in srgb, var(--erd-surface) 10%, transparent);
+}
+
+.landingComparePage {
+  padding-top: 0.5rem;
+}
+
+.landingCompareHero {
+  padding-top: 2.5rem;
+}
+
+.landingCompareEyebrow {
+  margin: 0 0 0.75rem;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  color: var(--erd-surface);
+}
+
+.landingCompareMore {
+  margin-top: 1.5rem;
+}
+
+.visuallyHidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
 .landingBrand {
   font-family: var(--erd-font-display);
   font-weight: 800;
@@ -221,6 +257,15 @@
   font-weight: 700;
   font-size: clamp(1.5rem, 3vw, 2rem);
   letter-spacing: -0.02em;
+}
+
+.landingCompareHero h1 {
+  margin: 0 0 0.75rem;
+  font-family: var(--erd-font-display);
+  font-weight: 800;
+  font-size: clamp(1.75rem, 4vw, 2.5rem);
+  letter-spacing: -0.03em;
+  color: var(--erd-surface);
 }
 
 .landingSectionLead {

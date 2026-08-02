@@ -28,6 +28,7 @@
 | 404 / 403 页 | 路由 `/*` / `403.tsx` | 标准 Result +「返回首页」+「打开示例 demo」✅（W5 切片 1）；无 `reset.css` | ✅ |
 | 登录/注册品牌壳 | `/login` `/register` | 左 40% 暗色品牌面板 + 右 Form；`--erd-*`；无 `bg2`/`#1677FF` ✅（W5 切片 4） | ✅ |
 | 落地页色板 | `/` | 深色门面构图不变；less 只读 `--erd-*`（ink/brand/success/warning + font）✅（2026-08-03） | ✅ |
+| 竞品对照 | `/compare`（落地摘要 `#compare`） | 诚实对照表 + demo/自部署 CTA；`LandingChrome` 共用壳 ✅ | ✅ |
 
 ## 协作
 
