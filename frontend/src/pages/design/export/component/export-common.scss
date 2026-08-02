@@ -1,0 +1,80 @@
+// ADR-0016：普通导出页与 22–28 chrome / .erd-io-modal 同阶；禁 16 pad + Title level4 松卡片
+.export-common-page {
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+}
+
+.export-common-page__title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.export-common-page__hint {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.export-common-page {
+  .ant-list-item {
+    padding: 0 !important;
+    margin-block-end: 0;
+  }
+
+  .ant-list-item-meta {
+    margin-block: 0;
+    align-items: flex-start;
+  }
+
+  .ant-list-item-meta-avatar {
+    margin-inline-end: 8px;
+  }
+
+  .ant-list-item-meta-title {
+    margin-bottom: 2px !important;
+    font-size: 13px;
+    font-weight: 600;
+    line-height: 22px;
+    color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+  }
+
+  .ant-list-item-meta-description {
+    font-size: 12px;
+    line-height: 18px;
+    color: rgba(0, 0, 0, 0.65);
+  }
+
+  .ant-tag {
+    margin-inline-end: 0;
+    font-size: 11px;
+    line-height: 18px;
+    padding-inline: 4px;
+  }
+}
+
+.export-common-card {
+  padding: 8px 10px;
+  border: 1px solid var(--erd-line, #e5e7eb);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+
+  &:hover {
+    border-color: var(--erd-brand, #de2910);
+  }
+
+  &:focus-visible {
+    outline: none;
+    border-color: var(--erd-brand, #de2910);
+    box-shadow: 0 0 0 2px var(--erd-ink-a06, rgba(11, 28, 44, 0.06));
+  }
+}
+
+.export-common-card__desc {
+  margin: 0;
+}
