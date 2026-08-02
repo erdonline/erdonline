@@ -349,14 +349,19 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
       const palette = page.getByRole('dialog', { name: '命令面板' });
       await expect(palette).toBeVisible();
+      await expect(palette.getByRole('listbox', { name: '命令列表' })).toBeVisible();
       await page.getByTestId('cmd-palette-input').fill('新建');
       await page.getByRole('option', { name: /新建表/ }).click();
       await expect(palette).toHaveCount(0);
       await expect(page.locator('.erd-table-node')).toHaveCount(2);
 
-      // 工具条入口可再次打开
+      // 工具条入口可再次打开；无匹配时 listbox 空态对读屏可感知
       await page.getByRole('button', { name: '命令' }).click();
       await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
+      await page.getByTestId('cmd-palette-input').fill('___no_such_cmd___');
+      const empty = page.getByText('无匹配命令');
+      await expect(empty).toBeVisible();
+      await expect(empty).toHaveAttribute('aria-live', 'polite');
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog', { name: '命令面板' })).toHaveCount(0);
     } finally {

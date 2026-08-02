@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### P4 good-first：命令面板 listbox 语义（草稿 39）
+
+**修复**
+
+- `CommandPalette`：选项列表补 `role="listbox"` + `aria-label="命令列表"`；空态「无匹配命令」补 `aria-live="polite"`；不改快捷键与执行逻辑
+  验证点：`npx playwright test tests/e2e/relation.spec.ts --project=chromium -g "命令面板"`
+
+**测试**
+
+- `relation.spec.ts`「命令面板」：断言 `listbox` 可见；填无匹配关键字后见「无匹配命令」且 `aria-live=polite`
+  验证点：同上
+
+**文档**
+
+- ISSUE_DRAFTS `39` 标已合入；**不续草稿 40**（a11y 微切片边际收益低，池暂空）；README / `docs/community.md` 种子 53 / `docs/roadmap.md` P4 同步
+  验证点：`DRY_RUN=1 REPO=example/erdonline ./scripts/seed-good-first-issues.sh` 无待投放（`39` 为 SKIP）
+
 #### P4 good-first：顶栏 CollabPresence aria-live（草稿 38）
 
 **修复**

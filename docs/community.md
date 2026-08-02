@@ -93,7 +93,9 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 50. ~~**画布工具栏撤销/重做/排布/对齐 aria**~~（已合入；`relation.spec`「工具栏」；草稿 `36`）
 51. ~~**顶栏 SaveStatus aria-live**~~（已合入；`role="status"` + `aria-live="polite"`；`relation.spec`「save-status」；草稿 `37`）
 52. ~~**顶栏 CollabPresence aria-live**~~（已合入；`role="status"` + `aria-live="polite"`；`presence.spec`；草稿 `38`）
-53. **命令面板 listbox 语义**（草稿 `39`：`role="listbox"` + 空态可感知；`relation.spec`「命令面板」）
+53. ~~**命令面板 listbox 语义**~~（已合入；`role="listbox"` + 空态 `aria-live`；`relation.spec`「命令面板」；草稿 `39`）
+
+> 种子池暂空：设计器 a11y 微切片（草稿 33–39）边际收益已低，不续堆；正式仓投放时从合入项外另选题。
 
 ## 贡献者怎么认领
 
