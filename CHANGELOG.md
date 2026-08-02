@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 体验：关系图边两弯绕行 / mid-corridor（ADR-0016）
+
+- `pickBypassYCandidates`：并集外沿之外补各障顶/底，叠表缝可走 mid-corridor
+- `routeErdSmoothStep`：单 `bypassY` 竖腿仍撞时 → `twoBend`（escapeX 水平逃逸 + bypassY）
+- `ErdRelationEdge` `data-mode` 增 `twoBend`；几何断言在单测
+
+验证点：`cd frontend && npx tsx src/utils/relationEdgeRoute.test.ts`；`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "边路由" --workers=1 --retries=0`
+
 #### 体验：关系图边干道 bundling（ADR-0016）
 
 - `assignTrunkBundleOffsets`：按表对 midX 量化通道，同桶居中分流（`EDGE_BUNDLE_STEP` 12px）

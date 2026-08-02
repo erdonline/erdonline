@@ -1,6 +1,7 @@
 /**
  * erdSmooth 障碍避让（ADR-0016）：正交肘线绕开中间表包围盒。
- * 优先平移 centerX；走廊仍穿表时走 bypassY 上/下绕行。
+ * 优先平移 centerX；走廊仍穿表时走 bypassY（含叠表缝 mid-corridor）；
+ * 单水平绕行仍撞竖挡时走两弯逃逸（escapeX + bypassY，轻量非全图 A*）。
  */
 import { Position, getSmoothStepPath } from 'reactflow';
 import { EDGE_BORDER_RADIUS } from './relationEdges';
@@ -158,6 +159,40 @@ export function bypassLRWaypoints(
   ];
 }
 
+/**
+ * 两弯绕行：先水平逃到 escapeSX/TX（避开端点旁竖挡），再走 bypassY 走廊。
+ * escape 等于 gapped X 时退化为单 bypass。
+ */
+export function twoBendLRWaypoints(
+  sourceX: number,
+  sourceY: number,
+  targetX: number,
+  targetY: number,
+  offset: number,
+  escapeSX: number,
+  escapeTX: number,
+  bypassY: number,
+  sourcePosition: Position,
+  targetPosition: Position,
+): RoutePoint[] {
+  const sxDir = sourcePosition === Position.Left ? -1 : 1;
+  const txDir = targetPosition === Position.Left ? -1 : 1;
+  const sourceGapped = { x: sourceX + sxDir * offset, y: sourceY };
+  const targetGapped = { x: targetX + txDir * offset, y: targetY };
+  const pts: RoutePoint[] = [{ x: sourceX, y: sourceY }, sourceGapped];
+  if (Math.abs(escapeSX - sourceGapped.x) > 0.5) {
+    pts.push({ x: escapeSX, y: sourceY });
+  }
+  pts.push({ x: escapeSX, y: bypassY });
+  pts.push({ x: escapeTX, y: bypassY });
+  if (Math.abs(escapeTX - targetGapped.x) > 0.5) {
+    pts.push({ x: escapeTX, y: targetY });
+  }
+  pts.push(targetGapped);
+  pts.push({ x: targetX, y: targetY });
+  return pts;
+}
+
 function dist(a: RoutePoint, b: RoutePoint): number {
   return Math.hypot(b.x - a.x, b.y - a.y);
 }
@@ -240,7 +275,9 @@ export function collectCenterXCandidates(
   return [...set].sort((a, b) => Math.abs(a - defaultCenterX) - Math.abs(b - defaultCenterX));
 }
 
-/** 候选绕行 Y：近 midY 优先，上下都试 */
+/**
+ * 候选绕行 Y：并集外沿 + 各障顶/底（叠表缝 mid-corridor），近 midY 优先。
+ */
 export function pickBypassYCandidates(
   sourceY: number,
   targetY: number,
@@ -254,19 +291,51 @@ export function pickBypassYCandidates(
     return !(rx2 < corridorMinX || r.x > corridorMaxX);
   });
   if (blockers.length === 0) return [midY];
+  const set = new Set<number>();
   const top = Math.min(...blockers.map((r) => r.y));
   const bottom = Math.max(...blockers.map((r) => r.y + r.height));
-  const above = top - EDGE_BYPASS_GAP;
-  const below = bottom + EDGE_BYPASS_GAP;
-  return [above, below].sort((a, b) => Math.abs(a - midY) - Math.abs(b - midY));
+  set.add(top - EDGE_BYPASS_GAP);
+  set.add(bottom + EDGE_BYPASS_GAP);
+  for (const r of blockers) {
+    set.add(r.y - EDGE_BYPASS_GAP);
+    set.add(r.y + r.height + EDGE_BYPASS_GAP);
+  }
+  return [...set].sort((a, b) => Math.abs(a - midY) - Math.abs(b - midY));
+}
+
+/** 两弯逃逸 X：障左右沿 + 走廊采样，近走廊中点优先 */
+export function collectEscapeXCandidates(
+  sourceGappedX: number,
+  targetGappedX: number,
+  obstacles: ObstacleRect[],
+): number[] {
+  const lo = Math.min(sourceGappedX, targetGappedX);
+  const hi = Math.max(sourceGappedX, targetGappedX);
+  if (hi - lo < 4) return [sourceGappedX, targetGappedX];
+  const set = new Set<number>();
+  const push = (v: number) => {
+    if (v >= lo && v <= hi) set.add(Math.round(v * 100) / 100);
+  };
+  push(sourceGappedX);
+  push(targetGappedX);
+  for (const r of obstacles) {
+    push(r.x - 1);
+    push(r.x + r.width + 1);
+  }
+  const steps = Math.max(1, Math.floor((hi - lo) / EDGE_CENTER_STEP));
+  for (let i = 0; i <= steps; i++) {
+    push(lo + ((hi - lo) * i) / steps);
+  }
+  const mid = (lo + hi) / 2;
+  return [...set].sort((a, b) => Math.abs(a - mid) - Math.abs(b - mid));
 }
 
 export type ErdRouteResult = {
   path: string;
   labelX: number;
   labelY: number;
-  /** default | centerX | bypass — 供单测 / 调试 */
-  mode: 'default' | 'centerX' | 'bypass';
+  /** default | centerX | bypass | twoBend — 供单测 / 调试 */
+  mode: 'default' | 'centerX' | 'bypass' | 'twoBend';
 };
 
 function pathWithCenterX(
@@ -428,13 +497,15 @@ export function routeErdSmoothStep(opts: {
     }
   }
 
-  for (const bypassY of pickBypassYCandidates(
+  const bypassYs = pickBypassYCandidates(
     sourceY,
     targetY,
     loX,
     hiX,
     obstacles,
-  )) {
+  );
+
+  for (const bypassY of bypassYs) {
     const by = bypassY + trunkBundleOffset;
     const bypassPts = bypassLRWaypoints(
       sourceX,
@@ -449,6 +520,38 @@ export function routeErdSmoothStep(opts: {
     if (!polylineHitsObstacles(bypassPts, obstacles)) {
       const [path, labelX, labelY] = pathFromWaypoints(bypassPts, borderRadius);
       return { path, labelX, labelY, mode: 'bypass' };
+    }
+  }
+
+  // 单 bypass 竖腿仍撞：两弯逃逸（escapeX → bypassY → 对端）
+  const escapes = collectEscapeXCandidates(sourceGappedX, targetGappedX, obstacles);
+  for (const bypassY of bypassYs) {
+    const by = bypassY + trunkBundleOffset;
+    for (const escapeSX of escapes) {
+      for (const escapeTX of escapes) {
+        if (
+          Math.abs(escapeSX - sourceGappedX) < 0.5 &&
+          Math.abs(escapeTX - targetGappedX) < 0.5
+        ) {
+          continue; // 已在单 bypass 试过
+        }
+        const pts = twoBendLRWaypoints(
+          sourceX,
+          sourceY,
+          targetX,
+          targetY,
+          offset,
+          escapeSX,
+          escapeTX,
+          by,
+          sourcePosition,
+          targetPosition,
+        );
+        if (!polylineHitsObstacles(pts, obstacles)) {
+          const [path, labelX, labelY] = pathFromWaypoints(pts, borderRadius);
+          return { path, labelX, labelY, mode: 'twoBend' };
+        }
+      }
     }
   }
 
