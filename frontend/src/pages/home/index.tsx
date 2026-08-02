@@ -2,10 +2,7 @@ import type {FC} from 'react';
 import {
   Avatar,
   Button,
-  Col,
   Empty,
-  List,
-  Row,
   Skeleton,
   Space,
   Statistic,
@@ -83,30 +80,6 @@ const PageHeaderContent: FC<{
 };
 
 export type HomeProps = {};
-
-/** 公告列表项（`/project/notice` 复用） */
-export const renderActivities = (item: ActivitiesType) => {
-  return (
-    <List.Item key={item.id}>
-      <List.Item.Meta
-        title={
-          <Row>
-            <Col span={20}>
-              <a className={styles.username} href={item?.url} target={'_blank'} rel="noreferrer">
-                {item?.title}
-              </a>
-            </Col>
-            <Col span={4}>
-              <span className={styles.datetime} title={item.createTime}>
-                {moment(item.createTime).fromNow()}
-              </span>
-            </Col>
-          </Row>
-        }
-      />
-    </List.Item>
-  );
-};
 
 const quietStatStyle = {color: erdColors.ink900, fontSize: 20};
 

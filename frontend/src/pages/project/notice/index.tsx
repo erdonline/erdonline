@@ -1,8 +1,9 @@
 import React, {useCallback, useEffect, useState} from 'react';
-import {List, Typography, message} from 'antd';
+import {List, message} from 'antd';
+import moment from 'moment';
 import {POST_ERD} from '@/services/crud';
-import {renderActivities} from '@/pages/home';
 import type {ActivitiesType} from '@/pages/home/data.d';
+import '../project-list.scss';
 
 export type NoticeProps = {};
 
@@ -49,14 +50,32 @@ const Index: React.FC<NoticeProps> = () => {
   }, [load, page, pageSize]);
 
   return (
-    <div data-testid="project-notice-page">
-      <Typography.Title level={4} style={{marginTop: 0}}>
-        公告
-      </Typography.Title>
+    <div className="project-list-page" data-testid="project-notice-page">
+      <div className="project-list-page__toolbar">
+        <h2 className="project-list-page__title">公告</h2>
+      </div>
       <List
+        className="project-list-page__list"
+        size="small"
         loading={loading}
+        rowKey="id"
         dataSource={data}
-        renderItem={(item) => renderActivities(item)}
+        renderItem={(item) => (
+          <List.Item>
+            <List.Item.Meta
+              title={
+                <div className="project-list-page__notice-row">
+                  <a href={item?.url} target="_blank" rel="noreferrer">
+                    {item?.title}
+                  </a>
+                  <span className="project-list-page__time" title={item.createTime}>
+                    {moment(item.createTime).fromNow()}
+                  </span>
+                </div>
+              }
+            />
+          </List.Item>
+        )}
         pagination={{
           current: page,
           pageSize,
