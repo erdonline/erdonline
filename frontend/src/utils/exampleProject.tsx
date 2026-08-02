@@ -1,7 +1,7 @@
 import defaultData from '@/utils/defaultData.json';
 import { addProject } from '@/services/project';
 import { history } from '@@/core/history';
-import { message } from 'antd';
+import { Button, message, notification } from 'antd';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 
@@ -114,8 +114,28 @@ export async function createExampleProjectAndOpen(
     const id = res?.data;
     if (code === 200 && id) {
       cache.setItem(CONSTANT.PROJECT_ID, String(id));
-      message.success('示例项目已就绪，开始探索吧');
       history.push(`/design/table/model?projectId=${id}`);
+      // 激活漏斗关键一跳：给出「保存第一个版本」直达 CTA，消除进设计器后的找路成本
+      const key = `example-ready-${id}`;
+      notification.open({
+        key,
+        message: '示例项目已就绪',
+        description: '表结构与关系已建好。下一步：保存你的第一个版本，留住当前模型。',
+        duration: 0,
+        placement: 'bottomRight',
+        btn: (
+          <Button
+            type="primary"
+            data-testid="example-save-version-cta"
+            onClick={() => {
+              notification.destroy(key);
+              history.push(`/design/table/version/all?projectId=${id}`);
+            }}
+          >
+            保存第一个版本
+          </Button>
+        ),
+      });
       return true;
     }
     if (isQuotaExceeded(code, msg)) {
