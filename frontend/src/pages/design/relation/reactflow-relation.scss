@@ -541,7 +541,8 @@
         color: var(--erd-ink-600);
       }
 
-      .erd-field-input {
+      .erd-field-input,
+      .erd-field-chnname-input {
         flex: 1;
         min-width: 0;
         height: 22px;
@@ -549,8 +550,24 @@
         border: 1px solid var(--erd-brand);
         border-radius: var(--erd-radius-sm);
         font-size: 12px;
-        font-family: var(--erd-font-mono);
         outline: none;
+      }
+
+      .erd-field-input {
+        font-family: var(--erd-font-mono);
+      }
+
+      // 中文名次要：UI 字体 + 线框，不与字段名抢主焦点
+      .erd-field-chnname-input {
+        flex: 0.9;
+        border-color: var(--erd-line);
+        color: var(--erd-ink-600);
+        font-family: var(--erd-font-ui);
+        font-size: 11px;
+
+        &:focus {
+          border-color: var(--erd-brand);
+        }
       }
 
       .erd-field-type-select {
