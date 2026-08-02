@@ -8,6 +8,20 @@
 
 ### 2026-08-02
 
+#### 修复：chromium-serial 不再依赖全量 chromium（Playwright footgun）
+
+**修复**
+
+- `playwright.config.ts`：去掉 `chromium-serial` 的 `dependencies: ['chromium']`；单条 `--project=chromium-serial` 不再先跑 ~101 条并行套件
+- 全量顺序改由 `yarn test:e2e` / CI 两步显式保证：`--project=chromium` → `--project=chromium-serial`
+- 新增 `yarn test:e2e:serial`；`workers: 1` 仍在 serial project config（共享 `e2e-serial`）
+- `docs/development.md`、agent-loop vision/ux prompt、`dev-loop-speed` / `dev-entrypoints` 同步正确跑法（无需再传 `--no-deps`）
+
+验证点：`cd frontend && npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --grep '首页示例项目' --list` → **仅 1 条**（非 ~102）
+
+
+### 2026-08-02
+
 #### 功能：三壳同语言 chrome（ADR-0016）
 
 **功能**

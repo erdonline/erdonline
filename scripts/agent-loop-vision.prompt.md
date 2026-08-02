@@ -54,6 +54,13 @@
 - 切片可同轮改前端 + 后端 + Flyway + E2E，闭合一能力即可。
 - **红线**：ADR-0016 本季禁区；ADR-0013 不实现；ADR-0011 未解封不做；不引回 pro-components；antd 唯一；不做 AI 噱头；不破坏 docker-compose；不扩大 `any`。
 
+## E2E 跑法（防全量膨胀）
+
+- 并行用例：`--project=chromium` + 文件路径 + `--grep`
+- 串行/空态/activation/export-feedback：`--project=chromium-serial`（或 `yarn test:e2e:serial`）；config 已 `workers: 1`（共享 `e2e-serial`）
+- **禁止**省略 `--project` 后只靠文件路径/grep（易误跑两 project）；**不必**再传 `--no-deps`（`chromium-serial` 已无 deps）
+- 全量：`yarn test:e2e`（先 chromium 再 serial 两步）
+
 ## 每 tick 必做
 
 1. **发现**：roadmap / capability-map / ADR-0016 / 画布走查截图 / CHANGELOG Unreleased / `git status -sb`

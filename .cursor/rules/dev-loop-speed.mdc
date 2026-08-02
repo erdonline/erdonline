@@ -32,7 +32,7 @@ cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q dependency:build-
 
 ## 增量验证（禁止全量惯性）
 
-- E2E：`npx playwright test --grep "关键字"` 跑单条，而非全量
+- E2E：单条必须带 `--project`（并行=`chromium`；空态/activation=`chromium-serial` 或 `yarn test:e2e:serial`）+ 文件路径 + `--grep`；勿裸 `playwright test` 碰运气；serial 已无 project deps、config 内 `workers: 1`
 - 后端编译检查：`mvn compile`（秒级）优先于 `mvn verify`（分钟级）
 - 分层验证：curl 接口断言（秒级）→ 单测 → E2E（分钟级）→ Docker 全栈（最慢，仅部署验证）
 

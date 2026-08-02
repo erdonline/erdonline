@@ -96,13 +96,17 @@ cd frontend && yarn test:unit:canvas-history
 
 ```bash
 cd frontend
-yarn test:e2e                 # 多 worker 并发（本地默认 ceil(CPU/2)，上限 16；CI 默认 2）
-PW_WORKERS=16 yarn test:e2e   # 拉满（需 16 核级机器）
-PW_WORKERS=1 yarn test:e2e    # 强制串行排查
+yarn test:e2e                 # 全量：先 chromium，再 chromium-serial（两步，无 project deps）
+yarn test:e2e:serial          # 仅串行项目（activation / 空态 / export-feedback）
+PW_WORKERS=16 yarn test:e2e   # 拉满并行段（需 16 核级机器；仍先 chromium）
+# 单条并行用例
+npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep '关键字'
+# 单条串行用例（勿漏 --project=chromium-serial；workers=1 已在 config，无需 --no-deps）
+npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --grep '关键字'
 ```
 
 - 并发隔离：本地上限 16 worker（默认 `ceil(CPU/2)`，满配 `PW_WORKERS=16`）；每 worker 登录 `e2e{n}`（`e2e0`..`e2e15`）；项目名 `e2e-w{n}-` 前缀
-- 空态/示例用例在 `chromium-serial`（`workers: 1`），账号 `e2e-serial`
+- 空态/示例/导出失败用例在 `chromium-serial`（config 内 `workers: 1`，账号 `e2e-serial`）；**不要**给该 project 配 `dependencies: ['chromium']`（曾导致 `--project=chromium-serial` 先跑完整套 chromium）
 - 已有库补种子：`mysql -h127.0.0.1 -uroot -proot < db/init/05_e2e_users.sql`
 - 已有库补数据源表：`docker exec -i erd-mysql mysql -uroot -proot < db/init/07_data_sources.sql`
 - 已有库若 `data_sources.id` 仍为 `varchar(32)`（RFC UUID 写入 500）：`docker exec erd-mysql mysql -uerd -perd -e "ALTER TABLE erd.data_sources MODIFY COLUMN id varchar(64) NOT NULL;"`
