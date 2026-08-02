@@ -2,6 +2,21 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — W6 `/account/settings` 基本资料保存 toast（2026-08-02）
+
+### 修复
+- `/account/settings` 基本资料：保存成功 `更新基本信息成功`；失败走全局拦截器 toast，无 msg 时组件兜底「更新基本信息失败」（头像保持「头像上传暂未开放」，不恢复假 Upload）
+  验证点：`account-settings.spec` 成功/失败 toast；页内无「更换头像」/file input
+
+### 测试
+- 新增 `account-settings.spec.ts`：保存成功 toast + 路由 mock 失败 toast + 头像裁剪态
+  验证点：`npx playwright test tests/e2e/account-settings.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md`：基本资料保存 → ✅；统计 ✅67 / 🚧25 / 📋4
+- `docs/roadmap.md` P2b 长尾已收账户基本资料 toast
+- `docs/regression-checklist.md`：账户设置保存自动化
+
 ## [Unreleased] — W6 `/design/table/query` 侧栏裁剪（2026-08-02）
 
 ### 修复
