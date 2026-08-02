@@ -9,6 +9,33 @@ import {
   uniqueProjectName,
 } from './helpers';
 
+/** 打开项目菜单面板（与顶栏水平 Menu 同名 menuitem 消歧） */
+async function openProjectMenu(page: import('@playwright/test').Page) {
+  await page.getByRole('button', { name: '项目菜单' }).click();
+  return page.getByTestId('project-menu-panel');
+}
+
+/** 展开项目菜单 SubMenu（产品侧 triggerSubMenuAction=click） */
+async function revealProjectSubmenu(
+  page: import('@playwright/test').Page,
+  submenu: string,
+) {
+  const panel = await openProjectMenu(page);
+  await panel.getByRole('menuitem', { name: submenu }).click();
+  return panel;
+}
+
+async function openProjectSubEntry(
+  page: import('@playwright/test').Page,
+  submenu: string,
+  entry: string,
+) {
+  await revealProjectSubmenu(page, submenu);
+  const entryBtn = page.getByRole('button', { name: entry });
+  await expect(entryBtn).toBeVisible({ timeout: 10_000 });
+  await entryBtn.click();
+}
+
 test.describe('设计器项目菜单', () => {
   test('项目 → 设置 → 数据源设置 可打开', async ({ page }) => {
     test.setTimeout(90_000);
@@ -18,9 +45,7 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName);
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '设置' }).hover();
-      await page.getByRole('button', { name: '数据源设置' }).click();
+      await openProjectSubEntry(page, '设置', '数据源设置');
 
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible({ timeout: 10_000 });
@@ -35,9 +60,7 @@ test.describe('设计器项目菜单', () => {
     const projectName = uniqueProjectName('import');
 
     const openImport = async (entry: string) => {
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '导入' }).hover();
-      await page.getByRole('button', { name: entry }).click();
+      await openProjectSubEntry(page, '导入', entry);
     };
     const closeDialog = async () => {
       const dialog = page.getByRole('dialog');
@@ -84,8 +107,8 @@ test.describe('设计器项目菜单', () => {
       const projectId = new URL(page.url()).searchParams.get('projectId');
       expect(projectId).toBeTruthy();
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '版本' }).click();
+      const panel = await openProjectMenu(page);
+      await panel.getByRole('menuitem', { name: '版本' }).click();
 
       await expect(page).toHaveURL(
         new RegExp(`/design/table/version/all\\?projectId=${projectId}`),
@@ -107,9 +130,7 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName);
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '设置' }).hover();
-      await page.getByRole('button', { name: '默认项设置' }).click();
+      await openProjectSubEntry(page, '设置', '默认项设置');
 
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible({ timeout: 10_000 });
@@ -129,9 +150,7 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName);
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '设置' }).hover();
-      await page.getByRole('button', { name: '默认项设置' }).click();
+      await openProjectSubEntry(page, '设置', '默认项设置');
 
       const dialog = page.getByRole('dialog');
       await expect(dialog).toBeVisible({ timeout: 10_000 });
@@ -153,8 +172,7 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName);
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '导出' }).hover();
+      await revealProjectSubmenu(page, '导出');
       await expect(page.getByRole('button', { name: '导出HTML' })).toBeVisible();
       await expect(page.getByRole('button', { name: '导出Word' })).toBeVisible();
       await expect(page.getByRole('button', { name: '导出Markdown' })).toBeVisible();
@@ -201,10 +219,7 @@ test.describe('设计器项目菜单', () => {
       });
       expect(createDs.status()).toBe(200);
 
-      await page.getByRole('button', { name: '项目菜单' }).click();
-      await page.getByRole('menuitem', { name: '导出' }).hover();
-      await expect(page.getByRole('button', { name: '导出DDL' })).toBeVisible({ timeout: 15_000 });
-      await page.getByRole('button', { name: '导出DDL' }).click();
+      await openProjectSubEntry(page, '导出', '导出DDL');
       const dlg = page.getByRole('dialog');
       await expect(dlg.getByText('SQL导出配置')).toBeVisible({ timeout: 10_000 });
       // 打开弹窗会 refreshDataSources；默认选中刚创建的数据源

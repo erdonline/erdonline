@@ -1,62 +1,92 @@
-@import '~antd/dist/reset.css';
-
-#root, body, html {
-  height: 100%;
+.design-layout {
+  min-height: 100vh;
+  background: var(--erd-surface-sunk);
 }
 
-.ant-layout {
+.design-layout__header {
   display: flex;
-  width: 100%;
-  min-height: 100%;
+  align-items: center;
+  gap: 8px;
+  height: 56px;
+  padding: 0 16px 0 0;
+  line-height: 56px;
+  background: var(--erd-surface);
+  border-bottom: 1px solid var(--erd-line);
+  position: sticky;
+  top: 0;
+  z-index: 100;
 }
 
-.code-box-demo {
+.design-layout__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-shrink: 0;
+  padding: 0 16px;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--erd-ink-900);
+  white-space: nowrap;
+}
+
+.design-layout__brand img {
+  display: block;
+}
+
+.design-layout__top-menu {
+  flex: 1;
+  min-width: 0;
+  border-bottom: none !important;
+  background: transparent;
+  line-height: 54px;
+}
+
+.design-layout__actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+  margin-left: auto;
+  padding-right: 8px;
+}
+
+.design-layout__user {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--erd-ink-900);
+}
+
+.design-layout__sider {
+  background: var(--erd-surface) !important;
+  border-right: 1px solid var(--erd-line);
+}
+
+.design-layout__sider-inner {
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 56px);
+  overflow: auto;
+}
+
+.design-layout__sider-menu {
+  flex: 1;
+  border-inline-end: none !important;
+}
+
+.design-layout__sider-footer {
   text-align: center;
+  padding: 12px 8px 16px;
+  color: var(--erd-ink-400);
+  font-size: 12px;
+  margin-top: auto;
 }
 
-.ant-layout-header,
-
-[data-theme="dark"] .ant-layout-header {
-  background: #fff;
-}
-
-[data-theme="dark"] .ant-layout-footer {
-  background: #fff;
-}
-
-.ant-layout-footer {
-  line-height: 1;
-  text-align: center;
-}
-
-.ant-layout-sider {
-  color: #fff;
-  line-height: 120px;
-  background: #fff;
-}
-
-[data-theme="dark"] .ant-layout-sider {
-  background: #fff;
-}
-
-
-
-[data-theme="dark"] .ant-layout-content {
-  background: #fff;
-}
-
-.no-padding-container {
-  .ant-pro-page-container-children-content {
-    padding: 0 !important;
-  }
-}
-
-.no-margin-card {
-  margin: 0 !important;
-  
-  > .ant-pro-card-body {
-    padding: 0 !important;
-  }
+.design-layout__content {
+  min-height: calc(100vh - 56px);
+  overflow: auto;
+  background: var(--erd-surface);
 }
 
 /* destroyPopupOnHide=false：关闭后仍挂载，须禁点击以免挡 Modal */

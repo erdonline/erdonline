@@ -26,10 +26,11 @@ test.describe('设计器查询导航裁剪', () => {
       expect(projectId).toBeTruthy();
 
       await page.getByRole('button', { name: '项目菜单' }).click();
-      await expect(page.getByRole('menuitem', { name: '版本' })).toBeVisible({
+      const projectMenu = page.getByTestId('project-menu-panel');
+      await expect(projectMenu.getByRole('menuitem', { name: '版本' })).toBeVisible({
         timeout: 5_000,
       });
-      await expect(page.getByRole('menuitem', { name: '查询' })).toHaveCount(0);
+      await expect(projectMenu.getByRole('menuitem', { name: '查询' })).toHaveCount(0);
       await page.keyboard.press('Escape');
 
       await page.goto(`/design/table/query?projectId=${projectId}`);

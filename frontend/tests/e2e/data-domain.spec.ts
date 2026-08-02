@@ -9,7 +9,7 @@ import {
 
 /**
  * W6 `/design/dataDomain`：低北极星价值 → DesignLayout 路由菜单裁剪；深链保留实验页
- * （当前 ProLayout 为 top，侧栏菜单项本就不露出；以项目菜单 + 深链为准）
+ * （DesignLayout 顶栏水平 Menu；以项目菜单 + 深链为准）
  */
 test.describe('数据域导航裁剪', () => {
   test.describe.configure({ retries: 1 });
@@ -26,10 +26,11 @@ test.describe('数据域导航裁剪', () => {
       expect(projectId).toBeTruthy();
 
       await page.getByRole('button', { name: '项目菜单' }).click();
-      await expect(page.getByRole('menuitem', { name: '版本' })).toBeVisible({
+      const projectMenu = page.getByTestId('project-menu-panel');
+      await expect(projectMenu.getByRole('menuitem', { name: '版本' })).toBeVisible({
         timeout: 5_000,
       });
-      await expect(page.getByRole('menuitem', { name: '数据域' })).toHaveCount(0);
+      await expect(projectMenu.getByRole('menuitem', { name: '数据域' })).toHaveCount(0);
       await page.keyboard.press('Escape');
 
       await page.goto(`/design/dataDomain?projectId=${projectId}`);
