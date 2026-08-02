@@ -3,7 +3,7 @@ import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {compareStringVersion} from "@/utils/string";
-import {ConfigProvider, message, Space, Tag, Tooltip} from "antd";
+import {ConfigProvider, Input, message, Space, Tag, Tooltip} from "antd";
 import {ProList} from '@ant-design/pro-components';
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
@@ -46,6 +46,15 @@ const Version: React.FC = () => {
   const [dbs, setDbs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isInitialized, setIsInitialized] = useState(false);
+  const [tagFilter, setTagFilter] = useState('');
+
+  const filteredVersions = React.useMemo(() => {
+    const q = tagFilter.trim().toLowerCase();
+    if (!q) {
+      return versions;
+    }
+    return versions.filter((v: { tag?: string }) => (v.tag || '').toLowerCase().includes(q));
+  }, [versions, tagFilter]);
 
   useEffect(() => {
     const initializeDatabases = async () => {
@@ -120,9 +129,9 @@ const Version: React.FC = () => {
           )}
           <ProList<any>
             rowKey="id"
-            dataSource={versions}
+            dataSource={filteredVersions}
             pagination={false}
-            locale={{ emptyText: '暂无版本。改完模型后点「新增版本」保存快照。' }}
+            locale={{ emptyText: tagFilter.trim() ? '无匹配标签的版本' : '暂无版本。改完模型后点「新增版本」保存快照。' }}
             style={{
               height: '100%',
               overflowY: 'auto',
@@ -143,6 +152,11 @@ const Version: React.FC = () => {
                       <span>{row.creator}</span>
                       <span>{row.versionDate}</span>
                       <span>{row.versionDesc}</span>
+                      {row.tag && (
+                        <Tag color="purple" data-testid={`version-tag-${row.tag}`}>
+                          {row.tag}
+                        </Tag>
+                      )}
                       {ch.length > 0 && (
                         <Space size={4} data-testid="version-change-summary">
                           {add > 0 && <Tag color="success">+{add}</Tag>}
@@ -207,12 +221,13 @@ const Version: React.FC = () => {
                 ],
               },
             }}
-            onRow={(record: any, index: number) => {
+            onRow={(record: any) => {
               return {
                 'data-testid': `version-row-${record.version}`,
                 onMouseEnter: () => {
-                  versionDispatch.setCurrentVersion(record, index);
-                }, // 鼠标移入行
+                  const fullIndex = versions.findIndex((v: { id?: string }) => v.id === record.id);
+                  versionDispatch.setCurrentVersion(record, fullIndex >= 0 ? fullIndex : 0);
+                },
               };
             }}
             toolbar={{
@@ -255,6 +270,16 @@ const Version: React.FC = () => {
                 ]
               },
               actions: [
+                <Input
+                  key="tag-filter"
+                  allowClear
+                  placeholder="按标签筛选"
+                  value={tagFilter}
+                  onChange={(e) => setTagFilter(e.target.value)}
+                  style={{ width: 160 }}
+                  data-testid="version-tag-filter"
+                  aria-label="按标签筛选"
+                />,
                 <Access
                   key="add-version"
                   accessible={access.canErdHisprojectAdd}

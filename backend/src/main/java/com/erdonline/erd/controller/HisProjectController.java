@@ -1,6 +1,5 @@
 package com.erdonline.erd.controller;
 
-import cn.hutool.core.util.StrUtil;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.log.annotation.MartinLog;
 import com.erdonline.erd.entity.DbChange;
@@ -54,11 +53,6 @@ public class HisProjectController {
     @PostMapping("/hisProject/save")
     public R save(@RequestBody DbChange dbChange) {
         log.info("dbChange: {}", dbChange);
-        if (StrUtil.isBlank(dbChange.getId())) {
-            dbChangeService.save(dbChange);
-        } else {
-            dbChangeService.updateById(dbChange);
-        }
-        return R.ok("保存成功");
+        return dbChangeService.saveVersion(dbChange);
     }
 }

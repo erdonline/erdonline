@@ -10,6 +10,9 @@ spring:
     name: erd-online
   profiles:
     active: ${SPRING_PROFILES_ACTIVE:dev}
+  # 双数据源：禁用默认 Flyway（会打到 martin 主库）；erd 库由 ErdFlywayConfig 迁移
+  flyway:
+    enabled: false
   # Boot 2.7 默认禁止循环依赖；OAuth2 Autoconfig 过渡期先放开，后续拆 TokenStore 解环
   main:
     allow-circular-references: true

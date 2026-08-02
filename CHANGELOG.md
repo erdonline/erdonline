@@ -22,6 +22,17 @@
 - 新增 `.cursor/rules/schema-migration.mdc`（`alwaysApply: true`）：增量 schema 只写 `backend/.../db/migration/erd/`；冻结 `db/init` 新编号补丁；应急双写须与 Flyway 一致且幂等；Flyway 仅绑 erd（默认关闭防打 martin）；验证走 `./backend/dev-ensure.sh --restart`
   验证点：规则文件存在且含「真相源」「冻结」「martin vs erd」；`docs/development.md` / `docs/deployment.md` 已含双源约定（与 a7107c9 对齐，本切片无冲突改写）
 
+#### 功能：版本标签/里程碑（P5 产品深度）
+
+**功能**
+
+- `db_change` 增加可选 `tag`（同项目非空唯一；落库在用户可见历史版本表，非同步游标 `db_version`）；保存/编辑弹窗可填标签；版本列表展示标签并支持按标签筛选；重复标签拦截且弹窗不关（对齐版本号查重）
+- 落地 erd Flyway：`ErdFlywayConfig` + `V1__db_change_add_tag.sql`（幂等）；`spring.flyway.enabled=false`；`02_erd.sql` 基线含 `tag`（无新增 `db/init/09`）
+  验证点：`mvn -Dtest=DbChangeServiceImplTagTest -Djacoco.skip=true test` → 4 passed；`./backend/dev-ensure.sh --restart` → health UP；`SHOW COLUMNS FROM erd.db_change LIKE 'tag'` 有行；`flyway_schema_history` version=1 success；`npx playwright test tests/e2e/version.spec.ts --grep "标签" --project=chromium --workers=1` → 1 passed
+
+**文档**
+
+- `docs/roadmap.md` P5 版本工作流「版本标签/里程碑」→ ✅
 
 #### 修复：落地页 hero 全幅构图 + 已登录疏导（P0/P1）
 
