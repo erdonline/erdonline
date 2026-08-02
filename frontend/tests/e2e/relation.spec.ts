@@ -183,6 +183,33 @@ test.describe('关系图画布（ReactFlow）', () => {
         (el) => getComputedStyle(el).color,
       );
       expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
+
+      // ADR-0016：空态面板再收（与 22 chrome 同阶）；禁 28/32 松卡片盖首屏
+      const emptyMetrics = await empty.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const btn = el.querySelector('.erd-empty-button') as HTMLElement | null;
+        const bcs = btn ? getComputedStyle(btn) : null;
+        const svg = el.querySelector('[data-testid="erd-empty-diagram"]');
+        return {
+          padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+          padX: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+          maxW: parseFloat(cs.maxWidth),
+          titleSize: parseFloat(
+            getComputedStyle(el.querySelector('.erd-empty-title') as Element).fontSize,
+          ),
+          btnH: bcs ? parseFloat(bcs.height) : 0,
+          btnFont: bcs ? parseFloat(bcs.fontSize) : 0,
+          svgW: svg ? parseFloat((svg as SVGElement).getAttribute('width') || '0') : 0,
+        };
+      });
+      expect(emptyMetrics.padY, `空态 padY 应 ≤30，得 ${emptyMetrics.padY}`).toBeLessThanOrEqual(30);
+      expect(emptyMetrics.padX).toBeLessThanOrEqual(40);
+      expect(emptyMetrics.maxW).toBeLessThanOrEqual(300);
+      expect(emptyMetrics.titleSize).toBeLessThanOrEqual(14);
+      expect(emptyMetrics.btnH).toBeLessThanOrEqual(28);
+      expect(emptyMetrics.btnFont).toBeLessThanOrEqual(12);
+      expect(emptyMetrics.svgW).toBeLessThanOrEqual(140);
+
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-empty-composition.png',
         fullPage: false,
