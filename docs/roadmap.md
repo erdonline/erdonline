@@ -25,9 +25,9 @@
 
 ### 落地页（公开，品牌优先，一个构图）🚧
 
-- 面向陌生人的公开叙事页：一句话定位 + 「30 秒试 demo」主 CTA + 版本/协作/开放三卖点
-- 实现约束：遵守前端设计纪律——品牌 hero（真实产品构图/画布截图），禁止紫色渐变 AI slop 模板；静态优先、首屏预算受 `performance-budget.md` 约束
-- 文案见 [landing.md](./landing.md)
+- 公开路由 `/`（未登录可访问）；登录「了解产品」回链；主 CTA → `/demo`，次 CTA → 注册/登录/GitHub
+- 实现约束：品牌 hero + 真实画布截图（`landing-hero.jpg`），禁止紫色渐变 AI slop；见 [landing.md](./landing.md)
+- E2E：`landing.spec.ts`（加载 + CTA→demo/登录）
 
 ### 产品深度（走出「thin CRUD」）📋
 

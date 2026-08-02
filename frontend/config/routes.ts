@@ -1,5 +1,10 @@
 export default [
   {
+    path: '/',
+    layout: false,
+    component: './landing',
+  },
+  {
     path: '/s/:token',
     layout: false,
     component: './share',
@@ -12,6 +17,7 @@ export default [
   },
   {
     path: '/login',
+    layout: false,
     routes: [
       {
         name: 'login',
@@ -25,7 +31,7 @@ export default [
   },
   {
     path: '/register',
-
+    layout: false,
     routes: [
       {
         name: 'register',
@@ -190,10 +196,6 @@ export default [
         component: './404',
       },
     ],
-  },
-  {
-    path: '/',
-    redirect: '/home',
   },
   {
     path: '/dataModels',

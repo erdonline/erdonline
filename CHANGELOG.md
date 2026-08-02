@@ -8,6 +8,26 @@
 
 ### 2026-08-02
 
+#### 功能：公开落地页 `/`（P5 叙事先行）
+
+**功能**
+
+- 新增 `frontend/src/pages/landing`：品牌优先全幅 hero（真实 demo 画布截图）、三卖点、对照表、footer；CTA → `/demo`、注册/登录、GitHub
+- `routes.ts`：`/` 改为落地页（`layout: false`）；登录/注册亦 `layout: false`；应用内 logo/设置回跳改为 `/home`（避免登录用户点 logo 掉进营销页）
+- 登录页增加「了解产品」→ `/`
+- 静态资源 `public/landing-hero.jpg`（public-demo 画布截图）
+  验证点：`cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --workers=1` → passed；浏览器打开 `http://localhost:8000/` 见 ERD Online hero
+
+**测试**
+
+- 新增 `landing.spec.ts`：落地页加载、主 CTA→demo、去登录→了解产品回路
+  验证点：同上
+
+**文档**
+
+- `docs/landing.md` / `docs/roadmap.md` P5 落地页子项同步实现说明
+  验证点：roadmap 落地页节含 `/` 与 `landing.spec.ts`
+
 #### 文档：接受 ADR-0012 选项 B + ADR-0013 stub + vision/roadmap 对齐
 
 **文档**

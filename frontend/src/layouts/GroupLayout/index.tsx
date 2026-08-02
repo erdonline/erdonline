@@ -105,7 +105,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
             </div>
           );
         }}
-        onMenuHeaderClick={(e) => history.push("/")}
+        onMenuHeaderClick={(e) => history.push('/home')}
         menuItemRender={(item, dom) => {
           if (item.path?.startsWith('http') || item.exact) {
             return <a href={item?.path || '/project'} target={'_blank'} rel="noreferrer">{dom}</a>;

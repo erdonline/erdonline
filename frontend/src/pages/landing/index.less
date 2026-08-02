@@ -1,0 +1,408 @@
+@import url('https://fonts.bunny.net/css?family=syne:600,700,800|ibm-plex-sans:400,500,600&display=swap');
+
+@ink: #0b1c2c;
+@ink-soft: #122a3d;
+@fog: #d7e2ea;
+@accent: #e85d04;
+@accent-deep: #c44c03;
+@teal: #2f8f7b;
+@text: #f4f7f9;
+@muted: #9eb0bd;
+
+.landing {
+  --lp-ink: @ink;
+  --lp-accent: @accent;
+  min-height: 100vh;
+  color: @text;
+  background: @ink;
+  font-family: 'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', sans-serif;
+  overflow-x: hidden;
+}
+
+.landingBrand {
+  font-family: Syne, 'Avenir Next', 'PingFang SC', sans-serif;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+.landingNav {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.landingNavBrand {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.65rem;
+  color: @text;
+  text-decoration: none;
+  font-size: 1.15rem;
+}
+
+.landingNavBrand img {
+  width: 28px;
+  height: 28px;
+}
+
+.landingNavLinks {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.landingNavLinks a {
+  color: @fog;
+  text-decoration: none;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.landingNavLinks a:hover {
+  color: @text;
+}
+
+.landingHero {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: flex-end;
+  padding: 6.5rem 1.5rem 3.5rem;
+  box-sizing: border-box;
+  isolation: isolate;
+}
+
+.landingHeroVisual {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 80% 60% at 70% 40%, rgba(47, 143, 123, 0.22), transparent 55%),
+    linear-gradient(135deg, @ink 0%, @ink-soft 48%, #0a2433 100%);
+}
+
+.landingHeroVisual::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(215, 226, 234, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(215, 226, 234, 0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 70% at 65% 45%, #000 20%, transparent 75%);
+  animation: landingGridDrift 28s linear infinite;
+}
+
+.landingHeroVisual img {
+  position: absolute;
+  right: -4%;
+  top: 12%;
+  width: min(72vw, 980px);
+  height: auto;
+  border-radius: 0;
+  object-fit: cover;
+  box-shadow: none;
+  opacity: 0.92;
+  transform-origin: 70% 40%;
+  animation: landingHeroKen 22s ease-in-out infinite alternate;
+  filter: saturate(1.05) contrast(1.02);
+}
+
+.landingHeroScrim {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  background:
+    linear-gradient(90deg, rgba(11, 28, 44, 0.96) 0%, rgba(11, 28, 44, 0.78) 42%, rgba(11, 28, 44, 0.28) 72%, rgba(11, 28, 44, 0.55) 100%),
+    linear-gradient(180deg, rgba(11, 28, 44, 0.35) 0%, transparent 35%, rgba(11, 28, 44, 0.85) 100%);
+}
+
+.landingHeroInner {
+  position: relative;
+  z-index: 2;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  animation: landingRise 0.9s ease-out both;
+}
+
+.landingHeroBrand {
+  margin: 0 0 1rem;
+  font-size: clamp(2.75rem, 7vw, 4.75rem);
+  line-height: 0.95;
+  color: @text;
+}
+
+.landingHeroTitle {
+  margin: 0 0 1rem;
+  max-width: 18ch;
+  font-family: Syne, 'Avenir Next', 'PingFang SC', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.35rem, 3.2vw, 2rem);
+  line-height: 1.25;
+  letter-spacing: -0.02em;
+  color: @fog;
+}
+
+.landingHeroLead {
+  margin: 0 0 1.75rem;
+  max-width: 36ch;
+  font-size: 1.05rem;
+  line-height: 1.55;
+  color: @muted;
+}
+
+.landingCtas {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.landingBtnPrimary,
+.landingBtnGhost,
+.landingBtnText {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 2px;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 600;
+  text-decoration: none;
+  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.landingBtnPrimary {
+  background: @accent;
+  color: #fff;
+  border: 1px solid @accent;
+}
+
+.landingBtnPrimary:hover {
+  background: @accent-deep;
+  border-color: @accent-deep;
+  transform: translateY(-1px);
+  color: #fff;
+}
+
+.landingBtnGhost {
+  background: transparent;
+  color: @text;
+  border: 1px solid rgba(215, 226, 234, 0.45);
+}
+
+.landingBtnGhost:hover {
+  border-color: @fog;
+  color: @text;
+  transform: translateY(-1px);
+}
+
+.landingBtnText {
+  background: transparent;
+  color: @muted;
+  border: 1px solid transparent;
+  min-height: 40px;
+  font-weight: 500;
+}
+
+.landingBtnText:hover {
+  color: @fog;
+}
+
+.landingSection {
+  padding: 4.5rem 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.landingSection h2 {
+  margin: 0 0 0.75rem;
+  font-family: Syne, 'Avenir Next', 'PingFang SC', sans-serif;
+  font-weight: 700;
+  font-size: clamp(1.5rem, 3vw, 2rem);
+  letter-spacing: -0.02em;
+}
+
+.landingSectionLead {
+  margin: 0 0 2.5rem;
+  max-width: 48ch;
+  color: @muted;
+  line-height: 1.55;
+}
+
+.landingPillars {
+  display: grid;
+  gap: 2.5rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 800px) {
+  .landingPillars {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+  }
+}
+
+.landingPillar h3 {
+  margin: 0 0 0.5rem;
+  font-family: Syne, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: @fog;
+}
+
+.landingPillar p {
+  margin: 0;
+  color: @muted;
+  line-height: 1.55;
+  font-size: 0.98rem;
+}
+
+.landingPillarMark {
+  display: block;
+  width: 2rem;
+  height: 3px;
+  margin-bottom: 1rem;
+  background: @teal;
+}
+
+.landingPillar:nth-child(2) .landingPillarMark {
+  background: @accent;
+}
+
+.landingPillar:nth-child(3) .landingPillarMark {
+  background: #4aa3c8;
+}
+
+.landingBand {
+  background: linear-gradient(180deg, @ink-soft 0%, @ink 100%);
+  border-top: 1px solid rgba(215, 226, 234, 0.08);
+  border-bottom: 1px solid rgba(215, 226, 234, 0.08);
+}
+
+.landingCompare {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.95rem;
+}
+
+.landingCompare th,
+.landingCompare td {
+  padding: 0.85rem 0.75rem;
+  text-align: left;
+  border-bottom: 1px solid rgba(215, 226, 234, 0.12);
+}
+
+.landingCompare th {
+  color: @fog;
+  font-weight: 600;
+}
+
+.landingCompare td {
+  color: @muted;
+}
+
+.landingCompare td:first-child,
+.landingCompare th:first-child {
+  color: @text;
+}
+
+.landingYes {
+  color: @teal;
+  font-weight: 600;
+}
+
+.landingNo {
+  color: rgba(158, 176, 189, 0.55);
+}
+
+.landingFooter {
+  padding: 2.5rem 1.5rem 3rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem 2rem;
+  justify-content: space-between;
+  align-items: center;
+  color: @muted;
+  font-size: 0.9rem;
+}
+
+.landingFooter nav {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.landingFooter a {
+  color: @fog;
+  text-decoration: none;
+}
+
+.landingFooter a:hover {
+  color: @text;
+}
+
+@keyframes landingRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes landingHeroKen {
+  from {
+    transform: scale(1.02) translate3d(0, 0, 0);
+  }
+  to {
+    transform: scale(1.07) translate3d(-1.5%, -1%, 0);
+  }
+}
+
+@keyframes landingGridDrift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-24px, -24px, 0);
+  }
+}
+
+@media (max-width: 720px) {
+  .landingHeroVisual img {
+    right: -20%;
+    top: 28%;
+    width: 120vw;
+    opacity: 0.55;
+  }
+
+  .landingNavLinks a:not(.landingNavCta) {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .landingHeroInner,
+  .landingHeroVisual img,
+  .landingHeroVisual::before {
+    animation: none;
+  }
+}

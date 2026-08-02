@@ -111,7 +111,7 @@ const Settings: React.FC = () => {
   const licence = cache.getItem2object('licence');
 
   const handleLogoClick = () => {
-    history.push('/');
+    history.push('/home');
   };
 
   const selectTab = (key: SettingsStateKeys) => {
