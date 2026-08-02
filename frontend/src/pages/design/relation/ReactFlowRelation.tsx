@@ -152,11 +152,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const [headerName, setHeaderName] = useState(entity.title);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
   const handleSignature = fields.map(f => f.name).join('\0');
-  // Enter 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
+  // Enter/Tab 提交后 blur 会再进一次 commit；用 ref 保证只落地一次，避免二次提交用陈旧 fields 把刚改名的字段「删掉」并清关联
   const editingRef = useRef<EditingState>(null);
   editingRef.current = editing;
   const entityFieldsRef = useRef(entity.fields || []);
   entityFieldsRef.current = entity.fields || [];
+  // Tab 跳行会换掉编辑行，旧 input blur 不得把下一行误提交关掉
+  const ignoreBlurRef = useRef(false);
 
   useEffect(() => {
     setHeaderName(entity.title);
@@ -171,7 +173,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setEditing({ key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk });
   };
 
-  const commit = () => {
+  /** 已有字段只改类型：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
+  const persistTypeOnly = (key: string, type: string, pk: boolean) => {
+    if (key === '__NEW__') return;
+    const allFields = entityFieldsRef.current;
+    onFieldsChange(allFields.map(f => (
+      f.name === key ? { ...f, type, pk, notNull: pk || f.notNull } : f
+    )));
+  };
+
+  const commit = (advance?: 'next' | 'prev') => {
     const current = editingRef.current;
     if (!current) {
       return;
@@ -179,7 +190,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     editingRef.current = null;
     const name = current.name.trim();
     if (!name) {
-      // 新增空名 = 取消；改已有字段空名 = 静默丢改动（历史摩擦）→ toast 并留在编辑
+      // 新增空名 = 取消；改已有字段空名 = toast 并留在编辑（禁止静默丢）
       if (current.key === '__NEW__') {
         setEditing(null);
         return;
@@ -201,16 +212,37 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       message.warning(`字段 ${name} 已存在`);
       return;
     }
+
+    let nextFields: FieldData[];
     if (current.key === '__NEW__') {
       // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
       const pk = current.pk || current.type === 'IdOrKey';
-      onFieldsChange([...allFields, {
+      const created = {
         name, type: current.type, chnname: '', remark: '', pk, notNull: pk,
-      } as FieldData]);
+      } as FieldData;
+      nextFields = [...allFields, created];
+      onFieldsChange(nextFields);
     } else {
-      onFieldsChange(allFields.map(f => (
+      nextFields = allFields.map(f => (
         f.name === current.key ? { ...f, name, type: current.type, pk: current.pk, notNull: current.pk || f.notNull } : f
-      )));
+      ));
+      onFieldsChange(nextFields);
+    }
+
+    if (advance) {
+      const visibleAfter = nextFields.filter(f => !f.relationNoShow);
+      const idx = visibleAfter.findIndex(f => f.name === name);
+      const targetIdx = advance === 'next' ? idx + 1 : idx - 1;
+      if (idx >= 0 && targetIdx >= 0 && targetIdx < visibleAfter.length) {
+        const f = visibleAfter[targetIdx];
+        const nextEdit = { key: f.name, name: f.name, type: f.type || 'String', pk: !!f.pk };
+        ignoreBlurRef.current = true;
+        editingRef.current = nextEdit;
+        setEditing(nextEdit);
+        // 等 React 卸掉旧 input 的 blur 过完再放行（microtask 可能早于 commit）
+        setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+        return;
+      }
     }
     setEditing(null);
   };
@@ -242,7 +274,33 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     setHeaderEditing(false);
   };
 
-  const editRow = (key: string) => (
+  const onFieldEditKeyDown = (e: React.KeyboardEvent) => {
+    e.stopPropagation();
+    if (e.key === 'Enter') {
+      commit();
+      return;
+    }
+    if (e.key === 'Escape') {
+      setEditing(null);
+      return;
+    }
+    if (e.key === 'Tab') {
+      e.preventDefault();
+      commit(e.shiftKey ? 'prev' : 'next');
+    }
+  };
+
+  const onFieldEditBlur = (e: React.FocusEvent) => {
+    if (ignoreBlurRef.current) return;
+    // 焦点移到同行控件时不提交，避免「改类型/勾 PK」误触发空名 commit
+    const next = e.relatedTarget as HTMLElement | null;
+    if (next && next.closest('.erd-field-editing')) {
+      return;
+    }
+    commit();
+  };
+
+  const editRow = (_key: string) => (
     <div className="erd-field-row erd-field-editing nodrag">
       <label className="erd-field-pk-toggle" title="主键">
         <input
@@ -260,37 +318,24 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         placeholder="字段名"
         value={editing?.name ?? ''}
         onChange={e => setEditing(prev => (prev ? { ...prev, name: e.target.value } : prev))}
-        onKeyDown={e => {
-          e.stopPropagation();
-          if (e.key === 'Enter') commit();
-          if (e.key === 'Escape') setEditing(null);
-        }}
-        onBlur={e => {
-          // 焦点移到同行控件时不提交，避免「改类型/勾 PK」误触发空名 commit
-          const next = e.relatedTarget as HTMLElement | null;
-          if (next && next.closest('.erd-field-editing')) {
-            return;
-          }
-          commit();
-        }}
+        onKeyDown={onFieldEditKeyDown}
+        onBlur={onFieldEditBlur}
       />
       <select
         className="erd-field-type-select"
         aria-label="字段类型"
         value={editing?.type ?? 'String'}
-        onChange={e => setEditing(prev => (prev ? { ...prev, type: e.target.value } : prev))}
-        onKeyDown={e => {
-          e.stopPropagation();
-          if (e.key === 'Enter') commit();
-          if (e.key === 'Escape') setEditing(null);
+        onChange={e => {
+          const type = e.target.value;
+          const current = editingRef.current;
+          if (!current) return;
+          const next = { ...current, type };
+          editingRef.current = next;
+          setEditing(next);
+          persistTypeOnly(current.key, type, current.pk);
         }}
-        onBlur={e => {
-          const next = e.relatedTarget as HTMLElement | null;
-          if (next && next.closest('.erd-field-editing')) {
-            return;
-          }
-          commit();
-        }}
+        onKeyDown={onFieldEditKeyDown}
+        onBlur={onFieldEditBlur}
       >
         {FIELD_TYPES.map(t => (
           <option key={t} value={t}>{t}</option>
