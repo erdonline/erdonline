@@ -20,7 +20,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
-import useTabStore, { ModuleEntity } from '@/store/tab/useTabStore';
+import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { history } from 'umi';
 import { erdColors } from '@/theme/tokens';
 import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
@@ -930,6 +930,27 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             ))}
           </div>
         )}
+        <button
+          type="button"
+          className="erd-open-index nodrag nopan"
+          data-testid="canvas-open-index"
+          aria-label="打开索引"
+          title="打开表设计 · 索引"
+          onClick={e => {
+            e.stopPropagation();
+            const projectDispatch = useProjectStore.getState().dispatch;
+            projectDispatch.setCurrentModule(moduleName);
+            projectDispatch.setCurrentEntity(moduleName, entity.title);
+            useTabStore.getState().dispatch.addTab({
+              group: TabGroup.MODEL,
+              module: moduleName,
+              entity: entity.title,
+              designPane: 'index',
+            });
+          }}
+        >
+          索引
+        </button>
       </div>
     </div>
   );

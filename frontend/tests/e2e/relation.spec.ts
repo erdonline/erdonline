@@ -1179,6 +1179,53 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('画布打开索引签：直达表设计索引；无死 affordance', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('idxnav');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'idxnav', 'canvas open index');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const openIndex = node.getByTestId('canvas-open-index');
+      await expect(openIndex).toBeVisible();
+      await expect(openIndex).toHaveAttribute('aria-label', '打开索引');
+      // pointer 易被 RF 吞；DOM click 可靠
+      await openIndex.evaluate((el: HTMLElement) => el.click());
+
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-index-edit')).toBeVisible();
+
+      // 可切回字段；再经画布入口仍落索引（非死 affordance / 非粘滞）
+      await designer.getByRole('tab', { name: '字段' }).click();
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await rfNode(page, 'T_TABLE_1')
+        .getByTestId('canvas-open-index')
+        .evaluate((el: HTMLElement) => el.click());
+      await expect(page.getByTestId('table-design').getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('字段默认值内联编辑；Tab 入 default；Escape 丢弃', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdef');

@@ -18,6 +18,8 @@ type actions = {
   containTab: (payload: string) => boolean,
   /** 同模块关系图 tab 就地切换 diagram（不新开签，ADR-0017） */
   switchRelationDiagram: (module: string, entity: string) => void,
+  /** 表设计签消费 designPane 后清除，避免再次激活误定位 */
+  consumeDesignPane: (payload: ModuleEntity) => void,
 }
 
 export enum TabGroup {
@@ -26,10 +28,15 @@ export enum TabGroup {
 
 export const defaultSelectTabId = '';
 
+/** 表设计内签：字段 / 索引 / 元数据应用 */
+export type DesignPane = 'field' | 'index' | 'code';
+
 export type ModuleEntity = {
   group?: TabGroup;
   module?: string;
   entity?: string;
+  /** 打开表设计时定位到的内签；TableTab 消费后清除 */
+  designPane?: DesignPane;
 }
 
 export type TabState = {
@@ -45,10 +52,26 @@ const useTabStore = create<TabState>(
     tableTabs: [],
     dispatch: {
       addTab: (payload: ModuleEntity) => set(produce(state => {
-        if (!state.tableTabs.find((tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload.module)) {
+        const existing = state.tableTabs.find(
+          (tab: ModuleEntity) => tab?.entity === payload.entity && tab?.module === payload.module,
+        );
+        if (!existing) {
           state.tableTabs.push(payload);
+        } else {
+          if (payload.group !== undefined) existing.group = payload.group;
+          if (payload.designPane !== undefined) {
+            existing.designPane = payload.designPane;
+          } else {
+            delete existing.designPane;
+          }
         }
         state.selectTabId = `${payload.module}###${payload.entity}`;
+      })),
+      consumeDesignPane: (payload: ModuleEntity) => set(produce(state => {
+        const tab = state.tableTabs.find(
+          (t: ModuleEntity) => t?.entity === payload.entity && t?.module === payload.module,
+        );
+        if (tab?.designPane) delete tab.designPane;
       })),
       activeTab: (payload: ModuleEntity) => set(produce(state => {
         state.selectTabId = `${payload.module}###${payload.entity}`;

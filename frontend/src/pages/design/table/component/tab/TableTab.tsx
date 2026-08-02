@@ -1,10 +1,10 @@
 import CodeTab from '@/pages/design/table/component/tab/CodeTab';
 import TableIndexEdit from '@/pages/design/table/component/table/TableIndexEdit';
 import TableInfoEdit from '@/pages/design/table/component/table/TableInfoEdit';
-import {ModuleEntity} from '@/store/tab/useTabStore';
+import useTabStore, {DesignPane, ModuleEntity} from '@/store/tab/useTabStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import {erdColors} from '@/theme/tokens';
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import {Tabs} from 'antd';
 import {TableOutlined} from '@ant-design/icons';
 import './TableTab.less';
@@ -16,11 +16,17 @@ export type TableTabProps = {
 };
 
 const TableTab: React.FC<TableTabProps> = (props) => {
-  const {module, entity: entityName} = props.moduleEntity;
+  const {module, entity: entityName, designPane} = props.moduleEntity;
   const entity = useProjectStore(state =>
     state.project?.projectJSON?.modules
       ?.find((m: any) => m.name === module)
       ?.entities?.find((e: any) => (e.title || e.name) === entityName));
+  const [activeKey, setActiveKey] = useState<DesignPane>(designPane || 'field');
+
+  // 画布入口再次带 designPane 时同步；勿在 mount 立刻 consume（Strict Mode 双挂载会丢定位）
+  useEffect(() => {
+    if (designPane) setActiveKey(designPane);
+  }, [designPane, module, entityName]);
 
   return (
     <div className="erd-table-design" data-testid="table-design">
@@ -34,7 +40,16 @@ const TableTab: React.FC<TableTabProps> = (props) => {
       </div>
       <Tabs
         id="tableNav"
-        defaultActiveKey="field"
+        activeKey={activeKey}
+        onChange={(key) => {
+          setActiveKey(key as DesignPane);
+          if (designPane) {
+            useTabStore.getState().dispatch.consumeDesignPane({
+              module,
+              entity: entityName,
+            });
+          }
+        }}
         size="small"
         className="erd-table-design__tabs"
       >
