@@ -41,6 +41,21 @@ test.describe('在线演示', () => {
       .locator('.react-flow__minimap')
       .evaluate((el) => getComputedStyle(el).backgroundColor);
     expect(miniBg).toBe('rgb(250, 251, 252)'); // surfaceSunk
+    // Controls：surface + 密按钮（与 MiniMap 同角 chrome）
+    const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const btn = el.querySelector('.react-flow__controls-button');
+      const bs = btn ? getComputedStyle(btn) : null;
+      return {
+        bg: cs.backgroundColor,
+        btnH: bs ? parseFloat(bs.height) : NaN,
+      };
+    });
+    expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
+    expect(ctrl.bg).not.toBe('rgb(254, 254, 254)');
+    expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
+      22,
+    );
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });

@@ -8,6 +8,13 @@
 
 ### 2026-08-03
 
+#### 体验：Controls 面板密度（ADR-0016）
+
+- `.react-flow__controls`：`surface` + `line` 描边圆角；按钮 22×22（禁 RF `#fefefe` content-box 松柱）；图标 `ink600` / hover brand
+- 设计器与分享只读同 scss；与 MiniMap 同角 chrome 语言
+
+验证点：`cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "Controls" --workers=1 --retries=0`；`npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：Frame 标题栏密度 + MiniMap sunk 对齐（ADR-0016）
 
 - Frame chrome：height 28→22、label 11 / meta 10、内边距收紧；少占成员上方空白
