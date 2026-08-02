@@ -8,6 +8,14 @@
 
 ### 2026-08-02
 
+#### 修复：Railway Redis WRONGPASS（URL 优先 + 禁止空串 ACL）
+
+- 现象：已连 `redis.railway.internal`，仍 `RedisWrongPasswordException: WRONGPASS invalid username-password pair`
+- 根因：yml `password/username: ${VAR:}` 空默认绑成 `""`；Redisson 对非 null 空串发 `AUTH "" password`（Redis 6 ACL）或 `AUTH ""`（弄坏本地无密码）
+- 改动：`RedisUrlAliasEnvironmentPostProcessor` 优先 `REDIS_PRIVATE_URL`→`REDIS_URL`；仅非空时注入 password/`REDISUSER`；yml 去掉空默认；文档强调 Variable Reference ← `REDISPASSWORD` 并 Redeploy
+
+验证点：`mvn -q -Dtest=RedisUrlAliasEnvironmentPostProcessorTest,RedisDataPropertiesBindingTest test`；本地无 `REDIS_PASSWORD` 时 `password`/`username` 均为 null
+
 #### 修复：Redis 仍连 localhost（Boot 3 属性前缀）
 
 - 根因：`application.yml` 写在废弃的 `spring.redis.*`（Boot 3 error 级、不绑定）；Redisson 读 `spring.data.redis.*` → 永远默认 `localhost:6379`，与 Railway 是否已设 `REDIS_HOST` 无关

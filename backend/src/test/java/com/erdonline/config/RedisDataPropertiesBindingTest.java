@@ -1,6 +1,7 @@
 package com.erdonline.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.autoconfigure.data.redis.RedisProperties;
@@ -11,7 +12,8 @@ import org.springframework.core.env.StandardEnvironment;
 import org.springframework.mock.env.MockEnvironment;
 
 /**
- * Ensures REDIS_* placeholders land on Boot 3 {@code spring.data.redis.*} (what Redisson reads).
+ * Ensures REDIS_* land on Boot 3 {@code spring.data.redis.*} (what Redisson reads),
+ * and empty password/username stay null (local no-auth Redis + Redis 6 ACL).
  */
 class RedisDataPropertiesBindingTest {
 
@@ -20,10 +22,10 @@ class RedisDataPropertiesBindingTest {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("REDIS_HOST", "redis.railway.internal");
         env.setProperty("REDIS_PORT", "6379");
-        env.setProperty("REDIS_PASSWORD", "s3cret");
         env.setProperty("spring.data.redis.host", "${REDIS_HOST:${REDISHOST:localhost}}");
         env.setProperty("spring.data.redis.port", "${REDIS_PORT:${REDISPORT:6379}}");
-        env.setProperty("spring.data.redis.password", "${REDIS_PASSWORD:${REDISPASSWORD:}}");
+        env.setProperty("spring.data.redis.password", "s3cret");
+        env.setProperty("spring.data.redis.username", "default");
 
         RedisProperties props = Binder.get(env)
                 .bind("spring.data.redis", Bindable.of(RedisProperties.class))
@@ -32,6 +34,7 @@ class RedisDataPropertiesBindingTest {
         assertEquals("redis.railway.internal", props.getHost());
         assertEquals(6379, props.getPort());
         assertEquals("s3cret", props.getPassword());
+        assertEquals("default", props.getUsername());
     }
 
     @Test
@@ -39,10 +42,9 @@ class RedisDataPropertiesBindingTest {
         MockEnvironment env = new MockEnvironment();
         env.setProperty("REDISHOST", "plugin-host");
         env.setProperty("REDISPORT", "6380");
-        env.setProperty("REDISPASSWORD", "plugin-pass");
         env.setProperty("spring.data.redis.host", "${REDIS_HOST:${REDISHOST:localhost}}");
         env.setProperty("spring.data.redis.port", "${REDIS_PORT:${REDISPORT:6379}}");
-        env.setProperty("spring.data.redis.password", "${REDIS_PASSWORD:${REDISPASSWORD:}}");
+        env.setProperty("spring.data.redis.password", "plugin-pass");
 
         RedisProperties props = Binder.get(env)
                 .bind("spring.data.redis", Bindable.of(RedisProperties.class))
@@ -54,7 +56,7 @@ class RedisDataPropertiesBindingTest {
     }
 
     @Test
-    void defaultsRemainLocalhostWhenUnset() {
+    void defaultsRemainLocalhostWithNullAuthWhenUnset() {
         StandardEnvironment env = new StandardEnvironment();
         env.getPropertySources().addFirst(new org.springframework.core.env.MapPropertySource(
                 "defaults",
@@ -68,6 +70,8 @@ class RedisDataPropertiesBindingTest {
 
         assertEquals("localhost", props.getHost());
         assertEquals(6379, props.getPort());
+        assertNull(props.getPassword(), "empty-string password would make Redisson AUTH \"\"");
+        assertNull(props.getUsername(), "empty-string username would make Redisson AUTH \"\" pass → WRONGPASS");
     }
 
     @Test
