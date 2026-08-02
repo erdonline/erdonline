@@ -10,6 +10,7 @@ import ReactFlow, {
 } from 'reactflow';
 import dagre from 'dagre';
 import 'reactflow/dist/style.css';
+import {erdColors} from '@/theme/tokens';
 import ZhControls from '../design/relation/ZhControls';
 import '../design/relation/reactflow-relation.scss';
 
@@ -41,7 +42,8 @@ function associationsToEdges(associations: Association[]): Edge[] {
       target: a.to!.entity!,
       targetHandle: `${a.to!.field}-tgt`,
       label: a.relation || '',
-      labelStyle: {fontSize: 10},
+      labelStyle: {fontSize: 10, fill: erdColors.ink400},
+      style: {stroke: erdColors.ink600, strokeWidth: 1.5},
       animated: false,
     }));
 }
@@ -134,7 +136,11 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
   }, [module]);
 
   if (!nodes.length) {
-    return <div style={{padding: 24, color: '#888'}}>该模块暂无表</div>;
+    return (
+      <div style={{padding: 24, color: 'var(--erd-ink-400)', fontFamily: 'var(--erd-font-ui)'}}>
+        该模块暂无表
+      </div>
+    );
   }
 
   return (
@@ -155,7 +161,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module}) => {
         zoomOnScroll
         proOptions={{hideAttribution: true}}
       >
-        <Background/>
+        <Background gap={20} size={1} color={erdColors.line}/>
         <ZhControls showInteractive={false}/>
         <MiniMap pannable zoomable ariaLabel="画布缩略图"/>
       </ReactFlow>
