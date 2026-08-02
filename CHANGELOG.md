@@ -2,7 +2,17 @@
 
 本项目遵循 [语义化版本](https://semver.org/lang/zh-CN/)；每个迭代轮的验证方式见 `docs/roadmap.md`。
 
+## [Unreleased] — P2b W2 项目面闭环（2026-08-02）
+
+### 测试
+- 新增 `project-surface.spec.ts`：`/project/new`→person；home 快捷个人/最近/团队；最近项目打开设计器；主导航数据模型/数据源
+  验证点：`npx playwright test tests/e2e/project-surface.spec.ts --project=chromium`
+
+### 文档
+- `docs/control-matrix.md` / `docs/roadmap.md`：P2b W0–W6 波次收口 ✅（长尾 📋 保留）
+
 ## [Unreleased] — P2b W3–W5 控件闭环（2026-08-02）
+
 
 ### 测试
 - 版本：`RenameVersion`/`RemoveVersion` 补 `data-testid`；`version.spec` 重命名描述 + 删除版本 + toast/行消失
