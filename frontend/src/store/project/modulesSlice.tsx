@@ -16,9 +16,11 @@ import {
   newDiagramId,
   removeFrameFromDiagram,
   removeMembersFromFrame,
+  renameFrameInDiagram,
   updateFrameBounds as applyFrameBounds,
   upsertDiagramLayout,
 } from "@/utils/diagram";
+import { normalizeRelation } from "@/utils/relationEdges";
 
 
 export type IModulesSlice = {
@@ -88,8 +90,20 @@ export interface IModulesDispatchSlice {
     frames: Array<{ id: string; x: number; y: number; w?: number; h?: number }>,
   ) => void;
   removeFrame: (moduleName: string, diagramId: string | undefined, frameId: string) => void;
+  renameFrame: (
+    moduleName: string,
+    diagramId: string | undefined,
+    frameId: string,
+    name: string,
+  ) => void;
   addAssociation: (moduleName: string, association: any) => void;
   removeAssociation: (moduleName: string, association: any) => void;
+  /** 改关联基数（from/to 定位；relation 归一化后写入） */
+  updateAssociationRelation: (
+    moduleName: string,
+    association: { from: { entity: string; field: string }; to: { entity: string; field: string } },
+    relation: string,
+  ) => void;
   undoCanvas: () => void;
   redoCanvas: () => void;
   setCurrentModule: (payload: any) => any,
@@ -407,6 +421,24 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }));
     message.success('已删除分组');
   },
+  renameFrame: (moduleName, diagramId, frameId, name) => {
+    const next = (name || '').trim();
+    if (!next) {
+      message.warning('分组名称不能为空');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      renameFrameInDiagram(diagram, frameId, next);
+    }));
+  },
   // 追加关联（按 from/to 去重）；按模块名定位，理由同 updateGraphCanvasLayout
   addAssociation: (moduleName: string, association: any) => {
     const modules = get().project?.projectJSON?.modules;
@@ -426,7 +458,8 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       if (!m) {
         return;
       }
-      m.associations = [...(m.associations || []), association];
+      const relation = normalizeRelation(association.relation) || association.relation || 'n:1';
+      m.associations = [...(m.associations || []), { ...association, relation }];
     }));
   },
   // 删除关联（画布删边）
@@ -441,6 +474,37 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
         a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field));
     }));
+  },
+  updateAssociationRelation: (moduleName, association, relation) => {
+    const next = normalizeRelation(relation);
+    if (!next) {
+      message.warning('基数不能为空');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    let found = false;
+    set(produce(state => {
+      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return;
+      }
+      const list = module.associations || [];
+      for (const a of list) {
+        if (
+          a?.from?.entity === association.from?.entity &&
+          a?.from?.field === association.from?.field &&
+          a?.to?.entity === association.to?.entity &&
+          a?.to?.field === association.to?.field
+        ) {
+          a.relation = next;
+          found = true;
+          break;
+        }
+      }
+    }));
+    if (!found) {
+      message.warning('未找到该关联');
+    }
   },
   undoCanvas: () => {
     const restored = undoModules(get().project?.projectJSON?.modules);

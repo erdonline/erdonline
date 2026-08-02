@@ -114,6 +114,40 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
     }
   });
 
+  test('双击 Frame 标题重命名并持久化', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('frame-rn');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'frn', 'frame rename');
+
+      await ensureTwoTablesOnCanvas(page);
+      await rfNode(page, 'T_TABLE_1').click();
+      await page.getByRole('button', { name: '新建分组' }).click();
+      const frame = page.getByTestId('diagram-frame');
+      await expect(frame).toBeVisible({ timeout: 10_000 });
+
+      await page.getByTestId('frame-rename-label').dblclick({ force: true });
+      const input = page.getByTestId('frame-rename-input');
+      await expect(input).toBeVisible({ timeout: 5_000 });
+      await input.fill('鉴权域');
+      await input.press('Enter');
+      await expect(page.getByTestId('frame-rename-label')).toHaveText('鉴权域');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const designUrl = page.url();
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('frame-rename-label')).toHaveText('鉴权域');
+      const groups = await getDiagramGroups(page);
+      expect(groups[0]?.name).toBe('鉴权域');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
+
   test('空选新建分组后选表加入', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('frame2');

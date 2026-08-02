@@ -45,6 +45,37 @@
     box-shadow: 0 1px 2px var(--erd-ink-a06);
     white-space: nowrap;
     user-select: none;
+
+    &--editable {
+      cursor: pointer;
+
+      &:hover {
+        border-color: var(--erd-brand);
+        color: var(--erd-brand);
+      }
+    }
+
+    &--editing {
+      padding: 0 !important;
+      border: none;
+      box-shadow: none;
+      background: transparent;
+    }
+  }
+
+  .erd-edge-cardinality-select {
+    .ant-select-selector {
+      height: 22px !important;
+      min-height: 22px !important;
+      padding: 0 6px !important;
+      font-size: 11px !important;
+      font-family: var(--erd-font-mono) !important;
+    }
+
+    .ant-select-selection-item {
+      line-height: 20px !important;
+      font-size: 11px !important;
+    }
   }
 
   .react-flow__edge-text {
@@ -521,6 +552,29 @@
     letter-spacing: 0.02em;
     user-select: none;
     line-height: 1.2;
+    cursor: text;
+    max-width: 70%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .erd-frame-rename {
+    flex: 1;
+    min-width: 0;
+    max-width: 70%;
+    height: 18px;
+    margin: 0;
+    padding: 0 4px;
+    border: 1px solid var(--erd-brand);
+    border-radius: 2px;
+    background: var(--erd-surface);
+    color: var(--erd-ink);
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    line-height: 16px;
+    outline: none;
   }
 
   .erd-frame-meta {

@@ -34,7 +34,7 @@ export type ProjectJsonEntity = {
 };
 
 export type ProjectJsonAssociation = {
-  relation: '1:1' | '1:n' | 'n:n';
+  relation: '1:1' | '1:n' | 'n:1' | 'n:n';
   from: { entity: string; field: string };
   to: { entity: string; field: string };
 };
@@ -188,11 +188,12 @@ function sanitizeModuleName(raw: string | undefined): string {
   return base || 'DBML';
 }
 
-function relationCode(a: string | undefined, b: string | undefined): '1:1' | '1:n' | 'n:n' {
+function relationCode(a: string | undefined, b: string | undefined): '1:1' | '1:n' | 'n:1' | 'n:n' {
   const left = a === '1' || a === '|' ? '1' : '*';
   const right = b === '1' || b === '|' ? '1' : '*';
   if (left === '1' && right === '1') return '1:1';
   if (left === '*' && right === '*') return 'n:n';
+  if (left === '*' && right === '1') return 'n:1';
   return '1:n';
 }
 
@@ -294,7 +295,8 @@ function mapAssociation(ref: DbmlRef): ProjectJsonAssociation | null {
   }
 
   return {
-    relation: relationCode(epA.relation, epB.relation),
+    // 基数跟 from→to（多端→一端）对齐，勿用原始 endpoint 顺序
+    relation: relationCode(from.relation, to.relation),
     from: { entity: from.tableName, field: fromField },
     to: { entity: to.tableName, field: toField },
   };

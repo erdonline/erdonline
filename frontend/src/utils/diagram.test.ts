@@ -25,6 +25,7 @@ import {
   purgeFrameMemberId,
   relationTabEntity,
   removeMembersFromFrame,
+  renameFrameInDiagram,
   renameFrameMemberIds,
   upsertDiagramLayout,
 } from './diagram';
@@ -143,6 +144,12 @@ async function main() {
     renameFrameMemberIds(d, 'U', 'USER');
     assert.ok(f.memberEntityIds.includes('USER'));
     assert.ok(!f.memberEntityIds.includes('U'));
+
+    const renamed = renameFrameInDiagram(d, f.id, '权限域');
+    assert.equal(renamed?.name, '权限域');
+    assert.equal(f.name, '权限域');
+    renameFrameInDiagram(d, f.id, '  ');
+    assert.equal(f.name, '权限域', '空名不覆盖');
 
     purgeFrameMemberId(d, 'R');
     assert.ok(!f.memberEntityIds.includes('R'));

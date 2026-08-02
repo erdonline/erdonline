@@ -155,7 +155,26 @@ async function main() {
       ys.some((y) => y > 80 && y < 200),
       `expected gap Y in (80,200), got ${ys.join(',')}`,
     );
+    // 显式中点 (80+200)/2 = 140
+    assert.ok(ys.includes(140), `expected mid-corridor 140, got ${ys.join(',')}`);
     assert.ok(ys.includes(0 - EDGE_BYPASS_GAP) || ys.includes(280 + EDGE_BYPASS_GAP));
+  });
+
+  await run('同侧短 U：sameSide 模式避障', () => {
+    // 默认外肘 x≈268 穿中间障；更远外肘应清通 → sameSide
+    const wall = { id: 'W', x: 250, y: 80, width: 40, height: 120 };
+    const r = routeErdSmoothStep({
+      sourceX: 240,
+      sourceY: 40,
+      targetX: 240,
+      targetY: 280,
+      sourcePosition: Position.Right,
+      targetPosition: Position.Right,
+      offset: EDGE_STEP_OFFSET,
+      obstacles: [wall],
+    });
+    assert.strictEqual(r.mode, 'sameSide', `mode=${r.mode}`);
+    assert.ok(r.path.startsWith('M'));
   });
 
   await run('端点旁竖挡堵单 bypass → twoBend', () => {

@@ -35,7 +35,7 @@ export const EDGE_ASTAR_BEND_COST = 28;
  * bypass 路径相对直线曼哈顿超此倍率时，继续试 twoBend/A* 并取更短解
  * （避免密 FK 簇「绕底一圈」仍抢先返回）
  */
-export const EDGE_BYPASS_DETOUR_RATIO = 2.15;
+export const EDGE_BYPASS_DETOUR_RATIO = 1.85;
 
 /** 同通道多边 → 居中 trunk 偏移列表 */
 export function trunkBundleOffsetsForCount(
@@ -260,6 +260,55 @@ export function pathFromWaypoints(
   return [path, labelX, labelY];
 }
 
+function isSameHorizontalSide(sourcePosition: Position, targetPosition: Position): boolean {
+  return (
+    sourcePosition === targetPosition &&
+    (sourcePosition === Position.Left || sourcePosition === Position.Right)
+  );
+}
+
+/**
+ * 同侧短 U（竖叠）：外肘 X 候选，避障后取最短；消 RF default 绕障乱折。
+ */
+export function sameSideUWaypoints(
+  sourceX: number,
+  sourceY: number,
+  targetX: number,
+  targetY: number,
+  offset: number,
+  outerX: number,
+): RoutePoint[] {
+  return [
+    { x: sourceX, y: sourceY },
+    { x: outerX, y: sourceY },
+    { x: outerX, y: targetY },
+    { x: targetX, y: targetY },
+  ];
+}
+
+export function collectSameSideOuterXs(
+  sourceX: number,
+  targetX: number,
+  offset: number,
+  side: Position.Left | Position.Right,
+  obstacles: ObstacleRect[],
+): number[] {
+  const base =
+    side === Position.Right
+      ? Math.max(sourceX, targetX) + offset
+      : Math.min(sourceX, targetX) - offset;
+  const set = new Set<number>([base, base + (side === Position.Right ? offset : -offset)]);
+  for (const r of obstacles) {
+    if (side === Position.Right) {
+      set.add(r.x + r.width + EDGE_BYPASS_GAP);
+    } else {
+      set.add(r.x - EDGE_BYPASS_GAP);
+    }
+  }
+  const dir = side === Position.Right ? 1 : -1;
+  return [...set].sort((a, b) => dir * (a - b));
+}
+
 function isOppositeHorizontal(sourcePosition: Position, targetPosition: Position): boolean {
   const horiz = new Set([Position.Left, Position.Right]);
   return (
@@ -297,7 +346,7 @@ export function collectCenterXCandidates(
 }
 
 /**
- * 候选绕行 Y：并集外沿 + 各障顶/底（叠表缝 mid-corridor），近 midY 优先。
+ * 候选绕行 Y：并集外沿 + 各障顶/底 + 叠表缝 mid-corridor，近 midY 优先。
  */
 export function pickBypassYCandidates(
   sourceY: number,
@@ -320,6 +369,15 @@ export function pickBypassYCandidates(
   for (const r of blockers) {
     set.add(r.y - EDGE_BYPASS_GAP);
     set.add(r.y + r.height + EDGE_BYPASS_GAP);
+  }
+  // 叠表缝：两障之间空隙中点（短走廊，避免只绕外沿）
+  const sorted = [...blockers].sort((a, b) => a.y - b.y || a.x - b.x);
+  for (let i = 0; i < sorted.length - 1; i++) {
+    const gapTop = sorted[i].y + sorted[i].height;
+    const gapBot = sorted[i + 1].y;
+    if (gapBot - gapTop >= EDGE_BYPASS_GAP) {
+      set.add((gapTop + gapBot) / 2);
+    }
   }
   return [...set].sort((a, b) => Math.abs(a - midY) - Math.abs(b - midY));
 }
@@ -355,8 +413,8 @@ export type ErdRouteResult = {
   path: string;
   labelX: number;
   labelY: number;
-  /** default | centerX | bypass | twoBend | astar — 供单测 / 调试 */
-  mode: 'default' | 'centerX' | 'bypass' | 'twoBend' | 'astar';
+  /** default | centerX | bypass | twoBend | astar | sameSide — 供单测 / 调试 */
+  mode: 'default' | 'centerX' | 'bypass' | 'twoBend' | 'astar' | 'sameSide';
 };
 
 function pointInExpandedObstacle(x: number, y: number, r: ObstacleRect): boolean {
@@ -619,6 +677,39 @@ export function routeErdSmoothStep(opts: {
   };
 
   if (!isOppositeHorizontal(sourcePosition, targetPosition)) {
+    // 同侧短 U：先试外肘避障，再退 RF default（勿直接乱折）
+    if (
+      isSameHorizontalSide(sourcePosition, targetPosition) &&
+      (sourcePosition === Position.Left || sourcePosition === Position.Right)
+    ) {
+      const obstacles = raw.map((r) => expandObstacle(r));
+      const outers = collectSameSideOuterXs(
+        sourceX,
+        targetX,
+        offset,
+        sourcePosition,
+        obstacles,
+      );
+      let best: { pts: RoutePoint[]; len: number } | undefined;
+      for (const ox of outers) {
+        const pts = sameSideUWaypoints(
+          sourceX,
+          sourceY,
+          targetX,
+          targetY,
+          offset,
+          ox,
+        );
+        if (obstacles.length === 0 || !polylineHitsObstacles(pts, obstacles)) {
+          const len = manhattanPolyline(pts);
+          if (!best || len < best.len) best = { pts, len };
+        }
+      }
+      if (best) {
+        const [path, labelX, labelY] = pathFromWaypoints(best.pts, borderRadius);
+        return { path, labelX, labelY, mode: 'sameSide' };
+      }
+    }
     return fallback();
   }
 

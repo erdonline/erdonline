@@ -367,10 +367,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       const marker = await edgePath.getAttribute('marker-end');
       expect(marker, '边应带闭合箭头 marker').toBeTruthy();
 
-      // ADR-0016：连线后基数标签 chip 可读
+      // ADR-0016：连线后基数标签 chip 可读（默认 n:1）
       const edgeLabel = page.getByTestId('erd-edge-label');
       await expect(edgeLabel).toBeVisible();
-      await expect(edgeLabel).toHaveText(/0,\s*n:1|0,n:1/);
+      await expect(edgeLabel).toHaveText(/n:1/);
       const labelLook = await edgeLabel.evaluate((el) => {
         const s = getComputedStyle(el);
         return {
@@ -390,6 +390,18 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(labelLook.padX).toBeLessThanOrEqual(4);
       expect(labelLook.padY).toBeLessThanOrEqual(2);
       expect(labelLook.radius).toBeLessThanOrEqual(3);
+
+      // 基数可编辑：点 chip → 选 1:1 → 刷新仍在
+      await edgeLabel.click();
+      await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
+      await page.getByRole('option', { name: '1:1' }).click();
+      await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      const designUrl = page.url();
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1', { timeout: 15_000 });
 
       // 默认新建表常竖叠：几何择柄应走同侧短 U（消 circle-route）
       const portEl = page.getByTestId('erd-edge-route-mode');

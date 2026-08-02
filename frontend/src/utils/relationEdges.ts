@@ -39,6 +39,32 @@ export const EDGE_LABEL_FONT_SIZE = 11;
 export const EDGE_LABEL_BG_PADDING: [number, number] = [4, 2];
 export const EDGE_LABEL_BG_RADIUS = 3;
 
+/**
+ * 行业 ER 基数字符串（from→to 方向；画布拖 FK→PK 默认 n:1）。
+ * 兼容历史 `0,n:1` / `0,1:1`（可选性前缀）→ 归一到下列集合。
+ */
+export const CARDINALITY_OPTIONS = ['1:1', '1:n', 'n:1', 'n:n'] as const;
+export type Cardinality = (typeof CARDINALITY_OPTIONS)[number];
+/** 拖连线默认：多端（FK）→ 一端（PK） */
+export const DEFAULT_RELATION: Cardinality = 'n:1';
+
+/** 归一化 / 展示用；未知串原样返回（不丢用户数据） */
+export function normalizeRelation(raw: string | undefined | null): string {
+  if (raw == null) return '';
+  const s = String(raw).trim().toLowerCase().replace(/\s+/g, '');
+  if (!s) return '';
+  if ((CARDINALITY_OPTIONS as readonly string[]).includes(s)) return s;
+  // 0,n:1 / 0,1:n / 1,n:1 等可选性前缀
+  const m = s.match(/^(?:0[,:]?)?(1|n)[:\-](1|n)$/);
+  if (m) return `${m[1]}:${m[2]}` as Cardinality;
+  if (s === 'n:m' || s === 'm:n' || s === '*:') return 'n:n';
+  return String(raw).trim();
+}
+
+export function isCardinality(v: string): v is Cardinality {
+  return (CARDINALITY_OPTIONS as readonly string[]).includes(v);
+}
+
 export type PortSide = 'l' | 'r';
 /** lr=右→左；rl=左→右；same=同侧短 U（竖叠） */
 export type PortMode = 'lr' | 'rl' | 'same';
@@ -64,6 +90,12 @@ export type ErdEdgeData = {
   hubFanOffset?: number;
   /** 几何择柄模式（供 E2E / 探针） */
   portMode?: PortMode;
+  /** 设计器可改基数；分享只读不传 */
+  editable?: boolean;
+  /** 写回 associations 用（与 edge id 解耦） */
+  assocFrom?: { entity: string; field: string };
+  assocTo?: { entity: string; field: string };
+  moduleName?: string;
 };
 
 export type EdgeLayoutHint = {
@@ -256,11 +288,14 @@ export function associationsToEdges(
     const tp = hint?.positions?.[target];
     const ports =
       sp && tp ? pickPortSides(sp, tp, nodeWidth) : DEFAULT_PORT_CHOICE;
+    const relationLabel = normalizeRelation(a.relation) || a.relation || '';
     const data: ErdEdgeData = {
       laneOffset,
       stepOffset,
       hubFanOffset,
       portMode: ports.mode,
+      assocFrom: { entity: source, field: a.from!.field! },
+      assocTo: { entity: target, field: a.to!.field! },
     };
 
     return {
@@ -270,7 +305,7 @@ export function associationsToEdges(
       target,
       targetHandle: targetHandleId(a.to!.field!, ports.targetSide),
       type: ERD_EDGE_TYPE,
-      label: a.relation || '',
+      label: relationLabel,
       data,
       labelStyle: {
         fontSize: EDGE_LABEL_FONT_SIZE,

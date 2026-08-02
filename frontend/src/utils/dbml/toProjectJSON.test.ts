@@ -65,7 +65,7 @@ async function main() {
     assert.equal(mapDbmlDefault(undefined), undefined);
   });
 
-  await run('databaseToProjectJSON：表/字段/note→chnname/Ref→1:n/Indexes→indexs', () => {
+  await run('databaseToProjectJSON：表/字段/note→chnname/Ref→n:1/Indexes→indexs', () => {
     const json = databaseToProjectJSON({
       name: 'shop_demo',
       note: '商店',
@@ -161,7 +161,7 @@ async function main() {
     assert.deepEqual(mod.entities[1].indexs, []);
     assert.equal(mod.associations.length, 1);
     assert.deepEqual(mod.associations[0], {
-      relation: '1:n',
+      relation: 'n:1',
       from: { entity: 'posts', field: 'user_id' },
       to: { entity: 'users', field: 'id' },
     });
