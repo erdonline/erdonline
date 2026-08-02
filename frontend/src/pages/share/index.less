@@ -169,9 +169,10 @@
   font-weight: 500;
 }
 
+/* 展开态表清单：与 project-list / 22–28 chrome 同阶；禁 16 pad + 14 标题松表 */
 .share-page__tables {
-  margin: 0 auto 32px;
-  padding: 16px;
+  margin: 0 auto 24px;
+  padding: 8px 12px 12px;
   width: calc(100% - 40px);
   max-width: 1200px;
   box-sizing: border-box;
@@ -179,11 +180,33 @@
   border: 1px solid var(--erd-line);
   border-top: none;
   border-radius: 0 0 var(--erd-radius) var(--erd-radius);
+  font-family: var(--erd-font-ui);
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    color: var(--erd-ink-600);
+    background: var(--erd-surface-muted);
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--erd-ink-900);
+  }
 }
 
 .share-page__tables-title {
-  margin: 0 0 12px !important;
-  font-size: 14px !important;
+  margin: 0 0 8px !important;
+  font-size: 13px !important;
   font-weight: 600;
+  line-height: 22px !important;
   color: var(--erd-ink-900);
 }

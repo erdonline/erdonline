@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：分享展开表清单行密度（ADR-0016）
+
+- 选题：表清单折叠后展开态仍用 16 pad + 14 标题 + antd 默认松行，与 22–28 / project-list 不同阶
+- `.share-page__tables`：pad 8×12、标题 13/22、表头/行 pad 4×8 / font 12；折叠默认 + 底条 affordance 不变
+- `demo.spec` 断言展开后首行高 ∈[22,28]；截图 `demo-share-tables-dense.png`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "设计器分享后匿名打开" --workers=1 --retries=0`
+
 #### 体验：分享 meta hint/描述密度（ADR-0016）
 
 - 选题：视口铺满 + 表清单折叠后，hint/描述仍用 13px + 12 间距抢纵向；画布应再涨一截
