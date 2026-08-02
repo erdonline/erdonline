@@ -8,6 +8,23 @@
 
 ### 2026-08-02
 
+#### 功能：模型设计 UX（ADR-0017 Phase 1）— 默认展开 + 虚拟滚动 + 三签美化 + erd 色调
+
+**功能 / 体验**
+
+- 模型树「表」「关系」默认展开（新模块自动展开；用户手动折叠不被回顶）；删除 `getExpandedKeys` 推送不匹配 key 的死逻辑（store 层 `expandedKeys` 死状态一并清除）
+- 模型树开虚拟滚动（antd Tree `height` + ResizeObserver 量容器），支撑 100+ 表/边
+- 模型设计工作区 12px 留白 + 卡片化（sunk 底 + surface 卡 + `--erd-line` 描边）；关系图画布成圆角面板，不再贴边
+- 表设计三签（字段/索引/元数据应用）美化：签头加表名 + 中文名 + 所属模型层级条，签体统一内边距，内层 DB 签降一级
+- 树图标/徽章/菜单色值切 `erdColors`（模块 ink900、表 warning、关系 success、删除 brand），与画布 PK/FK 徽章同语言
+
+**测试 / 文档**
+
+- E2E：新增 `model-design-ux.spec.ts`（默认展开 + 虚拟滚动结构断言 + 折叠不回顶 + 三签切换）；`helpers.expandTreeTitle` 改幂等
+- `docs/adr/0017-multi-diagram-and-entity-editor.md`：调研结论 + Phase 2（多关系图 `module.diagrams[]` + 图内分组 Frame，schema-additive 纯 projectJSON）
+
+验证点：`cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --workers=1`
+
 #### 修复：设计器项目菜单导出/导入串台 + chrome 入口
 
 **修复 / 体验**

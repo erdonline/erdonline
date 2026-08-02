@@ -52,7 +52,7 @@ const Table: React.FC = () => {
 
   // 左树唯一来源 = DesignLayout sider（DesignLeftContent）；此处不再嵌套 Splitter/DataTable
   return (
-    <Flex vertical style={{ height: '100%', minHeight: 0, flex: 1 }}>
+    <Flex vertical className="erd-design-workspace" style={{ height: '100%', minHeight: 0, flex: 1 }}>
       <EmptyStateAnimation
         show={!selectTabId && modules && modules.length > 0}
         description="快去创建/打开一个表吧！"

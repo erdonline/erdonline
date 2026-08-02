@@ -6,11 +6,9 @@ export type IGlobalSlice = {
   setSaving: (saving: boolean) => void;
   setNeedSave: (saved: boolean) => void;
   setSearchKey: (searchKey: string) => void;
-  setExpandedKeys: (expandedKeys: string[]) => void;
 };
 
 export type GlobalState = {
-  expandedKeys?: any;
   searchKey?: string;
   querySearchKey?: string;
   /** 最近一次自动保存是否成功落库 */
@@ -22,7 +20,6 @@ export type GlobalState = {
 };
 
 const useGlobalStore = create<GlobalState>((set) => ({
-  expandedKeys: [],
   searchKey: '',
   querySearchKey: '',
   saved: true,
@@ -51,12 +48,6 @@ const useGlobalStore = create<GlobalState>((set) => ({
       set(
         produce((state) => {
           state.searchKey = searchKey;
-        }),
-      ),
-    setExpandedKeys: (expandedKeys: string[]) =>
-      set(
-        produce((state) => {
-          state.expandedKeys = expandedKeys;
         }),
       ),
   },

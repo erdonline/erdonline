@@ -6,12 +6,21 @@ import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Empty, Menu, message, Modal, Tooltip, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
+import { erdColors } from '@/theme/tokens';
 
 const iconStyle = (color: string) => ({ color, fontSize: '16px' });
+
+/** 树计数徽章：erd 中性色（ADR-0017；禁 antd 默认灰蓝散落） */
+const countBadgeStyle: React.CSSProperties = {
+  backgroundColor: erdColors.surfaceSunk,
+  color: erdColors.ink600,
+  border: `1px solid ${erdColors.line}`,
+  boxShadow: 'none',
+};
 
 export type DataTableProps = {};
 
@@ -31,10 +40,22 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'module' | 'entity' | 'relation'>('module');
   const [currentNode, setCurrentNode] = useState<any>(null);
+  // 默认展开到「表/关系」可操作层级（ADR-0017）；已见 key 不回顶用户的手动折叠
+  const seenExpandableKeysRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
-    setExpandedKeys(projectDispatch.getExpandedKeys(searchKey || ''));
-  }, [searchKey]);
+    const expandable = (modules || []).flatMap((m: any) => [
+      m.name,
+      `${m.name}-tables`,
+      `${m.name}-relations`,
+    ]);
+    const fresh = expandable.filter(k => !seenExpandableKeysRef.current.has(k));
+    if (fresh.length === 0) {
+      return;
+    }
+    fresh.forEach(k => seenExpandableKeysRef.current.add(k));
+    setExpandedKeys(prev => [...prev, ...fresh]);
+  }, [modules]);
 
   const activeEntity = (module: any, entity: any) => {
     projectDispatch.setCurrentModule(module);
@@ -122,9 +143,6 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         break;
     }
     setModalVisible(false);
-    // 刷新树结构
-    const updatedTreeData = projectDispatch.getModuleEntityTree(searchKey || '', true);
-    setExpandedKeys(projectDispatch.getExpandedKeys(searchKey || ''));
   };
 
   const handleRename = (node: any) => {
@@ -196,7 +214,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           style={{
             padding: '0 8px',
             fontSize: '16px',
-            color: '#52c41a',
+            color: erdColors.brand,
             cursor: 'pointer'
           }}
           onClick={(e) => {
@@ -211,24 +229,24 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       <Menu onClick={(e) => e.domEvent.stopPropagation()}>
         {node.type !== 'folder' && (
           <>
-            <Menu.Item key="rename" icon={<EditOutlined style={iconStyle('#1890ff')} />} onClick={() => handleRename(node)}>
+            <Menu.Item key="rename" icon={<EditOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handleRename(node)}>
               {node.type === 'module' ? '编辑模型' : node.type === 'entity' ? '编辑表' : '编辑关系'}
             </Menu.Item>
-            <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle('#13c2c2')} />} onClick={() => handleCopy(node)}>
+            <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle(erdColors.success)} />} onClick={() => handleCopy(node)}>
               {`复制${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
             </Menu.Item>
-            <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle('#faad14')} />} onClick={() => handleCut(node)}>
+            <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle(erdColors.warning)} />} onClick={() => handleCut(node)}>
               {`剪切${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
             </Menu.Item>
             {(node.type === 'module' || node.type === 'entity') && (
-              <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle('#722ed1')} />} onClick={() => handlePaste(node)}>
+              <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handlePaste(node)}>
                 {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
               </Menu.Item>
             )}
             <Menu.Divider />
             <Menu.Item
               key="remove"
-              icon={<DeleteOutlined style={iconStyle('#ff4d4f')} />}
+              icon={<DeleteOutlined style={iconStyle(erdColors.brand)} />}
               danger
               onClick={() => handleRemove(node)}
             >
@@ -257,11 +275,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <Badge
           count={node.children.length}
           size="small"
-          style={{
-            backgroundColor: '#f0f0f0',
-            color: 'rgba(0, 0, 0, 0.65)',
-            boxShadow: 'none',
-          }}
+          style={countBadgeStyle}
         />
       );
     } else if (node.type === 'module') {
@@ -271,11 +285,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <Badge
           count={tablesCount + relationsCount}
           size="small"
-          style={{
-            backgroundColor: '#f0f0f0',
-            color: 'rgba(0, 0, 0, 0.65)',
-            boxShadow: 'none',
-          }}
+          style={countBadgeStyle}
         />
       );
     } else if (node.type === 'entity') {
@@ -285,7 +295,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           <Text
             ellipsis={{ tooltip: node.chnname }}
             style={{
-              color: 'rgba(0, 0, 0, 0.45)',
+              color: erdColors.ink400,
               maxWidth: '100px',
               marginRight: '8px'
             }}
@@ -295,11 +305,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           <Badge
             count={fieldsCount}
             size="small"
-            style={{
-              backgroundColor: '#f0f0f0',
-              color: 'rgba(0, 0, 0, 0.65)',
-              boxShadow: 'none',
-            }}
+            style={countBadgeStyle}
           />
         </div>
       );
@@ -309,18 +315,18 @@ const DataTable: React.FC<DataTableProps> = (props) => {
 
   const renderIcon = (node: any) => {
     if (node.type === "module") {
-      return <AppstoreOutlined style={{ color: '#1890ff' }} />;
+      return <AppstoreOutlined style={{ color: erdColors.ink900 }} />;
     } else if (node.type === "relation") {
-      return <NodeIndexOutlined style={{ color: '#52c41a' }} />;
+      return <NodeIndexOutlined style={{ color: erdColors.success }} />;
     } else if (node.type === "entity") {
-      return <TableOutlined style={{ color: '#faad14' }} />;
+      return <TableOutlined style={{ color: erdColors.warning }} />;
     } else if (node.type === "folder") {
       if (node.title === '表') {
-        return <DatabaseOutlined style={{ color: '#722ed1' }} />;
+        return <DatabaseOutlined style={{ color: erdColors.ink600 }} />;
       } else if (node.title === '关系') {
-        return <NodeIndexOutlined style={{ color: '#13c2c2' }} />;
+        return <NodeIndexOutlined style={{ color: erdColors.ink600 }} />;
       }
-      return <FolderOutlined style={{ color: '#8c8c8c' }} />;
+      return <FolderOutlined style={{ color: erdColors.ink400 }} />;
     }
     return null;
   };
@@ -329,19 +335,19 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     const items: MenuProps['items'] = [
       {
         key: 'addModule',
-        icon: <AppstoreOutlined />,
+        icon: <AppstoreOutlined style={{ color: erdColors.ink900 }} />,
         label: <span data-testid="menu-add-module">新增模型</span>,
         onClick: () => showModal('module'),
       },
       {
         key: 'addEntity',
-        icon: <TableOutlined />,
+        icon: <TableOutlined style={{ color: erdColors.warning }} />,
         label: <span data-testid="menu-add-entity">新增表</span>,
         onClick: () => showModal('entity'),
       },
       {
         key: 'addRelation',
-        icon: <NodeIndexOutlined />,
+        icon: <NodeIndexOutlined style={{ color: erdColors.success }} />,
         label: '新增关系',
         onClick: () => showModal('relation'),
       },
@@ -401,6 +407,8 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           renderIcon={renderIcon}
           compactLevel={2}
           onAdd={handleAdd()}
+          expandedKeys={expandedKeys}
+          onExpand={(keys) => setExpandedKeys(keys)}
         />
       ) : renderEmptyState()}
 

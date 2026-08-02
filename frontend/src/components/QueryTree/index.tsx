@@ -1,7 +1,8 @@
-import React from 'react';
-import { Tree, Input, Button, Typography, Tooltip } from 'antd';
+import React, { useEffect, useRef, useState } from 'react';
+import { Tree, Input, Button, Typography } from 'antd';
 import { PlusOutlined, DownOutlined, FolderOutlined, CodeOutlined } from '@ant-design/icons';
 import type { DataNode } from 'antd/es/tree';
+import { erdColors } from '@/theme/tokens';
 import './style.less';
 
 const { Text } = Typography;
@@ -16,6 +17,9 @@ interface QueryTreeProps {
   renderExtraIcons?: (node: DataNode) => React.ReactNode;
   renderIcon?: (props: any) => React.ReactNode;
   compactLevel?: number;
+  /** 受控展开 keys（默认展开「表/关系」由调用方计算） */
+  expandedKeys?: React.Key[];
+  onExpand?: (keys: React.Key[]) => void;
 }
 
 const QueryTree: React.FC<QueryTreeProps> = ({
@@ -27,7 +31,26 @@ const QueryTree: React.FC<QueryTreeProps> = ({
   renderExtraIcons,
   renderIcon,
   compactLevel = 0,
+  expandedKeys,
+  onExpand,
 }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const [treeHeight, setTreeHeight] = useState(0);
+
+  // 虚拟滚动需要显式高度；容器是 flex 弹性高，用 ResizeObserver 量（ADR-0017）
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) {
+      return;
+    }
+    const ro = new ResizeObserver(entries => {
+      const h = entries[0]?.contentRect?.height || 0;
+      setTreeHeight(Math.floor(h));
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   const titleRender = (nodeData: DataNode) => {
     const level = nodeData.key.toString().split('-').length - 1;
     const paddingLeft = Math.max(0, (level - compactLevel) * 24);
@@ -65,9 +88,9 @@ const QueryTree: React.FC<QueryTreeProps> = ({
 
   const defaultRenderIcon = (props: any) => {
     if (props.isLeaf) {
-      return <CodeOutlined style={{ color: '#1890FF' }} />;
+      return <CodeOutlined style={{ color: erdColors.ink600 }} />;
     }
-    return <FolderOutlined style={{ color: '#FFB300' }} />;
+    return <FolderOutlined style={{ color: erdColors.warning }} />;
   };
 
   const renderAddButton = () => {
@@ -95,17 +118,25 @@ const QueryTree: React.FC<QueryTreeProps> = ({
         />
         {renderAddButton()}
       </div>
-      <div className={`tree-container custom-tree compact-tree compact-level-${compactLevel}`}>
-        <Tree.DirectoryTree
-          showIcon={false}
-          switcherIcon={<DownOutlined />}
-          onSelect={onSelect}
-          treeData={treeData}
-          expandAction="click"
-          titleRender={titleRender}
-          icon={renderIcon || defaultRenderIcon}
-          blockNode
-        />
+      <div
+        ref={containerRef}
+        className={`tree-container custom-tree compact-tree compact-level-${compactLevel}`}
+      >
+        {treeHeight > 0 && (
+          <Tree.DirectoryTree
+            showIcon={false}
+            switcherIcon={<DownOutlined />}
+            onSelect={onSelect}
+            treeData={treeData}
+            expandAction="click"
+            titleRender={titleRender}
+            icon={renderIcon || defaultRenderIcon}
+            expandedKeys={expandedKeys}
+            onExpand={onExpand}
+            height={treeHeight}
+            blockNode
+          />
+        )}
       </div>
     </div>
   );
