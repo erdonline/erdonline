@@ -11,7 +11,7 @@ import {
 } from './helpers';
 
 /**
- * DBML 导入：上传 fixture → 模型树 + 画布 N 实体
+ * DBML 导入：上传 fixture → 模型树 + 画布 N 实体；前缀表自动建议 Frame
  */
 test.describe('DBML 导入', () => {
   test('上传 minimal.dbml 后画布可见 N 张表', async ({ page }) => {
@@ -78,6 +78,48 @@ test.describe('DBML 导入', () => {
         timeout: 10_000,
       });
       await expect(tree.getByText('posts', { exact: true })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('前缀表导入后自动建议 Frame 分组', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('dbmlpfx');
+    const fixture = path.join(__dirname, '../fixtures/prefixed.dbml');
+
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'pfx', 'dbml frame suggest');
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导入' })
+        .click();
+      await page.getByRole('menuitem', { name: '导入DBML' }).click();
+      const dlg = page.getByRole('dialog');
+      await expect(dlg.getByText('导入 DBML')).toBeVisible({ timeout: 10_000 });
+
+      await dlg.locator('input[type="file"]').setInputFiles(fixture);
+      await expectToast(page, /DBML 导入成功.*已建议 2 个分组/);
+      await expect(dlg).toBeHidden({ timeout: 10_000 });
+
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+
+      await expect(rfNode(page, 'sys_user')).toBeVisible({ timeout: 15_000 });
+      await expect(rfNode(page, 'biz_order')).toBeVisible();
+
+      const frames = page.getByTestId('diagram-frame');
+      await expect(frames).toHaveCount(2, { timeout: 10_000 });
+      await expect(page.locator('.erd-frame-label', { hasText: 'sys' })).toBeVisible();
+      await expect(page.locator('.erd-frame-label', { hasText: 'biz' })).toBeVisible();
+
+      await page
+        .getByTestId('reactflow-canvas')
+        .screenshot({ path: 'test-results/ux-walkthrough/diagram-import-frame-suggest.png' });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
