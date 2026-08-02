@@ -53,6 +53,7 @@ export default () => {
       grid={{gutter: 16, column: 2}}
       onItem={(record: any) => {
         return {
+          'data-testid': `export-common-${String(record.key).toLowerCase()}`,
           onClick: () => {
             projectDispatch.exportFile(record.key)
           },

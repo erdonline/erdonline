@@ -28,9 +28,72 @@ export interface IExportDispatchSlice {
   onSelectTableChange: (selectTable: []) => any;
   setExportData: () => any;
   getExportData: () => any;
-  exportSQL: () => any;
+  /** @returns true 成功；false 失败（调用方据此保持对话框不关闭） */
+  exportSQL: () => boolean;
 }
 
+const HTTP_REASON: Record<number, string> = {
+  400: '请求参数有误',
+  401: '登录已失效，请重新登录',
+  403: '当前权限不足',
+  404: '导出接口不存在',
+  500: '服务器发生错误',
+  502: '网关错误',
+  503: '服务暂不可用',
+  504: '网关超时',
+};
+
+/** 统一导出失败文案：原因 + 重试引导（零静默失败） */
+export function showExportFailure(type: string, reason: string) {
+  const detail = reason?.trim() || '未知错误';
+  message.error(`${type}导出失败!请重试！出错原因：${detail}`);
+}
+
+type ExportRequestError = {
+  message?: string;
+  name?: string;
+  data?: unknown;
+  response?: { status?: number; statusText?: string };
+};
+
+async function resolveExportErrorReason(err: unknown): Promise<string> {
+  const e = err as ExportRequestError;
+  if (!e?.response) {
+    return '网络异常，请检查网络连接后重试';
+  }
+  const data = e.data;
+  if (data instanceof Blob) {
+    try {
+      const text = await data.text();
+      if (text) {
+        const json = JSON.parse(text) as { msg?: string; message?: string };
+        if (json?.msg || json?.message) {
+          return (json.msg || json.message) as string;
+        }
+      }
+    } catch {
+      /* 非 JSON blob，走状态码 */
+    }
+  } else if (data && typeof data === 'object') {
+    const body = data as { msg?: string; message?: string };
+    if (body.msg || body.message) {
+      return (body.msg || body.message) as string;
+    }
+  }
+  const status = e.response?.status;
+  if (status && HTTP_REASON[status]) {
+    return HTTP_REASON[status];
+  }
+  if (e.message && e.message !== 'http error') {
+    return e.message;
+  }
+  return e.response?.statusText || '未知错误';
+}
+
+/** 强制 reject，避免全局 errorHandler return 后 Promise resolve(undefined) 静默失败 */
+function rethrowExportError(error: unknown): never {
+  throw error;
+}
 
 const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   setExportSliceState: (exportSlice: any) => set(produce(state => {
@@ -56,16 +119,16 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
       get().dispatch.showExportMessage();
       saveImage(dataSource, columnOrder, (images: any) => {
         generateMD(dataSource, images, project, (data: any) => {
-          // 将数据保存到文件
           File.save(data, `${project}.md`);
+          Modal.destroyAll();
         });
-      }, (err: any) => {
-        message.error(`${type}导出失败!请重试！出错原因：${err.message}`);
+      }, (err: unknown) => {
+        Modal.destroyAll();
+        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        showExportFailure(type, reason);
       });
     } else if (type === 'Word' || type === 'PDF') {
-      //Message.warning({title: '该功能正在开发中，敬请期待！'})
       const postfix = type === 'Word' ? '.doc' : '.pdf';
-      // 保存图片
       get().dispatch.showExportMessage();
       saveImage(dataSource, columnOrder, (images: any) => {
         const tempImages = Object.keys(images).reduce<Record<string, string>>((acc, key) => ({
@@ -77,6 +140,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         request.post('/ncnb/doc/gendocx', {
           method: 'POST',
           responseType: 'blob',
+          errorHandler: rethrowExportError,
           data: {
             imgs: tempImages,
             projectId,
@@ -84,68 +148,60 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
             doctpl: _.get(dataSource, 'profile.wordTemplateConfig', ""),
             dbKey: defaultDatabase?.key || ''
           }
-        }).then((res) => {
-          if (res) {
-            File.saveByBlob(res, `${project}${postfix}`);
+        }).then(async (res) => {
+          if (!res) {
+            Modal.destroyAll();
+            showExportFailure(type, '服务器未返回文档内容');
+            return;
           }
-        }).catch((err: any) => {
-          message.error(`生成文档出错！出错原因：${err.message}！`);
-        }).finally(() => {
-          // this.setState({
-          //   downloading: false
-          // });
+          // 后端偶发以 JSON 错误体 + blob 返回（含 HTTP 200）
+          const blob = res as Blob;
+          if (blob.type && blob.type.includes('json')) {
+            Modal.destroyAll();
+            try {
+              const text = await blob.text();
+              const json = JSON.parse(text) as { msg?: string; message?: string };
+              showExportFailure(type, json.msg || json.message || '文档生成失败');
+            } catch {
+              showExportFailure(type, '文档生成失败');
+            }
+            return;
+          }
+          File.saveByBlob(res, `${project}${postfix}`);
+          Modal.destroyAll();
+        }).catch(async (err: unknown) => {
+          Modal.destroyAll();
+          const reason = await resolveExportErrorReason(err);
+          showExportFailure(type, reason);
         });
-      }, (err: any) => {
-        message.error(`${type}导出失败!请重试！出错原因：${err.message}`);
+      }, (err: unknown) => {
+        Modal.destroyAll();
+        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        showExportFailure(type, reason);
       });
     } else if (type === 'Html') {
       get().dispatch.showExportMessage();
       saveImage(dataSource, columnOrder, (images: any) => {
         generateHtml(dataSource, images, project, (data: any) => {
           File.save(data, `${project}.html`);
+          Modal.destroyAll();
         });
-      }, (err: any) => {
-        message.error(`${type}导出失败!请重试！出错原因：${err.message}`);
+      }, (err: unknown) => {
+        Modal.destroyAll();
+        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        showExportFailure(type, reason);
       });
     } else if (type === 'JSON') {
-      const tempDataSource = {...dataSource};
-      const originERDJson = JSON.stringify(tempDataSource, null, 2);
-      const secret = get().dispatch.encrypt("AES", originERDJson);
-      File.save(secret, `${project}.erd.json`);
+      try {
+        const tempDataSource = {...dataSource};
+        const originERDJson = JSON.stringify(tempDataSource, null, 2);
+        const secret = get().dispatch.encrypt("AES", originERDJson);
+        File.save(secret, `${project}.erd.json`);
+      } catch (err: unknown) {
+        const reason = err instanceof Error ? err.message : '序列化失败';
+        showExportFailure(type, reason);
+      }
     }
-    // else if (type === 'SQL') {
-    //   const database = _.get(dataSource, 'dataTypeDomains.database', []);
-    //   const defaultDb = (database.filter((db: any) => db.defaultDatabase)[0] || {}).code;
-    //   let modal = null;
-    //   const onOk = () => {
-    //     const exportConfig = modal.com.getValue();
-    //     const value = exportConfig.value;
-    //     if (value.length === 0) {
-    //       Modal.error({title: '导出失败', message: '请选择导出的内容'})
-    //     } else {
-    //       const data = modal.com.getData();
-    //       File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
-    //       modal && modal.close();
-    //     }
-    //   };
-    //   const onCancel = () => {
-    //     modal && modal.close();
-    //   };
-    //   modal = openModal(<ExportSQL
-    //     defaultDb={defaultDb}
-    //     database={database}
-    //     dataSource={dataSource}
-    //     exportSQL={onOk}
-    //     configJSON={this.props.configJSON}
-    //     updateConfig={this.props.updateConfig}
-    //   />, {
-    //     title: 'SQL导出配置',
-    //     footer: [
-    //       //<Button key="ok" onClick={onOk} type="primary" style={{marginTop: 10}}>保存</Button>,
-    //       <Button key="cancel" onClick={onCancel} style={{marginLeft: 10, marginTop: 10}}>关闭</Button>
-    //     ],
-    //   });
-    // }
   },
   showExportMessage: () => {
     const {projectJSON: dataSource} = get().project;
@@ -213,9 +269,6 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         })
       }
     });
-    // return (modules || []).reduce((a: any, b: any) => {
-    //   return (a.concat(b.entities.map((c: any) => ({...c, key: `${b.name}/${c.title}`}))));
-    // }, (modules || []).map((d: any) => ({key: d.name}))).map((k: any) => k.key);
   },
   onSelectTableChange: (selectTable: []) => {
     get().dispatch.setExportSliceState({
@@ -255,11 +308,18 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
   exportSQL: () => {
     const data = get().exportSliceState?.data;
     if (data) {
-      File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
-      message.success('导出成功');
-    }else {
-      message.warning('暂时无法导出');
+      try {
+        File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
+        message.success('导出成功');
+        return true;
+      } catch (err: unknown) {
+        const reason = err instanceof Error ? err.message : '文件写入失败';
+        showExportFailure('DDL', reason);
+        return false;
+      }
     }
+    showExportFailure('DDL', '暂无可导出的 SQL 内容，请检查数据源与导出配置后重试');
+    return false;
   }
 
 });

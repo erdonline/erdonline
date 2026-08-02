@@ -63,7 +63,8 @@ const ExportDDL: React.FC = () => {
     <StepsForm
       formRef={formRef}
       onFinish={async () => {
-        projectDispatch.exportSQL();
+        // false 时保持对话框打开（失败可见，不静默关窗）
+        return projectDispatch.exportSQL();
       }}
 
       formProps={{

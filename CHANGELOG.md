@@ -8,6 +8,25 @@
 
 ### 2026-08-02
 
+#### 修复：导出失败可见（Word/DDL/ExportCommon，不再静默/空白）
+
+**修复**
+
+- `exportSlice`：Word/PDF `gendocx` 用局部 `errorHandler` 强制 reject，避免全局 handler `resolve(undefined)` 后无反馈；失败统一 `「…导出失败!请重试！出错原因：…」`；成功/失败后 `Modal.destroyAll` 收起「导出提示」
+- `exportSQL` 返回 `boolean`；空内容/写入失败走同一失败文案；`ExportDDL`（菜单弹窗 + 页面 StepsForm）`onFinish` 返回 false 保持对话框
+- `ExportCommon` 卡片补 `data-testid=export-common-*`
+  验证点：`cd frontend && npx playwright test --grep "导出失败" --project=chromium-serial --no-deps` → 3 passed
+
+**测试**
+
+- 新增 `export-feedback.spec.ts`：Word 模拟 500、Word 网络 abort、DDL 自定义空内容失败且弹窗不关；纳入 `chromium-serial`
+  验证点：同上
+
+**文档**
+
+- `docs/roadmap.md` 下一季② → 🚧，子项「导出失败可见」✅
+  验证点：roadmap ② 行含 🚧 与本切片 ✅ 日期
+
 #### 功能：设计器顶栏「保存版本」常驻入口（关通知不丢激活路径）
 
 **功能**
