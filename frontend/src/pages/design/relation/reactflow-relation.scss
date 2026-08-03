@@ -134,6 +134,7 @@
   }
 
   // MiniMap：sunk 底 + 紧凑尺寸，禁 RF 默认 #fff 白块盖截图
+  // Tab：d3-zoom 写 tabindex=0；ErdMiniMap 强制 -1（装饰，鼠标仍可拖）
   .react-flow__minimap {
     background-color: var(--erd-surface-sunk) !important;
     border: 1px solid var(--erd-line);
@@ -142,6 +143,10 @@
     box-shadow: 0 1px 2px var(--erd-ink-a06);
     width: 128px !important;
     height: 96px !important;
+
+    svg:focus {
+      outline: none;
+    }
   }
 
   // Controls：与 MiniMap 同角 chrome；禁 RF #fefefe 白柱 + 松 padding
@@ -171,6 +176,13 @@
     &:hover {
       background: var(--erd-surface-muted);
       color: var(--erd-brand);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+      z-index: 1;
+      position: relative;
     }
 
     svg {

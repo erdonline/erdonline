@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布 chrome Tab 序（Controls / MiniMap / 工具栏）
+
+- 选题：MiniMap `pannable`+`zoomable` 经 d3-zoom 写 `tabindex=0` → Tab 陷阱；Controls 键盘环弱；工具栏与缩放钮割裂
+- `ErdMiniMap`：MutationObserver 强制 SVG `tabindex=-1`（鼠标拖/滚保留；`role=img` 名保留）；设计器+分享共用
+- Controls `:focus-visible` brand 环；工具栏 `role=toolbar`「画布工具」
+- E2E：`relation`「画布 chrome Tab 序：Controls→工具栏；MiniMap 不出序；focus-visible」
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 左树键盘漫游（或节点级 Tab 再收口）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布 chrome Tab 序" --workers=1 --retries=0`
+
 #### 体验：画布字段浏览器 Tab 环（键盘建模）
 
 - 选题：所有表字段 + 行内 PK/✎/× 全进 Tab 序 → 密图画布 trap；未选中表仍可 Tab 入
 - `TableNode`：仅选中表字段行/`添加字段`/打开表设计/`改名` `tabIndex=0`；未选中 `-1`；行内 PK·✎·× `-1`（Enter 编辑、Delete 删）；字段行↑↓、`:focus-visible` brand 环；`?` 速查同步
 - E2E：`relation`「画布字段浏览器 Tab 环：选中表穿字段无 trap」；速查卡文案断言同步
-- `docs/design-principles.md` §2；下一刀 → 画布工具栏 / MiniMap / Controls Tab 序收口（或左树键盘漫游）
+- `docs/design-principles.md` §2；下一刀 → ~~画布工具栏 / MiniMap / Controls Tab 序收口~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段浏览器 Tab 环" --workers=1 --retries=0`

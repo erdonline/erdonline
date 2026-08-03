@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
-  MiniMap,
   Panel,
   Handle,
   Position,
@@ -66,6 +65,7 @@ import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import ShortcutHelp from './ShortcutHelp';
 import ErdCrowFootMarkers from './ErdCrowFootMarkers';
+import ErdMiniMap from './ErdMiniMap';
 import ErdRelationEdge from './ErdRelationEdge';
 import ZhControls from './ZhControls';
 import './reactflow-relation.scss';
@@ -2312,7 +2312,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         <Background gap={20} size={1} color={erdColors.line} />
         <ZhControls fitViewOptions={{ ...FIT_VIEW_SHAREABLE }} />
         {!isEmpty && (
-          <MiniMap
+          <ErdMiniMap
             pannable
             zoomable
             ariaLabel="画布缩略图"
@@ -2325,7 +2325,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         )}
         <CollabCursors />
         <Panel position="top-right">
-          <div className="erd-canvas-toolbar">
+          <div
+            className="erd-canvas-toolbar"
+            role="toolbar"
+            aria-label="画布工具"
+            data-testid="canvas-toolbar"
+          >
             <span className="erd-diagram-switcher" data-testid="diagram-switcher">
               <Select
                 size="small"
