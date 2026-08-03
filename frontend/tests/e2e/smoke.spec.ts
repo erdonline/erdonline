@@ -33,11 +33,22 @@ test.describe('冒烟：核心旅程', () => {
       const shell = document.querySelector('[data-testid="auth-brand-shell"]');
       const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
       const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
+      const formTitle = header?.querySelector('.auth-shell__form-title') as HTMLElement | null;
+      const shellForm = document.querySelector('[data-testid="auth-shell-form"]') as HTMLElement | null;
+      const formItem = shellForm?.querySelector('.ant-form-item') as HTMLElement | null;
+      const input = shellForm?.querySelector(
+        '.ant-input:not([disabled]):not(textarea)',
+      ) as HTMLElement | null;
+      const btn = shellForm?.querySelector('.ant-btn-primary') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const thumb = el.querySelector('.auth-shell__brand-thumb') as HTMLElement | null;
       const svg = el.querySelector('[data-testid="erd-empty-diagram"]') as SVGElement | null;
       const fcs = form ? getComputedStyle(form) : null;
       const hcs = header ? getComputedStyle(header) : null;
+      const ftCs = formTitle ? getComputedStyle(formTitle) : null;
+      const itemCs = formItem ? getComputedStyle(formItem) : null;
+      const ics = input ? getComputedStyle(input) : null;
+      const bcs = btn ? getComputedStyle(btn) : null;
       const tcs = title ? getComputedStyle(title) : null;
       const thCs = thumb ? getComputedStyle(thumb) : null;
       const shellHtml = shell?.outerHTML ?? '';
@@ -53,6 +64,10 @@ test.describe('冒烟：核心旅程', () => {
         formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
         formPadL: fcs ? parseFloat(fcs.paddingLeft) : -1,
         headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
+        formTitleMt: ftCs ? parseFloat(ftCs.marginTop) : -1,
+        itemMb: itemCs ? parseFloat(itemCs.marginBottom) : -1,
+        inputH: ics ? parseFloat(ics.height) : -1,
+        btnH: bcs ? parseFloat(bcs.height) : -1,
         titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
         thumbPad: thCs ? parseFloat(thCs.paddingTop) : -1,
         svgW: svg ? parseFloat(svg.getAttribute('width') || '0') : 0,
@@ -64,7 +79,7 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.shellHasBg2).toBe(false);
     expect(brandMetrics.shellHas1677).toBe(false);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
-    // ADR-0016：登录门碎距三压 — pad 20×16 + gap12 + 门头 mb12（贴 8–12）；品牌标题仍醒目；hero ≤180
+    // ADR-0016：登录门碎距 — pad 20×16 + gap12 + 门头 mb12；表单 Title mt6 / 项 mb12 / 控件 28；hero ≤180
     expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.brandPadT).toBeGreaterThanOrEqual(16);
@@ -74,6 +89,14 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.formPadL, `表单 padL 应 ≤16，得 ${brandMetrics.formPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.headerMb, `门头 mb 应 ∈[8,12]，得 ${brandMetrics.headerMb}`).toBeGreaterThanOrEqual(8);
     expect(brandMetrics.headerMb).toBeLessThanOrEqual(12);
+    expect(brandMetrics.formTitleMt, `表单 Title mt 应 ≤8（禁 mt10），得 ${brandMetrics.formTitleMt}`).toBeLessThanOrEqual(8);
+    expect(brandMetrics.formTitleMt).toBeGreaterThanOrEqual(4);
+    expect(brandMetrics.itemMb, `表单项 mb 应 ∈[8,16]（目标12），得 ${brandMetrics.itemMb}`).toBeGreaterThanOrEqual(8);
+    expect(brandMetrics.itemMb).toBeLessThanOrEqual(16);
+    expect(brandMetrics.inputH, `Input 高应 ∈[24,32]（目标28），得 ${brandMetrics.inputH}`).toBeGreaterThanOrEqual(24);
+    expect(brandMetrics.inputH).toBeLessThanOrEqual(32);
+    expect(brandMetrics.btnH, `提交钮高应 ∈[24,32]（目标28），得 ${brandMetrics.btnH}`).toBeGreaterThanOrEqual(24);
+    expect(brandMetrics.btnH).toBeLessThanOrEqual(32);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
     expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
     expect(brandMetrics.svgW, `hero 剪影应 ≤180，得 ${brandMetrics.svgW}`).toBeLessThanOrEqual(180);
