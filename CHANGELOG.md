@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布对齐/自动布局假成功
+
+- 选题：拖表坐标假成功已收口（`227c2c0`）；对齐 / 自动布局仍本地 `updateGraphCanvasLayout` 即写 store，autosave 失败像坐标已落盘
+- `alignSelected` / `autoLayout` → `commitDiagramGeometry` `persist:true`；仅 `saveProject` code===200 写 store；失败 toast + RF 回滚；成功后才 `fitView`
+- E2E：`canvas-align-layout-failure` 左齐/自动布局首拒 transform 回滚 → 重试成功；定位 `align-left` / `aria-label=自动布局` / `rfNode`（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Frame 改名 / Frame bounds（适应成员·缩放）假成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-align-layout-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布拖表坐标假成功
 
 - 选题：剪贴/粘贴假成功已收口（`e36fcfc`）；左树改名模型/关系图已 `persist:true`（clean）；画布 `onNodeDragStop` 仍本地 `updateGraphCanvasLayout`/`updateFrameBounds` 即写 store，autosave 失败像坐标已落盘
 - `commitDiagramGeometry`：表坐标 + Frame bounds 一次 produce；`persist:true` 仅 `saveProject` code===200 写 store；失败 toast；RF 回滚到 store 坐标可再拖
 - E2E：`canvas-drag-reposition-failure` 首拒 transform 回滚 → 重试拖动成功；定位 `rfNode`/`save-status`（勿扫 `.ant-*`）
-- 文档：design-principles §1·§5 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Frame 改名 / 对齐·自动布局 / 缩放 bounds 假成功（若仍有）
+- 文档：design-principles §1·§5 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~对齐·自动布局~~✅ → Frame 改名 / 缩放 bounds
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-drag-reposition-failure.spec.ts --project=chromium --workers=1 --retries=0`

@@ -1681,6 +1681,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const nodesRef = useRef(nodes);
   nodesRef.current = nodes;
 
+  /** 布局落盘失败：RF 表节点回滚到 store 坐标（对齐/自动布局/拖拽共用） */
+  const rollbackTablePositionsFromStore = useCallback(() => {
+    const mod = useProjectStore
+      .getState()
+      .project?.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+    const savedNodes = getActiveDiagramLayoutNodes(mod, activeDiagramId);
+    setNodes((prev) =>
+      prev.map((n) => {
+        if (n.type !== 'table') {
+          return n;
+        }
+        const saved = savedNodes.find(
+          (s: any) => s.id === n.id || (s.title || '').split(':')[0] === n.id,
+        );
+        if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+          return { ...n, position: { x: saved.x, y: saved.y } };
+        }
+        return n;
+      }),
+    );
+  }, [moduleName, activeDiagramId, setNodes]);
+
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
       // 表 / Frame：拦 RF 直接 remove → Modal 二次确认后再落库（Frame 仅删框不删表）
@@ -2105,45 +2127,62 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     setFrameAssignModal({ frameId: frames[0].id });
   }, [nodes, frames, projectDispatch, moduleName, activeDiagramId, expandFrameForMembers]);
 
-  // 多选对齐：仅表节点；以选中集的包围盒为基准，改坐标后持久化
+  // 多选对齐：仅表节点；以选中集的包围盒为基准
+  // 禁止本地 mutate 即坐标落盘；仅 saveProject code===200 写 store；失败 RF 回滚
   const alignSelected = useCallback((mode: 'left' | 'right' | 'top' | 'bottom' | 'hcenter' | 'vcenter') => {
-    setNodes(prev => {
-      const selected = prev.filter(n => n.selected && n.type === 'table');
-      if (selected.length < 2) {
-        message.info('请先选中至少两张表（Shift+点击或框选）');
-        return prev;
-      }
-      const w = (n: Node) => n.width || 220;
-      const h = (n: Node) => n.height || 80;
-      const minX = Math.min(...selected.map(n => n.position.x));
-      const maxR = Math.max(...selected.map(n => n.position.x + w(n)));
-      const minY = Math.min(...selected.map(n => n.position.y));
-      const maxB = Math.max(...selected.map(n => n.position.y + h(n)));
-      const midX = (minX + maxR) / 2;
-      const midY = (minY + maxB) / 2;
-      const selectedIds = new Set(selected.map((n) => n.id));
+    const prev = nodesRef.current;
+    const selected = prev.filter((n) => n.selected && n.type === 'table');
+    if (selected.length < 2) {
+      message.info('请先选中至少两张表（Shift+点击或框选）');
+      return;
+    }
+    const w = (n: Node) => n.width || 220;
+    const h = (n: Node) => n.height || 80;
+    const minX = Math.min(...selected.map((n) => n.position.x));
+    const maxR = Math.max(...selected.map((n) => n.position.x + w(n)));
+    const minY = Math.min(...selected.map((n) => n.position.y));
+    const maxB = Math.max(...selected.map((n) => n.position.y + h(n)));
+    const midX = (minX + maxR) / 2;
+    const midY = (minY + maxB) / 2;
+    const selectedIds = new Set(selected.map((n) => n.id));
 
-      const next = prev.map(n => {
-        if (!selectedIds.has(n.id)) {
-          return n;
-        }
-        let { x, y } = n.position;
-        if (mode === 'left') x = minX;
-        if (mode === 'right') x = maxR - w(n);
-        if (mode === 'top') y = minY;
-        if (mode === 'bottom') y = maxB - h(n);
-        if (mode === 'hcenter') x = midX - w(n) / 2;
-        if (mode === 'vcenter') y = midY - h(n) / 2;
-        return { ...n, position: { x: Math.round(x), y: Math.round(y) } };
-      });
-      projectDispatch.updateGraphCanvasLayout(
-        moduleName,
-        next.filter((n) => n.type === 'table').map(n => ({ id: n.id, position: n.position })),
-        activeDiagramId,
-      );
-      return next;
+    const next = prev.map((n) => {
+      if (!selectedIds.has(n.id)) {
+        return n;
+      }
+      let { x, y } = n.position;
+      if (mode === 'left') x = minX;
+      if (mode === 'right') x = maxR - w(n);
+      if (mode === 'top') y = minY;
+      if (mode === 'bottom') y = maxB - h(n);
+      if (mode === 'hcenter') x = midX - w(n) / 2;
+      if (mode === 'vcenter') y = midY - h(n) / 2;
+      return { ...n, position: { x: Math.round(x), y: Math.round(y) } };
     });
-  }, [projectDispatch, moduleName, activeDiagramId, setNodes]);
+    setNodes(next);
+    const layoutNodes = next
+      .filter((n) => n.type === 'table')
+      .map((n) => ({ id: n.id, position: n.position }));
+    void (async () => {
+      const ok = await Promise.resolve(
+        projectDispatch.commitDiagramGeometry(
+          moduleName,
+          activeDiagramId,
+          { layoutNodes },
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        rollbackTablePositionsFromStore();
+      }
+    })();
+  }, [
+    projectDispatch,
+    moduleName,
+    activeDiagramId,
+    setNodes,
+    rollbackTablePositionsFromStore,
+  ]);
 
   /** 拖连线进行中；成功 onConnect 置位，失败落点由 onConnectEnd 给反馈（取消空白处不打扰） */
   const connectAttemptRef = useRef<{ active: boolean; connected: boolean }>({
@@ -2308,26 +2347,51 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   }, [projectJSON, projectDispatch, moduleEntity.module]);
 
   // 一键 dagre 自动布局（仅表；Frame 坐标不动）
+  // 禁止本地 mutate 即坐标落盘；仅 saveProject code===200 写 store；失败 RF 回滚（不 fitView）
   const autoLayout = useCallback(() => {
-    setNodes(prev => {
-      const tables = prev.filter((n) => n.type === 'table');
-      const rest = prev.filter((n) => n.type !== 'table');
-      const entities = tables.map(n => n.data?.entity || { title: n.id });
-      const associations = edges.map(e => ({
-        from: { entity: e.source },
-        to: { entity: e.target },
-      }));
-      const positions = dagrePositions(entities, associations);
-      const nextTables = tables.map(n => ({ ...n, position: positions[n.id] || n.position }));
-      projectDispatch.updateGraphCanvasLayout(
-        moduleName,
-        nextTables.map(n => ({ id: n.id, position: n.position })),
-        activeDiagramId,
+    const prev = nodesRef.current;
+    const tables = prev.filter((n) => n.type === 'table');
+    if (!tables.length) {
+      message.info('画布上还没有表');
+      return;
+    }
+    const rest = prev.filter((n) => n.type !== 'table');
+    const entities = tables.map((n) => n.data?.entity || { title: n.id });
+    const associations = edges.map((e) => ({
+      from: { entity: e.source },
+      to: { entity: e.target },
+    }));
+    const positions = dagrePositions(entities, associations);
+    const nextTables = tables.map((n) => ({
+      ...n,
+      position: positions[n.id] || n.position,
+    }));
+    const next = [...rest, ...nextTables];
+    setNodes(next);
+    const layoutNodes = nextTables.map((n) => ({ id: n.id, position: n.position }));
+    void (async () => {
+      const ok = await Promise.resolve(
+        projectDispatch.commitDiagramGeometry(
+          moduleName,
+          activeDiagramId,
+          { layoutNodes },
+          { persist: true },
+        ),
       );
+      if (!ok) {
+        rollbackTablePositionsFromStore();
+        return;
+      }
       pendingFitRef.current = nextTables.length;
-      return [...rest, ...nextTables];
-    });
-  }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
+    })();
+  }, [
+    edges,
+    projectDispatch,
+    moduleName,
+    activeDiagramId,
+    setNodes,
+    rollbackTablePositionsFromStore,
+  ]);
 
   /** 命令面板 / 左树点表 → 选中 + 视口对准 + 短暂脉冲高亮 */
   const focusTable = useCallback(
@@ -2502,6 +2566,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         getDiagramGroups: () => DiagramFrame[];
         /** 清空指定表全字段（含 relationNoShow）；造「空表/空表设计」空态 */
         clearEntityFields: (entityTitle: string) => boolean;
+        /** 仅挪 RF 本地坐标（不落盘），供对齐/布局失败用例打散 */
+        offsetTable: (title: string, dx: number, dy: number) => boolean;
+        /** 仅本地多选表节点，露出对齐工具条 */
+        selectTables: (titles: string[]) => void;
       };
     };
     w.__ERD_E2E__ = {
@@ -2579,11 +2647,39 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       setViewport: (vp) => {
         rfRef.current?.setViewport(vp, { duration: 0 });
       },
+      offsetTable: (title, dx, dy) => {
+        let moved = false;
+        setNodes((prev) =>
+          prev.map((n) => {
+            if (n.id !== title || n.type !== 'table') {
+              return n;
+            }
+            moved = true;
+            return {
+              ...n,
+              position: {
+                x: Math.round(n.position.x + dx),
+                y: Math.round(n.position.y + dy),
+              },
+            };
+          }),
+        );
+        return moved;
+      },
+      selectTables: (titles) => {
+        const selected = new Set(titles);
+        setNodes((prev) =>
+          prev.map((n) => ({
+            ...n,
+            selected: n.type === 'table' && selected.has(n.id),
+          })),
+        );
+      },
     };
     return () => {
       delete w.__ERD_E2E__;
     };
-  }, [moduleEntity.module, currentModule, activeDiagramId]);
+  }, [moduleEntity.module, currentModule, activeDiagramId, setNodes]);
 
   const tableNodeCount = nodes.filter((n) => n.type === 'table').length;
   const cullViewport = tableNodeCount >= VIEWPORT_CULL_THRESHOLD;

@@ -134,7 +134,7 @@ test.describe('关系图画布（ReactFlow）', () => {
         (el) => (el as HTMLElement).style.transform,
       );
       await page.getByRole('button', { name: '自动布局' }).click();
-      await page.waitForTimeout(800);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
       const afterLayout = await rfNode(page, 'T_ORDER').evaluate(
         (el) => (el as HTMLElement).style.transform,
       );
@@ -151,7 +151,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await rfNode(page, 'T_ORDER').click({ modifiers: ['Shift'] });
       await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
       await page.getByTestId('align-left').click();
-      await page.waitForTimeout(400);
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
       const parseTx = (t: string) => {
         const m = t.match(/translate\(([-\d.]+)px/);
         return m ? Number(m[1]) : NaN;

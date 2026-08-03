@@ -239,7 +239,8 @@
 - ✅ **左树删模型/关系图落盘失败可重试**（2026-08-03）：`removeModule`/`removeDiagram` `persist:true`；仅 save code===200 移出 + 成功 toast；失败树保留、确认拒关可重试；`tree-delete-module-diagram-failure` 绿；下一刀 → ~~画布删边·Frame~~✅
 - ✅ **画布删边/删分组落盘失败可重试**（2026-08-03）：`removeAssociation`/`removeFrame` `persist:true`；仅 save code===200 移出 + 成功 toast；失败边/框保留、确认拒关可重试；`canvas-delete-edge-frame-failure` 绿；下一刀 → ~~剪贴粘贴假成功~~✅
 - ✅ **左树剪切/粘贴落盘失败可重试**（2026-08-03）：`cutEntity`/`pastEntity`/`cutModule`/`pastModule` `persist:true`；仅 save code===200 写剪贴板与移出/写入 + 成功 toast；失败保留先前状态；复制仅本地剪贴板；`tree-cut-paste-failure` 绿；下一刀 → ~~改名模型/关系图~~已 clean → ~~拖拽落盘假成功~~✅
-- ✅ **画布拖表坐标落盘失败可回滚**（2026-08-03）：`commitDiagramGeometry` `persist:true`；仅 save code===200 写 layout/Frame bounds；失败 toast + RF 回滚；`canvas-drag-reposition-failure` 绿；下一刀 → Frame 改名 / 对齐·自动布局 / 缩放 bounds 假成功（若仍有）
+- ✅ **画布拖表坐标落盘失败可回滚**（2026-08-03）：`commitDiagramGeometry` `persist:true`；仅 save code===200 写 layout/Frame bounds；失败 toast + RF 回滚；`canvas-drag-reposition-failure` 绿；下一刀 → ~~对齐·自动布局~~✅
+- ✅ **画布对齐/自动布局落盘失败可回滚**（2026-08-03）：`alignSelected`/`autoLayout`→`commitDiagramGeometry` `persist:true`；失败 toast + RF 回滚；成功才 fitView；`canvas-align-layout-failure` 绿；下一刀 → Frame 改名 / Frame bounds（适应成员·缩放）假成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
