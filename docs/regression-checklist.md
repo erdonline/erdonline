@@ -52,6 +52,7 @@
 - [x] 左树「编辑表」→ 表设计字段签；「重命名表」另项弹层 ✅`multi-diagram.spec.ts`「左树「编辑表」开表设计字段签」
 - [x] 左树搜索 × 清过滤 + 无匹配空态：「未找到匹配的表」；× 后树复现表名 ✅`multi-diagram.spec.ts`「左树搜索：无匹配空态」
 - [x] 命令面板搜表定位：搜表名 → 选中 + fitView + `data-locate-flash`；视口外可拉回 ✅`relation.spec`「命令面板：搜表定位」
+- [x] 左树点表定位：点树表名 → 选中 + fitView + `data-locate-flash`；不开表设计 ✅`relation.spec`「左树点表」
 - [x] `getActiveDiagram` 懒迁移 / tab entity 往返 ✅`diagram.test.ts`
 - [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
 - [x] 公开 demo / 示例：双图「鉴权核心」「会话与审计」+ 切换器 ✅`demo.spec.ts` / `activation.spec.ts`
