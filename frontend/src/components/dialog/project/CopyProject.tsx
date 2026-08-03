@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import type {InputRef} from 'antd';
 import defaultData from '@/utils/defaultData.json';
 import _ from 'lodash';
 import {addProject} from '@/services/project';
@@ -41,6 +42,7 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
   );
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const projectNameInputRef = useRef<InputRef>(null);
 
   const openModal = () => {
     form.setFieldsValue({
@@ -104,7 +106,14 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
         onCancel={closeModal}
         destroyOnClose
         width={520}
-        forceRender
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => projectNameInputRef.current?.focus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -115,7 +124,11 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input placeholder="请输入项目名" />
+            <Input
+              ref={projectNameInputRef}
+              aria-label="项目名"
+              placeholder="请输入项目名"
+            />
           </Form.Item>
           <Form.Item
             name="type"
@@ -151,7 +164,11 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+            <Input.TextArea
+              aria-label="项目描述"
+              placeholder="请输入项目描述"
+              rows={3}
+            />
           </Form.Item>
         </Form>
       </Modal>
