@@ -32,7 +32,7 @@
 ### 产品深度（走出「thin CRUD」）📋
 
 - 数据字典 / 治理：字段级文档、枚举域、跨表复用（承接 📋 dataDomain 实验页的定位重估）
-- 逆向保真🚧：复合 FK `fields[]`（ADR-0011 解封条件）、~~PG 表/列注释 → chnname~~✅（字典 `obj_description`/`col_description`）、~~SQL Server 表/列注释 → chnname~~✅（`MS_Description`）、~~Oracle 表/列注释 → chnname~~✅（`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS`）、~~列默认值 `COLUMN_DEF` → `defaultValue`~~✅（JDBC 通用）、索引已字典化、~~MySQL 触发器 → `triggers[]`~~✅（`INFORMATION_SCHEMA.TRIGGERS`）；PG/SQL Server/Oracle 触发器另切片
+- 逆向保真🚧：复合 FK `fields[]`（ADR-0011 解封条件）、~~PG 表/列注释 → chnname~~✅（字典 `obj_description`/`col_description`）、~~SQL Server 表/列注释 → chnname~~✅（`MS_Description`）、~~Oracle 表/列注释 → chnname~~✅（`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS`）、~~列默认值 `COLUMN_DEF` → `defaultValue`~~✅（JDBC 通用）、索引已字典化、~~MySQL 触发器 → `triggers[]`~~✅（`INFORMATION_SCHEMA.TRIGGERS`）、~~PG 触发器 → `triggers[]`~~✅（`information_schema.triggers`）；SQL Server/Oracle 触发器另切片
 - 版本工作流：分支式演进、~~版本标签/里程碑~~✅（`db_change.tag` 逗号分隔多标签 + chips 筛选；无跨版本唯一）、~~跨版本 diff 的导出~~✅（W3 切片 1：Markdown 变更清单 + SQL）
 - 协作 → 版本自然发生（下一季③ ✅）；后续深化见版本工作流（分支式演进等）
 

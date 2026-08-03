@@ -33,6 +33,7 @@ class ReverseDialectRegistryTest {
         assertTrue(dialect.capability().isSupportsIndex());
         assertTrue(dialect.capability().isSupportsForeignKey());
         assertTrue(dialect.capability().isSupportsComment());
+        assertTrue(dialect.capability().isSupportsTrigger());
     }
 
     @Test
@@ -76,8 +77,7 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void otherP0Dialects_triggerNotYet() {
-        assertFalse(ReverseDialectRegistry.resolve("PostgreSQL").capability().isSupportsTrigger());
+    void remainingP0Dialects_triggerNotYet() {
         assertFalse(ReverseDialectRegistry.resolve("Oracle").capability().isSupportsTrigger());
         assertFalse(ReverseDialectRegistry.resolve("Microsoft SQL Server").capability().isSupportsTrigger());
         assertFalse(ReverseDialectRegistry.resolve("H2").capability().isSupportsTrigger());
