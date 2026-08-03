@@ -1,4 +1,5 @@
 import React, {useState} from 'react';
+import {QuestionCircleOutlined} from '@ant-design/icons';
 import {Button, Form, Input, message} from 'antd';
 import {POST} from "@/services/crud";
 import {login} from "@/pages/login";
@@ -8,6 +9,12 @@ function loginQuery(): string {
   const r = new URLSearchParams(window.location.search).get('redirect');
   return r && r.startsWith('/') ? `?redirect=${encodeURIComponent(r)}` : '';
 }
+
+/** 悬停提示保留；tabIndex=-1 避免 5 个问号进 Tab 序（约束已由 rules 校验文案承担） */
+const formTip = (title: string) => ({
+  title,
+  icon: <QuestionCircleOutlined tabIndex={-1} aria-hidden />,
+});
 
 type RegisterValues = {
   username: string;
@@ -47,6 +54,7 @@ export default () => {
   return (
     <AuthBrandShell
       title="注册 ERD Online"
+      skipLabel="跳到注册表单"
       footer={
         <>
           <a href={`/login${loginQuery()}`} aria-label="去登录">
@@ -64,7 +72,7 @@ export default () => {
           name="username"
           label="用户名"
           htmlFor="register-username"
-          tooltip="最长为 18 位"
+          tooltip={formTip('最长为 18 位')}
           rules={[
             {required: true, message: '不能为空'},
             {max: 18, message: '不能大于 18 个字符'},
@@ -81,7 +89,7 @@ export default () => {
           name="pwd"
           label="密码"
           htmlFor="register-pwd"
-          tooltip="密码至少包含 数字和英文，长度6-20"
+          tooltip={formTip('密码至少包含 数字和英文，长度6-20')}
           rules={[
             {required: true, message: '密码不能为空'},
             {
@@ -101,7 +109,7 @@ export default () => {
           name="pwdCK"
           label="确认密码"
           htmlFor="register-pwdCK"
-          tooltip="密码至少包含 数字和英文，长度6-20"
+          tooltip={formTip('密码至少包含 数字和英文，长度6-20')}
           rules={[
             {required: true, message: '密码不能为空'},
             {
@@ -121,7 +129,7 @@ export default () => {
           name="email"
           label="邮箱"
           htmlFor="register-email"
-          tooltip="标准邮箱地址"
+          tooltip={formTip('标准邮箱地址')}
           rules={[
             {required: true, message: '邮箱不能为空'},
             {
@@ -141,7 +149,7 @@ export default () => {
           name="phone"
           label="手机号码"
           htmlFor="register-phone"
-          tooltip="标准手机号码"
+          tooltip={formTip('标准手机号码')}
           rules={[
             {required: true, message: '手机号码不能为空'},
             {
@@ -158,7 +166,14 @@ export default () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" size="large" block loading={submitting}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={submitting}
+            data-testid="register-submit"
+          >
             注册
           </Button>
         </Form.Item>

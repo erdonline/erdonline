@@ -36,6 +36,7 @@
 | `/login` | 登录按钮 | 成功进 `/home`；错误凭证单次明确提示 | JWT 会话 | ✅ | `smoke`「错误凭证」「登录→新建」 |
 | `/login` | 注册链接 | 导航 `/register` | 转化漏斗 | ✅ | `session.spec`「去注册」 |
 | `/login` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到登录表单」→ form；用户名→密码→登录→footer；Enter 提交；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「登录壳键盘」 |
+| `/register` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到注册表单」→ form；字段链（tip 出序）→注册→footer；Enter 校验；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「注册壳键盘」 |
 | `/register` | 注册提交 | 成功进 `/home`；可带 redirect | `share` autofork | ✅ | `session.spec`「注册成功」；`share` redirect |
 | `/demo` | 重定向 | → `/s/public-demo` 只读图 + 复制 CTA | ADR-0007 | ✅ | `demo.spec` |
 | `/s/:token` | 复制到我的项目 | 未登录→注册 redirect；登录→fork | 分享 fork | ✅ | `share.spec` |
