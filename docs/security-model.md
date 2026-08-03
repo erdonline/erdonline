@@ -59,7 +59,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-AUTH-02 | P1 | ~~`UserController` CRUD 无 `@PreAuthorize`~~ | ~~`UserController` CRUD~~ | **✅ 已关闭（2026-08-03）**：CRUD/`page`/`batch` 补 `sys_user_*` `@PreAuthorize`；`pwd`/`salt` 仍 `WRITE_ONLY` | 保持；管理写操作优先 Extension `/user/add` `/user/update` |
 | R-AUTH-03 | P1 | ~~项目/模型 IDOR：按 id 读写不校验成员~~ | ~~`ProjectServiceImpl` / `ProjectController` delete/update/get~~ | **✅ 已关闭（2026-08-03）**：`ProjectAcl` 查 `project_user`；get/info/save/update/delete（个人+团队）均 `assertMember` | 设计器旁路/SocketIO 成员检见 R-AUTH-05 |
 | R-AUTH-04 | P1 | ~~`dataSources` 读/改/删无归属校验~~ | ~~`DataSourcesController` get/update/delete~~ | **✅ 已关闭（2026-08-03）**：`DataSourceAcl` 校验 creator（username/userId）；tree 亦按 creator 过滤；禁止更新改写 creator | 保持；与 R-DATA-02 热路径走已鉴权 id |
-| R-AUTH-05 | P1 | SocketIO 仅验短票/JWT，不验项目成员 | `SocketIoAuthorizationListener.java:24-48`；`ErdSocketIoServiceImpl.java:54-72`；ADR-0009 已知限制 | 合法用户可加任意 `projectId` 房收 presence/sync | 握手或 `JOIN_ROOM` 校验项目角色 |
+| R-AUTH-05 | P1 | ~~SocketIO 仅验短票/JWT，不验项目成员~~ | ~~`SocketIoAuthorizationListener` / `JOIN_ROOM`~~ | **✅ 已关闭（2026-08-03）**：短票载荷含 `userId`；握手 + `JOIN_ROOM` 均 `ProjectAcl.isMember`；cursor/sync 仅已入房会话可广播 | 保持；成员多人协作见 `verify-socket-presence` / `verify-socket-membership` |
 | R-AUTH-06 | P2 | 开放注册双入口 | ignore：`/user/register`；产品：`/project/group/user/register` | 公网可自注册（产品路径）；Service `@RestController` 另挂 `/user/register` | 自托管若关闭注册则收 ignore + 门控；废弃重复入口 |
 | R-AUTH-07 | P2 | `frameOptions` 关闭 | `ErdSecurityConfiguration.java:63` | 可被嵌入 iframe（点击劫持面） | 非嵌入场景恢复 `deny`/`sameOrigin` |
 
@@ -104,6 +104,5 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 ### 建议下一刀（按 ROI）
 
 1. **FE connector 热路径只传 `dataSourceId`**（R-DATA-02 残留；后端已支持 id 优先；逆向/新建试连可保留 raw）。
-2. **SocketIO 项目成员**（R-AUTH-05）：握手或 `JOIN_ROOM` 校验 `project_user`。
-3. 内网 SSRF 主机策略 / mutate 禁 raw；上传归属（R-DATA-04）。
+2. 内网 SSRF 主机策略 / mutate 禁 raw；上传归属（R-DATA-04）。
 
