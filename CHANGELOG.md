@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：只读分享创建失败可重试
+
+- 选题：创建失败后主钮 `disabled`（无 URL），关窗重开才能再试；业务失败再叠 toast
+- `ShareProjectButton`：失败靠 `request` toast、不叠弹；空链时主钮「重新生成」可重试；吊销失败不叠弹不关窗
+- E2E：`share-create-failure.spec.ts` mock create → toast + 空链 +「重新生成」→ 成功出 `/s/` +「复制链接」
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 修改密码失败静默关窗 / SyncConfig 伪造成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share-create-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 配置：Origin 单一 `ERD_UI_URL`（去嵌套别名）
 
 - 选题：prod `SOCKETIO_ORIGIN`⇄`ERD_UI_URL` 互套 + `CORS_ALLOWED_ORIGINS` 第三入口，与 MYSQL*/REDIS*「一关注一点」不一致
@@ -26,7 +36,7 @@
 - `InitVersion`：成功才关窗；失败可重试
 - dbsync：`synchronous` 走 zustand `set`；失败清同步中态，可再点同步
 - E2E：`version-save-failure.spec.ts` mock `hisProject/save` → 初始化不关窗可重试；重建无「重建基线成功」且无 rebaseline
-- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → ~~只读分享创建失败死 affordance~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-save-failure.spec.ts --project=chromium --workers=1 --retries=0`

@@ -41,7 +41,7 @@ const ShareProjectButton: React.FC = () => {
         data: {projectId},
       })) as ApiResult<ShareCreatePayload>;
       if (res?.code !== 200 || !res?.data?.token) {
-        message.error(res?.msg || '创建分享失败');
+        // 业务失败：request 已 toast；失败不叠弹；窗保持开 + 「重新生成」可重试
         setToken(null);
         setShareUrl(null);
         return null;
@@ -51,9 +51,10 @@ const ShareProjectButton: React.FC = () => {
       setToken(nextToken);
       setShareUrl(url);
       return nextToken;
-    } catch (e: unknown) {
-      const err = e as {message?: string};
-      message.error(err?.message || '创建分享失败');
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast；失败不叠弹；「重新生成」可重试
+      setToken(null);
+      setShareUrl(null);
       return null;
     } finally {
       setLoading(false);
@@ -65,19 +66,17 @@ const ShareProjectButton: React.FC = () => {
     await ensureShare();
   };
 
-  const onCopy = async () => {
+  const onPrimary = async () => {
     if (!shareUrl) {
-      const created = await ensureShare();
-      if (!created) {
-        return;
-      }
+      // 创建失败或首开：主钮「重新生成」可重试（勿禁用死 affordance）
+      await ensureShare();
+      return;
     }
-    const url = shareUrl || `${window.location.origin}/s/${token}`;
     try {
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(shareUrl);
       message.success('只读链接已复制');
     } catch {
-      message.success(`分享链接：${url}`);
+      message.success(`分享链接：${shareUrl}`);
     }
   };
 
@@ -92,16 +91,15 @@ const ShareProjectButton: React.FC = () => {
         data: {token},
       })) as ApiResult<boolean>;
       if (res?.code !== 200) {
-        message.error(res?.msg || '吊销失败');
+        // request 已 toast；失败不叠弹、不关窗
         return;
       }
       message.success('分享已吊销');
       setToken(null);
       setShareUrl(null);
       setOpen(false);
-    } catch (e: unknown) {
-      const err = e as {message?: string};
-      message.error(err?.message || '吊销失败');
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast
     } finally {
       setRevoking(false);
     }
@@ -179,11 +177,10 @@ const ShareProjectButton: React.FC = () => {
             type="primary"
             size="small"
             loading={loading}
-            onClick={onCopy}
-            aria-label="复制链接"
-            disabled={!shareUrl && !loading}
+            onClick={() => void onPrimary()}
+            aria-label={shareUrl ? '复制链接' : '重新生成链接'}
           >
-            复制链接
+            {shareUrl ? '复制链接' : '重新生成'}
           </Button>
         </Space.Compact>
         <Space className="erd-share-modal__actions" size={8}>
