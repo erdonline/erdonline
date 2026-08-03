@@ -119,6 +119,7 @@
 - [x] [Frame 改名/适应成员落盘失败可回滚] mock save → toast「模拟分组保存拒绝」+ 改名草稿保留/适应成员 RF+store 回滚（无「已适应成员」）→ 重试成功；定位 `frame-rename-*` / `diagram-frame` / 「适应成员」（勿扫 `.ant-*`） ✅`canvas-frame-rename-bounds-failure.spec.ts`
 - [x] [Frame 新建/成员加减落盘失败可回滚] mock save → toast「模拟分组保存拒绝」+ 新建不上图/加入成员仍 0（无成功 toast）→ 重试成功；定位「新建分组」/「加入分组」/ `diagram-frame`（勿扫 `.ant-*`） ✅`canvas-frame-members-failure.spec.ts`
 - [x] [画布连线建关联落盘失败可重试] mock save → toast「模拟连线保存拒绝」+ 不上边（无 `erd-edge-label`）→ 重试成功上边；定位 `rfNode` / `data-handleid` / `erd-edge-label`（勿扫 `.ant-*`） ✅`canvas-connect-edge-failure.spec.ts`
+- [x] [画布改边基数落盘失败可重试] mock save → toast「模拟基数保存拒绝」+ chip 仍 `n:1` → 重试成功 `1:1`；定位 `erd-edge-label` / `erd-edge-cardinality` / `role=option`（勿扫 `.ant-*`） ✅`canvas-cardinality-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`

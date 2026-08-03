@@ -151,12 +151,13 @@ export interface IModulesDispatchSlice {
     association: any | any[],
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  /** 改关联基数（from/to 定位；relation 归一化后写入） */
+  /** 改关联基数（from/to 定位；relation 归一化后写入）；persist:true 时仅 saveProject code===200 写 store */
   updateAssociationRelation: (
     moduleName: string,
     association: { from: { entity: string; field: string }; to: { entity: string; field: string } },
     relation: string,
-  ) => void;
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   undoCanvas: () => void;
   redoCanvas: () => void;
   setCurrentModule: (payload: any) => any,
@@ -1383,36 +1384,83 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return true;
     })();
   },
-  updateAssociationRelation: (moduleName, association, relation) => {
+  // 改关联基数；persist:true 时仅 saveProject code===200 写 store；失败保持原基数
+  updateAssociationRelation: (moduleName, association, relation, opts?) => {
+    const persist = !!opts?.persist;
     const next = normalizeRelation(relation);
     if (!next) {
       message.warning('基数不能为空');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
-    snapshotModules(get().project?.projectJSON?.modules);
-    let found = false;
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+
+    const matches = (a: any) =>
+      a?.from?.entity === association.from?.entity &&
+      a?.from?.field === association.from?.field &&
+      a?.to?.entity === association.to?.entity &&
+      a?.to?.field === association.to?.field;
+
+    const applyUpdate = (modules: any[]): boolean => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
-        return;
+        return false;
       }
       const list = module.associations || [];
       for (const a of list) {
-        if (
-          a?.from?.entity === association.from?.entity &&
-          a?.from?.field === association.from?.field &&
-          a?.to?.entity === association.to?.entity &&
-          a?.to?.field === association.to?.field
-        ) {
+        if (matches(a)) {
           a.relation = next;
-          found = true;
-          break;
+          return true;
         }
       }
-    }));
-    if (!found) {
-      message.warning('未找到该关联');
+      return false;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      let found = false;
+      set(produce(state => {
+        found = applyUpdate(state.project.projectJSON?.modules);
+      }));
+      if (!found) {
+        message.warning('未找到该关联');
+      }
+      return;
     }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const nextProject = produce(project, (draft: any) => {
+      applyUpdate(draft.projectJSON?.modules);
+    });
+    const updated = (nextProject.projectJSON?.modules as any[])?.some(
+      (m: any) =>
+        m?.name === moduleName
+        && (m.associations || []).some((a: any) => matches(a) && a.relation === next),
+    );
+    if (!updated) {
+      message.warning('未找到该关联');
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(nextProject, '关系保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = nextProject.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
   },
   undoCanvas: () => {
     const restored = undoModules(get().project?.projectJSON?.modules);
