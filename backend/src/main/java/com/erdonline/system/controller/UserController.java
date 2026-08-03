@@ -10,6 +10,7 @@ import io.swagger.annotations.Api;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -56,6 +57,7 @@ public class UserController {
      */
     @MartinLog("添加系统用户")
     @PostMapping
+    @PreAuthorize("hasAuthority('sys_user_add')")
     public R save(@Valid @RequestBody User user) {
         return R.ok(userService.save(user));
     }
@@ -68,6 +70,7 @@ public class UserController {
      */
     @MartinLog("删除系统用户")
     @DeleteMapping
+    @PreAuthorize("hasAuthority('sys_user_del')")
     public R removeById(@Valid @RequestBody User user) {
         return R.ok(userService.removeById(user.getId()));
     }
@@ -80,6 +83,7 @@ public class UserController {
      */
     @MartinLog("编辑系统用户")
     @PutMapping
+    @PreAuthorize("hasAuthority('sys_user_edit')")
     public R edit(@Valid @RequestBody User user) {
         return R.ok(userService.updateById(user));
     }
@@ -92,6 +96,7 @@ public class UserController {
      */
     @MartinLog("单个查询系统用户")
     @GetMapping
+    @PreAuthorize("hasAuthority('sys_user_get')")
     public R getById(User user) {
         return R.ok(userService.getById(user.getId()));
     }
@@ -105,12 +110,14 @@ public class UserController {
     @SneakyThrows
     @MartinLog("分页查询系统用户")
     @GetMapping("/page")
+    @PreAuthorize("hasAuthority('sys_user_page')")
     public R<IPage> getPage(@RequestParam(required = false) Map params) {
         return R.ok(userService.getPage(params));
     }
 
     @MartinLog("批量删除系统用户")
     @DeleteMapping("/batch")
+    @PreAuthorize("hasAuthority('sys_user_deleteBatch')")
     public R removeBatch(@RequestBody String ids) {
         List<String> idList = Arrays.stream(ids.split(",")).collect(Collectors.toList());
         if (CollUtil.isEmpty(idList)) {
@@ -121,4 +128,3 @@ public class UserController {
 
 
 }
-

@@ -56,7 +56,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-AUTH-01 | P0 | ~~匿名 `GET /user/loadUserByUsername/{username}` 泄露用户密文与权限~~ | ~~ignore-urls + Service `@RestController`~~ | **✅ 已关闭（2026-08-03）**：去掉 ignore；`RemoteSystemUser.loadUserByUsername` 去 `@GetMapping`（仅进程内）；`User.pwd`/`salt` `@JsonProperty(WRITE_ONLY)` | 保持无 HTTP 映射；勿回 ignore |
-| R-AUTH-02 | P1 | `UserController` CRUD 无 `@PreAuthorize` | `UserController.java:57-119`（对比 `UserExtensionController` 的 `sys_user_*`） | 任意已登录用户可增删改查系统用户（常含 `pwd`） | 补权限或委托已鉴权 Extension API；禁止返回密文字段 |
+| R-AUTH-02 | P1 | ~~`UserController` CRUD 无 `@PreAuthorize`~~ | ~~`UserController` CRUD~~ | **✅ 已关闭（2026-08-03）**：CRUD/`page`/`batch` 补 `sys_user_*` `@PreAuthorize`；`pwd`/`salt` 仍 `WRITE_ONLY` | 保持；管理写操作优先 Extension `/user/add` `/user/update` |
 | R-AUTH-03 | P1 | ~~项目/模型 IDOR：按 id 读写不校验成员~~ | ~~`ProjectServiceImpl` / `ProjectController` delete/update/get~~ | **✅ 已关闭（2026-08-03）**：`ProjectAcl` 查 `project_user`；get/info/save/update/delete（个人+团队）均 `assertMember` | 设计器旁路/SocketIO 成员检见 R-AUTH-05 |
 | R-AUTH-04 | P1 | ~~`dataSources` 读/改/删无归属校验~~ | ~~`DataSourcesController` get/update/delete~~ | **✅ 已关闭（2026-08-03）**：`DataSourceAcl` 校验 creator（username/userId）；tree 亦按 creator 过滤；禁止更新改写 creator | 保持；与 R-DATA-02 热路径走已鉴权 id |
 | R-AUTH-05 | P1 | SocketIO 仅验短票/JWT，不验项目成员 | `SocketIoAuthorizationListener.java:24-48`；`ErdSocketIoServiceImpl.java:54-72`；ADR-0009 已知限制 | 合法用户可加任意 `projectId` 房收 presence/sync | 握手或 `JOIN_ROOM` 校验项目角色 |
@@ -104,8 +104,6 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 ### 建议下一刀（按 ROI）
 
 1. **FE connector 热路径只传 `dataSourceId`**（R-DATA-02 残留；后端已支持 id 优先；逆向/新建试连可保留 raw）。
-2. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
-3. **SocketIO 项目成员**（R-AUTH-05）。
-
-（内网 SSRF 主机策略 / mutate 禁 raw 可随后收紧。）
+2. **SocketIO 项目成员**（R-AUTH-05）：握手或 `JOIN_ROOM` 校验 `project_user`。
+3. 内网 SSRF 主机策略 / mutate 禁 raw；上传归属（R-DATA-04）。
 
