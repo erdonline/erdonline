@@ -241,7 +241,8 @@
 - ✅ **左树剪切/粘贴落盘失败可重试**（2026-08-03）：`cutEntity`/`pastEntity`/`cutModule`/`pastModule` `persist:true`；仅 save code===200 写剪贴板与移出/写入 + 成功 toast；失败保留先前状态；复制仅本地剪贴板；`tree-cut-paste-failure` 绿；下一刀 → ~~改名模型/关系图~~已 clean → ~~拖拽落盘假成功~~✅
 - ✅ **画布拖表坐标落盘失败可回滚**（2026-08-03）：`commitDiagramGeometry` `persist:true`；仅 save code===200 写 layout/Frame bounds；失败 toast + RF 回滚；`canvas-drag-reposition-failure` 绿；下一刀 → ~~对齐·自动布局~~✅
 - ✅ **画布对齐/自动布局落盘失败可回滚**（2026-08-03）：`alignSelected`/`autoLayout`→`commitDiagramGeometry` `persist:true`；失败 toast + RF 回滚；成功才 fitView；`canvas-align-layout-failure` 绿；下一刀 → ~~Frame 改名 / Frame bounds（适应成员·缩放）假成功~~✅
-- ✅ **Frame 改名/bounds 落盘失败可回滚**（2026-08-03）：`renameFrame` persist + 缩放/适应成员/`expandFrameForMembers`→`commitDiagramGeometry`；失败 toast + 草稿/RF 回滚；成功才「已适应成员」；`canvas-frame-rename-bounds-failure` 绿；下一刀 → Frame 新建·成员加减假成功
+- ✅ **Frame 改名/bounds 落盘失败可回滚**（2026-08-03）：`renameFrame` persist + 缩放/适应成员/`expandFrameForMembers`→`commitDiagramGeometry`；失败 toast + 草稿/RF 回滚；成功才「已适应成员」；`canvas-frame-rename-bounds-failure` 绿；下一刀 → ~~Frame 新建·成员加减假成功~~✅
+- ✅ **Frame 新建/成员加减落盘失败可回滚**（2026-08-03）：`createFrame`/`addFrameMembers`/`removeFrameMembers` `persist:true`；失败 toast、不上图/成员不变；加入 Modal 拒关窗；`canvas-frame-members-failure` 绿；下一刀 → `addAssociation` 连线假成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
