@@ -1,11 +1,22 @@
+/* ADR-0016：版本 diff 次屏密度 — 表组头/行 ~24 chrome；token 色；禁碎 hex */
 .version-diff-panel {
   height: 450px;
   overflow-y: auto;
   padding-right: 4px;
+  font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
+  font-size: 12px;
 }
 
 .version-diff-summary {
-  margin-bottom: 12px;
+  margin-bottom: 8px;
+
+  .ant-tag {
+    margin-inline-end: 0;
+    line-height: 18px;
+    font-size: 11px;
+    padding-inline: 4px;
+  }
 }
 
 .version-diff-tree {
@@ -15,74 +26,100 @@
 }
 
 .version-diff-table {
-  margin-bottom: 12px;
-  border: 1px solid #f0f0f0;
-  border-radius: 6px;
+  margin-bottom: 8px;
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius-sm, 4px);
   overflow: hidden;
+  background: var(--erd-surface);
 }
 
 .version-diff-table-title {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 6px 10px;
-  background: #fafafa;
+  gap: 8px;
+  box-sizing: border-box;
+  min-height: 24px;
+  padding: 4px 8px;
+  background: var(--erd-surface-muted);
   font-weight: 600;
+  line-height: 18px;
+
+  .ant-tag {
+    margin-inline-end: 0;
+    line-height: 18px;
+    font-size: 11px;
+    padding-inline: 4px;
+  }
 }
 
 .version-diff-table-name {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-  font-size: 13px;
+  font-family: var(--erd-font-mono);
+  font-size: 12px;
+  font-weight: 650;
+  line-height: 18px;
+  color: var(--erd-ink-900);
 }
 
 .version-diff-items {
   list-style: none;
   margin: 0;
-  padding: 4px 0;
+  padding: 2px 0;
 }
 
 .version-diff-item {
   display: flex;
   flex-wrap: wrap;
   align-items: baseline;
-  gap: 6px;
-  padding: 4px 10px;
-  font-size: 13px;
+  gap: 4px 6px;
+  min-height: 24px;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 18px;
   border-left: 3px solid transparent;
+  box-sizing: border-box;
 }
 
 .version-diff-item--add {
-  border-left-color: #52c41a;
-  background: rgba(82, 196, 26, 0.06);
+  border-left-color: var(--erd-success);
+  background: color-mix(in srgb, var(--erd-success) 8%, var(--erd-surface));
 }
 
 .version-diff-item--delete {
-  border-left-color: #ff4d4f;
-  background: rgba(255, 77, 79, 0.06);
+  /* 与版本变更摘要 --erd-brand 删色同阶（无独立 danger token） */
+  border-left-color: var(--erd-brand);
+  background: color-mix(in srgb, var(--erd-brand) 8%, var(--erd-surface));
 }
 
 .version-diff-item--update {
-  border-left-color: #faad14;
-  background: rgba(250, 173, 20, 0.06);
+  border-left-color: var(--erd-warning);
+  background: color-mix(in srgb, var(--erd-warning) 8%, var(--erd-surface));
 }
 
 .version-diff-opt {
   margin-inline-end: 0 !important;
+  line-height: 18px !important;
+  font-size: 11px !important;
+  padding-inline: 4px !important;
 }
 
 .version-diff-type {
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--erd-ink-600);
   font-size: 12px;
+  line-height: 18px;
 }
 
 .version-diff-name {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-family: var(--erd-font-mono);
   font-weight: 500;
+  color: var(--erd-ink-900);
+  line-height: 18px;
 }
 
 .version-diff-detail {
-  color: rgba(0, 0, 0, 0.55);
+  color: var(--erd-ink-600);
   font-size: 12px;
+  line-height: 18px;
   max-width: 100%;
   overflow: hidden;
   text-overflow: ellipsis;

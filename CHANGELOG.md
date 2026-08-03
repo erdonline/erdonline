@@ -8,12 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：设计器次屏表密度 / chrome（JExcel + 版本 diff）
+
+- 选题：工单/审批已 ~24；表设计字段/索引 JExcel 仍吃 datatables 头 pad10/行 pad8 + `#fbf8fb` 斑马；版本 diff 实体行碎 hex
+- `JExcel/index.less`：工具栏 ~24；表头/行 pad 4×8；字 12；token 表面/斑马；工具栏 inset focus-visible；禁 clip
+- `version-diff-panel`：组头/行 min-height ~24、pad 4×8；增/删/改色走 `--erd-success`/`--erd-brand`/`--erd-warning`
+- E2E：`model-design-ux`「表设计 JExcel 行密度」；不回归 `relation`「工具栏 Tab 可达」+ `version.spec` 可视化 diff
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 元数据应用子签 / CodeTab chrome（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计 JExcel 行密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "工具栏 Tab 可达" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "模型变更后详情展示可视化 diff" --workers=1 --retries=0`
+
 #### 体验：版本工单/审批列表密度
 
 - 选题：版本列表已 ~24；工单/审批仍默认 Table 松行 + `marginBottom:16` 标题
 - 共享 `.approval-workorder-page`：标题栏 ~24（13/22）；表头/行 pad 4×8；动作 link 钮 22 + 禁 clip 图标；inset focus-visible；「查看」改 Button
 - E2E：`approval.spec`「工单/审批列表行密度」；截图 `approval-list-dense.png` / `order-list-dense.png`；不回归 `approval-action-keyboard`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 设计器次屏表密度 / chrome（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~设计器次屏表密度 / chrome~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/approval.spec.ts --project=chromium --grep "工单/审批列表行密度" --workers=1 --retries=0`
