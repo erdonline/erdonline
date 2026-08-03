@@ -165,6 +165,8 @@ erd:
     e2e-accounts-enabled: ${ERD_E2E_ACCOUNTS_ENABLED:false}
     # 种子 admin/123456：dev profile 覆盖为 true；prod 强制 false
     allow-demo-admin: ${ERD_ALLOW_DEMO_ADMIN:false}
+    # 开放注册：dev=true；prod/默认=false（自托管公网建议关闭）
+    allow-open-register: ${ERD_ALLOW_OPEN_REGISTER:false}
 
 # 安全放行 URL
 security:
@@ -175,9 +177,7 @@ security:
         - /auth/login
         - /actuator/**
         - /exit
-        - /register
-        - /user/register
-        # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）
+        # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）；勿再放行 /user/register
         - /project/group/user/register
         # R-AUTH-01：loadUserByUsername 仅进程内调用，禁止匿名 HTTP
         - /endpoint/**

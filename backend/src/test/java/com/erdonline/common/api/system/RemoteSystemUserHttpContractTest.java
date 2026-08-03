@@ -33,6 +33,20 @@ class RemoteSystemUserHttpContractTest {
     }
 
     @Test
+    void userRegisterHasNoHttpMapping() throws Exception {
+        Method m = RemoteSystemUser.class.getMethod("userRegister",
+                com.erdonline.common.api.dto.UserDto.class);
+        assertNull(m.getAnnotation(GetMapping.class));
+        assertNull(m.getAnnotation(PostMapping.class));
+        assertNull(m.getAnnotation(RequestMapping.class));
+        for (var ann : m.getParameterAnnotations()[0]) {
+            assertFalse(ann.annotationType().getName().contains("PathVariable")
+                    || ann.annotationType().getName().contains("RequestParam")
+                    || ann.annotationType().getName().contains("RequestBody"));
+        }
+    }
+
+    @Test
     void userPwdNeverSerialized() throws Exception {
         User user = new User();
         user.setUsername("admin");
