@@ -20,7 +20,14 @@ const RemoveProject: React.FC<RemoveProjectProps> = (props) => {
                 })}
                 okText="是"
                 cancelText="否">
-      <Button type='link' danger>删除</Button>
+      <Button
+        type="link"
+        danger
+        data-testid="project-remove-trigger"
+        aria-label="删除项目"
+      >
+        删除
+      </Button>
     </Popconfirm>
   </>);
 }

@@ -26,6 +26,7 @@
 - ✅ `/compare` 竞品对照页键盘：同壳 Skip→ `#landing-main-cta`；打开演示→自部署指南→返回首页；surface focus-visible；无 trap
 - ✅ Home 工作台键盘：首项 Tab Skip「跳到主内容」落 `#home-main-content`（`tabIndex=-1`）；绕开顶栏；继续建模→新建→示例→二级入口→项目卡；壳内 `:focus-visible` brand 环；无 trap
 - ✅ GroupLayout 壳键盘：首项 Tab Skip「跳到主内容」落 `#group-main-content`（`tabIndex=-1`）；绕开顶栏+侧栏；基本设置表单字段进序；壳内 `:focus-visible` brand 环；无 trap
+- ✅ 项目列表行键盘：个人/最近/团队行 stretched link（点描述亦开项目）；Enter 开设计器；Tab 行内动作（修改/删除/管理/打开）可逆；行 `:has(:focus-visible)` inset brand 环（抗 ant List outline 重置）；无 trap/死卡
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
