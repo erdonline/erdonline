@@ -28,11 +28,21 @@
 验证点：
 - `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`
 
+#### 安全：R-DATA-02 收尾 — mutate 强制 dataSourceId + IMDS/链路本地拦截
+
+- 选题：sqlexec/dbsync 仍可 raw JDBC+账密旁路 ACL；JDBC 主机仅禁单一元数据 IP，链路本地/Azure/阿里云 IMDS 有缺口
+- 改动：`ConnectorCredentialResolver.applyMutate`（无 id → `code=400`）；`ConnectorController` sqlexec/dbsync 接入；`JdbcUrlGuard` 扩 `169.254.0.0/16`、`168.63.129.16`、`100.100.100.200`、`fe80::/10`、`fd00:ec2::254`、IPv4-mapped、主机名（含 bracket IPv6 解析）；**不**禁 RFC1918（自托管内网库）
+- 文档：security-model R-DATA-02 建议收尾 ✅；roadmap 下一刀 → R-DATA-04
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=JdbcUrlGuardTest,ConnectorCredentialResolverTest test`
+- 登录后：`POST /ncnb/connector/sqlexec` 仅 raw JDBC（无 `dataSourceId`）→ `code=400` 文案含 dataSourceId；`ping` 至 `169.254.x`/`168.63.129.16` → 拒
+
 #### 安全：R-DATA-02 FE connector 热路径只传 dataSourceId
 
 - 选题：已保存数据源仍在 ping/reverse/sqlexec/dbsync 重传 raw JDBC+账密，绕过后端 id 优先语义
 - 改动：`preferDataSourceIdPayload`（`dataSourceId`/`dbKey`/`key`→剥 url/username/password/driver）；`save.js` ping/sqlexec/dbsync/dbReverse* 接入；逆向/版本同步带 id；`/databaseConfig` 同步状态走 id；设计器/表单「测试连接」仍 raw
-- 文档：security-model R-DATA-02 ✅；roadmap 下一刀 → SSRF/禁 mutate raw
+- 文档：security-model R-DATA-02 ✅；roadmap 下一刀 → SSRF/禁 mutate raw → **已由同日收尾切片关闭**
 
 验证点：
 - `cd frontend && npx --yes tsx src/utils/connectorPayload.test.ts`

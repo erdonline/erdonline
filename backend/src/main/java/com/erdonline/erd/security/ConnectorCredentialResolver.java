@@ -1,6 +1,8 @@
 package com.erdonline.erd.security;
 
 import cn.hutool.core.util.StrUtil;
+import com.erdonline.common.core.api.ApiErrorCode;
+import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.erd.entity.DataSources;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -12,8 +14,10 @@ import java.util.Map;
  * Prefer ACL-checked {@code dataSources} credentials when {@code dataSourceId} is present.
  *
  * <p>Raw JDBC url/username/password remain allowed for designer reverse-engineer / ping UX
- * when no id is supplied. When id is present, client-supplied JDBC fields are overwritten
- * so callers cannot smuggle alternate credentials under a trusted id.
+ * when no id is supplied. Mutate paths ({@code sqlexec}/{@code dbsync}) must call
+ * {@link #applyMutate(Map)} which rejects raw-only payloads. When id is present,
+ * client-supplied JDBC fields are overwritten so callers cannot smuggle alternate
+ * credentials under a trusted id.
  */
 @Component
 @RequiredArgsConstructor
@@ -24,19 +28,24 @@ public class ConnectorCredentialResolver {
     private final DataSourceAcl dataSourceAcl;
 
     /**
+     * Mutate paths: require non-blank {@code dataSourceId}, then ACL-resolve credentials.
+     */
+    @SuppressWarnings("rawtypes")
+    public void applyMutate(Map params) {
+        if (resolveId(params) == null) {
+            throw new ValidateException(ApiErrorCode.BAD_REQUEST.getCode(),
+                    "同步/SQL执行须使用已保存数据源（dataSourceId），禁止直传 JDBC 账密");
+        }
+        apply(params);
+    }
+
+    /**
      * Mutates {@code params} in place when {@code dataSourceId} is non-blank.
      */
     @SuppressWarnings({"rawtypes", "unchecked"})
     public void apply(Map params) {
-        if (params == null) {
-            return;
-        }
-        Object idObj = params.get(KEY_DATA_SOURCE_ID);
-        if (idObj == null) {
-            return;
-        }
-        String id = String.valueOf(idObj).trim();
-        if (StrUtil.isBlank(id) || "null".equalsIgnoreCase(id)) {
+        String id = resolveId(params);
+        if (id == null) {
             return;
         }
         DataSources ds = dataSourceAcl.requireOwned(id);
@@ -52,6 +61,22 @@ public class ConnectorCredentialResolver {
         params.put("url", url);
         params.put("username", ds.getUsername());
         params.put("password", ds.getPassword());
+    }
+
+    @SuppressWarnings("rawtypes")
+    static String resolveId(Map params) {
+        if (params == null) {
+            return null;
+        }
+        Object idObj = params.get(KEY_DATA_SOURCE_ID);
+        if (idObj == null) {
+            return null;
+        }
+        String id = String.valueOf(idObj).trim();
+        if (StrUtil.isBlank(id) || "null".equalsIgnoreCase(id)) {
+            return null;
+        }
+        return id;
     }
 
     /** Mirror FE {@code generateJdbcUrl} for host-mode rows with null {@code url}. */

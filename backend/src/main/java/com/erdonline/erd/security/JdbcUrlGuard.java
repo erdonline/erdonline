@@ -2,28 +2,36 @@ package com.erdonline.erd.security;
 
 import com.erdonline.common.core.exception.ValidateException;
 
+import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.util.Locale;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
- * Blocks non-RDBMS JDBC schemes and common cloud-metadata SSRF targets for connector paths.
+ * Blocks non-RDBMS JDBC schemes and cloud-metadata / link-local SSRF targets for connector paths.
+ *
+ * <p>Does <strong>not</strong> block RFC1918 / localhost — self-hosted DBs on private nets are
+ * the primary product use case. Dialed-in deny list: link-local, known cloud IMDS endpoints.
  */
 public final class JdbcUrlGuard {
 
-    private static final Set<String> BLOCKED_HOSTS = Set.of(
+    private static final Set<String> BLOCKED_HOSTNAMES = Set.of(
             "169.254.169.254",
             "metadata.google.internal",
             "metadata",
-            "metadata.goog"
+            "metadata.goog",
+            "metadata.google",
+            "instance-data"
     );
 
-    /** jdbc:mysql://host:3306/db or jdbc:oracle:thin:@host:1521:ORCL / @//host:1521/svc */
+    /** jdbc:mysql://host:3306/db ; bracketed IPv6; oracle thin/oci @ forms */
     private static final Pattern HOST_IN_URL = Pattern.compile(
-            "(?i)jdbc:(?:mysql|mariadb|postgresql|sqlserver|jtds:sqlserver)://([^/:?;]+)"
-                    + "|jdbc:oracle:(?:thin|oci):@(?://)?([^/:?;]+)");
+            "(?i)jdbc:(?:mysql|mariadb|postgresql|sqlserver|jtds:sqlserver)://"
+                    + "(?:\\[([^\\]]+)\\]|([^/:?;]+))"
+                    + "|jdbc:oracle:(?:thin|oci):@(?://)?(?:\\[([^\\]]+)\\]|([^/:?;]+))");
 
     private JdbcUrlGuard() {
     }
@@ -41,8 +49,8 @@ public final class JdbcUrlGuard {
             throw new ValidateException("不支持的 JDBC 协议，仅允许 mysql/mariadb/postgresql/oracle/sqlserver");
         }
         String host = extractHost(trimmed);
-        if (host != null && BLOCKED_HOSTS.contains(host.toLowerCase(Locale.ROOT))) {
-            throw new ValidateException("禁止连接云元数据地址");
+        if (host != null && isBlockedHost(host)) {
+            throw new ValidateException("禁止连接云元数据或链路本地地址");
         }
         // Reject odd URI schemes smuggled after jdbc: (e.g. jdbc:mysql:ldap:...)
         rejectEmbeddedSchemes(lower);
@@ -76,19 +84,126 @@ public final class JdbcUrlGuard {
         }
     }
 
+    static boolean isBlockedHost(String host) {
+        if (host == null || host.isBlank()) {
+            return false;
+        }
+        String h = host.trim().toLowerCase(Locale.ROOT);
+        int zone = h.indexOf('%');
+        if (zone >= 0) {
+            h = h.substring(0, zone);
+        }
+        if (BLOCKED_HOSTNAMES.contains(h)) {
+            return true;
+        }
+        if (!looksLikeLiteralIp(h)) {
+            return false;
+        }
+        try {
+            InetAddress addr = InetAddress.getByName(h);
+            return isBlockedAddress(addr.getAddress());
+        } catch (UnknownHostException e) {
+            return false;
+        }
+    }
+
+    /** Literal IPv4 / IPv6 only — avoid DNS side effects from {@link InetAddress#getByName}. */
+    private static boolean looksLikeLiteralIp(String h) {
+        if (h.indexOf(':') >= 0) {
+            return true;
+        }
+        for (int i = 0; i < h.length(); i++) {
+            char c = h.charAt(i);
+            if (c != '.' && (c < '0' || c > '9')) {
+                return false;
+            }
+        }
+        return h.indexOf('.') >= 0;
+    }
+
+    private static boolean isBlockedAddress(byte[] raw) {
+        if (raw == null) {
+            return false;
+        }
+        if (raw.length == 16 && isIpv4Mapped(raw)) {
+            byte[] v4 = new byte[]{raw[12], raw[13], raw[14], raw[15]};
+            return isBlockedIpv4(v4);
+        }
+        if (raw.length == 4) {
+            return isBlockedIpv4(raw);
+        }
+        if (raw.length == 16) {
+            return isBlockedIpv6(raw);
+        }
+        return false;
+    }
+
+    private static boolean isIpv4Mapped(byte[] raw) {
+        for (int i = 0; i < 10; i++) {
+            if (raw[i] != 0) {
+                return false;
+            }
+        }
+        return (raw[10] & 0xff) == 0xff && (raw[11] & 0xff) == 0xff;
+    }
+
+    private static boolean isBlockedIpv4(byte[] raw) {
+        int a = raw[0] & 0xff;
+        int b = raw[1] & 0xff;
+        int c = raw[2] & 0xff;
+        int d = raw[3] & 0xff;
+        // Link-local 169.254.0.0/16 (incl. AWS/GCP IMDS 169.254.169.254)
+        if (a == 169 && b == 254) {
+            return true;
+        }
+        // Azure WireServer / IMDS
+        if (a == 168 && b == 63 && c == 129 && d == 16) {
+            return true;
+        }
+        // Alibaba Cloud metadata
+        if (a == 100 && b == 100 && c == 100 && d == 200) {
+            return true;
+        }
+        return false;
+    }
+
+    private static boolean isBlockedIpv6(byte[] raw) {
+        int b0 = raw[0] & 0xff;
+        int b1 = raw[1] & 0xff;
+        // fe80::/10 link-local
+        if (b0 == 0xfe && (b1 & 0xc0) == 0x80) {
+            return true;
+        }
+        // AWS IMDS IPv6 fd00:ec2::254
+        if (b0 == 0xfd && b1 == 0x00
+                && (raw[2] & 0xff) == 0x0e && (raw[3] & 0xff) == 0xc2
+                && isTrailingIpv6Host(raw, 0x02, 0x54)) {
+            return true;
+        }
+        return false;
+    }
+
+    /** True when bytes 4..14 are zero and bytes 14..15 equal hi/lo (host suffix). */
+    private static boolean isTrailingIpv6Host(byte[] raw, int hi, int lo) {
+        for (int i = 4; i < 14; i++) {
+            if (raw[i] != 0) {
+                return false;
+            }
+        }
+        return (raw[14] & 0xff) == hi && (raw[15] & 0xff) == lo;
+    }
+
     static String extractHost(String url) {
         Matcher m = HOST_IN_URL.matcher(url);
         if (!m.find()) {
             return null;
         }
-        String host = m.group(1) != null ? m.group(1) : m.group(2);
-        if (host == null) {
-            return null;
+        for (int i = 1; i <= m.groupCount(); i++) {
+            String host = m.group(i);
+            if (host != null && !host.isBlank()) {
+                return host;
+            }
         }
-        // strip IPv6 brackets
-        if (host.startsWith("[") && host.endsWith("]")) {
-            return host.substring(1, host.length() - 1);
-        }
-        return host;
+        return null;
     }
 }
