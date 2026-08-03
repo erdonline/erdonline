@@ -1,5 +1,6 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, Input, Modal, Select, Space, message} from 'antd';
+import type {BaseSelectRef} from 'rc-select';
 import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -29,6 +30,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
   const [moduleName, setModuleName] = useState<string>('');
   const [preview, setPreview] = useState('');
   const [loading, setLoading] = useState(false);
+  const moduleSelectRef = useRef<BaseSelectRef>(null);
 
   const {projectJSON, currentModule} = useProjectStore(
     (state) => ({
@@ -159,6 +161,33 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          const tryFocus = (attempt = 0) => {
+            const input = document.querySelector<HTMLInputElement>(
+              '.erd-io-modal-root [aria-label="导出模型"]',
+            );
+            if (input && !input.disabled) {
+              moduleSelectRef.current?.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              // 无模型时 Select 禁用：首焦「取消」
+              document
+                .querySelector<HTMLButtonElement>(
+                  '.erd-io-modal-root .ant-modal-footer .ant-btn:not(.ant-btn-primary)',
+                )
+                ?.focus();
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
         footer={
           <Space>
             <Button onClick={closeModal} disabled={loading}>
@@ -185,6 +214,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
       >
         <div className="erd-io-modal__field">
           <Select
+            ref={moduleSelectRef}
             aria-label="导出模型"
             size="small"
             style={{width: '100%'}}
@@ -192,7 +222,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
             value={moduleName || undefined}
             options={moduleOptions}
             onChange={handleModuleChange}
-            disabled={loading || moduleOptions.length === 0}
+            disabled={moduleOptions.length === 0}
           />
         </div>
         <TextArea

@@ -19,11 +19,21 @@
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=DeadSecurityConfigContractTest test`
 - `./backend/dev-ensure.sh --restart`；匿名 `GET /endpoint/foo` → 401；`GET /actuator/health` → 200；`POST /auth/login`（坏口令）非 401 鉴权面（应为 4xx 业务/校验）
 
+#### 体验：导入/导出弹层键盘闭环（DBML）
+
+- 选题：DBML 导入/导出 Modal 开窗首焦不稳；菜单打开后 Esc 无法归还触发器（菜单项已卸载）；无键盘 E2E
+- 改动：`ReverseDBML`/`ExportDBML` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦文本区/模型 Select；`ProjectMenu.openDialog` 开窗前焦点交「项目菜单」
+- E2E：`import-export-keyboard`（空态导入 CTA / 菜单导出：首焦、Esc 归还、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 版本动作弹窗键盘闭环（新增/删除/回滚）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/import-export-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 安全：R-AUTH-07 frameOptions DENY（点击劫持）
 
 - 选题：Security 链 `frameOptions.disable()`，API 可被嵌 iframe
 - 改动：`ErdSecurityConfiguration` → `frameOptions.deny()`；分享为 SPA `/share/:token`，不嵌 API；第三方嵌 UI 文档约定走前端 CSP `frame-ancestors`
-- 文档：security-model R-AUTH-07 ✅ + 点击劫持节；roadmap 下一刀 → ~~R-DEAD-01/02/03~~✅ → R-CFG-05/06
+- 文档：security-model R-AUTH-07 ✅ + 点击劫持节；roadmap 下一刀 → R-DEAD-01/02/03
 - 回归：`FrameOptionsContractTest`（源契约：deny 启用、非 disable）
 
 验证点：
@@ -46,7 +56,7 @@
 - 选题：新建/修改 Modal 开窗首焦不稳、Esc/焦点归还未 E2E；删除用 Popconfirm 非 `role=dialog`、无 Tab trap、失败静默
 - 改动：`AddProject`/`RenameProject` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦首字段；`RemoveProject` Popconfirm→Modal（失败 toast、首焦「是」）
 - E2E：`project-action-modals-keyboard`（新建/修改/删除：首焦、Esc 归还、Tab trap）；`helpers.deleteOwnPersonProjects` 走 dialog「是」
-- 文档：design-principles §2 / control-matrix / regression-checklist；下一刀 → 导入/导出弹层键盘闭环（打开首焦 + Esc 归还 + Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist；下一刀 → ~~导入/导出弹层键盘闭环（打开首焦 + Esc 归还 + Tab trap）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/project-action-modals-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

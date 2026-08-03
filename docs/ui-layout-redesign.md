@@ -131,6 +131,8 @@
 - ✅ **GroupLayout 壳键盘**（2026-08-03）：Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置表单 Tab 序；brand focus-visible；`group-keyboard.spec` 绿
 - ✅ **项目列表行键盘**（2026-08-03）：个人/最近/团队 stretched link 消死卡；Enter 开设计器；Tab 行内动作；brand focus-visible；`project-list-keyboard.spec` 绿
 - ✅ **账号设置壳键盘**（2026-08-03）：`/account/settings` Skip「跳到主表单」→ `#account-settings-form`；绕开顶栏+侧栏；邮箱→电话→保存；brand focus-visible；`account-settings-keyboard.spec` 绿
+- ✅ **项目动作弹窗键盘**（2026-08-03）：新建/修改首焦字段；删除确认首焦「是」；Esc 归还；Tab trap；`project-action-modals-keyboard.spec` 绿
+- ✅ **导入/导出弹层键盘**（2026-08-03）：DBML 导入首焦文本 / 导出首焦模型；Esc 归还空态 CTA/项目菜单；Tab trap；`import-export-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
