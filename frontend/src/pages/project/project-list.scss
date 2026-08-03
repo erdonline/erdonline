@@ -63,6 +63,50 @@
     align-items: flex-start;
   }
 
+  /* ADR-0016：整行可点开项目（stretched link），动作区抬层；禁死卡区 */
+  .project-list-page__row {
+    position: relative;
+    border-radius: var(--erd-radius-sm, 4px);
+    transition: background-color 0.12s ease;
+
+    &:hover {
+      background: var(--erd-ink-a04, rgba(0, 0, 0, 0.04));
+    }
+
+    /* ant List 对后代 outline 有重置；行级 inset 环保证键盘可见 brand */
+    &:has(.project-list-page__open-link:focus-visible) {
+      box-shadow: inset 0 0 0 2px var(--erd-brand);
+    }
+
+    .ant-list-item-action {
+      position: relative;
+      z-index: 1;
+    }
+  }
+
+  .project-list-page__open-link {
+    color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+    text-decoration: none;
+
+    &::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+    }
+
+    &:hover {
+      color: var(--erd-brand);
+    }
+
+    &:focus-visible {
+      z-index: 1;
+      outline: 2px solid var(--erd-brand);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+  }
+
   .ant-list-item-meta {
     margin-block: 0;
     align-items: flex-start;
@@ -84,14 +128,6 @@
     font-size: 13px;
     font-weight: 600;
     line-height: 22px;
-
-    > a {
-      color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
-
-      &:hover {
-        color: var(--erd-brand, #de2910);
-      }
-    }
   }
 
   .ant-list-item-meta-description {

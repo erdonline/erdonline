@@ -4,9 +4,7 @@ import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import OpenProject from "@/components/dialog/project/OpenProject";
 import {ProjectListProps} from "@/pages/project/person";
 import {recentProject} from "@/services/project";
-import * as cache from "@/utils/cache";
-import {CONSTANT} from "@/utils/constant";
-import {history} from "@@/core/history";
+import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
 import '../project-list.scss';
 
 type ProjectItem = {
@@ -103,6 +101,8 @@ export default () => {
         }}
         renderItem={(row) => (
           <List.Item
+            className="project-list-page__row"
+            data-testid="project-list-row"
             actions={[
               <OpenProject project={row} key={'OpenProject' + row.id}/>
             ]}
@@ -110,14 +110,7 @@ export default () => {
             <List.Item.Meta
               avatar={<Avatar size={28} src={row.avatar || '/logo.svg'} />}
               title={
-                <a
-                  href={'/design/table/model?projectId=' + row.id}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    cache.setItem(CONSTANT.PROJECT_ID, row.id);
-                    history.push({pathname: '/design/table/model?projectId=' + row.id});
-                  }}
-                >{row.projectName}</a>
+                <ProjectListOpenLink projectId={row.id} projectName={row.projectName} />
               }
               description={
                 <div className="project-list-page__meta">
