@@ -4,12 +4,14 @@ import TableInfoEdit from '@/pages/design/table/component/table/TableInfoEdit';
 import useTabStore, {DesignPane, ModuleEntity} from '@/store/tab/useTabStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import {erdColors} from '@/theme/tokens';
-import React, {useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useState} from 'react';
 import {Tabs} from 'antd';
 import {TableOutlined} from '@ant-design/icons';
 import './TableTab.less';
 
 const {TabPane} = Tabs;
+
+const PANE_BY_DIGIT: DesignPane[] = ['field', 'index', 'code'];
 
 export type TableTabProps = {
   moduleEntity: ModuleEntity;
@@ -28,6 +30,42 @@ const TableTab: React.FC<TableTabProps> = (props) => {
     if (designPane) setActiveKey(designPane);
   }, [designPane, module, entityName]);
 
+  const activatePane = useCallback((pane: DesignPane) => {
+    setActiveKey(pane);
+    if (designPane) {
+      useTabStore.getState().dispatch.consumeDesignPane({
+        module,
+        entity: entityName,
+      });
+    }
+  }, [designPane, module, entityName]);
+
+  // Cmd/Ctrl+1/2/3 → 字段 / 索引 / 元数据应用（仅表设计签挂载时监听，不抢画布/浏览器签页）
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      const typing =
+        tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || !!el?.isContentEditable;
+      if (typing || !(e.metaKey || e.ctrlKey) || e.altKey || e.shiftKey) {
+        return;
+      }
+      const digit =
+        e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3'
+          ? Number(e.code.replace('Digit', ''))
+          : e.key === '1' || e.key === '2' || e.key === '3'
+            ? Number(e.key)
+            : 0;
+      if (digit < 1 || digit > 3) {
+        return;
+      }
+      e.preventDefault();
+      activatePane(PANE_BY_DIGIT[digit - 1]);
+    };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [activatePane]);
+
   return (
     <div className="erd-table-design" data-testid="table-design">
       <div className="erd-table-design__header">
@@ -41,30 +79,14 @@ const TableTab: React.FC<TableTabProps> = (props) => {
       <Tabs
         id="tableNav"
         activeKey={activeKey}
-        onChange={(key) => {
-          setActiveKey(key as DesignPane);
-          if (designPane) {
-            useTabStore.getState().dispatch.consumeDesignPane({
-              module,
-              entity: entityName,
-            });
-          }
-        }}
+        onChange={(key) => activatePane(key as DesignPane)}
         size="small"
         className="erd-table-design__tabs"
       >
         <TabPane key="field" tab="字段">
           <TableInfoEdit
             moduleEntity={props.moduleEntity}
-            onOpenIndex={() => {
-              setActiveKey('index');
-              if (designPane) {
-                useTabStore.getState().dispatch.consumeDesignPane({
-                  module,
-                  entity: entityName,
-                });
-              }
-            }}
+            onOpenIndex={() => activatePane('index')}
           />
         </TabPane>
         <TabPane key="index" tab="索引">

@@ -2462,6 +2462,66 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表设计 Cmd/Ctrl+1/2/3：直切字段/索引/元数据应用', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('panekeys');
+    const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'pk', 'pane digit shortcuts');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      // 点签栏卸掉输入焦点，避免 contentEditable 守卫吞键
+      await designer.getByRole('tab', { name: '字段', exact: true }).click();
+      await page.keyboard.press(`${mod}+2`);
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-index-edit')).toBeVisible();
+
+      await page.keyboard.press(`${mod}+3`);
+      await expect(designer.getByRole('tab', { name: '元数据应用' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-code-edit')).toBeVisible();
+
+      await page.keyboard.press(`${mod}+1`);
+      await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-field-edit')).toBeVisible();
+
+      // 输入框内不拦截（浏览器可继续用修饰键，或保持字段签）
+      const nameInput = designer.locator('input').first();
+      if (await nameInput.count()) {
+        await nameInput.focus();
+        await page.keyboard.press(`${mod}+2`);
+        await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
+          'aria-selected',
+          'true',
+        );
+      }
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('快捷键速查：? 打开 aria dialog', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('helpkeys');
@@ -2480,9 +2540,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help).toBeVisible();
       await expect(help).toHaveAttribute('aria-modal', 'true');
       await expect(help.getByText('命令面板（搜表定位、建表、布局）')).toBeVisible();
+      await expect(help.getByText('表设计：字段 / 索引 / 元数据应用')).toBeVisible();
       await expect(help.getByText(/二次确认/)).toBeVisible();
       await expect(help.getByText(/下一 \/ 上一列或行/)).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+K' })).toBeVisible();
+      await expect(help.locator('kbd', { hasText: '⌘/Ctrl+1' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: 'Tab' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: 'Delete' })).toBeVisible();
 

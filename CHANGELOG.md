@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：表设计 Cmd/Ctrl+1/2/3 签页直切（键盘建模）
+
+- 选题：表设计三签（字段 / 索引 / 元数据应用）只能鼠标点；Cmd+K 体系缺签页直切
+- `TableTab`：`Cmd/Ctrl+1|2|3` → `field|index|code`；仅表设计签挂载时监听（画布不抢浏览器签页）；输入框 / contentEditable 不拦；`?` 速查卡登记
+- E2E：`relation`「表设计 Cmd/Ctrl+1/2/3：直切字段/索引/元数据应用」；速查卡断言同步
+- `docs/design-principles.md` §2；下一刀 → 画布节点/字段浏览器 Tab 环
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表设计 Cmd/Ctrl\\+1/2/3" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "快捷键速查" --workers=1 --retries=0`
+
 #### 体验：设计器 Skip + 焦点环（键盘建模）
 
 - 选题：进设计器 Tab 先扫冗长顶栏；模型树/签页/画布无 Skip；焦点环不可见
 - `DesignLayout`：`erd-skip-nav`「跳到模型树」「跳到主工作区」→ `#erd-design-tree` / `#erd-design-workspace`（`tabIndex=-1`）；设计器 `:focus-visible` brand 环；签栏/画布工具栏补环；左树文件夹 `+` Enter/Space
 - E2E：`relation`「设计器 Skip：首项 Tab 达跳过链；落到模型树/主工作区无 trap」
-- `docs/design-principles.md` §2；下一刀 → Cmd+1/2/3 签页直切 或 画布节点/字段浏览器 Tab 环
+- `docs/design-principles.md` §2；下一刀 → ~~Cmd+1/2/3 签页直切~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "设计器 Skip" --workers=1 --retries=0`
