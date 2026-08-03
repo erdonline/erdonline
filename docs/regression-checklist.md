@@ -93,6 +93,7 @@
 - [x] [画布字段改名/删字段落盘失败可重试] mock save（改名 fields 含新名 / 删缺 NAME）→ toast + 仍编辑或行仍在+确认可再删 → 重试成功；空名 toast / 删二次确认不回归 ✅`canvas-field-rename-delete-failure.spec.ts`
 - [x] [画布字段 meta 落盘失败可重试] mock save（PK / Integer 类型 / relationNoShow / 浏览态 PK）→ toast + 勾选/类型回滚或行仍可见 → 重试成功；happy 路径 relation 不回归 ✅`canvas-field-meta-failure.spec.ts`
 - [x] [表设计 JExcel 字段 meta 落盘失败可重试] mock save（字段签 PK / 隐藏）→ toast + 勾选回滚 → 重试成功 + 画布对齐；工具栏删行/半成品/空态 CTA 不回归 ✅`jexcel-field-meta-failure.spec.ts`
+- [x] [表设计索引签落盘失败可重试] mock save（添加第一个索引 / 勾是否唯一）→ toast + 空态或勾选回滚 → 重试成功 + 画布 UK；空态 CTA/再加/删除/键盘不回归 ✅`jexcel-index-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`

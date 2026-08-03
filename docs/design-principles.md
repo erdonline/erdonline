@@ -161,6 +161,7 @@
 - ✅ JExcel 工具栏「删除选中行」Modal 二次确认（字段/索引/默认字段表共用；未选中有 toast）
 - ✅ 表设计字段签半成品行：缺英文名/类型时 toast + 中止写回（禁静默 discard 丢字段）；全空草稿可丢；网格内 Esc 不冒泡；必填 `name`+`typeName`（对齐画布空名反馈）
 - ✅ 表设计字段签 JExcel meta（类型/PK/NN/AI/隐藏等）与空态「添加第一个字段」：`updateEntityFields` `persist:true`；仅 save code===200 写 store；失败 toast + 重挂网格回滚草稿（禁本地 mutate 即成功）
+- ✅ 表设计索引签（空态添加 / JExcel 改名·字段·唯一 / 再加 / 删除）：`updateEntityIndex` `persist:true`；仅 save code===200 写 store +「索引更新成功」；失败 toast + 空态保留或重挂网格回滚；删确认失败拒关窗
 - ✅ 表设计索引签半成品行：缺索引名/字段时 toast + 中止写回（禁静默 discard 丢索引）；`fields` 空数组/「;」空串亦算未填；全空草稿可丢；网格内 Esc 不冒泡
 - ✅ 版本时光机：任意历史版本可 diff、可恢复
 

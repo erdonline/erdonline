@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import 'handsontable/dist/handsontable.full.css';
 import "handsontable/languages/zh-CN";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -39,28 +39,100 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   const hasIndexes = indexs.length > 0;
   /** 无字段可绑定时仅展开空表，不写库 */
   const [started, setStarted] = useState(false);
+  /** 落盘失败时重挂 JExcel（组件不吃 props.data），回滚到 store 快照 */
+  const [sheetEpoch, setSheetEpoch] = useState(0);
+  const [indexSaving, setIndexSaving] = useState(false);
+  const pendingRef = useRef<IndexRow[] | null>(null);
+  const savingRef = useRef(false);
 
   useEffect(() => {
     setStarted(false);
+    setSheetEpoch(0);
+    pendingRef.current = null;
   }, [module, entityName]);
 
   const fields = entity?.fields?.map((f: { name?: string }) => f.name).filter(Boolean) as string[];
+  const entityTitle = entity?.title || entity?.name;
+
+  const normalizePayload = (payload: IndexRow[]): IndexRow[] =>
+    payload.map((m) => ({
+      ...m,
+      fields: m.fields?.constructor === String
+        ? _.split(_.trimStart(m?.fields as string, ";"), ";")
+        : m.fields,
+    }));
+
+  /**
+   * 禁止本地 mutate 即成功：队列最新 payload，仅 saveProject code===200 写 store；
+   * 失败 toast（persistProjectNow）+ 重挂网格回滚草稿。
+   */
+  const flushPersist = async () => {
+    if (savingRef.current) return;
+    if (!currentModule || !entity || !entityTitle) return;
+    const payload = pendingRef.current;
+    if (!payload) return;
+    pendingRef.current = null;
+    savingRef.current = true;
+    setIndexSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        projectDispatch.updateEntityIndex(
+          currentModule,
+          entityTitle,
+          payload,
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        pendingRef.current = null;
+        setSheetEpoch((e) => e + 1);
+        return;
+      }
+    } catch {
+      message.error('索引保存失败');
+      pendingRef.current = null;
+      setSheetEpoch((e) => e + 1);
+    } finally {
+      savingRef.current = false;
+      setIndexSaving(false);
+      if (pendingRef.current) {
+        void flushPersist();
+      }
+    }
+  };
 
   const afterChange = (payload: IndexRow[]) => {
-    const updatedPayload = payload.map((m) => ({
-      ...m,
-      fields: m.fields?.constructor === String ? _.split(_.trimStart(m?.fields as string, ";"), ";") : m.fields
-    }));
-    
-    if (currentModule && entity) {
-      projectDispatch.updateEntityIndex(currentModule, entity.title || entity.name, updatedPayload);
-    } else {
-      console.error('当前模块或实体未定义');
-    }
-  }
-
-  const seedIndex = (existing: IndexRow[], isUnique: boolean) => {
     if (!currentModule || !entity) {
+      console.error('当前模块或实体未定义');
+      return;
+    }
+    pendingRef.current = normalizePayload(payload);
+    void flushPersist();
+  };
+
+  const persistIndex = async (payload: IndexRow[]): Promise<boolean> => {
+    if (!currentModule || !entity || !entityTitle) {
+      console.error('当前模块或实体未定义');
+      return false;
+    }
+    try {
+      const ok = await Promise.resolve(
+        projectDispatch.updateEntityIndex(
+          currentModule,
+          entityTitle,
+          payload,
+          { persist: true },
+        ),
+      );
+      return !!ok;
+    } catch {
+      message.error('索引保存失败');
+      return false;
+    }
+  };
+
+  const seedIndex = async (existing: IndexRow[], isUnique: boolean): Promise<boolean> => {
+    if (!currentModule || !entity || !entityTitle) {
       setStarted(true);
       return false;
     }
@@ -69,25 +141,33 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       setStarted(true);
       return false;
     }
+    if (savingRef.current) return false;
     const base = indexNameBase(entity);
-    projectDispatch.updateEntityIndex(currentModule, entity.title || entity.name, [
+    const payload: IndexRow[] = [
       ...existing,
       {
         name: nextIndexName(base, existing),
         fields: [fieldName],
         isUnique,
       },
-    ]);
-    return true;
+    ];
+    savingRef.current = true;
+    setIndexSaving(true);
+    try {
+      return await persistIndex(payload);
+    } finally {
+      savingRef.current = false;
+      setIndexSaving(false);
+    }
   };
 
   const addFirstIndex = () => {
-    seedIndex([], false);
+    void seedIndex([], false);
   };
 
   /** 字段唯一 = 唯一索引；空态明确 CTA，勿藏在「是否唯一」勾选里 */
   const addFirstUniqueIndex = () => {
-    seedIndex([], true);
+    void seedIndex([], true);
   };
 
   /** 已有索引后表内明确 CTA；勿只靠 JExcel 工具栏「+」图标（无文案死 affordance） */
@@ -96,12 +176,12 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       message.warning('请先添加字段再创建索引');
       return;
     }
-    seedIndex(indexs, isUnique);
+    void seedIndex(indexs, isUnique);
   };
 
   /** 破坏性：表内明确「删除」+ Modal 二次确认；勿只靠 JExcel 工具栏无确认 remove */
   const confirmDeleteIndex = (rowIndex: number) => {
-    if (!currentModule || !entity) {
+    if (!currentModule || !entity || !entityTitle) {
       message.error('当前模块或实体未定义');
       return;
     }
@@ -113,13 +193,12 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
-      onOk() {
+      async onOk() {
         const next = indexs.filter((_, i) => i !== rowIndex);
-        projectDispatch.updateEntityIndex(
-          currentModule,
-          entity.title || entity.name,
-          next,
-        );
+        const ok = await persistIndex(next);
+        if (!ok) {
+          return Promise.reject(new Error('索引删除落盘失败'));
+        }
       },
     });
   };
@@ -129,6 +208,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       <div
         data-testid="table-index-edit"
         className="erd-table-index-empty"
+        aria-busy={indexSaving || undefined}
       >
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
@@ -144,6 +224,8 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
               size="small"
               data-testid="index-empty-add"
               aria-label="添加第一个索引"
+              loading={indexSaving}
+              disabled={indexSaving}
               onClick={addFirstIndex}
             >
               添加第一个索引
@@ -153,6 +235,8 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
               size="small"
               data-testid="index-empty-add-unique"
               aria-label="添加唯一索引"
+              loading={indexSaving}
+              disabled={indexSaving}
               onClick={addFirstUniqueIndex}
             >
               添加唯一索引
@@ -187,14 +271,20 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     }
   ];
 
+  const sheetKey = `index-grid-${module}-${entityName}-${indexs.length}-${sheetEpoch}`;
+
   return (
-    <div data-testid="table-index-edit" className="erd-table-index-edit">
+    <div
+      data-testid="table-index-edit"
+      className="erd-table-index-edit"
+      aria-busy={indexSaving || undefined}
+    >
       <p className="erd-table-index-hint" data-testid="index-unique-hint">
         勾选「是否唯一」= UNIQUE 约束；画布字段会显示 UK。字段本身无独立 unique 列。
       </p>
-      {/* key：条数变则重挂，JExcel 不吃 props.data 更新 */}
+      {/* key：条数/epoch 变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel
-        key={`index-grid-${indexs.length}`}
+        key={sheetKey}
         data={data}
         columns={columns}
         saveData={afterChange}
@@ -216,6 +306,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
                   size="small"
                   data-testid={`index-delete-${i}`}
                   aria-label={`删除索引 ${name}`}
+                  disabled={indexSaving}
                   onClick={() => confirmDeleteIndex(i)}
                 >
                   删除索引 {name}
@@ -231,6 +322,8 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
                 block
                 data-testid="index-add-row"
                 aria-label="再添加一条索引"
+                loading={indexSaving}
+                disabled={indexSaving}
                 onClick={() => addAnotherIndex(false)}
               >
                 + 再添加一条索引
@@ -241,6 +334,8 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
                 block
                 data-testid="index-add-row-unique"
                 aria-label="再添加一条唯一索引"
+                loading={indexSaving}
+                disabled={indexSaving}
                 onClick={() => addAnotherIndex(true)}
               >
                 + 再添加一条唯一索引

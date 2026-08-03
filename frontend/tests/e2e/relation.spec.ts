@@ -1268,7 +1268,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expectToast(page, '索引更新成功');
       await expect(indexEdit.getByTestId('index-empty-add')).toHaveCount(0);
       await expect(indexEdit.getByText('索引名*')).toBeVisible();
-      await expect(indexEdit.getByText('T_TABLE_1_IDX1')).toBeVisible();
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1', exact: true })).toBeVisible();
+      await expect(
+        indexEdit.getByRole('button', { name: '删除索引 T_TABLE_1_IDX1' }),
+      ).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -1292,7 +1295,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(indexEdit.getByRole('button', { name: '添加第一个索引' })).toBeVisible();
       await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
       await expectToast(page, '索引更新成功');
-      await expect(indexEdit.getByText('T_TABLE_1_IDX1')).toBeVisible();
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1', exact: true })).toBeVisible();
 
       const addRow = indexEdit.getByRole('button', { name: '再添加一条索引' });
       await expect(addRow).toBeVisible();
@@ -1300,7 +1303,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await addRow.click();
 
       await expectToast(page, '索引更新成功');
-      await expect(indexEdit.getByText('T_TABLE_1_IDX2')).toBeVisible();
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX2', exact: true })).toBeVisible();
+      await expect(
+        indexEdit.getByRole('button', { name: '删除索引 T_TABLE_1_IDX2' }),
+      ).toBeVisible();
       await expect(indexEdit.getByTestId('index-add-row')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
