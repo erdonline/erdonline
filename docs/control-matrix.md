@@ -76,6 +76,7 @@
 | 画布关系图弹层落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+toast+关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `diagram-modal-failure` |
 | 画布表头改名落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+退出编辑；失败 toast 可读；草稿/节点 id 保留可重试 | 零静默失败 | ✅ | `table-rename-failure` |
 | 画布建表/行内加字段落盘失败 | 业务码失败 / 重试 | 仅 save code===200 上图/关新建编辑；失败 toast；无节点或草稿可重试；空名 toast/空字段 CTA 保留 | 零静默失败 | ✅ | `canvas-create-field-failure` |
+| 画布字段改名/删字段落盘失败 | 业务码失败 / 重试 | 仅 save code===200 退出编辑/移出行；失败 toast；改名草稿保留；删确认窗 keep（reject）可再删 | 零静默失败 | ✅ | `canvas-field-rename-delete-failure` |
 | 发起SQL审批 Modal | 打开首焦 / Esc / Tab trap | 首焦「审批人」；Esc 归还触发器（父详情仍开）；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-approval-keyboard` |
 | 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
 | 添加成员邀请失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `add-user-invite-failure` |

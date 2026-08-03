@@ -8,13 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：画布字段改名/删字段落盘失败可重试
+
+- 选题：既有字段行内改名 / `removeField` 本地 mutate 即退出编辑或移出行；autosave 失败像已改名/已删
+- `TableNode` 既有字段 `commit` 与新建同构：`updateEntityFields` `persist:true`；仅 code===200 退出编辑；失败草稿保留；落盘中禁 Escape/二次提交
+- 删字段：二次确认保留；`onOk` 先 persist，仅成功关窗移出；失败 toast + Promise.reject 窗仍开可再点「删除」
+- E2E：`canvas-field-rename-delete-failure.spec.ts` mock save → toast + 仍编辑/行仍在 → 重试成功
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 字段 meta（类型/PK/隐藏）即时伪造成功，或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-field-rename-delete-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "字段 ✎ 可改名|删除字段：按钮二次确认"`
+
 #### 体验：画布建表/行内加字段落盘失败可重试
 
 - 选题：画布 `addEntity` / 行内 `__NEW__` 加字段无 persist 本地 mutate 即成功；autosave 失败像已建表/加字段
 - `createFirstTable`：`addEntity` `persist:true`；仅 code===200 上图 +「表添加成功」；失败 toast、不写 store、按钮可重试
 - `updateEntityFields` 支持 `persist:true`；`TableNode` 新建字段仅 save 成功退出编辑；失败草稿保留；落盘中禁 Escape/二次提交；空名 toast / 空字段 CTA 保留
 - E2E：`canvas-create-field-failure.spec.ts` mock save → toast + 无节点/仍编辑 → 重试成功
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 字段改名/删字段伪造成功，或 densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~字段改名/删字段伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-create-field-failure.spec.ts --project=chromium --workers=1 --retries=0`

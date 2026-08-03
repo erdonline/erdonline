@@ -195,7 +195,8 @@
 - ✅ **EntityModal 落盘失败不关窗**（2026-08-03）：`addModule` 等 `persist:true` 先 `saveProject` 再写 store；仅 code===200 toast/关窗；`entity-modal-failure` 绿；键盘闭环保留；下一刀 → ~~画布 createDiagram 同构~~✅
 - ✅ **画布关系图弹层落盘失败不关窗**（2026-08-03）：`ReactFlowRelation` diagram Modal `persist:true`；仅 code===200 关窗；`diagram-modal-failure` 绿；下一刀 → ~~画布表头改名伪造成功~~✅
 - ✅ **画布表头改名落盘失败不退出编辑**（2026-08-03）：`renameEntity` `persist:true`；仅 code===200 退出编辑；`table-rename-failure` 绿；下一刀 → ~~画布建表/字段行内伪造成功~~✅
-- ✅ **画布建表/行内加字段落盘失败可重试**（2026-08-03）：`addEntity`/`updateEntityFields` `persist:true`；仅 code===200 上图/退出新建编辑；失败 toast + 可重试；空名 toast / 空字段 CTA 保留；`canvas-create-field-failure` 绿；下一刀 → 字段改名/删字段伪造成功，或 densify ROI
+- ✅ **画布建表/行内加字段落盘失败可重试**（2026-08-03）：`addEntity`/`updateEntityFields` `persist:true`；仅 code===200 上图/退出新建编辑；失败 toast + 可重试；空名 toast / 空字段 CTA 保留；`canvas-create-field-failure` 绿；下一刀 → ~~字段改名/删字段伪造成功~~✅
+- ✅ **画布字段改名/删字段落盘失败可重试**（2026-08-03）：既有字段 `commit`/`removeField` `persist:true`；仅 code===200 退出编辑/移出行；删字段二次确认保留，失败窗仍开；`canvas-field-rename-delete-failure` 绿；下一刀 → 字段 meta（类型/PK/隐藏）即时伪造成功，或 densify ROI
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
