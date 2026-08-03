@@ -8,13 +8,26 @@
 
 ### 2026-08-03
 
+#### 体验：表设计签体内容次密距
+
+- 选题：内签栏/JExcel 行已 ~24；签体仍 10/12 松井 + hint 6×10 + 空态 16、元数据 tip 默认 Paragraph 底距
+- `TableTab.less`：`--erd-tab-body-pad-x/b` 6/4；unique-hint pad 4×8 / mb 4 / minH 24；空态 pad 8；索引 gap 4；CodeTab 二级 content-holder pad 0
+- `erd-design-workspace`：外井/内容井 12→6；CommonTabs nav padX 8
+- `TableCodeShow`：`.erd-meta-ddl-hint` ~24；`TableIndexEdit` Space 4
+- E2E：`model-design-ux`「表设计签体内容次密距」；截图 `diagram-tab-body-dense.png`；保留空字段 CTA / 空名 toast
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 设计器 Empty 巨 marginTop / 次屏松井（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计签体内容次密距" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：空表设计 / 空表字段引导
 
 - 选题：右键菜单已密；字段签空 `fields[]` 仍白屏死表 / 画布空表仅灰虚线「+ 添加字段」难发现
 - `TableInfoEdit`：无命名字段 → Empty「还没有字段」+ 主 CTA「添加第一个字段」（种子首个 defaultField / id）；对称索引签空态
 - RF 空表：`canvas-fields-empty` 引导 +「添加第一个字段」品牌 CTA；有字段后回「+ 添加字段」
 - E2E：`table-field-empty`（表设计 CTA + 画布空表内联）；`__ERD_E2E__.clearEntityFields` 造空态
-- 文档：design-principles §4 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 签体内容次密距（视 ROI）
+- 文档：design-principles §4 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~签体内容次密距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --workers=1 --retries=0`

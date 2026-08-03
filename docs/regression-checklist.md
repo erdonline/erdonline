@@ -23,6 +23,7 @@
 - [x] 设计器次屏 JExcel 密度：工具栏 ≤32 / 表头·行 pad-block ≤10 / 行高 ≤32；图标不 clip；撤销钮 Tab focus-visible；截图 `diagram-jexcel-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 元数据应用子签密度：CodeTab/DbTab 栏 ≤26（目标 ~24）；不 clip 标签；子签 Tab focus-visible；Cmd+1/2/3 不回归；截图 `diagram-code-tabs-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 表设计内签密度：字段/索引/元数据栏 ≤26（目标 ~24）；不 clip 标签；内签 Tab focus-visible；Cmd+1/2/3 不回归；截图 `diagram-inner-tabs-dense.png` ✅`model-design-ux.spec.ts`
+- [x] 表设计签体内容次密距：侧 pad ≤16 / 底 pad ≤6；unique-hint pad-block ≤10 / 高 ≤32；JExcel 工具栏不 clip；元数据 tip ≤32 + CodeTab padY ≤4；截图 `diagram-tab-body-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 右键/树操作菜单密度：项高 ≤32（目标 ~28）/ font ≤13；图标·文案不 clip；`role=menuitem` + ArrowDown/Esc；截图 `diagram-context-menu-dense.png` ✅`model-design-ux.spec.ts`
 - [x] [字段签空态 CTA] 清字段→字段签见「还没有字段」+「添加第一个字段」→ 网格 + 画布 `id`；空态消失 ✅`table-field-empty.spec.ts`
 - [x] [画布空表字段 CTA] 清字段见 `canvas-fields-empty` +「添加第一个字段」→ 内联建 NAME → 空态消失 +「添加字段」 ✅`table-field-empty.spec.ts`

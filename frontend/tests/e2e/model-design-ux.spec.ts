@@ -809,4 +809,170 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：表设计签体内容次密距 —
+   * 侧/底 pad 对齐 ~24 toolbar；hint/空态收紧；禁 clip JExcel；元数据 tip 不松
+   */
+  test('表设计签体内容次密距', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('tabbody');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByTestId('add-module-empty').click();
+      await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-chnname').fill('商城');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      await expect(fieldEdit.getByTestId('jexcel-root')).toBeVisible();
+      await expect(page.getByTestId('field-unique-hint')).toBeVisible();
+
+      const bodyMetrics = await designer.evaluate((root) => {
+        const tabs = root.querySelector('.erd-table-design__tabs') as HTMLElement | null;
+        const holder = root.querySelector(
+          '.erd-table-design__tabs > .ant-tabs-content-holder',
+        ) as HTMLElement | null;
+        const hint = root.querySelector(
+          '[data-testid="field-unique-hint"]',
+        ) as HTMLElement | null;
+        const jexcel = root.querySelector(
+          '[data-testid="jexcel-root"]',
+        ) as HTMLElement | null;
+        const toolbar = jexcel?.querySelector('.jexcel_toolbar') as HTMLElement | null;
+        const toolItem = jexcel?.querySelector(
+          '.jexcel_toolbar_item',
+        ) as HTMLElement | null;
+        const eps = 2;
+        const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+          inner.top >= outer.top - eps &&
+          inner.bottom <= outer.bottom + eps &&
+          inner.left >= outer.left - eps &&
+          inner.right <= outer.right + eps;
+        const tabsCs = tabs ? getComputedStyle(tabs) : null;
+        const holderCs = holder ? getComputedStyle(holder) : null;
+        const hintCs = hint ? getComputedStyle(hint) : null;
+        // 竖直：工具栏落在签体可视区内；水平允许宽表横溢（与 JExcel 行密度用例同阶）
+        let toolbarVertClipped = true;
+        if (toolbar && holder) {
+          const tr = toolbar.getBoundingClientRect();
+          const hr = holder.getBoundingClientRect();
+          toolbarVertClipped =
+            tr.top < hr.top - eps || tr.bottom > hr.bottom + eps;
+        }
+        let iconClipped = false;
+        if (toolItem && toolbar) {
+          iconClipped = !fullyIn(
+            toolItem.getBoundingClientRect(),
+            toolbar.getBoundingClientRect(),
+          );
+        }
+        return {
+          padX:
+            tabsCs != null
+              ? parseFloat(tabsCs.paddingLeft) + parseFloat(tabsCs.paddingRight)
+              : -1,
+          padBottom: holderCs != null ? parseFloat(holderCs.paddingBottom) : -1,
+          hintPadBlock:
+            hintCs != null
+              ? parseFloat(hintCs.paddingTop) + parseFloat(hintCs.paddingBottom)
+              : -1,
+          hintMb: hintCs != null ? parseFloat(hintCs.marginBottom) : -1,
+          hintH: hint ? hint.getBoundingClientRect().height : -1,
+          toolbarVertClipped,
+          iconClipped,
+          toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+        };
+      });
+
+      expect(
+        bodyMetrics.padX,
+        `签体侧 pad 合计应 ≤16（目标 6+6），得 ${bodyMetrics.padX}`,
+      ).toBeLessThanOrEqual(16);
+      expect(bodyMetrics.padX).toBeGreaterThanOrEqual(8);
+      expect(
+        bodyMetrics.padBottom,
+        `签体底 pad 应 ≤6（目标 4），得 ${bodyMetrics.padBottom}`,
+      ).toBeLessThanOrEqual(6);
+      expect(bodyMetrics.padBottom).toBeGreaterThanOrEqual(2);
+      expect(
+        bodyMetrics.hintPadBlock,
+        `unique hint pad-block 应 ≤10（目标 4+4），得 ${bodyMetrics.hintPadBlock}`,
+      ).toBeLessThanOrEqual(10);
+      expect(
+        bodyMetrics.hintMb,
+        `unique hint margin-bottom 应 ≤6（目标 4），得 ${bodyMetrics.hintMb}`,
+      ).toBeLessThanOrEqual(6);
+      expect(
+        bodyMetrics.hintH,
+        `unique hint 高应 ≤32（目标 ~24），得 ${bodyMetrics.hintH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(
+        bodyMetrics.toolbarVertClipped,
+        'JExcel 工具栏不得被签体竖直裁切',
+      ).toBe(false);
+      expect(bodyMetrics.iconClipped, '工具栏图标不得裁切').toBe(false);
+      expect(
+        bodyMetrics.toolbarH,
+        `JExcel 工具栏高应 ∈22–32，得 ${bodyMetrics.toolbarH}`,
+      ).toBeGreaterThanOrEqual(22);
+      expect(bodyMetrics.toolbarH).toBeLessThanOrEqual(32);
+
+      await designer.getByRole('tab', { name: '元数据应用' }).click();
+      const codeEdit = page.getByTestId('table-code-edit');
+      await expect(codeEdit).toBeVisible({ timeout: 10_000 });
+      await expect(codeEdit.getByRole('tab', { name: 'MYSQL' })).toBeVisible();
+
+      const metaMetrics = await designer.evaluate((root) => {
+        const hint = root.querySelector('.erd-meta-ddl-hint') as HTMLElement | null;
+        const subHolder = root.querySelector(
+          '.erd-code-tab__tabs > .ant-tabs-content-holder',
+        ) as HTMLElement | null;
+        const hintCs = hint ? getComputedStyle(hint) : null;
+        const subCs = subHolder ? getComputedStyle(subHolder) : null;
+        return {
+          hintMb: hintCs != null ? parseFloat(hintCs.marginBottom) : -1,
+          hintH: hint ? hint.getBoundingClientRect().height : -1,
+          subPadY:
+            subCs != null
+              ? parseFloat(subCs.paddingTop) + parseFloat(subCs.paddingBottom)
+              : -1,
+        };
+      });
+      expect(
+        metaMetrics.hintMb,
+        `元数据 tip margin-bottom 应 ≤8（目标 4），得 ${metaMetrics.hintMb}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        metaMetrics.hintH,
+        `元数据 tip 高应 ≤32（目标 ~24），得 ${metaMetrics.hintH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(
+        metaMetrics.subPadY,
+        `CodeTab 签体 padY 应 ≤4（目标 0），得 ${metaMetrics.subPadY}`,
+      ).toBeLessThanOrEqual(4);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-tab-body-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

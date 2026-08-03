@@ -1,6 +1,6 @@
-/* 模型设计工作区（ADR-0017）：内容不贴边——sunk 底 + 12px 留白 + 白色标签卡 */
+/* 模型设计工作区（ADR-0017）：sunk 底 + 次密距留白（对齐 ~24 toolbar；禁 12 松井） */
 .erd-design-workspace {
-  padding: 12px;
+  padding: 6px;
   background: var(--erd-surface-sunk);
 
   .erd-common-tabs {
@@ -10,7 +10,7 @@
     overflow: hidden;
 
     .ant-tabs-nav {
-      padding: 0 12px;
+      padding: 0 8px;
       border-bottom: 1px solid var(--erd-line);
 
       &::before {
@@ -18,9 +18,9 @@
       }
     }
 
-    /* 内容井：与卡片留白，画布/表设计各自成面板 */
+    /* 内容井：次密距；画布/表设计各自成面板，禁夹死 JExcel */
     .ant-tabs-content-holder {
-      padding: 12px;
+      padding: 6px;
       background: var(--erd-surface-sunk);
     }
   }
