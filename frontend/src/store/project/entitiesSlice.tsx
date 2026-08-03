@@ -322,8 +322,9 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     }
 
     const project = get().project;
+    // applyRename 读 state.project.*（store 形）；project draft 需包一层
     const next = produce(project, (draft: any) => {
-      applyRename(draft);
+      applyRename({ project: draft });
     });
 
     return (async () => {

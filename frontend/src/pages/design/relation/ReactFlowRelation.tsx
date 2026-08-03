@@ -184,21 +184,15 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const onFieldsChange = (fields: FieldData[]) => {
     useProjectStore.getState().dispatch.updateEntityFields(moduleName, entity.title, fields);
   };
-  const onRename = (newTitle: string, newChnname: string) => {
-    useProjectStore.getState().dispatch.renameEntity({
-      oldModuleName: moduleName,
-      newModuleName: moduleName,
-      oldTitle: entity.title,
-      newTitle,
-      newChnname,
-    });
-  };
   const [editing, setEditing] = useState<EditingState>(null);
   /** 浏览态选中字段：Delete/Backspace → 二次确认删除（编辑态 Backspace 仍只改字） */
   const [selectedField, setSelectedField] = useState<string | null>(null);
   const [headerEditing, setHeaderEditing] = useState(false);
   const [headerName, setHeaderName] = useState(entity.title);
   const [headerChnname, setHeaderChnname] = useState(entity.chnname || '');
+  /** 表头改名落盘中：禁二次提交 / Escape 误丢草稿 */
+  const [headerSaving, setHeaderSaving] = useState(false);
+  const headerSavingRef = useRef(false);
   /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
   const [showHiddenFields, setShowHiddenFields] = useState(false);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
@@ -444,7 +438,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     }, 0);
   };
 
-  const commitHeader = () => {
+  const commitHeader = async () => {
+    if (headerSavingRef.current) {
+      return;
+    }
     const name = headerName.trim();
     const chn = headerChnname.trim();
     if (!name) {
@@ -463,19 +460,46 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       resetHeaderDraft();
       return;
     }
-    onRename(name, chn);
-    setHeaderEditing(false);
+    // 禁止本地 mutate 即退出编辑；仅 saveProject code===200 关编辑态
+    headerSavingRef.current = true;
+    setHeaderSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.renameEntity(
+          {
+            oldModuleName: moduleName,
+            newModuleName: moduleName,
+            oldTitle: entity.title,
+            newTitle: name,
+            newChnname: chn,
+          },
+          { persist: true },
+        ),
+      );
+      if (ok) {
+        setHeaderEditing(false);
+      }
+    } catch {
+      // renameEntity 同步抛错时仍保持编辑态；业务失败已由 request/persist toast
+      message.error('表保存失败');
+    } finally {
+      headerSavingRef.current = false;
+      setHeaderSaving(false);
+    }
   };
 
   const onHeaderEditKeyDown = (e: React.KeyboardEvent) => {
     e.stopPropagation();
     if (e.key === 'Enter') {
       e.preventDefault();
-      commitHeader();
+      void commitHeader();
       return;
     }
     if (e.key === 'Escape') {
       e.preventDefault();
+      if (headerSavingRef.current) {
+        return;
+      }
       cancelHeaderEdit();
       return;
     }
@@ -487,24 +511,24 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           focusHeaderPart('chnname');
           return;
         }
-        commitHeader();
+        void commitHeader();
         return;
       }
       if (label === '表中文名') {
         focusHeaderPart('name');
         return;
       }
-      commitHeader();
+      void commitHeader();
     }
   };
 
   const onHeaderEditBlur = (e: React.FocusEvent) => {
-    if (headerIgnoreBlurRef.current) return;
+    if (headerIgnoreBlurRef.current || headerSavingRef.current) return;
     const next = e.relatedTarget as HTMLElement | null;
     if (next && next.closest('.erd-table-header')) {
       return;
     }
-    commitHeader();
+    void commitHeader();
   };
 
   /** Escape：丢弃未提交的字段名，禁止 blur 再走 commit（否则取消变静默落盘） */
@@ -777,11 +801,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         title="选中后再点表头，或双击，可改表名与中文名"
       >
         {headerEditing ? (
-          <div className="erd-header-inputs">
+          <div className="erd-header-inputs" aria-busy={headerSaving || undefined}>
             <input
               className="erd-header-input"
               aria-label="表名"
               autoFocus
+              disabled={headerSaving}
               value={headerName}
               onChange={e => setHeaderName(e.target.value)}
               onKeyDown={onHeaderEditKeyDown}
@@ -791,6 +816,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               className="erd-header-chnname-input"
               aria-label="表中文名"
               placeholder="中文名"
+              disabled={headerSaving}
               value={headerChnname}
               onChange={e => setHeaderChnname(e.target.value)}
               onKeyDown={onHeaderEditKeyDown}
