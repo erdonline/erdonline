@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布删分组（Frame）二次确认（掌控感）
+
+- 选题：选中 Frame Delete/Backspace 立即 `removeFrame`，与已对齐的删表/删边掌控感不一致
+- 选中分组 Delete/Backspace → `Modal.confirm`（标明仅删框不删表）；取消保留；确认后 toast「已删除分组」
+- E2E：`diagram-frame`「删除分组二次确认：取消保留；确认后移除；表仍在」
+- `docs/design-principles.md` §5 补 Frame 删确认正例
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "删除分组二次确认" --workers=1 --retries=0`
+
 #### 体验：画布删表/删边二次确认（掌控感）
 
 - 选题：design-principles「掌控感」反例——连接线 Delete 立即删；画布表 Delete 仅 toast 赶去树侧

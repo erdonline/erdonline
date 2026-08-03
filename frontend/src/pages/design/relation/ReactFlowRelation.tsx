@@ -1340,7 +1340,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // 表：拦 RF 直接 remove → Modal 二次确认后再 removeEntity。Frame：Delete → removeFrame。
+      // 表 / Frame：拦 RF 直接 remove → Modal 二次确认后再落库（Frame 仅删框不删表）
       const removes = changes.filter((c) => c.type === 'remove') as Array<{ type: 'remove'; id: string }>;
       const tableRemoves = removes.filter((c) => !isFrameNodeId(c.id));
       const frameRemoves = removes.filter((c) => isFrameNodeId(c.id));
@@ -1361,9 +1361,31 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           },
         });
       }
-      frameRemoves.forEach((c) => {
-        projectDispatch.removeFrame(moduleName, activeDiagramId, parseFrameIdFromNodeId(c.id));
-      });
+      if (frameRemoves.length) {
+        const framesToRemove = frameRemoves.map((c) => {
+          const frameId = parseFrameIdFromNodeId(c.id);
+          const node = nodesRef.current.find((n) => n.id === c.id);
+          const name =
+            (node?.data as FrameNodeData | undefined)?.frame?.name?.trim() || frameId;
+          return { frameId, name };
+        });
+        const titleText =
+          framesToRemove.length === 1
+            ? `确定删除分组 "${framesToRemove[0].name}" 吗?`
+            : `确定删除 ${framesToRemove.length} 个分组吗?`;
+        Modal.confirm({
+          title: titleText,
+          content: '仅删除分组框，表不会一起删除。',
+          okText: '删除',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            framesToRemove.forEach((f) =>
+              projectDispatch.removeFrame(moduleName, activeDiagramId, f.frameId),
+            );
+          },
+        });
+      }
       const safe = changes.filter((c) => c.type !== 'remove');
       const resizeEndedIds = new Set(
         changes

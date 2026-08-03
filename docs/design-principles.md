@@ -54,6 +54,7 @@
 
 - ✅ 画布删关系边二次确认（选中边 Delete·Backspace / 基数 chip 聚焦 Delete·Backspace；取消保留；确认后落库）
 - ✅ 删除画布表前确认（模型树菜单 / 画布选中后 Delete·Backspace；文案「不可逆」；`selectNodesOnDrag=false` 使表头可点选）
+- ✅ 画布删分组（Frame）二次确认（选中后 Delete·Backspace；文案标明仅删框不删表；取消保留）
 - ✅ 画布删字段二次确认（按钮 / 选中后 Delete·Backspace），编辑态 Backspace 不误删
 - ✅ 索引签「删除索引 {name}」Modal 二次确认；取消保留；删空回空态
 - ✅ JExcel 工具栏「删除选中行」Modal 二次确认（字段/索引/默认字段表共用；未选中有 toast）
