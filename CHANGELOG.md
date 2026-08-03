@@ -19,12 +19,22 @@
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=JdbcUrlGuardTest test`
 - `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
 
+#### 体验：版本对比/详情 diff 弹层键盘闭环（CompareVersion）
+
+- 选题：任意版本比较 / 版本变更详情 Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：`CompareVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`（比对→首焦「初始版本」；详情→首焦「导出变更清单」）
+- E2E：`version-diff-keyboard`（比对/详情：首焦、Esc 归还、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 同步配置/重建版本弹层键盘或版本列表 chrome
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-diff-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：编辑版本弹窗键盘闭环（RenameVersion）
 
 - 选题：编辑版本 Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：`RenameVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`（最新首焦版本号；非最新只读号→首焦描述）
 - E2E：`version-action-modals-keyboard` 增「编辑：首焦版本号；Esc 归还；Tab trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 版本页列表/对比弹层键盘或签头密度
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~版本对比/详情 diff 弹层键盘（CompareVersion）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-action-modals-keyboard.spec.ts --project=chromium --grep "编辑" --workers=1 --retries=0`
