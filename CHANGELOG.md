@@ -8,12 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：画布建表/行内加字段落盘失败可重试
+
+- 选题：画布 `addEntity` / 行内 `__NEW__` 加字段无 persist 本地 mutate 即成功；autosave 失败像已建表/加字段
+- `createFirstTable`：`addEntity` `persist:true`；仅 code===200 上图 +「表添加成功」；失败 toast、不写 store、按钮可重试
+- `updateEntityFields` 支持 `persist:true`；`TableNode` 新建字段仅 save 成功退出编辑；失败草稿保留；落盘中禁 Escape/二次提交；空名 toast / 空字段 CTA 保留
+- E2E：`canvas-create-field-failure.spec.ts` mock save → toast + 无节点/仍编辑 → 重试成功
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 字段改名/删字段伪造成功，或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-create-field-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "工具栏新建表|字段 ✎ 可改名"`
+- `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布表头改名落盘失败不退出编辑
 
 - 选题：画布表头 `renameEntity`（无 persist）本地 mutate 即退出编辑；autosave 失败像已改名；且 `persist:true` 路径误把 store 形 `applyRename` 套在 project draft 上导致改名抛错
 - `renameEntity` persist：`applyRename({ project: draft })`；`TableNode` commitHeader 仅 code===200 退出编辑；失败 toast 可读、草稿保留；落盘中禁重复提交 / Escape
 - E2E：`table-rename-failure.spec.ts` mock save（entities 含新表名）→ toast + 编辑态仍开（`data-id` 仍旧）→ 重试成功改节点 id
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 画布建表/字段行内编辑伪造成功，或 densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~画布建表/字段行内伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/table-rename-failure.spec.ts --project=chromium --workers=1 --retries=0`

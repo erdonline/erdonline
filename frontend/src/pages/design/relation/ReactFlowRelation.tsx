@@ -193,6 +193,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   /** 表头改名落盘中：禁二次提交 / Escape 误丢草稿 */
   const [headerSaving, setHeaderSaving] = useState(false);
   const headerSavingRef = useRef(false);
+  /** 行内新建字段落盘中：禁二次提交 / Escape 误丢草稿 */
+  const [fieldSaving, setFieldSaving] = useState(false);
+  const fieldSavingRef = useRef(false);
   /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
   const [showHiddenFields, setShowHiddenFields] = useState(false);
   const fields = (entity.fields || []).filter(f => !f.relationNoShow);
@@ -284,72 +287,11 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     message.success(`已在关系图中显示「${fieldName}」`);
   };
 
-  const commit = (advance?: 'next' | 'prev') => {
-    const current = editingRef.current;
-    if (!current) {
-      return;
-    }
-    editingRef.current = null;
-    const name = current.name.trim();
-    if (!name) {
-      // 新增空名 = 取消；改已有字段空名 = toast 并留在编辑（禁止静默丢）
-      if (current.key === '__NEW__') {
-        setEditing(null);
-        return;
-      }
-      editingRef.current = current;
-      message.warning('字段名不能为空');
-      return;
-    }
-    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
-      editingRef.current = current;
-      message.warning('字段名仅支持字母、数字、下划线，且以字母或下划线开头');
-      return;
-    }
-    const allFields = entityFieldsRef.current;
-    const visible = allFields.filter(f => !f.relationNoShow);
-    const dup = visible.some(f => f.name === name && f.name !== current.key);
-    if (dup) {
-      editingRef.current = current;
-      message.warning(`字段 ${name} 已存在`);
-      return;
-    }
-
-    const chnname = (current.chnname || '').trim();
-    const defaultValue = (current.defaultValue || '').trim();
-    // 跳行：先锁 blur/ref，再落盘（避免 store 同步重渲把 editingRef 打回旧行）
-    if (advance) {
-      ignoreBlurRef.current = true;
-    }
-    let nextFields: FieldData[];
-    if (current.key === '__NEW__') {
-      // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
-      const pk = current.pk || current.type === 'IdOrKey';
-      const notNull = pk || current.notNull;
-      const created = {
-        name, type: current.type, chnname, defaultValue, remark: '', pk, notNull,
-        autoIncrement: current.autoIncrement,
-      } as FieldData;
-      nextFields = [...allFields, created];
-      onFieldsChange(nextFields);
-    } else {
-      nextFields = allFields.map(f => (
-        f.name === current.key
-          ? {
-            ...f,
-            name,
-            chnname,
-            defaultValue,
-            type: current.type,
-            pk: current.pk,
-            notNull: current.pk || current.notNull,
-            autoIncrement: current.autoIncrement,
-          }
-          : f
-      ));
-      onFieldsChange(nextFields);
-    }
-
+  const finishFieldCommit = (
+    nextFields: FieldData[],
+    name: string,
+    advance?: 'next' | 'prev',
+  ) => {
     if (advance) {
       const visibleAfter = nextFields.filter(f => !f.relationNoShow);
       const idx = visibleAfter.findIndex(f => f.name === name);
@@ -386,7 +328,109 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
       ignoreBlurRef.current = false;
     }
+    editingRef.current = null;
     setEditing(null);
+  };
+
+  const commit = (advance?: 'next' | 'prev') => {
+    const current = editingRef.current;
+    if (!current) {
+      return;
+    }
+    if (fieldSavingRef.current) {
+      return;
+    }
+    const name = current.name.trim();
+    if (!name) {
+      // 新增空名 = 取消；改已有字段空名 = toast 并留在编辑（禁止静默丢）
+      if (current.key === '__NEW__') {
+        editingRef.current = null;
+        setEditing(null);
+        return;
+      }
+      message.warning('字段名不能为空');
+      return;
+    }
+    if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
+      message.warning('字段名仅支持字母、数字、下划线，且以字母或下划线开头');
+      return;
+    }
+    const allFields = entityFieldsRef.current;
+    const visible = allFields.filter(f => !f.relationNoShow);
+    const dup = visible.some(f => f.name === name && f.name !== current.key);
+    if (dup) {
+      message.warning(`字段 ${name} 已存在`);
+      return;
+    }
+
+    const chnname = (current.chnname || '').trim();
+    const defaultValue = (current.defaultValue || '').trim();
+    // 跳行：先锁 blur/ref，再落盘（避免 store 同步重渲把 editingRef 打回旧行）
+    if (advance) {
+      ignoreBlurRef.current = true;
+    }
+    let nextFields: FieldData[];
+    if (current.key === '__NEW__') {
+      // IdOrKey 默认主键：建模直觉（新建 ID 字段几乎总是 PK）
+      const pk = current.pk || current.type === 'IdOrKey';
+      const notNull = pk || current.notNull;
+      const created = {
+        name, type: current.type, chnname, defaultValue, remark: '', pk, notNull,
+        autoIncrement: current.autoIncrement,
+      } as FieldData;
+      nextFields = [...allFields, created];
+      // 禁止本地 mutate 即退出编辑；仅 saveProject code===200 关编辑态
+      fieldSavingRef.current = true;
+      setFieldSaving(true);
+      void (async () => {
+        try {
+          const ok = await Promise.resolve(
+            useProjectStore.getState().dispatch.updateEntityFields(
+              moduleName,
+              entity.title,
+              nextFields,
+              { persist: true },
+            ),
+          );
+          if (!ok) {
+            // 失败：草稿保留可重试；toast 由 request/persist
+            if (advance) {
+              ignoreBlurRef.current = false;
+            }
+            return;
+          }
+          finishFieldCommit(nextFields, name, advance);
+        } catch {
+          message.error('字段保存失败');
+          if (advance) {
+            ignoreBlurRef.current = false;
+          }
+        } finally {
+          fieldSavingRef.current = false;
+          setFieldSaving(false);
+        }
+      })();
+      return;
+    }
+
+    nextFields = allFields.map(f => (
+      f.name === current.key
+        ? {
+          ...f,
+          name,
+          chnname,
+          defaultValue,
+          type: current.type,
+          pk: current.pk,
+          notNull: current.pk || current.notNull,
+          autoIncrement: current.autoIncrement,
+        }
+        : f
+    ));
+    // 既有字段改名仍走本地 + autosave（切片范围：新建字段先落盘）
+    editingRef.current = null;
+    onFieldsChange(nextFields);
+    finishFieldCommit(nextFields, name, advance);
   };
 
   const removeField = (fieldName: string) => {
@@ -533,6 +577,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   /** Escape：丢弃未提交的字段名，禁止 blur 再走 commit（否则取消变静默落盘） */
   const cancelFieldEdit = () => {
+    if (fieldSavingRef.current) {
+      return;
+    }
     ignoreBlurRef.current = true;
     editingRef.current = null;
     setEditing(null);
@@ -613,7 +660,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   };
 
   const onFieldEditBlur = (e: React.FocusEvent, rowKey: string) => {
-    if (ignoreBlurRef.current) return;
+    if (ignoreBlurRef.current || fieldSavingRef.current) return;
     // Tab 跳行/Escape 后旧 input 卸载 blur：行 key 已变则忽略，避免关掉刚打开的下一行
     if (editingRef.current?.key !== rowKey) return;
     if (!(e.target as HTMLElement).isConnected) return;
@@ -626,7 +673,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   };
 
   const editRow = (rowKey: string) => (
-    <div className="erd-field-row erd-field-editing nodrag">
+    <div
+      className="erd-field-row erd-field-editing nodrag"
+      aria-busy={fieldSaving || undefined}
+    >
       <div className="erd-field-edit-main">
         <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
           <input
@@ -706,6 +756,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           aria-label="字段名"
           autoFocus
           placeholder="字段名"
+          disabled={fieldSaving}
           value={editing?.name ?? ''}
           onChange={e => {
             const nextName = e.target.value;
@@ -723,6 +774,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           className="erd-field-chnname-input"
           aria-label="中文名"
           placeholder="中文名"
+          disabled={fieldSaving}
           value={editing?.chnname ?? ''}
           onChange={e => {
             const chnname = e.target.value;
@@ -739,6 +791,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         <select
           className="erd-field-type-select"
           aria-label="字段类型"
+          disabled={fieldSaving}
           value={editing?.type ?? 'String'}
           onChange={e => {
             const type = e.target.value;
@@ -763,6 +816,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           className="erd-field-default-input"
           aria-label="默认值"
           placeholder="默认值（可选）"
+          disabled={fieldSaving}
           value={editing?.defaultValue ?? ''}
           onChange={e => {
             const defaultValue = e.target.value;
@@ -1277,6 +1331,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [diagramModalSubmitting, setDiagramModalSubmitting] = useState(false);
   const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
   const [dbmlImportOpen, setDbmlImportOpen] = useState(false);
+  /** 画布建表落盘中：禁连点双发 */
+  const createTableSavingRef = useRef(false);
   /** >0 = 待 fitView 的表数（导入/自动布局后首屏铺满） */
   const pendingFitRef = useRef(0);
   const fitDiagramKeyRef = useRef('');
@@ -2053,6 +2109,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
   // 空态 CTA：新建第一张表（智能默认名，创建即上图；改名留待表头内联编辑批次）
   const createFirstTable = useCallback(() => {
+    if (createTableSavingRef.current) {
+      return;
+    }
     const modules = projectJSON?.modules || [];
     let i = 1;
     let title = 'T_TABLE_1';
@@ -2060,8 +2119,20 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       i += 1;
       title = `T_TABLE_${i}`;
     }
-    // fields 留空由 addEntity 注入默认字段（主键等），建表即见结构
-    projectDispatch.addEntity({ moduleName: moduleEntity.module, title, chnname: '' });
+    // 禁止本地 mutate 即 toast「表添加成功」；仅 saveProject code===200 上图
+    createTableSavingRef.current = true;
+    void (async () => {
+      try {
+        await Promise.resolve(
+          projectDispatch.addEntity(
+            { moduleName: moduleEntity.module, title, chnname: '' },
+            { persist: true },
+          ),
+        );
+      } finally {
+        createTableSavingRef.current = false;
+      }
+    })();
   }, [projectJSON, projectDispatch, moduleEntity.module]);
 
   // 一键 dagre 自动布局（仅表；Frame 坐标不动）

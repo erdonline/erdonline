@@ -42,7 +42,12 @@ export interface IEntitiesDispatchSlice {
   copyEntity: (moduleName: string, entityTitle: string) => void;
   cutEntity: (moduleName: string, entityTitle: string) => void;
   pastEntity: (moduleName: string) => void;
-  updateEntityFields: (moduleName: string, entityTitle: string, payload: any) => void;
+  updateEntityFields: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   updateEntityIndex: (moduleName: string, entityTitle: string, payload: any) => void;
   moveField: (moduleName: string, entityTitle: string, payload: any, startRow: number, endRow: number) => void;
   setCurrentEntity: (moduleName: string, entityName: string) => void;
@@ -472,22 +477,28 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     state.project.projectJSON.modules[moduleIndex].entities.push(newEntity);
     showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
   })),
-  updateEntityFields: (moduleName: string, entityTitle: string, payload: any) => {
+  updateEntityFields: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => {
+    const persist = !!opts?.persist;
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
       showMessage('error', '更新失败：无效的模块名称');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
       showMessage('error', `模型 "${moduleName}" 不存在`);
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
     const entityIndex = modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle || e.name === entityTitle);
     if (entityIndex === -1) {
       showMessage('error', `表 "${entityTitle}" 不存在`);
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
 
     // 检查字段名称是否唯一
@@ -502,60 +513,86 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
     if (duplicateFields.length > 0) {
       showMessage('error', `以下字段名重复: ${duplicateFields.join(', ')}`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const applyFields = (state: any) => {
+      const entity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
+      const oldFields: any[] = entity.fields || [];
+      // 检测字段改名并同步 associations：优先同长按下标对齐；否则「仅一名出/入」启发式
+      const oldNameList = oldFields.map((f: any) => f?.name).filter(Boolean);
+      const newNameList = payload.map((f: any) => f?.name).filter(Boolean);
+      const newNames = new Set(newNameList);
+      const oldNameSet = new Set(oldNameList);
+      const onlyOld = oldNameList.filter((n: string) => !newNames.has(n));
+      const onlyNew = newNameList.filter((n: string) => !oldNameSet.has(n));
+      const renamedFrom = new Set<string>();
+      const renamePairs: { oldName: string; newName: string }[] = [];
+      if (oldFields.length === payload.length) {
+        oldFields.forEach((of: any, i: number) => {
+          const nf = payload[i];
+          if (of?.name && nf?.name && of.name !== nf.name) {
+            renamePairs.push({ oldName: of.name, newName: nf.name });
+          }
+        });
+      } else if (onlyOld.length === 1 && onlyNew.length === 1) {
+        renamePairs.push({ oldName: onlyOld[0], newName: onlyNew[0] });
+      }
+      renamePairs.forEach(({ oldName, newName }) => {
+        renamedFrom.add(oldName);
+        const modAssocs = state.project.projectJSON.modules[moduleIndex];
+        modAssocs.associations = (modAssocs.associations || []).map((assoc: any) => {
+          let from = assoc?.from;
+          let to = assoc?.to;
+          if (from?.entity === entityTitle && from?.field === oldName) {
+            from = { ...from, field: newName };
+          }
+          if (to?.entity === entityTitle && to?.field === oldName) {
+            to = { ...to, field: newName };
+          }
+          return { ...assoc, from, to };
+        });
+      });
+      // 真正删除的字段才清关联（改名旧名除外）
+      const removed = onlyOld.filter((n: string) => !renamedFrom.has(n));
+      if (removed.length > 0) {
+        state.project.projectJSON.modules[moduleIndex].associations =
+          (state.project.projectJSON.modules[moduleIndex].associations || []).filter((a: any) => !(
+            (a?.from?.entity === entityTitle && removed.includes(a?.from?.field)) ||
+            (a?.to?.entity === entityTitle && removed.includes(a?.to?.field))
+          ));
+      }
+
+      entity.fields = payload;
+      // 不弹 success：画布内联编辑本身即时可见，toast 噪音会淹没删除守卫等关键提示
+    };
+
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        applyFields(state);
+      }));
       return;
     }
 
-    snapshotModules(modules);
-    set(produce((state: any) => {
-    const entity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
-    const oldFields: any[] = entity.fields || [];
-    // 检测字段改名并同步 associations：优先同长按下标对齐；否则「仅一名出/入」启发式
-    const oldNameList = oldFields.map((f: any) => f?.name).filter(Boolean);
-    const newNameList = payload.map((f: any) => f?.name).filter(Boolean);
-    const newNames = new Set(newNameList);
-    const oldNameSet = new Set(oldNameList);
-    const onlyOld = oldNameList.filter((n: string) => !newNames.has(n));
-    const onlyNew = newNameList.filter((n: string) => !oldNameSet.has(n));
-    const renamedFrom = new Set<string>();
-    const renamePairs: { oldName: string; newName: string }[] = [];
-    if (oldFields.length === payload.length) {
-      oldFields.forEach((of: any, i: number) => {
-        const nf = payload[i];
-        if (of?.name && nf?.name && of.name !== nf.name) {
-          renamePairs.push({ oldName: of.name, newName: nf.name });
-        }
-      });
-    } else if (onlyOld.length === 1 && onlyNew.length === 1) {
-      renamePairs.push({ oldName: onlyOld[0], newName: onlyNew[0] });
-    }
-    renamePairs.forEach(({ oldName, newName }) => {
-      renamedFrom.add(oldName);
-      const modAssocs = state.project.projectJSON.modules[moduleIndex];
-      modAssocs.associations = (modAssocs.associations || []).map((assoc: any) => {
-        let from = assoc?.from;
-        let to = assoc?.to;
-        if (from?.entity === entityTitle && from?.field === oldName) {
-          from = { ...from, field: newName };
-        }
-        if (to?.entity === entityTitle && to?.field === oldName) {
-          to = { ...to, field: newName };
-        }
-        return { ...assoc, from, to };
-      });
+    const project = get().project;
+    // applyFields 读 state.project.*（store 形）；project draft 需包一层
+    const next = produce(project, (draft: any) => {
+      applyFields({ project: draft });
     });
-    // 真正删除的字段才清关联（改名旧名除外）
-    const removed = onlyOld.filter((n: string) => !renamedFrom.has(n));
-    if (removed.length > 0) {
-      state.project.projectJSON.modules[moduleIndex].associations =
-        (state.project.projectJSON.modules[moduleIndex].associations || []).filter((a: any) => !(
-          (a?.from?.entity === entityTitle && removed.includes(a?.from?.field)) ||
-          (a?.to?.entity === entityTitle && removed.includes(a?.to?.field))
-        ));
-    }
 
-    entity.fields = payload;
-    // 不弹 success：画布内联编辑本身即时可见，toast 噪音会淹没删除守卫等关键提示
-    }));
+    return (async () => {
+      const saved = await persistProjectNow(next, '字段保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
   },
   updateEntityIndex: (moduleName: string, entityTitle: string, payload: any) => set(produce((state: any) => {
     if (typeof moduleName !== 'string') {
