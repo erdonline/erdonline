@@ -78,7 +78,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
           tabIndex={-1}
           data-testid="auth-form-anchor"
         >
-          <div className="auth-shell__form-header">
+          <div className="auth-shell__form-header" data-testid="auth-form-header">
             <img src="/logo.svg" alt="ERD Online" width={48} height={48} />
             <Typography.Title level={3} className="auth-shell__form-title">
               {title}

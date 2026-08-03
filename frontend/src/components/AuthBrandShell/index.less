@@ -92,8 +92,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* ADR-0016：品牌井碎距 — pad 20×16（贴欢迎空态内井）；禁 32×28；品牌字号/对比不变 */
-  gap: 14px;
+  /* ADR-0016：品牌井碎距 — pad 20×16；gap 12（贴 8–12 族）；禁 32×28 / gap14；品牌字号/对比不变 */
+  gap: 12px;
   padding: 20px 16px;
   color: var(--erd-surface);
   background: linear-gradient(
@@ -185,7 +185,8 @@
 
 .auth-shell__form-header {
   text-align: center;
-  margin-bottom: 16px;
+  /* ADR-0016：门头 mb12（贴 8–12 族）；禁 mb16 */
+  margin-bottom: 12px;
 }
 
 .auth-shell__form-header img {

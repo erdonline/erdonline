@@ -27,7 +27,7 @@
 - [x] 表设计签体内容次密距：侧 pad ≤16 / 底 pad ≤6；unique-hint pad-block ≤10 / 高 ≤32；JExcel 工具栏不 clip；元数据 tip ≤32 + CodeTab padY ≤4；截图 `diagram-tab-body-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 设计器空态次密距：字段/索引 Empty margin ≤8（禁 100 / antd XL）；空态 pad 贴 tab-body；保留 CTA；截图 `diagram-pane-empty-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 欢迎空态次密距：`.erd-welcome-empty__inner` padY≤20 / padX≤16；标题 mt∈[8,12] / 字∈[16,18] / lh≈22；hero ≤180；逆向链 + 左树新增模型；截图 `diagram-welcome-empty-dense.png` ✅`model-design-ux.spec.ts`
-- [x] AuthBrandShell 次密距：品牌/表单 pad ≤20×16；门头 mb ≤20；标题 ≥24；登录/`share-invalid`/注册同源；键盘 Skip/Tab 不回归 ✅`smoke` + `share` + `session`
+- [x] AuthBrandShell 次密距：品牌/表单 pad ≤20×16；gap ∈[8,12]；门头 mb ∈[8,12]；标题 ≥24；登录/`share-invalid`/注册同源；键盘 Skip/Tab 不回归 ✅`smoke` + `share` + `session`
 - [x] LandingChrome / `/compare` 次密距：次屏 section pad ≤52；对照行 pad ≤12；nav ≤20；footer ≤36；compare hero ≤36；hero 品牌字 ≥36 + 全幅；键盘 Skip/Tab 不回归 ✅`landing.spec` + `compare.spec`
 - [x] 分享成功态 meta / 表清单次密：meta 高 ≤60 / gap ≤2 / stage pad ≤6；表清单 pad ≤6 / 标题 ≤12 / 行 ∈20–26；弹层 body ≤12 / hint mb ≤8；键盘 Esc/Tab trap 不回归 ✅`demo.spec` + `share-project-keyboard`
 - [x] Home hero CTA 簇次密：actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候 ≥28；Skip→主区→CTA/二级入口/项目卡 + focus-visible 不回归 ✅`home-keyboard`

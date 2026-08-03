@@ -28,7 +28,7 @@ test.describe('只读分享', () => {
       const cs = getComputedStyle(el);
       const root = getComputedStyle(document.documentElement);
       const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
-      const header = document.querySelector('.auth-shell__form-header') as HTMLElement | null;
+      const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const fcs = form ? getComputedStyle(form) : null;
       const hcs = header ? getComputedStyle(header) : null;
@@ -50,13 +50,15 @@ test.describe('只读分享', () => {
     expect(brandMetrics.widthRatio).toBeLessThan(0.48);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
     expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
-    // ADR-0016：失效门碎距二压（与登录壳同源 20×16）；品牌层次不弱化
+    // ADR-0016：失效门碎距三压（与登录壳同源：gap12 / 门头 mb12）；品牌层次不弱化
     expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);
-    expect(brandMetrics.brandGap).toBeLessThanOrEqual(16);
+    expect(brandMetrics.brandGap, `品牌 gap 应 ∈[8,12]，得 ${brandMetrics.brandGap}`).toBeGreaterThanOrEqual(8);
+    expect(brandMetrics.brandGap).toBeLessThanOrEqual(12);
     expect(brandMetrics.formPadT, `表单 padTop 应 ≤20，得 ${brandMetrics.formPadT}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.formPadL, `表单 padL 应 ≤16，得 ${brandMetrics.formPadL}`).toBeLessThanOrEqual(16);
-    expect(brandMetrics.headerMb, `门头 mb 应 ≤20，得 ${brandMetrics.headerMb}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.headerMb, `门头 mb 应 ∈[8,12]，得 ${brandMetrics.headerMb}`).toBeGreaterThanOrEqual(8);
+    expect(brandMetrics.headerMb).toBeLessThanOrEqual(12);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
 
     await page.screenshot({
