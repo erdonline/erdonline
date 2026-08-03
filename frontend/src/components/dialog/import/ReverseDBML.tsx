@@ -12,6 +12,7 @@ import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
 import {relationTabEntity} from '@/utils/diagram';
 import type {DbmlProjectJSON} from '@/utils/dbml/toProjectJSON';
+import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import '../io-modal.scss';
 
 const {Dragger} = Upload;
@@ -81,16 +82,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       }
     });
     if (resultModules.length <= 0) {
-      Modal.warning({
-        title: '重要提示',
-        content: (
-          <>
-            {resultMsg.map((m) => (
-              <p key={m}>{m}</p>
-            ))}
-          </>
-        ),
-      });
+      showImportSkipWarning(resultMsg);
       return;
     }
     const {ok} = await importModuleAndProfile(
@@ -104,16 +96,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       return;
     }
     if (resultMsg.length > 0) {
-      Modal.warning({
-        title: '重要提示',
-        content: (
-          <>
-            {resultMsg.map((m) => (
-              <p key={m}>{m}</p>
-            ))}
-          </>
-        ),
-      });
+      showImportSkipWarning(resultMsg);
     } else {
       const n = resultModules.reduce((acc, m) => {
         const ents = (m as {entities?: unknown[]}).entities;

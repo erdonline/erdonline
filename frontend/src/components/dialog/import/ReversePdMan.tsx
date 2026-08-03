@@ -7,6 +7,7 @@ import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
+import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import '../io-modal.scss';
 
 const {Dragger} = Upload;
@@ -109,16 +110,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
             }
           });
           if (resultModules.length <= 0) {
-            Modal.warning({
-              title: '重要提示',
-              content: (
-                <>
-                  {resultMsg.map((m) => (
-                    <p key={m}>{m}</p>
-                  ))}
-                </>
-              ),
-            });
+            showImportSkipWarning(resultMsg);
             return;
           }
           setImporting(true);
@@ -133,16 +125,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
               return;
             }
             if (resultMsg.length > 0) {
-              Modal.warning({
-                title: '重要提示',
-                content: (
-                  <>
-                    {resultMsg.map((m) => (
-                      <p key={m}>{m}</p>
-                    ))}
-                  </>
-                ),
-              });
+              showImportSkipWarning(resultMsg);
             } else {
               message.success('PdMan文件导入成功！');
             }

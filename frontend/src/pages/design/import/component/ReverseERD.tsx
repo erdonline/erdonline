@@ -1,10 +1,11 @@
 import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
 import Dragger from "antd/es/upload/Dragger";
-import {message, Modal} from "antd";
+import {message} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import _ from "lodash";
+import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import '../../secondary-pane.scss';
 
 
@@ -134,12 +135,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
             }
           });
           if (resultModules.length <= 0) {
-            Modal.warning({
-              title: '重要提示',
-              content: <>{resultMsg.map((m: any) => {
-                return <p key={m}>{m}</p>
-              })}</>,
-            });
+            showImportSkipWarning(resultMsg);
             return;
           }
           setImporting(true);
@@ -154,12 +150,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
               return;
             }
             if (resultMsg.length > 0) {
-              Modal.warning({
-                title: '重要提示',
-                content: <>{resultMsg.map((m: any) => {
-                  return <p key={m}>{m}</p>
-                })}</>,
-              });
+              showImportSkipWarning(resultMsg);
             } else {
               message.success('ERD文件导入成功！');
             }
