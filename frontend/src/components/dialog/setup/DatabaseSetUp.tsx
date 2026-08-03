@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Col, Form, Input, Modal, Popconfirm, Radio, Row, Select, Space, message} from 'antd';
 import _ from 'lodash';
@@ -83,6 +83,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
   const [databases, setDatabases] = useState<DataSourceRow[]>([]);
   const [pingLoading, setPingLoading] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const addBtnRef = useRef<React.ElementRef<typeof Button>>(null);
 
   const reload = async () => {
     const list = (await projectDispatch.refreshDataSources()) as DataSourceRow[] | undefined;
@@ -196,9 +197,16 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
         onCancel={closeModal}
         destroyOnClose
         width={880}
-        forceRender
         className="erd-io-modal"
         rootClassName="erd-io-modal-root"
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => addBtnRef.current?.focus(), 0);
+        }}
         footer={[
           <Button
             disabled={!defaultDbs}
@@ -312,6 +320,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                 </Form.List>
               </Form.Item>
               <Button
+                ref={addBtnRef}
                 type="dashed"
                 block
                 size="small"

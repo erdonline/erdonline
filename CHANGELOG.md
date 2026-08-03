@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：数据源设置弹层键盘闭环（DatabaseSetUp）
+
+- 选题：设计器「数据源设置」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「新增数据源」；去多余 `forceRender`；`defaultDataSourceId` / POST payload 行为不变
+- E2E：`database-setup-keyboard`（项目菜单 → 首焦、Esc 归还菜单钮、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 默认项设置 Modal 键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/database-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：复刻弹层键盘闭环（CopyProject）
 
 - 选题：版本行「复刻」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「项目名」；去多余 `forceRender`
 - E2E：`project-copy-keyboard`（保存版本 → 首焦、Esc 归还、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 数据源设置 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~数据源设置 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/project-copy-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
