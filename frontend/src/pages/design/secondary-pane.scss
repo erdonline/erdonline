@@ -1,0 +1,156 @@
+// ADR-0016：设计器次屏碎密度 — 导入逆向 / 高级导出 DDL / 文件拖入井 / 解析实体表同源
+// 与 .setting-common-page / .export-common-page / .erd-io-modal 同阶；禁 Steps 16/24 + Card mb16
+.erd-secondary-pane {
+  padding: 8px 12px;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+  max-width: 960px;
+}
+
+.erd-secondary-pane__title {
+  margin: 0 0 2px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.erd-secondary-pane__hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.45));
+
+  .erd-secondary-pane__em {
+    color: var(--erd-brand);
+    font-weight: 500;
+  }
+}
+
+.erd-secondary-pane__steps {
+  margin: 8px 0 10px !important;
+}
+
+.erd-secondary-pane__form {
+  max-width: 640px;
+
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px;
+
+    > label {
+      font-size: 12px;
+      height: auto;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+    }
+  }
+
+  .ant-form-item-extra {
+    font-size: 12px;
+    line-height: 18px;
+    margin-top: 2px;
+  }
+
+  .ant-input:not(textarea),
+  .ant-input-affix-wrapper,
+  .ant-select-selector {
+    font-size: 12px !important;
+  }
+
+  .ant-input:not(textarea) {
+    height: 28px;
+    padding: 0 8px;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 28px !important;
+    padding-inline: 8px;
+  }
+
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    line-height: 26px !important;
+    font-size: 12px;
+  }
+
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
+}
+
+.erd-secondary-pane__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.erd-secondary-pane__meta {
+  margin-bottom: 8px;
+  padding: 6px 10px;
+  border: 1px solid var(--erd-line, #e5e7eb);
+  border-radius: 6px;
+  background: var(--erd-surface, #fff);
+
+  .ant-descriptions {
+    margin-bottom: 0;
+  }
+
+  .ant-descriptions-item-label,
+  .ant-descriptions-item-content {
+    font-size: 12px;
+    line-height: 20px;
+    padding-bottom: 2px !important;
+  }
+}
+
+.erd-secondary-pane__table {
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 6px 8px !important;
+    font-size: 12px;
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 4px 8px !important;
+  }
+
+  .erd-secondary-pane__dup {
+    color: var(--erd-brand);
+  }
+}
+
+.erd-secondary-pane__upload {
+  .ant-upload-drag {
+    padding: 10px 8px !important;
+  }
+
+  .ant-upload-drag-icon {
+    margin-bottom: 6px !important;
+
+    .anticon {
+      font-size: 28px !important;
+      color: var(--erd-brand);
+    }
+  }
+
+  .ant-upload-text {
+    font-size: 13px !important;
+    line-height: 20px;
+  }
+
+  .ant-upload-hint {
+    font-size: 12px !important;
+    line-height: 18px;
+    margin-top: 2px !important;
+  }
+}

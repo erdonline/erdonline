@@ -6,6 +6,7 @@ import ReverseTable from '@/components/TableTransfer/ReverseTable';
 import {DataSourceSelect} from '@/components/DataSourceSelect';
 import {dbReverseMeta} from '@/utils/save';
 import _ from 'lodash';
+import '../../secondary-pane.scss';
 
 export type DatabaseReverseProps = {};
 
@@ -108,20 +109,24 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   };
 
   return (
-    <>
-      <span>
-        解析已有数据源<span style={{color: 'red'}}>（含非主键索引）</span>
-      </span>
+    <div className="erd-secondary-pane" data-testid="import-reverse-page">
+      <h2 className="erd-secondary-pane__title">解析已有数据源</h2>
+      <p className="erd-secondary-pane__hint">
+        从 JDBC 数据源逆向导入表结构
+        <span className="erd-secondary-pane__em">（含非主键索引）</span>
+      </p>
       <Steps
         current={step}
         size="small"
-        style={{marginTop: 16, marginBottom: 24}}
+        className="erd-secondary-pane__steps"
         items={[{title: '选择数据源'}, {title: '解析数据源'}]}
       />
       {step === 0 && (
         <Form
           form={form1}
           layout="vertical"
+          size="small"
+          className="erd-secondary-pane__form"
           initialValues={{dataFormat: 'DEFAULT'}}
           requiredMark
         >
@@ -184,8 +189,8 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           <Spin tip="正在解析数据源，请稍后。。。(请勿关闭当前弹窗！)" spinning={loading}>
             {!flag && (status === 'SUCCESS' ? <ReverseTable /> : '解析失败')}
           </Spin>
-          <div style={{marginTop: 16}}>
-            <AntButton aria-label="上一步" onClick={() => setStep(0)} style={{marginRight: 8}}>
+          <div className="erd-secondary-pane__actions">
+            <AntButton aria-label="上一步" onClick={() => setStep(0)}>
               {'<'} 上一步
             </AntButton>
             <AntButton
@@ -198,7 +203,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           </div>
         </>
       )}
-    </>
+    </div>
   );
 };
 

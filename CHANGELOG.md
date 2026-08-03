@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：设计器次屏碎密度（逆向 / DDL / 设置 / 同步配置）
+
+- 选题：Home 空态已密；次屏逆向 Steps 16/24 + 实体表 Card mb16 / 高级导出 DDL 无壳 / SyncConfig 裸 Modal / 设置 hint 仍略松；ROI 仍高于建模静默失败
+- 新增 `.erd-secondary-pane`：pad 8×12 · 标题 13/22 · Steps mt/mb ≤10/12 · 表单 28；挂逆向 / ERD·PdMan 拖入 / 高级导出 DDL；`ReverseTable` meta+表行次密 + brand 存量表色
+- `SyncConfig` → `.erd-io-modal`；设置 hint mb 8；版本空列表 pad 16×12；清 DesignLeftContent 死 less
+- E2E：`designer-secondary-pane` densify；截图 `diagram-secondary-pane-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布命令面板 empty pad / 导入弹层 steps 对齐（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/designer-secondary-pane.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：Home 空态/公告区次密
 
 - 选题：hero CTA 已密；空态 40×16 + 公告行 8×16 / 项目区 mb32 仍松井；空态 CTA +「更多公告」不压
 - `pages/home/style.less`：空态 pad 24×12 + Empty 插画/描述收距；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13
 - E2E：`home-keyboard` mock 空 recent + 新鲜公告 densify；保留既有 hero densify + Skip→主区→CTA/二级入口/项目卡
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 设计器次屏碎密度（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~设计器次屏碎密度（视 ROI）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

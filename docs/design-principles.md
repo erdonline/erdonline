@@ -193,6 +193,7 @@
 - ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
 - ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
 - ✅ Home 空态/公告次密：空态 pad 24×12；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13；禁 40×16 空井 / 行 8×16；保留空态 CTA +「更多公告」
+- ✅ 设计器次屏碎密度：`.erd-secondary-pane`（逆向 / ERD·PdMan / 高级导出 DDL）pad 8×12 · Steps ≤10/12 · 表单 28；`ReverseTable` meta+表行次密；`SyncConfig`→`.erd-io-modal`；设置 hint mb8；禁 Steps 16/24 + Card mb16 + 裸 Modal
 - ✅ 分享失效/空态：无效·吊销 → `AuthBrandShell`（左暗色品牌面板 + 右「分享不可用」+ 主 CTA「打开示例 demo」）；无模型/无表 → `ErdEmptyDiagram` + 同 CTA；禁裸 antd `Result` 403 与登录壳割裂
 - ✅ 404/403：未知路径 / 无权访问 → `AuthBrandShell`（「页面不存在」/「无权访问」+ 同 CTA）；禁裸 `Result` 与三壳 token 割裂
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
@@ -206,6 +207,7 @@
 - ❌ 分享成功态 meta gap4 / stage 8×12 + 表清单 8×12·13 标题 / 弹层 Paragraph 12·Compact 16，与 LandingChrome 次密断裂（历史问题）
 - ❌ Home hero actions gap12 / secondary 6×14 / hero 32·20 松井，与分享成功态次密断裂（历史问题）
 - ❌ Home 空态 40×16 + 公告行 8×16 / 区块 32 底距松井，与 hero CTA 次密断裂（历史问题）
+- ❌ 设计器次屏逆向 Steps 16/24 + 实体表 Card mb16 / 高级导出 DDL 无壳 / SyncConfig 裸 Modal，与 setting/export 次密断裂（历史问题）
 - ❌ 画布一套 Ant 蓝、Home 一套品牌红，截图不像同一产品（历史问题）
 - ❌ 项目「导出」旁弹出逆向/PdMan 等导入项（历史问题）
 - ❌ 导入多表后按序号铺网格，关联线交叉成毛线团（历史问题）
