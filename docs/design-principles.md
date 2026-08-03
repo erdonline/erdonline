@@ -240,6 +240,7 @@
 - ✅ 顶栏 `erd-chrome-header` 次密：padX 16 + brand–nav gap 12（Design gap8 / 右井 16）；禁 padX20 / gap16；顶栏 64 / Skip 不弱化
 - ✅ Home 水平导航 Menu 项次密：padX 12（8–12 族）；禁 padX16；项高 64 / 命中宽 ≥44 / Skip·键盘不弱化
 - ✅ Group 侧栏 nav 行距次密：项高 28 / padX 12 / marginY 2 / 字 12（与账号左栏同阶）；禁高 40 + pad 24·16；命中 ≥28 / Skip·键盘不弱化
+- ✅ 设计器侧栏 nav 行距次密：`.design-layout__sider-menu` 项高 28 / padX 12 / marginY 2 / 字 12（与 Group 侧栏同阶）；版本/导入/导出/设置同源；禁高 40 + pad 24；命中 ≥28 / `menuitem` 键盘不弱化；`testid=design-layout-sider-menu`
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
 - ❌ 工作台壳 shell 24×24 + body 20×24 / Group 24+20，叠页内 8×12 成双松井（历史问题）
@@ -248,6 +249,7 @@
 - ❌ 顶栏 `erd-chrome-header` padX20 + brand–nav gap16，相对壳 12×16 / actions gap12 偏松（历史问题）
 - ❌ Home 水平 Menu 项 padX16，相对顶栏 8–12 族偏松（历史问题）
 - ❌ Group 侧栏 Menu 高 40 / pad 24·16 / marginY4，相对账号左栏 28·12 与 8–12 族偏松（历史问题）
+- ❌ 设计器侧栏 Menu 高 40 + 默认 pad，相对 Group 侧栏 28·12 与 8–12 族偏松（历史问题）
 - ❌ 团队成员工具条 mb16 + Search 默认 32，相对项目列表工具条 28 / 8–12 族偏松（历史问题）
 - ❌ Group 用户组 Title level4 + Space large + br + 左签 padX24·高38，相对 13/22·28 / 8–12 族偏松（历史问题）
 - ❌ 欢迎空态内井 pad 32×24 / 标题 20/mt14·lh≈26（及更早 mt20 / 22 字）+ hero 220，盖首屏扫读（历史问题）

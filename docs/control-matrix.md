@@ -55,6 +55,7 @@
 | 三壳顶栏 `erd-chrome-header` | 次密距 | padX ≤16；brand–nav gap ≤12（Design ≤8）；禁 20/16；顶栏 64 / Skip 不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify |
 | Home 水平导航 Menu | 次密距 | 项 padX ∈[8,12]；项高 64；命中宽 ≥44；禁 padX16；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `home-keyboard` |
 | Group 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `group-keyboard` |
+| DesignLayout 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；版本/导入/导出/设置同源；`menuitem` 键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify + 侧栏键盘 |
 | 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
 | 团队成员工具条 | 碎密度 | mb≤8；Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；钮 padX∈[8,12]；禁 Search 默认 32 / mb16 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 用户组页头/左角色签 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→签 ≤12；左签 padX∈[8,12]·高∈[28,32]·字≤13；禁 Title level4 / Space large / padX24 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |

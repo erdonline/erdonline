@@ -443,7 +443,62 @@ test.describe('布局壳子路由出口', () => {
       await workflow.getByRole('button', { name: '我的工单' }).click();
       await expect(page).toHaveURL(/\/design\/table\/version\/order/);
       await expect(page.getByTestId('page-title-orders')).toBeVisible({ timeout: 15_000 });
-      await page.getByTestId('design-workflow-links').getByRole('button', { name: '待审批工单' }).click();
+
+      // ADR-0016：设计器版本侧栏次密（禁高40 / padX24）；命中 ≥28；role/aria 定位
+      const designSider = page.getByTestId('design-layout-sider-menu');
+      await expect(designSider).toBeVisible();
+      await expect(designSider).toHaveAttribute('aria-label', '设计器侧栏导航');
+      const designSiderItem = designSider.getByRole('menuitem', { name: '我的工单' });
+      await expect(designSiderItem).toBeVisible();
+      await expect(designSider.getByRole('menuitem', { name: '版本管理' })).toBeVisible();
+      await expect(designSider.getByRole('menuitem', { name: '我的审批' })).toBeVisible();
+      const designSiderDense = await designSiderItem.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return {
+          padX: Math.min(parseFloat(cs.paddingLeft), parseFloat(cs.paddingRight)),
+          marginY: Math.max(parseFloat(cs.marginTop), parseFloat(cs.marginBottom)),
+          height: Math.round(r.height),
+          width: Math.round(r.width),
+          fontSize: parseFloat(cs.fontSize),
+        };
+      });
+      expect(
+        designSiderDense.padX,
+        `设计器侧栏项 padX 应 ∈[8,12]，得 ${designSiderDense.padX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(designSiderDense.padX).toBeGreaterThanOrEqual(8);
+      expect(
+        designSiderDense.marginY,
+        `设计器侧栏项 marginY 应 ≤4（目标 2），得 ${designSiderDense.marginY}`,
+      ).toBeLessThanOrEqual(4);
+      expect(
+        designSiderDense.height,
+        `设计器侧栏项高应 ∈[28,32]，得 ${designSiderDense.height}`,
+      ).toBeGreaterThanOrEqual(28);
+      expect(designSiderDense.height).toBeLessThanOrEqual(32);
+      expect(
+        designSiderDense.width,
+        `设计器侧栏项宽应 ≥44（命中），得 ${designSiderDense.width}`,
+      ).toBeGreaterThanOrEqual(44);
+      expect(
+        designSiderDense.fontSize,
+        `设计器侧栏字号应 ≤13，得 ${designSiderDense.fontSize}`,
+      ).toBeLessThanOrEqual(13);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/design-sider-nav-dense.png',
+        fullPage: false,
+      });
+
+      // 侧栏键盘：menuitem 内链可焦点 + Enter 可达审批（不用 ArrowDown 碰运气）
+      await designSiderItem.focus();
+      await expect(designSiderItem).toBeFocused();
+      const approvalLink = designSider
+        .getByRole('menuitem', { name: '我的审批' })
+        .getByRole('link');
+      await approvalLink.focus();
+      await expect(approvalLink).toBeFocused();
+      await page.keyboard.press('Enter');
       await expect(page).toHaveURL(/\/design\/table\/version\/approval/);
       await expect(page.getByTestId('page-title-approvals')).toBeVisible({ timeout: 15_000 });
       await page.getByTestId('design-workflow-links').getByRole('button', { name: '通知' }).click();

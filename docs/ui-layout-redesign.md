@@ -217,7 +217,8 @@
 - ✅ **欢迎空态内井碎距**（2026-08-03）：`.erd-welcome-empty__inner` pad 32×24 → 20×16（贴壳 8–12 / content 12×16）；标题/hero 不动；`testid=designer-welcome-empty-inner`；`model-design-ux` densify 绿；下一刀 → ~~AuthBrandShell 品牌/表单 pad32 二压（对齐 20 井）~~✅
 - ✅ **AuthBrandShell 品牌/表单井碎距二压**（2026-08-03）：品牌/表单 pad 32→20×16；gap14/门头/字号/~40% 不动；`testid=auth-form-panel`；`smoke`+`share`+`session` densify + 登录壳键盘绿；下一刀 → ~~AuthBrandShell 门头 mb16 / brand gap14 三压~~✅
 - ✅ **AuthBrandShell 门头/brand gap 三压**（2026-08-03）：门头 mb16→12 + brand gap14→12；pad 20×16 / 字号 / 色层次不动；`testid=auth-form-header`；`smoke`+`session` 键盘 densify + `share` 绿；下一刀 → ~~AuthBrandShell 表单 Title mt10 / Form 项 antd 默认 mb~~✅
-- ✅ **AuthBrandShell 表单 body 碎距**（2026-08-03）：Title mt10→6 + 项 mb24→12 / Input·钮 large→28 / label 12；对齐 `.setting-common-form`；`testid=auth-shell-form`；`smoke`+`session` densify 绿；下一刀 → AuthBrandShell 门头 logo 48（视 ROI）或其它碎距面
+- ✅ **AuthBrandShell 表单 body 碎距**（2026-08-03）：Title mt10→6 + 项 mb24→12 / Input·钮 large→28 / label 12；对齐 `.setting-common-form`；`testid=auth-shell-form`；`smoke`+`session` densify 绿；下一刀 → ~~设计器侧栏 nav 行距~~✅（跳过 Auth logo 48）
+- ✅ **设计器侧栏 nav 行距次密**（2026-08-03）：`.design-layout__sider-menu` 项高 40→28 / padX→12 / marginY→2 / 字 12（与 Group 侧栏同阶）；版本/导入/导出/设置同源；`testid=design-layout-sider-menu`；`layout-outlet` densify + 侧栏键盘；下一刀 → 版本空态 pad 16×12 或 Cmd+K footer / notice 碎片（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
