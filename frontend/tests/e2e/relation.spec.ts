@@ -1448,6 +1448,73 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表设计字段签：工具栏 Tab 可达且 Enter 增行；网格无 trap', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('jxtab');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'jxtab', 'jexcel tab focus');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      await expect(fieldEdit.getByRole('cell', { name: 'NAME' })).toBeVisible();
+
+      const toolbarNames = [
+        '撤销',
+        '重做',
+        '末尾增加一行',
+        '删除选中行',
+        '在此前插入行',
+        '在此后插入行',
+        '快捷操作',
+      ] as const;
+      for (const name of toolbarNames) {
+        await expect(fieldEdit.getByRole('button', { name })).toBeVisible();
+      }
+
+      // Tab 序：hint CTA → 撤销 → … → 末尾增加一行 → 网格（禁跳过工具栏）
+      await fieldEdit.getByTestId('field-goto-index').focus();
+      await page.keyboard.press('Tab');
+      await expect(fieldEdit.getByRole('button', { name: '撤销' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(fieldEdit.getByRole('button', { name: '重做' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(fieldEdit.getByRole('button', { name: '末尾增加一行' })).toBeFocused();
+
+      // Enter 激活增行（修 `<i tabindex>` 死 affordance）
+      const rowsBefore = await fieldEdit.getByRole('row').count();
+      await page.keyboard.press('Enter');
+      await expect
+        .poll(async () => fieldEdit.getByRole('row').count(), { timeout: 5_000 })
+        .toBeGreaterThan(rowsBefore);
+
+      // 网格可 Tab 到达；Shift+Tab 退回工具栏（无 trap）
+      const grid = fieldEdit.getByTestId('jexcel-grid');
+      await grid.focus();
+      await expect(grid).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(fieldEdit.getByRole('button', { name: '快捷操作' })).toBeFocused();
+
+      // Enter 进入选区后 Tab 右移选中格（原生 right；非 trap）
+      await grid.focus();
+      await page.keyboard.press('Enter');
+      await fieldEdit.getByRole('cell', { name: 'NAME' }).click();
+      await page.keyboard.press('Tab');
+      await expect(fieldEdit.locator('td.highlight').first()).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('表设计字段签：半成品行不静默丢字段；Esc 停在网格', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('jxhalf');

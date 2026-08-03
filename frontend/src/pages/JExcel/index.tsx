@@ -334,18 +334,44 @@ const JExcel: React.FC<JExcelProps> = (props) => {
     if (!jRef.current.jspreadsheet) {
       jspreadsheet(jRef.current, options);
     }
-    // jspreadsheet 工具栏是 material `<i>`：补 role/aria，供 getByRole + 破坏性确认闭环
+    // jspreadsheet 工具栏是裸 material `<i>`：统一补 a11y，禁只修 remove 留下死 affordance
     const host = jRef.current as HTMLElement;
-    const removeBtn = host.querySelector(
-      '#jexcel-toolbar-remove',
-    );
-    if (removeBtn) {
-      removeBtn.setAttribute('role', 'button');
-      removeBtn.setAttribute('aria-label', '删除选中行');
-      removeBtn.setAttribute('data-testid', 'jexcel-toolbar-remove');
-      if (!removeBtn.hasAttribute('tabindex')) {
-        removeBtn.setAttribute('tabindex', '0');
-      }
+    if (!(host as any).__erdToolbarA11y) {
+      (host as any).__erdToolbarA11y = true;
+      host.querySelectorAll('.jexcel_toolbar_item').forEach((el) => {
+        const item = el as HTMLElement;
+        const label =
+          item.getAttribute('title') ||
+          item.getAttribute('aria-label') ||
+          item.textContent?.trim() ||
+          '工具栏操作';
+        item.setAttribute('role', 'button');
+        item.setAttribute('aria-label', label);
+        item.setAttribute('tabindex', '0');
+        if (item.id === 'jexcel-toolbar-remove') {
+          item.setAttribute('data-testid', 'jexcel-toolbar-remove');
+        }
+        item.addEventListener('keydown', (e: KeyboardEvent) => {
+          if (e.key !== 'Enter' && e.key !== ' ') return;
+          e.preventDefault();
+          item.click();
+        });
+      });
+      // 网格入口：容器可 Tab 到达；Enter 选中 A1 后交原生方向键/Tab；勿拦 Tab（无 trap）
+      const grid =
+        (host.querySelector('.jexcel_content') as HTMLElement | null) || host;
+      grid.setAttribute('data-testid', 'jexcel-grid');
+      grid.setAttribute('tabindex', '0');
+      grid.setAttribute('aria-label', '表格，Enter 进入编辑区');
+      grid.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key !== 'Enter') return;
+        if (e.target !== grid) return;
+        e.preventDefault();
+        const js = (jRef.current as any)?.jexcel;
+        if (js?.updateSelectionFromCoords) {
+          js.updateSelectionFromCoords(0, 0, 0, 0);
+        }
+      });
     }
     // 编辑格 Escape：取消单元格编辑，勿冒泡到设计器其它快捷键
     if (!(host as any).__erdEscTrap) {
