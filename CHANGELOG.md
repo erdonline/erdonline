@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：Home 工作台键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：`/home` 进页 Tab 先扫顶栏；无 Skip 直达主区；CTA/项目卡焦点环缺；无键盘 E2E
+- 改动：`HomeLayout` 首焦 Skip「跳到主内容」→ `#home-main-content`（`tabIndex=-1`）；壳内 + Home 页 `:focus-visible` brand 环；自然 DOM 序不动正 `tabIndex`
+- E2E：`home-keyboard`「Home 键盘：Skip→主内容；CTA/项目卡 Tab 序；focus-visible；无 trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → GroupLayout 壳键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`
+
 #### 安全：R-DATA-02 FE connector 热路径只传 dataSourceId
 
 - 选题：已保存数据源仍在 ping/reverse/sqlexec/dbsync 重传 raw JDBC+账密，绕过后端 id 优先语义
@@ -36,7 +46,7 @@
 - 选题：共用 `LandingChrome` Skip/`#landing-main-cta` 已在落地页落地，但 `/compare` 无独立键盘 E2E；对照 CTA 链（演示→自部署→首页）未断言
 - 改动：无新壳逻辑——复用 Skip「跳到主操作」→ `#landing-main-cta`；核对 Tab 序 / surface focus-visible / 无 trap
 - E2E：`compare`「竞品对照页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign / landing.md；下一刀 → Home 工作台键盘（Skip 进主区）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign / landing.md；下一刀 → ~~Home 工作台键盘（Skip 进主区）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/compare.spec.ts --project=chromium --grep "竞品对照页键盘" --workers=1 --retries=0`

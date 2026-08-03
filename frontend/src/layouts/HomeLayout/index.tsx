@@ -129,9 +129,29 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     return match?.path || '/home';
   }, [pathname, routes]);
 
+  const focusSkipTarget = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.focus({ preventScroll: false });
+    el.scrollIntoView({ block: 'nearest' });
+  };
+
   return (
     <Theme>
       <Layout className="home-layout" data-testid="home-layout">
+        <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="home-skip-nav">
+          <a
+            href="#home-main-content"
+            className="erd-skip-link"
+            data-testid="home-skip-main"
+            onClick={(e) => {
+              e.preventDefault();
+              focusSkipTarget('home-main-content');
+            }}
+          >
+            跳到主内容
+          </a>
+        </nav>
         <Header className="erd-chrome-header home-layout__header">
           <div
             className="erd-chrome-brand"
@@ -176,7 +196,12 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           </div>
         </Header>
         <Content className="home-layout__content">
-          <div className="home-layout__shell">
+          <div
+            className="home-layout__shell"
+            id="home-main-content"
+            tabIndex={-1}
+            data-testid="home-main-content"
+          >
             <div className="home-layout__body">
               <Outlet />
             </div>
