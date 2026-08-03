@@ -209,6 +209,7 @@
 | DesignLayout | Skip 跳过导航 | 首项 Tab「跳到模型树/主工作区」→ 地标 focus；无 trap | 焦点环审计 | ✅ | `relation`「设计器 Skip」 |
 | DesignLayout | 左树工具条密度 | 工具条 ≤32 / 控件 ∈24–28；图标不 clip；sider 次密距；新建 focus-visible | QueryTree toolbar + sider-inner | ✅ | `model-design-ux`「模型树」 |
 | DesignLayout | 版本列表二次密度 | 工具条控件 ∈24–28；图标不 clip；token 色；新增钮 focus-visible；键盘弹层不回归 | version-page toolbar/list | ✅ | `version.spec`「版本列表行密度」+ `version-action-modals-keyboard` |
+| DesignLayout | 版本列表空态井次密 | 空态 pad ≤12×8；禁 16×12；保留「保存第一个版本」CTA | version-empty / list empty-text | ✅ | `version.spec`「无数据源也可新增版本」 |
 | DesignLayout | 工单/审批列表密度 | 标题栏 ~24；行 pad 4×8；动作钮 ∈22–28；图标不 clip；focus-visible；确认键盘不回归 | approval-workorder-page | ✅ | `approval.spec`「工单/审批列表行密度」+ `approval-action-keyboard` |
 | DesignLayout | 次屏表密度（JExcel / 版本 diff） | JExcel 工具栏 ~24；表头/行 pad 4×8；图标不 clip；focus-visible；diff 组头/行 ~24 token 色；工具栏 Tab / 可视化 diff 不回归 | jexcel-root / version-diff-panel | ✅ | `model-design-ux`「表设计 JExcel 行密度」+ `relation`「工具栏 Tab」+ `version.spec` diff |
 | DesignLayout | 元数据应用子签密度 | CodeTab/DbTab 栏 ~24；标签不 clip；子签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-code-tab / erd-db-tab | ✅ | `model-design-ux`「元数据应用子签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |

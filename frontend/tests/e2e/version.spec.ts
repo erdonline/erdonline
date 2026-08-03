@@ -116,10 +116,39 @@ test.describe('版本快照', () => {
       await openVersionPage(page);
       // W3 切片 2：antd List 空态 CTA（与工具栏「新增版本」同一保存动作）
       await expect(page.getByTestId('version-list')).toBeVisible();
-      await expect(page.getByTestId('version-empty')).toBeVisible();
+      const empty = page.getByTestId('version-empty');
+      await expect(empty).toBeVisible();
       await expect(
         page.getByRole('button', { name: '保存第一个版本' }),
       ).toBeVisible();
+
+      // ADR-0016：空态井对齐工作台列表 12×8；禁 16×12
+      const emptyPad = await empty.evaluate((el) => {
+        const well =
+          (el.closest('.ant-list-empty-text') as HTMLElement | null) ||
+          (el.parentElement as HTMLElement | null);
+        if (!well) return { padY: -1, padX: -1 };
+        const cs = getComputedStyle(well);
+        return {
+          padY: parseFloat(cs.paddingTop),
+          padX: parseFloat(cs.paddingLeft),
+        };
+      });
+      expect(
+        emptyPad.padY,
+        `版本空态 padY 应 ≤12（目标 12），得 ${emptyPad.padY}`,
+      ).toBeLessThanOrEqual(12);
+      expect(emptyPad.padY).toBeGreaterThanOrEqual(8);
+      expect(
+        emptyPad.padX,
+        `版本空态 padX 应 ≤8（目标 8），得 ${emptyPad.padX}`,
+      ).toBeLessThanOrEqual(8);
+      expect(emptyPad.padX).toBeGreaterThanOrEqual(4);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/version-empty-dense.png',
+        fullPage: false,
+      });
+
       await saveVersion(page);
       await expect(page.getByTestId('version-empty')).toHaveCount(0);
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });

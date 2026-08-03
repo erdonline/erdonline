@@ -51,6 +51,7 @@
 - [x] Home 水平导航 Menu 项次密：padX ∈[8,12]；项高 64；命中宽 ≥44；`testid=home-layout-menu`；截图 `home-nav-menu-dense.png` ✅`layout-outlet` densify + `home-keyboard` 回归
 - [x] Group 侧栏 nav 行距次密：项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；`testid=group-layout-sider-menu`；截图 `group-sider-nav-dense.png` ✅`layout-outlet` densify + `group-keyboard` 回归
 - [x] 设计器侧栏 nav 行距次密：项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；`testid=design-layout-sider-menu`；截图 `design-sider-nav-dense.png` ✅`layout-outlet` densify + 侧栏键盘
+- [x] 版本列表空态井次密：padY≤12 / padX≤8；禁 16×12；保留「保存第一个版本」；截图 `version-empty-dense.png` ✅`version.spec`「无数据源也可新增版本」
 - [x] 项目列表工具条碎距：Space gap ∈[8,12]；搜索高 ≤28；工具条高 ≤32；`testid=project-list-toolbar`；截图 `project-*-list-dense.png` ✅`project-surface` densify + `project-list-keyboard` 回归
 - [x] 团队成员工具条碎距：Space gap ∈[8,12]；搜索高 ≤28；工具条高 ≤32 / mb≤8；钮 padX∈[8,12]；`testid=group-user-toolbar`；截图 `group-user-toolbar-dense.png` ✅`group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` 回归
 - [x] Group 用户组 Title/左角色签碎距：标题 ≤14/lh≤24/mb≤8；左签 padX∈[8,12]·高∈[28,32]；`testid=group-setting-page`；截图 `group-setting-page-dense.png` ✅`group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` 回归
