@@ -283,12 +283,20 @@ function ErdRelationEdge({
       setEditing(false);
       return;
     }
-    useProjectStore.getState().dispatch.updateAssociationRelation(
-      mod,
-      { from, to },
-      next,
-    );
-    setEditing(false);
+    // 禁止本地 mutate 即换基数；仅 saveProject code===200 写 store；失败保持原基数可再选
+    void (async () => {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.updateAssociationRelation(
+          mod,
+          { from, to },
+          next,
+          { persist: true },
+        ),
+      );
+      if (ok) {
+        setEditing(false);
+      }
+    })();
   };
 
   return (

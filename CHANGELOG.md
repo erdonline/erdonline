@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布改边基数假成功
+
+- 选题：连线建关联假成功已收口（`bde9210`）；`updateAssociationRelation` / 基数 Select 仍本地 mutate 即换 chip，autosave 失败像已改基数
+- `updateAssociationRelation` 支持 `persist:true`；仅 `saveProject` code===200 写 store；失败 toast、chip/Crow's foot 保持原基数；可再选重试
+- E2E：`canvas-cardinality-failure` 首拒仍 `n:1` → 重试成功 `1:1`；定位 `erd-edge-label` / `erd-edge-cardinality` / `role=option`（勿扫 `.ant-*`）；happy `relation` PK/FK 基数路径不变
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 数据类型字典 CRUD 假成功（`dataTypeDomainsSlice` 仍本地 mutate）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-cardinality-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉：PK/FK" --workers=1 --retries=0`
+
 #### 体验：画布连线建关联假成功
 
 - 选题：Frame 新建/成员假成功已收口（`041af64`）；`addAssociation` / 拖连线仍本地 mutate 即上边，autosave 失败像已建关联
 - `addAssociation` 支持 `persist:true`；仅 `saveProject` code===200 写 store；失败 toast、associations 不变（边由 associations 派生 → 不上边）；可再拖重试
 - E2E：`canvas-connect-edge-failure` 首拒不上边 → 重试成功；定位 `rfNode` / `data-handleid` / `erd-edge-label`（勿扫 `.ant-*`）；happy `relation` PK/FK 路径不变
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `updateAssociationRelation` 基数改假成功
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`updateAssociationRelation` 基数改假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-connect-edge-failure.spec.ts --project=chromium --workers=1 --retries=0`
