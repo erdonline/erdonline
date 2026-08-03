@@ -199,8 +199,18 @@ const SharePage: React.FC = () => {
   // 失效 / 无效：AuthBrandShell 同语言（ADR-0016）；激活漏斗主 CTA = 打开示例
   if (error) {
     return (
-      <AuthBrandShell title="分享不可用" subtitle={error}>
-        <div className="auth-shell__gate-actions" data-testid="share-invalid-gate">
+      <AuthBrandShell
+        title="分享不可用"
+        subtitle={error}
+        skipLabel="跳到主操作"
+        skipTargetId="exception-main-cta"
+      >
+        <div
+          className="auth-shell__gate-actions"
+          id="exception-main-cta"
+          tabIndex={-1}
+          data-testid="share-invalid-gate"
+        >
           <Button type="primary" block onClick={() => history.push('/demo')}>
             打开示例 demo
           </Button>

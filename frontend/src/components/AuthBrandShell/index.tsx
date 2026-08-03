@@ -12,9 +12,9 @@ type AuthBrandShellProps = {
   children: React.ReactNode;
   /** 表单下方文字链 */
   footer?: React.ReactNode;
-  /** Skip 链文案；默认「跳到表单」；404/403 门用「跳到主操作」 */
+  /** Skip 链文案；默认「跳到表单」；404/403/分享失效门用「跳到主操作」 */
   skipLabel?: string;
-  /** Skip 落地锚点；默认表单区；门面 CTA 栈可指 `exception-main-cta` */
+  /** Skip 落地锚点；默认表单区；门面 CTA 栈指 `exception-main-cta` */
   skipTargetId?: string;
 };
 

@@ -43,6 +43,7 @@
 - [x] [注册壳键盘] `/register` Skip「跳到注册表单」→ `#auth-form-anchor` → 字段 Tab 序（tip 出序）；末字段 Enter 密码不一致 toast；注册钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「注册壳键盘」
 - [x] [落地页键盘] `/` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta` → Tab 入「在线试用」；试用→注册→登录可逆；主 CTA focus-visible surface 环；无 trap ✅`landing.spec.ts`「落地页键盘」
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」
+- [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
@@ -421,6 +422,7 @@
 
 - [x] [无效 token] `/s/not-a-real-…` 见 Result「403」+ 失效文案；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec.ts`
 - [x] [吊销后] 创建→吊销→匿名打开见 Result「403」+「打开示例 demo」/「返回首页」；无画布✅ `share.spec.ts`
+- [x] [分享失效门键盘] Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap✅ `share.spec.ts`
 
 ## 分享失效/空态品牌对齐（2026-08-03 · ADR-0016）
 
