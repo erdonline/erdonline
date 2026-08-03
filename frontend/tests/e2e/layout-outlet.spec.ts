@@ -82,6 +82,32 @@ test.describe('布局壳子路由出口', () => {
     expect(headerDense.gap).toBeGreaterThanOrEqual(8);
     expect(headerDense.height).toBe(64);
 
+    // ADR-0016：Home 水平 Menu 项次密（禁 padX16）；项高仍贴顶栏 64
+    const homeMenu = page.getByTestId('home-layout-menu');
+    await expect(homeMenu).toBeVisible();
+    await expect(homeMenu).toHaveAttribute('aria-label', '主导航');
+    const homeNavItem = homeMenu.getByRole('menuitem', { name: '首页' });
+    await expect(homeNavItem).toBeVisible();
+    const menuItemDense = await homeNavItem.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const r = el.getBoundingClientRect();
+      return {
+        padX: parseFloat(cs.paddingLeft),
+        height: Math.round(r.height),
+        width: Math.round(r.width),
+      };
+    });
+    expect(
+      menuItemDense.padX,
+      `Home Menu 项 padX 应 ∈[8,12]，得 ${menuItemDense.padX}`,
+    ).toBeLessThanOrEqual(12);
+    expect(menuItemDense.padX).toBeGreaterThanOrEqual(8);
+    expect(menuItemDense.height, `Menu 项高应 =64，得 ${menuItemDense.height}`).toBe(64);
+    expect(
+      menuItemDense.width,
+      `Menu 项宽应 ≥44（命中），得 ${menuItemDense.width}`,
+    ).toBeGreaterThanOrEqual(44);
+
     // ADR-0016：顶栏 actions 次密（禁 gap16）；Design 另覆写 ≤8
     const actions = page.getByTestId('erd-chrome-actions');
     await expect(actions).toBeVisible();
@@ -131,8 +157,13 @@ test.describe('布局壳子路由出口', () => {
     await page.goto('/home');
     await expect(page.getByTestId('erd-chrome-header')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('erd-chrome-actions')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('home-layout-menu')).toBeVisible({ timeout: 15_000 });
     await page.screenshot({
       path: 'test-results/ux-walkthrough/chrome-header-dense.png',
+      fullPage: false,
+    });
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/home-nav-menu-dense.png',
       fullPage: false,
     });
   });

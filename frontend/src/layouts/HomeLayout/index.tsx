@@ -185,6 +185,8 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             selectedKeys={[selectedKey]}
             items={menuItems}
             className="home-layout__menu"
+            data-testid="home-layout-menu"
+            aria-label="主导航"
           />
           <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
             {homeRightContent}
