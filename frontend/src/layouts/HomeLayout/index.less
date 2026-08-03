@@ -90,24 +90,33 @@
   background: transparent;
   line-height: calc(var(--erd-chrome-header-h) - 2px);
 
-  :global(.ant-menu-item) {
+  /* 次密：水平项 padX 16→12（8–12 族）；项高仍贴顶栏 64，命中不弱化 */
+  &.ant-menu-horizontal > .ant-menu-item,
+  &.ant-menu-horizontal > .ant-menu-submenu > .ant-menu-submenu-title,
+  &.ant-menu-horizontal > .ant-menu-overflow-item,
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    padding-inline: 12px !important;
+  }
+
+  .ant-menu-item {
     color: var(--erd-ink-600);
   }
 
-  :global(.ant-menu-item:hover),
-  :global(.ant-menu-item-active),
-  :global(.ant-menu-item-selected) {
+  .ant-menu-item:hover,
+  .ant-menu-item-active,
+  .ant-menu-item-selected {
     color: var(--erd-brand) !important;
   }
 
   /* 覆盖 antd 默认蓝下划线 → brand orange */
-  :global(.ant-menu-item::after) {
+  .ant-menu-item::after {
     border-bottom-color: transparent !important;
   }
 
-  :global(.ant-menu-item:hover::after),
-  :global(.ant-menu-item-active::after),
-  :global(.ant-menu-item-selected::after) {
+  .ant-menu-item:hover::after,
+  .ant-menu-item-active::after,
+  .ant-menu-item-selected::after {
     border-bottom-width: 2px !important;
     border-bottom-color: var(--erd-brand) !important;
   }

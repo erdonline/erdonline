@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：Home 水平导航 Menu 项次密
+
+- 选题：顶栏 header 已 padX16 / brand–nav gap12；`.home-layout__menu` 水平项仍 padX16（antd 默认族），相对 8–12 族偏松
+- before：Menu 项 `padding-inline: 16px`；after：`12px`（8–12 族）；项高仍 64；`data-testid=home-layout-menu` + `aria-label=主导航`；命中宽 ≥44 / Skip·键盘不弱化
+- E2E：`layout-outlet` Menu 项 padX∈[8,12] + h=64 + 截图 `home-nav-menu-dense.png`；`home-keyboard` 回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 侧栏 nav 行距 / 项目列表工具条碎距（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`
+
 #### 体验：顶栏 `erd-chrome-header` pad / brand–nav 次密
 
 - 选题：actions 已 gap12；顶栏仍 padX20 + brand–nav gap16，相对壳外井 12×16 / brand 内 gap8 偏松
 - before：header `padding: 0 20px`、`gap: 16px`（Home 覆写同 20；Group 右井 20）；after：`padding: 0 16px`、`gap: 12px`（8–12 / 12×16 族）；Home/Group 覆写对齐；Design 仍 gap8 / 右 16；`data-testid=erd-chrome-header`；顶栏 64 / Skip / 用户菜单不弱化
 - E2E：`layout-outlet` Home padX≤16 + gap∈[8,12] + Design ≤8 + 截图 `chrome-header-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Home 水平导航 Menu 项水平松距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Home 水平导航 Menu 项水平松距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|三壳同语言|DesignLayout：顶栏动作" --workers=1 --retries=0`

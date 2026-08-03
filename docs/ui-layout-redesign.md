@@ -204,7 +204,8 @@
 - ✅ **工作台壳（Home/Group）外井次密**（2026-08-03）：shell/content 12×16、body 12×16、列表空态 12×8；禁 24/20 双松井；`layout-outlet` densify 绿；下一刀 → ~~账号 BaseView gap~~✅
 - ✅ **账号 BaseView 左右列次密**（2026-08-03）：gap 24→16（窄屏 12）；禁 24；`account-settings` densify 绿；下一刀 → ~~顶栏 `erd-chrome-actions` gap16~~✅
 - ✅ **顶栏 `erd-chrome-actions` 次密**（2026-08-03）：gap 16→12（Design 仍 8）；`data-testid`；`layout-outlet` densify 绿；下一刀 → ~~顶栏 header pad20 / brand–nav gap16~~✅
-- ✅ **顶栏 `erd-chrome-header` 次密**（2026-08-03）：padX 20→16 + brand–nav gap 16→12；Home/Group 覆写对齐；Design 仍 gap8；`data-testid`；`layout-outlet` densify 绿；下一刀 → Home 水平导航 Menu 项水平松距（视 ROI）
+- ✅ **顶栏 `erd-chrome-header` 次密**（2026-08-03）：padX 20→16 + brand–nav gap 16→12；Home/Group 覆写对齐；Design 仍 gap8；`data-testid`；`layout-outlet` densify 绿；下一刀 → ~~Home 水平导航 Menu 项水平松距~~✅
+- ✅ **Home 水平导航 Menu 项次密**（2026-08-03）：padX 16→12（8–12 族）；项高 64 / 命中宽 ≥44；`testid=home-layout-menu`；`layout-outlet` densify 绿；下一刀 → Group 侧栏 nav 行距 / 项目列表工具条碎距（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
