@@ -2002,6 +2002,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   );
 
   /** 拖表结束：中心落在框内 → 加入并扩边；拖出原成员框 → 移出 */
+  // 禁止本地 mutate 即成员增减成功；仅 saveProject code===200 写 store；失败保留原成员
   const syncTableFrameMembership = useCallback(
     (allNodes: Node[], draggedTableIds: string[]) => {
       if (!draggedTableIds.length) return;
@@ -2014,37 +2015,57 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return { x: n.position.x, y: n.position.y, w, h };
       };
 
-      for (const tableId of draggedTableIds) {
-        const table = allNodes.find((n) => n.id === tableId && n.type === 'table');
-        if (!table) continue;
-        const { w, h } = tableNodeSize(table);
-        const cx = table.position.x + w / 2;
-        const cy = table.position.y + h / 2;
+      void (async () => {
+        for (const tableId of draggedTableIds) {
+          const table = allNodes.find((n) => n.id === tableId && n.type === 'table');
+          if (!table) continue;
+          const { w, h } = tableNodeSize(table);
+          const cx = table.position.x + w / 2;
+          const cy = table.position.y + h / 2;
 
-        const containing = frameNodes
-          .filter((fn) => isPointInFrameBounds(cx, cy, frameBound(fn)))
-          .sort((a, b) => {
-            const sa = frameNodeSize(a);
-            const sb = frameNodeSize(b);
-            return sa.w * sa.h - sb.w * sb.h;
-          });
-        const target = containing[0];
-        const targetFrameId = target ? parseFrameIdFromNodeId(target.id) : null;
+          const containing = frameNodes
+            .filter((fn) => isPointInFrameBounds(cx, cy, frameBound(fn)))
+            .sort((a, b) => {
+              const sa = frameNodeSize(a);
+              const sb = frameNodeSize(b);
+              return sa.w * sa.h - sb.w * sb.h;
+            });
+          const target = containing[0];
+          const targetFrameId = target ? parseFrameIdFromNodeId(target.id) : null;
 
-        for (const fn of frameNodes) {
-          const fid = parseFrameIdFromNodeId(fn.id);
-          const members: string[] = fn.data?.frame?.memberEntityIds || [];
-          const isMember = members.includes(tableId);
-          if (targetFrameId === fid) {
-            if (!isMember) {
-              projectDispatch.addFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
-              expandFrameForMembers(fid, [table]);
+          for (const fn of frameNodes) {
+            const fid = parseFrameIdFromNodeId(fn.id);
+            const members: string[] = fn.data?.frame?.memberEntityIds || [];
+            const isMember = members.includes(tableId);
+            if (targetFrameId === fid) {
+              if (!isMember) {
+                const ok = await Promise.resolve(
+                  projectDispatch.addFrameMembers(
+                    moduleName,
+                    activeDiagramId,
+                    fid,
+                    [tableId],
+                    { persist: true },
+                  ),
+                );
+                if (ok) {
+                  expandFrameForMembers(fid, [table]);
+                }
+              }
+            } else if (isMember) {
+              await Promise.resolve(
+                projectDispatch.removeFrameMembers(
+                  moduleName,
+                  activeDiagramId,
+                  fid,
+                  [tableId],
+                  { persist: true },
+                ),
+              );
             }
-          } else if (isMember) {
-            projectDispatch.removeFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
           }
         }
-      }
+      })();
     },
     [projectDispatch, moduleName, activeDiagramId, expandFrameForMembers],
   );
@@ -2174,11 +2195,19 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
     const memberEntityIds = selected.map((n) => n.id);
     const bounds = computeFrameBoundsFromNodes(nodesForBounds(selected));
-    projectDispatch.createFrame(moduleName, activeDiagramId, {
-      name: `分组${frames.length + 1}`,
-      memberEntityIds,
-      ...bounds,
-    });
+    // 禁止本地 mutate 即 toast「已新建分组」；仅 saveProject code===200 写 store
+    void Promise.resolve(
+      projectDispatch.createFrame(
+        moduleName,
+        activeDiagramId,
+        {
+          name: `分组${frames.length + 1}`,
+          memberEntityIds,
+          ...bounds,
+        },
+        { persist: true },
+      ),
+    );
   }, [nodes, frames.length, projectDispatch, moduleName, activeDiagramId]);
 
   const onFitSelectedFrame = useCallback(() => {
@@ -2259,13 +2288,20 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       message.info('请先新建分组');
       return;
     }
-    const applyJoin = (frameId: string) => {
-      projectDispatch.addFrameMembers(
-        moduleName,
-        activeDiagramId,
-        frameId,
-        selected.map((n) => n.id),
+    const applyJoin = async (frameId: string) => {
+      // 禁止本地 mutate 即「已加入」；仅 save code===200；成功后再扩边
+      const ok = await Promise.resolve(
+        projectDispatch.addFrameMembers(
+          moduleName,
+          activeDiagramId,
+          frameId,
+          selected.map((n) => n.id),
+          { persist: true },
+        ),
       );
+      if (!ok) {
+        return false;
+      }
       const frameMeta = frames.find((f) => f.id === frameId);
       const allMemberIds = new Set([
         ...(frameMeta?.memberEntityIds || []),
@@ -2273,14 +2309,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       ]);
       const memberNodes = nodes.filter((n) => n.type === 'table' && allMemberIds.has(n.id));
       expandFrameForMembers(frameId, memberNodes);
+      return true;
     };
     const selFrame = nodes.find((n) => n.selected && n.type === 'frame');
     if (selFrame) {
-      applyJoin(parseFrameIdFromNodeId(selFrame.id));
+      void applyJoin(parseFrameIdFromNodeId(selFrame.id));
       return;
     }
     if (frames.length === 1) {
-      applyJoin(frames[0].id);
+      void applyJoin(frames[0].id);
       return;
     }
     setFrameAssignModal({ frameId: frames[0].id });
@@ -3226,16 +3263,23 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       <Modal
         title="加入分组"
         open={!!frameAssignModal}
-        onOk={() => {
+        onOk={async () => {
           if (!frameAssignModal) return;
           const selected = nodes.filter((n) => n.selected && n.type === 'table');
           const frameId = frameAssignModal.frameId;
-          projectDispatch.addFrameMembers(
-            moduleName,
-            activeDiagramId,
-            frameId,
-            selected.map((n) => n.id),
+          // 禁止本地 mutate 即关窗；仅 save code===200；失败拒关窗可重试
+          const ok = await Promise.resolve(
+            projectDispatch.addFrameMembers(
+              moduleName,
+              activeDiagramId,
+              frameId,
+              selected.map((n) => n.id),
+              { persist: true },
+            ),
           );
+          if (!ok) {
+            return Promise.reject();
+          }
           const frameMeta = frames.find((f) => f.id === frameId);
           const allMemberIds = new Set([
             ...(frameMeta?.memberEntityIds || []),

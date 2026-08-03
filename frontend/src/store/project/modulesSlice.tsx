@@ -92,7 +92,7 @@ export interface IModulesDispatchSlice {
     diagramId: string,
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  /** ADR-0017 Phase 2b：图内 Frame */
+  /** ADR-0017 Phase 2b：图内 Frame；persist:true 时仅 saveProject code===200 写 store + toast */
   createFrame: (
     moduleName: string,
     diagramId: string | undefined,
@@ -105,19 +105,22 @@ export interface IModulesDispatchSlice {
       h?: number;
       color?: string;
     },
-  ) => string | undefined;
+    persistOpt?: PersistOpt,
+  ) => string | undefined | Promise<string | undefined>;
   addFrameMembers: (
     moduleName: string,
     diagramId: string | undefined,
     frameId: string,
     memberEntityIds: string[],
-  ) => void;
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   removeFrameMembers: (
     moduleName: string,
     diagramId: string | undefined,
     frameId: string,
     memberEntityIds: string[],
-  ) => void;
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   updateFrameBounds: (
     moduleName: string,
     diagramId: string | undefined,
@@ -840,72 +843,207 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return true;
     })();
   },
-  createFrame: (moduleName, diagramId, opts) => {
+  createFrame: (moduleName, diagramId, opts, persistOpt?) => {
+    const persist = !!persistOpt?.persist;
+    const frameOpts = opts || {};
+
+    if (!persist) {
+      let createdId: string | undefined;
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+        if (!module) {
+          return;
+        }
+        const diagrams = ensureDiagrams(module);
+        const id = diagramId || DEFAULT_DIAGRAM_ID;
+        const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+        const frame = addFrameToDiagram(diagram, frameOpts);
+        createdId = frame.id;
+      }));
+      if (createdId) {
+        message.success('已新建分组');
+      }
+      return createdId;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(undefined);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(undefined);
+    }
+
     let createdId: string | undefined;
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+    const next = produce(project, (draft: any) => {
+      const module = draft.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
         return;
       }
       const diagrams = ensureDiagrams(module);
       const id = diagramId || DEFAULT_DIAGRAM_ID;
       const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
-      const frame = addFrameToDiagram(diagram, opts || {});
+      if (!diagram) {
+        return;
+      }
+      const frame = addFrameToDiagram(diagram, frameOpts);
       createdId = frame.id;
-    }));
-    if (createdId) {
-      message.success('已新建分组');
+    });
+    if (!createdId) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(undefined);
     }
-    return createdId;
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '分组保存失败');
+      if (!saved) {
+        return undefined;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success('已新建分组');
+      return createdId;
+    })();
   },
-  addFrameMembers: (moduleName, diagramId, frameId, memberEntityIds) => {
+  addFrameMembers: (moduleName, diagramId, frameId, memberEntityIds, opts?) => {
+    const persist = !!opts?.persist;
     if (!memberEntityIds.length) {
       message.info('请先选中要加入分组的表');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const apply = (modules: any[]): string | undefined => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return undefined;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      if (!diagram) {
+        return undefined;
+      }
+      const frame = addMembersToFrame(diagram, frameId, memberEntityIds);
+      return frame?.name;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      let frameName: string | undefined;
+      set(produce(state => {
+        frameName = apply(state.project.projectJSON?.modules);
+      }));
+      if (frameName) {
+        message.success(`已加入「${frameName}」`);
+      } else {
+        message.warning('未找到分组');
+      }
       return;
     }
-    snapshotModules(get().project?.projectJSON?.modules);
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
     let frameName: string | undefined;
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
-      if (!module) {
-        return;
-      }
-      const diagrams = ensureDiagrams(module);
-      const id = diagramId || DEFAULT_DIAGRAM_ID;
-      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
-      const frame = addMembersToFrame(diagram, frameId, memberEntityIds);
-      if (!frame) {
-        return;
-      }
-      frameName = frame.name;
-    }));
-    if (frameName) {
-      message.success(`已加入「${frameName}」`);
-    } else {
+    const next = produce(project, (draft: any) => {
+      frameName = apply(draft.projectJSON.modules);
+    });
+    if (!frameName) {
       message.warning('未找到分组');
+      return Promise.resolve(false);
     }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '分组保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success(`已加入「${frameName}」`);
+      return true;
+    })();
   },
-  removeFrameMembers: (moduleName, diagramId, frameId, memberEntityIds) => {
-    if (!memberEntityIds.length) return;
-    snapshotModules(get().project?.projectJSON?.modules);
-    let frameName: string | undefined;
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+  removeFrameMembers: (moduleName, diagramId, frameId, memberEntityIds, opts?) => {
+    const persist = !!opts?.persist;
+    if (!memberEntityIds.length) {
+      return persist ? Promise.resolve(true) : undefined;
+    }
+
+    const apply = (modules: any[]): string | undefined => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
-        return;
+        return undefined;
       }
       const diagrams = ensureDiagrams(module);
       const id = diagramId || DEFAULT_DIAGRAM_ID;
       const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
-      const frame = removeMembersFromFrame(diagram, frameId, memberEntityIds);
-      if (frame) {
-        frameName = frame.name;
+      if (!diagram) {
+        return undefined;
       }
-    }));
-    if (frameName) {
-      message.info(`已移出「${frameName}」`);
+      const frame = removeMembersFromFrame(diagram, frameId, memberEntityIds);
+      return frame?.name;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      let frameName: string | undefined;
+      set(produce(state => {
+        frameName = apply(state.project.projectJSON?.modules);
+      }));
+      if (frameName) {
+        message.info(`已移出「${frameName}」`);
+      }
+      return;
     }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    let frameName: string | undefined;
+    const next = produce(project, (draft: any) => {
+      frameName = apply(draft.projectJSON.modules);
+    });
+    if (!frameName) {
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '分组保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.info(`已移出「${frameName}」`);
+      return true;
+    })();
   },
   updateFrameBounds: (moduleName, diagramId, frames, opts?) => {
     const persist = !!opts?.persist;
