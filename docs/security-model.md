@@ -59,7 +59,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
-| R-CFG-01 | P0 | `JWT_SECRET` 有仓库默认值，prod 未 fail-fast | `application.yml:159`；`application-prod.yml` 无 `erd.jwt.secret` 覆盖（对比 MYSQLUSER:13-17） | 未设环境变量时 prod 可用固定密钥签发/伪造 JWT | prod 声明 `${JWT_SECRET}` 无默认；部署清单强制旋转 |
+| R-CFG-01 | P0 | ~~`JWT_SECRET` 有仓库默认值，prod 未 fail-fast~~ | ~~`application.yml` 弱默认；prod 未覆盖~~ | **✅ 已关闭（2026-08-03）**：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒 blank/仓库开发默认串；本地/dev 保留 DX 默认 | 保持 prod 无默认；公网/demo 须旋转且 ≠ 仓库串 |
 | R-CFG-02 | P0 | 种子 `admin`/`123456` | `security-model` 种子表；Flyway `V3`/`V6` | e2e 登录已被 prod 拒绝；**admin 不拒** | 首启强制改密或 document 清种子；公网禁止默认口令存活 |
 | R-CFG-03 | P1 | 应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true` | `application.yml:32-46` | 中间人/弱校验 TLS | 生产 URL 开 SSL；分 profile |
 | R-CFG-04 | P1 | CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*` | `CorsConfig.java:30-40`；`application.yml:94` | HTTP CORS 已收敛；SocketIO 默认任意 Origin | 生产设 `SOCKETIO_ORIGIN` 与 UI 同源；demo 设 `CORS_ALLOWED_ORIGINS` |
@@ -95,7 +95,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **prod `JWT_SECRET` fail-fast**（对齐 MYSQLUSER），并确认 demo 已旋转（R-CFG-01）。
+1. **种子 `admin`/`123456`**（R-CFG-02）：首启强制改密或公网清/禁默认口令。
 2. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id；顺手删 `GitlabController`（R-DATA-01/02/03）。
 3. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
 

@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-CFG-01 prod `JWT_SECRET` fail-fast
+
+- 选题：`JWT_SECRET` 仓库弱默认可随 prod 上线签发/伪造 JWT
+- 改动：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒绝 blank 与 `JwtProperties.INSECURE_DEV_DEFAULT`；本地/dev 保留 DX 默认；compose/`.env.example` 补 `JWT_SECRET`（compose 本地串 ≠ 仓库串）
+- 文档：`docs/security-model.md` R-CFG-01 ✅；`docs/deployment.md` 排障表
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=JwtConfigTest,JwtSecretBindingTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/actuator/health/liveness` → 200
+- prod 缺 `JWT_SECRET`：占位符解析失败（单测 `prodRequiredPlaceholderFailsWhenJwtSecretUnset`）；设仓库默认串：`JwtConfig` 抛 `IllegalStateException`
+
 #### 安全：R-AUTH-01 关闭匿名 loadUserByUsername 泄露密文
 
 - 选题：匿名 `GET /user/loadUserByUsername/{u}` 经 ignore-urls + `@RestController` 返回 bcrypt `pwd`

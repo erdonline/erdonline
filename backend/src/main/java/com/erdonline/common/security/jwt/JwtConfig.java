@@ -7,6 +7,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.Environment;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -20,6 +21,7 @@ import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
@@ -31,7 +33,8 @@ import java.util.stream.Collectors;
 public class JwtConfig {
 
     @Bean
-    SecretKey jwtSecretKey(JwtProperties props) {
+    SecretKey jwtSecretKey(JwtProperties props, Environment env) {
+        assertSecretSafeForProfile(props.getSecret(), env);
         byte[] key = props.getSecret().getBytes(StandardCharsets.UTF_8);
         if (key.length < 32) {
             byte[] padded = new byte[32];
@@ -39,6 +42,25 @@ public class JwtConfig {
             key = padded;
         }
         return new SecretKeySpec(key, "HmacSHA256");
+    }
+
+    /**
+     * prod：拒绝 blank / 仓库开发默认串（即使显式设了 {@code JWT_SECRET}）。
+     * 非 prod：允许 application.yml 弱默认，保障本地 {@code dev-ensure}。
+     */
+    static void assertSecretSafeForProfile(String secret, Environment env) {
+        boolean prod = Arrays.asList(env.getActiveProfiles()).contains("prod");
+        if (!prod) {
+            return;
+        }
+        if (secret == null || secret.isBlank()) {
+            throw new IllegalStateException(
+                    "erd.jwt.secret is blank: set JWT_SECRET (≥32 random bytes) for prod");
+        }
+        if (JwtProperties.INSECURE_DEV_DEFAULT.equals(secret.trim())) {
+            throw new IllegalStateException(
+                    "JWT_SECRET must not use the repository/dev default in prod; rotate to a random secret");
+        }
     }
 
     @Bean
