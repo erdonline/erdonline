@@ -2246,6 +2246,50 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('快捷键速查：? 打开 aria dialog', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('helpkeys');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'hk', 'shortcut help');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      // 点 pane 卸掉可能残留焦点，保证 ? 不被输入框吞
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await page.keyboard.press('Shift+/');
+      const help = page.getByRole('dialog', { name: '快捷键' });
+      await expect(help).toBeVisible();
+      await expect(help).toHaveAttribute('aria-modal', 'true');
+      await expect(help.getByText('命令面板（搜表定位、建表、布局）')).toBeVisible();
+      await expect(help.getByText(/二次确认/)).toBeVisible();
+      await expect(help.getByText(/下一 \/ 上一列或行/)).toBeVisible();
+      await expect(help.locator('kbd', { hasText: '⌘/Ctrl+K' })).toBeVisible();
+      await expect(help.locator('kbd', { hasText: 'Tab' })).toBeVisible();
+      await expect(help.locator('kbd', { hasText: 'Delete' })).toBeVisible();
+
+      await page.keyboard.press('Escape');
+      await expect(help).toHaveCount(0);
+
+      await page.getByRole('button', { name: '快捷键' }).click();
+      await expect(page.getByRole('dialog', { name: '快捷键' })).toBeVisible();
+      await page.getByRole('button', { name: '关闭快捷键' }).click();
+      await expect(page.getByRole('dialog', { name: '快捷键' })).toHaveCount(0);
+
+      // 再按 ? 开合；与命令面板互斥
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await page.keyboard.press('Shift+/');
+      await expect(page.getByRole('dialog', { name: '快捷键' })).toBeVisible();
+      await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
+      await expect(page.getByRole('dialog', { name: '快捷键' })).toHaveCount(0);
+      await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('实体新建弹层密度：与 22 chrome 同阶', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('emodal');
