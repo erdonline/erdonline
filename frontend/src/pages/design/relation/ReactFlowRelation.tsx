@@ -60,6 +60,7 @@ import {
 
 export { EDGE_INTERACTION_WIDTH } from '@/utils/relationEdges';
 import { Input, Modal, Select, message } from 'antd';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
@@ -401,15 +402,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
 
   /** 破坏性：按钮 / 浏览态 Delete·Backspace 共用二次确认 */
   const confirmRemoveField = (fieldName: string) => {
-    Modal.confirm({
+    confirmDestructive({
       title: `确定删除字段 "${fieldName}" 吗?`,
       content: '此操作不可逆，请谨慎操作。',
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
-      keyboard: true,
-      autoFocusButton: 'ok',
-      focusTriggerAfterClose: true,
       onOk() {
         removeField(fieldName);
       },
@@ -1463,15 +1461,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           titles.length === 1
             ? `确定删除表 "${titles[0]}" 吗?`
             : `确定删除 ${titles.length} 张表吗?`;
-        Modal.confirm({
+        confirmDestructive({
           title: titleText,
           content: '此操作不可逆，请谨慎操作。',
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
-          keyboard: true,
-          autoFocusButton: 'ok',
-          focusTriggerAfterClose: true,
           onOk() {
             titles.forEach((t) => projectDispatch.removeEntity(moduleName, t));
           },
@@ -1489,15 +1484,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           framesToRemove.length === 1
             ? `确定删除分组 "${framesToRemove[0].name}" 吗?`
             : `确定删除 ${framesToRemove.length} 个分组吗?`;
-        Modal.confirm({
+        confirmDestructive({
           title: titleText,
           content: '仅删除分组框，表不会一起删除。',
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
-          keyboard: true,
-          autoFocusButton: 'ok',
-          focusTriggerAfterClose: true,
           onOk() {
             framesToRemove.forEach((f) =>
               projectDispatch.removeFrame(moduleName, activeDiagramId, f.frameId),
@@ -1971,15 +1963,12 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         toRemove.length === 1
           ? `确定删除关系 "${toRemove[0].from.entity}.${toRemove[0].from.field} → ${toRemove[0].to.entity}.${toRemove[0].to.field}" 吗?`
           : `确定删除 ${toRemove.length} 条关系吗?`;
-      Modal.confirm({
+      confirmDestructive({
         title: titleText,
         content: '此操作不可逆，请谨慎操作。',
         okText: '删除',
         okType: 'danger',
         cancelText: '取消',
-        keyboard: true,
-        autoFocusButton: 'ok',
-        focusTriggerAfterClose: true,
         onOk() {
           toRemove.forEach((a) => projectDispatch.removeAssociation(moduleEntity.module, a));
           setEdgeSelected({});

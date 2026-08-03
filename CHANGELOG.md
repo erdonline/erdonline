@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：裸 Modal.confirm → confirmDestructive 清零
+
+- 选题：`frontend/src` 仍有 11 处业务裸 `Modal.confirm`（4 处版本/逆向缺 keyboard/autoFocus/focusTrigger；7 处手写默认重复）
+- 改动：全部改 `confirmDestructive`（仅 `destructiveConfirm.ts` 内保留 `Modal.confirm`）；版本同步/标记/重建基线补语义 `okText` + `okType=danger`；重建前落焦 `version-rebuild-btn` 以便 Esc 归还；逆向覆盖同构
+- E2E：`version-rebuild-confirm-keyboard`（保存版本→重建表单→基线确认 → 首焦「重建」、Esc 不落盘、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 签头密度 / CmdK polish（`rg 'Modal\\.confirm' frontend/src` 仅工具函数）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-rebuild-confirm-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/version-sync-rebuild-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `rg 'Modal\\.confirm' frontend/src` → 仅 `utils/destructiveConfirm.ts`
+
 #### 体验：审批动作确认弹层键盘闭环（Popconfirm→Modal.confirm）
 
 - 选题：审批 Pass/Refuse/Cancel/Repeat 仍用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；`approval.spec` 仅点「是」落盘；无键盘回归。`CopyVersion` 零引用且与删版本同路径，顺手清死代码

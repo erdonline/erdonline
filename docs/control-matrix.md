@@ -47,6 +47,7 @@
 | 版本动作弹窗 新增/编辑/删除/回滚 | 打开首焦 / Esc / Tab trap | 新增/编辑最新→版本号；编辑非最新→描述；删除/回滚→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-action-modals-keyboard` |
 | 版本对比/详情 diff Modal | 打开首焦 / Esc / Tab trap | 比对→「初始版本」；详情→「导出变更清单」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-diff-keyboard` |
 | 同步配置/重建版本 Modal | 打开首焦 / Esc / Tab trap | 同步配置→「字段增量」；重建版本→「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-rebuild-keyboard` |
+| 重建基线二次确认 | 打开首焦 / Esc / Tab trap | 首焦「重建」；Esc 归还不落盘、归还「重建版本」钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-rebuild-confirm-keyboard` |
 | 初始化基线 Modal | 打开首焦 / Esc / Tab trap | 首焦「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-init-keyboard` |
 | 复刻 Modal | 打开首焦 / Esc / Tab trap | 首焦「项目名」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-copy-keyboard` |
 | 数据源设置 Modal | 打开首焦 / Esc / Tab trap | 首焦「新增数据源」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-keyboard` |
