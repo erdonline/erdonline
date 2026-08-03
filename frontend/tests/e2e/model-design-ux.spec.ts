@@ -4,6 +4,7 @@ import {
   deleteOwnPersonProjects,
   e2eAccount,
   login,
+  openRelationFromEmpty,
   uniqueProjectName,
 } from './helpers';
 
@@ -969,6 +970,111 @@ test.describe('模型设计 UX（ADR-0017）', () => {
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-tab-body-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  /**
+   * ADR-0016：设计器次屏 Empty 次密距 —
+   * 压 antd Empty marginXL / 禁历史 marginTop:100；贴 --erd-tab-body-pad；保留字段空态 CTA
+   */
+  test('设计器空态次密距', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('paneempty');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await openRelationFromEmpty(page, { name: 'SHOP', chnname: '商城' });
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // RF 挂载后才能用 E2E 清字段钩子
+      const cleared = await page.evaluate(() => {
+        const api = (window as Window & {
+          __ERD_E2E__?: { clearEntityFields?: (t: string) => boolean };
+        }).__ERD_E2E__;
+        return api?.clearEntityFields?.('T_ORDER') ?? false;
+      });
+      expect(cleared, '__ERD_E2E__.clearEntityFields(T_ORDER)').toBe(true);
+
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      await expect(fieldEdit.getByRole('button', { name: '添加第一个字段' })).toBeVisible();
+
+      const fieldMetrics = await fieldEdit.evaluate((root) => {
+        const wrap = root as HTMLElement;
+        const empty = root.querySelector('.ant-empty') as HTMLElement | null;
+        const wrapCs = getComputedStyle(wrap);
+        const emptyCs = empty ? getComputedStyle(empty) : null;
+        return {
+          wrapPadX:
+            parseFloat(wrapCs.paddingLeft) + parseFloat(wrapCs.paddingRight),
+          wrapPadY:
+            parseFloat(wrapCs.paddingTop) + parseFloat(wrapCs.paddingBottom),
+          emptyMt: emptyCs != null ? parseFloat(emptyCs.marginTop) : -1,
+          emptyMb: emptyCs != null ? parseFloat(emptyCs.marginBottom) : -1,
+        };
+      });
+
+      expect(
+        fieldMetrics.emptyMt,
+        `字段空态 marginTop 应 ≤8（禁 100 / antd XL），得 ${fieldMetrics.emptyMt}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        fieldMetrics.emptyMb,
+        `字段空态 marginBottom 应 ≤8，得 ${fieldMetrics.emptyMb}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        fieldMetrics.wrapPadX,
+        `字段空态侧 pad 合计应 ≤16（目标 6+6），得 ${fieldMetrics.wrapPadX}`,
+      ).toBeLessThanOrEqual(16);
+      expect(fieldMetrics.wrapPadX).toBeGreaterThanOrEqual(8);
+      expect(
+        fieldMetrics.wrapPadY,
+        `字段空态竖 pad 合计应 ≤16（目标 4+4），得 ${fieldMetrics.wrapPadY}`,
+      ).toBeLessThanOrEqual(16);
+
+      await designer.getByRole('tab', { name: '索引' }).click();
+      const indexEdit = page.getByTestId('table-index-edit');
+      await expect(indexEdit).toBeVisible({ timeout: 10_000 });
+      await expect(indexEdit.getByRole('button', { name: '添加第一个索引' })).toBeVisible();
+
+      const indexMetrics = await indexEdit.evaluate((root) => {
+        const empty = root.querySelector('.ant-empty') as HTMLElement | null;
+        const emptyCs = empty ? getComputedStyle(empty) : null;
+        return {
+          emptyMt: emptyCs != null ? parseFloat(emptyCs.marginTop) : -1,
+          emptyMb: emptyCs != null ? parseFloat(emptyCs.marginBottom) : -1,
+        };
+      });
+      expect(
+        indexMetrics.emptyMt,
+        `索引空态 marginTop 应 ≤8，得 ${indexMetrics.emptyMt}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        indexMetrics.emptyMb,
+        `索引空态 marginBottom 应 ≤8，得 ${indexMetrics.emptyMb}`,
+      ).toBeLessThanOrEqual(8);
+
+      // 源码纪律：工作区兜底不得再写 marginTop:100
+      expect(page.locator('.erd-design-workspace [style*="margin-top: 100"]')).toHaveCount(0);
+      expect(page.locator('.erd-design-workspace [style*="marginTop: 100"]')).toHaveCount(0);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-pane-empty-dense.png',
         fullPage: false,
       });
     } finally {

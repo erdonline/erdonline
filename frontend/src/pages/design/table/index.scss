@@ -1,5 +1,7 @@
 /* 模型设计工作区（ADR-0017）：sunk 底 + 次密距留白（对齐 ~24 toolbar；禁 12 松井） */
 .erd-design-workspace {
+  --erd-pane-empty-pad: 6px;
+
   padding: 6px;
   background: var(--erd-surface-sunk);
 
@@ -30,5 +32,21 @@
     border: 1px solid var(--erd-line);
     border-radius: var(--erd-radius);
     overflow: hidden;
+  }
+
+  /* 未知签 / 次屏 Empty：贴井顶，禁 marginTop:100 + 大插画下沉 */
+  .erd-pane-empty {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: var(--erd-pane-empty-pad);
+
+    .ant-empty {
+      margin-block: 0;
+    }
+
+    .ant-empty-footer {
+      margin-top: 8px;
+    }
   }
 }

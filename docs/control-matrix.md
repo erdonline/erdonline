@@ -175,6 +175,7 @@
 | DesignLayout | 元数据应用子签密度 | CodeTab/DbTab 栏 ~24；标签不 clip；子签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-code-tab / erd-db-tab | ✅ | `model-design-ux`「元数据应用子签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
 | DesignLayout | 表设计内签密度 | 字段/索引/元数据栏 ~24；标签不 clip；内签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-table-design__tabs / #tableNav | ✅ | `model-design-ux`「表设计内签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
 | DesignLayout | 表设计签体内容次密距 | 侧/底 pad 6/4；hint ~24；JExcel 不 clip；元数据 tip 密；空字段 CTA / 空名 toast 保留 | erd-tab-body-pad / erd-meta-ddl-hint | ✅ | `model-design-ux`「表设计签体内容次密距」+ `table-field-empty` |
+| DesignLayout | 设计器空态次密距 | 兜底禁 marginTop:100；字段/索引 Empty margin-block 0 + pad 贴 tab-body；保留 CTA | erd-pane-empty / erd-table-*-empty | ✅ | `model-design-ux`「设计器空态次密距」+ `table-field-empty` |
 | DesignLayout | 右键/树操作菜单密度 | 项高 ~28（≤32）；图标/文案不 clip；`role=menuitem`；方向键/Esc | `.erd-dense-menu` | ✅ | `model-design-ux`「右键/树操作菜单密度」 |
 | DesignLayout | 左树键盘漫游 | Skip→↓入树；方向键+Enter 定位表/开关系；active brand 环；Tab 进搜索无 trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation`「左树键盘漫游」 |
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
