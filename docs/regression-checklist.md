@@ -56,6 +56,7 @@
 - [x] [复刻弹层键盘] 版本行「复刻」首焦「项目名」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`project-copy-keyboard.spec.ts`
 - [x] [数据源设置键盘] 项目菜单→数据源设置首焦「新增数据源」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`database-setup-keyboard.spec.ts`
 - [x] [默认项设置键盘] 项目菜单→默认项设置首焦「默认字段」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`default-setup-keyboard.spec.ts`
+- [x] [数据源逆向解析键盘] 项目菜单→数据源逆向解析首焦「数据源」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`reverse-database-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

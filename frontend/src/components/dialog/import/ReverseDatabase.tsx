@@ -1,5 +1,6 @@
-import React, {useContext, useEffect, useState} from 'react';
+import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Button, Form, message, Modal, Select, Spin, Steps} from 'antd';
+import type {RefSelectProps} from 'antd/es/select';
 import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -54,6 +55,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
   const [step, setStep] = useState(0);
   const [submitting, setSubmitting] = useState(false);
   const [form1] = Form.useForm<Step1Values>();
+  const dbSelectRef = useRef<RefSelectProps>(null);
 
   const {flag, status, loading} = profileSliceState;
 
@@ -195,6 +197,28 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // 第一步主决策：选数据源；Select 挂载后经 ref.focus（antd 自管 combobox）
+          const tryFocus = (attempt = 0) => {
+            const input = document.querySelector<HTMLInputElement>(
+              '.erd-io-modal-root [aria-label="数据源"]',
+            );
+            if (input) {
+              dbSelectRef.current?.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
         footer={
           step === 0
             ? [
@@ -241,6 +265,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
               rules={[{required: true, message: '此项为必填项'}]}
             >
               <Select
+                ref={dbSelectRef}
                 style={{maxWidth: 328}}
                 aria-label="数据源"
                 options={dbs.map((db: any) => ({label: db.name, value: db.name}))}
