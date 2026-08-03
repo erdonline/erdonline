@@ -86,6 +86,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
         const res = await dbReverseMeta({
           ...dbConfig,
           driverClassName: db.properties['driver_class_name'],
+          ...(db.key ? {dataSourceId: db.key} : {}),
         });
         if (cancelled) {
           return;

@@ -3,10 +3,11 @@ import * as cache from './cache';
 import request from "../utils/request";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
+import {preferDataSourceIdPayload} from './connectorPayload';
 
 const updateFieldName = (data) => {
   // 将带下划线的属性转化为驼峰
-  return Object.keys(data).reduce((a, b) => {
+  return Object.keys(data || {}).reduce((a, b) => {
     const tempA = {...a};
     const tempB = b.replace(/_([\w+])/g, (all, letter) => {
       return letter.toUpperCase();
@@ -15,6 +16,9 @@ const updateFieldName = (data) => {
     return tempA;
   }, {});
 };
+
+/** Connector 热路径：有已保存 id 则只传 dataSourceId，剥掉客户端 JDBC 凭证 */
+const toConnectorBody = (data) => preferDataSourceIdPayload(updateFieldName(data));
 
 // 新增项目
 export const addProject = (data) => {
@@ -59,25 +63,25 @@ export const saveProject = (data) => {
 
 export const ping = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
-  return request.post('/ncnb/connector/ping', {data: {...updateFieldName(data), projectId}});
+  return request.post('/ncnb/connector/ping', {data: {...toConnectorBody(data), projectId}});
 };
 
 export const sqlexec = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
-  return request.post('/ncnb/connector/sqlexec', {data: {...updateFieldName(data), projectId}});
+  return request.post('/ncnb/connector/sqlexec', {data: {...toConnectorBody(data), projectId}});
 };
 
 
 export const dbsync = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
-  return request.post('/ncnb/connector/dbsync', {data: {...updateFieldName(data), projectId}});
+  return request.post('/ncnb/connector/dbsync', {data: {...toConnectorBody(data), projectId}});
 };
 
 export const dbReverseParse = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
   return request.post('/ncnb/connector/dbReverseParse', {
     data: {
-      ...updateFieldName(data),
+      ...toConnectorBody(data),
       projectId,
     }
   });
@@ -87,7 +91,7 @@ export const dbReverseMeta = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
   return request.post('/ncnb/connector/dbReverseMeta', {
     data: {
-      ...updateFieldName(data),
+      ...toConnectorBody(data),
       projectId,
     }
   });

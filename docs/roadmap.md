@@ -56,10 +56,10 @@
 - CSRF/CORS 已收敛（第 1 轮 ✅），SQL 执行信任链已修（审批失败不落通过 ✅）——写入型 API 沿用同级约束
 - ~~密钥纪律：连接信息不进 projectJSON（ADR-0008 已隔离），文档化对外承诺~~✅（[`data-format.md`](./data-format.md)「密钥纪律」+ [security-model.md](./security-model.md)）
 - ~~项目 / dataSources IDOR（R-AUTH-03/04）~~✅（`ProjectAcl` / `DataSourceAcl`；登记见 [security-model.md](./security-model.md)）
-- ~~connector 凭证改走已鉴权 dataSources id（R-DATA-02）~~✅（后端 `dataSourceId`→ACL；FE 热路径迁 id / SSRF 另刀）
+- ~~connector 凭证改走已鉴权 dataSources id（R-DATA-02）~~✅（后端 `dataSourceId`→ACL；FE 热路径只传 id）
 - ~~UserController 权限（R-AUTH-02）~~✅（`sys_user_*` `@PreAuthorize`；见 [security-model.md](./security-model.md)）
 - ~~SocketIO 项目成员（R-AUTH-05）~~✅（握手 + `JOIN_ROOM` 验 `project_user`；见 [security-model.md](./security-model.md)）
-- 下一刀：FE connector 只传 dataSourceId（R-DATA-02 残留）
+- 下一刀：内网 SSRF 主机策略 / mutate 禁 raw（R-DATA-02 收尾）
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）

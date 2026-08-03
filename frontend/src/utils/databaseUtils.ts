@@ -4,15 +4,25 @@ const TEST_CONNECTION_URL = '/ncnb/connector/ping';
 const DATABASE_CONFIG_URL = '/ncnb/dataSources';
 
 interface PingParams {
-  driverClassName: string;
-  url: string;
-  username: string;
-  password: string;
+  driverClassName?: string;
+  url?: string;
+  username?: string;
+  password?: string;
+  /** 已保存数据源：优先 id，后端 ACL 填凭证 */
+  dataSourceId?: string;
 }
 
 export const pingDatabase = async (params: PingParams) => {
   try {
-    const res = await POST(TEST_CONNECTION_URL, params);
+    const body = params.dataSourceId
+      ? {dataSourceId: params.dataSourceId}
+      : {
+          driverClassName: params.driverClassName,
+          url: params.url,
+          username: params.username,
+          password: params.password,
+        };
+    const res = await POST(TEST_CONNECTION_URL, body);
     return res.code === 200;
   } catch (error) {
     console.error('Ping error:', error);
