@@ -364,11 +364,18 @@ function ErdRelationEdge({
                         okText: '删除',
                         okType: 'danger',
                         cancelText: '取消',
-                        onOk() {
-                          useProjectStore.getState().dispatch.removeAssociation(mod, {
-                            from,
-                            to,
-                          });
+                        async onOk() {
+                          // 禁止本地 mutate 即「关系删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+                          const ok = await Promise.resolve(
+                            useProjectStore.getState().dispatch.removeAssociation(
+                              mod,
+                              { from, to },
+                              { persist: true },
+                            ),
+                          );
+                          if (!ok) {
+                            return Promise.reject(new Error('关系删除落盘失败'));
+                          }
                         },
                       });
                       return;

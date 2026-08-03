@@ -110,7 +110,12 @@ export interface IModulesDispatchSlice {
     diagramId: string | undefined,
     frames: Array<{ id: string; x: number; y: number; w?: number; h?: number }>,
   ) => void;
-  removeFrame: (moduleName: string, diagramId: string | undefined, frameId: string) => void;
+  removeFrame: (
+    moduleName: string,
+    diagramId: string | undefined,
+    frameId: string | string[],
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   renameFrame: (
     moduleName: string,
     diagramId: string | undefined,
@@ -118,7 +123,11 @@ export interface IModulesDispatchSlice {
     name: string,
   ) => void;
   addAssociation: (moduleName: string, association: any) => void;
-  removeAssociation: (moduleName: string, association: any) => void;
+  removeAssociation: (
+    moduleName: string,
+    association: any | any[],
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   /** 改关联基数（from/to 定位；relation 归一化后写入） */
   updateAssociationRelation: (
     moduleName: string,
@@ -751,19 +760,70 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       frames.forEach((f) => applyFrameBounds(diagram, f.id, f));
     }));
   },
-  removeFrame: (moduleName, diagramId, frameId) => {
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+  removeFrame: (moduleName, diagramId, frameId, opts?) => {
+    const persist = !!opts?.persist;
+    const ids = (Array.isArray(frameId) ? frameId : [frameId]).filter(
+      (id): id is string => typeof id === 'string' && !!id,
+    );
+    if (!ids.length) {
+      message.error('未指定要删除的分组');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const applyRemove = (modules: any[]): boolean => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
-        return;
+        return false;
       }
       const diagrams = ensureDiagrams(module);
       const id = diagramId || DEFAULT_DIAGRAM_ID;
       const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
-      removeFrameFromDiagram(diagram, frameId);
-    }));
-    message.success('已删除分组');
+      if (!diagram) {
+        return false;
+      }
+      ids.forEach((fid) => removeFrameFromDiagram(diagram, fid));
+      return true;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        if (!applyRemove(state.project.projectJSON?.modules)) {
+          message.error(`模型 "${moduleName}" 不存在`);
+          return;
+        }
+        message.success('已删除分组');
+      }));
+      return;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      applyRemove(draft.projectJSON.modules);
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '分组保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success('已删除分组');
+      return true;
+    })();
   },
   renameFrame: (moduleName, diagramId, frameId, name) => {
     const next = (name || '').trim();
@@ -808,18 +868,71 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       m.associations = [...(m.associations || []), { ...association, relation }];
     }));
   },
-  // 删除关联（画布删边）
-  removeAssociation: (moduleName: string, association: any) => {
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+  // 删除关联（画布删边）；persist:true 时仅 saveProject code===200 写 store + toast
+  removeAssociation: (moduleName: string, association: any | any[], opts?) => {
+    const persist = !!opts?.persist;
+    const list = (Array.isArray(association) ? association : [association]).filter(
+      (a) => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field,
+    );
+    if (!list.length) {
+      message.error('未指定要删除的关系');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const matches = (a: any, target: any) =>
+      a?.from?.entity === target.from?.entity &&
+      a?.from?.field === target.from?.field &&
+      a?.to?.entity === target.to?.entity &&
+      a?.to?.field === target.to?.field;
+
+    const applyRemove = (modules: any[]): boolean => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
-        return;
+        return false;
       }
-      module.associations = (module.associations || []).filter((a: any) => !(
-        a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
-        a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field));
-    }));
+      module.associations = (module.associations || []).filter(
+        (a: any) => !list.some((target) => matches(a, target)),
+      );
+      return true;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        if (!applyRemove(state.project.projectJSON?.modules)) {
+          message.error(`模型 "${moduleName}" 不存在`);
+        }
+      }));
+      return;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      applyRemove(draft.projectJSON.modules);
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '关系保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success(list.length === 1 ? '关系删除成功' : `已删除 ${list.length} 条关系`);
+      return true;
+    })();
   },
   updateAssociationRelation: (moduleName, association, relation) => {
     const next = normalizeRelation(relation);

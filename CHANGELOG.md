@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：画布删边/删分组假成功
+
+- 选题：左树删模型/图假成功已收口（`b7367b2`）；画布 `removeAssociation` / `removeFrame` 仍本地 mutate 即成功（分组 toast / 边无落盘门闩），autosave 失败像已删
+- `removeAssociation` / `removeFrame` 支持 `persist:true`（单/多一次落盘）；仅 `saveProject` code===200 写 store + 成功 toast；确认 `async onOk` 失败 `Promise.reject` 拒关窗可重试（RF Delete / 基数 chip Delete 同构）
+- E2E：`canvas-delete-edge-frame-failure` 首拒仍保留边/框+确认窗、无成功 toast → 重试移出；定位 `erd-edge-label` / `diagram-frame` / dialog role（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 剪贴粘贴假成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-delete-edge-frame-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/canvas-delete-edge-frame-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/diagram-frame.spec.ts --project=chromium --grep "删除分组二次确认" --workers=1 --retries=0`
+
 #### 体验：左树删模型/关系图假成功
 
 - 选题：删表假成功已收口（`a9d0a89`）；左树 `removeModule` / `removeDiagram` 仍本地 mutate 即 toast，autosave 失败像已删
 - `removeModule` / `removeDiagram` 支持 `persist:true`；仅 `saveProject` code===200 写 store + 成功 toast；左树确认 `async onOk` 失败 `Promise.reject` 拒关窗可重试
 - E2E：`tree-delete-module-diagram-failure` 首拒仍保留树/表+确认窗、无成功 toast → 重试移出；定位 role/aria（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 剪贴粘贴假成功，或画布删边·分组 Frame 假成功
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~画布删边·分组 Frame~~✅ / 剪贴粘贴假成功
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/tree-delete-module-diagram-failure.spec.ts --project=chromium --workers=1 --retries=0`
