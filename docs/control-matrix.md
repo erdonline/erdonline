@@ -59,6 +59,7 @@
 | 发起SQL审批 Modal | 打开首焦 / Esc / Tab trap | 首焦「审批人」；Esc 归还触发器（父详情仍开）；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-approval-keyboard` |
 | 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
 | 只读分享 Modal | 打开首焦 / Esc / Tab trap | 首焦「分享链接」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-project-keyboard` |
+| 只读分享吊销确认 | 打开首焦 / Esc / Tab trap | 首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；焦点归还吊销钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-revoke-keyboard` |
 | EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
 | 画布删表确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-table-keyboard` |
 | 画布删边/删分组确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-edge-frame-keyboard` |

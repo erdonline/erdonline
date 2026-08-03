@@ -4,6 +4,7 @@ import {ShareAltOutlined} from '@ant-design/icons';
 import request from '@/utils/request';
 import * as cache from '@/utils/cache';
 import {CONSTANT} from '@/utils/constant';
+import {confirmDestructive} from '@/utils/destructiveConfirm';
 
 type ApiResult<T> = {
   code?: number;
@@ -110,7 +111,7 @@ const ShareProjectButton: React.FC = () => {
       message.warning('当前无有效分享链接');
       return;
     }
-    Modal.confirm({
+    confirmDestructive({
       title: '确认吊销分享？',
       content: '吊销后链接将立即失效，他人将无法再打开。',
       okText: '吊销',

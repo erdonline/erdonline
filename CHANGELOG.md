@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：只读分享吊销确认弹层键盘闭环（Modal.confirm）
+
+- 选题：`ShareProjectButton` 吊销裸 `Modal.confirm`（无显式 keyboard/autoFocus/focusTrigger）；仅有点击吊销旅程 E2E；确认层键盘闭环缺回归
+- 改动：吊销改 `confirmDestructive`（首焦「吊销」+ Esc 归还吊销钮 + Tab trap）；外层只读分享窗与 `/share/revoke` 落盘逻辑不变
+- E2E：`share-revoke-keyboard`（分享→吊销确认 → 首焦、Esc 归还不吊销、外层仍开、Tab trap）；不踩 `share-project-keyboard` / `share-invalid-gate`
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 团队项目删确认（`RemoveGroupProject` Popconfirm→`confirmDestructive`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share-revoke-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share-project-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：工作台 databaseConfig 删/批删确认弹层键盘闭环（Modal.confirm）
 
 - 选题：`/databaseConfig` 行删与批删裸 `Modal.confirm`（okText「确认」、无显式 keyboard/autoFocus/focusTrigger）；仅有点击确认闭环 E2E
 - 改动：两路改 `confirmDestructive`（首焦「删除」+ Esc 归还触发器 + Tab trap）；行删钮 `aria-label`→`删除连接 {name}`；批删/落盘逻辑不变
 - E2E：`database-config-delete-keyboard`（行删 + 批删 → 首焦、Esc 归还不删、Tab trap）；同步 `adr0008` 确认钮文案
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享撤销/停用确认 Modal 键盘（`ShareProjectButton`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~分享撤销/停用确认 Modal 键盘（`ShareProjectButton`）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/database-config-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

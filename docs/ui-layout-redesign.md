@@ -157,6 +157,7 @@
 - ✅ **左树删模型/表/关系图确认弹层键盘**（2026-08-03）：共享 `confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`tree-delete-keyboard.spec` 绿
 - ✅ **数据源设置删确认弹层键盘**（2026-08-03）：`Popconfirm`→`confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`database-setup-delete-keyboard.spec` 绿
 - ✅ **工作台 databaseConfig 删/批删确认弹层键盘**（2026-08-03）：`confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`database-config-delete-keyboard.spec` 绿
+- ✅ **只读分享吊销确认弹层键盘**（2026-08-03）：`confirmDestructive`；首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；Tab trap；`share-revoke-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
