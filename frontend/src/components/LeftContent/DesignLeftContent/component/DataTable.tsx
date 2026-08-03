@@ -259,19 +259,39 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     // 移除这里的 message.success,因为我们在 slice 中已经处理了消息
   };
 
+  const folderAddIconStyle: React.CSSProperties = {
+    padding: '0 4px',
+    fontSize: 12,
+    color: erdColors.brand,
+    cursor: 'pointer',
+  };
+
   const renderActions = (node: any) => {
     if (node.type === 'folder' && node.title === '表') {
       return (
         <PlusOutlined
-          style={{
-            padding: '0 4px',
-            fontSize: 12,
-            color: erdColors.brand,
-            cursor: 'pointer'
-          }}
+          role="button"
+          tabIndex={0}
+          aria-label="新建表"
+          style={folderAddIconStyle}
           onClick={(e) => {
             e.stopPropagation();
             showModal('entity', { module: node.module });
+          }}
+        />
+      );
+    }
+    if (node.type === 'folder' && node.title === '关系') {
+      return (
+        <PlusOutlined
+          role="button"
+          tabIndex={0}
+          aria-label="新建关系图"
+          data-testid="tree-folder-add-relation"
+          style={folderAddIconStyle}
+          onClick={(e) => {
+            e.stopPropagation();
+            showModal('relation', { module: node.module });
           }}
         />
       );

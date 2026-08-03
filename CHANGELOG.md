@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：左树「关系」文件夹 + 直建图（建模回路）
+
+- 选题：「表」文件夹有旁路 `+` 建表；「关系」文件夹缺对称 CTA，只能绕树头「新建」
+- 「关系」旁 `+`（`aria-label=新建关系图` / `tree-folder-add-relation`）→ EntityModal → `createDiagram`；「表」旁 `+` 补 `aria-label=新建表`
+- E2E：`multi-diagram`「左树「关系」文件夹 + 直建图」：tree scoped `getByRole('button', { name: '新建关系图' })`
+- `docs/design-principles.md` §4；roadmap 下一刀 →「编辑表」只改名
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "关系」文件夹" --workers=1 --retries=0`
+
 #### 体验：左树新建关系图路径 E2E（建模回路）
 
 - 选题：顶栏/画布「新建关系图」已覆盖；树头「新建 → 新建关系图」→ EntityModal → `createDiagram` 缺聚焦回归
