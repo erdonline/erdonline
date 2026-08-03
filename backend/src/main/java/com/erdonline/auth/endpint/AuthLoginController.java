@@ -34,6 +34,10 @@ public class AuthLoginController {
     /** e2e0..e2e15 与 e2e-serial 种子账号 */
     private static final Pattern E2E_ACCOUNT = Pattern.compile("^e2e(\\d+|-serial)$");
 
+    /** Flyway V3/V6 种子默认口令；与 bcrypt `$2a$10$vAxx…` 对应明文 */
+    static final String SEED_DEFAULT_PASSWORD = "123456";
+    private static final String DEMO_ADMIN_USERNAME = "admin";
+
     private final AuthenticationManager authenticationManager;
     private final JwtTokenService jwtTokenService;
     private final ErdSecurityProperties erdSecurityProperties;
@@ -43,14 +47,22 @@ public class AuthLoginController {
         if (req == null || !StringUtils.hasText(req.getUsername()) || !StringUtils.hasText(req.getPassword())) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(R.failed(ApiErrorCode.ERROR_USERNAME_OR_PASSWORD));
         }
+        String username = req.getUsername().trim();
         // 生产默认禁止 e2e* 种子账号登录，避免弱口令暴露
-        if (!erdSecurityProperties.isE2eAccountsEnabled() && E2E_ACCOUNT.matcher(req.getUsername().trim()).matches()) {
-            log.warn("rejected e2e seed account login (erd.security.e2e-accounts-enabled=false): {}", req.getUsername());
+        if (!erdSecurityProperties.isE2eAccountsEnabled() && E2E_ACCOUNT.matcher(username).matches()) {
+            log.warn("rejected e2e seed account login (erd.security.e2e-accounts-enabled=false): {}", username);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(R.failed(ApiErrorCode.ERROR_USERNAME_OR_PASSWORD));
+        }
+        // R-CFG-02：生产拒绝 admin + 种子默认口令（改密后不受影响）
+        if (!erdSecurityProperties.isAllowDemoAdmin()
+                && DEMO_ADMIN_USERNAME.equalsIgnoreCase(username)
+                && SEED_DEFAULT_PASSWORD.equals(req.getPassword())) {
+            log.warn("rejected admin login with seed default password (erd.security.allow-demo-admin=false)");
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(R.failed(ApiErrorCode.ERROR_USERNAME_OR_PASSWORD));
         }
         try {
             Authentication auth = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(req.getUsername(), req.getPassword()));
+                    new UsernamePasswordAuthenticationToken(username, req.getPassword()));
             MartinUser user = (MartinUser) auth.getPrincipal();
             Map<String, Object> body = jwtTokenService.issue(user);
             return ResponseEntity.ok(body);

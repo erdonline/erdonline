@@ -161,6 +161,8 @@ erd:
     issuer: erd-online
   security:
     e2e-accounts-enabled: ${ERD_E2E_ACCOUNTS_ENABLED:false}
+    # 种子 admin/123456：dev profile 覆盖为 true；prod 强制 false
+    allow-demo-admin: ${ERD_ALLOW_DEMO_ADMIN:false}
 
 # 安全放行 URL
 security:
