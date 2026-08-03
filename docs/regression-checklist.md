@@ -34,6 +34,7 @@
 - [x] [JExcel 工具栏删除二次确认] 字段签选中行→「删除选中行」→ 取消保留；确认后网格与画布无该字段 ✅`relation.spec.ts`「JExcel 工具栏删除二次确认」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
 - [x] 画布「元数据」→ 表设计元数据应用签（无死 affordance；再入仍落元数据应用）✅`relation.spec.ts`「画布打开元数据应用签」
+- [x] [元数据应用修改/删除字段签对齐] 版本基线后改类型→「修改字段」含 MODIFY 不含 DROP；「删除字段」空（无 MODIFY/DROP） ✅`relation.spec.ts`「元数据应用：修改/删除字段签标签对齐模板」
 
 ### 手工
 

@@ -26,7 +26,7 @@ const DbTab: React.FC<DbTabProps> = (props) => {
         <TabPane key="deleteTableTemplate" tab="删除表">
           <TableCodeShow dbCode={dbCode} templateCode="deleteTableTemplate" moduleEntity={moduleEntity}/>
         </TabPane>
-        <TabPane key="createIndexTemplate" tab="创建索引" closable>
+        <TabPane key="createIndexTemplate" tab="创建索引">
           <TableCodeShow dbCode={dbCode} templateCode="createIndexTemplate" moduleEntity={moduleEntity}/>
         </TabPane>
         <TabPane key="rebuildTableTemplate" tab={"重建表"}>
@@ -35,11 +35,11 @@ const DbTab: React.FC<DbTabProps> = (props) => {
         <TabPane key="createFieldTemplate" tab="添加字段">
           <TableCodeShow dbCode={dbCode} templateCode="createFieldTemplate" moduleEntity={moduleEntity}/>
         </TabPane>
-        <TabPane key="deleteFieldTemplate" tab="修改字段">
-          <TableCodeShow dbCode={dbCode} templateCode="deleteFieldTemplate" moduleEntity={moduleEntity}/>
-        </TabPane>
-        <TabPane key="updateFieldTemplate" tab="删除字段">
+        <TabPane key="updateFieldTemplate" tab="修改字段">
           <TableCodeShow dbCode={dbCode} templateCode="updateFieldTemplate" moduleEntity={moduleEntity}/>
+        </TabPane>
+        <TabPane key="deleteFieldTemplate" tab="删除字段">
+          <TableCodeShow dbCode={dbCode} templateCode="deleteFieldTemplate" moduleEntity={moduleEntity}/>
         </TabPane>
         <TabPane key="deleteIndexTemplate" tab="删除索引">
           <TableCodeShow dbCode={dbCode} templateCode="deleteIndexTemplate" moduleEntity={moduleEntity}/>

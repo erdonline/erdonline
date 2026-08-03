@@ -9,6 +9,9 @@ import {
   openRelationCanvas,
   openRelationFromEmpty,
   rfNode,
+  saveVersion,
+  openVersionPage,
+  gotoDesignModel,
   selectRelationEdge,
   uniqueProjectName,
 } from './helpers';
@@ -1533,6 +1536,65 @@ test.describe('关系图画布（ReactFlow）', () => {
         page.getByTestId('table-design').getByRole('tab', { name: '元数据应用' }),
       ).toHaveAttribute('aria-selected', 'true');
       await expect(page.getByTestId('table-code-edit')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('元数据应用：修改/删除字段签标签对齐模板（非错标 DROP/MODIFY）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('metaddl');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'metaddl', 'meta ddl tab labels');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await openVersionPage(page);
+      await saveVersion(page);
+      await gotoDesignModel(page);
+      await openRelationCanvas(page, '商城');
+      const nodeAfter = rfNode(page, 'T_TABLE_1');
+      await expect(nodeAfter).toBeVisible({ timeout: 15_000 });
+
+      // 基线后改类型 → 差异为 update（MODIFY），不得挂在「删除字段」
+      const nameRow = nodeAfter.locator('[data-field="NAME"]');
+      await nameRow.hover();
+      await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
+      await expect(nodeAfter.getByRole('textbox', { name: '字段名' })).toHaveValue('NAME');
+      await nodeAfter.getByRole('combobox', { name: '字段类型' }).selectOption('Integer');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      if (await nodeAfter.locator('.erd-field-editing').count()) {
+        await nodeAfter.getByRole('textbox', { name: '字段名' }).press('Enter');
+        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      }
+
+      await nodeAfter.getByTestId('canvas-open-code').evaluate((el: HTMLElement) => el.click());
+      const codePane = page.getByTestId('table-code-edit');
+      await expect(codePane).toBeVisible({ timeout: 10_000 });
+
+      await codePane.getByRole('tab', { name: '修改字段' }).click();
+      await expect(
+        codePane.getByTestId('meta-ddl-sql-updateFieldTemplate'),
+      ).toContainText(/MODIFY/i, { timeout: 15_000 });
+      await expect(
+        codePane.getByTestId('meta-ddl-sql-updateFieldTemplate'),
+      ).not.toContainText(/DROP/i);
+
+      // 仅类型更新时「删除字段」不得冒出 MODIFY（回归错标）
+      await codePane.getByRole('tab', { name: '删除字段' }).click();
+      await expect(codePane.getByTestId('meta-ddl-sql-deleteFieldTemplate')).toHaveText(
+        /^\s*$/,
+      );
+      await expect(
+        codePane.getByTestId('meta-ddl-sql-deleteFieldTemplate'),
+      ).not.toContainText(/MODIFY|DROP/i);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
