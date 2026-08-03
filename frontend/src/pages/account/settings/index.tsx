@@ -112,6 +112,7 @@ const Settings: React.FC = () => {
         <Menu
           mode={initConfig.mode}
           selectedKeys={[initConfig.selectKey]}
+          aria-label="设置分类"
           onClick={({key}) => {
             selectTab(key as SettingsStateKeys);
           }}
@@ -119,8 +120,17 @@ const Settings: React.FC = () => {
           {getMenu()}
         </Menu>
       </div>
-      <div className={styles.right}>
-        <div className={`${styles.title} account-settings-page__title`}>
+      <div
+        className={styles.right}
+        id="account-settings-form"
+        tabIndex={-1}
+        data-testid="account-settings-form"
+      >
+        <div
+          className={`${styles.title} account-settings-page__title`}
+          role="heading"
+          aria-level={1}
+        >
           {menuMap[initConfig.selectKey]}
         </div>
         {renderChildren()}
