@@ -27,7 +27,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Oracle 逆向：schema=用户；索引走 ALL_INDEXES；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS；
+ * Oracle 逆向：schema=用户；索引走 ALL_INDEXES（函数索引经 ALL_IND_EXPRESSIONS →
+ * {@code indexs[].fields[]}）；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS；
  * 注释走 ALL_TAB_COMMENTS / ALL_COL_COMMENTS（ojdbc REMARKS 依赖 remarksReporting，字典更稳）；
  * 触发器走 ALL_TRIGGERS + ALL_SOURCE（多事件拆行）。
  *
@@ -44,9 +45,31 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
                     + "ORDER BY username";
 
     /**
-     * 列顺序对齐 IndexResultSetMapper.mapFromStatistics：INDEX_NAME / COLUMN_NAME / NON_UNIQUE。
+     * 函数索引：ALL_IND_COLUMNS.COLUMN_NAME 常为 SYS_NC$；LEFT JOIN ALL_IND_EXPRESSIONS
+     * 把 COLUMN_EXPRESSION（LONG）映射为 EXPRESSION，由 mapper 优先写入 fields[]。
      */
     private static final String SQL_INDEXES =
+            "SELECT e.column_expression AS expression, "
+                    + "i.index_name AS index_name, c.column_name AS column_name, "
+                    + "CASE WHEN i.uniqueness = 'UNIQUE' THEN 0 ELSE 1 END AS non_unique, "
+                    + "c.column_position AS seq_in_index "
+                    + "FROM all_indexes i "
+                    + "JOIN all_ind_columns c ON i.owner = c.index_owner "
+                    + "AND i.index_name = c.index_name AND i.table_name = c.table_name "
+                    + "LEFT JOIN all_ind_expressions e ON e.index_owner = c.index_owner "
+                    + "AND e.index_name = c.index_name "
+                    + "AND e.column_position = c.column_position "
+                    + "WHERE i.table_owner = ? AND i.table_name = ? "
+                    + "AND i.index_type != 'LOB' "
+                    + "AND NOT EXISTS ( "
+                    + "  SELECT 1 FROM all_constraints ac "
+                    + "  WHERE ac.owner = i.owner AND ac.index_name = i.index_name "
+                    + "  AND ac.constraint_type = 'P' "
+                    + ") "
+                    + "ORDER BY i.index_name, c.column_position";
+
+    /** 无 ALL_IND_EXPRESSIONS 权限 / 旧库：列名-only，SYS_NC$ 键位继续软丢语义。 */
+    private static final String SQL_INDEXES_LEGACY =
             "SELECT i.index_name AS index_name, c.column_name AS column_name, "
                     + "CASE WHEN i.uniqueness = 'UNIQUE' THEN 0 ELSE 1 END AS non_unique, "
                     + "c.column_position AS seq_in_index "
@@ -230,7 +253,18 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
             throws SQLException {
         String owner = resolveOwner(connection, table);
         String tableName = table.getOriginTableName().toUpperCase(Locale.ROOT);
-        try (PreparedStatement statement = connection.prepareStatement(SQL_INDEXES)) {
+        try {
+            return queryIndexes(connection, SQL_INDEXES, owner, tableName, nameCaseFlag);
+        } catch (SQLException ex) {
+            log.warn("Oracle 函数索引字典不可用 {}，回退列名索引: {}",
+                    table.getOriginTableName(), ex.getMessage());
+            return queryIndexes(connection, SQL_INDEXES_LEGACY, owner, tableName, nameCaseFlag);
+        }
+    }
+
+    private static List<Index> queryIndexes(Connection connection, String sql, String owner,
+                                            String tableName, String nameCaseFlag) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, owner);
             statement.setString(2, tableName);
             try (ResultSet rs = statement.executeQuery()) {

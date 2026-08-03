@@ -164,8 +164,10 @@
 **逆向**：
 - PostgreSQL：`pg_catalog` + `unnest(indkey)`；`indkey=0` 时用 `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样
 - MySQL 8+：`INFORMATION_SCHEMA.STATISTICS`，`COLUMN_NAME` 空时读 `EXPRESSION`；无该列（MariaDB / 旧版）回退列名-only，失败键位软跳过
+- Oracle：`ALL_IND_COLUMNS` + `ALL_IND_EXPRESSIONS`；有 `COLUMN_EXPRESSION` 时优先写入（覆盖 `SYS_NC$`）；无视图权限回退列名-only
+- SQL Server：无原生表达式索引；计算列键位经 `sys.computed_columns.definition` 写入（列名作回退）；过滤索引 `filter_definition` 不进 `fields[]`
 - Generic JDBC `getIndexInfo`：仍多为列名；`COLUMN_NAME` 空则软跳过该键位
-- 表达式不做大小写折叠（`NameCaseAdjuster` 仅作用于纯 ident）
+- 字典 mapper：`EXPRESSION` 优先于 `COLUMN_NAME`；表达式不做大小写折叠（`NameCaseAdjuster` 仅作用于纯 ident）
 ### Trigger（`triggers[]`，可选）
 
 ```json
