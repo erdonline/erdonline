@@ -5,10 +5,10 @@ services:
     restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
-      # 单一业务库 + 应用账号（空卷首启由镜像创建；schema 见 db/init 挂载）
-      MYSQL_DATABASE: ${DB_NAME:-erd}
-      MYSQL_USER: ${DB_USERNAME:-erd}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-erd}
+      # 镜像官方变量（下划线）；值与 Railway/App 侧 MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD 对齐
+      MYSQL_DATABASE: ${MYSQLDATABASE:-erd}
+      MYSQL_USER: ${MYSQLUSER:-erd}
+      MYSQL_PASSWORD: ${MYSQLPASSWORD:-erd}
       TZ: Asia/Shanghai
     command:
       - --character-set-server=utf8mb4
@@ -53,13 +53,16 @@ services:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
-      DB_HOST: mysql
-      DB_PORT: 3306
-      DB_NAME: ${DB_NAME:-erd}
-      DB_USERNAME: ${DB_USERNAME:-erd}
-      DB_PASSWORD: ${DB_PASSWORD:-erd}
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
+      MYSQLHOST: mysql
+      MYSQLPORT: 3306
+      MYSQLDATABASE: ${MYSQLDATABASE:-erd}
+      MYSQLUSER: ${MYSQLUSER:-erd}
+      MYSQLPASSWORD: ${MYSQLPASSWORD:-erd}
+      REDISHOST: redis
+      REDISPORT: 6379
+      # prod 要求 REDISPASSWORD 占位符存在；无密码 Redis 用空串（Normalizer→null）
+      REDISPASSWORD: ${REDISPASSWORD:-}
+      REDISUSER: ${REDISUSER:-}
     ports:
       - "${BACKEND_PORT:-9502}:9502"
       - "9092:9092"

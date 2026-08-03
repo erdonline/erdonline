@@ -212,4 +212,4 @@ if [[ "$count" != "1" ]]; then
 fi
 echo "OK erd.sys_user table exists"
 echo "OK schema init complete. Redeploy App so Flyway applies V3+ seeds (see docs/deployment.md / ADR-0020)."
-echo "    Set DB_NAME=erd (or rely on default); DB_HOST←MYSQLHOST; same user/password for both JDBC pools."
+echo "    App reads MYSQLHOST/MYSQLPORT/MYSQLDATABASE/MYSQLUSER/MYSQLPASSWORD (set MYSQLDATABASE=erd or init into plugin DB)."

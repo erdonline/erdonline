@@ -19,11 +19,37 @@
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests compile`
 - `./backend/dev-ensure.sh --restart`；默认 profile 下 `curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/v3/api-docs` → 200（本地仍开）
 
+#### 体验：画布节点级 Tab（RF wrapper / 边 chip / Frame）
+
+- 选题：RF 默认每个节点/边 wrapper `tabindex=0` + 边基数 chip 无条件进序 → 密图 Tab trap；Frame 重命名仅双击
+- `ReactFlow` / 分享壳：`nodesFocusable={false}` `edgesFocusable={false}`；自研控件按选中门控
+- 边 chip：仅选中边或邻接表时 `tabIndex=0`，否则 `-1`；Frame 标题 `role=button` + 选中进序 + Enter/Space 重命名；速查卡同步
+- E2E：`relation`「画布节点级 Tab：无选中无节点停靠；选中边 chip / Frame 可入」；复跑 chrome / 字段环
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 分享壳键盘或首焦 Skip 收尾打磨
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布节点级 Tab" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布 chrome Tab 序|字段浏览器 Tab 环" --workers=1 --retries=0`
+
+#### 配置：Spring 数据源/Redis 对齐 Railway 插件原生名（MYSQL* / REDIS*）
+
+- 选题：Railway MySQL/Redis 插件注入 `MYSQLHOST`/`REDISHOST` 等，而非 `DB_*` / `SPRING_DATA_REDIS_URL`；`92aabea` 收拢到 `DB_*` 与插件不合
+- 改动：JDBC 仅认 `MYSQLHOST`/`MYSQLPORT`/`MYSQLDATABASE`/`MYSQLUSER`/`MYSQLPASSWORD`；Redis 仅认 `REDISHOST`/`REDISPORT`/`REDISUSER`/`REDISPASSWORD`；每项单一占位符、零嵌套回退
+- 空 Redis 密码：`RedisBlankCredentialNormalizer` 将空白 user/password 置 null，避免 Redisson `AUTH ""`
+- 文档 / compose / `.env.example` / CI / ADR-0020 同步；不读 `MYSQL_URL`/`REDIS_URL` 作主接线
+
+验证点：
+- `rg -n '\\$\\{[^}]*\\$\\{' backend/src/main/resources/` = 0
+- `rg -n 'DB_HOST|DB_USERNAME|SPRING_DATA_REDIS_URL' backend/src/main/resources/` = 0
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=RedisDataPropertiesBindingTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
+
 #### 配置：Spring 数据源占位符收拢为单一 DB_*（Railway 对齐）
 
 - 选题：`application.yml` / `application-prod.yml` 多层 `${A:${B:${C}}}` 与 Railway「可选配置」文档不一致，贡献者易追死别名
 - 改动：JDBC 仅认 `DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USERNAME` / `DB_PASSWORD`（两池共用）；去掉 `MYSQL*` / `DB_USER` / `DB_ERD*` / `DB_MARTIN` 嵌套回退
 - 文档：`docs/deployment.md`、ADR-0020、`.env.example` 同步；compose 仍 `MYSQL_*`←`DB_*` 注入进 MySQL 容器，backend 服务注入 `DB_*`
+- **已由上条 MYSQL*/REDIS* 切片取代**（勿再按本条配置 Dashboard）
 
 验证点：
 - `rg -n '\\$\\{[^}]*\\$\\{' backend/src/main/resources/` = 0
@@ -35,7 +61,7 @@
 - `DataTable` 地标：↓/↑/Enter 切入 `QueryTree.focusKeyboard`（antd rc-tree 键盘面）；`data-tree-kb-active` + brand 环；Enter 复用既有 `handleSelect`（`focusTable` / 开关系）
 - 速查卡登记；Skip→Tab 进搜索不变（无 trap）
 - E2E：`relation`「左树键盘漫游：Skip↓入树；Enter 定位表/开关系；focus-visible；无 trap」
-- `docs/design-principles.md` §2 / regression-checklist；下一刀 → 节点级 Tab 再收口（或分享壳键盘）
+- `docs/design-principles.md` §2 / regression-checklist；下一刀 → ~~节点级 Tab 再收口（或分享壳键盘）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "左树键盘漫游" --workers=1 --retries=0`

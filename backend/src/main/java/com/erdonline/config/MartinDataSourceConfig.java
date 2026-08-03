@@ -18,7 +18,7 @@ import javax.sql.DataSource;
  * 系统库表数据源配置 —— 主数据源（SqlSessionFactory 名 martin* 为历史命名）。
  *
  * <p>ADR-0020：物理上与建模表同属单一业务库 {@code erd}；本配置仍负责
- * {@code com.erdonline.system.mapper}。两套 DS 指向同一 {@code DB_NAME}，
+ * {@code com.erdonline.system.mapper}。两套 DS 指向同一 {@code MYSQLDATABASE}，
  * 按 mapper 包路由避免历史包结构大爆炸。</p>
  *
  * @see ErdDataSourceConfig

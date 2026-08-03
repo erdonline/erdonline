@@ -23,15 +23,15 @@ spring:
   mvc:
     pathmatch:
       matching-strategy: ant_path_matcher
-  # 单一业务库 `erd`（ADR-0020）。仍保留两套 Hikari/SqlSessionFactory（按 mapper 包路由），
-  # 但 JDBC 指向同一 DB_NAME。唯一环境变量族：DB_HOST / DB_PORT / DB_NAME / DB_USERNAME / DB_PASSWORD。
-  # Railway：App 侧 Variable Reference 插件 MYSQL* → 上述 DB_*（见 docs/deployment.md）。
-  # 勿把插件 MYSQLDATABASE（常为 railway）当业务库；勿依赖 SPRING_DATASOURCE_URL / MYSQL_URL。
+  # 单一业务库（ADR-0020）。两套 Hikari/SqlSessionFactory 同库；占位符均为 Railway 插件原生名单变量，无嵌套回退。
+  # MySQL：MYSQLHOST / MYSQLPORT / MYSQLDATABASE / MYSQLUSER / MYSQLPASSWORD（勿用 MYSQL_URL / SPRING_DATASOURCE_URL）。
+  # Redis：REDISHOST / REDISPORT / REDISUSER / REDISPASSWORD（勿用 REDIS_URL；空密码由 RedisBlankCredentialNormalizer 置 null）。
+  # 见 docs/deployment.md。
   datasource:
     martin:
-      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_USERNAME:erd}
-      password: ${DB_PASSWORD:erd}
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${MYSQLUSER:erd}
+      password: ${MYSQLPASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -43,9 +43,9 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
     erd:
-      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_USERNAME:erd}
-      password: ${DB_PASSWORD:erd}
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${MYSQLUSER:erd}
+      password: ${MYSQLPASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -57,13 +57,13 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
   # Boot 3 / Redisson 只认 spring.data.redis.*（spring.redis.* 已 error 级废弃）
-  # 本地/compose：host/port（无密码）。Railway：设环境变量 SPRING_DATA_REDIS_URL（Boot 松散绑定 → url，覆盖 host/port/user/password）
-  # 勿在 yml 写 url/password 的 ${VAR:} 空默认（空串 ≠ unset → WRONGPASS / 坏本地无密码 Redis）
   data:
     redis:
-      host: ${REDIS_HOST:localhost}
-      port: ${REDIS_PORT:6379}
+      host: ${REDISHOST:localhost}
+      port: ${REDISPORT:6379}
       database: ${REDIS_DB:0}
+      username: ${REDISUSER:}
+      password: ${REDISPASSWORD:}
   servlet:
     multipart:
       max-file-size: 10MB

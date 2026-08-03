@@ -24,7 +24,7 @@ alwaysApply: true
 ## 单一业务库
 
 - Boot 默认 Flyway **关闭**（`spring.flyway.enabled=false`）
-- 仅 `ErdFlywayConfig` 绑定 `erdDataSource`（与系统 DS 同 `DB_NAME`）
+- 仅 `ErdFlywayConfig` 绑定 `erdDataSource`（与系统 DS 同 `MYSQLDATABASE`）
 - 过渡期仍保留两套 SqlSessionFactory（按 mapper 包），见 ADR-0020
 
 ## 正反例
