@@ -29,6 +29,7 @@
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`
 - [x] 画布「索引」→ 表设计索引签（无死 affordance；再入仍落索引）✅`relation.spec.ts`「画布打开索引签」
 - [x] [索引签空态 CTA] 画布→索引见「还没有索引」+「添加第一个索引」→ toast「索引更新成功」+ 表头「索引名*」+ `T_TABLE_1_IDX1`；空态消失 ✅`relation.spec.ts`「索引签空态 CTA」
+- [x] [索引签再加一行 CTA] 首条后见「+ 再添加一条索引」→ toast + `T_TABLE_1_IDX2`；`index-add-row` 仍可见 ✅`relation.spec.ts`「索引签再加一行 CTA」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
 - [x] 画布「元数据」→ 表设计元数据应用签（无死 affordance；再入仍落元数据应用）✅`relation.spec.ts`「画布打开元数据应用签」
 

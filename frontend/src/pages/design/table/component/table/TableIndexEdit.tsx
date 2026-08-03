@@ -5,11 +5,26 @@ import useProjectStore from "@/store/project/useProjectStore";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import _ from "lodash";
 import JExcel from "@/pages/JExcel";
-import { Button, Empty } from 'antd';
+import { Button, Empty, message } from 'antd';
 
 export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
 };
+
+type IndexRow = { name?: string; fields?: string | string[]; isUnique?: boolean };
+
+const indexNameBase = (entity: { title?: string; name?: string }) =>
+  String(entity.title || entity.name || 'T').replace(/\W+/g, '_');
+
+const nextIndexName = (base: string, existing: IndexRow[]) => {
+  const names = new Set(existing.map((i) => i.name).filter(Boolean));
+  let n = existing.length + 1;
+  while (names.has(`${base}_IDX${n}`)) n += 1;
+  return `${base}_IDX${n}`;
+};
+
+const firstFieldName = (entity: { fields?: { name?: string }[] }) =>
+  entity.fields?.find((f) => f?.name)?.name;
 
 const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   const { module, entity: entityName } = props.moduleEntity;
@@ -19,7 +34,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     currentModule: state.currentModule,
   }));
 
-  const indexs = Array.isArray(entity?.indexs) ? entity.indexs : [];
+  const indexs: IndexRow[] = Array.isArray(entity?.indexs) ? entity.indexs : [];
   const hasIndexes = indexs.length > 0;
   /** 无字段可绑定时仅展开空表，不写库 */
   const [started, setStarted] = useState(false);
@@ -30,7 +45,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
 
   const fields = entity?.fields?.map((f: { name?: string }) => f.name).filter(Boolean) as string[];
 
-  const afterChange = (payload: Array<{ name?: string; fields?: string | string[]; isUnique?: boolean }>) => {
+  const afterChange = (payload: IndexRow[]) => {
     const updatedPayload = payload.map((m) => ({
       ...m,
       fields: m.fields?.constructor === String ? _.split(_.trimStart(m?.fields as string, ";"), ";") : m.fields
@@ -43,22 +58,39 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     }
   }
 
-  const addFirstIndex = () => {
+  const seedIndex = (existing: IndexRow[]) => {
     if (!currentModule || !entity) {
       setStarted(true);
-      return;
+      return false;
     }
-    const fieldName = entity.fields?.find((f: { name?: string }) => f?.name)?.name;
+    const fieldName = firstFieldName(entity);
     if (!fieldName) {
       setStarted(true);
+      return false;
+    }
+    const base = indexNameBase(entity);
+    projectDispatch.updateEntityIndex(currentModule, entity.title || entity.name, [
+      ...existing,
+      {
+        name: nextIndexName(base, existing),
+        fields: [fieldName],
+        isUnique: false,
+      },
+    ]);
+    return true;
+  };
+
+  const addFirstIndex = () => {
+    seedIndex([]);
+  };
+
+  /** 已有索引后表内明确 CTA；勿只靠 JExcel 工具栏「+」图标（无文案死 affordance） */
+  const addAnotherIndex = () => {
+    if (!firstFieldName(entity || {})) {
+      message.warning('请先添加字段再创建索引');
       return;
     }
-    const base = String(entity.title || entity.name || 'T').replace(/\W+/g, '_');
-    projectDispatch.updateEntityIndex(currentModule, entity.title || entity.name, [{
-      name: `${base}_IDX1`,
-      fields: [fieldName],
-      isUnique: false,
-    }]);
+    seedIndex(indexs);
   };
 
   if (!hasIndexes && !started) {
@@ -110,13 +142,29 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   ];
 
   return (
-    <div data-testid="table-index-edit">
+    <div data-testid="table-index-edit" className="erd-table-index-edit">
+      {/* key：条数变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel
+        key={`index-grid-${indexs.length}`}
         data={data}
         columns={columns}
         saveData={afterChange}
         notEmptyColumn={['name', 'fields']}
       />
+      {hasIndexes ? (
+        <div className="erd-table-index-add-row">
+          <Button
+            type="dashed"
+            size="small"
+            block
+            data-testid="index-add-row"
+            aria-label="再添加一条索引"
+            onClick={addAnotherIndex}
+          >
+            + 再添加一条索引
+          </Button>
+        </div>
+      ) : null}
     </div>
   );
 }

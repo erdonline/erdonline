@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：索引签「再加一行」表内 CTA（建模回路）
+
+- 选题：空态「添加第一个索引」✅；已有首条后只能靠 JExcel 工具栏无文案「+」→ 死 affordance
+- 表下 dashed CTA「+ 再添加一条索引」（`index-add-row` / `aria-label`）；种子 `{name: <表>_IDXn, fields: [首字段]}` 追加写回（名冲突自增）；无字段 toast 引导
+- `JExcel` `key=index-grid-${length}`：条数变重挂（组件不吃 props.data）
+- E2E：`relation`「索引签再加一行 CTA：首条后表内引导；无死 affordance」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "索引签再加一行 CTA" --workers=1 --retries=0`
+
 #### 体验：画布打开表设计「元数据应用」签（建模回路）
 
 - 选题：字段/索引已有画布底栏入口；「元数据应用」只能绕左树或粘滞内签 → 死 affordance 感
