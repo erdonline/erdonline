@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：404/403 壳键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：异常门虽共用 `AuthBrandShell`，Skip 文案仍为「跳到表单」；主 CTA 栈无 Skip 锚；`403` 无路由不可达；无键盘 E2E
+- 改动：`skipLabel=跳到主操作` + `skipTargetId=exception-main-cta`（门 CTA 栈 `tabIndex=-1`）；`AuthBrandShell` 支持可配置 Skip 锚；壳内地标 focus-visible；深链 `/403`（layout false）
+- E2E：`not-found`「404 壳键盘」「403 壳键盘」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享失效门键盘（同构 `share-invalid-gate`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/not-found.spec.ts --project=chromium --grep "壳键盘" --workers=1 --retries=0`
+
 #### 体验：落地页键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：`/` 进页 Tab 先扫完整顶栏；无 Skip 直达主 CTA；深色门面焦点环缺；无键盘 E2E
 - 改动：`LandingChrome` 首焦 Skip「跳到主操作」→ `#landing-main-cta`（`tabIndex=-1`）；hero /compare CTA 同锚；壳内 `:focus-visible` surface 环（地标 brand）；自然 DOM 序不动正 `tabIndex`
 - E2E：`landing`「落地页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist / landing.md；下一刀 → 404/403 壳键盘核对
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist / landing.md；下一刀 → ~~404/403 壳键盘核对~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --grep "落地页键盘" --workers=1 --retries=0`

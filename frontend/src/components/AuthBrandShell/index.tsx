@@ -12,8 +12,10 @@ type AuthBrandShellProps = {
   children: React.ReactNode;
   /** 表单下方文字链 */
   footer?: React.ReactNode;
-  /** Skip 链文案；默认「跳到表单」 */
+  /** Skip 链文案；默认「跳到表单」；404/403 门用「跳到主操作」 */
   skipLabel?: string;
+  /** Skip 落地锚点；默认表单区；门面 CTA 栈可指 `exception-main-cta` */
+  skipTargetId?: string;
 };
 
 const focusSkipTarget = (id: string) => {
@@ -33,17 +35,18 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
   children,
   footer,
   skipLabel = '跳到表单',
+  skipTargetId = 'auth-form-anchor',
 }) => {
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
       <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="auth-skip-nav">
         <a
-          href="#auth-form-anchor"
+          href={`#${skipTargetId}`}
           className="erd-skip-link"
           data-testid="auth-skip-form"
           onClick={(e) => {
             e.preventDefault();
-            focusSkipTarget('auth-form-anchor');
+            focusSkipTarget(skipTargetId);
           }}
         >
           {skipLabel}

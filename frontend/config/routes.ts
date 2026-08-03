@@ -48,6 +48,12 @@ export default [
       },
     ],
   },
+  /** 无权访问门面（与 404 同构 AuthBrandShell；深链可达） */
+  {
+    path: '/403',
+    layout: false,
+    component: './403',
+  },
 
   {
     path: '/project',
