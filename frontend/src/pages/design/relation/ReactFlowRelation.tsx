@@ -1466,6 +1466,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
+          keyboard: true,
+          autoFocusButton: 'ok',
+          focusTriggerAfterClose: true,
           onOk() {
             titles.forEach((t) => projectDispatch.removeEntity(moduleName, t));
           },
