@@ -230,6 +230,8 @@
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
 | RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |
 | RF MiniMap | panel chrome 碎距 | 128×96 概览；margin ≈8∈[8,12]；sunk 底；禁 RF margin15；Controls 按钮/版本工具条不动 | ADR-0016 密度 | ✅ | `relation`「MiniMap」+ `demo` |
+| RF Controls / 工具栏 Panel | panel chrome 碎距 | margin ≈8∈[8,12]（禁 RF 默认 15）；钮≤22；对齐 MiniMap；版本工具条/边标签不动 | ADR-0016 密度 | ✅ | `relation`「Controls」+ `demo` |
+| 边基数 Select / Entity Form | 控件密度锁 | Select 高≤28；项 mb≤12；输入/OK≤28；禁回退 32/24 | ADR-0016 密度 | ✅ | `relation`「PK/FK」+「实体新建弹层密度」 |
 | RF 节点级 Tab | 选中门控；RF wrapper 出序 | `nodesFocusable/edgesFocusable=false`；选中表/边 chip/Frame 进序 | 键盘建模 | ✅ | `relation`「画布节点级 Tab」 |
 | `/s/:token` 分享壳 | Skip + Controls Tab | 首项 Skip「跳到关系图」→ stage；放大/缩小/适应可达；MiniMap 出序；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享壳键盘」 |
 | TableTab | Cmd/Ctrl+1/2/3 | 表设计：字段 / 索引 / 元数据应用；输入中不拦；仅表设计签挂载 | TableTab activatePane | ✅ | `relation`「表设计 Cmd/Ctrl+1/2/3」 |

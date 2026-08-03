@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：Controls / 工具栏 Panel margin 碎距
+
+- 选题：量测基数 Select **24** / EntityModal 项 mb **12**·控件 **28** 已贴 ADR-0016（锁禁回退）；跳过边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚 → 改压画布 RF panel 余松：Controls + 顶栏工具栏仍 **margin 15**（MiniMap 已 8）
+- before：Controls / 工具栏 Panel **margin 15**；after：**margin 8**（对齐 MiniMap）；按钮 22 / surface 不改
+- E2E：`relation`「Controls」+「PK/FK」+「实体新建弹层密度」锁 Controls/工具栏 margin ∈[8,12] + 基数 Select 高≤28 + 实体项 mb≤12 / 输入≤28；`demo` Controls margin；定位 role/testid（勿扫 `.ant-*` 业务语义）；截图既有 dense png
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Auth logo 48 / 欢迎 pad 再压或空态剪影（勿再压边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚 / Controls·工具栏 margin）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "Controls：中文|表节点视觉：PK/FK|实体新建弹层密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录|/demo" --workers=1 --retries=0`
+
 #### 体验：io-modal / EntityModal 头脚碎距
 
 - 选题：body 已 8×12；量测两族 header **10×14×8** / footer **8×14** 相对 body 偏松；跳过 MiniMap 尺寸 / 边标签 / 版本工具条 / body pad（已密）
 - before：header **10×14×8**、footer **8×14**、close top **10**；after：header/footer **8×12**、close top **8**；标题 13/22 · OK≥28 不动；两族对齐
 - E2E：`relation`「实体新建弹层密度」+ `dbml-import`「导入弹层密度」+ `dbml-export`「导出弹层密度」锁 header padT/B≤8 · padX≤12 + footer padT≤8 · padX≤12 + OK≥28；dialog role + testid/label/combobox；截图既有 dense png
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 基数 Select 高 / Form item margin12（勿再压边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~基数 Select / Form mb~~量测已密 / ~~Controls·工具栏 panel margin~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "实体新建弹层密度" --workers=1 --retries=0`

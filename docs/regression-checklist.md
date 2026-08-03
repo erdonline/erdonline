@@ -195,10 +195,12 @@
 - [x] [Frame 标题扫读] label ≥12/700 vs meta 更小/更轻 + `opacity < 1`；padX≥8；双击重命名仍在；截图 `diagram-frame-title-hierarchy.png` / `demo-frame-title-hierarchy.png` ✅`diagram-frame.spec`「新建分组」+ 重命名 + `demo.spec`
 - [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC` + ≤128×96 紧凑；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
 - [x] [MiniMap chrome margin] panel margin **8**∈[8,12]（禁 RF 默认 15）；尺寸 128×96 保留概览；`getByRole('img', { name: '画布缩略图' })`；Controls/版本工具条/Auth 不弱化 ✅`relation.spec`「MiniMap」+ `demo.spec`
+- [x] [Controls / 工具栏 panel margin] Controls + 顶栏工具栏 margin **8**∈[8,12]（禁 RF 默认 15）；对齐 MiniMap；`getByRole('button', { name: '适应画布' })` / `testid=canvas-toolbar` ✅`relation.spec`「Controls」+ `demo.spec`
+- [x] [基数 Select / Form mb] 编辑态 Select 高≤28；EntityModal 项 mb≤12 / 输入≤28 ✅`relation.spec`「PK/FK」+「实体新建弹层密度」
 - [x] [Controls 面板密度] 按钮 ≤22×22、面板 `surface`（禁 RF `#fefefe`）；截图 `diagram-controls-dense.png` ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [Controls 扫读层次]「适应画布」`.erd-controls-primary` ink900 + muted 底；图标 ≥12；aria 不变 ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [选中光晕统一] 表 / Frame `box-shadow` 环均为 brand a18（`--erd-selection-ring`）；禁 Frame a12 ✅`diagram-frame.spec`「选中表→新建分组」+ `relation.spec`「品牌 token」
-- [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
+- [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；Panel margin 8；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
 - [x] [画布工具栏扫读层次] 单块 chrome；次要 ink600；「自动布局」600/ink900；禁散粒描边 ✅`relation.spec`「工具栏」
 - [x] [空态面板密度] `.erd-empty-cta` pad ∈[8,12]（目标 10×12）/ maxW≤300 / 标题≤14 / CTA hit ∈[26,28] / 剪影≤140；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
 - [x] [空态 panel 顶距] `.erd-empty-panel` mt ≈ min(8vh,64) 且 ∈[32,64]；`testid=canvas-empty-panel`；禁 min(10vh,88)；Auth logo / 欢迎 pad / CTA pad 不动 ✅`relation.spec`「空态构图」

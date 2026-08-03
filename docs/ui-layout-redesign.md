@@ -232,7 +232,8 @@
 - ✅ **MiniMap chrome margin 碎距**（2026-08-03）：量测 128×96 / pad0 / sunk 已密；RF panel margin **15** 松 → **8**；概览尺寸不动；Controls/版本工具条/Auth/欢迎跳过；`relation`+`demo` densify 绿；下一刀 → ~~边标签避让~~量测已密 / ~~导入弹层 body~~✅
 - ✅ **导入弹层 body 碎距**（2026-08-03）：量测边标签 pad[4,2]/gap4/12px 已贴可读下限；`.erd-io-modal` body **12×14**→**8×12**；导出同源；`dbml-import`+`dbml-export` densify 绿；下一刀 → ~~EntityModal body~~✅
 - ✅ **EntityModal body 碎距**（2026-08-03）：`.erd-entity-modal` body **12×14**→**8×12**（对齐 io / 次屏）；`relation` densify 绿；下一刀 → ~~io-modal header·footer~~✅
-- ✅ **io-modal / EntityModal 头脚碎距**（2026-08-03）：两族 header **10×14×8**→**8×12**、footer **8×14**→**8×12**、close top **10**→**8**；标题 13/22 · OK≥28 不动；`relation`+`dbml-import`+`dbml-export` densify 绿；下一刀 → 基数 Select 高 / Form item margin12（勿再压边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚）
+- ✅ **io-modal / EntityModal 头脚碎距**（2026-08-03）：两族 header **10×14×8**→**8×12**、footer **8×14**→**8×12**、close top **10**→**8**；标题 13/22 · OK≥28 不动；`relation`+`dbml-import`+`dbml-export` densify 绿；下一刀 → ~~基数 Select / Form mb~~量测已密 / ~~Controls·工具栏 panel margin~~✅
+- ✅ **Controls / 工具栏 Panel margin 碎距**（2026-08-03）：量测基数 Select **24** / Form mb12·控件28 已密；Controls+顶栏工具栏 RF margin **15**→**8**（对齐 MiniMap）；`relation`+`demo` densify 绿；下一刀 → Auth logo / 欢迎 pad 或空态剪影（勿再压边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚 / Controls·工具栏 margin）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

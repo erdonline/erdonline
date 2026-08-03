@@ -691,8 +691,16 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(labelLook.radius).toBeLessThanOrEqual(3);
 
       // 基数可编辑：点 chip → 选 1:1 → 刷新仍在
+      // ADR-0016：基数 Select 高 ≤28（量测 CSS 24，已贴目标；禁回退 antd 32）
       await edgeLabel.click();
-      await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
+      const cardSel = page.getByTestId('erd-edge-cardinality');
+      await expect(cardSel).toBeVisible({ timeout: 5_000 });
+      const cardH = await cardSel.evaluate((el) => {
+        const sel = el.querySelector('.ant-select-selector') as HTMLElement | null;
+        return sel ? parseFloat(getComputedStyle(sel).height) : NaN;
+      });
+      expect(cardH, `基数 Select 高应 ≤28（目标 24–28），得 ${cardH}`).toBeLessThanOrEqual(28);
+      expect(cardH).toBeGreaterThanOrEqual(22);
       await page.getByRole('option', { name: '1:1' }).click();
       await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1');
       await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
@@ -921,8 +929,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByLabel('zoom out')).toHaveCount(0);
       await expect(page.getByLabel('fit view')).toHaveCount(0);
       await expect(page.getByLabel('toggle interactivity')).toHaveCount(0);
-      // ADR-0016：Controls 密度（22px / pad0）+ surface 底；适应画布为主操作
-      const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
+      // ADR-0016：Controls 密度（22px / pad0）+ surface 底 + panel margin 8；适应画布为主操作
+      // 定位：role=button「放大/缩小/适应画布/切换交互」（勿扫 .ant-*）
+      const ctrl = await page.getByRole('button', { name: '适应画布' }).evaluate((fitBtn) => {
+        const el = fitBtn.closest('.react-flow__controls') as HTMLElement | null;
+        if (!el) return null;
         const cs = getComputedStyle(el);
         const btn = el.querySelector('.react-flow__controls-button');
         const fit = el.querySelector('.erd-controls-primary');
@@ -932,6 +943,8 @@ test.describe('关系图画布（ReactFlow）', () => {
         const svgMax = svg ? parseFloat(getComputedStyle(svg).maxWidth) : NaN;
         return {
           bg: cs.backgroundColor,
+          marginBottom: parseFloat(cs.marginBottom),
+          marginLeft: parseFloat(cs.marginLeft),
           panelPadT: parseFloat(cs.paddingTop),
           panelPadB: parseFloat(cs.paddingBottom),
           panelPadL: parseFloat(cs.paddingLeft),
@@ -945,27 +958,56 @@ test.describe('关系图画布（ReactFlow）', () => {
           svgMax,
         };
       });
-      expect(ctrl.bg, `Controls 底色不得为 RF 白：${ctrl.bg}`).not.toBe(
+      expect(ctrl, '应找到 Controls 面板').toBeTruthy();
+      expect(ctrl!.bg, `Controls 底色不得为 RF 白：${ctrl!.bg}`).not.toBe(
         'rgb(254, 254, 254)',
       );
-      expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
-      expect(ctrl.panelPadT, `Controls 面板 pad 应 0，得 ${ctrl.panelPadT}`).toBe(0);
-      expect(ctrl.panelPadB).toBe(0);
-      expect(ctrl.panelPadL).toBe(0);
-      expect(ctrl.panelPadR).toBe(0);
-      expect(ctrl.btnPadT, `Controls 钮 pad 应 0，得 ${ctrl.btnPadT}`).toBe(0);
-      expect(ctrl.btnPadL).toBe(0);
-      expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
+      expect(ctrl!.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
+      expect(
+        ctrl!.marginBottom,
+        `Controls marginB 应 ≈8∈[8,12]（禁 RF 默认 15），得 ${ctrl!.marginBottom}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(ctrl!.marginBottom).toBeLessThanOrEqual(12);
+      expect(
+        ctrl!.marginLeft,
+        `Controls marginL 应 ≈8∈[8,12]，得 ${ctrl!.marginLeft}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(ctrl!.marginLeft).toBeLessThanOrEqual(12);
+      expect(ctrl!.panelPadT, `Controls 面板 pad 应 0，得 ${ctrl!.panelPadT}`).toBe(0);
+      expect(ctrl!.panelPadB).toBe(0);
+      expect(ctrl!.panelPadL).toBe(0);
+      expect(ctrl!.panelPadR).toBe(0);
+      expect(ctrl!.btnPadT, `Controls 钮 pad 应 0，得 ${ctrl!.btnPadT}`).toBe(0);
+      expect(ctrl!.btnPadL).toBe(0);
+      expect(ctrl!.btnH, `Controls 按钮高应 ≤22，得 ${ctrl!.btnH}`).toBeLessThanOrEqual(
         22,
       );
-      expect(ctrl.btnH).toBeGreaterThanOrEqual(18);
-      expect(ctrl.btnW).toBeLessThanOrEqual(22);
+      expect(ctrl!.btnH).toBeGreaterThanOrEqual(18);
+      expect(ctrl!.btnW).toBeLessThanOrEqual(22);
       // 适应画布：ink900 + muted 底（扫读主操作）
-      expect(ctrl.fitColor).toBe('rgb(11, 28, 44)'); // --erd-ink-900
-      expect(ctrl.fitBg).toBe('rgb(243, 245, 247)'); // --erd-surface-muted
-      expect(ctrl.svgMax, `Controls 图标应 ≥12，得 ${ctrl.svgMax}`).toBeGreaterThanOrEqual(
+      expect(ctrl!.fitColor).toBe('rgb(11, 28, 44)'); // --erd-ink-900
+      expect(ctrl!.fitBg).toBe('rgb(243, 245, 247)'); // --erd-surface-muted
+      expect(ctrl!.svgMax, `Controls 图标应 ≥12，得 ${ctrl!.svgMax}`).toBeGreaterThanOrEqual(
         12,
       );
+      // 同源：顶栏工具栏 Panel margin 8（禁 RF 默认 15）
+      const barPanel = await page.getByTestId('canvas-toolbar').evaluate((bar) => {
+        const panel = bar.closest('.react-flow__panel') as HTMLElement | null;
+        if (!panel) return null;
+        const cs = getComputedStyle(panel);
+        return {
+          marginTop: parseFloat(cs.marginTop),
+          marginRight: parseFloat(cs.marginRight),
+        };
+      });
+      expect(barPanel, '应找到画布工具栏 Panel').toBeTruthy();
+      expect(
+        barPanel!.marginTop,
+        `工具栏 panel marginT 应 ≈8∈[8,12]，得 ${barPanel!.marginTop}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(barPanel!.marginTop).toBeLessThanOrEqual(12);
+      expect(barPanel!.marginRight).toBeGreaterThanOrEqual(8);
+      expect(barPanel!.marginRight).toBeLessThanOrEqual(12);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-controls-dense.png',
         fullPage: false,
@@ -1031,16 +1073,18 @@ test.describe('关系图画布（ReactFlow）', () => {
       await openRelationFromEmpty(page);
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
 
-      await expect(page.getByRole('button', { name: '新建表' })).toBeVisible();
+      const toolbar = page.getByTestId('canvas-toolbar');
+      await expect(toolbar).toBeVisible();
+      // 左树亦有「新建表」aria → 必须挂在画布工具栏下（勿裸 getByRole）
+      await expect(toolbar.getByRole('button', { name: '新建表' })).toBeVisible();
       await expect(page.getByTestId('canvas-create-table')).toBeVisible();
-      await expect(page.getByRole('button', { name: '撤销' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '重做' })).toBeVisible();
-      await expect(page.getByRole('button', { name: '自动布局' })).toBeVisible();
+      await expect(toolbar.getByRole('button', { name: '撤销' })).toBeVisible();
+      await expect(toolbar.getByRole('button', { name: '重做' })).toBeVisible();
+      await expect(toolbar.getByRole('button', { name: '自动布局' })).toBeVisible();
 
       // ADR-0016：单块 chrome + 自动布局主操作层次；禁散粒描边钮
-      const barMetrics = await page
-        .locator('.erd-canvas-toolbar')
-        .evaluate((bar) => {
+      // panel margin 由「Controls」用例锁（同源 8）；本用例锁钮高/层次
+      const barMetrics = await toolbar.evaluate((bar) => {
           const cs = getComputedStyle(bar);
           const primary = bar.querySelector('.erd-canvas-tool--primary');
           const undo = Array.from(bar.querySelectorAll('.erd-canvas-tool')).find(
@@ -3224,9 +3268,12 @@ test.describe('关系图画布（ReactFlow）', () => {
         `footer padX 应 ≤12，得 ${metrics.footerPadX}`,
       ).toBeLessThanOrEqual(12);
       expect(metrics.footerPadX).toBeGreaterThanOrEqual(8);
-      expect(metrics.itemMarginB).toBeLessThanOrEqual(14);
-      expect(metrics.inputH, `输入高应 ≤32，得 ${metrics.inputH}`).toBeLessThanOrEqual(
-        32,
+      expect(metrics.itemMarginB, `表单项 mb 应 ≤12（目标 12），得 ${metrics.itemMarginB}`).toBeLessThanOrEqual(
+        12,
+      );
+      expect(metrics.itemMarginB).toBeGreaterThanOrEqual(8);
+      expect(metrics.inputH, `输入高应 ≤28（目标 28），得 ${metrics.inputH}`).toBeLessThanOrEqual(
+        28,
       );
       expect(metrics.inputH).toBeGreaterThanOrEqual(24);
       expect(metrics.okH, `OK 高应 ≥28，得 ${metrics.okH}`).toBeGreaterThanOrEqual(28);

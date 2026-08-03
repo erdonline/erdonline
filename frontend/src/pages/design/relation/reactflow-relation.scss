@@ -152,12 +152,14 @@
   }
 
   // Controls：与 MiniMap 同角 chrome；禁 RF #fefefe 白柱 + 松 padding
+  // chrome：RF panel 默认 margin 15 相对 ADR-0016 8–12 偏松 → 8（对齐 MiniMap）
   .react-flow__controls {
     background: var(--erd-surface);
     border: 1px solid var(--erd-line);
     border-radius: 6px;
     overflow: hidden;
     box-shadow: 0 1px 2px var(--erd-ink-a06);
+    margin: 8px;
   }
 
   .react-flow__controls-button {
@@ -1010,6 +1012,11 @@
     opacity: 1 !important;
     pointer-events: all !important;
   }
+}
+
+// 画布顶栏 Panel：RF 默认 margin 15 → 8（对齐 MiniMap / Controls）
+.react-flow__panel.erd-canvas-toolbar-panel {
+  margin: 8px;
 }
 
 // 画布顶栏：单块 chrome（与 Controls 同语言）；禁散粒描边钮抢截图扫读

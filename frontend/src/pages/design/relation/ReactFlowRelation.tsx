@@ -2634,7 +2634,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           />
         )}
         <CollabCursors />
-        <Panel position="top-right">
+        <Panel position="top-right" className="erd-canvas-toolbar-panel">
           <div
             className="erd-canvas-toolbar"
             role="toolbar"

@@ -118,8 +118,10 @@ test.describe('在线演示', () => {
     expect(mini.marginBottom).toBeLessThanOrEqual(12);
     expect(mini.marginRight).toBeGreaterThanOrEqual(8);
     expect(mini.marginRight).toBeLessThanOrEqual(12);
-    // Controls：surface + 密按钮；适应画布为主操作
-    const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
+    // Controls：surface + 密按钮 + panel margin 8；适应画布为主操作
+    const ctrl = await page.getByRole('button', { name: '适应画布' }).evaluate((fitBtn) => {
+      const el = fitBtn.closest('.react-flow__controls') as HTMLElement | null;
+      if (!el) return null;
       const cs = getComputedStyle(el);
       const btn = el.querySelector('.react-flow__controls-button');
       const fit = el.querySelector('.erd-controls-primary');
@@ -127,18 +129,28 @@ test.describe('在线演示', () => {
       const fs = fit ? getComputedStyle(fit) : null;
       return {
         bg: cs.backgroundColor,
+        marginBottom: parseFloat(cs.marginBottom),
+        marginLeft: parseFloat(cs.marginLeft),
         btnH: bs ? parseFloat(bs.height) : NaN,
         fitColor: fs?.color ?? '',
         fitBg: fs?.backgroundColor ?? '',
       };
     });
-    expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
-    expect(ctrl.bg).not.toBe('rgb(254, 254, 254)');
-    expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
+    expect(ctrl).toBeTruthy();
+    expect(ctrl!.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
+    expect(ctrl!.bg).not.toBe('rgb(254, 254, 254)');
+    expect(
+      ctrl!.marginBottom,
+      `Controls marginB 应 ≈8∈[8,12]，得 ${ctrl!.marginBottom}`,
+    ).toBeGreaterThanOrEqual(8);
+    expect(ctrl!.marginBottom).toBeLessThanOrEqual(12);
+    expect(ctrl!.marginLeft).toBeGreaterThanOrEqual(8);
+    expect(ctrl!.marginLeft).toBeLessThanOrEqual(12);
+    expect(ctrl!.btnH, `Controls 按钮高应 ≤22，得 ${ctrl!.btnH}`).toBeLessThanOrEqual(
       22,
     );
-    expect(ctrl.fitColor).toBe('rgb(11, 28, 44)'); // ink900
-    expect(ctrl.fitBg).toBe('rgb(243, 245, 247)'); // surface-muted
+    expect(ctrl!.fitColor).toBe('rgb(11, 28, 44)'); // ink900
+    expect(ctrl!.fitBg).toBe('rgb(243, 245, 247)'); // surface-muted
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-frame-theme-tokens.png',
     });
