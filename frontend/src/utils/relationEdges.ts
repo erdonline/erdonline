@@ -242,7 +242,26 @@ export type RelationAssociation = {
   relation?: string;
   from?: { entity?: string; field?: string };
   to?: { entity?: string; field?: string };
+  /** FK 约束名（逆向；复合多边同名，ADR-0011 不聚合 fields[]） */
+  constraintName?: string;
+  /** CASCADE / SET NULL / SET DEFAULT / RESTRICT / NO ACTION */
+  deleteRule?: string;
+  updateRule?: string;
 };
+
+/** 边 label / aria：约束名 + ON DELETE/UPDATE（无元数据时空串） */
+export function formatAssociationFkMeta(a: {
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
+} | null | undefined): string {
+  if (!a) return '';
+  const parts: string[] = [];
+  if (a.constraintName) parts.push(a.constraintName);
+  if (a.deleteRule) parts.push(`ON DELETE ${a.deleteRule}`);
+  if (a.updateRule) parts.push(`ON UPDATE ${a.updateRule}`);
+  return parts.join('，');
+}
 
 export type ErdEdgeData = {
   /** 居中 lane：pair 分流 + hub 扇出；驱动肘距与轻微垂直分流 */
@@ -261,6 +280,10 @@ export type ErdEdgeData = {
   assocFrom?: { entity: string; field: string };
   assocTo?: { entity: string; field: string };
   moduleName?: string;
+  /** 逆向 FK 元数据（展示用；不写回必填） */
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
 };
 
 export type EdgeLayoutHint = {
@@ -461,6 +484,9 @@ export function associationsToEdges(
       portMode: ports.mode,
       assocFrom: { entity: source, field: a.from!.field! },
       assocTo: { entity: target, field: a.to!.field! },
+      constraintName: a.constraintName,
+      deleteRule: a.deleteRule,
+      updateRule: a.updateRule,
     };
 
     return {

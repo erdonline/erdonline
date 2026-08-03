@@ -131,11 +131,25 @@
 {
   "relation": "1:n",
   "from": { "entity": "T_ORDER", "field": "USER_ID" },
-  "to": { "entity": "T_USER", "field": "ID" }
+  "to": { "entity": "T_USER", "field": "ID" },
+  "constraintName": "fk_order_user",
+  "deleteRule": "CASCADE",
+  "updateRule": "NO ACTION"
 }
 ```
 
 `relation` 为基数字符串：`1:1` · `1:n` · `n:1` · `n:n`（from→to 方向；画布拖 FK→PK 默认 `n:1`；历史 `0,n:1` 展示时归一为 `n:1`）。`from` / `to` 的 `entity` 为实体 `title`，`field` 为字段 `name`。设计器可点边标签 chip 改基数并写回本字段；画布两端 Crow's foot（IE）由本字段驱动，不另存标记字段。
+
+可选加法字段（逆向保真，缺省 = 未采集）：
+
+| 字段 | 说明 |
+|---|---|
+| `constraintName` | 库中 FK 约束名。复合 FK 按列拆成多条 association（ADR-0011），共享同名 |
+| `deleteRule` / `updateRule` | `CASCADE` · `SET NULL` · `SET DEFAULT` · `RESTRICT` · `NO ACTION`（Oracle 通常无 update） |
+
+- **逆向**：JDBC `getImportedKeys`（`FK_NAME` / `DELETE_RULE` / `UPDATE_RULE`）；字典层 MySQL `REFERENTIAL_CONSTRAINTS`、PG `referential_constraints`、SQL Server `sys.foreign_keys.*_referential_action_desc`、Oracle `ALL_CONSTRAINTS.DELETE_RULE`
+- **画布**：边 chip `title` / `aria-label` 附带约束名与 ON DELETE/UPDATE（`erd-edge-fk-meta`）；不改边粒度
+- **未做**：`from.fields[]` / `to.fields[]` 单逻辑 FK 聚合（ADR-0011 仍延期）
 
 ### Index（`indexs[]`）
 
@@ -258,4 +272,4 @@ cd frontend && yarn validate:projectjson
 
 - `configJSON`（导出/同步偏好，与模型事实源分离）
 - 公开 REST/MCP 载荷包装（ADR-0013）
-- 复合 FK `fields[]` 语义扩展（ADR-0011 解封后再增订）
+- 复合 FK `fields[]` 语义扩展（ADR-0011 仍延期；解封=FE 多字段边协议后再增订）。约束名/引用动作已见 Association 可选字段

@@ -28,6 +28,7 @@ import {
   associationsToEdges,
   edgeLabelBundleStretch,
   edgeLabelLaneStretch,
+  formatAssociationFkMeta,
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
@@ -161,6 +162,46 @@ async function main() {
     assert.ok(
       EDGE_LABEL_COLLISION_GAP <= 4 && EDGE_LABEL_COLLISION_GAP >= 2,
       '避让 gap 已贴密下限（再压叠字风险）',
+    );
+  });
+
+  await run('associationsToEdges：透传 FK 约束元数据（ADR-0011 拆边同名）', () => {
+    const edges = associationsToEdges([
+      {
+        relation: '1:n',
+        from: { entity: 'order', field: 'tenant_id' },
+        to: { entity: 'user', field: 'tenant_id' },
+        constraintName: 'fk_order_user',
+        deleteRule: 'CASCADE',
+        updateRule: 'NO ACTION',
+      },
+      {
+        relation: '1:n',
+        from: { entity: 'order', field: 'user_id' },
+        to: { entity: 'user', field: 'id' },
+        constraintName: 'fk_order_user',
+        deleteRule: 'CASCADE',
+        updateRule: 'NO ACTION',
+      },
+    ]);
+    assert.strictEqual(edges.length, 2);
+    const d0 = edges[0].data as {
+      constraintName?: string;
+      deleteRule?: string;
+      updateRule?: string;
+    };
+    const d1 = edges[1].data as {
+      constraintName?: string;
+      deleteRule?: string;
+      updateRule?: string;
+    };
+    assert.strictEqual(d0.constraintName, 'fk_order_user');
+    assert.strictEqual(d1.constraintName, 'fk_order_user');
+    assert.strictEqual(d0.deleteRule, 'CASCADE');
+    assert.strictEqual(d0.updateRule, 'NO ACTION');
+    assert.strictEqual(
+      formatAssociationFkMeta(d0),
+      'fk_order_user，ON DELETE CASCADE，ON UPDATE NO ACTION',
     );
   });
 

@@ -36,6 +36,9 @@ type Association = {
   relation?: string;
   from?: { entity?: string; field?: string };
   to?: { entity?: string; field?: string };
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
 };
 type ModuleData = {
   name?: string;

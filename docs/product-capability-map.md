@@ -42,7 +42,7 @@
 
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
-| 逆向解析（四库） | `POST /connector/dbReverseParse` / `dbReverseMeta`（ADR-0006） | 设计器 import tab ✅ | ✅（复合 FK `fields[]` 延期 ADR-0011） |
+| 逆向解析（四库） | `POST /connector/dbReverseParse` / `dbReverseMeta`（ADR-0006） | 设计器 import tab ✅；边 chip 展示约束名/ON DELETE ✅ | ✅（复合 FK `fields[]` 仍延期 ADR-0011；`constraintName`/`deleteRule`/`updateRule` ✅） |
 | DDL 导出 | export 域 | 设计器 export tab ✅ | ✅ |
 | Word 文档导出 | `POST /doc/gendocx`（classpath 模板 + MinIO 缺席降级 ✅） | export 流程内 ✅ | ✅ |
 | 数据源管理 | DataSourcesController + `connector/ping` | databaseConfig 页（状态/ping/批量删）✅ | thin（W4 摘 ProTable 平移） |

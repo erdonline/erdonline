@@ -175,7 +175,19 @@
           "description": "关系基数，如 1:1、1:n、n:n"
         },
         "from": { "$ref": "#/$defs/assocEnd" },
-        "to": { "$ref": "#/$defs/assocEnd" }
+        "to": { "$ref": "#/$defs/assocEnd" },
+        "constraintName": {
+          "type": "string",
+          "description": "FK 约束名（可选；复合 FK 拆边共享同名，ADR-0011）"
+        },
+        "deleteRule": {
+          "type": "string",
+          "description": "ON DELETE：CASCADE / SET NULL / SET DEFAULT / RESTRICT / NO ACTION"
+        },
+        "updateRule": {
+          "type": "string",
+          "description": "ON UPDATE：CASCADE / SET NULL / SET DEFAULT / RESTRICT / NO ACTION"
+        }
       }
     },
     "assocEnd": {

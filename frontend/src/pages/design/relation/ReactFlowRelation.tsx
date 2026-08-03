@@ -112,6 +112,9 @@ type Association = {
   relation?: string;
   from?: { entity?: string; field?: string };
   to?: { entity?: string; field?: string };
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
 };
 
 /** from 侧字段 = FK；按实体聚合，供节点徽章 */

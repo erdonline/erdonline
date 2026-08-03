@@ -25,6 +25,7 @@ import {
   crowFootMarkersForRelation,
   edgeLabelBundleStretch,
   edgeLabelLaneStretch,
+  formatAssociationFkMeta,
   isCardinality,
   normalizeRelation,
   resolveEdgeLabelOffsets,
@@ -299,6 +300,15 @@ function ErdRelationEdge({
     })();
   };
 
+  const fkMeta = formatAssociationFkMeta(data);
+  const baseAria = editable
+    ? `关系基数 ${displayLabel || '未设'}，点击修改；Delete 删除关系`
+    : displayLabel
+      ? `关系 ${displayLabel}`
+      : undefined;
+  const ariaLabel =
+    baseAria && fkMeta ? `${baseAria}（${fkMeta}）` : baseAria;
+
   return (
     <>
       <BaseEdge
@@ -325,6 +335,13 @@ function ErdRelationEdge({
         hidden
       />
       <span
+        data-testid="erd-edge-fk-meta"
+        data-constraint-name={data?.constraintName || ''}
+        data-delete-rule={data?.deleteRule || ''}
+        data-update-rule={data?.updateRule || ''}
+        hidden
+      />
+      <span
         data-testid="erd-edge-label-nudge"
         data-edge-id={id}
         data-dx={String(labelStretchX + labelNudge.dx)}
@@ -339,11 +356,8 @@ function ErdRelationEdge({
             }`}
             data-testid="erd-edge-label"
             role={editable ? 'button' : undefined}
-            aria-label={
-              editable
-                ? `关系基数 ${displayLabel || '未设'}，点击修改；Delete 删除关系`
-                : undefined
-            }
+            title={fkMeta || undefined}
+            aria-label={ariaLabel}
             // 仅选中边或邻接表进序；其余 -1，避免密图每条边 chip 都成 Tab 停靠
             tabIndex={editable ? (tabbable ? 0 : -1) : undefined}
             onClick={
