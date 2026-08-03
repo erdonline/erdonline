@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 导出：`triggers[]` → DDL CREATE TRIGGER（方言回写）
+
+- 选题：`6ad74f4` filter 导出后，最高缺口 = 逆向/UI 已有 `entity.triggers[]`，DDL 导出仍丢触发器
+- `renderCreateTriggerSql` / `rebuildTriggerDdl`：优先 `ddl` 原样；否则按方言重建（对齐后端 `TriggerResultSetMapper`：MySQL/PG/SQL Server/Oracle）
+- `getAllDataSQL` / `getAllDataSQLByFilter` 片段键 `createTrigger`（建表/索引后）；导出弹层自定义勾选「建触发器语句」；全部导出默认含触发器
+- DBML：仍不映射（`@dbml/core` 无 Trigger 块）
+- 未做：E2E 导出 UI（单测覆盖生成路径）；DBML Trigger 互导
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/json2code.trigger.test.ts`
+- `cd frontend && yarn test:unit:dbml`
+
 #### 导出：`indexs[].filter` → DDL WHERE / DBML note 约定
 
 - 选题：`b95e42f` 逆向已落 `filter`；DDL/DBML 导出仍丢部分·过滤谓词
@@ -110,7 +122,7 @@
 - Store：`updateEntityTriggers` 仅 `saveProject` code===200 写 store（禁假成功）；名重复拒写
 - E2E：`table-triggers.spec` 添加→DDL→删除；`relation.spec` 签页快捷键/速查文案扩到 4
 - 文档：data-format Trigger UI 入口；roadmap / ui-layout / regression-checklist
-- 未做：DBML `triggers[]` 互导（`@dbml/core` 无块）；画布打开触发器签入口；DDL 导出切片
+- 未做：DBML `triggers[]` 互导（`@dbml/core` 无块）；画布打开触发器签入口；~~DDL 导出~~✅（本切片已做）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/table-triggers.spec.ts --project=chromium --workers=1 --retries=0`

@@ -12,11 +12,16 @@ const getFieldType = (datatype: unknown[], type: string, code: string): string =
   return type;
 };
 
-/** PG / SQL Server 支持部分·过滤索引 WHERE；MySQL / Oracle 无对等物 */
-export function dialectSupportsIndexFilter(code: string | undefined | null): boolean {
-  const c = String(code || '')
+/** 规范化方言码（去空白/下划线/连字符，小写） */
+export function normalizeDialectCode(code: string | undefined | null): string {
+  return String(code || '')
     .toLowerCase()
     .replace(/[\s_-]/g, '');
+}
+
+/** PG / SQL Server 支持部分·过滤索引 WHERE；MySQL / Oracle 无对等物 */
+export function dialectSupportsIndexFilter(code: string | undefined | null): boolean {
+  const c = normalizeDialectCode(code);
   return (
     c === 'postgresql' ||
     c === 'postgres' ||
@@ -24,6 +29,103 @@ export function dialectSupportsIndexFilter(code: string | undefined | null): boo
     c === 'sqlserver' ||
     c === 'mssql'
   );
+}
+
+/** P0 四库：MySQL/MariaDB / PG / SQL Server / Oracle 可导出 CREATE TRIGGER */
+export function dialectSupportsTrigger(code: string | undefined | null): boolean {
+  const c = normalizeDialectCode(code);
+  return (
+    c === 'mysql' ||
+    c === 'mariadb' ||
+    c === 'postgresql' ||
+    c === 'postgres' ||
+    c === 'pg' ||
+    c === 'sqlserver' ||
+    c === 'mssql' ||
+    c === 'oracle'
+  );
+}
+
+export type TriggerLike = {
+  name?: string;
+  timing?: string;
+  event?: string;
+  orientation?: string;
+  statement?: string;
+  ddl?: string;
+};
+
+const quoteMysqlIdent = (ident: string) => ident.replace(/`/g, '``');
+const quoteDoubleIdent = (ident: string) => ident.replace(/"/g, '""');
+const quoteSqlServerIdent = (ident: string) => ident.replace(/]/g, ']]');
+
+/**
+ * 按方言重建 CREATE TRIGGER（与后端 TriggerResultSetMapper 对齐；非字节级克隆）。
+ * 有 `ddl` 时原样返回（调用方负责分号/separator）。
+ */
+export function rebuildTriggerDdl(
+  trigger: TriggerLike,
+  tableTitle: string,
+  dialectCode?: string | null,
+): string {
+  const name = String(trigger?.name || '').trim() || 'trg';
+  const table = String(tableTitle || '').trim();
+  const timing = String(trigger?.timing || '').trim().toUpperCase() || 'BEFORE';
+  const event = String(trigger?.event || '').trim().toUpperCase() || 'UPDATE';
+  const orient = String(trigger?.orientation || '').trim().toUpperCase() || 'ROW';
+  const body = String(trigger?.statement || '').trim();
+  const c = normalizeDialectCode(dialectCode);
+
+  if (c === 'sqlserver' || c === 'mssql') {
+    const t = timing === 'INSTEAD OF' || timing === 'INSTEADOF' ? 'INSTEAD OF' : timing || 'AFTER';
+    return (
+      `CREATE TRIGGER [${quoteSqlServerIdent(name)}] ` +
+      `ON [${quoteSqlServerIdent(table)}] ${t} ${event || 'INSERT'}\nAS\n${body}`
+    );
+  }
+  if (c === 'oracle') {
+    return (
+      `CREATE OR REPLACE TRIGGER "${quoteDoubleIdent(name)}" ` +
+      `${timing} ${event} ON "${quoteDoubleIdent(table)}" FOR EACH ${orient}\n${body}`
+    );
+  }
+  if (c === 'postgresql' || c === 'postgres' || c === 'pg') {
+    return (
+      `CREATE TRIGGER "${quoteDoubleIdent(name)}" ` +
+      `${timing} ${event} ON "${quoteDoubleIdent(table)}" FOR EACH ${orient}\n${body}`
+    );
+  }
+  // MySQL / MariaDB（默认）
+  return (
+    `CREATE TRIGGER \`${quoteMysqlIdent(name)}\` ` +
+    `${timing} ${event} ON \`${quoteMysqlIdent(table)}\` FOR EACH ${orient}\n${body}`
+  );
+}
+
+/**
+ * 导出触发器 DDL：优先 `ddl` 原样；否则按方言重建；非支持方言跳过。
+ */
+export function renderCreateTriggerSql(
+  trigger: TriggerLike,
+  tableTitle: string,
+  separator: string,
+  dialectCode?: string | null,
+): string {
+  if (!dialectSupportsTrigger(dialectCode)) {
+    return '';
+  }
+  const existing = String(trigger?.ddl || '').trim();
+  const name = String(trigger?.name || '').trim();
+  const statement = String(trigger?.statement || '').trim();
+  if (!existing && !name && !statement) {
+    return '';
+  }
+  const ddl = existing || rebuildTriggerDdl(trigger, tableTitle, dialectCode);
+  if (!ddl.trim()) {
+    return '';
+  }
+  const stmt = /;\s*$/.test(ddl) ? ddl : `${ddl};`;
+  return `${stmt}${separator || ''}`;
 }
 
 export function formatIndexFilterPredicate(
@@ -868,7 +970,7 @@ export const getAllDataSQL = (dataSource, code) => {
     // 1.2.新建表
     // 1.3.新建索引
 
-    // 循环创建该表下所有的索引
+    // 循环创建该表下所有的索引 + 触发器
     let indexData = (e.indexs || []).map(i => {
       return `${renderCreateIndexSql(getTemplate('createIndexTemplate'), {
         module: {name: e.name},
@@ -877,28 +979,31 @@ export const getAllDataSQL = (dataSource, code) => {
         separator
       }, code)}`;
     }).join('');
+    const triggerData = (e.triggers || [])
+      .map((t) => renderCreateTriggerSql(t, e.title || e.name, separator, code))
+      .join('');
     //全量脚本去除删除语句
     return `${getTemplateString(getTemplate('createTableTemplate'), {
       module: {name: e.name},
       entity: e,
       separator
-    })}${indexData}`
+    })}${indexData}${triggerData}`
   }).join('');
   return sqlString.endsWith(separator) ? sqlString : sqlString + separator;
 };
 
 /**
- * 按过滤器拼全量 DDL（删表/建表/索引/注释）。
+ * 按过滤器拼全量 DDL（删表/建表/索引/触发器/注释）。
  * @param dataSource projectJSON 形态
  * @param code 方言码，如 MYSQL
- * @param filter 片段键：deleteTable | createTable | createIndex | updateComment
+ * @param filter 片段键：deleteTable | createTable | createIndex | createTrigger | updateComment
  */
 export const getAllDataSQLByFilter = (
   dataSource: Record<string, unknown>,
   code: string,
   filter: string[] = [],
 ): string => {
-  // 获取全量脚本（删表，建表，建索引，表注释）；模板按所选方言 code，非仅 defaultDatabase
+  // 获取全量脚本（删表，建表，建索引，触发器，表注释）；模板按所选方言 code，非仅 defaultDatabase
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
   const database = pickDatabaseDialect(
     _.get(dataSource, 'dataTypeDomains.database', []) as Array<{
@@ -928,6 +1033,7 @@ export const getAllDataSQLByFilter = (
     // 1.1.删除表
     // 1.2.新建表
     // 1.3.新建索引
+    // 1.4.新建触发器
     // 表注释
 
     // 循环创建该表下所有的索引
@@ -941,6 +1047,9 @@ export const getAllDataSQLByFilter = (
         separator
       }, code)}`;
     }).join('');
+    allData.createTrigger = (e.triggers || [])
+      .map((t) => renderCreateTriggerSql(t, e.title || e.name, separator, code))
+      .join('');
     allData.deleteTable = `${getTemplateString(getTemplate('deleteTableTemplate'), {
       module: {name: e.name},
       entity: e,
