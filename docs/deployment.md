@@ -168,12 +168,12 @@ docker compose up -d
 |---|---|---|
 | `Could not find … base-logback.xml` / `No appenders` | Logback include 失败（已修：改 include 根路径）；**不阻断启动**，但后面真实错误可能看不见 | 拉含本修复的 commit 后 Redeploy；仍失败再往下看 |
 | `Started ErdOnlineApplication` | 进程已起来 | 再 curl `/actuator/health/liveness`；若公网仍 502 → Networking/域名 |
-| `HikariPool.checkFailFast` / `PrimaryDatasource` / `Cannot resolve … erdSqlSessionFactory` | JDBC 打不开（host/creds/库名）→ DS / MyBatis 级联失败 | 按「Railway MySQL 正确接法」映射 `DB_*`←`MYSQL*`；建 `erd` 并导入 `db/init` schema |
-| `Communications link failure` / `Connection refused` / `Unknown database` | MySQL 未通或未建业务库 `erd`（插件默认库 `railway` ≠ `erd`） | 映射 `DB_HOST` 等；执行 `db/init` schema；**不要**把 `MYSQLDATABASE` 当 `DB_NAME` |
+| `HikariPool.checkFailFast` / `PrimaryDatasource` / `Cannot resolve … erdSqlSessionFactory` | JDBC 打不开（host/creds/库名）→ DS / MyBatis 级联失败 | 按「Railway MySQL 正确接法」把插件 `MYSQL*` Reference 到 `DB_*`；建 `erd` 并导入 `db/init` schema |
+| `Communications link failure` / `Connection refused` / `Unknown database` | MySQL 未通或未建业务库 `erd`（插件默认库 `railway` ≠ `erd`） | 映射 `DB_HOST`/`DB_NAME`；执行 `db/init` schema；**不要**把 `MYSQLDATABASE` 当 `DB_NAME` |
 | `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未设 `SPRING_DATA_REDIS_URL`（裸 `REDIS_URL` **不会**绑到 Boot）；或旧镜像仍用废弃 `spring.redis.*` | App 增加 **`SPRING_DATA_REDIS_URL`** ← `${{Redis.REDIS_URL}}`；**Redeploy** |
 | `NOAUTH Authentication required` | 主机通但未带密码（只挂了 host，或 URL 无凭证） | 日志 `url=missing`/`password=missing` → 按「正确接法」设 `SPRING_DATA_REDIS_URL`；**Redeploy** |
 | `WRONGPASS invalid username-password pair` | 已发 AUTH 但密码错（手填 / 空串） | 删手填密码；只用 Variable Reference 到插件 `REDIS_URL`；**Redeploy** |
-| `Could not resolve placeholder 'DB_USERNAME'` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | 用 `DB_USERNAME`←`${{MySQL.MYSQLUSER}}`（或 App 侧直接挂 `MYSQLUSER`）；补 `OSS_*` |
+| `Could not resolve placeholder 'DB_USERNAME'` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | 用 `DB_USERNAME`←`${{MySQL.MYSQLUSER}}`；补 `OSS_*`（应用不读裸 `MYSQLUSER`） |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
 容器内（Railway Shell）：
@@ -215,15 +215,15 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 
 1. **Add Variable Reference**：`DB_HOST`←`MYSQLHOST`，`DB_PORT`←`MYSQLPORT`，`DB_USERNAME`←`MYSQLUSER`，`DB_PASSWORD`←`MYSQLPASSWORD`
 2. 手填 `DB_NAME=erd`（**不要**把 `MYSQLDATABASE` / `railway` 填进 `DB_NAME`）
-3. 旧变量 `DB_MARTIN` / `DB_ERD` 若仍存在，须同为 `erd`（yml 在缺 `DB_NAME` 时会回退它们）
+3. 勿再设 `DB_MARTIN` / `DB_ERD` / `DB_ERD_USERNAME` 等旧别名（Spring 已不再读取）
 4. 先完成下方「建库 + schema」，再 **Redeploy**（Flyway 在启动时灌种子）
 
 | 应用变量（填这个名） | Variable Reference / 值 | 说明 |
 |---|---|---|
-| `DB_HOST` | `${{MySQL.MYSQLHOST}}` | 也可用左侧名 `MYSQLHOST`（yml 回退）；**勿留空**→否则 `localhost` |
+| `DB_HOST` | `${{MySQL.MYSQLHOST}}` | **必 Reference**；勿留空→否则默认 `localhost` |
 | `DB_PORT` | `${{MySQL.MYSQLPORT}}` | 默认 3306 |
-| `DB_USERNAME` | `${{MySQL.MYSQLUSER}}` | 别名：`MYSQLUSER` / `DB_USER` |
-| `DB_PASSWORD` | `${{MySQL.MYSQLPASSWORD}}` | 别名：`MYSQLPASSWORD` |
+| `DB_USERNAME` | `${{MySQL.MYSQLUSER}}` | 两池共用；无别名回退 |
+| `DB_PASSWORD` | `${{MySQL.MYSQLPASSWORD}}` | 两池共用；无别名回退 |
 | `DB_NAME` | `erd`（手填） | 唯一业务库；**禁止**写成 `railway` / `MYSQLDATABASE` |
 
 **建库 + schema**（插件空实例必做一次；种子由 App Flyway `V3+` 写入）：
@@ -258,7 +258,7 @@ SELECT MAX(version) FROM erd.flyway_schema_history WHERE success=1;
 
 | 现象 | 含义 |
 |---|---|
-| `Connection refused` / host=`localhost` | App 未 Reference `MYSQLHOST`/`DB_HOST` |
+| `Connection refused` / host=`localhost` | App 未 Reference `DB_HOST`←`MYSQLHOST` |
 | `Unknown database 'erd'` | 未跑 schema init |
 | `Unknown database 'martin'` | 仍指向旧双库配置；改 `DB_NAME=erd` 并 Redeploy |
 | `Access denied` | 用户/密码 Reference 错 |
@@ -309,7 +309,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=set password=set
 | `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 任意非空占位（如 `demo`/`demo`） | `prod` profile 强制存在；无 MinIO 时 Word 自定义上传不可用，内置模板仍可导出 |
 | `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
-> **MySQL**：详见「Railway MySQL 正确接法」。`MYSQL_URL` / `SPRING_DATASOURCE_URL` **不够**；必须 `DB_HOST`（或 `MYSQLHOST`）+ 凭证 + `DB_NAME=erd`（勿用插件默认 `railway`）且实例上已建该库并导入 schema。
+> **MySQL**：详见「Railway MySQL 正确接法」。`MYSQL_URL` / `SPRING_DATASOURCE_URL` **不够**；必须 App 侧 `DB_HOST`/`DB_PORT`/`DB_USERNAME`/`DB_PASSWORD`/`DB_NAME=erd`（插件 `MYSQL*` 只作 Reference 源，Spring 不直接读）且实例上已建该库并导入 schema。
 
 > **Redis**：同项目用私网 `REDIS_URL` 作 **Reference 的值**；应用侧变量名是 **`SPRING_DATA_REDIS_URL`**。`REDIS_PUBLIC_URL` 仅本机连公网代理。
 

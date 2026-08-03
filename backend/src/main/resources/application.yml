@@ -24,14 +24,14 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   # 单一业务库 `erd`（ADR-0020）。仍保留两套 Hikari/SqlSessionFactory（按 mapper 包路由），
-  # 但 JDBC 指向同一 DB_NAME。host/user/password 回退 MYSQLHOST/MYSQLUSER/MYSQLPASSWORD。
+  # 但 JDBC 指向同一 DB_NAME。唯一环境变量族：DB_HOST / DB_PORT / DB_NAME / DB_USERNAME / DB_PASSWORD。
+  # Railway：App 侧 Variable Reference 插件 MYSQL* → 上述 DB_*（见 docs/deployment.md）。
   # 勿把插件 MYSQLDATABASE（常为 railway）当业务库；勿依赖 SPRING_DATASOURCE_URL / MYSQL_URL。
-  # 兼容旧部署：DB_NAME 缺省时可回退 DB_ERD / DB_MARTIN（均应改为同一库名）。
   datasource:
     martin:
-      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_NAME:${DB_ERD:${DB_MARTIN:erd}}}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_USERNAME:${DB_USER:${MYSQLUSER:erd}}}
-      password: ${DB_PASSWORD:${MYSQLPASSWORD:erd}}
+      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:erd}
+      password: ${DB_PASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5
@@ -43,9 +43,9 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
     erd:
-      jdbc-url: jdbc:mysql://${DB_HOST:${MYSQLHOST:localhost}}:${DB_PORT:${MYSQLPORT:3306}}/${DB_NAME:${DB_ERD:${DB_MARTIN:erd}}}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
-      username: ${DB_ERD_USERNAME:${DB_USERNAME:${DB_USER:${MYSQLUSER:erd}}}}
-      password: ${DB_ERD_PASSWORD:${DB_PASSWORD:${MYSQLPASSWORD:erd}}}
+      jdbc-url: jdbc:mysql://${DB_HOST:localhost}:${DB_PORT:3306}/${DB_NAME:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      username: ${DB_USERNAME:erd}
+      password: ${DB_PASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver
       type: com.zaxxer.hikari.HikariDataSource
       minimum-idle: 5

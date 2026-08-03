@@ -18,11 +18,11 @@
 
 ## 决策
 
-1. **物理单一库**：默认库名 `erd`（环境变量 `DB_NAME`，兼容旧 `DB_ERD` / `DB_MARTIN` 回退到同一值）。
+1. **物理单一库**：默认库名 `erd`（唯一环境变量 `DB_NAME`；无 `DB_ERD` / `DB_MARTIN` 回退）。
 2. **`db/init` 仅 schema**：`01_create_database.sql` + `02_tables.sql`（CREATE TABLE）；不再含种子、demo、privileges 脚本。
 3. **种子进 Flyway**：`backend/.../db/migration/erd/` 的 `V3+`（系统基线 / 新用户权限 / 公开 demo / E2E 账号）；后端启动由 `ErdFlywayConfig` 执行。
-4. **过渡期保留双 SqlSessionFactory**：`martinDataSource` 与 `erdDataSource` 仍按包扫描分离，但 **JDBC URL 指向同一 `DB_NAME`**（避免本轮拆 mapper 大爆炸）。后续可再 ADR 合并为单 DS。
-5. **Compose**：`MYSQL_DATABASE` / `MYSQL_USER` 与 `DB_NAME` / `DB_USERNAME` 对齐；不在仓库硬编码 root 密码以外的生产密钥（示例默认仅本地）。
+4. **过渡期保留双 SqlSessionFactory**：`martinDataSource` 与 `erdDataSource` 仍按包扫描分离，但 **JDBC URL 指向同一 `DB_NAME`**，凭证同为 `DB_USERNAME` / `DB_PASSWORD`（避免本轮拆 mapper 大爆炸）。后续可再 ADR 合并为单 DS。
+5. **Compose**：MySQL 容器用官方 `MYSQL_DATABASE` / `MYSQL_USER` / `MYSQL_PASSWORD`，值来自 compose 映射的 `DB_NAME` / `DB_USERNAME` / `DB_PASSWORD`；应用只读 `DB_*`。
 
 ## 后果
 
