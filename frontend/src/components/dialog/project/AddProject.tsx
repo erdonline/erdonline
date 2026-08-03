@@ -1,5 +1,6 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import type {BaseSelectRef} from 'rc-select';
 import defaultData from '@/utils/defaultData.json';
 import _ from 'lodash';
 import {addProject} from '@/services/project';
@@ -33,16 +34,7 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
   const initialType = props.type ?? 1;
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
-
-  const openModal = () => {
-    form.setFieldsValue({
-      type: initialType,
-      tags: ['新建'],
-      projectName: undefined,
-      description: undefined,
-    });
-    setOpen(true);
-  };
+  const typeSelectRef = useRef<BaseSelectRef>(null);
 
   const closeModal = () => {
     setOpen(false);
@@ -70,7 +62,11 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
 
   return (
     <>
-      <Button type="primary" data-testid="project-create-trigger" onClick={openModal}>
+      <Button
+        type="primary"
+        data-testid="project-create-trigger"
+        onClick={() => setOpen(true)}
+      >
         新建
       </Button>
       <Modal
@@ -82,15 +78,28 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
         cancelText="取消"
         destroyOnClose
         width={520}
-        forceRender
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => typeSelectRef.current?.focus(), 0);
+        }}
       >
-        <Form form={form} layout="vertical" preserve={false}>
+        <Form
+          form={form}
+          layout="vertical"
+          preserve={false}
+          initialValues={{type: initialType, tags: ['新建']}}
+        >
           <Form.Item
             name="type"
             label="项目类型"
             rules={[{required: true, message: '请选择项目类型'}]}
           >
             <Select
+              ref={typeSelectRef}
               placeholder="请选择项目类型"
               options={[
                 {label: '个人项目', value: 1},

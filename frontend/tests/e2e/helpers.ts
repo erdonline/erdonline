@@ -280,7 +280,9 @@ export async function deleteOwnPersonProjects(
       break;
     }
     await delBtn.click();
-    await page.getByRole('button', { name: '是' }).click();
+    const confirm = page.getByRole('dialog', { name: '删除项目' });
+    await expect(confirm).toBeVisible({ timeout: 5_000 });
+    await confirm.getByRole('button', { name: '是' }).click();
     await expect(page.getByRole('link', { name, exact: true })).toHaveCount(0, {
       timeout: 8_000,
     }).catch(() => {});

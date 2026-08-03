@@ -19,6 +19,16 @@
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=MysqlJdbcSslBindingTest test`
 - `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
 
+#### 体验：项目动作弹窗键盘闭环（新建/修改/删除确认）
+
+- 选题：新建/修改 Modal 开窗首焦不稳、Esc/焦点归还未 E2E；删除用 Popconfirm 非 `role=dialog`、无 Tab trap、失败静默
+- 改动：`AddProject`/`RenameProject` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦首字段；`RemoveProject` Popconfirm→Modal（失败 toast、首焦「是」）
+- E2E：`project-action-modals-keyboard`（新建/修改/删除：首焦、Esc 归还、Tab trap）；`helpers.deleteOwnPersonProjects` 走 dialog「是」
+- 文档：design-principles §2 / control-matrix / regression-checklist；下一刀 → 导入/导出弹层键盘闭环（打开首焦 + Esc 归还 + Tab trap）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/project-action-modals-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 安全：R-DATA-05 删 TestJson 样板 CRUD 面
 
 - 选题：`TestJsonController` `/testJson/**` 需登录仍暴露样板 CRUD，污染攻击面
@@ -45,7 +55,7 @@
 - 选题：`/account/settings` 进页 Tab 先扫顶栏再扫左侧页签；无 Skip 直达主表单；保存钮键盘可达未回归；无键盘 E2E
 - 改动：HomeLayout 在账号设置路由首 Skip「跳到主表单」→ `#account-settings-form`（`tabIndex=-1`）；右侧面板地标 + 设置分类 `aria-label`；地标 focus-visible brand 环（继承壳环）
 - E2E：`account-settings-keyboard`「账号键盘：Skip→主表单；字段/保存 Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 项目动作弹窗键盘闭环（新建/修改/删除确认）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~项目动作弹窗键盘闭环（新建/修改/删除确认）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/account-settings-keyboard.spec.ts --project=chromium --grep "账号键盘" --workers=1 --retries=0`
