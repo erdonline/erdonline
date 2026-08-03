@@ -28,11 +28,9 @@ test.describe('表设计触发器签', () => {
       await expect(node).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
 
-      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+      await node.getByTestId('canvas-open-trigger').evaluate((el: HTMLElement) => el.click());
       const designer = page.getByTestId('table-design');
       await expect(designer).toBeVisible({ timeout: 10_000 });
-
-      await designer.getByRole('tab', { name: '触发器' }).click();
       await expect(designer.getByRole('tab', { name: '触发器' })).toHaveAttribute(
         'aria-selected',
         'true',

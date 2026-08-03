@@ -1330,6 +1330,28 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           >
             元数据
           </button>
+          <button
+            type="button"
+            className="erd-open-design__btn"
+            data-testid="canvas-open-trigger"
+            aria-label="打开触发器"
+            title="打开表设计 · 触发器"
+            tabIndex={selected ? 0 : -1}
+            onClick={e => {
+              e.stopPropagation();
+              const projectDispatch = useProjectStore.getState().dispatch;
+              projectDispatch.setCurrentModule(moduleName);
+              projectDispatch.setCurrentEntity(moduleName, entity.title);
+              useTabStore.getState().dispatch.addTab({
+                group: TabGroup.MODEL,
+                module: moduleName,
+                entity: entity.title,
+                designPane: 'trigger',
+              });
+            }}
+          >
+            触发器
+          </button>
         </div>
       </div>
     </div>

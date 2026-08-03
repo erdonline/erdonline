@@ -2220,6 +2220,53 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('画布打开触发器签：直达表设计触发器；无死 affordance', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('trgnav');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'trgnav', 'canvas open trigger');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const openTrigger = node.getByTestId('canvas-open-trigger');
+      await expect(openTrigger).toBeVisible();
+      await expect(openTrigger).toHaveAttribute('aria-label', '打开触发器');
+      await openTrigger.evaluate((el: HTMLElement) => el.click());
+
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '触发器' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-trigger-edit')).toBeVisible();
+      await expect(page.getByTestId('trigger-empty-hint')).toBeVisible();
+
+      // 切到字段后再经画布「触发器」仍落触发器（非粘滞）
+      await designer.getByRole('tab', { name: '字段', exact: true }).click();
+      await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await rfNode(page, 'T_TABLE_1')
+        .getByTestId('canvas-open-trigger')
+        .evaluate((el: HTMLElement) => el.click());
+      await expect(
+        page.getByTestId('table-design').getByRole('tab', { name: '触发器' }),
+      ).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByTestId('table-trigger-edit')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('元数据应用：修改/删除字段签标签对齐模板（非错标 DROP/MODIFY）', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('metaddl');

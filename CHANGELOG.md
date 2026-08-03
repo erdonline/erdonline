@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：画布底栏直达触发器签
+
+- 选题：`3bca440` FK 导出后，触发器签仅签头/`Cmd+4` 可达 → 画布相对字段/索引/元数据缺对称入口（CHANGELOG 登记「未做」）
+- 表节点底栏并排「触发器」`canvas-open-trigger` → `designPane: 'trigger'`；`aria-label=打开触发器`
+- E2E：`relation`「画布打开触发器签」直达 + 非粘滞重入；`table-triggers` 走底栏入口
+- 未做：DBML Trigger（等官方块）；ADR-0013 / P4 Railway / ADR-0011 `fields[]`（人工/延期）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布打开触发器签" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/table-triggers.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 导出：FK `ON DELETE` / `ON UPDATE` → DDL FOREIGN KEY（+ DBML Ref settings）
 
 - 选题：`d198079` 画布可编参照动作；DDL 导出仍丢 associations FK
@@ -179,7 +190,7 @@
 - Store：`updateEntityTriggers` 仅 `saveProject` code===200 写 store（禁假成功）；名重复拒写
 - E2E：`table-triggers.spec` 添加→DDL→删除；`relation.spec` 签页快捷键/速查文案扩到 4
 - 文档：data-format Trigger UI 入口；roadmap / ui-layout / regression-checklist
-- 未做：DBML `triggers[]` 互导（`@dbml/core` 无块）；画布打开触发器签入口；~~DDL 导出~~✅（本切片已做）
+- 未做：DBML `triggers[]` 互导（`@dbml/core` 无块）；~~画布打开触发器签入口~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/table-triggers.spec.ts --project=chromium --workers=1 --retries=0`
