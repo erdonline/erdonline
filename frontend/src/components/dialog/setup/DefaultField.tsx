@@ -1,4 +1,4 @@
-import React, {useRef} from 'react';
+import React, {useRef, useState} from 'react';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {message} from "antd";
@@ -136,7 +136,7 @@ export const column2 = [{
     source: ['Text', 'Number', 'Money', 'Select', 'Radio', 'CheckBox', 'Email', 'URL', 'DatePicker', 'TextArea', 'AddressPicker'],
   }];
 
-const DefaultField: React.FC<DefaultFieldProps> = (props) => {
+const DefaultField: React.FC<DefaultFieldProps> = () => {
   const {datatype, database, projectDispatch} = useProjectStore(state => ({
     datatype: state.project?.projectJSON?.dataTypeDomains?.datatype,
     database: state.project?.projectJSON?.dataTypeDomains?.database,
@@ -147,11 +147,50 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     return t.name;
   })
 
-  const defaultJson = JSON.stringify(projectDispatch.getDefaultFields().filter((f: any) => f != null) || []);
+  const sheetRows = (projectDispatch.getDefaultFields() || []).filter((f: any) => f != null);
+  const defaultJson = JSON.stringify(sheetRows);
 
+  /** 落盘失败时重挂 HotTable，回滚到 store 快照 */
+  const [sheetEpoch, setSheetEpoch] = useState(0);
+  const [fieldSaving, setFieldSaving] = useState(false);
+  const pendingRef = useRef<any[] | null>(null);
+  const savingRef = useRef(false);
+
+  const flushPersist = async () => {
+    if (savingRef.current) return;
+    const payload = pendingRef.current;
+    if (!payload) return;
+    pendingRef.current = null;
+    savingRef.current = true;
+    setFieldSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        projectDispatch.updateDefaultFields(payload, { persist: true }),
+      );
+      if (!ok) {
+        pendingRef.current = null;
+        setSheetEpoch((e) => e + 1);
+        return;
+      }
+    } catch {
+      message.error('默认字段保存失败');
+      pendingRef.current = null;
+      setSheetEpoch((e) => e + 1);
+    } finally {
+      savingRef.current = false;
+      setFieldSaving(false);
+      if (pendingRef.current) {
+        void flushPersist();
+      }
+    }
+  };
 
   const afterChange = (payload: any) => {
-    projectDispatch.updateDefaultFields(payload);
+    if (!payload || payload.length === 0) {
+      return;
+    }
+    pendingRef.current = payload;
+    void flushPersist();
   }
 
   const hotTableComponent = useRef(null);
@@ -210,17 +249,18 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     minRows: 1
   };
   return (
-    <HotTable
-      ref={hotTableComponent}
-      id={"data-sheet"}
-      // @ts-ignore
-      settings={hotSettings}
-      beforeChange={handsontableBeforeChange(hotTableComponent, datatype, database)}
-      afterChange={handsontableAfterChange(hotSettings, afterChange)}
-      afterRowMove={handsontableAfterRowMove(hotTableComponent, hotSettings, afterChange)}
-    >
-
-    </HotTable>
+    <div data-testid="default-field-dialog-sheet" aria-busy={fieldSaving || undefined}>
+      <HotTable
+        key={`df-hot-${sheetEpoch}-${sheetRows[0]?.name || 'empty'}`}
+        ref={hotTableComponent}
+        id={"data-sheet"}
+        // @ts-ignore
+        settings={hotSettings}
+        beforeChange={handsontableBeforeChange(hotTableComponent, datatype, database)}
+        afterChange={handsontableAfterChange(hotSettings, afterChange)}
+        afterRowMove={handsontableAfterRowMove(hotTableComponent, hotSettings, afterChange)}
+      />
+    </div>
   )
 }
 

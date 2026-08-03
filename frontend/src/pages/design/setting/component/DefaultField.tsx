@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useState } from 'react';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {message} from "antd";
@@ -82,7 +82,7 @@ export const column2 = [
     source: ['Text', 'Number', 'Money', 'Select', 'Radio', 'CheckBox', 'Email', 'URL', 'DatePicker', 'TextArea', 'AddressPicker'],
   }];
 
-const DefaultField: React.FC<DefaultFieldProps> = (props) => {
+const DefaultField: React.FC<DefaultFieldProps> = () => {
   const {datatype, projectDispatch} = useProjectStore(state => ({
     datatype: state.project?.projectJSON?.dataTypeDomains?.datatype,
     database: state.project?.projectJSON?.dataTypeDomains?.database,
@@ -109,6 +109,45 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
           : rawDefaultFields || []
         ).filter((f: any) => f != null && typeof f === 'object');
 
+  /** 落盘失败时重挂 JExcel（组件不吃 props.data），回滚到 store 快照 */
+  const [sheetEpoch, setSheetEpoch] = useState(0);
+  const [fieldSaving, setFieldSaving] = useState(false);
+  const pendingRef = useRef<any[] | null>(null);
+  const savingRef = useRef(false);
+
+  /**
+   * 禁止本地 mutate 即成功：队列最新 payload，仅 saveProject code===200 写 store；
+   * 失败 toast（persistProjectNow）+ 重挂网格回滚草稿。
+   */
+  const flushPersist = async () => {
+    if (savingRef.current) return;
+    const payload = pendingRef.current;
+    if (!payload) return;
+    pendingRef.current = null;
+    savingRef.current = true;
+    setFieldSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        projectDispatch.updateDefaultFields(payload, { persist: true }),
+      );
+      if (!ok) {
+        pendingRef.current = null;
+        setSheetEpoch((e) => e + 1);
+        return;
+      }
+    } catch {
+      message.error('默认字段保存失败');
+      pendingRef.current = null;
+      setSheetEpoch((e) => e + 1);
+    } finally {
+      savingRef.current = false;
+      setFieldSaving(false);
+      if (pendingRef.current) {
+        void flushPersist();
+      }
+    }
+  };
+
   const afterChange = (payload: any) => {
     // 禁止空表写回冲掉已有默认字段（JExcel 空态 onchange / 过滤后 []）
     if (
@@ -117,7 +156,8 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     ) {
       return;
     }
-    projectDispatch.updateDefaultFields(payload);
+    pendingRef.current = payload;
+    void flushPersist();
   }
 
   const columns = [
@@ -131,14 +171,15 @@ const DefaultField: React.FC<DefaultFieldProps> = (props) => {
     ...column2
   ];
 
-  // key：项目字段就绪后再挂载表格，避免空 init 后不再刷新
-  const sheetKey = `df-${sheetData.length}-${sheetData[0]?.name || 'empty'}`;
+  // key：项目字段就绪后再挂载表格；epoch 失败回滚重挂
+  const sheetKey = `df-${sheetEpoch}-${sheetData.length}-${sheetData[0]?.name || 'empty'}`;
 
   return (
     <div
       className="setting-common-page"
       data-testid="default-field-page"
       data-field-count={sheetData.length}
+      aria-busy={fieldSaving || undefined}
     >
       <h2 className="setting-common-page__title">默认字段设置</h2>
       <p className="setting-common-page__hint">新建表时自动带入下列字段；编辑后即时保存</p>

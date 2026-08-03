@@ -54,7 +54,6 @@ export interface IEntitiesDispatchSlice {
     payload: any,
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  moveField: (moduleName: string, entityTitle: string, payload: any, startRow: number, endRow: number) => void;
   setCurrentEntity: (moduleName: string, entityName: string) => void;
   setCurrentModuleAndEntity: (moduleName: string, entityName: string) => void;
 }
@@ -672,27 +671,6 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       return true;
     })();
   },
-  moveField: (moduleName: string, entityTitle: string, payload: any, startRow: number, endRow: number) => set(produce((state: any) => {
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
-    if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
-      return;
-    }
-    const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle);
-    if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
-      return;
-    }
-    let targetRow = endRow;
-    if (startRow < targetRow) {
-      targetRow -= 1;
-    }
-    const nextFields = [...payload];
-    const item = nextFields.splice(startRow, 1)[0];
-    nextFields.splice(targetRow, 0, item);
-    state.project.projectJSON.modules[moduleIndex].entities[entityIndex].fields = nextFields;
-    showMessage('success', '字段移动成功');
-  })),
   setCurrentEntity: (moduleName: string, entityName: string) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
