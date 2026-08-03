@@ -50,6 +50,7 @@
 - [x] 顶栏 `erd-chrome-header` 次密：Home padX ≤16 + brand–nav gap ≤12；Design gap ≤8；禁 padX20 / gap16；截图 `chrome-header-dense.png` ✅`layout-outlet` densify
 - [x] Home 水平导航 Menu 项次密：padX ∈[8,12]；项高 64；命中宽 ≥44；`testid=home-layout-menu`；截图 `home-nav-menu-dense.png` ✅`layout-outlet` densify + `home-keyboard` 回归
 - [x] Group 侧栏 nav 行距次密：项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；`testid=group-layout-sider-menu`；截图 `group-sider-nav-dense.png` ✅`layout-outlet` densify + `group-keyboard` 回归
+- [x] 项目列表工具条碎距：Space gap ∈[8,12]；搜索高 ≤28；工具条高 ≤32；`testid=project-list-toolbar`；截图 `project-*-list-dense.png` ✅`project-surface` densify + `project-list-keyboard` 回归
 - [x] 个人/最近/团队/公告列表行密度：行 pad-block ≤10 / 标题 ≤14 / 打开钮 ≤32；截图 `project-person-list-dense.png` / `project-recent-list-dense.png` / `project-group-list-dense.png` / `project-notice-list-dense.png` ✅`project-surface.spec.ts` + `project-notice.spec.ts`
 - [x] 用户手动折叠模块不被默认展开回顶 ✅`model-design-ux.spec.ts`
 - [x] 表设计三签：签头表名/模型层级 + 字段/索引/元数据应用切换 ✅`model-design-ux.spec.ts`

@@ -95,9 +95,12 @@ export default () => {
 
   return (
     <div className="project-list-page" data-testid="project-person-page">
-      <div className="project-list-page__toolbar">
+      <div
+        className="project-list-page__toolbar"
+        data-testid="project-list-toolbar"
+      >
         <h2 className="project-list-page__title">个人项目</h2>
-        <Space wrap>
+        <Space wrap size={8}>
           <Input.Search
             placeholder="项目名"
             allowClear

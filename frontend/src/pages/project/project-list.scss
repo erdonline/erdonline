@@ -5,6 +5,7 @@
   font-family: var(--erd-font-ui);
 }
 
+/* ADR-0016：工具条碎距 — Space/flex gap 8（8–12 族）+ 控件 28；禁 Search 默认 32 撑高与 Space middle */
 .project-list-page__toolbar {
   display: flex;
   justify-content: space-between;
@@ -13,6 +14,48 @@
   gap: 8px;
   flex-wrap: wrap;
   min-height: 28px;
+
+  .ant-space {
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+  }
+
+  .ant-btn {
+    height: 28px !important;
+    font-size: 12px;
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+
+  .ant-input-search,
+  .ant-input-group-wrapper,
+  .ant-input-wrapper.ant-input-group {
+    width: 200px;
+    height: 28px !important;
+  }
+
+  .ant-input-search .ant-input-affix-wrapper,
+  .ant-input-affix-wrapper {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding-block: 0 !important;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .ant-input-search .ant-input,
+  .ant-input {
+    font-size: 12px;
+    height: 26px !important;
+    line-height: 26px;
+  }
+
+  .ant-input-search-button,
+  .ant-input-group-addon .ant-btn {
+    height: 28px !important;
+    font-size: 12px;
+    padding: 0 8px;
+  }
 }
 
 .project-list-page__title {
@@ -21,35 +64,6 @@
   font-weight: 600;
   line-height: 22px;
   color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
-}
-
-.project-list-page__toolbar {
-  .ant-btn {
-    height: 28px;
-    font-size: 12px;
-    padding: 0 12px;
-    border-radius: 6px;
-  }
-
-  .ant-input-search {
-    width: 200px;
-
-    .ant-input-affix-wrapper {
-      min-height: 28px;
-      padding-block: 0;
-      font-size: 12px;
-    }
-
-    .ant-input {
-      font-size: 12px;
-      height: 26px;
-    }
-
-    .ant-input-search-button {
-      height: 28px;
-      font-size: 12px;
-    }
-  }
 }
 
 .project-list-page__list {

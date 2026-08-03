@@ -155,12 +155,26 @@ test.describe('项目面闭环', () => {
             '.project-list-page__title',
           ) as HTMLElement | null;
           const toolbar = pageRoot?.querySelector(
-            '.project-list-page__toolbar',
+            '[data-testid="project-list-toolbar"]',
           ) as HTMLElement | null;
           const openBtn = el.querySelector(
             '[data-testid="open-project"]',
           ) as HTMLElement | null;
+          const search = toolbar?.querySelector(
+            '[aria-label="搜索项目名"]',
+          ) as HTMLElement | null;
+          const space = toolbar?.querySelector('.ant-space') as HTMLElement | null;
+          const spaceItems = space
+            ? Array.from(space.querySelectorAll(':scope > .ant-space-item'))
+            : [];
+          let spaceItemGap = -1;
+          if (spaceItems.length >= 2) {
+            const a = spaceItems[0].getBoundingClientRect();
+            const b = spaceItems[1].getBoundingClientRect();
+            spaceItemGap = Math.round(b.left - a.right);
+          }
           const tcs = pageTitle ? getComputedStyle(pageTitle) : null;
+          const scs = space ? getComputedStyle(space) : null;
           return {
             padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
             padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
@@ -170,6 +184,12 @@ test.describe('项目面闭环', () => {
             pageTitleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
             toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
             openBtnH: openBtn ? openBtn.getBoundingClientRect().height : -1,
+            searchH: search
+              ? search.closest('.ant-input-affix-wrapper')?.getBoundingClientRect()
+                  .height ?? search.getBoundingClientRect().height
+              : -1,
+            spaceColGap: scs ? parseFloat(scs.columnGap) : -1,
+            spaceItemGap,
           };
         });
         expect(
@@ -200,13 +220,32 @@ test.describe('项目面闭环', () => {
         ).toBeLessThanOrEqual(24);
         expect(
           metrics.toolbarH,
-          `工具条高应 ≤40（目标 ~28），得 ${metrics.toolbarH}`,
-        ).toBeLessThanOrEqual(40);
+          `工具条高应 ≤32（目标 ~28），得 ${metrics.toolbarH}`,
+        ).toBeLessThanOrEqual(32);
         expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
         expect(
           metrics.openBtnH,
           `打开模型钮高度应 ≤32（目标 28），得 ${metrics.openBtnH}`,
         ).toBeLessThanOrEqual(32);
+        expect(
+          metrics.searchH,
+          `搜索框高应 ≤28（禁 antd 默认 32），得 ${metrics.searchH}`,
+        ).toBeLessThanOrEqual(28);
+        expect(metrics.searchH).toBeGreaterThanOrEqual(22);
+        if (metrics.spaceColGap >= 0) {
+          expect(
+            metrics.spaceColGap,
+            `工具条 Space column-gap 应 ∈[8,12]，得 ${metrics.spaceColGap}`,
+          ).toBeGreaterThanOrEqual(8);
+          expect(metrics.spaceColGap).toBeLessThanOrEqual(12);
+        }
+        if (metrics.spaceItemGap >= 0) {
+          expect(
+            metrics.spaceItemGap,
+            `工具条 Space 项距应 ∈[8,12]，得 ${metrics.spaceItemGap}`,
+          ).toBeGreaterThanOrEqual(8);
+          expect(metrics.spaceItemGap).toBeLessThanOrEqual(12);
+        }
 
         await page.screenshot({
           path: `test-results/ux-walkthrough/${shotName}`,
@@ -250,12 +289,26 @@ test.describe('项目面闭环', () => {
           '.project-list-page__title',
         ) as HTMLElement | null;
         const toolbar = pageRoot?.querySelector(
-          '.project-list-page__toolbar',
+          '[data-testid="project-list-toolbar"]',
         ) as HTMLElement | null;
         const openBtn = el.querySelector(
           '[data-testid="open-project"]',
         ) as HTMLElement | null;
+        const search = toolbar?.querySelector(
+          '[aria-label="搜索项目名"]',
+        ) as HTMLElement | null;
+        const space = toolbar?.querySelector('.ant-space') as HTMLElement | null;
+        const spaceItems = space
+          ? Array.from(space.querySelectorAll(':scope > .ant-space-item'))
+          : [];
+        let spaceItemGap = -1;
+        if (spaceItems.length >= 2) {
+          const a = spaceItems[0].getBoundingClientRect();
+          const b = spaceItems[1].getBoundingClientRect();
+          spaceItemGap = Math.round(b.left - a.right);
+        }
         const tcs = pageTitle ? getComputedStyle(pageTitle) : null;
+        const scs = space ? getComputedStyle(space) : null;
         return {
           padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
           padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
@@ -265,6 +318,12 @@ test.describe('项目面闭环', () => {
           pageTitleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
           toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
           openBtnH: openBtn ? openBtn.getBoundingClientRect().height : -1,
+          searchH: search
+            ? search.closest('.ant-input-affix-wrapper')?.getBoundingClientRect()
+                .height ?? search.getBoundingClientRect().height
+            : -1,
+          spaceColGap: scs ? parseFloat(scs.columnGap) : -1,
+          spaceItemGap,
         };
       });
       expect(metrics.padBlock).toBeLessThanOrEqual(10);
@@ -275,9 +334,15 @@ test.describe('项目面闭环', () => {
       expect(metrics.titleLh).toBeLessThanOrEqual(24);
       expect(metrics.pageTitleFont).toBeLessThanOrEqual(14);
       expect(metrics.pageTitleLh).toBeLessThanOrEqual(24);
-      expect(metrics.toolbarH).toBeLessThanOrEqual(40);
+      expect(metrics.toolbarH).toBeLessThanOrEqual(32);
       expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
       expect(metrics.openBtnH).toBeLessThanOrEqual(32);
+      expect(metrics.searchH).toBeLessThanOrEqual(28);
+      expect(metrics.searchH).toBeGreaterThanOrEqual(22);
+      expect(metrics.spaceColGap).toBeGreaterThanOrEqual(8);
+      expect(metrics.spaceColGap).toBeLessThanOrEqual(12);
+      expect(metrics.spaceItemGap).toBeGreaterThanOrEqual(8);
+      expect(metrics.spaceItemGap).toBeLessThanOrEqual(12);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/project-group-list-dense.png',

@@ -55,6 +55,7 @@
 | 三壳顶栏 `erd-chrome-header` | 次密距 | padX ≤16；brand–nav gap ≤12（Design ≤8）；禁 20/16；顶栏 64 / Skip 不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify |
 | Home 水平导航 Menu | 次密距 | 项 padX ∈[8,12]；项高 64；命中宽 ≥44；禁 padX16；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `home-keyboard` |
 | Group 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `group-keyboard` |
+| 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
 | DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
 | 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |

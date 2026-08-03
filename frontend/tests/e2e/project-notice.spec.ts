@@ -70,7 +70,7 @@ test.describe('项目公告', () => {
         '.project-list-page__title',
       ) as HTMLElement | null;
       const toolbar = pageRoot?.querySelector(
-        '.project-list-page__toolbar',
+        '[data-testid="project-list-toolbar"]',
       ) as HTMLElement | null;
       const link = el.querySelector(
         '.project-list-page__notice-row > a',
@@ -121,8 +121,8 @@ test.describe('项目公告', () => {
     ).toBeLessThanOrEqual(24);
     expect(
       metrics.toolbarH,
-      `工具条高应 ≤40（目标 ~28），得 ${metrics.toolbarH}`,
-    ).toBeLessThanOrEqual(40);
+      `工具条高应 ≤32（目标 ~28），得 ${metrics.toolbarH}`,
+    ).toBeLessThanOrEqual(32);
     expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
 
     await page.screenshot({
