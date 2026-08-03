@@ -111,6 +111,20 @@ class IndexResultSetMapperTest {
     }
 
     @Test
+    void mapFromStatistics_prefersExpressionOverSysNcColumnName() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, true, false);
+        when(rs.getString("EXPRESSION")).thenReturn(null, "LOWER(\"EMAIL\")");
+        when(rs.getString("INDEX_NAME")).thenReturn("IDX_MIXED", "IDX_MIXED");
+        when(rs.getString("COLUMN_NAME")).thenReturn("TENANT_ID", "SYS_NC00005$");
+        when(rs.getInt("NON_UNIQUE")).thenReturn(1, 1);
+
+        List<Index> indexes = IndexResultSetMapper.mapFromStatistics(rs, "DEFAULT");
+        assertEquals(1, indexes.size());
+        assertEquals(List.of("TENANT_ID", "LOWER(\"EMAIL\")"), indexes.get(0).getFields());
+    }
+
+    @Test
     void mapFromStatistics_skipsEmptyKeyPart_failSoft() throws SQLException {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true, true, false);

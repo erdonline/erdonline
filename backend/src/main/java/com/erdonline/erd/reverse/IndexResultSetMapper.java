@@ -56,13 +56,18 @@ public final class IndexResultSetMapper {
     }
 
     /**
-     * 映射字典表风格索引结果（MySQL STATISTICS / PostgreSQL pg_catalog 查询）。
+     * 映射字典表风格索引结果（MySQL STATISTICS / PostgreSQL pg_catalog /
+     * Oracle ALL_IND_* / SQL Server sys.indexes 查询）。
      * <p>约定列名不区分大小写：INDEX_NAME / COLUMN_NAME / NON_UNIQUE（0=唯一）；
-     * 可选 EXPRESSION（COLUMN_NAME 空时回填）。调用方需已按索引名、序号 ORDER BY。
+     * 可选 EXPRESSION（有值则优先，覆盖 Oracle SYS_NC$ / SQL Server 计算列）。
+     * Oracle {@code COLUMN_EXPRESSION} 为 LONG：每行须在其它列之前读取 EXPRESSION。
+     * 调用方需已按索引名、序号 ORDER BY。
      */
     public static List<Index> mapFromStatistics(ResultSet statisticsRs, String nameCaseFlag) throws SQLException {
         Map<String, Index> byName = new LinkedHashMap<>(16);
         while (statisticsRs.next()) {
+            // Oracle LONG：next() 后立刻读 EXPRESSION，再读其它列
+            String keyPart = readIndexKeyPart(statisticsRs);
             String indexName = readStringIgnoreCase(statisticsRs, "INDEX_NAME");
             if (indexName == null || indexName.isEmpty()) {
                 continue;
@@ -70,8 +75,7 @@ public final class IndexResultSetMapper {
             if (INDEX_PRIMARY.equalsIgnoreCase(indexName)) {
                 continue;
             }
-            String columnName = readIndexKeyPart(statisticsRs);
-            if (columnName == null || columnName.isEmpty()) {
+            if (keyPart == null || keyPart.isEmpty()) {
                 continue;
             }
             // NON_UNIQUE: 0 唯一，1 非唯一
@@ -79,20 +83,21 @@ public final class IndexResultSetMapper {
             boolean nonUnique = nonUniqueFlag != 0;
             String adjustedName = NameCaseAdjuster.adjust(indexName, nameCaseFlag);
             Index index = byName.computeIfAbsent(adjustedName, name -> new Index(name, !nonUnique));
-            index.getFields().add(adjustIndexField(columnName, nameCaseFlag));
+            index.getFields().add(adjustIndexField(keyPart, nameCaseFlag));
         }
         return new ArrayList<>(byName.values());
     }
 
     /**
-     * 键位：优先 COLUMN_NAME；空则读 EXPRESSION（MySQL 8 函数索引）。
+     * 键位：优先 EXPRESSION（Oracle 函数索引 / SQL Server 计算列 / MySQL 8）；
+     * 空则 COLUMN_NAME。须在读其它列之前调用（Oracle LONG）。
      */
     static String readIndexKeyPart(ResultSet rs) throws SQLException {
-        String columnName = readStringIgnoreCase(rs, "COLUMN_NAME");
-        if (columnName != null && !columnName.isEmpty()) {
-            return columnName;
+        String expression = readOptionalStringIgnoreCase(rs, "EXPRESSION");
+        if (expression != null && !expression.isEmpty()) {
+            return expression;
         }
-        return readOptionalStringIgnoreCase(rs, "EXPRESSION");
+        return readOptionalStringIgnoreCase(rs, "COLUMN_NAME");
     }
 
     /**
