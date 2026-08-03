@@ -171,7 +171,7 @@
 ```
 
 - **逆向**：MySQL/MariaDB 自 `INFORMATION_SCHEMA.TRIGGERS`、PostgreSQL 自 `information_schema.triggers`、SQL Server 自 `sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION`、Oracle 自 `ALL_TRIGGERS`+`ALL_SOURCE`（`supportsTrigger`）；名 + 时机/事件 + 体写入上表；`ddl` 优先原样字典源码（`OBJECT_DEFINITION` / `CREATE`/`TRIGGER` 文本），否则可重建 CREATE（非字节级 `SHOW CREATE TRIGGER` / `pg_get_triggerdef` / `DBMS_METADATA` 克隆）。
-- **DBML**：本阶段仍不映射 trigger（见下表）。
+- **DBML**：不映射（见下「不映射」；无合法语法家，禁止塞进 `Note`）。
 
 ## profile
 
@@ -267,6 +267,8 @@ cd frontend && yarn validate:projectjson
 | `Project` 名 / Note | 模块 `name` / `chnname`（缺省 `DBML` / `DBML导入`） |
 
 **不映射**：enum、trigger、表级 check、复合 FK、索引表达式列。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`）。
+
+**Trigger 缺口（度量结论）**：`@dbml/core` 9.x 解析 **不接受** `Trigger { … }` 块（holistics/dbml#836 提案未并入主线）；表/列 `Note` **仅**与 `chnname` 互通，禁止把 `triggers[]`/`ddl` 写入 Note（会污染显示名 round-trip，且非合法 DBML 语义家）。双向互通等官方块稳定或可移植扩展后再做；DDL 导出另切片。
 
 ## 非目标（本规范不覆盖）
 
