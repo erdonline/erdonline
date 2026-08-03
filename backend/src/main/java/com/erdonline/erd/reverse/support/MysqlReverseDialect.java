@@ -2,11 +2,13 @@ package com.erdonline.erd.reverse.support;
 
 import com.erdonline.erd.model.Association;
 import com.erdonline.erd.model.Index;
+import com.erdonline.erd.model.Trigger;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.TableIdentity;
+import com.erdonline.erd.reverse.TriggerResultSetMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -21,7 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * MySQL / MariaDB 逆向：索引走 STATISTICS；FK 走 KEY_COLUMN_USAGE（字典级，保复合列序）。
+ * MySQL / MariaDB 逆向：索引走 STATISTICS；FK 走 KEY_COLUMN_USAGE（字典级，保复合列序）；
+ * 触发器走 INFORMATION_SCHEMA.TRIGGERS → {@code entity.triggers}。
  *
  * @author erdonline
  */
@@ -48,12 +51,19 @@ public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
                     + "AND k.REFERENCED_TABLE_NAME IS NOT NULL "
                     + "ORDER BY k.CONSTRAINT_NAME, k.ORDINAL_POSITION";
 
+    private static final String SQL_TRIGGERS =
+            "SELECT TRIGGER_NAME, ACTION_TIMING, EVENT_MANIPULATION, ACTION_ORIENTATION, ACTION_STATEMENT "
+                    + "FROM INFORMATION_SCHEMA.TRIGGERS "
+                    + "WHERE EVENT_OBJECT_SCHEMA = ? AND EVENT_OBJECT_TABLE = ? "
+                    + "ORDER BY TRIGGER_NAME";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(false)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(true)
             .supportsComment(true)
+            .supportsTrigger(true)
             .build();
 
     @Override
@@ -96,6 +106,20 @@ public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
             statement.setString(2, table.getOriginTableName());
             try (ResultSet rs = statement.executeQuery()) {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
+            }
+        }
+    }
+
+    @Override
+    protected List<Trigger> loadTriggers(Connection connection, TableIdentity table, String nameCaseFlag)
+            throws SQLException {
+        String schemaName = resolveCatalog(connection, table);
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TRIGGERS)) {
+            statement.setString(1, schemaName);
+            statement.setString(2, table.getOriginTableName());
+            try (ResultSet rs = statement.executeQuery()) {
+                return TriggerResultSetMapper.mapFromInformationSchema(
+                        rs, table.getDisplayTableName(), nameCaseFlag);
             }
         }
     }

@@ -12,6 +12,7 @@ public final class DialectCapability {
     private final boolean supportsForeignKey;
     private final boolean supportsAutoIncrement;
     private final boolean supportsComment;
+    private final boolean supportsTrigger;
 
     private DialectCapability(Builder builder) {
         this.supportsSchema = builder.supportsSchema;
@@ -19,6 +20,7 @@ public final class DialectCapability {
         this.supportsForeignKey = builder.supportsForeignKey;
         this.supportsAutoIncrement = builder.supportsAutoIncrement;
         this.supportsComment = builder.supportsComment;
+        this.supportsTrigger = builder.supportsTrigger;
     }
 
     public boolean isSupportsSchema() {
@@ -41,6 +43,10 @@ public final class DialectCapability {
         return supportsComment;
     }
 
+    public boolean isSupportsTrigger() {
+        return supportsTrigger;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
@@ -51,6 +57,7 @@ public final class DialectCapability {
         private boolean supportsForeignKey;
         private boolean supportsAutoIncrement;
         private boolean supportsComment;
+        private boolean supportsTrigger;
 
         public Builder supportsSchema(boolean supportsSchema) {
             this.supportsSchema = supportsSchema;
@@ -74,6 +81,11 @@ public final class DialectCapability {
 
         public Builder supportsComment(boolean supportsComment) {
             this.supportsComment = supportsComment;
+            return this;
+        }
+
+        public Builder supportsTrigger(boolean supportsTrigger) {
+            this.supportsTrigger = supportsTrigger;
             return this;
         }
 

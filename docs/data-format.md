@@ -111,6 +111,7 @@
 | `remark` | string | 备注 |
 | `fields` | `Field[]` | 字段列表 |
 | `indexs` | `Index[]` | 索引（历史拼写 **indexs**，非 indexes） |
+| `triggers` | `Trigger[]` | 可选；表级触发器（逆向保真） |
 
 运行时校验：至少有 `title` 或 `name`，且 `fields` 为数组。
 
@@ -141,6 +142,22 @@
 ```json
 { "name": "AUTH_USER_INDEX1", "isUnique": true, "fields": ["ID", "CODE"] }
 ```
+
+### Trigger（`triggers[]`，可选）
+
+```json
+{
+  "name": "trg_user_bu",
+  "timing": "BEFORE",
+  "event": "UPDATE",
+  "orientation": "ROW",
+  "statement": "SET NEW.updated_at = NOW()",
+  "ddl": "CREATE TRIGGER `trg_user_bu` BEFORE UPDATE ON `t_user` FOR EACH ROW\nSET NEW.updated_at = NOW()"
+}
+```
+
+- **逆向**：MySQL/MariaDB 自 `INFORMATION_SCHEMA.TRIGGERS`（`supportsTrigger`）；名 + 时机/事件 + 体写入上表；`ddl` 为可重建 CREATE（非字节级 `SHOW CREATE TRIGGER` 克隆）。PG / SQL Server / Oracle 触发器字典另切片。
+- **DBML**：本阶段仍不映射 trigger（见下表）。
 
 ## profile
 

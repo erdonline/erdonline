@@ -273,6 +273,7 @@
 - [x] Colima PostgreSQL `reverse_demo`：表/列 COMMENT → `entity.chnname` / `fields[].chnname`（字典 obj/col_description）✅curl
 - [ ] Colima SQL Server（Azure SQL Edge）：meta `supportsComment=true`；`MS_Description` → `entity.chnname` / `fields[].chnname`（单测/fixture 已备；curl 待镜像可用）
 - [x] Oracle 表/列注释：`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS` → `entity.chnname` / `fields[].chnname`；meta `supportsComment=true`（无本机 Oracle：`OracleReverseDialectCommentTest` + mapper）✅自动
+- [x] MySQL 表触发器：`INFORMATION_SCHEMA.TRIGGERS` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`MysqlReverseDialectTriggerTest` + `TriggerResultSetMapperTest`）✅自动
 - [ ] Colima SQL Server（Azure SQL Edge）：indexs + associations 1:n curl 验证
 - [x] 只读分享：create + 匿名 GET `readonly=true`；匿名 create 401 ✅curl
 - [x] 分享脱敏：dbs password/username → `***` 且不污染原 Map ✅`ProjectShareSanitizeTest`

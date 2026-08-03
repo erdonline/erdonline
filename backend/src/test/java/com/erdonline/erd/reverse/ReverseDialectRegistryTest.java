@@ -65,12 +65,21 @@ class ReverseDialectRegistryTest {
     }
 
     @Test
-    void mysqlCapability_indexYes_schemaNo_fkYes_commentYes() {
+    void mysqlCapability_indexYes_schemaNo_fkYes_commentYes_triggerYes() {
         DialectCapability capability = ReverseDialectRegistry.resolve("MySQL").capability();
         assertTrue(capability.isSupportsIndex());
         assertTrue(capability.isSupportsAutoIncrement());
         assertTrue(capability.isSupportsForeignKey());
         assertTrue(capability.isSupportsComment());
+        assertTrue(capability.isSupportsTrigger());
         assertFalse(capability.isSupportsSchema());
+    }
+
+    @Test
+    void otherP0Dialects_triggerNotYet() {
+        assertFalse(ReverseDialectRegistry.resolve("PostgreSQL").capability().isSupportsTrigger());
+        assertFalse(ReverseDialectRegistry.resolve("Oracle").capability().isSupportsTrigger());
+        assertFalse(ReverseDialectRegistry.resolve("Microsoft SQL Server").capability().isSupportsTrigger());
+        assertFalse(ReverseDialectRegistry.resolve("H2").capability().isSupportsTrigger());
     }
 }
