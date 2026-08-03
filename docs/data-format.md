@@ -159,7 +159,11 @@
 
 `fields[]` 为字符串数组，元素既可以是**列名**，也可以是**索引表达式**原样文本（如 `"LOWER(email)"`）。DBML 导入时 `@dbml/core` 的 expression 列写入此数组；导出时非纯 ident 以 `` `expr` `` 写回。DDL 模板 `createIndexTemplate` 对 `fields` 做 join，表达式可直接进入 `CREATE INDEX … (LOWER(email))`。
 
-逆向 JDBC `getIndexInfo` 通常只给列名；函数/表达式索引视驱动而定，本切片未扩展字典抓取。
+**逆向**：
+- PostgreSQL：`pg_catalog` + `unnest(indkey)`；`indkey=0` 时用 `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样
+- MySQL 8+：`INFORMATION_SCHEMA.STATISTICS`，`COLUMN_NAME` 空时读 `EXPRESSION`；无该列（MariaDB / 旧版）回退列名-only，失败键位软跳过
+- Generic JDBC `getIndexInfo`：仍多为列名；`COLUMN_NAME` 空则软跳过该键位
+- 表达式不做大小写折叠（`NameCaseAdjuster` 仅作用于纯 ident）
 ### Trigger（`triggers[]`，可选）
 
 ```json

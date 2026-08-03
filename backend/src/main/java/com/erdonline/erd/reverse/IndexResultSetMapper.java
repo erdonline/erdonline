@@ -8,11 +8,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 /**
  * 将 JDBC {@link DatabaseMetaData#getIndexInfo} 风格 ResultSet 映射为 {@link Index} 列表。
  * <p>约定列：TYPE / INDEX_NAME / COLUMN_NAME / NON_UNIQUE（与 JDBC 规范一致）。
+ * 字典层可另带 EXPRESSION（MySQL 8 函数索引）；表达式原样进 {@code fields[]}，不做大小写折叠。
  *
  * @author erdonline
  */
@@ -41,21 +43,22 @@ public final class IndexResultSetMapper {
                 continue;
             }
             String columnName = indexRs.getString("COLUMN_NAME");
-            if (columnName == null) {
+            if (columnName == null || columnName.isEmpty()) {
+                // JDBC 常把函数键写成 null；无表达式旁路时软跳过该键位
                 continue;
             }
             boolean nonUnique = indexRs.getBoolean("NON_UNIQUE");
             String adjustedName = NameCaseAdjuster.adjust(indexName, nameCaseFlag);
             Index index = byName.computeIfAbsent(adjustedName, name -> new Index(name, !nonUnique));
-            index.getFields().add(NameCaseAdjuster.adjust(columnName, nameCaseFlag));
+            index.getFields().add(adjustIndexField(columnName, nameCaseFlag));
         }
         return new ArrayList<>(byName.values());
     }
 
     /**
      * 映射字典表风格索引结果（MySQL STATISTICS / PostgreSQL pg_catalog 查询）。
-     * <p>约定列名不区分大小写：INDEX_NAME / COLUMN_NAME / NON_UNIQUE（0=唯一）。
-     * 调用方需已按索引名、序号 ORDER BY。
+     * <p>约定列名不区分大小写：INDEX_NAME / COLUMN_NAME / NON_UNIQUE（0=唯一）；
+     * 可选 EXPRESSION（COLUMN_NAME 空时回填）。调用方需已按索引名、序号 ORDER BY。
      */
     public static List<Index> mapFromStatistics(ResultSet statisticsRs, String nameCaseFlag) throws SQLException {
         Map<String, Index> byName = new LinkedHashMap<>(16);
@@ -67,7 +70,7 @@ public final class IndexResultSetMapper {
             if (INDEX_PRIMARY.equalsIgnoreCase(indexName)) {
                 continue;
             }
-            String columnName = readStringIgnoreCase(statisticsRs, "COLUMN_NAME");
+            String columnName = readIndexKeyPart(statisticsRs);
             if (columnName == null || columnName.isEmpty()) {
                 continue;
             }
@@ -76,16 +79,58 @@ public final class IndexResultSetMapper {
             boolean nonUnique = nonUniqueFlag != 0;
             String adjustedName = NameCaseAdjuster.adjust(indexName, nameCaseFlag);
             Index index = byName.computeIfAbsent(adjustedName, name -> new Index(name, !nonUnique));
-            index.getFields().add(NameCaseAdjuster.adjust(columnName, nameCaseFlag));
+            index.getFields().add(adjustIndexField(columnName, nameCaseFlag));
         }
         return new ArrayList<>(byName.values());
+    }
+
+    /**
+     * 键位：优先 COLUMN_NAME；空则读 EXPRESSION（MySQL 8 函数索引）。
+     */
+    static String readIndexKeyPart(ResultSet rs) throws SQLException {
+        String columnName = readStringIgnoreCase(rs, "COLUMN_NAME");
+        if (columnName != null && !columnName.isEmpty()) {
+            return columnName;
+        }
+        return readOptionalStringIgnoreCase(rs, "EXPRESSION");
+    }
+
+    /**
+     * 纯列名走大小写策略；含括号/引号/空白等视为表达式，原样保留。
+     */
+    static String adjustIndexField(String field, String nameCaseFlag) {
+        if (field == null) {
+            return null;
+        }
+        if (looksLikeIndexExpression(field)) {
+            return field;
+        }
+        return NameCaseAdjuster.adjust(field, nameCaseFlag);
+    }
+
+    static boolean looksLikeIndexExpression(String field) {
+        for (int i = 0; i < field.length(); i++) {
+            char c = field.charAt(i);
+            if (c == '(' || c == ')' || c == ' ' || c == '\'' || c == '"' || c == '`' || c == ':') {
+                return true;
+            }
+        }
+        return false;
     }
 
     private static String readStringIgnoreCase(ResultSet rs, String label) throws SQLException {
         try {
             return rs.getString(label);
         } catch (SQLException ignore) {
-            return rs.getString(label.toLowerCase(java.util.Locale.ROOT));
+            return rs.getString(label.toLowerCase(Locale.ROOT));
+        }
+    }
+
+    private static String readOptionalStringIgnoreCase(ResultSet rs, String label) {
+        try {
+            return readStringIgnoreCase(rs, label);
+        } catch (SQLException ignore) {
+            return null;
         }
     }
 
@@ -93,7 +138,7 @@ public final class IndexResultSetMapper {
         try {
             return rs.getInt(label);
         } catch (SQLException ignore) {
-            return rs.getInt(label.toLowerCase(java.util.Locale.ROOT));
+            return rs.getInt(label.toLowerCase(Locale.ROOT));
         }
     }
 }

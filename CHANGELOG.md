@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 逆向：PG/MySQL 表达式·函数索引 → `indexs[].fields[]`
+
+- 选题：DBML 表达式索引（`1e4a1bf`）后最高缺口 = 字典逆向仍只出列名；PG `INNER JOIN pg_attribute` 整丢 `indkey=0` 行
+- PG：`LEFT JOIN` + `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样
+- MySQL 8：`STATISTICS` `COLUMN_NAME` 空则读 `EXPRESSION`；无列回退 legacy SQL（MariaDB/旧版）
+- Mapper：空键位软跳过；表达式不做大小写折叠；与 DBML 同槽无 schema 加法
+- 未做：Oracle / SQL Server 函数索引；ADR-0013
+- 单测 mock JDBC；文档 data-format / ADR-0006 / roadmap
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=IndexResultSetMapperTest,PostgresqlReverseDialectExpressionIndexTest,MysqlReverseDialectExpressionIndexTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart`
+
 #### 互通：DBML 表达式索引 ↔ `indexs[].fields[]`
 
 - 选题：Enum 闭环（`2d42004`）后下一刀 = 表达式/函数索引往返（roadmap 显式「另切片」）
@@ -15,7 +28,7 @@
 - 导入：`@dbml/core` `columns[].type=expression` 不再丢弃，写入 `fields[]`
 - 导出：纯 ident → 列引用；其余 → `` `expr` ``（混列同块）
 - DDL：既有 `createIndexTemplate` 对 `fields` join，表达式可进 `CREATE INDEX … (LOWER(email))`
-- 未做：JDBC 逆向函数索引字典抓取；索引签 UI 表达式编辑器
+- 未做：索引签 UI 表达式编辑器；Oracle/SQL Server 函数索引字典（本切片已补 JDBC 逆向 PG/MySQL）
 - 单测 + fixture `expression-index.dbml` round-trip；E2E `dbml-export`「表达式索引」
 - 文档：data-format Index + DBML 表；roadmap / regression-checklist
 
