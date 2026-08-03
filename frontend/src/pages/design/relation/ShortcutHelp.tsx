@@ -8,7 +8,7 @@ export type ShortcutRow = {
 
 const DEFAULT_SHORTCUTS: ShortcutRow[] = [
   { keys: '⌘/Ctrl+K · ⌘/Ctrl+F', desc: '命令面板（搜表定位、建表、布局）' },
-  { keys: '⌘/Ctrl+1 · 2 · 3', desc: '表设计：字段 / 索引 / 元数据应用' },
+  { keys: '⌘/Ctrl+1 · 2 · 3 · 4', desc: '表设计：字段 / 索引 / 元数据应用 / 触发器' },
   { keys: '⌘/Ctrl+Z', desc: '撤销' },
   { keys: '⌘/Ctrl+⇧Z', desc: '重做' },
   { keys: 'Delete · Backspace', desc: '删除选中表 / 边 / 字段（二次确认）' },

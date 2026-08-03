@@ -65,6 +65,12 @@ export interface IEntitiesDispatchSlice {
     payload: any,
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
+  updateEntityTriggers: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   setCurrentEntity: (moduleName: string, entityName: string) => void;
   setCurrentModuleAndEntity: (moduleName: string, entityName: string) => void;
 }
@@ -825,6 +831,78 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       }));
       ackManualPersist(true);
       showMessage('success', '索引更新成功');
+      return true;
+    })();
+  },
+  updateEntityTriggers: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => {
+    const persist = !!opts?.persist;
+    if (typeof moduleName !== 'string') {
+      console.error('模块名称必须是字符串', moduleName);
+      showMessage('error', '更新失败：无效的模块名称');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
+    if (moduleIndex === -1) {
+      showMessage('error', `模型 "${moduleName}" 不存在`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+    const entityIndex = modules[moduleIndex].entities.findIndex(
+      (e: any) => e.title === entityTitle || e.name === entityTitle,
+    );
+    if (entityIndex === -1) {
+      showMessage('error', `表 "${entityTitle}" 不存在`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const list = Array.isArray(payload) ? payload : [];
+    const names = new Set<string>();
+    const duplicates: string[] = [];
+    for (const t of list) {
+      const n = t?.name;
+      if (!n || typeof n !== 'string') continue;
+      if (names.has(n)) duplicates.push(n);
+      names.add(n);
+    }
+    if (duplicates.length > 0) {
+      showMessage('error', `以下触发器名重复: ${duplicates.join(', ')}`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const applyTriggers = (state: any) => {
+      state.project.projectJSON.modules[moduleIndex].entities[entityIndex].triggers = list;
+    };
+
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        applyTriggers(state);
+      }));
+      showMessage('success', '触发器更新成功');
+      return;
+    }
+
+    const project = get().project;
+    const next = produce(project, (draft: any) => {
+      applyTriggers({ project: draft });
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '触发器保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      showMessage('success', '触发器更新成功');
       return true;
     })();
   },

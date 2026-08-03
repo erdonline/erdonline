@@ -1,6 +1,7 @@
 import CodeTab from '@/pages/design/table/component/tab/CodeTab';
 import TableIndexEdit from '@/pages/design/table/component/table/TableIndexEdit';
 import TableInfoEdit from '@/pages/design/table/component/table/TableInfoEdit';
+import TableTriggerEdit from '@/pages/design/table/component/table/TableTriggerEdit';
 import useTabStore, {DesignPane, ModuleEntity} from '@/store/tab/useTabStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import {erdColors} from '@/theme/tokens';
@@ -11,7 +12,7 @@ import './TableTab.less';
 
 const {TabPane} = Tabs;
 
-const PANE_BY_DIGIT: DesignPane[] = ['field', 'index', 'code'];
+const PANE_BY_DIGIT: DesignPane[] = ['field', 'index', 'code', 'trigger'];
 
 export type TableTabProps = {
   moduleEntity: ModuleEntity;
@@ -40,7 +41,7 @@ const TableTab: React.FC<TableTabProps> = (props) => {
     }
   }, [designPane, module, entityName]);
 
-  // Cmd/Ctrl+1/2/3 → 字段 / 索引 / 元数据应用（仅表设计签挂载时监听，不抢画布/浏览器签页）
+  // Cmd/Ctrl+1/2/3/4 → 字段 / 索引 / 元数据应用 / 触发器
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const el = e.target as HTMLElement | null;
@@ -51,12 +52,12 @@ const TableTab: React.FC<TableTabProps> = (props) => {
         return;
       }
       const digit =
-        e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3'
+        e.code === 'Digit1' || e.code === 'Digit2' || e.code === 'Digit3' || e.code === 'Digit4'
           ? Number(e.code.replace('Digit', ''))
-          : e.key === '1' || e.key === '2' || e.key === '3'
+          : e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4'
             ? Number(e.key)
             : 0;
-      if (digit < 1 || digit > 3) {
+      if (digit < 1 || digit > PANE_BY_DIGIT.length) {
         return;
       }
       e.preventDefault();
@@ -96,6 +97,9 @@ const TableTab: React.FC<TableTabProps> = (props) => {
         </TabPane>
         <TabPane key="code" tab="元数据应用">
           <CodeTab moduleEntity={props.moduleEntity} />
+        </TabPane>
+        <TabPane key="trigger" tab="触发器">
+          <TableTriggerEdit moduleEntity={props.moduleEntity} />
         </TabPane>
       </Tabs>
     </div>

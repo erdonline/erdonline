@@ -2997,7 +2997,7 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
-  test('表设计 Cmd/Ctrl+1/2/3：直切字段/索引/元数据应用', async ({ page }) => {
+  test('表设计 Cmd/Ctrl+1/2/3/4：直切字段/索引/元数据应用/触发器', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('panekeys');
     const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
@@ -3034,6 +3034,13 @@ test.describe('关系图画布（ReactFlow）', () => {
         'true',
       );
       await expect(page.getByTestId('table-code-edit')).toBeVisible();
+
+      await page.keyboard.press(`${mod}+4`);
+      await expect(designer.getByRole('tab', { name: '触发器' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-trigger-edit')).toBeVisible();
 
       await page.keyboard.press(`${mod}+1`);
       await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
@@ -3075,7 +3082,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help).toBeVisible();
       await expect(help).toHaveAttribute('aria-modal', 'true');
       await expect(help.getByText('命令面板（搜表定位、建表、布局）')).toBeVisible();
-      await expect(help.getByText('表设计：字段 / 索引 / 元数据应用')).toBeVisible();
+      await expect(help.getByText('表设计：字段 / 索引 / 元数据应用 / 触发器')).toBeVisible();
       await expect(help.getByText(/二次确认/)).toBeVisible();
       await expect(help.getByText(/字段环|选中表\/边\/分组|下一\/上一列或行|下一 \/ 上一列或行/)).toBeVisible();
       await expect(help.getByText(/模型树：漫游/)).toBeVisible();

@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 体验：表设计触发器签（`entity.triggers[]`）
+
+- 选题：`71d9f1c` 分享表清单分页后，UI 水位下一刀 = 设计器内暴露逆向已写入的 `triggers[]`（非 CommonTabs densify）
+- 表设计：新增「触发器」内签（列表 + 查看 DDL + 添加/删除）；密 chrome（~28 行 / hint ~24）；`Cmd/Ctrl+4` 直切
+- Store：`updateEntityTriggers` 仅 `saveProject` code===200 写 store（禁假成功）；名重复拒写
+- E2E：`table-triggers.spec` 添加→DDL→删除；`relation.spec` 签页快捷键/速查文案扩到 4
+- 文档：data-format Trigger UI 入口；roadmap / ui-layout / regression-checklist
+- 未做：DBML `triggers[]` 互导（`@dbml/core` 无块）；画布打开触发器签入口；DDL 导出切片
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/table-triggers.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "Cmd/Ctrl\\+1/2/3/4|快捷键速查" --workers=1 --retries=0`
+
 #### 体验：分享页表清单分页
 
 - 选题：量测 DBML 触发器互导 — `@dbml/core` 9.x **无**合法 `Trigger` 块；`Note` 已专用于 `chnname`，塞 `triggers[]` 会污染显示名且非官方语义家 → 文档缺口后改切最高 ROI UX：分享只读表清单 `pagination={false}` 大图撑屏

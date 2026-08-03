@@ -171,6 +171,7 @@
 ```
 
 - **逆向**：MySQL/MariaDB 自 `INFORMATION_SCHEMA.TRIGGERS`、PostgreSQL 自 `information_schema.triggers`、SQL Server 自 `sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION`、Oracle 自 `ALL_TRIGGERS`+`ALL_SOURCE`（`supportsTrigger`）；名 + 时机/事件 + 体写入上表；`ddl` 优先原样字典源码（`OBJECT_DEFINITION` / `CREATE`/`TRIGGER` 文本），否则可重建 CREATE（非字节级 `SHOW CREATE TRIGGER` / `pg_get_triggerdef` / `DBMS_METADATA` 克隆）。
+- **设计器**：表设计内签「触发器」（`data-testid=table-trigger-edit`）列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` 经 `saveProject` persist-on-200 写回本数组。
 - **DBML**：不映射（见下「不映射」；无合法语法家，禁止塞进 `Note`）。
 
 ## profile
