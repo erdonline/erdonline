@@ -228,4 +228,57 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }
   });
+
+  test('左树「编辑表」开表设计字段签；「重命名表」仍走弹层', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('edittbl');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'edittbl', 'tree edit table');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const tableMenu = page.getByLabel('表操作');
+      await tableMenu.click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-field-edit')).toBeVisible();
+      await expect(page.getByRole('dialog', { name: '重命名表' })).toHaveCount(0);
+      await expect(page.getByRole('dialog', { name: '编辑表' })).toHaveCount(0);
+
+      // 切索引后再经菜单「编辑表」仍落字段（对称画布入口）
+      await designer.getByRole('tab', { name: '索引' }).click();
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await tableMenu.click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      await expect(page.getByTestId('table-design').getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      await tableMenu.click();
+      await page.getByRole('menuitem', { name: '重命名表' }).click();
+      const renameDialog = page.getByRole('dialog', { name: '重命名表' });
+      await expect(renameDialog).toBeVisible();
+      await renameDialog.getByLabel('名称').fill('T_RENAMED');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(renameDialog).toHaveCount(0);
+      await expect(page.getByRole('tree').getByText('T_RENAMED', { exact: true })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
 });

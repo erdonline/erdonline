@@ -58,7 +58,8 @@ const EntityModal: React.FC<EntityModalProps> = ({
             case 'module':
                 return isNew ? '新增模型' : '编辑模型';
             case 'entity':
-                return isNew ? '新增表' : '编辑表';
+                // 「编辑表」已改开表设计；本弹层仅新建/重命名
+                return isNew ? '新增表' : '重命名表';
             case 'relation':
                 // 关系图 = diagrams[] 命名（ADR-0017）；不再走已废弃的空 FK 表单
                 return isNew ? '新建关系图' : '重命名关系图';

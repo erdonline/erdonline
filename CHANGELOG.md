@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：左树「编辑表」开表设计字段签（建模回路）
+
+- 选题：表菜单「编辑表」仅弹重命名层，与字面「编辑」及画布「打开字段」期望不符
+- 「编辑表」→ `addTab(..., designPane: 'field')`（同画布 `canvas-open-field`）；另项「重命名表」→ EntityModal（标题同步为「重命名表」）
+- E2E：`multi-diagram`「左树「编辑表」开表设计字段签」：menuitem → 字段签选中 + 重命名另项
+- `docs/design-principles.md` §4；roadmap 下一刀 → 字段级 unique 说明
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "编辑表" --workers=1 --retries=0`
+
 #### 体验：左树「关系」文件夹 + 直建图（建模回路）
 
 - 选题：「表」文件夹有旁路 `+` 建表；「关系」文件夹缺对称 CTA，只能绕树头「新建」
