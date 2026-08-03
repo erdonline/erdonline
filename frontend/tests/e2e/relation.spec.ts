@@ -205,7 +205,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
 
-      // ADR-0016：panel 顶距 min(8vh,64)；CTA pad ∈[8,12]；主钮 hit ≥26；禁 10vh/88 松顶
+      // ADR-0016：panel 顶距 min(8vh,64)；纵节奏 title mt≈8 / desc mb≈12；CTA pad ∈[8,12]
       const emptyMetrics = await empty.evaluate((el) => {
         const panelEl = el.closest('[data-testid="canvas-empty-panel"]') as HTMLElement | null;
         const pcs = panelEl ? getComputedStyle(panelEl) : null;
@@ -227,8 +227,11 @@ test.describe('关系图画布（ReactFlow）', () => {
           padL: parseFloat(cs.paddingLeft),
           padR: parseFloat(cs.paddingRight),
           maxW: parseFloat(cs.maxWidth),
+          titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
           titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
           titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
+          descMt: dcs ? parseFloat(dcs.marginTop) : -1,
+          descMb: dcs ? parseFloat(dcs.marginBottom) : -1,
           descSize: dcs ? parseFloat(dcs.fontSize) : 0,
           descColor: dcs ? dcs.color : '',
           btnH: bcs ? parseFloat(bcs.height) : 0,
@@ -255,6 +258,20 @@ test.describe('关系图画布（ReactFlow）', () => {
         expect(v, `空态 ${k} 应 ∈[8,12]，得 ${v}`).toBeLessThanOrEqual(12);
       }
       expect(emptyMetrics.maxW).toBeLessThanOrEqual(300);
+      // 纵节奏：量测已贴 ADR；禁回退历史 title mt16 / desc mb18
+      expect(
+        emptyMetrics.titleMt,
+        `title mt 应 ≈8（∈[6,10]），得 ${emptyMetrics.titleMt}`,
+      ).toBeGreaterThanOrEqual(6);
+      expect(emptyMetrics.titleMt, `title mt 应 ≤10，得 ${emptyMetrics.titleMt}`).toBeLessThanOrEqual(10);
+      expect(emptyMetrics.titleMt).toBeCloseTo(8, 0);
+      expect(
+        emptyMetrics.descMb,
+        `desc mb 应 ≈12（∈[8,12]），得 ${emptyMetrics.descMb}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(emptyMetrics.descMb, `desc mb 应 ≤12，得 ${emptyMetrics.descMb}`).toBeLessThanOrEqual(12);
+      expect(emptyMetrics.descMb).toBeCloseTo(12, 0);
+      expect(emptyMetrics.descMt, `desc mt 应 ≤8（贴标题），得 ${emptyMetrics.descMt}`).toBeLessThanOrEqual(8);
       expect(emptyMetrics.titleSize).toBeLessThanOrEqual(14);
       expect(emptyMetrics.titleWeight).toBeGreaterThanOrEqual(700);
       expect(emptyMetrics.descSize).toBeLessThanOrEqual(12);

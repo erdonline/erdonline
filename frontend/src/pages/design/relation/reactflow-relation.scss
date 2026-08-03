@@ -1106,7 +1106,7 @@
   font-family: var(--erd-font-ui);
 
   .erd-empty-title {
-    margin-top: 8px;
+    margin-top: 8px; // ADR-0016 纵节奏；历史 16 → 8；禁回退松顶
     font-family: var(--erd-font-display);
     font-size: 14px;
     font-weight: 700;
@@ -1116,7 +1116,7 @@
   }
 
   .erd-empty-desc {
-    margin: 4px 0 12px;
+    margin: 4px 0 12px; // ADR-0016：贴标题 + CTA 前 8–12；历史 8×18 → 4×12
     font-size: 11px;
     line-height: 1.45;
     font-weight: 400;
