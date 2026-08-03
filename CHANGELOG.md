@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-02 connector 凭证优先已鉴权 dataSourceId
+
+- 选题：connector 热路径每次收 raw JDBC+账密，绕过 `data_sources` 归属（R-AUTH-04 只护 CRUD）
+- 改动：`ConnectorCredentialResolver` — body 含 `dataSourceId` 时经 `DataSourceAcl.requireOwned` 后服务端填入 url/username/password/driverClassName（覆盖客户端字段；url 空则按 host/type 合成）；`ConnectorController` ping/dbReverse*/sqlexec/dbsync 接入；无 id 仍允 raw（逆向/试连 UX）
+- 文档：`docs/security-model.md` R-DATA-02 基本关闭；roadmap 下一刀 → FE 热路径迁 id
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=ConnectorCredentialResolverTest,ProjectAndDataSourceAclTest,JdbcUrlGuardTest test`
+- `./backend/dev-ensure.sh --restart`；liveness → 200
+- 登录后：`POST /ncnb/connector/ping` 仅 `{"dataSourceId":"<他人id>"}` → body `code=403`；自有 id（或带自有 id + 伪客户端账密）走服务端凭据试连；无 id 的 raw `jdbc:h2` 仍拒
+
 #### 体验：登录壳键盘（Skip + Tab 序 + Enter 提交 + focus-visible）
 
 - 选题：`/login` 进页 Tab 先扫左品牌面板；暗面板焦点环弱；无 Skip 直达表单

@@ -12,6 +12,7 @@ import com.erdonline.erd.command.DbSqlExecCommand;
 import com.erdonline.erd.command.DbSyncCommand;
 import com.erdonline.erd.command.PingDBCommand;
 import com.erdonline.erd.entity.DbVersion;
+import com.erdonline.erd.security.ConnectorCredentialResolver;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import com.erdonline.erd.vip.rights.ProjectVersionCountRight;
@@ -46,14 +47,19 @@ public class ConnectorController {
     @Autowired
     private DbVersionService dbVersionService;
 
+    @Autowired
+    private ConnectorCredentialResolver connectorCredentialResolver;
+
     @PostMapping("ping")
     public R ping(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
         PingDBCommand pingDBCommand = new PingDBCommand();
         return pingDBCommand.exec(map);
     }
 
     @PostMapping("dbReverseParse")
     public R dbReverseParse(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
         DBReverseParseCommand dbReverseParseCommand = new DBReverseParseCommand();
         return dbReverseParseCommand.exec(map);
     }
@@ -63,6 +69,7 @@ public class ConnectorController {
      */
     @PostMapping("dbReverseMeta")
     public R dbReverseMeta(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
         return new DBReverseMetaCommand().exec(map);
     }
 
@@ -101,6 +108,7 @@ public class ConnectorController {
     @PostMapping("dbsync")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
     public R dbsync(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
         DbSyncCommand dbSyncCommand = new DbSyncCommand();
         R result = dbSyncCommand.exec(map);
         if (ApiErrorCode.OK.getCode() == result.getCode()) {
@@ -113,6 +121,7 @@ public class ConnectorController {
     @PostMapping("sqlexec")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
     public R sqlexec(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
         DbSqlExecCommand dbSqlExecCommand = new DbSqlExecCommand();
         return dbSqlExecCommand.exec(map);
     }

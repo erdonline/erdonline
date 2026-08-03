@@ -23,7 +23,7 @@ public class DbSqlExecCommand extends AbstractDBCommand<R> {
             super.init(params);
             return execSqls(params);
         } catch (ValidateException e) {
-            return R.failed(e.getMessage());
+            return e.getStatus() != 0 ? R.failed(e.getStatus(), e.getMessage()) : R.failed(e.getMessage());
         }
     }
 
