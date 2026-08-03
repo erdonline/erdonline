@@ -54,7 +54,18 @@ const TableTab: React.FC<TableTabProps> = (props) => {
         className="erd-table-design__tabs"
       >
         <TabPane key="field" tab="字段">
-          <TableInfoEdit moduleEntity={props.moduleEntity} />
+          <TableInfoEdit
+            moduleEntity={props.moduleEntity}
+            onOpenIndex={() => {
+              setActiveKey('index');
+              if (designPane) {
+                useTabStore.getState().dispatch.consumeDesignPane({
+                  module,
+                  entity: entityName,
+                });
+              }
+            }}
+          />
         </TabPane>
         <TabPane key="index" tab="索引">
           <TableIndexEdit moduleEntity={props.moduleEntity} />

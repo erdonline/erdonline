@@ -5,7 +5,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import _ from "lodash";
 import JExcel from "@/pages/JExcel";
-import { Button, Empty, Modal, message } from 'antd';
+import { Button, Empty, Modal, Space, message } from 'antd';
 
 export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
@@ -58,7 +58,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     }
   }
 
-  const seedIndex = (existing: IndexRow[]) => {
+  const seedIndex = (existing: IndexRow[], isUnique: boolean) => {
     if (!currentModule || !entity) {
       setStarted(true);
       return false;
@@ -74,23 +74,28 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       {
         name: nextIndexName(base, existing),
         fields: [fieldName],
-        isUnique: false,
+        isUnique,
       },
     ]);
     return true;
   };
 
   const addFirstIndex = () => {
-    seedIndex([]);
+    seedIndex([], false);
+  };
+
+  /** 字段唯一 = 唯一索引；空态明确 CTA，勿藏在「是否唯一」勾选里 */
+  const addFirstUniqueIndex = () => {
+    seedIndex([], true);
   };
 
   /** 已有索引后表内明确 CTA；勿只靠 JExcel 工具栏「+」图标（无文案死 affordance） */
-  const addAnotherIndex = () => {
+  const addAnotherIndex = (isUnique = false) => {
     if (!firstFieldName(entity || {})) {
       message.warning('请先添加字段再创建索引');
       return;
     }
-    seedIndex(indexs);
+    seedIndex(indexs, isUnique);
   };
 
   /** 破坏性：表内明确「删除」+ Modal 二次确认；勿只靠 JExcel 工具栏无确认 remove */
@@ -126,17 +131,32 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       >
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="还没有索引"
+          description={
+            <span data-testid="index-unique-hint">
+              还没有索引。字段唯一约束请在此创建唯一索引（勾选「是否唯一」）
+            </span>
+          }
         >
-          <Button
-            type="primary"
-            size="small"
-            data-testid="index-empty-add"
-            aria-label="添加第一个索引"
-            onClick={addFirstIndex}
-          >
-            添加第一个索引
-          </Button>
+          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+            <Button
+              type="primary"
+              size="small"
+              data-testid="index-empty-add"
+              aria-label="添加第一个索引"
+              onClick={addFirstIndex}
+            >
+              添加第一个索引
+            </Button>
+            <Button
+              type="link"
+              size="small"
+              data-testid="index-empty-add-unique"
+              aria-label="添加唯一索引"
+              onClick={addFirstUniqueIndex}
+            >
+              添加唯一索引
+            </Button>
+          </Space>
         </Empty>
       </div>
     );
@@ -168,6 +188,9 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
 
   return (
     <div data-testid="table-index-edit" className="erd-table-index-edit">
+      <p className="erd-table-index-hint" data-testid="index-unique-hint">
+        勾选「是否唯一」= UNIQUE 约束；画布字段会显示 UK。字段本身无独立 unique 列。
+      </p>
       {/* key：条数变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel
         key={`index-grid-${indexs.length}`}
@@ -200,16 +223,28 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
             })}
           </div>
           <div className="erd-table-index-add-row">
-            <Button
-              type="dashed"
-              size="small"
-              block
-              data-testid="index-add-row"
-              aria-label="再添加一条索引"
-              onClick={addAnotherIndex}
-            >
-              + 再添加一条索引
-            </Button>
+            <Space direction="vertical" size={6} style={{ width: '100%' }}>
+              <Button
+                type="dashed"
+                size="small"
+                block
+                data-testid="index-add-row"
+                aria-label="再添加一条索引"
+                onClick={() => addAnotherIndex(false)}
+              >
+                + 再添加一条索引
+              </Button>
+              <Button
+                type="link"
+                size="small"
+                block
+                data-testid="index-add-row-unique"
+                aria-label="再添加一条唯一索引"
+                onClick={() => addAnotherIndex(true)}
+              >
+                + 再添加一条唯一索引
+              </Button>
+            </Space>
           </div>
         </>
       ) : null}

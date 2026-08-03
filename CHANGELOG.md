@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：字段级 unique 说明（索引唯一 CTA + 画布 UK）
+
+- 选题：字段无 `unique` 列（UNIQUE 只在 `indexs[].isUnique`）；用户在字段签/画布找「唯一」易迷路
+- 字段签顶栏 hint +「去索引签设置唯一」（`field-unique-hint` / `field-goto-index`）
+- 索引空态：「添加唯一索引」（`index-empty-add-unique`）+ 说明；有行后「再添加一条唯一索引」+ UNIQUE 提示
+- 画布：参与唯一索引的字段显示只读 `UK` 徽章（`field-uk-badge`）；编辑仍走索引签
+- E2E：`relation`「字段级 unique 说明：索引唯一 CTA → 画布 UK；字段签跳索引」
+- `docs/design-principles.md` §4；roadmap ✅ 本刀，下一刀 → 建模回路其它摩擦（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段级 unique 说明" --workers=1 --retries=0`
+
 #### CI：清理 GitHub Actions 告警与硬失败
 
 - Actions 升到 Node 24 runtime 主版本：`checkout@v5`、`setup-node@v5`、`setup-java@v5`、`upload-artifact@v6`、`upload-pages-artifact@v5`、`deploy-pages@v5`、docker/`softprops`/`wrangler` 对应大版本（消 Node 20 deprecation 噪声）

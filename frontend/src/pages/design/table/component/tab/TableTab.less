@@ -105,6 +105,28 @@
   }
 }
 
+/* 字段签：唯一约束在索引；顶栏说明 + CTA 跳索引签 */
+.erd-table-field-unique-hint {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 6px 10px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600);
+  background: var(--erd-surface-sunk);
+  border: 1px solid var(--erd-line);
+  border-radius: var(--erd-radius-sm);
+
+  .ant-btn-link {
+    padding: 0;
+    height: auto;
+    font-size: 12px;
+  }
+}
+
 /* 索引签空态：居中 CTA，禁白屏死 affordance */
 .erd-table-index-empty {
   display: flex;
@@ -118,6 +140,16 @@
   display: flex;
   flex-direction: column;
   gap: 8px;
+}
+
+.erd-table-index-hint {
+  margin: 0;
+  padding: 4px 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600);
+  background: var(--erd-surface-sunk);
+  border-radius: var(--erd-radius-sm);
 }
 
 .erd-table-index-add-row {
