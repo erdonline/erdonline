@@ -27,7 +27,7 @@ public class PingDBCommand extends AbstractDBCommand<R> {
         try {
             super.init(params);
         } catch (ValidateException e) {
-            return R.failed(e.getMessage());
+            return e.getStatus() != 0 ? R.failed(e.getStatus(), e.getMessage()) : R.failed(e.getMessage());
         }
 
         try {

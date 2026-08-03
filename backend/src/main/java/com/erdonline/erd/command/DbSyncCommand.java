@@ -41,7 +41,7 @@ public class DbSyncCommand extends AbstractDBCommand<R> {
             SqlGuard.assertMutateAllowed(cleaned);
             return Common.execSqls(params, conn, cleaned);
         } catch (ValidateException e) {
-            return R.failed(e.getMessage());
+            return e.getStatus() != 0 ? R.failed(e.getStatus(), e.getMessage()) : R.failed(e.getMessage());
         }
     }
 }

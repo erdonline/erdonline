@@ -26,9 +26,9 @@
 |---|---|
 | `queryInfo/exec`、`queryInfo/explain` | `SqlGuard.assertReadOnly`：单语句 SELECT / EXPLAIN / SHOW / DESC（jsqlparser + 词首回退）；禁多语句、GRANT/OUTFILE 等 |
 | `connector/sqlexec`、`dbsync` | **mutate**：允许同步所需 DDL/DML；`SqlGuard.assertMutateAllowed` 拒 GRANT/REVOKE/CREATE USER/INTO OUTFILE/LOAD DATA LOCAL 等 |
-| `connector/ping|dbReverse*|sqlexec|dbsync|…` | `JdbcUrlGuard`：仅 `jdbc:mysql\|mariadb\|postgresql\|oracle:(thin\|oci)\|sqlserver`；禁云元数据主机 |
+| `connector/ping|dbReverse*|sqlexec|dbsync|…` | `JdbcUrlGuard`：仅 `jdbc:mysql\|mariadb\|postgresql\|oracle:(thin\|oci)\|sqlserver`；禁云元数据主机；**`dataSourceId` 优先**（`ConnectorCredentialResolver` → `DataSourceAcl` 后服务端填入凭据，覆盖客户端 JDBC 字段） |
 
-残留：请求体仍可直传已 allowlist 的 JDBC 凭证（逆向/试连产品路径）；凭证仅取自已鉴权 `dataSources` id 属后续切片。
+残留：无 `dataSourceId` 时仍可直传已 allowlist 的 JDBC 凭证（设计器逆向/试连 UX）；FE 热路径迁 id 后可再收紧 raw。内网 SSRF 主机策略另刀。
 
 ## 匿名放行（前缀剥离后路径）
 
@@ -79,7 +79,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-DATA-01 | P0 | ~~`queryInfo/exec`：`${sql}` 无语句白名单~~ | ~~`QueryInfoMapper.xml`；`QueryInfoServiceImpl`~~ | **✅ 已关闭（2026-08-03）**：`SqlGuard.assertReadOnly` 仅 SELECT/EXPLAIN/SHOW/DESC；禁多语句 | 保持只读白名单；`${sql}` 仍为动态执行面，勿扩 DML |
-| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 部分关闭（2026-08-03）**：`JdbcUrlGuard` scheme+元数据主机；mutate 路径拒 GRANT/OUTFILE；**dataSources 归属已关（R-AUTH-04）**；热路径仍收 raw JDBC+账密 | 下一刀：凭证改走已鉴权 dataSources id；内网 SSRF 主机策略 |
+| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 基本关闭（2026-08-03）**：`JdbcUrlGuard`；mutate 拒 GRANT/OUTFILE；**`dataSourceId`→ACL→服务端凭据**（覆盖客户端字段）；无 id 的 raw JDBC 仍保留给逆向/试连 | 下一刀：FE 热路径只传 id；内网 SSRF 主机策略；可选禁 mutate raw |
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | `POST /project/upload` 无类型/归属校验 | `ProjectController.java:134-137` | 任意登录用户写默认 OSS bucket | 校验扩展名/content-type；鉴权到项目；禁测试接口上生产 |
 | R-DATA-05 | P2 | `TestJsonController` 样板 CRUD 仍暴露 | `TestJsonController.java:56-121` | 需登录，污染面 | 删死路由 |
@@ -103,9 +103,9 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **connector 凭证改走已鉴权 `dataSources` id**（R-DATA-02 残留；产品侧 FE 已有 id，热路径仍可塞 raw JDBC）。
+1. **FE connector 热路径只传 `dataSourceId`**（R-DATA-02 残留；后端已支持 id 优先；逆向/新建试连可保留 raw）。
 2. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
 3. **SocketIO 项目成员**（R-AUTH-05）。
 
-（内网 SSRF 主机策略可与 connector-by-id 同切。）
+（内网 SSRF 主机策略 / mutate 禁 raw 可随后收紧。）
 
