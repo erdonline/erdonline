@@ -181,9 +181,6 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   );
   const updateNodeInternals = useUpdateNodeInternals();
 
-  const onFieldsChange = (fields: FieldData[]) => {
-    useProjectStore.getState().dispatch.updateEntityFields(moduleName, entity.title, fields);
-  };
   const [editing, setEditing] = useState<EditingState>(null);
   /** 浏览态选中字段：Delete/Backspace → 二次确认删除（编辑态 Backspace 仍只改字） */
   const [selectedField, setSelectedField] = useState<string | null>(null);
@@ -193,7 +190,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   /** 表头改名落盘中：禁二次提交 / Escape 误丢草稿 */
   const [headerSaving, setHeaderSaving] = useState(false);
   const headerSavingRef = useRef(false);
-  /** 行内字段（新建/改名）落盘中：禁二次提交 / Escape 误丢草稿 */
+  /** 行内字段（新建/改名/meta）落盘中：禁二次提交 / Escape 误丢草稿 */
   const [fieldSaving, setFieldSaving] = useState(false);
   const fieldSavingRef = useRef(false);
   /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
@@ -207,7 +204,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const ignoreBlurRef = useRef(false);
   // 表头 Escape / Tab 换焦点：禁止 blur 误 commit
   const headerIgnoreBlurRef = useRef(false);
-  // ignoreBlur 期间禁止用 state 回写 ref（onFieldsChange 同步重渲会把 advance 目标打回旧行）
+  // ignoreBlur 期间禁止用 state 回写 ref（persist 同步重渲会把 advance 目标打回旧行）
   if (!ignoreBlurRef.current) {
     editingRef.current = editing;
   }
@@ -250,41 +247,110 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     });
   };
 
-  /** 已有字段改类型/PK/非空/自增：立刻落盘，顶栏 save-status 即时反馈（不必等 Enter/blur） */
-  const persistFieldMeta = (
+  /**
+   * 已有字段改类型/PK/非空/自增：await save；仅 code===200 写 store。
+   * 调用方先乐观改 editing；失败时用 revert 回滚草稿。新建字段（__NEW__）仍只改本地直至 commit。
+   */
+  const persistFieldMeta = async (
     key: string,
     type: string,
     pk: boolean,
     notNull: boolean,
     autoIncrement: boolean,
-  ) => {
-    if (key === '__NEW__') return;
-    const allFields = entityFieldsRef.current;
-    onFieldsChange(allFields.map(f => (
+    revert?: NonNullable<EditingState>,
+  ): Promise<boolean> => {
+    if (key === '__NEW__') return true;
+    if (fieldSavingRef.current) return false;
+    const nextFields = entityFieldsRef.current.map(f => (
       f.name === key ? { ...f, type, pk, notNull: pk || notNull, autoIncrement } : f
-    )));
+    ));
+    fieldSavingRef.current = true;
+    setFieldSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.updateEntityFields(
+          moduleName,
+          entity.title,
+          nextFields,
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        if (revert) {
+          editingRef.current = revert;
+          setEditing(revert);
+        }
+        return false;
+      }
+      return true;
+    } catch {
+      message.error('字段保存失败');
+      if (revert) {
+        editingRef.current = revert;
+        setEditing(revert);
+      }
+      return false;
+    } finally {
+      fieldSavingRef.current = false;
+      setFieldSaving(false);
+    }
   };
 
-  /** 已有字段在关系图中隐藏：立刻落盘并退出编辑（行会从画布消失） */
-  const persistHideOnCanvas = (fieldName: string) => {
+  /** 隐藏：仅 save 成功才退出编辑 + toast；失败留编辑态可重试 */
+  const persistHideOnCanvas = async (fieldName: string) => {
     if (!fieldName || fieldName === '__NEW__') return;
-    const allFields = entityFieldsRef.current;
-    onFieldsChange(allFields.map(f => (
+    if (fieldSavingRef.current) return;
+    const nextFields = entityFieldsRef.current.map(f => (
       f.name === fieldName ? { ...f, relationNoShow: true } : f
-    )));
-    ignoreBlurRef.current = true;
-    editingRef.current = null;
-    setEditing(null);
-    setShowHiddenFields(true);
-    setTimeout(() => { ignoreBlurRef.current = false; }, 0);
-    message.info(`已在关系图中隐藏「${fieldName}」；可点表底「已隐藏」恢复，或在表设计「字段」签取消隐藏`);
+    ));
+    fieldSavingRef.current = true;
+    setFieldSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.updateEntityFields(
+          moduleName,
+          entity.title,
+          nextFields,
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        return;
+      }
+      ignoreBlurRef.current = true;
+      editingRef.current = null;
+      setEditing(null);
+      setShowHiddenFields(true);
+      setTimeout(() => { ignoreBlurRef.current = false; }, 0);
+      message.info(`已在关系图中隐藏「${fieldName}」；可点表底「已隐藏」恢复，或在表设计「字段」签取消隐藏`);
+    } catch {
+      message.error('字段保存失败');
+    } finally {
+      fieldSavingRef.current = false;
+      setFieldSaving(false);
+    }
   };
 
-  const unhideOnCanvas = (fieldName: string) => {
-    onFieldsChange((entityFieldsRef.current || []).map(f => (
-      f.name === fieldName ? { ...f, relationNoShow: false } : f
-    )));
-    message.success(`已在关系图中显示「${fieldName}」`);
+  /** 恢复显示：仅 save 成功 toast；失败字段仍在「已隐藏」列表 */
+  const unhideOnCanvas = async (fieldName: string) => {
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.updateEntityFields(
+          moduleName,
+          entity.title,
+          (entityFieldsRef.current || []).map(f => (
+            f.name === fieldName ? { ...f, relationNoShow: false } : f
+          )),
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        return;
+      }
+      message.success(`已在关系图中显示「${fieldName}」`);
+    } catch {
+      message.error('字段保存失败');
+    }
   };
 
   const finishFieldCommit = (
@@ -468,10 +534,24 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     });
   };
 
-  const togglePk = (fieldName: string) => {
-    onFieldsChange((entity.fields || []).map(f => (
+  /** 浏览态 PK：仅 save 成功改徽章；失败 store 未写，UI 保持原样可再点 */
+  const togglePk = async (fieldName: string) => {
+    const fields = entityFieldsRef.current || [];
+    const nextFields = fields.map(f => (
       f.name === fieldName ? { ...f, pk: !f.pk, notNull: !f.pk ? true : f.notNull } : f
-    )));
+    ));
+    try {
+      await Promise.resolve(
+        useProjectStore.getState().dispatch.updateEntityFields(
+          moduleName,
+          entity.title,
+          nextFields,
+          { persist: true },
+        ),
+      );
+    } catch {
+      message.error('字段保存失败');
+    }
   };
 
   const resetHeaderDraft = () => {
@@ -699,15 +779,17 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="checkbox"
             aria-label="主键"
             checked={!!editing?.pk}
+            disabled={fieldSaving}
             onChange={e => {
               const pk = e.target.checked;
               const current = editingRef.current;
-              if (!current) return;
+              if (!current || fieldSavingRef.current) return;
+              const prior = { ...current };
               const notNull = pk || current.notNull;
               const next = { ...current, pk, notNull };
               editingRef.current = next;
               setEditing(next);
-              persistFieldMeta(current.key, current.type, pk, notNull, current.autoIncrement);
+              void persistFieldMeta(current.key, current.type, pk, notNull, current.autoIncrement, prior);
             }}
             onKeyDown={e => e.stopPropagation()}
           />
@@ -718,15 +800,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="checkbox"
             aria-label="非空"
             checked={!!editing?.notNull}
-            disabled={!!editing?.pk}
+            disabled={!!editing?.pk || fieldSaving}
             onChange={e => {
               const current = editingRef.current;
-              if (!current || current.pk) return;
+              if (!current || current.pk || fieldSavingRef.current) return;
+              const prior = { ...current };
               const notNull = e.target.checked;
               const next = { ...current, notNull };
               editingRef.current = next;
               setEditing(next);
-              persistFieldMeta(current.key, current.type, current.pk, notNull, current.autoIncrement);
+              void persistFieldMeta(current.key, current.type, current.pk, notNull, current.autoIncrement, prior);
             }}
             onKeyDown={e => e.stopPropagation()}
           />
@@ -737,14 +820,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="checkbox"
             aria-label="自增"
             checked={!!editing?.autoIncrement}
+            disabled={fieldSaving}
             onChange={e => {
               const current = editingRef.current;
-              if (!current) return;
+              if (!current || fieldSavingRef.current) return;
+              const prior = { ...current };
               const autoIncrement = e.target.checked;
               const next = { ...current, autoIncrement };
               editingRef.current = next;
               setEditing(next);
-              persistFieldMeta(current.key, current.type, current.pk, current.notNull, autoIncrement);
+              void persistFieldMeta(current.key, current.type, current.pk, current.notNull, autoIncrement, prior);
             }}
             onKeyDown={e => e.stopPropagation()}
           />
@@ -756,11 +841,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               type="checkbox"
               aria-label="在关系图中隐藏"
               checked={false}
+              disabled={fieldSaving}
               onChange={e => {
                 if (!e.target.checked) return;
                 const current = editingRef.current;
-                if (!current || current.key === '__NEW__') return;
-                persistHideOnCanvas(current.key);
+                if (!current || current.key === '__NEW__' || fieldSavingRef.current) return;
+                void persistHideOnCanvas(current.key);
               }}
               onKeyDown={e => e.stopPropagation()}
             />
@@ -812,11 +898,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           onChange={e => {
             const type = e.target.value;
             const current = editingRef.current;
-            if (!current) return;
+            if (!current || fieldSavingRef.current) return;
+            const prior = { ...current };
             const next = { ...current, type };
             editingRef.current = next;
             setEditing(next);
-            persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement);
+            void persistFieldMeta(current.key, type, current.pk, current.notNull, current.autoIncrement, prior);
           }}
           onKeyDown={onFieldEditKeyDown}
           onBlur={e => onFieldEditBlur(e, rowKey)}

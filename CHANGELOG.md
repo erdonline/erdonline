@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：画布字段 meta（类型/PK/隐藏）落盘失败可重试
+
+- 选题：编辑态类型/PK/非空/自增/隐藏与浏览态 PK 本地 mutate 即成功；autosave 失败像已改 meta/已隐藏
+- `persistFieldMeta` / `persistHideOnCanvas` / `unhideOnCanvas` / `togglePk`：`updateEntityFields` `persist:true`；仅 code===200 写 store；编辑态乐观草稿失败回滚；隐藏失败不退出编辑、不 toast「已隐藏」；落盘中禁二次改 meta
+- E2E：`canvas-field-meta-failure.spec.ts` mock save → toast + 回滚/行仍在 → 重试成功
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 表设计 JExcel 字段 meta 假成功，或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-field-meta-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "编辑态 PK 勾选即时|编辑态隐藏|PK 徽标可取消"`
+
 #### 文档：生产 UI `app.erdonline.com` 与 API 对齐说明
 
 - 选题：正式登录页在 `https://app.erdonline.com/auth/login`；`ERD_UI_URL` 示例仍只写 `erdonline-demo.pages.dev`，易把 CORS/前端 API 指错
@@ -22,7 +33,7 @@
 - `TableNode` 既有字段 `commit` 与新建同构：`updateEntityFields` `persist:true`；仅 code===200 退出编辑；失败草稿保留；落盘中禁 Escape/二次提交
 - 删字段：二次确认保留；`onOk` 先 persist，仅成功关窗移出；失败 toast + Promise.reject 窗仍开可再点「删除」
 - E2E：`canvas-field-rename-delete-failure.spec.ts` mock save → toast + 仍编辑/行仍在 → 重试成功
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 字段 meta（类型/PK/隐藏）即时伪造成功，或 densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~字段 meta（类型/PK/隐藏）即时伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-field-rename-delete-failure.spec.ts --project=chromium --workers=1 --retries=0`
