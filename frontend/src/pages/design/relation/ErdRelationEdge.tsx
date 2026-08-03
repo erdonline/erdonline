@@ -9,7 +9,8 @@ import {
   EdgeProps,
   useStore,
 } from 'reactflow';
-import { Modal, Select } from 'antd';
+import { Select } from 'antd';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import {
   CARDINALITY_OPTIONS,
   Cardinality,
@@ -357,15 +358,12 @@ function ErdRelationEdge({
                       if (!mod || !from?.entity || !from?.field || !to?.entity || !to?.field) {
                         return;
                       }
-                      Modal.confirm({
+                      confirmDestructive({
                         title: `确定删除关系 "${from.entity}.${from.field} → ${to.entity}.${to.field}" 吗?`,
                         content: '此操作不可逆，请谨慎操作。',
                         okText: '删除',
                         okType: 'danger',
                         cancelText: '取消',
-                        keyboard: true,
-                        autoFocusButton: 'ok',
-                        focusTriggerAfterClose: true,
                         onOk() {
                           useProjectStore.getState().dispatch.removeAssociation(mod, {
                             from,

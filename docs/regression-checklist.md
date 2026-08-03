@@ -52,6 +52,7 @@
 - [x] [版本动作弹窗键盘] 新增/编辑首焦版本号（非最新编辑首焦描述）/ 删除·回滚首焦「是」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-action-modals-keyboard.spec.ts`
 - [x] [版本对比/详情 diff 键盘] 比对首焦「初始版本」/ 详情首焦「导出变更清单」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-diff-keyboard.spec.ts`
 - [x] [同步配置/重建版本键盘] 同步配置首焦「字段增量」/ 重建版本首焦「版本号」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-sync-rebuild-keyboard.spec.ts`
+- [x] [重建基线确认键盘] 重建版本表单提交→「重建基线」确认首焦「重建」；Esc 关确认不落盘、归还重建钮；Tab trap ✅`version-rebuild-confirm-keyboard.spec.ts`
 - [x] [初始化基线键盘] 有数据源且未建基线时首焦「版本号」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-init-keyboard.spec.ts`
 - [x] [复刻弹层键盘] 版本行「复刻」首焦「项目名」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`project-copy-keyboard.spec.ts`
 - [x] [数据源设置键盘] 项目菜单→数据源设置首焦「新增数据源」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`database-setup-keyboard.spec.ts`

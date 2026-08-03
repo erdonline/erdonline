@@ -5,7 +5,8 @@ import useProjectStore from "@/store/project/useProjectStore";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import _ from "lodash";
 import JExcel from "@/pages/JExcel";
-import { Button, Empty, Modal, Space, message } from 'antd';
+import { Button, Empty, Space, message } from 'antd';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 
 export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
@@ -106,15 +107,12 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     }
     const target = indexs[rowIndex];
     const indexName = target?.name || `第 ${rowIndex + 1} 条`;
-    Modal.confirm({
+    confirmDestructive({
       title: `确定删除索引 "${indexName}" 吗?`,
       content: '此操作不可逆，请谨慎操作。',
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
-      keyboard: true,
-      autoFocusButton: 'ok',
-      focusTriggerAfterClose: true,
       onOk() {
         const next = indexs.filter((_, i) => i !== rowIndex);
         projectDispatch.updateEntityIndex(

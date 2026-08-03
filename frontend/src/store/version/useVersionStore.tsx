@@ -1,6 +1,7 @@
 import create, {GetState, SetState} from "zustand";
 import _ from "lodash";
 import {message, Modal} from "antd";
+import {confirmDestructive} from "@/utils/destructiveConfirm";
 import {compareStringVersion} from "@/utils/string";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as Save from '@/utils/save';
@@ -628,9 +629,12 @@ const useVersionStore = create<VersionState>(
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           cb && cb();
         } else {
-          Modal.confirm({
+          confirmDestructive({
             title: '同步确认',
             content: onlyUpdateDBVersion ? '元数据即将标记为同步，标记为同步后不可撤销，确定标记吗？' : '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
+            okText: onlyUpdateDBVersion ? '标记' : '同步',
+            okType: 'danger',
+            cancelText: '取消',
             onOk: (m) => {
               const cb1 = () => {
                 get().fetch(null,get().currentPage,get().pageSize);
@@ -787,9 +791,12 @@ const useVersionStore = create<VersionState>(
             if (flag) {
               message.error('当前操作的版本之前还有版本尚未同步，请不要跨版本操作!');
             } else {
-              Modal.confirm({
+              confirmDestructive({
                 title: '同步确认',
                 content: '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
+                okText: '同步',
+                okType: 'danger',
+                cancelText: '取消',
                 onOk: (m) => {
                   _.set(get().synchronous, `${version.version}`, true);
                   m && m();
@@ -898,9 +905,17 @@ const useVersionStore = create<VersionState>(
         }
       },
       rebuild: (tempValue: any) => {
-        Modal.confirm({
+        // 表单 Modal 已关：落焦重建钮，Esc 才能归还
+        (
+          document.querySelector<HTMLElement>('[data-testid="version-rebuild-btn"]') ??
+          document.querySelector<HTMLElement>('[aria-label="重建版本"]')
+        )?.focus();
+        confirmDestructive({
           title: '重建基线',
           content: '重建基线将会清除当前项目的所有版本信息，该操作不可逆，是否继续？',
+          okText: '重建',
+          okType: 'danger',
+          cancelText: '取消',
           onOk: () => {
             // 重新初始化
             // 先删除所有的版本信息

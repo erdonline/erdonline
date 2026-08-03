@@ -12,6 +12,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {List, message, Modal, Tag} from "antd";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
+import {confirmDestructive} from "@/utils/destructiveConfirm";
 
 export type JExcelProps = {
   data: any,
@@ -176,15 +177,12 @@ const JExcel: React.FC<JExcelProps> = (props) => {
             message.warning('未选中行');
             return;
           }
-          Modal.confirm({
+          confirmDestructive({
             title: '确定删除选定行吗?',
             content: '此操作不可逆，请谨慎操作。',
             okText: '删除',
             okType: 'danger',
             cancelText: '取消',
-            keyboard: true,
-            autoFocusButton: 'ok',
-            focusTriggerAfterClose: true,
             onOk() {
               jRef?.current?.jexcel.deleteRow();
             },

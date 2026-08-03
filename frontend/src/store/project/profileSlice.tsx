@@ -3,7 +3,8 @@ import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from "immer";
 import _ from "lodash";
 import * as Save from '@/utils/save';
-import {message, Modal} from "antd";
+import {message} from "antd";
+import {confirmDestructive} from "@/utils/destructiveConfirm";
 import request from "@/utils/request";
 import {saveByBlob} from "@/utils/file";
 import {
@@ -314,10 +315,11 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
     let isClose = false;
     if (keys?.some((k: any) => get().profileSliceState.exists.includes(k.title))) {
-      Modal.confirm({
+      confirmDestructive({
         title: '温馨提示',
         content: '勾选的数据表中包含模型中已经存在的数据表，继续操作将会覆盖模型中的数据，是否继续？',
         okText: '确认',
+        okType: 'danger',
         cancelText: '取消',
         onOk: () => {
           isClose = true;
