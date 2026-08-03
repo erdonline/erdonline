@@ -285,6 +285,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
                     { label: '建表语句', value: 'createTable' },
                     { label: '建索引语句', value: 'createIndex' },
                     { label: '建触发器语句', value: 'createTrigger' },
+                    { label: '建外键语句', value: 'createForeignKey' },
                     { label: '表注释语句', value: 'updateComment' },
                   ]}
                   onChange={(checkedValue) => {

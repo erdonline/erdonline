@@ -277,7 +277,8 @@
 - ✅ **数据字典·枚举域 UX**（2026-08-03）：`/setting/dataType` 种类逻辑|枚举、`values[]` Form.List、列表种类/取值密列、空态双 CTA；persist-on-200；`datatype-enum-ux`；下一刀 → ~~字段 type 下拉区分枚举~~✅
 - ✅ **字段 type 下拉区分枚举**（2026-08-03）：画布 `<select>` optgroup「逻辑类型|枚举」+ 浏览态枚举徽章；表设计/默认字段 JExcel dropdown `group`；值写 `fields[].type=code`；`field-type-enum-picker`；下一刀 → ~~库方言 apply 可视化编辑~~✅
 - ✅ **库方言 apply 可视化编辑**（2026-08-03）：逻辑类型 Modal「库方言映射」密表编 `apply[code].type`；枚举仍 `buildEnumApply`；persist-on-200；`datatype-apply-ux`；下一刀 → ~~边 ON DELETE/UPDATE 可编辑~~✅
-- ✅ **画布边 FK 参照动作可编辑**（2026-08-03）：chip 编辑器基数 + ON DELETE/UPDATE；`updateAssociationFkMeta` persist-on-200；同 `constraintName` 拆边同步；`canvas-fk-meta-edit`；下一刀 → DDL FK 回写 / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
+- ✅ **画布边 FK 参照动作可编辑**（2026-08-03）：chip 编辑器基数 + ON DELETE/UPDATE；`updateAssociationFkMeta` persist-on-200；同 `constraintName` 拆边同步；`canvas-fk-meta-edit`；下一刀 → ~~DDL FK 回写~~✅ / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
+- ✅ **DDL/DBML FK 回写**（2026-08-03）：`createForeignKey` 四库 ALTER FOREIGN KEY + ON DELETE/UPDATE；DBML 官方 Ref settings；下一刀 → ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

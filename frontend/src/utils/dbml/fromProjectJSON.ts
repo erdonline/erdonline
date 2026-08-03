@@ -212,13 +212,109 @@ function refOperator(relation: ProjectJsonAssociation['relation']): string {
   return '>';
 }
 
-function formatRef(assoc: ProjectJsonAssociation): string {
-  const fromE = quoteIdent(assoc.from.entity);
-  const fromF = quoteIdent(assoc.from.field);
-  const toE = quoteIdent(assoc.to.entity);
-  const toF = quoteIdent(assoc.to.field);
-  const op = refOperator(assoc.relation);
-  return `Ref: ${fromE}.${fromF} ${op} ${toE}.${toF}`;
+/** projectJSON 大写规则 → DBML 小写 settings */
+export function formatDbmlRefRule(raw: string | undefined): string | undefined {
+  const s = String(raw || '').trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!s) return undefined;
+  switch (s) {
+    case 'CASCADE':
+      return 'cascade';
+    case 'SET NULL':
+      return 'set null';
+    case 'SET DEFAULT':
+      return 'set default';
+    case 'RESTRICT':
+      return 'restrict';
+    case 'NO ACTION':
+      return 'no action';
+    default:
+      return undefined;
+  }
+}
+
+type DbmlRefGroup = {
+  relation: ProjectJsonAssociation['relation'];
+  fromEntity: string;
+  toEntity: string;
+  fromFields: string[];
+  toFields: string[];
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
+};
+
+/** 同 constraintName + 表对聚合为复合 Ref（官方 syntax；不污染 Note） */
+export function groupAssociationsForDbmlRef(
+  associations: ProjectJsonAssociation[] | undefined | null,
+): DbmlRefGroup[] {
+  const groups: DbmlRefGroup[] = [];
+  const namedIndex = new Map<string, number>();
+  for (const assoc of associations || []) {
+    if (!assoc?.from?.entity || !assoc?.from?.field) continue;
+    if (!assoc?.to?.entity || !assoc?.to?.field) continue;
+    const fromEntity = assoc.from.entity;
+    const toEntity = assoc.to.entity;
+    const fromField = assoc.from.field;
+    const toField = assoc.to.field;
+    const cName = String(assoc.constraintName || '').trim();
+    if (cName) {
+      const key = `${cName}\0${fromEntity}\0${toEntity}`;
+      const idx = namedIndex.get(key);
+      if (idx != null) {
+        const g = groups[idx];
+        if (!g.fromFields.includes(fromField)) g.fromFields.push(fromField);
+        if (!g.toFields.includes(toField)) g.toFields.push(toField);
+        if (!g.deleteRule && assoc.deleteRule) g.deleteRule = assoc.deleteRule;
+        if (!g.updateRule && assoc.updateRule) g.updateRule = assoc.updateRule;
+        continue;
+      }
+      namedIndex.set(key, groups.length);
+      groups.push({
+        relation: assoc.relation,
+        fromEntity,
+        toEntity,
+        fromFields: [fromField],
+        toFields: [toField],
+        constraintName: cName,
+        ...(assoc.deleteRule ? { deleteRule: assoc.deleteRule } : {}),
+        ...(assoc.updateRule ? { updateRule: assoc.updateRule } : {}),
+      });
+      continue;
+    }
+    groups.push({
+      relation: assoc.relation,
+      fromEntity,
+      toEntity,
+      fromFields: [fromField],
+      toFields: [toField],
+      ...(assoc.deleteRule ? { deleteRule: assoc.deleteRule } : {}),
+      ...(assoc.updateRule ? { updateRule: assoc.updateRule } : {}),
+    });
+  }
+  return groups;
+}
+
+function formatRefEndpoint(entity: string, fields: string[]): string {
+  const e = quoteIdent(entity);
+  if (fields.length === 1) {
+    return `${e}.${quoteIdent(fields[0])}`;
+  }
+  return `${e}.(${fields.map((f) => quoteIdent(f)).join(', ')})`;
+}
+
+function formatRef(group: DbmlRefGroup): string {
+  const op = refOperator(group.relation);
+  const left = formatRefEndpoint(group.fromEntity, group.fromFields);
+  const right = formatRefEndpoint(group.toEntity, group.toFields);
+  const name = String(group.constraintName || '').trim();
+  const head = name ? `Ref ${quoteIdent(name)}: ` : 'Ref: ';
+  const settings: string[] = [];
+  const del = formatDbmlRefRule(group.deleteRule);
+  const upd = formatDbmlRefRule(group.updateRule);
+  if (del) settings.push(`delete: ${del}`);
+  if (upd) settings.push(`update: ${upd}`);
+  const tail = settings.length > 0 ? ` [${settings.join(', ')}]` : '';
+  return `${head}${left} ${op} ${right}${tail}`;
 }
 
 function pickModule(
@@ -287,10 +383,8 @@ export function projectJSONToDbml(
   }
 
   const associations = mod.associations || [];
-  for (const assoc of associations) {
-    if (!assoc?.from?.entity || !assoc?.from?.field) continue;
-    if (!assoc?.to?.entity || !assoc?.to?.field) continue;
-    parts.push(formatRef(assoc));
+  for (const group of groupAssociationsForDbmlRef(associations)) {
+    parts.push(formatRef(group));
   }
 
   return parts.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';

@@ -504,6 +504,85 @@ async function main() {
     assert.match(exported, /note: 'filter: \(deleted_at IS NULL\)'/);
   });
 
+  await run('FK Ref：约束名 + delete/update settings 往返（官方语法，不污染 Note）', async () => {
+    const first = {
+      modules: [
+        {
+          name: 'shop',
+          chnname: '',
+          entities: [
+            {
+              title: 'users',
+              name: 'users',
+              chnname: '',
+              fields: [
+                {
+                  name: 'id',
+                  chnname: '',
+                  type: 'Integer',
+                  pk: true,
+                  notNull: true,
+                  autoIncrement: true,
+                },
+              ],
+              indexs: [],
+            },
+            {
+              title: 'posts',
+              name: 'posts',
+              chnname: '',
+              fields: [
+                {
+                  name: 'id',
+                  chnname: '',
+                  type: 'Integer',
+                  pk: true,
+                  notNull: true,
+                  autoIncrement: true,
+                },
+                {
+                  name: 'user_id',
+                  chnname: '',
+                  type: 'Integer',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                },
+              ],
+              indexs: [],
+            },
+          ],
+          associations: [
+            {
+              relation: 'n:1' as const,
+              from: { entity: 'posts', field: 'user_id' },
+              to: { entity: 'users', field: 'id' },
+              constraintName: 'fk_posts_user',
+              deleteRule: 'CASCADE',
+              updateRule: 'NO ACTION',
+            },
+          ],
+          graphCanvas: { nodes: [], edges: [] },
+        },
+      ],
+    };
+    const exported = projectJSONToDbml(first);
+    assert.match(
+      exported,
+      /Ref fk_posts_user: posts\.user_id > users\.id \[delete: cascade, update: no action\]/,
+    );
+    assert.doesNotMatch(exported, /filter:|ON DELETE|Note: 'CASCADE/);
+    const second = await dbmlToProjectJSON(exported);
+    assert.deepEqual(second.modules[0].associations[0], {
+      relation: 'n:1',
+      from: { entity: 'posts', field: 'user_id' },
+      to: { entity: 'users', field: 'id' },
+      constraintName: 'fk_posts_user',
+      deleteRule: 'CASCADE',
+      updateRule: 'NO ACTION',
+    });
+  });
+
   // eslint-disable-next-line no-console
   console.log('fromProjectJSON.test.ts: all passed');
 }

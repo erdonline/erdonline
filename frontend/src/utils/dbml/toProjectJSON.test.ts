@@ -419,6 +419,28 @@ Table orders {
     );
   });
 
+  await run('Ref settings → constraintName / deleteRule / updateRule', async () => {
+    const dbml = `
+Table users {
+  id integer [pk]
+}
+Table posts {
+  id integer [pk]
+  user_id integer
+}
+Ref fk_posts_user: posts.user_id > users.id [delete: cascade, update: restrict]
+`;
+    const json = await dbmlToProjectJSON(dbml);
+    assert.deepEqual(json.modules[0].associations[0], {
+      relation: 'n:1',
+      from: { entity: 'posts', field: 'user_id' },
+      to: { entity: 'users', field: 'id' },
+      constraintName: 'fk_posts_user',
+      deleteRule: 'CASCADE',
+      updateRule: 'RESTRICT',
+    });
+  });
+
   // eslint-disable-next-line no-console
   console.log('toProjectJSON.test.ts: all passed');
 }

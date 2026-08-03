@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 导出：FK `ON DELETE` / `ON UPDATE` → DDL FOREIGN KEY（+ DBML Ref settings）
+
+- 选题：`d198079` 画布可编参照动作；DDL 导出仍丢 associations FK
+- `renderCreateForeignKeySql` / `rebuildForeignKeyDdl`：四库 `ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY`；同名 `constraintName` 聚复合列；缺名生成 `fk_<表>_<列>`；Oracle 省略 `ON UPDATE`
+- 片段键 `createForeignKey`；导出弹层可勾选「建外键语句」；全部导出默认含 FK
+- DBML：官方 `Ref name: … [delete: …, update: …]` 往返（不污染 Note）
+- 未做：E2E 导出 UI（单测覆盖生成路径）；ADR-0011 `fields[]`
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/json2code.fk.test.ts`
+- `cd frontend && yarn test:unit:dbml`
+
 #### 体验：画布边 ON DELETE / ON UPDATE 可编辑
 
 - 选题：`2725227` 逆向已落 `deleteRule`/`updateRule`；chip 仅 title 可读 → 新建边无法设 CASCADE
