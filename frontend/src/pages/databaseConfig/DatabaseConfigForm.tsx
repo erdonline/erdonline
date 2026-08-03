@@ -173,7 +173,11 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
             }
             rules={[{ required: true, message: '请输入连接名称' }]}
           >
-            <Input placeholder="例如：生产环境主数据库" />
+            <Input
+              id="database-config-name"
+              placeholder="例如：生产环境主数据库"
+              aria-label="连接名称"
+            />
           </Form.Item>
         </Col>
         <Col span={12}>

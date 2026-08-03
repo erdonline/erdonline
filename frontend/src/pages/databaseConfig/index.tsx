@@ -58,9 +58,24 @@ const DatabaseConfigPage: React.FC = () => {
   const [pageSize, setPageSize] = useState(10);
   const [keyword, setKeyword] = useState('');
   const pageRef = useRef({ page: 1, pageSize: 10, keyword: '' });
+  /** Drawer 无 focusTriggerAfterClose；关闭后手动归还打开前触发器 */
+  const drawerTriggerRef = useRef<HTMLElement | null>(null);
 
   const resolveStatus = (record: DatabaseConfigItem): ConnectionStatus =>
     statusOverrides[record.id] ?? record.status;
+
+  const openDrawer = (record: DatabaseConfigItem | null) => {
+    const active = document.activeElement;
+    drawerTriggerRef.current =
+      active instanceof HTMLElement ? active : null;
+    setEditingRecord(record);
+    setDrawerVisible(true);
+  };
+
+  const closeDrawer = () => {
+    setDrawerVisible(false);
+    setEditingRecord(null);
+  };
 
   const loadData = useCallback(async (nextPage?: number, nextSize?: number, nextKeyword?: string) => {
     const p = nextPage ?? pageRef.current.page;
@@ -223,10 +238,7 @@ const DatabaseConfigPage: React.FC = () => {
       key: 'name',
       render: (text: string, record) => (
         <Link
-          onClick={() => {
-            setEditingRecord(record);
-            setDrawerVisible(true);
-          }}
+          onClick={() => openDrawer(record)}
           aria-label={`编辑连接 ${text}`}
         >
           {text}
@@ -296,10 +308,7 @@ const DatabaseConfigPage: React.FC = () => {
               type="link"
               icon={<EditOutlined />}
               aria-label="编辑"
-              onClick={() => {
-                setEditingRecord(record);
-                setDrawerVisible(true);
-              }}
+              onClick={() => openDrawer(record)}
             />
           </Tooltip>
           <Tooltip title="删除">
@@ -353,10 +362,7 @@ const DatabaseConfigPage: React.FC = () => {
               type="primary"
               size="small"
               icon={<PlusOutlined />}
-              onClick={() => {
-                setEditingRecord(null);
-                setDrawerVisible(true);
-              }}
+              onClick={() => openDrawer(null)}
             >
               新建连接
             </Button>
@@ -392,21 +398,44 @@ const DatabaseConfigPage: React.FC = () => {
       </div>
       <Drawer
         className="database-config-drawer"
+        rootClassName="database-config-drawer-root"
         title={editingRecord ? '编辑数据库连接' : '新建数据库连接'}
         placement="right"
         width={520}
-        onClose={() => {
-          setDrawerVisible(false);
-          setEditingRecord(null);
-        }}
+        onClose={closeDrawer}
         open={drawerVisible}
         destroyOnClose
+        keyboard
+        autoFocus={false}
+        afterOpenChange={(open) => {
+          if (open) {
+            const tryFocus = (attempt = 0) => {
+              const input = document.getElementById(
+                'database-config-name',
+              ) as HTMLInputElement | null;
+              if (input) {
+                input.focus();
+                return;
+              }
+              if (attempt >= 20) {
+                return;
+              }
+              window.setTimeout(() => tryFocus(attempt + 1), 50);
+            };
+            window.setTimeout(() => tryFocus(), 0);
+            return;
+          }
+          const trigger = drawerTriggerRef.current;
+          drawerTriggerRef.current = null;
+          if (trigger && document.contains(trigger)) {
+            trigger.focus();
+          }
+        }}
       >
         <DatabaseConfigForm
           initialValues={editingRecord}
           onFinish={() => {
-            setDrawerVisible(false);
-            setEditingRecord(null);
+            closeDrawer();
             reload();
           }}
         />
