@@ -45,6 +45,8 @@
 - [x] [竞品对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap ✅`compare.spec.ts`「竞品对照页键盘」
 - [x] [Home 工作台键盘] `/home` 首项 Tab Skip「跳到主内容」→ `#home-main-content`→继续建模→新建→示例→二级入口→项目卡可逆；brand focus-visible；无 trap ✅`home-keyboard.spec.ts`「Home 键盘」
 - [x] [GroupLayout 壳键盘] `/project/group/setting/basic` 首项 Tab Skip「跳到主内容」→ `#group-main-content`→项目名→标签→项目描述可逆；侧栏链 brand focus-visible；无 trap ✅`group-keyboard.spec.ts`「Group 键盘」
+- [x] [项目列表行键盘] 个人/最近/团队 stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` brand focus-visible；无 trap ✅`project-list-keyboard.spec.ts`
+- [x] [账号设置壳键盘] `/account/settings` 首项 Tab Skip「跳到主表单」→ `#account-settings-form`→邮箱→电话→更新基本信息可逆；brand focus-visible；无 trap ✅`account-settings-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

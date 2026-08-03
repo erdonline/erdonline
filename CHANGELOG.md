@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：账号设置壳键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：`/account/settings` 进页 Tab 先扫顶栏再扫左侧页签；无 Skip 直达主表单；保存钮键盘可达未回归；无键盘 E2E
+- 改动：HomeLayout 在账号设置路由首 Skip「跳到主表单」→ `#account-settings-form`（`tabIndex=-1`）；右侧面板地标 + 设置分类 `aria-label`；地标 focus-visible brand 环（继承壳环）
+- E2E：`account-settings-keyboard`「账号键盘：Skip→主表单；字段/保存 Tab 序；focus-visible；无 trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 项目动作弹窗键盘闭环（新建/修改/删除确认）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/account-settings-keyboard.spec.ts --project=chromium --grep "账号键盘" --workers=1 --retries=0`
+
 #### 安全：R-CFG-04 SocketIO/CORS 生产 Origin fail-fast
 
 - 选题：SocketIO 默认 `origin:*`；prod 可漏配 UI 源；`ERD_UI_URL` 曾零引用（R-DEAD-04）
@@ -18,6 +28,16 @@
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=CrossOriginPolicyTest,OriginBindingTest test`
 - `./backend/dev-ensure.sh --restart`（dev profile）：健康；本地 CORS 仍放行 `http://localhost:8000`
+
+#### 体验：项目列表行键盘（个人/最近/团队 · Enter + Tab + focus-visible）
+
+- 选题：列表行仅标题链可点，描述/头像死区；动作区无键盘回归；删除/管理缺稳定可访问名
+- 改动：`ProjectListOpenLink` + 行 `stretched ::after` 消死卡；三面共用 `project-list-row` / `project-list-open-link`；删除/管理补 `aria-label`；行 `:has(:focus-visible)` inset brand 环（避开 ant List 后代 outline 重置）
+- E2E：`project-list-keyboard`（个人死卡 + Enter/Tab 动作；最近/团队 Enter + Tab）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~账号设置壳键盘（Account / profile）~~✅
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/project-list-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
 
 #### 安全：R-DATA-04 上传归属 — 删测试口 + Word 模板绑项目
 
@@ -34,7 +54,7 @@
 - 选题：团队设置壳进页 Tab 先扫顶栏+侧栏；无 Skip 直达主区；焦点环缺；无键盘 E2E
 - 改动：`GroupLayout` 首焦 Skip「跳到主内容」→ `#group-main-content`（`tabIndex=-1`）；壳内 `:focus-visible` brand 环；自然 DOM 序不动正 `tabIndex`
 - E2E：`group-keyboard`「Group 键盘：Skip→主内容；表单 Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 项目列表（个人/最近/团队）行键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~项目列表（个人/最近/团队）行键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`

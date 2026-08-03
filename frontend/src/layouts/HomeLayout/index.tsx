@@ -136,20 +136,28 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     el.scrollIntoView({ block: 'nearest' });
   };
 
+  /** 账号设置侧栏在主内容内：首 Skip 直达表单区，绕开顶栏+侧栏 */
+  const isAccountSettings = pathname.startsWith('/account/settings');
+  const skipTargetId = isAccountSettings
+    ? 'account-settings-form'
+    : 'home-main-content';
+  const skipLabel = isAccountSettings ? '跳到主表单' : '跳到主内容';
+  const skipTestId = isAccountSettings ? 'account-skip-form' : 'home-skip-main';
+
   return (
     <Theme>
       <Layout className="home-layout" data-testid="home-layout">
         <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="home-skip-nav">
           <a
-            href="#home-main-content"
+            href={`#${skipTargetId}`}
             className="erd-skip-link"
-            data-testid="home-skip-main"
+            data-testid={skipTestId}
             onClick={(e) => {
               e.preventDefault();
-              focusSkipTarget('home-main-content');
+              focusSkipTarget(skipTargetId);
             }}
           >
-            跳到主内容
+            {skipLabel}
           </a>
         </nav>
         <Header className="erd-chrome-header home-layout__header">
