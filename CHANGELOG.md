@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：左树删除模型/关系图二次确认（掌控感）
+
+- 选题：关系图菜单「删除」文案误走「表」且 `onOk` 未调 `removeDiagram`；模型删依赖 `currentModuleIndex` 易误伤
+- 非主关系图：`Modal.confirm`（仅删图不删表）→ `removeDiagram`；主图不展示删除项
+- 模型：`Modal.confirm`（级联删表/图文案）→ 按名 `removeModule` + toast
+- E2E：`multi-diagram`「左树删除关系图/模型二次确认」
+- `docs/design-principles.md` §5 补左树删确认正例
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "左树删除关系图/模型二次确认" --workers=1 --retries=0`
+
 #### 体验：画布删分组（Frame）二次确认（掌控感）
 
 - 选题：选中 Frame Delete/Backspace 立即 `removeFrame`，与已对齐的删表/删边掌控感不一致

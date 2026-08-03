@@ -47,7 +47,7 @@ const nextCopyName = (base: string, taken: (name: string) => boolean) => {
 export interface IModulesDispatchSlice {
   addModule: (payload: any) => void;
   renameModule: (payload: any) => void;
-  removeModule: () => void;
+  removeModule: (moduleName?: string) => void;
   updateModule: (payload: any) => void;
   copyModule: (payload: any) => void;
   cutModule: (payload: any) => void;
@@ -148,11 +148,36 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       message.error(`模型${moduleName}已经存在`);
     }
   })),
-  removeModule: () => set(produce(state => {
-    const {currentModuleIndex} = state;
-    state.project.projectJSON.modules =
-      state.project.projectJSON.modules?.filter((e: any, index: number) => index !== currentModuleIndex) || [];
-  })),
+  removeModule: (moduleName?: string) => {
+    const name =
+      (typeof moduleName === 'string' && moduleName) ||
+      get().currentModule ||
+      '';
+    if (!name) {
+      message.error('未指定要删除的模型');
+      return;
+    }
+    snapshotModules(get().project?.projectJSON?.modules);
+    set(produce(state => {
+      const before = state.project.projectJSON.modules?.length || 0;
+      state.project.projectJSON.modules =
+        state.project.projectJSON.modules?.filter((m: any) => m?.name !== name) || [];
+      if ((state.project.projectJSON.modules?.length || 0) === before) {
+        message.error(`模型 "${name}" 不存在`);
+        return;
+      }
+      if (state.currentModule === name) {
+        const next = state.project.projectJSON.modules?.[0];
+        state.currentModule = next?.name;
+        state.currentModuleIndex = next ? 0 : -1;
+      } else {
+        state.currentModuleIndex = state.project.projectJSON.modules?.findIndex(
+          (m: any) => m?.name === state.currentModule,
+        );
+      }
+      message.success('模型删除成功');
+    }));
+  },
   updateModule: (payload: any) => set(produce(state => {
     state.project.projectJSON.modules[state.currentModuleIndex] = payload
   })),
@@ -313,6 +338,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return;
     }
     snapshotModules(get().project?.projectJSON?.modules);
+    let removed = false;
     set(produce(state => {
       const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
@@ -324,7 +350,11 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         return;
       }
       module.diagrams = diagrams.filter((d) => d.id !== diagramId);
+      removed = true;
     }));
+    if (removed) {
+      message.success('关系图删除成功');
+    }
   },
   createFrame: (moduleName, diagramId, opts) => {
     let createdId: string | undefined;
