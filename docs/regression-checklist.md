@@ -272,6 +272,7 @@
 - [x] Colima PostgreSQL `reverse_demo`：meta schemas=[public]；indexs + associations ✅curl
 - [x] Colima PostgreSQL `reverse_demo`：表/列 COMMENT → `entity.chnname` / `fields[].chnname`（字典 obj/col_description）✅curl
 - [ ] Colima SQL Server（Azure SQL Edge）：meta `supportsComment=true`；`MS_Description` → `entity.chnname` / `fields[].chnname`（单测/fixture 已备；curl 待镜像可用）
+- [x] Oracle 表/列注释：`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS` → `entity.chnname` / `fields[].chnname`；meta `supportsComment=true`（无本机 Oracle：`OracleReverseDialectCommentTest` + mapper）✅自动
 - [ ] Colima SQL Server（Azure SQL Edge）：indexs + associations 1:n curl 验证
 - [x] 只读分享：create + 匿名 GET `readonly=true`；匿名 create 401 ✅curl
 - [x] 分享脱敏：dbs password/username → `***` 且不污染原 Map ✅`ProjectShareSanitizeTest`
@@ -322,6 +323,7 @@
 - [ ] [PostgreSQL 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（字典 KEY_COLUMN_USAGE）
 - [ ] [Oracle 逆向] schema=用户 → 含二级索引表导入 → 预期：`indexs` 正确且不含主键约束索引
 - [ ] [Oracle 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（ALL_CONSTRAINTS R）
+- [ ] [Oracle 逆向含注释] 表/列 `COMMENT ON` → 导入后 `chnname`（单测已覆盖字典回填；有实例时 curl `dbReverseParse`）
 - [ ] [SQL Server 逆向] 默认 dbo → 含二级索引表导入 → 预期：`indexs` 正确且不含主键/INCLUDE 列
 - [ ] [SQL Server 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（sys.foreign_keys）
 - [ ] [其它库兜底] H2/达梦等走 Generic → 表/列/PK 可导入；索引尽力

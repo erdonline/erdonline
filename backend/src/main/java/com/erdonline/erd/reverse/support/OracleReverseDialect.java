@@ -1,7 +1,11 @@
 package com.erdonline.erd.reverse.support;
 
 import com.erdonline.erd.model.Association;
+import com.erdonline.erd.model.Entity;
+import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
+import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.reverse.CommentResultSetMapper;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
@@ -21,7 +25,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * Oracle 逆向：schema=用户；索引走 ALL_INDEXES；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS。
+ * Oracle 逆向：schema=用户；索引走 ALL_INDEXES；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS；
+ * 注释走 ALL_TAB_COMMENTS / ALL_COL_COMMENTS（ojdbc REMARKS 依赖 remarksReporting，字典更稳）。
  *
  * @author erdonline
  */
@@ -72,11 +77,30 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
                     + "AND a.owner = ? AND a.table_name = ? "
                     + "ORDER BY a.constraint_name, a.position";
 
+    /**
+     * 表注释：ALL_TAB_COMMENTS；仅返回有 COMMENT 的行。
+     */
+    private static final String SQL_TABLE_COMMENTS =
+            "SELECT table_name AS TABLE_NAME, comments AS REMARKS "
+                    + "FROM all_tab_comments "
+                    + "WHERE owner = ? AND table_type = 'TABLE' "
+                    + "AND comments IS NOT NULL";
+
+    /**
+     * 列注释：ALL_COL_COMMENTS；仅返回有 COMMENT 的行。
+     */
+    private static final String SQL_COLUMN_COMMENTS =
+            "SELECT column_name AS COLUMN_NAME, comments AS REMARKS "
+                    + "FROM all_col_comments "
+                    + "WHERE owner = ? AND table_name = ? "
+                    + "AND comments IS NOT NULL";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(false)
+            .supportsComment(true)
             .build();
 
     @Override
@@ -95,6 +119,36 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
     @Override
     public DialectCapability capability() {
         return CAPABILITY;
+    }
+
+    @Override
+    public List<TableIdentity> listTables(Connection connection, String schema, String nameCaseFlag)
+            throws SQLException {
+        List<TableIdentity> tables = super.listTables(connection, schema, nameCaseFlag);
+        if (!capability().isSupportsComment() || tables.isEmpty()) {
+            return tables;
+        }
+        try {
+            return backfillTableComments(connection, tables, schema);
+        } catch (SQLException ex) {
+            log.warn("Oracle 字典表注释读取失败，回退 JDBC: {}", ex.getMessage());
+            return tables;
+        }
+    }
+
+    @Override
+    public void fillEntity(Connection connection, TableIdentity table, Entity entity,
+                           ParseDataModel dataModel, String nameCaseFlag) throws SQLException {
+        super.fillEntity(connection, table, entity, dataModel, nameCaseFlag);
+        if (!capability().isSupportsComment()) {
+            return;
+        }
+        try {
+            backfillColumnComments(connection, table, entity, nameCaseFlag);
+        } catch (SQLException ex) {
+            log.warn("Oracle 字典列注释读取失败 {}，回退 JDBC: {}",
+                    table.getOriginTableName(), ex.getMessage());
+        }
     }
 
     @Override
@@ -187,6 +241,58 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
             }
         }
         return new ArrayList<>(byKey.values());
+    }
+
+    private List<TableIdentity> backfillTableComments(Connection connection, List<TableIdentity> tables,
+                                                      String schema) throws SQLException {
+        String owner = resolveSchemaPattern(connection, schema);
+        Map<String, String> comments;
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TABLE_COMMENTS)) {
+            statement.setString(1, owner);
+            try (ResultSet rs = statement.executeQuery()) {
+                comments = CommentResultSetMapper.mapTableComments(rs);
+            }
+        }
+        if (comments.isEmpty()) {
+            return tables;
+        }
+        List<TableIdentity> filled = new ArrayList<>(tables.size());
+        for (TableIdentity table : tables) {
+            String remark = comments.get(table.getOriginTableName());
+            if (remark == null || remark.isEmpty()) {
+                // Oracle 未加引号标识符为大写；兼容 JDBC 返回与字典大小写不一致
+                remark = comments.get(table.getOriginTableName().toUpperCase(Locale.ROOT));
+            }
+            if (remark != null && !remark.isEmpty()) {
+                filled.add(table.withRemarks(remark));
+            } else {
+                filled.add(table);
+            }
+        }
+        return filled;
+    }
+
+    private void backfillColumnComments(Connection connection, TableIdentity table, Entity entity,
+                                        String nameCaseFlag) throws SQLException {
+        String owner = resolveOwner(connection, table);
+        String tableName = table.getOriginTableName().toUpperCase(Locale.ROOT);
+        Map<String, String> comments;
+        try (PreparedStatement statement = connection.prepareStatement(SQL_COLUMN_COMMENTS)) {
+            statement.setString(1, owner);
+            statement.setString(2, tableName);
+            try (ResultSet rs = statement.executeQuery()) {
+                comments = CommentResultSetMapper.mapColumnComments(rs, nameCaseFlag);
+            }
+        }
+        if (comments.isEmpty() || entity.getFields() == null) {
+            return;
+        }
+        for (Field field : entity.getFields()) {
+            String remark = comments.get(field.getName());
+            if (remark != null && !remark.isEmpty()) {
+                field.setChnname(remark);
+            }
+        }
     }
 
     private String resolveOwner(Connection connection, TableIdentity table) throws SQLException {
