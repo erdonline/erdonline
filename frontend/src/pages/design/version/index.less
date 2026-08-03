@@ -1,4 +1,4 @@
-// ADR-0016：版本列表与 22–28 chrome 同阶；禁 8×12 松行 + 16 标题
+// ADR-0016：版本列表二次密度 — 工具条 ~24 + token 色；禁 28 控 + rgba 碎色、禁 clip 图标
 .version-page {
   display: flex;
   flex-direction: column;
@@ -8,6 +8,7 @@
   padding: 2px 8px 0;
   box-sizing: border-box;
   font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
 }
 
 .version-page__bar {
@@ -16,18 +17,19 @@
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  min-height: 28px;
+  min-height: 24px;
   margin-bottom: 0;
 
   .ant-btn-sm {
     height: 24px;
     padding-inline: 4px;
     font-size: 12px;
+    line-height: 22px;
   }
 }
 
 .version-page__hint {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--erd-ink-600);
   font-size: 12px;
   line-height: 1.3;
 }
@@ -38,22 +40,72 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 4px 8px;
+  gap: 4px;
   padding: 2px 0 4px;
 
-  .ant-input {
-    height: 28px;
+  .ant-input-affix-wrapper {
+    padding-block: 0;
+    padding-inline: 8px;
+    min-height: 24px;
+    height: 24px;
+
+    .ant-input {
+      height: 22px;
+      font-size: 12px;
+      line-height: 22px;
+    }
+
+    .ant-input-clear-icon {
+      font-size: 12px;
+      margin-inline-end: 2px;
+    }
+  }
+
+  .ant-input:not(.ant-input-affix-wrapper .ant-input) {
+    height: 24px;
     font-size: 12px;
+    line-height: 22px;
+    padding-block: 0;
   }
 
   .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
-    height: 28px;
+    height: 24px !important;
+    padding-inline: 8px;
     font-size: 12px;
+    display: flex;
+    align-items: center;
+
+    .ant-select-selection-search-input {
+      height: 22px !important;
+    }
+
+    .ant-select-selection-item,
+    .ant-select-selection-placeholder {
+      line-height: 22px !important;
+      font-size: 12px;
+    }
   }
 
   .ant-btn {
-    height: 28px;
+    height: 24px;
+    padding-inline: 8px;
     font-size: 12px;
+    line-height: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 4px;
+
+    .anticon {
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+      z-index: 1;
+    }
   }
 
   .ant-tag {
@@ -64,7 +116,7 @@
 }
 
 .version-page__toolbar-label {
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--erd-ink-600);
   font-size: 12px;
 }
 
@@ -113,6 +165,20 @@
       height: 22px;
       padding-inline: 6px;
       font-size: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      .anticon {
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--erd-brand);
+        outline-offset: -2px;
+        z-index: 1;
+      }
     }
   }
 }
@@ -121,7 +187,7 @@
   font-size: 13px;
   font-weight: 600;
   line-height: 22px;
-  color: rgba(0, 0, 0, 0.88);
+  color: var(--erd-ink-900);
 }
 
 .version-row-meta {
@@ -135,7 +201,7 @@
   display: flex;
   flex-wrap: wrap;
   gap: 4px 8px;
-  color: rgba(0, 0, 0, 0.65);
+  color: var(--erd-ink-600);
   font-size: 12px;
 }
 
@@ -148,7 +214,7 @@
 
 .version-row-tags__label {
   flex: none;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--erd-ink-400);
   font-size: 11px;
 }
 
@@ -165,7 +231,7 @@
   align-items: baseline;
   gap: 4px;
   font-size: 11px;
-  color: rgba(0, 0, 0, 0.45);
+  color: var(--erd-ink-400);
 }
 
 .version-row-changes__label {
@@ -179,13 +245,13 @@
 }
 
 .version-row-changes__add {
-  color: #389e0d;
+  color: var(--erd-success);
 }
 
 .version-row-changes__del {
-  color: #cf1322;
+  color: var(--erd-brand);
 }
 
 .version-row-changes__upd {
-  color: #d48806;
+  color: var(--erd-warning);
 }

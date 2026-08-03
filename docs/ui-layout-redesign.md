@@ -164,7 +164,8 @@
 - ✅ **裸 Modal.confirm → confirmDestructive 清零**（2026-08-03）：版本重建基线/同步×2、逆向覆盖、画布删表·边·分组·字段、边 chip、JExcel 删行、表索引删；重建确认首焦「重建」+ Esc 归还重建钮；`version-rebuild-confirm-keyboard.spec` 绿
 - ✅ **Cmd+K 命令面板键盘 polish**（2026-08-03）：aria-modal + combobox/`aria-activedescendant`；↑↓ 滚动选中；无匹配「无匹配结果」分层空态；Esc 归还触发器；Tab 困在搜索；`relation.spec`「命令面板」绿
 - ✅ **签头密度再压**（2026-08-03）：CommonTabs `--erd-tabs-h` 24 + 表设计签头 ~24；不 clip 标签/关闭钮；focus-visible；`model-design-ux`「表设计三签」绿；下一刀 → ~~左树工具条再收 / chrome 次密距~~✅
-- ✅ **左树工具条/次密距**（2026-08-03）：`QueryTree` 工具条控件 24 + pad 4；sider-inner 次密距；禁 clip 图标；focus-visible；`model-design-ux`「模型树」绿；下一刀 → 版本列表二次走查 / chrome 碎色（视 ROI）
+- ✅ **左树工具条/次密距**（2026-08-03）：`QueryTree` 工具条控件 24 + pad 4；sider-inner 次密距；禁 clip 图标；focus-visible；`model-design-ux`「模型树」绿；下一刀 → ~~版本列表二次走查 / chrome 碎色~~✅
+- ✅ **版本列表二次密度 / chrome 碎色**（2026-08-03）：工具条控件 24；token 色；禁 clip；focus-visible；`version.spec`「版本列表行密度」绿；下一刀 → 版本工单/审批列表密度（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

@@ -371,14 +371,12 @@ test.describe('版本快照', () => {
         const title = el.querySelector('.version-row-title');
         const titleCs = title ? getComputedStyle(title) : null;
         const bar = document.querySelector('.version-page__bar');
-        const toolbar = document.querySelector('.version-page__toolbar');
         return {
           padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
           padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
           titleFont: titleCs ? parseFloat(titleCs.fontSize) : -1,
           titleLh: titleCs ? parseFloat(titleCs.lineHeight) : -1,
           barH: bar ? bar.getBoundingClientRect().height : -1,
-          toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
         };
       });
       expect(
@@ -401,9 +399,135 @@ test.describe('版本快照', () => {
       ).toBeLessThanOrEqual(24);
       expect(
         metrics.barH,
-        `版本顶栏高应 ≤36（目标 ~28），得 ${metrics.barH}`,
-      ).toBeLessThanOrEqual(36);
+        `版本顶栏高应 ≤32（目标 ~24），得 ${metrics.barH}`,
+      ).toBeLessThanOrEqual(32);
       expect(metrics.barH).toBeGreaterThanOrEqual(22);
+
+      // 二次密度：工具条控件 ~24；禁 clip 图标；命中 ∈24–28；token 色
+      const toolbarMetrics = await page.getByTestId('version-toolbar').evaluate((toolbar) => {
+        const addBtn = toolbar.querySelector(
+          '[data-testid="add-version-btn"]',
+        ) as HTMLElement | null;
+        const compareBtn = toolbar.querySelector(
+          '[data-testid="version-compare-btn"]',
+        ) as HTMLElement | null;
+        const filter =
+          (toolbar.querySelector(
+            'input[aria-label="按标签筛选"]',
+          ) as HTMLElement | null) ||
+          (toolbar.querySelector('input') as HTMLElement | null);
+        const select = toolbar.querySelector(
+          '.ant-select-selector',
+        ) as HTMLElement | null;
+        if (!addBtn || !filter) {
+          return {
+            addH: -1,
+            compareH: -1,
+            filterH: -1,
+            selectH: -1,
+            addIconClipped: true,
+            compareIconClipped: true,
+            addColor: '',
+            delColor: '',
+            inkMuted: '',
+          };
+        }
+        const eps = 1;
+        const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+          inner.top >= outer.top - eps &&
+          inner.bottom <= outer.bottom + eps &&
+          inner.left >= outer.left - eps &&
+          inner.right <= outer.right + eps;
+        const iconIn = (host: HTMLElement | null) => {
+          if (!host) return true;
+          const icon = host.querySelector('.anticon, svg') as HTMLElement | null;
+          if (!icon) return true;
+          return fullyIn(icon.getBoundingClientRect(), host.getBoundingClientRect());
+        };
+        const probe = document.createElement('span');
+        probe.className = 'version-row-changes__add';
+        toolbar.appendChild(probe);
+        const addColor = getComputedStyle(probe).color;
+        probe.className = 'version-row-changes__del';
+        const delColor = getComputedStyle(probe).color;
+        probe.className = 'version-page__hint';
+        const inkMuted = getComputedStyle(probe).color;
+        probe.remove();
+        return {
+          addH: addBtn.getBoundingClientRect().height,
+          compareH: compareBtn ? compareBtn.getBoundingClientRect().height : -1,
+          filterH: filter.getBoundingClientRect().height,
+          selectH: select ? select.getBoundingClientRect().height : -1,
+          addIconClipped: !iconIn(addBtn),
+          compareIconClipped: !iconIn(compareBtn),
+          addColor,
+          delColor,
+          inkMuted,
+        };
+      });
+      expect(
+        toolbarMetrics.addH,
+        `新增版本钮高应 ∈24–28，得 ${toolbarMetrics.addH}`,
+      ).toBeGreaterThanOrEqual(24);
+      expect(toolbarMetrics.addH).toBeLessThanOrEqual(28);
+      expect(
+        toolbarMetrics.compareH,
+        `比对钮高应 ∈24–28，得 ${toolbarMetrics.compareH}`,
+      ).toBeGreaterThanOrEqual(24);
+      expect(toolbarMetrics.compareH).toBeLessThanOrEqual(28);
+      expect(
+        toolbarMetrics.filterH,
+        `标签筛选高应 ∈22–28，得 ${toolbarMetrics.filterH}`,
+      ).toBeGreaterThanOrEqual(22);
+      expect(toolbarMetrics.filterH).toBeLessThanOrEqual(28);
+      expect(
+        toolbarMetrics.selectH,
+        `数据源 Select 高应 ∈22–28，得 ${toolbarMetrics.selectH}`,
+      ).toBeGreaterThanOrEqual(22);
+      expect(toolbarMetrics.selectH).toBeLessThanOrEqual(28);
+      expect(toolbarMetrics.addIconClipped, '新增版本图标不得裁切').toBe(false);
+      expect(toolbarMetrics.compareIconClipped, '比对图标不得裁切').toBe(false);
+
+      // chrome 碎色收口：增删摘要 / hint 走 --erd-*（非 antd 默认绿/红 / 裸 rgba）
+      const tokenColors = await page.evaluate(() => {
+        const cs = getComputedStyle(document.documentElement);
+        return {
+          success: cs.getPropertyValue('--erd-success').trim(),
+          brand: cs.getPropertyValue('--erd-brand').trim(),
+          ink600: cs.getPropertyValue('--erd-ink-600').trim(),
+        };
+      });
+      const resolveRgb = async (token: string) =>
+        page.evaluate((c) => {
+          const el = document.createElement('span');
+          el.style.color = c;
+          document.body.appendChild(el);
+          const rgb = getComputedStyle(el).color;
+          el.remove();
+          return rgb;
+        }, token);
+      const successRgb = await resolveRgb(tokenColors.success || '#2f8f7b');
+      const brandRgb = await resolveRgb(tokenColors.brand || '#de2910');
+      const ink600Rgb = await resolveRgb(tokenColors.ink600 || '#44525f');
+      expect(toolbarMetrics.addColor).toBe(successRgb);
+      expect(toolbarMetrics.delColor).toBe(brandRgb);
+      expect(toolbarMetrics.inkMuted).toBe(ink600Rgb);
+
+      // focus-visible：标签筛选 → Tab 进动作钮
+      const tagFilter = page.getByLabel('按标签筛选');
+      const addVersion = page.getByRole('button', { name: '新增版本' });
+      await tagFilter.focus();
+      await page.keyboard.press('Tab');
+      await expect(addVersion).toBeFocused();
+      const focusRing = await addVersion.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(focusRing.outlineStyle).not.toBe('none');
+      expect(parseFloat(focusRing.outlineWidth)).toBeGreaterThanOrEqual(1);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-version-list-dense.png',

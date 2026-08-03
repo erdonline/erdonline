@@ -340,6 +340,7 @@ const Version: React.FC = () => {
                   value={selectedDB}
                   onChange={handleDbChange}
                   style={{ width: 180 }}
+                  size="small"
                   loading={isLoading}
                 />
               </Space>

@@ -57,7 +57,7 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
         title={
           <span>
             重建版本
-            <span style={{color: 'red'}}>
+            <span style={{ color: 'var(--erd-brand)', fontSize: 12, fontWeight: 400 }}>
               （重建版本将会清除当前项目的所有版本信息，该操作不可逆）
             </span>
           </span>

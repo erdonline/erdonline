@@ -8,13 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：版本列表二次密度 / chrome 碎色
+
+- 选题：左树已 ~24；版本工具条仍 28 控件 + rgba/`#389e0d` 碎色
+- `version-page`：工具条 Input/Select/Btn 24 + flex 居中；禁 clip 图标；inset focus-visible；行色 `--erd-ink-*`；增删改摘要 `--erd-success` / `--erd-brand` / `--erd-warning`
+- `DataSourceSelect` size=small；SyncConfig/RebuildVersion 警告文案改 brand token（去裸 `red`）
+- E2E：`version.spec`「版本列表行密度」扩展工具条控件高度 + 不 clip + token 色 + Tab focus-visible；截图 `diagram-version-list-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 版本工单/审批列表密度（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "版本列表行密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/version-action-modals-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：左树工具条再收 / chrome 次密距
 
 - 选题：签头已 ~24；左树工具条仍 pad 8 + 控件 28，次密距松
 - `QueryTree`：工具条控件 24、pad 4；搜索 affix/清空钮同阶；禁 clip 图标；新建 inset focus-visible
 - `DesignLayout` sider-inner：次密距 pad 4×6×0×8；空态 margin 12
 - E2E：`model-design-ux`「模型树」扩展工具条/控件高度 + 不 clip + sider padX + Tab focus-visible；截图 `diagram-left-tree-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 版本列表二次走查 / chrome 碎色（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~版本列表二次走查 / chrome 碎色~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "模型树" --workers=1 --retries=0`

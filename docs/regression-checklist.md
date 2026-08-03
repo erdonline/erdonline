@@ -17,7 +17,8 @@
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 左树工具条/次密距：工具条 ≤32（目标 ~28）/ 新建·搜索控件 ∈24–28；图标不 clip；sider padX ≤20；新建 Tab focus-visible ✅`model-design-ux.spec.ts`
 - [x] CommonTabs / 表设计签头密度：签栏 ≤26（目标 ~24）+ 签头 ≤28；不 clip 标签/关闭；Tab focus-visible；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`
-- [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤36；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
+- [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤32；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
+- [x] 版本工具条二次密度/碎色：控件 ∈24–28；图标不 clip；增删摘要·hint 色 ≡ `--erd-success`/`--erd-brand`/`--erd-ink-600`；新增钮 Tab focus-visible ✅`version.spec.ts`
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」

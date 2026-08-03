@@ -54,7 +54,7 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
         title={
           <span>
             同步配置
-            <span style={{ color: 'red' }}>
+            <span style={{ color: 'var(--erd-brand)', fontSize: 12, fontWeight: 400 }}>
               （配置成功后，后续的同步的操作都使用该配置，仅建议项目初始化之后设置一次，以后不要变动，免得出现版本混乱）
             </span>
           </span>
