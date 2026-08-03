@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布空态 CTA pad 次密
+
+- 选题：notice-row 已密；`.erd-empty-cta` 仍 pad 14×18×12，相对 ADR-0016 8–12 族偏松；勿动 Auth logo 48 / 欢迎 pad；主 CTA hit ~28 不弱化
+- before：pad **14×18×12**；after：pad **10×12**；`testid=canvas-empty-state` / role「新建第一张表」
+- E2E：`relation`「空态构图」锁 pad ∈[8,12] + btnH ∈[26,28]；截图 `diagram-empty-composition.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `.erd-empty-panel` 顶距 `min(10vh, 88)`（视 ROI；Auth logo / 欢迎 pad 跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 体验：公告列表 notice-row gap 次密
 
 - 选题：Cmd+K footer 已密；`/project/notice` `.project-list-page__notice-row` 仍 gap12，相对行 pad 4×8 / ADR-0016 8–12 族偏松；勿再 densify 项目列表工具条
 - before：notice-row gap **12**；after：gap **8**；`testid=project-notice-row`
 - E2E：`project-notice`「公告列表行密度」锁 gap≤8≥8 + 既有 pad/标题/工具条；截图 `project-notice-list-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布空态 CTA `.erd-empty-cta` pad 14×18（视 ROI；Auth logo 48 仍跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~画布空态 CTA `.erd-empty-cta` pad~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/project-notice.spec.ts --project=chromium --grep "公告列表行密度" --workers=1 --retries=0`
