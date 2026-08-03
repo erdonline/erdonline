@@ -175,6 +175,7 @@
 - ✅ 设计器次屏表密度：JExcel（字段/索引/默认字段）工具栏 ~24、表头/行 pad 4×8、字 12、token 斑马；版本 diff 实体组头/行 ~24 + success/brand/warning；禁 datatables 头 10/行 8 + `#fbf8fb`；禁 clip；保留工具栏 Tab/focus-visible
 - ✅ 元数据应用子签密度：`CodeTab`/`DbTab` 签栏 `--erd-sub-tabs-h` 24、字 12、flex 居中；禁默认 antd 松签 + 字 11；禁 clip；保留子签 Tab focus-visible + Cmd+1/2/3 表设计签
 - ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；禁 pad 堆高无固定栏；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
+- ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
 - ✅ dataTypeDomains 树图标：`getDataTypeTree` 走 `erdColors.brand`；禁裸 `#DE2910`
@@ -190,7 +191,7 @@
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
-- ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度；弹窗外置；禁「大图标+副标题」卡片项；子菜单不得串台（导出≠导入）
+- ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
 - ❌ 画布一套 Ant 蓝、Home 一套品牌红，截图不像同一产品（历史问题）
 - ❌ 项目「导出」旁弹出逆向/PdMan 等导入项（历史问题）
 - ❌ 导入多表后按序号铺网格，关联线交叉成毛线团（历史问题）

@@ -1,0 +1,91 @@
+/* ADR-0016：设计器 Dropdown / 右键 / 树操作菜单次密距
+ * 项高 ~28（命中 ≤32）；紧凑 pad；禁 overflow 裁文字/图标/focus 环；保留 role=menuitem */
+.erd-dense-menu.ant-menu,
+.erd-dense-menu.ant-dropdown-menu,
+.erd-dense-menu .ant-menu,
+.erd-project-menu .ant-menu {
+  font-family: var(--erd-font-ui);
+  font-size: 12px;
+  padding: 4px 0 !important;
+  background: var(--erd-surface);
+  /* 勿 overflow:hidden：会裁 inset focus 与末项描边 */
+  overflow: visible;
+}
+
+.erd-dense-menu.ant-menu .ant-menu-item,
+.erd-dense-menu.ant-menu .ant-menu-submenu-title,
+.erd-dense-menu.ant-dropdown-menu .ant-dropdown-menu-item,
+.erd-dense-menu .ant-menu .ant-menu-item,
+.erd-dense-menu .ant-menu .ant-menu-submenu-title,
+.erd-project-menu .ant-menu .ant-menu-item,
+.erd-project-menu .ant-menu .ant-menu-submenu-title {
+  height: 28px !important;
+  min-height: 28px !important;
+  line-height: 28px !important;
+  margin-block: 0 !important;
+  margin-inline: 4px !important;
+  padding-inline: 8px !important;
+  width: auto !important;
+  font-size: 12px;
+  border-radius: 4px;
+  overflow: visible;
+
+  .anticon {
+    font-size: 12px;
+    line-height: 1;
+  }
+
+  .ant-menu-item-icon,
+  .ant-dropdown-menu-item-icon {
+    min-width: 12px;
+    font-size: 12px;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -2px;
+  }
+}
+
+.erd-dense-menu.ant-menu .ant-menu-item-group-title,
+.erd-dense-menu .ant-menu .ant-menu-item-group-title,
+.erd-project-menu .ant-menu .ant-menu-item-group-title {
+  padding: 4px 12px 2px !important;
+  font-size: 11px;
+  line-height: 16px;
+  color: var(--erd-ink-400);
+}
+
+.erd-dense-menu.ant-menu .ant-menu-item-divider,
+.erd-dense-menu.ant-dropdown-menu .ant-dropdown-menu-item-divider,
+.erd-dense-menu .ant-menu .ant-menu-item-divider,
+.erd-project-menu .ant-menu .ant-menu-item-divider {
+  margin: 2px 8px !important;
+}
+
+/* 子菜单弹层（portal）：与主菜单同阶密度 */
+.erd-dense-menu.ant-menu-submenu-popup {
+  .ant-menu {
+    font-family: var(--erd-font-ui);
+    font-size: 12px;
+    padding: 4px 0 !important;
+    overflow: visible;
+  }
+
+  .ant-menu-item {
+    height: 28px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    margin-block: 0 !important;
+    margin-inline: 4px !important;
+    padding-inline: 8px !important;
+    font-size: 12px;
+    border-radius: 4px;
+    overflow: visible;
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+    }
+  }
+}

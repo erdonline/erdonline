@@ -172,6 +172,7 @@
 | DesignLayout | 次屏表密度（JExcel / 版本 diff） | JExcel 工具栏 ~24；表头/行 pad 4×8；图标不 clip；focus-visible；diff 组头/行 ~24 token 色；工具栏 Tab / 可视化 diff 不回归 | jexcel-root / version-diff-panel | ✅ | `model-design-ux`「表设计 JExcel 行密度」+ `relation`「工具栏 Tab」+ `version.spec` diff |
 | DesignLayout | 元数据应用子签密度 | CodeTab/DbTab 栏 ~24；标签不 clip；子签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-code-tab / erd-db-tab | ✅ | `model-design-ux`「元数据应用子签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
 | DesignLayout | 表设计内签密度 | 字段/索引/元数据栏 ~24；标签不 clip；内签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-table-design__tabs / #tableNav | ✅ | `model-design-ux`「表设计内签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
+| DesignLayout | 右键/树操作菜单密度 | 项高 ~28（≤32）；图标/文案不 clip；`role=menuitem`；方向键/Esc | `.erd-dense-menu` | ✅ | `model-design-ux`「右键/树操作菜单密度」 |
 | DesignLayout | 左树键盘漫游 | Skip→↓入树；方向键+Enter 定位表/开关系；active brand 环；Tab 进搜索无 trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation`「左树键盘漫游」 |
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
 | RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |

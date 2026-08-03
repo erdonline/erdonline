@@ -72,7 +72,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
             },
         ];
 
-        return <Menu items={menuItems} />;
+        return <Menu className="erd-dense-menu" items={menuItems} />;
     }, [handleTabClose, handleCloseLeft, handleCloseRight, handleCloseAll]);
 
     const tabPanes = useMemo(() => {

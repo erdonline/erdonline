@@ -23,6 +23,7 @@
 - [x] 设计器次屏 JExcel 密度：工具栏 ≤32 / 表头·行 pad-block ≤10 / 行高 ≤32；图标不 clip；撤销钮 Tab focus-visible；截图 `diagram-jexcel-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 元数据应用子签密度：CodeTab/DbTab 栏 ≤26（目标 ~24）；不 clip 标签；子签 Tab focus-visible；Cmd+1/2/3 不回归；截图 `diagram-code-tabs-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 表设计内签密度：字段/索引/元数据栏 ≤26（目标 ~24）；不 clip 标签；内签 Tab focus-visible；Cmd+1/2/3 不回归；截图 `diagram-inner-tabs-dense.png` ✅`model-design-ux.spec.ts`
+- [x] 右键/树操作菜单密度：项高 ≤32（目标 ~28）/ font ≤13；图标·文案不 clip；`role=menuitem` + ArrowDown/Esc；截图 `diagram-context-menu-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 版本 diff 次屏密度：组头/行 ~24 pad 4×8 + token 色（success/brand/warning）；不回归可视化 diff ✅`version.spec.ts`
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`

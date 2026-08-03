@@ -178,7 +178,11 @@ const ChromeOverflow: React.FC = () => {
   );
 
   return (
-    <Dropdown menu={{ items }} trigger={['click']} placement="bottomRight">
+    <Dropdown
+      menu={{ items, className: 'erd-dense-menu' }}
+      trigger={['click']}
+      placement="bottomRight"
+    >
       <Button
         type="text"
         className="design-layout__overflow"
