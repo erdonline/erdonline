@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：添加成员邀请失败不关窗
+
+- 选题：协作邀请路径 `AddUser` 非 200 仍 `setOpen(false)`，toast 易漏时像邀请成功；ROI 高于 densify（版本/分享/DDL 已有失败反馈）
+- `AddUser`：失败不关窗；业务/网络已由 `request` toast，禁叠弹；成功才关窗+「保存成功」
+- E2E：`add-user-invite-failure.spec.ts` mock 业务码 → toast「模拟邀请拒绝」+ dialog 仍开 → 重试成功关窗
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选（dbsync / 版本保存边缘态）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/add-user-invite-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：逆向解析失败可读 + 重试
 
 - 选题：`dbReverseParse` toast 用 `'' + res` → `[object Object]`；Step2 仅「解析失败」无详情/CTA；与 autosave 重试模式断档
 - `profileSlice`：`reverseParseErrorText`；失败写 `errorMessage` + `lastReverseParse`；`retryDbReverseParse`；禁叠弹（业务/网络已由 `request` toast）
 - `ReverseParseStep`：失败态「数据库解析失败」+ 详情 +「重新解析」；挂次屏页与菜单 Modal；成功才显「提交」
 - E2E：`reverse-parse-failure.spec.ts` mock 业务码 → 可读 toast / 无 `[object Object]` → 重试出实体表；payload 仍含 `dataSourceId`、无 password/url
-- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → ~~添加成员邀请失败静默关窗~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/reverse-parse-failure.spec.ts --project=chromium --workers=1 --retries=0`
