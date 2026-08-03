@@ -335,9 +335,43 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
   const showDesignLeft = pathname === '/design/table/model';
   const showSiderNav = siderChildRoutes.length > 0;
   const showSider = showDesignLeft || showSiderNav;
+  const showTreeSkip = showDesignLeft && !collapsed;
+
+  const focusSkipTarget = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.focus({ preventScroll: false });
+    el.scrollIntoView({ block: 'nearest' });
+  };
 
   return (
     <Layout className="design-layout" data-testid="design-layout">
+      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="erd-skip-nav">
+        {showTreeSkip ? (
+          <a
+            href="#erd-design-tree"
+            className="erd-skip-link"
+            data-testid="erd-skip-tree"
+            onClick={(e) => {
+              e.preventDefault();
+              focusSkipTarget('erd-design-tree');
+            }}
+          >
+            跳到模型树
+          </a>
+        ) : null}
+        <a
+          href="#erd-design-workspace"
+          className="erd-skip-link"
+          data-testid="erd-skip-workspace"
+          onClick={(e) => {
+            e.preventDefault();
+            focusSkipTarget('erd-design-workspace');
+          }}
+        >
+          跳到主工作区
+        </a>
+      </nav>
       <Header className="erd-chrome-header design-layout__header">
         <div
           className="erd-chrome-brand"
@@ -465,7 +499,13 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
             </div>
           </Sider>
         ) : null}
-        <Content className="design-layout__content">
+        <Content
+          id="erd-design-workspace"
+          className="design-layout__content"
+          tabIndex={-1}
+          data-testid="erd-design-workspace"
+          aria-label="主工作区"
+        >
           <Theme>
             {/* 硬导航首帧 store 仍为空且 projectLoading 尚未置 true；勿挂载子页（JExcel 等只 init 一次） */}
             {projectLoading || !project?.projectJSON ? (

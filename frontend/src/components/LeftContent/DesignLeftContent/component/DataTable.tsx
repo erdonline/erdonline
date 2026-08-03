@@ -308,6 +308,13 @@ const DataTable: React.FC<DataTableProps> = (props) => {
             e.stopPropagation();
             showModal('entity', { module: node.module });
           }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              showModal('entity', { module: node.module });
+            }
+          }}
         />
       );
     }
@@ -322,6 +329,13 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           onClick={(e) => {
             e.stopPropagation();
             showModal('relation', { module: node.module });
+          }}
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+              e.preventDefault();
+              e.stopPropagation();
+              showModal('relation', { module: node.module });
+            }
           }}
         />
       );
@@ -523,7 +537,12 @@ const DataTable: React.FC<DataTableProps> = (props) => {
 
   return (
     <div
+      id="erd-design-tree"
       className="design-left-data"
+      data-testid="erd-design-tree"
+      tabIndex={-1}
+      role="navigation"
+      aria-label="模型树"
       style={{
         height: '100%',
         flex: 1,

@@ -1515,6 +1515,56 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('设计器 Skip：首项 Tab 达跳过链；落到模型树/主工作区无 trap', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('skip');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'skip', 'designer skip focus');
+      await openRelationFromEmpty(page);
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('erd-skip-nav')).toBeAttached();
+      await expect(page.getByTestId('erd-skip-tree')).toBeAttached();
+      await expect(page.getByTestId('erd-design-tree')).toBeAttached();
+      await expect(page.getByTestId('erd-design-workspace')).toBeAttached();
+
+      // 建模操作会把「顺序焦点起点」留在画布；点左上角复位后再 Tab
+      await page.mouse.click(2, 2);
+      await page.keyboard.press('Tab');
+      await expect(page.getByTestId('erd-skip-tree')).toBeFocused({ timeout: 5_000 });
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('erd-design-tree')).toBeFocused();
+
+      // 树地标 → Tab 进搜索（无 trap）
+      await page.keyboard.press('Tab');
+      await expect(page.getByPlaceholder('搜索表名')).toBeFocused();
+
+      // 跳到主工作区（签/画布）
+      await page.mouse.click(2, 2);
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await expect(page.getByTestId('erd-skip-workspace')).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('erd-design-workspace')).toBeFocused();
+
+      // 工作区 → Tab 离开地标（无 trap）
+      await page.keyboard.press('Tab');
+      await expect(page.getByTestId('erd-design-workspace')).not.toBeFocused();
+      const afterWs = await page.evaluate(
+        () => (document.activeElement as HTMLElement | null)?.getAttribute('data-testid') ||
+          (document.activeElement as HTMLElement | null)?.getAttribute('aria-label') ||
+          (document.activeElement as HTMLElement | null)?.tagName ||
+          '',
+      );
+      // 落点应离开工作区地标（下一 Tab 可能是签/画布控件；不要求特定控件）
+      expect(afterWs).not.toBe('erd-design-workspace');
+      expect(afterWs.length).toBeGreaterThan(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('表设计字段签：半成品行不静默丢字段；Esc 停在网格', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('jxhalf');

@@ -26,6 +26,18 @@
     line-height: 20px;
     font-size: 12px;
     border-radius: 0 !important;
+
+    &:focus-visible,
+    &.ant-tabs-tab-focus {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+      z-index: 1;
+    }
+  }
+
+  .ant-tabs-tab-btn:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: 1px;
   }
 
   .ant-tabs-tab-btn {
