@@ -83,6 +83,18 @@ test.describe('账户设置', () => {
       `表单项 margin-bottom 应 ≤16（目标 12），得 ${baseMetrics.itemMb}`,
     ).toBeLessThanOrEqual(16);
 
+    // ADR-0016：BaseView 左右列 gap 与壳 12×16 同族（禁 24）
+    const baseView = page.getByTestId('account-settings-base-view');
+    await expect(baseView).toBeVisible();
+    const baseViewGap = await baseView.evaluate((el) =>
+      parseFloat(getComputedStyle(el).gap || getComputedStyle(el).columnGap),
+    );
+    expect(
+      baseViewGap,
+      `BaseView 左右 gap 应 ≤16（目标 16，禁 24），得 ${baseViewGap}`,
+    ).toBeLessThanOrEqual(16);
+    expect(baseViewGap).toBeGreaterThanOrEqual(8);
+
     await page.getByRole('menuitem', { name: '安全设置' }).click();
     await expect(page).toHaveURL(/selectKey=security/);
     await expect(page.getByText('账户密码')).toBeVisible();
