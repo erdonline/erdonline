@@ -29,10 +29,9 @@ public abstract class AbstractDBCommand<T> {
 
     public void init(Map<String, String> params) {
         this.driverClassName = (String) params.get("driverClassName");
-        this.url = (String) params.get("url");
+        this.url = JdbcUrlGuard.assertAllowedAndPin((String) params.get("url"));
         this.username = (String) params.get("username");
         this.password = (String) params.get("password");
-        JdbcUrlGuard.assertAllowed(this.url);
     }
 
     abstract T exec(Map<String, String> var1);
