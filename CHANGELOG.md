@@ -8,6 +8,21 @@
 
 ### 2026-08-03
 
+#### 互通：DBML 表达式索引 ↔ `indexs[].fields[]`
+
+- 选题：Enum 闭环（`2d42004`）后下一刀 = 表达式/函数索引往返（roadmap 显式「另切片」）
+- 模型：不加新字段；`indexs[].fields[]` 既可放列名也可放表达式原样（如 `LOWER(email)`）
+- 导入：`@dbml/core` `columns[].type=expression` 不再丢弃，写入 `fields[]`
+- 导出：纯 ident → 列引用；其余 → `` `expr` ``（混列同块）
+- DDL：既有 `createIndexTemplate` 对 `fields` join，表达式可进 `CREATE INDEX … (LOWER(email))`
+- 未做：JDBC 逆向函数索引字典抓取；索引签 UI 表达式编辑器
+- 单测 + fixture `expression-index.dbml` round-trip；E2E `dbml-export`「表达式索引」
+- 文档：data-format Index + DBML 表；roadmap / regression-checklist
+
+验证点：
+- `cd frontend && yarn test:unit:dbml`
+- `cd frontend && npx playwright test tests/e2e/dbml-export.spec.ts --project=chromium --grep "表达式索引" --workers=1 --retries=0`
+
 #### 互通：DBML Enum ↔ dataTypeDomains
 
 - 选题：触发器签（`325bf2a`）后 DBML Trigger 仍无家；下一刀 = Enum（`@dbml/core` 已支持，原文档「不映射」）

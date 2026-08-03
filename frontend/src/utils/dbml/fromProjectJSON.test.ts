@@ -7,6 +7,7 @@ import { readFileSync } from 'node:fs';
 import path from 'node:path';
 import {
   formatDefaultAttr,
+  formatIndexColumn,
   mapLogicalTypeToDbml,
   projectJSONToDbml,
 } from './fromProjectJSON';
@@ -38,6 +39,13 @@ async function main() {
     assert.equal(formatDefaultAttr('now()'), 'default: `now()`');
     assert.equal(formatDefaultAttr('CURRENT_TIMESTAMP'), 'default: `CURRENT_TIMESTAMP`');
     assert.equal(formatDefaultAttr(''), null);
+  });
+
+  await run('formatIndexColumn：列名 vs 表达式', () => {
+    assert.equal(formatIndexColumn('email'), 'email');
+    assert.equal(formatIndexColumn('LOWER(email)'), '`LOWER(email)`');
+    assert.equal(formatIndexColumn('`LOWER(email)`'), '`LOWER(email)`');
+    assert.equal(formatIndexColumn('"weird col"'), '"weird col"');
   });
 
   await run('projectJSONToDbml：表/字段/chnname→note/Ref/indexs', () => {
@@ -107,6 +115,16 @@ async function main() {
                   isUnique: false,
                   fields: ['name', 'email'],
                 },
+                {
+                  name: 'idx_users_email_lower',
+                  isUnique: true,
+                  fields: ['LOWER(email)'],
+                },
+                {
+                  name: 'idx_users_mixed',
+                  isUnique: false,
+                  fields: ['email', 'LOWER(email)'],
+                },
               ],
             },
             {
@@ -165,6 +183,14 @@ async function main() {
     assert.match(
       dbml,
       /\(name, email\) \[name: 'idx_users_name_email'\]/,
+    );
+    assert.match(
+      dbml,
+      /\(`LOWER\(email\)`\) \[name: 'idx_users_email_lower', unique\]/,
+    );
+    assert.match(
+      dbml,
+      /\(email, `LOWER\(email\)`\) \[name: 'idx_users_mixed'\]/,
     );
     assert.match(dbml, /Ref: posts\.user_id > users\.id/);
   });
@@ -358,6 +384,36 @@ async function main() {
     assert.equal(f2?.type, 'order_status');
     assert.equal(f2?.defaultValue, f1?.defaultValue);
     assert.equal(f2?.chnname, f1?.chnname);
+  });
+
+  await run('round-trip：expression-index fixture 导入→导出→再导入，表达式索引稳定', async () => {
+    const fixture = path.resolve(
+      __dirname,
+      '../../../tests/fixtures/expression-index.dbml',
+    );
+    const text = readFileSync(fixture, 'utf8');
+    const first = await dbmlToProjectJSON(text);
+    const exported = projectJSONToDbml(first);
+    const second = await dbmlToProjectJSON(exported);
+
+    const users1 = first.modules[0].entities.find((e) => e.title === 'users');
+    const users2 = second.modules[0].entities.find((e) => e.title === 'users');
+    assert.ok(users1 && users2);
+    assert.deepEqual(users1!.indexs, [
+      {
+        name: 'idx_users_email_lower',
+        isUnique: true,
+        fields: ['LOWER(email)'],
+      },
+      {
+        name: 'idx_users_mixed',
+        isUnique: false,
+        fields: ['email', 'LOWER(email)'],
+      },
+    ]);
+    assert.deepEqual(users2!.indexs, users1!.indexs);
+    assert.match(exported, /`LOWER\(email\)`/);
+    assert.match(exported, /idx_users_email_lower/);
   });
 
   // eslint-disable-next-line no-console

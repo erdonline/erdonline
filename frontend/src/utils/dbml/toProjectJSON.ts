@@ -23,6 +23,7 @@ export type ProjectJsonField = {
 export type ProjectJsonIndex = {
   name: string;
   isUnique: boolean;
+  /** 列名或索引表达式（如 `LOWER(email)`）；顺序即索引列序 */
   fields: string[];
 };
 
@@ -318,11 +319,11 @@ function mapField(field: DbmlField, enumCodes: Set<string>): ProjectJsonField {
 }
 
 function mapIndex(index: DbmlIndex, tableName: string): ProjectJsonIndex | null {
-  // pk 索引由 fields[].pk 承接；表达式列（type≠column）本切片不映射
+  // pk 索引由 fields[].pk 承接；列名与表达式均写入 fields[]（表达式原样字符串）
   if (index.pk) return null;
   const fields = (index.columns || [])
-    .filter((c) => (c.type || 'column') === 'column' && String(c.value || '').trim())
-    .map((c) => String(c.value).trim());
+    .map((c) => String(c.value || '').trim())
+    .filter(Boolean);
   if (fields.length === 0) return null;
   const rawName = String(index.name || '').trim();
   const name =
