@@ -13,10 +13,20 @@
 - 选题：Cmd+K / Delete 确认 / Tab 字段跳行已落地，但发现路径差；原则写了 `?` 速查却无实现
 - `?`（Shift+/）或工具栏「?」→ `role=dialog`「快捷键」列出命令面板、撤销重做、删确认、Tab 字段导航、Esc 等；Esc / 再按 `?` / 遮罩关闭；与命令面板互斥
 - E2E：`relation`「快捷键速查：? 打开 aria dialog」
-- `docs/design-principles.md` §2；roadmap ✅ 本刀，下一刀 → 表设计签 / 字段行键盘建模摩擦（优先于碎色·密度）
+- `docs/design-principles.md` §2；roadmap ✅ 本刀，下一刀 → ~~表设计签半成品静默丢~~✅ → 索引签键盘半成品 / Tab 焦点序
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "快捷键速查" --workers=1 --retries=0`
+
+#### 体验：表设计字段签半成品行不静默丢（键盘建模）
+
+- 选题：JExcel `notEmptyColumn` 静默 reject 缺类型行 → Enter/Tab/清类型后字段从 store 消失且无 toast；与画布空名反馈不一致
+- `saveValidData`：全空草稿可丢；半成品中止写回 + toast「有行未填完必填项…」；字段签必填对齐为 `name`+`typeName`；网格内 Esc stopPropagation
+- E2E：`relation`「表设计字段签：半成品行不静默丢字段；Esc 停在网格」
+- `docs/design-principles.md` §4；下一刀 → 索引签键盘半成品 / 字段签 Tab 焦点序（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "半成品行不静默丢" --workers=1 --retries=0`
 
 #### 体验：左树点表定位/高亮（建模回路）
 

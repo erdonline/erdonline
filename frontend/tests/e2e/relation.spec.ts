@@ -1448,6 +1448,52 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表设计字段签：半成品行不静默丢字段；Esc 停在网格', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('jxhalf');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'jxhalf', 'jexcel incomplete save');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      await expect(fieldEdit.getByRole('cell', { name: 'NAME' })).toBeVisible();
+
+      // 键盘：选中英文名 → Tab 到类型 → Delete 清空 → Enter 确认落盘意图
+      await fieldEdit.getByRole('cell', { name: 'NAME' }).click();
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Delete');
+      await page.keyboard.press('Enter');
+
+      await expectToast(page, /有行未填完必填项|未保存以免丢数据/);
+
+      // Esc：取消格编辑且签页仍在（勿冒泡关签）
+      await fieldEdit.getByRole('cell', { name: 'NAME' }).dblclick();
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('table-field-edit')).toBeVisible();
+      await expect(page.getByTestId('table-design').getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      // 切回画布：NAME 仍在（禁半成品过滤写回把字段静默删掉）
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await expect(rfNode(page, 'T_TABLE_1').locator('[data-field="NAME"]')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fldnav');
