@@ -202,7 +202,8 @@
 - [x] [选中光晕统一] 表 / Frame `box-shadow` 环均为 brand a18（`--erd-selection-ring`）；禁 Frame a12 ✅`diagram-frame.spec`「选中表→新建分组」+ `relation.spec`「品牌 token」
 - [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；Panel margin 8；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
 - [x] [画布工具栏扫读层次] 单块 chrome；次要 ink600；「自动布局」600/ink900；禁散粒描边 ✅`relation.spec`「工具栏」
-- [x] [空态面板密度] `.erd-empty-cta` pad ∈[8,12]（目标 10×12）/ maxW≤300 / 标题≤14 / CTA hit ∈[26,28] / 剪影≤140；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
+- [x] [空态面板密度] `.erd-empty-cta` pad ∈[8,12]（目标 10×12）/ maxW≤300 / 标题≤14 / CTA hit ∈[26,28] / 剪影 compact≈112∈[96,120]；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
+- [x] [空态剪影 compact] `ErdEmptyDiagram` compact **112**（原 132）；禁 ≥132；≥96 保留存在感；Auth logo / 欢迎 pad / hero 176 / Controls·工具栏 margin 不动 ✅`relation.spec`「空态构图」
 - [x] [空态 panel 顶距] `.erd-empty-panel` mt ≈ min(8vh,64) 且 ∈[32,64]；`testid=canvas-empty-panel`；禁 min(10vh,88)；Auth logo / 欢迎 pad / CTA pad 不动 ✅`relation.spec`「空态构图」
 - [x] [空态纵节奏] `.erd-empty-title` mt≈8∈[6,10] / `.erd-empty-desc` mb≈12∈[8,12]；禁回退 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距不动 ✅`relation.spec`「空态构图」
 - [x] [空态次链区 mt] `.erd-empty-links` mt≈10∈[8,12]；`testid=canvas-empty-links`；Controls 已密不改；Auth logo / 欢迎 pad / CTA / panel / title·desc 不动 ✅`relation.spec`「空态构图」+「Controls」

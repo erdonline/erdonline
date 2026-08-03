@@ -59,6 +59,7 @@
 | 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
 | `/project/notice` 公告行 | 碎密度 | `.project-list-page__notice-row` gap ∈[8,12]（目标 8）；行 pad ≤4×8；禁 gap12；工具条不弱化 | ADR-0016 密度 | ✅ | `project-notice` densify |
 | 画布空态 CTA `.erd-empty-cta` | 碎密度 | pad ∈[8,12]（目标 10×12）；主 CTA hit ∈[26,28]；禁 14×18；Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
+| 画布空态剪影 `ErdEmptyDiagram` compact | 碎密度 | 宽 **112**（原 132）；∈[96,120]；禁 ≥132；hero 176 / Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 画布空态 panel `.erd-empty-panel` | 碎密度 | mt ≈ min(8vh,64) 且 ∈[32,64]；禁 min(10vh,88)；CTA pad / Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 画布空态纵节奏 title/desc | 碎密度 | title mt ≈8∈[6,10]；desc mb ≈12∈[8,12]；desc mt≤8；禁历史 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 画布空态次链 `.erd-empty-links` | 碎密度 | mt ≈10∈[8,12]；Controls 22/pad0 已密不改；禁 links mt>12；Auth logo / 欢迎 / CTA / panel / title·desc 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」+「Controls」 |

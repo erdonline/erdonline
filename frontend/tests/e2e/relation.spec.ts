@@ -296,7 +296,15 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(emptyMetrics.btnFont).toBeLessThanOrEqual(12);
       expect(emptyMetrics.btnWeight).toBeGreaterThanOrEqual(600);
       expect(emptyMetrics.secColor).toBe('rgb(68, 82, 95)'); // ink600，次链不抢 brand
-      expect(emptyMetrics.svgW).toBeLessThanOrEqual(140);
+      // ADR-0016：compact 剪影 168→132→112；禁回退 ≥132；≥96 保留存在感
+      expect(
+        emptyMetrics.svgW,
+        `compact 剪影宽应 ≈112（∈[96,120]），得 ${emptyMetrics.svgW}`,
+      ).toBeGreaterThanOrEqual(96);
+      expect(emptyMetrics.svgW, `compact 剪影宽应 ≤120，得 ${emptyMetrics.svgW}`).toBeLessThanOrEqual(
+        120,
+      );
+      expect(emptyMetrics.svgW).toBeCloseTo(112, 0);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-empty-composition.png',

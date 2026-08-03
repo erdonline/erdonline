@@ -14,8 +14,8 @@ const ErdEmptyDiagram: React.FC<ErdEmptyDiagramProps> = ({
   size = 'compact',
   className,
 }) => {
-  // compact：画布空态再收；hero：欢迎空态次密（介于 220 松剪影与 compact 132）
-  const dim = size === 'hero' ? 176 : 132;
+  // compact：画布空态再收（168→132→112）；hero：欢迎/Auth 次密（220→176；勿压成 compact）
+  const dim = size === 'hero' ? 176 : 112;
   return (
     <svg
       className={className}

@@ -190,13 +190,15 @@
 - ✅ MiniMap：底色 `surfaceSunk` + `line` 描边 + 128×96 紧凑（概览不缩）；panel **margin 8**（禁 RF 默认 15）；禁默认白底与 sunk 画布割裂
 - ❌ MiniMap panel 贴 RF 默认 margin 15，与 ADR-0016 8–12 族偏松（历史问题）
 - ❌ Controls / 画布工具栏 Panel 贴 RF 默认 margin 15，相对 MiniMap 已密 8 / 8–12 族偏松（历史问题）
+- ❌ 画布空态 compact 剪影 132（及更早 168），相对已密 CTA pad / panel 顶距仍偏大盖首屏（历史问题）
 - ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；图标 12px；**panel margin 8**（对齐 MiniMap；禁 RF 默认 15）；**适应画布** muted 底 + ink900 主操作，缩放/锁次要 ink600；禁 RF `#fefefe` 松柱与画布割裂
 - ✅ 画布工具栏：单块 surface chrome（与 Controls 同语言）；**Panel margin 8**；按钮 height 22 / font 11；次要 ink600，**自动布局** 600/ink900；禁散粒描边钮 + 5×12 松按钮盖截图 / 禁 RF panel margin 15
+- ✅ 空态剪影 compact：**112**（原 132）；hero 176 / Auth logo 48 / 欢迎 pad 不动；禁 ≥132 回退；≥96 保留存在感；`testid=erd-empty-diagram`
 - ✅ 边基数 Select：编辑态高 **24**（≤28）；EntityModal / io-modal 表单项 mb **12**、输入·Select·OK **28**（量测已贴；E2E 锁禁回退）
 - ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
-- ✅ 空态面板密度：padding 10×12（ADR-0016 8–12；原 14/18/12）、max-width 300、标题 14/700 / CTA height 26（hit ≥26）、剪影 compact 132；禁 14×18 / 28/32 松卡片盖首屏
+- ✅ 空态面板密度：padding 10×12（ADR-0016 8–12；原 14/18/12）、max-width 300、标题 14/700 / CTA height 26（hit ≥26）、剪影 compact **112**（原 132 / 更早 168）；禁 14×18 / 28/32 松卡片 / ≥132 松剪影盖首屏；Auth logo 48 / 欢迎 pad·hero 176 不动
 - ✅ 空态 panel 顶距次密：`.erd-empty-panel` `min(8vh, 64)`（原 `min(10vh, 88)`）；保留顶区存在感 ≥32；禁 10vh/88 松顶；Auth logo / 欢迎 pad / CTA pad 10×12 不动；`testid=canvas-empty-panel`
 - ✅ 空态纵节奏：`.erd-empty-title` mt≈8、`.erd-empty-desc` mb≈12（量测已贴 ADR-0016；历史 16 / 8×18）；禁回退松距；Auth logo / 欢迎 pad / CTA pad / panel 顶距不动；`testid=canvas-empty-state`
 - ✅ 空态次链区：`.erd-empty-links` mt≈10（8–12 族；Controls chrome 量测已密故不次密 Controls）；禁回退 >12；Auth logo / 欢迎 pad / CTA / panel / title·desc 不动；`testid=canvas-empty-links`
