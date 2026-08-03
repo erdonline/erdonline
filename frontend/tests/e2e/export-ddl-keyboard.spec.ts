@@ -53,6 +53,18 @@ test.describe('导出DDL弹层键盘', () => {
         dialog.getByRole('combobox', { name: '数据源' }),
       ).toBeFocused({ timeout: 5_000 });
 
+      // ADR-0016：导出 DDL 弹层 Steps 与次屏 / 导入逆向同阶
+      const stepsMetrics = await dialog.evaluate((el) => {
+        const steps = el.querySelector('.erd-io-modal__steps') as HTMLElement | null;
+        const scs = steps ? getComputedStyle(steps) : null;
+        return {
+          stepsMt: scs ? parseFloat(scs.marginTop) : NaN,
+          stepsMb: scs ? parseFloat(scs.marginBottom) : NaN,
+        };
+      });
+      expect(stepsMetrics.stepsMt).toBeLessThanOrEqual(10);
+      expect(stepsMetrics.stepsMb).toBeLessThanOrEqual(12);
+
       await assertTabTrap(dialog, page);
 
       await page.keyboard.press('Escape');

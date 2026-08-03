@@ -89,8 +89,18 @@
     font-size: 12px;
   }
 
+  /* 与 .erd-secondary-pane__steps 同阶：禁 mt16 / mb24 */
   .erd-io-modal__steps {
-    margin-bottom: 12px !important;
+    margin: 0 0 10px !important;
+
+    .ant-steps-item-title {
+      font-size: 12px !important;
+      line-height: 20px !important;
+    }
+
+    .ant-steps-item-description {
+      font-size: 11px !important;
+    }
   }
 
   .erd-io-modal__field {
