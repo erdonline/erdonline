@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：左树重命名关系图接通（建模回路）
+
+- 选题：「编辑关系」打开空 FK（表1/表2）弹层，`handleModalOk` 未写 `renameDiagram` → 死 affordance
+- 菜单文案「重命名关系图」→ EntityModal 名称-only → `renameDiagram`；顶栏「新建关系图」同路径 `createDiagram`
+- 隐藏关系图复制/剪切（无实现）；删掉 EntityModal 废弃空 FK 字段
+- E2E：`multi-diagram`「左树重命名关系图」
+- `docs/design-principles.md` §4 补正例
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "左树重命名关系图" --workers=1 --retries=0`
+
 #### 体验：左树删除模型/关系图二次确认（掌控感）
 
 - 选题：关系图菜单「删除」文案误走「表」且 `onOk` 未调 `removeDiagram`；模型删依赖 `currentModuleIndex` 易误伤

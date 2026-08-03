@@ -100,6 +100,14 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         module: defaultModule,
         isNew: true
       });
+    } else if (type === 'relation') {
+      // showModal 仅用于新建；重命名走 handleRename → renameDiagram
+      const defaultModule = node?.module || (modules && modules.length > 0 ? modules[0].name : null);
+      setCurrentNode({
+        type: 'relation',
+        module: defaultModule,
+        isNew: true,
+      });
     } else {
       setCurrentNode(node);
     }
@@ -143,9 +151,25 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           });
         }
         break;
-      case 'relation':
-        // 处理关系添加的逻辑（如果需要）
+      case 'relation': {
+        const moduleName = currentNode?.module || (modules && modules.length > 0 ? modules[0].name : null);
+        if (!moduleName) {
+          message.warning('请先创建模型');
+          break;
+        }
+        if (isNew) {
+          const id = projectDispatch.createDiagram(moduleName, values.name);
+          if (id) {
+            tabDispatch.switchRelationDiagram(
+              moduleName,
+              relationTabEntity(moduleName, id),
+            );
+          }
+        } else if (currentNode?.diagramId) {
+          projectDispatch.renameDiagram(moduleName, currentNode.diagramId, values.name);
+        }
         break;
+      }
     }
     setModalVisible(false);
   };
@@ -258,14 +282,19 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         {node.type !== 'folder' && (
           <>
             <Menu.Item key="rename" icon={<EditOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handleRename(node)}>
-              {node.type === 'module' ? '编辑模型' : node.type === 'entity' ? '编辑表' : '编辑关系'}
+              {node.type === 'module' ? '编辑模型' : node.type === 'entity' ? '编辑表' : '重命名关系图'}
             </Menu.Item>
-            <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle(erdColors.success)} />} onClick={() => handleCopy(node)}>
-              {`复制${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
-            </Menu.Item>
-            <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle(erdColors.warning)} />} onClick={() => handleCut(node)}>
-              {`剪切${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
-            </Menu.Item>
+            {/* 关系图无 copy/cut 实现；隐藏死 affordance（ADR-0017 图列表） */}
+            {node.type !== 'relation' && (
+              <>
+                <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle(erdColors.success)} />} onClick={() => handleCopy(node)}>
+                  {`复制${node.type === 'module' ? '模型' : '表'}`}
+                </Menu.Item>
+                <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle(erdColors.warning)} />} onClick={() => handleCut(node)}>
+                  {`剪切${node.type === 'module' ? '模型' : '表'}`}
+                </Menu.Item>
+              </>
+            )}
             {(node.type === 'module' || node.type === 'entity') && (
               <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handlePaste(node)}>
                 {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
@@ -378,7 +407,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       {
         key: 'addRelation',
         icon: <NodeIndexOutlined style={{ color: erdColors.success }} />,
-        label: '新增关系',
+        label: '新建关系图',
         onClick: () => showModal('relation'),
       },
     ];

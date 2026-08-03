@@ -126,4 +126,43 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }
   });
+
+  test('左树重命名关系图：菜单接通 renameDiagram；无空 FK 弹层', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('treeren');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'treeren', 'tree rename diagram');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByRole('button', { name: '新建关系图' }).click();
+      const createDialog = page.getByRole('dialog', { name: '新建关系图' });
+      await createDialog.getByLabel('关系图名称').fill('鉴权域');
+      await page.getByTestId('diagram-modal-ok').click();
+      await expect(page.getByRole('tree').getByText('鉴权域', { exact: true })).toBeVisible();
+
+      const diagramItem = page.getByRole('treeitem').filter({ hasText: '鉴权域' });
+      await diagramItem.getByLabel('关系图操作').click();
+      await expect(page.getByRole('menuitem', { name: '复制关系' })).toHaveCount(0);
+      await expect(page.getByRole('menuitem', { name: '剪切关系' })).toHaveCount(0);
+      await page.getByRole('menuitem', { name: '重命名关系图' }).click();
+
+      const renameDialog = page.getByRole('dialog', { name: '重命名关系图' });
+      await expect(renameDialog).toBeVisible();
+      await expect(renameDialog.getByLabel('表1')).toHaveCount(0);
+      await expect(renameDialog.getByLabel('表2')).toHaveCount(0);
+      await renameDialog.getByLabel('关系图名称').fill('鉴权视图-树');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(renameDialog).toHaveCount(0);
+
+      await expect(page.getByRole('tree').getByText('鉴权视图-树', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('diagram-switcher')).toContainText('鉴权视图-树');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
 });
