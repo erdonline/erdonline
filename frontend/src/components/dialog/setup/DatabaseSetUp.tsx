@@ -1,11 +1,12 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {DeleteOutlined, PlusOutlined} from '@ant-design/icons';
-import {Button, Col, Form, Input, Modal, Popconfirm, Radio, Row, Select, Space, message} from 'antd';
+import {DeleteOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
+import {Button, Col, Form, Input, Modal, Radio, Row, Select, Space, message} from 'antd';
 import _ from 'lodash';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {uuid} from '@/utils/uuid';
 import * as Save from '@/utils/save';
+import {confirmDestructive} from '@/utils/destructiveConfirm';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import '../io-modal.scss';
@@ -298,20 +299,31 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                                 }}
                               />
                             </Form.Item>
-                            <Popconfirm
-                              title={
-                                record?.defaultDB
-                                  ? '是否要删除默认数据源？删除之后，系统将不存在默认数据源！'
-                                  : '是否删除该数据源？'
+                            <Button
+                              type="text"
+                              size="small"
+                              danger
+                              icon={<DeleteOutlined />}
+                              aria-label={
+                                record?.name
+                                  ? `删除数据源 ${record.name}`
+                                  : '删除数据源'
                               }
-                              onConfirm={() => record?.key && removeDatabase(record.key)}
-                              okText="是"
-                              cancelText="否"
-                            >
-                              <a>
-                                <DeleteOutlined title="删除" />
-                              </a>
-                            </Popconfirm>
+                              onClick={() => {
+                                if (!record?.key) return;
+                                confirmDestructive({
+                                  title: '删除数据源',
+                                  icon: <ExclamationCircleOutlined />,
+                                  content: record.defaultDB
+                                    ? '是否要删除默认数据源？删除之后，系统将不存在默认数据源！'
+                                    : '是否删除该数据源？',
+                                  okText: '删除',
+                                  okType: 'danger',
+                                  cancelText: '取消',
+                                  onOk: () => removeDatabase(record.key),
+                                });
+                              }}
+                            />
                           </Space>
                         );
                       })}

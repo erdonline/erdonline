@@ -155,6 +155,7 @@
 - ✅ **表设计删索引确认弹层键盘**（2026-08-03）：索引签「删除索引」首焦「删除」；Esc 归还不删；Tab trap；`table-index-delete-keyboard.spec` 绿
 - ✅ **JExcel 工具栏删行确认弹层键盘**（2026-08-03）：「删除选中行」首焦「删除」；Esc 归还不删；Tab trap；`jexcel-toolbar-delete-keyboard.spec` 绿
 - ✅ **左树删模型/表/关系图确认弹层键盘**（2026-08-03）：共享 `confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`tree-delete-keyboard.spec` 绿
+- ✅ **数据源设置删确认弹层键盘**（2026-08-03）：`Popconfirm`→`confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`database-setup-delete-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
