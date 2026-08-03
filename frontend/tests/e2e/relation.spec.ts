@@ -1260,6 +1260,39 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('索引签再加一行 CTA：首条后表内引导；无死 affordance', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('idxadd');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'idxadd', 'index add row cta');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
+      const indexEdit = page.getByTestId('table-index-edit');
+      await expect(indexEdit.getByRole('button', { name: '添加第一个索引' })).toBeVisible();
+      await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByText('T_TABLE_1_IDX1')).toBeVisible();
+
+      const addRow = indexEdit.getByRole('button', { name: '再添加一条索引' });
+      await expect(addRow).toBeVisible();
+      await expect(addRow).toHaveAttribute('aria-label', '再添加一条索引');
+      await addRow.click();
+
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByText('T_TABLE_1_IDX2')).toBeVisible();
+      await expect(indexEdit.getByTestId('index-add-row')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fldnav');
