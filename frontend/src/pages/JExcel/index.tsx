@@ -125,9 +125,23 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         type: 'i',
         content: 'remove',
         tooltip: '删除选中行',
+        id: 'jexcel-toolbar-remove',
         onclick: function () {
-          // @ts-ignore
-          jRef?.current?.jexcel.deleteRow()
+          const selectedRows = jRef?.current?.jexcel.getSelectedRows();
+          if (!selectedRows || !selectedRows.length) {
+            message.warning('未选中行');
+            return;
+          }
+          Modal.confirm({
+            title: '确定删除选定行吗?',
+            content: '此操作不可逆，请谨慎操作。',
+            okText: '删除',
+            okType: 'danger',
+            cancelText: '取消',
+            onOk() {
+              jRef?.current?.jexcel.deleteRow();
+            },
+          });
         }
       },
       {
@@ -299,8 +313,23 @@ const JExcel: React.FC<JExcelProps> = (props) => {
   }, [datatype, database, debouncedSaveData]);
 
   useEffect(() => {
+    if (!jRef.current) {
+      return;
+    }
     if (!jRef.current.jspreadsheet) {
       jspreadsheet(jRef.current, options);
+    }
+    // jspreadsheet 工具栏是 material `<i>`：补 role/aria，供 getByRole + 破坏性确认闭环
+    const removeBtn = (jRef.current as HTMLElement).querySelector(
+      '#jexcel-toolbar-remove',
+    );
+    if (removeBtn) {
+      removeBtn.setAttribute('role', 'button');
+      removeBtn.setAttribute('aria-label', '删除选中行');
+      removeBtn.setAttribute('data-testid', 'jexcel-toolbar-remove');
+      if (!removeBtn.hasAttribute('tabindex')) {
+        removeBtn.setAttribute('tabindex', '0');
+      }
     }
   }, [options]);
 

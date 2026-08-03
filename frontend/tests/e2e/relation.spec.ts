@@ -1337,6 +1337,55 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('JExcel 工具栏删除二次确认：取消保留；确认后行消失', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('jxdel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'jxdel', 'jexcel toolbar delete');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      const nameCell = fieldEdit.getByRole('cell', { name: 'NAME' });
+      await expect(nameCell).toBeVisible();
+      await nameCell.click();
+
+      const removeBtn = fieldEdit.getByRole('button', { name: '删除选中行' });
+      await expect(removeBtn).toBeVisible();
+      await expect(removeBtn).toHaveAttribute('aria-label', '删除选中行');
+      await removeBtn.click();
+
+      const dialog = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await expect(dialog.getByText(/确定删除选定行/).filter({ visible: true })).toBeVisible();
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).click();
+      await expect(fieldEdit.getByRole('cell', { name: 'NAME' })).toBeVisible();
+
+      await fieldEdit.getByRole('cell', { name: 'NAME' }).click();
+      await fieldEdit.getByRole('button', { name: '删除选中行' }).click();
+      const dialogOk = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await dialogOk.getByRole('button', { name: /删\s*除/ }).click();
+
+      await expect(fieldEdit.getByRole('cell', { name: 'NAME' })).toHaveCount(0, {
+        timeout: 10_000,
+      });
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await expect(rfNode(page, 'T_TABLE_1').locator('[data-field="NAME"]')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fldnav');
