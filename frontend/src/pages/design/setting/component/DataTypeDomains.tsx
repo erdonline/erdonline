@@ -209,6 +209,8 @@ const DataTypeDomains: React.FC = () => {
         onCancel={closeModal}
         confirmLoading={submitting}
         destroyOnClose
+        keyboard={!submitting}
+        focusTriggerAfterClose
         width={420}
         className="erd-io-modal"
         rootClassName="erd-io-modal-root"
@@ -221,10 +223,20 @@ const DataTypeDomains: React.FC = () => {
             return;
           }
           // 首焦名称，便于键盘与 E2E
-          const input = document.querySelector<HTMLInputElement>(
-            '.erd-io-modal-root input#datatype-name',
-          );
-          input?.focus();
+          const tryFocus = (attempt = 0) => {
+            const input = document.querySelector<HTMLInputElement>(
+              '.erd-io-modal-root input#datatype-name',
+            );
+            if (input) {
+              input.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
         }}
       >
         <Form
