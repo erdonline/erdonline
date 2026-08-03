@@ -160,4 +160,79 @@ test.describe('会话闭环', () => {
     await expectToast(page, '查无此用户');
     await expect(page).toHaveURL(/\/login/);
   });
+
+  // ADR-0016：注册壳键盘 — 共用 AuthBrandShell；Tip 出序；密码眼进序可容；Enter 校验；无 trap
+  test('注册壳键盘：Skip→表单；Tab 序；Enter 校验；focus-visible；无 trap', async ({
+    page,
+  }) => {
+    test.setTimeout(60_000);
+    await page.goto('/register');
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible();
+    await expect(page.getByTestId('auth-skip-form')).toHaveText('跳到注册表单');
+    await expect(page.getByTestId('auth-form-anchor')).toHaveAttribute('tabindex', '-1');
+
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('auth-skip-form')).toBeFocused({ timeout: 5_000 });
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('auth-form-anchor')).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('auth-form-anchor')).not.toBeFocused();
+    await expect(page.getByRole('textbox', { name: '用户名' })).toBeFocused();
+
+    // 用户名 → 密码（Hint 出序；Password 显隐可能进序）
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('textbox', { name: '密码', exact: true })).toBeFocused();
+    await page.keyboard.press('Tab');
+    const confirmPwd = page.getByRole('textbox', { name: '确认密码' });
+    if (!(await confirmPwd.evaluate((el) => el === document.activeElement))) {
+      await page.keyboard.press('Tab');
+    }
+    await expect(confirmPwd).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    const email = page.getByRole('textbox', { name: '邮箱' });
+    if (!(await email.evaluate((el) => el === document.activeElement))) {
+      await page.keyboard.press('Tab');
+    }
+    await expect(email).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('textbox', { name: '手机号码' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    const registerBtn = page.getByRole('button', { name: /注\s*册/ });
+    await expect(registerBtn).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: '去登录' })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(registerBtn).toBeFocused();
+
+    // focus-visible brand 环（须经 Tab 触发 :focus-visible）
+    await page.getByRole('textbox', { name: '手机号码' }).focus();
+    await page.keyboard.press('Tab');
+    await expect(registerBtn).toBeFocused();
+    const ring = await registerBtn.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        outlineColor: cs.outlineColor,
+        outlineStyle: cs.outlineStyle,
+        outlineWidth: cs.outlineWidth,
+      };
+    });
+    expect(ring.outlineStyle).not.toBe('none');
+    expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+    expect(ring.outlineColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+
+    // 末字段 Enter → onFinish 密码不一致 toast；停留 /register
+    await page.getByRole('textbox', { name: '用户名' }).fill('kbuser01');
+    await page.getByRole('textbox', { name: '密码', exact: true }).fill('ab12cd34');
+    await page.getByRole('textbox', { name: '确认密码' }).fill('ab12cd99');
+    await page.getByRole('textbox', { name: '邮箱' }).fill('kbuser01@example.com');
+    await page.getByRole('textbox', { name: '手机号码' }).fill('13912345678');
+    await page.getByRole('textbox', { name: '手机号码' }).press('Enter');
+    await expectToast(page, '两次输入的密码不一致');
+    await expect(page).toHaveURL(/\/register/);
+  });
 });

@@ -19,12 +19,22 @@
 - `./backend/dev-ensure.sh --restart`；liveness → 200
 - 登录后：`POST /ncnb/connector/ping` 仅 `{"dataSourceId":"<他人id>"}` → body `code=403`；自有 id（或带自有 id + 伪客户端账密）走服务端凭据试连；无 id 的 raw `jdbc:h2` 仍拒
 
+#### 体验：注册壳键盘（Skip + Tab 序 + Enter 校验 + focus-visible）
+
+- 选题：注册虽共用 `AuthBrandShell`，缺「跳到注册表单」文案；5 个 Form tip 问号抢 Tab；无聚焦 E2E
+- 改动：`skipLabel=跳到注册表单`；tip icon `tabIndex=-1`（悬停保留，约束靠 rules）；`register-submit` testid
+- E2E：`session`「注册壳键盘：Skip→表单；Tab 序；Enter 校验；focus-visible；无 trap」
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 落地页键盘打磨或 404/403 壳核对
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "注册壳键盘" --workers=1 --retries=0`
+
 #### 体验：登录壳键盘（Skip + Tab 序 + Enter 提交 + focus-visible）
 
 - 选题：`/login` 进页 Tab 先扫左品牌面板；暗面板焦点环弱；无 Skip 直达表单
 - 改动：`AuthBrandShell` 首焦 Skip「跳到登录表单」→ `#auth-form-anchor`（`tabIndex=-1`）；壳内 `:focus-visible` brand 环（暗面板 surface）；密码框 Enter 提交既有；注册壳共用
 - E2E：`session`「登录壳键盘：Skip→表单；Tab 序；Enter 提交；focus-visible；无 trap」
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 注册壳核对或落地页键盘打磨
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → ~~注册壳核对~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "登录壳键盘" --workers=1 --retries=0`

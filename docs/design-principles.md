@@ -21,6 +21,7 @@
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
 - ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
 - ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
+- ✅ 注册壳键盘：同壳 Skip「跳到注册表单」；用户名→密码→确认→邮箱→手机→注册→footer；Form tip 问号出序（悬停保留）；末字段 Enter 提交/校验；focus-visible brand 环；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ✅ 画布 chrome Tab 序：Controls（放大/缩小/适应/交互）→ 工具栏；MiniMap（d3-zoom）`tabindex=-1` 装饰出序、鼠标仍可拖；Controls `:focus-visible` brand 环；无 trap
 - ✅ 画布节点级 Tab：`nodesFocusable`/`edgesFocusable=false`（RF wrapper 不出序）；仅**选中**表控件 / 邻接边基数 chip / Frame 重命名进序；未选中 `-1`；无密图 trap
