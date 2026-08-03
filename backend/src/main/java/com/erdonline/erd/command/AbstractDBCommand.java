@@ -1,5 +1,6 @@
 package com.erdonline.erd.command;
 
+import com.erdonline.erd.security.JdbcUrlGuard;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -31,6 +32,7 @@ public abstract class AbstractDBCommand<T> {
         this.url = (String) params.get("url");
         this.username = (String) params.get("username");
         this.password = (String) params.get("password");
+        JdbcUrlGuard.assertAllowed(this.url);
     }
 
     abstract T exec(Map<String, String> var1);

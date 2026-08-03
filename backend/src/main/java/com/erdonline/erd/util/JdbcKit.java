@@ -1,5 +1,6 @@
 package com.erdonline.erd.util;
 
+import com.erdonline.erd.security.JdbcUrlGuard;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -32,6 +33,7 @@ public abstract class JdbcKit {
     }
 
     public static Connection getConnection(String driverClassName, String url, String username, String password) {
+        JdbcUrlGuard.assertAllowed(url);
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException var7) {

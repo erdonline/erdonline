@@ -1,6 +1,7 @@
 package com.erdonline.erd.command;
 
 import com.erdonline.common.core.api.R;
+import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.erd.util.JdbcKit;
 import lombok.extern.slf4j.Slf4j;
 
@@ -23,7 +24,11 @@ public class PingDBCommand extends AbstractDBCommand<R> {
     }
 
     public R exec(Map<String, String> params) {
-        super.init(params);
+        try {
+            super.init(params);
+        } catch (ValidateException e) {
+            return R.failed(e.getMessage());
+        }
 
         try {
             Class.forName(this.driverClassName);

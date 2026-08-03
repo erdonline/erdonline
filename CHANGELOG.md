@@ -8,6 +8,21 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-01/02 SQL+JDBC 门禁；R-DATA-03 删 Gitlab 死路径
+
+- 选题：`queryInfo` `${sql}` 无白名单；connector 任意 JDBC/SQL；`GitlabController` 硬编码账密
+- 改动：
+  - `SqlGuard`：只读白名单（SELECT/EXPLAIN/SHOW/DESC）接 `QueryInfoServiceImpl`；mutate 拒 GRANT/OUTFILE 等接 `sqlexec`/`dbsync`
+  - `JdbcUrlGuard`：mysql/mariadb/postgresql/oracle/sqlserver allowlist + 禁云元数据主机；`AbstractDBCommand`/`JdbcKit`/`PingDBCommand`
+  - 删除 `GitlabController`/`GitlabService*`/`GitlabOauthVo` 与 `gitlab4j-api`（FE 零调用）
+- 文档：`docs/security-model.md` R-DATA-01 ✅、R-DATA-02 部分 ✅、R-DATA-03 ✅
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=SqlGuardTest,JdbcUrlGuardTest,GitlabDeadPathRemovedTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/actuator/health/liveness` → 200
+- 登录：`curl -sS -o /tmp/login.json -w '%{http_code}\n' -X POST http://localhost:9502/auth/login -H 'Content-Type: application/json' -d '{"username":"admin","password":"123456"}'` → 200
+- 带 token：`POST /ncnb/connector/ping` body `{"url":"jdbc:h2:mem:x","driverClassName":"org.h2.Driver","username":"sa","password":""}` → 业务失败且文案含「不支持的 JDBC」；合法 `jdbc:mysql://127.0.0.1:3306/erd` 仍可试连
+
 #### 安全：R-CFG-02 prod 拒绝 admin 种子默认口令
 
 - 选题：自托管 prod 仍可用 Flyway 种子 `admin`/`123456` 登录
