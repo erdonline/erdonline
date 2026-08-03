@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：EntityModal body 碎距
+
+- 选题：量测 `.erd-entity-modal` body 仍 **12×14**，相对已密 `.erd-io-modal` / 次屏 8–12 族偏松；跳过边标签 / MiniMap 尺寸 / 版本工具条 / Auth/欢迎
+- before：body pad **12×14**（padY 合计 24）；after：**8×12**；头脚/表单项 margin12 / 输入·OK 28 不动
+- E2E：`relation`「实体新建弹层密度」锁 body padT≤8 / padX≤12 / padY≤16；dialog role「新增表」+ `testid=entity-modal-name`/`ok`；截图 `diagram-entity-modal-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → io-modal header·footer（仍 10×14×8 / 8×14）/ 基数 Select 高（勿再压边标签 / MiniMap 尺寸 / 版本工具条）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "实体新建弹层密度" --workers=1 --retries=0`
+
 #### 体验：导入弹层 body 碎距
 
 - 选题：量测边标签 `.erd-edge-label` pad **[4,2]** / font **12**/600 / radius **3** / `EDGE_LABEL_COLLISION_GAP` **4** / chip **40×20** 已贴 ADR-0016 可读下限（再压伤 FK 扫读）；跳过 MiniMap 尺寸 / 版本工具条 / Auth/欢迎 → 改压 `.erd-io-modal` body
 - before：body pad **12×14**（padY 合计 24）；after：**8×12**（对齐次屏 / 8–12 族）；头脚/Steps/控件 28 不动；导出弹层同源
 - E2E：`dbml-import`「导入弹层密度」+ `dbml-export`「导出弹层密度」锁 body padT≤8 / padX≤12 / padY≤16；dialog role + label/`combobox`；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png`；`relation` PK/FK chip 既有 densify 不退
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → EntityModal body 12×14 / io-modal header·footer / 基数 Select 高（勿再压边标签字号·避让 / MiniMap 尺寸 / 版本工具条）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~EntityModal body~~✅ / io-modal header·footer / 基数 Select 高（勿再压边标签字号·避让 / MiniMap 尺寸 / 版本工具条）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "导入弹层密度" --workers=1 --retries=0`

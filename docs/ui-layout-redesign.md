@@ -230,7 +230,8 @@
 - ✅ **表节点底栏 / 空表井 chrome 碎距**（2026-08-03）：量测表头 pad6 / 字段 minH20 已贴密表下限；压空表井 pad10→6 + 底栏 margin8→6 + 命中 minH22/26；`NODE_FOOTER_H` 32→28；表头/字段行/persist 不动；`relation`+`table-field-empty` densify 绿；下一刀 → ~~左树右键菜单 border-box 实密~~✅
 - ✅ **左树/右键菜单 border-box 实密**（2026-08-03）：量测项 CSS height28 但 antd dropdown `content-box`+padY5 → 命中 ~33；压 `box-sizing:border-box` + padY0；命中≈28；版本工具条已 24 跳过；Auth/欢迎/Controls/审批/导出跳过；`model-design-ux` densify 绿；下一刀 → ~~画布 MiniMap chrome~~✅
 - ✅ **MiniMap chrome margin 碎距**（2026-08-03）：量测 128×96 / pad0 / sunk 已密；RF panel margin **15** 松 → **8**；概览尺寸不动；Controls/版本工具条/Auth/欢迎跳过；`relation`+`demo` densify 绿；下一刀 → ~~边标签避让~~量测已密 / ~~导入弹层 body~~✅
-- ✅ **导入弹层 body 碎距**（2026-08-03）：量测边标签 pad[4,2]/gap4/12px 已贴可读下限；`.erd-io-modal` body **12×14**→**8×12**；导出同源；头脚/Steps/控件不动；`dbml-import`+`dbml-export` densify 绿；下一刀 → EntityModal body 12×14 / io header·footer / 基数 Select（勿再压边标签字号·避让 / MiniMap / 版本工具条）
+- ✅ **导入弹层 body 碎距**（2026-08-03）：量测边标签 pad[4,2]/gap4/12px 已贴可读下限；`.erd-io-modal` body **12×14**→**8×12**；导出同源；头脚/Steps/控件不动；`dbml-import`+`dbml-export` densify 绿；下一刀 → ~~EntityModal body~~✅
+- ✅ **EntityModal body 碎距**（2026-08-03）：`.erd-entity-modal` body **12×14**→**8×12**（对齐 io / 次屏）；头脚/表单项12/控件28不动；`relation` densify 绿；下一刀 → io-modal header·footer（10×14×8 / 8×14）/ 基数 Select 高（勿再压边标签 / MiniMap 尺寸 / 版本工具条）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

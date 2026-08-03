@@ -21,7 +21,8 @@
   }
 
   .ant-modal-body {
-    padding: 12px 14px;
+    /* 量测：body 12×14 相对 .erd-io-modal / 次屏 8×12 偏松；头脚/控件 28 不动 */
+    padding: 8px 12px;
   }
 
   .ant-modal-footer {

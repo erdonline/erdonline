@@ -3140,20 +3140,21 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(dialog).toBeVisible();
       await expect(page.getByTestId('entity-modal-name')).toBeVisible();
 
-      // ADR-0016：实体弹层密度（与命令面板 / 22 chrome 同阶）；禁 520 宽 + 24 pad 松卡片
+      // ADR-0016：实体弹层 body 碎距（8×12 对齐 .erd-io-modal）；禁 12×14 / 520 宽松卡片
+      // 定位：dialog role「新增表」+ testid entity-modal-name/ok（勿扫 .ant-* 业务语义）
       // 量 style/computed（勿用 zoom 中的 getBoundingClientRect）
-      const metrics = await page.evaluate(() => {
+      const metrics = await dialog.evaluate((dlg) => {
         const root =
-          (document.querySelector('.erd-entity-modal-root .ant-modal') as HTMLElement) ||
-          (document.querySelector('.erd-entity-modal') as HTMLElement);
-        if (!root) return { err: 'no-modal' } as const;
+          (dlg.closest('.erd-entity-modal') as HTMLElement) ||
+          (dlg.closest('[data-testid="entity-modal"]') as HTMLElement) ||
+          (dlg as HTMLElement);
         const title = root.querySelector('.ant-modal-title') as HTMLElement | null;
         const body = root.querySelector('.ant-modal-body') as HTMLElement | null;
         const item = root.querySelector('.ant-form-item') as HTMLElement | null;
         const input = root.querySelector(
           '[data-testid="entity-modal-name"]',
         ) as HTMLElement | null;
-        const ok = document.querySelector(
+        const ok = root.querySelector(
           '[data-testid="entity-modal-ok"]',
         ) as HTMLElement | null;
         const styleW = parseFloat(root.style.width || '') || NaN;
@@ -3164,6 +3165,8 @@ test.describe('关系图画布（ReactFlow）', () => {
         return {
           width: Number.isFinite(styleW) ? styleW : cssW,
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          bodyPadT: bcs ? parseFloat(bcs.paddingTop) : NaN,
+          bodyPadX: bcs ? parseFloat(bcs.paddingLeft) : NaN,
           bodyPadY: bcs
             ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
             : NaN,
@@ -3173,15 +3176,20 @@ test.describe('关系图画布（ReactFlow）', () => {
           cls: root.className,
         };
       });
-      expect(metrics, '应找到 .erd-entity-modal').not.toHaveProperty('err');
       expect(
         metrics.width,
-        `弹层宽应 ∈[360,420]，得 ${metrics.width} cls=${(metrics as any).cls}`,
+        `弹层宽应 ∈[360,420]，得 ${metrics.width} cls=${metrics.cls}`,
       ).toBeGreaterThanOrEqual(360);
       expect(metrics.width).toBeLessThanOrEqual(420);
       expect(metrics.titleFont).toBeLessThanOrEqual(14);
-      expect(metrics.bodyPadY, `body padY 应 ≤28，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
-        28,
+      expect(metrics.bodyPadT, `body padT 应 ≤8，得 ${metrics.bodyPadT}`).toBeLessThanOrEqual(8);
+      expect(metrics.bodyPadT).toBeGreaterThanOrEqual(6);
+      expect(metrics.bodyPadX, `body padX 应 ≤12，得 ${metrics.bodyPadX}`).toBeLessThanOrEqual(
+        12,
+      );
+      expect(metrics.bodyPadX).toBeGreaterThanOrEqual(8);
+      expect(metrics.bodyPadY, `body padY 应 ≤16，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
+        16,
       );
       expect(metrics.itemMarginB).toBeLessThanOrEqual(14);
       expect(metrics.inputH, `输入高应 ≤32，得 ${metrics.inputH}`).toBeLessThanOrEqual(
