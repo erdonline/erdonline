@@ -112,6 +112,9 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
+      keyboard: true,
+      autoFocusButton: 'ok',
+      focusTriggerAfterClose: true,
       onOk() {
         const next = indexs.filter((_, i) => i !== rowIndex);
         projectDispatch.updateEntityIndex(
