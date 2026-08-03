@@ -28,12 +28,15 @@ const Table: React.FC = () => {
       }
     }
 
-    return <Empty
-      image="/empty.svg"
-      imageStyle={{ height: 200 }}
-      style={{ marginTop: '100px' }}
-      description={<span>这里空空如也!</span>}
-    />
+    // 防御签兜底（TabGroup 目前仅 MODEL）；禁 marginTop:100 / 高 200 插画下沉
+    return (
+      <div className="erd-pane-empty" data-testid="designer-pane-empty">
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={<span>这里空空如也</span>}
+        />
+      </div>
+    );
   }
 
   const getModuleEntity = (key: string) => {

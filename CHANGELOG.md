@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 体验：设计器 Empty / 次屏空态次密距
+
+- 选题：签体 pad 已密；兜底 Empty 仍 `marginTop:100` + 高 200 插画；字段/索引空态吃 antd `marginXL` 松井
+- `table/index`：兜底 → `.erd-pane-empty` + `PRESENTED_IMAGE_SIMPLE`；禁 100/200
+- `TableTab.less`：字段/索引空态 pad 对齐 `--erd-tab-body-pad`；`.ant-empty` margin-block 0；保留 CTA
+- 清左树 Blueprint 遗留 `bp4-tab-panel` margin 80/60
+- E2E：`model-design-ux`「设计器空态次密距」；截图 `diagram-pane-empty-dense.png`；保留字段/索引空态 CTA
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 欢迎空态 `.erd-welcome-empty` 内 pad 32（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "设计器空态次密距" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：表设计签体内容次密距
 
 - 选题：内签栏/JExcel 行已 ~24；签体仍 10/12 松井 + hint 6×10 + 空态 16、元数据 tip 默认 Paragraph 底距
@@ -15,7 +28,7 @@
 - `erd-design-workspace`：外井/内容井 12→6；CommonTabs nav padX 8
 - `TableCodeShow`：`.erd-meta-ddl-hint` ~24；`TableIndexEdit` Space 4
 - E2E：`model-design-ux`「表设计签体内容次密距」；截图 `diagram-tab-body-dense.png`；保留空字段 CTA / 空名 toast
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 设计器 Empty 巨 marginTop / 次屏松井（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~设计器 Empty 巨 marginTop / 次屏松井~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计签体内容次密距" --workers=1 --retries=0`

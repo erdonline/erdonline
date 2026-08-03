@@ -257,20 +257,21 @@
   }
 }
 
-/* 字段签空态：居中 CTA，禁空 fields[] 白屏死表 */
-.erd-table-field-empty {
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 8px;
-}
-
-/* 索引签空态：居中 CTA，禁白屏死 affordance */
+/* 字段/索引签空态：贴签体 pad，压 antd Empty marginXL；保留 CTA */
+.erd-table-field-empty,
 .erd-table-index-empty {
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 8px;
+  padding: var(--erd-tab-body-pad-b) var(--erd-tab-body-pad-x);
+
+  .ant-empty {
+    margin-block: 0;
+  }
+
+  .ant-empty-footer {
+    margin-top: 8px;
+  }
 }
 
 /* 已有索引：表下「再加一行」明确 CTA（对称画布 + 添加字段） */
