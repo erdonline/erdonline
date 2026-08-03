@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布表头改名落盘失败不退出编辑
+
+- 选题：画布表头 `renameEntity`（无 persist）本地 mutate 即退出编辑；autosave 失败像已改名；且 `persist:true` 路径误把 store 形 `applyRename` 套在 project draft 上导致改名抛错
+- `renameEntity` persist：`applyRename({ project: draft })`；`TableNode` commitHeader 仅 code===200 退出编辑；失败 toast 可读、草稿保留；落盘中禁重复提交 / Escape
+- E2E：`table-rename-failure.spec.ts` mock save（entities 含新表名）→ toast + 编辑态仍开（`data-id` 仍旧）→ 重试成功改节点 id
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 画布建表/字段行内编辑伪造成功，或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/table-rename-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "表头 ✎ 可改名"`
+
 #### 体验：画布关系图弹层落盘失败不关窗
 
 - 选题：画布「新建/重命名关系图」本地 `createDiagram`/`renameDiagram`（无 persist）即关窗；autosave 失败像已建图
 - `ReactFlowRelation` diagram Modal：`persist:true`；仅 `saveProject` code===200 关窗（创建成功 toast「已新建关系图」）；失败 toast 可读、不关窗；`confirmLoading`
 - E2E：`diagram-modal-failure.spec.ts` mock save（diagrams 含新图名）→ toast + 窗仍开 → 重试成功关窗 + switcher
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI / 重命名失败路径若有缺口
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~画布表头改名伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/diagram-modal-failure.spec.ts --project=chromium --workers=1 --retries=0`

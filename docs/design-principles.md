@@ -123,7 +123,7 @@
 - ✅ 非空画布工具栏「新建表」一键上图（`canvas-create-table`）；不必再绕左树或 Cmd+K
 - ✅ 拖连线失败有 toast：重复关联 / 非法锚点（同类型或未对准接入点）；空白处松开=取消不打扰
 - ✅ 字段行 ✎ 与表头改名同形；改已有字段空名 toast「字段名不能为空」；Enter 提交；Escape 取消（不经 blur 落盘）；Tab 字段名→中文名→类型→默认值→跳行；末行 Tab 新建；中文名（chnname）/默认值（defaultValue）行内编辑；类型/PK/非空/自增/隐藏 onChange 即时 save-status；隐藏 toast + 表底恢复；选中字段 Delete/Backspace / × 二次确认删
-- ✅ 表头 ✎ / 双击：表名 + 实体中文名双栏内联；Tab 表名→中文名→提交；Escape 丢弃（拦 blur）；仅改 chnname 亦 save-status
+- ✅ 表头 ✎ / 双击：表名 + 实体中文名双栏内联；Tab 表名→中文名→提交；Escape 丢弃（拦 blur）；仅改 chnname 亦 save-status；改名 `persist:true`（失败不退出编辑、草稿保留）
 - ✅ 表节点底栏并排「字段 | 索引 | 元数据」→ 表设计对应签（`canvas-open-field` / `canvas-open-index` / `canvas-open-code`）；禁画布无入口只能绕左树
 - ✅ 索引签空态：`还没有索引` + 主 CTA「添加第一个索引」（种子首字段索引）；禁空 `indexs[]` 白屏死表
 - ✅ 字段签空态：`还没有字段` + 主 CTA「添加第一个字段」（种子首个 defaultField / id）；禁空 `fields[]` 白屏死表
