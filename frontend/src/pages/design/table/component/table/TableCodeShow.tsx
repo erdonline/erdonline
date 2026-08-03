@@ -97,7 +97,7 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
 
   return (<>
 
-    <Paragraph copyable={{text: result}}>    {
+    <Paragraph className="erd-meta-ddl-hint" copyable={{text: result}}>    {
       (templateCode === 'createTableTemplate' ||
         templateCode === 'deleteTableTemplate' ||
         templateCode === 'createIndexTemplate') ? '该脚本为全量脚本' :

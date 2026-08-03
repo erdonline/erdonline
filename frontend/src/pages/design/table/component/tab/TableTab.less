@@ -61,12 +61,15 @@
 
 .erd-table-design__tabs {
   --erd-inner-tabs-h: 24px;
+  /* 签体次密距：侧 pad / 底 pad 对齐 ~24 toolbar（禁 10/12 松井夹 JExcel） */
+  --erd-tab-body-pad-x: 6px;
+  --erd-tab-body-pad-b: 4px;
 
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
-  padding: 0 10px;
+  padding: 0 var(--erd-tab-body-pad-x);
 
   /* ADR-0016：字段/索引/元数据内签栏显式 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
   > .ant-tabs-nav {
@@ -140,11 +143,11 @@
     height: var(--erd-inner-tabs-h);
   }
 
-  .ant-tabs-content-holder {
+  > .ant-tabs-content-holder {
     flex: 1;
     min-height: 0;
     overflow: auto;
-    padding-bottom: 12px;
+    padding-bottom: var(--erd-tab-body-pad-b);
   }
 
   /* 元数据应用：CodeTab DB 签 + DbTab 模板签 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
@@ -158,6 +161,11 @@
       flex-shrink: 0;
       /* 勿 overflow:hidden：会裁标签与 inset focus 环 */
       overflow: visible;
+    }
+
+    > .ant-tabs-content-holder {
+      padding: 0;
+      /* 勿再叠二级底 pad；外层已 --erd-tab-body-pad-b */
     }
 
     > .ant-tabs-nav .ant-tabs-nav-wrap {
@@ -225,20 +233,22 @@
   }
 }
 
-/* 字段签：唯一约束在索引；顶栏说明 + CTA 跳索引签 */
+/* 字段签：唯一约束在索引；顶栏说明 + CTA 跳索引签（次密距 pad 4×8） */
 .erd-table-field-unique-hint {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 4px 8px;
-  padding: 6px 10px;
-  margin-bottom: 8px;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  min-height: 24px;
   font-size: 12px;
   line-height: 18px;
   color: var(--erd-ink-600);
   background: var(--erd-surface-sunk);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius-sm);
+  box-sizing: border-box;
 
   .ant-btn-link {
     padding: 0;
@@ -252,7 +262,7 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 16px 12px;
+  padding: 8px;
 }
 
 /* 索引签空态：居中 CTA，禁白屏死 affordance */
@@ -260,14 +270,23 @@
   display: flex;
   justify-content: center;
   align-items: flex-start;
-  padding: 16px 12px;
+  padding: 8px;
 }
 
 /* 已有索引：表下「再加一行」明确 CTA（对称画布 + 添加字段） */
 .erd-table-index-edit {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 4px;
+}
+
+/* 元数据 DDL 提示条：~24 行高，禁 Paragraph 默认大底距 */
+.erd-meta-ddl-hint {
+  margin-bottom: 4px !important;
+  min-height: 24px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600);
 }
 
 .erd-table-index-hint {

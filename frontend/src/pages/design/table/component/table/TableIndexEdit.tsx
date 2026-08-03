@@ -138,7 +138,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
             </span>
           }
         >
-          <Space direction="vertical" size={8} style={{ width: '100%' }}>
+          <Space direction="vertical" size={4} style={{ width: '100%' }}>
             <Button
               type="primary"
               size="small"

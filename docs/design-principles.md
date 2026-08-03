@@ -177,6 +177,7 @@
 - ✅ 设计器次屏表密度：JExcel（字段/索引/默认字段）工具栏 ~24、表头/行 pad 4×8、字 12、token 斑马；版本 diff 实体组头/行 ~24 + success/brand/warning；禁 datatables 头 10/行 8 + `#fbf8fb`；禁 clip；保留工具栏 Tab/focus-visible
 - ✅ 元数据应用子签密度：`CodeTab`/`DbTab` 签栏 `--erd-sub-tabs-h` 24、字 12、flex 居中；禁默认 antd 松签 + 字 11；禁 clip；保留子签 Tab focus-visible + Cmd+1/2/3 表设计签
 - ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；禁 pad 堆高无固定栏；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
+- ✅ 表设计签体内容次密距：`--erd-tab-body-pad-x/b` 6/4、unique-hint pad 4×8 / mb 4、空态 pad 8、元数据 tip `.erd-meta-ddl-hint` ~24、工作区井 6；禁 10/12 松井 + Paragraph 大底距；禁 clip JExcel；保留空字段 CTA / 空名 toast
 - ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
