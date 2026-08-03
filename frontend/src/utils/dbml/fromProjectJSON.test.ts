@@ -48,6 +48,48 @@ async function main() {
     assert.equal(formatIndexColumn('"weird col"'), '"weird col"');
   });
 
+  await run('projectJSONToDbml：index.filter → note filter: 约定', () => {
+    const dbml = projectJSONToDbml({
+      modules: [
+        {
+          name: 'm',
+          chnname: '',
+          entities: [
+            {
+              title: 'users',
+              name: 'users',
+              chnname: '',
+              fields: [
+                {
+                  name: 'email',
+                  chnname: '',
+                  type: 'String',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                },
+              ],
+              indexs: [
+                {
+                  name: 'idx_active',
+                  isUnique: true,
+                  fields: ['email'],
+                  filter: '(deleted_at IS NULL)',
+                },
+              ],
+            },
+          ],
+          associations: [],
+          graphCanvas: { nodes: [], edges: [] },
+        },
+      ],
+    });
+    assert.match(
+      dbml,
+      /\(email\) \[name: 'idx_active', unique, note: 'filter: \(deleted_at IS NULL\)'\]/,
+    );
+  });
+
   await run('projectJSONToDbml：表/字段/chnname→note/Ref/indexs', () => {
     const dbml = projectJSONToDbml({
       modules: [
@@ -414,6 +456,52 @@ async function main() {
     assert.deepEqual(users2!.indexs, users1!.indexs);
     assert.match(exported, /`LOWER\(email\)`/);
     assert.match(exported, /idx_users_email_lower/);
+  });
+
+  await run('round-trip：index.filter ↔ note filter: 约定', async () => {
+    const first = {
+      modules: [
+        {
+          name: 'm',
+          chnname: '',
+          entities: [
+            {
+              title: 'users',
+              name: 'users',
+              chnname: '',
+              fields: [
+                {
+                  name: 'email',
+                  chnname: '',
+                  type: 'String',
+                  pk: false,
+                  notNull: false,
+                  autoIncrement: false,
+                },
+              ],
+              indexs: [
+                {
+                  name: 'idx_active',
+                  isUnique: true,
+                  fields: ['email'],
+                  filter: '(deleted_at IS NULL)',
+                },
+              ],
+            },
+          ],
+          associations: [],
+          graphCanvas: { nodes: [], edges: [] },
+        },
+      ],
+    };
+    const exported = projectJSONToDbml(first);
+    const second = await dbmlToProjectJSON(exported);
+    const ix = second.modules[0].entities[0].indexs[0];
+    assert.equal(ix.name, 'idx_active');
+    assert.equal(ix.isUnique, true);
+    assert.deepEqual(ix.fields, ['email']);
+    assert.equal(ix.filter, '(deleted_at IS NULL)');
+    assert.match(exported, /note: 'filter: \(deleted_at IS NULL\)'/);
   });
 
   // eslint-disable-next-line no-console

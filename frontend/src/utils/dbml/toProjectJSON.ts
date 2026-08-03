@@ -25,6 +25,10 @@ export type ProjectJsonIndex = {
   isUnique: boolean;
   /** 列名或索引表达式（如 `LOWER(email)`）；顺序即索引列序 */
   fields: string[];
+  /**
+   * 部分/过滤索引谓词。DBML 官方无 where；本产品用索引 note: 'filter: …' 往返。
+   */
+  filter?: string;
 };
 
 export type ProjectJsonEntity = {
@@ -131,8 +135,21 @@ type DbmlIndex = {
   name?: string | null;
   unique?: boolean;
   pk?: boolean;
+  note?: string | null;
   columns?: DbmlIndexColumn[];
 };
+
+/** DBML index note → filter（约定 `filter: <pred>`；@dbml/core 9.x 不认 where:） */
+export function filterFromDbmlIndexNote(
+  note: string | null | undefined,
+): string | undefined {
+  const raw = String(note || '').trim();
+  if (!raw) return undefined;
+  const m = /^filter:\s*([\s\S]+)$/i.exec(raw);
+  if (!m) return undefined;
+  const pred = m[1].trim();
+  return pred || undefined;
+}
 
 type DbmlTable = {
   name: string;
@@ -329,10 +346,12 @@ function mapIndex(index: DbmlIndex, tableName: string): ProjectJsonIndex | null 
   const name =
     rawName ||
     `idx_${tableName}_${fields.join('_')}`.replace(/[^\w.-]+/g, '_').slice(0, 64);
+  const filter = filterFromDbmlIndexNote(index.note);
   return {
     name,
     isUnique: Boolean(index.unique),
     fields,
+    ...(filter ? { filter } : {}),
   };
 }
 

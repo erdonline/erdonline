@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 导出：`indexs[].filter` → DDL WHERE / DBML note 约定
+
+- 选题：`b95e42f` 逆向已落 `filter`；DDL/DBML 导出仍丢部分·过滤谓词
+- DDL：`renderCreateIndexSql` — PG/SQL Server 有 `filter` 时规范输出 `CREATE … INDEX … WHERE …`（覆盖存量 ALTER ADD INDEX 模板）；MySQL/Oracle 忽略 filter
+- 导出弹层：`getAllDataSQLByFilter` / `getAllDataSQL` 按所选方言 `code` 取模板（非仅 defaultDatabase）
+- 默认模板：`defaultData.json` PostgreSQL + `project.json` PG/SQLServer `createIndexTemplate` 带可选 `{{? it.index.filter}} WHERE …`
+- DBML：`@dbml/core` 拒 `where:` → 用索引 `note: 'filter: <pred>'` 往返；单测 round-trip
+- 未做：E2E 导出 UI（单测覆盖生成路径）；MySQL/Oracle 无对等 WHERE
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/json2code.indexFilter.test.ts`
+- `cd frontend && yarn test:unit:dbml`
+
 #### 逆向：PG/SQL Server 部分·过滤索引谓词 → `indexs[].filter`
 
 - 选题：四库表达式索引闭环（`9f75499`）后下一刀 = 过滤/部分索引谓词仍丢失
@@ -16,7 +29,7 @@
 - SQL Server：`i.filter_definition AS filter`（含 computed 回退 SQL）
 - Mapper：`FILTER`/`FILTER_DEFINITION` 复合索引首行写入；无谓词保持 null
 - FE：索引签「过滤条件」文本列读写 `filter`（HMR）
-- 未做：DDL 模板 WHERE 回写、DBML filter、MySQL/Oracle（无对等）
+- 未做：~~DDL 模板 WHERE 回写、DBML filter~~（本切片已做）、MySQL/Oracle（无对等）
 - 单测 mock JDBC；文档 data-format / schema / ADR-0006 / roadmap
 
 验证点：

@@ -547,7 +547,7 @@
         "updateFieldTemplate": "ALTER TABLE `{{=it.entity.title}}` MODIFY COLUMN `{{=it.field.name}}` {{=it.field.dataType}} {{? it.field.notNull}}NOT NULL{{?}} {{? it.field.defaultValue}}DEFAULT {{? null==it.field.defaultValue}}NULL{{??}}{{=it.field.defaultValue}}{{?}}{{?}} {{? it.field.autoIncrement}}AUTO_INCREMENT{{?}} {{? it.field.chnname}}COMMENT '{{=it.field.chnname}}'{{?}};{{=it.separator}}",
         "deleteFieldTemplate": "ALTER TABLE `{{=it.entity.title}}` DROP `{{=it.field.name}}`;{{=it.separator}}",
         "deleteIndexTemplate": "ALTER TABLE `{{=it.entity.title}}` DROP INDEX `{{=it.index.name}}`;{{=it.separator}}",
-        "createIndexTemplate": "ALTER TABLE `{{=it.entity.title}}` ADD {{? it.index.isUnique}}UNIQUE{{??}}INDEX{{?}} `{{=it.index.name}}`({{=it.func.join(...it.index.fields,',')}});{{=it.separator}}",
+        "createIndexTemplate": "CREATE{{? it.index.isUnique}} UNIQUE{{?}} INDEX `{{=it.index.name}}` ON `{{=it.entity.title}}`({{=it.func.join(it.index.fields,',')}}){{? it.index.filter}} WHERE {{=it.index.filter}}{{?}};{{=it.separator}}\r\n$blankline",
         "updateTableComment": "ALTER TABLE `{{=it.entity.title}}` COMMENT '{{=it.entity.chnname}}';{{=it.separator}}",
         "createPkTemplate": "ALTER TABLE `{{=it.entity.title}}` ADD primary key(`{{=it.field.name}}`);{{=it.separator}}\r\n$blankline",
         "deletePkTemplate": "ALTER TABLE `{{=it.entity.title}}` DROP primary key;{{=it.separator}}\r\n$blankline"

@@ -9,6 +9,7 @@ import path from 'node:path';
 import {
   databaseToProjectJSON,
   dbmlToProjectJSON,
+  filterFromDbmlIndexNote,
   mapDbmlDefault,
   mapDbmlTypeName,
 } from './toProjectJSON';
@@ -63,6 +64,16 @@ async function main() {
     assert.equal(mapDbmlDefault({ type: 'expression', value: 'now()' }), 'now()');
     assert.equal(mapDbmlDefault({ type: 'boolean', value: true }), 'TRUE');
     assert.equal(mapDbmlDefault(undefined), undefined);
+  });
+
+  await run('filterFromDbmlIndexNote：filter: 约定', () => {
+    assert.equal(
+      filterFromDbmlIndexNote('filter: (deleted_at IS NULL)'),
+      '(deleted_at IS NULL)',
+    );
+    assert.equal(filterFromDbmlIndexNote('filter:(status = 1)'), '(status = 1)');
+    assert.equal(filterFromDbmlIndexNote('普通备注'), undefined);
+    assert.equal(filterFromDbmlIndexNote(''), undefined);
   });
 
   await run('databaseToProjectJSON：表/字段/note→chnname/Ref→n:1/Indexes→indexs', () => {
