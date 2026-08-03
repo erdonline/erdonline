@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：工作台 databaseConfig Drawer 键盘闭环
+
+- 选题：导入跳过校验键盘已收口（`9a20b19`）；扫余最高项 = `/databaseConfig` 新建/编辑 Drawer 缺显式 Esc/首焦/关后归还触发器（antd Drawer 无 `focusTriggerAfterClose`）
+- Drawer：`keyboard` + `autoFocus={false}` + `afterOpenChange` 首焦 `#database-config-name`；关后手动 `trigger.focus()`；连接名称 `aria-label`；打开路径统一 `openDrawer` 记触发器
+- E2E：`database-config-drawer-keyboard` 新建/编辑 → 首焦「连接名称」→ Tab trap → Esc 归还「新建连接」/「编辑」；定位 role/label（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫余键盘缺口或 Vision 矩阵 📋
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/database-config-drawer-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/adr0008-datasource.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：导入跳过校验 Modal.warning 键盘闭环
 
 - 选题：扫余最高项——导入校验 `Modal.warning`（DBML/ERD/PdMan，6 处）缺 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`（键盘用户关提示后焦点易坠 body）；较 databaseConfig Drawer（antd 默认可 Esc）ROI 更高
 - `showImportSkipWarning`：`keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；dialog + 次屏导入共用
 - E2E：`import-skip-warning-keyboard` 二次导入全跳过 → 首焦「知道了」→ Tab trap → Esc/OK 归还「解析并导入」；定位 `role=dialog`/`role=button`/`getByLabel`（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `databaseConfig` Drawer 打开首焦 / Esc / focusTriggerAfterClose
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`databaseConfig` Drawer~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/import-skip-warning-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

@@ -22,6 +22,7 @@
 - [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 {表名}」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
 - [x] 审批/工单 SQL 明细：`Modal.info` 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] 导入跳过校验：二次导入全跳过 → 首焦「知道了」；Esc/OK 归还「解析并导入」；Tab trap ✅`import-skip-warning-keyboard.spec.ts`
+- [x] 工作台 databaseConfig Drawer：新建/编辑首焦「连接名称」；Esc 归还触发器；Tab trap ✅`database-config-drawer-keyboard.spec.ts`
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤32；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 版本工具条二次密度/碎色：控件 ∈24–28；图标不 clip；增删摘要·hint 色 ≡ `--erd-success`/`--erd-brand`/`--erd-ink-600`；新增钮 Tab focus-visible ✅`version.spec.ts`
 - [x] 工单/审批列表密度：标题栏 ≤32（目标 ~24）/ 行 pad-block ≤10 / 动作钮 ∈22–28；图标不 clip；动作钮 focus-visible；截图 `approval-list-dense.png` / `order-list-dense.png` ✅`approval.spec.ts`
@@ -143,6 +144,7 @@
 - [x] [左树删表确认键盘] 表操作→删除表 → 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`tree-delete-keyboard.spec.ts`
 - [x] [数据源设置删确认键盘] 新增数据源→删 → 首焦「删除」；Esc 关确认归还删钮不删；外层配置窗仍开；Tab trap ✅`database-setup-delete-keyboard.spec.ts`
 - [x] [工作台 databaseConfig 删/批删确认键盘] 行删 + 批删 → 首焦「删除」；Esc 关确认归还触发器不删；Tab trap ✅`database-config-delete-keyboard.spec.ts`
+- [x] [工作台 databaseConfig Drawer 键盘] 新建/编辑 → 首焦「连接名称」；Esc 归还触发器；Tab trap ✅`database-config-drawer-keyboard.spec.ts`
 - [x] [只读分享吊销确认键盘] 分享→吊销确认 → 首焦「吊销」；Esc 关确认归还吊销钮不吊销；外层分享窗仍开；Tab trap ✅`share-revoke-keyboard.spec.ts`
 - [x] [团队项目删确认键盘] 基本设置→删确认 → 首焦「删除」；Esc 关确认归还删钮不删；Tab trap ✅`group-project-delete-keyboard.spec.ts`
 - [x] [团队成员移除确认键盘] 权限组普通成员→移除确认 → 首焦「移除」；Esc 关确认归还移除钮不移；Tab trap ✅`group-user-remove-keyboard.spec.ts`
