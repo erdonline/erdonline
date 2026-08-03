@@ -1,7 +1,6 @@
 import React, {useMemo} from 'react';
 import ReactFlow, {
   Background,
-  MiniMap,
   Handle,
   Position,
   NodeProps,
@@ -19,6 +18,7 @@ import {resolveEntityPositions} from '@/utils/graphLayout';
 import {ERD_EDGE_TYPE, associationsToEdges} from '@/utils/relationEdges';
 import {FIT_VIEW_SHAREABLE} from '@/utils/canvasFit';
 import ErdCrowFootMarkers from '../design/relation/ErdCrowFootMarkers';
+import ErdMiniMap from '../design/relation/ErdMiniMap';
 import ErdRelationEdge from '../design/relation/ErdRelationEdge';
 import ZhControls from '../design/relation/ZhControls';
 import ShareEmptyState from './ShareEmptyState';
@@ -214,7 +214,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
         <ErdCrowFootMarkers />
         <Background gap={16} size={1} color={erdColors.line}/>
         <ZhControls showInteractive={false} fitViewOptions={{...FIT_VIEW_SHAREABLE}}/>
-        <MiniMap
+        <ErdMiniMap
           pannable
           zoomable
           ariaLabel="画布缩略图"

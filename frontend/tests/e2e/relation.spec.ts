@@ -1565,6 +1565,90 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016：画布 chrome Tab 序 — Controls → 工具栏（MiniMap 装饰出序）
+  test('画布 chrome Tab 序：Controls→工具栏；MiniMap 不出序；focus-visible', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('chrtab');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'chrtab', 'canvas chrome tab order');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByRole('img', { name: '画布缩略图' })).toBeVisible();
+
+      // d3-zoom 默认 tabindex=0；ErdMiniMap 强制 -1（仍保留角色名）
+      await expect(page.locator('.react-flow__minimap svg')).toHaveAttribute('tabindex', '-1');
+
+      const zoomIn = page.getByRole('button', { name: '放大' });
+      await zoomIn.focus();
+      await expect(zoomIn).toBeFocused();
+
+      // Controls 四钮连续 Tab，且不落入 MiniMap
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: '缩小' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: '适应画布' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: '切换交互' })).toBeFocused();
+      await page.keyboard.press('Tab');
+      const afterControls = await page.evaluate(() => {
+        const ae = document.activeElement as HTMLElement | null;
+        if (!ae) return { inMinimap: false, inToolbar: false, tag: '' };
+        return {
+          inMinimap: !!ae.closest('.react-flow__minimap'),
+          inToolbar: !!ae.closest('.erd-canvas-toolbar'),
+          tag: ae.tagName,
+        };
+      });
+      expect(afterControls.inMinimap, 'Tab 不得落入 MiniMap').toBe(false);
+      expect(afterControls.inToolbar, 'Controls 后应进画布工具栏').toBe(true);
+
+      // 工具栏内再 Tab 可达「新建表」（无 trap）
+      const createBtn = page.getByTestId('canvas-create-table');
+      let steps = 0;
+      while (steps < 12) {
+        const focused = await createBtn.evaluate((el) => el === document.activeElement);
+        if (focused) break;
+        await page.keyboard.press('Tab');
+        steps += 1;
+      }
+      await expect(createBtn).toBeFocused();
+
+      // Shift+Tab 能退回 Controls（无 trap）；且中途不进 MiniMap
+      await page.getByRole('button', { name: '放大' }).focus();
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Shift+Tab');
+      await expect(page.getByRole('button', { name: '切换交互' })).toBeFocused();
+      const mid = await page.evaluate(
+        () => !!document.activeElement?.closest('.react-flow__minimap'),
+      );
+      expect(mid).toBe(false);
+
+      // Controls 键盘焦点环可见（brand）：须经 Tab 触发 :focus-visible
+      await page.getByRole('button', { name: '缩小' }).focus();
+      await page.keyboard.press('Tab');
+      await expect(page.getByRole('button', { name: '适应画布' })).toBeFocused();
+      const ring = await page.getByRole('button', { name: '适应画布' }).evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          outlineColor: cs.outlineColor,
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(ring.outlineStyle).not.toBe('none');
+      expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+      expect(ring.outlineColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布字段浏览器 Tab 环：选中表穿字段无 trap', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('ftbrowse');
