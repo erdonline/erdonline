@@ -85,7 +85,12 @@ const ComparePage: React.FC = () => (
           <p className="landingSectionLead">
             打开在线 demo 看真实关系图；或按文档自部署，数据留在你这边。
           </p>
-          <div className="landingCtas">
+          <div
+            className="landingCtas"
+            id="landing-main-cta"
+            tabIndex={-1}
+            data-testid="landing-main-cta"
+          >
             <Link className="landingBtnPrimary" to="/demo" aria-label="打开演示">
               打开演示
             </Link>

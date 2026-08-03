@@ -22,6 +22,7 @@
 - ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
 - ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
 - ✅ 注册壳键盘：同壳 Skip「跳到注册表单」；用户名→密码→确认→邮箱→手机→注册→footer；Form tip 问号出序（悬停保留）；末字段 Enter 提交/校验；focus-visible brand 环；无 trap
+- ✅ 落地页键盘：首项 Tab Skip「跳到主操作」落 `#landing-main-cta`（`tabIndex=-1`）；绕开顶栏；试用→注册→登录（已登录：工作台→演示）；壳内 `:focus-visible` surface 环（深色门面）；地标 brand；不按 Skip 仍可达品牌链；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ✅ 画布 chrome Tab 序：Controls（放大/缩小/适应/交互）→ 工具栏；MiniMap（d3-zoom）`tabindex=-1` 装饰出序、鼠标仍可拖；Controls `:focus-visible` brand 环；无 trap
 - ✅ 画布节点级 Tab：`nodesFocusable`/`edgesFocusable=false`（RF wrapper 不出序）；仅**选中**表控件 / 邻接边基数 chip / Frame 重命名进序；未选中 `-1`；无密图 trap
@@ -36,6 +37,7 @@
 - ❌ Skip 到模型树后只能 Tab 进搜索，方向键无法入树漫游、无法键盘开表/关系（历史问题）
 - ❌ 分享页进 Tab 先扫顶栏，无 Skip、Controls/MiniMap 序与焦点环未对齐设计器（历史问题）
 - ❌ 登录/注册壳进 Tab 先扫左品牌面板，无 Skip、暗面板焦点环不可见（历史问题）
+- ❌ 落地页进 Tab 先扫完整顶栏，无 Skip 直达主 CTA、深色门面焦点环缺（历史问题）
 - ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ✅ 左树点表名 → 同语言定位到画布（切关系图签 + 选中 + fitView + `data-locate-flash`）；表设计走菜单「编辑表」
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）
