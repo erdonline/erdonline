@@ -27,8 +27,10 @@ import com.erdonline.erd.entity.QueryHistory;
 import com.erdonline.erd.entity.QueryInfo;
 import com.erdonline.erd.event.QueryHistoryEvent;
 import com.erdonline.erd.mapper.QueryInfoMapper;
+import com.erdonline.erd.security.SqlGuard;
 import com.erdonline.erd.service.QueryHistoryService;
 import com.erdonline.erd.service.QueryInfoService;
+import com.erdonline.common.core.exception.ValidateException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
@@ -73,10 +75,14 @@ public class QueryInfoServiceImpl extends MartinServiceImpl<QueryInfoMapper, Que
     public R exec(Map params) {
         log.info("params: {}", params);
         MartinUser accessUser = SecurityContextUtil.getAccessUser();
-        String sql = (String) params.get("sql");
+        String sql;
+        try {
+            sql = SqlGuard.assertReadOnly((String) params.get("sql"));
+        } catch (ValidateException e) {
+            return R.failed(e.getMessage());
+        }
         String dbName = (String) params.get("dbName");
         String queryId = (String) params.get("queryId");
-        sql = sql.replace(";", "");
         Page page = new Page();
         BeanUtil.fillBeanWithMap(params, page, true);
         if (page.getSize() > 100) {
@@ -124,10 +130,14 @@ public class QueryInfoServiceImpl extends MartinServiceImpl<QueryInfoMapper, Que
     public R explain(Map params) {
         log.info("params: {}", params);
         MartinUser accessUser = SecurityContextUtil.getAccessUser();
-        String sql = (String) params.get("sql");
+        String sql;
+        try {
+            sql = SqlGuard.assertReadOnly((String) params.get("sql"));
+        } catch (ValidateException e) {
+            return R.failed(e.getMessage());
+        }
         String dbName = (String) params.get("dbName");
         String queryId = (String) params.get("queryId");
-        sql = sql.replace(";", "");
 
         List<Map> query = null;
         try {

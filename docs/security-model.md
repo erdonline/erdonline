@@ -20,8 +20,15 @@
 
 ## SQL 执行
 
-设计器内 JDBC/同步走登录会话与（团队）审批路径；开源版 VIP 权益切面**不**拦截次数。  
-**缺口（见 R-DATA-01/02）**：`queryInfo` 使用 `${sql}` 且无 jsqlparser 白名单；`connector/sqlexec` 可执行任意 SQL 并对请求体 JDBC URL 建连。文档「白名单」为目标态，非现状。
+设计器内 JDBC/同步走登录会话与（团队）审批路径；开源版 VIP 权益切面**不**拦截次数。
+
+| 路径 | 门禁 |
+|---|---|
+| `queryInfo/exec`、`queryInfo/explain` | `SqlGuard.assertReadOnly`：单语句 SELECT / EXPLAIN / SHOW / DESC（jsqlparser + 词首回退）；禁多语句、GRANT/OUTFILE 等 |
+| `connector/sqlexec`、`dbsync` | **mutate**：允许同步所需 DDL/DML；`SqlGuard.assertMutateAllowed` 拒 GRANT/REVOKE/CREATE USER/INTO OUTFILE/LOAD DATA LOCAL 等 |
+| `connector/ping|dbReverse*|sqlexec|dbsync|…` | `JdbcUrlGuard`：仅 `jdbc:mysql\|mariadb\|postgresql\|oracle:(thin\|oci)\|sqlserver`；禁云元数据主机 |
+
+残留：请求体仍可直传已 allowlist 的 JDBC 凭证（逆向/试连产品路径）；凭证仅取自已鉴权 `dataSources` id 属后续切片。
 
 ## 匿名放行（前缀剥离后路径）
 
@@ -71,9 +78,9 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
-| R-DATA-01 | P0 | `queryInfo/exec`：`${sql}` 无语句白名单 | `QueryInfoMapper.xml:5-9`；`QueryInfoServiceImpl.java:73-88`；`@Dynamic` 切用户库 | 文档写「白名单」但代码无 jsqlparser 门禁；可 DML/多语句（仅去 `;`） | 解析仅允许 SELECT/EXPLAIN/SHOW/DESC；禁多语句 |
-| R-DATA-02 | P0 | `connector/sqlexec` + ping/reverse：任意 JDBC URL | `DbSqlExecCommand.java:17-29`；`PingDBCommand.java:25-38`；`AbstractDBCommand.java:29-34` | 已登录即可对内网 SSRF + 任意 SQL（VIP 开源放行） | URL allowlist/禁云元数据段；SQL 同白名单；凭证只取自已鉴权 dataSources |
-| R-DATA-03 | P1 | `GitlabController` 硬编码第三方账密 + 试连外网 | `GitlabController.java:41` `oauth2Login(..., "martin", "12345678")` | 死功能仍挂需登录路由；密钥入库 | **删除控制器**或整切 `martin.social` 关死；轮换泄露口令 |
+| R-DATA-01 | P0 | ~~`queryInfo/exec`：`${sql}` 无语句白名单~~ | ~~`QueryInfoMapper.xml`；`QueryInfoServiceImpl`~~ | **✅ 已关闭（2026-08-03）**：`SqlGuard.assertReadOnly` 仅 SELECT/EXPLAIN/SHOW/DESC；禁多语句 | 保持只读白名单；`${sql}` 仍为动态执行面，勿扩 DML |
+| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 部分关闭（2026-08-03）**：`JdbcUrlGuard` scheme+元数据主机；mutate 路径拒 GRANT/OUTFILE；**未**改「仅 dataSources id」 | 下一刀：凭证改走已鉴权 dataSources；内网 SSRF 主机策略 |
+| R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | `POST /project/upload` 无类型/归属校验 | `ProjectController.java:134-137` | 任意登录用户写默认 OSS bucket | 校验扩展名/content-type；鉴权到项目；禁测试接口上生产 |
 | R-DATA-05 | P2 | `TestJsonController` 样板 CRUD 仍暴露 | `TestJsonController.java:56-121` | 需登录，污染面 | 删死路由 |
 
@@ -96,8 +103,8 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id（R-DATA-01/02）；顺手删 `GitlabController`（R-DATA-03）。
+1. **dataSources / 项目 ACL**：读改删校验归属（R-AUTH-04）；connector 凭证改走已鉴权 `dataSources` id（R-DATA-02 残留）；项目 IDOR（R-AUTH-03）。
 2. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
 
-（项目 IDOR / dataSources 归属可作紧随其后的 P1 切片。）
+（内网 SSRF 主机策略可与 dataSources 归属同切。）
 

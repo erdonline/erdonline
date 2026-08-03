@@ -2,6 +2,8 @@ package com.erdonline.erd.command;
 
 import cn.hutool.core.util.StrUtil;
 import com.erdonline.common.core.api.R;
+import com.erdonline.common.core.exception.ValidateException;
+import com.erdonline.erd.security.SqlGuard;
 import com.erdonline.erd.util.JdbcKit;
 
 import java.sql.Connection;
@@ -17,8 +19,12 @@ import java.util.Map;
 public class DbSqlExecCommand extends AbstractDBCommand<R> {
     @Override
     public R exec(Map<String, String> params) {
-        super.init(params);
-        return execSqls(params);
+        try {
+            super.init(params);
+            return execSqls(params);
+        } catch (ValidateException e) {
+            return R.failed(e.getMessage());
+        }
     }
 
     private R execSqls(Map<String, String> params) {
@@ -26,6 +32,7 @@ public class DbSqlExecCommand extends AbstractDBCommand<R> {
         String separator = params.get("separator");
         String sql = params.get("sql");
         String[] sqls = StrUtil.splitToArray(sql, separator);
+        SqlGuard.assertMutateAllowed(sqls);
         return Common.execSqls(params, conn, sqls);
     }
 }
