@@ -160,7 +160,10 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             {skipLabel}
           </a>
         </nav>
-        <Header className="erd-chrome-header home-layout__header">
+        <Header
+          className="erd-chrome-header home-layout__header"
+          data-testid="erd-chrome-header"
+        >
           <div
             className="erd-chrome-brand"
             role="link"

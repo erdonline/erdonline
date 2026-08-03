@@ -231,11 +231,13 @@
 - ✅ 工作台壳外井次密：HomeLayout shell 12×16×10 / body 12×16 / footer 10×6；GroupLayout content·body 12×16；列表空态 12×8；禁 shell 24 + body 20 叠页内 8×12 双松井；Skip/顶栏 64 不弱化
 - ✅ 账号 BaseView 左右列次密：表单/头像列 gap 16（窄屏 12）；禁 gap24；表单项/控件 28 不动；Skip/保存不弱化
 - ✅ 顶栏 `erd-chrome-actions` 次密：gap 12（Design 覆写 8）；禁 gap16；顶栏 64 / brand·用户菜单 hit / Skip 不弱化
+- ✅ 顶栏 `erd-chrome-header` 次密：padX 16 + brand–nav gap 12（Design gap8 / 右井 16）；禁 padX20 / gap16；顶栏 64 / Skip 不弱化
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
 - ❌ 工作台壳 shell 24×24 + body 20×24 / Group 24+20，叠页内 8×12 成双松井（历史问题）
 - ❌ 账号 BaseView 表单/头像列 gap24，与壳 12×16 次密不同阶（历史问题）
 - ❌ 顶栏 `erd-chrome-actions` gap16，相对 brand gap8 / Design gap8 偏松（历史问题）
+- ❌ 顶栏 `erd-chrome-header` padX20 + brand–nav gap16，相对壳 12×16 / actions gap12 偏松（历史问题）
 - ❌ 欢迎空态标题 mt20 / 22 字 + hero 220 + 松内井，盖首屏扫读（历史问题）
 - ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）

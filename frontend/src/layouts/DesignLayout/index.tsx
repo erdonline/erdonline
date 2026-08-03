@@ -376,7 +376,10 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           跳到主工作区
         </a>
       </nav>
-      <Header className="erd-chrome-header design-layout__header">
+      <Header
+        className="erd-chrome-header design-layout__header"
+        data-testid="erd-chrome-header"
+      >
         <div
           className="erd-chrome-brand"
           role="link"

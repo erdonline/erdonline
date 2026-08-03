@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：顶栏 `erd-chrome-header` pad / brand–nav 次密
+
+- 选题：actions 已 gap12；顶栏仍 padX20 + brand–nav gap16，相对壳外井 12×16 / brand 内 gap8 偏松
+- before：header `padding: 0 20px`、`gap: 16px`（Home 覆写同 20；Group 右井 20）；after：`padding: 0 16px`、`gap: 12px`（8–12 / 12×16 族）；Home/Group 覆写对齐；Design 仍 gap8 / 右 16；`data-testid=erd-chrome-header`；顶栏 64 / Skip / 用户菜单不弱化
+- E2E：`layout-outlet` Home padX≤16 + gap∈[8,12] + Design ≤8 + 截图 `chrome-header-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Home 水平导航 Menu 项水平松距（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|三壳同语言|DesignLayout：顶栏动作" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`
+
 #### 体验：顶栏 `erd-chrome-actions` 次密
 
 - 选题：BaseView 列 gap 已 16；Home/Group/分享顶栏 `.erd-chrome-actions` 仍 gap16，相对 header brand gap8 / Design 覆写 gap8 偏松
 - before：actions `gap: 16px`；after：`gap: 12px`（8–12 族）；DesignLayout 仍覆写 8；`data-testid=erd-chrome-actions`；顶栏 64 / 用户菜单 / Skip 不弱化
 - E2E：`layout-outlet` Home gap≤12 + Design ≤8 + 截图 `chrome-actions-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 顶栏 header pad 20 / brand–nav gap16（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~顶栏 header pad 20 / brand–nav gap16~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|DesignLayout：顶栏动作" --workers=1 --retries=0`
