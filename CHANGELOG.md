@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Home 空态/公告区次密
+
+- 选题：hero CTA 已密；空态 40×16 + 公告行 8×16 / 项目区 mb32 仍松井；空态 CTA +「更多公告」不压
+- `pages/home/style.less`：空态 pad 24×12 + Empty 插画/描述收距；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13
+- E2E：`home-keyboard` mock 空 recent + 新鲜公告 densify；保留既有 hero densify + Skip→主区→CTA/二级入口/项目卡
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 设计器次屏碎密度（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：Home hero CTA 簇次密
 
 - 选题：分享成功态已密；`/home` hero actions gap12 / secondary 6×14 / hero 32·20 仍松井；主 CTA large + Skip/Tab 不压
 - `pages/home/style.less`：hero gap24 / mb·pb16；stats gap12×20·mt12；actions gap8；secondary gap4×12 + 钮 4×10；secondaryNav mb20；lg 折行 gap16
 - E2E：`home-keyboard` densify + Skip→主区→继续/新建/示例/二级入口/项目卡；focus-visible brand；不按 Skip 仍落品牌链
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Home 空态/公告区次密（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Home 空态/公告区次密~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

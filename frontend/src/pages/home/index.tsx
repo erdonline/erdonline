@@ -210,7 +210,7 @@ const Home: React.FC<HomeProps> = () => {
         ))}
       </nav>
 
-      <section className={styles.projectSection}>
+      <section className={styles.projectSection} data-testid="home-project-section">
         <div className={styles.sectionHead}>
           <h2 className={styles.sectionTitle}>进行中的项目</h2>
           <Link to="/dataModels" className={styles.sectionExtra}>
@@ -226,7 +226,7 @@ const Home: React.FC<HomeProps> = () => {
             ))}
           </div>
         ) : records.length === 0 ? (
-          <div className={styles.emptyState}>
+          <div className={styles.emptyState} data-testid="home-empty-state">
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               description="还没有进行中的项目"
@@ -274,7 +274,11 @@ const Home: React.FC<HomeProps> = () => {
       </section>
 
       {showAnnouncements ? (
-        <section className={styles.announceSection} aria-label="最新公告">
+        <section
+          className={styles.announceSection}
+          aria-label="最新公告"
+          data-testid="home-announce"
+        >
           <div className={styles.sectionHead}>
             <Title level={5} className={styles.sectionTitleSm}>
               最新公告

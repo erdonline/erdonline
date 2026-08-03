@@ -8,7 +8,7 @@ import {
 
 /**
  * Home 工作台键盘：Skip 进主区；CTA / 项目卡 Tab 序；focus-visible；无 trap
- * + hero CTA 簇次密距（ADR-0016）
+ * + hero CTA 簇 / 空态·公告区次密距（ADR-0016）
  */
 test.describe('Home 工作台键盘', () => {
   // ADR-0016：HomeLayout Skip 绕开顶栏；主区 CTA 与项目卡 Tab 序；brand focus-visible
@@ -17,6 +17,125 @@ test.describe('Home 工作台键盘', () => {
   }) => {
     test.setTimeout(90_000);
     await login(page, e2eAccount());
+
+    // ADR-0016：空态/公告次密 — mock 空 recent + 新鲜公告，锁定 pad/gap；保留空态 CTA
+    const freshTs = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    await page.route('**/ncnb/project/recent**', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 200,
+          data: { records: [], total: 0, size: 1, sizeSize: 6 },
+        }),
+      });
+    });
+    await page.route('**/syst/sysAnnouncement', async (route) => {
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 200,
+          data: {
+            records: [
+              {
+                id: 'e2e-home-announce-1',
+                title: 'E2E Home 公告密度',
+                url: 'https://example.com/erd-announce',
+                createTime: freshTs,
+              },
+            ],
+            total: 1,
+          },
+        }),
+      });
+    });
+    await page.goto('/home');
+    await expect(page.getByTestId('home-page')).toBeVisible();
+    const empty = page.getByTestId('home-empty-state');
+    await expect(empty).toBeVisible({ timeout: 15_000 });
+    await expect(empty.getByRole('button', { name: '新建模型' })).toBeVisible();
+    await expect(empty.getByRole('button', { name: '从示例开始' })).toBeVisible();
+    const announce = page.getByTestId('home-announce');
+    await expect(announce).toBeVisible();
+    await expect(announce.getByRole('link', { name: '更多公告' })).toBeVisible();
+    await expect(announce.getByRole('link', { name: 'E2E Home 公告密度' })).toBeVisible();
+
+    const emptyAnnounceDense = await page.evaluate(() => {
+      const emptyEl = document.querySelector('[data-testid="home-empty-state"]') as HTMLElement;
+      const section = document.querySelector(
+        '[data-testid="home-project-section"]',
+      ) as HTMLElement;
+      const nav = document.querySelector('nav[aria-label="项目入口"]') as HTMLElement;
+      const announceEl = document.querySelector(
+        '[data-testid="home-announce"]',
+      ) as HTMLElement;
+      const head = announceEl?.querySelector('div') as HTMLElement | null;
+      const li = announceEl?.querySelector('li') as HTMLElement | null;
+      const title = announceEl?.querySelector('h5, .ant-typography') as HTMLElement | null;
+      const gapOf = (cs: CSSStyleDeclaration) => {
+        const g = parseFloat(cs.gap);
+        if (!Number.isNaN(g) && g > 0) return g;
+        return Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0);
+      };
+      const ecs = getComputedStyle(emptyEl);
+      const scs = getComputedStyle(section);
+      const ncs = getComputedStyle(nav);
+      const acs = getComputedStyle(announceEl);
+      const hcs = head ? getComputedStyle(head) : null;
+      const lcs = li ? getComputedStyle(li) : null;
+      const tcs = title ? getComputedStyle(title) : null;
+      return {
+        emptyPadY: parseFloat(ecs.paddingTop),
+        emptyPadX: parseFloat(ecs.paddingLeft),
+        sectionMb: parseFloat(scs.marginBottom),
+        navMb: parseFloat(ncs.marginBottom),
+        announcePt: parseFloat(acs.paddingTop),
+        headMb: hcs ? parseFloat(hcs.marginBottom) : 99,
+        rowPadY: lcs ? parseFloat(lcs.paddingTop) : 99,
+        rowGap: lcs ? gapOf(lcs) : 99,
+        titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+      };
+    });
+    expect(
+      emptyAnnounceDense.emptyPadY,
+      `空态 padY 应 ≤24，得 ${emptyAnnounceDense.emptyPadY}`,
+    ).toBeLessThanOrEqual(24);
+    expect(
+      emptyAnnounceDense.emptyPadX,
+      `空态 padX 应 ≤12，得 ${emptyAnnounceDense.emptyPadX}`,
+    ).toBeLessThanOrEqual(12);
+    expect(
+      emptyAnnounceDense.sectionMb,
+      `项目区 mb 应 ≤20，得 ${emptyAnnounceDense.sectionMb}`,
+    ).toBeLessThanOrEqual(20);
+    expect(
+      emptyAnnounceDense.navMb,
+      `二级入口 mb 应 ≤16，得 ${emptyAnnounceDense.navMb}`,
+    ).toBeLessThanOrEqual(16);
+    expect(
+      emptyAnnounceDense.announcePt,
+      `公告区 pt 应 ≤4，得 ${emptyAnnounceDense.announcePt}`,
+    ).toBeLessThanOrEqual(4);
+    expect(
+      emptyAnnounceDense.headMb,
+      `区块头 mb 应 ≤8，得 ${emptyAnnounceDense.headMb}`,
+    ).toBeLessThanOrEqual(8);
+    expect(
+      emptyAnnounceDense.rowPadY,
+      `公告行 padY 应 ≤4，得 ${emptyAnnounceDense.rowPadY}`,
+    ).toBeLessThanOrEqual(4);
+    expect(
+      emptyAnnounceDense.rowGap,
+      `公告行 gap 应 ≤10，得 ${emptyAnnounceDense.rowGap}`,
+    ).toBeLessThanOrEqual(10);
+    expect(
+      emptyAnnounceDense.titleSize,
+      `公告标题字应 ≤13，得 ${emptyAnnounceDense.titleSize}`,
+    ).toBeLessThanOrEqual(13);
+
+    await page.unroute('**/ncnb/project/recent**');
+    await page.unroute('**/syst/sysAnnouncement');
 
     // 保证有最近项目：「继续上次建模」进序 + 至少一张项目卡
     await page.goto('/project/person');

@@ -178,7 +178,8 @@
 - ✅ **AuthBrandShell 次密距**（2026-08-03）：品牌 32×28/gap14 + 表单 pad32 + 门头 mb16；登录/注册/失效/404·403 同源；禁弱化品牌字号/Skip·Tab；`smoke`+`share`+`session` densify 绿；下一刀 → ~~LandingChrome / compare 次密距~~✅
 - ✅ **LandingChrome / `/compare` 次密距**（2026-08-03）：次屏 section 2.75 / 对照行 0.5 / nav·footer 收；compare hero padT 1.5；hero 品牌级+全幅不动；`landing`+`compare` densify 绿；下一刀 → ~~分享成功态 meta/表清单次密~~✅
 - ✅ **分享成功态 meta / 表清单次密**（2026-08-03）：stage 6×10 + meta gap2 / hint 12·16；表清单 pad 6×10·标题 12；弹层 `.erd-io-modal`；键盘/吊销不弱化；`demo`+`share-project-keyboard` densify 绿；下一刀 → ~~Home hero CTA 簇次密~~✅
-- ✅ **Home hero CTA 簇次密**（2026-08-03）：hero gap24/mb·pb16；actions gap8；secondary 4×10；主 CTA large + Skip/Tab 不弱化；`home-keyboard` densify 绿；下一刀 → Home 空态/公告区次密（视 ROI）
+- ✅ **Home hero CTA 簇次密**（2026-08-03）：hero gap24/mb·pb16；actions gap8；secondary 4×10；主 CTA large + Skip/Tab 不弱化；`home-keyboard` densify 绿；下一刀 → ~~Home 空态/公告区次密~~✅
+- ✅ **Home 空态/公告次密**（2026-08-03）：空态 pad 24×12；二级入口 mb16；项目区 mb20；公告 pt4 / 行 pad4·gap10 / 标题 13；保留空态 CTA；`home-keyboard` empty/announce densify 绿；下一刀 → 设计器次屏碎密度（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
