@@ -184,7 +184,9 @@ test.describe('关系图画布（ReactFlow）', () => {
       await createAndOpenPersonProject(page, projectName, 'emptyviz', 'empty composition');
       await openRelationFromEmpty(page);
 
+      const panel = page.getByTestId('canvas-empty-panel');
       const empty = page.getByTestId('canvas-empty-state');
+      await expect(panel).toBeVisible();
       await expect(empty).toBeVisible();
       await expect(page.getByTestId('erd-empty-diagram')).toBeVisible();
       await expect(empty.getByText('开始你的第一张关系图')).toBeVisible();
@@ -203,8 +205,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
 
-      // ADR-0016：空态 CTA pad ∈[8,12]；主钮 hit ≥26（~28）；禁 14×18 松井 / 28×32 松卡片
+      // ADR-0016：panel 顶距 min(8vh,64)；CTA pad ∈[8,12]；主钮 hit ≥26；禁 10vh/88 松顶
       const emptyMetrics = await empty.evaluate((el) => {
+        const panelEl = el.closest('[data-testid="canvas-empty-panel"]') as HTMLElement | null;
+        const pcs = panelEl ? getComputedStyle(panelEl) : null;
         const cs = getComputedStyle(el);
         const title = el.querySelector('.erd-empty-title') as HTMLElement | null;
         const desc = el.querySelector('.erd-empty-desc') as HTMLElement | null;
@@ -216,6 +220,8 @@ test.describe('关系图画布（ReactFlow）', () => {
         const scs = sec ? getComputedStyle(sec) : null;
         const svg = el.querySelector('[data-testid="erd-empty-diagram"]');
         return {
+          panelMt: pcs ? parseFloat(pcs.marginTop) : -1,
+          vh: window.innerHeight,
           padT: parseFloat(cs.paddingTop),
           padB: parseFloat(cs.paddingBottom),
           padL: parseFloat(cs.paddingLeft),
@@ -232,6 +238,13 @@ test.describe('关系图画布（ReactFlow）', () => {
           svgW: svg ? parseFloat((svg as SVGElement).getAttribute('width') || '0') : 0,
         };
       });
+      const expectedPanelMt = Math.min(emptyMetrics.vh * 0.08, 64);
+      expect(
+        emptyMetrics.panelMt,
+        `panel mt 应 ≈ min(8vh,64)=${expectedPanelMt}（禁 ≥min(10vh,88)），得 ${emptyMetrics.panelMt}`,
+      ).toBeCloseTo(expectedPanelMt, 0);
+      expect(emptyMetrics.panelMt, `panel mt 应 ≤64，得 ${emptyMetrics.panelMt}`).toBeLessThanOrEqual(64);
+      expect(emptyMetrics.panelMt, `panel mt 应 ≥32（保留空态存在感），得 ${emptyMetrics.panelMt}`).toBeGreaterThanOrEqual(32);
       for (const [k, v] of [
         ['padT', emptyMetrics.padT],
         ['padB', emptyMetrics.padB],

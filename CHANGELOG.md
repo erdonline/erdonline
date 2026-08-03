@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布空态 panel 顶距次密
+
+- 选题：CTA pad 已密；`.erd-empty-panel` 仍 `min(10vh, 88)`，首屏空态顶区偏松；勿动 Auth logo / 欢迎 pad；勿再调 CTA pad 10×12
+- before：顶距 **min(10vh, 88)**；after：**min(8vh, 64)**；`testid=canvas-empty-panel` / `canvas-empty-state` / role「新建第一张表」
+- E2E：`relation`「空态构图」锁 panel mt ≈ min(8vh,64) 且 ∈[32,64] + 既有 CTA pad/hit；截图 `diagram-empty-composition.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 空态纵节奏（title mt8 / desc mb12）或画布 Controls 次密（视 ROI；Auth logo / 欢迎 pad 跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 体验：画布空态 CTA pad 次密
 
 - 选题：notice-row 已密；`.erd-empty-cta` 仍 pad 14×18×12，相对 ADR-0016 8–12 族偏松；勿动 Auth logo 48 / 欢迎 pad；主 CTA hit ~28 不弱化
 - before：pad **14×18×12**；after：pad **10×12**；`testid=canvas-empty-state` / role「新建第一张表」
 - E2E：`relation`「空态构图」锁 pad ∈[8,12] + btnH ∈[26,28]；截图 `diagram-empty-composition.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `.erd-empty-panel` 顶距 `min(10vh, 88)`（视 ROI；Auth logo / 欢迎 pad 跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`.erd-empty-panel` 顶距 `min(10vh, 88)`~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`

@@ -199,6 +199,7 @@
 - [x] [画布工具栏密度] `.erd-canvas-tool` height ≤22、font ≤11；截图 `diagram-canvas-toolbar-dense.png` ✅`relation.spec`「工具栏」
 - [x] [画布工具栏扫读层次] 单块 chrome；次要 ink600；「自动布局」600/ink900；禁散粒描边 ✅`relation.spec`「工具栏」
 - [x] [空态面板密度] `.erd-empty-cta` pad ∈[8,12]（目标 10×12）/ maxW≤300 / 标题≤14 / CTA hit ∈[26,28] / 剪影≤140；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
+- [x] [空态 panel 顶距] `.erd-empty-panel` mt ≈ min(8vh,64) 且 ∈[32,64]；`testid=canvas-empty-panel`；禁 min(10vh,88)；Auth logo / 欢迎 pad / CTA pad 不动 ✅`relation.spec`「空态构图」
 - [x] [命令面板密度] 面板宽≤460 / maxH≤360、输入高≤40 / font≤13、行 padY≤16 / font≤12、footer padY≤8 / padX≤8 / font≤11；截图 `diagram-cmd-palette-dense.png` ✅`relation.spec`「命令面板」
 - [x] [命令面板空态/list 井] empty padY≤16 / padX≤8 / gap≤2、list pad≤2；无匹配「无匹配结果」+ 提示；Trap/aria/Esc 不弱化 ✅`relation.spec`「命令面板」
 - [x] [实体新建弹层密度] 宽≤420、标题≤14、body padY≤28、表单项 margin≤14、输入/OK 高≤32；截图 `diagram-entity-modal-dense.png` ✅`relation.spec`「实体新建弹层密度」
