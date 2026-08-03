@@ -1348,6 +1348,54 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('字段级 unique 说明：索引唯一 CTA → 画布 UK；字段签跳索引', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('fielduk');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fielduk', 'field unique clarity');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      // 字段签：无 unique 列 → 引导去索引
+      await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
+      const designer = page.getByTestId('table-design');
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      const fieldHint = page.getByTestId('field-unique-hint');
+      await expect(fieldHint).toBeVisible();
+      await expect(fieldHint).toContainText(/没有独立的「唯一」列/);
+      await page.getByRole('button', { name: '去索引签设置唯一' }).click();
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      const indexEdit = page.getByTestId('table-index-edit');
+      await expect(indexEdit.getByTestId('index-unique-hint')).toBeVisible();
+      await expect(indexEdit.getByRole('button', { name: '添加唯一索引' })).toBeVisible();
+      await indexEdit.getByRole('button', { name: '添加唯一索引' }).click();
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' })).toBeVisible();
+      await expect(indexEdit.getByTestId('index-unique-hint')).toContainText(/UNIQUE/);
+
+      // 画布字段行出现 UK（只读徽章；编辑仍在索引签）
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      const pkRow = rfNode(page, 'T_TABLE_1').locator('.erd-field-row').first();
+      await expect(pkRow.getByTestId('field-uk-badge')).toBeVisible();
+      await expect(pkRow.getByLabel('唯一')).toHaveText('UK');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('JExcel 工具栏删除二次确认：取消保留；确认后行消失', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('jxdel');

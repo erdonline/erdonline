@@ -7,9 +7,12 @@ import shallow from "zustand/shallow";
 // @ts-ignore
 import JExcel from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
+import { Button } from 'antd';
 
 export type TableInfoEditProps = {
   moduleEntity: ModuleEntity;
+  /** 字段无 unique 列；引导至索引签设置唯一 */
+  onOpenIndex?: () => void;
 };
 
 const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
@@ -57,8 +60,23 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
     <div
       ref={containerRef}
       data-testid="table-field-edit"
+      className="erd-table-field-edit"
       style={{ width: '100%', height: '640px', overflow: 'auto' }}
     >
+        <div className="erd-table-field-unique-hint" data-testid="field-unique-hint">
+          <span>字段没有独立的「唯一」列；UNIQUE 请在「索引」签勾选「是否唯一」。</span>
+          {props.onOpenIndex ? (
+            <Button
+              type="link"
+              size="small"
+              data-testid="field-goto-index"
+              aria-label="去索引签设置唯一"
+              onClick={props.onOpenIndex}
+            >
+              去索引签设置唯一
+            </Button>
+          ) : null}
+        </div>
         <JExcel
           data={data}
           columns={columns}

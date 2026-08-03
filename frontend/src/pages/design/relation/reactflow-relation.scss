@@ -395,7 +395,8 @@
 
         // 角色标列：PK/FK 先于字段名入眼；字号仍 < 名 12，不抢主列字重
         .erd-pk-badge,
-        .erd-fk-badge {
+        .erd-fk-badge,
+        .erd-uk-badge {
           appearance: none;
           box-sizing: border-box;
           display: inline-flex;
@@ -435,6 +436,13 @@
           color: var(--erd-success);
           background: var(--erd-success-bg);
           border: 1px solid var(--erd-success-border);
+        }
+
+        /* 唯一约束在索引（非字段列）；画布只读 UK，编辑走索引签 */
+        .erd-uk-badge {
+          color: var(--erd-brand);
+          background: var(--erd-brand-a12);
+          border: 1px solid color-mix(in srgb, var(--erd-brand) 28%, var(--erd-line));
         }
 
         .erd-field-chnname {

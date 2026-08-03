@@ -89,10 +89,18 @@ type FieldData = {
   relationNoShow?: boolean;
 };
 
+type IndexData = {
+  name?: string;
+  fields?: string | string[];
+  isUnique?: boolean;
+};
+
 type EntityData = {
   title: string;
   chnname?: string;
   fields?: FieldData[];
+  /** 历史拼写 indexs；唯一约束只存在于此，不在字段列 */
+  indexs?: IndexData[];
 };
 
 type Association = {
@@ -113,6 +121,24 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
     map.set(entity, list);
   }
   return map;
+}
+
+/** 参与 isUnique 索引的字段名（单列/复合均标 UK；字段本体无 unique 列） */
+export function uniqueFieldsFromIndexs(indexs?: IndexData[]): string[] {
+  const out: string[] = [];
+  for (const idx of indexs || []) {
+    if (!idx?.isUnique) continue;
+    const raw = idx.fields;
+    const fields = Array.isArray(raw)
+      ? raw
+      : typeof raw === 'string'
+        ? raw.split(/[;,]/).map((s) => s.trim()).filter(Boolean)
+        : [];
+    for (const f of fields) {
+      if (f && !out.includes(f)) out.push(f);
+    }
+  }
+  return out;
 }
 
 const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
@@ -144,6 +170,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const entity = data.entity;
   const moduleName = data.moduleName;
   const fkSet = useMemo(() => new Set(data.fkFields || []), [data.fkFields]);
+  const uniqueSet = useMemo(
+    () => new Set(uniqueFieldsFromIndexs(entity.indexs)),
+    [entity.indexs],
+  );
   const updateNodeInternals = useUpdateNodeInternals();
 
   const onFieldsChange = (fields: FieldData[]) => {
@@ -833,6 +863,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 </button>
                 {fkSet.has(f.name) ? (
                   <span className="erd-fk-badge" title="外键" aria-label="外键">FK</span>
+                ) : null}
+                {uniqueSet.has(f.name) ? (
+                  <span
+                    className="erd-uk-badge"
+                    title="唯一索引（在表设计·索引签设置）"
+                    aria-label="唯一"
+                    data-testid="field-uk-badge"
+                  >
+                    UK
+                  </span>
                 ) : null}
                 {f.name}
                 {f.chnname ? <span className="erd-field-chnname"> {f.chnname}</span> : null}
