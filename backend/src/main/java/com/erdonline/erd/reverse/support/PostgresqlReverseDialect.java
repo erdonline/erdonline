@@ -5,12 +5,14 @@ import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.model.Trigger;
 import com.erdonline.erd.reverse.CommentResultSetMapper;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.TableIdentity;
+import com.erdonline.erd.reverse.TriggerResultSetMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -26,7 +28,8 @@ import java.util.Map;
 
 /**
  * PostgreSQL 逆向：schema 一等公民；索引走 pg_catalog；FK 走 KEY_COLUMN_USAGE；
- * 注释走 obj_description / col_description（pgjdbc getColumns REMARKS 不可靠）。
+ * 注释走 obj_description / col_description（pgjdbc getColumns REMARKS 不可靠）；
+ * 触发器走 information_schema.triggers → {@code entity.triggers}。
  *
  * @author erdonline
  */
@@ -101,12 +104,25 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
                     + "AND a.attnum > 0 AND NOT a.attisdropped "
                     + "AND col_description(c.oid, a.attnum) IS NOT NULL";
 
+    /**
+     * 表触发器：information_schema（多事件触发器按 event 拆行，对齐 schema 单 event 字段）。
+     */
+    private static final String SQL_TRIGGERS =
+            "SELECT trigger_name AS TRIGGER_NAME, action_timing AS ACTION_TIMING, "
+                    + "event_manipulation AS EVENT_MANIPULATION, "
+                    + "action_orientation AS ACTION_ORIENTATION, "
+                    + "action_statement AS ACTION_STATEMENT "
+                    + "FROM information_schema.triggers "
+                    + "WHERE event_object_schema = ? AND event_object_table = ? "
+                    + "ORDER BY trigger_name, event_manipulation";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(true)
             .supportsComment(true)
+            .supportsTrigger(true)
             .build();
 
     @Override
@@ -200,6 +216,20 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
             statement.setString(2, table.getOriginTableName());
             try (ResultSet rs = statement.executeQuery()) {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
+            }
+        }
+    }
+
+    @Override
+    protected List<Trigger> loadTriggers(Connection connection, TableIdentity table, String nameCaseFlag)
+            throws SQLException {
+        String schemaName = resolvePgSchema(table);
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TRIGGERS)) {
+            statement.setString(1, schemaName);
+            statement.setString(2, table.getOriginTableName());
+            try (ResultSet rs = statement.executeQuery()) {
+                return TriggerResultSetMapper.mapFromPostgresInformationSchema(
+                        rs, table.getDisplayTableName(), nameCaseFlag);
             }
         }
     }

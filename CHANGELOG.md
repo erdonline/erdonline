@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 逆向：PostgreSQL 触发器 → `entity.triggers[]`
+
+- 选题：`2abaeb7` MySQL 触发器后，最高缺口 = PG `information_schema.triggers`（共享 `Trigger` / `supportsTrigger` 已齐）
+- PG：`PostgresqlReverseDialect.supportsTrigger=true`；字典 `information_schema.triggers` → `name`/`timing`/`event`/`orientation`/`statement` + 双引号重建 `ddl`（`TriggerResultSetMapper.mapFromPostgresInformationSchema`）；失败 warn 跳过（同注释）
+- 单测：`PostgresqlReverseDialectTriggerTest` + mapper PG DDL + Registry `supportsTrigger`
+- 文档：ADR-0006 / roadmap 逆向保真 PG 触发器 ✅；SQL Server/Oracle 触发器另切片
+- 未做：触发器 UI / DBML / SQL Server·Oracle 字典 / `pg_get_triggerdef` 字节克隆
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=TriggerResultSetMapperTest,PostgresqlReverseDialectTriggerTest,MysqlReverseDialectTriggerTest,ReverseDialectRegistryTest test`
+- `./backend/dev-ensure.sh --restart` 后 Registry/meta：`PostgreSQL` → `supportsTrigger=true`
+
 #### 逆向：MySQL 触发器 → `entity.triggers[]`
 
 - 选题：`efd0120` Oracle 注释后，度量四库触发器捕获均为 0、projectJSON 无 `triggers` 槽；最高缺口 = 共享模型 + MySQL（本机 Colima 热库）

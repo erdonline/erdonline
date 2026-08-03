@@ -7,11 +7,13 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
+import java.util.function.Function;
 
 /**
  * 将字典风格触发器 ResultSet 映射为 {@link Trigger} 列表，并重建 DDL。
  * <p>约定列（大小写不敏感）：TRIGGER_NAME / ACTION_TIMING / EVENT_MANIPULATION /
- * ACTION_ORIENTATION / ACTION_STATEMENT（MySQL {@code INFORMATION_SCHEMA.TRIGGERS}）。
+ * ACTION_ORIENTATION / ACTION_STATEMENT（MySQL {@code INFORMATION_SCHEMA.TRIGGERS} /
+ * PostgreSQL {@code information_schema.triggers}）。
  *
  * @author erdonline
  */
@@ -21,10 +23,25 @@ public final class TriggerResultSetMapper {
     }
 
     /**
+     * MySQL/MariaDB：重建反引号 CREATE TRIGGER。
+     *
      * @param tableDisplayName 用于 DDL 中的 ON 表名（已按 nameCase 调整的显示名）
      */
     public static List<Trigger> mapFromInformationSchema(ResultSet rs, String tableDisplayName,
                                                          String nameCaseFlag) throws SQLException {
+        return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::buildMysqlDdl);
+    }
+
+    /**
+     * PostgreSQL：重建双引号 CREATE TRIGGER（statement 多为 EXECUTE FUNCTION/PROCEDURE）。
+     */
+    public static List<Trigger> mapFromPostgresInformationSchema(ResultSet rs, String tableDisplayName,
+                                                                 String nameCaseFlag) throws SQLException {
+        return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::buildPostgresDdl);
+    }
+
+    private static List<Trigger> mapDictionaryRows(ResultSet rs, String tableDisplayName, String nameCaseFlag,
+                                                   DdlBuilder ddlBuilder) throws SQLException {
         List<Trigger> triggers = new ArrayList<>(4);
         while (rs.next()) {
             String rawName = readStringIgnoreCase(rs, "TRIGGER_NAME");
@@ -45,7 +62,7 @@ public final class TriggerResultSetMapper {
             trigger.setEvent(event);
             trigger.setOrientation(orientation != null ? orientation : "ROW");
             trigger.setStatement(statement);
-            trigger.setDdl(buildMysqlDdl(
+            trigger.setDdl(ddlBuilder.build(
                     trigger.getName(),
                     timing,
                     event,
@@ -68,14 +85,35 @@ public final class TriggerResultSetMapper {
         String safeEvent = event == null ? "INSERT" : event;
         String safeOrient = orientation == null || orientation.isEmpty() ? "ROW" : orientation;
         String body = statement == null ? "" : statement;
-        return "CREATE TRIGGER `" + quoteIdent(safeName) + "` "
+        return "CREATE TRIGGER `" + quoteMysqlIdent(safeName) + "` "
                 + safeTiming + " " + safeEvent
-                + " ON `" + quoteIdent(safeTable) + "` FOR EACH " + safeOrient
+                + " ON `" + quoteMysqlIdent(safeTable) + "` FOR EACH " + safeOrient
                 + "\n" + body;
     }
 
-    private static String quoteIdent(String ident) {
+    /**
+     * 重建 PostgreSQL 风格 CREATE TRIGGER（保真字典字段；非 pg_get_triggerdef 字节克隆）。
+     */
+    public static String buildPostgresDdl(String name, String timing, String event, String orientation,
+                                          String statement, String tableName) {
+        String safeName = name == null ? "" : name;
+        String safeTable = tableName == null ? "" : tableName;
+        String safeTiming = timing == null ? "BEFORE" : timing;
+        String safeEvent = event == null ? "INSERT" : event;
+        String safeOrient = orientation == null || orientation.isEmpty() ? "ROW" : orientation;
+        String body = statement == null ? "" : statement;
+        return "CREATE TRIGGER \"" + quotePostgresIdent(safeName) + "\" "
+                + safeTiming + " " + safeEvent
+                + " ON \"" + quotePostgresIdent(safeTable) + "\" FOR EACH " + safeOrient
+                + "\n" + body;
+    }
+
+    private static String quoteMysqlIdent(String ident) {
         return ident.replace("`", "``");
+    }
+
+    private static String quotePostgresIdent(String ident) {
+        return ident.replace("\"", "\"\"");
     }
 
     private static String upperOrNull(String value) {
@@ -91,5 +129,11 @@ public final class TriggerResultSetMapper {
         } catch (SQLException ignore) {
             return rs.getString(label.toLowerCase(Locale.ROOT));
         }
+    }
+
+    @FunctionalInterface
+    private interface DdlBuilder {
+        String build(String name, String timing, String event, String orientation,
+                     String statement, String tableName);
     }
 }
