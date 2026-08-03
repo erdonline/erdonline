@@ -17,7 +17,7 @@
 - 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → EntityModal/模块树本地成功 vs autosave、或 densify ROI
 
 验证点：
-- `cd frontend && npx playwright test tests/e2e/database-setup-failure.spec.ts tests/e2e/database-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/database-setup-failure.spec.ts tests/e2e/database-setup-keyboard.spec.ts tests/e2e/database-setup-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
 
 #### 体验：默认项设置失败不关窗
 
