@@ -131,6 +131,7 @@
 - [x] [Frame 新建/成员加减落盘失败可回滚] mock save → toast「模拟分组保存拒绝」+ 新建不上图/加入成员仍 0（无成功 toast）→ 重试成功；定位「新建分组」/「加入分组」/ `diagram-frame`（勿扫 `.ant-*`） ✅`canvas-frame-members-failure.spec.ts`
 - [x] [画布连线建关联落盘失败可重试] mock save → toast「模拟连线保存拒绝」+ 不上边（无 `erd-edge-label`）→ 重试成功上边；定位 `rfNode` / `data-handleid` / `erd-edge-label`（勿扫 `.ant-*`） ✅`canvas-connect-edge-failure.spec.ts`
 - [x] [画布改边基数落盘失败可重试] mock save → toast「模拟基数保存拒绝」+ chip 仍 `n:1` → 重试成功 `1:1`；定位 `erd-edge-label` / `erd-edge-cardinality` / `role=option`（勿扫 `.ant-*`） ✅`canvas-cardinality-failure.spec.ts`
+- [x] [画布边 ON DELETE/UPDATE 可编辑] 点 chip → `erd-edge-delete-rule`/`erd-edge-update-rule`；失败 toast 保持空 → 重试 CASCADE/RESTRICT 落盘 + 刷新；定位勿扫 `.ant-*` ✅`canvas-fk-meta-edit.spec.ts`
 - [x] [数据类型字典落盘失败可重试] 设置页新增类型 mock save → toast「模拟数据类型保存拒绝」+ 窗仍开、表无新行 → 重试成功入表；定位 `datatype-domains-page` / `role=dialog` / aria-label（勿扫 `.ant-*`） ✅`datatype-domains-failure.spec.ts`
 - [x] [ERD 导入落盘失败可重试] 项目菜单→解析ERD mock save → toast「模拟ERD导入保存拒绝」+ 窗仍开、树无「ERD导入」→ 重传成功入树；定位 `role=dialog` / complementary（勿扫 `.ant-*`） ✅`import-erd-failure.spec.ts`
 - [x] [默认数据源切换落盘失败可重试] 数据源设置：两源切默认 mock save → toast「模拟默认数据源保存拒绝」+「当前使用的数据源」仍为第一源 → 重试切到第二源；定位 `role=radio` aria「设为默认数据源 …」（勿扫 `.ant-*`） ✅`default-db-failure.spec.ts`

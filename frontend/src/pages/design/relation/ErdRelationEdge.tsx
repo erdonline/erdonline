@@ -1,8 +1,8 @@
 /**
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
- * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；两端 Crow's foot（IE）；分享只读。
+ * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；ON DELETE/UPDATE 参照动作；两端 Crow's foot（IE）；分享只读。
  */
-import React, { memo, useCallback, useMemo, useState } from 'react';
+import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   BaseEdge,
   EdgeLabelRenderer,
@@ -22,6 +22,7 @@ import {
   ERD_EDGE_TYPE,
   EdgeLabelAnchor,
   ErdEdgeData,
+  FK_RULE_OPTIONS,
   crowFootMarkersForRelation,
   edgeLabelBundleStretch,
   edgeLabelLaneStretch,
@@ -73,6 +74,16 @@ const CARDINALITY_SELECT_OPTIONS = CARDINALITY_OPTIONS.map((v) => ({
   label: v,
 }));
 
+const DELETE_RULE_SELECT_OPTIONS = [
+  { value: '', label: 'ON DELETE · 默认' },
+  ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON DELETE ${v}` })),
+];
+
+const UPDATE_RULE_SELECT_OPTIONS = [
+  { value: '', label: 'ON UPDATE · 默认' },
+  ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON UPDATE ${v}` })),
+];
+
 function ErdRelationEdge({
   id,
   source,
@@ -101,8 +112,51 @@ function ErdRelationEdge({
   const editable = !!data?.editable;
   const tabbable = !!data?.tabbable;
   const [editing, setEditing] = useState(false);
+  const [cardOpen, setCardOpen] = useState(false);
+  const editorRef = useRef<HTMLDivElement | null>(null);
+  const cardOpenRef = useRef(false);
+  cardOpenRef.current = cardOpen;
   // 垂直 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
+
+  const openEditor = () => {
+    setEditing(true);
+    setCardOpen(true);
+  };
+
+  const closeEditor = () => {
+    setEditing(false);
+    setCardOpen(false);
+  };
+
+  useEffect(() => {
+    if (!editing || !editable) return undefined;
+    const onPointerDown = (e: PointerEvent) => {
+      const t = e.target as Node | null;
+      if (!t) return;
+      if (editorRef.current?.contains(t)) return;
+      const el = t as Element;
+      // antd Select 下拉 / 全局 toast 挂 body，勿误关编辑器
+      if (el.closest?.('.ant-select-dropdown, .ant-message, .ant-notification')) return;
+      closeEditor();
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      e.preventDefault();
+      // 先收基数下拉，再关编辑器（避免 Esc 一步拆整块）
+      if (cardOpenRef.current) {
+        setCardOpen(false);
+        return;
+      }
+      closeEditor();
+    };
+    document.addEventListener('pointerdown', onPointerDown, true);
+    document.addEventListener('keydown', onKeyDown, true);
+    return () => {
+      document.removeEventListener('pointerdown', onPointerDown, true);
+      document.removeEventListener('keydown', onKeyDown, true);
+    };
+  }, [editing, editable]);
 
   const obstacles = useStore(
     useCallback(
@@ -281,12 +335,13 @@ function ErdRelationEdge({
     const from = data?.assocFrom;
     const to = data?.assocTo;
     if (!mod || !from || !to) {
-      setEditing(false);
+      closeEditor();
       return;
     }
+    setCardOpen(false);
     // 禁止本地 mutate 即换基数；仅 saveProject code===200 写 store；失败保持原基数可再选
     void (async () => {
-      const ok = await Promise.resolve(
+      await Promise.resolve(
         useProjectStore.getState().dispatch.updateAssociationRelation(
           mod,
           { from, to },
@@ -294,20 +349,40 @@ function ErdRelationEdge({
           { persist: true },
         ),
       );
-      if (ok) {
-        setEditing(false);
-      }
+    })();
+  };
+
+  const commitFkMeta = (meta: { deleteRule?: string; updateRule?: string }) => {
+    const mod = data?.moduleName;
+    const from = data?.assocFrom;
+    const to = data?.assocTo;
+    if (!mod || !from || !to) {
+      closeEditor();
+      return;
+    }
+    void (async () => {
+      await Promise.resolve(
+        useProjectStore.getState().dispatch.updateAssociationFkMeta(
+          mod,
+          { from, to },
+          meta,
+          { persist: true },
+        ),
+      );
     })();
   };
 
   const fkMeta = formatAssociationFkMeta(data);
   const baseAria = editable
-    ? `关系基数 ${displayLabel || '未设'}，点击修改；Delete 删除关系`
+    ? `关系基数 ${displayLabel || '未设'}，点击修改基数与 ON DELETE/UPDATE；Delete 删除关系`
     : displayLabel
       ? `关系 ${displayLabel}`
       : undefined;
   const ariaLabel =
     baseAria && fkMeta ? `${baseAria}（${fkMeta}）` : baseAria;
+
+  const deleteRuleValue = data?.deleteRule || '';
+  const updateRuleValue = data?.updateRule || '';
 
   return (
     <>
@@ -351,6 +426,7 @@ function ErdRelationEdge({
       {hasLabel || editable ? (
         <EdgeLabelRenderer>
           <div
+            ref={editorRef}
             className={`erd-edge-label nodrag nopan${editable ? ' erd-edge-label--editable' : ''}${
               editing ? ' erd-edge-label--editing' : ''
             }`}
@@ -364,7 +440,7 @@ function ErdRelationEdge({
               editable && !editing
                 ? (e) => {
                     e.stopPropagation();
-                    setEditing(true);
+                    openEditor();
                   }
                 : undefined
             }
@@ -405,7 +481,7 @@ function ErdRelationEdge({
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       e.stopPropagation();
-                      setEditing(true);
+                      openEditor();
                     }
                   }
                 : undefined
@@ -422,23 +498,55 @@ function ErdRelationEdge({
             }}
           >
             {editing && editable ? (
-              <Select
-                size="small"
-                autoFocus
-                open
-                className="erd-edge-cardinality-select"
-                data-testid="erd-edge-cardinality"
-                aria-label="选择关系基数"
-                value={isCardinality(String(currentValue)) ? currentValue : 'n:1'}
-                options={CARDINALITY_SELECT_OPTIONS}
-                onChange={(v) => commitRelation(String(v))}
-                onDropdownVisibleChange={(vis) => {
-                  if (!vis) setEditing(false);
-                }}
-                getPopupContainer={() => document.body}
-                style={{ width: 72, fontSize: EDGE_LABEL_FONT_SIZE }}
-                popupMatchSelectWidth={false}
-              />
+              <div
+                className="erd-edge-fk-editor"
+                data-testid="erd-edge-fk-editor"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Select
+                  size="small"
+                  autoFocus
+                  open={cardOpen}
+                  className="erd-edge-cardinality-select"
+                  data-testid="erd-edge-cardinality"
+                  aria-label="选择关系基数"
+                  value={isCardinality(String(currentValue)) ? currentValue : 'n:1'}
+                  options={CARDINALITY_SELECT_OPTIONS}
+                  onChange={(v) => commitRelation(String(v))}
+                  onDropdownVisibleChange={setCardOpen}
+                  getPopupContainer={() => document.body}
+                  style={{ width: 72, fontSize: EDGE_LABEL_FONT_SIZE }}
+                  popupMatchSelectWidth={false}
+                />
+                <Select
+                  size="small"
+                  className="erd-edge-fk-rule-select"
+                  data-testid="erd-edge-delete-rule"
+                  aria-label="ON DELETE"
+                  value={deleteRuleValue}
+                  options={DELETE_RULE_SELECT_OPTIONS}
+                  onClick={() => setCardOpen(false)}
+                  onFocus={() => setCardOpen(false)}
+                  onChange={(v) => commitFkMeta({ deleteRule: String(v ?? '') })}
+                  getPopupContainer={() => document.body}
+                  style={{ width: 148, fontSize: 11 }}
+                  popupMatchSelectWidth={false}
+                />
+                <Select
+                  size="small"
+                  className="erd-edge-fk-rule-select"
+                  data-testid="erd-edge-update-rule"
+                  aria-label="ON UPDATE"
+                  value={updateRuleValue}
+                  options={UPDATE_RULE_SELECT_OPTIONS}
+                  onClick={() => setCardOpen(false)}
+                  onFocus={() => setCardOpen(false)}
+                  onChange={(v) => commitFkMeta({ updateRule: String(v ?? '') })}
+                  getPopupContainer={() => document.body}
+                  style={{ width: 148, fontSize: 11 }}
+                  popupMatchSelectWidth={false}
+                />
+              </div>
             ) : (
               displayLabel || 'n:1'
             )}

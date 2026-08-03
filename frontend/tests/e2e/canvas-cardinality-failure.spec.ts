@@ -104,6 +104,9 @@ test.describe('画布改边基数落盘失败可重试', () => {
         await page.getByRole('option', { name: '1:1' }).click();
 
         await expectToast(page, /模拟基数保存拒绝/);
+        await page.keyboard.press('Escape');
+        await page.keyboard.press('Escape');
+        await expect(page.getByTestId('erd-edge-fk-editor')).toHaveCount(0);
         await expect(page.getByTestId('erd-edge-label')).toHaveText('n:1');
         await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
           'data-relation',
@@ -114,6 +117,8 @@ test.describe('画布改边基数落盘失败可重试', () => {
         await page.getByTestId('erd-edge-label').click();
         await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
         await page.getByRole('option', { name: '1:1' }).click();
+        await page.keyboard.press('Escape');
+        await page.keyboard.press('Escape');
         await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1', { timeout: 15_000 });
         await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
           'data-relation',

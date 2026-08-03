@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 体验：画布边 ON DELETE / ON UPDATE 可编辑
+
+- 选题：`2725227` 逆向已落 `deleteRule`/`updateRule`；chip 仅 title 可读 → 新建边无法设 CASCADE
+- `ErdRelationEdge`：点 chip 编辑器 = 基数 + ON DELETE/UPDATE（空=方言默认）；Esc/点外关闭
+- `updateAssociationFkMeta`：persist-on-200；同 `constraintName` 拆边同步（ADR-0011）；失败保持原值
+- E2E：`canvas-fk-meta-edit`（失败回滚 → CASCADE/RESTRICT 落盘 + 刷新）；基数用例适配 Esc 关编辑器
+- 未做：DDL `FOREIGN KEY` 回写；复合 `fields[]`（ADR-0011）
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/canvas-fk-meta-edit.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/canvas-cardinality-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据类型字典逻辑类型 apply 方言可视化编辑
 
 - 选题：`4dab9a5`/`2c3e3cc` 枚举与选型已闭环；逻辑类型 Modal 仍静默沿用/空 `apply`，无法按 MYSQL/PG/… 填物理类型

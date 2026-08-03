@@ -20,7 +20,7 @@ import {
   updateFrameBounds as applyFrameBounds,
   upsertDiagramLayout,
 } from "@/utils/diagram";
-import { normalizeRelation } from "@/utils/relationEdges";
+import { normalizeFkRule, normalizeRelation } from "@/utils/relationEdges";
 import {
   ackManualPersist,
   persistProjectNow,
@@ -156,6 +156,17 @@ export interface IModulesDispatchSlice {
     moduleName: string,
     association: { from: { entity: string; field: string }; to: { entity: string; field: string } },
     relation: string,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
+  /**
+   * 改关联 FK 参照动作（deleteRule / updateRule；from/to 定位）。
+   * 空串清除；同 constraintName 拆边同步写（ADR-0011 复合拆边）。
+   * persist:true 时仅 saveProject code===200 写 store。
+   */
+  updateAssociationFkMeta: (
+    moduleName: string,
+    association: { from: { entity: string; field: string }; to: { entity: string; field: string } },
+    meta: { deleteRule?: string; updateRule?: string },
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
   undoCanvas: () => void;
@@ -1443,6 +1454,135 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       (m: any) =>
         m?.name === moduleName
         && (m.associations || []).some((a: any) => matches(a) && a.relation === next),
+    );
+    if (!updated) {
+      message.warning('未找到该关联');
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(nextProject, '关系保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = nextProject.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
+  },
+  // 改关联 ON DELETE / ON UPDATE；persist:true 时仅 saveProject code===200 写 store
+  updateAssociationFkMeta: (moduleName, association, meta, opts?) => {
+    const persist = !!opts?.persist;
+    const patch: { deleteRule?: string; updateRule?: string } = {};
+    if (Object.prototype.hasOwnProperty.call(meta, 'deleteRule')) {
+      const n = normalizeFkRule(meta.deleteRule);
+      if (n === null) {
+        message.warning('ON DELETE 取值无效');
+        return persist ? Promise.resolve(false) : undefined;
+      }
+      patch.deleteRule = n;
+    }
+    if (Object.prototype.hasOwnProperty.call(meta, 'updateRule')) {
+      const n = normalizeFkRule(meta.updateRule);
+      if (n === null) {
+        message.warning('ON UPDATE 取值无效');
+        return persist ? Promise.resolve(false) : undefined;
+      }
+      patch.updateRule = n;
+    }
+    if (!Object.keys(patch).length) {
+      message.warning('未指定要修改的参照动作');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const matches = (a: any) =>
+      a?.from?.entity === association.from?.entity &&
+      a?.from?.field === association.from?.field &&
+      a?.to?.entity === association.to?.entity &&
+      a?.to?.field === association.to?.field;
+
+    const applyPatchTo = (a: any) => {
+      if (Object.prototype.hasOwnProperty.call(patch, 'deleteRule')) {
+        if (patch.deleteRule) {
+          a.deleteRule = patch.deleteRule;
+        } else {
+          delete a.deleteRule;
+        }
+      }
+      if (Object.prototype.hasOwnProperty.call(patch, 'updateRule')) {
+        if (patch.updateRule) {
+          a.updateRule = patch.updateRule;
+        } else {
+          delete a.updateRule;
+        }
+      }
+    };
+
+    const applyUpdate = (modules: any[]): boolean => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return false;
+      }
+      const list = module.associations || [];
+      const target = list.find(matches);
+      if (!target) {
+        return false;
+      }
+      applyPatchTo(target);
+      const cName = target.constraintName;
+      if (cName) {
+        for (const a of list) {
+          if (a !== target && a?.constraintName === cName) {
+            applyPatchTo(a);
+          }
+        }
+      }
+      return true;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      let found = false;
+      set(produce(state => {
+        found = applyUpdate(state.project.projectJSON?.modules);
+      }));
+      if (!found) {
+        message.warning('未找到该关联');
+      }
+      return;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const nextProject = produce(project, (draft: any) => {
+      applyUpdate(draft.projectJSON?.modules);
+    });
+    const updated = (nextProject.projectJSON?.modules as any[])?.some(
+      (m: any) =>
+        m?.name === moduleName
+        && (m.associations || []).some((a: any) => {
+          if (!matches(a)) return false;
+          if (Object.prototype.hasOwnProperty.call(patch, 'deleteRule')) {
+            const got = a.deleteRule || '';
+            if (got !== patch.deleteRule) return false;
+          }
+          if (Object.prototype.hasOwnProperty.call(patch, 'updateRule')) {
+            const got = a.updateRule || '';
+            if (got !== patch.updateRule) return false;
+          }
+          return true;
+        }),
     );
     if (!updated) {
       message.warning('未找到该关联');
