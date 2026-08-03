@@ -48,6 +48,7 @@
 | 版本对比/详情 diff Modal | 打开首焦 / Esc / Tab trap | 比对→「初始版本」；详情→「导出变更清单」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-diff-keyboard` |
 | 同步配置/重建版本 Modal | 打开首焦 / Esc / Tab trap | 同步配置→「字段增量」；重建版本→「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-rebuild-keyboard` |
 | 初始化基线 Modal | 打开首焦 / Esc / Tab trap | 首焦「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-init-keyboard` |
+| 复刻 Modal | 打开首焦 / Esc / Tab trap | 首焦「项目名」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-copy-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
