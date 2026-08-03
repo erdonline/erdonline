@@ -99,6 +99,7 @@
 | `/design/table/model` | 表节点「索引」`canvas-open-index` | 直达表设计索引签（`aria-selected`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开索引签」 |
 | `/design/table/model` | 索引签空态 CTA `index-empty-add` | 「添加第一个索引」→ 种子行 + 表格；无白屏 | | ✅ | `relation`「索引签空态 CTA」 |
 | `/design/table/model` | 表节点「字段」`canvas-open-field` | 直达表设计字段签（`aria-selected` + `table-field-edit`）；可切索引后再经画布重入 | | ✅ | `relation`「画布打开字段签」 |
+| `/design/table/model` | 表节点「元数据」`canvas-open-code` | 直达表设计元数据应用签（`aria-selected` + `table-code-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开元数据应用签」 |
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新；chnname 双栏内联 | | ✅ | `relation`「改名」/「表头中文名」 |
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后移除+toast | | ✅ | `smoke` 取消/确认 |

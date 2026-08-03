@@ -973,6 +973,27 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           >
             索引
           </button>
+          <button
+            type="button"
+            className="erd-open-design__btn"
+            data-testid="canvas-open-code"
+            aria-label="打开元数据应用"
+            title="打开表设计 · 元数据应用"
+            onClick={e => {
+              e.stopPropagation();
+              const projectDispatch = useProjectStore.getState().dispatch;
+              projectDispatch.setCurrentModule(moduleName);
+              projectDispatch.setCurrentEntity(moduleName, entity.title);
+              useTabStore.getState().dispatch.addTab({
+                group: TabGroup.MODEL,
+                module: moduleName,
+                entity: entity.title,
+                designPane: 'code',
+              });
+            }}
+          >
+            元数据
+          </button>
         </div>
       </div>
     </div>

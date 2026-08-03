@@ -30,6 +30,7 @@
 - [x] 画布「索引」→ 表设计索引签（无死 affordance；再入仍落索引）✅`relation.spec.ts`「画布打开索引签」
 - [x] [索引签空态 CTA] 画布→索引见「还没有索引」+「添加第一个索引」→ toast「索引更新成功」+ 表头「索引名*」+ `T_TABLE_1_IDX1`；空态消失 ✅`relation.spec.ts`「索引签空态 CTA」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
+- [x] 画布「元数据」→ 表设计元数据应用签（无死 affordance；再入仍落元数据应用）✅`relation.spec.ts`「画布打开元数据应用签」
 
 ### 手工
 
