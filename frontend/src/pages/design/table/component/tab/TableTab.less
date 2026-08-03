@@ -60,49 +60,84 @@
 }
 
 .erd-table-design__tabs {
+  --erd-inner-tabs-h: 24px;
+
   flex: 1;
   min-height: 0;
   display: flex;
   flex-direction: column;
   padding: 0 10px;
 
-  .ant-tabs-nav {
-    margin-bottom: 6px;
+  /* ADR-0016：字段/索引/元数据内签栏显式 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
+  > .ant-tabs-nav {
+    height: var(--erd-inner-tabs-h);
+    margin-bottom: 4px !important;
     flex-shrink: 0;
+    /* 勿 overflow:hidden：会裁标签与 inset focus 环 */
+    overflow: visible;
+  }
 
-    .ant-tabs-tab {
-      font-size: 12px;
-      color: var(--erd-ink-600);
-      padding: 4px 2px;
-      margin-right: 12px;
-      line-height: 16px;
+  > .ant-tabs-nav .ant-tabs-nav-wrap {
+    height: var(--erd-inner-tabs-h);
+    overflow-y: visible;
+  }
 
-      &:hover {
-        color: var(--erd-brand);
-      }
+  > .ant-tabs-nav .ant-tabs-nav-list {
+    height: var(--erd-inner-tabs-h);
+    align-items: stretch;
+  }
 
-      &:focus-visible,
-      &.ant-tabs-tab-focus {
-        outline: 2px solid var(--erd-brand);
-        outline-offset: -2px;
-      }
+  > .ant-tabs-nav .ant-tabs-tab {
+    display: inline-flex !important;
+    align-items: center !important;
+    height: var(--erd-inner-tabs-h) !important;
+    padding: 0 6px !important;
+    margin: 0 8px 0 0 !important;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--erd-ink-600);
+    box-sizing: border-box !important;
 
-      &.ant-tabs-tab-active .ant-tabs-tab-btn {
-        color: var(--erd-brand);
-        font-weight: 600;
-      }
+    &:hover {
+      color: var(--erd-brand);
     }
 
-    .ant-tabs-tab-btn:focus-visible {
+    &:focus-visible,
+    &.ant-tabs-tab-focus {
       outline: 2px solid var(--erd-brand);
-      outline-offset: 1px;
+      outline-offset: -2px;
+      z-index: 1;
     }
 
-    .ant-tabs-ink-bar {
-      background: var(--erd-brand);
-      height: 2px;
-      border-radius: 2px;
+    &.ant-tabs-tab-active .ant-tabs-tab-btn {
+      color: var(--erd-brand);
+      font-weight: 600;
     }
+  }
+
+  > .ant-tabs-nav .ant-tabs-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-tab-btn:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -1px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-ink-bar {
+    background: var(--erd-brand);
+    height: 2px;
+    border-radius: 2px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-nav-more {
+    display: inline-flex !important;
+    align-items: center;
+    padding: 0 6px !important;
+    height: var(--erd-inner-tabs-h);
   }
 
   .ant-tabs-content-holder {

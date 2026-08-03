@@ -597,4 +597,117 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：表设计内签（字段/索引/元数据）栏显式 ~24 —
+   * 对齐 CommonTabs；禁 clip；保留 focus-visible + Cmd+1/2/3
+   */
+  test('表设计内签：字段/索引/元数据栏 ~24', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('innerdense');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByTestId('add-module-empty').click();
+      await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-chnname').fill('商城');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+
+      for (const name of ['字段', '索引', '元数据应用']) {
+        await expect(designer.getByRole('tab', { name })).toBeVisible();
+      }
+
+      const chromeMetrics = await designer.evaluate((root) => {
+        const nav = root.querySelector('#tableNav > .ant-tabs-nav') as HTMLElement | null;
+        const tab = root.querySelector(
+          '#tableNav > .ant-tabs-nav .ant-tabs-tab-active',
+        ) as HTMLElement | null;
+        const btn = tab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
+        if (!nav || !tab || !btn) {
+          return { navH: -1, tabH: -1, labelClipped: true };
+        }
+        const eps = 2;
+        const nr = nav.getBoundingClientRect();
+        const tr = tab.getBoundingClientRect();
+        const br = btn.getBoundingClientRect();
+        return {
+          navH: nr.height,
+          tabH: tr.height,
+          labelClipped:
+            br.top < tr.top - eps ||
+            br.bottom > tr.bottom + eps ||
+            br.top < nr.top - eps ||
+            br.bottom > nr.bottom + eps,
+        };
+      });
+
+      expect(
+        chromeMetrics.navH,
+        `表设计内签栏高应 ≤26（目标 ~24），得 ${chromeMetrics.navH}`,
+      ).toBeLessThanOrEqual(26);
+      expect(chromeMetrics.navH).toBeGreaterThanOrEqual(20);
+      expect(chromeMetrics.tabH).toBeLessThanOrEqual(26);
+      expect(chromeMetrics.labelClipped, '内签标签不得被裁切').toBe(false);
+
+      await designer.getByRole('tab', { name: '索引' }).click();
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-index-edit')).toBeVisible();
+
+      await designer.getByRole('tab', { name: '字段' }).focus();
+      await page.keyboard.press('Tab');
+      const afterTab = await page.evaluate(() => {
+        const ae = document.activeElement as HTMLElement | null;
+        if (!ae) return null;
+        const cs = getComputedStyle(ae);
+        return {
+          inDesigner: !!ae.closest('[data-testid="table-design"]'),
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(afterTab?.inDesigner, 'Tab 应留在表设计内').toBe(true);
+      expect(afterTab?.outlineStyle).not.toBe('none');
+      expect(parseFloat(afterTab?.outlineWidth || '0')).toBeGreaterThanOrEqual(1);
+
+      const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+      await page.keyboard.press(`${mod}+3`);
+      await expect(designer.getByRole('tab', { name: '元数据应用' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.keyboard.press(`${mod}+1`);
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.keyboard.press(`${mod}+2`);
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-inner-tabs-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
