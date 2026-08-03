@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：表设计删索引确认弹层键盘闭环（Modal.confirm）
+
+- 选题：`TableIndexEdit`「删除索引」`Modal.confirm` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `updateEntityIndex` 逻辑不变；半成品行 toast 行为不动
+- E2E：`table-index-delete-keyboard`（画布→索引→添加 →「删除索引」→ 首焦、Esc 归还不删、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → JExcel 工具栏删行确认 Modal 键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/table-index-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布删字段确认弹层键盘闭环（Modal.confirm）
 
 - 选题：字段浏览器 × / 浏览态 Delete·Backspace 共用的 `confirmRemoveField` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `removeField` 逻辑不变
 - E2E：`canvas-delete-field-keyboard`（空态建表 → 加字段 → ×「删除字段」→ 首焦、Esc 归还不删、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 表设计删索引确认 Modal 键盘（`TableIndexEdit`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~表设计删索引确认 Modal 键盘（`TableIndexEdit`）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-delete-field-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
