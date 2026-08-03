@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：登录壳键盘（Skip + Tab 序 + Enter 提交 + focus-visible）
+
+- 选题：`/login` 进页 Tab 先扫左品牌面板；暗面板焦点环弱；无 Skip 直达表单
+- 改动：`AuthBrandShell` 首焦 Skip「跳到登录表单」→ `#auth-form-anchor`（`tabIndex=-1`）；壳内 `:focus-visible` brand 环（暗面板 surface）；密码框 Enter 提交既有；注册壳共用
+- E2E：`session`「登录壳键盘：Skip→表单；Tab 序；Enter 提交；focus-visible；无 trap」
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 注册壳核对或落地页键盘打磨
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "登录壳键盘" --workers=1 --retries=0`
+
 #### 体验：分享壳键盘（Skip + Controls Tab + focus-visible）
 
 - 选题：公开/分享只读进页 Tab 先扫顶栏；画布主操作键盘摩擦未对齐设计器 Skip / chrome 序
 - 改动：分享页首焦 Skip「跳到关系图」→ `#share-canvas-stage`（`tabIndex=-1`）；模块 Segmented 包 `role=group` `aria-label=切换模块`；壳内 `:focus-visible` brand 环
 - E2E：`share`「分享壳键盘：Skip→关系图；Controls 可达；MiniMap 出序；focus-visible」（`/demo`）
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 登录壳键盘或设计器碎活打磨
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → ~~登录壳键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "分享壳键盘" --workers=1 --retries=0`

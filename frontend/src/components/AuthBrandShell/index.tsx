@@ -12,6 +12,15 @@ type AuthBrandShellProps = {
   children: React.ReactNode;
   /** 表单下方文字链 */
   footer?: React.ReactNode;
+  /** Skip 链文案；默认「跳到表单」 */
+  skipLabel?: string;
+};
+
+const focusSkipTarget = (id: string) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.focus({preventScroll: false});
+  el.scrollIntoView({block: 'nearest'});
 };
 
 /**
@@ -23,9 +32,23 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
   subtitle = '开源数据库建模：版本与协作，像 Git + Figma',
   children,
   footer,
+  skipLabel = '跳到表单',
 }) => {
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
+      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="auth-skip-nav">
+        <a
+          href="#auth-form-anchor"
+          className="erd-skip-link"
+          data-testid="auth-skip-form"
+          onClick={(e) => {
+            e.preventDefault();
+            focusSkipTarget('auth-form-anchor');
+          }}
+        >
+          {skipLabel}
+        </a>
+      </nav>
       <aside className="auth-shell__brand" data-testid="auth-brand-panel" aria-label="产品介绍">
         <a className="auth-shell__brand-logo" href="/" aria-label="ERD Online 首页">
           <img src="/logo.svg" alt="" width={36} height={36} />
@@ -46,7 +69,12 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
       </aside>
 
       <main className="auth-shell__form">
-        <div className="auth-shell__form-inner">
+        <div
+          className="auth-shell__form-inner"
+          id="auth-form-anchor"
+          tabIndex={-1}
+          data-testid="auth-form-anchor"
+        >
           <div className="auth-shell__form-header">
             <img src="/logo.svg" alt="ERD Online" width={48} height={48} />
             <Typography.Title level={3} className="auth-shell__form-title">

@@ -39,6 +39,7 @@
 - [x] [左树键盘漫游] Skip→↓入树；active `data-tree-kb-active` brand 环；Enter 定位表 + 开关系；Skip→Tab 进搜索无 trap ✅`relation.spec.ts`「左树键盘漫游」
 - [x] [画布节点级 Tab] 无选中无 RF node wrapper/`erd-edge-label` 进序；选中边 chip Enter 开基数；Frame Enter 重命名 ✅`relation.spec.ts`「画布节点级 Tab」
 - [x] [分享壳键盘] `/demo` 首项 Tab Skip「跳到关系图」→ stage → Tab 离地标；Controls 三钮进序；MiniMap `tabindex=-1`；适应画布 focus-visible brand 环 ✅`share.spec.ts`「分享壳键盘」
+- [x] [登录壳键盘] `/login` 首项 Tab Skip「跳到登录表单」→ `#auth-form-anchor` → Tab 入用户名；密码 Enter 错误凭证 toast；登录钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「登录壳键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
@@ -155,6 +156,7 @@
 - [x] [dataSources] 登录后 `GET /ncnb/dataSources?size=10&current=1` → 200（表 `data_sources`）✅`audit-fe-apis.sh`
 - [x] [注册放行] 匿名 `POST /ncnb/project/group/user/register`（body: username/pwd/email/phone）→ 非 401 ✅curl
 - [x] [R-AUTH-01] 匿名 `GET /user/loadUserByUsername/admin` → 401；登录 `/auth/login` 仍 200 ✅curl + `RemoteSystemUserHttpContractTest`
+- [x] [R-DATA-02 dataSourceId] `POST /ncnb/connector/ping` 含他人 `dataSourceId` → body `code=403`；自有 id 覆盖客户端伪账密；无 id raw `jdbc:h2` 仍拒 ✅curl + `ConnectorCredentialResolverTest`
 - [x] [queryHistory] `POST /ncnb/queryHistory` 分页 → 200（禁止 GET）✅`audit-fe-apis.sh`
 - [x] [ADR-0008 分享] 匿名 GET projectJSON.profile.dbs 为空数组 ✅`ProjectShareSanitizeTest`
 - [x] [分享 Fork] 匿名点「复制到我的项目」→ `/login?redirect=`；登录后 fork 进设计器 ✅`share.spec.ts`
