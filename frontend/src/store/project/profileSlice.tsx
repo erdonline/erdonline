@@ -24,6 +24,11 @@ import {
 } from '@/utils/diagram';
 import { resolveEntityPositions } from '@/utils/graphLayout';
 import { suggestImportFrames } from '@/utils/suggestImportFrames';
+import {
+  ackManualPersist,
+  persistProjectNow,
+} from '@/store/project/projectAutosave';
+import type { PersistOpt } from '@/store/project/persistOpt';
 
 export type IProfileSlice = {
   currentDbKey?: string;
@@ -31,9 +36,10 @@ export type IProfileSlice = {
 }
 
 export interface IProfileDispatchSlice {
-  addDefaultFields: (defaultFieldsIndex: number, payload: any) => void;
-  removeDefaultFields: (defaultFieldsIndex: number) => void;
-  updateDefaultFields: (payload: any) => void;
+  updateDefaultFields: (
+    payload: any,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
 
   updateDefaultFieldsType: (payload: any) => void;
   updateSqlConfig: (payload: any) => void;
@@ -99,27 +105,45 @@ function reverseParseErrorText(source: unknown): string {
 }
 
 
-/** 表格编辑会连触发多次 update；合并为一次可见成功提示 */
-let defaultFieldsToastTimer: ReturnType<typeof setTimeout> | undefined;
-
 const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
-  addDefaultFields: (defaultFieldsIndex: number, payload: any) => set(produce(state => {
-    state.project.projectJSON.profile.defaultFields[defaultFieldsIndex].push(payload);
-  })),
-  removeDefaultFields: (defaultFieldsIndex: number) => set(produce(state => {
-    delete state.project.projectJSON.profile.defaultFields[defaultFieldsIndex];
-  })),
-  updateDefaultFields: (payload: any) => {
-    set(produce(state => {
-      state.project.projectJSON.profile.defaultFields = payload;
-    }));
-    if (defaultFieldsToastTimer) {
-      clearTimeout(defaultFieldsToastTimer);
+  /**
+   * 禁止本地 mutate 即 toast「默认字段已更新」：
+   * persist:true 时仅 saveProject code===200 写 store + 成功 toast。
+   */
+  updateDefaultFields: (payload: any, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    const project = get().project;
+    if (!project?.projectJSON?.profile) {
+      message.error('未打开项目');
+      return persist ? Promise.resolve(false) : undefined;
     }
-    defaultFieldsToastTimer = setTimeout(() => {
+
+    if (!persist) {
+      set(produce((state: any) => {
+        state.project.projectJSON.profile.defaultFields = payload;
+      }));
+      return;
+    }
+
+    const next = produce(project, (draft: any) => {
+      if (!draft.projectJSON.profile) {
+        draft.projectJSON.profile = {};
+      }
+      draft.projectJSON.profile.defaultFields = payload;
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '默认字段保存失败');
+      if (!saved) {
+        return false;
+      }
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
       message.success('默认字段已更新');
-      defaultFieldsToastTimer = undefined;
-    }, 500);
+      return true;
+    })();
   },
 
   updateDefaultFieldsType: (payload: any) => set(produce(state => {

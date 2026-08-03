@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：默认字段落盘失败可重试
+
+- 选题：默认字段 JExcel / 弹窗 HotTable `updateDefaultFields` 本地 mutate 即 debounce toast「默认字段已更新」；autosave 失败像已改模板；死代码 `moveField` / `addDefaultFields` / `removeDefaultFields` 零引用且本地 mutate 即成功
+- `updateDefaultFields` 支持 `persist:true`；设置页与默认项弹窗队列 latest-wins，仅 code===200 写 store + 成功 toast；失败 toast + `sheetEpoch` 重挂回滚；`aria-busy`
+- 清死代码：实体 `moveField`（行序改动已由 JExcel `onmoverow` → `updateEntityFields` persist 覆盖）；profile `addDefaultFields` / `removeDefaultFields`
+- E2E：`default-field-failure.spec.ts` mock save → toast + 回滚 `id` → 重试成功 + 新表带重命名默认字段
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify chrome ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/default-field-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/default-field.spec.ts --project=chromium --workers=1 --retries=0 --grep "编辑保存有 toast"`
+
 #### 体验：表设计索引签落盘失败可重试
 
 - 选题：索引签 `updateEntityIndex`（空态添加 / JExcel 改名·字段·唯一 / 再加一行 / 删除）本地 mutate 即 toast「索引更新成功」；autosave 失败像已改索引
 - `updateEntityIndex` 支持 `persist:true`；`TableIndexEdit` 全路径 await save；仅 code===200 写 store + 成功 toast；失败 toast + 空态保留或 `sheetEpoch` 重挂回滚；删索引确认失败拒关窗；`aria-busy`
 - E2E：`jexcel-index-failure.spec.ts` mock save（添加 / 勾是否唯一）→ toast + 回滚 → 重试成功 + 画布 UK
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI 或其它建模假成功路径
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~默认字段假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/jexcel-index-failure.spec.ts --project=chromium --workers=1 --retries=0`
