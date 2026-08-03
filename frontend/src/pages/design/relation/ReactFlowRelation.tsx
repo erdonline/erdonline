@@ -193,7 +193,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   /** 表头改名落盘中：禁二次提交 / Escape 误丢草稿 */
   const [headerSaving, setHeaderSaving] = useState(false);
   const headerSavingRef = useRef(false);
-  /** 行内新建字段落盘中：禁二次提交 / Escape 误丢草稿 */
+  /** 行内字段（新建/改名）落盘中：禁二次提交 / Escape 误丢草稿 */
   const [fieldSaving, setFieldSaving] = useState(false);
   const fieldSavingRef = useRef(false);
   /** 展开已隐藏字段列表，便于从图上恢复显示（不必绕表设计） */
@@ -379,66 +379,79 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         autoIncrement: current.autoIncrement,
       } as FieldData;
       nextFields = [...allFields, created];
-      // 禁止本地 mutate 即退出编辑；仅 saveProject code===200 关编辑态
-      fieldSavingRef.current = true;
-      setFieldSaving(true);
-      void (async () => {
-        try {
-          const ok = await Promise.resolve(
-            useProjectStore.getState().dispatch.updateEntityFields(
-              moduleName,
-              entity.title,
-              nextFields,
-              { persist: true },
-            ),
-          );
-          if (!ok) {
-            // 失败：草稿保留可重试；toast 由 request/persist
-            if (advance) {
-              ignoreBlurRef.current = false;
-            }
-            return;
+    } else {
+      nextFields = allFields.map(f => (
+        f.name === current.key
+          ? {
+            ...f,
+            name,
+            chnname,
+            defaultValue,
+            type: current.type,
+            pk: current.pk,
+            notNull: current.pk || current.notNull,
+            autoIncrement: current.autoIncrement,
           }
-          finishFieldCommit(nextFields, name, advance);
-        } catch {
-          message.error('字段保存失败');
+          : f
+      ));
+    }
+    // 禁止本地 mutate 即退出编辑；仅 saveProject code===200 关编辑态（新建 / 改名同构）
+    fieldSavingRef.current = true;
+    setFieldSaving(true);
+    void (async () => {
+      try {
+        const ok = await Promise.resolve(
+          useProjectStore.getState().dispatch.updateEntityFields(
+            moduleName,
+            entity.title,
+            nextFields,
+            { persist: true },
+          ),
+        );
+        if (!ok) {
+          // 失败：草稿保留可重试；toast 由 request/persist
           if (advance) {
             ignoreBlurRef.current = false;
           }
-        } finally {
-          fieldSavingRef.current = false;
-          setFieldSaving(false);
+          return;
         }
-      })();
-      return;
+        finishFieldCommit(nextFields, name, advance);
+      } catch {
+        message.error('字段保存失败');
+        if (advance) {
+          ignoreBlurRef.current = false;
+        }
+      } finally {
+        fieldSavingRef.current = false;
+        setFieldSaving(false);
+      }
+    })();
+  };
+
+  /** 先落盘再移出 UI；失败返回 false，字段仍在、可重试 */
+  const removeField = async (fieldName: string): Promise<boolean> => {
+    const nextFields = (entityFieldsRef.current || []).filter(f => f.name !== fieldName);
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.updateEntityFields(
+          moduleName,
+          entity.title,
+          nextFields,
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        return false;
+      }
+      setSelectedField(prev => (prev === fieldName ? null : prev));
+      return true;
+    } catch {
+      message.error('字段保存失败');
+      return false;
     }
-
-    nextFields = allFields.map(f => (
-      f.name === current.key
-        ? {
-          ...f,
-          name,
-          chnname,
-          defaultValue,
-          type: current.type,
-          pk: current.pk,
-          notNull: current.pk || current.notNull,
-          autoIncrement: current.autoIncrement,
-        }
-        : f
-    ));
-    // 既有字段改名仍走本地 + autosave（切片范围：新建字段先落盘）
-    editingRef.current = null;
-    onFieldsChange(nextFields);
-    finishFieldCommit(nextFields, name, advance);
   };
 
-  const removeField = (fieldName: string) => {
-    onFieldsChange((entity.fields || []).filter(f => f.name !== fieldName));
-    setSelectedField(prev => (prev === fieldName ? null : prev));
-  };
-
-  /** 破坏性：按钮 / 浏览态 Delete·Backspace 共用二次确认 */
+  /** 破坏性：按钮 / 浏览态 Delete·Backspace 共用二次确认；确认后落盘失败拒关窗可再点删除 */
   const confirmRemoveField = (fieldName: string) => {
     confirmDestructive({
       title: `确定删除字段 "${fieldName}" 吗?`,
@@ -446,8 +459,11 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
-      onOk() {
-        removeField(fieldName);
+      async onOk() {
+        const ok = await removeField(fieldName);
+        if (!ok) {
+          return Promise.reject(new Error('字段删除落盘失败'));
+        }
       },
     });
   };
