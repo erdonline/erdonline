@@ -284,11 +284,11 @@ test.describe('ADR-0008 数据源', () => {
       await expect(page.getByRole('row', { name: new RegExp(nameA) })).toHaveCount(0);
 
       const rowB = page.getByRole('row', { name: new RegExp(nameB) });
-      await rowB.getByRole('button', { name: '删除' }).click();
-      // Modal.confirm 会复制一份隐藏 title；以正文 + 确认钮为准
+      await rowB.getByRole('button', { name: `删除连接 ${nameB}` }).click();
+      // Modal.confirm 会复制一份隐藏 title；以正文 + 删除钮为准
       const dialog = page.getByRole('dialog').filter({ hasText: /不可逆/ });
       await expect(dialog.getByText(/不可逆/)).toBeVisible();
-      await dialog.getByRole('button', { name: /确\s*认/ }).click();
+      await dialog.getByRole('button', { name: /删\s*除/ }).click();
       await expect(page.getByText('删除成功').first()).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole('row', { name: new RegExp(nameB) })).toHaveCount(0, {
         timeout: 30_000,
