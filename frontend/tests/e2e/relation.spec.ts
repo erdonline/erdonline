@@ -988,22 +988,30 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await expect(page.getByRole('img', { name: '画布缩略图' })).toBeVisible();
+      const mmapImg = page.getByRole('img', { name: '画布缩略图' });
+      await expect(mmapImg).toBeVisible();
       await expect(page.getByLabel('React Flow mini map')).toHaveCount(0);
       await expect(page.getByText('React Flow mini map')).toHaveCount(0);
-      // ADR-0016：MiniMap 与 sunk 画布同底（背景在 panel）+ 紧凑尺寸
-      const mini = await page.locator('.react-flow__minimap').evaluate((el) => {
+      // ADR-0016：sunk 底 + 128×96 概览 + panel margin 8（禁 RF 默认 15）
+      const mini = await mmapImg.evaluate((svg) => {
+        const el = (svg.closest('.react-flow__minimap') || svg.parentElement) as HTMLElement;
         const cs = getComputedStyle(el);
         return {
           bg: cs.backgroundColor,
           w: parseFloat(cs.width),
           h: parseFloat(cs.height),
+          marginBottom: parseFloat(cs.marginBottom),
+          marginRight: parseFloat(cs.marginRight),
         };
       });
       expect(mini.bg).toBe('rgb(250, 251, 252)');
       expect(mini.w, `MiniMap 宽应 ≤128，得 ${mini.w}`).toBeLessThanOrEqual(128);
       expect(mini.h, `MiniMap 高应 ≤96，得 ${mini.h}`).toBeLessThanOrEqual(96);
       expect(mini.w).toBeGreaterThanOrEqual(100);
+      expect(mini.marginBottom, `MiniMap marginB 应 ≈8∈[8,12]，得 ${mini.marginBottom}`).toBeGreaterThanOrEqual(8);
+      expect(mini.marginBottom).toBeLessThanOrEqual(12);
+      expect(mini.marginRight, `MiniMap marginR 应 ≈8∈[8,12]，得 ${mini.marginRight}`).toBeGreaterThanOrEqual(8);
+      expect(mini.marginRight).toBeLessThanOrEqual(12);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-minimap-sunk.png',
         fullPage: false,

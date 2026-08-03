@@ -135,6 +135,7 @@
 
   // MiniMap：sunk 底 + 紧凑尺寸，禁 RF 默认 #fff 白块盖截图
   // Tab：d3-zoom 写 tabindex=0；ErdMiniMap 强制 -1（装饰，鼠标仍可拖）
+  // chrome：RF panel 默认 margin 15 相对 ADR-0016 8–12 偏松 → 8；尺寸 128×96 保留概览可读
   .react-flow__minimap {
     background-color: var(--erd-surface-sunk) !important;
     border: 1px solid var(--erd-line);
@@ -143,6 +144,7 @@
     box-shadow: 0 1px 2px var(--erd-ink-a06);
     width: 128px !important;
     height: 96px !important;
+    margin: 8px;
 
     svg:focus {
       outline: none;

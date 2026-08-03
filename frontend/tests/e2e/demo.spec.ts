@@ -99,18 +99,25 @@ test.describe('在线演示', () => {
     expect(frameLook!.metaSize).toBeLessThan(frameLook!.labelSize);
     expect(frameLook!.metaWeight).toBeLessThan(frameLook!.labelWeight);
     expect(frameLook!.metaOpacity).toBeLessThan(1);
-    // MiniMap 与 sunk 画布同底（禁 RF 默认 #fff；背景在 panel）+ 紧凑尺寸
-    const mini = await page.locator('.react-flow__minimap').evaluate((el) => {
+    // MiniMap：sunk 底 + 128×96 + panel margin 8（禁 RF 默认 15 / #fff）
+    const mini = await page.getByRole('img', { name: '画布缩略图' }).evaluate((svg) => {
+      const el = (svg.closest('.react-flow__minimap') || svg.parentElement) as HTMLElement;
       const cs = getComputedStyle(el);
       return {
         bg: cs.backgroundColor,
         w: parseFloat(cs.width),
         h: parseFloat(cs.height),
+        marginBottom: parseFloat(cs.marginBottom),
+        marginRight: parseFloat(cs.marginRight),
       };
     });
     expect(mini.bg).toBe('rgb(250, 251, 252)'); // surfaceSunk
     expect(mini.w, `MiniMap 宽应 ≤128，得 ${mini.w}`).toBeLessThanOrEqual(128);
     expect(mini.h, `MiniMap 高应 ≤96，得 ${mini.h}`).toBeLessThanOrEqual(96);
+    expect(mini.marginBottom, `MiniMap marginB 应 ≈8∈[8,12]，得 ${mini.marginBottom}`).toBeGreaterThanOrEqual(8);
+    expect(mini.marginBottom).toBeLessThanOrEqual(12);
+    expect(mini.marginRight).toBeGreaterThanOrEqual(8);
+    expect(mini.marginRight).toBeLessThanOrEqual(12);
     // Controls：surface + 密按钮；适应画布为主操作
     const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
       const cs = getComputedStyle(el);

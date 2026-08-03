@@ -194,6 +194,7 @@
 - [x] [Frame 标题栏密度] `.erd-frame-chrome` height ≤22；截图 `demo-frame-theme-tokens.png` ✅`demo.spec` + `diagram-frame.spec`
 - [x] [Frame 标题扫读] label ≥12/700 vs meta 更小/更轻 + `opacity < 1`；padX≥8；双击重命名仍在；截图 `diagram-frame-title-hierarchy.png` / `demo-frame-title-hierarchy.png` ✅`diagram-frame.spec`「新建分组」+ 重命名 + `demo.spec`
 - [x] [MiniMap sunk 对齐] 设计器/分享 MiniMap `backgroundColor` = surfaceSunk `#FAFBFC` + ≤128×96 紧凑；截图 `diagram-minimap-sunk.png` ✅`relation.spec`「MiniMap」+ `demo.spec`
+- [x] [MiniMap chrome margin] panel margin **8**∈[8,12]（禁 RF 默认 15）；尺寸 128×96 保留概览；`getByRole('img', { name: '画布缩略图' })`；Controls/版本工具条/Auth 不弱化 ✅`relation.spec`「MiniMap」+ `demo.spec`
 - [x] [Controls 面板密度] 按钮 ≤22×22、面板 `surface`（禁 RF `#fefefe`）；截图 `diagram-controls-dense.png` ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [Controls 扫读层次]「适应画布」`.erd-controls-primary` ink900 + muted 底；图标 ≥12；aria 不变 ✅`relation.spec`「Controls」+ `demo.spec`
 - [x] [选中光晕统一] 表 / Frame `box-shadow` 环均为 brand a18（`--erd-selection-ring`）；禁 Frame a12 ✅`diagram-frame.spec`「选中表→新建分组」+ `relation.spec`「品牌 token」

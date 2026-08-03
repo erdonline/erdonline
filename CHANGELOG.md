@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：MiniMap chrome margin 碎距
+
+- 选题：量测 MiniMap **128×96** / pad **0** / sunk 底已贴 ADR-0016 概览下限；RF panel 默认 **margin 15** 相对 8–12 族偏松；勿缩尺寸伤概览；跳过 Controls 按钮/版本工具条/Auth/欢迎
+- before：panel margin **15**（底/右偏 15）；after：margin **8**；宽高仍 **128×96**；`getByRole('img', { name: '画布缩略图' })`
+- E2E：`relation`「MiniMap」+ `demo` 锁 marginB/R ∈[8,12] + 既有 sunk/尺寸；截图 `diagram-minimap-sunk.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 边标签避让碎距 / 导入弹层 body（勿再压 MiniMap 尺寸 / 版本工具条）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "MiniMap" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录|/demo" --workers=1 --retries=0`
+
 #### 体验：左树/右键菜单 border-box 实密
 
 - 选题：量测 `.erd-dense-menu` CSS height/lh **28** 已写，但 antd dropdown 项默认 `box-sizing:content-box` + padY **5** → 命中高 **~33**，未贴 ADR-0016 ~28；版本列表工具条控件已 **24** 跳过；勿动 Auth/欢迎/Controls/审批/导出
 - before：项计算高 **~33**（height28 + padY5 content-box）；pad-inline 8；after：`border-box` + padY **0** / padX **8**；命中高 **≈28**；menuitem / ArrowDown / Esc 不弱化
 - E2E：`model-design-ux`「右键/树操作菜单密度」锁 h∈[26,30] / padY≤2 / border-box + 既有 clip/键盘；截图 `diagram-context-menu-dense.png`；定位 `getByLabel('表操作')` / `getByRole('menuitem')` / `testid=tree-node-menu`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → MiniMap chrome / 边标签避让碎距 / 导入弹层 body（版本工具条已密，勿再压）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~MiniMap chrome~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "右键/树操作菜单密度" --workers=1 --retries=0`
