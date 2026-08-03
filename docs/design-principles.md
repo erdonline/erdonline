@@ -116,6 +116,7 @@
 - ✅ 团队项目删确认弹层键盘：基本设置「删除团队项目」→ 首焦「删除」；Esc 关确认不删、归还删钮；Tab 困在确认 `role=dialog` 内
 - ✅ 团队成员移除确认弹层键盘：用户组成员「移除成员」→ 首焦「移除」；Esc 关确认不移、归还移除钮；Tab 困在确认 `role=dialog` 内
 - ✅ 审批动作确认弹层键盘：审批「通过/拒绝」/工单「撤销」→ 首焦主操作；Esc 关确认不落盘、归还触发器；Tab 困在确认 `role=dialog` 内（复批同构 `confirmDestructive`）
+- ✅ 审批/工单 SQL 明细键盘：行「查看SQL」→ `Modal.info` 首焦「知道了」；Esc/OK 关窗归还触发器；Tab 困在 `role=dialog` 内（`showSqlDetailModal`）
 - ✅ 破坏性确认统一 `confirmDestructive`：`frontend/src` 裸 `Modal.confirm` 仅留工具函数本体；版本「重建基线/同步确认」、逆向覆盖、画布/JExcel/索引删等均首焦 OK + Esc 归还 + Tab trap
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap

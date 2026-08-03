@@ -20,6 +20,7 @@
 - [x] 左树工具条/次密距：工具条 ≤32（目标 ~28）/ 新建·搜索控件 ∈24–28；图标不 clip；sider padX ≤20；新建 Tab focus-visible ✅`model-design-ux.spec.ts`
 - [x] CommonTabs / 表设计签头密度：签栏 ≤26（目标 ~24）+ 签头 ≤28；签头 padX≤8 / gap≤4；内签 gutter/marginR≤2；不 clip 标签/关闭；Tab focus-visible + Cmd+1/2/3；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`「表设计三签」「表设计内签」
 - [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 {表名}」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
+- [x] 审批/工单 SQL 明细：`Modal.info` 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤32；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 版本工具条二次密度/碎色：控件 ∈24–28；图标不 clip；增删摘要·hint 色 ≡ `--erd-success`/`--erd-brand`/`--erd-ink-600`；新增钮 Tab focus-visible ✅`version.spec.ts`
 - [x] 工单/审批列表密度：标题栏 ≤32（目标 ~24）/ 行 pad-block ≤10 / 动作钮 ∈22–28；图标不 clip；动作钮 focus-visible；截图 `approval-list-dense.png` / `order-list-dense.png` ✅`approval.spec.ts`
@@ -145,6 +146,7 @@
 - [x] [团队项目删确认键盘] 基本设置→删确认 → 首焦「删除」；Esc 关确认归还删钮不删；Tab trap ✅`group-project-delete-keyboard.spec.ts`
 - [x] [团队成员移除确认键盘] 权限组普通成员→移除确认 → 首焦「移除」；Esc 关确认归还移除钮不移；Tab trap ✅`group-user-remove-keyboard.spec.ts`
 - [x] [审批动作确认键盘] API 种子→审批拒绝/通过 + 工单撤销确认 → 首焦主操作；Esc 关确认不落盘；Tab trap ✅`approval-action-keyboard.spec.ts`
+- [x] [审批/工单 SQL 明细键盘] API 种子→审批/工单「查看SQL」→ 首焦「知道了」；Esc/OK 归还触发器；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

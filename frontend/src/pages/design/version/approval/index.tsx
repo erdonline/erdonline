@@ -2,9 +2,9 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {GET} from "@/services/crud";
 import PassApproval from "@/components/dialog/approval/PassApproval";
 import RefuseApproval from "@/components/dialog/approval/RefuseApproval";
-import {Button, Modal, Space, Table, Tag, Typography} from "antd";
+import {Button, Space, Table, Tag, Typography} from "antd";
 import type {ColumnsType, TablePaginationConfig} from "antd/es/table";
-import CodeEditor from "@/components/CodeEditor";
+import {showSqlDetailModal} from "@/utils/sqlDetailModal";
 import "../approval-workorder.less";
 
 type ApprovalItem = {
@@ -135,17 +135,15 @@ const Approval: React.FC<ApprovalProps> = () => {
           <Button
             type="link"
             size="small"
-            onClick={() => Modal.info({
-              title: 'sql明细',
-              width: tempWidth * 0.5,
-              content: (
-                <CodeEditor
-                  mode='mysql'
-                  height={`${tempHeight * 0.5}px`}
-                  value={record.approveSql}
-                />
-              ),
-            })}
+            aria-label="查看SQL"
+            data-testid="approval-view-sql"
+            onClick={() =>
+              showSqlDetailModal({
+                sql: record.approveSql,
+                width: tempWidth * 0.5,
+                editorHeight: `${tempHeight * 0.5}px`,
+              })
+            }
           >
             查看
           </Button>
