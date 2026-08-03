@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：编辑版本弹窗键盘闭环（RenameVersion）
+
+- 选题：编辑版本 Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：`RenameVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`（最新首焦版本号；非最新只读号→首焦描述）
+- E2E：`version-action-modals-keyboard` 增「编辑：首焦版本号；Esc 归还；Tab trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 版本页列表/对比弹层键盘或签头密度
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-action-modals-keyboard.spec.ts --project=chromium --grep "编辑" --workers=1 --retries=0`
+
 #### 安全：R-DATA-02 残余 — JDBC 主机名 DNS 解析后再拦 IMDS/链路本地
 
 - 选题：`JdbcUrlGuard` 仅拦字面量/元数据主机名；CNAME→`169.254.x` 等 DNS 重绑定可绕过
@@ -35,7 +45,7 @@
 - 选题：新增版本 Modal 开窗首焦不稳；删除/回滚用 Popconfirm 非 `role=dialog`、无 Tab trap；无键盘 E2E
 - 改动：`AddVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦版本号；`RemoveVersion`/`RevertVersion` Popconfirm→Modal（首焦「是」）
 - E2E：`version-action-modals-keyboard`（新增/删除/回滚：首焦、Esc 归还、Tab trap）；`version.spec` 确认钮改走 dialog
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 编辑版本弹窗键盘（RenameVersion）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~编辑版本弹窗键盘（RenameVersion）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-action-modals-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

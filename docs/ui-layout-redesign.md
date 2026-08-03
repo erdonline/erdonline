@@ -133,7 +133,7 @@
 - ✅ **账号设置壳键盘**（2026-08-03）：`/account/settings` Skip「跳到主表单」→ `#account-settings-form`；绕开顶栏+侧栏；邮箱→电话→保存；brand focus-visible；`account-settings-keyboard.spec` 绿
 - ✅ **项目动作弹窗键盘**（2026-08-03）：新建/修改首焦字段；删除确认首焦「是」；Esc 归还；Tab trap；`project-action-modals-keyboard.spec` 绿
 - ✅ **导入/导出弹层键盘**（2026-08-03）：DBML 导入首焦文本 / 导出首焦模型；Esc 归还空态 CTA/项目菜单；Tab trap；`import-export-keyboard.spec` 绿
-- ✅ **版本动作弹窗键盘**（2026-08-03）：新增首焦版本号；删除/回滚 Popconfirm→Modal 首焦「是」；Esc 归还；Tab trap；`version-action-modals-keyboard.spec` 绿
+- ✅ **版本动作弹窗键盘**（2026-08-03）：新增/编辑首焦版本号（非最新→描述）；删除/回滚 Popconfirm→Modal 首焦「是」；Esc 归还；Tab trap；`version-action-modals-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

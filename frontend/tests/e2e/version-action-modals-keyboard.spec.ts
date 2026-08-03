@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 /**
- * 版本动作弹窗键盘闭环：新增 / 删除 / 回滚
+ * 版本动作弹窗键盘闭环：新增 / 编辑 / 删除 / 回滚
  * — 打开首焦字段或确认钮；Esc 关；焦点归还触发器；Tab trap 在 dialog
  */
 
@@ -54,6 +54,40 @@ test.describe('版本动作弹窗键盘', () => {
       await page.keyboard.press('Escape');
       await expect(dialog).toHaveCount(0);
       await expect(trigger).toBeFocused({ timeout: 5_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('编辑：首焦版本号；Esc 归还；Tab trap', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('vmodal-ren');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'vmn', 'modal keyboard rename');
+      await openVersionPage(page);
+      await saveVersion(page);
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+
+      const row = page.getByTestId('version-row-1.0.0');
+      await row.hover();
+      const trigger = row.getByRole('button', { name: '编辑版本' });
+      await trigger.click();
+
+      const dialog = page.getByRole('dialog', { name: '编辑版本' });
+      await expect(dialog).toBeVisible();
+      // 最新版可改号 → 首焦版本号
+      await expect(dialog.getByRole('textbox', { name: '版本号' })).toBeFocused({
+        timeout: 5_000,
+      });
+
+      await assertTabTrap(dialog, page);
+
+      await page.keyboard.press('Escape');
+      await expect(dialog).toHaveCount(0);
+      await expect(trigger).toBeFocused({ timeout: 5_000 });
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
