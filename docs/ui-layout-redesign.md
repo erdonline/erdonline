@@ -251,7 +251,8 @@
 - ✅ **版本回滚落盘失败可重试**（2026-08-03）：扫描余假成功——dbsync/Word 导出已收口；`revertVersionData` 仅 save code===200 写 store + 成功 toast；失败不写 store、确认窗不关；`version-revert-failure` 绿；下一刀 → ~~`downloadWordTemplate` JSON/空 blob 假下载~~✅
 - ✅ **WORD 模板下载假文件可拒**（2026-08-03）：`downloadWordTemplate` 拒空/JSON/非 ZIP blob，失败 toast、不 `saveByBlob`；`word-template-download-failure` 绿；下一刀 → ~~Word `gendocx` 假下载~~✅
 - ✅ **Word gendocx 导出假文件可拒**（2026-08-03）：`exportFile('Word')` 复用 `docxBlobGate`；空/JSON/非 ZIP toast、不落盘；`word-gendocx-download-failure` 绿；下一刀 → ~~扫描余假成功～切画布关系图弹层键盘~~✅
-- ✅ **画布关系图弹层键盘闭环**（2026-08-03）：假成功高 ROI 已枯；新建/重命名关系图 + 加入分组 Modal 首焦/Esc/Tab trap；`diagram-modal-keyboard` 绿；下一刀 → 数据类型字典 Modal `focusTriggerAfterClose` 或其它未登记环
+- ✅ **画布关系图弹层键盘闭环**（2026-08-03）：假成功高 ROI 已枯；新建/重命名关系图 + 加入分组 Modal 首焦/Esc/Tab trap；`diagram-modal-keyboard` 绿；下一刀 → ~~数据类型字典 Modal `focusTriggerAfterClose`~~✅
+- ✅ **数据类型字典弹层键盘闭环**（2026-08-03）：`DataTypeDomains` `keyboard` + `focusTriggerAfterClose` + 首焦「类型名称」；`datatype-domains-keyboard` 绿；下一刀 → 设计器壳 Skip/表设计签头键盘，或扫余未登记弹层
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

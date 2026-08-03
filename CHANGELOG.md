@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：数据类型字典弹层键盘闭环
+
+- 选题：画布关系图弹层键盘已收口（`4ae6135`）；设置页「新增/编辑字段类型」Modal 有首焦名称，但缺显式 `keyboard`/`focusTriggerAfterClose`（Esc 后焦点不归还触发器）
+- `DataTypeDomains`：`keyboard={!submitting}` + `focusTriggerAfterClose`；`afterOpenChange` 重试首焦「类型名称」；提交流程/失败 keep 窗不变
+- E2E：`datatype-domains-keyboard` 首焦名称 → Tab trap → Esc 归还「新增字段类型」；定位 `role=button`/`role=dialog`/`role=textbox`（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 设计器壳 Skip/表设计签头键盘，或扫余未登记弹层
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/datatype-domains-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/datatype-domains-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布关系图弹层键盘闭环
 
 - 选题：假成功高 ROI 扫完——Word/模板 ZIP 闸、DDL/DBML/版本 diff 空内容闸、审批 `code===200` 已收口；PDF `gendocx` 无 UI 入口；HTML/MD 本地生成难出空体。切**键盘摩擦**：画布「新建/重命名关系图」Modal 缺首焦/Esc 归还/Tab trap（「加入分组」同源补齐）
 - `ReactFlowRelation`：两 Modal `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「关系图名称」/「选择分组」；提交中禁 Esc 关新建窗
 - E2E：`diagram-modal-keyboard` 首焦名称 → Tab trap → Esc 归还「新建关系图」；定位 `role=button`/`role=dialog`/`role=textbox`（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 数据类型字典 Modal `focusTriggerAfterClose` 或其它未登记环
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~数据类型字典 Modal `focusTriggerAfterClose`~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/diagram-modal-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
