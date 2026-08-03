@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：版本同步结果 Modal 键盘 + 行绑定修炸
+
+- 选题：JExcel Escape/快捷操作键盘已收口（`b57bc3d`）；扫余 = 版本「同步」结果 Modal 缺键盘环；走查发现 Sync 只靠 List `onMouseEnter` 写 `currentVersion`，无悬停/`modules` 空 → 页错「Cannot read … modules」、dbsync 永不发
+- `SyncVersion`：必传行 `version`；点击先 `setCurrentVersion` 再 `readDb`（禁鼠标 enter 隐式态）；`showSyncResultModal` 首焦「知道了」/Esc 归还/Tab trap；打开前钉回 `version-sync-btn`
+- E2E：`version-sync-result-keyboard` 挂 JDBC + mock dbversion/dbsync；成功/失败键盘闭环（勿依赖 hover）；定位 role/testid
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Oracle 逆向注释保真或人工拍板 ADR-0013 / P4 demo
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-sync-result-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：表设计 JExcel Escape 退格 + 快捷操作 Modal 键盘
 
 - 选题：databaseConfig Drawer 键盘已收口（`1f97b39`）；量测工具栏 Tab/网格入口已齐；残余 = Escape 退格后焦点落隐藏 `#jexcel_textarea`、工具栏「快捷操作」`Modal.info` 缺 Esc/首焦/归还
 - `JExcel`：编辑态 Escape → `closeEditor(false)` 丢弃草稿 + `rAF` 焦点归还 `jexcel-grid`；工具栏 `role=toolbar`「表格编辑工具栏」；快捷操作 `keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；修彩蛋文案乱码
 - E2E：`jexcel-grid-keyboard` Escape 归还网格（草稿不落盘）+ 快捷操作首焦「知道了」/ Esc 归还 / Tab trap；定位 role/aria/testid（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Vision 矩阵 📋（ADR-0013 API/MCP 或美图/开放项）或扫余 Shell 外键盘
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~版本同步结果 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/jexcel-grid-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

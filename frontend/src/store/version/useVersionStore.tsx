@@ -1,7 +1,8 @@
 import create, {GetState, SetState} from "zustand";
 import _ from "lodash";
-import {message, Modal} from "antd";
+import {message} from "antd";
 import {confirmDestructive} from "@/utils/destructiveConfirm";
+import {showSyncResultModal} from "@/utils/syncResultModal";
 import {compareStringVersion} from "@/utils/string";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as Save from '@/utils/save';
@@ -714,19 +715,25 @@ const useVersionStore = create<VersionState>(
             },
           });
         };
+        /** 确认窗关后焦点易坠 body；结果 Modal 打开前钉回「同步」以便 Esc 归还 */
+        const focusSyncTrigger = () => {
+          const el = document.querySelector<HTMLElement>(
+            '[data-testid="version-sync-btn"]:not([disabled])',
+          );
+          el?.focus();
+        };
         Save[opt](param).then((res: any) => {
           if (res.code === 200) {
             cb && cb();
-            Modal.success({
-              title: '同步成功',
-              content: res.data,
-            });
+            focusSyncTrigger();
+            showSyncResultModal({ ok: true, content: res.data });
             return;
           }
           // 失败须清「正在同步」，否则标签卡死、用户误以为不可重试
           clearSyncing();
-          Modal.warn({
-            title: '同步失败',
+          focusSyncTrigger();
+          showSyncResultModal({
+            ok: false,
             content: res.msg || res.message || '同步失败，请重试',
           });
         }).catch((err: any) => {
@@ -843,10 +850,10 @@ const useVersionStore = create<VersionState>(
                   if (initVersion) {
                     data = getAllDataSQL({
                       ..._.get(useProjectStore.getState().project, "projectJSON"),
-                      modules: version.projectJSON.modules,
+                      modules: version?.projectJSON?.modules || [],
                     }, _.get(dbData, 'select', 'MYSQL'));
                   } else {
-                    let tempChanges: any[] = [...changes];
+                    let tempChanges: any[] = [...(changes || [])];
                     // @ts-ignore
                     if (tempValue.upgradeType === 'rebuild') {
                       // 如果是重建数据表则不需要字段更新的脚本
@@ -875,9 +882,9 @@ const useVersionStore = create<VersionState>(
                     }
                     data = getCodeByChanges({
                         ..._.get(useProjectStore.getState().project, "projectJSON"),
-                        modules: version.projectJSON.modules,
+                        modules: version?.projectJSON?.modules || [],
                       }, tempChanges,
-                      _.get(dbData, 'select', 'MYSQL'), lastVersion.projectJSON);
+                      _.get(dbData, 'select', 'MYSQL'), lastVersion?.projectJSON);
                   }
                   get().dispatch.generateSQL(dbData, version, data, updateVersion, () => get().fetch(null,get().currentPage,get().pageSize));
                 }
