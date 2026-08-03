@@ -118,7 +118,7 @@
 | 项目菜单 | 设置→数据源设置 | 弹窗可开 | ADR-0008 | ✅ | `project-menu`「数据源设置」 |
 | 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
 | DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存 | P2 | ✅ | `relation.spec`「保存中…→已保存」 |
-| DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K 开合；执行有结果 | RF CommandPalette | ✅ | `relation.spec`「命令面板」；全旅程亦覆盖 |
+| DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K/F 开合；搜表定位+高亮；执行有结果 | RF CommandPalette | ✅ | `relation.spec`「命令面板」+「搜表定位」 |
 | `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
 | `ProjectFilterMenu` | 过滤1/过滤2 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
 | `NavigationMenu` | （空水平菜单） | 已从 Menu 导出删除 | | 🗑 | 代码已不存在（grep 零命中） |

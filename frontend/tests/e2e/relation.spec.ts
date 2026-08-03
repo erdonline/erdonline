@@ -2111,7 +2111,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByRole('button', { name: '命令' }).click();
       await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
       await page.getByTestId('cmd-palette-input').fill('___no_such_cmd___');
-      const empty = page.getByText('无匹配命令');
+      const empty = page.getByText('无匹配命令或表');
       await expect(empty).toBeVisible();
       await expect(empty).toHaveAttribute('aria-live', 'polite');
       await page.screenshot({
@@ -2120,6 +2120,70 @@ test.describe('关系图画布（ReactFlow）', () => {
       });
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog', { name: '命令面板' })).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('命令面板：搜表定位选中并高亮', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('cmdlocate');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'loc', 'cmd palette locate');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.getByTestId('canvas-create-table').click();
+      await expect(page.locator('.erd-table-node')).toHaveCount(2);
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible();
+
+      // 把视口挪开：定位应把目标表拉回视口中心并选中高亮
+      await page.evaluate(() => {
+        (window as Window & { __ERD_E2E__?: { setViewport: (vp: { x: number; y: number; zoom: number }) => void } })
+          .__ERD_E2E__?.setViewport({ x: -2400, y: -1800, zoom: 0.6 });
+      });
+      await expect
+        .poll(async () => {
+          const box = await rfNode(page, 'T_TABLE_2').boundingBox();
+          if (!box) return false;
+          const vw = page.viewportSize();
+          if (!vw) return false;
+          return (
+            box.x + box.width < 0 ||
+            box.y + box.height < 0 ||
+            box.x > vw.width ||
+            box.y > vw.height
+          );
+        })
+        .toBe(true);
+
+      await page.keyboard.press(process.platform === 'darwin' ? 'Meta+k' : 'Control+k');
+      const palette = page.getByRole('dialog', { name: '命令面板' });
+      await expect(palette).toBeVisible();
+      await page.getByTestId('cmd-palette-input').fill('T_TABLE_2');
+      const locateOpt = page.getByRole('option', { name: /T_TABLE_2/ });
+      await expect(locateOpt).toBeVisible();
+      await expect(locateOpt).toContainText('定位');
+      await locateOpt.click();
+      await expect(palette).toHaveCount(0);
+
+      const target = rfNode(page, 'T_TABLE_2');
+      await expect(target).toBeVisible({ timeout: 5_000 });
+      await expect(target.locator('.erd-table-node')).toHaveClass(/selected/);
+      await expect(target.locator('.erd-table-node')).toHaveAttribute('data-locate-flash', '1');
+      await expect
+        .poll(async () => {
+          const box = await target.boundingBox();
+          if (!box) return false;
+          const vw = page.viewportSize();
+          if (!vw) return false;
+          const cx = box.x + box.width / 2;
+          const cy = box.y + box.height / 2;
+          return cx >= 0 && cy >= 0 && cx <= vw.width && cy <= vw.height;
+        })
+        .toBe(true);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
