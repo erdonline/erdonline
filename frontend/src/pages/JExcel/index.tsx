@@ -182,6 +182,9 @@ const JExcel: React.FC<JExcelProps> = (props) => {
             okText: '删除',
             okType: 'danger',
             cancelText: '取消',
+            keyboard: true,
+            autoFocusButton: 'ok',
+            focusTriggerAfterClose: true,
             onOk() {
               jRef?.current?.jexcel.deleteRow();
             },

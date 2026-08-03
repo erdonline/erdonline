@@ -64,6 +64,7 @@
 | 画布删边/删分组确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-edge-frame-keyboard` |
 | 画布删字段确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-field-keyboard` |
 | 表设计删索引确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `table-index-delete-keyboard` |
+| JExcel 工具栏删行确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-toolbar-delete-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
@@ -132,7 +133,7 @@
 | `/design/table/model` | 索引签空态 CTA `index-empty-add` | 「添加第一个索引」→ 种子行 + 表格；无白屏 | | ✅ | `relation`「索引签空态 CTA」 |
 | `/design/table/model` | 索引签再加一行 `index-add-row` | 已有索引后「+ 再添加一条索引」→ 追加种子行；无死 affordance | | ✅ | `relation`「索引签再加一行 CTA」 |
 | `/design/table/model` | 索引签删除 `index-delete-N` | 「删除索引 `{name}`」→ Modal 确认才删；取消保留；删空回空态 CTA；键盘首焦/Esc/Tab trap | | ✅ | `relation`「索引签删除二次确认」+`table-index-delete-keyboard` |
-| `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast | | ✅ | `relation`「JExcel 工具栏删除二次确认」 |
+| `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast；键盘首焦/Esc/Tab trap | | ✅ | `relation`「JExcel 工具栏删除二次确认」+`jexcel-toolbar-delete-keyboard` |
 | `/design/table/model` | JExcel 工具栏/网格 Tab 序 | 7 工具栏按钮 Tab+Enter；`jexcel-grid` 可聚焦；Shift+Tab 无 trap | | ✅ | `relation`「工具栏 Tab 可达」 |
 | `/design/table/model` | 表设计字段签半成品写回 | 缺 `name`/`typeName` → toast + 中止写回；全空草稿可丢；Esc 停网格 | | ✅ | `relation`「半成品行不静默丢」 |
 | `/design/table/model` | 表设计索引签半成品写回 | 缺 `name`/`fields`（含 `[]`/「;」空）→ toast + 中止写回；Esc 停网格；重入索引仍在 | | ✅ | `relation`「索引签：半成品行不静默丢」 |
