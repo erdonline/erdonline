@@ -11,12 +11,14 @@
 #### CI：清理 GitHub Actions 告警与硬失败
 
 - Actions 升到 Node 24 runtime 主版本：`checkout@v5`、`setup-node@v5`、`setup-java@v5`、`upload-artifact@v6`、`upload-pages-artifact@v5`、`deploy-pages@v5`、docker/`softprops`/`wrangler` 对应大版本（消 Node 20 deprecation 噪声）
-- `e2e-smoke`：去掉 MySQL service `options` 里非法的 `--character-set-server`（docker create 未知旗标 → exit 125）
-- Docs：`regression-checklist` `opacity<1` → `` `opacity < 1` ``（MDX 误解析 JSX）
+- `e2e-smoke`：去掉 MySQL service `options` 里非法的 `--character-set-server`（docker create 未知旗标 → exit 125）；init 后建 `erd`/`erd` 用户并对齐 `DB_HOST`
+- Docs：`regression-checklist` `opacity<1` → `` `opacity < 1` ``；文档里裸 `{name}` 改成 `` `{name}` ``（MDX SSG）
+- CF Pages：`preCommands` 补 `pages project create … || true`，避免 Project not found 拖红整条 Docs/Demo
 - Frontend：去掉已失效的 `@umijs/fabric` extends；`.eslintrc.js` 直连 `@typescript-eslint` + `react-hooks`；`eslint` 升至 8；`lint:js:ci` 去掉缺失的 `pretty` formatter
 
 验证点：
 - `cd frontend && yarn lint:js:ci`
+- `cd website && yarn build`（本地已过）
 - `gh run list --limit 10`（push 后 Docs / Frontend CI / e2e-smoke）
 
 #### 体验：左树「编辑表」开表设计字段签（建模回路）
