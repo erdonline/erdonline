@@ -217,7 +217,7 @@
 - ✅ dataTypeDomains 树图标：`getDataTypeTree` 走 `erdColors.brand`；禁裸 `#DE2910`
 - ✅ 设置页 chrome 密度：`.setting-common-page` 标题 13/22、页 pad 8×12、表单项 margin 12、Input/按钮 28；菜单「默认项设置」挂 `.erd-io-modal`；禁默认 Form 24 间距 + 大号控件
 - ✅ 数据库配置页密度：`.database-config-page` 标题 13/22、页 pad 8×12、工具条钮 28、表行 pad 4×8；抽屉表单同阶；菜单「数据源设置」挂 `.erd-io-modal`；禁 Title level4 + 松 Card
-- ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡
+- ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；BaseView 列 gap 16（窄屏 12）；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡 / BaseView gap24
 - ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；禁 Title level4 + List `large`
 - ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
 - ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
@@ -229,9 +229,11 @@
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
 - ✅ 工作台壳外井次密：HomeLayout shell 12×16×10 / body 12×16 / footer 10×6；GroupLayout content·body 12×16；列表空态 12×8；禁 shell 24 + body 20 叠页内 8×12 双松井；Skip/顶栏 64 不弱化
+- ✅ 账号 BaseView 左右列次密：表单/头像列 gap 16（窄屏 12）；禁 gap24；表单项/控件 28 不动；Skip/保存不弱化
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
 - ❌ 工作台壳 shell 24×24 + body 20×24 / Group 24+20，叠页内 8×12 成双松井（历史问题）
+- ❌ 账号 BaseView 表单/头像列 gap24，与壳 12×16 次密不同阶（历史问题）
 - ❌ 欢迎空态标题 mt20 / 22 字 + hero 220 + 松内井，盖首屏扫读（历史问题）
 - ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）

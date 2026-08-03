@@ -1,7 +1,7 @@
-// ADR-0016：基本资料表单与 22–28 / .setting-common-form 同阶
+// ADR-0016：基本资料表单与 22–28 / .setting-common-form 同阶；左右列 gap 与壳 12×16 同族
 .baseView {
   display: flex;
-  gap: 24px;
+  gap: 16px;
   padding-top: 0;
   font-family: var(--erd-font-ui);
 
@@ -95,6 +95,6 @@
 @media screen and (max-width: 640px) {
   .baseView {
     flex-direction: column-reverse;
-    gap: 16px;
+    gap: 12px;
   }
 }

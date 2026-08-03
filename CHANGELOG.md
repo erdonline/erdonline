@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：账号 BaseView 左右列次密
+
+- 选题：工作台壳外井已 12×16；账号基本资料 `.baseView` 表单/头像列仍 gap24，与壳次密不同阶
+- `BaseView`：桌面 gap 24→16、窄屏 16→12；`data-testid=account-settings-base-view`；表单项 12 / 控件 28 不改
+- E2E：`account-settings` densify 断言 gap≤16 + 截图 `account-settings-page-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 顶栏 `erd-chrome-actions` gap16（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep "页密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/account-settings-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：工作台壳（Home/Group）外井次密
 
 - 选题：页内 `.project-list-page` / setting / database 已 pad 8×12；HomeLayout shell 24×24 + body 20×24、GroupLayout content/body 24/20 仍叠双松井，覆盖 Home/项目列表/账号/数据源/公告/团队设置全工作台
 - `HomeLayout`：shell 12×16×10、body 12×16、footer 10×6；`GroupLayout`：content/body 12×16；列表空态 pad 12×8；禁 24/20 外井
 - E2E：`layout-outlet` Home/个人项目 + Group 基本设置 densify + 截图 `workspace-shell-dense.png` / `group-shell-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 账号 BaseView 左右 gap24 / 顶栏 actions gap16（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~账号 BaseView 左右 gap24~~✅ / 顶栏 actions gap16（视 ROI）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|GroupLayout：/project/group" --workers=1 --retries=0`

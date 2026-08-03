@@ -57,7 +57,7 @@ const BaseView: React.FC = () => {
     }
   };
   return (
-    <div className={styles.baseView}>
+    <div className={styles.baseView} data-testid="account-settings-base-view">
       {loading ? <PageSkeleton rows={4} /> : (
         <>
           <div className={styles.left}>

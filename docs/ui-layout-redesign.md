@@ -201,7 +201,8 @@
 - ✅ **表设计 JExcel 字段 meta 落盘失败可重试**（2026-08-03）：`TableInfoEdit` `persist:true`；失败重挂网格回滚；`jexcel-field-meta-failure` 绿；下一刀 → ~~表设计索引签假成功~~✅
 - ✅ **表设计索引签落盘失败可重试**（2026-08-03）：`updateEntityIndex`/`TableIndexEdit` `persist:true`；失败空态/重挂回滚；`jexcel-index-failure` 绿；下一刀 → ~~默认字段假成功~~✅
 - ✅ **默认字段落盘失败可重试**（2026-08-03）：`updateDefaultFields`/`DefaultField` `persist:true`；失败重挂回滚；清死代码 `moveField`；`default-field-failure` 绿；下一刀 → ~~工作台壳外井 densify~~✅
-- ✅ **工作台壳（Home/Group）外井次密**（2026-08-03）：shell/content 12×16、body 12×16、列表空态 12×8；禁 24/20 双松井；`layout-outlet` densify 绿；下一刀 → 账号 BaseView gap / 顶栏 actions gap（视 ROI）
+- ✅ **工作台壳（Home/Group）外井次密**（2026-08-03）：shell/content 12×16、body 12×16、列表空态 12×8；禁 24/20 双松井；`layout-outlet` densify 绿；下一刀 → ~~账号 BaseView gap~~✅
+- ✅ **账号 BaseView 左右列次密**（2026-08-03）：gap 24→16（窄屏 12）；禁 24；`account-settings` densify 绿；下一刀 → 顶栏 `erd-chrome-actions` gap16（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
