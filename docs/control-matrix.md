@@ -42,6 +42,7 @@
 | HomeLayout `/home` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#home-main-content`；继续建模→新建→示例→二级入口→项目卡；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `home-keyboard`「Home 键盘」 |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |
 | 项目列表 `/project/{person,recent,group}` | 行 Enter / Tab 动作 | stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` inset brand focus-visible；无 trap | ADR-0016 键盘列表 | ✅ | `project-list-keyboard` |
+| 项目动作弹窗 新建/修改/删除 | 打开首焦 / Esc / Tab trap | 新增→类型；修改→项目名；删除→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-action-modals-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
