@@ -1,4 +1,4 @@
-/* ADR-0016：Group 基本设置页头碎距 — 标题 13/22 + mt0·mb8；禁 Title level4 */
+/* ADR-0016：Group 基本设置 — 页头 13/22；表单对齐 .setting-common-form（项 mb12 / 控件 28） */
 .basic-setting-page {
   font-family: var(--erd-font-ui);
 }
@@ -9,4 +9,88 @@
   font-weight: 600;
   line-height: 22px;
   color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.basic-setting-form {
+  max-width: 520px;
+
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px;
+
+    > label {
+      font-size: 12px;
+      height: auto;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+    }
+  }
+
+  .ant-input:not(textarea),
+  .ant-input-affix-wrapper {
+    font-size: 12px !important;
+  }
+
+  .ant-input:not(textarea) {
+    height: 28px;
+    padding: 0 8px;
+  }
+
+  .ant-input-affix-wrapper {
+    padding-block: 0;
+    min-height: 28px;
+
+    .ant-input {
+      height: 26px;
+    }
+  }
+
+  textarea.ant-input {
+    font-size: 12px;
+    line-height: 18px;
+    padding: 6px 8px;
+  }
+
+  .ant-select-selector {
+    font-size: 12px !important;
+  }
+
+  .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+    height: 28px !important;
+    padding-inline: 8px;
+  }
+
+  .ant-select-multiple .ant-select-selector {
+    min-height: 28px !important;
+    padding-block: 1px;
+    padding-inline: 4px;
+  }
+
+  .ant-select-selection-item,
+  .ant-select-selection-placeholder {
+    line-height: 26px !important;
+    font-size: 12px;
+  }
+
+  .ant-select-multiple .ant-select-selection-item {
+    height: 20px;
+    line-height: 18px !important;
+    margin-top: 2px;
+    margin-bottom: 2px;
+    font-size: 12px;
+  }
+
+  .ant-select-multiple .ant-select-selection-placeholder {
+    inset-inline-start: 8px;
+    line-height: 26px !important;
+  }
+
+  .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
 }
