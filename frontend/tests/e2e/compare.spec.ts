@@ -17,6 +17,27 @@ test.describe('竞品对照页', () => {
     await expect(table.getByRole('cell', { name: '开源自部署' })).toBeVisible();
     await expect(table.getByRole('cell', { name: 'MIT + compose' })).toBeVisible();
 
+    // ADR-0016：/compare 次密距 — section / 表行收紧；品牌 eyebrow 仍醒目；键盘用例不改
+    const densify = await page.getByTestId('compare-page').evaluate((el) => {
+      const hero = el.querySelector('.landingCompareHero') as HTMLElement | null;
+      const section = el.querySelector('.landingSection:not(.landingCompareHero)') as HTMLElement | null;
+      const cell = el.querySelector('.landingCompare td') as HTMLElement | null;
+      const eyebrow = el.querySelector('.landingCompareEyebrow') as HTMLElement | null;
+      const nav = el.querySelector('.landingNav') as HTMLElement | null;
+      return {
+        heroPadT: hero ? parseFloat(getComputedStyle(hero).paddingTop) : -1,
+        sectionPadT: section ? parseFloat(getComputedStyle(section).paddingTop) : -1,
+        cellPadT: cell ? parseFloat(getComputedStyle(cell).paddingTop) : -1,
+        eyebrowSize: eyebrow ? parseFloat(getComputedStyle(eyebrow).fontSize) : 0,
+        navPadT: nav ? parseFloat(getComputedStyle(nav).paddingTop) : -1,
+      };
+    });
+    expect(densify.heroPadT, `compare hero padTop 应 ≤36，得 ${densify.heroPadT}`).toBeLessThanOrEqual(36);
+    expect(densify.sectionPadT, `对照区 padTop 应 ≤52，得 ${densify.sectionPadT}`).toBeLessThanOrEqual(52);
+    expect(densify.cellPadT, `对照表行 pad 应 ≤12，得 ${densify.cellPadT}`).toBeLessThanOrEqual(12);
+    expect(densify.eyebrowSize).toBeGreaterThanOrEqual(22);
+    expect(densify.navPadT).toBeLessThanOrEqual(20);
+
     await page.getByRole('link', { name: '打开演示' }).click();
     await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
 

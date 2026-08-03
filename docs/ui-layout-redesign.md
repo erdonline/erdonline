@@ -175,7 +175,8 @@
 - ✅ **表设计签体内容次密距**（2026-08-03）：签体 pad 6/4 + hint/空态/元数据 tip ~24；工作区井 6；禁 clip JExcel；`model-design-ux`「表设计签体内容次密距」绿；下一刀 → ~~设计器 Empty 巨 marginTop / 次屏松井~~✅
 - ✅ **设计器空态次密距**（2026-08-03）：兜底禁 marginTop:100；字段/索引 Empty 压 marginXL + pad 贴 tab-body；保留 CTA；`model-design-ux`「设计器空态次密距」绿；下一刀 → ~~欢迎空态 `.erd-welcome-empty` 内 pad 32~~✅
 - ✅ **欢迎空态次密距**（2026-08-03）：`.erd-welcome-empty__inner` pad 32×24；标题 20/mt14；hero 176；保留逆向链 + 左树新增模型；`model-design-ux`「欢迎空态次密距」绿；下一刀 → ~~AuthBrandShell 失效/登录门次密距~~✅
-- ✅ **AuthBrandShell 次密距**（2026-08-03）：品牌 32×28/gap14 + 表单 pad32 + 门头 mb16；登录/注册/失效/404·403 同源；禁弱化品牌字号/Skip·Tab；`smoke`+`share`+`session` densify 绿；下一刀 → LandingChrome / compare 次密距（视 ROI）
+- ✅ **AuthBrandShell 次密距**（2026-08-03）：品牌 32×28/gap14 + 表单 pad32 + 门头 mb16；登录/注册/失效/404·403 同源；禁弱化品牌字号/Skip·Tab；`smoke`+`share`+`session` densify 绿；下一刀 → ~~LandingChrome / compare 次密距~~✅
+- ✅ **LandingChrome / `/compare` 次密距**（2026-08-03）：次屏 section 2.75 / 对照行 0.5 / nav·footer 收；compare hero padT 1.5；hero 品牌级+全幅不动；`landing`+`compare` densify 绿；下一刀 → 分享成功态 meta/表清单或 Home hero CTA 簇次密（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
