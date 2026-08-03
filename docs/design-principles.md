@@ -22,6 +22,7 @@
 - ✅ 画布新建/重命名关系图：仅 `saveProject` code===200 写 store + 成功 toast（创建）+ 关窗；失败 toast 可读、不关窗可重试
 - ✅ 画布建表 / 行内新建字段：仅 `saveProject` code===200 上图 / 退出新建编辑；失败 toast 可读、草稿/空态可重试；禁本地 mutate 即「表添加成功」
 - ✅ 画布既有字段改名 / 删字段：仅 `saveProject` code===200 退出编辑 / 移出行；失败 toast；改名草稿保留；删字段二次确认失败窗仍开可重试
+- ✅ 画布/左树删表：仅 `saveProject` code===200 移出节点 + toast「表删除成功」；失败 toast、节点保留、确认窗拒关可重试；禁本地 mutate 即「表删除成功」
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -35,6 +36,7 @@
 - ❌ 画布新建关系图本地 mutate 即关窗，autosave 失败像已建图（历史问题）
 - ❌ 画布建表/行内加字段本地 mutate 即成功，autosave 失败像已上图/加字段（历史问题）
 - ❌ 画布既有字段改名/删字段本地 mutate 即成功，autosave 失败像已改名/已删（历史问题）
+- ❌ 画布/左树删表本地 mutate 即 toast「表删除成功」，autosave 失败像已删表（历史问题）
 
 ## 2. 键盘优先
 
@@ -153,7 +155,7 @@
 一切可撤销；危险操作先预览或确认；用户永远可以回到过去。
 
 - ✅ 画布删关系边二次确认（选中边 Delete·Backspace / 基数 chip 聚焦 Delete·Backspace；取消保留；确认后落库）
-- ✅ 删除画布表前确认（模型树菜单 / 画布选中后 Delete·Backspace；文案「不可逆」；`selectNodesOnDrag=false` 使表头可点选）
+- ✅ 删除画布表前确认（模型树菜单 / 画布选中后 Delete·Backspace；文案「不可逆」；`selectNodesOnDrag=false` 使表头可点选；确认后 `removeEntity` `persist:true`，失败拒关窗可重试）
 - ✅ 画布删分组（Frame）二次确认（选中后 Delete·Backspace；文案标明仅删框不删表；取消保留）
 - ✅ 左树删除模型/关系图二次确认（模型：标明级联删表与图；非主关系图：仅删图不删表；主图无删除项）
 - ✅ 画布删字段二次确认（按钮 / 选中后 Delete·Backspace），编辑态 Backspace 不误删

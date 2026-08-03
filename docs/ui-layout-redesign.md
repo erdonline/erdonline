@@ -234,7 +234,8 @@
 - ✅ **EntityModal body 碎距**（2026-08-03）：`.erd-entity-modal` body **12×14**→**8×12**（对齐 io / 次屏）；`relation` densify 绿；下一刀 → ~~io-modal header·footer~~✅
 - ✅ **io-modal / EntityModal 头脚碎距**（2026-08-03）：两族 header **10×14×8**→**8×12**、footer **8×14**→**8×12**、close top **10**→**8**；标题 13/22 · OK≥28 不动；`relation`+`dbml-import`+`dbml-export` densify 绿；下一刀 → ~~基数 Select / Form mb~~量测已密 / ~~Controls·工具栏 panel margin~~✅
 - ✅ **Controls / 工具栏 Panel margin 碎距**（2026-08-03）：量测基数 Select **24** / Form mb12·控件28 已密；Controls+顶栏工具栏 RF margin **15**→**8**（对齐 MiniMap）；`relation`+`demo` densify 绿；下一刀 → ~~空态剪影 compact 132~~✅（跳过 Auth logo 48 / 欢迎 pad）
-- ✅ **空态剪影 compact 碎距**（2026-08-03）：`ErdEmptyDiagram` compact **132**→**112**；hero 176 / Auth logo / 欢迎 pad / Controls·工具栏 margin / 边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚跳过；`relation`「空态构图」 densify 绿；下一刀 → densify ROI 趋尽：余 Auth logo 48（diminishing）或 Vision 刀（假成功残口 / 键盘摩擦）
+- ✅ **空态剪影 compact 碎距**（2026-08-03）：`ErdEmptyDiagram` compact **132**→**112**；hero 176 / Auth logo / 欢迎 pad / Controls·工具栏 margin / 边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚跳过；`relation`「空态构图」 densify 绿；下一刀 → ~~画布/左树删表假成功~~✅（跳过 Auth logo 48）
+- ✅ **画布/左树删表落盘失败可重试**（2026-08-03）：`removeEntity` `persist:true`；仅 save code===200 移出 +「表删除成功」；失败节点保留、确认拒关可重试；`canvas-delete-table-failure` 绿；下一刀 → 左树删模型·删关系图 / 剪贴粘贴假成功，或画布删边·Frame 假成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

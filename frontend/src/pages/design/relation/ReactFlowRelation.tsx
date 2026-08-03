@@ -1699,8 +1699,18 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
-          onOk() {
-            titles.forEach((t) => projectDispatch.removeEntity(moduleName, t));
+          async onOk() {
+            // 禁止本地 mutate 即「表删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+            const ok = await Promise.resolve(
+              projectDispatch.removeEntity(
+                moduleName,
+                titles.length === 1 ? titles[0] : titles,
+                { persist: true },
+              ),
+            );
+            if (!ok) {
+              return Promise.reject(new Error('表删除落盘失败'));
+            }
           },
         });
       }
