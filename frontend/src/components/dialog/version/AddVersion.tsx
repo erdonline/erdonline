@@ -1,6 +1,7 @@
-import React, {useMemo, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {PlusOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, Select} from 'antd';
+import type {InputRef} from 'antd/es/input';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {suggestNextVersion} from '@/utils/versionConstants';
@@ -32,6 +33,7 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
 
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const versionInputRef = useRef<InputRef>(null);
   const initialVersion = useMemo(() => suggestNextVersion(versions), [versions]);
 
   const closeModal = () => {
@@ -86,6 +88,14 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
         destroyOnClose
         width={520}
         forceRender
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => versionInputRef.current?.focus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -100,7 +110,7 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input placeholder="请输入版本号" />
+            <Input ref={versionInputRef} placeholder="请输入版本号" />
           </Form.Item>
           <Form.Item
             name="versionDesc"

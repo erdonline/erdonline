@@ -89,7 +89,9 @@ test.describe('版本快照', () => {
       const v100 = page.getByTestId('version-row-1.0.0');
       await v100.hover();
       await v100.getByTestId('version-revert-btn').click();
-      await page.getByRole('button', { name: '是' }).click();
+      const revertDlg = page.getByRole('dialog', { name: '回滚版本' });
+      await expect(revertDlg).toBeVisible();
+      await revertDlg.getByRole('button', { name: '是' }).click();
       await expectToast(page, /成功回滚/);
 
       await gotoDesignModel(page);
@@ -292,7 +294,9 @@ test.describe('版本快照', () => {
       const row100 = page.getByTestId('version-row-1.0.0');
       await row100.hover();
       await row100.getByTestId('version-delete-btn').click();
-      await page.getByRole('button', { name: '是' }).click();
+      const deleteDlg = page.getByRole('dialog', { name: '删除版本' });
+      await expect(deleteDlg).toBeVisible();
+      await deleteDlg.getByRole('button', { name: '是' }).click();
       await expectToast(page, /版本信息删除成功/);
       await expect(page.getByTestId('version-row-1.0.0')).toHaveCount(0, { timeout: 10_000 });
       await expect(page.getByTestId('version-row-1.0.2')).toBeVisible();

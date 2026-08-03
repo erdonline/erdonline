@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：版本动作弹窗键盘闭环（新增/删除/回滚）
+
+- 选题：新增版本 Modal 开窗首焦不稳；删除/回滚用 Popconfirm 非 `role=dialog`、无 Tab trap；无键盘 E2E
+- 改动：`AddVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦版本号；`RemoveVersion`/`RevertVersion` Popconfirm→Modal（首焦「是」）
+- E2E：`version-action-modals-keyboard`（新增/删除/回滚：首焦、Esc 归还、Tab trap）；`version.spec` 确认钮改走 dialog
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 编辑版本弹窗键盘（RenameVersion）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-action-modals-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 安全：R-DEAD-01/02/03 收敛假开关与 ignore 假路径
 
 - 选题：`martin.swagger.enabled` / `martin.resource-server.enabled` 死键误导运维；ignore `/endpoint/**` 无控制器仍扩大未来匿名面
@@ -24,7 +34,7 @@
 - 选题：DBML 导入/导出 Modal 开窗首焦不稳；菜单打开后 Esc 无法归还触发器（菜单项已卸载）；无键盘 E2E
 - 改动：`ReverseDBML`/`ExportDBML` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦文本区/模型 Select；`ProjectMenu.openDialog` 开窗前焦点交「项目菜单」
 - E2E：`import-export-keyboard`（空态导入 CTA / 菜单导出：首焦、Esc 归还、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 版本动作弹窗键盘闭环（新增/删除/回滚）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~版本动作弹窗键盘闭环（新增/删除/回滚）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/import-export-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
