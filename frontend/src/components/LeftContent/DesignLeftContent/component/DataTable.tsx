@@ -4,7 +4,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
 import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
-import { Badge, Button, Dropdown, Empty, Menu, message, Modal, Tooltip, Typography } from 'antd';
+import { Badge, Button, Dropdown, Empty, Menu, message, Tooltip, Typography } from 'antd';
 import type { MenuProps } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
@@ -16,6 +16,10 @@ import {
   parseDiagramIdFromTabEntity,
   relationTabEntity,
 } from '@/utils/diagram';
+import {
+  confirmDestructive,
+  focusTreeActionTrigger,
+} from '@/utils/destructiveConfirm';
 
 const iconStyle = (color: string) => ({ color, fontSize: 12 });
 
@@ -231,12 +235,21 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleRemove = (node: any) => {
+    const actionLabel =
+      node.type === 'module'
+        ? '模型操作'
+        : node.type === 'entity'
+          ? '表操作'
+          : '关系图操作';
+    // Dropdown menuitem unmounts; park focus on the row trigger for Esc return
+    focusTreeActionTrigger(node.title, actionLabel);
+
     if (node.type === 'relation') {
       if (node.diagramId === DEFAULT_DIAGRAM_ID) {
         message.warning('主关系图不可删除');
         return;
       }
-      Modal.confirm({
+      confirmDestructive({
         title: `确定删除关系图 "${node.title}" 吗?`,
         icon: <ExclamationCircleOutlined />,
         content: '仅删除该关系图，表不会一起删除。',
@@ -251,7 +264,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     }
 
     const kind = node.type === 'module' ? '模型' : '表';
-    Modal.confirm({
+    confirmDestructive({
       title: `确定删除${kind} "${node.title}" 吗?`,
       icon: <ExclamationCircleOutlined />,
       content:
@@ -413,6 +426,8 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     return node.type !== 'folder' ? (
       <Dropdown overlay={menu} trigger={['click']}>
         <EllipsisOutlined
+          role="button"
+          tabIndex={0}
           data-testid="tree-node-menu"
           aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}操作`}
           style={{ padding: '0 4px', fontSize: 12 }}

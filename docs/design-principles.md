@@ -51,6 +51,7 @@
 - ✅ 画布删字段确认弹层键盘：字段浏览器 ×「删除字段」→ 首焦「删除」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内（二次确认保留）
 - ✅ 表设计删索引确认弹层键盘：索引签「删除索引 `{name}`」→ 首焦「删除」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内（二次确认保留）
 - ✅ JExcel 工具栏删行确认弹层键盘：「删除选中行」→ 首焦「删除」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内（二次确认保留）
+- ✅ 左树删模型/表/关系图确认弹层键盘：「…操作→删除…」→ 首焦「删除」；Esc 关窗；焦点归还行触发器；Tab 困在 `role=dialog` 内（二次确认保留）
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
