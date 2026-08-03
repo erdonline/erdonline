@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：Home hero CTA 簇次密
+
+- 选题：分享成功态已密；`/home` hero actions gap12 / secondary 6×14 / hero 32·20 仍松井；主 CTA large + Skip/Tab 不压
+- `pages/home/style.less`：hero gap24 / mb·pb16；stats gap12×20·mt12；actions gap8；secondary gap4×12 + 钮 4×10；secondaryNav mb20；lg 折行 gap16
+- E2E：`home-keyboard` densify + Skip→主区→继续/新建/示例/二级入口/项目卡；focus-visible brand；不按 Skip 仍落品牌链
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Home 空态/公告区次密（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：分享成功态 meta / 表清单次密
 
 - 选题：LandingChrome 已密；分享成功态 stage 8×12 + meta gap4 + 表清单 8×12·13 标题 / 弹层 Paragraph·Compact 仍松井
 - `share/index.less`：stage 6×10；meta gap2 / hint·描述 12·16；toggle ~22；表清单 pad 6×10·标题 12/18·行 pad 3×8（行高 ∈20–26）
 - `ShareProjectButton` + `io-modal.scss`：挂 `.erd-io-modal`；hint mb8 / 链接行 mb10 / 钮 28；宽 480
 - E2E：`demo` meta+表清单 densify；`share-project-keyboard` 弹层次密 + Esc/Tab；`share` 成功态行高；键盘/吊销用例意图不改
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Home hero CTA 簇次密（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Home hero CTA 簇次密~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录 /demo" --workers=1 --retries=0`

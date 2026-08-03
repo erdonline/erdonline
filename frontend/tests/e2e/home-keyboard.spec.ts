@@ -8,6 +8,7 @@ import {
 
 /**
  * Home 工作台键盘：Skip 进主区；CTA / 项目卡 Tab 序；focus-visible；无 trap
+ * + hero CTA 簇次密距（ADR-0016）
  */
 test.describe('Home 工作台键盘', () => {
   // ADR-0016：HomeLayout Skip 绕开顶栏；主区 CTA 与项目卡 Tab 序；brand focus-visible
@@ -29,6 +30,44 @@ test.describe('Home 工作台键盘', () => {
     await expect(page.getByTestId('home-main-content')).toHaveAttribute('tabindex', '-1');
     await expect(page.getByTestId('home-continue-modeling')).toBeEnabled({ timeout: 15_000 });
     await expect(page.getByTestId('home-project-card').first()).toBeVisible();
+
+    // ADR-0016：hero CTA 簇次密 — actions gap≤8 / secondary pad≤4×10；主 CTA large 不压；Skip·Tab 不弱化
+    const densify = await page.getByTestId('home-continue-modeling').evaluate((btn) => {
+      const actions = btn.parentElement as HTMLElement;
+      const secondary = actions.querySelector('a')?.parentElement as HTMLElement;
+      const secondaryBtn = actions.querySelector('a') as HTMLElement;
+      const hero = actions.parentElement as HTMLElement;
+      const title = hero.querySelector('h2') as HTMLElement | null;
+      const acs = getComputedStyle(actions);
+      const scs = getComputedStyle(secondary);
+      const sbcs = getComputedStyle(secondaryBtn);
+      const hcs = getComputedStyle(hero);
+      const gapOf = (cs: CSSStyleDeclaration) => {
+        const g = parseFloat(cs.gap);
+        if (!Number.isNaN(g) && g > 0) return g;
+        return Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0);
+      };
+      return {
+        actionsGap: gapOf(acs),
+        secondaryGap: gapOf(scs),
+        secondaryPadT: parseFloat(sbcs.paddingTop),
+        secondaryPadX: parseFloat(sbcs.paddingLeft),
+        heroGap: gapOf(hcs),
+        heroMb: parseFloat(hcs.marginBottom),
+        heroPb: parseFloat(hcs.paddingBottom),
+        continueH: (btn as HTMLElement).getBoundingClientRect().height,
+        titleSize: title ? parseFloat(getComputedStyle(title).fontSize) : 0,
+      };
+    });
+    expect(densify.actionsGap, `CTA 簇 gap 应 ≤8，得 ${densify.actionsGap}`).toBeLessThanOrEqual(8);
+    expect(densify.secondaryGap, `次链 gap 应 ≤12，得 ${densify.secondaryGap}`).toBeLessThanOrEqual(12);
+    expect(densify.secondaryPadT, `新建钮 padY 应 ≤4，得 ${densify.secondaryPadT}`).toBeLessThanOrEqual(4);
+    expect(densify.secondaryPadX, `新建钮 padX 应 ≤10，得 ${densify.secondaryPadX}`).toBeLessThanOrEqual(10);
+    expect(densify.heroGap, `hero gap 应 ≤24，得 ${densify.heroGap}`).toBeLessThanOrEqual(24);
+    expect(densify.heroMb, `hero mb 应 ≤16，得 ${densify.heroMb}`).toBeLessThanOrEqual(16);
+    expect(densify.heroPb, `hero pb 应 ≤16，得 ${densify.heroPb}`).toBeLessThanOrEqual(16);
+    expect(densify.continueH, `主 CTA 高应 ≥40（large），得 ${densify.continueH}`).toBeGreaterThanOrEqual(40);
+    expect(densify.titleSize, `问候字号应 ≥28，得 ${densify.titleSize}`).toBeGreaterThanOrEqual(28);
 
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');
