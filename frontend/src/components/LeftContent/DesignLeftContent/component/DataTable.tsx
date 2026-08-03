@@ -185,6 +185,20 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     setModalVisible(true);
   };
 
+  /** 表菜单「编辑表」→ 表设计字段签（与画布 canvas-open-field 同路径） */
+  const handleOpenEntityDesign = (node: any) => {
+    tabDispatch.addTab({
+      group: TabGroup.MODEL,
+      module: node.module,
+      entity: node.title,
+      designPane: 'field',
+    });
+    activeEntity(node.module, node);
+    if (history.location.pathname !== '/design/table/model') {
+      history.push({ pathname: '/design/table/model' });
+    }
+  };
+
   const handleRemove = (node: any) => {
     if (node.type === 'relation') {
       if (node.diagramId === DEFAULT_DIAGRAM_ID) {
@@ -301,9 +315,24 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       <Menu onClick={(e) => e.domEvent.stopPropagation()}>
         {node.type !== 'folder' && (
           <>
-            <Menu.Item key="rename" icon={<EditOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handleRename(node)}>
-              {node.type === 'module' ? '编辑模型' : node.type === 'entity' ? '编辑表' : '重命名关系图'}
-            </Menu.Item>
+            {node.type === 'entity' ? (
+              <>
+                <Menu.Item
+                  key="edit"
+                  icon={<EditOutlined style={iconStyle(erdColors.ink600)} />}
+                  onClick={() => handleOpenEntityDesign(node)}
+                >
+                  编辑表
+                </Menu.Item>
+                <Menu.Item key="rename" onClick={() => handleRename(node)}>
+                  重命名表
+                </Menu.Item>
+              </>
+            ) : (
+              <Menu.Item key="rename" icon={<EditOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handleRename(node)}>
+                {node.type === 'module' ? '编辑模型' : '重命名关系图'}
+              </Menu.Item>
+            )}
             {/* 关系图无 copy/cut 实现；隐藏死 affordance（ADR-0017 图列表） */}
             {node.type !== 'relation' && (
               <>
