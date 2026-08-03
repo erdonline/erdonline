@@ -70,6 +70,7 @@
 | DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
 | 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
 | 导入/导出 Modal body | 碎密度 | `.erd-io-modal` body pad ≤8×12（禁 12×14）；标题 ≤14；footer 钮 ~28；键盘不回归 | ADR-0016 密度 | ✅ | `dbml-import` + `dbml-export` densify |
+| EntityModal body | 碎密度 | `.erd-entity-modal` body pad ≤8×12（禁 12×14）；宽≤420；标题 ≤14；输入/OK ~28；键盘不回归 | ADR-0016 密度 | ✅ | `relation`「实体新建弹层密度」 |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |
 | 项目列表 `/project/{person,recent,group}` | 行 Enter / Tab 动作 | stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` inset brand focus-visible；无 trap | ADR-0016 键盘列表 | ✅ | `project-list-keyboard` |
 | 项目动作弹窗 新建/修改/删除 | 打开首焦 / Esc / Tab trap | 新增→类型；修改→项目名；删除→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-action-modals-keyboard` |
