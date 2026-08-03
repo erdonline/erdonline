@@ -76,6 +76,7 @@
 | 项目列表 `/project/{person,recent,group}` | 行 Enter / Tab 动作 | stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` inset brand focus-visible；无 trap | ADR-0016 键盘列表 | ✅ | `project-list-keyboard` |
 | 项目动作弹窗 新建/修改/删除 | 打开首焦 / Esc / Tab trap | 新增→类型；修改→项目名；删除→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-action-modals-keyboard` |
 | 导入/导出弹层 DBML | 打开首焦 / Esc / Tab trap | 导入→DBML文本；导出→导出模型；Esc 归还空态 CTA / 项目菜单；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `import-export-keyboard` |
+| 导入跳过校验 Modal.warning | 打开首焦 / Esc·OK / Tab trap | 二次导入全跳过→首焦「知道了」；Esc/OK 归还「解析并导入」 | ADR-0016 键盘弹层 | ✅ | `import-skip-warning-keyboard` |
 | 版本动作弹窗 新增/编辑/删除/回滚 | 打开首焦 / Esc / Tab trap | 新增/编辑最新→版本号；编辑非最新→描述；删除/回滚→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-action-modals-keyboard` |
 | 版本对比/详情 diff Modal | 打开首焦 / Esc / Tab trap | 比对→「初始版本」；详情→「导出变更清单」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-diff-keyboard` |
 | 同步配置/重建版本 Modal | 打开首焦 / Esc / Tab trap | 同步配置→「字段增量」；重建版本→「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-rebuild-keyboard` |
@@ -121,6 +122,7 @@
 | 团队成员移除确认 | 打开首焦 / Esc / Tab trap | 首焦「移除」；Esc 归还不移；焦点归还「移除成员 {username}」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-user-remove-keyboard` |
 | 审批动作确认（通过/拒绝/撤销/复批） | 打开首焦 / Esc / Tab trap | 首焦语义 OK；Esc 归还不落盘；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
 | 审批/工单 SQL 明细 Modal.info | 打开首焦 / Esc·OK / Tab trap | 首焦「知道了」；Esc/OK 归还「查看SQL」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-detail-keyboard` |
+| 导入跳过校验 Modal.warning | 打开首焦 / Esc·OK / Tab trap | 首焦「知道了」；Esc/OK 归还「解析并导入」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `import-skip-warning-keyboard` |
 | EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
 | 画布新建/重命名关系图 Modal | 打开首焦 / Esc / Tab trap | 首焦「关系图名称」；Esc 归还触发器；焦点不逃出 dialog；提交中禁 Esc | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard` |
 | 画布加入分组 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择分组」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard`（同源产品） |

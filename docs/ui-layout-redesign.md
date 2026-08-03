@@ -254,7 +254,8 @@
 - ✅ **画布关系图弹层键盘闭环**（2026-08-03）：假成功高 ROI 已枯；新建/重命名关系图 + 加入分组 Modal 首焦/Esc/Tab trap；`diagram-modal-keyboard` 绿；下一刀 → ~~数据类型字典 Modal `focusTriggerAfterClose`~~✅
 - ✅ **数据类型字典弹层键盘闭环**（2026-08-03）：`DataTypeDomains` `keyboard` + `focusTriggerAfterClose` + 首焦「类型名称」；`datatype-domains-keyboard` 绿；下一刀 → ~~设计器壳 Skip/表设计签头键盘~~✅
 - ✅ **CommonTabs 签头键盘闭环**（2026-08-03）：关闭钮「关闭 {表名}」+ 关签焦点归还；`common-tabs-keyboard` 绿；扫余弹层：主 Modal 已闭环，余 `Modal.info` SQL 明细 / `Modal.warning` 导入校验 / databaseConfig Drawer；下一刀 → ~~SQL 明细焦点归还~~✅
-- ✅ **审批/工单 SQL 明细键盘闭环**（2026-08-03）：`showSqlDetailModal` 首焦「知道了」+ Esc/OK 归还「查看SQL」+ Tab trap；`sql-detail-keyboard` 绿；下一刀 → `Modal.warning` 导入校验，或 `databaseConfig` Drawer
+- ✅ **审批/工单 SQL 明细键盘闭环**（2026-08-03）：`showSqlDetailModal` 首焦「知道了」+ Esc/OK 归还「查看SQL」+ Tab trap；`sql-detail-keyboard` 绿；下一刀 → ~~`Modal.warning` 导入校验~~✅
+- ✅ **导入跳过校验键盘闭环**（2026-08-03）：`showImportSkipWarning` 首焦「知道了」+ Esc/OK 归还「解析并导入」+ Tab trap；DBML/ERD/PdMan（dialog+次屏）共用；`import-skip-warning-keyboard` 绿；下一刀 → `databaseConfig` Drawer 打开首焦 / Esc / focusTriggerAfterClose
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

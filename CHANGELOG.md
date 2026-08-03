@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：导入跳过校验 Modal.warning 键盘闭环
+
+- 选题：扫余最高项——导入校验 `Modal.warning`（DBML/ERD/PdMan，6 处）缺 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`（键盘用户关提示后焦点易坠 body）；较 databaseConfig Drawer（antd 默认可 Esc）ROI 更高
+- `showImportSkipWarning`：`keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；dialog + 次屏导入共用
+- E2E：`import-skip-warning-keyboard` 二次导入全跳过 → 首焦「知道了」→ Tab trap → Esc/OK 归还「解析并导入」；定位 `role=dialog`/`role=button`/`getByLabel`（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `databaseConfig` Drawer 打开首焦 / Esc / focusTriggerAfterClose
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/import-skip-warning-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：审批/工单 SQL 明细 Modal.info 键盘闭环
 
 - 选题：CommonTabs 扫余最高项——审批/工单「查看」`Modal.info` 缺显式 `keyboard`/`focusTriggerAfterClose`/首焦 OK（Esc 后焦点易坠 body）
 - `showSqlDetailModal`：`keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；审批/工单共用；触发钮 `aria-label=查看SQL`
 - E2E：`sql-detail-keyboard` 首焦「知道了」→ Tab trap → Esc/OK 归还「查看SQL」（审批+工单）；定位 `role=button`/`role=dialog`（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `Modal.warning` 导入校验，或 `databaseConfig` Drawer
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`Modal.warning` 导入校验~~✅ / `databaseConfig` Drawer
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/sql-detail-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

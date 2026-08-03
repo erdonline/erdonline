@@ -1,9 +1,10 @@
 import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
-import {message, Modal, Upload} from "antd";
+import {message, Upload} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {importModuleAndProfile} from "@/pages/design/import/component/ReverseERD";
+import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import '../../secondary-pane.scss';
 
 const { Dragger } = Upload;
@@ -66,12 +67,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
             }
           });
           if (resultModules.length <= 0) {
-            Modal.warning({
-              title: '重要提示',
-              content: <>{resultMsg.map((m: any) => {
-                return <p key={m}>{m}</p>
-              })}</>,
-            });
+            showImportSkipWarning(resultMsg);
             return;
           }
           setImporting(true);
@@ -86,12 +82,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
               return;
             }
             if (resultMsg.length > 0) {
-              Modal.warning({
-                title: '重要提示',
-                content: <>{resultMsg.map((m: any) => {
-                  return <p key={m}>{m}</p>
-                })}</>,
-              });
+              showImportSkipWarning(resultMsg);
             } else {
               message.success('PdMan文件导入成功！');
             }
