@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：默认项设置弹层键盘闭环（DefaultSetUp）
+
+- 选题：设计器「默认项设置」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「默认字段」Tab；去多余 `forceRender`；两 Tab / 保存行为不变
+- E2E：`default-setup-keyboard`（项目菜单 → 首焦、Esc 归还菜单钮、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 逆向库 Modal 键盘（ReverseDatabase）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/default-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据源设置弹层键盘闭环（DatabaseSetUp）
 
 - 选题：设计器「数据源设置」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「新增数据源」；去多余 `forceRender`；`defaultDataSourceId` / POST payload 行为不变
 - E2E：`database-setup-keyboard`（项目菜单 → 首焦、Esc 归还菜单钮、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 默认项设置 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~默认项设置 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/database-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
