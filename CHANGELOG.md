@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：左树/右键菜单 border-box 实密
+
+- 选题：量测 `.erd-dense-menu` CSS height/lh **28** 已写，但 antd dropdown 项默认 `box-sizing:content-box` + padY **5** → 命中高 **~33**，未贴 ADR-0016 ~28；版本列表工具条控件已 **24** 跳过；勿动 Auth/欢迎/Controls/审批/导出
+- before：项计算高 **~33**（height28 + padY5 content-box）；pad-inline 8；after：`border-box` + padY **0** / padX **8**；命中高 **≈28**；menuitem / ArrowDown / Esc 不弱化
+- E2E：`model-design-ux`「右键/树操作菜单密度」锁 h∈[26,30] / padY≤2 / border-box + 既有 clip/键盘；截图 `diagram-context-menu-dense.png`；定位 `getByLabel('表操作')` / `getByRole('menuitem')` / `testid=tree-node-menu`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → MiniMap chrome / 边标签避让碎距 / 导入弹层 body（版本工具条已密，勿再压）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "右键/树操作菜单密度" --workers=1 --retries=0`
+
 #### 体验：表节点底栏 / 空表井 chrome 碎距
 
 - 选题：量测表头 pad **6** / 字段 minH **20** / lh15 / pad1 已贴 ADR-0016 密表下限（再压伤扫读/命中）；底栏「添加字段」margin 8×4 + 空表虚线井 pad **10**/margin **6×8** 仍松；勿动建模 persist / fake-success；跳过 Auth/欢迎/空态 panel/审批/导出（已密）
 - before：空表井 pad **10×8** / gap **6** / margin **6×8×8**；添加 margin **2×8×4**；打开表设计 margin **0×8×6** / btn pad **2**（无 minH）；`NODE_FOOTER_H` **32**
 - after：空表井 pad **6** / gap **4** / margin **4×6×6**；添加 margin **2×6** + minH **22**；CTA minH **26**；打开表设计 margin **0×6×4** / btn minH **22**；`NODE_FOOTER_H` **28**；表头/字段行锁密不动
 - E2E：`relation`「PK/FK」锁底栏 margin/minH + 既有表头/字段；`table-field-empty`「画布空表 CTA」锁井 densify；截图 `diagram-table-node-density.png` / `diagram-table-fields-empty-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 左树右键菜单再压或版本列表工具条碎距（Controls/审批/导出已密）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~左树右键菜单再压~~✅
 
 验证点：
 - `cd frontend && npx tsx src/utils/graphLayout.test.ts`
