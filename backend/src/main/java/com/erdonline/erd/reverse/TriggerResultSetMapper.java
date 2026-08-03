@@ -13,7 +13,7 @@ import java.util.function.Function;
  * 将字典风格触发器 ResultSet 映射为 {@link Trigger} 列表，并重建 DDL。
  * <p>约定列（大小写不敏感）：TRIGGER_NAME / ACTION_TIMING / EVENT_MANIPULATION /
  * ACTION_ORIENTATION / ACTION_STATEMENT（MySQL {@code INFORMATION_SCHEMA.TRIGGERS} /
- * PostgreSQL {@code information_schema.triggers}）。
+ * PostgreSQL {@code information_schema.triggers} / SQL Server {@code sys.triggers} 投影）。
  *
  * @author erdonline
  */
@@ -38,6 +38,15 @@ public final class TriggerResultSetMapper {
     public static List<Trigger> mapFromPostgresInformationSchema(ResultSet rs, String tableDisplayName,
                                                                  String nameCaseFlag) throws SQLException {
         return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::buildPostgresDdl);
+    }
+
+    /**
+     * SQL Server：sys.triggers 投影；若 ACTION_STATEMENT 已是完整 CREATE TRIGGER（OBJECT_DEFINITION）则直接作 ddl，
+     * 否则按方括号重建。
+     */
+    public static List<Trigger> mapFromSqlServerSys(ResultSet rs, String tableDisplayName,
+                                                    String nameCaseFlag) throws SQLException {
+        return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::resolveSqlServerDdl);
     }
 
     private static List<Trigger> mapDictionaryRows(ResultSet rs, String tableDisplayName, String nameCaseFlag,
@@ -108,12 +117,47 @@ public final class TriggerResultSetMapper {
                 + "\n" + body;
     }
 
+    /**
+     * 重建 SQL Server 风格 CREATE TRIGGER（方括号标识符；多事件拆行时按单事件重建）。
+     */
+    public static String buildSqlServerDdl(String name, String timing, String event, String orientation,
+                                           String statement, String tableName) {
+        String safeName = name == null ? "" : name;
+        String safeTable = tableName == null ? "" : tableName;
+        String safeTiming = timing == null ? "AFTER" : timing;
+        String safeEvent = event == null ? "INSERT" : event;
+        String body = statement == null ? "" : statement;
+        return "CREATE TRIGGER [" + quoteSqlServerIdent(safeName) + "] "
+                + "ON [" + quoteSqlServerIdent(safeTable) + "] "
+                + safeTiming + " " + safeEvent
+                + "\nAS\n" + body;
+    }
+
+    static String resolveSqlServerDdl(String name, String timing, String event, String orientation,
+                                      String statement, String tableName) {
+        if (statement != null) {
+            String trimmed = statement.trim();
+            if (!trimmed.isEmpty() && startsWithIgnoreCase(trimmed, "CREATE ")) {
+                return trimmed;
+            }
+        }
+        return buildSqlServerDdl(name, timing, event, orientation, statement, tableName);
+    }
+
     private static String quoteMysqlIdent(String ident) {
         return ident.replace("`", "``");
     }
 
     private static String quotePostgresIdent(String ident) {
         return ident.replace("\"", "\"\"");
+    }
+
+    private static String quoteSqlServerIdent(String ident) {
+        return ident.replace("]", "]]");
+    }
+
+    private static boolean startsWithIgnoreCase(String value, String prefix) {
+        return value.regionMatches(true, 0, prefix, 0, prefix.length());
     }
 
     private static String upperOrNull(String value) {

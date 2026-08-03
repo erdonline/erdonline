@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 逆向：SQL Server 触发器 → `entity.triggers[]`
+
+- 选题：`2744897` PG 触发器后，最高缺口 = SQL Server `sys.triggers`（共享 `Trigger` / `supportsTrigger` 已齐）
+- SQL Server：`SqlServerReverseDialect.supportsTrigger=true`；字典 `sys.triggers`/`sys.trigger_events` + `OBJECT_DEFINITION` → `name`/`timing`(AFTER|INSTEAD OF)/`event`/`orientation`/`statement`；完整 CREATE 作 `ddl`，否则方括号重建（`TriggerResultSetMapper.mapFromSqlServerSys`）；失败 warn 跳过
+- 单测：`SqlServerReverseDialectTriggerTest` + mapper SQL Server DDL + Registry `supportsTrigger`
+- 文档：ADR-0006 / roadmap 逆向保真 SQL Server 触发器 ✅；Oracle 触发器另切片
+- 未做：触发器 UI / DBML / Oracle 字典 / ADR-0011
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=TriggerResultSetMapperTest,SqlServerReverseDialectTriggerTest,PostgresqlReverseDialectTriggerTest,MysqlReverseDialectTriggerTest,ReverseDialectRegistryTest test`
+- `./backend/dev-ensure.sh --restart` 后 Registry/meta：`Microsoft SQL Server` → `supportsTrigger=true`
+
 #### 逆向：PostgreSQL 触发器 → `entity.triggers[]`
 
 - 选题：`2abaeb7` MySQL 触发器后，最高缺口 = PG `information_schema.triggers`（共享 `Trigger` / `supportsTrigger` 已齐）

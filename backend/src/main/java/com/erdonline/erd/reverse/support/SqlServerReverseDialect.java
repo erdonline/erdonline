@@ -5,12 +5,14 @@ import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.model.Trigger;
 import com.erdonline.erd.reverse.CommentResultSetMapper;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.TableIdentity;
+import com.erdonline.erd.reverse.TriggerResultSetMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -26,7 +28,8 @@ import java.util.Map;
 
 /**
  * SQL Server 逆向：默认 schema=dbo；索引走 sys.indexes；FK 走 sys.foreign_keys（保复合列序）；
- * 注释走 sys.extended_properties MS_Description（JDBC REMARKS 不可靠）。
+ * 注释走 sys.extended_properties MS_Description（JDBC REMARKS 不可靠）；
+ * 触发器走 sys.triggers / sys.trigger_events + OBJECT_DEFINITION。
  *
  * @author erdonline
  */
@@ -103,12 +106,32 @@ public class SqlServerReverseDialect extends AbstractJdbcReverseDialect {
                     + "AND ep.name = N'MS_Description' "
                     + "WHERE s.name = ? AND t.name = ? AND ep.value IS NOT NULL";
 
+    /**
+     * 表触发器：一行一事（INSERT/UPDATE/DELETE）；timing=AFTER|INSTEAD OF；
+     * ACTION_STATEMENT=OBJECT_DEFINITION（完整 CREATE，失败可空）。
+     */
+    private static final String SQL_TRIGGERS =
+            "SELECT tr.name AS TRIGGER_NAME, "
+                    + "CASE WHEN tr.is_instead_of_trigger = 1 THEN N'INSTEAD OF' ELSE N'AFTER' END "
+                    + "AS ACTION_TIMING, "
+                    + "te.type_desc AS EVENT_MANIPULATION, "
+                    + "N'STATEMENT' AS ACTION_ORIENTATION, "
+                    + "OBJECT_DEFINITION(tr.object_id) AS ACTION_STATEMENT "
+                    + "FROM sys.triggers tr "
+                    + "JOIN sys.trigger_events te ON te.object_id = tr.object_id "
+                    + "JOIN sys.tables t ON t.object_id = tr.parent_id "
+                    + "JOIN sys.schemas s ON s.schema_id = t.schema_id "
+                    + "WHERE tr.parent_class = 1 AND tr.is_ms_shipped = 0 "
+                    + "AND s.name = ? AND t.name = ? "
+                    + "ORDER BY tr.name, te.type_desc";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(true)
             .supportsComment(true)
+            .supportsTrigger(true)
             .build();
 
     @Override
@@ -208,6 +231,20 @@ public class SqlServerReverseDialect extends AbstractJdbcReverseDialect {
             statement.setString(2, table.getOriginTableName());
             try (ResultSet rs = statement.executeQuery()) {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
+            }
+        }
+    }
+
+    @Override
+    protected List<Trigger> loadTriggers(Connection connection, TableIdentity table, String nameCaseFlag)
+            throws SQLException {
+        String schemaName = resolveMsSchema(table);
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TRIGGERS)) {
+            statement.setString(1, schemaName);
+            statement.setString(2, table.getOriginTableName());
+            try (ResultSet rs = statement.executeQuery()) {
+                return TriggerResultSetMapper.mapFromSqlServerSys(
+                        rs, table.getDisplayTableName(), nameCaseFlag);
             }
         }
     }
