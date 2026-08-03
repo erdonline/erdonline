@@ -1,4 +1,19 @@
 // ReactFlow 画布与表节点（ADR-0016：敢分享的美图；颜色只认 --erd-* tokens）
+
+@keyframes erd-locate-flash {
+  0% {
+    box-shadow: 0 0 0 0 color-mix(in srgb, var(--erd-brand) 45%, transparent),
+      0 4px 14px var(--erd-ink-a06);
+  }
+  35% {
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--erd-brand) 35%, transparent),
+      0 4px 14px var(--erd-ink-a06);
+  }
+  100% {
+    box-shadow: var(--erd-selection-ring), 0 4px 14px var(--erd-ink-a06);
+  }
+}
+
 .erd-reactflow-container {
   width: 100%;
   height: 100%;
@@ -193,6 +208,11 @@
     border-color: var(--erd-brand);
     // 选中环与 Frame 共用 --erd-selection-ring（a18）；表另加抬升阴影
     box-shadow: var(--erd-selection-ring), 0 4px 14px var(--erd-ink-a06);
+  }
+
+  // 命令面板定位：品牌环脉冲（~1.4s），禁 Ant 蓝闪
+  &.locate-flash {
+    animation: erd-locate-flash 1.4s ease-out 1;
   }
 
   .erd-table-header {

@@ -15,8 +15,10 @@
 
 完整快捷键体系 + `Cmd/Ctrl+K` 命令面板。高手应能不碰鼠标完成建模。
 
-- ✅ `Cmd+Z/Y` 撤销重做、`Delete` 删除选中、`Cmd+F` 搜索表、`?` 呼出快捷键速查卡
+- ✅ `Cmd+Z/Y` 撤销重做、`Delete` 删除选中、`Cmd/Ctrl+K`/`Cmd/Ctrl+F` 命令面板（可搜表定位）、`?` 呼出快捷键速查卡
+- ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）
+- ❌ 命令面板只能建表/布局，搜表名无匹配、大图画布找不到表（历史问题）
 
 ## 3. 上下文即工具
 
@@ -48,6 +50,7 @@
 - ✅ 左树「关系」文件夹旁 `+`（`aria-label=新建关系图`）→ 同路径 `createDiagram`；与「表」文件夹旁 `+` 对称
 - ✅ 左树表菜单「编辑表」→ 表设计字段签（`designPane: 'field'`，与画布 `canvas-open-field` 同路径）；「重命名表」另项走 EntityModal
 - ✅ 左树搜索：Enter 过滤表名；× / 清空立刻清 `searchKey`（antd Search `onSearch` 不随 clear 触发）；无匹配 →「未找到匹配的表」（`tree-search-empty`）；禁过滤残留空文件夹白屏
+- ✅ 命令面板搜表定位：`Cmd/Ctrl+K`/`F` → 输入表名 → 定位到画布（选中 + fitView + `data-locate-flash`）；禁只筛选命令、找不到表
 - ✅ 字段级 unique 说明：字段签 hint「无独立唯一列」+「去索引签设置唯一」；索引空态「添加唯一索引」；画布字段 UK 徽章（只读，编辑在索引签）
 - ✅ 元数据应用子签「修改字段」=`updateFieldTemplate`（MODIFY）、「删除字段」=`deleteFieldTemplate`（DROP）；禁标签与模板对调诱导误执行；差异脚本与版本页同 dbKey（含快照通道）；拉取失败有 toast
 - ❌ 首页快捷入口指向不存在的路由（404）（历史问题）

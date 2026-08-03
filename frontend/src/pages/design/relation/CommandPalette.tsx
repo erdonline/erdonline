@@ -67,7 +67,7 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
           className="erd-cmd-input"
           data-testid="cmd-palette-input"
           aria-label="命令搜索"
-          placeholder="输入命令…（建表、布局、撤销）"
+          placeholder="输入命令或表名…（定位、建表、布局）"
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => {
@@ -92,7 +92,7 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
         <ul className="erd-cmd-list" role="listbox" aria-label="命令列表">
           {filtered.length === 0 && (
             <li className="erd-cmd-empty" aria-live="polite">
-              无匹配命令
+              无匹配命令或表
             </li>
           )}
           {filtered.map((c, i) => (

@@ -163,6 +163,8 @@ type TableNodeData = {
   moduleName: string;
   /** 本表作为 association.from 的字段名（外键） */
   fkFields?: string[];
+  /** 命令面板定位：短暂脉冲高亮 */
+  locateFlash?: boolean;
 };
 
 /** 表节点：字段级 Handle + 内联字段编辑（增/改/删）+ 表头改名。memo 避免拖动画布时全量重渲。 */
@@ -752,7 +754,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   );
 
   return (
-    <div className={`erd-table-node${selected ? ' selected' : ''}`}>
+    <div
+      className={`erd-table-node${selected ? ' selected' : ''}${data.locateFlash ? ' locate-flash' : ''}`}
+      data-locate-flash={data.locateFlash ? '1' : undefined}
+    >
       <div
         className="erd-table-header nodrag nopan"
         onDoubleClick={e => {
@@ -1182,6 +1187,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const pendingFitRef = useRef(0);
   const fitDiagramKeyRef = useRef('');
   const rfRef = useRef<ReactFlowInstance | null>(null);
+  /** 命令面板「定位表」脉冲清除定时器 */
+  const locateFlashTimerRef = useRef<number | null>(null);
 
   const moduleName = moduleEntity.module || '';
   const diagramIdFromTab = parseDiagramIdFromTabEntity(moduleName, moduleEntity.entity);
@@ -1320,6 +1327,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             entity,
             moduleName,
             fkFields: fkMap.get(entity.title) || [],
+            locateFlash: !!(live?.data as TableNodeData | undefined)?.locateFlash,
           },
           // 重建必须保留交互态（selected），否则点击选中立即被重建抹掉（已实证）
           selected: live?.selected,
@@ -1942,12 +1950,65 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     });
   }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
-  // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K 命令面板（输入框内不拦截）
+  /** 命令面板搜表 → 选中 + 视口对准 + 短暂脉冲高亮 */
+  const focusTable = useCallback(
+    (tableId: string) => {
+      setNodes((prev) =>
+        prev.map((n) => {
+          if (n.type === 'table') {
+            return {
+              ...n,
+              selected: n.id === tableId,
+              data: {
+                ...(n.data as TableNodeData),
+                locateFlash: n.id === tableId,
+              },
+            };
+          }
+          return { ...n, selected: false };
+        }),
+      );
+      setEdgeSelected({});
+      requestAnimationFrame(() => {
+        const rf = rfRef.current;
+        const node = rf?.getNode(tableId);
+        if (rf && node) {
+          rf.fitView({
+            nodes: [node],
+            padding: 0.35,
+            maxZoom: 1,
+            duration: 280,
+          });
+        }
+      });
+      if (locateFlashTimerRef.current != null) {
+        window.clearTimeout(locateFlashTimerRef.current);
+      }
+      locateFlashTimerRef.current = window.setTimeout(() => {
+        setNodes((prev) =>
+          prev.map((n) => {
+            if (n.type !== 'table' || !(n.data as TableNodeData)?.locateFlash) {
+              return n;
+            }
+            return {
+              ...n,
+              data: { ...(n.data as TableNodeData), locateFlash: false },
+            };
+          }),
+        );
+        locateFlashTimerRef.current = null;
+      }, 1400);
+    },
+    [setNodes],
+  );
+
+  // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K / Cmd/Ctrl+F 命令面板（输入框内不拦截）
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       const tag = (e.target as HTMLElement)?.tagName;
       const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
-      if ((e.metaKey || e.ctrlKey) && e.key && e.key.toLowerCase() === 'k') {
+      const key = e.key ? e.key.toLowerCase() : '';
+      if ((e.metaKey || e.ctrlKey) && (key === 'k' || key === 'f')) {
         e.preventDefault();
         setCmdOpen(v => !v);
         return;
@@ -1955,7 +2016,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       if (typing || cmdOpen) {
         return;
       }
-      if (!(e.metaKey || e.ctrlKey) || !e.key || e.key.toLowerCase() !== 'z') {
+      if (!(e.metaKey || e.ctrlKey) || key !== 'z') {
         return;
       }
       e.preventDefault();
@@ -1968,6 +2029,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [projectDispatch, cmdOpen]);
+
+  useEffect(
+    () => () => {
+      if (locateFlashTimerRef.current != null) {
+        window.clearTimeout(locateFlashTimerRef.current);
+      }
+    },
+    [],
+  );
 
   const cursorThrottleRef = useRef(0);
 
@@ -2076,44 +2146,59 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const tableNodeCount = nodes.filter((n) => n.type === 'table').length;
   const cullViewport = tableNodeCount >= VIEWPORT_CULL_THRESHOLD;
 
-  const commands: CommandItem[] = useMemo(() => [
-    {
-      id: 'new-table',
-      title: '新建表',
-      hint: '创建并立即上图',
-      run: createFirstTable,
-    },
-    {
-      id: 'auto-layout',
-      title: '自动布局',
-      hint: '按关联分层排布',
-      run: autoLayout,
-    },
-    {
-      id: 'align-left',
-      title: '左对齐',
-      hint: '选中 ≥2 张表',
-      run: () => alignSelected('left'),
-    },
-    {
-      id: 'align-top',
-      title: '顶对齐',
-      hint: '选中 ≥2 张表',
-      run: () => alignSelected('top'),
-    },
-    {
-      id: 'undo',
-      title: '撤销',
-      hint: '⌘Z',
-      run: () => projectDispatch.undoCanvas(),
-    },
-    {
-      id: 'redo',
-      title: '重做',
-      hint: '⌘⇧Z',
-      run: () => projectDispatch.redoCanvas(),
-    },
-  ], [createFirstTable, autoLayout, alignSelected, projectDispatch]);
+  const commands: CommandItem[] = useMemo(() => {
+    const actions: CommandItem[] = [
+      {
+        id: 'new-table',
+        title: '新建表',
+        hint: '创建并立即上图',
+        run: createFirstTable,
+      },
+      {
+        id: 'auto-layout',
+        title: '自动布局',
+        hint: '按关联分层排布',
+        run: autoLayout,
+      },
+      {
+        id: 'align-left',
+        title: '左对齐',
+        hint: '选中 ≥2 张表',
+        run: () => alignSelected('left'),
+      },
+      {
+        id: 'align-top',
+        title: '顶对齐',
+        hint: '选中 ≥2 张表',
+        run: () => alignSelected('top'),
+      },
+      {
+        id: 'undo',
+        title: '撤销',
+        hint: '⌘Z',
+        run: () => projectDispatch.undoCanvas(),
+      },
+      {
+        id: 'redo',
+        title: '重做',
+        hint: '⌘⇧Z',
+        run: () => projectDispatch.redoCanvas(),
+      },
+    ];
+    const locate: CommandItem[] = nodes
+      .filter((n) => n.type === 'table')
+      .map((n) => {
+        const entity = (n.data as TableNodeData).entity;
+        const chn = (entity.chnname || '').trim();
+        return {
+          id: `locate-${n.id}`,
+          title: entity.title,
+          hint: chn ? `定位 · ${chn}` : '定位到画布',
+          run: () => focusTable(n.id),
+        };
+      });
+    return [...actions, ...locate];
+  }, [createFirstTable, autoLayout, alignSelected, projectDispatch, nodes, focusTable]);
 
   return (
     <div
