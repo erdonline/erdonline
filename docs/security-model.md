@@ -27,6 +27,7 @@
 - 注册：`/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
 - Actuator：`/actuator/**` 放行，但 **exposure 仅 `health,info`**；`health` 不 `show-details`；`info` 仅 app name/version（无密钥）。禁止扩大到 env/beans/heapdump
+- OpenAPI / Swagger UI：Security 仍对 `/v3/api-docs/**`、`/swagger-ui/**` 匿名放行；**`prod` profile 通过 `springdoc.api-docs.enabled=false` / `springdoc.swagger-ui.enabled=false` 关闭端点本身**。勿依赖 `martin.swagger.enabled`（死键，不门控 springdoc）。本地/dev 默认仍开启，便于联调。
 
 ## 只读分享
 
