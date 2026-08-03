@@ -146,7 +146,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
           <img src="/logo.svg" alt="" width={28} height={28} />
           <span>ERD Online</span>
         </div>
-        <div className="erd-chrome-actions">
+        <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           {headRightContent}
           <Dropdown
             placement="bottom"

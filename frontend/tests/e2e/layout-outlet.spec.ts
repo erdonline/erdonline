@@ -62,6 +62,18 @@ test.describe('布局壳子路由出口', () => {
     expect(homeShellDense.bodyPadX).toBeLessThanOrEqual(16);
     expect(homeShellDense.footerPadT).toBeLessThanOrEqual(12);
 
+    // ADR-0016：顶栏 actions 次密（禁 gap16）；Design 另覆写 ≤8
+    const actions = page.getByTestId('erd-chrome-actions');
+    await expect(actions).toBeVisible();
+    const actionsGap = await actions.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const g = parseFloat(cs.gap);
+      if (!Number.isNaN(g) && g > 0) return g;
+      return Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0);
+    });
+    expect(actionsGap, `erd-chrome-actions gap 应 ≤12，得 ${actionsGap}`).toBeLessThanOrEqual(12);
+    expect(actionsGap).toBeGreaterThanOrEqual(8);
+
     await page.goto('/project/person');
     await expect(page.getByText('个人项目').first()).toBeVisible({ timeout: 15_000 });
     // 列表工具栏「新建」或空态「立即创建」——任一可见即证明子路由已挂载
@@ -94,6 +106,12 @@ test.describe('布局壳子路由出口', () => {
 
     await page.screenshot({
       path: 'test-results/ux-walkthrough/workspace-shell-dense.png',
+      fullPage: false,
+    });
+    await page.goto('/home');
+    await expect(page.getByTestId('erd-chrome-actions')).toBeVisible({ timeout: 15_000 });
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/chrome-actions-dense.png',
       fullPage: false,
     });
   });
@@ -270,6 +288,17 @@ test.describe('布局壳子路由出口', () => {
       await expect(page.getByRole('button', { name: '保存版本' })).toBeVisible();
       await expect(page.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByRole('button', { name: '只读分享' })).toBeVisible();
+      // ADR-0016：设计器 actions 已覆写 gap8，勿回退到壳默认松距
+      const designActionsGap = await page.getByTestId('erd-chrome-actions').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const g = parseFloat(cs.gap);
+        if (!Number.isNaN(g) && g > 0) return g;
+        return Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0);
+      });
+      expect(
+        designActionsGap,
+        `Design erd-chrome-actions gap 应 ≤8，得 ${designActionsGap}`,
+      ).toBeLessThanOrEqual(8);
       // 顶栏右：工单 / 待审批 / 通知（真实路由）
       const workflow = page.getByTestId('design-workflow-links');
       await expect(workflow.getByRole('button', { name: '我的工单' })).toBeVisible();

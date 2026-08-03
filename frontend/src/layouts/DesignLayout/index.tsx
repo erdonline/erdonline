@@ -412,7 +412,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
             }}
           />
         </div>
-        <div className="erd-chrome-actions design-layout__actions">
+        <div className="erd-chrome-actions design-layout__actions" data-testid="erd-chrome-actions">
           <SaveStatus key="save-status" />
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
