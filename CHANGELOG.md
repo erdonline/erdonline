@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布空态次链区 mt10 锁密
+
+- 选题：纵节奏 title/desc 已锁；量测 Controls chrome → **22×22 / pad0** 已贴 ADR-0016，不再次密；改锁 `.erd-empty-links` mt10；勿动 Auth logo / 欢迎 pad / CTA pad / panel 顶距 / title·desc
+- measure：Controls btn **22** + panel/btn pad **0**；links mt **10** 已贴 8–12 族 → CSS 不改；after：E2E 锁 linksMt≈10∈[8,12] + Controls pad0；`testid=canvas-empty-links` / role「导入 DBML」「从数据源逆向」
+- E2E：`relation`「空态构图」+「Controls」；截图 `diagram-empty-composition.png` / `diagram-controls-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 表设计签头 / CommonTabs 碎距（Auth logo / 欢迎 pad 跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图|Controls：中文" --workers=1 --retries=0`
+
 #### 体验：画布空态纵节奏（title/desc）锁密
 
 - 选题：panel 顶距已密；纵节奏 `.erd-empty-title` mt / `.erd-empty-desc` mb 对照 ADR-0016 8–12 量测；勿动 Auth logo / 欢迎 pad / CTA pad 10×12 / panel 顶距
 - measure：title mt **8**、desc mb **12**（历史 16 / 8×18 已在空态次密收过）→ 已贴族，CSS 不改；after：E2E 锁 titleMt≈8∈[6,10]、descMb≈12∈[8,12]、descMt≤8；`testid=canvas-empty-state` / role「新建第一张表」
 - E2E：`relation`「空态构图」锁纵节奏 + 既有 panel/CTA pad/hit；截图 `diagram-empty-composition.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布 Controls 次密或 `.erd-empty-links` mt10（视 ROI；Auth logo / 欢迎 pad 跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Controls 次密或 `.erd-empty-links` mt10~~✅（Controls 已密 → links 锁）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`

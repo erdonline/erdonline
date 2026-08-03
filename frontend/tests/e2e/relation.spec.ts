@@ -205,18 +205,23 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
 
-      // ADR-0016：panel 顶距 min(8vh,64)；纵节奏 title mt≈8 / desc mb≈12；CTA pad ∈[8,12]
+      // ADR-0016：panel 顶距 min(8vh,64)；纵节奏 title mt≈8 / desc mb≈12；links mt≈10；CTA pad ∈[8,12]
+      await expect(page.getByTestId('canvas-empty-links')).toBeVisible();
       const emptyMetrics = await empty.evaluate((el) => {
         const panelEl = el.closest('[data-testid="canvas-empty-panel"]') as HTMLElement | null;
         const pcs = panelEl ? getComputedStyle(panelEl) : null;
         const cs = getComputedStyle(el);
         const title = el.querySelector('.erd-empty-title') as HTMLElement | null;
         const desc = el.querySelector('.erd-empty-desc') as HTMLElement | null;
+        const links = el.querySelector(
+          '[data-testid="canvas-empty-links"]',
+        ) as HTMLElement | null;
         const btn = el.querySelector('.erd-empty-button') as HTMLElement | null;
         const sec = el.querySelector('.erd-empty-secondary') as HTMLElement | null;
         const bcs = btn ? getComputedStyle(btn) : null;
         const tcs = title ? getComputedStyle(title) : null;
         const dcs = desc ? getComputedStyle(desc) : null;
+        const lcs = links ? getComputedStyle(links) : null;
         const scs = sec ? getComputedStyle(sec) : null;
         const svg = el.querySelector('[data-testid="erd-empty-diagram"]');
         return {
@@ -234,6 +239,7 @@ test.describe('关系图画布（ReactFlow）', () => {
           descMb: dcs ? parseFloat(dcs.marginBottom) : -1,
           descSize: dcs ? parseFloat(dcs.fontSize) : 0,
           descColor: dcs ? dcs.color : '',
+          linksMt: lcs ? parseFloat(lcs.marginTop) : -1,
           btnH: bcs ? parseFloat(bcs.height) : 0,
           btnFont: bcs ? parseFloat(bcs.fontSize) : 0,
           btnWeight: bcs ? parseInt(bcs.fontWeight, 10) : 0,
@@ -272,6 +278,15 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(emptyMetrics.descMb, `desc mb 应 ≤12，得 ${emptyMetrics.descMb}`).toBeLessThanOrEqual(12);
       expect(emptyMetrics.descMb).toBeCloseTo(12, 0);
       expect(emptyMetrics.descMt, `desc mt 应 ≤8（贴标题），得 ${emptyMetrics.descMt}`).toBeLessThanOrEqual(8);
+      // Controls chrome 量测已密（22×22 / pad0）→ 本切片锁次链区 mt10（8–12 族）
+      expect(
+        emptyMetrics.linksMt,
+        `links mt 应 ≈10（∈[8,12]），得 ${emptyMetrics.linksMt}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(emptyMetrics.linksMt, `links mt 应 ≤12，得 ${emptyMetrics.linksMt}`).toBeLessThanOrEqual(
+        12,
+      );
+      expect(emptyMetrics.linksMt).toBeCloseTo(10, 0);
       expect(emptyMetrics.titleSize).toBeLessThanOrEqual(14);
       expect(emptyMetrics.titleWeight).toBeGreaterThanOrEqual(700);
       expect(emptyMetrics.descSize).toBeLessThanOrEqual(12);
@@ -875,7 +890,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByLabel('zoom out')).toHaveCount(0);
       await expect(page.getByLabel('fit view')).toHaveCount(0);
       await expect(page.getByLabel('toggle interactivity')).toHaveCount(0);
-      // ADR-0016：Controls 密度（22px）+ surface 底；适应画布为主操作
+      // ADR-0016：Controls 密度（22px / pad0）+ surface 底；适应画布为主操作
       const ctrl = await page.locator('.react-flow__controls').evaluate((el) => {
         const cs = getComputedStyle(el);
         const btn = el.querySelector('.react-flow__controls-button');
@@ -886,8 +901,14 @@ test.describe('关系图画布（ReactFlow）', () => {
         const svgMax = svg ? parseFloat(getComputedStyle(svg).maxWidth) : NaN;
         return {
           bg: cs.backgroundColor,
+          panelPadT: parseFloat(cs.paddingTop),
+          panelPadB: parseFloat(cs.paddingBottom),
+          panelPadL: parseFloat(cs.paddingLeft),
+          panelPadR: parseFloat(cs.paddingRight),
           btnH: bs ? parseFloat(bs.height) : NaN,
           btnW: bs ? parseFloat(bs.width) : NaN,
+          btnPadT: bs ? parseFloat(bs.paddingTop) : NaN,
+          btnPadL: bs ? parseFloat(bs.paddingLeft) : NaN,
           fitColor: fs?.color ?? '',
           fitBg: fs?.backgroundColor ?? '',
           svgMax,
@@ -897,6 +918,12 @@ test.describe('关系图画布（ReactFlow）', () => {
         'rgb(254, 254, 254)',
       );
       expect(ctrl.bg).toBe('rgb(255, 255, 255)'); // --erd-surface
+      expect(ctrl.panelPadT, `Controls 面板 pad 应 0，得 ${ctrl.panelPadT}`).toBe(0);
+      expect(ctrl.panelPadB).toBe(0);
+      expect(ctrl.panelPadL).toBe(0);
+      expect(ctrl.panelPadR).toBe(0);
+      expect(ctrl.btnPadT, `Controls 钮 pad 应 0，得 ${ctrl.btnPadT}`).toBe(0);
+      expect(ctrl.btnPadL).toBe(0);
       expect(ctrl.btnH, `Controls 按钮高应 ≤22，得 ${ctrl.btnH}`).toBeLessThanOrEqual(
         22,
       );

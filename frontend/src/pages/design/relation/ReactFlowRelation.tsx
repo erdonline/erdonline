@@ -2839,7 +2839,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               >
                 + 新建第一张表
               </button>
-              <div className="erd-empty-links">
+              <div className="erd-empty-links" data-testid="canvas-empty-links">
                 <button
                   type="button"
                   className="erd-empty-secondary nodrag"
