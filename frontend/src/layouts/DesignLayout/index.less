@@ -7,6 +7,90 @@
   font-family: var(--erd-font-ui);
 }
 
+/* Skip：视口内 1×1 可 Tab；聚焦后展开（禁 translate 出屏导致浏览器跳过） */
+.erd-skip-nav {
+  position: fixed;
+  z-index: 1100;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.erd-skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1101;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  background: var(--erd-surface);
+  color: var(--erd-brand);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--erd-font-ui);
+  text-decoration: none;
+  box-shadow: none;
+
+  &:focus,
+  &:focus-visible {
+    width: auto;
+    height: auto;
+    clip: auto;
+    overflow: visible;
+    padding: 8px 12px;
+    margin: 8px;
+    border: 2px solid var(--erd-brand);
+    border-radius: var(--erd-radius-sm, 4px);
+    box-shadow: 0 2px 8px var(--erd-ink-a06, rgba(0, 0, 0, 0.08));
+    outline: none;
+  }
+
+  & + .erd-skip-link {
+    left: 2px;
+  }
+
+  & + .erd-skip-link:focus,
+  & + .erd-skip-link:focus-visible {
+    left: 0;
+    margin-left: 120px;
+  }
+}
+
+/* 设计器焦点环：键盘可见；不另造鼠标描边 */
+.design-layout {
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  [role='link']:focus-visible,
+  [role='tab']:focus-visible,
+  [role='menuitem']:focus-visible,
+  .erd-chrome-user:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible,
+  [tabindex]:not([tabindex='-1']):focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: 2px;
+  }
+
+  #erd-design-tree:focus,
+  #erd-design-tree:focus-visible,
+  #erd-design-workspace:focus,
+  #erd-design-workspace:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -2px;
+  }
+}
+
 .design-layout > .ant-layout {
   flex: 1;
   min-height: 0;

@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：设计器 Skip + 焦点环（键盘建模）
+
+- 选题：进设计器 Tab 先扫冗长顶栏；模型树/签页/画布无 Skip；焦点环不可见
+- `DesignLayout`：`erd-skip-nav`「跳到模型树」「跳到主工作区」→ `#erd-design-tree` / `#erd-design-workspace`（`tabIndex=-1`）；设计器 `:focus-visible` brand 环；签栏/画布工具栏补环；左树文件夹 `+` Enter/Space
+- E2E：`relation`「设计器 Skip：首项 Tab 达跳过链；落到模型树/主工作区无 trap」
+- `docs/design-principles.md` §2；下一刀 → Cmd+1/2/3 签页直切 或 画布节点/字段浏览器 Tab 环
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "设计器 Skip" --workers=1 --retries=0`
+
 #### 体验：表设计字段签 JExcel Tab 焦点序（键盘建模）
 
 - 选题：工具栏仅 remove 可 Tab；其余 6 个 icon 键盘不可达；remove 可聚焦但 Enter/Space 不触发；网格无 Tab 入口
 - 全工具栏 `role=button` + `tabindex=0` + `aria-label`(title) + Enter/Space→click；`.jexcel_content` `jexcel-grid` 可聚焦，Enter 选 A1；不拦 Tab/Shift+Tab（无 trap）
 - E2E：`relation`「表设计字段签：工具栏 Tab 可达且 Enter 增行；网格无 trap」
-- `docs/design-principles.md` §2；下一刀 → 设计器全局焦点环审计（左树/签页/画布）或 Cmd+1/2/3 签页直切
+- `docs/design-principles.md` §2；下一刀 → ~~设计器全局焦点环审计（左树/签页/画布）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "工具栏 Tab 可达" --workers=1 --retries=0`
