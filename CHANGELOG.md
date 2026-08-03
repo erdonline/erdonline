@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布拖表坐标假成功
+
+- 选题：剪贴/粘贴假成功已收口（`e36fcfc`）；左树改名模型/关系图已 `persist:true`（clean）；画布 `onNodeDragStop` 仍本地 `updateGraphCanvasLayout`/`updateFrameBounds` 即写 store，autosave 失败像坐标已落盘
+- `commitDiagramGeometry`：表坐标 + Frame bounds 一次 produce；`persist:true` 仅 `saveProject` code===200 写 store；失败 toast；RF 回滚到 store 坐标可再拖
+- E2E：`canvas-drag-reposition-failure` 首拒 transform 回滚 → 重试拖动成功；定位 `rfNode`/`save-status`（勿扫 `.ant-*`）
+- 文档：design-principles §1·§5 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Frame 改名 / 对齐·自动布局 / 缩放 bounds 假成功（若仍有）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-drag-reposition-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：左树剪切/粘贴假成功
 
 - 选题：画布删边/Frame 假成功已收口（`e23802a`）；左树 `cutEntity`/`pastEntity`/`cutModule`/`pastModule` 仍本地 mutate 即成功 toast（`DataTable` 剪切还叠「剪切成功」），autosave 失败像已剪/已粘；复制仅本地剪贴板无需落盘
 - `cut*`/`past*` 支持 `persist:true`；仅 `saveProject` code===200 写剪贴板与移出/写入 + 成功 toast；失败 toast、保留先前状态；左树一律 `persist:true`；去掉多余「剪切成功」
 - E2E：`tree-cut-paste-failure` 粘贴首拒无副本/剪切首拒表仍在、无成功 toast → 重试成功；定位 `表操作` aria + menuitem（勿扫 `.ant-*`）
-- 文档：design-principles §1·§5 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 改名模型/关系图或拖拽 reposition 落盘假成功（若仍有）
+- 文档：design-principles §1·§5 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~改名模型/关系图~~已 clean → ~~拖拽 reposition~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/tree-cut-paste-failure.spec.ts --project=chromium --workers=1 --retries=0`

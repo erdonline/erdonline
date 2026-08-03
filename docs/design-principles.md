@@ -25,6 +25,7 @@
 - ✅ 画布/左树删表：仅 `saveProject` code===200 移出节点 + toast「表删除成功」；失败 toast、节点保留、确认窗拒关可重试；禁本地 mutate 即「表删除成功」
 - ✅ 左树删模型/关系图：仅 `saveProject` code===200 移出 + toast「模型/关系图删除成功」；失败 toast、树节点保留、确认窗拒关可重试；禁本地 mutate 即成功
 - ✅ 左树剪切/粘贴表（及模型剪切/粘贴）：仅 `saveProject` code===200 写剪贴板与移出/写入 + 成功 toast；失败 toast、保留先前状态；禁本地 mutate 即「剪切/粘贴成功」（复制仅本地剪贴板，无落盘）
+- ✅ 画布拖表/拖框坐标：仅 `saveProject` code===200 写 layout/Frame bounds；失败 toast + RF 回滚到先前坐标；禁本地 mutate 即坐标已落盘
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -41,6 +42,7 @@
 - ❌ 画布/左树删表本地 mutate 即 toast「表删除成功」，autosave 失败像已删表（历史问题）
 - ❌ 左树删模型/关系图本地 mutate 即 toast，autosave 失败像已删（历史问题）
 - ❌ 左树剪切/粘贴本地 mutate 即成功 toast，autosave 失败像已剪/已粘（历史问题）
+- ❌ 画布拖表本地 mutate 即写 layout，autosave 失败像坐标已落盘（历史问题）
 
 ## 2. 键盘优先
 
@@ -163,6 +165,7 @@
 - ✅ 画布删分组（Frame）二次确认（选中后 Delete·Backspace；文案标明仅删框不删表；取消保留；确认后 `removeFrame` `persist:true`，失败拒关窗可重试）
 - ✅ 左树删除模型/关系图二次确认（模型：标明级联删表与图；非主关系图：仅删图不删表；主图无删除项；确认后 `persist:true`，失败拒关窗可重试）
 - ✅ 左树剪切/粘贴表与模型：`cutEntity`/`pastEntity`/`cutModule`/`pastModule` `persist:true`；仅 save 成功后改树；失败可重试（复制不落盘）
+- ✅ 画布拖表/拖框坐标：`commitDiagramGeometry` `persist:true`；仅 save 成功写 layout/Frame bounds；失败 RF 回滚到 store 坐标（禁本地 mutate 即落盘）
 - ✅ 画布删字段二次确认（按钮 / 选中后 Delete·Backspace），编辑态 Backspace 不误删
 - ✅ 索引签「删除索引 `{name}`」Modal 二次确认；取消保留；删空回空态
 - ✅ JExcel 工具栏「删除选中行」Modal 二次确认（字段/索引/默认字段表共用；未选中有 toast）

@@ -63,6 +63,19 @@ export interface IModulesDispatchSlice {
   updateRelation: (payload: any) => void;
   /** 写当前图布局（ADR-0017：只写 diagrams；diagramId 缺省=main） */
   updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[], diagramId?: string) => void;
+  /**
+   * 拖拽落盘：表坐标 + Frame bounds 一次 produce。
+   * persist:true 时仅 saveProject code===200 写 store；失败不写（调用方回滚 RF 本地坐标）。
+   */
+  commitDiagramGeometry: (
+    moduleName: string,
+    diagramId: string | undefined,
+    payload: {
+      layoutNodes?: any[];
+      frameBounds?: Array<{ id: string; x: number; y: number; w?: number; h?: number }>;
+    },
+    opts?: PersistOpt,
+  ) => boolean | Promise<boolean>;
   createDiagram: (
     moduleName: string,
     name?: string,
@@ -536,6 +549,73 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
       upsertDiagramLayout(diagram, layoutNodes);
     }));
+  },
+  // 拖表/拖框结束：禁本地 mutate 即「坐标已落」；persist:true 仅 save code===200 写 store
+  commitDiagramGeometry: (moduleName, diagramId, payload, opts?) => {
+    const persist = !!opts?.persist;
+    const layoutNodes = payload.layoutNodes || [];
+    const frameBounds = payload.frameBounds || [];
+    if (!layoutNodes.length && !frameBounds.length) {
+      return persist ? Promise.resolve(true) : true;
+    }
+
+    const apply = (modules: any[]): boolean => {
+      const module = modules?.find((m: any) => m?.name === moduleName);
+      if (!module) {
+        return false;
+      }
+      const diagrams = ensureDiagrams(module);
+      const id = diagramId || DEFAULT_DIAGRAM_ID;
+      const diagram = diagrams.find((d) => d.id === id) || diagrams[0];
+      if (!diagram) {
+        return false;
+      }
+      if (layoutNodes.length) {
+        upsertDiagramLayout(diagram, layoutNodes);
+      }
+      frameBounds.forEach((f) => applyFrameBounds(diagram, f.id, f));
+      return true;
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        apply(state.project.projectJSON?.modules);
+      }));
+      return true;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    let applied = false;
+    const next = produce(project, (draft: any) => {
+      applied = apply(draft.projectJSON.modules);
+    });
+    if (!applied) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '布局保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
   },
   createDiagram: (moduleName: string, name?: string, opts?: PersistOpt) => {
     const persist = !!opts?.persist;

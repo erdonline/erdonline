@@ -1897,6 +1897,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   );
 
   // 拖动结束 → 表写 layout；框写 groups；拖框按起始 Δ 平移成员（兜底，避免 onNodeDrag 被挡）
+  // 禁止本地 mutate 即坐标落盘成功；仅 saveProject code===200 写 store；失败 RF 回滚到 store 坐标
   const onNodeDragStop = useCallback(
     (_: any, node: Node, draggedNodes: Node[]) => {
       const origin = frameDragRef.current;
@@ -1938,33 +1939,76 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
       const tables = persistNodes.filter((n) => n.type === 'table');
       const movedFrames = persistNodes.filter((n) => n.type === 'frame');
-      if (tables.length) {
-        projectDispatch.updateGraphCanvasLayout(
-          moduleName,
-          tables.map((n) => ({ id: n.id, position: n.position })),
-          activeDiagramId,
+      const layoutNodes = tables.map((n) => ({ id: n.id, position: n.position }));
+      const frameBounds = movedFrames.map((n) => {
+        const { w, h } = frameNodeSize(n);
+        return {
+          id: parseFrameIdFromNodeId(n.id),
+          x: n.position.x,
+          y: n.position.y,
+          w,
+          h,
+        };
+      });
+      if (!layoutNodes.length && !frameBounds.length) {
+        return;
+      }
+
+      void (async () => {
+        const ok = await Promise.resolve(
+          projectDispatch.commitDiagramGeometry(
+            moduleName,
+            activeDiagramId,
+            { layoutNodes, frameBounds },
+            { persist: true },
+          ),
         );
-      }
-      if (movedFrames.length) {
-        projectDispatch.updateFrameBounds(
-          moduleName,
-          activeDiagramId,
-          movedFrames.map((n) => {
-            const { w, h } = frameNodeSize(n);
-            return {
-              id: parseFrameIdFromNodeId(n.id),
-              x: n.position.x,
-              y: n.position.y,
-              w,
-              h,
-            };
-          }),
-        );
-      }
-      // 拖表（非拖框连带）时同步归属
-      if (!wasFrameDrag && node.type === 'table') {
-        syncTableFrameMembership(persistNodes, [node.id]);
-      }
+        if (!ok) {
+          const mod = useProjectStore
+            .getState()
+            .project?.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+          const savedNodes = getActiveDiagramLayoutNodes(mod, activeDiagramId);
+          const diagramFrames = getActiveDiagramFrames(mod, activeDiagramId);
+          setNodes((prev) =>
+            prev.map((n) => {
+              if (n.type === 'table') {
+                const saved = savedNodes.find(
+                  (s: any) =>
+                    s.id === n.id || (s.title || '').split(':')[0] === n.id,
+                );
+                if (saved && typeof saved.x === 'number' && typeof saved.y === 'number') {
+                  return { ...n, position: { x: saved.x, y: saved.y } };
+                }
+                return n;
+              }
+              if (n.type === 'frame') {
+                const fid = parseFrameIdFromNodeId(n.id);
+                const f = diagramFrames.find((g) => g.id === fid);
+                if (!f) return n;
+                return {
+                  ...n,
+                  position: { x: f.x, y: f.y },
+                  width: f.w,
+                  height: f.h,
+                  style: { ...n.style, width: f.w, height: f.h },
+                  data: {
+                    ...n.data,
+                    frame: f,
+                    moduleName,
+                    diagramId: activeDiagramId,
+                  },
+                };
+              }
+              return n;
+            }),
+          );
+          return;
+        }
+        // 拖表（非拖框连带）时同步归属；仅布局落盘成功后改 Frame 成员
+        if (!wasFrameDrag && node.type === 'table') {
+          syncTableFrameMembership(persistNodes, [node.id]);
+        }
+      })();
     },
     [projectDispatch, moduleName, activeDiagramId, syncTableFrameMembership, setNodes, frames],
   );
