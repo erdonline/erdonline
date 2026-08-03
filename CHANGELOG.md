@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：后端风险登记（鉴权/密钥/SQL/死配置）
+
+- 选题：公网与自托管生产向风险梳理（非泛 code smell）
+- 文档：`docs/security-model.md` 新增「已知风险」表（R-AUTH / R-CFG / R-DATA / R-OPS / R-DEAD）
+- 关键发现：匿名 `GET /user/loadUserByUsername/{u}` 返回 bcrypt `pwd`+权限（ignore-urls + Service `@RestController`）；`JWT_SECRET` prod 未 fail-fast；`queryInfo` `${sql}` / `connector` 任意 JDBC 无白名单；项目与 dataSources IDOR；`GitlabController` 硬编码账密
+
+验证点：
+- `curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/user/loadUserByUsername/admin` → 200（登记为 P0，待下一刀关闭）
+- `curl -sS http://localhost:9502/actuator/env` → 404；prod yml 仍见 `springdoc.*.enabled: false`
+- 文档章节：「已知风险（后端登记，2026-08-03）」
+
 #### 安全：prod 关闭 springdoc OpenAPI / Swagger UI
 
 - 选题：`/v3/api-docs` 与 Swagger UI 在 Security 中 `permitAll`；`martin.swagger.enabled` 为死键（不门控 springdoc）；`application-prod.yml` 未真正关闭
