@@ -6,6 +6,7 @@ import {CONSTANT} from '@/utils/constant';
 import AddUser from '@/pages/project/group/component/AddUser';
 import {Access, useAccess} from '@@/plugin-access';
 import {confirmDestructive} from '@/utils/destructiveConfirm';
+import './group-user.scss';
 
 type ProjectUser = {
   id: string;
@@ -103,16 +104,10 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
   return (
     <div data-testid="group-user-list">
       <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: 16,
-          flexWrap: 'wrap',
-          gap: 8,
-        }}
+        className="group-user-list__toolbar"
+        data-testid="group-user-toolbar"
       >
-        <Space wrap>
+        <Space wrap size={8}>
           {canSearch ? (
             <>
               <Input.Search

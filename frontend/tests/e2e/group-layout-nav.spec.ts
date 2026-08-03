@@ -72,6 +72,95 @@ test.describe('GroupLayout 导航与权限组', () => {
       await expect(page.getByRole('tab', { name: '权限配置' })).toBeVisible();
 
       await page.getByRole('tab', { name: '团队普通成员' }).click();
+      await page.getByRole('tab', { name: '用户组成员' }).click();
+      const membersPanel = page.getByRole('tabpanel', { name: '用户组成员' });
+      const toolbar = membersPanel.getByTestId('group-user-toolbar');
+      await expect(toolbar).toBeVisible({ timeout: 15_000 });
+      await expect(membersPanel.getByRole('button', { name: '添加成员' })).toBeVisible();
+
+      // ADR-0016：成员工具条碎距 — Search 28 / 工具条 ≤32 / Space gap 8 / 钮 padX 8
+      const metrics = await toolbar.evaluate((el) => {
+        const search = el.querySelector(
+          '[aria-label="搜索用户名"]',
+        ) as HTMLElement | null;
+        const affix = search?.closest(
+          '.ant-input-affix-wrapper',
+        ) as HTMLElement | null;
+        const addBtn = el.querySelector(
+          '[aria-label="添加成员"]',
+        ) as HTMLElement | null;
+        const space = el.querySelector('.ant-space') as HTMLElement | null;
+        const spaceItems = space
+          ? Array.from(space.querySelectorAll(':scope > .ant-space-item'))
+          : [];
+        let spaceItemGap = -1;
+        if (spaceItems.length >= 2) {
+          const a = spaceItems[0].getBoundingClientRect();
+          const b = spaceItems[1].getBoundingClientRect();
+          spaceItemGap = Math.round(b.left - a.right);
+        }
+        const scs = space ? getComputedStyle(space) : null;
+        const bcs = addBtn ? getComputedStyle(addBtn) : null;
+        const tcs = getComputedStyle(el);
+        return {
+          toolbarH: el.getBoundingClientRect().height,
+          toolbarMb: parseFloat(tcs.marginBottom),
+          searchH: affix
+            ? affix.getBoundingClientRect().height
+            : search
+              ? search.getBoundingClientRect().height
+              : -1,
+          addBtnH: addBtn ? addBtn.getBoundingClientRect().height : -1,
+          addBtnPadX: bcs ? parseFloat(bcs.paddingLeft) : -1,
+          spaceColGap: scs ? parseFloat(scs.columnGap) : -1,
+          spaceItemGap,
+        };
+      });
+      expect(
+        metrics.toolbarH,
+        `工具条高应 ≤32（目标 ~28），得 ${metrics.toolbarH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
+      expect(
+        metrics.toolbarMb,
+        `工具条 marginBottom 应 ≤8（禁 16），得 ${metrics.toolbarMb}`,
+      ).toBeLessThanOrEqual(8);
+      if (metrics.searchH >= 0) {
+        expect(
+          metrics.searchH,
+          `搜索框高应 ≤28（禁 antd 默认 32），得 ${metrics.searchH}`,
+        ).toBeLessThanOrEqual(28);
+        expect(metrics.searchH).toBeGreaterThanOrEqual(22);
+      }
+      expect(
+        metrics.addBtnH,
+        `添加成员钮高应 ≤32（目标 28），得 ${metrics.addBtnH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.addBtnH).toBeGreaterThanOrEqual(22);
+      expect(
+        metrics.addBtnPadX,
+        `添加成员钮 padX 应 ∈[8,12]，得 ${metrics.addBtnPadX}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(metrics.addBtnPadX).toBeLessThanOrEqual(12);
+      if (metrics.spaceColGap >= 0) {
+        expect(
+          metrics.spaceColGap,
+          `工具条 Space column-gap 应 ∈[8,12]，得 ${metrics.spaceColGap}`,
+        ).toBeGreaterThanOrEqual(8);
+        expect(metrics.spaceColGap).toBeLessThanOrEqual(12);
+      }
+      if (metrics.spaceItemGap >= 0) {
+        expect(
+          metrics.spaceItemGap,
+          `工具条 Space 项距应 ∈[8,12]，得 ${metrics.spaceItemGap}`,
+        ).toBeGreaterThanOrEqual(8);
+        expect(metrics.spaceItemGap).toBeLessThanOrEqual(12);
+      }
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/group-user-toolbar-dense.png',
+      });
+
       await page.getByRole('tab', { name: '权限配置' }).click();
       await expect(page.getByText('全选')).toBeVisible({ timeout: 15_000 });
       await expect(page.getByText('团队基础设置')).toBeVisible();
