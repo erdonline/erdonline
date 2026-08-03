@@ -108,7 +108,7 @@
 | Frame 新建/成员加减落盘失败 | 业务码失败 / 重试 | `createFrame`/`addFrameMembers`/`removeFrameMembers` persist；失败 toast；不上图/成员不变；加入拒关窗；可重试 | 零静默失败 | ✅ | `canvas-frame-members-failure` |
 | 画布连线建关联落盘失败 | 业务码失败 / 重试 | `addAssociation` persist；失败 toast；不上边；可再拖重试 | 零静默失败 | ✅ | `canvas-connect-edge-failure` |
 | 画布改边基数落盘失败 | 业务码失败 / 重试 | `updateAssociationRelation` persist；失败 toast；chip 保持原基数；可再选重试 | 零静默失败 | ✅ | `canvas-cardinality-failure` |
-| 画布边 ON DELETE/UPDATE | 选规则 / 失败重试 | `updateAssociationFkMeta` persist；同 constraintName 拆边同步；`erd-edge-fk-meta` | 零静默失败 | ✅ | `canvas-fk-meta-edit` |
+| 画布边 FK 元数据 | 约束名 / 规则 / 失败重试 | `updateAssociationFkMeta` persist；同旧 constraintName 拆边同步改名；`erd-edge-constraint-name` | 零静默失败 | ✅ | `canvas-fk-meta-edit` |
 | 画布字段 meta 落盘失败 | 业务码失败 / 重试 | 类型/PK/NN/AI/隐藏/浏览 PK：仅 save code===200 写 store；失败 toast；编辑草稿回滚；隐藏不退出 | 零静默失败 | ✅ | `canvas-field-meta-failure` |
 | 表设计 JExcel 字段 meta 落盘失败 | 业务码失败 / 重试 | 字段签 PK/隐藏等：仅 save code===200 写 store；失败 toast + 重挂网格回滚勾选；可重试；画布对齐 | 零静默失败 | ✅ | `jexcel-field-meta-failure` |
 | 表设计索引签落盘失败 | 业务码失败 / 重试 | 添加/唯一勾选等：仅 save code===200 写 store + 成功 toast；失败 toast + 空态/重挂回滚；删确认失败拒关窗；可重试；画布 UK | 零静默失败 | ✅ | `jexcel-index-failure` |

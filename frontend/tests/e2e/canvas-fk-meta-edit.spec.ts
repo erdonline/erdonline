@@ -13,7 +13,7 @@ import {
 } from './helpers';
 
 /**
- * 画布边 ON DELETE / ON UPDATE：点 chip → 选参照动作 → persist-on-200；失败可重试。
+ * 画布边 FK 元数据：点 chip → 约束名 + ON DELETE/UPDATE → persist-on-200；失败可重试。
  */
 
 function modulesFromSaveBody(raw: string | null): any[] {
@@ -46,8 +46,8 @@ function hasCascadeDelete(modules: any[]): boolean {
   );
 }
 
-test.describe('画布边 FK 参照动作可编辑', () => {
-  test('ON DELETE/UPDATE 落盘 + 失败可重试', async ({ page }) => {
+test.describe('画布边 FK 元数据可编辑', () => {
+  test('约束名 + ON DELETE/UPDATE 落盘 + 失败可重试', async ({ page }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('edge-fk-meta');
     try {
@@ -140,12 +140,34 @@ test.describe('画布边 FK 参照动作可编辑', () => {
         );
         await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
 
+        // 约束名：与 ON DELETE/UPDATE 同编辑器对称
+        if ((await page.getByTestId('erd-edge-fk-editor').count()) === 0) {
+          await page.getByTestId('erd-edge-label').click();
+          await page.keyboard.press('Escape');
+        }
+        await expect(page.getByTestId('erd-edge-fk-editor')).toBeVisible({ timeout: 5_000 });
+        const nameInput = page.getByTestId('erd-edge-constraint-name');
+        await expect(nameInput).toBeVisible({ timeout: 5_000 });
+        await nameInput.click();
+        await nameInput.fill('fk_order_user');
+        await nameInput.press('Enter');
+        await expect(page.getByTestId('erd-edge-fk-meta')).toHaveAttribute(
+          'data-constraint-name',
+          'fk_order_user',
+          { timeout: 15_000 },
+        );
+        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
         // Esc 关编辑器（基数下拉已收则一次）
         await page.keyboard.press('Escape');
         if ((await page.getByTestId('erd-edge-fk-editor').count()) > 0) {
           await page.keyboard.press('Escape');
         }
         await expect(page.getByTestId('erd-edge-fk-editor')).toHaveCount(0);
+        await expect(page.getByTestId('erd-edge-label')).toHaveAttribute(
+          'title',
+          /fk_order_user/,
+        );
         await expect(page.getByTestId('erd-edge-label')).toHaveAttribute(
           'title',
           /ON DELETE CASCADE/,
@@ -167,6 +189,10 @@ test.describe('画布边 FK 参照动作可编辑', () => {
         await expect(page.getByTestId('erd-edge-fk-meta')).toHaveAttribute(
           'data-update-rule',
           'RESTRICT',
+        );
+        await expect(page.getByTestId('erd-edge-fk-meta')).toHaveAttribute(
+          'data-constraint-name',
+          'fk_order_user',
         );
         expect(saveHits).toBeGreaterThanOrEqual(2);
       } finally {

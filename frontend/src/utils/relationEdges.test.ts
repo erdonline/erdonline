@@ -32,6 +32,7 @@ import {
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
+  normalizeConstraintName,
   normalizeFkRule,
   normalizeRelation,
   parseFieldHandle,
@@ -173,6 +174,16 @@ async function main() {
     assert.strictEqual(normalizeFkRule('  '), '');
     assert.strictEqual(normalizeFkRule(null), '');
     assert.strictEqual(normalizeFkRule('DROP'), null);
+  });
+
+  await run('normalizeConstraintName：合法 / 空 / 非法', () => {
+    assert.strictEqual(normalizeConstraintName('fk_order_user'), 'fk_order_user');
+    assert.strictEqual(normalizeConstraintName('  FK_A  '), 'FK_A');
+    assert.strictEqual(normalizeConstraintName(''), '');
+    assert.strictEqual(normalizeConstraintName('  '), '');
+    assert.strictEqual(normalizeConstraintName(null), '');
+    assert.strictEqual(normalizeConstraintName('a\u0000b'), null);
+    assert.strictEqual(normalizeConstraintName('x'.repeat(129)), null);
   });
 
   await run('associationsToEdges：透传 FK 约束元数据（ADR-0011 拆边同名）', () => {
