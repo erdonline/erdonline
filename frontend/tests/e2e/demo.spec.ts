@@ -443,6 +443,14 @@ test.describe('在线演示', () => {
     await expect(tablesPanel).toBeVisible();
     await expect(tablesPanel.getByRole('columnheader', { name: '表' })).toBeVisible();
     await expect(tablesPanel.getByRole('cell', { name: 'sys_user', exact: true })).toBeVisible();
+    // 表清单分页：demo 8 表 / 默认 pageSize 5 → 可见分页；第 2 页见 biz_order
+    await expect(tablesPanel.getByText('共 8 张表')).toBeVisible();
+    const page2 = tablesPanel.getByRole('listitem', { name: '2' });
+    await expect(page2).toBeVisible();
+    await expect(tablesPanel.getByRole('cell', { name: 'biz_order', exact: true })).toHaveCount(0);
+    await page2.click();
+    await expect(tablesPanel.getByRole('cell', { name: 'biz_order', exact: true })).toBeVisible();
+    await expect(tablesPanel.getByRole('cell', { name: 'sys_user', exact: true })).toHaveCount(0);
     // ADR-0016：表清单次密 — panel pad≤6 / 标题 12 / 行 ∈20–26
     const tablesDense = await tablesPanel.evaluate((el) => {
       const title = el.querySelector('.share-page__tables-title') as HTMLElement | null;

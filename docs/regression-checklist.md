@@ -576,6 +576,8 @@
 - [x] [空模块] 新建空项目分享 → 匿名见 `share-empty-module` + `erd-empty-diagram` + 主标题「该分享暂无模型|该模块暂无表」+ hint + 唯一主 CTA✅ `share.spec`「空模块分享…」
 - [x] [吊销后] 创建→吊销→匿名见品牌壳失效门（非裸 403）✅ `share.spec`「创建→吊销后…」
 - [x] [成功态不回归] 有表分享仍见 chrome 64 + 画布 + 表清单折叠✅ `share.spec`「设计器分享后…」
+- [x] [分享表清单分页] 展开表清单 →「共 8 张表」+ 第 2 页见 `biz_order`（默认 pageSize=5；demo 8 表）；密度锁不退 ✅`demo.spec`「免登录」
+- [x] [DBML Trigger 缺口] `@dbml/core` 9.x 无 `Trigger` 块；`Note` 仅 chnname；不伪造互导（见 `data-format.md`）✅文档
 
 ## W5 切片 4 — 登录/注册品牌壳（2026-08-03）
 

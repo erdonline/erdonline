@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：分享页表清单分页
+
+- 选题：量测 DBML 触发器互导 — `@dbml/core` 9.x **无**合法 `Trigger` 块；`Note` 已专用于 `chnname`，塞 `triggers[]` 会污染显示名且非官方语义家 → 文档缺口后改切最高 ROI UX：分享只读表清单 `pagination={false}` 大图撑屏
+- 分享：默认 `pageSize=5` + SizeChanger（5/10/20/50）+「共 N 张表」；单页隐藏分页；页码随表数夹紧；分页 chrome 次密（24）
+- E2E：`demo.spec` demo 8 表翻页见 `biz_order`；密度锁不退
+- 文档：`data-format` Trigger/DBML 缺口成文；roadmap / ui-layout / regression-checklist
+- 未做：DBML `triggers[]` 互导（等官方块）；设计器内其它表清单；ADR-0011 `fields[]`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --grep "免登录" --workers=1 --retries=0`
+
 #### 逆向：FK 约束名 + ON DELETE/UPDATE（ADR-0011 旁路加法）
 
 - 选题：Oracle 触发器收口后复查 ADR-0011：`fields[]` **仍延期**（解封=FE 多字段边协议）；薄切片 = ADR 负面项「约束名/ON DELETE 未进模型」
@@ -16,7 +27,7 @@
 - UI：边 chip `title`/`aria-label` 附带元数据；`data-testid=erd-edge-fk-meta`（勿扫 `.ant-*`）
 - 单测：`ForeignKeyAssociationMapperTest` + `relationEdges.test.ts` 透传/格式化
 - 文档：ADR-0011 解封条件成文；data-format / schema / ADR-0006 / roadmap / regression-checklist
-- 未做：`from.fields[]`/`to.fields[]` 聚合；DBML Ref 规则互导；表清单分页
+- 未做：`from.fields[]`/`to.fields[]` 聚合；DBML Ref 规则互导；表清单分页（本条后已切）
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=ForeignKeyAssociationMapperTest test`

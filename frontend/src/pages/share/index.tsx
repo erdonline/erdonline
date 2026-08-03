@@ -33,6 +33,9 @@ type SharePayload = {
   };
 };
 
+/** 底栏表清单默认每页行数；密表防撑屏，demo（8 表）可走翻页 */
+export const SHARE_TABLES_PAGE_SIZE = 5;
+
 const SharePage: React.FC = () => {
   const {token} = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
@@ -45,6 +48,8 @@ const SharePage: React.FC = () => {
   const [authed, setAuthed] = useState(() => Boolean(cache.getItem('Authorization')));
   /** 默认折叠：图为主平面；展开后表清单落在视口折线下 */
   const [tablesOpen, setTablesOpen] = useState(false);
+  const [tablesPage, setTablesPage] = useState(1);
+  const [tablesPageSize, setTablesPageSize] = useState(SHARE_TABLES_PAGE_SIZE);
 
   const shareReturnPath = token
     ? `/s/${token}?autofork=1`
@@ -179,6 +184,14 @@ const SharePage: React.FC = () => {
     });
     return list;
   }, [modules]);
+
+  // 表数变少时（换模块/载荷）夹紧页码，避免空页
+  useEffect(() => {
+    const maxPage = Math.max(1, Math.ceil(rows.length / tablesPageSize) || 1);
+    if (tablesPage > maxPage) {
+      setTablesPage(maxPage);
+    }
+  }, [rows.length, tablesPage, tablesPageSize]);
 
   if (loading) {
     return (
@@ -401,9 +414,23 @@ const SharePage: React.FC = () => {
             </Typography.Title>
             <Table
               size="small"
-              pagination={false}
               dataSource={rows}
               locale={{emptyText: '暂无表'}}
+              pagination={{
+                size: 'small',
+                current: tablesPage,
+                pageSize: tablesPageSize,
+                total: rows.length,
+                showSizeChanger: true,
+                pageSizeOptions: ['5', '10', '20', '50'],
+                hideOnSinglePage: true,
+                showTotal: (total) => `共 ${total} 张表`,
+                onChange: (page, pageSize) => {
+                  setTablesPage(page);
+                  setTablesPageSize(pageSize);
+                },
+              }}
+              data-testid="share-tables-table"
               columns={[
                 {title: '模块', dataIndex: 'module'},
                 {title: '表', dataIndex: 'table'},
