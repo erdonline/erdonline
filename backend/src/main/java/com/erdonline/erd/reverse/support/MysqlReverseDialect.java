@@ -23,7 +23,8 @@ import java.util.Locale;
 import java.util.Map;
 
 /**
- * MySQL / MariaDB 逆向：索引走 STATISTICS；FK 走 KEY_COLUMN_USAGE（字典级，保复合列序）；
+ * MySQL / MariaDB 逆向：索引走 STATISTICS（MySQL 8 函数键位读 EXPRESSION → {@code indexs[].fields[]}）；
+ * FK 走 KEY_COLUMN_USAGE（字典级，保复合列序）；
  * 触发器走 INFORMATION_SCHEMA.TRIGGERS → {@code entity.triggers}。
  *
  * @author erdonline
@@ -31,7 +32,20 @@ import java.util.Map;
 @Slf4j
 public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
 
+    /**
+     * MySQL 8+ 函数索引：STATISTICS.COLUMN_NAME 为空时读 EXPRESSION。
+     * MariaDB / 旧版无 EXPRESSION 列时回退 {@link #SQL_INDEXES_LEGACY}。
+     */
     private static final String SQL_INDEXES =
+            "SELECT INDEX_NAME, "
+                    + "CASE WHEN COLUMN_NAME IS NULL OR COLUMN_NAME = '' THEN EXPRESSION "
+                    + "ELSE COLUMN_NAME END AS COLUMN_NAME, "
+                    + "NON_UNIQUE, SEQ_IN_INDEX "
+                    + "FROM INFORMATION_SCHEMA.STATISTICS "
+                    + "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? "
+                    + "ORDER BY INDEX_NAME, SEQ_IN_INDEX";
+
+    private static final String SQL_INDEXES_LEGACY =
             "SELECT INDEX_NAME, COLUMN_NAME, NON_UNIQUE, SEQ_IN_INDEX "
                     + "FROM INFORMATION_SCHEMA.STATISTICS "
                     + "WHERE TABLE_SCHEMA = ? AND TABLE_NAME = ? "
@@ -106,9 +120,22 @@ public class MysqlReverseDialect extends AbstractJdbcReverseDialect {
     protected List<Index> loadIndexes(Connection connection, TableIdentity table, String nameCaseFlag)
             throws SQLException {
         String schemaName = resolveCatalog(connection, table);
-        try (PreparedStatement statement = connection.prepareStatement(SQL_INDEXES)) {
+        try {
+            return queryIndexes(connection, SQL_INDEXES, schemaName, table.getOriginTableName(), nameCaseFlag);
+        } catch (SQLException ex) {
+            // 无 EXPRESSION 列（MariaDB / MySQL 8.0.13 前）：退回列名-only，函数键位继续软丢
+            log.warn("MySQL 函数索引字典不可用 {}，回退列名索引: {}",
+                    table.getOriginTableName(), ex.getMessage());
+            return queryIndexes(connection, SQL_INDEXES_LEGACY, schemaName, table.getOriginTableName(),
+                    nameCaseFlag);
+        }
+    }
+
+    private static List<Index> queryIndexes(Connection connection, String sql, String schemaName,
+                                            String tableName, String nameCaseFlag) throws SQLException {
+        try (PreparedStatement statement = connection.prepareStatement(sql)) {
             statement.setString(1, schemaName);
-            statement.setString(2, table.getOriginTableName());
+            statement.setString(2, tableName);
             try (ResultSet rs = statement.executeQuery()) {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
             }
