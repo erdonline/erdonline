@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：LandingChrome / `/compare` 次密距
+
+- 选题：AuthBrandShell 已密；落地次屏 4.5rem section + 0.85 对照行 / compare 头 仍松井；hero 构图不动
+- `landing/index.less`：section 2.75rem；pillars gap 1.5/1.25；对照行 0.5×0.65；nav 0.9 / footer 1.75；compare hero `.landingSection.landingCompareHero` padT 1.5；hero 品牌字/全幅/CTA 级不动
+- E2E：`landing` 加载 densify + `compare` 对照 densify；键盘 Skip/Tab 用例不改
+- 文档：design-principles §2 / landing.md / regression-checklist / control-matrix / ui-layout-redesign / roadmap
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --grep "加载可见品牌|落地页键盘" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/compare.spec.ts --project=chromium --grep "加载对照表|竞品对照页键盘" --workers=1 --retries=0`
+
 #### 体验：AuthBrandShell / 失效·登录门次密距
 
 - 选题：欢迎空态已密；登录/注册/分享失效/404·403 共用 `AuthBrandShell` 仍 48×40 + gap20 松井
 - `AuthBrandShell`：品牌 pad 32×28 / gap14；缩略 pad12；表单 pad 32；门头 mb16；gate gap10；移动 28；品牌字号/渐变/~40% 宽度不变
 - E2E：`smoke` 登录页 + `share` 失效门 + `session` 去注册 — 轻量 densify assert；键盘 Skip/Tab 用例不改
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~LandingChrome / compare 次密距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`

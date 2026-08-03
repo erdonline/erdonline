@@ -38,6 +38,32 @@ test.describe('落地页', () => {
     expect(tokenMetrics.fontUi.toLowerCase()).toMatch(/ibm plex sans/);
     expect(tokenMetrics.mark3Bg).toMatch(/rgb\(\s*212,\s*136,\s*6\s*\)/); // --erd-warning
 
+    // ADR-0016：次屏 section / 对照表 / footer 次密；hero 品牌字仍醒目 + 全幅
+    const densify = await page.getByTestId('landing-page').evaluate((el) => {
+      const section = el.querySelector('#pillars') as HTMLElement | null;
+      const cell = el.querySelector('.landingCompare td') as HTMLElement | null;
+      const footer = el.querySelector('.landingFooter') as HTMLElement | null;
+      const nav = el.querySelector('.landingNav') as HTMLElement | null;
+      const hero = el.querySelector('.landingHero') as HTMLElement | null;
+      const brand = el.querySelector('.landingHeroBrand') as HTMLElement | null;
+      const heroCs = hero ? getComputedStyle(hero) : null;
+      return {
+        sectionPadT: section ? parseFloat(getComputedStyle(section).paddingTop) : -1,
+        cellPadT: cell ? parseFloat(getComputedStyle(cell).paddingTop) : -1,
+        footerPadT: footer ? parseFloat(getComputedStyle(footer).paddingTop) : -1,
+        navPadT: nav ? parseFloat(getComputedStyle(nav).paddingTop) : -1,
+        heroMinH: heroCs?.minHeight ?? '',
+        brandSize: brand ? parseFloat(getComputedStyle(brand).fontSize) : 0,
+      };
+    });
+    expect(densify.sectionPadT, `次屏 padTop 应 ≤52，得 ${densify.sectionPadT}`).toBeLessThanOrEqual(52);
+    expect(densify.sectionPadT).toBeGreaterThanOrEqual(36);
+    expect(densify.cellPadT, `对照表行 pad 应 ≤12，得 ${densify.cellPadT}`).toBeLessThanOrEqual(12);
+    expect(densify.footerPadT).toBeLessThanOrEqual(36);
+    expect(densify.navPadT).toBeLessThanOrEqual(20);
+    expect(densify.brandSize, `hero 品牌字应 ≥36，得 ${densify.brandSize}`).toBeGreaterThanOrEqual(36);
+    expect(densify.heroMinH).toMatch(/100v|px/);
+
     await page.getByRole('link', { name: '在线试用 demo' }).click();
     await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
 

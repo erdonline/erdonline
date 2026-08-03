@@ -31,6 +31,7 @@
 
 - 全幅产品截图 + 左侧可读 scrim；禁止 inset/卡片式 hero、紫色渐变 AI slop
 - 色板同源 `theme/css-vars.less`：底 `--erd-ink-900`、主 CTA `--erd-brand`、点缀 success/warning；字族 `--erd-font-ui` / `--erd-font-display`；禁止落地页自造第二套色
+- 次密距：次屏 section ~2.75rem、对照行 0.5、nav/footer 收；`/compare` 头区 padT 1.5；**勿压** hero 品牌级字号 / 全幅构图 / CTA 层级
 - 键盘：首焦 Skip「跳到主操作」→ hero `#landing-main-cta`（`/compare` CTA 同锚）；壳内 `:focus-visible` surface 环；不人为正 `tabIndex`
 
 ## 不做

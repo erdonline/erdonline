@@ -27,6 +27,7 @@
 - [x] 设计器空态次密距：字段/索引 Empty margin ≤8（禁 100 / antd XL）；空态 pad 贴 tab-body；保留 CTA；截图 `diagram-pane-empty-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 欢迎空态次密距：`.erd-welcome-empty__inner` pad ≤32；标题 mt ≤16 / 字 ∈18–22；hero ≤180；逆向链 + 左树新增模型；截图 `diagram-welcome-empty-dense.png` ✅`model-design-ux.spec.ts`
 - [x] AuthBrandShell 次密距：品牌 pad ≤36 / gap ≤16；表单 pad ≤36；门头 mb ≤20；标题 ≥24；登录/`share-invalid`/注册同源；键盘 Skip/Tab 不回归 ✅`smoke` + `share` + `session`
+- [x] LandingChrome / `/compare` 次密距：次屏 section pad ≤52；对照行 pad ≤12；nav ≤20；footer ≤36；compare hero ≤36；hero 品牌字 ≥36 + 全幅；键盘 Skip/Tab 不回归 ✅`landing.spec` + `compare.spec`
 - [x] 右键/树操作菜单密度：项高 ≤32（目标 ~28）/ font ≤13；图标·文案不 clip；`role=menuitem` + ArrowDown/Esc；截图 `diagram-context-menu-dense.png` ✅`model-design-ux.spec.ts`
 - [x] [字段签空态 CTA] 清字段→字段签见「还没有字段」+「添加第一个字段」→ 网格 + 画布 `id`；空态消失 ✅`table-field-empty.spec.ts`
 - [x] [画布空表字段 CTA] 清字段见 `canvas-fields-empty` +「添加第一个字段」→ 内联建 NAME → 空态消失 +「添加字段」 ✅`table-field-empty.spec.ts`
