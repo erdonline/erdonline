@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：画布边 FK 约束名可编辑（对称 ON DELETE/UPDATE）
+
+- 选题：`d198079`/`94fa593` 后 chip 可改参照动作，逆向/`Ref name` 已有 `constraintName` 却画布只读 → 新建边控不了 DDL 约束名（对称缺口）
+- `updateAssociationFkMeta` 支持 `constraintName`；同旧名拆边同步改名；重名拦截；persist-on-200
+- `ErdRelationEdge` 编辑器增加约束名 Input（Esc 丢草稿不落盘）
+- E2E：`canvas-fk-meta-edit` 覆盖约束名落盘 + 刷新残留（保留既有规则失败重试）
+- 未做：ADR-0013 / P4 Railway / DBML Trigger / ADR-0011 `fields[]`（人工/延期）
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/relationEdges.test.ts`
+- `cd frontend && npx playwright test tests/e2e/canvas-fk-meta-edit.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：触发器签可编辑已有行（对称字段/索引）
 
 - 选题：`1dc3297` 画布 open-trigger 后，签内仍只能新增/删除/只读看 DDL → 逆向 triggers[] 改语句体要删重建（多余步骤 + 与索引签不对称）

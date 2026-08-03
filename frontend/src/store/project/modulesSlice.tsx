@@ -20,7 +20,11 @@ import {
   updateFrameBounds as applyFrameBounds,
   upsertDiagramLayout,
 } from "@/utils/diagram";
-import { normalizeFkRule, normalizeRelation } from "@/utils/relationEdges";
+import {
+  normalizeConstraintName,
+  normalizeFkRule,
+  normalizeRelation,
+} from "@/utils/relationEdges";
 import {
   ackManualPersist,
   persistProjectNow,
@@ -159,14 +163,14 @@ export interface IModulesDispatchSlice {
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
   /**
-   * 改关联 FK 参照动作（deleteRule / updateRule；from/to 定位）。
-   * 空串清除；同 constraintName 拆边同步写（ADR-0011 复合拆边）。
+   * 改关联 FK 元数据（constraintName / deleteRule / updateRule；from/to 定位）。
+   * 空串清除；同旧 constraintName 拆边同步写/改名（ADR-0011 复合拆边）。
    * persist:true 时仅 saveProject code===200 写 store。
    */
   updateAssociationFkMeta: (
     moduleName: string,
     association: { from: { entity: string; field: string }; to: { entity: string; field: string } },
-    meta: { deleteRule?: string; updateRule?: string },
+    meta: { constraintName?: string; deleteRule?: string; updateRule?: string },
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
   undoCanvas: () => void;
@@ -1473,10 +1477,22 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return true;
     })();
   },
-  // 改关联 ON DELETE / ON UPDATE；persist:true 时仅 saveProject code===200 写 store
+  // 改关联 constraintName / ON DELETE / ON UPDATE；persist:true 时仅 saveProject code===200 写 store
   updateAssociationFkMeta: (moduleName, association, meta, opts?) => {
     const persist = !!opts?.persist;
-    const patch: { deleteRule?: string; updateRule?: string } = {};
+    const patch: {
+      constraintName?: string;
+      deleteRule?: string;
+      updateRule?: string;
+    } = {};
+    if (Object.prototype.hasOwnProperty.call(meta, 'constraintName')) {
+      const n = normalizeConstraintName(meta.constraintName);
+      if (n === null) {
+        message.warning('约束名无效（过长或含非法字符）');
+        return persist ? Promise.resolve(false) : undefined;
+      }
+      patch.constraintName = n;
+    }
     if (Object.prototype.hasOwnProperty.call(meta, 'deleteRule')) {
       const n = normalizeFkRule(meta.deleteRule);
       if (n === null) {
@@ -1494,7 +1510,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       patch.updateRule = n;
     }
     if (!Object.keys(patch).length) {
-      message.warning('未指定要修改的参照动作');
+      message.warning('未指定要修改的 FK 元数据');
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1505,6 +1521,13 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       a?.to?.field === association.to?.field;
 
     const applyPatchTo = (a: any) => {
+      if (Object.prototype.hasOwnProperty.call(patch, 'constraintName')) {
+        if (patch.constraintName) {
+          a.constraintName = patch.constraintName;
+        } else {
+          delete a.constraintName;
+        }
+      }
       if (Object.prototype.hasOwnProperty.call(patch, 'deleteRule')) {
         if (patch.deleteRule) {
           a.deleteRule = patch.deleteRule;
@@ -1521,35 +1544,51 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
     };
 
-    const applyUpdate = (modules: any[]): boolean => {
+    const applyUpdate = (modules: any[]): 'ok' | 'missing' | 'collision' => {
       const module = modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
-        return false;
+        return 'missing';
       }
       const list = module.associations || [];
       const target = list.find(matches);
       if (!target) {
-        return false;
+        return 'missing';
       }
+      const oldConstraintName = String(target.constraintName || '').trim();
+      if (
+        Object.prototype.hasOwnProperty.call(patch, 'constraintName')
+        && patch.constraintName
+        && patch.constraintName !== oldConstraintName
+      ) {
+        const collided = list.some(
+          (a: any) =>
+            a !== target
+            && String(a?.constraintName || '').trim() === patch.constraintName,
+        );
+        if (collided) {
+          message.warning(`约束名已存在: ${patch.constraintName}`);
+          return 'collision';
+        }
+      }
+      // 先按旧名锁定拆边组，再改目标（改名后仍靠 oldConstraintName 找兄弟）
       applyPatchTo(target);
-      const cName = target.constraintName;
-      if (cName) {
+      if (oldConstraintName) {
         for (const a of list) {
-          if (a !== target && a?.constraintName === cName) {
+          if (a !== target && String(a?.constraintName || '').trim() === oldConstraintName) {
             applyPatchTo(a);
           }
         }
       }
-      return true;
+      return 'ok';
     };
 
     if (!persist) {
       snapshotModules(get().project?.projectJSON?.modules);
-      let found = false;
+      let status: 'ok' | 'missing' | 'collision' = 'missing';
       set(produce(state => {
-        found = applyUpdate(state.project.projectJSON?.modules);
+        status = applyUpdate(state.project.projectJSON?.modules);
       }));
-      if (!found) {
+      if (status === 'missing') {
         message.warning('未找到该关联');
       }
       return;
@@ -1565,14 +1604,25 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return Promise.resolve(false);
     }
 
+    let status: 'ok' | 'missing' | 'collision' = 'missing';
     const nextProject = produce(project, (draft: any) => {
-      applyUpdate(draft.projectJSON?.modules);
+      status = applyUpdate(draft.projectJSON?.modules);
     });
+    if (status !== 'ok') {
+      if (status === 'missing') {
+        message.warning('未找到该关联');
+      }
+      return Promise.resolve(false);
+    }
     const updated = (nextProject.projectJSON?.modules as any[])?.some(
       (m: any) =>
         m?.name === moduleName
         && (m.associations || []).some((a: any) => {
           if (!matches(a)) return false;
+          if (Object.prototype.hasOwnProperty.call(patch, 'constraintName')) {
+            const got = a.constraintName || '';
+            if (got !== patch.constraintName) return false;
+          }
           if (Object.prototype.hasOwnProperty.call(patch, 'deleteRule')) {
             const got = a.deleteRule || '';
             if (got !== patch.deleteRule) return false;

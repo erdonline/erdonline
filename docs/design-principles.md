@@ -31,7 +31,7 @@
 - ✅ Frame 新建/加入/移出成员：仅 `saveProject` code===200 写 store + toast；失败 toast、不上图/不改成员；加入 Modal 失败拒关窗；禁本地 mutate 即成功
 - ✅ 画布拖连线建关联：仅 `saveProject` code===200 写 store；失败 toast、不上边（associations 派生）；可再拖重试；禁本地 mutate 即上边
 - ✅ 画布改边基数：仅 `saveProject` code===200 写 store；失败 toast、chip 保持原基数；可再选重试；禁本地 mutate 即换基数
-- ✅ 画布改边 ON DELETE/UPDATE：仅 `saveProject` code===200 写 `deleteRule`/`updateRule`；失败 toast、保持原值；同 `constraintName` 拆边同步；禁本地 mutate 即换规则
+- ✅ 画布改边 ON DELETE/UPDATE / 约束名：仅 `saveProject` code===200 写 `constraintName`/`deleteRule`/`updateRule`；失败 toast、保持原值；同旧 `constraintName` 拆边同步改名与规则；重名拦截；禁本地 mutate 即换元数据
 - ✅ 数据类型字典 CRUD：仅 `saveProject` code===200 写 store + 成功 toast/关窗；失败 toast、窗 keep、表不增行；禁本地 mutate 即「提交成功」；枚举 kind/`values[]` 同闸（`buildEnumApply`）；逻辑类型按方言密表编 `apply[code].type`（禁原始 JSON）
 - ✅ 字段类型选型区分枚举：画布 `<select>` optgroup「逻辑类型|枚举」；表设计/默认字段 JExcel dropdown group；选中写 `fields[].type=code`；浏览态枚举徽章；禁假成功（仍走既有 persist）
 - ✅ 逆向导入（数据源选表 / ERD·PdMan·DBML 文件）：仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store、窗/页保持可重试；禁本地 `setProjectJson`/`importReverseTable` 即「导入/操作成功」
@@ -150,7 +150,7 @@
 右键菜单、悬停操作、内联编辑优先；能不用弹窗就不用弹窗。
 
 - ✅ 画布表节点上直接内联编辑字段：hover ✎ / 双击进编辑；空名有 toast 不静默丢改动；Enter 提交；Escape 取消未提交改名（拦 blur，禁止取消变落盘）；Tab/Shift+Tab 跳下一/上一行；末行 Tab 开新建字段；仅改类型/PK/非空/自增/隐藏即时落盘（save-status，`persist:true` 失败回滚）；隐藏有 toast + 表底「已隐藏」可恢复（仅 save 成功）；默认值（defaultValue）编辑态次行内联（主栏已满不挤横向）；浏览态选中字段 Delete/Backspace（及 ×）二次确认删除，编辑态 Backspace 只改字
-- ✅ 关系基数：点边标签 chip 内联选 `1:1`/`1:n`/`n:1`/`n:n`（不弹窗）；拖连线默认 `n:1`；两端 Crow's foot（IE）随基数变；同编辑器可选 ON DELETE/UPDATE（空=方言默认）
+- ✅ 关系基数：点边标签 chip 内联选 `1:1`/`1:n`/`n:1`/`n:n`（不弹窗）；拖连线默认 `n:1`；两端 Crow's foot（IE）随基数变；同编辑器可编约束名 + ON DELETE/UPDATE（空规则=方言默认；空名导出生成）
 - ✅ Frame 标题双击内联重命名
 - ❌ 建一条关系要打开弹窗手工配置基数（历史问题）
 - ❌ FK 参照动作只能逆向看 title、画布无法改 CASCADE（历史问题）

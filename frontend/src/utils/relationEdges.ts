@@ -273,6 +273,19 @@ export function normalizeFkRule(raw: unknown): string | null {
   return null;
 }
 
+/**
+ * 归一化 FK 约束名；空/空白 → ''（清除）。
+ * 保留大小写（方言标识符敏感差异交给导出引号）；拒绝不可见控制字符。
+ */
+export function normalizeConstraintName(raw: unknown): string | null {
+  if (raw == null) return '';
+  const s = String(raw).trim();
+  if (!s) return '';
+  if (/[\u0000-\u001f\u007f]/.test(s)) return null;
+  if (s.length > 128) return null;
+  return s;
+}
+
 /** 边 label / aria：约束名 + ON DELETE/UPDATE（无元数据时空串） */
 export function formatAssociationFkMeta(a: {
   constraintName?: string;

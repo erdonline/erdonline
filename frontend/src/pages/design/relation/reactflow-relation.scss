@@ -122,6 +122,15 @@
     }
   }
 
+  .erd-edge-constraint-input {
+    height: 22px !important;
+    padding: 0 6px !important;
+    font-size: 11px !important;
+    font-weight: 500 !important;
+    font-family: var(--erd-font-mono) !important;
+    line-height: 20px !important;
+  }
+
   .react-flow__edge-text {
     fill: var(--erd-ink-900) !important;
     font-size: 12px !important;

@@ -148,7 +148,7 @@
 | `deleteRule` / `updateRule` | `CASCADE` · `SET NULL` · `SET DEFAULT` · `RESTRICT` · `NO ACTION`（Oracle 通常无 update） |
 
 - **逆向**：JDBC `getImportedKeys`（`FK_NAME` / `DELETE_RULE` / `UPDATE_RULE`）；字典层 MySQL `REFERENTIAL_CONSTRAINTS`、PG `referential_constraints`、SQL Server `sys.foreign_keys.*_referential_action_desc`、Oracle `ALL_CONSTRAINTS.DELETE_RULE`
-- **画布**：边 chip 点开展开编辑器 — 基数 + ON DELETE/UPDATE（`updateAssociationFkMeta` persist-on-200；同 `constraintName` 拆边同步）；chip `title` / `aria-label` + `erd-edge-fk-meta`；空规则=方言默认
+- **画布**：边 chip 点开展开编辑器 — 基数 + 约束名 + ON DELETE/UPDATE（`updateAssociationFkMeta` persist-on-200；同旧 `constraintName` 拆边同步改名/规则）；chip `title` / `aria-label` + `erd-edge-fk-meta`；空规则=方言默认；空约束名=导出时生成 `fk_<表>_<列>`
 - **DDL 导出**：`json2code.renderCreateForeignKeySql` / `rebuildForeignKeyDdl` — 片段键 `createForeignKey`；同名 `constraintName` 聚合成复合 `FOREIGN KEY (…)`；缺约束名时生成 `fk_<表>_<列>`；四库引号差异（MySQL `` ` `` / PG·Oracle `"` / SQL Server `[]`）；有规则时写 `ON DELETE` / `ON UPDATE`（**Oracle 省略 ON UPDATE**）；导出弹层自定义可勾选「建外键语句」
 - **DBML**：官方 Ref settings 往返 — `Ref name: a.b > c.d [delete: cascade, update: no action]`（小写）；导入回填 `constraintName` / `deleteRule` / `updateRule`；**不**写入 Note
 - **未做**：`from.fields[]` / `to.fields[]` 单逻辑 FK 聚合（ADR-0011 仍延期）

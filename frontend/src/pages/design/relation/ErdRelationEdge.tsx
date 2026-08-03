@@ -1,6 +1,6 @@
 /**
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
- * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；ON DELETE/UPDATE 参照动作；两端 Crow's foot（IE）；分享只读。
+ * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；约束名 + ON DELETE/UPDATE；两端 Crow's foot（IE）；分享只读。
  */
 import React, { memo, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
@@ -9,7 +9,7 @@ import {
   EdgeProps,
   useStore,
 } from 'reactflow';
-import { Select } from 'antd';
+import { Input, Select } from 'antd';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
 import {
   CARDINALITY_OPTIONS,
@@ -113,13 +113,16 @@ function ErdRelationEdge({
   const tabbable = !!data?.tabbable;
   const [editing, setEditing] = useState(false);
   const [cardOpen, setCardOpen] = useState(false);
+  const [constraintDraft, setConstraintDraft] = useState('');
   const editorRef = useRef<HTMLDivElement | null>(null);
   const cardOpenRef = useRef(false);
+  const skipConstraintCommitRef = useRef(false);
   cardOpenRef.current = cardOpen;
   // 垂直 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
 
   const openEditor = () => {
+    setConstraintDraft(data?.constraintName || '');
     setEditing(true);
     setCardOpen(true);
   };
@@ -128,6 +131,12 @@ function ErdRelationEdge({
     setEditing(false);
     setCardOpen(false);
   };
+
+  useEffect(() => {
+    if (editing) {
+      setConstraintDraft(data?.constraintName || '');
+    }
+  }, [data?.constraintName, editing]);
 
   useEffect(() => {
     if (!editing || !editable) return undefined;
@@ -352,7 +361,11 @@ function ErdRelationEdge({
     })();
   };
 
-  const commitFkMeta = (meta: { deleteRule?: string; updateRule?: string }) => {
+  const commitFkMeta = (meta: {
+    constraintName?: string;
+    deleteRule?: string;
+    updateRule?: string;
+  }) => {
     const mod = data?.moduleName;
     const from = data?.assocFrom;
     const to = data?.assocTo;
@@ -372,9 +385,24 @@ function ErdRelationEdge({
     })();
   };
 
+  const commitConstraintName = () => {
+    if (skipConstraintCommitRef.current) {
+      skipConstraintCommitRef.current = false;
+      setConstraintDraft(data?.constraintName || '');
+      return;
+    }
+    const next = constraintDraft.trim();
+    const prev = (data?.constraintName || '').trim();
+    if (next === prev) {
+      setConstraintDraft(prev);
+      return;
+    }
+    commitFkMeta({ constraintName: next });
+  };
+
   const fkMeta = formatAssociationFkMeta(data);
   const baseAria = editable
-    ? `关系基数 ${displayLabel || '未设'}，点击修改基数与 ON DELETE/UPDATE；Delete 删除关系`
+    ? `关系基数 ${displayLabel || '未设'}，点击修改约束名与 ON DELETE/UPDATE；Delete 删除关系`
     : displayLabel
       ? `关系 ${displayLabel}`
       : undefined;
@@ -515,8 +543,35 @@ function ErdRelationEdge({
                   onChange={(v) => commitRelation(String(v))}
                   onDropdownVisibleChange={setCardOpen}
                   getPopupContainer={() => document.body}
-                  style={{ width: 72, fontSize: EDGE_LABEL_FONT_SIZE }}
+                  style={{ width: 148, fontSize: EDGE_LABEL_FONT_SIZE }}
                   popupMatchSelectWidth={false}
+                />
+                <Input
+                  size="small"
+                  className="erd-edge-constraint-input"
+                  data-testid="erd-edge-constraint-name"
+                  aria-label="FK 约束名"
+                  placeholder="约束名（可选）"
+                  value={constraintDraft}
+                  onClick={() => setCardOpen(false)}
+                  onFocus={() => setCardOpen(false)}
+                  onChange={(e) => setConstraintDraft(e.target.value)}
+                  onBlur={commitConstraintName}
+                  onPressEnter={(e) => {
+                    e.preventDefault();
+                    (e.target as HTMLInputElement).blur();
+                  }}
+                  onKeyDown={(e) => {
+                    // Esc：丢弃草稿；拦冒泡以免误关整块，blur 不落盘
+                    if (e.key === 'Escape') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      skipConstraintCommitRef.current = true;
+                      setConstraintDraft(data?.constraintName || '');
+                      (e.target as HTMLInputElement).blur();
+                    }
+                  }}
+                  style={{ width: 148, fontSize: 11, fontFamily: 'var(--erd-font-mono)' }}
                 />
                 <Select
                   size="small"
