@@ -25,6 +25,8 @@ type FormValues = {
   code: string;
   kind: 'logic' | 'enum';
   values?: EnumValueRow[];
+  /** 逻辑类型：方言 code → 物理类型字串（落盘为 apply[code].type） */
+  applyTypes?: Record<string, string>;
 };
 
 const normalizeEnumValues = (
@@ -46,6 +48,28 @@ const normalizeEnumValues = (
   return out;
 };
 
+const applyTypesFromApply = (
+  apply: DataTypeRow['apply'] | undefined,
+  dialectCodes: string[],
+): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const code of dialectCodes) {
+    out[code] = String(apply?.[code]?.type ?? '');
+  }
+  return out;
+};
+
+const buildApplyFromTypes = (
+  applyTypes: Record<string, string> | undefined,
+  dialectCodes: string[],
+): Record<string, { type: string }> => {
+  const apply: Record<string, { type: string }> = {};
+  for (const code of dialectCodes) {
+    apply[code] = { type: String(applyTypes?.[code] ?? '').trim() };
+  }
+  return apply;
+};
+
 const DataTypeDomains: React.FC = () => {
   const { projectDispatch, datatype, database } = useProjectStore(
     (state) => ({
@@ -62,41 +86,56 @@ const DataTypeDomains: React.FC = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<DataTypeRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [modalDialects, setModalDialects] = useState<string[]>([]);
   const kindWatch = Form.useWatch('kind', form);
 
-  const emptyApply = useMemo(() => {
-    const apply: Record<string, { type: string }> = {};
+  const databaseDialectCodes = useMemo(() => {
+    const codes: string[] = [];
     for (const d of database) {
       if (d?.code) {
-        apply[d.code] = { type: '' };
+        codes.push(d.code);
       }
     }
-    return apply;
+    return codes;
   }, [database]);
 
   const openCreate = (kind: 'logic' | 'enum' = 'logic') => {
     setEditing(null);
+    const codes = [...databaseDialectCodes];
+    setModalDialects(codes);
     form.resetFields();
     form.setFieldsValue({
       kind,
       values: kind === 'enum' ? [{ name: '', chnname: '' }] : [],
+      applyTypes: applyTypesFromApply(undefined, codes),
     });
     setOpen(true);
   };
 
   const openEdit = (row: DataTypeRow) => {
     setEditing(row);
-    const isEnum = row.kind === 'enum';
+    const codes = new Set(databaseDialectCodes);
+    if (row.apply) {
+      for (const key of Object.keys(row.apply)) {
+        if (key) {
+          codes.add(key);
+        }
+      }
+    }
+    const dialects = Array.from(codes);
+    setModalDialects(dialects);
     form.setFieldsValue({
       name: row.name,
       code: row.code,
-      kind: isEnum ? 'enum' : 'logic',
-      values: isEnum
-        ? (row.values || []).map((v) => ({
-            name: v.name,
-            chnname: v.chnname || '',
-          }))
-        : [],
+      kind: row.kind === 'enum' ? 'enum' : 'logic',
+      values:
+        row.kind === 'enum'
+          ? (row.values || []).map((v) => ({
+              name: v.name,
+              chnname: v.chnname || '',
+            }))
+          : [],
+      applyTypes: applyTypesFromApply(row.apply, dialects),
     });
     setOpen(true);
   };
@@ -107,6 +146,7 @@ const DataTypeDomains: React.FC = () => {
     }
     setOpen(false);
     setEditing(null);
+    setModalDialects([]);
     form.resetFields();
   };
 
@@ -132,9 +172,7 @@ const DataTypeDomains: React.FC = () => {
               values.code,
               enumValues.map((v) => v.name),
             )
-          : editing?.kind === 'enum'
-            ? emptyApply
-            : editing?.apply || emptyApply;
+          : buildApplyFromTypes(values.applyTypes, modalDialects);
 
         const basePayload: DataTypeRow = {
           name: values.name,
@@ -168,6 +206,7 @@ const DataTypeDomains: React.FC = () => {
         }
         setOpen(false);
         setEditing(null);
+        setModalDialects([]);
         form.resetFields();
       } finally {
         setSubmitting(false);
@@ -368,7 +407,7 @@ const DataTypeDomains: React.FC = () => {
         destroyOnClose
         keyboard={!submitting}
         focusTriggerAfterClose
-        width={520}
+        width={560}
         className="erd-io-modal"
         rootClassName="erd-io-modal-root"
         transitionName=""
@@ -400,7 +439,7 @@ const DataTypeDomains: React.FC = () => {
           layout="vertical"
           size="small"
           className="setting-common-form"
-          initialValues={{ kind: 'logic', values: [] }}
+          initialValues={{ kind: 'logic', values: [], applyTypes: {} }}
           onValuesChange={(changed) => {
             if (changed.kind === 'enum') {
               const cur = form.getFieldValue('values') as
@@ -409,6 +448,21 @@ const DataTypeDomains: React.FC = () => {
               if (!cur || cur.length === 0) {
                 form.setFieldsValue({
                   values: [{ name: '', chnname: '' }],
+                });
+              }
+            }
+            if (changed.kind === 'logic') {
+              const cur = form.getFieldValue('applyTypes') as
+                | Record<string, string>
+                | undefined;
+              if (!cur || Object.keys(cur).length === 0) {
+                form.setFieldsValue({
+                  applyTypes: applyTypesFromApply(
+                    undefined,
+                    modalDialects.length
+                      ? modalDialects
+                      : databaseDialectCodes,
+                  ),
                 });
               }
             }
@@ -534,7 +588,54 @@ const DataTypeDomains: React.FC = () => {
                 </div>
               )}
             </Form.List>
-          ) : null}
+          ) : (
+            <div data-testid="datatype-apply-map">
+              <div className="setting-common-form__list-label">
+                库方言映射
+              </div>
+              <p
+                className="setting-common-form__list-hint"
+                data-testid="datatype-apply-hint"
+              >
+                按方言填写物理类型（如 VARCHAR(32)）；空值表示该库暂无映射。枚举种类由系统自动生成 apply。
+              </p>
+              {modalDialects.length === 0 ? (
+                <p
+                  className="setting-common-form__list-hint"
+                  data-testid="datatype-apply-empty"
+                >
+                  当前项目尚无库方言；请先在数据源/模板中配置 database[]。
+                </p>
+              ) : (
+                modalDialects.map((code) => (
+                  <div
+                    key={code}
+                    className="setting-common-form__apply-row"
+                  >
+                    <span
+                      className="setting-common-form__apply-code"
+                      title={code}
+                    >
+                      {code}
+                    </span>
+                    <Form.Item
+                      name={['applyTypes', code]}
+                      rules={[
+                        { max: 200, message: '不能大于 200 个字符' },
+                      ]}
+                      style={{ marginBottom: 0, flex: 1 }}
+                    >
+                      <Input
+                        placeholder="物理类型，如 VARCHAR(32)"
+                        aria-label={`方言 ${code} 物理类型`}
+                        data-testid={`datatype-apply-${code}`}
+                      />
+                    </Form.Item>
+                  </div>
+                ))
+              )}
+            </div>
+          )}
         </Form>
       </Modal>
     </div>

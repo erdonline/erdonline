@@ -275,7 +275,8 @@
 - ✅ **DDL/DBML `filter` 回写**（2026-08-03）：PG/SQL Server `WHERE` + DBML `note: filter:`；下一刀 → ~~DDL `triggers[]`~~✅
 - ✅ **DDL `triggers[]` 回写**（2026-08-03）：`createTrigger` 优先 `ddl`/方言重建（四库）；导出弹层可勾选；`json2code.trigger.test.ts`；下一刀 → ~~数据字典·枚举域 UX~~✅
 - ✅ **数据字典·枚举域 UX**（2026-08-03）：`/setting/dataType` 种类逻辑|枚举、`values[]` Form.List、列表种类/取值密列、空态双 CTA；persist-on-200；`datatype-enum-ux`；下一刀 → ~~字段 type 下拉区分枚举~~✅
-- ✅ **字段 type 下拉区分枚举**（2026-08-03）：画布 `<select>` optgroup「逻辑类型|枚举」+ 浏览态枚举徽章；表设计/默认字段 JExcel dropdown `group`；值写 `fields[].type=code`；`field-type-enum-picker`；下一刀 → 库方言 apply 可视化编辑 / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
+- ✅ **字段 type 下拉区分枚举**（2026-08-03）：画布 `<select>` optgroup「逻辑类型|枚举」+ 浏览态枚举徽章；表设计/默认字段 JExcel dropdown `group`；值写 `fields[].type=code`；`field-type-enum-picker`；下一刀 → ~~库方言 apply 可视化编辑~~✅
+- ✅ **库方言 apply 可视化编辑**（2026-08-03）：逻辑类型 Modal「库方言映射」密表编 `apply[code].type`；枚举仍 `buildEnumApply`；persist-on-200；`datatype-apply-ux`；下一刀 → ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：数据类型字典逻辑类型 apply 方言可视化编辑
+
+- 选题：`4dab9a5`/`2c3e3cc` 枚举与选型已闭环；逻辑类型 Modal 仍静默沿用/空 `apply`，无法按 MYSQL/PG/… 填物理类型
+- `DataTypeDomains`：逻辑种类密表「库方言映射」行（方言 code + 物理类型 Input）；保存写入 `apply[code].type`；枚举仍 `buildEnumApply`、不展示 apply 编辑器；persist-on-200
+- E2E：`datatype-apply-ux`（新增落盘 → 编辑改 MYSQL → 枚举弹层无 apply）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/datatype-apply-ux.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/datatype-enum-ux.spec.ts tests/e2e/datatype-domains-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：字段类型下拉区分枚举（画布 + 表设计）
 
 - 选题：`4dab9a5` 字典可建 `kind=enum`；画布仍硬编码 `FIELD_TYPES`、JExcel 扁平 name 列表 → 建完枚举不好挑

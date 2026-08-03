@@ -240,7 +240,7 @@
 
 - `datatype[]`：逻辑类型；`apply` 按方言 code 映射 `{ type }`
 - `database[]`：方言与 doT 风格 DDL/代码模板（`createTableTemplate`、`createIndexTemplate` 等）
-- **枚举（DBML）**：`kind: "enum"` + `values: [{ name, chnname? }]`（加法字段；schema `additionalProperties` 允许）。由 DBML `Enum` 导入写入；导出还原为 `Enum` 块。非 enum 的内置类型无 `kind`/`values`。**UI**：设置页 `/design/table/setting/dataType` 可新建/编辑枚举取值；保存时按 `values[].name` 重建 `apply`（对齐 `buildEnumApply`）。**选型**：画布字段类型 `<select>` 与表设计/默认字段 JExcel 下拉按「逻辑类型 | 枚举」分组，选中后字段 `type` 写枚举 `code`（浏览态徽章「枚举」）
+- **枚举（DBML）**：`kind: "enum"` + `values: [{ name, chnname? }]`（加法字段；schema `additionalProperties` 允许）。由 DBML `Enum` 导入写入；导出还原为 `Enum` 块。非 enum 的内置类型无 `kind`/`values`。**UI**：设置页 `/design/table/setting/dataType` 可新建/编辑枚举取值；保存时按 `values[].name` 重建 `apply`（对齐 `buildEnumApply`）。**逻辑类型 apply**：同页 Modal「库方言映射」按 `database[]`（并保留存量 `apply` 多出的方言键）密表编辑物理类型，写 `apply[code].type`；禁手改 JSON。**选型**：画布字段类型 `<select>` 与表设计/默认字段 JExcel 下拉按「逻辑类型 | 枚举」分组，选中后字段 `type` 写枚举 `code`（浏览态徽章「枚举」）
 
 ## 机器校验
 
