@@ -49,7 +49,7 @@
 - [x] [账号设置壳键盘] `/account/settings` 首项 Tab Skip「跳到主表单」→ `#account-settings-form`→邮箱→电话→更新基本信息可逆；brand focus-visible；无 trap ✅`account-settings-keyboard.spec.ts`
 - [x] [项目动作弹窗键盘] 新建首焦类型 / 修改首焦项目名 / 删除首焦「是」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`project-action-modals-keyboard.spec.ts`
 - [x] [导入导出弹层键盘] 空态导入首焦 DBML文本 / 菜单导出首焦模型 Select；Esc 归还 CTA/项目菜单；Tab trap ✅`import-export-keyboard.spec.ts`
-- [x] [版本动作弹窗键盘] 新增首焦版本号 / 删除·回滚首焦「是」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-action-modals-keyboard.spec.ts`
+- [x] [版本动作弹窗键盘] 新增/编辑首焦版本号（非最新编辑首焦描述）/ 删除·回滚首焦「是」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-action-modals-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

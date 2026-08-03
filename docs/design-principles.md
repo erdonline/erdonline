@@ -30,7 +30,7 @@
 - ✅ 账号设置壳键盘：`/account/settings` 首项 Tab Skip「跳到主表单」落 `#account-settings-form`（`tabIndex=-1`）；绕开顶栏+左侧页签；邮箱→电话→更新基本信息；壳内 `:focus-visible` brand 环；无 trap
 - ✅ 项目动作弹窗键盘：新建/修改 Modal 打开首焦首字段；删除确认首焦「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 导入/导出弹层键盘（DBML）：导入首焦文本区；导出首焦模型 Select；Esc 关窗；空态 CTA /「项目菜单」焦点归还；Tab 困在 dialog
-- ✅ 版本动作弹窗键盘：新增→版本号；删除/回滚确认→「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
+- ✅ 版本动作弹窗键盘：新增→版本号；编辑→版本号（非最新只读号→描述）；删除/回滚确认→「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记

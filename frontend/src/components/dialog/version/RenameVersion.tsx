@@ -1,6 +1,8 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {EditOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import type {InputRef} from 'antd/es/input';
+import type {TextAreaRef} from 'antd/es/input/TextArea';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {compareStringVersion} from '@/utils/string';
@@ -27,6 +29,8 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
 
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const versionInputRef = useRef<InputRef>(null);
+  const versionDescRef = useRef<TextAreaRef>(null);
   const versionReadonly = currentVersionIndex !== 0;
 
   const closeModal = () => {
@@ -98,6 +102,21 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
         destroyOnClose
         width={520}
         forceRender
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => {
+            // 非最新版版本号只读：首焦描述，避免落只读框
+            if (versionReadonly) {
+              versionDescRef.current?.focus();
+              return;
+            }
+            versionInputRef.current?.focus();
+          }, 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -113,7 +132,11 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input placeholder="请输入版本号" readOnly={versionReadonly} />
+            <Input
+              ref={versionInputRef}
+              placeholder="请输入版本号"
+              readOnly={versionReadonly}
+            />
           </Form.Item>
           <Form.Item
             name="versionDesc"
@@ -123,7 +146,11 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input.TextArea placeholder="请输入版本描述" rows={3} />
+            <Input.TextArea
+              ref={versionDescRef}
+              placeholder="请输入版本描述"
+              rows={3}
+            />
           </Form.Item>
           <Form.Item
             name="tags"
