@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：元数据应用修改/删除字段签对齐模板（建模回路）
+
+- 选题：「修改字段」子签挂了 `deleteFieldTemplate`（DROP），「删除字段」挂了 `updateFieldTemplate`（MODIFY）→ 错标 affordance，复制 DDL 可误伤；顺手去掉「创建索引」无效 `closable`
+- `DbTab`：标签与 `templateCode`/`key` 对齐；差异脚本拉版本改走版本页同通道（无 JDBC → `__erd_snapshot__`），禁静默空脚本；失败 toast「拉取版本失败…」
+- `meta-ddl-sql-{templateCode}` 供断言
+- E2E：`relation`「元数据应用：修改/删除字段签标签对齐模板」：版本基线→改类型见 MODIFY 仅在修改签；删除签空（无 MODIFY/DROP）
+- `docs/design-principles.md` §4；roadmap ✅ 本刀，下一刀 → 左树搜索清除残留过滤 / 无匹配空态（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "元数据应用：修改/删除字段签" --workers=1 --retries=0`
+
 #### 体验：字段级 unique 说明（索引唯一 CTA + 画布 UK）
 
 - 选题：字段无 `unique` 列（UNIQUE 只在 `indexs[].isUnique`）；用户在字段签/画布找「唯一」易迷路

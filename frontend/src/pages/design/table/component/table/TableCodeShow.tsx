@@ -1,14 +1,15 @@
 import React, {useEffect, useState} from 'react';
 import CodeEditor from "@/components/CodeEditor";
 import useProjectStore from "@/store/project/useProjectStore";
+import useVersionStore from "@/store/version/useVersionStore";
 import shallow from "zustand/shallow";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import {getCurrentVersionData} from "@/utils/dbversionutils";
 import {getCodeByDataTable} from "@/utils/json2code";
 import * as Save from "@/utils/save";
-import {Tooltip, Typography} from "antd";
+import {message, Tooltip, Typography} from "antd";
 import {QuestionCircleOutlined} from "@ant-design/icons";
-import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
+import {SNAPSHOT_DB} from "@/utils/versionConstants";
 
 const {Paragraph} = Typography;
 
@@ -25,40 +26,14 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
     dataSource: state.project?.projectJSON,
   }), shallow);
 
-  const [dbs, setDbs] = useState([]);
-
-  useEffect(() => {
-    const fetchDatabases = async () => {
-      const databases = await fetchDatabaseConfigs();
-      setDbs(databases);
-    };
-    fetchDatabases();
-  }, []);
-
   const height = document.body.clientHeight;
   const tempHeight = height;
   const [result, setResult] = useState('');
-  const [changes, setChanges] = useState([]);
-  const [oldDataSource, setOldDataSource] = useState({});
 
-  const getChanges = () => {
-    const db = dbs?.filter((d: any) => d.defaultDB)[0];
-    Save.hisProjectLoad(db).then(r => {
-      if (r && r.code === 200) {
-        getCurrentVersionData(dataSource, r.data, (c: any, o: any) => {
-          setChanges(c);
-          setOldDataSource(o);
-          setResult(getTableCode(c));
-        });
-      }
-    })
-  };
-
-  const getTableCode = (changes: any) => {
+  const computeTableCode = (changes: any[], oldDs: any) => {
     if (!dataTable || dataTable.fields.length <= 0) {
       return '';
     }
-    // 根据模板类型的不同，传递不同的变化数据
     const tempChanges = changes.filter((c: any) => {
       const title = c.name.split('.')[0];
       return (templateCode === 'createFieldTemplate'
@@ -81,12 +56,44 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
           && c.type === 'field'
           && title === dataTable.title);
     });
-    return getCodeByDataTable(dataSource, props.moduleEntity.module, dataTable, dbCode, templateCode, tempChanges, oldDataSource);
-  }
+    return getCodeByDataTable(
+      dataSource,
+      props.moduleEntity.module,
+      dataTable,
+      dbCode,
+      templateCode,
+      tempChanges,
+      oldDs,
+    );
+  };
 
   useEffect(() => {
-    getChanges();
-  }, [templateCode]);
+    // 与版本页同通道：有 JDBC 默认源用其 dbKey；否则 `__erd_snapshot__`（禁静默空脚本）
+    const db =
+      useVersionStore.getState().dispatch.getCurrentDBData() || SNAPSHOT_DB;
+    let cancelled = false;
+    Save.hisProjectLoad(db).then((r: any) => {
+      if (cancelled) return;
+      if (r && r.code === 200) {
+        getCurrentVersionData(dataSource, r.data, (c: any, version: any) => {
+          if (cancelled) return;
+          const oldDs = version?.projectJSON || {};
+          setResult(computeTableCode(c || [], oldDs));
+        });
+      } else {
+        setResult('');
+        message.warning('拉取版本失败，无法生成差异脚本');
+      }
+    }).catch(() => {
+      if (cancelled) return;
+      setResult('');
+      message.warning('拉取版本失败，无法生成差异脚本');
+    });
+    return () => {
+      cancelled = true;
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- 差异跟模板/表/模型走；旧 DataSource 随版本回调注入
+  }, [templateCode, dataSource, dataTable, dbCode]);
 
   return (<>
 
@@ -105,6 +112,10 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
 
     </Paragraph>
 
+    {/* 供 E2E / 复制外断言 DDL；Ace 渲染不必解析 */}
+    <pre data-testid={`meta-ddl-sql-${templateCode}`} hidden>
+      {result}
+    </pre>
     <CodeEditor
       mode='mysql'
       height={`${tempHeight * 0.55}px`}
