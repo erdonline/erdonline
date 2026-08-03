@@ -51,7 +51,8 @@ export type IVersionSlice = {
   getCMD: (updateVersion: any, onlyUpdateVersion: any) => any;
   connectJDBC: (param: any, opt: any, cb: any) => void;
   updateVersionData: (newVersion: any, oldVersion: any, status: any) => void;
-  revertVersionData: () => void;
+  /** 回滚到历史快照：仅 saveProject code===200 写 store + 成功 toast；失败不写 store */
+  revertVersionData: () => Promise<boolean>;
   readDb: (status: any, version: any, lastVersion: any, changes: any, initVersion: any, updateVersion: any) => void;
   saveNewVersion: (version: any) => Promise<boolean>;
   rebuild: (tempValue: any) => void;
@@ -774,26 +775,36 @@ const useVersionStore = create<VersionState>(
         }
         get().fetch(null,get().currentPage,get().pageSize);
       },
-      revertVersionData: () => {
+      revertVersionData: async (): Promise<boolean> => {
         const ver = get()?.currentVersion;
         const modules = ver?.projectJSON?.modules;
-        if (modules instanceof Array && modules.length > 0) {
-          useProjectStore.getState().dispatch.setModules(modules);
-          const project = useProjectStore.getState().project;
-          // 须落库：否则切路由/刷新会冲掉仅内存的回滚
-          void Save.saveProject(project).then((res: any) => {
-            if (res?.code === 200) {
-              message.success(`成功回滚至「${ver?.version}」`);
-            } else {
-              message.error(res?.msg || res?.message || '回滚已应用但保存失败');
-            }
-            get().fetch(null, get().currentPage, get().pageSize);
-          }).catch((err: any) => {
-            message.error(`回滚保存失败：${err?.message || err}`);
-          });
-          return;
+        if (!(modules instanceof Array) || modules.length === 0) {
+          message.error('该版本无可用模型快照，无法回滚');
+          return false;
         }
-        message.error('该版本无可用模型快照，无法回滚');
+        const project = useProjectStore.getState().project;
+        if (!project?.projectJSON) {
+          message.error('未打开项目');
+          return false;
+        }
+        // 禁止先 setModules 再异步 save：失败时树/画布已回滚像成功
+        const next = produce(project, (draft: any) => {
+          draft.projectJSON.modules = modules;
+        });
+        const {
+          persistProjectNow,
+          ackManualPersist,
+        } = await import('@/store/project/projectAutosave');
+        const saved = await persistProjectNow(next, '回滚保存失败');
+        if (!saved) {
+          // 失败 toast 已弹；不写 store，弹层保持可重试
+          return false;
+        }
+        useProjectStore.getState().dispatch.setModules(modules);
+        ackManualPersist(true);
+        message.success(`成功回滚至「${ver?.version}」`);
+        get().fetch(null, get().currentPage, get().pageSize);
+        return true;
       },
       readDb: (status: any, version: any, lastVersion: any, changes = [], initVersion: any, updateVersion: any) => {
         if (!status) {
