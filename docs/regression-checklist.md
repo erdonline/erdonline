@@ -89,6 +89,7 @@
 - [x] [EntityModal 落盘失败不关窗] mock `project/save`（modules 含新模型名）业务码 → toast「模拟模型保存拒绝」+ 窗仍开 → 二次成功关窗+「模型添加成功」；键盘闭环不回归 ✅`entity-modal-failure.spec.ts` + `entity-modal-keyboard.spec.ts`
 - [x] [画布关系图弹层落盘失败不关窗] mock `project/save`（diagrams 含新图名）业务码 → toast「模拟关系图保存拒绝」+ 窗仍开 → 二次成功关窗+「已新建关系图」+ switcher ✅`diagram-modal-failure.spec.ts`
 - [x] [画布表头改名落盘失败不退出编辑] mock `project/save`（entities 含新表名）业务码 → toast「模拟表改名保存拒绝」+ 编辑态仍开（草稿保留、旧节点 id）→ 二次成功改节点 id ✅`table-rename-failure.spec.ts`
+- [x] [画布建表/行内加字段落盘失败可重试] mock save（entities 含 T_TABLE_1 / fields 含新字段）→ toast + 无节点或仍编辑草稿 → 重试成功上图/落字段；空字段 CTA / 空名 toast 不回归 ✅`canvas-create-field-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`
