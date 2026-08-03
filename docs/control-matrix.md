@@ -107,7 +107,8 @@
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后移除+toast | | ✅ | `smoke` 取消/确认 |
 | `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
-| `/design/table/model` | 删边 | 确认后边消失并落库 | | ✅ | `relation`「删边后刷新仍无边」 |
+| `/design/table/model` | 删边 | Delete → Modal 确认后边消失并落库；取消保留 | | ✅ | `relation`「画布删表/删边」「删边后刷新」 |
+| `/design/table/model` | 画布删表 | Delete → Modal 确认后 removeEntity；取消保留 | | ✅ | `relation`「画布删表/删边二次确认」 |
 | DesignLayout | 项目菜单按钮 | 下拉打开 | | ✅ | `project-menu.spec` |
 | 项目菜单 | 全部项目 | → `/project/recent` | | ✅ | `project-menu`「全部项目」 |
 | 项目菜单 | 最近项目 | 最多 5 条；当前 ✓；点其它项切设计器 | | ✅ | `project-menu`「最近项目可切换」 |

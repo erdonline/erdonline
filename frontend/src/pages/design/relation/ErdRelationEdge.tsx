@@ -9,7 +9,7 @@ import {
   EdgeProps,
   useStore,
 } from 'reactflow';
-import { Select } from 'antd';
+import { Modal, Select } from 'antd';
 import {
   CARDINALITY_OPTIONS,
   Cardinality,
@@ -329,7 +329,11 @@ function ErdRelationEdge({
             }`}
             data-testid="erd-edge-label"
             role={editable ? 'button' : undefined}
-            aria-label={editable ? `关系基数 ${displayLabel || '未设'}，点击修改` : undefined}
+            aria-label={
+              editable
+                ? `关系基数 ${displayLabel || '未设'}，点击修改；Delete 删除关系`
+                : undefined
+            }
             tabIndex={editable ? 0 : undefined}
             onClick={
               editable && !editing
@@ -342,6 +346,30 @@ function ErdRelationEdge({
             onKeyDown={
               editable && !editing
                 ? (e) => {
+                    if (e.key === 'Delete' || e.key === 'Backspace') {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      const mod = data?.moduleName;
+                      const from = data?.assocFrom;
+                      const to = data?.assocTo;
+                      if (!mod || !from?.entity || !from?.field || !to?.entity || !to?.field) {
+                        return;
+                      }
+                      Modal.confirm({
+                        title: `确定删除关系 "${from.entity}.${from.field} → ${to.entity}.${to.field}" 吗?`,
+                        content: '此操作不可逆，请谨慎操作。',
+                        okText: '删除',
+                        okType: 'danger',
+                        cancelText: '取消',
+                        onOk() {
+                          useProjectStore.getState().dispatch.removeAssociation(mod, {
+                            from,
+                            to,
+                          });
+                        },
+                      });
+                      return;
+                    }
                     if (e.key === 'Enter' || e.key === ' ') {
                       e.preventDefault();
                       e.stopPropagation();

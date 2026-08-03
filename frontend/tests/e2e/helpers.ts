@@ -224,6 +224,17 @@ export async function connectFields(
   });
 }
 
+/**
+ * 聚焦关系边基数 chip（Delete/Backspace → 二次确认删边）。
+ * 边层在表节点之下，路径点击难稳定选中；chip 可访问且为稳定入口。
+ */
+export async function selectRelationEdge(page: import('@playwright/test').Page) {
+  const label = page.getByTestId('erd-edge-label').first();
+  await expect(label).toBeVisible();
+  await label.focus();
+  await expect(label).toBeFocused();
+}
+
 export async function deleteOwnPersonProjects(
   page: import('@playwright/test').Page,
   match: string | RegExp = e2ePrefix(),
