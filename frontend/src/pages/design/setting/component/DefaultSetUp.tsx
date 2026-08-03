@@ -41,7 +41,11 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
   }, [profile, form]);
 
   const handleFinish = async (values: FormValues) => {
-    await projectDispatch.updateProfile(values);
+    const ok = await projectDispatch.updateProfile(values);
+    if (ok) {
+      message.success('设置成功');
+    }
+    // 失败：request 已 toast
   };
 
   return (

@@ -48,7 +48,8 @@ export interface IProfileDispatchSlice {
   refreshDataSources: () => Promise<any[]>;
 
   updateWordTemplateConfig: (payload: any) => void;
-  updateProfile: (payload: any) => void;
+  /** 落库默认 profile；仅 code===200 写 store，由调用方 toast/关窗 */
+  updateProfile: (payload: any) => Promise<boolean>;
 
 
   getCurrentDBName: () => any;
@@ -233,11 +234,42 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   updateWordTemplateConfig: (payload: any) => set(produce(state => {
     state.project.projectJSON.profile.wordTemplateConfig = payload;
   })),
-  updateProfile: (payload: any) => set(produce(state => {
-    const profile = _.assign(state.project.projectJSON.profile, payload);
-    state.project.projectJSON.profile = profile;
-    message.success('设置成功');
-  })),
+  updateProfile: async (payload: any): Promise<boolean> => {
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return false;
+    }
+    const next = produce(project, (draft) => {
+      const profile = draft.projectJSON.profile || (draft.projectJSON.profile = {});
+      _.assign(profile, payload);
+    });
+    try {
+      const res: { code?: number; msg?: string } = await Save.saveProject({
+        ...next,
+        type: next?.type ?? 1,
+      });
+      if (res?.code === 200) {
+        set(
+          produce((state) => {
+            const profile =
+              state.project.projectJSON.profile ||
+              (state.project.projectJSON.profile = {});
+            _.assign(profile, payload);
+          }),
+        );
+        return true;
+      }
+      // 业务失败：request 已 toast；失败不写 store（勿伪装成功）
+      if (!res?.msg) {
+        message.error('设置失败');
+      }
+      return false;
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast
+      return false;
+    }
+  },
   getCurrentDBName: () => {
     const db = get().dispatch.getCurrentDBData();
     if (db) {
