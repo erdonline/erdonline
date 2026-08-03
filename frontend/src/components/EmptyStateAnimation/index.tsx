@@ -42,7 +42,10 @@ const EmptyStateAnimation: React.FC<EmptyStateAnimationProps> = ({
             style={fillStyle}
             data-testid="designer-welcome-empty"
           >
-            <div className="erd-welcome-empty__inner">
+            <div
+              className="erd-welcome-empty__inner"
+              data-testid="designer-welcome-empty-inner"
+            >
               <ErdEmptyDiagram size="hero" />
               <h2 className="erd-welcome-empty__title">{title}</h2>
               {description ? (

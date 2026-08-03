@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：欢迎空态内井碎距
+
+- 选题：标题已 18/mt12；`.erd-welcome-empty__inner` 仍 pad 32×24，相对 ADR-0016 / 壳井 8–12·content 12×16 偏松；勿压成画布空态 14/18
+- before：内井 pad 32×24；after：20×16；标题字号/mt/lh / hero / 逆向链 / 左树「新增模型」不动；`testid=designer-welcome-empty-inner`
+- E2E：`model-design-ux`「欢迎空态次密距」锁 padY≤20 / padX≤16 + 标题碎距 + 截图 `diagram-welcome-empty-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → AuthBrandShell 品牌/表单 pad32 二压（对齐 20 井）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "欢迎空态次密距" --workers=1 --retries=0`
+
 #### 体验：欢迎空态标题碎距
 
 - 选题：欢迎空态内井已次密；标题仍 20/mt14·lh≈26，相对 ADR-0016 / 8–12 / page-title 13/22 族偏松；勿压成画布空态 14
 - before：标题 20 / mt14 / lh≈26；after：18 / mt12 / lh22；pad / hero / 逆向链 / 左树「新增模型」不动
 - E2E：`model-design-ux`「欢迎空态次密距」锁 titleMt∈[8,12]、字∈[16,18]、lh≈22 + 截图 `diagram-welcome-empty-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 欢迎空态内井 pad32（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~欢迎空态内井 pad32~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "欢迎空态次密距" --workers=1 --retries=0`

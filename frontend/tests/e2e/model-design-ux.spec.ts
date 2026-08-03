@@ -1083,9 +1083,9 @@ test.describe('模型设计 UX（ADR-0017）', () => {
   });
 
   /**
-   * ADR-0016：欢迎空态次密距 + 标题碎距 —
-   * pad ≤32；标题 mt∈[8,12] / 字 ∈[16,18] / lh≈22（贴 page-title 节奏）；
-   * 禁 20/mt14；禁压成画布 14；逆向链 + 左树新增模型保留
+   * ADR-0016：欢迎空态内井碎距 + 标题碎距 —
+   * pad ≤20（侧 ≤16）；标题 mt∈[8,12] / 字 ∈[16,18] / lh≈22；
+   * 禁 32×24；禁压成画布 14/18；逆向链 + 左树新增模型保留
    */
   test('欢迎空态次密距', async ({ page }) => {
     test.setTimeout(90_000);
@@ -1109,14 +1109,10 @@ test.describe('模型设计 UX（ADR-0017）', () => {
 
       const metrics = await welcome.evaluate((root) => {
         const inner = root.querySelector(
-          '.erd-welcome-empty__inner',
+          '[data-testid="designer-welcome-empty-inner"]',
         ) as HTMLElement | null;
-        const title = root.querySelector(
-          '.erd-welcome-empty__title',
-        ) as HTMLElement | null;
-        const desc = root.querySelector(
-          '.erd-welcome-empty__desc',
-        ) as HTMLElement | null;
+        const title = root.querySelector('h2') as HTMLElement | null;
+        const desc = root.querySelector('p') as HTMLElement | null;
         const svg = root.querySelector(
           '[data-testid="erd-empty-diagram"]',
         ) as SVGElement | null;
@@ -1138,13 +1134,13 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         };
       });
 
-      expect(metrics.padT, `欢迎内 padTop 应 ≤32，得 ${metrics.padT}`).toBeLessThanOrEqual(32);
-      expect(metrics.padB, `欢迎内 padBottom 应 ≤32，得 ${metrics.padB}`).toBeLessThanOrEqual(32);
-      expect(metrics.padL, `欢迎内 padLeft 应 ≤32，得 ${metrics.padL}`).toBeLessThanOrEqual(32);
-      expect(metrics.padR, `欢迎内 padRight 应 ≤32，得 ${metrics.padR}`).toBeLessThanOrEqual(32);
+      expect(metrics.padT, `欢迎内 padTop 应 ≤20，得 ${metrics.padT}`).toBeLessThanOrEqual(20);
+      expect(metrics.padB, `欢迎内 padBottom 应 ≤20，得 ${metrics.padB}`).toBeLessThanOrEqual(20);
+      expect(metrics.padL, `欢迎内 padLeft 应 ≤16，得 ${metrics.padL}`).toBeLessThanOrEqual(16);
+      expect(metrics.padR, `欢迎内 padRight 应 ≤16，得 ${metrics.padR}`).toBeLessThanOrEqual(16);
       // 勿压到画布空态级（14/18）——欢迎需可扫读层次
-      expect(metrics.padT).toBeGreaterThanOrEqual(20);
-      expect(metrics.padL).toBeGreaterThanOrEqual(16);
+      expect(metrics.padT).toBeGreaterThanOrEqual(16);
+      expect(metrics.padL).toBeGreaterThanOrEqual(12);
       // 标题碎距：8–12 族 + page-title lh22；禁 20/mt14；仍高于画布 14
       expect(metrics.titleMt, `标题 mt 应 ∈[8,12]，得 ${metrics.titleMt}`).toBeGreaterThanOrEqual(8);
       expect(metrics.titleMt, `标题 mt 应 ∈[8,12]，得 ${metrics.titleMt}`).toBeLessThanOrEqual(12);
