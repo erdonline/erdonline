@@ -8,11 +8,22 @@
 
 ### 2026-08-03
 
+#### 安全：R-DEAD-01/02/03 收敛假开关与 ignore 假路径
+
+- 选题：`martin.swagger.enabled` / `martin.resource-server.enabled` 死键误导运维；ignore `/endpoint/**` 无控制器仍扩大未来匿名面
+- 改动：删除两假开关与死类 `SwaggerProperties`；ignore 去掉 `/endpoint/**`；springdoc 仍仅 `springdoc.*`（prod 关）
+- 文档：security-model R-DEAD-01/02/03 ✅；roadmap 下一刀 → R-CFG-05/06
+- 回归：`DeadSecurityConfigContractTest`（yml 无死键、ignore 契约）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=DeadSecurityConfigContractTest test`
+- `./backend/dev-ensure.sh --restart`；匿名 `GET /endpoint/foo` → 401；`GET /actuator/health` → 200；`POST /auth/login`（坏口令）非 401 鉴权面（应为 4xx 业务/校验）
+
 #### 安全：R-AUTH-07 frameOptions DENY（点击劫持）
 
 - 选题：Security 链 `frameOptions.disable()`，API 可被嵌 iframe
 - 改动：`ErdSecurityConfiguration` → `frameOptions.deny()`；分享为 SPA `/share/:token`，不嵌 API；第三方嵌 UI 文档约定走前端 CSP `frame-ancestors`
-- 文档：security-model R-AUTH-07 ✅ + 点击劫持节；roadmap 下一刀 → R-DEAD-01/02/03
+- 文档：security-model R-AUTH-07 ✅ + 点击劫持节；roadmap 下一刀 → ~~R-DEAD-01/02/03~~✅ → R-CFG-05/06
 - 回归：`FrameOptionsContractTest`（源契约：deny 启用、非 disable）
 
 验证点：

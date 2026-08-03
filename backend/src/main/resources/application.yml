@@ -71,11 +71,9 @@ spring:
       max-request-size: 15MB
 
 # ERD Online 业务开关（原 Martin 配置，去除 feign/message/sentinel）
+# springdoc：用 springdoc.*.enabled（prod 关）；勿再加 martin.swagger（死键）
+# oauth2 resource server 常驻，无 martin.resource-server 开关
 martin:
-  swagger:
-    enabled: true
-  resource-server:
-    enabled: true
   data:
     enabled: true
   social:
@@ -180,8 +178,6 @@ security:
         - /exit
         # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）；勿再放行 /user/register
         - /project/group/user/register
-        # R-AUTH-01：loadUserByUsername 仅进程内调用，禁止匿名 HTTP
-        - /endpoint/**
         - /error
         - /v3/api-docs/**
         - /swagger-ui/**
@@ -189,3 +185,4 @@ security:
         - /webjars/**
         # 只读分享：匿名仅 GET token（create/revoke/fork 需登录；见 ErdSecurityConfiguration）
         # 不再用 /share/** 全方法放行，避免匿名 POST revoke
+        # R-DEAD-03：勿加 /endpoint/**（无控制器；匿名误挂面）
