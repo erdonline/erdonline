@@ -52,7 +52,10 @@ const nextCopyName = (base: string, taken: (name: string) => boolean) => {
 export interface IModulesDispatchSlice {
   addModule: (payload: any, opts?: PersistOpt) => boolean | Promise<boolean>;
   renameModule: (payload: any, opts?: PersistOpt) => boolean | Promise<boolean>;
-  removeModule: (moduleName?: string) => void;
+  removeModule: (
+    moduleName?: string,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   updateModule: (payload: any) => void;
   copyModule: (payload: any) => void;
   cutModule: (payload: any) => void;
@@ -71,7 +74,11 @@ export interface IModulesDispatchSlice {
     name: string,
     opts?: PersistOpt,
   ) => boolean | Promise<boolean>;
-  removeDiagram: (moduleName: string, diagramId: string) => void;
+  removeDiagram: (
+    moduleName: string,
+    diagramId: string,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   /** ADR-0017 Phase 2b：图内 Frame */
   createFrame: (
     moduleName: string,
@@ -263,24 +270,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return true;
     })();
   },
-  removeModule: (moduleName?: string) => {
+  removeModule: (moduleName?: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
     const name =
       (typeof moduleName === 'string' && moduleName) ||
       get().currentModule ||
       '';
     if (!name) {
       message.error('未指定要删除的模型');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const before = state.project.projectJSON.modules?.length || 0;
-      state.project.projectJSON.modules =
-        state.project.projectJSON.modules?.filter((m: any) => m?.name !== name) || [];
-      if ((state.project.projectJSON.modules?.length || 0) === before) {
-        message.error(`模型 "${name}" 不存在`);
-        return;
-      }
+
+    const syncCurrentAfterRemove = (state: any) => {
       if (state.currentModule === name) {
         const next = state.project.projectJSON.modules?.[0];
         state.currentModule = next?.name;
@@ -290,8 +291,54 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           (m: any) => m?.name === state.currentModule,
         );
       }
+    };
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        const before = state.project.projectJSON.modules?.length || 0;
+        state.project.projectJSON.modules =
+          state.project.projectJSON.modules?.filter((m: any) => m?.name !== name) || [];
+        if ((state.project.projectJSON.modules?.length || 0) === before) {
+          message.error(`模型 "${name}" 不存在`);
+          return;
+        }
+        syncCurrentAfterRemove(state);
+        message.success('模型删除成功');
+      }));
+      return;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    const modules = project.projectJSON?.modules || [];
+    if (!modules.some((m: any) => m?.name === name)) {
+      message.error(`模型 "${name}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      draft.projectJSON.modules =
+        draft.projectJSON.modules?.filter((m: any) => m?.name !== name) || [];
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '模型保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+        syncCurrentAfterRemove(state);
+      }));
+      ackManualPersist(true);
       message.success('模型删除成功');
-    }));
+      return true;
+    })();
   },
   updateModule: (payload: any) => set(produce(state => {
     state.project.projectJSON.modules[state.currentModuleIndex] = payload
@@ -541,29 +588,87 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return true;
     })();
   },
-  removeDiagram: (moduleName: string, diagramId: string) => {
+  removeDiagram: (moduleName: string, diagramId: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
     if (diagramId === DEFAULT_DIAGRAM_ID) {
       message.warning('主关系图不可删除');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      let removed = false;
+      set(produce(state => {
+        const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+        if (!module) {
+          return;
+        }
+        const diagrams = ensureDiagrams(module);
+        if (diagrams.length <= 1) {
+          message.warning('至少保留一张关系图');
+          return;
+        }
+        module.diagrams = diagrams.filter((d) => d.id !== diagramId);
+        removed = true;
+      }));
+      if (removed) {
+        message.success('关系图删除成功');
+      }
       return;
     }
-    snapshotModules(get().project?.projectJSON?.modules);
-    let removed = false;
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
-      if (!module) {
-        return;
-      }
-      const diagrams = ensureDiagrams(module);
-      if (diagrams.length <= 1) {
-        message.warning('至少保留一张关系图');
-        return;
-      }
-      module.diagrams = diagrams.filter((d) => d.id !== diagramId);
-      removed = true;
-    }));
-    if (removed) {
-      message.success('关系图删除成功');
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
     }
+    const module = project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+    if (!module) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    let removed = false;
+    let blockedReason: 'last' | undefined;
+    const next = produce(project, (draft: any) => {
+      const mod = draft.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!mod) {
+        return;
+      }
+      const diagrams = ensureDiagrams(mod);
+      if (diagrams.length <= 1) {
+        blockedReason = 'last';
+        return;
+      }
+      if (!diagrams.some((d) => d.id === diagramId)) {
+        return;
+      }
+      mod.diagrams = diagrams.filter((d) => d.id !== diagramId);
+      removed = true;
+    });
+
+    if (blockedReason === 'last') {
+      message.warning('至少保留一张关系图');
+      return Promise.resolve(false);
+    }
+    if (!removed) {
+      message.error('关系图不存在');
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '关系图保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success('关系图删除成功');
+      return true;
+    })();
   },
   createFrame: (moduleName, diagramId, opts) => {
     let createdId: string | undefined;

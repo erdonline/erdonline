@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：左树删模型/关系图假成功
+
+- 选题：删表假成功已收口（`a9d0a89`）；左树 `removeModule` / `removeDiagram` 仍本地 mutate 即 toast，autosave 失败像已删
+- `removeModule` / `removeDiagram` 支持 `persist:true`；仅 `saveProject` code===200 写 store + 成功 toast；左树确认 `async onOk` 失败 `Promise.reject` 拒关窗可重试
+- E2E：`tree-delete-module-diagram-failure` 首拒仍保留树/表+确认窗、无成功 toast → 重试移出；定位 role/aria（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 剪贴粘贴假成功，或画布删边·分组 Frame 假成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/tree-delete-module-diagram-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "左树删除关系图/模型二次确认" --workers=1 --retries=0`
+
 #### 体验：画布/左树删表假成功
 
 - 选题：denseify 剪影已尽（`9472276`）；建模假成功残口：`removeEntity` 本地 mutate 即 toast「表删除成功」，autosave 失败像已删表（字段删已 `persist:true`，表删未对齐）
 - `removeEntity` 支持 `persist:true`（单/多 title 一次落盘）；仅 `saveProject` code===200 写 store + 成功 toast；画布 Delete / 左树「删除表」确认 `async onOk` 失败 `Promise.reject` 拒关窗可重试
 - E2E：`canvas-delete-table-failure` 首拒仍保留节点+确认窗、无成功 toast → 重试移出；定位 dialog role + `rfNode` / Delete（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 左树删模型·删关系图 / 剪贴粘贴假成功，或画布删边·分组 Frame 假成功
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~左树删模型·删关系图~~✅ / 剪贴粘贴假成功，或画布删边·分组 Frame 假成功
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-delete-table-failure.spec.ts --project=chromium --workers=1 --retries=0`
