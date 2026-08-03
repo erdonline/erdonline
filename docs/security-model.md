@@ -16,6 +16,7 @@
 
 - `erd.security.e2e-accounts-enabled`：`dev`=true，`prod`/默认=false → 生产拒绝 `e2e\\d+` / `e2e-serial` 登录
 - `erd.security.allow-demo-admin`：`dev`=true，`prod`/默认=false → 生产拒绝用户名 `admin` + 种子口令 `123456`（改密后不受影响）；逃生阀 `ERD_ALLOW_DEMO_ADMIN=true`
+- `erd.security.allow-open-register`：`dev`=true，`prod`/默认=false → 生产拒绝匿名开放注册；逃生阀 `ERD_ALLOW_OPEN_REGISTER=true`
 - 公网部署应改密 `admin`、删除 `e2e*` 用户；见 [deployment.md](./deployment.md)
 
 ## SQL 执行
@@ -33,7 +34,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 ## 匿名放行（前缀剥离后路径）
 
 - 登录/退出：`/login`、`/auth/login`、`/exit`
-- 注册：`/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）
+- 注册：仅 `/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）；受 `erd.security.allow-open-register` 门控（`dev`=true，`prod`/默认=false）；重复入口 `/user/register` 已去 HTTP 映射并不再 ignore
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
 - Actuator：`/actuator/**` 放行，但 **exposure 仅 `health,info`**；`health` 不 `show-details`；`info` 仅 app name/version（无密钥）。禁止扩大到 env/beans/heapdump
 - OpenAPI / Swagger UI：Security 仍对 `/v3/api-docs/**`、`/swagger-ui/**` 匿名放行；**`prod` profile 通过 `springdoc.api-docs.enabled=false` / `springdoc.swagger-ui.enabled=false` 关闭端点本身**。勿依赖 `martin.swagger.enabled`（死键，不门控 springdoc）。本地/dev 默认仍开启，便于联调。
@@ -60,7 +61,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-AUTH-03 | P1 | ~~项目/模型 IDOR：按 id 读写不校验成员~~ | ~~`ProjectServiceImpl` / `ProjectController` delete/update/get~~ | **✅ 已关闭（2026-08-03）**：`ProjectAcl` 查 `project_user`；get/info/save/update/delete（个人+团队）均 `assertMember` | 设计器旁路/SocketIO 成员检见 R-AUTH-05 |
 | R-AUTH-04 | P1 | ~~`dataSources` 读/改/删无归属校验~~ | ~~`DataSourcesController` get/update/delete~~ | **✅ 已关闭（2026-08-03）**：`DataSourceAcl` 校验 creator（username/userId）；tree 亦按 creator 过滤；禁止更新改写 creator | 保持；与 R-DATA-02 热路径走已鉴权 id |
 | R-AUTH-05 | P1 | ~~SocketIO 仅验短票/JWT，不验项目成员~~ | ~~`SocketIoAuthorizationListener` / `JOIN_ROOM`~~ | **✅ 已关闭（2026-08-03）**：短票载荷含 `userId`；握手 + `JOIN_ROOM` 均 `ProjectAcl.isMember`；cursor/sync 仅已入房会话可广播 | 保持；成员多人协作见 `verify-socket-presence` / `verify-socket-membership` |
-| R-AUTH-06 | P2 | 开放注册双入口 | ignore：`/user/register`；产品：`/project/group/user/register` | 公网可自注册（产品路径）；Service `@RestController` 另挂 `/user/register` | 自托管若关闭注册则收 ignore + 门控；废弃重复入口 |
+| R-AUTH-06 | P2 | ~~开放注册双入口~~ | ~~ignore：`/user/register`；产品：`/project/group/user/register`~~ | **✅ 已关闭（2026-08-03）**：去 `RemoteSystemUser.userRegister` HTTP 映射；ignore 仅留产品路径；`allow-open-register` prod/默认=false，`dev`=true；`ERD_ALLOW_OPEN_REGISTER=true` 逃生 | 公网勿开；需自注册自托管显式开阀 |
 | R-AUTH-07 | P2 | `frameOptions` 关闭 | `ErdSecurityConfiguration.java:63` | 可被嵌入 iframe（点击劫持面） | 非嵌入场景恢复 `deny`/`sameOrigin` |
 
 ### 配置与密钥
@@ -103,6 +104,6 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. 开放注册双入口收敛（R-AUTH-06）。
-2. 删 `TestJsonController` 样板面（R-DATA-05）。
-3. 应用库 JDBC `useSSL=false`（R-CFG-03）。
+1. 删 `TestJsonController` 样板面（R-DATA-05）。
+2. 应用库 JDBC `useSSL=false`（R-CFG-03）。
+3. `frameOptions` 恢复（R-AUTH-07）。

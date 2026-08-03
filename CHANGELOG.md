@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-06 开放注册单入口 + prod 默认关闭
+
+- 选题：ignore 双入口（`/user/register` + 产品路径）；Service `@RestController` 另挂匿名注册面；prod 默认可自注册
+- 改动：`RemoteSystemUser.userRegister` 去 HTTP 映射（仅进程内）；ignore 去掉 `/register`、`/user/register`，仅留 `/project/group/user/register`；`erd.security.allow-open-register`（`ERD_ALLOW_OPEN_REGISTER`）prod/默认=false → 拒绝注册；`dev`=true 保本地/E2E
+- 文档：security-model R-AUTH-06 ✅；roadmap 下一刀 → R-DATA-05；deployment / `.env.example`
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=RemoteSystemUserHttpContractTest,UserExtensionServiceImplRegisterGateTest test`
+- `./backend/dev-ensure.sh --restart`；匿名产品注册 → `code=200`（dev）；`POST /user/register` → 401；`ERD_ALLOW_OPEN_REGISTER=false` 单测拒注册且不触 DB
+
 #### 体验：账号设置壳键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：`/account/settings` 进页 Tab 先扫顶栏再扫左侧页签；无 Skip 直达主表单；保存钮键盘可达未回归；无键盘 E2E

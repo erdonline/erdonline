@@ -26,6 +26,7 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.common.data.mybatis.service.impl.MartinServiceImpl;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
+import com.erdonline.config.ErdSecurityProperties;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,7 +58,8 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
     private UserRoleService userRoleService;
     @Autowired
     private PasswordEncoder passwordEncoder;
-
+    @Autowired
+    private ErdSecurityProperties erdSecurityProperties;
 
     @Override
     protected void setEntity() {
@@ -145,6 +147,11 @@ public class UserExtensionServiceImpl extends MartinServiceImpl<UserExtensionMap
 
     @Override
     public R userRegister(@Validated UserDto userDto) {
+        // R-AUTH-06：prod/默认关闭开放注册；dev=true 保本地/E2E
+        if (!erdSecurityProperties.isAllowOpenRegister()) {
+            log.warn("rejected open register (erd.security.allow-open-register=false)");
+            return R.failed(ApiErrorCode.FORBIDDEN.getCode(), "开放注册已关闭，请联系管理员");
+        }
         log.info("userDto: {}", userDto);
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
         wrapper.or().eq(User::getUsername, userDto.getUsername());

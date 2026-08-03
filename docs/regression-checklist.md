@@ -163,7 +163,9 @@
 - [x] [只读分享前端] 设计器「分享」→ `/s/:token` → 未登录打开见表清单 + 只读关系图（`data-testid=share-relation-canvas`）✅`share.spec.ts`
 - [x] [只读分享安全] 匿名 GET 中 dbs password/username 为 `***` ✅curl
 - [x] [dataSources] 登录后 `GET /ncnb/dataSources?size=10&current=1` → 200（表 `data_sources`）✅`audit-fe-apis.sh`
-- [x] [注册放行] 匿名 `POST /ncnb/project/group/user/register`（body: username/pwd/email/phone）→ 非 401 ✅curl
+- [x] [注册放行] 匿名 `POST /ncnb/project/group/user/register`（body: username/pwd/email/phone）→ 非 401（dev `allow-open-register=true`）✅curl
+- [x] [R-AUTH-06 单入口] 匿名 `POST /user/register` → 401（不再 ignore / 无 HTTP 映射）；产品路径仍匿名可达 ✅curl + `RemoteSystemUserHttpContractTest`
+- [x] [R-AUTH-06 门控] `allow-open-register=false` → 注册 `code=403` 且不 insert ✅`UserExtensionServiceImplRegisterGateTest`
 - [x] [R-AUTH-01] 匿名 `GET /user/loadUserByUsername/admin` → 401；登录 `/auth/login` 仍 200 ✅curl + `RemoteSystemUserHttpContractTest`
 - [x] [R-AUTH-02] 无 `sys_user_*` 的已登录用户 `GET /user/page` → 401（AccessDenied）；admin `GET /user/page` → 200 且 JSON 无 `pwd`/`salt` ✅curl + `UserControllerAuthContractTest`
 - [x] [R-DATA-02 dataSourceId] `POST /ncnb/connector/ping` 含他人 `dataSourceId` → body `code=403`；自有 id 覆盖客户端伪账密；无 id raw `jdbc:h2` 仍拒 ✅curl + `ConnectorCredentialResolverTest`

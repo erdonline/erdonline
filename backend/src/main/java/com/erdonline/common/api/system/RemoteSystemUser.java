@@ -5,7 +5,6 @@ import com.erdonline.common.api.dto.UserDto;
 import com.erdonline.common.bean.system.vo.PrivilegeVO;
 import com.erdonline.common.bean.system.vo.UserRolePrivilegeVo;
 import com.erdonline.common.core.api.R;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -43,13 +42,13 @@ public interface RemoteSystemUser {
     R users(@RequestBody ProjectUserDto projectUser);
 
     /**
-     * 注册新用户
+     * 注册新用户（进程内调用；R-AUTH-06 禁止再挂 HTTP {@code /user/register}）。
+     * 产品匿名入口仅 {@code POST /project/group/user/register}。
      *
      * @param userDto 注册信息
      * @return 结果
      */
-    @PostMapping("/user/register")
-    R userRegister(@Validated @RequestBody UserDto userDto);
+    R userRegister(UserDto userDto);
 
     /**
      * 分页获取一批角色的用户名和邮箱

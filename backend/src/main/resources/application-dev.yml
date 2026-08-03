@@ -2,11 +2,12 @@
 # 数据源、redis 的默认值已在 application.yml 中通过 ${VAR:default} 提供，
 # 此处仅覆盖开发期特有配置。
 
-# 允许 Playwright / 本地联调使用 e2e* 与 admin/123456 种子账号
+# 允许 Playwright / 本地联调使用 e2e*、admin/123456 与开放注册
 erd:
   security:
     e2e-accounts-enabled: true
     allow-demo-admin: true
+    allow-open-register: true
 
 spring:
   thymeleaf:

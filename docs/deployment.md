@@ -296,6 +296,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
+| `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true` |
 | `CORS_ALLOWED_ORIGINS` | `https://erdonline-demo.pages.dev` | 逗号分隔；静态 demo 跨域必需；未设则回落 `ERD_UI_URL` |
 | `ERD_UI_URL` | 同上 CF Pages URL | **prod 必填其一**（或 `SOCKETIO_ORIGIN`）；CORS + SocketIO 回落；禁 `*` |
 | `SOCKETIO_ORIGIN` | 通常同 `ERD_UI_URL` | 可选覆盖 SocketIO；未设回落 `ERD_UI_URL`；禁空串挡回落、禁 `*` |
@@ -484,7 +485,7 @@ martin:
 
 - 修改 `.env` 中所有默认密码（含 `admin`）；`prod` 即使未改密也会拒绝 `admin`/`123456` 登录（`erd.security.allow-demo-admin=false`）
 - **删除或改密种子账号** `e2e0`..`e2e15`、`e2e-serial`（弱口令仅供本地/CI；`prod` 默认拒绝登录，仍建议删库内记录）
-- 勿设置 `ERD_E2E_ACCOUNTS_ENABLED=true` 或 `ERD_ALLOW_DEMO_ADMIN=true` 到公网环境
+- 勿设置 `ERD_E2E_ACCOUNTS_ENABLED=true`、`ERD_ALLOW_DEMO_ADMIN=true` 或 `ERD_ALLOW_OPEN_REGISTER=true` 到公网环境
 - 后端 jar 单独部署时，通过环境变量覆盖数据源/redis 配置（见 `application-prod.yml`）
 - 前端可将 `dist/` 部署到任意静态服务器 / CDN，运行时通过 `env-config.js` 注入 `API_URL`
 
