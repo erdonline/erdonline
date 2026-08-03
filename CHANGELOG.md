@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：发起SQL审批弹层键盘闭环（SqlApproval）
+
+- 选题：版本详情「SQL审批」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「审批人」Select；审批说明补 `aria-label`；发起审批 POST/校验逻辑不变
+- E2E：`sql-approval-keyboard`（团队项目 → 提交工单 → SQL审批 → 首焦、Esc 归还触发器且父详情仍开、Tab trap；不提交）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 添加成员 Modal 键盘（AddUser）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/sql-approval-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：修改密码弹层键盘闭环（ResetPassword）
 
 - 选题：账号「修改密码」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；触发器仅「修改」无稳定可访问名；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「密码」；触发器 `aria-label="修改密码"`；提交流程不变
 - E2E：`reset-password-keyboard`（安全设置 → 首焦、Esc 归还触发器、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → SQL审批 Modal 键盘（SqlApproval）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~SQL审批 Modal 键盘（SqlApproval）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/reset-password-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
