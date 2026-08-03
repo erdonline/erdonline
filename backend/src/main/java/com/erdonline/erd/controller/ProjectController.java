@@ -1,8 +1,6 @@
 package com.erdonline.erd.controller;
 
 import com.erdonline.common.core.api.R;
-import com.erdonline.common.core.constant.OssConstants;
-import com.erdonline.common.oss.service.OssTemplate;
 import com.erdonline.common.vip.annotation.VIP;
 import com.erdonline.common.vip.enums.VIPLevelEnum;
 import com.erdonline.common.vip.enums.VIPModuleEnum;
@@ -21,7 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -44,9 +41,6 @@ public class ProjectController {
 
     @Autowired
     private ProjectAcl projectAcl;
-
-    @Autowired(required = false)
-    private OssTemplate minioOssTemplate;
 
     /**
      * 添加
@@ -136,12 +130,6 @@ public class ProjectController {
     public R recent(@RequestParam Map params) {
         return projectService.recentProjectPage(params);
     }
-
-    @PostMapping("upload")
-    public R uploadTest(@RequestParam("file") MultipartFile file) {
-        return R.ok(minioOssTemplate.upload(OssConstants.DEFAULT_BUCKET, file, true));
-    }
-
 
     /**
      * 查询统计信息

@@ -81,7 +81,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DATA-01 | P0 | ~~`queryInfo/exec`：`${sql}` 无语句白名单~~ | ~~`QueryInfoMapper.xml`；`QueryInfoServiceImpl`~~ | **✅ 已关闭（2026-08-03）**：`SqlGuard.assertReadOnly` 仅 SELECT/EXPLAIN/SHOW/DESC；禁多语句 | 保持只读白名单；`${sql}` 仍为动态执行面，勿扩 DML |
 | R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 关闭（2026-08-03）**：`JdbcUrlGuard`（协议 + 链路本地/云 IMDS）；mutate 拒 GRANT/OUTFILE；**`dataSourceId`→ACL**；**sqlexec/dbsync 强制 id**（ping/reverse 仍可 raw） | 保持；DNS 重绑定属残余面 |
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
-| R-DATA-04 | P1 | `POST /project/upload` 无类型/归属校验 | `ProjectController.java:134-137` | 任意登录用户写默认 OSS bucket | 校验扩展名/content-type；鉴权到项目；禁测试接口上生产 |
+| R-DATA-04 | P1 | ~~`POST /project/upload` 无类型/归属校验~~ | ~~`ProjectController` / `GroupProjectController` / `WsController` 测试上传；`doc/uploadWordTemplate`~~ | **✅ 已关闭（2026-08-03）**：删除三处无归属测试上传；`WordTemplateGuard` 仅 `.docx` + 键前缀 `martin/projecterd/{projectId}/`；上传/下载/gendocx 经 `ProjectAcl` | 勿回挂匿名 OSS 写；自定义模板路径勿放开任意 bucket |
 | R-DATA-05 | P2 | `TestJsonController` 样板 CRUD 仍暴露 | `TestJsonController.java:56-121` | 需登录，污染面 | 删死路由 |
 
 ### 运维可观测
@@ -103,6 +103,6 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. 上传归属（R-DATA-04）。
-2. SocketIO `SOCKETIO_ORIGIN` / CORS 生产默认（R-CFG-04）。
-3. 开放注册双入口收敛（R-AUTH-06）。
+1. SocketIO `SOCKETIO_ORIGIN` / CORS 生产默认（R-CFG-04）。
+2. 开放注册双入口收敛（R-AUTH-06）。
+3. 删 `TestJsonController` 样板面（R-DATA-05）。

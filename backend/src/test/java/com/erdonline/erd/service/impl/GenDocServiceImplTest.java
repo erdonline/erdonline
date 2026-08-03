@@ -2,8 +2,10 @@ package com.erdonline.erd.service.impl;
 
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.constant.OssConstants;
+import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.oss.service.OssTemplate;
 import com.erdonline.erd.entity.Project;
+import com.erdonline.erd.security.ProjectAcl;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.ProjectService;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -31,6 +33,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -46,6 +50,9 @@ class GenDocServiceImplTest {
 
     @Mock
     private DbChangeService dbChangeService;
+
+    @Mock
+    private ProjectAcl projectAcl;
 
     @InjectMocks
     private GenDocServiceImpl genDocService;
@@ -89,12 +96,22 @@ class GenDocServiceImplTest {
 
     @Test
     void uploadWordTemplate_withoutMinio_returnsFailed() throws Exception {
+        doNothing().when(projectAcl).assertMember("proj-1");
         MockMultipartFile file = new MockMultipartFile("file", "tpl.docx",
                 "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
                 new byte[]{1, 2, 3});
         R<?> r = genDocService.uploadWordTemplate(file, "proj-1");
         assertTrue(r.invalid());
         assertEquals(GenDocServiceImpl.MINIO_REQUIRED_MSG, r.getMsg());
+    }
+
+    @Test
+    void uploadWordTemplate_nonMember_throws() {
+        doThrow(new ValidateException("无权限")).when(projectAcl).assertMember("proj-x");
+        MockMultipartFile file = new MockMultipartFile("file", "tpl.docx",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                new byte[]{1, 2, 3});
+        assertThrows(ValidateException.class, () -> genDocService.uploadWordTemplate(file, "proj-x"));
     }
 
     @Test
@@ -139,10 +156,20 @@ class GenDocServiceImplTest {
         try (XWPFDocument doc = new XWPFDocument(new ByteArrayInputStream(response.getContentAsByteArray()))) {
             assertNotNull(doc.getDocument());
         }
+        verify(projectAcl, never()).assertMember(anyString());
+    }
+
+    @Test
+    void downloadWordTemplate_foreignProject_assertsMember() {
+        doThrow(new ValidateException("无权限")).when(projectAcl).assertMember("other");
+        MockHttpServletResponse response = new MockHttpServletResponse();
+        assertThrows(ValidateException.class,
+                () -> genDocService.downloadWordTemplate("martin/projecterd/other/tpl.docx", response));
     }
 
     @Test
     void genDataBaseDocx_withoutMinio_exportsDocx() throws Exception {
+        doNothing().when(projectAcl).assertMember("p1");
         Project project = new Project();
         project.setProjectName("demo-proj");
         Map<String, Object> json = new HashMap<>();
@@ -164,10 +191,12 @@ class GenDocServiceImplTest {
             assertNotNull(doc.getDocument());
         }
         verify(minioOssTemplate, never()).download(anyString(), anyString());
+        verify(projectAcl).assertMember("p1");
     }
 
     @Test
     void uploadWordTemplate_withMinio_delegates() throws Exception {
+        doNothing().when(projectAcl).assertMember("p1");
         setOss(minioOssTemplate);
         when(minioOssTemplate.upload(eq(OssConstants.DEFAULT_BUCKET), anyString(), any(InputStream.class), anyBoolean()))
                 .thenReturn("martin/projecterd/p1/tpl.docx");
@@ -177,5 +206,7 @@ class GenDocServiceImplTest {
         R<?> r = genDocService.uploadWordTemplate(file, "p1");
         assertTrue(r.valid());
         assertEquals("martin/projecterd/p1/tpl.docx", r.getData());
+        verify(minioOssTemplate).upload(eq(OssConstants.DEFAULT_BUCKET), eq("projecterd/p1/tpl.docx"),
+                any(InputStream.class), anyBoolean());
     }
 }
