@@ -1,10 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
-import {Avatar, Input, List, message, Popconfirm, Space} from 'antd';
+import {Avatar, Button, Input, List, message, Space} from 'antd';
 import {DEL, GET} from '@/services/crud';
 import {useSearchParams} from '@@/exports';
 import {CONSTANT} from '@/utils/constant';
 import AddUser from '@/pages/project/group/component/AddUser';
 import {Access, useAccess} from '@@/plugin-access';
+import {confirmDestructive} from '@/utils/destructiveConfirm';
 
 type ProjectUser = {
   id: string;
@@ -76,6 +77,29 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
   const canSearch = access.canErdProjectRolesSearch && !props.isAdmin;
   const showAdd = !(access.canErdProjectUsersAdd && props.isAdmin);
 
+  const onRemoveClick = (row: ProjectUser) => {
+    confirmDestructive({
+      title: '移除成员',
+      content: `确定将「${row.username}」移出该用户组吗？`,
+      okText: '移除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: () =>
+        DEL('/ncnb/project/group/role/users', {
+          projectId: projectId,
+          roleId: props.roleId,
+          userIds: [row.id],
+        }).then((r) => {
+          if (r.code === 200) {
+            message.success('移除成功');
+            actionRef.current.reload();
+          } else {
+            message.error(r.msg || r.message || '移除失败');
+          }
+        }),
+    });
+  };
+
   return (
     <div data-testid="group-user-list">
       <div
@@ -140,28 +164,14 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
                       accessible={access.canErdProjectRoleUsersDel}
                       fallback={<></>}
                     >
-                      <Popconfirm
-                        placement="right"
-                        title={'是否将『' + row.username + '』移除'}
-                        onConfirm={() =>
-                          DEL('/ncnb/project/group/role/users', {
-                            projectId: projectId,
-                            roleId: props.roleId,
-                            userIds: [row.id],
-                          }).then((r) => {
-                            if (r.code === 200) {
-                              message.success('移除成功');
-                              actionRef.current.reload();
-                            }
-                          })
-                        }
-                        okText="是"
-                        cancelText="否"
+                      <Button
+                        type="link"
+                        danger
+                        aria-label={`移除成员 ${row.username}`}
+                        onClick={() => onRemoveClick(row)}
                       >
-                        <a key="link" aria-label={`移除 ${row.username}`}>
-                          移除
-                        </a>
-                      </Popconfirm>
+                        移除
+                      </Button>
                     </Access>,
                   ]
             }
