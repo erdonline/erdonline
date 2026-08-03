@@ -51,4 +51,88 @@ test.describe('404 页', () => {
     await page.getByRole('button', { name: '打开示例 demo' }).click();
     await expect(page).toHaveURL(/\/(demo|s\/public-demo)/, { timeout: 15_000 });
   });
+
+  // ADR-0016：404 壳键盘 — Skip 绕开品牌面板；主 CTA Tab 序；focus-visible；无 trap
+  test('404 壳键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto(`/this-path-does-not-exist-kb-${Date.now().toString(36)}`);
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('auth-skip-form')).toHaveText('跳到主操作');
+    await expect(page.getByTestId('exception-404-gate')).toHaveAttribute('tabindex', '-1');
+
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('auth-skip-form')).toBeFocused({ timeout: 5_000 });
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('exception-404-gate')).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('exception-404-gate')).not.toBeFocused();
+    const primaryCta = page.getByRole('button', { name: '打开示例 demo' });
+    await expect(primaryCta).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: '返回首页' })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(primaryCta).toBeFocused();
+
+    // focus-visible brand 环（须经 Tab 触发 :focus-visible）
+    await page.getByRole('button', { name: '返回首页' }).focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(primaryCta).toBeFocused();
+    const ring = await primaryCta.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        outlineColor: cs.outlineColor,
+        outlineStyle: cs.outlineStyle,
+        outlineWidth: cs.outlineWidth,
+      };
+    });
+    expect(ring.outlineStyle).not.toBe('none');
+    expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+    expect(ring.outlineColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+  });
+});
+
+test.describe('403 页', () => {
+  // ADR-0016：403 壳键盘 — 与 404 同构 Skip/CTA/focus-visible
+  test('403 壳键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/403');
+    await expect(page.getByTestId('auth-brand-shell')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('exception-403-gate')).toBeVisible();
+    await expect(page.getByRole('heading', { name: '无权访问' })).toBeVisible();
+    await expect(page.getByTestId('auth-skip-form')).toHaveText('跳到主操作');
+    await expect(page.getByTestId('exception-403-gate')).toHaveAttribute('tabindex', '-1');
+
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('auth-skip-form')).toBeFocused({ timeout: 5_000 });
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('exception-403-gate')).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    const primaryCta = page.getByRole('button', { name: '打开示例 demo' });
+    await expect(primaryCta).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: '返回首页' })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(primaryCta).toBeFocused();
+
+    await page.getByRole('button', { name: '返回首页' }).focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(primaryCta).toBeFocused();
+    const ring = await primaryCta.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        outlineColor: cs.outlineColor,
+        outlineStyle: cs.outlineStyle,
+        outlineWidth: cs.outlineWidth,
+      };
+    });
+    expect(ring.outlineStyle).not.toBe('none');
+    expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+    expect(ring.outlineColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+  });
 });

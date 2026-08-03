@@ -42,6 +42,7 @@
 - [x] [登录壳键盘] `/login` 首项 Tab Skip「跳到登录表单」→ `#auth-form-anchor` → Tab 入用户名；密码 Enter 错误凭证 toast；登录钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「登录壳键盘」
 - [x] [注册壳键盘] `/register` Skip「跳到注册表单」→ `#auth-form-anchor` → 字段 Tab 序（tip 出序）；末字段 Enter 密码不一致 toast；注册钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「注册壳键盘」
 - [x] [落地页键盘] `/` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta` → Tab 入「在线试用」；试用→注册→登录可逆；主 CTA focus-visible surface 环；无 trap ✅`landing.spec.ts`「落地页键盘」
+- [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
@@ -412,7 +413,8 @@
 ## W5 404/403 品牌对齐（2026-08-03）
 
 - [x] [404] 未知路径见 `AuthBrandShell`「页面不存在」+ `exception-404-gate`；品牌面板 ~40%；主 CTA「打开示例 demo」→ `/demo`|`/s/public-demo`；「返回首页」离开该路径✅ `not-found.spec.ts`
-- [x] [403] `pages/403.tsx` 同构 `AuthBrandShell`「无权访问」+ `exception-403-gate`（路由表未新增入口）✅ 源码
+- [x] [403] `pages/403.tsx` 同构 `AuthBrandShell`「无权访问」+ `exception-403-gate`；深链 `/403`（layout false）可达✅ `not-found.spec.ts`
+- [x] [404/403 壳键盘] Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap✅ `not-found.spec.ts`
 - [x] [深链/死认证] 空壳深链与 `/login/success` 等见 `exception-404-gate`（非裸 Result「404」）✅ `data-domain`/`design-query`/`home-data-query`/`dead-auth-routes`
 
 ## W5 切片 2 — 分享失效态（2026-08-02）

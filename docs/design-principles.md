@@ -23,6 +23,7 @@
 - ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
 - ✅ 注册壳键盘：同壳 Skip「跳到注册表单」；用户名→密码→确认→邮箱→手机→注册→footer；Form tip 问号出序（悬停保留）；末字段 Enter 提交/校验；focus-visible brand 环；无 trap
 - ✅ 落地页键盘：首项 Tab Skip「跳到主操作」落 `#landing-main-cta`（`tabIndex=-1`）；绕开顶栏；试用→注册→登录（已登录：工作台→演示）；壳内 `:focus-visible` surface 环（深色门面）；地标 brand；不按 Skip 仍可达品牌链；无 trap
+- ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ✅ 画布 chrome Tab 序：Controls（放大/缩小/适应/交互）→ 工具栏；MiniMap（d3-zoom）`tabindex=-1` 装饰出序、鼠标仍可拖；Controls `:focus-visible` brand 环；无 trap
 - ✅ 画布节点级 Tab：`nodesFocusable`/`edgesFocusable=false`（RF wrapper 不出序）；仅**选中**表控件 / 邻接边基数 chip / Frame 重命名进序；未选中 `-1`；无密图 trap
