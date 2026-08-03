@@ -83,7 +83,56 @@ export interface IProfileDispatchSlice {
    */
   importReverseTable: () => Promise<boolean>;
   getDefaultFields: () => any;
-  downloadWordTemplate: () => any;
+  /** 下载 WORD 模板；仅合法 docx blob 落盘，空/JSON/非 zip 失败 toast、不下载垃圾 */
+  downloadWordTemplate: () => Promise<boolean>;
+}
+
+/** 强制 reject，避免全局 errorHandler return 后 Promise resolve(undefined) */
+function rethrowDownloadError(error: unknown): never {
+  throw error;
+}
+
+/**
+ * 校验 downloadWordTemplate 响应：禁空 blob / JSON 错误体 / 非 ZIP 魔数冒充 .docx。
+ * @returns null 表示可保存；否则为失败原因
+ */
+async function wordTemplateDownloadFailureReason(res: unknown): Promise<string | null> {
+  if (res == null) {
+    return '服务器未返回模板内容';
+  }
+  if (!(res instanceof Blob)) {
+    return '响应不是文件';
+  }
+  if (res.size === 0) {
+    return '模板内容为空';
+  }
+  const type = (res.type || '').toLowerCase();
+  if (type.includes('json')) {
+    try {
+      const json = JSON.parse(await res.text()) as { msg?: string; message?: string };
+      return json.msg || json.message || '下载模板失败';
+    } catch {
+      return '下载模板失败';
+    }
+  }
+  // 部分网关以 octet-stream 包 JSON 错误；docx 为 ZIP（PK）
+  const head = new Uint8Array(await res.slice(0, 4).arrayBuffer());
+  const isZip =
+    head.length >= 2 && head[0] === 0x50 /* P */ && head[1] === 0x4b /* K */;
+  if (!isZip) {
+    try {
+      const text = await res.slice(0, 512).text();
+      const trimmed = text.trimStart();
+      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
+        const json = JSON.parse(trimmed) as { msg?: string; message?: string };
+        return json.msg || json.message || '下载模板失败';
+      }
+    } catch {
+      /* 非 JSON */
+    }
+    return '返回内容不是 Word 模板（.docx）';
+  }
+  return null;
 }
 
 /** 逆向业务/异常 → 可读短句（禁止对象拼接出 [object Object]） */
@@ -713,23 +762,53 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return d;
     });
   },
-  downloadWordTemplate: () => {
-    // 获取word的目录
+  downloadWordTemplate: async (): Promise<boolean> => {
     const doctpl = get().project?.projectJSON?.profile.wordTemplateConfig;
-    request('/ncnb/doc/downloadWordTemplate', {
-      method: 'GET',
-      responseType: 'blob',
-      params: {
-        doctpl: doctpl
+    try {
+      const res = await request('/ncnb/doc/downloadWordTemplate', {
+        method: 'GET',
+        responseType: 'blob',
+        errorHandler: rethrowDownloadError,
+        params: {
+          doctpl: doctpl,
+        },
+      });
+      const reason = await wordTemplateDownloadFailureReason(res);
+      if (reason) {
+        message.error(`下载模板出错!出错原因：${reason}！`);
+        return false;
       }
-    }).then((res) => {
-      if (res) {
-        saveByBlob(res, 'wordTemplate.docx');
+      saveByBlob(res as Blob, 'wordTemplate.docx');
+      return true;
+    } catch (err: unknown) {
+      let reason = '未知错误';
+      const e = err as {
+        message?: string;
+        data?: unknown;
+        response?: { status?: number };
+      };
+      if (!e?.response) {
+        reason = '网络异常，请检查网络连接后重试';
+      } else if (e.data instanceof Blob) {
+        try {
+          const text = await e.data.text();
+          if (text) {
+            const json = JSON.parse(text) as { msg?: string; message?: string };
+            reason = json.msg || json.message || reason;
+          }
+        } catch {
+          reason = e.message || reason;
+        }
+      } else if (e.data && typeof e.data === 'object') {
+        const body = e.data as { msg?: string; message?: string };
+        reason = body.msg || body.message || e.message || reason;
+      } else if (e.message && e.message !== 'http error') {
+        reason = e.message;
       }
-    }).catch((err) => {
-      message.error(`下载模板出错!出错原因：${err.message}！`);
-    });
-  }
+      message.error(`下载模板出错!出错原因：${reason}！`);
+      return false;
+    }
+  },
 });
 
 

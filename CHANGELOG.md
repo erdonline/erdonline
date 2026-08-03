@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：WORD 模板下载假成功
+
+- 选题：版本回滚假成功已收口（`202d7c5`）；`downloadWordTemplate` 对任意 blob（含空体 / `application/json` 错误体）直接 `saveByBlob(...docx)` → 用户像下到模板实为垃圾/JSON
+- `downloadWordTemplate`：校验非空 + ZIP 魔数 `PK`；`json`/窥探 JSON 错误体则失败 toast、不落盘；HTTP 错误 `errorHandler` 重抛防 resolve(undefined)
+- E2E：`word-template-download-failure` mock JSON/空 blob → toast + 无 `download` 事件；定位 `role=dialog`「默认项设置」/ `role=button`「下载模板」（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描余假成功，或键盘摩擦（回滚 Esc 已覆盖）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/word-template-download-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：版本回滚假成功
 
 - 扫描结论：dbsync 同步失败 / Word `gendocx` 导出失败已收口；下一高 ROI 为 **版本回滚**——`revertVersionData` 先 `setModules` 再异步 save，且弹层无条件关窗 → 落盘失败仍像已回滚
 - `revertVersionData`：仅 `saveProject` code===200 写 store + toast「成功回滚」；失败 toast、不写 store；`RevertVersion` 失败不关窗可重试（`confirmLoading`）
 - E2E：`version-revert-failure` 首拒窗仍开、画布仍有 REMARK → 重试成功字段消失；定位 `role=dialog`「回滚版本」/ `aria-label=回滚版本`（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `downloadWordTemplate` 静默/JSON blob 假下载，或键盘摩擦（回滚弹层 Esc 归还已覆盖）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`downloadWordTemplate` 静默/JSON blob 假下载~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-revert-failure.spec.ts --project=chromium --workers=1 --retries=0`
