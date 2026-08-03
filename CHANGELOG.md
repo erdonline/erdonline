@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Cmd+K 命令面板键盘 polish
+
+- 选题：命令面板已有 ↑↓/Esc/空态，但缺 focus trap、Esc 归还触发器、`aria-activedescendant`，空态仅一句「无匹配命令或表」
+- 改动：`aria-modal` + combobox/`aria-activedescendant`；↑↓ 滚入可视；无匹配分层空态「无匹配结果」+ 提示；Esc 关并归还焦点（执行命令不抢回）；Tab/⇧Tab 困在搜索
+- E2E：扩展 `relation`「命令面板」（工具条开 → trap / ↑↓ / 空态 / Esc 归还「命令」）
+- 文档：design-principles §2§5 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 签头密度（CommonTabs / 表设计再压且不 clip）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
+
 #### 体验：裸 Modal.confirm → confirmDestructive 清零
 
 - 选题：`frontend/src` 仍有 11 处业务裸 `Modal.confirm`（4 处版本/逆向缺 keyboard/autoFocus/focusTrigger；7 处手写默认重复）
 - 改动：全部改 `confirmDestructive`（仅 `destructiveConfirm.ts` 内保留 `Modal.confirm`）；版本同步/标记/重建基线补语义 `okText` + `okType=danger`；重建前落焦 `version-rebuild-btn` 以便 Esc 归还；逆向覆盖同构
 - E2E：`version-rebuild-confirm-keyboard`（保存版本→重建表单→基线确认 → 首焦「重建」、Esc 不落盘、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 签头密度 / CmdK polish（`rg 'Modal\\.confirm' frontend/src` 仅工具函数）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → CmdK polish ✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-rebuild-confirm-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

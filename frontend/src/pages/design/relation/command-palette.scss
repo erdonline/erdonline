@@ -67,10 +67,25 @@
 }
 
 .erd-cmd-empty {
-  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 12px;
   text-align: center;
-  color: var(--erd-ink-400);
-  font-size: 12px;
+
+  .erd-cmd-empty__title {
+    color: var(--erd-ink-600);
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+  }
+
+  .erd-cmd-empty__hint {
+    color: var(--erd-ink-400);
+    font-size: 11px;
+    line-height: 16px;
+  }
 }
 
 .erd-cmd-footer {

@@ -161,7 +161,8 @@
 - ✅ **团队项目删确认弹层键盘**（2026-08-03）：`RemoveGroupProject` Popconfirm→`confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`group-project-delete-keyboard.spec` 绿
 - ✅ **团队成员移除确认弹层键盘**（2026-08-03）：`GroupUser` Popconfirm→`confirmDestructive`；首焦「移除」；Esc 归还不移；Tab trap；`group-user-remove-keyboard.spec` 绿
 - ✅ **审批动作确认弹层键盘**（2026-08-03）：Pass/Refuse/Cancel/Repeat Popconfirm→`confirmDestructive`；首焦语义 OK；Esc 归还不落盘；Tab trap；死代码 `CopyVersion` 删除；`approval-action-keyboard.spec` 绿
-- ✅ **裸 Modal.confirm → confirmDestructive 清零**（2026-08-03）：版本重建基线/同步×2、逆向覆盖、画布删表·边·分组·字段、边 chip、JExcel 删行、表索引删；重建确认首焦「重建」+ Esc 归还重建钮；`version-rebuild-confirm-keyboard.spec` 绿；下一刀 → 签头密度 / CmdK polish
+- ✅ **裸 Modal.confirm → confirmDestructive 清零**（2026-08-03）：版本重建基线/同步×2、逆向覆盖、画布删表·边·分组·字段、边 chip、JExcel 删行、表索引删；重建确认首焦「重建」+ Esc 归还重建钮；`version-rebuild-confirm-keyboard.spec` 绿
+- ✅ **Cmd+K 命令面板键盘 polish**（2026-08-03）：aria-modal + combobox/`aria-activedescendant`；↑↓ 滚动选中；无匹配「无匹配结果」分层空态；Esc 归还触发器；Tab 困在搜索；`relation.spec`「命令面板」绿；下一刀 → 签头密度（CommonTabs / 表设计再压且不 clip）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

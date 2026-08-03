@@ -2617,19 +2617,50 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(palette).toHaveCount(0);
       await expect(page.locator('.erd-table-node')).toHaveCount(2);
 
-      // 工具条入口可再次打开；无匹配时 listbox 空态对读屏可感知
-      await page.getByRole('button', { name: '命令' }).click();
-      await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
-      await page.getByTestId('cmd-palette-input').fill('___no_such_cmd___');
-      const empty = page.getByText('无匹配命令或表');
+      // 工具条入口：首焦搜索；Tab trap；↑↓ 选中；无匹配空态；Esc 归还「命令」
+      const cmdBtn = page.getByRole('button', { name: '命令' });
+      await cmdBtn.click();
+      const palette2 = page.getByRole('dialog', { name: '命令面板' });
+      await expect(palette2).toBeVisible();
+      await expect(palette2).toHaveAttribute('aria-modal', 'true');
+      const cmdInput = page.getByTestId('cmd-palette-input');
+      await expect(cmdInput).toBeFocused();
+
+      for (let i = 0; i < 6; i += 1) {
+        await page.keyboard.press('Tab');
+        await expect(cmdInput).toBeFocused();
+        expect(
+          await palette2.evaluate((dlg) => dlg.contains(document.activeElement)),
+        ).toBe(true);
+      }
+      for (let i = 0; i < 2; i += 1) {
+        await page.keyboard.press('Shift+Tab');
+        await expect(cmdInput).toBeFocused();
+      }
+
+      const firstOpt = palette2.getByRole('option').first();
+      await expect(firstOpt).toHaveAttribute('aria-selected', 'true');
+      await page.keyboard.press('ArrowDown');
+      const secondOpt = palette2.getByRole('option').nth(1);
+      await expect(secondOpt).toHaveAttribute('aria-selected', 'true');
+      await expect(firstOpt).toHaveAttribute('aria-selected', 'false');
+      const activeId = await secondOpt.getAttribute('id');
+      expect(activeId).toBeTruthy();
+      await expect(cmdInput).toHaveAttribute('aria-activedescendant', activeId!);
+
+      await cmdInput.fill('___no_such_cmd___');
+      const empty = palette2.locator('.erd-cmd-empty');
       await expect(empty).toBeVisible();
       await expect(empty).toHaveAttribute('aria-live', 'polite');
+      await expect(empty.getByText('无匹配结果')).toBeVisible();
+      await expect(empty.getByText(/试试表名、定位、建表或布局/)).toBeVisible();
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-cmd-palette-dense.png',
         fullPage: false,
       });
       await page.keyboard.press('Escape');
       await expect(page.getByRole('dialog', { name: '命令面板' })).toHaveCount(0);
+      await expect(cmdBtn).toBeFocused({ timeout: 5_000 });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
