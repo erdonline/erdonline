@@ -131,6 +131,8 @@
 | 画布删字段确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-field-keyboard` |
 | 表设计删索引确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `table-index-delete-keyboard` |
 | JExcel 工具栏删行确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-toolbar-delete-keyboard` |
+| JExcel 快捷操作 Modal.info | 打开首焦 / Esc / Tab trap | 首焦「知道了」；Esc/OK 归还「快捷操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-grid-keyboard` |
+| JExcel Escape 退格 | 编辑态 Esc / 焦点归还 | Esc 丢弃单元格草稿；焦点归还 `jexcel-grid`；签页不关；禁落隐藏 textarea | ADR-0016 键盘网格 | ✅ | `jexcel-grid-keyboard` |
 | 左树删模型/表/关系图确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行「…操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `tree-delete-keyboard` |
 | 数据源设置删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮；外层配置窗仍开；焦点不逃出确认 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-delete-keyboard` |
 | 工作台 databaseConfig 删/批删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮/批删钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-config-delete-keyboard` |
@@ -207,6 +209,7 @@
 | `/design/table/model` | 索引签删除 `index-delete-N` | 「删除索引 `{name}`」→ Modal 确认才删；取消保留；删空回空态 CTA；键盘首焦/Esc/Tab trap | | ✅ | `relation`「索引签删除二次确认」+`table-index-delete-keyboard` |
 | `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast；键盘首焦/Esc/Tab trap | | ✅ | `relation`「JExcel 工具栏删除二次确认」+`jexcel-toolbar-delete-keyboard` |
 | `/design/table/model` | JExcel 工具栏/网格 Tab 序 | 7 工具栏按钮 Tab+Enter；`jexcel-grid` 可聚焦；Shift+Tab 无 trap | | ✅ | `relation`「工具栏 Tab 可达」 |
+| `/design/table/model` | JExcel Escape 退格 / 快捷操作 Modal | 编辑态 Esc 丢弃→焦点回 `jexcel-grid`；快捷操作首焦「知道了」；Esc 归还；Tab trap | ADR-0016 键盘 | ✅ | `jexcel-grid-keyboard` |
 | `/design/table/model` | 表设计字段签半成品写回 | 缺 `name`/`typeName` → toast + 中止写回；全空草稿可丢；Esc 停网格 | | ✅ | `relation`「半成品行不静默丢」 |
 | `/design/table/model` | 表设计索引签半成品写回 | 缺 `name`/`fields`（含 `[]`/「;」空）→ toast + 中止写回；Esc 停网格；重入索引仍在 | | ✅ | `relation`「索引签：半成品行不静默丢」 |
 | `/design/table/model` | 表节点「字段」`canvas-open-field` | 直达表设计字段签（`aria-selected` + `table-field-edit`）；可切索引后再经画布重入 | | ✅ | `relation`「画布打开字段签」 |

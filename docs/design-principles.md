@@ -72,7 +72,7 @@
 - ✅ `Cmd+Z` / `Cmd+Shift+Z` 撤销重做、`Delete`/`Backspace` 删除选中（二次确认）、`Cmd/Ctrl+K`/`Cmd/Ctrl+F` 命令面板（可搜表定位）、`?` 呼出快捷键速查卡（`role=dialog`「快捷键」；工具栏「?」同入口）
 - ✅ 命令面板键盘闭环：开面板首焦搜索；↑↓ + `aria-activedescendant` 选中；Enter 执行；无匹配「无匹配结果」+ 提示；Esc 关并归还触发器；Tab/⇧Tab 困在搜索（选项不走 Tab）
 - ✅ 表设计内签直切：`Cmd/Ctrl+1` 字段 · `2` 索引 · `3` 元数据应用（仅表设计签挂载时拦截；输入框内不拦；画布上不抢浏览器签页）；速查卡已登记
-- ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）
+- ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 `role=toolbar`「表格编辑工具栏」+ 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）；编辑态 Escape 丢弃草稿并焦点归还网格（禁落隐藏 textarea）；「快捷操作」`Modal.info` 首焦「知道了」+ Esc 归还 + Tab trap
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
 - ✅ CommonTabs 签头键盘：`navigation`「已打开的签页」；←/→ roving 切实体签；关闭钮 `aria-label=关闭 {表名}`（禁英文 `remove`）；关签焦点归还下一签或主工作区地标；关闭钮 `:focus-visible`；内签方向键不回归
 - ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap

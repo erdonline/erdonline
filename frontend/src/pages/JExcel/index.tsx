@@ -224,10 +224,15 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         type: 'i',
         content: 'help_outline',
         tooltip: '快捷操作',
+        id: 'jexcel-toolbar-help',
         onclick: function () {
           Modal.info({
             title: "快捷操作",
             width: 500,
+            keyboard: true,
+            autoFocusButton: 'ok',
+            focusTriggerAfterClose: true,
+            okText: '知道了',
             content: <>
               <List
                 itemLayout="horizontal"
@@ -245,7 +250,7 @@ const JExcel: React.FC<JExcelProps> = (props) => {
                 小彩蛋： 您还不知道吧！<br/>
                 这个列表可以像excel一样操作；<br/>
                 能从excel里面粘贴数据；<br/>
-                还能将元��据导出到excel；<br/>
+                还能将元数据导出到excel；<br/>
                 像excel一样，在列表点击右键，开启不一样的体验！<br/>
               </Tag>
             </>
@@ -339,6 +344,12 @@ const JExcel: React.FC<JExcelProps> = (props) => {
     const host = jRef.current as HTMLElement;
     if (!(host as any).__erdToolbarA11y) {
       (host as any).__erdToolbarA11y = true;
+      const toolbar = host.querySelector('.jexcel_toolbar') as HTMLElement | null;
+      if (toolbar) {
+        toolbar.setAttribute('role', 'toolbar');
+        toolbar.setAttribute('aria-label', '表格编辑工具栏');
+        toolbar.setAttribute('data-testid', 'jexcel-toolbar');
+      }
       host.querySelectorAll('.jexcel_toolbar_item').forEach((el) => {
         const item = el as HTMLElement;
         const label =
@@ -352,6 +363,9 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         if (item.id === 'jexcel-toolbar-remove') {
           item.setAttribute('data-testid', 'jexcel-toolbar-remove');
         }
+        if (item.id === 'jexcel-toolbar-help') {
+          item.setAttribute('data-testid', 'jexcel-toolbar-help');
+        }
         item.addEventListener('keydown', (e: KeyboardEvent) => {
           if (e.key !== 'Enter' && e.key !== ' ') return;
           e.preventDefault();
@@ -363,7 +377,7 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         (host.querySelector('.jexcel_content') as HTMLElement | null) || host;
       grid.setAttribute('data-testid', 'jexcel-grid');
       grid.setAttribute('tabindex', '0');
-      grid.setAttribute('aria-label', '表格，Enter 进入编辑区');
+      grid.setAttribute('aria-label', '表格，Enter 进入编辑区；Escape 退出单元格编辑');
       grid.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key !== 'Enter') return;
         if (e.target !== grid) return;
@@ -374,16 +388,33 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         }
       });
     }
-    // 编辑格 Escape：取消单元格编辑，勿冒泡到设计器其它快捷键
+    // Escape：退出单元格编辑 → 焦点回 `jexcel-grid`；勿冒泡关签/画布快捷键
     if (!(host as any).__erdEscTrap) {
       (host as any).__erdEscTrap = true;
       host.addEventListener(
         'keydown',
         (e: KeyboardEvent) => {
           if (e.key !== 'Escape') return;
-          const editing = host.querySelector('.jexcel_textarea, textarea.jexcel_textarea, .editor');
-          if (editing || host.contains(document.activeElement)) {
-            e.stopPropagation();
+          // textarea 节点常驻 DOM；仅以 jspreadsheet.edition 判编辑态
+          if (!host.contains(document.activeElement)) return;
+          e.stopPropagation();
+          const js = (jRef.current as any)?.jexcel;
+          const editing = Array.isArray(js?.edition) && !!js.edition[0];
+          if (editing && typeof js.closeEditor === 'function') {
+            // 原生 keyCode=27 亦会 close；显式走 false=丢弃草稿，随后归还网格焦点
+            try {
+              js.closeEditor(js.edition[0], false);
+            } catch {
+              /* edition 竞态时忽略 */
+            }
+            const grid =
+              (host.querySelector('[data-testid="jexcel-grid"]') as HTMLElement | null) ||
+              (host.querySelector('.jexcel_content') as HTMLElement | null) ||
+              host;
+            // 等原生 closeEditor 卸 textarea 后再 focus，避免焦点落在 tabIndex=-1 的隐藏输入
+            requestAnimationFrame(() => {
+              grid.focus({ preventScroll: true });
+            });
           }
         },
         true,
