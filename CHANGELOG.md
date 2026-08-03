@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：添加成员弹层键盘闭环（AddUser）
+
+- 选题：团队权限组「添加成员」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「选择用户」Select；确定钮补 `aria-label`；加人 POST/校验逻辑不变
+- E2E：`add-user-keyboard`（团队项目 → 权限组 → 普通成员 → 添加成员 → 首焦、Esc 归还触发器、Tab trap；不提交）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享弹层键盘（ShareProjectButton）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/add-user-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：发起SQL审批弹层键盘闭环（SqlApproval）
 
 - 选题：版本详情「SQL审批」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「审批人」Select；审批说明补 `aria-label`；发起审批 POST/校验逻辑不变
 - E2E：`sql-approval-keyboard`（团队项目 → 提交工单 → SQL审批 → 首焦、Esc 归还触发器且父详情仍开、Tab trap；不提交）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 添加成员 Modal 键盘（AddUser）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~添加成员 Modal 键盘（AddUser）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/sql-approval-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

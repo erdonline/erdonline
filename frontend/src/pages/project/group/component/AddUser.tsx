@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {PlusOutlined} from '@ant-design/icons';
 import {Button, Form, Modal, Select, message} from 'antd';
+import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
 
 type ReloadableRef = {
@@ -27,6 +28,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
   const [form] = Form.useForm<FormValues>();
   const [options, setOptions] = useState<UserOption[]>([]);
   const [fetching, setFetching] = useState(false);
+  const userSelectRef = useRef<RefSelectProps>(null);
 
   const fetchUsers = async (username?: string) => {
     setFetching(true);
@@ -91,6 +93,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         destroyOnClose
         width={520}
         forceRender
+        okButtonProps={{'aria-label': '确定'}}
+        cancelButtonProps={{type: 'dashed'}}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // 首焦「选择用户」Select；挂载后经 ref.focus
+          const tryFocus = (attempt = 0) => {
+            if (userSelectRef.current) {
+              userSelectRef.current.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -99,6 +122,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
             rules={[{required: true, message: '请选择用户'}]}
           >
             <Select
+              ref={userSelectRef}
               mode="multiple"
               showSearch
               filterOption={false}
