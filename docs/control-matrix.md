@@ -69,6 +69,7 @@
 | 解析PdMan文件 Modal | 打开首焦 / Esc / Tab trap | 首焦上传区「选择PdMan文件」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reverse-pdman-keyboard` |
 | 修改密码 Modal | 打开首焦 / Esc / Tab trap | 首焦「密码」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reset-password-keyboard` |
 | 修改密码失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `reset-password-failure` |
+| 同步配置失败 | 业务码失败 / 重试 | 仅 code===200 写 store+「设置成功」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `sync-config-failure` |
 | 发起SQL审批 Modal | 打开首焦 / Esc / Tab trap | 首焦「审批人」；Esc 归还触发器（父详情仍开）；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-approval-keyboard` |
 | 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
 | 添加成员邀请失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `add-user-invite-failure` |

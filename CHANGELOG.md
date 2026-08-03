@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：同步配置失败不关窗
+
+- 选题：`setUpgradeType` 仅本地改 `upgradeType` 即 toast「设置成功」；`SyncConfig` 无条件关窗，落库失败像已设置
+- `setUpgradeType`：先 `saveProject`，仅 `code===200` 写 store；失败靠 `request` toast、兜底「设置失败」、不写 store
+- `SyncConfig`：仅成功才 toast「设置成功」+ 关窗；`confirmLoading`；键盘闭环不变
+- E2E：`sync-config-failure.spec.ts` mock `project/save`（rebuild）→ toast + 窗仍开 → 重试成功关窗
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI / DefaultSetUp 伪造成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/sync-config-failure.spec.ts tests/e2e/version-sync-rebuild-keyboard.spec.ts --project=chromium --workers=1 --retries=0 --grep "同步配置"`
+
 #### 体验：修改密码失败不关窗
 
 - 选题：`ResetPassword` 接口非 200 仍 `setOpen(false)`，漏 toast 时像改密成功
 - `ResetPassword`：仅 `code===200` 关窗+成功 toast；失败靠 `request` toast、兜底「更新密码失败」、不关窗可重试；`confirmLoading`；键盘闭环不变
 - E2E：`reset-password-failure.spec.ts` mock update → toast + 窗仍开 → 重试成功关窗
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → SyncConfig 伪造成功 / densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~SyncConfig 伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/reset-password-failure.spec.ts tests/e2e/reset-password-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

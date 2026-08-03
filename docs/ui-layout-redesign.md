@@ -188,7 +188,8 @@
 - ✅ **添加成员邀请失败不关窗**（2026-08-03）：非 200 不关窗；`request` toast 不叠弹；`add-user-invite-failure` 绿；下一刀 → ~~dbsync / 版本保存边缘静默失败~~✅
 - ✅ **版本保存/重建失败不伪装成功**（2026-08-03）：`initSave` 仅 code===200；InitVersion 失败不关窗；dbsync 清同步中死态；`version-save-failure` 绿；下一刀 → ~~只读分享创建失败死 affordance~~✅
 - ✅ **只读分享创建失败可重试**（2026-08-03）：失败不叠弹；主钮「重新生成」；禁禁用死 affordance；`share-create-failure` 绿；下一刀 → ~~修改密码失败静默关窗~~✅
-- ✅ **修改密码失败不关窗**（2026-08-03）：仅 `code===200` 关窗；失败 toast + 可重试；键盘闭环保留；`reset-password-failure` 绿；下一刀 → SyncConfig 伪造成功 / densify ROI
+- ✅ **修改密码失败不关窗**（2026-08-03）：仅 `code===200` 关窗；失败 toast + 可重试；键盘闭环保留；`reset-password-failure` 绿；下一刀 → ~~SyncConfig 伪造成功~~✅
+- ✅ **同步配置失败不关窗**（2026-08-03）：`setUpgradeType` 仅 `saveProject` code===200 写 store；失败 toast + 可重试；`sync-config-failure` 绿；下一刀 → densify ROI / DefaultSetUp 伪造成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
