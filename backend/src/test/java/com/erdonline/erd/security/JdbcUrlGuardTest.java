@@ -3,6 +3,9 @@ package com.erdonline.erd.security;
 import com.erdonline.common.core.exception.ValidateException;
 import org.junit.jupiter.api.Test;
 
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,10 +14,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class JdbcUrlGuardTest {
 
+    private static InetAddress fixedIp(String hostLabel, byte[] address) throws UnknownHostException {
+        return InetAddress.getByAddress(hostLabel, address);
+    }
+
     @Test
-    void allowsCommonRdbmsUrls() {
+    void allowsCommonRdbmsUrls() throws Exception {
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mysql://127.0.0.1:3306/erd"));
-        assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mariadb://db:3306/erd"));
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:postgresql://localhost:5432/erd"));
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:oracle:thin:@127.0.0.1:1521:ORCL"));
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed(
@@ -23,6 +29,10 @@ class JdbcUrlGuardTest {
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mysql://10.0.0.5:3306/erd"));
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mysql://192.168.1.10:3306/erd"));
         assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mysql://172.16.0.2:3306/erd"));
+        JdbcUrlGuard.HostAddressResolver toPrivate = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{10, 0, 0, 5})
+        };
+        assertDoesNotThrow(() -> JdbcUrlGuard.assertAllowed("jdbc:mariadb://db:3306/erd", toPrivate));
     }
 
     @Test
@@ -53,7 +63,8 @@ class JdbcUrlGuardTest {
 
         assertFalse(JdbcUrlGuard.isBlockedHost("127.0.0.1"));
         assertFalse(JdbcUrlGuard.isBlockedHost("10.1.2.3"));
-        assertFalse(JdbcUrlGuard.isBlockedHost("db.internal"));
+        assertFalse(JdbcUrlGuard.isBlockedHost("db.internal",
+                host -> new InetAddress[]{fixedIp(host, new byte[]{10, 1, 2, 3})}));
 
         assertThrows(ValidateException.class,
                 () -> JdbcUrlGuard.assertAllowed("jdbc:mysql://169.254.42.1:3306/x"));
@@ -73,5 +84,52 @@ class JdbcUrlGuardTest {
         assertEquals("db.example", JdbcUrlGuard.extractHost("jdbc:oracle:thin:@db.example:1521:ORCL"));
         assertEquals("fe80::1", JdbcUrlGuard.extractHost("jdbc:postgresql://[fe80::1]:5432/db"));
         assertEquals("fd00:ec2::254", JdbcUrlGuard.extractHost("jdbc:mysql://[fd00:ec2::254]:3306/x"));
+    }
+
+    @Test
+    void deniesHostnameResolvingToLinkLocalOrImds() throws Exception {
+        JdbcUrlGuard.HostAddressResolver toImds = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{(byte) 169, (byte) 254, (byte) 169, (byte) 254})
+        };
+        JdbcUrlGuard.HostAddressResolver toAzure = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{(byte) 168, 63, (byte) 129, 16})
+        };
+        JdbcUrlGuard.HostAddressResolver multiWithMeta = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{10, 0, 0, 5}),
+                fixedIp(host, new byte[]{(byte) 169, (byte) 254, 1, 1})
+        };
+
+        assertTrue(JdbcUrlGuard.isBlockedHost("evil-cname.example", toImds));
+        assertTrue(JdbcUrlGuard.isBlockedHost("rebinder.example", multiWithMeta));
+        assertThrows(ValidateException.class,
+                () -> JdbcUrlGuard.assertAllowed("jdbc:mysql://evil-cname.example:3306/x", toImds));
+        assertThrows(ValidateException.class,
+                () -> JdbcUrlGuard.assertAllowed("jdbc:postgresql://azure-trick.example:5432/db", toAzure));
+    }
+
+    @Test
+    void allowsHostnameResolvingToRfc1918PrivateDb() throws Exception {
+        // Railway / compose private networking: customer DB on RFC1918 must remain allowed
+        JdbcUrlGuard.HostAddressResolver toPrivate = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{10, (byte) 42, 0, 7})
+        };
+        JdbcUrlGuard.HostAddressResolver toLoopbackName = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{127, 0, 0, 1})
+        };
+
+        assertFalse(JdbcUrlGuard.isBlockedHost("mysql.railway.internal", toPrivate));
+        assertFalse(JdbcUrlGuard.isBlockedHost("db.internal", toLoopbackName));
+        assertDoesNotThrow(
+                () -> JdbcUrlGuard.assertAllowed("jdbc:mysql://mysql.railway.internal:3306/erd", toPrivate));
+    }
+
+    @Test
+    void unresolvableHostnameDoesNotFailClosedAtGuard() {
+        JdbcUrlGuard.HostAddressResolver nx = host -> {
+            throw new UnknownHostException(host);
+        };
+        assertFalse(JdbcUrlGuard.isBlockedHost("does-not-resolve.invalid", nx));
+        assertDoesNotThrow(
+                () -> JdbcUrlGuard.assertAllowed("jdbc:mysql://does-not-resolve.invalid:3306/x", nx));
     }
 }

@@ -13,8 +13,10 @@ import java.util.regex.Pattern;
 /**
  * Blocks non-RDBMS JDBC schemes and cloud-metadata / link-local SSRF targets for connector paths.
  *
- * <p>Does <strong>not</strong> block RFC1918 / localhost — self-hosted DBs on private nets are
- * the primary product use case. Dialed-in deny list: link-local, known cloud IMDS endpoints.
+ * <p>Does <strong>not</strong> block RFC1918 / localhost — self-hosted DBs on private nets
+ * (including PaaS private networking to customer MySQL) are the primary product use case.
+ * Dialed-in deny list: link-local, known cloud IMDS endpoints — applied to literal hosts
+ * <em>and</em> to DNS-resolved A/AAAA records (closes CNAME → metadata rebinding at check time).
  */
 public final class JdbcUrlGuard {
 
@@ -33,10 +35,22 @@ public final class JdbcUrlGuard {
                     + "(?:\\[([^\\]]+)\\]|([^/:?;]+))"
                     + "|jdbc:oracle:(?:thin|oci):@(?://)?(?:\\[([^\\]]+)\\]|([^/:?;]+))");
 
+    @FunctionalInterface
+    interface HostAddressResolver {
+        InetAddress[] resolve(String host) throws UnknownHostException;
+    }
+
+    private static final HostAddressResolver DEFAULT_RESOLVER = InetAddress::getAllByName;
+
     private JdbcUrlGuard() {
     }
 
     public static void assertAllowed(String url) {
+        assertAllowed(url, DEFAULT_RESOLVER);
+    }
+
+    /** Package-visible for DNS-injection tests. */
+    static void assertAllowed(String url, HostAddressResolver resolver) {
         if (url == null || url.isBlank()) {
             throw new ValidateException("JDBC URL 不能为空");
         }
@@ -49,7 +63,7 @@ public final class JdbcUrlGuard {
             throw new ValidateException("不支持的 JDBC 协议，仅允许 mysql/mariadb/postgresql/oracle/sqlserver");
         }
         String host = extractHost(trimmed);
-        if (host != null && isBlockedHost(host)) {
+        if (host != null && isBlockedHost(host, resolver)) {
             throw new ValidateException("禁止连接云元数据或链路本地地址");
         }
         // Reject odd URI schemes smuggled after jdbc: (e.g. jdbc:mysql:ldap:...)
@@ -85,6 +99,14 @@ public final class JdbcUrlGuard {
     }
 
     static boolean isBlockedHost(String host) {
+        return isBlockedHost(host, DEFAULT_RESOLVER);
+    }
+
+    /**
+     * True when the host name is a known metadata alias, or any literal / DNS-resolved address
+     * falls in the IMDS / link-local deny list. RFC1918 and other private ranges are allowed.
+     */
+    static boolean isBlockedHost(String host, HostAddressResolver resolver) {
         if (host == null || host.isBlank()) {
             return false;
         }
@@ -96,12 +118,33 @@ public final class JdbcUrlGuard {
         if (BLOCKED_HOSTNAMES.contains(h)) {
             return true;
         }
-        if (!looksLikeLiteralIp(h)) {
-            return false;
+        if (looksLikeLiteralIp(h)) {
+            try {
+                InetAddress addr = InetAddress.getByName(h);
+                return isBlockedAddress(addr.getAddress());
+            } catch (UnknownHostException e) {
+                return false;
+            }
         }
+        return resolvesToBlockedAddress(h, resolver);
+    }
+
+    /**
+     * Resolve hostname and block if <em>any</em> A/AAAA is link-local / cloud IMDS.
+     * Unresolvable hosts pass (connection fails later); does not blanket-ban RFC1918.
+     */
+    private static boolean resolvesToBlockedAddress(String host, HostAddressResolver resolver) {
         try {
-            InetAddress addr = InetAddress.getByName(h);
-            return isBlockedAddress(addr.getAddress());
+            InetAddress[] addrs = resolver.resolve(host);
+            if (addrs == null) {
+                return false;
+            }
+            for (InetAddress addr : addrs) {
+                if (addr != null && isBlockedAddress(addr.getAddress())) {
+                    return true;
+                }
+            }
+            return false;
         } catch (UnknownHostException e) {
             return false;
         }

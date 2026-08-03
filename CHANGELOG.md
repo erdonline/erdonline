@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-02 残余 — JDBC 主机名 DNS 解析后再拦 IMDS/链路本地
+
+- 选题：`JdbcUrlGuard` 仅拦字面量/元数据主机名；CNAME→`169.254.x` 等 DNS 重绑定可绕过
+- 改动：非字面量主机 `InetAddress.getAllByName`，**任一** A/AAAA 命中原 deny list 即拒；**不**禁 RFC1918（PaaS 私网库）；不可解析主机不 fail-closed（连库时失败）
+- 文档：security-model R-DATA-02；roadmap 下一刀 → TOCTOU / raw ping·reverse
+- 回归：`JdbcUrlGuardTest`（注入 resolver：IMDS / 多 A 含 meta / RFC1918 放行）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=JdbcUrlGuardTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
+
 #### 安全：R-CFG-05/06 + R-OPS-03（OSS 密钥面 / OAuth 死键 / SocketIO 端口）
 
 - 选题：yml 扁平 `martin.oss.accessKey=minio`/`minio123` 不绑 `MinioClient` 仍误导复制；prod 强制假 `OSS_*`；`.env.example` 残留 `OAUTH_CLIENT_*`；9092 缺防火墙说明
