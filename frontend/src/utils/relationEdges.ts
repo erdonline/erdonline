@@ -249,6 +249,30 @@ export type RelationAssociation = {
   updateRule?: string;
 };
 
+/** FK 参照动作（与 data-format / 逆向 JDBC 对齐）；空串 = 方言默认（不写 ON …） */
+export const FK_RULE_OPTIONS = [
+  'CASCADE',
+  'SET NULL',
+  'SET DEFAULT',
+  'RESTRICT',
+  'NO ACTION',
+] as const;
+
+export type FkRule = (typeof FK_RULE_OPTIONS)[number];
+
+export function isFkRule(v: string): v is FkRule {
+  return (FK_RULE_OPTIONS as readonly string[]).includes(v);
+}
+
+/** 归一化参照动作；空/空白 → ''（清除）；非法 → null */
+export function normalizeFkRule(raw: unknown): string | null {
+  if (raw == null) return '';
+  const s = String(raw).trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!s) return '';
+  if (isFkRule(s)) return s;
+  return null;
+}
+
 /** 边 label / aria：约束名 + ON DELETE/UPDATE（无元数据时空串） */
 export function formatAssociationFkMeta(a: {
   constraintName?: string;

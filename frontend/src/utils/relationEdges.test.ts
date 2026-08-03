@@ -32,6 +32,7 @@ import {
   hubFanOffsetsForAssociations,
   hubFanOffsetsForCount,
   laneOffsetsForPairCount,
+  normalizeFkRule,
   normalizeRelation,
   parseFieldHandle,
   pickPortSides,
@@ -163,6 +164,15 @@ async function main() {
       EDGE_LABEL_COLLISION_GAP <= 4 && EDGE_LABEL_COLLISION_GAP >= 2,
       '避让 gap 已贴密下限（再压叠字风险）',
     );
+  });
+
+  await run('normalizeFkRule：合法 / 空 / 非法', () => {
+    assert.strictEqual(normalizeFkRule('cascade'), 'CASCADE');
+    assert.strictEqual(normalizeFkRule('SET NULL'), 'SET NULL');
+    assert.strictEqual(normalizeFkRule(''), '');
+    assert.strictEqual(normalizeFkRule('  '), '');
+    assert.strictEqual(normalizeFkRule(null), '');
+    assert.strictEqual(normalizeFkRule('DROP'), null);
   });
 
   await run('associationsToEdges：透传 FK 约束元数据（ADR-0011 拆边同名）', () => {

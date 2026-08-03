@@ -710,6 +710,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(cardH, `基数 Select 高应 ≤28（目标 24–28），得 ${cardH}`).toBeLessThanOrEqual(28);
       expect(cardH).toBeGreaterThanOrEqual(22);
       await page.getByRole('option', { name: '1:1' }).click();
+      // Esc×1 收基数下拉；Esc×2 关编辑器
+      await page.keyboard.press('Escape');
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('erd-edge-fk-editor')).toHaveCount(0);
       await expect(page.getByTestId('erd-edge-label')).toHaveText('1:1');
       await expect(page.getByTestId('erd-edge-crowfoot')).toHaveAttribute(
         'data-marker-start',
@@ -1994,8 +1998,9 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(edgeLabel).toBeFocused();
       await page.keyboard.press('Enter');
       await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
-      // 选同值关闭（避免 Escape 误伤后续画布态）
+      // 选同值关闭基数下拉；再 Esc 退出编辑器（保留基数值）
       await page.getByRole('option', { name: 'n:1' }).click();
+      await page.keyboard.press('Escape');
       await expect(page.getByTestId('erd-edge-cardinality')).toHaveCount(0);
 
       // 取消选中 → chip 出序
