@@ -73,6 +73,7 @@
 | 默认项设置失败 | 业务码失败 / 重试 | 仅 code===200 写 store+「设置成功」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `default-setup-failure` |
 | 数据源设置确定失败 | 业务码失败 / 重试 | 仅 PUT 成功「保存成功！」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `database-setup-failure` |
 | EntityModal 落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+toast+关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `entity-modal-failure` |
+| 画布关系图弹层落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+toast+关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `diagram-modal-failure` |
 | 发起SQL审批 Modal | 打开首焦 / Esc / Tab trap | 首焦「审批人」；Esc 归还触发器（父详情仍开）；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-approval-keyboard` |
 | 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
 | 添加成员邀请失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `add-user-invite-failure` |

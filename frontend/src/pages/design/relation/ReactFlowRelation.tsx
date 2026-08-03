@@ -1248,6 +1248,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [diagramModal, setDiagramModal] = useState<
     null | { mode: 'create' | 'rename'; name: string; diagramId?: string }
   >(null);
+  const [diagramModalSubmitting, setDiagramModalSubmitting] = useState(false);
   const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
   const [dbmlImportOpen, setDbmlImportOpen] = useState(false);
   /** >0 = 待 fitView 的表数（导入/自动布局后首屏铺满） */
@@ -1302,22 +1303,47 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     setDiagramModal({ mode: 'rename', name: current.name, diagramId: current.id });
   }, [activeDiagramId, diagrams]);
 
-  const onDiagramModalOk = useCallback(() => {
-    if (!diagramModal) return;
+  const onDiagramModalOk = useCallback(async () => {
+    if (!diagramModal || diagramModalSubmitting) return;
     const name = (diagramModal.name || '').trim() || '关系图';
-    if (diagramModal.mode === 'create') {
-      const id = projectDispatch.createDiagram(moduleName, name);
-      setDiagramModal(null);
-      if (id) {
+    const persist = { persist: true as const };
+    setDiagramModalSubmitting(true);
+    try {
+      if (diagramModal.mode === 'create') {
+        const id = await Promise.resolve(
+          projectDispatch.createDiagram(moduleName, name, persist),
+        );
+        if (!id) {
+          return;
+        }
+        setDiagramModal(null);
         switchDiagram(id);
+        return;
       }
-      return;
+      if (diagramModal.diagramId) {
+        const ok = await Promise.resolve(
+          projectDispatch.renameDiagram(
+            moduleName,
+            diagramModal.diagramId,
+            name,
+            persist,
+          ),
+        );
+        if (!ok) {
+          return;
+        }
+      }
+      setDiagramModal(null);
+    } finally {
+      setDiagramModalSubmitting(false);
     }
-    if (diagramModal.diagramId) {
-      projectDispatch.renameDiagram(moduleName, diagramModal.diagramId, name);
-    }
-    setDiagramModal(null);
-  }, [diagramModal, moduleName, projectDispatch, switchDiagram]);
+  }, [
+    diagramModal,
+    diagramModalSubmitting,
+    moduleName,
+    projectDispatch,
+    switchDiagram,
+  ]);
 
   /** 仅选中表 id 指纹；拖坐标不触发边重算（tabbable 门控用） */
   const selectedTableKey = useMemo(
@@ -2648,10 +2674,16 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       <Modal
         title={diagramModal?.mode === 'rename' ? '重命名关系图' : '新建关系图'}
         open={!!diagramModal}
-        onOk={onDiagramModalOk}
-        onCancel={() => setDiagramModal(null)}
+        onOk={() => {
+          void onDiagramModalOk();
+        }}
+        onCancel={() => {
+          if (diagramModalSubmitting) return;
+          setDiagramModal(null);
+        }}
         okText={diagramModal?.mode === 'rename' ? '保存' : '创建'}
         cancelText="取消"
+        confirmLoading={diagramModalSubmitting}
         destroyOnClose
         okButtonProps={{ 'data-testid': 'diagram-modal-ok' } as any}
       >
@@ -2662,7 +2694,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           onChange={(e) =>
             setDiagramModal((prev) => (prev ? { ...prev, name: e.target.value } : prev))
           }
-          onPressEnter={onDiagramModalOk}
+          onPressEnter={() => {
+            void onDiagramModalOk();
+          }}
         />
       </Modal>
       <Modal

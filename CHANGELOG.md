@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布关系图弹层落盘失败不关窗
+
+- 选题：画布「新建/重命名关系图」本地 `createDiagram`/`renameDiagram`（无 persist）即关窗；autosave 失败像已建图
+- `ReactFlowRelation` diagram Modal：`persist:true`；仅 `saveProject` code===200 关窗（创建成功 toast「已新建关系图」）；失败 toast 可读、不关窗；`confirmLoading`
+- E2E：`diagram-modal-failure.spec.ts` mock save（diagrams 含新图名）→ toast + 窗仍开 → 重试成功关窗 + switcher
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI / 重命名失败路径若有缺口
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/diagram-modal-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：EntityModal 落盘失败不关窗
 
 - 选题：模块树 EntityModal 本地 mutate 即 toast「模型添加成功」并无条件关窗；autosave 失败像已保存
@@ -15,7 +25,7 @@
 - `addModule`/`renameModule`/`addEntity`/`renameEntity`/`createDiagram`/`renameDiagram`：`persist:true` 时先 `saveProject`（仅 code===200）再写 store + 成功 toast；失败不写 store
 - `DataTable` EntityModal：一律 `persist:true`；仅成功关窗；`confirmLoading`
 - E2E：`entity-modal-failure.spec.ts` mock save → toast + 窗仍开 → 重试成功；键盘 `entity-modal-keyboard` 不回归
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI / 画布 diagram modal 同构
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~画布 diagram modal 同构~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/entity-modal-failure.spec.ts tests/e2e/entity-modal-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
