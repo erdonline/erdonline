@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Button, Form, Input, Modal, message} from 'antd';
+import React, {useRef, useState} from 'react';
+import {Button, Form, Input, Modal, message, type InputRef} from 'antd';
 import {POST} from '@/services/crud';
 import '../io-modal.scss';
 
@@ -21,6 +21,7 @@ const pwdRules = [
 const ResetPassword: React.FC<ResetPasswordProps> = () => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const pwdInputRef = useRef<InputRef>(null);
 
   const closeModal = () => {
     setOpen(false);
@@ -44,7 +45,12 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
 
   return (
     <>
-      <Button type="link" onClick={() => setOpen(true)}>
+      <Button
+        type="link"
+        aria-label="修改密码"
+        data-testid="reset-password-trigger"
+        onClick={() => setOpen(true)}
+      >
         修改
       </Button>
       <Modal
@@ -57,6 +63,14 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
         forceRender
         className="erd-io-modal"
         rootClassName="erd-io-modal-root"
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => pwdInputRef.current?.focus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" size="small" preserve={false}>
           <Form.Item
@@ -65,7 +79,11 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
             tooltip="密码至少包含 数字和英文，长度6-20"
             rules={pwdRules}
           >
-            <Input.Password placeholder="请输入密码" aria-label="密码" />
+            <Input.Password
+              ref={pwdInputRef}
+              placeholder="请输入密码"
+              aria-label="密码"
+            />
           </Form.Item>
           <Form.Item
             name="pwdCK"

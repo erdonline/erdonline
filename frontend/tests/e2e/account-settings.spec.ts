@@ -86,7 +86,7 @@ test.describe('账户设置', () => {
     await page.getByRole('menuitem', { name: '安全设置' }).click();
     await expect(page).toHaveURL(/selectKey=security/);
     await expect(page.getByText('账户密码')).toBeVisible();
-    await expect(page.getByRole('button', { name: '修改' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '修改密码' })).toBeVisible();
 
     const securityMetrics = await root.evaluate((el) => {
       const item = el.querySelector('.ant-list-item') as HTMLElement | null;
@@ -176,9 +176,9 @@ test.describe('账户设置', () => {
     await page.getByRole('menuitem', { name: '安全设置' }).click();
     await expect(page).toHaveURL(/selectKey=security/);
     await expect(page.getByText('账户密码')).toBeVisible();
-    await expect(page.getByRole('button', { name: '修改' })).toBeVisible();
+    await expect(page.getByRole('button', { name: '修改密码' })).toBeVisible();
 
-    await page.getByRole('button', { name: '修改' }).click();
+    await page.getByRole('button', { name: '修改密码' }).click();
     const pwdDlg = page.getByRole('dialog');
     await expect(pwdDlg.getByText('修改密码')).toBeVisible({ timeout: 10_000 });
     await expect(pwdDlg.getByLabel('密码', { exact: true })).toBeVisible();
