@@ -23,6 +23,23 @@ test.describe('会话闭环', () => {
     await expect(page.getByRole('button', { name: /注\s*册/ })).toBeVisible();
     await expect(page.getByRole('link', { name: '去登录' })).toBeVisible();
     await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
+
+    // ADR-0016：注册壳与登录同源次密距；品牌字号不弱化
+    const densify = await page.getByTestId('auth-brand-panel').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const form = document.querySelector('.auth-shell__form') as HTMLElement | null;
+      const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
+      const fcs = form ? getComputedStyle(form) : null;
+      const tcs = title ? getComputedStyle(title) : null;
+      return {
+        brandPadT: parseFloat(cs.paddingTop),
+        formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
+        titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+      };
+    });
+    expect(densify.brandPadT).toBeLessThanOrEqual(36);
+    expect(densify.formPadT).toBeLessThanOrEqual(36);
+    expect(densify.titleSize).toBeGreaterThanOrEqual(24);
   });
 
   test('注册成功进入 /home', async ({ page }) => {

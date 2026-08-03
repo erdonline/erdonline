@@ -36,7 +36,10 @@
 | `/login` | 登录按钮 | 成功进 `/home`；错误凭证单次明确提示 | JWT 会话 | ✅ | `smoke`「错误凭证」「登录→新建」 |
 | `/login` | 注册链接 | 导航 `/register` | 转化漏斗 | ✅ | `session.spec`「去注册」 |
 | `/login` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到登录表单」→ form；用户名→密码→登录→footer；Enter 提交；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「登录壳键盘」 |
+| `/login` AuthBrandShell | 次密距 | 品牌 pad ≤36 / gap ≤16；表单 pad ≤36；标题 ≥24；hero ≤180；~40% 面板 | ADR-0016 密度 | ✅ | `smoke`「登录页渲染」 |
 | `/register` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到注册表单」→ form；字段链（tip 出序）→注册→footer；Enter 校验；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「注册壳键盘」 |
+| `/register` AuthBrandShell | 次密距 | 与登录同源 pad；「去注册」旅程轻量 assert | ADR-0016 密度 | ✅ | `session`「去注册」 |
+| `/s/*` 失效门 | 次密距 | 品牌/表单 pad 同上；门头 mb ≤20；键盘用例不改 | ADR-0016 密度 | ✅ | `share`「无效 token」 |
 | `/` LandingChrome | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#landing-main-cta`；试用→注册→登录；focus-visible surface；无 trap | ADR-0016 键盘门面 | ✅ | `landing`「落地页键盘」 |
 | `/compare` LandingChrome | Skip + Tab 序 | 同壳 Skip→ `#landing-main-cta`；打开演示→自部署→返回首页；surface focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `compare`「竞品对照页键盘」 |
 | HomeLayout `/home` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#home-main-content`；继续建模→新建→示例→二级入口→项目卡；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `home-keyboard`「Home 键盘」 |

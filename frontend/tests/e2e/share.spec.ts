@@ -27,16 +27,36 @@ test.describe('只读分享', () => {
     const brandMetrics = await page.getByTestId('auth-brand-panel').evaluate((el) => {
       const cs = getComputedStyle(el);
       const root = getComputedStyle(document.documentElement);
+      const shell = document.querySelector('[data-testid="auth-brand-shell"]');
+      const form = shell?.querySelector('.auth-shell__form') as HTMLElement | null;
+      const header = shell?.querySelector('.auth-shell__form-header') as HTMLElement | null;
+      const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
+      const fcs = form ? getComputedStyle(form) : null;
+      const hcs = header ? getComputedStyle(header) : null;
+      const tcs = title ? getComputedStyle(title) : null;
       return {
         widthRatio: el.getBoundingClientRect().width / window.innerWidth,
         ink900: root.getPropertyValue('--erd-ink-900').trim(),
         bgImage: cs.backgroundImage,
+        brandPadT: parseFloat(cs.paddingTop),
+        brandPadL: parseFloat(cs.paddingLeft),
+        brandGap: parseFloat(cs.gap) || 0,
+        formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
+        headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
+        titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
       };
     });
     expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
     expect(brandMetrics.widthRatio).toBeLessThan(0.48);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
     expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
+    // ADR-0016：失效门次密距（与登录壳同源）；品牌层次不弱化
+    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤36，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(36);
+    expect(brandMetrics.brandPadL).toBeLessThanOrEqual(32);
+    expect(brandMetrics.brandGap).toBeLessThanOrEqual(16);
+    expect(brandMetrics.formPadT).toBeLessThanOrEqual(36);
+    expect(brandMetrics.headerMb, `门头 mb 应 ≤20，得 ${brandMetrics.headerMb}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
 
     await page.screenshot({
       path: 'test-results/ux-walkthrough/share-invalid-brand-shell.png',

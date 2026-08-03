@@ -92,8 +92,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  gap: 20px;
-  padding: 48px 40px;
+  /* ADR-0016：次密距 — gap/pad 收紧；品牌字号/对比不变 */
+  gap: 14px;
+  padding: 32px 28px;
   color: var(--erd-surface);
   background: linear-gradient(
     160deg,
@@ -142,8 +143,8 @@
 
 .auth-shell__brand-thumb {
   align-self: flex-start;
-  margin-top: 8px;
-  padding: 16px;
+  margin-top: 4px;
+  padding: 12px;
   background: color-mix(in srgb, var(--erd-surface) 8%, transparent);
   border: 1px solid color-mix(in srgb, var(--erd-surface) 16%, transparent);
   border-radius: var(--erd-radius);
@@ -170,7 +171,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  padding: 48px 40px;
+  /* ADR-0016：登录/失效门次密距 — 对齐欢迎空态 32 内井；禁 48+ 松井 */
+  padding: 32px 32px;
   background: var(--erd-surface);
   overflow-y: auto;
 }
@@ -183,7 +185,7 @@
 
 .auth-shell__form-header {
   text-align: center;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 
 .auth-shell__form-header img {
@@ -192,7 +194,7 @@
 }
 
 .auth-shell__form-title {
-  margin: 12px 0 4px !important;
+  margin: 10px 0 4px !important;
   font-family: var(--erd-font-display) !important;
   color: var(--erd-ink-900) !important;
 }
@@ -203,7 +205,7 @@
 }
 
 .auth-shell__form-links {
-  margin-top: 16px;
+  margin-top: 12px;
   text-align: center;
   font-size: 14px;
   color: var(--erd-ink-400);
@@ -224,7 +226,7 @@
 .auth-shell__gate-actions {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   width: 100%;
 }
 
@@ -237,8 +239,8 @@
     flex: none;
     max-width: none;
     width: 100%;
-    padding: 32px 24px 28px;
-    gap: 14px;
+    padding: 28px 24px 24px;
+    gap: 12px;
   }
 
   .auth-shell__brand-title {
@@ -250,6 +252,6 @@
   }
 
   .auth-shell__form {
-    padding: 32px 24px 40px;
+    padding: 28px 24px 32px;
   }
 }
