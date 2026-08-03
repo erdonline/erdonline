@@ -111,7 +111,7 @@
 
 右键菜单、悬停操作、内联编辑优先；能不用弹窗就不用弹窗。
 
-- ✅ 画布表节点上直接内联编辑字段：hover ✎ / 双击进编辑；空名有 toast 不静默丢改动；Enter 提交；Escape 取消未提交改名（拦 blur，禁止取消变落盘）；Tab/Shift+Tab 跳下一/上一行；末行 Tab 开新建字段；仅改类型/PK/非空/自增/隐藏即时落盘（save-status）；隐藏有 toast + 表底「已隐藏」可恢复；默认值（defaultValue）编辑态次行内联（主栏已满不挤横向）；浏览态选中字段 Delete/Backspace（及 ×）二次确认删除，编辑态 Backspace 只改字
+- ✅ 画布表节点上直接内联编辑字段：hover ✎ / 双击进编辑；空名有 toast 不静默丢改动；Enter 提交；Escape 取消未提交改名（拦 blur，禁止取消变落盘）；Tab/Shift+Tab 跳下一/上一行；末行 Tab 开新建字段；仅改类型/PK/非空/自增/隐藏即时落盘（save-status，`persist:true` 失败回滚）；隐藏有 toast + 表底「已隐藏」可恢复（仅 save 成功）；默认值（defaultValue）编辑态次行内联（主栏已满不挤横向）；浏览态选中字段 Delete/Backspace（及 ×）二次确认删除，编辑态 Backspace 只改字
 - ✅ 关系基数：点边标签 chip 内联选 `1:1`/`1:n`/`n:1`/`n:n`（不弹窗）；拖连线默认 `n:1`；两端 Crow's foot（IE）随基数变
 - ✅ Frame 标题双击内联重命名
 - ❌ 建一条关系要打开弹窗手工配置基数（历史问题）
@@ -126,7 +126,7 @@
 - ✅ 空态 = 插画 + 一句话引导 + 行动按钮
 - ✅ 非空画布工具栏「新建表」一键上图（`canvas-create-table`）；`persist:true` 仅 save 成功上图；不必再绕左树或 Cmd+K
 - ✅ 拖连线失败有 toast：重复关联 / 非法锚点（同类型或未对准接入点）；空白处松开=取消不打扰
-- ✅ 字段行 ✎ 与表头改名同形；改已有字段空名 toast「字段名不能为空」；Enter 提交；Escape 取消（不经 blur 落盘）；Tab 字段名→中文名→类型→默认值→跳行；末行 Tab 新建；中文名（chnname）/默认值（defaultValue）行内编辑；类型/PK/非空/自增/隐藏 onChange 即时 save-status；隐藏 toast + 表底恢复；选中字段 Delete/Backspace / × 二次确认删；**行内新建/改名字段** `persist:true`（失败不退出编辑、草稿保留）；**删字段** 确认后 `persist:true`（失败窗仍开、行不消失）
+- ✅ 字段行 ✎ 与表头改名同形；改已有字段空名 toast「字段名不能为空」；Enter 提交；Escape 取消（不经 blur 落盘）；Tab 字段名→中文名→类型→默认值→跳行；末行 Tab 新建；中文名（chnname）/默认值（defaultValue）行内编辑；类型/PK/非空/自增/隐藏 onChange 即时 save-status；隐藏 toast + 表底恢复；选中字段 Delete/Backspace / × 二次确认删；**行内新建/改名字段** `persist:true`（失败不退出编辑、草稿保留）；**删字段** 确认后 `persist:true`（失败窗仍开、行不消失）；**类型/PK/非空/自增/隐藏/浏览 PK** `persist:true`（失败编辑草稿回滚；隐藏失败不退出、不 toast「已隐藏」）
 - ✅ 表头 ✎ / 双击：表名 + 实体中文名双栏内联；Tab 表名→中文名→提交；Escape 丢弃（拦 blur）；仅改 chnname 亦 save-status；改名 `persist:true`（失败不退出编辑、草稿保留）
 - ✅ 表节点底栏并排「字段 | 索引 | 元数据」→ 表设计对应签（`canvas-open-field` / `canvas-open-index` / `canvas-open-code`）；禁画布无入口只能绕左树
 - ✅ 索引签空态：`还没有索引` + 主 CTA「添加第一个索引」（种子首字段索引）；禁空 `indexs[]` 白屏死表
