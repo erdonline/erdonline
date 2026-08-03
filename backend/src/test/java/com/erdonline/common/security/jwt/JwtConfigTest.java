@@ -4,6 +4,8 @@ import com.erdonline.common.core.constant.SecurityConstants;
 import com.erdonline.common.security.userdetail.MartinUser;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.convert.converter.Converter;
+import org.springframework.core.env.StandardEnvironment;
+import org.springframework.mock.env.MockEnvironment;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
 import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -19,10 +21,11 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * JwtConfig：密钥填充、编解码、JWT→MartinUser 转换。
+ * JwtConfig：密钥填充、编解码、JWT→MartinUser 转换、prod 密钥门禁。
  */
 class JwtConfigTest {
 
@@ -32,15 +35,41 @@ class JwtConfigTest {
     void padsShortSecretTo32Bytes() {
         JwtProperties props = new JwtProperties();
         props.setSecret("short");
-        SecretKey key = config.jwtSecretKey(props);
+        SecretKey key = config.jwtSecretKey(props, new StandardEnvironment());
         assertEquals(32, key.getEncoded().length);
+    }
+
+    @Test
+    void prodRejectsBlankSecret() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        assertThrows(IllegalStateException.class,
+                () -> JwtConfig.assertSecretSafeForProfile("  ", env));
+        assertThrows(IllegalStateException.class,
+                () -> JwtConfig.assertSecretSafeForProfile(null, env));
+    }
+
+    @Test
+    void prodRejectsInsecureDevDefault() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> JwtConfig.assertSecretSafeForProfile(JwtProperties.INSECURE_DEV_DEFAULT, env));
+        assertTrue(ex.getMessage().contains("repository/dev default"));
+    }
+
+    @Test
+    void nonProdAllowsInsecureDevDefault() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("dev");
+        JwtConfig.assertSecretSafeForProfile(JwtProperties.INSECURE_DEV_DEFAULT, env);
     }
 
     @Test
     void converterBuildsMartinUserFromClaims() {
         JwtProperties props = new JwtProperties();
         props.setSecret("erd-online-test-jwt-secret-32bytes-min!!");
-        SecretKey key = config.jwtSecretKey(props);
+        SecretKey key = config.jwtSecretKey(props, new StandardEnvironment());
         JwtEncoder encoder = config.jwtEncoder(key);
         JwtDecoder decoder = config.jwtDecoder(key);
 

@@ -173,7 +173,8 @@ docker compose up -d
 | `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未注入 `REDISHOST`（或仍指望 `REDIS_URL`/`SPRING_DATA_REDIS_URL`） | Link Redis 或设 `REDISHOST`/`REDISPORT`/`REDISPASSWORD`；**Redeploy** |
 | `NOAUTH Authentication required` | 主机通但未带密码 | 确认 `REDISPASSWORD` 已注入；日志 `password=missing` |
 | `WRONGPASS invalid username-password pair` | 密码错，或空串被当成密码（旧镜像） | 用插件 `REDISPASSWORD`；本地无密码勿设假密码（Normalizer 把空串置 null） |
-| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `OSS_ACCESS_KEY` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空） |
+| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `OSS_ACCESS_KEY` / `JWT_SECRET` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example` |
+| `JWT_SECRET must not use the repository/dev default` | prod 仍用仓库开发默认串 | 换成 `openssl rand -base64 48` 等随机值并 Redeploy |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
 容器内（Railway Shell）：

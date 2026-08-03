@@ -63,6 +63,8 @@ services:
       # prod 要求 REDISPASSWORD 占位符存在；无密码 Redis 用空串（Normalizer→null）
       REDISPASSWORD: ${REDISPASSWORD:-}
       REDISUSER: ${REDISUSER:-}
+      # prod 强制 JWT_SECRET；compose 本地默认串 ≠ 仓库 application.yml 开发默认（JwtConfig 会拒后者）
+      JWT_SECRET: ${JWT_SECRET:-change-me-compose-jwt-secret-min-32-chars!!!!}
     ports:
       - "${BACKEND_PORT:-9502}:9502"
       - "9092:9092"

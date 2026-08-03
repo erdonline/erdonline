@@ -153,7 +153,7 @@ management:
     env:
       enabled: false
 
-# JWT + 安全开关（生产务必覆盖密钥；e2e 账号默认禁止登录）
+# JWT + 安全开关（本地/dev 弱默认仅供 DX；prod 见 application-prod.yml 无默认 + JwtConfig 拒仓库串）
 erd:
   jwt:
     secret: ${JWT_SECRET:erd-online-dev-jwt-secret-change-me-32bytes!!}

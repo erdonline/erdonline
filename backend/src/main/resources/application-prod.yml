@@ -1,9 +1,13 @@
 # 生产环境：全部通过环境变量注入（见根目录 .env.example / docker-compose.yml）
 
 # 禁止 e2e* 弱口令种子账号登录（即使库里有记录）
+# JWT：强制环境注入，无仓库默认值；缺 JWT_SECRET 时占位符解析失败（fail-fast）。
+# 另见 JwtConfig：prod 拒绝 blank 与 application.yml 已知开发默认串。
 erd:
   security:
     e2e-accounts-enabled: false
+  jwt:
+    secret: ${JWT_SECRET}
 
 spring:
   # 凭证强制环境注入：application.yml 的弱默认值仅供开发，prod 下重新声明为无默认值，
