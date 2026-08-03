@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Frame 改名/bounds 假成功
+
+- 选题：对齐/自动布局假成功已收口（`e18a7bb`）；Frame `renameFrame` / 缩放 /「适应成员」/扩边仍本地 mutate，适应成员还先 toast「已适应成员」
+- `renameFrame` / `updateFrameBounds` 支持 `persist:true`；改名仅 save code===200 关编辑态；缩放·适应成员·扩边走 `commitDiagramGeometry` `persist:true`；失败 toast + 草稿保留 / RF 回滚；成功才 toast「已适应成员」
+- E2E：`canvas-frame-rename-bounds-failure` 改名首拒草稿保留、适应成员首拒 RF+store 回滚 → 重试成功；定位 `frame-rename-*` / `diagram-frame` / `role=button`「适应成员」（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Frame 新建·成员加减假成功（`createFrame`/`addFrameMembers`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-frame-rename-bounds-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布对齐/自动布局假成功
 
 - 选题：拖表坐标假成功已收口（`227c2c0`）；对齐 / 自动布局仍本地 `updateGraphCanvasLayout` 即写 store，autosave 失败像坐标已落盘
 - `alignSelected` / `autoLayout` → `commitDiagramGeometry` `persist:true`；仅 `saveProject` code===200 写 store；失败 toast + RF 回滚；成功后才 `fitView`
 - E2E：`canvas-align-layout-failure` 左齐/自动布局首拒 transform 回滚 → 重试成功；定位 `align-left` / `aria-label=自动布局` / `rfNode`（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Frame 改名 / Frame bounds（适应成员·缩放）假成功
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Frame 改名 / Frame bounds（适应成员·缩放）假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-align-layout-failure.spec.ts --project=chromium --workers=1 --retries=0`

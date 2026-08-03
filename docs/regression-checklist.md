@@ -116,6 +116,7 @@
 - [x] [左树剪切/粘贴表落盘失败可重试] mock save（含 T_TABLE_1副本 / 缺 T_TABLE_1）→ toast 模拟拒绝 + 无副本或表仍在（无成功 toast / 无「剪切成功」）→ 重试粘贴出现副本 / 剪切移出；定位 role/aria（勿扫 `.ant-*`） ✅`tree-cut-paste-failure.spec.ts`
 - [x] [画布拖表坐标落盘失败可回滚] mock save（layout 位移 T_TABLE_1）→ toast「模拟布局保存拒绝」+ transform 回滚（无已保存伪装）→ 重试拖动成功；定位 `rfNode`/`save-status`（勿扫 `.ant-*`） ✅`canvas-drag-reposition-failure.spec.ts`
 - [x] [画布对齐/自动布局落盘失败可回滚] mock save（左齐两表同 x / 自动布局位移）→ toast 拒绝 + transform 回滚 → 重试成功；定位 `align-left` / `aria-label=自动布局` / `rfNode`（勿扫 `.ant-*`） ✅`canvas-align-layout-failure.spec.ts`
+- [x] [Frame 改名/适应成员落盘失败可回滚] mock save → toast「模拟分组保存拒绝」+ 改名草稿保留/适应成员 RF+store 回滚（无「已适应成员」）→ 重试成功；定位 `frame-rename-*` / `diagram-frame` / 「适应成员」（勿扫 `.ant-*`） ✅`canvas-frame-rename-bounds-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`
