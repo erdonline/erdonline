@@ -62,6 +62,7 @@
 - [x] [解析PdMan文件键盘] 项目菜单→解析PdMan文件首焦上传区「选择PdMan文件」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`reverse-pdman-keyboard.spec.ts`
 - [x] [修改密码键盘] `/account/settings?selectKey=security` →「修改密码」首焦「密码」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`reset-password-keyboard.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
+- [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
@@ -538,7 +539,7 @@
 
 - [x] [修改密码非 ModalForm] 安全设置 →「修改」→ antd dialog 见密码/确认密码；「取消」关窗 ✅ `account-settings.spec.ts`
 - [x] [PdMan/ERD 导入非 ModalForm] 项目菜单导入子弹窗 + 上传 fixture 成功 toast；无 `@ant-design/pro-components` ✅ `import-pdman` / `import-erd` / `project-menu`
-- [ ] [添加成员非 ModalForm] 团队项目角色页「添加成员」→ antd dialog 可搜索用户（手工；需团队项目）
+- [x] [添加成员非 ModalForm] 团队项目角色页「添加成员」→ antd dialog 可搜索用户 ✅`add-user-keyboard.spec.ts`（键盘闭环；不提交加人）
 
 ## W4 切片 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd（2026-08-02）
 
