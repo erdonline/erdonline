@@ -8,7 +8,8 @@
   }
 
   .ant-modal-header {
-    padding: 10px 14px 8px;
+    /* 量测：头 10×14×8 / 脚 8×14 相对 body 8×12 偏松；标题 13/22 + OK 28 不动 */
+    padding: 8px 12px;
     margin: 0;
     border-bottom: 1px solid var(--erd-line);
   }
@@ -21,12 +22,11 @@
   }
 
   .ant-modal-body {
-    /* 量测：body 12×14 相对 .erd-io-modal / 次屏 8×12 偏松；头脚/控件 28 不动 */
     padding: 8px 12px;
   }
 
   .ant-modal-footer {
-    padding: 8px 14px;
+    padding: 8px 12px;
     margin: 0;
     border-top: 1px solid var(--erd-line);
   }
@@ -39,7 +39,7 @@
   }
 
   .ant-modal-close {
-    top: 10px;
+    top: 8px;
     inset-inline-end: 12px;
     width: 22px;
     height: 22px;

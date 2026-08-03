@@ -3140,7 +3140,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(dialog).toBeVisible();
       await expect(page.getByTestId('entity-modal-name')).toBeVisible();
 
-      // ADR-0016：实体弹层 body 碎距（8×12 对齐 .erd-io-modal）；禁 12×14 / 520 宽松卡片
+      // ADR-0016：实体弹层头/身/脚 8×12；禁头 10×14×8 / 脚 8×14 / body 12×14
       // 定位：dialog role「新增表」+ testid entity-modal-name/ok（勿扫 .ant-* 业务语义）
       // 量 style/computed（勿用 zoom 中的 getBoundingClientRect）
       const metrics = await dialog.evaluate((dlg) => {
@@ -3149,7 +3149,9 @@ test.describe('关系图画布（ReactFlow）', () => {
           (dlg.closest('[data-testid="entity-modal"]') as HTMLElement) ||
           (dlg as HTMLElement);
         const title = root.querySelector('.ant-modal-title') as HTMLElement | null;
+        const header = root.querySelector('.ant-modal-header') as HTMLElement | null;
         const body = root.querySelector('.ant-modal-body') as HTMLElement | null;
+        const footer = root.querySelector('.ant-modal-footer') as HTMLElement | null;
         const item = root.querySelector('.ant-form-item') as HTMLElement | null;
         const input = root.querySelector(
           '[data-testid="entity-modal-name"]',
@@ -3159,17 +3161,25 @@ test.describe('关系图画布（ReactFlow）', () => {
         ) as HTMLElement | null;
         const styleW = parseFloat(root.style.width || '') || NaN;
         const cssW = parseFloat(getComputedStyle(root).width) || NaN;
+        const hcs = header ? getComputedStyle(header) : null;
         const bcs = body ? getComputedStyle(body) : null;
+        const fcs = footer ? getComputedStyle(footer) : null;
         const ics = item ? getComputedStyle(item) : null;
         const tcs = title ? getComputedStyle(title) : null;
         return {
           width: Number.isFinite(styleW) ? styleW : cssW,
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+          headerPadT: hcs ? parseFloat(hcs.paddingTop) : NaN,
+          headerPadB: hcs ? parseFloat(hcs.paddingBottom) : NaN,
+          headerPadX: hcs ? parseFloat(hcs.paddingLeft) : NaN,
           bodyPadT: bcs ? parseFloat(bcs.paddingTop) : NaN,
           bodyPadX: bcs ? parseFloat(bcs.paddingLeft) : NaN,
           bodyPadY: bcs
             ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
             : NaN,
+          footerPadT: fcs ? parseFloat(fcs.paddingTop) : NaN,
+          footerPadX: fcs ? parseFloat(fcs.paddingLeft) : NaN,
           itemMarginB: ics ? parseFloat(ics.marginBottom) : NaN,
           inputH: input ? parseFloat(getComputedStyle(input).height) : NaN,
           okH: ok ? parseFloat(getComputedStyle(ok).height) : NaN,
@@ -3182,6 +3192,21 @@ test.describe('关系图画布（ReactFlow）', () => {
       ).toBeGreaterThanOrEqual(360);
       expect(metrics.width).toBeLessThanOrEqual(420);
       expect(metrics.titleFont).toBeLessThanOrEqual(14);
+      expect(metrics.titleLh, `标题 lh 应 ≥20（可读），得 ${metrics.titleLh}`).toBeGreaterThanOrEqual(
+        20,
+      );
+      expect(metrics.headerPadT, `header padT 应 ≤8，得 ${metrics.headerPadT}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(metrics.headerPadT).toBeGreaterThanOrEqual(6);
+      expect(metrics.headerPadB, `header padB 应 ≤8，得 ${metrics.headerPadB}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(
+        metrics.headerPadX,
+        `header padX 应 ≤12，得 ${metrics.headerPadX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(metrics.headerPadX).toBeGreaterThanOrEqual(8);
       expect(metrics.bodyPadT, `body padT 应 ≤8，得 ${metrics.bodyPadT}`).toBeLessThanOrEqual(8);
       expect(metrics.bodyPadT).toBeGreaterThanOrEqual(6);
       expect(metrics.bodyPadX, `body padX 应 ≤12，得 ${metrics.bodyPadX}`).toBeLessThanOrEqual(
@@ -3191,11 +3216,20 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(metrics.bodyPadY, `body padY 应 ≤16，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
         16,
       );
+      expect(metrics.footerPadT, `footer padT 应 ≤8，得 ${metrics.footerPadT}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(
+        metrics.footerPadX,
+        `footer padX 应 ≤12，得 ${metrics.footerPadX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(metrics.footerPadX).toBeGreaterThanOrEqual(8);
       expect(metrics.itemMarginB).toBeLessThanOrEqual(14);
       expect(metrics.inputH, `输入高应 ≤32，得 ${metrics.inputH}`).toBeLessThanOrEqual(
         32,
       );
       expect(metrics.inputH).toBeGreaterThanOrEqual(24);
+      expect(metrics.okH, `OK 高应 ≥28，得 ${metrics.okH}`).toBeGreaterThanOrEqual(28);
       expect(metrics.okH).toBeLessThanOrEqual(32);
 
       await page.getByTestId('entity-modal-name').fill('T_DENSE');
