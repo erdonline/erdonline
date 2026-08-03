@@ -673,15 +673,15 @@ const useVersionStore = create<VersionState>(
             ...sqlParam,
             dbKey: dbData.key,
             showModal: true,
-          }, cmd, (result: any) => {
+          }, cmd, () => {
             cb && cb();
             set({
               synchronous: {
+                ...get().synchronous,
                 [version.version]: false,
               },
             });
-            // @ts-ignore
-          }, cmd);
+          });
         }
       },
       getCMD: (updateVersion: any, onlyUpdateVersion: any) => {
@@ -700,6 +700,18 @@ const useVersionStore = create<VersionState>(
         return cmd;
       },
       connectJDBC: (param: any, opt: any, cb: any) => {
+        const clearSyncing = () => {
+          const ver = param?.version;
+          if (!ver) {
+            return;
+          }
+          set({
+            synchronous: {
+              ...get().synchronous,
+              [ver]: false,
+            },
+          });
+        };
         Save[opt](param).then((res: any) => {
           if (res.code === 200) {
             cb && cb();
@@ -707,14 +719,16 @@ const useVersionStore = create<VersionState>(
               title: '同步成功',
               content: res.data,
             });
-          } else {
-            Modal.warn({
-              title: '同步失败',
-              content: res.msg,
-            });
-
+            return;
           }
+          // 失败须清「正在同步」，否则标签卡死、用户误以为不可重试
+          clearSyncing();
+          Modal.warn({
+            title: '同步失败',
+            content: res.msg || res.message || '同步失败，请重试',
+          });
         }).catch((err: any) => {
+          clearSyncing();
           message.error(`同步失败:${err.message}`);
         });
       },
@@ -740,7 +754,7 @@ const useVersionStore = create<VersionState>(
           });
         } else {
           // 删除原来的
-          Save.hisProjectDelete(newVersion.id).then((res) => {
+            Save.hisProjectDelete(newVersion.id).then((res) => {
             if (res.code === 200) {
               message.success('版本信息删除成功');
               const tempVersions = get().versions.filter((v: any) => v.id !== newVersion.id);
@@ -749,7 +763,9 @@ const useVersionStore = create<VersionState>(
                 versions: tempVersions,
               });
               get().dispatch.checkBaseVersion(null);
+              return;
             }
+            // 业务失败：request 已 toast；勿伪装成功
           }).catch((err) => {
             message.error(`版本信息删除失败${err.message}`);
             get().dispatch.checkBaseVersion(null);
@@ -798,7 +814,13 @@ const useVersionStore = create<VersionState>(
                 okType: 'danger',
                 cancelText: '取消',
                 onOk: (m) => {
-                  _.set(get().synchronous, `${version.version}`, true);
+                  // 须走 set，禁止 _.set 绕过 zustand（否则「正在同步」不刷新或失败后死态）
+                  set({
+                    synchronous: {
+                      ...get().synchronous,
+                      [version.version]: true,
+                    },
+                  });
                   m && m();
                   const configData = _.get(useProjectStore.getState().project, "configJSON");
                   const tempValue = {
@@ -960,16 +982,18 @@ const useVersionStore = create<VersionState>(
       },
       initSave: (version: any, msg: any) => {
         Save.hisProjectSave(version).then((res) => {
-          if (res) {
+          if (res?.code === 200) {
             message.success(msg || '初始化基线成功');
-            get().fetch(null,get().currentPage,get().pageSize);
-            // 更新版本表
+            get().fetch(null, get().currentPage, get().pageSize);
+            // 仅成功后 rebaseline，禁止失败仍重置数据源版本
             get().dispatch.dropVersionTable();
-          } else {
-            message.error('操作失败！');
+            return;
           }
-        }).catch((err) => {
-          message.error(`操作失败！ ${err.message}`);
+          // 业务失败：request 已 toast；勿伪装成功；刷新列表便于「初始化基线」重试
+          get().fetch(null, get().currentPage, get().pageSize);
+        }).catch(() => {
+          // 网络/HTTP：errorHandler 已 toast；刷新列表便于重试
+          get().fetch(null, get().currentPage, get().pageSize);
         });
       },
       initDbs: (dbs: any) => set(produce(state => {
