@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：数据源设置确定失败不关窗
+
+- 选题：`DatabaseSetUp`「确定」无条件 toast「保存成功！」且不落盘右侧表单；失焦才写、失败仍像已保存
+- `updateDbs`/`addDbs`/`removeDbs`：返回 `Promise<boolean>`；仅 API 成功为 true；业务失败靠 `request` toast、禁叠弹
+- `DatabaseSetUp`：确定校验后 `updateDbs` 刷盘；仅成功 toast「保存成功！」+ 关窗；`loading`；无数据源则静默关窗
+- E2E：`database-setup-failure.spec.ts` mock PUT `dataSources` → toast + 窗仍开 → 重试成功关窗
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → EntityModal/模块树本地成功 vs autosave、或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/database-setup-failure.spec.ts tests/e2e/database-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：默认项设置失败不关窗
 
 - 选题：`updateProfile` 仅本地改 profile 即 toast「设置成功」；`DefaultSetUp` 无条件关窗，落库失败像已设置
 - `updateProfile`：先 `saveProject`，仅 `code===200` 写 store；失败靠 `request` toast、兜底「设置失败」、不写 store
 - dialog / 设置页 `DefaultSetUp`：仅成功才 toast「设置成功」；dialog 成功才关窗 + `confirmLoading`；键盘闭环不变
 - E2E：`default-setup-failure.spec.ts` mock `project/save`（sqlConfig 标记）→ toast + 窗仍开 → 重试成功关窗
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI / 其它伪造成功弹层
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~数据源设置确定伪造成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/default-setup-failure.spec.ts tests/e2e/default-setup-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

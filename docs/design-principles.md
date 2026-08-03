@@ -17,6 +17,7 @@
 - ✅ 修改密码失败：业务 toast 后弹层不关（禁伪装成功）；可重试；无 msg 兜底「更新密码失败」
 - ✅ 同步配置失败：仅 `saveProject` code===200 写 store + toast「设置成功」+ 关窗；失败 toast 可读、不关窗可重试；无 msg 兜底「设置失败」
 - ✅ 默认项设置失败：仅 `saveProject` code===200 写 store + toast「设置成功」+ 关窗；失败 toast 可读、不关窗可重试；无 msg 兜底「设置失败」
+- ✅ 数据源设置确定失败：仅 `updateDbs`（PUT dataSources）成功 toast「保存成功！」+ 关窗；失败 toast 可读、不关窗可重试；禁无条件成功 toast
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）

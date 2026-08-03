@@ -85,6 +85,7 @@
 - [x] [修改密码失败不关窗] mock `settings/update` 业务码 → toast「模拟更新密码拒绝」+ 窗仍开 → 二次成功关窗+「更新密码信息成功」 ✅`reset-password-failure.spec.ts`
 - [x] [同步配置失败不关窗] mock `project/save`（upgradeType=rebuild）业务码 → toast「模拟同步配置拒绝」+ 窗仍开 → 二次成功关窗+「设置成功」 ✅`sync-config-failure.spec.ts`
 - [x] [默认项设置失败不关窗] mock `project/save`（sqlConfig 标记）业务码 → toast「模拟默认项设置拒绝」+ 窗仍开 → 二次成功关窗+「设置成功」 ✅`default-setup-failure.spec.ts`
+- [x] [数据源设置确定失败不关窗] mock PUT `dataSources`（url 标记）业务码 → toast「模拟数据源保存拒绝」+ 窗仍开 → 二次成功关窗+「保存成功！」 ✅`database-setup-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`

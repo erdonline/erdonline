@@ -83,6 +83,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
   };
   const [databases, setDatabases] = useState<DataSourceRow[]>([]);
   const [pingLoading, setPingLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const addBtnRef = useRef<React.ElementRef<typeof Button>>(null);
 
@@ -102,12 +103,20 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
   const defaultDbs = databases.find((d) => d.defaultDB) || databases[0];
   const defaultDB = databases.find((d) => d.defaultDB);
 
+  // 左侧列表：随 API 列表刷新
   useEffect(() => {
+    form.setFieldsValue({dbs: databases});
+  }, [databases, form]);
+
+  // 右侧连接字段：仅在切换默认源 / 方言时重置；勿在每次 reload 冲掉用户未提交编辑
+  useEffect(() => {
+    if (!defaultDbs?.key) {
+      return;
+    }
     form.setFieldsValue({
-      ...(defaultDbs?.properties || {}),
-      dbs: databases,
+      ...(defaultDbs.properties || {}),
     });
-  }, [databases, defaultDbs, form]);
+  }, [defaultDbs?.key, defaultDbs?.select, form]);
 
   const connectJDBC = () => {
     form.validateFields().then(() => {
@@ -171,6 +180,34 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
     setOpen(false);
   };
 
+  /** 确定：把右侧表单刷到 API；仅 code===200 才 toast/关窗（禁无条件「保存成功」） */
+  const handleOk = async () => {
+    if (!defaultDbs?.key) {
+      setOpen(false);
+      return;
+    }
+    const values = await form.validateFields();
+    setSubmitting(true);
+    try {
+      const ok = await projectDispatch.updateDbs(defaultDbs.key, {
+        ...defaultDbs,
+        properties: {
+          driver_class_name: values.driver_class_name,
+          url: values.url,
+          username: values.username,
+          password: values.password,
+        },
+      });
+      if (ok) {
+        message.success('保存成功！');
+        setOpen(false);
+      }
+      // 失败：request 已 toast；失败不关窗可重试
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   const listLabel = defaultDB
     ? ` 当前使用的数据源为「${defaultDB.name}」`
     : databases.length > 0
@@ -222,9 +259,9 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
             type="primary"
             key="submit"
             size="small"
-            onClick={() => {
-              message.success('保存成功！');
-            }}
+            loading={submitting}
+            aria-label="确定"
+            onClick={() => void handleOk()}
           >
             确定
           </Button>,
@@ -369,19 +406,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                   {max: 300, message: '不能大于 300 个字符'},
                 ]}
               >
-                <Input
-                  placeholder="driver_class_name"
-                  onBlur={(e) => {
-                    if (!defaultDbs?.key) return;
-                    updateDatabase(defaultDbs.key, {
-                      ...defaultDbs,
-                      properties: {
-                        ...defaultDbs.properties,
-                        driver_class_name: e.target.value,
-                      },
-                    });
-                  }}
-                />
+                <Input placeholder="driver_class_name" />
               </Form.Item>
               <Form.Item
                 name="url"
@@ -391,19 +416,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                   {max: 300, message: '不能大于 300 个字符'},
                 ]}
               >
-                <Input
-                  placeholder="请输入url"
-                  onBlur={(e) => {
-                    if (!defaultDbs?.key) return;
-                    updateDatabase(defaultDbs.key, {
-                      ...defaultDbs,
-                      properties: {
-                        ...defaultDbs.properties,
-                        url: e.target.value,
-                      },
-                    });
-                  }}
-                />
+                <Input placeholder="请输入url" />
               </Form.Item>
               <Form.Item
                 name="username"
@@ -413,19 +426,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                   {max: 100, message: '不能大于 100 个字符'},
                 ]}
               >
-                <Input
-                  placeholder="请输入username"
-                  onBlur={(e) => {
-                    if (!defaultDbs?.key) return;
-                    updateDatabase(defaultDbs.key, {
-                      ...defaultDbs,
-                      properties: {
-                        ...defaultDbs.properties,
-                        username: e.target.value,
-                      },
-                    });
-                  }}
-                />
+                <Input placeholder="请输入username" />
               </Form.Item>
               <Form.Item
                 name="password"
@@ -435,19 +436,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                   {max: 100, message: '不能大于 100 个字符'},
                 ]}
               >
-                <Input.Password
-                  placeholder="请输入password"
-                  onBlur={(e) => {
-                    if (!defaultDbs?.key) return;
-                    updateDatabase(defaultDbs.key, {
-                      ...defaultDbs,
-                      properties: {
-                        ...defaultDbs.properties,
-                        password: e.target.value,
-                      },
-                    });
-                  }}
-                />
+                <Input.Password placeholder="请输入password" />
               </Form.Item>
             </Col>
           </Row>
