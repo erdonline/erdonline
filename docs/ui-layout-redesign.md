@@ -224,7 +224,8 @@
 - ✅ **公告 notice-row gap 次密**（2026-08-03）：`.project-list-page__notice-row` gap 12→8（8–12 族）；行 pad / 工具条不动；`testid=project-notice-row`；`project-notice` densify 绿；下一刀 → ~~画布空态 CTA pad~~✅
 - ✅ **画布空态 CTA pad 次密**（2026-08-03）：`.erd-empty-cta` pad 14×18×12→10×12（8–12 族）；主 CTA hit ≥26；Auth logo / 欢迎 pad 不动；`testid=canvas-empty-state`；`relation` densify 绿；下一刀 → ~~`.erd-empty-panel` 顶距~~✅
 - ✅ **画布空态 panel 顶距次密**（2026-08-03）：`.erd-empty-panel` `min(10vh, 88)`→`min(8vh, 64)`；保留存在感；勿再调 CTA pad；Auth logo / 欢迎 pad 跳过；`testid=canvas-empty-panel`；`relation` densify 绿；下一刀 → ~~空态纵节奏（title mt / desc mb）~~✅
-- ✅ **画布空态纵节奏锁密**（2026-08-03）：量测 title mt8 / desc mb12 已贴 ADR-0016；E2E 锁禁回退 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距跳过；`relation` densify 绿；下一刀 → Controls 次密或 `.erd-empty-links` mt10（视 ROI）
+- ✅ **画布空态纵节奏锁密**（2026-08-03）：量测 title mt8 / desc mb12 已贴 ADR-0016；E2E 锁禁回退 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距跳过；`relation` densify 绿；下一刀 → ~~Controls 次密或 `.erd-empty-links` mt10~~✅
+- ✅ **画布空态次链 mt10 锁密**（2026-08-03）：量测 Controls 22/pad0 已密 → 锁 `.erd-empty-links` mt10；`testid=canvas-empty-links`；Auth logo / 欢迎 / CTA / panel / title·desc 跳过；`relation` 空态+Controls 绿；下一刀 → 表设计签头 / CommonTabs 碎距
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

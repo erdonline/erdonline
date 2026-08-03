@@ -61,6 +61,7 @@
 | 画布空态 CTA `.erd-empty-cta` | 碎密度 | pad ∈[8,12]（目标 10×12）；主 CTA hit ∈[26,28]；禁 14×18；Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 画布空态 panel `.erd-empty-panel` | 碎密度 | mt ≈ min(8vh,64) 且 ∈[32,64]；禁 min(10vh,88)；CTA pad / Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 画布空态纵节奏 title/desc | 碎密度 | title mt ≈8∈[6,10]；desc mb ≈12∈[8,12]；desc mt≤8；禁历史 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
+| 画布空态次链 `.erd-empty-links` | 碎密度 | mt ≈10∈[8,12]；Controls 22/pad0 已密不改；禁 links mt>12；Auth logo / 欢迎 / CTA / panel / title·desc 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」+「Controls」 |
 | 团队成员工具条 | 碎密度 | mb≤8；Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；钮 padX∈[8,12]；禁 Search 默认 32 / mb16 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 用户组页头/左角色签 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→签 ≤12；左签 padX∈[8,12]·高∈[28,32]·字≤13；禁 Title level4 / Space large / padX24 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 基本设置页头 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→表单 ≤12；禁 Title level4 | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |

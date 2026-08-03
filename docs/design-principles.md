@@ -196,6 +196,7 @@
 - ✅ 空态面板密度：padding 10×12（ADR-0016 8–12；原 14/18/12）、max-width 300、标题 14/700 / CTA height 26（hit ≥26）、剪影 compact 132；禁 14×18 / 28/32 松卡片盖首屏
 - ✅ 空态 panel 顶距次密：`.erd-empty-panel` `min(8vh, 64)`（原 `min(10vh, 88)`）；保留顶区存在感 ≥32；禁 10vh/88 松顶；Auth logo / 欢迎 pad / CTA pad 10×12 不动；`testid=canvas-empty-panel`
 - ✅ 空态纵节奏：`.erd-empty-title` mt≈8、`.erd-empty-desc` mb≈12（量测已贴 ADR-0016；历史 16 / 8×18）；禁回退松距；Auth logo / 欢迎 pad / CTA pad / panel 顶距不动；`testid=canvas-empty-state`
+- ✅ 空态次链区：`.erd-empty-links` mt≈10（8–12 族；Controls chrome 量测已密故不次密 Controls）；禁回退 >12；Auth logo / 欢迎 pad / CTA / panel / title·desc 不动；`testid=canvas-empty-links`
 - ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 4×8 / font 10（与 `?` 速查 footer 同阶）；禁 48 高输入 + 10/12 松行 + footer 6×10 松井盖快捷回路
 - ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；empty pad ≤8×8 / gap ≤2、list pad ≤2；禁仅「无匹配命令或表」一句无指引；禁 16×12 空井 + 4px 列表井
 - ✅ 快捷键速查卡密度：`?` dialog maxH ≤360、header 6×10、list pad ≤2×4、row padY ≤6 / gap ≤8、footer 4×8；关闭钮 focus-visible；禁 list 6×8 + row padY 10 / gap 12 松井；Esc / 与 Cmd+K 互斥不弱化
