@@ -38,10 +38,10 @@ export interface IProfileDispatchSlice {
   updateDefaultFieldsType: (payload: any) => void;
   updateSqlConfig: (payload: any) => void;
 
-  /** ADR-0008：写 dataSources API，不写 profile.dbs 机密 */
-  addDbs: (payload: any) => Promise<void>;
-  removeDbs: (key: string) => Promise<void>;
-  updateDbs: (key: string, payload: any) => Promise<void>;
+  /** ADR-0008：写 dataSources API，不写 profile.dbs 机密；仅 API 成功返回 true */
+  addDbs: (payload: any) => Promise<boolean>;
+  removeDbs: (key: string) => Promise<boolean>;
+  updateDbs: (key: string, payload: any) => Promise<boolean>;
   updateAllDbs: () => void;
   setCurrentDbKey: (payload: string) => void;
   setDefaultDb: (payload: string) => void;
@@ -143,79 +143,101 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
     return marked;
   },
-  addDbs: async (payload: any) => {
-    const ok = await createDatabaseConfig(payload);
-    if (!ok) {
-      message.error('新增数据源失败');
-      return;
+  addDbs: async (payload: any): Promise<boolean> => {
+    try {
+      const ok = await createDatabaseConfig(payload);
+      if (!ok) {
+        // 业务失败：request 已 toast；勿叠弹
+        return false;
+      }
+      if (payload?.defaultDB || payload?.key) {
+        set(produce(state => {
+          const profile = state.project.projectJSON.profile || (state.project.projectJSON.profile = {});
+          profile.dbs = [];
+          if (payload.defaultDB && payload.key) {
+            profile.defaultDataSourceId = payload.key;
+            state.currentDbKey = payload.key;
+          }
+        }));
+      }
+      await get().dispatch.refreshDataSources();
+      // 默认数据源 id 需落库；needSave=false 时 autosave 不会触发
+      const project = get().project;
+      const projectId = project?.id || cache.getItem(CONSTANT.PROJECT_ID);
+      if (projectId && payload?.defaultDB && payload?.key) {
+        const res: { code?: number; msg?: string } = await Save.saveProject({
+          ...project,
+          id: projectId,
+          // 个人项目 type=1；缺省时走 group/save 会失败或写错表
+          type: project?.type ?? 1,
+        });
+        if (res?.code !== 200) {
+          if (!res?.msg) {
+            message.error('保存默认数据源失败');
+          }
+          return false;
+        }
+      }
+      return true;
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast
+      return false;
     }
-    if (payload?.defaultDB || payload?.key) {
+  },
+  removeDbs: async (key: string): Promise<boolean> => {
+    try {
+      const ok = await deleteDatabaseConfig(key);
+      if (!ok) {
+        // 业务失败：request 已 toast；勿叠弹
+        return false;
+      }
       set(produce(state => {
-        const profile = state.project.projectJSON.profile || (state.project.projectJSON.profile = {});
+        const profile = state.project.projectJSON.profile || {};
         profile.dbs = [];
-        if (payload.defaultDB && payload.key) {
-          profile.defaultDataSourceId = payload.key;
-          state.currentDbKey = payload.key;
+        if (profile.defaultDataSourceId === key) {
+          profile.defaultDataSourceId = undefined;
+          state.currentDbKey = undefined;
+        }
+        state.project.projectJSON.profile = profile;
+      }));
+      await get().dispatch.refreshDataSources();
+      return true;
+    } catch {
+      return false;
+    }
+  },
+  /** key = dataSourceId；payload 局部合并后 PUT /dataSources/{id}；仅 code===200 返回 true */
+  updateDbs: async (key: string, payload: any): Promise<boolean> => {
+    try {
+      const list = await fetchDatabaseConfigs();
+      const prev = list.find((d: any) => d.key === key);
+      if (!prev) {
+        message.error('数据源不存在');
+        return false;
+      }
+      const next = {
+        ...prev,
+        ...payload,
+        key,
+        properties: payload?.properties
+          ? {...(prev.properties || {}), ...payload.properties}
+          : prev.properties,
+      };
+      const ok = await updateDatabaseConfig(next);
+      if (!ok) {
+        // 业务失败：request 已 toast；勿叠弹、勿伪装成功
+        return false;
+      }
+      set(produce(state => {
+        if (state.project?.projectJSON?.profile) {
+          state.project.projectJSON.profile.dbs = [];
         }
       }));
+      await get().dispatch.refreshDataSources();
+      return true;
+    } catch {
+      return false;
     }
-    await get().dispatch.refreshDataSources();
-    // 默认数据源 id 需落库；needSave=false 时 autosave 不会触发
-    const project = get().project;
-    const projectId = project?.id || cache.getItem(CONSTANT.PROJECT_ID);
-    if (projectId && payload?.defaultDB && payload?.key) {
-      await Save.saveProject({
-        ...project,
-        id: projectId,
-        // 个人项目 type=1；缺省时走 group/save 会失败或写错表
-        type: project?.type ?? 1,
-      });
-    }
-  },
-  removeDbs: async (key: string) => {
-    const ok = await deleteDatabaseConfig(key);
-    if (!ok) {
-      message.error('删除数据源失败');
-      return;
-    }
-    set(produce(state => {
-      const profile = state.project.projectJSON.profile || {};
-      profile.dbs = [];
-      if (profile.defaultDataSourceId === key) {
-        profile.defaultDataSourceId = undefined;
-        state.currentDbKey = undefined;
-      }
-      state.project.projectJSON.profile = profile;
-    }));
-    await get().dispatch.refreshDataSources();
-  },
-  /** key = dataSourceId；payload 局部合并后 PUT /dataSources/{id} */
-  updateDbs: async (key: string, payload: any) => {
-    const list = await fetchDatabaseConfigs();
-    const prev = list.find((d: any) => d.key === key);
-    if (!prev) {
-      message.error('数据源不存在');
-      return;
-    }
-    const next = {
-      ...prev,
-      ...payload,
-      key,
-      properties: payload?.properties
-        ? {...(prev.properties || {}), ...payload.properties}
-        : prev.properties,
-    };
-    const ok = await updateDatabaseConfig(next);
-    if (!ok) {
-      message.error('更新数据源失败');
-      return;
-    }
-    set(produce(state => {
-      if (state.project?.projectJSON?.profile) {
-        state.project.projectJSON.profile.dbs = [];
-      }
-    }));
-    await get().dispatch.refreshDataSources();
   },
   /** 兼容旧调用：忽略写入 profile.dbs，仅刷新 API 列表 */
   updateAllDbs: () => {
