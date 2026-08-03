@@ -85,3 +85,43 @@
 .setting-common-page__sheet {
   min-height: 0;
 }
+
+.setting-common-page__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.setting-common-page__empty {
+  padding: 24px 8px 16px;
+}
+
+.setting-common-page__dense-table {
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th,
+  .ant-table-tbody > tr > td {
+    padding: 4px 8px !important;
+    line-height: 20px;
+  }
+
+  .ant-btn-link {
+    padding-inline: 4px;
+    height: 22px;
+    font-size: 12px;
+  }
+}
+
+.setting-common-form__list-label {
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+  margin-bottom: 6px;
+}
+
+.setting-common-form__list-row {
+  width: 100%;
+}

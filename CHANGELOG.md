@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：数据类型字典枚举域 UX（kind=enum / values[]）
+
+- 选题：`2d42004` DBML Enum 已入库；`e823bf5` CRUD persist-on-200；设置页仍只改 name/code → 枚举不可见/不可编
+- `DataTypeDomains`：种类「逻辑 | 枚举」；枚举 Form.List 编 `values[]`（名 + 可选显示名）；`buildEnumApply` 写方言 apply；「新增枚举」快捷入口；列表种类/取值密列；空态双 CTA
+- 纪律：仅 save code===200 关窗+toast；Modal Esc / 首焦名称 / `focusTriggerAfterClose`
+- E2E：`datatype-enum-ux`（新增→落盘 kind/values→编辑追加取值）；键盘/失败用例仍走逻辑路径
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/datatype-enum-ux.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/datatype-domains-keyboard.spec.ts tests/e2e/datatype-domains-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 导出：`triggers[]` → DDL CREATE TRIGGER（方言回写）
 
 - 选题：`6ad74f4` filter 导出后，最高缺口 = 逆向/UI 已有 `entity.triggers[]`，DDL 导出仍丢触发器
