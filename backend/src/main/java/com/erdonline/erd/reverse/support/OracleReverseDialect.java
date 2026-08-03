@@ -5,12 +5,14 @@ import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.model.Trigger;
 import com.erdonline.erd.reverse.CommentResultSetMapper;
 import com.erdonline.erd.reverse.DialectCapability;
 import com.erdonline.erd.reverse.DialectIds;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
 import com.erdonline.erd.reverse.TableIdentity;
+import com.erdonline.erd.reverse.TriggerResultSetMapper;
 import lombok.extern.slf4j.Slf4j;
 
 import java.sql.Connection;
@@ -26,7 +28,8 @@ import java.util.Map;
 
 /**
  * Oracle 逆向：schema=用户；索引走 ALL_INDEXES；FK 走 ALL_CONSTRAINTS（R）+ ALL_CONS_COLUMNS；
- * 注释走 ALL_TAB_COMMENTS / ALL_COL_COMMENTS（ojdbc REMARKS 依赖 remarksReporting，字典更稳）。
+ * 注释走 ALL_TAB_COMMENTS / ALL_COL_COMMENTS（ojdbc REMARKS 依赖 remarksReporting，字典更稳）；
+ * 触发器走 ALL_TRIGGERS + ALL_SOURCE（多事件拆行）。
  *
  * @author erdonline
  */
@@ -95,12 +98,44 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
                     + "WHERE owner = ? AND table_name = ? "
                     + "AND comments IS NOT NULL";
 
+    /**
+     * 表触发器：ALL_TRIGGERS + ALL_SOURCE；多事件（INSERT OR UPDATE…）拆行对齐 schema 单 event；
+     * ACTION_STATEMENT 优先源码拼接（失败可空，由 AbstractJdbc 层 fail soft）。
+     */
+    private static final String SQL_TRIGGERS =
+            "SELECT t.trigger_name AS TRIGGER_NAME, "
+                    + "CASE "
+                    + "  WHEN UPPER(t.trigger_type) LIKE 'INSTEAD OF%' THEN 'INSTEAD OF' "
+                    + "  WHEN UPPER(t.trigger_type) LIKE 'BEFORE%' THEN 'BEFORE' "
+                    + "  WHEN UPPER(t.trigger_type) LIKE 'AFTER%' THEN 'AFTER' "
+                    + "  ELSE NVL(UPPER(t.trigger_type), 'AFTER') "
+                    + "END AS ACTION_TIMING, "
+                    + "e.event_name AS EVENT_MANIPULATION, "
+                    + "CASE WHEN UPPER(t.trigger_type) LIKE '%EACH ROW%' THEN 'ROW' "
+                    + "ELSE 'STATEMENT' END AS ACTION_ORIENTATION, "
+                    + "(SELECT LISTAGG(s.text, '') WITHIN GROUP (ORDER BY s.line) "
+                    + " FROM all_source s "
+                    + " WHERE s.owner = t.owner AND s.name = t.trigger_name "
+                    + " AND s.type = 'TRIGGER') AS ACTION_STATEMENT "
+                    + "FROM all_triggers t "
+                    + "CROSS JOIN ( "
+                    + "  SELECT 'INSERT' AS event_name FROM dual "
+                    + "  UNION ALL SELECT 'UPDATE' FROM dual "
+                    + "  UNION ALL SELECT 'DELETE' FROM dual "
+                    + ") e "
+                    + "WHERE t.table_owner = ? AND t.table_name = ? "
+                    + "AND t.base_object_type = 'TABLE' "
+                    + "AND INSTR(' ' || REPLACE(UPPER(t.triggering_event), ',', ' ') || ' ', "
+                    + "         ' ' || e.event_name || ' ') > 0 "
+                    + "ORDER BY t.trigger_name, e.event_name";
+
     private static final DialectCapability CAPABILITY = DialectCapability.builder()
             .supportsSchema(true)
             .supportsIndex(true)
             .supportsForeignKey(true)
             .supportsAutoIncrement(false)
             .supportsComment(true)
+            .supportsTrigger(true)
             .build();
 
     @Override
@@ -199,6 +234,21 @@ public class OracleReverseDialect extends AbstractJdbcReverseDialect {
             statement.setString(2, tableName);
             try (ResultSet rs = statement.executeQuery()) {
                 return IndexResultSetMapper.mapFromStatistics(rs, nameCaseFlag);
+            }
+        }
+    }
+
+    @Override
+    protected List<Trigger> loadTriggers(Connection connection, TableIdentity table, String nameCaseFlag)
+            throws SQLException {
+        String owner = resolveOwner(connection, table);
+        String tableName = table.getOriginTableName().toUpperCase(Locale.ROOT);
+        try (PreparedStatement statement = connection.prepareStatement(SQL_TRIGGERS)) {
+            statement.setString(1, owner);
+            statement.setString(2, tableName);
+            try (ResultSet rs = statement.executeQuery()) {
+                return TriggerResultSetMapper.mapFromOracleAllTriggers(
+                        rs, table.getDisplayTableName(), nameCaseFlag);
             }
         }
     }

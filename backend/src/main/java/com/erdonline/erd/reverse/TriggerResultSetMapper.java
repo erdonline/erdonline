@@ -13,7 +13,8 @@ import java.util.function.Function;
  * 将字典风格触发器 ResultSet 映射为 {@link Trigger} 列表，并重建 DDL。
  * <p>约定列（大小写不敏感）：TRIGGER_NAME / ACTION_TIMING / EVENT_MANIPULATION /
  * ACTION_ORIENTATION / ACTION_STATEMENT（MySQL {@code INFORMATION_SCHEMA.TRIGGERS} /
- * PostgreSQL {@code information_schema.triggers} / SQL Server {@code sys.triggers} 投影）。
+ * PostgreSQL {@code information_schema.triggers} / SQL Server {@code sys.triggers} /
+ * Oracle {@code ALL_TRIGGERS}/{@code ALL_SOURCE} 投影）。
  *
  * @author erdonline
  */
@@ -47,6 +48,14 @@ public final class TriggerResultSetMapper {
     public static List<Trigger> mapFromSqlServerSys(ResultSet rs, String tableDisplayName,
                                                     String nameCaseFlag) throws SQLException {
         return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::resolveSqlServerDdl);
+    }
+
+    /**
+     * Oracle：ALL_TRIGGERS + ALL_SOURCE 投影；完整 CREATE / TRIGGER 源码原样作 ddl，否则双引号重建。
+     */
+    public static List<Trigger> mapFromOracleAllTriggers(ResultSet rs, String tableDisplayName,
+                                                         String nameCaseFlag) throws SQLException {
+        return mapDictionaryRows(rs, tableDisplayName, nameCaseFlag, TriggerResultSetMapper::resolveOracleDdl);
     }
 
     private static List<Trigger> mapDictionaryRows(ResultSet rs, String tableDisplayName, String nameCaseFlag,
@@ -144,6 +153,39 @@ public final class TriggerResultSetMapper {
         return buildSqlServerDdl(name, timing, event, orientation, statement, tableName);
     }
 
+    /**
+     * 重建 Oracle 风格 CREATE OR REPLACE TRIGGER（双引号标识符；多事件拆行时按单事件重建）。
+     */
+    public static String buildOracleDdl(String name, String timing, String event, String orientation,
+                                        String statement, String tableName) {
+        String safeName = name == null ? "" : name;
+        String safeTable = tableName == null ? "" : tableName;
+        String safeTiming = timing == null ? "BEFORE" : timing;
+        String safeEvent = event == null ? "INSERT" : event;
+        String safeOrient = orientation == null || orientation.isEmpty() ? "ROW" : orientation;
+        String body = statement == null ? "" : statement;
+        return "CREATE OR REPLACE TRIGGER \"" + quoteOracleIdent(safeName) + "\" "
+                + safeTiming + " " + safeEvent
+                + " ON \"" + quoteOracleIdent(safeTable) + "\" FOR EACH " + safeOrient
+                + "\n" + body;
+    }
+
+    static String resolveOracleDdl(String name, String timing, String event, String orientation,
+                                   String statement, String tableName) {
+        if (statement != null) {
+            String trimmed = statement.trim();
+            if (!trimmed.isEmpty()) {
+                if (startsWithIgnoreCase(trimmed, "CREATE ")) {
+                    return trimmed;
+                }
+                if (startsWithIgnoreCase(trimmed, "TRIGGER ")) {
+                    return "CREATE OR REPLACE " + trimmed;
+                }
+            }
+        }
+        return buildOracleDdl(name, timing, event, orientation, statement, tableName);
+    }
+
     private static String quoteMysqlIdent(String ident) {
         return ident.replace("`", "``");
     }
@@ -154,6 +196,10 @@ public final class TriggerResultSetMapper {
 
     private static String quoteSqlServerIdent(String ident) {
         return ident.replace("]", "]]");
+    }
+
+    private static String quoteOracleIdent(String ident) {
+        return ident.replace("\"", "\"\"");
     }
 
     private static boolean startsWithIgnoreCase(String value, String prefix) {
