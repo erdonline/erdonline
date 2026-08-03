@@ -113,6 +113,7 @@
 - [x] [数据类型字典弹层键盘] 设置页「新增字段类型」→ 首焦「类型名称」；Tab trap；Esc 关窗归还触发器 ✅`datatype-domains-keyboard.spec.ts`
 - [x] [数据类型字典枚举域 UX] 「新增枚举」→ kind=enum + values[] 落盘；列表种类/取值；编辑追加取值；定位 role/aria/testid ✅`datatype-enum-ux.spec.ts`
 - [x] [字段类型下拉区分枚举] 字典建枚举 → 画布 type select 有 optgroup「枚举」→ 选 code 落盘 + 浏览态徽章；定位 combobox/testid；勿扫 `.ant-*` ✅`field-type-enum-picker.spec.ts`
+- [x] [逻辑类型 apply 方言映射] `/setting/dataType` 新增/编辑逻辑类型 → 填 MYSQL/PG/… 物理类型 → save 含 `apply[code].type`；枚举弹层无 apply 编辑器；定位 role/aria/testid ✅`datatype-apply-ux.spec.ts`
 - [x] [画布表头改名落盘失败不退出编辑] mock `project/save`（entities 含新表名）业务码 → toast「模拟表改名保存拒绝」+ 编辑态仍开（草稿保留、旧节点 id）→ 二次成功改节点 id ✅`table-rename-failure.spec.ts`
 - [x] [画布建表/行内加字段落盘失败可重试] mock save（entities 含 T_TABLE_1 / fields 含新字段）→ toast + 无节点或仍编辑草稿 → 重试成功上图/落字段；空字段 CTA / 空名 toast 不回归 ✅`canvas-create-field-failure.spec.ts`
 - [x] [画布字段改名/删字段落盘失败可重试] mock save（改名 fields 含新名 / 删缺 NAME）→ toast + 仍编辑或行仍在+确认可再删 → 重试成功；空名 toast / 删二次确认不回归 ✅`canvas-field-rename-delete-failure.spec.ts`

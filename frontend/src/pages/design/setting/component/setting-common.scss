@@ -122,6 +122,32 @@
   margin-bottom: 6px;
 }
 
+.setting-common-form__list-hint {
+  margin: 0 0 8px;
+  font-size: 12px;
+  line-height: 18px;
+  color: rgba(0, 0, 0, 0.45);
+}
+
 .setting-common-form__list-row {
   width: 100%;
+}
+
+.setting-common-form__apply-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.setting-common-form__apply-code {
+  flex: 0 0 96px;
+  width: 96px;
+  font-size: 12px;
+  line-height: 20px;
+  font-family: var(--erd-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
