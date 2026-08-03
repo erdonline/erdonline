@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布打开表设计「元数据应用」签（建模回路）
+
+- 选题：字段/索引已有画布底栏入口；「元数据应用」只能绕左树或粘滞内签 → 死 affordance 感
+- 表节点底栏并排「字段 | 索引 | 元数据」：`canvas-open-code` / `aria-label=打开元数据应用` → `designPane: code`
+- `CodeTab` 加 `data-testid=table-code-edit`（对称 field/index edit）
+- E2E：`relation`「画布打开元数据应用签：直达表设计元数据；无死 affordance」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布打开元数据应用签" --workers=1 --retries=0`
+
 #### 体验：索引签空态 CTA（建模回路）
 
 - 选题：`indexs: []` 时 JExcel 吃空数组 → 白屏/死 affordance；无「加第一条」引导

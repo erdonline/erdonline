@@ -1307,6 +1307,52 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('画布打开元数据应用签：直达表设计元数据；无死 affordance', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('codenav');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'codenav', 'canvas open code');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const openCode = node.getByTestId('canvas-open-code');
+      await expect(openCode).toBeVisible();
+      await expect(openCode).toHaveAttribute('aria-label', '打开元数据应用');
+      await openCode.evaluate((el: HTMLElement) => el.click());
+
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(designer.getByRole('tab', { name: '元数据应用' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-code-edit')).toBeVisible();
+
+      // 切到字段后再经画布「元数据」仍落元数据应用（非粘滞；exact——CodeTab 内有「添加字段」等子签）
+      await designer.getByRole('tab', { name: '字段', exact: true }).click();
+      await expect(designer.getByRole('tab', { name: '字段', exact: true })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await rfNode(page, 'T_TABLE_1')
+        .getByTestId('canvas-open-code')
+        .evaluate((el: HTMLElement) => el.click());
+      await expect(
+        page.getByTestId('table-design').getByRole('tab', { name: '元数据应用' }),
+      ).toHaveAttribute('aria-selected', 'true');
+      await expect(page.getByTestId('table-code-edit')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('字段默认值内联编辑；Tab 入 default；Escape 丢弃', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fdef');

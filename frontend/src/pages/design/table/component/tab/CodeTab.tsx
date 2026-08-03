@@ -18,16 +18,14 @@ const CodeTab: React.FC<CodeTabProps> = (props) => {
   }), shallow);
 
   return (
-    <>
-      <Tabs
-        id="codeNav"
-      >
+    <div data-testid="table-code-edit">
+      <Tabs id="codeNav">
         {database?.map((db: any) => {
           return <TabPane key={db.code} id={db.code} tab={db.code}><DbTab dbCode={db.code}
                                                                           moduleEntity={props.moduleEntity}/></TabPane>
         })}
       </Tabs>
-    </>
+    </div>
   );
 }
 
