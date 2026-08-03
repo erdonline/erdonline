@@ -20,6 +20,7 @@ const pwdRules = [
 
 const ResetPassword: React.FC<ResetPasswordProps> = () => {
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const pwdInputRef = useRef<InputRef>(null);
 
@@ -33,14 +34,23 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
       message.error('两次输入的密码不一致');
       return;
     }
-    const r = await POST('/syst/user/settings/update', values);
-    if (r && r.code === 200) {
-      message.success('更新密码信息成功');
-      setOpen(false);
-      return;
+    setSubmitting(true);
+    try {
+      const r = await POST('/syst/user/settings/update', values);
+      if (r?.code === 200) {
+        message.success('更新密码信息成功');
+        setOpen(false);
+        return;
+      }
+      // 业务失败：request 已 toast；失败不关窗（勿伪装成功）
+      if (!r?.msg) {
+        message.error('更新密码失败');
+      }
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast；失败不关窗
+    } finally {
+      setSubmitting(false);
     }
-    // 对齐原 ModalForm：接口非 200 仍关窗
-    setOpen(false);
   };
 
   return (
@@ -58,6 +68,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
+        confirmLoading={submitting}
         destroyOnClose
         width={400}
         forceRender

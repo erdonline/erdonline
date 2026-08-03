@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：修改密码失败不关窗
+
+- 选题：`ResetPassword` 接口非 200 仍 `setOpen(false)`，漏 toast 时像改密成功
+- `ResetPassword`：仅 `code===200` 关窗+成功 toast；失败靠 `request` toast、兜底「更新密码失败」、不关窗可重试；`confirmLoading`；键盘闭环不变
+- E2E：`reset-password-failure.spec.ts` mock update → toast + 窗仍开 → 重试成功关窗
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → SyncConfig 伪造成功 / densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/reset-password-failure.spec.ts tests/e2e/reset-password-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：只读分享创建失败可重试
 
 - 选题：创建失败后主钮 `disabled`（无 URL），关窗重开才能再试；业务失败再叠 toast
 - `ShareProjectButton`：失败靠 `request` toast、不叠弹；空链时主钮「重新生成」可重试；吊销失败不叠弹不关窗
 - E2E：`share-create-failure.spec.ts` mock create → toast + 空链 +「重新生成」→ 成功出 `/s/` +「复制链接」
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 修改密码失败静默关窗 / SyncConfig 伪造成功
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~修改密码失败静默关窗~~✅ / SyncConfig 伪造成功
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/share-create-failure.spec.ts --project=chromium --workers=1 --retries=0`
