@@ -81,7 +81,8 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
           data={data}
           columns={columns}
           saveData={afterChange}
-          notEmptyColumn={[ 'typeName']}
+          // 与画布一致：英文名必填；类型必填（禁半成品静默丢行）
+          notEmptyColumn={['name', 'typeName']}
         />
     </div>
   );

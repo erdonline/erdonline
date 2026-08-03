@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, {useEffect, useRef, useState, useCallback} from "react";
+import React, {useEffect, useRef} from "react";
 import jspreadsheet, {CellValue} from "jspreadsheet-ce";
 
 import _ from 'lodash';
@@ -18,6 +18,18 @@ export type JExcelProps = {
   columns: any,
   saveData: any,
   notEmptyColumn: string[],
+};
+
+const isEmptyCell = (v: unknown) => v === undefined || v === null || v === '';
+
+/** 全空草稿行：可静默丢弃；半成品行禁止静默过滤写回（会丢已有字段） */
+const isCompletelyBlankRow = (row: Record<string, unknown>) => {
+  if (!row || typeof row !== 'object') return true;
+  return Object.keys(row).every((k) => {
+    const v = row[k];
+    if (typeof v === 'boolean') return v === false;
+    return isEmptyCell(v);
+  });
 };
 
 const JExcel: React.FC<JExcelProps> = (props) => {
@@ -39,19 +51,37 @@ const JExcel: React.FC<JExcelProps> = (props) => {
     if (!excelData || excelData.length === 0) {
       return;
     }
-    if (notEmptyColumn) {
-      excelData = _.reject(excelData, function (o) {
-        const findIndex = _.findIndex(notEmptyColumn, function (f) {
-          return !o[f] || o[f] == '';
+    let rows = excelData;
+    if (notEmptyColumn?.length) {
+      const valid = [];
+      let incomplete = 0;
+      for (const row of excelData) {
+        if (isCompletelyBlankRow(row)) {
+          continue;
+        }
+        const missingRequired = notEmptyColumn.some((f) => isEmptyCell(row[f]));
+        if (missingRequired) {
+          incomplete += 1;
+          continue;
+        }
+        valid.push(row);
+      }
+      // 半成品：中止整次写回，保留 store 上次完整快照；禁静默 discard 导致丢字段
+      if (incomplete > 0) {
+        message.warning({
+          content: '有行未填完必填项，未保存以免丢数据；请补全后再继续（Enter/Tab 落盘）',
+          key: 'jexcel-incomplete',
+          duration: 3,
         });
-        return findIndex > -1;
-      });
+        return;
+      }
+      rows = valid;
     }
     // 过滤后为空时不写回，避免冲掉已有默认字段/元数据
-    if (!excelData || excelData.length === 0) {
+    if (!rows || rows.length === 0) {
       return;
     }
-    saveData(excelData);
+    saveData(rows);
   }
 
 
@@ -283,35 +313,6 @@ const JExcel: React.FC<JExcelProps> = (props) => {
     },
   };
 
-  const debouncedSaveData = useCallback(
-    _.debounce((instance: any) => {
-      const excelData = instance.getJson();
-      if (!excelData || excelData.length === 0) return;
-
-      const validData = notEmptyColumn
-        ? excelData.filter(row => notEmptyColumn.every(col => row[col] && row[col] !== ''))
-        : excelData;
-
-      saveData(validData);
-    }, 500),
-    [notEmptyColumn, saveData]
-  );
-
-  const handleChange = useCallback((instance: any, cell: HTMLTableCellElement, x: number, y: number, value: CellValue) => {
-    const rowData = instance.getRowData(y);
-    const d = datatype?.find(item => item.name === value);
-    const defaultDatabaseCode = database?.find((db: any) => db.defaultDatabase)?.code || database?.[0]?.code;
-    const code = d?.code;
-    const type = d?.apply?.[defaultDatabaseCode]?.type;
-
-    if (d && defaultDatabaseCode && code && type && x === 2) {
-      instance.setValueFromCoords(x + 1, y, code, true);
-      instance.setValueFromCoords(x + 2, y, type, true);
-    }
-
-    debouncedSaveData(instance);
-  }, [datatype, database, debouncedSaveData]);
-
   useEffect(() => {
     if (!jRef.current) {
       return;
@@ -320,7 +321,8 @@ const JExcel: React.FC<JExcelProps> = (props) => {
       jspreadsheet(jRef.current, options);
     }
     // jspreadsheet 工具栏是 material `<i>`：补 role/aria，供 getByRole + 破坏性确认闭环
-    const removeBtn = (jRef.current as HTMLElement).querySelector(
+    const host = jRef.current as HTMLElement;
+    const removeBtn = host.querySelector(
       '#jexcel-toolbar-remove',
     );
     if (removeBtn) {
@@ -331,22 +333,26 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         removeBtn.setAttribute('tabindex', '0');
       }
     }
-  }, [options]);
-
-  useEffect(() => {
-    if (syncing) {
-
+    // 编辑格 Escape：取消单元格编辑，勿冒泡到设计器其它快捷键
+    if (!(host as any).__erdEscTrap) {
+      (host as any).__erdEscTrap = true;
+      host.addEventListener(
+        'keydown',
+        (e: KeyboardEvent) => {
+          if (e.key !== 'Escape') return;
+          const editing = host.querySelector('.jexcel_textarea, textarea.jexcel_textarea, .editor');
+          if (editing || host.contains(document.activeElement)) {
+            e.stopPropagation();
+          }
+        },
+        true,
+      );
     }
-  }, [props.data]);
-
-
-  const addRow = () => {
-    jRef?.current?.jexcel.insertRow();
-  };
+  }, [options]);
 
   return (
 
-    <div ref={jRef}/>
+    <div ref={jRef} data-testid="jexcel-root"/>
   );
 }
 
