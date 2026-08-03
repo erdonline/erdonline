@@ -353,24 +353,27 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleCut = (node: any) => {
+    // 禁止本地 mutate 即「剪切成功」；仅 saveProject code===200 移出；失败保留原位
     if (node.type === 'module') {
-      projectDispatch.cutModule({
-        name: node.name || node.title,
-        chnname: node.chnname
-      });
+      void projectDispatch.cutModule(
+        {
+          name: node.name || node.title,
+          chnname: node.chnname,
+        },
+        { persist: true },
+      );
     } else if (node.type === 'entity') {
-      projectDispatch.cutEntity(node.module, node.title);
+      void projectDispatch.cutEntity(node.module, node.title, { persist: true });
     }
-    message.success('剪切成功');
   };
 
   const handlePaste = (node: any) => {
+    // 禁止本地 mutate 即「粘贴成功」；仅 saveProject code===200 写入；失败不建副本
     if (node.type === 'module') {
-      projectDispatch.pastModule();
+      void projectDispatch.pastModule({ persist: true });
     } else if (node.type === 'entity' || node.type === 'folder') {
-      projectDispatch.pastEntity(node.module);
+      void projectDispatch.pastEntity(node.module, { persist: true });
     }
-    // 移除这里的 message.success,因为我们在 slice 中已经处理了消息
   };
 
   const folderAddIconStyle: React.CSSProperties = {

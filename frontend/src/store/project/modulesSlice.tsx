@@ -58,8 +58,8 @@ export interface IModulesDispatchSlice {
   ) => void | Promise<boolean>;
   updateModule: (payload: any) => void;
   copyModule: (payload: any) => void;
-  cutModule: (payload: any) => void;
-  pastModule: () => void;
+  cutModule: (payload: any, opts?: PersistOpt) => void | Promise<boolean>;
+  pastModule: (opts?: PersistOpt) => void | Promise<boolean>;
   updateRelation: (payload: any) => void;
   /** 写当前图布局（ADR-0017：只写 diagrams；diagramId 缺省=main） */
   updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[], diagramId?: string) => void;
@@ -370,29 +370,73 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       message.error(`未找到名为 "${moduleName}" 的模型`);
     }
   })),
-  cutModule: (payload: any) => set(produce(state => {
-    const moduleName = payload.name || payload.title;
+  // 剪切模型；persist:true 时仅 saveProject code===200 写剪贴板+移出+toast
+  cutModule: (payload: any, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    const moduleName = payload?.name || payload?.title;
     if (!moduleName) {
       message.error('无效的模型数据');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
+    if (moduleIndex === -1) {
+      message.error(`未找到名为 "${moduleName}" 的模型`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+    const currentModule = modules[moduleIndex];
+    const moduleToCut = {
+      ...currentModule,
+      chnname: payload.chnname || currentModule.chnname,
+      _isCut: true,
+    };
+    const clipPayload = JSON.stringify(moduleToCut);
+
+    if (!persist) {
+      cache.setItem(ERD_MODULE_CLIPBOARD, clipPayload);
+      snapshotModules(modules);
+      set(produce(state => {
+        const mi = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
+        if (mi === -1 || mi == null) {
+          message.error(`未找到名为 "${moduleName}" 的模型`);
+          return;
+        }
+        state.project.projectJSON.modules.splice(mi, 1);
+        message.success(`模型 "${moduleName}" 已成功剪切到剪贴板`);
+      }));
       return;
     }
-    const moduleIndex = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
-    if (moduleIndex !== -1) {
-      const currentModule = state.project.projectJSON.modules[moduleIndex];
-      const moduleToCut = {
-        ...currentModule,
-        chnname: payload.chnname || currentModule.chnname,
-        _isCut: true
-      };
-      cache.setItem(ERD_MODULE_CLIPBOARD, JSON.stringify(moduleToCut));
-      state.project.projectJSON.modules.splice(moduleIndex, 1);
-      message.success(`模型 "${moduleName}" 已成功剪切到剪贴板`);
-    } else {
-      message.error(`未找到名为 "${moduleName}" 的模型`);
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
     }
-  })),
-  pastModule: () => set(produce(state => {
-    let data;
+    const next = produce(project, (draft: any) => {
+      draft.projectJSON.modules =
+        draft.projectJSON.modules?.filter((m: any) => m?.name !== moduleName) || [];
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '模型保存失败');
+      if (!saved) {
+        return false;
+      }
+      cache.setItem(ERD_MODULE_CLIPBOARD, clipPayload);
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success(`模型 "${moduleName}" 已成功剪切到剪贴板`);
+      return true;
+    })();
+  },
+  // 粘贴模型；persist:true 时仅 saveProject code===200 写 store+toast
+  pastModule: (opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    let data: any;
     try {
       data = JSON.parse(cache.getItem(ERD_MODULE_CLIPBOARD) || 'null');
     } catch (error) {
@@ -402,12 +446,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     if (!data || !validateModule(data)) {
       message.error('剪贴板中没有有效的模型数据');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
 
     delete data._isCut;
 
-    const modules = state.project.projectJSON.modules;
+    const modules = get().project?.projectJSON?.modules || [];
     const { name: moduleName, counter } = nextCopyName(data.name, (n) =>
       modules.some((m: any) => m.name === n),
     );
@@ -415,7 +459,10 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const newModule = {
       ...data,
       name: moduleName,
-      chnname: counter === 0 ? data.chnname : `${data.chnname || data.name}${counter === 1 ? '副本' : `副本${counter}`}`,
+      chnname:
+        counter === 0
+          ? data.chnname
+          : `${data.chnname || data.name}${counter === 1 ? '副本' : `副本${counter}`}`,
       entities: (data.entities || []).map((entity: any) => {
         const baseEntity = entity.title || entity.name;
         const { name: entityName, counter: entityCounter } = nextCopyName(baseEntity, (n) =>
@@ -427,14 +474,46 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           ...entity,
           title: entityName,
           name: entityName,
-          chnname: entityCounter === 0 ? entity.chnname : `${entity.chnname || entity.title || entity.name}${entityCounter === 1 ? '副本' : `副本${entityCounter}`}`
+          chnname:
+            entityCounter === 0
+              ? entity.chnname
+              : `${entity.chnname || entity.title || entity.name}${entityCounter === 1 ? '副本' : `副本${entityCounter}`}`,
         };
-      })
+      }),
     };
 
-    state.project.projectJSON.modules.push(newModule);
-    message.success(`模型 "${moduleName}" 已成功粘贴`);
-  })),
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce(state => {
+        state.project.projectJSON.modules.push(newModule);
+        message.success(`模型 "${moduleName}" 已成功粘贴`);
+      }));
+      return;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    const next = produce(project, (draft: any) => {
+      draft.projectJSON.modules.push(JSON.parse(JSON.stringify(newModule)));
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '模型保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      message.success(`模型 "${moduleName}" 已成功粘贴`);
+      return true;
+    })();
+  },
   updateRelation: (payload: any) => set(produce(state => {
     if (payload.graphCanvas) {
       state.project.projectJSON.modules[state.currentModuleIndex].graphCanvas = payload.graphCanvas;
