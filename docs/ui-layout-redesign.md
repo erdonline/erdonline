@@ -203,7 +203,8 @@
 - ✅ **默认字段落盘失败可重试**（2026-08-03）：`updateDefaultFields`/`DefaultField` `persist:true`；失败重挂回滚；清死代码 `moveField`；`default-field-failure` 绿；下一刀 → ~~工作台壳外井 densify~~✅
 - ✅ **工作台壳（Home/Group）外井次密**（2026-08-03）：shell/content 12×16、body 12×16、列表空态 12×8；禁 24/20 双松井；`layout-outlet` densify 绿；下一刀 → ~~账号 BaseView gap~~✅
 - ✅ **账号 BaseView 左右列次密**（2026-08-03）：gap 24→16（窄屏 12）；禁 24；`account-settings` densify 绿；下一刀 → ~~顶栏 `erd-chrome-actions` gap16~~✅
-- ✅ **顶栏 `erd-chrome-actions` 次密**（2026-08-03）：gap 16→12（Design 仍 8）；`data-testid`；`layout-outlet` densify 绿；下一刀 → 顶栏 header pad20 / brand–nav gap16（视 ROI）
+- ✅ **顶栏 `erd-chrome-actions` 次密**（2026-08-03）：gap 16→12（Design 仍 8）；`data-testid`；`layout-outlet` densify 绿；下一刀 → ~~顶栏 header pad20 / brand–nav gap16~~✅
+- ✅ **顶栏 `erd-chrome-header` 次密**（2026-08-03）：padX 20→16 + brand–nav gap 16→12；Home/Group 覆写对齐；Design 仍 gap8；`data-testid`；`layout-outlet` densify 绿；下一刀 → Home 水平导航 Menu 项水平松距（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

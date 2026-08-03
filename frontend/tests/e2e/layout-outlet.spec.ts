@@ -62,6 +62,26 @@ test.describe('布局壳子路由出口', () => {
     expect(homeShellDense.bodyPadX).toBeLessThanOrEqual(16);
     expect(homeShellDense.footerPadT).toBeLessThanOrEqual(12);
 
+    // ADR-0016：顶栏 header 次密（禁 padX20 / brand–nav gap16）
+    const header = page.getByTestId('erd-chrome-header');
+    await expect(header).toBeVisible();
+    const headerDense = await header.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const gap = parseFloat(cs.gap);
+      return {
+        padX: parseFloat(cs.paddingLeft),
+        gap:
+          !Number.isNaN(gap) && gap > 0
+            ? gap
+            : Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0),
+        height: Math.round(el.getBoundingClientRect().height),
+      };
+    });
+    expect(headerDense.padX, `header padX 应 ≤16，得 ${headerDense.padX}`).toBeLessThanOrEqual(16);
+    expect(headerDense.gap, `header brand–nav gap 应 ≤12，得 ${headerDense.gap}`).toBeLessThanOrEqual(12);
+    expect(headerDense.gap).toBeGreaterThanOrEqual(8);
+    expect(headerDense.height).toBe(64);
+
     // ADR-0016：顶栏 actions 次密（禁 gap16）；Design 另覆写 ≤8
     const actions = page.getByTestId('erd-chrome-actions');
     await expect(actions).toBeVisible();
@@ -109,9 +129,10 @@ test.describe('布局壳子路由出口', () => {
       fullPage: false,
     });
     await page.goto('/home');
+    await expect(page.getByTestId('erd-chrome-header')).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('erd-chrome-actions')).toBeVisible({ timeout: 15_000 });
     await page.screenshot({
-      path: 'test-results/ux-walkthrough/chrome-actions-dense.png',
+      path: 'test-results/ux-walkthrough/chrome-header-dense.png',
       fullPage: false,
     });
   });
@@ -123,7 +144,7 @@ test.describe('布局壳子路由出口', () => {
 
     const homeChrome = await page.evaluate(() => {
       const layout = document.querySelector('[data-testid="home-layout"]');
-      const header = document.querySelector('.erd-chrome-header');
+      const header = document.querySelector('[data-testid="erd-chrome-header"]');
       const menuIcon = document.querySelector(
         '.home-layout__menu .ant-menu-item .i-icon svg path, .home-layout__menu .ant-menu-item svg path',
       );
@@ -299,6 +320,22 @@ test.describe('布局壳子路由出口', () => {
         designActionsGap,
         `Design erd-chrome-actions gap 应 ≤8，得 ${designActionsGap}`,
       ).toBeLessThanOrEqual(8);
+      // ADR-0016：设计器顶栏 gap8 / 右井 ≤16（覆写壳 padX16）
+      const designHeaderDense = await page.getByTestId('erd-chrome-header').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const gap = parseFloat(cs.gap);
+        return {
+          padR: parseFloat(cs.paddingRight),
+          gap:
+            !Number.isNaN(gap) && gap > 0
+              ? gap
+              : Math.max(parseFloat(cs.rowGap) || 0, parseFloat(cs.columnGap) || 0),
+          height: Math.round(el.getBoundingClientRect().height),
+        };
+      });
+      expect(designHeaderDense.padR).toBeLessThanOrEqual(16);
+      expect(designHeaderDense.gap, `Design header gap 应 ≤8，得 ${designHeaderDense.gap}`).toBeLessThanOrEqual(8);
+      expect(designHeaderDense.height).toBe(64);
       // 顶栏右：工单 / 待审批 / 通知（真实路由）
       const workflow = page.getByTestId('design-workflow-links');
       await expect(workflow.getByRole('button', { name: '我的工单' })).toBeVisible();

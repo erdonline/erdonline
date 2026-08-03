@@ -129,7 +129,10 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
           跳到主内容
         </a>
       </nav>
-      <Header className="erd-chrome-header group-layout__header">
+      <Header
+        className="erd-chrome-header group-layout__header"
+        data-testid="erd-chrome-header"
+      >
         <div
           className="erd-chrome-brand group-layout__brand"
           role="link"

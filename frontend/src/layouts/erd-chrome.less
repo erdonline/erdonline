@@ -34,10 +34,11 @@
 .erd-chrome-header {
   display: flex;
   align-items: center;
-  gap: 16px;
+  /* 次密：brand–nav gap 16→12；padX 20→16（12×16 / 8–12 族） */
+  gap: 12px;
   height: var(--erd-chrome-header-h);
   line-height: var(--erd-chrome-header-h);
-  padding: 0 20px;
+  padding: 0 16px;
   background: var(--erd-surface);
   border-bottom: 1px solid var(--erd-line);
   position: sticky;
