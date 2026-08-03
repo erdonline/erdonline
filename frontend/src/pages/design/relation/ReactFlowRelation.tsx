@@ -407,6 +407,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
+      keyboard: true,
+      autoFocusButton: 'ok',
+      focusTriggerAfterClose: true,
       onOk() {
         removeField(fieldName);
       },
