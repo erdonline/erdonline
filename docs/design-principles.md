@@ -33,6 +33,7 @@
 - ✅ 画布改边基数：仅 `saveProject` code===200 写 store；失败 toast、chip 保持原基数；可再选重试；禁本地 mutate 即换基数
 - ✅ 数据类型字典 CRUD：仅 `saveProject` code===200 写 store + 成功 toast/关窗；失败 toast、窗 keep、表不增行；禁本地 mutate 即「提交成功」
 - ✅ 逆向导入（数据源选表 / ERD·PdMan·DBML 文件）：仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store、窗/页保持可重试；禁本地 `setProjectJson`/`importReverseTable` 即「导入/操作成功」
+- ✅ 默认数据源切换 / WORD 模板路径：仅 `saveProject` code===200 写 store（模板另 toast「WORD模板已更新」）；失败 toast、Radio/列表回滚可重试；禁仅本地 mutate（`needSave=false` 时 autosave 不触发）
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -57,6 +58,7 @@
 - ❌ 画布改边基数本地 mutate 即换 chip，autosave 失败像已改基数（历史问题）
 - ❌ 数据类型字典本地 mutate 即 toast「提交成功」，autosave 失败像已写入（历史问题）
 - ❌ 逆向导入本地 `setProjectJson`/`importReverseTable` 即 toast「导入/操作成功」，autosave 失败像已导入（历史问题）
+- ❌ 默认数据源 / WORD 模板路径仅本地 mutate，`needSave=false` 时永不落盘或 autosave 失败像已切换/已配置（历史问题）
 
 ## 2. 键盘优先
 
