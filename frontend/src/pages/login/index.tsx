@@ -70,7 +70,14 @@ export default () => {
         </>
       }
     >
-      <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        requiredMark={false}
+        className="auth-shell-form"
+        data-testid="auth-shell-form"
+      >
         <Form.Item
           name="username"
           label="用户名"
@@ -79,7 +86,6 @@ export default () => {
         >
           <Input
             id="login-username"
-            size="large"
             prefix={<UserOutlined />}
             placeholder="用户名"
             aria-label="用户名"
@@ -94,7 +100,6 @@ export default () => {
         >
           <Input.Password
             id="login-password"
-            size="large"
             prefix={<LockOutlined />}
             placeholder="密码"
             aria-label="密码"
@@ -105,7 +110,6 @@ export default () => {
           <Button
             type="primary"
             htmlType="submit"
-            size="large"
             block
             loading={submitting}
             data-testid="login-submit"

@@ -24,14 +24,25 @@ test.describe('会话闭环', () => {
     await expect(page.getByRole('link', { name: '去登录' })).toBeVisible();
     await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
 
-    // ADR-0016：注册壳与登录同源碎距三压（20×16 + gap12 + 门头 mb12）；品牌字号不弱化
+    // ADR-0016：注册壳与登录同源碎距（20×16 + gap12 + 门头 mb12 + 表单 body 12/28）
     const densify = await page.getByTestId('auth-brand-panel').evaluate((el) => {
       const cs = getComputedStyle(el);
       const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
       const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
+      const formTitle = header?.querySelector('.auth-shell__form-title') as HTMLElement | null;
+      const shellForm = document.querySelector('[data-testid="auth-shell-form"]') as HTMLElement | null;
+      const formItem = shellForm?.querySelector('.ant-form-item') as HTMLElement | null;
+      const input = shellForm?.querySelector(
+        '.ant-input:not([disabled]):not(textarea)',
+      ) as HTMLElement | null;
+      const btn = shellForm?.querySelector('.ant-btn-primary') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const fcs = form ? getComputedStyle(form) : null;
       const hcs = header ? getComputedStyle(header) : null;
+      const ftCs = formTitle ? getComputedStyle(formTitle) : null;
+      const itemCs = formItem ? getComputedStyle(formItem) : null;
+      const ics = input ? getComputedStyle(input) : null;
+      const bcs = btn ? getComputedStyle(btn) : null;
       const tcs = title ? getComputedStyle(title) : null;
       return {
         brandPadT: parseFloat(cs.paddingTop),
@@ -40,6 +51,10 @@ test.describe('会话闭环', () => {
         formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
         formPadL: fcs ? parseFloat(fcs.paddingLeft) : -1,
         headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
+        formTitleMt: ftCs ? parseFloat(ftCs.marginTop) : -1,
+        itemMb: itemCs ? parseFloat(itemCs.marginBottom) : -1,
+        inputH: ics ? parseFloat(ics.height) : -1,
+        btnH: bcs ? parseFloat(bcs.height) : -1,
         titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
       };
     });
@@ -51,6 +66,13 @@ test.describe('会话闭环', () => {
     expect(densify.formPadL).toBeLessThanOrEqual(16);
     expect(densify.headerMb, `门头 mb 应 ∈[8,12]，得 ${densify.headerMb}`).toBeGreaterThanOrEqual(8);
     expect(densify.headerMb).toBeLessThanOrEqual(12);
+    expect(densify.formTitleMt, `表单 Title mt 应 ≤8，得 ${densify.formTitleMt}`).toBeLessThanOrEqual(8);
+    expect(densify.itemMb, `表单项 mb 应 ∈[8,16]，得 ${densify.itemMb}`).toBeGreaterThanOrEqual(8);
+    expect(densify.itemMb).toBeLessThanOrEqual(16);
+    expect(densify.inputH, `Input 高应 ∈[24,32]，得 ${densify.inputH}`).toBeGreaterThanOrEqual(24);
+    expect(densify.inputH).toBeLessThanOrEqual(32);
+    expect(densify.btnH, `提交钮高应 ∈[24,32]，得 ${densify.btnH}`).toBeGreaterThanOrEqual(24);
+    expect(densify.btnH).toBeLessThanOrEqual(32);
     expect(densify.titleSize).toBeGreaterThanOrEqual(24);
   });
 
@@ -135,15 +157,28 @@ test.describe('会话闭环', () => {
     await expect(page.getByTestId('auth-form-anchor')).toHaveAttribute('tabindex', '-1');
     await expect(page.getByTestId('auth-form-header')).toBeVisible();
 
-    // ADR-0016：登录壳键盘 densify 锁 — gap12 / 门头 mb12；pad/字号不回退
+    // ADR-0016：登录壳键盘 densify 锁 — gap12 / 门头 mb12 / 表单 body 12·28；pad 不回退
+    await expect(page.getByTestId('auth-shell-form')).toBeVisible();
     const kbDense = await page.getByTestId('auth-brand-panel').evaluate((el) => {
       const cs = getComputedStyle(el);
       const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
+      const formTitle = header?.querySelector('.auth-shell__form-title') as HTMLElement | null;
+      const shellForm = document.querySelector('[data-testid="auth-shell-form"]') as HTMLElement | null;
+      const formItem = shellForm?.querySelector('.ant-form-item') as HTMLElement | null;
+      const input = shellForm?.querySelector(
+        '.ant-input:not([disabled]):not(textarea)',
+      ) as HTMLElement | null;
       const hcs = header ? getComputedStyle(header) : null;
+      const ftCs = formTitle ? getComputedStyle(formTitle) : null;
+      const itemCs = formItem ? getComputedStyle(formItem) : null;
+      const ics = input ? getComputedStyle(input) : null;
       return {
         brandGap: parseFloat(cs.gap) || 0,
         headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
         brandPadT: parseFloat(cs.paddingTop),
+        formTitleMt: ftCs ? parseFloat(ftCs.marginTop) : -1,
+        itemMb: itemCs ? parseFloat(itemCs.marginBottom) : -1,
+        inputH: ics ? parseFloat(ics.height) : -1,
       };
     });
     expect(kbDense.brandGap, `品牌 gap 应 ∈[8,12]，得 ${kbDense.brandGap}`).toBeGreaterThanOrEqual(8);
@@ -151,6 +186,11 @@ test.describe('会话闭环', () => {
     expect(kbDense.headerMb, `门头 mb 应 ∈[8,12]，得 ${kbDense.headerMb}`).toBeGreaterThanOrEqual(8);
     expect(kbDense.headerMb).toBeLessThanOrEqual(12);
     expect(kbDense.brandPadT).toBeLessThanOrEqual(20);
+    expect(kbDense.formTitleMt, `表单 Title mt 应 ≤8，得 ${kbDense.formTitleMt}`).toBeLessThanOrEqual(8);
+    expect(kbDense.itemMb, `表单项 mb 应 ∈[8,16]，得 ${kbDense.itemMb}`).toBeGreaterThanOrEqual(8);
+    expect(kbDense.itemMb).toBeLessThanOrEqual(16);
+    expect(kbDense.inputH, `Input 高应 ∈[24,32]，得 ${kbDense.inputH}`).toBeGreaterThanOrEqual(24);
+    expect(kbDense.inputH).toBeLessThanOrEqual(32);
 
     // 首项 Tab = Skip；Enter 落到表单锚点
     await page.mouse.click(2, 2);
@@ -217,6 +257,27 @@ test.describe('会话闭环', () => {
     await expect(page.getByTestId('auth-brand-shell')).toBeVisible();
     await expect(page.getByTestId('auth-skip-form')).toHaveText('跳到注册表单');
     await expect(page.getByTestId('auth-form-anchor')).toHaveAttribute('tabindex', '-1');
+    await expect(page.getByTestId('auth-shell-form')).toBeVisible();
+
+    // ADR-0016：注册壳键盘 densify — 表单 body 与登录同源（Title mt≤8 / 项 mb12 / 控件 28）
+    const regDense = await page.getByTestId('auth-shell-form').evaluate((form) => {
+      const item = form.querySelector('.ant-form-item') as HTMLElement | null;
+      const input = form.querySelector(
+        '.ant-input:not([disabled]):not(textarea)',
+      ) as HTMLElement | null;
+      const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
+      const formTitle = header?.querySelector('.auth-shell__form-title') as HTMLElement | null;
+      return {
+        formTitleMt: formTitle ? parseFloat(getComputedStyle(formTitle).marginTop) : -1,
+        itemMb: item ? parseFloat(getComputedStyle(item).marginBottom) : -1,
+        inputH: input ? parseFloat(getComputedStyle(input).height) : -1,
+      };
+    });
+    expect(regDense.formTitleMt, `表单 Title mt 应 ≤8，得 ${regDense.formTitleMt}`).toBeLessThanOrEqual(8);
+    expect(regDense.itemMb).toBeGreaterThanOrEqual(8);
+    expect(regDense.itemMb).toBeLessThanOrEqual(16);
+    expect(regDense.inputH).toBeGreaterThanOrEqual(24);
+    expect(regDense.inputH).toBeLessThanOrEqual(32);
 
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');

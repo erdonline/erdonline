@@ -195,7 +195,8 @@
 }
 
 .auth-shell__form-title {
-  margin: 10px 0 4px !important;
+  /* ADR-0016：门头 Title mt6（贴 8–12 族下沿）；禁 mt10 */
+  margin: 6px 0 4px !important;
   font-family: var(--erd-font-display) !important;
   color: var(--erd-ink-900) !important;
 }
@@ -203,6 +204,53 @@
 .auth-shell__form-desc {
   margin-bottom: 0 !important;
   color: var(--erd-ink-600) !important;
+}
+
+/* ADR-0016：登录/注册 Form 碎距 — 项 mb12 / Input·钮 28 / label 12；对齐 .setting-common-form；禁 antd 默认 24/32·large 40 */
+.auth-shell-form {
+  .ant-form-item {
+    margin-bottom: 12px;
+  }
+
+  .ant-form-item-label {
+    padding-bottom: 2px;
+
+    > label {
+      font-size: 12px;
+      height: auto;
+      color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+    }
+  }
+
+  .ant-input:not(textarea),
+  .ant-input-affix-wrapper {
+    font-size: 12px !important;
+  }
+
+  .ant-input:not(textarea) {
+    height: 28px;
+    padding: 0 8px;
+  }
+
+  .ant-input-affix-wrapper {
+    padding-block: 0;
+    min-height: 28px;
+
+    .ant-input {
+      height: 26px;
+    }
+  }
+
+  .ant-input-prefix {
+    margin-inline-end: 6px;
+  }
+
+  .ant-btn {
+    height: 28px;
+    font-size: 13px;
+    padding: 0 12px;
+    border-radius: 6px;
+  }
 }
 
 .auth-shell__form-links {

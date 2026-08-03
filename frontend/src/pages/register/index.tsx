@@ -67,7 +67,14 @@ export default () => {
         </>
       }
     >
-      <Form form={form} layout="vertical" onFinish={onFinish} requiredMark={false}>
+      <Form
+        form={form}
+        layout="vertical"
+        onFinish={onFinish}
+        requiredMark={false}
+        className="auth-shell-form"
+        data-testid="auth-shell-form"
+      >
         <Form.Item
           name="username"
           label="用户名"
@@ -169,7 +176,6 @@ export default () => {
           <Button
             type="primary"
             htmlType="submit"
-            size="large"
             block
             loading={submitting}
             data-testid="register-submit"

@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：AuthBrandShell 表单 body 碎距
+
+- 选题：门头/gap 已 12；表单 Title 仍 mt10、Form 项 antd 默认 mb≈24、登录 `size=large`≈40，相对 ADR-0016 / `.setting-common-form` 偏松；勿改 pad 20×16 / 门头 mb12 / brand gap12 / Skip·Tab
+- before：Title mt10 + 项 mb≈24 + Input/钮 large≈40；after：Title mt6 + `.auth-shell-form` 项 mb12 / Input·钮 28 / label 12；`testid=auth-shell-form`
+- E2E：`smoke`「登录页渲染」+ `session`「去注册」+「登录壳键盘」+「注册壳键盘」锁 Title mt≤8 / 项 mb∈[8,16] / 控件 ∈[24,32]
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → AuthBrandShell 门头 logo 48（视 ROI）或其它碎距面
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "去注册|登录壳键盘|注册壳键盘" --workers=1 --retries=0`
+
 #### 体验：AuthBrandShell 门头/brand gap 三压
 
 - 选题：品牌/表单井已 20×16；门头仍 mb16、品牌栈 gap14，相对 ADR-0016 / 8–12 族偏松；勿改 pad 井 / 品牌字号·色·层次 / Skip·Tab
 - before：门头 mb16 + brand gap14；after：门头 mb12 + brand gap12；pad 20×16 / thumb / 字号 / 渐变 / ~40% 不动；`testid=auth-form-header`
 - E2E：`smoke`「登录页渲染」+ `session`「去注册」+「登录壳键盘」锁 gap∈[8,12] / 门头 mb∈[8,12]；`share` 失效门同源 densify
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → AuthBrandShell 表单 Title mt10 / Form 项 antd 默认 mb（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~AuthBrandShell 表单 Title mt10 / Form 项 antd 默认 mb~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`
