@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：团队成员工具条碎距
+
+- 选题：项目列表工具条已 28；`GroupUser` 仍 `marginBottom:16` + Search 默认 32，相对 8–12 / 22–28 族偏松
+- before：工具条 mb16、Search affix 32、工具条高 ~34、钮 padX ~15（antd 默认）、Space 默认 small；after：mb8、Search/钮/工具条 28、Space `size={8}` + CSS gap 8、钮 padX 8；`data-testid=group-user-toolbar`；命中/键盘不弱化
+- E2E：`group-layout-nav` 工具条 densify + 截图 `group-user-toolbar-dense.png`；`group-keyboard` / `add-user-keyboard` 回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 用户组 Title/页签碎距（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "权限组：角色与用户组成员" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/add-user-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：项目列表工具条碎距
 
 - 选题：行 pad 已 4×8 / 打开钮 28；工具条 Search 仍 antd 默认高 32（撑工具条 34），相对 22–28 chrome / 8–12 族偏松；Space 显式锁 8
 - before：Search affix 32、工具条高 34、钮 padX 12、Space 默认 small；after：Search/钮/工具条 28、Space `size={8}` + CSS gap 8、钮 padX 8；`data-testid=project-list-toolbar`；命中/键盘不弱化
 - E2E：`project-surface` 工具条高 ≤32 + Search ≤28 + Space gap∈[8,12] + 截图；`project-list-keyboard` 回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 团队成员工具条碎距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~团队成员工具条碎距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/project-surface.spec.ts --project=chromium --grep "列表行密度|团队项目列表行密度" --workers=1 --retries=0`

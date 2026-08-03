@@ -1,0 +1,51 @@
+/* ADR-0016：团队成员工具条碎距 — Space/flex gap 8（8–12 族）+ 控件 28；禁 Search 默认 32 与 marginBottom 16 */
+.group-user-list__toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  gap: 8px;
+  flex-wrap: wrap;
+  min-height: 28px;
+
+  .ant-space {
+    column-gap: 8px !important;
+    row-gap: 8px !important;
+  }
+
+  .ant-btn {
+    height: 28px !important;
+    font-size: 12px;
+    padding: 0 8px;
+    border-radius: 6px;
+  }
+
+  .ant-input-search,
+  .ant-input-group-wrapper,
+  .ant-input-wrapper.ant-input-group {
+    height: 28px !important;
+  }
+
+  .ant-input-search .ant-input-affix-wrapper,
+  .ant-input-affix-wrapper {
+    height: 28px !important;
+    min-height: 28px !important;
+    padding-block: 0 !important;
+    padding-inline: 8px;
+    font-size: 12px;
+  }
+
+  .ant-input-search .ant-input,
+  .ant-input {
+    font-size: 12px;
+    height: 26px !important;
+    line-height: 26px;
+  }
+
+  .ant-input-search-button,
+  .ant-input-group-addon .ant-btn {
+    height: 28px !important;
+    font-size: 12px;
+    padding: 0 8px;
+  }
+}

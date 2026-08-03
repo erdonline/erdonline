@@ -207,7 +207,8 @@
 - ✅ **顶栏 `erd-chrome-header` 次密**（2026-08-03）：padX 20→16 + brand–nav gap 16→12；Home/Group 覆写对齐；Design 仍 gap8；`data-testid`；`layout-outlet` densify 绿；下一刀 → ~~Home 水平导航 Menu 项水平松距~~✅
 - ✅ **Home 水平导航 Menu 项次密**（2026-08-03）：padX 16→12（8–12 族）；项高 64 / 命中宽 ≥44；`testid=home-layout-menu`；`layout-outlet` densify 绿；下一刀 → ~~Group 侧栏 nav 行距~~✅
 - ✅ **Group 侧栏 nav 行距次密**（2026-08-03）：项高 40→28 / padX 24·16→12 / marginY 4→2 / 字 12；`testid=group-layout-sider-menu`；`layout-outlet` densify + `group-keyboard` 绿；下一刀 → ~~项目列表工具条碎距~~✅
-- ✅ **项目列表工具条碎距**（2026-08-03）：Search 高 32→28 + Space `size={8}` + 钮 padX 8；工具条高 ≤32；`testid=project-list-toolbar`；`project-surface` densify + `project-list-keyboard` 绿；下一刀 → 团队成员工具条碎距（视 ROI）
+- ✅ **项目列表工具条碎距**（2026-08-03）：Search 高 32→28 + Space `size={8}` + 钮 padX 8；工具条高 ≤32；`testid=project-list-toolbar`；`project-surface` densify + `project-list-keyboard` 绿；下一刀 → ~~团队成员工具条碎距~~✅
+- ✅ **团队成员工具条碎距**（2026-08-03）：`GroupUser` mb16→8 + Search 32→28 + Space gap8 + 钮 padX8；`testid=group-user-toolbar`；`group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` 绿；下一刀 → Group 用户组 Title/页签碎距（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
