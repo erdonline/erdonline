@@ -252,7 +252,7 @@ const Version: React.FC = () => {
         accessible={access.canErdConnectorDbsync}
         fallback={<></>}
       >
-        <SyncVersion synced={!unsynced} />
+        <SyncVersion synced={!unsynced} version={row} />
       </Access>,
     ];
   };

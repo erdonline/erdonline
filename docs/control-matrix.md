@@ -136,6 +136,7 @@
 | 左树删模型/表/关系图确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行「…操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `tree-delete-keyboard` |
 | 数据源设置删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮；外层配置窗仍开；焦点不逃出确认 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-delete-keyboard` |
 | 工作台 databaseConfig 删/批删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮/批删钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-config-delete-keyboard` |
+| 版本同步结果 Modal.success/warn | 打开首焦 / Esc·OK / Tab trap；行绑定 | 首焦「知道了」；Esc/OK 归还「同步」；点击行「同步」不依赖悬停；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-result-keyboard` |
 | 工作台 databaseConfig Drawer | 打开首焦 / Esc / Tab trap | 首焦「连接名称」；Esc 归还「新建连接」/「编辑」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-config-drawer-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
@@ -372,11 +373,11 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 92 |
+| ✅ | 93 |
 | 🚧 | 0 |
 | 🗑 | 6 |
 | 📋 | 6 |
-| **合计** | **104** |
+| **合计** | **105** |
 
 📋 延期（本阶段不啃）：论坛外链、VIP 角标、dataDomain / query / chatsql / dataQuery。  
 Vision loop：矩阵 🚧=0 时，优先可行动矩阵 📋 或 roadmap 下一 📋（Issue seed / AI），见 `scripts/agent-loop-vision.prompt.md`。
