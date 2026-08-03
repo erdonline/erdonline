@@ -8,13 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：AuthBrandShell / 失效·登录门次密距
+
+- 选题：欢迎空态已密；登录/注册/分享失效/404·403 共用 `AuthBrandShell` 仍 48×40 + gap20 松井
+- `AuthBrandShell`：品牌 pad 32×28 / gap14；缩略 pad12；表单 pad 32；门头 mb16；gate gap10；移动 28；品牌字号/渐变/~40% 宽度不变
+- E2E：`smoke` 登录页 + `share` 失效门 + `session` 去注册 — 轻量 densify assert；键盘 Skip/Tab 用例不改
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "无效 token 见品牌壳" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "去注册|登录壳键盘" --workers=1 --retries=0`
+
 #### 体验：欢迎空态次密距（pad 32）
 
 - 选题：签体/次屏 Empty 已密；欢迎 `.erd-welcome-empty__inner` 标题 mt20 + 22 字 + hero 220 仍偏松
 - `EmptyStateAnimation`：内 pad 锁 32×24；标题 20/mt14；引导 mt8 / lh1.5；保留逆向链 + 左树「新增模型」
 - `ErdEmptyDiagram` hero 220→176（AuthBrandShell 同源；compact 132 不动）
 - E2E：`model-design-ux`「欢迎空态次密距」；截图 `diagram-welcome-empty-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → AuthBrandShell 失效/登录门空态次密距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~AuthBrandShell 失效/登录门空态次密距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "欢迎空态次密距" --workers=1 --retries=0`

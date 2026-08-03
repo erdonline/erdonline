@@ -31,6 +31,13 @@ test.describe('冒烟：核心旅程', () => {
       const cs = getComputedStyle(el);
       const root = getComputedStyle(document.documentElement);
       const shell = document.querySelector('[data-testid="auth-brand-shell"]');
+      const form = shell?.querySelector('.auth-shell__form') as HTMLElement | null;
+      const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
+      const thumb = el.querySelector('.auth-shell__brand-thumb') as HTMLElement | null;
+      const svg = el.querySelector('[data-testid="erd-empty-diagram"]') as SVGElement | null;
+      const fcs = form ? getComputedStyle(form) : null;
+      const tcs = title ? getComputedStyle(title) : null;
+      const thCs = thumb ? getComputedStyle(thumb) : null;
       const shellHtml = shell?.outerHTML ?? '';
       return {
         widthRatio: el.getBoundingClientRect().width / window.innerWidth,
@@ -38,6 +45,14 @@ test.describe('冒烟：核心旅程', () => {
         ink900: root.getPropertyValue('--erd-ink-900').trim(),
         shellHasBg2: /bg2\.png/i.test(shellHtml),
         shellHas1677: /#1677FF/i.test(shellHtml),
+        brandPadT: parseFloat(cs.paddingTop),
+        brandPadL: parseFloat(cs.paddingLeft),
+        brandGap: parseFloat(cs.gap) || 0,
+        formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
+        formPadL: fcs ? parseFloat(fcs.paddingLeft) : -1,
+        titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+        thumbPad: thCs ? parseFloat(thCs.paddingTop) : -1,
+        svgW: svg ? parseFloat(svg.getAttribute('width') || '0') : 0,
       };
     });
     expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
@@ -46,6 +61,17 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.shellHasBg2).toBe(false);
     expect(brandMetrics.shellHas1677).toBe(false);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
+    // ADR-0016：登录门次密距 — 内井 ≤32；品牌标题仍醒目；hero 剪影 ≤180
+    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤36，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(36);
+    expect(brandMetrics.brandPadL).toBeLessThanOrEqual(32);
+    expect(brandMetrics.brandPadT).toBeGreaterThanOrEqual(24);
+    expect(brandMetrics.brandGap).toBeLessThanOrEqual(16);
+    expect(brandMetrics.formPadT, `表单 padTop 应 ≤36，得 ${brandMetrics.formPadT}`).toBeLessThanOrEqual(36);
+    expect(brandMetrics.formPadL).toBeLessThanOrEqual(36);
+    expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
+    expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
+    expect(brandMetrics.svgW, `hero 剪影应 ≤180，得 ${brandMetrics.svgW}`).toBeLessThanOrEqual(180);
+    expect(brandMetrics.svgW).toBeGreaterThan(132);
 
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');
