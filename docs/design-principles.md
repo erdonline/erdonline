@@ -16,6 +16,7 @@
 完整快捷键体系 + `Cmd/Ctrl+K` 命令面板。高手应能不碰鼠标完成建模。
 
 - ✅ `Cmd+Z` / `Cmd+Shift+Z` 撤销重做、`Delete`/`Backspace` 删除选中（二次确认）、`Cmd/Ctrl+K`/`Cmd/Ctrl+F` 命令面板（可搜表定位）、`?` 呼出快捷键速查卡（`role=dialog`「快捷键」；工具栏「?」同入口）
+- ✅ 命令面板键盘闭环：开面板首焦搜索；↑↓ + `aria-activedescendant` 选中；Enter 执行；无匹配「无匹配结果」+ 提示；Esc 关并归还触发器；Tab/⇧Tab 困在搜索（选项不走 Tab）
 - ✅ 表设计内签直切：`Cmd/Ctrl+1` 字段 · `2` 索引 · `3` 元数据应用（仅表设计签挂载时拦截；输入框内不拦；画布上不抢浏览器签页）；速查卡已登记
 - ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
@@ -164,6 +165,7 @@
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
 - ✅ 空态面板密度：padding 14/18/12、max-width 300、标题 14/700 / CTA height 26、剪影 compact 132；禁 28/32 松卡片盖首屏
 - ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 10；禁 48 高输入 + 10/12 松行盖快捷回路
+- ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；禁仅「无匹配命令或表」一句无指引
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
 - ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧）；禁默认头脚松距盖项目菜单回路
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条 pad 8 / 控件 28；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行

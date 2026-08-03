@@ -311,7 +311,7 @@
 - [x] [编辑态 Escape 取消] ✎ 改名后 Escape → 原名保留、不经 blur 落盘；新建行 Escape 不落盘 ✅ `relation.spec`「编辑态 Escape」
 - [x] [删字段二次确认] × / 选中 Delete·Backspace → 确认才删；取消保留；编辑态 Backspace 只改字；空名 toast / Escape 保留 ✅ `relation.spec`「删除字段」
 - [x] [PK 切换] PK 徽标 `button`+aria；取消/恢复 ✅ `relation.spec`「PK」
-- [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1；工具条「命令」/Esc ✅自动（`relation.spec`「命令面板」）
+- [x] [命令面板] Cmd/Ctrl+K → 搜「新建」→ 执行 → 节点数 +1；工具条「命令」首焦/↑↓/空态/Esc 归还/Tab trap ✅自动（`relation.spec`「命令面板」）
 - [x] [多选对齐] Shift 多选两表 → 左齐 → transform x 相同 ✅自动
 - [x] [R3 切 g6] 打开关系图仅 ReactFlow（无 G6Relation）；relation.spec 全旅程绿 ✅自动
 - [x] [导出去 G6] 设计器导出 Markdown 下载 .md（DOM+html2canvas）✅自动 export.spec.ts
