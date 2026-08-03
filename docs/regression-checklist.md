@@ -42,6 +42,7 @@
 - [x] [登录壳键盘] `/login` 首项 Tab Skip「跳到登录表单」→ `#auth-form-anchor` → Tab 入用户名；密码 Enter 错误凭证 toast；登录钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「登录壳键盘」
 - [x] [注册壳键盘] `/register` Skip「跳到注册表单」→ `#auth-form-anchor` → 字段 Tab 序（tip 出序）；末字段 Enter 密码不一致 toast；注册钮 focus-visible brand 环；无 trap ✅`session.spec.ts`「注册壳键盘」
 - [x] [落地页键盘] `/` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta` → Tab 入「在线试用」；试用→注册→登录可逆；主 CTA focus-visible surface 环；无 trap ✅`landing.spec.ts`「落地页键盘」
+- [x] [竞品对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap ✅`compare.spec.ts`「竞品对照页键盘」
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

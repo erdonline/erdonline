@@ -16,6 +16,7 @@
 
 - 诚实对照表：协作 / 版本 / 审批审计 / 只读分享 / 开源自部署 / DBML / Agent 事实源
 - CTA：打开演示 / 自部署指南 / 返回首页
+- 键盘：同壳 Skip「跳到主操作」→ `#landing-main-cta`；CTA Tab 序演示→自部署→返回首页；surface focus-visible；无 trap（E2E `compare`「竞品对照页键盘」）
 - 实现：`frontend/src/pages/landing/compare.tsx` + `LandingChrome`；E2E `compare.spec.ts`
 
 ## Hero 文案
