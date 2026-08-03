@@ -189,17 +189,17 @@ test.describe('DBML 导入', () => {
       await expect(dlg).toBeVisible({ timeout: 10_000 });
       await expect(dlg.getByLabel('DBML文本')).toBeVisible();
 
-      // ADR-0016：导入弹层密度；禁默认头脚松距 + 大号控件
-      const metrics = await page.evaluate(() => {
-        const root =
-          (document.querySelector('.erd-io-modal-root .ant-modal') as HTMLElement) ||
-          (document.querySelector('.erd-io-modal') as HTMLElement);
-        if (!root) return { err: 'no-modal' } as const;
-        const title = root.querySelector('.ant-modal-title') as HTMLElement | null;
-        const body = root.querySelector('.ant-modal-body') as HTMLElement | null;
-        const footerBtn = root.querySelector(
+      // ADR-0016：导入弹层 body 碎距（8×12 对齐次屏）；禁 12×14 松井 + 大号控件
+      // 定位：dialog role「导入 DBML」+ label「DBML文本」（勿扫 .ant-* 业务语义）
+      const metrics = await dlg.evaluate((dialog) => {
+        const body = dialog.querySelector('.ant-modal-body') as HTMLElement | null;
+        const title = dialog.querySelector('.ant-modal-title') as HTMLElement | null;
+        const footerBtn = dialog.querySelector(
           '.ant-modal-footer .ant-btn-primary',
         ) as HTMLElement | null;
+        const root =
+          (dialog.closest('.ant-modal') as HTMLElement) ||
+          (dialog as HTMLElement);
         const styleW = parseFloat(root.style.width || '') || NaN;
         const cssW = parseFloat(getComputedStyle(root).width) || NaN;
         const bcs = body ? getComputedStyle(body) : null;
@@ -209,19 +209,26 @@ test.describe('DBML 导入', () => {
           width: Number.isFinite(styleW) ? styleW : cssW,
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
           titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+          bodyPadT: bcs ? parseFloat(bcs.paddingTop) : NaN,
+          bodyPadX: bcs ? parseFloat(bcs.paddingLeft) : NaN,
           bodyPadY: bcs
             ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
             : NaN,
           okH: fcs ? parseFloat(fcs.height) : NaN,
         };
       });
-      expect(metrics, '应找到 .erd-io-modal').not.toHaveProperty('err');
       expect(metrics.width).toBeGreaterThanOrEqual(480);
       expect(metrics.width).toBeLessThanOrEqual(560);
       expect(metrics.titleFont).toBeLessThanOrEqual(14);
       expect(metrics.titleLh).toBeLessThanOrEqual(24);
-      expect(metrics.bodyPadY, `body padY 应 ≤28，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
-        28,
+      expect(metrics.bodyPadT, `body padT 应 ≤8，得 ${metrics.bodyPadT}`).toBeLessThanOrEqual(8);
+      expect(metrics.bodyPadT).toBeGreaterThanOrEqual(6);
+      expect(metrics.bodyPadX, `body padX 应 ≤12，得 ${metrics.bodyPadX}`).toBeLessThanOrEqual(
+        12,
+      );
+      expect(metrics.bodyPadX).toBeGreaterThanOrEqual(8);
+      expect(metrics.bodyPadY, `body padY 应 ≤16，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
+        16,
       );
       expect(metrics.okH).toBeLessThanOrEqual(32);
       expect(metrics.okH).toBeGreaterThanOrEqual(24);

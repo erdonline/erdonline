@@ -130,7 +130,7 @@ test.describe('设计器次屏碎密度', () => {
       });
       expect(syncMetrics.hasIo, '同步配置应挂 .erd-io-modal').toBeTruthy();
       expect(syncMetrics.headerPadT).toBeLessThanOrEqual(12);
-      expect(syncMetrics.bodyPadT).toBeLessThanOrEqual(14);
+      expect(syncMetrics.bodyPadT).toBeLessThanOrEqual(8);
       expect(syncMetrics.btnH).toBeLessThanOrEqual(32);
 
       await syncDialog.getByRole('button', { name: '取 消' }).click();

@@ -202,7 +202,7 @@
 - ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；empty pad ≤8×8 / gap ≤2、list pad ≤2；禁仅「无匹配命令或表」一句无指引；禁 16×12 空井 + 4px 列表井
 - ✅ 快捷键速查卡密度：`?` dialog maxH ≤360、header 6×10、list pad ≤2×4、row padY ≤6 / gap ≤8、footer 4×8；关闭钮 focus-visible；禁 list 6×8 + row padY 10 / gap 12 松井；Esc / 与 Cmd+K 互斥不弱化
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
-- ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧；Steps mt/mb ≤10/12 · 标题 12，与次屏同阶）；禁默认头脚松距 / Steps 16/24 盖项目菜单回路
+- ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、**body pad 8×12**（原 12×14）、footer 钮 28、Select/单行 Input 28、Dragger 收紧；Steps mt/mb ≤10/12 · 标题 12，与次屏同阶）；禁 body 12×14 / 默认头脚松距 / Steps 16/24 盖项目菜单回路
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条控件 24 / 次密距 pad 4、sider-inner pad 4×6×0×8；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行 + pad 8/控件 28；禁 clip 图标；保留工具条/树 focus-visible
 - ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 24（再压，原 40→28）、字 12、flex 居中；表头 pad 2×8 / gap4 / title 12；内签 gutter/marginR 2（禁 8）；禁 clip 标签/关闭钮；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 24；hint/摘要色走 `--erd-ink-*` / success·brand·warning；禁 8×12 松行 + 16 标题、禁工具条 28 + livecam/`#389e0d` 碎色；禁 clip 图标；保留工具条 focus-visible
@@ -230,7 +230,7 @@
 - ✅ Group 基本设置页头碎距：`.basic-setting-page` 标题 13/22·mt0·mb8；同文件「删除项目」同阶；禁 Title level4；`data-testid=basic-setting-page`；键盘/保存不弱化
 - ✅ Group 基本设置 Form 碎距：`.basic-setting-form` 项 mb12 / Input·Select·钮 28 / label 12；对齐 `.setting-common-form`；禁 antd 默认 24/32；键盘/保存不弱化
 - ✅ Group 基本设置删区碎片：Divider 12 + body gap8 + 次文 12/18；禁 Divider 24 + Space 叠标题 mb；`data-testid=basic-setting-delete-zone`；确认/aria 不弱化
-- ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
+- ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（body 8×12 / hint mb8 / 链接行 mb10 / 钮 28）；禁 12×14 body / 8×12 stage 外松井 / Paragraph·Compact 松井；键盘·吊销不弱化
 - ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
 - ✅ Home 空态/公告次密：空态 pad 24×12；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13；禁 40×16 空井 / 行 8×16；保留空态 CTA +「更多公告」
 - ✅ 设计器次屏碎密度：`.erd-secondary-pane`（逆向 / ERD·PdMan / 高级导出 DDL）pad 8×12 · Steps ≤10/12 · 表单 28；`ReverseTable` meta+表行次密；`SyncConfig`→`.erd-io-modal`；设置 hint mb8；禁 Steps 16/24 + Card mb16 + 裸 Modal

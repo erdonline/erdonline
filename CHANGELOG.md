@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：导入弹层 body 碎距
+
+- 选题：量测边标签 `.erd-edge-label` pad **[4,2]** / font **12**/600 / radius **3** / `EDGE_LABEL_COLLISION_GAP` **4** / chip **40×20** 已贴 ADR-0016 可读下限（再压伤 FK 扫读）；跳过 MiniMap 尺寸 / 版本工具条 / Auth/欢迎 → 改压 `.erd-io-modal` body
+- before：body pad **12×14**（padY 合计 24）；after：**8×12**（对齐次屏 / 8–12 族）；头脚/Steps/控件 28 不动；导出弹层同源
+- E2E：`dbml-import`「导入弹层密度」+ `dbml-export`「导出弹层密度」锁 body padT≤8 / padX≤12 / padY≤16；dialog role + label/`combobox`；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png`；`relation` PK/FK chip 既有 densify 不退
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → EntityModal body 12×14 / io-modal header·footer / 基数 Select 高（勿再压边标签字号·避让 / MiniMap 尺寸 / 版本工具条）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/dbml-import.spec.ts --project=chromium --grep "导入弹层密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/dbml-export.spec.ts --project=chromium --grep "导出弹层密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉：PK/FK" --workers=1 --retries=0`
+
 #### 体验：MiniMap chrome margin 碎距
 
 - 选题：量测 MiniMap **128×96** / pad **0** / sunk 底已贴 ADR-0016 概览下限；RF panel 默认 **margin 15** 相对 8–12 族偏松；勿缩尺寸伤概览；跳过 Controls 按钮/版本工具条/Auth/欢迎
 - before：panel margin **15**（底/右偏 15）；after：margin **8**；宽高仍 **128×96**；`getByRole('img', { name: '画布缩略图' })`
 - E2E：`relation`「MiniMap」+ `demo` 锁 marginB/R ∈[8,12] + 既有 sunk/尺寸；截图 `diagram-minimap-sunk.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 边标签避让碎距 / 导入弹层 body（勿再压 MiniMap 尺寸 / 版本工具条）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~边标签避让~~量测已密 / ~~导入弹层 body~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "MiniMap" --workers=1 --retries=0`

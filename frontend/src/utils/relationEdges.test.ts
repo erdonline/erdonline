@@ -158,6 +158,10 @@ async function main() {
     assert.ok(EDGE_LABEL_BG_PADDING[0] <= 4 && EDGE_LABEL_BG_PADDING[1] <= 2);
     assert.strictEqual(edge.labelBgBorderRadius, EDGE_LABEL_BG_RADIUS);
     assert.ok(EDGE_LABEL_BG_RADIUS <= 3, 'chip 圆角勿过大');
+    assert.ok(
+      EDGE_LABEL_COLLISION_GAP <= 4 && EDGE_LABEL_COLLISION_GAP >= 2,
+      '避让 gap 已贴密下限（再压叠字风险）',
+    );
   });
 
   await run('associationsToEdges：默认描边权重/对比（分享可读）', () => {

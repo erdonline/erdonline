@@ -93,17 +93,17 @@ test.describe('DBML 导出', () => {
       await expect(exportDlg).toBeVisible({ timeout: 10_000 });
       await expect(exportDlg.getByRole('combobox', { name: '导出模型' })).toBeVisible();
 
-      const metrics = await page.evaluate(() => {
-        const root =
-          (document.querySelector('.erd-io-modal-root .ant-modal') as HTMLElement) ||
-          (document.querySelector('.erd-io-modal') as HTMLElement);
-        if (!root) return { err: 'no-modal' } as const;
-        const title = root.querySelector('.ant-modal-title') as HTMLElement | null;
-        const body = root.querySelector('.ant-modal-body') as HTMLElement | null;
-        const select = root.querySelector('.ant-select-selector') as HTMLElement | null;
-        const footerBtn = root.querySelector(
+      // ADR-0016：导出弹层与导入同源 body 8×12；定位 dialog role「导出 DBML」
+      const metrics = await exportDlg.evaluate((dialog) => {
+        const body = dialog.querySelector('.ant-modal-body') as HTMLElement | null;
+        const title = dialog.querySelector('.ant-modal-title') as HTMLElement | null;
+        const select = dialog.querySelector('.ant-select-selector') as HTMLElement | null;
+        const footerBtn = dialog.querySelector(
           '.ant-modal-footer .ant-btn-primary',
         ) as HTMLElement | null;
+        const root =
+          (dialog.closest('.ant-modal') as HTMLElement) ||
+          (dialog as HTMLElement);
         const styleW = parseFloat(root.style.width || '') || NaN;
         const cssW = parseFloat(getComputedStyle(root).width) || NaN;
         const bcs = body ? getComputedStyle(body) : null;
@@ -113,6 +113,8 @@ test.describe('DBML 导出', () => {
         return {
           width: Number.isFinite(styleW) ? styleW : cssW,
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          bodyPadT: bcs ? parseFloat(bcs.paddingTop) : NaN,
+          bodyPadX: bcs ? parseFloat(bcs.paddingLeft) : NaN,
           bodyPadY: bcs
             ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
             : NaN,
@@ -120,12 +122,15 @@ test.describe('DBML 导出', () => {
           okH: fcs ? parseFloat(fcs.height) : NaN,
         };
       });
-      expect(metrics, '应找到 .erd-io-modal').not.toHaveProperty('err');
       expect(metrics.width).toBeGreaterThanOrEqual(520);
       expect(metrics.width).toBeLessThanOrEqual(600);
       expect(metrics.titleFont).toBeLessThanOrEqual(14);
-      expect(metrics.bodyPadY, `body padY 应 ≤28，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
-        28,
+      expect(metrics.bodyPadT, `body padT 应 ≤8，得 ${metrics.bodyPadT}`).toBeLessThanOrEqual(8);
+      expect(metrics.bodyPadX, `body padX 应 ≤12，得 ${metrics.bodyPadX}`).toBeLessThanOrEqual(
+        12,
+      );
+      expect(metrics.bodyPadY, `body padY 应 ≤16，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
+        16,
       );
       expect(metrics.selectH, `Select 高应 ≤32，得 ${metrics.selectH}`).toBeLessThanOrEqual(
         32,
