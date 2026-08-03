@@ -4,36 +4,36 @@ import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
+
+import java.util.List;
 
 
 /**
  * 跨域配置。
  *
  * <p>开发环境前端（:8000）与后端（:9502）分离部署，需要跨域；
- * 生产环境经 nginx 同源反代时不触发跨域。统一放行以简化本地开发与自部署。</p>
+ * 生产环境经 nginx 同源反代时不触发跨域。</p>
  *
  * <p>CorsFilter 以最高优先级注册，确保浏览器的 OPTIONS 预检在进入
  * 前缀剥离过滤器与 Spring Security 之前被直接放行并返回 200，避免预检被 401 拦截。</p>
+ *
+ * <p>Origin 解析见 {@link CrossOriginPolicy}（R-CFG-04）：本地默认 localhost；
+ * prod 须 {@code CORS_ALLOWED_ORIGINS} 或 {@code ERD_UI_URL}，禁止 {@code *}。</p>
  */
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public FilterRegistrationBean<CorsFilter> corsFilterRegistration() {
+    public FilterRegistrationBean<CorsFilter> corsFilterRegistration(Environment env) {
         CorsConfiguration config = new CorsConfiguration();
-        // 收敛通配 origin：默认仅放行本地开发前端；其他来源经 CORS_ALLOWED_ORIGINS 逗号分隔显式声明。
-        // 认证为 Bearer token（非 Cookie），且 allowCredentials=false，浏览器不会附带凭证，
-        // 故收紧 origin 不影响 token 认证链路；生产经 nginx 同源反代时不触发跨域。
-        String origins = System.getenv().getOrDefault("CORS_ALLOWED_ORIGINS",
-                "http://localhost:8000,http://127.0.0.1:8000");
-        for (String origin : origins.split(",")) {
-            String trimmed = origin.trim();
-            if (!trimmed.isEmpty()) {
-                config.addAllowedOrigin(trimmed);
-            }
+        // 认证为 Bearer token（非 Cookie），且 allowCredentials=false，浏览器不会附带凭证。
+        List<String> origins = CrossOriginPolicy.resolveHttpAllowedOrigins(env);
+        for (String origin : origins) {
+            config.addAllowedOrigin(origin);
         }
         config.addAllowedHeader(CorsConfiguration.ALL);
         config.addAllowedMethod(CorsConfiguration.ALL);

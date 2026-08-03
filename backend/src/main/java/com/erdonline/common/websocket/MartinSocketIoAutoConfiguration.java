@@ -22,6 +22,7 @@ import com.erdonline.common.websocket.socketio.listener.SocketIoConnectListener;
 import com.erdonline.common.websocket.socketio.listener.SocketIoDataListener;
 import com.erdonline.common.websocket.socketio.listener.SocketIoDisconnectListener;
 import com.erdonline.common.websocket.socketio.listener.SocketIoExceptionListener;
+import com.erdonline.config.CrossOriginPolicy;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.redisson.api.RedissonClient;
@@ -34,7 +35,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.DependsOn;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 import java.util.HashMap;
@@ -90,6 +91,9 @@ public class MartinSocketIoAutoConfiguration implements InitializingBean {
      */
     @Autowired
     private RedissonClient redisson;
+
+    @Autowired
+    private Environment environment;
 
     /**
      * 注册一个SocketIOServer，供客户端使用。
@@ -157,6 +161,8 @@ public class MartinSocketIoAutoConfiguration implements InitializingBean {
             log.info("keyStore:{}", keyStore);
             config.setKeyStore(FileUtil.getInputStream(keyStore));
         }
+        // R-CFG-04：prod 拒 blank / *；非 prod 可保留 * 便利本地双主机名
+        CrossOriginPolicy.assertSocketIoOriginSafeForProfile(socketIoProperties.getOrigin(), environment);
         CopyOptions copyOptions = CopyOptions.create().setIgnoreNullValue(true).setIgnoreCase(false);
         log.info("socketIoProperties:{}", socketIoProperties);
         BeanUtil.copyProperties(socketIoProperties, config, copyOptions);

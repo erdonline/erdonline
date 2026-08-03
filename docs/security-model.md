@@ -70,7 +70,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-CFG-01 | P0 | ~~`JWT_SECRET` 有仓库默认值，prod 未 fail-fast~~ | ~~`application.yml` 弱默认；prod 未覆盖~~ | **✅ 已关闭（2026-08-03）**：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒 blank/仓库开发默认串；本地/dev 保留 DX 默认 | 保持 prod 无默认；公网/demo 须旋转且 ≠ 仓库串 |
 | R-CFG-02 | P0 | ~~种子 `admin`/`123456`~~ | ~~`security-model` 种子表；Flyway `V3`/`V6`~~ | **✅ 已关闭（2026-08-03）**：`allow-demo-admin` prod/默认=false，拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood；`ERD_ALLOW_DEMO_ADMIN=true` 逃生 | 公网改密 admin；勿开 `ERD_ALLOW_DEMO_ADMIN` |
 | R-CFG-03 | P1 | 应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true` | `application.yml:32-46` | 中间人/弱校验 TLS | 生产 URL 开 SSL；分 profile |
-| R-CFG-04 | P1 | CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*` | `CorsConfig.java:30-40`；`application.yml:94` | HTTP CORS 已收敛；SocketIO 默认任意 Origin | 生产设 `SOCKETIO_ORIGIN` 与 UI 同源；demo 设 `CORS_ALLOWED_ORIGINS` |
+| R-CFG-04 | P1 | ~~CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*`~~ | ~~`CorsConfig`；`application.yml` SocketIO origin~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` prod 拒 CORS/SocketIO `*`；`application-prod.yml` `SOCKETIO_ORIGIN`←`ERD_UI_URL` 无 `*` 默认；本地/dev 保留 `*` + localhost CORS | 公网设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）+ demo `CORS_ALLOWED_ORIGINS`；勿空串覆盖 |
 | R-CFG-05 | P2 | OSS / MinIO 默认密钥进 yml | `application.yml:85-87`；prod 已强制 `OSS_*` | 本地默认弱；prod fail-fast OK | 保持 prod 强制；文档勿示例真密钥 |
 | R-CFG-06 | P2 | `.env.example` 残留 `OAUTH_CLIENT_*` | `.env.example:41-43` | 认证已 JWT，易误配 | 删死键或标注废弃 |
 
@@ -99,10 +99,10 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DEAD-01 | P1 | `martin.swagger.enabled` 不门控 springdoc | `application.yml:74-75`；prod 注释 | 运维以为关 swagger 实际靠 springdoc | 删键或真正接线；文档已警示 |
 | R-DEAD-02 | P2 | `martin.resource-server.enabled` 无引用 | `application.yml:76-77` | 假开关 | 删除 |
 | R-DEAD-03 | P2 | ignore：`/endpoint/**`、`/register`、或未再走 HTTP 的路径 | `application.yml:174-179`；`/endpoint/foo`→404 | 扩大未来误挂匿名面 | 收敛 ignore 仅保留真实匿名 API |
-| R-DEAD-04 | P2 | `martin.ui.url` / `ERD_UI_URL` 代码零引用 | `application.yml:103-104` | 部署表有变量但不生效 | 接线 CORS/跳转或文档降级为可选 |
+| R-DEAD-04 | P2 | ~~`martin.ui.url` / `ERD_UI_URL` 代码零引用~~ | ~~`application.yml` ui.url~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` CORS 回落 + prod SocketIO origin 回落；见 R-CFG-04 | 保持接线；业务跳转若再用同键 |
 
 ### 建议下一刀（按 ROI）
 
-1. SocketIO `SOCKETIO_ORIGIN` / CORS 生产默认（R-CFG-04）。
-2. 开放注册双入口收敛（R-AUTH-06）。
-3. 删 `TestJsonController` 样板面（R-DATA-05）。
+1. 开放注册双入口收敛（R-AUTH-06）。
+2. 删 `TestJsonController` 样板面（R-DATA-05）。
+3. 应用库 JDBC `useSSL=false`（R-CFG-03）。

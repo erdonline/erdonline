@@ -91,6 +91,7 @@ martin:
     enabled: true
     hostname: ${SOCKETIO_HOST:0.0.0.0}
     port: ${SOCKETIO_PORT:9092}
+    # 本地/dev 默认 *（localhost 与 127.0.0.1）；prod 见 application-prod.yml + CrossOriginPolicy
     origin: ${SOCKETIO_ORIGIN:*}
     bossThreads: 0
     workerThreads: 0
@@ -100,6 +101,7 @@ martin:
     firstDataTimeout: 5000
     maxHttpContentLength: 65536
     maxFramePayloadLength: 65536
+  # CORS/SocketIO 回落源；prod 无默认（须 ERD_UI_URL 或 SOCKETIO_ORIGIN）
   ui:
     url: ${ERD_UI_URL:http://localhost:8000}
 

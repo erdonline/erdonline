@@ -8,15 +8,16 @@
 
 ### 2026-08-03
 
-#### 体验：项目列表行键盘（个人/最近/团队 · Enter + Tab + focus-visible）
+#### 安全：R-CFG-04 SocketIO/CORS 生产 Origin fail-fast
 
-- 选题：列表行仅标题链可点，描述/头像死区；动作区无键盘回归；删除/管理缺稳定可访问名
-- 改动：`ProjectListOpenLink` + 行 `stretched ::after` 消死卡；三面共用 `project-list-row` / `project-list-open-link`；删除/管理补 `aria-label`；行 `:has(:focus-visible)` inset brand 环（避开 ant List 后代 outline 重置）
-- E2E：`project-list-keyboard`（个人死卡 + Enter/Tab 动作；最近/团队 Enter + Tab）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 账号设置壳键盘（Account / profile）
+- 选题：SocketIO 默认 `origin:*`；prod 可漏配 UI 源；`ERD_UI_URL` 曾零引用（R-DEAD-04）
+- 改动：新增 `CrossOriginPolicy`（prod 拒 CORS/SocketIO `*` 与 blank）；`application-prod.yml` `martin.socketio.origin=${SOCKETIO_ORIGIN:${ERD_UI_URL}}`、`martin.ui.url=${ERD_UI_URL:${SOCKETIO_ORIGIN}}` 无 `*` 默认；`CorsConfig` 经 `CORS_ALLOWED_ORIGINS`→`ERD_UI_URL` 回落；本地/dev 保留 `*` + localhost CORS；compose/`.env.example` 默认 `ERD_UI_URL=http://localhost:8000`
+- 文档：security-model R-CFG-04 / R-DEAD-04 ✅；roadmap 下一刀 → R-AUTH-06；deployment 变量与排障表
+- 注：`cfe943e` 仅落类文件；本提交补齐接线与文档
 
 验证点：
-- `cd frontend && npx playwright test tests/e2e/project-list-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=CrossOriginPolicyTest,OriginBindingTest test`
+- `./backend/dev-ensure.sh --restart`（dev profile）：健康；本地 CORS 仍放行 `http://localhost:8000`
 
 #### 安全：R-DATA-04 上传归属 — 删测试口 + Word 模板绑项目
 
@@ -33,7 +34,7 @@
 - 选题：团队设置壳进页 Tab 先扫顶栏+侧栏；无 Skip 直达主区；焦点环缺；无键盘 E2E
 - 改动：`GroupLayout` 首焦 Skip「跳到主内容」→ `#group-main-content`（`tabIndex=-1`）；壳内 `:focus-visible` brand 环；自然 DOM 序不动正 `tabIndex`
 - E2E：`group-keyboard`「Group 键盘：Skip→主内容；表单 Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~项目列表（个人/最近/团队）行键盘~~✅
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 项目列表（个人/最近/团队）行键盘
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`

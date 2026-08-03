@@ -45,7 +45,6 @@
 - [x] [竞品对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap ✅`compare.spec.ts`「竞品对照页键盘」
 - [x] [Home 工作台键盘] `/home` 首项 Tab Skip「跳到主内容」→ `#home-main-content`→继续建模→新建→示例→二级入口→项目卡可逆；brand focus-visible；无 trap ✅`home-keyboard.spec.ts`「Home 键盘」
 - [x] [GroupLayout 壳键盘] `/project/group/setting/basic` 首项 Tab Skip「跳到主内容」→ `#group-main-content`→项目名→标签→项目描述可逆；侧栏链 brand focus-visible；无 trap ✅`group-keyboard.spec.ts`「Group 键盘」
-- [x] [项目列表行键盘] 个人/最近/团队 stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` brand focus-visible；无 trap ✅`project-list-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
@@ -304,7 +303,8 @@
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
 - [x] [存量 console.log] 已清零（`rg console\.(log|debug|info) src` = 0；`lint:js:ci` 0 error）✅自动
-- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS`；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/OSS 密钥否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`）
+- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS` 或 `ERD_UI_URL`；prod 禁 SocketIO/CORS `*`（`CrossOriginPolicy`）；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/OSS/`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）/JWT 否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`）
+- [ ] [R-CFG-04 Origin] prod 未设 `ERD_UI_URL`/`SOCKETIO_ORIGIN` → 启动失败；设 `SOCKETIO_ORIGIN=*` → 启动失败含 `*`；dev profile 本地 dogfood 不受影响
 - [ ] [生产凭证 fail-fast] 待 Docker 部署验证：`docker-compose up`（compose 显式传 env，应正常启动）
 
 ## UX 走查（playwright-ux-audit 规则，2026-08-01 首轮）
