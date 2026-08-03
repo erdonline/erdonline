@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-05 删 TestJson 样板 CRUD 面
+
+- 选题：`TestJsonController` `/testJson/**` 需登录仍暴露样板 CRUD，污染攻击面
+- 改动：删除 `TestJsonController` + `TestJsonService`/`Impl` + `TestJsonMapper`/`xml` + `TestJson` 实体；无 ignore-urls / FE 代理引用
+- 文档：security-model R-DATA-05 ✅；roadmap 下一刀 → R-CFG-03
+- 回归：`TestJsonDeadPathRemovedTest`（源文件缺席断言）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=TestJsonDeadPathRemovedTest test`
+- `./backend/dev-ensure.sh --restart`；匿名 `GET /ncnb/testJson` → 401；带 JWT → 404（`资源不存在`）
+
 #### 安全：R-AUTH-06 开放注册单入口 + prod 默认关闭
 
 - 选题：ignore 双入口（`/user/register` + 产品路径）；Service `@RestController` 另挂匿名注册面；prod 默认可自注册
