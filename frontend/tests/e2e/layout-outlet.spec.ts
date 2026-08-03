@@ -311,8 +311,55 @@ test.describe('布局壳子路由出口', () => {
       expect(groupShellDense.bodyPadT).toBeLessThanOrEqual(12);
       expect(groupShellDense.bodyPadX).toBeLessThanOrEqual(16);
 
+      // ADR-0016：Group 侧栏 nav 次密（禁高40 / padX24·16）；命中 ≥28；键盘链不弱化
+      const siderMenu = page.getByTestId('group-layout-sider-menu');
+      await expect(siderMenu).toBeVisible();
+      await expect(siderMenu).toHaveAttribute('aria-label', '团队设置导航');
+      const siderNavItem = siderMenu.getByRole('menuitem', { name: '基本设置' });
+      await expect(siderNavItem).toBeVisible();
+      await expect(
+        siderMenu.getByRole('link', { name: '返回项目列表' }),
+      ).toBeVisible();
+      const siderItemDense = await siderNavItem.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const r = el.getBoundingClientRect();
+        return {
+          padX: Math.min(parseFloat(cs.paddingLeft), parseFloat(cs.paddingRight)),
+          marginY: Math.max(parseFloat(cs.marginTop), parseFloat(cs.marginBottom)),
+          height: Math.round(r.height),
+          width: Math.round(r.width),
+          fontSize: parseFloat(cs.fontSize),
+        };
+      });
+      expect(
+        siderItemDense.padX,
+        `Group 侧栏项 padX 应 ∈[8,12]，得 ${siderItemDense.padX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(siderItemDense.padX).toBeGreaterThanOrEqual(8);
+      expect(
+        siderItemDense.marginY,
+        `Group 侧栏项 marginY 应 ≤4（目标 2），得 ${siderItemDense.marginY}`,
+      ).toBeLessThanOrEqual(4);
+      expect(
+        siderItemDense.height,
+        `Group 侧栏项高应 ∈[28,32]，得 ${siderItemDense.height}`,
+      ).toBeGreaterThanOrEqual(28);
+      expect(siderItemDense.height).toBeLessThanOrEqual(32);
+      expect(
+        siderItemDense.width,
+        `Group 侧栏项宽应 ≥44（命中），得 ${siderItemDense.width}`,
+      ).toBeGreaterThanOrEqual(44);
+      expect(
+        siderItemDense.fontSize,
+        `Group 侧栏字号应 ≤13，得 ${siderItemDense.fontSize}`,
+      ).toBeLessThanOrEqual(13);
+
       await page.screenshot({
         path: 'test-results/ux-walkthrough/group-shell-dense.png',
+        fullPage: false,
+      });
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/group-sider-nav-dense.png',
         fullPage: false,
       });
     } finally {
