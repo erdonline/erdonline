@@ -55,6 +55,7 @@
 - ✅ 数据源设置删确认弹层键盘：行「删除数据源」→ 首焦「删除」；Esc 关确认不删、归还删钮；外层配置窗仍开；Tab 困在确认 `role=dialog` 内
 - ✅ 工作台 databaseConfig 删/批删确认弹层键盘：行「删除连接」/「批量删除」→ 首焦「删除」；Esc 关确认不删、归还触发器；Tab 困在确认 `role=dialog` 内
 - ✅ 只读分享吊销确认弹层键盘：「吊销分享」→ 首焦「吊销」；Esc 关确认不吊销、归还吊销钮；外层分享窗仍开；Tab 困在确认 `role=dialog` 内
+- ✅ 团队项目删确认弹层键盘：基本设置「删除团队项目」→ 首焦「删除」；Esc 关确认不删、归还删钮；Tab 困在确认 `role=dialog` 内
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
