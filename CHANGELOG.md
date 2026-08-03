@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：版本回滚假成功
+
+- 扫描结论：dbsync 同步失败 / Word `gendocx` 导出失败已收口；下一高 ROI 为 **版本回滚**——`revertVersionData` 先 `setModules` 再异步 save，且弹层无条件关窗 → 落盘失败仍像已回滚
+- `revertVersionData`：仅 `saveProject` code===200 写 store + toast「成功回滚」；失败 toast、不写 store；`RevertVersion` 失败不关窗可重试（`confirmLoading`）
+- E2E：`version-revert-failure` 首拒窗仍开、画布仍有 REMARK → 重试成功字段消失；定位 `role=dialog`「回滚版本」/ `aria-label=回滚版本`（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `downloadWordTemplate` 静默/JSON blob 假下载，或键盘摩擦（回滚弹层 Esc 归还已覆盖）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-revert-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "可视化 diff" --workers=1 --retries=0`
+
 #### 体验：默认数据源 / WORD 模板假成功
 
 - 选题：逆向导入假成功已收口（`1ca6d59`）；`setDefaultDb` / `updateWordTemplateConfig` 仍本地 mutate，且 `needSave=false` 时 autosave 不触发 → 切默认库 / 上传模板像已生效实未落盘
 - `setDefaultDb` / `updateWordTemplateConfig`：仅 `saveProject` code===200 写 store（模板另 toast「WORD模板已更新」）；失败 toast、不写 store；数据源 Radio / 版本页 Select 失败回滚
 - 顺手：删 `databaseDomainsSlice` 零挂载 CRUD（仅留 `getDefaultDatabase*` 供默认字段映射）
 - E2E：`default-db-failure` 首拒「当前使用」仍第一源 → 重试切到第二源；定位 `role=radio`「设为默认数据源 …」（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描剩余假成功（版本同步 / Word 导出等）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~版本回滚假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/default-db-failure.spec.ts --project=chromium --workers=1 --retries=0`

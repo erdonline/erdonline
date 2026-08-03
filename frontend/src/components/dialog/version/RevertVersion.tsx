@@ -20,11 +20,20 @@ const RevertVersion: React.FC<RevertVersionProps> = () => {
   );
 
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const ver = currentVersion?.version || '?';
 
-  const handleOk = () => {
-    versionDispatch.revertVersionData();
-    setOpen(false);
+  const handleOk = async () => {
+    setSubmitting(true);
+    try {
+      const ok = await versionDispatch.revertVersionData();
+      if (ok) {
+        setOpen(false);
+      }
+      // 失败：request/persist 已 toast；失败不关窗可重试
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -43,8 +52,9 @@ const RevertVersion: React.FC<RevertVersionProps> = () => {
       <Modal
         title="回滚版本"
         open={open}
-        onOk={handleOk}
+        onOk={() => void handleOk()}
         onCancel={() => setOpen(false)}
+        confirmLoading={submitting}
         okText="是"
         cancelText="否"
         destroyOnClose
