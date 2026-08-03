@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：团队成员移除确认弹层键盘闭环（Popconfirm→Modal.confirm）
+
+- 选题：`GroupUser`（权限组 → 用户组成员）用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；无键盘回归
+- 改动：改 `confirmDestructive`（首焦「移除」+ Esc 归还移除钮 + Tab trap）；移除钮 `aria-label`→`移除成员 {username}`；失败 toast；`/ncnb/project/group/role/users` DELETE 落盘与列表 reload 逻辑不变
+- E2E：`group-user-remove-keyboard`（普通成员组→移除确认 → 首焦、Esc 归还不移、Tab trap）；不踩 `add-user-keyboard` / `group-layout-nav`
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 扫描剩余 `Popconfirm`（审批 Pass/Refuse/Cancel/Repeat、`CopyVersion`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-user-remove-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/add-user-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：团队项目删确认弹层键盘闭环（Popconfirm→Modal.confirm）
 
 - 选题：`RemoveGroupProject`（团队基本设置）用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；无键盘回归
 - 改动：改 `confirmDestructive`（首焦「删除」+ Esc 归还删钮 + Tab trap）；删钮 `aria-label`→`删除团队项目`；`/ncnb/project/group/delete` 落盘与跳转 `/project/group` 逻辑不变
 - E2E：`group-project-delete-keyboard`（基本设置→删确认 → 首焦、Esc 归还不删、Tab trap）；不踩 `project-list-keyboard` / `group-basic-setting`
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 团队成员移除确认（`GroupUser` Popconfirm→`confirmDestructive`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~团队成员移除确认（`GroupUser` Popconfirm→`confirmDestructive`）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-project-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
