@@ -58,6 +58,10 @@ services:
       MYSQLDATABASE: ${MYSQLDATABASE:-erd}
       MYSQLUSER: ${MYSQLUSER:-erd}
       MYSQLPASSWORD: ${MYSQLPASSWORD:-erd}
+      # compose 内官方 MySQL 镜像默认无 TLS；prod profile JDBC 默认开 SSL，须显式关掉以免打不开池
+      MYSQL_USE_SSL: ${MYSQL_USE_SSL:-false}
+      MYSQL_REQUIRE_SSL: ${MYSQL_REQUIRE_SSL:-false}
+      MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL: ${MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL:-true}
       REDISHOST: redis
       REDISPORT: 6379
       # prod 要求 REDISPASSWORD 占位符存在；无密码 Redis 用空串（Normalizer→null）

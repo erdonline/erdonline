@@ -25,11 +25,12 @@ spring:
       matching-strategy: ant_path_matcher
   # 单一业务库（ADR-0020）。两套 Hikari/SqlSessionFactory 同库；占位符均为 Railway 插件原生名单变量，无嵌套回退。
   # MySQL：MYSQLHOST / MYSQLPORT / MYSQLDATABASE / MYSQLUSER / MYSQLPASSWORD（勿用 MYSQL_URL / SPRING_DATASOURCE_URL）。
+  # JDBC TLS：MYSQL_USE_SSL / MYSQL_REQUIRE_SSL / MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL（本地默认关 SSL；prod 见 application-prod.yml）。
   # Redis：REDISHOST / REDISPORT / REDISUSER / REDISPASSWORD（勿用 REDIS_URL；空密码由 RedisBlankCredentialNormalizer 置 null）。
   # 见 docs/deployment.md。
   datasource:
     martin:
-      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=${MYSQL_USE_SSL:false}&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=${MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL:true}
       username: ${MYSQLUSER:erd}
       password: ${MYSQLPASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver
@@ -43,7 +44,7 @@ spring:
       connection-timeout: 60000
       connection-test-query: SELECT 1
     erd:
-      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=false&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=true
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=${MYSQL_USE_SSL:false}&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=${MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL:true}
       username: ${MYSQLUSER:erd}
       password: ${MYSQLPASSWORD:erd}
       driver-class-name: com.mysql.cj.jdbc.Driver

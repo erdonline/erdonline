@@ -211,7 +211,12 @@ curl -sS "http://127.0.0.1:${PORT}/actuator/health"
 | `MYSQLUSER` | 用户（常为 `root`） | `erd` |
 | `MYSQLPASSWORD` | 密码 | `erd`（仅非 prod） |
 | `MYSQLDATABASE` | 业务库名（插件常为 `railway`） | `erd` |
+| `MYSQL_USE_SSL` | JDBC `useSSL` | 本地/`dev` 默认 `false`；**`prod` 默认 `true`** |
+| `MYSQL_REQUIRE_SSL` | JDBC `requireSSL`（仅 prod URL） | `prod` 默认 `true` |
+| `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | JDBC `allowPublicKeyRetrieval` | 本地默认 `true`；**`prod` 默认 `false`** |
 | `MYSQL_URL` | 连接串 | **应用不读**（留给 init / 客户端） |
+
+**JDBC TLS（R-CFG-03）**：`martin` / `erd` 双 DS **同一** `jdbc-url` 模板。公网 / Railway demo（`SPRING_PROFILES_ACTIVE=prod`）默认开 SSL 并 `requireSSL`，关掉 `allowPublicKeyRetrieval`。本地 `dev-ensure`（`dev` profile）与 **docker-compose**（compose 显式注入 `MYSQL_USE_SSL=false`）保持明文 JDBC，避免无 TLS 的官方 MySQL 镜像打不开池。若私网插件握手失败可临时 `MYSQL_USE_SSL=false`（并配对 `MYSQL_REQUIRE_SSL=false`），但公网可达实例勿关。
 
 **Dashboard**：
 
@@ -256,6 +261,7 @@ SELECT MAX(version) FROM erd.flyway_schema_history WHERE success=1;
 | `Unknown database 'martin'` | 仍为旧双库镜像；Redeploy 新版本并单库 init |
 | `Access denied` | `MYSQLUSER` / `MYSQLPASSWORD` 不对 |
 | 只设了 `MYSQL_URL` / `SPRING_DATASOURCE_URL` | **无效**（自定义前缀不读这两项） |
+| `SSL connection required` / `Communications link failure`（TLS） | 库未开 TLS 但 prod 默认 `MYSQL_USE_SSL=true` | 私网无证：显式 `MYSQL_USE_SSL=false` + `MYSQL_REQUIRE_SSL=false`；compose 已默认关 |
 
 ### Railway Redis 正确接法（唯一推荐）
 
@@ -297,6 +303,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
 | `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true` |
+| `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
 | `CORS_ALLOWED_ORIGINS` | `https://erdonline-demo.pages.dev` | 逗号分隔；静态 demo 跨域必需；未设则回落 `ERD_UI_URL` |
 | `ERD_UI_URL` | 同上 CF Pages URL | **prod 必填其一**（或 `SOCKETIO_ORIGIN`）；CORS + SocketIO 回落；禁 `*` |
 | `SOCKETIO_ORIGIN` | 通常同 `ERD_UI_URL` | 可选覆盖 SocketIO；未设回落 `ERD_UI_URL`；禁空串挡回落、禁 `*` |
