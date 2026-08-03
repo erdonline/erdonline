@@ -72,9 +72,20 @@ test.describe('数据源逆向解析', () => {
       const projectId = new URL(page.url()).searchParams.get('projectId');
       expect(projectId).toBeTruthy();
 
+      const metaWait = page.waitForResponse(
+        (r) =>
+          r.url().includes('/connector/dbReverseMeta') && r.request().method() === 'POST',
+        { timeout: 60_000 },
+      );
       await page.goto(`/design/table/import/reverse?projectId=${projectId}`);
       await expect(page.getByText(/解析已有数据源/)).toBeVisible({ timeout: 15_000 });
       await expect(page.getByText(dsName).first()).toBeVisible({ timeout: 15_000 });
+
+      const metaRes = await metaWait;
+      const metaBody = metaRes.request().postDataJSON() as Record<string, unknown>;
+      expect(metaBody.dataSourceId).toBe(dsId);
+      expect(metaBody.password).toBeUndefined();
+      expect(metaBody.url).toBeUndefined();
 
       const parseWait = page.waitForResponse(
         (r) =>
@@ -82,7 +93,12 @@ test.describe('数据源逆向解析', () => {
         { timeout: 60_000 },
       );
       await page.getByRole('button', { name: /下一步/ }).click();
-      expect((await parseWait).ok()).toBeTruthy();
+      const parseRes = await parseWait;
+      expect(parseRes.ok()).toBeTruthy();
+      const parseBody = parseRes.request().postDataJSON() as Record<string, unknown>;
+      expect(parseBody.dataSourceId).toBe(dsId);
+      expect(parseBody.password).toBeUndefined();
+      expect(parseBody.url).toBeUndefined();
 
       await expect(page.getByText('t_user', { exact: true })).toBeVisible({
         timeout: 30_000,

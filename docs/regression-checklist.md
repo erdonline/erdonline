@@ -163,6 +163,7 @@
 - [x] [R-AUTH-01] 匿名 `GET /user/loadUserByUsername/admin` → 401；登录 `/auth/login` 仍 200 ✅curl + `RemoteSystemUserHttpContractTest`
 - [x] [R-AUTH-02] 无 `sys_user_*` 的已登录用户 `GET /user/page` → 401（AccessDenied）；admin `GET /user/page` → 200 且 JSON 无 `pwd`/`salt` ✅curl + `UserControllerAuthContractTest`
 - [x] [R-DATA-02 dataSourceId] `POST /ncnb/connector/ping` 含他人 `dataSourceId` → body `code=403`；自有 id 覆盖客户端伪账密；无 id raw `jdbc:h2` 仍拒 ✅curl + `ConnectorCredentialResolverTest`
+- [x] [R-DATA-02 FE 热路径] 已保存数据源：`dbReverseMeta`/`dbReverseParse`/`connector/ping`（同步状态）body 含 `dataSourceId` 且无 `password`/`url`；表单「测试连接」仍可 raw ✅`import-reverse` + `adr0008-datasource` + `connectorPayload.test.ts`
 - [x] [queryHistory] `POST /ncnb/queryHistory` 分页 → 200（禁止 GET）✅`audit-fe-apis.sh`
 - [x] [ADR-0008 分享] 匿名 GET projectJSON.profile.dbs 为空数组 ✅`ProjectShareSanitizeTest`
 - [x] [分享 Fork] 匿名点「复制到我的项目」→ `/login?redirect=`；登录后 fork 进设计器 ✅`share.spec.ts`

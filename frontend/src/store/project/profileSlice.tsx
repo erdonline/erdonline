@@ -250,6 +250,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     Save.dbReverseParse({
       ...dbConfig,
       driverClassName: db.properties['driver_class_name'], // eslint-disable-line
+      ...(db.key ? {dataSourceId: db.key} : {}),
       flag,
       ...(schema ? {schema} : {}),
     }).then((res) => {

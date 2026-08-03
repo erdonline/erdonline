@@ -184,7 +184,11 @@ test.describe('ADR-0008 数据源', () => {
         { timeout: 30_000 },
       );
       await row.getByRole('button', { name: '同步状态' }).click();
-      await pingWait;
+      const pingRes = await pingWait;
+      const pingBody = pingRes.request().postDataJSON() as Record<string, unknown>;
+      expect(pingBody.dataSourceId).toBeTruthy();
+      expect(pingBody.password).toBeUndefined();
+      expect(pingBody.url).toBeUndefined();
       await expect(
         page
           .getByText(/连接在线，状态已更新|连接不可达，状态已更新为错误|同步状态出错/)

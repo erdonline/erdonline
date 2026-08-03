@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-02 FE connector 热路径只传 dataSourceId
+
+- 选题：已保存数据源仍在 ping/reverse/sqlexec/dbsync 重传 raw JDBC+账密，绕过后端 id 优先语义
+- 改动：`preferDataSourceIdPayload`（`dataSourceId`/`dbKey`/`key`→剥 url/username/password/driver）；`save.js` ping/sqlexec/dbsync/dbReverse* 接入；逆向/版本同步带 id；`/databaseConfig` 同步状态走 id；设计器/表单「测试连接」仍 raw
+- 文档：security-model R-DATA-02 ✅；roadmap 下一刀 → SSRF/禁 mutate raw
+
+验证点：
+- `cd frontend && npx --yes tsx src/utils/connectorPayload.test.ts`
+- `cd frontend && npx playwright test tests/e2e/adr0008-datasource.spec.ts --project=chromium --grep "同步状态" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/import-reverse.spec.ts --project=chromium --workers=1 --retries=0`（需 reverse_demo MySQL）
+
 #### 安全：R-AUTH-05 SocketIO 校验 project_user 成员
 
 - 选题：合法短票/JWT 可加任意 `projectId` 房收 presence/sync（越权旁听与注入）
 - 改动：短票 Redis 载荷改为 `userId\\nusername`；`SocketIoAuthorizationListener` 握手强制 `projectId` + `ProjectAcl.isMember`；`JOIN_ROOM` 再验一次（SPI 实例经 `SpringContextHelper`）；cursor/sync 仅 `ATTR_JOINED` 后广播
 - 脚本：presence/cursor/sync 改建团队项目并绑定 e2e0；新增 `verify-socket-membership.mjs` 负向
-- 文档：`security-model` R-AUTH-05 ✅；ADR-0009；roadmap 下一刀 → FE connector dataSourceId
+- 文档：`security-model` R-AUTH-05 ✅；ADR-0009；roadmap 下一刀 → ~~FE connector dataSourceId~~✅
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=SocketTicketServiceTest,SocketIoAuthorizationListenerTest,ProjectAndDataSourceAclTest test`

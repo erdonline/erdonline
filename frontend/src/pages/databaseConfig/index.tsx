@@ -83,14 +83,16 @@ const DatabaseConfigPage: React.FC = () => {
         const updatedRecords = await Promise.all(
           (res.data.records || []).map(async (record: DatabaseConfigItem) => {
             try {
-              const pingParams = {
-                driverClassName: getDriverClassName(record.type),
-                url:
-                  record.url ||
-                  generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
-                username: record.username,
-                password: record.password,
-              };
+              const pingParams = record.id
+                ? {dataSourceId: record.id}
+                : {
+                    driverClassName: getDriverClassName(record.type),
+                    url:
+                      record.url ||
+                      generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
+                    username: record.username,
+                    password: record.password,
+                  };
               const success = await pingDatabase(pingParams);
               return {
                 ...record,
@@ -183,13 +185,16 @@ const DatabaseConfigPage: React.FC = () => {
     }
     setSyncingId(record.id);
     try {
-      const pingParams = {
-        driverClassName: getDriverClassName(record.type) || record.driverClassName,
-        url:
-          record.url || generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
-        username: record.username,
-        password: record.password,
-      };
+      const pingParams = record.id
+        ? {dataSourceId: record.id}
+        : {
+            driverClassName: getDriverClassName(record.type) || record.driverClassName,
+            url:
+              record.url ||
+              generateJdbcUrl(record.type, record.host, record.port, record.databaseName),
+            username: record.username,
+            password: record.password,
+          };
 
       const success = await pingDatabase(pingParams);
       const nextStatus: ConnectionStatus = success ? 'online' : 'error';
