@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布空态纵节奏（title/desc）锁密
+
+- 选题：panel 顶距已密；纵节奏 `.erd-empty-title` mt / `.erd-empty-desc` mb 对照 ADR-0016 8–12 量测；勿动 Auth logo / 欢迎 pad / CTA pad 10×12 / panel 顶距
+- measure：title mt **8**、desc mb **12**（历史 16 / 8×18 已在空态次密收过）→ 已贴族，CSS 不改；after：E2E 锁 titleMt≈8∈[6,10]、descMb≈12∈[8,12]、descMt≤8；`testid=canvas-empty-state` / role「新建第一张表」
+- E2E：`relation`「空态构图」锁纵节奏 + 既有 panel/CTA pad/hit；截图 `diagram-empty-composition.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布 Controls 次密或 `.erd-empty-links` mt10（视 ROI；Auth logo / 欢迎 pad 跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 体验：画布空态 panel 顶距次密
 
 - 选题：CTA pad 已密；`.erd-empty-panel` 仍 `min(10vh, 88)`，首屏空态顶区偏松；勿动 Auth logo / 欢迎 pad；勿再调 CTA pad 10×12
 - before：顶距 **min(10vh, 88)**；after：**min(8vh, 64)**；`testid=canvas-empty-panel` / `canvas-empty-state` / role「新建第一张表」
 - E2E：`relation`「空态构图」锁 panel mt ≈ min(8vh,64) 且 ∈[32,64] + 既有 CTA pad/hit；截图 `diagram-empty-composition.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 空态纵节奏（title mt8 / desc mb12）或画布 Controls 次密（视 ROI；Auth logo / 欢迎 pad 跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~空态纵节奏（title mt8 / desc mb12）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
