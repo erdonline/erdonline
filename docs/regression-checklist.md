@@ -12,6 +12,7 @@
 
 ### 已自动化
 
+- [x] 工作台壳外井次密：HomeLayout shell/body ≤12×16；GroupLayout content/body ≤12×16；列表空态 ≤12；截图 `workspace-shell-dense.png` / `group-shell-dense.png` ✅`layout-outlet.spec.ts`
 - [x] 模型树「表/关系」默认展开：不点 switcher 即见三层 + `tree-open-relation` ✅`model-design-ux.spec.ts`
 - [x] 树虚拟滚动：`.ant-tree-list-holder` 承载（100+ 表不卡）✅`model-design-ux.spec.ts`
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`

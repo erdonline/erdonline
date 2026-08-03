@@ -228,8 +228,10 @@
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
 - ✅ 竞品对照子页 `/compare`：诚实差异化（协作/版本/开放/自部署）；落地保留摘要表；禁夸大、禁复刻 dbdiagram 叙事
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
+- ✅ 工作台壳外井次密：HomeLayout shell 12×16×10 / body 12×16 / footer 10×6；GroupLayout content·body 12×16；列表空态 12×8；禁 shell 24 + body 20 叠页内 8×12 双松井；Skip/顶栏 64 不弱化
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
+- ❌ 工作台壳 shell 24×24 + body 20×24 / Group 24+20，叠页内 8×12 成双松井（历史问题）
 - ❌ 欢迎空态标题 mt20 / 22 字 + hero 220 + 松内井，盖首屏扫读（历史问题）
 - ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）

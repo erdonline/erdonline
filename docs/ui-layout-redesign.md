@@ -25,10 +25,10 @@
 
 ## 密度规范（全站统一）
 
-- 4pt 网格；页面左右 padding 24，区块间距 16/24；卡片内边距 16/20
+- 4pt 网格；**工作台壳外井** Home/Group：shell/content 12×16、body 12×16（页内另 8×12）；禁外井 24/20 叠页内双松井；卡片内边距随各 `.` densify 类
 - 表格：`size="middle"`，行高由 antd token 控制，禁止自定义行高魔法数
 - 表单：`layout="vertical"`（设置类）或弹窗内 `labelCol 6`；标签 13px，必填星号 brand 色
-- 列表行高 56（项目列表）/ 48（数据源表格）；树行高 32
+- 列表行高随 `.project-list-page` / 数据源表 densify（~行 pad 4×8）；树行高 22
 - 字阶沿用 tokens 简报：12/13/14/16/20/28/40，统计数字一律 ink-900、无彩虹色
 
 ## 导航模式
@@ -200,7 +200,8 @@
 - ✅ **画布字段 meta 落盘失败可重试**（2026-08-03）：类型/PK/NN/AI/隐藏/浏览 PK `persist:true`；失败草稿回滚或行仍在；`canvas-field-meta-failure` 绿；下一刀 → ~~表设计 JExcel 字段 meta 假成功~~✅
 - ✅ **表设计 JExcel 字段 meta 落盘失败可重试**（2026-08-03）：`TableInfoEdit` `persist:true`；失败重挂网格回滚；`jexcel-field-meta-failure` 绿；下一刀 → ~~表设计索引签假成功~~✅
 - ✅ **表设计索引签落盘失败可重试**（2026-08-03）：`updateEntityIndex`/`TableIndexEdit` `persist:true`；失败空态/重挂回滚；`jexcel-index-failure` 绿；下一刀 → ~~默认字段假成功~~✅
-- ✅ **默认字段落盘失败可重试**（2026-08-03）：`updateDefaultFields`/`DefaultField` `persist:true`；失败重挂回滚；清死代码 `moveField`；`default-field-failure` 绿；下一刀 → densify chrome ROI
+- ✅ **默认字段落盘失败可重试**（2026-08-03）：`updateDefaultFields`/`DefaultField` `persist:true`；失败重挂回滚；清死代码 `moveField`；`default-field-failure` 绿；下一刀 → ~~工作台壳外井 densify~~✅
+- ✅ **工作台壳（Home/Group）外井次密**（2026-08-03）：shell/content 12×16、body 12×16、列表空态 12×8；禁 24/20 双松井；`layout-outlet` densify 绿；下一刀 → 账号 BaseView gap / 顶栏 actions gap（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

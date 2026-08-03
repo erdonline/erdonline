@@ -101,15 +101,16 @@
   border-inline-end: none !important;
 }
 
+/* ADR-0016：团队壳次密 — 与 HomeLayout 外井同阶；禁 24/20 松井 */
 .group-layout__content {
   min-height: calc(100vh - var(--erd-chrome-header-h));
-  padding: 24px;
+  padding: 12px 16px;
   overflow: auto;
 }
 
 .group-layout__body {
   min-height: calc(100% - 8px);
-  padding: 20px 24px;
+  padding: 12px 16px;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);

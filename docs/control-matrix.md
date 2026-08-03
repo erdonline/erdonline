@@ -49,6 +49,7 @@
 | HomeLayout `/home` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#home-main-content`；继续建模→新建→示例→二级入口→项目卡；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `home-keyboard`「Home 键盘」 |
 | `/home` hero CTA | 次密距 | actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候字 ≥28 | ADR-0016 密度 | ✅ | `home-keyboard` densify |
 | `/home` 空态/公告 | 次密距 | 空态 pad ≤24×12；二级入口 mb ≤16；项目区 mb ≤20；公告 pt ≤4 / 行 pad ≤4·gap ≤10 / 标题 ≤13；CTA 保留 | ADR-0016 密度 | ✅ | `home-keyboard` empty/announce densify |
+| HomeLayout / GroupLayout 外井 | 次密距 | shell/content pad ≤12×16；body ≤12×16；列表空态 ≤12×8；禁 24/20；Skip/顶栏不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` shell densify |
 | DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
 | 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |

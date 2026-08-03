@@ -119,15 +119,16 @@
   overflow: auto;
 }
 
+/* ADR-0016：工作台壳次密 — 外井贴次屏/页内 8×12；禁 24/20 双松井叠页内 pad */
 .home-layout__shell {
   max-width: var(--erd-chrome-content-max);
   margin: 0 auto;
-  padding: 24px 24px 16px;
+  padding: 12px 16px 10px;
 }
 
 .home-layout__body {
   min-height: 0;
-  padding: 20px 24px;
+  padding: 12px 16px;
   background: var(--erd-surface);
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
@@ -135,7 +136,7 @@
 
 .home-layout__footer {
   text-align: center;
-  padding: 16px 0 8px;
+  padding: 10px 0 6px;
   color: var(--erd-ink-400);
   font-size: 12px;
 }
