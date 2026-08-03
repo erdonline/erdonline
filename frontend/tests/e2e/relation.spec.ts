@@ -2189,6 +2189,63 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('左树点表：定位选中并高亮', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('treeloc');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'tloc', 'tree locate table');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.getByTestId('canvas-create-table').click();
+      await expect(page.locator('.erd-table-node')).toHaveCount(2);
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible();
+      await expect(page.getByRole('tree').getByText('T_TABLE_2', { exact: true })).toBeVisible();
+
+      await page.evaluate(() => {
+        (window as Window & { __ERD_E2E__?: { setViewport: (vp: { x: number; y: number; zoom: number }) => void } })
+          .__ERD_E2E__?.setViewport({ x: -2400, y: -1800, zoom: 0.6 });
+      });
+      await expect
+        .poll(async () => {
+          const box = await rfNode(page, 'T_TABLE_2').boundingBox();
+          if (!box) return false;
+          const vw = page.viewportSize();
+          if (!vw) return false;
+          return (
+            box.x + box.width < 0 ||
+            box.y + box.height < 0 ||
+            box.x > vw.width ||
+            box.y > vw.height
+          );
+        })
+        .toBe(true);
+
+      await page.getByRole('tree').getByText('T_TABLE_2', { exact: true }).click();
+
+      const target = rfNode(page, 'T_TABLE_2');
+      await expect(target).toBeVisible({ timeout: 5_000 });
+      await expect(target.locator('.erd-table-node')).toHaveClass(/selected/);
+      await expect(target.locator('.erd-table-node')).toHaveAttribute('data-locate-flash', '1');
+      await expect(page.getByTestId('table-design')).toHaveCount(0);
+      await expect
+        .poll(async () => {
+          const box = await target.boundingBox();
+          if (!box) return false;
+          const vw = page.viewportSize();
+          if (!vw) return false;
+          const cx = box.x + box.width / 2;
+          const cy = box.y + box.height / 2;
+          return cx >= 0 && cy >= 0 && cx <= vw.width && cy <= vw.height;
+        })
+        .toBe(true);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('实体新建弹层密度：与 22 chrome 同阶', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('emodal');

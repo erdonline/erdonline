@@ -20,6 +20,7 @@ import ReactFlow, {
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import useProjectStore from '@/store/project/useProjectStore';
+import useGlobalStore from '@/store/global/globalStore';
 import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { history } from 'umi';
 import { erdColors } from '@/theme/tokens';
@@ -1173,6 +1174,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const projectDispatch = useProjectStore(state => state.dispatch);
   const publishCursor = useProjectStore(state => state.publishCursor);
   const tabDispatch = useTabStore(state => state.dispatch);
+  const pendingLocateTable = useGlobalStore((s) => s.pendingLocateTable);
+  const globalDispatch = useGlobalStore((s) => s.dispatch);
   const [nodes, setNodes] = useNodesState([]);
   /** 边选中态（本地）；边列表本身始终从 associations 派生，避免 RF 因 handle 失效清空本地 edges */
   const [edgeSelected, setEdgeSelected] = useState<Record<string, boolean>>({});
@@ -1950,7 +1953,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     });
   }, [edges, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
-  /** 命令面板搜表 → 选中 + 视口对准 + 短暂脉冲高亮 */
+  /** 命令面板 / 左树点表 → 选中 + 视口对准 + 短暂脉冲高亮 */
   const focusTable = useCallback(
     (tableId: string) => {
       setNodes((prev) =>
@@ -2001,6 +2004,22 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     },
     [setNodes],
   );
+
+  // 左树点表：pendingLocate → 节点就绪后复用 focusTable
+  useEffect(() => {
+    if (!pendingLocateTable || pendingLocateTable.module !== moduleName) {
+      return;
+    }
+    const ready = nodes.some(
+      (n) => n.type === 'table' && n.id === pendingLocateTable.tableId,
+    );
+    if (!ready) {
+      return;
+    }
+    const tableId = pendingLocateTable.tableId;
+    globalDispatch.clearPendingLocateTable();
+    focusTable(tableId);
+  }, [pendingLocateTable, moduleName, nodes, focusTable, globalDispatch]);
 
   // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K / Cmd/Ctrl+F 命令面板（输入框内不拦截）
   useEffect(() => {

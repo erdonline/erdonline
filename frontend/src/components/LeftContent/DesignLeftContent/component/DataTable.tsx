@@ -11,7 +11,11 @@ import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
-import { DEFAULT_DIAGRAM_ID, relationTabEntity } from '@/utils/diagram';
+import {
+  DEFAULT_DIAGRAM_ID,
+  parseDiagramIdFromTabEntity,
+  relationTabEntity,
+} from '@/utils/diagram';
 
 const iconStyle = (color: string) => ({ color, fontSize: 12 });
 
@@ -68,9 +72,21 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     if (node.type === "module") {
       projectDispatch.setCurrentModule(node.module)
     } else if (node.type === "entity") {
-      // 当选中实体(表)时,打开编辑字段页面
-      tabDispatch.addTab({ group: TabGroup.MODEL, module: node.module, entity: node.title });
-      activeEntity(node.module, node)
+      // 点表 → 切到该模块关系图并定位高亮（表设计走菜单「编辑表」）
+      activeEntity(node.module, node);
+      const relationTab = useTabStore
+        .getState()
+        .tableTabs.find(
+          (t) => t.module === node.module && (t.entity || '').startsWith('关系图'),
+        );
+      const diagramId = relationTab
+        ? parseDiagramIdFromTabEntity(node.module, relationTab.entity)
+        : DEFAULT_DIAGRAM_ID;
+      tabDispatch.switchRelationDiagram(
+        node.module,
+        relationTabEntity(node.module, diagramId),
+      );
+      globalDispatch.requestLocateTable(node.module, node.title);
     } else if (node.type === "relation") {
       // 同模块关系图就地切签（ADR-0017），避免堆多个 canvas
       tabDispatch.switchRelationDiagram(

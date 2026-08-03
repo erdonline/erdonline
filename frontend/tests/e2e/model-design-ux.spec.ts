@@ -90,8 +90,9 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
-      // 建表直开关系图后，点树中表节点开表设计签
-      await page.getByRole('tree').getByText('T_ORDER', { exact: true }).click();
+      // 建表直开关系图后，菜单「编辑表」开表设计签（点树表节点改为画布定位）
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
       const designer = page.getByTestId('table-design');
       await expect(designer).toBeVisible({ timeout: 10_000 });
       await expect(designer.locator('.erd-table-design__title')).toHaveText('T_ORDER');

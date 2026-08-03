@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：左树点表定位/高亮（建模回路）
+
+- 选题：左树点表直开表设计，密图找表仍绕命令面板；期望与面板同语言「选中 + fitView + flash」
+- 点树表节点 → 切该模块关系图签 + `pendingLocateTable` → 复用画布 `focusTable`；表设计改走菜单「编辑表」
+- E2E：`relation`「左树点表：定位选中并高亮」；`model-design-ux` 表设计入口改菜单
+- `docs/design-principles.md` §2/§4；roadmap ✅ 本刀，下一刀 → 表设计签 / 字段行键盘建模摩擦（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "左树点表" --workers=1 --retries=0`
+
 #### 体验：命令面板搜表定位/高亮（建模回路）
 
 - 选题：Cmd/Ctrl+K 只能筛静态命令；密图画布找不到表，设计原则里「Cmd+F 搜索表」名存实亡
 - 命令面板注入当前图全部表项（hint「定位到画布」/中文名）；执行 → 选中 + `fitView` 对准 + `locate-flash` 脉冲（`data-locate-flash`）
 - `Cmd/Ctrl+F` 同开面板；空态文案「无匹配命令或表」；placeholder 含表名
 - E2E：`relation`「命令面板：搜表定位选中并高亮」（视口挪开→搜表→选中+闪光+回视口）；既有「命令面板」空态文案同步
-- `docs/design-principles.md` §2/§4；roadmap ✅ 本刀，下一刀 → 建模回路其它摩擦（优先于碎色·密度）
+- `docs/design-principles.md` §2/§4；roadmap ✅ 本刀，下一刀 → 左树点表定位/高亮（优先于碎色·密度）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
