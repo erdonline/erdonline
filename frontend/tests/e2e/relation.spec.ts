@@ -1565,6 +1565,63 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('画布字段浏览器 Tab 环：选中表穿字段无 trap', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('ftbrowse');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'ftbrowse', 'field browser tab ring');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.getByTestId('canvas-create-table').click();
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_1', 'NAME');
+      await addFieldInline(page, 'T_TABLE_1', 'AGE');
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      const t1 = rfNode(page, 'T_TABLE_1');
+      const t2 = rfNode(page, 'T_TABLE_2');
+      // 点字段行选中表（勿点表头：已选中时会进改名）
+      await t1.locator('[data-field="NAME"]').click();
+      await expect(t1).toHaveClass(/selected/);
+      await expect(t1.getByLabel('字段 NAME')).toHaveAttribute('tabindex', '0');
+      await expect(t2.locator('[data-field]').first()).toHaveAttribute('tabindex', '-1');
+      await expect(t2.getByTestId('canvas-add-field')).toHaveAttribute('tabindex', '-1');
+      await expect(t2.getByTestId('canvas-open-field')).toHaveAttribute('tabindex', '-1');
+
+      // Tab：字段→字段（跳过 PK/✎/×）；Shift+Tab 回退；再出环到添加字段（无 trap）
+      await t1.getByLabel('字段 NAME').focus();
+      await expect(t1.getByLabel('字段 NAME')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(t1.getByLabel('字段 AGE')).toBeFocused();
+      await page.keyboard.press('Shift+Tab');
+      await expect(t1.getByLabel('字段 NAME')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(t1.getByLabel('字段 AGE')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(t1.getByTestId('canvas-add-field')).toBeFocused();
+
+      // 出环：再 Tab 到表设计入口后应能离开节点
+      await page.keyboard.press('Tab');
+      await expect(t1.getByTestId('canvas-open-field')).toBeFocused();
+      await page.keyboard.press('Tab'); // 索引
+      await page.keyboard.press('Tab'); // 元数据
+      await page.keyboard.press('Tab');
+      const leftNode = await page.evaluate(() => {
+        const ae = document.activeElement as HTMLElement | null;
+        if (!ae) return true;
+        return !ae.closest('.react-flow__node.selected');
+      });
+      expect(leftNode).toBe(true);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('表设计字段签：半成品行不静默丢字段；Esc 停在网格', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('jxhalf');
@@ -2542,7 +2599,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help.getByText('命令面板（搜表定位、建表、布局）')).toBeVisible();
       await expect(help.getByText('表设计：字段 / 索引 / 元数据应用')).toBeVisible();
       await expect(help.getByText(/二次确认/)).toBeVisible();
-      await expect(help.getByText(/下一 \/ 上一列或行/)).toBeVisible();
+      await expect(help.getByText(/字段环|下一\/上一列或行|下一 \/ 上一列或行/)).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+K' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+1' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: 'Tab' })).toBeVisible();

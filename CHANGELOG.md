@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布字段浏览器 Tab 环（键盘建模）
+
+- 选题：所有表字段 + 行内 PK/✎/× 全进 Tab 序 → 密图画布 trap；未选中表仍可 Tab 入
+- `TableNode`：仅选中表字段行/`添加字段`/打开表设计/`改名` `tabIndex=0`；未选中 `-1`；行内 PK·✎·× `-1`（Enter 编辑、Delete 删）；字段行↑↓、`:focus-visible` brand 环；`?` 速查同步
+- E2E：`relation`「画布字段浏览器 Tab 环：选中表穿字段无 trap」；速查卡文案断言同步
+- `docs/design-principles.md` §2；下一刀 → 画布工具栏 / MiniMap / Controls Tab 序收口（或左树键盘漫游）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "字段浏览器 Tab 环" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "快捷键速查" --workers=1 --retries=0`
+
 #### 体验：表设计 Cmd/Ctrl+1/2/3 签页直切（键盘建模）
 
 - 选题：表设计三签（字段 / 索引 / 元数据应用）只能鼠标点；Cmd+K 体系缺签页直切
 - `TableTab`：`Cmd/Ctrl+1|2|3` → `field|index|code`；仅表设计签挂载时监听（画布不抢浏览器签页）；输入框 / contentEditable 不拦；`?` 速查卡登记
 - E2E：`relation`「表设计 Cmd/Ctrl+1/2/3：直切字段/索引/元数据应用」；速查卡断言同步
-- `docs/design-principles.md` §2；下一刀 → 画布节点/字段浏览器 Tab 环
+- `docs/design-principles.md` §2；下一刀 → ~~画布节点/字段浏览器 Tab 环~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表设计 Cmd/Ctrl\\+1/2/3" --workers=1 --retries=0`

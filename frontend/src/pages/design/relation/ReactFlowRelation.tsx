@@ -806,6 +806,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               data-testid="table-rename-btn"
               aria-label="修改表名"
               title="修改表名与中文名"
+              tabIndex={selected ? 0 : -1}
               onClick={e => {
                 e.stopPropagation();
                 setHeaderEditing(true);
@@ -829,7 +830,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 fkSet.has(f.name) ? 'erd-field-fk' : '',
                 selectedField === f.name ? 'erd-field-selected' : '',
               ].filter(Boolean).join(' ')}
-              tabIndex={0}
+              // 字段浏览器 Tab 环：仅选中表进序；行内 PK/✎/× 用 tabIndex=-1，避免每行 4 停 trap
+              tabIndex={selected ? 0 : -1}
               aria-label={`字段 ${f.name}`}
               aria-current={selectedField === f.name ? 'true' : undefined}
               onClick={e => {
@@ -843,13 +845,31 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               onKeyDown={e => {
                 // 拦 RF deleteKeyCode；子控件（PK/✎/×）聚焦时不误删
                 e.stopPropagation();
-                if (e.key !== 'Delete' && e.key !== 'Backspace') return;
                 const t = e.target as HTMLElement;
-                if (t.closest('button, input, select, textarea')) return;
+                if (t !== e.currentTarget && t.closest('button, input, select, textarea')) return;
+                if (e.key === 'Enter') {
+                  e.preventDefault();
+                  startEditField(f);
+                  return;
+                }
+                if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+                  e.preventDefault();
+                  const idx = fields.findIndex(x => x.name === f.name);
+                  const next = e.key === 'ArrowDown' ? fields[idx + 1] : fields[idx - 1];
+                  if (!next) return;
+                  setSelectedField(next.name);
+                  const root = e.currentTarget.parentElement;
+                  const el = root?.querySelector(
+                    `[data-field="${next.name.replace(/\\/g, '\\\\').replace(/"/g, '\\"')}"]`,
+                  ) as HTMLElement | null;
+                  el?.focus();
+                  return;
+                }
+                if (e.key !== 'Delete' && e.key !== 'Backspace') return;
                 e.preventDefault();
                 confirmRemoveField(f.name);
               }}
-              title="单击选中后 Delete/Backspace 删除；双击或点 ✎ 编辑"
+              title="单击选中后 Delete/Backspace 删除；Enter/双击/✎ 编辑；Tab 下一字段"
               data-field={f.name}
             >
               {/* 双侧 src/tgt：左靶在上（易落点）、右源在上（易拖出）；几何择柄消竖叠 circle-route */}
@@ -861,6 +881,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                   className={`erd-pk-badge nodrag${f.pk ? ' active' : ' inactive'}`}
                   aria-label={f.pk ? '取消主键' : '设为主键'}
                   title={f.pk ? '取消主键' : '设为主键'}
+                  tabIndex={-1}
                   onClick={e => {
                     e.stopPropagation();
                     togglePk(f.name);
@@ -898,6 +919,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 data-testid="field-edit-btn"
                 aria-label="编辑字段"
                 title="编辑字段"
+                tabIndex={-1}
                 onClick={e => {
                   e.stopPropagation();
                   startEditField(f);
@@ -910,6 +932,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 className="erd-field-delete nodrag"
                 aria-label="删除字段"
                 title="删除字段"
+                tabIndex={-1}
                 onClick={e => {
                   e.stopPropagation();
                   confirmRemoveField(f.name);
@@ -924,11 +947,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         )}
         {editing?.key === '__NEW__' && editRow('__NEW__')}
         {editing === null && (
-          <div
+          <button
+            type="button"
             className="erd-field-add nodrag"
             data-testid="canvas-add-field"
-            role="button"
             aria-label="添加字段"
+            tabIndex={selected ? 0 : -1}
             onClick={() => {
               setSelectedField(null);
               setEditing({
@@ -938,7 +962,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             }}
           >
             + 添加字段
-          </div>
+          </button>
         )}
         {hiddenFields.length > 0 && (
           <div className="erd-field-hidden-bar nodrag">
@@ -948,6 +972,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               data-testid="field-hidden-toggle"
               aria-expanded={showHiddenFields}
               aria-label={`已隐藏 ${hiddenFields.length} 个字段`}
+              tabIndex={selected ? 0 : -1}
               onClick={e => {
                 e.stopPropagation();
                 setShowHiddenFields(v => !v);
@@ -966,6 +991,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                   type="button"
                   className="erd-field-unhide"
                   aria-label={`在关系图中显示 ${f.name}`}
+                  tabIndex={selected ? 0 : -1}
                   onClick={e => {
                     e.stopPropagation();
                     unhideOnCanvas(f.name);
@@ -984,6 +1010,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-open-field"
             aria-label="打开字段"
             title="打开表设计 · 字段"
+            tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
               const projectDispatch = useProjectStore.getState().dispatch;
@@ -1005,6 +1032,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-open-index"
             aria-label="打开索引"
             title="打开表设计 · 索引"
+            tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
               const projectDispatch = useProjectStore.getState().dispatch;
@@ -1026,6 +1054,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             data-testid="canvas-open-code"
             aria-label="打开元数据应用"
             title="打开表设计 · 元数据应用"
+            tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
               const projectDispatch = useProjectStore.getState().dispatch;

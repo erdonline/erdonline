@@ -355,8 +355,8 @@
       }
 
       &:focus-visible {
-        outline: 1px solid color-mix(in srgb, var(--erd-brand) 40%, transparent);
-        outline-offset: -1px;
+        outline: 2px solid var(--erd-brand);
+        outline-offset: -2px;
       }
 
       &.erd-field-pk {
@@ -696,13 +696,18 @@
     }
 
     .erd-field-add {
+      display: block;
+      width: calc(100% - 16px);
       margin: 2px 8px 4px;
       padding: 2px 0;
       text-align: center;
       color: var(--erd-ink-400);
       font-size: 11px;
+      font-family: inherit;
+      line-height: inherit;
       border: 1px dashed var(--erd-line);
       border-radius: var(--erd-radius-sm);
+      background: transparent;
       cursor: pointer;
       transition: color 0.15s, border-color 0.15s, background 0.15s;
 
@@ -710,6 +715,11 @@
         color: var(--erd-brand);
         border-color: var(--erd-brand);
         background: color-mix(in srgb, var(--erd-brand) 4%, transparent);
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--erd-brand);
+        outline-offset: 1px;
       }
     }
 
