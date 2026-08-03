@@ -1,0 +1,42 @@
+/* ADR-0016：用户组页头/左角色签碎距 — 标题 13/22 + mb8；左 Tabs padX12·高28·字12；禁 Title level4 + Space large + br + padX24 */
+.group-setting-page {
+  font-family: var(--erd-font-ui);
+}
+
+.group-setting-page__title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.group-setting-page__role-tabs.ant-tabs-left {
+  > .ant-tabs-nav {
+    min-width: 112px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-tab {
+    padding: 4px 12px !important;
+    margin: 0 0 2px 0 !important;
+    min-height: 28px;
+    line-height: 20px;
+    font-size: 12px;
+    border-radius: 4px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-tab-btn {
+    font-size: 12px;
+    line-height: 20px;
+  }
+
+  > .ant-tabs-nav .ant-tabs-tab:focus-visible,
+  > .ant-tabs-nav .ant-tabs-tab.ant-tabs-tab-focus {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -2px;
+  }
+
+  > .ant-tabs-content-holder {
+    padding-left: 12px;
+  }
+}

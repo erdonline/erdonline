@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：Group 用户组 Title/左角色签碎距
+
+- 选题：团队成员工具条已 28；`GroupSetting` 仍 `Title level={4}` + `Space large` + `<br>` + 左 Tabs padX24·高38，相对项目列表 13/22·28 / 8–12 族偏松
+- before：标题 20/28（mt≈27·mb10）、Space large gap24 + br、左签 padX24·高38·字14；after：标题 13/22·mb8、去掉 Space/br、左签 padX12·高28·字12；`testid=group-setting-page` / `group-setting-role-tabs`；键盘不弱化
+- E2E：`group-layout-nav` 页头/左签 densify + 截图 `group-setting-page-dense.png`；`group-keyboard` / `add-user-keyboard` 回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 基本设置 Title level4（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "权限组：角色与用户组成员" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/add-user-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：团队成员工具条碎距
 
 - 选题：项目列表工具条已 28；`GroupUser` 仍 `marginBottom:16` + Search 默认 32，相对 8–12 / 22–28 族偏松
 - before：工具条 mb16、Search affix 32、工具条高 ~34、钮 padX ~15（antd 默认）、Space 默认 small；after：mb8、Search/钮/工具条 28、Space `size={8}` + CSS gap 8、钮 padX 8；`data-testid=group-user-toolbar`；命中/键盘不弱化
 - E2E：`group-layout-nav` 工具条 densify + 截图 `group-user-toolbar-dense.png`；`group-keyboard` / `add-user-keyboard` 回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 用户组 Title/页签碎距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Group 用户组 Title/页签碎距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "权限组：角色与用户组成员" --workers=1 --retries=0`
