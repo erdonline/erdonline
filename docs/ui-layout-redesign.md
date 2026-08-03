@@ -151,6 +151,7 @@
 - ✅ **EntityModal 弹层键盘**（2026-08-03）：空态「新增模型」首焦「名称」；Esc 归还触发器；Tab trap；`entity-modal-keyboard.spec` 绿
 - ✅ **画布删表确认弹层键盘**（2026-08-03）：选中表 Delete 首焦「删除」；Esc 归还不删；Tab trap；`canvas-delete-table-keyboard.spec` 绿
 - ✅ **画布删边/删分组确认弹层键盘**（2026-08-03）：选中边/分组 Delete 首焦「删除」；Esc 归还不删；Tab trap；`canvas-delete-edge-frame-keyboard.spec` 绿
+- ✅ **画布删字段确认弹层键盘**（2026-08-03）：字段浏览器 × 首焦「删除」；Esc 归还不删；Tab trap；`canvas-delete-field-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

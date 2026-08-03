@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布删字段确认弹层键盘闭环（Modal.confirm）
+
+- 选题：字段浏览器 × / 浏览态 Delete·Backspace 共用的 `confirmRemoveField` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `removeField` 逻辑不变
+- E2E：`canvas-delete-field-keyboard`（空态建表 → 加字段 → ×「删除字段」→ 首焦、Esc 归还不删、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 表设计删索引确认 Modal 键盘（`TableIndexEdit`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-delete-field-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布删边/删分组确认弹层键盘闭环（Modal.confirm）
 
 - 选题：删边（`onEdgesDelete` + 基数 chip）/ 删分组 Frame 的 `Modal.confirm` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：三处确认均显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `removeAssociation`/`removeFrame` 逻辑不变
 - E2E：`canvas-delete-edge-frame-keyboard`（连线/建分组 → 焦点触发器 → Delete → 首焦、Esc 归还不删、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 画布删字段确认 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~画布删字段确认 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-delete-edge-frame-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
