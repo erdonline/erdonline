@@ -58,6 +58,7 @@
 | 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
 | 团队成员工具条 | 碎密度 | mb≤8；Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；钮 padX∈[8,12]；禁 Search 默认 32 / mb16 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 用户组页头/左角色签 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→签 ≤12；左签 padX∈[8,12]·高∈[28,32]·字≤13；禁 Title level4 / Space large / padX24 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
+| Group 基本设置页头 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→表单 ≤12；禁 Title level4 | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
 | DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
 | 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |

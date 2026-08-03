@@ -6,8 +6,9 @@ import _ from 'lodash';
 import RemoveGroupProject from '@/pages/project/group/component/RemoveGroupProject';
 import {updateGroupProject} from '@/services/group-project';
 import {Access, useAccess} from '@@/plugin-access';
+import './basic-setting.scss';
 
-const {Title, Text} = Typography;
+const {Text} = Typography;
 
 export type BasicSettingProps = {};
 
@@ -82,8 +83,8 @@ const BasicSetting: React.FC<BasicSettingProps> = () => {
   };
 
   return (
-    <>
-      <Title level={4}>基本设置</Title>
+    <div className="basic-setting-page" data-testid="basic-setting-page">
+      <h2 className="basic-setting-page__title">基本设置</h2>
       <Form
         form={form}
         layout="vertical"
@@ -165,12 +166,12 @@ const BasicSetting: React.FC<BasicSettingProps> = () => {
       <Divider />
       <Access accessible={access.canErdProjectGroupDel} fallback={<></>}>
         <Space direction="vertical">
-          <Title level={4}>删除项目</Title>
+          <h2 className="basic-setting-page__title">删除项目</h2>
           <Text type="secondary">删除项目全部模型，此操作无法恢复</Text>
           <RemoveGroupProject projectId={projectId} />
         </Space>
       </Access>
-    </>
+    </div>
   );
 };
 

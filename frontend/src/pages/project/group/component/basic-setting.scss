@@ -1,0 +1,12 @@
+/* ADR-0016：Group 基本设置页头碎距 — 标题 13/22 + mt0·mb8；禁 Title level4 */
+.basic-setting-page {
+  font-family: var(--erd-font-ui);
+}
+
+.basic-setting-page__title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
