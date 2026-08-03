@@ -16,6 +16,7 @@ import com.erdonline.common.data.dynamic.datasource.SqlHelperAutoDbType;
 import com.erdonline.common.data.dynamic.datasource.SqlHelperDsContextHolder;
 import com.erdonline.common.data.dynamic.datasource.SupportedConnectionSubspaceChange;
 import com.erdonline.common.data.dynamic.spring.SpringSqlHelperDsManager;
+import com.erdonline.erd.security.JdbcUrlGuard;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.datasource.pooled.PooledDataSource;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -62,7 +63,7 @@ public class DynamicAspect {
                 LinkedHashMap dataBaseInfo = (LinkedHashMap) result.getData();
                 log.info("dataBaseInfo: {}", dataBaseInfo);
                 driverClassName = (String) dataBaseInfo.get("driverClassName");
-                url = (String) dataBaseInfo.get("url");
+                url = JdbcUrlGuard.assertAllowedAndPin((String) dataBaseInfo.get("url"));
                 username = (String) dataBaseInfo.get("username");
                 password = (String) dataBaseInfo.get("password");
             }else {

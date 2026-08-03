@@ -27,7 +27,7 @@
 |---|---|
 | `queryInfo/exec`、`queryInfo/explain` | `SqlGuard.assertReadOnly`：单语句 SELECT / EXPLAIN / SHOW / DESC（jsqlparser + 词首回退）；禁多语句、GRANT/OUTFILE 等 |
 | `connector/sqlexec`、`dbsync` | **mutate**：允许同步所需 DDL/DML；`SqlGuard.assertMutateAllowed` 拒 GRANT/REVOKE/CREATE USER/INTO OUTFILE/LOAD DATA LOCAL 等；**强制** `dataSourceId`（`applyMutate`，拒 raw JDBC+账密） |
-| `connector/ping|dbReverse*|…` | `JdbcUrlGuard`：仅 `jdbc:mysql\|mariadb\|postgresql\|oracle:(thin\|oci)\|sqlserver`；禁链路本地 / 云 IMDS（字面量 + **DNS 解析后任意 A/AAAA** 命中 `169.254.0.0/16`、`168.63.129.16`、`100.100.100.200`、`fe80::/10`、`fd00:ec2::254`、元数据主机名）；**不**禁 RFC1918/localhost（PaaS 私网库如 Railway `MYSQLHOST`）；`dataSourceId` 优先（`ConnectorCredentialResolver.apply` → ACL 后覆盖客户端 JDBC 字段） |
+| `connector/ping|dbReverse*|…` | `JdbcUrlGuard`：仅 `jdbc:mysql\|mariadb\|postgresql\|oracle:(thin\|oci)\|sqlserver`；禁链路本地 / 云 IMDS（字面量 + **DNS 解析后任意 A/AAAA** 命中 `169.254.0.0/16`、`168.63.129.16`、`100.100.100.200`、`fe80::/10`、`fd00:ec2::254`、元数据主机名）；连接前 **`assertAllowedAndPin`** 把主机名改写为已放行 IP（关 check→connect TOCTOU）；**不**禁 RFC1918/localhost（PaaS 私网库如 Railway `MYSQLHOST`）；`dataSourceId` 优先（`ConnectorCredentialResolver.apply` → ACL 后覆盖客户端 JDBC 字段） |
 
 FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 `dataSourceId`，客户端不附带 url/username/password（`preferDataSourceIdPayload`）。无 id 的 raw JDBC **仅**留给 ping / dbReverse*（试连与新建未保存 UX）；sqlexec/dbsync 后端硬拒。
 
@@ -80,7 +80,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-DATA-01 | P0 | ~~`queryInfo/exec`：`${sql}` 无语句白名单~~ | ~~`QueryInfoMapper.xml`；`QueryInfoServiceImpl`~~ | **✅ 已关闭（2026-08-03）**：`SqlGuard.assertReadOnly` 仅 SELECT/EXPLAIN/SHOW/DESC；禁多语句 | 保持只读白名单；`${sql}` 仍为动态执行面，勿扩 DML |
-| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 关闭（2026-08-03）**：`JdbcUrlGuard`（协议 + 链路本地/云 IMDS 字面量 + **主机名 resolve 后再判**）；mutate 拒 GRANT/OUTFILE；**`dataSourceId`→ACL**；**sqlexec/dbsync 强制 id**（ping/reverse 仍可 raw） | 保持；TOCTOU（校验后 DNS 再变）未钉 IP，属残余 |
+| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 关闭（2026-08-03）**：`JdbcUrlGuard`（协议 + IMDS/链路本地字面量 + resolve 后再判 + **pin 解析 IP 再 connect**）；mutate 拒 GRANT/OUTFILE；**`dataSourceId`→ACL**；**sqlexec/dbsync 强制 id**（ping/reverse 仍可 raw） | 保持；残余：raw ping/reverse 仍可带 JDBC；TLS `VERIFY_IDENTITY` 钉 IP 后靠证书 IP SAN（私网库通常关 SSL） |
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | ~~`POST /project/upload` 无类型/归属校验~~ | ~~`ProjectController` / `GroupProjectController` / `WsController` 测试上传；`doc/uploadWordTemplate`~~ | **✅ 已关闭（2026-08-03）**：删除三处无归属测试上传；`WordTemplateGuard` 仅 `.docx` + 键前缀 `martin/projecterd/{projectId}/`；上传/下载/gendocx 经 `ProjectAcl` | 勿回挂匿名 OSS 写；自定义模板路径勿放开任意 bucket |
 | R-DATA-05 | P2 | ~~`TestJsonController` 样板 CRUD 仍暴露~~ | ~~`TestJsonController.java` + Service/Mapper/Entity~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Impl/Mapper/Entity/`TestJsonMapper.xml`；无 ignore/FE 代理 | 勿回挂 `/testJson/**`；表 `test_json` 若残留可不删（delete-dead-code 表慎动） |
@@ -110,5 +110,5 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. （本轮 R-DATA-02 DNS resolve 已关）残余面：连接器 check→connect **TOCTOU** 重绑定（未钉解析 IP）；raw ping/reverse 仍可带 JDBC（有 Guard）。
+1. （本轮 R-DATA-02 pin-IP 已关）残余面：raw ping/reverse 仍可带 JDBC（有 Guard + pin）；TLS 主机名校验与钉 IP 的张力（见 R-DATA-02 建议列）。
 2. 贡献者路径 / Agent schema 等非安全项见 roadmap。

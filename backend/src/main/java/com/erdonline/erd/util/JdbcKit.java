@@ -33,7 +33,7 @@ public abstract class JdbcKit {
     }
 
     public static Connection getConnection(String driverClassName, String url, String username, String password) {
-        JdbcUrlGuard.assertAllowed(url);
+        String connectUrl = JdbcUrlGuard.assertAllowedAndPin(url);
         try {
             Class.forName(driverClassName);
         } catch (ClassNotFoundException var7) {
@@ -49,7 +49,7 @@ public abstract class JdbcKit {
             props.put("password", password);
             props.put("remarksReporting", "true");
             props.put("useInformationSchema", "true");
-            conn = DriverManager.getConnection(url, props);
+            conn = DriverManager.getConnection(connectUrl, props);
             return conn;
         } catch (SQLException var6) {
             log.error("", var6);

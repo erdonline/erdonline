@@ -17,6 +17,9 @@ import java.util.regex.Pattern;
  * (including PaaS private networking to customer MySQL) are the primary product use case.
  * Dialed-in deny list: link-local, known cloud IMDS endpoints — applied to literal hosts
  * <em>and</em> to DNS-resolved A/AAAA records (closes CNAME → metadata rebinding at check time).
+ *
+ * <p>Connect paths should use {@link #assertAllowedAndPin(String)} so the driver dials a
+ * validated IP literal rather than re-resolving the hostname (closes check→connect TOCTOU).
  */
 public final class JdbcUrlGuard {
 
@@ -51,6 +54,22 @@ public final class JdbcUrlGuard {
 
     /** Package-visible for DNS-injection tests. */
     static void assertAllowed(String url, HostAddressResolver resolver) {
+        assertAllowedAndPin(url, resolver);
+    }
+
+    /**
+     * Validate the JDBC URL, then rewrite a non-literal host to a DNS-resolved IP that passed
+     * the deny list. Drivers then connect without a second hostname lookup (TOCTOU pin).
+     *
+     * <p>Literal IPs and unresolvable hosts return the trimmed original URL after validation
+     * (NXDOMAIN still fails at connect time — same fail-open as {@link #assertAllowed}).
+     */
+    public static String assertAllowedAndPin(String url) {
+        return assertAllowedAndPin(url, DEFAULT_RESOLVER);
+    }
+
+    /** Package-visible for DNS-injection tests. */
+    static String assertAllowedAndPin(String url, HostAddressResolver resolver) {
         if (url == null || url.isBlank()) {
             throw new ValidateException("JDBC URL 不能为空");
         }
@@ -62,12 +81,28 @@ public final class JdbcUrlGuard {
         if (!schemeAllowed(lower)) {
             throw new ValidateException("不支持的 JDBC 协议，仅允许 mysql/mariadb/postgresql/oracle/sqlserver");
         }
+        rejectEmbeddedSchemes(lower);
+
         String host = extractHost(trimmed);
-        if (host != null && isBlockedHost(host, resolver)) {
+        if (host == null) {
+            return trimmed;
+        }
+        String normalized = normalizeHost(host);
+        if (BLOCKED_HOSTNAMES.contains(normalized)) {
             throw new ValidateException("禁止连接云元数据或链路本地地址");
         }
-        // Reject odd URI schemes smuggled after jdbc: (e.g. jdbc:mysql:ldap:...)
-        rejectEmbeddedSchemes(lower);
+        if (looksLikeLiteralIp(normalized)) {
+            if (isBlockedHost(normalized, resolver)) {
+                throw new ValidateException("禁止连接云元数据或链路本地地址");
+            }
+            return trimmed;
+        }
+
+        InetAddress pin = resolveAllowedPin(normalized, resolver);
+        if (pin == null) {
+            return trimmed;
+        }
+        return rewriteHost(trimmed, pin.getHostAddress());
     }
 
     private static boolean schemeAllowed(String lowerUrl) {
@@ -110,11 +145,7 @@ public final class JdbcUrlGuard {
         if (host == null || host.isBlank()) {
             return false;
         }
-        String h = host.trim().toLowerCase(Locale.ROOT);
-        int zone = h.indexOf('%');
-        if (zone >= 0) {
-            h = h.substring(0, zone);
-        }
+        String h = normalizeHost(host);
         if (BLOCKED_HOSTNAMES.contains(h)) {
             return true;
         }
@@ -127,6 +158,43 @@ public final class JdbcUrlGuard {
             }
         }
         return resolvesToBlockedAddress(h, resolver);
+    }
+
+    private static String normalizeHost(String host) {
+        String h = host.trim().toLowerCase(Locale.ROOT);
+        int zone = h.indexOf('%');
+        if (zone >= 0) {
+            h = h.substring(0, zone);
+        }
+        return h;
+    }
+
+    /**
+     * Resolve hostname; throw if any A/AAAA is link-local / IMDS; return first address for pin,
+     * or null when unresolvable (caller keeps original host).
+     */
+    private static InetAddress resolveAllowedPin(String host, HostAddressResolver resolver) {
+        try {
+            InetAddress[] addrs = resolver.resolve(host);
+            if (addrs == null || addrs.length == 0) {
+                return null;
+            }
+            InetAddress first = null;
+            for (InetAddress addr : addrs) {
+                if (addr == null) {
+                    continue;
+                }
+                if (isBlockedAddress(addr.getAddress())) {
+                    throw new ValidateException("禁止连接云元数据或链路本地地址");
+                }
+                if (first == null) {
+                    first = addr;
+                }
+            }
+            return first;
+        } catch (UnknownHostException e) {
+            return null;
+        }
     }
 
     /**
@@ -234,6 +302,37 @@ public final class JdbcUrlGuard {
             }
         }
         return (raw[14] & 0xff) == hi && (raw[15] & 0xff) == lo;
+    }
+
+    /**
+     * Replace the host token matched by {@link #HOST_IN_URL} with {@code newHost}.
+     * IPv6 literals are written with brackets for {@code //host} URL forms.
+     */
+    static String rewriteHost(String url, String newHost) {
+        Matcher m = HOST_IN_URL.matcher(url);
+        if (!m.find()) {
+            return url;
+        }
+        int group = -1;
+        for (int i = 1; i <= m.groupCount(); i++) {
+            if (m.group(i) != null) {
+                group = i;
+                break;
+            }
+        }
+        if (group < 0) {
+            return url;
+        }
+        boolean bracketed = group == 1 || group == 3;
+        int replaceStart = m.start(group);
+        int replaceEnd = m.end(group);
+        if (bracketed) {
+            replaceStart -= 1;
+            replaceEnd += 1;
+        }
+        boolean ipv6 = newHost.indexOf(':') >= 0;
+        String token = ipv6 ? "[" + newHost + "]" : newHost;
+        return url.substring(0, replaceStart) + token + url.substring(replaceEnd);
     }
 
     static String extractHost(String url) {

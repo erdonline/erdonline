@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import java.net.InetAddress;
 import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -131,5 +132,64 @@ class JdbcUrlGuardTest {
         assertFalse(JdbcUrlGuard.isBlockedHost("does-not-resolve.invalid", nx));
         assertDoesNotThrow(
                 () -> JdbcUrlGuard.assertAllowed("jdbc:mysql://does-not-resolve.invalid:3306/x", nx));
+    }
+
+    @Test
+    void pinRewritesHostnameToResolvedRfc1918Ip() throws Exception {
+        JdbcUrlGuard.HostAddressResolver toPrivate = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{10, (byte) 42, 0, 7})
+        };
+        String pinned = JdbcUrlGuard.assertAllowedAndPin(
+                "jdbc:mysql://mysql.railway.internal:3306/erd?useSSL=false", toPrivate);
+        assertEquals("jdbc:mysql://10.42.0.7:3306/erd?useSSL=false", pinned);
+
+        String oraclePinned = JdbcUrlGuard.assertAllowedAndPin(
+                "jdbc:oracle:thin:@db.internal:1521:ORCL", toPrivate);
+        assertEquals("jdbc:oracle:thin:@10.42.0.7:1521:ORCL", oraclePinned);
+    }
+
+    @Test
+    void pinLeavesLiteralIpUnchanged() {
+        String url = "jdbc:mysql://10.0.0.5:3306/erd";
+        assertEquals(url, JdbcUrlGuard.assertAllowedAndPin(url));
+        String v6 = "jdbc:postgresql://[2001:db8::1]:5432/db";
+        assertEquals(v6, JdbcUrlGuard.assertAllowedAndPin(v6));
+    }
+
+    @Test
+    void pinUsesFirstSafeAddressEvenIfLaterResolveWouldFlip() throws Exception {
+        // Simulate TOCTOU: first resolve (used for pin) is private; a subsequent resolve would be IMDS.
+        AtomicInteger calls = new AtomicInteger();
+        JdbcUrlGuard.HostAddressResolver flipping = host -> {
+            if (calls.getAndIncrement() == 0) {
+                return new InetAddress[]{fixedIp(host, new byte[]{10, 0, 0, 9})};
+            }
+            return new InetAddress[]{
+                    fixedIp(host, new byte[]{(byte) 169, (byte) 254, (byte) 169, (byte) 254})
+            };
+        };
+        String pinned = JdbcUrlGuard.assertAllowedAndPin("jdbc:mysql://rebinder.example:3306/x", flipping);
+        assertEquals("jdbc:mysql://10.0.0.9:3306/x", pinned);
+        assertEquals(1, calls.get(), "connect must not re-resolve; pin closes TOCTOU");
+    }
+
+    @Test
+    void pinDeniesWhenAnyResolvedAddressIsImds() throws Exception {
+        JdbcUrlGuard.HostAddressResolver multiWithMeta = host -> new InetAddress[]{
+                fixedIp(host, new byte[]{10, 0, 0, 5}),
+                fixedIp(host, new byte[]{(byte) 169, (byte) 254, 1, 1})
+        };
+        assertThrows(ValidateException.class,
+                () -> JdbcUrlGuard.assertAllowedAndPin("jdbc:mysql://evil.example:3306/x", multiWithMeta));
+    }
+
+    @Test
+    void rewriteHost_bracketsIpv6() {
+        assertEquals(
+                "jdbc:mysql://[2001:db8::2]:3306/x",
+                JdbcUrlGuard.rewriteHost("jdbc:mysql://db.example:3306/x", "2001:db8::2"));
+        assertEquals(
+                "jdbc:mysql://10.0.0.1:3306/x",
+                JdbcUrlGuard.rewriteHost("jdbc:mysql://[2001:db8::1]:3306/x", "10.0.0.1"));
     }
 }

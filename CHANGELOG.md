@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-02 残余 — JDBC 连接钉解析 IP（关 check→connect TOCTOU）
+
+- 选题：resolve-then-check 后 Driver 仍按主机名再解析，DNS 重绑定 TOCTOU 未关
+- 改动：`JdbcUrlGuard.assertAllowedAndPin` 校验后将非字面量主机改写为已放行 A/AAAA；`AbstractDBCommand` / `JdbcKit` / `DynamicAspect` 走 pin URL；**不**禁 RFC1918（Railway 私网库）
+- 文档：security-model R-DATA-02；roadmap 下一刀 → raw ping·reverse
+- 回归：`JdbcUrlGuardTest`（pin RFC1918 / 字面量不动 / flip resolver 单次 resolve / 多 A 含 meta 拒）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=JdbcUrlGuardTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
+
 #### 体验：编辑版本弹窗键盘闭环（RenameVersion）
 
 - 选题：编辑版本 Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E

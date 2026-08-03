@@ -68,8 +68,9 @@
 - ~~ignore 假路径 / 假开关（R-DEAD-01/02/03）~~✅（删 `martin.swagger`/`resource-server`；ignore 去 `/endpoint/**`；见 [security-model.md](./security-model.md)）
 - ~~OSS 默认密钥 / `.env.example` OAuth 死键（R-CFG-05/06）~~✅（嵌套 minio 空默认 + `OssCredentialGuard`；删 `OAUTH_CLIENT_*`；见 [security-model.md](./security-model.md)）
 - ~~SocketIO 9092 公网裸放说明（R-OPS-03）~~✅（deployment 防火墙约定）
-- ~~连接器 DNS 重绑定（R-DATA-02 残余：resolve 后再判 IMDS）~~✅（`JdbcUrlGuard` `getAllByName`；仍允 RFC1918；TOCTOU 未钉 IP）
-- 下一刀：连接器 check→connect TOCTOU / raw ping·reverse 面（见 security-model R-DATA-02）
+- ~~连接器 DNS 重绑定（R-DATA-02 残余：resolve 后再判 IMDS）~~✅（`JdbcUrlGuard` `getAllByName`；仍允 RFC1918）
+- ~~连接器 check→connect TOCTOU（R-DATA-02 残余：钉解析 IP）~~✅（`assertAllowedAndPin` → `AbstractDBCommand`/`JdbcKit`/`DynamicAspect`；仍允 RFC1918）
+- 下一刀：raw ping·reverse JDBC 面 / 贡献者路径（见 security-model R-DATA-02）
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
