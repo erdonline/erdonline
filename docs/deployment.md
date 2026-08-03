@@ -305,7 +305,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
 | `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true` |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
-| `ERD_UI_URL` | `https://erdonline-demo.pages.dev` | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin 同一值；可逗号多源；禁 `*` |
+| `ERD_UI_URL` | **生产 UI**：`https://app.erdonline.com`（无尾斜杠）；仅 demo 表面可用 `https://erdonline-demo.pages.dev`；多源逗号分隔 | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
@@ -313,13 +313,21 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 
 本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
 
-### 接 CF Pages
+### 接 CF Pages / 自定义域名
 
+**两边必须对着写**（UI ≠ API）：
+
+| 侧 | 变量 | 值 |
+|---|---|---|
+| Railway（后端） | `ERD_UI_URL` | 浏览器打开的前端 Origin，如 `https://app.erdonline.com`（无尾斜杠） |
+| CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | Railway **公网**根，如 `https://YOUR-APP.up.railway.app`（无尾斜杠） |
+
+勿把 `API_URL` 设成 UI 域名（如误设 `https://app.erdonline.com`）——那会让前端把 API 指回自己。
 
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
-2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = Railway 公网根 URL
-3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）
-4. 打开 https://erdonline-demo.pages.dev ，确认会请求该 API（Network）
+2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = Railway 公网根 URL（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
+3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）；自定义域 `app.erdonline.com` 绑到对应 Pages 项目后同样依赖上述 API 注入
+4. 打开正式 UI（`https://app.erdonline.com/auth/login`）或 demo（https://erdonline-demo.pages.dev），Network 确认请求打到 Railway，而非 UI 自身
 
 ### Zeabur 备选（中国区）{#zeabur-demo}
 
@@ -361,8 +369,8 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
    ```
    再导入 `db/init/02_tables.sql`；或跑 `scripts/railway-mysql-init.sh`
 3. 把平台 MySQL/Redis 的 host/port/密码注入为 `MYSQLHOST` / `MYSQLDATABASE=erd` / `REDISHOST` / `REDISPASSWORD` 等
-4. `ERD_UI_URL`（必填）= CF Pages demo 源（如 `https://erdonline-demo.pages.dev`）；禁 `*`
-5. health 绿后：GitHub Actions Variable `DEMO_API_URL=https://YOUR.zeabur.app`（无尾斜杠）→ 重跑 `frontend-demo-site.yml`
+4. `ERD_UI_URL`（必填）= 前端 Origin：生产自定义域用 `https://app.erdonline.com`；仅 demo 用 `https://erdonline-demo.pages.dev`；禁 `*`
+5. health 绿后：GitHub Actions Variable `DEMO_API_URL=https://YOUR.zeabur.app`（无尾斜杠）→ 重跑 `frontend-demo-site.yml`（前端 API ≠ UI 域名）
 
 #### 最短路径
 
@@ -514,4 +522,4 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # 产物：dist/
 | 静态 CDN / CF Pages | CI 设 `API_URL`/`ERD_API_URL`（或 `DEMO_API_URL`）后 `yarn build:prod`，配置打进 `dist/env-config.js` |
 | Docker / Nginx 同源 | 镜像内可空；容器启动 `docker-entrypoint.sh` 按环境变量重写 `env-config.js` |
 
-浏览器读 `window._env_.API_URL`（见 `frontend/src/utils/request.js`）。静态 demo **没有**同源反代时必须填可公网访问的后端 URL；留空则仅适合落地/文档类页面。
+浏览器读 `window._env_.API_URL`（见 `frontend/src/utils/request.js`）。静态站 **没有**同源反代时必须填可公网访问的**后端**根 URL（Railway/Zeabur），**不要**填 UI 域名（`app.erdonline.com` / `*.pages.dev`）；留空则仅适合落地/文档类页面。
