@@ -72,8 +72,8 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-CFG-02 | P0 | ~~种子 `admin`/`123456`~~ | ~~`security-model` 种子表；Flyway `V3`/`V6`~~ | **✅ 已关闭（2026-08-03）**：`allow-demo-admin` prod/默认=false，拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood；`ERD_ALLOW_DEMO_ADMIN=true` 逃生 | 公网改密 admin；勿开 `ERD_ALLOW_DEMO_ADMIN` |
 | R-CFG-03 | P1 | ~~应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true`~~ | ~~`application.yml` 双 DS jdbc-url~~ | **✅ 已关闭（2026-08-03）**：双 DS 经 `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL`；`dev`/默认关 SSL；`prod` 默认 `useSSL`+`requireSSL` 且关 public-key retrieval；compose 显式关 SSL 保无 TLS 本地 MySQL | 公网/Railway 勿关 SSL；私网无 TLS 逃生阀显式 `MYSQL_USE_SSL=false` |
 | R-CFG-04 | P1 | ~~CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*`~~ | ~~`CorsConfig`；`application.yml` SocketIO origin~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` prod 拒 CORS/SocketIO `*`；`application-prod.yml` `SOCKETIO_ORIGIN`←`ERD_UI_URL` 无 `*` 默认；本地/dev 保留 `*` + localhost CORS | 公网设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）+ demo `CORS_ALLOWED_ORIGINS`；勿空串覆盖 |
-| R-CFG-05 | P2 | OSS / MinIO 默认密钥进 yml | `application.yml:85-87`；prod 已强制 `OSS_*` | 本地默认弱；prod fail-fast OK | 保持 prod 强制；文档勿示例真密钥 |
-| R-CFG-06 | P2 | `.env.example` 残留 `OAUTH_CLIENT_*` | `.env.example:41-43` | 认证已 JWT，易误配 | 删死键或标注废弃 |
+| R-CFG-05 | P2 | ~~OSS / MinIO 默认密钥进 yml~~ | ~~扁平 `martin.oss.accessKey` 弱默认；prod 强制假占位~~ | **✅ 已关闭（2026-08-03）**：嵌套 `martin.oss.minio.*` + 空默认（无仓库密钥）；prod 不再强制 `OSS_*`；启用时 `OssCredentialGuard` 拒 `minio`/`minio123` | 启用 MinIO 时设 `OSS_ENDPOINT`+旋转密钥；勿示例真密钥 |
+| R-CFG-06 | P2 | ~~`.env.example` 残留 `OAUTH_CLIENT_*`~~ | ~~`.env.example` OAuth 死键~~ | **✅ 已关闭（2026-08-03）**：删 `OAUTH_CLIENT_*`；改为可选 OSS 注释段 | 勿回挂 password-grant 客户端键 |
 
 ### 数据面（SQL / 文件 / 出站）
 
@@ -91,7 +91,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 |---|---|---|---|---|---|
 | R-OPS-01 | — | Actuator 仅 health/info，匿名可达 | `application.yml:134-154`；ignore `/actuator/**`；`/actuator/env`→404 | **可接受**；勿扩大 exposure | 保持；liveness 与聚合 health 分工见 deployment |
 | R-OPS-02 | — | springdoc：Security `permitAll`，prod 关端点 | `application-prod.yml` springdoc；CHANGELOG 2026-08-03 | **已缓解**；本地仍开 | 勿回退；门控只用 springdoc.* |
-| R-OPS-03 | P2 | SocketIO `0.0.0.0:9092` 与 HTTP 分离 | `application.yml:91-93` | PaaS 须单独暴露/防火墙 | 部署文档标明勿对公网裸放 9092 |
+| R-OPS-03 | P2 | ~~SocketIO `0.0.0.0:9092` 与 HTTP 分离~~ | ~~`application.yml` socketio host/port~~ | **✅ 已关闭（2026-08-03）**：`deployment.md` 标明 9092 勿对公网裸放；PaaS 须防火墙/内网或反代 | 保持；demo 单口可先忽略 Presence |
 
 ### 误导死配置
 
@@ -110,5 +110,5 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。
-2. SocketIO 端口暴露面文档化/防火墙（R-OPS-03）。
+1. （本轮 R-CFG-05/06、R-OPS-03 已关）回扫残余面：连接器 DNS 重绑定、数据源 raw ping/reverse 等（见 R-DATA-02 残余说明）。
+2. 贡献者路径 / Agent schema 等非安全项见 roadmap。

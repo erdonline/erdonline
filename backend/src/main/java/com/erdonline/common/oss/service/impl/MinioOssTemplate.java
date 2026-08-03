@@ -17,7 +17,7 @@ import io.minio.http.Method;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -36,7 +36,7 @@ import java.io.InputStream;
  */
 @Slf4j
 @Service("minioOssTemplate")
-@ConditionalOnProperty(name = "martin.oss.minio.endpoint")
+@ConditionalOnExpression("T(org.springframework.util.StringUtils).hasText('${martin.oss.minio.endpoint:}')")
 public class MinioOssTemplate implements OssTemplate {
     @Autowired
     private MinioClient minioClient;

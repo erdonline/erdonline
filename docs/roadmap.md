@@ -66,7 +66,9 @@
 - ~~应用库 JDBC `useSSL=false`（R-CFG-03）~~✅（双 DS env 驱动 TLS；prod 默认开；compose 关；见 [security-model.md](./security-model.md)）
 - ~~`frameOptions` 恢复（R-AUTH-07）~~✅（API `DENY`；分享走 SPA；见 [security-model.md](./security-model.md)）
 - ~~ignore 假路径 / 假开关（R-DEAD-01/02/03）~~✅（删 `martin.swagger`/`resource-server`；ignore 去 `/endpoint/**`；见 [security-model.md](./security-model.md)）
-- 下一刀：OSS 默认密钥面 / `.env.example` 死键（R-CFG-05/06）
+- ~~OSS 默认密钥 / `.env.example` OAuth 死键（R-CFG-05/06）~~✅（嵌套 minio 空默认 + `OssCredentialGuard`；删 `OAUTH_CLIENT_*`；见 [security-model.md](./security-model.md)）
+- ~~SocketIO 9092 公网裸放说明（R-OPS-03）~~✅（deployment 防火墙约定）
+- 下一刀：连接器 DNS 重绑定等残余（见 security-model R-DATA-02）
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
