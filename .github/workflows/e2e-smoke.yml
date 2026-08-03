@@ -20,10 +20,10 @@ jobs:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
         ports:
           - 3306:3306
+        # options 只允许 docker create 旗标；MySQL 8 默认 utf8mb4，勿传 --character-set-server（会变 create 未知旗标 → exit 125）
         options: >-
           --health-cmd "mysqladmin ping -h127.0.0.1 -uroot"
           --health-interval 10s --health-timeout 5s --health-retries 10
-          --character-set-server=utf8mb4 --collation-server=utf8mb4_general_ci
       redis:
         image: redis:6.2
         ports:
@@ -33,15 +33,15 @@ jobs:
           --health-interval 10s --health-timeout 5s --health-retries 5
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
           cache: maven
 
-      - uses: actions/setup-node@v4
+      - uses: actions/setup-node@v5
         with:
           node-version: '20'
 
@@ -91,7 +91,7 @@ jobs:
 
       - name: Upload failure artifacts
         if: failure()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v6
         with:
           name: playwright-artifacts
           path: frontend/test-results/
