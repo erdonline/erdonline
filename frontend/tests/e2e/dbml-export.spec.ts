@@ -93,9 +93,11 @@ test.describe('DBML 导出', () => {
       await expect(exportDlg).toBeVisible({ timeout: 10_000 });
       await expect(exportDlg.getByRole('combobox', { name: '导出模型' })).toBeVisible();
 
-      // ADR-0016：导出弹层与导入同源 body 8×12；定位 dialog role「导出 DBML」
+      // ADR-0016：导出弹层与导入同源头/身/脚 8×12；定位 dialog role「导出 DBML」
       const metrics = await exportDlg.evaluate((dialog) => {
+        const header = dialog.querySelector('.ant-modal-header') as HTMLElement | null;
         const body = dialog.querySelector('.ant-modal-body') as HTMLElement | null;
+        const footer = dialog.querySelector('.ant-modal-footer') as HTMLElement | null;
         const title = dialog.querySelector('.ant-modal-title') as HTMLElement | null;
         const select = dialog.querySelector('.ant-select-selector') as HTMLElement | null;
         const footerBtn = dialog.querySelector(
@@ -106,25 +108,46 @@ test.describe('DBML 导出', () => {
           (dialog as HTMLElement);
         const styleW = parseFloat(root.style.width || '') || NaN;
         const cssW = parseFloat(getComputedStyle(root).width) || NaN;
+        const hcs = header ? getComputedStyle(header) : null;
         const bcs = body ? getComputedStyle(body) : null;
+        const fcs = footer ? getComputedStyle(footer) : null;
         const tcs = title ? getComputedStyle(title) : null;
         const scs = select ? getComputedStyle(select) : null;
-        const fcs = footerBtn ? getComputedStyle(footerBtn) : null;
+        const okCs = footerBtn ? getComputedStyle(footerBtn) : null;
         return {
           width: Number.isFinite(styleW) ? styleW : cssW,
           titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : NaN,
+          headerPadT: hcs ? parseFloat(hcs.paddingTop) : NaN,
+          headerPadB: hcs ? parseFloat(hcs.paddingBottom) : NaN,
+          headerPadX: hcs ? parseFloat(hcs.paddingLeft) : NaN,
           bodyPadT: bcs ? parseFloat(bcs.paddingTop) : NaN,
           bodyPadX: bcs ? parseFloat(bcs.paddingLeft) : NaN,
           bodyPadY: bcs
             ? parseFloat(bcs.paddingTop) + parseFloat(bcs.paddingBottom)
             : NaN,
+          footerPadT: fcs ? parseFloat(fcs.paddingTop) : NaN,
+          footerPadX: fcs ? parseFloat(fcs.paddingLeft) : NaN,
           selectH: scs ? parseFloat(scs.height) : NaN,
-          okH: fcs ? parseFloat(fcs.height) : NaN,
+          okH: okCs ? parseFloat(okCs.height) : NaN,
         };
       });
       expect(metrics.width).toBeGreaterThanOrEqual(520);
       expect(metrics.width).toBeLessThanOrEqual(600);
       expect(metrics.titleFont).toBeLessThanOrEqual(14);
+      expect(metrics.titleLh).toBeGreaterThanOrEqual(20);
+      expect(metrics.headerPadT, `header padT 应 ≤8，得 ${metrics.headerPadT}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(metrics.headerPadT).toBeGreaterThanOrEqual(6);
+      expect(metrics.headerPadB, `header padB 应 ≤8，得 ${metrics.headerPadB}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(
+        metrics.headerPadX,
+        `header padX 应 ≤12，得 ${metrics.headerPadX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(metrics.headerPadX).toBeGreaterThanOrEqual(8);
       expect(metrics.bodyPadT, `body padT 应 ≤8，得 ${metrics.bodyPadT}`).toBeLessThanOrEqual(8);
       expect(metrics.bodyPadX, `body padX 应 ≤12，得 ${metrics.bodyPadX}`).toBeLessThanOrEqual(
         12,
@@ -132,10 +155,19 @@ test.describe('DBML 导出', () => {
       expect(metrics.bodyPadY, `body padY 应 ≤16，得 ${metrics.bodyPadY}`).toBeLessThanOrEqual(
         16,
       );
+      expect(metrics.footerPadT, `footer padT 应 ≤8，得 ${metrics.footerPadT}`).toBeLessThanOrEqual(
+        8,
+      );
+      expect(
+        metrics.footerPadX,
+        `footer padX 应 ≤12，得 ${metrics.footerPadX}`,
+      ).toBeLessThanOrEqual(12);
+      expect(metrics.footerPadX).toBeGreaterThanOrEqual(8);
       expect(metrics.selectH, `Select 高应 ≤32，得 ${metrics.selectH}`).toBeLessThanOrEqual(
         32,
       );
       expect(metrics.selectH).toBeGreaterThanOrEqual(24);
+      expect(metrics.okH, `OK 高应 ≥28，得 ${metrics.okH}`).toBeGreaterThanOrEqual(28);
       expect(metrics.okH).toBeLessThanOrEqual(32);
 
       await page.screenshot({

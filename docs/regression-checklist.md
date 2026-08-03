@@ -39,7 +39,7 @@
 - [x] [字段签空态 CTA] 清字段→字段签见「还没有字段」+「添加第一个字段」→ 网格 + 画布 `id`；空态消失 ✅`table-field-empty.spec.ts`
 - [x] [画布空表字段 CTA] 清字段见 `canvas-fields-empty` +「添加第一个字段」→ 内联建 NAME → 空态消失 +「添加字段」 ✅`table-field-empty.spec.ts`
 - [x] 版本 diff 次屏密度：组头/行 ~24 pad 4×8 + token 色（success/brand/warning）；不回归可视化 diff ✅`version.spec.ts`
-- [x] 导入/导出弹层密度：标题 ≤14 / body padT≤8·padX≤12·padY≤16（8×12）/ 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
+- [x] 导入/导出弹层密度：标题 ≤14 / 头·身·脚 pad ≤8×12（禁头 10×14×8 / 脚 8×14）/ OK ≥28≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」
 - [x] dataTypeDomains 树图标 fill ≡ `erdColors.brand`（禁裸 `#DE2910`；UI 入口暂未挂载）✅`dataTypeDomainsSlice.test.ts`
@@ -206,7 +206,7 @@
 - [x] [空态次链区 mt] `.erd-empty-links` mt≈10∈[8,12]；`testid=canvas-empty-links`；Controls 已密不改；Auth logo / 欢迎 pad / CTA / panel / title·desc 不动 ✅`relation.spec`「空态构图」+「Controls」
 - [x] [命令面板密度] 面板宽≤460 / maxH≤360、输入高≤40 / font≤13、行 padY≤16 / font≤12、footer padY≤8 / padX≤8 / font≤11；截图 `diagram-cmd-palette-dense.png` ✅`relation.spec`「命令面板」
 - [x] [命令面板空态/list 井] empty padY≤16 / padX≤8 / gap≤2、list pad≤2；无匹配「无匹配结果」+ 提示；Trap/aria/Esc 不弱化 ✅`relation.spec`「命令面板」
-- [x] [实体新建弹层密度] 宽≤420、标题≤14、body padT≤8·padX≤12·padY≤16（8×12）、表单项 margin≤14、输入/OK 高≤32；截图 `diagram-entity-modal-dense.png` ✅`relation.spec`「实体新建弹层密度」
+- [x] [实体新建弹层密度] 宽≤420、标题≤14·lh≥20、头/身/脚 pad≤8×12、表单项 margin≤14、输入/OK 高∈[28,32]；截图 `diagram-entity-modal-dense.png` ✅`relation.spec`「实体新建弹层密度」
 - [x] [导入 Frame 建议] 前缀表 DBML → toast「已建议 N 个分组」+ 画布 2 个 `diagram-frame`（sys/biz）；截图 `diagram-import-frame-suggest.png` ✅`dbml-import.spec`「前缀表」+ `suggestImportFrames.test` / `yarn test:unit:dbml`
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
