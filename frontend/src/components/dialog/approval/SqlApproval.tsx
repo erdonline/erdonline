@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {ConsoleSqlOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
@@ -42,6 +43,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
   const [form] = Form.useForm<FormValues>();
   const [approverOptions, setApproverOptions] = useState<ApproverOption[]>([]);
   const [fetching, setFetching] = useState(false);
+  const approverSelectRef = useRef<RefSelectProps>(null);
 
   const groupDb = _.groupBy(dbs || [], (g) => g.select);
   const dbOptions = Object.keys(groupDb).map((m) => ({
@@ -138,6 +140,25 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
         forceRender
         okButtonProps={{'aria-label': '确定'}}
         cancelButtonProps={{type: 'dashed'}}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // 首焦「审批人」；嵌套在版本详情 Modal 内，Select 挂载后经 ref.focus
+          const tryFocus = (attempt = 0) => {
+            if (approverSelectRef.current) {
+              approverSelectRef.current.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -146,6 +167,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
             rules={[{required: true, message: '请输入审批人'}]}
           >
             <Select
+              ref={approverSelectRef}
               showSearch
               filterOption={false}
               placeholder="审批人"
@@ -174,7 +196,11 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
               {min: 5, max: 500, message: '只能输入5~500 个字符'},
             ]}
           >
-            <Input.TextArea placeholder="审批说明，不少于5个字" rows={3} />
+            <Input.TextArea
+              placeholder="审批说明，不少于5个字"
+              rows={3}
+              aria-label="审批说明"
+            />
           </Form.Item>
         </Form>
       </Modal>
