@@ -84,6 +84,61 @@ class TriggerResultSetMapperTest {
     }
 
     @Test
+    void mapFromSqlServerSys_prefersObjectDefinitionAsDdl() throws Exception {
+        String objectDef = "CREATE TRIGGER [trg_user_ai] ON [dbo].[t_user] AFTER INSERT\nAS\nBEGIN END";
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString("TRIGGER_NAME")).thenReturn("trg_user_ai");
+        when(rs.getString("ACTION_TIMING")).thenReturn("AFTER");
+        when(rs.getString("EVENT_MANIPULATION")).thenReturn("INSERT");
+        when(rs.getString("ACTION_ORIENTATION")).thenReturn("STATEMENT");
+        when(rs.getString("ACTION_STATEMENT")).thenReturn(objectDef);
+
+        List<Trigger> triggers =
+                TriggerResultSetMapper.mapFromSqlServerSys(rs, "t_user", "DEFAULT");
+
+        assertEquals(1, triggers.size());
+        Trigger trigger = triggers.get(0);
+        assertEquals("trg_user_ai", trigger.getName());
+        assertEquals("AFTER", trigger.getTiming());
+        assertEquals("INSERT", trigger.getEvent());
+        assertEquals("STATEMENT", trigger.getOrientation());
+        assertEquals(objectDef, trigger.getStatement());
+        assertEquals(objectDef, trigger.getDdl());
+    }
+
+    @Test
+    void mapFromSqlServerSys_rebuildsBracketDdlWhenBodyOnly() throws Exception {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString("TRIGGER_NAME")).thenReturn("trg_user_ad");
+        when(rs.getString("ACTION_TIMING")).thenReturn("INSTEAD OF");
+        when(rs.getString("EVENT_MANIPULATION")).thenReturn("DELETE");
+        when(rs.getString("ACTION_ORIENTATION")).thenReturn("STATEMENT");
+        when(rs.getString("ACTION_STATEMENT")).thenReturn("BEGIN SET NOCOUNT ON; END");
+
+        List<Trigger> triggers =
+                TriggerResultSetMapper.mapFromSqlServerSys(rs, "t_user", "DEFAULT");
+
+        assertEquals(1, triggers.size());
+        Trigger trigger = triggers.get(0);
+        assertEquals("INSTEAD OF", trigger.getTiming());
+        assertEquals("DELETE", trigger.getEvent());
+        assertEquals(
+                "CREATE TRIGGER [trg_user_ad] ON [t_user] INSTEAD OF DELETE\nAS\nBEGIN SET NOCOUNT ON; END",
+                trigger.getDdl());
+    }
+
+    @Test
+    void buildSqlServerDdl_escapesClosingBracketsInIdentifiers() {
+        String ddl = TriggerResultSetMapper.buildSqlServerDdl(
+                "a]b", "AFTER", "UPDATE", "STATEMENT", "BEGIN END", "t]bl");
+        assertEquals(
+                "CREATE TRIGGER [a]]b] ON [t]]bl] AFTER UPDATE\nAS\nBEGIN END",
+                ddl);
+    }
+
+    @Test
     void mapFromInformationSchema_skipsBlankName() throws Exception {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true, false);
