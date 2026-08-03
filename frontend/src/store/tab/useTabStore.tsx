@@ -29,7 +29,7 @@ export enum TabGroup {
 export const defaultSelectTabId = '';
 
 /** 表设计内签：字段 / 索引 / 元数据应用 */
-export type DesignPane = 'field' | 'index' | 'code';
+export type DesignPane = 'field' | 'index' | 'code' | 'trigger';
 
 export type ModuleEntity = {
   group?: TabGroup;
