@@ -48,7 +48,12 @@ export interface IEntitiesDispatchSlice {
     payload: any,
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  updateEntityIndex: (moduleName: string, entityTitle: string, payload: any) => void;
+  updateEntityIndex: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   moveField: (moduleName: string, entityTitle: string, payload: any, startRow: number, endRow: number) => void;
   setCurrentEntity: (moduleName: string, entityName: string) => void;
   setCurrentModuleAndEntity: (moduleName: string, entityName: string) => void;
@@ -594,21 +599,30 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       return true;
     })();
   },
-  updateEntityIndex: (moduleName: string, entityTitle: string, payload: any) => set(produce((state: any) => {
+  updateEntityIndex: (
+    moduleName: string,
+    entityTitle: string,
+    payload: any,
+    opts?: PersistOpt,
+  ) => {
+    const persist = !!opts?.persist;
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
       showMessage('error', '更新失败：无效的模块名称');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
       showMessage('error', `模型 "${moduleName}" 不存在`);
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
-    const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle || e.name === entityTitle);
+    const entityIndex = modules[moduleIndex].entities.findIndex(
+      (e: any) => e.title === entityTitle || e.name === entityTitle,
+    );
     if (entityIndex === -1) {
       showMessage('error', `表 "${entityTitle}" 不存在`);
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
 
     // 检查索引名称是否唯一
@@ -623,13 +637,41 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
     if (duplicateIndexes.length > 0) {
       showMessage('error', `以下索引名重复: ${duplicateIndexes.join(', ')}`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const applyIndex = (state: any) => {
+      state.project.projectJSON.modules[moduleIndex].entities[entityIndex].indexs = payload;
+    };
+
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        applyIndex(state);
+      }));
+      showMessage('success', '索引更新成功');
       return;
     }
 
-    state.project.projectJSON.modules[moduleIndex].entities[entityIndex].indexs = payload;
-    
-    showMessage('success', '索引更新成功');
-  })),
+    const project = get().project;
+    const next = produce(project, (draft: any) => {
+      applyIndex({ project: draft });
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '索引保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      showMessage('success', '索引更新成功');
+      return true;
+    })();
+  },
   moveField: (moduleName: string, entityTitle: string, payload: any, startRow: number, endRow: number) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {

@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：表设计索引签落盘失败可重试
+
+- 选题：索引签 `updateEntityIndex`（空态添加 / JExcel 改名·字段·唯一 / 再加一行 / 删除）本地 mutate 即 toast「索引更新成功」；autosave 失败像已改索引
+- `updateEntityIndex` 支持 `persist:true`；`TableIndexEdit` 全路径 await save；仅 code===200 写 store + 成功 toast；失败 toast + 空态保留或 `sheetEpoch` 重挂回滚；删索引确认失败拒关窗；`aria-busy`
+- E2E：`jexcel-index-failure.spec.ts` mock save（添加 / 勾是否唯一）→ toast + 回滚 → 重试成功 + 画布 UK
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify ROI 或其它建模假成功路径
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/jexcel-index-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "索引签空态 CTA|索引签再加一行|索引签删除二次确认|字段级 unique"`
+- `cd frontend && npx playwright test tests/e2e/table-index-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：表设计 JExcel 字段 meta 落盘失败可重试
 
 - 选题：表设计字段签 JExcel（类型/PK/NN/AI/隐藏等）`updateEntityFields` 无 persist 本地 mutate 即成功；autosave 失败像已改 meta
 - `TableInfoEdit`：`afterChange` / 空态「添加第一个字段」走 `persist:true`；仅 code===200 写 store；失败 toast + `sheetEpoch` 重挂网格回滚草稿；落盘队列 latest-wins；`aria-busy`
 - E2E：`jexcel-field-meta-failure.spec.ts` mock save（PK / 隐藏）→ toast + 勾选回滚 → 重试成功 + 画布对齐
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 表设计索引签 JExcel 假成功，或 densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~表设计索引签 JExcel 假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/jexcel-field-meta-failure.spec.ts --project=chromium --workers=1 --retries=0`
