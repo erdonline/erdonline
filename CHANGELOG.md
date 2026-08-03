@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：Group 基本设置删区碎片
+
+- 选题：Form 已 12/28；删区仍 antd `Divider` 默认 mt/mb≈24 + `Space` 叠标题 mb8 + `Typography.Text` 14，相对 ADR-0016 / 8–12 族偏松
+- before：Divider≈24、Space 叠标题 mb、次文≈14/22；after：Divider 12、body gap8、标题 mb0、次文 12/18；`testid=basic-setting-delete-zone`；确认弹层/删钮 aria 行为不改
+- E2E：`group-basic-setting` 删区 densify + 截图 `group-basic-setting-dense.png`；`group-project-delete-keyboard` / `group-layout-nav` 回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 欢迎空态标题 mt20 / 22 字碎距（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-project-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "返回项目列表" --workers=1 --retries=0`
+
 #### 体验：Group 基本设置 Form 项/控件碎距
 
 - 选题：页头已 13/22；`BasicSetting` Form 仍 antd 默认项 mb24 / 控件 32，相对 ADR-0016 / `.setting-common-form` 偏松
 - before：表单项 mb≈24、Input/Select/钮高≈32、label 默认 14；after：`.basic-setting-form` 项 mb12、Input/Select minH·钮 28、label 12/padB2、textarea pad 6×8；页头不动；键盘/保存 toast 不弱化
 - E2E：`group-basic-setting` 表单 densify + 截图 `group-basic-setting-dense.png`；`group-layout-nav` / `group-keyboard` 回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 基本设置删区碎片（Divider/Space/次文，视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Group 基本设置删区碎片（Divider/Space/次文）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium --workers=1 --retries=0`
