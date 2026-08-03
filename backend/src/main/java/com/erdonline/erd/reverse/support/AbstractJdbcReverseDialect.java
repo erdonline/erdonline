@@ -6,6 +6,7 @@ import com.erdonline.erd.model.Entity;
 import com.erdonline.erd.model.Field;
 import com.erdonline.erd.model.Index;
 import com.erdonline.erd.model.ParseDataModel;
+import com.erdonline.erd.model.Trigger;
 import com.erdonline.erd.reverse.DefaultValueMapper;
 import com.erdonline.erd.reverse.ForeignKeyAssociationMapper;
 import com.erdonline.erd.reverse.IndexResultSetMapper;
@@ -93,6 +94,16 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
         } else {
             entity.setIndexs(new ArrayList<>(0));
         }
+        if (capability().isSupportsTrigger()) {
+            try {
+                entity.setTriggers(loadTriggers(connection, table, nameCaseFlag));
+            } catch (SQLException ex) {
+                log.warn("读取表 {} 触发器失败，已跳过: {}", table.getOriginTableName(), ex.getMessage());
+                entity.setTriggers(new ArrayList<>(0));
+            }
+        } else {
+            entity.setTriggers(new ArrayList<>(0));
+        }
     }
 
     @Override
@@ -153,6 +164,14 @@ public abstract class AbstractJdbcReverseDialect implements ReverseDialect {
                 true)) {
             return IndexResultSetMapper.mapFromJdbcIndexInfo(rs, nameCaseFlag);
         }
+    }
+
+    /**
+     * JDBC 无统一 getTriggers；默认空。热库覆盖为字典 SQL。
+     */
+    protected List<Trigger> loadTriggers(Connection connection, TableIdentity table, String nameCaseFlag)
+            throws SQLException {
+        return Collections.emptyList();
     }
 
     protected void fillColumnsAndPrimaryKeys(Connection connection, TableIdentity table, Entity entity,

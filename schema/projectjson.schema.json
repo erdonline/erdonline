@@ -108,6 +108,11 @@
           "type": "array",
           "description": "索引列表（历史拼写 indexs，非 indexes）",
           "items": { "$ref": "#/$defs/index" }
+        },
+        "triggers": {
+          "type": "array",
+          "description": "表级触发器（逆向保真；可选）",
+          "items": { "$ref": "#/$defs/trigger" }
         }
       },
       "anyOf": [
@@ -145,6 +150,19 @@
           "items": { "type": "string" },
           "description": "索引列名列表"
         }
+      }
+    },
+    "trigger": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "表级触发器。逆向自字典；DBML 本阶段不映射。",
+      "properties": {
+        "name": { "type": "string" },
+        "timing": { "type": "string", "description": "BEFORE | AFTER（部分库 INSTEAD OF）" },
+        "event": { "type": "string", "description": "INSERT | UPDATE | DELETE" },
+        "orientation": { "type": "string", "description": "ROW | STATEMENT" },
+        "statement": { "type": "string", "description": "触发器体（不含 CREATE 头）" },
+        "ddl": { "type": "string", "description": "可重建的 CREATE TRIGGER DDL" }
       }
     },
     "association": {

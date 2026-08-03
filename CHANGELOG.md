@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 逆向：MySQL 触发器 → `entity.triggers[]`
+
+- 选题：`efd0120` Oracle 注释后，度量四库触发器捕获均为 0、projectJSON 无 `triggers` 槽；最高缺口 = 共享模型 + MySQL（本机 Colima 热库）
+- SPI：`Trigger` 模型、`DialectCapability.supportsTrigger`、`AbstractJdbcReverseDialect.loadTriggers`、`dbReverseMeta.supportsTrigger`；schema/data-format 加法字段
+- MySQL：`INFORMATION_SCHEMA.TRIGGERS` → `name`/`timing`/`event`/`orientation`/`statement` + 重建 `ddl`（`TriggerResultSetMapper`）；失败 warn 跳过
+- 单测：`TriggerResultSetMapperTest` + `MysqlReverseDialectTriggerTest`（mock JDBC）+ Registry `supportsTrigger`
+- 文档：ADR-0006 / roadmap 逆向保真 MySQL 触发器 ✅；PG/SQL Server/Oracle 触发器另切片
+- 未做：触发器 UI / DBML 映射 / 其它方言字典
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=TriggerResultSetMapperTest,MysqlReverseDialectTriggerTest,ReverseDialectRegistryTest test`
+
 #### 逆向：Oracle 表/列注释 → chnname
 
 - 选题：键盘 UX 扫余后最高 Vision ROI = roadmap 逆向保真 Oracle 注释（PG/SQL Server 已字典化）
 - `OracleReverseDialect`：`supportsComment=true`；`ALL_TAB_COMMENTS` / `ALL_COL_COMMENTS` → `listTables`/`fillEntity` 回填 `entity.chnname` / `fields[].chnname`；失败 warn+回退 JDBC；`JdbcKit.remarksReporting` 仍保留作兜底
 - 单测：`OracleReverseDialectCommentTest`（mock JDBC）+ `CommentResultSetMapper` Oracle 大写标识符形态 + Registry `supportsComment`
-- 文档：ADR-0006 / roadmap 逆向保真 Oracle 注释 ✅；regression-checklist；下一刀 → 触发器逆向 / ADR-0011 复合 FK / ADR-0013
+- 文档：ADR-0006 / roadmap 逆向保真 Oracle 注释 ✅；regression-checklist；下一刀 → ~~触发器逆向~~✅（MySQL）
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=OracleReverseDialectCommentTest,CommentResultSetMapperTest,ReverseDialectRegistryTest test`
