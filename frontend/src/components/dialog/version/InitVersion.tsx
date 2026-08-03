@@ -60,26 +60,24 @@ const InitVersion: React.FC<InitVersionProps> = () => {
       changes: [],
       versionDate: moment().format('YYYY/M/D H:m:s'),
     };
-    // 对齐原 ModalForm：先关窗再异步保存（失败仍 toast）
-    setOpen(false);
-    Save.hisProjectSave(version)
-      .then((res) => {
-        if (res.code === 200) {
-          message.success('初始化基线成功');
-          versionDispatch.getVersionMessage(res.data, true);
-          versionDispatch.setState({
-            changes: [],
-            init: false,
-            versions: res.data,
-          });
-          versionDispatch.dropVersionTable();
-        } else {
-          message.error('操作失败！');
-        }
-      })
-      .catch((err: Error) => {
-        message.error(`操作失败:${err.message}`);
-      });
+    try {
+      const res = await Save.hisProjectSave(version);
+      if (res?.code === 200) {
+        message.success('初始化基线成功');
+        versionDispatch.getVersionMessage(res.data, true);
+        versionDispatch.setState({
+          changes: [],
+          init: false,
+          versions: res.data,
+        });
+        versionDispatch.dropVersionTable();
+        setOpen(false);
+        return;
+      }
+      // 业务失败：request 已 toast；失败不关窗（勿伪装成功）
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast；失败不关窗
+    }
   };
 
   return (

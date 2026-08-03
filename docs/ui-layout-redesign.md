@@ -185,7 +185,8 @@
 - ✅ **Cmd+K 无匹配空态 / list 井次密**（2026-08-03）：empty pad ≤8×8 / gap ≤2、list pad ≤2；禁 16×12 / 4；Trap / aria-activedescendant / Esc 归还不弱化；`relation.spec`「命令面板」绿；下一刀 → ~~快捷键速查卡密度~~✅
 - ✅ **快捷键速查卡（`?`）密度**（2026-08-03）：header 6×10 · list 2×4 · row 3×4/gap8 · footer 4×8 · maxH 360；关闭钮 focus-visible；禁 6×8 井 + padY 10；Esc / Cmd+K 互斥不弱化；`relation.spec`「快捷键速查」绿；下一刀 → ~~建模静默失败 / CTA 不清~~✅（自动保存失败可重试 → 逆向解析失败可读+重试）
 - ✅ **逆向解析失败可读 + 重试**（2026-08-03）：禁 toast `[object Object]`；失败区详情 +「重新解析」；`reverse-parse-failure` 绿；下一刀 → ~~添加成员邀请失败静默关窗~~✅
-- ✅ **添加成员邀请失败不关窗**（2026-08-03）：非 200 不关窗；`request` toast 不叠弹；`add-user-invite-failure` 绿；下一刀 → Vision densify / 静默失败 ROI 续选（dbsync / 版本保存边缘态）
+- ✅ **添加成员邀请失败不关窗**（2026-08-03）：非 200 不关窗；`request` toast 不叠弹；`add-user-invite-failure` 绿；下一刀 → ~~dbsync / 版本保存边缘静默失败~~✅
+- ✅ **版本保存/重建失败不伪装成功**（2026-08-03）：`initSave` 仅 code===200；InitVersion 失败不关窗；dbsync 清同步中死态；`version-save-failure` 绿；下一刀 → Vision densify / 静默失败 ROI 续选
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

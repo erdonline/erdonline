@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：版本保存/重建失败不伪装成功
+
+- 选题：`initSave` 用 `if (res)` 真值判断，业务失败仍弹「重建基线成功」并 `dropVersionTable`/rebaseline；`InitVersion` 先关窗再存；dbsync 失败「正在同步」死态
+- `initSave`：仅 `code===200` 成功；失败靠 `request` toast、不叠弹；刷新列表便于重试；禁失败 rebaseline
+- `InitVersion`：成功才关窗；失败可重试
+- dbsync：`synchronous` 走 zustand `set`；失败清同步中态，可再点同步
+- E2E：`version-save-failure.spec.ts` mock `hisProject/save` → 初始化不关窗可重试；重建无「重建基线成功」且无 rebaseline
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-save-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：添加成员邀请失败不关窗
 
 - 选题：协作邀请路径 `AddUser` 非 200 仍 `setOpen(false)`，toast 易漏时像邀请成功；ROI 高于 densify（版本/分享/DDL 已有失败反馈）
 - `AddUser`：失败不关窗；业务/网络已由 `request` toast，禁叠弹；成功才关窗+「保存成功」
 - E2E：`add-user-invite-failure.spec.ts` mock 业务码 → toast「模拟邀请拒绝」+ dialog 仍开 → 重试成功关窗
-- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选（dbsync / 版本保存边缘态）
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → ~~dbsync / 版本保存边缘静默失败~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/add-user-invite-failure.spec.ts --project=chromium --workers=1 --retries=0`

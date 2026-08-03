@@ -425,6 +425,7 @@
 - [x] [保存失败可重试] 断网/业务码失败 → 单条 toast + 顶栏「保存失败，点击重试」→ 点后「已保存」且字段落库；无叠弹「自动保存失败」 ✅`save-failure.spec.ts`
 - [x] [逆向解析失败可重试] mock `dbReverseParse` 业务码 → toast 含可读 msg、无 `[object Object]`；失败区「重新解析」→ 二次成功出实体表；body 含 `dataSourceId` 无 password/url ✅`reverse-parse-failure.spec.ts`
 - [x] [添加成员邀请失败不关窗] mock `role/users` 业务码 → toast「模拟邀请拒绝」+ dialog 仍开；重试成功 →「保存成功」关窗 ✅`add-user-invite-failure.spec.ts`
+- [x] [版本保存失败可读可重试] mock `hisProject/save` → 初始化基线 toast + 窗仍开 → 重试成功；重建失败无「重建基线成功」且不调 rebaseline ✅`version-save-failure.spec.ts`
 
 ## 加载骨架（2026-08-01）
 
