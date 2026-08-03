@@ -53,6 +53,7 @@ export default () => {
   return (
     <AuthBrandShell
       title="登录 ERD Online"
+      skipLabel="跳到登录表单"
       footer={
         <>
           <a href={`/register${redirectQuery()}`} aria-label="去注册">
@@ -101,7 +102,14 @@ export default () => {
           />
         </Form.Item>
         <Form.Item>
-          <Button type="primary" htmlType="submit" size="large" block loading={submitting}>
+          <Button
+            type="primary"
+            htmlType="submit"
+            size="large"
+            block
+            loading={submitting}
+            data-testid="login-submit"
+          >
             登录
           </Button>
         </Form.Item>

@@ -20,6 +20,7 @@
 - ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
 - ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
+- ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ✅ 画布 chrome Tab 序：Controls（放大/缩小/适应/交互）→ 工具栏；MiniMap（d3-zoom）`tabindex=-1` 装饰出序、鼠标仍可拖；Controls `:focus-visible` brand 环；无 trap
 - ✅ 画布节点级 Tab：`nodesFocusable`/`edgesFocusable=false`（RF wrapper 不出序）；仅**选中**表控件 / 邻接边基数 chip / Frame 重命名进序；未选中 `-1`；无密图 trap
@@ -33,6 +34,7 @@
 - ❌ RF 默认每个节点/边 wrapper `tabindex=0` + 边 chip 无条件进序 → 密图扫完全图才到工具栏（历史问题）
 - ❌ Skip 到模型树后只能 Tab 进搜索，方向键无法入树漫游、无法键盘开表/关系（历史问题）
 - ❌ 分享页进 Tab 先扫顶栏，无 Skip、Controls/MiniMap 序与焦点环未对齐设计器（历史问题）
+- ❌ 登录/注册壳进 Tab 先扫左品牌面板，无 Skip、暗面板焦点环不可见（历史问题）
 - ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ✅ 左树点表名 → 同语言定位到画布（切关系图签 + 选中 + fitView + `data-locate-flash`）；表设计走菜单「编辑表」
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）
