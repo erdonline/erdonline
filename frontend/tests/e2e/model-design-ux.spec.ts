@@ -295,4 +295,145 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：设计器次屏 JExcel（字段/索引元数据表）密度 —
+   * 工具栏 ~24 + 表头/行 pad 4×8；禁 clip 工具栏图标；保留 Tab focus-visible
+   */
+  test('表设计 JExcel 行密度：与 22–28 chrome 同阶', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('jxdense');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByTestId('add-module-empty').click();
+      await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+
+      const fieldEdit = page.getByTestId('table-field-edit');
+      await expect(fieldEdit).toBeVisible({ timeout: 10_000 });
+      await expect(fieldEdit.getByTestId('jexcel-root')).toBeVisible();
+
+      const undoBtn = fieldEdit.getByRole('button', { name: '撤销' });
+      await expect(undoBtn).toBeVisible();
+
+      const metrics = await fieldEdit.evaluate((root) => {
+        const host = root.querySelector('[data-testid="jexcel-root"]') as HTMLElement | null;
+        const toolbar = host?.querySelector('.jexcel_toolbar') as HTMLElement | null;
+        const toolItem = host?.querySelector(
+          '.jexcel_toolbar_item',
+        ) as HTMLElement | null;
+        const headCell = host?.querySelector(
+          'table.jexcel > thead > tr > td',
+        ) as HTMLElement | null;
+        const bodyCell = host?.querySelector(
+          'table.jexcel > tbody > tr > td:not(:first-child)',
+        ) as HTMLElement | null;
+        const eps = 1;
+        const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+          inner.top >= outer.top - eps &&
+          inner.bottom <= outer.bottom + eps &&
+          inner.left >= outer.left - eps &&
+          inner.right <= outer.right + eps;
+        let iconClipped = false;
+        if (toolItem) {
+          const iconRect = toolItem.getBoundingClientRect();
+          // material icon 字形在 ≤24 盒内；测内容不溢出工具栏条
+          if (toolbar) {
+            iconClipped = !fullyIn(iconRect, toolbar.getBoundingClientRect());
+          }
+        }
+        const headCs = headCell ? getComputedStyle(headCell) : null;
+        const bodyCs = bodyCell ? getComputedStyle(bodyCell) : null;
+        return {
+          toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+          toolItemH: toolItem ? toolItem.getBoundingClientRect().height : -1,
+          headPadBlock: headCs
+            ? parseFloat(headCs.paddingTop) + parseFloat(headCs.paddingBottom)
+            : -1,
+          headPadInline: headCs
+            ? parseFloat(headCs.paddingLeft) + parseFloat(headCs.paddingRight)
+            : -1,
+          bodyPadBlock: bodyCs
+            ? parseFloat(bodyCs.paddingTop) + parseFloat(bodyCs.paddingBottom)
+            : -1,
+          bodyPadInline: bodyCs
+            ? parseFloat(bodyCs.paddingLeft) + parseFloat(bodyCs.paddingRight)
+            : -1,
+          bodyRowH: bodyCell
+            ? (bodyCell.parentElement as HTMLElement).getBoundingClientRect().height
+            : -1,
+          iconClipped,
+        };
+      });
+
+      expect(
+        metrics.toolbarH,
+        `JExcel 工具栏高应 ≤32（目标 ~24），得 ${metrics.toolbarH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
+      expect(
+        metrics.toolItemH,
+        `工具栏项高应 ∈22–28，得 ${metrics.toolItemH}`,
+      ).toBeGreaterThanOrEqual(22);
+      expect(metrics.toolItemH).toBeLessThanOrEqual(28);
+      expect(
+        metrics.headPadBlock,
+        `表头 padding-block 合计应 ≤10（目标 4+4），得 ${metrics.headPadBlock}`,
+      ).toBeLessThanOrEqual(10);
+      expect(metrics.headPadBlock).toBeGreaterThanOrEqual(4);
+      expect(
+        metrics.headPadInline,
+        `表头 padding-inline 合计应 ≤20（目标 8+8），得 ${metrics.headPadInline}`,
+      ).toBeLessThanOrEqual(20);
+      expect(
+        metrics.bodyPadBlock,
+        `表行 padding-block 合计应 ≤10（目标 4+4），得 ${metrics.bodyPadBlock}`,
+      ).toBeLessThanOrEqual(10);
+      expect(metrics.bodyPadBlock).toBeGreaterThanOrEqual(4);
+      expect(
+        metrics.bodyPadInline,
+        `表行 padding-inline 合计应 ≤20（目标 8+8），得 ${metrics.bodyPadInline}`,
+      ).toBeLessThanOrEqual(20);
+      expect(
+        metrics.bodyRowH,
+        `表行高应 ≤32（目标 ~24–28），得 ${metrics.bodyRowH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.bodyRowH).toBeGreaterThanOrEqual(20);
+      expect(metrics.iconClipped, '工具栏图标不得裁切').toBe(false);
+
+      await fieldEdit.getByRole('button', { name: '重做' }).focus();
+      await page.keyboard.press('Shift+Tab');
+      await expect(undoBtn).toBeFocused();
+      const focusRing = await undoBtn.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(focusRing.outlineStyle).not.toBe('none');
+      expect(parseFloat(focusRing.outlineWidth)).toBeGreaterThanOrEqual(1);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-jexcel-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

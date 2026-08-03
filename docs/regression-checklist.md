@@ -20,6 +20,8 @@
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤32；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 版本工具条二次密度/碎色：控件 ∈24–28；图标不 clip；增删摘要·hint 色 ≡ `--erd-success`/`--erd-brand`/`--erd-ink-600`；新增钮 Tab focus-visible ✅`version.spec.ts`
 - [x] 工单/审批列表密度：标题栏 ≤32（目标 ~24）/ 行 pad-block ≤10 / 动作钮 ∈22–28；图标不 clip；动作钮 focus-visible；截图 `approval-list-dense.png` / `order-list-dense.png` ✅`approval.spec.ts`
+- [x] 设计器次屏 JExcel 密度：工具栏 ≤32 / 表头·行 pad-block ≤10 / 行高 ≤32；图标不 clip；撤销钮 Tab focus-visible；截图 `diagram-jexcel-dense.png` ✅`model-design-ux.spec.ts`
+- [x] 版本 diff 次屏密度：组头/行 ~24 pad 4×8 + token 色（success/brand/warning）；不回归可视化 diff ✅`version.spec.ts`
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」
