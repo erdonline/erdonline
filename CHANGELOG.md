@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：版本列表空态井次密
+
+- 选题：设计器侧栏 nav 已密；版本 List 空态仍 pad 16×12，相对工作台列表空态 12×8 / ADR-0016 8–12 族偏松；勿动 Cmd+K / notice；勿弱化「保存第一个版本」CTA
+- before：`.ant-list-empty-text` pad 16×12；after：pad 12×8（对齐 `.project-list-page`）；`testid=version-empty` + role 按钮「保存第一个版本」
+- E2E：`version`「无数据源也可新增版本」锁 padY≤12 / padX≤8 + 截图 `version-empty-dense.png`；保存后空态消失不回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Cmd+K footer / notice 碎片（视 ROI；本刀不碰）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "无数据源也可新增版本" --workers=1 --retries=0`
+
 #### 体验：设计器侧栏 nav 行距次密
 
 - 选题：Auth logo 48 ROI 低跳过；版本/导入/导出/设置侧栏 Menu 仍 antd 默认 ~40 + 松 pad，相对 Group 侧栏 28·12 / ADR-0016 8–12 族偏松；勿弱化命中/键盘
 - before：项高 ~40 + 默认 pad≈24；after：项高 28 / padX 12 / marginY 2 / 字 12；`testid=design-layout-sider-menu` + `aria-label=设计器侧栏导航`
 - E2E：`layout-outlet`「顶栏动作与子路由出口」锁 densify + 侧栏 menuitem/link focus+Enter；截图 `design-sider-nav-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 版本空态 pad 16×12 或 Cmd+K footer / notice 碎片（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~版本空态 pad 16×12~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "顶栏动作与子路由出口" --workers=1 --retries=0`
