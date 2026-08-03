@@ -83,7 +83,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 关闭（2026-08-03）**：`JdbcUrlGuard`（协议 + 链路本地/云 IMDS）；mutate 拒 GRANT/OUTFILE；**`dataSourceId`→ACL**；**sqlexec/dbsync 强制 id**（ping/reverse 仍可 raw） | 保持；DNS 重绑定属残余面 |
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | ~~`POST /project/upload` 无类型/归属校验~~ | ~~`ProjectController` / `GroupProjectController` / `WsController` 测试上传；`doc/uploadWordTemplate`~~ | **✅ 已关闭（2026-08-03）**：删除三处无归属测试上传；`WordTemplateGuard` 仅 `.docx` + 键前缀 `martin/projecterd/{projectId}/`；上传/下载/gendocx 经 `ProjectAcl` | 勿回挂匿名 OSS 写；自定义模板路径勿放开任意 bucket |
-| R-DATA-05 | P2 | `TestJsonController` 样板 CRUD 仍暴露 | `TestJsonController.java:56-121` | 需登录，污染面 | 删死路由 |
+| R-DATA-05 | P2 | ~~`TestJsonController` 样板 CRUD 仍暴露~~ | ~~`TestJsonController.java` + Service/Mapper/Entity~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Impl/Mapper/Entity/`TestJsonMapper.xml`；无 ignore/FE 代理 | 勿回挂 `/testJson/**`；表 `test_json` 若残留可不删（delete-dead-code 表慎动） |
 
 ### 运维可观测
 
@@ -104,6 +104,6 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. 删 `TestJsonController` 样板面（R-DATA-05）。
-2. 应用库 JDBC `useSSL=false`（R-CFG-03）。
-3. `frameOptions` 恢复（R-AUTH-07）。
+1. 应用库 JDBC `useSSL=false`（R-CFG-03）。
+2. `frameOptions` 恢复（R-AUTH-07）。
+3. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。

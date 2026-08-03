@@ -62,7 +62,8 @@
 - ~~UserController 权限（R-AUTH-02）~~✅（`sys_user_*` `@PreAuthorize`；见 [security-model.md](./security-model.md)）
 - ~~SocketIO 项目成员（R-AUTH-05）~~✅（握手 + `JOIN_ROOM` 验 `project_user`；见 [security-model.md](./security-model.md)）
 - ~~开放注册双入口（R-AUTH-06）~~✅（单入口 + `allow-open-register` prod 默认关；见 [security-model.md](./security-model.md)）
-- 下一刀：删 `TestJsonController` 样板面（R-DATA-05）
+- ~~TestJson 样板面（R-DATA-05）~~✅（删 Controller/Service/Mapper/Entity；见 [security-model.md](./security-model.md)）
+- 下一刀：应用库 JDBC `useSSL=false`（R-CFG-03）
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
