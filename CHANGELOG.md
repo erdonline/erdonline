@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：逆向解析失败可读 + 重试
+
+- 选题：`dbReverseParse` toast 用 `'' + res` → `[object Object]`；Step2 仅「解析失败」无详情/CTA；与 autosave 重试模式断档
+- `profileSlice`：`reverseParseErrorText`；失败写 `errorMessage` + `lastReverseParse`；`retryDbReverseParse`；禁叠弹（业务/网络已由 `request` toast）
+- `ReverseParseStep`：失败态「数据库解析失败」+ 详情 +「重新解析」；挂次屏页与菜单 Modal；成功才显「提交」
+- E2E：`reverse-parse-failure.spec.ts` mock 业务码 → 可读 toast / 无 `[object Object]` → 重试出实体表；payload 仍含 `dataSourceId`、无 password/url
+- 文档：regression-checklist / control-matrix / design-principles；下一刀 → Vision densify / 静默失败 ROI 续选
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/reverse-parse-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：自动保存失败可重试（建模回路）
 
 - 选题：densify ROI 已 flatten；checklist「保存失败」仍手工且顶栏失败态无 CTA；断网时 errorHandler + 兜底 toast 叠弹
 - `useProjectStore`：抽出 `persistAutosave` / 导出 `retryAutosave`；catch 不再重复 toast（网络/HTTP 已由 `request` errorHandler）
 - `SaveStatus`：失败态按钮「保存失败，点击重试」（对齐 design-principles）；`aria-label` + focus-visible
 - E2E：`save-failure.spec.ts` 断网单 toast + 重试落库；业务码失败 toast + 重试
-- 文档：regression-checklist / control-matrix；下一刀 → 逆向解析失败文案 `[object Object]` / 失败页重试（视 ROI）
+- 文档：regression-checklist / control-matrix；下一刀 → ~~逆向解析失败文案 `[object Object]` / 失败页重试~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/save-failure.spec.ts --project=chromium --workers=1 --retries=0`

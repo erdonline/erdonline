@@ -91,6 +91,29 @@
   margin-top: 10px;
 }
 
+.erd-secondary-pane__fail {
+  padding: 12px 10px;
+  border: 1px solid var(--erd-line, #e5e7eb);
+  border-radius: 6px;
+  background: var(--erd-surface, #fff);
+}
+
+.erd-secondary-pane__fail-title {
+  margin: 0 0 4px;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.erd-secondary-pane__fail-detail {
+  margin: 0 0 10px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+  word-break: break-word;
+}
+
 .erd-secondary-pane__meta {
   margin-bottom: 8px;
   padding: 6px 10px;
