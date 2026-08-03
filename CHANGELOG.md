@@ -8,13 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：逆向导入 setProjectJson / importReverseTable 假成功
+
+- 选题：数据类型字典假成功已收口（`e823bf5`）；逆向选表 `importReverseTable` 与文件导入 `setProjectJson`/`importModuleAndProfile`（含 dataTypeDomains 合并）仍本地 mutate 即「操作/导入成功」，autosave 失败像已导入
+- `setProjectJson({persist:true})` / `importReverseTable`：仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store；覆盖确认窗失败拒关可重试
+- ERD/PdMan/DBML 弹层与次屏统一走 `importModuleAndProfile` persist；失败窗/页保持可重传
+- E2E：`import-erd-failure` 首拒窗仍开、树无模块 → 重试成功入树；定位 `role=dialog` / `项目菜单` / complementary（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描剩余假成功（版本同步 / Word 导出 / 默认库切库等）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/import-erd-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/import-erd.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据类型字典 CRUD 假成功
 
 - 选题：基数假成功已收口（`173c456`）；`dataTypeDomainsSlice` 本地 mutate 即「提交成功」，且设置页 CRUD UI 已在 W4 删掉（零挂载）
 - `addDatatype`/`updateDatatype`/`removeDatatype` 支持 `persist:true`；仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store；清零剪贴板假成功 dead CRUD
 - 设置页：`/design/table/setting/dataType` 列表 + Modal 新增/编辑；删确认失败拒关窗；侧栏复用默认字段权限
 - E2E：`datatype-domains-failure` 首拒窗仍开、表无新行 → 重试成功入表；定位 `datatype-domains-page` / `role=dialog` / `aria-label`（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 逆向导入 `setProjectJson`/`importReverseTable` 本地成功 toast（含 dataTypeDomains 合并）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~逆向导入 `setProjectJson`/`importReverseTable` 假成功~~✅
 
 验证点：
 - `cd frontend && npx tsx src/store/project/dataTypeDomainsSlice.test.ts`
