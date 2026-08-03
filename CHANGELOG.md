@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：Group 基本设置页头碎距
+
+- 选题：用户组页头已 13/22；`BasicSetting` 仍 `Title level={4}`，相对 ADR-0016 / `.group-setting-page` 偏松
+- before：页头「基本设置」20/28（antd Title mt≈27·mb10）；同文件「删除项目」同级 Title4；after：h2 13/22·mt0·mb8；删区标题同阶以免反超页头；`testid=basic-setting-page`；键盘/保存 toast 不弱化
+- E2E：`group-basic-setting` 页头 densify + 截图 `group-basic-setting-dense.png`；`group-layout-nav` / `group-keyboard` 回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 基本设置 Form 项间距/控件 28（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "返回项目列表" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`
+
 #### 体验：Group 用户组 Title/左角色签碎距
 
 - 选题：团队成员工具条已 28；`GroupSetting` 仍 `Title level={4}` + `Space large` + `<br>` + 左 Tabs padX24·高38，相对项目列表 13/22·28 / 8–12 族偏松
 - before：标题 20/28（mt≈27·mb10）、Space large gap24 + br、左签 padX24·高38·字14；after：标题 13/22·mb8、去掉 Space/br、左签 padX12·高28·字12；`testid=group-setting-page` / `group-setting-role-tabs`；键盘不弱化
 - E2E：`group-layout-nav` 页头/左签 densify + 截图 `group-setting-page-dense.png`；`group-keyboard` / `add-user-keyboard` 回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Group 基本设置 Title level4（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Group 基本设置 Title level4~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-layout-nav.spec.ts --project=chromium --grep "权限组：角色与用户组成员" --workers=1 --retries=0`

@@ -42,7 +42,7 @@ async function deleteGroupProject(
 }
 
 /**
- * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast。
+ * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast；页头 densify。
  */
 test.describe('团队项目基本设置', () => {
   test('保存基本设置成功有 toast', async ({ page, request }) => {
@@ -62,6 +62,56 @@ test.describe('团队项目基本设置', () => {
         timeout: 15_000,
       });
       await expect(page.getByLabel('项目名')).toBeVisible();
+
+      // ADR-0016：页头 13/22·mt0·mb8；禁 Title level4
+      const pageRoot = page.getByTestId('basic-setting-page');
+      await expect(pageRoot).toBeVisible();
+      const metrics = await pageRoot.evaluate((el) => {
+        const title = el.querySelector(
+          '.basic-setting-page__title',
+        ) as HTMLElement | null;
+        const form = el.querySelector('form') as HTMLElement | null;
+        const tcs = title ? getComputedStyle(title) : null;
+        let titleToForm = -1;
+        if (title && form) {
+          titleToForm = Math.round(
+            form.getBoundingClientRect().top - title.getBoundingClientRect().bottom,
+          );
+        }
+        return {
+          titleFont: tcs ? parseFloat(tcs.fontSize) : -1,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
+          titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
+          titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
+          titleToForm,
+        };
+      });
+      expect(
+        metrics.titleFont,
+        `标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`,
+      ).toBeLessThanOrEqual(14);
+      expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+      expect(
+        metrics.titleLh,
+        `标题行高应 ≤24（目标 22），得 ${metrics.titleLh}`,
+      ).toBeLessThanOrEqual(24);
+      expect(
+        metrics.titleMb,
+        `标题 marginBottom 应 ≤8（禁 Title level4 松距），得 ${metrics.titleMb}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        metrics.titleMt,
+        `标题 marginTop 应 ≤4（禁 antd Title 默认 mt），得 ${metrics.titleMt}`,
+      ).toBeLessThanOrEqual(4);
+      expect(
+        metrics.titleToForm,
+        `标题→表单间距应 ≤12，得 ${metrics.titleToForm}`,
+      ).toBeLessThanOrEqual(12);
+      expect(metrics.titleToForm).toBeGreaterThanOrEqual(0);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/group-basic-setting-dense.png',
+      });
 
       const nextName = uniqueProjectName('group-basic-upd');
       await page.getByLabel('项目名').fill(nextName);

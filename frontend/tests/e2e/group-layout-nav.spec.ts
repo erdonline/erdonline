@@ -270,6 +270,23 @@ test.describe('GroupLayout 导航与权限组', () => {
       await expect(page.getByRole('heading', { name: '基本设置' })).toBeVisible({
         timeout: 15_000,
       });
+      await expect(page.getByTestId('basic-setting-page')).toBeVisible();
+      // ADR-0016：基本设置页头 densify（与 group-basic-setting 同阶）
+      const basicHead = await page.getByTestId('basic-setting-page').evaluate((el) => {
+        const title = el.querySelector(
+          '.basic-setting-page__title',
+        ) as HTMLElement | null;
+        const tcs = title ? getComputedStyle(title) : null;
+        return {
+          titleFont: tcs ? parseFloat(tcs.fontSize) : -1,
+          titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
+          titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
+        };
+      });
+      expect(basicHead.titleFont).toBeLessThanOrEqual(14);
+      expect(basicHead.titleFont).toBeGreaterThanOrEqual(12);
+      expect(basicHead.titleMb).toBeLessThanOrEqual(8);
+      expect(basicHead.titleMt).toBeLessThanOrEqual(4);
 
       await page.getByRole('link', { name: '返回项目列表' }).click();
       await expect(page).toHaveURL(/\/dataModels/, { timeout: 15_000 });
