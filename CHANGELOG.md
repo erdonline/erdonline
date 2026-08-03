@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-02 UserController CRUD 补 sys_user_* 权限
+
+- 选题：任意已登录用户可调用 `UserController` 增删改查系统用户（相对 Extension 的 `sys_user_*` 缺口）
+- 改动：`POST/DELETE/PUT/GET /user`、`GET /user/page`、`DELETE /user/batch` 分别加 `@PreAuthorize(hasAuthority('sys_user_add|del|edit|get|page|deleteBatch'))`；密文仍靠 `User.pwd`/`salt` `WRITE_ONLY`
+- 文档：`docs/security-model.md` R-AUTH-02 ✅；roadmap 下一刀 → FE connector id / SocketIO 成员（R-AUTH-05）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=UserControllerAuthContractTest,RemoteSystemUserHttpContractTest test`
+- `./backend/dev-ensure.sh --restart`；liveness → 200
+- 注册普通用户登录后 `GET /user/page` → **401**；`admin` 同路径 → 200 且 body 不含 `"pwd"`
+
 #### 安全：R-DATA-02 connector 凭证优先已鉴权 dataSourceId
 
 - 选题：connector 热路径每次收 raw JDBC+账密，绕过 `data_sources` 归属（R-AUTH-04 只护 CRUD）
