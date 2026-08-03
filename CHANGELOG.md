@@ -8,6 +8,14 @@
 
 ### 2026-08-03
 
+#### 文档：生产 UI `app.erdonline.com` 与 API 对齐说明
+
+- 选题：正式登录页在 `https://app.erdonline.com/auth/login`；`ERD_UI_URL` 示例仍只写 `erdonline-demo.pages.dev`，易把 CORS/前端 API 指错
+- `docs/deployment.md`：`ERD_UI_URL` 示例改为生产 `https://app.erdonline.com`（demo 表面保留 pages.dev）；新增「UI Origin vs Railway API」对照；强调勿把 `API_URL`/`ERD_API_URL`/`DEMO_API_URL` 设成 UI 域名
+
+验证点：
+- 文档表：`ERD_UI_URL=https://app.erdonline.com`；前端 `DEMO_API_URL`/`API_URL` = Railway 公网根（手工对照即可）
+
 #### 体验：画布字段改名/删字段落盘失败可重试
 
 - 选题：既有字段行内改名 / `removeField` 本地 mutate 即退出编辑或移出行；autosave 失败像已改名/已删
