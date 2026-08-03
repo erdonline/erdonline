@@ -272,4 +272,86 @@ test.describe('只读分享', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  // ADR-0016：分享壳键盘 — Skip 绕开顶栏；Controls 可达；MiniMap 出序；无 trap
+  test('分享壳键盘：Skip→关系图；Controls 可达；MiniMap 出序；focus-visible', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/demo');
+    await expect(page).toHaveURL(/\/s\/public-demo/);
+    await expect(page.getByTestId('share-relation-canvas')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('share-skip-nav')).toBeAttached();
+    await expect(page.getByTestId('share-skip-canvas')).toBeAttached();
+    await expect(page.getByTestId('share-canvas-stage')).toHaveAttribute('tabindex', '-1');
+    await expect(page.getByRole('button', { name: '复制到我的项目' })).toBeVisible();
+
+    // 首项 Tab = Skip；Enter 落到画布地标
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('share-skip-canvas')).toBeFocused({ timeout: 5_000 });
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('share-canvas-stage')).toBeFocused();
+
+    // 地标 → Tab 离开（无 trap）
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('share-canvas-stage')).not.toBeFocused();
+    const afterStage = await page.evaluate(
+      () =>
+        (document.activeElement as HTMLElement | null)?.getAttribute('data-testid') ||
+        (document.activeElement as HTMLElement | null)?.getAttribute('aria-label') ||
+        (document.activeElement as HTMLElement | null)?.tagName ||
+        '',
+    );
+    expect(afterStage).not.toBe('share-canvas-stage');
+    expect(afterStage.length).toBeGreaterThan(0);
+
+    // MiniMap 装饰出序；Controls 三钮（无「切换交互」）连续 Tab
+    await expect(page.locator('.react-flow__minimap svg')).toHaveAttribute('tabindex', '-1');
+    const zoomIn = page.getByRole('button', { name: '放大' });
+    await zoomIn.focus();
+    await expect(zoomIn).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: '缩小' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: '适应画布' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    const afterControls = await page.evaluate(() => {
+      const ae = document.activeElement as HTMLElement | null;
+      if (!ae) return { inMinimap: false, label: '' };
+      return {
+        inMinimap: !!ae.closest('.react-flow__minimap'),
+        label: ae.getAttribute('aria-label') || ae.getAttribute('data-testid') || ae.tagName,
+      };
+    });
+    expect(afterControls.inMinimap, 'Tab 不得落入 MiniMap').toBe(false);
+    expect(afterControls.label).not.toBe('');
+
+    // Shift+Tab 回 Controls（无 trap）
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.getByRole('button', { name: '适应画布' })).toBeFocused();
+    expect(
+      await page.evaluate(() => !!document.activeElement?.closest('.react-flow__minimap')),
+    ).toBe(false);
+
+    // Controls focus-visible brand 环（须经 Tab 触发 :focus-visible）
+    await page.getByRole('button', { name: '缩小' }).focus();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('button', { name: '适应画布' })).toBeFocused();
+    const ring = await page.getByRole('button', { name: '适应画布' }).evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        outlineColor: cs.outlineColor,
+        outlineStyle: cs.outlineStyle,
+        outlineWidth: cs.outlineWidth,
+      };
+    });
+    expect(ring.outlineStyle).not.toBe('none');
+    expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+    expect(ring.outlineColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
+
+    // 切图条（若有）带键盘分组名
+    const switcher = page.getByTestId('diagram-switcher');
+    if ((await switcher.count()) > 0) {
+      await expect(switcher).toHaveAttribute('aria-label', '切换关系图');
+    }
+  });
 });

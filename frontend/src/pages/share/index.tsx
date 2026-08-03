@@ -215,8 +215,28 @@ const SharePage: React.FC = () => {
   const projectName = data?.projectName || '只读分享';
   const redirectQ = `?redirect=${encodeURIComponent(shareReturnPath)}`;
 
+  const focusSkipTarget = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.focus({preventScroll: false});
+    el.scrollIntoView({block: 'nearest'});
+  };
+
   return (
     <div className="share-page">
+      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="share-skip-nav">
+        <a
+          href="#share-canvas-stage"
+          className="erd-skip-link"
+          data-testid="share-skip-canvas"
+          onClick={(e) => {
+            e.preventDefault();
+            focusSkipTarget('share-canvas-stage');
+          }}
+        >
+          跳到关系图
+        </a>
+      </nav>
       <header className="erd-chrome-header share-page__header" data-testid="share-chrome-header">
         <div
           className="erd-chrome-brand"
@@ -278,7 +298,12 @@ const SharePage: React.FC = () => {
         </div>
       </header>
       <main className="share-page__body">
-        <div className="share-page__stage" data-testid="share-canvas-stage">
+        <div
+          id="share-canvas-stage"
+          className="share-page__stage"
+          data-testid="share-canvas-stage"
+          tabIndex={-1}
+        >
           <div className="share-page__meta" data-testid="share-page-meta">
             <p className="share-page__hint">
               匿名只读 · 登录后可「复制到我的项目」继续编辑并保存版本
@@ -292,16 +317,23 @@ const SharePage: React.FC = () => {
               </Typography.Paragraph>
             ) : null}
             {modules.length > 1 ? (
-              <Segmented
-                size="small"
-                className="share-page__module-switch"
-                value={moduleKey}
-                onChange={(v) => onModuleChange(String(v))}
-                options={modules.map(m => ({
-                  label: m.chnname || m.name || '模块',
-                  value: m.name || m.chnname || '',
-                }))}
-              />
+              <div
+                className="share-page__module-switch-wrap"
+                role="group"
+                aria-label="切换模块"
+                data-testid="module-switcher"
+              >
+                <Segmented
+                  size="small"
+                  className="share-page__module-switch"
+                  value={moduleKey}
+                  onChange={(v) => onModuleChange(String(v))}
+                  options={modules.map(m => ({
+                    label: m.chnname || m.name || '模块',
+                    value: m.name || m.chnname || '',
+                  }))}
+                />
+              </div>
             ) : null}
             {diagrams.length > 1 ? (
               <div

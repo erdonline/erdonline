@@ -26,6 +26,7 @@ import com.erdonline.erd.dto.ProjectDto;
 import com.erdonline.erd.entity.Project;
 import com.erdonline.erd.entity.ProjectRole;
 import com.erdonline.erd.mapper.ProjectMapper;
+import com.erdonline.erd.security.ProjectAcl;
 import com.erdonline.erd.service.ProjectRoleService;
 import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.util.Query;
@@ -67,12 +68,16 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
     @Autowired
     private com.erdonline.common.data.redis.RedisUtil redisUtil;
 
+    @Autowired
+    private ProjectAcl projectAcl;
+
     /**
      * 删除项目后清除 VIP 项目计数缓存。
      * 计数缓存（martin:vip:right:{userId}）只增不减，删除项目不失效会导致免费版额度被永久占用。
      */
     @Override
     public boolean removeById(java.io.Serializable id) {
+        projectAcl.assertMember(String.valueOf(id));
         boolean result = super.removeById(id);
         if (result) {
             try {
@@ -90,6 +95,7 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
     @Override
     public R projectService(String projectId) {
         log.info("projectId: {}", projectId);
+        projectAcl.assertMember(projectId);
         Project project = this.getById(projectId);
         return R.ok(project);
     }
@@ -332,6 +338,7 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
         if (StrUtil.isBlank(id)) {
             return R.failed("id为空");
         }
+        projectAcl.assertMember(id);
         wrapper.eq("id", id);
         Project project = new Project();
         this.configProject(projectDto, project);

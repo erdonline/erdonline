@@ -46,6 +46,54 @@
   padding: 0 14px;
 }
 
+/* Skip：与设计器同范式（视口内 1×1 可 Tab；聚焦展开） */
+.erd-skip-nav {
+  position: fixed;
+  z-index: 1100;
+  top: 0;
+  left: 0;
+  display: flex;
+  gap: 0;
+  padding: 0;
+  margin: 0;
+}
+
+.erd-skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 1101;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: 0;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+  background: var(--erd-surface);
+  color: var(--erd-brand);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--erd-font-ui);
+  text-decoration: none;
+  box-shadow: none;
+
+  &:focus,
+  &:focus-visible {
+    width: auto;
+    height: auto;
+    clip: auto;
+    overflow: visible;
+    padding: 8px 12px;
+    margin: 8px;
+    border: 2px solid var(--erd-brand);
+    border-radius: var(--erd-radius-sm, 4px);
+    box-shadow: 0 2px 8px var(--erd-ink-a06, rgba(0, 0, 0, 0.08));
+    outline: none;
+  }
+}
+
 /* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5）；画布铺满视口（ADR-0016） */
 .share-page {
   min-height: 100vh;
@@ -53,6 +101,23 @@
   flex-direction: column;
   background: var(--erd-surface-sunk);
   font-family: var(--erd-font-ui);
+
+  a:focus-visible,
+  button:focus-visible,
+  [role='button']:focus-visible,
+  [role='link']:focus-visible,
+  [role='radio']:focus-visible,
+  .erd-chrome-link:focus-visible,
+  [tabindex]:not([tabindex='-1']):focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: 2px;
+  }
+
+  #share-canvas-stage:focus,
+  #share-canvas-stage:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -2px;
+  }
 }
 
 .share-page__header {
