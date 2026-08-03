@@ -191,6 +191,66 @@ async function main() {
     );
   });
 
+  await run('projectJSONToDbml：Enum 块 + 字段类型引用枚举 code', () => {
+    const dbml = projectJSONToDbml({
+      dataTypeDomains: {
+        datatype: [
+          {
+            name: 'order_status',
+            code: 'order_status',
+            kind: 'enum',
+            values: [
+              { name: 'pending', chnname: '待处理' },
+              { name: 'paid' },
+            ],
+          },
+        ],
+      },
+      modules: [
+        {
+          name: 'shop',
+          chnname: '',
+          entities: [
+            {
+              title: 'orders',
+              name: 'orders',
+              chnname: '订单',
+              fields: [
+                {
+                  name: 'id',
+                  chnname: '',
+                  type: 'Integer',
+                  pk: true,
+                  notNull: true,
+                  autoIncrement: false,
+                },
+                {
+                  name: 'status',
+                  chnname: '订单状态',
+                  type: 'order_status',
+                  pk: false,
+                  notNull: true,
+                  autoIncrement: false,
+                  defaultValue: "'pending'",
+                },
+              ],
+              indexs: [],
+            },
+          ],
+          associations: [],
+          graphCanvas: { nodes: [], edges: [] },
+        },
+      ],
+    });
+    assert.match(dbml, /Enum order_status \{/);
+    assert.match(dbml, /pending \[note: '待处理'\]/);
+    assert.match(dbml, /paid/);
+    assert.match(
+      dbml,
+      /status order_status \[not null, default: 'pending', note: '订单状态'\]/,
+    );
+  });
+
   await run('round-trip：fixture 导入→导出→再导入，实体/FK/indexs/default 稳定', async () => {
     const fixture = path.resolve(
       __dirname,
@@ -261,6 +321,43 @@ async function main() {
         to: a.to,
       })),
     );
+  });
+
+  await run('round-trip：enum fixture 导入→导出→再导入，枚举/字段 type/value note 稳定', async () => {
+    const fixture = path.resolve(
+      __dirname,
+      '../../../tests/fixtures/enum.dbml',
+    );
+    const text = readFileSync(fixture, 'utf8');
+    const first = await dbmlToProjectJSON(text);
+    const exported = projectJSONToDbml(first);
+    const second = await dbmlToProjectJSON(exported);
+
+    assert.match(exported, /Enum order_status \{/);
+    assert.match(exported, /pending \[note: '待处理'\]/);
+
+    const d1 = first.dataTypeDomains.datatype;
+    const d2 = second.dataTypeDomains.datatype;
+    assert.equal(d2.length, d1.length);
+    assert.deepEqual(
+      d2.map((d) => ({
+        code: d.code,
+        kind: d.kind,
+        values: d.values,
+      })),
+      d1.map((d) => ({
+        code: d.code,
+        kind: d.kind,
+        values: d.values,
+      })),
+    );
+
+    const f1 = first.modules[0].entities[0].fields.find((f) => f.name === 'status');
+    const f2 = second.modules[0].entities[0].fields.find((f) => f.name === 'status');
+    assert.equal(f1?.type, 'order_status');
+    assert.equal(f2?.type, 'order_status');
+    assert.equal(f2?.defaultValue, f1?.defaultValue);
+    assert.equal(f2?.chnname, f1?.chnname);
   });
 
   // eslint-disable-next-line no-console

@@ -287,6 +287,84 @@ Table posts {
     await assert.rejects(() => dbmlToProjectJSON('   '), /空/);
   });
 
+  await run('dbmlToProjectJSON：Enum → dataTypeDomains + 字段 type=枚举 code', async () => {
+    const dbml = `
+Enum order_status {
+  pending [note: '待处理']
+  paid
+  shipped
+  cancelled
+}
+Table orders {
+  id integer [pk]
+  status order_status [not null, default: 'pending', note: '订单状态']
+  Note: '订单'
+}
+`;
+    const json = await dbmlToProjectJSON(dbml);
+    const dts = json.dataTypeDomains.datatype;
+    assert.equal(dts.length, 1);
+    assert.equal(dts[0].kind, 'enum');
+    assert.equal(dts[0].code, 'order_status');
+    assert.equal(dts[0].name, 'order_status');
+    assert.deepEqual(dts[0].values, [
+      { name: 'pending', chnname: '待处理' },
+      { name: 'paid' },
+      { name: 'shipped' },
+      { name: 'cancelled' },
+    ]);
+    assert.match(String(dts[0].apply?.MYSQL?.type || ''), /^ENUM\(/);
+    const orders = json.modules[0].entities.find((e) => e.title === 'orders');
+    assert.ok(orders);
+    const status = orders!.fields.find((f) => f.name === 'status');
+    assert.equal(status?.type, 'order_status');
+    assert.equal(status?.defaultValue, "'pending'");
+    assert.equal(status?.chnname, '订单状态');
+    tryValidateSchema(json);
+  });
+
+  await run('databaseToProjectJSON：注入 enums 假对象', () => {
+    const json = databaseToProjectJSON({
+      name: 'enum_demo',
+      note: '枚举',
+      schemas: [
+        {
+          enums: [
+            {
+              name: 'color_t',
+              values: [
+                { name: 'red', note: '红' },
+                { name: 'blue' },
+              ],
+            },
+          ],
+          tables: [
+            {
+              name: 'items',
+              fields: [
+                {
+                  name: 'id',
+                  pk: true,
+                  type: { type_name: 'integer' },
+                },
+                {
+                  name: 'color',
+                  type: { type_name: 'color_t' },
+                  _enum: { name: 'color_t' },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+    assert.equal(json.dataTypeDomains.datatype[0]?.code, 'color_t');
+    assert.equal(
+      json.modules[0].entities[0].fields.find((f) => f.name === 'color')?.type,
+      'color_t',
+    );
+  });
+
   // eslint-disable-next-line no-console
   console.log('toProjectJSON.test.ts: all passed');
 }
