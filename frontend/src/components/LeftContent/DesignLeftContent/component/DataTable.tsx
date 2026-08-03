@@ -494,6 +494,17 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     </Empty>
   );
 
+  const trimmedSearch = (searchKey || '').trim();
+  const hasSearch = trimmedSearch.length > 0;
+  const rawTree = projectDispatch.getModuleEntityTree(searchKey || '', true);
+  // 搜索时隐藏「表」为空的模型，避免只剩空文件夹误导；零匹配 → 树区空态
+  const treeData = hasSearch
+    ? (rawTree || []).filter((m: { children?: Array<{ title?: string; type?: string; children?: unknown[] }> }) => {
+        const tables = m.children?.find((c) => c.type === 'folder' && c.title === '表');
+        return (tables?.children?.length || 0) > 0;
+      })
+    : rawTree;
+
   return (
     <div
       className="design-left-data"
@@ -507,7 +518,9 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     >
       {modules && modules.length > 0 ? (
         <QueryTree
-          treeData={projectDispatch.getModuleEntityTree(searchKey || '', true)}
+          treeData={treeData}
+          searchValue={searchKey || ''}
+          searchEmpty={hasSearch && (!treeData || treeData.length === 0)}
           onSelect={handleSelect}
           onSearch={handleSearch}
           renderActions={renderActions}

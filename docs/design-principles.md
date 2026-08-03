@@ -47,6 +47,7 @@
 - ✅ 左树树头「新建 → 新建关系图」→ EntityModal 名称-only → `createDiagram`（与画布工具栏同路径；禁空 FK 弹层）
 - ✅ 左树「关系」文件夹旁 `+`（`aria-label=新建关系图`）→ 同路径 `createDiagram`；与「表」文件夹旁 `+` 对称
 - ✅ 左树表菜单「编辑表」→ 表设计字段签（`designPane: 'field'`，与画布 `canvas-open-field` 同路径）；「重命名表」另项走 EntityModal
+- ✅ 左树搜索：Enter 过滤表名；× / 清空立刻清 `searchKey`（antd Search `onSearch` 不随 clear 触发）；无匹配 →「未找到匹配的表」（`tree-search-empty`）；禁过滤残留空文件夹白屏
 - ✅ 字段级 unique 说明：字段签 hint「无独立唯一列」+「去索引签设置唯一」；索引空态「添加唯一索引」；画布字段 UK 徽章（只读，编辑在索引签）
 - ✅ 元数据应用子签「修改字段」=`updateFieldTemplate`（MODIFY）、「删除字段」=`deleteFieldTemplate`（DROP）；禁标签与模板对调诱导误执行；差异脚本与版本页同 dbKey（含快照通道）；拉取失败有 toast
 - ❌ 首页快捷入口指向不存在的路由（404）（历史问题）
