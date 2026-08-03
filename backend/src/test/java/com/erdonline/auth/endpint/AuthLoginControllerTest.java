@@ -28,6 +28,8 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
@@ -44,11 +46,40 @@ class AuthLoginControllerTest {
 
     private AuthLoginController controller;
 
+    private ErdSecurityProperties erdSecurityProperties;
+
     @BeforeEach
     void setUp() {
-        ErdSecurityProperties erdSecurityProperties = new ErdSecurityProperties();
+        erdSecurityProperties = new ErdSecurityProperties();
         erdSecurityProperties.setE2eAccountsEnabled(true);
+        erdSecurityProperties.setAllowDemoAdmin(true);
         controller = new AuthLoginController(authenticationManager, jwtTokenService, erdSecurityProperties);
+    }
+
+    @Test
+    void rejectsAdminSeedPasswordWhenDemoAdminDisallowed() {
+        erdSecurityProperties.setAllowDemoAdmin(false);
+        AuthLoginController.LoginRequest req = new AuthLoginController.LoginRequest();
+        req.setUsername("admin");
+        req.setPassword(AuthLoginController.SEED_DEFAULT_PASSWORD);
+
+        ResponseEntity<?> resp = controller.login(req);
+        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());
+        R body = (R) resp.getBody();
+        assertEquals(ApiErrorCode.ERROR_USERNAME_OR_PASSWORD.getCode(), body.getCode());
+        verify(authenticationManager, never()).authenticate(any());
+    }
+
+    @Test
+    void rejectsE2eAccountWhenDisabled() {
+        erdSecurityProperties.setE2eAccountsEnabled(false);
+        AuthLoginController.LoginRequest req = new AuthLoginController.LoginRequest();
+        req.setUsername("e2e0");
+        req.setPassword("123456");
+
+        ResponseEntity<?> resp = controller.login(req);
+        assertEquals(HttpStatus.UNAUTHORIZED, resp.getStatusCode());
+        verify(authenticationManager, never()).authenticate(any());
     }
 
     @Test

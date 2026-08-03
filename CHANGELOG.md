@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-CFG-02 prod 拒绝 admin 种子默认口令
+
+- 选题：自托管 prod 仍可用 Flyway 种子 `admin`/`123456` 登录
+- 改动：`erd.security.allow-demo-admin`（`ERD_ALLOW_DEMO_ADMIN`）；`prod`/默认=false → `AuthLoginController` 拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood/E2E；改密后不受影响
+- 文档：`docs/security-model.md` R-CFG-02 ✅；`docs/deployment.md` / `.env.example`
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=AuthLoginControllerTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sS -o /tmp/login.json -w '%{http_code}\n' -X POST http://localhost:9502/auth/login -H 'Content-Type: application/json' -d '{"username":"admin","password":"123456"}'` → **200**（dev）
+- 单测 `rejectsAdminSeedPasswordWhenDemoAdminDisallowed`：`allowDemoAdmin=false` → 401 且不调 `AuthenticationManager`
+
 #### 安全：R-CFG-01 prod `JWT_SECRET` fail-fast
 
 - 选题：`JWT_SECRET` 仓库弱默认可随 prod 上线签发/伪造 JWT

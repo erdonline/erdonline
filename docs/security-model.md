@@ -8,14 +8,15 @@
 
 | 账号 | 用途 | 默认密码 |
 |---|---|---|
-| `admin` | 运维/手工 | `123456`（务必在生产修改） |
+| `admin` | 运维/手工 | `123456`（dev 可用；prod 默认拒绝该口令） |
 | `e2e0`..`e2e15` | Playwright 并发隔离（≤16 worker） | `123456` |
 | `e2e-serial` | chromium-serial 空态用例 | `123456` |
 
 防护：
 
 - `erd.security.e2e-accounts-enabled`：`dev`=true，`prod`/默认=false → 生产拒绝 `e2e\\d+` / `e2e-serial` 登录
-- 公网部署应删除 `e2e*` 用户或改密；见 [deployment.md](./deployment.md)
+- `erd.security.allow-demo-admin`：`dev`=true，`prod`/默认=false → 生产拒绝用户名 `admin` + 种子口令 `123456`（改密后不受影响）；逃生阀 `ERD_ALLOW_DEMO_ADMIN=true`
+- 公网部署应改密 `admin`、删除 `e2e*` 用户；见 [deployment.md](./deployment.md)
 
 ## SQL 执行
 
@@ -60,7 +61,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-CFG-01 | P0 | ~~`JWT_SECRET` 有仓库默认值，prod 未 fail-fast~~ | ~~`application.yml` 弱默认；prod 未覆盖~~ | **✅ 已关闭（2026-08-03）**：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒 blank/仓库开发默认串；本地/dev 保留 DX 默认 | 保持 prod 无默认；公网/demo 须旋转且 ≠ 仓库串 |
-| R-CFG-02 | P0 | 种子 `admin`/`123456` | `security-model` 种子表；Flyway `V3`/`V6` | e2e 登录已被 prod 拒绝；**admin 不拒** | 首启强制改密或 document 清种子；公网禁止默认口令存活 |
+| R-CFG-02 | P0 | ~~种子 `admin`/`123456`~~ | ~~`security-model` 种子表；Flyway `V3`/`V6`~~ | **✅ 已关闭（2026-08-03）**：`allow-demo-admin` prod/默认=false，拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood；`ERD_ALLOW_DEMO_ADMIN=true` 逃生 | 公网改密 admin；勿开 `ERD_ALLOW_DEMO_ADMIN` |
 | R-CFG-03 | P1 | 应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true` | `application.yml:32-46` | 中间人/弱校验 TLS | 生产 URL 开 SSL；分 profile |
 | R-CFG-04 | P1 | CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*` | `CorsConfig.java:30-40`；`application.yml:94` | HTTP CORS 已收敛；SocketIO 默认任意 Origin | 生产设 `SOCKETIO_ORIGIN` 与 UI 同源；demo 设 `CORS_ALLOWED_ORIGINS` |
 | R-CFG-05 | P2 | OSS / MinIO 默认密钥进 yml | `application.yml:85-87`；prod 已强制 `OSS_*` | 本地默认弱；prod fail-fast OK | 保持 prod 强制；文档勿示例真密钥 |
@@ -95,9 +96,8 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **种子 `admin`/`123456`**（R-CFG-02）：首启强制改密或公网清/禁默认口令。
-2. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id；顺手删 `GitlabController`（R-DATA-01/02/03）。
-3. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
+1. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id（R-DATA-01/02）；顺手删 `GitlabController`（R-DATA-03）。
+2. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
 
 （项目 IDOR / dataSources 归属可作紧随其后的 P1 切片。）
 
