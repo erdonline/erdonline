@@ -71,7 +71,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         </a>
       </aside>
 
-      <main className="auth-shell__form">
+      <main className="auth-shell__form" data-testid="auth-form-panel">
         <div
           className="auth-shell__form-inner"
           id="auth-form-anchor"

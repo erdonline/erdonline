@@ -27,9 +27,8 @@ test.describe('只读分享', () => {
     const brandMetrics = await page.getByTestId('auth-brand-panel').evaluate((el) => {
       const cs = getComputedStyle(el);
       const root = getComputedStyle(document.documentElement);
-      const shell = document.querySelector('[data-testid="auth-brand-shell"]');
-      const form = shell?.querySelector('.auth-shell__form') as HTMLElement | null;
-      const header = shell?.querySelector('.auth-shell__form-header') as HTMLElement | null;
+      const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
+      const header = document.querySelector('.auth-shell__form-header') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const fcs = form ? getComputedStyle(form) : null;
       const hcs = header ? getComputedStyle(header) : null;
@@ -42,6 +41,7 @@ test.describe('只读分享', () => {
         brandPadL: parseFloat(cs.paddingLeft),
         brandGap: parseFloat(cs.gap) || 0,
         formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
+        formPadL: fcs ? parseFloat(fcs.paddingLeft) : -1,
         headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
         titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
       };
@@ -50,11 +50,12 @@ test.describe('只读分享', () => {
     expect(brandMetrics.widthRatio).toBeLessThan(0.48);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
     expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
-    // ADR-0016：失效门次密距（与登录壳同源）；品牌层次不弱化
-    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤36，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(36);
-    expect(brandMetrics.brandPadL).toBeLessThanOrEqual(32);
+    // ADR-0016：失效门碎距二压（与登录壳同源 20×16）；品牌层次不弱化
+    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.brandGap).toBeLessThanOrEqual(16);
-    expect(brandMetrics.formPadT).toBeLessThanOrEqual(36);
+    expect(brandMetrics.formPadT, `表单 padTop 应 ≤20，得 ${brandMetrics.formPadT}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.formPadL, `表单 padL 应 ≤16，得 ${brandMetrics.formPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.headerMb, `门头 mb 应 ≤20，得 ${brandMetrics.headerMb}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
 

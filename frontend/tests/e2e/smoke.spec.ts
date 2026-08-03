@@ -31,7 +31,7 @@ test.describe('冒烟：核心旅程', () => {
       const cs = getComputedStyle(el);
       const root = getComputedStyle(document.documentElement);
       const shell = document.querySelector('[data-testid="auth-brand-shell"]');
-      const form = shell?.querySelector('.auth-shell__form') as HTMLElement | null;
+      const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const thumb = el.querySelector('.auth-shell__brand-thumb') as HTMLElement | null;
       const svg = el.querySelector('[data-testid="erd-empty-diagram"]') as SVGElement | null;
@@ -61,13 +61,13 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.shellHasBg2).toBe(false);
     expect(brandMetrics.shellHas1677).toBe(false);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
-    // ADR-0016：登录门次密距 — 内井 ≤32；品牌标题仍醒目；hero 剪影 ≤180
-    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤36，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(36);
-    expect(brandMetrics.brandPadL).toBeLessThanOrEqual(32);
-    expect(brandMetrics.brandPadT).toBeGreaterThanOrEqual(24);
+    // ADR-0016：登录门碎距二压 — pad 20×16（贴欢迎空态内井）；品牌标题仍醒目；hero 剪影 ≤180
+    expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);
+    expect(brandMetrics.brandPadT).toBeGreaterThanOrEqual(16);
     expect(brandMetrics.brandGap).toBeLessThanOrEqual(16);
-    expect(brandMetrics.formPadT, `表单 padTop 应 ≤36，得 ${brandMetrics.formPadT}`).toBeLessThanOrEqual(36);
-    expect(brandMetrics.formPadL).toBeLessThanOrEqual(36);
+    expect(brandMetrics.formPadT, `表单 padTop 应 ≤20，得 ${brandMetrics.formPadT}`).toBeLessThanOrEqual(20);
+    expect(brandMetrics.formPadL, `表单 padL 应 ≤16，得 ${brandMetrics.formPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
     expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
     expect(brandMetrics.svgW, `hero 剪影应 ≤180，得 ${brandMetrics.svgW}`).toBeLessThanOrEqual(180);

@@ -175,7 +175,7 @@
 - ✅ **表设计签体内容次密距**（2026-08-03）：签体 pad 6/4 + hint/空态/元数据 tip ~24；工作区井 6；禁 clip JExcel；`model-design-ux`「表设计签体内容次密距」绿；下一刀 → ~~设计器 Empty 巨 marginTop / 次屏松井~~✅
 - ✅ **设计器空态次密距**（2026-08-03）：兜底禁 marginTop:100；字段/索引 Empty 压 marginXL + pad 贴 tab-body；保留 CTA；`model-design-ux`「设计器空态次密距」绿；下一刀 → ~~欢迎空态 `.erd-welcome-empty` 内 pad 32~~✅
 - ✅ **欢迎空态次密距**（2026-08-03）：`.erd-welcome-empty__inner` pad 32×24（后更碎至 20×16）；标题 20/mt14→18/mt12·lh22；hero 176；保留逆向链 + 左树新增模型；`model-design-ux`「欢迎空态次密距」绿；下一刀 → ~~AuthBrandShell 失效/登录门次密距~~✅
-- ✅ **AuthBrandShell 次密距**（2026-08-03）：品牌 32×28/gap14 + 表单 pad32 + 门头 mb16；登录/注册/失效/404·403 同源；禁弱化品牌字号/Skip·Tab；`smoke`+`share`+`session` densify 绿；下一刀 → ~~LandingChrome / compare 次密距~~✅
+- ✅ **AuthBrandShell 次密距**（2026-08-03）：品牌 32×28/gap14 + 表单 pad32 + 门头 mb16（后更碎至品牌/表单 20×16）；登录/注册/失效/404·403 同源；禁弱化品牌字号/Skip·Tab；`smoke`+`share`+`session` densify 绿；下一刀 → ~~LandingChrome / compare 次密距~~✅
 - ✅ **LandingChrome / `/compare` 次密距**（2026-08-03）：次屏 section 2.75 / 对照行 0.5 / nav·footer 收；compare hero padT 1.5；hero 品牌级+全幅不动；`landing`+`compare` densify 绿；下一刀 → ~~分享成功态 meta/表清单次密~~✅
 - ✅ **分享成功态 meta / 表清单次密**（2026-08-03）：stage 6×10 + meta gap2 / hint 12·16；表清单 pad 6×10·标题 12；弹层 `.erd-io-modal`；键盘/吊销不弱化；`demo`+`share-project-keyboard` densify 绿；下一刀 → ~~Home hero CTA 簇次密~~✅
 - ✅ **Home hero CTA 簇次密**（2026-08-03）：hero gap24/mb·pb16；actions gap8；secondary 4×10；主 CTA large + Skip/Tab 不弱化；`home-keyboard` densify 绿；下一刀 → ~~Home 空态/公告区次密~~✅
@@ -214,7 +214,8 @@
 - ✅ **Group 基本设置 Form 碎距**（2026-08-03）：项 mb24→12 / Input·Select·钮 32→28 / label 12；对齐 `.setting-common-form`；`group-basic-setting` densify + `group-layout-nav` / `group-keyboard` 绿；下一刀 → ~~Group 基本设置删区碎片（Divider/Space/次文）~~✅
 - ✅ **Group 基本设置删区碎片**（2026-08-03）：Divider 24→12 + 去 Space 叠标题 mb + 次文 14→12/18；`testid=basic-setting-delete-zone`；`group-basic-setting` densify + `group-project-delete-keyboard` 绿；下一刀 → ~~欢迎空态标题 20/mt14 碎距~~✅
 - ✅ **欢迎空态标题碎距**（2026-08-03）：标题 20/mt14·lh≈26 → 18/mt12·lh22（贴 8–12 / page-title 13/22）；pad/hero 不动；`model-design-ux` densify 绿；下一刀 → ~~欢迎空态内井 pad32~~✅
-- ✅ **欢迎空态内井碎距**（2026-08-03）：`.erd-welcome-empty__inner` pad 32×24 → 20×16（贴壳 8–12 / content 12×16）；标题/hero 不动；`testid=designer-welcome-empty-inner`；`model-design-ux` densify 绿；下一刀 → AuthBrandShell 品牌/表单 pad32 二压（对齐 20 井）
+- ✅ **欢迎空态内井碎距**（2026-08-03）：`.erd-welcome-empty__inner` pad 32×24 → 20×16（贴壳 8–12 / content 12×16）；标题/hero 不动；`testid=designer-welcome-empty-inner`；`model-design-ux` densify 绿；下一刀 → ~~AuthBrandShell 品牌/表单 pad32 二压（对齐 20 井）~~✅
+- ✅ **AuthBrandShell 品牌/表单井碎距二压**（2026-08-03）：品牌/表单 pad 32→20×16；gap14/门头/字号/~40% 不动；`testid=auth-form-panel`；`smoke`+`share`+`session` densify + 登录壳键盘绿；下一刀 → AuthBrandShell 门头 mb16 / brand gap14 三压（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
