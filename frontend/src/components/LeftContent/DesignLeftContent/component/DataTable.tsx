@@ -149,25 +149,38 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     setModalVisible(true);
   };
 
-  const handleModalOk = (values: any) => {
+  const handleModalOk = async (values: Record<string, unknown>): Promise<boolean> => {
     const isNew = !currentNode || Object.keys(currentNode).length === 0 || currentNode?.isNew;
+    const persist = { persist: true as const };
 
     switch (modalType) {
-      case 'module':
-        if (isNew) {
-          projectDispatch.addModule(values);
-        } else {
-          projectDispatch.renameModule({ ...values, oldName: values.name });
+      case 'module': {
+        const ok = isNew
+          ? await Promise.resolve(projectDispatch.addModule(values, persist))
+          : await Promise.resolve(
+              projectDispatch.renameModule({ ...values, oldName: values.name }, persist),
+            );
+        if (!ok) {
+          return false;
         }
         break;
-      case 'entity':
+      }
+      case 'entity': {
         if (isNew) {
-          const moduleName = values.module || values.moduleName;
-          projectDispatch.addEntity({
-            ...values,
-            title: values.name,
-            moduleName,
-          });
+          const moduleName = (values.module || values.moduleName) as string | undefined;
+          const ok = await Promise.resolve(
+            projectDispatch.addEntity(
+              {
+                ...values,
+                title: values.name,
+                moduleName,
+              },
+              persist,
+            ),
+          );
+          if (!ok) {
+            return false;
+          }
           // 建表后直开关系图，跳过「双击表→再切关系图」
           if (moduleName) {
             tabDispatch.addTab({
@@ -177,36 +190,59 @@ const DataTable: React.FC<DataTableProps> = (props) => {
             });
           }
         } else {
-          projectDispatch.renameEntity({
-            oldModuleName: currentNode.module,
-            newModuleName: values.moduleName,
-            oldTitle: currentNode.title,
-            newTitle: values.name,
-            newChnname: values.chnname
-          });
+          const ok = await Promise.resolve(
+            projectDispatch.renameEntity(
+              {
+                oldModuleName: currentNode.module,
+                newModuleName: values.moduleName as string,
+                oldTitle: currentNode.title,
+                newTitle: values.name as string,
+                newChnname: values.chnname as string,
+              },
+              persist,
+            ),
+          );
+          if (!ok) {
+            return false;
+          }
         }
         break;
+      }
       case 'relation': {
         const moduleName = currentNode?.module || (modules && modules.length > 0 ? modules[0].name : null);
         if (!moduleName) {
           message.warning('请先创建模型');
-          break;
+          return false;
         }
         if (isNew) {
-          const id = projectDispatch.createDiagram(moduleName, values.name);
-          if (id) {
-            tabDispatch.switchRelationDiagram(
-              moduleName,
-              relationTabEntity(moduleName, id),
-            );
+          const id = await Promise.resolve(
+            projectDispatch.createDiagram(moduleName, values.name as string, persist),
+          );
+          if (!id) {
+            return false;
           }
+          tabDispatch.switchRelationDiagram(
+            moduleName,
+            relationTabEntity(moduleName, id),
+          );
         } else if (currentNode?.diagramId) {
-          projectDispatch.renameDiagram(moduleName, currentNode.diagramId, values.name);
+          const ok = await Promise.resolve(
+            projectDispatch.renameDiagram(
+              moduleName,
+              currentNode.diagramId,
+              values.name as string,
+              persist,
+            ),
+          );
+          if (!ok) {
+            return false;
+          }
         }
         break;
       }
     }
     setModalVisible(false);
+    return true;
   };
 
   const handleRename = (node: any) => {

@@ -18,6 +18,7 @@
 - ✅ 同步配置失败：仅 `saveProject` code===200 写 store + toast「设置成功」+ 关窗；失败 toast 可读、不关窗可重试；无 msg 兜底「设置失败」
 - ✅ 默认项设置失败：仅 `saveProject` code===200 写 store + toast「设置成功」+ 关窗；失败 toast 可读、不关窗可重试；无 msg 兜底「设置失败」
 - ✅ 数据源设置确定失败：仅 `updateDbs`（PUT dataSources）成功 toast「保存成功！」+ 关窗；失败 toast 可读、不关窗可重试；禁无条件成功 toast
+- ✅ EntityModal（新增模型/表/关系图）：仅 `saveProject` code===200 写 store + 成功 toast + 关窗；失败 toast 可读、不关窗可重试；禁本地 mutate 即「添加成功」
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -27,6 +28,7 @@
 - ❌ 修改密码非 200 仍关窗，漏 toast 时像改密成功（历史问题）
 - ❌ 同步配置仅本地改 `upgradeType` 即 toast「设置成功」并关窗，落库失败像已设置（历史问题）
 - ❌ 默认项设置仅本地改 profile 即 toast「设置成功」并关窗，落库失败像已设置（历史问题）
+- ❌ EntityModal / 模块树本地 mutate 即 toast「模型添加成功」并关窗，autosave 失败像已保存（历史问题）
 
 ## 2. 键盘优先
 
