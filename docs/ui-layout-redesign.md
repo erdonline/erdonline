@@ -249,7 +249,8 @@
 - ✅ **逆向导入落盘失败可重试**（2026-08-03）：`setProjectJson`/`importReverseTable`/`importModuleAndProfile` persist；仅 save code===200 写 store + 成功 toast；失败 toast、不写 store；`import-erd-failure` 绿；下一刀 → ~~默认库切库 / WORD 模板假成功~~✅
 - ✅ **默认数据源 / WORD 模板落盘失败可重试**（2026-08-03）：`setDefaultDb`/`updateWordTemplateConfig` 仅 save code===200 写 store；失败 toast+Radio 回滚；顺手删 `databaseDomainsSlice` 零挂载 CRUD；`default-db-failure` 绿；下一刀 → ~~版本回滚假成功~~✅
 - ✅ **版本回滚落盘失败可重试**（2026-08-03）：扫描余假成功——dbsync/Word 导出已收口；`revertVersionData` 仅 save code===200 写 store + 成功 toast；失败不写 store、确认窗不关；`version-revert-failure` 绿；下一刀 → ~~`downloadWordTemplate` JSON/空 blob 假下载~~✅
-- ✅ **WORD 模板下载假文件可拒**（2026-08-03）：`downloadWordTemplate` 拒空/JSON/非 ZIP blob，失败 toast、不 `saveByBlob`；`word-template-download-failure` 绿；下一刀 → 扫描余假成功或键盘摩擦
+- ✅ **WORD 模板下载假文件可拒**（2026-08-03）：`downloadWordTemplate` 拒空/JSON/非 ZIP blob，失败 toast、不 `saveByBlob`；`word-template-download-failure` 绿；下一刀 → ~~Word `gendocx` 假下载~~✅
+- ✅ **Word gendocx 导出假文件可拒**（2026-08-03）：`exportFile('Word')` 复用 `docxBlobGate`；空/JSON/非 ZIP toast、不落盘；`word-gendocx-download-failure` 绿；下一刀 → 扫描余假成功或键盘摩擦
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

@@ -125,6 +125,7 @@
 - [x] [默认数据源切换落盘失败可重试] 数据源设置：两源切默认 mock save → toast「模拟默认数据源保存拒绝」+「当前使用的数据源」仍为第一源 → 重试切到第二源；定位 `role=radio` aria「设为默认数据源 …」（勿扫 `.ant-*`） ✅`default-db-failure.spec.ts`
 - [x] [版本回滚落盘失败可重试] 存 1.0.0→加 REMARK→存 1.0.1→回滚 1.0.0 mock save → toast「模拟回滚保存拒绝」+ 窗仍开 + 画布仍有 REMARK → 重试成功字段消失；定位 `role=dialog`「回滚版本」/ `aria-label=回滚版本`（勿扫 `.ant-*`） ✅`version-revert-failure.spec.ts`
 - [x] [WORD 模板下载空/JSON 假文件] 默认项设置→默认配置→「下载模板」mock 空 blob / JSON 错误体 → toast「下载模板出错」+ 无 download 事件；定位 `role=dialog`「默认项设置」/ `role=button`「下载模板」（勿扫 `.ant-*`） ✅`word-template-download-failure.spec.ts`
+- [x] [Word gendocx 空/JSON/非 ZIP 假文件] 导出文件页→「导出Word」mock JSON / 空 blob / 非 ZIP octet-stream → toast「Word导出失败」+ 无 download；定位 `role=button`「导出Word」/`testid=export-common-page`（勿扫 `.ant-*`） ✅`word-gendocx-download-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`

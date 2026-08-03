@@ -327,6 +327,7 @@
 | 项目菜单→数据源设置 | 切默认数据源 Radio | `setDefaultDb` 仅 save code===200；失败 toast+列表回滚 | | ✅ | `default-db-failure` |
 | 版本行→回滚 | 确认回滚 | 仅 save code===200 写 store+「成功回滚」关窗；失败 toast；不关窗可重试；禁先 setModules | | ✅ | `version-revert-failure` |
 | 默认项设置→下载模板 | `downloadWordTemplate` | 仅非空 ZIP(`PK`) blob 落盘；空/JSON 错误体 toast、无假 .docx | | ✅ | `word-template-download-failure` |
+| 导出文件→导出Word | `POST /doc/gendocx` | 同 `docxBlobGate`；空/JSON/非 ZIP toast、无假下载 | | ✅ | `word-gendocx-download-failure` |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |

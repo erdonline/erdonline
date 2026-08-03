@@ -138,23 +138,6 @@ export const rebaseline = (data) => {
   });
 };
 
-// 生成文档
-
-export const gendocx = (data) => {
-  const projectId = cache.getItem(CONSTANT.PROJECT_ID);
-  return request.post('/ncnb/doc/gendocx',
-    {
-      responseType: 'blob',
-      data: {
-        ...data,
-        projectId,
-        imgdir: 'imgdir',
-        imgext: '.png'
-      },
-    },
-  );
-};
-
 // json 版本管理接口
 
 export const hisProjectSave = (data) => {

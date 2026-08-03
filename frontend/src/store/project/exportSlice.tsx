@@ -12,6 +12,15 @@ import {getAllDataSQLByFilter} from "@/utils/json2code";
 import produce from "immer";
 import moment from "moment";
 import {CONSTANT} from "@/utils/constant";
+import {docxBlobFailureReason} from "@/utils/docxBlobGate";
+
+const WORD_EXPORT_BLOB_COPY = {
+  missing: '服务器未返回文档内容',
+  notBlob: '响应不是文件',
+  empty: '文档内容为空',
+  failDefault: '文档生成失败',
+  notDocx: '返回内容不是 Word 文档（.docx）',
+} as const;
 
 export type IExportSlice = {
   exportSliceState?: any;
@@ -149,13 +158,30 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
             dbKey: defaultDatabase?.key || ''
           }
         }).then(async (res) => {
+          if (type === 'Word') {
+            // 与 downloadWordTemplate 同闸：非空 + ZIP(PK)；拒 JSON/空/垃圾 blob 假 .docx
+            const reason = await docxBlobFailureReason(res, WORD_EXPORT_BLOB_COPY);
+            if (reason) {
+              Modal.destroyAll();
+              showExportFailure(type, reason);
+              return;
+            }
+            File.saveByBlob(res as Blob, `${project}${postfix}`);
+            Modal.destroyAll();
+            return;
+          }
+          // PDF 等：至少拒空体与 JSON 错误体（勿用 ZIP 闸，非 docx）
           if (!res) {
             Modal.destroyAll();
             showExportFailure(type, '服务器未返回文档内容');
             return;
           }
-          // 后端偶发以 JSON 错误体 + blob 返回（含 HTTP 200）
           const blob = res as Blob;
+          if (blob.size === 0) {
+            Modal.destroyAll();
+            showExportFailure(type, '文档内容为空');
+            return;
+          }
           if (blob.type && blob.type.includes('json')) {
             Modal.destroyAll();
             try {
