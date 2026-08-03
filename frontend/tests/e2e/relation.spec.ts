@@ -2584,7 +2584,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(palette).toBeVisible();
       await expect(palette.getByRole('listbox', { name: '命令列表' })).toBeVisible();
 
-      // ADR-0016：命令面板密度（与 22 chrome / 空态同阶）；禁 48 高输入 + 10/12 松行
+      // ADR-0016：命令面板密度（与 22 chrome / 空态同阶）；禁 48 高输入 + 10/12 松行；footer 对齐 ? 速查 4×8
+      await expect(
+        palette.getByText(/↑↓ 选择 · Enter 执行 · Esc 关闭/),
+      ).toBeVisible();
       const cmdMetrics = await palette.evaluate((el) => {
         const panel = el as HTMLElement;
         const input = el.querySelector('.erd-cmd-input') as HTMLElement | null;
@@ -2603,6 +2606,10 @@ test.describe('关系图画布（ReactFlow）', () => {
             : NaN,
           itemFont: mcs ? parseFloat(mcs.fontSize) : NaN,
           footerFont: fcs ? parseFloat(fcs.fontSize) : NaN,
+          footerPadY: fcs
+            ? parseFloat(fcs.paddingTop) + parseFloat(fcs.paddingBottom)
+            : NaN,
+          footerPadX: fcs ? parseFloat(fcs.paddingLeft) : NaN,
         };
       });
       expect(cmdMetrics.panelW, `面板宽应 ≤460，得 ${cmdMetrics.panelW}`).toBeLessThanOrEqual(
@@ -2617,6 +2624,14 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(cmdMetrics.itemPadY).toBeLessThanOrEqual(16);
       expect(cmdMetrics.itemFont).toBeLessThanOrEqual(12);
       expect(cmdMetrics.footerFont).toBeLessThanOrEqual(11);
+      expect(
+        cmdMetrics.footerPadY,
+        `footer padY 应 ≤8（禁 12），得 ${cmdMetrics.footerPadY}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        cmdMetrics.footerPadX,
+        `footer padX 应 ≤8（禁 10），得 ${cmdMetrics.footerPadX}`,
+      ).toBeLessThanOrEqual(8);
 
       await page.getByTestId('cmd-palette-input').fill('新建');
       await page.getByRole('option', { name: /新建表/ }).click();

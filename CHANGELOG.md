@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Cmd+K footer 次密
+
+- 选题：版本空态已密；Cmd+K footer 仍 pad 6×10，相对 `?` 速查 footer 4×8 / ADR-0016 族偏松；勿动 notice；勿弱化 ↑↓/Enter/Esc/Tab trap
+- before：`.erd-cmd-footer` pad 6×10；after：pad 4×8 + lh 1.3 + `--erd-font-ui`（对齐 `.erd-help-footer`）
+- E2E：`relation`「命令面板」锁 footer padY≤8 / padX≤8 / font≤11 + 快捷提示可见；截图 `diagram-cmd-palette-dense.png`；键盘闭环不回归
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → notice 列表碎片（视 ROI；本刀不碰）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板：Cmd" --workers=1 --retries=0`
+
 #### 体验：版本列表空态井次密
 
 - 选题：设计器侧栏 nav 已密；版本 List 空态仍 pad 16×12，相对工作台列表空态 12×8 / ADR-0016 8–12 族偏松；勿动 Cmd+K / notice；勿弱化「保存第一个版本」CTA
 - before：`.ant-list-empty-text` pad 16×12；after：pad 12×8（对齐 `.project-list-page`）；`testid=version-empty` + role 按钮「保存第一个版本」
 - E2E：`version`「无数据源也可新增版本」锁 padY≤12 / padX≤8 + 截图 `version-empty-dense.png`；保存后空态消失不回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Cmd+K footer / notice 碎片（视 ROI；本刀不碰）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Cmd+K footer~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "无数据源也可新增版本" --workers=1 --retries=0`
