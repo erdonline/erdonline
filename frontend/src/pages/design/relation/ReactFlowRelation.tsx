@@ -1169,13 +1169,24 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
             />
           ) : (
             <div
-              className="erd-frame-label"
+              className="erd-frame-label nodrag nopan"
               data-testid="frame-rename-label"
-              title="双击重命名"
+              role="button"
+              tabIndex={selected ? 0 : -1}
+              aria-label={`重命名分组 ${f.name}`}
+              title="双击或 Enter 重命名"
               onDoubleClick={(e) => {
                 e.stopPropagation();
                 setDraft(f.name);
                 setRenaming(true);
+              }}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setDraft(f.name);
+                  setRenaming(true);
+                }
               }}
             >
               {f.name}
@@ -1286,11 +1297,25 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     setDiagramModal(null);
   }, [diagramModal, moduleName, projectDispatch, switchDiagram]);
 
+  /** 仅选中表 id 指纹；拖坐标不触发边重算（tabbable 门控用） */
+  const selectedTableKey = useMemo(
+    () =>
+      nodes
+        .filter((n) => n.selected && n.type !== 'frame')
+        .map((n) => n.id)
+        .sort()
+        .join('|'),
+    [nodes],
+  );
+
   const edges: Edge[] = useMemo(() => {
     const associations = currentModule?.associations || [];
     const entities = currentModule?.entities || [];
     const layout = getActiveDiagramLayoutNodes(currentModule);
     const { positions } = resolveEntityPositions(entities, associations, layout);
+    const selectedNodeIds = new Set(
+      selectedTableKey ? selectedTableKey.split('|') : [],
+    );
     return associationsToEdges(associations, { positions }).map((e) => {
       const selected = !!edgeSelected[e.id];
       const stroke = selected ? erdColors.brand : EDGE_STROKE;
@@ -1300,6 +1325,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         relation,
         selected ? 'brand' : 'ink',
       );
+      const tabbable =
+        selected || selectedNodeIds.has(e.source) || selectedNodeIds.has(e.target);
       return {
         ...e,
         selected,
@@ -1307,6 +1334,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           ...e.data,
           editable: true,
           moduleName,
+          tabbable,
         },
         style: {
           ...e.style,
@@ -1316,7 +1344,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         ...markers,
       };
     });
-  }, [currentModule, edgeSelected, moduleName]);
+  }, [currentModule, edgeSelected, moduleName, selectedTableKey]);
 
   // 实体/坐标 → 节点。实体即节点：entities 全集渲染，位置优先级
   // 当前图 layout 坐标 > 现有画布位置 > dagre 补缺（导入/逆向无坐标时分层；并持久化到 diagrams）
@@ -2294,6 +2322,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           rfRef.current = instance;
         }}
         onPointerMove={onPointerMoveCursor}
+        // 自研控件已按选中门控 tabIndex；关掉 RF wrapper 默认 tabindex=0，避免密图 Tab trap
+        nodesFocusable={false}
+        edgesFocusable={false}
         deleteKeyCode={cmdOpen || helpOpen ? null : ['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
         selectionOnDrag

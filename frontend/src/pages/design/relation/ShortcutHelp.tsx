@@ -12,7 +12,7 @@ const DEFAULT_SHORTCUTS: ShortcutRow[] = [
   { keys: '⌘/Ctrl+Z', desc: '撤销' },
   { keys: '⌘/Ctrl+⇧Z', desc: '重做' },
   { keys: 'Delete · Backspace', desc: '删除选中表 / 边 / 字段（二次确认）' },
-  { keys: 'Tab · ⇧Tab', desc: '浏览：选中表字段环（无 trap）；编辑：下一/上一列或行，末行新建' },
+  { keys: 'Tab · ⇧Tab', desc: '浏览：选中表/边/分组控件（字段环·基数·重命名，无 trap）；编辑：下一/上一列或行，末行新建' },
   { keys: '↓ ↑ ← → · Enter', desc: '模型树：漫游 / 展开；Enter 定位表或打开关系图（Skip→Tab 仍进搜索）' },
   { keys: 'Enter', desc: '浏览聚焦字段→编辑；编辑态提交' },
   { keys: 'Esc', desc: '取消编辑 / 关闭本卡与命令面板' },

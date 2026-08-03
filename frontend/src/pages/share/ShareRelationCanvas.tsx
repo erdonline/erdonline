@@ -206,6 +206,8 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
         fitViewOptions={{...FIT_VIEW_SHAREABLE}}
         nodesDraggable={false}
         nodesConnectable={false}
+        nodesFocusable={false}
+        edgesFocusable={false}
         elementsSelectable
         panOnDrag
         zoomOnScroll
