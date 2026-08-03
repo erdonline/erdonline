@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：元数据应用子签 / CodeTab chrome 密度
+
+- 选题：次屏 JExcel 已 ~24；元数据应用 `CodeTab`/`DbTab` 仍默认 antd 松签 + `#codeNav` 字 11
+- `CodeTab`/`DbTab`：`size=small` + `.erd-code-tab__tabs` / `.erd-db-tab`；签栏 `--erd-sub-tabs-h: 24`、字 12、flex 居中；nav `overflow: visible`；inset focus-visible
+- E2E：`model-design-ux`「元数据应用子签」栏高 + 不 clip + Tab focus + Cmd+1/2/3；截图 `diagram-code-tabs-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 表设计内签（字段/索引）栏显式 ~24 或右键菜单密度（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "元数据应用子签" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表设计 Cmd/Ctrl\\+1/2/3" --workers=1 --retries=0`
+
 #### 体验：设计器次屏表密度 / chrome（JExcel + 版本 diff）
 
 - 选题：工单/审批已 ~24；表设计字段/索引 JExcel 仍吃 datatables 头 pad10/行 pad8 + `#fbf8fb` 斑马；版本 diff 实体行碎 hex
 - `JExcel/index.less`：工具栏 ~24；表头/行 pad 4×8；字 12；token 表面/斑马；工具栏 inset focus-visible；禁 clip
 - `version-diff-panel`：组头/行 min-height ~24、pad 4×8；增/删/改色走 `--erd-success`/`--erd-brand`/`--erd-warning`
 - E2E：`model-design-ux`「表设计 JExcel 行密度」；不回归 `relation`「工具栏 Tab 可达」+ `version.spec` 可视化 diff
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 元数据应用子签 / CodeTab chrome（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~元数据应用子签 / CodeTab chrome~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计 JExcel 行密度" --workers=1 --retries=0`

@@ -173,6 +173,7 @@
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 24；hint/摘要色走 `--erd-ink-*` / success·brand·warning；禁 8×12 松行 + 16 标题、禁工具条 28 + rgba/`#389e0d` 碎色；禁 clip 图标；保留工具条 focus-visible
 - ✅ 版本工单/审批列表密度：共享 `.approval-workorder-page` 标题 13/22、标题栏 ~24、表头/行 pad 4×8、动作钮 22；禁默认松表 + `marginBottom:16`；禁 clip 图标；保留动作钮 focus-visible
 - ✅ 设计器次屏表密度：JExcel（字段/索引/默认字段）工具栏 ~24、表头/行 pad 4×8、字 12、token 斑马；版本 diff 实体组头/行 ~24 + success/brand/warning；禁 datatables 头 10/行 8 + `#fbf8fb`；禁 clip；保留工具栏 Tab/focus-visible
+- ✅ 元数据应用子签密度：`CodeTab`/`DbTab` 签栏 `--erd-sub-tabs-h` 24、字 12、flex 居中；禁默认 antd 松签 + 字 11；禁 clip；保留子签 Tab focus-visible + Cmd+1/2/3 表设计签
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
 - ✅ dataTypeDomains 树图标：`getDataTypeTree` 走 `erdColors.brand`；禁裸 `#DE2910`
@@ -210,6 +211,7 @@
 - ❌ 版本列表 8×12 松行 + 16 标题 / 工具条 28 + rgba 碎色，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
 - ❌ 工单/审批默认 Table 松行 + `marginBottom:16` 标题，与 22–28 chrome 不同阶（历史问题）
 - ❌ JExcel datatables 头 pad10/行 pad8 + `#fbf8fb` 斑马 / 版本 diff 碎 hex，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
+- ❌ 元数据应用 CodeTab/DbTab 默认 antd 松签 + 字 11，与 CommonTabs ~24 不同阶（历史问题）
 - ❌ 普通导出页 16 pad + Title level4 松卡片 / 图标裸 `#DE2910`，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
 - ❌ Home / Group 导航图标硬编码 `#DE2910`，与 DesignLayout `erdColors.brand` 割裂（历史问题）
 - ❌ dataTypeDomains 树图标硬编码 `#DE2910`，与 `erdColors.brand` 割裂（历史问题）
