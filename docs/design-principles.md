@@ -179,6 +179,7 @@
 - ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；禁 pad 堆高无固定栏；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
 - ✅ 表设计签体内容次密距：`--erd-tab-body-pad-x/b` 6/4、unique-hint pad 4×8 / mb 4、空态 pad 贴 tab-body、元数据 tip `.erd-meta-ddl-hint` ~24、工作区井 6；禁 10/12 松井 + Paragraph 大底距；禁 clip JExcel；保留空字段 CTA / 空名 toast
 - ✅ 设计器空态次密距：兜底 `.erd-pane-empty`（禁 `marginTop:100` / 高 200 插画）；字段/索引 `.ant-empty` margin-block 0 + pad 对齐 `--erd-tab-body-pad`；保留空态 CTA；禁 antd `marginXL` 次屏松井
+- ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 32×24、标题 20/mt14、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 48+ 松井 / 22 标题 mt20 / hero 220；禁压成画布空态 14/18
 - ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
@@ -196,6 +197,7 @@
 - ✅ Home / Group / Design 三壳共用 `erd-chrome-*`：顶栏 64、`--erd-*` 表面；禁全页 Watermark / shields 徽标 clutter
 - ✅ Home 一构图：hero CTA 簇 + 项目网格锚点；禁快速操作竖排中文磁贴 / 陈旧公告占位；导航选中走 brand
 - ✅ 设计器下拉用 antd `Menu`/`Dropdown` `items`：单行标题、紧凑密度（`.erd-dense-menu` ~28）；弹窗外置；禁「大图标+副标题」卡片项；禁默认 ~40 松项；子菜单不得串台（导出≠导入）
+- ❌ 欢迎空态标题 mt20 / 22 字 + hero 220 + 松内井，盖首屏扫读（历史问题）
 - ❌ 画布一套 Ant 蓝、Home 一套品牌红，截图不像同一产品（历史问题）
 - ❌ 项目「导出」旁弹出逆向/PdMan 等导入项（历史问题）
 - ❌ 导入多表后按序号铺网格，关联线交叉成毛线团（历史问题）
