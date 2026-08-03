@@ -19,10 +19,12 @@
 - ✅ 表设计内签直切：`Cmd/Ctrl+1` 字段 · `2` 索引 · `3` 元数据应用（仅表设计签挂载时拦截；输入框内不拦；画布上不抢浏览器签页）；速查卡已登记
 - ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
+- ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ❌ 设计原则写了 `?` 速查卡却无实现，Cmd+K / Delete 确认 / Tab 字段导航只能靠走查发现（历史问题）
 - ❌ 表设计字段网格工具栏 6/7 图标键盘不可达、remove 可聚焦但 Enter 无效、网格无 Tab 入口（历史问题）
 - ❌ 进设计器 Tab 先扫冗长顶栏，模型树/画布无 Skip、焦点环不可见（历史问题）
 - ❌ 表设计三签只能鼠标点，高手手不离键却要绕画布底栏（历史问题）
+- ❌ 画布未选中表字段与行内微按钮全进 Tab 序，密图键盘 trap（历史问题）
 - ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ✅ 左树点表名 → 同语言定位到画布（切关系图签 + 选中 + fitView + `data-locate-flash`）；表设计走菜单「编辑表」
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）
