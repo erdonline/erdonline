@@ -64,7 +64,7 @@ JDBC 机密不进 projectJSON（ADR-0008）；连接在 `data_sources`。
 采用**单一业务库** `erd`（ADR-0020）。历史双库（`martin`/`erd`）已合并；旧 erd dump 中与认证同名的桩表已丢弃。
 
 - **库内表**：系统/认证（用户、角色、菜单、OAuth、QRTZ…）与建模元数据（项目、版本、分享、`data_sources`…）共存。
-- **双 SqlSessionFactory（过渡）**：`MartinDataSourceConfig` / `ErdDataSourceConfig` 仍按 mapper 包路由，但 JDBC 均指向同一 `DB_NAME`（默认 `erd`）。
+- **双 SqlSessionFactory（过渡）**：`MartinDataSourceConfig` / `ErdDataSourceConfig` 仍按 mapper 包路由，但 JDBC 均指向同一 `MYSQLDATABASE`（默认 `erd`）。
 - **Redis**：OAuth token 存储（RedisTokenStore）与缓存。
 - **Bootstrap**：`db/init` 仅 CREATE DATABASE + CREATE TABLE；种子 / demo / E2E 由 `classpath:db/migration/erd`（`ErdFlywayConfig`）写入。
 

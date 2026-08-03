@@ -18,17 +18,17 @@
 
 ## 决策
 
-1. **物理单一库**：默认库名 `erd`（唯一环境变量 `DB_NAME`；无 `DB_ERD` / `DB_MARTIN` 回退）。
+1. **物理单一库**：默认库名 `erd`（环境变量 `MYSQLDATABASE`；无 `DB_ERD` / `DB_MARTIN` / `DB_NAME` 回退）。
 2. **`db/init` 仅 schema**：`01_create_database.sql` + `02_tables.sql`（CREATE TABLE）；不再含种子、demo、privileges 脚本。
 3. **种子进 Flyway**：`backend/.../db/migration/erd/` 的 `V3+`（系统基线 / 新用户权限 / 公开 demo / E2E 账号）；后端启动由 `ErdFlywayConfig` 执行。
-4. **过渡期保留双 SqlSessionFactory**：`martinDataSource` 与 `erdDataSource` 仍按包扫描分离，但 **JDBC URL 指向同一 `DB_NAME`**，凭证同为 `DB_USERNAME` / `DB_PASSWORD`（避免本轮拆 mapper 大爆炸）。后续可再 ADR 合并为单 DS。
-5. **Compose**：MySQL 容器用官方 `MYSQL_DATABASE` / `MYSQL_USER` / `MYSQL_PASSWORD`，值来自 compose 映射的 `DB_NAME` / `DB_USERNAME` / `DB_PASSWORD`；应用只读 `DB_*`。
+4. **过渡期保留双 SqlSessionFactory**：`martinDataSource` 与 `erdDataSource` 仍按包扫描分离，但 **JDBC URL 指向同一 `MYSQLDATABASE`**，凭证同为 `MYSQLUSER` / `MYSQLPASSWORD`（避免本轮拆 mapper 大爆炸）。后续可再 ADR 合并为单 DS。
+5. **环境变量**：Spring 直接读 Railway 插件原生名（`MYSQLHOST` / `MYSQLPORT` / `MYSQLDATABASE` / `MYSQLUSER` / `MYSQLPASSWORD`），每项单一占位符、无嵌套回退。Compose：MySQL 容器用官方 `MYSQL_DATABASE` / `MYSQL_USER` / `MYSQL_PASSWORD`，backend 注入同名 `MYSQL*`。
 
 ## 后果
 
-- Railway：只需建一个库 + 导入 schema；Redeploy 后 Flyway 灌种子。不再要求 `DB_MARTIN`≠`DB_ERD` 两库。
-- 本地已有 **双库 data 卷**：须重建卷（`docker compose down -v` 后 up）或手工把 `martin.*` 表迁入 `erd` 并改 `DB_NAME=erd`。
-- 生产若已有双库数据：导出两边表 → 导入单一 `erd`（丢弃 erd 侧桩 `sys_*`）→ 变量改为 `DB_NAME=erd` → 确认 `flyway_schema_history` 后按需 baseline / 补跑未执行版本。
+- Railway：Link MySQL 即注入 `MYSQL*`；建一个库 + 导入 schema；Redeploy 后 Flyway 灌种子。不再要求 `DB_MARTIN`≠`DB_ERD` 两库，也不再要求 `DB_*` Variable Reference。
+- 本地已有 **双库 data 卷**：须重建卷（`docker compose down -v` 后 up）或手工把 `martin.*` 表迁入 `erd` 并改 `MYSQLDATABASE=erd`。
+- 生产若已有双库数据：导出两边表 → 导入单一业务库（丢弃 erd 侧桩 `sys_*`）→ `MYSQLDATABASE` 指向该库 → 确认 `flyway_schema_history` 后按需 baseline / 补跑未执行版本。
 - E2E 种子随 Flyway 进入库；公网登录仍由 `erd.security.e2e-accounts-enabled=false` 拒绝。
 
 ## 验证

@@ -37,6 +37,7 @@
 - [x] [画布字段浏览器 Tab 环] 选中表 Tab 穿字段→添加字段→开表设计后可脱出；未选中表 `tabIndex=-1` ✅`relation.spec.ts`「字段浏览器 Tab 环」
 - [x] [画布 chrome Tab 序] Controls 四钮 → 工具栏；MiniMap svg `tabindex=-1`；Controls `:focus-visible` brand 环；Shift+Tab 回 Controls 无 trap ✅`relation.spec.ts`「画布 chrome Tab 序」
 - [x] [左树键盘漫游] Skip→↓入树；active `data-tree-kb-active` brand 环；Enter 定位表 + 开关系；Skip→Tab 进搜索无 trap ✅`relation.spec.ts`「左树键盘漫游」
+- [x] [画布节点级 Tab] 无选中无 RF node wrapper/`erd-edge-label` 进序；选中边 chip Enter 开基数；Frame Enter 重命名 ✅`relation.spec.ts`「画布节点级 Tab」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
@@ -284,7 +285,7 @@
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
 - [x] [存量 console.log] 已清零（`rg console\.(log|debug|info) src` = 0；`lint:js:ci` 0 error）✅自动
-- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS`；prod profile 必须注入 DB_USERNAME/DB_PASSWORD/OSS 密钥否则启动失败（fail-fast 设计）
+- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS`；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/OSS 密钥否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`）
 - [ ] [生产凭证 fail-fast] 待 Docker 部署验证：`docker-compose up`（compose 显式传 env，应正常启动）
 
 ## UX 走查（playwright-ux-audit 规则，2026-08-01 首轮）
@@ -366,10 +367,10 @@
 - [x] [ADR-0019 + deployment] 文档站可打开 ADR-0019；`deployment.md` 含 Railway 五步与 env 对照；`yarn build`（website）无 MDX 失败 ✅ 2026-08-02
 - [x] [Railway monorepo 构建] `backend/railway.toml` + Dockerfile 跟 `PORT`；文档写明 Root Directory=`backend`、Config=`/backend/railway.toml`；本地 `mvn -DskipTests package` + `docker build ./backend` ✅ 2026-08-02
 - [ ] [单库 ADR-0020] 空卷 `docker compose up` → 仅一库 `erd`；后端启动后 `sys_user` 有种子；`flyway_schema_history` ≥ V6
-- [ ] [Railway 单库] App 仅 `DB_NAME=erd` + schema init 脚本后 Redeploy → health UP，无 `Unknown database 'martin'`
-- [x] [Railway MySQL yml] `application.yml` 库名不回退 `MYSQLDATABASE`；文档含「Railway MySQL 正确接法」✅ 2026-08-03（单库后改为 `DB_NAME`）
-- [ ] [Railway Dashboard] Root Directory=`backend` + Config=`/backend/railway.toml` → Deploy → MySQL/Redis Variables（`DB_NAME=erd` + schema init）→ Public → `actuator/health` UP → 设 `DEMO_API_URL`
-- [ ] [Zeabur Dashboard] Root Directory=`backend` → Dockerfile 构建 → MySQL 8 + Redis + `DB_*`/`REDIS_*`/`JWT_*`/`CORS_*` → 域名 → `curl /actuator/health` UP（`/` 可为 404）→ `DEMO_API_URL` 指该 URL
+- [ ] [Railway 单库] App `MYSQLDATABASE=erd`（或灌入插件库）+ schema init 后 Redeploy → health UP，无 `Unknown database 'martin'`
+- [x] [Railway MySQL/Redis yml] 直接读 `MYSQL*`/`REDIS*`（无 `DB_*` / `SPRING_DATA_REDIS_URL`）；文档「Railway MySQL/Redis 正确接法」✅ 2026-08-03
+- [ ] [Railway Dashboard] Root Directory=`backend` + Config=`/backend/railway.toml` → Deploy → Link MySQL/Redis（原生变量）+ schema init → Public → `actuator/health` UP → 设 `DEMO_API_URL`
+- [ ] [Zeabur Dashboard] Root Directory=`backend` → Dockerfile 构建 → MySQL 8 + Redis + `MYSQL*`/`REDIS*`/`JWT_*`/`CORS_*` → 域名 → `curl /actuator/health` UP（`/` 可为 404）→ `DEMO_API_URL` 指该 URL
 
 ## 创建项目 / JWT 头（2026-08-02）
 

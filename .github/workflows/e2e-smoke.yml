@@ -62,9 +62,9 @@ jobs:
       - name: Start backend（等待 actuator 就绪）
         working-directory: backend
         env:
-          DB_HOST: 127.0.0.1
-          DB_USERNAME: erd
-          DB_PASSWORD: erd
+          MYSQLHOST: 127.0.0.1
+          MYSQLUSER: erd
+          MYSQLPASSWORD: erd
           SPRING_PROFILES_ACTIVE: dev
         run: |
           nohup mvn -B spring-boot:run > backend.log 2>&1 &

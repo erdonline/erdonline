@@ -10,11 +10,15 @@ spring:
   # 缺环境变量时启动直接失败（fail-fast），杜绝默认密码随生产部署上线。
   datasource:
     martin:
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
+      username: ${MYSQLUSER}
+      password: ${MYSQLPASSWORD}
     erd:
-      username: ${DB_USERNAME}
-      password: ${DB_PASSWORD}
+      username: ${MYSQLUSER}
+      password: ${MYSQLPASSWORD}
+  data:
+    redis:
+      # Railway 注入 REDISPASSWORD；compose 无密码时设 REDISPASSWORD=（空串→Normalizer 置 null）
+      password: ${REDISPASSWORD}
   thymeleaf:
     prefix: classpath:/views/
     suffix: .html
