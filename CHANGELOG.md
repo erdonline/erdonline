@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：设计器侧栏 nav 行距次密
+
+- 选题：Auth logo 48 ROI 低跳过；版本/导入/导出/设置侧栏 Menu 仍 antd 默认 ~40 + 松 pad，相对 Group 侧栏 28·12 / ADR-0016 8–12 族偏松；勿弱化命中/键盘
+- before：项高 ~40 + 默认 pad≈24；after：项高 28 / padX 12 / marginY 2 / 字 12；`testid=design-layout-sider-menu` + `aria-label=设计器侧栏导航`
+- E2E：`layout-outlet`「顶栏动作与子路由出口」锁 densify + 侧栏 menuitem/link focus+Enter；截图 `design-sider-nav-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 版本空态 pad 16×12 或 Cmd+K footer / notice 碎片（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "顶栏动作与子路由出口" --workers=1 --retries=0`
+
 #### 体验：AuthBrandShell 表单 body 碎距
 
 - 选题：门头/gap 已 12；表单 Title 仍 mt10、Form 项 antd 默认 mb≈24、登录 `size=large`≈40，相对 ADR-0016 / `.setting-common-form` 偏松；勿改 pad 20×16 / 门头 mb12 / brand gap12 / Skip·Tab
 - before：Title mt10 + 项 mb≈24 + Input/钮 large≈40；after：Title mt6 + `.auth-shell-form` 项 mb12 / Input·钮 28 / label 12；`testid=auth-shell-form`
 - E2E：`smoke`「登录页渲染」+ `session`「去注册」+「登录壳键盘」+「注册壳键盘」锁 Title mt≤8 / 项 mb∈[8,16] / 控件 ∈[24,32]
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → AuthBrandShell 门头 logo 48（视 ROI）或其它碎距面
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~设计器侧栏 nav 行距~~✅（跳过 Auth logo 48）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep "登录页渲染" --workers=1 --retries=0`

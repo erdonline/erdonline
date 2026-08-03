@@ -207,6 +207,36 @@
 .design-layout__sider-menu {
   flex: 1;
   border-inline-end: none !important;
+  font-family: var(--erd-font-ui);
+
+  /* ADR-0016：版本/导入/导出/设置侧栏次密 — 与 Group 侧栏同阶（28/12 / 8–12 族）；禁高40+pad24；命中 ≥28 */
+  &.ant-menu-inline .ant-menu-item,
+  &.ant-menu-inline .ant-menu-submenu-title,
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    height: 28px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    margin-block: 2px !important;
+    margin-inline: 4px !important;
+    padding-inline: 12px !important;
+    width: auto !important;
+    font-size: 12px;
+    border-radius: 4px;
+    overflow: visible;
+
+    .ant-menu-item-icon {
+      min-width: 14px;
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+      z-index: 1;
+    }
+  }
 }
 
 .design-layout__content {

@@ -501,6 +501,8 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
                   selectedKeys={siderSelectedKey ? [siderSelectedKey] : []}
                   items={siderMenuItems}
                   className="design-layout__sider-menu"
+                  data-testid="design-layout-sider-menu"
+                  aria-label="设计器侧栏导航"
                 />
               ) : null}
             </div>
