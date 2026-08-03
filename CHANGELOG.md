@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：字段类型下拉区分枚举（画布 + 表设计）
+
+- 选题：`4dab9a5` 字典可建 `kind=enum`；画布仍硬编码 `FIELD_TYPES`、JExcel 扁平 name 列表 → 建完枚举不好挑
+- `fieldTypeOptions`：拆「逻辑类型 | 枚举」；画布 `<select>` optgroup + 浏览态枚举徽章；表设计/默认字段 JExcel dropdown `group`（jsuites）；值写 `fields[].type=code`
+- 纪律：不改 persist 闸；遗留快捷码（如 `String`）仍进逻辑组，防旧 E2E/字段失选
+- E2E：`field-type-enum-picker`（建枚举 → optgroup → 选 code 落盘 + 徽章）
+
+验证点：
+- `cd frontend && npx --yes tsx --test src/utils/fieldTypeOptions.test.ts`
+- `cd frontend && npx playwright test tests/e2e/field-type-enum-picker.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据类型字典枚举域 UX（kind=enum / values[]）
 
 - 选题：`2d42004` DBML Enum 已入库；`e823bf5` CRUD persist-on-200；设置页仍只改 name/code → 枚举不可见/不可编

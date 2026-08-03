@@ -6,6 +6,7 @@ import {HotTable} from "@handsontable/react";
 // @ts-ignore
 import {CellChange, ChangeSource} from "handsontable";
 import _ from "lodash";
+import { flatTypeNamesPreferEnum } from '@/utils/fieldTypeOptions';
 
 
 export type DefaultFieldProps = {};
@@ -143,9 +144,7 @@ const DefaultField: React.FC<DefaultFieldProps> = () => {
     projectDispatch: state.dispatch,
   }), shallow);
 
-  const allDataTypeName = datatype?.map((t: any) => {
-    return t.name;
-  })
+  const allDataTypeName = flatTypeNamesPreferEnum(datatype);
 
   const sheetRows = (projectDispatch.getDefaultFields() || []).filter((f: any) => f != null);
   const defaultJson = JSON.stringify(sheetRows);

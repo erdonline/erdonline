@@ -509,6 +509,15 @@
         // 次要栏：与字段名拉开层次，避免密表糊成一块
         opacity: 0.88;
 
+        .erd-field-type-enum-badge {
+          color: var(--erd-brand);
+          font-family: var(--erd-font-sans);
+          font-size: 9px;
+          font-weight: 600;
+          letter-spacing: 0;
+          opacity: 1;
+        }
+
         .erd-field-default {
           color: var(--erd-ink-400);
           font-weight: 400;
