@@ -4,6 +4,7 @@ import {
   DatabaseDownload,
   DatabaseNetwork,
   DataDisplay,
+  DataNull,
   Export,
   FileJpg,
   FileLock,
@@ -76,6 +77,13 @@ export const secondaryRoutes = [
         path: '/design/table/setting/defaultField',
         name: '默认字段设置',
         icon: <Column theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        access: 'canErdTableSettingDefaultfield',
+      },
+      {
+        path: '/design/table/setting/dataType',
+        name: '数据类型字典',
+        icon: <DataNull theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        // 复用默认字段权限，避免本轮扩 privileges
         access: 'canErdTableSettingDefaultfield',
       },
       {

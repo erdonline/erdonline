@@ -109,7 +109,7 @@
 - 目标：antd `Tabs`（左侧 vertical：基本资料 / 修改密码）+ `Form layout="vertical"`；头像上传沿用；摘全部 ProForm；删除「地理/电话」等无后端字段（先 grep 确认无引用）
 - ✅ **授权类型密度对齐**（2026-08-03）：`identification` 去裸 `Result` / `#DE2910`；密度状态面板（13/22 + `--erd-brand`）；`account-settings-identification`
 - ✅ **Export / Home·Group 图标 token**（2026-08-03）：`ExportCommon` 图标 `currentColor`→`--erd-brand`；Home/Group `_defaultProps` 对齐 DesignLayout `erdColors.brand`
-- ✅ **dataTypeDomains 树图标 token**（2026-08-03）：`getDataTypeTree` `brandFill = erdColors.brand`；禁裸 `#DE2910`
+- ✅ **dataTypeDomains 树图标 token**（2026-08-03）：`getDataTypeTree` `brandFill = erdColors.brand`；禁裸 `#DE2910`；设置页 `/setting/dataType` 已挂载
 
 ### 分享 share（品牌壳-lite · W5）
 
@@ -244,7 +244,8 @@
 - ✅ **Frame 改名/bounds 落盘失败可回滚**（2026-08-03）：`renameFrame` persist + 缩放/适应成员/`expandFrameForMembers`→`commitDiagramGeometry`；失败 toast + 草稿/RF 回滚；成功才「已适应成员」；`canvas-frame-rename-bounds-failure` 绿；下一刀 → ~~Frame 新建·成员加减假成功~~✅
 - ✅ **Frame 新建/成员加减落盘失败可回滚**（2026-08-03）：`createFrame`/`addFrameMembers`/`removeFrameMembers` `persist:true`；失败 toast、不上图/成员不变；加入 Modal 拒关窗；`canvas-frame-members-failure` 绿；下一刀 → ~~`addAssociation` 连线假成功~~✅
 - ✅ **画布连线建关联落盘失败可重试**（2026-08-03）：`addAssociation` `persist:true`；失败 toast、不上边；可再拖重试；`canvas-connect-edge-failure` 绿；下一刀 → ~~`updateAssociationRelation` 基数改假成功~~✅
-- ✅ **画布改边基数落盘失败可重试**（2026-08-03）：`updateAssociationRelation` `persist:true`；失败 toast、chip 保持原基数；可再选重试；`canvas-cardinality-failure` 绿；下一刀 → 数据类型字典 CRUD 假成功（`dataTypeDomainsSlice`）
+- ✅ **画布改边基数落盘失败可重试**（2026-08-03）：`updateAssociationRelation` `persist:true`；失败 toast、chip 保持原基数；可再选重试；`canvas-cardinality-failure` 绿；下一刀 → ~~数据类型字典 CRUD 假成功~~✅
+- ✅ **数据类型字典落盘失败可重试**（2026-08-03）：`addDatatype`/`updateDatatype`/`removeDatatype` `persist:true`；设置页 `/setting/dataType`；失败 toast、窗 keep；`datatype-domains-failure` 绿；下一刀 → 逆向导入 `setProjectJson`/`importReverseTable` 假成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

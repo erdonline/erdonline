@@ -42,7 +42,7 @@
 - [x] 导入/导出弹层密度：标题 ≤14 / 头·身·脚 pad ≤8×12（禁头 10×14×8 / 脚 8×14）/ OK ≥28≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」
-- [x] dataTypeDomains 树图标 fill ≡ `erdColors.brand`（禁裸 `#DE2910`；UI 入口暂未挂载）✅`dataTypeDomainsSlice.test.ts`
+- [x] dataTypeDomains 树图标 fill ≡ `erdColors.brand`（禁裸 `#DE2910`）；设置页 `/design/table/setting/dataType` 挂载 CRUD ✅`dataTypeDomainsSlice.test.ts` + `datatype-domains-failure`
 - [x] 设置页 chrome 密度：标题 ≤14 / 输入·保存钮 ≤32 / 表单项 mb ≤16；截图 `diagram-setting-page-dense.png` ✅`default-field.spec.ts`
 - [x] 数据库配置页密度：标题 ≤14 / 工具条钮 ≤32 / 抽屉输入·保存钮 ≤32；截图 `database-config-page-dense.png` ✅`database-config.spec.ts`
 - [x] 账号设置 / Home 项目卡密度：标题 ≤14 / 输入·保存钮 ≤32 / 安全行 padY ≤16；卡 padY ≤28；截图 `account-settings-page-dense.png` / `home-project-cards-dense.png` ✅`account-settings` + `layout-outlet`
@@ -120,6 +120,7 @@
 - [x] [Frame 新建/成员加减落盘失败可回滚] mock save → toast「模拟分组保存拒绝」+ 新建不上图/加入成员仍 0（无成功 toast）→ 重试成功；定位「新建分组」/「加入分组」/ `diagram-frame`（勿扫 `.ant-*`） ✅`canvas-frame-members-failure.spec.ts`
 - [x] [画布连线建关联落盘失败可重试] mock save → toast「模拟连线保存拒绝」+ 不上边（无 `erd-edge-label`）→ 重试成功上边；定位 `rfNode` / `data-handleid` / `erd-edge-label`（勿扫 `.ant-*`） ✅`canvas-connect-edge-failure.spec.ts`
 - [x] [画布改边基数落盘失败可重试] mock save → toast「模拟基数保存拒绝」+ chip 仍 `n:1` → 重试成功 `1:1`；定位 `erd-edge-label` / `erd-edge-cardinality` / `role=option`（勿扫 `.ant-*`） ✅`canvas-cardinality-failure.spec.ts`
+- [x] [数据类型字典落盘失败可重试] 设置页新增类型 mock save → toast「模拟数据类型保存拒绝」+ 窗仍开、表无新行 → 重试成功入表；定位 `datatype-domains-page` / `role=dialog` / aria-label（勿扫 `.ant-*`） ✅`datatype-domains-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`
