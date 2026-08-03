@@ -3,6 +3,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {message} from "antd";
 import JExcel from "@/pages/JExcel";
+import { jexcelTypeDropdownSource } from '@/utils/fieldTypeOptions';
 import './setting-common.scss';
 
 
@@ -89,9 +90,7 @@ const DefaultField: React.FC<DefaultFieldProps> = () => {
     projectDispatch: state.dispatch,
   }), shallow);
 
-  const allDataTypeName = datatype?.map((t: any) => {
-    return t.name;
-  })
+  const allDataTypeName = jexcelTypeDropdownSource(datatype);
 
   const rawDefaultFields = useProjectStore(
     (s) => s.project?.projectJSON?.profile?.defaultFields,

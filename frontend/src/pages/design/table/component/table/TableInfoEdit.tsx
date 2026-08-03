@@ -8,6 +8,7 @@ import shallow from "zustand/shallow";
 import JExcel from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
 import { Button, Empty, message } from 'antd';
+import { jexcelTypeDropdownSource } from '@/utils/fieldTypeOptions';
 
 export type TableInfoEditProps = {
   moduleEntity: ModuleEntity;
@@ -186,7 +187,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
       title: '类型*',
       name: 'typeName',
       type: 'dropdown',
-      source: datatype?.map((t: { name?: string }) => t.name) || [],
+      source: jexcelTypeDropdownSource(datatype),
       width: 150,
     },
     ...column2

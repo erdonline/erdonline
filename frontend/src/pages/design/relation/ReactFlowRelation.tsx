@@ -63,6 +63,12 @@ import { Input, Modal, Select, message } from 'antd';
 import type { InputRef } from 'antd';
 import type { BaseSelectRef } from 'rc-select';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import {
+  FIELD_TYPE_GROUP_ENUM,
+  FIELD_TYPE_GROUP_LOGIC,
+  formatFieldTypeLabel,
+  partitionFieldTypes,
+} from '@/utils/fieldTypeOptions';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
@@ -149,8 +155,6 @@ export function uniqueFieldsFromIndexs(indexs?: IndexData[]): string[] {
   return out;
 }
 
-const FIELD_TYPES = ['IdOrKey', 'String', 'Integer', 'Decimal', 'Boolean', 'DateTime', 'Text'];
-
 /** 行内编辑状态：editing === 字段名（改名）| '__NEW__'（新增）| null */
 type EditingState = {
   key: string;
@@ -185,6 +189,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     [entity.indexs],
   );
   const updateNodeInternals = useUpdateNodeInternals();
+  const datatype = useProjectStore(
+    (s) => s.project?.projectJSON?.dataTypeDomains?.datatype,
+  );
+  const typePartitions = useMemo(
+    () => partitionFieldTypes(datatype),
+    [datatype],
+  );
 
   const [editing, setEditing] = useState<EditingState>(null);
   /** 浏览态选中字段：Delete/Backspace → 二次确认删除（编辑态 Backspace 仍只改字） */
@@ -898,6 +909,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         <select
           className="erd-field-type-select"
           aria-label="字段类型"
+          data-testid="field-type-select"
           disabled={fieldSaving}
           value={editing?.type ?? 'String'}
           onChange={e => {
@@ -913,9 +925,37 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           onKeyDown={onFieldEditKeyDown}
           onBlur={e => onFieldEditBlur(e, rowKey)}
         >
-          {FIELD_TYPES.map(t => (
-            <option key={t} value={t}>{t}</option>
-          ))}
+          <optgroup
+            label={FIELD_TYPE_GROUP_LOGIC}
+            data-testid="field-type-group-logic"
+          >
+            {typePartitions.logic.map((t) => (
+              <option key={t.code} value={t.code}>
+                {formatFieldTypeLabel(t)}
+              </option>
+            ))}
+          </optgroup>
+          {typePartitions.enums.length > 0 ? (
+            <optgroup
+              label={FIELD_TYPE_GROUP_ENUM}
+              data-testid="field-type-group-enum"
+            >
+              {typePartitions.enums.map((t) => (
+                <option
+                  key={t.code}
+                  value={t.code}
+                  data-testid={`field-type-enum-${t.code}`}
+                >
+                  {formatFieldTypeLabel(t)}
+                </option>
+              ))}
+            </optgroup>
+          ) : null}
+          {editing?.type && !typePartitions.byCode.has(editing.type) ? (
+            <optgroup label="当前值">
+              <option value={editing.type}>{editing.type}</option>
+            </optgroup>
+          ) : null}
         </select>
       </div>
       <div className="erd-field-edit-default">
@@ -1096,6 +1136,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               </span>
               <span className="erd-field-type">
                 {f.type}
+                {typePartitions.byCode.get(f.type || '')?.kind === 'enum' ? (
+                  <span
+                    className="erd-field-type-enum-badge"
+                    data-testid={`field-type-enum-badge-${f.name}`}
+                    title="枚举类型"
+                  >
+                    {' '}
+                    枚举
+                  </span>
+                ) : null}
                 {f.defaultValue ? (
                   <span className="erd-field-default" title={`默认 ${f.defaultValue}`}>
                     {' '}={f.defaultValue}

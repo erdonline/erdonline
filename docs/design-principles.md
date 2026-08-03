@@ -32,6 +32,7 @@
 - ✅ 画布拖连线建关联：仅 `saveProject` code===200 写 store；失败 toast、不上边（associations 派生）；可再拖重试；禁本地 mutate 即上边
 - ✅ 画布改边基数：仅 `saveProject` code===200 写 store；失败 toast、chip 保持原基数；可再选重试；禁本地 mutate 即换基数
 - ✅ 数据类型字典 CRUD：仅 `saveProject` code===200 写 store + 成功 toast/关窗；失败 toast、窗 keep、表不增行；禁本地 mutate 即「提交成功」；枚举 kind/`values[]` 同闸（`buildEnumApply`）
+- ✅ 字段类型选型区分枚举：画布 `<select>` optgroup「逻辑类型|枚举」；表设计/默认字段 JExcel dropdown group；选中写 `fields[].type=code`；浏览态枚举徽章；禁假成功（仍走既有 persist）
 - ✅ 逆向导入（数据源选表 / ERD·PdMan·DBML 文件）：仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store、窗/页保持可重试；禁本地 `setProjectJson`/`importReverseTable` 即「导入/操作成功」
 - ✅ 默认数据源切换 / WORD 模板路径：仅 `saveProject` code===200 写 store（模板另 toast「WORD模板已更新」）；失败 toast、Radio/列表回滚可重试；禁仅本地 mutate（`needSave=false` 时 autosave 不触发）
 - ✅ 版本回滚：仅 `saveProject` code===200 写 store + toast「成功回滚」+ 关窗；失败 toast、不写 store、确认窗不关可重试；禁先 `setModules` 再异步 save
