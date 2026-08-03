@@ -31,7 +31,7 @@ async function main() {
   await run('FIELD_ROW_H：密表再压（与 .erd-field-row minH 20 对齐）', () => {
     assert.equal(FIELD_ROW_H, 24);
     assert.equal(NODE_CHROME_H, 48);
-    assert.equal(NODE_FOOTER_H, 32);
+    assert.equal(NODE_FOOTER_H, 28);
     const h1 = estimateNodeHeight({ title: 't', fields: [{ name: 'a' }] });
     const h3 = estimateNodeHeight({
       title: 't',

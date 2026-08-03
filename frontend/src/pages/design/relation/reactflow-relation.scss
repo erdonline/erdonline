@@ -711,9 +711,10 @@
       display: flex;
       flex-direction: column;
       align-items: stretch;
-      gap: 6px;
-      margin: 6px 8px 8px;
-      padding: 10px 8px 8px;
+      // 密表底栏同阶：井 pad/margin 贴 8–12 族；保留虚线引导，勿抬回 10×8
+      gap: 4px;
+      margin: 4px 6px 6px;
+      padding: 6px;
       border: 1px dashed var(--erd-line);
       border-radius: var(--erd-radius-sm);
       background: var(--erd-surface-sunk);
@@ -728,10 +729,13 @@
     }
 
     .erd-field-add {
+      box-sizing: border-box;
       display: block;
-      width: calc(100% - 16px);
-      margin: 2px 8px 4px;
+      width: calc(100% - 12px);
+      // 底栏水平 6 + 竖 margin 2；命中 ≥22（interactive 下限）
+      margin: 2px 6px;
       padding: 2px 0;
+      min-height: 22px;
       text-align: center;
       color: var(--erd-ink-400);
       font-size: 11px;
@@ -759,6 +763,7 @@
         width: 100%;
         margin: 0;
         padding: 4px 0;
+        min-height: 26px;
         color: var(--erd-brand);
         font-weight: 600;
         border-color: color-mix(in srgb, var(--erd-brand) 45%, var(--erd-line));
@@ -771,8 +776,8 @@
     }
 
     .erd-field-hidden-bar {
-      margin: 2px 8px 6px;
-      padding: 4px 6px;
+      margin: 2px 6px 4px;
+      padding: 2px 6px;
       border-top: 1px solid var(--erd-line);
       font-size: 11px;
     }
@@ -826,14 +831,18 @@
 
     /* 画布 → 表设计「字段/索引/元数据」签（对称入口；并排不叠高） */
     .erd-open-design {
+      box-sizing: border-box;
       display: flex;
-      width: calc(100% - 16px);
-      margin: 0 8px 6px;
+      width: calc(100% - 12px);
+      margin: 0 6px 4px;
       border-top: 1px solid var(--erd-line);
 
       &__btn {
+        box-sizing: border-box;
         flex: 1;
-        padding: 2px 0;
+        // 底栏同阶 margin + 命中 ≥22；勿再压 pad→2 伤点按
+        min-height: 22px;
+        padding: 3px 0;
         border: 0;
         background: transparent;
         color: var(--erd-ink-400);
@@ -849,6 +858,11 @@
 
         & + & {
           border-left: 1px solid var(--erd-line);
+        }
+
+        &:focus-visible {
+          outline: 2px solid var(--erd-brand);
+          outline-offset: -2px;
         }
       }
     }

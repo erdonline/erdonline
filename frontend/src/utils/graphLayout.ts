@@ -24,8 +24,8 @@ export const FIELD_ROW_H = 24;
 /** 表头+字段区顶底估算（与 `.erd-table-header` pad 6 + 标题行对齐） */
 export const NODE_CHROME_H = 48;
 
-/** 字段列表底部「添加」区估算 */
-export const NODE_FOOTER_H = 32;
+/** 字段列表底部「添加」+ 打开表设计区估算（与 `.erd-field-add` / `.erd-open-design` 密距对齐） */
+export const NODE_FOOTER_H = 28;
 
 /** 默认走廊：够边肘分流，又不过稀（ADR-0016 分享密度） */
 export const DAGRE_NODESEP = 56;

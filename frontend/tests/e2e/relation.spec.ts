@@ -530,6 +530,37 @@ test.describe('关系图画布（ReactFlow）', () => {
       expect(fieldRowBox.lineH).toBe(15);
       expect(fieldRowBox.padTop).toBe(1);
 
+      // ADR-0016：表节点底栏 chrome（添加/打开表设计）— 水平 margin≤6、CSS 命中≥22；表头/字段行已密勿再压
+      const footerChrome = await orderNode.evaluate((root) => {
+        const add = root.querySelector('[data-testid="canvas-add-field"]') as HTMLElement | null;
+        const open = root.querySelector('[aria-label="打开表设计"]') as HTMLElement | null;
+        const openBtn = root.querySelector('[data-testid="canvas-open-field"]') as HTMLElement | null;
+        if (!add || !open || !openBtn) return null;
+        const as_ = getComputedStyle(add);
+        const os = getComputedStyle(open);
+        const obs = getComputedStyle(openBtn);
+        return {
+          addML: parseFloat(as_.marginLeft),
+          addMR: parseFloat(as_.marginRight),
+          addMB: parseFloat(as_.marginBottom),
+          addMinH: parseFloat(as_.minHeight),
+          openML: parseFloat(os.marginLeft),
+          openMB: parseFloat(os.marginBottom),
+          openBtnMinH: parseFloat(obs.minHeight),
+        };
+      });
+      expect(footerChrome, '底栏 chrome 应可量测').not.toBeNull();
+      expect(footerChrome!.addML, `添加字段 marginL 应 ≤6，得 ${footerChrome!.addML}`).toBeLessThanOrEqual(6);
+      expect(footerChrome!.addMR).toBeLessThanOrEqual(6);
+      expect(footerChrome!.addMB).toBeLessThanOrEqual(2);
+      expect(footerChrome!.addMinH, `添加字段 minH 应 ≥22，得 ${footerChrome!.addMinH}`).toBeGreaterThanOrEqual(22);
+      expect(footerChrome!.openML).toBeLessThanOrEqual(6);
+      expect(footerChrome!.openMB).toBeLessThanOrEqual(4);
+      expect(
+        footerChrome!.openBtnMinH,
+        `打开字段 minH 应 ≥22，得 ${footerChrome!.openBtnMinH}`,
+      ).toBeGreaterThanOrEqual(22);
+
       // ADR-0016：字段行扫读层次 — 名主列 500+、类型右对齐次要栏
       const fkScan = await fkRow.evaluate((el) => {
         const name = el.querySelector('.erd-field-name');

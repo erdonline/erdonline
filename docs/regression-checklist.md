@@ -8,6 +8,7 @@
 - [x] [几何择柄] 竖叠同列表 FK → `data-port=same`；截图 `diagram-port-same-side.png` ✅`relation.spec.ts`「PK/FK 与边样式」
 - [x] [字段行再压一档] `.erd-field-row` min-height 22 / line-height 16 / pad 2；`FIELD_ROW_H=26` ✅`graphLayout.test.ts` + `relation.spec.ts`「表节点视觉」
 - [x] [表节点密表再压] 表头 pad ≤6；字段行 minH 20 / lh 15 / pad 1；`FIELD_ROW_H=24`；标题/徽章层次不动；截图 `diagram-table-node-density.png` / `demo-table-node-density.png` ✅`graphLayout.test.ts` + `relation.spec`「PK/FK」+ `demo.spec`
+- [x] [表节点底栏/空表井碎距] 表头/字段行已密不改；添加 margin≤6 + minH≥22；打开表设计 margin≤6×4 + btn minH≥22；空表井 pad≤6 / gap≤4 / marginT≤4；`NODE_FOOTER_H=28`；截图 `diagram-table-fields-empty-dense.png` ✅`relation`「PK/FK」+ `table-field-empty`「画布空表」
 - [x] [导入后首屏] 空态「导入 DBML」→ 直开关系图 + 节点落入画布可视区；截图 `diagram-import-first-screen.png` ✅`dbml-import.spec.ts`「空态导入 DBML」
 
 ### 已自动化
