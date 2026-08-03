@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：JExcel 工具栏删除二次确认（建模回路）
+
+- 选题：共享 JExcel 工具栏 `remove` 无确认 → 字段/索引表静默删洞（表内索引删除 CTA 已补，工具栏仍绕过）
+- `remove` → 未选中 toast「未选中行」；有选中 → `Modal.confirm`（确定删除选定行 + 不可逆）才 `deleteRow`
+- 工具栏项 `id`/`data-testid=jexcel-toolbar-remove` + `role=button`/`aria-label=删除选中行`（对齐 getByRole）
+- E2E：`relation`「JExcel 工具栏删除二次确认：取消保留；确认后行消失」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "JExcel 工具栏删除二次确认" --workers=1 --retries=0`
+
 #### 体验：索引签删除二次确认（建模回路）
 
 - 选题：索引已能加；JExcel 工具栏 `remove` 无文案且无确认 → 破坏性静默删风险
