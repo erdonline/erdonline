@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
-import { Button, Form, Modal, Radio } from 'antd';
+import { Button, Form, Modal, Radio, message } from 'antd';
 import { ControlOutlined } from '@ant-design/icons';
 import '@/components/dialog/io-modal.scss';
 
@@ -21,6 +21,7 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
   );
 
   const [open, setOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm<FormValues>();
 
   const openModal = () => {
@@ -32,8 +33,17 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    await projectDispatch.setUpgradeType(values);
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      const ok = await projectDispatch.setUpgradeType(values);
+      if (ok) {
+        message.success('设置成功');
+        setOpen(false);
+      }
+      // 失败：request 已 toast；失败不关窗可重试
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const focusFirstControl = () => {
@@ -56,6 +66,7 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
         open={open}
         onOk={handleOk}
         onCancel={() => setOpen(false)}
+        confirmLoading={submitting}
         destroyOnClose
         width={480}
         className="erd-io-modal"
