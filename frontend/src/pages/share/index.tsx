@@ -270,7 +270,7 @@ const SharePage: React.FC = () => {
           </Typography.Title>
           <Tag className="share-page__readonly-tag">只读</Tag>
         </div>
-        <div className="erd-chrome-actions">
+        <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           <Button
             type="primary"
             loading={forking}

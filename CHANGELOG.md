@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：顶栏 `erd-chrome-actions` 次密
+
+- 选题：BaseView 列 gap 已 16；Home/Group/分享顶栏 `.erd-chrome-actions` 仍 gap16，相对 header brand gap8 / Design 覆写 gap8 偏松
+- before：actions `gap: 16px`；after：`gap: 12px`（8–12 族）；DesignLayout 仍覆写 8；`data-testid=erd-chrome-actions`；顶栏 64 / 用户菜单 / Skip 不弱化
+- E2E：`layout-outlet` Home gap≤12 + Design ≤8 + 截图 `chrome-actions-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 顶栏 header pad 20 / brand–nav gap16（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|DesignLayout：顶栏动作" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`
+
 #### 体验：账号 BaseView 左右列次密
 
 - 选题：工作台壳外井已 12×16；账号基本资料 `.baseView` 表单/头像列仍 gap24，与壳次密不同阶
 - `BaseView`：桌面 gap 24→16、窄屏 16→12；`data-testid=account-settings-base-view`；表单项 12 / 控件 28 不改
 - E2E：`account-settings` densify 断言 gap≤16 + 截图 `account-settings-page-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 顶栏 `erd-chrome-actions` gap16（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~顶栏 `erd-chrome-actions` gap16~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/account-settings.spec.ts --project=chromium --grep "页密度" --workers=1 --retries=0`

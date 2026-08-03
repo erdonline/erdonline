@@ -183,7 +183,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             items={menuItems}
             className="home-layout__menu"
           />
-          <div className="erd-chrome-actions">
+          <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
             {homeRightContent}
             <Dropdown
               placement="bottomRight"
