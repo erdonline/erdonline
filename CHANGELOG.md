@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：表设计 JExcel 字段 meta 落盘失败可重试
+
+- 选题：表设计字段签 JExcel（类型/PK/NN/AI/隐藏等）`updateEntityFields` 无 persist 本地 mutate 即成功；autosave 失败像已改 meta
+- `TableInfoEdit`：`afterChange` / 空态「添加第一个字段」走 `persist:true`；仅 code===200 写 store；失败 toast + `sheetEpoch` 重挂网格回滚草稿；落盘队列 latest-wins；`aria-busy`
+- E2E：`jexcel-field-meta-failure.spec.ts` mock save（PK / 隐藏）→ toast + 勾选回滚 → 重试成功 + 画布对齐
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 表设计索引签 JExcel 假成功，或 densify ROI
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/jexcel-field-meta-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "JExcel 工具栏删除二次确认|半成品行不静默丢字段"`
+- `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --workers=1 --retries=0 --grep "表设计字段签空态"`
+
 #### 体验：画布字段 meta（类型/PK/隐藏）落盘失败可重试
 
 - 选题：编辑态类型/PK/非空/自增/隐藏与浏览态 PK 本地 mutate 即成功；autosave 失败像已改 meta/已隐藏
 - `persistFieldMeta` / `persistHideOnCanvas` / `unhideOnCanvas` / `togglePk`：`updateEntityFields` `persist:true`；仅 code===200 写 store；编辑态乐观草稿失败回滚；隐藏失败不退出编辑、不 toast「已隐藏」；落盘中禁二次改 meta
 - E2E：`canvas-field-meta-failure.spec.ts` mock save → toast + 回滚/行仍在 → 重试成功
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → 表设计 JExcel 字段 meta 假成功，或 densify ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~表设计 JExcel 字段 meta 假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-field-meta-failure.spec.ts --project=chromium --workers=1 --retries=0`
