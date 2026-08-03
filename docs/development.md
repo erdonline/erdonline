@@ -141,8 +141,8 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → GitHub Pages **�
 ## 协作 Presence（SocketIO）
 
 - 端口 `9092`（netty-socketio，与 HTTP `9502` 分离）；前端 `SOCKETIO_URL`（dev 默认 `http://localhost:9092`）
-- 握手：先 `POST /auth/socket-ticket`（Bearer JWT）拿短票，再连 namespace `/project/erd`（见 ADR-0009）
-- 验证：`node scripts/verify-socket-presence.mjs`；`verify-socket-cursor.mjs`；`verify-socket-sync.mjs`；E2E `presence.spec.ts`
+- 握手：先 `POST /auth/socket-ticket`（Bearer JWT）拿短票，再连 namespace `/project/erd`（query 须带真实 `projectId`；用户须 ∈ `project_user`，见 ADR-0009 / R-AUTH-05）
+- 验证：`node scripts/verify-socket-presence.mjs`；`verify-socket-cursor.mjs`；`verify-socket-sync.mjs`；**负向** `verify-socket-membership.mjs`；E2E `presence.spec.ts`
 
 ## projectJSON schema（agent 可读）
 

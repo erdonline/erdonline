@@ -8,12 +8,34 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-05 SocketIO 校验 project_user 成员
+
+- 选题：合法短票/JWT 可加任意 `projectId` 房收 presence/sync（越权旁听与注入）
+- 改动：短票 Redis 载荷改为 `userId\\nusername`；`SocketIoAuthorizationListener` 握手强制 `projectId` + `ProjectAcl.isMember`；`JOIN_ROOM` 再验一次（SPI 实例经 `SpringContextHelper`）；cursor/sync 仅 `ATTR_JOINED` 后广播
+- 脚本：presence/cursor/sync 改建团队项目并绑定 e2e0；新增 `verify-socket-membership.mjs` 负向
+- 文档：`security-model` R-AUTH-05 ✅；ADR-0009；roadmap 下一刀 → FE connector dataSourceId
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=SocketTicketServiceTest,SocketIoAuthorizationListenerTest,ProjectAndDataSourceAclTest test`
+- `./backend/dev-ensure.sh --restart`；liveness → 200
+- `node scripts/verify-socket-membership.mjs`；`node scripts/verify-socket-presence.mjs`
+
+#### 体验：`/compare` 竞品对照页键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：共用 `LandingChrome` Skip/`#landing-main-cta` 已在落地页落地，但 `/compare` 无独立键盘 E2E；对照 CTA 链（演示→自部署→首页）未断言
+- 改动：无新壳逻辑——复用 Skip「跳到主操作」→ `#landing-main-cta`；核对 Tab 序 / surface focus-visible / 无 trap
+- E2E：`compare`「竞品对照页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign / landing.md；下一刀 → Home 工作台键盘（Skip 进主区）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/compare.spec.ts --project=chromium --grep "竞品对照页键盘" --workers=1 --retries=0`
+
 #### 体验：分享失效门键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：失效门虽共用 `AuthBrandShell`，Skip 仍默认「跳到表单」；`share-invalid-gate` 无 Skip 锚 / `tabIndex`；无键盘 E2E
 - 改动：`skipLabel=跳到主操作` + `skipTargetId=exception-main-cta`（CTA 栈 `id` + `tabIndex=-1`）；与 404/403 同构；壳内地标 focus-visible 既有
 - E2E：`share`「分享失效门键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → `/compare` 竞品对照页键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~`/compare` 竞品对照页键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "分享失效门键盘" --workers=1 --retries=0`

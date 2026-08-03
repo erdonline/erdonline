@@ -1,6 +1,7 @@
 package com.erdonline.auth.endpint;
 
 import com.erdonline.common.core.api.R;
+import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.socketio.SocketTicketService;
 import lombok.RequiredArgsConstructor;
@@ -21,11 +22,11 @@ public class SocketTicketController {
 
     @PostMapping({"/socket-ticket", "/auth/socket-ticket"})
     public R<Map<String, Object>> issue() {
-        String username = SecurityContextUtil.getAccessUser().getUsername();
-        String ticket = socketTicketService.issue(username);
+        MartinUser user = SecurityContextUtil.getAccessUser();
+        String ticket = socketTicketService.issue(user.getId(), user.getUsername());
         Map<String, Object> body = new HashMap<>(4);
         body.put("ticket", ticket);
-        body.put("username", username);
+        body.put("username", user.getUsername());
         body.put("expiresIn", SocketTicketService.TTL.getSeconds());
         return R.ok(body);
     }

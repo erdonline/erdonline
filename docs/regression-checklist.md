@@ -168,9 +168,10 @@
 - [x] [分享注册转化] 「注册并带回」→ `/register?redirect=`；登录页有「去注册」✅`share.spec.ts`
 - [x] [分享 autofork] 登录后打开 `/s/:token?autofork=1` 自动 fork 进设计器 ✅`share.spec.ts`
 - [x] [在线 demo] `/demo` → `/s/public-demo` 见关系图 + 复制 CTA ✅`demo.spec.ts`
-- [x] [协作 presence] 设计器顶栏 `collab-presence` 含当前用户 ✅`presence.spec.ts`；`verify-socket-presence.mjs`（含断线清名单）
+- [x] [协作 presence] 设计器顶栏 `collab-presence` 含当前用户 ✅`presence.spec.ts`；`verify-socket-presence.mjs`（含断线清名单；须为 project_user）
 - [x] [协作光标] 双端 `verify-socket-cursor.mjs`：A 发坐标 B 收、发送方无回声 ✅
 - [x] [协作 sync] `verify-socket-sync.mjs`：A 发 delta B 可 patch 出 T_USER、发送方无回声 ✅
+- [x] [SocketIO 项目成员 R-AUTH-05] 非成员 `projectId` → connect_error；成员可进房 ✅`verify-socket-membership.mjs` + 单测 `SocketIoAuthorizationListenerTest`
 - [x] [协作 sync 提示] 双人同项目：A 改表后 B 见 info / 未保存见 warning；CTA「保存版本」→ version/all；info→AddVersion 落库 `version-row-1.0.0`；60s 内二次变更 toast 仍为 1 ✅`sync-toast.spec.ts`
 - [x] [空 projectJSON] API 建团队项目未带 JSON → 打开设计器可「新增模型」✅`empty-projectjson.spec.ts`
 - [x] [创建默认 projectJSON] API 建项目无 JSON → GET info `modules=[]` ✅`ProjectEnsureDefaultJsonTest` + curl
@@ -441,6 +442,7 @@
 - [x] [路由] `/compare` 可见对照表（版本/开源自部署等）+ CTA→demo/首页✅ `compare.spec.ts`
 - [x] [入口] 落地顶栏「对比」与「查看完整对照」进 `/compare`✅ `compare.spec.ts`
 - [x] [落地回归] `/` hero/CTA 仍绿✅ `landing.spec.ts`
+- [x] [对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap✅ `compare.spec.ts`「竞品对照页键盘」
 
 ## 落地页 token 同源（2026-08-03）
 
