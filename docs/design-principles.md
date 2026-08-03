@@ -26,6 +26,7 @@
 - ✅ 左树删模型/关系图：仅 `saveProject` code===200 移出 + toast「模型/关系图删除成功」；失败 toast、树节点保留、确认窗拒关可重试；禁本地 mutate 即成功
 - ✅ 左树剪切/粘贴表（及模型剪切/粘贴）：仅 `saveProject` code===200 写剪贴板与移出/写入 + 成功 toast；失败 toast、保留先前状态；禁本地 mutate 即「剪切/粘贴成功」（复制仅本地剪贴板，无落盘）
 - ✅ 画布拖表/拖框坐标：仅 `saveProject` code===200 写 layout/Frame bounds；失败 toast + RF 回滚到先前坐标；禁本地 mutate 即坐标已落盘
+- ✅ 画布对齐/自动布局：仅 `saveProject` code===200 写 layout；失败 toast + RF 回滚；成功后才 fitView；禁本地 `updateGraphCanvasLayout` 即坐标已落盘
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -43,6 +44,7 @@
 - ❌ 左树删模型/关系图本地 mutate 即 toast，autosave 失败像已删（历史问题）
 - ❌ 左树剪切/粘贴本地 mutate 即成功 toast，autosave 失败像已剪/已粘（历史问题）
 - ❌ 画布拖表本地 mutate 即写 layout，autosave 失败像坐标已落盘（历史问题）
+- ❌ 画布对齐/自动布局本地 mutate 即写 layout，autosave 失败像坐标已落盘（历史问题）
 
 ## 2. 键盘优先
 
