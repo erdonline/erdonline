@@ -14,7 +14,8 @@ import java.util.Map;
 /**
  * 将 JDBC {@link DatabaseMetaData#getIndexInfo} 风格 ResultSet 映射为 {@link Index} 列表。
  * <p>约定列：TYPE / INDEX_NAME / COLUMN_NAME / NON_UNIQUE（与 JDBC 规范一致）。
- * 字典层可另带 EXPRESSION（MySQL 8 函数索引）；表达式原样进 {@code fields[]}，不做大小写折叠。
+ * 字典层可另带 EXPRESSION（MySQL 8 函数索引）与 FILTER（部分/过滤索引谓词）；
+ * 表达式原样进 {@code fields[]}，谓词进 {@code filter}，均不做大小写折叠。
  *
  * @author erdonline
  */
@@ -59,7 +60,8 @@ public final class IndexResultSetMapper {
      * 映射字典表风格索引结果（MySQL STATISTICS / PostgreSQL pg_catalog /
      * Oracle ALL_IND_* / SQL Server sys.indexes 查询）。
      * <p>约定列名不区分大小写：INDEX_NAME / COLUMN_NAME / NON_UNIQUE（0=唯一）；
-     * 可选 EXPRESSION（有值则优先，覆盖 Oracle SYS_NC$ / SQL Server 计算列）。
+     * 可选 EXPRESSION（有值则优先，覆盖 Oracle SYS_NC$ / SQL Server 计算列）；
+     * 可选 FILTER / FILTER_DEFINITION → {@code index.filter}（部分/过滤索引）。
      * Oracle {@code COLUMN_EXPRESSION} 为 LONG：每行须在其它列之前读取 EXPRESSION。
      * 调用方需已按索引名、序号 ORDER BY。
      */
@@ -83,9 +85,30 @@ public final class IndexResultSetMapper {
             boolean nonUnique = nonUniqueFlag != 0;
             String adjustedName = NameCaseAdjuster.adjust(indexName, nameCaseFlag);
             Index index = byName.computeIfAbsent(adjustedName, name -> new Index(name, !nonUnique));
+            applyFilterIfAbsent(index, readFilterPredicate(statisticsRs));
             index.getFields().add(adjustIndexField(keyPart, nameCaseFlag));
         }
         return new ArrayList<>(byName.values());
+    }
+
+    /**
+     * 部分/过滤谓词：FILTER 优先，其次 FILTER_DEFINITION；原样保留。
+     */
+    static String readFilterPredicate(ResultSet rs) {
+        String filter = readOptionalStringIgnoreCase(rs, "FILTER");
+        if (filter != null && !filter.isEmpty()) {
+            return filter;
+        }
+        return readOptionalStringIgnoreCase(rs, "FILTER_DEFINITION");
+    }
+
+    static void applyFilterIfAbsent(Index index, String filter) {
+        if (index == null || filter == null || filter.isEmpty()) {
+            return;
+        }
+        if (index.getFilter() == null || index.getFilter().isEmpty()) {
+            index.setFilter(filter);
+        }
     }
 
     /**

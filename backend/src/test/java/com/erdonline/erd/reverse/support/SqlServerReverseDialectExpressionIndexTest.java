@@ -23,7 +23,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * SQL Server 计算列索引：sys.computed_columns.definition → indexs[].fields[]（mock JDBC）；回退。
+ * SQL Server 计算列索引 + 过滤谓词：definition → fields[]；filter_definition → filter（mock JDBC）。
  */
 class SqlServerReverseDialectExpressionIndexTest {
 
@@ -67,6 +67,48 @@ class SqlServerReverseDialectExpressionIndexTest {
         assertEquals("idx_user_email_lower", indexes.get(0).getName());
         assertEquals(List.of("tenant_id", "(lower([email]))"), indexes.get(0).getFields());
         assertTrue(indexes.get(0).getFields().get(1).contains("lower"));
+    }
+
+    @Test
+    void fillEntity_mapsFilterDefinitionOntoIndex() throws Exception {
+        Connection connection = mock(Connection.class);
+        DatabaseMetaData meta = mock(DatabaseMetaData.class);
+        when(connection.getMetaData()).thenReturn(meta);
+        when(connection.getCatalog()).thenReturn("reverse_demo");
+
+        stubColumns(meta, "reverse_demo", "dbo", "t_user");
+
+        PreparedStatement indexStmt = mock(PreparedStatement.class);
+        ResultSet indexRs = mock(ResultSet.class);
+        when(indexRs.next()).thenReturn(true, false);
+        when(indexRs.getString("EXPRESSION")).thenReturn(null);
+        when(indexRs.getString("expression")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getString("INDEX_NAME")).thenReturn("idx_user_active");
+        when(indexRs.getString("index_name")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getString("COLUMN_NAME")).thenReturn("email");
+        when(indexRs.getString("column_name")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getString("FILTER")).thenReturn("([status]=(1))");
+        when(indexRs.getString("filter")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getInt("NON_UNIQUE")).thenReturn(1);
+        when(indexRs.getInt("non_unique")).thenThrow(new SQLException("uppercase only"));
+
+        PreparedStatement triggerStmt = mock(PreparedStatement.class);
+        ResultSet triggerRs = mock(ResultSet.class);
+        when(triggerRs.next()).thenReturn(false);
+
+        PreparedStatement commentStmt = mock(PreparedStatement.class);
+        ResultSet commentRs = mock(ResultSet.class);
+        when(commentRs.next()).thenReturn(false);
+
+        when(connection.prepareStatement(anyString())).thenReturn(indexStmt, triggerStmt, commentStmt);
+        when(indexStmt.executeQuery()).thenReturn(indexRs);
+        when(triggerStmt.executeQuery()).thenReturn(triggerRs);
+        when(commentStmt.executeQuery()).thenReturn(commentRs);
+
+        Entity entity = fill(connection);
+        assertEquals(1, entity.getIndexs().size());
+        assertEquals(List.of("email"), entity.getIndexs().get(0).getFields());
+        assertEquals("([status]=(1))", entity.getIndexs().get(0).getFilter());
     }
 
     @Test

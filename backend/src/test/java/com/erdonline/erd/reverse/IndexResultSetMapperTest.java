@@ -11,6 +11,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -139,6 +140,49 @@ class IndexResultSetMapperTest {
     }
 
     @Test
+    void mapFromStatistics_mapsFilterOnce_keepsCompositeFields() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, true, false);
+        when(rs.getString("INDEX_NAME")).thenReturn("idx_active", "idx_active");
+        when(rs.getString("COLUMN_NAME")).thenReturn("tenant_id", "email");
+        when(rs.getString("FILTER")).thenReturn("(deleted_at IS NULL)", "(deleted_at IS NULL)");
+        when(rs.getInt("NON_UNIQUE")).thenReturn(1, 1);
+
+        List<Index> indexes = IndexResultSetMapper.mapFromStatistics(rs, "DEFAULT");
+        assertEquals(1, indexes.size());
+        assertEquals(List.of("tenant_id", "email"), indexes.get(0).getFields());
+        assertEquals("(deleted_at IS NULL)", indexes.get(0).getFilter());
+    }
+
+    @Test
+    void mapFromStatistics_readsFilterDefinitionAlias() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString("INDEX_NAME")).thenReturn("idx_filtered");
+        when(rs.getString("COLUMN_NAME")).thenReturn("email");
+        when(rs.getString("FILTER")).thenThrow(new SQLException("no column"));
+        when(rs.getString("FILTER_DEFINITION")).thenReturn("([status]=(1))");
+        when(rs.getInt("NON_UNIQUE")).thenReturn(0);
+
+        List<Index> indexes = IndexResultSetMapper.mapFromStatistics(rs, "DEFAULT");
+        assertEquals(1, indexes.size());
+        assertEquals("([status]=(1))", indexes.get(0).getFilter());
+        assertTrue(indexes.get(0).isUnique());
+    }
+
+    @Test
+    void mapFromStatistics_leavesFilterNull_whenAbsent() throws SQLException {
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString("INDEX_NAME")).thenReturn("idx_plain");
+        when(rs.getString("COLUMN_NAME")).thenReturn("email");
+        when(rs.getInt("NON_UNIQUE")).thenReturn(1);
+
+        List<Index> indexes = IndexResultSetMapper.mapFromStatistics(rs, "DEFAULT");
+        assertNull(indexes.get(0).getFilter());
+    }
+
+    @Test
     void looksLikeIndexExpression_detectsParensAndQuotes() {
         assertTrue(IndexResultSetMapper.looksLikeIndexExpression("LOWER(email)"));
         assertTrue(IndexResultSetMapper.looksLikeIndexExpression("(lower(`email`))"));
@@ -151,8 +195,10 @@ class IndexResultSetMapperTest {
     void indexJson_usesIsUniqueProperty() {
         Index index = new Index("idx_a", true);
         index.getFields().add("a");
+        index.setFilter("(status = 1)");
         String json = JsonUtil.generate(index);
         assertTrue(json.contains("\"isUnique\":true"), json);
         assertTrue(json.contains("\"name\":\"idx_a\""), json);
+        assertTrue(json.contains("\"filter\":\"(status = 1)\""), json);
     }
 }

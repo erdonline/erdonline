@@ -8,11 +8,26 @@
 
 ### 2026-08-03
 
+#### 逆向：PG/SQL Server 部分·过滤索引谓词 → `indexs[].filter`
+
+- 选题：四库表达式索引闭环（`9f75499`）后下一刀 = 过滤/部分索引谓词仍丢失
+- 模型：`Index.filter`（projectJSON `indexs[].filter`）；谓词不进 `fields[]`
+- PG：`pg_get_expr(ix.indpred, ix.indrelid) AS filter`
+- SQL Server：`i.filter_definition AS filter`（含 computed 回退 SQL）
+- Mapper：`FILTER`/`FILTER_DEFINITION` 复合索引首行写入；无谓词保持 null
+- FE：索引签「过滤条件」文本列读写 `filter`（HMR）
+- 未做：DDL 模板 WHERE 回写、DBML filter、MySQL/Oracle（无对等）
+- 单测 mock JDBC；文档 data-format / schema / ADR-0006 / roadmap
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=IndexResultSetMapperTest,PostgresqlReverseDialectExpressionIndexTest,SqlServerReverseDialectExpressionIndexTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart`
+
 #### 逆向：Oracle/SQL Server 函数·计算列索引 → `indexs[].fields[]`
 
 - 选题：PG/MySQL（`8788e5c`）+ 索引签编辑（`cddbbf8`）后，P0 四库缺口 = Oracle `SYS_NC$` / SQL Server 计算列仍只出列名
 - Oracle：`LEFT JOIN ALL_IND_EXPRESSIONS`；mapper 优先 `EXPRESSION`（LONG 须行首读）；无视图回退列名-only
-- SQL Server：`LEFT JOIN sys.computed_columns`；`definition` → `EXPRESSION`；无表回退列名-only；`filter_definition` 不进 fields[]
+- SQL Server：`LEFT JOIN sys.computed_columns`；`definition` → `EXPRESSION`；无表回退列名-only；（过滤谓词另切片 → `filter`）
 - Mapper：EXPRESSION 优先于 COLUMN_NAME（覆盖 SYS_NC$）；空键软跳过；不做 ADR-0013
 - 单测 mock JDBC；文档 data-format / ADR-0006 / roadmap
 
