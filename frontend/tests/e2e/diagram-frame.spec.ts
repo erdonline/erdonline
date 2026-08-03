@@ -290,4 +290,45 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }
   });
+
+  test('删除分组二次确认：取消保留；确认后移除；表仍在', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('frame-del');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'fdel', 'frame delete confirm');
+
+      await ensureTwoTablesOnCanvas(page);
+      await rfNode(page, 'T_TABLE_1').click();
+      await rfNode(page, 'T_TABLE_2').click({ modifiers: ['Shift'] });
+      await page.getByRole('button', { name: '新建分组' }).click();
+      await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 10_000 });
+
+      // 取消：分组保留
+      await selectFrame(page);
+      await page.keyboard.press('Delete');
+      let dialog = page.getByRole('dialog').filter({ hasText: /确定删除分组/ });
+      await expect(dialog.getByText(/仅删除分组框/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog').filter({ hasText: /确定删除分组/ })).toHaveCount(0);
+      await expect(page.getByTestId('diagram-frame')).toBeVisible();
+      expect((await getDiagramGroups(page)).length).toBe(1);
+
+      // 确认：分组移除，表仍在
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await selectFrame(page);
+      await page.keyboard.press('Backspace');
+      dialog = page.getByRole('dialog').filter({ hasText: /确定删除分组/ });
+      await dialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog').filter({ hasText: /确定删除分组/ })).toHaveCount(0);
+      await expect(page.getByText('已删除分组')).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByTestId('diagram-frame')).toHaveCount(0);
+      expect((await getDiagramGroups(page)).length).toBe(0);
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
 });
