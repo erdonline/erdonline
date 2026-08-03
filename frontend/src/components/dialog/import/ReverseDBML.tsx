@@ -1,5 +1,6 @@
-import React, {useContext, useState} from 'react';
+import React, {useContext, useRef, useState} from 'react';
 import {Button, Input, Modal, Upload, message} from 'antd';
+import type {InputRef} from 'antd/es/input';
 import {InboxOutlined} from '@ant-design/icons';
 import {history} from 'umi';
 import {MyIcon} from '@/components/Menu';
@@ -36,6 +37,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
   };
   const [paste, setPaste] = useState('');
   const [loading, setLoading] = useState(false);
+  const pasteRef = useRef<InputRef>(null);
   const {projectDispatch, projectJSON} = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -210,12 +212,21 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
+        keyboard
+        focusTriggerAfterClose
         okText="解析并导入"
         cancelText="取消"
         confirmLoading={loading}
         onOk={() => void runImport(paste)}
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => pasteRef.current?.focus(), 0);
+        }}
       >
         <TextArea
+          ref={pasteRef}
           aria-label="DBML文本"
           placeholder="粘贴 DBML 文本（Table / Ref / Note）…"
           value={paste}

@@ -138,6 +138,10 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
   const openDialog = (key: DialogKey) => {
     closeProjectMenu();
     setOpenKeys([]);
+    // 子菜单项随面板卸载；先把焦点交给「项目菜单」，便于 Modal focusTriggerAfterClose
+    document
+      .querySelector<HTMLElement>('button[aria-label="项目菜单"]')
+      ?.focus();
     setDialog(key);
   };
 
