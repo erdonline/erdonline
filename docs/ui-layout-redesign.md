@@ -263,7 +263,8 @@
 - ✅ **MySQL 触发器逆向保真**（2026-08-03）：`INFORMATION_SCHEMA.TRIGGERS` → `entity.triggers[]`（name/timing/event/ddl）；`MysqlReverseDialectTriggerTest`；下一刀 → ~~PG 触发器~~✅
 - ✅ **PostgreSQL 触发器逆向保真**（2026-08-03）：`information_schema.triggers` → `entity.triggers[]`；`PostgresqlReverseDialectTriggerTest`；下一刀 → ~~SQL Server 触发器~~✅
 - ✅ **SQL Server 触发器逆向保真**（2026-08-03）：`sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION` → `entity.triggers[]`；`SqlServerReverseDialectTriggerTest`；下一刀 → ~~Oracle 触发器~~✅
-- ✅ **Oracle 触发器逆向保真**（2026-08-03）：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`；`OracleReverseDialectTriggerTest`；P0 四库触发器闭环；下一刀 → ADR-0011 复合 FK / ADR-0013（本轮不启）
+- ✅ **Oracle 触发器逆向保真**（2026-08-03）：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`；`OracleReverseDialectTriggerTest`；P0 四库触发器闭环；下一刀 → ~~FK 约束元数据~~✅
+- ✅ **FK 约束名 + ON DELETE/UPDATE**（2026-08-03）：`constraintName`/`deleteRule`/`updateRule` 加法字段；四库字典 + JDBC；复合拆边同名（ADR-0011 `fields[]` 仍延期）；边 chip `title`/`aria-label` + `erd-edge-fk-meta`；下一刀 → 表清单分页 / DBML trigger / ADR-0013（人工）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

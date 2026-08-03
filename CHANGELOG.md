@@ -8,6 +8,21 @@
 
 ### 2026-08-03
 
+#### 逆向：FK 约束名 + ON DELETE/UPDATE（ADR-0011 旁路加法）
+
+- 选题：Oracle 触发器收口后复查 ADR-0011：`fields[]` **仍延期**（解封=FE 多字段边协议）；薄切片 = ADR 负面项「约束名/ON DELETE 未进模型」
+- 模型：`Association.constraintName` / `deleteRule` / `updateRule`（仅加法；`@JsonInclude(NON_NULL)`）；复合仍按列拆边，同约束共享 `constraintName`
+- 逆向：`ForeignKeyAssociationMapper` 读 JDBC `FK_NAME`/`DELETE_RULE`/`UPDATE_RULE`；字典补规则列（MySQL `REFERENTIAL_CONSTRAINTS`、PG `referential_constraints`、SQL Server `*_referential_action_desc`、Oracle `DELETE_RULE`）
+- UI：边 chip `title`/`aria-label` 附带元数据；`data-testid=erd-edge-fk-meta`（勿扫 `.ant-*`）
+- 单测：`ForeignKeyAssociationMapperTest` + `relationEdges.test.ts` 透传/格式化
+- 文档：ADR-0011 解封条件成文；data-format / schema / ADR-0006 / roadmap / regression-checklist
+- 未做：`from.fields[]`/`to.fields[]` 聚合；DBML Ref 规则互导；表清单分页
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=ForeignKeyAssociationMapperTest test`
+- `cd frontend && npx tsx src/utils/relationEdges.test.ts`
+- `./backend/dev-ensure.sh --restart`
+
 #### 逆向：Oracle 触发器 → `entity.triggers[]`
 
 - 选题：`22b8dd9` SQL Server 触发器后，收口四库循环最后一刀 = Oracle `ALL_TRIGGERS`/`ALL_SOURCE`
