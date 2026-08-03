@@ -52,6 +52,7 @@
 | 数据源设置 Modal | 打开首焦 / Esc / Tab trap | 首焦「新增数据源」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-keyboard` |
 | 默认项设置 Modal | 打开首焦 / Esc / Tab trap | 首焦「默认字段」Tab；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `default-setup-keyboard` |
 | 数据源逆向解析 Modal | 打开首焦 / Esc / Tab trap | 首焦「数据源」Select；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reverse-database-keyboard` |
+| 导出DDL Modal | 打开首焦 / Esc / Tab trap | 首焦「数据源」Select；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `export-ddl-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |

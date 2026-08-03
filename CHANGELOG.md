@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：导出DDL弹层键盘闭环（ExportDDL）
+
+- 选题：设计器「导出DDL」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「数据源」Select；refreshDataSources / 两步导出行为不变
+- E2E：`export-ddl-keyboard`（项目菜单 → 首焦、Esc 归还菜单钮、Tab trap；不依赖 JDBC）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 导入 ERD Modal 键盘（ReverseERD）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/export-ddl-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据源逆向解析弹层键盘闭环（ReverseDatabase）
 
 - 选题：设计器「数据源逆向解析」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「数据源」Select；meta / `dataSourceId` 载荷不变
 - E2E：`reverse-database-keyboard`（项目菜单 → 首焦、Esc 归还菜单钮、Tab trap；不依赖 reverse_demo）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 导出 DDL Modal 键盘（ExportDDL）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~导出 DDL Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/reverse-database-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

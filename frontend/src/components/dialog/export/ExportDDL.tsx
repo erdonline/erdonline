@@ -1,4 +1,4 @@
-import React, {useContext, useEffect, useMemo, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {
   Button,
   Checkbox,
@@ -10,6 +10,7 @@ import {
   Steps,
   TreeSelect,
 } from "antd";
+import type {RefSelectProps} from 'antd/es/select';
 import {MyIcon} from "@/components/Menu";
 import CodeEditor from "@/components/CodeEditor";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -61,6 +62,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
   const [treeData, setTreeData] = useState<any[]>([]);
   const [form1] = Form.useForm<Step1Values>();
   const [form2] = Form.useForm<Step2Values>();
+  const dbSelectRef = useRef<RefSelectProps>(null);
 
   const currentDb = projectDispatch.getCurrentDBData() as ExportDbOption | undefined;
 
@@ -155,6 +157,28 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // 第一步主决策：选数据源；Select 挂载后经 ref.focus（antd 自管 combobox）
+          const tryFocus = (attempt = 0) => {
+            const input = document.querySelector<HTMLInputElement>(
+              '.erd-io-modal-root [aria-label="数据源"]',
+            );
+            if (input) {
+              dbSelectRef.current?.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
         footer={
           step === 0
             ? [
@@ -196,6 +220,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
               initialValue={currentDb?.key}
             >
               <Select
+                ref={dbSelectRef}
                 aria-label="数据源"
                 options={dbOptions}
                 onChange={(value: string) => {
