@@ -52,11 +52,22 @@ jobs:
             echo ">>> $f"
             mysql -h127.0.0.1 -uroot < "$f"
           done
+          # GHA MySQL service 无 compose 的 erd 用户；对齐 application.yml 默认 erd/erd
+          mysql -h127.0.0.1 -uroot <<'SQL'
+          CREATE USER IF NOT EXISTS 'erd'@'%' IDENTIFIED BY 'erd';
+          GRANT ALL PRIVILEGES ON `erd`.* TO 'erd'@'%';
+          FLUSH PRIVILEGES;
+          SQL
 
       - name: Start backend（等待 actuator 就绪）
         working-directory: backend
+        env:
+          DB_HOST: 127.0.0.1
+          DB_USERNAME: erd
+          DB_PASSWORD: erd
+          SPRING_PROFILES_ACTIVE: dev
         run: |
-          SPRING_PROFILES_ACTIVE=dev nohup mvn -B spring-boot:run > backend.log 2>&1 &
+          nohup mvn -B spring-boot:run > backend.log 2>&1 &
           for i in $(seq 1 60); do
             code=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:9502/actuator/health || true)
             if [ "$code" = "200" ]; then echo "backend UP"; exit 0; fi
