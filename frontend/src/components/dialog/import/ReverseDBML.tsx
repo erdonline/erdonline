@@ -57,7 +57,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
     setPaste('');
   };
 
-  const mergeImported = (dbmlJson: DbmlProjectJSON) => {
+  const mergeImported = async (dbmlJson: DbmlProjectJSON) => {
     const modules = dbmlJson.modules || [];
     if (modules.length <= 0) {
       message.warning('DBML 中未找到可导入的模型');
@@ -93,7 +93,16 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       });
       return;
     }
-    importModuleAndProfile(dataSource, dbmlJson, resultModules, projectDispatch);
+    const {ok} = await importModuleAndProfile(
+      dataSource,
+      dbmlJson,
+      resultModules,
+      projectDispatch,
+    );
+    if (!ok) {
+      // 失败 toast 已由 persist；窗保持可重试
+      return;
+    }
     if (resultMsg.length > 0) {
       Modal.warning({
         title: '重要提示',
@@ -149,7 +158,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
     try {
       const {dbmlToProjectJSON} = await import('@/utils/dbml/toProjectJSON');
       const json = await dbmlToProjectJSON(trimmed);
-      mergeImported(json);
+      await mergeImported(json);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       message.error(msg || 'DBML 导入失败');

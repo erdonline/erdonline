@@ -10,8 +10,14 @@ import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import * as CryptoJS from 'crypto-js';
 import _ from "lodash";
+import {message} from "antd";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
+import {
+  ackManualPersist,
+  persistProjectNow,
+} from "@/store/project/projectAutosave";
+import type {PersistOpt} from "@/store/project/persistOpt";
 
 export type IProjectJsonSlice = Record<string, never>;
 
@@ -19,7 +25,11 @@ export interface IProjectJsonDispatchSlice {
   fixProject: (project: any) => void;
   fixModules: (modules: any, datatype: any, database: any) => any;
   getProject: () => void;
-  setProjectJson: (value: any) => void;
+  /**
+   * 写入 projectJSON。persist:true 时仅 saveProject code===200 写 store；
+   * 成功返回 true（调用方再 toast）；失败 toast、不写 store。
+   */
+  setProjectJson: (value: any, opts?: PersistOpt) => void | Promise<boolean>;
   setModules: (value: any) => void;
   setDataTypeDomains: (value: any) => void;
   setProfile: (value: any) => void;
@@ -92,9 +102,34 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
       }
     });
   },
-  setProjectJson: (value: any) => set(produce(state => {
-    state.project.projectJSON = value
-  })),
+  setProjectJson: (value: any, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    if (!persist) {
+      set(produce((state: ProjectState) => {
+        state.project.projectJSON = value;
+      }));
+      return;
+    }
+    const project = get().project;
+    if (!project) {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    const next = produce(project, (draft: ProjectState['project']) => {
+      draft.projectJSON = value;
+    });
+    return (async () => {
+      const saved = await persistProjectNow(next, '导入保存失败');
+      if (!saved) {
+        return false;
+      }
+      set(produce((state: ProjectState) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
+  },
   setModules: (value: any) => set(produce(state => {
     state.project.projectJSON.modules = value
   })),

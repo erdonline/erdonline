@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
 import Dragger from "antd/es/upload/Dragger";
 import {message, Modal} from "antd";
@@ -10,40 +10,65 @@ import '../../secondary-pane.scss';
 
 export type ReverseERDProps = {};
 
+/**
+ * 合并导入模块 + dataTypeDomains/profile；
+ * 仅 setProjectJson persist:true（save code===200）写 store；失败不写。
+ */
+export const importModuleAndProfile = async (
+  dataSource: any,
+  erdJson: any,
+  resultModules: any,
+  projectDispatch: any,
+): Promise<{ ok: boolean; modules: any[] }> => {
+  const nextDomains = _.cloneDeep(dataSource?.dataTypeDomains || {});
+  const nextProfile = _.cloneDeep(dataSource?.profile || {});
 
-export const importModuleAndProfile=(dataSource: any, erdJson:any, resultModules: any, projectDispatch:any)=> {
+  const datatype = _.unionBy(
+    nextDomains?.datatype,
+    erdJson?.dataTypeDomains?.datatype,
+    'code',
+  );
+  const database = _.unionBy(
+    nextDomains?.database,
+    erdJson?.dataTypeDomains?.database,
+    'code',
+  );
+  _.merge(nextDomains, erdJson?.dataTypeDomains);
+  _.set(nextDomains, 'datatype', datatype);
+  _.set(nextDomains, 'database', database);
 
+  const defaultFields = _.unionBy(
+    nextProfile?.defaultFields,
+    erdJson?.profile?.defaultFields,
+    'name',
+  );
+  const dbs = _.unionBy(nextProfile?.dbs, erdJson?.profile?.dbs, 'name');
+  _.merge(nextProfile, erdJson?.profile);
+  _.set(nextProfile, 'defaultFields', defaultFields);
+  _.set(nextProfile, 'dbs', dbs);
 
-  const datatype = _.unionBy(dataSource?.dataTypeDomains?.datatype, erdJson?.dataTypeDomains?.datatype, 'code');
-  const database = _.unionBy(dataSource?.dataTypeDomains?.database, erdJson?.dataTypeDomains?.database, 'code');
-  _.merge(dataSource?.dataTypeDomains, erdJson?.dataTypeDomains);
-  _.set(dataSource?.dataTypeDomains, 'datatype', datatype);
-  _.set(dataSource?.dataTypeDomains, 'database', database);
-
-  const defaultFields = _.unionBy(dataSource?.profile?.defaultFields, erdJson?.profile?.defaultFields, 'name');
-  const dbs = _.unionBy(dataSource?.profile?.dbs, erdJson?.profile?.dbs, 'name');
-  _.merge(dataSource?.profile, erdJson?.profile);
-  _.set(dataSource?.profile, 'defaultFields', defaultFields);
-  _.set(dataSource?.profile, 'dbs', dbs);
-
-
-
-
-
-  if (resultModules) {
-    // @ts-ignore
-    resultModules = projectDispatch.fixModules(resultModules, dataSource?.dataTypeDomains?.datatype, dataSource?.dataTypeDomains?.database);
+  let modules = resultModules;
+  if (modules) {
+    modules = projectDispatch.fixModules(
+      modules,
+      nextDomains?.datatype,
+      nextDomains?.database,
+    );
   }
 
-  projectDispatch.setProjectJson({
-    modules: (dataSource.modules || []).concat(resultModules),
-    dataTypeDomains: dataSource?.dataTypeDomains,
-    profile: dataSource?.profile,
-  });
-  return resultModules;
-}
+  const nextJson = {
+    ...dataSource,
+    modules: (dataSource.modules || []).concat(modules || []),
+    dataTypeDomains: nextDomains,
+    profile: nextProfile,
+  };
 
-const ReverseERD: React.FC<ReverseERDProps> = (props) => {
+  const ok = await projectDispatch.setProjectJson(nextJson, {persist: true});
+  return {ok: !!ok, modules: modules || []};
+};
+
+const ReverseERD: React.FC<ReverseERDProps> = () => {
+  const [importing, setImporting] = useState(false);
   const {projectDispatch, projectJSON} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     projectJSON: state.project.projectJSON || {},
@@ -52,6 +77,7 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
   const prop = {
     multiple: false,
     maxCount: 1,
+    disabled: importing,
     beforeUpload(file: any) {
       const name = String(file?.name || '').toLowerCase();
       const isJSON =
@@ -66,56 +92,83 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        let originJson;
-        try {
-          // @ts-ignore
-          originJson = projectDispatch.decrypt('AES', reader.result.toString());
-        } catch (e) {
-          message.error(`ERD文件解密失败！`)
-          return false;
-        }
-        let erdJson = JSON.parse(originJson);
-        let erdJsonModules = erdJson['modules'];
-        if (!erdJsonModules) {
-          message.error('您导入的是非法的ERD文件!');
-          return false;
-        }
-        if (!(erdJsonModules instanceof Array)) {
-          message.error('您导入的是非法的ERD文件!');
-          return false;
-        }
-        if (erdJsonModules.length <= 0) {
-          message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
-          return false;
-        }
-        // @ts-ignore
-        const dataSource = projectJSON;
-        let resultMsg: any = [];
-        let resultModules: any = [];
-        erdJsonModules.forEach(module => {
-          let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
-          if (!hasMulti) {
-            resultModules.push(module);
-          } else {
-            resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+        void (async () => {
+          let originJson;
+          try {
+            // @ts-ignore
+            originJson = projectDispatch.decrypt('AES', reader.result.toString());
+          } catch (e) {
+            message.error(`ERD文件解密失败！`)
+            return;
           }
-        });
-        resultModules = importModuleAndProfile(dataSource, erdJson, resultModules, projectDispatch);
-        if (resultMsg != '') {
-          Modal.warning({
-            title: '重要提示',
-            content: <>{resultMsg.map((m: any) => {
-              return <p>{m}</p>
-            })}</>,
-            okText: null,
-            cancelText: null,
+          let erdJson;
+          try {
+            erdJson = JSON.parse(originJson);
+          } catch {
+            message.error('您导入的是非法的ERD文件!');
+            return;
+          }
+          let erdJsonModules = erdJson['modules'];
+          if (!erdJsonModules) {
+            message.error('您导入的是非法的ERD文件!');
+            return;
+          }
+          if (!(erdJsonModules instanceof Array)) {
+            message.error('您导入的是非法的ERD文件!');
+            return;
+          }
+          if (erdJsonModules.length <= 0) {
+            message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
+            return;
+          }
+          // @ts-ignore
+          const dataSource = projectJSON;
+          let resultMsg: any = [];
+          let resultModules: any = [];
+          erdJsonModules.forEach((module: any) => {
+            let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
+            if (!hasMulti) {
+              resultModules.push(module);
+            } else {
+              resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+            }
           });
-        } else {
-          message.success('ERD文件导入成功！');
-        }
-        return true;
+          if (resultModules.length <= 0) {
+            Modal.warning({
+              title: '重要提示',
+              content: <>{resultMsg.map((m: any) => {
+                return <p key={m}>{m}</p>
+              })}</>,
+            });
+            return;
+          }
+          setImporting(true);
+          try {
+            const {ok} = await importModuleAndProfile(
+              dataSource,
+              erdJson,
+              resultModules,
+              projectDispatch,
+            );
+            if (!ok) {
+              return;
+            }
+            if (resultMsg.length > 0) {
+              Modal.warning({
+                title: '重要提示',
+                content: <>{resultMsg.map((m: any) => {
+                  return <p key={m}>{m}</p>
+                })}</>,
+              });
+            } else {
+              message.success('ERD文件导入成功！');
+            }
+          } finally {
+            setImporting(false);
+          }
+        })();
       };
-      return true;
+      return false;
     },
   };
 

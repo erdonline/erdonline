@@ -1,9 +1,8 @@
-import React from 'react';
+import React, {useState} from 'react';
 import {InboxOutlined} from '@ant-design/icons';
 import {message, Modal, Upload} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import _ from "lodash";
 import {importModuleAndProfile} from "@/pages/design/import/component/ReverseERD";
 import '../../secondary-pane.scss';
 
@@ -11,7 +10,8 @@ const { Dragger } = Upload;
 
 export type ReversePdManProps = {};
 
-const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
+const ReversePdMan: React.FC<ReversePdManProps> = () => {
+  const [importing, setImporting] = useState(false);
   const {projectDispatch, projectJSON} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
     projectJSON: state.project.projectJSON || {},
@@ -20,6 +20,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
   const prop = {
     multiple: false,
     maxCount: 1,
+    disabled: importing,
     beforeUpload(file: any) {
       const isJSON = file.type === 'application/json';
       if (!isJSON) {
@@ -30,50 +31,76 @@ const ReversePdMan: React.FC<ReversePdManProps> = (props) => {
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        // @ts-ignore
-        let pdmanJson = JSON.parse(reader.result.toString());
-        let pdmanJsonModules = pdmanJson['modules'];
-        if (!pdmanJsonModules) {
-          message.error('您导入的是非法的PDMan文件!');
-          return false;
-        }
-        if (!(pdmanJsonModules instanceof Array)) {
-          message.error('您导入的是非法的PDMan文件!');
-          return false;
-        }
-        if (pdmanJsonModules.length <= 0) {
-          message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
-          return false;
-        }
-        // @ts-ignore
-        const dataSource = projectJSON;
-        let resultMsg: any = [];
-        let resultModules: any = [];
-        pdmanJsonModules.forEach(module => {
-          let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
-          if (!hasMulti) {
-            resultModules.push(module);
-          } else {
-            resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+        void (async () => {
+          let pdmanJson;
+          try {
+            // @ts-ignore
+            pdmanJson = JSON.parse(reader.result.toString());
+          } catch {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
           }
-        });
-        resultModules = importModuleAndProfile(dataSource, pdmanJson, resultModules, projectDispatch);
-
-        if (resultMsg != '') {
-          Modal.warning({
-            title: '重要提示',
-            content: <>{resultMsg.map((m: any) => {
-              return <p>{m}</p>
-            })}</>,
-            okText: null,
-            cancelText: null,
+          let pdmanJsonModules = pdmanJson['modules'];
+          if (!pdmanJsonModules) {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
+          }
+          if (!(pdmanJsonModules instanceof Array)) {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
+          }
+          if (pdmanJsonModules.length <= 0) {
+            message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
+            return;
+          }
+          // @ts-ignore
+          const dataSource = projectJSON;
+          let resultMsg: any = [];
+          let resultModules: any = [];
+          pdmanJsonModules.forEach((module: any) => {
+            let hasMulti = (dataSource.modules || []).some((module1: any) => module.name === module1.name);
+            if (!hasMulti) {
+              resultModules.push(module);
+            } else {
+              resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+            }
           });
-        } else {
-          message.success('PdMan文件导入成功！');
-        }
-        return true;
+          if (resultModules.length <= 0) {
+            Modal.warning({
+              title: '重要提示',
+              content: <>{resultMsg.map((m: any) => {
+                return <p key={m}>{m}</p>
+              })}</>,
+            });
+            return;
+          }
+          setImporting(true);
+          try {
+            const {ok} = await importModuleAndProfile(
+              dataSource,
+              pdmanJson,
+              resultModules,
+              projectDispatch,
+            );
+            if (!ok) {
+              return;
+            }
+            if (resultMsg.length > 0) {
+              Modal.warning({
+                title: '重要提示',
+                content: <>{resultMsg.map((m: any) => {
+                  return <p key={m}>{m}</p>
+                })}</>,
+              });
+            } else {
+              message.success('PdMan文件导入成功！');
+            }
+          } finally {
+            setImporting(false);
+          }
+        })();
       };
-      return true;
+      return false;
     },
   };
 

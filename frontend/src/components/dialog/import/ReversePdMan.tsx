@@ -4,9 +4,9 @@ import {InboxOutlined} from '@ant-design/icons';
 import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
-import _ from 'lodash';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
+import {importModuleAndProfile} from '@/pages/design/import/component/ReverseERD';
 import '../io-modal.scss';
 
 const {Dragger} = Upload;
@@ -22,6 +22,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
 }) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const [innerOpen, setInnerOpen] = useState(false);
+  const [importing, setImporting] = useState(false);
   const open = openProp ?? innerOpen;
   const setOpen = (v: boolean) => {
     if (openProp === undefined) {
@@ -43,12 +44,16 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
   };
 
   const closeModal = () => {
+    if (importing) {
+      return;
+    }
     setOpen(false);
   };
 
   const uploadProps = {
     multiple: false,
     maxCount: 1,
+    disabled: importing,
     beforeUpload(file: File) {
       const name = String(file?.name || '').toLowerCase();
       const isJSON =
@@ -61,67 +66,90 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
       const reader = new FileReader();
       reader.readAsText(file);
       reader.onload = () => {
-        let pdmanJson: {
-          modules?: ModuleLike[];
-          dataTypeDomains?: unknown;
-          profile?: unknown;
-        };
-        try {
-          pdmanJson = JSON.parse(String(reader.result));
-        } catch {
-          message.error('您导入的是非法的PDMan文件!');
-          return;
-        }
-        const pdmanJsonModules = pdmanJson.modules;
-        if (!pdmanJsonModules) {
-          message.error('您导入的是非法的PDMan文件!');
-          return;
-        }
-        if (!(pdmanJsonModules instanceof Array)) {
-          message.error('您导入的是非法的PDMan文件!');
-          return;
-        }
-        if (pdmanJsonModules.length <= 0) {
-          message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
-          return;
-        }
-        const dataSource = projectJSON as {
-          modules?: ModuleLike[];
-          dataTypeDomains?: unknown;
-          profile?: unknown;
-        };
-        const resultMsg: string[] = [];
-        const resultModules: ModuleLike[] = [];
-        pdmanJsonModules.forEach((module) => {
-          const hasMulti = (dataSource.modules || []).some(
-            (module1) => module.name === module1.name,
-          );
-          if (!hasMulti) {
-            resultModules.push(module);
-          } else {
-            resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
+        void (async () => {
+          let pdmanJson: {
+            modules?: ModuleLike[];
+            dataTypeDomains?: unknown;
+            profile?: unknown;
+          };
+          try {
+            pdmanJson = JSON.parse(String(reader.result));
+          } catch {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
           }
-        });
-
-        projectDispatch.setProjectJson({
-          modules: (dataSource.modules || []).concat(resultModules),
-          dataTypeDomains: _.merge(dataSource.dataTypeDomains, pdmanJson.dataTypeDomains),
-          profile: _.merge(dataSource.profile, pdmanJson.profile),
-        });
-        if (resultMsg.length > 0) {
-          Modal.warning({
-            title: '重要提示',
-            content: (
-              <>
-                {resultMsg.map((m) => (
-                  <p key={m}>{m}</p>
-                ))}
-              </>
-            ),
+          const pdmanJsonModules = pdmanJson.modules;
+          if (!pdmanJsonModules) {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
+          }
+          if (!(pdmanJsonModules instanceof Array)) {
+            message.error('您导入的是非法的PDMan文件!');
+            return;
+          }
+          if (pdmanJsonModules.length <= 0) {
+            message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
+            return;
+          }
+          const dataSource = projectJSON as {
+            modules?: ModuleLike[];
+            dataTypeDomains?: unknown;
+            profile?: unknown;
+          };
+          const resultMsg: string[] = [];
+          const resultModules: ModuleLike[] = [];
+          pdmanJsonModules.forEach((module) => {
+            const hasMulti = (dataSource.modules || []).some(
+              (module1) => module.name === module1.name,
+            );
+            if (!hasMulti) {
+              resultModules.push(module);
+            } else {
+              resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
+            }
           });
-        } else {
-          message.success('PdMan文件导入成功！');
-        }
+          if (resultModules.length <= 0) {
+            Modal.warning({
+              title: '重要提示',
+              content: (
+                <>
+                  {resultMsg.map((m) => (
+                    <p key={m}>{m}</p>
+                  ))}
+                </>
+              ),
+            });
+            return;
+          }
+          setImporting(true);
+          try {
+            const {ok} = await importModuleAndProfile(
+              dataSource,
+              pdmanJson,
+              resultModules,
+              projectDispatch,
+            );
+            if (!ok) {
+              return;
+            }
+            if (resultMsg.length > 0) {
+              Modal.warning({
+                title: '重要提示',
+                content: (
+                  <>
+                    {resultMsg.map((m) => (
+                      <p key={m}>{m}</p>
+                    ))}
+                  </>
+                ),
+              });
+            } else {
+              message.success('PdMan文件导入成功！');
+            }
+          } finally {
+            setImporting(false);
+          }
+        })();
       };
       return false;
     },
@@ -148,6 +176,8 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
         open={open}
         onOk={closeModal}
         onCancel={closeModal}
+        confirmLoading={importing}
+        okButtonProps={{disabled: importing}}
         destroyOnClose
         width={480}
         className="erd-io-modal"

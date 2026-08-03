@@ -67,8 +67,13 @@ export interface IProfileDispatchSlice {
   checkField: (data: any) => any;
   getAllTable: (dataSource: any) => any;
   saveSelectedRowKeys: (selectedRowKeys: any) => void;
-  getSelectedEntity: () => boolean;
-  importReverseTable: () => void;
+  /** 选表后导入；覆盖确认后 await；仅 importReverseTable 成功才 true（弹层可关） */
+  getSelectedEntity: () => Promise<boolean>;
+  /**
+   * 数据源逆向选表导入（含 dataTypeDomains 合并）；
+   * 仅 saveProject code===200 写 store +「操作成功」；失败不写 store。
+   */
+  importReverseTable: () => Promise<boolean>;
   getDefaultFields: () => any;
   downloadWordTemplate: () => any;
 }
@@ -435,39 +440,53 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }).filter((k: any) => !!k)
     });
   },
-  getSelectedEntity: () => {
+  getSelectedEntity: (): Promise<boolean> => {
     const keys = get().profileSliceState?.keys || [];
     if (keys.length === 0) {
       message.warning('未选中要导入数据表');
+      return Promise.resolve(false);
+    }
+    if (keys?.some((k: any) => get().profileSliceState.exists.includes(k.title))) {
+      return new Promise((resolve) => {
+        confirmDestructive({
+          title: '温馨提示',
+          content: '勾选的数据表中包含模型中已经存在的数据表，继续操作将会覆盖模型中的数据，是否继续？',
+          okText: '确认',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk: async () => {
+            const ok = await get().dispatch.importReverseTable();
+            resolve(ok);
+            if (!ok) {
+              // 拒关确认窗，便于重试
+              return Promise.reject();
+            }
+          },
+          onCancel: () => {
+            resolve(false);
+          },
+        });
+      });
+    }
+    return get().dispatch.importReverseTable();
+  },
+  /**
+   * 禁止本地 mutate 即 toast「操作成功」：
+   * 先拼 next projectJSON（含 dataTypeDomains 合并），仅 save code===200 写 store。
+   */
+  importReverseTable: async (): Promise<boolean> => {
+    const project = get().project;
+    const dataSource = project?.projectJSON;
+    if (!project || !dataSource) {
+      message.error('未打开项目');
       return false;
     }
-    let isClose = false;
-    if (keys?.some((k: any) => get().profileSliceState.exists.includes(k.title))) {
-      confirmDestructive({
-        title: '温馨提示',
-        content: '勾选的数据表中包含模型中已经存在的数据表，继续操作将会覆盖模型中的数据，是否继续？',
-        okText: '确认',
-        okType: 'danger',
-        cancelText: '取消',
-        onOk: () => {
-          isClose = true;
-          get().dispatch.importReverseTable();
-        }
-      });
-    } else {
-      get().dispatch.importReverseTable();
-      isClose = true;
-    }
-    return isClose;
-  },
-  importReverseTable: () => {
-    const dataSource = get().project?.projectJSON;
     const {data, keys} = get().profileSliceState;
     const dbType = _.get(data, 'dbType', 'MYSQL');
     const module = _.get(data, 'module', {});
     const datatypeObj = _.get(data, 'dataTypeMap', {});
-    let currentDataTypes = _.get(dataSource, 'dataTypeDomains.datatype', []);
-    const database = _.get(dataSource, 'dataTypeDomains.database', []);
+    let currentDataTypes = [...(_.get(dataSource, 'dataTypeDomains.datatype', []) || [])];
+    const database = [...(_.get(dataSource, 'dataTypeDomains.database', []) || [])];
     if (!database.some((d: any) => d.code === dbType)) {
       database.push({
         code: dbType
@@ -499,7 +518,6 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return c;
     });
     let tempKeys = [...keys];
-    let tempData = {...dataSource};
     const selectedTitles = new Set(keys.map((k: any) => k.title));
     const incomingAssociations = (_.get(module, 'associations', []) || []).filter((a: any) =>
       selectedTitles.has(a?.from?.entity) && selectedTitles.has(a?.to?.entity)
@@ -517,7 +535,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return merged;
     };
     // 1.循环所有已知的数据表
-    let modules = (tempData.modules || []).map((m: any) => ({
+    let modules = (dataSource.modules || []).map((m: any) => ({
       ...m,
       entities: (m.entities || []).map((e: any) => {
         // 执行覆盖操作
@@ -602,19 +620,27 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
       return next;
     });
-    tempData = {
-      ...tempData,
-      modules,
-      dataTypeDomains: {
-        ...(dataSource.dataTypeDomains || {}),
-        datatype: currentDataTypes.concat(dataTypes),
+    const nextDatatype = currentDataTypes.concat(dataTypes);
+    const fixedModules = get().dispatch.fixModules(modules, null, null) || modules;
+    const nextProject = produce(project, (draft: any) => {
+      draft.projectJSON.modules = fixedModules;
+      draft.projectJSON.dataTypeDomains = {
+        ...(draft.projectJSON.dataTypeDomains || {}),
+        datatype: nextDatatype,
         database,
-      },
-    };
-    get().dispatch.updateAllDataTypes(currentDataTypes.concat(dataTypes));
-    get().dispatch.updateAllModules(modules);
+      };
+    });
 
-    message.success('操作成功！')
+    const saved = await persistProjectNow(nextProject, '逆向导入保存失败');
+    if (!saved) {
+      return false;
+    }
+    set(produce((state: any) => {
+      state.project.projectJSON = nextProject.projectJSON;
+    }));
+    ackManualPersist(true);
+    message.success('操作成功！');
+    return true;
   },
   getDefaultFields: () => {
     const defaultDatabaseCode = get().dispatch.getDefaultDatabaseCode();

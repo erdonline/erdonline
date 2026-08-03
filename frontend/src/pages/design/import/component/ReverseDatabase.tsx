@@ -35,6 +35,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const [selectedDbValue, setSelectedDbValue] = useState<any>(null);
   const [reverseMeta, setReverseMeta] = useState<ReverseMeta | null>(null);
   const [metaLoading, setMetaLoading] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const [step, setStep] = useState(0);
   const [form1] = Form.useForm<Step1Values>();
 
@@ -195,7 +196,17 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
               <AntButton
                 type="primary"
                 aria-label="提交"
-                onClick={() => projectDispatch.getSelectedEntity()}
+                loading={submitting}
+                onClick={() => {
+                  void (async () => {
+                    setSubmitting(true);
+                    try {
+                      await projectDispatch.getSelectedEntity();
+                    } finally {
+                      setSubmitting(false);
+                    }
+                  })();
+                }}
               >
                 提交
               </AntButton>
