@@ -1313,17 +1313,43 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
   const f = data.frame;
   const [renaming, setRenaming] = useState(false);
   const [draft, setDraft] = useState(f.name);
+  const [saving, setSaving] = useState(false);
+  const savingRef = useRef(false);
 
-  const commitRename = useCallback(() => {
+  const commitRename = useCallback(async () => {
+    if (savingRef.current) {
+      return;
+    }
     const next = draft.trim();
-    setRenaming(false);
     if (!next || next === f.name) {
       setDraft(f.name);
+      setRenaming(false);
       return;
     }
     const mod = data.moduleName;
     if (!mod) return;
-    useProjectStore.getState().dispatch.renameFrame(mod, data.diagramId, f.id, next);
+    // 禁止本地 mutate 即退出编辑；仅 saveProject code===200 关编辑态
+    savingRef.current = true;
+    setSaving(true);
+    try {
+      const ok = await Promise.resolve(
+        useProjectStore.getState().dispatch.renameFrame(
+          mod,
+          data.diagramId,
+          f.id,
+          next,
+          { persist: true },
+        ),
+      );
+      if (ok) {
+        setRenaming(false);
+      }
+    } catch {
+      message.error('分组保存失败');
+    } finally {
+      savingRef.current = false;
+      setSaving(false);
+    }
   }, [data.diagramId, data.moduleName, draft, f.id, f.name]);
 
   return (
@@ -1357,14 +1383,18 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
               aria-label="分组名称"
               value={draft}
               autoFocus
+              disabled={saving}
               onChange={(e) => setDraft(e.target.value)}
-              onBlur={commitRename}
+              onBlur={() => {
+                void commitRename();
+              }}
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
-                  commitRename();
+                  void commitRename();
                 } else if (e.key === 'Escape') {
                   e.preventDefault();
+                  if (savingRef.current) return;
                   setDraft(f.name);
                   setRenaming(false);
                 }
@@ -1808,8 +1838,46 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               };
             });
           if (updates.length) {
+            // 禁止本地 mutate 即 bounds 落盘；仅 saveProject code===200 写 store；失败 RF 回滚
             queueMicrotask(() => {
-              projectDispatch.updateFrameBounds(moduleName, activeDiagramId, updates);
+              void (async () => {
+                const ok = await Promise.resolve(
+                  projectDispatch.commitDiagramGeometry(
+                    moduleName,
+                    activeDiagramId,
+                    { frameBounds: updates },
+                    { persist: true },
+                  ),
+                );
+                if (!ok) {
+                  const mod = useProjectStore
+                    .getState()
+                    .project?.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+                  const diagramFrames = getActiveDiagramFrames(mod, activeDiagramId);
+                  setNodes((prev) =>
+                    prev.map((n) => {
+                      if (n.type !== 'frame') return n;
+                      const fid = parseFrameIdFromNodeId(n.id);
+                      if (!updates.some((u) => u.id === fid)) return n;
+                      const f = diagramFrames.find((g) => g.id === fid);
+                      if (!f) return n;
+                      return {
+                        ...n,
+                        position: { x: f.x, y: f.y },
+                        width: f.w,
+                        height: f.h,
+                        style: { ...n.style, width: f.w, height: f.h },
+                        data: {
+                          ...n.data,
+                          frame: f,
+                          moduleName,
+                          diagramId: activeDiagramId,
+                        },
+                      };
+                    }),
+                  );
+                }
+              })();
             });
           }
         }
@@ -1867,6 +1935,72 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     [setNodes],
   );
 
+  const expandFrameForMembers = useCallback(
+    (frameId: string, memberNodes: Node[]) => {
+      const frameNode = nodes.find((n) => n.type === 'frame' && parseFrameIdFromNodeId(n.id) === frameId);
+      const frameMeta = frames.find((f) => f.id === frameId);
+      if (!frameMeta || !memberNodes.length) return;
+      const size = frameNode ? frameNodeSize(frameNode) : { w: frameMeta.w, h: frameMeta.h };
+      const expanded = expandFrameBoundsToNodes(
+        {
+          x: frameNode?.position.x ?? frameMeta.x,
+          y: frameNode?.position.y ?? frameMeta.y,
+          ...size,
+        },
+        nodesForBounds(memberNodes),
+      );
+      // 乐观 RF；仅 save code===200 写 store；失败 RF 回滚
+      setNodes((prev) =>
+        prev.map((n) => {
+          if (n.type !== 'frame' || parseFrameIdFromNodeId(n.id) !== frameId) return n;
+          return {
+            ...n,
+            position: { x: expanded.x, y: expanded.y },
+            width: expanded.w,
+            height: expanded.h,
+            style: { ...n.style, width: expanded.w, height: expanded.h },
+          };
+        }),
+      );
+      void (async () => {
+        const ok = await Promise.resolve(
+          projectDispatch.commitDiagramGeometry(
+            moduleName,
+            activeDiagramId,
+            { frameBounds: [{ id: frameId, ...expanded }] },
+            { persist: true },
+          ),
+        );
+        if (!ok) {
+          const mod = useProjectStore
+            .getState()
+            .project?.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+          const f = getActiveDiagramFrames(mod, activeDiagramId).find((g) => g.id === frameId);
+          if (!f) return;
+          setNodes((prev) =>
+            prev.map((n) => {
+              if (n.type !== 'frame' || parseFrameIdFromNodeId(n.id) !== frameId) return n;
+              return {
+                ...n,
+                position: { x: f.x, y: f.y },
+                width: f.w,
+                height: f.h,
+                style: { ...n.style, width: f.w, height: f.h },
+                data: {
+                  ...n.data,
+                  frame: f,
+                  moduleName,
+                  diagramId: activeDiagramId,
+                },
+              };
+            }),
+          );
+        }
+      })();
+    },
+    [nodes, frames, projectDispatch, moduleName, activeDiagramId, setNodes],
+  );
+
   /** 拖表结束：中心落在框内 → 加入并扩边；拖出原成员框 → 移出 */
   const syncTableFrameMembership = useCallback(
     (allNodes: Node[], draggedTableIds: string[]) => {
@@ -1904,10 +2038,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           if (targetFrameId === fid) {
             if (!isMember) {
               projectDispatch.addFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
-              const expanded = expandFrameBoundsToNodes(frameBound(fn), nodesForBounds([table]));
-              projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [
-                { id: fid, ...expanded },
-              ]);
+              expandFrameForMembers(fid, [table]);
             }
           } else if (isMember) {
             projectDispatch.removeFrameMembers(moduleName, activeDiagramId, fid, [tableId]);
@@ -1915,7 +2046,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         }
       }
     },
-    [projectDispatch, moduleName, activeDiagramId],
+    [projectDispatch, moduleName, activeDiagramId, expandFrameForMembers],
   );
 
   // 拖动结束 → 表写 layout；框写 groups；拖框按起始 Δ 平移成员（兜底，避免 onNodeDrag 被挡）
@@ -2039,25 +2170,6 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const selectedCount = selectedTables.length;
   const selectedFrame = nodes.find((n) => n.selected && n.type === 'frame');
 
-  const expandFrameForMembers = useCallback(
-    (frameId: string, memberNodes: Node[]) => {
-      const frameNode = nodes.find((n) => n.type === 'frame' && parseFrameIdFromNodeId(n.id) === frameId);
-      const frameMeta = frames.find((f) => f.id === frameId);
-      if (!frameMeta || !memberNodes.length) return;
-      const size = frameNode ? frameNodeSize(frameNode) : { w: frameMeta.w, h: frameMeta.h };
-      const expanded = expandFrameBoundsToNodes(
-        {
-          x: frameNode?.position.x ?? frameMeta.x,
-          y: frameNode?.position.y ?? frameMeta.y,
-          ...size,
-        },
-        nodesForBounds(memberNodes),
-      );
-      projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [{ id: frameId, ...expanded }]);
-    },
-    [nodes, frames, projectDispatch, moduleName, activeDiagramId],
-  );
-
   const onCreateFrame = useCallback(() => {
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
     const memberEntityIds = selected.map((n) => n.id);
@@ -2084,11 +2196,58 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       return;
     }
     const bounds = computeFrameBoundsFromNodes(nodesForBounds(members));
-    projectDispatch.updateFrameBounds(moduleName, activeDiagramId, [
-      { id: frame.id, ...bounds },
-    ]);
-    message.success('已适应成员');
-  }, [nodes, projectDispatch, moduleName, activeDiagramId]);
+    // 禁止本地 mutate + toast「已适应成员」；仅 save code===200；失败 RF 回滚
+    setNodes((prev) =>
+      prev.map((n) => {
+        if (n.type !== 'frame' || parseFrameIdFromNodeId(n.id) !== frame.id) return n;
+        return {
+          ...n,
+          position: { x: bounds.x, y: bounds.y },
+          width: bounds.w,
+          height: bounds.h,
+          style: { ...n.style, width: bounds.w, height: bounds.h },
+        };
+      }),
+    );
+    void (async () => {
+      const ok = await Promise.resolve(
+        projectDispatch.commitDiagramGeometry(
+          moduleName,
+          activeDiagramId,
+          { frameBounds: [{ id: frame.id, ...bounds }] },
+          { persist: true },
+        ),
+      );
+      if (!ok) {
+        const mod = useProjectStore
+          .getState()
+          .project?.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+        const f = getActiveDiagramFrames(mod, activeDiagramId).find((g) => g.id === frame.id);
+        if (f) {
+          setNodes((prev) =>
+            prev.map((n) => {
+              if (n.type !== 'frame' || parseFrameIdFromNodeId(n.id) !== frame.id) return n;
+              return {
+                ...n,
+                position: { x: f.x, y: f.y },
+                width: f.w,
+                height: f.h,
+                style: { ...n.style, width: f.w, height: f.h },
+                data: {
+                  ...n.data,
+                  frame: f,
+                  moduleName,
+                  diagramId: activeDiagramId,
+                },
+              };
+            }),
+          );
+        }
+        return;
+      }
+      message.success('已适应成员');
+    })();
+  }, [nodes, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
   const onAssignToFrame = useCallback(() => {
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
