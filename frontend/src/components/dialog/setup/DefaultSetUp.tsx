@@ -25,6 +25,7 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
 }) => {
   const [tab, setTab] = useState('tab1');
   const [innerOpen, setInnerOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
   const open = openProp ?? innerOpen;
   const setOpen = (v: boolean) => {
     if (openProp === undefined) {
@@ -67,12 +68,21 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    await projectDispatch.updateProfile({
-      erdPassword: values.erdPassword,
-      sqlConfig: values.sqlConfig,
-      operationMode: values.operationMode,
-    });
-    setOpen(false);
+    setSubmitting(true);
+    try {
+      const ok = await projectDispatch.updateProfile({
+        erdPassword: values.erdPassword,
+        sqlConfig: values.sqlConfig,
+        operationMode: values.operationMode,
+      });
+      if (ok) {
+        message.success('设置成功');
+        setOpen(false);
+      }
+      // 失败：request 已 toast；失败不关窗可重试
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -95,6 +105,7 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
+        confirmLoading={submitting}
         destroyOnClose
         width={720}
         className="erd-io-modal"
