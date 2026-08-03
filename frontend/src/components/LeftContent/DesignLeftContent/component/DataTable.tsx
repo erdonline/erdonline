@@ -11,7 +11,7 @@ import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
-import { relationTabEntity } from '@/utils/diagram';
+import { DEFAULT_DIAGRAM_ID, relationTabEntity } from '@/utils/diagram';
 
 const iconStyle = (color: string) => ({ color, fontSize: 12 });
 
@@ -162,16 +162,39 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   };
 
   const handleRemove = (node: any) => {
+    if (node.type === 'relation') {
+      if (node.diagramId === DEFAULT_DIAGRAM_ID) {
+        message.warning('主关系图不可删除');
+        return;
+      }
+      Modal.confirm({
+        title: `确定删除关系图 "${node.title}" 吗?`,
+        icon: <ExclamationCircleOutlined />,
+        content: '仅删除该关系图，表不会一起删除。',
+        okText: '删除',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk() {
+          projectDispatch.removeDiagram(node.module, node.diagramId);
+        },
+      });
+      return;
+    }
+
+    const kind = node.type === 'module' ? '模型' : '表';
     Modal.confirm({
-      title: `确定删除${node.type === 'module' ? '模型' : '表'} "${node.title}" 吗?`,
+      title: `确定删除${kind} "${node.title}" 吗?`,
       icon: <ExclamationCircleOutlined />,
-      content: '此操作不可逆，请谨慎操作。',
+      content:
+        node.type === 'module'
+          ? '将删除模型内全部表与关系图，此操作不可逆。'
+          : '此操作不可逆，请谨慎操作。',
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
       onOk() {
         if (node.type === 'module') {
-          projectDispatch.removeModule(node.name);
+          projectDispatch.removeModule(node.module || node.name);
         } else if (node.type === 'entity') {
           projectDispatch.removeEntity(node.module, node.title);
         }
@@ -249,14 +272,16 @@ const DataTable: React.FC<DataTableProps> = (props) => {
               </Menu.Item>
             )}
             <Menu.Divider />
-            <Menu.Item
-              key="remove"
-              icon={<DeleteOutlined style={iconStyle(erdColors.brand)} />}
-              danger
-              onClick={() => handleRemove(node)}
-            >
-              {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}`}
-            </Menu.Item>
+            {!(node.type === 'relation' && node.diagramId === DEFAULT_DIAGRAM_ID) && (
+              <Menu.Item
+                key="remove"
+                icon={<DeleteOutlined style={iconStyle(erdColors.brand)} />}
+                danger
+                onClick={() => handleRemove(node)}
+              >
+                {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}`}
+              </Menu.Item>
+            )}
           </>
         )}
       </Menu>
@@ -266,7 +291,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       <Dropdown overlay={menu} trigger={['click']}>
         <EllipsisOutlined
           data-testid="tree-node-menu"
-          aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系'}操作`}
+          aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}操作`}
           style={{ padding: '0 4px', fontSize: 12 }}
           onClick={(e) => e.stopPropagation()}
         />
