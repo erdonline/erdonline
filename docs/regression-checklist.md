@@ -57,7 +57,8 @@
 - [x] 左树搜索 × 清过滤 + 无匹配空态：「未找到匹配的表」；× 后树复现表名 ✅`multi-diagram.spec.ts`「左树搜索：无匹配空态」
 - [x] 命令面板搜表定位：搜表名 → 选中 + fitView + `data-locate-flash`；视口外可拉回 ✅`relation.spec`「命令面板：搜表定位」
 - [x] 左树点表定位：点树表名 → 选中 + fitView + `data-locate-flash`；不开表设计 ✅`relation.spec`「左树点表」
-- [x] 快捷键速查：`?` / 工具栏 → aria dialog「快捷键」；含 Cmd+K、Delete 确认、Tab 字段导航；Esc 关闭 ✅`relation.spec`「快捷键速查」
+- [x] 快捷键速查：`?` / 工具栏 → aria dialog「快捷键」；含 Cmd+K、Delete 确认、Tab 字段导航、Cmd+1/2/3 表设计签；Esc 关闭 ✅`relation.spec`「快捷键速查」
+- [x] 表设计 Cmd/Ctrl+1/2/3：字段 / 索引 / 元数据应用；输入框内不拦 ✅`relation.spec`「表设计 Cmd/Ctrl+1/2/3」
 - [x] `getActiveDiagram` 懒迁移 / tab entity 往返 ✅`diagram.test.ts`
 - [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
 - [x] 公开 demo / 示例：双图「鉴权核心」「会话与审计」+ 切换器 ✅`demo.spec.ts` / `activation.spec.ts`
