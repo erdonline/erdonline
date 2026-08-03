@@ -173,10 +173,10 @@ docker compose up -d
 | `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未注入 `REDISHOST`（或仍指望 `REDIS_URL`/`SPRING_DATA_REDIS_URL`） | Link Redis 或设 `REDISHOST`/`REDISPORT`/`REDISPASSWORD`；**Redeploy** |
 | `NOAUTH Authentication required` | 主机通但未带密码 | 确认 `REDISPASSWORD` 已注入；日志 `password=missing` |
 | `WRONGPASS invalid username-password pair` | 密码错，或空串被当成密码（旧镜像） | 用插件 `REDISPASSWORD`；本地无密码勿设假密码（Normalizer 把空串置 null） |
-| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/SocketIO 设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`） |
+| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/CORS/SocketIO 设 `ERD_UI_URL` |
 | `OSS credentials must not use MinIO install defaults` / blank credentials | 启用了 `OSS_ENDPOINT` 但密钥 blank 或仍为 `minio`/`minio123` | 未用 MinIO 则**不要**设 `OSS_ENDPOINT`；启用则旋转密钥 |
 | `JWT_SECRET must not use the repository/dev default` | prod 仍用仓库开发默认串 | 换成 `openssl rand -base64 48` 等随机值并 Redeploy |
-| `martin.socketio.origin is blank or *` / `must not be * in prod` | SocketIO/CORS 通配或空 | 设明确 UI 源；勿 `SOCKETIO_ORIGIN=*` / 空串 |
+| `martin.socketio.origin is blank or *` / `must not be * in prod` | SocketIO/CORS 通配或空 | 设明确 `ERD_UI_URL`；勿 `*` / 空串 |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
 容器内（Railway Shell）：
@@ -305,9 +305,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
 | `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true` |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
-| `CORS_ALLOWED_ORIGINS` | `https://erdonline-demo.pages.dev` | 逗号分隔；静态 demo 跨域必需；未设则回落 `ERD_UI_URL` |
-| `ERD_UI_URL` | 同上 CF Pages URL | **prod 必填其一**（或 `SOCKETIO_ORIGIN`）；CORS + SocketIO 回落；禁 `*` |
-| `SOCKETIO_ORIGIN` | 通常同 `ERD_UI_URL` | 可选覆盖 SocketIO；未设回落 `ERD_UI_URL`；禁空串挡回落、禁 `*` |
+| `ERD_UI_URL` | `https://erdonline-demo.pages.dev` | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin 同一值；可逗号多源；禁 `*` |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
@@ -354,7 +352,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
 
 #### MySQL + Redis + 环境变量
 
-与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）、`CORS_ALLOWED_ORIGINS`、`ERD_E2E_ACCOUNTS_ENABLED=false`；**勿**为占位乱填 `OSS_*`，除非真要启用 MinIO）。
+与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_UI_URL`、`ERD_E2E_ACCOUNTS_ENABLED=false`；**勿**为占位乱填 `OSS_*`，除非真要启用 MinIO）。
 
 1. 同项目添加 **MySQL 8** + **Redis**
 2. 建单一业务库并导入 schema（种子由 App Flyway 写入）：
@@ -363,7 +361,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
    ```
    再导入 `db/init/02_tables.sql`；或跑 `scripts/railway-mysql-init.sh`
 3. 把平台 MySQL/Redis 的 host/port/密码注入为 `MYSQLHOST` / `MYSQLDATABASE=erd` / `REDISHOST` / `REDISPASSWORD` 等
-4. `ERD_UI_URL`（必填）+ `CORS_ALLOWED_ORIGINS`（建议同值）= CF Pages demo 源（如 `https://erdonline-demo.pages.dev`）；勿设 `SOCKETIO_ORIGIN=*`
+4. `ERD_UI_URL`（必填）= CF Pages demo 源（如 `https://erdonline-demo.pages.dev`）；禁 `*`
 5. health 绿后：GitHub Actions Variable `DEMO_API_URL=https://YOUR.zeabur.app`（无尾斜杠）→ 重跑 `frontend-demo-site.yml`
 
 #### 最短路径
