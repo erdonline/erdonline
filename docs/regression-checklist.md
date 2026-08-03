@@ -714,6 +714,7 @@
 - [x] [DBML Enum 双向] `Enum`↔`dataTypeDomains.datatype`（`kind:enum`/`values[]`）+ 列 type=code；fixture `enum.dbml` round-trip ✅ `yarn test:unit:dbml` + `dbml-export`「Enum fixture」
 - [x] [DBML 表达式索引] expression 列↔`indexs[].fields[]` 原样；fixture `expression-index.dbml` round-trip ✅ `yarn test:unit:dbml` + `dbml-export`「表达式索引」
 - [x] [逆向表达式/函数索引] PG `pg_get_indexdef` + MySQL 8 `EXPRESSION` → `indexs[].fields[]`；无列/空键软跳过 ✅ `IndexResultSetMapperTest` + `PostgresqlReverseDialectExpressionIndexTest` + `MysqlReverseDialectExpressionIndexTest`
+- [x] [索引签字段/表达式可编辑] JExcel text「字段/表达式*」分号混写 → `indexs[].fields[]`；失败回滚可重试 ✅ `index-expression-edit` + `indexFieldsCell.test.ts`
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
 - [x] [导入自动布局] DBML 导入后 `posts.x < users.x`（dagre LR，非网格散点）+ 截图 ✅ `dbml-import.spec.ts` / `yarn test:unit:dbml`
 - [x] [表节点视觉打磨] 连线后 FK 徽章可见、PK 行有 `.erd-field-pk`、边带 Crow's foot marker、表名等宽字体；截图 `diagram-node-polish.png` ✅ `relation.spec.ts`「表节点视觉：PK/FK」

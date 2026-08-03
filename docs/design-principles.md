@@ -166,6 +166,7 @@
 - ✅ 表头 ✎ / 双击：表名 + 实体中文名双栏内联；Tab 表名→中文名→提交；Escape 丢弃（拦 blur）；仅改 chnname 亦 save-status；改名 `persist:true`（失败不退出编辑、草稿保留）
 - ✅ 表节点底栏并排「字段 | 索引 | 元数据」→ 表设计对应签（`canvas-open-field` / `canvas-open-index` / `canvas-open-code`）；禁画布无入口只能绕左树
 - ✅ 索引签空态：`还没有索引` + 主 CTA「添加第一个索引」（种子首字段索引）；禁空 `indexs[]` 白屏死表
+- ✅ 索引签字段/表达式：JExcel「字段/表达式*」文本格；分号混写列名与表达式（如 `id;LOWER(email)`）→ `indexs[].fields[]`；禁 dropdown 丢失表达式；persist-on-200
 - ✅ 字段签空态：`还没有字段` + 主 CTA「添加第一个字段」（种子首个 defaultField / id）；禁空 `fields[]` 白屏死表
 - ✅ 画布空表字段引导：可见字段 0 →「还没有字段」+「添加第一个字段」品牌 CTA；禁仅灰虚线埋进白壳
 - ✅ 索引签已有行：表下「+ 再添加一条索引」明确 CTA；禁只靠 JExcel 工具栏无文案加号

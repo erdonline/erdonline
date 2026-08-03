@@ -8,6 +8,20 @@
 
 ### 2026-08-03
 
+#### 体验：索引签字段/表达式可编辑（`indexs[].fields[]`）
+
+- 选题：DBML（`1e4a1bf`）+ 逆向（`8788e5c`）已把表达式写入 `fields[]`；索引签 JExcel 仍是列名-only `dropdown` → 看不见/改不了
+- `TableIndexEdit`：`fields` 列改 `text`「字段/表达式*」；分号混写列名/表达式；`parseIndexFieldsCell` / `formatIndexFieldsCell`；既有 `persist:true` / 失败 `sheetEpoch` 重挂
+- Hint：`aria-label=索引字段编辑说明` + 分号约定 + 可选列提示；密 chrome 不动
+- E2E：`index-expression-edit`（失败回滚 → 混写落盘 + Esc 停签）
+- 未做：Oracle / SQL Server 函数索引逆向（编辑器已通，下一刀字典）
+- 文档：data-format / ui-layout / roadmap / regression / control-matrix / design-principles
+
+验证点：
+- `cd frontend && npx --yes tsx src/pages/design/table/component/table/indexFieldsCell.test.ts`
+- `cd frontend && npx playwright test tests/e2e/index-expression-edit.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/jexcel-index-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 逆向：PG/MySQL 表达式·函数索引 → `indexs[].fields[]`
 
 - 选题：DBML 表达式索引（`1e4a1bf`）后最高缺口 = 字典逆向仍只出列名；PG `INNER JOIN pg_attribute` 整丢 `indkey=0` 行
@@ -28,7 +42,7 @@
 - 导入：`@dbml/core` `columns[].type=expression` 不再丢弃，写入 `fields[]`
 - 导出：纯 ident → 列引用；其余 → `` `expr` ``（混列同块）
 - DDL：既有 `createIndexTemplate` 对 `fields` join，表达式可进 `CREATE INDEX … (LOWER(email))`
-- 未做：索引签 UI 表达式编辑器；Oracle/SQL Server 函数索引字典（本切片已补 JDBC 逆向 PG/MySQL）
+- 未做：~~索引签 UI 表达式编辑器~~✅；Oracle/SQL Server 函数索引字典（本切片已补 JDBC 逆向 PG/MySQL）
 - 单测 + fixture `expression-index.dbml` round-trip；E2E `dbml-export`「表达式索引」
 - 文档：data-format Index + DBML 表；roadmap / regression-checklist
 
