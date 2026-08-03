@@ -31,7 +31,12 @@ const LandingPage: React.FC = () => {
           <p className="landingHeroLead">
             版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。
           </p>
-          <div className="landingCtas">
+          <div
+            className="landingCtas"
+            id="landing-main-cta"
+            tabIndex={-1}
+            data-testid="landing-main-cta"
+          >
             {authed ? (
               <>
                 <Link className="landingBtnPrimary" to="/home" aria-label="进入工作台">

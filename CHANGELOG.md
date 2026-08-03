@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：落地页键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：`/` 进页 Tab 先扫完整顶栏；无 Skip 直达主 CTA；深色门面焦点环缺；无键盘 E2E
+- 改动：`LandingChrome` 首焦 Skip「跳到主操作」→ `#landing-main-cta`（`tabIndex=-1`）；hero /compare CTA 同锚；壳内 `:focus-visible` surface 环（地标 brand）；自然 DOM 序不动正 `tabIndex`
+- E2E：`landing`「落地页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist / landing.md；下一刀 → 404/403 壳键盘核对
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/landing.spec.ts --project=chromium --grep "落地页键盘" --workers=1 --retries=0`
+
 #### 安全：R-AUTH-02 UserController CRUD 补 sys_user_* 权限
 
 - 选题：任意已登录用户可调用 `UserController` 增删改查系统用户（相对 Extension 的 `sys_user_*` 缺口）
@@ -35,7 +45,7 @@
 - 选题：注册虽共用 `AuthBrandShell`，缺「跳到注册表单」文案；5 个 Form tip 问号抢 Tab；无聚焦 E2E
 - 改动：`skipLabel=跳到注册表单`；tip icon `tabIndex=-1`（悬停保留，约束靠 rules）；`register-submit` testid
 - E2E：`session`「注册壳键盘：Skip→表单；Tab 序；Enter 校验；focus-visible；无 trap」
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 落地页键盘打磨或 404/403 壳核对
+- 文档：`docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → ~~落地页键盘打磨~~✅ / 404/403 壳核对
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/session.spec.ts --project=chromium --grep "注册壳键盘" --workers=1 --retries=0`

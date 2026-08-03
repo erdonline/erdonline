@@ -61,5 +61,59 @@ test.describe('落地页', () => {
     await expect(heroPrimary).toHaveAccessibleName('进入工作台');
     await expect(page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: '进入工作台' })).toBeVisible();
   });
+
+  // ADR-0016：落地页键盘 — Skip 绕开顶栏；主 CTA 区 Tab 序；focus-visible；无 trap
+  test('落地页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/');
+    await expect(page.getByTestId('landing-page')).toBeVisible();
+    await expect(page.getByTestId('landing-skip-cta')).toHaveText('跳到主操作');
+    await expect(page.getByTestId('landing-main-cta')).toHaveAttribute('tabindex', '-1');
+
+    // 首项 Tab = Skip；Enter 落到主 CTA 地标
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('landing-skip-cta')).toBeFocused({ timeout: 5_000 });
+    await page.keyboard.press('Enter');
+    await expect(page.getByTestId('landing-main-cta')).toBeFocused();
+
+    // 地标 tabIndex=-1：下一 Tab 离开，进首个主 CTA（无 trap）
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('landing-main-cta')).not.toBeFocused();
+    const primaryCta = page.getByRole('link', { name: '在线试用 demo' });
+    await expect(primaryCta).toBeFocused();
+
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: '注册' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: '去登录' })).toBeFocused();
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.getByRole('link', { name: '注册' })).toBeFocused();
+
+    // focus-visible surface 环（深色门面；须经 Tab 触发 :focus-visible）
+    await page.getByRole('link', { name: '注册' }).focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(primaryCta).toBeFocused();
+    const ring = await primaryCta.evaluate((el) => {
+      const cs = getComputedStyle(el);
+      return {
+        outlineColor: cs.outlineColor,
+        outlineStyle: cs.outlineStyle,
+        outlineWidth: cs.outlineWidth,
+      };
+    });
+    expect(ring.outlineStyle).not.toBe('none');
+    expect(parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(1);
+    // --erd-surface 白环（暗底门面）
+    expect(ring.outlineColor).toMatch(/rgb\(\s*255,\s*255,\s*255\s*\)/);
+
+    // 不按 Skip：DOM 序首焦为品牌链（Skip 非唯一入口）
+    await page.goto('/');
+    await page.mouse.click(2, 2);
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('landing-skip-cta')).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: 'ERD Online 首页' })).toBeFocused();
+  });
 });
 

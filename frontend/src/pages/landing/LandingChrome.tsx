@@ -6,6 +6,13 @@ import {APP_VERSION_LABEL} from '@/constants/appVersion';
 const GITHUB_URL = 'https://github.com/erdonline/erdonline';
 const DOCS_URL = 'https://erdonline.github.io/erdonline/';
 
+const focusSkipTarget = (id: string) => {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.focus({preventScroll: false});
+  el.scrollIntoView({block: 'nearest'});
+};
+
 export type LandingChromeProps = {
   children: React.ReactNode;
   /** 子页用相对顶栏；落地首页仍绝对叠在 hero 上 */
@@ -29,6 +36,19 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       className={`landing${variant === 'subpage' ? ' landing--subpage' : ''}`}
       data-testid={testId}
     >
+      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="landing-skip-nav">
+        <a
+          href="#landing-main-cta"
+          className="erd-skip-link"
+          data-testid="landing-skip-cta"
+          onClick={(e) => {
+            e.preventDefault();
+            focusSkipTarget('landing-main-cta');
+          }}
+        >
+          跳到主操作
+        </a>
+      </nav>
       <header className="landingNav">
         <a className="landingNavBrand landingBrand" href="/" aria-label="ERD Online 首页">
           <img src="/logo.svg" alt="" width={28} height={28} />
