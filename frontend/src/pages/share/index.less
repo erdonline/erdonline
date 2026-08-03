@@ -169,32 +169,32 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-  padding: 8px 12px 0;
+  padding: 6px 10px 0;
   box-sizing: border-box;
 }
 
-/* meta 再收：hint/描述与 22 chrome 同阶，把纵向留给画布 */
+/* meta 次密：hint/描述 12/16 + gap2，把纵向留给画布 */
 .share-page__meta {
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
   max-width: 1200px;
-  margin: 0 auto 4px;
+  margin: 0 auto 2px;
 }
 
 .share-page__desc {
   margin: 0 !important;
   font-size: 12px;
-  line-height: 18px;
+  line-height: 16px;
   color: var(--erd-ink-600);
 }
 
 .share-page__hint {
   margin: 0;
   font-size: 12px;
-  line-height: 18px;
+  line-height: 16px;
   color: var(--erd-ink-600);
 }
 
@@ -245,11 +245,11 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   align-self: center;
-  margin: 6px 0 8px;
-  padding: 0 12px;
-  min-height: 24px;
+  margin: 4px 0 6px;
+  padding: 0 10px;
+  min-height: 22px;
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
   background: var(--erd-surface);
@@ -282,10 +282,10 @@
   font-weight: 500;
 }
 
-/* 展开态表清单：与 project-list / 22–28 chrome 同阶；禁 16 pad + 14 标题松表 */
+/* 展开态表清单次密：与 project-list / 22 chrome 同阶；禁 8×12 + 13 标题松表 */
 .share-page__tables {
-  margin: 0 auto 24px;
-  padding: 8px 12px 12px;
+  margin: 0 auto 12px;
+  padding: 6px 10px 8px;
   width: calc(100% - 40px);
   max-width: 1200px;
   box-sizing: border-box;
@@ -300,26 +300,26 @@
   }
 
   .ant-table-thead > tr > th {
-    padding: 4px 8px !important;
+    padding: 3px 8px !important;
     font-size: 12px;
     font-weight: 600;
-    line-height: 18px;
+    line-height: 16px;
     color: var(--erd-ink-600);
     background: var(--erd-surface-muted);
   }
 
   .ant-table-tbody > tr > td {
-    padding: 4px 8px !important;
+    padding: 3px 8px !important;
     font-size: 12px;
-    line-height: 18px;
+    line-height: 16px;
     color: var(--erd-ink-900);
   }
 }
 
 .share-page__tables-title {
-  margin: 0 0 8px !important;
-  font-size: 13px !important;
+  margin: 0 0 4px !important;
+  font-size: 12px !important;
   font-weight: 600;
-  line-height: 22px !important;
+  line-height: 18px !important;
   color: var(--erd-ink-900);
 }

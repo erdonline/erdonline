@@ -54,6 +54,29 @@ test.describe('只读分享弹层键盘', () => {
       const createResp = await createRespPromise;
       expect(createResp.ok()).toBeTruthy();
 
+      // ADR-0016：链接已生成时弹层次密（.erd-io-modal body + hint/link-row）
+      await expect(dialog.getByRole('textbox', { name: '分享链接' })).toHaveValue(/\/s\//);
+      const modalDense = await dialog.evaluate((dlg) => {
+        const body = dlg.querySelector('.ant-modal-body') as HTMLElement | null;
+        const hint = dlg.querySelector('.erd-share-modal__hint') as HTMLElement | null;
+        const linkRow = dlg.querySelector('.erd-share-modal__link-row') as HTMLElement | null;
+        const input = dlg.querySelector('[aria-label="分享链接"]') as HTMLElement | null;
+        const bodyCs = body ? getComputedStyle(body) : null;
+        const hintCs = hint ? getComputedStyle(hint) : null;
+        const linkCs = linkRow ? getComputedStyle(linkRow) : null;
+        return {
+          bodyPadT: bodyCs ? parseFloat(bodyCs.paddingTop) : -1,
+          hintMb: hintCs ? parseFloat(hintCs.marginBottom) : -1,
+          linkMb: linkCs ? parseFloat(linkCs.marginBottom) : -1,
+          inputH: input ? input.getBoundingClientRect().height : -1,
+        };
+      });
+      expect(modalDense.bodyPadT, `分享弹层 body pad 应 ≤12，得 ${modalDense.bodyPadT}`).toBeLessThanOrEqual(12);
+      expect(modalDense.hintMb, `hint mb 应 ≤8，得 ${modalDense.hintMb}`).toBeLessThanOrEqual(8);
+      expect(modalDense.linkMb, `链接行 mb 应 ≤10，得 ${modalDense.linkMb}`).toBeLessThanOrEqual(10);
+      expect(modalDense.inputH, `链接输入高应 ∈[26,30]，得 ${modalDense.inputH}`).toBeGreaterThanOrEqual(26);
+      expect(modalDense.inputH).toBeLessThanOrEqual(30);
+
       await assertTabTrap(dialog, page);
 
       await page.keyboard.press('Escape');

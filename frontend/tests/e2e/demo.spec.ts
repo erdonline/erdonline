@@ -10,12 +10,27 @@ test.describe('在线演示', () => {
     await expect(page).toHaveURL(/\/s\/public-demo/);
     await expect(page.getByText('功能鉴权示例').first()).toBeVisible({ timeout: 15_000 });
     await expect(page.getByTestId('share-relation-canvas')).toBeVisible();
-    // ADR-0016：meta（hint/描述/切图）再收 → 画布吃满顶栏下视口
+    // ADR-0016：meta / 表清单次密 → 画布吃满顶栏下视口
     const meta = page.getByTestId('share-page-meta');
     await expect(meta).toBeVisible();
     await expect(meta.getByText(/匿名只读/)).toBeVisible();
-    const metaH = await meta.evaluate((el) => el.getBoundingClientRect().height);
-    expect(metaH, `share meta 高应 ≤72（含切图条），得 ${metaH}`).toBeLessThanOrEqual(72);
+    const densify = await meta.evaluate((el) => {
+      const stage = el.closest('.share-page__stage') as HTMLElement | null;
+      const hint = el.querySelector('.share-page__hint') as HTMLElement | null;
+      const cs = getComputedStyle(el);
+      const stageCs = stage ? getComputedStyle(stage) : null;
+      const hintCs = hint ? getComputedStyle(hint) : null;
+      return {
+        metaH: el.getBoundingClientRect().height,
+        metaGap: parseFloat(cs.gap) || 0,
+        stagePadT: stageCs ? parseFloat(stageCs.paddingTop) : -1,
+        hintLh: hintCs ? parseFloat(hintCs.lineHeight) : -1,
+      };
+    });
+    expect(densify.metaH, `share meta 高应 ≤60（含切图条），得 ${densify.metaH}`).toBeLessThanOrEqual(60);
+    expect(densify.metaGap, `meta gap 应 ≤2，得 ${densify.metaGap}`).toBeLessThanOrEqual(2);
+    expect(densify.stagePadT, `stage padTop 应 ≤6，得 ${densify.stagePadT}`).toBeLessThanOrEqual(6);
+    expect(densify.hintLh, `hint lh 应 ≤16，得 ${densify.hintLh}`).toBeLessThanOrEqual(16);
     const canvasH = await page.getByTestId('share-relation-canvas').evaluate((el) => {
       const r = el.getBoundingClientRect();
       return {h: r.height, top: r.top};
@@ -25,7 +40,7 @@ test.describe('在线演示', () => {
     expect(canvasH.h, `画布应占视口过半，得 ${canvasH.h}/${vh}`).toBeGreaterThan(vh * 0.5);
     // meta 收紧后画布应更接近视口主导（禁 hint/描述松距抢高）
     expect(canvasH.h, `画布应 ≥视口 55%，得 ${canvasH.h}/${vh}`).toBeGreaterThanOrEqual(vh * 0.55);
-    // 底边折叠条常驻（~32px）；画布下缘贴条上方而非贴死视口底
+    // 底边折叠条常驻（~28px）；画布下缘贴条上方而非贴死视口底
     expect(canvasH.top + canvasH.h, '画布应贴近视口底（含折叠条）').toBeGreaterThan(vh - 48);
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-share-meta-dense.png',
@@ -409,13 +424,28 @@ test.describe('在线演示', () => {
     await expect(tablesPanel).toBeVisible();
     await expect(tablesPanel.getByRole('columnheader', { name: '表' })).toBeVisible();
     await expect(tablesPanel.getByRole('cell', { name: 'sys_user', exact: true })).toBeVisible();
-    // ADR-0016：展开后行密度对齐 22–28 / project-list（禁 antd small 默认松行）
-    const rowH = await tablesPanel
-      .locator('.ant-table-tbody tr')
-      .first()
-      .evaluate((el) => el.getBoundingClientRect().height);
-    expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeGreaterThanOrEqual(22);
-    expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeLessThanOrEqual(28);
+    // ADR-0016：表清单次密 — panel pad≤6 / 标题 12 / 行 ∈20–26
+    const tablesDense = await tablesPanel.evaluate((el) => {
+      const title = el.querySelector('.share-page__tables-title') as HTMLElement | null;
+      const cell = el.querySelector('.ant-table-tbody td') as HTMLElement | null;
+      const row = el.querySelector('.ant-table-tbody tr') as HTMLElement | null;
+      const cs = getComputedStyle(el);
+      return {
+        padT: parseFloat(cs.paddingTop),
+        padX: parseFloat(cs.paddingLeft),
+        titleSize: title ? parseFloat(getComputedStyle(title).fontSize) : -1,
+        titleMb: title ? parseFloat(getComputedStyle(title).marginBottom) : -1,
+        cellPadT: cell ? parseFloat(getComputedStyle(cell).paddingTop) : -1,
+        rowH: row ? row.getBoundingClientRect().height : -1,
+      };
+    });
+    expect(tablesDense.padT, `表清单 padTop 应 ≤6，得 ${tablesDense.padT}`).toBeLessThanOrEqual(6);
+    expect(tablesDense.padX, `表清单 padX 应 ≤10，得 ${tablesDense.padX}`).toBeLessThanOrEqual(10);
+    expect(tablesDense.titleSize, `表清单标题应 ≤12，得 ${tablesDense.titleSize}`).toBeLessThanOrEqual(12);
+    expect(tablesDense.titleMb, `表清单标题 mb 应 ≤4，得 ${tablesDense.titleMb}`).toBeLessThanOrEqual(4);
+    expect(tablesDense.cellPadT, `表单元 padTop 应 ≤3，得 ${tablesDense.cellPadT}`).toBeLessThanOrEqual(3);
+    expect(tablesDense.rowH, `表清单行高应 ∈[20,26]，得 ${tablesDense.rowH}`).toBeGreaterThanOrEqual(20);
+    expect(tablesDense.rowH, `表清单行高应 ∈[20,26]，得 ${tablesDense.rowH}`).toBeLessThanOrEqual(26);
     await page.screenshot({
       path: 'test-results/ux-walkthrough/demo-share-tables-dense.png',
       fullPage: false,
