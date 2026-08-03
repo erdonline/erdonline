@@ -778,13 +778,20 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       const editItem = page.getByRole('menuitem', { name: '编辑表' });
       await expect(editItem).toBeVisible({ timeout: 5_000 });
       await expect(page.getByRole('menuitem', { name: '删除表' })).toBeVisible();
+      // 等 Dropdown slide-up 结束再量（appear 阶段 scale 会把 28 读成 ~25–33）
+      await expect
+        .poll(
+          async () =>
+            editItem.evaluate((el) => el.getBoundingClientRect().height),
+          { timeout: 3_000 },
+        )
+        .toBeGreaterThanOrEqual(27);
 
       const metrics = await editItem.evaluate((el) => {
         const item = el as HTMLElement;
         const menu =
           (item.closest('.erd-dense-menu') as HTMLElement | null) ||
-          (item.closest('.ant-dropdown-menu') as HTMLElement | null) ||
-          (item.closest('.ant-menu') as HTMLElement | null);
+          (item.closest('[role="menu"]') as HTMLElement | null);
         const icon = item.querySelector('.anticon, svg') as HTMLElement | null;
         const label =
           (item.querySelector('.ant-menu-title-content') as HTMLElement | null) ||
@@ -797,13 +804,17 @@ test.describe('模型设计 UX（ADR-0017）', () => {
           inner.right <= outer.right + eps;
         const ir = item.getBoundingClientRect();
         const lr = label.getBoundingClientRect();
+        const cs = getComputedStyle(item);
         const iconClipped = icon
           ? !fullyIn(icon.getBoundingClientRect(), ir)
           : false;
         const labelClipped = !fullyIn(lr, ir);
         return {
           h: ir.height,
-          fontSize: parseFloat(getComputedStyle(item).fontSize),
+          fontSize: parseFloat(cs.fontSize),
+          padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
+          padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+          boxSizing: cs.boxSizing,
           iconClipped,
           labelClipped,
           denseClass: !!menu?.classList.contains('erd-dense-menu'),
@@ -812,10 +823,20 @@ test.describe('模型设计 UX（ADR-0017）', () => {
 
       expect(
         metrics.h,
-        `菜单项高应 ≤32（目标 ~28），得 ${metrics.h}`,
-      ).toBeLessThanOrEqual(32);
-      expect(metrics.h).toBeGreaterThanOrEqual(24);
+        `菜单项高应 ≈28（≤30），得 ${metrics.h}`,
+      ).toBeLessThanOrEqual(30);
+      expect(metrics.h).toBeGreaterThanOrEqual(26);
       expect(metrics.fontSize).toBeLessThanOrEqual(13);
+      expect(
+        metrics.padBlock,
+        `菜单项 pad-block 应 ≤2（border-box 命中），得 ${metrics.padBlock}`,
+      ).toBeLessThanOrEqual(2);
+      expect(
+        metrics.padInline,
+        `菜单项 pad-inline 合计应 ∈12–24（目标 8+8），得 ${metrics.padInline}`,
+      ).toBeGreaterThanOrEqual(12);
+      expect(metrics.padInline).toBeLessThanOrEqual(24);
+      expect(metrics.boxSizing, '菜单项须 border-box').toBe('border-box');
       expect(metrics.iconClipped, '菜单图标不得裁切').toBe(false);
       expect(metrics.labelClipped, '菜单文案不得裁切').toBe(false);
       expect(metrics.denseClass, '应挂 erd-dense-menu').toBe(true);

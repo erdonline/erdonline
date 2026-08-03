@@ -19,11 +19,14 @@
 .erd-dense-menu .ant-menu .ant-menu-submenu-title,
 .erd-project-menu .ant-menu .ant-menu-item,
 .erd-project-menu .ant-menu .ant-menu-submenu-title {
+  /* antd dropdown 默认 content-box + padY5 会使 height:28 变 ~33–38 */
+  box-sizing: border-box !important;
   height: 28px !important;
   min-height: 28px !important;
   line-height: 28px !important;
   margin-block: 0 !important;
   margin-inline: 4px !important;
+  padding-block: 0 !important;
   padding-inline: 8px !important;
   width: auto !important;
   font-size: 12px;
@@ -73,11 +76,13 @@
   }
 
   .ant-menu-item {
+    box-sizing: border-box !important;
     height: 28px !important;
     min-height: 28px !important;
     line-height: 28px !important;
     margin-block: 0 !important;
     margin-inline: 4px !important;
+    padding-block: 0 !important;
     padding-inline: 8px !important;
     font-size: 12px;
     border-radius: 4px;

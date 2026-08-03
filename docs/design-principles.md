@@ -215,7 +215,7 @@
 - ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 20×16、标题 18/mt12·lh22（贴 page-title 13/22 节奏）、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 32×24 / 48+ 松井 / 20·mt14 / 22 标题 mt20 / hero 220；禁压成画布空态 10×12
 - ✅ AuthBrandShell 次密距：品牌/表单 pad 20×16 / gap12、缩略 pad12、门头 mb12；表单 Title mt6 + `.auth-shell-form` 项 mb12 / Input·钮 28；登录/注册/分享失效/404·403 同源；禁 32×28 / 48×40 松井 / gap14 / mb16 / Title mt10 / antd 项 mb24 / large 40；品牌字号/~40%/Skip·Tab 不弱化
 - ✅ LandingChrome / `/compare` 次密距：次屏 section 2.75rem、pillars gap 1.5、对照行 0.5、nav/footer 收；compare hero padT 1.5；禁压 hero 品牌级字号/全幅构图/CTA；Skip·Tab 不弱化
-- ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc`
+- ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / padX 8；`border-box` + padY 0（禁 antd dropdown `content-box`+padY5 把 height:28 撑到 ~33）；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc`
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
 - ✅ dataTypeDomains 树图标：`getDataTypeTree` 走 `erdColors.brand`；禁裸 `#DE2910`
