@@ -1,5 +1,7 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
+import type { InputRef } from 'antd/es/input';
+import type { RefSelectProps } from 'antd/es/select';
 import './entity-modal.scss';
 
 interface EntityModalProps {
@@ -22,6 +24,8 @@ const EntityModal: React.FC<EntityModalProps> = ({
     modalType,
 }) => {
     const [form] = Form.useForm();
+    const nameInputRef = useRef<InputRef>(null);
+    const moduleSelectRef = useRef<RefSelectProps>(null);
 
     useEffect(() => {
         if (visible) {
@@ -83,6 +87,30 @@ const EntityModal: React.FC<EntityModalProps> = ({
             transitionName=""
             maskTransitionName=""
             destroyOnHidden
+            keyboard
+            focusTriggerAfterClose
+            afterOpenChange={(opened) => {
+                if (!opened) {
+                    return;
+                }
+                // 新增表首焦「所属模型」；模型/关系图首焦名称
+                const tryFocus = (attempt = 0) => {
+                    if (modalType === 'entity') {
+                        if (moduleSelectRef.current) {
+                            moduleSelectRef.current.focus();
+                            return;
+                        }
+                    } else if (nameInputRef.current) {
+                        nameInputRef.current.focus();
+                        return;
+                    }
+                    if (attempt >= 20) {
+                        return;
+                    }
+                    window.setTimeout(() => tryFocus(attempt + 1), 50);
+                };
+                window.setTimeout(() => tryFocus(), 0);
+            }}
             data-testid="entity-modal"
             okButtonProps={{ 'data-testid': 'entity-modal-ok' } as any}
         >
@@ -93,7 +121,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                         label="所属模型"
                         rules={[{ required: true, message: '请选择所属模型！' }]}
                     >
-                        <Select>
+                        <Select ref={moduleSelectRef} aria-label="所属模型">
                             {modules?.map(module => (
                                 <Select.Option key={module.name} value={module.name}>
                                     {module.chnname || module.name}
@@ -108,7 +136,8 @@ const EntityModal: React.FC<EntityModalProps> = ({
                     rules={[{ required: true, message: isRelation ? '请输入关系图名称！' : '请输入名称！' }]}
                 >
                     <Input
-                      aria-label={isRelation ? '关系图名称' : undefined}
+                      ref={nameInputRef}
+                      aria-label={isRelation ? '关系图名称' : '名称'}
                       data-testid="entity-modal-name"
                       placeholder={isRelation ? '例如：鉴权域' : undefined}
                     />
@@ -120,6 +149,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
                         rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
                     >
                         <Input
+                          aria-label="中文名"
                           data-testid="entity-modal-chnname"
                           placeholder={modalType === 'entity' ? '可选' : undefined}
                         />
