@@ -20,9 +20,23 @@ export type JExcelProps = {
   notEmptyColumn: string[],
 };
 
-const isEmptyCell = (v: unknown) => v === undefined || v === null || v === '';
+/** 空单元格：含索引签 fields[] / 多选「;」串，禁把 [] 当已填导致半成品漏检 */
+const isEmptyCell = (v: unknown): boolean => {
+  if (v === undefined || v === null || v === '') return true;
+  if (typeof v === 'string') {
+    const t = v.trim();
+    if (!t) return true;
+    // jspreadsheet multiple dropdown 空串形态：";" / ";;"
+    if (t.split(';').every((p) => !p.trim())) return true;
+    return false;
+  }
+  if (Array.isArray(v)) {
+    return v.length === 0 || v.every((x) => isEmptyCell(x));
+  }
+  return false;
+};
 
-/** 全空草稿行：可静默丢弃；半成品行禁止静默过滤写回（会丢已有字段） */
+/** 全空草稿行：可静默丢弃；半成品行禁止静默过滤写回（会丢已有字段/索引） */
 const isCompletelyBlankRow = (row: Record<string, unknown>) => {
   if (!row || typeof row !== 'object') return true;
   return Object.keys(row).every((k) => {
@@ -66,7 +80,7 @@ const JExcel: React.FC<JExcelProps> = (props) => {
         }
         valid.push(row);
       }
-      // 半成品：中止整次写回，保留 store 上次完整快照；禁静默 discard 导致丢字段
+      // 半成品：中止整次写回，保留 store 上次完整快照；禁静默 discard 导致丢字段/索引
       if (incomplete > 0) {
         message.warning({
           content: '有行未填完必填项，未保存以免丢数据；请补全后再继续（Enter/Tab 落盘）',

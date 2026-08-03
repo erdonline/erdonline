@@ -33,6 +33,7 @@
 - [x] [索引签删除二次确认] 「删除索引 `{name}`」→ 取消保留；确认 toast「索引更新成功」+ 空态「添加第一个索引」；`index-delete-list` 消失 ✅`relation.spec.ts`「索引签删除二次确认」
 - [x] [JExcel 工具栏删除二次确认] 字段签选中行→「删除选中行」→ 取消保留；确认后网格与画布无该字段 ✅`relation.spec.ts`「JExcel 工具栏删除二次确认」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
+- [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」
 - [x] 画布「元数据」→ 表设计元数据应用签（无死 affordance；再入仍落元数据应用）✅`relation.spec.ts`「画布打开元数据应用签」
 - [x] [元数据应用修改/删除字段签对齐] 版本基线后改类型→「修改字段」含 MODIFY 不含 DROP；「删除字段」空（无 MODIFY/DROP） ✅`relation.spec.ts`「元数据应用：修改/删除字段签标签对齐模板」

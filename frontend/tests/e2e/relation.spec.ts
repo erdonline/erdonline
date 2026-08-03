@@ -1494,6 +1494,59 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('表设计索引签：半成品行不静默丢索引；Esc 停在网格', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('idxhalf');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'idxhalf', 'index incomplete save');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
+      const indexEdit = page.getByTestId('table-index-edit');
+      await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' })).toBeVisible();
+
+      // 键盘：索引名 → Tab 到字段 → Delete 清空 → Enter（半成品不得静默丢索引）
+      await indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' }).click();
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Delete');
+      await page.keyboard.press('Enter');
+
+      await expectToast(page, /有行未填完必填项|未保存以免丢数据/);
+
+      // Esc：停在索引签（与字段签同形）
+      await indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' }).dblclick();
+      await page.keyboard.press('Escape');
+      await expect(page.getByTestId('table-index-edit')).toBeVisible();
+      await expect(page.getByTestId('table-design').getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      // store 未冲掉：删除入口仍在；切出再入仍见索引名
+      await expect(
+        indexEdit.getByRole('button', { name: '删除索引 T_TABLE_1_IDX1' }),
+      ).toBeVisible();
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+      await rfNode(page, 'T_TABLE_1')
+        .getByTestId('canvas-open-index')
+        .evaluate((el: HTMLElement) => el.click());
+      const again = page.getByTestId('table-index-edit');
+      await expect(again.getByRole('cell', { name: 'T_TABLE_1_IDX1' })).toBeVisible();
+      await expect(again.getByTestId('index-empty-add')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fldnav');
