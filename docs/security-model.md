@@ -37,7 +37,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - 注册：仅 `/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）；受 `erd.security.allow-open-register` 门控（`dev`=true，`prod`/默认=false）；重复入口 `/user/register` 已去 HTTP 映射并不再 ignore
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
 - Actuator：`/actuator/**` 放行，但 **exposure 仅 `health,info`**；`health` 不 `show-details`；`info` 仅 app name/version（无密钥）。禁止扩大到 env/beans/heapdump
-- OpenAPI / Swagger UI：Security 仍对 `/v3/api-docs/**`、`/swagger-ui/**` 匿名放行；**`prod` profile 通过 `springdoc.api-docs.enabled=false` / `springdoc.swagger-ui.enabled=false` 关闭端点本身**。勿依赖 `martin.swagger.enabled`（死键，不门控 springdoc）。本地/dev 默认仍开启，便于联调。
+- OpenAPI / Swagger UI：Security 仍对 `/v3/api-docs/**`、`/swagger-ui/**`（及 `/webjars/**`）匿名放行；**唯一门控**为 `springdoc.api-docs.enabled` / `springdoc.swagger-ui.enabled`（`prod`=false）。本地/dev 默认开启。已无 `martin.swagger` / `martin.resource-server` 配置键。
 
 ## 只读分享
 
@@ -90,16 +90,16 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-OPS-01 | — | Actuator 仅 health/info，匿名可达 | `application.yml:134-154`；ignore `/actuator/**`；`/actuator/env`→404 | **可接受**；勿扩大 exposure | 保持；liveness 与聚合 health 分工见 deployment |
-| R-OPS-02 | — | springdoc：Security `permitAll`，prod 关端点 | `application-prod.yml:34-38`；CHANGELOG 2026-08-03 | **已缓解**；本地仍开 | 勿回退；勿信 `martin.swagger` |
+| R-OPS-02 | — | springdoc：Security `permitAll`，prod 关端点 | `application-prod.yml` springdoc；CHANGELOG 2026-08-03 | **已缓解**；本地仍开 | 勿回退；门控只用 springdoc.* |
 | R-OPS-03 | P2 | SocketIO `0.0.0.0:9092` 与 HTTP 分离 | `application.yml:91-93` | PaaS 须单独暴露/防火墙 | 部署文档标明勿对公网裸放 9092 |
 
 ### 误导死配置
 
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
-| R-DEAD-01 | P1 | `martin.swagger.enabled` 不门控 springdoc | `application.yml:74-75`；prod 注释 | 运维以为关 swagger 实际靠 springdoc | 删键或真正接线；文档已警示 |
-| R-DEAD-02 | P2 | `martin.resource-server.enabled` 无引用 | `application.yml:76-77` | 假开关 | 删除 |
-| R-DEAD-03 | P2 | ignore：`/endpoint/**`、`/register`、或未再走 HTTP 的路径 | `application.yml:174-179`；`/endpoint/foo`→404 | 扩大未来误挂匿名面 | 收敛 ignore 仅保留真实匿名 API |
+| R-DEAD-01 | P1 | ~~`martin.swagger.enabled` 不门控 springdoc~~ | ~~`application.yml`~~ | **✅ 已关闭（2026-08-03）**：删除 `martin.swagger` 与死类 `SwaggerProperties`；门控仅 `springdoc.*` | 勿回键；prod 保持 springdoc 关 |
+| R-DEAD-02 | P2 | ~~`martin.resource-server.enabled` 无引用~~ | ~~`application.yml`~~ | **✅ 已关闭（2026-08-03）**：删除假开关；resource server 常驻 | 勿回键 |
+| R-DEAD-03 | P2 | ~~ignore：`/endpoint/**` 等无控制器路径~~ | ~~`application.yml` ignore-urls~~ | **✅ 已关闭（2026-08-03）**：去掉 `/endpoint/**`；保留登录/退出/注册产品口/actuator/springdoc/error；分享仍仅 GET（代码链）；`/register`/`/user/register` 不回 ignore | 新匿名面须挂真实 Controller 后再入 ignore |
 | R-DEAD-04 | P2 | ~~`martin.ui.url` / `ERD_UI_URL` 代码零引用~~ | ~~`application.yml` ui.url~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` CORS 回落 + prod SocketIO origin 回落；见 R-CFG-04 | 保持接线；业务跳转若再用同键 |
 
 ### 点击劫持（X-Frame-Options）
@@ -110,6 +110,5 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。
-2. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。
-3. SocketIO 端口暴露面文档化/防火墙（R-OPS-03）。
+1. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。
+2. SocketIO 端口暴露面文档化/防火墙（R-OPS-03）。

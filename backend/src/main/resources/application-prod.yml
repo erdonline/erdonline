@@ -45,8 +45,7 @@ martin:
   ui:
     url: ${ERD_UI_URL:${SOCKETIO_ORIGIN}}
 
-# springdoc 默认开启（本地/dev 可用 /swagger-ui）；prod 关闭 UI 与 /v3/api-docs。
-# 注：application.yml 的 martin.swagger.enabled 不门控 springdoc，勿依赖该死键。
+# springdoc：本地/dev 默认开；prod 关 UI 与 /v3/api-docs（唯一门控，无 martin.swagger 键）。
 springdoc:
   api-docs:
     enabled: false

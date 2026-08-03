@@ -65,7 +65,8 @@
 - ~~TestJson 样板面（R-DATA-05）~~✅（删 Controller/Service/Mapper/Entity；见 [security-model.md](./security-model.md)）
 - ~~应用库 JDBC `useSSL=false`（R-CFG-03）~~✅（双 DS env 驱动 TLS；prod 默认开；compose 关；见 [security-model.md](./security-model.md)）
 - ~~`frameOptions` 恢复（R-AUTH-07）~~✅（API `DENY`；分享走 SPA；见 [security-model.md](./security-model.md)）
-- 下一刀：收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）
+- ~~ignore 假路径 / 假开关（R-DEAD-01/02/03）~~✅（删 `martin.swagger`/`resource-server`；ignore 去 `/endpoint/**`；见 [security-model.md](./security-model.md)）
+- 下一刀：OSS 默认密钥面 / `.env.example` 死键（R-CFG-05/06）
 ### 用户没说的缺口（主动补齐）📋
 
 - 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
