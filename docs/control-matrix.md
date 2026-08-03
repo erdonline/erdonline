@@ -38,6 +38,7 @@
 | `/login` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到登录表单」→ form；用户名→密码→登录→footer；Enter 提交；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「登录壳键盘」 |
 | `/register` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到注册表单」→ form；字段链（tip 出序）→注册→footer；Enter 校验；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「注册壳键盘」 |
 | `/` LandingChrome | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#landing-main-cta`；试用→注册→登录；focus-visible surface；无 trap | ADR-0016 键盘门面 | ✅ | `landing`「落地页键盘」 |
+| `/compare` LandingChrome | Skip + Tab 序 | 同壳 Skip→ `#landing-main-cta`；打开演示→自部署→返回首页；surface focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `compare`「竞品对照页键盘」 |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
