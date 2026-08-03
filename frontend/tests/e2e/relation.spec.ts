@@ -1763,8 +1763,15 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.keyboard.press('Tab');
       await expect(t1.getByTestId('canvas-add-field')).toBeFocused();
 
-      // 出环：再 Tab 到表设计入口后应能离开节点
+      // 出环：添加字段 →（若有已隐藏栏则多一停）→ 表设计入口 → 离开节点
       await page.keyboard.press('Tab');
+      const hiddenToggle = t1.getByTestId('field-hidden-toggle');
+      if ((await hiddenToggle.count()) > 0) {
+        const onHidden = await hiddenToggle.evaluate((el) => el === document.activeElement);
+        if (onHidden) {
+          await page.keyboard.press('Tab');
+        }
+      }
       await expect(t1.getByTestId('canvas-open-field')).toBeFocused();
       await page.keyboard.press('Tab'); // 索引
       await page.keyboard.press('Tab'); // 元数据
@@ -1775,6 +1782,78 @@ test.describe('关系图画布（ReactFlow）', () => {
         return !ae.closest('.react-flow__node.selected');
       });
       expect(leftNode).toBe(true);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  // ADR-0016：节点级 Tab — RF wrapper/未选中边出序；选中边/分组可入
+  test('画布节点级 Tab：无选中无节点停靠；选中边 chip / Frame 可入', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('nodetab');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'nodetab', 'node-level tab focus');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await page.getByTestId('canvas-create-table').click();
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await addFieldInline(page, 'T_TABLE_2', 'T1_ID', 'IdOrKey');
+      await connectFields(page, 'T_TABLE_2', 'T1_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+      const edgeLabel = page.getByTestId('erd-edge-label');
+      await expect(edgeLabel).toBeVisible();
+
+      // 点空白：无选中 → RF node wrapper / 边 chip 均不出序
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await expect(page.locator('.react-flow__node[tabindex="0"]')).toHaveCount(0);
+      await expect(edgeLabel).toHaveAttribute('tabindex', '-1');
+      await expect(rfNode(page, 'T_TABLE_1').getByTestId('canvas-open-field')).toHaveAttribute(
+        'tabindex',
+        '-1',
+      );
+
+      // 选中表 → 打开设计进序；邻接边 chip 同步进序（边 path 点选不稳定，用邻表门控）
+      await rfNode(page, 'T_TABLE_1').locator('[data-field="id"]').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toHaveClass(/selected/);
+      await expect(rfNode(page, 'T_TABLE_1').getByTestId('canvas-open-field')).toHaveAttribute(
+        'tabindex',
+        '0',
+      );
+      await expect(page.locator('.react-flow__node[tabindex="0"]')).toHaveCount(0);
+      await expect(edgeLabel).toHaveAttribute('tabindex', '0');
+      await edgeLabel.focus();
+      await expect(edgeLabel).toBeFocused();
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('erd-edge-cardinality')).toBeVisible({ timeout: 5_000 });
+      // 选同值关闭（避免 Escape 误伤后续画布态）
+      await page.getByRole('option', { name: 'n:1' }).click();
+      await expect(page.getByTestId('erd-edge-cardinality')).toHaveCount(0);
+
+      // 取消选中 → chip 出序
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await expect(edgeLabel).toHaveAttribute('tabindex', '-1');
+
+      // Frame：空选新建 → 点选 chrome 旁 meta（避 role=button）→ Enter 重命名
+      await page.getByRole('button', { name: '新建分组' }).click();
+      const frame = page.getByTestId('diagram-frame');
+      await expect(frame).toBeVisible({ timeout: 10_000 });
+      await frame.locator('.erd-frame-meta').click({ force: true });
+      await expect(page.getByRole('button', { name: '适应成员' })).toBeVisible({ timeout: 5_000 });
+      await expect(frame).toHaveAttribute('data-selected', '1');
+      const frameLabel = page.getByTestId('frame-rename-label');
+      await expect(frameLabel).toHaveAttribute('tabindex', '0');
+      await frameLabel.focus();
+      await expect(frameLabel).toBeFocused();
+      await page.keyboard.press('Enter');
+      const renameInput = page.getByTestId('frame-rename-input');
+      await expect(renameInput).toBeVisible({ timeout: 5_000 });
+      await renameInput.press('Escape');
+      await expect(page.getByTestId('frame-rename-label')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -2757,7 +2836,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help.getByText('命令面板（搜表定位、建表、布局）')).toBeVisible();
       await expect(help.getByText('表设计：字段 / 索引 / 元数据应用')).toBeVisible();
       await expect(help.getByText(/二次确认/)).toBeVisible();
-      await expect(help.getByText(/字段环|下一\/上一列或行|下一 \/ 上一列或行/)).toBeVisible();
+      await expect(help.getByText(/字段环|选中表\/边\/分组|下一\/上一列或行|下一 \/ 上一列或行/)).toBeVisible();
       await expect(help.getByText(/模型树：漫游/)).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+K' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+1' })).toBeVisible();

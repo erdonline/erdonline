@@ -255,6 +255,8 @@ export type ErdEdgeData = {
   portMode?: PortMode;
   /** 设计器可改基数；分享只读不传 */
   editable?: boolean;
+  /** 选中本边或邻接表时进 Tab 序（密图未选中不出序） */
+  tabbable?: boolean;
   /** 写回 associations 用（与 edge id 解耦） */
   assocFrom?: { entity: string; field: string };
   assocTo?: { entity: string; field: string };

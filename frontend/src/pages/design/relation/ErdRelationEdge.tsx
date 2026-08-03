@@ -97,6 +97,7 @@ function ErdRelationEdge({
   const hubFan = data?.hubFanOffset ?? 0;
   const portMode = data?.portMode ?? 'lr';
   const editable = !!data?.editable;
+  const tabbable = !!data?.tabbable;
   const [editing, setEditing] = useState(false);
   // 垂直 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
@@ -334,7 +335,8 @@ function ErdRelationEdge({
                 ? `关系基数 ${displayLabel || '未设'}，点击修改；Delete 删除关系`
                 : undefined
             }
-            tabIndex={editable ? 0 : undefined}
+            // 仅选中边或邻接表进序；其余 -1，避免密图每条边 chip 都成 Tab 停靠
+            tabIndex={editable ? (tabbable ? 0 : -1) : undefined}
             onClick={
               editable && !editing
                 ? (e) => {
