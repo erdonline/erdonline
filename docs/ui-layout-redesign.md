@@ -147,6 +147,7 @@
 - ✅ **修改密码弹层键盘**（2026-08-03）：首焦「密码」；Esc 归还触发器；Tab trap；`reset-password-keyboard.spec` 绿
 - ✅ **发起SQL审批弹层键盘**（2026-08-03）：首焦「审批人」；Esc 归还触发器（父详情仍开）；Tab trap；`sql-approval-keyboard.spec` 绿
 - ✅ **添加成员弹层键盘**（2026-08-03）：首焦「选择用户」；Esc 归还触发器；Tab trap；`add-user-keyboard.spec` 绿
+- ✅ **只读分享弹层键盘**（2026-08-03）：首焦「分享链接」；Esc 归还触发器；Tab trap；`share-project-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

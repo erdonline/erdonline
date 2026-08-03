@@ -1,5 +1,5 @@
-import React, {useState} from 'react';
-import {Button, Input, Modal, Space, Typography, message} from 'antd';
+import React, {useRef, useState} from 'react';
+import {Button, Input, Modal, Space, Typography, message, type InputRef} from 'antd';
 import {ShareAltOutlined} from '@ant-design/icons';
 import request from '@/utils/request';
 import * as cache from '@/utils/cache';
@@ -25,6 +25,7 @@ const ShareProjectButton: React.FC = () => {
   const [revoking, setRevoking] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [shareUrl, setShareUrl] = useState<string | null>(null);
+  const shareUrlInputRef = useRef<InputRef>(null);
 
   const ensureShare = async (): Promise<string | null> => {
     const projectId = cache.getItem(CONSTANT.PROJECT_ID);
@@ -138,12 +139,32 @@ const ShareProjectButton: React.FC = () => {
         footer={null}
         destroyOnClose
         width={520}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // 首焦「分享链接」只读输入；挂载后经 ref.focus
+          const tryFocus = (attempt = 0) => {
+            if (shareUrlInputRef.current) {
+              shareUrlInputRef.current.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
       >
         <Typography.Paragraph type="secondary" style={{marginBottom: 12}}>
           获得链接的人可匿名查看模型；吊销后链接立即失效。仅项目创建人可管理。
         </Typography.Paragraph>
         <Space.Compact style={{width: '100%', marginBottom: 16}}>
           <Input
+            ref={shareUrlInputRef}
             readOnly
             value={shareUrl || ''}
             placeholder={loading ? '正在生成链接…' : '暂无分享链接'}
@@ -169,7 +190,9 @@ const ShareProjectButton: React.FC = () => {
           >
             吊销分享
           </Button>
-          <Button onClick={() => setOpen(false)}>关闭</Button>
+          <Button onClick={() => setOpen(false)} aria-label="关闭分享">
+            关闭
+          </Button>
         </Space>
       </Modal>
     </>

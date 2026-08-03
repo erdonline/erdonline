@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：只读分享弹层键盘闭环（ShareProjectButton）
+
+- 选题：设计器顶栏「只读分享」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
+- 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「分享链接」；关闭钮补 `aria-label`；create/复制/吊销逻辑不变（不改分享失效门 / 只读壳）
+- E2E：`share-project-keyboard`（个人项目设计器 → 只读分享 → 首焦、Esc 归还触发器、Tab trap；不复制/不吊销）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 新建实体 Modal 键盘（EntityModal）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share-project-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --workers=1 --retries=0 -g "无效分享|分享失效门键盘"`
+
 #### 体验：添加成员弹层键盘闭环（AddUser）
 
 - 选题：团队权限组「添加成员」Modal 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「选择用户」Select；确定钮补 `aria-label`；加人 POST/校验逻辑不变
 - E2E：`add-user-keyboard`（团队项目 → 权限组 → 普通成员 → 添加成员 → 首焦、Esc 归还触发器、Tab trap；不提交）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享弹层键盘（ShareProjectButton）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~分享弹层键盘（ShareProjectButton）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/add-user-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
