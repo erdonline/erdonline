@@ -60,11 +60,14 @@ const EntityModal: React.FC<EntityModalProps> = ({
             case 'entity':
                 return isNew ? '新增表' : '编辑表';
             case 'relation':
-                return '新增关系';
+                // 关系图 = diagrams[] 命名（ADR-0017）；不再走已废弃的空 FK 表单
+                return isNew ? '新建关系图' : '重命名关系图';
             default:
                 return title;
         }
     };
+
+    const isRelation = modalType === 'relation';
 
     return (
         <Modal
@@ -100,42 +103,26 @@ const EntityModal: React.FC<EntityModalProps> = ({
                 )}
                 <Form.Item
                     name="name"
-                    label="名称"
-                    rules={[{ required: true, message: '请输入名称！' }]}
-                >
-                    <Input data-testid="entity-modal-name" />
-                </Form.Item>
-                <Form.Item
-                    name="chnname"
-                    label="中文名"
-                    rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
+                    label={isRelation ? '关系图名称' : '名称'}
+                    rules={[{ required: true, message: isRelation ? '请输入关系图名称！' : '请输入名称！' }]}
                 >
                     <Input
-                      data-testid="entity-modal-chnname"
-                      placeholder={modalType === 'entity' ? '可选' : undefined}
+                      aria-label={isRelation ? '关系图名称' : undefined}
+                      data-testid="entity-modal-name"
+                      placeholder={isRelation ? '例如：鉴权域' : undefined}
                     />
                 </Form.Item>
-                {modalType === 'relation' && (
-                    <>
-                        <Form.Item
-                            name="entity1"
-                            label="表1"
-                            rules={[{ required: true, message: '请选择表1！' }]}
-                        >
-                            <Select>
-                                {/* 这里需要添加表选项 */}
-                            </Select>
-                        </Form.Item>
-                        <Form.Item
-                            name="entity2"
-                            label="表2"
-                            rules={[{ required: true, message: '请选择表2！' }]}
-                        >
-                            <Select>
-                                {/* 这里需要添加表选项 */}
-                            </Select>
-                        </Form.Item>
-                    </>
+                {!isRelation && (
+                    <Form.Item
+                        name="chnname"
+                        label="中文名"
+                        rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
+                    >
+                        <Input
+                          data-testid="entity-modal-chnname"
+                          placeholder={modalType === 'entity' ? '可选' : undefined}
+                        />
+                    </Form.Item>
                 )}
             </Form>
         </Modal>
