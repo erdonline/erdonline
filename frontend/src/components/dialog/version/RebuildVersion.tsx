@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {AlertOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal} from 'antd';
+import type {InputRef} from 'antd';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 
@@ -22,6 +23,7 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
 
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const versionInputRef = useRef<InputRef>(null);
 
   const openModal = () => {
     form.resetFields();
@@ -65,6 +67,14 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
         onCancel={() => setOpen(false)}
         destroyOnClose
         width={520}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => versionInputRef.current?.focus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -81,6 +91,7 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
             ]}
           >
             <Input
+              ref={versionInputRef}
               aria-label="版本号"
               placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
             />

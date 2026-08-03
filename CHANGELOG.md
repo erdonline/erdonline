@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：同步配置/重建版本弹层键盘闭环
+
+- 选题：版本页工具栏「同步配置」「重建版本」Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：`SyncConfig` 首焦选中升级方式 radio（默认「字段增量」）；`RebuildVersion` 首焦「版本号」；两者显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`
+- E2E：`version-sync-rebuild-keyboard`（同步配置/重建版本：首焦、Esc 归还、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → InitVersion 或其它剩余版本弹层键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-sync-rebuild-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 安全：R-DATA-02 残余 — JDBC 连接钉解析 IP（关 check→connect TOCTOU）
 
 - 选题：resolve-then-check 后 Driver 仍按主机名再解析，DNS 重绑定 TOCTOU 未关
@@ -24,7 +34,7 @@
 - 选题：任意版本比较 / 版本变更详情 Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：`CompareVersion` 显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`（比对→首焦「初始版本」；详情→首焦「导出变更清单」）
 - E2E：`version-diff-keyboard`（比对/详情：首焦、Esc 归还、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 同步配置/重建版本弹层键盘或版本列表 chrome
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~同步配置/重建版本弹层键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-diff-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

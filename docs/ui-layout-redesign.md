@@ -135,6 +135,7 @@
 - ✅ **导入/导出弹层键盘**（2026-08-03）：DBML 导入首焦文本 / 导出首焦模型；Esc 归还空态 CTA/项目菜单；Tab trap；`import-export-keyboard.spec` 绿
 - ✅ **版本动作弹窗键盘**（2026-08-03）：新增/编辑首焦版本号（非最新→描述）；删除/回滚 Popconfirm→Modal 首焦「是」；Esc 归还；Tab trap；`version-action-modals-keyboard.spec` 绿
 - ✅ **版本对比/详情 diff 弹层键盘**（2026-08-03）：比对首焦「初始版本」；详情首焦「导出变更清单」；Esc 归还；Tab trap；`version-diff-keyboard.spec` 绿
+- ✅ **同步配置/重建版本弹层键盘**（2026-08-03）：同步配置首焦「字段增量」；重建版本首焦「版本号」；Esc 归还；Tab trap；`version-sync-rebuild-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
