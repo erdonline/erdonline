@@ -12,6 +12,7 @@ import com.erdonline.common.vip.enums.VIPLevelEnum;
 import com.erdonline.common.vip.enums.VIPModuleEnum;
 import com.erdonline.erd.dto.ProjectDto;
 import com.erdonline.erd.entity.Project;
+import com.erdonline.erd.security.ProjectAcl;
 import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.vip.rights.GroupProjectCountRight;
 import lombok.SneakyThrows;
@@ -46,6 +47,9 @@ public class GroupProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ProjectAcl projectAcl;
 
     @Autowired(required = false)
     private OssTemplate minioOssTemplate;
@@ -101,6 +105,7 @@ public class GroupProjectController {
      */
     @PostMapping("/update")
     public R<Boolean> update(@RequestBody Project project) {
+        projectAcl.assertMember(project.getId());
         return R.ok(projectService.updateById(project));
     }
 
@@ -112,6 +117,7 @@ public class GroupProjectController {
      */
     @GetMapping("/get/{id}")
     public R getById(@PathVariable String id) {
+        projectAcl.assertMember(id);
         return R.ok(projectService.getById(id));
     }
 

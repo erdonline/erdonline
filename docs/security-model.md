@@ -57,8 +57,8 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 |---|---|---|---|---|---|
 | R-AUTH-01 | P0 | ~~匿名 `GET /user/loadUserByUsername/{username}` 泄露用户密文与权限~~ | ~~ignore-urls + Service `@RestController`~~ | **✅ 已关闭（2026-08-03）**：去掉 ignore；`RemoteSystemUser.loadUserByUsername` 去 `@GetMapping`（仅进程内）；`User.pwd`/`salt` `@JsonProperty(WRITE_ONLY)` | 保持无 HTTP 映射；勿回 ignore |
 | R-AUTH-02 | P1 | `UserController` CRUD 无 `@PreAuthorize` | `UserController.java:57-119`（对比 `UserExtensionController` 的 `sys_user_*`） | 任意已登录用户可增删改查系统用户（常含 `pwd`） | 补权限或委托已鉴权 Extension API；禁止返回密文字段 |
-| R-AUTH-03 | P1 | 项目/模型 IDOR：按 id 读写不校验成员 | `ProjectServiceImpl.java:91-94`；`ProjectController.java:73-98` delete/update/get | 知 `projectId` 即可读全量 `projectJSON`、删/改他人项目 | 统一 `assertProjectMember`；设计器写路径同检 |
-| R-AUTH-04 | P1 | `dataSources` 读/改/删无归属校验 | `DataSourcesController.java:68-104`；list 仅 `creator` 过滤 | 知 id 可读 JDBC url/user/password，供查询/同步/SSRF 链 | get/update/delete 校验 creator（或项目绑定） |
+| R-AUTH-03 | P1 | ~~项目/模型 IDOR：按 id 读写不校验成员~~ | ~~`ProjectServiceImpl` / `ProjectController` delete/update/get~~ | **✅ 已关闭（2026-08-03）**：`ProjectAcl` 查 `project_user`；get/info/save/update/delete（个人+团队）均 `assertMember` | 设计器旁路/SocketIO 成员检见 R-AUTH-05 |
+| R-AUTH-04 | P1 | ~~`dataSources` 读/改/删无归属校验~~ | ~~`DataSourcesController` get/update/delete~~ | **✅ 已关闭（2026-08-03）**：`DataSourceAcl` 校验 creator（username/userId）；tree 亦按 creator 过滤；禁止更新改写 creator | 保持；与 R-DATA-02 热路径走已鉴权 id |
 | R-AUTH-05 | P1 | SocketIO 仅验短票/JWT，不验项目成员 | `SocketIoAuthorizationListener.java:24-48`；`ErdSocketIoServiceImpl.java:54-72`；ADR-0009 已知限制 | 合法用户可加任意 `projectId` 房收 presence/sync | 握手或 `JOIN_ROOM` 校验项目角色 |
 | R-AUTH-06 | P2 | 开放注册双入口 | ignore：`/user/register`；产品：`/project/group/user/register` | 公网可自注册（产品路径）；Service `@RestController` 另挂 `/user/register` | 自托管若关闭注册则收 ignore + 门控；废弃重复入口 |
 | R-AUTH-07 | P2 | `frameOptions` 关闭 | `ErdSecurityConfiguration.java:63` | 可被嵌入 iframe（点击劫持面） | 非嵌入场景恢复 `deny`/`sameOrigin` |
@@ -79,7 +79,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
 | R-DATA-01 | P0 | ~~`queryInfo/exec`：`${sql}` 无语句白名单~~ | ~~`QueryInfoMapper.xml`；`QueryInfoServiceImpl`~~ | **✅ 已关闭（2026-08-03）**：`SqlGuard.assertReadOnly` 仅 SELECT/EXPLAIN/SHOW/DESC；禁多语句 | 保持只读白名单；`${sql}` 仍为动态执行面，勿扩 DML |
-| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 部分关闭（2026-08-03）**：`JdbcUrlGuard` scheme+元数据主机；mutate 路径拒 GRANT/OUTFILE；**未**改「仅 dataSources id」 | 下一刀：凭证改走已鉴权 dataSources；内网 SSRF 主机策略 |
+| R-DATA-02 | P0 | ~~`connector/*` 任意 JDBC + SQL~~ | ~~`AbstractDBCommand` / `DbSqlExecCommand` / `PingDBCommand`~~ | **✅ 部分关闭（2026-08-03）**：`JdbcUrlGuard` scheme+元数据主机；mutate 路径拒 GRANT/OUTFILE；**dataSources 归属已关（R-AUTH-04）**；热路径仍收 raw JDBC+账密 | 下一刀：凭证改走已鉴权 dataSources id；内网 SSRF 主机策略 |
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | `POST /project/upload` 无类型/归属校验 | `ProjectController.java:134-137` | 任意登录用户写默认 OSS bucket | 校验扩展名/content-type；鉴权到项目；禁测试接口上生产 |
 | R-DATA-05 | P2 | `TestJsonController` 样板 CRUD 仍暴露 | `TestJsonController.java:56-121` | 需登录，污染面 | 删死路由 |
@@ -103,8 +103,9 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **dataSources / 项目 ACL**：读改删校验归属（R-AUTH-04）；connector 凭证改走已鉴权 `dataSources` id（R-DATA-02 残留）；项目 IDOR（R-AUTH-03）。
+1. **connector 凭证改走已鉴权 `dataSources` id**（R-DATA-02 残留；产品侧 FE 已有 id，热路径仍可塞 raw JDBC）。
 2. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
+3. **SocketIO 项目成员**（R-AUTH-05）。
 
-（内网 SSRF 主机策略可与 dataSources 归属同切。）
+（内网 SSRF 主机策略可与 connector-by-id 同切。）
 

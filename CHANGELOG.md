@@ -8,6 +8,20 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-03/04 关闭项目与 dataSources IDOR
+
+- 选题：知 `projectId`/`dataSourceId` 即可跨租户读改删（含 JDBC 账密 / 全量 projectJSON）
+- 改动：
+  - `ProjectAcl` + `countProjectMember`：个人/团队 get、info、save、update、delete 校验 `project_user` 成员
+  - `DataSourceAcl` + `ResourceOwnership`：dataSources get/update/patch/delete/batch 校验 creator；tree 按 creator 过滤；禁止 body 改写 creator
+- 文档：`docs/security-model.md` R-AUTH-03/04 ✅；R-DATA-02 残留注明「凭证仍可走 raw JDBC」
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=ProjectAndDataSourceAclTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/actuator/health/liveness` → 200
+- 登录：`curl -sS -o /tmp/login.json -w '%{http_code}\n' -X POST http://localhost:9502/auth/login -H 'Content-Type: application/json' -d '{"username":"admin","password":"123456"}'` → 200
+- 单测：user A 读 user B 的 dataSourceId → `ValidateException` FORBIDDEN；非成员 `isMember` → false
+
 #### 安全：R-DATA-01/02 SQL+JDBC 门禁；R-DATA-03 删 Gitlab 死路径
 
 - 选题：`queryInfo` `${sql}` 无白名单；connector 任意 JDBC/SQL；`GitlabController` 硬编码账密

@@ -67,6 +67,11 @@ public interface ProjectMapper extends BaseMapper<Project> {
     ProjectRole currentUserRole(@Param("projectId") String projectId, @Param("userId") String userId);
 
     /**
+     * 当前用户是否在项目成员表（个人项目 role_id=-1 亦计入）。
+     */
+    Integer countProjectMember(@Param("projectId") String projectId, @Param("userId") String userId);
+
+    /**
      * 统计今天打开的项目
      *
      * @return
