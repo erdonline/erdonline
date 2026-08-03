@@ -341,9 +341,51 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
 );
 
 
-/** 自动保存防抖：合并连续编辑，状态条可见「保存中 / 已保存 / 未保存」 */
+/** 自动保存防抖：合并连续编辑，状态条可见「保存中 / 已保存 / 保存失败可重试」 */
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
 let autosaveSeq = 0;
+
+/** 落库当前 project；seq 不匹配时丢弃结果（防抖续写 / 手动重试抢占） */
+async function persistAutosave(seq: number): Promise<void> {
+  const latest = useProjectStore.getState().project;
+  if (!latest || JSON.stringify(latest) === '{}') {
+    return;
+  }
+  useGlobalStore.getState().dispatch.setSaving(true);
+  try {
+    const res: any = await Save.saveProject(latest);
+    if (seq !== autosaveSeq) {
+      return;
+    }
+    if (res?.code === 200) {
+      useGlobalStore.getState().dispatch.setSaved(true);
+      useGlobalStore.getState().dispatch.setSaving(false);
+      return;
+    }
+    useGlobalStore.getState().dispatch.setSaving(false);
+    useGlobalStore.getState().dispatch.setSaved(false);
+    message.error(
+      res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
+    );
+  } catch {
+    if (seq !== autosaveSeq) {
+      return;
+    }
+    useGlobalStore.getState().dispatch.setSaving(false);
+    useGlobalStore.getState().dispatch.setSaved(false);
+    // HTTP/网络错误由 request errorHandler 已 toast，勿重复弹「自动保存失败」
+  }
+}
+
+/** 顶栏失败态 CTA：取消待发防抖，立即重试落库 */
+export function retryAutosave(): void {
+  if (autosaveTimer) {
+    clearTimeout(autosaveTimer);
+    autosaveTimer = null;
+  }
+  const seq = ++autosaveSeq;
+  void persistAutosave(seq);
+}
 
 // @ts-ignore
 useProjectStore.subscribe(state => state.project, (project, previousProject) => {
@@ -388,35 +430,7 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
   }
   const seq = ++autosaveSeq;
   autosaveTimer = setTimeout(() => {
-    const latest = useProjectStore.getState().project;
-    if (!latest || JSON.stringify(latest) === '{}') {
-      return;
-    }
-    Save.saveProject(latest)
-      .then((res: any) => {
-        if (seq !== autosaveSeq) {
-          return;
-        }
-        if (res?.code === 200) {
-          useGlobalStore.getState().dispatch.setSaved(true);
-          useGlobalStore.getState().dispatch.setSaving(false);
-        } else {
-          useGlobalStore.getState().dispatch.setSaving(false);
-          useGlobalStore.getState().dispatch.setSaved(false);
-          message.error(res?.msg || res?.message || '自动保存失败');
-        }
-      })
-      .catch((err: any) => {
-        if (seq !== autosaveSeq) {
-          return;
-        }
-        useGlobalStore.getState().dispatch.setSaving(false);
-        useGlobalStore.getState().dispatch.setSaved(false);
-        // request errorHandler 已弹过网络错误时避免重复；无 message 再补
-        if (err && !err.response) {
-          message.error(err?.message || '自动保存失败');
-        }
-      });
+    void persistAutosave(seq);
   }, 600);
 });
 

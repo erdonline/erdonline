@@ -26,4 +26,20 @@
     border-color: #ffe58f;
     background: #fffbe6;
   }
+
+  &--retry {
+    appearance: none;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: inherit;
+
+    &:hover,
+    &:focus-visible {
+      border-color: #faad14;
+      background: #fff7e6;
+      outline: 2px solid var(--erd-brand, #1677ff);
+      outline-offset: 1px;
+    }
+  }
 }

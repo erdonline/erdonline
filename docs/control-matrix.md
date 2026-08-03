@@ -174,7 +174,7 @@
 | 项目菜单 | 导出→五项 | 可见；DDL 可开 | | ✅ | `project-menu`「导出」 |
 | 项目菜单 | 设置→数据源设置 | 弹窗可开 | ADR-0008 | ✅ | `project-menu`「数据源设置」 |
 | 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
-| DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存 | P2 | ✅ | `relation.spec`「保存中…→已保存」 |
+| DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存；失败为可点「保存失败，点击重试」+ 单条 toast（断网不叠弹） | P1 | ✅ | `relation.spec`「保存中…→已保存」+ `save-failure` |
 | DesignLayout | CommonTabs / 表设计签头 | 栏高 ~24；标签/关闭钮不 clip；Tab focus-visible；内签字段/索引/元数据 | ADR-0016 密度 | ✅ | `model-design-ux`「表设计三签」 |
 | DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K/F 开合；搜表定位+高亮；↑↓/aria-activedescendant；空态「无匹配结果」pad≤8×8 / list≤2；Esc 归还；Tab trap | RF CommandPalette | ✅ | `relation.spec`「命令面板」+「搜表定位」 |
 | DesignLayout | 快捷键速查卡 | `?` / 工具栏「?」→ aria dialog「快捷键」；含 Cmd+1/2/3 表设计签；密度 maxH≤360 / list 2×4 / row padY≤6；Esc + 关闭钮可焦；与命令面板互斥 | RF ShortcutHelp | ✅ | `relation.spec`「快捷键速查」 |
