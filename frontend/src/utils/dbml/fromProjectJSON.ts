@@ -1,11 +1,14 @@
 /**
- * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note / indexs→Indexes / defaultValue→default）。
- * 与 toProjectJSON 同范围：不映射 enum / trigger。
+ * projectJSON → DBML 纯映射（Table / fields / associations→Ref / chnname→note /
+ * indexs→Indexes / defaultValue→default / dataTypeDomains enum→Enum）。
+ * 与 toProjectJSON 同范围：不映射 trigger。
  */
 
 import type {
   ProjectJsonAssociation,
+  ProjectJsonDatatype,
   ProjectJsonEntity,
+  ProjectJsonEnumValue,
   ProjectJsonField,
   ProjectJsonIndex,
   ProjectJsonModule,
@@ -13,11 +16,27 @@ import type {
 
 export type ProjectJsonLike = {
   modules?: ProjectJsonModule[];
+  dataTypeDomains?: {
+    datatype?: ProjectJsonDatatype[];
+    database?: unknown[];
+  };
 };
 
-/** 逻辑 type code → DBML 物理类型（薄反查；未知回落 varchar） */
-export function mapLogicalTypeToDbml(typeCode: string | undefined): string {
+function isEnumDatatype(dt: ProjectJsonDatatype | undefined): dt is ProjectJsonDatatype {
+  if (!dt || !String(dt.code || '').trim()) return false;
+  if (dt.kind === 'enum') return true;
+  return Array.isArray(dt.values) && dt.values.length > 0;
+}
+
+/** 逻辑 type code → DBML 物理类型（枚举优先；薄反查；未知回落 varchar） */
+export function mapLogicalTypeToDbml(
+  typeCode: string | undefined,
+  options?: { enumCodes?: Set<string> },
+): string {
   const t = String(typeCode || '').trim();
+  if (t && options?.enumCodes?.has(t)) {
+    return quoteIdent(t);
+  }
   switch (t) {
     case 'BigInt':
       return 'bigint';
@@ -81,8 +100,11 @@ export function formatDefaultAttr(defaultValue: string | undefined): string | nu
   return `default: \`${expr}\``;
 }
 
-function formatField(field: ProjectJsonField): string {
-  const type = mapLogicalTypeToDbml(field.type);
+function formatField(
+  field: ProjectJsonField,
+  enumCodes: Set<string>,
+): string {
+  const type = mapLogicalTypeToDbml(field.type, { enumCodes });
   const settings: string[] = [];
   if (field.pk) settings.push('pk');
   if (field.autoIncrement) settings.push('increment');
@@ -110,11 +132,11 @@ function formatIndex(index: ProjectJsonIndex): string | null {
   return `    (${cols}) [${settings.join(', ')}]`;
 }
 
-function formatTable(entity: ProjectJsonEntity): string {
+function formatTable(entity: ProjectJsonEntity, enumCodes: Set<string>): string {
   const title = quoteIdent(entity.title || entity.name);
   const lines = [`Table ${title} {`];
   for (const f of entity.fields || []) {
-    lines.push(formatField(f));
+    lines.push(formatField(f, enumCodes));
   }
   const indexLines = (entity.indexs || [])
     .map(formatIndex)
@@ -127,6 +149,31 @@ function formatTable(entity: ProjectJsonEntity): string {
   const tableNote = String(entity.chnname || '').trim();
   if (tableNote) {
     lines.push(`  Note: '${escapeNote(tableNote)}'`);
+  }
+  lines.push('}');
+  return lines.join('\n');
+}
+
+function formatEnumValue(value: ProjectJsonEnumValue): string {
+  const name = quoteIdent(value.name);
+  const note = formatNoteAttr(value.chnname);
+  if (note) return `  ${name} [${note}]`;
+  return `  ${name}`;
+}
+
+/** dataTypeDomains.datatype (kind=enum) → DBML Enum 块 */
+export function formatEnum(dt: ProjectJsonDatatype): string | null {
+  const code = String(dt.code || '').trim();
+  if (!code) return null;
+  const values = (dt.values || [])
+    .map((v) => ({
+      name: String(v?.name || '').trim(),
+      chnname: v?.chnname,
+    }))
+    .filter((v) => v.name);
+  const lines = [`Enum ${quoteIdent(code)} {`];
+  for (const v of values) {
+    lines.push(formatEnumValue(v));
   }
   lines.push('}');
   return lines.join('\n');
@@ -169,7 +216,7 @@ function pickModule(
 
 /**
  * 将单个模块（或按名选取）导出为 DBML 文本。
- * 空表模块抛错。
+ * 空表模块抛错。Enum 取自 projectJSON.dataTypeDomains.datatype（kind=enum / values[]）。
  */
 export function projectJSONToDbml(
   projectJSON: ProjectJsonLike,
@@ -185,6 +232,10 @@ export function projectJSONToDbml(
     throw new Error(`模型「${mod.name || '未命名'}」中没有表可导出`);
   }
 
+  const datatype = projectJSON?.dataTypeDomains?.datatype || [];
+  const enumDatatypes = datatype.filter(isEnumDatatype);
+  const enumCodes = new Set(enumDatatypes.map((d) => String(d.code).trim()));
+
   const projectName = quoteIdent(mod.name || 'ERD');
   const projectNote = String(mod.chnname || '').trim();
   const parts: string[] = [];
@@ -196,8 +247,16 @@ export function projectJSONToDbml(
   parts.push('}');
   parts.push('');
 
+  for (const dt of enumDatatypes) {
+    const block = formatEnum(dt);
+    if (block) {
+      parts.push(block);
+      parts.push('');
+    }
+  }
+
   for (const entity of entities) {
-    parts.push(formatTable(entity));
+    parts.push(formatTable(entity, enumCodes));
     parts.push('');
   }
 

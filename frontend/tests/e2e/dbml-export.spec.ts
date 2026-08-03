@@ -10,7 +10,7 @@ import {
 } from './helpers';
 
 /**
- * DBML 导出：导入 fixture → 导出 → 下载内容含 Table / Ref
+ * DBML 导出：导入 fixture → 导出 → 下载内容含 Table / Ref / Enum
  */
 test.describe('DBML 导出', () => {
   test('导入后导出下载 .dbml 含 Table 与 Ref', async ({ page }) => {
@@ -68,6 +68,59 @@ test.describe('DBML 导出', () => {
       const body = fs.readFileSync(dlPath!, 'utf8');
       expect(body).toMatch(/Table\s+users/);
       await expectToast(page, /已下载 DBML/);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('导入 Enum fixture 后导出预览含 Enum 与字段类型', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('dbmlenum');
+    const fixture = path.join(__dirname, '../fixtures/enum.dbml');
+
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'dbmlenum', 'dbml enum');
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导入' })
+        .click();
+      await page.getByRole('menuitem', { name: '导入DBML' }).click();
+      const importDlg = page.getByRole('dialog');
+      await expect(importDlg.getByText('导入 DBML')).toBeVisible({
+        timeout: 10_000,
+      });
+      await importDlg.locator('input[type="file"]').setInputFiles(fixture);
+      await expectToast(page, /DBML 导入成功/);
+      await expect(importDlg).toBeHidden({ timeout: 10_000 });
+
+      await expect(page.getByText('orders', { exact: true }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导出' })
+        .click();
+      await page.getByRole('menuitem', { name: '导出DBML' }).click();
+
+      const exportDlg = page.getByRole('dialog');
+      await expect(exportDlg.getByText('导出 DBML')).toBeVisible({
+        timeout: 10_000,
+      });
+      const preview = exportDlg.getByLabel('DBML预览');
+      await expect(preview).toBeVisible();
+      await expect
+        .poll(async () => preview.inputValue(), { timeout: 15_000 })
+        .toMatch(/Enum\s+order_status/);
+      const content = await preview.inputValue();
+      expect(content).toMatch(/pending\s+\[note:\s*'待处理'\]/);
+      expect(content).toMatch(/status\s+order_status/);
+      expect(content).toMatch(/Table\s+orders/);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

@@ -8,6 +8,19 @@
 
 ### 2026-08-03
 
+#### 互通：DBML Enum ↔ dataTypeDomains
+
+- 选题：触发器签（`325bf2a`）后 DBML Trigger 仍无家；下一刀 = Enum（`@dbml/core` 已支持，原文档「不映射」）
+- 导入：`schema.enums` → `dataTypeDomains.datatype[]`（`kind:'enum'` / `code`=名 / `values[{name,chnname?}]` / `apply.MYSQL=ENUM(...)`）；列 `_enum`/类型名 → `fields[].type=code`
+- 导出：`kind:enum|values[]` → `Enum` 块（值级 note）；字段类型优先写枚举 ident
+- 缺口保留：Enum **级** Note（core 9.x 不解析）；Trigger 仍延期
+- 单测 + fixture `enum.dbml` round-trip；E2E `dbml-export`「Enum fixture」
+- 文档：data-format / roadmap / ui-layout / regression-checklist
+
+验证点：
+- `cd frontend && yarn test:unit:dbml`
+- `cd frontend && npx playwright test tests/e2e/dbml-export.spec.ts --project=chromium --grep "Enum fixture" --workers=1 --retries=0`
+
 #### 体验：表设计触发器签（`entity.triggers[]`）
 
 - 选题：`71d9f1c` 分享表清单分页后，UI 水位下一刀 = 设计器内暴露逆向已写入的 `triggers[]`（非 CommonTabs densify）

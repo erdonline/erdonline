@@ -1,0 +1,17 @@
+Project E2E_ENUM {
+  database_type: 'MySQL'
+  Note: 'DBML枚举'
+}
+
+Enum order_status {
+  pending [note: '待处理']
+  paid
+  shipped
+  cancelled
+}
+
+Table orders {
+  id integer [pk, increment, not null, note: '主键']
+  status order_status [not null, default: 'pending', note: '订单状态']
+  Note: '订单'
+}

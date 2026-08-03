@@ -711,6 +711,7 @@
 - [x] [DBML→projectJSON] Table/fields/note→chnname/Ref→1:n/Indexes→indexs/default→defaultValue；schema 可选校验 ✅ `yarn test:unit:dbml`
 - [x] [projectJSON→DBML] 逻辑类型反查 + Ref + indexs + default；round-trip 实体/字段/FK/indexs/default 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
 - [x] [DBML default 双向] string/number/expression → defaultValue；导出还原；fixture `guest` round-trip ✅ `yarn test:unit:dbml`
+- [x] [DBML Enum 双向] `Enum`↔`dataTypeDomains.datatype`（`kind:enum`/`values[]`）+ 列 type=code；fixture `enum.dbml` round-trip ✅ `yarn test:unit:dbml` + `dbml-export`「Enum fixture」
 - [x] [设计器导入] 项目菜单「导入DBML」上传 `minimal.dbml` → toast 成功 → 树 users/posts → 画布 `data-node-total≥2` ✅ `dbml-import.spec.ts`
 - [x] [导入自动布局] DBML 导入后 `posts.x < users.x`（dagre LR，非网格散点）+ 截图 ✅ `dbml-import.spec.ts` / `yarn test:unit:dbml`
 - [x] [表节点视觉打磨] 连线后 FK 徽章可见、PK 行有 `.erd-field-pk`、边带 Crow's foot marker、表名等宽字体；截图 `diagram-node-polish.png` ✅ `relation.spec.ts`「表节点视觉：PK/FK」

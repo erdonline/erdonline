@@ -1,5 +1,6 @@
 /**
- * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs / default→defaultValue）。
+ * DBML → projectJSON 纯映射（Table / fields / Ref→FK / note→chnname / Indexes→indexs /
+ * default→defaultValue / Enum→dataTypeDomains.datatype kind=enum）。
  * @dbml/core 经 dynamic import 懒加载，避免设计器首屏打包体积膨胀。
  * 布局坐标走共享 dagre（ADR-0016）；写入 diagrams[0]（ADR-0017），同步 graphCanvas 供旧读路径。
  */
@@ -65,10 +66,26 @@ export type ProjectJsonModule = {
   }>;
 };
 
+/** DBML Enum 值 → datatype.values[] */
+export type ProjectJsonEnumValue = {
+  name: string;
+  /** 来自 DBML value `[note: …]`；无 note 时省略 */
+  chnname?: string;
+};
+
+/** dataTypeDomains.datatype 项；`kind:'enum'` 为 DBML Enum 往返载体 */
+export type ProjectJsonDatatype = {
+  name: string;
+  code: string;
+  kind?: 'enum';
+  values?: ProjectJsonEnumValue[];
+  apply?: Record<string, { type?: string; [key: string]: unknown }>;
+};
+
 export type DbmlProjectJSON = {
   modules: ProjectJsonModule[];
   profile: { defaultFields: unknown[]; dbs: unknown[] };
-  dataTypeDomains: { datatype: unknown[]; database: unknown[] };
+  dataTypeDomains: { datatype: ProjectJsonDatatype[]; database: unknown[] };
 };
 
 type DbmlType = {
@@ -89,6 +106,19 @@ type DbmlField = {
   increment?: boolean;
   note?: string | null;
   dbdefault?: DbmlDefault | null;
+  /** @dbml/core 解析后指向同名 Enum（若有） */
+  _enum?: { name?: string } | null;
+};
+
+type DbmlEnumValue = {
+  name: string;
+  note?: string | null;
+};
+
+type DbmlEnum = {
+  name: string;
+  note?: string | null;
+  values?: DbmlEnumValue[];
 };
 
 type DbmlIndexColumn = {
@@ -123,6 +153,7 @@ type DbmlRef = {
 type DbmlSchema = {
   tables?: DbmlTable[];
   refs?: DbmlRef[];
+  enums?: DbmlEnum[];
 };
 
 type DbmlDatabase = {
@@ -219,13 +250,63 @@ export function mapDbmlDefault(dbdefault: DbmlDefault | null | undefined): strin
   return expr || undefined;
 }
 
-function mapField(field: DbmlField): ProjectJsonField {
+/** Enum 值列表 → 各方言 apply（MySQL ENUM；PG 用类型名；其它回落字串） */
+export function buildEnumApply(
+  enumCode: string,
+  valueNames: string[],
+): NonNullable<ProjectJsonDatatype['apply']> {
+  const quoted = valueNames
+    .map((v) => `'${String(v).replace(/'/g, "''")}'`)
+    .join(',');
+  const mysqlEnum = `ENUM(${quoted})`;
+  return {
+    MYSQL: { type: mysqlEnum },
+    PostgreSQL: { type: enumCode },
+    ORACLE: { type: 'VARCHAR2(64)' },
+    SQLServer: { type: 'NVARCHAR(64)' },
+    JAVA: { type: 'String' },
+  };
+}
+
+export function mapDbmlEnum(en: DbmlEnum): ProjectJsonDatatype | null {
+  const code = String(en.name || '').trim();
+  if (!code) return null;
+  const values: ProjectJsonEnumValue[] = [];
+  for (const v of en.values || []) {
+    const name = String(v?.name || '').trim();
+    if (!name) continue;
+    const chnname = noteToChnname(v.note);
+    if (chnname) {
+      values.push({ name, chnname });
+    } else {
+      values.push({ name });
+    }
+  }
+  // @dbml/core 9.x：Enum 级 Note / [note] 语法不解析；name 回落 code
+  const display = noteToChnname(en.note) || code;
+  return {
+    name: display,
+    code,
+    kind: 'enum',
+    values,
+    apply: buildEnumApply(
+      code,
+      values.map((x) => x.name),
+    ),
+  };
+}
+
+function mapField(field: DbmlField, enumCodes: Set<string>): ProjectJsonField {
   const pk = Boolean(field.pk);
   const defaultValue = mapDbmlDefault(field.dbdefault);
+  const typeName = String(field.type?.type_name || '').trim();
+  const enumCode =
+    (field._enum?.name && String(field._enum.name).trim()) ||
+    (typeName && enumCodes.has(typeName) ? typeName : '');
   const mapped: ProjectJsonField = {
     name: field.name,
     chnname: noteToChnname(field.note),
-    type: mapDbmlTypeName(field.type?.type_name),
+    type: enumCode || mapDbmlTypeName(field.type?.type_name),
     pk,
     notNull: pk || Boolean(field.not_null),
     autoIncrement: Boolean(field.increment),
@@ -254,7 +335,7 @@ function mapIndex(index: DbmlIndex, tableName: string): ProjectJsonIndex | null 
   };
 }
 
-function mapEntity(table: DbmlTable): ProjectJsonEntity {
+function mapEntity(table: DbmlTable, enumCodes: Set<string>): ProjectJsonEntity {
   const indexs = (table.indexes || [])
     .map((ix) => mapIndex(ix, table.name))
     .filter((ix): ix is ProjectJsonIndex => ix != null);
@@ -262,7 +343,7 @@ function mapEntity(table: DbmlTable): ProjectJsonEntity {
     title: table.name,
     name: table.name,
     chnname: noteToChnname(table.note),
-    fields: (table.fields || []).map(mapField),
+    fields: (table.fields || []).map((f) => mapField(f, enumCodes)),
     indexs,
   };
 }
@@ -307,12 +388,19 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
   const schemas = database.schemas || [];
   const tables: DbmlTable[] = [];
   const refs: DbmlRef[] = [];
+  const enums: DbmlEnum[] = [];
   for (const schema of schemas) {
     for (const t of schema.tables || []) tables.push(t);
     for (const r of schema.refs || []) refs.push(r);
+    for (const e of schema.enums || []) enums.push(e);
   }
 
-  const entities = tables.map(mapEntity);
+  const datatype = enums
+    .map(mapDbmlEnum)
+    .filter((d): d is ProjectJsonDatatype => d != null);
+  const enumCodes = new Set(datatype.map((d) => d.code));
+
+  const entities = tables.map((t) => mapEntity(t, enumCodes));
   const associations = refs
     .map(mapAssociation)
     .filter((a): a is ProjectJsonAssociation => a != null);
@@ -348,7 +436,7 @@ export function databaseToProjectJSON(database: DbmlDatabase): DbmlProjectJSON {
   return {
     modules: [mod],
     profile: { defaultFields: [], dbs: [] },
-    dataTypeDomains: { datatype: [], database: [] },
+    dataTypeDomains: { datatype, database: [] },
   };
 }
 

@@ -266,7 +266,8 @@
 - ✅ **Oracle 触发器逆向保真**（2026-08-03）：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`；`OracleReverseDialectTriggerTest`；P0 四库触发器闭环；下一刀 → ~~FK 约束元数据~~✅
 - ✅ **FK 约束名 + ON DELETE/UPDATE**（2026-08-03）：`constraintName`/`deleteRule`/`updateRule` 加法字段；四库字典 + JDBC；复合拆边同名（ADR-0011 `fields[]` 仍延期）；边 chip `title`/`aria-label` + `erd-edge-fk-meta`；下一刀 → ~~表清单分页~~✅ / DBML trigger（度量无家 → 文档延期）
 - ✅ **分享表清单分页**（2026-08-03）：只读底栏表清单默认 `pageSize=5` + SizeChanger；demo 8 表可翻页；`data-format` 登记 DBML Trigger 缺口（`@dbml/core` 无块、`Note` 禁塞）；下一刀 → ~~触发器 UI~~✅ / DBML enum / ADR-0013（人工）/ P4 demo
-- ✅ **表设计触发器签**（2026-08-03）：`entity.triggers[]` 列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` persist-on-200；`Cmd/Ctrl+4`；`table-triggers.spec`；下一刀 → DBML enum / ADR-0013（人工）/ P4 demo
+- ✅ **表设计触发器签**（2026-08-03）：`entity.triggers[]` 列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` persist-on-200；`Cmd/Ctrl+4`；`table-triggers.spec`；下一刀 → ~~DBML enum~~✅ / ADR-0013（人工）/ P4 demo
+- ✅ **DBML Enum 互通**（2026-08-03）：`Enum`↔`dataTypeDomains.datatype`（`kind:enum`/`values[]`）+ 列 `type=code`；导入/导出 round-trip；`enum.dbml` + `yarn test:unit:dbml` + `dbml-export` Enum E2E；下一刀 → 表达式索引 / ADR-0013（人工）/ P4 demo
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
