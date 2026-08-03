@@ -66,6 +66,7 @@
 | 表设计删索引确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `table-index-delete-keyboard` |
 | JExcel 工具栏删行确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-toolbar-delete-keyboard` |
 | 左树删模型/表/关系图确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行「…操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `tree-delete-keyboard` |
+| 数据源设置删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮；外层配置窗仍开；焦点不逃出确认 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-delete-keyboard` |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
 | `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
