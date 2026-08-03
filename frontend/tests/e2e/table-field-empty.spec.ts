@@ -84,6 +84,31 @@ test.describe('空表字段引导', () => {
       await expect(cta).toBeVisible();
       await expect(cta).toHaveAttribute('data-testid', 'canvas-add-field');
 
+      // ADR-0016：空表虚线井碎距（measure：旧 pad10/margin6×8 → 6/4×6）；CTA minH ≥26（避 RF 缩放 getBoundingClientRect）
+      const emptyDense = await empty.evaluate((el) => {
+        const s = getComputedStyle(el);
+        const btn = el.querySelector('[data-testid="canvas-add-field"]') as HTMLElement | null;
+        const bs = btn ? getComputedStyle(btn) : null;
+        return {
+          gap: parseFloat(s.gap || '0'),
+          padT: parseFloat(s.paddingTop),
+          padX: parseFloat(s.paddingLeft),
+          marginT: parseFloat(s.marginTop),
+          marginX: parseFloat(s.marginLeft),
+          ctaMinH: bs ? parseFloat(bs.minHeight) : -1,
+        };
+      });
+      expect(emptyDense.padT, `空表井 padT 应 ≤6，得 ${emptyDense.padT}`).toBeLessThanOrEqual(6);
+      expect(emptyDense.padX).toBeLessThanOrEqual(6);
+      expect(emptyDense.gap).toBeLessThanOrEqual(4);
+      expect(emptyDense.marginT).toBeLessThanOrEqual(4);
+      expect(emptyDense.marginX).toBeLessThanOrEqual(6);
+      expect(emptyDense.ctaMinH, `空表 CTA minH 应 ≥26，得 ${emptyDense.ctaMinH}`).toBeGreaterThanOrEqual(26);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-table-fields-empty-dense.png',
+        fullPage: false,
+      });
+
       await cta.click();
       const editRow = node.locator('.erd-field-editing');
       await expect(editRow).toBeVisible({ timeout: 10_000 });

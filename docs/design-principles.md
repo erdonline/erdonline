@@ -181,7 +181,7 @@
 - ✅ 表头 ink、选中 brand 描边、边 stroke 走 ink600；禁散落默认蓝 `#4096ff` 当画布主色
 - ✅ 逆向 / DBML 导入按 FK 做 dagre 分层布局（外键侧→主键侧，默认 `nodesep` 56 / `ranksep` 108），不是无关联网格散点
 - ✅ 公开 demo / 示例主图手排收紧（列间距约 28px、Frame padding 20），截图不「空旷」；分享只读隐藏 `relationNoShow`；多图项目分享页可切 `diagrams[]`（与设计器同源，只读无新建/重命名）
-- ✅ 表名/字段名等宽（`--erd-font-mono`）；字段名扫读主列 500（PK 行 600）、类型右对齐次要栏；**PK/FK 徽章角色标列** 10/700 + `min-width` 22（琥珀/青绿，截图先扫角色再扫名）；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ **Crow's foot 端点**（IE：one=竖线 / many=鸦爪，随 `association.relation`）；设计器与分享只读同路由；**表节点密表再压**：表头 pad 6、字段行 `min-height` 20 / lh 15 / pad 1、`FIELD_ROW_H` 24（标题 14/700 与徽章层次不动）
+- ✅ 表名/字段名等宽（`--erd-font-mono`）；字段名扫读主列 500（PK 行 600）、类型右对齐次要栏；**PK/FK 徽章角色标列** 10/700 + `min-width` 22（琥珀/青绿，截图先扫角色再扫名）；表头 `surfaceMuted` + 字段发丝分隔 + PK 左边条；自定义 `erdSmooth`（圆角肘 + 同表对多 FK 分流 + 中间表障碍避让 + 干道 bundling + 两弯/mid-corridor + 稀疏 Hanan A* + 密障绕行竞短 + 高度数 hub 按对端 Y 扇出 + **几何择柄**：竖叠同列同侧短 U，消固定右→左绕圈）+ **Crow's foot 端点**（IE：one=竖线 / many=鸦爪，随 `association.relation`）；设计器与分享只读同路由；**表节点密表再压**：表头 pad 6、字段行 `min-height` 20 / lh 15 / pad 1、`FIELD_ROW_H` 24（标题 14/700 与徽章层次不动）；**底栏/空表井碎距**：添加字段 margin 2×6 + minH 22、打开表设计 margin 0×6×4 + btn minH 22、空表虚线井 pad 6 / gap 4 / margin 4×6；`NODE_FOOTER_H` 28；禁再压表头/字段行伤命中
 - ❌ 字段行 PK/FK 徽章 9px 无列宽、角色标糊进字段名（历史问题）
 - ✅ Frame 色板走 `frameFill*` tokens（success/ink/warning/brand 浅底轮换）；禁 demo/画布散落 Ant 蓝 Frame；命令面板 hover 禁 `#f0f5ff`
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink900` 字 / 12px / 600；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字；**可点选改基数**（设计器）；**干道 bundle 拉伸 + AABB 迭代避让**（`resolveEdgeLabelOffsets`），密图 chip 不叠字

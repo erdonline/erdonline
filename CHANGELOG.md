@@ -8,12 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：表节点底栏 / 空表井 chrome 碎距
+
+- 选题：量测表头 pad **6** / 字段 minH **20** / lh15 / pad1 已贴 ADR-0016 密表下限（再压伤扫读/命中）；底栏「添加字段」margin 8×4 + 空表虚线井 pad **10**/margin **6×8** 仍松；勿动建模 persist / fake-success；跳过 Auth/欢迎/空态 panel/审批/导出（已密）
+- before：空表井 pad **10×8** / gap **6** / margin **6×8×8**；添加 margin **2×8×4**；打开表设计 margin **0×8×6** / btn pad **2**（无 minH）；`NODE_FOOTER_H` **32**
+- after：空表井 pad **6** / gap **4** / margin **4×6×6**；添加 margin **2×6** + minH **22**；CTA minH **26**；打开表设计 margin **0×6×4** / btn minH **22**；`NODE_FOOTER_H` **28**；表头/字段行锁密不动
+- E2E：`relation`「PK/FK」锁底栏 margin/minH + 既有表头/字段；`table-field-empty`「画布空表 CTA」锁井 densify；截图 `diagram-table-node-density.png` / `diagram-table-fields-empty-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 左树右键菜单再压或版本列表工具条碎距（Controls/审批/导出已密）
+
+验证点：
+- `cd frontend && npx tsx src/utils/graphLayout.test.ts`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉：PK/FK" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/table-field-empty.spec.ts --project=chromium --grep "画布空表 CTA" --workers=1 --retries=0`
+
 #### 体验：表设计签头 / 内签 gutter 碎距
 
 - 选题：empty-links 已锁；量测 CommonTabs/`--erd-tabs-h` **24** 已密；表设计签头仍 pad 2×10 / gap6，内签 tab marginR **8** 相对子签/CommonTabs gutter 偏松；勿动 Auth logo / 欢迎 pad / 空态 panel 栈
 - before：header pad **2×10** / gap **6**；内签 marginR **8**；after：pad **2×8** / gap **4**；marginR/`tabBarGutter` **2**（对齐 CodeTab/DbTab）；`testid=table-design-header` / `table-design-tabs` / `common-tabs`
 - E2E：`model-design-ux`「表设计三签」+「表设计内签」锁 padX≤8 / gap≤4 / gutter≤2 + Cmd+1/2/3；截图 `diagram-common-tabs-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布表节点 chrome / RF Controls 外其余工具条碎距（审批列表 / 导出页已密，跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~画布表节点 chrome~~✅（底栏/空表井）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计三签|表设计内签" --workers=1 --retries=0`

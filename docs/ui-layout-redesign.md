@@ -226,7 +226,8 @@
 - ✅ **画布空态 panel 顶距次密**（2026-08-03）：`.erd-empty-panel` `min(10vh, 88)`→`min(8vh, 64)`；保留存在感；勿再调 CTA pad；Auth logo / 欢迎 pad 跳过；`testid=canvas-empty-panel`；`relation` densify 绿；下一刀 → ~~空态纵节奏（title mt / desc mb）~~✅
 - ✅ **画布空态纵节奏锁密**（2026-08-03）：量测 title mt8 / desc mb12 已贴 ADR-0016；E2E 锁禁回退 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距跳过；`relation` densify 绿；下一刀 → ~~Controls 次密或 `.erd-empty-links` mt10~~✅
 - ✅ **画布空态次链 mt10 锁密**（2026-08-03）：量测 Controls 22/pad0 已密 → 锁 `.erd-empty-links` mt10；`testid=canvas-empty-links`；Auth logo / 欢迎 / CTA / panel / title·desc 跳过；`relation` 空态+Controls 绿；下一刀 → ~~表设计签头 / CommonTabs 碎距~~✅
-- ✅ **表设计签头 / 内签 gutter 碎距**（2026-08-03）：量测 CommonTabs 24 已密；签头 pad 2×10/gap6→2×8/gap4；内签 marginR 8→2（对齐子签）；`testid=table-design-header`/`table-design-tabs`/`common-tabs`；Auth logo / 欢迎 / 空态 panel 跳过；`model-design-ux` 三签+内签绿；下一刀 → 画布表节点 chrome / 其余工具条（审批列表/导出页已密，跳过）
+- ✅ **表设计签头 / 内签 gutter 碎距**（2026-08-03）：量测 CommonTabs 24 已密；签头 pad 2×10/gap6→2×8/gap4；内签 marginR 8→2（对齐子签）；`testid=table-design-header`/`table-design-tabs`/`common-tabs`；Auth logo / 欢迎 / 空态 panel 跳过；`model-design-ux` 三签+内签绿；下一刀 → ~~画布表节点 chrome~~✅
+- ✅ **表节点底栏 / 空表井 chrome 碎距**（2026-08-03）：量测表头 pad6 / 字段 minH20 已贴密表下限；压空表井 pad10→6 + 底栏 margin8→6 + 命中 minH22/26；`NODE_FOOTER_H` 32→28；表头/字段行/persist 不动；`relation`+`table-field-empty` densify 绿；下一刀 → 左树右键菜单再压或版本列表工具条碎距（Controls/审批/导出已密，跳过）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
