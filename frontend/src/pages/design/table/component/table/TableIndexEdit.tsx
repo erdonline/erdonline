@@ -3,10 +3,13 @@ import 'handsontable/dist/handsontable.full.css';
 import "handsontable/languages/zh-CN";
 import useProjectStore from "@/store/project/useProjectStore";
 import {ModuleEntity} from "@/store/tab/useTabStore";
-import _ from "lodash";
 import JExcel from "@/pages/JExcel";
 import { Button, Empty, Space, message } from 'antd';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import {
+  formatIndexFieldsCell,
+  parseIndexFieldsCell,
+} from './indexFieldsCell';
 
 export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
@@ -51,15 +54,14 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     pendingRef.current = null;
   }, [module, entityName]);
 
-  const fields = entity?.fields?.map((f: { name?: string }) => f.name).filter(Boolean) as string[];
+  const columnNames = (entity?.fields?.map((f: { name?: string }) => f.name).filter(Boolean) ||
+    []) as string[];
   const entityTitle = entity?.title || entity?.name;
 
   const normalizePayload = (payload: IndexRow[]): IndexRow[] =>
     payload.map((m) => ({
       ...m,
-      fields: m.fields?.constructor === String
-        ? _.split(_.trimStart(m?.fields as string, ";"), ";")
-        : m.fields,
+      fields: parseIndexFieldsCell(m.fields),
     }));
 
   /**
@@ -247,7 +249,10 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     );
   }
 
-  const data = JSON.parse(JSON.stringify(hasIndexes ? indexs : [{}]));
+  const data = (hasIndexes ? indexs : [{} as IndexRow]).map((row) => ({
+    ...JSON.parse(JSON.stringify(row)),
+    fields: formatIndexFieldsCell(row.fields),
+  }));
   const columns = [
     {
       title: '索引名*',
@@ -256,12 +261,11 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       width: document.body.clientWidth * 0.2,
     },
     {
-      title: '字段*',
+      // 文本格：列名与表达式可混写（分号分隔）；禁 dropdown 丢掉 LOWER(email) 等
+      title: '字段/表达式*',
       name: 'fields',
-      type: 'dropdown',
+      type: 'text',
       width: document.body.clientWidth * 0.35,
-      multiple: true,
-      source: fields
     },
     {
       title: '是否唯一',
@@ -272,6 +276,10 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   ];
 
   const sheetKey = `index-grid-${module}-${entityName}-${indexs.length}-${sheetEpoch}`;
+  const columnHint =
+    columnNames.length > 0
+      ? `可选列：${columnNames.slice(0, 8).join('、')}${columnNames.length > 8 ? '…' : ''}。`
+      : '';
 
   return (
     <div
@@ -279,8 +287,14 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       className="erd-table-index-edit"
       aria-busy={indexSaving || undefined}
     >
-      <p className="erd-table-index-hint" data-testid="index-unique-hint">
-        勾选「是否唯一」= UNIQUE 约束；画布字段会显示 UK。字段本身无独立 unique 列。
+      <p
+        className="erd-table-index-hint"
+        data-testid="index-unique-hint"
+        aria-label="索引字段编辑说明"
+      >
+        勾选「是否唯一」= UNIQUE；画布显示 UK。字段/表达式列用分号分隔列名或表达式（如
+        {' '}
+        id;LOWER(email)）。{columnHint}
       </p>
       {/* key：条数/epoch 变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel

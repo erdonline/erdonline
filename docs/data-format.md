@@ -159,6 +159,8 @@
 
 `fields[]` 为字符串数组，元素既可以是**列名**，也可以是**索引表达式**原样文本（如 `"LOWER(email)"`）。DBML 导入时 `@dbml/core` 的 expression 列写入此数组；导出时非纯 ident 以 `` `expr` `` 写回。DDL 模板 `createIndexTemplate` 对 `fields` 做 join，表达式可直接进入 `CREATE INDEX … (LOWER(email))`。
 
+**设计器**：表设计索引签 JExcel「字段/表达式*」为**文本格**（非列名-only dropdown）；单元格用分号分隔多个片段（如 `id;LOWER(email)`），落盘时拆回 `fields[]`；`updateEntityIndex` persist-on-200。
+
 **逆向**：
 - PostgreSQL：`pg_catalog` + `unnest(indkey)`；`indkey=0` 时用 `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样
 - MySQL 8+：`INFORMATION_SCHEMA.STATISTICS`，`COLUMN_NAME` 空时读 `EXPRESSION`；无该列（MariaDB / 旧版）回退列名-only，失败键位软跳过
