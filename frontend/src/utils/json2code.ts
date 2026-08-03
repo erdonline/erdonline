@@ -128,6 +128,218 @@ export function renderCreateTriggerSql(
   return `${stmt}${separator || ''}`;
 }
 
+/** P0 四库可导出 ALTER … FOREIGN KEY；JAVA 等跳过 */
+export function dialectSupportsForeignKey(code: string | undefined | null): boolean {
+  return dialectSupportsTrigger(code);
+}
+
+export type AssociationLike = {
+  relation?: string;
+  from?: { entity?: string; field?: string };
+  to?: { entity?: string; field?: string };
+  constraintName?: string;
+  deleteRule?: string;
+  updateRule?: string;
+};
+
+export type ForeignKeyGroup = {
+  constraintName?: string;
+  fromEntity: string;
+  toEntity: string;
+  fromFields: string[];
+  toFields: string[];
+  deleteRule?: string;
+  updateRule?: string;
+};
+
+const FK_RULE_SET = new Set([
+  'CASCADE',
+  'SET NULL',
+  'SET DEFAULT',
+  'RESTRICT',
+  'NO ACTION',
+]);
+
+/** 归一化参照动作；空/非法 → undefined（不写 ON …） */
+export function normalizeFkRuleForSql(raw: unknown): string | undefined {
+  if (raw == null) return undefined;
+  const s = String(raw).trim().toUpperCase().replace(/\s+/g, ' ');
+  if (!s) return undefined;
+  return FK_RULE_SET.has(s) ? s : undefined;
+}
+
+/** 缺 constraintName 时推导合法约束名 */
+export function suggestFkConstraintName(
+  fromEntity: string,
+  fromFields: string[],
+  toEntity?: string,
+): string {
+  const san = (s: string) =>
+    String(s || '')
+      .trim()
+      .replace(/[^A-Za-z0-9_]+/g, '_')
+      .replace(/^_+|_+$/g, '') || 'x';
+  const cols = (fromFields || []).map(san).filter(Boolean).join('_') || 'col';
+  const base = `fk_${san(fromEntity)}_${cols}`;
+  return base.slice(0, 60);
+}
+
+/**
+ * 将 association 列表合并为 FK 组：同 constraintName + 同 from/to 表聚合成复合列（保序）；
+ * 无名则一关联一组。
+ */
+export function groupAssociationsForFk(
+  associations: AssociationLike[] | undefined | null,
+): ForeignKeyGroup[] {
+  const groups: ForeignKeyGroup[] = [];
+  const namedIndex = new Map<string, number>();
+  for (const a of associations || []) {
+    const fromEntity = String(a?.from?.entity || '').trim();
+    const toEntity = String(a?.to?.entity || '').trim();
+    const fromField = String(a?.from?.field || '').trim();
+    const toField = String(a?.to?.field || '').trim();
+    if (!fromEntity || !toEntity || !fromField || !toField) continue;
+    const deleteRule = normalizeFkRuleForSql(a?.deleteRule);
+    const updateRule = normalizeFkRuleForSql(a?.updateRule);
+    const cName = String(a?.constraintName || '').trim();
+    if (cName) {
+      const key = `${cName}\0${fromEntity}\0${toEntity}`;
+      const idx = namedIndex.get(key);
+      if (idx != null) {
+        const g = groups[idx];
+        if (!g.fromFields.includes(fromField)) g.fromFields.push(fromField);
+        if (!g.toFields.includes(toField)) g.toFields.push(toField);
+        if (!g.deleteRule && deleteRule) g.deleteRule = deleteRule;
+        if (!g.updateRule && updateRule) g.updateRule = updateRule;
+        continue;
+      }
+      namedIndex.set(key, groups.length);
+      groups.push({
+        constraintName: cName,
+        fromEntity,
+        toEntity,
+        fromFields: [fromField],
+        toFields: [toField],
+        ...(deleteRule ? { deleteRule } : {}),
+        ...(updateRule ? { updateRule } : {}),
+      });
+      continue;
+    }
+    groups.push({
+      fromEntity,
+      toEntity,
+      fromFields: [fromField],
+      toFields: [toField],
+      ...(deleteRule ? { deleteRule } : {}),
+      ...(updateRule ? { updateRule } : {}),
+    });
+  }
+  return groups;
+}
+
+/** 从 projectJSON 收集指向某表（FK 侧）的 association */
+export function collectAssociationsForEntity(
+  dataSource: { modules?: Array<{ associations?: AssociationLike[] }> } | undefined | null,
+  entityTitle: string,
+): AssociationLike[] {
+  const title = String(entityTitle || '').trim();
+  if (!title) return [];
+  const out: AssociationLike[] = [];
+  for (const m of dataSource?.modules || []) {
+    for (const a of m?.associations || []) {
+      if (String(a?.from?.entity || '').trim() === title) {
+        out.push(a);
+      }
+    }
+  }
+  return out;
+}
+
+function quoteIdentForDialect(ident: string, dialectCode?: string | null): string {
+  const c = normalizeDialectCode(dialectCode);
+  if (c === 'sqlserver' || c === 'mssql') {
+    return `[${quoteSqlServerIdent(ident)}]`;
+  }
+  if (c === 'oracle' || c === 'postgresql' || c === 'postgres' || c === 'pg') {
+    return `"${quoteDoubleIdent(ident)}"`;
+  }
+  return `\`${quoteMysqlIdent(ident)}\``;
+}
+
+/**
+ * 按方言重建 ALTER TABLE … ADD CONSTRAINT … FOREIGN KEY。
+ * Oracle 不写 ON UPDATE；空 deleteRule/updateRule 省略 ON 子句。
+ */
+export function rebuildForeignKeyDdl(
+  fk: ForeignKeyGroup,
+  dialectCode?: string | null,
+): string {
+  const fromEntity = String(fk.fromEntity || '').trim();
+  const toEntity = String(fk.toEntity || '').trim();
+  const fromFields = (fk.fromFields || []).map((f) => String(f || '').trim()).filter(Boolean);
+  const toFields = (fk.toFields || []).map((f) => String(f || '').trim()).filter(Boolean);
+  if (!fromEntity || !toEntity || fromFields.length === 0 || toFields.length === 0) {
+    return '';
+  }
+  const name =
+    String(fk.constraintName || '').trim() ||
+    suggestFkConstraintName(fromEntity, fromFields, toEntity);
+  const q = (id: string) => quoteIdentForDialect(id, dialectCode);
+  const c = normalizeDialectCode(dialectCode);
+  const cols = fromFields.map(q).join(', ');
+  const refCols = toFields.map(q).join(', ');
+  let sql =
+    `ALTER TABLE ${q(fromEntity)} ADD CONSTRAINT ${q(name)} ` +
+    `FOREIGN KEY (${cols}) REFERENCES ${q(toEntity)} (${refCols})`;
+  const del = normalizeFkRuleForSql(fk.deleteRule);
+  const upd = normalizeFkRuleForSql(fk.updateRule);
+  if (del) {
+    sql += ` ON DELETE ${del}`;
+  }
+  // Oracle 无 ON UPDATE 参照动作
+  if (upd && c !== 'oracle') {
+    sql += ` ON UPDATE ${upd}`;
+  }
+  return sql;
+}
+
+/**
+ * 导出 FK DDL：非支持方言跳过；缺约束名时自动生成。
+ */
+export function renderCreateForeignKeySql(
+  fk: ForeignKeyGroup,
+  separator: string,
+  dialectCode?: string | null,
+): string {
+  if (!dialectSupportsForeignKey(dialectCode)) {
+    return '';
+  }
+  const ddl = rebuildForeignKeyDdl(fk, dialectCode);
+  if (!ddl.trim()) {
+    return '';
+  }
+  const stmt = /;\s*$/.test(ddl) ? ddl : `${ddl};`;
+  return `${stmt}${separator || ''}`;
+}
+
+/** 某表 FK 侧全部 ALTER FOREIGN KEY 片段（已按约束名聚合） */
+export function renderEntityForeignKeysSql(
+  dataSource: { modules?: Array<{ associations?: AssociationLike[] }> } | undefined | null,
+  entityTitle: string,
+  separator: string,
+  dialectCode?: string | null,
+): string {
+  if (!dialectSupportsForeignKey(dialectCode)) {
+    return '';
+  }
+  const groups = groupAssociationsForFk(
+    collectAssociationsForEntity(dataSource, entityTitle),
+  );
+  return groups
+    .map((g) => renderCreateForeignKeySql(g, separator, dialectCode))
+    .join('');
+}
+
 export function formatIndexFilterPredicate(
   filter: string | undefined | null,
 ): string | undefined {
@@ -969,8 +1181,10 @@ export const getAllDataSQL = (dataSource, code) => {
     // 1.1.删除表
     // 1.2.新建表
     // 1.3.新建索引
+    // 1.4.新建触发器
+    // 1.5.新建外键（FK 侧表；按 constraintName 聚合复合列）
 
-    // 循环创建该表下所有的索引 + 触发器
+    // 循环创建该表下所有的索引 + 触发器 + 外键
     let indexData = (e.indexs || []).map(i => {
       return `${renderCreateIndexSql(getTemplate('createIndexTemplate'), {
         module: {name: e.name},
@@ -982,28 +1196,34 @@ export const getAllDataSQL = (dataSource, code) => {
     const triggerData = (e.triggers || [])
       .map((t) => renderCreateTriggerSql(t, e.title || e.name, separator, code))
       .join('');
+    const fkData = renderEntityForeignKeysSql(
+      dataSource,
+      e.title || e.name,
+      separator,
+      code,
+    );
     //全量脚本去除删除语句
     return `${getTemplateString(getTemplate('createTableTemplate'), {
       module: {name: e.name},
       entity: e,
       separator
-    })}${indexData}${triggerData}`
+    })}${indexData}${triggerData}${fkData}`
   }).join('');
   return sqlString.endsWith(separator) ? sqlString : sqlString + separator;
 };
 
 /**
- * 按过滤器拼全量 DDL（删表/建表/索引/触发器/注释）。
+ * 按过滤器拼全量 DDL（删表/建表/索引/触发器/外键/注释）。
  * @param dataSource projectJSON 形态
  * @param code 方言码，如 MYSQL
- * @param filter 片段键：deleteTable | createTable | createIndex | createTrigger | updateComment
+ * @param filter 片段键：deleteTable | createTable | createIndex | createTrigger | createForeignKey | updateComment
  */
 export const getAllDataSQLByFilter = (
   dataSource: Record<string, unknown>,
   code: string,
   filter: string[] = [],
 ): string => {
-  // 获取全量脚本（删表，建表，建索引，触发器，表注释）；模板按所选方言 code，非仅 defaultDatabase
+  // 获取全量脚本（删表，建表，建索引，触发器，外键，表注释）；模板按所选方言 code，非仅 defaultDatabase
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
   const database = pickDatabaseDialect(
     _.get(dataSource, 'dataTypeDomains.database', []) as Array<{
@@ -1034,6 +1254,7 @@ export const getAllDataSQLByFilter = (
     // 1.2.新建表
     // 1.3.新建索引
     // 1.4.新建触发器
+    // 1.5.新建外键
     // 表注释
 
     // 循环创建该表下所有的索引
@@ -1050,6 +1271,12 @@ export const getAllDataSQLByFilter = (
     allData.createTrigger = (e.triggers || [])
       .map((t) => renderCreateTriggerSql(t, e.title || e.name, separator, code))
       .join('');
+    allData.createForeignKey = renderEntityForeignKeysSql(
+      dataSource as { modules?: Array<{ associations?: AssociationLike[] }> },
+      e.title || e.name,
+      separator,
+      code,
+    );
     allData.deleteTable = `${getTemplateString(getTemplate('deleteTableTemplate'), {
       module: {name: e.name},
       entity: e,

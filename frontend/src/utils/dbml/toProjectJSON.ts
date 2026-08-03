@@ -43,6 +43,11 @@ export type ProjectJsonAssociation = {
   relation: '1:1' | '1:n' | 'n:1' | 'n:n';
   from: { entity: string; field: string };
   to: { entity: string; field: string };
+  /** 库约束名；DBML named Ref */
+  constraintName?: string;
+  /** CASCADE | SET NULL | SET DEFAULT | RESTRICT | NO ACTION */
+  deleteRule?: string;
+  updateRule?: string;
 };
 
 export type ProjectJsonModule = {
@@ -166,6 +171,9 @@ type DbmlEndpoint = {
 
 type DbmlRef = {
   endpoints?: DbmlEndpoint[];
+  name?: string | null;
+  onDelete?: string | null;
+  onUpdate?: string | null;
 };
 
 type DbmlSchema = {
@@ -244,6 +252,23 @@ function relationCode(a: string | undefined, b: string | undefined): '1:1' | '1:
   if (left === '*' && right === '*') return 'n:n';
   if (left === '*' && right === '1') return 'n:1';
   return '1:n';
+}
+
+/** DBML onDelete/onUpdate → projectJSON 大写动作 */
+export function mapDbmlRefRule(raw: string | null | undefined): string | undefined {
+  if (raw == null) return undefined;
+  const s = String(raw).trim().toUpperCase().replace(/_/g, ' ').replace(/\s+/g, ' ');
+  if (!s) return undefined;
+  if (
+    s === 'CASCADE' ||
+    s === 'SET NULL' ||
+    s === 'SET DEFAULT' ||
+    s === 'RESTRICT' ||
+    s === 'NO ACTION'
+  ) {
+    return s;
+  }
+  return undefined;
 }
 
 /** DBML dbdefault → projectJSON defaultValue（对齐 DDL 模板约定） */
@@ -400,6 +425,15 @@ function mapAssociation(ref: DbmlRef): ProjectJsonAssociation | null {
     relation: relationCode(from.relation, to.relation),
     from: { entity: from.tableName, field: fromField },
     to: { entity: to.tableName, field: toField },
+    ...(String(ref.name || '').trim()
+      ? { constraintName: String(ref.name).trim() }
+      : {}),
+    ...(mapDbmlRefRule(ref.onDelete)
+      ? { deleteRule: mapDbmlRefRule(ref.onDelete) }
+      : {}),
+    ...(mapDbmlRefRule(ref.onUpdate)
+      ? { updateRule: mapDbmlRefRule(ref.onUpdate) }
+      : {}),
   };
 }
 

@@ -283,6 +283,7 @@
 - [x] Oracle 表触发器：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`OracleReverseDialectTriggerTest` + mapper Oracle；P0 四库闭环）✅自动
 - [x] 表设计触发器签：列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` persist-on-200；定位 role/aria/testid（`table-triggers.spec` + 签页 `Cmd/Ctrl+4`）✅自动
 - [x] DDL 导出 `triggers[]`：`createTrigger` 片段优先 `ddl`、否则按方言重建（MySQL/PG/SQL Server/Oracle）；导出弹层可勾选（`json2code.trigger.test.ts`）✅自动
+- [x] DDL/DBML FK 回写：`createForeignKey` 四库 ALTER FOREIGN KEY + ON DELETE/UPDATE；同名聚合复合列；DBML Ref settings 往返（`json2code.fk.test.ts` + `yarn test:unit:dbml`）✅自动
 - [x] FK 约束元数据：`constraintName` / `deleteRule` / `updateRule`（JDBC + 四库字典；复合拆边同名；ADR-0011 `fields[]` 仍延期）✅`ForeignKeyAssociationMapperTest` + `relationEdges.test.ts`
 - [ ] Colima MySQL `reverse_demo`：associations 含 `constraintName`/`deleteRule`（有 CASCADE 的 FK）→ curl 抽检
 - [ ] Colima SQL Server（Azure SQL Edge）：indexs + associations 1:n curl 验证
