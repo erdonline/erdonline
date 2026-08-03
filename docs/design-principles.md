@@ -168,6 +168,7 @@
 - ✅ 字段行 ✎ 与表头改名同形；改已有字段空名 toast「字段名不能为空」；Enter 提交；Escape 取消（不经 blur 落盘）；Tab 字段名→中文名→类型→默认值→跳行；末行 Tab 新建；中文名（chnname）/默认值（defaultValue）行内编辑；类型/PK/非空/自增/隐藏 onChange 即时 save-status；隐藏 toast + 表底恢复；选中字段 Delete/Backspace / × 二次确认删；**行内新建/改名字段** `persist:true`（失败不退出编辑、草稿保留）；**删字段** 确认后 `persist:true`（失败窗仍开、行不消失）；**类型/PK/非空/自增/隐藏/浏览 PK** `persist:true`（失败编辑草稿回滚；隐藏失败不退出、不 toast「已隐藏」）
 - ✅ 表头 ✎ / 双击：表名 + 实体中文名双栏内联；Tab 表名→中文名→提交；Escape 丢弃（拦 blur）；仅改 chnname 亦 save-status；改名 `persist:true`（失败不退出编辑、草稿保留）
 - ✅ 表节点底栏并排「字段 | 索引 | 元数据 | 触发器」→ 表设计对应签（`canvas-open-field` / `canvas-open-index` / `canvas-open-code` / `canvas-open-trigger`）；禁画布无入口只能绕左树 / 签头点选
+- ✅ 触发器签可编辑已有行：行「编辑」弹层改名/时机/事件/粒度/语句体/DDL；结构变而 DDL 文本未动时强制重建；仅 `saveProject` code===200 写 store；失败不关窗可重试；首焦名称 + Esc 归还；禁只能删重建
 - ✅ 索引签空态：`还没有索引` + 主 CTA「添加第一个索引」（种子首字段索引）；禁空 `indexs[]` 白屏死表
 - ✅ 索引签字段/表达式：JExcel「字段/表达式*」文本格；分号混写列名与表达式（如 `id;LOWER(email)`）→ `indexs[].fields[]`；禁 dropdown 丢失表达式；persist-on-200
 - ✅ 字段签空态：`还没有字段` + 主 CTA「添加第一个字段」（种子首个 defaultField / id）；禁空 `fields[]` 白屏死表

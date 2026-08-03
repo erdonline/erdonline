@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：触发器签可编辑已有行（对称字段/索引）
+
+- 选题：`1dc3297` 画布 open-trigger 后，签内仍只能新增/删除/只读看 DDL → 逆向 triggers[] 改语句体要删重建（多余步骤 + 与索引签不对称）
+- `TableTriggerEdit`：行「编辑」→「编辑触发器」弹层；结构字段变而 DDL 未改时强制重建；persist-on-200；失败不关窗可重试；首焦名称 + Esc/Tab
+- E2E：`table-triggers` 编辑落盘 + 刷新残留 + 失败可重试
+- 未做：DBML Trigger（等官方块）；ADR-0013 / P4 Railway / ADR-0011 `fields[]`（人工/延期）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/table-triggers.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布底栏直达触发器签
 
 - 选题：`3bca440` FK 导出后，触发器签仅签头/`Cmd+4` 可达 → 画布相对字段/索引/元数据缺对称入口（CHANGELOG 登记「未做」）
