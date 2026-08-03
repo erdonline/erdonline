@@ -54,6 +54,100 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       expect(rowMetrics.mb).toBeLessThanOrEqual(2);
       expect(rowMetrics.fontSize).toBeLessThanOrEqual(13);
 
+      // 工具条再收：~24 控件 + 次密距 4；禁 clip 图标；命中 ∈24–28
+      const toolbarMetrics = await page.getByTestId('query-tree-toolbar').evaluate((toolbar) => {
+        const btn = toolbar.querySelector(
+          '[data-testid="design-tree-add"]',
+        ) as HTMLElement | null;
+        const searchBtn = toolbar.querySelector(
+          '.ant-input-search-button',
+        ) as HTMLElement | null;
+        const input =
+          (toolbar.querySelector(
+            'input[aria-label="搜索表名"]',
+          ) as HTMLElement | null) ||
+          (toolbar.querySelector('input') as HTMLElement | null);
+        if (!btn || !input) {
+          return {
+            toolbarH: -1,
+            btnH: -1,
+            btnW: -1,
+            inputH: -1,
+            addIconClipped: true,
+            searchIconClipped: true,
+            siderPadX: -1,
+          };
+        }
+        const eps = 1;
+        const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+          inner.top >= outer.top - eps &&
+          inner.bottom <= outer.bottom + eps &&
+          inner.left >= outer.left - eps &&
+          inner.right <= outer.right + eps;
+        const iconIn = (host: HTMLElement | null) => {
+          if (!host) return true;
+          const icon = host.querySelector('.anticon, svg') as HTMLElement | null;
+          if (!icon) return true;
+          return fullyIn(icon.getBoundingClientRect(), host.getBoundingClientRect());
+        };
+        const sider = document.querySelector(
+          '.design-layout__sider-inner',
+        ) as HTMLElement | null;
+        const scs = sider ? getComputedStyle(sider) : null;
+        return {
+          toolbarH: toolbar.getBoundingClientRect().height,
+          btnH: btn.getBoundingClientRect().height,
+          btnW: btn.getBoundingClientRect().width,
+          inputH: input.getBoundingClientRect().height,
+          addIconClipped: !iconIn(btn),
+          searchIconClipped: !iconIn(searchBtn),
+          siderPadX: scs
+            ? parseFloat(scs.paddingLeft) + parseFloat(scs.paddingRight)
+            : -1,
+        };
+      });
+      expect(
+        toolbarMetrics.toolbarH,
+        `工具条高应 ≤32（目标 ~28），得 ${toolbarMetrics.toolbarH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(toolbarMetrics.toolbarH).toBeGreaterThanOrEqual(24);
+      expect(
+        toolbarMetrics.btnH,
+        `新建钮高应 ∈24–28，得 ${toolbarMetrics.btnH}`,
+      ).toBeGreaterThanOrEqual(24);
+      expect(toolbarMetrics.btnH).toBeLessThanOrEqual(28);
+      expect(toolbarMetrics.btnW).toBeGreaterThanOrEqual(24);
+      expect(toolbarMetrics.btnW).toBeLessThanOrEqual(28);
+      expect(
+        toolbarMetrics.inputH,
+        `搜索输入高应 ∈22–28，得 ${toolbarMetrics.inputH}`,
+      ).toBeGreaterThanOrEqual(22);
+      expect(toolbarMetrics.inputH).toBeLessThanOrEqual(28);
+      expect(toolbarMetrics.addIconClipped, '新建图标不得裁切').toBe(false);
+      expect(toolbarMetrics.searchIconClipped, '搜索图标不得裁切').toBe(false);
+      expect(
+        toolbarMetrics.siderPadX,
+        `sider 次密距 padX 应 ≤20，得 ${toolbarMetrics.siderPadX}`,
+      ).toBeLessThanOrEqual(20);
+      expect(toolbarMetrics.siderPadX).toBeGreaterThanOrEqual(8);
+
+      // focus-visible：搜索 → 搜索钮 → 新建（须经 Tab 触发 :focus-visible）
+      const addBtn = page.getByTestId('design-tree-add');
+      const search = page.getByLabel('搜索表名');
+      await search.focus();
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Tab');
+      await expect(addBtn).toBeFocused();
+      const focusRing = await addBtn.evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return {
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(focusRing.outlineStyle).not.toBe('none');
+      expect(parseFloat(focusRing.outlineWidth)).toBeGreaterThanOrEqual(1);
+
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-left-tree-dense.png',
         fullPage: false,

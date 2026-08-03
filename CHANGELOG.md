@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
-#### 体验：签头密度再压（CommonTabs / 表设计不 clip）
+#### 体验：左树工具条再收 / chrome 次密距
+
+- 选题：签头已 ~24；左树工具条仍 pad 8 + 控件 28，次密距松
+- `QueryTree`：工具条控件 24、pad 4；搜索 affix/清空钮同阶；禁 clip 图标；新建 inset focus-visible
+- `DesignLayout` sider-inner：次密距 pad 4×6×0×8；空态 margin 12
+- E2E：`model-design-ux`「模型树」扩展工具条/控件高度 + 不 clip + sider padX + Tab focus-visible；截图 `diagram-left-tree-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 版本列表二次走查 / chrome 碎色（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "模型树" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "左树键盘漫游" --workers=1 --retries=0`
 
 - 选题：Cmd+K polish 后下一刀；签栏已 ~28，再压至 ~24（22 chrome）且禁裁标签/关闭钮，保留 focus-visible
 - `CommonTabs`：`--erd-tabs-h: 24`、flex 竖直居中、关闭钮 14 完整落在栏内；nav `overflow: visible`；inset focus 环
 - `TableTab`：签头 pad 2×10 / title 12 / min-height 24；内签 pad 4 / mb 6 + focus-visible
 - E2E：`model-design-ux`「表设计三签」收紧高度断言 + 不 clip + Tab focus-visible；截图 `diagram-common-tabs-dense.png`
-- 文档：design-principles §2 / regression-checklist / ui-layout-redesign / roadmap；下一刀 → 左树工具条再收 / 版本列表二次走查（视 ROI）
+- 文档：design-principles §2 / regression-checklist / ui-layout-redesign / roadmap；下一刀 → ~~左树工具条再收 / chrome 次密距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计三签" --workers=1 --retries=0`

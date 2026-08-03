@@ -191,7 +191,7 @@ const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree
 
   return (
     <div className="query-tree" data-testid="query-tree">
-      <div className="query-tree__toolbar">
+      <div className="query-tree__toolbar" data-testid="query-tree-toolbar">
         <Search
           size="small"
           placeholder="搜索表名"
