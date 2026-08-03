@@ -24,25 +24,33 @@ test.describe('会话闭环', () => {
     await expect(page.getByRole('link', { name: '去登录' })).toBeVisible();
     await expect(page.getByRole('link', { name: '打开演示' }).first()).toBeVisible();
 
-    // ADR-0016：注册壳与登录同源碎距二压（20×16）；品牌字号不弱化
+    // ADR-0016：注册壳与登录同源碎距三压（20×16 + gap12 + 门头 mb12）；品牌字号不弱化
     const densify = await page.getByTestId('auth-brand-panel').evaluate((el) => {
       const cs = getComputedStyle(el);
       const form = document.querySelector('[data-testid="auth-form-panel"]') as HTMLElement | null;
+      const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const fcs = form ? getComputedStyle(form) : null;
+      const hcs = header ? getComputedStyle(header) : null;
       const tcs = title ? getComputedStyle(title) : null;
       return {
         brandPadT: parseFloat(cs.paddingTop),
         brandPadL: parseFloat(cs.paddingLeft),
+        brandGap: parseFloat(cs.gap) || 0,
         formPadT: fcs ? parseFloat(fcs.paddingTop) : -1,
         formPadL: fcs ? parseFloat(fcs.paddingLeft) : -1,
+        headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
         titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
       };
     });
     expect(densify.brandPadT).toBeLessThanOrEqual(20);
     expect(densify.brandPadL).toBeLessThanOrEqual(16);
+    expect(densify.brandGap, `品牌 gap 应 ∈[8,12]，得 ${densify.brandGap}`).toBeGreaterThanOrEqual(8);
+    expect(densify.brandGap).toBeLessThanOrEqual(12);
     expect(densify.formPadT).toBeLessThanOrEqual(20);
     expect(densify.formPadL).toBeLessThanOrEqual(16);
+    expect(densify.headerMb, `门头 mb 应 ∈[8,12]，得 ${densify.headerMb}`).toBeGreaterThanOrEqual(8);
+    expect(densify.headerMb).toBeLessThanOrEqual(12);
     expect(densify.titleSize).toBeGreaterThanOrEqual(24);
   });
 
@@ -125,6 +133,24 @@ test.describe('会话闭环', () => {
     await expect(page.getByTestId('auth-skip-nav')).toBeAttached();
     await expect(page.getByTestId('auth-skip-form')).toBeAttached();
     await expect(page.getByTestId('auth-form-anchor')).toHaveAttribute('tabindex', '-1');
+    await expect(page.getByTestId('auth-form-header')).toBeVisible();
+
+    // ADR-0016：登录壳键盘 densify 锁 — gap12 / 门头 mb12；pad/字号不回退
+    const kbDense = await page.getByTestId('auth-brand-panel').evaluate((el) => {
+      const cs = getComputedStyle(el);
+      const header = document.querySelector('[data-testid="auth-form-header"]') as HTMLElement | null;
+      const hcs = header ? getComputedStyle(header) : null;
+      return {
+        brandGap: parseFloat(cs.gap) || 0,
+        headerMb: hcs ? parseFloat(hcs.marginBottom) : -1,
+        brandPadT: parseFloat(cs.paddingTop),
+      };
+    });
+    expect(kbDense.brandGap, `品牌 gap 应 ∈[8,12]，得 ${kbDense.brandGap}`).toBeGreaterThanOrEqual(8);
+    expect(kbDense.brandGap).toBeLessThanOrEqual(12);
+    expect(kbDense.headerMb, `门头 mb 应 ∈[8,12]，得 ${kbDense.headerMb}`).toBeGreaterThanOrEqual(8);
+    expect(kbDense.headerMb).toBeLessThanOrEqual(12);
+    expect(kbDense.brandPadT).toBeLessThanOrEqual(20);
 
     // 首项 Tab = Skip；Enter 落到表单锚点
     await page.mouse.click(2, 2);
