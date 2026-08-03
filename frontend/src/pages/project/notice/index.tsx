@@ -51,7 +51,10 @@ const Index: React.FC<NoticeProps> = () => {
 
   return (
     <div className="project-list-page" data-testid="project-notice-page">
-      <div className="project-list-page__toolbar">
+      <div
+        className="project-list-page__toolbar"
+        data-testid="project-list-toolbar"
+      >
         <h2 className="project-list-page__title">公告</h2>
       </div>
       <List

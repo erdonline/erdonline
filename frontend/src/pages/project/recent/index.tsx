@@ -69,7 +69,10 @@ export default () => {
 
   return (
     <div className="project-list-page" data-testid="project-recent-page">
-      <div className="project-list-page__toolbar">
+      <div
+        className="project-list-page__toolbar"
+        data-testid="project-list-toolbar"
+      >
         <h2 className="project-list-page__title">最近项目 「个人 + 团队」</h2>
         <Input.Search
           placeholder="项目名"

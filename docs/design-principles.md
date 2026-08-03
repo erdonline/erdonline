@@ -219,6 +219,7 @@
 - ✅ 数据库配置页密度：`.database-config-page` 标题 13/22、页 pad 8×12、工具条钮 28、表行 pad 4×8；抽屉表单同阶；菜单「数据源设置」挂 `.erd-io-modal`；禁 Title level4 + 松 Card
 - ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；BaseView 列 gap 16（窄屏 12）；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡 / BaseView gap24
 - ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；禁 Title level4 + List `large`
+- ✅ 项目列表工具条碎距：`.project-list-page__toolbar` Space gap 8 + 搜索控件高 28（禁 antd 默认 32 撑到 34）；钮 padX 8；`data-testid=project-list-toolbar`；命中/键盘不弱化
 - ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
 - ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
 - ✅ Home 空态/公告次密：空态 pad 24×12；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13；禁 40×16 空井 / 行 8×16；保留空态 CTA +「更多公告」
