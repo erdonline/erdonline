@@ -310,11 +310,19 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       okText: '删除',
       okType: 'danger',
       cancelText: '取消',
-      onOk() {
+      async onOk() {
         if (node.type === 'module') {
           projectDispatch.removeModule(node.module || node.name);
-        } else if (node.type === 'entity') {
-          projectDispatch.removeEntity(node.module, node.title);
+          return;
+        }
+        if (node.type === 'entity') {
+          // 禁止本地 mutate 即「表删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+          const ok = await Promise.resolve(
+            projectDispatch.removeEntity(node.module, node.title, { persist: true }),
+          );
+          if (!ok) {
+            return Promise.reject(new Error('表删除落盘失败'));
+          }
         }
       },
     });

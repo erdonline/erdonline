@@ -36,7 +36,11 @@ export interface IEntitiesDispatchSlice {
     },
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  removeEntity: (moduleName: string, entityTitle: string) => void;
+  removeEntity: (
+    moduleName: string,
+    entityTitle: string | string[],
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   removeIndex: (moduleName: string, entityTitle: string, index: number) => void;
   updateEntity: (moduleName: string, entityTitle: string, payload: any) => void;
   copyEntity: (moduleName: string, entityTitle: string) => void;
@@ -352,25 +356,87 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       return true;
     })();
   },
-  removeEntity: (moduleName: string, entityTitle: string) => set(produce((state: any) => {
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
-    if (moduleIndex === -1) {
-      showMessage('error', `型 "${moduleName}" 不存在`);
+  removeEntity: (
+    moduleName: string,
+    entityTitle: string | string[],
+    opts?: PersistOpt,
+  ) => {
+    const persist = !!opts?.persist;
+    const titles = (Array.isArray(entityTitle) ? entityTitle : [entityTitle]).filter(
+      (t): t is string => typeof t === 'string' && !!t,
+    );
+    if (!titles.length) {
+      showMessage('error', '未指定要删除的表');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+    const titleSet = new Set(titles);
+
+    const applyRemove = (modules: any[]): boolean => {
+      const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
+      if (moduleIndex === -1) {
+        return false;
+      }
+      const mod = modules[moduleIndex];
+      mod.entities = (mod.entities || []).filter((e: any) => !titleSet.has(e.title));
+      // ADR-0017：从各图 Frame 成员中剔除
+      if (Array.isArray(mod.diagrams)) {
+        mod.diagrams.forEach((d: any) => {
+          if (!Array.isArray(d.groups)) return;
+          d.groups.forEach((g: any) => {
+            g.memberEntityIds = (g.memberEntityIds || []).filter(
+              (t: string) => !titleSet.has(t),
+            );
+          });
+        });
+      }
+      return true;
+    };
+
+    if (!persist) {
+      const modules = get().project?.projectJSON?.modules || [];
+      if (!modules.some((m: any) => m.name === moduleName)) {
+        showMessage('error', `模型 "${moduleName}" 不存在`);
+        return;
+      }
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        if (!applyRemove(state.project.projectJSON.modules)) {
+          showMessage('error', `模型 "${moduleName}" 不存在`);
+          return;
+        }
+        showMessage('success', '表删除成功');
+      }));
       return;
     }
-    const mod = state.project.projectJSON.modules[moduleIndex];
-    mod.entities = mod.entities.filter((e: any) => e.title !== entityTitle);
-    // ADR-0017：从各图 Frame 成员中剔除
-    if (Array.isArray(mod.diagrams)) {
-      mod.diagrams.forEach((d: any) => {
-        if (!Array.isArray(d.groups)) return;
-        d.groups.forEach((g: any) => {
-          g.memberEntityIds = (g.memberEntityIds || []).filter((t: string) => t !== entityTitle);
-        });
-      });
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      showMessage('error', '未打开项目');
+      return Promise.resolve(false);
     }
-    showMessage('success', '表删除成功');
-  })),
+    if (!project.projectJSON?.modules?.some((m: any) => m.name === moduleName)) {
+      showMessage('error', `模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      applyRemove(draft.projectJSON.modules);
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '表保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      showMessage('success', '表删除成功');
+      return true;
+    })();
+  },
   removeIndex: (moduleName: string, entityTitle: string, index: number) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
