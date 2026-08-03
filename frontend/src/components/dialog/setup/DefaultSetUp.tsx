@@ -188,7 +188,10 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
                       <Button
                         style={{marginLeft: 8}}
                         title="下载模板"
-                        onClick={() => projectDispatch.downloadWordTemplate()}
+                        aria-label="下载模板"
+                        onClick={() => {
+                          void projectDispatch.downloadWordTemplate();
+                        }}
                       >
                         下载模板
                       </Button>
