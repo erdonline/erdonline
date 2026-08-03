@@ -7,7 +7,6 @@ import com.erdonline.common.bean.system.vo.UserRolePrivilegeVo;
 import com.erdonline.common.core.api.R;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
@@ -19,13 +18,12 @@ import java.util.Set;
  */
 public interface RemoteSystemUser {
     /**
-     * 获取用户、权限、菜单
+     * 登录内部加载用户与权限（进程内 UserDetailsService 调用，不暴露 HTTP）。
      *
      * @param username 用户名
-     * @return 用户角色权限聚合
+     * @return 用户角色权限聚合（含 bcrypt pwd，仅内存传递）
      */
-    @GetMapping("/user/loadUserByUsername/{username}")
-    R<UserRolePrivilegeVo> loadUserByUsername(@PathVariable("username") String username);
+    R<UserRolePrivilegeVo> loadUserByUsername(String username);
 
     /**
      * 查询所有权限信息

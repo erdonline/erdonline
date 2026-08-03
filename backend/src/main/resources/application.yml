@@ -175,7 +175,7 @@ security:
         - /user/register
         # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）
         - /project/group/user/register
-        - /user/loadUserByUsername/*
+        # R-AUTH-01：loadUserByUsername 仅进程内调用，禁止匿名 HTTP
         - /endpoint/**
         - /error
         - /v3/api-docs/**

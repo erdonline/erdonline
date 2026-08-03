@@ -47,7 +47,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 | ID | 级别 | 项 | 证据 | 现状 | 建议 |
 |---|---|---|---|---|---|
-| R-AUTH-01 | P0 | 匿名 `GET /user/loadUserByUsername/{username}` 泄露用户密文与权限 | `application.yml:178` ignore；`UserExtensionServiceImpl.java:50` `@RestController` + `:99`；实测无 Token → 200，含 `pwd` bcrypt、email、openid、`authoritySet` | 登录走本地 bean，不依赖该 HTTP；ignore 却开放匿名 HTTP | **立刻**从 ignore-urls 删除该路径；响应脱敏去掉 `pwd`；中期去掉 Service 上 `@RestController` |
+| R-AUTH-01 | P0 | ~~匿名 `GET /user/loadUserByUsername/{username}` 泄露用户密文与权限~~ | ~~ignore-urls + Service `@RestController`~~ | **✅ 已关闭（2026-08-03）**：去掉 ignore；`RemoteSystemUser.loadUserByUsername` 去 `@GetMapping`（仅进程内）；`User.pwd`/`salt` `@JsonProperty(WRITE_ONLY)` | 保持无 HTTP 映射；勿回 ignore |
 | R-AUTH-02 | P1 | `UserController` CRUD 无 `@PreAuthorize` | `UserController.java:57-119`（对比 `UserExtensionController` 的 `sys_user_*`） | 任意已登录用户可增删改查系统用户（常含 `pwd`） | 补权限或委托已鉴权 Extension API；禁止返回密文字段 |
 | R-AUTH-03 | P1 | 项目/模型 IDOR：按 id 读写不校验成员 | `ProjectServiceImpl.java:91-94`；`ProjectController.java:73-98` delete/update/get | 知 `projectId` 即可读全量 `projectJSON`、删/改他人项目 | 统一 `assertProjectMember`；设计器写路径同检 |
 | R-AUTH-04 | P1 | `dataSources` 读/改/删无归属校验 | `DataSourcesController.java:68-104`；list 仅 `creator` 过滤 | 知 id 可读 JDBC url/user/password，供查询/同步/SSRF 链 | get/update/delete 校验 creator（或项目绑定） |
@@ -95,9 +95,9 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. **关匿名用户画像**：去掉 ignore `/user/loadUserByUsername/*` + 响应不含 `pwd`（验证：`curl` 无 Token → 401）。
-2. **prod `JWT_SECRET` fail-fast**（对齐 MYSQLUSER），并确认 demo 已旋转。
-3. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id；顺手删 `GitlabController`。
+1. **prod `JWT_SECRET` fail-fast**（对齐 MYSQLUSER），并确认 demo 已旋转（R-CFG-01）。
+2. **SQL/JDBC 门禁**：`queryInfo` jsqlparser 白名单；`connector/*` 禁止请求体直传任意 JDBC，只允许已鉴权 `dataSources` id；顺手删 `GitlabController`（R-DATA-01/02/03）。
+3. **用户 CRUD 权限**：`UserController` 补 `@PreAuthorize` + 禁止返回密文（R-AUTH-02）。
 
 （项目 IDOR / dataSources 归属可作紧随其后的 P1 切片。）
 

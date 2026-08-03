@@ -10,6 +10,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import java.io.Serializable;
 import com.erdonline.common.core.annotation.BindField;
 import com.erdonline.common.core.constant.CommonConstants;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
@@ -64,10 +65,13 @@ public class User implements Serializable {
     @ApiModelProperty(value = "邮箱")
     private String email;
 
+    /** 可写入（注册/改密），序列化永不输出（R-AUTH-01） */
     @ApiModelProperty(value = "密码")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String pwd;
 
     @ApiModelProperty(value = "随机盐")
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String salt;
 
     @ApiModelProperty(value = "年纪")

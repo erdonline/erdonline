@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-01 关闭匿名 loadUserByUsername 泄露密文
+
+- 选题：匿名 `GET /user/loadUserByUsername/{u}` 经 ignore-urls + `@RestController` 返回 bcrypt `pwd`
+- 改动：`application.yml` 移除 ignore；`RemoteSystemUser.loadUserByUsername` 去掉 `@GetMapping`（保留进程内 UserDetailsService）；`User.pwd`/`salt` `WRITE_ONLY` 防 JSON 泄露
+- 文档：`docs/security-model.md` R-AUTH-01 ✅
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=RemoteSystemUserHttpContractTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/user/loadUserByUsername/admin` → **401**
+- `curl -sS -o /tmp/login.json -w '%{http_code}\n' -X POST http://localhost:9502/auth/login -H 'Content-Type: application/json' -d '{"username":"admin","password":"123456"}'` → 200（登录未断）
+
 #### 安全：后端风险登记（鉴权/密钥/SQL/死配置）
 
 - 选题：公网与自托管生产向风险梳理（非泛 code smell）
@@ -15,7 +26,7 @@
 - 关键发现：匿名 `GET /user/loadUserByUsername/{u}` 返回 bcrypt `pwd`+权限（ignore-urls + Service `@RestController`）；`JWT_SECRET` prod 未 fail-fast；`queryInfo` `${sql}` / `connector` 任意 JDBC 无白名单；项目与 dataSources IDOR；`GitlabController` 硬编码账密
 
 验证点：
-- `curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/user/loadUserByUsername/admin` → 200（登记为 P0，待下一刀关闭）
+- `curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/user/loadUserByUsername/admin` → 曾为 200；**已由 R-AUTH-01 切片关闭 → 401**
 - `curl -sS http://localhost:9502/actuator/env` → 404；prod yml 仍见 `springdoc.*.enabled: false`
 - 文档章节：「已知风险（后端登记，2026-08-03）」
 
