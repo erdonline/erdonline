@@ -1732,10 +1732,19 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
-          onOk() {
-            framesToRemove.forEach((f) =>
-              projectDispatch.removeFrame(moduleName, activeDiagramId, f.frameId),
+          async onOk() {
+            // 禁止本地 mutate 即「已删除分组」；仅 saveProject code===200 移出；失败拒关窗可重试
+            const ok = await Promise.resolve(
+              projectDispatch.removeFrame(
+                moduleName,
+                activeDiagramId,
+                framesToRemove.map((f) => f.frameId),
+                { persist: true },
+              ),
             );
+            if (!ok) {
+              return Promise.reject(new Error('分组删除落盘失败'));
+            }
           },
         });
       }
@@ -2211,8 +2220,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         okText: '删除',
         okType: 'danger',
         cancelText: '取消',
-        onOk() {
-          toRemove.forEach((a) => projectDispatch.removeAssociation(moduleEntity.module, a));
+        async onOk() {
+          // 禁止本地 mutate 即「关系删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+          const ok = await Promise.resolve(
+            projectDispatch.removeAssociation(moduleEntity.module, toRemove, { persist: true }),
+          );
+          if (!ok) {
+            return Promise.reject(new Error('关系删除落盘失败'));
+          }
           setEdgeSelected({});
         },
       });

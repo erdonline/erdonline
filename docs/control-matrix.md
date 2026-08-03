@@ -203,8 +203,9 @@
 | `/design/table/model` | 树删表 | 二次确认；确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep | | ✅ | `smoke` 取消/确认 + `canvas-delete-table-failure` |
 | `/design/table/model` | 树删模型/关系图 | 二次确认；确认后 `removeModule`/`removeDiagram` `persist:true`；失败窗 keep；取消保留 | | ✅ | `multi-diagram`「左树删除关系图/模型二次确认」+`tree-delete-module-diagram-failure` |
 | `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
-| `/design/table/model` | 删边 | Delete → Modal 确认后边消失并落库；取消保留 | | ✅ | `relation`「画布删表/删边」「删边后刷新」 |
+| `/design/table/model` | 删边 | Delete → Modal 确认后 `removeAssociation` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留 | | ✅ | `relation`「画布删表/删边」「删边后刷新」+`canvas-delete-edge-frame-failure` |
 | `/design/table/model` | 画布删表 | Delete → Modal 确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留；键盘首焦/Esc/Tab trap | | ✅ | `relation`「画布删表/删边二次确认」+`canvas-delete-table-keyboard`+`canvas-delete-table-failure` |
+| `/design/table/model` | 画布删分组 | Delete → Modal 确认后 `removeFrame` `persist:true`（仅 save 成功移出）；失败窗 keep；仅删框不删表 | | ✅ | `diagram-frame`「删除分组二次确认」+`canvas-delete-edge-frame-keyboard`+`canvas-delete-edge-frame-failure` |
 | DesignLayout | 项目菜单按钮 | 下拉打开 | | ✅ | `project-menu.spec` |
 | 项目菜单 | 全部项目 | → `/project/recent` | | ✅ | `project-menu`「全部项目」 |
 | 项目菜单 | 最近项目 | 最多 5 条；当前 ✓；点其它项切设计器 | | ✅ | `project-menu`「最近项目可切换」 |
