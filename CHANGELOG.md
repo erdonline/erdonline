@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：prod 关闭 springdoc OpenAPI / Swagger UI
+
+- 选题：`/v3/api-docs` 与 Swagger UI 在 Security 中 `permitAll`；`martin.swagger.enabled` 为死键（不门控 springdoc）；`application-prod.yml` 未真正关闭
+- 改动：`application-prod.yml` 设 `springdoc.api-docs.enabled=false`、`springdoc.swagger-ui.enabled=false`；本地/非 prod 保持默认开启
+- 文档：`docs/security-model.md` 记明门控方式与死键
+
+验证点：
+- `rg -n 'springdoc:' -A6 backend/src/main/resources/application-prod.yml` 见 api-docs/swagger-ui `enabled: false`
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -DskipTests compile`
+- `./backend/dev-ensure.sh --restart`；默认 profile 下 `curl -sS -o /dev/null -w '%{http_code}\n' http://localhost:9502/v3/api-docs` → 200（本地仍开）
+
 #### 配置：Spring 数据源占位符收拢为单一 DB_*（Railway 对齐）
 
 - 选题：`application.yml` / `application-prod.yml` 多层 `${A:${B:${C}}}` 与 Railway「可选配置」文档不一致，贡献者易追死别名

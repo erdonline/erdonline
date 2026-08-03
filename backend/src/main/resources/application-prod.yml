@@ -25,6 +25,14 @@ martin:
     accessKey: ${OSS_ACCESS_KEY}
     secretKey: ${OSS_SECRET_KEY}
 
+# springdoc 默认开启（本地/dev 可用 /swagger-ui）；prod 关闭 UI 与 /v3/api-docs。
+# 注：application.yml 的 martin.swagger.enabled 不门控 springdoc，勿依赖该死键。
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
+
 logging:
   level:
     com.erdonline: info
