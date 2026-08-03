@@ -1,7 +1,13 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, {
+  forwardRef,
+  useEffect,
+  useImperativeHandle,
+  useRef,
+  useState,
+} from 'react';
 import { Tree, Input, Button, Typography, Empty } from 'antd';
 import { PlusOutlined, DownOutlined, FolderOutlined, CodeOutlined } from '@ant-design/icons';
-import type { DataNode } from 'antd/es/tree';
+import type { DataNode, DirectoryTreeProps } from 'antd/es/tree';
 import { erdColors } from '@/theme/tokens';
 import './style.less';
 
@@ -11,41 +17,62 @@ const { Search } = Input;
 /** ADR-0016：左树行高与 22 chrome 同阶；须与虚拟滚动 itemHeight / CSS 行高一致 */
 export const TREE_ROW_HEIGHT = 22;
 
+/** rc-tree 对键盘的入口：隐藏 input（aria-label 由库写死） */
+const TREE_KEYBOARD_INPUT = 'input[aria-label="for screen reader"]';
+
+/** Skip 地标 → ↓/↑/Enter 切入 antd 树键盘面 */
+export type QueryTreeHandle = {
+  focusKeyboard: (opts?: { direction?: 'down' | 'up' }) => void;
+};
+
 interface QueryTreeProps {
   treeData: DataNode[];
-  onSelect: (selectedKeys: React.Key[], info: any) => void;
+  onSelect: DirectoryTreeProps['onSelect'];
   onSearch: (value: string) => void;
   /** 受控搜索词（与 store searchKey 同步；× 清除必须回写空串） */
   searchValue?: string;
   /** 有搜索词且无匹配表时，在树区展示空态（勿白屏） */
   searchEmpty?: boolean;
-  onAdd?: (() => void) | React.ReactNode; // 修改这里，允许函数或 React 节点
+  onAdd?: (() => void) | React.ReactNode;
   renderActions?: (node: DataNode) => React.ReactNode;
   renderExtraIcons?: (node: DataNode) => React.ReactNode;
-  renderIcon?: (props: any) => React.ReactNode;
+  renderIcon?: (props: DataNode) => React.ReactNode;
   compactLevel?: number;
   /** 受控展开 keys（默认展开「表/关系」由调用方计算） */
   expandedKeys?: React.Key[];
   onExpand?: (keys: React.Key[]) => void;
 }
 
-const QueryTree: React.FC<QueryTreeProps> = ({
-  treeData,
-  onSelect,
-  onSearch,
-  searchValue = '',
-  searchEmpty = false,
-  onAdd,
-  renderActions,
-  renderExtraIcons,
-  renderIcon,
-  compactLevel = 0,
-  expandedKeys,
-  onExpand,
-}) => {
+/** rc-tree 实例上用于键盘漫游的方法（antd 未在 TS 暴露） */
+type RcTreeKeyboard = {
+  offsetActiveKey?: (offset: number) => void;
+  state?: { activeKey?: React.Key | null };
+};
+
+const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree(
+  {
+    treeData,
+    onSelect,
+    onSearch,
+    searchValue = '',
+    searchEmpty = false,
+    onAdd,
+    renderActions,
+    renderExtraIcons,
+    renderIcon,
+    compactLevel = 0,
+    expandedKeys,
+    onExpand,
+  },
+  ref,
+) {
   const containerRef = useRef<HTMLDivElement>(null);
+  const treeHostRef = useRef<HTMLDivElement>(null);
+  const treeRef = useRef<RcTreeKeyboard | null>(null);
   const [treeHeight, setTreeHeight] = useState(0);
-  /** 输入框本地态：Enter/搜索钮才 commit；× / 清空立即 commit 空串 */
+  /** 键盘漫游高亮 key（供 E2E / 焦点环，勿依赖 .ant-tree-treenode-active） */
+  const [kbActiveKey, setKbActiveKey] = useState<React.Key | null>(null);
+  /** 输入框本地态：Enter/搜索钮才 commit；× / 清空立刻 commit 空串 */
   const [draft, setDraft] = useState(searchValue);
 
   useEffect(() => {
@@ -66,12 +93,38 @@ const QueryTree: React.FC<QueryTreeProps> = ({
     return () => ro.disconnect();
   }, []);
 
+  useImperativeHandle(
+    ref,
+    () => ({
+      focusKeyboard: (opts) => {
+        const host = treeHostRef.current;
+        if (!host) {
+          return;
+        }
+        const input = host.querySelector<HTMLInputElement>(TREE_KEYBOARD_INPUT);
+        if (!input) {
+          return;
+        }
+        input.focus();
+        const tree = treeRef.current;
+        // 已有 active：只回焦点，保留漫游位置；否则 ↓首行 / ↑末行
+        if (tree?.state?.activeKey != null) {
+          return;
+        }
+        tree?.offsetActiveKey?.(opts?.direction === 'up' ? -1 : 1);
+      },
+    }),
+    [],
+  );
+
   const titleRender = (nodeData: DataNode) => {
     const level = nodeData.key.toString().split('-').length - 1;
     const paddingLeft = Math.max(0, (level - compactLevel) * 16);
+    const isKbActive = kbActiveKey != null && nodeData.key === kbActiveKey;
 
     return (
       <div
+        data-tree-kb-active={isKbActive ? '1' : undefined}
         style={{
           display: 'flex',
           alignItems: 'center',
@@ -93,7 +146,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
               ellipsis={{ tooltip: nodeData?.title }}
               style={{ width: '100%', fontSize: 12, lineHeight: `${TREE_ROW_HEIGHT}px` }}
             >
-              {nodeData.title}
+              {nodeData.title as React.ReactNode}
             </Text>
           </span>
 
@@ -108,7 +161,7 @@ const QueryTree: React.FC<QueryTreeProps> = ({
     );
   };
 
-  const defaultRenderIcon = (props: any) => {
+  const defaultRenderIcon = (props: DataNode & { isLeaf?: boolean }) => {
     if (props.isLeaf) {
       return <CodeOutlined style={{ color: erdColors.ink600 }} />;
     }
@@ -176,25 +229,31 @@ const QueryTree: React.FC<QueryTreeProps> = ({
           </div>
         ) : (
           treeHeight > 0 && (
-            <Tree.DirectoryTree
-              showIcon={false}
-              switcherIcon={<DownOutlined style={{ fontSize: 10 }} />}
-              onSelect={onSelect}
-              treeData={treeData}
-              expandAction="click"
-              titleRender={titleRender}
-              icon={renderIcon || defaultRenderIcon}
-              expandedKeys={expandedKeys}
-              onExpand={onExpand}
-              height={treeHeight}
-              itemHeight={TREE_ROW_HEIGHT}
-              blockNode
-            />
+            <div ref={treeHostRef} className="query-tree__tree-host">
+              <Tree.DirectoryTree
+                ref={(instance) => {
+                  treeRef.current = instance as unknown as RcTreeKeyboard | null;
+                }}
+                showIcon={false}
+                switcherIcon={<DownOutlined style={{ fontSize: 10 }} />}
+                onSelect={onSelect}
+                treeData={treeData}
+                expandAction="click"
+                titleRender={titleRender}
+                icon={(renderIcon || defaultRenderIcon) as DirectoryTreeProps['icon']}
+                expandedKeys={expandedKeys}
+                onExpand={onExpand}
+                onActiveChange={(key) => setKbActiveKey(key)}
+                height={treeHeight}
+                itemHeight={TREE_ROW_HEIGHT}
+                blockNode
+              />
+            </div>
           )
         )}
       </div>
     </div>
   );
-};
+});
 
 export default QueryTree;

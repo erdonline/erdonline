@@ -1,4 +1,4 @@
-import QueryTree from '@/components/QueryTree';
+import QueryTree, { type QueryTreeHandle } from '@/components/QueryTree';
 import useGlobalStore from "@/store/global/globalStore";
 import useProjectStore from "@/store/project/useProjectStore";
 import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
@@ -6,7 +6,7 @@ import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Empty, Menu, message, Modal, Tooltip, Typography } from 'antd';
 import type { MenuProps } from 'antd';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
@@ -45,8 +45,23 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [modalType, setModalType] = useState<'module' | 'entity' | 'relation'>('module');
   const [currentNode, setCurrentNode] = useState<any>(null);
+  const queryTreeRef = useRef<QueryTreeHandle>(null);
   // 默认展开到「表/关系」可操作层级（ADR-0017）；已见 key 不回顶用户的手动折叠
   const seenExpandableKeysRef = useRef<Set<string>>(new Set());
+
+  /** Skip 地标聚焦时：↓/↑/Enter 切入树键盘面（Tab 仍进搜索，无 trap） */
+  const onTreeLandmarkKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.target !== e.currentTarget) {
+      return;
+    }
+    if (e.key === 'ArrowDown' || e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      queryTreeRef.current?.focusKeyboard({ direction: 'down' });
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      queryTreeRef.current?.focusKeyboard({ direction: 'up' });
+    }
+  }, []);
 
   useEffect(() => {
     const expandable = (modules || []).flatMap((m: any) => [
@@ -543,6 +558,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       tabIndex={-1}
       role="navigation"
       aria-label="模型树"
+      onKeyDown={onTreeLandmarkKeyDown}
       style={{
         height: '100%',
         flex: 1,
@@ -553,6 +569,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     >
       {modules && modules.length > 0 ? (
         <QueryTree
+          ref={queryTreeRef}
           treeData={treeData}
           searchValue={searchKey || ''}
           searchEmpty={hasSearch && (!treeData || treeData.length === 0)}

@@ -21,12 +21,14 @@
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
 - ✅ 画布 chrome Tab 序：Controls（放大/缩小/适应/交互）→ 工具栏；MiniMap（d3-zoom）`tabindex=-1` 装饰出序、鼠标仍可拖；Controls `:focus-visible` brand 环；无 trap
+- ✅ 左树键盘漫游：Skip「跳到模型树」后 ↓/↑/Enter 切入树键盘面；方向键漫游、←→ 展开收起、Enter 定位表 / 打开关系图（同 `focusTable` / `tree-open-relation`）；active 行 brand 环；地标→Tab 仍进搜索（无 trap）
 - ❌ 设计原则写了 `?` 速查卡却无实现，Cmd+K / Delete 确认 / Tab 字段导航只能靠走查发现（历史问题）
 - ❌ 表设计字段网格工具栏 6/7 图标键盘不可达、remove 可聚焦但 Enter 无效、网格无 Tab 入口（历史问题）
 - ❌ 进设计器 Tab 先扫冗长顶栏，模型树/画布无 Skip、焦点环不可见（历史问题）
 - ❌ 表设计三签只能鼠标点，高手手不离键却要绕画布底栏（历史问题）
 - ❌ 画布未选中表字段与行内微按钮全进 Tab 序，密图键盘 trap（历史问题）
 - ❌ Controls→工具栏 Tab 经 MiniMap SVG trap；Controls 键盘环不可见（历史问题）
+- ❌ Skip 到模型树后只能 Tab 进搜索，方向键无法入树漫游、无法键盘开表/关系（历史问题）
 - ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ✅ 左树点表名 → 同语言定位到画布（切关系图签 + 选中 + fitView + `data-locate-flash`）；表设计走菜单「编辑表」
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）
