@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：工作台 databaseConfig 删/批删确认弹层键盘闭环（Modal.confirm）
+
+- 选题：`/databaseConfig` 行删与批删裸 `Modal.confirm`（okText「确认」、无显式 keyboard/autoFocus/focusTrigger）；仅有点击确认闭环 E2E
+- 改动：两路改 `confirmDestructive`（首焦「删除」+ Esc 归还触发器 + Tab trap）；行删钮 `aria-label`→`删除连接 {name}`；批删/落盘逻辑不变
+- E2E：`database-config-delete-keyboard`（行删 + 批删 → 首焦、Esc 归还不删、Tab trap）；同步 `adr0008` 确认钮文案
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享撤销/停用确认 Modal 键盘（`ShareProjectButton`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/database-config-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据源设置删确认弹层键盘闭环（Popconfirm→Modal.confirm）
 
 - 选题：设计器「数据源设置」行删用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；`removeDbs`/defaultDataSourceId 路径无键盘回归
 - 改动：`DatabaseSetUp` 行删改 `confirmDestructive`（首焦「删除」+ Esc 归还删钮 + Tab trap）；删钮补 `aria-label`；二次确认文案与 `removeDatabase`/`defaultDataSourceId` 清理逻辑不变
 - E2E：`database-setup-delete-keyboard`（新增→删确认 → 首焦、Esc 归还不删、外层配置窗仍开、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 工作台 databaseConfig 删/批删确认 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~工作台 databaseConfig 删/批删确认 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/database-setup-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

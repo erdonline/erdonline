@@ -16,10 +16,10 @@ import {
   Tooltip,
   Typography,
   message,
-  Modal,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import {confirmDestructive} from '@/utils/destructiveConfirm';
 import DatabaseConfigForm from './DatabaseConfigForm';
 import './database-config.scss';
 
@@ -133,10 +133,11 @@ const DatabaseConfigPage: React.FC = () => {
   }, [page, pageSize, keyword, loadData]);
 
   const handleDelete = (id: string) => {
-    Modal.confirm({
+    confirmDestructive({
       title: '确认删除',
       content: '您确定要删除这个数据库连接吗？此操作不可逆。',
-      okText: '确认',
+      okText: '删除',
+      okType: 'danger',
       cancelText: '取消',
       onOk: async () => {
         try {
@@ -155,10 +156,13 @@ const DatabaseConfigPage: React.FC = () => {
     });
   };
 
-  const handleBatchDelete = async () => {
-    Modal.confirm({
+  const handleBatchDelete = () => {
+    confirmDestructive({
       title: '确认删除',
       content: `您确定要删除选中的 ${selectedRowKeys.length} 条记录吗？`,
+      okText: '删除',
+      okType: 'danger',
+      cancelText: '取消',
       onOk: async () => {
         try {
           const res = await DEL(`${DATABASE_CONFIG_URL}/multiple_delete`, {
@@ -303,7 +307,7 @@ const DatabaseConfigPage: React.FC = () => {
               type="link"
               danger
               icon={<DeleteOutlined />}
-              aria-label="删除"
+              aria-label={`删除连接 ${record.name}`}
               onClick={() => handleDelete(record.id)}
             />
           </Tooltip>
