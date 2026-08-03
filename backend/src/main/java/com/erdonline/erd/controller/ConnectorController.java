@@ -108,7 +108,7 @@ public class ConnectorController {
     @PostMapping("dbsync")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
     public R dbsync(@RequestBody Map map) {
-        connectorCredentialResolver.apply(map);
+        connectorCredentialResolver.applyMutate(map);
         DbSyncCommand dbSyncCommand = new DbSyncCommand();
         R result = dbSyncCommand.exec(map);
         if (ApiErrorCode.OK.getCode() == result.getCode()) {
@@ -121,7 +121,7 @@ public class ConnectorController {
     @PostMapping("sqlexec")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
     public R sqlexec(@RequestBody Map map) {
-        connectorCredentialResolver.apply(map);
+        connectorCredentialResolver.applyMutate(map);
         DbSqlExecCommand dbSqlExecCommand = new DbSqlExecCommand();
         return dbSqlExecCommand.exec(map);
     }

@@ -15,6 +15,7 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -154,5 +155,48 @@ class ConnectorCredentialResolverTest {
         ValidateException ex = assertThrows(ValidateException.class, () -> resolver.apply(params));
         assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
         assertEquals("client-secret", params.get("password"));
+    }
+
+    @Test
+    void applyMutate_rejectsMissingDataSourceId() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("url", "jdbc:mysql://evil:3306/x");
+        params.put("password", "p");
+
+        ValidateException ex = assertThrows(ValidateException.class, () -> resolver.applyMutate(params));
+        assertTrue(ex.getMessage().contains("dataSourceId"));
+        assertEquals(ApiErrorCode.BAD_REQUEST.getCode(), ex.getStatus());
+        verifyNoInteractions(dataSourceAcl);
+        assertEquals("p", params.get("password"));
+    }
+
+    @Test
+    void applyMutate_rejectsBlankDataSourceId() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("dataSourceId", "  ");
+        params.put("url", "jdbc:mysql://evil:3306/x");
+
+        assertThrows(ValidateException.class, () -> resolver.applyMutate(params));
+        verifyNoInteractions(dataSourceAcl);
+    }
+
+    @Test
+    void applyMutate_resolvesOwnedId() {
+        DataSources owned = new DataSources();
+        owned.setId("ds-a");
+        owned.setUrl("jdbc:mysql://127.0.0.1:3306/erd");
+        owned.setUsername("erd");
+        owned.setPassword("server-secret");
+        owned.setDriverClassName("com.mysql.cj.jdbc.Driver");
+        when(dataSourceAcl.requireOwned("ds-a")).thenReturn(owned);
+
+        Map<String, Object> params = new HashMap<>();
+        params.put("dataSourceId", "ds-a");
+        params.put("password", "attacker");
+
+        resolver.applyMutate(params);
+
+        assertEquals("server-secret", params.get("password"));
+        assertEquals("jdbc:mysql://127.0.0.1:3306/erd", params.get("url"));
     }
 }
