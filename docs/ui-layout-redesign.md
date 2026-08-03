@@ -19,7 +19,7 @@
 
 1. **品牌壳（Brand Shell）**：无导航 chrome，内容居中/分栏。用于落地页、登录/注册、404/403。
 2. **工作台壳（Workspace Shell）**：顶栏 64px（`--erd-chrome-header-h`；logo + 主导航 + 右侧用户区）+ 内容区 `max-width: 1200px` 居中 + 页脚一行版权。用于 Home、dataModels、project/*、databaseConfig、account/settings。实现 = `HomeLayout` + 共享 `layouts/erd-chrome.less`（GroupLayout 同 chrome；**无全页 Watermark**）。
-3. **设计器壳（Designer Shell）**：顶栏 64px（同 chrome）+ 左树 320px + tabs ~28px（`--erd-tabs-h`，原 40，ADR-0016 密度）+ flex 画布。用于 `/design/*`（含 version / import / export / setting 标签页）。实现 = `DesignLayout`（antd Layout，W1 已摘 Pro；版本号在「更多」，无水印 clutter）。
+3. **设计器壳（Designer Shell）**：顶栏 64px（同 chrome）+ 左树 320px + tabs ~24px（`--erd-tabs-h`，原 40→28→24，ADR-0016 密度）+ flex 画布。用于 `/design/*`（含 version / import / export / setting 标签页）。实现 = `DesignLayout`（antd Layout，W1 已摘 Pro；版本号在「更多」，无水印 clutter）。
 
 **禁止发明第四种壳**；禁止回到 ProLayout/PageContainer 包裹任何页面（ADR-0014）。
 
@@ -162,7 +162,8 @@
 - ✅ **团队成员移除确认弹层键盘**（2026-08-03）：`GroupUser` Popconfirm→`confirmDestructive`；首焦「移除」；Esc 归还不移；Tab trap；`group-user-remove-keyboard.spec` 绿
 - ✅ **审批动作确认弹层键盘**（2026-08-03）：Pass/Refuse/Cancel/Repeat Popconfirm→`confirmDestructive`；首焦语义 OK；Esc 归还不落盘；Tab trap；死代码 `CopyVersion` 删除；`approval-action-keyboard.spec` 绿
 - ✅ **裸 Modal.confirm → confirmDestructive 清零**（2026-08-03）：版本重建基线/同步×2、逆向覆盖、画布删表·边·分组·字段、边 chip、JExcel 删行、表索引删；重建确认首焦「重建」+ Esc 归还重建钮；`version-rebuild-confirm-keyboard.spec` 绿
-- ✅ **Cmd+K 命令面板键盘 polish**（2026-08-03）：aria-modal + combobox/`aria-activedescendant`；↑↓ 滚动选中；无匹配「无匹配结果」分层空态；Esc 归还触发器；Tab 困在搜索；`relation.spec`「命令面板」绿；下一刀 → 签头密度（CommonTabs / 表设计再压且不 clip）
+- ✅ **Cmd+K 命令面板键盘 polish**（2026-08-03）：aria-modal + combobox/`aria-activedescendant`；↑↓ 滚动选中；无匹配「无匹配结果」分层空态；Esc 归还触发器；Tab 困在搜索；`relation.spec`「命令面板」绿
+- ✅ **签头密度再压**（2026-08-03）：CommonTabs `--erd-tabs-h` 24 + 表设计签头 ~24；不 clip 标签/关闭钮；focus-visible；`model-design-ux`「表设计三签」绿；下一刀 → 左树工具条再收 / chrome 次密距（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

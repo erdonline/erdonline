@@ -1,6 +1,6 @@
-/* ADR-0016：设计器签头与 22 chrome 同阶；禁历史 40px 松栏 */
+/* ADR-0016：设计器签头再压至 ~24（22 chrome 同阶）；禁 clip 标签/关闭钮；保留 focus-visible */
 .erd-common-tabs {
-  --erd-tabs-h: 28px;
+  --erd-tabs-h: 24px;
 
   .erd-common-tabs__tabs {
     height: 100%;
@@ -14,18 +14,34 @@
     flex-shrink: 0;
     background: var(--erd-surface-muted);
     border-bottom: 1px solid var(--erd-line);
+    /* 勿 overflow:hidden：会裁关闭钮与 inset focus 环 */
+    overflow: visible;
   }
 
-  .ant-tabs-nav-wrap,
+  .ant-tabs-nav-wrap {
+    height: var(--erd-tabs-h);
+    /* wrap 仍可横滚；竖直方向勿裁关闭钮 */
+    overflow-y: visible;
+  }
+
   .ant-tabs-nav-list {
     height: var(--erd-tabs-h);
+    align-items: stretch;
   }
 
   .ant-tabs-tab {
-    padding: 3px 8px !important;
-    line-height: 20px;
+    display: inline-flex !important;
+    align-items: center !important;
+    height: var(--erd-tabs-h) !important;
+    padding: 0 6px !important;
+    margin: 0 !important;
+    line-height: 18px;
     font-size: 12px;
     border-radius: 0 !important;
+    border-top: none !important;
+    border-bottom: none !important;
+    /* 竖直居中：禁靠 padding 堆高导致 clip */
+    box-sizing: border-box !important;
 
     &:focus-visible,
     &.ant-tabs-tab-focus {
@@ -35,25 +51,59 @@
     }
   }
 
-  .ant-tabs-tab-btn:focus-visible {
-    outline: 2px solid var(--erd-brand);
-    outline-offset: 1px;
+  .ant-tabs-tab-btn {
+    display: inline-flex;
+    align-items: center;
+    font-size: 12px;
+    line-height: 18px;
+    max-width: 120px;
   }
 
-  .ant-tabs-tab-btn {
+  .erd-common-tabs__label {
+    display: inline-block;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
     font-size: 12px;
-    line-height: 20px;
+    line-height: 18px;
+    color: var(--erd-ink-600);
+  }
+
+  .ant-tabs-tab-active .erd-common-tabs__label {
+    color: var(--erd-ink-900);
+  }
+
+  .ant-tabs-tab-btn:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -1px;
   }
 
   .ant-tabs-tab-remove {
+    display: inline-flex !important;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
     margin-left: 2px;
     margin-right: 0;
+    padding: 0 !important;
     font-size: 10px;
     width: 14px;
     height: 14px;
+    line-height: 1;
+    /* 关闭钮完整落在签内，不被 nav 裁切 */
+    overflow: visible;
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: 0;
+      border-radius: 2px;
+    }
   }
 
   .ant-tabs-nav-more {
+    display: inline-flex !important;
+    align-items: center;
     padding: 0 6px !important;
     height: var(--erd-tabs-h);
   }

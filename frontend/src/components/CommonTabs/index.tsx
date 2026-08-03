@@ -1,12 +1,11 @@
 import React, { useCallback, useMemo } from 'react';
-import { Dropdown, Menu, Tabs, TabsProps, Typography, Tooltip } from 'antd';
+import { Dropdown, Menu, Tabs, TabsProps, Tooltip } from 'antd';
 import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { CommonTabsProps } from './interface';
 import { CloseOutlined, LeftOutlined, RightOutlined, CloseCircleOutlined, EllipsisOutlined } from '@ant-design/icons';
 import './index.less';
 
 const { TabPane } = Tabs;
-const { Text } = Typography;
 
 const CommonTabs: React.FC<CommonTabsProps> = ({
     tabs,
@@ -84,9 +83,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
             <TabPane
                 tab={
                     <Tooltip title={tab.entity}>
-                        <Text type="secondary" ellipsis style={{ maxWidth: 120 }}>
-                            {tab.entity}
-                        </Text>
+                        <span className="erd-common-tabs__label">{tab.entity}</span>
                     </Tooltip>
                 }
                 key={`${tab.module}###${tab.entity}`}
