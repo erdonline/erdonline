@@ -82,6 +82,7 @@
 - [x] [解析ERD文件键盘] 项目菜单→解析ERD文件首焦上传区「选择ERD文件」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`reverse-erd-keyboard.spec.ts`
 - [x] [解析PdMan文件键盘] 项目菜单→解析PdMan文件首焦上传区「选择PdMan文件」；Esc 关窗归还「项目菜单」；Tab trap 在 dialog ✅`reverse-pdman-keyboard.spec.ts`
 - [x] [修改密码键盘] `/account/settings?selectKey=security` →「修改密码」首焦「密码」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`reset-password-keyboard.spec.ts`
+- [x] [修改密码失败不关窗] mock `settings/update` 业务码 → toast「模拟更新密码拒绝」+ 窗仍开 → 二次成功关窗+「更新密码信息成功」 ✅`reset-password-failure.spec.ts`
 - [x] [SQL审批键盘] 团队项目→版本「提交工单」→详情「SQL审批」首焦「审批人」；Esc 关窗归还触发器且父详情仍开；Tab trap ✅`sql-approval-keyboard.spec.ts`
 - [x] [添加成员键盘] 团队项目→权限组「团队普通成员」→「添加成员」首焦「选择用户」；Esc 关窗归还触发器；Tab trap ✅`add-user-keyboard.spec.ts`
 - [x] [只读分享键盘] 设计器顶栏「只读分享」首焦「分享链接」；Esc 关窗归还触发器；Tab trap ✅`share-project-keyboard.spec.ts`
