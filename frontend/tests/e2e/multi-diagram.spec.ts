@@ -281,4 +281,36 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }
   });
+
+  test('左树搜索：无匹配空态；× 清除残留过滤', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('treesrch');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'treesrch', 'tree search clear');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByRole('tree').getByText('T_TABLE_1', { exact: true })).toBeVisible();
+
+      const search = page.getByLabel('搜索表名');
+      await expect(search).toBeVisible();
+      await search.fill('___no_such_table___');
+      await search.press('Enter');
+
+      await expect(page.getByTestId('tree-search-empty')).toBeVisible();
+      await expect(page.getByText('未找到匹配的表')).toBeVisible();
+      await expect(page.getByRole('tree')).toHaveCount(0);
+
+      // antd allowClear ×（图标 a11y 名 close-circle；scope 左树，禁裸 .ant-*）
+      await page.getByTestId('query-tree').getByRole('button', { name: 'close-circle' }).click();
+      await expect(search).toHaveValue('');
+      await expect(page.getByTestId('tree-search-empty')).toHaveCount(0);
+      await expect(page.getByRole('tree').getByText('T_TABLE_1', { exact: true })).toBeVisible();
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
 });

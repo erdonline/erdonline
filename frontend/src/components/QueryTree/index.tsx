@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Tree, Input, Button, Typography } from 'antd';
+import { Tree, Input, Button, Typography, Empty } from 'antd';
 import { PlusOutlined, DownOutlined, FolderOutlined, CodeOutlined } from '@ant-design/icons';
 import type { DataNode } from 'antd/es/tree';
 import { erdColors } from '@/theme/tokens';
@@ -15,6 +15,10 @@ interface QueryTreeProps {
   treeData: DataNode[];
   onSelect: (selectedKeys: React.Key[], info: any) => void;
   onSearch: (value: string) => void;
+  /** 受控搜索词（与 store searchKey 同步；× 清除必须回写空串） */
+  searchValue?: string;
+  /** 有搜索词且无匹配表时，在树区展示空态（勿白屏） */
+  searchEmpty?: boolean;
   onAdd?: (() => void) | React.ReactNode; // 修改这里，允许函数或 React 节点
   renderActions?: (node: DataNode) => React.ReactNode;
   renderExtraIcons?: (node: DataNode) => React.ReactNode;
@@ -29,6 +33,8 @@ const QueryTree: React.FC<QueryTreeProps> = ({
   treeData,
   onSelect,
   onSearch,
+  searchValue = '',
+  searchEmpty = false,
   onAdd,
   renderActions,
   renderExtraIcons,
@@ -39,6 +45,12 @@ const QueryTree: React.FC<QueryTreeProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const [treeHeight, setTreeHeight] = useState(0);
+  /** 输入框本地态：Enter/搜索钮才 commit；× / 清空立即 commit 空串 */
+  const [draft, setDraft] = useState(searchValue);
+
+  useEffect(() => {
+    setDraft(searchValue);
+  }, [searchValue]);
 
   // 虚拟滚动需要显式高度；容器是 flex 弹性高，用 ResizeObserver 量（ADR-0017）
   useEffect(() => {
@@ -119,13 +131,32 @@ const QueryTree: React.FC<QueryTreeProps> = ({
     return null;
   };
 
+  const clearSearch = () => {
+    setDraft('');
+    onSearch('');
+  };
+
   return (
     <div className="query-tree" data-testid="query-tree">
       <div className="query-tree__toolbar">
         <Search
           size="small"
-          placeholder="搜索"
-          onSearch={onSearch}
+          placeholder="搜索表名"
+          aria-label="搜索表名"
+          value={draft}
+          onChange={(e) => {
+            const next = e.target.value;
+            setDraft(next);
+            // antd Search 的 onSearch 不随 allowClear 触发 → × 须立刻清过滤残留
+            if (!next) {
+              onSearch('');
+            }
+          }}
+          onSearch={(value) => {
+            setDraft(value);
+            onSearch(value);
+          }}
+          onClear={clearSearch}
           style={{ flex: 1 }}
           allowClear
         />
@@ -135,21 +166,31 @@ const QueryTree: React.FC<QueryTreeProps> = ({
         ref={containerRef}
         className={`tree-container custom-tree compact-tree compact-level-${compactLevel}`}
       >
-        {treeHeight > 0 && (
-          <Tree.DirectoryTree
-            showIcon={false}
-            switcherIcon={<DownOutlined style={{ fontSize: 10 }} />}
-            onSelect={onSelect}
-            treeData={treeData}
-            expandAction="click"
-            titleRender={titleRender}
-            icon={renderIcon || defaultRenderIcon}
-            expandedKeys={expandedKeys}
-            onExpand={onExpand}
-            height={treeHeight}
-            itemHeight={TREE_ROW_HEIGHT}
-            blockNode
-          />
+        {searchEmpty ? (
+          <div data-testid="tree-search-empty" className="query-tree__search-empty">
+            <Empty
+              image={Empty.PRESENTED_IMAGE_SIMPLE}
+              imageStyle={{ height: 48 }}
+              description={<span>未找到匹配的表</span>}
+            />
+          </div>
+        ) : (
+          treeHeight > 0 && (
+            <Tree.DirectoryTree
+              showIcon={false}
+              switcherIcon={<DownOutlined style={{ fontSize: 10 }} />}
+              onSelect={onSelect}
+              treeData={treeData}
+              expandAction="click"
+              titleRender={titleRender}
+              icon={renderIcon || defaultRenderIcon}
+              expandedKeys={expandedKeys}
+              onExpand={onExpand}
+              height={treeHeight}
+              itemHeight={TREE_ROW_HEIGHT}
+              blockNode
+            />
+          )
         )}
       </div>
     </div>

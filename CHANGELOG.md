@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：左树搜索 × 清过滤 + 无匹配空态（建模回路）
+
+- 选题：antd Search `onSearch` 不随 allowClear 触发 → 点 × 后输入空但 `searchKey` 残留，树仍过滤；无匹配时只剩空「表」文件夹、无引导
+- `QueryTree`：清空时立刻 `onSearch('')`；无匹配空态「未找到匹配的表」（`tree-search-empty`）；`aria-label=搜索表名`
+- `DataTable`：搜索时隐藏无命中实体的模型；零匹配走空态
+- E2E：`multi-diagram`「左树搜索：无匹配空态；× 清除残留过滤」
+- `docs/design-principles.md` §4；roadmap ✅ 本刀，下一刀 → 命令面板搜表定位/高亮（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "左树搜索" --workers=1 --retries=0`
+
 #### 体验：元数据应用修改/删除字段签对齐模板（建模回路）
 
 - 选题：「修改字段」子签挂了 `deleteFieldTemplate`（DROP），「删除字段」挂了 `updateFieldTemplate`（MODIFY）→ 错标 affordance，复制 DDL 可误伤；顺手去掉「创建索引」无效 `closable`
