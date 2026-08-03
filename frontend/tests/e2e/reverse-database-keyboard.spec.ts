@@ -53,6 +53,37 @@ test.describe('数据源逆向解析弹层键盘', () => {
         dialog.getByRole('combobox', { name: '数据源' }),
       ).toBeFocused({ timeout: 5_000 });
 
+      // ADR-0016：导入弹层 Steps 与次屏同阶；禁 mt16 / mb24
+      const stepsMetrics = await dialog.evaluate((el) => {
+        const steps = el.querySelector('.erd-io-modal__steps') as HTMLElement | null;
+        const title = steps?.querySelector(
+          '.ant-steps-item-title',
+        ) as HTMLElement | null;
+        const scs = steps ? getComputedStyle(steps) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        return {
+          stepsMt: scs ? parseFloat(scs.marginTop) : NaN,
+          stepsMb: scs ? parseFloat(scs.marginBottom) : NaN,
+          titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+        };
+      });
+      expect(
+        stepsMetrics.stepsMt,
+        `Steps marginTop 应 ≤10（禁 16），得 ${stepsMetrics.stepsMt}`,
+      ).toBeLessThanOrEqual(10);
+      expect(
+        stepsMetrics.stepsMb,
+        `Steps marginBottom 应 ≤12（禁 24），得 ${stepsMetrics.stepsMb}`,
+      ).toBeLessThanOrEqual(12);
+      expect(
+        stepsMetrics.titleFont,
+        `Steps 标题字应 ≤13，得 ${stepsMetrics.titleFont}`,
+      ).toBeLessThanOrEqual(13);
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-import-steps-dense.png',
+        fullPage: false,
+      });
+
       await assertTabTrap(dialog, page);
 
       await page.keyboard.press('Escape');

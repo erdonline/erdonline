@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：导入弹层 Steps 与次屏对齐
+
+- 选题：次屏 Steps 已 ≤10/12；菜单逆向/导出 DDL 弹层 `.erd-io-modal__steps` 仅 mb12、标题默认字号，与次屏断裂；ROI 高于 Cmd+K empty（少见路径）
+- `io-modal.scss`：`.erd-io-modal__steps` mt0/mb10 · 标题 12/20；禁 mt16/mb24
+- E2E：`reverse-database-keyboard` densify + 截图 `diagram-import-steps-dense.png`；`export-ddl-keyboard` Steps assert；键盘 Esc/Tab 意图不改
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Cmd+K empty pad densify（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/reverse-database-keyboard.spec.ts tests/e2e/export-ddl-keyboard.spec.ts tests/e2e/reverse-erd-keyboard.spec.ts tests/e2e/reverse-pdman-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
+
 #### 体验：设计器次屏碎密度（逆向 / DDL / 设置 / 同步配置）
 
 - 选题：Home 空态已密；次屏逆向 Steps 16/24 + 实体表 Card mb16 / 高级导出 DDL 无壳 / SyncConfig 裸 Modal / 设置 hint 仍略松；ROI 仍高于建模静默失败
 - 新增 `.erd-secondary-pane`：pad 8×12 · 标题 13/22 · Steps mt/mb ≤10/12 · 表单 28；挂逆向 / ERD·PdMan 拖入 / 高级导出 DDL；`ReverseTable` meta+表行次密 + brand 存量表色
 - `SyncConfig` → `.erd-io-modal`；设置 hint mb 8；版本空列表 pad 16×12；清 DesignLeftContent 死 less
 - E2E：`designer-secondary-pane` densify；截图 `diagram-secondary-pane-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布命令面板 empty pad / 导入弹层 steps 对齐（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~画布命令面板 empty pad / 导入弹层 steps 对齐~~✅（Steps 对齐）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/designer-secondary-pane.spec.ts --project=chromium --workers=1 --retries=0`

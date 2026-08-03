@@ -169,7 +169,7 @@
 - ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 10；禁 48 高输入 + 10/12 松行盖快捷回路
 - ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；禁仅「无匹配命令或表」一句无指引
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
-- ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧）；禁默认头脚松距盖项目菜单回路
+- ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧；Steps mt/mb ≤10/12 · 标题 12，与次屏同阶）；禁默认头脚松距 / Steps 16/24 盖项目菜单回路
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条控件 24 / 次密距 pad 4、sider-inner pad 4×6×0×8；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行 + pad 8/控件 28；禁 clip 图标；保留工具条/树 focus-visible
 - ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 24（再压，原 40→28）、字 12、flex 居中；表头 pad 2×10 / title 12；禁 clip 标签/关闭钮；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 24；hint/摘要色走 `--erd-ink-*` / success·brand·warning；禁 8×12 松行 + 16 标题、禁工具条 28 + rgba/`#389e0d` 碎色；禁 clip 图标；保留工具条 focus-visible
@@ -224,6 +224,7 @@
 - ❌ 命令面板输入 height 48 / 行 pad 10×12 松卡片，与 22 chrome 不同阶（历史问题）
 - ❌ 实体新建弹层默认 520 宽 + Form 24 间距松卡片，与 22 chrome 不同阶（历史问题）
 - ❌ 导入/导出 Modal 默认头脚松距 + 大号控件，与 22–28 chrome 不同阶（历史问题）
+- ❌ 导入/导出弹层 Steps 仅 mb12、标题默认字号，与次屏 Steps ≤10/12 断裂（历史问题）
 - ❌ 左树默认 ~28 行高 + 16 工具条松距，与 22 chrome 不同阶（历史问题）
 - ❌ CommonTabs 栏 40px + 表设计签头 10×16 松距，与 22 chrome 不同阶（历史问题）
 - ❌ 版本列表 8×12 松行 + 16 标题 / 工具条 28 + rgba 碎色，与 22–28 chrome / `--erd-*` 不同阶（历史问题）

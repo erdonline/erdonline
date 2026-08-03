@@ -32,6 +32,7 @@
 - [x] Home hero CTA 簇次密：actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候 ≥28；Skip→主区→CTA/二级入口/项目卡 + focus-visible 不回归 ✅`home-keyboard`
 - [x] Home 空态/公告次密：空态 pad ≤24×12；二级入口 mb ≤16；项目区 mb ≤20；公告 pt ≤4 / 行 pad ≤4·gap ≤10 / 标题 ≤13；空态 CTA +「更多公告」保留；键盘不回归 ✅`home-keyboard`
 - [x] 设计器次屏碎密度：逆向/DDL Steps ≤10/12；设置 hint mb≤8；SyncConfig `.erd-io-modal`；ReverseTable meta 次密 ✅`designer-secondary-pane`
+- [x] 导入/导出弹层 Steps 对齐：`.erd-io-modal__steps` mt/mb ≤10/12 · 标题 ≤13；与次屏同阶；键盘 Esc/Tab 不回归；截图 `diagram-import-steps-dense.png` ✅`reverse-database-keyboard` + `export-ddl-keyboard`
 - [x] 右键/树操作菜单密度：项高 ≤32（目标 ~28）/ font ≤13；图标·文案不 clip；`role=menuitem` + ArrowDown/Esc；截图 `diagram-context-menu-dense.png` ✅`model-design-ux.spec.ts`
 - [x] [字段签空态 CTA] 清字段→字段签见「还没有字段」+「添加第一个字段」→ 网格 + 画布 `id`；空态消失 ✅`table-field-empty.spec.ts`
 - [x] [画布空表字段 CTA] 清字段见 `canvas-fields-empty` +「添加第一个字段」→ 内联建 NAME → 空态消失 +「添加字段」 ✅`table-field-empty.spec.ts`

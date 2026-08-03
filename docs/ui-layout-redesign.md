@@ -180,7 +180,8 @@
 - ✅ **分享成功态 meta / 表清单次密**（2026-08-03）：stage 6×10 + meta gap2 / hint 12·16；表清单 pad 6×10·标题 12；弹层 `.erd-io-modal`；键盘/吊销不弱化；`demo`+`share-project-keyboard` densify 绿；下一刀 → ~~Home hero CTA 簇次密~~✅
 - ✅ **Home hero CTA 簇次密**（2026-08-03）：hero gap24/mb·pb16；actions gap8；secondary 4×10；主 CTA large + Skip/Tab 不弱化；`home-keyboard` densify 绿；下一刀 → ~~Home 空态/公告区次密~~✅
 - ✅ **Home 空态/公告次密**（2026-08-03）：空态 pad 24×12；二级入口 mb16；项目区 mb20；公告 pt4 / 行 pad4·gap10 / 标题 13；保留空态 CTA；`home-keyboard` empty/announce densify 绿；下一刀 → ~~设计器次屏碎密度~~✅
-- ✅ **设计器次屏碎密度**（2026-08-03）：`.erd-secondary-pane` 逆向/ERD·PdMan/高级DDL；`ReverseTable` meta；`SyncConfig`→io-modal；设置 hint mb8；`designer-secondary-pane` densify 绿；下一刀 → 命令面板 empty / 导入弹层 steps 对齐（视 ROI）
+- ✅ **设计器次屏碎密度**（2026-08-03）：`.erd-secondary-pane` 逆向/ERD·PdMan/高级DDL；`ReverseTable` meta；`SyncConfig`→io-modal；设置 hint mb8；`designer-secondary-pane` densify 绿；下一刀 → ~~导入弹层 Steps 对齐~~✅
+- ✅ **导入弹层 Steps 对齐**（2026-08-03）：`.erd-io-modal__steps` mt/mb ≤10/12 · 标题 12；与次屏同阶；`reverse-database-keyboard`+`export-ddl-keyboard` densify 绿；下一刀 → 命令面板 empty pad densify（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
