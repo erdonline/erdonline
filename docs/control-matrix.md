@@ -168,6 +168,7 @@
 | DesignLayout | Skip 跳过导航 | 首项 Tab「跳到模型树/主工作区」→ 地标 focus；无 trap | 焦点环审计 | ✅ | `relation`「设计器 Skip」 |
 | DesignLayout | 左树工具条密度 | 工具条 ≤32 / 控件 ∈24–28；图标不 clip；sider 次密距；新建 focus-visible | QueryTree toolbar + sider-inner | ✅ | `model-design-ux`「模型树」 |
 | DesignLayout | 版本列表二次密度 | 工具条控件 ∈24–28；图标不 clip；token 色；新增钮 focus-visible；键盘弹层不回归 | version-page toolbar/list | ✅ | `version.spec`「版本列表行密度」+ `version-action-modals-keyboard` |
+| DesignLayout | 工单/审批列表密度 | 标题栏 ~24；行 pad 4×8；动作钮 ∈22–28；图标不 clip；focus-visible；确认键盘不回归 | approval-workorder-page | ✅ | `approval.spec`「工单/审批列表行密度」+ `approval-action-keyboard` |
 | DesignLayout | 左树键盘漫游 | Skip→↓入树；方向键+Enter 定位表/开关系；active brand 环；Tab 进搜索无 trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation`「左树键盘漫游」 |
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
 | RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |

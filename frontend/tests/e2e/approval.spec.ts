@@ -258,4 +258,174 @@ test.describe('版本工单/审批', () => {
       await deleteGroup(request, token, projectId).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：工单/审批列表密度 — 标题栏 ~24 + 行 pad 4×8；禁 clip 图标；保留动作钮 focus-visible
+   */
+  test('工单/审批列表行密度：与 22–28 chrome 同阶', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const account = e2eAccount();
+    const approverId = `e2e-user-${test.info().parallelIndex}`;
+    const projectName = uniqueProjectName('appr-dens');
+    const remark = `e2e-appr-dens-${Date.now().toString(36)}`;
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(request, token, projectName);
+    let approvalId = '';
+
+    try {
+      approvalId = await seedApproval(request, token, projectId, approverId, remark);
+
+      await login(page, account);
+      await page.goto(`/design/table/model?projectId=${projectId}`);
+      await expect(page).toHaveURL(/projectId=/, { timeout: 15_000 });
+
+      const assertDense = async (
+        pageTestId: string,
+        toolbarTestId: string,
+        titleTestId: string,
+        actionName: string,
+        shotName: string,
+      ) => {
+        const pageEl = page.getByTestId(pageTestId);
+        await expect(pageEl).toBeVisible({ timeout: 15_000 });
+        await expect(page.getByTestId(titleTestId)).toBeVisible();
+        const row = pageEl.getByRole('row').filter({ hasText: remark });
+        await expect(row).toBeVisible({ timeout: 15_000 });
+        const actionBtn = row.getByRole('button', { name: actionName });
+        await expect(actionBtn).toBeVisible();
+
+        const metrics = await pageEl.evaluate(
+          (root, args) => {
+            const { toolbarId, titleId, actionLabel } = args;
+            const toolbar = root.querySelector(
+              `[data-testid="${toolbarId}"]`,
+            ) as HTMLElement | null;
+            const title = root.querySelector(
+              `[data-testid="${titleId}"]`,
+            ) as HTMLElement | null;
+            const rows = Array.from(
+              root.querySelectorAll('.ant-table-tbody > tr'),
+            ) as HTMLElement[];
+            const bodyRow =
+              rows.find((r) => (r.textContent || '').includes(args.remark)) || null;
+            const cell = bodyRow?.querySelector('td') as HTMLElement | null;
+            const buttons = bodyRow
+              ? (Array.from(bodyRow.querySelectorAll('button')) as HTMLElement[])
+              : [];
+            const action = buttons.find((b) =>
+              (b.textContent || '').includes(actionLabel),
+            ) as HTMLElement | undefined;
+            const eps = 1;
+            const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+              inner.top >= outer.top - eps &&
+              inner.bottom <= outer.bottom + eps &&
+              inner.left >= outer.left - eps &&
+              inner.right <= outer.right + eps;
+            let iconClipped = false;
+            if (action) {
+              const icon = action.querySelector('.anticon, svg') as HTMLElement | null;
+              if (icon) {
+                iconClipped = !fullyIn(
+                  icon.getBoundingClientRect(),
+                  action.getBoundingClientRect(),
+                );
+              }
+            }
+            const tcs = title ? getComputedStyle(title) : null;
+            const cellCs = cell ? getComputedStyle(cell) : null;
+            return {
+              titleFont: tcs ? parseFloat(tcs.fontSize) : -1,
+              titleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
+              toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+              padBlock: cellCs
+                ? parseFloat(cellCs.paddingTop) + parseFloat(cellCs.paddingBottom)
+                : -1,
+              padInline: cellCs
+                ? parseFloat(cellCs.paddingLeft) + parseFloat(cellCs.paddingRight)
+                : -1,
+              actionH: action ? action.getBoundingClientRect().height : -1,
+              iconClipped,
+            };
+          },
+          {
+            toolbarId: toolbarTestId,
+            titleId: titleTestId,
+            actionLabel: actionName,
+            remark,
+          },
+        );
+
+        expect(
+          metrics.titleFont,
+          `页标题字号应 ≤14（目标 13），得 ${metrics.titleFont}`,
+        ).toBeLessThanOrEqual(14);
+        expect(metrics.titleFont).toBeGreaterThanOrEqual(12);
+        expect(
+          metrics.titleLh,
+          `页标题行高应 ≤24（目标 22），得 ${metrics.titleLh}`,
+        ).toBeLessThanOrEqual(24);
+        expect(
+          metrics.toolbarH,
+          `标题栏高应 ≤32（目标 ~24），得 ${metrics.toolbarH}`,
+        ).toBeLessThanOrEqual(32);
+        expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
+        expect(
+          metrics.padBlock,
+          `表细胞 padding-block 合计应 ≤10（目标 4+4），得 ${metrics.padBlock}`,
+        ).toBeLessThanOrEqual(10);
+        expect(metrics.padBlock).toBeGreaterThanOrEqual(4);
+        expect(
+          metrics.padInline,
+          `表细胞 padding-inline 合计应 ≤20（目标 8+8），得 ${metrics.padInline}`,
+        ).toBeLessThanOrEqual(20);
+        expect(
+          metrics.actionH,
+          `${actionName}钮高应 ∈22–28，得 ${metrics.actionH}`,
+        ).toBeGreaterThanOrEqual(22);
+        expect(metrics.actionH).toBeLessThanOrEqual(28);
+        expect(metrics.iconClipped, `${actionName}图标不得裁切`).toBe(false);
+
+        await row.getByRole('button', { name: '查看' }).focus();
+        await page.keyboard.press('Shift+Tab');
+        await expect(actionBtn).toBeFocused();
+        const focusRing = await actionBtn.evaluate((el) => {
+          const cs = getComputedStyle(el);
+          return {
+            outlineStyle: cs.outlineStyle,
+            outlineWidth: cs.outlineWidth,
+          };
+        });
+        expect(focusRing.outlineStyle).not.toBe('none');
+        expect(parseFloat(focusRing.outlineWidth)).toBeGreaterThanOrEqual(1);
+
+        await page.screenshot({
+          path: `test-results/ux-walkthrough/${shotName}`,
+          fullPage: false,
+        });
+      };
+
+      await gotoVersionSub(page, 'approval');
+      await assertDense(
+        'approval-page',
+        'approval-toolbar',
+        'page-title-approvals',
+        '拒绝',
+        'approval-list-dense.png',
+      );
+
+      await gotoVersionSub(page, 'order');
+      await assertDense(
+        'order-page',
+        'order-toolbar',
+        'page-title-orders',
+        '撤销',
+        'order-list-dense.png',
+      );
+    } finally {
+      if (approvalId) {
+        await deleteApproval(request, token, approvalId).catch(() => {});
+      }
+      await deleteGroup(request, token, projectId).catch(() => {});
+    }
+  });
 });
