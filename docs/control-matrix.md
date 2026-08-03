@@ -139,6 +139,8 @@
 | `/design/table/model` | 内联字段/连线/守卫 | 持久化刷新仍在；chnname/defaultValue 行内；删字段二次确认（× / 选中 Delete·Backspace） | | ✅ | `relation` |
 | `/design/table/model` | 表节点「索引」`canvas-open-index` | 直达表设计索引签（`aria-selected`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开索引签」 |
 | `/design/table/model` | 索引签空态 CTA `index-empty-add` | 「添加第一个索引」→ 种子行 + 表格；无白屏 | | ✅ | `relation`「索引签空态 CTA」 |
+| `/design/table/model` | 字段签空态 CTA `field-empty-add` | 「添加第一个字段」→ 种子首 defaultField / id + 表格；无白屏 | | ✅ | `table-field-empty` |
+| `/design/table/model` | 画布空表字段 CTA `canvas-fields-empty` | 「添加第一个字段」→ 内联新建；有字段后回「添加字段」 | | ✅ | `table-field-empty` |
 | `/design/table/model` | 索引签再加一行 `index-add-row` | 已有索引后「+ 再添加一条索引」→ 追加种子行；无死 affordance | | ✅ | `relation`「索引签再加一行 CTA」 |
 | `/design/table/model` | 索引签删除 `index-delete-N` | 「删除索引 `{name}`」→ Modal 确认才删；取消保留；删空回空态 CTA；键盘首焦/Esc/Tab trap | | ✅ | `relation`「索引签删除二次确认」+`table-index-delete-keyboard` |
 | `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast；键盘首焦/Esc/Tab trap | | ✅ | `relation`「JExcel 工具栏删除二次确认」+`jexcel-toolbar-delete-keyboard` |

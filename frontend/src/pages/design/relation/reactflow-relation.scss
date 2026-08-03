@@ -707,6 +707,26 @@
       }
     }
 
+    .erd-table-fields-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      gap: 6px;
+      margin: 6px 8px 8px;
+      padding: 10px 8px 8px;
+      border: 1px dashed var(--erd-line);
+      border-radius: var(--erd-radius-sm);
+      background: var(--erd-surface-sunk);
+    }
+
+    .erd-table-fields-empty__hint {
+      margin: 0;
+      text-align: center;
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--erd-ink-600);
+    }
+
     .erd-field-add {
       display: block;
       width: calc(100% - 16px);
@@ -732,6 +752,21 @@
       &:focus-visible {
         outline: 2px solid var(--erd-brand);
         outline-offset: 1px;
+      }
+
+      // 空表主 CTA：品牌色可发现，禁灰虚线埋进白壳
+      &.erd-field-add--cta {
+        width: 100%;
+        margin: 0;
+        padding: 4px 0;
+        color: var(--erd-brand);
+        font-weight: 600;
+        border-color: color-mix(in srgb, var(--erd-brand) 45%, var(--erd-line));
+        background: color-mix(in srgb, var(--erd-brand) 6%, transparent);
+
+        &:hover {
+          background: color-mix(in srgb, var(--erd-brand) 12%, transparent);
+        }
       }
     }
 

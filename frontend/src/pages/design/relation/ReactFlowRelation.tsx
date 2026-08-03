@@ -947,7 +947,28 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           )
         )}
         {editing?.key === '__NEW__' && editRow('__NEW__')}
-        {editing === null && (
+        {editing === null && fields.length === 0 && (
+          <div className="erd-table-fields-empty" data-testid="canvas-fields-empty">
+            <p className="erd-table-fields-empty__hint">还没有字段</p>
+            <button
+              type="button"
+              className="erd-field-add erd-field-add--cta nodrag"
+              data-testid="canvas-add-field"
+              aria-label="添加第一个字段"
+              tabIndex={selected ? 0 : -1}
+              onClick={() => {
+                setSelectedField(null);
+                setEditing({
+                  key: '__NEW__', name: '', chnname: '', type: 'String', defaultValue: '',
+                  pk: false, notNull: false, autoIncrement: false,
+                });
+              }}
+            >
+              + 添加第一个字段
+            </button>
+          </div>
+        )}
+        {editing === null && fields.length > 0 && (
           <button
             type="button"
             className="erd-field-add nodrag"
@@ -2184,10 +2205,41 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         ensureTables: (total: number) => number;
         setViewport: (vp: { x: number; y: number; zoom: number }) => void;
         getDiagramGroups: () => DiagramFrame[];
+        /** 清空指定表全字段（含 relationNoShow）；造「空表/空表设计」空态 */
+        clearEntityFields: (entityTitle: string) => boolean;
       };
     };
     w.__ERD_E2E__ = {
       getDiagramGroups: () => getActiveDiagramFrames(currentModule, activeDiagramId),
+      clearEntityFields: (entityTitle: string) => {
+        const state = useProjectStore.getState();
+        const modName = moduleEntity.module;
+        const project = state.project;
+        const modules = project?.projectJSON?.modules || [];
+        const modIdx = modules.findIndex((m: any) => m.name === modName);
+        if (modIdx < 0) return false;
+        const entIdx = (modules[modIdx].entities || []).findIndex(
+          (e: any) => (e.title || e.name) === entityTitle,
+        );
+        if (entIdx < 0) return false;
+        const nextModules = modules.map((m: any, i: number) => {
+          if (i !== modIdx) return m;
+          const entities = (m.entities || []).map((e: any, j: number) =>
+            j === entIdx ? { ...e, fields: [] } : e,
+          );
+          return { ...m, entities };
+        });
+        useProjectStore.setState({
+          project: {
+            ...project,
+            projectJSON: {
+              ...project.projectJSON,
+              modules: nextModules,
+            },
+          },
+        });
+        return true;
+      },
       ensureTables: (total: number) => {
         const state = useProjectStore.getState();
         const modName = moduleEntity.module;

@@ -2,12 +2,12 @@ import useProjectStore from "@/store/project/useProjectStore";
 import { ModuleEntity } from "@/store/tab/useTabStore";
 import 'handsontable/dist/handsontable.full.css';
 import "handsontable/languages/zh-CN";
-import React, { useMemo, useRef } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 // @ts-ignore
 import JExcel from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
-import { Button } from 'antd';
+import { Button, Empty } from 'antd';
 
 export type TableInfoEditProps = {
   moduleEntity: ModuleEntity;
@@ -15,10 +15,25 @@ export type TableInfoEditProps = {
   onOpenIndex?: () => void;
 };
 
+type FieldRow = {
+  name?: string;
+  chnname?: string;
+  type?: string;
+  typeName?: string;
+  pk?: boolean;
+  notNull?: boolean;
+  autoIncrement?: boolean;
+  relationNoShow?: boolean;
+  defaultValue?: string;
+  [key: string]: unknown;
+};
+
+const hasNamedFields = (fields: FieldRow[] | undefined) =>
+  (fields || []).some((f) => !!f?.name);
+
 const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   const containerRef = useRef<HTMLDivElement>(null);
-
-
+  const { module, entity: entityName } = props.moduleEntity;
 
   const {datatype, entity, projectDispatch, currentModule} = useProjectStore(state => ({
     entity: state.project?.projectJSON?.modules[state.currentModuleIndex || 0]?.entities[state.currentEntityIndex || 0],
@@ -28,33 +43,97 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
     currentModule: state.currentModule,
   }), shallow);
 
+  const fields: FieldRow[] = Array.isArray(entity?.fields) ? entity.fields : [];
+  const named = hasNamedFields(fields);
+  /** 无字段时先空态；CTA 后可暂展空表再填 */
+  const [started, setStarted] = useState(false);
 
+  useEffect(() => {
+    setStarted(false);
+  }, [module, entityName]);
 
-
-
-  // 由于 zustand 冻结了所有属性，均不可直接编辑，所以需要做一次转换
-  const s = JSON.stringify(entity?.fields || [{}]);
-
-  const afterChange = (payload: any) => {
+  const afterChange = (payload: FieldRow[]) => {
     if (currentModule && entity) {
       projectDispatch.updateEntityFields(currentModule, entity.title || entity.name, payload);
     } else {
       console.error('当前模块或实体未定义');
     }
-  }
+  };
 
-  const data = JSON.parse(s);
+  const addFirstField = () => {
+    if (!currentModule || !entity) {
+      setStarted(true);
+      return;
+    }
+    const defaults = (projectDispatch.getDefaultFields?.() || []).filter(
+      (f: FieldRow | null | undefined) => f != null && !!f.name,
+    ) as FieldRow[];
+    if (defaults.length > 0) {
+      projectDispatch.updateEntityFields(
+        currentModule,
+        entity.title || entity.name,
+        [JSON.parse(JSON.stringify(defaults[0]))],
+      );
+      return;
+    }
+    const typeMeta = datatype?.[0];
+    projectDispatch.updateEntityFields(currentModule, entity.title || entity.name, [
+      {
+        name: 'id',
+        chnname: '主键',
+        type: typeMeta?.code || 'IdOrKey',
+        typeName: typeMeta?.name || 'String',
+        pk: true,
+        notNull: true,
+        autoIncrement: false,
+        relationNoShow: false,
+        defaultValue: '',
+      },
+    ]);
+  };
+
   const columns = useMemo(() => [
-    ...column1, 
+    ...column1,
     {
       title: '类型*',
       name: 'typeName',
       type: 'dropdown',
-      source: datatype?.map((t: any) => t.name) || [],
+      source: datatype?.map((t: { name?: string }) => t.name) || [],
       width: 150,
     },
     ...column2
   ], [datatype]);
+
+  if (!named && !started) {
+    return (
+      <div
+        ref={containerRef}
+        data-testid="table-field-edit"
+        className="erd-table-field-empty"
+      >
+        <Empty
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={
+            <span data-testid="field-empty-hint">
+              还没有字段。添加第一个字段开始设计表结构
+            </span>
+          }
+        >
+          <Button
+            type="primary"
+            size="small"
+            data-testid="field-empty-add"
+            aria-label="添加第一个字段"
+            onClick={addFirstField}
+          >
+            添加第一个字段
+          </Button>
+        </Empty>
+      </div>
+    );
+  }
+
+  const data = JSON.parse(JSON.stringify(named ? fields : [{}]));
 
   return (
     <div
