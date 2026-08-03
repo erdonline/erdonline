@@ -42,6 +42,8 @@ const buildDdl = (t: TriggerRow, tableTitle: string): string => {
   return `CREATE TRIGGER \`${name}\` ${timing} ${event} ON \`${tableTitle}\` FOR EACH ${orient}\n${body}`;
 };
 
+type EditorMode = 'add' | 'edit';
+
 const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
   const { module, entity: entityName } = props.moduleEntity;
   const projectDispatch = useProjectStore((s) => s.dispatch);
@@ -58,12 +60,15 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
   const entityTitle = entity?.title || entity?.name || entityName;
   const [saving, setSaving] = useState(false);
   const [selected, setSelected] = useState<number | null>(null);
-  const [addOpen, setAddOpen] = useState(false);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [editorMode, setEditorMode] = useState<EditorMode>('add');
+  const [editIndex, setEditIndex] = useState<number | null>(null);
   const [form] = Form.useForm();
 
   useEffect(() => {
     setSelected(null);
-    setAddOpen(false);
+    setModalOpen(false);
+    setEditIndex(null);
     form.resetFields();
   }, [module, entityName, form]);
 
@@ -91,6 +96,13 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
     }
   };
 
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+    setEditIndex(null);
+    form.resetFields();
+  };
+
   const openAdd = () => {
     const base = triggerNameBase(entity || { title: entityTitle });
     form.setFieldsValue({
@@ -101,10 +113,29 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       statement: '',
       ddl: '',
     });
-    setAddOpen(true);
+    setEditorMode('add');
+    setEditIndex(null);
+    setModalOpen(true);
   };
 
-  const submitAdd = async () => {
+  const openEdit = (rowIndex: number) => {
+    const target = triggers[rowIndex];
+    if (!target) return;
+    form.setFieldsValue({
+      name: target.name || '',
+      timing: target.timing || 'BEFORE',
+      event: target.event || 'UPDATE',
+      orientation: target.orientation || 'ROW',
+      statement: target.statement || '',
+      ddl: target.ddl || '',
+    });
+    setEditorMode('edit');
+    setEditIndex(rowIndex);
+    setSelected(rowIndex);
+    setModalOpen(true);
+  };
+
+  const submitEditor = async () => {
     let values: TriggerRow;
     try {
       values = await form.validateFields();
@@ -116,35 +147,63 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       message.error('触发器名不能为空');
       return;
     }
-    if (triggers.some((t) => t.name === name)) {
+    const conflict = triggers.some((t, i) => {
+      if (editorMode === 'edit' && i === editIndex) return false;
+      return t.name === name;
+    });
+    if (conflict) {
       message.error(`触发器名重复: ${name}`);
       return;
     }
+    const timing = values.timing || 'BEFORE';
+    const event = values.event || 'UPDATE';
+    const orientation = values.orientation || 'ROW';
+    const statement = (values.statement || '').trim();
+    const formDdl = (values.ddl || '').trim();
+    const original =
+      editorMode === 'edit' && editIndex != null ? triggers[editIndex] : null;
+    // 结构字段变了但 DDL 文本未动 → 按字段重建，避免逆向/自动 ddl 盖住语句体改动
+    const structuralChanged =
+      !!original &&
+      (name !== (original.name || '') ||
+        timing !== (original.timing || 'BEFORE') ||
+        event !== (original.event || 'UPDATE') ||
+        orientation !== (original.orientation || 'ROW') ||
+        statement !== (original.statement || '').trim());
+    const ddlInput =
+      original && formDdl === (original.ddl || '').trim() && structuralChanged
+        ? ''
+        : formDdl;
     const row: TriggerRow = {
       name,
-      timing: values.timing || 'BEFORE',
-      event: values.event || 'UPDATE',
-      orientation: values.orientation || 'ROW',
-      statement: (values.statement || '').trim(),
+      timing,
+      event,
+      orientation,
+      statement,
       ddl: buildDdl(
         {
           name,
-          timing: values.timing,
-          event: values.event,
-          orientation: values.orientation,
-          statement: values.statement,
-          ddl: values.ddl,
+          timing,
+          event,
+          orientation,
+          statement,
+          ddl: ddlInput,
         },
         entityTitle,
       ),
     };
     setSaving(true);
     try {
-      const ok = await persistTriggers([...triggers, row]);
+      const next =
+        editorMode === 'edit' && editIndex != null
+          ? triggers.map((t, i) => (i === editIndex ? row : t))
+          : [...triggers, row];
+      const ok = await persistTriggers(next);
       if (ok) {
-        setAddOpen(false);
+        setModalOpen(false);
         form.resetFields();
-        setSelected(triggers.length);
+        setSelected(editorMode === 'edit' && editIndex != null ? editIndex : triggers.length);
+        setEditIndex(null);
       }
     } finally {
       setSaving(false);
@@ -210,12 +269,13 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
             添加第一个触发器
           </Button>
         </Empty>
-        <TriggerAddModal
-          open={addOpen}
+        <TriggerEditorModal
+          open={modalOpen}
+          mode={editorMode}
           form={form}
           saving={saving}
-          onCancel={() => setAddOpen(false)}
-          onOk={() => void submitAdd()}
+          onCancel={closeModal}
+          onOk={() => void submitEditor()}
         />
       </div>
     );
@@ -228,7 +288,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       aria-busy={saving || undefined}
     >
       <p className="erd-table-trigger-hint" data-testid="trigger-list-hint">
-        列表 + 查看 DDL；保存走 saveProject（仅 200 写 store）。DBML 不互导触发器。
+        列表 + 编辑 + 查看 DDL；保存走 saveProject（仅 200 写 store）。DBML 不互导触发器。
       </p>
       <ul
         className="erd-table-trigger-list"
@@ -259,6 +319,16 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                   {[t.timing, t.event].filter(Boolean).join(' · ') || '—'}
                 </span>
               </button>
+              <Button
+                type="link"
+                size="small"
+                data-testid={`trigger-edit-${i}`}
+                aria-label={`编辑触发器 ${name}`}
+                disabled={saving}
+                onClick={() => openEdit(i)}
+              >
+                编辑
+              </Button>
               <Button
                 danger
                 type="link"
@@ -320,107 +390,137 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           选择一条触发器以查看 DDL
         </p>
       )}
-      <TriggerAddModal
-        open={addOpen}
+      <TriggerEditorModal
+        open={modalOpen}
+        mode={editorMode}
         form={form}
         saving={saving}
-        onCancel={() => setAddOpen(false)}
-        onOk={() => void submitAdd()}
+        onCancel={closeModal}
+        onOk={() => void submitEditor()}
       />
     </div>
   );
 };
 
-type AddModalProps = {
+type EditorModalProps = {
   open: boolean;
+  mode: EditorMode;
   form: FormInstance;
   saving: boolean;
   onCancel: () => void;
   onOk: () => void;
 };
 
-const TriggerAddModal: React.FC<AddModalProps> = ({
+const TriggerEditorModal: React.FC<EditorModalProps> = ({
   open,
+  mode,
   form,
   saving,
   onCancel,
   onOk,
-}) => (
-  <Modal
-    title="添加触发器"
-    open={open}
-    onCancel={onCancel}
-    onOk={onOk}
-    okText="保存"
-    cancelText="取消"
-    confirmLoading={saving}
-    destroyOnClose
-    width={480}
-    className="erd-io-modal"
-    okButtonProps={{ 'aria-label': '确认添加触发器' }}
-    cancelButtonProps={{ 'aria-label': '取消添加触发器' }}
-  >
-    <Form form={form} layout="vertical" size="small" requiredMark={false}>
-      <Form.Item
-        name="name"
-        label="名称"
-        rules={[{ required: true, message: '请输入触发器名' }]}
-      >
-        <Input
-          data-testid="trigger-form-name"
-          aria-label="触发器名称"
-          autoComplete="off"
-        />
-      </Form.Item>
-      <Space size={8} style={{ width: '100%' }} wrap>
-        <Form.Item name="timing" label="时机" style={{ marginBottom: 8, minWidth: 120 }}>
-          <Select
-            options={TIMING_OPTS.map((v) => ({ value: v, label: v }))}
-            aria-label="触发时机"
-            data-testid="trigger-form-timing"
+}) => {
+  const isEdit = mode === 'edit';
+  const title = isEdit ? '编辑触发器' : '添加触发器';
+  const okAria = isEdit ? '确认保存触发器' : '确认添加触发器';
+  const cancelAria = isEdit ? '取消编辑触发器' : '取消添加触发器';
+
+  return (
+    <Modal
+      title={title}
+      open={open}
+      onCancel={onCancel}
+      onOk={onOk}
+      okText="保存"
+      cancelText="取消"
+      confirmLoading={saving}
+      destroyOnClose
+      width={480}
+      className="erd-io-modal"
+      rootClassName="erd-io-modal-root"
+      keyboard={!saving}
+      maskClosable={!saving}
+      focusTriggerAfterClose
+      okButtonProps={{ 'aria-label': okAria }}
+      cancelButtonProps={{ 'aria-label': cancelAria }}
+      afterOpenChange={(visible) => {
+        if (!visible) return;
+        const tryFocus = (attempt = 0) => {
+          const input = document.querySelector<HTMLInputElement>(
+            '.erd-io-modal-root input[data-testid="trigger-form-name"]',
+          );
+          if (input) {
+            input.focus();
+            input.select?.();
+            return;
+          }
+          if (attempt >= 20) return;
+          window.setTimeout(() => tryFocus(attempt + 1), 50);
+        };
+        window.setTimeout(() => tryFocus(), 0);
+      }}
+    >
+      <Form form={form} layout="vertical" size="small" requiredMark={false}>
+        <Form.Item
+          name="name"
+          label="名称"
+          rules={[{ required: true, message: '请输入触发器名' }]}
+        >
+          <Input
+            data-testid="trigger-form-name"
+            aria-label="触发器名称"
+            autoComplete="off"
           />
         </Form.Item>
-        <Form.Item name="event" label="事件" style={{ marginBottom: 8, minWidth: 120 }}>
-          <Select
-            options={EVENT_OPTS.map((v) => ({ value: v, label: v }))}
-            aria-label="触发事件"
-            data-testid="trigger-form-event"
+        <Space size={8} style={{ width: '100%' }} wrap>
+          <Form.Item name="timing" label="时机" style={{ marginBottom: 8, minWidth: 120 }}>
+            <Select
+              options={TIMING_OPTS.map((v) => ({ value: v, label: v }))}
+              aria-label="触发时机"
+              data-testid="trigger-form-timing"
+            />
+          </Form.Item>
+          <Form.Item name="event" label="事件" style={{ marginBottom: 8, minWidth: 120 }}>
+            <Select
+              options={EVENT_OPTS.map((v) => ({ value: v, label: v }))}
+              aria-label="触发事件"
+              data-testid="trigger-form-event"
+            />
+          </Form.Item>
+          <Form.Item
+            name="orientation"
+            label="粒度"
+            style={{ marginBottom: 8, minWidth: 120 }}
+          >
+            <Select
+              options={ORIENT_OPTS.map((v) => ({ value: v, label: v }))}
+              aria-label="触发粒度"
+              data-testid="trigger-form-orientation"
+            />
+          </Form.Item>
+        </Space>
+        <Form.Item name="statement" label="语句体" style={{ marginBottom: 8 }}>
+          <Input.TextArea
+            rows={3}
+            data-testid="trigger-form-statement"
+            aria-label="触发器语句体"
+            placeholder="SET NEW.updated_at = NOW()"
           />
         </Form.Item>
         <Form.Item
-          name="orientation"
-          label="粒度"
-          style={{ marginBottom: 8, minWidth: 120 }}
+          name="ddl"
+          label="DDL（可选，空则按时机/事件重建）"
+          style={{ marginBottom: 0 }}
         >
-          <Select
-            options={ORIENT_OPTS.map((v) => ({ value: v, label: v }))}
-            aria-label="触发粒度"
-            data-testid="trigger-form-orientation"
+          <Input.TextArea
+            rows={3}
+            data-testid="trigger-form-ddl"
+            aria-label="触发器 DDL"
+            placeholder="留空则自动生成 CREATE TRIGGER …"
           />
         </Form.Item>
-      </Space>
-      <Form.Item name="statement" label="语句体" style={{ marginBottom: 8 }}>
-        <Input.TextArea
-          rows={3}
-          data-testid="trigger-form-statement"
-          aria-label="触发器语句体"
-          placeholder="SET NEW.updated_at = NOW()"
-        />
-      </Form.Item>
-      <Form.Item
-        name="ddl"
-        label="DDL（可选，空则按时机/事件重建）"
-        style={{ marginBottom: 0 }}
-      >
-        <Input.TextArea
-          rows={3}
-          data-testid="trigger-form-ddl"
-          aria-label="触发器 DDL"
-          placeholder="留空则自动生成 CREATE TRIGGER …"
-        />
-      </Form.Item>
-    </Form>
-  </Modal>
-);
+      </Form>
+    </Modal>
+  );
+};
 
 export default React.memo(TableTriggerEdit);

@@ -218,6 +218,7 @@
 | `/design/table/model` | 表节点「字段」`canvas-open-field` | 直达表设计字段签（`aria-selected` + `table-field-edit`）；可切索引后再经画布重入 | | ✅ | `relation`「画布打开字段签」 |
 | `/design/table/model` | 表节点「元数据」`canvas-open-code` | 直达表设计元数据应用签（`aria-selected` + `table-code-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开元数据应用签」 |
 | `/design/table/model` | 表节点「触发器」`canvas-open-trigger` | 直达表设计触发器签（`aria-selected` + `table-trigger-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开触发器签」 |
+| `/design/table/model` | 触发器签编辑已有行 | 行「编辑」弹层；结构变重建 DDL；persist-on-200；失败不关窗可重试；首焦名称 | 零静默失败 | ✅ | `table-triggers` 编辑 / 编辑落盘失败 |
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新；chnname 双栏内联 | | ✅ | `relation`「改名」/「表头中文名」 |
 | `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
 | `/design/table/model` | 树删表 | 二次确认；确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep | | ✅ | `smoke` 取消/确认 + `canvas-delete-table-failure` |

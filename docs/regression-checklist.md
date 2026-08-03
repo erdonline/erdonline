@@ -281,7 +281,8 @@
 - [x] PostgreSQL 表触发器：`information_schema.triggers` → `entity.triggers[]`（name/timing/event/statement/双引号 ddl）；meta `supportsTrigger=true`（`PostgresqlReverseDialectTriggerTest` + mapper PG）✅自动
 - [x] SQL Server 表触发器：`sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`SqlServerReverseDialectTriggerTest` + mapper SQL Server）✅自动
 - [x] Oracle 表触发器：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`OracleReverseDialectTriggerTest` + mapper Oracle；P0 四库闭环）✅自动
-- [x] 表设计触发器签：列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` persist-on-200；定位 role/aria/testid（`table-triggers.spec` + 签页 `Cmd/Ctrl+4`）✅自动
+- [x] 表设计触发器签：列表 + 编辑 + 查看 DDL + 添加/删除；`updateEntityTriggers` persist-on-200；定位 role/aria/testid（`table-triggers.spec` + 签页 `Cmd/Ctrl+4`）✅自动
+- [x] 触发器签编辑已有行：改语句体落盘 + DDL 重建；刷新残留；失败不关窗可重试 ✅`table-triggers`「编辑已有触发器」/「编辑落盘失败」
 - [x] 画布底栏「触发器」：`canvas-open-trigger` 直达触发器签（`aria-selected` + 空态 hint）；切字段后再经画布重入非粘滞 ✅`relation`「画布打开触发器签」+ `table-triggers`
 - [x] DDL 导出 `triggers[]`：`createTrigger` 片段优先 `ddl`、否则按方言重建（MySQL/PG/SQL Server/Oracle）；导出弹层可勾选（`json2code.trigger.test.ts`）✅自动
 - [x] DDL/DBML FK 回写：`createForeignKey` 四库 ALTER FOREIGN KEY + ON DELETE/UPDATE；同名聚合复合列；DBML Ref settings 往返（`json2code.fk.test.ts` + `yarn test:unit:dbml`）✅自动

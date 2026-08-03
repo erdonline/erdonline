@@ -279,7 +279,8 @@
 - ✅ **库方言 apply 可视化编辑**（2026-08-03）：逻辑类型 Modal「库方言映射」密表编 `apply[code].type`；枚举仍 `buildEnumApply`；persist-on-200；`datatype-apply-ux`；下一刀 → ~~边 ON DELETE/UPDATE 可编辑~~✅
 - ✅ **画布边 FK 参照动作可编辑**（2026-08-03）：chip 编辑器基数 + ON DELETE/UPDATE；`updateAssociationFkMeta` persist-on-200；同 `constraintName` 拆边同步；`canvas-fk-meta-edit`；下一刀 → ~~DDL FK 回写~~✅ / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
 - ✅ **DDL/DBML FK 回写**（2026-08-03）：`createForeignKey` 四库 ALTER FOREIGN KEY + ON DELETE/UPDATE；DBML 官方 Ref settings；下一刀 → ~~画布底栏打开触发器签~~✅ / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
-- ✅ **画布底栏打开触发器签**（2026-08-03）：表节点「触发器」`canvas-open-trigger` → `designPane:'trigger'`（与字段/索引/元数据对称）；禁签存在只能绕签头/`Cmd+4`；`relation`+`table-triggers`；下一刀 → ADR-0013（人工）/ P4 Railway demo（人工）/ DBML Trigger（等官方块）/ ADR-0011 `fields[]`（仍延期）
+- ✅ **画布底栏打开触发器签**（2026-08-03）：表节点「触发器」`canvas-open-trigger` → `designPane:'trigger'`（与字段/索引/元数据对称）；禁签存在只能绕签头/`Cmd+4`；`relation`+`table-triggers`；下一刀 → ~~触发器签可编辑~~✅
+- ✅ **触发器签可编辑已有行**（2026-08-03）：行「编辑」弹层；结构变而 DDL 未动时重建；persist-on-200；失败可重试；`table-triggers`；下一刀 → ADR-0013（人工）/ P4 Railway demo（人工）/ DBML Trigger（等官方块）/ ADR-0011 `fields[]`（仍延期）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
