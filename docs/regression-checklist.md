@@ -173,6 +173,7 @@
 - [x] [画布工具栏扫读层次] 单块 chrome；次要 ink600；「自动布局」600/ink900；禁散粒描边 ✅`relation.spec`「工具栏」
 - [x] [空态面板密度] `.erd-empty-cta` padY≤30 / maxW≤300 / 标题≤14 / CTA≤28 / 剪影≤140；截图 `diagram-empty-composition.png` ✅`relation.spec`「空态构图」
 - [x] [命令面板密度] 面板宽≤460 / maxH≤360、输入高≤40 / font≤13、行 padY≤16 / font≤12；截图 `diagram-cmd-palette-dense.png` ✅`relation.spec`「命令面板」
+- [x] [命令面板空态/list 井] empty padY≤16 / padX≤8 / gap≤2、list pad≤2；无匹配「无匹配结果」+ 提示；Trap/aria/Esc 不弱化 ✅`relation.spec`「命令面板」
 - [x] [实体新建弹层密度] 宽≤420、标题≤14、body padY≤28、表单项 margin≤14、输入/OK 高≤32；截图 `diagram-entity-modal-dense.png` ✅`relation.spec`「实体新建弹层密度」
 - [x] [导入 Frame 建议] 前缀表 DBML → toast「已建议 N 个分组」+ 画布 2 个 `diagram-frame`（sys/biz）；截图 `diagram-import-frame-suggest.png` ✅`dbml-import.spec`「前缀表」+ `suggestImportFrames.test` / `yarn test:unit:dbml`
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）

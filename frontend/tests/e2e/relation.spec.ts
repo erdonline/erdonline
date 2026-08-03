@@ -2654,6 +2654,37 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(empty).toHaveAttribute('aria-live', 'polite');
       await expect(empty.getByText('无匹配结果')).toBeVisible();
       await expect(empty.getByText(/试试表名、定位、建表或布局/)).toBeVisible();
+      // ADR-0016：无匹配空态 / list 井次密；禁 16×12 空井 + 4px 列表井
+      const emptyPadMetrics = await palette2.evaluate((el) => {
+        const emptyEl = el.querySelector('.erd-cmd-empty') as HTMLElement | null;
+        const list = el.querySelector('.erd-cmd-list') as HTMLElement | null;
+        const ecs = emptyEl ? getComputedStyle(emptyEl) : null;
+        const lcs = list ? getComputedStyle(list) : null;
+        return {
+          emptyPadY: ecs
+            ? parseFloat(ecs.paddingTop) + parseFloat(ecs.paddingBottom)
+            : NaN,
+          emptyPadX: ecs ? parseFloat(ecs.paddingLeft) : NaN,
+          emptyGap: ecs ? parseFloat(ecs.gap || '0') : NaN,
+          listPad: lcs ? parseFloat(lcs.paddingTop) : NaN,
+        };
+      });
+      expect(
+        emptyPadMetrics.emptyPadY,
+        `空态 padY 应 ≤16（禁 32），得 ${emptyPadMetrics.emptyPadY}`,
+      ).toBeLessThanOrEqual(16);
+      expect(
+        emptyPadMetrics.emptyPadX,
+        `空态 padX 应 ≤8（禁 12），得 ${emptyPadMetrics.emptyPadX}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        emptyPadMetrics.emptyGap,
+        `空态 gap 应 ≤2，得 ${emptyPadMetrics.emptyGap}`,
+      ).toBeLessThanOrEqual(2);
+      expect(
+        emptyPadMetrics.listPad,
+        `列表 pad 应 ≤2（禁 4），得 ${emptyPadMetrics.listPad}`,
+      ).toBeLessThanOrEqual(2);
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-cmd-palette-dense.png',
         fullPage: false,
