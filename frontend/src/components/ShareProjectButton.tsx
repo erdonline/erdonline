@@ -1,10 +1,11 @@
 import React, {useRef, useState} from 'react';
-import {Button, Input, Modal, Space, Typography, message, type InputRef} from 'antd';
+import {Button, Input, Modal, Space, message, type InputRef} from 'antd';
 import {ShareAltOutlined} from '@ant-design/icons';
 import request from '@/utils/request';
 import * as cache from '@/utils/cache';
 import {CONSTANT} from '@/utils/constant';
 import {confirmDestructive} from '@/utils/destructiveConfirm';
+import './dialog/io-modal.scss';
 
 type ApiResult<T> = {
   code?: number;
@@ -139,7 +140,9 @@ const ShareProjectButton: React.FC = () => {
         onCancel={() => setOpen(false)}
         footer={null}
         destroyOnClose
-        width={520}
+        width={480}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
         keyboard
         focusTriggerAfterClose
         afterOpenChange={(visible) => {
@@ -160,19 +163,21 @@ const ShareProjectButton: React.FC = () => {
           window.setTimeout(() => tryFocus(), 0);
         }}
       >
-        <Typography.Paragraph type="secondary" style={{marginBottom: 12}}>
+        <p className="erd-share-modal__hint">
           获得链接的人可匿名查看模型；吊销后链接立即失效。仅项目创建人可管理。
-        </Typography.Paragraph>
-        <Space.Compact style={{width: '100%', marginBottom: 16}}>
+        </p>
+        <Space.Compact className="erd-share-modal__link-row">
           <Input
             ref={shareUrlInputRef}
             readOnly
+            size="small"
             value={shareUrl || ''}
             placeholder={loading ? '正在生成链接…' : '暂无分享链接'}
             aria-label="分享链接"
           />
           <Button
             type="primary"
+            size="small"
             loading={loading}
             onClick={onCopy}
             aria-label="复制链接"
@@ -181,9 +186,10 @@ const ShareProjectButton: React.FC = () => {
             复制链接
           </Button>
         </Space.Compact>
-        <Space>
+        <Space className="erd-share-modal__actions" size={8}>
           <Button
             danger
+            size="small"
             disabled={!token}
             loading={revoking}
             onClick={onRevokeClick}
@@ -191,7 +197,7 @@ const ShareProjectButton: React.FC = () => {
           >
             吊销分享
           </Button>
-          <Button onClick={() => setOpen(false)} aria-label="关闭分享">
+          <Button size="small" onClick={() => setOpen(false)} aria-label="关闭分享">
             关闭
           </Button>
         </Space>

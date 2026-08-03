@@ -105,6 +105,36 @@
     color: rgba(0, 0, 0, 0.45);
   }
 
+  /* 只读分享成功态：hint→链接行→操作次密；禁 Paragraph 12 / Compact 16 松井 */
+  .erd-share-modal__hint {
+    margin: 0 0 8px;
+    font-size: 12px;
+    line-height: 16px;
+    color: var(--erd-ink-600);
+  }
+
+  .erd-share-modal__link-row {
+    width: 100%;
+    margin-bottom: 10px;
+
+    .ant-input {
+      height: 28px;
+      font-size: 12px;
+    }
+
+    .ant-btn {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 12px;
+    }
+  }
+
+  .erd-share-modal__actions .ant-btn {
+    height: 28px;
+    font-size: 12px;
+    padding: 0 12px;
+  }
+
   .ant-upload-drag {
     padding: 10px 8px !important;
   }

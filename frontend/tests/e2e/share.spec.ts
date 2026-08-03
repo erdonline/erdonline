@@ -238,13 +238,19 @@ test.describe('只读分享', () => {
         await expect(
           anonPage.getByTestId('share-tables-panel').getByRole('cell', { name: 'T_TABLE_1' }),
         ).toBeVisible();
-        const rowH = await anonPage
-          .getByTestId('share-tables-panel')
-          .locator('.ant-table-tbody tr')
-          .first()
-          .evaluate((el) => el.getBoundingClientRect().height);
-        expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeGreaterThanOrEqual(22);
-        expect(rowH, `表清单行高应 ∈[22,28]，得 ${rowH}`).toBeLessThanOrEqual(28);
+        const tablesDense = await anonPage.getByTestId('share-tables-panel').evaluate((el) => {
+          const title = el.querySelector('.share-page__tables-title') as HTMLElement | null;
+          const row = el.querySelector('.ant-table-tbody tr') as HTMLElement | null;
+          return {
+            padT: parseFloat(getComputedStyle(el).paddingTop),
+            titleSize: title ? parseFloat(getComputedStyle(title).fontSize) : -1,
+            rowH: row ? row.getBoundingClientRect().height : -1,
+          };
+        });
+        expect(tablesDense.padT, `表清单 padTop 应 ≤6，得 ${tablesDense.padT}`).toBeLessThanOrEqual(6);
+        expect(tablesDense.titleSize, `表清单标题应 ≤12，得 ${tablesDense.titleSize}`).toBeLessThanOrEqual(12);
+        expect(tablesDense.rowH, `表清单行高应 ∈[20,26]，得 ${tablesDense.rowH}`).toBeGreaterThanOrEqual(20);
+        expect(tablesDense.rowH, `表清单行高应 ∈[20,26]，得 ${tablesDense.rowH}`).toBeLessThanOrEqual(26);
         await anonPage.screenshot({
           path: 'test-results/ux-walkthrough/share-chrome-brand.png',
           fullPage: false,
