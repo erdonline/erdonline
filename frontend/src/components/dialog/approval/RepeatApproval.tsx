@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { runApprovalAction } from './approvalAction';
 
 export type RepeatApprovalProps = {
@@ -10,11 +11,13 @@ export type RepeatApprovalProps = {
 };
 
 const RepeatApproval: React.FC<RepeatApprovalProps> = (props) => {
-  return (
-    <Popconfirm
-      placement="right"
-      title="是否复批？"
-      onConfirm={() =>
+  const onRepeatClick = () => {
+    confirmDestructive({
+      title: '复批',
+      content: '确认重新提交该审批？',
+      okText: '复批',
+      cancelText: '取消',
+      onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 4,
@@ -22,15 +25,20 @@ const RepeatApproval: React.FC<RepeatApprovalProps> = (props) => {
           }),
           props.actionRef,
           '已重新提交审批',
-        )
-      }
-      okText="是"
-      cancelText="否"
+        ),
+    });
+  };
+
+  return (
+    <Button
+      key="repeat"
+      size="small"
+      type="link"
+      icon={<CheckCircleOutlined />}
+      onClick={onRepeatClick}
     >
-      <Button key="repeat" size="small" type="link" icon={<CheckCircleOutlined />}>
-        复批
-      </Button>
-    </Popconfirm>
+      复批
+    </Button>
   );
 };
 

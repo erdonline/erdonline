@@ -160,6 +160,7 @@
 - ✅ **只读分享吊销确认弹层键盘**（2026-08-03）：`confirmDestructive`；首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；Tab trap；`share-revoke-keyboard.spec` 绿
 - ✅ **团队项目删确认弹层键盘**（2026-08-03）：`RemoveGroupProject` Popconfirm→`confirmDestructive`；首焦「删除」；Esc 归还不删；Tab trap；`group-project-delete-keyboard.spec` 绿
 - ✅ **团队成员移除确认弹层键盘**（2026-08-03）：`GroupUser` Popconfirm→`confirmDestructive`；首焦「移除」；Esc 归还不移；Tab trap；`group-user-remove-keyboard.spec` 绿
+- ✅ **审批动作确认弹层键盘**（2026-08-03）：Pass/Refuse/Cancel/Repeat Popconfirm→`confirmDestructive`；首焦语义 OK；Esc 归还不落盘；Tab trap；死代码 `CopyVersion` 删除；`approval-action-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

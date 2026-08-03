@@ -76,6 +76,7 @@
 - [x] [只读分享吊销确认键盘] 分享→吊销确认 → 首焦「吊销」；Esc 关确认归还吊销钮不吊销；外层分享窗仍开；Tab trap ✅`share-revoke-keyboard.spec.ts`
 - [x] [团队项目删确认键盘] 基本设置→删确认 → 首焦「删除」；Esc 关确认归还删钮不删；Tab trap ✅`group-project-delete-keyboard.spec.ts`
 - [x] [团队成员移除确认键盘] 权限组普通成员→移除确认 → 首焦「移除」；Esc 关确认归还移除钮不移；Tab trap ✅`group-user-remove-keyboard.spec.ts`
+- [x] [审批动作确认键盘] API 种子→审批拒绝/通过 + 工单撤销确认 → 首焦主操作；Esc 关确认不落盘；Tab trap ✅`approval-action-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

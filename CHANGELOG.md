@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：审批动作确认弹层键盘闭环（Popconfirm→Modal.confirm）
+
+- 选题：审批 Pass/Refuse/Cancel/Repeat 仍用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；`approval.spec` 仅点「是」落盘；无键盘回归。`CopyVersion` 零引用且与删版本同路径，顺手清死代码
+- 改动：四处改 `confirmDestructive`（首焦语义 OK：「通过/拒绝/撤销/复批」+ Esc 归还触发器 + Tab trap）；拒绝/撤销 `okType=danger`；落盘与 toast 不变；删空壳 `CopyVersion.tsx`；`approval.spec` 确认钮改 dialog 作用域
+- E2E：`approval-action-keyboard`（API 种子→拒绝/通过/撤销确认 → 首焦、Esc 不落盘、Tab trap）；不踩 `sql-approval-keyboard`
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → `rg Popconfirm frontend/src` 清零剩余（若无则扫裸 `Modal.confirm`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/approval-action-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/approval.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/sql-approval-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：团队成员移除确认弹层键盘闭环（Popconfirm→Modal.confirm）
 
 - 选题：`GroupUser`（权限组 → 用户组成员）用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；无键盘回归
 - 改动：改 `confirmDestructive`（首焦「移除」+ Esc 归还移除钮 + Tab trap）；移除钮 `aria-label`→`移除成员 {username}`；失败 toast；`/ncnb/project/group/role/users` DELETE 落盘与列表 reload 逻辑不变
 - E2E：`group-user-remove-keyboard`（普通成员组→移除确认 → 首焦、Esc 归还不移、Tab trap）；不踩 `add-user-keyboard` / `group-layout-nav`
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 扫描剩余 `Popconfirm`（审批 Pass/Refuse/Cancel/Repeat、`CopyVersion`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~审批 Pass/Refuse/Cancel/Repeat + 死代码 `CopyVersion`~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-user-remove-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
