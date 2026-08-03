@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：画布删表确认弹层键盘闭环（Modal.confirm）
+
+- 选题：RF 画布 Delete 删表 `Modal.confirm` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：删表确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `removeEntity` 逻辑不变
+- E2E：`canvas-delete-table-keyboard`（空态新建表 → 选中 →「修改表名」焦点 → Delete → 首焦、Esc 归还不删、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 画布删边/删分组确认 Modal 键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-delete-table-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：EntityModal 弹层键盘闭环（新增模型/表/关系图）
 
 - 选题：左树领域 CRUD 共用 `EntityModal` 缺 `keyboard`/`focusTriggerAfterClose`；开窗首焦不稳；无键盘 E2E
 - 改动：显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`（新增表首焦「所属模型」Select；模型/关系图首焦名称）；名称/中文名/所属模型补 `aria-label`；提交/校验逻辑不变
 - E2E：`entity-modal-keyboard`（个人项目空态「新增模型」→ 首焦、Esc 归还触发器、Tab trap；不提交）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 画布删表确认 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~画布删表确认 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/entity-modal-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

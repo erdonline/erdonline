@@ -46,6 +46,7 @@
 - ✅ 添加成员弹层键盘：首焦「选择用户」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 只读分享弹层键盘：首焦「分享链接」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ EntityModal 弹层键盘：新增模型首焦「名称」（新增表首焦「所属模型」）；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
+- ✅ 画布删表确认弹层键盘：选中表 Delete → 首焦「删除」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内（二次确认保留）
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记
