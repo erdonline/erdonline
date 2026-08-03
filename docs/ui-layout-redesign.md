@@ -211,7 +211,8 @@
 - ✅ **团队成员工具条碎距**（2026-08-03）：`GroupUser` mb16→8 + Search 32→28 + Space gap8 + 钮 padX8；`testid=group-user-toolbar`；`group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` 绿；下一刀 → ~~Group 用户组 Title/页签碎距~~✅
 - ✅ **Group 用户组 Title/左角色签碎距**（2026-08-03）：标题 20→13/22·mb8；去掉 Space large + br；左签 padX24→12·高38→28·字12；`testid=group-setting-page`；`group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` 绿；下一刀 → ~~Group 基本设置 Title level4~~✅
 - ✅ **Group 基本设置页头碎距**（2026-08-03）：标题 20→13/22·mt0·mb8；同文件「删除项目」同阶；`testid=basic-setting-page`；`group-basic-setting` densify + `group-layout-nav` / `group-keyboard` 绿；下一刀 → ~~Group 基本设置 Form 项间距/控件 28~~✅
-- ✅ **Group 基本设置 Form 碎距**（2026-08-03）：项 mb24→12 / Input·Select·钮 32→28 / label 12；对齐 `.setting-common-form`；`group-basic-setting` densify + `group-layout-nav` / `group-keyboard` 绿；下一刀 → Group 基本设置删区碎片（Divider/Space/次文，视 ROI）
+- ✅ **Group 基本设置 Form 碎距**（2026-08-03）：项 mb24→12 / Input·Select·钮 32→28 / label 12；对齐 `.setting-common-form`；`group-basic-setting` densify + `group-layout-nav` / `group-keyboard` 绿；下一刀 → ~~Group 基本设置删区碎片（Divider/Space/次文）~~✅
+- ✅ **Group 基本设置删区碎片**（2026-08-03）：Divider 24→12 + 去 Space 叠标题 mb + 次文 14→12/18；`testid=basic-setting-delete-zone`；`group-basic-setting` densify + `group-project-delete-keyboard` 绿；下一刀 → 欢迎空态标题 mt20 / 22 字碎距（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

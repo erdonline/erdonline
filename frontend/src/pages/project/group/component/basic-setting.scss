@@ -1,6 +1,24 @@
-/* ADR-0016：Group 基本设置 — 页头 13/22；表单对齐 .setting-common-form（项 mb12 / 控件 28） */
+/* ADR-0016：Group 基本设置 — 页头 13/22；表单对齐 .setting-common-form（项 mb12 / 控件 28）；删区 Divider/次文 8–12 */
 .basic-setting-page {
   font-family: var(--erd-font-ui);
+}
+
+/* 删区 chrome：禁 antd Divider mb24 + Space 叠标题 mb */
+.basic-setting-delete__divider {
+  margin: 12px 0 !important;
+}
+
+.basic-setting-delete__body {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.basic-setting-delete__hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
 }
 
 .basic-setting-page__title {
@@ -9,6 +27,11 @@
   font-weight: 600;
   line-height: 22px;
   color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+/* 删区内标题：gap 承担间距，禁叠页头 mb8 */
+.basic-setting-delete__title {
+  margin-bottom: 0;
 }
 
 .basic-setting-form {

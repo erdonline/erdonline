@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Button, Divider, Form, Input, Select, Space, Typography, message} from 'antd';
+import {Button, Divider, Form, Input, Select, message} from 'antd';
 import {GET} from '@/services/crud';
 import {useSearchParams} from '@@/exports';
 import _ from 'lodash';
@@ -7,8 +7,6 @@ import RemoveGroupProject from '@/pages/project/group/component/RemoveGroupProje
 import {updateGroupProject} from '@/services/group-project';
 import {Access, useAccess} from '@@/plugin-access';
 import './basic-setting.scss';
-
-const {Text} = Typography;
 
 export type BasicSettingProps = {};
 
@@ -163,14 +161,23 @@ const BasicSetting: React.FC<BasicSettingProps> = () => {
         ) : null}
       </Form>
 
-      <Divider />
-      <Access accessible={access.canErdProjectGroupDel} fallback={<></>}>
-        <Space direction="vertical">
-          <h2 className="basic-setting-page__title">删除项目</h2>
-          <Text type="secondary">删除项目全部模型，此操作无法恢复</Text>
-          <RemoveGroupProject projectId={projectId} />
-        </Space>
-      </Access>
+      <div
+        className="basic-setting-delete"
+        data-testid="basic-setting-delete-zone"
+      >
+        <Divider className="basic-setting-delete__divider" />
+        <Access accessible={access.canErdProjectGroupDel} fallback={<></>}>
+          <div className="basic-setting-delete__body">
+            <h2 className="basic-setting-page__title basic-setting-delete__title">
+              删除项目
+            </h2>
+            <p className="basic-setting-delete__hint">
+              删除项目全部模型，此操作无法恢复
+            </p>
+            <RemoveGroupProject projectId={projectId} />
+          </div>
+        </Access>
+      </div>
     </div>
   );
 };

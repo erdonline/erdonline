@@ -42,7 +42,7 @@ async function deleteGroupProject(
 }
 
 /**
- * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast；页头+表单 densify。
+ * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast；页头+表单+删区 densify。
  */
 test.describe('团队项目基本设置', () => {
   test('保存基本设置成功有 toast', async ({ page, request }) => {
@@ -159,6 +159,102 @@ test.describe('团队项目基本设置', () => {
         metrics.labelFont,
         `表单项 label 字号应 ≤13（目标 12），得 ${metrics.labelFont}`,
       ).toBeLessThanOrEqual(13);
+
+      // ADR-0016：删区 Divider/次文 densify（禁 antd Divider 24 + Space 叠标题 mb）
+      const deleteZone = page.getByTestId('basic-setting-delete-zone');
+      await expect(deleteZone).toBeVisible();
+      await expect(
+        deleteZone.getByRole('heading', { name: '删除项目' }),
+      ).toBeVisible();
+      await expect(
+        deleteZone.getByText('删除项目全部模型，此操作无法恢复'),
+      ).toBeVisible();
+      await expect(
+        deleteZone.getByRole('button', { name: '删除团队项目' }),
+      ).toBeVisible();
+
+      const deleteMetrics = await deleteZone.evaluate((el) => {
+        const divider = el.querySelector(
+          '.basic-setting-delete__divider',
+        ) as HTMLElement | null;
+        const title = el.querySelector(
+          '.basic-setting-delete__title',
+        ) as HTMLElement | null;
+        const hint = el.querySelector(
+          '.basic-setting-delete__hint',
+        ) as HTMLElement | null;
+        const body = el.querySelector(
+          '.basic-setting-delete__body',
+        ) as HTMLElement | null;
+        const dcs = divider ? getComputedStyle(divider) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        const hcs = hint ? getComputedStyle(hint) : null;
+        const bcs = body ? getComputedStyle(body) : null;
+        let titleToHint = -1;
+        if (title && hint) {
+          titleToHint = Math.round(
+            hint.getBoundingClientRect().top -
+              title.getBoundingClientRect().bottom,
+          );
+        }
+        let hintToBtn = -1;
+        const btn = el.querySelector(
+          '[aria-label="删除团队项目"]',
+        ) as HTMLElement | null;
+        if (hint && btn) {
+          hintToBtn = Math.round(
+            btn.getBoundingClientRect().top - hint.getBoundingClientRect().bottom,
+          );
+        }
+        return {
+          dividerMt: dcs ? parseFloat(dcs.marginTop) : -1,
+          dividerMb: dcs ? parseFloat(dcs.marginBottom) : -1,
+          titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
+          hintFont: hcs ? parseFloat(hcs.fontSize) : -1,
+          hintLh: hcs ? parseFloat(hcs.lineHeight) : -1,
+          bodyGap: bcs ? parseFloat(bcs.gap || '0') : -1,
+          titleToHint,
+          hintToBtn,
+        };
+      });
+      expect(
+        deleteMetrics.dividerMt,
+        `删区 Divider marginTop 应 ≤16（目标 12，禁 antd 默认 24），得 ${deleteMetrics.dividerMt}`,
+      ).toBeLessThanOrEqual(16);
+      expect(deleteMetrics.dividerMt).toBeGreaterThanOrEqual(8);
+      expect(
+        deleteMetrics.dividerMb,
+        `删区 Divider marginBottom 应 ≤16（目标 12），得 ${deleteMetrics.dividerMb}`,
+      ).toBeLessThanOrEqual(16);
+      expect(deleteMetrics.dividerMb).toBeGreaterThanOrEqual(8);
+      expect(
+        deleteMetrics.titleMb,
+        `删区标题 marginBottom 应 ≤2（间距走 body gap），得 ${deleteMetrics.titleMb}`,
+      ).toBeLessThanOrEqual(2);
+      expect(
+        deleteMetrics.hintFont,
+        `删区次文字号应 ≤13（目标 12），得 ${deleteMetrics.hintFont}`,
+      ).toBeLessThanOrEqual(13);
+      expect(deleteMetrics.hintFont).toBeGreaterThanOrEqual(11);
+      expect(
+        deleteMetrics.hintLh,
+        `删区次文行高应 ≤20（目标 18），得 ${deleteMetrics.hintLh}`,
+      ).toBeLessThanOrEqual(20);
+      expect(
+        deleteMetrics.bodyGap,
+        `删区 body gap 应 ≤12（目标 8），得 ${deleteMetrics.bodyGap}`,
+      ).toBeLessThanOrEqual(12);
+      expect(deleteMetrics.bodyGap).toBeGreaterThanOrEqual(4);
+      expect(
+        deleteMetrics.titleToHint,
+        `删区标题→次文间距应 ≤12，得 ${deleteMetrics.titleToHint}`,
+      ).toBeLessThanOrEqual(12);
+      expect(deleteMetrics.titleToHint).toBeGreaterThanOrEqual(4);
+      expect(
+        deleteMetrics.hintToBtn,
+        `删区次文→删钮间距应 ≤12，得 ${deleteMetrics.hintToBtn}`,
+      ).toBeLessThanOrEqual(12);
+      expect(deleteMetrics.hintToBtn).toBeGreaterThanOrEqual(4);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/group-basic-setting-dense.png',
