@@ -220,7 +220,8 @@
 - ✅ **AuthBrandShell 表单 body 碎距**（2026-08-03）：Title mt10→6 + 项 mb24→12 / Input·钮 large→28 / label 12；对齐 `.setting-common-form`；`testid=auth-shell-form`；`smoke`+`session` densify 绿；下一刀 → ~~设计器侧栏 nav 行距~~✅（跳过 Auth logo 48）
 - ✅ **设计器侧栏 nav 行距次密**（2026-08-03）：`.design-layout__sider-menu` 项高 40→28 / padX→12 / marginY→2 / 字 12（与 Group 侧栏同阶）；版本/导入/导出/设置同源；`testid=design-layout-sider-menu`；`layout-outlet` densify + 侧栏键盘；下一刀 → ~~版本空态 pad 16×12~~✅
 - ✅ **版本列表空态井次密**（2026-08-03）：`.version-page__list .ant-list-empty-text` pad 16×12→12×8（对齐工作台列表空态）；保留「保存第一个版本」；`version.spec` 空态 densify 绿；下一刀 → ~~Cmd+K footer~~✅
-- ✅ **Cmd+K footer 次密**（2026-08-03）：`.erd-cmd-footer` pad 6×10→4×8（对齐 `?` 速查 footer）；字 10 / lh 1.3；`relation.spec`「命令面板」锁 padY≤8 / padX≤8；Trap / aria / Esc 不弱化；本刀不碰 notice
+- ✅ **Cmd+K footer 次密**（2026-08-03）：`.erd-cmd-footer` pad 6×10→4×8（对齐 `?` 速查 footer）；字 10 / lh 1.3；`relation.spec`「命令面板」锁 padY≤8 / padX≤8；Trap / aria / Esc 不弱化；下一刀 → ~~notice-row gap12~~✅
+- ✅ **公告 notice-row gap 次密**（2026-08-03）：`.project-list-page__notice-row` gap 12→8（8–12 族）；行 pad / 工具条不动；`testid=project-notice-row`；`project-notice` densify 绿；下一刀 → 画布空态 CTA `.erd-empty-cta` pad 14×18（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

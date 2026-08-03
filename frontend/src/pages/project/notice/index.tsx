@@ -67,7 +67,10 @@ const Index: React.FC<NoticeProps> = () => {
           <List.Item>
             <List.Item.Meta
               title={
-                <div className="project-list-page__notice-row">
+                <div
+                  className="project-list-page__notice-row"
+                  data-testid="project-notice-row"
+                >
                   <a href={item?.url} target="_blank" rel="noreferrer">
                     {item?.title}
                   </a>

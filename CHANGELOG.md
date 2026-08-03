@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：公告列表 notice-row gap 次密
+
+- 选题：Cmd+K footer 已密；`/project/notice` `.project-list-page__notice-row` 仍 gap12，相对行 pad 4×8 / ADR-0016 8–12 族偏松；勿再 densify 项目列表工具条
+- before：notice-row gap **12**；after：gap **8**；`testid=project-notice-row`
+- E2E：`project-notice`「公告列表行密度」锁 gap≤8≥8 + 既有 pad/标题/工具条；截图 `project-notice-list-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布空态 CTA `.erd-empty-cta` pad 14×18（视 ROI；Auth logo 48 仍跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/project-notice.spec.ts --project=chromium --grep "公告列表行密度" --workers=1 --retries=0`
+
 #### 体验：Cmd+K footer 次密
 
 - 选题：版本空态已密；Cmd+K footer 仍 pad 6×10，相对 `?` 速查 footer 4×8 / ADR-0016 族偏松；勿动 notice；勿弱化 ↑↓/Enter/Esc/Tab trap
 - before：`.erd-cmd-footer` pad 6×10；after：pad 4×8 + lh 1.3 + `--erd-font-ui`（对齐 `.erd-help-footer`）
 - E2E：`relation`「命令面板」锁 footer padY≤8 / padX≤8 / font≤11 + 快捷提示可见；截图 `diagram-cmd-palette-dense.png`；键盘闭环不回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → notice 列表碎片（视 ROI；本刀不碰）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~notice 列表碎片~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板：Cmd" --workers=1 --retries=0`
