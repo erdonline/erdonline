@@ -8,6 +8,15 @@
 
 ### 2026-08-03
 
+#### 体验：左树新建关系图路径 E2E（建模回路）
+
+- 选题：顶栏/画布「新建关系图」已覆盖；树头「新建 → 新建关系图」→ EntityModal → `createDiagram` 缺聚焦回归
+- E2E：`multi-diagram`「左树新建关系图」：`getByRole('button', { name: '新建', exact: true })` → menuitem → 名称-only 弹层 → 树 + switcher + toast
+- `docs/design-principles.md` §4 补树头新建正例；roadmap 下一刀前移
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/multi-diagram.spec.ts --project=chromium --grep "左树新建关系图" --workers=1 --retries=0`
+
 #### 体验：左树重命名关系图接通（建模回路）
 
 - 选题：「编辑关系」打开空 FK（表1/表2）弹层，`handleModalOk` 未写 `renameDiagram` → 死 affordance

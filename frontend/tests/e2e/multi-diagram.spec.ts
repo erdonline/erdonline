@@ -165,4 +165,36 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await deleteOwnPersonProjects(page).catch(() => undefined);
     }
   });
+
+  test('左树新建关系图：树头菜单接通 createDiagram', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('treecre');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'treecre', 'tree create diagram');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      // 树头「新建」下拉（非画布工具栏「新建关系图」）
+      await page.getByRole('button', { name: '新建', exact: true }).click();
+      await page.getByRole('menuitem', { name: '新建关系图' }).click();
+
+      const createDialog = page.getByRole('dialog', { name: '新建关系图' });
+      await expect(createDialog).toBeVisible();
+      await expect(createDialog.getByLabel('表1')).toHaveCount(0);
+      await expect(createDialog.getByLabel('表2')).toHaveCount(0);
+      await createDialog.getByLabel('关系图名称').fill('鉴权域-树建');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(createDialog).toHaveCount(0);
+
+      await expect(page.getByText('已新建关系图')).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByRole('tree').getByText('鉴权域-树建', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('diagram-switcher')).toContainText('鉴权域-树建');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => undefined);
+    }
+  });
 });
