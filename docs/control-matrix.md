@@ -170,6 +170,7 @@
 | DesignLayout | 版本列表二次密度 | 工具条控件 ∈24–28；图标不 clip；token 色；新增钮 focus-visible；键盘弹层不回归 | version-page toolbar/list | ✅ | `version.spec`「版本列表行密度」+ `version-action-modals-keyboard` |
 | DesignLayout | 工单/审批列表密度 | 标题栏 ~24；行 pad 4×8；动作钮 ∈22–28；图标不 clip；focus-visible；确认键盘不回归 | approval-workorder-page | ✅ | `approval.spec`「工单/审批列表行密度」+ `approval-action-keyboard` |
 | DesignLayout | 次屏表密度（JExcel / 版本 diff） | JExcel 工具栏 ~24；表头/行 pad 4×8；图标不 clip；focus-visible；diff 组头/行 ~24 token 色；工具栏 Tab / 可视化 diff 不回归 | jexcel-root / version-diff-panel | ✅ | `model-design-ux`「表设计 JExcel 行密度」+ `relation`「工具栏 Tab」+ `version.spec` diff |
+| DesignLayout | 元数据应用子签密度 | CodeTab/DbTab 栏 ~24；标签不 clip；子签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-code-tab / erd-db-tab | ✅ | `model-design-ux`「元数据应用子签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
 | DesignLayout | 左树键盘漫游 | Skip→↓入树；方向键+Enter 定位表/开关系；active brand 环；Tab 进搜索无 trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation`「左树键盘漫游」 |
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
 | RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |

@@ -310,6 +310,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
 
       await page.getByTestId('add-module-empty').click();
       await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-chnname').fill('商城');
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
@@ -430,6 +431,166 @@ test.describe('模型设计 UX（ADR-0017）', () => {
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/diagram-jexcel-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  /**
+   * ADR-0016：元数据应用 CodeTab / DbTab 子签 chrome —
+   * DB 签 + 模板签栏 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible + Cmd+1/2/3
+   */
+  test('元数据应用子签：CodeTab/DbTab chrome ~24', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('codedense');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByTestId('add-module-empty').click();
+      await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-chnname').fill('商城');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      const designer = page.getByTestId('table-design');
+      await expect(designer).toBeVisible({ timeout: 10_000 });
+
+      await designer.getByRole('tab', { name: '元数据应用' }).click();
+      const codePane = page.getByTestId('table-code-edit');
+      await expect(codePane).toBeVisible({ timeout: 10_000 });
+      await expect(codePane.getByRole('tab', { name: 'MYSQL' })).toBeVisible();
+      await expect(codePane.getByRole('tab', { name: '创建表' })).toBeVisible();
+
+      const chromeMetrics = await codePane.evaluate((root) => {
+        const codeNav = root.querySelector('#codeNav > .ant-tabs-nav') as HTMLElement | null;
+        // 仅测活动 DB 面板（多库 TabPane 并存时各有一份模板签）
+        const activePane = root.querySelector(
+          '#codeNav .ant-tabs-tabpane-active',
+        ) as HTMLElement | null;
+        const dbRoot = activePane?.querySelector('.erd-db-tab') as HTMLElement | null;
+        const dbNav = dbRoot?.querySelector(':scope > .ant-tabs-nav') as HTMLElement | null;
+        const codeTab = root.querySelector(
+          '#codeNav > .ant-tabs-nav .ant-tabs-tab-active',
+        ) as HTMLElement | null;
+        const dbTab = dbNav?.querySelector('.ant-tabs-tab-active') as HTMLElement | null;
+        const codeBtn = codeTab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
+        const dbBtn = dbTab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
+        if (!codeNav || !dbNav || !codeTab || !dbTab || !codeBtn || !dbBtn) {
+          return {
+            codeNavH: -1,
+            dbNavH: -1,
+            codeLabelClipped: true,
+            dbLabelClipped: true,
+          };
+        }
+        const eps = 2;
+        const codeNr = codeNav.getBoundingClientRect();
+        const dbNr = dbNav.getBoundingClientRect();
+        const codeTr = codeTab.getBoundingClientRect();
+        const dbTr = dbTab.getBoundingClientRect();
+        const codeBr = codeBtn.getBoundingClientRect();
+        const dbBr = dbBtn.getBoundingClientRect();
+        return {
+          codeNavH: codeNr.height,
+          dbNavH: dbNr.height,
+          // 竖直几何：标签落在签与栏内（水平 more/ellipsis 允许）
+          codeLabelClipped:
+            codeBr.top < codeTr.top - eps ||
+            codeBr.bottom > codeTr.bottom + eps ||
+            codeBr.top < codeNr.top - eps ||
+            codeBr.bottom > codeNr.bottom + eps,
+          dbLabelClipped:
+            dbBr.top < dbTr.top - eps ||
+            dbBr.bottom > dbTr.bottom + eps ||
+            dbBr.top < dbNr.top - eps ||
+            dbBr.bottom > dbNr.bottom + eps,
+        };
+      });
+
+      expect(
+        chromeMetrics.codeNavH,
+        `CodeTab 栏高应 ≤26（目标 ~24），得 ${chromeMetrics.codeNavH}`,
+      ).toBeLessThanOrEqual(26);
+      expect(chromeMetrics.codeNavH).toBeGreaterThanOrEqual(20);
+      expect(
+        chromeMetrics.dbNavH,
+        `DbTab 栏高应 ≤26（目标 ~24），得 ${chromeMetrics.dbNavH}`,
+      ).toBeLessThanOrEqual(26);
+      expect(chromeMetrics.dbNavH).toBeGreaterThanOrEqual(20);
+      expect(chromeMetrics.codeLabelClipped, 'CodeTab 标签不得被裁切').toBe(false);
+      expect(chromeMetrics.dbLabelClipped, 'DbTab 标签不得被裁切').toBe(false);
+
+      // 子签可切；focus-visible：键盘 Tab 留在元数据应用内且有环
+      await codePane.getByRole('tab', { name: 'ORACLE' }).click();
+      await expect(codePane.getByRole('tab', { name: 'ORACLE' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await codePane.getByRole('tab', { name: 'MYSQL' }).click();
+      await expect(codePane.getByRole('tab', { name: 'MYSQL' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      const mysqlDb = codePane.getByTestId('table-db-tab-MYSQL');
+      await mysqlDb.getByRole('tab', { name: '表注释' }).click();
+      await expect(mysqlDb.getByRole('tab', { name: '表注释' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await mysqlDb.getByRole('tab', { name: '创建表' }).click();
+      await expect(mysqlDb.getByRole('tab', { name: '创建表' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+
+      await mysqlDb.getByRole('tab', { name: '创建表' }).focus();
+      await page.keyboard.press('Tab');
+      const afterTab = await page.evaluate(() => {
+        const ae = document.activeElement as HTMLElement | null;
+        if (!ae) return null;
+        const cs = getComputedStyle(ae);
+        return {
+          inCodePane: !!ae.closest('[data-testid="table-code-edit"]'),
+          outlineStyle: cs.outlineStyle,
+          outlineWidth: cs.outlineWidth,
+        };
+      });
+      expect(afterTab?.inCodePane, 'Tab 应留在元数据应用签内').toBe(true);
+      expect(afterTab?.outlineStyle).not.toBe('none');
+      expect(parseFloat(afterTab?.outlineWidth || '0')).toBeGreaterThanOrEqual(1);
+
+      // Cmd/Ctrl+1/2/3 回路不回归（元数据 → 字段 → 索引 → 元数据）
+      const mod = process.platform === 'darwin' ? 'Meta' : 'Control';
+      await page.keyboard.press(`${mod}+1`);
+      await expect(designer.getByRole('tab', { name: '字段' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.keyboard.press(`${mod}+2`);
+      await expect(designer.getByRole('tab', { name: '索引' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await page.keyboard.press(`${mod}+3`);
+      await expect(designer.getByRole('tab', { name: '元数据应用' })).toHaveAttribute(
+        'aria-selected',
+        'true',
+      );
+      await expect(page.getByTestId('table-code-edit')).toBeVisible();
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-code-tabs-dense.png',
         fullPage: false,
       });
     } finally {

@@ -167,7 +167,8 @@
 - ✅ **左树工具条/次密距**（2026-08-03）：`QueryTree` 工具条控件 24 + pad 4；sider-inner 次密距；禁 clip 图标；focus-visible；`model-design-ux`「模型树」绿；下一刀 → ~~版本列表二次走查 / chrome 碎色~~✅
 - ✅ **版本列表二次密度 / chrome 碎色**（2026-08-03）：工具条控件 24；token 色；禁 clip；focus-visible；`version.spec`「版本列表行密度」绿；下一刀 → ~~版本工单/审批列表密度~~✅
 - ✅ **版本工单/审批列表密度**（2026-08-03）：`.approval-workorder-page` 标题栏 ~24 + 行 pad 4×8；禁 clip；focus-visible；`approval.spec`「工单/审批列表行密度」绿；下一刀 → ~~设计器次屏表密度 / chrome~~✅
-- ✅ **设计器次屏表密度 / chrome**（2026-08-03）：JExcel 工具栏 ~24 + 表头/行 pad 4×8（压过 datatables）；版本 diff 实体行 token 色；禁 clip；`model-design-ux`「表设计 JExcel 行密度」+ `version.spec` diff 绿；下一刀 → 元数据应用子签 / CodeTab chrome（视 ROI）
+- ✅ **设计器次屏表密度 / chrome**（2026-08-03）：JExcel 工具栏 ~24 + 表头/行 pad 4×8（压过 datatables）；版本 diff 实体行 token 色；禁 clip；`model-design-ux`「表设计 JExcel 行密度」+ `version.spec` diff 绿；下一刀 → ~~元数据应用子签 / CodeTab chrome~~✅
+- ✅ **元数据应用子签 / CodeTab chrome**（2026-08-03）：CodeTab/DbTab 签栏 ~24；禁 clip；focus-visible + Cmd+1/2/3；`model-design-ux`「元数据应用子签」绿；下一刀 → 表设计内签（字段/索引）栏显式 ~24 或右键菜单密度（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

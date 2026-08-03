@@ -112,16 +112,80 @@
     padding-bottom: 12px;
   }
 
-  /* 元数据应用内层 DB 签：降一级，避免双层签视觉打架 */
-  #codeNav {
-    .ant-tabs-nav {
-      margin-bottom: 6px;
+  /* 元数据应用：CodeTab DB 签 + DbTab 模板签 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
+  .erd-code-tab__tabs,
+  .erd-db-tab {
+    --erd-sub-tabs-h: 24px;
 
-      .ant-tabs-tab {
-        font-size: 11px;
-        padding: 4px 2px;
-        margin-right: 12px;
+    > .ant-tabs-nav {
+      height: var(--erd-sub-tabs-h);
+      margin-bottom: 4px !important;
+      flex-shrink: 0;
+      /* 勿 overflow:hidden：会裁标签与 inset focus 环 */
+      overflow: visible;
+    }
+
+    > .ant-tabs-nav .ant-tabs-nav-wrap {
+      height: var(--erd-sub-tabs-h);
+      overflow-y: visible;
+    }
+
+    > .ant-tabs-nav .ant-tabs-nav-list {
+      height: var(--erd-sub-tabs-h);
+      align-items: stretch;
+    }
+
+    > .ant-tabs-nav .ant-tabs-tab {
+      display: inline-flex !important;
+      align-items: center !important;
+      height: var(--erd-sub-tabs-h) !important;
+      padding: 0 6px !important;
+      margin: 0 2px 0 0 !important;
+      font-size: 12px;
+      line-height: 18px;
+      color: var(--erd-ink-600);
+      box-sizing: border-box !important;
+
+      &:hover {
+        color: var(--erd-brand);
       }
+
+      &:focus-visible,
+      &.ant-tabs-tab-focus {
+        outline: 2px solid var(--erd-brand);
+        outline-offset: -2px;
+        z-index: 1;
+      }
+
+      &.ant-tabs-tab-active .ant-tabs-tab-btn {
+        color: var(--erd-brand);
+        font-weight: 600;
+      }
+    }
+
+    > .ant-tabs-nav .ant-tabs-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    > .ant-tabs-nav .ant-tabs-tab-btn:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -1px;
+    }
+
+    > .ant-tabs-nav .ant-tabs-ink-bar {
+      background: var(--erd-brand);
+      height: 2px;
+      border-radius: 2px;
+    }
+
+    > .ant-tabs-nav .ant-tabs-nav-more {
+      display: inline-flex !important;
+      align-items: center;
+      padding: 0 6px !important;
+      height: var(--erd-sub-tabs-h);
     }
   }
 }
