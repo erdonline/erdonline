@@ -44,8 +44,15 @@ export interface IEntitiesDispatchSlice {
   removeIndex: (moduleName: string, entityTitle: string, index: number) => void;
   updateEntity: (moduleName: string, entityTitle: string, payload: any) => void;
   copyEntity: (moduleName: string, entityTitle: string) => void;
-  cutEntity: (moduleName: string, entityTitle: string) => void;
-  pastEntity: (moduleName: string) => void;
+  cutEntity: (
+    moduleName: string,
+    entityTitle: string,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
+  pastEntity: (
+    moduleName: string,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   updateEntityFields: (
     moduleName: string,
     entityTitle: string,
@@ -484,24 +491,74 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     cache.setItem(ERD_ENTITY_CLIPBOARD, JSON.stringify(currentEntity));
     showMessage('success', `表 "${entityTitle}" 已成功复制到剪贴板`);
   })),
-  cutEntity: (moduleName: string, entityTitle: string) => set(produce((state: any) => {
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+  // 剪切表（移出实体）；persist:true 时仅 saveProject code===200 写剪贴板+移出+toast
+  cutEntity: (moduleName: string, entityTitle: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
       showMessage('error', `未找到名为 "${moduleName}" 的模型`);
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
-    const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle);
+    const entityIndex = modules[moduleIndex].entities.findIndex(
+      (e: any) => e.title === entityTitle || e.name === entityTitle,
+    );
     if (entityIndex === -1) {
       showMessage('error', `在模型 "${moduleName}" 中未找到名为 "${entityTitle}" 的表`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+    const currentEntity = modules[moduleIndex].entities[entityIndex];
+    const clipPayload = JSON.stringify(currentEntity);
+
+    if (!persist) {
+      cache.setItem(ERD_ENTITY_CLIPBOARD, clipPayload);
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        const mi = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+        const ei = state.project.projectJSON.modules[mi].entities.findIndex(
+          (e: any) => e.title === entityTitle || e.name === entityTitle,
+        );
+        if (ei === -1) {
+          return;
+        }
+        state.project.projectJSON.modules[mi].entities.splice(ei, 1);
+        showMessage('success', `表 "${entityTitle}" 已成功剪切到剪贴板`);
+      }));
       return;
     }
-    const currentEntity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
-    cache.setItem(ERD_ENTITY_CLIPBOARD, JSON.stringify(currentEntity));
-    state.project.projectJSON.modules[moduleIndex].entities.splice(entityIndex, 1);
-    showMessage('success', `表 "${entityTitle}" 已成功剪切到剪贴板`);
-  })),
-  pastEntity: (moduleName: string) => set(produce((state: any) => {
-    let data;
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      showMessage('error', '未打开项目');
+      return Promise.resolve(false);
+    }
+    const next = produce(project, (draft: any) => {
+      const mi = draft.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+      const ei = draft.projectJSON.modules[mi].entities.findIndex(
+        (e: any) => e.title === entityTitle || e.name === entityTitle,
+      );
+      draft.projectJSON.modules[mi].entities.splice(ei, 1);
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '表保存失败');
+      if (!saved) {
+        return false;
+      }
+      cache.setItem(ERD_ENTITY_CLIPBOARD, clipPayload);
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      showMessage('success', `表 "${entityTitle}" 已成功剪切到剪贴板`);
+      return true;
+    })();
+  },
+  // 粘贴表（新建实体）；persist:true 时仅 saveProject code===200 写 store+toast
+  pastEntity: (moduleName: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    let data: any;
     try {
       data = JSON.parse(cache.getItem(ERD_ENTITY_CLIPBOARD) || 'null');
     } catch (error) {
@@ -511,10 +568,16 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
     if (!data || !validateEntity(data)) {
       showMessage('error', '剪贴板中没有有效的表数据');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
 
-    const modules = state.project.projectJSON.modules;
+    const modules = get().project?.projectJSON?.modules || [];
+    const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
+    if (moduleIndex === -1) {
+      showMessage('error', `未找到名为 "${moduleName}" 的模型`);
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
     const baseName = data.title || data.name;
     let entityName = baseName;
     let counter = 0;
@@ -523,7 +586,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         (m.entities || []).some((e: any) => (e.title || e.name) === name),
       );
     while (nameTaken(entityName)) {
-      counter++;
+      counter += 1;
       entityName = `${baseName}${counter === 1 ? '副本' : `副本${counter}`}`;
     }
 
@@ -531,22 +594,50 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       ...data,
       title: entityName,
       name: entityName,
-      chnname: counter === 0 ? data.chnname : `${data.chnname || data.title || data.name}${counter === 1 ? '副本' : `副本${counter}`}`,
+      chnname:
+        counter === 0
+          ? data.chnname
+          : `${data.chnname || data.title || data.name}${counter === 1 ? '副本' : `副本${counter}`}`,
       fields: data.fields.map((field: any) => ({
         ...field,
-        id: generateUniqueId()
-      }))
+        id: generateUniqueId(),
+      })),
     };
 
-    const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
-    if (moduleIndex === -1) {
-      showMessage('error', `未找到名为 "${moduleName}" 的模型`);
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce((state: any) => {
+        const mi = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+        state.project.projectJSON.modules[mi].entities.push(newEntity);
+        showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
+      }));
       return;
     }
 
-    state.project.projectJSON.modules[moduleIndex].entities.push(newEntity);
-    showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
-  })),
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      showMessage('error', '未打开项目');
+      return Promise.resolve(false);
+    }
+    const next = produce(project, (draft: any) => {
+      const mi = draft.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+      draft.projectJSON.modules[mi].entities.push(JSON.parse(JSON.stringify(newEntity)));
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '表保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
+      return true;
+    })();
+  },
   updateEntityFields: (
     moduleName: string,
     entityTitle: string,

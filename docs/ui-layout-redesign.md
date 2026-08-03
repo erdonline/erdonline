@@ -237,7 +237,8 @@
 - ✅ **空态剪影 compact 碎距**（2026-08-03）：`ErdEmptyDiagram` compact **132**→**112**；hero 176 / Auth logo / 欢迎 pad / Controls·工具栏 margin / 边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚跳过；`relation`「空态构图」 densify 绿；下一刀 → ~~画布/左树删表假成功~~✅（跳过 Auth logo 48）
 - ✅ **画布/左树删表落盘失败可重试**（2026-08-03）：`removeEntity` `persist:true`；仅 save code===200 移出 +「表删除成功」；失败节点保留、确认拒关可重试；`canvas-delete-table-failure` 绿；下一刀 → ~~左树删模型·删关系图~~✅
 - ✅ **左树删模型/关系图落盘失败可重试**（2026-08-03）：`removeModule`/`removeDiagram` `persist:true`；仅 save code===200 移出 + 成功 toast；失败树保留、确认拒关可重试；`tree-delete-module-diagram-failure` 绿；下一刀 → ~~画布删边·Frame~~✅
-- ✅ **画布删边/删分组落盘失败可重试**（2026-08-03）：`removeAssociation`/`removeFrame` `persist:true`；仅 save code===200 移出 + 成功 toast；失败边/框保留、确认拒关可重试；`canvas-delete-edge-frame-failure` 绿；下一刀 → 剪贴粘贴假成功
+- ✅ **画布删边/删分组落盘失败可重试**（2026-08-03）：`removeAssociation`/`removeFrame` `persist:true`；仅 save code===200 移出 + 成功 toast；失败边/框保留、确认拒关可重试；`canvas-delete-edge-frame-failure` 绿；下一刀 → ~~剪贴粘贴假成功~~✅
+- ✅ **左树剪切/粘贴落盘失败可重试**（2026-08-03）：`cutEntity`/`pastEntity`/`cutModule`/`pastModule` `persist:true`；仅 save code===200 写剪贴板与移出/写入 + 成功 toast；失败保留先前状态；复制仅本地剪贴板；`tree-cut-paste-failure` 绿；下一刀 → 改名模型/关系图或拖拽落盘假成功（若仍有）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 
