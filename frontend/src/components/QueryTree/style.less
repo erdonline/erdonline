@@ -62,11 +62,24 @@
   opacity: 1;
 }
 
+.query-tree__tree-host {
+  height: 100%;
+}
+
 .compact-tree {
   .ant-tree {
     font-size: 12px;
     background: transparent;
     color: var(--erd-ink-900);
+  }
+
+  // 键盘漫游：树聚焦时 active 行 brand 环（antd 默认仅 hover 底）
+  .ant-tree-focused {
+    .ant-tree-treenode-active .ant-tree-node-content-wrapper,
+    [data-tree-kb-active='1'] {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: -2px;
+    }
   }
 
   // 虚拟滚动 itemHeight=22 必须与视觉行高对齐，否则错位/空隙

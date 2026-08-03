@@ -18,6 +18,18 @@
 - `rg -n '\\$\\{[^}]*\\$\\{' backend/src/main/resources/` = 0
 - `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
 
+#### 体验：左树键盘漫游（模型树 Arrow / Enter）
+
+- 选题：Skip 到模型树后只能 Tab 进搜索；方向键无法入树；无法键盘开表/关系
+- `DataTable` 地标：↓/↑/Enter 切入 `QueryTree.focusKeyboard`（antd rc-tree 键盘面）；`data-tree-kb-active` + brand 环；Enter 复用既有 `handleSelect`（`focusTable` / 开关系）
+- 速查卡登记；Skip→Tab 进搜索不变（无 trap）
+- E2E：`relation`「左树键盘漫游：Skip↓入树；Enter 定位表/开关系；focus-visible；无 trap」
+- `docs/design-principles.md` §2 / regression-checklist；下一刀 → 节点级 Tab 再收口（或分享壳键盘）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "左树键盘漫游" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "设计器 Skip" --workers=1 --retries=0`
+
 #### 体验：画布 chrome Tab 序（Controls / MiniMap / 工具栏）
 
 - 选题：MiniMap `pannable`+`zoomable` 经 d3-zoom 写 `tabindex=0` → Tab 陷阱；Controls 键盘环弱；工具栏与缩放钮割裂

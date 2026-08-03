@@ -36,6 +36,7 @@
 - [x] [设计器 Skip + 焦点环] 首项 Tab「跳到模型树」→ `erd-design-tree` → Tab 入搜索；「跳到主工作区」→ `erd-design-workspace` → Tab 离地标（无 trap） ✅`relation.spec.ts`「设计器 Skip」
 - [x] [画布字段浏览器 Tab 环] 选中表 Tab 穿字段→添加字段→开表设计后可脱出；未选中表 `tabIndex=-1` ✅`relation.spec.ts`「字段浏览器 Tab 环」
 - [x] [画布 chrome Tab 序] Controls 四钮 → 工具栏；MiniMap svg `tabindex=-1`；Controls `:focus-visible` brand 环；Shift+Tab 回 Controls 无 trap ✅`relation.spec.ts`「画布 chrome Tab 序」
+- [x] [左树键盘漫游] Skip→↓入树；active `data-tree-kb-active` brand 环；Enter 定位表 + 开关系；Skip→Tab 进搜索无 trap ✅`relation.spec.ts`「左树键盘漫游」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」

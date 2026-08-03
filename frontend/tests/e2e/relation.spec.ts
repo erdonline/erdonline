@@ -1565,6 +1565,80 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  // ADR-0016：左树键盘漫游 — Skip 地标 ↓ 入树；Enter 开表/关系；focus-visible；无 trap
+  test('左树键盘漫游：Skip↓入树；Enter 定位表/开关系；focus-visible；无 trap', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('treekb');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'tkb', 'tree keyboard nav');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByRole('tree').getByText('T_TABLE_1', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('tree-open-relation')).toBeVisible();
+
+      // Skip → 树地标；Tab 仍进搜索（无 trap，不变）
+      await page.mouse.click(2, 2);
+      await page.keyboard.press('Tab');
+      await expect(page.getByTestId('erd-skip-tree')).toBeFocused({ timeout: 5_000 });
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('erd-design-tree')).toBeFocused();
+      await page.keyboard.press('Tab');
+      await expect(page.getByPlaceholder('搜索表名')).toBeFocused();
+
+      // 再 Skip；↓ 切入树键盘面 + active 首行
+      await page.mouse.click(2, 2);
+      await page.keyboard.press('Tab');
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('erd-design-tree')).toBeFocused();
+      await page.keyboard.press('ArrowDown');
+      await expect(page.locator('[data-tree-kb-active="1"]')).toHaveCount(1);
+      const ring = await page.locator('[data-tree-kb-active="1"]').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        return { outlineStyle: cs.outlineStyle, outlineWidth: cs.outlineWidth };
+      });
+      expect(ring.outlineStyle).not.toBe('none');
+      expect(Number.parseFloat(ring.outlineWidth)).toBeGreaterThanOrEqual(2);
+
+      // ↓ 到 T_TABLE_1 → Enter 定位（同 focusTable）
+      await page.evaluate(() => {
+        (window as Window & { __ERD_E2E__?: { setViewport: (vp: { x: number; y: number; zoom: number }) => void } })
+          .__ERD_E2E__?.setViewport({ x: -2400, y: -1800, zoom: 0.6 });
+      });
+      for (let i = 0; i < 8; i++) {
+        const label = await page.locator('[data-tree-kb-active="1"]').innerText().catch(() => '');
+        if (label.includes('T_TABLE_1')) break;
+        await page.keyboard.press('ArrowDown');
+      }
+      await expect(page.locator('[data-tree-kb-active="1"]')).toContainText('T_TABLE_1');
+      await page.keyboard.press('Enter');
+      const target = rfNode(page, 'T_TABLE_1');
+      await expect(target.locator('.erd-table-node')).toHaveClass(/selected/, { timeout: 5_000 });
+      await expect(target.locator('.erd-table-node')).toHaveAttribute('data-locate-flash', '1');
+      await expect(page.getByTestId('table-design')).toHaveCount(0);
+
+      // ↓ 到关系图叶子 → Enter 开关系（仍在画布）
+      for (let i = 0; i < 8; i++) {
+        const onRelation = await page
+          .locator('[data-tree-kb-active="1"]')
+          .getByTestId('tree-open-relation')
+          .count();
+        if (onRelation > 0) break;
+        await page.keyboard.press('ArrowDown');
+      }
+      await expect(
+        page.locator('[data-tree-kb-active="1"]').getByTestId('tree-open-relation'),
+      ).toBeVisible();
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
+      await expect(page.getByTestId('table-design')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   // ADR-0016：画布 chrome Tab 序 — Controls → 工具栏（MiniMap 装饰出序）
   test('画布 chrome Tab 序：Controls→工具栏；MiniMap 不出序；focus-visible', async ({ page }) => {
     test.setTimeout(90_000);
@@ -2684,6 +2758,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help.getByText('表设计：字段 / 索引 / 元数据应用')).toBeVisible();
       await expect(help.getByText(/二次确认/)).toBeVisible();
       await expect(help.getByText(/字段环|下一\/上一列或行|下一 \/ 上一列或行/)).toBeVisible();
+      await expect(help.getByText(/模型树：漫游/)).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+K' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: '⌘/Ctrl+1' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: 'Tab' })).toBeVisible();
