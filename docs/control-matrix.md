@@ -102,6 +102,7 @@
 | `/design/table/model` | 索引签删除 `index-delete-N` | 「删除索引 `{name}`」→ Modal 确认才删；取消保留；删空回空态 CTA | | ✅ | `relation`「索引签删除二次确认」 |
 | `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast | | ✅ | `relation`「JExcel 工具栏删除二次确认」 |
 | `/design/table/model` | 表设计字段签半成品写回 | 缺 `name`/`typeName` → toast + 中止写回；全空草稿可丢；Esc 停网格 | | ✅ | `relation`「半成品行不静默丢」 |
+| `/design/table/model` | 表设计索引签半成品写回 | 缺 `name`/`fields`（含 `[]`/「;」空）→ toast + 中止写回；Esc 停网格；重入索引仍在 | | ✅ | `relation`「索引签：半成品行不静默丢」 |
 | `/design/table/model` | 表节点「字段」`canvas-open-field` | 直达表设计字段签（`aria-selected` + `table-field-edit`）；可切索引后再经画布重入 | | ✅ | `relation`「画布打开字段签」 |
 | `/design/table/model` | 表节点「元数据」`canvas-open-code` | 直达表设计元数据应用签（`aria-selected` + `table-code-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开元数据应用签」 |
 | `/design/table/model` | 表头 ✎ 改名 | 名称更新；chnname 双栏内联 | | ✅ | `relation`「改名」/「表头中文名」 |
