@@ -32,6 +32,7 @@
 - [x] [索引签再加一行 CTA] 首条后见「+ 再添加一条索引」→ toast + `T_TABLE_1_IDX2`；`index-add-row` 仍可见 ✅`relation.spec.ts`「索引签再加一行 CTA」
 - [x] [索引签删除二次确认] 「删除索引 `{name}`」→ 取消保留；确认 toast「索引更新成功」+ 空态「添加第一个索引」；`index-delete-list` 消失 ✅`relation.spec.ts`「索引签删除二次确认」
 - [x] [JExcel 工具栏删除二次确认] 字段签选中行→「删除选中行」→ 取消保留；确认后网格与画布无该字段 ✅`relation.spec.ts`「JExcel 工具栏删除二次确认」
+- [x] [表设计字段签 Tab 焦点序] hint→撤销→重做→末尾增加一行；Enter 增行；网格 Shift+Tab 回「快捷操作」 ✅`relation.spec.ts`「工具栏 Tab 可达」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
 - [x] [表设计索引签半成品不静默丢] 添索引 → Tab/Delete/Enter 清字段 → toast；Esc 仍在索引签；删入口仍在；画布重入索引名仍在 ✅`relation.spec.ts`「索引签：半成品行不静默丢」
 - [x] 画布「字段」→ 表设计字段签（无死 affordance；再入仍落字段）✅`relation.spec.ts`「画布打开字段签」

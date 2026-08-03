@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：表设计字段签 JExcel Tab 焦点序（键盘建模）
+
+- 选题：工具栏仅 remove 可 Tab；其余 6 个 icon 键盘不可达；remove 可聚焦但 Enter/Space 不触发；网格无 Tab 入口
+- 全工具栏 `role=button` + `tabindex=0` + `aria-label`(title) + Enter/Space→click；`.jexcel_content` `jexcel-grid` 可聚焦，Enter 选 A1；不拦 Tab/Shift+Tab（无 trap）
+- E2E：`relation`「表设计字段签：工具栏 Tab 可达且 Enter 增行；网格无 trap」
+- `docs/design-principles.md` §2；下一刀 → 设计器全局焦点环审计（左树/签页/画布）或 Cmd+1/2/3 签页直切
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "工具栏 Tab 可达" --workers=1 --retries=0`
+
 #### 体验：表设计索引签半成品行不静默丢（键盘建模）
 
 - 选题：字段签半成品已 toast+中止；索引签 `fields` 可为 `[]` /「;」空串 → 旧 `isEmptyCell` 漏检，仍可能静默写坏/丢索引
 - `isEmptyCell`：数组与多选空串视为空；索引签必填仍 `name`+`fields`；半成品 toast + 中止写回（与字段签同形）
 - E2E：`relation`「表设计索引签：半成品行不静默丢索引；Esc 停在网格」
-- `docs/design-principles.md` §5；下一刀 → 字段签 Tab 焦点序（优先于碎色·密度）
+- `docs/design-principles.md` §5；下一刀 → ~~字段签 Tab 焦点序~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "索引签：半成品行不静默丢" --workers=1 --retries=0`
@@ -33,7 +43,7 @@
 - 选题：JExcel `notEmptyColumn` 静默 reject 缺类型行 → Enter/Tab/清类型后字段从 store 消失且无 toast；与画布空名反馈不一致
 - `saveValidData`：全空草稿可丢；半成品中止写回 + toast「有行未填完必填项…」；字段签必填对齐为 `name`+`typeName`；网格内 Esc stopPropagation
 - E2E：`relation`「表设计字段签：半成品行不静默丢字段；Esc 停在网格」
-- `docs/design-principles.md` §4；下一刀 → ~~索引签键盘半成品~~✅ → 字段签 Tab 焦点序（优先于碎色·密度）
+- `docs/design-principles.md` §4；下一刀 → ~~索引签键盘半成品~~✅ → ~~字段签 Tab 焦点序~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "半成品行不静默丢" --workers=1 --retries=0`
