@@ -1,13 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {message, Space, Tabs, Typography} from 'antd';
+import {message, Tabs} from 'antd';
 import GroupUser from '@/pages/project/group/component/GroupUser';
 import GroupPermission from '@/pages/project/group/component/GroupPermission';
 import {GET} from '@/services/crud';
 import {CONSTANT} from '@/utils/constant';
 import {useSearchParams} from '@@/exports';
 import {useAccess} from '@@/plugin-access';
-
-const {Title} = Typography;
+import './group-setting.scss';
 
 type RoleTabItem = {
   label: string;
@@ -88,12 +87,12 @@ const GroupSetting: React.FC<GroupSettingProps> = () => {
   ]);
 
   return (
-    <div>
-      <Space size={'large'}>
-        <Title level={4}>用户组</Title>
-      </Space>
-      <br />
+    <div className="group-setting-page" data-testid="group-setting-page">
+      <h2 className="group-setting-page__title">用户组</h2>
       <Tabs
+        className="group-setting-page__role-tabs"
+        data-testid="group-setting-role-tabs"
+        aria-label="用户组角色"
         tabPosition="left"
         activeKey={tab}
         items={items}

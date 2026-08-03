@@ -58,12 +58,97 @@ test.describe('GroupLayout 导航与权限组', () => {
     try {
       await login(page, account);
       await page.goto(`/project/group/setting/permission?projectId=${projectId}`);
+      const pageRoot = page.getByTestId('group-setting-page');
+      await expect(pageRoot).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole('heading', { name: '用户组' })).toBeVisible({
         timeout: 15_000,
       });
+      const roleTabs = page.getByTestId('group-setting-role-tabs');
+      await expect(roleTabs).toBeVisible();
       await expect(page.getByRole('tab', { name: '团队所有者' })).toBeVisible();
       await expect(page.getByRole('tab', { name: '团队管理员' })).toBeVisible();
       await expect(page.getByRole('tab', { name: '团队普通成员' })).toBeVisible();
+
+      // ADR-0016：用户组页头/左角色签碎距 — 标题 13/22·mb≤8；左签 padX∈[8,12]·高∈[28,32]
+      // antd 把 role=tab 挂在 .ant-tabs-tab-btn；量外壳 .ant-tabs-tab（勿用 .ant-* 做定位，仅测距）
+      const pageMetrics = await pageRoot.evaluate((root) => {
+        const title = root.querySelector(
+          '.group-setting-page__title',
+        ) as HTMLElement | null;
+        const roleTabsEl = root.querySelector(
+          '[data-testid="group-setting-role-tabs"]',
+        ) as HTMLElement | null;
+        const roleTabBtn = (
+          [...root.querySelectorAll('[role="tab"]')] as HTMLElement[]
+        ).find((el) => (el.textContent || '').trim() === '团队所有者');
+        // antd：role=tab 在 btn；外壳为 parent（勿用 class*=tabs-tab，会误命中 tab-btn）
+        const roleTabShell = (roleTabBtn?.parentElement ||
+          roleTabBtn) as HTMLElement | null;
+        const tcs = title ? getComputedStyle(title) : null;
+        const tabCs = roleTabShell ? getComputedStyle(roleTabShell) : null;
+        let titleToTabs = -1;
+        if (title && roleTabsEl) {
+          titleToTabs = Math.round(
+            roleTabsEl.getBoundingClientRect().top -
+              title.getBoundingClientRect().bottom,
+          );
+        }
+        return {
+          titleFont: tcs ? parseFloat(tcs.fontSize) : -1,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
+          titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
+          titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
+          titleToTabs,
+          tabPadX: tabCs ? parseFloat(tabCs.paddingLeft) : -1,
+          tabPadR: tabCs ? parseFloat(tabCs.paddingRight) : -1,
+          tabH: roleTabShell
+            ? roleTabShell.getBoundingClientRect().height
+            : -1,
+          tabFont: tabCs ? parseFloat(tabCs.fontSize) : -1,
+        };
+      });
+      expect(
+        pageMetrics.titleFont,
+        `标题字号应 ≤14（目标 13），得 ${pageMetrics.titleFont}`,
+      ).toBeLessThanOrEqual(14);
+      expect(pageMetrics.titleFont).toBeGreaterThanOrEqual(12);
+      expect(
+        pageMetrics.titleLh,
+        `标题行高应 ≤24（目标 22），得 ${pageMetrics.titleLh}`,
+      ).toBeLessThanOrEqual(24);
+      expect(
+        pageMetrics.titleMb,
+        `标题 marginBottom 应 ≤8（禁 Title level4 松距），得 ${pageMetrics.titleMb}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        pageMetrics.titleMt,
+        `标题 marginTop 应 ≤4（禁 antd Title 默认 mt），得 ${pageMetrics.titleMt}`,
+      ).toBeLessThanOrEqual(4);
+      expect(
+        pageMetrics.titleToTabs,
+        `标题→左签间距应 ≤12（禁 Space large + br），得 ${pageMetrics.titleToTabs}`,
+      ).toBeLessThanOrEqual(12);
+      expect(pageMetrics.titleToTabs).toBeGreaterThanOrEqual(0);
+      expect(
+        pageMetrics.tabPadX,
+        `左角色签 padX 应 ∈[8,12]（禁 24），得 ${pageMetrics.tabPadX}`,
+      ).toBeGreaterThanOrEqual(8);
+      expect(pageMetrics.tabPadX).toBeLessThanOrEqual(12);
+      expect(pageMetrics.tabPadR).toBeGreaterThanOrEqual(8);
+      expect(pageMetrics.tabPadR).toBeLessThanOrEqual(12);
+      expect(
+        pageMetrics.tabH,
+        `左角色签高应 ∈[28,32]（禁 ~38），得 ${pageMetrics.tabH}`,
+      ).toBeGreaterThanOrEqual(28);
+      expect(pageMetrics.tabH).toBeLessThanOrEqual(32);
+      expect(
+        pageMetrics.tabFont,
+        `左角色签字号应 ≤13（目标 12），得 ${pageMetrics.tabFont}`,
+      ).toBeLessThanOrEqual(13);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/group-setting-page-dense.png',
+      });
 
       // access 就绪后嵌套页签出现（竞态修复回归）
       await expect(page.getByRole('tab', { name: '用户组成员' })).toBeVisible({
