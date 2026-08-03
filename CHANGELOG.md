@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 状态：Vision 自动轨暂停（仅人工 next）
+
+- 扫描锚点：`d94f1fd`（画布 FK `constraintName` 可编辑）之后
+- 结论：无未锁定高 ROI P0/P1 Vision 刀；禁止为 idle 再 densify 已密 chrome / Auth logo
+- Human next：ADR-0013 拍板 · P4 Railway demo 拉起 · DBML Trigger（等官方块）· ADR-0011 `fields[]`（FE 多字段边协议）
+- 文档：`docs/roadmap.md`「Vision 自动轨暂停点」
+
+验证点：
+- 本条为状态记录，无产品行为变更
+
 #### 体验：画布边 FK 约束名可编辑（对称 ON DELETE/UPDATE）
 
 - 选题：`d198079`/`94fa593` 后 chip 可改参照动作，逆向/`Ref name` 已有 `constraintName` 却画布只读 → 新建边控不了 DDL 约束名（对称缺口）
