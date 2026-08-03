@@ -52,6 +52,7 @@
 - [x] [版本动作弹窗键盘] 新增/编辑首焦版本号（非最新编辑首焦描述）/ 删除·回滚首焦「是」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-action-modals-keyboard.spec.ts`
 - [x] [版本对比/详情 diff 键盘] 比对首焦「初始版本」/ 详情首焦「导出变更清单」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-diff-keyboard.spec.ts`
 - [x] [同步配置/重建版本键盘] 同步配置首焦「字段增量」/ 重建版本首焦「版本号」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-sync-rebuild-keyboard.spec.ts`
+- [x] [初始化基线键盘] 有数据源且未建基线时首焦「版本号」；Esc 关窗归还触发器；Tab trap 在 dialog ✅`version-init-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」

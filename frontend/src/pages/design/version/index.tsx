@@ -6,6 +6,7 @@ import {compareStringVersion} from "@/utils/string";
 import {Button, Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
+import InitVersion from "@/components/dialog/version/InitVersion";
 import RebuildVersion from "@/components/dialog/version/RebuildVersion";
 import CompareVersion, {CompareVersionType} from "@/components/dialog/version/CompareVersion";
 import RenameVersion from "@/components/dialog/version/RenameVersion";
@@ -366,6 +367,12 @@ const Version: React.FC = () => {
                 fallback={<></>}
               >
                 <SyncConfig/>
+              </Access>
+              <Access
+                accessible={access.canErdHisprojectInit}
+                fallback={<></>}
+              >
+                <InitVersion/>
               </Access>
               <Access
                 accessible={access.canErdHisprojectRebuild}
