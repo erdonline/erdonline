@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Word gendocx 导出假成功
+
+- 选题：`downloadWordTemplate` ZIP 闸已收口（`99d8406`）；`exportFile('Word')`→`POST /ncnb/doc/gendocx` 仅拒 `content-type: json`，空体 / `octet-stream` 包 JSON / 非 ZIP 仍 `saveByBlob` → 假 `.doc` 下载
+- `exportSlice` Word 路径复用 `docxBlobGate`（非空 + ZIP `PK`）；失败 toast「Word导出失败!请重试！出错原因：…」、不落盘；`profileSlice` 模板下载改走同一闸；删 `save.js` 零引用 `gendocx` 死代码
+- E2E：`word-gendocx-download-failure` mock JSON / 空 blob / 非 ZIP → toast + 无 `download`；定位 `role=button`「导出Word」/`testid=export-common-page`（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描余假成功，或键盘摩擦
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/word-gendocx-download-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：WORD 模板下载假成功
 
 - 选题：版本回滚假成功已收口（`202d7c5`）；`downloadWordTemplate` 对任意 blob（含空体 / `application/json` 错误体）直接 `saveByBlob(...docx)` → 用户像下到模板实为垃圾/JSON
 - `downloadWordTemplate`：校验非空 + ZIP 魔数 `PK`；`json`/窥探 JSON 错误体则失败 toast、不落盘；HTTP 错误 `errorHandler` 重抛防 resolve(undefined)
 - E2E：`word-template-download-failure` mock JSON/空 blob → toast + 无 `download` 事件；定位 `role=dialog`「默认项设置」/ `role=button`「下载模板」（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描余假成功，或键盘摩擦（回滚 Esc 已覆盖）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Word `gendocx` 空/JSON/非 ZIP 假下载~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/word-template-download-failure.spec.ts --project=chromium --workers=1 --retries=0`

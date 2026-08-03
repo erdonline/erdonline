@@ -36,6 +36,7 @@
 - ✅ 默认数据源切换 / WORD 模板路径：仅 `saveProject` code===200 写 store（模板另 toast「WORD模板已更新」）；失败 toast、Radio/列表回滚可重试；禁仅本地 mutate（`needSave=false` 时 autosave 不触发）
 - ✅ 版本回滚：仅 `saveProject` code===200 写 store + toast「成功回滚」+ 关窗；失败 toast、不写 store、确认窗不关可重试；禁先 `setModules` 再异步 save
 - ✅ WORD 模板下载：仅非空且 ZIP 魔数 `PK` 的 blob 落盘 `.docx`；空体 / JSON 错误体 toast「下载模板出错」且不触发下载；禁假成功文件
+- ✅ Word 文档导出（`gendocx`）：同 ZIP 闸（`docxBlobGate`）；空体 / JSON / 非 `PK` → toast「Word导出失败!请重试！」且不触发下载；禁假成功文件
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）

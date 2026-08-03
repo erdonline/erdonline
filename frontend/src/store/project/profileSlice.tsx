@@ -7,6 +7,7 @@ import {message} from "antd";
 import {confirmDestructive} from "@/utils/destructiveConfirm";
 import request from "@/utils/request";
 import {saveByBlob} from "@/utils/file";
+import {docxBlobFailureReason} from "@/utils/docxBlobGate";
 import {
   createDatabaseConfig,
   deleteDatabaseConfig,
@@ -92,48 +93,13 @@ function rethrowDownloadError(error: unknown): never {
   throw error;
 }
 
-/**
- * 校验 downloadWordTemplate 响应：禁空 blob / JSON 错误体 / 非 ZIP 魔数冒充 .docx。
- * @returns null 表示可保存；否则为失败原因
- */
-async function wordTemplateDownloadFailureReason(res: unknown): Promise<string | null> {
-  if (res == null) {
-    return '服务器未返回模板内容';
-  }
-  if (!(res instanceof Blob)) {
-    return '响应不是文件';
-  }
-  if (res.size === 0) {
-    return '模板内容为空';
-  }
-  const type = (res.type || '').toLowerCase();
-  if (type.includes('json')) {
-    try {
-      const json = JSON.parse(await res.text()) as { msg?: string; message?: string };
-      return json.msg || json.message || '下载模板失败';
-    } catch {
-      return '下载模板失败';
-    }
-  }
-  // 部分网关以 octet-stream 包 JSON 错误；docx 为 ZIP（PK）
-  const head = new Uint8Array(await res.slice(0, 4).arrayBuffer());
-  const isZip =
-    head.length >= 2 && head[0] === 0x50 /* P */ && head[1] === 0x4b /* K */;
-  if (!isZip) {
-    try {
-      const text = await res.slice(0, 512).text();
-      const trimmed = text.trimStart();
-      if (trimmed.startsWith('{') || trimmed.startsWith('[')) {
-        const json = JSON.parse(trimmed) as { msg?: string; message?: string };
-        return json.msg || json.message || '下载模板失败';
-      }
-    } catch {
-      /* 非 JSON */
-    }
-    return '返回内容不是 Word 模板（.docx）';
-  }
-  return null;
-}
+const WORD_TEMPLATE_BLOB_COPY = {
+  missing: '服务器未返回模板内容',
+  notBlob: '响应不是文件',
+  empty: '模板内容为空',
+  failDefault: '下载模板失败',
+  notDocx: '返回内容不是 Word 模板（.docx）',
+} as const;
 
 /** 逆向业务/异常 → 可读短句（禁止对象拼接出 [object Object]） */
 function reverseParseErrorText(source: unknown): string {
@@ -773,7 +739,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           doctpl: doctpl,
         },
       });
-      const reason = await wordTemplateDownloadFailureReason(res);
+      const reason = await docxBlobFailureReason(res, WORD_TEMPLATE_BLOB_COPY);
       if (reason) {
         message.error(`下载模板出错!出错原因：${reason}！`);
         return false;
