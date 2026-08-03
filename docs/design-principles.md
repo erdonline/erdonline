@@ -203,13 +203,13 @@
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
 - ✅ 导入/导出弹层密度：共享 `.erd-io-modal`（标题 13/22、body pad 12/14、footer 钮 28、Select/单行 Input 28、Dragger 收紧；Steps mt/mb ≤10/12 · 标题 12，与次屏同阶）；禁默认头脚松距 / Steps 16/24 盖项目菜单回路
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条控件 24 / 次密距 pad 4、sider-inner pad 4×6×0×8；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行 + pad 8/控件 28；禁 clip 图标；保留工具条/树 focus-visible
-- ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 24（再压，原 40→28）、字 12、flex 居中；表头 pad 2×10 / title 12；禁 clip 标签/关闭钮；禁历史 40 松栏 + 10×16 签头
+- ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 24（再压，原 40→28）、字 12、flex 居中；表头 pad 2×8 / gap4 / title 12；内签 gutter/marginR 2（禁 8）；禁 clip 标签/关闭钮；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 24；hint/摘要色走 `--erd-ink-*` / success·brand·warning；禁 8×12 松行 + 16 标题、禁工具条 28 + livecam/`#389e0d` 碎色；禁 clip 图标；保留工具条 focus-visible
 - ✅ 版本列表空态井次密：`.version-page__list .ant-list-empty-text` pad 12×8（对齐工作台列表空态）；保留「还没有版本」+「保存第一个版本」CTA；禁 16×12 松井；`testid=version-empty`
 - ✅ 版本工单/审批列表密度：共享 `.approval-workorder-page` 标题 13/22、标题栏 ~24、表头/行 pad 4×8、动作钮 22；禁默认松表 + `marginBottom:16`；禁 clip 图标；保留动作钮 focus-visible
 - ✅ 设计器次屏表密度：JExcel（字段/索引/默认字段）工具栏 ~24、表头/行 pad 4×8、字 12、token 斑马；版本 diff 实体组头/行 ~24 + success/brand/warning；禁 datatables 头 10/行 8 + `#fbf8fb`；禁 clip；保留工具栏 Tab/focus-visible
 - ✅ 元数据应用子签密度：`CodeTab`/`DbTab` 签栏 `--erd-sub-tabs-h` 24、字 12、flex 居中；禁默认 antd 松签 + 字 11；禁 clip；保留子签 Tab focus-visible + Cmd+1/2/3 表设计签
-- ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；禁 pad 堆高无固定栏；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
+- ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；`tabBarGutter`/marginR 2（对齐子签）；禁 pad 堆高无固定栏 + marginR 8；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
 - ✅ 表设计签体内容次密距：`--erd-tab-body-pad-x/b` 6/4、unique-hint pad 4×8 / mb 4、空态 pad 贴 tab-body、元数据 tip `.erd-meta-ddl-hint` ~24、工作区井 6；禁 10/12 松井 + Paragraph 大底距；禁 clip JExcel；保留空字段 CTA / 空名 toast
 - ✅ 设计器空态次密距：兜底 `.erd-pane-empty`（禁 `marginTop:100` / 高 200 插画）；字段/索引 `.ant-empty` margin-block 0 + pad 对齐 `--erd-tab-body-pad`；保留空态 CTA；禁 antd `marginXL` 次屏松井
 - ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 20×16、标题 18/mt12·lh22（贴 page-title 13/22 节奏）、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 32×24 / 48+ 松井 / 20·mt14 / 22 标题 mt20 / hero 220；禁压成画布空态 10×12

@@ -11,12 +11,12 @@
   font-family: var(--erd-font-ui);
 }
 
-/* ADR-0016：表设计签头再压至 ~24（与 CommonTabs 同阶）；禁 clip 标题 */
+/* ADR-0016：表设计签头 ~24（与 CommonTabs 同阶）；碎距 padX8 / gap4；禁 clip 标题 */
 .erd-table-design__header {
   display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 2px 10px;
+  gap: 4px;
+  padding: 2px 8px;
   min-height: 24px;
   border-bottom: 1px solid var(--erd-line);
   background: linear-gradient(180deg, var(--erd-surface-muted) 0%, var(--erd-surface-sunk) 100%);
@@ -90,12 +90,13 @@
     align-items: stretch;
   }
 
+  /* 内签 gutter 对齐 CommonTabs / 子签 ~2（禁 marginR 8 松碎距） */
   > .ant-tabs-nav .ant-tabs-tab {
     display: inline-flex !important;
     align-items: center !important;
     height: var(--erd-inner-tabs-h) !important;
     padding: 0 6px !important;
-    margin: 0 8px 0 0 !important;
+    margin: 0 2px 0 0 !important;
     font-size: 12px;
     line-height: 18px;
     color: var(--erd-ink-600);
