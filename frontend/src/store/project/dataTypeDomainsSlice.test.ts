@@ -1,6 +1,6 @@
 /**
  * getDataTypeTree 图标 fill 走 erdColors.brand（禁裸 #DE2910）。
- * UI 树入口暂无挂载；本单测锁 token 同源。
+ * 设置页 `/design/table/setting/dataType` 挂载 CRUD；本单测锁 token 同源。
  * 运行：cd frontend && npx tsx src/store/project/dataTypeDomainsSlice.test.ts
  */
 import assert from 'node:assert/strict';

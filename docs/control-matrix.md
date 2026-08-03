@@ -322,6 +322,7 @@
 | `/design/table/query` | 页内运行/计划 | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段；仅 code===200；失败回滚可重试 | | ✅ | `default-field.spec`「编辑保存有 toast」；`default-field-failure` |
+| `/design/table/setting/dataType` | 数据类型字典 CRUD | `add`/`update`/`remove` `persist:true`；仅 save code===200；失败窗 keep | | ✅ | `datatype-domains-failure` |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |

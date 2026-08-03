@@ -186,6 +186,10 @@ export default [
             component: './design/setting/component/DefaultField',
           },
           {
+            path: '/design/table/setting/dataType',
+            component: './design/setting/component/DataTypeDomains',
+          },
+          {
             path: '/design/table/setting/default',
             component: './design/setting/component/DefaultSetUp',
           },

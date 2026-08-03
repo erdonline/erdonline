@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：数据类型字典 CRUD 假成功
+
+- 选题：基数假成功已收口（`173c456`）；`dataTypeDomainsSlice` 本地 mutate 即「提交成功」，且设置页 CRUD UI 已在 W4 删掉（零挂载）
+- `addDatatype`/`updateDatatype`/`removeDatatype` 支持 `persist:true`；仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store；清零剪贴板假成功 dead CRUD
+- 设置页：`/design/table/setting/dataType` 列表 + Modal 新增/编辑；删确认失败拒关窗；侧栏复用默认字段权限
+- E2E：`datatype-domains-failure` 首拒窗仍开、表无新行 → 重试成功入表；定位 `datatype-domains-page` / `role=dialog` / `aria-label`（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 逆向导入 `setProjectJson`/`importReverseTable` 本地成功 toast（含 dataTypeDomains 合并）
+
+验证点：
+- `cd frontend && npx tsx src/store/project/dataTypeDomainsSlice.test.ts`
+- `cd frontend && npx playwright test tests/e2e/datatype-domains-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：画布改边基数假成功
 
 - 选题：连线建关联假成功已收口（`bde9210`）；`updateAssociationRelation` / 基数 Select 仍本地 mutate 即换 chip，autosave 失败像已改基数
 - `updateAssociationRelation` 支持 `persist:true`；仅 `saveProject` code===200 写 store；失败 toast、chip/Crow's foot 保持原基数；可再选重试
 - E2E：`canvas-cardinality-failure` 首拒仍 `n:1` → 重试成功 `1:1`；定位 `erd-edge-label` / `erd-edge-cardinality` / `role=option`（勿扫 `.ant-*`）；happy `relation` PK/FK 基数路径不变
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 数据类型字典 CRUD 假成功（`dataTypeDomainsSlice` 仍本地 mutate）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~数据类型字典 CRUD 假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-cardinality-failure.spec.ts --project=chromium --workers=1 --retries=0`
