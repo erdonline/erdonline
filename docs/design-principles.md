@@ -194,7 +194,7 @@
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
 - ✅ 空态面板密度：padding 14/18/12、max-width 300、标题 14/700 / CTA height 26、剪影 compact 132；禁 28/32 松卡片盖首屏
-- ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 10；禁 48 高输入 + 10/12 松行盖快捷回路
+- ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 4×8 / font 10（与 `?` 速查 footer 同阶）；禁 48 高输入 + 10/12 松行 + footer 6×10 松井盖快捷回路
 - ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；empty pad ≤8×8 / gap ≤2、list pad ≤2；禁仅「无匹配命令或表」一句无指引；禁 16×12 空井 + 4px 列表井
 - ✅ 快捷键速查卡密度：`?` dialog maxH ≤360、header 6×10、list pad ≤2×4、row padY ≤6 / gap ≤8、footer 4×8；关闭钮 focus-visible；禁 list 6×8 + row padY 10 / gap 12 松井；Esc / 与 Cmd+K 互斥不弱化
 - ✅ 实体新建弹层密度：宽 400、标题 13、body pad 12/14、表单项 margin 12、输入/OK 高 28 / font 12；禁默认 520 宽 + 24 pad 松卡片盖建模回路
