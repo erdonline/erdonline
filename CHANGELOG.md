@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：空态剪影 compact 碎距
+
+- 选题：量测 Controls/工具栏 panel margin 已 8；空态 CTA/panel/纵节奏/links 已密；Auth logo 48 / 欢迎 pad~20×16 标 diminishing → 优先压画布 `ErdEmptyDiagram` compact 仍 **132**（相对已密 chrome 偏大）
+- before：compact 宽 **132**（高≈95）；after：**112**（高≈81）；hero 176 / Auth logo / 欢迎 pad / Controls·工具栏 margin / 边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚不动
+- E2E：`relation`「空态构图」锁 svgW≈112∈[96,120]；定位 `testid=erd-empty-diagram` / `canvas-empty-state`（勿扫 `.ant-*`）；截图 `diagram-empty-composition.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → densify ROI 趋尽（Auth logo 48 diminishing）或 Vision 刀（假成功残口 / 键盘摩擦）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图" --workers=1 --retries=0`
+
 #### 体验：Controls / 工具栏 Panel margin 碎距
 
 - 选题：量测基数 Select **24** / EntityModal 项 mb **12**·控件 **28** 已贴 ADR-0016（锁禁回退）；跳过边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚 → 改压画布 RF panel 余松：Controls + 顶栏工具栏仍 **margin 15**（MiniMap 已 8）
 - before：Controls / 工具栏 Panel **margin 15**；after：**margin 8**（对齐 MiniMap）；按钮 22 / surface 不改
 - E2E：`relation`「Controls」+「PK/FK」+「实体新建弹层密度」锁 Controls/工具栏 margin ∈[8,12] + 基数 Select 高≤28 + 实体项 mb≤12 / 输入≤28；`demo` Controls margin；定位 role/testid（勿扫 `.ant-*` 业务语义）；截图既有 dense png
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Auth logo 48 / 欢迎 pad 再压或空态剪影（勿再压边标签 / MiniMap 尺寸 / 版本工具条 / 弹层头身脚 / Controls·工具栏 margin）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~空态剪影 compact 132~~✅（跳过 Auth logo 48 / 欢迎 pad）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "Controls：中文|表节点视觉：PK/FK|实体新建弹层密度" --workers=1 --retries=0`
