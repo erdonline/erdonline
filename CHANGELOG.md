@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：初始化基线弹层键盘闭环（InitVersion）
+
+- 选题：版本页「初始化基线」从工具栏失踪（仅残存在未挂载 `VersionMenu`）；Modal 缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
+- 改动：版本页工具栏按 `canErdHisprojectInit` 挂回 `InitVersion`；显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「版本号」；删未挂载死壳 `VersionMenu`
+- E2E：`version-init-keyboard`（API 建数据源 → 首焦、Esc 归还、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 其它剩余 Modal 键盘（如 CopyProject / 数据源设置）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/version-init-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：同步配置/重建版本弹层键盘闭环
 
 - 选题：版本页工具栏「同步配置」「重建版本」Modal 开窗首焦不稳；缺 `keyboard`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：`SyncConfig` 首焦选中升级方式 radio（默认「字段增量」）；`RebuildVersion` 首焦「版本号」；两者显式 `keyboard` + `focusTriggerAfterClose` + `afterOpenChange`
 - E2E：`version-sync-rebuild-keyboard`（同步配置/重建版本：首焦、Esc 归还、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → InitVersion 或其它剩余版本弹层键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~InitVersion~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-sync-rebuild-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

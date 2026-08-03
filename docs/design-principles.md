@@ -33,6 +33,7 @@
 - ✅ 版本动作弹窗键盘：新增→版本号；编辑→版本号（非最新只读号→描述）；删除/回滚确认→「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 版本对比/详情 diff 弹层键盘：比对→「初始版本」Select；详情→「导出变更清单」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 同步配置/重建版本弹层键盘：同步配置→首焦「字段增量」；重建版本→首焦「版本号」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
+- ✅ 初始化基线弹层键盘：首焦「版本号」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 404/403 壳键盘：首项 Tab Skip「跳到主操作」落 `#exception-main-cta`（`tabIndex=-1`）；绕开左品牌面板；打开示例 demo→返回首页；壳内 `:focus-visible` brand 环；`/403` 深链可达；无 trap
 - ✅ 分享失效门键盘：同构 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap
 - ✅ 画布字段浏览器 Tab 环：仅**选中**表的字段行 / 添加字段 / 打开表设计进序；行内 PK·✎·× `tabIndex=-1`（Enter 进编辑、Delete 删字段）；未选中表 `tabIndex=-1` 防画布 trap；字段行 `:focus-visible` brand 环；速查卡已登记

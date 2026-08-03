@@ -1,6 +1,7 @@
-import React, {useState} from 'react';
+import React, {useRef, useState} from 'react';
 import {AimOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, message} from 'antd';
+import type {InputRef} from 'antd';
 import moment from 'moment';
 import useVersionStore from '@/store/version/useVersionStore';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -33,6 +34,7 @@ const InitVersion: React.FC<InitVersionProps> = () => {
 
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
+  const versionInputRef = useRef<InputRef>(null);
 
   const openModal = () => {
     form.resetFields();
@@ -100,6 +102,14 @@ const InitVersion: React.FC<InitVersionProps> = () => {
         onCancel={() => setOpen(false)}
         destroyOnClose
         width={520}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => versionInputRef.current?.focus(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
@@ -116,6 +126,7 @@ const InitVersion: React.FC<InitVersionProps> = () => {
             ]}
           >
             <Input
+              ref={versionInputRef}
               aria-label="版本号"
               placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
             />

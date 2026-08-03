@@ -2,10 +2,6 @@ import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
 import { createFromIconfontCN } from "@ant-design/icons";
-import AddVersion from "@/components/dialog/version/AddVersion";
-import SyncConfig from "@/components/dialog/version/SyncConfig";
-import InitVersion from "@/components/dialog/version/InitVersion";
-import RebuildVersion from "@/components/dialog/version/RebuildVersion";
 import ReverseDatabase from "../dialog/import/ReverseDatabase";
 import ReversePdMan from "@/components/dialog/import/ReversePdMan";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
@@ -49,15 +45,6 @@ export interface IFileMenuProps {
   /** 设计器 Dropdown 是否打开；为 true 时拉取最近项目 */
   open?: boolean;
 }
-
-export const VersionMenu: React.FunctionComponent<IFileMenuProps> = () => (
-  <>
-    <AddVersion trigger="bp" testId="menu-add-version-btn" />
-    <SyncConfig />
-    <InitVersion />
-    <RebuildVersion />
-  </>
-);
 
 /** @deprecated Prefer ProjectMenu items; kept for rare standalone mounts */
 export const ImportMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
