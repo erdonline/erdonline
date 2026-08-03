@@ -177,6 +177,8 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
               selectedKeys={[selectedKey]}
               items={menuItems}
               className="group-layout__sider-menu"
+              data-testid="group-layout-sider-menu"
+              aria-label="团队设置导航"
             />
           </div>
         </Sider>

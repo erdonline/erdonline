@@ -100,6 +100,30 @@
 .group-layout__sider-menu {
   flex: 1;
   border-inline-end: none !important;
+  font-family: var(--erd-font-ui);
+
+  /* 次密：项高 40→28 / padX 24·16→12 / marginY 4→2（8–12 族；与账号左栏同阶）；命中 ≥28 */
+  &.ant-menu-inline .ant-menu-item,
+  &.ant-menu-inline .ant-menu-submenu-title,
+  .ant-menu-item,
+  .ant-menu-submenu-title {
+    height: 28px !important;
+    min-height: 28px !important;
+    line-height: 28px !important;
+    margin-block: 2px !important;
+    margin-inline: 4px !important;
+    padding-inline: 12px !important;
+    width: auto !important;
+    font-size: 12px;
+    border-radius: 4px;
+    overflow: visible;
+
+    .ant-menu-item-icon {
+      min-width: 14px;
+      font-size: 14px;
+      line-height: 1;
+    }
+  }
 }
 
 /* ADR-0016：团队壳次密 — 与 HomeLayout 外井同阶；禁 24/20 松井 */
