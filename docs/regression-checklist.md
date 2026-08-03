@@ -47,6 +47,7 @@
 - [x] 工具栏新建/重命名/切换关系图 + 树图列表 + 布局按图持久化/刷新 ✅`multi-diagram.spec.ts`
 - [x] 左树重命名关系图：菜单接通 `renameDiagram`；无空 FK 弹层；无复制/剪切死项 ✅`multi-diagram.spec.ts`「左树重命名关系图」
 - [x] 左树新建关系图：树头「新建」→ menuitem → `createDiagram`；树 + switcher + toast ✅`multi-diagram.spec.ts`「左树新建关系图」
+- [x] 左树「关系」文件夹 +：`getByRole('button', { name: '新建关系图' })`（scope tree）→ `createDiagram`；树 + switcher + toast ✅`multi-diagram.spec.ts`「左树「关系」文件夹 + 直建图」
 - [x] `getActiveDiagram` 懒迁移 / tab entity 往返 ✅`diagram.test.ts`
 - [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
 - [x] 公开 demo / 示例：双图「鉴权核心」「会话与审计」+ 切换器 ✅`demo.spec.ts` / `activation.spec.ts`
