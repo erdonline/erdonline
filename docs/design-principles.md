@@ -219,7 +219,7 @@
 - ✅ 设置页 chrome 密度：`.setting-common-page` 标题 13/22、页 pad 8×12、表单项 margin 12、Input/按钮 28；菜单「默认项设置」挂 `.erd-io-modal`；禁默认 Form 24 间距 + 大号控件
 - ✅ 数据库配置页密度：`.database-config-page` 标题 13/22、页 pad 8×12、工具条钮 28、表行 pad 4×8；抽屉表单同阶；菜单「数据源设置」挂 `.erd-io-modal`；禁 Title level4 + 松 Card
 - ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；BaseView 列 gap 16（窄屏 12）；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡 / BaseView gap24
-- ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；禁 Title level4 + List `large`
+- ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；公告 `notice-row` gap 8；禁 Title level4 + List `large` + notice gap12
 - ✅ 项目列表工具条碎距：`.project-list-page__toolbar` Space gap 8 + 搜索控件高 28（禁 antd 默认 32 撑到 34）；钮 padX 8；`data-testid=project-list-toolbar`；命中/键盘不弱化
 - ✅ 团队成员工具条碎距：`.group-user-list__toolbar` mb8 + Space gap 8 + 搜索/钮高 28；钮 padX 8；禁 mb16 + Search 默认 32；`data-testid=group-user-toolbar`；命中/键盘不弱化
 - ✅ Group 用户组 Title/左角色签碎距：`.group-setting-page` 标题 13/22·mb8；左签 padX12·高28·字12；禁 Title level4 + Space large + br + padX24；`data-testid=group-setting-page`；键盘不弱化
@@ -292,6 +292,7 @@
 - ❌ 设置页默认 Form 24 间距 + 大号控件，与 22–28 chrome 不同阶（历史问题）
 - ❌ 账号设置 20 标题 + 14 松行 / Home 项目卡 16×18 pad，与 22–28 chrome 不同阶（历史问题）
 - ❌ 授权类型裸 `Result` + 硬编码 `#DE2910`，与账号设置密度 / `--erd-*` 割裂（历史问题）
+- ❌ 公告行标题↔时间 gap12，相对行 pad 4×8 / 8–12 族偏松（历史问题）
 - ❌ 个人/最近/团队/公告列表 Title level4 + List large 松行，与 22–28 chrome 不同阶（历史问题）
 - ❌ 分享页 hint 13px + 12 间距 / 描述无 ellipsis 抢画布高（历史问题）
 - ❌ 分享展开表清单 16 pad + 14 标题 + antd 默认松行，与 22–28 / project-list 不同阶（历史问题）

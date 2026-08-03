@@ -571,7 +571,7 @@
 
 - [x] [更多公告] `/home`「更多公告」→ `/project/notice` 见 heading「公告」+ 种子标题链（含 ERDOnline）✅ `project-notice.spec.ts`
 - [x] [公告加载失败 toast] mock `/syst/sysAnnouncement` 非 200 →「加载公告失败」✅同上
-- [x] [公告列表行密度] 行 pad / 页标题 / 工具条与 22–28 同阶；截图 `project-notice-list-dense.png` ✅同上「公告列表行密度」
+- [x] [公告列表行密度] 行 pad / 页标题 / 工具条与 22–28 同阶；notice-row gap ≤8；截图 `project-notice-list-dense.png` ✅同上「公告列表行密度」
 
 ## W4 切片 5 — module/entity/database 死 ModalForm（2026-08-02）
 

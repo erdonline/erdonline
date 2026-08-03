@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { expectToast, login } from './helpers';
 
 /**
- * W2 `/project/notice`：首页「更多公告」→ 列表可读；失败有 toast；22–28 密度。
+ * W2 `/project/notice`：首页「更多公告」→ 列表可读；失败有 toast；22–28 密度 + notice-row gap8。
  */
 
 test.describe('项目公告', () => {
@@ -54,38 +54,47 @@ test.describe('项目公告', () => {
     await expect(pageEl).toBeVisible({ timeout: 15_000 });
     await expect(pageEl.getByRole('heading', { name: '公告' })).toBeVisible();
 
+    const noticeRow = pageEl
+      .getByTestId('project-notice-row')
+      .filter({ has: page.getByRole('link', { name: /ERDOnline/ }) })
+      .first();
+    await expect(noticeRow).toBeVisible({ timeout: 15_000 });
+
     const row = pageEl
       .getByRole('listitem')
       .filter({ has: page.getByRole('link', { name: /ERDOnline/ }) })
       .first();
     await expect(row).toBeVisible({ timeout: 15_000 });
 
-    // ADR-0016：列表行 pad/标题/工具条与 22–28 chrome 同阶；禁 Title level4 + List large
+    // ADR-0016：列表行 pad/标题/工具条与 22–28 同阶；notice-row gap ∈[8,12]（目标 8）
     const metrics = await row.evaluate((el) => {
       const cs = getComputedStyle(el);
-      const title = el.querySelector('.ant-list-item-meta-title');
-      const titleCs = title ? getComputedStyle(title) : null;
-      const pageRoot = el.closest('.project-list-page') as HTMLElement | null;
+      const pageRoot = el.closest(
+        '[data-testid="project-notice-page"]',
+      ) as HTMLElement | null;
       const pageTitle = pageRoot?.querySelector(
         '.project-list-page__title',
       ) as HTMLElement | null;
       const toolbar = pageRoot?.querySelector(
         '[data-testid="project-list-toolbar"]',
       ) as HTMLElement | null;
-      const link = el.querySelector(
-        '.project-list-page__notice-row > a',
+      const noticeRowEl = el.querySelector(
+        '[data-testid="project-notice-row"]',
       ) as HTMLElement | null;
+      const noticeCs = noticeRowEl ? getComputedStyle(noticeRowEl) : null;
+      const link = noticeRowEl?.querySelector('a') as HTMLElement | null;
       const linkCs = link ? getComputedStyle(link) : null;
       const tcs = pageTitle ? getComputedStyle(pageTitle) : null;
       return {
         padBlock: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
         padInline: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
-        titleFont: titleCs ? parseFloat(titleCs.fontSize) : -1,
-        titleLh: titleCs ? parseFloat(titleCs.lineHeight) : -1,
+        titleFont: noticeCs ? parseFloat(noticeCs.fontSize) : -1,
+        titleLh: noticeCs ? parseFloat(noticeCs.lineHeight) : -1,
         linkFont: linkCs ? parseFloat(linkCs.fontSize) : -1,
         pageTitleFont: tcs ? parseFloat(tcs.fontSize) : -1,
         pageTitleLh: tcs ? parseFloat(tcs.lineHeight) : -1,
         toolbarH: toolbar ? toolbar.getBoundingClientRect().height : -1,
+        noticeGap: noticeCs ? parseFloat(noticeCs.gap || '0') : -1,
       };
     });
 
@@ -124,6 +133,11 @@ test.describe('项目公告', () => {
       `工具条高应 ≤32（目标 ~28），得 ${metrics.toolbarH}`,
     ).toBeLessThanOrEqual(32);
     expect(metrics.toolbarH).toBeGreaterThanOrEqual(22);
+    expect(
+      metrics.noticeGap,
+      `公告行 gap 应 ≤8（8–12 族，禁 12），得 ${metrics.noticeGap}`,
+    ).toBeLessThanOrEqual(8);
+    expect(metrics.noticeGap).toBeGreaterThanOrEqual(8);
 
     await page.screenshot({
       path: 'test-results/ux-walkthrough/project-notice-list-dense.png',

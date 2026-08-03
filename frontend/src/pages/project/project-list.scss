@@ -204,11 +204,12 @@
   line-height: 18px;
 }
 
+/* ADR-0016：公告行标题↔时间 gap 8（8–12 族）；行 pad 已密，勿再压工具条 */
 .project-list-page__notice-row {
   display: flex;
   align-items: baseline;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px;
   min-width: 0;
 
   > a {
