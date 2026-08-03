@@ -191,6 +191,7 @@
 - ✅ 账号设置 / Home 项目卡密度：`/account/settings` 标题 13/22、页 pad 8×12、表单/安全行 28；授权类型密度面板（`--erd-brand` + 13/22，禁裸 `Result` / `#DE2910`）；Home「进行中的项目」卡 pad 10×12 / 标题 13/22；修改密码挂 `.erd-io-modal`；禁 20 标题 + 14 松行 / 16×18 松卡
 - ✅ 项目列表行密度：个人/最近/团队/公告共用 `.project-list-page`（标题 13/22、行 pad 4×8、工具条/打开钮 28）；禁 Title level4 + List `large`
 - ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
+- ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
 - ✅ 分享失效/空态：无效·吊销 → `AuthBrandShell`（左暗色品牌面板 + 右「分享不可用」+ 主 CTA「打开示例 demo」）；无模型/无表 → `ErdEmptyDiagram` + 同 CTA；禁裸 antd `Result` 403 与登录壳割裂
 - ✅ 404/403：未知路径 / 无权访问 → `AuthBrandShell`（「页面不存在」/「无权访问」+ 同 CTA）；禁裸 `Result` 与三壳 token 割裂
 - ✅ 导入后首屏：DBML 导入直开关系图 + `fitView`（多表 padding 0.08 / maxZoom 1.15，与分享只读同密）；切图/一键布局同样铺满
@@ -202,6 +203,7 @@
 - ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）
 - ❌ 分享成功态 meta gap4 / stage 8×12 + 表清单 8×12·13 标题 / 弹层 Paragraph 12·Compact 16，与 LandingChrome 次密断裂（历史问题）
+- ❌ Home hero actions gap12 / secondary 6×14 / hero 32·20 松井，与分享成功态次密断裂（历史问题）
 - ❌ 画布一套 Ant 蓝、Home 一套品牌红，截图不像同一产品（历史问题）
 - ❌ 项目「导出」旁弹出逆向/PdMan 等导入项（历史问题）
 - ❌ 导入多表后按序号铺网格，关联线交叉成毛线团（历史问题）
