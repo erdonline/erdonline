@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：团队项目删确认弹层键盘闭环（Popconfirm→Modal.confirm）
+
+- 选题：`RemoveGroupProject`（团队基本设置）用 `Popconfirm`（非稳定 `role=dialog`、无 Tab trap、首焦/Esc 闭环不稳）；无键盘回归
+- 改动：改 `confirmDestructive`（首焦「删除」+ Esc 归还删钮 + Tab trap）；删钮 `aria-label`→`删除团队项目`；`/ncnb/project/group/delete` 落盘与跳转 `/project/group` 逻辑不变
+- E2E：`group-project-delete-keyboard`（基本设置→删确认 → 首焦、Esc 归还不删、Tab trap）；不踩 `project-list-keyboard` / `group-basic-setting`
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 团队成员移除确认（`GroupUser` Popconfirm→`confirmDestructive`）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-project-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/project-list-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：只读分享吊销确认弹层键盘闭环（Modal.confirm）
 
 - 选题：`ShareProjectButton` 吊销裸 `Modal.confirm`（无显式 keyboard/autoFocus/focusTrigger）；仅有点击吊销旅程 E2E；确认层键盘闭环缺回归
 - 改动：吊销改 `confirmDestructive`（首焦「吊销」+ Esc 归还吊销钮 + Tab trap）；外层只读分享窗与 `/share/revoke` 落盘逻辑不变
 - E2E：`share-revoke-keyboard`（分享→吊销确认 → 首焦、Esc 归还不吊销、外层仍开、Tab trap）；不踩 `share-project-keyboard` / `share-invalid-gate`
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 团队项目删确认（`RemoveGroupProject` Popconfirm→`confirmDestructive`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~团队项目删确认（`RemoveGroupProject` Popconfirm→`confirmDestructive`）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/share-revoke-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
