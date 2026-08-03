@@ -186,7 +186,8 @@
 - ✅ **快捷键速查卡（`?`）密度**（2026-08-03）：header 6×10 · list 2×4 · row 3×4/gap8 · footer 4×8 · maxH 360；关闭钮 focus-visible；禁 6×8 井 + padY 10；Esc / Cmd+K 互斥不弱化；`relation.spec`「快捷键速查」绿；下一刀 → ~~建模静默失败 / CTA 不清~~✅（自动保存失败可重试 → 逆向解析失败可读+重试）
 - ✅ **逆向解析失败可读 + 重试**（2026-08-03）：禁 toast `[object Object]`；失败区详情 +「重新解析」；`reverse-parse-failure` 绿；下一刀 → ~~添加成员邀请失败静默关窗~~✅
 - ✅ **添加成员邀请失败不关窗**（2026-08-03）：非 200 不关窗；`request` toast 不叠弹；`add-user-invite-failure` 绿；下一刀 → ~~dbsync / 版本保存边缘静默失败~~✅
-- ✅ **版本保存/重建失败不伪装成功**（2026-08-03）：`initSave` 仅 code===200；InitVersion 失败不关窗；dbsync 清同步中死态；`version-save-failure` 绿；下一刀 → Vision densify / 静默失败 ROI 续选
+- ✅ **版本保存/重建失败不伪装成功**（2026-08-03）：`initSave` 仅 code===200；InitVersion 失败不关窗；dbsync 清同步中死态；`version-save-failure` 绿；下一刀 → ~~只读分享创建失败死 affordance~~✅
+- ✅ **只读分享创建失败可重试**（2026-08-03）：失败不叠弹；主钮「重新生成」；禁禁用死 affordance；`share-create-failure` 绿；下一刀 → 修改密码失败静默关窗 / SyncConfig 伪造成功 / densify ROI
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

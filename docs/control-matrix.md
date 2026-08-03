@@ -72,6 +72,7 @@
 | 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
 | 添加成员邀请失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `add-user-invite-failure` |
 | 版本初始化/重建保存失败 | 业务码失败 / 重试 | 初始化失败不关窗可重试；重建失败无伪装成功、无 rebaseline | 零静默失败 | ✅ | `version-save-failure` |
+| 只读分享创建失败 | 业务码失败 / 重试 | toast 可读；窗保持开；「重新生成」可重试；不叠弹；禁禁用死 affordance | 零静默失败 | ✅ | `share-create-failure` |
 | 只读分享 Modal | 打开首焦 / Esc / Tab trap | 首焦「分享链接」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-project-keyboard` |
 | 只读分享吊销确认 | 打开首焦 / Esc / Tab trap | 首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；焦点归还吊销钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-revoke-keyboard` |
 | 团队项目删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还「删除团队项目」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-project-delete-keyboard` |

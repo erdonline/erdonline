@@ -426,6 +426,7 @@
 - [x] [逆向解析失败可重试] mock `dbReverseParse` 业务码 → toast 含可读 msg、无 `[object Object]`；失败区「重新解析」→ 二次成功出实体表；body 含 `dataSourceId` 无 password/url ✅`reverse-parse-failure.spec.ts`
 - [x] [添加成员邀请失败不关窗] mock `role/users` 业务码 → toast「模拟邀请拒绝」+ dialog 仍开；重试成功 →「保存成功」关窗 ✅`add-user-invite-failure.spec.ts`
 - [x] [版本保存失败可读可重试] mock `hisProject/save` → 初始化基线 toast + 窗仍开 → 重试成功；重建失败无「重建基线成功」且不调 rebaseline ✅`version-save-failure.spec.ts`
+- [x] [只读分享创建失败可重试] mock `share/create` 业务码 → toast「模拟创建分享拒绝」+ 空链 +「重新生成链接」可点 → 二次成功出 `/s/` +「复制链接」 ✅`share-create-failure.spec.ts`
 
 ## 加载骨架（2026-08-01）
 
