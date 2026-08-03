@@ -71,7 +71,7 @@ test.describe('只读分享弹层键盘', () => {
           inputH: input ? input.getBoundingClientRect().height : -1,
         };
       });
-      expect(modalDense.bodyPadT, `分享弹层 body pad 应 ≤12，得 ${modalDense.bodyPadT}`).toBeLessThanOrEqual(12);
+      expect(modalDense.bodyPadT, `分享弹层 body pad 应 ≤8，得 ${modalDense.bodyPadT}`).toBeLessThanOrEqual(8);
       expect(modalDense.hintMb, `hint mb 应 ≤8，得 ${modalDense.hintMb}`).toBeLessThanOrEqual(8);
       expect(modalDense.linkMb, `链接行 mb 应 ≤10，得 ${modalDense.linkMb}`).toBeLessThanOrEqual(10);
       expect(modalDense.inputH, `链接输入高应 ∈[26,30]，得 ${modalDense.inputH}`).toBeGreaterThanOrEqual(26);

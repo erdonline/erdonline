@@ -21,7 +21,8 @@
   }
 
   .ant-modal-body {
-    padding: 12px 14px;
+    /* 量测：边标签 pad[4,2]/gap4 已贴 ADR 下限；body 12×14 相对次屏 8×12 偏松 */
+    padding: 8px 12px;
   }
 
   .ant-modal-footer {

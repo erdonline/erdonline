@@ -30,7 +30,7 @@
 - [x] 欢迎空态次密距：`.erd-welcome-empty__inner` padY≤20 / padX≤16；标题 mt∈[8,12] / 字∈[16,18] / lh≈22；hero ≤180；逆向链 + 左树新增模型；截图 `diagram-welcome-empty-dense.png` ✅`model-design-ux.spec.ts`
 - [x] AuthBrandShell 次密距：品牌/表单 pad ≤20×16；gap ∈[8,12]；门头 mb ∈[8,12]；表单 Title mt≤8；项 mb∈[8,16]；控件 ∈[24,32]；标题 ≥24；登录/`share-invalid`/注册同源；键盘 Skip/Tab 不回归 ✅`smoke` + `share` + `session`
 - [x] LandingChrome / `/compare` 次密距：次屏 section pad ≤52；对照行 pad ≤12；nav ≤20；footer ≤36；compare hero ≤36；hero 品牌字 ≥36 + 全幅；键盘 Skip/Tab 不回归 ✅`landing.spec` + `compare.spec`
-- [x] 分享成功态 meta / 表清单次密：meta 高 ≤60 / gap ≤2 / stage pad ≤6；表清单 pad ≤6 / 标题 ≤12 / 行 ∈20–26；弹层 body ≤12 / hint mb ≤8；键盘 Esc/Tab trap 不回归 ✅`demo.spec` + `share-project-keyboard`
+- [x] 分享成功态 meta / 表清单次密：meta 高 ≤60 / gap ≤2 / stage pad ≤6；表清单 pad ≤6 / 标题 ≤12 / 行 ∈20–26；弹层 body ≤8 / hint mb ≤8；键盘 Esc/Tab trap 不回归 ✅`demo.spec` + `share-project-keyboard`
 - [x] Home hero CTA 簇次密：actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候 ≥28；Skip→主区→CTA/二级入口/项目卡 + focus-visible 不回归 ✅`home-keyboard`
 - [x] Home 空态/公告次密：空态 pad ≤24×12；二级入口 mb ≤16；项目区 mb ≤20；公告 pt ≤4 / 行 pad ≤4·gap ≤10 / 标题 ≤13；空态 CTA +「更多公告」保留；键盘不回归 ✅`home-keyboard`
 - [x] 设计器次屏碎密度：逆向/DDL Steps ≤10/12；设置 hint mb≤8；SyncConfig `.erd-io-modal`；ReverseTable meta 次密 ✅`designer-secondary-pane`
@@ -39,7 +39,7 @@
 - [x] [字段签空态 CTA] 清字段→字段签见「还没有字段」+「添加第一个字段」→ 网格 + 画布 `id`；空态消失 ✅`table-field-empty.spec.ts`
 - [x] [画布空表字段 CTA] 清字段见 `canvas-fields-empty` +「添加第一个字段」→ 内联建 NAME → 空态消失 +「添加字段」 ✅`table-field-empty.spec.ts`
 - [x] 版本 diff 次屏密度：组头/行 ~24 pad 4×8 + token 色（success/brand/warning）；不回归可视化 diff ✅`version.spec.ts`
-- [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
+- [x] 导入/导出弹层密度：标题 ≤14 / body padT≤8·padX≤12·padY≤16（8×12）/ 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`
 - [x] Home 主导航图标 fill ≡ `--erd-brand`（`erdColors.brand`，非组件硬编码）✅`layout-outlet.spec.ts`「三壳同语言」
 - [x] dataTypeDomains 树图标 fill ≡ `erdColors.brand`（禁裸 `#DE2910`；UI 入口暂未挂载）✅`dataTypeDomainsSlice.test.ts`

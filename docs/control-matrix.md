@@ -45,7 +45,7 @@
 | `/compare` LandingChrome | Skip + Tab 序 | 同壳 Skip→ `#landing-main-cta`；打开演示→自部署→返回首页；surface focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `compare`「竞品对照页键盘」 |
 | `/compare` LandingChrome | 次密距 | compare hero ≤36；section ≤52；对照行 ≤12；eyebrow ≥22；nav ≤20 | ADR-0016 密度 | ✅ | `compare`「加载对照表」 |
 | `/s/*` 成功态 meta/表清单 | 次密距 | meta ≤60 / gap≤2 / stage≤6；表清单 pad≤6·标题≤12·行∈20–26；折叠默认 | ADR-0016 密度 | ✅ | `demo`「免登录 /demo」 |
-| 只读分享 Modal | 次密距 | `.erd-io-modal` body≤12；hint mb≤8；链接行 mb≤10；输入 ~28；键盘不回归 | ADR-0016 密度 | ✅ | `share-project-keyboard` |
+| 只读分享 Modal | 次密距 | `.erd-io-modal` body≤8；hint mb≤8；链接行 mb≤10；输入 ~28；键盘不回归 | ADR-0016 密度 | ✅ | `share-project-keyboard` |
 | HomeLayout `/home` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#home-main-content`；继续建模→新建→示例→二级入口→项目卡；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `home-keyboard`「Home 键盘」 |
 | `/home` hero CTA | 次密距 | actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候字 ≥28 | ADR-0016 密度 | ✅ | `home-keyboard` densify |
 | `/home` 空态/公告 | 次密距 | 空态 pad ≤24×12；二级入口 mb ≤16；项目区 mb ≤20；公告 pt ≤4 / 行 pad ≤4·gap ≤10 / 标题 ≤13；CTA 保留 | ADR-0016 密度 | ✅ | `home-keyboard` empty/announce densify |
@@ -69,6 +69,7 @@
 | Group 基本设置删区 | 碎密度 | Divider mt/mb∈[8,16]（目标12）；body gap∈[4,12]（目标8）；次文≤13/lh≤20；标题 mb≤2；禁 Divider24 + Space 叠 mb | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-project-delete-keyboard` |
 | DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
 | 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
+| 导入/导出 Modal body | 碎密度 | `.erd-io-modal` body pad ≤8×12（禁 12×14）；标题 ≤14；footer 钮 ~28；键盘不回归 | ADR-0016 密度 | ✅ | `dbml-import` + `dbml-export` densify |
 | GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |
 | 项目列表 `/project/{person,recent,group}` | 行 Enter / Tab 动作 | stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` inset brand focus-visible；无 trap | ADR-0016 键盘列表 | ✅ | `project-list-keyboard` |
 | 项目动作弹窗 新建/修改/删除 | 打开首焦 / Esc / Tab trap | 新增→类型；修改→项目名；删除→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-action-modals-keyboard` |
