@@ -271,7 +271,9 @@
 - ✅ **DBML 表达式索引**（2026-08-03）：expression↔`indexs[].fields[]` 原样字符串（无 schema 加法）；混列导出 `` `expr` ``；`expression-index.dbml` + unit + `dbml-export` E2E；下一刀 → ~~逆向函数索引字典~~✅
 - ✅ **逆向表达式/函数索引**（2026-08-03）：PG `pg_get_indexdef` + MySQL 8 `STATISTICS.EXPRESSION` → `indexs[].fields[]`；mapper 软跳过；单元 mock JDBC；下一刀 → ~~索引签 UI 表达式~~✅
 - ✅ **索引签字段/表达式编辑**（2026-08-03）：JExcel `fields` 列 text「字段/表达式*」；分号混写；persist-on-200；`index-expression-edit`；下一刀 → ~~Oracle·SQL Server 函数索引~~✅
-- ✅ **逆向 Oracle/SQL Server 函数·计算列索引**（2026-08-03）：`ALL_IND_EXPRESSIONS` / `sys.computed_columns.definition` → `fields[]`；P0 四库闭环；下一刀 → ADR-0013（人工）/ P4 demo / 过滤索引谓词
+- ✅ **逆向 Oracle/SQL Server 函数·计算列索引**（2026-08-03）：`ALL_IND_EXPRESSIONS` / `sys.computed_columns.definition` → `fields[]`；P0 四库闭环；下一刀 → ~~过滤索引谓词~~✅
+- ✅ **DDL/DBML `filter` 回写**（2026-08-03）：PG/SQL Server `WHERE` + DBML `note: filter:`；下一刀 → ~~DDL `triggers[]`~~✅
+- ✅ **DDL `triggers[]` 回写**（2026-08-03）：`createTrigger` 优先 `ddl`/方言重建（四库）；导出弹层可勾选；`json2code.trigger.test.ts`；下一刀 → 数据字典·枚举域 UX / ADR-0013（人工）/ P4 demo / DBML Trigger（等官方块）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

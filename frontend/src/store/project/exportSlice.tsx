@@ -257,7 +257,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     });
   },
   onExportTypeChange: (exportType: string) => {
-    const allType = ['deleteTable', 'createTable', 'createIndex', 'updateComment'];
+    const allType = ['deleteTable', 'createTable', 'createIndex', 'createTrigger', 'updateComment'];
     let customType = get().exportSliceState?.customType;
     // 如果是自定义的，之前选中过，按之前的算；没选中过，给个空的
     if (exportType === 'customer') {
@@ -321,7 +321,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     // @ts-ignore
     const data = getAllDataSQLByFilter(tempDataSource,
       defaultDb || get()?.dispatch.getCurrentDBName(),
-      customType || ['deleteTable', 'createTable', 'createIndex', 'updateComment']);
+      customType || ['deleteTable', 'createTable', 'createIndex', 'createTrigger', 'updateComment']);
     get().dispatch.setExportSliceState({
       ...get().exportSliceState,
       data: data

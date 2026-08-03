@@ -191,6 +191,7 @@
 
 - **逆向**：MySQL/MariaDB 自 `INFORMATION_SCHEMA.TRIGGERS`、PostgreSQL 自 `information_schema.triggers`、SQL Server 自 `sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION`、Oracle 自 `ALL_TRIGGERS`+`ALL_SOURCE`（`supportsTrigger`）；名 + 时机/事件 + 体写入上表；`ddl` 优先原样字典源码（`OBJECT_DEFINITION` / `CREATE`/`TRIGGER` 文本），否则可重建 CREATE（非字节级 `SHOW CREATE TRIGGER` / `pg_get_triggerdef` / `DBMS_METADATA` 克隆）。
 - **设计器**：表设计内签「触发器」（`data-testid=table-trigger-edit`）列表 + 查看 DDL + 添加/删除；`updateEntityTriggers` 经 `saveProject` persist-on-200 写回本数组。
+- **DDL 导出**：`getAllDataSQL` / `getAllDataSQLByFilter` 片段键 `createTrigger`；优先写回 `ddl`，否则按所选方言重建（MySQL 反引号 / PG 双引号 / SQL Server 方括号+`AS` / Oracle `CREATE OR REPLACE`）；JAVA 等非库方言跳过。导出弹层自定义可勾选「建触发器语句」。
 - **DBML**：不映射（见下「不映射」；无合法语法家，禁止塞进 `Note`）。
 
 ## profile
@@ -290,7 +291,7 @@ cd frontend && yarn validate:projectjson
 
 **不映射**：trigger、表级 check、复合 FK；Enum **级** Note（`@dbml/core` 9.x 不解析 Enum 上的 `[note]` / `Note:`，仅值级 note ↔ `values[].chnname`）。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`；datatype 按 `code` union）。
 
-**Trigger 缺口（度量结论）**：`@dbml/core` 9.x 解析 **不接受** `Trigger { … }` 块（holistics/dbml#836 提案未并入主线）；表/列 `Note` **仅**与 `chnname` 互通，禁止把 `triggers[]`/`ddl` 写入 Note（会污染显示名 round-trip，且非合法 DBML 语义家）。双向互通等官方块稳定或可移植扩展后再做；DDL 导出另切片。
+**Trigger 缺口（度量结论）**：`@dbml/core` 9.x 解析 **不接受** `Trigger { … }` 块（holistics/dbml#836 提案未并入主线）；表/列 `Note` **仅**与 `chnname` 互通，禁止把 `triggers[]`/`ddl` 写入 Note（会污染显示名 round-trip，且非合法 DBML 语义家）。双向互通等官方块稳定或可移植扩展后再做。**DDL 导出已闭环**（`createTrigger` 片段）。
 
 ## 非目标（本规范不覆盖）
 
