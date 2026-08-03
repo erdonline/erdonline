@@ -139,6 +139,7 @@
 - ✅ **初始化基线弹层键盘**（2026-08-03）：首焦「版本号」；Esc 归还；Tab trap；`version-init-keyboard.spec` 绿
 - ✅ **复刻弹层键盘**（2026-08-03）：首焦「项目名」；Esc 归还；Tab trap；`project-copy-keyboard.spec` 绿
 - ✅ **数据源设置弹层键盘**（2026-08-03）：首焦「新增数据源」；Esc 归还「项目菜单」；Tab trap；`database-setup-keyboard.spec` 绿
+- ✅ **默认项设置弹层键盘**（2026-08-03）：首焦「默认字段」Tab；Esc 归还「项目菜单」；Tab trap；`default-setup-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

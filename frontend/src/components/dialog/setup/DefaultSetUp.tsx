@@ -97,12 +97,27 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
         onCancel={closeModal}
         destroyOnClose
         width={720}
-        forceRender
         className="erd-io-modal"
         rootClassName="erd-io-modal-root"
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // tab1「默认字段」为默认页；Handsontable 首焦不稳，落在选中 Tab
+          window.setTimeout(() => {
+            document
+              .querySelector<HTMLElement>(
+                '[data-testid="default-setup-tabs"] [role="tab"][aria-selected="true"]',
+              )
+              ?.focus();
+          }, 0);
+        }}
       >
         <Form form={form} layout="vertical" size="small" preserve={false}>
           <Tabs
+            data-testid="default-setup-tabs"
             size="small"
             activeKey={tab}
             onChange={setTab}
