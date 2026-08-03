@@ -20,6 +20,8 @@ import com.erdonline.common.oss.service.OssTemplate;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.entity.Project;
 import com.erdonline.erd.model.ModuleImage;
+import com.erdonline.erd.security.ProjectAcl;
+import com.erdonline.erd.security.WordTemplateGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.GenDocService;
 import com.erdonline.erd.service.ProjectService;
@@ -71,6 +73,9 @@ public class GenDocServiceImpl implements GenDocService {
     @Autowired
     DbChangeService dbChangeService;
 
+    @Autowired
+    private ProjectAcl projectAcl;
+
     @Override
     @SneakyThrows
     public void genDataBaseDocx(Map params, HttpServletResponse response) {
@@ -79,6 +84,8 @@ public class GenDocServiceImpl implements GenDocService {
         String doctpl = StringKit.nvl(params.get("doctpl"), "");
         Map imgs = (Map) params.get("imgs");
         Assert.notBlank(projectId, "导出word文档：projectId为空");
+        projectAcl.assertMember(projectId);
+        WordTemplateGuard.assertDoctplForProject(doctpl, projectId);
         InputStream tplIo = openTemplateStream(doctpl);
         //添加水印
         XWPFDocument xwpfDocument = addWaterMark(tplIo);
@@ -124,7 +131,11 @@ public class GenDocServiceImpl implements GenDocService {
 
     @Override
     public void downloadWordTemplate(String doctpl, HttpServletResponse response) {
-        String resolved = normalizeDoctpl(doctpl);
+        String ownerProjectId = WordTemplateGuard.assertReadableDoctpl(doctpl);
+        if (ownerProjectId != null) {
+            projectAcl.assertMember(ownerProjectId);
+        }
+        String resolved = WordTemplateGuard.normalize(doctpl);
         log.info("doctpl: {},response: {}", resolved, response);
         String fileName = StrUtil.subAfter(resolved, StrUtil.SLASH, false);
         if (StrUtil.isBlank(fileName)) {
@@ -166,12 +177,13 @@ public class GenDocServiceImpl implements GenDocService {
     @Override
     public R uploadWordTemplate(MultipartFile file, String projectId) {
         log.info("file: {},projectId: {}", file, projectId);
+        projectAcl.assertMember(projectId);
+        String safeName = WordTemplateGuard.assertUploadable(file);
         if (minioOssTemplate == null) {
             return R.failed(MINIO_REQUIRED_MSG);
         }
-        String fileName = file.getOriginalFilename();
+        String minioFileName = WordTemplateGuard.objectKey(projectId, safeName);
         InputStream inputStream = file.getInputStream();
-        String minioFileName = OssConstants.PROJECT_MODULE_ERD_BUCKET + projectId + StrUtil.SLASH + fileName;
         return R.ok(minioOssTemplate.upload(OssConstants.DEFAULT_BUCKET, minioFileName, inputStream, false));
     }
 
@@ -180,7 +192,7 @@ public class GenDocServiceImpl implements GenDocService {
      * 自定义模板在 MinIO 缺席时明确失败。
      */
     InputStream openTemplateStream(String doctpl) throws IOException {
-        String resolved = normalizeDoctpl(doctpl);
+        String resolved = WordTemplateGuard.normalize(doctpl);
         boolean defaultTpl = OssConstants.DEFAULT_WORD_PATH.equals(resolved);
 
         if (minioOssTemplate != null) {
@@ -214,11 +226,11 @@ public class GenDocServiceImpl implements GenDocService {
         return resource.getInputStream();
     }
 
+    /**
+     * @deprecated use {@link WordTemplateGuard#normalize(String)}
+     */
     static String normalizeDoctpl(String doctpl) {
-        if (StrUtil.isBlank(doctpl)) {
-            return OssConstants.DEFAULT_WORD_PATH;
-        }
-        return doctpl;
+        return WordTemplateGuard.normalize(doctpl);
     }
 
     /**

@@ -4,8 +4,6 @@ import com.erdonline.common.api.dto.ProjectUserDto;
 import com.erdonline.common.api.dto.RoleUserDto;
 import com.erdonline.common.api.dto.UserDto;
 import com.erdonline.common.core.api.R;
-import com.erdonline.common.core.constant.OssConstants;
-import com.erdonline.common.oss.service.OssTemplate;
 import com.erdonline.common.security.vip.rights.PersonRegisterCountRight;
 import com.erdonline.common.vip.annotation.VIP;
 import com.erdonline.common.vip.enums.VIPLevelEnum;
@@ -27,7 +25,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Map;
 
@@ -50,9 +47,6 @@ public class GroupProjectController {
 
     @Autowired
     private ProjectAcl projectAcl;
-
-    @Autowired(required = false)
-    private OssTemplate minioOssTemplate;
 
     /**
      * 添加
@@ -130,11 +124,6 @@ public class GroupProjectController {
     @GetMapping("/page")
     public R page(@RequestParam Map params) {
         return projectService.groupProjectPage(params);
-    }
-
-    @PostMapping("upload")
-    public R uploadTest(@RequestParam("file") MultipartFile file) {
-        return R.ok(minioOssTemplate.upload(OssConstants.DEFAULT_BUCKET, file, true));
     }
 
     /**

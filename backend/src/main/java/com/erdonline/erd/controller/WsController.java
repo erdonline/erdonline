@@ -1,23 +1,16 @@
 package com.erdonline.erd.controller;
 
 import com.erdonline.common.core.api.R;
-import com.erdonline.common.oss.service.OssTemplate;
-import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.service.WsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author 狮少
@@ -34,9 +27,6 @@ public class WsController {
 
     @Autowired
     private WsService wsService;
-
-    @Autowired(required = false)
-    private OssTemplate minioOssTemplate;
 
     @MessageMapping(value = "/project/diff/{projectId}")
     public void subscribeProjectDiff() {
@@ -64,11 +54,6 @@ public class WsController {
     public void test() {
         log.info("123");
         System.out.println("123 = " + 123);
-    }
-
-    @PostMapping("upload")
-    public R uploadTest(@RequestParam("file") MultipartFile file) {
-        return R.ok(minioOssTemplate.upload(System.currentTimeMillis() + "", file, true));
     }
 
 }

@@ -168,6 +168,8 @@
 - [x] [R-DATA-02 FE 热路径] 已保存数据源：`dbReverseMeta`/`dbReverseParse`/`connector/ping`（同步状态）body 含 `dataSourceId` 且无 `password`/`url`；表单「测试连接」仍可 raw ✅`import-reverse` + `adr0008-datasource` + `connectorPayload.test.ts`
 - [x] [R-DATA-02 mutate 强制 id] `POST /ncnb/connector/sqlexec`（或 dbsync）无 `dataSourceId` 仅 raw JDBC → `code=400` 文案含 dataSourceId；有自有 id 正常 ACL 解析 ✅curl + `ConnectorCredentialResolverTest` applyMutate*
 - [x] [R-DATA-02 IMDS/链路本地] `JdbcUrlGuard` 拒 `169.254.0.0/16`、`168.63.129.16`、`100.100.100.200`、`fe80::/10`、`fd00:ec2::254`；允 RFC1918/`127.0.0.1` ✅`JdbcUrlGuardTest`
+- [x] [R-DATA-04 测试上传已删] `POST /ncnb/project/upload`、`/project/group/upload`、`/ws/upload` → 404 ✅`UploadTestEndpointsRemovedTest` + curl
+- [x] [R-DATA-04 Word 归属] 非成员 `uploadWordTemplate/{projectId}` / `downloadWordTemplate?doctpl=martin/projecterd/{他人}/x.docx` → 403；非 `.docx`/路径穿越拒；默认模板仍可读 ✅`WordTemplateGuardTest` + `GenDocServiceImplTest` + curl
 - [x] [queryHistory] `POST /ncnb/queryHistory` 分页 → 200（禁止 GET）✅`audit-fe-apis.sh`
 - [x] [ADR-0008 分享] 匿名 GET projectJSON.profile.dbs 为空数组 ✅`ProjectShareSanitizeTest`
 - [x] [分享 Fork] 匿名点「复制到我的项目」→ `/login?redirect=`；登录后 fork 进设计器 ✅`share.spec.ts`

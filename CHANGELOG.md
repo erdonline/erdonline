@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 安全：R-DATA-04 上传归属 — 删测试口 + Word 模板绑项目
+
+- 选题：`POST /project/upload`（及 group/ws 同构测试口）任意登录用户写默认 OSS；`doc/uploadWordTemplate`/`downloadWordTemplate` 无成员校验，`doctpl` 可跨租户读对象键
+- 改动：删除 `ProjectController`/`GroupProjectController`/`WsController` 的 `upload` 测试接口；新增 `WordTemplateGuard`（仅 `.docx`、安全 basename、Content-Type 白名单、键必须 `martin/projecterd/{projectId}/*.docx`）；`GenDocServiceImpl` 上传/下载/gendocx 均 `ProjectAcl.assertMember` + 路径守卫
+- 文档：security-model R-DATA-04 ✅；roadmap 下一刀 → R-CFG-04
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=WordTemplateGuardTest,UploadTestEndpointsRemovedTest,GenDocServiceImplTest test`
+- 登录后：`POST /ncnb/project/upload` → 404；`POST /ncnb/doc/uploadWordTemplate/{他人projectId}` → 403；`GET downloadWordTemplate?doctpl=martin/projecterd/{他人}/x.docx` → 403；默认模板下载仍 200
+
 #### 体验：GroupLayout 壳键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：团队设置壳进页 Tab 先扫顶栏+侧栏；无 Skip 直达主区；焦点环缺；无键盘 E2E
