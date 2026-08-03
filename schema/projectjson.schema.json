@@ -149,6 +149,10 @@
           "type": "array",
           "items": { "type": "string" },
           "description": "索引列名或表达式原样字符串（如 LOWER(email)）"
+        },
+        "filter": {
+          "type": ["string", "null"],
+          "description": "部分/过滤索引谓词原样（PG indpred / SQL Server filter_definition）；无则省略"
         }
       }
     },

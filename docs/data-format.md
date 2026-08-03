@@ -154,20 +154,22 @@
 ### Index（`indexs[]`）
 
 ```json
-{ "name": "AUTH_USER_INDEX1", "isUnique": true, "fields": ["ID", "CODE"] }
+{ "name": "AUTH_USER_INDEX1", "isUnique": true, "fields": ["ID", "CODE"], "filter": "(deleted_at IS NULL)" }
 ```
 
 `fields[]` 为字符串数组，元素既可以是**列名**，也可以是**索引表达式**原样文本（如 `"LOWER(email)"`）。DBML 导入时 `@dbml/core` 的 expression 列写入此数组；导出时非纯 ident 以 `` `expr` `` 写回。DDL 模板 `createIndexTemplate` 对 `fields` 做 join，表达式可直接进入 `CREATE INDEX … (LOWER(email))`。
 
-**设计器**：表设计索引签 JExcel「字段/表达式*」为**文本格**（非列名-only dropdown）；单元格用分号分隔多个片段（如 `id;LOWER(email)`），落盘时拆回 `fields[]`；`updateEntityIndex` persist-on-200。
+可选 **`filter`**：部分/过滤索引谓词原样字符串（PG `WHERE` / SQL Server `WHERE`）。无谓词时省略或为 null；**不**写入 `fields[]`。
+
+**设计器**：表设计索引签 JExcel「字段/表达式*」为**文本格**（非列名-only dropdown）；单元格用分号分隔多个片段（如 `id;LOWER(email)`），落盘时拆回 `fields[]`；「过滤条件」文本列读写 `filter`；`updateEntityIndex` persist-on-200。
 
 **逆向**：
-- PostgreSQL：`pg_catalog` + `unnest(indkey)`；`indkey=0` 时用 `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样
-- MySQL 8+：`INFORMATION_SCHEMA.STATISTICS`，`COLUMN_NAME` 空时读 `EXPRESSION`；无该列（MariaDB / 旧版）回退列名-only，失败键位软跳过
-- Oracle：`ALL_IND_COLUMNS` + `ALL_IND_EXPRESSIONS`；有 `COLUMN_EXPRESSION` 时优先写入（覆盖 `SYS_NC$`）；无视图权限回退列名-only
-- SQL Server：无原生表达式索引；计算列键位经 `sys.computed_columns.definition` 写入（列名作回退）；过滤索引 `filter_definition` 不进 `fields[]`
+- PostgreSQL：`pg_catalog` + `unnest(indkey)`；`indkey=0` 时用 `pg_get_indexdef(indexrelid, ord, true)` 写入表达式原样；部分索引 `pg_get_expr(indpred, indrelid)` → `filter`
+- MySQL 8+：`INFORMATION_SCHEMA.STATISTICS`，`COLUMN_NAME` 空时读 `EXPRESSION`；无该列（MariaDB / 旧版）回退列名-only，失败键位软跳过（无原生 filtered index → 无 `filter`）
+- Oracle：`ALL_IND_COLUMNS` + `ALL_IND_EXPRESSIONS`；有 `COLUMN_EXPRESSION` 时优先写入（覆盖 `SYS_NC$`）；无视图权限回退列名-only（无 function-based filter 对等物 → 无 `filter`）
+- SQL Server：无原生表达式索引；计算列键位经 `sys.computed_columns.definition` 写入（列名作回退）；过滤索引 `filter_definition` → `filter`
 - Generic JDBC `getIndexInfo`：仍多为列名；`COLUMN_NAME` 空则软跳过该键位
-- 字典 mapper：`EXPRESSION` 优先于 `COLUMN_NAME`；表达式不做大小写折叠（`NameCaseAdjuster` 仅作用于纯 ident）
+- 字典 mapper：`EXPRESSION` 优先于 `COLUMN_NAME`；`FILTER`/`FILTER_DEFINITION` → `filter`（复合索引首行写入）；表达式/谓词不做大小写折叠（`NameCaseAdjuster` 仅作用于纯 ident）
 ### Trigger（`triggers[]`，可选）
 
 ```json

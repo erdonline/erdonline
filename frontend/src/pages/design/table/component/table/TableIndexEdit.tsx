@@ -15,7 +15,13 @@ export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
 };
 
-type IndexRow = { name?: string; fields?: string | string[]; isUnique?: boolean };
+type IndexRow = {
+  name?: string;
+  fields?: string | string[];
+  isUnique?: boolean;
+  /** 部分/过滤索引谓词（PG WHERE / SQL Server filter_definition） */
+  filter?: string;
+};
 
 const indexNameBase = (entity: { title?: string; name?: string }) =>
   String(entity.title || entity.name || 'T').replace(/\W+/g, '_');
@@ -59,10 +65,16 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   const entityTitle = entity?.title || entity?.name;
 
   const normalizePayload = (payload: IndexRow[]): IndexRow[] =>
-    payload.map((m) => ({
-      ...m,
-      fields: parseIndexFieldsCell(m.fields),
-    }));
+    payload.map((m) => {
+      const filter =
+        typeof m.filter === 'string' && m.filter.trim() ? m.filter.trim() : undefined;
+      return {
+        name: m.name,
+        isUnique: !!m.isUnique,
+        fields: parseIndexFieldsCell(m.fields),
+        ...(filter ? { filter } : {}),
+      };
+    });
 
   /**
    * 禁止本地 mutate 即成功：队列最新 payload，仅 saveProject code===200 写 store；
@@ -272,7 +284,14 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       name: 'isUnique',
       type: 'checkbox',
       width: document.body.clientWidth * 0.1,
-    }
+    },
+    {
+      // 部分/过滤索引谓词原样（PG WHERE / SQL Server filter_definition）；无则为空
+      title: '过滤条件',
+      name: 'filter',
+      type: 'text',
+      width: document.body.clientWidth * 0.2,
+    },
   ];
 
   const sheetKey = `index-grid-${module}-${entityName}-${indexs.length}-${sheetEpoch}`;
@@ -294,7 +313,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       >
         勾选「是否唯一」= UNIQUE；画布显示 UK。字段/表达式列用分号分隔列名或表达式（如
         {' '}
-        id;LOWER(email)）。{columnHint}
+        id;LOWER(email)）。过滤条件为部分/过滤索引谓词（可选）。{columnHint}
       </p>
       {/* key：条数/epoch 变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel

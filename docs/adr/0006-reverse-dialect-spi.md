@@ -26,4 +26,5 @@
 - 列默认值：JDBC `COLUMN_DEF` → `fields[].defaultValue`（`DefaultValueMapper`：字符串加引号、数字/表达式原样；PG `::type` 剥离）
 - 触发器保真：`DialectCapability.supportsTrigger`；MySQL/MariaDB 字典 `INFORMATION_SCHEMA.TRIGGERS`、PostgreSQL 字典 `information_schema.triggers`、SQL Server 字典 `sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION`、Oracle 字典 `ALL_TRIGGERS`+`ALL_SOURCE`（多事件拆行）→ `entity.triggers[]`（`name` / `timing` / `event` / `statement` / 重建或原样 `ddl`）；失败 warn 跳过；P0 四库闭环
 - 表达式/函数索引：PostgreSQL `pg_get_indexdef`、MySQL 8 `STATISTICS.EXPRESSION`、Oracle `ALL_IND_EXPRESSIONS`、SQL Server `sys.computed_columns.definition` → `indexs[].fields[]` 原样字符串（与 DBML 互通同槽）；P0 四库闭环；键位缺失 / 字典不可用软跳过或回退列名-only
+- 部分/过滤索引谓词：PostgreSQL `pg_get_expr(indpred)`、SQL Server `sys.indexes.filter_definition` → `indexs[].filter`（不进 `fields[]`）；MySQL/Oracle 无对等物
 - 复合 FK `fields[]`：见 ADR-0011（仍延期；解封需 FE 多字段边协议）。已落地加法元数据：`constraintName` / `deleteRule` / `updateRule`（拆边同名，不聚合）；表清单按需分页另议

@@ -28,7 +28,8 @@ import java.util.Map;
 
 /**
  * PostgreSQL 逆向：schema 一等公民；索引走 pg_catalog（表达式键位 {@code pg_get_indexdef} →
- * {@code indexs[].fields[]}）；FK 走 KEY_COLUMN_USAGE；
+ * {@code indexs[].fields[]}；部分索引 {@code pg_get_expr(indpred)} → {@code indexs[].filter}）；
+ * FK 走 KEY_COLUMN_USAGE；
  * 注释走 obj_description / col_description（pgjdbc getColumns REMARKS 不可靠）；
  * 触发器走 information_schema.triggers → {@code entity.triggers}。
  *
@@ -50,13 +51,15 @@ public class PostgresqlReverseDialect extends AbstractJdbcReverseDialect {
      * 对齐业界字典取数：unnest(indkey) 保序；排除主键索引。
      * <p>表达式键位（indkey=0）用 {@code pg_get_indexdef(indexrelid, ord, true)} 写入
      * {@code indexs[].fields[]}；普通列仍取 attname。LEFT JOIN 避免丢表达式行。
+     * 部分索引谓词 {@code pg_get_expr(ix.indpred, ix.indrelid)} → {@code filter}。
      */
     private static final String SQL_INDEXES =
             "SELECT i.relname AS index_name, "
                     + "CASE WHEN x.attnum = 0 "
                     + "THEN pg_get_indexdef(ix.indexrelid, x.ord::integer, true) "
                     + "ELSE a.attname END AS column_name, "
-                    + "CASE WHEN ix.indisunique THEN 0 ELSE 1 END AS non_unique, x.ord AS seq_in_index "
+                    + "CASE WHEN ix.indisunique THEN 0 ELSE 1 END AS non_unique, x.ord AS seq_in_index, "
+                    + "pg_get_expr(ix.indpred, ix.indrelid) AS filter "
                     + "FROM pg_class t "
                     + "JOIN pg_namespace ns ON ns.oid = t.relnamespace "
                     + "JOIN pg_index ix ON t.oid = ix.indrelid "

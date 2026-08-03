@@ -22,7 +22,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 /**
- * PostgreSQL 表达式索引：pg_get_indexdef → indexs[].fields[]（mock JDBC）。
+ * PostgreSQL 表达式/部分索引：pg_get_indexdef → fields[]；pg_get_expr(indpred) → filter（mock JDBC）。
  */
 class PostgresqlReverseDialectExpressionIndexTest {
 
@@ -86,5 +86,66 @@ class PostgresqlReverseDialectExpressionIndexTest {
         assertEquals("idx_user_email_lower", index.getName());
         assertEquals(List.of("tenant_id", "lower((email)::text)"), index.getFields());
         assertTrue(index.getFields().get(1).contains("("));
+    }
+
+    @Test
+    void fillEntity_mapsPartialIndexFilterPredicate() throws Exception {
+        Connection connection = mock(Connection.class);
+        DatabaseMetaData meta = mock(DatabaseMetaData.class);
+        when(connection.getMetaData()).thenReturn(meta);
+        when(connection.getCatalog()).thenReturn("reverse_demo");
+
+        ResultSet pkRs = mock(ResultSet.class);
+        when(pkRs.next()).thenReturn(false);
+        when(meta.getPrimaryKeys(eq("reverse_demo"), eq("public"), eq("t_user"))).thenReturn(pkRs);
+
+        ResultSet columnsRs = mock(ResultSet.class);
+        when(columnsRs.next()).thenReturn(true, false);
+        when(columnsRs.getString("COLUMN_NAME")).thenReturn("id");
+        when(columnsRs.getString("REMARKS")).thenReturn(null);
+        when(columnsRs.getString("TYPE_NAME")).thenReturn("int8");
+        when(columnsRs.getString("IS_NULLABLE")).thenReturn("NO");
+        when(columnsRs.getString("COLUMN_DEF")).thenReturn(null);
+        when(columnsRs.getString("IS_AUTOINCREMENT")).thenReturn("YES");
+        when(columnsRs.getInt("DATA_TYPE")).thenReturn(Types.BIGINT);
+        when(columnsRs.getInt("COLUMN_SIZE")).thenReturn(19);
+        when(columnsRs.getInt("DECIMAL_DIGITS")).thenReturn(0);
+        when(meta.getColumns(eq("reverse_demo"), eq("public"), eq("t_user"), eq("%")))
+                .thenReturn(columnsRs);
+
+        PreparedStatement indexStmt = mock(PreparedStatement.class);
+        ResultSet indexRs = mock(ResultSet.class);
+        when(indexRs.next()).thenReturn(true, false);
+        when(indexRs.getString("INDEX_NAME")).thenReturn("idx_user_active_email");
+        when(indexRs.getString("index_name")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getString("COLUMN_NAME")).thenReturn("email");
+        when(indexRs.getString("column_name")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getString("FILTER")).thenReturn("(deleted_at IS NULL)");
+        when(indexRs.getString("filter")).thenThrow(new SQLException("uppercase only"));
+        when(indexRs.getInt("NON_UNIQUE")).thenReturn(1);
+        when(indexRs.getInt("non_unique")).thenThrow(new SQLException("uppercase only"));
+
+        PreparedStatement triggerStmt = mock(PreparedStatement.class);
+        ResultSet triggerRs = mock(ResultSet.class);
+        when(triggerRs.next()).thenReturn(false);
+
+        PreparedStatement commentStmt = mock(PreparedStatement.class);
+        ResultSet commentRs = mock(ResultSet.class);
+        when(commentRs.next()).thenReturn(false);
+
+        when(connection.prepareStatement(anyString())).thenReturn(indexStmt, triggerStmt, commentStmt);
+        when(indexStmt.executeQuery()).thenReturn(indexRs);
+        when(triggerStmt.executeQuery()).thenReturn(triggerRs);
+        when(commentStmt.executeQuery()).thenReturn(commentRs);
+
+        TableIdentity table = new TableIdentity("reverse_demo", "public", "t_user", "t_user", null);
+        Entity entity = new Entity();
+        new PostgresqlReverseDialect().fillEntity(connection, table, entity, new ParseDataModel(), "DEFAULT");
+
+        assertEquals(1, entity.getIndexs().size());
+        Index index = entity.getIndexs().get(0);
+        assertEquals("idx_user_active_email", index.getName());
+        assertEquals(List.of("email"), index.getFields());
+        assertEquals("(deleted_at IS NULL)", index.getFilter());
     }
 }

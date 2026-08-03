@@ -28,7 +28,8 @@ import java.util.Map;
 
 /**
  * SQL Server 逆向：默认 schema=dbo；索引走 sys.indexes（计算列键位经 sys.computed_columns.definition →
- * {@code indexs[].fields[]}）；FK 走 sys.foreign_keys（保复合列序）；
+ * {@code indexs[].fields[]}；过滤谓词 {@code filter_definition} → {@code indexs[].filter}）；
+ * FK 走 sys.foreign_keys（保复合列序）；
  * 注释走 sys.extended_properties MS_Description（JDBC REMARKS 不可靠）；
  * 触发器走 sys.triggers / sys.trigger_events + OBJECT_DEFINITION。
  *
@@ -47,13 +48,14 @@ public class SqlServerReverseDialect extends AbstractJdbcReverseDialect {
 
     /**
      * 无原生表达式索引；计算列索引用 definition 作 EXPRESSION（mapper 优先于列名）。
-     * filter_definition 不进 fields[]（过滤谓词另议）。
+     * {@code filter_definition} → {@code index.filter}（不进 fields[]）。
      */
     private static final String SQL_INDEXES =
             "SELECT cc.definition AS expression, "
                     + "i.name AS index_name, c.name AS column_name, "
                     + "CASE WHEN i.is_unique = 1 THEN 0 ELSE 1 END AS non_unique, "
-                    + "ic.key_ordinal AS seq_in_index "
+                    + "ic.key_ordinal AS seq_in_index, "
+                    + "i.filter_definition AS filter "
                     + "FROM sys.indexes i "
                     + "JOIN sys.index_columns ic ON i.object_id = ic.object_id "
                     + "AND i.index_id = ic.index_id "
@@ -69,11 +71,12 @@ public class SqlServerReverseDialect extends AbstractJdbcReverseDialect {
                     + "AND i.name IS NOT NULL "
                     + "ORDER BY i.name, ic.key_ordinal";
 
-    /** 无 computed_columns 可见性时回退列名-only。 */
+    /** 无 computed_columns 可见性时回退列名-only（仍取 filter_definition）。 */
     private static final String SQL_INDEXES_LEGACY =
             "SELECT i.name AS index_name, c.name AS column_name, "
                     + "CASE WHEN i.is_unique = 1 THEN 0 ELSE 1 END AS non_unique, "
-                    + "ic.key_ordinal AS seq_in_index "
+                    + "ic.key_ordinal AS seq_in_index, "
+                    + "i.filter_definition AS filter "
                     + "FROM sys.indexes i "
                     + "JOIN sys.index_columns ic ON i.object_id = ic.object_id "
                     + "AND i.index_id = ic.index_id "
