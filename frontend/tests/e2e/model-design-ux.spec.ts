@@ -1083,8 +1083,9 @@ test.describe('模型设计 UX（ADR-0017）', () => {
   });
 
   /**
-   * ADR-0016：欢迎空态次密距 —
-   * `.erd-welcome-empty__inner` pad ≤32；标题/引导可读；逆向链保留；禁 48+ 松井
+   * ADR-0016：欢迎空态次密距 + 标题碎距 —
+   * pad ≤32；标题 mt∈[8,12] / 字 ∈[16,18] / lh≈22（贴 page-title 节奏）；
+   * 禁 20/mt14；禁压成画布 14；逆向链 + 左树新增模型保留
    */
   test('欢迎空态次密距', async ({ page }) => {
     test.setTimeout(90_000);
@@ -1129,6 +1130,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
           padR: ics ? parseFloat(ics.paddingRight) : -1,
           titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
           titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+          titleLh: tcs ? parseFloat(tcs.lineHeight) : 0,
           titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
           descMt: dcs ? parseFloat(dcs.marginTop) : -1,
           descSize: dcs ? parseFloat(dcs.fontSize) : 0,
@@ -1143,9 +1145,13 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       // 勿压到画布空态级（14/18）——欢迎需可扫读层次
       expect(metrics.padT).toBeGreaterThanOrEqual(20);
       expect(metrics.padL).toBeGreaterThanOrEqual(16);
-      expect(metrics.titleMt, `标题 mt 应 ≤16，得 ${metrics.titleMt}`).toBeLessThanOrEqual(16);
-      expect(metrics.titleSize).toBeGreaterThanOrEqual(18);
-      expect(metrics.titleSize).toBeLessThanOrEqual(22);
+      // 标题碎距：8–12 族 + page-title lh22；禁 20/mt14；仍高于画布 14
+      expect(metrics.titleMt, `标题 mt 应 ∈[8,12]，得 ${metrics.titleMt}`).toBeGreaterThanOrEqual(8);
+      expect(metrics.titleMt, `标题 mt 应 ∈[8,12]，得 ${metrics.titleMt}`).toBeLessThanOrEqual(12);
+      expect(metrics.titleSize, `标题字号应 ∈[16,18]，得 ${metrics.titleSize}`).toBeGreaterThanOrEqual(16);
+      expect(metrics.titleSize, `标题字号应 ∈[16,18]，得 ${metrics.titleSize}`).toBeLessThanOrEqual(18);
+      expect(metrics.titleLh, `标题 lh 应 ≈22，得 ${metrics.titleLh}`).toBeGreaterThanOrEqual(20);
+      expect(metrics.titleLh, `标题 lh 应 ≈22，得 ${metrics.titleLh}`).toBeLessThanOrEqual(24);
       expect(metrics.titleWeight).toBeGreaterThanOrEqual(600);
       expect(metrics.descMt).toBeLessThanOrEqual(10);
       expect(metrics.descSize).toBeGreaterThanOrEqual(13);

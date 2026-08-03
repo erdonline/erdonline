@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：欢迎空态标题碎距
+
+- 选题：欢迎空态内井已次密；标题仍 20/mt14·lh≈26，相对 ADR-0016 / 8–12 / page-title 13/22 族偏松；勿压成画布空态 14
+- before：标题 20 / mt14 / lh≈26；after：18 / mt12 / lh22；pad / hero / 逆向链 / 左树「新增模型」不动
+- E2E：`model-design-ux`「欢迎空态次密距」锁 titleMt∈[8,12]、字∈[16,18]、lh≈22 + 截图 `diagram-welcome-empty-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 欢迎空态内井 pad32（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "欢迎空态次密距" --workers=1 --retries=0`
+
 #### 体验：Group 基本设置删区碎片
 
 - 选题：Form 已 12/28；删区仍 antd `Divider` 默认 mt/mb≈24 + `Space` 叠标题 mb8 + `Typography.Text` 14，相对 ADR-0016 / 8–12 族偏松
 - before：Divider≈24、Space 叠标题 mb、次文≈14/22；after：Divider 12、body gap8、标题 mb0、次文 12/18；`testid=basic-setting-delete-zone`；确认弹层/删钮 aria 行为不改
 - E2E：`group-basic-setting` 删区 densify + 截图 `group-basic-setting-dense.png`；`group-project-delete-keyboard` / `group-layout-nav` 回归
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 欢迎空态标题 mt20 / 22 字碎距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~欢迎空态标题 mt20 / 22 字碎距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/group-basic-setting.spec.ts --project=chromium --workers=1 --retries=0`
