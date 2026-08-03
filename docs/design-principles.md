@@ -193,7 +193,7 @@
 - ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
 - ✅ 导入/逆向后 Frame 自动建议：表名前缀（`sys_*`/`biz_*`）优先，否则 ≥2 连通分量；禁单前缀/单分量整图大框
 - ✅ 空态构图：设计器欢迎与关系图画布共用 ER 剪影（`ErdEmptyDiagram`）+ 主标题（14/700）+ 一句 muted 引导 + **唯一**实心主 CTA「新建第一张表」+ 次链「导入 DBML · 从数据源逆向」（ink600 文字）；分享空态同构（标题 + hint +「打开示例 demo」）；禁粉红卡通 / 描边第二钮 / 空态 MiniMap clutter
-- ✅ 空态面板密度：padding 14/18/12、max-width 300、标题 14/700 / CTA height 26、剪影 compact 132；禁 28/32 松卡片盖首屏
+- ✅ 空态面板密度：padding 10×12（ADR-0016 8–12；原 14/18/12）、max-width 300、标题 14/700 / CTA height 26（hit ≥26）、剪影 compact 132；禁 14×18 / 28/32 松卡片盖首屏
 - ✅ 命令面板密度：宽 ≤440、max-height 360、输入 36/13、行 pad 6/8 / font 12、footer 4×8 / font 10（与 `?` 速查 footer 同阶）；禁 48 高输入 + 10/12 松行 + footer 6×10 松井盖快捷回路
 - ✅ 命令面板空态：有关键字无命中 →「无匹配结果」+「试试表名、定位、建表或布局」；empty pad ≤8×8 / gap ≤2、list pad ≤2；禁仅「无匹配命令或表」一句无指引；禁 16×12 空井 + 4px 列表井
 - ✅ 快捷键速查卡密度：`?` dialog maxH ≤360、header 6×10、list pad ≤2×4、row padY ≤6 / gap ≤8、footer 4×8；关闭钮 focus-visible；禁 list 6×8 + row padY 10 / gap 12 松井；Esc / 与 Cmd+K 互斥不弱化
@@ -209,7 +209,7 @@
 - ✅ 表设计内签密度：`#tableNav` 字段/索引/元数据 `--erd-inner-tabs-h` 24、字 12、flex 居中；禁 pad 堆高无固定栏；禁 clip；保留内签 Tab focus-visible + Cmd+1/2/3
 - ✅ 表设计签体内容次密距：`--erd-tab-body-pad-x/b` 6/4、unique-hint pad 4×8 / mb 4、空态 pad 贴 tab-body、元数据 tip `.erd-meta-ddl-hint` ~24、工作区井 6；禁 10/12 松井 + Paragraph 大底距；禁 clip JExcel；保留空字段 CTA / 空名 toast
 - ✅ 设计器空态次密距：兜底 `.erd-pane-empty`（禁 `marginTop:100` / 高 200 插画）；字段/索引 `.ant-empty` margin-block 0 + pad 对齐 `--erd-tab-body-pad`；保留空态 CTA；禁 antd `marginXL` 次屏松井
-- ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 20×16、标题 18/mt12·lh22（贴 page-title 13/22 节奏）、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 32×24 / 48+ 松井 / 20·mt14 / 22 标题 mt20 / hero 220；禁压成画布空态 14/18
+- ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 20×16、标题 18/mt12·lh22（贴 page-title 13/22 节奏）、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 32×24 / 48+ 松井 / 20·mt14 / 22 标题 mt20 / hero 220；禁压成画布空态 10×12
 - ✅ AuthBrandShell 次密距：品牌/表单 pad 20×16 / gap12、缩略 pad12、门头 mb12；表单 Title mt6 + `.auth-shell-form` 项 mb12 / Input·钮 28；登录/注册/分享失效/404·403 同源；禁 32×28 / 48×40 松井 / gap14 / mb16 / Title mt10 / antd 项 mb24 / large 40；品牌字号/~40%/Skip·Tab 不弱化
 - ✅ LandingChrome / `/compare` 次密距：次屏 section 2.75rem、pillars gap 1.5、对照行 0.5、nav/footer 收；compare hero padT 1.5；禁压 hero 品牌级字号/全幅构图/CTA；Skip·Tab 不弱化
 - ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc`

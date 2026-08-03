@@ -203,7 +203,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       );
       expect(titleColor).toBe('rgb(11, 28, 44)'); // ink900
 
-      // ADR-0016：空态面板再收（与 22 chrome 同阶）；禁 28/32 松卡片盖首屏
+      // ADR-0016：空态 CTA pad ∈[8,12]；主钮 hit ≥26（~28）；禁 14×18 松井 / 28×32 松卡片
       const emptyMetrics = await empty.evaluate((el) => {
         const cs = getComputedStyle(el);
         const title = el.querySelector('.erd-empty-title') as HTMLElement | null;
@@ -216,8 +216,10 @@ test.describe('关系图画布（ReactFlow）', () => {
         const scs = sec ? getComputedStyle(sec) : null;
         const svg = el.querySelector('[data-testid="erd-empty-diagram"]');
         return {
-          padY: parseFloat(cs.paddingTop) + parseFloat(cs.paddingBottom),
-          padX: parseFloat(cs.paddingLeft) + parseFloat(cs.paddingRight),
+          padT: parseFloat(cs.paddingTop),
+          padB: parseFloat(cs.paddingBottom),
+          padL: parseFloat(cs.paddingLeft),
+          padR: parseFloat(cs.paddingRight),
           maxW: parseFloat(cs.maxWidth),
           titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
           titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
@@ -230,13 +232,21 @@ test.describe('关系图画布（ReactFlow）', () => {
           svgW: svg ? parseFloat((svg as SVGElement).getAttribute('width') || '0') : 0,
         };
       });
-      expect(emptyMetrics.padY, `空态 padY 应 ≤30，得 ${emptyMetrics.padY}`).toBeLessThanOrEqual(30);
-      expect(emptyMetrics.padX).toBeLessThanOrEqual(40);
+      for (const [k, v] of [
+        ['padT', emptyMetrics.padT],
+        ['padB', emptyMetrics.padB],
+        ['padL', emptyMetrics.padL],
+        ['padR', emptyMetrics.padR],
+      ] as const) {
+        expect(v, `空态 ${k} 应 ∈[8,12]，得 ${v}`).toBeGreaterThanOrEqual(8);
+        expect(v, `空态 ${k} 应 ∈[8,12]，得 ${v}`).toBeLessThanOrEqual(12);
+      }
       expect(emptyMetrics.maxW).toBeLessThanOrEqual(300);
       expect(emptyMetrics.titleSize).toBeLessThanOrEqual(14);
       expect(emptyMetrics.titleWeight).toBeGreaterThanOrEqual(700);
       expect(emptyMetrics.descSize).toBeLessThanOrEqual(12);
       expect(emptyMetrics.descColor).toBe('rgb(138, 151, 163)'); // ink400
+      expect(emptyMetrics.btnH, `主 CTA hit ≥26（~28），得 ${emptyMetrics.btnH}`).toBeGreaterThanOrEqual(26);
       expect(emptyMetrics.btnH).toBeLessThanOrEqual(28);
       expect(emptyMetrics.btnFont).toBeLessThanOrEqual(12);
       expect(emptyMetrics.btnWeight).toBeGreaterThanOrEqual(600);

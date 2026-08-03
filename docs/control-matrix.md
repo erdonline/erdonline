@@ -58,6 +58,7 @@
 | DesignLayout 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；版本/导入/导出/设置同源；`menuitem` 键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify + 侧栏键盘 |
 | 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
 | `/project/notice` 公告行 | 碎密度 | `.project-list-page__notice-row` gap ∈[8,12]（目标 8）；行 pad ≤4×8；禁 gap12；工具条不弱化 | ADR-0016 密度 | ✅ | `project-notice` densify |
+| 画布空态 CTA `.erd-empty-cta` | 碎密度 | pad ∈[8,12]（目标 10×12）；主 CTA hit ∈[26,28]；禁 14×18；Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
 | 团队成员工具条 | 碎密度 | mb≤8；Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；钮 padX∈[8,12]；禁 Search 默认 32 / mb16 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 用户组页头/左角色签 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→签 ≤12；左签 padX∈[8,12]·高∈[28,32]·字≤13；禁 Title level4 / Space large / padX24 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
 | Group 基本设置页头 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→表单 ≤12；禁 Title level4 | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
