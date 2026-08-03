@@ -187,7 +187,8 @@
 - ✅ 边基数标签 chip：白底 `surface` + `line` 描边 + `ink900` 字 / 12px / 600；padding `[4,2]` / radius 3（密图再压）；禁与画布 sunk 同色、禁整块半透明冲淡字；**可点选改基数**（设计器）；**干道 bundle 拉伸 + AABB 迭代避让**（`resolveEdgeLabelOffsets`），密图 chip 不叠字
 - ✅ Frame 标题栏 chrome：height 22 / **label 12/700** vs **meta 10/400+0.88**（分组名主标题、张数 muted）；pad 0 8；轻表面条；禁占高顶栏挤成员；**双击标题重命名**
 - ✅ 边路由：同侧短 U 外肘避障（`sameSide`）；bypass 叠表缝显式 mid-corridor；绕行倍率 1.85 竞短
-- ✅ MiniMap：底色 `surfaceSunk` + `line` 描边 + 128×96 紧凑；禁 RF 默认白底与 sunk 画布割裂
+- ✅ MiniMap：底色 `surfaceSunk` + `line` 描边 + 128×96 紧凑（概览不缩）；panel **margin 8**（禁 RF 默认 15）；禁默认白底与 sunk 画布割裂
+- ❌ MiniMap panel 贴 RF 默认 margin 15，与 ADR-0016 8–12 族偏松（历史问题）
 - ✅ Controls：按钮 22×22、`surface` + `line` 描边圆角；图标 12px；**适应画布** muted 底 + ink900 主操作，缩放/锁次要 ink600；禁 RF `#fefefe` 松柱与画布割裂
 - ✅ 画布工具栏：单块 surface chrome（与 Controls 同语言）；按钮 height 22 / font 11；次要 ink600，**自动布局** 600/ink900；禁散粒描边钮 + 5×12 松按钮盖截图
 - ✅ 选中光晕：表 / Frame 共用 `--erd-selection-ring`（brand a18）；禁 Frame a12 弱环分叉
