@@ -222,7 +222,8 @@
 - ✅ **版本列表空态井次密**（2026-08-03）：`.version-page__list .ant-list-empty-text` pad 16×12→12×8（对齐工作台列表空态）；保留「保存第一个版本」；`version.spec` 空态 densify 绿；下一刀 → ~~Cmd+K footer~~✅
 - ✅ **Cmd+K footer 次密**（2026-08-03）：`.erd-cmd-footer` pad 6×10→4×8（对齐 `?` 速查 footer）；字 10 / lh 1.3；`relation.spec`「命令面板」锁 padY≤8 / padX≤8；Trap / aria / Esc 不弱化；下一刀 → ~~notice-row gap12~~✅
 - ✅ **公告 notice-row gap 次密**（2026-08-03）：`.project-list-page__notice-row` gap 12→8（8–12 族）；行 pad / 工具条不动；`testid=project-notice-row`；`project-notice` densify 绿；下一刀 → ~~画布空态 CTA pad~~✅
-- ✅ **画布空态 CTA pad 次密**（2026-08-03）：`.erd-empty-cta` pad 14×18×12→10×12（8–12 族）；主 CTA hit ≥26；Auth logo / 欢迎 pad 不动；`testid=canvas-empty-state`；`relation` densify 绿；下一刀 → `.erd-empty-panel` 顶距 `min(10vh, 88)`（视 ROI）
+- ✅ **画布空态 CTA pad 次密**（2026-08-03）：`.erd-empty-cta` pad 14×18×12→10×12（8–12 族）；主 CTA hit ≥26；Auth logo / 欢迎 pad 不动；`testid=canvas-empty-state`；`relation` densify 绿；下一刀 → ~~`.erd-empty-panel` 顶距~~✅
+- ✅ **画布空态 panel 顶距次密**（2026-08-03）：`.erd-empty-panel` `min(10vh, 88)`→`min(8vh, 64)`；保留存在感；勿再调 CTA pad；Auth logo / 欢迎 pad 跳过；`testid=canvas-empty-panel`；`relation` densify 绿；下一刀 → 空态纵节奏（title mt / desc mb）或 Controls 次密（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

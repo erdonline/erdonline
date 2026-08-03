@@ -2825,7 +2825,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           </div>
         </Panel>
         {isEmpty && (
-          <Panel position="top-center" className="erd-empty-panel">
+          <Panel position="top-center" className="erd-empty-panel" data-testid="canvas-empty-panel">
             <div className="erd-empty-cta" data-testid="canvas-empty-state">
               <ErdEmptyDiagram size="compact" />
               <div className="erd-empty-title">开始你的第一张关系图</div>

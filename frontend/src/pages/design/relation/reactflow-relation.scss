@@ -1082,7 +1082,7 @@
 // 空态构图：剪影 + 主标题 + 一句 + 唯一实心主 CTA + 次链（ADR-0016）
 // 密度与 Controls/工具栏同阶：禁 28/32 松卡片 / 双实心·描边钮抢焦点
 .erd-empty-panel {
-  margin-top: min(10vh, 88px);
+  margin-top: min(8vh, 64px); // ADR-0016：原 min(10vh, 88)；保留空态顶区存在感
   pointer-events: none;
 
   .erd-empty-cta {
