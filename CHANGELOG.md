@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：JExcel 工具栏删行确认弹层键盘闭环（Modal.confirm）
+
+- 选题：共享 JExcel 工具栏 `remove` 的 `Modal.confirm` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；仅有点击取消/确认 E2E
+- 改动：确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；`deleteRow` 与未选中 toast 不变；半成品行 toast / 工具栏 Tab 序不动
+- E2E：`jexcel-toolbar-delete-keyboard`（字段签选中行→「删除选中行」→ 首焦、Esc 归还不删、Tab trap）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 左树删模型/表/关系图确认 Modal 键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/jexcel-toolbar-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：表设计删索引确认弹层键盘闭环（Modal.confirm）
 
 - 选题：`TableIndexEdit`「删除索引」`Modal.confirm` 未显式 `keyboard`/`autoFocusButton`/`focusTriggerAfterClose`；无键盘 E2E
 - 改动：确认显式 `keyboard` + `autoFocusButton: 'ok'`（首焦「删除」）+ `focusTriggerAfterClose`；二次确认与 `updateEntityIndex` 逻辑不变；半成品行 toast 行为不动
 - E2E：`table-index-delete-keyboard`（画布→索引→添加 →「删除索引」→ 首焦、Esc 归还不删、Tab trap）
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → JExcel 工具栏删行确认 Modal 键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~JExcel 工具栏删行确认 Modal 键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/table-index-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

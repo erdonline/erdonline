@@ -31,7 +31,7 @@
 - [x] [索引签空态 CTA] 画布→索引见「还没有索引」+「添加第一个索引」→ toast「索引更新成功」+ 表头「索引名*」+ `T_TABLE_1_IDX1`；空态消失 ✅`relation.spec.ts`「索引签空态 CTA」
 - [x] [索引签再加一行 CTA] 首条后见「+ 再添加一条索引」→ toast + `T_TABLE_1_IDX2`；`index-add-row` 仍可见 ✅`relation.spec.ts`「索引签再加一行 CTA」
 - [x] [索引签删除二次确认] 「删除索引 `{name}`」→ 取消保留；确认 toast「索引更新成功」+ 空态「添加第一个索引」；`index-delete-list` 消失 ✅`relation.spec.ts`「索引签删除二次确认」
-- [x] [JExcel 工具栏删除二次确认] 字段签选中行→「删除选中行」→ 取消保留；确认后网格与画布无该字段 ✅`relation.spec.ts`「JExcel 工具栏删除二次确认」
+- [x] [JExcel 工具栏删除二次确认] 字段签选中行→「删除选中行」→ 取消保留；确认后网格与画布无该字段 ✅`relation.spec.ts`「JExcel 工具栏删除二次确认」+ 键盘 ✅`jexcel-toolbar-delete-keyboard.spec.ts`
 - [x] [表设计字段签 Tab 焦点序] hint→撤销→重做→末尾增加一行；Enter 增行；网格 Shift+Tab 回「快捷操作」 ✅`relation.spec.ts`「工具栏 Tab 可达」
 - [x] [设计器 Skip + 焦点环] 首项 Tab「跳到模型树」→ `erd-design-tree` → Tab 入搜索；「跳到主工作区」→ `erd-design-workspace` → Tab 离地标（无 trap） ✅`relation.spec.ts`「设计器 Skip」
 - [x] [画布字段浏览器 Tab 环] 选中表 Tab 穿字段→添加字段→开表设计后可脱出；未选中表 `tabIndex=-1` ✅`relation.spec.ts`「字段浏览器 Tab 环」
@@ -69,6 +69,7 @@
 - [x] [画布删边/删分组确认键盘] RF 选中边/分组 Delete → 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`canvas-delete-edge-frame-keyboard.spec.ts`
 - [x] [画布删字段确认键盘] 字段浏览器 ×「删除字段」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`canvas-delete-field-keyboard.spec.ts`
 - [x] [表设计删索引确认键盘] 索引签「删除索引」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`table-index-delete-keyboard.spec.ts`
+- [x] [JExcel 工具栏删行确认键盘] 字段签「删除选中行」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`jexcel-toolbar-delete-keyboard.spec.ts`
 - [x] [404/403 壳键盘] 未知路径 / `/403` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta` →「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`not-found.spec.ts`「404/403 壳键盘」 |
 - [x] [分享失效门键盘] `/s/not-a-real-…` 首项 Tab Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）→「打开示例 demo」→「返回首页」可逆；主 CTA focus-visible brand 环；无 trap ✅`share.spec.ts`「分享失效门键盘」
 - [x] [表设计字段签半成品不静默丢] Tab/Delete/Enter 清空类型 → toast「有行未填完必填项」；Esc 仍在字段签；画布 NAME 仍在 ✅`relation.spec.ts`「半成品行不静默丢」
