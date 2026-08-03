@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { compareStringVersion } from '@/utils/string';
 import useVersionStore, { SHOW_CHANGE_TYPE } from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
 import { Button, Col, Divider, Dropdown, Modal, Row, Select, Space, Typography, message } from 'antd';
 import type { MenuProps } from 'antd';
+import type { BaseSelectRef } from 'rc-select';
 import moment from 'moment';
 import * as File from '@/utils/file';
 import {
@@ -60,6 +61,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     preSynchronous: false,
     flagSynchronous: false,
   });
+  const initVersionSelectRef = useRef<BaseSelectRef>(null);
 
   const access = useAccess();
   const [exed, setExed] = useState(1);
@@ -174,6 +176,10 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     currentVersion.version &&
     compareStringVersion(currentVersion.version, dbVersion) <= 0;
 
+  const closeModal = () => {
+    setOpen(false);
+  };
+
   const openModal = () => {
     if (isCompare && (!versions || versions.length < 2)) {
       message.warning('至少需要两个版本才能比对');
@@ -185,6 +191,17 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       versionDispatch.compare(state);
     }
     setOpen(true);
+  };
+
+  const focusFirstControl = () => {
+    if (isCompare) {
+      initVersionSelectRef.current?.focus();
+      return;
+    }
+    // 详情无可编辑字段：首焦主操作「导出变更清单」
+    document
+      .querySelector<HTMLElement>('[data-testid="version-diff-export-btn"]')
+      ?.focus();
   };
 
   const footer = [
@@ -281,16 +298,25 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       <Modal
         title={isDetail ? '版本变更详情' : '任意版本比较'}
         open={open}
-        onCancel={() => setOpen(false)}
+        onCancel={closeModal}
         destroyOnClose
         width={960}
         footer={footer}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => focusFirstControl(), 0);
+        }}
       >
         {isCompare ? (
           <Space style={{ marginBottom: 8 }} wrap>
             <span>
               <span style={{ marginRight: 8 }}>初始版本</span>
               <Select
+                ref={initVersionSelectRef}
                 style={{ width: 160 }}
                 options={versionSelect}
                 value={state.initVersion || undefined}
