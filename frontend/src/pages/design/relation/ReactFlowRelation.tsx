@@ -1492,6 +1492,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           okText: '删除',
           okType: 'danger',
           cancelText: '取消',
+          keyboard: true,
+          autoFocusButton: 'ok',
+          focusTriggerAfterClose: true,
           onOk() {
             framesToRemove.forEach((f) =>
               projectDispatch.removeFrame(moduleName, activeDiagramId, f.frameId),
@@ -1971,6 +1974,9 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         okText: '删除',
         okType: 'danger',
         cancelText: '取消',
+        keyboard: true,
+        autoFocusButton: 'ok',
+        focusTriggerAfterClose: true,
         onOk() {
           toRemove.forEach((a) => projectDispatch.removeAssociation(moduleEntity.module, a));
           setEdgeSelected({});
