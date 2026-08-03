@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import { RotateLeftOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { runApprovalAction } from './approvalAction';
 
 export type CancelApprovalProps = {
@@ -10,11 +11,14 @@ export type CancelApprovalProps = {
 };
 
 const CancelApproval: React.FC<CancelApprovalProps> = (props) => {
-  return (
-    <Popconfirm
-      placement="right"
-      title="是否撤销？"
-      onConfirm={() =>
+  const onCancelClick = () => {
+    confirmDestructive({
+      title: '撤销审批',
+      content: '确认撤销该审批工单？撤销后可重新提交复批。',
+      okText: '撤销',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 2,
@@ -22,15 +26,20 @@ const CancelApproval: React.FC<CancelApprovalProps> = (props) => {
           }),
           props.actionRef,
           '已撤销',
-        )
-      }
-      okText="是"
-      cancelText="否"
+        ),
+    });
+  };
+
+  return (
+    <Button
+      key="cancel"
+      size="small"
+      type="link"
+      icon={<RotateLeftOutlined />}
+      onClick={onCancelClick}
     >
-      <Button key="cancel" size="small" type="link" icon={<RotateLeftOutlined />}>
-        撤销
-      </Button>
-    </Popconfirm>
+      撤销
+    </Button>
   );
 };
 

@@ -180,7 +180,10 @@ test.describe('版本工单/审批', () => {
       await expect(approvalRow.getByText('待审批')).toBeVisible();
 
       await approvalRow.getByRole('button', { name: '拒绝' }).click();
-      await page.getByRole('button', { name: '是' }).click();
+      await page
+        .getByRole('dialog', { name: '拒绝审批' })
+        .getByRole('button', { name: /拒\s*绝/ })
+        .click();
       await expectToast(page, '已拒绝');
       await expect(approvalRow.getByText('拒绝', { exact: true })).toBeVisible({ timeout: 10_000 });
 
@@ -191,7 +194,10 @@ test.describe('版本工单/审批', () => {
       await expect(orderRow.getByText('拒绝', { exact: true })).toBeVisible();
 
       await orderRow.getByRole('button', { name: '复批' }).click();
-      await page.getByRole('button', { name: '是' }).click();
+      await page
+        .getByRole('dialog', { name: '复批' })
+        .getByRole('button', { name: /复\s*批/ })
+        .click();
       await expectToast(page, '已重新提交审批');
       await expect(orderRow.getByText('复批', { exact: true })).toBeVisible({ timeout: 10_000 });
     } finally {
@@ -233,7 +239,10 @@ test.describe('版本工单/审批', () => {
       await expect(approvalRow.getByText('待审批')).toBeVisible();
 
       await approvalRow.getByRole('button', { name: '通过' }).click();
-      await page.getByRole('button', { name: '是' }).click();
+      await page
+        .getByRole('dialog', { name: '通过审批' })
+        .getByRole('button', { name: /通\s*过/ })
+        .click();
       await expectToast(page, /连接失败|SQL执行失败|驱动加载失败|Communications link failure/);
       await expect(approvalRow.getByText('待审批')).toBeVisible({ timeout: 10_000 });
 

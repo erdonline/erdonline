@@ -1,9 +1,10 @@
 import React from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { runApprovalAction } from './approvalAction';
 
 export type PassApprovalProps = {
@@ -18,11 +19,14 @@ const PassApproval: React.FC<PassApprovalProps> = (props) => {
     }),
     shallow,
   );
-  return (
-    <Popconfirm
-      placement="right"
-      title="是否通过？"
-      onConfirm={() =>
+
+  const onPassClick = () => {
+    confirmDestructive({
+      title: '通过审批',
+      content: '确认通过该审批？通过后将执行审批 SQL。',
+      okText: '通过',
+      cancelText: '取消',
+      onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 1,
@@ -31,15 +35,20 @@ const PassApproval: React.FC<PassApprovalProps> = (props) => {
           }),
           props.actionRef,
           '已通过',
-        )
-      }
-      okText="是"
-      cancelText="否"
+        ),
+    });
+  };
+
+  return (
+    <Button
+      key="pass"
+      size="small"
+      type="link"
+      icon={<CheckCircleOutlined />}
+      onClick={onPassClick}
     >
-      <Button key="pass" size="small" type="link" icon={<CheckCircleOutlined />}>
-        通过
-      </Button>
-    </Popconfirm>
+      通过
+    </Button>
   );
 };
 

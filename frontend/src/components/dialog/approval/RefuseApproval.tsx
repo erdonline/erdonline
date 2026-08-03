@@ -1,7 +1,8 @@
 import React from 'react';
-import { Button, Popconfirm } from 'antd';
+import { Button } from 'antd';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
+import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { runApprovalAction } from './approvalAction';
 
 export type RefuseApprovalProps = {
@@ -10,11 +11,14 @@ export type RefuseApprovalProps = {
 };
 
 const RefuseApproval: React.FC<RefuseApprovalProps> = (props) => {
-  return (
-    <Popconfirm
-      placement="right"
-      title="是否拒绝？"
-      onConfirm={() =>
+  const onRefuseClick = () => {
+    confirmDestructive({
+      title: '拒绝审批',
+      content: '确认拒绝该审批？发起人可在工单页复批。',
+      okText: '拒绝',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 3,
@@ -22,15 +26,21 @@ const RefuseApproval: React.FC<RefuseApprovalProps> = (props) => {
           }),
           props.actionRef,
           '已拒绝',
-        )
-      }
-      okText="是"
-      cancelText="否"
+        ),
+    });
+  };
+
+  return (
+    <Button
+      danger
+      key="refuse"
+      size="small"
+      type="link"
+      icon={<CloseCircleOutlined />}
+      onClick={onRefuseClick}
     >
-      <Button danger key="refuse" size="small" type="link" icon={<CloseCircleOutlined />}>
-        拒绝
-      </Button>
-    </Popconfirm>
+      拒绝
+    </Button>
   );
 };
 

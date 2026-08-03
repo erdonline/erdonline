@@ -62,6 +62,7 @@
 | 只读分享吊销确认 | 打开首焦 / Esc / Tab trap | 首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；焦点归还吊销钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-revoke-keyboard` |
 | 团队项目删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还「删除团队项目」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-project-delete-keyboard` |
 | 团队成员移除确认 | 打开首焦 / Esc / Tab trap | 首焦「移除」；Esc 归还不移；焦点归还「移除成员 {username}」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-user-remove-keyboard` |
+| 审批动作确认（通过/拒绝/撤销/复批） | 打开首焦 / Esc / Tab trap | 首焦语义 OK；Esc 归还不落盘；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
 | EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
 | 画布删表确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-table-keyboard` |
 | 画布删边/删分组确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-edge-frame-keyboard` |
@@ -192,6 +193,7 @@
 | `/design/table/version/all` | 顶栏「我的工单/我的审批」 | 直达 order/approval 页 | W3 切片 3 | ✅ | `approval.spec`「提交工单入口」 |
 | `/design/table/version/all` | 版本行「提交工单」 | 团队未同步行 → 详情「SQL审批」可见 | W3 切片 3 | ✅ | `approval.spec`「提交工单入口」 |
 | 工单/审批 | 提交→通过/拒绝全链路 | 状态变更可见 | 需有数据 | ✅ | `approval.spec`：API 种子→UI 拒绝 toast→工单复批（通过=JDBC 过重未覆盖） |
+| 工单/审批 | 通过/拒绝/撤销/复批确认键盘 | 首焦主操作；Esc 不落盘；Tab trap | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
 
 ---
 
