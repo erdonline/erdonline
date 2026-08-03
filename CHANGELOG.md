@@ -8,13 +8,23 @@
 
 ### 2026-08-03
 
+#### 配置：Spring 数据源占位符收拢为单一 DB_*（Railway 对齐）
+
+- 选题：`application.yml` / `application-prod.yml` 多层 `${A:${B:${C}}}` 与 Railway「可选配置」文档不一致，贡献者易追死别名
+- 改动：JDBC 仅认 `DB_HOST` / `DB_PORT` / `DB_NAME` / `DB_USERNAME` / `DB_PASSWORD`（两池共用）；去掉 `MYSQL*` / `DB_USER` / `DB_ERD*` / `DB_MARTIN` 嵌套回退
+- 文档：`docs/deployment.md`、ADR-0020、`.env.example` 同步；compose 仍 `MYSQL_*`←`DB_*` 注入进 MySQL 容器，backend 服务注入 `DB_*`
+
+验证点：
+- `rg -n '\\$\\{[^}]*\\$\\{' backend/src/main/resources/` = 0
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
+
 #### 体验：画布 chrome Tab 序（Controls / MiniMap / 工具栏）
 
 - 选题：MiniMap `pannable`+`zoomable` 经 d3-zoom 写 `tabindex=0` → Tab 陷阱；Controls 键盘环弱；工具栏与缩放钮割裂
 - `ErdMiniMap`：MutationObserver 强制 SVG `tabindex=-1`（鼠标拖/滚保留；`role=img` 名保留）；设计器+分享共用
 - Controls `:focus-visible` brand 环；工具栏 `role=toolbar`「画布工具」
 - E2E：`relation`「画布 chrome Tab 序：Controls→工具栏；MiniMap 不出序；focus-visible」
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 左树键盘漫游（或节点级 Tab 再收口）
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → ~~左树键盘漫游（或节点级 Tab 再收口）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布 chrome Tab 序" --workers=1 --retries=0`

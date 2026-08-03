@@ -10,11 +10,11 @@ spring:
   # 缺环境变量时启动直接失败（fail-fast），杜绝默认密码随生产部署上线。
   datasource:
     martin:
-      username: ${DB_USERNAME:${DB_USER:${MYSQLUSER}}}
-      password: ${DB_PASSWORD:${MYSQLPASSWORD}}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
     erd:
-      username: ${DB_ERD_USERNAME:${DB_USERNAME:${DB_USER:${MYSQLUSER}}}}
-      password: ${DB_ERD_PASSWORD:${DB_PASSWORD:${MYSQLPASSWORD}}}
+      username: ${DB_USERNAME}
+      password: ${DB_PASSWORD}
   thymeleaf:
     prefix: classpath:/views/
     suffix: .html
