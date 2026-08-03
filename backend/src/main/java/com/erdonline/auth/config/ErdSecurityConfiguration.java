@@ -60,7 +60,9 @@ public class ErdSecurityConfiguration {
                     auth.anyRequest().authenticated();
                 })
                 .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(martinJwtAuthConverter)))
-                .headers(h -> h.frameOptions(f -> f.disable()));
+                // R-AUTH-07：默认 DENY 防点击劫持。只读分享是 SPA 路由 /share/:token，不 iframe 嵌 API；
+                // 若将来需第三方嵌 UI，由前端托管层 CSP frame-ancestors 放行，勿对本过滤器链关掉 frameOptions。
+                .headers(h -> h.frameOptions(f -> f.deny()));
         return http.build();
     }
 }

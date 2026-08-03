@@ -62,7 +62,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-AUTH-04 | P1 | ~~`dataSources` 读/改/删无归属校验~~ | ~~`DataSourcesController` get/update/delete~~ | **✅ 已关闭（2026-08-03）**：`DataSourceAcl` 校验 creator（username/userId）；tree 亦按 creator 过滤；禁止更新改写 creator | 保持；与 R-DATA-02 热路径走已鉴权 id |
 | R-AUTH-05 | P1 | ~~SocketIO 仅验短票/JWT，不验项目成员~~ | ~~`SocketIoAuthorizationListener` / `JOIN_ROOM`~~ | **✅ 已关闭（2026-08-03）**：短票载荷含 `userId`；握手 + `JOIN_ROOM` 均 `ProjectAcl.isMember`；cursor/sync 仅已入房会话可广播 | 保持；成员多人协作见 `verify-socket-presence` / `verify-socket-membership` |
 | R-AUTH-06 | P2 | ~~开放注册双入口~~ | ~~ignore：`/user/register`；产品：`/project/group/user/register`~~ | **✅ 已关闭（2026-08-03）**：去 `RemoteSystemUser.userRegister` HTTP 映射；ignore 仅留产品路径；`allow-open-register` prod/默认=false，`dev`=true；`ERD_ALLOW_OPEN_REGISTER=true` 逃生 | 公网勿开；需自注册自托管显式开阀 |
-| R-AUTH-07 | P2 | `frameOptions` 关闭 | `ErdSecurityConfiguration.java:63` | 可被嵌入 iframe（点击劫持面） | 非嵌入场景恢复 `deny`/`sameOrigin` |
+| R-AUTH-07 | P2 | ~~`frameOptions` 关闭~~ | ~~`ErdSecurityConfiguration.java:63`~~ | **✅ 已关闭（2026-08-03）**：`headers.frameOptions.deny()`；分享为 SPA `/share/:token`，不 iframe 嵌 API | 保持 DENY；第三方嵌 UI 走前端托管 CSP `frame-ancestors`，勿在此链 `disable` |
 
 ### 配置与密钥
 
@@ -102,8 +102,14 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DEAD-03 | P2 | ignore：`/endpoint/**`、`/register`、或未再走 HTTP 的路径 | `application.yml:174-179`；`/endpoint/foo`→404 | 扩大未来误挂匿名面 | 收敛 ignore 仅保留真实匿名 API |
 | R-DEAD-04 | P2 | ~~`martin.ui.url` / `ERD_UI_URL` 代码零引用~~ | ~~`application.yml` ui.url~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` CORS 回落 + prod SocketIO origin 回落；见 R-CFG-04 | 保持接线；业务跳转若再用同键 |
 
+### 点击劫持（X-Frame-Options）
+
+- API 响应默认 `X-Frame-Options: DENY`（`ErdSecurityConfiguration`）。
+- 只读分享是前端 SPA 路由（匿名 `GET /share/{token}` 只取 JSON），**不**要求把后端嵌进第三方 iframe。
+- 例外：若自托管要把 **UI** 嵌到其它站，在 nginx/CDN 配 `Content-Security-Policy: frame-ancestors …`；不要为此关闭后端 `frameOptions`。
+
 ### 建议下一刀（按 ROI）
 
-1. `frameOptions` 恢复（R-AUTH-07）。
-2. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。
-3. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。
+1. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。
+2. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。
+3. SocketIO 端口暴露面文档化/防火墙（R-OPS-03）。

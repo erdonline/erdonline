@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-AUTH-07 frameOptions DENY（点击劫持）
+
+- 选题：Security 链 `frameOptions.disable()`，API 可被嵌 iframe
+- 改动：`ErdSecurityConfiguration` → `frameOptions.deny()`；分享为 SPA `/share/:token`，不嵌 API；第三方嵌 UI 文档约定走前端 CSP `frame-ancestors`
+- 文档：security-model R-AUTH-07 ✅ + 点击劫持节；roadmap 下一刀 → R-DEAD-01/02/03
+- 回归：`FrameOptionsContractTest`（源契约：deny 启用、非 disable）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=FrameOptionsContractTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sI http://localhost:9502/actuator/health` → `X-Frame-Options: DENY`
+
 #### 安全：R-CFG-03 应用库 JDBC TLS（prod 默认开 SSL）
 
 - 选题：双 DS `jdbc-url` 硬编码 `useSSL=false` + `allowPublicKeyRetrieval=true`，生产中间人面
