@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：分享失效门键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：失效门虽共用 `AuthBrandShell`，Skip 仍默认「跳到表单」；`share-invalid-gate` 无 Skip 锚 / `tabIndex`；无键盘 E2E
+- 改动：`skipLabel=跳到主操作` + `skipTargetId=exception-main-cta`（CTA 栈 `id` + `tabIndex=-1`）；与 404/403 同构；壳内地标 focus-visible 既有
+- E2E：`share`「分享失效门键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → `/compare` 竞品对照页键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "分享失效门键盘" --workers=1 --retries=0`
+
 #### 体验：404/403 壳键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：异常门虽共用 `AuthBrandShell`，Skip 文案仍为「跳到表单」；主 CTA 栈无 Skip 锚；`403` 无路由不可达；无键盘 E2E
 - 改动：`skipLabel=跳到主操作` + `skipTargetId=exception-main-cta`（门 CTA 栈 `tabIndex=-1`）；`AuthBrandShell` 支持可配置 Skip 锚；壳内地标 focus-visible；深链 `/403`（layout false）
 - E2E：`not-found`「404 壳键盘」「403 壳键盘」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 分享失效门键盘（同构 `share-invalid-gate`）
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~分享失效门键盘（同构 `share-invalid-gate`）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/not-found.spec.ts --project=chromium --grep "壳键盘" --workers=1 --retries=0`

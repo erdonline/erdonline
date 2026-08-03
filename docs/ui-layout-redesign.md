@@ -125,6 +125,7 @@
 - ✅ **W5 切片 1**（2026-08-02）：删 `antd/dist/reset.css`；`Result` 标准 status 图标（删 `no-found.svg` / `no-access.svg`）；extra「返回首页」+「打开示例 demo」→ `/demo`；403 同构
 - ✅ **404/403 品牌对齐**（2026-08-03）：改 `AuthBrandShell`（去裸 Result）；主 CTA「打开示例 demo」+「返回首页」；与分享失效门同语言
 - ✅ **404/403 壳键盘**（2026-08-03）：Skip「跳到主操作」→ `#exception-main-cta`；focus-visible brand；`/403` 深链可达；与落地/登录同型
+- ✅ **分享失效门键盘**（2026-08-03）：同构 Skip→ `#exception-main-cta`（`share-invalid-gate`）；focus-visible brand；`share.spec` 键盘绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

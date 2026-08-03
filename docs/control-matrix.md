@@ -40,6 +40,7 @@
 | `/` LandingChrome | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#landing-main-cta`；试用→注册→登录；focus-visible surface；无 trap | ADR-0016 键盘门面 | ✅ | `landing`「落地页键盘」 |
 | `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
 | `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
+| `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
 | `/register` | 注册提交 | 成功进 `/home`；可带 redirect | `share` autofork | ✅ | `session.spec`「注册成功」；`share` redirect |
 | `/demo` | 重定向 | → `/s/public-demo` 只读图 + 复制 CTA | ADR-0007 | ✅ | `demo.spec` |
 | `/s/:token` | 复制到我的项目 | 未登录→注册 redirect；登录→fork | 分享 fork | ✅ | `share.spec` |
