@@ -23,6 +23,7 @@
 - [x] 审批/工单 SQL 明细：`Modal.info` 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] 导入跳过校验：二次导入全跳过 → 首焦「知道了」；Esc/OK 归还「解析并导入」；Tab trap ✅`import-skip-warning-keyboard.spec.ts`
 - [x] 工作台 databaseConfig Drawer：新建/编辑首焦「连接名称」；Esc 归还触发器；Tab trap ✅`database-config-drawer-keyboard.spec.ts`
+- [x] JExcel Escape 退格 / 快捷操作：Esc 归还网格；快捷操作首焦「知道了」；Esc 归还；Tab trap ✅`jexcel-grid-keyboard.spec.ts`
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤32；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 版本工具条二次密度/碎色：控件 ∈24–28；图标不 clip；增删摘要·hint 色 ≡ `--erd-success`/`--erd-brand`/`--erd-ink-600`；新增钮 Tab focus-visible ✅`version.spec.ts`
 - [x] 工单/审批列表密度：标题栏 ≤32（目标 ~24）/ 行 pad-block ≤10 / 动作钮 ∈22–28；图标不 clip；动作钮 focus-visible；截图 `approval-list-dense.png` / `order-list-dense.png` ✅`approval.spec.ts`
@@ -141,6 +142,7 @@
 - [x] [画布删字段确认键盘] 字段浏览器 ×「删除字段」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`canvas-delete-field-keyboard.spec.ts`
 - [x] [表设计删索引确认键盘] 索引签「删除索引」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`table-index-delete-keyboard.spec.ts`
 - [x] [JExcel 工具栏删行确认键盘] 字段签「删除选中行」→ 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`jexcel-toolbar-delete-keyboard.spec.ts`
+- [x] [JExcel Escape 退格 / 快捷操作键盘] 字段签双击单元格 → 打字 → Esc → 焦点 `jexcel-grid`、草稿不落盘、签仍开；「快捷操作」→ 首焦「知道了」；Esc 归还；Tab trap ✅`jexcel-grid-keyboard.spec.ts`
 - [x] [左树删表确认键盘] 表操作→删除表 → 首焦「删除」；Esc 关窗归还不删；Tab trap ✅`tree-delete-keyboard.spec.ts`
 - [x] [数据源设置删确认键盘] 新增数据源→删 → 首焦「删除」；Esc 关确认归还删钮不删；外层配置窗仍开；Tab trap ✅`database-setup-delete-keyboard.spec.ts`
 - [x] [工作台 databaseConfig 删/批删确认键盘] 行删 + 批删 → 首焦「删除」；Esc 关确认归还触发器不删；Tab trap ✅`database-config-delete-keyboard.spec.ts`

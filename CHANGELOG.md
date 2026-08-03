@@ -8,12 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：表设计 JExcel Escape 退格 + 快捷操作 Modal 键盘
+
+- 选题：databaseConfig Drawer 键盘已收口（`1f97b39`）；量测工具栏 Tab/网格入口已齐；残余 = Escape 退格后焦点落隐藏 `#jexcel_textarea`、工具栏「快捷操作」`Modal.info` 缺 Esc/首焦/归还
+- `JExcel`：编辑态 Escape → `closeEditor(false)` 丢弃草稿 + `rAF` 焦点归还 `jexcel-grid`；工具栏 `role=toolbar`「表格编辑工具栏」；快捷操作 `keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；修彩蛋文案乱码
+- E2E：`jexcel-grid-keyboard` Escape 归还网格（草稿不落盘）+ 快捷操作首焦「知道了」/ Esc 归还 / Tab trap；定位 role/aria/testid（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Vision 矩阵 📋（ADR-0013 API/MCP 或美图/开放项）或扫余 Shell 外键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/jexcel-grid-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/jexcel-toolbar-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --workers=1 --retries=0 --grep "工具栏 Tab 可达|半成品行不静默丢字段"`
+
 #### 体验：工作台 databaseConfig Drawer 键盘闭环
 
 - 选题：导入跳过校验键盘已收口（`9a20b19`）；扫余最高项 = `/databaseConfig` 新建/编辑 Drawer 缺显式 Esc/首焦/关后归还触发器（antd Drawer 无 `focusTriggerAfterClose`）
 - Drawer：`keyboard` + `autoFocus={false}` + `afterOpenChange` 首焦 `#database-config-name`；关后手动 `trigger.focus()`；连接名称 `aria-label`；打开路径统一 `openDrawer` 记触发器
 - E2E：`database-config-drawer-keyboard` 新建/编辑 → 首焦「连接名称」→ Tab trap → Esc 归还「新建连接」/「编辑」；定位 role/label（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫余键盘缺口或 Vision 矩阵 📋
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~JExcel Escape 退格 + 快捷操作 Modal~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/database-config-drawer-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
