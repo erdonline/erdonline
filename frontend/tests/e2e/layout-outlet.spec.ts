@@ -40,11 +40,62 @@ test.describe('布局壳子路由出口', () => {
     await expect(page.getByRole('link', { name: 'GitHub 仓库' })).toBeVisible();
     await expect(page.getByRole('img', { name: '公众号' })).toBeVisible();
 
+    // ADR-0016：工作台壳外井次密（禁 shell 24 / body 20）
+    const homeShellDense = await page.evaluate(() => {
+      const shell = document.querySelector('.home-layout__shell') as HTMLElement | null;
+      const body = document.querySelector('.home-layout__body') as HTMLElement | null;
+      const footer = document.querySelector('.home-layout__footer') as HTMLElement | null;
+      const ss = shell ? getComputedStyle(shell) : null;
+      const bs = body ? getComputedStyle(body) : null;
+      const fs = footer ? getComputedStyle(footer) : null;
+      return {
+        shellPadT: ss ? parseFloat(ss.paddingTop) : NaN,
+        shellPadX: ss ? parseFloat(ss.paddingLeft) : NaN,
+        bodyPadT: bs ? parseFloat(bs.paddingTop) : NaN,
+        bodyPadX: bs ? parseFloat(bs.paddingLeft) : NaN,
+        footerPadT: fs ? parseFloat(fs.paddingTop) : NaN,
+      };
+    });
+    expect(homeShellDense.shellPadT, `shell padT 应 ≤12，得 ${homeShellDense.shellPadT}`).toBeLessThanOrEqual(12);
+    expect(homeShellDense.shellPadX).toBeLessThanOrEqual(16);
+    expect(homeShellDense.bodyPadT, `body padT 应 ≤12，得 ${homeShellDense.bodyPadT}`).toBeLessThanOrEqual(12);
+    expect(homeShellDense.bodyPadX).toBeLessThanOrEqual(16);
+    expect(homeShellDense.footerPadT).toBeLessThanOrEqual(12);
+
     await page.goto('/project/person');
     await expect(page.getByText('个人项目').first()).toBeVisible({ timeout: 15_000 });
     // 列表工具栏「新建」或空态「立即创建」——任一可见即证明子路由已挂载
     const createBtn = page.getByRole('button', { name: /新\s*建|立即创建/ }).first();
     await expect(createBtn).toBeVisible({ timeout: 15_000 });
+
+    const listShellDense = await page.evaluate(() => {
+      const shell = document.querySelector('.home-layout__shell') as HTMLElement | null;
+      const body = document.querySelector('.home-layout__body') as HTMLElement | null;
+      const empty = document.querySelector(
+        '.project-list-page .ant-list-empty-text',
+      ) as HTMLElement | null;
+      const ss = shell ? getComputedStyle(shell) : null;
+      const bs = body ? getComputedStyle(body) : null;
+      const es = empty ? getComputedStyle(empty) : null;
+      return {
+        shellPadT: ss ? parseFloat(ss.paddingTop) : NaN,
+        bodyPadT: bs ? parseFloat(bs.paddingTop) : NaN,
+        emptyPadT: es ? parseFloat(es.paddingTop) : null,
+      };
+    });
+    expect(listShellDense.shellPadT).toBeLessThanOrEqual(12);
+    expect(listShellDense.bodyPadT).toBeLessThanOrEqual(12);
+    if (listShellDense.emptyPadT != null) {
+      expect(
+        listShellDense.emptyPadT,
+        `列表空态 padT 应 ≤12，得 ${listShellDense.emptyPadT}`,
+      ).toBeLessThanOrEqual(12);
+    }
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/workspace-shell-dense.png',
+      fullPage: false,
+    });
   });
 
   test('三壳同语言：顶栏 64 + 无水印 + Home 表面 token', async ({ page }) => {
@@ -171,6 +222,29 @@ test.describe('布局壳子路由出口', () => {
       });
       await expect(page.getByLabel('项目名')).toBeVisible();
       await expect(page.getByRole('heading', { name: '基本设置' })).toHaveCount(1);
+
+      // ADR-0016：Group 壳外井与 Home 同阶
+      const groupShellDense = await page.evaluate(() => {
+        const content = document.querySelector('.group-layout__content') as HTMLElement | null;
+        const body = document.querySelector('.group-layout__body') as HTMLElement | null;
+        const cs = content ? getComputedStyle(content) : null;
+        const bs = body ? getComputedStyle(body) : null;
+        return {
+          contentPadT: cs ? parseFloat(cs.paddingTop) : NaN,
+          contentPadX: cs ? parseFloat(cs.paddingLeft) : NaN,
+          bodyPadT: bs ? parseFloat(bs.paddingTop) : NaN,
+          bodyPadX: bs ? parseFloat(bs.paddingLeft) : NaN,
+        };
+      });
+      expect(groupShellDense.contentPadT).toBeLessThanOrEqual(12);
+      expect(groupShellDense.contentPadX).toBeLessThanOrEqual(16);
+      expect(groupShellDense.bodyPadT).toBeLessThanOrEqual(12);
+      expect(groupShellDense.bodyPadX).toBeLessThanOrEqual(16);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/group-shell-dense.png',
+        fullPage: false,
+      });
     } finally {
       await request
         .post(`${API}/ncnb/project/group/delete`, {

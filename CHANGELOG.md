@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：工作台壳（Home/Group）外井次密
+
+- 选题：页内 `.project-list-page` / setting / database 已 pad 8×12；HomeLayout shell 24×24 + body 20×24、GroupLayout content/body 24/20 仍叠双松井，覆盖 Home/项目列表/账号/数据源/公告/团队设置全工作台
+- `HomeLayout`：shell 12×16×10、body 12×16、footer 10×6；`GroupLayout`：content/body 12×16；列表空态 pad 12×8；禁 24/20 外井
+- E2E：`layout-outlet` Home/个人项目 + Group 基本设置 densify + 截图 `workspace-shell-dense.png` / `group-shell-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 账号 BaseView 左右 gap24 / 顶栏 actions gap16（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/layout-outlet.spec.ts --project=chromium --grep "HomeLayout：/home|GroupLayout：/project/group" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts tests/e2e/group-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：默认字段落盘失败可重试
 
 - 选题：默认字段 JExcel / 弹窗 HotTable `updateDefaultFields` 本地 mutate 即 debounce toast「默认字段已更新」；autosave 失败像已改模板；死代码 `moveField` / `addDefaultFields` / `removeDefaultFields` 零引用且本地 mutate 即成功
 - `updateDefaultFields` 支持 `persist:true`；设置页与默认项弹窗队列 latest-wins，仅 code===200 写 store + 成功 toast；失败 toast + `sheetEpoch` 重挂回滚；`aria-busy`
 - 清死代码：实体 `moveField`（行序改动已由 JExcel `onmoverow` → `updateEntityFields` persist 覆盖）；profile `addDefaultFields` / `removeDefaultFields`
 - E2E：`default-field-failure.spec.ts` mock save → toast + 回滚 `id` → 重试成功 + 新表带重命名默认字段
-- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → densify chrome ROI
+- 文档：regression-checklist / control-matrix / design-principles / ui-layout-redesign；下一刀 → ~~工作台壳外井 densify~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/default-field-failure.spec.ts --project=chromium --workers=1 --retries=0`
