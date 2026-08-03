@@ -64,19 +64,22 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    const resp = await POST('/ncnb/project/group/role/users', {
-      projectId: props.projectId,
-      roleId: props.roleId,
-      userIds: values.user,
-    });
-    if (resp?.code === 200) {
-      message.success('保存成功');
-      props.actionRef.current?.reload?.();
-      setOpen(false);
-      return;
+    try {
+      const resp = await POST('/ncnb/project/group/role/users', {
+        projectId: props.projectId,
+        roleId: props.roleId,
+        userIds: values.user,
+      });
+      if (resp?.code === 200) {
+        message.success('保存成功');
+        props.actionRef.current?.reload?.();
+        setOpen(false);
+        return;
+      }
+      // 业务失败：request 已 toast；失败不关窗（勿伪装成功）
+    } catch {
+      // 网络/HTTP：errorHandler 已 toast；失败不关窗
     }
-    // 对齐原 ModalForm：非 200 仍关窗
-    setOpen(false);
   };
 
   return (
