@@ -5,7 +5,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import _ from "lodash";
 import JExcel from "@/pages/JExcel";
-import { Button, Empty, message } from 'antd';
+import { Button, Empty, Modal, message } from 'antd';
 
 export type TableIndexEditProps = {
   moduleEntity: ModuleEntity
@@ -93,6 +93,31 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
     seedIndex(indexs);
   };
 
+  /** 破坏性：表内明确「删除」+ Modal 二次确认；勿只靠 JExcel 工具栏无确认 remove */
+  const confirmDeleteIndex = (rowIndex: number) => {
+    if (!currentModule || !entity) {
+      message.error('当前模块或实体未定义');
+      return;
+    }
+    const target = indexs[rowIndex];
+    const indexName = target?.name || `第 ${rowIndex + 1} 条`;
+    Modal.confirm({
+      title: `确定删除索引 "${indexName}" 吗?`,
+      content: '此操作不可逆，请谨慎操作。',
+      okText: '删除',
+      okType: 'danger',
+      cancelText: '取消',
+      onOk() {
+        const next = indexs.filter((_, i) => i !== rowIndex);
+        projectDispatch.updateEntityIndex(
+          currentModule,
+          entity.title || entity.name,
+          next,
+        );
+      },
+    });
+  };
+
   if (!hasIndexes && !started) {
     return (
       <div
@@ -152,18 +177,41 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
         notEmptyColumn={['name', 'fields']}
       />
       {hasIndexes ? (
-        <div className="erd-table-index-add-row">
-          <Button
-            type="dashed"
-            size="small"
-            block
-            data-testid="index-add-row"
-            aria-label="再添加一条索引"
-            onClick={addAnotherIndex}
+        <>
+          <div
+            className="erd-table-index-delete-list"
+            data-testid="index-delete-list"
           >
-            + 再添加一条索引
-          </Button>
-        </div>
+            {indexs.map((idx, i) => {
+              const name = idx.name || `第 ${i + 1} 条`;
+              return (
+                <Button
+                  key={`${name}-${i}`}
+                  danger
+                  type="link"
+                  size="small"
+                  data-testid={`index-delete-${i}`}
+                  aria-label={`删除索引 ${name}`}
+                  onClick={() => confirmDeleteIndex(i)}
+                >
+                  删除索引 {name}
+                </Button>
+              );
+            })}
+          </div>
+          <div className="erd-table-index-add-row">
+            <Button
+              type="dashed"
+              size="small"
+              block
+              data-testid="index-add-row"
+              aria-label="再添加一条索引"
+              onClick={addAnotherIndex}
+            >
+              + 再添加一条索引
+            </Button>
+          </div>
+        </>
       ) : null}
     </div>
   );

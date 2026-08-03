@@ -1293,6 +1293,50 @@ test.describe('关系图画布（ReactFlow）', () => {
     }
   });
 
+  test('索引签删除二次确认：取消保留；确认后回空态', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('idxdel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'idxdel', 'index delete confirm');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      const node = rfNode(page, 'T_TABLE_1');
+      await expect(node).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+
+      await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
+      const indexEdit = page.getByTestId('table-index-edit');
+      await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' })).toBeVisible();
+
+      const delBtn = indexEdit.getByRole('button', { name: '删除索引 T_TABLE_1_IDX1' });
+      await expect(delBtn).toBeVisible();
+      await expect(delBtn).toHaveAttribute('aria-label', '删除索引 T_TABLE_1_IDX1');
+      await delBtn.click();
+
+      const dialog = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await expect(dialog.getByText(/确定删除索引/).filter({ visible: true })).toBeVisible();
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).click();
+      await expect(indexEdit.getByRole('cell', { name: 'T_TABLE_1_IDX1' })).toBeVisible();
+      await expect(indexEdit.getByTestId('index-empty-add')).toHaveCount(0);
+
+      await indexEdit.getByRole('button', { name: '删除索引 T_TABLE_1_IDX1' }).click();
+      const dialogOk = page.getByRole('dialog').filter({ hasText: /不可逆/ });
+      await dialogOk.getByRole('button', { name: /删\s*除/ }).click();
+
+      await expectToast(page, '索引更新成功');
+      await expect(indexEdit.getByText('还没有索引')).toBeVisible();
+      await expect(indexEdit.getByRole('button', { name: '添加第一个索引' })).toBeVisible();
+      await expect(indexEdit.getByTestId('index-delete-list')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('画布打开字段签：直达表设计字段；无死 affordance', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('fldnav');

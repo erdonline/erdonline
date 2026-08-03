@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：索引签删除二次确认（建模回路）
+
+- 选题：索引已能加；JExcel 工具栏 `remove` 无文案且无确认 → 破坏性静默删风险
+- 表下可访问「删除索引 {name}」链路按钮（`index-delete-list` / `index-delete-N` / `aria-label`）→ `Modal.confirm`（文案对齐删字段：确定删除 + 不可逆）
+- 取消保留行；确认后 `updateEntityIndex` 写回（含 `[]` → 空态 CTA）
+- E2E：`relation`「索引签删除二次确认：取消保留；确认后回空态」
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "索引签删除二次确认" --workers=1 --retries=0`
+
 #### 体验：索引签「再加一行」表内 CTA（建模回路）
 
 - 选题：空态「添加第一个索引」✅；已有首条后只能靠 JExcel 工具栏无文案「+」→ 死 affordance
