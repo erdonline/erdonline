@@ -15,7 +15,7 @@
 - [x] 模型树「表/关系」默认展开：不点 switcher 即见三层 + `tree-open-relation` ✅`model-design-ux.spec.ts`
 - [x] 树虚拟滚动：`.ant-tree-list-holder` 承载（100+ 表不卡）✅`model-design-ux.spec.ts`
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`
-- [x] CommonTabs / 表设计签头密度：签栏 ≤30（目标 ~28）+ 签头 ≤32；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`
+- [x] CommonTabs / 表设计签头密度：签栏 ≤26（目标 ~24）+ 签头 ≤28；不 clip 标签/关闭；Tab focus-visible；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 版本列表行密度：行 pad-block ≤10 / 标题 ≤14 / 顶栏 ≤36；截图 `diagram-version-list-dense.png` ✅`version.spec.ts`
 - [x] 导入/导出弹层密度：标题 ≤14 / body padY ≤28 / 控件 ≤32；截图 `diagram-import-modal-dense.png` / `diagram-export-modal-dense.png` ✅`dbml-import` / `dbml-export`
 - [x] 普通导出页密度：页标题 ≤14 / 卡片 padY ≤20；图标 `currentColor`→`--erd-brand`；截图 `diagram-export-common-dense.png` ✅`export.spec.ts`

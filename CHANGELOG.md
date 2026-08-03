@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：签头密度再压（CommonTabs / 表设计不 clip）
+
+- 选题：Cmd+K polish 后下一刀；签栏已 ~28，再压至 ~24（22 chrome）且禁裁标签/关闭钮，保留 focus-visible
+- `CommonTabs`：`--erd-tabs-h: 24`、flex 竖直居中、关闭钮 14 完整落在栏内；nav `overflow: visible`；inset focus 环
+- `TableTab`：签头 pad 2×10 / title 12 / min-height 24；内签 pad 4 / mb 6 + focus-visible
+- E2E：`model-design-ux`「表设计三签」收紧高度断言 + 不 clip + Tab focus-visible；截图 `diagram-common-tabs-dense.png`
+- 文档：design-principles §2 / regression-checklist / ui-layout-redesign / roadmap；下一刀 → 左树工具条再收 / 版本列表二次走查（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计三签" --workers=1 --retries=0`
+
 #### 体验：Cmd+K 命令面板键盘 polish
 
 - 选题：命令面板已有 ↑↓/Esc/空态，但缺 focus trap、Esc 归还触发器、`aria-activedescendant`，空态仅一句「无匹配命令或表」
 - 改动：`aria-modal` + combobox/`aria-activedescendant`；↑↓ 滚入可视；无匹配分层空态「无匹配结果」+ 提示；Esc 关并归还焦点（执行命令不抢回）；Tab/⇧Tab 困在搜索
 - E2E：扩展 `relation`「命令面板」（工具条开 → trap / ↑↓ / 空态 / Esc 归还「命令」）
-- 文档：design-principles §2§5 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 签头密度（CommonTabs / 表设计再压且不 clip）
+- 文档：design-principles §2§5 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~签头密度（CommonTabs / 表设计再压且不 clip）~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
