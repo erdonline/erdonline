@@ -14,13 +14,17 @@ erd:
 spring:
   # 凭证强制环境注入：application.yml 的弱默认值仅供开发，prod 下重新声明为无默认值，
   # 缺环境变量时启动直接失败（fail-fast），杜绝默认密码随生产部署上线。
+  # JDBC TLS（R-CFG-03）：双 DS 同串；prod 默认 useSSL+requireSSL，allowPublicKeyRetrieval 关。
+  # 本地 compose MySQL 无 TLS → 须显式 MYSQL_USE_SSL=false（见 docker-compose.yml）。
   datasource:
     martin:
       username: ${MYSQLUSER}
       password: ${MYSQLPASSWORD}
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=${MYSQL_USE_SSL:true}&requireSSL=${MYSQL_REQUIRE_SSL:true}&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=${MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL:false}
     erd:
       username: ${MYSQLUSER}
       password: ${MYSQLPASSWORD}
+      jdbc-url: jdbc:mysql://${MYSQLHOST:localhost}:${MYSQLPORT:3306}/${MYSQLDATABASE:erd}?useUnicode=true&useSSL=${MYSQL_USE_SSL:true}&requireSSL=${MYSQL_REQUIRE_SSL:true}&characterEncoding=utf8&serverTimezone=GMT%2B8&allowPublicKeyRetrieval=${MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL:false}
   data:
     redis:
       # Railway 注入 REDISPASSWORD；compose 无密码时设 REDISPASSWORD=（空串→Normalizer 置 null）

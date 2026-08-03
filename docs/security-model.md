@@ -70,7 +70,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 |---|---|---|---|---|---|
 | R-CFG-01 | P0 | ~~`JWT_SECRET` 有仓库默认值，prod 未 fail-fast~~ | ~~`application.yml` 弱默认；prod 未覆盖~~ | **✅ 已关闭（2026-08-03）**：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒 blank/仓库开发默认串；本地/dev 保留 DX 默认 | 保持 prod 无默认；公网/demo 须旋转且 ≠ 仓库串 |
 | R-CFG-02 | P0 | ~~种子 `admin`/`123456`~~ | ~~`security-model` 种子表；Flyway `V3`/`V6`~~ | **✅ 已关闭（2026-08-03）**：`allow-demo-admin` prod/默认=false，拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood；`ERD_ALLOW_DEMO_ADMIN=true` 逃生 | 公网改密 admin；勿开 `ERD_ALLOW_DEMO_ADMIN` |
-| R-CFG-03 | P1 | 应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true` | `application.yml:32-46` | 中间人/弱校验 TLS | 生产 URL 开 SSL；分 profile |
+| R-CFG-03 | P1 | ~~应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true`~~ | ~~`application.yml` 双 DS jdbc-url~~ | **✅ 已关闭（2026-08-03）**：双 DS 经 `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL`；`dev`/默认关 SSL；`prod` 默认 `useSSL`+`requireSSL` 且关 public-key retrieval；compose 显式关 SSL 保无 TLS 本地 MySQL | 公网/Railway 勿关 SSL；私网无 TLS 逃生阀显式 `MYSQL_USE_SSL=false` |
 | R-CFG-04 | P1 | ~~CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*`~~ | ~~`CorsConfig`；`application.yml` SocketIO origin~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` prod 拒 CORS/SocketIO `*`；`application-prod.yml` `SOCKETIO_ORIGIN`←`ERD_UI_URL` 无 `*` 默认；本地/dev 保留 `*` + localhost CORS | 公网设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）+ demo `CORS_ALLOWED_ORIGINS`；勿空串覆盖 |
 | R-CFG-05 | P2 | OSS / MinIO 默认密钥进 yml | `application.yml:85-87`；prod 已强制 `OSS_*` | 本地默认弱；prod fail-fast OK | 保持 prod 强制；文档勿示例真密钥 |
 | R-CFG-06 | P2 | `.env.example` 残留 `OAUTH_CLIENT_*` | `.env.example:41-43` | 认证已 JWT，易误配 | 删死键或标注废弃 |
@@ -104,6 +104,6 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 
 ### 建议下一刀（按 ROI）
 
-1. 应用库 JDBC `useSSL=false`（R-CFG-03）。
-2. `frameOptions` 恢复（R-AUTH-07）。
-3. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。
+1. `frameOptions` 恢复（R-AUTH-07）。
+2. 收敛 ignore 假路径 / 假开关（R-DEAD-01/02/03）。
+3. OSS 默认密钥面（R-CFG-05）/ `.env.example` 死键（R-CFG-06）。

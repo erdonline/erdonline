@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-CFG-03 应用库 JDBC TLS（prod 默认开 SSL）
+
+- 选题：双 DS `jdbc-url` 硬编码 `useSSL=false` + `allowPublicKeyRetrieval=true`，生产中间人面
+- 改动：`MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` 驱动双 DS；`application.yml` 默认关 SSL；`application-prod.yml` 默认开 + `requireSSL`、关 public-key retrieval；`docker-compose` / `.env.example` 显式关 SSL 保无 TLS 本地 MySQL
+- 文档：security-model R-CFG-03 ✅；roadmap 下一刀 → R-AUTH-07；deployment Railway MySQL TLS 说明
+- 回归：`MysqlJdbcSslBindingTest`（本地/prod 默认占位符 + compose 逃生阀）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=MysqlJdbcSslBindingTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP
+
 #### 安全：R-DATA-05 删 TestJson 样板 CRUD 面
 
 - 选题：`TestJsonController` `/testJson/**` 需登录仍暴露样板 CRUD，污染攻击面
