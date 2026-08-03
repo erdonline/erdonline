@@ -105,6 +105,7 @@
 | 画布对齐/自动布局落盘失败 | 业务码失败 / 重试 | `alignSelected`/`autoLayout`→`commitDiagramGeometry`；失败 toast；RF 回滚可再点 | 零静默失败 | ✅ | `canvas-align-layout-failure` |
 | Frame 改名/适应成员落盘失败 | 业务码失败 / 重试 | `renameFrame`/`commitDiagramGeometry` persist；失败 toast；改名草稿保留；适应成员 RF+store 回滚；可重试 | 零静默失败 | ✅ | `canvas-frame-rename-bounds-failure` |
 | Frame 新建/成员加减落盘失败 | 业务码失败 / 重试 | `createFrame`/`addFrameMembers`/`removeFrameMembers` persist；失败 toast；不上图/成员不变；加入拒关窗；可重试 | 零静默失败 | ✅ | `canvas-frame-members-failure` |
+| 画布连线建关联落盘失败 | 业务码失败 / 重试 | `addAssociation` persist；失败 toast；不上边；可再拖重试 | 零静默失败 | ✅ | `canvas-connect-edge-failure` |
 | 画布字段 meta 落盘失败 | 业务码失败 / 重试 | 类型/PK/NN/AI/隐藏/浏览 PK：仅 save code===200 写 store；失败 toast；编辑草稿回滚；隐藏不退出 | 零静默失败 | ✅ | `canvas-field-meta-failure` |
 | 表设计 JExcel 字段 meta 落盘失败 | 业务码失败 / 重试 | 字段签 PK/隐藏等：仅 save code===200 写 store；失败 toast + 重挂网格回滚勾选；可重试；画布对齐 | 零静默失败 | ✅ | `jexcel-field-meta-failure` |
 | 表设计索引签落盘失败 | 业务码失败 / 重试 | 添加/唯一勾选等：仅 save code===200 写 store + 成功 toast；失败 toast + 空态/重挂回滚；删确认失败拒关窗；可重试；画布 UK | 零静默失败 | ✅ | `jexcel-index-failure` |
@@ -212,6 +213,7 @@
 | `/design/table/model` | 画布对齐/自动布局 | `commitDiagramGeometry` `persist:true`；仅 save 成功写 layout；失败 RF 回滚；成功才 fitView | | ✅ | `canvas-align-layout-failure` |
 | `/design/table/model` | Frame 改名/适应成员 | `renameFrame`/`commitDiagramGeometry` persist；失败草稿/RF 回滚；成功才「已适应成员」 | | ✅ | `canvas-frame-rename-bounds-failure` |
 | `/design/table/model` | Frame 新建/成员加减 | `createFrame`/`add*Members`/`remove*Members` persist；失败不上图/成员不变 | | ✅ | `canvas-frame-members-failure` |
+| `/design/table/model` | 拖连线建关联 | `addAssociation` persist；失败不上边可重试 | | ✅ | `canvas-connect-edge-failure` + `relation` PK/FK |
 | `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
 | `/design/table/model` | 删边 | Delete → Modal 确认后 `removeAssociation` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留 | | ✅ | `relation`「画布删表/删边」「删边后刷新」+`canvas-delete-edge-frame-failure` |
 | `/design/table/model` | 画布删表 | Delete → Modal 确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留；键盘首焦/Esc/Tab trap | | ✅ | `relation`「画布删表/删边二次确认」+`canvas-delete-table-keyboard`+`canvas-delete-table-failure` |

@@ -2391,6 +2391,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   }, []);
 
   // 字段拖连线 → 建关联：from=外键侧（source），to=主键侧（target）；侧由几何择柄重绑
+  // 禁止本地 mutate 即上边；仅 saveProject code===200 写 store；失败不上边可重试
   const onConnect = useCallback(
     (connection: { source?: string | null; sourceHandle?: string | null; target?: string | null; targetHandle?: string | null }) => {
       connectAttemptRef.current.connected = true;
@@ -2405,11 +2406,15 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         message.warning('请从外键字段实心锚点拖出，接到主键字段空心接入点');
         return;
       }
-      projectDispatch.addAssociation(moduleEntity.module, {
-        relation: DEFAULT_RELATION,
-        from: { entity: source, field: fromH.field },
-        to: { entity: target, field: toH.field },
-      });
+      void projectDispatch.addAssociation(
+        moduleEntity.module,
+        {
+          relation: DEFAULT_RELATION,
+          from: { entity: source, field: fromH.field },
+          to: { entity: target, field: toH.field },
+        },
+        { persist: true },
+      );
     },
     [projectDispatch, moduleEntity.module]
   );

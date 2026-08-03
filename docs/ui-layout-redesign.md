@@ -242,7 +242,8 @@
 - ✅ **画布拖表坐标落盘失败可回滚**（2026-08-03）：`commitDiagramGeometry` `persist:true`；仅 save code===200 写 layout/Frame bounds；失败 toast + RF 回滚；`canvas-drag-reposition-failure` 绿；下一刀 → ~~对齐·自动布局~~✅
 - ✅ **画布对齐/自动布局落盘失败可回滚**（2026-08-03）：`alignSelected`/`autoLayout`→`commitDiagramGeometry` `persist:true`；失败 toast + RF 回滚；成功才 fitView；`canvas-align-layout-failure` 绿；下一刀 → ~~Frame 改名 / Frame bounds（适应成员·缩放）假成功~~✅
 - ✅ **Frame 改名/bounds 落盘失败可回滚**（2026-08-03）：`renameFrame` persist + 缩放/适应成员/`expandFrameForMembers`→`commitDiagramGeometry`；失败 toast + 草稿/RF 回滚；成功才「已适应成员」；`canvas-frame-rename-bounds-failure` 绿；下一刀 → ~~Frame 新建·成员加减假成功~~✅
-- ✅ **Frame 新建/成员加减落盘失败可回滚**（2026-08-03）：`createFrame`/`addFrameMembers`/`removeFrameMembers` `persist:true`；失败 toast、不上图/成员不变；加入 Modal 拒关窗；`canvas-frame-members-failure` 绿；下一刀 → `addAssociation` 连线假成功
+- ✅ **Frame 新建/成员加减落盘失败可回滚**（2026-08-03）：`createFrame`/`addFrameMembers`/`removeFrameMembers` `persist:true`；失败 toast、不上图/成员不变；加入 Modal 拒关窗；`canvas-frame-members-failure` 绿；下一刀 → ~~`addAssociation` 连线假成功~~✅
+- ✅ **画布连线建关联落盘失败可重试**（2026-08-03）：`addAssociation` `persist:true`；失败 toast、不上边；可再拖重试；`canvas-connect-edge-failure` 绿；下一刀 → `updateAssociationRelation` 基数改假成功
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

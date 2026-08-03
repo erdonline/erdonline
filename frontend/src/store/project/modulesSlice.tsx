@@ -140,7 +140,12 @@ export interface IModulesDispatchSlice {
     name: string,
     opts?: PersistOpt,
   ) => void | Promise<boolean>;
-  addAssociation: (moduleName: string, association: any) => void;
+  /** 追加关联；persist:true 时仅 saveProject code===200 写 store */
+  addAssociation: (
+    moduleName: string,
+    association: any,
+    opts?: PersistOpt,
+  ) => void | Promise<boolean>;
   removeAssociation: (
     moduleName: string,
     association: any | any[],
@@ -1235,29 +1240,82 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     })();
   },
   // 追加关联（按 from/to 去重）；重复时 toast，禁止静默失败
-  addAssociation: (moduleName: string, association: any) => {
+  // persist:true 时仅 saveProject code===200 写 store；失败不上边（边由 associations 派生）
+  addAssociation: (moduleName: string, association: any, opts?) => {
+    const persist = !!opts?.persist;
     const modules = get().project?.projectJSON?.modules;
     const module = modules?.find((m: any) => m?.name === moduleName);
     if (!module) {
       message.warning('未找到当前模块，无法建立关联');
-      return;
+      return persist ? Promise.resolve(false) : undefined;
     }
     const exists = (module.associations || []).some((a: any) =>
       a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
       a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field);
     if (exists) {
       message.warning('该字段关联已存在，无需重复连线');
+      return persist ? Promise.resolve(false) : undefined;
+    }
+
+    const relation = normalizeRelation(association.relation) || association.relation || 'n:1';
+    const payload = { ...association, relation };
+
+    const applyAdd = (modList: any[]): boolean => {
+      const m = modList?.find((x: any) => x?.name === moduleName);
+      if (!m) {
+        return false;
+      }
+      const dup = (m.associations || []).some((a: any) =>
+        a?.from?.entity === payload.from?.entity && a?.from?.field === payload.from?.field &&
+        a?.to?.entity === payload.to?.entity && a?.to?.field === payload.to?.field);
+      if (dup) {
+        return false;
+      }
+      m.associations = [...(m.associations || []), payload];
+      return true;
+    };
+
+    if (!persist) {
+      snapshotModules(modules);
+      set(produce(state => {
+        applyAdd(state.project.projectJSON?.modules);
+      }));
       return;
     }
-    snapshotModules(modules);
-    set(produce(state => {
-      const m = state.project.projectJSON?.modules?.find((x: any) => x?.name === moduleName);
-      if (!m) {
-        return;
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      if (!applyAdd(draft.projectJSON?.modules)) {
+        // module vanished mid-flight
       }
-      const relation = normalizeRelation(association.relation) || association.relation || 'n:1';
-      m.associations = [...(m.associations || []), { ...association, relation }];
-    }));
+    });
+    if (!(next.projectJSON?.modules as any[])?.some((m: any) =>
+      m?.name === moduleName
+      && (m.associations || []).some((a: any) =>
+        a?.from?.entity === payload.from?.entity && a?.from?.field === payload.from?.field &&
+        a?.to?.entity === payload.to?.entity && a?.to?.field === payload.to?.field),
+    )) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '关系保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce((state: any) => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
   },
   // 删除关联（画布删边）；persist:true 时仅 saveProject code===200 写 store + toast
   removeAssociation: (moduleName: string, association: any | any[], opts?) => {

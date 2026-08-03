@@ -29,6 +29,7 @@
 - ✅ 画布对齐/自动布局：仅 `saveProject` code===200 写 layout；失败 toast + RF 回滚；成功后才 fitView；禁本地 `updateGraphCanvasLayout` 即坐标已落盘
 - ✅ Frame 改名/缩放/适应成员：仅 `saveProject` code===200 写 store；失败 toast + 改名草稿保留 / RF bounds 回滚；成功才 toast「已适应成员」；禁本地 mutate 即落盘
 - ✅ Frame 新建/加入/移出成员：仅 `saveProject` code===200 写 store + toast；失败 toast、不上图/不改成员；加入 Modal 失败拒关窗；禁本地 mutate 即成功
+- ✅ 画布拖连线建关联：仅 `saveProject` code===200 写 store；失败 toast、不上边（associations 派生）；可再拖重试；禁本地 mutate 即上边
 - ❌ 登录失败无任何提示，用户以为网络断了（历史问题）
 - ❌ 静默自动保存，用户不知道建模成果是否已落库（历史问题）
 - ❌ 逆向解析失败 toast「数据库解析失败:[object Object]」且页内仅「解析失败」无重试（历史问题）
@@ -49,6 +50,7 @@
 - ❌ 画布对齐/自动布局本地 mutate 即写 layout，autosave 失败像坐标已落盘（历史问题）
 - ❌ Frame 改名/适应成员本地 mutate 即成功（适应成员先 toast），autosave 失败像已改名/已缩边（历史问题）
 - ❌ Frame 新建/成员加减本地 mutate 即 toast，autosave 失败像已建组/已加入（历史问题）
+- ❌ 画布拖连线本地 mutate 即上边，autosave 失败像已建关联（历史问题）
 
 ## 2. 键盘优先
 
@@ -174,6 +176,7 @@
 - ✅ 画布拖表/拖框坐标：`commitDiagramGeometry` `persist:true`；仅 save 成功写 layout/Frame bounds；失败 RF 回滚到 store 坐标（禁本地 mutate 即落盘）
 - ✅ Frame 改名/缩放/适应成员：`renameFrame`/`commitDiagramGeometry` `persist:true`；仅 save 成功关编辑态 / 写 bounds +「已适应成员」；失败草稿保留 / RF 回滚
 - ✅ Frame 新建/成员加减：`createFrame`/`addFrameMembers`/`removeFrameMembers` `persist:true`；仅 save 成功写 store + toast；失败不上图/不改成员；加入 Modal 拒关窗
+- ✅ 画布拖连线：`addAssociation` `persist:true`；仅 save 成功写 store；失败不上边可重试
 - ✅ 画布删字段二次确认（按钮 / 选中后 Delete·Backspace），编辑态 Backspace 不误删
 - ✅ 索引签「删除索引 `{name}`」Modal 二次确认；取消保留；删空回空态
 - ✅ JExcel 工具栏「删除选中行」Modal 二次确认（字段/索引/默认字段表共用；未选中有 toast）

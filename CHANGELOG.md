@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布连线建关联假成功
+
+- 选题：Frame 新建/成员假成功已收口（`041af64`）；`addAssociation` / 拖连线仍本地 mutate 即上边，autosave 失败像已建关联
+- `addAssociation` 支持 `persist:true`；仅 `saveProject` code===200 写 store；失败 toast、associations 不变（边由 associations 派生 → 不上边）；可再拖重试
+- E2E：`canvas-connect-edge-failure` 首拒不上边 → 重试成功；定位 `rfNode` / `data-handleid` / `erd-edge-label`（勿扫 `.ant-*`）；happy `relation` PK/FK 路径不变
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `updateAssociationRelation` 基数改假成功
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/canvas-connect-edge-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "表节点视觉：PK/FK" --workers=1 --retries=0`
+
 #### 体验：Frame 新建/成员加减假成功
 
 - 选题：Frame 改名/bounds 假成功已收口（`562914d`）；`createFrame` / `addFrameMembers` / `removeFrameMembers` 仍本地 mutate 即 toast，autosave 失败像已建组/已加减成员
 - 三路径支持 `persist:true`；仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、store 不变；「加入」Modal 失败 `Promise.reject` 拒关窗；拖表入/出框同构；扩边仅成员落盘成功后执行
 - E2E：`canvas-frame-members-failure` 新建首拒不上图、加入首拒成员仍 0 → 重试成功；定位 `role=button`「新建分组」/「加入分组」/ `diagram-frame`（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `addAssociation` 连线假成功（或画布其它仍本地 mutate 即成功）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~`addAssociation` 连线假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/canvas-frame-members-failure.spec.ts --project=chromium --workers=1 --retries=0`
