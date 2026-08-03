@@ -139,6 +139,72 @@ class TriggerResultSetMapperTest {
     }
 
     @Test
+    void mapFromOracleAllTriggers_prefersCreateSourceAsDdl() throws Exception {
+        String source = "CREATE OR REPLACE TRIGGER \"TRG_USER_BI\" BEFORE INSERT ON \"T_USER\" "
+                + "FOR EACH ROW\nBEGIN NULL; END;";
+        ResultSet rs = mock(ResultSet.class);
+        when(rs.next()).thenReturn(true, false);
+        when(rs.getString("TRIGGER_NAME")).thenReturn("TRG_USER_BI");
+        when(rs.getString("ACTION_TIMING")).thenReturn("BEFORE");
+        when(rs.getString("EVENT_MANIPULATION")).thenReturn("INSERT");
+        when(rs.getString("ACTION_ORIENTATION")).thenReturn("ROW");
+        when(rs.getString("ACTION_STATEMENT")).thenReturn(source);
+
+        List<Trigger> triggers =
+                TriggerResultSetMapper.mapFromOracleAllTriggers(rs, "T_USER", "DEFAULT");
+
+        assertEquals(1, triggers.size());
+        Trigger trigger = triggers.get(0);
+        assertEquals("TRG_USER_BI", trigger.getName());
+        assertEquals("BEFORE", trigger.getTiming());
+        assertEquals("INSERT", trigger.getEvent());
+        assertEquals("ROW", trigger.getOrientation());
+        assertEquals(source, trigger.getStatement());
+        assertEquals(source, trigger.getDdl());
+    }
+
+    @Test
+    void mapFromOracleAllTriggers_prefixesTriggerSourceAndRebuildsBodyOnly() throws Exception {
+        ResultSet withTriggerKw = mock(ResultSet.class);
+        when(withTriggerKw.next()).thenReturn(true, false);
+        when(withTriggerKw.getString("TRIGGER_NAME")).thenReturn("TRG_A");
+        when(withTriggerKw.getString("ACTION_TIMING")).thenReturn("AFTER");
+        when(withTriggerKw.getString("EVENT_MANIPULATION")).thenReturn("UPDATE");
+        when(withTriggerKw.getString("ACTION_ORIENTATION")).thenReturn("ROW");
+        when(withTriggerKw.getString("ACTION_STATEMENT"))
+                .thenReturn("TRIGGER TRG_A AFTER UPDATE ON T_USER FOR EACH ROW\nBEGIN NULL; END;");
+
+        Trigger prefixed = TriggerResultSetMapper
+                .mapFromOracleAllTriggers(withTriggerKw, "T_USER", "DEFAULT").get(0);
+        assertTrue(prefixed.getDdl().startsWith("CREATE OR REPLACE TRIGGER TRG_A"));
+
+        ResultSet bodyOnly = mock(ResultSet.class);
+        when(bodyOnly.next()).thenReturn(true, false);
+        when(bodyOnly.getString("TRIGGER_NAME")).thenReturn("TRG_B");
+        when(bodyOnly.getString("ACTION_TIMING")).thenReturn("BEFORE");
+        when(bodyOnly.getString("EVENT_MANIPULATION")).thenReturn("DELETE");
+        when(bodyOnly.getString("ACTION_ORIENTATION")).thenReturn("STATEMENT");
+        when(bodyOnly.getString("ACTION_STATEMENT")).thenReturn("BEGIN NULL; END;");
+
+        Trigger rebuilt = TriggerResultSetMapper
+                .mapFromOracleAllTriggers(bodyOnly, "T_USER", "DEFAULT").get(0);
+        assertEquals(
+                "CREATE OR REPLACE TRIGGER \"TRG_B\" BEFORE DELETE ON \"T_USER\" "
+                        + "FOR EACH STATEMENT\nBEGIN NULL; END;",
+                rebuilt.getDdl());
+    }
+
+    @Test
+    void buildOracleDdl_escapesDoubleQuotesInIdentifiers() {
+        String ddl = TriggerResultSetMapper.buildOracleDdl(
+                "a\"b", "AFTER", "INSERT", "ROW", "BEGIN NULL; END;", "t\"bl");
+        assertEquals(
+                "CREATE OR REPLACE TRIGGER \"a\"\"b\" AFTER INSERT ON \"t\"\"bl\" "
+                        + "FOR EACH ROW\nBEGIN NULL; END;",
+                ddl);
+    }
+
+    @Test
     void mapFromInformationSchema_skipsBlankName() throws Exception {
         ResultSet rs = mock(ResultSet.class);
         when(rs.next()).thenReturn(true, false);

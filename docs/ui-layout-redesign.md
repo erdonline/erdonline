@@ -262,7 +262,8 @@
 - ✅ **Oracle 逆向注释保真**（2026-08-03）：`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS` → chnname；`OracleReverseDialectCommentTest`；下一刀 → ~~MySQL 触发器逆向~~✅
 - ✅ **MySQL 触发器逆向保真**（2026-08-03）：`INFORMATION_SCHEMA.TRIGGERS` → `entity.triggers[]`（name/timing/event/ddl）；`MysqlReverseDialectTriggerTest`；下一刀 → ~~PG 触发器~~✅
 - ✅ **PostgreSQL 触发器逆向保真**（2026-08-03）：`information_schema.triggers` → `entity.triggers[]`；`PostgresqlReverseDialectTriggerTest`；下一刀 → ~~SQL Server 触发器~~✅
-- ✅ **SQL Server 触发器逆向保真**（2026-08-03）：`sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION` → `entity.triggers[]`；`SqlServerReverseDialectTriggerTest`；下一刀 → Oracle 触发器 / ADR-0011 复合 FK / ADR-0013
+- ✅ **SQL Server 触发器逆向保真**（2026-08-03）：`sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION` → `entity.triggers[]`；`SqlServerReverseDialectTriggerTest`；下一刀 → ~~Oracle 触发器~~✅
+- ✅ **Oracle 触发器逆向保真**（2026-08-03）：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`；`OracleReverseDialectTriggerTest`；P0 四库触发器闭环；下一刀 → ADR-0011 复合 FK / ADR-0013（本轮不启）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

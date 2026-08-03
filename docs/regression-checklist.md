@@ -276,6 +276,7 @@
 - [x] MySQL 表触发器：`INFORMATION_SCHEMA.TRIGGERS` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`MysqlReverseDialectTriggerTest` + `TriggerResultSetMapperTest`）✅自动
 - [x] PostgreSQL 表触发器：`information_schema.triggers` → `entity.triggers[]`（name/timing/event/statement/双引号 ddl）；meta `supportsTrigger=true`（`PostgresqlReverseDialectTriggerTest` + mapper PG）✅自动
 - [x] SQL Server 表触发器：`sys.triggers`/`sys.trigger_events`+`OBJECT_DEFINITION` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`SqlServerReverseDialectTriggerTest` + mapper SQL Server）✅自动
+- [x] Oracle 表触发器：`ALL_TRIGGERS`+`ALL_SOURCE` → `entity.triggers[]`（name/timing/event/statement/ddl）；meta `supportsTrigger=true`（`OracleReverseDialectTriggerTest` + mapper Oracle；P0 四库闭环）✅自动
 - [ ] Colima SQL Server（Azure SQL Edge）：indexs + associations 1:n curl 验证
 - [x] 只读分享：create + 匿名 GET `readonly=true`；匿名 create 401 ✅curl
 - [x] 分享脱敏：dbs password/username → `***` 且不污染原 Map ✅`ProjectShareSanitizeTest`

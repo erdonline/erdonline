@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 逆向：Oracle 触发器 → `entity.triggers[]`
+
+- 选题：`22b8dd9` SQL Server 触发器后，收口四库循环最后一刀 = Oracle `ALL_TRIGGERS`/`ALL_SOURCE`
+- Oracle：`OracleReverseDialect.supportsTrigger=true`；字典 `ALL_TRIGGERS` + `ALL_SOURCE`（多事件拆行）→ `name`/`timing`(BEFORE|AFTER|INSTEAD OF)/`event`/`orientation`(ROW|STATEMENT)/`statement`；完整 CREATE 或 `TRIGGER …` 源码作 `ddl`，否则双引号重建（`TriggerResultSetMapper.mapFromOracleAllTriggers`）；失败 warn 跳过
+- 单测：`OracleReverseDialectTriggerTest` + mapper Oracle DDL + Registry `supportsTrigger`（P0 四库全 true）
+- 文档：ADR-0006 / roadmap 逆向保真 Oracle 触发器 ✅；四库触发器闭环
+- 未做：触发器 UI / DBML / ADR-0011（本轮不启）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=TriggerResultSetMapperTest,OracleReverseDialectTriggerTest,SqlServerReverseDialectTriggerTest,PostgresqlReverseDialectTriggerTest,MysqlReverseDialectTriggerTest,ReverseDialectRegistryTest test`
+- `./backend/dev-ensure.sh --restart` 后 Registry/meta：`Oracle` → `supportsTrigger=true`
+
 #### 逆向：SQL Server 触发器 → `entity.triggers[]`
 
 - 选题：`2744897` PG 触发器后，最高缺口 = SQL Server `sys.triggers`（共享 `Trigger` / `supportsTrigger` 已齐）
