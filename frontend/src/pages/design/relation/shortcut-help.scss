@@ -1,0 +1,99 @@
+.erd-help-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  background: color-mix(in srgb, var(--erd-ink-900) 35%, transparent);
+  display: flex;
+  justify-content: center;
+  padding-top: 14vh;
+}
+
+.erd-help-panel {
+  width: min(400px, 92vw);
+  max-height: 420px;
+  background: var(--erd-surface);
+  border-radius: 8px;
+  box-shadow: 0 8px 28px var(--erd-ink-a06);
+  border: 1px solid var(--erd-line);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.erd-help-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--erd-line);
+}
+
+.erd-help-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--erd-ink-900);
+  font-family: var(--erd-font-ui);
+}
+
+.erd-help-close {
+  border: none;
+  background: transparent;
+  color: var(--erd-ink-400);
+  font-size: 11px;
+  font-family: var(--erd-font-ui);
+  cursor: pointer;
+  padding: 2px 6px;
+  border-radius: 4px;
+
+  &:hover {
+    background: var(--erd-surface-muted);
+    color: var(--erd-ink-900);
+  }
+}
+
+.erd-help-list {
+  list-style: none;
+  margin: 0;
+  padding: 6px 8px;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.erd-help-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 5px 6px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.erd-help-keys {
+  flex-shrink: 0;
+  font-family: var(--erd-font-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--erd-ink-900);
+  background: var(--erd-surface-muted);
+  border: 1px solid var(--erd-line);
+  border-radius: 4px;
+  padding: 1px 6px;
+}
+
+.erd-help-desc {
+  text-align: right;
+  color: var(--erd-ink-400);
+  font-size: 11px;
+  font-family: var(--erd-font-ui);
+  line-height: 1.35;
+}
+
+.erd-help-footer {
+  padding: 6px 10px;
+  border-top: 1px solid var(--erd-line);
+  font-size: 10px;
+  color: var(--erd-ink-400);
+  font-family: var(--erd-font-ui);
+}

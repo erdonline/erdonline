@@ -15,7 +15,8 @@
 
 完整快捷键体系 + `Cmd/Ctrl+K` 命令面板。高手应能不碰鼠标完成建模。
 
-- ✅ `Cmd+Z/Y` 撤销重做、`Delete` 删除选中、`Cmd/Ctrl+K`/`Cmd/Ctrl+F` 命令面板（可搜表定位）、`?` 呼出快捷键速查卡
+- ✅ `Cmd+Z` / `Cmd+Shift+Z` 撤销重做、`Delete`/`Backspace` 删除选中（二次确认）、`Cmd/Ctrl+K`/`Cmd/Ctrl+F` 命令面板（可搜表定位）、`?` 呼出快捷键速查卡（`role=dialog`「快捷键」；工具栏「?」同入口）
+- ❌ 设计原则写了 `?` 速查卡却无实现，Cmd+K / Delete 确认 / Tab 字段导航只能靠走查发现（历史问题）
 - ✅ 命令面板搜表名 → 选中节点 + `fitView` 对准 + `locate-flash` 脉冲高亮（禁整图画布无反馈）
 - ✅ 左树点表名 → 同语言定位到画布（切关系图签 + 选中 + fitView + `data-locate-flash`）；表设计走菜单「编辑表」
 - ❌ undo/redo 方法已实现却从未接线到 UI 和键盘（历史问题）

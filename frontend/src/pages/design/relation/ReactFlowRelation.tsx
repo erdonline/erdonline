@@ -64,6 +64,7 @@ import { Input, Modal, Select, message } from 'antd';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
 import CommandPalette, { CommandItem } from './CommandPalette';
+import ShortcutHelp from './ShortcutHelp';
 import ErdCrowFootMarkers from './ErdCrowFootMarkers';
 import ErdRelationEdge from './ErdRelationEdge';
 import ZhControls from './ZhControls';
@@ -1181,6 +1182,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [edgeSelected, setEdgeSelected] = useState<Record<string, boolean>>({});
   const [isEmpty, setIsEmpty] = useState(true);
   const [cmdOpen, setCmdOpen] = useState(false);
+  const [helpOpen, setHelpOpen] = useState(false);
   const [diagramModal, setDiagramModal] = useState<
     null | { mode: 'create' | 'rename'; name: string; diagramId?: string }
   >(null);
@@ -2021,18 +2023,34 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     focusTable(tableId);
   }, [pendingLocateTable, moduleName, nodes, focusTable, globalDispatch]);
 
-  // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K / Cmd/Ctrl+F 命令面板（输入框内不拦截）
+  // Cmd/Ctrl+Z 撤销，Cmd/Ctrl+Shift+Z 重做；Cmd/Ctrl+K/F 命令面板；? 快捷键速查（输入框内不拦截）
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      const tag = (e.target as HTMLElement)?.tagName;
-      const typing = tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT';
+      const el = e.target as HTMLElement | null;
+      const tag = el?.tagName;
+      const typing =
+        tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || !!el?.isContentEditable;
       const key = e.key ? e.key.toLowerCase() : '';
       if ((e.metaKey || e.ctrlKey) && (key === 'k' || key === 'f')) {
         e.preventDefault();
+        setHelpOpen(false);
         setCmdOpen(v => !v);
         return;
       }
-      if (typing || cmdOpen) {
+      // ? / Shift+/：速查卡开合（输入中不拦；与命令面板互斥）
+      if (
+        !typing &&
+        !e.metaKey &&
+        !e.ctrlKey &&
+        !e.altKey &&
+        (e.key === '?' || (e.shiftKey && key === '/'))
+      ) {
+        e.preventDefault();
+        setCmdOpen(false);
+        setHelpOpen(v => !v);
+        return;
+      }
+      if (typing || cmdOpen || helpOpen) {
         return;
       }
       if (!(e.metaKey || e.ctrlKey) || key !== 'z') {
@@ -2047,7 +2065,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [projectDispatch, cmdOpen]);
+  }, [projectDispatch, cmdOpen, helpOpen]);
 
   useEffect(
     () => () => {
@@ -2227,6 +2245,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       data-viewport-cull={cullViewport ? '1' : '0'}
     >
       <CommandPalette open={cmdOpen} onClose={() => setCmdOpen(false)} commands={commands} />
+      <ShortcutHelp open={helpOpen} onClose={() => setHelpOpen(false)} />
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -2246,7 +2265,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           rfRef.current = instance;
         }}
         onPointerMove={onPointerMoveCursor}
-        deleteKeyCode={['Delete', 'Backspace']}
+        deleteKeyCode={cmdOpen || helpOpen ? null : ['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
         selectionOnDrag
         selectNodesOnDrag={false}
@@ -2359,6 +2378,18 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               aria-label="命令"
             >
               命令
+            </button>
+            <button
+              type="button"
+              className="erd-canvas-tool"
+              onClick={() => {
+                setCmdOpen(false);
+                setHelpOpen(true);
+              }}
+              title="快捷键 (?)"
+              aria-label="快捷键"
+            >
+              ?
             </button>
             <button
               type="button"

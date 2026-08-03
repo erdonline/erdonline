@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：画布 `?` 快捷键速查卡（建模回路）
+
+- 选题：Cmd+K / Delete 确认 / Tab 字段跳行已落地，但发现路径差；原则写了 `?` 速查却无实现
+- `?`（Shift+/）或工具栏「?」→ `role=dialog`「快捷键」列出命令面板、撤销重做、删确认、Tab 字段导航、Esc 等；Esc / 再按 `?` / 遮罩关闭；与命令面板互斥
+- E2E：`relation`「快捷键速查：? 打开 aria dialog」
+- `docs/design-principles.md` §2；roadmap ✅ 本刀，下一刀 → 表设计签 / 字段行键盘建模摩擦（优先于碎色·密度）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "快捷键速查" --workers=1 --retries=0`
+
 #### 体验：左树点表定位/高亮（建模回路）
 
 - 选题：左树点表直开表设计，密图找表仍绕命令面板；期望与面板同语言「选中 + fitView + flash」
