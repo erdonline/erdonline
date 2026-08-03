@@ -229,6 +229,7 @@
 | 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
 |---|---|---|---|---|---|
 | `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | ✅ | `import-reverse.spec`（MySQL `reverse_demo`） |
+| `/design/table/import/reverse` | 解析失败可读 + 重试 | toast/页内文案；「重新解析」恢复 | ADR-0016 零静默 | ✅ | `reverse-parse-failure`（mock API） |
 | `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
 | `/design/table/import/erd` | 上传 ERD | 模型可见 | | ✅ | `import-erd.spec` |
 | `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | 代码已不存在（grep 零命中） |

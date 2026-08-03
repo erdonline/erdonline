@@ -55,6 +55,8 @@ export interface IProfileDispatchSlice {
   getCurrentDBData: () => any;
   setProfileSliceState: (profileSlice: any) => void;
   dbReverseParse: (db: any, dataFormat: string, schema?: string) => void;
+  /** 用上次参数重试 dbReverseParse（失败页 CTA） */
+  retryDbReverseParse: () => void;
   checkField: (data: any) => any;
   getAllTable: (dataSource: any) => any;
   saveSelectedRowKeys: (selectedRowKeys: any) => void;
@@ -62,6 +64,37 @@ export interface IProfileDispatchSlice {
   importReverseTable: () => void;
   getDefaultFields: () => any;
   downloadWordTemplate: () => any;
+}
+
+/** 逆向业务/异常 → 可读短句（禁止对象拼接出 [object Object]） */
+function reverseParseErrorText(source: unknown): string {
+  if (source == null) {
+    return '解析失败，请重试';
+  }
+  if (typeof source === 'string') {
+    const t = source.trim();
+    return t || '解析失败，请重试';
+  }
+  if (source instanceof Error) {
+    const m = source.message || '';
+    if (!m || m === 'Failed to fetch' || /network/i.test(m)) {
+      return '网络异常，请检查网络连接';
+    }
+    if (source.name === 'NonJsonApiError') {
+      return '接口返回异常，请确认后端已启动';
+    }
+    return m;
+  }
+  if (typeof source === 'object') {
+    const o = source as {msg?: unknown; message?: unknown};
+    if (typeof o.msg === 'string' && o.msg.trim()) {
+      return o.msg.trim();
+    }
+    if (typeof o.message === 'string' && o.message.trim()) {
+      return o.message.trim();
+    }
+  }
+  return '解析失败，请重试';
 }
 
 
@@ -242,10 +275,12 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     get().dispatch.setProfileSliceState({
       loading: true,
       flag: true,
-      status: true,
+      status: 'PENDING',
       data: {},
       exists: [],
       keys: [],
+      errorMessage: undefined,
+      lastReverseParse: {db, dataFormat: flag, schema},
     });
     const dbConfig = _.omit(db.properties, ['driver_class_name']);
     Save.dbReverseParse({
@@ -262,16 +297,23 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           exists: get().dispatch.checkField(res.data || res),
           status: 'SUCCESS',
           flag: false,
+          errorMessage: undefined,
         });
       } else {
+        // request 拦截器已 toast 业务 msg；此处只写可读状态，禁止 `'' + res` → [object Object]
         get().dispatch.setProfileSliceState({
           ...get().profileSliceState,
-          status: 'FAILED'
+          status: 'FAILED',
+          errorMessage: reverseParseErrorText(res),
         });
-        message.error('数据库解析失败:' + res || res.msg);
       }
     }).catch((err) => {
-      message.error('数据库解析失败:' + err.message);
+      // 网络/HTTP 已由 request errorHandler toast；勿叠「数据库解析失败:[object Object]」
+      get().dispatch.setProfileSliceState({
+        ...get().profileSliceState,
+        status: 'FAILED',
+        errorMessage: reverseParseErrorText(err),
+      });
     }).finally(() => {
       get().dispatch.setProfileSliceState({
         ...get().profileSliceState,
@@ -280,6 +322,14 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       });
     });
   })),
+  retryDbReverseParse: () => {
+    const last = get().profileSliceState?.lastReverseParse;
+    if (!last?.db) {
+      message.error('无法重试：请返回上一步重新选择数据源');
+      return;
+    }
+    get().dispatch.dbReverseParse(last.db, last.dataFormat, last.schema);
+  },
   checkField: (data: any) => {
     const tempExists: any[] = [];
     const dataSource = get().project?.projectJSON;

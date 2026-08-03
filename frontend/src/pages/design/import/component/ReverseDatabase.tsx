@@ -1,8 +1,8 @@
 import React, {useEffect, useState} from 'react';
-import {Button as AntButton, Form, message, Select, Spin, Steps} from 'antd';
+import {Button as AntButton, Form, message, Select, Steps} from 'antd';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
-import ReverseTable from '@/components/TableTransfer/ReverseTable';
+import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {DataSourceSelect} from '@/components/DataSourceSelect';
 import {dbReverseMeta} from '@/utils/save';
 import _ from 'lodash';
@@ -38,7 +38,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const [step, setStep] = useState(0);
   const [form1] = Form.useForm<Step1Values>();
 
-  const {flag, status, loading} = profileSliceState;
+  const {status} = profileSliceState;
 
   useEffect(() => {
     if (selectedDbValue) {
@@ -186,20 +186,20 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
       )}
       {step === 1 && (
         <>
-          <Spin tip="正在解析数据源，请稍后。。。(请勿关闭当前弹窗！)" spinning={loading}>
-            {!flag && (status === 'SUCCESS' ? <ReverseTable /> : '解析失败')}
-          </Spin>
+          <ReverseParseStep />
           <div className="erd-secondary-pane__actions">
             <AntButton aria-label="上一步" onClick={() => setStep(0)}>
               {'<'} 上一步
             </AntButton>
-            <AntButton
-              type="primary"
-              aria-label="提交"
-              onClick={() => projectDispatch.getSelectedEntity()}
-            >
-              提交
-            </AntButton>
+            {status === 'SUCCESS' ? (
+              <AntButton
+                type="primary"
+                aria-label="提交"
+                onClick={() => projectDispatch.getSelectedEntity()}
+              >
+                提交
+              </AntButton>
+            ) : null}
           </div>
         </>
       )}

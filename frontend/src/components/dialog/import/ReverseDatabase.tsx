@@ -1,11 +1,11 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
-import {Button, Form, message, Modal, Select, Spin, Steps} from 'antd';
+import {Button, Form, message, Modal, Select, Steps} from 'antd';
 import type {RefSelectProps} from 'antd/es/select';
 import {MyIcon} from '@/components/Menu';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import _ from 'lodash';
-import ReverseTable from '@/components/TableTransfer/ReverseTable';
+import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {fetchDatabaseConfigs} from '@/utils/databaseUtils';
 import {dbReverseMeta} from '@/utils/save';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
@@ -57,7 +57,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
   const [form1] = Form.useForm<Step1Values>();
   const dbSelectRef = useRef<RefSelectProps>(null);
 
-  const {flag, status, loading} = profileSliceState;
+  const {status} = profileSliceState;
 
   useEffect(() => {
     const fetchDatabases = async () => {
@@ -230,15 +230,19 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
                 <Button key="prev" aria-label="上一步" onClick={() => setStep(0)}>
                   {'<'} 上一步
                 </Button>,
-                <Button
-                  key="submit"
-                  type="primary"
-                  aria-label="提交"
-                  loading={submitting}
-                  onClick={() => void handleSubmit()}
-                >
-                  提交 √
-                </Button>,
+                ...(status === 'SUCCESS'
+                  ? [
+                      <Button
+                        key="submit"
+                        type="primary"
+                        aria-label="提交"
+                        loading={submitting}
+                        onClick={() => void handleSubmit()}
+                      >
+                        提交 √
+                      </Button>,
+                    ]
+                  : []),
               ]
         }
       >
@@ -306,11 +310,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
             </Form.Item>
           </Form>
         )}
-        {step === 1 && (
-          <Spin tip="正在解析数据源，请稍后。。。(请勿关闭当前弹窗！)" spinning={loading}>
-            {!flag && (status === 'SUCCESS' ? <ReverseTable /> : '解析失败')}
-          </Spin>
-        )}
+        {step === 1 && <ReverseParseStep />}
       </Modal>
     </>
   );
