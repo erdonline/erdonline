@@ -1,0 +1,14 @@
+Project E2E_EXPR_IDX {
+  database_type: 'MySQL'
+  Note: 'DBML表达式索引'
+}
+
+Table users {
+  id integer [pk, increment, not null, note: '主键']
+  email varchar [not null, note: '邮箱']
+  indexes {
+    (`LOWER(email)`) [name: 'idx_users_email_lower', unique]
+    (email, `LOWER(email)`) [name: 'idx_users_mixed']
+  }
+  Note: '用户'
+}

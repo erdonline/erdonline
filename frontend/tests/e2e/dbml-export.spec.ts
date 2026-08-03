@@ -126,6 +126,59 @@ test.describe('DBML 导出', () => {
     }
   });
 
+  test('导入表达式索引 fixture 后导出预览含反引号表达式', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('dbmlexpr');
+    const fixture = path.join(__dirname, '../fixtures/expression-index.dbml');
+
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'dbmlexpr', 'dbml expr idx');
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导入' })
+        .click();
+      await page.getByRole('menuitem', { name: '导入DBML' }).click();
+      const importDlg = page.getByRole('dialog');
+      await expect(importDlg.getByText('导入 DBML')).toBeVisible({
+        timeout: 10_000,
+      });
+      await importDlg.locator('input[type="file"]').setInputFiles(fixture);
+      await expectToast(page, /DBML 导入成功/);
+      await expect(importDlg).toBeHidden({ timeout: 10_000 });
+
+      await expect(page.getByText('users', { exact: true }).first()).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page
+        .getByTestId('project-menu-panel')
+        .getByRole('menuitem', { name: '导出' })
+        .click();
+      await page.getByRole('menuitem', { name: '导出DBML' }).click();
+
+      const exportDlg = page.getByRole('dialog');
+      await expect(exportDlg.getByText('导出 DBML')).toBeVisible({
+        timeout: 10_000,
+      });
+      const preview = exportDlg.getByLabel('DBML预览');
+      await expect(preview).toBeVisible();
+      await expect
+        .poll(async () => preview.inputValue(), { timeout: 15_000 })
+        .toMatch(/`LOWER\(email\)`/);
+      const content = await preview.inputValue();
+      expect(content).toMatch(/idx_users_email_lower/);
+      expect(content).toMatch(/idx_users_mixed/);
+      expect(content).toMatch(/Table\s+users/);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('导出弹层密度：与 22–28 chrome 同阶', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('dbmlexpd');

@@ -157,6 +157,9 @@
 { "name": "AUTH_USER_INDEX1", "isUnique": true, "fields": ["ID", "CODE"] }
 ```
 
+`fields[]` 为字符串数组，元素既可以是**列名**，也可以是**索引表达式**原样文本（如 `"LOWER(email)"`）。DBML 导入时 `@dbml/core` 的 expression 列写入此数组；导出时非纯 ident 以 `` `expr` `` 写回。DDL 模板 `createIndexTemplate` 对 `fields` 做 join，表达式可直接进入 `CREATE INDEX … (LOWER(email))`。
+
+逆向 JDBC `getIndexInfo` 通常只给列名；函数/表达式索引视驱动而定，本切片未扩展字典抓取。
 ### Trigger（`triggers[]`，可选）
 
 ```json
@@ -265,11 +268,11 @@ cd frontend && yarn validate:projectjson
 | `[default: …]` | `fields[].defaultValue`（string→`'…'`；number→数字串；expression→原样如 `now()`；导出时字符串/数字/表达式分别还原） |
 | `Note` / `[note: …]` | **仅**与 `chnname` 互通（表/列显示名） |
 | `Ref` / 列上 `[ref: …]` | `associations[]`（`1:1` / `1:n` / `n:n`；`from`=多端持 FK） |
-| `indexes { … }` | `entities[].indexs[]`（`name` / `isUnique` / `fields[]`；跳过 pk 索引与表达式列） |
+| `indexes { … }` | `entities[].indexs[]`（`name` / `isUnique` / `fields[]`；跳过 pk 索引；列名与表达式均写入 `fields[]`，导出时表达式用反引号） |
 | `Enum` / 值 `[note: …]` | `dataTypeDomains.datatype[]`：`kind: "enum"`，`code`/`name`=枚举名，`values[]`=`{ name, chnname? }`；列类型写 `fields[].type = code`；`apply.MYSQL`=`ENUM('a','b')`，`PostgreSQL`=类型名，其它方言字串回落 |
 | `Project` 名 / Note | 模块 `name` / `chnname`（缺省 `DBML` / `DBML导入`） |
 
-**不映射**：trigger、表级 check、复合 FK、索引表达式列；Enum **级** Note（`@dbml/core` 9.x 不解析 Enum 上的 `[note]` / `Note:`，仅值级 note ↔ `values[].chnname`）。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`；datatype 按 `code` union）。
+**不映射**：trigger、表级 check、复合 FK；Enum **级** Note（`@dbml/core` 9.x 不解析 Enum 上的 `[note]` / `Note:`，仅值级 note ↔ `values[].chnname`）。导入合并路径复用 `importModuleAndProfile`（与 ERD/PdMan 逆向一致，含 `fixModules`；datatype 按 `code` union）。
 
 **Trigger 缺口（度量结论）**：`@dbml/core` 9.x 解析 **不接受** `Trigger { … }` 块（holistics/dbml#836 提案未并入主线）；表/列 `Note` **仅**与 `chnname` 互通，禁止把 `triggers[]`/`ddl` 写入 Note（会污染显示名 round-trip，且非合法 DBML 语义家）。双向互通等官方块稳定或可移植扩展后再做；DDL 导出另切片。
 

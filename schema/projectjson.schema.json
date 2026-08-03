@@ -148,7 +148,7 @@
         "fields": {
           "type": "array",
           "items": { "type": "string" },
-          "description": "索引列名列表"
+          "description": "索引列名或表达式原样字符串（如 LOWER(email)）"
         }
       }
     },

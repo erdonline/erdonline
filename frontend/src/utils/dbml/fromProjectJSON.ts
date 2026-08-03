@@ -118,12 +118,27 @@ function formatField(
   return `  ${name} ${type} [${settings.join(', ')}]`;
 }
 
+/** 纯列 ident → quoteIdent；含函数/运算等 → DBML 反引号表达式 */
+export function formatIndexColumn(field: string): string {
+  const raw = String(field || '').trim();
+  if (!raw) return '""';
+  if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(raw)) {
+    return quoteIdent(raw);
+  }
+  // 已是 `"ident"` 的特殊列名，仍按 ident 引用
+  if (/^"[^"]+"$/.test(raw)) {
+    return raw;
+  }
+  const expr = raw.replace(/`/g, '');
+  return `\`${expr}\``;
+}
+
 function formatIndex(index: ProjectJsonIndex): string | null {
   const fields = (index.fields || [])
     .map((f) => String(f || '').trim())
     .filter(Boolean);
   if (fields.length === 0) return null;
-  const cols = fields.map(quoteIdent).join(', ');
+  const cols = fields.map(formatIndexColumn).join(', ');
   const settings: string[] = [];
   const name = String(index.name || '').trim();
   if (name) settings.push(`name: '${escapeNote(name)}'`);

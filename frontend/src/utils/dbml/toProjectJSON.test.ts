@@ -116,8 +116,16 @@ async function main() {
                   columns: [{ type: 'column', value: 'id' }],
                 },
                 {
-                  name: 'expr_skip',
+                  name: 'idx_users_email_lower',
+                  unique: true,
                   columns: [{ type: 'expression', value: 'LOWER(email)' }],
+                },
+                {
+                  name: 'idx_users_mixed',
+                  columns: [
+                    { type: 'column', value: 'email' },
+                    { type: 'expression', value: 'LOWER(email)' },
+                  ],
                 },
               ],
             },
@@ -157,6 +165,16 @@ async function main() {
     assert.equal(mod.entities[0].fields[4].defaultValue, 'now()');
     assert.deepEqual(mod.entities[0].indexs, [
       { name: 'idx_users_email', isUnique: true, fields: ['email'] },
+      {
+        name: 'idx_users_email_lower',
+        isUnique: true,
+        fields: ['LOWER(email)'],
+      },
+      {
+        name: 'idx_users_mixed',
+        isUnique: false,
+        fields: ['email', 'LOWER(email)'],
+      },
     ]);
     assert.deepEqual(mod.entities[1].indexs, []);
     assert.equal(mod.associations.length, 1);
@@ -279,6 +297,31 @@ Table posts {
     assert.deepEqual(users!.indexs, [
       { name: 'idx_users_email', isUnique: true, fields: ['email'] },
       { name: 'idx_users_name_email', isUnique: false, fields: ['name', 'email'] },
+    ]);
+    tryValidateSchema(json);
+  });
+
+  await run('dbmlToProjectJSON：表达式索引写入 fields[]', async () => {
+    const dbml = `
+Table users {
+  id integer [pk]
+  email varchar
+  indexes {
+    (\`LOWER(email)\`) [name: 'idx_lower_email', unique]
+    (email, \`LOWER(email)\`) [name: 'idx_mixed']
+  }
+}
+`;
+    const json = await dbmlToProjectJSON(dbml);
+    const users = json.modules[0].entities.find((e) => e.title === 'users');
+    assert.ok(users);
+    assert.deepEqual(users!.indexs, [
+      { name: 'idx_lower_email', isUnique: true, fields: ['LOWER(email)'] },
+      {
+        name: 'idx_mixed',
+        isUnique: false,
+        fields: ['email', 'LOWER(email)'],
+      },
     ]);
     tryValidateSchema(json);
   });
