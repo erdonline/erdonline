@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：画布关系图弹层键盘闭环
+
+- 选题：假成功高 ROI 扫完——Word/模板 ZIP 闸、DDL/DBML/版本 diff 空内容闸、审批 `code===200` 已收口；PDF `gendocx` 无 UI 入口；HTML/MD 本地生成难出空体。切**键盘摩擦**：画布「新建/重命名关系图」Modal 缺首焦/Esc 归还/Tab trap（「加入分组」同源补齐）
+- `ReactFlowRelation`：两 Modal `keyboard` + `focusTriggerAfterClose` + `afterOpenChange` 首焦「关系图名称」/「选择分组」；提交中禁 Esc 关新建窗
+- E2E：`diagram-modal-keyboard` 首焦名称 → Tab trap → Esc 归还「新建关系图」；定位 `role=button`/`role=dialog`/`role=textbox`（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 数据类型字典 Modal `focusTriggerAfterClose` 或其它未登记环
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/diagram-modal-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/diagram-modal-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：Word gendocx 导出假成功
 
 - 选题：`downloadWordTemplate` ZIP 闸已收口（`99d8406`）；`exportFile('Word')`→`POST /ncnb/doc/gendocx` 仅拒 `content-type: json`，空体 / `octet-stream` 包 JSON / 非 ZIP 仍 `saveByBlob` → 假 `.doc` 下载
 - `exportSlice` Word 路径复用 `docxBlobGate`（非空 + ZIP `PK`）；失败 toast「Word导出失败!请重试！出错原因：…」、不落盘；`profileSlice` 模板下载改走同一闸；删 `save.js` 零引用 `gendocx` 死代码
 - E2E：`word-gendocx-download-failure` mock JSON / 空 blob / 非 ZIP → toast + 无 `download`；定位 `role=button`「导出Word」/`testid=export-common-page`（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描余假成功，或键盘摩擦
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~扫描余假成功～切画布关系图弹层键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/word-gendocx-download-failure.spec.ts --project=chromium --workers=1 --retries=0`

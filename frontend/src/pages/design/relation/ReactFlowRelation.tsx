@@ -60,6 +60,8 @@ import {
 
 export { EDGE_INTERACTION_WIDTH } from '@/utils/relationEdges';
 import { Input, Modal, Select, message } from 'antd';
+import type { InputRef } from 'antd';
+import type { BaseSelectRef } from 'rc-select';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
@@ -1464,6 +1466,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [diagramModalSubmitting, setDiagramModalSubmitting] = useState(false);
   const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
   const [dbmlImportOpen, setDbmlImportOpen] = useState(false);
+  /** 关系图弹层首焦「关系图名称」 */
+  const diagramNameInputRef = useRef<InputRef>(null);
+  /** 加入分组弹层首焦「选择分组」 */
+  const frameAssignSelectRef = useRef<BaseSelectRef>(null);
   /** 画布建表落盘中：禁连点双发 */
   const createTableSavingRef = useRef(false);
   /** >0 = 待 fitView 的表数（导入/自动布局后首屏铺满） */
@@ -3251,9 +3257,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         cancelText="取消"
         confirmLoading={diagramModalSubmitting}
         destroyOnClose
+        keyboard={!diagramModalSubmitting}
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          const tryFocus = (attempt = 0) => {
+            if (diagramNameInputRef.current) {
+              diagramNameInputRef.current.focus({ cursor: 'all' });
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
         okButtonProps={{ 'data-testid': 'diagram-modal-ok' } as any}
       >
         <Input
+          ref={diagramNameInputRef}
           aria-label="关系图名称"
           placeholder="例如：鉴权域"
           value={diagramModal?.name || ''}
@@ -3298,9 +3323,28 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         okText="加入"
         cancelText="取消"
         destroyOnClose
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          const tryFocus = (attempt = 0) => {
+            if (frameAssignSelectRef.current) {
+              frameAssignSelectRef.current.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
         okButtonProps={{ 'data-testid': 'frame-assign-ok' } as any}
       >
         <Select
+          ref={frameAssignSelectRef}
           aria-label="选择分组"
           style={{ width: '100%' }}
           value={frameAssignModal?.frameId}

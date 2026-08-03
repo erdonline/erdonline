@@ -121,6 +121,8 @@
 | 团队成员移除确认 | 打开首焦 / Esc / Tab trap | 首焦「移除」；Esc 归还不移；焦点归还「移除成员 {username}」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-user-remove-keyboard` |
 | 审批动作确认（通过/拒绝/撤销/复批） | 打开首焦 / Esc / Tab trap | 首焦语义 OK；Esc 归还不落盘；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
 | EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
+| 画布新建/重命名关系图 Modal | 打开首焦 / Esc / Tab trap | 首焦「关系图名称」；Esc 归还触发器；焦点不逃出 dialog；提交中禁 Esc | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard` |
+| 画布加入分组 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择分组」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard`（同源产品） |
 | 画布删表确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-table-keyboard` |
 | 画布删边/删分组确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-edge-frame-keyboard` |
 | 画布删字段确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-field-keyboard` |
@@ -359,11 +361,11 @@
 
 | 状态 | 行数 |
 |---|---|
-| ✅ | 90 |
+| ✅ | 92 |
 | 🚧 | 0 |
 | 🗑 | 6 |
 | 📋 | 6 |
-| **合计** | **102** |
+| **合计** | **104** |
 
 📋 延期（本阶段不啃）：论坛外链、VIP 角标、dataDomain / query / chatsql / dataQuery。  
 Vision loop：矩阵 🚧=0 时，优先可行动矩阵 📋 或 roadmap 下一 📋（Issue seed / AI），见 `scripts/agent-loop-vision.prompt.md`。
