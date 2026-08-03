@@ -92,9 +92,9 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* ADR-0016：次密距 — gap/pad 收紧；品牌字号/对比不变 */
+  /* ADR-0016：品牌井碎距 — pad 20×16（贴欢迎空态内井）；禁 32×28；品牌字号/对比不变 */
   gap: 14px;
-  padding: 32px 28px;
+  padding: 20px 16px;
   color: var(--erd-surface);
   background: linear-gradient(
     160deg,
@@ -171,8 +171,8 @@
   display: flex;
   flex-direction: column;
   justify-content: center;
-  /* ADR-0016：登录/失效门次密距 — 对齐欢迎空态 32 内井；禁 48+ 松井 */
-  padding: 32px 32px;
+  /* ADR-0016：表单井碎距 — pad 20×16（贴欢迎空态内井 / 壳 content 12×16）；禁 32 松井 */
+  padding: 20px 16px;
   background: var(--erd-surface);
   overflow-y: auto;
 }
@@ -239,7 +239,7 @@
     flex: none;
     max-width: none;
     width: 100%;
-    padding: 28px 24px 24px;
+    padding: 20px 16px 16px;
     gap: 12px;
   }
 
@@ -252,6 +252,6 @@
   }
 
   .auth-shell__form {
-    padding: 28px 24px 32px;
+    padding: 20px 16px 20px;
   }
 }

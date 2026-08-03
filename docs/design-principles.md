@@ -209,7 +209,7 @@
 - ✅ 表设计签体内容次密距：`--erd-tab-body-pad-x/b` 6/4、unique-hint pad 4×8 / mb 4、空态 pad 贴 tab-body、元数据 tip `.erd-meta-ddl-hint` ~24、工作区井 6；禁 10/12 松井 + Paragraph 大底距；禁 clip JExcel；保留空字段 CTA / 空名 toast
 - ✅ 设计器空态次密距：兜底 `.erd-pane-empty`（禁 `marginTop:100` / 高 200 插画）；字段/索引 `.ant-empty` margin-block 0 + pad 对齐 `--erd-tab-body-pad`；保留空态 CTA；禁 antd `marginXL` 次屏松井
 - ✅ 欢迎空态次密距：`.erd-welcome-empty__inner` pad 20×16、标题 18/mt12·lh22（贴 page-title 13/22 节奏）、引导 mt8、hero 剪影 176；保留「从数据源逆向」链 + 左树「新增模型」；禁 32×24 / 48+ 松井 / 20·mt14 / 22 标题 mt20 / hero 220；禁压成画布空态 14/18
-- ✅ AuthBrandShell 次密距：品牌 pad 32×28 / gap14、缩略 pad12、表单 pad 32、门头 mb16；登录/注册/分享失效/404·403 同源；禁 48×40 松井；品牌字号/~40%/Skip·Tab 不弱化
+- ✅ AuthBrandShell 次密距：品牌/表单 pad 20×16 / gap14、缩略 pad12、门头 mb16；登录/注册/分享失效/404·403 同源；禁 32×28 / 48×40 松井；品牌字号/~40%/Skip·Tab 不弱化
 - ✅ LandingChrome / `/compare` 次密距：次屏 section 2.75rem、pillars gap 1.5、对照行 0.5、nav/footer 收；compare hero padT 1.5；禁压 hero 品牌级字号/全幅构图/CTA；Skip·Tab 不弱化
 - ✅ 设计器菜单密度：共享 `.erd-dense-menu`（树操作 / 签右键 / 新建 / 项目菜单·子菜单 / 顶栏更多）；项高 ~28 / 字 12 / pad 4×8；禁默认 ~40 松项；禁 clip；保留 `role=menuitem` + 方向键/Esc`
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
@@ -251,7 +251,7 @@
 - ❌ 团队成员工具条 mb16 + Search 默认 32，相对项目列表工具条 28 / 8–12 族偏松（历史问题）
 - ❌ Group 用户组 Title level4 + Space large + br + 左签 padX24·高38，相对 13/22·28 / 8–12 族偏松（历史问题）
 - ❌ 欢迎空态内井 pad 32×24 / 标题 20/mt14·lh≈26（及更早 mt20 / 22 字）+ hero 220，盖首屏扫读（历史问题）
-- ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
+- ❌ AuthBrandShell 品牌/表单 pad 32×28 / 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）
 - ❌ 分享成功态 meta gap4 / stage 8×12 + 表清单 8×12·13 标题 / 弹层 Paragraph 12·Compact 16，与 LandingChrome 次密断裂（历史问题）
 - ❌ Home hero actions gap12 / secondary 6×14 / hero 32·20 松井，与分享成功态次密断裂（历史问题）
