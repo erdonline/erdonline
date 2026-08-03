@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 体验：欢迎空态次密距（pad 32）
+
+- 选题：签体/次屏 Empty 已密；欢迎 `.erd-welcome-empty__inner` 标题 mt20 + 22 字 + hero 220 仍偏松
+- `EmptyStateAnimation`：内 pad 锁 32×24；标题 20/mt14；引导 mt8 / lh1.5；保留逆向链 + 左树「新增模型」
+- `ErdEmptyDiagram` hero 220→176（AuthBrandShell 同源；compact 132 不动）
+- E2E：`model-design-ux`「欢迎空态次密距」；截图 `diagram-welcome-empty-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → AuthBrandShell 失效/登录门空态次密距（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "欢迎空态次密距" --workers=1 --retries=0`
+
 #### 体验：设计器 Empty / 次屏空态次密距
 
 - 选题：签体 pad 已密；兜底 Empty 仍 `marginTop:100` + 高 200 插画；字段/索引空态吃 antd `marginXL` 松井
@@ -15,7 +26,7 @@
 - `TableTab.less`：字段/索引空态 pad 对齐 `--erd-tab-body-pad`；`.ant-empty` margin-block 0；保留 CTA
 - 清左树 Blueprint 遗留 `bp4-tab-panel` margin 80/60
 - E2E：`model-design-ux`「设计器空态次密距」；截图 `diagram-pane-empty-dense.png`；保留字段/索引空态 CTA
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 欢迎空态 `.erd-welcome-empty` 内 pad 32（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~欢迎空态 `.erd-welcome-empty` 内 pad 32~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "设计器空态次密距" --workers=1 --retries=0`

@@ -1081,4 +1081,83 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：欢迎空态次密距 —
+   * `.erd-welcome-empty__inner` pad ≤32；标题/引导可读；逆向链保留；禁 48+ 松井
+   */
+  test('欢迎空态次密距', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('welcomeempty');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      const welcome = page.getByTestId('designer-welcome-empty');
+      await expect(welcome).toBeVisible({ timeout: 20_000 });
+      await expect(
+        welcome.getByRole('heading', { name: '欢迎使用数据建模工具' }),
+      ).toBeVisible();
+      await expect(
+        welcome.getByRole('link', { name: '从数据源逆向' }),
+      ).toBeVisible();
+      await expect(welcome.getByTestId('erd-empty-diagram')).toBeVisible();
+      // 左树空态 CTA 与欢迎文案并存（建模入口不丢）
+      await expect(page.getByTestId('add-module-empty')).toBeVisible();
+
+      const metrics = await welcome.evaluate((root) => {
+        const inner = root.querySelector(
+          '.erd-welcome-empty__inner',
+        ) as HTMLElement | null;
+        const title = root.querySelector(
+          '.erd-welcome-empty__title',
+        ) as HTMLElement | null;
+        const desc = root.querySelector(
+          '.erd-welcome-empty__desc',
+        ) as HTMLElement | null;
+        const svg = root.querySelector(
+          '[data-testid="erd-empty-diagram"]',
+        ) as SVGElement | null;
+        const ics = inner ? getComputedStyle(inner) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        const dcs = desc ? getComputedStyle(desc) : null;
+        return {
+          padT: ics ? parseFloat(ics.paddingTop) : -1,
+          padB: ics ? parseFloat(ics.paddingBottom) : -1,
+          padL: ics ? parseFloat(ics.paddingLeft) : -1,
+          padR: ics ? parseFloat(ics.paddingRight) : -1,
+          titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
+          titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
+          titleWeight: tcs ? parseInt(tcs.fontWeight, 10) : 0,
+          descMt: dcs ? parseFloat(dcs.marginTop) : -1,
+          descSize: dcs ? parseFloat(dcs.fontSize) : 0,
+          svgW: svg ? parseFloat(svg.getAttribute('width') || '0') : 0,
+        };
+      });
+
+      expect(metrics.padT, `欢迎内 padTop 应 ≤32，得 ${metrics.padT}`).toBeLessThanOrEqual(32);
+      expect(metrics.padB, `欢迎内 padBottom 应 ≤32，得 ${metrics.padB}`).toBeLessThanOrEqual(32);
+      expect(metrics.padL, `欢迎内 padLeft 应 ≤32，得 ${metrics.padL}`).toBeLessThanOrEqual(32);
+      expect(metrics.padR, `欢迎内 padRight 应 ≤32，得 ${metrics.padR}`).toBeLessThanOrEqual(32);
+      // 勿压到画布空态级（14/18）——欢迎需可扫读层次
+      expect(metrics.padT).toBeGreaterThanOrEqual(20);
+      expect(metrics.padL).toBeGreaterThanOrEqual(16);
+      expect(metrics.titleMt, `标题 mt 应 ≤16，得 ${metrics.titleMt}`).toBeLessThanOrEqual(16);
+      expect(metrics.titleSize).toBeGreaterThanOrEqual(18);
+      expect(metrics.titleSize).toBeLessThanOrEqual(22);
+      expect(metrics.titleWeight).toBeGreaterThanOrEqual(600);
+      expect(metrics.descMt).toBeLessThanOrEqual(10);
+      expect(metrics.descSize).toBeGreaterThanOrEqual(13);
+      expect(metrics.svgW, `hero 剪影应 ≤180，得 ${metrics.svgW}`).toBeLessThanOrEqual(180);
+      expect(metrics.svgW).toBeGreaterThan(132);
+
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-welcome-empty-dense.png',
+        fullPage: false,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
