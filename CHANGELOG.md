@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：快捷键速查卡（`?`）密度
+
+- 选题：Cmd+K empty/list 已密；`?` 速查仍 list pad 6×8 + row padY 10 / gap 12 + maxH 420，与命令面板 / 22 chrome 不同阶
+- `shortcut-help.scss`：header 6×10 · list 2×4 · row pad 3×4 / gap 8 · footer 4×8 · maxH 360；关闭钮 focus-visible；禁 6×8 井 + padY 10
+- E2E：`relation`「快捷键速查」densify + 截图 `diagram-shortcut-help-dense.png`；Esc / 关闭钮可焦 / 与 Cmd+K 互斥不弱化
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 建模静默失败 / CTA 不清（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "快捷键速查" --workers=1 --retries=0`
+
 #### 体验：Cmd+K 无匹配空态 / list 井次密
 
 - 选题：导入 Steps 已对齐；命令面板无匹配「无匹配结果」仍 16×12 空井 + list pad 4，与行 pad 6/8 / 22 chrome 不同阶
 - `command-palette.scss`：`.erd-cmd-empty` pad 8×8 · gap 2；`.erd-cmd-list` pad 2；禁 16×12 / 4
 - E2E：`relation`「命令面板」empty/list densify + 截图 `diagram-cmd-palette-dense.png`；Trap / ↑↓ / aria-activedescendant / Esc 归还不弱化
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 快捷键速查卡密度（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~快捷键速查卡密度~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`

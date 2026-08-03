@@ -2905,6 +2905,77 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(help.locator('kbd', { hasText: 'Tab' })).toBeVisible();
       await expect(help.locator('kbd', { hasText: 'Delete' })).toBeVisible();
 
+      // ADR-0016：速查卡密度（与 Cmd+K / 22 chrome 同阶）；禁 list 6/8 + row padY 10 松井
+      const helpMetrics = await help.evaluate((el) => {
+        const panel = el as HTMLElement;
+        const header = el.querySelector('.erd-help-header') as HTMLElement | null;
+        const list = el.querySelector('.erd-help-list') as HTMLElement | null;
+        const row = el.querySelector('.erd-help-row') as HTMLElement | null;
+        const footer = el.querySelector('.erd-help-footer') as HTMLElement | null;
+        const title = el.querySelector('.erd-help-title') as HTMLElement | null;
+        const hcs = header ? getComputedStyle(header) : null;
+        const lcs = list ? getComputedStyle(list) : null;
+        const rcs = row ? getComputedStyle(row) : null;
+        const fcs = footer ? getComputedStyle(footer) : null;
+        const tcs = title ? getComputedStyle(title) : null;
+        return {
+          panelMaxH: parseFloat(getComputedStyle(panel).maxHeight),
+          titleFont: tcs ? parseFloat(tcs.fontSize) : NaN,
+          headerPadY: hcs
+            ? parseFloat(hcs.paddingTop) + parseFloat(hcs.paddingBottom)
+            : NaN,
+          listPadY: lcs
+            ? parseFloat(lcs.paddingTop) + parseFloat(lcs.paddingBottom)
+            : NaN,
+          listPadX: lcs ? parseFloat(lcs.paddingLeft) : NaN,
+          rowPadY: rcs
+            ? parseFloat(rcs.paddingTop) + parseFloat(rcs.paddingBottom)
+            : NaN,
+          rowGap: rcs ? parseFloat(rcs.gap || '0') : NaN,
+          footerPadY: fcs
+            ? parseFloat(fcs.paddingTop) + parseFloat(fcs.paddingBottom)
+            : NaN,
+        };
+      });
+      expect(
+        helpMetrics.panelMaxH,
+        `面板 maxH 应 ≤360，得 ${helpMetrics.panelMaxH}`,
+      ).toBeLessThanOrEqual(360);
+      expect(helpMetrics.titleFont).toBeLessThanOrEqual(13);
+      expect(
+        helpMetrics.headerPadY,
+        `header padY 应 ≤14（禁 16），得 ${helpMetrics.headerPadY}`,
+      ).toBeLessThanOrEqual(14);
+      expect(
+        helpMetrics.listPadY,
+        `list padY 应 ≤8（禁 12），得 ${helpMetrics.listPadY}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        helpMetrics.listPadX,
+        `list padX 应 ≤4（禁 8），得 ${helpMetrics.listPadX}`,
+      ).toBeLessThanOrEqual(4);
+      expect(
+        helpMetrics.rowPadY,
+        `row padY 应 ≤8（禁 10），得 ${helpMetrics.rowPadY}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        helpMetrics.rowGap,
+        `row gap 应 ≤8（禁 12），得 ${helpMetrics.rowGap}`,
+      ).toBeLessThanOrEqual(8);
+      expect(
+        helpMetrics.footerPadY,
+        `footer padY 应 ≤10（禁 12），得 ${helpMetrics.footerPadY}`,
+      ).toBeLessThanOrEqual(10);
+
+      // 关闭钮可焦；Esc 关
+      const closeBtn = help.getByRole('button', { name: '关闭快捷键' });
+      await closeBtn.focus();
+      await expect(closeBtn).toBeFocused();
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-shortcut-help-dense.png',
+        fullPage: false,
+      });
+
       await page.keyboard.press('Escape');
       await expect(help).toHaveCount(0);
 

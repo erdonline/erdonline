@@ -177,7 +177,7 @@
 | DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存 | P2 | ✅ | `relation.spec`「保存中…→已保存」 |
 | DesignLayout | CommonTabs / 表设计签头 | 栏高 ~24；标签/关闭钮不 clip；Tab focus-visible；内签字段/索引/元数据 | ADR-0016 密度 | ✅ | `model-design-ux`「表设计三签」 |
 | DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K/F 开合；搜表定位+高亮；↑↓/aria-activedescendant；空态「无匹配结果」pad≤8×8 / list≤2；Esc 归还；Tab trap | RF CommandPalette | ✅ | `relation.spec`「命令面板」+「搜表定位」 |
-| DesignLayout | 快捷键速查卡 | `?` / 工具栏「?」→ aria dialog「快捷键」；含 Cmd+1/2/3 表设计签；Esc 关闭；与命令面板互斥 | RF ShortcutHelp | ✅ | `relation.spec`「快捷键速查」 |
+| DesignLayout | 快捷键速查卡 | `?` / 工具栏「?」→ aria dialog「快捷键」；含 Cmd+1/2/3 表设计签；密度 maxH≤360 / list 2×4 / row padY≤6；Esc + 关闭钮可焦；与命令面板互斥 | RF ShortcutHelp | ✅ | `relation.spec`「快捷键速查」 |
 | DesignLayout | Skip 跳过导航 | 首项 Tab「跳到模型树/主工作区」→ 地标 focus；无 trap | 焦点环审计 | ✅ | `relation`「设计器 Skip」 |
 | DesignLayout | 左树工具条密度 | 工具条 ≤32 / 控件 ∈24–28；图标不 clip；sider 次密距；新建 focus-visible | QueryTree toolbar + sider-inner | ✅ | `model-design-ux`「模型树」 |
 | DesignLayout | 版本列表二次密度 | 工具条控件 ∈24–28；图标不 clip；token 色；新增钮 focus-visible；键盘弹层不回归 | version-page toolbar/list | ✅ | `version.spec`「版本列表行密度」+ `version-action-modals-keyboard` |
