@@ -20,6 +20,8 @@
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "模型树" --workers=1 --retries=0`
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "左树键盘漫游" --workers=1 --retries=0`
 
+#### 体验：签头密度再压（CommonTabs / 表设计不 clip）
+
 - 选题：Cmd+K polish 后下一刀；签栏已 ~28，再压至 ~24（22 chrome）且禁裁标签/关闭钮，保留 focus-visible
 - `CommonTabs`：`--erd-tabs-h: 24`、flex 竖直居中、关闭钮 14 完整落在栏内；nav `overflow: visible`；inset focus 环
 - `TableTab`：签头 pad 2×10 / title 12 / min-height 24；内签 pad 4 / mb 6 + focus-visible
