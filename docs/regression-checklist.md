@@ -310,8 +310,11 @@
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
 - [x] [存量 console.log] 已清零（`rg console\.(log|debug|info) src` = 0；`lint:js:ci` 0 error）✅自动
-- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS` 或 `ERD_UI_URL`；prod 禁 SocketIO/CORS `*`（`CrossOriginPolicy`）；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/OSS/`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）/JWT 否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`）
+- [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端需设 `CORS_ALLOWED_ORIGINS` 或 `ERD_UI_URL`；prod 禁 SocketIO/CORS `*`（`CrossOriginPolicy`）；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）/JWT 否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`；**勿**再强制假 `OSS_*`）
 - [ ] [R-CFG-04 Origin] prod 未设 `ERD_UI_URL`/`SOCKETIO_ORIGIN` → 启动失败；设 `SOCKETIO_ORIGIN=*` → 启动失败含 `*`；dev profile 本地 dogfood 不受影响
+- [x] [R-CFG-05 OSS] 仓库无 `minio123`；prod 不强制 `OSS_*`；启用 MinIO + prod 用默认对 → 启动失败（`OssCredentialGuardTest`）
+- [x] [R-CFG-06] `.env.example` 无 `OAUTH_CLIENT_*`（`OssSecurityConfigContractTest`）
+- [x] [R-OPS-03] deployment 标明 9092 勿公网裸放
 - [ ] [生产凭证 fail-fast] 待 Docker 部署验证：`docker-compose up`（compose 显式传 env，应正常启动）
 
 ## UX 走查（playwright-ux-audit 规则，2026-08-01 首轮）

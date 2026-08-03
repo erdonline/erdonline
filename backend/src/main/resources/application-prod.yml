@@ -36,10 +36,8 @@ spring:
 
 # Origin：prod 禁止 *。SOCKETIO_ORIGIN 优先，否则 ERD_UI_URL；二者皆缺 → 占位符失败（fail-fast）。
 # HTTP CORS 另见 CrossOriginPolicy（CORS_ALLOWED_ORIGINS 或回落 martin.ui.url）。
+# OSS：默认不强制 OSS_*（MinIO 可选）。启用时设 OSS_ENDPOINT + 非默认密钥；OssCredentialGuard 拒 minio/minio123。
 martin:
-  oss:
-    accessKey: ${OSS_ACCESS_KEY}
-    secretKey: ${OSS_SECRET_KEY}
   socketio:
     origin: ${SOCKETIO_ORIGIN:${ERD_UI_URL}}
   ui:

@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 安全：R-CFG-05/06 + R-OPS-03（OSS 密钥面 / OAuth 死键 / SocketIO 端口）
+
+- 选题：yml 扁平 `martin.oss.accessKey=minio`/`minio123` 不绑 `MinioClient` 仍误导复制；prod 强制假 `OSS_*`；`.env.example` 残留 `OAUTH_CLIENT_*`；9092 缺防火墙说明
+- 改动：嵌套 `martin.oss.minio.*` + 空默认；去掉 prod 强制 OSS 占位；`OssCredentialGuard` prod 拒 blank/`minio`+`minio123`；MinIO Bean 仅 endpoint 非空；删 OAuth 死键；deployment 写明 9092 勿公网裸放
+- 文档：security-model R-CFG-05/06、R-OPS-03 ✅；roadmap 下一刀 → R-DATA-02 残余
+- 回归：`OssCredentialGuardTest` + `OssSecurityConfigContractTest`
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=OssCredentialGuardTest,OssSecurityConfigContractTest test`
+- `./backend/dev-ensure.sh --restart`；`curl -sf http://localhost:9502/actuator/health/liveness` → UP（未设 `OSS_ENDPOINT` 仍可起）
+
 #### 体验：版本动作弹窗键盘闭环（新增/删除/回滚）
 
 - 选题：新增版本 Modal 开窗首焦不稳；删除/回滚用 Popconfirm 非 `role=dialog`、无 Tab trap；无键盘 E2E

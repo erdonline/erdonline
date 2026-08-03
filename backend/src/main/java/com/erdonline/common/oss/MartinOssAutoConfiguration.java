@@ -18,6 +18,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.scheduling.annotation.EnableAsync;
 
 /**
@@ -44,10 +45,18 @@ public class MartinOssAutoConfiguration {
     @Autowired
     private OssProperties ossProperties;
 
+    @Autowired
+    private Environment environment;
+
+    /**
+     * endpoint 非空才建客户端（空串不匹配 SpEL hasText）。
+     * prod 凭证门禁见 {@link OssCredentialGuard}。
+     */
     @Bean
-    @ConditionalOnProperty(name = "martin.oss.minio.endpoint")
+    @ConditionalOnExpression("T(org.springframework.util.StringUtils).hasText('${martin.oss.minio.endpoint:}')")
     public MinioClient minioClient() {
         OssProperties.MinioConfiguration minioConfiguration = ossProperties.getMinio();
+        OssCredentialGuard.assertSafeForProfile(minioConfiguration, environment);
         return MinioClient.builder()
                 .endpoint(minioConfiguration.getEndpoint())
                 .credentials(minioConfiguration.getAccessKey(), minioConfiguration.getSecretKey())

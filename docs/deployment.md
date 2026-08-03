@@ -173,7 +173,8 @@ docker compose up -d
 | `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未注入 `REDISHOST`（或仍指望 `REDIS_URL`/`SPRING_DATA_REDIS_URL`） | Link Redis 或设 `REDISHOST`/`REDISPORT`/`REDISPASSWORD`；**Redeploy** |
 | `NOAUTH Authentication required` | 主机通但未带密码 | 确认 `REDISPASSWORD` 已注入；日志 `password=missing` |
 | `WRONGPASS invalid username-password pair` | 密码错，或空串被当成密码（旧镜像） | 用插件 `REDISPASSWORD`；本地无密码勿设假密码（Normalizer 把空串置 null） |
-| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `OSS_ACCESS_KEY` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/SocketIO 设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`） |
+| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/SocketIO 设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`） |
+| `OSS credentials must not use MinIO install defaults` / blank credentials | 启用了 `OSS_ENDPOINT` 但密钥 blank 或仍为 `minio`/`minio123` | 未用 MinIO 则**不要**设 `OSS_ENDPOINT`；启用则旋转密钥 |
 | `JWT_SECRET must not use the repository/dev default` | prod 仍用仓库开发默认串 | 换成 `openssl rand -base64 48` 等随机值并 Redeploy |
 | `martin.socketio.origin is blank or *` / `must not be * in prod` | SocketIO/CORS 通配或空 | 设明确 UI 源；勿 `SOCKETIO_ORIGIN=*` / 空串 |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
@@ -307,8 +308,8 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `CORS_ALLOWED_ORIGINS` | `https://erdonline-demo.pages.dev` | 逗号分隔；静态 demo 跨域必需；未设则回落 `ERD_UI_URL` |
 | `ERD_UI_URL` | 同上 CF Pages URL | **prod 必填其一**（或 `SOCKETIO_ORIGIN`）；CORS + SocketIO 回落；禁 `*` |
 | `SOCKETIO_ORIGIN` | 通常同 `ERD_UI_URL` | 可选覆盖 SocketIO；未设回落 `ERD_UI_URL`；禁空串挡回落、禁 `*` |
-| `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 任意非空占位（如 `demo`/`demo`） | `prod` profile 强制存在；无 MinIO 时 Word 自定义上传不可用，内置模板仍可导出 |
-| `SOCKETIO_PORT` | `9092` | 容器内 Presence；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
+| `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
+| `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
 > **MySQL / Redis**：详见上两节。Link 插件后用原生 `MYSQL*` / `REDIS*`；`MYSQL_URL` / `REDIS_URL` / `SPRING_DATASOURCE_URL` / `SPRING_DATA_REDIS_URL` **不是**本应用主接线路径。
 
@@ -353,7 +354,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
 
 #### MySQL + Redis + 环境变量
 
-与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）、`CORS_ALLOWED_ORIGINS`、`OSS_*` 占位、`ERD_E2E_ACCOUNTS_ENABLED=false`）。
+与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）、`CORS_ALLOWED_ORIGINS`、`ERD_E2E_ACCOUNTS_ENABLED=false`；**勿**为占位乱填 `OSS_*`，除非真要启用 MinIO）。
 
 1. 同项目添加 **MySQL 8** + **Redis**
 2. 建单一业务库并导入 schema（种子由 App Flyway 写入）：
@@ -469,21 +470,21 @@ docker exec erd-mysql mysql -uerd -perd erd \
 需要**上传自定义 Word 模板**或把默认模板托管到对象存储时，再配置：
 
 ```bash
-# 环境变量示例（需同时满足 Bean 条件 martin.oss.minio.endpoint）
+# 环境变量示例（需非空 OSS_ENDPOINT 才建 MinioClient；密钥走嵌套 martin.oss.minio.*）
 OSS_ENDPOINT=http://localhost:9000
 OSS_ACCESS_KEY=minio
-OSS_SECRET_KEY=...
+OSS_SECRET_KEY=...   # prod 禁止仍用 minio123
 ```
 
-并在 `application.yml` / 覆盖配置中声明嵌套项，例如：
+`application.yml` 已声明嵌套占位（空默认）；本地只需导出上述环境变量即可，例如：
 
 ```yaml
 martin:
   oss:
     minio:
-      endpoint: ${OSS_ENDPOINT}
-      accessKey: ${OSS_ACCESS_KEY}
-      secretKey: ${OSS_SECRET_KEY}
+      endpoint: ${OSS_ENDPOINT:}
+      accessKey: ${OSS_ACCESS_KEY:}
+      secretKey: ${OSS_SECRET_KEY:}
 ```
 
 未配置时：`gendocx` / `downloadWordTemplate` 降级走内置模板；`uploadWordTemplate` 返回明确错误（提示配置 MinIO），不再 NPE。
@@ -493,6 +494,7 @@ martin:
 - 修改 `.env` 中所有默认密码（含 `admin`）；`prod` 即使未改密也会拒绝 `admin`/`123456` 登录（`erd.security.allow-demo-admin=false`）
 - **删除或改密种子账号** `e2e0`..`e2e15`、`e2e-serial`（弱口令仅供本地/CI；`prod` 默认拒绝登录，仍建议删库内记录）
 - 勿设置 `ERD_E2E_ACCOUNTS_ENABLED=true`、`ERD_ALLOW_DEMO_ADMIN=true` 或 `ERD_ALLOW_OPEN_REGISTER=true` 到公网环境
+- **SocketIO（9092）**：与 HTTP API 分离监听；自托管/PaaS **不要**把 `9092` 裸映射到公网安全组。需 Presence 时仅内网可达，或经 TLS 反代并限制来源；单 HTTP 口平台上浏览器常连不上 9092（demo 可忽略）
 - 后端 jar 单独部署时，通过环境变量覆盖数据源/redis 配置（见 `application-prod.yml`）
 - 前端可将 `dist/` 部署到任意静态服务器 / CDN，运行时通过 `env-config.js` 注入 `API_URL`
 

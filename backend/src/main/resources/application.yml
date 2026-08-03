@@ -78,12 +78,14 @@ martin:
     enabled: true
   social:
     enabled: ${MARTIN_SOCIAL_ENABLED:false}
+  # MinIO 可选：未设 OSS_ENDPOINT 则不建客户端（内置 Word 模板仍可用）。
+  # 凭证经嵌套 martin.oss.minio.* 绑定；仓库不写弱默认（R-CFG-05）；prod 见 OssCredentialGuard。
   oss:
     enabled: true
-    type: ${OSS_TYPE:0}
-    endpoint: ${OSS_ENDPOINT:http://localhost:9000/}
-    accessKey: ${OSS_ACCESS_KEY:minio}
-    secretKey: ${OSS_SECRET_KEY:minio123}
+    minio:
+      endpoint: ${OSS_ENDPOINT:}
+      accessKey: ${OSS_ACCESS_KEY:}
+      secretKey: ${OSS_SECRET_KEY:}
   websocket:
     enabled: false
   socketio:
