@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：审批/工单 SQL 明细 Modal.info 键盘闭环
+
+- 选题：CommonTabs 扫余最高项——审批/工单「查看」`Modal.info` 缺显式 `keyboard`/`focusTriggerAfterClose`/首焦 OK（Esc 后焦点易坠 body）
+- `showSqlDetailModal`：`keyboard` + `autoFocusButton=ok` + `focusTriggerAfterClose` + `okText=知道了`；审批/工单共用；触发钮 `aria-label=查看SQL`
+- E2E：`sql-detail-keyboard` 首焦「知道了」→ Tab trap → Esc/OK 归还「查看SQL」（审批+工单）；定位 `role=button`/`role=dialog`（勿扫 `.ant-*`）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → `Modal.warning` 导入校验，或 `databaseConfig` Drawer
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/sql-detail-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：CommonTabs 签头键盘闭环
 
 - 选题：设计器 Skip / Cmd+1/2/3 已收口；签头最高摩擦 = 关闭钮英文 `remove`、方向键无 E2E、关签焦点坠 body

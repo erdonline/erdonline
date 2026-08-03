@@ -120,6 +120,7 @@
 | 团队项目删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还「删除团队项目」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-project-delete-keyboard` |
 | 团队成员移除确认 | 打开首焦 / Esc / Tab trap | 首焦「移除」；Esc 归还不移；焦点归还「移除成员 {username}」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-user-remove-keyboard` |
 | 审批动作确认（通过/拒绝/撤销/复批） | 打开首焦 / Esc / Tab trap | 首焦语义 OK；Esc 归还不落盘；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
+| 审批/工单 SQL 明细 Modal.info | 打开首焦 / Esc·OK / Tab trap | 首焦「知道了」；Esc/OK 归还「查看SQL」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-detail-keyboard` |
 | EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
 | 画布新建/重命名关系图 Modal | 打开首焦 / Esc / Tab trap | 首焦「关系图名称」；Esc 归还触发器；焦点不逃出 dialog；提交中禁 Esc | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard` |
 | 画布加入分组 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择分组」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard`（同源产品） |
@@ -281,6 +282,7 @@
 | `/design/table/version/all` | 版本行「提交工单」 | 团队未同步行 → 详情「SQL审批」可见 | W3 切片 3 | ✅ | `approval.spec`「提交工单入口」 |
 | 工单/审批 | 提交→通过/拒绝全链路 | 状态变更可见 | 需有数据 | ✅ | `approval.spec`：API 种子→UI 拒绝 toast→工单复批（通过=JDBC 过重未覆盖） |
 | 工单/审批 | 通过/拒绝/撤销/复批确认键盘 | 首焦主操作；Esc 不落盘；Tab trap | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
+| 工单/审批 | SQL 明细 Modal.info 键盘 | 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap | ADR-0016 键盘弹层 | ✅ | `sql-detail-keyboard` |
 
 ---
 

@@ -1,10 +1,10 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {Button, Modal, Space, Table, Tag, Typography} from 'antd';
+import {Button, Space, Table, Tag, Typography} from 'antd';
 import type {ColumnsType, TablePaginationConfig} from "antd/es/table";
 import {GET} from "@/services/crud";
 import CancelApproval from "@/components/dialog/approval/CancelApproval";
 import RepeatApproval from "@/components/dialog/approval/RepeatApproval";
-import CodeEditor from "@/components/CodeEditor";
+import {showSqlDetailModal} from "@/utils/sqlDetailModal";
 import "../approval-workorder.less";
 
 type ApprovalItem = {
@@ -135,17 +135,13 @@ const MyOrder: React.FC = () => {
             key="view"
             type="link"
             size="small"
+            aria-label="查看SQL"
+            data-testid="order-view-sql"
             onClick={() =>
-              Modal.info({
-                title: 'sql明细',
+              showSqlDetailModal({
+                sql: record.approveSql,
                 width: tempWidth * 0.5,
-                content: (
-                  <CodeEditor
-                    mode="mysql"
-                    height={`${tempHeight * 0.5}px`}
-                    value={record.approveSql}
-                  />
-                ),
+                editorHeight: `${tempHeight * 0.5}px`,
               })
             }
           >
