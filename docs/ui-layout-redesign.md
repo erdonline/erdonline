@@ -258,7 +258,8 @@
 - ✅ **导入跳过校验键盘闭环**（2026-08-03）：`showImportSkipWarning` 首焦「知道了」+ Esc/OK 归还「解析并导入」+ Tab trap；DBML/ERD/PdMan（dialog+次屏）共用；`import-skip-warning-keyboard` 绿；下一刀 → ~~`databaseConfig` Drawer~~✅
 - ✅ **工作台 databaseConfig Drawer 键盘闭环**（2026-08-03）：`keyboard` + 打开首焦「连接名称」+ Esc + `afterOpenChange` 归还触发器（Drawer 无 `focusTriggerAfterClose`）+ Tab trap；`database-config-drawer-keyboard` 绿；下一刀 → ~~JExcel Escape 退格 + 快捷操作 Modal~~✅
 - ✅ **JExcel Escape 退格 / 快捷操作键盘**（2026-08-03）：编辑态 Esc 丢弃→焦点回 `jexcel-grid`；工具栏 `role=toolbar`；快捷操作 `Modal.info` 首焦「知道了」+ Esc 归还 + Tab trap；`jexcel-grid-keyboard` 绿；下一刀 → ~~版本同步结果 Modal 键盘~~✅
-- ✅ **版本同步结果弹层键盘**（2026-08-03）：`SyncVersion` 行绑定修炸 + `showSyncResultModal` 成功/失败首焦「知道了」+ Esc 归还「同步」+ Tab trap；`version-sync-result-keyboard` 绿；下一刀 → Oracle 逆向注释保真（roadmap 逆向保真）或人工拍板 ADR-0013 / P4 demo
+- ✅ **版本同步结果弹层键盘**（2026-08-03）：`SyncVersion` 行绑定修炸 + `showSyncResultModal` 成功/失败首焦「知道了」+ Esc 归还「同步」+ Tab trap；`version-sync-result-keyboard` 绿
+- ✅ **Oracle 逆向注释保真**（2026-08-03）：`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS` → chnname；`OracleReverseDialectCommentTest`；下一刀 → 触发器逆向 / ADR-0011 复合 FK / ADR-0013
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

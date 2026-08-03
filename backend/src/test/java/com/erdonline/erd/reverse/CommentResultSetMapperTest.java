@@ -44,4 +44,29 @@ class CommentResultSetMapperTest {
         assertEquals("编码", comments.get("code"));
         assertTrue(!comments.containsKey("email") && !comments.containsKey("EMAIL"));
     }
+
+    /**
+     * Oracle ALL_TAB_COMMENTS / ALL_COL_COMMENTS 别名后形状：大写标识符 + REMARKS。
+     */
+    @Test
+    void mapComments_oracleDictionaryShape_upperIdentifiers() throws SQLException {
+        ResultSet tableRs = mock(ResultSet.class);
+        when(tableRs.next()).thenReturn(true, true, false);
+        when(tableRs.getString("TABLE_NAME")).thenReturn("T_USER", "T_ORDER");
+        when(tableRs.getString("REMARKS")).thenReturn("用户表", "订单表");
+
+        Map<String, String> tableComments = CommentResultSetMapper.mapTableComments(tableRs);
+        assertEquals("用户表", tableComments.get("T_USER"));
+        assertEquals("订单表", tableComments.get("T_ORDER"));
+
+        ResultSet columnRs = mock(ResultSet.class);
+        when(columnRs.next()).thenReturn(true, true, false);
+        when(columnRs.getString("COLUMN_NAME")).thenReturn("USER_ID", "STATUS");
+        when(columnRs.getString("REMARKS")).thenReturn("用户ID", "状态");
+
+        Map<String, String> columnComments =
+                CommentResultSetMapper.mapColumnComments(columnRs, "DEFAULT");
+        assertEquals("用户ID", columnComments.get("USER_ID"));
+        assertEquals("状态", columnComments.get("STATUS"));
+    }
 }

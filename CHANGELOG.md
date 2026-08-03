@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 逆向：Oracle 表/列注释 → chnname
+
+- 选题：键盘 UX 扫余后最高 Vision ROI = roadmap 逆向保真 Oracle 注释（PG/SQL Server 已字典化）
+- `OracleReverseDialect`：`supportsComment=true`；`ALL_TAB_COMMENTS` / `ALL_COL_COMMENTS` → `listTables`/`fillEntity` 回填 `entity.chnname` / `fields[].chnname`；失败 warn+回退 JDBC；`JdbcKit.remarksReporting` 仍保留作兜底
+- 单测：`OracleReverseDialectCommentTest`（mock JDBC）+ `CommentResultSetMapper` Oracle 大写标识符形态 + Registry `supportsComment`
+- 文档：ADR-0006 / roadmap 逆向保真 Oracle 注释 ✅；regression-checklist；下一刀 → 触发器逆向 / ADR-0011 复合 FK / ADR-0013
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Djacoco.skip=true -Dtest=OracleReverseDialectCommentTest,CommentResultSetMapperTest,ReverseDialectRegistryTest test`
+
 #### 体验：版本同步结果 Modal 键盘 + 行绑定修炸
 
 - 选题：JExcel Escape/快捷操作键盘已收口（`b57bc3d`）；扫余 = 版本「同步」结果 Modal 缺键盘环；走查发现 Sync 只靠 List `onMouseEnter` 写 `currentVersion`，无悬停/`modules` 空 → 页错「Cannot read … modules」、dbsync 永不发
 - `SyncVersion`：必传行 `version`；点击先 `setCurrentVersion` 再 `readDb`（禁鼠标 enter 隐式态）；`showSyncResultModal` 首焦「知道了」/Esc 归还/Tab trap；打开前钉回 `version-sync-btn`
 - E2E：`version-sync-result-keyboard` 挂 JDBC + mock dbversion/dbsync；成功/失败键盘闭环（勿依赖 hover）；定位 role/testid
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Oracle 逆向注释保真或人工拍板 ADR-0013 / P4 demo
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Oracle 逆向注释保真~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version-sync-result-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
