@@ -128,6 +128,7 @@
 - ✅ **分享失效门键盘**（2026-08-03）：同构 Skip→ `#exception-main-cta`（`share-invalid-gate`）；focus-visible brand；`share.spec` 键盘绿
 - ✅ **`/compare` 竞品对照页键盘**（2026-08-03）：同壳 Skip→ `#landing-main-cta`；演示→自部署→返回首页；surface focus-visible；`compare.spec` 键盘绿
 - ✅ **Home 工作台键盘**（2026-08-03）：Skip「跳到主内容」→ `#home-main-content`；CTA/二级入口/项目卡 Tab 序；brand focus-visible；`home-keyboard.spec` 绿
+- ✅ **GroupLayout 壳键盘**（2026-08-03）：Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置表单 Tab 序；brand focus-visible；`group-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

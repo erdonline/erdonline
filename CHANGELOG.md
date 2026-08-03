@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：GroupLayout 壳键盘（Skip + Tab 序 + focus-visible）
+
+- 选题：团队设置壳进页 Tab 先扫顶栏+侧栏；无 Skip 直达主区；焦点环缺；无键盘 E2E
+- 改动：`GroupLayout` 首焦 Skip「跳到主内容」→ `#group-main-content`（`tabIndex=-1`）；壳内 `:focus-visible` brand 环；自然 DOM 序不动正 `tabIndex`
+- E2E：`group-keyboard`「Group 键盘：Skip→主内容；表单 Tab 序；focus-visible；无 trap」
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → 项目列表（个人/最近/团队）行键盘
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/group-keyboard.spec.ts --project=chromium --grep "Group 键盘" --workers=1 --retries=0`
+
 #### 体验：Home 工作台键盘（Skip + Tab 序 + focus-visible）
 
 - 选题：`/home` 进页 Tab 先扫顶栏；无 Skip 直达主区；CTA/项目卡焦点环缺；无键盘 E2E
 - 改动：`HomeLayout` 首焦 Skip「跳到主内容」→ `#home-main-content`（`tabIndex=-1`）；壳内 + Home 页 `:focus-visible` brand 环；自然 DOM 序不动正 `tabIndex`
 - E2E：`home-keyboard`「Home 键盘：Skip→主内容；CTA/项目卡 Tab 序；focus-visible；无 trap」
-- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → GroupLayout 壳键盘
+- 文档：design-principles §2 / control-matrix / regression-checklist / ui-layout-redesign；下一刀 → ~~GroupLayout 壳键盘~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/home-keyboard.spec.ts --project=chromium --grep "Home 键盘" --workers=1 --retries=0`

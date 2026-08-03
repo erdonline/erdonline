@@ -107,8 +107,28 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     return match?.path || pathname;
   }, [routes, location.pathname, pathname]);
 
+  const focusSkipTarget = (id: string) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.focus({ preventScroll: false });
+    el.scrollIntoView({ block: 'nearest' });
+  };
+
   return (
     <Layout className="group-layout" data-testid="group-layout">
+      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="group-skip-nav">
+        <a
+          href="#group-main-content"
+          className="erd-skip-link"
+          data-testid="group-skip-main"
+          onClick={(e) => {
+            e.preventDefault();
+            focusSkipTarget('group-main-content');
+          }}
+        >
+          跳到主内容
+        </a>
+      </nav>
       <Header className="erd-chrome-header group-layout__header">
         <div
           className="erd-chrome-brand group-layout__brand"
@@ -158,7 +178,12 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
           </div>
         </Sider>
         <Content className="group-layout__content">
-          <div className="group-layout__body">
+          <div
+            className="group-layout__body"
+            id="group-main-content"
+            tabIndex={-1}
+            data-testid="group-main-content"
+          >
             <Theme />
           </div>
         </Content>
