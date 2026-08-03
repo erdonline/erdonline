@@ -9,6 +9,7 @@ import {
   openRelationCanvas,
   openRelationFromEmpty,
   rfNode,
+  selectRelationEdge,
   uniqueProjectName,
 } from './helpers';
 
@@ -69,15 +70,25 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(orderNode.locator('[data-field="USER_ID"]')).toBeVisible();
       await expect(page.locator('.react-flow__edge')).toHaveCount(1);
 
-      // interactionWidth=24：常规 click 应能选中边（勿 force）
-      await page.locator('.react-flow__edge').first().click();
+      // interactionWidth=24；chip 叠中时 force 选边；删边二次确认
+      await selectRelationEdge(page);
       await page.keyboard.press('Delete');
+      {
+        const edgeDialog = page.getByRole('dialog').filter({ hasText: /确定删除关系/ });
+        await expect(edgeDialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+        await edgeDialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
+      }
       await expect(page.locator('.react-flow__edge')).toHaveCount(0);
 
-      await rfNode(page, 'T_TABLE_1').click();
-      await expect(page.locator('.react-flow__node.selected')).toHaveCount(1);
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await rfNode(page, 'T_TABLE_1').locator('.erd-table-title').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toHaveClass(/selected/);
       await page.keyboard.press('Delete');
-      await expectToast(page, '数据表的删除请在左侧模型树中操作');
+      {
+        const tableDialog = page.getByRole('dialog').filter({ hasText: /确定删除表/ });
+        await expect(tableDialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+        await tableDialog.getByRole('button', { name: /取\s*消/ }).filter({ visible: true }).click();
+      }
       await expect(page.locator('.erd-table-node')).toHaveCount(2);
 
       const t1Node = rfNode(page, 'T_TABLE_1');
@@ -2108,8 +2119,13 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 20_000 });
       await page.waitForTimeout(1_000);
 
-      await page.locator('.react-flow__edge').first().click();
+      await selectRelationEdge(page);
       await page.keyboard.press('Delete');
+      {
+        const edgeDialog = page.getByRole('dialog').filter({ hasText: /确定删除关系/ });
+        await expect(edgeDialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+        await edgeDialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
+      }
       await expect(page.locator('.react-flow__edge')).toHaveCount(0);
       await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
       await page.waitForTimeout(1_500);
@@ -2120,6 +2136,72 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
       await expect(page.locator('.react-flow__edge')).toHaveCount(0, { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('画布删表/删边二次确认：取消保留；确认后移除', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('cvdel');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'cvdel', 'canvas delete confirm');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
+      await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
+      // 删边：取消保留
+      await selectRelationEdge(page);
+      await page.keyboard.press('Delete');
+      let dialog = page.getByRole('dialog').filter({ hasText: /确定删除关系/ });
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog').filter({ hasText: /确定删除关系/ })).toHaveCount(0);
+      await expect(page.locator('.react-flow__edge')).toHaveCount(1);
+
+      // 删边：确认移除
+      await selectRelationEdge(page);
+      await page.keyboard.press('Delete');
+      dialog = page.getByRole('dialog').filter({ hasText: /确定删除关系/ });
+      await dialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog').filter({ hasText: /确定删除关系/ })).toHaveCount(0);
+      await expect(page.locator('.react-flow__edge')).toHaveCount(0);
+
+      // 删表：取消保留（selectNodesOnDrag=false 后表头可单击选中；勿二点进改名）
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await rfNode(page, 'T_ORDER').locator('.erd-table-title').click();
+      await expect(rfNode(page, 'T_ORDER')).toHaveClass(/selected/);
+      await expect(rfNode(page, 'T_ORDER').locator('input[aria-label="表名"]')).toHaveCount(0);
+      await page.keyboard.press('Delete');
+      dialog = page.getByRole('dialog').filter({ hasText: /确定删除表/ });
+      await expect(dialog.getByText(/不可逆/).filter({ visible: true })).toBeVisible();
+      await dialog.getByRole('button', { name: /取\s*消/ }).filter({ visible: true }).click();
+      await expect(page.getByRole('dialog').filter({ hasText: /确定删除表/ })).toHaveCount(0);
+      await expect(rfNode(page, 'T_ORDER')).toBeVisible();
+
+      // 删表：确认移除
+      await page.locator('.react-flow__pane').click({ position: { x: 8, y: 8 }, force: true });
+      await rfNode(page, 'T_ORDER').locator('.erd-table-title').click();
+      await expect(rfNode(page, 'T_ORDER')).toHaveClass(/selected/);
+      await page.keyboard.press('Delete');
+      dialog = page.getByRole('dialog').filter({ hasText: /确定删除表/ });
+      await dialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
+      await expectToast(page, '表删除成功');
+      await expect(rfNode(page, 'T_ORDER')).toHaveCount(0);
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

@@ -1340,12 +1340,26 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
 
   const onNodesChange: OnNodesChange = useCallback(
     (changes: NodeChange[]) => {
-      // 表：禁止按键删除（走模型树）。Frame：Delete → 写路径 removeFrame，由 store 重建。
+      // 表：拦 RF 直接 remove → Modal 二次确认后再 removeEntity。Frame：Delete → removeFrame。
       const removes = changes.filter((c) => c.type === 'remove') as Array<{ type: 'remove'; id: string }>;
       const tableRemoves = removes.filter((c) => !isFrameNodeId(c.id));
       const frameRemoves = removes.filter((c) => isFrameNodeId(c.id));
       if (tableRemoves.length) {
-        message.info('数据表的删除请在左侧模型树中操作');
+        const titles = tableRemoves.map((c) => c.id);
+        const titleText =
+          titles.length === 1
+            ? `确定删除表 "${titles[0]}" 吗?`
+            : `确定删除 ${titles.length} 张表吗?`;
+        Modal.confirm({
+          title: titleText,
+          content: '此操作不可逆，请谨慎操作。',
+          okText: '删除',
+          okType: 'danger',
+          cancelText: '取消',
+          onOk() {
+            titles.forEach((t) => projectDispatch.removeEntity(moduleName, t));
+          },
+        });
       }
       frameRemoves.forEach((c) => {
         projectDispatch.removeFrame(moduleName, activeDiagramId, parseFrameIdFromNodeId(c.id));
@@ -1784,30 +1798,49 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     });
   }, []);
 
-  // 用户 Delete/Backspace 删边 → 同步删关联（字段已改名导致的幽灵边不会走到这里）
+  // 用户 Delete/Backspace 删边 → Modal 二次确认后再删关联（幽灵边字段已不存在则跳过确认直接忽略）
   const onEdgesDelete = useCallback(
     (deleted: Edge[]) => {
       const liveJson = useProjectStore.getState().project?.projectJSON;
       const module = (liveJson?.modules || []).find((m: any) => m.name === moduleEntity.module);
       const entities: EntityData[] = module?.entities || [];
-      deleted.forEach(e => {
+      const toRemove: Array<{ from: { entity: string; field: string }; to: { entity: string; field: string } }> = [];
+      deleted.forEach((e) => {
         const fromH = parseFieldHandle(e.sourceHandle || '');
         const toH = parseFieldHandle(e.targetHandle || '');
         const fromField = fromH?.field || '';
         const toField = toH?.field || '';
-        const fromEnt = entities.find(x => x.title === e.source || x.name === e.source);
-        const toEnt = entities.find(x => x.title === e.target || x.name === e.target);
-        const fromStill = (fromEnt?.fields || []).some(f => f.name === fromField);
-        const toStill = (toEnt?.fields || []).some(f => f.name === toField);
+        const fromEnt = entities.find((x) => x.title === e.source || x.name === e.source);
+        const toEnt = entities.find((x) => x.title === e.target || x.name === e.target);
+        const fromStill = (fromEnt?.fields || []).some((f) => f.name === fromField);
+        const toStill = (toEnt?.fields || []).some((f) => f.name === toField);
         if (!fromStill || !toStill) {
           return;
         }
-        projectDispatch.removeAssociation(moduleEntity.module, {
+        toRemove.push({
           from: { entity: e.source, field: fromField },
           to: { entity: e.target, field: toField },
         });
       });
-      setEdgeSelected({});
+      if (!toRemove.length) {
+        setEdgeSelected({});
+        return;
+      }
+      const titleText =
+        toRemove.length === 1
+          ? `确定删除关系 "${toRemove[0].from.entity}.${toRemove[0].from.field} → ${toRemove[0].to.entity}.${toRemove[0].to.field}" 吗?`
+          : `确定删除 ${toRemove.length} 条关系吗?`;
+      Modal.confirm({
+        title: titleText,
+        content: '此操作不可逆，请谨慎操作。',
+        okText: '删除',
+        okType: 'danger',
+        cancelText: '取消',
+        onOk() {
+          toRemove.forEach((a) => projectDispatch.removeAssociation(moduleEntity.module, a));
+          setEdgeSelected({});
+        },
+      });
     },
     [projectDispatch, moduleEntity.module]
   );
@@ -2050,6 +2083,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         deleteKeyCode={['Delete', 'Backspace']}
         multiSelectionKeyCode="Shift"
         selectionOnDrag
+        selectNodesOnDrag={false}
         panOnDrag={[1, 2]}
         fitView
         // maxZoom 上限 1：空画布 fitView 对单个空节点可放大到 scale>2，

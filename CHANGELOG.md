@@ -8,6 +8,18 @@
 
 ### 2026-08-03
 
+#### 体验：画布删表/删边二次确认（掌控感）
+
+- 选题：design-principles「掌控感」反例——连接线 Delete 立即删；画布表 Delete 仅 toast 赶去树侧
+- 选中边 Delete/Backspace → `Modal.confirm`（`onEdgesDelete`）；基数 chip 聚焦 Delete/Backspace 同确认（chip 叠中难以点路径）
+- 选中表节点 Delete/Backspace → 同文案确认后才 `removeEntity`（对齐模型树）；取消保留
+- `selectNodesOnDrag={false}`：表头 `nodrag` 区域也可单击选中（否则无法键盘删表）
+- E2E：`relation`「画布删表/删边二次确认」+ 全旅程/删边持久化路径同步点确认钮
+- 关闭 `docs/design-principles.md` §5 右键/连接线无确认反例（RF 无右键删菜单；键盘/chip 路径已确认）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布删表/删边二次确认" --workers=1 --retries=0`
+
 #### 体验：JExcel 工具栏删除二次确认（建模回路）
 
 - 选题：共享 JExcel 工具栏 `remove` 无确认 → 字段/索引表静默删洞（表内索引删除 CTA 已补，工具栏仍绕过）

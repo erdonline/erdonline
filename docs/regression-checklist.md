@@ -206,7 +206,8 @@
 ### 手工/接口断言（2026-08-01 已验证）
 
 - [x] [字段连线建关联] T_B.A_ID 右锚点拖至 T_A.ID 左锚点 → 边出现；DB associations 落库；重载后边仍在 ✅浏览器+SQL 实证
-- [x] [删边] 边 focus+Delete → 边消失 + DB associations 清空 ✅浏览器+SQL 实证
+- [x] [删边] 边 focus+Delete → Modal 确认后边消失 + DB associations 清空 ✅`relation`「画布删表/删边二次确认」「删边后刷新」
+- [x] [画布键盘删表二次确认] 选中表 Delete → 取消保留；确认 toast「表删除成功」+ 节点消失 ✅`relation`「画布删表/删边二次确认」
 - [x] [手柄可点] overflow/z-index 修复后 elementFromPoint 命中手柄（修复前被节点埋住）✅浏览器实证
 
 ### R2 已自动化（relation.spec.ts 全旅程）
@@ -257,7 +258,7 @@
 - [x] [SocketIO 端口释放] 后端重启后 9092 可重绑，无 BindException（2026-08-01 验证通过）
 - [x] [登录契约 JWT] `POST /auth/login` JSON → access_token；Bearer 访问业务接口 200（替代旧 `/oauth/token`）
 - [x] [社交登录已删] `/login/success`、微信绑定页 404；`/auth/oauth2/**` 非 200 ✅`dead-auth-routes.spec.ts`
-- [x] [画布删除二次确认] ReactFlow Delete 不删表；树侧确认含不可逆文案 ✅`smoke`「删除表」取消/确认
+- [x] [画布删除二次确认] 画布 Delete 表/边均 Modal 确认；树侧确认含不可逆文案 ✅`relation`「画布删表/删边」+`smoke`「删除表」
 - [x] [画布撤销/重做] relation.spec.ts 覆盖 ✅自动
 - [x] [登录 console 无账密] ux-audit / smoke 覆盖 ✅自动
 
