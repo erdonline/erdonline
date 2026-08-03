@@ -35,6 +35,15 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
     setOpen(false);
   };
 
+  const focusFirstControl = () => {
+    // Radio.Group：首焦当前选中项（默认「字段增量」）
+    document
+      .querySelector<HTMLElement>(
+        '[data-testid="sync-config-upgrade-type"] input[type="radio"]:checked',
+      )
+      ?.focus();
+  };
+
   return (
     <>
       <Button key="refresh" type="default" aria-label="同步配置" onClick={openModal}>
@@ -55,10 +64,19 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
         onCancel={() => setOpen(false)}
         destroyOnClose
         width={520}
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          window.setTimeout(() => focusFirstControl(), 0);
+        }}
       >
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item name="upgradeType" label="数据表升级方式" rules={[{ required: true }]}>
             <Radio.Group
+              data-testid="sync-config-upgrade-type"
               options={[
                 { label: '字段增量', value: 'increment' },
                 { label: '重建数据表', value: 'rebuild' },
