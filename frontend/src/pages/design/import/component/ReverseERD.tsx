@@ -5,6 +5,7 @@ import {message, Modal} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import _ from "lodash";
+import '../../secondary-pane.scss';
 
 
 export type ReverseERDProps = {};
@@ -119,34 +120,23 @@ const ReverseERD: React.FC<ReverseERDProps> = (props) => {
   };
 
 
-  return (<>
-    {/*    <ModalForm
-      title={<span>解析已有ERD文件</span>}
-      trigger={
-        <Button
-          key="erd"
-          icon={<MyIcon type="icon-other_win"/>}
-          text="解析ERD文件"
-          minimal={true}
-          small={true}
-          fill={true}
-          alignText={Alignment.LEFT}></Button>
-      }
-
-    >*/}
-
-    <Dragger {...prop}>
-      <p className="ant-upload-drag-icon">
-        <InboxOutlined/>
-      </p>
-      <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
-      <p className="ant-upload-hint">
-        上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
-      </p>
-    </Dragger>
-
-    {/* </ModalForm>*/}
-  </>);
+  return (
+    <div className="erd-secondary-pane" data-testid="import-erd-page">
+      <h2 className="erd-secondary-pane__title">解析 ERD 文件</h2>
+      <p className="erd-secondary-pane__hint">上传完毕后自动解析；每次仅支持一个 ERD json</p>
+      <div className="erd-secondary-pane__upload">
+        <Dragger {...prop}>
+          <p className="ant-upload-drag-icon">
+            <InboxOutlined/>
+          </p>
+          <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
+          <p className="ant-upload-hint">
+            上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
+          </p>
+        </Dragger>
+      </div>
+    </div>
+  );
 };
 
 export default React.memo(ReverseERD)

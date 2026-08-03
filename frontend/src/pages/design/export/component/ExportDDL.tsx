@@ -12,6 +12,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
 import { DataSourceSelect } from "@/components/DataSourceSelect";
+import '../../secondary-pane.scss';
 
 export type ExportDDLProps = {};
 
@@ -66,18 +67,25 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
   };
 
   return (
-    <div data-testid="export-ddl-page">
+    <div className="erd-secondary-pane" data-testid="export-ddl-page">
+      <h2 className="erd-secondary-pane__title">导出 DDL</h2>
+      <p className="erd-secondary-pane__hint">选择数据源与表后导出 SQL；步骤条与设置页同密</p>
       <Steps
         current={step}
         size="small"
-        style={{ marginBottom: 24 }}
+        className="erd-secondary-pane__steps"
         items={[
           { title: '选择数据源及导出的表' },
           { title: '导出配置' },
         ]}
       />
       {step === 0 && (
-        <Form form={form1} layout="vertical">
+        <Form
+          form={form1}
+          layout="vertical"
+          size="small"
+          className="erd-secondary-pane__form"
+        >
           <Form.Item
             label="数据源"
             name="currentDB"
@@ -125,7 +133,13 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
         </Form>
       )}
       {step === 1 && (
-        <Form form={form2} layout="vertical" initialValues={{ exportType: 'all' }}>
+        <Form
+          form={form2}
+          layout="vertical"
+          size="small"
+          className="erd-secondary-pane__form"
+          initialValues={{ exportType: 'all' }}
+        >
           <Form.Item name="exportType" label="导出内容">
             <Radio.Group
               onChange={(e: RadioChangeEvent) => {
@@ -161,7 +175,7 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
               value={data}
             />
           </Form.Item>
-          <div style={{ display: 'flex', gap: 8 }}>
+          <div className="erd-secondary-pane__actions">
             <AntButton key="gotoTwo" onClick={() => setStep(0)}>
               上一步
             </AntButton>

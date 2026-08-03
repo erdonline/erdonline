@@ -1,9 +1,10 @@
-import {Card, Descriptions, Table, Typography} from 'antd';
+import {Descriptions, Table, Typography} from 'antd';
 import type {ColumnsType} from 'antd/es/table';
 import React from 'react';
 import _ from 'lodash';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
+import '@/pages/design/secondary-pane.scss';
 
 export type TableListItem = {
   key: number | string;
@@ -35,7 +36,7 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
         return (
           <Typography.Text
             copyable
-            style={{color: exists.includes(entity.title) ? 'red' : undefined}}
+            className={exists.includes(entity.title) ? 'erd-secondary-pane__dup' : undefined}
           >
             {entity.title}
           </Typography.Text>
@@ -62,8 +63,8 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
   });
 
   return (
-    <>
-      <Card size="small" style={{marginBottom: 16}}>
+    <div data-testid="reverse-entity-list">
+      <div className="erd-secondary-pane__meta">
         <Descriptions size="small" column={3}>
           <Descriptions.Item label="数据源">
             {projectDispatch.getCurrentDBName()}
@@ -71,29 +72,31 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
           <Descriptions.Item label="解析表">{module?.entities?.length}</Descriptions.Item>
           <Descriptions.Item
             label="存量表"
-            labelStyle={{color: 'red'}}
-            contentStyle={{color: 'red'}}
+            labelStyle={{color: 'var(--erd-brand)'}}
+            contentStyle={{color: 'var(--erd-brand)'}}
           >
             {exists.length}
           </Descriptions.Item>
         </Descriptions>
-      </Card>
-      <Table<TableListItem>
-        columns={columns}
-        rowSelection={{
-          selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
-          onChange: (selectedRowKeys) => {
-            projectDispatch.saveSelectedRowKeys(selectedRowKeys);
-          },
-        }}
-        pagination={{
-          pageSize: 10,
-        }}
-        dataSource={tableListDataSource}
-        rowKey="key"
-        size="small"
-      />
-    </>
+      </div>
+      <div className="erd-secondary-pane__table">
+        <Table<TableListItem>
+          columns={columns}
+          rowSelection={{
+            selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT],
+            onChange: (selectedRowKeys) => {
+              projectDispatch.saveSelectedRowKeys(selectedRowKeys);
+            },
+          }}
+          pagination={{
+            pageSize: 10,
+          }}
+          dataSource={tableListDataSource}
+          rowKey="key"
+          size="small"
+        />
+      </div>
+    </div>
   );
 };
 

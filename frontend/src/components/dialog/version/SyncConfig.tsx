@@ -3,6 +3,7 @@ import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import { Button, Form, Modal, Radio } from 'antd';
 import { ControlOutlined } from '@ant-design/icons';
+import '@/components/dialog/io-modal.scss';
 
 export type SyncConfigProps = {};
 
@@ -51,19 +52,14 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
         同步配置
       </Button>
       <Modal
-        title={
-          <span>
-            同步配置
-            <span style={{ color: 'var(--erd-brand)', fontSize: 12, fontWeight: 400 }}>
-              （配置成功后，后续的同步的操作都使用该配置，仅建议项目初始化之后设置一次，以后不要变动，免得出现版本混乱）
-            </span>
-          </span>
-        }
+        title="同步配置"
         open={open}
         onOk={handleOk}
         onCancel={() => setOpen(false)}
         destroyOnClose
-        width={520}
+        width={480}
+        className="erd-io-modal"
+        rootClassName="erd-io-modal-root"
         keyboard
         focusTriggerAfterClose
         afterOpenChange={(visible) => {
@@ -73,7 +69,10 @@ const SyncConfig: React.FC<SyncConfigProps> = () => {
           window.setTimeout(() => focusFirstControl(), 0);
         }}
       >
-        <Form form={form} layout="vertical" preserve={false}>
+        <p className="erd-io-modal__field erd-io-modal__hint">
+          配置成功后，后续同步都使用该配置；仅建议项目初始化后设置一次，以后勿动以免版本混乱
+        </p>
+        <Form form={form} layout="vertical" size="small" preserve={false}>
           <Form.Item name="upgradeType" label="数据表升级方式" rules={[{ required: true }]}>
             <Radio.Group
               data-testid="sync-config-upgrade-type"
