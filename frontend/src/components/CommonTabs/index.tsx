@@ -115,7 +115,11 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
     }, [handleTabClose]);
 
     return (
-        <div className="erd-common-tabs" style={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}>
+        <div
+          className="erd-common-tabs"
+          data-testid="common-tabs"
+          style={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}
+        >
             <Tabs
                 type="editable-card"
                 hideAdd

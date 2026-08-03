@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：表设计签头 / 内签 gutter 碎距
+
+- 选题：empty-links 已锁；量测 CommonTabs/`--erd-tabs-h` **24** 已密；表设计签头仍 pad 2×10 / gap6，内签 tab marginR **8** 相对子签/CommonTabs gutter 偏松；勿动 Auth logo / 欢迎 pad / 空态 panel 栈
+- before：header pad **2×10** / gap **6**；内签 marginR **8**；after：pad **2×8** / gap **4**；marginR/`tabBarGutter` **2**（对齐 CodeTab/DbTab）；`testid=table-design-header` / `table-design-tabs` / `common-tabs`
+- E2E：`model-design-ux`「表设计三签」+「表设计内签」锁 padX≤8 / gap≤4 / gutter≤2 + Cmd+1/2/3；截图 `diagram-common-tabs-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 画布表节点 chrome / RF Controls 外其余工具条碎距（审批列表 / 导出页已密，跳过）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计三签|表设计内签" --workers=1 --retries=0`
+
 #### 体验：画布空态次链区 mt10 锁密
 
 - 选题：纵节奏 title/desc 已锁；量测 Controls chrome → **22×22 / pad0** 已贴 ADR-0016，不再次密；改锁 `.erd-empty-links` mt10；勿动 Auth logo / 欢迎 pad / CTA pad / panel 顶距 / title·desc
 - measure：Controls btn **22** + panel/btn pad **0**；links mt **10** 已贴 8–12 族 → CSS 不改；after：E2E 锁 linksMt≈10∈[8,12] + Controls pad0；`testid=canvas-empty-links` / role「导入 DBML」「从数据源逆向」
 - E2E：`relation`「空态构图」+「Controls」；截图 `diagram-empty-composition.png` / `diagram-controls-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 表设计签头 / CommonTabs 碎距（Auth logo / 欢迎 pad 跳过）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~表设计签头 / CommonTabs 碎距~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "空态构图|Controls：中文" --workers=1 --retries=0`

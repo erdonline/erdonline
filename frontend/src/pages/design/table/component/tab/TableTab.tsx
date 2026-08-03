@@ -68,7 +68,7 @@ const TableTab: React.FC<TableTabProps> = (props) => {
 
   return (
     <div className="erd-table-design" data-testid="table-design">
-      <div className="erd-table-design__header">
+      <div className="erd-table-design__header" data-testid="table-design-header">
         <TableOutlined style={{color: erdColors.warning}}/>
         <span className="erd-table-design__title">{entityName}</span>
         {entity?.chnname && (
@@ -81,7 +81,9 @@ const TableTab: React.FC<TableTabProps> = (props) => {
         activeKey={activeKey}
         onChange={(key) => activatePane(key as DesignPane)}
         size="small"
+        tabBarGutter={2}
         className="erd-table-design__tabs"
+        data-testid="table-design-tabs"
       >
         <TabPane key="field" tab="字段">
           <TableInfoEdit

@@ -193,17 +193,16 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await expect(designer.locator('.erd-table-design__title')).toHaveText('T_ORDER');
       await expect(designer.locator('.erd-table-design__module')).toHaveText('SHOP');
 
-      // ADR-0016：CommonTabs / 表设计签头再压 ~24；禁 clip 标签/关闭钮；保留 focus-visible
+      // ADR-0016：CommonTabs ~24 + 表设计签头碎距 padX8/gap4；禁 clip；保留 focus-visible
       const chromeMetrics = await page.evaluate(() => {
-        const nav = document.querySelector(
-          '.erd-common-tabs .ant-tabs-nav',
+        const common = document.querySelector(
+          '[data-testid="common-tabs"]',
         ) as HTMLElement | null;
+        const nav = common?.querySelector('.ant-tabs-nav') as HTMLElement | null;
         const header = document.querySelector(
-          '.erd-table-design__header',
+          '[data-testid="table-design-header"]',
         ) as HTMLElement | null;
-        const tab = document.querySelector(
-          '.erd-common-tabs .ant-tabs-tab',
-        ) as HTMLElement | null;
+        const tab = common?.querySelector('.ant-tabs-tab') as HTMLElement | null;
         const btn = tab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
         const remove = tab?.querySelector(
           '.ant-tabs-tab-remove',
@@ -215,6 +214,8 @@ test.describe('模型设计 UX（ADR-0017）', () => {
           return {
             navH: -1,
             headerH: -1,
+            headerPadX: -1,
+            headerGap: -1,
             labelClipped: true,
             closeClipped: true,
             titleClipped: true,
@@ -226,6 +227,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         const rr = remove.getBoundingClientRect();
         const label = btn.querySelector('.erd-common-tabs__label') as HTMLElement | null;
         const lr = (label || btn).getBoundingClientRect();
+        const hcs = getComputedStyle(header);
         const eps = 2;
         const fullyIn = (inner: DOMRect, outer: DOMRect) =>
           inner.top >= outer.top - eps &&
@@ -235,6 +237,8 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         return {
           navH: nr.height,
           headerH: header.getBoundingClientRect().height,
+          headerPadX: Math.max(parseFloat(hcs.paddingLeft), parseFloat(hcs.paddingRight)),
+          headerGap: parseFloat(hcs.columnGap || hcs.gap) || 0,
           // 竖直几何：标签/关闭落在签与栏内（水平 ellipsis 允许）
           labelClipped: lr.top < tr.top - eps || lr.bottom > tr.bottom + eps,
           closeClipped: !fullyIn(rr, nr) || rr.top < tr.top - eps || rr.bottom > tr.bottom + eps,
@@ -253,13 +257,23 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         `表设计签头高应 ≤28（目标 ~24），得 ${chromeMetrics.headerH}`,
       ).toBeLessThanOrEqual(28);
       expect(chromeMetrics.headerH).toBeGreaterThanOrEqual(20);
+      expect(
+        chromeMetrics.headerPadX,
+        `签头 padX 应 ≤8（碎距 8–12 族），得 ${chromeMetrics.headerPadX}`,
+      ).toBeLessThanOrEqual(8);
+      expect(chromeMetrics.headerPadX).toBeGreaterThanOrEqual(4);
+      expect(
+        chromeMetrics.headerGap,
+        `签头 gap 应 ≤4，得 ${chromeMetrics.headerGap}`,
+      ).toBeLessThanOrEqual(4);
       expect(chromeMetrics.closeClipped, '关闭钮不得被签栏裁切').toBe(false);
       expect(chromeMetrics.labelClipped, '签标签不得被裁切').toBe(false);
       expect(chromeMetrics.titleClipped, '表设计标题不得竖直裁切').toBe(false);
 
       // focus-visible：从签 btn Tab 到关闭钮（须经 Tab 触发 :focus-visible）
-      const tabBtn = page.locator('.erd-common-tabs .ant-tabs-tab-active .ant-tabs-tab-btn').first();
-      const removeBtn = page.locator('.erd-common-tabs .ant-tabs-tab-active .ant-tabs-tab-remove').first();
+      const commonTabs = page.getByTestId('common-tabs');
+      const tabBtn = commonTabs.locator('.ant-tabs-tab-active .ant-tabs-tab-btn').first();
+      const removeBtn = commonTabs.locator('.ant-tabs-tab-active .ant-tabs-tab-remove').first();
       await tabBtn.focus();
       await page.keyboard.press('Tab');
       await expect(removeBtn).toBeFocused();
@@ -274,6 +288,8 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       expect(focusRing.outlineStyle).not.toBe('none');
       expect(parseFloat(focusRing.outlineWidth)).toBeGreaterThanOrEqual(1);
 
+      await expect(page.getByTestId('table-design-header')).toBeVisible();
+      await expect(page.getByTestId('table-design-tabs')).toBeVisible();
       for (const name of ['字段', '索引', '元数据应用']) {
         await expect(designer.getByRole('tab', { name })).toBeVisible();
       }
@@ -600,8 +616,8 @@ test.describe('模型设计 UX（ADR-0017）', () => {
   });
 
   /**
-   * ADR-0016：表设计内签（字段/索引/元数据）栏显式 ~24 —
-   * 对齐 CommonTabs；禁 clip；保留 focus-visible + Cmd+1/2/3
+   * ADR-0016：表设计内签（字段/索引/元数据）栏显式 ~24 + gutter≤2 —
+   * 对齐 CommonTabs / 子签；禁 clip；保留 focus-visible + Cmd+1/2/3
    */
   test('表设计内签：字段/索引/元数据栏 ~24', async ({ page }) => {
     test.setTimeout(120_000);
@@ -626,27 +642,40 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByRole('menuitem', { name: '编辑表' }).click();
       const designer = page.getByTestId('table-design');
       await expect(designer).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('table-design-tabs')).toBeVisible();
 
       for (const name of ['字段', '索引', '元数据应用']) {
         await expect(designer.getByRole('tab', { name })).toBeVisible();
       }
 
       const chromeMetrics = await designer.evaluate((root) => {
-        const nav = root.querySelector('#tableNav > .ant-tabs-nav') as HTMLElement | null;
-        const tab = root.querySelector(
-          '#tableNav > .ant-tabs-nav .ant-tabs-tab-active',
+        const tabsRoot = root.querySelector(
+          '[data-testid="table-design-tabs"]',
         ) as HTMLElement | null;
+        const nav = (tabsRoot || root).querySelector(
+          ':scope > .ant-tabs-nav, .ant-tabs-nav',
+        ) as HTMLElement | null;
+        const tabs = Array.from(
+          (tabsRoot || root).querySelectorAll('.ant-tabs-nav .ant-tabs-tab'),
+        ) as HTMLElement[];
+        const tab = tabs.find((t) => t.classList.contains('ant-tabs-tab-active')) || tabs[0];
         const btn = tab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
-        if (!nav || !tab || !btn) {
-          return { navH: -1, tabH: -1, labelClipped: true };
+        if (!nav || !tab || !btn || tabs.length < 2) {
+          return { navH: -1, tabH: -1, gutter: -1, labelClipped: true };
         }
         const eps = 2;
         const nr = nav.getBoundingClientRect();
         const tr = tab.getBoundingClientRect();
         const br = btn.getBoundingClientRect();
+        const a = tabs[0].getBoundingClientRect();
+        const b = tabs[1].getBoundingClientRect();
+        const gutter = Math.max(0, Math.round(b.left - a.right));
+        const tcs = getComputedStyle(tab);
         return {
           navH: nr.height,
           tabH: tr.height,
+          gutter,
+          marginR: parseFloat(tcs.marginRight) || 0,
           labelClipped:
             br.top < tr.top - eps ||
             br.bottom > tr.bottom + eps ||
@@ -661,6 +690,13 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       ).toBeLessThanOrEqual(26);
       expect(chromeMetrics.navH).toBeGreaterThanOrEqual(20);
       expect(chromeMetrics.tabH).toBeLessThanOrEqual(26);
+      expect(
+        chromeMetrics.gutter,
+        `内签 gutter 应 ≤2（对齐子签，禁 8），得 ${chromeMetrics.gutter}`,
+      ).toBeLessThanOrEqual(2);
+      expect(chromeMetrics.marginR, `内签 marginR 应 ≤2，得 ${chromeMetrics.marginR}`).toBeLessThanOrEqual(
+        2,
+      );
       expect(chromeMetrics.labelClipped, '内签标签不得被裁切').toBe(false);
 
       await designer.getByRole('tab', { name: '索引' }).click();
