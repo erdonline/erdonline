@@ -88,8 +88,8 @@ const BasicSetting: React.FC<BasicSettingProps> = () => {
       <Form
         form={form}
         layout="vertical"
+        className="basic-setting-form"
         onFinish={onFinish}
-        style={{maxWidth: 520}}
       >
         <Form.Item
           name="projectName"

@@ -223,6 +223,7 @@
 - ✅ 团队成员工具条碎距：`.group-user-list__toolbar` mb8 + Space gap 8 + 搜索/钮高 28；钮 padX 8；禁 mb16 + Search 默认 32；`data-testid=group-user-toolbar`；命中/键盘不弱化
 - ✅ Group 用户组 Title/左角色签碎距：`.group-setting-page` 标题 13/22·mb8；左签 padX12·高28·字12；禁 Title level4 + Space large + br + padX24；`data-testid=group-setting-page`；键盘不弱化
 - ✅ Group 基本设置页头碎距：`.basic-setting-page` 标题 13/22·mt0·mb8；同文件「删除项目」同阶；禁 Title level4；`data-testid=basic-setting-page`；键盘/保存不弱化
+- ✅ Group 基本设置 Form 碎距：`.basic-setting-form` 项 mb12 / Input·Select·钮 28 / label 12；对齐 `.setting-common-form`；禁 antd 默认 24/32；键盘/保存不弱化
 - ✅ 分享成功态 meta / 表清单次密：stage pad 6×10、meta gap2 / hint·描述 12·16、描述单行 ellipsis；表清单标题 12/18 + panel pad 6×10、行 pad 3×8（行高 ∈20–26）；默认仍折叠；弹层 `.erd-io-modal`（hint mb8 / 链接行 mb10 / 钮 28）；禁 8×12 + 13 标题 / Paragraph·Compact 松井；键盘·吊销不弱化
 - ✅ Home hero CTA 簇次密：hero gap24 / mb·pb16；actions gap8；secondary 4×12 + 钮 4×10；stats mt12；禁 gap32·actions12 / 次钮 6×14；主 CTA large + 问候 ≥28 + Skip·Tab 不弱化
 - ✅ Home 空态/公告次密：空态 pad 24×12；二级入口 mb16；项目区 mb20；区块头 mb8；公告 pt4 / 行 pad4·gap10 / 标题 13；禁 40×16 空井 / 行 8×16；保留空态 CTA +「更多公告」
@@ -248,7 +249,7 @@
 - ❌ Group 侧栏 Menu 高 40 / pad 24·16 / marginY4，相对账号左栏 28·12 与 8–12 族偏松（历史问题）
 - ❌ 团队成员工具条 mb16 + Search 默认 32，相对项目列表工具条 28 / 8–12 族偏松（历史问题）
 - ❌ Group 用户组 Title level4 + Space large + br + 左签 padX24·高38，相对 13/22·28 / 8–12 族偏松（历史问题）
-- ❌ Group 基本设置 Title level4（页头 20/28·antd mt），相对用户组/列表 13/22 族偏松（历史问题）
+- ❌ Group 基本设置删区 Space/Divider 默认松距（相对 `.setting-common-form` / 8–12 族，视 ROI）
 - ❌ 欢迎空态标题 mt20 / 22 字 + hero 220 + 松内井，盖首屏扫读（历史问题）
 - ❌ AuthBrandShell 品牌/表单 48×40 + gap20 松井，与欢迎次密/chrome 断裂（历史问题）
 - ❌ 落地次屏 4.5rem section + 0.85 对照行 / compare 头松距，与 AuthBrandShell 次密断裂（历史问题）

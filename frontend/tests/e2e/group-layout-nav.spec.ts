@@ -271,22 +271,39 @@ test.describe('GroupLayout 导航与权限组', () => {
         timeout: 15_000,
       });
       await expect(page.getByTestId('basic-setting-page')).toBeVisible();
-      // ADR-0016：基本设置页头 densify（与 group-basic-setting 同阶）
-      const basicHead = await page.getByTestId('basic-setting-page').evaluate((el) => {
+      // ADR-0016：基本设置页头+表单 densify（与 group-basic-setting 同阶）
+      const basicDense = await page.getByTestId('basic-setting-page').evaluate((el) => {
         const title = el.querySelector(
           '.basic-setting-page__title',
         ) as HTMLElement | null;
+        const form = el.querySelector(
+          'form.basic-setting-form',
+        ) as HTMLElement | null;
+        const item = form?.querySelector(
+          '.ant-form-item',
+        ) as HTMLElement | null;
+        const input = form?.querySelector(
+          '.ant-input:not([disabled]):not(textarea)',
+        ) as HTMLElement | null;
         const tcs = title ? getComputedStyle(title) : null;
+        const mcs = item ? getComputedStyle(item) : null;
+        const ics = input ? getComputedStyle(input) : null;
         return {
           titleFont: tcs ? parseFloat(tcs.fontSize) : -1,
           titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
           titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
+          itemMb: mcs ? parseFloat(mcs.marginBottom) : -1,
+          inputH: ics ? parseFloat(ics.height) : -1,
         };
       });
-      expect(basicHead.titleFont).toBeLessThanOrEqual(14);
-      expect(basicHead.titleFont).toBeGreaterThanOrEqual(12);
-      expect(basicHead.titleMb).toBeLessThanOrEqual(8);
-      expect(basicHead.titleMt).toBeLessThanOrEqual(4);
+      expect(basicDense.titleFont).toBeLessThanOrEqual(14);
+      expect(basicDense.titleFont).toBeGreaterThanOrEqual(12);
+      expect(basicDense.titleMb).toBeLessThanOrEqual(8);
+      expect(basicDense.titleMt).toBeLessThanOrEqual(4);
+      expect(basicDense.itemMb).toBeLessThanOrEqual(16);
+      expect(basicDense.itemMb).toBeGreaterThanOrEqual(8);
+      expect(basicDense.inputH).toBeLessThanOrEqual(32);
+      expect(basicDense.inputH).toBeGreaterThanOrEqual(24);
 
       await page.getByRole('link', { name: '返回项目列表' }).click();
       await expect(page).toHaveURL(/\/dataModels/, { timeout: 15_000 });

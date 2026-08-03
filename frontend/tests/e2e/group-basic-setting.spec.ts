@@ -42,7 +42,7 @@ async function deleteGroupProject(
 }
 
 /**
- * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast；页头 densify。
+ * W6 `/project/group/setting/basic`：保存基本设置成功/失败均有 toast；页头+表单 densify。
  */
 test.describe('团队项目基本设置', () => {
   test('保存基本设置成功有 toast', async ({ page, request }) => {
@@ -63,15 +63,37 @@ test.describe('团队项目基本设置', () => {
       });
       await expect(page.getByLabel('项目名')).toBeVisible();
 
-      // ADR-0016：页头 13/22·mt0·mb8；禁 Title level4
+      // ADR-0016：页头 13/22·mt0·mb8；表单项 mb12 / 控件 28（对齐 .setting-common-form）
       const pageRoot = page.getByTestId('basic-setting-page');
       await expect(pageRoot).toBeVisible();
       const metrics = await pageRoot.evaluate((el) => {
         const title = el.querySelector(
           '.basic-setting-page__title',
         ) as HTMLElement | null;
-        const form = el.querySelector('form') as HTMLElement | null;
+        const form = el.querySelector(
+          'form.basic-setting-form',
+        ) as HTMLElement | null;
+        const item = form?.querySelector(
+          '.ant-form-item',
+        ) as HTMLElement | null;
+        const input = form?.querySelector(
+          '.ant-input:not([disabled]):not(textarea)',
+        ) as HTMLElement | null;
+        const select = form?.querySelector(
+          '.ant-select-selector',
+        ) as HTMLElement | null;
+        const btn = form?.querySelector(
+          '.ant-btn-primary',
+        ) as HTMLElement | null;
+        const label = form?.querySelector(
+          '.ant-form-item-label > label',
+        ) as HTMLElement | null;
         const tcs = title ? getComputedStyle(title) : null;
+        const mcs = item ? getComputedStyle(item) : null;
+        const ics = input ? getComputedStyle(input) : null;
+        const scs = select ? getComputedStyle(select) : null;
+        const bcs = btn ? getComputedStyle(btn) : null;
+        const lcs = label ? getComputedStyle(label) : null;
         let titleToForm = -1;
         if (title && form) {
           titleToForm = Math.round(
@@ -84,6 +106,11 @@ test.describe('团队项目基本设置', () => {
           titleMb: tcs ? parseFloat(tcs.marginBottom) : -1,
           titleMt: tcs ? parseFloat(tcs.marginTop) : -1,
           titleToForm,
+          itemMb: mcs ? parseFloat(mcs.marginBottom) : -1,
+          inputH: ics ? parseFloat(ics.height) : -1,
+          selectMinH: scs ? parseFloat(scs.minHeight || scs.height) : -1,
+          btnH: bcs ? parseFloat(bcs.height) : -1,
+          labelFont: lcs ? parseFloat(lcs.fontSize) : -1,
         };
       });
       expect(
@@ -108,6 +135,30 @@ test.describe('团队项目基本设置', () => {
         `标题→表单间距应 ≤12，得 ${metrics.titleToForm}`,
       ).toBeLessThanOrEqual(12);
       expect(metrics.titleToForm).toBeGreaterThanOrEqual(0);
+      expect(
+        metrics.itemMb,
+        `表单项 margin-bottom 应 ≤16（目标 12，禁 antd 默认 24），得 ${metrics.itemMb}`,
+      ).toBeLessThanOrEqual(16);
+      expect(metrics.itemMb).toBeGreaterThanOrEqual(8);
+      expect(
+        metrics.inputH,
+        `输入框高度应 ≤32（目标 28），得 ${metrics.inputH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.inputH).toBeGreaterThanOrEqual(24);
+      expect(
+        metrics.selectMinH,
+        `标签 Select 高应 ≤32（目标 28），得 ${metrics.selectMinH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.selectMinH).toBeGreaterThanOrEqual(24);
+      expect(
+        metrics.btnH,
+        `提交钮高度应 ≤32（目标 28），得 ${metrics.btnH}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.btnH).toBeGreaterThanOrEqual(24);
+      expect(
+        metrics.labelFont,
+        `表单项 label 字号应 ≤13（目标 12），得 ${metrics.labelFont}`,
+      ).toBeLessThanOrEqual(13);
 
       await page.screenshot({
         path: 'test-results/ux-walkthrough/group-basic-setting-dense.png',
