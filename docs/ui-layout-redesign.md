@@ -181,7 +181,8 @@
 - ✅ **Home hero CTA 簇次密**（2026-08-03）：hero gap24/mb·pb16；actions gap8；secondary 4×10；主 CTA large + Skip/Tab 不弱化；`home-keyboard` densify 绿；下一刀 → ~~Home 空态/公告区次密~~✅
 - ✅ **Home 空态/公告次密**（2026-08-03）：空态 pad 24×12；二级入口 mb16；项目区 mb20；公告 pt4 / 行 pad4·gap10 / 标题 13；保留空态 CTA；`home-keyboard` empty/announce densify 绿；下一刀 → ~~设计器次屏碎密度~~✅
 - ✅ **设计器次屏碎密度**（2026-08-03）：`.erd-secondary-pane` 逆向/ERD·PdMan/高级DDL；`ReverseTable` meta；`SyncConfig`→io-modal；设置 hint mb8；`designer-secondary-pane` densify 绿；下一刀 → ~~导入弹层 Steps 对齐~~✅
-- ✅ **导入弹层 Steps 对齐**（2026-08-03）：`.erd-io-modal__steps` mt/mb ≤10/12 · 标题 12；与次屏同阶；`reverse-database-keyboard`+`export-ddl-keyboard` densify 绿；下一刀 → 命令面板 empty pad densify（视 ROI）
+- ✅ **导入弹层 Steps 对齐**（2026-08-03）：`.erd-io-modal__steps` mt/mb ≤10/12 · 标题 12；与次屏同阶；`reverse-database-keyboard`+`export-ddl-keyboard` densify 绿；下一刀 → ~~命令面板 empty pad densify~~✅
+- ✅ **Cmd+K 无匹配空态 / list 井次密**（2026-08-03）：empty pad ≤8×8 / gap ≤2、list pad ≤2；禁 16×12 / 4；Trap / aria-activedescendant / Esc 归还不弱化；`relation.spec`「命令面板」绿；下一刀 → 快捷键速查卡密度（视 ROI）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

@@ -8,12 +8,22 @@
 
 ### 2026-08-03
 
+#### 体验：Cmd+K 无匹配空态 / list 井次密
+
+- 选题：导入 Steps 已对齐；命令面板无匹配「无匹配结果」仍 16×12 空井 + list pad 4，与行 pad 6/8 / 22 chrome 不同阶
+- `command-palette.scss`：`.erd-cmd-empty` pad 8×8 · gap 2；`.erd-cmd-list` pad 2；禁 16×12 / 4
+- E2E：`relation`「命令面板」empty/list densify + 截图 `diagram-cmd-palette-dense.png`；Trap / ↑↓ / aria-activedescendant / Esc 归还不弱化
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 快捷键速查卡密度（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "命令面板" --workers=1 --retries=0`
+
 #### 体验：导入弹层 Steps 与次屏对齐
 
 - 选题：次屏 Steps 已 ≤10/12；菜单逆向/导出 DDL 弹层 `.erd-io-modal__steps` 仅 mb12、标题默认字号，与次屏断裂；ROI 高于 Cmd+K empty（少见路径）
 - `io-modal.scss`：`.erd-io-modal__steps` mt0/mb10 · 标题 12/20；禁 mt16/mb24
 - E2E：`reverse-database-keyboard` densify + 截图 `diagram-import-steps-dense.png`；`export-ddl-keyboard` Steps assert；键盘 Esc/Tab 意图不改
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → Cmd+K empty pad densify（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~Cmd+K empty pad densify~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/reverse-database-keyboard.spec.ts tests/e2e/export-ddl-keyboard.spec.ts tests/e2e/reverse-erd-keyboard.spec.ts tests/e2e/reverse-pdman-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
