@@ -21,7 +21,12 @@ import {
   upsertDiagramLayout,
 } from "@/utils/diagram";
 import { normalizeRelation } from "@/utils/relationEdges";
-
+import {
+  ackManualPersist,
+  persistProjectNow,
+} from "@/store/project/projectAutosave";
+import type { PersistOpt } from "@/store/project/persistOpt";
+export type { PersistOpt } from "@/store/project/persistOpt";
 
 export type IModulesSlice = {
   currentModule?: string;
@@ -45,8 +50,8 @@ const nextCopyName = (base: string, taken: (name: string) => boolean) => {
 
 
 export interface IModulesDispatchSlice {
-  addModule: (payload: any) => void;
-  renameModule: (payload: any) => void;
+  addModule: (payload: any, opts?: PersistOpt) => boolean | Promise<boolean>;
+  renameModule: (payload: any, opts?: PersistOpt) => boolean | Promise<boolean>;
   removeModule: (moduleName?: string) => void;
   updateModule: (payload: any) => void;
   copyModule: (payload: any) => void;
@@ -55,8 +60,17 @@ export interface IModulesDispatchSlice {
   updateRelation: (payload: any) => void;
   /** 写当前图布局（ADR-0017：只写 diagrams；diagramId 缺省=main） */
   updateGraphCanvasLayout: (moduleName: string, layoutNodes: any[], diagramId?: string) => void;
-  createDiagram: (moduleName: string, name?: string) => string | undefined;
-  renameDiagram: (moduleName: string, diagramId: string, name: string) => void;
+  createDiagram: (
+    moduleName: string,
+    name?: string,
+    opts?: PersistOpt,
+  ) => string | undefined | Promise<string | undefined>;
+  renameDiagram: (
+    moduleName: string,
+    diagramId: string,
+    name: string,
+    opts?: PersistOpt,
+  ) => boolean | Promise<boolean>;
   removeDiagram: (moduleName: string, diagramId: string) => void;
   /** ADR-0017 Phase 2b：图内 Frame */
   createFrame: (
@@ -117,37 +131,138 @@ const ERD_MODULE_CLIPBOARD = 'erd_module_clipboard';
 const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   currentModule: '',
   currentModuleIndex: -1,
-  addModule: (payload: any) => set(produce(state => {
+  addModule: (payload: any, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
     const moduleName = payload.name;
-    if (!state.project.projectJSON || typeof state.project.projectJSON !== 'object') {
-      state.project.projectJSON = { modules: [] };
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return persist ? Promise.resolve(false) : false;
     }
-    if (!Array.isArray(state.project.projectJSON.modules)) {
-      state.project.projectJSON.modules = [];
+
+    const applyLocal = (): boolean => {
+      let ok = false;
+      set(produce(state => {
+        if (!state.project.projectJSON || typeof state.project.projectJSON !== 'object') {
+          state.project.projectJSON = { modules: [] };
+        }
+        if (!Array.isArray(state.project.projectJSON.modules)) {
+          state.project.projectJSON.modules = [];
+        }
+        const findIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+        if (findIndex === -1) {
+          state.project.projectJSON.modules.push({
+            ...payload,
+            entities: [],
+          });
+          ok = true;
+          if (!persist) {
+            message.success('模型添加成功');
+          }
+        } else {
+          message.error(`模型${moduleName}已经存在`);
+        }
+      }));
+      return ok;
+    };
+
+    if (!persist) {
+      return applyLocal();
     }
-    const findIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
-    if (findIndex === -1) {
-      state.project.projectJSON.modules.push({
+
+    const modules = project.projectJSON?.modules || [];
+    if ((modules as any[]).some((m: any) => m.name === moduleName)) {
+      message.error(`模型${moduleName}已经存在`);
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      if (!draft.projectJSON || typeof draft.projectJSON !== 'object') {
+        draft.projectJSON = { modules: [] };
+      }
+      if (!Array.isArray(draft.projectJSON.modules)) {
+        draft.projectJSON.modules = [];
+      }
+      draft.projectJSON.modules.push({
         ...payload,
-        entities: [],  // 确保新模型有一个空的 entities 数组
+        entities: [],
       });
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '模型保存失败');
+      if (!saved) {
+        return false;
+      }
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
       message.success('模型添加成功');
-    } else {
-      message.error(`模型${moduleName}已经存在`);
-    }
-  })),
-  renameModule: (payload: any) => set(produce(state => {
+      return true;
+    })();
+  },
+  renameModule: (payload: any, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
     const moduleName = payload.name;
-    const {currentModuleIndex} = state;
-    const findIndex = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
-    if (findIndex === -1) {
-      state.project.projectJSON.modules[currentModuleIndex].name = payload.name;
-      state.project.projectJSON.modules[currentModuleIndex].chnname = payload.chnname;
-      message.success('修改成功');
-    } else {
-      message.error(`模型${moduleName}已经存在`);
+    const {currentModuleIndex} = get();
+
+    const applyLocal = (): boolean => {
+      let ok = false;
+      set(produce(state => {
+        const findIndex = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
+        if (findIndex === -1) {
+          state.project.projectJSON.modules[state.currentModuleIndex].name = payload.name;
+          state.project.projectJSON.modules[state.currentModuleIndex].chnname = payload.chnname;
+          ok = true;
+          if (!persist) {
+            message.success('修改成功');
+          }
+        } else {
+          message.error(`模型${moduleName}已经存在`);
+        }
+      }));
+      return ok;
+    };
+
+    if (!persist) {
+      return applyLocal();
     }
-  })),
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+    const findIndex = project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
+    if (findIndex !== -1) {
+      message.error(`模型${moduleName}已经存在`);
+      return Promise.resolve(false);
+    }
+    if (currentModuleIndex == null || currentModuleIndex < 0) {
+      message.error('未选中模型');
+      return Promise.resolve(false);
+    }
+
+    const next = produce(project, (draft: any) => {
+      draft.projectJSON.modules[currentModuleIndex].name = payload.name;
+      draft.projectJSON.modules[currentModuleIndex].chnname = payload.chnname;
+    });
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '模型保存失败');
+      if (!saved) {
+        return false;
+      }
+      set(produce(state => {
+        state.project.projectJSON.modules[state.currentModuleIndex].name = payload.name;
+        state.project.projectJSON.modules[state.currentModuleIndex].chnname = payload.chnname;
+      }));
+      ackManualPersist(true);
+      message.success('修改成功');
+      return true;
+    })();
+  },
   removeModule: (moduleName?: string) => {
     const name =
       (typeof moduleName === 'string' && moduleName) ||
@@ -287,15 +402,10 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       upsertDiagramLayout(diagram, layoutNodes);
     }));
   },
-  createDiagram: (moduleName: string, name?: string) => {
-    let createdId: string | undefined;
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
-      if (!module) {
-        return;
-      }
-      const diagrams = ensureDiagrams(module);
+  createDiagram: (moduleName: string, name?: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+
+    const buildDisplayAndId = (diagrams: { id: string; name: string }[]) => {
       const id = newDiagramId();
       const base = (name || '关系图').trim() || '关系图';
       let display = base;
@@ -304,33 +414,132 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         display = `${base}${n}`;
         n += 1;
       }
+      return { id, display };
+    };
+
+    if (!persist) {
+      let createdId: string | undefined;
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+        if (!module) {
+          return;
+        }
+        const diagrams = ensureDiagrams(module);
+        const { id, display } = buildDisplayAndId(diagrams);
+        diagrams.push({ id, name: display, layout: { nodes: [] } });
+        createdId = id;
+      }));
+      if (createdId) {
+        message.success('已新建关系图');
+      }
+      return createdId;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(undefined);
+    }
+    const module = project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+    if (!module) {
+      message.error(`模型 "${moduleName}" 不存在`);
+      return Promise.resolve(undefined);
+    }
+
+    let createdId: string | undefined;
+    const next = produce(project, (draft: any) => {
+      const mod = draft.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+      if (!mod) {
+        return;
+      }
+      const diagrams = ensureDiagrams(mod);
+      const { id, display } = buildDisplayAndId(diagrams);
       diagrams.push({ id, name: display, layout: { nodes: [] } });
       createdId = id;
-    }));
-    if (createdId) {
+    });
+
+    if (!createdId) {
+      return Promise.resolve(undefined);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '关系图保存失败');
+      if (!saved) {
+        return undefined;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
       message.success('已新建关系图');
-    }
-    return createdId;
+      return createdId;
+    })();
   },
-  renameDiagram: (moduleName: string, diagramId: string, name: string) => {
-    const next = (name || '').trim();
-    if (!next) {
+  renameDiagram: (moduleName: string, diagramId: string, name: string, opts?: PersistOpt) => {
+    const persist = !!opts?.persist;
+    const nextName = (name || '').trim();
+    if (!nextName) {
       message.warning('图名称不能为空');
-      return;
+      return persist ? Promise.resolve(false) : false;
     }
-    snapshotModules(get().project?.projectJSON?.modules);
-    set(produce(state => {
-      const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+
+    if (!persist) {
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        const module = state.project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
+        if (!module) {
+          return;
+        }
+        const diagrams = ensureDiagrams(module);
+        const d = diagrams.find((x) => x.id === diagramId);
+        if (!d) {
+          return;
+        }
+        d.name = nextName;
+      }));
+      return true;
+    }
+
+    const project = get().project;
+    if (!project || JSON.stringify(project) === '{}') {
+      message.error('未打开项目');
+      return Promise.resolve(false);
+    }
+
+    let renamed = false;
+    const next = produce(project, (draft: any) => {
+      const module = draft.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
       if (!module) {
         return;
       }
       const diagrams = ensureDiagrams(module);
-      const d = diagrams.find((x) => x.id === diagramId);
+      const d = diagrams.find((x: any) => x.id === diagramId);
       if (!d) {
         return;
       }
-      d.name = next;
-    }));
+      d.name = nextName;
+      renamed = true;
+    });
+
+    if (!renamed) {
+      message.error('关系图不存在');
+      return Promise.resolve(false);
+    }
+
+    return (async () => {
+      const saved = await persistProjectNow(next, '关系图保存失败');
+      if (!saved) {
+        return false;
+      }
+      snapshotModules(get().project?.projectJSON?.modules);
+      set(produce(state => {
+        state.project.projectJSON = next.projectJSON;
+      }));
+      ackManualPersist(true);
+      return true;
+    })();
   },
   removeDiagram: (moduleName: string, diagramId: string) => {
     if (diagramId === DEFAULT_DIAGRAM_ID) {

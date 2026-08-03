@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
 import type { InputRef } from 'antd/es/input';
 import type { RefSelectProps } from 'antd/es/select';
@@ -7,7 +7,7 @@ import './entity-modal.scss';
 interface EntityModalProps {
     visible: boolean;
     title: string;
-    onOk: (values: any) => void;
+    onOk: (values: Record<string, unknown>) => void | boolean | Promise<void | boolean>;
     onCancel: () => void;
     initialValues?: any;
     modules?: any[];
@@ -26,9 +26,11 @@ const EntityModal: React.FC<EntityModalProps> = ({
     const [form] = Form.useForm();
     const nameInputRef = useRef<InputRef>(null);
     const moduleSelectRef = useRef<RefSelectProps>(null);
+    const [submitting, setSubmitting] = useState(false);
 
     useEffect(() => {
         if (visible) {
+            setSubmitting(false);
             if (modalType === 'entity') {
                 form.setFieldsValue({
                     moduleName: initialValues?.module || (modules && modules.length > 0 ? modules[0].name : ''),
@@ -49,7 +51,16 @@ const EntityModal: React.FC<EntityModalProps> = ({
     const handleOk = async () => {
         try {
             const values = await form.validateFields();
-            onOk(values);
+            setSubmitting(true);
+            try {
+                const result = await onOk(values);
+                // false = 失败留窗；true/void = 调用方已关窗或同步成功
+                if (result === false) {
+                    return;
+                }
+            } finally {
+                setSubmitting(false);
+            }
         } catch (error) {
             console.error("Form validation failed:", error);
         }
@@ -80,6 +91,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
             open={visible}
             onOk={handleOk}
             onCancel={onCancel}
+            confirmLoading={submitting}
             width={400}
             className="erd-entity-modal"
             rootClassName="erd-entity-modal-root"

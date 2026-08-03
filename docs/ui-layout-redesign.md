@@ -191,7 +191,8 @@
 - ✅ **修改密码失败不关窗**（2026-08-03）：仅 `code===200` 关窗；失败 toast + 可重试；键盘闭环保留；`reset-password-failure` 绿；下一刀 → ~~SyncConfig 伪造成功~~✅
 - ✅ **同步配置失败不关窗**（2026-08-03）：`setUpgradeType` 仅 `saveProject` code===200 写 store；失败 toast + 可重试；`sync-config-failure` 绿；下一刀 → ~~DefaultSetUp 伪造成功~~✅
 - ✅ **默认项设置失败不关窗**（2026-08-03）：`updateProfile` 仅 `saveProject` code===200 写 store；失败 toast + 可重试；键盘闭环保留；`default-setup-failure` 绿；下一刀 → ~~数据源设置确定伪造成功~~✅
-- ✅ **数据源设置确定失败不关窗**（2026-08-03）：`updateDbs` 返回 boolean；确定刷盘后仅成功 toast/关窗；禁无条件「保存成功」；`database-setup-failure` 绿；下一刀 → EntityModal/模块树本地成功 vs autosave、或 densify ROI
+- ✅ **数据源设置确定失败不关窗**（2026-08-03）：`updateDbs` 返回 boolean；确定刷盘后仅成功 toast/关窗；禁无条件「保存成功」；`database-setup-failure` 绿；下一刀 → ~~EntityModal/模块树本地成功 vs autosave~~✅
+- ✅ **EntityModal 落盘失败不关窗**（2026-08-03）：`addModule` 等 `persist:true` 先 `saveProject` 再写 store；仅 code===200 toast/关窗；`entity-modal-failure` 绿；键盘闭环保留；下一刀 → densify ROI / 画布 createDiagram 同构
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

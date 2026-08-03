@@ -341,9 +341,12 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
 );
 
 
-/** 自动保存防抖：合并连续编辑，状态条可见「保存中 / 已保存 / 保存失败可重试」 */
-let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
-let autosaveSeq = 0;
+import {
+  ackManualPersist,
+  isAutosaveCurrent,
+  preemptAutosave,
+  scheduleDebouncedPersist,
+} from '@/store/project/projectAutosave';
 
 /** 落库当前 project；seq 不匹配时丢弃结果（防抖续写 / 手动重试抢占） */
 async function persistAutosave(seq: number): Promise<void> {
@@ -354,7 +357,7 @@ async function persistAutosave(seq: number): Promise<void> {
   useGlobalStore.getState().dispatch.setSaving(true);
   try {
     const res: any = await Save.saveProject(latest);
-    if (seq !== autosaveSeq) {
+    if (!isAutosaveCurrent(seq)) {
       return;
     }
     if (res?.code === 200) {
@@ -368,7 +371,7 @@ async function persistAutosave(seq: number): Promise<void> {
       res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
     );
   } catch {
-    if (seq !== autosaveSeq) {
+    if (!isAutosaveCurrent(seq)) {
       return;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
@@ -379,13 +382,12 @@ async function persistAutosave(seq: number): Promise<void> {
 
 /** 顶栏失败态 CTA：取消待发防抖，立即重试落库 */
 export function retryAutosave(): void {
-  if (autosaveTimer) {
-    clearTimeout(autosaveTimer);
-    autosaveTimer = null;
-  }
-  const seq = ++autosaveSeq;
+  const seq = preemptAutosave();
   void persistAutosave(seq);
 }
+
+/** EntityModal 等：store 已 Save 成功后写完，吞掉 subscribe 二次 debounce */
+export { ackManualPersist, preemptAutosave };
 
 // @ts-ignore
 useProjectStore.subscribe(state => state.project, (project, previousProject) => {
@@ -422,16 +424,7 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
     return;
   }
 
-  useGlobalStore.getState().dispatch.setSaved(false);
-  useGlobalStore.getState().dispatch.setSaving(true);
-
-  if (autosaveTimer) {
-    clearTimeout(autosaveTimer);
-  }
-  const seq = ++autosaveSeq;
-  autosaveTimer = setTimeout(() => {
-    void persistAutosave(seq);
-  }, 600);
+  scheduleDebouncedPersist((seq) => persistAutosave(seq));
 });
 
 
