@@ -2,9 +2,10 @@ import React, {useCallback, useEffect, useRef, useState} from "react";
 import {GET} from "@/services/crud";
 import PassApproval from "@/components/dialog/approval/PassApproval";
 import RefuseApproval from "@/components/dialog/approval/RefuseApproval";
-import {Modal, Space, Table, Tag, Typography} from "antd";
+import {Button, Modal, Space, Table, Tag, Typography} from "antd";
 import type {ColumnsType, TablePaginationConfig} from "antd/es/table";
 import CodeEditor from "@/components/CodeEditor";
+import "../approval-workorder.less";
 
 type ApprovalItem = {
   id: string;
@@ -124,14 +125,16 @@ const Approval: React.FC<ApprovalProps> = () => {
       fixed: 'right',
       width: 200,
       render: (_text, record) => (
-        <Space>
+        <Space size={4}>
           {(Number(record.approveStatus) === 0 || Number(record.approveStatus) === 4) && (
             <>
               <PassApproval id={record.id} actionRef={actionRef}/>
               <RefuseApproval id={record.id} actionRef={actionRef}/>
             </>
           )}
-          <a
+          <Button
+            type="link"
+            size="small"
             onClick={() => Modal.info({
               title: 'sql明细',
               width: tempWidth * 0.5,
@@ -145,7 +148,7 @@ const Approval: React.FC<ApprovalProps> = () => {
             })}
           >
             查看
-          </a>
+          </Button>
         </Space>
       ),
     },
@@ -157,11 +160,15 @@ const Approval: React.FC<ApprovalProps> = () => {
   };
 
   return (
-    <>
-      <div style={{marginBottom: 16}}>
-        <span data-testid="page-title-approvals">我的审批</span>
+    <div className="approval-workorder-page" data-testid="approval-page">
+      <div className="approval-workorder-page__toolbar" data-testid="approval-toolbar">
+        <h2 className="approval-workorder-page__title" data-testid="page-title-approvals">
+          我的审批
+        </h2>
       </div>
       <Table<ApprovalItem>
+        className="approval-workorder-page__table"
+        size="small"
         columns={columns}
         dataSource={data}
         rowKey="id"
@@ -178,7 +185,7 @@ const Approval: React.FC<ApprovalProps> = () => {
         }}
         scroll={{x: true}}
       />
-    </>
+    </div>
   );
 };
 

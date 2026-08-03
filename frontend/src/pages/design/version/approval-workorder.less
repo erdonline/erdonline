@@ -1,0 +1,114 @@
+// ADR-0016：版本工单 / 审批列表密度 — 标题栏 ~24 + 行 pad 4×8；禁默认松表 + clip 图标
+.approval-workorder-page {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  height: 100%;
+  min-height: 0;
+  padding: 2px 8px 0;
+  box-sizing: border-box;
+  font-family: var(--erd-font-ui);
+  color: var(--erd-ink-900);
+}
+
+.approval-workorder-page__toolbar {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  min-height: 24px;
+  padding: 2px 0 4px;
+}
+
+.approval-workorder-page__title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900);
+}
+
+.approval-workorder-page__table {
+  flex: 1 1 auto;
+  min-height: 0;
+
+  .ant-table {
+    font-size: 12px;
+  }
+
+  .ant-table-thead > tr > th {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    font-weight: 600;
+    line-height: 18px;
+    color: var(--erd-ink-600);
+    background: var(--erd-surface-muted);
+  }
+
+  .ant-table-tbody > tr > td {
+    padding: 4px 8px !important;
+    font-size: 12px;
+    line-height: 18px;
+    color: var(--erd-ink-900);
+  }
+
+  .ant-table-cell {
+    .ant-typography {
+      font-size: 12px;
+      line-height: 18px;
+    }
+
+    .ant-tag {
+      margin-inline-end: 0;
+      line-height: 18px;
+      font-size: 11px;
+      padding-inline: 4px;
+    }
+
+    .ant-space {
+      flex-wrap: wrap;
+      row-gap: 2px !important;
+    }
+
+    .ant-btn {
+      height: 22px;
+      padding-inline: 4px;
+      font-size: 12px;
+      line-height: 1;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+
+      .anticon {
+        font-size: 12px;
+        line-height: 1;
+      }
+
+      &:focus-visible {
+        outline: 2px solid var(--erd-brand);
+        outline-offset: -2px;
+        z-index: 1;
+      }
+    }
+  }
+
+  .ant-pagination {
+    margin: 8px 0 0;
+
+    .ant-pagination-item,
+    .ant-pagination-prev,
+    .ant-pagination-next {
+      min-width: 24px;
+      height: 24px;
+      line-height: 22px;
+      font-size: 12px;
+    }
+  }
+
+  .ant-empty-description {
+    color: var(--erd-ink-600);
+    font-size: 12px;
+  }
+}

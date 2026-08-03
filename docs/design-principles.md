@@ -171,6 +171,7 @@
 - ✅ 左树行高密度：`QueryTree` 行高 22 / font 12、工具条控件 24 / 次密距 pad 4、sider-inner pad 4×6×0×8；虚拟滚动 `itemHeight` 与视觉对齐；禁默认 ~28 松行 + pad 8/控件 28；禁 clip 图标；保留工具条/树 focus-visible
 - ✅ CommonTabs / 表设计签头密度：签栏 `--erd-tabs-h` 24（再压，原 40→28）、字 12、flex 居中；表头 pad 2×10 / title 12；禁 clip 标签/关闭钮；禁历史 40 松栏 + 10×16 签头
 - ✅ 版本列表行密度：行 pad 4×8、标题 13/行高 22、工具条控件 24；hint/摘要色走 `--erd-ink-*` / success·brand·warning；禁 8×12 松行 + 16 标题、禁工具条 28 + rgba/`#389e0d` 碎色；禁 clip 图标；保留工具条 focus-visible
+- ✅ 版本工单/审批列表密度：共享 `.approval-workorder-page` 标题 13/22、标题栏 ~24、表头/行 pad 4×8、动作钮 22；禁默认松表 + `marginBottom:16`；禁 clip 图标；保留动作钮 focus-visible
 - ✅ 普通导出页密度：`.export-common-page` 标题 13/22、卡片 pad 8×10 / gutter 8；图标 `currentColor` → `--erd-brand`；禁 16 pad + Title level4 松卡片 / 裸 `#DE2910`
 - ✅ Home / Group 主导航图标：`erdColors.brand`（与 DesignLayout / `--erd-brand` 同源）；禁组件内硬编码 `#DE2910`
 - ✅ dataTypeDomains 树图标：`getDataTypeTree` 走 `erdColors.brand`；禁裸 `#DE2910`
@@ -206,6 +207,7 @@
 - ❌ 左树默认 ~28 行高 + 16 工具条松距，与 22 chrome 不同阶（历史问题）
 - ❌ CommonTabs 栏 40px + 表设计签头 10×16 松距，与 22 chrome 不同阶（历史问题）
 - ❌ 版本列表 8×12 松行 + 16 标题 / 工具条 28 + rgba 碎色，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
+- ❌ 工单/审批默认 Table 松行 + `marginBottom:16` 标题，与 22–28 chrome 不同阶（历史问题）
 - ❌ 普通导出页 16 pad + Title level4 松卡片 / 图标裸 `#DE2910`，与 22–28 chrome / `--erd-*` 不同阶（历史问题）
 - ❌ Home / Group 导航图标硬编码 `#DE2910`，与 DesignLayout `erdColors.brand` 割裂（历史问题）
 - ❌ dataTypeDomains 树图标硬编码 `#DE2910`，与 `erdColors.brand` 割裂（历史问题）

@@ -8,13 +8,24 @@
 
 ### 2026-08-03
 
+#### 体验：版本工单/审批列表密度
+
+- 选题：版本列表已 ~24；工单/审批仍默认 Table 松行 + `marginBottom:16` 标题
+- 共享 `.approval-workorder-page`：标题栏 ~24（13/22）；表头/行 pad 4×8；动作 link 钮 22 + 禁 clip 图标；inset focus-visible；「查看」改 Button
+- E2E：`approval.spec`「工单/审批列表行密度」；截图 `approval-list-dense.png` / `order-list-dense.png`；不回归 `approval-action-keyboard`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 设计器次屏表密度 / chrome（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/approval.spec.ts --project=chromium --grep "工单/审批列表行密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/approval-action-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：版本列表二次密度 / chrome 碎色
 
 - 选题：左树已 ~24；版本工具条仍 28 控件 + rgba/`#389e0d` 碎色
 - `version-page`：工具条 Input/Select/Btn 24 + flex 居中；禁 clip 图标；inset focus-visible；行色 `--erd-ink-*`；增删改摘要 `--erd-success` / `--erd-brand` / `--erd-warning`
 - `DataSourceSelect` size=small；SyncConfig/RebuildVersion 警告文案改 brand token（去裸 `red`）
 - E2E：`version.spec`「版本列表行密度」扩展工具条控件高度 + 不 clip + token 色 + Tab focus-visible；截图 `diagram-version-list-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 版本工单/审批列表密度（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~版本工单/审批列表密度~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/version.spec.ts --project=chromium --grep "版本列表行密度" --workers=1 --retries=0`

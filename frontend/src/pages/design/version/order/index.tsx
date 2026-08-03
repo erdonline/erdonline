@@ -1,10 +1,11 @@
 import React, {useCallback, useEffect, useRef, useState} from "react";
-import {Modal, Space, Table, Tag, Typography} from 'antd';
+import {Button, Modal, Space, Table, Tag, Typography} from 'antd';
 import type {ColumnsType, TablePaginationConfig} from "antd/es/table";
 import {GET} from "@/services/crud";
 import CancelApproval from "@/components/dialog/approval/CancelApproval";
 import RepeatApproval from "@/components/dialog/approval/RepeatApproval";
 import CodeEditor from "@/components/CodeEditor";
+import "../approval-workorder.less";
 
 type ApprovalItem = {
   id: string;
@@ -123,15 +124,17 @@ const MyOrder: React.FC = () => {
       key: 'option',
       fixed: 'right',
       render: (_text, record) => (
-        <Space>
+        <Space size={4}>
           {Number(record.approveStatus) === 0 && (
             <CancelApproval id={record.id} actionRef={actionRef} key="cancel"/>
           )}
           {(Number(record.approveStatus) === 2 || Number(record.approveStatus) === 3) && (
             <RepeatApproval id={record.id} actionRef={actionRef} key="repeat"/>
           )}
-          <a
+          <Button
             key="view"
+            type="link"
+            size="small"
             onClick={() =>
               Modal.info({
                 title: 'sql明细',
@@ -147,7 +150,7 @@ const MyOrder: React.FC = () => {
             }
           >
             查看
-          </a>
+          </Button>
         </Space>
       ),
     },
@@ -159,11 +162,15 @@ const MyOrder: React.FC = () => {
   };
 
   return (
-    <>
-      <div style={{marginBottom: 16}}>
-        <span data-testid="page-title-orders">我的工单</span>
+    <div className="approval-workorder-page" data-testid="order-page">
+      <div className="approval-workorder-page__toolbar" data-testid="order-toolbar">
+        <h2 className="approval-workorder-page__title" data-testid="page-title-orders">
+          我的工单
+        </h2>
       </div>
       <Table<ApprovalItem>
+        className="approval-workorder-page__table"
+        size="small"
         columns={columns}
         dataSource={data}
         rowKey="id"
@@ -180,7 +187,7 @@ const MyOrder: React.FC = () => {
         }}
         scroll={{x: true}}
       />
-    </>
+    </div>
   );
 };
 
