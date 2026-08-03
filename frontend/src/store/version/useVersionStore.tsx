@@ -58,7 +58,8 @@ export type IVersionSlice = {
   initBase: (tempValue: any, msg?: string) => void;
   initSave: (version: any, msg: any) => void;
   initDbs: (dbs: any) => void;
-  dbChange: (d: any) => void;
+  /** 切换默认数据源：仅 setDefaultDb 落盘成功后更新本地标记；失败不改 store */
+  dbChange: (d: any) => Promise<boolean>;
   resolveDb: () => void;
   compare: (state: any) => void;
   checkVersionData: (dataSource1: any, dataSource2: any) => any;
@@ -1001,18 +1002,30 @@ const useVersionStore = create<VersionState>(
         const {markDefaultDataSource} = require('@/utils/projectDataSource');
         state.dbs = markDefaultDataSource(dbs || [], defaultId);
       })),
-      dbChange: (d: any) => {
-        const selected = get().dbs.find((db: any) => db.name === d.value || db.key === d.value);
-        if (selected?.key) {
-          useProjectStore.getState().dispatch.setDefaultDb(selected.key);
+      dbChange: async (d: any): Promise<boolean> => {
+        const selected = get().dbs.find(
+          (db: any) => db.name === d.value || db.key === d.value,
+        );
+        if (!selected?.key) {
+          return false;
         }
-        set(produce(state => {
-          state.dbs = state.dbs.map((db: any) => ({
-            ...db,
-            defaultDB: db.name === d.value || db.key === d.value,
-          }));
-        }));
+        const ok = await useProjectStore
+          .getState()
+          .dispatch.setDefaultDb(selected.key);
+        if (!ok) {
+          // 失败 toast 已弹；不改本地 defaultDB 标记
+          return false;
+        }
+        set(
+          produce((state) => {
+            state.dbs = state.dbs.map((db: any) => ({
+              ...db,
+              defaultDB: db.name === d.value || db.key === d.value,
+            }));
+          }),
+        );
         get().fetch(selected || d, get().currentPage, get().pageSize);
+        return true;
       },
       resolveDb: () => set(produce(state => {
         state.hasDB = state.dbs && state.dbs.length > 0;

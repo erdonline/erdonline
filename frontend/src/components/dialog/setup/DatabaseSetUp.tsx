@@ -158,9 +158,18 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
 
   const updateDatabase = async (key: string, data: DataSourceRow) => {
     if (data?.defaultDB) {
-      projectDispatch.setDefaultDb(key);
+      const ok = await projectDispatch.setDefaultDb(key);
+      if (!ok) {
+        // 失败 toast 已弹；重载列表回滚 Radio
+        await reload();
+        return;
+      }
     }
-    await projectDispatch.updateDbs(key, data);
+    const putOk = await projectDispatch.updateDbs(key, data);
+    if (!putOk) {
+      await reload();
+      return;
+    }
     await reload();
   };
 
@@ -291,9 +300,17 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                               noStyle
                             >
                               <Radio
+                                aria-label={
+                                  record?.name
+                                    ? `设为默认数据源 ${record.name}`
+                                    : '设为默认数据源'
+                                }
                                 onChange={() => {
                                   if (!record?.key) return;
-                                  updateDatabase(record.key, {...record, defaultDB: true});
+                                  void updateDatabase(record.key, {
+                                    ...record,
+                                    defaultDB: true,
+                                  });
                                 }}
                               />
                             </Form.Item>
@@ -381,7 +398,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                     ((await projectDispatch.refreshDataSources()) as DataSourceRow[] | undefined) ||
                     [];
                   await addDatabase({
-                    name: `数据源_${Date.now().toString(36).slice(-6)}`,
+                    name: `数据源_${uuid(8)}`,
                     select: defaultDatabase,
                     key: uuid(32),
                     defaultDB: latest.findIndex((db) => db.defaultDB) === -1,

@@ -8,13 +8,25 @@
 
 ### 2026-08-03
 
+#### 体验：默认数据源 / WORD 模板假成功
+
+- 选题：逆向导入假成功已收口（`1ca6d59`）；`setDefaultDb` / `updateWordTemplateConfig` 仍本地 mutate，且 `needSave=false` 时 autosave 不触发 → 切默认库 / 上传模板像已生效实未落盘
+- `setDefaultDb` / `updateWordTemplateConfig`：仅 `saveProject` code===200 写 store（模板另 toast「WORD模板已更新」）；失败 toast、不写 store；数据源 Radio / 版本页 Select 失败回滚
+- 顺手：删 `databaseDomainsSlice` 零挂载 CRUD（仅留 `getDefaultDatabase*` 供默认字段映射）
+- E2E：`default-db-failure` 首拒「当前使用」仍第一源 → 重试切到第二源；定位 `role=radio`「设为默认数据源 …」（勿扫 `.ant-*`）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描剩余假成功（版本同步 / Word 导出等）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/default-db-failure.spec.ts --project=chromium --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/database-setup-failure.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：逆向导入 setProjectJson / importReverseTable 假成功
 
 - 选题：数据类型字典假成功已收口（`e823bf5`）；逆向选表 `importReverseTable` 与文件导入 `setProjectJson`/`importModuleAndProfile`（含 dataTypeDomains 合并）仍本地 mutate 即「操作/导入成功」，autosave 失败像已导入
 - `setProjectJson({persist:true})` / `importReverseTable`：仅 `saveProject` code===200 写 store + 成功 toast；失败 toast、不写 store；覆盖确认窗失败拒关可重试
 - ERD/PdMan/DBML 弹层与次屏统一走 `importModuleAndProfile` persist；失败窗/页保持可重传
 - E2E：`import-erd-failure` 首拒窗仍开、树无模块 → 重试成功入树；定位 `role=dialog` / `项目菜单` / complementary（勿扫 `.ant-*`）
-- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 扫描剩余假成功（版本同步 / Word 导出 / 默认库切库等）
+- 文档：design-principles §1 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~默认数据源 / WORD 模板假成功~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/import-erd-failure.spec.ts --project=chromium --workers=1 --retries=0`

@@ -50,10 +50,18 @@ export interface IProfileDispatchSlice {
   updateDbs: (key: string, payload: any) => Promise<boolean>;
   updateAllDbs: () => void;
   setCurrentDbKey: (payload: string) => void;
-  setDefaultDb: (payload: string) => void;
+  /**
+   * 写 profile.defaultDataSourceId；仅 saveProject code===200 写 store。
+   * needSave=false 时 autosave 不会触发，禁仅本地 mutate。
+   */
+  setDefaultDb: (payload: string) => Promise<boolean>;
   refreshDataSources: () => Promise<any[]>;
 
-  updateWordTemplateConfig: (payload: any) => void;
+  /**
+   * 写 profile.wordTemplateConfig；仅 saveProject code===200 写 store + 成功 toast。
+   * 上传 API 只落 MinIO，路径须立刻落盘。
+   */
+  updateWordTemplateConfig: (payload: any) => Promise<boolean>;
   /** 落库默认 profile；仅 code===200 写 store，由调用方 toast/关窗 */
   updateProfile: (payload: any) => Promise<boolean>;
 
@@ -275,16 +283,58 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   setCurrentDbKey: (payload: string) => set(produce(state => {
     state.currentDbKey = payload;
   })),
-  setDefaultDb: (payload: string) => set(produce(state => {
-    const profile = state.project.projectJSON.profile || (state.project.projectJSON.profile = {});
-    profile.defaultDataSourceId = payload;
-    profile.dbs = [];
-    state.currentDbKey = payload;
-  })),
+  setDefaultDb: async (payload: string): Promise<boolean> => {
+    const project = get().project;
+    if (!project?.projectJSON) {
+      message.error('未打开项目');
+      return false;
+    }
+    const next = produce(project, (draft: any) => {
+      const profile =
+        draft.projectJSON.profile || (draft.projectJSON.profile = {});
+      profile.defaultDataSourceId = payload;
+      profile.dbs = [];
+    });
+    const saved = await persistProjectNow(next, '保存默认数据源失败');
+    if (!saved) {
+      return false;
+    }
+    set(
+      produce((state: any) => {
+        const profile =
+          state.project.projectJSON.profile ||
+          (state.project.projectJSON.profile = {});
+        profile.defaultDataSourceId = payload;
+        profile.dbs = [];
+        state.currentDbKey = payload;
+      }),
+    );
+    ackManualPersist(true);
+    return true;
+  },
 
-  updateWordTemplateConfig: (payload: any) => set(produce(state => {
-    state.project.projectJSON.profile.wordTemplateConfig = payload;
-  })),
+  updateWordTemplateConfig: async (payload: any): Promise<boolean> => {
+    const project = get().project;
+    if (!project?.projectJSON?.profile) {
+      message.error('未打开项目');
+      return false;
+    }
+    const next = produce(project, (draft: any) => {
+      draft.projectJSON.profile.wordTemplateConfig = payload;
+    });
+    const saved = await persistProjectNow(next, 'WORD模板配置保存失败');
+    if (!saved) {
+      return false;
+    }
+    set(
+      produce((state: any) => {
+        state.project.projectJSON.profile.wordTemplateConfig = payload;
+      }),
+    );
+    ackManualPersist(true);
+    message.success('WORD模板已更新');
+    return true;
+  },
   updateProfile: async (payload: any): Promise<boolean> => {
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {

@@ -324,6 +324,7 @@
 | `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段；仅 code===200；失败回滚可重试 | | ✅ | `default-field.spec`「编辑保存有 toast」；`default-field-failure` |
 | `/design/table/setting/dataType` | 数据类型字典 CRUD | `add`/`update`/`remove` `persist:true`；仅 save code===200；失败窗 keep | | ✅ | `datatype-domains-failure` |
 | 项目菜单 / 导入次屏 | ERD·PdMan·DBML / 数据源逆向提交 | `setProjectJson`/`importReverseTable` persist；仅 save code===200；失败不写 store | | ✅ | `import-erd-failure`（文件）；`import-reverse`（happy） |
+| 项目菜单→数据源设置 | 切默认数据源 Radio | `setDefaultDb` 仅 save code===200；失败 toast+列表回滚 | | ✅ | `default-db-failure` |
 | `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
 | `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
 | `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |

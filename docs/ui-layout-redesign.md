@@ -246,7 +246,8 @@
 - ✅ **画布连线建关联落盘失败可重试**（2026-08-03）：`addAssociation` `persist:true`；失败 toast、不上边；可再拖重试；`canvas-connect-edge-failure` 绿；下一刀 → ~~`updateAssociationRelation` 基数改假成功~~✅
 - ✅ **画布改边基数落盘失败可重试**（2026-08-03）：`updateAssociationRelation` `persist:true`；失败 toast、chip 保持原基数；可再选重试；`canvas-cardinality-failure` 绿；下一刀 → ~~数据类型字典 CRUD 假成功~~✅
 - ✅ **数据类型字典落盘失败可重试**（2026-08-03）：`addDatatype`/`updateDatatype`/`removeDatatype` `persist:true`；设置页 `/setting/dataType`；失败 toast、窗 keep；`datatype-domains-failure` 绿；下一刀 → ~~逆向导入 `setProjectJson`/`importReverseTable` 假成功~~✅
-- ✅ **逆向导入落盘失败可重试**（2026-08-03）：`setProjectJson`/`importReverseTable`/`importModuleAndProfile` persist；仅 save code===200 写 store + 成功 toast；失败 toast、不写 store；`import-erd-failure` 绿；下一刀 → 扫描剩余假成功（版本同步 / Word 导出 / 默认库切库等）
+- ✅ **逆向导入落盘失败可重试**（2026-08-03）：`setProjectJson`/`importReverseTable`/`importModuleAndProfile` persist；仅 save code===200 写 store + 成功 toast；失败 toast、不写 store；`import-erd-failure` 绿；下一刀 → ~~默认库切库 / WORD 模板假成功~~✅
+- ✅ **默认数据源 / WORD 模板落盘失败可重试**（2026-08-03）：`setDefaultDb`/`updateWordTemplateConfig` 仅 save code===200 写 store；失败 toast+Radio 回滚；顺手删 `databaseDomainsSlice` 零挂载 CRUD；`default-db-failure` 绿；下一刀 → 扫描剩余假成功（版本同步 / Word 导出等）
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

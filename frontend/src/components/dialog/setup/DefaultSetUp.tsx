@@ -171,7 +171,9 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
                         onChange={(e) => {
                           if (e.file.status === 'done') {
                             if (e.file.response?.code === 200) {
-                              projectDispatch.updateWordTemplateConfig(e.file.response.data);
+                              void projectDispatch.updateWordTemplateConfig(
+                                e.file.response.data,
+                              );
                             } else {
                               message.error(e.file.response?.msg ?? '上传失败');
                             }

@@ -101,27 +101,34 @@ const Version: React.FC = () => {
     initializeDatabases();
   }, [versionDispatch, fetch, pageSize]);
 
-  const handleDbChange = useCallback((value: { value: string; label: string } | undefined) => {
-    if (!value || !value.value) {
-      return;
-    }
+  const handleDbChange = useCallback(
+    async (value: { value: string; label: string } | undefined) => {
+      if (!value || !value.value) {
+        return;
+      }
+      const prev = selectedDB;
+      setSelectedDB(value);
+      const ok = await versionDispatch.dbChange({ value: value.value });
+      if (!ok) {
+        setSelectedDB(prev);
+        return;
+      }
 
-    setSelectedDB(value);
-    versionDispatch.dbChange({ value: value.value });
+      const updatedDbs = [
+        ...dbs.filter((db) => db.name === value.value),
+        ...dbs.filter((db) => db.name !== value.value),
+      ];
+      versionDispatch.initDbs(updatedDbs);
 
-    const updatedDbs = [
-      ...dbs.filter(db => db.name === value.value),
-      ...dbs.filter(db => db.name !== value.value)
-    ];
-    versionDispatch.initDbs(updatedDbs);
-
-    const selectedDbObject = dbs.find(db => db.name === value.value);
-    if (selectedDbObject) {
-      fetch(selectedDbObject, 1, pageSize);
-    } else {
-      console.error('无法找到选中的数据源信息2');
-    }
-  }, [dbs, versionDispatch, fetch, pageSize]);
+      const selectedDbObject = dbs.find((db) => db.name === value.value);
+      if (selectedDbObject) {
+        fetch(selectedDbObject, 1, pageSize);
+      } else {
+        console.error('无法找到选中的数据源信息2');
+      }
+    },
+    [dbs, versionDispatch, fetch, pageSize, selectedDB],
+  );
 
   const projectIdQuery = useCallback(() => {
     const projectId =
