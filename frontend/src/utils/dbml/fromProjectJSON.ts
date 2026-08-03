@@ -133,6 +133,15 @@ export function formatIndexColumn(field: string): string {
   return `\`${expr}\``;
 }
 
+/** index.filter → DBML note 约定（@dbml/core 拒 where:） */
+export function formatIndexFilterNote(
+  filter: string | undefined | null,
+): string | null {
+  const pred = String(filter || '').trim();
+  if (!pred) return null;
+  return `note: 'filter: ${escapeNote(pred)}'`;
+}
+
 function formatIndex(index: ProjectJsonIndex): string | null {
   const fields = (index.fields || [])
     .map((f) => String(f || '').trim())
@@ -143,6 +152,8 @@ function formatIndex(index: ProjectJsonIndex): string | null {
   const name = String(index.name || '').trim();
   if (name) settings.push(`name: '${escapeNote(name)}'`);
   if (index.isUnique) settings.push('unique');
+  const filterNote = formatIndexFilterNote(index.filter);
+  if (filterNote) settings.push(filterNote);
   if (settings.length === 0) return `    (${cols})`;
   return `    (${cols}) [${settings.join(', ')}]`;
 }

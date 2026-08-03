@@ -12,6 +12,77 @@ const getFieldType = (datatype: unknown[], type: string, code: string): string =
   return type;
 };
 
+/** PG / SQL Server 支持部分·过滤索引 WHERE；MySQL / Oracle 无对等物 */
+export function dialectSupportsIndexFilter(code: string | undefined | null): boolean {
+  const c = String(code || '')
+    .toLowerCase()
+    .replace(/[\s_-]/g, '');
+  return (
+    c === 'postgresql' ||
+    c === 'postgres' ||
+    c === 'pg' ||
+    c === 'sqlserver' ||
+    c === 'mssql'
+  );
+}
+
+export function formatIndexFilterPredicate(
+  filter: string | undefined | null,
+): string | undefined {
+  const f = String(filter || '').trim();
+  return f || undefined;
+}
+
+/**
+ * 建索引 SQL：有 filter 且方言支持时输出规范
+ * `CREATE [UNIQUE] INDEX name ON table(cols) WHERE pred;`
+ * （覆盖存量 MySQL 风 ALTER ADD INDEX 模板，避免 WHERE 语法非法）
+ */
+export function renderCreateIndexSql(
+  template: string,
+  templateData: {
+    entity?: { title?: string; name?: string };
+    index?: {
+      name?: string;
+      isUnique?: boolean;
+      fields?: string[];
+      filter?: string;
+    };
+    separator?: string;
+    module?: unknown;
+  },
+  dialectCode?: string | null,
+): string {
+  const pred = formatIndexFilterPredicate(templateData?.index?.filter);
+  if (pred && dialectSupportsIndexFilter(dialectCode)) {
+    const index = templateData.index || {};
+    const entity = templateData.entity || {};
+    const sep = templateData.separator ?? '';
+    const uniq = index.isUnique ? ' UNIQUE' : '';
+    const name = String(index.name || '').trim();
+    const table = String(entity.title || entity.name || '').trim();
+    const cols = (Array.isArray(index.fields) ? index.fields : [])
+      .map((f) => String(f || '').trim())
+      .filter(Boolean)
+      .join(',');
+    return `CREATE${uniq} INDEX ${name} ON ${table}(${cols}) WHERE ${pred};${sep}`;
+  }
+  return getTemplateString(template, templateData);
+}
+
+/** 按方言 code 取 database 模板行；回落 defaultDatabase → 首项 */
+export function pickDatabaseDialect(
+  databases: Array<{ code?: string; defaultDatabase?: boolean }> | undefined,
+  code?: string | null,
+) {
+  const list = databases || [];
+  if (code) {
+    const hit = list.find((db) => db.code === code);
+    if (hit) return hit;
+  }
+  return list.find((db) => db.defaultDatabase) || list[0];
+}
+
 const getTemplateString = (template, templateData) => {
   const camel = (str, firstUpper) => {
     let ret = str.toLowerCase();
@@ -177,12 +248,12 @@ const generateIncreaseSql = (dataSource, module, dataTable, code, templateShow) 
   };
   if (templateShow === 'createIndexTemplate') {
     return (dataTable.indexs || []).map(i => {
-      return `${getTemplateString(template, {
+      return `${renderCreateIndexSql(template, {
         module: {name: module},
         entity: tempDataTable,
         index: i,
         separator
-      })}`;
+      }, code)}`;
     }).join('');
   } else {
     return getTemplateString(template, {
@@ -311,12 +382,12 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
       const index = indexData.filter(i => i.name === indexName)[0] || {name: indexName};
       if (c.opt === 'add') {
         // 根据数据表中的内容获取索引
-        return getTemplateString(getTemplate('createIndexTemplate'), {
+        return renderCreateIndexSql(getTemplate('createIndexTemplate'), {
           module: {name: dataTable.name},
           entity: dataTable,
           index,
           separator
-        });
+        }, database && database.code);
       } else if (c.opt === 'update') {
         // 1.先删除再重建
         let deleteString = getTemplateString(getTemplate('deleteIndexTemplate'), {
@@ -770,7 +841,10 @@ export const getDataByTemplate = (data, template) => {
 export const getAllDataSQL = (dataSource, code) => {
   // 获取全量脚本（删表，建表，建索引）
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
-  const database = _.get(dataSource, 'dataTypeDomains.database', []).filter(db => db.defaultDatabase)[0];
+  const database = pickDatabaseDialect(
+    _.get(dataSource, 'dataTypeDomains.database', []),
+    code,
+  );
   const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
   const getTemplate = (templateShow) => {
     return `${(database && database[templateShow]) || ''}`;
@@ -796,12 +870,12 @@ export const getAllDataSQL = (dataSource, code) => {
 
     // 循环创建该表下所有的索引
     let indexData = (e.indexs || []).map(i => {
-      return `${getTemplateString(getTemplate('createIndexTemplate'), {
+      return `${renderCreateIndexSql(getTemplate('createIndexTemplate'), {
         module: {name: e.name},
         entity: e,
         index: i,
         separator
-      })}`;
+      }, code)}`;
     }).join('');
     //全量脚本去除删除语句
     return `${getTemplateString(getTemplate('createTableTemplate'), {
@@ -824,10 +898,15 @@ export const getAllDataSQLByFilter = (
   code: string,
   filter: string[] = [],
 ): string => {
-  // 获取全量脚本（删表，建表，建索引，表注释）
+  // 获取全量脚本（删表，建表，建索引，表注释）；模板按所选方言 code，非仅 defaultDatabase
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
-  const database = _.get(dataSource, 'dataTypeDomains.database', [])
-    .filter((db: { defaultDatabase?: boolean }) => db.defaultDatabase)[0];
+  const database = pickDatabaseDialect(
+    _.get(dataSource, 'dataTypeDomains.database', []) as Array<{
+      code?: string;
+      defaultDatabase?: boolean;
+    }>,
+    code,
+  );
   const getTemplate = (templateShow: string) => {
     return `${(database && database[templateShow]) || ''}`;
   };
@@ -855,12 +934,12 @@ export const getAllDataSQLByFilter = (
     let tempData = '';
     let allData = {};
     allData.createIndex = (e.indexs || []).map(i => {
-      return `${getTemplateString(getTemplate('createIndexTemplate'), {
+      return `${renderCreateIndexSql(getTemplate('createIndexTemplate'), {
         module: {name: e.name},
         entity: e,
         index: i,
         separator
-      })}`;
+      }, code)}`;
     }).join('');
     allData.deleteTable = `${getTemplateString(getTemplate('deleteTableTemplate'), {
       module: {name: e.name},

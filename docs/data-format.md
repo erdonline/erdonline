@@ -161,6 +161,12 @@
 
 可选 **`filter`**：部分/过滤索引谓词原样字符串（PG `WHERE` / SQL Server `WHERE`）。无谓词时省略或为 null；**不**写入 `fields[]`。
 
+**DDL 回写**：`json2code.renderCreateIndexSql` — 方言为 PostgreSQL / SQL Server 且 `filter` 非空时，输出规范
+`CREATE [UNIQUE] INDEX name ON table(cols) WHERE <filter>;`
+（覆盖存量 MySQL 风 `ALTER TABLE … ADD INDEX` 模板，避免 WHERE 非法）。MySQL / Oracle 无原生 filtered index：导出忽略 `filter`，仅按模板拼字段。导出弹层 `getAllDataSQLByFilter` 按所选方言 `code` 取模板行（非仅 `defaultDatabase`）。
+
+**DBML**：`@dbml/core` 9.x 索引设置仅允许 `name` / `note` / `type` / `unique` / `pk`，**拒** `where:`。本产品往返约定：导出写 `note: 'filter: <pred>'`，导入时 `filterFromDbmlIndexNote` 认该前缀回填 `indexs[].filter`。
+
 **设计器**：表设计索引签 JExcel「字段/表达式*」为**文本格**（非列名-only dropdown）；单元格用分号分隔多个片段（如 `id;LOWER(email)`），落盘时拆回 `fields[]`；「过滤条件」文本列读写 `filter`；`updateEntityIndex` persist-on-200。
 
 **逆向**：
