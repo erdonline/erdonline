@@ -8,6 +8,16 @@
 
 ### 2026-08-03
 
+#### 体验：分享壳键盘（Skip + Controls Tab + focus-visible）
+
+- 选题：公开/分享只读进页 Tab 先扫顶栏；画布主操作键盘摩擦未对齐设计器 Skip / chrome 序
+- 改动：分享页首焦 Skip「跳到关系图」→ `#share-canvas-stage`（`tabIndex=-1`）；模块 Segmented 包 `role=group` `aria-label=切换模块`；壳内 `:focus-visible` brand 环
+- E2E：`share`「分享壳键盘：Skip→关系图；Controls 可达；MiniMap 出序；focus-visible」（`/demo`）
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 登录壳键盘或设计器碎活打磨
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --grep "分享壳键盘" --workers=1 --retries=0`
+
 #### 安全：R-AUTH-03/04 关闭项目与 dataSources IDOR
 
 - 选题：知 `projectId`/`dataSourceId` 即可跨租户读改删（含 JDBC 账密 / 全量 projectJSON）
@@ -98,7 +108,7 @@
 - `ReactFlow` / 分享壳：`nodesFocusable={false}` `edgesFocusable={false}`；自研控件按选中门控
 - 边 chip：仅选中边或邻接表时 `tabIndex=0`，否则 `-1`；Frame 标题 `role=button` + 选中进序 + Enter/Space 重命名；速查卡同步
 - E2E：`relation`「画布节点级 Tab：无选中无节点停靠；选中边 chip / Frame 可入」；复跑 chrome / 字段环
-- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → 分享壳键盘或首焦 Skip 收尾打磨
+- `docs/design-principles.md` §2 / control-matrix / regression-checklist；下一刀 → ~~分享壳键盘或首焦 Skip 收尾打磨~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/relation.spec.ts --project=chromium --grep "画布节点级 Tab" --workers=1 --retries=0`

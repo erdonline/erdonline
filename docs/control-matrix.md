@@ -128,6 +128,7 @@
 | RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
 | RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |
 | RF 节点级 Tab | 选中门控；RF wrapper 出序 | `nodesFocusable/edgesFocusable=false`；选中表/边 chip/Frame 进序 | 键盘建模 | ✅ | `relation`「画布节点级 Tab」 |
+| `/s/:token` 分享壳 | Skip + Controls Tab | 首项 Skip「跳到关系图」→ stage；放大/缩小/适应可达；MiniMap 出序；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享壳键盘」 |
 | TableTab | Cmd/Ctrl+1/2/3 | 表设计：字段 / 索引 / 元数据应用；输入中不拦；仅表设计签挂载 | TableTab activatePane | ✅ | `relation`「表设计 Cmd/Ctrl+1/2/3」 |
 | DesignLayout | 左树点表定位 | 点表 → 切关系图 + 选中 + fitView + flash；不开表设计 | DataTable → pendingLocate + focusTable | ✅ | `relation.spec`「左树点表」 |
 | `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
