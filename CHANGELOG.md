@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：CommonTabs 签头键盘闭环
+
+- 选题：设计器 Skip / Cmd+1/2/3 已收口；签头最高摩擦 = 关闭钮英文 `remove`、方向键无 E2E、关签焦点坠 body
+- `CommonTabs`：`locale.removeAriaLabel` + 按实体刷 `aria-label=关闭 {表名}` / `testid=common-tab-close-*`；关签后焦点归还下一签或主工作区；`navigation`「已打开的签页」
+- E2E：`common-tabs-keyboard` ←/→ 移焦 + Enter 激活；关闭可及名 + focus-visible；关签焦点不落 body；内签同构；定位 role/testid（勿扫 `.ant-*`）
+- 扫余未登记弹层：矩阵已登记 `<Modal` 主路径均有 `focusTriggerAfterClose`/`confirmDestructive`；余量仅为 `Modal.info`（审批/工单 SQL 明细）/ `Modal.warning`（导入校验）/ `databaseConfig` Drawer——非主建模摩擦，下一切片另排
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 审批/工单 SQL 明细 `Modal.info` 焦点归还，或 Vision 矩阵 📋
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/common-tabs-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：数据类型字典弹层键盘闭环
 
 - 选题：画布关系图弹层键盘已收口（`4ae6135`）；设置页「新增/编辑字段类型」Modal 有首焦名称，但缺显式 `keyboard`/`focusTriggerAfterClose`（Esc 后焦点不归还触发器）
 - `DataTypeDomains`：`keyboard={!submitting}` + `focusTriggerAfterClose`；`afterOpenChange` 重试首焦「类型名称」；提交流程/失败 keep 窗不变
 - E2E：`datatype-domains-keyboard` 首焦名称 → Tab trap → Esc 归还「新增字段类型」；定位 `role=button`/`role=dialog`/`role=textbox`（勿扫 `.ant-*`）
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → 设计器壳 Skip/表设计签头键盘，或扫余未登记弹层
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign；下一刀 → ~~设计器壳 Skip/表设计签头键盘~~✅（CommonTabs 关签/可及名）
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/datatype-domains-keyboard.spec.ts --project=chromium --workers=1 --retries=0`

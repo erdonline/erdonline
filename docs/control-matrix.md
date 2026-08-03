@@ -232,6 +232,7 @@
 | 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
 | DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存；失败为可点「保存失败，点击重试」+ 单条 toast（断网不叠弹） | P1 | ✅ | `relation.spec`「保存中…→已保存」+ `save-failure` |
 | DesignLayout | CommonTabs / 表设计签头 | 栏高 ~24；签头 padX≤8/gap≤4；内签 gutter≤2；标签/关闭钮不 clip；Tab focus-visible；Cmd+1/2/3 | ADR-0016 密度 | ✅ | `model-design-ux`「表设计三签」「表设计内签」 |
+| DesignLayout | CommonTabs 签头键盘 | ←/→ roving + Enter 激活；关闭 `aria-label=关闭 {表名}`；关签焦点归还；focus-visible；内签同构 | ADR-0016 键盘门面 | ✅ | `common-tabs-keyboard` |
 | RF TableNode | 底栏 / 空表井 chrome | 表头 pad≤6 / 字段 minH20 已密；添加 margin≤6 + minH≥22；打开表设计 margin≤6×4 + btn minH≥22；空表井 pad≤6/gap≤4；`NODE_FOOTER_H` 28；persist 不回归 | ADR-0016 密度 | ✅ | `relation`「PK/FK」+ `table-field-empty`「画布空表」 |
 | DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K/F 开合；搜表定位+高亮；↑↓/aria-activedescendant；空态「无匹配结果」pad≤8×8 / list≤2；footer pad≤4×8；Esc 归还；Tab trap | RF CommandPalette | ✅ | `relation.spec`「命令面板」+「搜表定位」 |
 | DesignLayout | 快捷键速查卡 | `?` / 工具栏「?」→ aria dialog「快捷键」；含 Cmd+1/2/3 表设计签；密度 maxH≤360 / list 2×4 / row padY≤6；Esc + 关闭钮可焦；与命令面板互斥 | RF ShortcutHelp | ✅ | `relation.spec`「快捷键速查」 |

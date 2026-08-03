@@ -74,6 +74,7 @@
 - ✅ 表设计内签直切：`Cmd/Ctrl+1` 字段 · `2` 索引 · `3` 元数据应用（仅表设计签挂载时拦截；输入框内不拦；画布上不抢浏览器签页）；速查卡已登记
 - ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）
 - ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
+- ✅ CommonTabs 签头键盘：`navigation`「已打开的签页」；←/→ roving 切实体签；关闭钮 `aria-label=关闭 {表名}`（禁英文 `remove`）；关签焦点归还下一签或主工作区地标；关闭钮 `:focus-visible`；内签方向键不回归
 - ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
 - ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
 - ✅ 注册壳键盘：同壳 Skip「跳到注册表单」；用户名→密码→确认→邮箱→手机→注册→footer；Form tip 问号出序（悬停保留）；末字段 Enter 提交/校验；focus-visible brand 环；无 trap
