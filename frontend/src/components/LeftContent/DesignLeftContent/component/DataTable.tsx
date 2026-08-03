@@ -292,8 +292,14 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         okText: '删除',
         okType: 'danger',
         cancelText: '取消',
-        onOk() {
-          projectDispatch.removeDiagram(node.module, node.diagramId);
+        async onOk() {
+          // 禁止本地 mutate 即「关系图删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+          const ok = await Promise.resolve(
+            projectDispatch.removeDiagram(node.module, node.diagramId, { persist: true }),
+          );
+          if (!ok) {
+            return Promise.reject(new Error('关系图删除落盘失败'));
+          }
         },
       });
       return;
@@ -312,7 +318,13 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       cancelText: '取消',
       async onOk() {
         if (node.type === 'module') {
-          projectDispatch.removeModule(node.module || node.name);
+          // 禁止本地 mutate 即「模型删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
+          const ok = await Promise.resolve(
+            projectDispatch.removeModule(node.module || node.name, { persist: true }),
+          );
+          if (!ok) {
+            return Promise.reject(new Error('模型删除落盘失败'));
+          }
           return;
         }
         if (node.type === 'entity') {

@@ -30,7 +30,10 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await expect(page.getByTestId('tree-open-relation')).toBeVisible();
       await expect(page.getByTestId('diagram-switcher')).toHaveCount(1);
 
-      await page.getByRole('button', { name: '新建关系图' }).click();
+      await page
+        .getByTestId('diagram-switcher')
+        .getByRole('button', { name: '新建关系图' })
+        .click();
       const createDialog = page.getByRole('dialog', { name: '新建关系图' });
       await expect(createDialog).toBeVisible();
       await createDialog.getByLabel('关系图名称').fill('鉴权域');
@@ -83,7 +86,10 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByRole('button', { name: '新建关系图' }).click();
+      await page
+        .getByTestId('diagram-switcher')
+        .getByRole('button', { name: '新建关系图' })
+        .click();
       const createDialog = page.getByRole('dialog', { name: '新建关系图' });
       await createDialog.getByLabel('关系图名称').fill('鉴权域');
       await page.getByTestId('diagram-modal-ok').click();
@@ -139,7 +145,10 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByRole('button', { name: '新建关系图' }).click();
+      await page
+        .getByTestId('diagram-switcher')
+        .getByRole('button', { name: '新建关系图' })
+        .click();
       const createDialog = page.getByRole('dialog', { name: '新建关系图' });
       await createDialog.getByLabel('关系图名称').fill('鉴权域');
       await page.getByTestId('diagram-modal-ok').click();
