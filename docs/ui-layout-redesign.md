@@ -142,6 +142,7 @@
 - ✅ **默认项设置弹层键盘**（2026-08-03）：首焦「默认字段」Tab；Esc 归还「项目菜单」；Tab trap；`default-setup-keyboard.spec` 绿
 - ✅ **数据源逆向解析弹层键盘**（2026-08-03）：首焦「数据源」Select；Esc 归还「项目菜单」；Tab trap；`reverse-database-keyboard.spec` 绿
 - ✅ **导出DDL弹层键盘**（2026-08-03）：首焦「数据源」Select；Esc 归还「项目菜单」；Tab trap；`export-ddl-keyboard.spec` 绿
+- ✅ **解析ERD文件弹层键盘**（2026-08-03）：首焦上传区「选择ERD文件」；Esc 归还「项目菜单」；Tab trap；`reverse-erd-keyboard.spec` 绿
 
 ## 重估结论（2026-08-02 v2）：三个被推翻的假设
 

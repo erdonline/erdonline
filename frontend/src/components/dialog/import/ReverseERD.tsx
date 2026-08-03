@@ -163,8 +163,31 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
+        keyboard
+        focusTriggerAfterClose
+        afterOpenChange={(visible) => {
+          if (!visible) {
+            return;
+          }
+          // rc-upload 把 aria-* 挂到隐藏 input；键盘面在 `.ant-upload-btn`
+          const tryFocus = (attempt = 0) => {
+            const btn = document.querySelector<HTMLElement>(
+              '.erd-io-modal-root .ant-upload-btn',
+            );
+            if (btn) {
+              btn.setAttribute('aria-label', '选择ERD文件');
+              btn.focus();
+              return;
+            }
+            if (attempt >= 20) {
+              return;
+            }
+            window.setTimeout(() => tryFocus(attempt + 1), 50);
+          };
+          window.setTimeout(() => tryFocus(), 0);
+        }}
       >
-        <Dragger {...uploadProps}>
+        <Dragger {...uploadProps} hasControlInside={false}>
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
