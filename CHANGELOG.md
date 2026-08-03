@@ -8,6 +8,17 @@
 
 ### 2026-08-03
 
+#### 配置：Origin 单一 `ERD_UI_URL`（去嵌套别名）
+
+- 选题：prod `SOCKETIO_ORIGIN`⇄`ERD_UI_URL` 互套 + `CORS_ALLOWED_ORIGINS` 第三入口，与 MYSQL*/REDIS*「一关注一点」不一致
+- `application-prod.yml`：`martin.socketio.origin` / `martin.ui.url` 均 `${ERD_UI_URL}`（无默认、无 `${A:${B}}`）
+- `CrossOriginPolicy`：HTTP CORS 只读 `martin.ui.url`；删 `CORS_ALLOWED_ORIGINS`/`SOCKETIO_ORIGIN` 兼容路径；prod 文案指向 `ERD_UI_URL`
+- 单测：`OriginBindingTest` / `CrossOriginPolicyTest` 对齐
+- 文档：deployment / security-model R-CFG-04 / `.env.example` / regression-checklist；禁写「三者任一」
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OriginBindingTest,CrossOriginPolicyTest test`
+
 #### 体验：版本保存/重建失败不伪装成功
 
 - 选题：`initSave` 用 `if (res)` 真值判断，业务失败仍弹「重建基线成功」并 `dropVersionTable`/rebaseline；`InitVersion` 先关窗再存；dbsync 失败「正在同步」死态

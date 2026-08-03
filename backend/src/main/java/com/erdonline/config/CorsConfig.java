@@ -22,7 +22,7 @@ import java.util.List;
  * 前缀剥离过滤器与 Spring Security 之前被直接放行并返回 200，避免预检被 401 拦截。</p>
  *
  * <p>Origin 解析见 {@link CrossOriginPolicy}（R-CFG-04）：本地默认 localhost；
- * prod 须 {@code CORS_ALLOWED_ORIGINS} 或 {@code ERD_UI_URL}，禁止 {@code *}。</p>
+ * prod 须 {@code ERD_UI_URL}（{@code martin.ui.url}），禁止 {@code *}。</p>
  */
 @Configuration
 public class CorsConfig {

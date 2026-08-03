@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * R-CFG-04：prod 拒 SocketIO/CORS 通配；非 prod 保留本地默认。
+ * R-CFG-04：prod 拒 SocketIO/CORS 通配；非 prod 保留本地默认；Origin 仅 martin.ui.url。
  */
 class CrossOriginPolicyTest {
 
@@ -32,18 +32,7 @@ class CrossOriginPolicyTest {
     }
 
     @Test
-    void httpOriginsPreferCorsAllowedOrigins() {
-        MockEnvironment env = new MockEnvironment();
-        env.setActiveProfiles("prod");
-        env.setProperty("CORS_ALLOWED_ORIGINS", "https://demo.example, https://a.example");
-        env.setProperty("martin.ui.url", "https://ignored.example");
-        assertEquals(
-                List.of("https://demo.example", "https://a.example"),
-                CrossOriginPolicy.resolveHttpAllowedOrigins(env));
-    }
-
-    @Test
-    void httpOriginsFallBackToMartinUiUrl() {
+    void httpOriginsFromMartinUiUrl() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
         env.setProperty("martin.ui.url", "https://pages.example");
@@ -53,19 +42,29 @@ class CrossOriginPolicyTest {
     }
 
     @Test
+    void httpOriginsSplitCsvFromMartinUiUrl() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        env.setProperty("martin.ui.url", "https://demo.example, https://a.example");
+        assertEquals(
+                List.of("https://demo.example", "https://a.example"),
+                CrossOriginPolicy.resolveHttpAllowedOrigins(env));
+    }
+
+    @Test
     void prodHttpRejectsMissingOrigins() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
-        assertTrue(ex.getMessage().contains("CORS_ALLOWED_ORIGINS") || ex.getMessage().contains("ERD_UI_URL"));
+        assertTrue(ex.getMessage().contains("ERD_UI_URL"));
     }
 
     @Test
     void prodHttpRejectsWildcard() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
-        env.setProperty("CORS_ALLOWED_ORIGINS", "*");
+        env.setProperty("martin.ui.url", "*");
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
         assertTrue(ex.getMessage().contains("*"));

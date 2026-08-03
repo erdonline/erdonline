@@ -71,7 +71,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-CFG-01 | P0 | ~~`JWT_SECRET` 有仓库默认值，prod 未 fail-fast~~ | ~~`application.yml` 弱默认；prod 未覆盖~~ | **✅ 已关闭（2026-08-03）**：`application-prod.yml` `erd.jwt.secret: ${JWT_SECRET}` 无默认；`JwtConfig` prod 拒 blank/仓库开发默认串；本地/dev 保留 DX 默认 | 保持 prod 无默认；公网/demo 须旋转且 ≠ 仓库串 |
 | R-CFG-02 | P0 | ~~种子 `admin`/`123456`~~ | ~~`security-model` 种子表；Flyway `V3`/`V6`~~ | **✅ 已关闭（2026-08-03）**：`allow-demo-admin` prod/默认=false，拒绝 `admin`+`123456`；`dev`=true 保本地 dogfood；`ERD_ALLOW_DEMO_ADMIN=true` 逃生 | 公网改密 admin；勿开 `ERD_ALLOW_DEMO_ADMIN` |
 | R-CFG-03 | P1 | ~~应用库 JDBC `useSSL=false` + `allowPublicKeyRetrieval=true`~~ | ~~`application.yml` 双 DS jdbc-url~~ | **✅ 已关闭（2026-08-03）**：双 DS 经 `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL`；`dev`/默认关 SSL；`prod` 默认 `useSSL`+`requireSSL` 且关 public-key retrieval；compose 显式关 SSL 保无 TLS 本地 MySQL | 公网/Railway 勿关 SSL；私网无 TLS 逃生阀显式 `MYSQL_USE_SSL=false` |
-| R-CFG-04 | P1 | ~~CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*`~~ | ~~`CorsConfig`；`application.yml` SocketIO origin~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` prod 拒 CORS/SocketIO `*`；`application-prod.yml` `SOCKETIO_ORIGIN`←`ERD_UI_URL` 无 `*` 默认；本地/dev 保留 `*` + localhost CORS | 公网设 `ERD_UI_URL`（或 `SOCKETIO_ORIGIN`）+ demo `CORS_ALLOWED_ORIGINS`；勿空串覆盖 |
+| R-CFG-04 | P1 | ~~CORS 依赖 `CORS_ALLOWED_ORIGINS`；SocketIO `origin:*`~~ | ~~`CorsConfig`；`application.yml` SocketIO origin~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` prod 拒 CORS/SocketIO `*`；prod 单一 `ERD_UI_URL` → `martin.ui.url` + `martin.socketio.origin`（无嵌套别名）；本地/dev 保留 `*` + localhost CORS | 公网必设 `ERD_UI_URL`；勿 `*` / 空串；勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS` |
 | R-CFG-05 | P2 | ~~OSS / MinIO 默认密钥进 yml~~ | ~~扁平 `martin.oss.accessKey` 弱默认；prod 强制假占位~~ | **✅ 已关闭（2026-08-03）**：嵌套 `martin.oss.minio.*` + 空默认（无仓库密钥）；prod 不再强制 `OSS_*`；启用时 `OssCredentialGuard` 拒 `minio`/`minio123` | 启用 MinIO 时设 `OSS_ENDPOINT`+旋转密钥；勿示例真密钥 |
 | R-CFG-06 | P2 | ~~`.env.example` 残留 `OAUTH_CLIENT_*`~~ | ~~`.env.example` OAuth 死键~~ | **✅ 已关闭（2026-08-03）**：删 `OAUTH_CLIENT_*`；改为可选 OSS 注释段 | 勿回挂 password-grant 客户端键 |
 
@@ -100,7 +100,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DEAD-01 | P1 | ~~`martin.swagger.enabled` 不门控 springdoc~~ | ~~`application.yml`~~ | **✅ 已关闭（2026-08-03）**：删除 `martin.swagger` 与死类 `SwaggerProperties`；门控仅 `springdoc.*` | 勿回键；prod 保持 springdoc 关 |
 | R-DEAD-02 | P2 | ~~`martin.resource-server.enabled` 无引用~~ | ~~`application.yml`~~ | **✅ 已关闭（2026-08-03）**：删除假开关；resource server 常驻 | 勿回键 |
 | R-DEAD-03 | P2 | ~~ignore：`/endpoint/**` 等无控制器路径~~ | ~~`application.yml` ignore-urls~~ | **✅ 已关闭（2026-08-03）**：去掉 `/endpoint/**`；保留登录/退出/注册产品口/actuator/springdoc/error；分享仍仅 GET（代码链）；`/register`/`/user/register` 不回 ignore | 新匿名面须挂真实 Controller 后再入 ignore |
-| R-DEAD-04 | P2 | ~~`martin.ui.url` / `ERD_UI_URL` 代码零引用~~ | ~~`application.yml` ui.url~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` CORS 回落 + prod SocketIO origin 回落；见 R-CFG-04 | 保持接线；业务跳转若再用同键 |
+| R-DEAD-04 | P2 | ~~`martin.ui.url` / `ERD_UI_URL` 代码零引用~~ | ~~`application.yml` ui.url~~ | **✅ 已关闭（2026-08-03）**：`CrossOriginPolicy` 读 `martin.ui.url`；prod SocketIO 同绑 `ERD_UI_URL`；见 R-CFG-04 | 保持接线；业务跳转若再用同键 |
 
 ### 点击劫持（X-Frame-Options）
 
