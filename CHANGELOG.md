@@ -8,12 +8,23 @@
 
 ### 2026-08-03
 
+#### 体验：右键/树操作菜单密度
+
+- 选题：内签栏已 ~24；设计器 Dropdown/右键仍默认 antd ~40 松项
+- 共享 `.erd-dense-menu`（`theme/dense-menu.less`）：项高 28 / 字 12 / pad 4×8；挂树操作、签右键、新建、项目菜单·子菜单、顶栏更多；禁 clip；保留 menuitem + 方向键/Esc
+- E2E：`model-design-ux`「右键/树操作菜单密度」；截图 `diagram-context-menu-dense.png`
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 签体内容次密距或空表设计引导（视 ROI）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "右键/树操作菜单密度" --workers=1 --retries=0`
+- `cd frontend && npx playwright test tests/e2e/tree-delete-keyboard.spec.ts --project=chromium --workers=1 --retries=0`
+
 #### 体验：表设计内签（字段/索引/元数据）栏密度
 
 - 选题：CodeTab/DbTab 子签已显式 ~24；表设计 `#tableNav` 内签仍靠 pad 堆高、无固定栏高
 - `TableTab.less`：`.erd-table-design__tabs` `--erd-inner-tabs-h: 24`、字 12、flex 居中；nav `overflow: visible`；inset focus-visible；仅 `>` 直系签栏（不吞嵌套 CodeTab）
 - E2E：`model-design-ux`「表设计内签」栏高 + 不 clip + Tab focus + Cmd+1/2/3；截图 `diagram-inner-tabs-dense.png`
-- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → 右键菜单密度或签体内容次密距（视 ROI）
+- 文档：design-principles §2 / regression-checklist / control-matrix / ui-layout-redesign / roadmap；下一刀 → ~~右键菜单密度~~✅
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/model-design-ux.spec.ts --project=chromium --grep "表设计内签" --workers=1 --retries=0`

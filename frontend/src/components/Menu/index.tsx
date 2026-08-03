@@ -194,6 +194,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       {
         key: 'import',
         label: '导入',
+        popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'import-reverse',
@@ -220,6 +221,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       {
         key: 'export',
         label: '导出',
+        popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'export-html',
@@ -256,6 +258,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       {
         key: 'setup',
         label: '设置',
+        popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'setup-db',
@@ -290,7 +293,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
         }}
         items={items}
         style={{ minWidth: 200 }}
-        className="erd-project-menu__list"
+        className="erd-project-menu__list erd-dense-menu"
       />
       <ReverseDatabase
         hideTrigger

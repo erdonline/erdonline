@@ -710,4 +710,103 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  /**
+   * ADR-0016：设计器树/签右键与 Dropdown 菜单次密距 —
+   * 项高 ~28（≤32）；禁 clip；保留 role=menuitem + 方向键
+   */
+  test('右键/树操作菜单密度 ~28', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('menudense');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      await page.getByTestId('add-module-empty').click();
+      await page.getByTestId('entity-modal-name').fill('SHOP');
+      await page.getByTestId('entity-modal-chnname').fill('商城');
+      await page.getByTestId('entity-modal-ok').click();
+      await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
+
+      await page.getByTestId('design-tree-add').click();
+      await page.getByTestId('menu-add-entity').click();
+      await page.getByTestId('entity-modal-name').fill('T_ORDER');
+      await page.getByTestId('entity-modal-ok').click();
+
+      const trigger = page.getByLabel('表操作');
+      await expect(trigger).toBeVisible({ timeout: 10_000 });
+      await trigger.click();
+
+      const editItem = page.getByRole('menuitem', { name: '编辑表' });
+      await expect(editItem).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByRole('menuitem', { name: '删除表' })).toBeVisible();
+
+      const metrics = await editItem.evaluate((el) => {
+        const item = el as HTMLElement;
+        const menu =
+          (item.closest('.erd-dense-menu') as HTMLElement | null) ||
+          (item.closest('.ant-dropdown-menu') as HTMLElement | null) ||
+          (item.closest('.ant-menu') as HTMLElement | null);
+        const icon = item.querySelector('.anticon, svg') as HTMLElement | null;
+        const label =
+          (item.querySelector('.ant-menu-title-content') as HTMLElement | null) ||
+          item;
+        const eps = 1;
+        const fullyIn = (inner: DOMRect, outer: DOMRect) =>
+          inner.top >= outer.top - eps &&
+          inner.bottom <= outer.bottom + eps &&
+          inner.left >= outer.left - eps &&
+          inner.right <= outer.right + eps;
+        const ir = item.getBoundingClientRect();
+        const lr = label.getBoundingClientRect();
+        const iconClipped = icon
+          ? !fullyIn(icon.getBoundingClientRect(), ir)
+          : false;
+        const labelClipped = !fullyIn(lr, ir);
+        return {
+          h: ir.height,
+          fontSize: parseFloat(getComputedStyle(item).fontSize),
+          iconClipped,
+          labelClipped,
+          denseClass: !!menu?.classList.contains('erd-dense-menu'),
+        };
+      });
+
+      expect(
+        metrics.h,
+        `菜单项高应 ≤32（目标 ~28），得 ${metrics.h}`,
+      ).toBeLessThanOrEqual(32);
+      expect(metrics.h).toBeGreaterThanOrEqual(24);
+      expect(metrics.fontSize).toBeLessThanOrEqual(13);
+      expect(metrics.iconClipped, '菜单图标不得裁切').toBe(false);
+      expect(metrics.labelClipped, '菜单文案不得裁切').toBe(false);
+      expect(metrics.denseClass, '应挂 erd-dense-menu').toBe(true);
+
+      await editItem.focus();
+      await page.keyboard.press('ArrowDown');
+      const afterArrow = await page.evaluate(() => {
+        const ae = document.activeElement as HTMLElement | null;
+        return {
+          role: ae?.getAttribute('role'),
+          name: (ae?.textContent || '').trim(),
+        };
+      });
+      expect(afterArrow.role).toBe('menuitem');
+      expect(afterArrow.name.length).toBeGreaterThan(0);
+
+      await page.keyboard.press('Escape');
+      await expect(editItem).toHaveCount(0);
+
+      await trigger.click();
+      await expect(page.getByRole('menuitem', { name: '编辑表' })).toBeVisible();
+      await page.screenshot({
+        path: 'test-results/ux-walkthrough/diagram-context-menu-dense.png',
+        fullPage: false,
+      });
+      await page.keyboard.press('Escape');
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

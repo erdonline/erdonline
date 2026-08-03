@@ -370,7 +370,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     }
 
     const menu = (
-      <Menu onClick={(e) => e.domEvent.stopPropagation()}>
+      <Menu className="erd-dense-menu" onClick={(e) => e.domEvent.stopPropagation()}>
         {node.type !== 'folder' && (
           <>
             {node.type === 'entity' ? (
@@ -522,7 +522,11 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     ];
 
     return (
-      <Dropdown menu={{ items }} trigger={['click']} placement="bottomLeft">
+      <Dropdown
+        menu={{ items, className: 'erd-dense-menu' }}
+        trigger={['click']}
+        placement="bottomLeft"
+      >
         <Button
           size="small"
           icon={<PlusOutlined />}
