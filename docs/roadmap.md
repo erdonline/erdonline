@@ -70,11 +70,12 @@
 - ~~五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）~~ ✅ 2026-08-04（IR diff → ahead/behind/diverged；未知四路 copy + testid；`schema-probe.spec.ts`）
 - ~~分享访客隐藏 B 层~~ ✅ 2026-08-04（`shareContext` + ACL guard + `share.spec.ts` 无 probe testid/API）
 
-**MVP 队列（#1–#11）已闭环**；同主题续跑队列 #12 ✅ → #13 ✅ → #14 ✅ → #15–#16（E2E 补盘 → Pull/Push 需用户开闸）见 `scripts/agent-loop-vision.prompt.md`。
+**MVP 队列（#1–#11）已闭环**；同主题续跑队列 #12 ✅ → #13 ✅ → #14 ✅ → #15 ✅ → #16（Pull/Push 需用户开闸）见 `scripts/agent-loop-vision.prompt.md`。
 
 - ~~#12 A/B 层 diff 视觉/文案统一（`dualLayerTokens` parity 色 + 顶栏图例；A 一致绿/领先蓝；toolbar 与 dirty chip 同源）~~ ✅ 2026-08-04
 - ~~#13 冲突可视化：project 409 Modal 补最小 diff 预览（本地 vs 服务器 / last known；复用 `VersionDiffPanel`）~~ ✅ 2026-08-04
 - ~~#14 B 层探测入口收敛：`SchemaProbeControl` 迁入设计器顶栏（icon-only chrome）；版本页移除重复；画布内可发现~~ ✅ 2026-08-04
+- ~~#15 五态 + dirty chip E2E 补盘：`schema-probe.spec.ts` 4 用例（mock 五态 + 未知四路 + legend）；`version-dirty-chip.spec.ts` no-baseline/clean/dirty；A 层 unknown 仍手工清单~~ ✅ 2026-08-04
 
 ### i18n 奠基（B 层后）✅
 

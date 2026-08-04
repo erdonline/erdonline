@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### 测试：双层五态 + dirty chip E2E 补盘（Vision #15 · ADR-0022）
+
+- 缺口：`schema-probe.spec.ts` 仅覆盖 UNKNOWN 三路 + mock AHEAD/PERMISSION；缺 SYNCED/BEHIND/DIVERGED/CONNECTION_FAILED；`version-dirty-chip.spec.ts` 缺基线失败未知态；smoke/ux-audit 无 probe 专项（由 focused spec 承担）
+- 改动：扩展 `schema-probe.spec.ts`「有 JDBC」用例——逐态 inline mock 覆盖 B 层五态（SYNCED/AHEAD/BEHIND/DIVERGED）+ 未知四路（NOT_PROBED/NO_DATASOURCE 分拆、NO_PERMISSION、CONNECTION_FAILED）+ 延迟 mock 探测 + 版本页 `dual-layer-legend`；A 层 `version-dirty-chip-unknown` 仍登记手工清单（E2E route 与 umi-request 拦截不稳）
+- 定位纪律：新断言优先 `data-probe-status` / `data-testid`；中文 copy 仅作 hint 可见性辅证
+
+验证点：
+- `yarn playwright test tests/e2e/schema-probe.spec.ts tests/e2e/version-dirty-chip.spec.ts --project=chromium`
+
 #### 体验：B 层探测入口收敛至设计器顶栏（Vision #14 · ADR-0022）
 
 - 问题：探测按钮仅在版本页 toolbar，画布内编辑时看不到实库落差；与顶栏 A 层 dirty chip 分裂
