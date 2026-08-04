@@ -44,6 +44,17 @@ class PatScopesTest {
     }
 
     @Test
+    void openidIsMintableButNotDefault() {
+        Set<String> only = PatScopes.normalizeForMint(List.of(PatScopes.OPENID));
+        assertEquals(Set.of(PatScopes.OPENID), only);
+        Set<String> mixed = PatScopes.normalizeForMint(List.of(
+                PatScopes.OPENID, PatScopes.PROJECTS_READ));
+        assertTrue(mixed.contains(PatScopes.OPENID));
+        assertTrue(mixed.contains(PatScopes.PROJECTS_READ));
+        assertFalse(PatScopes.DEFAULT_READ.contains(PatScopes.OPENID));
+    }
+
+    @Test
     void requireThrowsForbiddenWhenMissing() {
         assertThrows(com.erdonline.common.core.exception.ValidateException.class,
                 () -> PatScopes.require(Set.of(PatScopes.VERSIONS_READ), PatScopes.PROJECTS_READ));

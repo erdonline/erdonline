@@ -18,12 +18,14 @@ public final class PatScopes {
     public static final String VERSIONS_READ = "versions:read";
     public static final String PROJECTS_WRITE = "projects:write";
     public static final String VERSIONS_WRITE = "versions:write";
+    /** OIDC：换票带 id_token；Bearer OAT 调 /oauth/userinfo */
+    public static final String OPENID = "openid";
 
     public static final Set<String> DEFAULT_READ =
             Set.of(PROJECTS_READ, VERSIONS_READ);
 
     private static final Set<String> ALL_KNOWN = Set.of(
-            PROJECTS_READ, VERSIONS_READ, PROJECTS_WRITE, VERSIONS_WRITE);
+            PROJECTS_READ, VERSIONS_READ, PROJECTS_WRITE, VERSIONS_WRITE, OPENID);
 
     /** 可铸造：读 + 写（写须显式请求；默认仍 {@link #DEFAULT_READ}） */
     public static final Set<String> MINTABLE = ALL_KNOWN;

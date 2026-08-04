@@ -8,6 +8,20 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OIDC 薄 MVP（discovery / id_token HS256 / userinfo）
+
+- 选题：refresh 已交付；OIDC 解耦切片（不引入 RSA 密钥机；无既有非对称密钥）
+- `GET /.well-known/openid-configuration`：issuer=`ERD_OIDC_ISSUER` 或回落 `ERD_UI_URL`（`martin.ui.url`）
+- `GET /.well-known/jwks.json`：空 keys（HS256 共享密钥 **永不** 进 JWKS）；`ERD_OIDC_HMAC` prod fail-fast（对齐 JWT_SECRET）
+- `openid` 入 `PatScopes`；auth code / refresh 换票且授予 openid → 响应 `id_token`；`client_credentials` **不**发
+- `GET /oauth/userinfo`（兼 `/auth/oauth/userinfo`）：Bearer `erd_oat_` + openid；拒 PAT / 会话 JWT；独立 SecurityFilterChain（Order 0）避免 Resource Server 把 OAT 当 JWT
+- nginx / umi proxy：`/.well-known/`；OAuth UI scope 可选 openid
+- 未做：nonce / at_hash / RSA·JWKS 持久密钥 / 第三方 IdP 联邦
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OidcIdTokenServiceTest,PatScopesTest,OAuthRefreshTokenServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：discovery issuer；含 openid 的 auth code 换票有 `id_token`（alg HS256）；`/oauth/userinfo` 200；无 openid → 403 `insufficient_scope`；`client_credentials` 无 `id_token`
+
 #### 开放：ADR-0013 — OAuth refresh_token（轮换 + 吊销）
 
 - 选题：MVP 同意页后浏览器客户端需续期；优先 refresh，OIDC 后置
@@ -15,7 +29,7 @@
 - 仅 `authorization_code` 换票签发 `erd_ort_`（`client_credentials` 不发）；TTL `ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 30 天）
 - `POST /oauth/token` `grant_type=refresh_token`：**轮换**（旧票吊销 + 新 access/refresh 同 family）；复用已吊销 refresh → 整族 OAT/ORT 吊销
 - `POST /oauth/revoke`（RFC 7009 风格）+ 吊销 client 一并失效 refresh；ignore-urls 同步
-- 未做：OIDC discovery / id_token / userinfo（下一切片）
+- ~~未做：OIDC discovery / id_token / userinfo（下一切片）~~ → 见上节 OIDC 薄 MVP
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest,OAuthRefreshTokenServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`

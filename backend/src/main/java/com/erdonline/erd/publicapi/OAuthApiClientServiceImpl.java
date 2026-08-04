@@ -13,7 +13,6 @@ import com.erdonline.erd.mapper.OAuthAccessTokenMapper;
 import com.erdonline.erd.mapper.OAuthApiClientMapper;
 import com.erdonline.erd.mapper.OAuthAuthorizationCodeMapper;
 import com.erdonline.erd.mapper.OAuthRefreshTokenMapper;
-import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
@@ -32,7 +31,6 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class OAuthApiClientServiceImpl
         extends ServiceImpl<OAuthApiClientMapper, OAuthApiClient>
         implements OAuthApiClientService {
@@ -44,6 +42,18 @@ public class OAuthApiClientServiceImpl
     private final OAuthAccessTokenMapper oauthAccessTokenMapper;
     private final OAuthAuthorizationCodeMapper oauthAuthorizationCodeMapper;
     private final OAuthRefreshTokenMapper oauthRefreshTokenMapper;
+    private final OidcIdTokenService oidcIdTokenService;
+
+    public OAuthApiClientServiceImpl(
+            OAuthAccessTokenMapper oauthAccessTokenMapper,
+            OAuthAuthorizationCodeMapper oauthAuthorizationCodeMapper,
+            OAuthRefreshTokenMapper oauthRefreshTokenMapper,
+            OidcIdTokenService oidcIdTokenService) {
+        this.oauthAccessTokenMapper = oauthAccessTokenMapper;
+        this.oauthAuthorizationCodeMapper = oauthAuthorizationCodeMapper;
+        this.oauthRefreshTokenMapper = oauthRefreshTokenMapper;
+        this.oidcIdTokenService = oidcIdTokenService;
+    }
 
     @Value("${erd.public-api.oauth-access-token-ttl-seconds:3600}")
     private long accessTokenTtlSeconds;
@@ -643,6 +653,13 @@ public class OAuthApiClientServiceImpl
         token.setRevoked(ACTIVE);
         oauthAccessTokenMapper.insert(token);
 
+        // id_token：仅有 end-user 的 auth code / refresh 对（family 非空）且含 openid
+        String idToken = null;
+        if (familyId != null) {
+            idToken = oidcIdTokenService.mintIfOpenid(
+                    granted, client.getClientId(), userId, username);
+        }
+
         return OAuthTokenResponse.builder()
                 .accessToken(plaintext)
                 .tokenType("Bearer")
@@ -651,6 +668,7 @@ public class OAuthApiClientServiceImpl
                 .scopes(new ArrayList<>(granted))
                 .refreshToken(refreshPlain)
                 .refreshExpiresIn(refreshTtl)
+                .idToken(idToken)
                 .build();
     }
 

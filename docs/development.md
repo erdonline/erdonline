@@ -232,12 +232,21 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 #   -H 'Content-Type: application/x-www-form-urlencoded' \
 #   -d "token=$(echo "$NEW" | jq -r '.refresh_token')&client_id=$CLIENT_ID&token_type_hint=refresh_token"
 
+# 8. OIDC 薄 MVP（issuer 直连 API 时设 ERD_OIDC_ISSUER=http://127.0.0.1:9502）
+# curl -sS http://127.0.0.1:9502/.well-known/openid-configuration | jq .
+# # 注册含 openid 的 public client → authorize scope=openid+projects:read → token：
+# TOK=$(curl -sS -X POST http://127.0.0.1:9502/oauth/token \
+#   -H 'Content-Type: application/x-www-form-urlencoded' \
+#   -d "grant_type=authorization_code&client_id=$CLIENT_ID&code=$CODE&redirect_uri=http://127.0.0.1:3000/cb&code_verifier=$VERIFIER")
+# echo "$TOK" | jq '{has_id_token:(.id_token!=null),scope}'
+# curl -sS http://127.0.0.1:9502/oauth/userinfo -H "Authorization: Bearer $(echo "$TOK" | jq -r .access_token)"
+
 # 产品 UI：登录 → /account/settings?selectKey=personalAccessTokens → 铸造/复制明文/吊销（token 仅创建弹层）
-#            /account/settings?selectKey=oauthClients → 注册/复制 ID/吊销（secret 仅创建弹层）
+#            /account/settings?selectKey=oauthClients → 注册/复制 ID/吊销（secret 仅创建弹层；可选 openid）
 #            浏览器 authorize URL：/oauth/authorize?... → AuthBrandShell 同意页 Allow/Deny
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`）。OIDC 仍后置。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OIDC：`ERD_OIDC_HMAC`（prod 必填）；issuer=`ERD_OIDC_ISSUER` 或 `ERD_UI_URL`；id_token TTL：`ERD_OIDC_ID_TOKEN_TTL`（默认 3600）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh/id_token。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`）。
 
 ### MCP（切片 4–5 + projects:write tools）
 

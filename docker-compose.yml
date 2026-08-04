@@ -69,6 +69,8 @@ services:
       REDISUSER: ${REDISUSER:-}
       # prod 强制 JWT_SECRET；compose 本地默认串 ≠ 仓库 application.yml 开发默认（JwtConfig 会拒后者）
       JWT_SECRET: ${JWT_SECRET:-change-me-compose-jwt-secret-min-32-chars!!!!}
+      # prod 强制 ERD_OIDC_HMAC；compose 默认串 ≠ 仓库 application.yml 开发默认
+      ERD_OIDC_HMAC: ${ERD_OIDC_HMAC:-change-me-compose-oidc-hmac-min-32-chars!!!!}
       # prod 强制 UI Origin（CORS+SocketIO；禁 *）
       ERD_UI_URL: ${ERD_UI_URL:-http://localhost:8000}
     ports:

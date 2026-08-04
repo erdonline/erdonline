@@ -15,11 +15,13 @@ export default {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
+    '/.well-known/': backendProxy,
   },
   test: {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
+    '/.well-known/': backendProxy,
   },
 };
 
