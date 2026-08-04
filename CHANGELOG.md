@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### 修复：Railway CORS 403（demo → production API）
+
+- 根因：Railway `ERD_UI_URL` 未含 `https://erdonline-demo.pages.dev`（或非浏览器 Origin）；Spring `CorsFilter` 返回 403 `Invalid CORS request`、无 `Access-Control-Allow-Origin`——**非** CSRF/Security 拦截 OPTIONS（Security 已 `permitAll` OPTIONS；无 Origin 预检走业务 404）
+- 代码：`CrossOriginPolicy` / `CorsConfig` 已支持逗号分隔多 Origin；新增 `CorsPreflightFilterTest` 回归 prod 双源预检
+- 运维：`.env.example` + `docs/deployment.md` 写明推荐值 `https://app.erdonline.com,https://erdonline-demo.pages.dev` 与 `railway variables set …` + Redeploy
+
+验证点：
+- `cd backend && mvn -q -Dtest=CorsPreflightFilterTest,CrossOriginPolicyTest test -Djacoco.skip=true` 绿
+- 改 Railway 变量后：`curl -sI -X OPTIONS 'https://erdonline-production.up.railway.app/auth/federate/providers' -H 'Origin: https://erdonline-demo.pages.dev' -H 'Access-Control-Request-Method: GET'` → 200 + `access-control-allow-origin`
+
 #### CI：demo 构建空 API_URL fail-fast
 
 - 问题：CF Pages 工作流在 `DEMO_API_URL` 未设或竞态读到空值时仍 `yarn build:prod` 成功，产物 `env-config.js` 的 `API_URL` 为空，浏览器 API 打回 Pages SPA HTML
