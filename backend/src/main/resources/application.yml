@@ -190,6 +190,10 @@ erd:
   # ADR-0021 第三方 IdP 联邦：缺 CLIENT_/APP_ 凭证则该 provider 关闭，不阻断启动
   federate:
     success-path: ${ERD_FEDERATE_SUCCESS_PATH:/login/federate}
+    github:
+      client-id: ${GITHUB_CLIENT_ID:}
+      client-secret: ${GITHUB_CLIENT_SECRET:}
+      redirect-uri: ${GITHUB_REDIRECT_URI:}
     google:
       client-id: ${GOOGLE_CLIENT_ID:}
       client-secret: ${GOOGLE_CLIENT_SECRET:}
@@ -225,6 +229,10 @@ security:
         - /auth/federate/providers
         - /federate/session
         - /auth/federate/session
+        - /federate/github
+        - /auth/federate/github
+        - /federate/github/callback
+        - /auth/federate/github/callback
         - /federate/google
         - /auth/federate/google
         - /federate/google/callback

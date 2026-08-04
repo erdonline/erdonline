@@ -4,6 +4,7 @@ package com.erdonline.auth.federate;
  * 支持的 IdP（ADR-0021）。
  */
 public enum FederateProvider {
+    GITHUB("github"),
     GOOGLE("google"),
     WECHAT("wechat");
 

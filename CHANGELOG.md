@@ -8,6 +8,19 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0021 — GitHub OAuth + 三方登录闭环加固
+
+- 选题：联邦扩到 GitHub；登录 → 会话 home → 登出形成闭环；设置页三方均可绑定/解绑
+- GitHub：OAuth App（`read:user user:email`）；`GITHUB_CLIENT_ID/SECRET/REDIRECT_URI`；subject=`id`；已验证邮箱可按邮箱绑定；缺 env → provider 关闭
+- 登录页：`/auth/federate/providers` 为 true 时显示 GitHub/Google/微信按钮；首登按 `allow-open-register` 建号或引导密码登录后绑定
+- 落地 `/login/federate` 换票；Header 退出清 JWT（与账密同源）
+- ADR-0021 / 部署 / 安全模型文档同步
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=FederateAuthServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart`；`curl -sS http://127.0.0.1:9502/auth/federate/providers` → `github/google/wechat` 均为 false（无凭证时）；`curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:9502/auth/federate/github` → 404
+- `cd frontend && yarn playwright test --project=chromium tests/e2e/federate-login.spec.ts`
+
 #### 开放：ADR-0021 — 第三方登录 IdP 联邦（Google + 微信扫码）
 
 - 选题：OIDC RS256 后接会话面联邦；不复活 password-grant / `/login/success` / 旧微信绑定页
