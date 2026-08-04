@@ -52,6 +52,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **Scope（已解锁）**：`projects:read`、`versions:read`；写 scope 名预留未开放
 - **只读项目**：`GET /api/v1/projects`、`GET /api/v1/projects/{id}` 需 `projects:read` + `project_user` 成员；详情 `projectJSON` 清空 `profile.dbs`（ADR-0008）
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
+- **MCP（只读）**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；**无**写 tools。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；超限 429
 - **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc
 

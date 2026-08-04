@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 切片 4 — MCP 只读骨架（`mcp/`）
+
+- 选题：切片 3 只读 REST 稳定后，agent 缺一等 MCP 面；本刀只读、无写
+- 包：`mcp/`（`@erdonline/mcp`，`@modelcontextprotocol/sdk`）：tools `list_projects` / `get_project` / `get_project_schema` / `list_versions` / `get_version` → `/api/v1/**` + `ERD_PAT`
+- 传输：stdio（默认，Cursor）+ Streamable HTTP（`--http` / `ERD_MCP_TRANSPORT=http`，`ERD_MCP_PORT` 默认 3920）
+- 文档：`mcp/README.md`；development / deployment / security-model / ADR-0013 / roadmap
+- 未做：写 scope、`POST …/versions`、写 tools
+
+验证点：
+- `cd mcp && yarn install && yarn build && yarn dogfood`（登录铸造 PAT → REST + stdio `tools/list` + `list_projects` / `get_project_schema`；无写 tool）
+
 #### 开放：ADR-0013 切片 3 — `GET /api/v1/projects/{id}/versions[+/{versionId}]`
 
 - 选题：切片 2 后 agent 仍缺版本时间线只读事实源
