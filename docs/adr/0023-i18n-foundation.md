@@ -1,6 +1,6 @@
 # ADR-0023：i18n 奠基（默认 zh-CN；英文优先 ≠ 切默认）
 
-- 状态：**已接受**（2026-08-04；审查锁定，B 层后一个切片落地）
+- 状态：**已接受**（2026-08-04）；**奠基切片 ✅ 2026-08-04**（`getAntdLocale`、删 `frontend/src/locales/`、`e2e-locators` 反脆弱）
 - 相关：[ADR-0005](./0005-ui-architecture.md)（antd 唯一）
 
 ## 决策

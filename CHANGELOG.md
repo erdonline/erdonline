@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### i18n 奠基（ADR-0023）
+
+- `getAntdLocale()` / `getAppLocale()`：`window._env_.LOCALE` 或 `ERD_LOCALE` 构建变量；未设或未知 → **zh-CN**；Theme `ConfigProvider` 不再硬编码 `zhCN`
+- 删死 `frontend/src/locales/`（63 文件 Pro 骨架，零 `useIntl` 引用）；移除 `i18n-remove` script
+- `env.local.sh` / `env.sh` / `docker-entrypoint.sh` 注入可选 `LOCALE`
+- `e2e-locators.mdc` 反脆弱段更新为「奠基后」
+
+验证点：
+- `cd frontend && npx tsx src/utils/getAntdLocale.test.ts`
+- `cd frontend && yarn build`
+- `cd frontend && npx playwright test --project=chromium tests/e2e/smoke.spec.ts --grep "登录 → 新建项目"`
+
 #### B 层：分享访客隐藏实库探测（ADR-0022 切片 11）
 
 - 前端：`isShareGuestContext()` + `canErdConnectorSchemaProbe`（同逆向解析权）；版本页 `Access` 包裹 `SchemaProbeControl`；分享页无 B 层控件；`save.schemaProbe` 分享路由拒绝调用
