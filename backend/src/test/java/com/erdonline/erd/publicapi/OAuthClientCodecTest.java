@@ -18,14 +18,19 @@ class OAuthClientCodecTest {
         String clientId = OAuthClientCodec.generateClientId();
         String secret = OAuthClientCodec.generateClientSecret();
         String oat = OAuthClientCodec.generateAccessToken();
+        String ort = OAuthClientCodec.generateRefreshToken();
         String code = OAuthClientCodec.generateAuthorizationCode();
 
         assertTrue(OAuthClientCodec.looksLikeClientId(clientId));
         assertTrue(secret.startsWith(OAuthClientCodec.CLIENT_SECRET_PREFIX));
         assertTrue(OAuthClientCodec.looksLikeAccessToken(oat));
+        assertTrue(OAuthClientCodec.looksLikeRefreshToken(ort));
+        assertTrue(ort.startsWith(OAuthClientCodec.REFRESH_TOKEN_PREFIX));
         assertTrue(OAuthClientCodec.looksLikeAuthorizationCode(code));
         assertTrue(code.startsWith(OAuthClientCodec.AUTH_CODE_PREFIX));
         assertFalse(PatTokenCodec.looksLikePat(oat));
+        assertFalse(OAuthClientCodec.looksLikeAccessToken(ort));
+        assertFalse(OAuthClientCodec.looksLikeRefreshToken(oat));
 
         String hash = OAuthClientCodec.hash(secret);
         assertEquals(64, hash.length());
@@ -33,6 +38,8 @@ class OAuthClientCodecTest {
         assertFalse(hash.equals(secret));
         assertTrue(OAuthClientCodec.hashEquals(hash, OAuthClientCodec.hash(secret)));
         assertFalse(OAuthClientCodec.hashEquals(hash, OAuthClientCodec.hash(oat)));
+        assertEquals(64, OAuthClientCodec.hash(ort).length());
+        assertFalse(OAuthClientCodec.hash(ort).equals(ort));
     }
 
     @Test

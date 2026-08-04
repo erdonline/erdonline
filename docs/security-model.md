@@ -48,9 +48,10 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 
 - **PAT 铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
 - **OAuth 切片 A（M2M）**：会话 JWT → `POST /auth/oauth-clients` 注册 confidential（默认；`client_id`=`erd_cli_…`，`client_secret`=`erd_cs_…` **仅响应一次**）→ 匿名 `POST /oauth/token`（`grant_type=client_credentials`，body 或 Basic）→ `access_token`=`erd_oat_…`（默认 TTL 3600s，`ERD_PUBLIC_API_OAUTH_TTL`）。列表/吊销：`GET|DELETE /auth/oauth-clients`。吊销 client 使未过期 OAT 与未消费 auth code 失效。
-- **OAuth 切片 B（浏览器 + PKCE）**：注册时可选 `clientType=public|confidential` + `redirectUris[]`（精确匹配；仅 https 或 localhost/127.0.0.1/[::1]）。产品同意页 `/oauth/authorize`（AuthBrandShell）。`GET /oauth/authorize`（**须会话 JWT**）→ 同意预览 JSON（client 名 / scopes / redirect host；**不**签发 code）。`POST … decision=allow` → 302（或 `Accept: application/json` → `{redirect_to}`）`?code=erd_ac_…&state=`；`decision=deny` → `error=access_denied`。匿名 `POST /oauth/token` `grant_type=authorization_code` + `code` + `redirect_uri` + `code_verifier`（public 无 secret；confidential 须 secret）→ `erd_oat_…`。auth code 仅 SHA-256、默认 TTL 120s（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、单次消费。未注册 redirect **永不** 302。
-- **存储**：表 `personal_access_token` / `oauth_api_client` / `oauth_access_token` / `oauth_authorization_code` 仅哈希 + hint；禁止明文入库存仓
-- **调用**：`Authorization: Bearer erd_pat_…` **或** `erd_oat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）。`client_credentials` OAT 以**注册人**身份；`authorization_code` OAT 以**授权用户**身份。
+- **OAuth 切片 B（浏览器 + PKCE）**：注册时可选 `clientType=public|confidential` + `redirectUris[]`（精确匹配；仅 https 或 localhost/127.0.0.1/[::1]）。产品同意页 `/oauth/authorize`（AuthBrandShell）。`GET /oauth/authorize`（**须会话 JWT**）→ 同意预览 JSON（client 名 / scopes / redirect host；**不**签发 code）。`POST … decision=allow` → 302（或 `Accept: application/json` → `{redirect_to}`）`?code=erd_ac_…&state=`；`decision=deny` → `error=access_denied`。匿名 `POST /oauth/token` `grant_type=authorization_code` + `code` + `redirect_uri` + `code_verifier`（public 无 secret；confidential 须 secret）→ `erd_oat_…` + `erd_ort_…`（refresh）。auth code 仅 SHA-256、默认 TTL 120s（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、单次消费。未注册 redirect **永不** 302。
+- **OAuth refresh（post-MVP）**：仅 `authorization_code` 换票签发 refresh（`client_credentials` **不**发）。`POST /oauth/token` `grant_type=refresh_token` → **轮换**（旧 `erd_ort_` 立即吊销，新 access+refresh 同 `family_id`）；提交已吊销 refresh → 整族 OAT/ORT 吊销 + `invalid_grant`。TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000s / 30 天）。`POST /oauth/revoke`（token + client 认证；RFC 7009 未知票仍 200）。吊销 client → 未过期 OAT/ORT + 未消费 code 一并失效。
+- **存储**：表 `personal_access_token` / `oauth_api_client` / `oauth_access_token` / `oauth_authorization_code` / `oauth_refresh_token` 仅哈希 + hint；禁止明文入库存仓
+- **调用**：`Authorization: Bearer erd_pat_…` **或** `erd_oat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT / refresh）。`client_credentials` OAT 以**注册人**身份；`authorization_code` / refresh 续期的 OAT 以**授权用户**身份。
 - **Scope（已解锁）**：默认 `projects:read`、`versions:read`；可显式铸造 `projects:write`、`versions:write`（OAuth 注册同 `PatScopes`；换票 `scope` ⊆ 客户端）
 - **只读项目**：`GET /api/v1/projects`、`GET /api/v1/projects/{id}` 需 `projects:read` + `project_user` 成员；详情 `projectJSON` 清空 `profile.dbs`（ADR-0008）
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
@@ -58,7 +59,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
 - **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；Redisson 集群共享；超限 429；Redis 不可用 fail-closed → 503（读写共用）
-- **后置**：刷新令牌 / OIDC；**不**因换票匿名口放宽 CORS
+- **后置**：**OpenID Connect**（discovery / id_token / userinfo）；**不**因换票/吊销匿名口放宽 CORS
 - **产品 UI**：
   - `/account/settings?selectKey=personalAccessTokens` — 列表 / 铸造（scopes + 可选过期）/ 明文一次揭示 / 吊销
   - `/account/settings?selectKey=oauthClients` — 列表 / 注册 / 复制 `client_id` / `client_secret` 创建时一次揭示（不可再查看）/ 吊销

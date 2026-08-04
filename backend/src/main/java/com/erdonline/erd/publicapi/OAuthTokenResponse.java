@@ -13,4 +13,8 @@ public class OAuthTokenResponse {
     long expiresIn;
     String scope;
     List<String> scopes;
+    /** 仅 authorization_code / refresh_token 换票；client_credentials 为 null */
+    String refreshToken;
+    /** refresh_token 剩余 TTL（秒）；无 refresh 时为 null */
+    Long refreshExpiresIn;
 }

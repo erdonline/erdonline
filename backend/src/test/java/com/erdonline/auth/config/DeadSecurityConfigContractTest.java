@@ -55,6 +55,7 @@ class DeadSecurityConfigContractTest {
                 "/login", "/auth/login", "/exit", "/actuator/**",
                 "/project/group/user/register", "/error",
                 "/oauth/token", "/auth/oauth/token",
+                "/oauth/revoke", "/auth/oauth/revoke",
                 "/v3/api-docs/**", "/swagger-ui/**")) {
             assertTrue(ignore.contains(required), "ignore missing required path: " + required);
         }

@@ -40,6 +40,9 @@ public class OAuthAccessToken implements Serializable {
 
     private String scopes;
 
+    /** refresh 轮换族；client_credentials 为 null */
+    private String familyId;
+
     private LocalDateTime expireTime;
 
     /** 0 有效 / 1 已吊销 */
