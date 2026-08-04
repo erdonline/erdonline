@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### B 层：五态 + 未知四路文案（ADR-0022 切片 10）
+
+- 后端 `SchemaFingerprintDiff`：结构 IR diff 将指纹差异细分为 `synced` / `ahead`（模型领先）/ `behind`（实库领先）/ `diverged`（双向分叉）；连接失败区分 `PROBE_CONNECTION_FAILED` vs `PROBE_NO_PERMISSION`
+- 前端 `SchemaProbeControl`：进页默认 `PROBE_NOT_PROBED`（不伪装一致）；探测中 Tag「探测中…」+ Button loading；失败显式 UNKNOWN + 四路可行动 copy（`schema-probe-unknown-hint`）；`data-probe-status` / `data-probe-reason` 供 E2E
+- `DataSourceSelect` 补 `data-testid="datasource-select"`
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn test -Dtest=SchemaFingerprintTest -Djacoco.skip=true`
+- `cd frontend && npx tsx src/utils/schemaProbeCopy.test.ts`
+- `cd frontend && npx playwright test --project=chromium tests/e2e/schema-probe.spec.ts`
+- `./backend/dev-ensure.sh --restart`
+
 #### B 层：版本号比较诚实化（ADR-0022 切片 9）
 
 - `stringVersion.ts`：`compareStringVersion` 仅接受数字段 semver（可选 `v` 前缀）；空段 / 非数字 / null → 返回 `null`（不可比），不再因 `NaN` 误判「已推送/一致」

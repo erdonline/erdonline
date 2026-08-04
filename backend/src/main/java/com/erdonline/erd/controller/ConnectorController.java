@@ -75,7 +75,7 @@ public class ConnectorController {
     }
 
     /**
-     * B 层实库探测：逆向 schema → 规范化指纹；与 projectJSON 对比得 synced/different/unknown（ADR-0022 #8）。
+     * B 层实库探测：逆向 schema → 规范化指纹；与 projectJSON 对比得五态 synced/ahead/behind/diverged/unknown（ADR-0022 #8/#10）。
      * 只读；须用户显式触发，不在页面加载时自动调用。
      */
     @PostMapping("schema/probe")
