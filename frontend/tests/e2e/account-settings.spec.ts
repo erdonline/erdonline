@@ -198,6 +198,15 @@ test.describe('账户设置', () => {
     await pwdDlg.getByRole('button', { name: /取\s*消/ }).click();
     await expect(pwdDlg).toBeHidden({ timeout: 10_000 });
 
+    await page.getByRole('menuitem', { name: 'OAuth 客户端' }).click();
+    await expect(page).toHaveURL(/selectKey=oauthClients/);
+    await expect(
+      page.getByTestId('account-settings-oauth-clients'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole('button', { name: '注册 OAuth 客户端' }),
+    ).toBeVisible();
+
     await page.getByRole('menuitem', { name: '授权类型' }).click();
     await expect(page).toHaveURL(/selectKey=identification/);
     await expect(page.getByText(/开源版|已取得授权/)).toBeVisible({

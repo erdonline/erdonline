@@ -1,6 +1,6 @@
 # ADR-0013：公开 API / MCP
 
-- 状态：**🚧 进行中**（人工解封 2026-08-04；切片 1–5 ✅ + `projects:write` REST/MCP ✅ + Redis 限流 ✅ + **OAuth 切片 A+B** ✅；余管理 UI / 同意页打磨）
+- 状态：**🚧 进行中**（人工解封 2026-08-04；切片 1–5 ✅ + `projects:write` REST/MCP ✅ + Redis 限流 ✅ + **OAuth 切片 A+B** ✅ + **client 管理 UI** ✅；余同意页打磨 / PAT 管理 UI）
 - 决策者：项目维护者（Vision 自动轨暂停点 `785d699` 后**显式选择**本 ADR 为下一里程碑）
 - 前置：[ADR-0012](./0012-ai-era-data-structure-platform.md) 选项 B 已接受；[ADR-0016](./0016-experience-first-shareable-diagram.md) 本季「禁 MCP 产品码」由本人工决策**专项解封**（仅本里程碑，不重开版本分支 / live sync）
 
@@ -40,10 +40,11 @@ ADR-0012 将「API/MCP 开放」列为平台级能力：agent 可读 schema、�
 | — | MCP `update_project` / `put_project_json`（`projects:write`） | ✅ 2026-08-04 |
 | A | OAuth client 注册/列表/吊销 + `client_credentials` → `erd_oat_` 调 `/api/v1` | ✅ 2026-08-04 |
 | B | Authorization Code + PKCE S256（public/confidential；authorize + token） | ✅ 2026-08-04 |
-| — | 产品内 OAuth client 管理 UI / 同意页打磨 | 📋 后置（API-first） |
+| — | 产品内 OAuth client 管理 UI（`/account/settings?selectKey=oauthClients`） | ✅ 2026-08-04 |
+| — | 同意页打磨 / PAT 管理 UI | 📋 后置 |
 
 ## 后果
 
 - 正面：agent / 脚本有一等鉴权面；M2M 与浏览器三方应用均可 OAuth；北极星可计量「API 产生的版本保存」护栏有挂点
 - 代价：新令牌面须吊销/过期/限流运维；文档须强调「明文只见一次」；写 scope 扩大爆破半径须最小权限铸造；OAuth client 吊销须使已发 OAT 与未消费 code 失效；auth code 流量以授权用户身份访问（异于 client_credentials 的注册人身份）
-- 明确不做（仍后置）：产品内黑盒「一句话生成 ERD」；自研 LLM；产品内完整 OAuth 同意页 / client 管理 UI（本切片 API-first）
+- 明确不做（仍后置）：产品内黑盒「一句话生成 ERD」；自研 LLM；完整 OAuth 同意页打磨；PAT 管理 UI（client 管理 UI 已交付）

@@ -212,9 +212,11 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 #   -d "grant_type=authorization_code&client_id=$CLIENT_ID&code=$CODE&redirect_uri=http://127.0.0.1:3000/cb&code_verifier=$VERIFIER" \
 #   | jq -r '.access_token')
 # curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $OAT"
+
+# 产品 UI：登录 → /account/settings?selectKey=oauthClients → 注册/复制 ID/吊销（secret 仅创建弹层）
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302。产品内管理 UI：`/account/settings?selectKey=oauthClients`。
 
 ### MCP（切片 4–5 + projects:write tools）
 
