@@ -146,6 +146,29 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → GitHub Pages **�
 
 ## projectJSON schema（agent 可读）
 
+见 [`data-format.md`](./data-format.md) 与仓库根 `schema/`。
+
+## 公开 API PAT（ADR-0013 切片 1）
+
+```bash
+# 1. 会话登录拿 JWT（示例）
+TOKEN=$(curl -sS -X POST http://127.0.0.1:9502/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"username":"admin","password":"123456"}' | jq -r '.access_token // .data.access_token')
+
+# 2. 铸造 PAT（明文仅此一次）
+PAT=$(curl -sS -X POST http://127.0.0.1:9502/auth/personal-access-tokens \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"name":"dogfood"}' | jq -r '.data.token')
+
+# 3. 公开探针
+curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $PAT"
+```
+
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。
+
+## 前端如何找到后端
+
 对外规范：[data-format.md](./data-format.md)。改 `schema/projectjson.schema.json` 或示例后：
 
 ```bash

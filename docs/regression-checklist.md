@@ -3,6 +3,13 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 公开 API / ADR-0013
+
+- [x] [PAT 哈希] 铸造后库内仅 `token_hash`/`token_hint`，无明文 ✅`PatTokenCodecTest` + `PersonalAccessTokenAuthTest`
+- [x] [scope 门禁] 默认只读；`projects:write` 铸造拒绝 ✅`PatScopesTest`
+- [x] [限流骨架] 超配额拒绝 ✅`PublicApiRateLimiterTest`
+- [x] [手工 dogfood] 登录铸造 → `GET /api/v1/me` 200；无 token / 坏 token → 401；JWT 调 `/api/v1/me` → 401 ✅ 2026-08-04
+
 ## 图本身可读可分享 / ADR-0016（续）
 
 - [x] [几何择柄] 竖叠同列表 FK → `data-port=same`；截图 `diagram-port-same-side.png` ✅`relation.spec.ts`「PK/FK 与边样式」

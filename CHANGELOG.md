@@ -6,6 +6,23 @@
 
 ## [Unreleased]
 
+### 2026-08-04
+
+#### 开放：ADR-0013 切片 1 — PAT 哈希 + `/api/v1/me` + 限流骨架
+
+- 选题：Vision 暂停点 `785d699` 后人工选择 ADR-0013；先拍板 adopt-first 默认（PAT / 只读 scope / 60rpm）再落非争议 plumbing
+- Flyway `V7__personal_access_token`：只存 SHA-256，无明文列；`V8__pat_token_hint_widen` 扩 `token_hint`
+- 会话 JWT：`POST/GET/DELETE /auth/personal-access-tokens` 铸造/列表/吊销（明文仅铸造一次）
+- 公开面：`GET /api/v1/me`（Bearer `erd_pat_…`）；独立 SecurityFilterChain；进程内限流骨架
+- springdoc 分组 `public-v1`（仍受 prod `springdoc.*.enabled=false` 门控）
+- 文档：ADR-0013 决策表 + 切片 backlog；roadmap 开放 📋→🚧；security-model PAT 节；ADR-0016 专项解封本里程碑
+- 未做：projects/versions 只读 REST、MCP server、写 scope
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PatScopesTest,PatTokenCodecTest,PublicApiRateLimiterTest,PersonalAccessTokenAuthTest test`
+- `./backend/dev-ensure.sh --restart` 后：`curl -sS http://127.0.0.1:9502/api/v1/me` → 401；登录铸造 PAT → `curl -H "Authorization: Bearer $PAT" http://127.0.0.1:9502/api/v1/me` → 200 + scopes
+- 库内：`SELECT token_hash, token_hint FROM personal_access_token` 无明文前缀外的密钥体
+
 ### 2026-08-03
 
 #### 状态：Vision 自动轨暂停（仅人工 next）

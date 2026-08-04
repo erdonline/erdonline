@@ -6,6 +6,7 @@ import com.erdonline.common.security.properties.PermitAllUrlProperties;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.core.convert.converter.Converter;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -35,6 +36,7 @@ public class ErdSecurityConfiguration {
     private final Converter<Jwt, ? extends AbstractAuthenticationToken> martinJwtAuthConverter;
 
     @Bean
+    @Order(2)
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         List<String> ignore = new ArrayList<>(permitAllUrlProperties.getIgnoreUrls() == null
                 ? List.of() : permitAllUrlProperties.getIgnoreUrls());

@@ -44,6 +44,15 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - 创建/吊销需登录且为项目创建人（UI：设计器顶栏「分享」弹层）
 - 匿名响应按 ADR-0008 **清空** `profile.dbs`（连接只在 `data_sources`）；可保留 `defaultDataSourceId` 引用
 
+## 公开 API PAT（ADR-0013）
+
+- **铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
+- **存储**：表 `personal_access_token` 仅 `token_hash`（SHA-256 hex）+ `token_hint`；禁止明文入库存仓
+- **调用**：`Authorization: Bearer erd_pat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）
+- **Scope（已解锁）**：`projects:read`、`versions:read`；写 scope 名预留未开放
+- **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；超限 429
+- **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc
+
 ## projectJSON 密钥纪律
 
 JDBC 连接机密（url / username / password / driver）**不得**写入 `projectJSON`（[ADR-0008](./adr/0008-datasource-isolation.md)）。对外字段说明与兼容政策见 [data-format.md](./data-format.md)。
