@@ -157,6 +157,7 @@ export async function openRelationFromEmpty(
   await page.getByTestId('entity-modal-name').fill(name);
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
+  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 25_000 });
   await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
   await expandTreeTitle(page, '关系');

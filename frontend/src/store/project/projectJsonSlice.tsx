@@ -47,6 +47,8 @@ const globalState = useGlobalStore.getState();
 
 const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) => ({
   fixProject: (project: any) => set(produce(state => {
+    // 读路径归一化已并入 fetch 的 hydrateFetchedProject（单次 set，避免 autosave 竞态）。
+    // 保留此方法供极少数复用；打开项目勿再单独调用。
     const modules = project?.projectJSON?.modules;
     const tmpModules = get().dispatch.fixModules(modules, null, null);
     if (tmpModules) {

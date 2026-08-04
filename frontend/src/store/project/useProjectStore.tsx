@@ -27,6 +27,7 @@ import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/servi
 import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 import defaultData from "@/utils/defaultData.json";
+import { sanitizeProfileDataSources } from '@/utils/projectDataSource';
 
 const REMOTE_SYNC_TOAST_KEY = 'remote-sync-toast';
 /** 远端同步提示节流：同会话 ≤1 次/分钟 */
@@ -102,6 +103,42 @@ export function ensureProjectJSON(project: any) {
       dataTypeDomains,
     },
   };
+}
+
+type FixModulesFn = (data: unknown, datatype: unknown, database: unknown) => unknown;
+
+/**
+ * 打开项目时的读路径归一化（ADR-0008 剥机密 + 字段 type 补全）。
+ * 须在 fetch 的单次 set 内完成——若再调 fixProject 二次写 store，会触发 autosave，
+ * 与 addModule/addEntity 的 persist 并发 CAS 同一 updateTime → 409 / 落库失败。
+ */
+export function hydrateFetchedProject(
+  raw: unknown,
+  fixModules: FixModulesFn,
+): { project: Record<string, unknown>; currentDbKey?: string; tables: string[] } {
+  const data = ensureProjectJSON(raw);
+  const project = JSON.parse(JSON.stringify(data)) as Record<string, unknown>;
+  const pjson = project.projectJSON as Record<string, unknown> | undefined;
+  if (pjson) {
+    const tmpModules = fixModules(pjson.modules, null, null);
+    if (tmpModules) {
+      pjson.modules = tmpModules;
+    }
+    if (pjson.profile && typeof pjson.profile === 'object') {
+      pjson.profile = sanitizeProfileDataSources(pjson.profile as Record<string, unknown>);
+    }
+  }
+  let currentDbKey: string | undefined;
+  const profile = pjson?.profile as Record<string, unknown> | undefined;
+  if (typeof profile?.defaultDataSourceId === 'string') {
+    currentDbKey = profile.defaultDataSourceId;
+  }
+  const tables = _.flatMapDepth(
+    (pjson?.modules as { entities?: { title?: string }[] }[]) || [],
+    (m) => _.map(m.entities || [], 'title'),
+    2,
+  ) as string[];
+  return { project, currentDbKey, tables };
 }
 
 /** 应用远端 sync 时抑制回声广播 */
@@ -213,23 +250,20 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
               const raw = res?.data;
               if (res?.code === 200 && raw) {
                 resetCanvasHistory();
-                const data = ensureProjectJSON(raw);
-                lastSyncedProjectJson = data.projectJSON
-                  ? JSON.parse(JSON.stringify(data.projectJSON))
+                const { project, currentDbKey, tables } = hydrateFetchedProject(
+                  raw,
+                  get().dispatch.fixModules,
+                );
+                lastSyncedProjectJson = project.projectJSON
+                  ? JSON.parse(JSON.stringify(project.projectJSON))
                   : null;
                 set({
-                  project: data
-                });
-                get().dispatch.fixProject(data);
-                //计算全部表名
-                const tables = _.flatMapDepth(data?.projectJSON?.modules, (m) => {
-                  return _.map(m.entities, 'title')
-                }, 2);
-                set({
-                  tables
+                  project,
+                  tables,
+                  ...(currentDbKey ? { currentDbKey } : {}),
                 });
                 loadVersionBaseline();
-                offerProjectDraftRecovery(String(resolvedId), data as Record<string, unknown>);
+                offerProjectDraftRecovery(String(resolvedId), project);
               } else {
                 message.error('获取项目信息失败');
               }
@@ -361,7 +395,10 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
 
 import {
   ackManualPersist,
+  consumeProjectAutosaveEcho,
   isAutosaveCurrent,
+  isDebouncePersistCurrent,
+  markProjectPersistEchoSuppress,
   persistProjectNow,
   preemptAutosave,
   scheduleDebouncedPersist,
@@ -375,9 +412,7 @@ import { clearProjectDraft, writeProjectDraft } from '@/utils/projectLocalDraft'
 import { offerProjectDraftRecovery } from '@/utils/projectDraftRecovery';
 
 function patchProjectRevision(next: Record<string, unknown>): void {
-  useProjectStore.setState((state: { project: Record<string, unknown> }) => {
-    state.project = next;
-  });
+  useProjectStore.setState({ project: next });
 }
 
 function projectWithoutRevision(project: Record<string, unknown> | null | undefined): string {
@@ -397,7 +432,7 @@ async function persistAutosave(seq: number): Promise<void> {
   try {
     const res: { code?: number; msg?: string; message?: string; data?: unknown } =
       await Save.saveProject(latest);
-    if (!isAutosaveCurrent(seq)) {
+    if (!isDebouncePersistCurrent(seq)) {
       return;
     }
     if (isProjectSaveConflict(res)) {
@@ -409,6 +444,7 @@ async function persistAutosave(seq: number): Promise<void> {
       return;
     }
     if (res?.code === 200) {
+      markProjectPersistEchoSuppress();
       handleSaveResponseSideEffects(
         latest as Record<string, unknown>,
         res,
@@ -426,7 +462,7 @@ async function persistAutosave(seq: number): Promise<void> {
       res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
     );
   } catch {
-    if (!isAutosaveCurrent(seq)) {
+    if (!isDebouncePersistCurrent(seq)) {
       return;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
@@ -463,6 +499,13 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
 
   // 仅 revision（updateTime）回写：不触发二次 autosave
   if (projectWithoutRevision(project) === projectWithoutRevision(previousProject)) {
+    return;
+  }
+
+  // persist 成功后的 store 回写：勿再 schedule debounce（否则 seq 互踩 → HTTP 200 仍显示失败）
+  if (consumeProjectAutosaveEcho()) {
+    useGlobalStore.getState().dispatch.setSaved(true);
+    useGlobalStore.getState().dispatch.setSaving(false);
     return;
   }
 
