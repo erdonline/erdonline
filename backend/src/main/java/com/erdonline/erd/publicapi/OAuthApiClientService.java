@@ -15,10 +15,38 @@ public interface OAuthApiClientService {
 
     /**
      * client_credentials：校验 client_id + client_secret，签发短期 access_token（明文仅返回一次）。
+     * public 客户端拒绝。
      *
      * @param scopeCsv 请求的 scope（空=客户端全部 scope）；须 ⊆ 客户端已注册 scope
      */
     OAuthTokenResponse issueClientCredentials(String clientId, String clientSecret, String scopeCsv);
+
+    /**
+     * Authorization Code：已登录用户同意后签发短命 code（明文返回一次，库中仅哈希）。
+     * 要求 PKCE S256、state 非空、redirect_uri 精确匹配注册表。
+     */
+    AuthCodeIssued createAuthorizationCode(
+            String clientId,
+            String redirectUri,
+            String scopeCsv,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod);
+
+    /**
+     * redirect_uri 是否对活跃 client 精确注册（用于 authorize 错误回跳，防开放重定向）。
+     */
+    boolean isRedirectUriRegistered(String clientId, String redirectUri);
+
+    /**
+     * authorization_code + PKCE 换票。public：无 secret；confidential：须 secret（body 或 Basic）。
+     */
+    OAuthTokenResponse exchangeAuthorizationCode(
+            String clientId,
+            String clientSecret,
+            String code,
+            String redirectUri,
+            String codeVerifier);
 
     /**
      * 校验明文 access token（{@code erd_oat_…}），成功返回已注入 scope authorities 的 {@link MartinUser}。
@@ -28,5 +56,8 @@ public interface OAuthApiClientService {
     void touchLastUsed(String tokenId);
 
     record AuthenticatedOat(MartinUser user, String tokenId, List<String> scopes) {
+    }
+
+    record AuthCodeIssued(String code, String state, String redirectUri) {
     }
 }

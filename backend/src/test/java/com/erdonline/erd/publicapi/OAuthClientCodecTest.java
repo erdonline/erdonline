@@ -3,6 +3,7 @@ package com.erdonline.erd.publicapi;
 import com.erdonline.erd.entity.OAuthAccessToken;
 import org.junit.jupiter.api.Test;
 
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -17,16 +18,21 @@ class OAuthClientCodecTest {
         String clientId = OAuthClientCodec.generateClientId();
         String secret = OAuthClientCodec.generateClientSecret();
         String oat = OAuthClientCodec.generateAccessToken();
+        String code = OAuthClientCodec.generateAuthorizationCode();
 
         assertTrue(OAuthClientCodec.looksLikeClientId(clientId));
         assertTrue(secret.startsWith(OAuthClientCodec.CLIENT_SECRET_PREFIX));
         assertTrue(OAuthClientCodec.looksLikeAccessToken(oat));
+        assertTrue(OAuthClientCodec.looksLikeAuthorizationCode(code));
+        assertTrue(code.startsWith(OAuthClientCodec.AUTH_CODE_PREFIX));
         assertFalse(PatTokenCodec.looksLikePat(oat));
 
         String hash = OAuthClientCodec.hash(secret);
         assertEquals(64, hash.length());
         assertEquals(hash, OAuthClientCodec.hash(secret));
         assertFalse(hash.equals(secret));
+        assertTrue(OAuthClientCodec.hashEquals(hash, OAuthClientCodec.hash(secret)));
+        assertFalse(OAuthClientCodec.hashEquals(hash, OAuthClientCodec.hash(oat)));
     }
 
     @Test
@@ -69,5 +75,46 @@ class OAuthClientCodecTest {
         String[] pair = OAuthTokenController.parseBasic("Basic " + raw);
         assertEquals("erd_cli_ab", pair[0]);
         assertEquals("erd_cs_cd", pair[1]);
+    }
+
+    @Test
+    void pkceS256_roundTrip() {
+        String verifier = "dBjftJeZ4CVP-mB92K27uhbUJU1p1r_wW1gFWFOEjXk";
+        String challenge = OAuthClientCodec.s256Challenge(verifier);
+        assertTrue(OAuthClientCodec.isValidCodeChallenge(challenge));
+        assertTrue(OAuthClientCodec.verifyPkceS256(verifier, challenge));
+        assertFalse(OAuthClientCodec.verifyPkceS256(verifier + "x", challenge));
+        assertFalse(OAuthClientCodec.isValidCodeVerifier("too-short"));
+    }
+
+    @Test
+    void redirectUri_exactMatchAndShape() {
+        String stored = OAuthClientCodec.joinRedirectUris(List.of(
+                "https://app.example.com/cb",
+                "http://127.0.0.1:3000/oauth/cb"));
+        assertTrue(OAuthClientCodec.redirectUriAllowed(stored, "https://app.example.com/cb"));
+        assertFalse(OAuthClientCodec.redirectUriAllowed(stored, "https://app.example.com/cb/"));
+        assertFalse(OAuthClientCodec.redirectUriAllowed(stored, "https://evil.example/cb"));
+        assertThrows(IllegalArgumentException.class,
+                () -> OAuthClientCodec.validateRedirectUriShape("http://evil.example/cb"));
+        assertThrows(IllegalArgumentException.class,
+                () -> OAuthClientCodec.validateRedirectUriShape("https://app.example.com/cb#frag"));
+        OAuthClientCodec.validateRedirectUriShape("http://localhost:8080/cb");
+    }
+
+    @Test
+    void appendQuery_preservesExistingParams() {
+        var uri = OAuthAuthorizeController.appendQuery(
+                "http://127.0.0.1:3000/cb?x=1", "code", "erd_ac_ab", "state", "s1");
+        assertTrue(uri.toString().contains("x=1"));
+        assertTrue(uri.toString().contains("code=erd_ac_ab"));
+        assertTrue(uri.toString().contains("state=s1"));
+    }
+
+    @Test
+    void normalizeClientType() {
+        assertEquals("confidential", OAuthClientCodec.normalizeClientType(null));
+        assertEquals("public", OAuthClientCodec.normalizeClientType("PUBLIC"));
+        assertThrows(IllegalArgumentException.class, () -> OAuthClientCodec.normalizeClientType("spa"));
     }
 }

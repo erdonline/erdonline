@@ -12,7 +12,9 @@ public class OAuthClientSummaryView {
     String id;
     String clientId;
     String name;
+    String clientType;
     List<String> scopes;
+    List<String> redirectUris;
     String clientSecretHint;
     LocalDateTime createTime;
     boolean revoked;

@@ -195,9 +195,26 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 #   -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" \
 #   | jq -r '.access_token')
 # curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $OAT"
+
+# 6. OAuth 切片 B：Authorization Code + PKCE（public SPA 示例）
+# VERIFIER=$(python3 -c 'import secrets; print(secrets.token_urlsafe(64)[:64])')
+# CHALLENGE=$(python3 -c "import hashlib,base64,sys; print(base64.urlsafe_b64encode(hashlib.sha256(sys.argv[1].encode()).digest()).rstrip(b'=').decode())" "$VERIFIER")
+# PUB=$(curl -sS -X POST http://127.0.0.1:9502/auth/oauth-clients \
+#   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+#   -d '{"name":"spa","clientType":"public","redirectUris":["http://127.0.0.1:3000/cb"]}')
+# CLIENT_ID=$(echo "$PUB" | jq -r '.data.clientId')
+# LOC=$(curl -sS -D - -o /dev/null -H "Authorization: Bearer $TOKEN" \
+#   "http://127.0.0.1:9502/oauth/authorize?response_type=code&client_id=$CLIENT_ID&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcb&scope=projects%3Aread&state=xyz&code_challenge=$CHALLENGE&code_challenge_method=S256" \
+#   | awk -F': ' 'tolower($1)=="location"{print $2}' | tr -d '\r')
+# CODE=$(python3 -c "from urllib.parse import urlparse,parse_qs; print(parse_qs(urlparse('$LOC').query)['code'][0])")
+# OAT=$(curl -sS -X POST http://127.0.0.1:9502/oauth/token \
+#   -H 'Content-Type: application/x-www-form-urlencoded' \
+#   -d "grant_type=authorization_code&client_id=$CLIENT_ID&code=$CODE&redirect_uri=http://127.0.0.1:3000/cb&code_verifier=$VERIFIER" \
+#   | jq -r '.access_token')
+# curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $OAT"
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。Authorization Code 后置。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302。
 
 ### MCP（切片 4–5 + projects:write tools）
 

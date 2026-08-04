@@ -27,6 +27,11 @@
 - [x] [OAuth client_credentials] 有效凭证 → `erd_oat_`；坏 secret → `invalid_client`；scope ⊆ 客户端 ✅`OAuthClientCodecTest` + curl
 - [x] [OAuth /api/v1] OAT Bearer → `GET /api/v1/me` 200；与 PAT 同链；会话 JWT → 401 ✅ curl 2026-08-04
 - [x] [OAuth ignore] `/oauth/token` `/auth/oauth/token` 在 ignore-urls；无 CORS 放宽 ✅`DeadSecurityConfigContractTest`
+- [x] [OAuth PKCE] S256 round-trip；redirect 精确匹配；拒 http 非 localhost ✅`OAuthClientCodecTest`
+- [x] [OAuth authorize] 会话 JWT → 302 `code`+`state`；未注册 redirect → JSON 不 302；无 JWT → 401 ✅ curl 2026-08-04
+- [x] [OAuth auth_code 换票] public：code+verifier→`erd_oat_`；坏 verifier / 重放 code → `invalid_grant`；code 库仅哈希 ✅ curl 2026-08-04
+- [x] [OAuth public 禁 M2M] public client `client_credentials` → `unauthorized_client` ✅ curl 2026-08-04
+- [x] [OAuth confidential code] 无 secret → `invalid_client`；有 secret+PKCE → OAT ✅ curl 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
 

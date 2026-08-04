@@ -33,12 +33,18 @@ public class OAuthApiClient implements Serializable {
 
     private String name;
 
-    /** SHA-256 hex；永不写明文 */
+    /** confidential | public */
+    private String clientType;
+
+    /** SHA-256 hex；永不写明文。public 客户端为弃用 ghost hash，不可换票校验 */
     private String clientSecretHash;
 
     private String clientSecretHint;
 
     private String scopes;
+
+    /** 精确匹配 redirect_uri，换行分隔；M2M-only 可为 null */
+    private String redirectUris;
 
     /** 0 有效 / 1 已吊销 */
     private String revoked;

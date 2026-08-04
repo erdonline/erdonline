@@ -12,9 +12,11 @@ public class OAuthClientCreatedView {
     String id;
     String clientId;
     String name;
+    String clientType;
     List<String> scopes;
+    List<String> redirectUris;
     String clientSecretHint;
     LocalDateTime createTime;
-    /** 明文仅此一次；库中无存 */
+    /** 明文仅此一次；public 客户端为 null */
     String clientSecret;
 }
