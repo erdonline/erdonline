@@ -95,11 +95,15 @@
 }
 
 /* 分享只读壳：轻 chrome，对齐设计器顶栏 64px（W5）；画布铺满视口（ADR-0016） */
+/* 引流氛围：品牌色柔光 + sunk 底，替换纯灰平面（不触碰画布内部像素基线） */
 .share-page {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  background: var(--erd-surface-sunk);
+  background:
+    radial-gradient(720px 420px at 8% -6%, var(--erd-brand-a12) 0%, transparent 62%),
+    radial-gradient(640px 480px at 100% 0%, var(--erd-frame-fill) 0%, transparent 58%),
+    var(--erd-surface-sunk);
   font-family: var(--erd-font-ui);
 
   a:focus-visible,
@@ -122,6 +126,20 @@
 
 .share-page__header {
   flex-shrink: 0;
+  position: relative;
+  background: var(--erd-surface);
+
+  /* 品牌渐变收边：绝对定位不占布局高度，64px chrome 断言不受影响 */
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -1px;
+    height: 2px;
+    background: linear-gradient(90deg, var(--erd-brand) 0%, var(--erd-success) 100%);
+    opacity: 0.9;
+  }
 }
 
 .share-page__project {
@@ -148,10 +166,11 @@
   flex-shrink: 0;
   margin: 0 !important;
   font-size: 12px;
+  font-weight: 600;
   line-height: 20px;
-  border-color: var(--erd-line);
-  color: var(--erd-ink-600);
-  background: var(--erd-surface-muted);
+  border-color: var(--erd-brand-a18);
+  color: var(--erd-brand);
+  background: var(--erd-brand-a12);
 }
 
 .share-page__body {
@@ -184,6 +203,15 @@
   margin: 0 auto 2px;
 }
 
+/* 单行工具条：hint 左 + 切换群组右，省一行还给画布，观感更像 Figma 工具条 */
+.share-page__meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .share-page__desc {
   margin: 0 !important;
   font-size: 12px;
@@ -193,9 +221,27 @@
 
 .share-page__hint {
   margin: 0;
+  flex: 1 1 auto;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
   font-size: 12px;
   line-height: 16px;
   color: var(--erd-ink-600);
+}
+
+.share-page__hint-strong {
+  color: var(--erd-ink-900);
+  font-weight: 700;
+}
+
+.share-page__meta-switches {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 
 .share-page__module-switch {
@@ -208,11 +254,10 @@
   }
 }
 
-/* 只读切图：Segmented 密度对齐 22 chrome（无新建/重命名） */
+/* 只读切图：Segmented 密度对齐 22 chrome（无新建/重命名）；选中态品牌高亮呼应引流色调 */
 .share-page__diagram-bar {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
   min-height: 22px;
 
   .ant-segmented {
@@ -226,6 +271,11 @@
     line-height: 22px;
     padding: 0 10px;
   }
+
+  .ant-segmented-item-selected .ant-segmented-item-label {
+    color: var(--erd-brand);
+    font-weight: 600;
+  }
 }
 
 .share-relation-canvas {
@@ -236,6 +286,8 @@
   width: 100%;
   border: 1px solid var(--erd-line);
   border-radius: var(--erd-radius);
+  /* 装裱感：柔阴影把画布从氛围底色中托举出来（一个主视觉，无叠层卡片） */
+  box-shadow: 0 1px 2px var(--erd-ink-a06), 0 16px 40px -20px rgba(11, 28, 44, 0.22);
   overflow: hidden;
 }
 

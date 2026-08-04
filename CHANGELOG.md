@@ -8,6 +8,20 @@
 
 ### 2026-08-04
 
+#### 体验：/demo 引流页视觉升级（品牌氛围 + 工具条合并）
+
+- 问题：`/demo`（→ `/s/public-demo` 只读分享，落地页「在线试用」主 CTA 落点）作为引流页，chrome/meta 区观感偏行政化——hint 与切图 Segmented 分两行悬浮、页面纯灰平面无品牌氛围、画布贴底无装裱感，与「Figma-for-DB 惊艳时刻」定位不符
+- 改动（`frontend/src/pages/share/index.tsx` + `index.less`，未碰 `ShareRelationCanvas` 画布内部 token，ADR-0016 像素基线保持不变）：
+  - meta 区合并为单行工具条（hint 左 + 模块/关系图切换群组右），省一行还给画布，`metaH` 42px（原 ~54–58px，仍 ≤60 预算）
+  - 页面外壳新增品牌色 + success 色柔光渐变（`--erd-brand-a12` / `--erd-frame-fill`），替换纯 `--erd-surface-sunk` 平面；顶栏底部新增品牌渐变收边线（绝对定位，不占 64px 高度）
+  - 「只读」Tag 与「匿名只读」首字改为品牌红强调；切图 Segmented 选中态品牌红高亮；画布容器加装裱阴影（浮于氛围底色之上）；复制 CTA 加图标
+- 影响范围仅 `.share-page__*` 局部选择器（`.share-page .erd-chrome-header` 特异性覆盖），不影响 Home/Group/Design 三壳共用 `erd-chrome.less`
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/demo.spec.ts --project=chromium --workers=1`（1 passed，全部像素基线断言含 chrome 64px / metaGap≤2 / canvas≥55%vh 均通过且余量更大）
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts --project=chromium --workers=1`（6 passed，多模块/多图切换回归无损）
+- 手工：`http://localhost:8000/demo` 截图前后对比，画布占比从 ~78% 提升至 ~84% vh
+
 #### 运维：Vision 5m 循环卡死重启 + 双层一致性续跑队列（#12–#16）
 
 - 根因：`agent-loop-vision.sh` 后台进程未死，但其 stdout 管道的读端（此前一轮对话的 `AwaitShell` 监听）已断开且无人重新接管，`echo AGENT_LOOP_TICK_VISION` 写满管道后阻塞在 write()；进程 31+ 小时 CPU 时间未增长（卡在同一轮 tick，仅重复吐出旧版「UI/UX 优化」prompt，未反映已合并的双层一致性内容），tick 名存实亡
