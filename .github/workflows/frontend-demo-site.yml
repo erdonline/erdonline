@@ -1,7 +1,7 @@
 name: Frontend demo site
 
 # Static SPA → Cloudflare Pages (project: erdonline-demo).
-# Demo API backend is optional (Render / self-host later); empty API_URL still ships landing.
+# Requires repo Variable DEMO_API_URL (Railway public API root); empty URL fails the build.
 
 on:
   push:
@@ -41,14 +41,24 @@ jobs:
         working-directory: frontend
         run: yarn install --frozen-lockfile
 
-      # Runtime injection pattern: env.sh → public/env-config.js → bundled into dist/.
-      # Set repo Variable DEMO_API_URL when a public demo backend exists (step 4+).
-      # Until then leave unset: landing/docs links work; API calls have no backend.
+      # Runtime injection: env.sh → public/env-config.js → bundled into dist/.
+      - name: Verify demo API URL
+        env:
+          DEMO_API_URL: ${{ vars.DEMO_API_URL }}
+        run: |
+          if [ -z "$DEMO_API_URL" ]; then
+            echo "::error::DEMO_API_URL repository variable is empty. Set it in Settings → Secrets and variables → Actions → Variables (e.g. https://erdonline-production.up.railway.app)."
+            exit 1
+          fi
+          host=$(printf '%s' "$DEMO_API_URL" | sed -E 's|^https?://([^/@?#]+).*|\1|')
+          echo "Demo API host=${host}"
+
       - name: Build production static site
         working-directory: frontend
         env:
           API_URL: ${{ vars.DEMO_API_URL }}
           ERD_API_URL: ${{ vars.DEMO_API_URL }}
+          ERD_REQUIRE_REMOTE_API: "1"
         run: yarn build:prod
 
       - name: Ensure Cloudflare Pages project

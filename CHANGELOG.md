@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### CI：demo 构建空 API_URL fail-fast
+
+- 问题：CF Pages 工作流在 `DEMO_API_URL` 未设或竞态读到空值时仍 `yarn build:prod` 成功，产物 `env-config.js` 的 `API_URL` 为空，浏览器 API 打回 Pages SPA HTML
+- 改动：`frontend-demo-site.yml` 构建前校验 Variable `DEMO_API_URL` 非空并 echo 脱敏 host；`env.sh` 在 `ERD_REQUIRE_REMOTE_API=1` 时校验 `API_URL`/`ERD_API_URL`/`DEMO_API_URL` 须为 `http(s)://` URL；本地 `yarn start` / `env.local.sh` 与 Docker 空值 bake-in 不受影响
+
+验证点：
+- `ERD_REQUIRE_REMOTE_API=1 API_URL= ./frontend/env.sh` → exit 1
+- `ERD_REQUIRE_REMOTE_API=1 API_URL=https://example.com ./frontend/env.sh` → 输出 `remote API host=example.com` 并生成 env-config.js
+- `./frontend/env.sh`（无 flag、空 API）仍成功
+
 #### 性能：demo 站诊断——静态资源缺长缓存 + API_URL 构建竞态
 
 - 诊断（`erdonline-demo.pages.dev` 反馈"慢"）：
