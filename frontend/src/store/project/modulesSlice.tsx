@@ -250,9 +250,6 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         return false;
       }
       ackManualPersist(true);
-      set(produce(state => {
-        state.project.projectJSON = next.projectJSON;
-      }));
       message.success('模型添加成功');
       return true;
     })();

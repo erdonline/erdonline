@@ -14,7 +14,24 @@ import { clearProjectDraft, writeProjectDraft } from '@/utils/projectLocalDraft'
  */
 
 let autosaveTimer: ReturnType<typeof setTimeout> | null = null;
+/** 手动 persistProjectNow / ackManualPersist 世代 */
 let autosaveSeq = 0;
+/** debounced autosave 回调世代（与 autosaveSeq 分离，避免 schedule 踩掉进行中的手动落盘） */
+let debounceSeq = 0;
+/** persist 成功后的 store 回写会触发 subscribe；吞掉一次 echo autosave */
+let suppressProjectAutosaveEcho = 0;
+
+export function markProjectPersistEchoSuppress(): void {
+  suppressProjectAutosaveEcho += 1;
+}
+
+export function consumeProjectAutosaveEcho(): boolean {
+  if (suppressProjectAutosaveEcho <= 0) {
+    return false;
+  }
+  suppressProjectAutosaveEcho -= 1;
+  return true;
+}
 
 type ProjectLike = {
   type?: number;
@@ -24,9 +41,7 @@ type ProjectLike = {
 };
 
 function patchProjectRevision(next: Record<string, unknown>): void {
-  useProjectStore.setState((state: { project: Record<string, unknown> }) => {
-    state.project = next;
-  });
+  useProjectStore.setState({ project: next });
 }
 
 export function getAutosaveSeq(): number {
@@ -66,7 +81,7 @@ export function scheduleDebouncedPersist(
   if (autosaveTimer) {
     clearTimeout(autosaveTimer);
   }
-  const seq = ++autosaveSeq;
+  const seq = ++debounceSeq;
   autosaveTimer = setTimeout(() => {
     void run(seq);
   }, delayMs);
@@ -74,6 +89,10 @@ export function scheduleDebouncedPersist(
 
 export function isAutosaveCurrent(seq: number): boolean {
   return seq === autosaveSeq;
+}
+
+export function isDebouncePersistCurrent(seq: number): boolean {
+  return seq === debounceSeq;
 }
 
 /** 立即 Save；仅 code===200 为 true；409 弹可行动冲突 Modal */
@@ -92,27 +111,34 @@ export async function persistProjectNow(
       ...project,
       type: project?.type ?? 1,
     })) as SaveProjectResponse;
-    if (!isAutosaveCurrent(seq)) {
-      return false;
-    }
     if (isProjectSaveConflict(res)) {
-      handleSaveResponseSideEffects(
-        project as Record<string, unknown>,
-        res,
-        patchProjectRevision,
-      );
+      if (isAutosaveCurrent(seq)) {
+        handleSaveResponseSideEffects(
+          project as Record<string, unknown>,
+          res,
+          patchProjectRevision,
+        );
+      }
       return false;
     }
     if (res?.code === 200) {
+      markProjectPersistEchoSuppress();
       handleSaveResponseSideEffects(
         project as Record<string, unknown>,
         res,
         patchProjectRevision,
       );
+      if (!isAutosaveCurrent(seq)) {
+        useGlobalStore.getState().dispatch.setSaving(false);
+        return false;
+      }
       clearProjectDraft(project.id);
       useGlobalStore.getState().dispatch.setSaved(true);
       useGlobalStore.getState().dispatch.setSaving(false);
       return true;
+    }
+    if (!isAutosaveCurrent(seq)) {
+      return false;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);

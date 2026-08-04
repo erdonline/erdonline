@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### 修复：打开项目 hydrate 竞态致 E2E create-table 旅程失败
+
+- 根因：`fetch` 先 `set(project)` 再 `fixProject` 二次写 store → subscribe 触发 debounced autosave，与 `addModule`/`addEntity` 的 `persistProjectNow` 并发 CAS 同一 `updateTime` → 409 冲突或落库失败；另 **`patchProjectRevision` 对 immer 冻结 draft 整对象赋值**（`state.project = next`）第二次 persist 抛 `Cannot assign to read only property 'project'`，HTTP 200 仍显示「保存失败」且表不上图
+- 改动：`hydrateFetchedProject` 单次 hydrate；`patchProjectRevision` 改为 `setState({ project: next })`；debounce/autosave 分轨 `debounceSeq`/`autosaveSeq` + echo suppress；`addModule`/`addEntity` persist 后不再二次写 JSON；`openRelationFromEmpty` 等模块落盘
+
+验证点：
+- `cd frontend && npx playwright test --project=chromium tests/e2e/version-dirty-chip.spec.ts tests/e2e/project-save-conflict.spec.ts tests/e2e/relation.spec.ts --grep "工具栏新建表|顶栏版本 dirty chip|409" --retries=0`（5 passed 并行）
+- 回归：`project-local-draft.spec.ts` 恢复后 `DRAFT_FIELD` 在「已隐藏」区，断言待另开（非 create-table 主因）
+
 #### i18n 奠基（ADR-0023）
 
 - `getAntdLocale()` / `getAppLocale()`：`window._env_.LOCALE` 或 `ERD_LOCALE` 构建变量；未设或未知 → **zh-CN**；Theme `ConfigProvider` 不再硬编码 `zhCN`

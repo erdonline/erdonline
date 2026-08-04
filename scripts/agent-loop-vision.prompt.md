@@ -46,7 +46,7 @@
 
 **双层 MVP 队列（#1–#11）已闭环。** 后续同主题续跑：Pull/Push 动作、冲突可视化、diff 同语言 — **暂不启动 Pull/Push MVP**。
 
-**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地。**下一 tick 候选**：产品深度 / Pull·Push 动作隐喻（用户显式开队列前勿抢跑）；完整 i18n MVP 仍 P3 后置。
+**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地。**下一 tick 候选**：产品深度 / Pull·Push 动作隐喻（用户显式开队列前勿抢跑）；完整 i18n MVP 仍 P3 后置。**E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
 

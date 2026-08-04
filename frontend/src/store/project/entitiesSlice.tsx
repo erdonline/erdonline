@@ -212,12 +212,19 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
+      snapshotModules(modules);
       const saved = await persistProjectNow(next, '表保存失败');
       if (!saved) {
         return false;
       }
       ackManualPersist(true);
-      applyLocal();
+      set(produce((state: any) => {
+        const idx = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
+        state.currentModule = moduleName;
+        state.currentModuleIndex = idx;
+        state.currentEntity = entityName;
+        state.currentEntityIndex = state.project.projectJSON.modules[idx].entities.length - 1;
+      }));
       showMessage('success', '表添加成功');
       return true;
     })();
