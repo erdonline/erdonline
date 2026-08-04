@@ -138,6 +138,18 @@ export const rebaseline = (data) => {
   });
 };
 
+/** B 层实库 schema 指纹探测（只读；须用户显式触发） */
+export const schemaProbe = (data) => {
+  const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+  return request.post('/ncnb/connector/schema/probe', {
+    data: {
+      ...toConnectorBody(data),
+      projectId,
+      projectJSON: data?.projectJSON,
+    }
+  });
+};
+
 // json 版本管理接口
 
 export const hisProjectSave = (data) => {

@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### B 层：实库 schema 指纹探测（ADR-0022 切片 8）
+
+- 后端 `POST /ncnb/connector/schema/probe`：复用逆向 dialect  introspect 活库 → 规范化 IR（表/列/PK/索引/FK，忽略 `db_version` 等基建表）→ SHA-256 指纹；与请求体 `projectJSON` 对比得 `synced` / `different` / `unknown`（含 `reason`）
+- 版本页工具栏「探测实库」按钮（`data-testid="schema-probe-btn"`）+ 结果 chip（`schema-probe-status`）；**不在**进页时自动探库
+- `db_version` 书签 UX 降级：版本行 tag「已推送/未推送」；tooltip 明示非实库真相；获取书签 toast 改「版本书签」
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn test -Dtest=SchemaFingerprintTest -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 endpoint 可达（需登录 + JDBC 数据源）
+
 #### 文档：i18n 审查结论锁定（ADR-0023；B 层后奠基；E2E 反脆弱）
 
 - roadmap「i18n 奠基（B 层后）」+ Vision loop 约束 + `e2e-locators` 反脆弱小节；**未**启用 umi locale / 未改产品代码

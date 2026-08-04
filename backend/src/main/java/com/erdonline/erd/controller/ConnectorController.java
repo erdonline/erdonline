@@ -11,6 +11,7 @@ import com.erdonline.erd.command.DBReverseParseCommand;
 import com.erdonline.erd.command.DbSqlExecCommand;
 import com.erdonline.erd.command.DbSyncCommand;
 import com.erdonline.erd.command.PingDBCommand;
+import com.erdonline.erd.command.SchemaProbeCommand;
 import com.erdonline.erd.entity.DbVersion;
 import com.erdonline.erd.security.ConnectorCredentialResolver;
 import com.erdonline.erd.service.DbChangeService;
@@ -71,6 +72,16 @@ public class ConnectorController {
     public R dbReverseMeta(@RequestBody Map map) {
         connectorCredentialResolver.apply(map);
         return new DBReverseMetaCommand().exec(map);
+    }
+
+    /**
+     * B 层实库探测：逆向 schema → 规范化指纹；与 projectJSON 对比得 synced/different/unknown（ADR-0022 #8）。
+     * 只读；须用户显式触发，不在页面加载时自动调用。
+     */
+    @PostMapping("schema/probe")
+    public R schemaProbe(@RequestBody Map map) {
+        connectorCredentialResolver.apply(map);
+        return new SchemaProbeCommand().exec(map);
     }
 
     @PostMapping("dbversion")

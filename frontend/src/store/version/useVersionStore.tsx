@@ -350,7 +350,7 @@ const useVersionStore = create<VersionState>(
               dbVersion: res.data,
               hasDB: true,
             });
-            message.success('数据源版本信息获取成功');
+            message.success('数据源版本书签获取成功');
           } else {
             set({
               dbVersion: '',
