@@ -8,6 +8,19 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OIDC RS256 + JWKS（废 HMAC）
+
+- 选题：nonce/at_hash 后，公开 RP 需标准 JWKS 验签；硬切 RS256（不保留 HS256 fallback）
+- 密钥：`ERD_OIDC_RSA_PRIVATE_KEY`（PEM）→ `ERD_OIDC_RSA_PRIVATE_KEY_PATH` → PKCS12（`ERD_OIDC_RSA_KEYSTORE_*`）；prod 缺则 fail-fast；非 prod 自动生成 `~/.erdonline/oidc-rsa-private.pem`（仓外，gitignore `.secrets/`）
+- `GET /.well-known/jwks.json` 发布 RSA 公钥（`kid`=thumbprint 或 `ERD_OIDC_RSA_KID`）；discovery `id_token_signing_alg_values_supported=["RS256"]`
+- `id_token` 以 RS256 签发（header 含 `kid`）；`at_hash` 仍 SHA-256 左半（与 RS256 对齐）
+- 已废：`ERD_OIDC_HMAC` / HS256 空 JWKS
+- 未做：第三方 IdP 联邦
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OidcIdTokenServiceTest,OAuthRefreshTokenServiceTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：`/.well-known/jwks.json` 含 `kty=RSA`+`kid`；mint 的 `id_token` alg=RS256；用 JWKS 公钥验签通过
+
 #### 开放：ADR-0013 — OIDC nonce + at_hash
 
 - 选题：薄 MVP 后 RP 需防重放 / 绑定 access_token；本刀不引入 RSA

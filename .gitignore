@@ -45,5 +45,10 @@ db/data/
 .env.local
 *.local.env
 
+# ===== Secrets (never commit) =====
+.secrets/
+*.pem
+!**/fixtures/**/*.pem
+
 # Tool session/state (not part of project)
 .omc/
