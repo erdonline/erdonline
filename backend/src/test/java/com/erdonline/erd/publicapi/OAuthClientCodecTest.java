@@ -112,6 +112,24 @@ class OAuthClientCodecTest {
     }
 
     @Test
+    void redirectHost_includesExplicitPort() {
+        assertEquals("127.0.0.1:3000",
+                OAuthClientCodec.redirectHost("http://127.0.0.1:3000/cb"));
+        assertEquals("app.example.com",
+                OAuthClientCodec.redirectHost("https://app.example.com/oauth/cb"));
+        assertEquals("", OAuthClientCodec.redirectHost(""));
+    }
+
+    @Test
+    void acceptsJson_detectsApplicationJson() {
+        assertTrue(OAuthAuthorizeController.acceptsJson("application/json"));
+        assertTrue(OAuthAuthorizeController.acceptsJson("application/json, text/plain"));
+        assertFalse(OAuthAuthorizeController.acceptsJson("*/*"));
+        assertFalse(OAuthAuthorizeController.acceptsJson(null));
+        assertFalse(OAuthAuthorizeController.acceptsJson("text/html"));
+    }
+
+    @Test
     void normalizeClientType() {
         assertEquals("confidential", OAuthClientCodec.normalizeClientType(null));
         assertEquals("public", OAuthClientCodec.normalizeClientType("PUBLIC"));

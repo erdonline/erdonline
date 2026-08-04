@@ -48,7 +48,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 
 - **PAT 铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
 - **OAuth 切片 A（M2M）**：会话 JWT → `POST /auth/oauth-clients` 注册 confidential（默认；`client_id`=`erd_cli_…`，`client_secret`=`erd_cs_…` **仅响应一次**）→ 匿名 `POST /oauth/token`（`grant_type=client_credentials`，body 或 Basic）→ `access_token`=`erd_oat_…`（默认 TTL 3600s，`ERD_PUBLIC_API_OAUTH_TTL`）。列表/吊销：`GET|DELETE /auth/oauth-clients`。吊销 client 使未过期 OAT 与未消费 auth code 失效。
-- **OAuth 切片 B（浏览器 + PKCE）**：注册时可选 `clientType=public|confidential` + `redirectUris[]`（精确匹配；仅 https 或 localhost/127.0.0.1/[::1]）。`GET|POST /oauth/authorize`（**须会话 JWT**；薄同意=已登录即签）`response_type=code` + `state` + `code_challenge` + `code_challenge_method=S256` → 302 `?code=erd_ac_…&state=`。匿名 `POST /oauth/token` `grant_type=authorization_code` + `code` + `redirect_uri` + `code_verifier`（public 无 secret；confidential 须 secret）→ `erd_oat_…`。auth code 仅 SHA-256、默认 TTL 120s（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、单次消费。未注册 redirect **永不** 302。
+- **OAuth 切片 B（浏览器 + PKCE）**：注册时可选 `clientType=public|confidential` + `redirectUris[]`（精确匹配；仅 https 或 localhost/127.0.0.1/[::1]）。产品同意页 `/oauth/authorize`（AuthBrandShell）。`GET /oauth/authorize`（**须会话 JWT**）→ 同意预览 JSON（client 名 / scopes / redirect host；**不**签发 code）。`POST … decision=allow` → 302（或 `Accept: application/json` → `{redirect_to}`）`?code=erd_ac_…&state=`；`decision=deny` → `error=access_denied`。匿名 `POST /oauth/token` `grant_type=authorization_code` + `code` + `redirect_uri` + `code_verifier`（public 无 secret；confidential 须 secret）→ `erd_oat_…`。auth code 仅 SHA-256、默认 TTL 120s（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、单次消费。未注册 redirect **永不** 302。
 - **存储**：表 `personal_access_token` / `oauth_api_client` / `oauth_access_token` / `oauth_authorization_code` 仅哈希 + hint；禁止明文入库存仓
 - **调用**：`Authorization: Bearer erd_pat_…` **或** `erd_oat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）。`client_credentials` OAT 以**注册人**身份；`authorization_code` OAT 以**授权用户**身份。
 - **Scope（已解锁）**：默认 `projects:read`、`versions:read`；可显式铸造 `projects:write`、`versions:write`（OAuth 注册同 `PatScopes`；换票 `scope` ⊆ 客户端）
@@ -58,10 +58,11 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
 - **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；Redisson 集群共享；超限 429；Redis 不可用 fail-closed → 503（读写共用）
-- **后置**：同意页打磨；**不**因换票匿名口放宽 CORS
+- **后置**：刷新令牌 / OIDC；**不**因换票匿名口放宽 CORS
 - **产品 UI**：
   - `/account/settings?selectKey=personalAccessTokens` — 列表 / 铸造（scopes + 可选过期）/ 明文一次揭示 / 吊销
   - `/account/settings?selectKey=oauthClients` — 列表 / 注册 / 复制 `client_id` / `client_secret` 创建时一次揭示（不可再查看）/ 吊销
+  - `/oauth/authorize` — OAuth 同意（client / scopes / redirect host + Allow/Deny）
 - **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc；public client **禁止** `client_credentials`
 
 ## projectJSON 密钥纪律

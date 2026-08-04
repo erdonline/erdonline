@@ -48,6 +48,12 @@ export default [
       },
     ],
   },
+  /** OAuth 同意页（ADR-0013；AuthBrandShell；须会话 JWT） */
+  {
+    path: '/oauth/authorize',
+    layout: false,
+    component: './oauth/authorize',
+  },
   /** 无权访问门面（与 404 同构 AuthBrandShell；深链可达） */
   {
     path: '/403',

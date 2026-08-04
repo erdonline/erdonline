@@ -196,15 +196,21 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 #   | jq -r '.access_token')
 # curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $OAT"
 
-# 6. OAuth 切片 B：Authorization Code + PKCE（public SPA 示例）
+# 6. OAuth 切片 B：Authorization Code + PKCE（consent Allow → code）
 # VERIFIER=$(python3 -c 'import secrets; print(secrets.token_urlsafe(64)[:64])')
 # CHALLENGE=$(python3 -c "import hashlib,base64,sys; print(base64.urlsafe_b64encode(hashlib.sha256(sys.argv[1].encode()).digest()).rstrip(b'=').decode())" "$VERIFIER")
 # PUB=$(curl -sS -X POST http://127.0.0.1:9502/auth/oauth-clients \
 #   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
 #   -d '{"name":"spa","clientType":"public","redirectUris":["http://127.0.0.1:3000/cb"]}')
 # CLIENT_ID=$(echo "$PUB" | jq -r '.data.clientId')
+# # GET 同意预览（不签发 code）
+# curl -sS -H "Authorization: Bearer $TOKEN" \
+#   "http://127.0.0.1:9502/oauth/authorize?response_type=code&client_id=$CLIENT_ID&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcb&scope=projects%3Aread&state=xyz&code_challenge=$CHALLENGE&code_challenge_method=S256"
+# # POST decision=allow → 302 Location ?code=erd_ac_…
 # LOC=$(curl -sS -D - -o /dev/null -H "Authorization: Bearer $TOKEN" \
-#   "http://127.0.0.1:9502/oauth/authorize?response_type=code&client_id=$CLIENT_ID&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcb&scope=projects%3Aread&state=xyz&code_challenge=$CHALLENGE&code_challenge_method=S256" \
+#   -X POST -H 'Content-Type: application/x-www-form-urlencoded' \
+#   -d "response_type=code&client_id=$CLIENT_ID&redirect_uri=http%3A%2F%2F127.0.0.1%3A3000%2Fcb&scope=projects%3Aread&state=xyz&code_challenge=$CHALLENGE&code_challenge_method=S256&decision=allow" \
+#   "http://127.0.0.1:9502/oauth/authorize" \
 #   | awk -F': ' 'tolower($1)=="location"{print $2}' | tr -d '\r')
 # CODE=$(python3 -c "from urllib.parse import urlparse,parse_qs; print(parse_qs(urlparse('$LOC').query)['code'][0])")
 # OAT=$(curl -sS -X POST http://127.0.0.1:9502/oauth/token \
@@ -215,9 +221,10 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 
 # 产品 UI：登录 → /account/settings?selectKey=personalAccessTokens → 铸造/复制明文/吊销（token 仅创建弹层）
 #            /account/settings?selectKey=oauthClients → 注册/复制 ID/吊销（secret 仅创建弹层）
+#            浏览器 authorize URL：/oauth/authorize?... → AuthBrandShell 同意页 Allow/Deny
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`）。
 
 ### MCP（切片 4–5 + projects:write tools）
 
