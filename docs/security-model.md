@@ -53,9 +53,10 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **只读项目**：`GET /api/v1/projects`、`GET /api/v1/projects/{id}` 需 `projects:read` + `project_user` 成员；详情 `projectJSON` 清空 `profile.dbs`（ADR-0008）
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
 - **提交版本**：`POST /api/v1/projects/{id}/versions` 需 `versions:write` + 成员；body `projectJSON`/`snapshot`；写入前清空 `profile.dbs`；仅 insert（忽略客户端 id）；会话 JWT 不接受
-- **MCP**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；含写 tool `create_version`。见 [`mcp/README.md`](../mcp/README.md)
+- **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
+- **MCP**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；含写 tool `create_version`（尚无 `projects:write` MCP tool）。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；超限 429（读写共用）
-- **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc；`projects:write` 可铸造但尚无对应 REST
+- **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc
 
 ## projectJSON 密钥纪律
 

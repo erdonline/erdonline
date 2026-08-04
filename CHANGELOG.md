@@ -8,13 +8,24 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — `projects:write` REST（PATCH 元数据 + PUT projectJSON）
+
+- 选题：切片 5 后 `projects:write` 可铸造但无对应 REST；agent 无法改项目名/工作区 fact
+- `PATCH /api/v1/projects/{id}`：需 `projects:write` + 成员；body 可选 `projectName`/`name`、`description`、`tags`（至少一项）
+- `PUT /api/v1/projects/{id}/projectJSON`：需 `projects:write` + 成员；body `projectJSON`（别名 `projectJson`/`snapshot`）；写入前清空 `profile.dbs`；补齐 `modules=[]`
+- 返回清洗后详情；创建日志审计；未做 MCP 写 tool / OAuth / Redis 限流
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PublicApiProjectServiceTest,PatScopesTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：铸造含 `projects:write` 的 PAT → PATCH 改名 200；PUT 含 `profile.dbs` → GET 详情 `dbs=[]`；缺 scope → 403
+
 #### 开放：ADR-0013 切片 5 — 写 scope + `POST …/versions` + MCP `create_version`
 
 - 选题：切片 4 只读 MCP 后，agent 仍无法提交版本（北极星「API 产生的版本保存」无挂点）
 - Scope：解锁铸造 `projects:write` / `versions:write`（默认仍只读）；`POST` 需 `versions:write`
 - `POST /api/v1/projects/{id}/versions`：成员 ACL；body `dbKey`/`version`/`versionDesc` + `projectJSON`（别名 `projectJson`/`snapshot`）；写入前清空 `profile.dbs`；仅 insert；返回清洗后详情；创建日志审计；读写共用 60rpm 配额
 - MCP：`create_version` → 上列 REST；`mcp` dogfood 覆盖写路径与缺 scope 拒绝
-- 未做：`projects:write` 对应 REST、OAuth、集群 Redis 限流
+- 未做：OAuth、集群 Redis 限流
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PatScopesTest,PublicApiVersionServiceTest,PublicApiProjectServiceTest test -Djacoco.skip=true`

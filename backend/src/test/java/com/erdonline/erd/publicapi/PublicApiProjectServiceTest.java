@@ -33,6 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -123,6 +124,98 @@ class PublicApiProjectServiceTest {
 
         ValidateException ex = assertThrows(ValidateException.class, () -> service.getMine("p-other"));
         assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+    }
+
+    @Test
+    void patchMine_requiresProjectsWriteScope() {
+        bindUser("u1", "alice", PatScopes.DEFAULT_READ);
+        PatchPublicProjectRequest req = new PatchPublicProjectRequest();
+        req.setProjectName("N");
+        ValidateException ex = assertThrows(ValidateException.class, () -> service.patchMine("p1", req));
+        assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+        verify(projectService, never()).updateById(any());
+    }
+
+    @Test
+    void patchMine_updatesNameAndReturnsDetail() {
+        bindUser("u1", "alice", Set.of(PatScopes.PROJECTS_WRITE));
+        Project project = new Project();
+        project.setId("p1");
+        project.setProjectName("Old");
+        project.setDescription("d");
+        when(projectService.getById("p1")).thenReturn(project);
+        when(projectService.updateById(any(Project.class))).thenReturn(true);
+
+        PatchPublicProjectRequest req = new PatchPublicProjectRequest();
+        req.setProjectName("  NewName  ");
+        PublicProjectDetailView view = service.patchMine("p1", req);
+
+        verify(projectAcl).assertMember("p1");
+        ArgumentCaptor<Project> cap = ArgumentCaptor.forClass(Project.class);
+        verify(projectService).updateById(cap.capture());
+        assertEquals("NewName", cap.getValue().getProjectName());
+        assertEquals("NewName", view.getProjectName());
+    }
+
+    @Test
+    void patchMine_rejectsEmptyBody() {
+        bindUser("u1", "alice", Set.of(PatScopes.PROJECTS_WRITE));
+        ValidateException ex = assertThrows(
+                ValidateException.class,
+                () -> service.patchMine("p1", new PatchPublicProjectRequest()));
+        assertTrue(ex.getMessage().contains("至少提供"));
+    }
+
+    @Test
+    void putProjectJsonMine_requiresWriteAndSanitizesBeforePersist() {
+        bindUser("u1", "alice", Set.of(PatScopes.PROJECTS_WRITE));
+        Project project = new Project();
+        project.setId("p1");
+        project.setProjectName("Demo");
+        when(projectService.getById("p1")).thenReturn(project);
+        when(projectService.updateById(any(Project.class))).thenReturn(true);
+
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("dbs", List.of(Map.of("url", "jdbc:secret")));
+        Map<String, Object> body = new HashMap<>();
+        body.put("profile", profile);
+        PutPublicProjectJsonRequest req = new PutPublicProjectJsonRequest();
+        req.setProjectJSON(body);
+
+        PublicProjectDetailView view = service.putProjectJsonMine("p1", req);
+
+        ArgumentCaptor<Project> cap = ArgumentCaptor.forClass(Project.class);
+        verify(projectService).updateById(cap.capture());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> storedProfile =
+                (Map<String, Object>) cap.getValue().getProjectJSON().get("profile");
+        assertTrue(((List<?>) storedProfile.get("dbs")).isEmpty());
+        assertTrue(cap.getValue().getProjectJSON().get("modules") instanceof List);
+        @SuppressWarnings("unchecked")
+        Map<String, Object> outProfile = (Map<String, Object>) view.getProjectJson().get("profile");
+        assertTrue(((List<?>) outProfile.get("dbs")).isEmpty());
+    }
+
+    @Test
+    void putProjectJsonMine_forbiddenWithoutWriteScope() {
+        bindUser("u1", "alice", PatScopes.DEFAULT_READ);
+        PutPublicProjectJsonRequest req = new PutPublicProjectJsonRequest();
+        req.setProjectJSON(Map.of("modules", List.of()));
+        ValidateException ex = assertThrows(
+                ValidateException.class, () -> service.putProjectJsonMine("p1", req));
+        assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+    }
+
+    @Test
+    void putProjectJsonMine_forbiddenWhenNotMember() {
+        bindUser("u1", "alice", Set.of(PatScopes.PROJECTS_WRITE));
+        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(projectAcl).assertMember("p-x");
+        PutPublicProjectJsonRequest req = new PutPublicProjectJsonRequest();
+        req.setProjectJSON(Map.of("modules", List.of()));
+        ValidateException ex = assertThrows(
+                ValidateException.class, () -> service.putProjectJsonMine("p-x", req));
+        assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+        verify(projectService, never()).updateById(any());
     }
 
     private static void bindUser(String id, String username, Set<String> scopes) {

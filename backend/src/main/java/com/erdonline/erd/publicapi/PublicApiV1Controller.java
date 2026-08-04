@@ -10,8 +10,10 @@ import lombok.RequiredArgsConstructor;
 import jakarta.validation.Valid;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,6 +65,22 @@ public class PublicApiV1Controller {
     @Operation(summary = "获取项目详情（projectJSON 只读，已清 profile.dbs）")
     public R<PublicProjectDetailView> getProject(@PathVariable("id") String id) {
         return R.ok(publicApiProjectService.getMine(id));
+    }
+
+    @PatchMapping("/projects/{id}")
+    @Operation(summary = "部分更新项目元数据（需 projects:write + 成员）")
+    public R<PublicProjectDetailView> patchProject(
+            @PathVariable("id") String id,
+            @Valid @RequestBody PatchPublicProjectRequest request) {
+        return R.ok(publicApiProjectService.patchMine(id, request));
+    }
+
+    @PutMapping("/projects/{id}/projectJSON")
+    @Operation(summary = "整份替换 projectJSON（需 projects:write + 成员；写入前清空 profile.dbs）")
+    public R<PublicProjectDetailView> putProjectJson(
+            @PathVariable("id") String id,
+            @Valid @RequestBody PutPublicProjectJsonRequest request) {
+        return R.ok(publicApiProjectService.putProjectJsonMine(id, request));
     }
 
     @GetMapping("/projects/{id}/versions")

@@ -170,13 +170,19 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 # VID=$(… | jq -r '.data.items[0].id')
 # curl -sS "http://127.0.0.1:9502/api/v1/projects/$ID/versions/$VID" -H "Authorization: Bearer $PAT"
 
-# 4. 写 scope 铸造 + 提交版本（versions:write + 成员）
+# 4. 写 scope 铸造 + 提交版本 / 写项目
 # WPAT=$(curl -sS -X POST http://127.0.0.1:9502/auth/personal-access-tokens \
 #   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
-#   -d '{"name":"write","scopes":["projects:read","versions:read","versions:write"]}' | jq -r '.data.token')
+#   -d '{"name":"write","scopes":["projects:read","projects:write","versions:read","versions:write"]}' | jq -r '.data.token')
 # curl -sS -X POST "http://127.0.0.1:9502/api/v1/projects/$ID/versions" \
 #   -H "Authorization: Bearer $WPAT" -H 'Content-Type: application/json' \
 #   -d '{"dbKey":"defaultDB","version":"1.0.1","versionDesc":"api","projectJSON":{"modules":[]}}'
+# curl -sS -X PATCH "http://127.0.0.1:9502/api/v1/projects/$ID" \
+#   -H "Authorization: Bearer $WPAT" -H 'Content-Type: application/json' \
+#   -d '{"projectName":"via-api","description":"patched"}'
+# curl -sS -X PUT "http://127.0.0.1:9502/api/v1/projects/$ID/projectJSON" \
+#   -H "Authorization: Bearer $WPAT" -H 'Content-Type: application/json' \
+#   -d '{"projectJSON":{"modules":[],"profile":{"dbs":[{"url":"secret"}]}}}'
 ```
 
 限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。

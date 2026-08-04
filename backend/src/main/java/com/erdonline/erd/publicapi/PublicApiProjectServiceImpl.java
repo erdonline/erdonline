@@ -12,17 +12,21 @@ import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import com.erdonline.erd.util.Query;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 公开 API 项目只读：成员 ACL + {@code projects:read}；projectJSON 走 ADR-0008 清洗。
+ * 公开 API 项目：成员 ACL + scope；读写 projectJSON 均走 ADR-0008 清洗。
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PublicApiProjectServiceImpl implements PublicApiProjectService {
@@ -60,6 +64,78 @@ public class PublicApiProjectServiceImpl implements PublicApiProjectService {
     @Override
     public PublicProjectDetailView getMine(String projectId) {
         requireProjectsRead();
+        Project project = loadMemberProject(projectId);
+        return toDetail(project);
+    }
+
+    @Override
+    public PublicProjectDetailView patchMine(String projectId, PatchPublicProjectRequest request) {
+        requireProjectsWrite();
+        if (request == null) {
+            throw new ValidateException("request body 为空");
+        }
+        boolean hasName = request.getProjectName() != null;
+        boolean hasDesc = request.getDescription() != null;
+        boolean hasTags = request.getTags() != null;
+        if (!hasName && !hasDesc && !hasTags) {
+            throw new ValidateException("至少提供 projectName / description / tags 之一");
+        }
+        if (hasName && !StringUtils.hasText(request.getProjectName())) {
+            throw new ValidateException("projectName 不能为空");
+        }
+
+        Project project = loadMemberProject(projectId);
+        if (hasName) {
+            project.setProjectName(request.getProjectName().trim());
+        }
+        if (hasDesc) {
+            project.setDescription(request.getDescription());
+        }
+        if (hasTags) {
+            project.setTags(request.getTags());
+        }
+
+        if (!projectService.updateById(project)) {
+            throw new ValidateException("更新项目失败");
+        }
+
+        String userId = SecurityContextUtil.getAccessUser().getId();
+        log.info("public-api project patched projectId={} userId={} fields=name:{} desc:{} tags:{}",
+                projectId, userId, hasName, hasDesc, hasTags);
+
+        Project persisted = projectService.getById(projectId);
+        return toDetail(persisted != null ? persisted : project);
+    }
+
+    @Override
+    public PublicProjectDetailView putProjectJsonMine(
+            String projectId, PutPublicProjectJsonRequest request) {
+        requireProjectsWrite();
+        if (request == null) {
+            throw new ValidateException("request body 为空");
+        }
+        Map<String, Object> rawJson = request.resolveProjectJson();
+        if (rawJson == null || rawJson.isEmpty()) {
+            throw new ValidateException("projectJSON（或 snapshot）不能为空");
+        }
+
+        Project project = loadMemberProject(projectId);
+        Map<String, Object> sanitized = ProjectShareServiceImpl.sanitizeProjectJson(rawJson);
+        project.setProjectJSON(sanitized);
+        ensureModules(project);
+
+        if (!projectService.updateById(project)) {
+            throw new ValidateException("更新 projectJSON 失败");
+        }
+
+        String userId = SecurityContextUtil.getAccessUser().getId();
+        log.info("public-api projectJSON replaced projectId={} userId={}", projectId, userId);
+
+        Project persisted = projectService.getById(projectId);
+        return toDetail(persisted != null ? persisted : project);
+    }
+
+    private Project loadMemberProject(String projectId) {
         if (!StringUtils.hasText(projectId)) {
             throw new ValidateException("projectId 为空");
         }
@@ -68,19 +144,15 @@ public class PublicApiProjectServiceImpl implements PublicApiProjectService {
         if (project == null) {
             throw new ValidateException(ApiErrorCode.NOT_FOUND);
         }
-        return PublicProjectDetailView.builder()
-                .id(project.getId())
-                .projectName(project.getProjectName())
-                .description(project.getDescription())
-                .type(project.getType())
-                .tags(project.getTags())
-                .updateTime(project.getUpdateTime())
-                .projectJson(ProjectShareServiceImpl.sanitizeProjectJson(project.getProjectJSON()))
-                .build();
+        return project;
     }
 
     private void requireProjectsRead() {
         PatScopes.require(SecurityContextUtil.getAuthorities(), PatScopes.PROJECTS_READ);
+    }
+
+    private void requireProjectsWrite() {
+        PatScopes.require(SecurityContextUtil.getAuthorities(), PatScopes.PROJECTS_WRITE);
     }
 
     private PublicProjectSummaryView toSummary(ProjectBaseDto row) {
@@ -92,5 +164,29 @@ public class PublicApiProjectServiceImpl implements PublicApiProjectService {
                 .tags(row.getTags())
                 .updateTime(row.getUpdateTime())
                 .build();
+    }
+
+    private PublicProjectDetailView toDetail(Project project) {
+        return PublicProjectDetailView.builder()
+                .id(project.getId())
+                .projectName(project.getProjectName())
+                .description(project.getDescription())
+                .type(project.getType())
+                .tags(project.getTags())
+                .updateTime(project.getUpdateTime())
+                .projectJson(ProjectShareServiceImpl.sanitizeProjectJson(project.getProjectJSON()))
+                .build();
+    }
+
+    /** Align with ProjectServiceImpl.ensureDefaultProjectJson — modules never null. */
+    private static void ensureModules(Project project) {
+        Map<String, Object> json = project.getProjectJSON();
+        if (json == null) {
+            json = new LinkedHashMap<>();
+            project.setProjectJSON(json);
+        }
+        if (!(json.get("modules") instanceof List)) {
+            json.put("modules", new ArrayList<>());
+        }
     }
 }
