@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,11 +26,11 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 公开 API v1：PAT 鉴权；项目/版本读写（成员 ACL + scope）。
+ * 公开 API v1：PAT 或 OAuth access token 鉴权；项目/版本读写（成员 ACL + scope）。
  */
 @RestController
 @RequestMapping("/api/v1")
-@Tag(name = "Public API v1", description = "Bearer PAT（erd_pat_…）；prod 仍走 springdoc 门控")
+@Tag(name = "Public API v1", description = "Bearer PAT（erd_pat_…）或 OAuth access token（erd_oat_…）；prod 仍走 springdoc 门控")
 @SecurityRequirement(name = "bearer-pat")
 @RequiredArgsConstructor
 public class PublicApiV1Controller {
@@ -38,18 +39,19 @@ public class PublicApiV1Controller {
     private final PublicApiVersionService publicApiVersionService;
 
     @GetMapping("/me")
-    @Operation(summary = "PAT 鉴权自检")
-    public R me() {
+    @Operation(summary = "公开 API 鉴权自检（PAT 或 OAuth access token）")
+    public R me(HttpServletRequest request) {
         MartinUser user = SecurityContextUtil.getAccessUser();
         List<String> scopes = user.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .sorted()
                 .collect(Collectors.toList());
+        Object kind = request.getAttribute("erd.publicApi.tokenKind");
         Map<String, Object> body = new HashMap<>(8);
         body.put("userId", user.getId());
         body.put("username", user.getUsername());
         body.put("scopes", scopes);
-        body.put("auth", "pat");
+        body.put("auth", "oat".equals(kind) ? "oauth" : "pat");
         return R.ok(body);
     }
 

@@ -148,7 +148,7 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → GitHub Pages **�
 
 见 [`data-format.md`](./data-format.md) 与仓库根 `schema/`。
 
-## 公开 API PAT（ADR-0013）
+## 公开 API PAT / OAuth（ADR-0013）
 
 ```bash
 # 1. 会话登录拿 JWT（示例）
@@ -183,9 +183,21 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 # curl -sS -X PUT "http://127.0.0.1:9502/api/v1/projects/$ID/projectJSON" \
 #   -H "Authorization: Bearer $WPAT" -H 'Content-Type: application/json' \
 #   -d '{"projectJSON":{"modules":[],"profile":{"dbs":[{"url":"secret"}]}}}'
+
+# 5. OAuth 切片 A：注册 client → client_credentials → /api/v1（与 PAT 等价 Bearer）
+# CREATED=$(curl -sS -X POST http://127.0.0.1:9502/auth/oauth-clients \
+#   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+#   -d '{"name":"ci-bot"}')
+# CLIENT_ID=$(echo "$CREATED" | jq -r '.data.clientId')
+# CLIENT_SECRET=$(echo "$CREATED" | jq -r '.data.clientSecret')  # 仅此一次
+# OAT=$(curl -sS -X POST http://127.0.0.1:9502/oauth/token \
+#   -H 'Content-Type: application/x-www-form-urlencoded' \
+#   -d "grant_type=client_credentials&client_id=$CLIENT_ID&client_secret=$CLIENT_SECRET" \
+#   | jq -r '.access_token')
+# curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $OAT"
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。Authorization Code 后置。
 
 ### MCP（切片 4–5 + projects:write tools）
 

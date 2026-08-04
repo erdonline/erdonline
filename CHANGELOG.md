@@ -8,6 +8,19 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OAuth 切片 A（client 注册 + `client_credentials`）
+
+- 选题：PAT 适合个人/脚本；第三方机器接入需独立 client；全量 Authorization Code 过大，先落地 M2M
+- 表：`oauth_api_client` / `oauth_access_token`（Flyway `V9`）；`client_secret` / `access_token` 仅 SHA-256；明文一次性
+- 管理：会话 JWT → `POST|GET|DELETE /auth/oauth-clients`（前缀剥离 `/oauth-clients`）
+- 换票：匿名 `POST /oauth/token`（及 `/auth/oauth/token`）`grant_type=client_credentials` → `erd_oat_…`（TTL `ERD_PUBLIC_API_OAUTH_TTL` 默认 3600）
+- `/api/v1/**` Bearer 同时接受 `erd_pat_` 与 `erd_oat_`（OAT 以注册人身份 + PatScopes）；吊销 client 使未过期票失效
+- **后置切片 B**：Authorization Code + 可选 PKCE；本刀不放宽 CORS
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest,DeadSecurityConfigContractTest,PatTokenCodecTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：登录 → 注册 client → `client_credentials` → `GET /api/v1/me` 200；坏 secret → 401；JWT 调 `/api/v1/me` → 401
+
 #### 开放：ADR-0013 — MCP `projects:write` tools（`update_project` + `put_project_json`）
 
 - 选题：REST PATCH/PUT 已有（`63f128a`）；agent MCP 面仍缺元数据/工作区 JSON 写
