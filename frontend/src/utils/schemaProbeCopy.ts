@@ -1,5 +1,19 @@
 /** B-layer probe status (mirrors backend SchemaProbeStatus). */
-export type SchemaProbeStatus = 'SYNCED' | 'AHEAD' | 'BEHIND' | 'DIVERGED' | 'UNKNOWN';
+import {
+  B_STATUS_COLOR,
+  B_STATUS_LABEL,
+  LAYER,
+  PARITY_VERB,
+  type SchemaProbeStatus,
+} from './dualLayerTokens';
+
+export type { SchemaProbeStatus } from './dualLayerTokens';
+
+/** @deprecated use B_STATUS_LABEL — kept for existing imports */
+export const STATUS_LABEL: Record<SchemaProbeStatus, string> = B_STATUS_LABEL;
+
+/** @deprecated use B_STATUS_COLOR — kept for existing imports */
+export const STATUS_COLOR: Record<SchemaProbeStatus, string> = B_STATUS_COLOR;
 
 /** Machine-readable unknown / skip reasons (mirrors backend + client-only). */
 export type SchemaProbeReason =
@@ -22,22 +36,6 @@ export type ProbeResult = {
   message?: string;
 };
 
-export const STATUS_LABEL: Record<SchemaProbeStatus, string> = {
-  SYNCED: '实库一致',
-  AHEAD: '模型领先',
-  BEHIND: '实库领先',
-  DIVERGED: '双向分叉',
-  UNKNOWN: '实库未知',
-};
-
-export const STATUS_COLOR: Record<SchemaProbeStatus, string> = {
-  SYNCED: 'green',
-  AHEAD: 'blue',
-  BEHIND: 'orange',
-  DIVERGED: 'red',
-  UNKNOWN: 'default',
-};
-
 export type UnknownCopy = {
   title: string;
   hint: string;
@@ -58,7 +56,7 @@ export const UNKNOWN_COPY: Record<
   },
   PROBE_NOT_PROBED: {
     title: '尚未探测',
-    hint: '实库状态未知。点击「探测实库」后才会对比活库 schema。',
+    hint: `${LAYER.B.name}状态${PARITY_VERB.UNKNOWN}。点击「探测实库」后才会对比活库 schema。`,
     ctaLabel: '探测实库',
     ctaTestId: 'schema-probe-cta-probe',
   },
@@ -96,7 +94,7 @@ export function resolveUnknownCopy(reason?: SchemaProbeReason, message?: string)
     };
   }
   return {
-    title: '实库未知',
+    title: B_STATUS_LABEL.UNKNOWN,
     hint: message || '尚未获得可靠的实库对比结果。',
     ctaLabel: '探测实库',
     ctaTestId: 'schema-probe-cta-probe',
@@ -107,8 +105,8 @@ export function statusHint(result: ProbeResult): string | undefined {
   const { status, reason, message, fingerprint, tableCount } = result;
   if (status === 'SYNCED') {
     return fingerprint
-      ? `指纹 ${fingerprint.slice(0, 12)}… · ${tableCount ?? 0} 表 · 与模型一致`
-      : '与模型一致';
+      ? `指纹 ${fingerprint.slice(0, 12)}… · ${tableCount ?? 0} 表 · 与模型${PARITY_VERB.SYNCED}`
+      : `与模型${PARITY_VERB.SYNCED}`;
   }
   if (status === 'AHEAD') {
     return '模型含实库尚未落地的结构（后续可用「推送」同步 DDL）';
@@ -117,7 +115,7 @@ export function statusHint(result: ProbeResult): string | undefined {
     return '实库含模型未收录的结构（后续可用「拉取」反向存版）';
   }
   if (status === 'DIVERGED') {
-    return '两侧各有独有或冲突变更，需人工决策拉取或推送';
+    return `两侧各有独有或冲突变更，需人工决策拉取或推送`;
   }
   if (status === 'UNKNOWN') {
     return resolveUnknownCopy(reason, message).hint;
