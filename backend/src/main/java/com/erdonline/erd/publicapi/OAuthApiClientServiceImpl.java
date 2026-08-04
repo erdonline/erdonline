@@ -8,9 +8,11 @@ import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.entity.OAuthAccessToken;
 import com.erdonline.erd.entity.OAuthApiClient;
 import com.erdonline.erd.entity.OAuthAuthorizationCode;
+import com.erdonline.erd.entity.OAuthRefreshToken;
 import com.erdonline.erd.mapper.OAuthAccessTokenMapper;
 import com.erdonline.erd.mapper.OAuthApiClientMapper;
 import com.erdonline.erd.mapper.OAuthAuthorizationCodeMapper;
+import com.erdonline.erd.mapper.OAuthRefreshTokenMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,6 +28,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,12 +43,16 @@ public class OAuthApiClientServiceImpl
 
     private final OAuthAccessTokenMapper oauthAccessTokenMapper;
     private final OAuthAuthorizationCodeMapper oauthAuthorizationCodeMapper;
+    private final OAuthRefreshTokenMapper oauthRefreshTokenMapper;
 
     @Value("${erd.public-api.oauth-access-token-ttl-seconds:3600}")
     private long accessTokenTtlSeconds;
 
     @Value("${erd.public-api.oauth-auth-code-ttl-seconds:120}")
     private long authCodeTtlSeconds;
+
+    @Value("${erd.public-api.oauth-refresh-token-ttl-seconds:2592000}")
+    private long refreshTokenTtlSeconds;
 
     @Override
     public OAuthClientCreatedView create(CreateOAuthClientRequest request) {
@@ -131,6 +138,10 @@ public class OAuthApiClientServiceImpl
                 .eq(OAuthAccessToken::getClientPk, row.getId())
                 .eq(OAuthAccessToken::getRevoked, ACTIVE)
                 .set(OAuthAccessToken::getRevoked, REVOKED));
+        oauthRefreshTokenMapper.update(null, new LambdaUpdateWrapper<OAuthRefreshToken>()
+                .eq(OAuthRefreshToken::getClientPk, row.getId())
+                .eq(OAuthRefreshToken::getRevoked, ACTIVE)
+                .set(OAuthRefreshToken::getRevoked, REVOKED));
         // 吊销未消费的 auth code
         oauthAuthorizationCodeMapper.update(null, new LambdaUpdateWrapper<OAuthAuthorizationCode>()
                 .eq(OAuthAuthorizationCode::getClientPk, row.getId())
@@ -160,7 +171,7 @@ public class OAuthApiClientServiceImpl
 
         Set<String> allowed = PatScopes.parse(client.getScopes());
         Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
-        return mintAccessToken(client, client.getUserId(), client.getUsername(), granted);
+        return mintAccessTokenOnly(client, client.getUserId(), client.getUsername(), granted);
     }
 
     @Override
@@ -306,20 +317,7 @@ public class OAuthApiClientServiceImpl
         if (client == null) {
             throw new IllegalArgumentException("invalid_client");
         }
-
-        String type = normalizeStoredType(client);
-        if (OAuthClientCodec.CLIENT_TYPE_CONFIDENTIAL.equals(type)) {
-            if (!StringUtils.hasText(clientSecret)
-                    || !OAuthClientCodec.hashEquals(
-                    OAuthClientCodec.hash(clientSecret), client.getClientSecretHash())) {
-                throw new IllegalArgumentException("invalid_client");
-            }
-        } else {
-            // public：不得带有效 confidential secret 冒充；允许空 secret
-            if (StringUtils.hasText(clientSecret)) {
-                throw new IllegalArgumentException("invalid_client");
-            }
-        }
+        assertClientAuthForTokenEndpoint(client, clientSecret);
 
         String codeHash = OAuthClientCodec.hash(code.trim());
         OAuthAuthorizationCode authCode = oauthAuthorizationCodeMapper.selectOne(
@@ -355,8 +353,160 @@ public class OAuthApiClientServiceImpl
         if (granted.isEmpty()) {
             throw new IllegalArgumentException("invalid_scope");
         }
-        // OAT 以授权用户身份（非注册人）
-        return mintAccessToken(client, authCode.getUserId(), authCode.getUsername(), granted);
+        // OAT+ORT 以授权用户身份（非注册人）；新建轮换族
+        String familyId = newFamilyId();
+        return mintTokenPair(client, authCode.getUserId(), authCode.getUsername(), granted, familyId);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OAuthTokenResponse refreshAccessToken(
+            String clientId,
+            String clientSecret,
+            String refreshToken,
+            String scopeCsv) {
+        if (!StringUtils.hasText(clientId) || !OAuthClientCodec.looksLikeClientId(clientId.trim())) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+        if (!StringUtils.hasText(refreshToken)
+                || !OAuthClientCodec.looksLikeRefreshToken(refreshToken.trim())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+
+        OAuthApiClient client = loadActiveClient(clientId.trim());
+        if (client == null) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+        assertClientAuthForTokenEndpoint(client, clientSecret);
+
+        String tokenHash = OAuthClientCodec.hash(refreshToken.trim());
+        OAuthRefreshToken row = oauthRefreshTokenMapper.selectOne(new LambdaQueryWrapper<OAuthRefreshToken>()
+                .eq(OAuthRefreshToken::getTokenHash, tokenHash)
+                .last("LIMIT 1"));
+        if (row == null) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (!client.getId().equals(row.getClientPk())
+                || !client.getClientId().equals(row.getClientId())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+
+        // 复用检测：已轮换/已吊销的 refresh 再现 → 整族失效
+        if (REVOKED.equals(row.getRevoked())) {
+            revokeFamily(row.getFamilyId());
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (row.getExpireTime() != null && row.getExpireTime().isBefore(LocalDateTime.now())) {
+            row.setRevoked(REVOKED);
+            oauthRefreshTokenMapper.updateById(row);
+            throw new IllegalArgumentException("invalid_grant");
+        }
+
+        Set<String> allowed = PatScopes.parse(row.getScopes());
+        Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
+
+        // 轮换：先吊销本票，再签发新对（同 family）
+        row.setRevoked(REVOKED);
+        oauthRefreshTokenMapper.updateById(row);
+        revokeFamilyAccessTokens(row.getFamilyId());
+
+        return mintTokenPair(client, row.getUserId(), row.getUsername(), granted, row.getFamilyId());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void revokePresentedToken(
+            String clientId, String clientSecret, String token, String tokenTypeHint) {
+        if (!StringUtils.hasText(token)) {
+            return;
+        }
+        String raw = token.trim();
+        // 无 client_id 时仍按 RFC 7009 静默成功（不探测）
+        if (!StringUtils.hasText(clientId) || !OAuthClientCodec.looksLikeClientId(clientId.trim())) {
+            return;
+        }
+        OAuthApiClient client = loadActiveClient(clientId.trim());
+        if (client == null) {
+            return;
+        }
+        try {
+            assertClientAuthForTokenEndpoint(client, clientSecret);
+        } catch (IllegalArgumentException ex) {
+            // 客户端认证失败：抛出由 controller 映射；否则假成功会削弱 confidential 保护
+            throw ex;
+        }
+
+        String hint = tokenTypeHint == null ? "" : tokenTypeHint.trim().toLowerCase(Locale.ROOT);
+        boolean tryRefresh = hint.isEmpty() || "refresh_token".equals(hint)
+                || OAuthClientCodec.looksLikeRefreshToken(raw);
+        boolean tryAccess = hint.isEmpty() || "access_token".equals(hint)
+                || OAuthClientCodec.looksLikeAccessToken(raw);
+
+        if (tryRefresh && OAuthClientCodec.looksLikeRefreshToken(raw)) {
+            OAuthRefreshToken rt = oauthRefreshTokenMapper.selectOne(new LambdaQueryWrapper<OAuthRefreshToken>()
+                    .eq(OAuthRefreshToken::getTokenHash, OAuthClientCodec.hash(raw))
+                    .eq(OAuthRefreshToken::getClientPk, client.getId())
+                    .last("LIMIT 1"));
+            if (rt != null && ACTIVE.equals(rt.getRevoked())) {
+                revokeFamily(rt.getFamilyId());
+                return;
+            }
+        }
+        if (tryAccess && OAuthClientCodec.looksLikeAccessToken(raw)) {
+            OAuthAccessToken at = oauthAccessTokenMapper.selectOne(new LambdaQueryWrapper<OAuthAccessToken>()
+                    .eq(OAuthAccessToken::getTokenHash, OAuthClientCodec.hash(raw))
+                    .eq(OAuthAccessToken::getClientPk, client.getId())
+                    .last("LIMIT 1"));
+            if (at != null && ACTIVE.equals(at.getRevoked())) {
+                if (StringUtils.hasText(at.getFamilyId())) {
+                    revokeFamily(at.getFamilyId());
+                } else {
+                    at.setRevoked(REVOKED);
+                    oauthAccessTokenMapper.updateById(at);
+                }
+            }
+        }
+    }
+
+    /** public：secret 必须空；confidential：secret 必须匹配。 */
+    private void assertClientAuthForTokenEndpoint(OAuthApiClient client, String clientSecret) {
+        String type = normalizeStoredType(client);
+        if (OAuthClientCodec.CLIENT_TYPE_CONFIDENTIAL.equals(type)) {
+            if (!StringUtils.hasText(clientSecret)
+                    || !OAuthClientCodec.hashEquals(
+                    OAuthClientCodec.hash(clientSecret), client.getClientSecretHash())) {
+                throw new IllegalArgumentException("invalid_client");
+            }
+        } else {
+            if (StringUtils.hasText(clientSecret)) {
+                throw new IllegalArgumentException("invalid_client");
+            }
+        }
+    }
+
+    private void revokeFamily(String familyId) {
+        if (!StringUtils.hasText(familyId)) {
+            return;
+        }
+        oauthRefreshTokenMapper.update(null, new LambdaUpdateWrapper<OAuthRefreshToken>()
+                .eq(OAuthRefreshToken::getFamilyId, familyId)
+                .eq(OAuthRefreshToken::getRevoked, ACTIVE)
+                .set(OAuthRefreshToken::getRevoked, REVOKED));
+        revokeFamilyAccessTokens(familyId);
+    }
+
+    private void revokeFamilyAccessTokens(String familyId) {
+        if (!StringUtils.hasText(familyId)) {
+            return;
+        }
+        oauthAccessTokenMapper.update(null, new LambdaUpdateWrapper<OAuthAccessToken>()
+                .eq(OAuthAccessToken::getFamilyId, familyId)
+                .eq(OAuthAccessToken::getRevoked, ACTIVE)
+                .set(OAuthAccessToken::getRevoked, REVOKED));
+    }
+
+    private static String newFamilyId() {
+        return UUID.randomUUID().toString().replace("-", "");
     }
 
     @Override
@@ -436,8 +586,46 @@ public class OAuthApiClientServiceImpl
         return requested;
     }
 
-    private OAuthTokenResponse mintAccessToken(
+    /** client_credentials：仅短期 access，无 refresh / family。 */
+    private OAuthTokenResponse mintAccessTokenOnly(
             OAuthApiClient client, String userId, String username, Set<String> granted) {
+        return insertAccessAndBuild(client, userId, username, granted, null, null, null);
+    }
+
+    /** authorization_code / refresh：access + refresh，同 family。 */
+    private OAuthTokenResponse mintTokenPair(
+            OAuthApiClient client,
+            String userId,
+            String username,
+            Set<String> granted,
+            String familyId) {
+        long refreshTtl = Math.max(3600, refreshTokenTtlSeconds);
+        String refreshPlain = OAuthClientCodec.generateRefreshToken();
+        OAuthRefreshToken rt = new OAuthRefreshToken();
+        rt.setTokenHash(OAuthClientCodec.hash(refreshPlain));
+        rt.setTokenHint(OAuthClientCodec.hint(refreshPlain));
+        rt.setFamilyId(familyId);
+        rt.setClientPk(client.getId());
+        rt.setClientId(client.getClientId());
+        rt.setUserId(userId);
+        rt.setUsername(username);
+        rt.setScopes(PatScopes.toCsv(granted));
+        rt.setExpireTime(LocalDateTime.now().plusSeconds(refreshTtl));
+        rt.setRevoked(ACTIVE);
+        oauthRefreshTokenMapper.insert(rt);
+
+        return insertAccessAndBuild(
+                client, userId, username, granted, familyId, refreshPlain, refreshTtl);
+    }
+
+    private OAuthTokenResponse insertAccessAndBuild(
+            OAuthApiClient client,
+            String userId,
+            String username,
+            Set<String> granted,
+            String familyId,
+            String refreshPlain,
+            Long refreshTtl) {
         long ttl = Math.max(60, accessTokenTtlSeconds);
         String plaintext = OAuthClientCodec.generateAccessToken();
         LocalDateTime expire = LocalDateTime.now().plusSeconds(ttl);
@@ -450,6 +638,7 @@ public class OAuthApiClientServiceImpl
         token.setTokenHash(OAuthClientCodec.hash(plaintext));
         token.setTokenHint(OAuthClientCodec.hint(plaintext));
         token.setScopes(PatScopes.toCsv(granted));
+        token.setFamilyId(familyId);
         token.setExpireTime(expire);
         token.setRevoked(ACTIVE);
         oauthAccessTokenMapper.insert(token);
@@ -460,6 +649,8 @@ public class OAuthApiClientServiceImpl
                 .expiresIn(ttl)
                 .scope(PatScopes.toCsv(granted))
                 .scopes(new ArrayList<>(granted))
+                .refreshToken(refreshPlain)
+                .refreshExpiresIn(refreshTtl)
                 .build();
     }
 

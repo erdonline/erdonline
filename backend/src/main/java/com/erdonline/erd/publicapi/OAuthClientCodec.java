@@ -14,7 +14,7 @@ import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
- * OAuth client_id / client_secret / access_token / authorization_code 明文格式与哈希。
+ * OAuth client_id / client_secret / access_token / refresh_token / authorization_code 明文格式与哈希。
  * 库中只存 {@link #hash(String)}。PKCE 仅允许 S256。
  */
 public final class OAuthClientCodec {
@@ -22,6 +22,7 @@ public final class OAuthClientCodec {
     public static final String CLIENT_ID_PREFIX = "erd_cli_";
     public static final String CLIENT_SECRET_PREFIX = "erd_cs_";
     public static final String ACCESS_TOKEN_PREFIX = "erd_oat_";
+    public static final String REFRESH_TOKEN_PREFIX = "erd_ort_";
     public static final String AUTH_CODE_PREFIX = "erd_ac_";
 
     public static final String CLIENT_TYPE_CONFIDENTIAL = "confidential";
@@ -53,12 +54,20 @@ public final class OAuthClientCodec {
         return ACCESS_TOKEN_PREFIX + randomHex(SECRET_BYTES);
     }
 
+    public static String generateRefreshToken() {
+        return REFRESH_TOKEN_PREFIX + randomHex(SECRET_BYTES);
+    }
+
     public static String generateAuthorizationCode() {
         return AUTH_CODE_PREFIX + randomHex(CODE_BYTES);
     }
 
     public static boolean looksLikeAccessToken(String raw) {
         return raw != null && raw.startsWith(ACCESS_TOKEN_PREFIX) && raw.length() > ACCESS_TOKEN_PREFIX.length() + 8;
+    }
+
+    public static boolean looksLikeRefreshToken(String raw) {
+        return raw != null && raw.startsWith(REFRESH_TOKEN_PREFIX) && raw.length() > REFRESH_TOKEN_PREFIX.length() + 8;
     }
 
     public static boolean looksLikeClientId(String raw) {

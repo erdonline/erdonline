@@ -19,14 +19,15 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * OAuth 2.0 token：{@code client_credentials}（切片 A）与 {@code authorization_code}+PKCE（切片 B）。
+ * OAuth 2.0 token：{@code client_credentials}、{@code authorization_code}+PKCE、{@code refresh_token}。
  * 匿名可达；不经会话 JWT。
  */
 @RestController
 @RequiredArgsConstructor
 public class OAuthTokenController {
 
-    private static final Set<String> SUPPORTED = Set.of("client_credentials", "authorization_code");
+    private static final Set<String> SUPPORTED =
+            Set.of("client_credentials", "authorization_code", "refresh_token");
 
     private final OAuthApiClientService oauthApiClientService;
 
@@ -45,7 +46,8 @@ public class OAuthTokenController {
             @RequestParam(value = "scope", required = false) String scope,
             @RequestParam(value = "code", required = false) String code,
             @RequestParam(value = "redirect_uri", required = false) String redirectUri,
-            @RequestParam(value = "code_verifier", required = false) String codeVerifier) {
+            @RequestParam(value = "code_verifier", required = false) String codeVerifier,
+            @RequestParam(value = "refresh_token", required = false) String refreshToken) {
 
         if (!StringUtils.hasText(grantType)) {
             return oauthError(HttpStatus.BAD_REQUEST, "invalid_request", "grant_type required");
@@ -53,7 +55,7 @@ public class OAuthTokenController {
         String grant = grantType.trim().toLowerCase(Locale.ROOT);
         if (!SUPPORTED.contains(grant)) {
             return oauthError(HttpStatus.BAD_REQUEST, "unsupported_grant_type",
-                    "supported: client_credentials, authorization_code");
+                    "supported: client_credentials, authorization_code, refresh_token");
         }
 
         String resolvedId = clientId;
@@ -73,6 +75,9 @@ public class OAuthTokenController {
             if ("client_credentials".equals(grant)) {
                 issued = oauthApiClientService.issueClientCredentials(
                         resolvedId, resolvedSecret, scope);
+            } else if ("refresh_token".equals(grant)) {
+                issued = oauthApiClientService.refreshAccessToken(
+                        resolvedId, resolvedSecret, refreshToken, scope);
             } else {
                 issued = oauthApiClientService.exchangeAuthorizationCode(
                         resolvedId, resolvedSecret, code, redirectUri, codeVerifier);
@@ -82,6 +87,12 @@ public class OAuthTokenController {
             body.put("token_type", issued.getTokenType());
             body.put("expires_in", issued.getExpiresIn());
             body.put("scope", issued.getScope());
+            if (StringUtils.hasText(issued.getRefreshToken())) {
+                body.put("refresh_token", issued.getRefreshToken());
+                if (issued.getRefreshExpiresIn() != null) {
+                    body.put("refresh_expires_in", issued.getRefreshExpiresIn());
+                }
+            }
             return ResponseEntity.ok()
                     .header(HttpHeaders.CACHE_CONTROL, "no-store")
                     .header(HttpHeaders.PRAGMA, "no-cache")
@@ -99,7 +110,7 @@ public class OAuthTokenController {
             case "unauthorized_client" -> oauthError(HttpStatus.BAD_REQUEST, "unauthorized_client",
                     "grant type not allowed for this client");
             case "invalid_grant" -> oauthError(HttpStatus.BAD_REQUEST, "invalid_grant",
-                    "authorization code / pkce / redirect_uri rejected");
+                    "authorization code / refresh_token / pkce / redirect_uri rejected");
             case "invalid_request" -> oauthError(HttpStatus.BAD_REQUEST, "invalid_request",
                     "missing or malformed parameters");
             default -> oauthError(HttpStatus.UNAUTHORIZED, "invalid_client",

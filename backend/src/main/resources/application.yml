@@ -175,6 +175,8 @@ erd:
     oauth-access-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_TTL:3600}
     # Authorization Code 明文有效期（秒），默认 120；单次使用 + SHA-256 入库
     oauth-auth-code-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_CODE_TTL:120}
+    # refresh_token TTL（秒），默认 30 天；仅 authorization_code 换票签发；轮换复用检测
+    oauth-refresh-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_REFRESH_TTL:2592000}
 
 # 安全放行 URL
 security:
@@ -187,9 +189,11 @@ security:
         - /exit
         # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）；勿再放行 /user/register
         - /project/group/user/register
-        # ADR-0013 OAuth 切片 A：client_credentials 换票（匿名；勿放宽 CORS）
+        # ADR-0013 OAuth：token / revoke（匿名；勿放宽 CORS）
         - /oauth/token
         - /auth/oauth/token
+        - /oauth/revoke
+        - /auth/oauth/revoke
         - /error
         - /v3/api-docs/**
         - /swagger-ui/**

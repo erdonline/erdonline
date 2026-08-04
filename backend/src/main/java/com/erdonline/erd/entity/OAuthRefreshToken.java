@@ -14,16 +14,24 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * OAuth client_credentials 签发的 access token（ADR-0013）。仅存哈希。
+ * OAuth refresh_token（ADR-0013 post-MVP）。仅存哈希；轮换时旧票 revoked。
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("oauth_access_token")
-public class OAuthAccessToken implements Serializable {
+@TableName("oauth_refresh_token")
+public class OAuthRefreshToken implements Serializable {
 
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
+
+    /** SHA-256 hex；永不写明文 */
+    private String tokenHash;
+
+    private String tokenHint;
+
+    /** 轮换族 id；复用已吊销成员 → 整族吊销 */
+    private String familyId;
 
     private String clientPk;
 
@@ -33,22 +41,12 @@ public class OAuthAccessToken implements Serializable {
 
     private String username;
 
-    /** SHA-256 hex；永不写明文 */
-    private String tokenHash;
-
-    private String tokenHint;
-
     private String scopes;
-
-    /** refresh 轮换族；client_credentials 为 null */
-    private String familyId;
 
     private LocalDateTime expireTime;
 
     /** 0 有效 / 1 已吊销 */
     private String revoked;
-
-    private LocalDateTime lastUsedTime;
 
     @TableLogic
     private String delFlag;

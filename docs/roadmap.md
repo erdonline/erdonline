@@ -74,6 +74,8 @@
   - ~~OAuth client 管理 UI：`/account/settings?selectKey=oauthClients`（列表/注册/secret 一次揭示/吊销）~~✅（2026-08-04）
   - ~~PAT 管理 UI：`/account/settings?selectKey=personalAccessTokens`（列表/铸造/scopes/明文一次揭示/吊销）~~✅（2026-08-04）
   - ~~同意页：`/oauth/authorize` AuthBrandShell + Allow/Deny；GET 预览不签发；仅 Allow → `erd_ac_`~~✅（2026-08-04）
+  - ~~OAuth refresh_token：`erd_ort_`（仅 auth code）；轮换 + 复用整族吊销；`POST /oauth/revoke`~~✅（2026-08-04）
+  - 后置：OpenID Connect（discovery / id_token / userinfo）— 与本刀解耦
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
 
 ### 安全（Security）📋

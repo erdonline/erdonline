@@ -8,6 +8,19 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OAuth refresh_token（轮换 + 吊销）
+
+- 选题：MVP 同意页后浏览器客户端需续期；优先 refresh，OIDC 后置
+- Flyway `V11`：表 `oauth_refresh_token`（仅 SHA-256）；`oauth_access_token.family_id`
+- 仅 `authorization_code` 换票签发 `erd_ort_`（`client_credentials` 不发）；TTL `ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 30 天）
+- `POST /oauth/token` `grant_type=refresh_token`：**轮换**（旧票吊销 + 新 access/refresh 同 family）；复用已吊销 refresh → 整族 OAT/ORT 吊销
+- `POST /oauth/revoke`（RFC 7009 风格）+ 吊销 client 一并失效 refresh；ignore-urls 同步
+- 未做：OIDC discovery / id_token / userinfo（下一切片）
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest,OAuthRefreshTokenServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：auth code → 响应含 `refresh_token`；refresh 轮换 → 新 OAT 调 `/api/v1/me` 200；旧 ORT 再刷 → `invalid_grant`；revoke → 再刷失败；`client_credentials` 响应无 refresh
+
 #### 开放：ADR-0013 — OAuth 同意页（Allow/Deny）
 
 - 选题：切片 B 薄同意「已登录即签」；MVP 收口需显式同意
