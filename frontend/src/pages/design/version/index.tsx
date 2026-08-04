@@ -2,7 +2,7 @@ import React, {useCallback, useEffect, useState} from 'react';
 import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
-import {compareStringVersion} from "@/utils/string";
+import {isVersionGreater, isVersionLessOrEqual} from "@/utils/string";
 import {Button, Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
@@ -161,7 +161,19 @@ const Version: React.FC = () => {
   }, [versions, versionDispatch]);
 
   const renderSyncTag = (row: VersionRow) => {
-    if (compareStringVersion(row.version, dbVersion) <= 0) {
+    const bookmarkCmp = isVersionLessOrEqual(row.version, dbVersion);
+    if (bookmarkCmp === null) {
+      return (
+        <Tag
+          title="版本号或数据源书签无法比较，不能推断推送状态；实库一致性请用「探测实库」"
+          color="default"
+          data-testid="version-push-bookmark-unknown-tag"
+        >
+          书签未知
+        </Tag>
+      );
+    }
+    if (bookmarkCmp) {
       return (
         <Tag
           title="版本号书签：该版本曾推送到数据源；实库一致性请用「探测实库」"
@@ -239,7 +251,9 @@ const Version: React.FC = () => {
   };
 
   const renderRowActions = (row: VersionRow) => {
-    const unsynced = compareStringVersion(row.version, dbVersion) > 0;
+    const bookmarkGreater = isVersionGreater(row.version, dbVersion);
+    const unsynced = bookmarkGreater === true;
+    const bookmarkUnknown = bookmarkGreater === null;
     return [
       <CompareVersion key="detail" type={CompareVersionType.DETAIL} />,
       <Access key="submit-order" accessible={access.enterprise} fallback={<></>}>
@@ -268,13 +282,13 @@ const Version: React.FC = () => {
         <RemoveVersion />
       </Access>,
       <CopyProject key="copy" projectJSON={row.projectJSON} />,
-      <RevertVersion key="revert" synced={unsynced} />,
+      <RevertVersion key="revert" synced={unsynced || bookmarkUnknown} />,
       <Access
         key="sync"
         accessible={access.canErdConnectorDbsync}
         fallback={<></>}
       >
-        <SyncVersion synced={!unsynced} version={row} />
+        <SyncVersion synced={!unsynced && !bookmarkUnknown} version={row} />
       </Access>,
     ];
   };

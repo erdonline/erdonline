@@ -70,12 +70,16 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
       message.error('该版本号已经存在了');
       return;
     }
-    if (
-      tempVersions[0] &&
-      compareStringVersion(tempValue.version, tempVersions[0].version) <= 0
-    ) {
-      message.error('新版本不能小于或等于已经存在的版本');
-      return;
+    if (tempVersions[0]) {
+      const renameCmp = compareStringVersion(tempValue.version, tempVersions[0].version);
+      if (renameCmp === null) {
+        message.error('版本号格式无法比较，请使用如 1.0.0 的数字段格式');
+        return;
+      }
+      if (renameCmp <= 0) {
+        message.error('新版本不能小于或等于已经存在的版本');
+        return;
+      }
     }
     versionDispatch.updateVersionData(tempValue, currentVersion, 'update');
     setOpen(false);

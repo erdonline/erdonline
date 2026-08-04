@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### B 层：版本号比较诚实化（ADR-0022 切片 9）
+
+- `stringVersion.ts`：`compareStringVersion` 仅接受数字段 semver（可选 `v` 前缀）；空段 / 非数字 / null → 返回 `null`（不可比），不再因 `NaN` 误判「已推送/一致」
+- 版本行 tag「书签未知」（`version-push-bookmark-unknown-tag`）；Compare 详情「书签未知」文案；跨版本同步/保存/重命名在不可比时阻断或保守处理
+- 单测：`1.10` vs `1.9`、empty、null、`v1.0`、非法段
+
+验证点：
+- `cd frontend && npx tsx src/utils/stringVersion.test.ts`
+- `cd frontend && yarn build`
+
 #### B 层：实库 schema 指纹探测（ADR-0022 切片 8）
 
 - 后端 `POST /ncnb/connector/schema/probe`：复用逆向 dialect  introspect 活库 → 规范化 IR（表/列/PK/索引/FK，忽略 `db_version` 等基建表）→ SHA-256 指纹；与请求体 `projectJSON` 对比得 `synced` / `different` / `unknown`（含 `reason`）
