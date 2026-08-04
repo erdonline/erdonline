@@ -22,6 +22,13 @@
 - 排序真相 curl（同一项目先存 `9.0.0` 再存 `10.0.0`）：`orders=[createTime desc]` → `10.0.0`；旧的 `orders=[version desc]` → `9.0.0`；`current:2,size:1` → `9.0.0`（分页污染源）
 - 回归：`npx playwright test --project=chromium tests/e2e/version.spec.ts tests/e2e/version-save-failure.spec.ts tests/e2e/compare.spec.ts tests/e2e/version-revert-failure.spec.ts` 15 passed
 
+#### 测试：`save-failure.spec.ts` 按诚实持久化重写（消除 main 上的红）
+
+- 根因：用例沿用旧的乐观落行断言（`addFieldInline` 要求 Enter 后字段立即出现），而画布内联编辑早已改为「仅 `project/save` code===200 才写 store / 关编辑态」；阻断保存时字段本就不该落行，用例因此必红
+- 改动：改断言为落库失败时草稿留在编辑行 + 模型无该字段 + toast/顶栏重试可见；放开保存后在编辑行再按 Enter 才落行并回到「已保存」
+
+验证点：`cd frontend && npx playwright test --project=chromium tests/e2e/save-failure.spec.ts` 2 passed
+
 #### 流程：Vision 循环 & 全局模型路由改为「think 强模型 / exec 便宜模型」
 
 - 落实用户规则「思考用强模型，执行用便宜模型」：`.cursor/rules/model-routing.mdc` 路由表与可用 slug 全量更新（think 默认 `claude-sonnet-5-thinking-high`，exec 默认 `composer-2.5-fast`）；`scripts/agent-loop-vision.prompt.md` 新增「模型路由」节；`scripts/agent-loop-vision.sh` 新增 `VISION_THINK_MODEL`/`VISION_EXEC_MODEL` 环境变量并拼入 emit 提示词；`docs/development.md` 同步一段说明
