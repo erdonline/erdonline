@@ -91,6 +91,19 @@ ADR-0013 公开 API / MCP：已人工解封且 MVP ✅ —— **本阶段不再�
 - **红线**：不引回 pro-components；antd 唯一；不做 AI 噱头；不破坏 docker-compose；不扩大 `any`
 - 每 tick：**一刀** → 聚焦 E2E/清单验证 → CHANGELOG「验证点」→ Conventional commit；**禁止向用户提开放式问题**
 
+## 模型路由（think 强 / exec 便宜 · 站规矩）
+
+**思考用强模型，执行用便宜模型。** 收到本 prompt 的协调者不要自己一口气「又想又写」，一个 tick 拆成两段独立的 `Task` 调用：
+
+| 子步骤 | 内容 | 默认模型 |
+|---|---|---|
+| **think**（可选，仅决策类才需要） | 选题 / ROI 排序 / 卡壳两轮根因 / ADR 措辞 / 红测根因定位 | `claude-sonnet-5-thinking-high`；硬架构决策或卡壳 2 轮升级 `claude-opus-5-thinking-high` |
+| **exec**（必需） | 写代码 + 配套测试 + 验证 + commit | `composer-2.5-fast`；前端强类型/易抖动场景换 `gpt-5.6-sol-medium` |
+
+- 流程：先 Task 起 think 子任务，产出「本 tick 切哪一刀 + 改哪些文件 + 怎么验证」的明确指令；再 Task 起 exec 子任务按指令落地。**禁止**把大段代码生成塞进 think 那次昂贵调用里
+- 队列上一刀已经足够明确（本文件切片队列本身就是决策产出）时，可跳过 think 直接 exec——不要为了走流程而强行加一次无实质产出的思考调用
+- 只用 `model-routing.mdc` 允许的 slug；不确定就照上表默认值，不要杜撰
+
 ## E2E 跑法（防全量膨胀）
 
 - 并行用例：`--project=chromium` + 文件路径 + `--grep`
