@@ -10,24 +10,23 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * ADR-0013 公开 API scope。本切片仅解锁只读；写 scope 预留名但铸造时拒绝。
+ * ADR-0013 公开 API scope。读写均可铸造；默认仍为只读。
  */
 public final class PatScopes {
 
     public static final String PROJECTS_READ = "projects:read";
     public static final String VERSIONS_READ = "versions:read";
-
-    /** 预留，本切片不可铸造 */
     public static final String PROJECTS_WRITE = "projects:write";
     public static final String VERSIONS_WRITE = "versions:write";
 
     public static final Set<String> DEFAULT_READ =
             Set.of(PROJECTS_READ, VERSIONS_READ);
 
-    public static final Set<String> MINTABLE = DEFAULT_READ;
-
     private static final Set<String> ALL_KNOWN = Set.of(
             PROJECTS_READ, VERSIONS_READ, PROJECTS_WRITE, VERSIONS_WRITE);
+
+    /** 可铸造：读 + 写（写须显式请求；默认仍 {@link #DEFAULT_READ}） */
+    public static final Set<String> MINTABLE = ALL_KNOWN;
 
     private PatScopes() {
     }

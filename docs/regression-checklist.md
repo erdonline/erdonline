@@ -6,7 +6,7 @@
 ## 公开 API / ADR-0013
 
 - [x] [PAT 哈希] 铸造后库内仅 `token_hash`/`token_hint`，无明文 ✅`PatTokenCodecTest` + `PersonalAccessTokenAuthTest`
-- [x] [scope 门禁] 默认只读；`projects:write` 铸造拒绝 ✅`PatScopesTest`
+- [x] [scope 门禁] 默认只读；写 scope 须显式铸造 ✅`PatScopesTest`
 - [x] [限流骨架] 超配额拒绝 ✅`PublicApiRateLimiterTest`
 - [x] [手工 dogfood] 登录铸造 → `GET /api/v1/me` 200；无 token / 坏 token → 401；JWT 调 `/api/v1/me` → 401 ✅ 2026-08-04
 - [x] [projects 列表] PAT + `projects:read` → `GET /api/v1/projects` 仅成员项目 ✅`PublicApiProjectServiceTest` + curl
@@ -15,7 +15,10 @@
 - [x] [versions 列表] PAT + `versions:read` + 成员 → `GET /api/v1/projects/{id}/versions` ✅`PublicApiVersionServiceTest` + curl
 - [x] [versions 详情] 跨项目 versionId → 404；`projectJSON.profile.dbs` 空列表 ✅`PublicApiVersionServiceTest` + curl
 - [x] [手工 dogfood] 铸造 → versions 列表/详情 200；缺 `versions:read` → 403 ✅ 2026-08-04
-- [x] [MCP 只读骨架] `cd mcp && yarn dogfood`：tools 五只读 + REST；无写 tool ✅ 2026-08-04
+- [x] [MCP 只读骨架] `cd mcp && yarn dogfood`：tools 五只读 + REST；无写 tool ✅ 2026-08-04（切片 4）
+- [x] [写 scope 铸造] `projects:write` / `versions:write` 可铸造；默认仍只读 ✅`PatScopesTest`
+- [x] [POST versions] `versions:write` + 成员 → 创建版本；清 `profile.dbs`；无写 scope → 403 ✅`PublicApiVersionServiceTest` + dogfood
+- [x] [MCP create_version] `yarn dogfood`：REST 写 + MCP `create_version` ✅ 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
 

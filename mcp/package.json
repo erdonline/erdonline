@@ -2,7 +2,7 @@
   "name": "@erdonline/mcp",
   "version": "0.1.0",
   "private": true,
-  "description": "Read-only MCP server for ERD Online Public API v1 (PAT)",
+  "description": "MCP server for ERD Online Public API v1 (PAT; read + create_version)",
   "type": "module",
   "bin": {
     "erd-mcp": "./dist/index.js"

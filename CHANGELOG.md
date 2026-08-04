@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 切片 5 — 写 scope + `POST …/versions` + MCP `create_version`
+
+- 选题：切片 4 只读 MCP 后，agent 仍无法提交版本（北极星「API 产生的版本保存」无挂点）
+- Scope：解锁铸造 `projects:write` / `versions:write`（默认仍只读）；`POST` 需 `versions:write`
+- `POST /api/v1/projects/{id}/versions`：成员 ACL；body `dbKey`/`version`/`versionDesc` + `projectJSON`（别名 `projectJson`/`snapshot`）；写入前清空 `profile.dbs`；仅 insert；返回清洗后详情；创建日志审计；读写共用 60rpm 配额
+- MCP：`create_version` → 上列 REST；`mcp` dogfood 覆盖写路径与缺 scope 拒绝
+- 未做：`projects:write` 对应 REST、OAuth、集群 Redis 限流
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PatScopesTest,PublicApiVersionServiceTest,PublicApiProjectServiceTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：`cd mcp && yarn dogfood`（写 PAT → REST create + MCP `create_version`；只读 PAT 拒绝写）
+
 #### 开放：ADR-0013 切片 4 — MCP 只读骨架（`mcp/`）
 
 - 选题：切片 3 只读 REST 稳定后，agent 缺一等 MCP 面；本刀只读、无写
