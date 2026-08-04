@@ -1,0 +1,29 @@
+{
+  "name": "@erdonline/mcp",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Read-only MCP server for ERD Online Public API v1 (PAT)",
+  "type": "module",
+  "bin": {
+    "erd-mcp": "./dist/index.js"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "start": "node dist/index.js",
+    "dev": "tsx src/index.ts",
+    "dogfood": "tsx scripts/dogfood.ts"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.30.0",
+    "zod": "^3.25.76"
+  },
+  "devDependencies": {
+    "@types/express": "^4.17.21",
+    "@types/node": "^22.15.30",
+    "tsx": "^4.20.3",
+    "typescript": "^5.8.3"
+  }
+}

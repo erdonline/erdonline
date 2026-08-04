@@ -15,6 +15,7 @@
 - [x] [versions 列表] PAT + `versions:read` + 成员 → `GET /api/v1/projects/{id}/versions` ✅`PublicApiVersionServiceTest` + curl
 - [x] [versions 详情] 跨项目 versionId → 404；`projectJSON.profile.dbs` 空列表 ✅`PublicApiVersionServiceTest` + curl
 - [x] [手工 dogfood] 铸造 → versions 列表/详情 200；缺 `versions:read` → 403 ✅ 2026-08-04
+- [x] [MCP 只读骨架] `cd mcp && yarn dogfood`：tools 五只读 + REST；无写 tool ✅ 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
 

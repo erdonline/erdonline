@@ -523,3 +523,18 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # 产物：dist/
 | Docker / Nginx 同源 | 镜像内可空；容器启动 `docker-entrypoint.sh` 按环境变量重写 `env-config.js` |
 
 浏览器读 `window._env_.API_URL`（见 `frontend/src/utils/request.js`）。静态站 **没有**同源反代时必须填可公网访问的**后端**根 URL（Railway/Zeabur），**不要**填 UI 域名（`app.erdonline.com` / `*.pages.dev`）；留空则仅适合落地/文档类页面。
+
+## MCP（agent / CLI，ADR-0013）
+
+只读 MCP 进程在仓库 `mcp/`（非 Docker 镜像内置）。自托管后端起好后：
+
+```bash
+cd mcp && yarn install && yarn build
+export ERD_API_URL=https://your-api.example.com   # 或 http://127.0.0.1:9502
+export ERD_PAT=erd_pat_…                          # POST /auth/personal-access-tokens 铸造
+node dist/index.js                                # stdio
+# 可选 Streamable HTTP：
+# yarn start -- --http   # 默认 http://127.0.0.1:3920/mcp
+```
+
+Cursor / Claude Desktop 配置见 [`mcp/README.md`](../mcp/README.md)。**不要**把 PAT 写进镜像或 compose 默认值；写 scope / 提交版本尚未开放。
