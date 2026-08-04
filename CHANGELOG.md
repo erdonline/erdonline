@@ -8,6 +8,24 @@
 
 ### 2026-08-04
 
+#### 文档：i18n 审查结论锁定（ADR-0023；B 层后奠基；E2E 反脆弱）
+
+- roadmap「i18n 奠基（B 层后）」+ Vision loop 约束 + `e2e-locators` 反脆弱小节；**未**启用 umi locale / 未改产品代码
+
+验证点：文档与规则 diff 审阅
+
+#### 可信保存：诚实持久化 — 本地草稿 + beforeunload（ADR-0022 切片 7）
+
+- 落库失败（网络/非 200/非 409 冲突）：`projectLocalDraft` 将 working `projectJSON` + `updateTime` 写入 localStorage（`erd:project-draft:{projectId}`）；成功落库 / 刷新项目 / 丢弃草稿时清除
+- `beforeunload`：脏态且未落库时同步写草稿 + 浏览器原生离开确认
+- 再次进入设计器：`fetch` 后若草稿与服务器模型不同 → Modal「恢复草稿 / 丢弃草稿」
+- `SaveStatus` 失败态 title/aria 对齐「改动已存本地」；不假装「已落盘」
+
+验证点：
+- `cd frontend && npx tsx src/utils/projectLocalDraft.test.ts`
+- `cd frontend && npx playwright test --project=chromium tests/e2e/project-local-draft.spec.ts`
+- 回归：`npx playwright test --project=chromium tests/e2e/save-failure.spec.ts`
+
 #### 可信保存：db_change 版本号唯一约束（ADR-0022 切片 6）
 
 - 根因：并发存版时前端页内唯一校验不足，两窗口可同时写入相同 `version` → 重复历史版本

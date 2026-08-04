@@ -61,7 +61,7 @@
 - ~~删卸载盲存（`closeSocket` 无条件 `Save.saveProject`）→ 仅脏时落库且结果可见~~ ✅（2026-08-04）
 - ~~project 乐观锁（冲突可行动提示，不静默覆盖）~~ ✅（2026-08-04；`update_time` CAS → 409；Modal 刷新/另存为新项目）
 - ~~`db_change.version` 唯一约束（Flyway）~~ ✅（2026-08-04；V14 去重 + 唯一索引；409001 + 前端 Modal）
-- 诚实持久化：落库失败落本地草稿 + `beforeunload` 拦截，再次进入可对比/丢弃 📋
+- 诚实持久化：落库失败落本地草稿 + `beforeunload` 拦截，再次进入可对比/丢弃 ✅ 2026-08-04
 
 **B 实库（模型 ↔ 活库 schema）**
 
@@ -69,6 +69,16 @@
 - 修 `compareStringVersion`（空段 / `NaN` / 前缀）；不可判 → 未知态而非「一致」📋
 - 五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）📋
 - 分享访客隐藏 B 层 📋
+
+### i18n 奠基（B 层后）📋
+
+> 依据 [ADR-0023](./adr/0023-i18n-foundation.md)。**不在**双层 A/B 信任工作期间启动；B 层五态闭环后插入**一个**奠基切片。完整 i18n 仍属 P3 后置。
+
+- Theme locale 可配置（默认仍 **zh-CN**；本切片不启用 umi locale plugin MVP）
+- 清理或替换死 `locales/` Pro 骨架（当前无 `useIntl`；Theme 硬编码 `zhCN`；E2E 依赖中文 Modal OK）
+- E2E 反脆弱：新控件 prefer `data-testid` / `aria-label`；定位与文案断言分离；既有中文 locator grandfathered
+
+完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH，**不**切换默认 locale。
 
 ### 产品深度（走出「thin CRUD」）📋
 
