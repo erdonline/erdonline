@@ -2,6 +2,11 @@ import React, { useMemo } from 'react';
 import { Empty, Space, Tag, Typography } from 'antd';
 import './version-diff-panel.scss';
 import {
+  CHANGE_OPT,
+  changeSummaryTags,
+  countChanges,
+} from '@/utils/dualLayerTokens';
+import {
   fieldOf,
   tableOf,
   type VersionDiffItem,
@@ -9,12 +14,6 @@ import {
 
 export type { VersionDiffItem } from './formatVersionDiffMarkdown';
 export { formatVersionDiffMarkdown } from './formatVersionDiffMarkdown';
-
-const OPT_META: Record<string, { color: string; label: string }> = {
-  add: { color: 'success', label: '新增' },
-  delete: { color: 'error', label: '删除' },
-  update: { color: 'warning', label: '修改' },
-};
 
 const TYPE_LABEL: Record<string, string> = {
   entity: '表',
@@ -40,12 +39,9 @@ export type VersionDiffPanelProps = {
 const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ messages, hasScript }) => {
   const { groups, summary } = useMemo(() => {
     const list = Array.isArray(messages) ? messages : [];
-    const counts = { add: 0, delete: 0, update: 0 };
+    const counts = countChanges(list);
     const map = new Map<string, VersionDiffItem[]>();
     list.forEach((m) => {
-      if (counts[m.opt as keyof typeof counts] !== undefined) {
-        counts[m.opt as keyof typeof counts] += 1;
-      }
       const key = tableOf(m);
       if (!map.has(key)) {
         map.set(key, []);
@@ -78,11 +74,13 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ messages, hasScript
   return (
     <div className="version-diff-panel" data-testid="version-diff-panel">
       <Space size={4} wrap className="version-diff-summary" data-testid="version-diff-summary">
-        {summary.add > 0 && <Tag color="success">+{summary.add} 新增</Tag>}
-        {summary.delete > 0 && <Tag color="error">-{summary.delete} 删除</Tag>}
-        {summary.update > 0 && <Tag color="warning">~{summary.update} 修改</Tag>}
+        {changeSummaryTags(summary).map(({ opt, text }) => (
+          <Tag key={opt} color={CHANGE_OPT[opt].color}>
+            {text}
+          </Tag>
+        ))}
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          共 {messages.length} 项 · {groups.length} 张表
+          共 {messages.length} 项 · {groups.length} 张表 · A 层版本 diff
         </Typography.Text>
       </Space>
       <ul className="version-diff-tree">
@@ -94,7 +92,10 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ messages, hasScript
             </div>
             <ul className="version-diff-items">
               {items.map((item, idx) => {
-                const meta = OPT_META[item.opt] || { color: 'default', label: item.opt };
+                const meta = CHANGE_OPT[item.opt as keyof typeof CHANGE_OPT] ?? {
+                  color: 'default' as const,
+                  label: item.opt,
+                };
                 const typeLabel = TYPE_LABEL[item.type] || item.type;
                 const leaf = fieldOf(item);
                 return (

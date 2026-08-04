@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 体验：A/B 层 diff 视觉/文案统一（Vision #12 · ADR-0022）
+
+- 问题：A 层版本 diff（工作区 ↔ 版本）与 B 层实库探测各自一套颜色/措辞——A「一致」用蓝、B「一致」用绿；版本页 toolbar 写「未保存变更」而顶栏 chip 写「未存版本」，用户易混淆「模型内改动」与「模型 vs 库落差」
+- 改动：新增 `dualLayerTokens.ts` 统一 parity 动词（一致/领先/落后/分叉/未知）与 Tag 色（绿/蓝/橙/红/灰）；`versionDirtyStatus` / `schemaProbeCopy` 改从 token 派生；A 层 clean→「版本一致」绿、dirty→「未存版本」蓝（领先语义）；版本页 `VersionLayerStatusTag` 与顶栏 chip 同源；`DualLayerLegend` 图例区分顶栏三信号（落盘/未存版本/与库）；`VersionDiffPanel` 摘要 Tag 共用 `CHANGE_OPT`
+- 顶栏 SaveStatus（落盘）语义不变；B 层五态文案不变（实库一致/模型领先…）
+
+验证点：
+- `npx tsx src/utils/dualLayerTokens.test.ts` + `versionDirtyStatus.test.ts` + `schemaProbeCopy.test.ts` 全绿
+- `yarn build` 绿
+- `yarn playwright test tests/e2e/version-baseline.spec.ts tests/e2e/schema-probe.spec.ts tests/e2e/version-dirty-chip.spec.ts --project=chromium`：6/7 绿（profile 默认字段旅程 `openRelationFromEmpty` 树节点 flake，与本次文案无关）
+
 #### 运维：Vision 5m 循环改文件落盘，根治 stdout 管道卡死
 
 - 根因复核（承接 `e5842d5`）：旧版本把整段 tick payload（含 prompt 全文，数 KB）打到 stdout，靠某个 Cursor Shell 工具持续「读」这条管道才不阻塞；聊天结束后没人再读，OS 管道缓冲区几轮内写满，`emit()` 内 `echo` 卡在 `write()` —— 进程存活（`ps` 可见）但 tick 名存实亡，「活着但卡死」

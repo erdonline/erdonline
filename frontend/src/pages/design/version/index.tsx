@@ -12,16 +12,18 @@ import CompareVersion, {CompareVersionType} from "@/components/dialog/version/Co
 import RenameVersion from "@/components/dialog/version/RenameVersion";
 import RemoveVersion from "@/components/dialog/version/RemoveVersion";
 import SyncVersion from "@/components/dialog/version/SyncVersion";
-import {ArrowLeftOutlined, CheckCircleFilled, QuestionCircleFilled, WarningFilled} from "@ant-design/icons";
+import {ArrowLeftOutlined} from "@ant-design/icons";
 import {Access, useAccess} from "@@/plugin-access";
 import RevertVersion from "@/components/dialog/version/RevertVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
 import SchemaProbeControl from '@/components/SchemaProbeControl';
+import VersionLayerStatusTag from '@/components/VersionLayerStatusTag';
+import DualLayerLegend from '@/components/DualLayerLegend';
 import PageSkeleton from '@/components/PageSkeleton';
 import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
-import {hasBaseline} from '@/utils/versionBaseline';
+import { countChanges } from '@/utils/dualLayerTokens';
 import { history } from '@@/core/history';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
@@ -200,9 +202,7 @@ const Version: React.FC = () => {
 
   const renderRowMeta = (row: VersionRow) => {
     const ch = Array.isArray(row.changes) ? row.changes : [];
-    const add = ch.filter((c) => c.opt === 'add').length;
-    const del = ch.filter((c) => c.opt === 'delete').length;
-    const upd = ch.filter((c) => c.opt === 'update').length;
+    const { add, delete: del, update: upd } = countChanges(ch);
     const tags = splitVersionTags(row.tag);
     return (
       <div className="version-row-meta">
@@ -364,31 +364,12 @@ const Version: React.FC = () => {
 
           <div className="version-page__toolbar" data-testid="version-toolbar">
             <Space wrap size={[4, 4]} className="version-page__toolbar-status">
-              {!baselineLoaded ? (
-                <Tooltip title="尚未取到最新版本基线，无法判断是否有未保存变更">
-                  <Tag data-testid="version-baseline-unknown">
-                    <QuestionCircleFilled /> 基线未知
-                  </Tag>
-                </Tooltip>
-              ) : !hasBaseline(versionBaseline) ? (
-                <Tooltip title="该项目还没有任何版本；当前模型全部属于未提交内容">
-                  <Tag color="orange" data-testid="version-no-baseline">
-                    <WarningFilled /> 尚无版本基线，建议先保存第一个版本
-                  </Tag>
-                </Tooltip>
-              ) : changes.length > 0 ? (
-                <Tooltip title="当前内容与上一版本的内容有变化，但未保存同步版本！">
-                  <Tag color="red" data-testid="version-dirty-tag">
-                    <WarningFilled /> 未保存变更
-                  </Tag>
-                </Tooltip>
-              ) : (
-                <Tooltip title="当前内容与上一版本内容无变化">
-                  <Tag color="blue" data-testid="version-clean-tag">
-                    <CheckCircleFilled /> 已与最新版本一致
-                  </Tag>
-                </Tooltip>
-              )}
+              <VersionLayerStatusTag
+                baselineLoaded={baselineLoaded}
+                versionBaseline={versionBaseline}
+                changes={changes}
+              />
+              <DualLayerLegend />
               <Space size={4}>
                 <span className="version-page__toolbar-label">数据源</span>
                 <DataSourceSelect
