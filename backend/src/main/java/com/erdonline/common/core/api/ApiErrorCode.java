@@ -20,6 +20,8 @@ public enum ApiErrorCode implements IErrorCode {
 
     NOT_FOUND(404, "资源不存在"),
 
+    PROJECT_SAVE_CONFLICT(409, "项目已被其他窗口或协作者更新，请刷新后再保存"),
+
     METHOD_NOT_ALLOWED(405, "request请求方法不支持"),
 
     PAGE_LIMIT_ERROR(1000001, "分页参数过大"),

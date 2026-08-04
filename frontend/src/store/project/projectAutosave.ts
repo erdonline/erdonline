@@ -1,6 +1,12 @@
 import { message } from 'antd';
 import * as Save from '@/utils/save';
 import useGlobalStore from '@/store/global/globalStore';
+import useProjectStore from '@/store/project/useProjectStore';
+import {
+  handleSaveResponseSideEffects,
+  isProjectSaveConflict,
+  type SaveProjectResponse,
+} from '@/utils/projectSaveConflict';
 
 /**
  * 自动保存 / 手动落盘共用防抖序号，避免模态「先 Save 再写 store」与 debounce 互踩。
@@ -11,8 +17,16 @@ let autosaveSeq = 0;
 
 type ProjectLike = {
   type?: number;
+  id?: string;
+  updateTime?: string;
   [key: string]: unknown;
 };
+
+function patchProjectRevision(next: Record<string, unknown>): void {
+  useProjectStore.setState((state: { project: Record<string, unknown> }) => {
+    state.project = next;
+  });
+}
 
 export function getAutosaveSeq(): number {
   return autosaveSeq;
@@ -36,6 +50,9 @@ export function ackManualPersist(ok: boolean): void {
   ++autosaveSeq;
   useGlobalStore.getState().dispatch.setSaving(false);
   useGlobalStore.getState().dispatch.setSaved(ok);
+  if (ok) {
+    useGlobalStore.getState().dispatch.setSaveConflict(false);
+  }
 }
 
 export function scheduleDebouncedPersist(
@@ -57,7 +74,7 @@ export function isAutosaveCurrent(seq: number): boolean {
   return seq === autosaveSeq;
 }
 
-/** 立即 Save；仅 code===200 为 true；业务失败靠 request toast，无 msg 时用 fallback */
+/** 立即 Save；仅 code===200 为 true；409 弹可行动冲突 Modal */
 export async function persistProjectNow(
   project: ProjectLike | null | undefined,
   fallbackMsg = '保存失败',
@@ -69,15 +86,27 @@ export async function persistProjectNow(
   const seq = preemptAutosave();
   useGlobalStore.getState().dispatch.setSaving(true);
   try {
-    const res: { code?: number; msg?: string; message?: string } =
-      await Save.saveProject({
-        ...project,
-        type: project?.type ?? 1,
-      });
+    const res = (await Save.saveProject({
+      ...project,
+      type: project?.type ?? 1,
+    })) as SaveProjectResponse;
     if (!isAutosaveCurrent(seq)) {
       return false;
     }
+    if (isProjectSaveConflict(res)) {
+      handleSaveResponseSideEffects(
+        project as Record<string, unknown>,
+        res,
+        patchProjectRevision,
+      );
+      return false;
+    }
     if (res?.code === 200) {
+      handleSaveResponseSideEffects(
+        project as Record<string, unknown>,
+        res,
+        patchProjectRevision,
+      );
       useGlobalStore.getState().dispatch.setSaved(true);
       useGlobalStore.getState().dispatch.setSaving(false);
       return true;

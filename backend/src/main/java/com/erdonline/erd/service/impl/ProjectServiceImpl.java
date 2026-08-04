@@ -8,6 +8,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.erdonline.common.core.api.ApiErrorCode;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.erdonline.common.api.dto.ProjectUserDto;
@@ -36,6 +38,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import jakarta.validation.constraints.NotEmpty;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -307,7 +311,9 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
     public void configProject(ProjectDto projectDto, Project project) throws JsonProcessingException {
         // 必须忽略 null：DTO 缺省字段（如创建时的 id）会把实体已赋值的字段覆盖为 null，
         // 曾导致创建项目时显式 setId 被抹掉、接口返回的 id 与库中实际 id 不一致
-        BeanUtil.copyProperties(projectDto, project, CopyOptions.create().setIgnoreNullValue(true));
+        BeanUtil.copyProperties(projectDto, project, CopyOptions.create()
+                .setIgnoreNullValue(true)
+                .setIgnoreProperties("updateTime"));
         ensureDefaultProjectJson(project);
     }
 
@@ -333,18 +339,37 @@ public class ProjectServiceImpl extends MartinServiceImpl<ProjectMapper, Project
     @SneakyThrows
     @Override
     public R saveProject(ProjectDto projectDto) {
-        QueryWrapper<Project> wrapper = new QueryWrapper<>();
         String id = projectDto.getId();
         if (StrUtil.isBlank(id)) {
             return R.failed("id为空");
         }
         projectAcl.assertMember(id);
-        wrapper.eq("id", id);
         Project project = new Project();
         this.configProject(projectDto, project);
+        // update_time 由 MetaObjectHandler 填充，禁止把客户端旧戳写回 SET
+        project.setUpdateTime(null);
 
-        boolean update = this.update(project, wrapper);
-        return R.ok(update);
+        UpdateWrapper<Project> wrapper = new UpdateWrapper<>();
+        wrapper.eq("id", id);
+        LocalDateTime expectedRevision = projectDto.getUpdateTime();
+        if (expectedRevision != null) {
+            wrapper.eq("update_time", expectedRevision.truncatedTo(ChronoUnit.SECONDS));
+        }
+
+        boolean updated = this.update(project, wrapper);
+        if (!updated) {
+            if (expectedRevision != null) {
+                return R.failed(ApiErrorCode.PROJECT_SAVE_CONFLICT.getCode(),
+                        ApiErrorCode.PROJECT_SAVE_CONFLICT.getMsg());
+            }
+            return R.failed("保存失败，项目可能不存在");
+        }
+
+        Project saved = this.getById(id);
+        Map<String, Object> payload = new HashMap<>(2);
+        payload.put("updateTime", saved != null ? saved.getUpdateTime() : null);
+        payload.put("saved", Boolean.TRUE);
+        return R.ok(payload);
     }
 
     @Override

@@ -795,6 +795,8 @@
 
 - [x] [离开设计器不盲存] 干净态点顶栏品牌回 `/home` → 无 `/ncnb/project/save` 请求 ✅ `leave-designer-save.spec.ts`「干净态离开」
 - [x] [失败态离开补一枪] 阻断 save 制造失败态 → 放开后离开 → 至少 1 次 save 且失败仍有可见反馈 ✅ `leave-designer-save.spec.ts`「落库失败后离开」
+- [x] [project 乐观锁 409] 陈旧 `updateTime` save → 409；匹配 → 200 + 新 `updateTime` ✅ `ProjectSaveOptimisticLockTest` + `scripts/verify-project-save-conflict.sh`
+- [x] [409 可行动 UI] mock 409 → Modal「保存冲突」+ 顶栏「保存冲突，点击查看选项」，不得显示「已落盘」 ✅ `project-save-conflict.spec.ts`
 - [x] [顶栏 A 层 dirty chip] 设计器顶栏 `version-dirty-chip-*`：尚无版本带 +N 摘要 → 存版后「与版本一致」→ 再改「未存版本」；SaveStatus 改「已落盘」与版本状态分离 ✅ `version-dirty-chip.spec.ts`
 - [x] [A 层全量 diff] 改 profile 默认字段或画布连线关联 → dirty chip「未存版本」；空 diff 存版 toast 警告但不阻断 ✅ `versionStructuralDiff.test.ts` + `version-dirty-chip.spec.ts` profile/assoc 用例
 - [ ] [北极星计量] 后台统计「有版本保存」须过滤 `db_change.changes` 非空（待 analytics 接线；当前前端 warn + ADR-0022/vision 口径已文档化）

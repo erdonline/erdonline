@@ -8,6 +8,19 @@
 
 ### 2026-08-04
 
+#### 可信保存：project 乐观锁（ADR-0022 切片 5）
+
+- 根因：`/ncnb/project/save` 无条件 UPDATE → 多标签/协作者并发写 projectJSON 时后写覆盖先写，且无冲突反馈
+- 后端：`ProjectDto.updateTime` + `UPDATE … WHERE id=? AND update_time=?`；不匹配 → `409 PROJECT_SAVE_CONFLICT`；成功返回 `{ updateTime }` 供客户端持有
+- 前端：load/save 成功回写 `updateTime`；409 → Modal（刷新项目 / 另存为新项目）+ 顶栏「保存冲突」态；`persistProjectNow` / autosave / 离开补枪同路径；409 跳过 request 重复 toast
+- 验证脚本：`scripts/verify-project-save-conflict.sh`
+
+验证点：
+- `cd backend && mvn -Dtest=ProjectSaveOptimisticLockTest -Djacoco.skip=true test`
+- `scripts/verify-project-save-conflict.sh`（匹配 save→200+新 updateTime；陈旧 updateTime→409）
+- `cd frontend && npx playwright test --project=chromium tests/e2e/project-save-conflict.spec.ts`
+- `./backend/dev-ensure.sh --restart` 后 curl 脚本绿
+
 #### 可信保存：A 层全量 structural diff（ADR-0022 切片 3）
 
 - 根因：`checkVersionData` 仅比 modules 内表/字段/索引，改关联、关系图布局、默认字段、数据类型域时 dirty chip 仍显示「与版本一致」
