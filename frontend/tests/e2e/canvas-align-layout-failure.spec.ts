@@ -73,11 +73,11 @@ test.describe('画布对齐/自动布局落盘失败可回滚', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('canvas-create-table').click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       const store1 = await nodeTransform(page, 'T_TABLE_1');
       const store2 = await nodeTransform(page, 'T_TABLE_2');
@@ -126,7 +126,7 @@ test.describe('画布对齐/自动布局落盘失败可回滚', () => {
         await selectTablesRf(page, ['T_TABLE_1', 'T_TABLE_2']);
         await page.getByTestId('align-left').click();
 
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         await expect
@@ -157,11 +157,11 @@ test.describe('画布对齐/自动布局落盘失败可回滚', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('canvas-create-table').click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       const store1 = await nodeTransform(page, 'T_TABLE_1');
       const store2 = await nodeTransform(page, 'T_TABLE_2');
@@ -202,7 +202,7 @@ test.describe('画布对齐/自动布局落盘失败可回滚', () => {
         await offsetTableRf(page, 'T_TABLE_2', 200, 160);
         await page.getByRole('button', { name: '自动布局' }).click();
 
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         await expect

@@ -64,7 +64,7 @@ test.describe('默认字段落盘失败可重试', () => {
       await expect(sheet.getByTestId('jexcel-grid')).toBeVisible({
         timeout: 10_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -116,7 +116,7 @@ test.describe('默认字段落盘失败可重试', () => {
         await page.keyboard.type(renamed);
         await page.keyboard.press('Enter');
         await expectToast(page, '默认字段已更新');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         await expect(

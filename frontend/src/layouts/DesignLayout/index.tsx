@@ -3,6 +3,7 @@ import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
 import SaveStatus from "@/components/SaveStatus";
 import SaveVersionButton from "@/components/SaveVersionButton";
+import VersionDirtyChip from "@/components/VersionDirtyChip";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
@@ -42,6 +43,7 @@ export const siderWidth = 320;
 /** GroupLayout 等复用：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
 export const headRightContent = [
   <SaveStatus key="save-status" />,
+  <VersionDirtyChip key="version-dirty-chip" />,
   <SaveVersionButton key="save-version" />,
   <CollabPresence key="presence" />,
   <ShareProjectButton key="share" />,
@@ -417,6 +419,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
         </div>
         <div className="erd-chrome-actions design-layout__actions" data-testid="erd-chrome-actions">
           <SaveStatus key="save-status" />
+          <VersionDirtyChip key="version-dirty-chip" />
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />

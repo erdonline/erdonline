@@ -4,7 +4,7 @@ import React from 'react';
 import shallow from 'zustand/shallow';
 import './index.less';
 
-/** DesignLayout 顶栏：模型自动保存状态（保存中 / 已保存 / 保存失败可点重试） */
+/** DesignLayout 顶栏：模型自动落盘状态（保存中 / 已落盘 / 保存失败可点重试） */
 const SaveStatus: React.FC = () => {
   const { saved, saving } = useGlobalStore(
     (s) => ({ saved: s.saved, saving: s.saving }),
@@ -12,7 +12,7 @@ const SaveStatus: React.FC = () => {
   );
 
   const failed = !saving && !saved;
-  const label = saving ? '保存中…' : saved ? '已保存' : '保存失败，点击重试';
+  const label = saving ? '保存中…' : saved ? '已落盘' : '保存失败，点击重试';
   const tone = saving ? 'saving' : saved ? 'saved' : 'dirty';
   const className = `erd-save-status erd-save-status--${tone}${
     failed ? ' erd-save-status--retry' : ''

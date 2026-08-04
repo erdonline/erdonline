@@ -39,7 +39,7 @@ test.describe('左树删关系图/模型落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page
         .getByTestId('diagram-switcher')
@@ -49,7 +49,7 @@ test.describe('左树删关系图/模型落盘失败可重试', () => {
       await createDialog.getByLabel('关系图名称').fill(DIAGRAM);
       await page.getByTestId('diagram-modal-ok').click();
       await expect(page.getByRole('tree').getByText(DIAGRAM, { exact: true })).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -131,7 +131,7 @@ test.describe('左树删关系图/模型落盘失败可重试', () => {
       await openRelationFromEmpty(page, { name: MODULE, chnname: '商城' });
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {

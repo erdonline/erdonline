@@ -29,7 +29,7 @@ test.describe('画布表头改名落盘失败不退出编辑', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
       const nameInput = page.getByRole('textbox', { name: '表名' });

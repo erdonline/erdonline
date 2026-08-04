@@ -1,0 +1,47 @@
+.erd-version-dirty-chip {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  line-height: 1.2;
+  border: 1px solid transparent;
+  background: #fff;
+  user-select: none;
+  white-space: nowrap;
+  appearance: none;
+  margin: 0;
+  font: inherit;
+  cursor: pointer;
+  text-align: inherit;
+
+  &--unknown {
+    color: #595959;
+    border-color: #d9d9d9;
+    background: #fafafa;
+  }
+
+  &--warn {
+    color: #d48806;
+    border-color: #ffe58f;
+    background: #fffbe6;
+  }
+
+  &--clean {
+    color: #0958d9;
+    border-color: #91caff;
+    background: #e6f4ff;
+  }
+
+  &--dirty {
+    color: #cf1322;
+    border-color: #ffa39e;
+    background: #fff1f0;
+  }
+
+  &:hover,
+  &:focus-visible {
+    filter: brightness(0.98);
+    outline: 2px solid var(--erd-brand, #1677ff);
+    outline-offset: 1px;
+  }
+}

@@ -87,10 +87,10 @@ test.describe('表设计 JExcel 字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       await expect(node.locator(`[data-field="${FIELD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
       const fieldEdit = page.getByTestId('table-field-edit');
@@ -133,7 +133,7 @@ test.describe('表设计 JExcel 字段 meta 落盘失败可重试', () => {
         await expect(afterFail.pk).not.toBeChecked();
 
         await afterFail.pk.click();
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         const afterOk = await fieldMetaCheckboxes(fieldEdit, FIELD);
         await expect(afterOk.pk).toBeChecked();
         expect(saveHits).toBeGreaterThanOrEqual(2);
@@ -166,10 +166,10 @@ test.describe('表设计 JExcel 字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       await expect(node.locator(`[data-field="${FIELD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
       const fieldEdit = page.getByTestId('table-field-edit');
@@ -209,7 +209,7 @@ test.describe('表设计 JExcel 字段 meta 落盘失败可重试', () => {
         await expect(afterFail.hide).not.toBeChecked();
 
         await afterFail.hide.click();
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         const afterOk = await fieldMetaCheckboxes(fieldEdit, FIELD);
         await expect(afterOk.hide).toBeChecked();
         expect(saveHits).toBeGreaterThanOrEqual(2);

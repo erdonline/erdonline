@@ -38,7 +38,7 @@ async function openFieldJexcel(page: Page) {
   await page.getByRole('button', { name: '新建第一张表' }).click();
   const node = rfNode(page, 'T_TABLE_1');
   await expect(node).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
   await addFieldInline(page, 'T_TABLE_1', 'NAME');
   await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
   const fieldEdit = page.getByTestId('table-field-edit');

@@ -126,7 +126,7 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       expect(groups.length).toBeGreaterThanOrEqual(1);
       expect(groups[0].memberEntityIds.sort()).toEqual(['T_TABLE_1', 'T_TABLE_2']);
 
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
       await page.getByTestId('tree-open-relation').click();
@@ -158,7 +158,7 @@ test.describe('图内分组 Frame（ADR-0017 Phase 2b）', () => {
       await input.fill('鉴权域');
       await input.press('Enter');
       await expect(page.getByTestId('frame-rename-label')).toHaveText('鉴权域');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });

@@ -66,7 +66,7 @@ test.describe('字段类型下拉区分枚举', () => {
       await expect(page.getByTestId('datatype-domains-page')).toBeVisible({
         timeout: 15_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -95,7 +95,7 @@ test.describe('字段类型下拉区分枚举', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -130,7 +130,7 @@ test.describe('字段类型下拉区分枚举', () => {
         await expect(node.locator('[data-field="COLOR"]')).toBeVisible({
           timeout: 10_000,
         });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         await expect(

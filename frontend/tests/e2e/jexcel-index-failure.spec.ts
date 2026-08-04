@@ -68,7 +68,7 @@ test.describe('表设计索引签落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
@@ -106,7 +106,7 @@ test.describe('表设计索引签落盘失败可重试', () => {
 
         await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
         await expectToast(page, '索引更新成功');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         await expect(indexEdit.getByTestId('index-empty-add')).toHaveCount(0);
         await expect(indexEdit.getByText('索引名*')).toBeVisible();
         await expect(
@@ -133,13 +133,13 @@ test.describe('表设计索引签落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
       await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
       await expectToast(page, '索引更新成功');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -176,7 +176,7 @@ test.describe('表设计索引签落盘失败可重试', () => {
 
         await afterFail.click();
         await expectToast(page, '索引更新成功');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         const afterOk = await uniqueCheckbox(indexEdit);
         await expect(afterOk).toBeChecked();
         expect(saveHits).toBeGreaterThanOrEqual(2);

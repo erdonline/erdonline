@@ -39,7 +39,7 @@ test.describe('空表字段引导', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await clearEntityFields(page, 'T_TABLE_1');
       await expect(page.getByTestId('canvas-fields-empty')).toBeVisible({ timeout: 10_000 });
@@ -74,7 +74,7 @@ test.describe('空表字段引导', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await clearEntityFields(page, 'T_TABLE_1');
       const empty = node.getByTestId('canvas-fields-empty');

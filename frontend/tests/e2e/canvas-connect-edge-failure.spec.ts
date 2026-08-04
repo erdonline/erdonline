@@ -51,17 +51,17 @@ test.describe('画布连线落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('design-tree-add').click();
       await page.getByTestId('menu-add-entity').click();
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       expect(await page.locator('.react-flow__edge').count()).toBe(0);
 
       let saveHits = 0;
@@ -110,7 +110,7 @@ test.describe('画布连线落盘失败可重试', () => {
         // 重试：helpers 等待上边
         await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
         await expect(page.getByTestId('erd-edge-label')).toHaveCount(1);
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         expect(saveHits).toBeGreaterThanOrEqual(2);
       } finally {
         await page.unroute('**/ncnb/project/save');

@@ -64,10 +64,10 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       await expect(node.locator(`[data-field="${FIELD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -111,7 +111,7 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
         await nameRow.hover();
         await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
         await page.getByRole('checkbox', { name: '主键' }).check();
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         await page.getByRole('textbox', { name: '字段名' }).press('Escape');
         await expect(nameRow.getByRole('button', { name: '取消主键' })).toBeVisible();
         expect(saveHits).toBeGreaterThanOrEqual(2);
@@ -135,10 +135,10 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       await expect(node.locator(`[data-field="${FIELD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -181,7 +181,7 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
         await nameRow.hover();
         await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
         await page.getByRole('combobox', { name: '字段类型' }).selectOption('Integer');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         await page.getByRole('textbox', { name: '字段名' }).press('Escape');
         await expect(nameRow).toContainText('Integer');
         expect(saveHits).toBeGreaterThanOrEqual(2);
@@ -205,10 +205,10 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       await expect(node.locator(`[data-field="${FIELD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -274,11 +274,11 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD);
       const nameRow = node.locator(`[data-field="${FIELD}"]`);
       await expect(nameRow).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await expect(nameRow.getByRole('button', { name: '设为主键' })).toBeVisible();
 
       let saveHits = 0;
@@ -316,7 +316,7 @@ test.describe('画布字段 meta 落盘失败可重试', () => {
         await expect(nameRow.getByRole('button', { name: '取消主键' })).toBeVisible({
           timeout: 15_000,
         });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         expect(saveHits).toBeGreaterThanOrEqual(2);
       } finally {
         await page.unroute('**/ncnb/project/save').catch(() => {});

@@ -294,6 +294,7 @@ const useVersionStore = create<VersionState>(
             state.versionBaseline = baseline;
             state.baselineLoaded = true;
           }));
+          get().dispatch.recalculateChanges();
           return baseline;
         } catch (error: any) {
           // 基线未知：不得静音成「无差异」，保持 baselineLoaded=false 让 UI 走未知/重试
@@ -939,9 +940,9 @@ const useVersionStore = create<VersionState>(
           const res = await Save.hisProjectSave(version);
           if (res && res.code === 200) {
             get().dispatch.getVersionMessage(res.data);
-            set({ changes: [] });
             message.success('当前版本保存成功');
             await get().fetch(dbData, get().currentPage, get().pageSize);
+            await get().dispatch.fetchVersionBaseline(dbData);
             return true;
           }
           message.error(res?.msg || res?.message || '当前版本保存失败');
@@ -1180,9 +1181,13 @@ const useVersionStore = create<VersionState>(
   })
 );
 
+const debouncedRecalculateChanges = _.debounce(() => {
+  useVersionStore.getState().dispatch.recalculateChanges();
+}, 300);
+
 useProjectStore.subscribe((state) => {
   if (state.project?.projectJSON) {
-    useVersionStore.getState().dispatch.recalculateChanges();
+    debouncedRecalculateChanges();
   }
 });
 

@@ -51,7 +51,7 @@ test.describe('数据类型字典落盘失败可重试', () => {
       await expect(page.getByTestId('datatype-domains-page')).toBeVisible({
         timeout: 15_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -96,7 +96,7 @@ test.describe('数据类型字典落盘失败可重试', () => {
         await expect(
           page.getByTestId('datatype-domains-page').getByText(TYPE_CODE),
         ).toBeVisible({ timeout: 10_000 });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         expect(saveHits).toBeGreaterThanOrEqual(2);

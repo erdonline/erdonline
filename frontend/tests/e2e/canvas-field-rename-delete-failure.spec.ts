@@ -31,10 +31,10 @@ test.describe('画布字段改名/删字段落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD_OLD);
       await expect(node.locator(`[data-field="${FIELD_OLD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -120,10 +120,10 @@ test.describe('画布字段改名/删字段落盘失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await addFieldInline(page, 'T_TABLE_1', FIELD_OLD);
       await expect(node.locator(`[data-field="${FIELD_OLD}"]`)).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
