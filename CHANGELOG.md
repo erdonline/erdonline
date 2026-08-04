@@ -8,6 +8,13 @@
 
 ### 2026-08-04
 
+#### 流程：Vision 循环 & 全局模型路由改为「think 强模型 / exec 便宜模型」
+
+- 落实用户规则「思考用强模型，执行用便宜模型」：`.cursor/rules/model-routing.mdc` 路由表与可用 slug 全量更新（think 默认 `claude-sonnet-5-thinking-high`，exec 默认 `composer-2.5-fast`）；`scripts/agent-loop-vision.prompt.md` 新增「模型路由」节；`scripts/agent-loop-vision.sh` 新增 `VISION_THINK_MODEL`/`VISION_EXEC_MODEL` 环境变量并拼入 emit 提示词；`docs/development.md` 同步一段说明
+- 未重启常驻的 `agent-loop-vision.sh` 心跳（脚本已在 tmux/后台运行中），改动对下一次进程启动生效，不打断本轮循环
+
+验证点：`bash -n scripts/agent-loop-vision.sh` 通过；`scripts/agent-loop-vision.prompt.md` / `.cursor/rules/model-routing.mdc` 人工通读确认 think/exec slug 与用户给定清单一致
+
 #### 可信保存：离开设计器不再盲存（ADR-0022 切片）
 
 - 选题：Vision 5m 循环主题重定向为「双层一致性与可信保存」（[ADR-0022](docs/adr/0022-dual-layer-consistency.md)）；队列首刀取并发底座里最快的一刀

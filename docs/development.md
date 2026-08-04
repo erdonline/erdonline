@@ -35,6 +35,8 @@ colima start --cpu 4 --memory 8 --disk 40 \
 
 选题规则在 `scripts/agent-loop-vision.prompt.md`：**常驻指令 = 持续优化 UI/UX，不要停**（体验轨偏置；每 tick 必须交付前端可见体验改进）。PM 发现→ROI→验证→commit；禁止默认 idle；改 prompt 即可，不必重启 shell。agent 回报 idle 时也**不退出**，5m 继续唤醒。
 
+**模型路由**（思考强 / 执行便宜，详见 prompt.md「模型路由」节）：收到 tick 的协调者用两次独立 `Task` 调用把决策和落地拆开——think 子任务默认 `claude-sonnet-5-thinking-high`（硬架构决策/卡壳升级 `claude-opus-5-thinking-high`），exec 子任务默认 `composer-2.5-fast`（前端强类型/易抖动场景换 `gpt-5.6-sol-medium`）；可用 `VISION_THINK_MODEL` / `VISION_EXEC_MODEL` 覆盖默认值。
+
 双周发版笔记（用户向）：
 
 ```bash
