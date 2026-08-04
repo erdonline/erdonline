@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 体验：project 409 冲突最小 diff 预览（Vision #13 · ADR-0022）
+
+- 问题：乐观锁 409 仅弹「刷新项目 / 另存为新项目」二选一，用户看不到本地与服务器差在哪，决策缺证据
+- 改动：`ProjectSaveConflictModal` 409 时异步拉 `/ncnb/project/info`（失败回退 last known 快照）；`versionStructuralDiff` + 复用 `VersionDiffPanel` 展示「本地工作区 vs 服务器」结构化 diff；保留刷新/另存 CTA 与 `data-testid`；打开项目时 `rememberServerProjectJSON` 缓存 fallback
+- `VersionDiffPanel` 新增可选 `summaryHint`（冲突 Modal 用「本地工作区 vs 服务器」）
+
+验证点：
+- `npx tsx src/utils/projectSaveConflictPreview.test.ts` 绿
+- `yarn build` 绿
+- `yarn playwright test tests/e2e/project-save-conflict.spec.ts --project=chromium` 1/1 绿
+
 #### 体验：A/B 层 diff 视觉/文案统一（Vision #12 · ADR-0022）
 
 - 问题：A 层版本 diff（工作区 ↔ 版本）与 B 层实库探测各自一套颜色/措辞——A「一致」用蓝、B「一致」用绿；版本页 toolbar 写「未保存变更」而顶栏 chip 写「未存版本」，用户易混淆「模型内改动」与「模型 vs 库落差」

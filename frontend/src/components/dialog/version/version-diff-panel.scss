@@ -125,3 +125,7 @@
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+
+.project-save-conflict-preview .version-diff-panel {
+  height: var(--project-conflict-preview-h, 280px);
+}

@@ -1,6 +1,6 @@
 import useGlobalStore from '@/store/global/globalStore';
 import { retryAutosave } from '@/store/project/useProjectStore';
-import { showProjectSaveConflictModal } from '@/utils/projectSaveConflict';
+import { showProjectSaveConflictModal } from '@/components/dialog/project/ProjectSaveConflictModal';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import './index.less';
