@@ -168,6 +168,9 @@ erd:
     allow-demo-admin: ${ERD_ALLOW_DEMO_ADMIN:false}
     # 开放注册：dev=true；prod/默认=false（自托管公网建议关闭）
     allow-open-register: ${ERD_ALLOW_OPEN_REGISTER:false}
+  # ADR-0013 公开 API：进程内滑动窗口；集群限流后续可换 Redis
+  public-api:
+    rate-limit-per-minute: ${ERD_PUBLIC_API_RATE_LIMIT:60}
 
 # 安全放行 URL
 security:

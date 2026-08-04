@@ -15,7 +15,7 @@
 
 | Human next | 为何门控 | 解封条件 |
 |---|---|---|
-| [ADR-0013](./adr/0013-public-api-mcp.md) 公开 API / MCP | 鉴权/限流/scope 未拍板；ADR-0016 本季禁实现码 | 人工接受 ADR-0013 |
+| ~~[ADR-0013](./adr/0013-public-api-mcp.md) 公开 API / MCP~~ | ~~鉴权/限流/scope 未拍板~~ → **人工解封 2026-08-04**；切片 1 PAT 🚧 | 切片 2+：只读 projects/versions → MCP → 写 scope |
 | P4 官方 demo（Railway） | Dashboard 拉起 + 填 `DEMO_API_URL`（ADR-0019 选型已定，运维仍人工） | 人工完成 Railway + 回填 env |
 | DBML Trigger 互导 | `@dbml/core` 无 Trigger 块；禁止塞 Note | 上游官方块稳定 |
 | 复合 FK `fields[]`（[ADR-0011](./adr/0011-defer-composite-fk-fields-array.md)） | 仍延期 | FE 多字段边协议落地 |
@@ -34,7 +34,7 @@
 
 ## P5：AI 时代数据结构平台 🚧
 
-> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 受 [ADR-0013](./adr/0013-public-api-mcp.md)（📋）约束，需求清晰前不实现。
+> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 见 [ADR-0013](./adr/0013-public-api-mcp.md)（🚧：切片 1 PAT + `/api/v1/me`）。
 
 ### 落地页（公开，品牌优先，一个构图）✅
 
@@ -57,15 +57,20 @@
 - **全站布局重设计总纲**：[ui-layout-redesign.md](./ui-layout-redesign.md)（2026-08-02 v2 重估：能力暴露优先于表现层；分波 W1 设计器壳 ✅ → **W2 能力暴露+空壳清除**（切片 1–4 ✅：分享吊销、Home 死码/实验页删除、设计器 chrome 左树去重+sider 320+tabs 40+flex、设计器内 `calc(100vh)` 清零）→ **W3 版本域收口** ✅（切片 1 ✅ 跨版本 diff 导出；切片 2 ✅ version ProList→antd List + 空态 CTA；切片 3 ✅ 审批/工单入口理顺；2026-08-02 顶栏右「我的工单/待审批/通知」可发现入口 + 项目菜单导出串台修复）→ **W4** 项目列表/数据源平移（切片 1–15 ✅；切片 15 ✅ 末 7 文件清零 + 依赖移除）→ **W5** 登录/分享/404 打磨（切片 1–4 ✅：404/403、分享失效态、share 顶栏 64px、登录/注册品牌壳）+ **落地页 token 同源 ✅**；能力对照见 [product-capability-map.md](./product-capability-map.md)）
 - **Pro Strangler**（[ADR-0014](./adr/0014-drop-or-strangle-ant-pro.md) ✅ 已落地 · B）：`@ant-design/pro-components` / `umi-presets-pro` 已从 `package.json` 移除；`rg …pro-components` = 0；自研 Home/Group/Design Layout + antd 表单/表格承接
 
-### 开放（Openness）📋 — API/MCP 见 ADR-0013
+### 开放（Openness）🚧 — API/MCP 见 ADR-0013
 
 - ~~projectJSON 公开 schema 文档化（schema-as-code，`data-format.md` 升级为对外规范）~~✅（2026-08-02：[`data-format.md`](./data-format.md) + [`schema/projectjson.schema.json`](../schema/projectjson.schema.json) + `scripts/validate-projectjson.mjs`；解锁 ADR-0013 触发条件 #3）
-- 只读 API / MCP server：鉴权、限流、scope **待 ADR-0013 拍板**；本阶段不写实现代码
+- 公开 API / MCP（[ADR-0013](./adr/0013-public-api-mcp.md)）🚧：
+  - ~~拍板鉴权/scope/限流默认 + PAT 哈希存储 + `/api/v1/me` + 限流骨架~~✅（切片 1，2026-08-04）
+  - 📋 `GET /api/v1/projects[+/{id}]`（成员 ACL）
+  - 📋 `GET /api/v1/projects/{id}/versions`
+  - 📋 MCP server 只读骨架
+  - 📋 写 scope + 提交版本
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
 
 ### 安全（Security）📋
 
-- 分享 token：只读分享（ADR-0007）+ 未来 API token 的 scope/吊销/过期模型（随 ADR-0013）
+- 分享 token：只读分享（ADR-0007）；公开 API PAT scope/吊销/过期见 ADR-0013（切片 1：哈希存储 + 吊销 + 可选过期）
 - CSRF/CORS 已收敛（第 1 轮 ✅），SQL 执行信任链已修（审批失败不落通过 ✅）——写入型 API 沿用同级约束
 - ~~密钥纪律：连接信息不进 projectJSON（ADR-0008 已隔离），文档化对外承诺~~✅（[`data-format.md`](./data-format.md)「密钥纪律」+ [security-model.md](./security-model.md)）
 - ~~项目 / dataSources IDOR（R-AUTH-03/04）~~✅（`ProjectAcl` / `DataSourceAcl`；登记见 [security-model.md](./security-model.md)）
