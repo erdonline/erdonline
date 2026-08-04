@@ -399,9 +399,7 @@ const Version: React.FC = () => {
                   loading={isLoading}
                 />
               </Space>
-              {dbs.length > 0 && (
-                <SchemaProbeControl disabled={isLoading} />
-              )}
+              <SchemaProbeControl disabled={isLoading} />
             </Space>
             <Space wrap size={[4, 4]} className="version-page__toolbar-actions">
               <Input

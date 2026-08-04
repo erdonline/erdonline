@@ -94,6 +94,8 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
       allowClear
       loading={loading}
       size={size}
+      data-testid="datasource-select"
+      aria-label="选择数据源"
     >
       {Object.entries(groupedDataSources).map(([group, databases]) => (
         <OptGroup key={group} label={group}>

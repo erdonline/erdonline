@@ -60,7 +60,7 @@ class SchemaFingerprintTest {
     }
 
     @Test
-    void probe_different_whenStructureDiffers() {
+    void probe_ahead_whenModelHasExtraColumn() {
         ParseDataModel live = sampleLiveModel();
         Map<String, Object> projectJson = sampleProjectJson();
         @SuppressWarnings("unchecked")
@@ -71,9 +71,90 @@ class SchemaFingerprintTest {
         fields.add(Map.of("name", "EXTRA_COL", "type", "VARCHAR", "pk", false, "notNull", false));
 
         SchemaProbeResult result = SchemaProbeService.probe(live, projectJson);
-        assertEquals(SchemaProbeStatus.DIFFERENT, result.getStatus());
+        assertEquals(SchemaProbeStatus.AHEAD, result.getStatus());
         assertEquals(SchemaProbeReason.FINGERPRINT_MISMATCH, result.getReason());
         assertNotEquals(result.getFingerprint(), result.getModelFingerprint());
+    }
+
+    @Test
+    void probe_behind_whenLiveHasExtraColumn() {
+        ParseDataModel live = sampleLiveModel();
+        Field extra = new Field();
+        extra.setName("email");
+        extra.setType("VARCHAR");
+        extra.setNotNull(false);
+        live.getModule().getEntities().get(0).getFields().add(extra);
+        Map<String, Object> projectJson = sampleProjectJson();
+
+        SchemaProbeResult result = SchemaProbeService.probe(live, projectJson);
+        assertEquals(SchemaProbeStatus.BEHIND, result.getStatus());
+        assertEquals(SchemaProbeReason.FINGERPRINT_MISMATCH, result.getReason());
+    }
+
+    @Test
+    void probe_diverged_whenBothSidesDiffer() {
+        ParseDataModel live = sampleLiveModel();
+        Field liveExtra = new Field();
+        liveExtra.setName("email");
+        liveExtra.setType("VARCHAR");
+        liveExtra.setNotNull(false);
+        live.getModule().getEntities().get(0).getFields().add(liveExtra);
+
+        Map<String, Object> projectJson = sampleProjectJson();
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> entities = (List<Map<String, Object>>)
+                ((List<Map<String, Object>>) projectJson.get("modules")).get(0).get("entities");
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> fields = (List<Map<String, Object>>) entities.get(0).get("fields");
+        fields.add(Map.of("name", "EXTRA_COL", "type", "VARCHAR", "pk", false, "notNull", false));
+
+        SchemaProbeResult result = SchemaProbeService.probe(live, projectJson);
+        assertEquals(SchemaProbeStatus.DIVERGED, result.getStatus());
+        assertEquals(SchemaProbeReason.FINGERPRINT_MISMATCH, result.getReason());
+    }
+
+    @Test
+    void probe_ahead_whenModelHasExtraTable() {
+        ParseDataModel live = sampleLiveModel();
+        Map<String, Object> projectJson = sampleProjectJson();
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> entities = new ArrayList<>((List<Map<String, Object>>)
+                ((List<Map<String, Object>>) projectJson.get("modules")).get(0).get("entities"));
+        entities.add(Map.of(
+                "title", "T_ORDER",
+                "fields", List.of(Map.of("name", "ID", "type", "INT", "pk", true, "notNull", true)),
+                "indexs", List.of()
+        ));
+        @SuppressWarnings("unchecked")
+        Map<String, Object> module = (Map<String, Object>) ((List<Map<String, Object>>) projectJson.get("modules")).get(0);
+        module.put("entities", entities);
+
+        SchemaProbeResult result = SchemaProbeService.probe(live, projectJson);
+        assertEquals(SchemaProbeStatus.AHEAD, result.getStatus());
+    }
+
+    @Test
+    void classify_diverged_onColumnTypeMismatch() {
+        ParseDataModel live = sampleLiveModel();
+        live.getModule().getEntities().get(0).getFields().get(1).setType("TEXT");
+        Map<String, Object> projectJson = sampleProjectJson();
+
+        SchemaProbeResult result = SchemaProbeService.probe(live, projectJson);
+        assertEquals(SchemaProbeStatus.DIVERGED, result.getStatus());
+    }
+
+    @Test
+    void connectionFailed_mapsPermissionErrors() {
+        SchemaProbeResult result = SchemaProbeService.connectionFailed("Access denied for user 'ro'@'%'");
+        assertEquals(SchemaProbeStatus.UNKNOWN, result.getStatus());
+        assertEquals(SchemaProbeReason.PROBE_NO_PERMISSION, result.getReason());
+    }
+
+    @Test
+    void connectionFailed_mapsUnreachable() {
+        SchemaProbeResult result = SchemaProbeService.connectionFailed("Communications link failure");
+        assertEquals(SchemaProbeStatus.UNKNOWN, result.getStatus());
+        assertEquals(SchemaProbeReason.PROBE_CONNECTION_FAILED, result.getReason());
     }
 
     @Test
