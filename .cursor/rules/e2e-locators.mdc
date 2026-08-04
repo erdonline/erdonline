@@ -34,6 +34,18 @@ await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).click()
 await page.locator('.ant-btn-primary').nth(2).click();
 ```
 
+## 反脆弱（i18n 奠基前 · 新功能必守）
+
+奠基切片完成前，产品默认 locale 仍为 zh-CN，但**新功能 E2E 不得把中文可见文案当作唯一定位锚**（日后切 locale 会脆断）。
+
+| 场景 | 做法 |
+|---|---|
+| **新** chip / Modal / 工具条按钮 | 先 `getByTestId` 或带稳定 `aria-label` 的 `getByRole`；**避免**新增 `getByRole('button', { name: '中文文案' })` 作为唯一定位 |
+| 需断言用户可见 copy | **定位与断言分离**：`const el = page.getByTestId('…'); await expect(el).toBeVisible(); await expect(el).toHaveText(/…/)` |
+| 既有 spec | grandfathered；不批量改中文 `getByRole({ name })`，除非顺带修该旅程 |
+
+产品侧：Vision loop / 新交互控件优先补 `data-testid`（或语义 `aria-label`），见 `agent-loop-vision.prompt.md`。
+
 ## 与既有规则
 
 - 旅程走查仍遵 `playwright-ux-audit.mdc`
