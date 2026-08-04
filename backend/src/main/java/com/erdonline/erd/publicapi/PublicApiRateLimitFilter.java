@@ -35,7 +35,9 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         Object tokenId = request.getAttribute("erd.pat.tokenId");
-        String key = tokenId != null ? "pat:" + tokenId : "ip:" + clientIp(request);
+        Object kind = request.getAttribute("erd.publicApi.tokenKind");
+        String prefix = "oat".equals(kind) ? "oat:" : "pat:";
+        String key = tokenId != null ? prefix + tokenId : "ip:" + clientIp(request);
         PublicApiRateLimiter.Decision decision = publicApiRateLimiter.tryAcquire(key);
         if (decision == PublicApiRateLimiter.Decision.ALLOW) {
             filterChain.doFilter(request, response);

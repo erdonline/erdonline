@@ -17,7 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 /**
- * 公开 API 独立过滤器链：仅 PAT，不吃会话 JWT。
+ * 公开 API 独立过滤器链：PAT 或 OAuth access token，不吃会话 JWT。
  */
 @Configuration
 public class PublicApiSecurityConfiguration {
@@ -32,8 +32,10 @@ public class PublicApiSecurityConfiguration {
     @Bean
     PatAuthenticationFilter patAuthenticationFilter(
             PersonalAccessTokenService personalAccessTokenService,
+            OAuthApiClientService oauthApiClientService,
             ObjectMapper objectMapper) {
-        return new PatAuthenticationFilter(personalAccessTokenService, objectMapper);
+        return new PatAuthenticationFilter(
+                personalAccessTokenService, oauthApiClientService, objectMapper);
     }
 
     @Bean

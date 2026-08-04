@@ -23,6 +23,10 @@
 - [x] [PUT projectJSON] 写入前清 `profile.dbs`；非成员 403 ✅`PublicApiProjectServiceTest` + curl
 - [x] [MCP create_version] `yarn dogfood`：REST 写 + MCP `create_version` ✅ 2026-08-04
 - [x] [MCP projects:write] `yarn dogfood`：MCP `update_project` + `put_project_json`；只读 PAT → 403 ✅ 2026-08-04
+- [x] [OAuth client 哈希] 注册后库内仅 `client_secret_hash`/`hint`，无明文 ✅`OAuthClientCodecTest`
+- [x] [OAuth client_credentials] 有效凭证 → `erd_oat_`；坏 secret → `invalid_client`；scope ⊆ 客户端 ✅`OAuthClientCodecTest` + curl
+- [x] [OAuth /api/v1] OAT Bearer → `GET /api/v1/me` 200；与 PAT 同链；会话 JWT → 401 ✅ curl 2026-08-04
+- [x] [OAuth ignore] `/oauth/token` `/auth/oauth/token` 在 ignore-urls；无 CORS 放宽 ✅`DeadSecurityConfigContractTest`
 
 ## 图本身可读可分享 / ADR-0016（续）
 

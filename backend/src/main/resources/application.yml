@@ -171,6 +171,8 @@ erd:
   # ADR-0013 公开 API：Redisson 集群限流（fail-closed）；见 PublicApiRateLimiter
   public-api:
     rate-limit-per-minute: ${ERD_PUBLIC_API_RATE_LIMIT:60}
+    # OAuth client_credentials access_token TTL（秒）
+    oauth-access-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_TTL:3600}
 
 # 安全放行 URL
 security:
@@ -183,6 +185,9 @@ security:
         - /exit
         # 产品注册页 POST /ncnb/project/group/user/register（前缀剥离后）；勿再放行 /user/register
         - /project/group/user/register
+        # ADR-0013 OAuth 切片 A：client_credentials 换票（匿名；勿放宽 CORS）
+        - /oauth/token
+        - /auth/oauth/token
         - /error
         - /v3/api-docs/**
         - /swagger-ui/**

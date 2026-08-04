@@ -44,18 +44,20 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - 创建/吊销需登录且为项目创建人（UI：设计器顶栏「分享」弹层）
 - 匿名响应按 ADR-0008 **清空** `profile.dbs`（连接只在 `data_sources`）；可保留 `defaultDataSourceId` 引用
 
-## 公开 API PAT（ADR-0013）
+## 公开 API PAT / OAuth（ADR-0013）
 
-- **铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
-- **存储**：表 `personal_access_token` 仅 `token_hash`（SHA-256 hex）+ `token_hint`；禁止明文入库存仓
-- **调用**：`Authorization: Bearer erd_pat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）
-- **Scope（已解锁）**：默认 `projects:read`、`versions:read`；可显式铸造 `projects:write`、`versions:write`
+- **PAT 铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
+- **OAuth 切片 A（M2M）**：会话 JWT → `POST /auth/oauth-clients` 注册（`client_id`=`erd_cli_…`，`client_secret`=`erd_cs_…` **仅响应一次**）→ 匿名 `POST /oauth/token`（`grant_type=client_credentials`，body 或 Basic）→ `access_token`=`erd_oat_…`（默认 TTL 3600s，`ERD_PUBLIC_API_OAUTH_TTL`）。列表/吊销：`GET|DELETE /auth/oauth-clients`。吊销 client 使未过期 OAT 失效。
+- **存储**：表 `personal_access_token` / `oauth_api_client` / `oauth_access_token` 仅哈希 + hint；禁止明文入库存仓
+- **调用**：`Authorization: Bearer erd_pat_…` **或** `erd_oat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）。OAT 以**注册人**用户身份访问。
+- **Scope（已解锁）**：默认 `projects:read`、`versions:read`；可显式铸造 `projects:write`、`versions:write`（OAuth 注册同 `PatScopes`；换票 `scope` ⊆ 客户端）
 - **只读项目**：`GET /api/v1/projects`、`GET /api/v1/projects/{id}` 需 `projects:read` + `project_user` 成员；详情 `projectJSON` 清空 `profile.dbs`（ADR-0008）
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
 - **提交版本**：`POST /api/v1/projects/{id}/versions` 需 `versions:write` + 成员；body `projectJSON`/`snapshot`；写入前清空 `profile.dbs`；仅 insert（忽略客户端 id）；会话 JWT 不接受
 - **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
-- **MCP**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
+- **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；Redisson 集群共享；超限 429；Redis 不可用 fail-closed → 503（读写共用）
+- **后置**：Authorization Code / PKCE（切片 B）；**不**因换票匿名口放宽 CORS
 - **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc
 
 ## projectJSON 密钥纪律

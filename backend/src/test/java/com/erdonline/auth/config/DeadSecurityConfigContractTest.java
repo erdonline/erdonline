@@ -54,6 +54,7 @@ class DeadSecurityConfigContractTest {
         for (String required : List.of(
                 "/login", "/auth/login", "/exit", "/actuator/**",
                 "/project/group/user/register", "/error",
+                "/oauth/token", "/auth/oauth/token",
                 "/v3/api-docs/**", "/swagger-ui/**")) {
             assertTrue(ignore.contains(required), "ignore missing required path: " + required);
         }
