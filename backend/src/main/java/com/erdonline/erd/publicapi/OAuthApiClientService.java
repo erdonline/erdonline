@@ -23,6 +23,7 @@ public interface OAuthApiClientService {
 
     /**
      * Authorization Code 同意页预览：校验 PKCE/redirect/scope，不签发 code。
+     * {@code nonce} 可选（OIDC）；仅校验长度，预览不落库。
      */
     OAuthConsentView previewAuthorization(
             String clientId,
@@ -30,11 +31,13 @@ public interface OAuthApiClientService {
             String scopeCsv,
             String state,
             String codeChallenge,
-            String codeChallengeMethod);
+            String codeChallengeMethod,
+            String nonce);
 
     /**
      * Authorization Code：用户显式 Allow 后签发短命 code（明文返回一次，库中仅哈希）。
      * 要求 PKCE S256、state 非空、redirect_uri 精确匹配注册表。
+     * {@code nonce} 可选（OIDC）；绑定进 code，换票写入 id_token。
      */
     AuthCodeIssued createAuthorizationCode(
             String clientId,
@@ -42,7 +45,8 @@ public interface OAuthApiClientService {
             String scopeCsv,
             String state,
             String codeChallenge,
-            String codeChallengeMethod);
+            String codeChallengeMethod,
+            String nonce);
 
     /**
      * redirect_uri 是否对活跃 client 精确注册（用于 authorize 错误回跳，防开放重定向）。

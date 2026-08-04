@@ -23,6 +23,8 @@ type OAuthParams = {
   state: string;
   code_challenge: string;
   code_challenge_method: string;
+  /** OIDC optional; echoed into id_token on code exchange */
+  nonce?: string;
 };
 
 function parseParams(search: string): OAuthParams | null {
@@ -34,6 +36,7 @@ function parseParams(search: string): OAuthParams | null {
   const state = q.get('state') || '';
   const code_challenge = q.get('code_challenge') || '';
   const code_challenge_method = q.get('code_challenge_method') || '';
+  const nonce = q.get('nonce') || undefined;
   if (
     !response_type ||
     !client_id ||
@@ -44,7 +47,7 @@ function parseParams(search: string): OAuthParams | null {
   ) {
     return null;
   }
-  return {
+  const params: OAuthParams = {
     response_type,
     client_id,
     redirect_uri,
@@ -53,6 +56,10 @@ function parseParams(search: string): OAuthParams | null {
     code_challenge,
     code_challenge_method,
   };
+  if (nonce) {
+    params.nonce = nonce;
+  }
+  return params;
 }
 
 function loginRedirectPath(search: string): string {

@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,21 +48,57 @@ class OidcIdTokenServiceTest {
     @Test
     void mintIfOpenid_skipsWithoutScope() {
         assertNull(service.mintIfOpenid(
-                Set.of(PatScopes.PROJECTS_READ), "erd_cli_x", "u1", "alice"));
+                Set.of(PatScopes.PROJECTS_READ), "erd_cli_x", "u1", "alice", null, "erd_oat_x"));
     }
 
     @Test
     void mintIfOpenid_issuesHs256WithClaims() {
+        String access = "erd_oat_abcdefghijklmnopqrstuvwxyz012345";
         String jwt = service.mintIfOpenid(
                 Set.of(PatScopes.OPENID, PatScopes.PROJECTS_READ),
-                "erd_cli_audience01", "user-42", "alice");
+                "erd_cli_audience01", "user-42", "alice", "n-authz-1", access);
         assertNotNull(jwt);
         Jwt decoded = service.decode(jwt);
         assertEquals("user-42", decoded.getSubject());
         assertEquals("http://127.0.0.1:9502", decoded.getIssuer().toString());
         assertTrue(decoded.getAudience().contains("erd_cli_audience01"));
         assertEquals("alice", decoded.getClaimAsString("preferred_username"));
+        assertEquals("n-authz-1", decoded.getClaimAsString("nonce"));
+        assertEquals(OidcIdTokenService.atHashHs256(access), decoded.getClaimAsString("at_hash"));
         assertEquals(MacAlgorithm.HS256.getName(), decoded.getHeaders().get("alg"));
+    }
+
+    @Test
+    void mintIfOpenid_refreshOmitsNonceButKeepsAtHash() {
+        String access = "erd_oat_refreshpath_access_token_value";
+        String jwt = service.mintIfOpenid(
+                Set.of(PatScopes.OPENID),
+                "erd_cli_audience01", "user-42", "alice", null, access);
+        assertNotNull(jwt);
+        Jwt decoded = service.decode(jwt);
+        assertFalse(decoded.hasClaim("nonce"));
+        assertEquals(OidcIdTokenService.atHashHs256(access), decoded.getClaimAsString("at_hash"));
+    }
+
+    @Test
+    void atHashHs256_leftHalfSha256Base64Url() {
+        // RFC / OIDC: SHA-256(ascii) left 128 bits → base64url no pad
+        String known = "access_token_value_for_hash_test";
+        String hash = OidcIdTokenService.atHashHs256(known);
+        assertEquals(22, hash.length()); // 16 bytes → 22 chars without padding
+        assertTrue(hash.matches("^[A-Za-z0-9_-]+$"));
+        assertEquals(hash, OidcIdTokenService.atHashHs256(known));
+    }
+
+    @Test
+    void normalizeNonce_rejectsOverlong() {
+        assertNull(OidcIdTokenService.normalizeNonce(null));
+        assertNull(OidcIdTokenService.normalizeNonce("  "));
+        assertEquals("abc", OidcIdTokenService.normalizeNonce(" abc "));
+        String tooLong = "x".repeat(OidcIdTokenService.NONCE_MAX_LEN + 1);
+        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class,
+                () -> OidcIdTokenService.normalizeNonce(tooLong));
+        assertEquals("invalid_request:nonce", ex.getMessage());
     }
 
     @Test

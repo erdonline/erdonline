@@ -191,9 +191,10 @@ public class OAuthApiClientServiceImpl
             String scopeCsv,
             String state,
             String codeChallenge,
-            String codeChallengeMethod) {
+            String codeChallengeMethod,
+            String nonce) {
         ConsentPrep prep = prepareConsent(
-                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod);
+                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod, nonce);
         return OAuthConsentView.builder()
                 .clientId(prep.client().getClientId())
                 .clientName(prep.client().getName())
@@ -212,10 +213,11 @@ public class OAuthApiClientServiceImpl
             String scopeCsv,
             String state,
             String codeChallenge,
-            String codeChallengeMethod) {
+            String codeChallengeMethod,
+            String nonce) {
         MartinUser user = SecurityContextUtil.getAccessUser();
         ConsentPrep prep = prepareConsent(
-                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod);
+                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod, nonce);
 
         long ttl = Math.max(30, Math.min(600, authCodeTtlSeconds));
         String plaintext = OAuthClientCodec.generateAuthorizationCode();
@@ -229,6 +231,7 @@ public class OAuthApiClientServiceImpl
         row.setScopes(PatScopes.toCsv(prep.granted()));
         row.setCodeChallenge(prep.codeChallenge());
         row.setCodeChallengeMethod(OAuthClientCodec.PKCE_S256);
+        row.setNonce(prep.nonce());
         row.setExpireTime(LocalDateTime.now().plusSeconds(ttl));
         row.setConsumed(ACTIVE);
         oauthAuthorizationCodeMapper.insert(row);
@@ -246,7 +249,8 @@ public class OAuthApiClientServiceImpl
             String scopeCsv,
             String state,
             String codeChallenge,
-            String codeChallengeMethod) {
+            String codeChallengeMethod,
+            String nonce) {
         if (!StringUtils.hasText(state) || state.trim().length() > 512) {
             throw new IllegalArgumentException("invalid_request:state");
         }
@@ -262,6 +266,7 @@ public class OAuthApiClientServiceImpl
         if (!OAuthClientCodec.isValidCodeChallenge(challenge)) {
             throw new IllegalArgumentException("invalid_request:code_challenge");
         }
+        String normalizedNonce = OidcIdTokenService.normalizeNonce(nonce);
 
         OAuthApiClient client = loadActiveClient(clientId.trim());
         if (client == null) {
@@ -274,14 +279,15 @@ public class OAuthApiClientServiceImpl
 
         Set<String> allowed = PatScopes.parse(client.getScopes());
         Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
-        return new ConsentPrep(client, exactRedirect, granted, challenge);
+        return new ConsentPrep(client, exactRedirect, granted, challenge, normalizedNonce);
     }
 
     private record ConsentPrep(
             OAuthApiClient client,
             String redirectUri,
             Set<String> granted,
-            String codeChallenge) {
+            String codeChallenge,
+            String nonce) {
     }
 
     @Override
@@ -363,9 +369,15 @@ public class OAuthApiClientServiceImpl
         if (granted.isEmpty()) {
             throw new IllegalArgumentException("invalid_scope");
         }
-        // OAT+ORT 以授权用户身份（非注册人）；新建轮换族
+        // OAT+ORT 以授权用户身份（非注册人）；新建轮换族；nonce 仅此路径进 id_token
         String familyId = newFamilyId();
-        return mintTokenPair(client, authCode.getUserId(), authCode.getUsername(), granted, familyId);
+        return mintTokenPair(
+                client,
+                authCode.getUserId(),
+                authCode.getUsername(),
+                granted,
+                familyId,
+                authCode.getNonce());
     }
 
     @Override
@@ -420,7 +432,7 @@ public class OAuthApiClientServiceImpl
         oauthRefreshTokenMapper.updateById(row);
         revokeFamilyAccessTokens(row.getFamilyId());
 
-        return mintTokenPair(client, row.getUserId(), row.getUsername(), granted, row.getFamilyId());
+        return mintTokenPair(client, row.getUserId(), row.getUsername(), granted, row.getFamilyId(), null);
     }
 
     @Override
@@ -599,16 +611,20 @@ public class OAuthApiClientServiceImpl
     /** client_credentials：仅短期 access，无 refresh / family。 */
     private OAuthTokenResponse mintAccessTokenOnly(
             OAuthApiClient client, String userId, String username, Set<String> granted) {
-        return insertAccessAndBuild(client, userId, username, granted, null, null, null);
+        return insertAccessAndBuild(client, userId, username, granted, null, null, null, null);
     }
 
-    /** authorization_code / refresh：access + refresh，同 family。 */
+    /**
+     * authorization_code / refresh：access + refresh，同 family。
+     * {@code nonce} 仅 auth code 换票传入；refresh 传 null（OIDC Core：续期 id_token 不含 nonce）。
+     */
     private OAuthTokenResponse mintTokenPair(
             OAuthApiClient client,
             String userId,
             String username,
             Set<String> granted,
-            String familyId) {
+            String familyId,
+            String nonce) {
         long refreshTtl = Math.max(3600, refreshTokenTtlSeconds);
         String refreshPlain = OAuthClientCodec.generateRefreshToken();
         OAuthRefreshToken rt = new OAuthRefreshToken();
@@ -625,7 +641,7 @@ public class OAuthApiClientServiceImpl
         oauthRefreshTokenMapper.insert(rt);
 
         return insertAccessAndBuild(
-                client, userId, username, granted, familyId, refreshPlain, refreshTtl);
+                client, userId, username, granted, familyId, refreshPlain, refreshTtl, nonce);
     }
 
     private OAuthTokenResponse insertAccessAndBuild(
@@ -635,7 +651,8 @@ public class OAuthApiClientServiceImpl
             Set<String> granted,
             String familyId,
             String refreshPlain,
-            Long refreshTtl) {
+            Long refreshTtl,
+            String nonce) {
         long ttl = Math.max(60, accessTokenTtlSeconds);
         String plaintext = OAuthClientCodec.generateAccessToken();
         LocalDateTime expire = LocalDateTime.now().plusSeconds(ttl);
@@ -657,7 +674,7 @@ public class OAuthApiClientServiceImpl
         String idToken = null;
         if (familyId != null) {
             idToken = oidcIdTokenService.mintIfOpenid(
-                    granted, client.getClientId(), userId, username);
+                    granted, client.getClientId(), userId, username, nonce, plaintext);
         }
 
         return OAuthTokenResponse.builder()
