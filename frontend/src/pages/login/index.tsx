@@ -69,6 +69,8 @@ export default () => {
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
   const [providers, setProviders] = useState<Providers>({});
+  /** providers 接口成功返回后才渲染「未配置」提示，避免首屏闪烁 */
+  const [providersKnown, setProvidersKnown] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -77,9 +79,10 @@ export default () => {
         const res = await request.get('/auth/federate/providers');
         if (!cancelled && res?.code === 200 && res.data) {
           setProviders(res.data as Providers);
+          setProvidersKnown(true);
         }
       } catch {
-        // 未配置联邦时静默：仅账密登录
+        // 拉取失败：不假造按钮，也不刷「未配置」（可能是网络抖动）
       }
     })();
     return () => {
@@ -98,6 +101,7 @@ export default () => {
 
   const enabledButtons = PROVIDER_BUTTONS.filter((b) => providers[b.key]);
   const showFederate = enabledButtons.length > 0;
+  const showUnconfiguredHint = providersKnown && !showFederate;
 
   return (
     <AuthBrandShell
@@ -184,6 +188,20 @@ export default () => {
             ))}
           </Space>
         </>
+      ) : showUnconfiguredHint ? (
+        <p
+          role="status"
+          data-testid="login-federate-unconfigured"
+          style={{
+            margin: '8px 0 0',
+            textAlign: 'center',
+            fontSize: 12,
+            color: 'var(--erd-ink-400, rgba(0, 0, 0, 0.45))',
+            lineHeight: 1.5,
+          }}
+        >
+          第三方登录未配置
+        </p>
       ) : null}
     </AuthBrandShell>
   );

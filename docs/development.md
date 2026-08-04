@@ -244,10 +244,15 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 # 产品 UI：登录 → /account/settings?selectKey=personalAccessTokens → 铸造/复制明文/吊销（token 仅创建弹层）
 #            /account/settings?selectKey=oauthClients → 注册/复制 ID/吊销（secret 仅创建弹层；可选 openid）
 #            浏览器 authorize URL：/oauth/authorize?... → AuthBrandShell 同意页 Allow/Deny
-# ADR-0021 联邦（可选）：设 GITHUB_* / GOOGLE_* / WECHAT_* 后 curl /auth/federate/providers；登录页出按钮；安全设置可绑定
+# ADR-0021 联邦（可选）：导出下列三项齐全的 provider 后重启后端；登录页出对应按钮；安全设置可绑定
+# export GITHUB_CLIENT_ID=... GITHUB_CLIENT_SECRET=... GITHUB_REDIRECT_URI=http://localhost:9502/auth/federate/github/callback
+# export GOOGLE_CLIENT_ID=... GOOGLE_CLIENT_SECRET=... GOOGLE_REDIRECT_URI=http://localhost:9502/auth/federate/google/callback
+# export WECHAT_APP_ID=... WECHAT_APP_SECRET=... WECHAT_REDIRECT_URI=http://localhost:9502/auth/federate/wechat/callback
+# ./backend/dev-ensure.sh --restart
+# curl -sS http://127.0.0.1:9502/auth/federate/providers   # 配置齐全的 key 为 true；未配为 false，登录页仅一行「第三方登录未配置」
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OIDC：RS256（`ERD_OIDC_RSA_PRIVATE_KEY` 或 `ERD_OIDC_RSA_PRIVATE_KEY_PATH` / PKCS12；prod 必填；本地 dev 自动生成 `~/.erdonline/oidc-rsa-private.pem`）；issuer=`ERD_OIDC_ISSUER` 或 `ERD_UI_URL`；id_token TTL：`ERD_OIDC_ID_TOKEN_TTL`（默认 3600）；authorize 可选 `nonce`（≤255，绑 code，code 换票进 id_token；**refresh 不带 nonce**）；`at_hash` 随 access_token；JWKS：`GET /.well-known/jwks.json`。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh/id_token。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`；透传 `nonce`）。第三方登录（ADR-0021）：可选 `GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI` 与 `WECHAT_APP_ID/SECRET/REDIRECT_URI`；缺则关闭；会话 JWT 短票换票，非 PAT。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OIDC：RS256（`ERD_OIDC_RSA_PRIVATE_KEY` 或 `ERD_OIDC_RSA_PRIVATE_KEY_PATH` / PKCS12；prod 必填；本地 dev 自动生成 `~/.erdonline/oidc-rsa-private.pem`）；issuer=`ERD_OIDC_ISSUER` 或 `ERD_UI_URL`；id_token TTL：`ERD_OIDC_ID_TOKEN_TTL`（默认 3600）；authorize 可选 `nonce`（≤255，绑 code，code 换票进 id_token；**refresh 不带 nonce**）；`at_hash` 随 access_token；JWKS：`GET /.well-known/jwks.json`。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh/id_token。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`；透传 `nonce`）。第三方登录（ADR-0021）：可选 `GITHUB_CLIENT_ID/SECRET/REDIRECT_URI`、`GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`、`WECHAT_APP_ID/SECRET/REDIRECT_URI`（各三项齐全才启用）；缺则关闭；会话 JWT 短票换票，非 PAT。
 
 ### MCP（切片 4–5 + projects:write tools）
 
