@@ -44,14 +44,27 @@ assert.equal(resolveBaselineDbKey({ dbs: [], profileDefaultId: 'profile' }), 'pr
 assert.equal(resolveBaselineDbKey({}), SNAPSHOT_DB_KEY);
 
 // 3. 无基线 ≠ 无差异：基线模型为空，当前模型整体算未提交
-assert.deepEqual(baselineProjectJSON(null), { modules: [] });
-assert.deepEqual(baselineProjectJSON({ version: '1.0.0', projectJSON: null }), { modules: [] });
+const emptyBaseline = { modules: [], profile: {}, dataTypeDomains: {} };
+assert.deepEqual(baselineProjectJSON(null), emptyBaseline);
+assert.deepEqual(baselineProjectJSON({ version: '1.0.0', projectJSON: null }), emptyBaseline);
 assert.equal(hasBaseline(null), false);
 assert.equal(hasBaseline({ id: 'v1' }), true);
 assert.equal(hasBaseline({ version: '1.0.0' }), true);
 
-// 4. 有基线：直接用基线的 modules，与列表页码无关
-const baseline = { id: 'v9', version: '9.0.0', projectJSON: { modules: [{ name: 'm1' }] } };
-assert.deepEqual(baselineProjectJSON(baseline), { modules: [{ name: 'm1' }] });
+// 4. 有基线：modules + profile + dataTypeDomains，与列表页码无关
+const baseline = {
+  id: 'v9',
+  version: '9.0.0',
+  projectJSON: {
+    modules: [{ name: 'm1' }],
+    profile: { tableLimit: 100 },
+    dataTypeDomains: { datatype: [] },
+  },
+};
+assert.deepEqual(baselineProjectJSON(baseline), {
+  modules: [{ name: 'm1' }],
+  profile: { tableLimit: 100 },
+  dataTypeDomains: { datatype: [] },
+});
 
 console.log('versionBaseline.test.ts OK');

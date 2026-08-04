@@ -16,11 +16,19 @@ const TYPE_LABEL: Record<string, string> = {
   entity: '表',
   field: '字段',
   index: '索引',
+  association: '关联',
+  diagram: '关系图',
+  profile: '项目配置',
+  datatype: '数据类型',
+  module: '模块',
 };
 
 export function tableOf(item: VersionDiffItem): string {
   if (item.type === 'entity') {
     return item.name || '未知表';
+  }
+  if (item.type === 'profile' || item.type === 'datatype' || item.type === 'module') {
+    return item.type === 'profile' ? '项目配置' : item.type === 'datatype' ? '数据类型' : '模块';
   }
   const n = item.name || '';
   const i = n.indexOf('.');

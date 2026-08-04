@@ -20,6 +20,11 @@ import {
   resolveBaselineDbKey,
   type BaselineRecord,
 } from "@/utils/versionBaseline";
+import {
+  checkVersionStructuralDiff,
+  hasMeaningfulVersionChanges,
+  snapshotProjectJSONForVersion,
+} from "@/utils/versionStructuralDiff";
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -491,6 +496,21 @@ const useVersionStore = create<VersionState>(
           case 'field':
             optName = '属性';
             break;
+          case 'association':
+            optName = '关联';
+            break;
+          case 'diagram':
+            optName = '关系图';
+            break;
+          case 'profile':
+            optName = '项目配置';
+            break;
+          case 'datatype':
+            optName = '数据类型';
+            break;
+          case 'module':
+            optName = '模块';
+            break;
           default:
             optName = '未知类型';
             break;
@@ -918,13 +938,17 @@ const useVersionStore = create<VersionState>(
         try {
           const changes = await get().dispatch.calcChanges();
           const changesArray = Array.isArray(changes) ? changes : [];
+          if (!hasMeaningfulVersionChanges(changesArray)) {
+            message.warning(
+              '当前与最新版本无模型差异；版本仍会保存，但不计入「有版本保存」北极星指标',
+            );
+          }
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
+          const projectJSON = projectState?.project?.projectJSON;
 
           const version = {
-            projectJSON: {
-              modules: projectState?.project?.projectJSON?.modules || [],
-            },
+            projectJSON: snapshotProjectJSONForVersion(projectJSON),
             dbKey: dbData.key,
             // 首版判定看基线，列表可能只是空的第 N 页
             baseVersion: get().baselineLoaded
@@ -978,12 +1002,8 @@ const useVersionStore = create<VersionState>(
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
 
-          // 基线文件只需要存储modules信息
-          const modules = projectState?.project?.projectJSON?.modules;
           const version = {
-            projectJSON: {
-              modules: modules || [],
-            },
+            projectJSON: snapshotProjectJSONForVersion(projectState?.project?.projectJSON),
             dbKey: dbData.key,
             baseVersion: true,
             version: tempValue.version,
@@ -1086,78 +1106,8 @@ const useVersionStore = create<VersionState>(
           console.warn('没有足够的版本进行比较');
         }
       },
-      checkVersionData: (dataSource1: any, dataSource2: any) => {
-        // 循环比较每个模型下的每张表以及每一个字段的差异
-        const changes: any = [];
-        // 1.获取所有的表
-        const currentTables = get().dispatch.getAllTable(dataSource1);
-        const checkTables = get().dispatch.getAllTable(dataSource2);
-        const checkTableNames = checkTables.map((e: any) => e.title);
-        const currentTableNames = currentTables.map((e: any) => e.title);
-        // 2.将当前的表循环
-        currentTables.forEach((table: any) => {
-          // 1.1 判断该表是否存在
-          if (checkTableNames.includes(table.title)) {
-            // 1.2.1 如果该表存在则需要对比字段
-            const checkTable = checkTables.filter((t: any) => t.title === table.title)[0] || {};
-            // 将两个表的所有的属性循环比较
-            const checkFields = (checkTable.fields || []).filter((f: any) => f.name);
-            const tableFields = (table.fields || []).filter((f: any) => f.name);
-            const checkFieldsName = checkFields.map((f: any) => f.name);
-            const tableFieldsName = tableFields.map((f: any) => f.name);
-            tableFields.forEach((field: any) => {
-              if (!checkFieldsName.includes(field.name)) {
-                changes.push({
-                  type: 'field',
-                  name: `${table.title}.${field.name}`,
-                  opt: 'add',
-                });
-              } else {
-                // 比较属性的详细信息
-                const checkField = checkFields.filter((f: any) => f.name === field.name)[0] || {};
-                const result = get().dispatch.compareField(field, checkField, table);
-                changes.push(...result);
-              }
-            });
-            checkFields.forEach((field: any) => {
-              if (!tableFieldsName.includes(field.name)) {
-                changes.push({
-                  type: 'field',
-                  name: `${table.title}.${field.name}`,
-                  opt: 'delete',
-                });
-              }
-            });
-            // 1.2.2 其他信息
-            const entityResult = get().dispatch.compareEntity(_.omit(table, ['fields', 'indexs', 'headers']),
-              _.omit(checkTable, ['fields', 'indexs']));
-            changes.push(...entityResult);
-            // 1.2.3 对比索引
-            const result = get().dispatch.compareIndexs(table, checkTable);
-            changes.push(...result);
-          } else {
-            // 1.3 如果该表不存在则说明当前版本新增了该表
-            changes.push({
-              type: 'entity',
-              name: table.title,
-              opt: 'add',
-            });
-          }
-        });
-        // 3.将比较的表循环，查找删除的表
-        checkTables.forEach((table: any) => {
-          // 1.1 判断该表是否存在
-          if (!currentTableNames.includes(table.title)) {
-            // 1.2 如果该表不存在则说明当前版本删除了该表
-            changes.push({
-              type: 'entity',
-              name: table.title,
-              opt: 'delete',
-            });
-          }
-        });
-        return changes;
-      },
+      checkVersionData: (dataSource1: any, dataSource2: any) =>
+        checkVersionStructuralDiff(dataSource1, dataSource2),
       recalculateChanges: () => {
         const state = get();
         // 基线未查过 → 差异未知，不得断言「无差异」
@@ -1181,6 +1131,7 @@ const useVersionStore = create<VersionState>(
   })
 );
 
+/** 画布拖移等高频 projectJSON 更新：全量 diff 防抖，避免拖动时 thrash */
 const debouncedRecalculateChanges = _.debounce(() => {
   useVersionStore.getState().dispatch.recalculateChanges();
 }, 300);

@@ -9,12 +9,18 @@ import { SNAPSHOT_DB_KEY } from './versionConstants';
 
 export type BaselineDb = { key?: string; defaultDB?: boolean };
 
+export type BaselineProjectJSON = {
+  modules?: unknown[];
+  profile?: Record<string, unknown>;
+  dataTypeDomains?: Record<string, unknown>;
+};
+
 export type BaselineRecord = {
   id?: string;
   version?: string;
   versionDate?: string;
   createTime?: string;
-  projectJSON?: { modules?: unknown[] } | null;
+  projectJSON?: BaselineProjectJSON | null;
 } | null;
 
 export type LatestVersionQuery = {
@@ -53,9 +59,15 @@ export function buildLatestVersionQuery(dbKey: string, projectId: string): Lates
  * 基线模型：无基线时为空模型，diff 即「当前模型全部未提交」。
  * 禁止在 versions 为空时当作「无差异」，否则首次建模会被显示为「已一致」。
  */
-export function baselineProjectJSON(baseline: BaselineRecord): { modules: unknown[] } {
-  const modules = baseline?.projectJSON?.modules;
-  return { modules: Array.isArray(modules) ? modules : [] };
+/** 基线可比快照：modules + 建模相关 profile + dataTypeDomains */
+export function baselineProjectJSON(baseline: BaselineRecord): BaselineProjectJSON {
+  const pj = baseline?.projectJSON;
+  return {
+    modules: Array.isArray(pj?.modules) ? pj.modules : [],
+    profile: pj?.profile && typeof pj.profile === 'object' ? pj.profile : {},
+    dataTypeDomains:
+      pj?.dataTypeDomains && typeof pj.dataTypeDomains === 'object' ? pj.dataTypeDomains : {},
+  };
 }
 
 /** 无基线（尚未存过版本）→ 提示首次保存版本，而不是「已与最新版本一致」 */
