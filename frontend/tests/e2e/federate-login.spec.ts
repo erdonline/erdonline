@@ -30,6 +30,8 @@ test.describe('IdP 联邦（无凭证）', () => {
     await expect(page.getByTestId('login-github')).toHaveCount(0);
     await expect(page.getByTestId('login-google')).toHaveCount(0);
     await expect(page.getByTestId('login-wechat')).toHaveCount(0);
+    await expect(page.getByTestId('login-federate-unconfigured')).toBeVisible();
+    await expect(page.getByText('第三方登录未配置')).toBeVisible();
   });
 
   test('providers mock 为 true 时显示对应按钮', async ({ page }) => {
@@ -49,6 +51,7 @@ test.describe('IdP 联邦（无凭证）', () => {
     await expect(page.getByTestId('login-google')).toBeVisible();
     await expect(page.getByLabel('使用 GitHub 登录')).toBeVisible();
     await expect(page.getByTestId('login-wechat')).toHaveCount(0);
+    await expect(page.getByTestId('login-federate-unconfigured')).toHaveCount(0);
   });
 
   test('账密登录后退出清除会话（联邦同源 logout）', async ({ page }) => {

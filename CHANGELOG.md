@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### 体验：登录页第三方未配置时一行提示
+
+- 根因：未设 `GITHUB_*` / `GOOGLE_*` / `WECHAT_*` 时 `/auth/federate/providers` 均为 false，登录页按设计隐藏按钮（非接线故障）；本机无已配未加载的 env
+- 改动：全部禁用时显示静默一行「第三方登录未配置」（`login-federate-unconfigured`）；不伪造启用按钮
+- 启用：在跑后端的 shell 导出对应三项（见 `.env.example`）后 `./backend/dev-ensure.sh --restart`；`curl /auth/federate/providers` 对应 key 为 true
+
+验证点：
+- `curl -sS http://127.0.0.1:9502/auth/federate/providers` → `github/google/wechat` 均为 false
+- `cd frontend && yarn playwright test --project=chromium tests/e2e/federate-login.spec.ts`
+
 #### 开放：ADR-0021 — GitHub OAuth + 三方登录闭环加固
 
 - 选题：联邦扩到 GitHub；登录 → 会话 home → 登出形成闭环；设置页三方均可绑定/解绑
