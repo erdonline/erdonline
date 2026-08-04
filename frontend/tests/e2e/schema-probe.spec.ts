@@ -51,6 +51,31 @@ async function seedMysqlDs(
  * B 层实库探测五态 + 未知四路（ADR-0022 #10）
  */
 test.describe('实库探测', () => {
+  test('模型页顶栏可见探测控件（唯一入口）', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('probe-chrome');
+    try {
+      await login(page, e2eAccount());
+      const token = await page.evaluate(() => localStorage.getItem('Authorization'));
+      expect(token).toBeTruthy();
+      await clearDataSources(request, token!);
+
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe chrome');
+      // 停在模型页，不 navigate 到版本页
+      await expect(page).toHaveURL(/\/design\/table\/model/);
+
+      await expect(page.getByTestId('schema-probe-control')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('schema-probe-control')).toHaveClass(/schema-probe-control--chrome/);
+      const status = page.getByTestId('schema-probe-status');
+      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
+      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NO_DATASOURCE');
+      await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/未配置数据源/);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('无 JDBC 时显示未配置数据源', async ({ page, request }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('probe-no-ds');

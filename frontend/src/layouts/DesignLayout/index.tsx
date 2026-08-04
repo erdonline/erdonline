@@ -5,6 +5,7 @@ import CollabPresence from "@/components/CollabPresence";
 import SaveStatus from "@/components/SaveStatus";
 import SaveVersionButton from "@/components/SaveVersionButton";
 import VersionDirtyChip from "@/components/VersionDirtyChip";
+import SchemaProbeControl from "@/components/SchemaProbeControl";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
@@ -423,6 +424,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
         <div className="erd-chrome-actions design-layout__actions" data-testid="erd-chrome-actions">
           <SaveStatus key="save-status" />
           <VersionDirtyChip key="version-dirty-chip" />
+          <SchemaProbeControl key="schema-probe" variant="chrome" />
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />

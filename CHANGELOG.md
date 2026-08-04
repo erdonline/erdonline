@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### 体验：B 层探测入口收敛至设计器顶栏（Vision #14 · ADR-0022）
+
+- 问题：探测按钮仅在版本页 toolbar，画布内编辑时看不到实库落差；与顶栏 A 层 dirty chip 分裂
+- 改动：`SchemaProbeControl` 迁入 `DesignLayout` 顶栏（`VersionDirtyChip` 旁，`variant="chrome"` icon-only）；版本页 toolbar 移除重复探测控件；`dualLayerTokens` 图例「与库」指向顶栏雷达；分享访客/ACL 逻辑不变
+- 红线：仍仅显式探测，无 Pull/Push、无进页自动 probe
+
+验证点：
+- `yarn build` 绿
+- `yarn playwright test tests/e2e/schema-probe.spec.ts --project=chromium` 3/3 绿
+
 #### 体验：project 409 冲突最小 diff 预览（Vision #13 · ADR-0022）
 
 - 问题：乐观锁 409 仅弹「刷新项目 / 另存为新项目」二选一，用户看不到本地与服务器差在哪，决策缺证据

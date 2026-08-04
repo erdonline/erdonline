@@ -18,7 +18,6 @@ import RevertVersion from "@/components/dialog/version/RevertVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
-import SchemaProbeControl from '@/components/SchemaProbeControl';
 import VersionLayerStatusTag from '@/components/VersionLayerStatusTag';
 import DualLayerLegend from '@/components/DualLayerLegend';
 import PageSkeleton from '@/components/PageSkeleton';
@@ -380,9 +379,6 @@ const Version: React.FC = () => {
                   loading={isLoading}
                 />
               </Space>
-              <Access accessible={access.canErdConnectorSchemaProbe} fallback={<></>}>
-                <SchemaProbeControl disabled={isLoading} />
-              </Access>
             </Space>
             <Space wrap size={[4, 4]} className="version-page__toolbar-actions">
               <Input
