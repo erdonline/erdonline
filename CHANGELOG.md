@@ -17,6 +17,14 @@
 - `cd frontend && npx playwright test --project=chromium tests/e2e/version-dirty-chip.spec.ts tests/e2e/project-save-conflict.spec.ts tests/e2e/relation.spec.ts --grep "工具栏新建表|顶栏版本 dirty chip|409" --retries=0`（5 passed 并行）
 - 回归：`project-local-draft.spec.ts` 恢复后 `DRAFT_FIELD` 在「已隐藏」区，断言待另开（非 create-table 主因）
 
+#### 修复：beforeunload 勿用 stale store 覆盖落库失败草稿
+
+- 根因：`persistProjectNow` 失败时已 `writeProjectDraft(next)`，但 store 未 apply；`page.goto`/离开触发 `useProjectDraftGuard` 用无新字段的 store 覆写 localStorage 草稿 → 恢复后模型缺字段
+- 改动：`beforeunload` 若现有 draft 比当前 store 更新则跳过写入；E2E 用 `field-hidden-toggle` +「显示」兜底
+
+验证点：
+- `cd frontend && npx playwright test --project=chromium tests/e2e/project-local-draft.spec.ts`（1 passed）
+
 #### i18n 奠基（ADR-0023）
 
 - `getAntdLocale()` / `getAppLocale()`：`window._env_.LOCALE` 或 `ERD_LOCALE` 构建变量；未设或未知 → **zh-CN**；Theme `ConfigProvider` 不再硬编码 `zhCN`
