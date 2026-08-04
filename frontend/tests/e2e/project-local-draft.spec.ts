@@ -67,9 +67,13 @@ test.describe('本地草稿恢复', () => {
       await page.getByTestId('tree-open-relation').click();
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 15_000 });
       const tableNode = rfNode(page, 'T_TABLE_1');
-      const hiddenToggle = tableNode.getByRole('button', { name: /已隐藏/ });
+      const hiddenToggle = tableNode.getByTestId('field-hidden-toggle');
       if (await hiddenToggle.isVisible().catch(() => false)) {
         await hiddenToggle.click();
+        const showDraft = tableNode.getByRole('button', { name: '在关系图中显示 DRAFT_FIELD' });
+        if (await showDraft.isVisible().catch(() => false)) {
+          await showDraft.click();
+        }
       }
       await expect(tableNode.locator('[data-field="DRAFT_FIELD"]')).toBeVisible({
         timeout: 15_000,
