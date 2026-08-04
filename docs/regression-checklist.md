@@ -805,3 +805,6 @@
 - [ ] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 版本页显示「基线未知」+ 错误 toast，不显示「已一致」
 - [x] [落库失败不假装落行] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段草稿留在编辑行、模型无该字段、toast + 顶栏重试可见；恢复后在编辑行再按 Enter 才真正落行 ✅ `save-failure.spec.ts`（原用例按旧乐观行为断言，已按诚实持久化重写）
 - [x] [落库失败本地草稿] 保存失败 → localStorage `erd:project-draft:{id}` 写入 → 重进设计器 Modal「恢复草稿/丢弃草稿」→ 恢复后模型含未落库改动 ✅ `projectLocalDraft.test.ts` + `project-local-draft.spec.ts`
+- [x] [B 层 schema 指纹] `SchemaFingerprintTest`：同构 hash 稳定；增列 → different；无 projectJSON → unknown；忽略 `db_version` 表 ✅ `SchemaFingerprintTest`
+- [ ] [B 层探测按钮] 版本页选 JDBC 数据源 → 点「探测实库」→ `schema-probe-status` 显示 synced/different/unknown；进页不自动请求 `/connector/schema/probe`
+- [x] [db_version 书签降级] 版本行 tag 为「已推送/未推送」；tooltip 明示非实库指纹真相 ✅ 版本页 `version-push-bookmark-tag`

@@ -65,7 +65,7 @@
 
 **B 实库（模型 ↔ 活库 schema）**
 
-- 判据换实测 schema 指纹（表/列/索引规范化哈希）；`db_version` 降级为提示 📋
+- ~~判据换实测 schema 指纹（表/列/索引规范化哈希）；`db_version` 降级为提示~~ ✅ 2026-08-04（`POST /connector/schema/probe` + 版本页「探测实库」；书签 tag「已推送/未推送」）
 - 修 `compareStringVersion`（空段 / `NaN` / 前缀）；不可判 → 未知态而非「一致」📋
 - 五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）📋
 - 分享访客隐藏 B 层 📋

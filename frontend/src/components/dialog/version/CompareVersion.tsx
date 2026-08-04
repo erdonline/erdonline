@@ -347,7 +347,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
               {currentVersion
                 ? `变化脚本(${
                     compareStringVersion(currentVersion.version, dbVersion) <= 0
-                      ? '已同步'
+                      ? '已推送（版本书签）'
                       : '未同步'
                   })`
                 : '变化脚本'}

@@ -18,6 +18,7 @@ import RevertVersion from "@/components/dialog/version/RevertVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 import { DataSourceSelect } from '@/components/DataSourceSelect';
+import SchemaProbeControl from '@/components/SchemaProbeControl';
 import PageSkeleton from '@/components/PageSkeleton';
 import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
 import {hasBaseline} from '@/utils/versionBaseline';
@@ -161,12 +162,28 @@ const Version: React.FC = () => {
 
   const renderSyncTag = (row: VersionRow) => {
     if (compareStringVersion(row.version, dbVersion) <= 0) {
-      return <Tag title="已同步到数据源" color="blue">已同步</Tag>;
+      return (
+        <Tag
+          title="版本号书签：该版本曾推送到数据源；实库一致性请用「探测实库」"
+          color="blue"
+          data-testid="version-push-bookmark-tag"
+        >
+          已推送
+        </Tag>
+      );
     }
     if (synchronous[row.version]) {
-      return <Tag title="正在同步到数据源" color="lime">正在同步</Tag>;
+      return <Tag title="正在推送到数据源" color="lime">推送中</Tag>;
     }
-    return <Tag title="未同到数据源" color="red">未同步</Tag>;
+    return (
+      <Tag
+        title="版本号高于数据源书签，尚未推送；不代表实库 schema 状态"
+        color="default"
+        data-testid="version-not-pushed-tag"
+      >
+        未推送
+      </Tag>
+    );
   };
 
   const renderRowMeta = (row: VersionRow) => {
@@ -368,6 +385,9 @@ const Version: React.FC = () => {
                   loading={isLoading}
                 />
               </Space>
+              {dbs.length > 0 && (
+                <SchemaProbeControl disabled={isLoading} />
+              )}
             </Space>
             <Space wrap size={[4, 4]} className="version-page__toolbar-actions">
               <Input
