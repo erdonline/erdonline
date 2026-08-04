@@ -790,3 +790,9 @@
 - [x] [identification 密度/token] `/account/settings?selectKey=identification` 见 `account-settings-identification`（无 `.ant-result`）；标题 13/22；图标色走 `--erd-brand`（非硬编码字面量）✅ `account-settings.spec.ts`
 - [x] [基本资料保存失败 toast] mock update 非 200 →「更新基本信息失败」✅同上
 - [x] [头像无假 Upload] 见「头像上传暂未开放」；无「更换头像」/file input ✅同上
+
+## 双层一致性与可信保存（ADR-0022，2026-08-04）
+
+- [x] [离开设计器不盲存] 干净态点顶栏品牌回 `/home` → 无 `/ncnb/project/save` 请求 ✅ `leave-designer-save.spec.ts`「干净态离开」
+- [x] [失败态离开补一枪] 阻断 save 制造失败态 → 放开后离开 → 至少 1 次 save 且失败仍有可见反馈 ✅ `leave-designer-save.spec.ts`「落库失败后离开」
+- [ ] [已知缺陷·待修] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段行停在编辑态不落行（`save-failure.spec.ts` 在 main 已红）→ 期望：失败可见且编辑态可退出
