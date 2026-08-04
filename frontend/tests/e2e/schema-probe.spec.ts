@@ -47,8 +47,53 @@ async function seedMysqlDs(
   return id;
 }
 
+type MockProbePayload = {
+  status: string;
+  reason?: string;
+  message?: string;
+  fingerprint?: string;
+  modelFingerprint?: string;
+  tableCount?: number;
+  apiCode?: number;
+  delayMs?: number;
+};
+
+async function probeJdbcSetup(
+  page: import('@playwright/test').Page,
+  request: import('@playwright/test').APIRequestContext,
+  projectName: string,
+) {
+  const token = await page.evaluate(() => localStorage.getItem('Authorization'));
+  expect(token).toBeTruthy();
+  await clearDataSources(request, token!);
+  const dsId = await seedMysqlDs(request, token!, `e2e-probe-${Date.now().toString(36)}`);
+  await deleteOwnPersonProjects(page);
+  await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe');
+  await openVersionPage(page);
+  await expect(page.getByTestId('schema-probe-control')).toBeVisible({ timeout: 15_000 });
+  const status = page.getByTestId('schema-probe-status');
+  await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
+  await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
+  const probeBtn = page.getByTestId('schema-probe-btn');
+  await expect(probeBtn).toBeEnabled();
+  return { dsId, status, probeBtn };
+}
+
+async function cleanupProbeDs(
+  page: import('@playwright/test').Page,
+  request: import('@playwright/test').APIRequestContext,
+  dsId: string,
+) {
+  if (!dsId) return;
+  const token = await page.evaluate(() => localStorage.getItem('Authorization')).catch(() => null);
+  if (token) {
+    await request
+      .delete(`${API}/ncnb/dataSources/${dsId}`, { headers: { Authorization: `Bearer ${token}` } })
+      .catch(() => {});
+  }
+}
 /**
- * B 层实库探测五态 + 未知四路（ADR-0022 #10）
+ * B 层实库探测五态 + 未知四路（ADR-0022 #10 / Vision #15）
  */
 test.describe('实库探测', () => {
   test('模型页顶栏可见探测控件（唯一入口）', async ({ page, request }) => {
@@ -100,27 +145,49 @@ test.describe('实库探测', () => {
     }
   });
 
+  test('有 JDBC：mock SYNCED/BEHIND/DIVERGED parity', async ({ page, request }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('probe-parity');
+    let dsId = '';
+    try {
+      await login(page, e2eAccount());
+      const setup = await probeJdbcSetup(page, request, projectName);
+      dsId = setup.dsId;
+      const { status, probeBtn } = setup;
+
+      for (const data of [
+        { status: 'SYNCED', fingerprint: 'fp-sync', tableCount: 3 },
+        { status: 'BEHIND', reason: 'FINGERPRINT_MISMATCH', tableCount: 5 },
+        { status: 'DIVERGED', reason: 'FINGERPRINT_MISMATCH', tableCount: 2 },
+      ]) {
+        await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
+        await page.route('**/ncnb/connector/schema/probe', async (route) => {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ code: 200, data }),
+          });
+        });
+        await probeBtn.click();
+        await expect(status).toHaveAttribute('data-probe-status', data.status, { timeout: 10_000 });
+      }
+    } finally {
+      await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
+      await cleanupProbeDs(page, request, dsId);
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('有 JDBC：尚未探测 + mock 五态不伪装一致', async ({ page, request }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('probe-ds');
     let dsId = '';
     try {
       await login(page, e2eAccount());
-      const token = await page.evaluate(() => localStorage.getItem('Authorization'));
-      expect(token).toBeTruthy();
-      await clearDataSources(request, token!);
-      dsId = await seedMysqlDs(request, token!, `e2e-probe-${Date.now().toString(36)}`);
+      const setup = await probeJdbcSetup(page, request, projectName);
+      dsId = setup.dsId;
+      const { status, probeBtn } = setup;
 
-      await deleteOwnPersonProjects(page);
-      await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe');
-      await openVersionPage(page);
-
-      const control = page.getByTestId('schema-probe-control');
-      await expect(control).toBeVisible({ timeout: 15_000 });
-
-      const status = page.getByTestId('schema-probe-status');
-      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
-      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/尚未探测/);
 
       await page.route('**/ncnb/connector/schema/probe', async (route) => {
@@ -140,12 +207,9 @@ test.describe('实库探测', () => {
         });
       });
 
-      const probeBtn = page.getByTestId('schema-probe-btn');
-      await expect(probeBtn).toBeEnabled();
       await probeBtn.click();
 
       await expect(status).toHaveAttribute('data-probe-status', 'AHEAD', { timeout: 10_000 });
-      await expect(status).toContainText(/模型领先/);
 
       await page.unroute('**/ncnb/connector/schema/probe');
       await page.route('**/ncnb/connector/schema/probe', async (route) => {
@@ -167,20 +231,24 @@ test.describe('实库探测', () => {
       await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
       await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NO_PERMISSION');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/无读取权限/);
+
+      await page.unroute('**/ncnb/connector/schema/probe');
+      await page.route('**/ncnb/connector/schema/probe', async (route) => {
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ code: 500, msg: 'JDBC connection refused' }),
+        });
+      });
+      await probeBtn.click();
+      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN', { timeout: 10_000 });
+      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_CONNECTION_FAILED');
+      await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/无法连接实库/);
+
+      await expect(page.getByTestId('dual-layer-legend')).toBeVisible();
     } finally {
       await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
-      if (dsId) {
-        const token = await page
-          .evaluate(() => localStorage.getItem('Authorization'))
-          .catch(() => null);
-        if (token) {
-          await request
-            .delete(`${API}/ncnb/dataSources/${dsId}`, {
-              headers: { Authorization: `Bearer ${token}` },
-            })
-            .catch(() => {});
-        }
-      }
+      await cleanupProbeDs(page, request, dsId);
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });

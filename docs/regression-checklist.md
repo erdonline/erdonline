@@ -798,15 +798,15 @@
 - [x] [project 乐观锁 409] 陈旧 `updateTime` save → 409；匹配 → 200 + 新 `updateTime` ✅ `ProjectSaveOptimisticLockTest` + `scripts/verify-project-save-conflict.sh`
 - [x] [409 可行动 UI] mock 409 → Modal「保存冲突」+ 顶栏「保存冲突，点击查看选项」，不得显示「已落盘」 ✅ `project-save-conflict.spec.ts`
 - [x] [409 diff 预览] mock 409 → Modal 内 `project-save-conflict-preview` + `version-diff-panel` 可见（本地 vs 服务器） ✅ `project-save-conflict.spec.ts`
-- [x] [顶栏 A 层 dirty chip] 设计器顶栏 `version-dirty-chip-*`：尚无版本带 +N 摘要 → 存版后「与版本一致」→ 再改「未存版本」；SaveStatus 改「已落盘」与版本状态分离 ✅ `version-dirty-chip.spec.ts`
+- [x] [顶栏 A 层 dirty chip] 设计器顶栏 `version-dirty-chip-*`：尚无版本带 +N 摘要 → 存版后「版本一致」→ 再改「未存版本」；基线失败 → `version-dirty-chip-unknown`；SaveStatus「已落盘」分离 ✅ `version-dirty-chip.spec.ts`（4 用例）
 - [x] [A 层全量 diff] 改 profile 默认字段或画布连线关联 → dirty chip「未存版本」；空 diff 存版 toast 警告但不阻断 ✅ `versionStructuralDiff.test.ts` + `version-dirty-chip.spec.ts` profile/assoc 用例
 - [ ] [北极星计量] 后台统计「有版本保存」须过滤 `db_change.changes` 非空（待 analytics 接线；当前前端 warn + ADR-0022/vision 口径已文档化）
 - [x] [基线独立查询] 打开项目即 `size:1` + `create_time` 倒序拉最新版本；版本页列表首条被伪造成更大版本号的空模型后仍判「一致」，建议版本号仍按基线推进 ✅ `version-baseline.spec.ts` + `versionBaseline.test.ts`
 - [x] [无基线不伪装一致] 新项目未存版本 → 版本页显示「尚无版本基线，建议先保存第一个版本」，非「已与最新版本一致」 ✅ `version-baseline.spec.ts`
-- [ ] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 版本页显示「基线未知」+ 错误 toast，不显示「已一致」
+- [ ] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；Playwright route 与 umi-request 拦截不稳，暂手工 + `dualLayerTokens.test.ts`/`versionDirtyStatus.test.ts`
 - [x] [落库失败不假装落行] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段草稿留在编辑行、模型无该字段、toast + 顶栏重试可见；恢复后在编辑行再按 Enter 才真正落行 ✅ `save-failure.spec.ts`（原用例按旧乐观行为断言，已按诚实持久化重写）
 - [x] [落库失败本地草稿] 保存失败 → localStorage `erd:project-draft:{id}` 写入 → 重进设计器 Modal「恢复草稿/丢弃草稿」→ 恢复后模型含未落库改动 ✅ `projectLocalDraft.test.ts` + `project-local-draft.spec.ts`
 - [x] [B 层 schema 指纹] `SchemaFingerprintTest`：同构 hash 稳定；增列 → different；无 projectJSON → unknown；忽略 `db_version` 表 ✅ `SchemaFingerprintTest`
-- [x] [B 层探测五态] 设计器顶栏（模型/版本页均可见）`schema-probe-control--chrome`；进页 `schema-probe-status` 为 UNKNOWN/尚未探测；点雷达探测 loading → synced/ahead/behind/diverged/unknown（含 permission/unreachable copy）；进页不自动请求 `/connector/schema/probe` ✅ `schema-probe.spec.ts`
+- [x] [B 层探测五态] 设计器顶栏（模型/版本页均可见）`schema-probe-control--chrome`；UNKNOWN 四路 + mock 五态（synced/ahead/behind/diverged/connection-failed）；版本页 `dual-layer-legend` ✅ `schema-probe.spec.ts`（4 用例）
 - [x] [分享访客隐藏 B 层] 匿名打开 `/s/:token` → 无 `schema-probe-control`/`schema-probe-btn`；不 POST `/connector/schema/probe`；后端非成员 probe → 403 + `PROBE_ACL_DENIED` ✅ `share.spec.ts` + `SchemaProbeAccessGuardTest`
 - [x] [db_version 书签降级] 版本行 tag 为「已推送/未推送」；tooltip 明示非实库指纹真相 ✅ 版本页 `version-push-bookmark-tag`
