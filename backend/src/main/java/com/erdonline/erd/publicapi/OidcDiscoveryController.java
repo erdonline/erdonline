@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * OIDC Discovery + JWKS 占位（HS256 共享密钥不进 JWKS；见 docs）。
+ * OIDC Discovery + JWKS（RSA 公钥；见 docs/security-model.md）。
  */
 @RestController
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class OidcDiscoveryController {
         doc.put("jwks_uri", issuer + "/.well-known/jwks.json");
         doc.put("response_types_supported", List.of("code"));
         doc.put("subject_types_supported", List.of("public"));
-        doc.put("id_token_signing_alg_values_supported", List.of("HS256"));
+        doc.put("id_token_signing_alg_values_supported", List.of("RS256"));
         doc.put("scopes_supported", List.of(
                 PatScopes.OPENID,
                 PatScopes.PROJECTS_READ,
@@ -50,15 +50,11 @@ public class OidcDiscoveryController {
                 .body(doc);
     }
 
-    /**
-     * HS256 密钥永不发布；空 keys 满足 discovery 字段存在性。RP 须用 {@code ERD_OIDC_HMAC} 校验。
-     */
+    /** 发布 RSA 公钥 JWK（含 kid）；私钥永不进 JWKS。 */
     @GetMapping(value = "/.well-known/jwks.json", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Map<String, Object>> jwks() {
-        Map<String, Object> body = new LinkedHashMap<>();
-        body.put("keys", List.of());
         return ResponseEntity.ok()
                 .cacheControl(CacheControl.noStore())
-                .body(body);
+                .body(oidcIdTokenService.jwksDocument());
     }
 }

@@ -1,21 +1,26 @@
 package com.erdonline.erd.publicapi;
 
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.KeyUse;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.gen.RSAKeyGenerator;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.api.io.TempDir;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.mock.env.MockEnvironment;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -31,18 +36,24 @@ class OidcIdTokenServiceTest {
 
     private OidcIdTokenService service;
     private OidcProperties props;
+    private RSAKey rsaKey;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws Exception {
         props = new OidcProperties();
         props.setIssuer("http://127.0.0.1:9502");
-        props.setHmacSecret("unit-test-oidc-hmac-secret-32bytes!!");
         props.setIdTokenTtlSeconds(600L);
-        SecretKey key = new SecretKeySpec(
-                props.getHmacSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
-        JwtEncoder encoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
-        JwtDecoder decoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
-        service = new OidcIdTokenService(encoder, decoder, props, "http://localhost:8000");
+        rsaKey = new RSAKeyGenerator(2048)
+                .keyUse(KeyUse.SIGNATURE)
+                .keyIDFromThumbprint(true)
+                .generate();
+        JwtEncoder encoder = new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsaKey)));
+        JwtDecoder decoder = NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey())
+                .signatureAlgorithm(SignatureAlgorithm.RS256)
+                .build();
+        Map<String, Object> jwks = Map.of("keys", List.of(rsaKey.toPublicJWK().toJSONObject()));
+        service = new OidcIdTokenService(
+                encoder, decoder, props, "http://localhost:8000", rsaKey.getKeyID(), jwks);
     }
 
     @Test
@@ -52,7 +63,7 @@ class OidcIdTokenServiceTest {
     }
 
     @Test
-    void mintIfOpenid_issuesHs256WithClaims() {
+    void mintIfOpenid_issuesRs256WithClaimsAndKid() {
         String access = "erd_oat_abcdefghijklmnopqrstuvwxyz012345";
         String jwt = service.mintIfOpenid(
                 Set.of(PatScopes.OPENID, PatScopes.PROJECTS_READ),
@@ -64,8 +75,9 @@ class OidcIdTokenServiceTest {
         assertTrue(decoded.getAudience().contains("erd_cli_audience01"));
         assertEquals("alice", decoded.getClaimAsString("preferred_username"));
         assertEquals("n-authz-1", decoded.getClaimAsString("nonce"));
-        assertEquals(OidcIdTokenService.atHashHs256(access), decoded.getClaimAsString("at_hash"));
-        assertEquals(MacAlgorithm.HS256.getName(), decoded.getHeaders().get("alg"));
+        assertEquals(OidcIdTokenService.atHashRs256(access), decoded.getClaimAsString("at_hash"));
+        assertEquals(SignatureAlgorithm.RS256.getName(), decoded.getHeaders().get("alg"));
+        assertEquals(rsaKey.getKeyID(), decoded.getHeaders().get("kid"));
     }
 
     @Test
@@ -77,17 +89,16 @@ class OidcIdTokenServiceTest {
         assertNotNull(jwt);
         Jwt decoded = service.decode(jwt);
         assertFalse(decoded.hasClaim("nonce"));
-        assertEquals(OidcIdTokenService.atHashHs256(access), decoded.getClaimAsString("at_hash"));
+        assertEquals(OidcIdTokenService.atHashRs256(access), decoded.getClaimAsString("at_hash"));
     }
 
     @Test
-    void atHashHs256_leftHalfSha256Base64Url() {
-        // RFC / OIDC: SHA-256(ascii) left 128 bits → base64url no pad
+    void atHashRs256_leftHalfSha256Base64Url() {
         String known = "access_token_value_for_hash_test";
-        String hash = OidcIdTokenService.atHashHs256(known);
-        assertEquals(22, hash.length()); // 16 bytes → 22 chars without padding
+        String hash = OidcIdTokenService.atHashRs256(known);
+        assertEquals(22, hash.length());
         assertTrue(hash.matches("^[A-Za-z0-9_-]+$"));
-        assertEquals(hash, OidcIdTokenService.atHashHs256(known));
+        assertEquals(hash, OidcIdTokenService.atHashRs256(known));
     }
 
     @Test
@@ -110,32 +121,70 @@ class OidcIdTokenServiceTest {
     }
 
     @Test
-    void issuerFallsBackToUiUrlWhenUnset() {
+    void issuerFallsBackToUiUrlWhenUnset() throws Exception {
         props.setIssuer("");
-        SecretKey key = new SecretKeySpec(
-                props.getHmacSecret().getBytes(StandardCharsets.UTF_8), "HmacSHA256");
+        Map<String, Object> jwks = Map.of("keys", List.of(rsaKey.toPublicJWK().toJSONObject()));
         OidcIdTokenService s = new OidcIdTokenService(
-                new NimbusJwtEncoder(new ImmutableSecret<>(key)),
-                NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build(),
+                new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(rsaKey))),
+                NimbusJwtDecoder.withPublicKey(rsaKey.toRSAPublicKey())
+                        .signatureAlgorithm(SignatureAlgorithm.RS256)
+                        .build(),
                 props,
-                "https://app.erdonline.com");
+                "https://app.erdonline.com",
+                rsaKey.getKeyID(),
+                jwks);
         assertEquals("https://app.erdonline.com", s.issuer());
     }
 
     @Test
-    void prodRejectsDevDefaultHmac() {
-        MockEnvironment env = new MockEnvironment();
-        env.setActiveProfiles("prod");
-        assertThrows(IllegalStateException.class,
-                () -> OidcConfig.assertHmacSafeForProfile(OidcProperties.INSECURE_DEV_DEFAULT, env));
-        assertThrows(IllegalStateException.class,
-                () -> OidcConfig.assertHmacSafeForProfile("  ", env));
+    void jwksDocument_publishesPublicKeyOnly() {
+        Map<String, Object> doc = service.jwksDocument();
+        @SuppressWarnings("unchecked")
+        List<Map<String, Object>> keys = (List<Map<String, Object>>) doc.get("keys");
+        assertEquals(1, keys.size());
+        Map<String, Object> jwk = keys.get(0);
+        assertEquals("RSA", jwk.get("kty"));
+        assertEquals(rsaKey.getKeyID(), jwk.get("kid"));
+        assertNotNull(jwk.get("n"));
+        assertNotNull(jwk.get("e"));
+        assertFalse(jwk.containsKey("d"));
     }
 
     @Test
-    void nonProdAllowsDevDefaultHmac() {
+    void prodRejectsMissingRsaKey() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        OidcProperties empty = new OidcProperties();
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> OidcRsaKeySupport.load(empty, env));
+        assertTrue(ex.getMessage().contains("ERD_OIDC_RSA_PRIVATE_KEY"));
+    }
+
+    @Test
+    void nonProdAutogenOrLoadFromPemPath(@TempDir Path dir) throws Exception {
+        RSAKey generated = new RSAKeyGenerator(2048).keyUse(KeyUse.SIGNATURE).keyID("unit-kid").generate();
+        Path pem = dir.resolve("oidc.pem");
+        Files.writeString(pem, OidcRsaKeySupport.toPkcs8Pem(generated));
+        OidcProperties p = new OidcProperties();
+        p.setRsaPrivateKeyPath(pem.toString());
+        p.setRsaKeyId("unit-kid");
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("dev");
-        OidcConfig.assertHmacSafeForProfile(OidcProperties.INSECURE_DEV_DEFAULT, env);
+        OidcRsaKeySupport.Loaded loaded = OidcRsaKeySupport.load(p, env);
+        assertEquals("unit-kid", loaded.keyId());
+        assertFalse(loaded.jwksDocument().toString().contains("\"d\""));
+    }
+
+    @Test
+    void fromPem_envInline() throws Exception {
+        RSAKey generated = new RSAKeyGenerator(2048).keyUse(KeyUse.SIGNATURE).generate();
+        String pem = OidcRsaKeySupport.toPkcs8Pem(generated);
+        OidcProperties p = new OidcProperties();
+        p.setRsaPrivateKey(pem);
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        OidcRsaKeySupport.Loaded loaded = OidcRsaKeySupport.load(p, env);
+        assertNotNull(loaded.keyId());
+        assertEquals(1, ((List<?>) loaded.jwksDocument().get("keys")).size());
     }
 }

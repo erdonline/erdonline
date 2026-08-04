@@ -173,10 +173,8 @@ docker compose up -d
 | `Unable to connect to Redis` … `localhost/127.0.0.1:6379` | 未注入 `REDISHOST`（或仍指望 `REDIS_URL`/`SPRING_DATA_REDIS_URL`） | Link Redis 或设 `REDISHOST`/`REDISPORT`/`REDISPASSWORD`；**Redeploy** |
 | `NOAUTH Authentication required` | 主机通但未带密码 | 确认 `REDISPASSWORD` 已注入；日志 `password=missing` |
 | `WRONGPASS invalid username-password pair` | 密码错，或空串被当成密码（旧镜像） | 用插件 `REDISPASSWORD`；本地无密码勿设假密码（Normalizer 把空串置 null） |
-| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_OIDC_HMAC` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` / `ERD_OIDC_HMAC` 见 `.env.example`；UI/CORS/SocketIO 设 `ERD_UI_URL` |
-| `OSS credentials must not use MinIO install defaults` / blank credentials | 启用了 `OSS_ENDPOINT` 但密钥 blank 或仍为 `minio`/`minio123` | 未用 MinIO 则**不要**设 `OSS_ENDPOINT`；启用则旋转密钥 |
-| `JWT_SECRET must not use the repository/dev default` | prod 仍用仓库开发默认串 | 换成 `openssl rand -base64 48` 等随机值并 Redeploy |
-| `ERD_OIDC_HMAC must not use the repository/dev default` | prod 仍用仓库 OIDC HMAC 开发默认串 | 独立随机值并 Redeploy（与会话 `JWT_SECRET` 分离） |
+| `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/CORS/SocketIO 设 `ERD_UI_URL` |
+| `OIDC RSA private key missing in prod` / `ERD_OIDC_RSA_*` | 未配置 RSA PEM/路径/keystore | 设 `ERD_OIDC_RSA_PRIVATE_KEY` 或 `ERD_OIDC_RSA_PRIVATE_KEY_PATH`（compose：`.secrets/oidc-rsa-private.pem`）；与会话 `JWT_SECRET` 分离 |
 | `martin.socketio.origin is blank or *` / `must not be * in prod` | SocketIO/CORS 通配或空 | 设明确 `ERD_UI_URL`；勿 `*` / 空串 |
 | 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
 
@@ -301,7 +299,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 |---|---|---|
 | `SPRING_PROFILES_ACTIVE` | `prod`（手填） | 生产 fail-fast；须显式给齐凭证 |
 | `JWT_SECRET` | 随机 ≥32 字节（手填） | **必改**；勿用仓库默认值 |
-| `ERD_OIDC_HMAC` | 随机 ≥32 字节（手填） | **prod 必改**；OIDC `id_token` HS256；与 `JWT_SECRET` 分离；勿用仓库默认值 |
+| `ERD_OIDC_RSA_PRIVATE_KEY` 或 `_PATH` / keystore | PKCS#8/PKCS#1 PEM 或 PKCS12 | **prod 必填**；OIDC `id_token` RS256；公钥经 `/.well-known/jwks.json`；勿提交私钥；compose 挂载 `.secrets/` |
 | `ERD_OIDC_ISSUER` | 可选；无尾斜杠 | 空则 issuer=`ERD_UI_URL`；直连 API 时设 API 公网根 |
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
@@ -363,7 +361,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
 
 #### MySQL + Redis + 环境变量
 
-与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_OIDC_HMAC`、`ERD_UI_URL`、`ERD_E2E_ACCOUNTS_ENABLED=false`；**勿**为占位乱填 `OSS_*`，除非真要启用 MinIO）。
+与上节 Railway **同一张表**（`SPRING_PROFILES_ACTIVE=prod`、`MYSQL*`、`REDIS*`、`JWT_SECRET`、`ERD_OIDC_RSA_PRIVATE_KEY` 或 `_PATH`、`ERD_UI_URL`、`ERD_E2E_ACCOUNTS_ENABLED=false`；**勿**为占位乱填 `OSS_*`，除非真要启用 MinIO）。
 
 1. 同项目添加 **MySQL 8** + **Redis**
 2. 建单一业务库并导入 schema（种子由 App Flyway 写入）：

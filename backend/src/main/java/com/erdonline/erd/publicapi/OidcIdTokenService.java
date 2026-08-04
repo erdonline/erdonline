@@ -1,23 +1,19 @@
 package com.erdonline.erd.publicapi;
 
-import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
-import org.springframework.security.oauth2.jose.jws.MacAlgorithm;
+import org.springframework.security.oauth2.jose.jws.SignatureAlgorithm;
 import org.springframework.security.oauth2.jwt.JwsHeader;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtClaimsSet;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.JwtEncoderParameters;
-import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
-import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
-import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -29,10 +25,10 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * OIDC id_token（HS256）。仅当授予 {@link PatScopes#OPENID} 时由 auth code / refresh 换票签发。
+ * OIDC id_token（RS256）。仅当授予 {@link PatScopes#OPENID} 时由 auth code / refresh 换票签发。
  * <ul>
  *   <li>{@code nonce}：仅 authorization_code 路径（来自 authorize 绑定）；refresh 不带（OIDC Core §12.2）</li>
- *   <li>{@code at_hash}：按 access_token 计算（OIDC Core §3.1.3.6；HS256 → SHA-256 左半 + base64url）</li>
+ *   <li>{@code at_hash}：按 access_token 计算（OIDC Core §3.1.3.6；RS256 → SHA-256 左半 + base64url）</li>
  * </ul>
  */
 @Service
@@ -45,6 +41,9 @@ public class OidcIdTokenService {
     private final String martinUiUrl;
     private JwtEncoder oidcJwtEncoder;
     private JwtDecoder oidcJwtDecoder;
+    private OidcRsaKeySupport.Loaded rsa;
+    private String signingKeyId;
+    private Map<String, Object> testJwksDocument;
 
     @Autowired
     public OidcIdTokenService(
@@ -56,13 +55,21 @@ public class OidcIdTokenService {
         this.martinUiUrl = martinUiUrl;
     }
 
-    /** 单测用 */
-    OidcIdTokenService(JwtEncoder encoder, JwtDecoder decoder, OidcProperties props, String martinUiUrl) {
+    /** 单测用（预注入 encoder/decoder/JWKS）。 */
+    OidcIdTokenService(
+            JwtEncoder encoder,
+            JwtDecoder decoder,
+            OidcProperties props,
+            String martinUiUrl,
+            String kid,
+            Map<String, Object> jwksDocument) {
         this.oidcProperties = props;
         this.environment = null;
         this.martinUiUrl = martinUiUrl;
         this.oidcJwtEncoder = encoder;
         this.oidcJwtDecoder = decoder;
+        this.signingKeyId = kid;
+        this.testJwksDocument = jwksDocument;
     }
 
     @PostConstruct
@@ -70,10 +77,10 @@ public class OidcIdTokenService {
         if (oidcJwtEncoder != null) {
             return;
         }
-        OidcConfig.assertHmacSafeForProfile(oidcProperties.getHmacSecret(), environment);
-        SecretKey key = OidcConfig.hmacKey(oidcProperties.getHmacSecret());
-        this.oidcJwtEncoder = new NimbusJwtEncoder(new ImmutableSecret<>(key));
-        this.oidcJwtDecoder = NimbusJwtDecoder.withSecretKey(key).macAlgorithm(MacAlgorithm.HS256).build();
+        this.rsa = OidcRsaKeySupport.load(oidcProperties, environment);
+        this.oidcJwtEncoder = rsa.encoder();
+        this.oidcJwtDecoder = rsa.decoder();
+        this.signingKeyId = rsa.keyId();
     }
 
     public String issuer() {
@@ -82,6 +89,18 @@ public class OidcIdTokenService {
 
     public long idTokenTtlSeconds() {
         return Math.max(60, oidcProperties.getIdTokenTtlSeconds());
+    }
+
+    /** JWKS 文档（仅公钥；含 kid）。 */
+    public Map<String, Object> jwksDocument() {
+        if (testJwksDocument != null) {
+            return testJwksDocument;
+        }
+        return rsa.jwksDocument();
+    }
+
+    public String signingKeyId() {
+        return signingKeyId;
     }
 
     /**
@@ -115,19 +134,23 @@ public class OidcIdTokenService {
             claims.claim("nonce", nonce.trim());
         }
         if (StringUtils.hasText(accessTokenPlain)) {
-            claims.claim("at_hash", atHashHs256(accessTokenPlain));
+            claims.claim("at_hash", atHashRs256(accessTokenPlain));
+        }
+        JwsHeader.Builder header = JwsHeader.with(SignatureAlgorithm.RS256);
+        if (StringUtils.hasText(signingKeyId)) {
+            header.keyId(signingKeyId);
         }
         return oidcJwtEncoder.encode(JwtEncoderParameters.from(
-                JwsHeader.with(MacAlgorithm.HS256).build(),
+                header.build(),
                 claims.build()
         )).getTokenValue();
     }
 
     /**
      * OIDC Core §3.1.3.6：对 access_token ASCII 做 SHA-256，取左半（128 bit）再 base64url（无填充）。
-     * 与 id_token 签名算法 HS256 对齐。
+     * RS256 与历史 HS256 均用 SHA-256。
      */
-    static String atHashHs256(String accessTokenPlain) {
+    static String atHashRs256(String accessTokenPlain) {
         try {
             byte[] digest = MessageDigest.getInstance("SHA-256")
                     .digest(accessTokenPlain.getBytes(StandardCharsets.US_ASCII));

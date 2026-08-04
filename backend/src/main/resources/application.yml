@@ -177,10 +177,17 @@ erd:
     oauth-auth-code-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_CODE_TTL:120}
     # refresh_token TTL（秒），默认 30 天；仅 authorization_code 换票签发；轮换复用检测
     oauth-refresh-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_REFRESH_TTL:2592000}
-  # OIDC 薄 MVP：issuer 默认回落 martin.ui.url（ERD_UI_URL）；直连 API 时设 ERD_OIDC_ISSUER
+  # OIDC：RS256 id_token + JWKS；issuer 默认回落 martin.ui.url（ERD_UI_URL）
+  # 密钥：ERD_OIDC_RSA_PRIVATE_KEY（PEM）或 ERD_OIDC_RSA_PRIVATE_KEY_PATH；prod 必填
+  # 非 prod 未配置时自动生成 ~/.erdonline/oidc-rsa-private.pem（仓外）
   oidc:
     issuer: ${ERD_OIDC_ISSUER:}
-    hmac-secret: ${ERD_OIDC_HMAC:erd-online-dev-oidc-hmac-change-me-32bytes!!}
+    rsa-private-key: ${ERD_OIDC_RSA_PRIVATE_KEY:}
+    rsa-private-key-path: ${ERD_OIDC_RSA_PRIVATE_KEY_PATH:}
+    rsa-keystore-path: ${ERD_OIDC_RSA_KEYSTORE_PATH:}
+    rsa-keystore-password: ${ERD_OIDC_RSA_KEYSTORE_PASSWORD:}
+    rsa-key-alias: ${ERD_OIDC_RSA_KEY_ALIAS:}
+    rsa-key-id: ${ERD_OIDC_RSA_KID:}
     id-token-ttl-seconds: ${ERD_OIDC_ID_TOKEN_TTL:3600}
 
 # 安全放行 URL
@@ -201,7 +208,7 @@ security:
         - /auth/oauth/revoke
         - /oauth/userinfo
         - /auth/oauth/userinfo
-        # OIDC discovery / JWKS 占位（HS256 密钥不进 JWKS）
+        # OIDC discovery / JWKS（公钥；私钥永不发布）
         - /.well-known/openid-configuration
         - /.well-known/jwks.json
         - /error
