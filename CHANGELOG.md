@@ -8,12 +8,23 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — PAT 管理 UI
+
+- 选题：切片 1 铸造/列表/吊销 API 已就绪；产品内缺可见闭环（明文一次揭示）
+- `/account/settings?selectKey=personalAccessTokens`：列表 / 铸造（scopes + 可选过期）/ 明文一次揭示告警 / 吊销确认
+- 密度 ADR-0016（22–28 chrome）；键盘/aria；E2E 禁 `.ant-*`
+- 未做：同意页打磨（OAuth authorize 薄同意仍为「已登录即签」）
+
+验证点：
+- `cd frontend && yarn playwright test tests/e2e/personal-access-tokens.spec.ts --project=chromium`
+- 页签切换覆盖：`account-settings.spec.ts`「security / identification」含访问令牌
+
 #### 开放：ADR-0013 — OAuth client 管理 UI
 
 - 选题：API-first 注册/列表/吊销已就绪；产品内缺可见闭环（secret 一次揭示）
 - `/account/settings?selectKey=oauthClients`：列表 / 注册（confidential|public + scopes + redirect）/ 复制 `client_id` / 创建后 secret 一次揭示告警 / 吊销确认
 - 密度 ADR-0016（22–28 chrome）；键盘/aria；E2E 禁 `.ant-*`
-- 未做：同意页打磨；PAT 管理 UI
+- 未做：同意页打磨；~~PAT 管理 UI~~（已交付，见上节）
 
 验证点：
 - `cd frontend && yarn playwright test tests/e2e/oauth-clients.spec.ts --project=chromium`

@@ -207,6 +207,15 @@ test.describe('账户设置', () => {
       page.getByRole('button', { name: '注册 OAuth 客户端' }),
     ).toBeVisible();
 
+    await page.getByRole('menuitem', { name: '访问令牌' }).click();
+    await expect(page).toHaveURL(/selectKey=personalAccessTokens/);
+    await expect(
+      page.getByTestId('account-settings-personal-access-tokens'),
+    ).toBeVisible({ timeout: 15_000 });
+    await expect(
+      page.getByRole('button', { name: '铸造访问令牌' }),
+    ).toBeVisible();
+
     await page.getByRole('menuitem', { name: '授权类型' }).click();
     await expect(page).toHaveURL(/selectKey=identification/);
     await expect(page.getByText(/开源版|已取得授权/)).toBeVisible({

@@ -58,8 +58,10 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
 - **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；Redisson 集群共享；超限 429；Redis 不可用 fail-closed → 503（读写共用）
-- **后置**：同意页打磨 / PAT 管理 UI；**不**因换票匿名口放宽 CORS
-- **产品 UI**：`/account/settings?selectKey=oauthClients` — 列表 / 注册 / 复制 `client_id` / `client_secret` 创建时一次揭示（不可再查看）/ 吊销
+- **后置**：同意页打磨；**不**因换票匿名口放宽 CORS
+- **产品 UI**：
+  - `/account/settings?selectKey=personalAccessTokens` — 列表 / 铸造（scopes + 可选过期）/ 明文一次揭示 / 吊销
+  - `/account/settings?selectKey=oauthClients` — 列表 / 注册 / 复制 `client_id` / `client_secret` 创建时一次揭示（不可再查看）/ 吊销
 - **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc；public client **禁止** `client_credentials`
 
 ## projectJSON 密钥纪律
