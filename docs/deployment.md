@@ -65,7 +65,7 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 | `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true`（门闸；未设则跳过 CF job，文档仍走 GH Pages） |
 | `CLOUDFLARE_API_TOKEN` | **Secret** | 步骤 1 的 Token |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
-| `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
+| `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://erdonline-production.up.railway.app`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
 
 #### 5. GitHub Pages 回退
 
@@ -154,7 +154,7 @@ docker compose up -d
    curl -sS https://YOUR-APP.up.railway.app/actuator/health
    # 期望 {"status":"UP"}  （含 db/redis；未接线时 503，业务未就绪）
    ```
-   随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://YOUR-APP.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
+   随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://erdonline-production.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
 
 可选（首个 `v*` release 且 GHCR 已有包之后）：空项目 → **Add service → Docker Image** → `ghcr.io/erdonline/erdonline-backend:latest`，跳过本地 Dockerfile 构建。
 
@@ -325,12 +325,14 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | 侧 | 变量 | 值 |
 |---|---|---|
 | Railway（后端） | `ERD_UI_URL` | 浏览器打开的前端 Origin，如 `https://app.erdonline.com`（无尾斜杠） |
-| CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | Railway **公网**根，如 `https://YOUR-APP.up.railway.app`（无尾斜杠） |
+| CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | Railway **公网**根：`https://erdonline-production.up.railway.app`（无尾斜杠） |
 
 勿把 `API_URL` 设成 UI 域名（如误设 `https://app.erdonline.com`）——那会让前端把 API 指回自己。
 
+**CORS（Railway 后端必配）**：浏览器从 Cloudflare Pages / 自定义域前端跨域调用 Railway API 时，后端 **`ERD_UI_URL` 须设为前端 Origin**（如 `https://app.erdonline.com` 或 `https://erdonline-demo.pages.dev`，无尾斜杠；多源逗号分隔），**不是** Railway API 域名。仓库内 `config.prod.ts` / `.env` 的 `API_URL` 只指后端；CORS 仅在 Railway App Variables 配置，缺则 prod 启动 fail-fast 或浏览器预检被拒。
+
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
-2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = Railway 公网根 URL（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
+2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
 3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）；自定义域 `app.erdonline.com` 绑到对应 Pages 项目后同样依赖上述 API 注入
 4. 打开正式 UI（`https://app.erdonline.com/auth/login`）或 demo（https://erdonline-demo.pages.dev），Network 确认请求打到 Railway，而非 UI 自身
 

@@ -8,6 +8,16 @@
 
 ### 2026-08-04
 
+#### 配置：生产前端 API 指向 Railway 公网后端
+
+- 问题：`config.prod.ts` / `frontend/.env` 误把 `API_URL`/`ERD_API_URL`/`SOCKETIO_URL` 设为 UI 域名 `https://app.erdonline.com`，浏览器会把 API 请求打回前端自身
+- 改动：统一为 `https://erdonline-production.up.railway.app`（无尾斜杠）；`docs/deployment.md` 示例与 `DEMO_API_URL` 对照表同步；补充 CORS 说明（Railway `ERD_UI_URL` = 前端 Origin，非 API 域名）
+- GitHub Actions Variable `DEMO_API_URL` 仍须在仓库 Settings 手动设为同 URL，workflow 才会在 CF Pages 构建时注入
+
+验证点：
+- 手工：`grep erdonline-production frontend/config/config.prod.ts frontend/.env docs/deployment.md`
+- CF Pages 部署后 Network 确认请求 Host 为 `erdonline-production.up.railway.app`；Railway 须已设 `ERD_UI_URL` 为实际前端 Origin
+
 #### 测试：双层五态 + dirty chip E2E 补盘（Vision #15 · ADR-0022）
 
 - 缺口：`schema-probe.spec.ts` 仅覆盖 UNKNOWN 三路 + mock AHEAD/PERMISSION；缺 SYNCED/BEHIND/DIVERGED/CONNECTION_FAILED；`version-dirty-chip.spec.ts` 缺基线失败未知态；smoke/ux-audit 无 probe 专项（由 focused spec 承担）
