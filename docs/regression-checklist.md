@@ -32,6 +32,7 @@
 - [x] [OAuth auth_code 换票] public：code+verifier→`erd_oat_`；坏 verifier / 重放 code → `invalid_grant`；code 库仅哈希 ✅ curl 2026-08-04
 - [x] [OAuth public 禁 M2M] public client `client_credentials` → `unauthorized_client` ✅ curl 2026-08-04
 - [x] [OAuth confidential code] 无 secret → `invalid_client`；有 secret+PKCE → OAT ✅ curl 2026-08-04
+- [x] [OAuth client 管理 UI] `/account/settings?selectKey=oauthClients` 注册→secret 揭示→复制 ID→吊销 ✅`oauth-clients.spec.ts`
 
 ## 图本身可读可分享 / ADR-0016（续）
 

@@ -2,6 +2,7 @@ import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
 import {Menu} from 'antd';
 import BaseView from './components/base';
 import SecurityView from './components/security';
+import OAuthClientsView from './components/oauthClients';
 import styles from './style.less';
 import Identification from '@/pages/account/settings/components/identification';
 import {useSearchParams} from '@@/exports';
@@ -9,13 +10,18 @@ import {history} from 'umi';
 
 const {Item} = Menu;
 
-type SettingsStateKeys = 'base' | 'security' | 'identification';
+type SettingsStateKeys = 'base' | 'security' | 'oauthClients' | 'identification';
 type SettingsState = {
   mode: 'inline' | 'horizontal';
   selectKey: SettingsStateKeys;
 };
 
-const SETTINGS_KEYS: SettingsStateKeys[] = ['base', 'security', 'identification'];
+const SETTINGS_KEYS: SettingsStateKeys[] = [
+  'base',
+  'security',
+  'oauthClients',
+  'identification',
+];
 
 function parseSelectKey(raw: string | null): SettingsStateKeys {
   if (raw && SETTINGS_KEYS.includes(raw as SettingsStateKeys)) {
@@ -28,6 +34,7 @@ const Settings: React.FC = () => {
   const menuMap: Record<SettingsStateKeys, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
+    oauthClients: 'OAuth 客户端',
     identification: '授权类型',
   };
 
@@ -86,6 +93,8 @@ const Settings: React.FC = () => {
         return <BaseView />;
       case 'security':
         return <SecurityView />;
+      case 'oauthClients':
+        return <OAuthClientsView />;
       case 'identification':
         return <Identification />;
       default:
