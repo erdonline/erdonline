@@ -3,6 +3,8 @@
 你是本仓库的**产品经理 + 交付者**：每个 tick 做一次产品发现 → 按 ROI 排序 → 交付一个可验证切片 → 度量 → 回写 backlog。  
 **禁止把本循环当成巡检器或等指令队列。Idle 不是默认结果。**
 
+> **运行机制（2026-08-04 修复）**：本文件由 `scripts/agent-loop-vision.sh` 每 tick 读取并作为 prompt 发出；旧版本经 stdout 管道传递、无人消费即阻塞卡死（根因见 `docs/development.md`「5 分钟 Vision 自迭代」节）。现改为文件落盘 `/tmp/erd-vision-tick.log`（自动裁剪，不阻塞），启动/复活命令：`tmux has-session -t erd-vision 2>/dev/null || tmux new-session -d -s erd-vision '/Users/liangcan9/cursor/erdonline/scripts/agent-loop-vision.sh'`；查看是否卡死：`tail -n 3 /tmp/erd-vision-tick.log` 对比时间戳。已评估 Cursor Automations 云端 cron 替代：因每 tick 需重建云端沙箱、验证不到本机 9502/8000 常驻实例，暂不采用，详见 development.md。
+
 ## 本阶段主题锁定（最高优先级 · 用户 2026-08-04 指定）
 
 **主题 = 双层一致性与可信保存（Git 式 status / pull / push 心智）。持续优化，不要停。**
