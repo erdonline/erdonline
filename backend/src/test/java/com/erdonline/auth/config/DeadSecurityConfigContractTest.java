@@ -56,6 +56,8 @@ class DeadSecurityConfigContractTest {
                 "/project/group/user/register", "/error",
                 "/oauth/token", "/auth/oauth/token",
                 "/oauth/revoke", "/auth/oauth/revoke",
+                "/oauth/userinfo", "/auth/oauth/userinfo",
+                "/.well-known/openid-configuration", "/.well-known/jwks.json",
                 "/v3/api-docs/**", "/swagger-ui/**")) {
             assertTrue(ignore.contains(required), "ignore missing required path: " + required);
         }

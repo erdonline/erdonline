@@ -16,6 +16,7 @@ import styles from './oauthClients.less';
 const OAUTH_CLIENTS_URL = '/auth/oauth-clients';
 
 const SCOPE_OPTIONS = [
+  { label: 'openid', value: 'openid' },
   { label: 'projects:read', value: 'projects:read' },
   { label: 'versions:read', value: 'versions:read' },
   { label: 'projects:write', value: 'projects:write' },

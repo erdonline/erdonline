@@ -23,6 +23,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -31,6 +32,7 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doReturn;
@@ -40,7 +42,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 /**
- * refresh_token 轮换 / 复用检测 / client_credentials 不发 refresh。
+ * refresh_token 轮换 / 复用检测 / client_credentials 不发 refresh；openid → id_token。
  */
 @ExtendWith(MockitoExtension.class)
 class OAuthRefreshTokenServiceTest {
@@ -53,6 +55,8 @@ class OAuthRefreshTokenServiceTest {
     private OAuthRefreshTokenMapper oauthRefreshTokenMapper;
     @Mock
     private OAuthApiClientMapper oauthApiClientMapper;
+    @Mock
+    private OidcIdTokenService oidcIdTokenService;
 
     private OAuthApiClientServiceImpl service;
 
@@ -72,7 +76,8 @@ class OAuthRefreshTokenServiceTest {
     @BeforeEach
     void setUp() {
         service = spy(new OAuthApiClientServiceImpl(
-                oauthAccessTokenMapper, oauthAuthorizationCodeMapper, oauthRefreshTokenMapper));
+                oauthAccessTokenMapper, oauthAuthorizationCodeMapper, oauthRefreshTokenMapper,
+                oidcIdTokenService));
         ReflectionTestUtils.setField(service, "baseMapper", oauthApiClientMapper);
         ReflectionTestUtils.setField(service, "accessTokenTtlSeconds", 3600L);
         ReflectionTestUtils.setField(service, "authCodeTtlSeconds", 120L);
@@ -195,6 +200,45 @@ class OAuthRefreshTokenServiceTest {
     }
 
     @Test
+    void clientCredentials_doesNotIssueIdTokenEvenWithOpenidRegistered() {
+        confidentialClient.setScopes(PatScopes.toCsv(
+                Set.of(PatScopes.OPENID, PatScopes.PROJECTS_READ)));
+        doReturn(confidentialClient).when(service).getOne(any(LambdaQueryWrapper.class));
+        when(oauthAccessTokenMapper.insert(any(OAuthAccessToken.class))).thenReturn(1);
+
+        OAuthTokenResponse resp = service.issueClientCredentials(
+                confidentialClient.getClientId(), confidentialSecret, PatScopes.OPENID);
+
+        assertNull(resp.getIdToken());
+        assertNull(resp.getRefreshToken());
+        verify(oidcIdTokenService, never()).mintIfOpenid(any(), any(), any(), any());
+    }
+
+    @Test
+    void refresh_withOpenid_includesIdToken() {
+        String oldPlain = OAuthClientCodec.generateRefreshToken();
+        String family = "familybbbbbbbbbbbbbbbbbbbbbbbb";
+        OAuthRefreshToken stored = activeRefresh(oldPlain, family, publicClient);
+        stored.setScopes(PatScopes.toCsv(Set.of(PatScopes.OPENID, PatScopes.PROJECTS_READ)));
+
+        doReturn(publicClient).when(service).getOne(any(LambdaQueryWrapper.class));
+        when(oauthRefreshTokenMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(stored);
+        when(oauthRefreshTokenMapper.updateById(any(OAuthRefreshToken.class))).thenReturn(1);
+        when(oauthAccessTokenMapper.update(isNull(), any(LambdaUpdateWrapper.class))).thenReturn(1);
+        when(oauthRefreshTokenMapper.insert(any(OAuthRefreshToken.class))).thenReturn(1);
+        when(oauthAccessTokenMapper.insert(any(OAuthAccessToken.class))).thenReturn(1);
+        when(oidcIdTokenService.mintIfOpenid(any(), any(), any(), any()))
+                .thenReturn("header.payload.sig");
+
+        OAuthTokenResponse resp = service.refreshAccessToken(
+                publicClient.getClientId(), null, oldPlain, null);
+
+        assertEquals("header.payload.sig", resp.getIdToken());
+        verify(oidcIdTokenService).mintIfOpenid(any(), eq(publicClient.getClientId()),
+                eq("u_auth"), eq("alice"));
+    }
+
+    @Test
     void tokenResponse_builderCarriesRefreshFields() {
         OAuthTokenResponse r = OAuthTokenResponse.builder()
                 .accessToken("erd_oat_x")
@@ -204,9 +248,11 @@ class OAuthRefreshTokenServiceTest {
                 .scopes(List.of("projects:read"))
                 .refreshToken("erd_ort_y")
                 .refreshExpiresIn(100L)
+                .idToken("id.jwt.here")
                 .build();
         assertNotNull(r.getRefreshToken());
         assertEquals(100L, r.getRefreshExpiresIn());
+        assertEquals("id.jwt.here", r.getIdToken());
     }
 
     private static OAuthRefreshToken activeRefresh(String plain, String family, OAuthApiClient client) {

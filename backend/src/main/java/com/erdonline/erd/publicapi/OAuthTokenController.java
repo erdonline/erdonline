@@ -93,6 +93,9 @@ public class OAuthTokenController {
                     body.put("refresh_expires_in", issued.getRefreshExpiresIn());
                 }
             }
+            if (StringUtils.hasText(issued.getIdToken())) {
+                body.put("id_token", issued.getIdToken());
+            }
             return ResponseEntity.ok()
                     .header(HttpHeaders.CACHE_CONTROL, "no-store")
                     .header(HttpHeaders.PRAGMA, "no-cache")

@@ -10,6 +10,9 @@ erd:
     allow-open-register: false
   jwt:
     secret: ${JWT_SECRET}
+  oidc:
+    # prod fail-fast：缺 ERD_OIDC_HMAC → 占位符失败；OidcConfig 另拒仓库开发默认串
+    hmac-secret: ${ERD_OIDC_HMAC}
 
 spring:
   # 凭证强制环境注入：application.yml 的弱默认值仅供开发，prod 下重新声明为无默认值，
