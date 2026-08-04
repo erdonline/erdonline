@@ -5,10 +5,12 @@ set -e
 
 : "${API_URL:=}"
 : "${ERD_API_URL:=${API_URL}}"
+: "${LOCALE:=}"
 
 cat > /usr/share/nginx/html/env-config.js <<EOF
 window._env_ = {
   API_URL: "${API_URL}",
   ERD_API_URL: "${ERD_API_URL}",
+  LOCALE: "${LOCALE}",
 }
 EOF

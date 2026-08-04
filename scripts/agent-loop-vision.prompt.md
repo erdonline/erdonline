@@ -44,7 +44,9 @@
 10. ~~五态 + 未知态 4 路文案；探测按钮显式、有 loading 与失败原因~~ ✅ 2026-08-04
 11. ~~分享访客隐藏 B 层~~ ✅ 2026-08-04
 
-**双层 MVP 队列（#1–#11）已闭环。** 后续同主题续跑：Pull/Push 动作、冲突可视化、diff 同语言；**下一 tick 优先 i18n 奠基**（[ADR-0023](../docs/adr/0023-i18n-foundation.md)，本阶段不做 Pull/Push MVP）。
+**双层 MVP 队列（#1–#11）已闭环。** 后续同主题续跑：Pull/Push 动作、冲突可视化、diff 同语言 — **暂不启动 Pull/Push MVP**。
+
+**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地。**下一 tick 候选**：产品深度 / Pull·Push 动作隐喻（用户显式开队列前勿抢跑）；完整 i18n MVP 仍 P3 后置。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
 
@@ -79,10 +81,10 @@ ADR-0013 公开 API / MCP：已人工解封且 MVP ✅ —— **本阶段不再�
 - **唯一可暂停**：① 用户明确 stop；② 连续两轮指标/关键旅程变差 → 简报证据停改动（勿问开放式方向，按 ADR-0022 / ADR-0016 重校准）
 - 红线冲突（ADR-0022 禁自动双向同步 / ADR-0013 不扩面 / ADR-0011 未解封）→ 跳过，立刻改选下一 ROI
 
-## i18n / E2E 约束（审查锁定 · 本阶段）
+## i18n / E2E 约束（审查锁定 · 奠基 ✅）
 
-- **本阶段不做 i18n MVP**；当前队列清空且 B 层闭环后，下一刀优先「i18n 奠基」切片（见 roadmap / ADR-0023）
-- 直至奠基完成：Vision loop **新增可交互控件**须带稳定 `data-testid` 或 `aria-label`；E2E 定位勿仅用中文 `getByRole({ name })`；断言文案时先 locate 再 assert
+- **i18n 奠基已完成**（ADR-0023）：Theme `getAntdLocale()` 可配置，默认 zh-CN；死 `locales/` 已删
+- Vision loop **新增可交互控件**须带稳定 `data-testid` 或 `aria-label`；E2E 定位勿仅用中文 `getByRole({ name })`；断言文案时先 locate 再 assert
 - **禁止**批量重写既有 E2E 的中文 locator（legacy grandfathered）
 
 ## 与并行工作对齐

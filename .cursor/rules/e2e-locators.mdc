@@ -34,9 +34,9 @@ await page.locator('.ant-tree [class*=title]', { hasText: '关系图' }).click()
 await page.locator('.ant-btn-primary').nth(2).click();
 ```
 
-## 反脆弱（i18n 奠基前 · 新功能必守）
+## 反脆弱（i18n 奠基后 · 新功能必守）
 
-奠基切片完成前，产品默认 locale 仍为 zh-CN，但**新功能 E2E 不得把中文可见文案当作唯一定位锚**（日后切 locale 会脆断）。
+奠基切片（ADR-0023）已完成：Theme locale 经 `getAntdLocale()` 可配置，**默认仍为 zh-CN**。新功能 E2E **不得**把中文可见文案当作唯一定位锚（日后切 locale 会脆断）。
 
 | 场景 | 做法 |
 |---|---|

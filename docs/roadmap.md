@@ -70,15 +70,15 @@
 - ~~五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）~~ ✅ 2026-08-04（IR diff → ahead/behind/diverged；未知四路 copy + testid；`schema-probe.spec.ts`）
 - ~~分享访客隐藏 B 层~~ ✅ 2026-08-04（`shareContext` + ACL guard + `share.spec.ts` 无 probe testid/API）
 
-**MVP 队列已闭环**；后续同主题（非本 tick）：Pull/Push 动作隐喻、冲突可视化、版本 diff 与实库 diff 同语言 → 见下方 P2/产品深度。下一 Vision tick：**i18n 奠基**（[ADR-0023](./adr/0023-i18n-foundation.md)）。
+**MVP 队列已闭环**；后续同主题（非本 tick）：Pull/Push 动作隐喻、冲突可视化、版本 diff 与实库 diff 同语言 → 见下方 P2/产品深度。
 
-### i18n 奠基（B 层后）📋
+### i18n 奠基（B 层后）✅
 
-> 依据 [ADR-0023](./adr/0023-i18n-foundation.md)。**不在**双层 A/B 信任工作期间启动；B 层五态闭环后插入**一个**奠基切片。完整 i18n 仍属 P3 后置。
+> 依据 [ADR-0023](./adr/0023-i18n-foundation.md)。2026-08-04 落地。
 
-- Theme locale 可配置（默认仍 **zh-CN**；本切片不启用 umi locale plugin MVP）
-- 清理或替换死 `locales/` Pro 骨架（当前无 `useIntl`；Theme 硬编码 `zhCN`；E2E 依赖中文 Modal OK）
-- E2E 反脆弱：新控件 prefer `data-testid` / `aria-label`；定位与文案断言分离；既有中文 locator grandfathered
+- ~~Theme locale 可配置（默认仍 **zh-CN**；本切片不启用 umi locale plugin MVP）~~ ✅
+- ~~清理死 `locales/` Pro 骨架（零 `useIntl` 消费者）~~ ✅
+- ~~E2E 反脆弱：新控件 prefer `data-testid` / `aria-label`；定位与文案断言分离~~ ✅（`e2e-locators.mdc`）
 
 完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH，**不**切换默认 locale。
 

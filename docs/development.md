@@ -283,7 +283,9 @@ node scripts/validate-projectjson.mjs
 
 JWT 含全量权限时 `Authorization` 头可达 8KB+；Boot 3 须配置 `server.max-http-request-header-size`（本仓 64KB，见 ADR-0015）。若写接口返回 **HTML 400**，先查该配置是否生效（`./backend/dev-ensure.sh --restart`），再查代理是否把 SPA HTML 误回给 `/ncnb/*`。
 后端 `GatewayPrefixStripFilter` 剥离 `/ncnb`|`/auth`|`/syst` 前缀后再进 Controller。
-生产环境通过 `public/env-config.js`（由 `.env` 生成）注入 `window._env_.API_URL`。
+生产环境通过 `public/env-config.js`（由 `.env` / `env.sh` 生成）注入 `window._env_.API_URL` 等。
+
+可选 `LOCALE`（默认空 = **zh-CN**）：经 `getAntdLocale()` 注入 antd `ConfigProvider`；奠基切片仅支持 `zh-CN` / `en-US`，完整 i18n MVP 仍 P3。例：`LOCALE=en-US ./env.sh && cp env-config.js ./public/`（本地验证 antd 英文 Modal 按钮）。
 
 联调探测（登录后打常用接口，期望无 404/405/500）：
 
