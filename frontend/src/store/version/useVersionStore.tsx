@@ -9,11 +9,17 @@ import * as Save from '@/utils/save';
 import {getAllDataSQL, getCodeByChanges} from "@/utils/json2code";
 import moment from "moment";
 import produce from "immer";
-import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
-import { PAGE, POST } from "@/services/crud";
+import { POST } from "@/services/crud";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
 import { SNAPSHOT_DB, SNAPSHOT_DB_KEY } from "@/utils/versionConstants";
+import {
+  baselineProjectJSON,
+  buildLatestVersionQuery,
+  hasBaseline,
+  resolveBaselineDbKey,
+  type BaselineRecord,
+} from "@/utils/versionBaseline";
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -30,7 +36,8 @@ export type IVersionSlice = {
   getVersionMessage: (versionData: any, only?: boolean) => void;
   getDBVersion: () => void;
   getAllTable: (dataSource: any) => any;
-  calcChanges: (data: any) => any;
+  /** A 层差异：当前模型 ↔ 独立查询到的最新版本基线 */
+  calcChanges: () => Promise<any[]>;
   compareField: (currentField: any, checkField: any, table: any) => any;
   compareEntity: (currentTable: any, checkTable: any) => any;
   compareIndexs: (currentTable: any, checkTable: any) => any;
@@ -65,6 +72,8 @@ export type IVersionSlice = {
   resolveDb: () => void;
   compare: (state: any) => void;
   checkVersionData: (dataSource1: any, dataSource2: any) => any;
+  /** 独立拉取最新版本作为 A 层基线（ADR-0022）；与版本列表分页解耦 */
+  fetchVersionBaseline: (db?: any) => Promise<BaselineRecord>;
   recalculateChanges: () => void;
 }
 
@@ -82,8 +91,12 @@ export type VersionState =
     messages: any;
     data: any;
     dbVersion: string | undefined;
-    changes: { version: string, changes: any[] }[];
-    currentChanges: any[];
+    /** A 层差异：当前模型相对基线的变更项（非版本分组） */
+    changes: any[];
+    /** A 层基线：独立查询到的最新版本（null = 尚未存过版本） */
+    versionBaseline: BaselineRecord;
+    /** 基线是否已查过：未查过时不得断言「无差异」 */
+    baselineLoaded: boolean;
     dbs: any;
     synchronous: any;
     incrementVersionData: any;
@@ -107,7 +120,8 @@ const useVersionStore = create<VersionState>(
     data: undefined,
     dbVersion: '0.0.0',
     changes: [],
-    currentChanges: [],
+    versionBaseline: null,
+    baselineLoaded: false,
     dbs: [],
     incrementVersionData: {},
     synchronous: {},
@@ -138,7 +152,7 @@ const useVersionStore = create<VersionState>(
             set({ dbVersion: '0.0.0', hasDB: false, init: false });
           }
           get().dispatch.checkBaseVersion(currentDB);
-          get().dispatch.calcChanges(null);
+          get().dispatch.calcChanges();
         } else {
           message.error('获取版本信息失败');
           get().dispatch.checkBaseVersion(currentDB);
@@ -260,7 +274,34 @@ const useVersionStore = create<VersionState>(
           return a.concat((b.entities || []));
         }, []);
       },
-      calcChanges: async (versions: any) => {
+      fetchVersionBaseline: async (db?: any): Promise<BaselineRecord> => {
+        const dbKey = resolveBaselineDbKey({
+          explicitKey: db?.key,
+          dbs: get().dbs,
+          profileDefaultId: useProjectStore.getState().project?.projectJSON?.profile
+            ?.defaultDataSourceId,
+        });
+        const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+        if (!projectId) {
+          return get().versionBaseline;
+        }
+        try {
+          const res = await POST(DB_CHANGE_URL, buildLatestVersionQuery(dbKey, projectId));
+          const records = res?.data?.records;
+          const baseline: BaselineRecord =
+            Array.isArray(records) && records.length > 0 ? records[0] : null;
+          set(produce((state) => {
+            state.versionBaseline = baseline;
+            state.baselineLoaded = true;
+          }));
+          return baseline;
+        } catch (error: any) {
+          // 基线未知：不得静音成「无差异」，保持 baselineLoaded=false 让 UI 走未知/重试
+          message.error(`获取最新版本基线失败: ${error?.message || error}`);
+          return null;
+        }
+      },
+      calcChanges: async () => {
         const projectState = useProjectStore.getState();
         const dataSource = projectState?.project?.projectJSON;
 
@@ -269,58 +310,19 @@ const useVersionStore = create<VersionState>(
           return [];
         }
 
-        const currentDB = get().dispatch.getCurrentDBData();
-        if (!currentDB || !currentDB.key) {
-          message.error('无法获取到数据源信息，请切换尝试数据源');
+        const baseline = await get().dispatch.fetchVersionBaseline();
+        if (!get().baselineLoaded) {
           return [];
         }
-
-        try {
-          // 获取最新版本
-          const res = await POST(DB_CHANGE_URL,
-            {
-              dbKey: currentDB.key,
-              projectId: cache.getItem(CONSTANT.PROJECT_ID),
-              current: 1,
-              size: 1,
-              orders: [
-                {
-                  column: "version",
-                  asc: false
-                }
-              ]
-             });
-
-          if (res && res.data && res.data.records && res.data.records.length > 0) {
-            const latestVersion = res.data.records[0];
-            const currentDataSource = {...dataSource};
-            const checkDataSource = {
-              modules: _.get(latestVersion, 'projectJSON.modules', []),
-            };
-            const changes = get().dispatch.checkVersionData(
-              currentDataSource,
-              checkDataSource
-            );
-
-            set(produce(state => {
-              state.changes = changes;
-            }));
-
-            return changes || [];
-          }
-          // 尚无历史：相对空模型算增量，首版详情可见「新增表/字段」
-          const changes = get().dispatch.checkVersionData(
-            { ...dataSource },
-            { modules: [] },
-          );
-          set(produce((state) => {
-            state.changes = changes;
-          }));
-          return changes || [];
-        } catch (error) {
-          message.error(`计算差异失败: ${error.message}`);
-          return [];
-        }
+        // 无基线（尚未存过版本）→ 相对空模型算增量，脏 = 当前模型全部未提交
+        const changes = get().dispatch.checkVersionData(
+          { ...dataSource },
+          baselineProjectJSON(baseline),
+        );
+        set(produce((state) => {
+          state.changes = changes;
+        }));
+        return changes || [];
       },
       getDBVersion: () => set(produce(() => {
         const dbData = get().dispatch.getCurrentDBData();
@@ -767,10 +769,9 @@ const useVersionStore = create<VersionState>(
             if (res.code === 200) {
               message.success('版本信息删除成功');
               const tempVersions = get().versions.filter((v: any) => v.id !== newVersion.id);
-              set({
-                changes: get().dispatch.calcChanges(tempVersions),
-                versions: tempVersions,
-              });
+              set({ versions: tempVersions });
+              // 删版本后基线可能变化：重新独立查询（勿把 Promise 塞进 changes）
+              get().dispatch.calcChanges();
               get().dispatch.checkBaseVersion(null);
               return;
             }
@@ -906,13 +907,15 @@ const useVersionStore = create<VersionState>(
 
         const tag = (tempValue.tag || '').trim() || undefined;
 
-        if (get().versions[0] && compareStringVersion(tempValue.version, get().versions[0].version) <= 0) {
+        // 与基线（独立查询的最新版本）比，而不是分页列表的第一条
+        const latest = get().versionBaseline?.version || get().versions[0]?.version;
+        if (latest && compareStringVersion(tempValue.version, latest) <= 0) {
           message.error('新版本不能小于或等于已经存在的版本');
           return false;
         }
 
         try {
-          const changes = await get().dispatch.calcChanges(get().versions);
+          const changes = await get().dispatch.calcChanges();
           const changesArray = Array.isArray(changes) ? changes : [];
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
@@ -922,7 +925,10 @@ const useVersionStore = create<VersionState>(
               modules: projectState?.project?.projectJSON?.modules || [],
             },
             dbKey: dbData.key,
-            baseVersion: get().versions.length === 0,
+            // 首版判定看基线，列表可能只是空的第 N 页
+            baseVersion: get().baselineLoaded
+              ? !hasBaseline(get().versionBaseline)
+              : get().versions.length === 0,
             version: tempValue.version,
             versionDesc: tempValue.versionDesc,
             tag: tag || undefined,
@@ -1153,25 +1159,22 @@ const useVersionStore = create<VersionState>(
       },
       recalculateChanges: () => {
         const state = get();
-        // 只重新计算最新版本（未保存的更改）与上一个保存的版本之间的差异
-        if (state.versions.length > 0) {
-          const projectState = useProjectStore.getState();
-
-          const currentProjectJSON = projectState?.project?.projectJSON;
-          const lastSavedVersion = state.versions[0];
-          const newChanges = state.dispatch.checkVersionData(
-            currentProjectJSON,
-            lastSavedVersion.projectJSON
-          );
-
-          set(produce(draft => {
-            // 更新 currentChanges，而不是整个 changes 数组
-            draft.currentChanges = newChanges;
-            // 重新构造消息，但只针对当前更改
-            draft.messages = state.dispatch.constructorMessage(newChanges);
-          }));
-
+        // 基线未查过 → 差异未知，不得断言「无差异」
+        if (!state.baselineLoaded) {
+          return;
         }
+        const currentProjectJSON = useProjectStore.getState()?.project?.projectJSON;
+        if (!currentProjectJSON) {
+          return;
+        }
+        // 基线永远是独立查询到的最新版本，与版本列表翻页无关
+        const newChanges = state.dispatch.checkVersionData(
+          currentProjectJSON,
+          baselineProjectJSON(state.versionBaseline),
+        );
+        set(produce((draft) => {
+          draft.changes = newChanges;
+        }));
       },
     }
   })
