@@ -798,4 +798,4 @@
 - [x] [基线独立查询] 打开项目即 `size:1` + `create_time` 倒序拉最新版本；版本页列表首条被伪造成更大版本号的空模型后仍判「一致」，建议版本号仍按基线推进 ✅ `version-baseline.spec.ts` + `versionBaseline.test.ts`
 - [x] [无基线不伪装一致] 新项目未存版本 → 版本页显示「尚无版本基线，建议先保存第一个版本」，非「已与最新版本一致」 ✅ `version-baseline.spec.ts`
 - [ ] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 版本页显示「基线未知」+ 错误 toast，不显示「已一致」
-- [ ] [已知缺陷·待修] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段行停在编辑态不落行（`save-failure.spec.ts` 在 main 已红）→ 期望：失败可见且编辑态可退出
+- [x] [落库失败不假装落行] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段草稿留在编辑行、模型无该字段、toast + 顶栏重试可见；恢复后在编辑行再按 Enter 才真正落行 ✅ `save-failure.spec.ts`（原用例按旧乐观行为断言，已按诚实持久化重写）
