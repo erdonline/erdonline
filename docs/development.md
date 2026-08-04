@@ -148,7 +148,7 @@ CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → GitHub Pages **�
 
 见 [`data-format.md`](./data-format.md) 与仓库根 `schema/`。
 
-## 公开 API PAT（ADR-0013 切片 1）
+## 公开 API PAT（ADR-0013）
 
 ```bash
 # 1. 会话登录拿 JWT（示例）
@@ -161,11 +161,14 @@ PAT=$(curl -sS -X POST http://127.0.0.1:9502/auth/personal-access-tokens \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"name":"dogfood"}' | jq -r '.data.token')
 
-# 3. 公开探针
+# 3. 公开探针 + 项目只读（需 projects:read；成员 ACL）
 curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $PAT"
+curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorization: Bearer $PAT"
+# ID=$(… | jq -r '.data.items[0].id')
+# curl -sS "http://127.0.0.1:9502/api/v1/projects/$ID" -H "Authorization: Bearer $PAT"
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。
 
 ## 前端如何找到后端
 

@@ -9,6 +9,9 @@
 - [x] [scope 门禁] 默认只读；`projects:write` 铸造拒绝 ✅`PatScopesTest`
 - [x] [限流骨架] 超配额拒绝 ✅`PublicApiRateLimiterTest`
 - [x] [手工 dogfood] 登录铸造 → `GET /api/v1/me` 200；无 token / 坏 token → 401；JWT 调 `/api/v1/me` → 401 ✅ 2026-08-04
+- [x] [projects 列表] PAT + `projects:read` → `GET /api/v1/projects` 仅成员项目 ✅`PublicApiProjectServiceTest` + curl
+- [x] [projects 详情] 非成员 403；`projectJSON.profile.dbs` 空列表 ✅`PublicApiProjectServiceTest` + `ProjectShareSanitizeTest`
+- [x] [手工 dogfood] 铸造 → projects 列表/详情 200；无 PAT / JWT → 401 ✅ 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
 

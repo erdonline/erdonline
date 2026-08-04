@@ -1,5 +1,8 @@
 package com.erdonline.erd.publicapi;
 
+import com.erdonline.common.core.api.ApiErrorCode;
+import com.erdonline.common.core.exception.ValidateException;
+
 import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.Locale;
@@ -77,5 +80,12 @@ public final class PatScopes {
 
     public static boolean has(Set<String> scopes, String required) {
         return scopes != null && scopes.contains(required);
+    }
+
+    /** Current PAT principal authorities must include {@code required}. */
+    public static void require(Set<String> authorities, String required) {
+        if (!has(authorities, required)) {
+            throw new ValidateException(ApiErrorCode.FORBIDDEN);
+        }
     }
 }
