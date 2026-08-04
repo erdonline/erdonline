@@ -78,7 +78,7 @@
   - ~~OIDC 薄 MVP：discovery / HS256 `id_token`（`ERD_OIDC_HMAC`）/ userinfo / `openid` scope~~✅（2026-08-04）
   - ~~OIDC `nonce` + `at_hash`（authorize 绑定；refresh 省略 nonce）~~✅（2026-08-04）
   - ~~OIDC RS256 + 真 JWKS（废 HMAC；`/.well-known/jwks.json`）~~✅（2026-08-04）
-  - 后置：第三方 IdP 联邦 — 与本刀解耦
+  - ~~第三方 IdP 联邦（Google OIDC + 微信开放平台扫码）~~✅（[ADR-0021](./adr/0021-idp-federation-google-wechat.md)；会话 JWT；与 PAT/OAT 解耦）
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
 
 ### 安全（Security）📋

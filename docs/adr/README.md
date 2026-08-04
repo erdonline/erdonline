@@ -25,3 +25,4 @@
 | [0018](./0018-hosting-topology-no-vps.md) | 托管拓扑：GitHub + Cloudflare 免费档，不买生产 VPS | 已接受 |
 | [0019](./0019-demo-runtime-railway.md) | 官方 Demo 运行时：Railway-only（真 MySQL 8）；拒三厂商；Zeabur 为 CN 备选 | 已接受 |
 | [0020](./0020-single-database.md) | 单一业务库 `erd`（取消 martin/erd 双库）；init schema-only；种子走 Flyway | 已接受 |
+| [0021](./0021-idp-federation-google-wechat.md) | 第三方登录 IdP 联邦（Google OIDC + 微信开放平台扫码） | ✅ 已接受 · MVP |

@@ -8,6 +8,21 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0021 — 第三方登录 IdP 联邦（Google + 微信扫码）
+
+- 选题：OIDC RS256 后接会话面联邦；不复活 password-grant / `/login/success` / 旧微信绑定页
+- Google：Authorization Code + OIDC（`openid email profile`）；`GOOGLE_CLIENT_ID/SECRET/REDIRECT_URI`；验 `email_verified`；邮箱匹配绑定或（开注册时）建号
+- 微信：开放平台网站应用扫码（`snsapi_login`）；`WECHAT_APP_ID/SECRET/REDIRECT_URI`；subject=`unionid`∥`openid`
+- 会话：复用 `JwtTokenService`；回调 Redis 短票 → `/login/federate` → `POST /auth/federate/session`（JWT 不进 URL）
+- 表：Flyway `V13` `user_identity_link`；账号设置「安全」绑定/解绑；登录页条件按钮（antd + aria）
+- 缺 env → provider 关闭、启动不崩；删死键 `martin.social.enabled`
+- ADR-0021；ADR-0013「不做联邦」条目专项解封
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=FederateAuthServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart`；`curl -sS http://127.0.0.1:9502/auth/federate/providers` → `google/wechat` 均为 false（无凭证时）；`curl -sS -o /dev/null -w '%{http_code}\n' http://127.0.0.1:9502/auth/federate/google` → 404
+- Flyway 含 `V13`；`POST /auth/login` 账密仍 200
+
 #### 开放：ADR-0013 — OIDC RS256 + JWKS（废 HMAC）
 
 - 选题：nonce/at_hash 后，公开 RP 需标准 JWKS 验签；硬切 RS256（不保留 HS256 fallback）

@@ -1,6 +1,6 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
-import {Button, Form, Input, message} from 'antd';
+import {Button, Divider, Form, Input, Space, message} from 'antd';
 import * as cache from '@/utils/cache';
 import {history} from '@@/exports';
 import request from '@/utils/request';
@@ -37,14 +37,43 @@ function redirectQuery(): string {
   return r && r.startsWith('/') ? `?redirect=${encodeURIComponent(r)}` : '';
 }
 
+function federateStartHref(provider: 'google' | 'wechat'): string {
+  const r = new URLSearchParams(window.location.search).get('redirect');
+  const q =
+    r && r.startsWith('/')
+      ? `?redirect=${encodeURIComponent(r)}`
+      : '';
+  return `/auth/federate/${provider}${q}`;
+}
+
 type LoginValues = {
   username: string;
   password: string;
 };
 
+type Providers = {google?: boolean; wechat?: boolean};
+
 export default () => {
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
+  const [providers, setProviders] = useState<Providers>({});
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await request.get('/auth/federate/providers');
+        if (!cancelled && res?.code === 200 && res.data) {
+          setProviders(res.data as Providers);
+        }
+      } catch {
+        // 未配置联邦时静默：仅账密登录
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const onFinish = async (values: LoginValues) => {
     setSubmitting(true);
@@ -54,6 +83,8 @@ export default () => {
       setSubmitting(false);
     }
   };
+
+  const showFederate = Boolean(providers.google || providers.wechat);
 
   return (
     <AuthBrandShell
@@ -123,6 +154,33 @@ export default () => {
           </Button>
         </Form.Item>
       </Form>
+      {showFederate ? (
+        <>
+          <Divider plain>或使用第三方登录</Divider>
+          <Space direction="vertical" style={{width: '100%'}} size="middle">
+            {providers.google ? (
+              <Button
+                block
+                href={federateStartHref('google')}
+                aria-label="使用 Google 登录"
+                data-testid="login-google"
+              >
+                使用 Google 登录
+              </Button>
+            ) : null}
+            {providers.wechat ? (
+              <Button
+                block
+                href={federateStartHref('wechat')}
+                aria-label="使用微信扫码登录"
+                data-testid="login-wechat"
+              >
+                使用微信扫码登录
+              </Button>
+            ) : null}
+          </Space>
+        </>
+      ) : null}
     </AuthBrandShell>
   );
 };
