@@ -28,6 +28,7 @@ public class FederateAuthService {
 
     private final FederateProperties properties;
     private final FederateStateStore stateStore;
+    private final GitHubOauthClient githubClient;
     private final GoogleOidcClient googleClient;
     private final WeChatOpenPlatformClient wechatClient;
     private final FederateUserService userService;
@@ -38,17 +39,15 @@ public class FederateAuthService {
     private String martinUiUrl;
 
     public Map<String, Boolean> providers() {
-        Map<String, Boolean> m = new LinkedHashMap<>(2);
+        Map<String, Boolean> m = new LinkedHashMap<>(4);
+        m.put("github", properties.isGithubEnabled());
         m.put("google", properties.isGoogleEnabled());
         m.put("wechat", properties.isWechatEnabled());
         return m;
     }
 
     public void assertEnabled(FederateProvider provider) {
-        boolean ok = provider == FederateProvider.GOOGLE
-                ? properties.isGoogleEnabled()
-                : properties.isWechatEnabled();
-        if (!ok) {
+        if (!properties.isEnabled(provider)) {
             throw new FederateException(404, provider.wire() + " login is not configured");
         }
     }
@@ -57,9 +56,7 @@ public class FederateAuthService {
         assertEnabled(provider);
         String safeRedirect = sanitizeRedirect(redirect);
         String state = stateStore.putState(mode, provider, userId, safeRedirect);
-        return provider == FederateProvider.GOOGLE
-                ? googleClient.buildAuthorizeUrl(state)
-                : wechatClient.buildAuthorizeUrl(state);
+        return buildAuthorizeUrl(provider, state);
     }
 
     public String handleCallback(FederateProvider provider, String code, String state) {
@@ -74,9 +71,7 @@ public class FederateAuthService {
         }
         FederateIdentity identity;
         try {
-            identity = provider == FederateProvider.GOOGLE
-                    ? googleClient.exchange(code)
-                    : wechatClient.exchange(code);
+            identity = exchange(provider, code);
         } catch (IOException | InterruptedException e) {
             if (e instanceof InterruptedException) {
                 Thread.currentThread().interrupt();
@@ -103,6 +98,23 @@ public class FederateAuthService {
         }
         String ticket = stateStore.putSessionTicket(json);
         return buildUiRedirect(properties.getSuccessPath(), ticket, st.redirect());
+    }
+
+    private String buildAuthorizeUrl(FederateProvider provider, String state) {
+        return switch (provider) {
+            case GITHUB -> githubClient.buildAuthorizeUrl(state);
+            case GOOGLE -> googleClient.buildAuthorizeUrl(state);
+            case WECHAT -> wechatClient.buildAuthorizeUrl(state);
+        };
+    }
+
+    private FederateIdentity exchange(FederateProvider provider, String code)
+            throws IOException, InterruptedException {
+        return switch (provider) {
+            case GITHUB -> githubClient.exchange(code);
+            case GOOGLE -> googleClient.exchange(code);
+            case WECHAT -> wechatClient.exchange(code);
+        };
     }
 
     public Map<String, Object> consumeTicket(String ticket) {

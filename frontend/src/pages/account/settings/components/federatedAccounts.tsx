@@ -4,7 +4,8 @@ import {DEL, GET} from '@/services/crud';
 import PageSkeleton from '@/components/PageSkeleton';
 import {confirmDestructive} from '@/utils/destructiveConfirm';
 
-type Providers = {google?: boolean; wechat?: boolean};
+type FederateProviderKey = 'github' | 'google' | 'wechat';
+type Providers = Partial<Record<FederateProviderKey, boolean>>;
 type LinkRow = {
   provider: string;
   email?: string;
@@ -17,10 +18,13 @@ type LinksPayload = {
   links?: LinkRow[];
 };
 
-const LABELS: Record<string, string> = {
+const LABELS: Record<FederateProviderKey, string> = {
+  github: 'GitHub',
   google: 'Google',
   wechat: '微信（开放平台扫码）',
 };
+
+const ORDER: FederateProviderKey[] = ['github', 'google', 'wechat'];
 
 /**
  * ADR-0021：账号设置 — 第三方登录绑定状态（轻量）。
@@ -67,8 +71,9 @@ const FederatedAccountsView: React.FC = () => {
   };
 
   const onUnlink = (provider: string) => {
+    const label = LABELS[provider as FederateProviderKey] || provider;
     confirmDestructive({
-      title: `解除 ${LABELS[provider] || provider} 绑定？`,
+      title: `解除 ${label} 绑定？`,
       content: '解绑后需重新授权才能用该第三方登录。',
       okText: '解除绑定',
       okType: 'danger',
@@ -96,24 +101,22 @@ const FederatedAccountsView: React.FC = () => {
     return <PageSkeleton rows={3} />;
   }
 
-  const rows = (['google', 'wechat'] as const)
-    .filter((p) => providers[p])
-    .map((provider) => {
-      const linked = linkedSet.has(provider);
-      const meta = links.find((l) => l.provider === provider);
-      return {
-        provider,
-        linked,
-        description: linked
-          ? [meta?.displayName, meta?.email].filter(Boolean).join(' · ') || '已绑定'
-          : '未绑定',
-      };
-    });
+  const rows = ORDER.filter((p) => providers[p]).map((provider) => {
+    const linked = linkedSet.has(provider);
+    const meta = links.find((l) => l.provider === provider);
+    return {
+      provider,
+      linked,
+      description: linked
+        ? [meta?.displayName, meta?.email].filter(Boolean).join(' · ') || '已绑定'
+        : '未绑定',
+    };
+  });
 
   if (rows.length === 0) {
     return (
       <p role="status" data-testid="federate-links-disabled">
-        未配置第三方登录（需管理员设置 Google / 微信环境变量）。
+        未配置第三方登录（需管理员设置 GitHub / Google / 微信环境变量）。
       </p>
     );
   }

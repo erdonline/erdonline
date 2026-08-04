@@ -35,20 +35,21 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 
 - 登录/退出：`/login`、`/auth/login`、`/exit`
 - 注册：仅 `/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）；受 `erd.security.allow-open-register` 门控（`dev`=true，`prod`/默认=false）；重复入口 `/user/register` 已去 HTTP 映射并不再 ignore
-- 第三方 IdP 联邦（ADR-0021）：`/federate/providers`、`/federate/{google|wechat}`、`/federate/{google|wechat}/callback`、`/federate/session`（及 `/auth/federate/…` 前缀形态）；**不含** `/federate/links/**`（须会话 JWT）
+- 第三方 IdP 联邦（ADR-0021）：`/federate/providers`、`/federate/{github|google|wechat}`、`/federate/{github|google|wechat}/callback`、`/federate/session`（及 `/auth/federate/…` 前缀形态）；**不含** `/federate/links/**`（须会话 JWT）
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
 - Actuator：`/actuator/**` 放行，但 **exposure 仅 `health,info`**；`health` 不 `show-details`；`info` 仅 app name/version（无密钥）。禁止扩大到 env/beans/heapdump
 - OpenAPI / Swagger UI：Security 仍对 `/v3/api-docs/**`、`/swagger-ui/**`（及 `/webjars/**`）匿名放行；**唯一门控**为 `springdoc.api-docs.enabled` / `springdoc.swagger-ui.enabled`（`prod`=false）。本地/dev 默认开启。已无 `martin.swagger` / `martin.resource-server` 配置键。
 
 ## 第三方登录 IdP 联邦（ADR-0021）
 
-- **方向**：Google / 微信 → 本系统会话 JWT（与账密登录同构）；**不是** ADR-0013 对外 IdP（PAT/`erd_oat_`）
+- **方向**：GitHub / Google / 微信 → 本系统会话 JWT（与账密登录同构）；**不是** ADR-0013 对外 IdP（PAT/`erd_oat_`）
+- **GitHub**：OAuth App；scope=`read:user user:email`；subject=数字 `id`；已验证邮箱可按邮箱绑定
 - **Google**：Authorization Code + OIDC（`openid email profile`）；须 `email_verified`；subject=`sub`；可按邮箱绑定已有用户
 - **微信**：开放平台网站应用扫码（`snsapi_login`）；subject 优先 `unionid` 否则 `openid`；**不做**公众号网页授权
 - **存储**：`user_identity_link`（仅 subject；无 token）；短票 Redis `erd:federate:session:*`（回调后换票，JWT 不进 URL）
-- **开关**：`GOOGLE_*` / `WECHAT_*` 三项齐全才启用；缺则 `/auth/federate/providers` 对应 `false`，启动不崩溃
+- **开关**：`GITHUB_*` / `GOOGLE_*` / `WECHAT_*` 三项齐全才启用；缺则 `/auth/federate/providers` 对应 `false`，启动不崩溃
 - **建号**：无链接且无邮箱匹配时走 `erd.security.allow-open-register`；关闭则提示先账密登录再绑定
-- **UI**：登录页条件按钮；`/account/settings?selectKey=security` 绑定/解绑；落地 `/login/federate?ticket=`
+- **UI**：登录页条件按钮；`/account/settings?selectKey=security` 绑定/解绑；落地 `/login/federate?ticket=`；登出与账密同源（清 JWT）
 - **明确不做**：回潮 `/login/success`、`/account/settings/wechat`、`/auth/oauth2/**`、password-grant
 
 ## 只读分享

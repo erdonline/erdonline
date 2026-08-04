@@ -60,6 +60,8 @@ class DeadSecurityConfigContractTest {
                 "/.well-known/openid-configuration", "/.well-known/jwks.json",
                 "/federate/providers", "/auth/federate/providers",
                 "/federate/session", "/auth/federate/session",
+                "/federate/github", "/auth/federate/github",
+                "/federate/github/callback", "/auth/federate/github/callback",
                 "/federate/google", "/auth/federate/google",
                 "/federate/google/callback", "/auth/federate/google/callback",
                 "/federate/wechat", "/auth/federate/wechat",

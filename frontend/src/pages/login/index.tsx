@@ -37,7 +37,9 @@ function redirectQuery(): string {
   return r && r.startsWith('/') ? `?redirect=${encodeURIComponent(r)}` : '';
 }
 
-function federateStartHref(provider: 'google' | 'wechat'): string {
+type FederateProviderKey = 'github' | 'google' | 'wechat';
+
+function federateStartHref(provider: FederateProviderKey): string {
   const r = new URLSearchParams(window.location.search).get('redirect');
   const q =
     r && r.startsWith('/')
@@ -51,7 +53,17 @@ type LoginValues = {
   password: string;
 };
 
-type Providers = {google?: boolean; wechat?: boolean};
+type Providers = Partial<Record<FederateProviderKey, boolean>>;
+
+const PROVIDER_BUTTONS: {
+  key: FederateProviderKey;
+  label: string;
+  testId: string;
+}[] = [
+  {key: 'github', label: '使用 GitHub 登录', testId: 'login-github'},
+  {key: 'google', label: '使用 Google 登录', testId: 'login-google'},
+  {key: 'wechat', label: '使用微信扫码登录', testId: 'login-wechat'},
+];
 
 export default () => {
   const [form] = Form.useForm<LoginValues>();
@@ -84,7 +96,8 @@ export default () => {
     }
   };
 
-  const showFederate = Boolean(providers.google || providers.wechat);
+  const enabledButtons = PROVIDER_BUTTONS.filter((b) => providers[b.key]);
+  const showFederate = enabledButtons.length > 0;
 
   return (
     <AuthBrandShell
@@ -158,26 +171,17 @@ export default () => {
         <>
           <Divider plain>或使用第三方登录</Divider>
           <Space direction="vertical" style={{width: '100%'}} size="middle">
-            {providers.google ? (
+            {enabledButtons.map((b) => (
               <Button
+                key={b.key}
                 block
-                href={federateStartHref('google')}
-                aria-label="使用 Google 登录"
-                data-testid="login-google"
+                href={federateStartHref(b.key)}
+                aria-label={b.label}
+                data-testid={b.testId}
               >
-                使用 Google 登录
+                {b.label}
               </Button>
-            ) : null}
-            {providers.wechat ? (
-              <Button
-                block
-                href={federateStartHref('wechat')}
-                aria-label="使用微信扫码登录"
-                data-testid="login-wechat"
-              >
-                使用微信扫码登录
-              </Button>
-            ) : null}
+            ))}
           </Space>
         </>
       ) : null}

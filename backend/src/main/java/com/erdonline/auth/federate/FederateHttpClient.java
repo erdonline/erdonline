@@ -31,11 +31,15 @@ public class FederateHttpClient {
             .followRedirects(HttpClient.Redirect.NORMAL)
             .build();
 
+    /** GitHub API 要求非空 User-Agent；对其它 IdP 亦无害。 */
+    private static final String USER_AGENT = "erdonline-federate";
+
     public JsonNode getJson(String url) throws IOException, InterruptedException {
         HttpRequest req = HttpRequest.newBuilder(URI.create(url))
                 .timeout(TIMEOUT)
                 .GET()
                 .header("Accept", "application/json")
+                .header("User-Agent", USER_AGENT)
                 .build();
         return exchange(req);
     }
@@ -45,6 +49,7 @@ public class FederateHttpClient {
                 .timeout(TIMEOUT)
                 .GET()
                 .header("Accept", "application/json")
+                .header("User-Agent", USER_AGENT)
                 .header("Authorization", "Bearer " + accessToken)
                 .build();
         return exchange(req);
@@ -58,6 +63,7 @@ public class FederateHttpClient {
                 .timeout(TIMEOUT)
                 .header("Content-Type", "application/x-www-form-urlencoded")
                 .header("Accept", "application/json")
+                .header("User-Agent", USER_AGENT)
                 .POST(HttpRequest.BodyPublishers.ofString(body))
                 .build();
         return exchange(req);

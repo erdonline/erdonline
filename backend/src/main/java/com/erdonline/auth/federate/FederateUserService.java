@@ -42,7 +42,7 @@ public class FederateUserService {
         if (existing != null) {
             return loadByUserId(existing.getUserId());
         }
-        if (identity.provider() == FederateProvider.GOOGLE
+        if (supportsEmailLink(identity)
                 && identity.emailVerified()
                 && StringUtils.hasText(identity.email())) {
             User byEmail = findByEmail(identity.email());
@@ -116,6 +116,12 @@ public class FederateUserService {
         return userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, email.trim())
                 .last("LIMIT 1"));
+    }
+
+    /** Google / GitHub 在邮箱已验证时允许按邮箱绑定已有用户。 */
+    private static boolean supportsEmailLink(FederateIdentity identity) {
+        FederateProvider p = identity.provider();
+        return p == FederateProvider.GOOGLE || p == FederateProvider.GITHUB;
     }
 
     private void insertLink(String userId, FederateIdentity identity) {

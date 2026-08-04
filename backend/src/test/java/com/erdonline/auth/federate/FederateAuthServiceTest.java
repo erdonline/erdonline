@@ -28,6 +28,7 @@ class FederateAuthServiceTest {
     @Test
     void propertiesDisabledWithoutCredentials() {
         FederateProperties p = new FederateProperties();
+        assertFalse(p.isGithubEnabled());
         assertFalse(p.isGoogleEnabled());
         assertFalse(p.isWechatEnabled());
         p.getGoogle().setClientId("id");
@@ -35,11 +36,18 @@ class FederateAuthServiceTest {
         assertFalse(p.isGoogleEnabled());
         p.getGoogle().setRedirectUri("http://localhost:9502/auth/federate/google/callback");
         assertTrue(p.isGoogleEnabled());
+        p.getGithub().setClientId("gh");
+        p.getGithub().setClientSecret("sec");
+        assertFalse(p.isGithubEnabled());
+        p.getGithub().setRedirectUri("http://localhost:9502/auth/federate/github/callback");
+        assertTrue(p.isGithubEnabled());
+        assertTrue(p.isEnabled(FederateProvider.GITHUB));
     }
 
     @Test
     void providerWireRoundTrip() {
         assertEquals(FederateProvider.GOOGLE, FederateProvider.fromWire("Google"));
+        assertEquals(FederateProvider.GITHUB, FederateProvider.fromWire("github"));
         assertEquals("wechat", FederateProvider.WECHAT.wire());
     }
 }
