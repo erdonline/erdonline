@@ -1,6 +1,6 @@
 # ADR-0013：公开 API / MCP
 
-- 状态：**🚧 进行中**（人工解封 2026-08-04；切片 1 ✅ PAT；切片 2 ✅ `GET /api/v1/projects[+/{id}]`）
+- 状态：**🚧 进行中**（人工解封 2026-08-04；切片 1–3 ✅ PAT + projects/versions 只读）
 - 决策者：项目维护者（Vision 自动轨暂停点 `785d699` 后**显式选择**本 ADR 为下一里程碑）
 - 前置：[ADR-0012](./0012-ai-era-data-structure-platform.md) 选项 B 已接受；[ADR-0016](./0016-experience-first-shareable-diagram.md) 本季「禁 MCP 产品码」由本人工决策**专项解封**（仅本里程碑，不重开版本分支 / live sync）
 
@@ -28,7 +28,7 @@ ADR-0012 将「API/MCP 开放」列为平台级能力：agent 可读 schema、�
 |---|---|---|
 | 1 | PAT 表（哈希）+ 铸造/列表/吊销 + `/api/v1/me` + 限流骨架 + OpenAPI 分组 | ✅ 2026-08-04 |
 | 2 | `GET /api/v1/projects`、`GET /api/v1/projects/{id}`（成员 ACL，projectJSON 只读，密钥纪律） | ✅ 2026-08-04 |
-| 3 | `GET /api/v1/projects/{id}/versions`（及单版本详情） | 📋 |
+| 3 | `GET /api/v1/projects/{id}/versions`（及单版本详情） | ✅ 2026-08-04 |
 | 4 | MCP server 骨架（stdio/HTTP）只读 tool → 上列 REST | 📋 |
 | 5 | 写 scope + `POST …/versions`（保存=提交）；配额与审计 | 📋 |
 

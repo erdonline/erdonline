@@ -15,7 +15,7 @@
 
 | Human next | 为何门控 | 解封条件 |
 |---|---|---|
-| ~~[ADR-0013](./adr/0013-public-api-mcp.md) 公开 API / MCP~~ | ~~鉴权/限流/scope 未拍板~~ → **人工解封 2026-08-04**；切片 1–2 ✅；下一刀 versions 只读 | 切片 3+：versions → MCP → 写 scope |
+| ~~[ADR-0013](./adr/0013-public-api-mcp.md) 公开 API / MCP~~ | ~~鉴权/限流/scope 未拍板~~ → **人工解封 2026-08-04**；切片 1–3 ✅；下一刀 MCP 只读骨架 | 切片 4+：MCP → 写 scope |
 | P4 官方 demo（Railway） | Dashboard 拉起 + 填 `DEMO_API_URL`（ADR-0019 选型已定，运维仍人工） | 人工完成 Railway + 回填 env |
 | DBML Trigger 互导 | `@dbml/core` 无 Trigger 块；禁止塞 Note | 上游官方块稳定 |
 | 复合 FK `fields[]`（[ADR-0011](./adr/0011-defer-composite-fk-fields-array.md)） | 仍延期 | FE 多字段边协议落地 |
@@ -34,7 +34,7 @@
 
 ## P5：AI 时代数据结构平台 🚧
 
-> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 见 [ADR-0013](./adr/0013-public-api-mcp.md)（🚧：切片 1–2 PAT + projects 只读）。
+> 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 见 [ADR-0013](./adr/0013-public-api-mcp.md)（🚧：切片 1–3 PAT + projects/versions 只读）。
 
 ### 落地页（公开，品牌优先，一个构图）✅
 
@@ -63,7 +63,7 @@
 - 公开 API / MCP（[ADR-0013](./adr/0013-public-api-mcp.md)）🚧：
   - ~~拍板鉴权/scope/限流默认 + PAT 哈希存储 + `/api/v1/me` + 限流骨架~~✅（切片 1，2026-08-04）
   - ~~`GET /api/v1/projects[+/{id}]`（成员 ACL + projectJSON 密钥清洗）~~✅（切片 2，2026-08-04）
-  - 📋 `GET /api/v1/projects/{id}/versions`
+  - ~~`GET /api/v1/projects/{id}/versions[+/{versionId}]`（`versions:read` + 成员；详情清 `profile.dbs`）~~✅（切片 3，2026-08-04）
   - 📋 MCP server 只读骨架
   - 📋 写 scope + 提交版本
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
