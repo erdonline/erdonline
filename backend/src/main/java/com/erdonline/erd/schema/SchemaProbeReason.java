@@ -17,5 +17,7 @@ public enum SchemaProbeReason {
     /** Request omitted projectJSON for comparison. */
     PROBE_NO_MODEL,
     /** Structural IR differs (informational when status is AHEAD/BEHIND/DIVERGED). */
-    FINGERPRINT_MISMATCH
+    FINGERPRINT_MISMATCH,
+    /** Caller lacks project membership or connector probe permission (share guest / read-only). */
+    PROBE_ACL_DENIED
 }

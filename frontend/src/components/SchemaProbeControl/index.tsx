@@ -1,10 +1,12 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Tag, Tooltip } from 'antd';
 import { RadarChartOutlined } from '@ant-design/icons';
+import { useAccess } from '@@/plugin-access';
 import * as Save from '@/utils/save';
 import useProjectStore from '@/store/project/useProjectStore';
 import useVersionStore from '@/store/version/useVersionStore';
 import { SNAPSHOT_DB_KEY } from '@/utils/versionConstants';
+import { isShareGuestContext } from '@/utils/shareContext';
 import {
   type ProbeResult,
   type SchemaProbeReason,
@@ -27,6 +29,8 @@ const INITIAL_RESULT: ProbeResult = {
  * B 层显式探测控件（ADR-0022 #8/#10）：五态 + 未知四路文案。
  */
 const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => {
+  const access = useAccess();
+  const probeAllowed = !isShareGuestContext() && access.canErdConnectorSchemaProbe;
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<ProbeResult>(INITIAL_RESULT);
 
@@ -130,6 +134,10 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => 
         </Button>
       </Tooltip>
     ) : null;
+
+  if (!probeAllowed) {
+    return null;
+  }
 
   return (
     <span className="schema-probe-control" data-testid="schema-probe-control">

@@ -158,6 +158,18 @@ class ConnectorCredentialResolverTest {
     }
 
     @Test
+    void applyProbe_rejectsMissingDataSourceId() {
+        Map<String, Object> params = new HashMap<>();
+        params.put("url", "jdbc:mysql://evil:3306/x");
+        params.put("password", "p");
+
+        ValidateException ex = assertThrows(ValidateException.class, () -> resolver.applyProbe(params));
+        assertTrue(ex.getMessage().contains("dataSourceId"));
+        assertEquals(ApiErrorCode.BAD_REQUEST.getCode(), ex.getStatus());
+        verifyNoInteractions(dataSourceAcl);
+    }
+
+    @Test
     void applyMutate_rejectsMissingDataSourceId() {
         Map<String, Object> params = new HashMap<>();
         params.put("url", "jdbc:mysql://evil:3306/x");

@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### B 层：分享访客隐藏实库探测（ADR-0022 切片 11）
+
+- 前端：`isShareGuestContext()` + `canErdConnectorSchemaProbe`（同逆向解析权）；版本页 `Access` 包裹 `SchemaProbeControl`；分享页无 B 层控件；`save.schemaProbe` 分享路由拒绝调用
+- 后端：`SchemaProbeAccessGuard`（项目成员 + 团队角色须 `erd_connector_dbReverseParse`）；`applyProbe` 强制 `dataSourceId`；403 响应带 `PROBE_ACL_DENIED` reason
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn test -Dtest=SchemaProbeAccessGuardTest,ConnectorCredentialResolverTest -Djacoco.skip=true`
+- `cd frontend && npx playwright test --project=chromium tests/e2e/share.spec.ts --grep "设计器分享后匿名打开可见只读关系图"`
+
 #### B 层：五态 + 未知四路文案（ADR-0022 切片 10）
 
 - 后端 `SchemaFingerprintDiff`：结构 IR diff 将指纹差异细分为 `synced` / `ahead`（模型领先）/ `behind`（实库领先）/ `diverged`（双向分叉）；连接失败区分 `PROBE_CONNECTION_FAILED` vs `PROBE_NO_PERMISSION`

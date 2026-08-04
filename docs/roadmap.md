@@ -68,7 +68,9 @@
 - ~~判据换实测 schema 指纹（表/列/索引规范化哈希）；`db_version` 降级为提示~~ ✅ 2026-08-04（`POST /connector/schema/probe` + 版本页「探测实库」；书签 tag「已推送/未推送」）
 - 修 `compareStringVersion`（空段 / `NaN` / 前缀）；不可判 → 未知态而非「一致」~~ ✅ 2026-08-04（`stringVersion.ts` 返回 `null`；书签 tag「书签未知」；同步动作保守阻断）
 - ~~五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）~~ ✅ 2026-08-04（IR diff → ahead/behind/diverged；未知四路 copy + testid；`schema-probe.spec.ts`）
-- 分享访客隐藏 B 层 📋
+- ~~分享访客隐藏 B 层~~ ✅ 2026-08-04（`shareContext` + ACL guard + `share.spec.ts` 无 probe testid/API）
+
+**MVP 队列已闭环**；后续同主题（非本 tick）：Pull/Push 动作隐喻、冲突可视化、版本 diff 与实库 diff 同语言 → 见下方 P2/产品深度。下一 Vision tick：**i18n 奠基**（[ADR-0023](./adr/0023-i18n-foundation.md)）。
 
 ### i18n 奠基（B 层后）📋
 

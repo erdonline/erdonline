@@ -399,7 +399,9 @@ const Version: React.FC = () => {
                   loading={isLoading}
                 />
               </Space>
-              <SchemaProbeControl disabled={isLoading} />
+              <Access accessible={access.canErdConnectorSchemaProbe} fallback={<></>}>
+                <SchemaProbeControl disabled={isLoading} />
+              </Access>
             </Space>
             <Space wrap size={[4, 4]} className="version-page__toolbar-actions">
               <Input

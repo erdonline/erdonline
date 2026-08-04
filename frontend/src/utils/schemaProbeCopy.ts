@@ -9,7 +9,8 @@ export type SchemaProbeReason =
   | 'PROBE_NO_PERMISSION'
   | 'PROBE_REVERSE_EMPTY'
   | 'PROBE_NO_MODEL'
-  | 'FINGERPRINT_MISMATCH';
+  | 'FINGERPRINT_MISMATCH'
+  | 'PROBE_ACL_DENIED';
 
 export type ProbeResult = {
   status?: SchemaProbeStatus;
