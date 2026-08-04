@@ -76,8 +76,6 @@ spring:
 martin:
   data:
     enabled: true
-  social:
-    enabled: ${MARTIN_SOCIAL_ENABLED:false}
   # MinIO 可选：未设 OSS_ENDPOINT 则不建客户端（内置 Word 模板仍可用）。
   # 凭证经嵌套 martin.oss.minio.* 绑定；仓库不写弱默认（R-CFG-05）；prod 见 OssCredentialGuard。
   oss:
@@ -189,6 +187,17 @@ erd:
     rsa-key-alias: ${ERD_OIDC_RSA_KEY_ALIAS:}
     rsa-key-id: ${ERD_OIDC_RSA_KID:}
     id-token-ttl-seconds: ${ERD_OIDC_ID_TOKEN_TTL:3600}
+  # ADR-0021 第三方 IdP 联邦：缺 CLIENT_/APP_ 凭证则该 provider 关闭，不阻断启动
+  federate:
+    success-path: ${ERD_FEDERATE_SUCCESS_PATH:/login/federate}
+    google:
+      client-id: ${GOOGLE_CLIENT_ID:}
+      client-secret: ${GOOGLE_CLIENT_SECRET:}
+      redirect-uri: ${GOOGLE_REDIRECT_URI:}
+    wechat:
+      app-id: ${WECHAT_APP_ID:}
+      app-secret: ${WECHAT_APP_SECRET:}
+      redirect-uri: ${WECHAT_REDIRECT_URI:}
 
 # 安全放行 URL
 security:
@@ -211,6 +220,19 @@ security:
         # OIDC discovery / JWKS（公钥；私钥永不发布）
         - /.well-known/openid-configuration
         - /.well-known/jwks.json
+        # ADR-0021 联邦：匿名起跳/回调/providers/短票换票；links 管理须会话 JWT
+        - /federate/providers
+        - /auth/federate/providers
+        - /federate/session
+        - /auth/federate/session
+        - /federate/google
+        - /auth/federate/google
+        - /federate/google/callback
+        - /auth/federate/google/callback
+        - /federate/wechat
+        - /auth/federate/wechat
+        - /federate/wechat/callback
+        - /auth/federate/wechat/callback
         - /error
         - /v3/api-docs/**
         - /swagger-ui/**

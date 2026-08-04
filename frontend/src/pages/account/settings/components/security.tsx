@@ -1,6 +1,7 @@
 import React from 'react';
-import {List} from 'antd';
-import ResetPassword from "@/components/dialog/account/ResetPassword";
+import {Divider, List} from 'antd';
+import ResetPassword from '@/components/dialog/account/ResetPassword';
+import FederatedAccountsView from './federatedAccounts';
 
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 
@@ -20,9 +21,8 @@ const SecurityView: React.FC = () => {
           {passwordStrength.strong}
         </>
       ),
-      actions: [<ResetPassword/>],
+      actions: [<ResetPassword />],
     },
-
   ];
 
   const data = getData();
@@ -33,10 +33,12 @@ const SecurityView: React.FC = () => {
         dataSource={data}
         renderItem={(item) => (
           <List.Item actions={item.actions}>
-            <List.Item.Meta title={item.title} description={item.description}/>
+            <List.Item.Meta title={item.title} description={item.description} />
           </List.Item>
         )}
       />
+      <Divider orientation="left">第三方登录</Divider>
+      <FederatedAccountsView />
     </>
   );
 };

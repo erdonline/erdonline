@@ -25,6 +25,11 @@ export default [
     layout: false,
     routes: [
       {
+        name: 'federate-login',
+        path: '/login/federate',
+        component: './login/federate',
+      },
+      {
         name: 'login',
         path: '/login',
         component: './login',

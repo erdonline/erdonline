@@ -304,7 +304,10 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
-| `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true` |
+| `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true`；**联邦首次建号也走此门控** |
+| `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | 通常不设 | ADR-0021：Google OIDC 登录；三项齐才启用；回调例 `https://API/auth/federate/google/callback` |
+| `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |
+| `ERD_FEDERATE_SUCCESS_PATH` | `/login/federate` | 联邦回调后 UI 落点路径（拼在 `ERD_UI_URL` 后） |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
 | `ERD_UI_URL` | **生产 UI**：`https://app.erdonline.com`（无尾斜杠）；仅 demo 表面可用 `https://erdonline-demo.pages.dev`；多源逗号分隔 | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；OIDC issuer 默认同源 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |

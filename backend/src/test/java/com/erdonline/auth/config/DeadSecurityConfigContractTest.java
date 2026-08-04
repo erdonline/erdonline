@@ -58,9 +58,17 @@ class DeadSecurityConfigContractTest {
                 "/oauth/revoke", "/auth/oauth/revoke",
                 "/oauth/userinfo", "/auth/oauth/userinfo",
                 "/.well-known/openid-configuration", "/.well-known/jwks.json",
+                "/federate/providers", "/auth/federate/providers",
+                "/federate/session", "/auth/federate/session",
+                "/federate/google", "/auth/federate/google",
+                "/federate/google/callback", "/auth/federate/google/callback",
+                "/federate/wechat", "/auth/federate/wechat",
+                "/federate/wechat/callback", "/auth/federate/wechat/callback",
                 "/v3/api-docs/**", "/swagger-ui/**")) {
             assertTrue(ignore.contains(required), "ignore missing required path: " + required);
         }
+        assertFalse(ignore.contains("/federate/links") || ignore.contains("/auth/federate/links"),
+                "federate links management must require session JWT");
     }
 
     /** True if a top-level martin: child key named {@code key} exists. */
