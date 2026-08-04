@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 可信保存：A 层全量 structural diff（ADR-0022 切片 3）
+
+- 根因：`checkVersionData` 仅比 modules 内表/字段/索引，改关联、关系图布局、默认字段、数据类型域时 dirty chip 仍显示「与版本一致」
+- 改动：新增 `frontend/src/utils/versionStructuralDiff.ts`（associations / diagrams / graphCanvas / profile 建模键 / dataTypeDomains）；`useVersionStore.checkVersionData` 与 `dbversionutils` 统一走该模块；`baselineProjectJSON` 与存版快照 `snapshotProjectJSONForVersion` 含 profile + domains；空 diff 存版 `message.warning` 且不阻塞（北极星口径排除空 changes）
+- `VersionDiffPanel` / `formatVersionDiffMarkdown` 增 association / diagram / profile / datatype / module 类型标签
+
+验证点：
+- `cd frontend && npx tsx src/utils/versionStructuralDiff.test.ts`
+- `cd frontend && yarn test:unit:version-baseline`（含 baseline 快照扩展）
+- `cd frontend && npx playwright test --project=chromium tests/e2e/version-dirty-chip.spec.ts`（profile 改默认字段 + 画布连线 → 未存版本）
+
 #### 可信保存：顶栏 A 层 dirty chip（ADR-0022 切片 2）
 
 - 设计器顶栏新增 `VersionDirtyChip`：四态——与版本一致 / 未存版本（+N −M ~U 摘要）/ 基线未知（点击重试）/ 尚无版本（引导存版）；点击脏态或无基线 → 版本页，未知 → 重拉基线

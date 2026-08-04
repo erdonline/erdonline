@@ -20,6 +20,11 @@ const TYPE_LABEL: Record<string, string> = {
   entity: '表',
   field: '字段',
   index: '索引',
+  association: '关联',
+  diagram: '关系图',
+  profile: '项目配置',
+  datatype: '数据类型',
+  module: '模块',
 };
 
 export type VersionDiffPanelProps = {

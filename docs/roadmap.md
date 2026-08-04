@@ -54,7 +54,7 @@
 
 - ~~基线独立拉最新版本（禁用分页 `versions[0]`）~~ ✅（2026-08-04；`create_time` 倒序 `size:1` 独立查询 + 无基线态提示）
 - ~~实时 dirty chip（干净 / 有改动 / 落库失败；与顶栏保存状态合并语义，不重复反馈）~~ ✅（2026-08-04；顶栏 `VersionDirtyChip` + SaveStatus 改「已落盘」）
-- 全量 diff（`associations` / `diagrams` / `profile` 进 diff）+ 防抖；**空 changes 不计入「有版本保存」北极星** 📋
+- ~~全量 diff（`associations` / `diagrams` / `profile` 进 diff）+ 防抖；**空 changes 不计入「有版本保存」北极星**~~ ✅（2026-08-04；`versionStructuralDiff.ts` + 存版 warn + 快照含 profile/domains）
 
 **并发与持久化底座（先防丢数据）**
 
