@@ -9,7 +9,11 @@
 
 **下一阶段战略（服务北极星，不推翻愿景）**：P2b 矩阵 🚧 已清零（见 [control-matrix.md](./control-matrix.md)）；余下矩阵 📋 为延期（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery 等，见矩阵）。
 
-### Vision 自动轨暂停点（2026-08-03 · `d94f1fd`）
+### Vision 自动轨重定向（2026-08-04）
+
+人工指定主题：**双层一致性与可信保存**（[ADR-0022](./adr/0022-dual-layer-consistency.md)）。Vision 5m 循环（`scripts/agent-loop-vision.prompt.md`）按该主题的切片队列续跑（A 工作区 → 并发/持久化底座 → B 实库五态），一 tick 一刀，做完自动推进；仅用户叫停或连续两轮指标变差才暂停改动。详见下「双层一致性 🚧」。
+
+### Vision 自动轨暂停点（2026-08-03 · `d94f1fd`，已被上方重定向取代）
 
 自动扫描结论：已无**未锁定**的高 ROI P0/P1 Vision 切片（不含已密 chrome 再 densify、不含 Auth logo）。**自动 Vision track 暂停**，等人工解封后再续跑。
 
@@ -41,6 +45,30 @@
 - 公开路由 `/`（未登录可访问）；登录「了解产品」回链；未登录主 CTA → `/demo`，已登录主 CTA → `/home`
 - 实现约束：品牌优先 + **全幅**真实画布截图（`landing-hero.jpg`），禁止侧栏嵌图 / 紫色渐变 AI slop；见 [landing.md](./landing.md)
 - E2E：`landing.spec.ts`（加载 + CTA→demo/登录 + 已登录→工作台）✅
+
+### 双层一致性与可信保存 🚧
+
+> 依据 [ADR-0022](./adr/0022-dual-layer-consistency.md)：借 Git 心智（status / pull / push）把三个真相分层表达；**禁止自动双向同步**。当前 Vision 5m 循环的唯一主题。
+
+**A 工作区（内存 projectJSON ↔ 最新版本）**
+
+- 基线独立拉最新版本（禁用分页 `versions[0]`）📋
+- 实时 dirty chip（干净 / 有改动 / 落库失败；与顶栏保存状态合并语义，不重复反馈）📋
+- 全量 diff（`associations` / `diagrams` / `profile` 进 diff）+ 防抖；**空 changes 不计入「有版本保存」北极星** 📋
+
+**并发与持久化底座（先防丢数据）**
+
+- ~~删卸载盲存（`closeSocket` 无条件 `Save.saveProject`）→ 仅脏时落库且结果可见~~ ✅（2026-08-04）
+- project 乐观锁（冲突可行动提示，不静默覆盖）📋
+- `db_change.version` 唯一约束（Flyway）📋
+- 诚实持久化：落库失败落本地草稿 + `beforeunload` 拦截，再次进入可对比/丢弃 📋
+
+**B 实库（模型 ↔ 活库 schema）**
+
+- 判据换实测 schema 指纹（表/列/索引规范化哈希）；`db_version` 降级为提示 📋
+- 修 `compareStringVersion`（空段 / `NaN` / 前缀）；不可判 → 未知态而非「一致」📋
+- 五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）📋
+- 分享访客隐藏 B 层 📋
 
 ### 产品深度（走出「thin CRUD」）📋
 

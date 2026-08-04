@@ -22,10 +22,11 @@ import json, os
 body = os.environ["PROMPT_BODY"]
 prompt = (
     "你是 ERD Online 的产品经理循环（Vision 5m）。"
-    "常驻指令：持续优化前端 UI/UX，不要停；每 tick 交付可见体验改进（体验轨优先）。"
+    "常驻指令：主题锁定「双层一致性与可信保存」（ADR-0022），持续优化不要停；"
+    "每 tick 交付主题内一刀（状态可见 / 并发不丢数据 / 实库五态）。"
     "执行 scripts/agent-loop-vision.prompt.md 的完整指令（正文附后）。"
-    "本 tick 必须交付一个可验证切片；禁止以 idle / 没事可做 / 只剩化妆品 结束。"
-    "目标从 docs/roadmap.md、capability-map、UX 走查、git 现场推导；禁止写死功能清单。"
+    "本 tick 必须交付一个可验证切片；禁止以 idle / 没事可做 / 队列做完了 结束。"
+    "选题优先读 prompt 内切片队列，其次 docs/roadmap.md 双层一致性区与 git 现场。"
     "Agent 回报 idle 不会停止本 shell——下一轮 5m 仍会唤醒；你应直接开工而非空转。\n\n"
     + body
 )
