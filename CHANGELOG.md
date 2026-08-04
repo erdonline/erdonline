@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 切片 3 — `GET /api/v1/projects/{id}/versions[+/{versionId}]`
+
+- 选题：切片 2 后 agent 仍缺版本时间线只读事实源
+- `GET /api/v1/projects/{id}/versions`：分页（可选 `dbKey`）；复用 `db_change` / `DbChangeService`；需 `versions:read` + 成员 ACL；列表不含 `projectJSON`
+- `GET /api/v1/projects/{id}/versions/{versionId}`：详情含 `changes` + 清洗后的 `projectJSON`（清空 `profile.dbs`，ADR-0008）；异项目 versionId → 404
+- 未做：MCP、写 scope / `POST …/versions`
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PublicApiVersionServiceTest,PublicApiProjectServiceTest,PatScopesTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：铸造 PAT → `GET …/versions` 200；详情 `profile.dbs=[]`；无 token → 401
+
 #### 开放：ADR-0013 切片 2 — `GET /api/v1/projects[+/{id}]`
 
 - 选题：切片 1 PAT 落地后，agent 仍缺成员项目只读事实源

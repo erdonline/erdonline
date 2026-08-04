@@ -20,7 +20,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 公开 API v1：PAT 鉴权；项目只读（成员 ACL + projects:read）。
+ * 公开 API v1：PAT 鉴权；项目/版本只读（成员 ACL + scope）。
  */
 @RestController
 @RequestMapping("/api/v1")
@@ -30,6 +30,7 @@ import java.util.stream.Collectors;
 public class PublicApiV1Controller {
 
     private final PublicApiProjectService publicApiProjectService;
+    private final PublicApiVersionService publicApiVersionService;
 
     @GetMapping("/me")
     @Operation(summary = "PAT 鉴权自检")
@@ -59,5 +60,23 @@ public class PublicApiV1Controller {
     @Operation(summary = "获取项目详情（projectJSON 只读，已清 profile.dbs）")
     public R<PublicProjectDetailView> getProject(@PathVariable("id") String id) {
         return R.ok(publicApiProjectService.getMine(id));
+    }
+
+    @GetMapping("/projects/{id}/versions")
+    @Operation(summary = "分页列出项目版本（需 versions:read + 成员；不含 projectJSON）")
+    public R<PublicVersionPageView> listVersions(
+            @PathVariable("id") String id,
+            @RequestParam(required = false) String dbKey,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return R.ok(publicApiVersionService.listMine(id, dbKey, page, size));
+    }
+
+    @GetMapping("/projects/{id}/versions/{versionId}")
+    @Operation(summary = "版本详情（含清洗后的 projectJSON）")
+    public R<PublicVersionDetailView> getVersion(
+            @PathVariable("id") String id,
+            @PathVariable("versionId") String versionId) {
+        return R.ok(publicApiVersionService.getMine(id, versionId));
     }
 }
