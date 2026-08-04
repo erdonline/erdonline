@@ -8,6 +8,7 @@
 - [x] [PAT 哈希] 铸造后库内仅 `token_hash`/`token_hint`，无明文 ✅`PatTokenCodecTest` + `PersonalAccessTokenAuthTest`
 - [x] [scope 门禁] 默认只读；写 scope 须显式铸造 ✅`PatScopesTest`
 - [x] [限流骨架] 超配额拒绝 ✅`PublicApiRateLimiterTest`
+- [x] [Redis 集群限流] Redisson `RRateLimiter`；超限 DENY；Redis 异常 UNAVAILABLE（fail-closed） ✅`PublicApiRateLimiterTest`
 - [x] [手工 dogfood] 登录铸造 → `GET /api/v1/me` 200；无 token / 坏 token → 401；JWT 调 `/api/v1/me` → 401 ✅ 2026-08-04
 - [x] [projects 列表] PAT + `projects:read` → `GET /api/v1/projects` 仅成员项目 ✅`PublicApiProjectServiceTest` + curl
 - [x] [projects 详情] 非成员 403；`projectJSON.profile.dbs` 空列表 ✅`PublicApiProjectServiceTest` + `ProjectShareSanitizeTest`

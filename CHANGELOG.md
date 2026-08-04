@@ -8,6 +8,17 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — Redis 集群限流（替换进程内骨架）
+
+- 选题：进程内滑动窗口在多实例下配额不共享；ADR 下一候选为 Redis 限流（本刀不做 OAuth）
+- `PublicApiRateLimiter`：复用既有 `RedissonClient`，`RRateLimiter` key `erd:public-api:rl:<pat|ip>`；默认仍 60/min（`ERD_PUBLIC_API_RATE_LIMIT`）
+- 失效策略：**fail-closed** — Redis 异常 → HTTP 503（不回落进程内存，避免多实例旁路）；超配额仍 429 + `Retry-After`
+- 单测：mock Redisson（无 Testcontainers）；未做 OAuth / MCP `projects:write` tools
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PublicApiRateLimiterTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：`GET /api/v1/me` 无 token → 401（限流链未误伤）；有效 PAT → 200
+
 #### 开放：ADR-0013 — `projects:write` REST（PATCH 元数据 + PUT projectJSON）
 
 - 选题：切片 5 后 `projects:write` 可铸造但无对应 REST；agent 无法改项目名/工作区 fact

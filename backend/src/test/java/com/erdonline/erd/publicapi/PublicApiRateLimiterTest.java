@@ -2,52 +2,84 @@ package com.erdonline.erd.publicapi;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.redisson.api.RRateLimiter;
+import org.redisson.api.RateIntervalUnit;
+import org.redisson.api.RateType;
+import org.redisson.api.RedissonClient;
 
-import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.lenient;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+@ExtendWith(MockitoExtension.class)
 class PublicApiRateLimiterTest {
+
+    @Mock
+    private RedissonClient redisson;
+    @Mock
+    private RRateLimiter rateLimiter;
 
     private PublicApiRateLimiter limiter;
 
     @BeforeEach
     void setUp() {
-        limiter = new PublicApiRateLimiter(3);
+        limiter = new PublicApiRateLimiter(redisson, 60);
+        lenient().when(redisson.getRateLimiter(anyString())).thenReturn(rateLimiter);
+        lenient().when(rateLimiter.trySetRate(eq(RateType.OVERALL), anyLong(), anyLong(), eq(RateIntervalUnit.MINUTES)))
+                .thenReturn(true);
     }
 
     @Test
-    void allowsUpToLimitThenBlocks() {
-        long t0 = 1_000_000L;
-        assertTrue(limiter.tryAcquire("pat:1", t0));
-        assertTrue(limiter.tryAcquire("pat:1", t0 + 1));
-        assertTrue(limiter.tryAcquire("pat:1", t0 + 2));
-        assertFalse(limiter.tryAcquire("pat:1", t0 + 3));
+    void allowsWhenRedisAcquireSucceeds() {
+        when(rateLimiter.tryAcquire(1)).thenReturn(true);
+        assertEquals(PublicApiRateLimiter.Decision.ALLOW, limiter.tryAcquire("pat:1"));
+        verify(redisson).getRateLimiter(PublicApiRateLimiter.KEY_PREFIX + "pat:1");
+        verify(rateLimiter).trySetRate(RateType.OVERALL, 60, 1, RateIntervalUnit.MINUTES);
     }
 
     @Test
-    void windowSlides() {
-        long t0 = 2_000_000L;
-        assertTrue(limiter.tryAcquire("pat:2", t0));
-        assertTrue(limiter.tryAcquire("pat:2", t0 + 1));
-        assertTrue(limiter.tryAcquire("pat:2", t0 + 2));
-        assertFalse(limiter.tryAcquire("pat:2", t0 + 3));
-        // oldest falls out of 60s window
-        assertTrue(limiter.tryAcquire("pat:2", t0 + 60_001L));
+    void deniesWhenOverQuota() {
+        when(rateLimiter.tryAcquire(1)).thenReturn(false);
+        assertEquals(PublicApiRateLimiter.Decision.DENY, limiter.tryAcquire("pat:1"));
     }
 
     @Test
-    void keysAreIsolated() {
-        long t0 = 3_000_000L;
-        assertTrue(limiter.tryAcquire("a", t0));
-        assertTrue(limiter.tryAcquire("a", t0));
-        assertTrue(limiter.tryAcquire("a", t0));
-        assertFalse(limiter.tryAcquire("a", t0));
-        assertTrue(limiter.tryAcquire("b", t0));
+    void failClosedWhenRedisThrows() {
+        when(redisson.getRateLimiter(anyString())).thenThrow(new RuntimeException("redis down"));
+        assertEquals(PublicApiRateLimiter.Decision.UNAVAILABLE, limiter.tryAcquire("pat:1"));
+    }
+
+    @Test
+    void blankKeyUsesAnonymousBucket() {
+        when(rateLimiter.tryAcquire(1)).thenReturn(true);
+        assertEquals(PublicApiRateLimiter.Decision.ALLOW, limiter.tryAcquire("  "));
+        verify(redisson).getRateLimiter(PublicApiRateLimiter.KEY_PREFIX + "anonymous");
+    }
+
+    @Test
+    void keysUseDistinctRedisBuckets() {
+        when(rateLimiter.tryAcquire(1)).thenReturn(true);
+        limiter.tryAcquire("pat:a");
+        limiter.tryAcquire("pat:b");
+        verify(redisson).getRateLimiter(eq(PublicApiRateLimiter.KEY_PREFIX + "pat:a"));
+        verify(redisson).getRateLimiter(eq(PublicApiRateLimiter.KEY_PREFIX + "pat:b"));
     }
 
     @Test
     void rejectsNonPositiveLimit() {
-        assertThrows(IllegalArgumentException.class, () -> new PublicApiRateLimiter(0));
+        assertThrows(IllegalArgumentException.class, () -> new PublicApiRateLimiter(redisson, 0));
+    }
+
+    @Test
+    void rejectsNullRedisson() {
+        assertThrows(IllegalArgumentException.class, () -> new PublicApiRateLimiter(null, 60));
     }
 }

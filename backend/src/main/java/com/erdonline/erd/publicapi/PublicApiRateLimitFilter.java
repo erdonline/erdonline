@@ -14,7 +14,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /**
- * 公开 API 限流骨架：按 PAT id（或 IP）滑动窗口。仅挂 SecurityFilterChain。
+ * 公开 API 限流：按 PAT id（或 IP）Redis 配额。仅挂 SecurityFilterChain。
  */
 @RequiredArgsConstructor
 public class PublicApiRateLimitFilter extends OncePerRequestFilter {
@@ -36,17 +36,25 @@ public class PublicApiRateLimitFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         Object tokenId = request.getAttribute("erd.pat.tokenId");
         String key = tokenId != null ? "pat:" + tokenId : "ip:" + clientIp(request);
-        if (!publicApiRateLimiter.tryAcquire(key, System.currentTimeMillis())) {
-            response.setStatus(429);
-            response.setHeader("Retry-After", "60");
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            objectMapper.writeValue(response.getOutputStream(),
-                    R.failed(429, "public API rate limit exceeded ("
-                            + publicApiRateLimiter.getLimitPerMinute() + "/min)"));
+        PublicApiRateLimiter.Decision decision = publicApiRateLimiter.tryAcquire(key);
+        if (decision == PublicApiRateLimiter.Decision.ALLOW) {
+            filterChain.doFilter(request, response);
             return;
         }
-        filterChain.doFilter(request, response);
+        if (decision == PublicApiRateLimiter.Decision.UNAVAILABLE) {
+            writeJson(response, 503, "public API rate limit unavailable (Redis)");
+            return;
+        }
+        response.setHeader("Retry-After", "60");
+        writeJson(response, 429, "public API rate limit exceeded ("
+                + publicApiRateLimiter.getLimitPerMinute() + "/min)");
+    }
+
+    private void writeJson(HttpServletResponse response, int status, String msg) throws IOException {
+        response.setStatus(status);
+        response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        objectMapper.writeValue(response.getOutputStream(), R.failed(status, msg));
     }
 
     private static String clientIp(HttpServletRequest request) {
