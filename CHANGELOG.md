@@ -8,6 +8,20 @@
 
 ### 2026-08-04
 
+#### 可信保存：A 层基线改为独立查询最新版本（ADR-0022 切片 1）
+
+- 根因：dirty 判定的基线取自**分页**版本列表的 `versions[0]`——翻页/换排序即漂移；且列表按 `version` 字符串倒序，`9.0.0` 会排在 `10.0.0` 之前，"最新版本"本身就可能是错的；`versions` 为空时 `recalculateChanges` 直接跳过，首次建模被显示为「已与最新版本一致」（静默无差异）
+- 改动：新增 `frontend/src/utils/versionBaseline.ts`（纯函数：dbKey 解析、`size:1` + `create_time` 倒序查询体、无基线 → 空模型 diff）；`useVersionStore` 增 `versionBaseline` / `baselineLoaded` 与 `fetchVersionBaseline`，`calcChanges` / `recalculateChanges` 一律比基线；打开项目（`useProjectStore.fetch`）即独立拉一次基线，不再依赖版本页
+- 连带修正同类污染：`saveNewVersion` 的「新版本必须更大」校验与 `baseVersion` 首版判定、`AddVersion` 建议版本号改用基线（列表第 N 页不再顶高/拦截保存）；删版本后 `changes` 不再被塞进 Promise（原来会让 `changes.length` 为 undefined → 假「已一致」）
+- 无基线态在版本页显式呈现：`version-no-baseline`（尚无版本基线，建议先保存第一个版本）与 `version-baseline-unknown`（基线查询失败 → 未知，不伪装一致）
+- 顺带清死代码：写而不读的 `currentChanges`、未使用的 `PAGE` / `fetchDatabaseConfigs` 导入；`recalculateChanges` 不再覆盖版本详情弹窗的 `messages`
+
+验证点：
+- `cd frontend && yarn test:unit:version-baseline`（查询体 size/排序、dbKey 优先级、无基线=全部未提交）
+- `cd frontend && npx playwright test --project=chromium tests/e2e/version-baseline.spec.ts`（无版本→无基线提示；存版本→一致；把列表首条伪造成空模型的 `9.9.9` 后仍判一致且建议版本号仍为 `1.0.1`）
+- 排序真相 curl（同一项目先存 `9.0.0` 再存 `10.0.0`）：`orders=[createTime desc]` → `10.0.0`；旧的 `orders=[version desc]` → `9.0.0`；`current:2,size:1` → `9.0.0`（分页污染源）
+- 回归：`npx playwright test --project=chromium tests/e2e/version.spec.ts tests/e2e/version-save-failure.spec.ts tests/e2e/compare.spec.ts tests/e2e/version-revert-failure.spec.ts` 15 passed
+
 #### 流程：Vision 循环 & 全局模型路由改为「think 强模型 / exec 便宜模型」
 
 - 落实用户规则「思考用强模型，执行用便宜模型」：`.cursor/rules/model-routing.mdc` 路由表与可用 slug 全量更新（think 默认 `claude-sonnet-5-thinking-high`，exec 默认 `composer-2.5-fast`）；`scripts/agent-loop-vision.prompt.md` 新增「模型路由」节；`scripts/agent-loop-vision.sh` 新增 `VISION_THINK_MODEL`/`VISION_EXEC_MODEL` 环境变量并拼入 emit 提示词；`docs/development.md` 同步一段说明

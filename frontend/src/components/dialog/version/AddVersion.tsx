@@ -23,9 +23,10 @@ type FormValues = {
 
 const AddVersion: React.FC<AddVersionProps> = (props) => {
   const {label = '新增版本', testId = 'add-version-btn'} = props;
-  const {versions, versionDispatch} = useVersionStore(
+  const {versions, versionBaseline, versionDispatch} = useVersionStore(
     (state) => ({
       versions: state.versions,
+      versionBaseline: state.versionBaseline,
       versionDispatch: state.dispatch,
     }),
     shallow,
@@ -34,7 +35,11 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const versionInputRef = useRef<InputRef>(null);
-  const initialVersion = useMemo(() => suggestNextVersion(versions), [versions]);
+  // 建议版本号以独立查询的最新版本基线为准；列表可能只是某一页
+  const initialVersion = useMemo(
+    () => suggestNextVersion(versionBaseline ? [versionBaseline, ...versions] : versions),
+    [versionBaseline, versions],
+  );
 
   const closeModal = () => {
     setOpen(false);

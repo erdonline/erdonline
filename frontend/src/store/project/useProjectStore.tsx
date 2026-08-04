@@ -112,6 +112,18 @@ let lastSyncedProjectJson: any = null;
 /** 远端同步提示节流 */
 let lastRemoteSyncToastAt = 0;
 
+/** 打开项目即独立拉一次 A 层基线（最新版本），不依赖版本页分页（ADR-0022） */
+function loadVersionBaseline() {
+  try {
+    // 懒加载避免与 useVersionStore ↔ useProjectStore 循环依赖
+    // eslint-disable-next-line @typescript-eslint/no-var-requires
+    const versionStore = require('@/store/version/useVersionStore').default;
+    versionStore.getState().dispatch.fetchVersionBaseline();
+  } catch (e) {
+    console.warn('loadVersionBaseline: versionStore unavailable', e);
+  }
+}
+
 
 enablePatches()
 
@@ -216,6 +228,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 set({
                   tables
                 });
+                loadVersionBaseline();
               } else {
                 message.error('获取项目信息失败');
               }
