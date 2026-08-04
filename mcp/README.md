@@ -81,4 +81,4 @@ cd mcp && yarn install && yarn dogfood
 
 - connector / mutate SQL
 - 会话 JWT（`/api/v1` 一律拒绝）
-- `projects:write` 对应 REST（scope 可铸造，接口后置）
+- `projects:write` MCP tools（REST 已有 `PATCH /projects/{id}` + `PUT …/projectJSON`；MCP 后置）

@@ -18,6 +18,8 @@
 - [x] [MCP 只读骨架] `cd mcp && yarn dogfood`：tools 五只读 + REST；无写 tool ✅ 2026-08-04（切片 4）
 - [x] [写 scope 铸造] `projects:write` / `versions:write` 可铸造；默认仍只读 ✅`PatScopesTest`
 - [x] [POST versions] `versions:write` + 成员 → 创建版本；清 `profile.dbs`；无写 scope → 403 ✅`PublicApiVersionServiceTest` + dogfood
+- [x] [PATCH project] `projects:write` + 成员 → 改 `projectName`；无写 scope → 403 ✅`PublicApiProjectServiceTest` + curl
+- [x] [PUT projectJSON] 写入前清 `profile.dbs`；非成员 403 ✅`PublicApiProjectServiceTest` + curl
 - [x] [MCP create_version] `yarn dogfood`：REST 写 + MCP `create_version` ✅ 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
