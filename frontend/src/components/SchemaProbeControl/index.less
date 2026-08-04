@@ -1,0 +1,26 @@
+.schema-probe-control {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+  white-space: nowrap;
+
+  &--chrome {
+    padding-inline: 4px;
+    border-left: 1px solid var(--erd-line);
+    margin-left: 4px;
+    padding-left: 8px;
+  }
+
+  &__unknown-cta {
+    padding-inline: 4px;
+    font-size: 12px;
+    max-width: 120px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &--chrome &__status--actionable {
+    cursor: pointer;
+  }
+}

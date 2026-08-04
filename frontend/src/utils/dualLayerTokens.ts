@@ -46,7 +46,7 @@ export const LAYER = {
 export const TOP_BAR_SIGNALS = [
   { key: 'persist', label: '落盘', hint: '模型自动保存到服务器（project 表）' },
   { key: 'version', label: '未存版本', hint: LAYER.A.compareHint },
-  { key: 'schema', label: '与库', hint: LAYER.B.compareHint },
+  { key: 'schema', label: '与库', hint: `${LAYER.B.compareHint}；顶栏雷达按钮显式探测` },
 ] as const;
 
 /** 结构化 diff 操作：VersionDiffPanel / 版本行摘要 / dirty 摘要共用 */

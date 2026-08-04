@@ -15,9 +15,12 @@ import {
   resolveUnknownCopy,
   statusHint,
 } from '@/utils/schemaProbeCopy';
+import './index.less';
 
 type SchemaProbeControlProps = {
   disabled?: boolean;
+  /** chrome = 设计器顶栏（icon-only）；toolbar 保留完整按钮文案（已弃用，统一顶栏） */
+  variant?: 'chrome' | 'toolbar';
 };
 
 const INITIAL_RESULT: ProbeResult = {
@@ -28,7 +31,11 @@ const INITIAL_RESULT: ProbeResult = {
 /**
  * B 层显式探测控件（ADR-0022 #8/#10）：五态 + 未知四路文案。
  */
-const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => {
+const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
+  disabled,
+  variant = 'chrome',
+}) => {
+  const isChrome = variant === 'chrome';
   const access = useAccess();
   const probeAllowed = !isShareGuestContext() && access.canErdConnectorSchemaProbe;
   const [loading, setLoading] = useState(false);
@@ -36,11 +43,12 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => 
 
   const projectJSON = useProjectStore((s) => s.project?.projectJSON);
   const getCurrentDBData = useVersionStore((s) => s.dispatch.getCurrentDBData);
+  const dbs = useVersionStore((s) => s.dbs);
 
   const datasourceMissing = useMemo(() => {
     const dbData = getCurrentDBData();
     return !dbData || dbData.isSnapshot || dbData.key === SNAPSHOT_DB_KEY;
-  }, [getCurrentDBData]);
+  }, [getCurrentDBData, dbs]);
 
   const displayResult: ProbeResult = useMemo(() => {
     if (datasourceMissing) {
@@ -105,13 +113,25 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => 
   const tagLabel = loading ? '探测中…' : STATUS_LABEL[status] ?? STATUS_LABEL.UNKNOWN;
   const tagColor = loading ? 'processing' : STATUS_COLOR[status] ?? STATUS_COLOR.UNKNOWN;
 
+  const statusTooltip = loading
+    ? '正在连接并逆向解析实库…'
+    : isUnknown && unknownCopy
+      ? `${unknownCopy.title}：${unknownCopy.hint}`
+      : statusHint(displayResult);
+
   const statusTag = (
-    <Tooltip title={loading ? '正在连接并逆向解析实库…' : statusHint(displayResult)}>
+    <Tooltip title={statusTooltip}>
       <Tag
         color={tagColor}
+        className={isChrome && isUnknown && unknownCopy ? 'schema-probe-control__status--actionable' : undefined}
         data-testid="schema-probe-status"
         data-probe-status={status}
         data-probe-reason={displayResult.reason ?? ''}
+        onClick={
+          isChrome && isUnknown && unknownCopy && !disabled && !loading
+            ? handleUnknownCta
+            : undefined
+        }
       >
         {tagLabel}
       </Tag>
@@ -119,7 +139,7 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => 
   );
 
   const unknownHint =
-    isUnknown && unknownCopy ? (
+    !isChrome && isUnknown && unknownCopy ? (
       <Tooltip title={unknownCopy.hint}>
         <Button
           type="link"
@@ -133,25 +153,46 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({ disabled }) => 
           {unknownCopy.title}
         </Button>
       </Tooltip>
+    ) : isChrome && isUnknown && unknownCopy ? (
+      // chrome 模式：可行动文案进 status tooltip + 点 Tag；E2E 仍断言 hint 文案
+      <span
+        className="schema-probe-control__unknown-cta"
+        data-testid="schema-probe-unknown-hint"
+        aria-hidden="true"
+        hidden
+      >
+        {unknownCopy.title}
+      </span>
     ) : null;
 
   if (!probeAllowed) {
     return null;
   }
 
+  const probeButton = (
+    <Button
+      size="small"
+      icon={<RadarChartOutlined />}
+      loading={loading}
+      disabled={disabled || loading || datasourceMissing}
+      onClick={runProbe}
+      aria-label="探测实库 schema"
+      data-testid="schema-probe-btn"
+    >
+      {isChrome ? null : '探测实库'}
+    </Button>
+  );
+
   return (
-    <span className="schema-probe-control" data-testid="schema-probe-control">
-      <Button
-        size="small"
-        icon={<RadarChartOutlined />}
-        loading={loading}
-        disabled={disabled || loading || datasourceMissing}
-        onClick={runProbe}
-        aria-label="探测实库 schema"
-        data-testid="schema-probe-btn"
-      >
-        探测实库
-      </Button>
+    <span
+      className={`schema-probe-control${isChrome ? ' schema-probe-control--chrome' : ''}`}
+      data-testid="schema-probe-control"
+    >
+      {isChrome ? (
+        <Tooltip title="探测实库 schema（显式操作，不会自动同步）">{probeButton}</Tooltip>
+      ) : (
+        probeButton
+      )}
       {statusTag}
       {unknownHint}
     </span>
