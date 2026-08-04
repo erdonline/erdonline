@@ -38,4 +38,11 @@ class PatScopesTest {
         assertTrue(PatScopes.has(Set.of(PatScopes.PROJECTS_READ), PatScopes.PROJECTS_READ));
         assertFalse(PatScopes.has(Set.of(), PatScopes.VERSIONS_READ));
     }
+
+    @Test
+    void requireThrowsForbiddenWhenMissing() {
+        assertThrows(com.erdonline.common.core.exception.ValidateException.class,
+                () -> PatScopes.require(Set.of(PatScopes.VERSIONS_READ), PatScopes.PROJECTS_READ));
+        PatScopes.require(Set.of(PatScopes.PROJECTS_READ), PatScopes.PROJECTS_READ);
+    }
 }

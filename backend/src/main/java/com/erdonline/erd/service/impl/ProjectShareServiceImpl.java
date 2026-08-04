@@ -106,7 +106,8 @@ public class ProjectShareServiceImpl extends ServiceImpl<ProjectShareMapper, Pro
      * ADR-0008：匿名分享不携带 profile.dbs 连接明细（机密已隔离到 data_sources）。
      */
     @SuppressWarnings("unchecked")
-    static Map<String, Object> sanitizeProjectJson(Map<String, Object> projectJson) {
+    /** ADR-0008 / 公开 API：清空 profile.dbs；不污染入参 Map。 */
+    public static Map<String, Object> sanitizeProjectJson(Map<String, Object> projectJson) {
         if (projectJson == null || projectJson.isEmpty()) {
             return projectJson;
         }

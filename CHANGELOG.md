@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 切片 2 — `GET /api/v1/projects[+/{id}]`
+
+- 选题：切片 1 PAT 落地后，agent 仍缺成员项目只读事实源
+- `GET /api/v1/projects`：分页列出当前 PAT 用户在 `project_user` 内的项目（复用 `projectPage`）
+- `GET /api/v1/projects/{id}`：成员 ACL + `projects:read`；`projectJSON` 清空 `profile.dbs`（ADR-0008）
+- 无 PAT / 非 `erd_pat_` / 缺 scope / 非成员 → 401/403；会话 JWT 不进 `/api/v1`
+- 未做：versions 只读、MCP、写 scope
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=PatScopesTest,PublicApiProjectServiceTest,PersonalAccessTokenAuthTest,ProjectShareSanitizeTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后：铸造 PAT → `GET /api/v1/projects` 200；无 token → 401；JWT → 401；详情 `profile.dbs=[]`
+
 #### 开放：ADR-0013 切片 1 — PAT 哈希 + `/api/v1/me` + 限流骨架
 
 - 选题：Vision 暂停点 `785d699` 后人工选择 ADR-0013；先拍板 adopt-first 默认（PAT / 只读 scope / 60rpm）再落非争议 plumbing
