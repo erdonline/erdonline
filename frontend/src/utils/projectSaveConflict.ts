@@ -1,9 +1,12 @@
-import { Modal, message } from 'antd';
+import { message } from 'antd';
 import { history } from '@@/core/history';
 import * as Save from '@/utils/save';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import { clearProjectDraft } from '@/utils/projectLocalDraft';
+import { showProjectSaveConflictModal } from '@/components/dialog/project/ProjectSaveConflictModal';
+
+export { showProjectSaveConflictModal };
 
 /** 与后端 ApiErrorCode.PROJECT_SAVE_CONFLICT 对齐 */
 export const PROJECT_SAVE_CONFLICT_CODE = 409;
@@ -33,44 +36,6 @@ export function mergeSaveRevision<T extends Record<string, unknown>>(
     return project;
   }
   return { ...project, updateTime };
-}
-
-let conflictModalOpen = false;
-
-/** 409 可行动文案：刷新 / 另存为新项目 */
-export function showProjectSaveConflictModal(): void {
-  if (conflictModalOpen) {
-    return;
-  }
-  conflictModalOpen = true;
-  useGlobalStore.getState().dispatch.setSaveConflict(true);
-  useGlobalStore.getState().dispatch.setSaving(false);
-  useGlobalStore.getState().dispatch.setSaved(false);
-
-  Modal.warning({
-    title: '保存冲突',
-    content:
-      '项目已被其他窗口或协作者更新，当前改动未能写入服务器。你可以刷新加载最新内容，或把本地改动另存为新项目。',
-    okText: '刷新项目',
-    okCancel: true,
-    cancelText: '另存为新项目',
-    closable: true,
-    maskClosable: false,
-    onOk: () => {
-      conflictModalOpen = false;
-      void reloadProjectFromServer().finally(() => {
-        Modal.destroyAll();
-      });
-    },
-    onCancel: () => {
-      conflictModalOpen = false;
-      void forkLocalProjectAsCopy();
-      return Promise.resolve();
-    },
-    afterClose: () => {
-      conflictModalOpen = false;
-    },
-  });
 }
 
 export async function reloadProjectFromServer(): Promise<void> {

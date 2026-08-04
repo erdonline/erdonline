@@ -262,6 +262,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                   tables,
                   ...(currentDbKey ? { currentDbKey } : {}),
                 });
+                rememberServerProjectJSON(project.projectJSON as Record<string, unknown>);
                 loadVersionBaseline();
                 offerProjectDraftRecovery(String(resolvedId), project);
               } else {
@@ -408,6 +409,7 @@ import {
   isProjectSaveConflict,
   showProjectSaveConflictModal,
 } from '@/utils/projectSaveConflict';
+import { rememberServerProjectJSON } from '@/utils/projectSaveConflictPreview';
 import { clearProjectDraft, writeProjectDraft } from '@/utils/projectLocalDraft';
 import { offerProjectDraftRecovery } from '@/utils/projectDraftRecovery';
 

@@ -41,6 +41,11 @@ test.describe('project/save 乐观锁冲突', () => {
       await expect(page.getByRole('dialog', { name: '保存冲突' })).toBeVisible({
         timeout: 20_000,
       });
+      await expect(page.getByTestId('project-save-conflict-modal')).toBeVisible();
+      await expect(page.getByTestId('project-save-conflict-preview')).toBeVisible({
+        timeout: 20_000,
+      });
+      await expect(page.getByTestId('version-diff-panel')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByTestId('save-status')).toHaveText('保存冲突，点击查看选项');
       await expect(page.getByTestId('save-status')).not.toHaveText('已落盘');
     } finally {

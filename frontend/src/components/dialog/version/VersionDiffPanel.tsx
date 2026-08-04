@@ -30,13 +30,19 @@ export type VersionDiffPanelProps = {
   messages: VersionDiffItem[];
   /** 右侧脚本非空但无结构化变更时的提示（全量脚本） */
   hasScript?: boolean;
+  /** 摘要行上下文说明，默认「A 层版本 diff」 */
+  summaryHint?: string;
 };
 
 /**
  * 版本模型 diff 可视化：按表分组，增绿 / 删红 / 改黄。
  * 数据来自 useVersionStore.constructorMessage（与 DDL 同源）。
  */
-const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ messages, hasScript }) => {
+const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
+  messages,
+  hasScript,
+  summaryHint = 'A 层版本 diff',
+}) => {
   const { groups, summary } = useMemo(() => {
     const list = Array.isArray(messages) ? messages : [];
     const counts = countChanges(list);
@@ -80,7 +86,7 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ messages, hasScript
           </Tag>
         ))}
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          共 {messages.length} 项 · {groups.length} 张表 · A 层版本 diff
+          共 {messages.length} 项 · {groups.length} 张表 · {summaryHint}
         </Typography.Text>
       </Space>
       <ul className="version-diff-tree">
