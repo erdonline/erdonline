@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 运维：Vision 5m 循环改文件落盘，根治 stdout 管道卡死
+
+- 根因复核（承接 `e5842d5`）：旧版本把整段 tick payload（含 prompt 全文，数 KB）打到 stdout，靠某个 Cursor Shell 工具持续「读」这条管道才不阻塞；聊天结束后没人再读，OS 管道缓冲区几轮内写满，`emit()` 内 `echo` 卡在 `write()` —— 进程存活（`ps` 可见）但 tick 名存实亡，「活着但卡死」
+- 已评估 Cursor Automations（cron 触发）替代方案：**不采用**——(1) 当前会话无 `open_automation`/`open_resource` 编辑器句柄，无法从对话内直接创建；(2) 即使能创建，云端 cron 每 tick 都是全新沙箱，需重建 Colima/`docker-compose`/`dev-ensure.sh` 才能验证，与本仓「前后端进程常驻、永不重启」的开发回路速度纪律冲突，且验证不到本机 9502/8000 上真实跑着的实例，只适合纯代码/文档切片
+- 改动：`scripts/agent-loop-vision.sh` 改为 tick 主体直接 append 写文件（`TICK_FILE`，默认 `/tmp/erd-vision-tick.log`；超过 `AGENT_LOOP_VISION_TICK_MAX_LINES`＝500 行自动裁剪保留最近 tick），stdout 只留一行定长心跳（不含 prompt 正文），常年不可能写满管道；改用 tmux 会话 `erd-vision` 常驻（对齐 `dev-entrypoints.mdc` 后端 `erd-be` 的持久化模式），不再依赖任何 Cursor Shell/聊天会话保持连接；`docs/development.md`「5 分钟 Vision 自迭代」节 + `scripts/agent-loop-vision.prompt.md` 头部补齐根因、复活命令与边界说明（诚实标注：文件落盘只解决「进程会不会卡死」，不解决「谁来读文件并真正开工」，纯无人值守云端唤起仍需用户自行在 Agents Window 用 `automate` 技能建 Automation）
+- 旧进程状态：本轮检查时旧 `agent-loop-vision.sh` 进程已不存在（`ps aux` 无匹配），无需额外 kill；直接以新版本重新常驻
+
+验证点：
+- 本地 `AGENT_LOOP_VISION_INTERVAL=1 AGENT_LOOP_VISION_TICK_MAX_LINES=3` 跑 5s 冒烟：4 次 tick 全部写入文件且裁剪后仅保留 3 行，stdout 每行 <100 字节（验证不阻塞、裁剪生效）
+- `tmux new-session -d -s erd-vision '.../agent-loop-vision.sh'` 后 `tmux capture-pane -t erd-vision -p` 看到启动横幅 `tick_file=/tmp/erd-vision-tick.log`；`tmux has-session -t erd-vision` 为真
+- 5 分钟后应可见 `tail -n 1 /tmp/erd-vision-tick.log` 产出含最新 `agent-loop-vision.prompt.md`（含续跑队列 #12–#16）内容的 JSON 行
+
 #### 体验：/demo 引流页视觉升级（品牌氛围 + 工具条合并）
 
 - 问题：`/demo`（→ `/s/public-demo` 只读分享，落地页「在线试用」主 CTA 落点）作为引流页，chrome/meta 区观感偏行政化——hint 与切图 Segmented 分两行悬浮、页面纯灰平面无品牌氛围、画布贴底无装裱感，与「Figma-for-DB 惊艳时刻」定位不符

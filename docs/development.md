@@ -28,12 +28,36 @@ colima start --cpu 4 --memory 8 --disk 40 \
 
 ## 5 分钟 Vision 自迭代（可选）
 
+**根因（e5842d5，2026-08-04 复核）**：旧版本把整段 tick payload（含 prompt 全文）打到 stdout，靠某个 Cursor Shell 工具持续「读」这条管道才不阻塞；聊天结束后没人再读，OS 管道缓冲区几轮内写满，进程 `write()` 阻塞 —— 表现为「进程还在但卡死」（`ps` 能看到，tick 不再产出）。
+
+**已评估 Cursor Automations（cron 触发）替代 stdout 心跳**：不可行，两点原因都成立——(1) 本仓库当前会话没有 `open_automation` / `open_resource` 编辑器句柄，无法从对话内直接创建；(2) 即使能创建，Automations 的 cron 触发跑的是**云端全新沙箱**，每 tick 都要重新拉库/起 Colima/`docker-compose up`/`dev-ensure.sh`，与本仓「前后端常驻进程、永不重启」的开发回路速度纪律（`dev-loop-speed.mdc`）冲突，且验证不到本机 9502/8000 上真实跑着的实例。**结论：Vision 心跳继续走本地脚本，但改成文件落盘，不再依赖 stdout 管道被消费。**
+
+修复后的机制：tick 主体直接 **append 写文件**（`TICK_FILE`，默认 `/tmp/erd-vision-tick.log`），文件写入不看有没有人在读，天然不会因消费者缺席而阻塞；文件超过 `AGENT_LOOP_VISION_TICK_MAX_LINES`（默认 500 行）自动裁剪只保留最近的 tick，避免无限增长。stdout 只留一行定长心跳（不含 prompt 正文），常年不可能写满管道。
+
 ```bash
-./scripts/agent-loop-vision.sh   # 默认每 300s 唤醒；PROMPT 每次读 scripts/agent-loop-vision.prompt.md
-# AGENT_LOOP_VISION_INTERVAL=600 ./scripts/agent-loop-vision.sh
+# 幂等启动/恢复：挂在 tmux 会话 erd-vision，不受当前 Shell 工具或聊天结束影响
+tmux has-session -t erd-vision 2>/dev/null || \
+  tmux new-session -d -s erd-vision '/Users/liangcan9/cursor/erdonline/scripts/agent-loop-vision.sh'
+
+# 查看最近几条 tick（文件落盘，随时可读，不需要「有人在盯着」）
+tail -n 3 /tmp/erd-vision-tick.log
+
+# 确认心跳仍在产出（对比文件 mtime 与当前时间，超过 2× INTERVAL 说明已卡死，需重启）
+stat -f '%Sm' /tmp/erd-vision-tick.log   # macOS；Linux 用 stat -c '%y'
+
+# 改了 prompt.md 不需要重启，脚本每 tick 重新读文件
+
+# 停止
+tmux kill-session -t erd-vision
+
+# 如需自定义间隔 / tick 文件路径
+AGENT_LOOP_VISION_INTERVAL=600 AGENT_LOOP_VISION_TICK_FILE=/tmp/erd-vision-tick.log \
+  tmux new-session -d -s erd-vision '/Users/liangcan9/cursor/erdonline/scripts/agent-loop-vision.sh'
 ```
 
 选题规则在 `scripts/agent-loop-vision.prompt.md`：**常驻指令 = 持续优化 UI/UX，不要停**（体验轨偏置；每 tick 必须交付前端可见体验改进）。PM 发现→ROI→验证→commit；禁止默认 idle；改 prompt 即可，不必重启 shell。agent 回报 idle 时也**不退出**，5m 继续唤醒。
+
+**重要边界（诚实说明）**：文件落盘只解决「进程会不会卡死」，不解决「谁来读文件并真正开工」。本机脚本本身**不能**在没有任何活跃 Agent 会话时凭空唤起一次新的 Cursor 对话——`/tmp/erd-vision-tick.log` 是一个可随时查询的心跳/待办账本，需要人或一个正在跑的 Agent 会话定期 `tail` 它并据此执行 `agent-loop-vision.prompt.md`。若确实需要「完全无人值守、云端定时唤起 Agent」，唯一路径是用户自己在 **Agents Window** 里用 `automate` 技能创建一个 cron Automation（建议 10–15 分钟一次，而非 5 分钟，因每次都是全新云端沙箱、有环境冷启动成本），prompt 内容指向读取并执行 `scripts/agent-loop-vision.prompt.md` 的产品发现规则；但该云端 Automation **验证不到本机 9502/8000 常驻实例**，只适合纯代码/文档类切片，不适合需要本机联调验证的切片——因此当前阶段建议仍以本地文件心跳 + 人工/会话内定期 `tail` 为主。
 
 **模型路由**（思考强 / 执行便宜，详见 prompt.md「模型路由」节）：收到 tick 的协调者用两次独立 `Task` 调用把决策和落地拆开——think 子任务默认 `claude-sonnet-5-thinking-high`（硬架构决策/卡壳升级 `claude-opus-5-thinking-high`），exec 子任务默认 `composer-2.5-fast`（前端强类型/易抖动场景换 `gpt-5.6-sol-medium`）；可用 `VISION_THINK_MODEL` / `VISION_EXEC_MODEL` 覆盖默认值。
 
