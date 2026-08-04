@@ -58,20 +58,20 @@ test.describe('画布边 FK 元数据可编辑', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('design-tree-add').click();
       await page.getByTestId('menu-add-entity').click();
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
       await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
       await expect(page.getByTestId('erd-edge-label')).toHaveText('n:1');
       await expect(page.getByTestId('erd-edge-fk-meta')).toHaveAttribute('data-delete-rule', '');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       let armed = false;
@@ -122,7 +122,7 @@ test.describe('画布边 FK 元数据可编辑', () => {
           'CASCADE',
           { timeout: 15_000 },
         );
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
         // 若 toast 误关编辑器则重开
         if ((await page.getByTestId('erd-edge-fk-editor').count()) === 0) {
@@ -138,7 +138,7 @@ test.describe('画布边 FK 元数据可编辑', () => {
           'RESTRICT',
           { timeout: 15_000 },
         );
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
         // 约束名：与 ON DELETE/UPDATE 同编辑器对称
         if ((await page.getByTestId('erd-edge-fk-editor').count()) === 0) {
@@ -156,7 +156,7 @@ test.describe('画布边 FK 元数据可编辑', () => {
           'fk_order_user',
           { timeout: 15_000 },
         );
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
         // Esc 关编辑器（基数下拉已收则一次）
         await page.keyboard.press('Escape');

@@ -60,7 +60,7 @@ test.describe('数据类型字典枚举域', () => {
       await expect(page.getByTestId('datatype-domains-page')).toBeVisible({
         timeout: 15_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -134,7 +134,7 @@ test.describe('数据类型字典枚举域', () => {
           'blue',
           'green',
         ]);
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
       } finally {

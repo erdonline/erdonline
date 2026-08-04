@@ -44,7 +44,7 @@ test.describe('画布删字段确认弹层键盘', () => {
       await page.getByRole('button', { name: '新建第一张表' }).click();
       const table = rfNode(page, 'T_TABLE_1');
       await expect(table).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = table.locator('[data-field="NAME"]');

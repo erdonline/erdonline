@@ -44,7 +44,7 @@ test.describe('ERD 导入落盘失败可重试', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'erdfail', 'erd fail');
 
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -98,7 +98,7 @@ test.describe('ERD 导入落盘失败可重试', () => {
         await expect(
           page.getByRole('complementary').getByText('T_ERD_ITEM', { exact: true }),
         ).toBeVisible({ timeout: 10_000 });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         expect(saveHits).toBeGreaterThanOrEqual(2);

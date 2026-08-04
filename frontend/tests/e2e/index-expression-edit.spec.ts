@@ -89,14 +89,14 @@ test.describe('表设计索引签字段/表达式可编辑', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
       await expect(indexEdit.getByRole('button', { name: '添加第一个索引' })).toBeVisible();
       await indexEdit.getByRole('button', { name: '添加第一个索引' }).click();
       await expectToast(page, '索引更新成功');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await expect(indexEdit.getByText('字段/表达式*')).toBeVisible();
       await expect(indexEdit.getByTestId('index-unique-hint')).toContainText('分号分隔');
@@ -142,7 +142,7 @@ test.describe('表设计索引签字段/表达式可编辑', () => {
 
         await editFieldsCell(page, indexEdit, 'id;LOWER(id)');
         await expectToast(page, '索引更新成功');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         await expect(indexEdit.getByRole('cell', { name: 'id;LOWER(id)', exact: true })).toBeVisible();
         expect(saveHits).toBeGreaterThanOrEqual(2);
         expect(persistedFields).toEqual(['id', 'LOWER(id)']);

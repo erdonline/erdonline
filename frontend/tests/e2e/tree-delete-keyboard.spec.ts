@@ -43,7 +43,7 @@ test.describe('左树删除确认弹层键盘', () => {
       await openRelationFromEmpty(page, { name: 'M1', chnname: '模块一' });
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await expandTreeTitle(page, '表');
       const tableItem = page.getByRole('treeitem').filter({ hasText: 'T_TABLE_1' });

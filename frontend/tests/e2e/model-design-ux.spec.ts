@@ -1051,7 +1051,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('menu-add-entity').click();
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       // RF 挂载后才能用 E2E 清字段钩子
       const cleared = await page.evaluate(() => {

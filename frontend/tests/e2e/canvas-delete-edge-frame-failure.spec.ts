@@ -39,19 +39,19 @@ test.describe('画布删边/删分组落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('design-tree-add').click();
       await page.getByTestId('menu-add-entity').click();
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
       await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
       await expect(page.getByTestId('erd-edge-label')).toHaveCount(1);
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {
@@ -134,21 +134,21 @@ test.describe('画布删边/删分组落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByRole('button', { name: '命令' }).click();
       await expect(page.getByRole('dialog', { name: '命令面板' })).toBeVisible();
       await page.getByTestId('cmd-palette-input').fill('新建');
       await page.getByRole('option', { name: /新建表/ }).click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await rfNode(page, 'T_TABLE_1').click();
       await rfNode(page, 'T_TABLE_2').click({ modifiers: ['Shift'] });
       await page.getByRole('button', { name: '新建分组' }).click();
       const frame = page.getByTestId('diagram-frame');
       await expect(frame).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {

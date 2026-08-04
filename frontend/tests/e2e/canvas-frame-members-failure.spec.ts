@@ -38,10 +38,10 @@ async function ensureTwoTablesOnCanvas(page: import('@playwright/test').Page) {
   await openRelationFromEmpty(page);
   await page.getByTestId('canvas-empty-create').click();
   await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-  await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
   await page.getByTestId('canvas-create-table').click();
   await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 }
 
 async function selectTables(page: import('@playwright/test').Page, titles: string[]) {
@@ -107,7 +107,7 @@ test.describe('Frame 新建/成员加减落盘失败可回滚', () => {
         await page.getByRole('button', { name: '新建分组' }).click();
         await expect(page.getByText('已新建分组')).toBeVisible({ timeout: 8_000 });
         await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 10_000 });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         const groups = await getDiagramGroups(page);
         expect(groups.length).toBe(1);
         expect(groups[0].memberEntityIds.sort()).toEqual(['T_TABLE_1', 'T_TABLE_2']);
@@ -132,12 +132,12 @@ test.describe('Frame 新建/成员加减落盘失败可回滚', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.getByTestId('reactflow-canvas').click({ position: { x: 20, y: 20 } });
       await page.getByRole('button', { name: '新建分组' }).click();
       await expect(page.getByTestId('diagram-frame')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       expect((await getDiagramGroups(page))[0]?.memberEntityIds || []).toEqual([]);
 
       let saveHits = 0;
@@ -176,7 +176,7 @@ test.describe('Frame 新建/成员加减落盘失败可回滚', () => {
         await page.getByRole('button', { name: '加入分组' }).click();
         await expect(page.getByText(/已加入/)).toBeVisible({ timeout: 8_000 });
         await expect(page.getByTestId('diagram-frame')).toContainText('1 张表', { timeout: 10_000 });
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
         expect((await getDiagramGroups(page))[0]?.memberEntityIds).toContain('T_TABLE_1');
         expect(saveHits).toBeGreaterThanOrEqual(2);
       } finally {

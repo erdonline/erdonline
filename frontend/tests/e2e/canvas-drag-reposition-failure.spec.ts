@@ -84,7 +84,7 @@ test.describe('画布拖表坐标落盘失败可回滚', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       const beforeTransform = await nodeTransform(page, 'T_TABLE_1');
       const before = parseTranslate(beforeTransform);
@@ -127,7 +127,7 @@ test.describe('画布拖表坐标落盘失败可回滚', () => {
 
         await dragTableByField(page, 'T_TABLE_1', 180, 120);
 
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
         await expect

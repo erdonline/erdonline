@@ -64,7 +64,7 @@ test.describe('数据类型字典方言 apply', () => {
       await expect(page.getByTestId('datatype-domains-page')).toBeVisible({
         timeout: 15_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
         timeout: 15_000,
       });
 
@@ -138,7 +138,7 @@ test.describe('数据类型字典方言 apply', () => {
 
         expect(savedApply?.MYSQL?.type).toBe('VARCHAR(128)');
         expect(savedApply?.PostgreSQL?.type).toBe('TEXT');
-        await expect(page.getByTestId('save-status')).toHaveText('已保存', {
+        await expect(page.getByTestId('save-status')).toHaveText('已落盘', {
           timeout: 15_000,
         });
 

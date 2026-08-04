@@ -20,7 +20,7 @@ async function openTriggerPane(page: import('@playwright/test').Page) {
   await page.getByTestId('canvas-empty-create').click();
   const node = rfNode(page, 'T_TABLE_1');
   await expect(node).toBeVisible({ timeout: 10_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
   await node.getByTestId('canvas-open-trigger').evaluate((el: HTMLElement) => el.click());
   const designer = page.getByTestId('table-design');
   await expect(designer).toBeVisible({ timeout: 10_000 });
@@ -53,7 +53,7 @@ test.describe('表设计触发器签', () => {
 
       await expectToast(page, '触发器更新成功');
       await expect(triggerEdit.getByRole('option', { name: '查看触发器 trg_user_bu' })).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await triggerEdit.getByRole('option', { name: '查看触发器 trg_user_bu' }).click();
       const ddl = triggerEdit.getByTestId('trigger-ddl-panel');
@@ -104,7 +104,7 @@ test.describe('表设计触发器签', () => {
       await editDialog.getByRole('button', { name: '确认保存触发器' }).click();
 
       await expectToast(page, '触发器更新成功');
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await expect(triggerEdit.getByTestId('trigger-statement')).toContainText('SET NEW.v = 2');
       await expect(triggerEdit.getByTestId('trigger-ddl-body')).toContainText('SET NEW.v = 2');

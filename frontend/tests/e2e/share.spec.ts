@@ -196,7 +196,7 @@ test.describe('只读分享', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       const createRespPromise = page.waitForResponse(
         (r) => r.url().includes('/share/create') && r.request().method() === 'POST',

@@ -42,7 +42,7 @@ test.describe('自动保存失败可重试', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.route('**/ncnb/project/save', (route) => route.abort('failed'));
       const nameDraft = await typeFieldDraft(page, 'T_TABLE_1', 'NAME');
@@ -70,7 +70,7 @@ test.describe('自动保存失败可重试', () => {
       await expect(
         rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'NAME' }),
       ).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await expect(page.getByRole('button', { name: '自动保存失败，点击重试' })).toHaveCount(0);
 
       const designUrl = page.url();
@@ -95,7 +95,7 @@ test.describe('自动保存失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.route('**/ncnb/project/save', async (route) => {
         await route.fulfill({
@@ -116,7 +116,7 @@ test.describe('自动保存失败可重试', () => {
       await expect(
         rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'CODE' }),
       ).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

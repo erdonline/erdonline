@@ -23,7 +23,7 @@ test.describe('离开设计器的保存行为', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       // 防抖尾巴落地后再计数，避免把上一笔编辑的保存算进离开动作
       await page.waitForTimeout(1_500);
 
@@ -53,7 +53,7 @@ test.describe('离开设计器的保存行为', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已保存', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
       await page.waitForTimeout(1_500);
 
       // 阻断落库 → 顶栏进入失败态（未落库标记保留）

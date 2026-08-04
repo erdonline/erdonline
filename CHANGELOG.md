@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 可信保存：顶栏 A 层 dirty chip（ADR-0022 切片 2）
+
+- 设计器顶栏新增 `VersionDirtyChip`：四态——与版本一致 / 未存版本（+N −M ~U 摘要）/ 基线未知（点击重试）/ 尚无版本（引导存版）；点击脏态或无基线 → 版本页，未知 → 重拉基线
+- `SaveStatus` 文案「已保存」→「已落盘」，与 A 层版本 dirty 语义分离（落盘=autosave，chip=相对最新版本）
+- `recalculateChanges` 订阅加 300ms 防抖；`fetchVersionBaseline` / 存版成功后刷新基线并重算 diff
+- 纯函数 `versionDirtyStatus.ts` 供 chip 与版本页共用判态逻辑
+
+验证点：
+- `cd frontend && yarn test:unit:version-baseline`（含 `versionDirtyStatus.test.ts`）
+- `cd frontend && npx playwright test --project=chromium tests/e2e/version-dirty-chip.spec.ts`（尚无版本→+摘要→存版一致→再改未存版本）
+- 回归：`npx playwright test --project=chromium tests/e2e/version-baseline.spec.ts tests/e2e/save-failure.spec.ts`
+
 #### 可信保存：A 层基线改为独立查询最新版本（ADR-0022 切片 1）
 
 - 根因：dirty 判定的基线取自**分页**版本列表的 `versions[0]`——翻页/换排序即漂移；且列表按 `version` 字符串倒序，`9.0.0` 会排在 `10.0.0` 之前，"最新版本"本身就可能是错的；`versions` 为空时 `recalculateChanges` 直接跳过，首次建模被显示为「已与最新版本一致」（静默无差异）
