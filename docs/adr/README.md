@@ -26,3 +26,4 @@
 | [0019](./0019-demo-runtime-railway.md) | 官方 Demo 运行时：Railway-only（真 MySQL 8）；拒三厂商；Zeabur 为 CN 备选 | 已接受 |
 | [0020](./0020-single-database.md) | 单一业务库 `erd`（取消 martin/erd 双库）；init schema-only；种子走 Flyway | 已接受 |
 | [0021](./0021-idp-federation-google-wechat.md) | 第三方登录 IdP 联邦（GitHub + Google OIDC + 微信开放平台扫码） | ✅ 已接受 · MVP |
+| [0022](./0022-dual-layer-consistency.md) | 双层一致性（工作区↔版本↔实库）；禁止自动双向同步 | ✅ 已接受 |
