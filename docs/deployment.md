@@ -310,7 +310,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |
 | `ERD_FEDERATE_SUCCESS_PATH` | `/login/federate` | 联邦回调后 UI 落点路径（拼在 `ERD_UI_URL` 后） |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
-| `ERD_UI_URL` | **生产 UI**：`https://app.erdonline.com`（无尾斜杠）；仅 demo 表面可用 `https://erdonline-demo.pages.dev`；多源逗号分隔 | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；OIDC issuer 默认同源 |
+| `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://erdonline-demo.pages.dev`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；OIDC issuer 默认同源首项 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
@@ -324,12 +324,34 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 
 | 侧 | 变量 | 值 |
 |---|---|---|
-| Railway（后端） | `ERD_UI_URL` | 浏览器打开的前端 Origin，如 `https://app.erdonline.com`（无尾斜杠） |
+| Railway（后端） | `ERD_UI_URL` | 浏览器打开的前端 Origin；**生产 + CF Pages demo 共用同一 API** 时用逗号双源（见下） |
 | CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | Railway **公网**根：`https://erdonline-production.up.railway.app`（无尾斜杠） |
 
 勿把 `API_URL` 设成 UI 域名（如误设 `https://app.erdonline.com`）——那会让前端把 API 指回自己。
 
-**CORS（Railway 后端必配）**：浏览器从 Cloudflare Pages / 自定义域前端跨域调用 Railway API 时，后端 **`ERD_UI_URL` 须设为前端 Origin**（如 `https://app.erdonline.com` 或 `https://erdonline-demo.pages.dev`，无尾斜杠；多源逗号分隔），**不是** Railway API 域名。仓库内 `config.prod.ts` / `.env` 的 `API_URL` 只指后端；CORS 仅在 Railway App Variables 配置，缺则 prod 启动 fail-fast 或浏览器预检被拒。
+**CORS（Railway 后端必配）**：浏览器从 Cloudflare Pages / 自定义域前端跨域调用 Railway API 时，后端 **`ERD_UI_URL` 须设为前端 Origin**（无尾斜杠；**不是** Railway API 域名）。仓库内 `config.prod.ts` / `.env` 的 `API_URL` 只指后端；CORS 仅在 Railway App Variables 配置，缺则 prod 启动 fail-fast 或浏览器预检 403（`Invalid CORS request`、无 `Access-Control-Allow-Origin`）。
+
+**生产 UI + 官方 demo 共用 Railway API**（当前 `erdonline-production` 推荐值）：
+
+```text
+ERD_UI_URL=https://app.erdonline.com,https://erdonline-demo.pages.dev
+```
+
+改完后须 **Redeploy**（Variables 变更不会热加载）。验收：
+
+```bash
+# 期望 HTTP 200 + Access-Control-Allow-Origin: https://erdonline-demo.pages.dev
+curl -sI -X OPTIONS 'https://erdonline-production.up.railway.app/auth/federate/providers' \
+  -H 'Origin: https://erdonline-demo.pages.dev' \
+  -H 'Access-Control-Request-Method: GET'
+```
+
+Railway CLI（项目已 `railway link` 且已登录时）：
+
+```bash
+railway variables set ERD_UI_URL='https://app.erdonline.com,https://erdonline-demo.pages.dev'
+railway up   # 或 Dashboard → Redeploy
+```
 
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
 2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
