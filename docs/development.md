@@ -187,14 +187,14 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 
 限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。
 
-### MCP（切片 4–5）
+### MCP（切片 4–5 + projects:write tools）
 
 ```bash
 cd mcp && yarn install && yarn build
 export ERD_API_URL=http://127.0.0.1:9502
-export ERD_PAT="$PAT"   # 上节铸造的明文；写工具需含 versions:write
+export ERD_PAT="$PAT"   # 写工具需含 versions:write / projects:write
 node dist/index.js      # stdio；或 yarn start -- --http → :3920/mcp
-yarn dogfood            # 自动铸造读写 PAT + REST + MCP（含 create_version）
+yarn dogfood            # 读写 PAT + REST/MCP（create_version / update_project / put_project_json）
 ```
 
 详见 [`mcp/README.md`](../mcp/README.md)。

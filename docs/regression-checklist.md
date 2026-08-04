@@ -22,6 +22,7 @@
 - [x] [PATCH project] `projects:write` + 成员 → 改 `projectName`；无写 scope → 403 ✅`PublicApiProjectServiceTest` + curl
 - [x] [PUT projectJSON] 写入前清 `profile.dbs`；非成员 403 ✅`PublicApiProjectServiceTest` + curl
 - [x] [MCP create_version] `yarn dogfood`：REST 写 + MCP `create_version` ✅ 2026-08-04
+- [x] [MCP projects:write] `yarn dogfood`：MCP `update_project` + `put_project_json`；只读 PAT → 403 ✅ 2026-08-04
 
 ## 图本身可读可分享 / ADR-0016（续）
 
