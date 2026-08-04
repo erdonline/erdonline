@@ -7,6 +7,10 @@ import useVersionStore from '@/store/version/useVersionStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import * as Save from '@/utils/save';
+import {
+  handleVersionSaveResponse,
+  isVersionSaveDuplicate,
+} from '@/utils/versionSaveConflict';
 
 export type InitVersionProps = {};
 
@@ -62,7 +66,7 @@ const InitVersion: React.FC<InitVersionProps> = () => {
     };
     try {
       const res = await Save.hisProjectSave(version);
-      if (res?.code === 200) {
+      if (handleVersionSaveResponse(res)) {
         message.success('初始化基线成功');
         versionDispatch.getVersionMessage(res.data, true);
         versionDispatch.setState({
@@ -74,7 +78,10 @@ const InitVersion: React.FC<InitVersionProps> = () => {
         setOpen(false);
         return;
       }
-      // 业务失败：request 已 toast；失败不关窗（勿伪装成功）
+      if (!isVersionSaveDuplicate(res)) {
+        // 其余业务失败：request 已 toast
+      }
+      // 失败不关窗（勿伪装成功）
     } catch {
       // 网络/HTTP：errorHandler 已 toast；失败不关窗
     }

@@ -60,7 +60,7 @@
 
 - ~~删卸载盲存（`closeSocket` 无条件 `Save.saveProject`）→ 仅脏时落库且结果可见~~ ✅（2026-08-04）
 - ~~project 乐观锁（冲突可行动提示，不静默覆盖）~~ ✅（2026-08-04；`update_time` CAS → 409；Modal 刷新/另存为新项目）
-- `db_change.version` 唯一约束（Flyway）📋
+- ~~`db_change.version` 唯一约束（Flyway）~~ ✅（2026-08-04；V14 去重 + 唯一索引；409001 + 前端 Modal）
 - 诚实持久化：落库失败落本地草稿 + `beforeunload` 拦截，再次进入可对比/丢弃 📋
 
 **B 实库（模型 ↔ 活库 schema）**
