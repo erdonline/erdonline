@@ -3,6 +3,7 @@ package com.erdonline.erd.publicapi;
 import com.erdonline.common.security.dynamic.RestAuthenticationEntryPoint;
 import com.erdonline.common.security.dynamic.RestfulAccessDeniedHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -23,8 +24,9 @@ public class PublicApiSecurityConfiguration {
 
     @Bean
     PublicApiRateLimiter publicApiRateLimiter(
+            RedissonClient redisson,
             @Value("${erd.public-api.rate-limit-per-minute:60}") int limitPerMinute) {
-        return new PublicApiRateLimiter(limitPerMinute);
+        return new PublicApiRateLimiter(redisson, limitPerMinute);
     }
 
     @Bean
