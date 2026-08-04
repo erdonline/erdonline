@@ -246,7 +246,7 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 #            浏览器 authorize URL：/oauth/authorize?... → AuthBrandShell 同意页 Allow/Deny
 ```
 
-限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OIDC：`ERD_OIDC_HMAC`（prod 必填）；issuer=`ERD_OIDC_ISSUER` 或 `ERD_UI_URL`；id_token TTL：`ERD_OIDC_ID_TOKEN_TTL`（默认 3600）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh/id_token。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`）。
+限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）；OAuth OAT TTL：`ERD_PUBLIC_API_OAUTH_TTL`（默认 3600）；auth code TTL：`ERD_PUBLIC_API_OAUTH_CODE_TTL`（默认 120）；refresh TTL：`ERD_PUBLIC_API_OAUTH_REFRESH_TTL`（默认 2592000 / 30 天）。OIDC：`ERD_OIDC_HMAC`（prod 必填）；issuer=`ERD_OIDC_ISSUER` 或 `ERD_UI_URL`；id_token TTL：`ERD_OIDC_ID_TOKEN_TTL`（默认 3600）；authorize 可选 `nonce`（≤255，绑 code，code 换票进 id_token；**refresh 不带 nonce**）；`at_hash` 随 access_token。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。PKCE 仅 S256；未注册 redirect 不 302；`client_credentials` 不发 refresh/id_token。产品内管理 UI：`/account/settings?selectKey=personalAccessTokens`（PAT）、`?selectKey=oauthClients`（OAuth client）。浏览器同意页：`/oauth/authorize`（须登录；Allow 才签发 `erd_ac_`；透传 `nonce`）。
 
 ### MCP（切片 4–5 + projects:write tools）
 

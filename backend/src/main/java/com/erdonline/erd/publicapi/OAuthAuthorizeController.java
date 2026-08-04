@@ -41,7 +41,8 @@ public class OAuthAuthorizeController {
             @RequestParam(value = "scope", required = false) String scope,
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "code_challenge", required = false) String codeChallenge,
-            @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod) {
+            @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
+            @RequestParam(value = "nonce", required = false) String nonce) {
         ResponseEntity<?> bad = validateCommonParams(
                 responseType, clientId, redirectUri, state, codeChallenge, codeChallengeMethod);
         if (bad != null) {
@@ -54,7 +55,8 @@ public class OAuthAuthorizeController {
                     scope,
                     state.trim(),
                     codeChallenge.trim(),
-                    codeChallengeMethod.trim());
+                    codeChallengeMethod.trim(),
+                    nonce);
             return ResponseEntity.ok()
                     .contentType(MediaType.APPLICATION_JSON)
                     .body(view);
@@ -79,6 +81,7 @@ public class OAuthAuthorizeController {
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "code_challenge", required = false) String codeChallenge,
             @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
+            @RequestParam(value = "nonce", required = false) String nonce,
             @RequestParam(value = "decision", required = false) String decision,
             @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String accept) {
 
@@ -116,7 +119,8 @@ public class OAuthAuthorizeController {
                     scope,
                     state.trim(),
                     codeChallenge.trim(),
-                    codeChallengeMethod.trim());
+                    codeChallengeMethod.trim(),
+                    nonce);
             URI location = appendQuery(issued.redirectUri(), "code", issued.code(), "state", issued.state());
             return redirectOrJson(location, preferJson);
         } catch (IllegalArgumentException ex) {

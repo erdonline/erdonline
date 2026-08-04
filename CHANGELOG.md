@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OIDC nonce + at_hash
+
+- 选题：薄 MVP 后 RP 需防重放 / 绑定 access_token；本刀不引入 RSA
+- `GET/POST /oauth/authorize` 可选 `nonce`（≤255）→ 绑定 `oauth_authorization_code.nonce`（Flyway `V12`）→ `authorization_code` 换票 `id_token` 回显
+- `id_token.at_hash`：按同响应 access_token 计算（OIDC Core：SHA-256 左半 + base64url）；auth code 与 refresh 均带
+- **refresh** 续期 `id_token`：**不带 nonce**（OIDC Core §12.2）；同意页透传 query `nonce`
+- 未做：RSA·真 JWKS / 第三方 IdP 联邦
+
+验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OidcIdTokenServiceTest,OAuthRefreshTokenServiceTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：authorize+nonce → code 换票 `id_token` 含 nonce+at_hash；refresh 换票 `id_token` 有 at_hash、无 nonce
+
 #### 开放：ADR-0013 — OIDC 薄 MVP（discovery / id_token HS256 / userinfo）
 
 - 选题：refresh 已交付；OIDC 解耦切片（不引入 RSA 密钥机；无既有非对称密钥）
@@ -16,7 +28,7 @@
 - `openid` 入 `PatScopes`；auth code / refresh 换票且授予 openid → 响应 `id_token`；`client_credentials` **不**发
 - `GET /oauth/userinfo`（兼 `/auth/oauth/userinfo`）：Bearer `erd_oat_` + openid；拒 PAT / 会话 JWT；独立 SecurityFilterChain（Order 0）避免 Resource Server 把 OAT 当 JWT
 - nginx / umi proxy：`/.well-known/`；OAuth UI scope 可选 openid
-- 未做：nonce / at_hash / RSA·JWKS 持久密钥 / 第三方 IdP 联邦
+- ~~未做：nonce / at_hash~~ → 见上节；仍未做 RSA·JWKS / IdP 联邦
 
 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OidcIdTokenServiceTest,PatScopesTest,OAuthRefreshTokenServiceTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`

@@ -43,6 +43,9 @@ public class OAuthAuthorizationCode implements Serializable {
 
     private String codeChallengeMethod;
 
+    /** OIDC authorize nonce（可选；换票写入 id_token） */
+    private String nonce;
+
     private LocalDateTime expireTime;
 
     /** 0 未用 / 1 已消费 */

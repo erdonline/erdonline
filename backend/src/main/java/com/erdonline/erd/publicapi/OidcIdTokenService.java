@@ -18,16 +18,27 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
 import javax.crypto.SecretKey;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
 /**
  * OIDC id_token（HS256）。仅当授予 {@link PatScopes#OPENID} 时由 auth code / refresh 换票签发。
+ * <ul>
+ *   <li>{@code nonce}：仅 authorization_code 路径（来自 authorize 绑定）；refresh 不带（OIDC Core §12.2）</li>
+ *   <li>{@code at_hash}：按 access_token 计算（OIDC Core §3.1.3.6；HS256 → SHA-256 左半 + base64url）</li>
+ * </ul>
  */
 @Service
 public class OidcIdTokenService {
+
+    static final int NONCE_MAX_LEN = 255;
 
     private final OidcProperties oidcProperties;
     private final Environment environment;
@@ -74,13 +85,17 @@ public class OidcIdTokenService {
     }
 
     /**
+     * @param nonce            authorize 绑定的 nonce；空则不写入 claim（refresh 应传 null）
+     * @param accessTokenPlain 同响应的 access_token；用于 {@code at_hash}；空则省略 at_hash
      * @return compact JWT，或 scopes 不含 openid 时 {@code null}
      */
     public String mintIfOpenid(
             Set<String> grantedScopes,
             String clientId,
             String userId,
-            String username) {
+            String username,
+            String nonce,
+            String accessTokenPlain) {
         if (!PatScopes.has(grantedScopes, PatScopes.OPENID)) {
             return null;
         }
@@ -96,10 +111,43 @@ public class OidcIdTokenService {
                 .issuedAt(now)
                 .expiresAt(exp)
                 .claim("preferred_username", username != null ? username : "");
+        if (StringUtils.hasText(nonce)) {
+            claims.claim("nonce", nonce.trim());
+        }
+        if (StringUtils.hasText(accessTokenPlain)) {
+            claims.claim("at_hash", atHashHs256(accessTokenPlain));
+        }
         return oidcJwtEncoder.encode(JwtEncoderParameters.from(
                 JwsHeader.with(MacAlgorithm.HS256).build(),
                 claims.build()
         )).getTokenValue();
+    }
+
+    /**
+     * OIDC Core §3.1.3.6：对 access_token ASCII 做 SHA-256，取左半（128 bit）再 base64url（无填充）。
+     * 与 id_token 签名算法 HS256 对齐。
+     */
+    static String atHashHs256(String accessTokenPlain) {
+        try {
+            byte[] digest = MessageDigest.getInstance("SHA-256")
+                    .digest(accessTokenPlain.getBytes(StandardCharsets.US_ASCII));
+            byte[] left = Arrays.copyOf(digest, digest.length / 2);
+            return Base64.getUrlEncoder().withoutPadding().encodeToString(left);
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("SHA-256 unavailable", e);
+        }
+    }
+
+    /** authorize 可选 nonce：空 OK；超长拒绝。 */
+    public static String normalizeNonce(String nonce) {
+        if (!StringUtils.hasText(nonce)) {
+            return null;
+        }
+        String n = nonce.trim();
+        if (n.length() > NONCE_MAX_LEN) {
+            throw new IllegalArgumentException("invalid_request:nonce");
+        }
+        return n;
     }
 
     /** 校验并解析 id_token（单测 / dogfood）。 */

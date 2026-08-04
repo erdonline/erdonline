@@ -76,7 +76,8 @@
   - ~~同意页：`/oauth/authorize` AuthBrandShell + Allow/Deny；GET 预览不签发；仅 Allow → `erd_ac_`~~✅（2026-08-04）
   - ~~OAuth refresh_token：`erd_ort_`（仅 auth code）；轮换 + 复用整族吊销；`POST /oauth/revoke`~~✅（2026-08-04）
   - ~~OIDC 薄 MVP：discovery / HS256 `id_token`（`ERD_OIDC_HMAC`）/ userinfo / `openid` scope~~✅（2026-08-04）
-  - 后置：OIDC 加深（nonce / at_hash / RSA·真 JWKS / IdP 联邦）— 与本刀解耦
+  - ~~OIDC `nonce` + `at_hash`（authorize 绑定；refresh 省略 nonce）~~✅（2026-08-04）
+  - 后置：OIDC 加深（RSA·真 JWKS / IdP 联邦）— 与本刀解耦
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
 
 ### 安全（Security）📋

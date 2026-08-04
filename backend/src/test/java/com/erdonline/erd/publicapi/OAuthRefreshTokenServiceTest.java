@@ -211,11 +211,11 @@ class OAuthRefreshTokenServiceTest {
 
         assertNull(resp.getIdToken());
         assertNull(resp.getRefreshToken());
-        verify(oidcIdTokenService, never()).mintIfOpenid(any(), any(), any(), any());
+        verify(oidcIdTokenService, never()).mintIfOpenid(any(), any(), any(), any(), any(), any());
     }
 
     @Test
-    void refresh_withOpenid_includesIdToken() {
+    void refresh_withOpenid_includesIdTokenWithoutNonce() {
         String oldPlain = OAuthClientCodec.generateRefreshToken();
         String family = "familybbbbbbbbbbbbbbbbbbbbbbbb";
         OAuthRefreshToken stored = activeRefresh(oldPlain, family, publicClient);
@@ -227,15 +227,17 @@ class OAuthRefreshTokenServiceTest {
         when(oauthAccessTokenMapper.update(isNull(), any(LambdaUpdateWrapper.class))).thenReturn(1);
         when(oauthRefreshTokenMapper.insert(any(OAuthRefreshToken.class))).thenReturn(1);
         when(oauthAccessTokenMapper.insert(any(OAuthAccessToken.class))).thenReturn(1);
-        when(oidcIdTokenService.mintIfOpenid(any(), any(), any(), any()))
+        when(oidcIdTokenService.mintIfOpenid(any(), any(), any(), any(), isNull(), any()))
                 .thenReturn("header.payload.sig");
 
         OAuthTokenResponse resp = service.refreshAccessToken(
                 publicClient.getClientId(), null, oldPlain, null);
 
         assertEquals("header.payload.sig", resp.getIdToken());
-        verify(oidcIdTokenService).mintIfOpenid(any(), eq(publicClient.getClientId()),
-                eq("u_auth"), eq("alice"));
+        // refresh：nonce=null；access_token 明文传入以算 at_hash
+        verify(oidcIdTokenService).mintIfOpenid(
+                any(), eq(publicClient.getClientId()), eq("u_auth"), eq("alice"),
+                isNull(), any());
     }
 
     @Test
