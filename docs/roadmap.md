@@ -24,7 +24,7 @@
 | DBML Trigger 互导 | `@dbml/core` 无 Trigger 块；禁止塞 Note | 上游官方块稳定 |
 | 复合 FK `fields[]`（[ADR-0011](./adr/0011-defer-composite-fk-fields-array.md)） | 仍延期 | FE 多字段边协议落地 |
 
-非 Vision 低优备忘（不抢自动轨）：security R-DATA-02 残余 raw ping/reverse JDBC；跨表复用 / dataDomain 重估；版本分支式演进（ADR-0016 本季禁）；贡献者漏斗 / 正式仓 Issue 投放。
+非 Vision 低优备忘（不抢自动轨）：security R-DATA-02 残余 raw ping/reverse JDBC；跨表复用 / dataDomain 重估；版本分支式演进（ADR-0016 本季禁）；贡献者漏斗 / 正式仓 Issue 投放；demo 站主 bundle vendor/app 未拆分（`umi.js` ~1.86MB 落地页与设计器共背同一包，见 2026-08-04 性能诊断）+ `html2canvas.min.js` 阻塞头脚本改懒加载（仅导出功能用）。
 
 ## 下一季只做三件事（北极星杠杆）
 

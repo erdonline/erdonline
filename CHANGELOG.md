@@ -8,6 +8,20 @@
 
 ### 2026-08-04
 
+#### 性能：demo 站诊断——静态资源缺长缓存 + API_URL 构建竞态
+
+- 诊断（`erdonline-demo.pages.dev` 反馈"慢"）：
+  1. **[已修复]** `frontend/public/_headers` 只处理 `env-config.js`，带内容哈希的 `umi.*.js/css`、`preload_helper.*.js`、路由 `*.async.js`/`*.chunk.css` 均落 CF Pages 默认 `Cache-Control: public, max-age=0, must-revalidate`——重复访问/路由切换本可直接读浏览器缓存，却每次都发 304 校验往返
+  2. **[已修复，运维]** `DEMO_API_URL` 仓库变量更新（11:09:45）与触发部署的 push（11:09:15）几乎同时发生，工作流读到的是更新前的空值——构建日志证实 `API_URL: ""`，导致线上 demo 所有 API 请求打到 Pages 自身域名，被 `_redirects` SPA fallback 重写成 `index.html`（200 但非 JSON），前端表现为请求"卡住"直到超时，而非单纯资源慢；已 `workflow_dispatch` 重新触发部署修正
+  3. **[结构性，未动]** 主入口 `umi.*.js` 未拆 vendor/app chunk，落地页与设计器共背同一个 ~1.86MB（brotli ~455KB）JS，其中包含仅设计器用到的 antd 全量 + ReactFlow + socket.io-client；落地页本不需要这些
+  4. **[结构性，未动]** `<head>` 内 `html2canvas.min.js`（166KB，仅设计器导出图片用）以阻塞脚本方式随每个页面加载，延迟后续脚本发现
+- 改动：`frontend/public/_headers` 为哈希资源加 `immutable, max-age=31536000`；模式刻意避开 `/env-config.js` 与未哈希的 `/js/html2canvas.min.js`（CF Pages 对同一 header 多规则命中会用逗号拼接而非覆盖，需保证图案互斥）
+
+验证点：
+- `curl -sI https://erdonline-demo.pages.dev/umi.*.js`（本地 dist 建后取真实文件名）应见 `cache-control: public, max-age=31536000, immutable`；`env-config.js` 仍为 `no-store`
+- `curl -s https://erdonline-demo.pages.dev/env-config.js` 应见 `API_URL: "https://erdonline-production.up.railway.app"`（原为空串）
+- 结构性两项（vendor 拆包、html2canvas 懒加载）留待下一轮排期，暂记 `docs/roadmap.md` P1
+
 #### 配置：生产前端 API 指向 Railway 公网后端
 
 - 问题：`config.prod.ts` / `frontend/.env` 误把 `API_URL`/`ERD_API_URL`/`SOCKETIO_URL` 设为 UI 域名 `https://app.erdonline.com`，浏览器会把 API 请求打回前端自身
