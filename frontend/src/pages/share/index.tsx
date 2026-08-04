@@ -1,5 +1,5 @@
 import React, {useEffect, useMemo, useState} from 'react';
-import {DownOutlined, UpOutlined} from '@ant-design/icons';
+import {CopyOutlined, DownOutlined, UpOutlined} from '@ant-design/icons';
 import {Button, Segmented, Spin, Table, Tag, Typography, message} from 'antd';
 import {useParams, history} from '@umijs/max';
 import AuthBrandShell from '@/components/AuthBrandShell';
@@ -286,6 +286,7 @@ const SharePage: React.FC = () => {
         <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           <Button
             type="primary"
+            icon={!forking ? <CopyOutlined /> : undefined}
             loading={forking}
             onClick={onFork}
             aria-label="复制到我的项目"
@@ -328,9 +329,52 @@ const SharePage: React.FC = () => {
           tabIndex={-1}
         >
           <div className="share-page__meta" data-testid="share-page-meta">
-            <p className="share-page__hint">
-              匿名只读 · 登录后可「复制到我的项目」继续编辑并保存版本
-            </p>
+            <div className="share-page__meta-row">
+              <p className="share-page__hint">
+                <strong className="share-page__hint-strong">匿名只读</strong> · 登录后可「复制到我的项目」继续编辑并保存版本
+              </p>
+              {(modules.length > 1 || diagrams.length > 1) ? (
+                <div className="share-page__meta-switches">
+                  {modules.length > 1 ? (
+                    <div
+                      className="share-page__module-switch-wrap"
+                      role="group"
+                      aria-label="切换模块"
+                      data-testid="module-switcher"
+                    >
+                      <Segmented
+                        size="small"
+                        className="share-page__module-switch"
+                        value={moduleKey}
+                        onChange={(v) => onModuleChange(String(v))}
+                        options={modules.map(m => ({
+                          label: m.chnname || m.name || '模块',
+                          value: m.name || m.chnname || '',
+                        }))}
+                      />
+                    </div>
+                  ) : null}
+                  {diagrams.length > 1 ? (
+                    <div
+                      className="share-page__diagram-bar"
+                      data-testid="diagram-switcher"
+                      role="group"
+                      aria-label="切换关系图"
+                    >
+                      <Segmented
+                        size="small"
+                        value={activeDiagramId}
+                        onChange={(v) => setDiagramId(String(v))}
+                        options={diagrams.map((d) => ({
+                          label: d.name,
+                          value: d.id,
+                        }))}
+                      />
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
             {data?.description ? (
               <Typography.Paragraph
                 className="share-page__desc"
@@ -338,43 +382,6 @@ const SharePage: React.FC = () => {
               >
                 {data.description}
               </Typography.Paragraph>
-            ) : null}
-            {modules.length > 1 ? (
-              <div
-                className="share-page__module-switch-wrap"
-                role="group"
-                aria-label="切换模块"
-                data-testid="module-switcher"
-              >
-                <Segmented
-                  size="small"
-                  className="share-page__module-switch"
-                  value={moduleKey}
-                  onChange={(v) => onModuleChange(String(v))}
-                  options={modules.map(m => ({
-                    label: m.chnname || m.name || '模块',
-                    value: m.name || m.chnname || '',
-                  }))}
-                />
-              </div>
-            ) : null}
-            {diagrams.length > 1 ? (
-              <div
-                className="share-page__diagram-bar"
-                data-testid="diagram-switcher"
-                role="group"
-                aria-label="切换关系图"
-              >
-                <Segmented
-                  size="small"
-                  value={activeDiagramId}
-                  onChange={(v) => setDiagramId(String(v))}
-                  options={diagrams.map((d) => ({
-                    label: d.name,
-                    value: d.id,
-                  }))}
-                />
-              </div>
             ) : null}
           </div>
           {currentModule ? (
