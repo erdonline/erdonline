@@ -19,11 +19,15 @@ class PatScopesTest {
     }
 
     @Test
-    void rejectsUnknownAndWrite() {
+    void rejectsUnknownStillAcceptsWrite() {
         assertThrows(IllegalArgumentException.class,
                 () -> PatScopes.normalizeForMint(List.of("admin:all")));
-        assertThrows(IllegalArgumentException.class,
-                () -> PatScopes.normalizeForMint(List.of(PatScopes.PROJECTS_WRITE)));
+        Set<String> write = PatScopes.normalizeForMint(List.of(PatScopes.VERSIONS_WRITE));
+        assertEquals(Set.of(PatScopes.VERSIONS_WRITE), write);
+        Set<String> both = PatScopes.normalizeForMint(List.of(
+                PatScopes.PROJECTS_WRITE, PatScopes.VERSIONS_WRITE));
+        assertTrue(both.contains(PatScopes.PROJECTS_WRITE));
+        assertTrue(both.contains(PatScopes.VERSIONS_WRITE));
     }
 
     @Test

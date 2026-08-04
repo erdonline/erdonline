@@ -2,12 +2,14 @@ package com.erdonline.erd.publicapi;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.security.ProjectAcl;
 import com.erdonline.erd.service.DbChangeService;
+import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -27,10 +29,13 @@ import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -133,6 +138,86 @@ class PublicApiVersionServiceTest {
 
         ValidateException ex = assertThrows(ValidateException.class, () -> service.getMine("p-other", "v1"));
         assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+    }
+
+    @Test
+    void createMine_requiresVersionsWriteScope() {
+        bindUser("u1", "alice", PatScopes.DEFAULT_READ);
+        CreatePublicVersionRequest req = minimalCreateRequest();
+        ValidateException ex = assertThrows(ValidateException.class,
+                () -> service.createMine("p1", req));
+        assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+        verify(dbChangeService, never()).saveVersion(any());
+    }
+
+    @Test
+    void createMine_requiresMember() {
+        bindUser("u1", "alice", Set.of(PatScopes.VERSIONS_WRITE));
+        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(projectAcl).assertMember("p1");
+        ValidateException ex = assertThrows(ValidateException.class,
+                () -> service.createMine("p1", minimalCreateRequest()));
+        assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
+    }
+
+    @Test
+    void createMine_sanitizesDbsAndPersistsInsertOnly() {
+        bindUser("u1", "alice", Set.of(PatScopes.VERSIONS_WRITE));
+        CreatePublicVersionRequest req = minimalCreateRequest();
+        Map<String, Object> profile = new HashMap<>();
+        profile.put("dbs", List.of(Map.of("url", "jdbc:secret")));
+        profile.put("defaultDataSourceId", "ds-1");
+        Map<String, Object> json = new HashMap<>();
+        json.put("profile", profile);
+        json.put("modules", List.of());
+        req.setProjectJSON(json);
+
+        doAnswer(invocation -> {
+            DbChange arg = invocation.getArgument(0);
+            assertNull(arg.getId());
+            arg.setId("new-v1");
+            @SuppressWarnings("unchecked")
+            Map<String, Object> savedProfile = (Map<String, Object>) arg.getProjectJSON().get("profile");
+            assertTrue(((List<?>) savedProfile.get("dbs")).isEmpty());
+            assertEquals("ds-1", savedProfile.get("defaultDataSourceId"));
+            return R.ok("保存成功");
+        }).when(dbChangeService).saveVersion(any(DbChange.class));
+
+        DbChange persisted = new DbChange();
+        persisted.setId("new-v1");
+        persisted.setProjectId("p1");
+        persisted.setVersion("9.9.9");
+        persisted.setProjectJSON(ProjectShareServiceImpl.sanitizeProjectJson(json));
+        when(dbChangeService.getById("new-v1")).thenReturn(persisted);
+
+        PublicVersionDetailView view = service.createMine("p1", req);
+
+        verify(projectAcl).assertMember("p1");
+        assertEquals("new-v1", view.getId());
+        @SuppressWarnings("unchecked")
+        Map<String, Object> outProfile = (Map<String, Object>) view.getProjectJson().get("profile");
+        assertTrue(((List<?>) outProfile.get("dbs")).isEmpty());
+        // source must not be mutated
+        assertEquals(1, ((List<?>) profile.get("dbs")).size());
+    }
+
+    @Test
+    void createMine_rejectsEmptyProjectJson() {
+        bindUser("u1", "alice", Set.of(PatScopes.VERSIONS_WRITE));
+        CreatePublicVersionRequest req = minimalCreateRequest();
+        req.setProjectJSON(null);
+        assertThrows(ValidateException.class, () -> service.createMine("p1", req));
+        verify(dbChangeService, never()).saveVersion(any());
+    }
+
+    private static CreatePublicVersionRequest minimalCreateRequest() {
+        CreatePublicVersionRequest req = new CreatePublicVersionRequest();
+        req.setDbKey("defaultDB");
+        req.setVersion("9.9.9");
+        req.setVersionDesc("api dogfood");
+        Map<String, Object> json = new HashMap<>();
+        json.put("modules", List.of());
+        req.setProjectJSON(json);
+        return req;
     }
 
     private static void bindUser(String id, String username, Set<String> scopes) {

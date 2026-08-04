@@ -3,6 +3,7 @@ package com.erdonline.erd.publicapi;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.erdonline.common.core.api.ApiErrorCode;
+import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.entity.DbChange;
@@ -10,20 +11,28 @@ import com.erdonline.erd.security.ProjectAcl;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 公开 API 版本只读：成员 ACL + {@code versions:read}；详情 projectJSON 走 ADR-0008 清洗。
+ * 公开 API 版本：成员 ACL + scope；详情/写入 projectJSON 走 ADR-0008 清洗。
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class PublicApiVersionServiceImpl implements PublicApiVersionService {
 
     private static final int MAX_PAGE_SIZE = 100;
+    private static final DateTimeFormatter VERSION_DATE_FMT =
+            DateTimeFormatter.ofPattern("yyyy/M/d H:m:s");
 
     private final DbChangeService dbChangeService;
     private final ProjectAcl projectAcl;
@@ -81,8 +90,67 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         return toDetail(row);
     }
 
+    @Override
+    public PublicVersionDetailView createMine(String projectId, CreatePublicVersionRequest request) {
+        requireVersionsWrite();
+        if (!StringUtils.hasText(projectId)) {
+            throw new ValidateException("projectId 为空");
+        }
+        if (request == null) {
+            throw new ValidateException("request body 为空");
+        }
+        projectAcl.assertMember(projectId);
+
+        Map<String, Object> rawJson = request.resolveProjectJson();
+        if (rawJson == null || rawJson.isEmpty()) {
+            throw new ValidateException("projectJSON（或 snapshot）不能为空");
+        }
+
+        Map<String, Object> sanitized = ProjectShareServiceImpl.sanitizeProjectJson(rawJson);
+        DbChange row = new DbChange();
+        // Always insert — never accept client id (blocks update/hijack via public API)
+        row.setId(null);
+        row.setProjectId(projectId);
+        row.setDbKey(request.getDbKey().trim());
+        row.setVersion(request.getVersion().trim());
+        row.setVersionDesc(request.getVersionDesc().trim());
+        row.setTag(request.getTag());
+        row.setBaseVersion(Boolean.TRUE.equals(request.getBaseVersion()));
+        row.setChanges(request.getChanges() != null ? request.getChanges() : Collections.emptyList());
+        row.setProjectJSON(sanitized);
+        if (StringUtils.hasText(request.getVersionDate())) {
+            row.setVersionDate(request.getVersionDate().trim());
+        } else {
+            row.setVersionDate(LocalDateTime.now().format(VERSION_DATE_FMT));
+        }
+
+        R<?> saved = dbChangeService.saveVersion(row);
+        if (saved == null || saved.invalid()) {
+            throw new ValidateException(saved != null && StringUtils.hasText(saved.getMsg())
+                    ? saved.getMsg()
+                    : "保存版本失败");
+        }
+        if (!StringUtils.hasText(row.getId())) {
+            throw new ValidateException("保存版本失败：未生成 id");
+        }
+
+        String userId = SecurityContextUtil.getAccessUser().getId();
+        log.info("public-api version created projectId={} versionId={} version={} userId={}",
+                projectId, row.getId(), row.getVersion(), userId);
+
+        DbChange persisted = dbChangeService.getById(row.getId());
+        if (persisted == null) {
+            return toDetail(row);
+        }
+        return toDetail(persisted);
+    }
+
     private void requireVersionsRead() {
         PatScopes.require(SecurityContextUtil.getAuthorities(), PatScopes.VERSIONS_READ);
+    }
+
+    private void requireVersionsWrite() {
+        PatScopes.require(SecurityContextUtil.getAuthorities(), PatScopes.VERSIONS_WRITE);
     }
 
     private PublicVersionSummaryView toSummary(DbChange row) {

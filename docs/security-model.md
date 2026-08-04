@@ -49,12 +49,13 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **铸造**：会话 JWT → `POST /auth/personal-access-tokens`（前缀剥离后 `/personal-access-tokens`）；明文 `erd_pat_…` **仅响应一次**
 - **存储**：表 `personal_access_token` 仅 `token_hash`（SHA-256 hex）+ `token_hint`；禁止明文入库存仓
 - **调用**：`Authorization: Bearer erd_pat_…` → `/api/v1/**`（独立 SecurityFilterChain；**不接受**会话 JWT）
-- **Scope（已解锁）**：`projects:read`、`versions:read`；写 scope 名预留未开放
+- **Scope（已解锁）**：默认 `projects:read`、`versions:read`；可显式铸造 `projects:write`、`versions:write`
 - **只读项目**：`GET /api/v1/projects`、`GET /api/v1/projects/{id}` 需 `projects:read` + `project_user` 成员；详情 `projectJSON` 清空 `profile.dbs`（ADR-0008）
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
-- **MCP（只读）**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；**无**写 tools。见 [`mcp/README.md`](../mcp/README.md)
-- **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；超限 429
-- **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc
+- **提交版本**：`POST /api/v1/projects/{id}/versions` 需 `versions:write` + 成员；body `projectJSON`/`snapshot`；写入前清空 `profile.dbs`；仅 insert（忽略客户端 id）；会话 JWT 不接受
+- **MCP**：仓库 `mcp/` 经 PAT 调上列 REST；stdio / Streamable HTTP；含写 tool `create_version`。见 [`mcp/README.md`](../mcp/README.md)
+- **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；超限 429（读写共用）
+- **边界**：≠ 分享 token；不暴露 connector/mutate SQL；prod 仍关 springdoc；`projects:write` 可铸造但尚无对应 REST
 
 ## projectJSON 密钥纪律
 

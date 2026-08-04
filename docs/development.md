@@ -161,7 +161,7 @@ PAT=$(curl -sS -X POST http://127.0.0.1:9502/auth/personal-access-tokens \
   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
   -d '{"name":"dogfood"}' | jq -r '.data.token')
 
-# 3. 公开探针 + 项目/版本只读（projects:read / versions:read；成员 ACL）
+# 3. 公开探针 + 项目/版本（默认 read；写须显式 scopes）
 curl -sS http://127.0.0.1:9502/api/v1/me -H "Authorization: Bearer $PAT"
 curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorization: Bearer $PAT"
 # ID=$(… | jq -r '.data.items[0].id')
@@ -169,18 +169,26 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 # curl -sS "http://127.0.0.1:9502/api/v1/projects/$ID/versions?page=1&size=20" -H "Authorization: Bearer $PAT"
 # VID=$(… | jq -r '.data.items[0].id')
 # curl -sS "http://127.0.0.1:9502/api/v1/projects/$ID/versions/$VID" -H "Authorization: Bearer $PAT"
+
+# 4. 写 scope 铸造 + 提交版本（versions:write + 成员）
+# WPAT=$(curl -sS -X POST http://127.0.0.1:9502/auth/personal-access-tokens \
+#   -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+#   -d '{"name":"write","scopes":["projects:read","versions:read","versions:write"]}' | jq -r '.data.token')
+# curl -sS -X POST "http://127.0.0.1:9502/api/v1/projects/$ID/versions" \
+#   -H "Authorization: Bearer $WPAT" -H 'Content-Type: application/json' \
+#   -d '{"dbKey":"defaultDB","version":"1.0.1","versionDesc":"api","projectJSON":{"modules":[]}}'
 ```
 
 限流：`ERD_PUBLIC_API_RATE_LIMIT`（默认 60/min）。OpenAPI 分组 `public-v1` 仅非 prod springdoc 开启时可见。会话 JWT 调 `/api/v1/**` → 401。
 
-### MCP 只读骨架（切片 4）
+### MCP（切片 4–5）
 
 ```bash
 cd mcp && yarn install && yarn build
 export ERD_API_URL=http://127.0.0.1:9502
-export ERD_PAT="$PAT"   # 上节铸造的明文
+export ERD_PAT="$PAT"   # 上节铸造的明文；写工具需含 versions:write
 node dist/index.js      # stdio；或 yarn start -- --http → :3920/mcp
-yarn dogfood            # 自动铸造临时 PAT + REST + MCP tools 探针
+yarn dogfood            # 自动铸造读写 PAT + REST + MCP（含 create_version）
 ```
 
 详见 [`mcp/README.md`](../mcp/README.md)。

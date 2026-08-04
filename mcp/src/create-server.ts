@@ -37,13 +37,13 @@ function wrapTool(run: () => Promise<unknown>) {
 }
 
 /**
- * Read-only MCP tools → Public API REST. No write tools.
+ * MCP tools → Public API REST (read + create_version write).
  */
 export function createErdMcpServer(config: ErdApiConfig): McpServer {
   const api = new ErdApiClient(config);
   const server = new McpServer({
     name: 'erdonline',
-    version: '0.1.0',
+    version: '0.2.0',
   });
 
   server.registerTool(
@@ -132,6 +132,53 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     },
     async ({ projectId, versionId }) =>
       wrapTool(() => api.getVersion(projectId, versionId))(),
+  );
+
+  server.registerTool(
+    'create_version',
+    {
+      description:
+        'Commit a new version snapshot (POST /api/v1/projects/{id}/versions). Requires versions:write + membership. profile.dbs is stripped server-side before persist.',
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        dbKey: z.string().min(1).describe('Database key (e.g. defaultDB)'),
+        version: z.string().min(1).describe('Version label, e.g. 1.0.1'),
+        versionDesc: z.string().min(1).describe('Version description'),
+        projectJSON: z
+          .record(z.string(), z.unknown())
+          .describe('Full projectJSON snapshot (secrets stripped server-side)'),
+        tag: z.string().optional().describe('Optional comma-separated tags'),
+        baseVersion: z
+          .boolean()
+          .optional()
+          .describe('Mark as baseline version'),
+        changes: z
+          .array(z.unknown())
+          .optional()
+          .describe('Optional change list'),
+      },
+    },
+    async ({
+      projectId,
+      dbKey,
+      version,
+      versionDesc,
+      projectJSON,
+      tag,
+      baseVersion,
+      changes,
+    }) =>
+      wrapTool(() =>
+        api.createVersion(projectId, {
+          dbKey,
+          version,
+          versionDesc,
+          projectJSON: projectJSON as Record<string, unknown>,
+          tag,
+          baseVersion,
+          changes,
+        }),
+      )(),
   );
 
   return server;

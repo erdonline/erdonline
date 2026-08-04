@@ -7,9 +7,12 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import jakarta.validation.Valid;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -20,7 +23,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
- * 公开 API v1：PAT 鉴权；项目/版本只读（成员 ACL + scope）。
+ * 公开 API v1：PAT 鉴权；项目/版本读写（成员 ACL + scope）。
  */
 @RestController
 @RequestMapping("/api/v1")
@@ -78,5 +81,13 @@ public class PublicApiV1Controller {
             @PathVariable("id") String id,
             @PathVariable("versionId") String versionId) {
         return R.ok(publicApiVersionService.getMine(id, versionId));
+    }
+
+    @PostMapping("/projects/{id}/versions")
+    @Operation(summary = "提交新版本（需 versions:write + 成员；写入前清空 profile.dbs）")
+    public R<PublicVersionDetailView> createVersion(
+            @PathVariable("id") String id,
+            @Valid @RequestBody CreatePublicVersionRequest request) {
+        return R.ok(publicApiVersionService.createMine(id, request));
     }
 }

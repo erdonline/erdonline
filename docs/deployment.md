@@ -537,4 +537,4 @@ node dist/index.js                                # stdio
 # yarn start -- --http   # 默认 http://127.0.0.1:3920/mcp
 ```
 
-Cursor / Claude Desktop 配置见 [`mcp/README.md`](../mcp/README.md)。**不要**把 PAT 写进镜像或 compose 默认值；写 scope / 提交版本尚未开放。
+Cursor / Claude Desktop 配置见 [`mcp/README.md`](../mcp/README.md)。**不要**把 PAT 写进镜像或 compose 默认值。写版本需铸造含 `versions:write` 的 PAT。

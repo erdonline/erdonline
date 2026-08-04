@@ -11,4 +11,10 @@ public interface PublicApiVersionService {
 
     /** Single version; must belong to {@code projectId}. */
     PublicVersionDetailView getMine(String projectId, String versionId);
+
+    /**
+     * Create a version snapshot ({@code db_change} insert).
+     * Requires {@code versions:write} + membership; sanitizes {@code profile.dbs} before persist.
+     */
+    PublicVersionDetailView createMine(String projectId, CreatePublicVersionRequest request);
 }

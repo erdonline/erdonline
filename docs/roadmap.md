@@ -65,7 +65,8 @@
   - ~~`GET /api/v1/projects[+/{id}]`（成员 ACL + projectJSON 密钥清洗）~~✅（切片 2，2026-08-04）
   - ~~`GET /api/v1/projects/{id}/versions[+/{versionId}]`（`versions:read` + 成员；详情清 `profile.dbs`）~~✅（切片 3，2026-08-04）
   - ~~MCP server 只读骨架（`mcp/`：stdio + Streamable HTTP → 上列 REST）~~✅（切片 4，2026-08-04）
-  - 📋 写 scope + 提交版本
+  - ~~写 scope + `POST …/versions` + MCP `create_version`~~✅（切片 5，2026-08-04）
+  - 📋 后续：`projects:write` REST、OAuth client、集群限流 Redis（非本里程碑切片表）
 - 导入/导出互通：DBML / dbdiagram 格式互转，降低迁移成本；插件机制后置 — ✅（2026-08-02：导入+导出 Table/fields/FK/note↔chnname + Indexes↔`indexs` + `default`↔`defaultValue` 闭环；**Enum↔`dataTypeDomains.datatype` kind=enum ✅（2026-08-03）**；**表达式索引↔`indexs[].fields[]` 原样字符串 ✅（2026-08-03）**；**trigger 文档延期**：`@dbml/core` 无块、`Note` 禁塞）
 
 ### 安全（Security）📋

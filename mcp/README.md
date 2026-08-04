@@ -1,16 +1,17 @@
-# ERD Online MCP（只读骨架）
+# ERD Online MCP
 
-ADR-0013 切片 4：本地 MCP server，经 **Personal Access Token** 调用公开 REST `/api/v1/**`。无写工具。
+ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `/api/v1/**`。
 
 ## 工具
 
-| Tool | REST |
-|---|---|
-| `list_projects` | `GET /api/v1/projects` |
-| `get_project` | `GET /api/v1/projects/{id}` |
-| `get_project_schema` | 同上，返回 `{ id, name, projectJSON }` |
-| `list_versions` | `GET /api/v1/projects/{id}/versions` |
-| `get_version` | `GET /api/v1/projects/{id}/versions/{versionId}` |
+| Tool | REST | Scope |
+|---|---|---|
+| `list_projects` | `GET /api/v1/projects` | `projects:read` |
+| `get_project` | `GET /api/v1/projects/{id}` | `projects:read` |
+| `get_project_schema` | 同上，返回 `{ id, name, projectJSON }` | `projects:read` |
+| `list_versions` | `GET /api/v1/projects/{id}/versions` | `versions:read` |
+| `get_version` | `GET /api/v1/projects/{id}/versions/{versionId}` | `versions:read` |
+| `create_version` | `POST /api/v1/projects/{id}/versions` | `versions:write` |
 
 ## 环境变量
 
@@ -21,7 +22,7 @@ ADR-0013 切片 4：本地 MCP server，经 **Personal Access Token** 调用公�
 | `ERD_MCP_PORT` | HTTP 模式端口，默认 `3920` |
 | `ERD_MCP_TRANSPORT=http` | 等价于 `--http` |
 
-铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。
+铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含 `versions:write`。
 
 ## 安装与 stdio
 
@@ -74,10 +75,10 @@ yarn start -- --http
 cd mcp && yarn install && yarn dogfood
 ```
 
-`dogfood`：登录铸造临时 PAT → REST 探针 → 拉起 stdio MCP → `tools/list` + `list_projects` / `get_project_schema`。
+`dogfood`：登录铸造读写 PAT → REST（含 `create_version`）→ stdio MCP `tools/list` + 调用。
 
 ## 不做
 
-- 写 scope / `POST …/versions`
 - connector / mutate SQL
 - 会话 JWT（`/api/v1` 一律拒绝）
+- `projects:write` 对应 REST（scope 可铸造，接口后置）

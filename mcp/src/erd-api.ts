@@ -25,6 +25,17 @@ type ApiEnvelope<T> = {
   data?: T;
 };
 
+export type CreateVersionInput = {
+  dbKey: string;
+  version: string;
+  versionDesc: string;
+  projectJSON: Record<string, unknown>;
+  tag?: string;
+  versionDate?: string;
+  baseVersion?: boolean;
+  changes?: unknown[];
+};
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {
@@ -85,14 +96,42 @@ export class ErdApiClient {
     );
   }
 
+  /** Requires PAT scope versions:write + project membership. */
+  async createVersion(
+    projectId: string,
+    body: CreateVersionInput,
+  ): Promise<unknown> {
+    return this.post(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/versions`,
+      body,
+    );
+  }
+
   private async get(path: string): Promise<unknown> {
+    return this.request('GET', path);
+  }
+
+  private async post(path: string, body: unknown): Promise<unknown> {
+    return this.request('POST', path, body);
+  }
+
+  private async request(
+    method: string,
+    path: string,
+    body?: unknown,
+  ): Promise<unknown> {
     const url = `${this.config.baseUrl}${path}`;
+    const headers: Record<string, string> = {
+      Authorization: `Bearer ${this.config.pat}`,
+      Accept: 'application/json',
+    };
+    if (body !== undefined) {
+      headers['Content-Type'] = 'application/json';
+    }
     const res = await fetch(url, {
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${this.config.pat}`,
-        Accept: 'application/json',
-      },
+      method,
+      headers,
+      body: body !== undefined ? JSON.stringify(body) : undefined,
     });
     const text = await res.text();
     let json: unknown;
@@ -106,10 +145,11 @@ export class ErdApiClient {
       );
     }
     if (!res.ok) {
-      const msg =
-        (json as ApiEnvelope<unknown>)?.msg ??
-        `HTTP ${res.status} ${res.statusText}`;
-      throw new ErdApiError(String(msg), res.status, json);
+      const env = json as ApiEnvelope<unknown>;
+      const code =
+        typeof env?.code === 'number' && env.code !== 0 ? env.code : res.status;
+      const msg = env?.msg ?? `HTTP ${res.status} ${res.statusText}`;
+      throw new ErdApiError(String(msg), code, json);
     }
     const env = json as ApiEnvelope<unknown>;
     if (typeof env?.code === 'number' && env.code !== 200) {
