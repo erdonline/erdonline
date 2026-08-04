@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { compareStringVersion } from '@/utils/string';
+import { isVersionGreater, isVersionLessOrEqual } from '@/utils/string';
 import useVersionStore, { SHOW_CHANGE_TYPE } from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
@@ -167,14 +167,12 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     projectId = cache.getItem(CONSTANT.PROJECT_ID) || '';
   }
 
+  const bookmarkGreater = isVersionGreater(currentVersion.version, dbVersion);
+  const bookmarkLessOrEqual = isVersionLessOrEqual(currentVersion.version, dbVersion);
   const showSyncActions =
-    isDetail &&
-    currentVersion.version &&
-    compareStringVersion(currentVersion.version, dbVersion) > 0;
+    isDetail && currentVersion.version && bookmarkGreater === true;
   const showAgain =
-    isDetail &&
-    currentVersion.version &&
-    compareStringVersion(currentVersion.version, dbVersion) <= 0;
+    isDetail && currentVersion.version && bookmarkLessOrEqual === true;
 
   const closeModal = () => {
     setOpen(false);
@@ -346,9 +344,11 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
             <Paragraph copyable={{ text: data }} style={{ marginBottom: 8 }}>
               {currentVersion
                 ? `变化脚本(${
-                    compareStringVersion(currentVersion.version, dbVersion) <= 0
+                    bookmarkLessOrEqual === true
                       ? '已推送（版本书签）'
-                      : '未同步'
+                      : bookmarkLessOrEqual === null
+                        ? '书签未知'
+                        : '未同步'
                   })`
                 : '变化脚本'}
             </Paragraph>

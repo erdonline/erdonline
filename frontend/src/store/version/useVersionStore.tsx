@@ -3,7 +3,7 @@ import _ from "lodash";
 import {message} from "antd";
 import {confirmDestructive} from "@/utils/destructiveConfirm";
 import {showSyncResultModal} from "@/utils/syncResultModal";
-import {compareStringVersion} from "@/utils/string";
+import {compareStringVersion, compareStringVersionForSort} from "@/utils/string";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as Save from '@/utils/save';
 import {getAllDataSQL, getCodeByChanges} from "@/utils/json2code";
@@ -421,7 +421,7 @@ const useVersionStore = create<VersionState>(
         set({
           versions: tempVersions.map((data: any) => _.pick(data,
             ['id', 'version', 'versionDesc', 'changes', 'versionDate', 'projectJSON', 'baseVersion','creator']))
-            .sort((a: any, b: any) => compareStringVersion(b.version, a.version)),
+            .sort((a: any, b: any) => compareStringVersionForSort(b.version, a.version, true)),
         });
       },
       setState: (value: any) => {
@@ -643,11 +643,17 @@ const useVersionStore = create<VersionState>(
         if (!dbVersion) {
           lowVersions = versions;
         } else {
-          lowVersions = versions.filter((v: any) => compareStringVersion(v.version, dbVersion) > 0);
+          lowVersions = versions.filter((v: any) => {
+            const cmp = compareStringVersion(v.version, dbVersion);
+            return cmp === null || cmp > 0;
+          });
         }
         return lowVersions
           .filter((v: any) => v.version !== version.version)
-          .some((v: any) => compareStringVersion(v.version, version.version) <= 0);
+          .some((v: any) => {
+            const cmp = compareStringVersion(v.version, version.version);
+            return cmp === null || cmp <= 0;
+          });
       },
       execSQL: (data: any, version: any, updateDBVersion: any, cb: any, onlyUpdateDBVersion: any) => {
         const dbData = get().dispatch.getCurrentDBData();
@@ -934,9 +940,16 @@ const useVersionStore = create<VersionState>(
 
         // 与基线（独立查询的最新版本）比，而不是分页列表的第一条
         const latest = get().versionBaseline?.version || get().versions[0]?.version;
-        if (latest && compareStringVersion(tempValue.version, latest) <= 0) {
-          message.error('新版本不能小于或等于已经存在的版本');
-          return false;
+        if (latest) {
+          const latestCmp = compareStringVersion(tempValue.version, latest);
+          if (latestCmp === null) {
+            message.error('版本号格式无法比较，请使用如 1.0.0 的数字段格式');
+            return false;
+          }
+          if (latestCmp <= 0) {
+            message.error('新版本不能小于或等于已经存在的版本');
+            return false;
+          }
         }
 
         try {
@@ -1088,7 +1101,10 @@ const useVersionStore = create<VersionState>(
             state.initVersion = get().versions[1].version;
             state.incrementVersion = get().versions[0].version;
           }
-          if (compareStringVersion(state.incrementVersion, state.initVersion) <= 0) {
+          const rangeCmp = compareStringVersion(state.incrementVersion, state.initVersion);
+          if (rangeCmp === null) {
+            message.warning('所选版本号无法比较，请检查格式（如 1.0.0）');
+          } else if (rangeCmp <= 0) {
             message.warning('增量脚本的版本号不能小于或等于初始版本的版本号');
           } else {
             // 读取两个版本下的数据信息
