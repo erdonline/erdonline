@@ -125,8 +125,11 @@ request.interceptors.response.use(async (response, options) => {
     const url = response.url || '';
     const isProjectSave =
       url.includes('/ncnb/project/save') || url.includes('/ncnb/project/group/save');
+    const isVersionSave = url.includes('/ncnb/hisProject/save');
     if (code === 409 && isProjectSave) {
       // 乐观锁冲突由 persist 层弹可行动 Modal，勿重复 toast
+    } else if (code === 409001 && isVersionSave) {
+      // 版本号唯一冲突由 version store 弹 Modal，勿重复 toast
     } else if (code && code !== 200) {
       const errorText = msg || codeMessage[code];
       message.error(errorText);

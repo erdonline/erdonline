@@ -25,6 +25,10 @@ import {
   hasMeaningfulVersionChanges,
   snapshotProjectJSONForVersion,
 } from "@/utils/versionStructuralDiff";
+import {
+  handleVersionSaveResponse,
+  isVersionSaveDuplicate,
+} from "@/utils/versionSaveConflict";
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -962,14 +966,16 @@ const useVersionStore = create<VersionState>(
           };
 
           const res = await Save.hisProjectSave(version);
-          if (res && res.code === 200) {
+          if (handleVersionSaveResponse(res)) {
             get().dispatch.getVersionMessage(res.data);
             message.success('当前版本保存成功');
             await get().fetch(dbData, get().currentPage, get().pageSize);
             await get().dispatch.fetchVersionBaseline(dbData);
             return true;
           }
-          message.error(res?.msg || res?.message || '当前版本保存失败');
+          if (!isVersionSaveDuplicate(res)) {
+            message.error(res?.msg || res?.message || '当前版本保存失败');
+          }
           return false;
         } catch (err: any) {
           message.error(`当前版本保存失败: ${err?.message || err}`);
@@ -1028,14 +1034,14 @@ const useVersionStore = create<VersionState>(
       },
       initSave: (version: any, msg: any) => {
         Save.hisProjectSave(version).then((res) => {
-          if (res?.code === 200) {
+          if (handleVersionSaveResponse(res)) {
             message.success(msg || '初始化基线成功');
             get().fetch(null, get().currentPage, get().pageSize);
             // 仅成功后 rebaseline，禁止失败仍重置数据源版本
             get().dispatch.dropVersionTable();
             return;
           }
-          // 业务失败：request 已 toast；勿伪装成功；刷新列表便于「初始化基线」重试
+          // 业务失败：409001 由 Modal 处理；其余 request 已 toast
           get().fetch(null, get().currentPage, get().pageSize);
         }).catch(() => {
           // 网络/HTTP：errorHandler 已 toast；刷新列表便于重试

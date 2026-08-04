@@ -22,6 +22,9 @@ public enum ApiErrorCode implements IErrorCode {
 
     PROJECT_SAVE_CONFLICT(409, "项目已被其他窗口或协作者更新，请刷新后再保存"),
 
+    /** 同 project + db_key 下版本号已被占用（db_change 唯一约束） */
+    VERSION_SAVE_DUPLICATE(409001, "该版本号已被占用，请改用更大的版本号或刷新版本列表后重试"),
+
     METHOD_NOT_ALLOWED(405, "request请求方法不支持"),
 
     PAGE_LIMIT_ERROR(1000001, "分页参数过大"),

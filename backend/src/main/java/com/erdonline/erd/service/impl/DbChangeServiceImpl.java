@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.data.mybatis.service.impl.MartinServiceImpl;
 import com.erdonline.erd.entity.DbChange;
@@ -13,6 +14,7 @@ import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -105,12 +107,35 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         if (dbChange.getTag() != null && dbChange.getTag().length() > 255) {
             return R.failed("版本标签总长度不能超过 255 个字符");
         }
-        if (StrUtil.isBlank(dbChange.getId())) {
-            this.save(dbChange);
-        } else {
-            this.updateById(dbChange);
+        try {
+            if (StrUtil.isBlank(dbChange.getId())) {
+                this.save(dbChange);
+            } else {
+                this.updateById(dbChange);
+            }
+        } catch (DuplicateKeyException e) {
+            if (isVersionDuplicateKey(e)) {
+                log.warn("db_change version duplicate projectId={} dbKey={} version={}",
+                        dbChange.getProjectId(), dbChange.getDbKey(), dbChange.getVersion());
+                return R.failed(ApiErrorCode.VERSION_SAVE_DUPLICATE.getCode(),
+                        ApiErrorCode.VERSION_SAVE_DUPLICATE.getMsg());
+            }
+            throw e;
         }
         return R.ok("保存成功");
+    }
+
+    /** 识别 db_change (project_id, db_key, version) 唯一索引冲突。 */
+    static boolean isVersionDuplicateKey(DuplicateKeyException e) {
+        if (e == null) {
+            return false;
+        }
+        String message = e.getMessage();
+        if (message == null) {
+            return false;
+        }
+        return message.contains("uk_db_change_project_dbkey_version")
+                || message.contains("uni_versin_projectid_dbkey");
     }
 
     /**

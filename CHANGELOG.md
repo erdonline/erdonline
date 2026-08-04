@@ -8,6 +8,20 @@
 
 ### 2026-08-04
 
+#### 可信保存：db_change 版本号唯一约束（ADR-0022 切片 6）
+
+- 根因：并发存版时前端页内唯一校验不足，两窗口可同时写入相同 `version` → 重复历史版本
+- Flyway V14：存量 `(project_id, db_key, version)` 重复保留 id 最小行；幂等加 `uk_db_change_project_dbkey_version`（init 已有 `uni_versin_projectid_dbkey` 则跳过）
+- 后端：`saveVersion` 捕获唯一索引冲突 → `409001 VERSION_SAVE_DUPLICATE`（非 500 栈）
+- 前端：409001 → Modal「刷新版本列表」；request 层跳过重复 toast
+- 验证脚本：`scripts/verify-version-save-duplicate.sh`
+
+验证点：
+- `cd backend && mvn -Dtest=DbChangeServiceImplDuplicateTest -Djacoco.skip=true test`
+- `scripts/verify-version-save-duplicate.sh`（首存 200；同 version 再存 → 409001）
+- `cd frontend && npx playwright test --project=chromium tests/e2e/version-save-duplicate.spec.ts`
+- `./backend/dev-ensure.sh --restart` 后 Flyway V14 绿
+
 #### 可信保存：project 乐观锁（ADR-0022 切片 5）
 
 - 根因：`/ncnb/project/save` 无条件 UPDATE → 多标签/协作者并发写 projectJSON 时后写覆盖先写，且无冲突反馈
