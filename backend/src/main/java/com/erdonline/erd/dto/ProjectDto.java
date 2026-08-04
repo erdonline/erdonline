@@ -2,6 +2,7 @@ package com.erdonline.erd.dto;
 
 import lombok.Data;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 /**
@@ -18,5 +19,8 @@ public class ProjectDto {
     private String description;
     private Map projectJSON;
     private Map configJSON;
+
+    /** 客户端持有的上次成功 load/save 的 update_time，用于乐观锁 */
+    private LocalDateTime updateTime;
 
 }

@@ -364,6 +364,24 @@ import {
   preemptAutosave,
   scheduleDebouncedPersist,
 } from '@/store/project/projectAutosave';
+import {
+  handleSaveResponseSideEffects,
+  isProjectSaveConflict,
+  showProjectSaveConflictModal,
+} from '@/utils/projectSaveConflict';
+
+function patchProjectRevision(next: Record<string, unknown>): void {
+  useProjectStore.setState((state: { project: Record<string, unknown> }) => {
+    state.project = next;
+  });
+}
+
+function projectWithoutRevision(project: Record<string, unknown> | null | undefined): string {
+  if (!project) return '{}';
+  const { updateTime, ...rest } = project;
+  void updateTime;
+  return JSON.stringify(rest);
+}
 
 /** 落库当前 project；seq 不匹配时丢弃结果（防抖续写 / 手动重试抢占） */
 async function persistAutosave(seq: number): Promise<void> {
@@ -373,11 +391,25 @@ async function persistAutosave(seq: number): Promise<void> {
   }
   useGlobalStore.getState().dispatch.setSaving(true);
   try {
-    const res: any = await Save.saveProject(latest);
+    const res: { code?: number; msg?: string; message?: string; data?: unknown } =
+      await Save.saveProject(latest);
     if (!isAutosaveCurrent(seq)) {
       return;
     }
+    if (isProjectSaveConflict(res)) {
+      handleSaveResponseSideEffects(
+        latest as Record<string, unknown>,
+        res,
+        patchProjectRevision,
+      );
+      return;
+    }
     if (res?.code === 200) {
+      handleSaveResponseSideEffects(
+        latest as Record<string, unknown>,
+        res,
+        patchProjectRevision,
+      );
       useGlobalStore.getState().dispatch.setSaved(true);
       useGlobalStore.getState().dispatch.setSaving(false);
       return;
@@ -397,8 +429,12 @@ async function persistAutosave(seq: number): Promise<void> {
   }
 }
 
-/** 顶栏失败态 CTA：取消待发防抖，立即重试落库 */
+/** 顶栏失败态 CTA：冲突 → 可行动 Modal；否则立即重试落库 */
 export function retryAutosave(): void {
+  if (useGlobalStore.getState().saveConflict) {
+    showProjectSaveConflictModal();
+    return;
+  }
   const seq = preemptAutosave();
   void persistAutosave(seq);
 }
@@ -415,6 +451,11 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
   if (!previousProject || JSON.stringify(previousProject) === '{}') {
     useGlobalStore.getState().dispatch.setSaved(true);
     useGlobalStore.getState().dispatch.setSaving(false);
+    return;
+  }
+
+  // 仅 revision（updateTime）回写：不触发二次 autosave
+  if (projectWithoutRevision(project) === projectWithoutRevision(previousProject)) {
     return;
   }
 

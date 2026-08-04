@@ -18,6 +18,7 @@ const codeMessage = {
   401: '用户没有权限（令牌、用户名、密码错误）。',
   403: '当前用户权限不够，无法操作此功能。',
   404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
+  409: '资源冲突，请刷新后重试。',
   406: '请求的格式不可得。',
   410: '请求的资源被永久删除，且不会再得到的。',
   422: '当创建一个对象时，发生一个验证错误。',
@@ -121,7 +122,12 @@ request.interceptors.response.use(async (response, options) => {
   }
   if (data) {
     const {code, msg} = data;
-    if (code && code !== 200) {
+    const url = response.url || '';
+    const isProjectSave =
+      url.includes('/ncnb/project/save') || url.includes('/ncnb/project/group/save');
+    if (code === 409 && isProjectSave) {
+      // 乐观锁冲突由 persist 层弹可行动 Modal，勿重复 toast
+    } else if (code && code !== 200) {
       const errorText = msg || codeMessage[code];
       message.error(errorText);
     }

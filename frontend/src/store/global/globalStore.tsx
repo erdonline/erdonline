@@ -13,6 +13,7 @@ export type IGlobalSlice = {
   setSaved: (saved: boolean) => void;
   setSaving: (saving: boolean) => void;
   setNeedSave: (saved: boolean) => void;
+  setSaveConflict: (conflict: boolean) => void;
   setSearchKey: (searchKey: string) => void;
   requestLocateTable: (module: string, tableId: string) => void;
   clearPendingLocateTable: () => void;
@@ -25,6 +26,8 @@ export type GlobalState = {
   saved: boolean;
   /** 自动保存请求进行中 */
   saving: boolean;
+  /** 乐观锁 409：与其它窗口/协作者写入冲突 */
+  saveConflict: boolean;
   needSave: boolean;
   pendingLocateTable: PendingLocateTable | null;
   dispatch: IGlobalSlice;
@@ -35,6 +38,7 @@ const useGlobalStore = create<GlobalState>((set) => ({
   querySearchKey: '',
   saved: true,
   saving: false,
+  saveConflict: false,
   needSave: true,
   pendingLocateTable: null,
   dispatch: {
@@ -54,6 +58,12 @@ const useGlobalStore = create<GlobalState>((set) => ({
       set(
         produce((state) => {
           state.needSave = needSave;
+        }),
+      ),
+    setSaveConflict: (saveConflict: boolean) =>
+      set(
+        produce((state) => {
+          state.saveConflict = saveConflict;
         }),
       ),
     setSearchKey: (searchKey: string) =>

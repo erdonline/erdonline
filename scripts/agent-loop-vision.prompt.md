@@ -33,7 +33,7 @@
 **B 层前置：并发与持久化底座（A 之后立刻做，先防丢数据）**
 
 4. ~~删 `closeSocket` 盲存（卸载无条件 `Save.saveProject`）→ 仅脏时落库，且结果可见~~ ✅ 2026-08-04
-5. project 乐观锁（`update_time` / `revision` 冲突 → 409 + 前端可行动文案，不静默覆盖）
+5. ~~project 乐观锁（`update_time` / `revision` 冲突 → 409 + 前端可行动文案，不静默覆盖）~~ ✅ 2026-08-04
 6. `db_change` 版本号唯一约束（Flyway；并发保存不产生重复 version）
 7. 诚实持久化：落库失败落本地草稿 + `beforeunload` 拦截；再次进入可对比/丢弃
 
