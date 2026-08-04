@@ -7,6 +7,7 @@ import {
   isProjectSaveConflict,
   type SaveProjectResponse,
 } from '@/utils/projectSaveConflict';
+import { clearProjectDraft, writeProjectDraft } from '@/utils/projectLocalDraft';
 
 /**
  * 自动保存 / 手动落盘共用防抖序号，避免模态「先 Save 再写 store」与 debounce 互踩。
@@ -52,6 +53,7 @@ export function ackManualPersist(ok: boolean): void {
   useGlobalStore.getState().dispatch.setSaved(ok);
   if (ok) {
     useGlobalStore.getState().dispatch.setSaveConflict(false);
+    clearProjectDraft(useProjectStore.getState().project?.id as string | undefined);
   }
 }
 
@@ -107,12 +109,14 @@ export async function persistProjectNow(
         res,
         patchProjectRevision,
       );
+      clearProjectDraft(project.id);
       useGlobalStore.getState().dispatch.setSaved(true);
       useGlobalStore.getState().dispatch.setSaving(false);
       return true;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);
+    writeProjectDraft(project, project.updateTime);
     if (!res?.msg && !res?.message) {
       message.error(fallbackMsg);
     }
@@ -123,6 +127,7 @@ export async function persistProjectNow(
     }
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);
+    writeProjectDraft(project, project.updateTime);
     // HTTP/网络：errorHandler 已 toast
     return false;
   }

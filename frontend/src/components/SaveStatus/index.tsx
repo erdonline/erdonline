@@ -42,8 +42,8 @@ const SaveStatus: React.FC = () => {
         className={className}
         data-testid="save-status"
         aria-live="polite"
-        aria-label="自动保存失败，点击重试"
-        title="改动仍在本地，点击重试保存到服务器"
+        aria-label="自动保存失败，改动已存本地，点击重试"
+        title="改动已保存到本地，点击重试同步到服务器"
         onClick={() => retryAutosave()}
       >
         {label}

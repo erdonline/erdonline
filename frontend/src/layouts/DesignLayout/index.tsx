@@ -1,3 +1,4 @@
+import { useProjectDraftGuard } from '@/hooks/useProjectDraftGuard';
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
@@ -237,6 +238,8 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
       initSocket: state.initSocket,
       closeSocket: state.closeSocket,
     }), shallow);
+
+  useProjectDraftGuard(projectId);
 
   useEffect(() => {
     fetch(projectId);

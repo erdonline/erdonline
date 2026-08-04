@@ -216,8 +216,8 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       if (!saved) {
         return false;
       }
-      applyLocal();
       ackManualPersist(true);
+      applyLocal();
       showMessage('success', '表添加成功');
       return true;
     })();
