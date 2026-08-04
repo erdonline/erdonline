@@ -1,24 +1,31 @@
 package com.erdonline.erd.publicapi;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
 
 /**
- * OAuth 2.0 Authorization Code（切片 B + PKCE S256）。
- * 须会话 JWT；薄同意：已登录即签发 code 并 302（产品 UI 同意页可先渲染再跳本端）。
- * <p>redirect_uri 未注册时永不 302（防开放重定向）。
+ * OAuth 2.0 Authorization Code（切片 B + PKCE S256）+ 显式同意。
+ * <ul>
+ *   <li>GET：会话 JWT → 同意页预览 JSON（不签发 code）</li>
+ *   <li>POST {@code decision=allow}：签发 {@code erd_ac_} 并 302（或 JSON {@code redirect_to}）</li>
+ *   <li>POST {@code decision=deny}：302 {@code error=access_denied}（redirect 须已注册）</li>
+ * </ul>
+ * 产品 UI：SPA {@code /oauth/authorize}；API 路径兼 {@code /auth/oauth/authorize}（网关前缀）。
  */
 @RestController
 @RequiredArgsConstructor
@@ -35,11 +42,28 @@ public class OAuthAuthorizeController {
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "code_challenge", required = false) String codeChallenge,
             @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod) {
-        return authorize(responseType, clientId, redirectUri, scope, state,
-                codeChallenge, codeChallengeMethod);
+        ResponseEntity<?> bad = validateCommonParams(
+                responseType, clientId, redirectUri, state, codeChallenge, codeChallengeMethod);
+        if (bad != null) {
+            return bad;
+        }
+        try {
+            OAuthConsentView view = oauthApiClientService.previewAuthorization(
+                    clientId.trim(),
+                    redirectUri.trim(),
+                    scope,
+                    state.trim(),
+                    codeChallenge.trim(),
+                    codeChallengeMethod.trim());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(view);
+        } catch (IllegalArgumentException ex) {
+            // GET 预览永不 302（SPA 同意页消费 JSON）；错误一律 JSON
+            return authorizeJsonError(ex);
+        }
     }
 
-    /** 表单 POST 同意（与 GET 同参）；供薄 UI「允许」提交。 */
     @PostMapping(
             value = {"/oauth/authorize", "/auth/oauth/authorize"},
             consumes = {
@@ -54,30 +78,35 @@ public class OAuthAuthorizeController {
             @RequestParam(value = "scope", required = false) String scope,
             @RequestParam(value = "state", required = false) String state,
             @RequestParam(value = "code_challenge", required = false) String codeChallenge,
-            @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod) {
-        return authorize(responseType, clientId, redirectUri, scope, state,
-                codeChallenge, codeChallengeMethod);
-    }
+            @RequestParam(value = "code_challenge_method", required = false) String codeChallengeMethod,
+            @RequestParam(value = "decision", required = false) String decision,
+            @RequestHeader(value = HttpHeaders.ACCEPT, required = false) String accept) {
 
-    private ResponseEntity<?> authorize(
-            String responseType,
-            String clientId,
-            String redirectUri,
-            String scope,
-            String state,
-            String codeChallenge,
-            String codeChallengeMethod) {
-
-        if (!StringUtils.hasText(responseType) || !"code".equals(responseType.trim())) {
-            return jsonError(HttpStatus.BAD_REQUEST, "unsupported_response_type",
-                    "only response_type=code supported");
+        ResponseEntity<?> bad = validateCommonParams(
+                responseType, clientId, redirectUri, state, codeChallenge, codeChallengeMethod);
+        if (bad != null) {
+            return bad;
         }
-        if (!StringUtils.hasText(clientId) || !StringUtils.hasText(redirectUri)
-                || !StringUtils.hasText(state)
-                || !StringUtils.hasText(codeChallenge)
-                || !StringUtils.hasText(codeChallengeMethod)) {
+        String dec = decision == null ? "" : decision.trim().toLowerCase(Locale.ROOT);
+        if (!"allow".equals(dec) && !"deny".equals(dec)) {
             return jsonError(HttpStatus.BAD_REQUEST, "invalid_request",
-                    "client_id, redirect_uri, state, code_challenge, code_challenge_method required");
+                    "decision must be allow or deny");
+        }
+
+        boolean preferJson = acceptsJson(accept);
+
+        if ("deny".equals(dec)) {
+            boolean mayRedirect = oauthApiClientService.isRedirectUriRegistered(clientId, redirectUri)
+                    && StringUtils.hasText(state);
+            if (!mayRedirect) {
+                return jsonError(HttpStatus.BAD_REQUEST, "invalid_request",
+                        "cannot redirect deny: redirect_uri not registered");
+            }
+            URI location = appendQuery(redirectUri.trim(),
+                    "error", "access_denied",
+                    "error_description", "The resource owner denied the request",
+                    "state", state.trim());
+            return redirectOrJson(location, preferJson);
         }
 
         try {
@@ -89,24 +118,83 @@ public class OAuthAuthorizeController {
                     codeChallenge.trim(),
                     codeChallengeMethod.trim());
             URI location = appendQuery(issued.redirectUri(), "code", issued.code(), "state", issued.state());
-            return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
+            return redirectOrJson(location, preferJson);
         } catch (IllegalArgumentException ex) {
-            String msg = ex.getMessage() == null ? "invalid_request" : ex.getMessage();
-            boolean mayRedirect = oauthApiClientService.isRedirectUriRegistered(clientId, redirectUri)
-                    && StringUtils.hasText(state);
-            if (!mayRedirect || "invalid_client".equals(msg)
-                    || msg.contains("redirect_uri")
-                    || msg.startsWith("redirect_uri")) {
-                return jsonError(HttpStatus.BAD_REQUEST,
-                        "invalid_client".equals(msg) ? "invalid_client" : "invalid_request",
-                        safeDesc(msg));
-            }
-            URI location = appendQuery(redirectUri.trim(),
-                    "error", mapAuthorizeError(msg),
-                    "error_description", safeDesc(msg),
-                    "state", state.trim());
-            return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
+            return authorizeExceptionResponse(ex, clientId, redirectUri, state, preferJson);
         }
+    }
+
+    private ResponseEntity<?> validateCommonParams(
+            String responseType,
+            String clientId,
+            String redirectUri,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod) {
+        if (!StringUtils.hasText(responseType) || !"code".equals(responseType.trim())) {
+            return jsonError(HttpStatus.BAD_REQUEST, "unsupported_response_type",
+                    "only response_type=code supported");
+        }
+        if (!StringUtils.hasText(clientId) || !StringUtils.hasText(redirectUri)
+                || !StringUtils.hasText(state)
+                || !StringUtils.hasText(codeChallenge)
+                || !StringUtils.hasText(codeChallengeMethod)) {
+            return jsonError(HttpStatus.BAD_REQUEST, "invalid_request",
+                    "client_id, redirect_uri, state, code_challenge, code_challenge_method required");
+        }
+        return null;
+    }
+
+    private ResponseEntity<?> authorizeJsonError(IllegalArgumentException ex) {
+        String msg = ex.getMessage() == null ? "invalid_request" : ex.getMessage();
+        return jsonError(HttpStatus.BAD_REQUEST,
+                "invalid_client".equals(msg) ? "invalid_client"
+                        : "invalid_scope".equals(msg) ? "invalid_scope"
+                        : "invalid_request",
+                safeDesc(msg));
+    }
+
+    private ResponseEntity<?> authorizeExceptionResponse(
+            IllegalArgumentException ex,
+            String clientId,
+            String redirectUri,
+            String state,
+            boolean preferJsonRedirect) {
+        String msg = ex.getMessage() == null ? "invalid_request" : ex.getMessage();
+        boolean mayRedirect = oauthApiClientService.isRedirectUriRegistered(clientId, redirectUri)
+                && StringUtils.hasText(state);
+        if (!mayRedirect || "invalid_client".equals(msg)
+                || msg.contains("redirect_uri")
+                || msg.startsWith("redirect_uri")) {
+            return jsonError(HttpStatus.BAD_REQUEST,
+                    "invalid_client".equals(msg) ? "invalid_client" : "invalid_request",
+                    safeDesc(msg));
+        }
+        URI location = appendQuery(redirectUri.trim(),
+                "error", mapAuthorizeError(msg),
+                "error_description", safeDesc(msg),
+                "state", state.trim());
+        return redirectOrJson(location, preferJsonRedirect);
+    }
+
+    private static ResponseEntity<?> redirectOrJson(URI location, boolean preferJson) {
+        if (preferJson) {
+            Map<String, Object> body = new LinkedHashMap<>(2);
+            body.put("redirect_to", location.toString());
+            return ResponseEntity.ok()
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(body);
+        }
+        return ResponseEntity.status(HttpStatus.FOUND).location(location).build();
+    }
+
+    static boolean acceptsJson(String accept) {
+        if (!StringUtils.hasText(accept)) {
+            return false;
+        }
+        String lower = accept.toLowerCase(Locale.ROOT);
+        return lower.contains(MediaType.APPLICATION_JSON_VALUE)
+                && !lower.trim().equals("*/*");
     }
 
     /** 在已有 query 上追加参数（精确保留 redirect_uri 注册串前缀）。 */
@@ -124,6 +212,9 @@ public class OAuthAuthorizeController {
         }
         if ("invalid_client".equals(msg)) {
             return "invalid_client";
+        }
+        if ("access_denied".equals(msg)) {
+            return "access_denied";
         }
         return "invalid_request";
     }

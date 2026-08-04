@@ -21,7 +21,12 @@ export async function login(username: string, password: string, redirectOverride
     }
     const fromQuery = new URLSearchParams(window.location.search).get('redirect');
     const redirect = redirectOverride || fromQuery;
-    history.push({ pathname: redirect && redirect.startsWith('/') ? redirect : '/home' });
+    // 支持带回 query 的深链（如 /oauth/authorize?...）；对象 pathname 会丢掉 ? 后参数
+    if (redirect && redirect.startsWith('/')) {
+      history.push(redirect);
+    } else {
+      history.push('/home');
+    }
     return;
   }
   message.error(res?.msg || '登录失败，请检查用户名和密码');

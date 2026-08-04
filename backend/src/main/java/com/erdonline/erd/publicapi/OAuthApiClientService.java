@@ -22,7 +22,18 @@ public interface OAuthApiClientService {
     OAuthTokenResponse issueClientCredentials(String clientId, String clientSecret, String scopeCsv);
 
     /**
-     * Authorization Code：已登录用户同意后签发短命 code（明文返回一次，库中仅哈希）。
+     * Authorization Code 同意页预览：校验 PKCE/redirect/scope，不签发 code。
+     */
+    OAuthConsentView previewAuthorization(
+            String clientId,
+            String redirectUri,
+            String scopeCsv,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod);
+
+    /**
+     * Authorization Code：用户显式 Allow 后签发短命 code（明文返回一次，库中仅哈希）。
      * 要求 PKCE S256、state 非空、redirect_uri 精确匹配注册表。
      */
     AuthCodeIssued createAuthorizationCode(

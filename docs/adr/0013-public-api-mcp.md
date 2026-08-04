@@ -1,6 +1,6 @@
 # ADR-0013：公开 API / MCP
 
-- 状态：**🚧 进行中**（人工解封 2026-08-04；切片 1–5 ✅ + `projects:write` REST/MCP ✅ + Redis 限流 ✅ + **OAuth 切片 A+B** ✅ + **client 管理 UI** ✅ + **PAT 管理 UI** ✅；余同意页打磨）
+- 状态：**✅ 已接受**（人工解封 2026-08-04；切片 1–5 ✅ + `projects:write` REST/MCP ✅ + Redis 限流 ✅ + **OAuth 切片 A+B** ✅ + **client / PAT 管理 UI** ✅ + **同意页** ✅）
 - 决策者：项目维护者（Vision 自动轨暂停点 `785d699` 后**显式选择**本 ADR 为下一里程碑）
 - 前置：[ADR-0012](./0012-ai-era-data-structure-platform.md) 选项 B 已接受；[ADR-0016](./0016-experience-first-shareable-diagram.md) 本季「禁 MCP 产品码」由本人工决策**专项解封**（仅本里程碑，不重开版本分支 / live sync）
 
@@ -15,7 +15,7 @@ ADR-0012 将「API/MCP 开放」列为平台级能力：agent 可读 schema、�
 | 议题 | 决策 |
 |---|---|
 | 鉴权模型 | **Personal Access Token（PAT）** + **OAuth**（client_credentials + Authorization Code/PKCE）。PAT 前缀 `erd_pat_`；OAuth access token 前缀 `erd_oat_`；auth code 前缀 `erd_ac_`。均 `Authorization: Bearer <token>` 调 `/api/v1/**`。会话 JWT **不**接受于 `/api/v1/**`。 |
-| OAuth（分切片） | **切片 A（✅）**：机器对机器 — 注册 confidential client → `POST /oauth/token` `grant_type=client_credentials` → 短期 `erd_oat_`（默认 TTL 3600s）。以**注册人**身份访问。 **切片 B（✅）**：浏览器 Authorization Code + **强制 PKCE S256** — `GET\|POST /oauth/authorize`（会话 JWT，薄同意=已登录即签发）→ 302 `code`+`state` → `POST /oauth/token` `grant_type=authorization_code` + `code_verifier` → `erd_oat_`。以**授权用户**身份访问。public client 无 secret；confidential 换票仍须 secret。 |
+| OAuth（分切片） | **切片 A（✅）**：机器对机器 — 注册 confidential client → `POST /oauth/token` `grant_type=client_credentials` → 短期 `erd_oat_`（默认 TTL 3600s）。以**注册人**身份访问。 **切片 B（✅）**：浏览器 Authorization Code + **强制 PKCE S256** — `GET /oauth/authorize`（会话 JWT）→ 同意页预览 JSON；产品 UI `/oauth/authorize` 显式 Allow/Deny；`POST decision=allow` 才签发 `erd_ac_` → `POST /oauth/token` `authorization_code` + `code_verifier` → `erd_oat_`。Deny → `error=access_denied`。以**授权用户**身份访问。public client 无 secret；confidential 换票仍须 secret。 |
 | 密钥存储 | **只存 SHA-256 hex**（PAT / client_secret / OAT / auth code）。明文仅在铸造/换票/授权响应出现一次。禁止明文/可逆加密入库。 |
 | Client 类型 | `confidential`（默认，可 `client_credentials`，须 secret）/ `public`（SPA，无 secret，**禁止** client_credentials，须注册 `redirectUris`）。`redirect_uri` **精确字符串匹配**（禁 fragment；仅 `https` 或 `http://localhost\|127.0.0.1\|[::1]`）。 |
 | PKCE / CSRF | 仅 `code_challenge_method=S256`（拒 `plain`）；`state` 必填；auth code 默认 TTL 120s（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、单次消费；未注册 redirect **永不** 302（防开放重定向）。 |
@@ -42,10 +42,10 @@ ADR-0012 将「API/MCP 开放」列为平台级能力：agent 可读 schema、�
 | B | Authorization Code + PKCE S256（public/confidential；authorize + token） | ✅ 2026-08-04 |
 | — | 产品内 OAuth client 管理 UI（`/account/settings?selectKey=oauthClients`） | ✅ 2026-08-04 |
 | — | 产品内 PAT 管理 UI（`/account/settings?selectKey=personalAccessTokens`） | ✅ 2026-08-04 |
-| — | 同意页打磨 | 📋 后置 |
+| — | 同意页（`/oauth/authorize` Allow/Deny；GET 预览不签发 code） | ✅ 2026-08-04 |
 
 ## 后果
 
 - 正面：agent / 脚本有一等鉴权面；M2M 与浏览器三方应用均可 OAuth；北极星可计量「API 产生的版本保存」护栏有挂点
 - 代价：新令牌面须吊销/过期/限流运维；文档须强调「明文只见一次」；写 scope 扩大爆破半径须最小权限铸造；OAuth client 吊销须使已发 OAT 与未消费 code 失效；auth code 流量以授权用户身份访问（异于 client_credentials 的注册人身份）
-- 明确不做（仍后置）：产品内黑盒「一句话生成 ERD」；自研 LLM；完整 OAuth 同意页打磨（PAT / client 管理 UI 已交付）
+- 明确不做（仍后置）：产品内黑盒「一句话生成 ERD」；自研 LLM；OAuth 刷新令牌 / OpenID Connect / 第三方登录联邦

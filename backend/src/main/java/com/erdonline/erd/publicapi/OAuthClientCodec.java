@@ -3,6 +3,7 @@ package com.erdonline.erd.publicapi;
 import cn.hutool.core.util.HexUtil;
 import cn.hutool.crypto.digest.DigestUtil;
 
+import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.SecureRandom;
@@ -194,6 +195,27 @@ public final class OAuthClientCodec {
         }
         if (uri.length() > 512) {
             throw new IllegalArgumentException("redirect_uri too long");
+        }
+    }
+
+    /** 同意页展示：host 或 host:port（显式端口时保留）。 */
+    public static String redirectHost(String redirectUri) {
+        if (redirectUri == null || redirectUri.isBlank()) {
+            return "";
+        }
+        try {
+            URI u = URI.create(redirectUri.trim());
+            String host = u.getHost();
+            if (host == null || host.isBlank()) {
+                return "";
+            }
+            int port = u.getPort();
+            if (port > 0) {
+                return host + ":" + port;
+            }
+            return host;
+        } catch (IllegalArgumentException ex) {
+            return "";
         }
     }
 

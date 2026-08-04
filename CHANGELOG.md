@@ -8,12 +8,23 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OAuth 同意页（Allow/Deny）
+
+- 选题：切片 B 薄同意「已登录即签」；MVP 收口需显式同意
+- 后端：`GET /oauth/authorize` → 同意预览 JSON（clientName / scopes / redirectHost；不签发 code）；`POST decision=allow|deny` — 仅 allow 签发 `erd_ac_`；deny → `error=access_denied`；`Accept: application/json` → `{redirect_to}`
+- 前端：`/oauth/authorize` AuthBrandShell；登录深链带回 query；键盘/aria
+- ADR-0013 / roadmap Openness → ✅ MVP
+- 验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：GET 预览无 code → POST allow → Location `erd_ac_`；POST deny → `access_denied`
+- `cd frontend && yarn playwright test tests/e2e/oauth-consent.spec.ts --project=chromium`
+
 #### 开放：ADR-0013 — PAT 管理 UI
 
 - 选题：切片 1 铸造/列表/吊销 API 已就绪；产品内缺可见闭环（明文一次揭示）
 - `/account/settings?selectKey=personalAccessTokens`：列表 / 铸造（scopes + 可选过期）/ 明文一次揭示告警 / 吊销确认
 - 密度 ADR-0016（22–28 chrome）；键盘/aria；E2E 禁 `.ant-*`
-- 未做：同意页打磨（OAuth authorize 薄同意仍为「已登录即签」）
+- 未做：~~同意页打磨~~（已交付，见上节）
 
 验证点：
 - `cd frontend && yarn playwright test tests/e2e/personal-access-tokens.spec.ts --project=chromium`
@@ -24,7 +35,7 @@
 - 选题：API-first 注册/列表/吊销已就绪；产品内缺可见闭环（secret 一次揭示）
 - `/account/settings?selectKey=oauthClients`：列表 / 注册（confidential|public + scopes + redirect）/ 复制 `client_id` / 创建后 secret 一次揭示告警 / 吊销确认
 - 密度 ADR-0016（22–28 chrome）；键盘/aria；E2E 禁 `.ant-*`
-- 未做：同意页打磨；~~PAT 管理 UI~~（已交付，见上节）
+- 未做：~~同意页打磨~~；~~PAT 管理 UI~~（已交付）
 
 验证点：
 - `cd frontend && yarn playwright test tests/e2e/oauth-clients.spec.ts --project=chromium`
@@ -32,12 +43,12 @@
 
 #### 开放：ADR-0013 — OAuth 切片 B（Authorization Code + PKCE S256）
 - Flyway `V10`：`oauth_api_client.client_type` / `redirect_uris`；表 `oauth_authorization_code`（仅 SHA-256）
-- `GET|POST /oauth/authorize`（会话 JWT）：`response_type=code` + `state` + PKCE S256 → 302 `erd_ac_`；薄同意（已登录即签）
+- `GET|POST /oauth/authorize`（会话 JWT）：`response_type=code` + `state` + PKCE S256；同意页后 POST allow → 302 `erd_ac_`（见上节「同意页」）
 - `POST /oauth/token` `grant_type=authorization_code` + `code_verifier`；public 无 secret / confidential 须 secret
 - 硬化：redirect 精确匹配、未注册不 302、code 单次+短 TTL（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、常量时间 hash 比较、public 禁 `client_credentials`
 - 验证点：
 - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
-- `./backend/dev-ensure.sh --restart` 后 curl：注册 public → authorize 302 → token → `GET /api/v1/me` 200；坏 verifier / 重放 → `invalid_grant`；未登录 authorize → 401
+- `./backend/dev-ensure.sh --restart` 后 curl：注册 public → POST allow → token → `GET /api/v1/me` 200；坏 verifier / 重放 → `invalid_grant`；未登录 authorize → 401
 
 #### 开放：ADR-0013 — OAuth 切片 A（client 注册 + `client_credentials`）
 

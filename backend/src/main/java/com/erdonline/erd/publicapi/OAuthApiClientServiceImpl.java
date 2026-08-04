@@ -164,6 +164,26 @@ public class OAuthApiClientServiceImpl
     }
 
     @Override
+    public OAuthConsentView previewAuthorization(
+            String clientId,
+            String redirectUri,
+            String scopeCsv,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod) {
+        ConsentPrep prep = prepareConsent(
+                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod);
+        return OAuthConsentView.builder()
+                .clientId(prep.client().getClientId())
+                .clientName(prep.client().getName())
+                .clientType(normalizeStoredType(prep.client()))
+                .scopes(new ArrayList<>(prep.granted()))
+                .redirectUri(prep.redirectUri())
+                .redirectHost(OAuthClientCodec.redirectHost(prep.redirectUri()))
+                .build();
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public AuthCodeIssued createAuthorizationCode(
             String clientId,
@@ -173,6 +193,39 @@ public class OAuthApiClientServiceImpl
             String codeChallenge,
             String codeChallengeMethod) {
         MartinUser user = SecurityContextUtil.getAccessUser();
+        ConsentPrep prep = prepareConsent(
+                clientId, redirectUri, scopeCsv, state, codeChallenge, codeChallengeMethod);
+
+        long ttl = Math.max(30, Math.min(600, authCodeTtlSeconds));
+        String plaintext = OAuthClientCodec.generateAuthorizationCode();
+        OAuthAuthorizationCode row = new OAuthAuthorizationCode();
+        row.setCodeHash(OAuthClientCodec.hash(plaintext));
+        row.setClientPk(prep.client().getId());
+        row.setClientId(prep.client().getClientId());
+        row.setUserId(user.getId());
+        row.setUsername(user.getUsername());
+        row.setRedirectUri(prep.redirectUri());
+        row.setScopes(PatScopes.toCsv(prep.granted()));
+        row.setCodeChallenge(prep.codeChallenge());
+        row.setCodeChallengeMethod(OAuthClientCodec.PKCE_S256);
+        row.setExpireTime(LocalDateTime.now().plusSeconds(ttl));
+        row.setConsumed(ACTIVE);
+        oauthAuthorizationCodeMapper.insert(row);
+
+        return new AuthCodeIssued(plaintext, state.trim(), prep.redirectUri());
+    }
+
+    /**
+     * 校验 authorize 参数并解析 granted scopes；不写库。
+     * 调用方须已登录（Allow 路径会再取用户）。
+     */
+    private ConsentPrep prepareConsent(
+            String clientId,
+            String redirectUri,
+            String scopeCsv,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod) {
         if (!StringUtils.hasText(state) || state.trim().length() > 512) {
             throw new IllegalArgumentException("invalid_request:state");
         }
@@ -184,7 +237,8 @@ public class OAuthApiClientServiceImpl
                 codeChallengeMethod == null ? "" : codeChallengeMethod.trim())) {
             throw new IllegalArgumentException("invalid_request:code_challenge_method");
         }
-        if (!OAuthClientCodec.isValidCodeChallenge(codeChallenge == null ? "" : codeChallenge.trim())) {
+        String challenge = codeChallenge == null ? "" : codeChallenge.trim();
+        if (!OAuthClientCodec.isValidCodeChallenge(challenge)) {
             throw new IllegalArgumentException("invalid_request:code_challenge");
         }
 
@@ -192,30 +246,21 @@ public class OAuthApiClientServiceImpl
         if (client == null) {
             throw new IllegalArgumentException("invalid_client");
         }
-        if (!OAuthClientCodec.redirectUriAllowed(client.getRedirectUris(), redirectUri.trim())) {
+        String exactRedirect = redirectUri.trim();
+        if (!OAuthClientCodec.redirectUriAllowed(client.getRedirectUris(), exactRedirect)) {
             throw new IllegalArgumentException("invalid_request:redirect_uri");
         }
 
         Set<String> allowed = PatScopes.parse(client.getScopes());
         Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
+        return new ConsentPrep(client, exactRedirect, granted, challenge);
+    }
 
-        long ttl = Math.max(30, Math.min(600, authCodeTtlSeconds));
-        String plaintext = OAuthClientCodec.generateAuthorizationCode();
-        OAuthAuthorizationCode row = new OAuthAuthorizationCode();
-        row.setCodeHash(OAuthClientCodec.hash(plaintext));
-        row.setClientPk(client.getId());
-        row.setClientId(client.getClientId());
-        row.setUserId(user.getId());
-        row.setUsername(user.getUsername());
-        row.setRedirectUri(redirectUri.trim());
-        row.setScopes(PatScopes.toCsv(granted));
-        row.setCodeChallenge(codeChallenge.trim());
-        row.setCodeChallengeMethod(OAuthClientCodec.PKCE_S256);
-        row.setExpireTime(LocalDateTime.now().plusSeconds(ttl));
-        row.setConsumed(ACTIVE);
-        oauthAuthorizationCodeMapper.insert(row);
-
-        return new AuthCodeIssued(plaintext, state.trim(), redirectUri.trim());
+    private record ConsentPrep(
+            OAuthApiClient client,
+            String redirectUri,
+            Set<String> granted,
+            String codeChallenge) {
     }
 
     @Override
