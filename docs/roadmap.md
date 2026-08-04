@@ -70,7 +70,7 @@
 - ~~五态 + 未知态 4 路可行动文案；探测显式（loading + 失败原因）~~ ✅ 2026-08-04（IR diff → ahead/behind/diverged；未知四路 copy + testid；`schema-probe.spec.ts`）
 - ~~分享访客隐藏 B 层~~ ✅ 2026-08-04（`shareContext` + ACL guard + `share.spec.ts` 无 probe testid/API）
 
-**MVP 队列已闭环**；后续同主题（非本 tick）：Pull/Push 动作隐喻、冲突可视化、版本 diff 与实库 diff 同语言 → 见下方 P2/产品深度。
+**MVP 队列（#1–#11）已闭环**；同主题续跑队列 #12–#16（diff 同语言 → 冲突可视化 → 探测入口收敛 → E2E 补盘 → Pull/Push 需用户开闸）见 `scripts/agent-loop-vision.prompt.md`。
 
 ### i18n 奠基（B 层后）✅
 

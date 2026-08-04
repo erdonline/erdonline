@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### 运维：Vision 5m 循环卡死重启 + 双层一致性续跑队列（#12–#16）
+
+- 根因：`agent-loop-vision.sh` 后台进程未死，但其 stdout 管道的读端（此前一轮对话的 `AwaitShell` 监听）已断开且无人重新接管，`echo AGENT_LOOP_TICK_VISION` 写满管道后阻塞在 write()；进程 31+ 小时 CPU 时间未增长（卡在同一轮 tick，仅重复吐出旧版「UI/UX 优化」prompt，未反映已合并的双层一致性内容），tick 名存实亡
+- 改动：`pkill -f agent-loop-vision.sh` 后重新前台常驻拉起；`scripts/agent-loop-vision.prompt.md` 双层一致性 MVP #1–#11 闭环后补齐续跑队列 #12–#16（diff 同语言 → 冲突可视化 → 探测入口收敛 → E2E 补盘 → Pull/Push 明确标「需用户开闸」不得自动开工）；`docs/roadmap.md` 指针同步指向新队列
+
+验证点：
+- `ps aux \| grep agent-loop-vision.sh` 确认旧 pid 已终止、新 pid 存活
+- `AwaitShell` 重新监听新进程，310s 内命中含「双层一致性」新 prompt 内容的 tick（证明 emit() 已按最新 `agent-loop-vision.prompt.md` 出活，非卡死重复旧内容）
+
 #### 修复：打开项目 hydrate 竞态致 E2E create-table 旅程失败
 
 - 根因：`fetch` 先 `set(project)` 再 `fixProject` 二次写 store → subscribe 触发 debounced autosave，与 `addModule`/`addEntity` 的 `persistProjectNow` 并发 CAS 同一 `updateTime` → 409 冲突或落库失败；另 **`patchProjectRevision` 对 immer 冻结 draft 整对象赋值**（`state.project = next`）第二次 persist 抛 `Cannot assign to read only property 'project'`，HTTP 200 仍显示「保存失败」且表不上图
