@@ -14,15 +14,19 @@ import org.springframework.web.bind.annotation.RestController;
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
 import java.util.LinkedHashMap;
+import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
 
 /**
- * OAuth 2.0 token（切片 A：仅 {@code client_credentials}）。匿名可达；不经会话 JWT。
- * Authorization Code / PKCE 见切片 B。
+ * OAuth 2.0 token：{@code client_credentials}（切片 A）与 {@code authorization_code}+PKCE（切片 B）。
+ * 匿名可达；不经会话 JWT。
  */
 @RestController
 @RequiredArgsConstructor
 public class OAuthTokenController {
+
+    private static final Set<String> SUPPORTED = Set.of("client_credentials", "authorization_code");
 
     private final OAuthApiClientService oauthApiClientService;
 
@@ -38,14 +42,18 @@ public class OAuthTokenController {
             @RequestParam(value = "grant_type", required = false) String grantType,
             @RequestParam(value = "client_id", required = false) String clientId,
             @RequestParam(value = "client_secret", required = false) String clientSecret,
-            @RequestParam(value = "scope", required = false) String scope) {
+            @RequestParam(value = "scope", required = false) String scope,
+            @RequestParam(value = "code", required = false) String code,
+            @RequestParam(value = "redirect_uri", required = false) String redirectUri,
+            @RequestParam(value = "code_verifier", required = false) String codeVerifier) {
 
         if (!StringUtils.hasText(grantType)) {
             return oauthError(HttpStatus.BAD_REQUEST, "invalid_request", "grant_type required");
         }
-        if (!"client_credentials".equals(grantType.trim())) {
+        String grant = grantType.trim().toLowerCase(Locale.ROOT);
+        if (!SUPPORTED.contains(grant)) {
             return oauthError(HttpStatus.BAD_REQUEST, "unsupported_grant_type",
-                    "only client_credentials in this milestone (Authorization Code deferred)");
+                    "supported: client_credentials, authorization_code");
         }
 
         String resolvedId = clientId;
@@ -61,28 +69,52 @@ public class OAuthTokenController {
         }
 
         try {
-            OAuthTokenResponse issued = oauthApiClientService.issueClientCredentials(
-                    resolvedId, resolvedSecret, scope);
+            OAuthTokenResponse issued;
+            if ("client_credentials".equals(grant)) {
+                issued = oauthApiClientService.issueClientCredentials(
+                        resolvedId, resolvedSecret, scope);
+            } else {
+                issued = oauthApiClientService.exchangeAuthorizationCode(
+                        resolvedId, resolvedSecret, code, redirectUri, codeVerifier);
+            }
             Map<String, Object> body = new LinkedHashMap<>();
             body.put("access_token", issued.getAccessToken());
             body.put("token_type", issued.getTokenType());
             body.put("expires_in", issued.getExpiresIn());
             body.put("scope", issued.getScope());
-            return ResponseEntity.ok(body);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                    .header(HttpHeaders.PRAGMA, "no-cache")
+                    .body(body);
         } catch (IllegalArgumentException ex) {
-            String code = ex.getMessage() == null ? "invalid_client" : ex.getMessage();
-            if ("invalid_scope".equals(code)) {
-                return oauthError(HttpStatus.BAD_REQUEST, "invalid_scope", "requested scope not allowed");
-            }
-            return oauthError(HttpStatus.UNAUTHORIZED, "invalid_client", "client authentication failed");
+            return mapTokenException(ex);
         }
+    }
+
+    private static ResponseEntity<Map<String, Object>> mapTokenException(IllegalArgumentException ex) {
+        String code = ex.getMessage() == null ? "invalid_client" : ex.getMessage();
+        return switch (code) {
+            case "invalid_scope" -> oauthError(HttpStatus.BAD_REQUEST, "invalid_scope",
+                    "requested scope not allowed");
+            case "unauthorized_client" -> oauthError(HttpStatus.BAD_REQUEST, "unauthorized_client",
+                    "grant type not allowed for this client");
+            case "invalid_grant" -> oauthError(HttpStatus.BAD_REQUEST, "invalid_grant",
+                    "authorization code / pkce / redirect_uri rejected");
+            case "invalid_request" -> oauthError(HttpStatus.BAD_REQUEST, "invalid_request",
+                    "missing or malformed parameters");
+            default -> oauthError(HttpStatus.UNAUTHORIZED, "invalid_client",
+                    "client authentication failed");
+        };
     }
 
     private static ResponseEntity<Map<String, Object>> oauthError(HttpStatus status, String error, String desc) {
         Map<String, Object> body = new LinkedHashMap<>();
         body.put("error", error);
         body.put("error_description", desc);
-        return ResponseEntity.status(status).contentType(MediaType.APPLICATION_JSON).body(body);
+        return ResponseEntity.status(status)
+                .header(HttpHeaders.CACHE_CONTROL, "no-store")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(body);
     }
 
     /** @return [clientId, clientSecret] or null */

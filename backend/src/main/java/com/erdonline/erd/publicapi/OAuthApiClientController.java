@@ -23,7 +23,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/oauth-clients")
 @RequiredArgsConstructor
-@Tag(name = "OAuth API Clients", description = "会话鉴权下注册/列表/吊销 OAuth client（ADR-0013 切片 A）")
+@Tag(name = "OAuth API Clients", description = "会话鉴权下注册/列表/吊销 OAuth client（ADR-0013；支持 public/confidential + redirectUris）")
 public class OAuthApiClientController {
 
     private final OAuthApiClientService oauthApiClientService;

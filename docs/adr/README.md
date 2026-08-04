@@ -17,7 +17,7 @@
 | [0010](./0010-defer-dark-mode.md) | 暗色模式延期（不阻塞 P2） | 已接受 |
 | [0011](./0011-defer-composite-fk-fields-array.md) | 复合 FK 暂不改为 fields[]（允许约束元数据加法） | 已接受 |
 | [0012](./0012-ai-era-data-structure-platform.md) | 升级为「AI 时代的数据结构平台」（Git+Figma+agent 事实源） | 已接受 · B |
-| [0013](./0013-public-api-mcp.md) | 公开 API / MCP（鉴权·限流·scope） | 🚧 进行中（切片 1–5 + write REST/MCP + Redis + OAuth A ✅；余 Authorization Code） |
+| [0013](./0013-public-api-mcp.md) | 公开 API / MCP（鉴权·限流·scope） | 🚧 进行中（切片 1–5 + write REST/MCP + Redis + OAuth A+B ✅；余管理 UI） |
 | [0014](./0014-drop-or-strangle-ant-pro.md) | @ant-design/pro-components Strangler 摘除（依赖已移除） | ✅ 已落地 · B |
 | [0015](./0015-tomcat-max-http-header-size.md) | Boot 3 提高 `max-http-request-header-size`（JWT 头溢出→HTML 400） | 已接受 |
 | [0016](./0016-experience-first-shareable-diagram.md) | 体验优先：「敢分享的美图」主线（ICP 混合） | 已接受 |

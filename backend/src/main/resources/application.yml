@@ -171,8 +171,10 @@ erd:
   # ADR-0013 公开 API：Redisson 集群限流（fail-closed）；见 PublicApiRateLimiter
   public-api:
     rate-limit-per-minute: ${ERD_PUBLIC_API_RATE_LIMIT:60}
-    # OAuth client_credentials access_token TTL（秒）
+    # OAuth access_token TTL（秒）；authorization_code 短码 TTL 另见下
     oauth-access-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_TTL:3600}
+    # Authorization Code 明文有效期（秒），默认 120；单次使用 + SHA-256 入库
+    oauth-auth-code-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_CODE_TTL:120}
 
 # 安全放行 URL
 security:

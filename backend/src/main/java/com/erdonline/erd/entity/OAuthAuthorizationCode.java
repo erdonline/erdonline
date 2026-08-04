@@ -14,16 +14,20 @@ import java.io.Serializable;
 import java.time.LocalDateTime;
 
 /**
- * 公开 API OAuth client（ADR-0013 切片 A）。仅存 client_secret 哈希。
+ * OAuth authorization_code（ADR-0013 切片 B）。仅存 code 哈希。
  */
 @Data
 @EqualsAndHashCode(callSuper = false)
 @Accessors(chain = true)
-@TableName("oauth_api_client")
-public class OAuthApiClient implements Serializable {
+@TableName("oauth_authorization_code")
+public class OAuthAuthorizationCode implements Serializable {
 
     @TableId(type = IdType.ASSIGN_UUID)
     private String id;
+
+    private String codeHash;
+
+    private String clientPk;
 
     private String clientId;
 
@@ -31,23 +35,18 @@ public class OAuthApiClient implements Serializable {
 
     private String username;
 
-    private String name;
-
-    /** confidential | public */
-    private String clientType;
-
-    /** SHA-256 hex；永不写明文。public 客户端为弃用 ghost hash，不可换票校验 */
-    private String clientSecretHash;
-
-    private String clientSecretHint;
+    private String redirectUri;
 
     private String scopes;
 
-    /** 精确匹配 redirect_uri，换行分隔；M2M-only 可为 null */
-    private String redirectUris;
+    private String codeChallenge;
 
-    /** 0 有效 / 1 已吊销 */
-    private String revoked;
+    private String codeChallengeMethod;
+
+    private LocalDateTime expireTime;
+
+    /** 0 未用 / 1 已消费 */
+    private String consumed;
 
     @TableLogic
     private String delFlag;

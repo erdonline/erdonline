@@ -7,8 +7,10 @@ import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.entity.OAuthAccessToken;
 import com.erdonline.erd.entity.OAuthApiClient;
+import com.erdonline.erd.entity.OAuthAuthorizationCode;
 import com.erdonline.erd.mapper.OAuthAccessTokenMapper;
 import com.erdonline.erd.mapper.OAuthApiClientMapper;
+import com.erdonline.erd.mapper.OAuthAuthorizationCodeMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -34,27 +36,54 @@ public class OAuthApiClientServiceImpl
 
     private static final String REVOKED = "1";
     private static final String ACTIVE = "0";
+    private static final String CONSUMED = "1";
 
     private final OAuthAccessTokenMapper oauthAccessTokenMapper;
+    private final OAuthAuthorizationCodeMapper oauthAuthorizationCodeMapper;
 
     @Value("${erd.public-api.oauth-access-token-ttl-seconds:3600}")
     private long accessTokenTtlSeconds;
+
+    @Value("${erd.public-api.oauth-auth-code-ttl-seconds:120}")
+    private long authCodeTtlSeconds;
 
     @Override
     public OAuthClientCreatedView create(CreateOAuthClientRequest request) {
         MartinUser user = SecurityContextUtil.getAccessUser();
         Set<String> scopes = PatScopes.normalizeForMint(request.getScopes());
+        String clientType = OAuthClientCodec.normalizeClientType(request.getClientType());
+        String redirectJoined = OAuthClientCodec.joinRedirectUris(request.getRedirectUris());
+        if (OAuthClientCodec.CLIENT_TYPE_PUBLIC.equals(clientType)) {
+            if (!StringUtils.hasText(redirectJoined)) {
+                throw new IllegalArgumentException("public client requires redirectUris");
+            }
+        }
+
         String clientId = OAuthClientCodec.generateClientId();
-        String plaintextSecret = OAuthClientCodec.generateClientSecret();
+        String plaintextSecret = null;
+        String secretHash;
+        String secretHint;
+        if (OAuthClientCodec.CLIENT_TYPE_PUBLIC.equals(clientType)) {
+            // UNIQUE(client_secret_hash)：存不可复用 ghost，永不下发明文
+            String ghost = OAuthClientCodec.generateClientSecret();
+            secretHash = OAuthClientCodec.hash(ghost);
+            secretHint = "public";
+        } else {
+            plaintextSecret = OAuthClientCodec.generateClientSecret();
+            secretHash = OAuthClientCodec.hash(plaintextSecret);
+            secretHint = OAuthClientCodec.hint(plaintextSecret);
+        }
 
         OAuthApiClient row = new OAuthApiClient();
         row.setClientId(clientId);
         row.setUserId(user.getId());
         row.setUsername(user.getUsername());
         row.setName(request.getName().trim());
-        row.setClientSecretHash(OAuthClientCodec.hash(plaintextSecret));
-        row.setClientSecretHint(OAuthClientCodec.hint(plaintextSecret));
+        row.setClientType(clientType);
+        row.setClientSecretHash(secretHash);
+        row.setClientSecretHint(secretHint);
         row.setScopes(PatScopes.toCsv(scopes));
+        row.setRedirectUris(redirectJoined);
         row.setRevoked(ACTIVE);
         save(row);
 
@@ -62,7 +91,9 @@ public class OAuthApiClientServiceImpl
                 .id(row.getId())
                 .clientId(clientId)
                 .name(row.getName())
+                .clientType(clientType)
                 .scopes(new ArrayList<>(scopes))
+                .redirectUris(OAuthClientCodec.parseRedirectUris(redirectJoined))
                 .clientSecretHint(row.getClientSecretHint())
                 .createTime(row.getCreateTime())
                 .clientSecret(plaintextSecret)
@@ -100,6 +131,11 @@ public class OAuthApiClientServiceImpl
                 .eq(OAuthAccessToken::getClientPk, row.getId())
                 .eq(OAuthAccessToken::getRevoked, ACTIVE)
                 .set(OAuthAccessToken::getRevoked, REVOKED));
+        // 吊销未消费的 auth code
+        oauthAuthorizationCodeMapper.update(null, new LambdaUpdateWrapper<OAuthAuthorizationCode>()
+                .eq(OAuthAuthorizationCode::getClientPk, row.getId())
+                .eq(OAuthAuthorizationCode::getConsumed, ACTIVE)
+                .set(OAuthAuthorizationCode::getConsumed, CONSUMED));
     }
 
     @Override
@@ -110,44 +146,172 @@ public class OAuthApiClientServiceImpl
         if (!OAuthClientCodec.looksLikeClientId(clientId.trim())) {
             throw new IllegalArgumentException("invalid_client");
         }
-        OAuthApiClient client = getOne(new LambdaQueryWrapper<OAuthApiClient>()
-                .eq(OAuthApiClient::getClientId, clientId.trim())
-                .eq(OAuthApiClient::getRevoked, ACTIVE)
-                .last("LIMIT 1"));
+        OAuthApiClient client = loadActiveClient(clientId.trim());
         if (client == null) {
             throw new IllegalArgumentException("invalid_client");
         }
-        String secretHash = OAuthClientCodec.hash(clientSecret);
-        if (!secretHash.equals(client.getClientSecretHash())) {
+        if (OAuthClientCodec.CLIENT_TYPE_PUBLIC.equals(normalizeStoredType(client))) {
+            throw new IllegalArgumentException("unauthorized_client");
+        }
+        if (!OAuthClientCodec.hashEquals(
+                OAuthClientCodec.hash(clientSecret), client.getClientSecretHash())) {
             throw new IllegalArgumentException("invalid_client");
         }
 
         Set<String> allowed = PatScopes.parse(client.getScopes());
         Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
+        return mintAccessToken(client, client.getUserId(), client.getUsername(), granted);
+    }
 
-        long ttl = Math.max(60, accessTokenTtlSeconds);
-        String plaintext = OAuthClientCodec.generateAccessToken();
-        LocalDateTime expire = LocalDateTime.now().plusSeconds(ttl);
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public AuthCodeIssued createAuthorizationCode(
+            String clientId,
+            String redirectUri,
+            String scopeCsv,
+            String state,
+            String codeChallenge,
+            String codeChallengeMethod) {
+        MartinUser user = SecurityContextUtil.getAccessUser();
+        if (!StringUtils.hasText(state) || state.trim().length() > 512) {
+            throw new IllegalArgumentException("invalid_request:state");
+        }
+        if (!StringUtils.hasText(clientId) || !OAuthClientCodec.looksLikeClientId(clientId.trim())) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+        OAuthClientCodec.validateRedirectUriShape(redirectUri);
+        if (!OAuthClientCodec.PKCE_S256.equalsIgnoreCase(
+                codeChallengeMethod == null ? "" : codeChallengeMethod.trim())) {
+            throw new IllegalArgumentException("invalid_request:code_challenge_method");
+        }
+        if (!OAuthClientCodec.isValidCodeChallenge(codeChallenge == null ? "" : codeChallenge.trim())) {
+            throw new IllegalArgumentException("invalid_request:code_challenge");
+        }
 
-        OAuthAccessToken token = new OAuthAccessToken();
-        token.setClientPk(client.getId());
-        token.setClientId(client.getClientId());
-        token.setUserId(client.getUserId());
-        token.setUsername(client.getUsername());
-        token.setTokenHash(OAuthClientCodec.hash(plaintext));
-        token.setTokenHint(OAuthClientCodec.hint(plaintext));
-        token.setScopes(PatScopes.toCsv(granted));
-        token.setExpireTime(expire);
-        token.setRevoked(ACTIVE);
-        oauthAccessTokenMapper.insert(token);
+        OAuthApiClient client = loadActiveClient(clientId.trim());
+        if (client == null) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+        if (!OAuthClientCodec.redirectUriAllowed(client.getRedirectUris(), redirectUri.trim())) {
+            throw new IllegalArgumentException("invalid_request:redirect_uri");
+        }
 
-        return OAuthTokenResponse.builder()
-                .accessToken(plaintext)
-                .tokenType("Bearer")
-                .expiresIn(ttl)
-                .scope(PatScopes.toCsv(granted))
-                .scopes(new ArrayList<>(granted))
-                .build();
+        Set<String> allowed = PatScopes.parse(client.getScopes());
+        Set<String> granted = resolveRequestedScopes(allowed, scopeCsv);
+
+        long ttl = Math.max(30, Math.min(600, authCodeTtlSeconds));
+        String plaintext = OAuthClientCodec.generateAuthorizationCode();
+        OAuthAuthorizationCode row = new OAuthAuthorizationCode();
+        row.setCodeHash(OAuthClientCodec.hash(plaintext));
+        row.setClientPk(client.getId());
+        row.setClientId(client.getClientId());
+        row.setUserId(user.getId());
+        row.setUsername(user.getUsername());
+        row.setRedirectUri(redirectUri.trim());
+        row.setScopes(PatScopes.toCsv(granted));
+        row.setCodeChallenge(codeChallenge.trim());
+        row.setCodeChallengeMethod(OAuthClientCodec.PKCE_S256);
+        row.setExpireTime(LocalDateTime.now().plusSeconds(ttl));
+        row.setConsumed(ACTIVE);
+        oauthAuthorizationCodeMapper.insert(row);
+
+        return new AuthCodeIssued(plaintext, state.trim(), redirectUri.trim());
+    }
+
+    @Override
+    public boolean isRedirectUriRegistered(String clientId, String redirectUri) {
+        if (!StringUtils.hasText(clientId) || !StringUtils.hasText(redirectUri)) {
+            return false;
+        }
+        if (!OAuthClientCodec.looksLikeClientId(clientId.trim())) {
+            return false;
+        }
+        try {
+            OAuthClientCodec.validateRedirectUriShape(redirectUri.trim());
+        } catch (IllegalArgumentException ex) {
+            return false;
+        }
+        OAuthApiClient client = loadActiveClient(clientId.trim());
+        return client != null
+                && OAuthClientCodec.redirectUriAllowed(client.getRedirectUris(), redirectUri.trim());
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public OAuthTokenResponse exchangeAuthorizationCode(
+            String clientId,
+            String clientSecret,
+            String code,
+            String redirectUri,
+            String codeVerifier) {
+        if (!StringUtils.hasText(clientId) || !OAuthClientCodec.looksLikeClientId(clientId.trim())) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+        if (!StringUtils.hasText(code) || !OAuthClientCodec.looksLikeAuthorizationCode(code.trim())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (!StringUtils.hasText(redirectUri)) {
+            throw new IllegalArgumentException("invalid_request");
+        }
+        if (!OAuthClientCodec.isValidCodeVerifier(codeVerifier)) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+
+        OAuthApiClient client = loadActiveClient(clientId.trim());
+        if (client == null) {
+            throw new IllegalArgumentException("invalid_client");
+        }
+
+        String type = normalizeStoredType(client);
+        if (OAuthClientCodec.CLIENT_TYPE_CONFIDENTIAL.equals(type)) {
+            if (!StringUtils.hasText(clientSecret)
+                    || !OAuthClientCodec.hashEquals(
+                    OAuthClientCodec.hash(clientSecret), client.getClientSecretHash())) {
+                throw new IllegalArgumentException("invalid_client");
+            }
+        } else {
+            // public：不得带有效 confidential secret 冒充；允许空 secret
+            if (StringUtils.hasText(clientSecret)) {
+                throw new IllegalArgumentException("invalid_client");
+            }
+        }
+
+        String codeHash = OAuthClientCodec.hash(code.trim());
+        OAuthAuthorizationCode authCode = oauthAuthorizationCodeMapper.selectOne(
+                new LambdaQueryWrapper<OAuthAuthorizationCode>()
+                        .eq(OAuthAuthorizationCode::getCodeHash, codeHash)
+                        .last("LIMIT 1"));
+        if (authCode == null) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        // 无论成败：已消费则拒绝；首次命中即标记消费（防并行重放）
+        if (CONSUMED.equals(authCode.getConsumed())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        authCode.setConsumed(CONSUMED);
+        oauthAuthorizationCodeMapper.updateById(authCode);
+
+        if (!client.getId().equals(authCode.getClientPk())
+                || !client.getClientId().equals(authCode.getClientId())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (authCode.getExpireTime() != null && authCode.getExpireTime().isBefore(LocalDateTime.now())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (!redirectUri.trim().equals(authCode.getRedirectUri())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+        if (!OAuthClientCodec.PKCE_S256.equals(authCode.getCodeChallengeMethod())
+                || !OAuthClientCodec.verifyPkceS256(codeVerifier, authCode.getCodeChallenge())) {
+            throw new IllegalArgumentException("invalid_grant");
+        }
+
+        Set<String> granted = PatScopes.parse(authCode.getScopes());
+        if (granted.isEmpty()) {
+            throw new IllegalArgumentException("invalid_scope");
+        }
+        // OAT 以授权用户身份（非注册人）
+        return mintAccessToken(client, authCode.getUserId(), authCode.getUsername(), granted);
     }
 
     @Override
@@ -166,7 +330,6 @@ public class OAuthApiClientServiceImpl
         if (row.getExpireTime() != null && row.getExpireTime().isBefore(LocalDateTime.now())) {
             return Optional.empty();
         }
-        // client 吊销后既有票也应失效
         OAuthApiClient client = getById(row.getClientPk());
         if (client == null || REVOKED.equals(client.getRevoked())) {
             return Optional.empty();
@@ -228,12 +391,56 @@ public class OAuthApiClientServiceImpl
         return requested;
     }
 
+    private OAuthTokenResponse mintAccessToken(
+            OAuthApiClient client, String userId, String username, Set<String> granted) {
+        long ttl = Math.max(60, accessTokenTtlSeconds);
+        String plaintext = OAuthClientCodec.generateAccessToken();
+        LocalDateTime expire = LocalDateTime.now().plusSeconds(ttl);
+
+        OAuthAccessToken token = new OAuthAccessToken();
+        token.setClientPk(client.getId());
+        token.setClientId(client.getClientId());
+        token.setUserId(userId);
+        token.setUsername(username);
+        token.setTokenHash(OAuthClientCodec.hash(plaintext));
+        token.setTokenHint(OAuthClientCodec.hint(plaintext));
+        token.setScopes(PatScopes.toCsv(granted));
+        token.setExpireTime(expire);
+        token.setRevoked(ACTIVE);
+        oauthAccessTokenMapper.insert(token);
+
+        return OAuthTokenResponse.builder()
+                .accessToken(plaintext)
+                .tokenType("Bearer")
+                .expiresIn(ttl)
+                .scope(PatScopes.toCsv(granted))
+                .scopes(new ArrayList<>(granted))
+                .build();
+    }
+
+    private OAuthApiClient loadActiveClient(String clientId) {
+        return getOne(new LambdaQueryWrapper<OAuthApiClient>()
+                .eq(OAuthApiClient::getClientId, clientId)
+                .eq(OAuthApiClient::getRevoked, ACTIVE)
+                .last("LIMIT 1"));
+    }
+
+    private static String normalizeStoredType(OAuthApiClient client) {
+        String t = client.getClientType();
+        if (!StringUtils.hasText(t)) {
+            return OAuthClientCodec.CLIENT_TYPE_CONFIDENTIAL;
+        }
+        return t.trim().toLowerCase(Locale.ROOT);
+    }
+
     private OAuthClientSummaryView toSummary(OAuthApiClient row) {
         return OAuthClientSummaryView.builder()
                 .id(row.getId())
                 .clientId(row.getClientId())
                 .name(row.getName())
+                .clientType(normalizeStoredType(row))
                 .scopes(new ArrayList<>(PatScopes.parse(row.getScopes())))
+                .redirectUris(OAuthClientCodec.parseRedirectUris(row.getRedirectUris()))
                 .clientSecretHint(row.getClientSecretHint())
                 .createTime(row.getCreateTime())
                 .revoked(REVOKED.equals(row.getRevoked()))

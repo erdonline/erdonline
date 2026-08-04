@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — OAuth 切片 B（Authorization Code + PKCE S256）
+- Flyway `V10`：`oauth_api_client.client_type` / `redirect_uris`；表 `oauth_authorization_code`（仅 SHA-256）
+- `GET|POST /oauth/authorize`（会话 JWT）：`response_type=code` + `state` + PKCE S256 → 302 `erd_ac_`；薄同意（已登录即签）
+- `POST /oauth/token` `grant_type=authorization_code` + `code_verifier`；public 无 secret / confidential 须 secret
+- 硬化：redirect 精确匹配、未注册不 302、code 单次+短 TTL（`ERD_PUBLIC_API_OAUTH_CODE_TTL`）、常量时间 hash 比较、public 禁 `client_credentials`
+- 验证点：
+- `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q -Dtest=OAuthClientCodecTest,DeadSecurityConfigContractTest test -Djacoco.skip=true`
+- `./backend/dev-ensure.sh --restart` 后 curl：注册 public → authorize 302 → token → `GET /api/v1/me` 200；坏 verifier / 重放 → `invalid_grant`；未登录 authorize → 401
+
 #### 开放：ADR-0013 — OAuth 切片 A（client 注册 + `client_credentials`）
 
 - 选题：PAT 适合个人/脚本；第三方机器接入需独立 client；全量 Authorization Code 过大，先落地 M2M
