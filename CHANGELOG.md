@@ -8,6 +8,18 @@
 
 ### 2026-08-04
 
+#### 可信保存：离开设计器不再盲存（ADR-0022 切片）
+
+- 选题：Vision 5m 循环主题重定向为「双层一致性与可信保存」（[ADR-0022](docs/adr/0022-dual-layer-consistency.md)）；队列首刀取并发底座里最快的一刀
+- 根因：`closeSocket` 在卸载时无条件 `Save.saveProject(project)` 且丢弃结果 → 干净态也写库（可覆盖他人变更）、失败无声
+- 改动：仅当 `needSave && !saved`（确有未落库改动/上次落库失败）才补一枪，走 `persistProjectNow` → 失败有 toast + 顶栏失败态；干净态零请求
+- 循环重定向：`scripts/agent-loop-vision.prompt.md` 换主题 + ROI 切片队列（A 工作区 → 并发/持久化底座 → B 实库五态）；`scripts/agent-loop-vision.sh` 提示词同步；roadmap 新增「双层一致性与可信保存 🚧」
+- 顺带发现（未修，下一刀候选）：`/ncnb/project/save` 失败时画布内联加字段停在编辑态不落行 → `save-failure.spec.ts` 在 main 上已红（与本改动无关，已 stash 复验）
+
+验证点：
+- `cd frontend && yarn playwright test --project=chromium tests/e2e/leave-designer-save.spec.ts`（干净态离开零 `project/save` 请求；失败态离开补一枪）
+- `cd frontend && npx eslint src/store/project/useProjectStore.tsx tests/e2e/leave-designer-save.spec.ts`
+
 #### 体验：登录页第三方未配置时一行提示
 
 - 根因：未设 `GITHUB_*` / `GOOGLE_*` / `WECHAT_*` 时 `/auth/federate/providers` 均为 false，登录页按设计隐藏按钮（非接线故障）；本机无已配未加载的 env

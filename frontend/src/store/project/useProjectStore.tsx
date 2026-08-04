@@ -302,9 +302,12 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
             syncEmitTimer = null;
           }
           lastSyncedProjectJson = null;
+          // ADR-0022：离开时只补未落库的改动（含被防抖吞掉的那一笔），且结果可见；
+          // 干净状态不得盲存——盲存会覆盖他人变更且失败无声。
           const project = get().project;
-          if (project) {
-            Save.saveProject(project);
+          const { needSave, saved } = useGlobalStore.getState();
+          if (project && JSON.stringify(project) !== '{}' && needSave && !saved) {
+            void persistProjectNow(project, '离开前保存失败，重新打开项目可重试');
           }
           set({
             socket: null,
@@ -344,6 +347,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
 import {
   ackManualPersist,
   isAutosaveCurrent,
+  persistProjectNow,
   preemptAutosave,
   scheduleDebouncedPersist,
 } from '@/store/project/projectAutosave';
