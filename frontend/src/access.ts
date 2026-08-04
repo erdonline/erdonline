@@ -40,6 +40,8 @@ export default function access(initialState: and) {
     canErdConnectorDbsync: person || (permission && permission.includes('erd_connector_dbsync')),//版本管理 -同步数据源
     canErdTableImport: person || (permission && permission.includes('erd_table_import')),//导入 -查看页面
     canErdConnectorDbreverseparse: person || (permission && permission.includes('erd_connector_dbReverseParse')),//导入 -逆向解析
+    /** B 层实库探测（ADR-0022 #11：与逆向解析同权；分享访客无此能力） */
+    canErdConnectorSchemaProbe: person || (permission && permission.includes('erd_connector_dbReverseParse')),
     canErdTableImportPdman: person || (permission && permission.includes('erd_table_import_pdman')),//导入 -PDMan
     canErdTableImportErd: person || (permission && permission.includes('erd_table_import_erd')),//导入 -ERD
     canErdTableExport: person || (permission && permission.includes('erd_table_export')),//导出 -查看页面

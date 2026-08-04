@@ -143,6 +143,9 @@ test.describe('只读分享', () => {
         await expect(anonPage.getByTestId('share-chrome-header')).toBeVisible();
         await expect(anonPage.getByTestId('share-empty-module')).toBeVisible();
         await expect(anonPage.getByTestId('erd-empty-diagram')).toBeVisible();
+        // ADR-0022 #11：分享访客不暴露 B 层
+        await expect(anonPage.getByTestId('schema-probe-control')).toHaveCount(0);
+        await expect(anonPage.getByTestId('schema-probe-btn')).toHaveCount(0);
         await expect(anonPage.getByText(/该分享暂无模型|该模块暂无表/)).toBeVisible();
         await expect(anonPage.getByTestId('share-relation-canvas')).toHaveCount(0);
         await expect(anonPage.getByRole('button', { name: '打开示例 demo' })).toBeVisible();
@@ -231,6 +234,17 @@ test.describe('只读分享', () => {
         expect(headerH).toBe('64px');
         await expect(anonPage.getByTestId('share-relation-canvas')).toBeVisible();
         await expect(anonPage.getByText('T_TABLE_1').first()).toBeVisible();
+        // ADR-0022 #11：分享访客不暴露 B 层（无探测按钮/chip/API）
+        await expect(anonPage.getByTestId('schema-probe-control')).toHaveCount(0);
+        await expect(anonPage.getByTestId('schema-probe-btn')).toHaveCount(0);
+        const probeCalls: string[] = [];
+        anonPage.on('request', (req) => {
+          if (req.url().includes('/connector/schema/probe') && req.method() === 'POST') {
+            probeCalls.push(req.url());
+          }
+        });
+        await anonPage.waitForTimeout(500);
+        expect(probeCalls).toHaveLength(0);
         // ADR-0016：表清单默认折叠；展开后可见只读清单
         const tablesToggle = anonPage.getByRole('button', { name: /展开表清单/ });
         await expect(tablesToggle).toBeVisible();

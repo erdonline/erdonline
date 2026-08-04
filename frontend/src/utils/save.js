@@ -4,6 +4,7 @@ import request from "../utils/request";
 import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
 import {preferDataSourceIdPayload} from './connectorPayload';
+import { isShareGuestContext } from './shareContext';
 
 const updateFieldName = (data) => {
   // 将带下划线的属性转化为驼峰
@@ -140,6 +141,9 @@ export const rebaseline = (data) => {
 
 /** B 层实库 schema 指纹探测（只读；须用户显式触发） */
 export const schemaProbe = (data) => {
+  if (isShareGuestContext()) {
+    return Promise.reject(new Error('分享访客不可探测实库'));
+  }
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
   return request.post('/ncnb/connector/schema/probe', {
     data: {

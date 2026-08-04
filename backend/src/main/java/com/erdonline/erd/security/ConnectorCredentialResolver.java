@@ -28,6 +28,18 @@ public class ConnectorCredentialResolver {
     private final DataSourceAcl dataSourceAcl;
 
     /**
+     * B-layer probe: require saved datasource id (no raw JDBC smuggling from share/anon contexts).
+     */
+    @SuppressWarnings("rawtypes")
+    public void applyProbe(Map params) {
+        if (resolveId(params) == null) {
+            throw new ValidateException(ApiErrorCode.BAD_REQUEST.getCode(),
+                    "实库探测须使用已保存数据源（dataSourceId）");
+        }
+        apply(params);
+    }
+
+    /**
      * Mutate paths: require non-blank {@code dataSourceId}, then ACL-resolve credentials.
      */
     @SuppressWarnings("rawtypes")

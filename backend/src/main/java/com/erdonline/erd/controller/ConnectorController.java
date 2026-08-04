@@ -2,7 +2,9 @@ package com.erdonline.erd.controller;
 
 import cn.hutool.core.util.IdUtil;
 import com.erdonline.common.core.api.ApiErrorCode;
+import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
+import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.vip.annotation.VIP;
 import com.erdonline.common.vip.enums.VIPLevelEnum;
 import com.erdonline.common.vip.enums.VIPModuleEnum;
@@ -13,7 +15,11 @@ import com.erdonline.erd.command.DbSyncCommand;
 import com.erdonline.erd.command.PingDBCommand;
 import com.erdonline.erd.command.SchemaProbeCommand;
 import com.erdonline.erd.entity.DbVersion;
+import com.erdonline.erd.schema.SchemaProbeReason;
+import com.erdonline.erd.schema.SchemaProbeResult;
+import com.erdonline.erd.schema.SchemaProbeStatus;
 import com.erdonline.erd.security.ConnectorCredentialResolver;
+import com.erdonline.erd.security.SchemaProbeAccessGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import com.erdonline.erd.vip.rights.ProjectVersionCountRight;
@@ -51,6 +57,9 @@ public class ConnectorController {
     @Autowired
     private ConnectorCredentialResolver connectorCredentialResolver;
 
+    @Autowired
+    private SchemaProbeAccessGuard schemaProbeAccessGuard;
+
     @PostMapping("ping")
     public R ping(@RequestBody Map map) {
         connectorCredentialResolver.apply(map);
@@ -80,7 +89,22 @@ public class ConnectorController {
      */
     @PostMapping("schema/probe")
     public R schemaProbe(@RequestBody Map map) {
-        connectorCredentialResolver.apply(map);
+        try {
+            schemaProbeAccessGuard.assertCanProbe(map);
+            connectorCredentialResolver.applyProbe(map);
+        } catch (ValidateException e) {
+            if (e.getStatus() == ApiErrorCode.FORBIDDEN.getCode()) {
+                SchemaProbeResult denied = SchemaProbeResult.builder()
+                        .status(SchemaProbeStatus.UNKNOWN)
+                        .reason(SchemaProbeReason.PROBE_ACL_DENIED)
+                        .message(e.getMessage())
+                        .build();
+                R failed = R.failed(e.getStatus(), e.getMessage());
+                failed.setData(denied);
+                return failed;
+            }
+            return e.getStatus() != 0 ? R.failed(e.getStatus(), e.getMessage()) : R.failed(e.getMessage());
+        }
         return new SchemaProbeCommand().exec(map);
     }
 
