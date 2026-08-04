@@ -37,13 +37,13 @@ function wrapTool(run: () => Promise<unknown>) {
 }
 
 /**
- * MCP tools → Public API REST (read + create_version write).
+ * MCP tools → Public API REST (read + versions:write + projects:write).
  */
 export function createErdMcpServer(config: ErdApiConfig): McpServer {
   const api = new ErdApiClient(config);
   const server = new McpServer({
     name: 'erdonline',
-    version: '0.2.0',
+    version: '0.3.0',
   });
 
   server.registerTool(
@@ -178,6 +178,59 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
           baseVersion,
           changes,
         }),
+      )(),
+  );
+
+  server.registerTool(
+    'update_project',
+    {
+      description:
+        'Partial update project metadata (PATCH /api/v1/projects/{id}). Requires projects:write + membership. At least one of projectName/name, description, tags.',
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        projectName: z
+          .string()
+          .max(100)
+          .optional()
+          .describe('Project display name'),
+        name: z
+          .string()
+          .max(100)
+          .optional()
+          .describe('Alias for projectName'),
+        description: z.string().max(500).optional().describe('Description'),
+        tags: z.string().max(255).optional().describe('Tags string'),
+      },
+    },
+    async ({ projectId, projectName, name, description, tags }) =>
+      wrapTool(() =>
+        api.updateProject(projectId, {
+          projectName,
+          name,
+          description,
+          tags,
+        }),
+      )(),
+  );
+
+  server.registerTool(
+    'put_project_json',
+    {
+      description:
+        'Replace workspace projectJSON (PUT /api/v1/projects/{id}/projectJSON). Requires projects:write + membership. profile.dbs is stripped server-side before persist.',
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        projectJSON: z
+          .record(z.string(), z.unknown())
+          .describe('Full projectJSON (secrets stripped server-side)'),
+      },
+    },
+    async ({ projectId, projectJSON }) =>
+      wrapTool(() =>
+        api.putProjectJson(
+          projectId,
+          projectJSON as Record<string, unknown>,
+        ),
       )(),
   );
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env tsx
 /**
- * Dogfood: mint PAT (incl. write scopes) → REST create_version → MCP tools.
+ * Dogfood: mint PAT (incl. write scopes) → REST write → MCP tools.
  * Usage: cd mcp && yarn dogfood
  * Optional env: ERD_API_URL, ERD_DOGFOOD_USER, ERD_DOGFOOD_PASSWORD
  */
@@ -59,6 +59,12 @@ async function mintPat(jwt: string, scopes?: string[]): Promise<string> {
   return pat;
 }
 
+function assertDenied(e: unknown, label: string): void {
+  if (!(e instanceof ErdApiError) || (e.status !== 403 && e.status !== 401)) {
+    throw e instanceof Error ? e : new Error(`${label}: ${String(e)}`);
+  }
+}
+
 async function main() {
   console.error(`[dogfood] API=${API} user=${USER}`);
   const jwt = await loginJwt();
@@ -68,6 +74,7 @@ async function main() {
 
   const writePat = await mintPat(jwt, [
     'projects:read',
+    'projects:write',
     'versions:read',
     'versions:write',
   ]);
@@ -77,6 +84,9 @@ async function main() {
   const me = (await api.me()) as { scopes?: string[] };
   if (!me?.scopes?.includes('versions:write')) {
     throw new Error(`expected versions:write on me: ${JSON.stringify(me)}`);
+  }
+  if (!me?.scopes?.includes('projects:write')) {
+    throw new Error(`expected projects:write on me: ${JSON.stringify(me)}`);
   }
   console.error('[dogfood] REST /me ok scopes=', me.scopes?.join(','));
 
@@ -90,6 +100,7 @@ async function main() {
 
   if (firstId) {
     const detail = (await api.getProject(firstId)) as {
+      name?: string;
       projectJSON?: Record<string, unknown> & {
         profile?: { dbs?: unknown[] };
       };
@@ -103,6 +114,34 @@ async function main() {
       throw new Error('secret leak: projectJSON.profile.dbs not empty');
     }
     console.error('[dogfood] REST get_project ok, profile.dbs=[]');
+
+    const patchName = `df-mcp-${String(Date.now()).slice(-8)}`;
+    const patched = (await api.updateProject(firstId, {
+      projectName: patchName,
+    })) as { name?: string; projectName?: string; id?: string };
+    const patchedName = patched?.projectName ?? patched?.name;
+    if (patchedName !== patchName) {
+      throw new Error(`update_project bad: ${JSON.stringify(patched).slice(0, 300)}`);
+    }
+    console.error(`[dogfood] REST update_project ok name=${patchName}`);
+
+    const putBody = {
+      ...(projectJSON ?? { modules: [] }),
+      profile: {
+        ...((projectJSON?.profile as Record<string, unknown>) ?? {}),
+        dbs: [{ url: 'jdbc:should-be-stripped' }],
+      },
+    };
+    const putResult = (await api.putProjectJson(firstId, putBody)) as {
+      projectJSON?: { profile?: { dbs?: unknown[] } };
+      projectJson?: { profile?: { dbs?: unknown[] } };
+    };
+    const putDbs =
+      (putResult.projectJSON ?? putResult.projectJson)?.profile?.dbs;
+    if (Array.isArray(putDbs) && putDbs.length > 0) {
+      throw new Error('put_project_json response leaked profile.dbs');
+    }
+    console.error('[dogfood] REST put_project_json ok, profile.dbs=[]');
 
     const verLabel = `df${String(Date.now()).slice(-10)}`;
     const snapshot = {
@@ -144,10 +183,22 @@ async function main() {
       });
       throw new Error('read-only PAT should not create_version');
     } catch (e) {
-      if (!(e instanceof ErdApiError) || (e.status !== 403 && e.status !== 401)) {
-        throw e;
-      }
+      assertDenied(e, 'create_version denied');
       console.error('[dogfood] REST create_version denied without write scope ok');
+    }
+    try {
+      await readOnly.updateProject(firstId, { projectName: 'should-fail' });
+      throw new Error('read-only PAT should not update_project');
+    } catch (e) {
+      assertDenied(e, 'update_project denied');
+      console.error('[dogfood] REST update_project denied without projects:write ok');
+    }
+    try {
+      await readOnly.putProjectJson(firstId, { modules: [] });
+      throw new Error('read-only PAT should not put_project_json');
+    } catch (e) {
+      assertDenied(e, 'put_project_json denied');
+      console.error('[dogfood] REST put_project_json denied without projects:write ok');
     }
   } else {
     console.error('[dogfood] skip write probe (no projects)');
@@ -169,7 +220,7 @@ async function main() {
     process.stderr.write(`[mcp] ${chunk.toString()}`);
   });
 
-  const client = new Client({ name: 'erd-mcp-dogfood', version: '0.2.0' });
+  const client = new Client({ name: 'erd-mcp-dogfood', version: '0.3.0' });
   await client.connect(transport);
   const tools = await client.listTools();
   const names = tools.tools.map((t) => t.name).sort();
@@ -181,6 +232,8 @@ async function main() {
     'get_version',
     'list_projects',
     'list_versions',
+    'put_project_json',
+    'update_project',
   ];
   for (const n of expected) {
     if (!names.includes(n)) {
@@ -208,6 +261,31 @@ async function main() {
       );
     }
     console.error('[dogfood] MCP get_project_schema ok');
+
+    const mcpName = `mcp-up-${String(Date.now()).slice(-8)}`;
+    const updateCall = await client.callTool({
+      name: 'update_project',
+      arguments: { projectId: firstId, projectName: mcpName },
+    });
+    if (updateCall.isError) {
+      throw new Error(`update_project tool error: ${JSON.stringify(updateCall)}`);
+    }
+    console.error('[dogfood] MCP update_project ok');
+
+    const putCall = await client.callTool({
+      name: 'put_project_json',
+      arguments: {
+        projectId: firstId,
+        projectJSON: {
+          modules: [],
+          profile: { dbs: [{ url: 'jdbc:mcp-strip' }] },
+        },
+      },
+    });
+    if (putCall.isError) {
+      throw new Error(`put_project_json tool error: ${JSON.stringify(putCall)}`);
+    }
+    console.error('[dogfood] MCP put_project_json ok');
 
     const mcpVer = `mt${String(Date.now()).slice(-10)}`;
     const createCall = await client.callTool({

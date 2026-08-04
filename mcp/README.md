@@ -12,6 +12,8 @@ ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `
 | `list_versions` | `GET /api/v1/projects/{id}/versions` | `versions:read` |
 | `get_version` | `GET /api/v1/projects/{id}/versions/{versionId}` | `versions:read` |
 | `create_version` | `POST /api/v1/projects/{id}/versions` | `versions:write` |
+| `update_project` | `PATCH /api/v1/projects/{id}` | `projects:write` |
+| `put_project_json` | `PUT /api/v1/projects/{id}/projectJSON` | `projects:write` |
 
 ## 环境变量
 
@@ -22,7 +24,7 @@ ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `
 | `ERD_MCP_PORT` | HTTP 模式端口，默认 `3920` |
 | `ERD_MCP_TRANSPORT=http` | 等价于 `--http` |
 
-铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含 `versions:write`。
+铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含对应 scope（`versions:write` / `projects:write`）。
 
 ## 安装与 stdio
 
@@ -75,10 +77,10 @@ yarn start -- --http
 cd mcp && yarn install && yarn dogfood
 ```
 
-`dogfood`：登录铸造读写 PAT → REST（含 `create_version`）→ stdio MCP `tools/list` + 调用。
+`dogfood`：登录铸造读写 PAT → REST（含 `create_version` / `update_project` / `put_project_json`）→ stdio MCP `tools/list` + 调用；只读 PAT 写路径 403。
 
 ## 不做
 
 - connector / mutate SQL
 - 会话 JWT（`/api/v1` 一律拒绝）
-- `projects:write` MCP tools（REST 已有 `PATCH /projects/{id}` + `PUT …/projectJSON`；MCP 后置）
+- OAuth client / 第三方应用（后置）

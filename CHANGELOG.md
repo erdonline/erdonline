@@ -8,6 +8,15 @@
 
 ### 2026-08-04
 
+#### 开放：ADR-0013 — MCP `projects:write` tools（`update_project` + `put_project_json`）
+
+- 选题：REST PATCH/PUT 已有（`63f128a`）；agent MCP 面仍缺元数据/工作区 JSON 写
+- MCP：`update_project` → `PATCH /api/v1/projects/{id}`；`put_project_json` → `PUT …/projectJSON`；缺 `projects:write` → API 403
+- `erd-api` 增 PATCH/PUT；dogfood 覆盖写 PATH + 只读拒绝；未做 OAuth
+
+验证点：
+- `cd mcp && yarn build && yarn dogfood`（写 PAT 含 `projects:write` → REST/MCP update + put；只读 PAT 403）
+
 #### 开放：ADR-0013 — Redis 集群限流（替换进程内骨架）
 
 - 选题：进程内滑动窗口在多实例下配额不共享；ADR 下一候选为 Redis 限流（本刀不做 OAuth）

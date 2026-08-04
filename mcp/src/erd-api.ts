@@ -36,6 +36,13 @@ export type CreateVersionInput = {
   changes?: unknown[];
 };
 
+export type UpdateProjectInput = {
+  projectName?: string;
+  name?: string;
+  description?: string;
+  tags?: string;
+};
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {
@@ -107,12 +114,42 @@ export class ErdApiClient {
     );
   }
 
+  /** Requires PAT scope projects:write + project membership. */
+  async updateProject(
+    projectId: string,
+    body: UpdateProjectInput,
+  ): Promise<unknown> {
+    return this.patch(
+      `/api/v1/projects/${encodeURIComponent(projectId)}`,
+      body,
+    );
+  }
+
+  /** Requires PAT scope projects:write + project membership. */
+  async putProjectJson(
+    projectId: string,
+    projectJSON: Record<string, unknown>,
+  ): Promise<unknown> {
+    return this.put(
+      `/api/v1/projects/${encodeURIComponent(projectId)}/projectJSON`,
+      { projectJSON },
+    );
+  }
+
   private async get(path: string): Promise<unknown> {
     return this.request('GET', path);
   }
 
   private async post(path: string, body: unknown): Promise<unknown> {
     return this.request('POST', path, body);
+  }
+
+  private async put(path: string, body: unknown): Promise<unknown> {
+    return this.request('PUT', path, body);
+  }
+
+  private async patch(path: string, body: unknown): Promise<unknown> {
+    return this.request('PATCH', path, body);
   }
 
   private async request(
