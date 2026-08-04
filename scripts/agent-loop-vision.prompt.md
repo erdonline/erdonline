@@ -44,9 +44,17 @@
 10. ~~五态 + 未知态 4 路文案；探测按钮显式、有 loading 与失败原因~~ ✅ 2026-08-04
 11. ~~分享访客隐藏 B 层~~ ✅ 2026-08-04
 
-**双层 MVP 队列（#1–#11）已闭环。** 后续同主题续跑：Pull/Push 动作、冲突可视化、diff 同语言 — **暂不启动 Pull/Push MVP**。
+**双层 MVP 队列（#1–#11）已闭环。**
 
-**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地。**下一 tick 候选**：产品深度 / Pull·Push 动作隐喻（用户显式开队列前勿抢跑）；完整 i18n MVP 仍 P3 后置。**E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
+**同主题续跑队列（#12–#16 · ROI 序 · 一 tick 一刀，做完划掉推进下一刀）**：
+
+12. 版本 diff（A 层）与实库 diff（B 层）视觉/文案统一：目前两套 diff 各自一套颜色/图例/措辞，用户分不清「模型内改动」和「模型与库的落差」是两个不同的比较；统一 chip 语义 + 图例，不合并成一个状态
+13. 冲突可视化：project 乐观锁 409 目前只给「刷新 / 另存为新项目」二选一 Modal，没有把冲突字段/双方内容摊开给用户看；补一个最小 diff 预览再决策
+14. B 层探测入口收敛：探测按钮目前只在版本页，设计器画布内编辑时看不到实库落差；评估是否需要画布内可发现的入口（不改变「显式探测」红线）
+15. 五态 + dirty chip 端到端 E2E 补盘：核对 `schema-probe.spec.ts` / smoke / ux-audit 是否覆盖全部五态 + 未知态的可行动文案，补齐缺口
+16. 【队列外 · 需用户显式开闸才可开工】Pull/Push 动作 MVP（从库反向解析→存版本；同步 DDL→钉基线）：ADR-0022 已定义动作隐喻，但**本队列不得自动开始**，仅在用户明确说「开始做 Pull/Push」后才排进 #12 之前
+
+**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地；完整 i18n MVP 仍 P3 后置。**E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
 
