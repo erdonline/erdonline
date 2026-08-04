@@ -229,6 +229,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                   tables
                 });
                 loadVersionBaseline();
+                offerProjectDraftRecovery(String(resolvedId), data as Record<string, unknown>);
               } else {
                 message.error('获取项目信息失败');
               }
@@ -320,6 +321,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           const project = get().project;
           const { needSave, saved } = useGlobalStore.getState();
           if (project && JSON.stringify(project) !== '{}' && needSave && !saved) {
+            writeProjectDraft(project, project.updateTime as string | undefined);
             void persistProjectNow(project, '离开前保存失败，重新打开项目可重试');
           }
           set({
@@ -369,6 +371,8 @@ import {
   isProjectSaveConflict,
   showProjectSaveConflictModal,
 } from '@/utils/projectSaveConflict';
+import { clearProjectDraft, writeProjectDraft } from '@/utils/projectLocalDraft';
+import { offerProjectDraftRecovery } from '@/utils/projectDraftRecovery';
 
 function patchProjectRevision(next: Record<string, unknown>): void {
   useProjectStore.setState((state: { project: Record<string, unknown> }) => {
@@ -410,12 +414,14 @@ async function persistAutosave(seq: number): Promise<void> {
         res,
         patchProjectRevision,
       );
+      clearProjectDraft(latest.id as string | undefined);
       useGlobalStore.getState().dispatch.setSaved(true);
       useGlobalStore.getState().dispatch.setSaving(false);
       return;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);
+    writeProjectDraft(latest, latest.updateTime as string | undefined);
     message.error(
       res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
     );
@@ -425,6 +431,7 @@ async function persistAutosave(seq: number): Promise<void> {
     }
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);
+    writeProjectDraft(latest, latest.updateTime as string | undefined);
     // HTTP/网络错误由 request errorHandler 已 toast，勿重复弹「自动保存失败」
   }
 }

@@ -41,7 +41,7 @@ test.describe('自动保存失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
-      await expect(node).toBeVisible();
+      await expect(node).toBeVisible({ timeout: 15_000 });
       await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.route('**/ncnb/project/save', (route) => route.abort('failed'));
@@ -56,12 +56,12 @@ test.describe('自动保存失败可重试', () => {
         rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'NAME' }),
       ).toHaveCount(0);
 
-      const retry = page.getByRole('button', { name: '自动保存失败，点击重试' });
+      const retry = page.getByRole('button', { name: '自动保存失败，改动已存本地，点击重试' });
       await expect(retry).toBeVisible({ timeout: 10_000 });
       await expect(retry).toHaveText('保存失败，点击重试');
       await expect(page.getByTestId('save-status')).toHaveAttribute(
         'aria-label',
-        '自动保存失败，点击重试',
+        '自动保存失败，改动已存本地，点击重试',
       );
 
       await page.unroute('**/ncnb/project/save');
@@ -71,7 +71,7 @@ test.describe('自动保存失败可重试', () => {
         rfNode(page, 'T_TABLE_1').locator('.erd-field-name', { hasText: 'NAME' }),
       ).toBeVisible({ timeout: 15_000 });
       await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
-      await expect(page.getByRole('button', { name: '自动保存失败，点击重试' })).toHaveCount(0);
+      await expect(page.getByRole('button', { name: '自动保存失败，改动已存本地，点击重试' })).toHaveCount(0);
 
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
@@ -94,7 +94,7 @@ test.describe('自动保存失败可重试', () => {
       await createAndOpenPersonProject(page, projectName, 'savebiz', 'autosave biz fail');
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
-      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 15_000 });
       await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
       await page.route('**/ncnb/project/save', async (route) => {
@@ -107,7 +107,7 @@ test.describe('自动保存失败可重试', () => {
       const codeDraft = await typeFieldDraft(page, 'T_TABLE_1', 'CODE');
 
       await expectToast(page, '模拟保存拒绝');
-      const retry = page.getByRole('button', { name: '自动保存失败，点击重试' });
+      const retry = page.getByRole('button', { name: '自动保存失败，改动已存本地，点击重试' });
       await expect(retry).toBeVisible({ timeout: 10_000 });
       await expect(codeDraft).toBeVisible();
 

@@ -3,6 +3,7 @@ import { history } from '@@/core/history';
 import * as Save from '@/utils/save';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
+import { clearProjectDraft } from '@/utils/projectLocalDraft';
 
 /** 与后端 ApiErrorCode.PROJECT_SAVE_CONFLICT 对齐 */
 export const PROJECT_SAVE_CONFLICT_CODE = 409;
@@ -78,6 +79,7 @@ export async function reloadProjectFromServer(): Promise<void> {
     message.error('未打开项目');
     return;
   }
+  clearProjectDraft(projectId);
   await useProjectStore.getState().fetch(projectId);
   useGlobalStore.getState().dispatch.setSaveConflict(false);
   useGlobalStore.getState().dispatch.setSaved(true);
@@ -126,6 +128,7 @@ export function handleSaveResponseSideEffects(
   }
   if (res?.code === 200) {
     patchProject(mergeSaveRevision(project, res));
+    clearProjectDraft(project.id as string | undefined);
     useGlobalStore.getState().dispatch.setSaveConflict(false);
     return true;
   }
