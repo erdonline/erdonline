@@ -1,0 +1,251 @@
+// ADR-0016：PAT 管理与 OAuth clients / 账号设置同阶
+.root {
+  font-family: var(--erd-font-ui);
+  max-width: 720px;
+}
+
+.toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.hint {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.toolbar :global(.ant-btn) {
+  height: 28px;
+  font-size: 12px;
+  padding: 0 12px;
+  border-radius: 6px;
+  flex: none;
+}
+
+.empty {
+  margin: 12px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 6px 0;
+  border-bottom: 1px solid var(--erd-line, #e5e7eb);
+}
+
+.item:last-child {
+  border-bottom: none;
+}
+
+.meta {
+  min-width: 0;
+  flex: 1;
+}
+
+.nameRow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.name {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 22px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  height: 18px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 11px;
+  line-height: 18px;
+  font-weight: 600;
+  background: color-mix(in srgb, var(--erd-ink-900, #000) 6%, transparent);
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.badgeRevoked {
+  background: color-mix(in srgb, var(--erd-brand, #de2910) 12%, transparent);
+  color: var(--erd-brand, #de2910);
+}
+
+.hintRow {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 2px;
+  flex-wrap: wrap;
+}
+
+.tokenHint {
+  margin: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+  word-break: break-all;
+}
+
+.detail {
+  margin: 2px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex: none;
+}
+
+.actions :global(.ant-btn-link) {
+  height: 22px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.secretWarn {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: 6px;
+  border: 1px solid color-mix(in srgb, var(--erd-brand, #de2910) 35%, transparent);
+  background: color-mix(in srgb, var(--erd-brand, #de2910) 8%, transparent);
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.secretBlock {
+  margin: 0 0 8px;
+}
+
+.secretLabel {
+  margin: 0 0 2px;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.secretValue {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+.secretCode {
+  margin: 0;
+  flex: 1;
+  min-width: 0;
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 12px;
+  line-height: 18px;
+  word-break: break-all;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+:global {
+  .pat-form {
+    .ant-form-item {
+      margin-bottom: 12px;
+    }
+
+    .ant-form-item-label {
+      padding-bottom: 2px;
+
+      > label {
+        font-size: 12px;
+        height: auto;
+        color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+      }
+    }
+
+    .ant-input:not(textarea),
+    .ant-input-affix-wrapper,
+    .ant-select-selector {
+      font-size: 12px !important;
+    }
+
+    .ant-input:not(textarea) {
+      height: 28px;
+      padding: 0 8px;
+    }
+
+    .ant-input-affix-wrapper {
+      padding-block: 0;
+      min-height: 28px;
+    }
+
+    .ant-select-single:not(.ant-select-customize-input) .ant-select-selector {
+      height: 28px;
+    }
+
+    .ant-select-single .ant-select-selector .ant-select-selection-item,
+    .ant-select-single .ant-select-selector .ant-select-selection-placeholder {
+      line-height: 26px;
+    }
+
+    .ant-checkbox-wrapper {
+      font-size: 12px;
+      line-height: 22px;
+    }
+
+    .ant-btn {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 12px;
+      border-radius: 6px;
+    }
+
+    .ant-input:focus-visible,
+    .ant-btn:focus-visible,
+    .ant-select-focused .ant-select-selector {
+      outline: 2px solid var(--erd-brand) !important;
+      outline-offset: 2px;
+    }
+  }
+
+  .pat-token-reveal-dialog {
+    .ant-modal-title {
+      font-size: 13px;
+      line-height: 22px;
+    }
+
+    .ant-btn {
+      height: 28px;
+      font-size: 12px;
+      padding: 0 12px;
+      border-radius: 6px;
+    }
+
+    .ant-btn:focus-visible {
+      outline: 2px solid var(--erd-brand) !important;
+      outline-offset: 2px;
+    }
+  }
+}

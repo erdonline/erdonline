@@ -3,6 +3,7 @@ import {Menu} from 'antd';
 import BaseView from './components/base';
 import SecurityView from './components/security';
 import OAuthClientsView from './components/oauthClients';
+import PersonalAccessTokensView from './components/personalAccessTokens';
 import styles from './style.less';
 import Identification from '@/pages/account/settings/components/identification';
 import {useSearchParams} from '@@/exports';
@@ -10,7 +11,12 @@ import {history} from 'umi';
 
 const {Item} = Menu;
 
-type SettingsStateKeys = 'base' | 'security' | 'oauthClients' | 'identification';
+type SettingsStateKeys =
+  | 'base'
+  | 'security'
+  | 'personalAccessTokens'
+  | 'oauthClients'
+  | 'identification';
 type SettingsState = {
   mode: 'inline' | 'horizontal';
   selectKey: SettingsStateKeys;
@@ -19,6 +25,7 @@ type SettingsState = {
 const SETTINGS_KEYS: SettingsStateKeys[] = [
   'base',
   'security',
+  'personalAccessTokens',
   'oauthClients',
   'identification',
 ];
@@ -34,6 +41,7 @@ const Settings: React.FC = () => {
   const menuMap: Record<SettingsStateKeys, React.ReactNode> = {
     base: '基本设置',
     security: '安全设置',
+    personalAccessTokens: '访问令牌',
     oauthClients: 'OAuth 客户端',
     identification: '授权类型',
   };
@@ -93,6 +101,8 @@ const Settings: React.FC = () => {
         return <BaseView />;
       case 'security':
         return <SecurityView />;
+      case 'personalAccessTokens':
+        return <PersonalAccessTokensView />;
       case 'oauthClients':
         return <OAuthClientsView />;
       case 'identification':
