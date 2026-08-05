@@ -81,6 +81,7 @@
 - ~~#25 409 冲突 Modal 决策 E2E：`project-save-conflict.spec.ts` refresh/fork 路径 + 刷新清草稿；静态 Modal 改 `appFormat`/`VersionDiffPanelStatic`；fork 跳转 `/design/table/model`~~ ✅ 2026-08-05
 - ~~#26 落库失败 vs 409 冲突顶栏态分流 E2E：`save-status-failure-routing.spec.ts` 失败重试与冲突 Modal 不得混态~~ ✅ 2026-08-05
 - ~~#27 顶栏重试 seq 对齐：`isPersistAutosaveCurrent`；mock 失败 → 点重试 → 已落盘（不卡保存中）~~ ✅ 2026-08-05
+- ~~#28 离开设计器失败态 E2E：`leave-designer-save.spec.ts` 失败 → 离开补枪 → 顶栏重试 → 干净离开~~ ✅ 2026-08-05
 
 ### i18n 奠基（B 层后）✅
 

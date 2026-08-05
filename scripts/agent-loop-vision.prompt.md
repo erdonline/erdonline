@@ -116,6 +116,8 @@
 
 27. ~~顶栏重试 seq 对齐：`retryAutosave`/`persistAutosave` 序号判据一致；mock 失败 → 点重试 → 已落盘（不卡「保存中…」）~~ ✅ 2026-08-05
 
+28. ~~离开设计器失败态 E2E：`leave-designer-save.spec.ts` 落库失败 → 离开补枪 → 回设计器顶栏重试 → 干净离开~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）

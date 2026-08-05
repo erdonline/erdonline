@@ -810,6 +810,7 @@
 
 - [x] [离开设计器不盲存] 干净态点顶栏品牌回 `/home` → 无 `/ncnb/project/save` 请求 ✅ `leave-designer-save.spec.ts`「干净态离开」
 - [x] [失败态离开补一枪] 阻断 save 制造失败态 → 放开后离开 → 至少 1 次 save 且失败仍有可见反馈 ✅ `leave-designer-save.spec.ts`「落库失败后离开」
+- [x] [失败态离开补枪后顶栏重试] mock 500×2（autosave+离开补枪）→ 回设计器恢复草稿 → 顶栏重试 → 已落盘 → 干净离开零 save ✅ `leave-designer-save.spec.ts`「离开补枪→顶栏重试→离开」
 - [x] [project 乐观锁 409] 陈旧 `updateTime` save → 409；匹配 → 200 + 新 `updateTime` ✅ `ProjectSaveOptimisticLockTest` + `scripts/verify-project-save-conflict.sh`
 - [x] [409 可行动 UI] mock 409 → Modal「保存冲突」+ 顶栏「保存冲突，点击查看选项」，不得显示「已落盘」 ✅ `project-save-conflict.spec.ts`
 - [x] [409 diff 预览] mock 409 → Modal 内 `project-save-conflict-preview` + `version-diff-panel` 可见（本地 vs 服务器） ✅ `project-save-conflict.spec.ts`
