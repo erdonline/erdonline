@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### 修复：CF Pages demo 分享页「分享不可用」（`Unexpected token '<'`）
+
+- 根因：`pages/share/index.tsx` 用裸 `fetch('/ncnb/share/{token}')`（含 fork）相对路径请求，未走全站统一的 `request`/`buildApiHref` 基址前缀；CF Pages 静态托管对未知路径走 SPA `historyApiFallback` 返回 `index.html`（200 + `text/html`），前端 `res.json()` 解析 `<!DOCTYPE html>` 炸出 `Unexpected token '<'`，落到 `AuthBrandShell` 失效态「分享不可用」
+- 验证：`curl https://erdonline-demo.pages.dev/env-config.js` 确认 `API_URL` 本身已正确指向 Railway；`curl https://erdonline-demo.pages.dev/ncnb/share/public-demo` 返回 HTML；同 token 直打 `https://erdonline-production.up.railway.app/ncnb/share/public-demo`（带 Origin）返回正常 JSON——证明后端与 token 种子均无问题，纯前端相对路径 bug，与「federate href 打到 SPA」（本日上一条）同类但路径不同（一是 `<a href>` 导航，一是 `fetch`）
+- 改动：分享页两处 `fetch` 套 `buildApiHref`（与 `request.js` 的 `window._env_.API_URL || API_URL` 同源；本地 dev 因 `config.dev.ts` 置空回落相对路径，走既有 proxy）
+
+验证点：
+- `cd frontend && npx playwright test tests/e2e/share.spec.ts tests/e2e/share-revoke-keyboard.spec.ts tests/e2e/share-create-failure.spec.ts tests/e2e/share-project-keyboard.spec.ts --project=chromium` 10 例全绿
+- CF Pages 重新部署后：`curl https://erdonline-demo.pages.dev/s/public-demo` 页面走 `https://erdonline-production.up.railway.app/ncnb/share/public-demo` 拿到 JSON（浏览器 Network 面板确认，不再有 `<!DOCTYPE`）
+
 #### 修复：CF Pages demo 第三方登录按钮 href 打到 SPA 而非 Railway API
 
 - 根因：登录页 `<Button href="/auth/federate/{provider}">` 为相对路径；XHR 走 `API_URL` prefix，浏览器导航不走——静态托管把 `/auth/…` 当 SPA 路由
