@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：Design 版本页其余 Modal（Init / Rename / Revert / Remove / Sync / Rebuild）
+
+- `InitVersion.tsx` / `RebuildVersion.tsx`：工具栏按钮 + Modal 表单 key 化；`appFormat()` 供 init 成功/无数据源 toast
+- `RenameVersion.tsx`：编辑按钮/Modal/校验 toast key 化
+- `RevertVersion.tsx` / `RemoveVersion.tsx`：确认 Modal 标题/正文/是·否 key 化
+- `SyncVersion.tsx`：同步按钮与 aria key 化
+- 语料：新增 `versionModal.*` 38 key × EN+ZH（复用 #19 校验/表单 label）
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #20 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Design 版本页 Modal"`
+
 #### i18n：Design 版本页 Modal（SaveVersion / AddVersion / Compare / SyncConfig / conflict / diff）
 
 - `SaveVersionButton.tsx`：顶栏「保存版本」key 化

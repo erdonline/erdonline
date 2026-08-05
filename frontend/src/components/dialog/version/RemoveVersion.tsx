@@ -3,12 +3,14 @@ import {Button, Modal} from 'antd';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {DeleteOutlined} from '@ant-design/icons';
+import {useIntl} from '@@/exports';
 
 export type RemoveVersionProps = {};
 
 const REMOVE_WRAP = 'version-remove-modal-wrap';
 
 const RemoveVersion: React.FC<RemoveVersionProps> = () => {
+  const intl = useIntl();
   const {currentVersion, versionDispatch} = useVersionStore(
     (state) => ({
       currentVersion: state.currentVersion,
@@ -33,18 +35,18 @@ const RemoveVersion: React.FC<RemoveVersionProps> = () => {
         type="link"
         icon={<DeleteOutlined />}
         data-testid="version-delete-btn"
-        aria-label="删除版本"
+        aria-label={intl.formatMessage({ id: 'versionModal.removeVersion.aria' })}
         onClick={() => setOpen(true)}
       >
-        删除
+        {intl.formatMessage({ id: 'versionModal.removeVersion.button' })}
       </Button>
       <Modal
-        title="删除版本"
+        title={intl.formatMessage({ id: 'versionModal.removeVersion.title' })}
         open={open}
         onOk={handleOk}
         onCancel={() => setOpen(false)}
-        okText="是"
-        cancelText="否"
+        okText={intl.formatMessage({ id: 'versionModal.confirm.yes' })}
+        cancelText={intl.formatMessage({ id: 'versionModal.confirm.no' })}
         okButtonProps={{danger: true}}
         destroyOnClose
         keyboard
@@ -63,7 +65,7 @@ const RemoveVersion: React.FC<RemoveVersionProps> = () => {
           }, 0);
         }}
       >
-        {`确定删除版本「${ver}」吗？此操作不可逆。`}
+        {intl.formatMessage({ id: 'versionModal.removeVersion.body' }, { version: ver })}
       </Modal>
     </>
   );

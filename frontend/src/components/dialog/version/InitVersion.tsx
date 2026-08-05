@@ -11,6 +11,8 @@ import {
   handleVersionSaveResponse,
   isVersionSaveDuplicate,
 } from '@/utils/versionSaveConflict';
+import {useIntl} from '@@/exports';
+import {appFormat} from '@/utils/messageFormat';
 
 export type InitVersionProps = {};
 
@@ -20,6 +22,7 @@ type FormValues = {
 };
 
 const InitVersion: React.FC<InitVersionProps> = () => {
+  const intl = useIntl();
   const {hasDB, init, versionDispatch} = useVersionStore(
     (state) => ({
       hasDB: state.hasDB,
@@ -47,10 +50,11 @@ const InitVersion: React.FC<InitVersionProps> = () => {
 
   const handleOk = async () => {
     const values = await form.validateFields();
+    const fmt = appFormat();
     // 基线文件只需要存储 modules 信息
     const currentDBData = versionDispatch.getCurrentDBData();
     if (!currentDBData) {
-      message.warning('未配置数据库源，请先配置数据源！');
+      message.warning(fmt('versionModal.initVersion.noDatasource'));
       return;
     }
     const version = {
@@ -67,7 +71,7 @@ const InitVersion: React.FC<InitVersionProps> = () => {
     try {
       const res = await Save.hisProjectSave(version);
       if (handleVersionSaveResponse(res)) {
-        message.success('初始化基线成功');
+        message.success(fmt('versionModal.initVersion.success'));
         versionDispatch.getVersionMessage(res.data, true);
         versionDispatch.setState({
           changes: [],
@@ -94,14 +98,14 @@ const InitVersion: React.FC<InitVersionProps> = () => {
         key="selection"
         disabled={!hasDB || !init}
         data-testid="version-init-btn"
-        aria-label="初始化基线"
+        aria-label={intl.formatMessage({ id: 'versionModal.initVersion.aria' })}
         onClick={openModal}
       >
         <AimOutlined />
-        初始化基线
+        {intl.formatMessage({ id: 'versionModal.initVersion.button' })}
       </Button>
       <Modal
-        title="初始化基线"
+        title={intl.formatMessage({ id: 'versionModal.initVersion.title' })}
         open={open}
         onOk={handleOk}
         onCancel={() => setOpen(false)}
@@ -119,34 +123,47 @@ const InitVersion: React.FC<InitVersionProps> = () => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="version"
-            label="版本号"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
               {
                 pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
-                message:
-                  '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
+                message: intl.formatMessage({ id: 'versionModal.validation.versionFormat' }),
               },
-              {max: 100, message: '不能大于 200 个字符'},
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max200' }),
+              },
             ]}
           >
             <Input
               ref={versionInputRef}
-              aria-label="版本号"
-              placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
+              placeholder={intl.formatMessage({ id: 'versionModal.initVersion.versionPlaceholder' })}
             />
           </Form.Item>
           <Form.Item
             name="versionDesc"
-            label="版本描述"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
             <Input.TextArea
-              aria-label="版本描述"
-              placeholder="'例如：初始化当前项目版本"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
+              placeholder={intl.formatMessage({
+                id: 'versionModal.initVersion.versionDescPlaceholder',
+              })}
               rows={3}
             />
           </Form.Item>

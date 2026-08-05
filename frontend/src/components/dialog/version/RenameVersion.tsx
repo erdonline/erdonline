@@ -7,6 +7,8 @@ import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {compareStringVersion} from '@/utils/string';
 import {joinVersionTags, splitVersionTags} from '@/utils/versionTags';
+import {useIntl} from '@@/exports';
+import {appFormat} from '@/utils/messageFormat';
 
 export type RenameVersionProps = {};
 
@@ -17,6 +19,7 @@ type FormValues = {
 };
 
 const RenameVersion: React.FC<RenameVersionProps> = () => {
+  const intl = useIntl();
   const {currentVersionIndex, currentVersion, versions, versionDispatch} = useVersionStore(
     (state) => ({
       currentVersionIndex: state.currentVersionIndex,
@@ -47,9 +50,10 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
 
   const handleOk = async () => {
     const values = await form.validateFields();
+    const fmt = appFormat();
     const tag = joinVersionTags(values.tags);
     if (tag && tag.length > 255) {
-      message.error('标签总长度不能大于 255 个字符');
+      message.error(fmt('versionModal.validation.tagsMax255'));
       // 受控 open：不 setOpen(false) 即保持弹窗；勿 reject（webpack overlay 会挡后续操作）
       return;
     }
@@ -67,17 +71,17 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
       return;
     }
     if (tempVersions.map((v: {version?: string}) => v.version).includes(tempValue.version)) {
-      message.error('该版本号已经存在了');
+      message.error(fmt('versionModal.renameVersion.duplicateVersion'));
       return;
     }
     if (tempVersions[0]) {
       const renameCmp = compareStringVersion(tempValue.version, tempVersions[0].version);
       if (renameCmp === null) {
-        message.error('版本号格式无法比较，请使用如 1.0.0 的数字段格式');
+        message.error(fmt('versionModal.renameVersion.formatNotComparable'));
         return;
       }
       if (renameCmp <= 0) {
-        message.error('新版本不能小于或等于已经存在的版本');
+        message.error(fmt('versionModal.renameVersion.notGreaterThanExisting'));
         return;
       }
     }
@@ -93,13 +97,13 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
         type="link"
         icon={<EditOutlined />}
         data-testid="version-rename-btn"
-        aria-label="编辑版本"
+        aria-label={intl.formatMessage({ id: 'versionModal.renameVersion.aria' })}
         onClick={openModal}
       >
-        编辑
+        {intl.formatMessage({ id: 'versionModal.renameVersion.button' })}
       </Button>
       <Modal
-        title="编辑版本"
+        title={intl.formatMessage({ id: 'versionModal.renameVersion.title' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -125,46 +129,65 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="version"
-            label="版本号"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
               {
                 pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
-                message:
-                  '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
+                message: intl.formatMessage({ id: 'versionModal.validation.versionFormat' }),
               },
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
             <Input
               ref={versionInputRef}
-              placeholder="请输入版本号"
+              placeholder={intl.formatMessage({
+                id: 'versionModal.renameVersion.versionPlaceholder',
+              })}
               readOnly={versionReadonly}
             />
           </Form.Item>
           <Form.Item
             name="versionDesc"
-            label="版本描述"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
             <Input.TextArea
               ref={versionDescRef}
-              placeholder="请输入版本描述"
+              placeholder={intl.formatMessage({
+                id: 'versionModal.renameVersion.versionDescPlaceholder',
+              })}
               rows={3}
             />
           </Form.Item>
           <Form.Item
             name="tags"
-            label="版本标签"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.tagsLabel' })}
             rules={[
               {
                 validator: async (_: unknown, value: string[] | undefined) => {
                   const joined = joinVersionTags(value);
                   if (joined && joined.length > 255) {
-                    return Promise.reject(new Error('标签总长度不能大于 255 个字符'));
+                    return Promise.reject(
+                      new Error(
+                        intl.formatMessage({ id: 'versionModal.validation.tagsMax255' }),
+                      ),
+                    );
                   }
                 },
               },
@@ -173,9 +196,9 @@ const RenameVersion: React.FC<RenameVersionProps> = () => {
             <Select
               mode="tags"
               tokenSeparators={[',']}
-              placeholder="可选，回车添加多个标签"
+              placeholder={intl.formatMessage({ id: 'versionModal.addVersion.tagsPlaceholder' })}
               data-testid="version-tag-input"
-              aria-label="版本标签"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.tagsAria' })}
               notFoundContent={null}
             />
           </Form.Item>

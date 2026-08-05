@@ -4,6 +4,7 @@ import {Button, Form, Input, Modal} from 'antd';
 import type {InputRef} from 'antd';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
+import {useIntl} from '@@/exports';
 
 export type RebuildVersionProps = {};
 
@@ -13,6 +14,7 @@ type FormValues = {
 };
 
 const RebuildVersion: React.FC<RebuildVersionProps> = () => {
+  const intl = useIntl();
   const {init, versionDispatch} = useVersionStore(
     (state) => ({
       init: state.init,
@@ -47,18 +49,18 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
         danger
         disabled={init}
         data-testid="version-rebuild-btn"
-        aria-label="重建版本"
+        aria-label={intl.formatMessage({ id: 'versionModal.rebuildVersion.aria' })}
         onClick={openModal}
       >
         <AlertOutlined />
-        重建版本
+        {intl.formatMessage({ id: 'versionModal.rebuildVersion.button' })}
       </Button>
       <Modal
         title={
           <span>
-            重建版本
+            {intl.formatMessage({ id: 'versionModal.rebuildVersion.title' })}
             <span style={{ color: 'var(--erd-brand)', fontSize: 12, fontWeight: 400 }}>
-              （重建版本将会清除当前项目的所有版本信息，该操作不可逆）
+              {intl.formatMessage({ id: 'versionModal.rebuildVersion.subtitle' })}
             </span>
           </span>
         }
@@ -79,34 +81,49 @@ const RebuildVersion: React.FC<RebuildVersionProps> = () => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="version"
-            label="版本号"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
               {
                 pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
-                message:
-                  '版本号格式不对,版本需满足正则：/^([1-9]\\d|[1-9])(\\.([1-9]\\d|\\d)){2}$/，正确示例：1.0.1',
+                message: intl.formatMessage({ id: 'versionModal.validation.versionFormat' }),
               },
-              {max: 100, message: '不能大于 200 个字符'},
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max200' }),
+              },
             ]}
           >
             <Input
               ref={versionInputRef}
-              aria-label="版本号"
-              placeholder="例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
+              placeholder={intl.formatMessage({
+                id: 'versionModal.rebuildVersion.versionPlaceholder',
+              })}
             />
           </Form.Item>
           <Form.Item
             name="versionDesc"
-            label="版本描述"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
             <Input.TextArea
-              aria-label="版本描述"
-              placeholder="'例如：初始化当前项目版本"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
+              placeholder={intl.formatMessage({
+                id: 'versionModal.rebuildVersion.versionDescPlaceholder',
+              })}
               rows={3}
             />
           </Form.Item>
