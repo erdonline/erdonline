@@ -1,6 +1,7 @@
 import create, {GetState, SetState} from "zustand";
 import _ from "lodash";
 import {message} from "antd";
+import {appFormat} from '@/utils/messageFormat';
 import {confirmDestructive} from "@/utils/destructiveConfirm";
 import {showSyncResultModal} from "@/utils/syncResultModal";
 import {compareStringVersion, compareStringVersionForSort} from "@/utils/string";
@@ -163,11 +164,15 @@ const useVersionStore = create<VersionState>(
           get().dispatch.checkBaseVersion(currentDB);
           get().dispatch.calcChanges();
         } else {
-          message.error('获取版本信息失败');
+          message.error(appFormat()('versionStore.fetch.failed'));
           get().dispatch.checkBaseVersion(currentDB);
         }
       } catch (error: any) {
-        message.error(`获取版本信息失败: ${error?.message || error}`);
+        message.error(
+          appFormat()('versionStore.fetch.failedWithDetail', {
+            detail: error?.message || error,
+          }),
+        );
         get().dispatch.checkBaseVersion(currentDB);
       }
     },
@@ -307,7 +312,11 @@ const useVersionStore = create<VersionState>(
           return baseline;
         } catch (error: any) {
           // 基线未知：不得静音成「无差异」，保持 baselineLoaded=false 让 UI 走未知/重试
-          message.error(`获取最新版本基线失败: ${error?.message || error}`);
+          message.error(
+            appFormat()('versionStore.baseline.fetchFailedWithDetail', {
+              detail: error?.message || error,
+            }),
+          );
           return null;
         }
       },
@@ -350,20 +359,20 @@ const useVersionStore = create<VersionState>(
               dbVersion: res.data,
               hasDB: true,
             });
-            message.success('数据源版本书签获取成功');
+            message.success(appFormat()('versionStore.dbVersion.fetchSuccess'));
           } else {
             set({
               dbVersion: '',
               hasDB: false,
             });
-            message.error('数据源版本信息获取失败');
+            message.error(appFormat()('versionStore.dbVersion.fetchFailed'));
           }
         }).catch(() => {
           set({
             dbVersion: '',
             hasDB: false,
           });
-          message.error('数据源版本信息获取失败');
+          message.error(appFormat()('versionStore.dbVersion.fetchFailed'));
         });
       })),
       checkBaseVersion: async (db: any) => {
@@ -405,7 +414,7 @@ const useVersionStore = create<VersionState>(
             // message.warning('当前数据不存在任何版本，请先初始化基线', 2);
           }
         } catch (error) {
-          message.error('检查基线版本失败:');
+          message.error(appFormat()('versionStore.baseline.checkFailed'));
           // message.error(`检查基线版本失败: ${error.message}`);
           // set({ init: true }); // 在错误情况下也设置 init 为 true
         }
@@ -445,7 +454,7 @@ const useVersionStore = create<VersionState>(
           set({
             dbVersion: '',
           })
-          message.error('无法获取到数据源信息，请切换尝试数据源');
+          message.error(appFormat()('versionStore.datasource.unavailable'));
         } else {
           Save.rebaseline({
             ...dbData,
@@ -454,13 +463,17 @@ const useVersionStore = create<VersionState>(
             versionDesc: '基线本，新建版本时请勿低于该版本',
           }).then((res) => {
             if (res && res.code === 200) {
-              message.success('初始化数据表成功');
+              message.success(appFormat()('versionStore.rebaseline.success'));
               get().dispatch.getDBVersion();
             } else {
-              message.error('初始化数据表失败');
+              message.error(appFormat()('versionStore.rebaseline.failed'));
             }
           }).catch((err) => {
-            message.error(`初始化数据表失败：${err.message}`);
+            message.error(
+              appFormat()('versionStore.rebaseline.failedWithDetail', {
+                detail: err.message,
+              }),
+            );
           });
         }
       },
@@ -661,7 +674,7 @@ const useVersionStore = create<VersionState>(
           set({
             dbVersion: '',
           });
-          message.error('无法获取到数据源信息，请切换尝试数据源');
+          message.error(appFormat()('versionStore.datasource.unavailable'));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           cb && cb();
         } else {
@@ -767,11 +780,13 @@ const useVersionStore = create<VersionState>(
           focusSyncTrigger();
           showSyncResultModal({
             ok: false,
-            content: res.msg || res.message || '同步失败，请重试',
+            content: res.msg || res.message || appFormat()('versionStore.sync.failed'),
           });
         }).catch((err: any) => {
           clearSyncing();
-          message.error(`同步失败:${err.message}`);
+          message.error(
+            appFormat()('versionStore.sync.failedWithDetail', { detail: err.message }),
+          );
         });
       },
       updateVersionData: (newVersion: any, oldVersion: any, status: any) => {
@@ -779,7 +794,7 @@ const useVersionStore = create<VersionState>(
           const dbData = get().dispatch.getCurrentDBData();
           Save.hisProjectSave({...newVersion, dbKey: dbData.key}).then((res) => {
             if (res.code === 200) {
-              message.success('版本信息更新成功');
+              message.success(appFormat()('versionStore.update.success'));
               set({
                 versions: get().versions.map((v: any, vIndex: any) => {
                   if (vIndex === get().currentVersionIndex) {
@@ -789,16 +804,20 @@ const useVersionStore = create<VersionState>(
                 }),
               });
             } else {
-              message.error(res?.msg || res?.message || '版本信息更新失败');
+              message.error(
+                res?.msg || res?.message || appFormat()('versionStore.update.failed'),
+              );
             }
           }).catch((err) => {
-            message.error(`版本信息更新失败${err.message}`);
+            message.error(
+              appFormat()('versionStore.update.failedWithDetail', { detail: err.message }),
+            );
           });
         } else {
           // 删除原来的
             Save.hisProjectDelete(newVersion.id).then((res) => {
             if (res.code === 200) {
-              message.success('版本信息删除成功');
+              message.success(appFormat()('versionStore.delete.success'));
               const tempVersions = get().versions.filter((v: any) => v.id !== newVersion.id);
               set({ versions: tempVersions });
               // 删版本后基线可能变化：重新独立查询（勿把 Promise 塞进 changes）
@@ -808,7 +827,9 @@ const useVersionStore = create<VersionState>(
             }
             // 业务失败：request 已 toast；勿伪装成功
           }).catch((err) => {
-            message.error(`版本信息删除失败${err.message}`);
+            message.error(
+              appFormat()('versionStore.delete.failedWithDetail', { detail: err.message }),
+            );
             get().dispatch.checkBaseVersion(null);
           });
         }
@@ -818,12 +839,12 @@ const useVersionStore = create<VersionState>(
         const ver = get()?.currentVersion;
         const modules = ver?.projectJSON?.modules;
         if (!(modules instanceof Array) || modules.length === 0) {
-          message.error('该版本无可用模型快照，无法回滚');
+          message.error(appFormat()('versionStore.revert.noSnapshot'));
           return false;
         }
         const project = useProjectStore.getState().project;
         if (!project?.projectJSON) {
-          message.error('未打开项目');
+          message.error(appFormat()('versionStore.revert.noProject'));
           return false;
         }
         // 禁止先 setModules 再异步 save：失败时树/画布已回滚像成功
@@ -834,14 +855,19 @@ const useVersionStore = create<VersionState>(
           persistProjectNow,
           ackManualPersist,
         } = await import('@/store/project/projectAutosave');
-        const saved = await persistProjectNow(next, '回滚保存失败');
+        const saved = await persistProjectNow(
+          next,
+          appFormat()('versionStore.revert.persistFailed'),
+        );
         if (!saved) {
           // 失败 toast 已弹；不写 store，弹层保持可重试
           return false;
         }
         useProjectStore.getState().dispatch.setModules(modules);
         ackManualPersist(true);
-        message.success(`成功回滚至「${ver?.version}」`);
+        message.success(
+          appFormat()('versionStore.revert.success', { version: ver?.version ?? '' }),
+        );
         get().fetch(null, get().currentPage, get().pageSize);
         return true;
       },
@@ -849,14 +875,14 @@ const useVersionStore = create<VersionState>(
         if (!status) {
           const dbData = get().dispatch.getCurrentDBData();
           if (!dbData) {
-            message.error('无法获取到数据源信息，请尝试切换数据源，并检查是否已经配置数据源信息！');
+            message.error(appFormat()('versionStore.datasource.unavailableDetailed'));
           } else {
             let flag = false;
             if (!initVersion) {
               flag = get().dispatch.checkVersionCount(version);
             }
             if (flag) {
-              message.error('当前操作的版本之前还有版本尚未同步，请不要跨版本操作!');
+              message.error(appFormat()('versionModal.compare.crossVersionError'));
             } else {
               confirmDestructive({
                 title: '同步确认',
@@ -926,13 +952,14 @@ const useVersionStore = create<VersionState>(
         }
       },
       saveNewVersion: async (tempValue: any) => {
+        const fmt = appFormat();
         if (!tempValue.version || !tempValue.versionDesc) {
-          message.error('版本号和版本描述不能为空');
+          message.error(fmt('versionStore.validation.versionAndDescRequired'));
           return false;
         }
 
         if (get().versions.map((v: any) => v.version).includes(tempValue.version)) {
-          message.error('该版本号已经存在了');
+          message.error(fmt('versionModal.renameVersion.duplicateVersion'));
           return false;
         }
 
@@ -943,11 +970,11 @@ const useVersionStore = create<VersionState>(
         if (latest) {
           const latestCmp = compareStringVersion(tempValue.version, latest);
           if (latestCmp === null) {
-            message.error('版本号格式无法比较，请使用如 1.0.0 的数字段格式');
+            message.error(fmt('versionModal.renameVersion.formatNotComparable'));
             return false;
           }
           if (latestCmp <= 0) {
-            message.error('新版本不能小于或等于已经存在的版本');
+            message.error(fmt('versionModal.renameVersion.notGreaterThanExisting'));
             return false;
           }
         }
@@ -956,9 +983,7 @@ const useVersionStore = create<VersionState>(
           const changes = await get().dispatch.calcChanges();
           const changesArray = Array.isArray(changes) ? changes : [];
           if (!hasMeaningfulVersionChanges(changesArray)) {
-            message.warning(
-              '当前与最新版本无模型差异；版本仍会保存，但不计入「有版本保存」北极星指标',
-            );
+            message.warning(fmt('versionStore.save.noModelDiffWarning'));
           }
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
@@ -981,17 +1006,19 @@ const useVersionStore = create<VersionState>(
           const res = await Save.hisProjectSave(version);
           if (handleVersionSaveResponse(res)) {
             get().dispatch.getVersionMessage(res.data);
-            message.success('当前版本保存成功');
+            message.success(fmt('versionStore.save.success'));
             await get().fetch(dbData, get().currentPage, get().pageSize);
             await get().dispatch.fetchVersionBaseline(dbData);
             return true;
           }
           if (!isVersionSaveDuplicate(res)) {
-            message.error(res?.msg || res?.message || '当前版本保存失败');
+            message.error(res?.msg || res?.message || fmt('versionStore.save.failed'));
           }
           return false;
         } catch (err: any) {
-          message.error(`当前版本保存失败: ${err?.message || err}`);
+          message.error(
+            fmt('versionStore.save.failedWithDetail', { detail: err?.message || err }),
+          );
           return false;
         }
       },
@@ -1010,13 +1037,14 @@ const useVersionStore = create<VersionState>(
           onOk: () => {
             // 重新初始化
             // 先删除所有的版本信息
-            get().dispatch.initBase(tempValue, '重建基线成功');
+            get().dispatch.initBase(tempValue, appFormat()('versionStore.rebuild.success'));
           }
         });
       },
       initBase: (tempValue: any, msg: any) => {
+        const fmt = appFormat();
         if (!tempValue.version || !tempValue.versionDesc) {
-          message.error('版本号和版本描述不能为空');
+          message.error(fmt('versionStore.validation.versionAndDescRequired'));
         } else {
           const dbData = get().dispatch.getCurrentDBData();
           const projectState = useProjectStore.getState();
@@ -1035,10 +1063,12 @@ const useVersionStore = create<VersionState>(
               if (res.code === 200) {
                 get().dispatch.initSave(version, msg);
               } else {
-                message.error(`重建基线失败`);
+                message.error(fmt('versionStore.rebuild.failed'));
               }
             }).catch((err) => {
-              message.error(`重建基线失败:${err.message}`);
+              message.error(
+                fmt('versionStore.rebuild.failedWithDetail', { detail: err.message }),
+              );
             });
           } else {
             get().dispatch.initSave(version, msg);
@@ -1046,9 +1076,10 @@ const useVersionStore = create<VersionState>(
         }
       },
       initSave: (version: any, msg: any) => {
+        const fmt = appFormat();
         Save.hisProjectSave(version).then((res) => {
           if (handleVersionSaveResponse(res)) {
-            message.success(msg || '初始化基线成功');
+            message.success(msg || fmt('versionModal.initVersion.success'));
             get().fetch(null, get().currentPage, get().pageSize);
             // 仅成功后 rebaseline，禁止失败仍重置数据源版本
             get().dispatch.dropVersionTable();
@@ -1103,9 +1134,9 @@ const useVersionStore = create<VersionState>(
           }
           const rangeCmp = compareStringVersion(state.incrementVersion, state.initVersion);
           if (rangeCmp === null) {
-            message.warning('所选版本号无法比较，请检查格式（如 1.0.0）');
+            message.warning(appFormat()('versionStore.compare.formatNotComparable'));
           } else if (rangeCmp <= 0) {
-            message.warning('增量脚本的版本号不能小于或等于初始版本的版本号');
+            message.warning(appFormat()('versionStore.compare.incrementNotGreater'));
           } else {
             // 读取两个版本下的数据信息
             let incrementVersionData = {};
