@@ -358,6 +358,12 @@ export default {
   'accountSettings.route.personalAccessTokens': '访问令牌',
   'accountSettings.route.oauthClients': 'OAuth 客户端',
   'accountSettings.route.identification': '授权类型',
+  'accountSettings.identification.titleOpenSource': '开源版',
+  'accountSettings.identification.titleLicensed': '已取得授权',
+  'accountSettings.identification.subtitleOpenSource':
+    'MIT 开源：不限个人/团队项目数量；版本与协作可用',
+  'accountSettings.identification.subtitleLicensed':
+    '授权给: {licensedTo}，有效期：{start} ~ {end}',
   'accountSettings.base.avatarTitle': '头像',
   'accountSettings.base.avatarUploadClosed': '头像上传暂未开放',
   'accountSettings.base.username': '用户名',

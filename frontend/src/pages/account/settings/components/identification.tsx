@@ -1,5 +1,6 @@
 import React from 'react';
 import { useRequest } from '@umijs/hooks';
+import { useIntl } from '@umijs/max';
 import { GET } from '@/services/crud';
 import { PeopleTopCard } from '@icon-park/react';
 import * as cache from '@/utils/cache';
@@ -9,16 +10,26 @@ import styles from './identification.less';
 export type IdentificationProps = {};
 
 const Identification: React.FC<IdentificationProps> = () => {
+  const intl = useIntl();
   const { loading } = useRequest(() => {
     return GET('/syst/user/settings/basic', {});
   });
 
   const licence = cache.getItem2object('licence');
   const licensed = !!licence?.licensedStartTime;
-  const title = licensed ? '已取得授权' : '开源版';
+  const title = licensed
+    ? intl.formatMessage({ id: 'accountSettings.identification.titleLicensed' })
+    : intl.formatMessage({ id: 'accountSettings.identification.titleOpenSource' });
   const subTitle = licensed
-    ? `授权给: ${licence?.licensedTo}，有效期：${licence.licensedStartTime} ~ ${licence.licensedEndTime}`
-    : 'MIT 开源：不限个人/团队项目数量；版本与协作可用';
+    ? intl.formatMessage(
+        { id: 'accountSettings.identification.subtitleLicensed' },
+        {
+          licensedTo: licence?.licensedTo ?? '',
+          start: licence.licensedStartTime ?? '',
+          end: licence.licensedEndTime ?? '',
+        },
+      )
+    : intl.formatMessage({ id: 'accountSettings.identification.subtitleOpenSource' });
 
   return loading ? (
     <PageSkeleton rows={3} />

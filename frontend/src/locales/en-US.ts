@@ -380,6 +380,12 @@ export default {
   'accountSettings.route.personalAccessTokens': 'Personal access tokens',
   'accountSettings.route.oauthClients': 'OAuth clients',
   'accountSettings.route.identification': 'License type',
+  'accountSettings.identification.titleOpenSource': 'Open source',
+  'accountSettings.identification.titleLicensed': 'Licensed',
+  'accountSettings.identification.subtitleOpenSource':
+    'MIT open source: unlimited personal and team projects; versions and collaboration included',
+  'accountSettings.identification.subtitleLicensed':
+    'Licensed to: {licensedTo}, valid: {start} ~ {end}',
   'accountSettings.base.avatarTitle': 'Avatar',
   'accountSettings.base.avatarUploadClosed': 'Avatar upload is not available yet',
   'accountSettings.base.username': 'Username',

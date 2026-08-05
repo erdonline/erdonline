@@ -375,4 +375,21 @@ test.describe('i18n：手动语言切换', () => {
     await oauthDialog.getByRole('button', { name: /取\s*消/ }).click();
     await expect(oauthDialog).not.toBeVisible();
   });
+
+  test('账号设置授权类型随 locale 切换', async ({ page }) => {
+    await login(page, e2eAccount());
+    await page.goto('/account/settings?selectKey=identification');
+    const panel = page.getByTestId('account-settings-identification');
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    const title = panel.locator('h3');
+    const sub = panel.locator('p');
+    await expect(title).toHaveText('开源版');
+    await expect(sub).toContainText('MIT 开源');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(panel).toBeVisible({ timeout: 15_000 });
+    await expect(title).toHaveText('Open source');
+    await expect(sub).toContainText('MIT open source');
+  });
 });

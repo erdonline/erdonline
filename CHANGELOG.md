@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### i18n：账号设置「授权类型」子页
+
+- `identification.tsx`：开源版/已取得授权标题 + MIT/授权详情副文案 `formatMessage` key 化
+- 语料：`accountSettings.identification.*` 4 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n #14 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "授权类型"`
+
 #### i18n：账号设置 PAT/OAuth/联邦绑定 Modal + ResetPassword
 
 - `personalAccessTokens` / `oauthClients` / `federatedAccounts`：列表、工具栏、铸造/注册 Modal、凭证揭示 Modal、吊销确认 key 化
