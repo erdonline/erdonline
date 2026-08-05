@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：登录/联邦登录 + AuthBrandShell 品牌面板 key 化
+
+- `AuthBrandShell`：品牌标题/导语/CTA、`auth.subtitle.default` / `auth.skip.default` 改走 `useIntl`
+- `login/index.tsx`：表单标签/占位/校验/提交/ footer 链 + 联邦按钮/未配置提示（`login.*` keys）
+- `login/federate.tsx`：状态文案/失败引导/返回按钮（`federate.*` keys）；`federate-back-to-login` testid
+- 语料：`zh-CN.ts` + `en-US.ts` 同步新增 38 key（`auth.*` / `login.*` / `federate.*`）
+- E2E：`i18n.spec.ts` 增 `login-submit` testid 文案切换断言（定位与文案分离）
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`
+- `cd frontend && yarn build`
+
 #### i18n：手动语言切换 LocaleSwitcher
 
 - 新增共享组件 `LocaleSwitcher`（`data-testid="locale-switcher"` + `aria-label`）：`setLocale(lang, false)` + umi `useLocalStorage`（`umi_locale`）持久化，覆盖 `baseNavigator`

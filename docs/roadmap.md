@@ -87,6 +87,8 @@
 
 完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH；首访按浏览器语言自动匹配，**回退** zh-CN。
 
+**i18n MVP 进度（2026-08-05）**：~~baseNavigator~~✅ · ~~LocaleSwitcher~~✅ · ~~登录/联邦 + AuthBrandShell~~✅ · 下一刀：注册页 key 化
+
 ### 产品深度（走出「thin CRUD」）📋
 
 - 数据字典 / 治理：字段级文档、~~枚举域~~✅（`/setting/dataType` kind=enum + `values[]` 可编）、~~逻辑类型 apply 方言映射~~✅（密表编 `apply[code].type`）、跨表复用（承接 📋 dataDomain 实验页的定位重估）

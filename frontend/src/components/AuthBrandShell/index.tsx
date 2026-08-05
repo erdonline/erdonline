@@ -33,13 +33,17 @@ const focusSkipTarget = (id: string) => {
  */
 const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
   title,
-  subtitle = '开源数据库建模：版本与协作，像 Git + Figma',
+  subtitle,
   children,
   footer,
-  skipLabel = '跳到表单',
+  skipLabel,
   skipTargetId = 'auth-form-anchor',
 }) => {
   const intl = useIntl();
+  const resolvedSubtitle =
+    subtitle ?? intl.formatMessage({ id: 'auth.subtitle.default' });
+  const resolvedSkipLabel =
+    skipLabel ?? intl.formatMessage({ id: 'auth.skip.default' });
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
       <div className="auth-shell__locale">
@@ -59,25 +63,37 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
             focusSkipTarget(skipTargetId);
           }}
         >
-          {skipLabel}
+          {resolvedSkipLabel}
         </a>
       </nav>
-      <aside className="auth-shell__brand" data-testid="auth-brand-panel" aria-label="产品介绍">
-        <a className="auth-shell__brand-logo" href="/" aria-label="ERD Online 首页">
+      <aside
+        className="auth-shell__brand"
+        data-testid="auth-brand-panel"
+        aria-label={intl.formatMessage({ id: 'auth.brand.panelAria' })}
+      >
+        <a
+          className="auth-shell__brand-logo"
+          href="/"
+          aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
+        >
           <img src="/logo.svg" alt="" width={36} height={36} />
           <span className="auth-shell__brand-name">ERD Online</span>
         </a>
         <Typography.Title level={2} className="auth-shell__brand-title">
-          数据库设计的 Git + Figma
+          {intl.formatMessage({ id: 'auth.brand.title' })}
         </Typography.Title>
         <Typography.Paragraph className="auth-shell__brand-lead">
-          免登录打开示例模型，再决定是否注册。版本与协作是壁垒，画布体验是门面。
+          {intl.formatMessage({ id: 'auth.brand.lead' })}
         </Typography.Paragraph>
         <div className="auth-shell__brand-thumb" aria-hidden="true">
           <ErdEmptyDiagram size="hero" />
         </div>
-        <a className="auth-shell__brand-cta" href="/demo" aria-label="打开演示">
-          打开演示
+        <a
+          className="auth-shell__brand-cta"
+          href="/demo"
+          aria-label={intl.formatMessage({ id: 'auth.brand.demoAria' })}
+        >
+          {intl.formatMessage({ id: 'auth.brand.cta' })}
         </a>
       </aside>
 
@@ -94,7 +110,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
               {title}
             </Typography.Title>
             <Typography.Paragraph type="secondary" className="auth-shell__form-desc">
-              {subtitle}
+              {resolvedSubtitle}
             </Typography.Paragraph>
           </div>
           {children}

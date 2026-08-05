@@ -15,19 +15,25 @@ test.describe('i18n：手动语言切换', () => {
     const skipNav = page.getByTestId('auth-skip-nav');
     await expect(skipNav).toHaveAttribute('aria-label', '跳过导航');
 
+    const loginSubmit = page.getByTestId('login-submit');
+    await expect(loginSubmit).toHaveText(/登\s*录/);
+
     await switcher.click();
     await page.getByRole('option', { name: 'English' }).click();
     await expect(skipNav).toHaveAttribute('aria-label', 'Skip navigation');
+    await expect(loginSubmit).toHaveText('Sign in');
 
     const storedEn = await page.evaluate(() => localStorage.getItem('umi_locale'));
     expect(storedEn).toBe('en-US');
 
     await page.reload();
     await expect(skipNav).toHaveAttribute('aria-label', 'Skip navigation');
+    await expect(loginSubmit).toHaveText('Sign in');
 
     await switcher.click();
     await page.getByRole('option', { name: '中文' }).click();
     await expect(skipNav).toHaveAttribute('aria-label', '跳过导航');
+    await expect(loginSubmit).toHaveText(/登\s*录/);
 
     const storedZh = await page.evaluate(() => localStorage.getItem('umi_locale'));
     expect(storedZh).toBe('zh-CN');
