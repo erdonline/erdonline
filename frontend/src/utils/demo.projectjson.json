@@ -591,49 +591,49 @@
                 "id": "sys_user",
                 "title": "sys_user",
                 "x": 40,
-                "y": 56
-              },
-              {
-                "id": "sys_role",
-                "title": "sys_role",
-                "x": 308,
-                "y": 40
+                "y": 72
               },
               {
                 "id": "sys_user_role",
                 "title": "sys_user_role",
-                "x": 576,
-                "y": 56
+                "x": 280,
+                "y": 220
               },
               {
-                "id": "sys_permission",
-                "title": "sys_permission",
-                "x": 308,
-                "y": 324
+                "id": "sys_role",
+                "title": "sys_role",
+                "x": 480,
+                "y": 140
               },
               {
                 "id": "sys_role_permission",
                 "title": "sys_role_permission",
-                "x": 576,
-                "y": 324
+                "x": 480,
+                "y": 340
+              },
+              {
+                "id": "sys_permission",
+                "title": "sys_permission",
+                "x": 680,
+                "y": 340
               },
               {
                 "id": "sys_session",
                 "title": "sys_session",
-                "x": 844,
-                "y": 32
+                "x": 880,
+                "y": 48
               },
               {
                 "id": "sys_audit_log",
                 "title": "sys_audit_log",
-                "x": 844,
-                "y": 340
+                "x": 880,
+                "y": 280
               },
               {
                 "id": "biz_order",
                 "title": "biz_order",
-                "x": 1112,
-                "y": 100
+                "x": 1080,
+                "y": 160
               }
             ]
           },
@@ -642,10 +642,10 @@
               "id": "f_subject",
               "name": "主体",
               "color": "rgba(47, 143, 123, 0.10)",
-              "x": 16,
-              "y": 32,
-              "w": 288,
-              "h": 360,
+              "x": 20,
+              "y": 52,
+              "w": 280,
+              "h": 308,
               "memberEntityIds": [
                 "sys_user"
               ]
@@ -654,10 +654,10 @@
               "id": "f_rbac",
               "name": "RBAC",
               "color": "rgba(11, 28, 44, 0.06)",
-              "x": 284,
-              "y": 16,
-              "w": 556,
-              "h": 616,
+              "x": 260,
+              "y": 120,
+              "w": 680,
+              "h": 484,
               "memberEntityIds": [
                 "sys_role",
                 "sys_permission",
@@ -669,10 +669,10 @@
               "id": "f_session_audit",
               "name": "会话审计",
               "color": "rgba(212, 136, 6, 0.10)",
-              "x": 820,
-              "y": 8,
-              "w": 288,
-              "h": 640,
+              "x": 860,
+              "y": 28,
+              "w": 280,
+              "h": 516,
               "memberEntityIds": [
                 "sys_session",
                 "sys_audit_log"
@@ -682,10 +682,10 @@
               "id": "f_biz",
               "name": "业务",
               "color": "rgba(222, 41, 16, 0.08)",
-              "x": 1088,
-              "y": 76,
-              "w": 288,
-              "h": 332,
+              "x": 1060,
+              "y": 140,
+              "w": 280,
+              "h": 284,
               "memberEntityIds": [
                 "biz_order"
               ]
@@ -700,49 +700,49 @@
               {
                 "id": "sys_user",
                 "title": "sys_user",
-                "x": 100,
+                "x": 120,
                 "y": 24
               },
               {
                 "id": "sys_session",
                 "title": "sys_session",
-                "x": 24,
-                "y": 340
+                "x": 40,
+                "y": 300
               },
               {
                 "id": "sys_audit_log",
                 "title": "sys_audit_log",
-                "x": 292,
-                "y": 340
+                "x": 320,
+                "y": 300
               },
               {
                 "id": "biz_order",
                 "title": "biz_order",
-                "x": 100,
-                "y": 640
+                "x": 180,
+                "y": 560
               },
               {
                 "id": "sys_role",
                 "title": "sys_role",
-                "x": 600,
-                "y": 32
+                "x": 640,
+                "y": 40
               },
               {
                 "id": "sys_permission",
                 "title": "sys_permission",
-                "x": 600,
+                "x": 640,
                 "y": 280
               },
               {
                 "id": "sys_user_role",
                 "title": "sys_user_role",
-                "x": 868,
-                "y": 56
+                "x": 880,
+                "y": 60
               },
               {
                 "id": "sys_role_permission",
                 "title": "sys_role_permission",
-                "x": 868,
+                "x": 880,
                 "y": 300
               }
             ]
@@ -752,10 +752,10 @@
               "id": "f2_subject",
               "name": "主体",
               "color": "rgba(47, 143, 123, 0.10)",
-              "x": 76,
-              "y": 0,
-              "w": 288,
-              "h": 360,
+              "x": 100,
+              "y": 4,
+              "w": 280,
+              "h": 284,
               "memberEntityIds": [
                 "sys_user"
               ]
@@ -764,10 +764,10 @@
               "id": "f2_session_audit",
               "name": "会话审计",
               "color": "rgba(212, 136, 6, 0.10)",
-              "x": 0,
-              "y": 316,
-              "w": 556,
-              "h": 332,
+              "x": 20,
+              "y": 280,
+              "w": 560,
+              "h": 260,
               "memberEntityIds": [
                 "sys_session",
                 "sys_audit_log"
@@ -777,10 +777,10 @@
               "id": "f2_biz",
               "name": "业务",
               "color": "rgba(222, 41, 16, 0.08)",
-              "x": 76,
-              "y": 616,
-              "w": 288,
-              "h": 332,
+              "x": 160,
+              "y": 540,
+              "w": 280,
+              "h": 284,
               "memberEntityIds": [
                 "biz_order"
               ]
@@ -789,10 +789,10 @@
               "id": "f2_rbac",
               "name": "RBAC",
               "color": "rgba(11, 28, 44, 0.06)",
-              "x": 576,
-              "y": 8,
-              "w": 556,
-              "h": 560,
+              "x": 620,
+              "y": 20,
+              "w": 520,
+              "h": 524,
               "memberEntityIds": [
                 "sys_role",
                 "sys_permission",
@@ -808,42 +808,42 @@
           {
             "id": "sys_user",
             "x": 40,
-            "y": 56
-          },
-          {
-            "id": "sys_role",
-            "x": 308,
-            "y": 40
+            "y": 72
           },
           {
             "id": "sys_user_role",
-            "x": 576,
-            "y": 56
+            "x": 280,
+            "y": 220
           },
           {
-            "id": "sys_permission",
-            "x": 308,
-            "y": 324
+            "id": "sys_role",
+            "x": 480,
+            "y": 140
           },
           {
             "id": "sys_role_permission",
-            "x": 576,
-            "y": 324
-          },
-          {
-            "id": "sys_session",
-            "x": 844,
-            "y": 32
-          },
-          {
-            "id": "sys_audit_log",
-            "x": 844,
+            "x": 480,
             "y": 340
           },
           {
+            "id": "sys_permission",
+            "x": 680,
+            "y": 340
+          },
+          {
+            "id": "sys_session",
+            "x": 880,
+            "y": 48
+          },
+          {
+            "id": "sys_audit_log",
+            "x": 880,
+            "y": 280
+          },
+          {
             "id": "biz_order",
-            "x": 1112,
-            "y": 100
+            "x": 1080,
+            "y": 160
           }
         ],
         "edges": []

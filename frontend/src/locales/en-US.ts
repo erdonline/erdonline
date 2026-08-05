@@ -346,6 +346,32 @@ export default {
   'share.tables.col.module': 'Module',
   'share.tables.col.table': 'Table',
   'share.tables.col.fields': 'Fields',
+  'share.empty.noTables': 'No tables in this module',
+  'share.badge.pk': 'PK',
+  'share.badge.fk': 'FK',
+  'share.frame.groupAria': 'Group {name}',
+  'share.frame.tableCount': '{count} tables',
+  'share.minimap.aria': 'Canvas minimap',
+
+  // Public demo seed (/s/public-demo) render-layer i18n
+  'demo.project.name': 'AuthZ Demo',
+  'demo.project.description':
+    'RBAC demo: users, roles, permissions, sessions, audit logs, and business orders',
+  'demo.module.AUTHZ': 'Authorization',
+  'demo.diagram.main': 'Auth Core',
+  'demo.diagram.d_session': 'Sessions & Audit',
+  'demo.group.subject': 'Subject',
+  'demo.group.rbac': 'RBAC',
+  'demo.group.sessionAudit': 'Session & Audit',
+  'demo.group.business': 'Business',
+  'demo.entity.sys_user': 'User',
+  'demo.entity.sys_role': 'Role',
+  'demo.entity.sys_permission': 'Permission',
+  'demo.entity.sys_user_role': 'User Role',
+  'demo.entity.sys_role_permission': 'Role Permission',
+  'demo.entity.sys_session': 'Login Session',
+  'demo.entity.sys_audit_log': 'Audit Log',
+  'demo.entity.biz_order': 'Business Order',
 
   // OAuth consent page
   'oauth.skipLabel': 'Skip to consent actions',

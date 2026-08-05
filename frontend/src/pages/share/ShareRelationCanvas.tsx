@@ -7,7 +7,13 @@ import ReactFlow, {
   Node,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
+import {useIntl} from '@umijs/max';
 import {erdColors} from '@/theme/tokens';
+import {
+  demoEntityChnname,
+  demoGroupName,
+  isPublicDemoShare,
+} from '@/utils/demoShareI18n';
 import {
   DiagramFrame,
   frameNodeId,
@@ -66,9 +72,21 @@ function fkFieldsByEntity(associations: Association[]): Map<string, string[]> {
   return map;
 }
 
-const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: string[] }>> = React.memo(
+type ReadOnlyTableNodeData = {
+  entity: EntityData;
+  fkFields?: string[];
+  localizeEntity?: boolean;
+};
+
+const ReadOnlyTableNode: React.FC<NodeProps<ReadOnlyTableNodeData>> = React.memo(
   ({data, selected}) => {
+    const intl = useIntl();
     const entity = data.entity;
+    const pkLabel = intl.formatMessage({ id: 'share.badge.pk' });
+    const fkLabel = intl.formatMessage({ id: 'share.badge.fk' });
+    const displayChnname = data.localizeEntity
+      ? demoEntityChnname(intl, entity.title, entity.chnname)
+      : entity.chnname;
     // 与设计器对齐：隐藏 relationNoShow，截图更密（ADR-0016）
     const fields = (entity.fields || []).filter((f) => !f.relationNoShow);
     const fkSet = useMemo(() => new Set(data.fkFields || []), [data.fkFields]);
@@ -76,7 +94,7 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
       <div className={`erd-table-node${selected ? ' selected' : ''}`}>
         <div className="erd-table-header">
           <span className="erd-table-title">{entity.title}</span>
-          {entity.chnname ? <span className="erd-table-chnname">{entity.chnname}</span> : null}
+          {displayChnname ? <span className="erd-table-chnname">{displayChnname}</span> : null}
         </div>
         <div className="erd-table-fields">
           {fields.map((f) => (
@@ -93,10 +111,10 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
               <Handle type="target" id={`${f.name}-tgt-l`} position={Position.Left} className="erd-field-handle erd-handle-tgt"/>
               <span className="erd-field-name">
                 {f.pk ? (
-                  <span className="erd-pk-badge active" title="主键" aria-label="主键">PK</span>
+                  <span className="erd-pk-badge active" title={pkLabel} aria-label={pkLabel}>{pkLabel}</span>
                 ) : null}
                 {fkSet.has(f.name) ? (
-                  <span className="erd-fk-badge" title="外键" aria-label="外键">FK</span>
+                  <span className="erd-fk-badge" title={fkLabel} aria-label={fkLabel}>{fkLabel}</span>
                 ) : null}
                 {f.name}
               </span>
@@ -111,8 +129,17 @@ const ReadOnlyTableNode: React.FC<NodeProps<{ entity: EntityData; fkFields?: str
   },
 );
 
-const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.memo(({data}) => {
+type ReadOnlyFrameNodeData = {
+  frame: DiagramFrame;
+  localizeFrame?: boolean;
+};
+
+const ReadOnlyFrameNode: React.FC<NodeProps<ReadOnlyFrameNodeData>> = React.memo(({data}) => {
+  const intl = useIntl();
   const f = data.frame;
+  const frameName = data.localizeFrame ? demoGroupName(intl, f.id, f.name) : f.name;
+  const memberCount = f.memberEntityIds?.length || 0;
+  const frameGroupLabel = intl.formatMessage({ id: 'share.frame.groupAria' }, { name: frameName });
   return (
     <div
       className="erd-frame-node"
@@ -123,12 +150,14 @@ const ReadOnlyFrameNode: React.FC<NodeProps<{ frame: DiagramFrame }>> = React.me
         height: '100%',
         background: f.color || erdColors.frameFill,
       }}
-      aria-label={`分组 ${f.name}`}
+      aria-label={frameGroupLabel}
     >
       <div className="erd-frame-chrome">
-        <div className="erd-frame-label">{f.name}</div>
-        {(f.memberEntityIds?.length || 0) > 0 ? (
-          <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+        <div className="erd-frame-label">{frameName}</div>
+        {memberCount > 0 ? (
+          <div className="erd-frame-meta">
+            {intl.formatMessage({ id: 'share.frame.tableCount' }, { count: memberCount })}
+          </div>
         ) : null}
       </div>
     </div>
@@ -143,6 +172,7 @@ function layoutNodes(
   associations: Association[],
   layout: { id: string; x?: number; y?: number }[],
   frames: DiagramFrame[] = [],
+  localizeDemo = false,
 ): Node[] {
   const {positions} = resolveEntityPositions(entities, associations, layout);
   const fkMap = fkFieldsByEntity(associations);
@@ -152,7 +182,7 @@ function layoutNodes(
     zIndex: 0,
     position: {x: f.x, y: f.y},
     style: {width: f.w, height: f.h, zIndex: 0},
-    data: {frame: f},
+    data: {frame: f, localizeFrame: localizeDemo},
     draggable: false,
     selectable: false,
     connectable: false,
@@ -162,7 +192,7 @@ function layoutNodes(
     type: 'table',
     zIndex: 2,
     position: positions[e.title] || {x: 0, y: 0},
-    data: {entity: e, fkFields: fkMap.get(e.title) || []},
+    data: {entity: e, fkFields: fkMap.get(e.title) || [], localizeEntity: localizeDemo},
     draggable: false,
     connectable: false,
   }));
@@ -173,9 +203,13 @@ export type ShareRelationCanvasProps = {
   module: ModuleData;
   /** 多关系图 id；缺省主图（listDiagrams[0]） */
   diagramId?: string | null;
+  /** public-demo 等已知种子：渲染层走 i18n 映射 */
+  shareToken?: string | null;
 };
 
-const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagramId}) => {
+const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagramId, shareToken}) => {
+  const intl = useIntl();
+  const localizeDemo = isPublicDemoShare(shareToken);
   const {nodes, edges} = useMemo(() => {
     const entities = module.entities || [];
     const associations = module.associations || [];
@@ -183,14 +217,14 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
     const frames = getActiveDiagramFrames(module, diagramId);
     const {positions} = resolveEntityPositions(entities, associations, layout);
     return {
-      nodes: layoutNodes(entities, associations, layout, frames),
+      nodes: layoutNodes(entities, associations, layout, frames, localizeDemo),
       edges: associationsToEdges(associations, {positions}),
     };
-  }, [module, diagramId]);
+  }, [module, diagramId, localizeDemo]);
 
   const tableCount = nodes.filter((n) => n.type === 'table').length;
   if (!tableCount) {
-    return <ShareEmptyState message="该模块暂无表" />;
+    return <ShareEmptyState message={intl.formatMessage({ id: 'share.empty.noTables' })} />;
   }
 
   // key：切图时 remount → fitView 铺满；高度由 .share-page__stage flex 铺满视口（ADR-0016）
@@ -222,7 +256,7 @@ const ShareRelationCanvas: React.FC<ShareRelationCanvasProps> = ({module, diagra
         <ErdMiniMap
           pannable
           zoomable
-          ariaLabel="画布缩略图"
+          ariaLabel={intl.formatMessage({ id: 'share.minimap.aria' })}
           nodeColor={erdColors.surface}
           nodeStrokeColor={erdColors.line}
           nodeStrokeWidth={1.5}
