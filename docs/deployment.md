@@ -304,7 +304,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
-| `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true`；**联邦首次建号也走此门控** |
+| `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true`（2026-08-05 前 prod 该逃生阀因 YAML 字面量覆盖失效，见 R-CFG-07，现已修复）；**联邦首次建号也走此门控**；确认生效看后端日志 `federate rejected open register ... allow-open-register=...`（拒绝时打印，不含密钥） |
 | `GITHUB_CLIENT_ID` / `GITHUB_CLIENT_SECRET` / `GITHUB_REDIRECT_URI` | 通常不设 | ADR-0021：GitHub OAuth App；三项齐才启用；回调例 `https://API/auth/federate/github/callback` |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` / `GOOGLE_REDIRECT_URI` | 通常不设 | ADR-0021：Google OIDC 登录；三项齐才启用；回调例 `https://API/auth/federate/google/callback` |
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |

@@ -329,6 +329,7 @@
 - [x] [注册放行] 匿名 `POST /ncnb/project/group/user/register`（body: username/pwd/email/phone）→ 非 401（dev `allow-open-register=true`）✅curl
 - [x] [R-AUTH-06 单入口] 匿名 `POST /user/register` → 401（不再 ignore / 无 HTTP 映射）；产品路径仍匿名可达 ✅curl + `RemoteSystemUserHttpContractTest`
 - [x] [R-AUTH-06 门控] `allow-open-register=false` → 注册 `code=403` 且不 insert ✅`UserExtensionServiceImplRegisterGateTest`
+- [x] [R-CFG-07 prod 逃生阀] `SPRING_PROFILES_ACTIVE=prod` + `ERD_ALLOW_OPEN_REGISTER=true`/`ERD_ALLOW_DEMO_ADMIN=true` → 加载真实 `application.yml`+`application-prod.yml` 后 `erd.security.allow-open-register`/`allow-demo-admin` 生效值为 `true`；`ERD_E2E_ACCOUNTS_ENABLED=true` 在 prod 仍恒为 `false`（无逃生阀）✅`ProdSecurityEscapeHatchBindingTest`
 - [x] [R-AUTH-01] 匿名 `GET /user/loadUserByUsername/admin` → 401；登录 `/auth/login` 仍 200 ✅curl + `RemoteSystemUserHttpContractTest`
 - [x] [R-AUTH-02] 无 `sys_user_*` 的已登录用户 `GET /user/page` → 401（AccessDenied）；admin `GET /user/page` → 200 且 JSON 无 `pwd`/`salt` ✅curl + `UserControllerAuthContractTest`
 - [x] [R-DATA-02 dataSourceId] `POST /ncnb/connector/ping` 含他人 `dataSourceId` → body `code=403`；自有 id 覆盖客户端伪账密；无 id raw `jdbc:h2` 仍拒 ✅curl + `ConnectorCredentialResolverTest`
