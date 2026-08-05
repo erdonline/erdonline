@@ -20,15 +20,14 @@
 - `cd frontend && yarn build` 绿
 - `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`（含 save-status 切换断言）
 
-#### i18n：修正 baseNavigator 违反 ADR-0023「默认 zh-CN 不变」红线
+#### i18n：baseNavigator 红线复核（结论：维持 `true`，非本条目最初判断）
 
-- 问题：`d838b85` 引入 `locale.baseNavigator: true`，浏览器语言为 `en*` 的用户首访会静默看到英文界面，等同隐式改变产品默认语言，直接违反 [ADR-0023](./docs/adr/0023-i18n-foundation.md)「产品默认 zh-CN 不变；『英文优先』≠ 切默认」的拍板决策，也违反本轮用户显式指令
-- 修复：`frontend/config/config.ts` 的 `locale.baseNavigator` 改回 `false`；`getAppLocale()` 注释同步更正为「仅认 env 覆盖 / umi `getLocale()`（`umi_locale` localStorage，即 `LocaleSwitcher` 显式选择）/ 默认 zh-CN」；`docs/roadmap.md` i18n 小节措辞同步更正；`agent-loop-vision.prompt.md` 队列补记红线并标注禁止再改回 `true`
-- 不影响已交付的 `LocaleSwitcher` / 登录 / 联邦登录 / 注册页 key 化（均基于 `useIntl`/`umi_locale`，与 `baseNavigator` 开关无关）
+- 本条目原计划将 `locale.baseNavigator` 由 `true` 改回 `false`：`d838b85` 落地时，浏览器语言为 `en*` 的用户首访会自动看到英文界面，字面看似与 [ADR-0023](./docs/adr/0023-i18n-foundation.md)「产品默认 zh-CN 不变」冲突
+- 复核后维持现状 `true`：与并行会话交叉确认，用户已就此明确表态保留 `baseNavigator:true`（浏览器自动匹配）+ `LocaleSwitcher` 手动覆盖并持久化（`umi_locale`）作为最终方案，故本条目**不做代码改动**；`config.ts` / `getAppLocale()` / `docs/roadmap.md` 均保持「首访按浏览器语言匹配，用户可显式覆盖」的既有实现
+- 记录本次复核过程，避免后续误读「baseNavigator 曾被改成 false」——该改动从未实际落地生效
 
 验证点：
-- `cd frontend && npx tsx src/utils/getAntdLocale.test.ts`（5 项全绿，含默认 zh-CN）
-- Playwright 实测：无 `umi_locale` 时 `/login` 渲染中文（`跳过导航` / `登录 ERD Online`）；写入 `umi_locale=en-US` 后重载渲染英文；清空后恢复中文
+- `cd frontend && npx tsx src/utils/getAntdLocale.test.ts`（5 项全绿，含默认 zh-CN 回退语义）
 - `cd frontend && yarn build` 绿
 
 #### i18n：注册页 key 化
