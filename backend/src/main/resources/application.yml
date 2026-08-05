@@ -160,6 +160,10 @@ erd:
     secret: ${JWT_SECRET:erd-online-dev-jwt-secret-change-me-32bytes!!}
     expires-in: ${JWT_EXPIRES_IN:43200}
     issuer: erd-online
+  # data_sources.username/password 落库加密密钥（R-DATA-06，AES-256-GCM）；
+  # 本地/dev 弱默认仅供 DX；prod 见 application-prod.yml 无默认 + DataSourceCredentialCipher 拒仓库串
+  datasource-secret:
+    key: ${ERD_DB_CONFIG_SECRET:erd-online-dev-datasource-secret-change-me-32bytes!!}
   security:
     e2e-accounts-enabled: ${ERD_E2E_ACCOUNTS_ENABLED:false}
     # 种子 admin/123456：dev profile 覆盖为 true；prod 强制 false

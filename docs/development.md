@@ -347,3 +347,4 @@ com.erdonline
 
 - **后端启动报连接 MySQL 失败**：确认 `colima status` 为 running，且 `docker-compose up -d mysql redis` 健康；勿与 brew MySQL 抢 3306
 - **前端登录 401**：确认后端已启动且数据库 `oauth_client_details` 表有 `client2` 记录
+- **`data_sources` 表 `username`/`password` 变成 `enc:v1:...` 乱码**：正常现象（R-DATA-06，AES-256-GCM 落库加密），API 仍返回明文；本地/dev 用仓库弱默认密钥无需任何配置；见 [security-model.md](./security-model.md#r-data-06)

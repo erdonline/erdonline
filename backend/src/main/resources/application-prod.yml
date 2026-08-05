@@ -14,6 +14,10 @@ erd:
     allow-open-register: ${ERD_ALLOW_OPEN_REGISTER:false}
   jwt:
     secret: ${JWT_SECRET}
+  # data_sources 加密密钥：强制环境注入，无仓库默认值；缺 ERD_DB_CONFIG_SECRET 时占位符解析失败（fail-fast）。
+  # 另见 DataSourceCredentialCipher：prod 拒绝 blank 与 application.yml 已知开发默认串。
+  datasource-secret:
+    key: ${ERD_DB_CONFIG_SECRET}
   # OIDC RSA：prod 由 OidcRsaKeySupport fail-fast（须 ERD_OIDC_RSA_PRIVATE_KEY /
   # ERD_OIDC_RSA_PRIVATE_KEY_PATH / ERD_OIDC_RSA_KEYSTORE_PATH）；无 YAML 弱默认
 
