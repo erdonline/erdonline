@@ -23,7 +23,7 @@ import DualLayerLegend from '@/components/DualLayerLegend';
 import PageSkeleton from '@/components/PageSkeleton';
 import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
 import { countChanges } from '@/utils/dualLayerTokens';
-import { history } from '@@/core/history';
+import { history, useIntl } from '@@/exports';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 
@@ -42,6 +42,7 @@ type VersionRow = {
 type DbOption = { name: string; value?: string; label?: string };
 
 const Version: React.FC = () => {
+  const intl = useIntl();
   const {
     synchronous,
     dbVersion,
@@ -95,7 +96,7 @@ const Version: React.FC = () => {
         setIsInitialized(true);
       } catch (error) {
         console.error('Error fetching database configs:', error);
-        message.error('获取数据源配置失败');
+        message.error(intl.formatMessage({ id: 'versionPage.error.fetchDbFailed' }));
         // 仍进入界面，允许快照保存
         versionDispatch.initDbs([]);
         await fetch(null, 1, pageSize);
@@ -106,7 +107,7 @@ const Version: React.FC = () => {
     };
 
     initializeDatabases();
-  }, [versionDispatch, fetch, pageSize]);
+  }, [versionDispatch, fetch, pageSize, intl]);
 
   const handleDbChange = useCallback(
     async (value: { value: string; label: string } | undefined) => {
@@ -166,35 +167,42 @@ const Version: React.FC = () => {
     if (bookmarkCmp === null) {
       return (
         <Tag
-          title="版本号或数据源书签无法比较，不能推断推送状态；实库一致性请用「探测实库」"
+          title={intl.formatMessage({ id: 'versionPage.pushBookmark.unknown.title' })}
           color="default"
           data-testid="version-push-bookmark-unknown-tag"
         >
-          书签未知
+          {intl.formatMessage({ id: 'versionPage.pushBookmark.unknown.label' })}
         </Tag>
       );
     }
     if (bookmarkCmp) {
       return (
         <Tag
-          title="版本号书签：该版本曾推送到数据源；实库一致性请用「探测实库」"
+          title={intl.formatMessage({ id: 'versionPage.pushBookmark.pushed.title' })}
           color="blue"
           data-testid="version-push-bookmark-tag"
         >
-          已推送
+          {intl.formatMessage({ id: 'versionPage.pushBookmark.pushed.label' })}
         </Tag>
       );
     }
     if (synchronous[row.version]) {
-      return <Tag title="正在推送到数据源" color="lime">推送中</Tag>;
+      return (
+        <Tag
+          title={intl.formatMessage({ id: 'versionPage.pushBookmark.syncing.title' })}
+          color="lime"
+        >
+          {intl.formatMessage({ id: 'versionPage.pushBookmark.syncing.label' })}
+        </Tag>
+      );
     }
     return (
       <Tag
-        title="版本号高于数据源书签，尚未推送；不代表实库 schema 状态"
+        title={intl.formatMessage({ id: 'versionPage.pushBookmark.notPushed.title' })}
         color="default"
         data-testid="version-not-pushed-tag"
       >
-        未推送
+        {intl.formatMessage({ id: 'versionPage.pushBookmark.notPushed.label' })}
       </Tag>
     );
   };
@@ -214,9 +222,11 @@ const Version: React.FC = () => {
           <div
             className="version-row-tags"
             data-testid="version-tags"
-            aria-label="版本标签"
+            aria-label={intl.formatMessage({ id: 'versionPage.row.tagsAria' })}
           >
-            <span className="version-row-tags__label">标签</span>
+            <span className="version-row-tags__label">
+              {intl.formatMessage({ id: 'versionPage.row.tagsLabel' })}
+            </span>
             <Space size={[4, 4]} wrap>
               {tags.map((t: string) => (
                 <Tag
@@ -235,9 +245,11 @@ const Version: React.FC = () => {
           <div
             className="version-row-changes"
             data-testid="version-change-summary"
-            aria-label="变更摘要"
+            aria-label={intl.formatMessage({ id: 'versionPage.row.changesAria' })}
           >
-            <span className="version-row-changes__label">变更</span>
+            <span className="version-row-changes__label">
+              {intl.formatMessage({ id: 'versionPage.row.changesLabel' })}
+            </span>
             <span className="version-row-changes__text">
               {add > 0 && <span className="version-row-changes__add">+{add}</span>}
               {del > 0 && <span className="version-row-changes__del">−{del}</span>}
@@ -259,7 +271,7 @@ const Version: React.FC = () => {
         {unsynced ? (
           <CompareVersion
             type={CompareVersionType.DETAIL}
-            buttonLabel="提交工单"
+            buttonLabel={intl.formatMessage({ id: 'versionPage.action.submitOrder' })}
             testId="version-submit-order-btn"
           />
         ) : (
@@ -296,14 +308,14 @@ const Version: React.FC = () => {
     <div data-testid="version-empty-filter">
       <Empty
         image={Empty.PRESENTED_IMAGE_SIMPLE}
-        description="无匹配标签的版本"
+        description={intl.formatMessage({ id: 'versionPage.empty.filter' })}
       />
     </div>
   ) : (
     <div data-testid="version-empty">
       <Empty
         image={Empty.PRESENTED_IMAGE_SIMPLE}
-        description="还没有版本"
+        description={intl.formatMessage({ id: 'versionPage.empty.noVersions' })}
       >
         <Access
           accessible={access.canErdHisprojectAdd}
@@ -311,7 +323,7 @@ const Version: React.FC = () => {
         >
           <AddVersion
             trigger="empty"
-            label="保存第一个版本"
+            label={intl.formatMessage({ id: 'versionPage.empty.saveFirst' })}
             testId="version-empty-save-btn"
           />
         </Access>
@@ -329,34 +341,34 @@ const Version: React.FC = () => {
               size="small"
               icon={<ArrowLeftOutlined />}
               onClick={goBackToModel}
-              aria-label="返回模型"
+              aria-label={intl.formatMessage({ id: 'versionPage.nav.backToModelAria' })}
               data-testid="version-back-to-model"
             >
-              返回模型
+              {intl.formatMessage({ id: 'versionPage.nav.backToModel' })}
             </Button>
             <Space size={4} className="version-page__trust-nav" wrap>
               <Button
                 type="link"
                 size="small"
                 onClick={() => goVersionSub('order')}
-                aria-label="我的工单"
+                aria-label={intl.formatMessage({ id: 'versionPage.nav.myOrdersAria' })}
                 data-testid="version-nav-orders"
               >
-                我的工单
+                {intl.formatMessage({ id: 'versionPage.nav.myOrders' })}
               </Button>
               <Button
                 type="link"
                 size="small"
                 onClick={() => goVersionSub('approval')}
-                aria-label="我的审批"
+                aria-label={intl.formatMessage({ id: 'versionPage.nav.myApprovalsAria' })}
                 data-testid="version-nav-approvals"
               >
-                我的审批
+                {intl.formatMessage({ id: 'versionPage.nav.myApprovals' })}
               </Button>
             </Space>
             {dbs.length === 0 && (
               <span className="version-page__hint">
-                未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步时再在设置中添加 JDBC。
+                {intl.formatMessage({ id: 'versionPage.hint.noDatasource' })}
               </span>
             )}
           </div>
@@ -370,7 +382,9 @@ const Version: React.FC = () => {
               />
               <DualLayerLegend />
               <Space size={4}>
-                <span className="version-page__toolbar-label">数据源</span>
+                <span className="version-page__toolbar-label">
+                  {intl.formatMessage({ id: 'versionPage.toolbar.datasource' })}
+                </span>
                 <DataSourceSelect
                   value={selectedDB}
                   onChange={handleDbChange}
@@ -384,12 +398,12 @@ const Version: React.FC = () => {
               <Input
                 allowClear
                 size="small"
-                placeholder="按标签筛选"
+                placeholder={intl.formatMessage({ id: 'versionPage.toolbar.tagFilterPlaceholder' })}
                 value={tagFilter}
                 onChange={(e) => setTagFilter(e.target.value)}
                 style={{ width: 140 }}
                 data-testid="version-tag-filter"
-                aria-label="按标签筛选"
+                aria-label={intl.formatMessage({ id: 'versionPage.toolbar.tagFilterAria' })}
               />
               <Access
                 accessible={access.canErdHisprojectAdd}

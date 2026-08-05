@@ -606,6 +606,39 @@ export default {
   'designTable.tab.code': 'Metadata apps',
   'designTable.tab.trigger': 'Triggers',
 
+  // Designer version page (empty states / tag filter / push bookmark / toolbar)
+  'versionPage.error.fetchDbFailed': 'Failed to load datasource configuration',
+  'versionPage.pushBookmark.unknown.title':
+    'Version or datasource bookmark cannot be compared; push status unknown. Use “Probe live DB” for schema parity.',
+  'versionPage.pushBookmark.unknown.label': 'Bookmark unknown',
+  'versionPage.pushBookmark.pushed.title':
+    'Bookmark: this version was pushed to the datasource. Use “Probe live DB” for schema parity.',
+  'versionPage.pushBookmark.pushed.label': 'Pushed',
+  'versionPage.pushBookmark.syncing.title': 'Pushing to datasource',
+  'versionPage.pushBookmark.syncing.label': 'Pushing',
+  'versionPage.pushBookmark.notPushed.title':
+    'Version is ahead of the datasource bookmark and not pushed yet; does not reflect live schema state.',
+  'versionPage.pushBookmark.notPushed.label': 'Not pushed',
+  'versionPage.row.tagsAria': 'Version tags',
+  'versionPage.row.tagsLabel': 'Tags',
+  'versionPage.row.changesAria': 'Change summary',
+  'versionPage.row.changesLabel': 'Changes',
+  'versionPage.action.submitOrder': 'Submit order',
+  'versionPage.empty.filter': 'No versions match this tag filter',
+  'versionPage.empty.noVersions': 'No versions yet',
+  'versionPage.empty.saveFirst': 'Save first version',
+  'versionPage.nav.backToModelAria': 'Back to model',
+  'versionPage.nav.backToModel': 'Back to model',
+  'versionPage.nav.myOrdersAria': 'My orders',
+  'versionPage.nav.myOrders': 'My orders',
+  'versionPage.nav.myApprovalsAria': 'My approvals',
+  'versionPage.nav.myApprovals': 'My approvals',
+  'versionPage.hint.noDatasource':
+    'No datasource configured: use “Add version” to save a model snapshot (no DDL sync). Add JDBC in settings when you need sync.',
+  'versionPage.toolbar.datasource': 'Datasource',
+  'versionPage.toolbar.tagFilterPlaceholder': 'Filter by tag',
+  'versionPage.toolbar.tagFilterAria': 'Filter by tag',
+
   // HomeLayout main nav route names
   'homeLayout.route.home': 'Home',
   'homeLayout.route.dataModels': 'Data models',
