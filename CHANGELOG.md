@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### UI：输入类控件 focus 环全局柔化（Plan A · 保留 brand 主色）
+
+- **范围**：工作台主题页 Input / Select / TextArea 的 focus 描边与光晕；按钮/链接/Tab 等交互仍保留 `--erd-brand` focus-visible 环
+- **改法**：`theme/tokens.ts` 为 Input/Select 覆写 `hoverBorderColor` / `activeBorderColor` / `activeShadow` 为中性灰；`css-vars.less` 新增 `--erd-control-focus-outline` / `--erd-control-focus-shadow`；Home/Design/Group/Auth 壳与账号设置页将 input/select/textarea 的 `:focus-visible` 从 brand 改为中性 outline
+- **保留**：`--erd-brand` / `colorPrimary` 不变；invalid 态仍走 antd `colorError` 红环
+- 验证点：
+  - `cd frontend && yarn build` 绿
+  - `yarn test:e2e --project=chromium tests/e2e/group-keyboard.spec.ts --grep "focus-visible"` 绿（按钮 brand 环未回归）
+  - `yarn test:e2e --project=chromium tests/e2e/common-tabs-keyboard.spec.ts --grep "focus-visible"` 绿
+
 #### UI：版本页移除顶栏「返回模型 / 我的工单 / 我的审批」入口
 
 - **范围**：设计器版本列表页（`/design/table/version/all`）`version-page__bar` 内三个 link 按钮；侧栏与顶栏主 tab 导航不变

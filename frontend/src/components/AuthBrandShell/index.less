@@ -58,10 +58,14 @@
   button:focus-visible,
   [role='button']:focus-visible,
   [role='link']:focus-visible,
-  input:focus-visible,
-  .ant-input:focus-visible,
   [tabindex]:not([tabindex='-1']):focus-visible {
     outline: 2px solid var(--erd-brand);
+    outline-offset: 2px;
+  }
+
+  input:focus-visible,
+  .ant-input:focus-visible {
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: 2px;
   }
 

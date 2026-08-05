@@ -33,6 +33,14 @@ export const erdColors = {
   brandA18: 'rgba(222, 41, 16, 0.18)',
 } as const;
 
+/** 输入类控件 focus — 中性灰环/描边；invalid 仍走 antd colorError */
+export const erdControlFocus = {
+  border: erdColors.ink400,
+  borderHover: erdColors.ink600,
+  shadow: '0 0 0 2px rgba(11, 28, 44, 0.08)',
+  outline: erdColors.ink400,
+} as const;
+
 /** 新建 Frame 按序轮换；demo 分组同序 */
 export const FRAME_COLOR_PALETTE = [
   erdColors.frameFill,
@@ -80,9 +88,15 @@ export const erdTheme: ThemeConfig = {
     },
     Input: {
       borderRadius: 6,
+      hoverBorderColor: erdControlFocus.borderHover,
+      activeBorderColor: erdControlFocus.border,
+      activeShadow: erdControlFocus.shadow,
     },
     Select: {
       borderRadius: 6,
+      hoverBorderColor: erdControlFocus.borderHover,
+      activeBorderColor: erdControlFocus.border,
+      activeShadow: erdControlFocus.shadow,
     },
     Card: {
       borderRadiusLG: 8,

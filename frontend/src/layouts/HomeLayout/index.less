@@ -61,11 +61,15 @@
   [role='menuitem']:focus-visible,
   .erd-chrome-user:focus-visible,
   .ant-menu .ant-menu-item:focus-visible,
-  input:focus-visible,
-  select:focus-visible,
-  textarea:focus-visible,
   [tabindex]:not([tabindex='-1']):focus-visible {
     outline: 2px solid var(--erd-brand);
+    outline-offset: 2px;
+  }
+
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: 2px;
   }
 
