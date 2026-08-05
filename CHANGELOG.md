@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：双人协作离开补枪不覆写对方落库 E2E（Vision #31 · ADR-0022）
+
+- 缺口：#28–#30 均为单 context 个人项目；未覆盖团队项目双人同屏时 A 落库失败离开补枪不得静默覆写 B 已落库改动
+- 改动：`leave-designer-save.spec.ts` 复用 `sync-toast.spec.ts` 双 browser context（owner + peer）；B 建模块落盘 → A 409 刷新对齐 → 阻断 A `group/save` → A 失败编辑后离开补枪 → 断言 B 仍见 T_TABLE_1、无 T_TABLE_2、reload 后可续编落盘
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #31 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/leave-designer-save.spec.ts --grep "A 落库失败离开后"`
+
 #### 可信保存：beforeunload + 落库失败草稿守卫 E2E（Vision #30 · ADR-0022）
 
 - 缺口：#28/#29 覆盖 SPA 内链离开（`closeSocket` 补枪）；未覆盖浏览器级离开（reload / 关页）时 `useProjectDraftGuard` 不覆写失败态草稿
