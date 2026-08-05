@@ -50,11 +50,11 @@ test.describe('在线演示', () => {
     await expect(page.getByTestId('rf__node-sys_user')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_role')).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_permission')).toBeVisible();
-    // 8 表 + 主图 4 Frame（主体 / RBAC / 会话审计 / 业务）
+    // 8 表 + 主图 2 Frame（dagre 分层烘焙包围盒，非手排语义框：关联与明细 / 核心实体，ADR-0016 修订）
     await expect(page.locator('.react-flow__node-table')).toHaveCount(8, { timeout: 15_000 });
-    await expect(page.getByTestId('diagram-frame')).toHaveCount(4);
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' })).toBeVisible();
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: '主体' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame')).toHaveCount(2);
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: '核心实体' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: '关联与明细' })).toBeVisible();
     // ADR-0016：Frame 色板走 erd token（禁 Ant 蓝 37,99,235）
     const frameBgs = await page.getByTestId('diagram-frame').evaluateAll((els) =>
       els.map((el) => getComputedStyle(el).backgroundColor),
@@ -69,7 +69,7 @@ test.describe('在线演示', () => {
     // ADR-0016：Frame 标题扫读（label 12/700 vs muted meta；chrome ≤22）
     const frameLook = await page
       .getByTestId('diagram-frame')
-      .filter({ hasText: 'RBAC' })
+      .filter({ hasText: '核心实体' })
       .locator('.erd-frame-chrome')
       .evaluate((el) => {
         const label = el.querySelector('.erd-frame-label');
@@ -90,7 +90,7 @@ test.describe('在线演示', () => {
         };
       });
     expect(frameLook).not.toBeNull();
-    expect(frameLook!.labelText).toBe('RBAC');
+    expect(frameLook!.labelText).toBe('核心实体');
     expect(frameLook!.chromeH, `Frame chrome 应 ≤22px，得 ${frameLook!.chromeH}`).toBeLessThanOrEqual(22);
     expect(frameLook!.chromeH).toBeGreaterThanOrEqual(18);
     expect(frameLook!.padX).toBeGreaterThanOrEqual(8);
@@ -156,11 +156,12 @@ test.describe('在线演示', () => {
     });
     await page
       .getByTestId('diagram-frame')
-      .filter({ hasText: 'RBAC' })
+      .filter({ hasText: '核心实体' })
       .screenshot({
         path: 'test-results/ux-walkthrough/demo-frame-title-hierarchy.png',
       });
-    // ADR-0016：主图手排更密 — 节点 flow x 跨度 <1100（列间距 ~28px）
+    // ADR-0016 修订：主图改 dagre TB 分层（5 表宽的关联/明细行 + 3 表宽的核心实体行），
+    // x 跨度取决于最宽一行的列数而非手排密度，允许更宽区间——核心是「无重叠」而非「够密」
     const spanX = await page.locator('.react-flow__node-table').evaluateAll((els) => {
       const xs = els
         .map((el) => {
@@ -172,8 +173,8 @@ test.describe('在线演示', () => {
         .filter((n) => Number.isFinite(n));
       return Math.max(...xs) - Math.min(...xs);
     });
-    expect(spanX, `主图节点 x 跨度应更密，得 ${spanX}`).toBeLessThan(1100);
-    expect(spanX).toBeGreaterThan(900);
+    expect(spanX, `主图节点 x 跨度应符合 5 列 dagre 分层，得 ${spanX}`).toBeGreaterThan(1200);
+    expect(spanX).toBeLessThan(1500);
     // ADR-0016：分享只读隐藏 relationNoShow（与设计器同密）
     await expect(
       page.getByTestId('rf__node-sys_user').getByText('del_flag'),
@@ -413,7 +414,7 @@ test.describe('在线演示', () => {
       return m ? Number(m[1]) : NaN;
     });
     await switcher.scrollIntoViewIfNeeded();
-    await switcher.getByText('会话与审计', { exact: true }).click();
+    await switcher.getByText('纵向视图', { exact: true }).click();
     await expect(page.getByTestId('rf__node-sys_user')).toBeVisible({ timeout: 10_000 });
     const xAlt = await page.getByTestId('rf__node-sys_user').evaluate((el) => {
       const m = (el as HTMLElement).style.transform.match(/translate\(([-\d.]+)px/);
@@ -421,7 +422,7 @@ test.describe('在线演示', () => {
     });
     expect(Number.isFinite(xMain) && Number.isFinite(xAlt)).toBeTruthy();
     expect(xAlt, `切图后 layout 应变（main=${xMain} alt=${xAlt}）`).not.toBe(xMain);
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: '会话审计' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: '核心实体' })).toBeVisible();
     await page.getByTestId('share-relation-canvas').screenshot({
       path: 'test-results/ux-walkthrough/demo-share-diagram-switch.png',
     });
@@ -489,14 +490,16 @@ test.describe('在线演示', () => {
     await page.getByRole('option', { name: 'English' }).click();
 
     await expect(page.getByText('AuthZ Demo').first()).toBeVisible({ timeout: 10_000 });
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Subject' })).toBeVisible();
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Session & Audit' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Core Entities' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Associations & Detail' })).toBeVisible();
     await expect(page.getByTestId('rf__node-sys_user').locator('.erd-table-chnname')).toHaveText('User');
     await expect(page.getByTestId('diagram-switcher')).toContainText('Auth Core');
 
     const tablesToggle = page.getByRole('button', { name: /Show table list/i });
     await tablesToggle.click();
     await expect(page.getByText('8 tables total')).toBeVisible();
-    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' }).getByText('4 tables')).toBeVisible();
+    await expect(
+      page.getByTestId('diagram-frame').filter({ hasText: 'Associations & Detail' }).getByText('5 tables'),
+    ).toBeVisible();
   });
 });

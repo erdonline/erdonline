@@ -3,14 +3,10 @@ import type { IntlShape } from '@umijs/max';
 export const PUBLIC_DEMO_TOKEN = 'public-demo';
 
 const DEMO_GROUP_KEYS: Record<string, string> = {
-  f_subject: 'demo.group.subject',
-  f_rbac: 'demo.group.rbac',
-  f_session_audit: 'demo.group.sessionAudit',
-  f_biz: 'demo.group.business',
-  f2_subject: 'demo.group.subject',
-  f2_rbac: 'demo.group.rbac',
-  f2_session_audit: 'demo.group.sessionAudit',
-  f2_biz: 'demo.group.business',
+  f_detail: 'demo.group.detail',
+  f_core: 'demo.group.core',
+  f2_detail: 'demo.group.detail',
+  f2_core: 'demo.group.core',
 };
 
 const DEMO_DIAGRAM_KEYS: Record<string, string> = {

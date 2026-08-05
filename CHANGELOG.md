@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### 修复：public-demo 布局改用 dagre 算法生成，弃手排 x/y（用户反馈 `7bbcbfa` 手排重叠失败）
+
+- **根因**：`7bbcbfa` 手排布局的估算节点高度与真实字段数不符，导致 `sys_role_permission` 被邻居遮挡、`sys_user_role` 与相邻卡重叠、Frame 手感画框未按真实包围盒算，边穿卡、1:n 标签落在绕线上——用户反馈截图证实（见对比图）
+- **改法**：不新写布局算法，产品设计器/DBML 导入早已有的 `frontend/src/utils/graphLayout.ts`（dagre 分层 + `estimateNodeHeight` 按真实字段数算高）本就是唯一真相源；新增一次性生成脚本 `frontend/scripts/gen-demo-layout.ts` 调用同一 `dagrePositions()`，对 8 表 + 7 关联重算坐标（主图 TB 分层、第二视图 LR 分层），并用 `diagram.ts` 的 `computeFrameBoundsFromNodes()` 按 dagre 分层结果（rank）聚类后烘焙 Frame 包围盒（自动跳过任何会侵入非成员节点的候选框）——Frame 不再是手感画的语义框（主体/RBAC/会话审计/业务 4 个），改成贴合布局真相的 2 个「关联与明细」「核心实体」
+- **落地**：`schema/examples/demo.projectjson.json` 重写 → `node scripts/sync-demo-projectjson.mjs`（脚本改指向新增 Flyway，V16 已上线不可覆写）→ 新增 `V17__public_demo_layout_dagre.sql`；i18n 键随 Frame 改名同步（`demo.group.subject/rbac/sessionAudit/business` → `demo.group.detail/core`；`demo.diagram.d_session` 「会话与审计」→「纵向视图」，因第二视图已是通用备选朝向非会话叙事）
+- **回归测试**：`graphLayout.test.ts` 新增「demo 主图坐标来自 dagre 重算结果」（回归到手排会挂）+「主图/会话图节点两两不重叠」（真实字段高度矩形 AABB 断言，代替过时的手排 x 跨度魔数）
+- 验证点：
+  - `./backend/dev-ensure.sh --restart` 后 `flyway_schema_history` 见 `17 | public demo layout dagre | 1`
+  - `cd frontend && npx tsx src/utils/graphLayout.test.ts` 全绿（含新增两条重叠回归）
+  - `cd frontend && yarn playwright test tests/e2e/demo.spec.ts --project=chromium` 2 passed
+  - Playwright MCP 打开 `http://localhost:8000/s/public-demo` 截图核对：8 表两两不重叠、边不穿卡、Frame 边界贴合成员、1:n 标签落在直段上（对比 `7bbcbfa` 截图有明显改善）
+
 #### 演示：public-demo 关系图布局优化 + 分享页 i18n
 
 - **布局**：真相源 `schema/examples/demo.projectjson.json` 主图改为左→右叙事列——`sys_user`（主体）→ 中间表 `sys_user_role`/`sys_role_permission` 夹在实体之间 → RBAC 链 → 会话/审计 → 业务；junction 不再堆在 RBAC 区右侧，减少长绕线与交叉；第二图「会话与审计」独立手排；Frame 包围盒同步烘焙；Flyway `V16__public_demo_layout.sql` 增量更新已有库

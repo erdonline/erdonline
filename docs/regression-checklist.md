@@ -234,7 +234,8 @@
 
 - [ ] [旧项目打开] 仅有 `graphCanvas`、无 `diagrams` 的项目 → 打开画布见主关系图，拖动后 projectJSON 出现 `diagrams[0]`
 - [x] [分享页] 含 `diagrams` 的项目分享链接 → 只读画布用主图布局 ✅`demo.spec.ts`（/demo）
-- [x] [分享只读切图] `/demo` 见 `diagram-switcher`「鉴权核心」→ 选「会话与审计」→ `sys_user` layout x 变 + Frame「会话审计」；截图 `demo-share-diagram-switch.png` ✅`demo.spec.ts`
+- [x] [分享只读切图] `/demo` 见 `diagram-switcher`「鉴权核心」→ 选「纵向视图」→ `sys_user` layout x 变 + Frame「核心实体」；截图 `demo-share-diagram-switch.png` ✅`demo.spec.ts`
+- [x] [demo 布局无重叠] `/s/public-demo` 8 表卡片两两不重叠、边不穿卡（dagre 分层替代手排 x/y，用户反馈 `7bbcbfa` 手排失败）✅`graphLayout.test.ts`「节点两两不重叠」+ Playwright 截图人工核对
 - [x] [分享画布视口铺满] `/demo` `share-relation-canvas` 高 >480 且占视口过半、贴近视口底；截图 `demo-share-canvas-viewport.png` ✅`demo.spec.ts`
 
 ## 图内分组 Frame / ADR-0017 Phase 2b（2026-08-02）

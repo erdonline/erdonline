@@ -8,170 +8,577 @@
           "title": "sys_user",
           "chnname": "用户",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "username", "chnname": "登录名", "type": "MiddleString", "notNull": true },
-            { "name": "password_hash", "chnname": "密码哈希", "type": "LongString", "notNull": true },
-            { "name": "email", "chnname": "邮箱", "type": "MiddleString" },
-            { "name": "display_name", "chnname": "显示名", "type": "MiddleString" },
-            { "name": "status", "chnname": "状态", "type": "Char", "notNull": true, "defaultValue": "'1'" },
-            { "name": "del_flag", "chnname": "删除标识", "type": "Char", "defaultValue": "'0'", "relationNoShow": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" },
-            { "name": "update_time", "chnname": "更新时间", "type": "DateTime" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "username",
+              "chnname": "登录名",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "password_hash",
+              "chnname": "密码哈希",
+              "type": "LongString",
+              "notNull": true
+            },
+            {
+              "name": "email",
+              "chnname": "邮箱",
+              "type": "MiddleString"
+            },
+            {
+              "name": "display_name",
+              "chnname": "显示名",
+              "type": "MiddleString"
+            },
+            {
+              "name": "status",
+              "chnname": "状态",
+              "type": "Char",
+              "notNull": true,
+              "defaultValue": "'1'"
+            },
+            {
+              "name": "del_flag",
+              "chnname": "删除标识",
+              "type": "Char",
+              "defaultValue": "'0'",
+              "relationNoShow": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "chnname": "更新时间",
+              "type": "DateTime"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_user_username", "isUnique": true, "fields": ["username"] },
-            { "name": "idx_sys_user_email", "isUnique": false, "fields": ["email"] }
+            {
+              "name": "uk_sys_user_username",
+              "isUnique": true,
+              "fields": [
+                "username"
+              ]
+            },
+            {
+              "name": "idx_sys_user_email",
+              "isUnique": false,
+              "fields": [
+                "email"
+              ]
+            }
           ]
         },
         {
           "title": "sys_role",
           "chnname": "角色",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "code", "chnname": "角色编码", "type": "MiddleString", "notNull": true },
-            { "name": "name", "chnname": "角色名称", "type": "MiddleString", "notNull": true },
-            { "name": "remark", "chnname": "备注", "type": "LongString" },
-            { "name": "status", "chnname": "状态", "type": "Char", "notNull": true, "defaultValue": "'1'" },
-            { "name": "del_flag", "chnname": "删除标识", "type": "Char", "defaultValue": "'0'", "relationNoShow": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "code",
+              "chnname": "角色编码",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "name",
+              "chnname": "角色名称",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "remark",
+              "chnname": "备注",
+              "type": "LongString"
+            },
+            {
+              "name": "status",
+              "chnname": "状态",
+              "type": "Char",
+              "notNull": true,
+              "defaultValue": "'1'"
+            },
+            {
+              "name": "del_flag",
+              "chnname": "删除标识",
+              "type": "Char",
+              "defaultValue": "'0'",
+              "relationNoShow": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_role_code", "isUnique": true, "fields": ["code"] }
+            {
+              "name": "uk_sys_role_code",
+              "isUnique": true,
+              "fields": [
+                "code"
+              ]
+            }
           ]
         },
         {
           "title": "sys_permission",
           "chnname": "权限",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "code", "chnname": "权限编码", "type": "MiddleString", "notNull": true },
-            { "name": "name", "chnname": "权限名称", "type": "MiddleString", "notNull": true },
-            { "name": "resource_type", "chnname": "资源类型", "type": "ShortString", "notNull": true, "defaultValue": "'api'" },
-            { "name": "resource_path", "chnname": "资源路径", "type": "LongString" },
-            { "name": "action", "chnname": "动作", "type": "ShortString", "notNull": true, "defaultValue": "'read'" },
-            { "name": "del_flag", "chnname": "删除标识", "type": "Char", "defaultValue": "'0'", "relationNoShow": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "code",
+              "chnname": "权限编码",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "name",
+              "chnname": "权限名称",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "resource_type",
+              "chnname": "资源类型",
+              "type": "ShortString",
+              "notNull": true,
+              "defaultValue": "'api'"
+            },
+            {
+              "name": "resource_path",
+              "chnname": "资源路径",
+              "type": "LongString"
+            },
+            {
+              "name": "action",
+              "chnname": "动作",
+              "type": "ShortString",
+              "notNull": true,
+              "defaultValue": "'read'"
+            },
+            {
+              "name": "del_flag",
+              "chnname": "删除标识",
+              "type": "Char",
+              "defaultValue": "'0'",
+              "relationNoShow": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_permission_code", "isUnique": true, "fields": ["code"] }
+            {
+              "name": "uk_sys_permission_code",
+              "isUnique": true,
+              "fields": [
+                "code"
+              ]
+            }
           ]
         },
         {
           "title": "sys_user_role",
           "chnname": "用户角色",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "user_id", "chnname": "用户ID", "type": "IdOrKey", "notNull": true },
-            { "name": "role_id", "chnname": "角色ID", "type": "IdOrKey", "notNull": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "chnname": "用户ID",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "role_id",
+              "chnname": "角色ID",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_user_role", "isUnique": true, "fields": ["user_id", "role_id"] },
-            { "name": "idx_sys_user_role_role", "isUnique": false, "fields": ["role_id"] }
+            {
+              "name": "uk_sys_user_role",
+              "isUnique": true,
+              "fields": [
+                "user_id",
+                "role_id"
+              ]
+            },
+            {
+              "name": "idx_sys_user_role_role",
+              "isUnique": false,
+              "fields": [
+                "role_id"
+              ]
+            }
           ]
         },
         {
           "title": "sys_role_permission",
           "chnname": "角色权限",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "role_id", "chnname": "角色ID", "type": "IdOrKey", "notNull": true },
-            { "name": "permission_id", "chnname": "权限ID", "type": "IdOrKey", "notNull": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "role_id",
+              "chnname": "角色ID",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "permission_id",
+              "chnname": "权限ID",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_role_permission", "isUnique": true, "fields": ["role_id", "permission_id"] },
-            { "name": "idx_sys_role_perm_perm", "isUnique": false, "fields": ["permission_id"] }
+            {
+              "name": "uk_sys_role_permission",
+              "isUnique": true,
+              "fields": [
+                "role_id",
+                "permission_id"
+              ]
+            },
+            {
+              "name": "idx_sys_role_perm_perm",
+              "isUnique": false,
+              "fields": [
+                "permission_id"
+              ]
+            }
           ]
         },
         {
           "title": "sys_session",
           "chnname": "登录会话",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "user_id", "chnname": "用户ID", "type": "IdOrKey", "notNull": true },
-            { "name": "token", "chnname": "会话令牌", "type": "LongString", "notNull": true },
-            { "name": "client_ip", "chnname": "客户端IP", "type": "ShortString" },
-            { "name": "user_agent", "chnname": "UA", "type": "LongString" },
-            { "name": "expire_time", "chnname": "过期时间", "type": "DateTime", "notNull": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "chnname": "用户ID",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "token",
+              "chnname": "会话令牌",
+              "type": "LongString",
+              "notNull": true
+            },
+            {
+              "name": "client_ip",
+              "chnname": "客户端IP",
+              "type": "ShortString"
+            },
+            {
+              "name": "user_agent",
+              "chnname": "UA",
+              "type": "LongString"
+            },
+            {
+              "name": "expire_time",
+              "chnname": "过期时间",
+              "type": "DateTime",
+              "notNull": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "uk_sys_session_token", "isUnique": true, "fields": ["token"] },
-            { "name": "idx_sys_session_user", "isUnique": false, "fields": ["user_id"] }
+            {
+              "name": "uk_sys_session_token",
+              "isUnique": true,
+              "fields": [
+                "token"
+              ]
+            },
+            {
+              "name": "idx_sys_session_user",
+              "isUnique": false,
+              "fields": [
+                "user_id"
+              ]
+            }
           ]
         },
         {
           "title": "sys_audit_log",
           "chnname": "审计日志",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "user_id", "chnname": "操作用户", "type": "IdOrKey" },
-            { "name": "action", "chnname": "动作", "type": "MiddleString", "notNull": true },
-            { "name": "resource", "chnname": "资源", "type": "MiddleString" },
-            { "name": "detail", "chnname": "详情", "type": "LongText" },
-            { "name": "success", "chnname": "是否成功", "type": "YesNo", "notNull": true, "defaultValue": "'1'" },
-            { "name": "create_time", "chnname": "发生时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "chnname": "操作用户",
+              "type": "IdOrKey"
+            },
+            {
+              "name": "action",
+              "chnname": "动作",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "resource",
+              "chnname": "资源",
+              "type": "MiddleString"
+            },
+            {
+              "name": "detail",
+              "chnname": "详情",
+              "type": "LongText"
+            },
+            {
+              "name": "success",
+              "chnname": "是否成功",
+              "type": "YesNo",
+              "notNull": true,
+              "defaultValue": "'1'"
+            },
+            {
+              "name": "create_time",
+              "chnname": "发生时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            }
           ],
           "indexs": [
-            { "name": "idx_sys_audit_user_action", "isUnique": false, "fields": ["user_id", "action"] },
-            { "name": "idx_sys_audit_time", "isUnique": false, "fields": ["create_time"] }
+            {
+              "name": "idx_sys_audit_user_action",
+              "isUnique": false,
+              "fields": [
+                "user_id",
+                "action"
+              ]
+            },
+            {
+              "name": "idx_sys_audit_time",
+              "isUnique": false,
+              "fields": [
+                "create_time"
+              ]
+            }
           ]
         },
         {
           "title": "biz_order",
           "chnname": "业务订单",
           "fields": [
-            { "name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true },
-            { "name": "order_no", "chnname": "订单号", "type": "MiddleString", "notNull": true },
-            { "name": "user_id", "chnname": "下单用户", "type": "IdOrKey", "notNull": true },
-            { "name": "amount", "chnname": "金额", "type": "Money", "notNull": true, "defaultValue": "0" },
-            { "name": "status", "chnname": "订单状态", "type": "ShortString", "notNull": true, "defaultValue": "'created'" },
-            { "name": "del_flag", "chnname": "删除标识", "type": "Char", "defaultValue": "'0'", "relationNoShow": true },
-            { "name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP" },
-            { "name": "update_time", "chnname": "更新时间", "type": "DateTime" }
+            {
+              "name": "id",
+              "chnname": "主键",
+              "type": "IdOrKey",
+              "pk": true,
+              "notNull": true
+            },
+            {
+              "name": "order_no",
+              "chnname": "订单号",
+              "type": "MiddleString",
+              "notNull": true
+            },
+            {
+              "name": "user_id",
+              "chnname": "下单用户",
+              "type": "IdOrKey",
+              "notNull": true
+            },
+            {
+              "name": "amount",
+              "chnname": "金额",
+              "type": "Money",
+              "notNull": true,
+              "defaultValue": "0"
+            },
+            {
+              "name": "status",
+              "chnname": "订单状态",
+              "type": "ShortString",
+              "notNull": true,
+              "defaultValue": "'created'"
+            },
+            {
+              "name": "del_flag",
+              "chnname": "删除标识",
+              "type": "Char",
+              "defaultValue": "'0'",
+              "relationNoShow": true
+            },
+            {
+              "name": "create_time",
+              "chnname": "创建时间",
+              "type": "DateTime",
+              "defaultValue": "CURRENT_TIMESTAMP"
+            },
+            {
+              "name": "update_time",
+              "chnname": "更新时间",
+              "type": "DateTime"
+            }
           ],
           "indexs": [
-            { "name": "uk_biz_order_no", "isUnique": true, "fields": ["order_no"] },
-            { "name": "idx_biz_order_user", "isUnique": false, "fields": ["user_id"] }
+            {
+              "name": "uk_biz_order_no",
+              "isUnique": true,
+              "fields": [
+                "order_no"
+              ]
+            },
+            {
+              "name": "idx_biz_order_user",
+              "isUnique": false,
+              "fields": [
+                "user_id"
+              ]
+            }
           ]
         }
       ],
       "associations": [
         {
           "relation": "1:n",
-          "from": { "entity": "sys_user_role", "field": "user_id" },
-          "to": { "entity": "sys_user", "field": "id" }
+          "from": {
+            "entity": "sys_user_role",
+            "field": "user_id"
+          },
+          "to": {
+            "entity": "sys_user",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "sys_user_role", "field": "role_id" },
-          "to": { "entity": "sys_role", "field": "id" }
+          "from": {
+            "entity": "sys_user_role",
+            "field": "role_id"
+          },
+          "to": {
+            "entity": "sys_role",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "sys_role_permission", "field": "role_id" },
-          "to": { "entity": "sys_role", "field": "id" }
+          "from": {
+            "entity": "sys_role_permission",
+            "field": "role_id"
+          },
+          "to": {
+            "entity": "sys_role",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "sys_role_permission", "field": "permission_id" },
-          "to": { "entity": "sys_permission", "field": "id" }
+          "from": {
+            "entity": "sys_role_permission",
+            "field": "permission_id"
+          },
+          "to": {
+            "entity": "sys_permission",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "sys_session", "field": "user_id" },
-          "to": { "entity": "sys_user", "field": "id" }
+          "from": {
+            "entity": "sys_session",
+            "field": "user_id"
+          },
+          "to": {
+            "entity": "sys_user",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "sys_audit_log", "field": "user_id" },
-          "to": { "entity": "sys_user", "field": "id" }
+          "from": {
+            "entity": "sys_audit_log",
+            "field": "user_id"
+          },
+          "to": {
+            "entity": "sys_user",
+            "field": "id"
+          }
         },
         {
           "relation": "1:n",
-          "from": { "entity": "biz_order", "field": "user_id" },
-          "to": { "entity": "sys_user", "field": "id" }
+          "from": {
+            "entity": "biz_order",
+            "field": "user_id"
+          },
+          "to": {
+            "entity": "sys_user",
+            "field": "id"
+          }
         }
       ],
       "diagrams": [
@@ -180,61 +587,86 @@
           "name": "鉴权核心",
           "layout": {
             "nodes": [
-              { "id": "sys_user", "title": "sys_user", "x": 40, "y": 72 },
-              { "id": "sys_user_role", "title": "sys_user_role", "x": 280, "y": 220 },
-              { "id": "sys_role", "title": "sys_role", "x": 480, "y": 140 },
-              { "id": "sys_role_permission", "title": "sys_role_permission", "x": 480, "y": 340 },
-              { "id": "sys_permission", "title": "sys_permission", "x": 680, "y": 340 },
-              { "id": "sys_session", "title": "sys_session", "x": 880, "y": 48 },
-              { "id": "sys_audit_log", "title": "sys_audit_log", "x": 880, "y": 280 },
-              { "id": "biz_order", "title": "biz_order", "x": 1080, "y": 160 }
+              {
+                "id": "sys_user",
+                "title": "sys_user",
+                "x": 468,
+                "y": 376
+              },
+              {
+                "id": "sys_role",
+                "title": "sys_role",
+                "x": 1060,
+                "y": 400
+              },
+              {
+                "id": "sys_permission",
+                "title": "sys_permission",
+                "x": 1356,
+                "y": 388
+              },
+              {
+                "id": "sys_user_role",
+                "title": "sys_user_role",
+                "x": 912,
+                "y": 60
+              },
+              {
+                "id": "sys_role_permission",
+                "title": "sys_role_permission",
+                "x": 1208,
+                "y": 60
+              },
+              {
+                "id": "sys_session",
+                "title": "sys_session",
+                "x": 616,
+                "y": 24
+              },
+              {
+                "id": "sys_audit_log",
+                "title": "sys_audit_log",
+                "x": 320,
+                "y": 24
+              },
+              {
+                "id": "biz_order",
+                "title": "biz_order",
+                "x": 24,
+                "y": 24
+              }
             ]
           },
           "groups": [
             {
-              "id": "f_subject",
-              "name": "主体",
-              "color": "rgba(47, 143, 123, 0.10)",
-              "x": 20,
-              "y": 52,
-              "w": 280,
-              "h": 308,
-              "memberEntityIds": ["sys_user"]
-            },
-            {
-              "id": "f_rbac",
-              "name": "RBAC",
+              "id": "f_detail",
+              "name": "关联与明细",
               "color": "rgba(11, 28, 44, 0.06)",
-              "x": 260,
-              "y": 120,
-              "w": 680,
-              "h": 484,
+              "x": 4,
+              "y": 4,
+              "w": 1464,
+              "h": 284,
               "memberEntityIds": [
-                "sys_role",
-                "sys_permission",
                 "sys_user_role",
-                "sys_role_permission"
+                "sys_role_permission",
+                "sys_session",
+                "sys_audit_log",
+                "biz_order"
               ]
             },
             {
-              "id": "f_session_audit",
-              "name": "会话审计",
-              "color": "rgba(212, 136, 6, 0.10)",
-              "x": 860,
-              "y": 28,
-              "w": 280,
-              "h": 516,
-              "memberEntityIds": ["sys_session", "sys_audit_log"]
-            },
-            {
-              "id": "f_biz",
-              "name": "业务",
-              "color": "rgba(222, 41, 16, 0.08)",
-              "x": 1060,
-              "y": 140,
-              "w": 280,
-              "h": 284,
-              "memberEntityIds": ["biz_order"]
+              "id": "f_core",
+              "name": "核心实体",
+              "color": "rgba(47, 143, 123, 0.10)",
+              "x": 448,
+              "y": 356,
+              "w": 1168,
+              "h": 308,
+              "memberEntityIds": [
+                "sys_user",
+                "sys_role",
+                "sys_permission"
+              ]
             }
           ]
         },
@@ -243,60 +675,85 @@
           "name": "会话与审计",
           "layout": {
             "nodes": [
-              { "id": "sys_user", "title": "sys_user", "x": 120, "y": 24 },
-              { "id": "sys_session", "title": "sys_session", "x": 40, "y": 300 },
-              { "id": "sys_audit_log", "title": "sys_audit_log", "x": 320, "y": 300 },
-              { "id": "biz_order", "title": "biz_order", "x": 180, "y": 560 },
-              { "id": "sys_role", "title": "sys_role", "x": 640, "y": 40 },
-              { "id": "sys_permission", "title": "sys_permission", "x": 640, "y": 280 },
-              { "id": "sys_user_role", "title": "sys_user_role", "x": 880, "y": 60 },
-              { "id": "sys_role_permission", "title": "sys_role_permission", "x": 880, "y": 300 }
+              {
+                "id": "sys_user",
+                "title": "sys_user",
+                "x": 372,
+                "y": 462
+              },
+              {
+                "id": "sys_role",
+                "title": "sys_role",
+                "x": 372,
+                "y": 1032
+              },
+              {
+                "id": "sys_permission",
+                "title": "sys_permission",
+                "x": 372,
+                "y": 1308
+              },
+              {
+                "id": "sys_user_role",
+                "title": "sys_user_role",
+                "x": 24,
+                "y": 942
+              },
+              {
+                "id": "sys_role_permission",
+                "title": "sys_role_permission",
+                "x": 24,
+                "y": 1200
+              },
+              {
+                "id": "sys_session",
+                "title": "sys_session",
+                "x": 24,
+                "y": 624
+              },
+              {
+                "id": "sys_audit_log",
+                "title": "sys_audit_log",
+                "x": 24,
+                "y": 324
+              },
+              {
+                "id": "biz_order",
+                "title": "biz_order",
+                "x": 24,
+                "y": 24
+              }
             ]
           },
           "groups": [
             {
-              "id": "f2_subject",
-              "name": "主体",
-              "color": "rgba(47, 143, 123, 0.10)",
-              "x": 100,
+              "id": "f2_detail",
+              "name": "关联与明细",
+              "color": "rgba(11, 28, 44, 0.06)",
+              "x": 4,
               "y": 4,
               "w": 280,
-              "h": 284,
-              "memberEntityIds": ["sys_user"]
-            },
-            {
-              "id": "f2_session_audit",
-              "name": "会话审计",
-              "color": "rgba(212, 136, 6, 0.10)",
-              "x": 20,
-              "y": 280,
-              "w": 560,
-              "h": 260,
-              "memberEntityIds": ["sys_session", "sys_audit_log"]
-            },
-            {
-              "id": "f2_biz",
-              "name": "业务",
-              "color": "rgba(222, 41, 16, 0.08)",
-              "x": 160,
-              "y": 540,
-              "w": 280,
-              "h": 284,
-              "memberEntityIds": ["biz_order"]
-            },
-            {
-              "id": "f2_rbac",
-              "name": "RBAC",
-              "color": "rgba(11, 28, 44, 0.06)",
-              "x": 620,
-              "y": 20,
-              "w": 520,
-              "h": 524,
+              "h": 1388,
               "memberEntityIds": [
-                "sys_role",
-                "sys_permission",
                 "sys_user_role",
-                "sys_role_permission"
+                "sys_role_permission",
+                "sys_session",
+                "sys_audit_log",
+                "biz_order"
+              ]
+            },
+            {
+              "id": "f2_core",
+              "name": "核心实体",
+              "color": "rgba(47, 143, 123, 0.10)",
+              "x": 352,
+              "y": 442,
+              "w": 280,
+              "h": 1130,
+              "memberEntityIds": [
+                "sys_user",
+                "sys_role",
+                "sys_permission"
               ]
             }
           ]
@@ -304,14 +761,46 @@
       ],
       "graphCanvas": {
         "nodes": [
-          { "id": "sys_user", "x": 40, "y": 72 },
-          { "id": "sys_user_role", "x": 280, "y": 220 },
-          { "id": "sys_role", "x": 480, "y": 140 },
-          { "id": "sys_role_permission", "x": 480, "y": 340 },
-          { "id": "sys_permission", "x": 680, "y": 340 },
-          { "id": "sys_session", "x": 880, "y": 48 },
-          { "id": "sys_audit_log", "x": 880, "y": 280 },
-          { "id": "biz_order", "x": 1080, "y": 160 }
+          {
+            "id": "sys_user",
+            "x": 468,
+            "y": 376
+          },
+          {
+            "id": "sys_role",
+            "x": 1060,
+            "y": 400
+          },
+          {
+            "id": "sys_permission",
+            "x": 1356,
+            "y": 388
+          },
+          {
+            "id": "sys_user_role",
+            "x": 912,
+            "y": 60
+          },
+          {
+            "id": "sys_role_permission",
+            "x": 1208,
+            "y": 60
+          },
+          {
+            "id": "sys_session",
+            "x": 616,
+            "y": 24
+          },
+          {
+            "id": "sys_audit_log",
+            "x": 320,
+            "y": 24
+          },
+          {
+            "id": "biz_order",
+            "x": 24,
+            "y": 24
+          }
         ],
         "edges": []
       }
@@ -323,6 +812,11 @@
   },
   "dataTypeDomains": {
     "datatype": [],
-    "database": [{ "code": "MYSQL", "defaultDatabase": true }]
+    "database": [
+      {
+        "code": "MYSQL",
+        "defaultDatabase": true
+      }
+    ]
   }
 }

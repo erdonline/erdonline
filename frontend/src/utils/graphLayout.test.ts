@@ -9,6 +9,7 @@ import {
   FIELD_ROW_H,
   NODE_CHROME_H,
   NODE_FOOTER_H,
+  NODE_WIDTH,
   dagrePositions,
   estimateNodeHeight,
   graphCanvasNodesFromDagre,
@@ -121,16 +122,62 @@ async function main() {
     assert.equal(DAGRE_RANKSEP, 108);
   });
 
-  await run('demo 主图节点水平跨度更密（可分享截图）', () => {
-    const mod = (demoProject as { modules: Array<{ diagrams?: Array<{ id: string; layout?: { nodes?: Array<{ id: string; x: number; y: number }> } }> }> }).modules[0];
+  await run('demo 主图坐标来自 dagre（重跑生成脚本得到同一坐标，非手排）', () => {
+    type DemoEntity = { title: string; fields?: Array<{ name?: string; relationNoShow?: boolean }> };
+    type DemoAssoc = { from?: { entity?: string }; to?: { entity?: string } };
+    const mod = (demoProject as {
+      modules: Array<{
+        entities: DemoEntity[];
+        associations: DemoAssoc[];
+        diagrams?: Array<{ id: string; layout?: { nodes?: Array<{ id: string; x: number; y: number }> } }>;
+      }>;
+    }).modules[0];
     const main = mod.diagrams?.find((d) => d.id === 'main');
     const nodes = main?.layout?.nodes || [];
     assert.equal(nodes.length, 8);
-    const xs = nodes.map((n) => n.x);
-    const span = Math.max(...xs) - Math.min(...xs);
-    // 旧手排 1280 → 1136 → 1072（列间距 ~28px）
-    assert.ok(span < 1100, `主图 x 跨度应 <1100，得 ${span}`);
-    assert.ok(span >= 1000, `主图仍应铺满叙事列，得 ${span}`);
+    // 主图用 TB 分层（手排失败根因是估算高度与真实字段数不符 → 卡片重叠；这里用真实字段数重算）
+    const recomputed = dagrePositions(mod.entities, mod.associations, { rankdir: 'TB' });
+    nodes.forEach((n) => {
+      assert.deepEqual(
+        recomputed[n.id],
+        { x: n.x, y: n.y },
+        `${n.id} 坐标应等于 dagre 重算结果（回归到手排会在此挂）`,
+      );
+    });
+  });
+
+  await run('demo 主图/会话图节点两两不重叠（真实字段高度 × dagre 分层）', () => {
+    type DemoEntity = { title: string; fields?: Array<{ name?: string; relationNoShow?: boolean }> };
+    const mod = (demoProject as {
+      modules: Array<{
+        entities: DemoEntity[];
+        diagrams?: Array<{ id: string; layout?: { nodes?: Array<{ id: string; x: number; y: number }> } }>;
+      }>;
+    }).modules[0];
+    const entityByTitle = new Map(mod.entities.map((e) => [e.title, e]));
+    const rectOverlap = (
+      a: { x: number; y: number; w: number; h: number },
+      b: { x: number; y: number; w: number; h: number },
+    ) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+
+    mod.diagrams?.forEach((d) => {
+      const nodes = d.layout?.nodes || [];
+      const rects = nodes.map((n) => ({
+        id: n.id,
+        x: n.x,
+        y: n.y,
+        w: NODE_WIDTH,
+        h: estimateNodeHeight(entityByTitle.get(n.id)),
+      }));
+      for (let i = 0; i < rects.length; i += 1) {
+        for (let j = i + 1; j < rects.length; j += 1) {
+          assert.ok(
+            !rectOverlap(rects[i], rects[j]),
+            `diagram ${d.id}：${rects[i].id} 与 ${rects[j].id} 卡片重叠`,
+          );
+        }
+      }
+    });
   });
 
   console.log('graphLayout.test.ts OK');
