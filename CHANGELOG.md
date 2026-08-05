@@ -8,6 +8,13 @@
 
 ### 2026-08-05
 
+#### Vision loop：一致性/可信队列 #23–#32 闭环 → awaiting theme
+
+- 决策：`DesignLayout` 工作流/skip-nav i18n 已在 #6/`1c63853` 完成，不重复；Pull/Push（#16）仍须用户开闸；#23–#32 E2E 续跑已全部 ✅（末刀 `76d1a1a`）
+- 改动：`agent-loop-vision.prompt.md` 标记 awaiting theme + 下一刀开闸表；`roadmap.md` 同步 i18n/队列状态；`regression-checklist.md` 补 #32 双人 B localDirty 项
+
+验证点：grep `designLayout.workflow` 键存在；prompt/roadmap 无「下一刀 DesignLayout workflow」漂移
+
 #### 可信保存：双人协作 B localDirty 时离开补枪不覆写 E2E（Vision #32 · ADR-0022）
 
 - 缺口：#31 仅覆盖 B 已落盘（clean）态；未覆盖 B 含 localDirty（阻断 save）时 A 失败离开补枪不得静默覆写 B 已落库 + 未保存改动
