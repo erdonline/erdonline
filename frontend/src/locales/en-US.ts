@@ -584,6 +584,7 @@ export default {
 
   // Project list pages (personal / recent)
   'projectList.person.title': 'Personal projects',
+  'projectList.group.title': 'Team projects',
   'projectList.recent.title': 'Recent projects (personal + team)',
   'projectList.search.placeholder': 'Project name',
   'projectList.search.aria': 'Search by project name',
@@ -591,6 +592,19 @@ export default {
   'projectList.empty.description': 'No projects yet. Create one or try the example.',
   'projectList.empty.createNow': 'Create now',
   'projectList.empty.example': 'Try example',
+
+  // Designer table workspace (empty states + table design tabs)
+  'designTable.empty.noTab.title': 'No table open',
+  'designTable.empty.noTab.description':
+    'Open a diagram from the tree, or create your first table',
+  'designTable.empty.noModel.title': 'Welcome to data modeling',
+  'designTable.empty.noModel.descriptionPrefix': 'Create a model from the left tree, or',
+  'designTable.empty.noModel.reverseLink': 'reverse from a datasource',
+  'designTable.empty.fallback': 'Nothing here yet',
+  'designTable.tab.field': 'Fields',
+  'designTable.tab.index': 'Indexes',
+  'designTable.tab.code': 'Metadata apps',
+  'designTable.tab.trigger': 'Triggers',
 
   // HomeLayout main nav route names
   'homeLayout.route.home': 'Home',

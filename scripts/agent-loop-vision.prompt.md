@@ -84,7 +84,11 @@
 
 15. ~~Home 高流量页正文 key 化（Home 仪表盘 + 个人/最近项目列表）~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：Group/Design 剩余硬编码页面正文
+16. ~~Group/Design 高流量页正文 key 化（团队项目列表 + 设计器表工作区空态 + 表设计签）~~ ✅ 2026-08-05
+
+**i18n MVP 队列 #1–#16 已全部 ✅**
+
+**下一刀候选（ROI 序）**：Group 设置子页 / Design 版本页正文
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

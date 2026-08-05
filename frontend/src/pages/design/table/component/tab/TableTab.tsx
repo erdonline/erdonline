@@ -8,6 +8,7 @@ import {erdColors} from '@/theme/tokens';
 import React, {useCallback, useEffect, useState} from 'react';
 import {Tabs} from 'antd';
 import {TableOutlined} from '@ant-design/icons';
+import {useIntl} from '@@/exports';
 import './TableTab.less';
 
 const {TabPane} = Tabs;
@@ -19,6 +20,7 @@ export type TableTabProps = {
 };
 
 const TableTab: React.FC<TableTabProps> = (props) => {
+  const intl = useIntl();
   const {module, entity: entityName, designPane} = props.moduleEntity;
   const entity = useProjectStore(state =>
     state.project?.projectJSON?.modules
@@ -86,19 +88,19 @@ const TableTab: React.FC<TableTabProps> = (props) => {
         className="erd-table-design__tabs"
         data-testid="table-design-tabs"
       >
-        <TabPane key="field" tab="字段">
+        <TabPane key="field" tab={intl.formatMessage({id: 'designTable.tab.field'})}>
           <TableInfoEdit
             moduleEntity={props.moduleEntity}
             onOpenIndex={() => activatePane('index')}
           />
         </TabPane>
-        <TabPane key="index" tab="索引">
+        <TabPane key="index" tab={intl.formatMessage({id: 'designTable.tab.index'})}>
           <TableIndexEdit moduleEntity={props.moduleEntity} />
         </TabPane>
-        <TabPane key="code" tab="元数据应用">
+        <TabPane key="code" tab={intl.formatMessage({id: 'designTable.tab.code'})}>
           <CodeTab moduleEntity={props.moduleEntity} />
         </TabPane>
-        <TabPane key="trigger" tab="触发器">
+        <TabPane key="trigger" tab={intl.formatMessage({id: 'designTable.tab.trigger'})}>
           <TableTriggerEdit moduleEntity={props.moduleEntity} />
         </TabPane>
       </Tabs>

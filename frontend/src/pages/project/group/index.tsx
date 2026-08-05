@@ -1,5 +1,6 @@
 import {Avatar, Input, List, message, Space, Tag} from 'antd';
 import {useEffect, useState} from "react";
+import {useIntl} from '@@/exports';
 import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import AddProject from "@/components/dialog/project/AddProject";
 import OpenProject from "@/components/dialog/project/OpenProject";
@@ -25,6 +26,7 @@ type ProjectItem = {
 };
 
 export default () => {
+  const intl = useIntl();
 
   const [state, setState] = useState<ProjectListProps>({
     page: 1,
@@ -54,7 +56,7 @@ export default () => {
             }
           );
         } else {
-          message.error('获取项目信息失败');
+          message.error(intl.formatMessage({id: 'projectList.error.fetchFailed'}));
         }
       }
     }).finally(() => setListLoading(false));
@@ -71,15 +73,17 @@ export default () => {
         className="project-list-page__toolbar"
         data-testid="project-list-toolbar"
       >
-        <h2 className="project-list-page__title">团队项目</h2>
+        <h2 className="project-list-page__title">
+          {intl.formatMessage({id: 'projectList.group.title'})}
+        </h2>
         <Space wrap size={8}>
           <Input.Search
-            placeholder="项目名"
+            placeholder={intl.formatMessage({id: 'projectList.search.placeholder'})}
             allowClear
             onSearch={(value: string) => {
               searchProjects(fetchProjects, state, value);
             }}
-            aria-label="搜索项目名"
+            aria-label={intl.formatMessage({id: 'projectList.search.aria'})}
           />
           <AddProject fetchProjects={() => fetchProjects(null)} trigger="ant" type={2}/>
         </Space>

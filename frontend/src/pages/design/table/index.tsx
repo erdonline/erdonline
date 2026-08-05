@@ -7,8 +7,10 @@ import Relation from "@/pages/design/relation";
 import CommonTabs from '@/components/CommonTabs';
 import EmptyStateAnimation from '@/components/EmptyStateAnimation';
 import useProjectStore from "@/store/project/useProjectStore";
+import {useIntl} from '@@/exports';
 
 const Table: React.FC = () => {
+  const intl = useIntl();
   const tableTabs = useTabStore(state => state.tableTabs);
   const selectTabId = useTabStore(state => state.selectTabId);
   const tabDispatch = useTabStore(state => state.dispatch);
@@ -33,7 +35,9 @@ const Table: React.FC = () => {
       <div className="erd-pane-empty" data-testid="designer-pane-empty">
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={<span>这里空空如也</span>}
+          description={
+            <span>{intl.formatMessage({id: 'designTable.empty.fallback'})}</span>
+          }
         />
       </div>
     );
@@ -58,8 +62,8 @@ const Table: React.FC = () => {
     <Flex vertical className="erd-design-workspace" style={{ height: '100%', minHeight: 0, flex: 1 }}>
       <EmptyStateAnimation
         show={!selectTabId && modules && modules.length > 0}
-        title="还没有打开的表"
-        description="从左侧树打开关系图，或新建第一张表"
+        title={intl.formatMessage({id: 'designTable.empty.noTab.title'})}
+        description={intl.formatMessage({id: 'designTable.empty.noTab.description'})}
       >
         {modules && modules.length > 0 ? (
           <CommonTabs
@@ -72,11 +76,13 @@ const Table: React.FC = () => {
         ) : (
           <EmptyStateAnimation
             show={true}
-            title="欢迎使用数据建模工具"
+            title={intl.formatMessage({id: 'designTable.empty.noModel.title'})}
             description={
               <span>
-                从左侧创建一个模型，或{' '}
-                <a href="/design/table/import/reverse">从数据源逆向</a>
+                {intl.formatMessage({id: 'designTable.empty.noModel.descriptionPrefix'})}{' '}
+                <a href="/design/table/import/reverse">
+                  {intl.formatMessage({id: 'designTable.empty.noModel.reverseLink'})}
+                </a>
               </span>
             }
           />
