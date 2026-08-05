@@ -84,6 +84,19 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 
 JDBC 连接机密（url / username / password / driver）**不得**写入 `projectJSON`（[ADR-0008](./adr/0008-datasource-isolation.md)）。对外字段说明与兼容政策见 [data-format.md](./data-format.md)。
 
+## 数据源凭证加密（R-DATA-06）{#r-data-06}
+
+ADR-0008 把 JDBC 机密唯一事实源收敛到表 `data_sources` 后，该表本身仍以明文存 `username`/`password`。本节记录**落库加密**（决策见 [ADR-0024](./adr/0024-datasource-credential-encryption.md)）。
+
+- **算法**：AES-256-GCM，密钥 = `SHA-256(ERD_DB_CONFIG_SECRET)`；密文格式 `enc:v1:<base64(iv[12B]||ciphertext||tag)>`
+- **范围**：仅 `username`/`password`（真正机密）；`host`/`port`/`url`/`databaseName`/`driverClassName` 不加密（非机密，且部分需明文展示/编辑）
+- **加解密时机**：`DataSourcesServiceImpl`（`save`/`updateById`/`update`/`getById`/`list`/`page`，覆盖 `getPage`/`tree` 间接调用）落库前加密、取出后解密；`DataSourceAcl`（唯一绕过 Service 直查 `DataSourcesMapper` 的路径）同样解密后再返回，供 `ConnectorCredentialResolver` 取明文建连
+- **对上层透明**：Controller（`/ncnb/dataSources/**`）、前端表单、`ConnectorCredentialResolver`、`LocalNcnbDatabaseService` 均照常收发明文；**不**改变现有 API 响应结构（仍是已登录 owner 才能读到自己连接的明文密码，同改动前）
+- **向后兼容 / 渐进迁移**：`decrypt()` 对无 `enc:v1:` 前缀的存量明文直接透传（不报错）；用户下次编辑并保存该连接（表单 username/password 必填，天然会重新提交）时 `encrypt()` 自动补加密——无需一次性批量改写历史行，也无需下线维护
+- **密钥管理**：环境变量 `ERD_DB_CONFIG_SECRET`；本地/dev 允许仓库弱默认（`erd-online-dev-datasource-secret-change-me-32bytes!!`，同 `JWT_SECRET` 套路）；`prod` 缺该变量时占位符解析失败（fail-fast），`DataSourceCredentialCipher` 额外拒绝仍等于仓库默认值的情形
+- **密钥轮换代价**：换 `ERD_DB_CONFIG_SECRET` 会让旧密文全部不可解（`decrypt()` 抛 `IllegalStateException`，日志不含明文）；轮换前必须先用**旧密钥**把所有连接重新保存一遍（触发重新加密），或导出连接信息后用新密钥重建
+- **不做**：不加密 `projectJSON`/版本快照（ADR-0008 已确保其不含机密）；不引入 Jasypt/KMS（仓库规模用应用层 AES-GCM 已足够，见 [ADR-0024](./adr/0024-datasource-credential-encryption.md) 取舍）
+
 ## 已知风险（后端登记，2026-08-03）
 
 梳理范围：Spring Security / JWT / CORS / springdoc / datasource / Redis / 用户库 SQL 执行 / 上传 / admin / actuator / SocketIO / 密钥与 ignore-urls / 项目 ACL / 死配置。下列为**已核实**安全或生产风险（非泛 code smell）。级别：P0 公网可利用或密钥可预测；P1 需登录但横向越权/破坏面大；P2 收紧面或误导运维。
@@ -121,6 +134,7 @@ JDBC 连接机密（url / username / password / driver）**不得**写入 `proje
 | R-DATA-03 | P1 | ~~`GitlabController` 硬编码第三方账密~~ | ~~`GitlabController.java:41`~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Vo + `gitlab4j-api` 依赖 | 勿回挂 `/ci/**`；泄露口令视为已公开勿复用 |
 | R-DATA-04 | P1 | ~~`POST /project/upload` 无类型/归属校验~~ | ~~`ProjectController` / `GroupProjectController` / `WsController` 测试上传；`doc/uploadWordTemplate`~~ | **✅ 已关闭（2026-08-03）**：删除三处无归属测试上传；`WordTemplateGuard` 仅 `.docx` + 键前缀 `martin/projecterd/{projectId}/`；上传/下载/gendocx 经 `ProjectAcl` | 勿回挂匿名 OSS 写；自定义模板路径勿放开任意 bucket |
 | R-DATA-05 | P2 | ~~`TestJsonController` 样板 CRUD 仍暴露~~ | ~~`TestJsonController.java` + Service/Mapper/Entity~~ | **✅ 已关闭（2026-08-03）**：删除 Controller/Service/Impl/Mapper/Entity/`TestJsonMapper.xml`；无 ignore/FE 代理 | 勿回挂 `/testJson/**`；表 `test_json` 若残留可不删（delete-dead-code 表慎动） |
+| R-DATA-06 | P1 | ~~`data_sources.username`/`password` 明文入库~~ | ~~`DataSources` 实体 `varchar` 明文列~~ | **✅ 已关闭（2026-08-05）**：`DataSourceCredentialCipher`（AES-256-GCM，密文前缀 `enc:v1:`）在 `DataSourcesServiceImpl`（save/updateById/update/getById/list/page）与 `DataSourceAcl`（直查 mapper 路径）落库前加密、取出后解密；对 Controller/`ConnectorCredentialResolver`/前端透明（API 仍收发明文）；存量明文 `decrypt()` 透传，下次编辑保存自动补加密（渐进迁移，无需一次性批处理）；密钥 `ERD_DB_CONFIG_SECRET`，本地/dev 仓库弱默认，prod fail-fast 且拒绝仍用默认值 | 详见下方「数据源凭证加密」；轮换密钥前须先用旧密钥把全部连接重新保存一遍（否则旧密文不可解） |
 
 ### 运维可观测
 

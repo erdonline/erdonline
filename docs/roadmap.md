@@ -158,6 +158,7 @@
 - ~~SocketIO 9092 公网裸放说明（R-OPS-03）~~✅（deployment 防火墙约定）
 - ~~连接器 DNS 重绑定（R-DATA-02 残余：resolve 后再判 IMDS）~~✅（`JdbcUrlGuard` `getAllByName`；仍允 RFC1918）
 - ~~连接器 check→connect TOCTOU（R-DATA-02 残余：钉解析 IP）~~✅（`assertAllowedAndPin` → `AbstractDBCommand`/`JdbcKit`/`DynamicAspect`；仍允 RFC1918）
+- ~~`data_sources.username`/`password` 明文入库（R-DATA-06）~~✅（[ADR-0024](./adr/0024-datasource-credential-encryption.md)：`DataSourceCredentialCipher` AES-256-GCM 落库加密，`ERD_DB_CONFIG_SECRET` 密钥，存量明文渐进迁移；见 [security-model.md](./security-model.md#r-data-06)）
 - 下一刀：raw ping·reverse JDBC 面 / 贡献者路径（见 security-model R-DATA-02）
 ### 用户没说的缺口（主动补齐）📋
 

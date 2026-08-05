@@ -8,6 +8,19 @@
 
 ### 2026-08-05
 
+#### 安全：`data_sources.username`/`password` 落库加密（R-DATA-06 · ADR-0024）
+
+- **根因**：ADR-0008 把 JDBC 机密收敛到唯一事实源表 `data_sources` 后，该表本身仍以明文存 `username`/`password`——MySQL 备份/慢查询日志/拿到数据卷者可直接读到用户下游数据库口令
+- **改法**：新增 `DataSourceCredentialCipher`（AES-256-GCM，密文前缀 `enc:v1:`）；`DataSourcesServiceImpl`（覆盖 `save`/`updateById`/`update`/`getById`/`list`/`page`，间接覆盖 `getPage`/`tree`）与 `DataSourceAcl`（唯一绕过 Service 直查 mapper 的路径）落库前加密、取出后解密；Controller/`ConnectorCredentialResolver`/前端表单完全透明，仍收发明文，API 行为零变化
+- **向后兼容**：`decrypt()` 对无 `enc:v1:` 前缀的存量明文直接透传，不报错；用户下次编辑保存该连接（username/password 表单必填）时 `encrypt()` 自动补加密——渐进迁移，无需批量改写脚本或停机窗口
+- **密钥**：`ERD_DB_CONFIG_SECRET`（`erd.datasource-secret.key`），本地/dev 仓库弱默认，prod 缺失 fail-fast 且拒绝仍等于默认值（同 `JwtConfig` 套路）；已写入 `.env.example` / `docker-compose.yml`
+- **Schema**：新增 `V18__data_sources_credential_widen.sql`，把 `username` 加宽到 `varchar(255)`、`password` 加宽到 `varchar(500)`，覆盖密文膨胀（+base64 ~33% +28B +前缀）
+- 验证点：
+  - `DataSourceCredentialCipherTest`（13 例：roundtrip、IV 随机性、幂等、存量明文透传、篡改/错密钥抛异常、prod fail-fast）全绿
+  - `mvn test` 全量通过（唯一失败 `OracleReverseDialectCommentTest` 经 `git stash` 验证为 main 既有失败，与本改动无关）
+  - `curl` 手工验证：`POST /ncnb/dataSources` 后直查 MySQL 见 `password` 为 `enc:v1:...`；`GET /ncnb/dataSources/{id}` 与分页列表仍返回明文；手工插入明文行 → `GET` 可读 → `PATCH` 重新保存 → MySQL 中变为密文
+  - `./backend/dev-ensure.sh --restart` 后 `flyway_schema_history` 见 `18 | data sources credential widen | 1`
+
 #### 修复：public-demo 布局改用 dagre 算法生成，弃手排 x/y（用户反馈 `7bbcbfa` 手排重叠失败）
 
 - **根因**：`7bbcbfa` 手排布局的估算节点高度与真实字段数不符，导致 `sys_role_permission` 被邻居遮挡、`sys_user_role` 与相邻卡重叠、Frame 手感画框未按真实包围盒算，边穿卡、1:n 标签落在绕线上——用户反馈截图证实（见对比图）

@@ -3,6 +3,18 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 数据源凭证落库加密 / R-DATA-06 · ADR-0024（2026-08-05）
+
+- [x] [加解密 roundtrip] 明文→密文→明文一致；IV 随机不重复；篡改/错密钥抛异常 ✅`DataSourceCredentialCipherTest`
+- [x] [幂等加密] 已加密值再 `encrypt()` 不二次包裹 ✅`DataSourceCredentialCipherTest#encrypt_isIdempotent_doesNotDoubleEncrypt`
+- [x] [存量明文透传] 无 `enc:v1:` 前缀原样返回，不抛异常 ✅`DataSourceCredentialCipherTest#decrypt_legacyPlaintext_passesThroughUnchanged`
+- [x] [prod fail-fast] 空密钥 / 仍用仓库默认值 → 启动拒绝 ✅`DataSourceCredentialCipherTest#prodProfile_*`
+- [x] [落库为密文] `POST /ncnb/dataSources` 后直查 MySQL `password` 为 `enc:v1:...` ✅ curl + `docker exec mysql` 2026-08-05
+- [x] [API 仍收发明文] `GET /ncnb/dataSources/{id}` 与分页列表 `password`/`username` 为明文，与改动前一致 ✅ curl 2026-08-05
+- [x] [渐进迁移] 手工插入明文行 → `GET` 可读明文 → `PATCH` 重新保存 → MySQL 变为密文 ✅ curl 2026-08-05
+- [x] [ACL 路径同覆盖] `DataSourceAcl.requireOwned` 直查 mapper 路径同样解密，`ConnectorCredentialResolver` 建连仍拿明文 ✅`ConnectorCredentialResolverTest`（mock 层）+ 手工建连验证需求未变
+- [ ] [手工 dogfood] 设计器内新建/编辑数据库连接、测试连接、批量删除，UI 无回归（DatabaseConfigForm/index.tsx 未改动，仅后端加解密透明层）——建议下轮 Playwright UX 走查覆盖
+
 ## 联邦登录解绑重登 / ADR-0021（2026-08-05）
 
 - [x] [解绑物理删除] `unlink` 走 `physicalDeleteById` 而非 `deleteById` ✅`FederateUserServiceTest#unlink_isPhysicalDelete_notLogicalDeleteById`

@@ -28,3 +28,4 @@
 | [0021](./0021-idp-federation-google-wechat.md) | 第三方登录 IdP 联邦（GitHub + Google OIDC + 微信开放平台扫码） | ✅ 已接受 · MVP |
 | [0022](./0022-dual-layer-consistency.md) | 双层一致性（工作区↔版本↔实库）；禁止自动双向同步 | ✅ 已接受 |
 | [0023](./0023-i18n-foundation.md) | i18n 奠基：默认 zh-CN；英文优先 ≠ 切默认；B 层后一个切片 | 已接受 |
+| [0024](./0024-datasource-credential-encryption.md) | 数据源凭证落库加密（AES-256-GCM，`ERD_DB_CONFIG_SECRET`） | 已接受 |

@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.env.MockEnvironment;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -35,7 +36,9 @@ class ProjectAndDataSourceAclTest {
     @BeforeEach
     void setUp() {
         projectAcl = new ProjectAcl(projectMapper);
-        dataSourceAcl = new DataSourceAcl(dataSourcesMapper);
+        DataSourceCredentialCipher cipher =
+                new DataSourceCredentialCipher(DataSourceCredentialCipher.INSECURE_DEV_DEFAULT, new MockEnvironment());
+        dataSourceAcl = new DataSourceAcl(dataSourcesMapper, cipher);
     }
 
     @Test

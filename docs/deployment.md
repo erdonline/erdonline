@@ -299,6 +299,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 |---|---|---|
 | `SPRING_PROFILES_ACTIVE` | `prod`（手填） | 生产 fail-fast；须显式给齐凭证 |
 | `JWT_SECRET` | 随机 ≥32 字节（手填） | **必改**；勿用仓库默认值 |
+| `ERD_DB_CONFIG_SECRET` | 随机 ≥32 字节（手填，与 `JWT_SECRET` 不同值） | **必改**；`data_sources.username`/`password` 落库加密密钥（R-DATA-06，AES-256-GCM）；勿用仓库默认值；缺失或用默认值 prod fail-fast |
 | `ERD_OIDC_RSA_PRIVATE_KEY` 或 `_PATH` / keystore | PKCS#8/PKCS#1 PEM 或 PKCS12 | **prod 必填**；OIDC `id_token` RS256；公钥经 `/.well-known/jwks.json`；勿提交私钥；compose 挂载 `.secrets/` |
 | `ERD_OIDC_ISSUER` | 可选；无尾斜杠 | 空则 issuer=`ERD_UI_URL`；直连 API 时设 API 公网根 |
 | `JWT_EXPIRES_IN` | `43200` | 可选 |
@@ -454,6 +455,8 @@ docker compose logs -f backend   # 查看后端日志
 | Flyway（`backend/.../db/migration/erd/`） | **后端每次启动**（`ErdFlywayConfig`） | 增量 schema **与种子**的真相源 |
 
 新变更只加 Flyway。本地从旧双库升级：`docker compose down -v` 后重建（ADR-0020）。
+
+**数据库连接凭证加密（R-DATA-06）**：`data_sources.username`/`password` 落库前用 AES-256-GCM 加密（密文前缀 `enc:v1:`），密钥取 `ERD_DB_CONFIG_SECRET`。**首次部署必改**；沿用仓库默认值 prod 直接 fail-fast。**改密钥即丢失旧密文解密能力**——轮换前须先用旧密钥把所有连接批量重新保存（触发重新加密）或手动导出/重建连接，见 [security-model.md](./security-model.md#r-data-06)。
 
 访问：
 
