@@ -1,7 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { Button, Tag, Tooltip } from 'antd';
 import { RadarChartOutlined } from '@ant-design/icons';
-import { useAccess } from '@@/plugin-access';
+import { useAccess, useIntl } from '@umijs/max';
 import * as Save from '@/utils/save';
 import useProjectStore from '@/store/project/useProjectStore';
 import useVersionStore from '@/store/version/useVersionStore';
@@ -11,10 +11,11 @@ import {
   type ProbeResult,
   type SchemaProbeReason,
   STATUS_COLOR,
-  STATUS_LABEL,
+  getSchemaProbeStatusLabel,
   resolveUnknownCopy,
   statusHint,
 } from '@/utils/schemaProbeCopy';
+import { intlFormat } from '@/utils/messageFormat';
 import './index.less';
 
 type SchemaProbeControlProps = {
@@ -35,6 +36,8 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
   disabled,
   variant = 'chrome',
 }) => {
+  const intl = useIntl();
+  const format = intlFormat(intl);
   const isChrome = variant === 'chrome';
   const access = useAccess();
   const probeAllowed = !isShareGuestContext() && access.canErdConnectorSchemaProbe;
@@ -80,7 +83,7 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
         setResult({
           status: 'UNKNOWN',
           reason: 'PROBE_CONNECTION_FAILED',
-          message: res?.msg || '实库探测失败',
+          message: res?.msg || intl.formatMessage({ id: 'designer.schemaProbe.failedDefault' }),
         });
       }
     } catch (e: unknown) {
@@ -93,12 +96,12 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
     } finally {
       setLoading(false);
     }
-  }, [getCurrentDBData, projectJSON]);
+  }, [getCurrentDBData, intl, projectJSON]);
 
   const status = displayResult.status ?? 'UNKNOWN';
   const isUnknown = status === 'UNKNOWN';
   const unknownCopy = isUnknown
-    ? resolveUnknownCopy(displayResult.reason as SchemaProbeReason | undefined, displayResult.message)
+    ? resolveUnknownCopy(displayResult.reason as SchemaProbeReason | undefined, displayResult.message, format)
     : null;
 
   const handleUnknownCta = useCallback(() => {
@@ -110,14 +113,16 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
     void runProbe();
   }, [displayResult.reason, runProbe]);
 
-  const tagLabel = loading ? '探测中…' : STATUS_LABEL[status] ?? STATUS_LABEL.UNKNOWN;
+  const tagLabel = loading
+    ? intl.formatMessage({ id: 'designer.schemaProbe.probing' })
+    : getSchemaProbeStatusLabel(status, format);
   const tagColor = loading ? 'processing' : STATUS_COLOR[status] ?? STATUS_COLOR.UNKNOWN;
 
   const statusTooltip = loading
-    ? '正在连接并逆向解析实库…'
+    ? intl.formatMessage({ id: 'designer.schemaProbe.probingTooltip' })
     : isUnknown && unknownCopy
       ? `${unknownCopy.title}：${unknownCopy.hint}`
-      : statusHint(displayResult);
+      : statusHint(displayResult, format);
 
   const statusTag = (
     <Tooltip title={statusTooltip}>
@@ -176,10 +181,10 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
       loading={loading}
       disabled={disabled || loading || datasourceMissing}
       onClick={runProbe}
-      aria-label="探测实库 schema"
+      aria-label={intl.formatMessage({ id: 'designer.schemaProbe.btnAria' })}
       data-testid="schema-probe-btn"
     >
-      {isChrome ? null : '探测实库'}
+      {isChrome ? null : intl.formatMessage({ id: 'designer.schemaProbe.btn' })}
     </Button>
   );
 
@@ -189,7 +194,9 @@ const SchemaProbeControl: React.FC<SchemaProbeControlProps> = ({
       data-testid="schema-probe-control"
     >
       {isChrome ? (
-        <Tooltip title="探测实库 schema（显式操作，不会自动同步）">{probeButton}</Tooltip>
+        <Tooltip title={intl.formatMessage({ id: 'designer.schemaProbe.btnTooltip' })}>
+          {probeButton}
+        </Tooltip>
       ) : (
         probeButton
       )}

@@ -1,34 +1,74 @@
 import React from 'react';
 import { Tooltip } from 'antd';
 import { InfoCircleOutlined } from '@ant-design/icons';
-import { LAYER, PARITY_VERB, TOP_BAR_SIGNALS } from '@/utils/dualLayerTokens';
+import { useIntl } from '@umijs/max';
+import {
+  layerACompareHint,
+  layerAName,
+  layerBCompareHint,
+  layerBName,
+  parityLabel,
+  TOP_BAR_SIGNALS,
+} from '@/utils/dualLayerTokens';
+import { intlFormat } from '@/utils/messageFormat';
 
 /**
  * 双层一致性图例：帮助区分「未存版本」与「与库落差」。
  */
 const DualLayerLegend: React.FC = () => {
+  const intl = useIntl();
+  const format = intlFormat(intl);
+  const synced = parityLabel('SYNCED', format);
+
+  const signalCopy = {
+    persist: {
+      label: format('designer.legend.signal.persist'),
+      hint: format('designer.legend.signal.persistHint'),
+    },
+    version: {
+      label: format('designer.legend.signal.version'),
+      hint: format('designer.legend.signal.versionHint'),
+    },
+    schema: {
+      label: format('designer.legend.signal.schema'),
+      hint: format('designer.legend.signal.schemaHint'),
+    },
+  } as const;
+
   const title = (
     <div style={{ maxWidth: 320, fontSize: 12, lineHeight: 1.5 }}>
-      <div style={{ marginBottom: 6, fontWeight: 600 }}>双层比较（互不合并）</div>
+      <div style={{ marginBottom: 6, fontWeight: 600 }}>
+        {format('designer.legend.title')}
+      </div>
       <ul style={{ margin: 0, paddingLeft: 16 }}>
         <li>
-          <strong>A · {LAYER.A.name}</strong>：{LAYER.A.compareHint}
+          {format('designer.legend.layerA', {
+            name: layerAName(format),
+            hint: layerACompareHint(format),
+          })}
         </li>
         <li>
-          <strong>B · {LAYER.B.name}</strong>：{LAYER.B.compareHint}（需显式探测）
+          {format('designer.legend.layerB', {
+            name: layerBName(format),
+            hint: layerBCompareHint(format),
+          })}
         </li>
       </ul>
-      <div style={{ marginTop: 8, marginBottom: 4, fontWeight: 600 }}>顶栏三信号</div>
+      <div style={{ marginTop: 8, marginBottom: 4, fontWeight: 600 }}>
+        {format('designer.legend.signalsTitle')}
+      </div>
       <ul style={{ margin: 0, paddingLeft: 16 }}>
         {TOP_BAR_SIGNALS.map((s) => (
           <li key={s.key}>
-            <strong>{s.label}</strong>：{s.hint}
+            <strong>{signalCopy[s.key].label}</strong>：{signalCopy[s.key].hint}
           </li>
         ))}
       </ul>
-      <div style={{ marginTop: 8, marginBottom: 4, fontWeight: 600 }}>共用 parity 色</div>
+      <div style={{ marginTop: 8, marginBottom: 4, fontWeight: 600 }}>
+        {format('designer.legend.parityTitle')}
+      </div>
       <div>
-        {PARITY_VERB.SYNCED}·绿 / 领先·蓝 / 落后·橙 / 分叉·红 / 未知·灰
+        {format('designer.legend.parityColors', { synced })}
       </div>
     </div>
   );
@@ -39,7 +79,7 @@ const DualLayerLegend: React.FC = () => {
         type="button"
         className="dual-layer-legend"
         data-testid="dual-layer-legend"
-        aria-label="双层一致性说明"
+        aria-label={format('designer.legend.aria')}
         style={{
           border: 'none',
           background: 'transparent',
