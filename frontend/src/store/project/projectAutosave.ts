@@ -95,6 +95,11 @@ export function isDebouncePersistCurrent(seq: number): boolean {
   return seq === debounceSeq;
 }
 
+/** debounced 回调或 preempt 手动/顶栏重试：任一序号仍有效即继续落盘 */
+export function isPersistAutosaveCurrent(seq: number): boolean {
+  return isDebouncePersistCurrent(seq) || isAutosaveCurrent(seq);
+}
+
 /** 立即 Save；仅 code===200 为 true；409 弹可行动冲突 Modal */
 export async function persistProjectNow(
   project: ProjectLike | null | undefined,

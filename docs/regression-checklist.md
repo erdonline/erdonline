@@ -816,6 +816,7 @@
 - [x] [409 刷新路径] mock 409 → 点 `project-save-conflict-refresh` → toast「已加载服务器上的最新项目」+ 顶栏「已落盘」+ localStorage 草稿清 ✅ `project-save-conflict.spec.ts`
 - [x] [409 另存路径] mock 409 → 点 `project-save-conflict-fork` → toast「已另存为新项目」+ 跳转新 `projectId`（`/design/table/model`） ✅ `project-save-conflict.spec.ts`
 - [x] [失败态 vs 409 顶栏分流] mock 500 → 顶栏「保存失败，点击重试」+ 无冲突 Modal；mock 409 → 冲突 Modal +「保存冲突，点击查看选项」+ 无失败重试 CTA ✅ `save-status-failure-routing.spec.ts`
+- [x] [顶栏重试不卡保存中] mock 首次 save 500 → 点顶栏重试 CTA → 第二次成功 →「已落盘」、无失败按钮、不长期「保存中…」 ✅ `save-status-failure-routing.spec.ts`「点击顶栏重试」
 - [x] [顶栏 A 层 dirty chip] 设计器顶栏 `version-dirty-chip-*`：尚无版本带 +N 摘要 → 存版后「版本一致」→ 再改「未存版本」；基线失败 → `version-dirty-chip-unknown`；SaveStatus「已落盘」分离 ✅ `version-dirty-chip.spec.ts`（4 用例）
 - [x] [A 层全量 diff] 改 profile 默认字段或画布连线关联 → dirty chip「未存版本」；空 diff 存版 toast 警告但不阻断 ✅ `versionStructuralDiff.test.ts` + `version-dirty-chip.spec.ts` profile/assoc 用例
 - [ ] [北极星计量] 后台统计「有版本保存」须过滤 `db_change.changes` 非空（待 analytics 接线；当前前端 warn + ADR-0022/vision 口径已文档化）

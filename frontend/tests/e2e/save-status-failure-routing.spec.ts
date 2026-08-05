@@ -11,6 +11,7 @@ import {
 
 /**
  * Vision #26 / ADR-0022：落库失败顶栏重试 vs 409 冲突 Modal 不得混态。
+ * Vision #27：顶栏重试须用 persistAutosave 认可的序号，成功后清除失败态（不卡「保存中…」）。
  * - 失败重试：`save-status`「保存失败，点击重试」+ retry aria；无冲突 Modal
  * - 409 冲突：`save-status`「保存冲突，点击查看选项」+ 冲突 Modal；无失败重试 CTA
  */
@@ -61,6 +62,45 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
       await expect(retry).toBeVisible({ timeout: 15_000 });
       await expect(retry).toHaveText('保存失败，点击重试');
       await expect(page.getByTestId('save-status')).toHaveAttribute('aria-label', RETRY_FAILURE_ARIA);
+
+      await assertNoConflictUi(page);
+    } finally {
+      await page.unroute('**/ncnb/project/save').catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('落库失败 → 点击顶栏重试 → 成功清除失败态（不卡保存中）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('fail-retry-ok');
+    let saveAttempts = 0;
+    try {
+      await openDesignerWithTable(page, projectName);
+
+      await page.route('**/ncnb/project/save', async (route) => {
+        saveAttempts += 1;
+        if (saveAttempts === 1) {
+          await route.fulfill({
+            status: 200,
+            contentType: 'application/json',
+            body: JSON.stringify({ code: 500, msg: '模拟落库拒绝' }),
+          });
+          return;
+        }
+        await route.continue();
+      });
+
+      await page.getByTestId('canvas-create-table').click();
+      await expectToast(page, '模拟落库拒绝');
+
+      const retry = page.getByRole('button', { name: RETRY_FAILURE_ARIA });
+      await expect(retry).toBeVisible({ timeout: 15_000 });
+      await expect(retry).toHaveText('保存失败，点击重试');
+
+      await retry.click();
+      await expect(page.getByTestId('save-status')).not.toHaveText('保存中…', { timeout: 3_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 20_000 });
+      await expect(page.getByRole('button', { name: RETRY_FAILURE_ARIA })).toHaveCount(0);
 
       await assertNoConflictUi(page);
     } finally {

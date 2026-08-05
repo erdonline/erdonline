@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：顶栏重试 seq 对齐，不卡「保存中…」（Vision #27 · ADR-0022）
+
+- 根因：`retryAutosave` 经 `preemptAutosave()` 传 `autosaveSeq`，`persistAutosave` 仅校验 `debounceSeq` → 重试结果被丢弃且 `saving` 未清
+- 改动：`projectAutosave.isPersistAutosaveCurrent`（debounce ∨ autosave）；`persistAutosave` 成功/失败/catch 均用该判据；`save-status-failure-routing.spec.ts` 补「mock 失败 → 点顶栏重试 → 已落盘」
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #27 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/save-status-failure-routing.spec.ts`
+
 #### 可信保存：落库失败 vs 409 冲突顶栏态分流 E2E（Vision #26 · ADR-0022）
 
 - 缺口：`save-failure.spec.ts` 与 `project-save-conflict.spec.ts` 各测一路，未显式断言两种顶栏失败态不得混用（重试 CTA vs 冲突 Modal）
