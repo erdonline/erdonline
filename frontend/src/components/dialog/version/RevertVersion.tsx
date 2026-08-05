@@ -3,6 +3,7 @@ import {Button, Modal} from 'antd';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {RollbackOutlined} from '@ant-design/icons';
+import {useIntl} from '@@/exports';
 
 export type RevertVersionProps = {
   synced: boolean;
@@ -11,6 +12,7 @@ export type RevertVersionProps = {
 const REVERT_WRAP = 'version-revert-modal-wrap';
 
 const RevertVersion: React.FC<RevertVersionProps> = () => {
+  const intl = useIntl();
   const {currentVersion, versionDispatch} = useVersionStore(
     (state) => ({
       currentVersion: state.currentVersion,
@@ -44,19 +46,19 @@ const RevertVersion: React.FC<RevertVersionProps> = () => {
         type="link"
         icon={<RollbackOutlined />}
         data-testid="version-revert-btn"
-        aria-label="回滚版本"
+        aria-label={intl.formatMessage({ id: 'versionModal.revertVersion.aria' })}
         onClick={() => setOpen(true)}
       >
-        回滚
+        {intl.formatMessage({ id: 'versionModal.revertVersion.button' })}
       </Button>
       <Modal
-        title="回滚版本"
+        title={intl.formatMessage({ id: 'versionModal.revertVersion.title' })}
         open={open}
         onOk={() => void handleOk()}
         onCancel={() => setOpen(false)}
         confirmLoading={submitting}
-        okText="是"
-        cancelText="否"
+        okText={intl.formatMessage({ id: 'versionModal.confirm.yes' })}
+        cancelText={intl.formatMessage({ id: 'versionModal.confirm.no' })}
         destroyOnClose
         keyboard
         focusTriggerAfterClose
@@ -74,7 +76,7 @@ const RevertVersion: React.FC<RevertVersionProps> = () => {
           }, 0);
         }}
       >
-        {`回滚至版本『${ver}』(仅恢复当前模型，数据源元数据不变)`}
+        {intl.formatMessage({ id: 'versionModal.revertVersion.body' }, { version: ver })}
       </Modal>
     </>
   );

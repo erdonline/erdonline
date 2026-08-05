@@ -725,6 +725,50 @@ export default {
   'versionModal.conflict.refresh': 'Refresh project',
   'versionModal.conflict.fork': 'Save as new project',
 
+  // Designer version page modals (Init / Rename / Revert / Remove / Sync / Rebuild)
+  'versionModal.confirm.yes': 'Yes',
+  'versionModal.confirm.no': 'No',
+  'versionModal.validation.max200': 'Must be 200 characters or fewer',
+  'versionModal.initVersion.button': 'Initialize baseline',
+  'versionModal.initVersion.aria': 'Initialize baseline',
+  'versionModal.initVersion.title': 'Initialize baseline',
+  'versionModal.initVersion.versionPlaceholder':
+    'Example: 1.0.0 — do not go below the default datasource version 0.0.0',
+  'versionModal.initVersion.versionDescPlaceholder': 'Example: initialize project version',
+  'versionModal.initVersion.noDatasource': 'No datasource configured. Set up a datasource first.',
+  'versionModal.initVersion.success': 'Baseline initialized',
+  'versionModal.renameVersion.button': 'Edit',
+  'versionModal.renameVersion.aria': 'Edit version',
+  'versionModal.renameVersion.title': 'Edit version',
+  'versionModal.renameVersion.versionPlaceholder': 'Enter version number',
+  'versionModal.renameVersion.versionDescPlaceholder': 'Enter version description',
+  'versionModal.renameVersion.duplicateVersion': 'This version number already exists',
+  'versionModal.renameVersion.formatNotComparable':
+    'Version format cannot be compared — use numeric segments like 1.0.0',
+  'versionModal.renameVersion.notGreaterThanExisting':
+    'New version must be greater than existing versions',
+  'versionModal.revertVersion.button': 'Revert',
+  'versionModal.revertVersion.aria': 'Revert version',
+  'versionModal.revertVersion.title': 'Revert version',
+  'versionModal.revertVersion.body':
+    'Revert to version “{version}” (restores the model only; datasource metadata is unchanged)',
+  'versionModal.removeVersion.button': 'Delete',
+  'versionModal.removeVersion.aria': 'Delete version',
+  'versionModal.removeVersion.title': 'Delete version',
+  'versionModal.removeVersion.body':
+    'Delete version “{version}”? This cannot be undone.',
+  'versionModal.syncVersion.button': 'Sync',
+  'versionModal.syncVersion.ariaSynced': 'Synced',
+  'versionModal.syncVersion.ariaNotSynced': 'Sync',
+  'versionModal.rebuildVersion.button': 'Rebuild versions',
+  'versionModal.rebuildVersion.aria': 'Rebuild versions',
+  'versionModal.rebuildVersion.title': 'Rebuild versions',
+  'versionModal.rebuildVersion.subtitle':
+    'Clears all version history for this project. This cannot be undone.',
+  'versionModal.rebuildVersion.versionPlaceholder':
+    'Example: 1.0.0 — do not go below the default datasource version 0.0.0',
+  'versionModal.rebuildVersion.versionDescPlaceholder': 'Example: initialize project version',
+
   // Group setting subpages (basic / permission / modals)
   'groupSetting.validation.required': 'Required',
   'groupSetting.validation.max100': 'Must be 100 characters or fewer',

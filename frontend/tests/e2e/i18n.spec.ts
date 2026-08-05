@@ -560,19 +560,33 @@ test.describe('i18n：手动语言切换', () => {
 
     const addVersion = page.getByTestId('add-version-btn');
     const compareVersion = page.getByTestId('version-compare-btn');
+    const rebuildVersion = page.getByTestId('version-rebuild-btn');
     await expect(addVersion).toHaveText('新增版本');
     await expect(compareVersion).toHaveText('版本比对');
+    await expect(rebuildVersion).toHaveText('重建版本');
+
+    const renameBtn = page.getByTestId('version-rename-btn').first();
+    if ((await renameBtn.count()) > 0) {
+      await expect(renameBtn).toHaveText('编辑');
+      await expect(renameBtn).toHaveAttribute('aria-label', '编辑版本');
+    }
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
     await expect(addVersion).toHaveText('Add version');
     await expect(compareVersion).toHaveText('Compare versions');
+    await expect(rebuildVersion).toHaveText('Rebuild versions');
+    if ((await renameBtn.count()) > 0) {
+      await expect(renameBtn).toHaveText('Edit');
+      await expect(renameBtn).toHaveAttribute('aria-label', 'Edit version');
+    }
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
     await expect(addVersion).toHaveText('新增版本');
+    await expect(rebuildVersion).toHaveText('重建版本');
   });
 
   test('Group 设置子页正文随 locale 切换', async ({ page, request }) => {
