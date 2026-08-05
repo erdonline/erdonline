@@ -16,7 +16,7 @@
 
 验证点：
 - `cd frontend && npx playwright test tests/e2e/share.spec.ts tests/e2e/share-revoke-keyboard.spec.ts tests/e2e/share-create-failure.spec.ts tests/e2e/share-project-keyboard.spec.ts --project=chromium` 10 例全绿
-- CF Pages 重新部署后：`curl https://erdonline-demo.pages.dev/s/public-demo` 页面走 `https://erdonline-production.up.railway.app/ncnb/share/public-demo` 拿到 JSON（浏览器 Network 面板确认，不再有 `<!DOCTYPE`）
+- CF Pages 已重新部署（GitHub Actions `Frontend demo site` run 30968062209 success，`env-config.js` 时间戳已刷新）；Playwright 实测 `https://erdonline-demo.pages.dev/s/public-demo` 正常渲染「功能鉴权示例」RBAC 关系图（非「分享不可用」）
 
 #### 修复：CF Pages demo 第三方登录按钮 href 打到 SPA 而非 Railway API
 

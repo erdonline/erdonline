@@ -561,7 +561,7 @@
 ## 分享页裸 fetch 走 buildApiHref（2026-08-05）
 
 - [x] [分享页初始加载/复制到我的项目] `pages/share/index.tsx` 两处 `fetch` 套 `buildApiHref`；本地 dev（API_URL 空）走既有 proxy 不变 ✅ `share.spec.ts` + `share-revoke-keyboard.spec.ts` + `share-create-failure.spec.ts` + `share-project-keyboard.spec.ts` 10 例全绿
-- [ ] [CF Pages demo 实测] Redeploy 后打开 `https://erdonline-demo.pages.dev/s/public-demo`，浏览器 Network 面板确认 `/ncnb/share/public-demo` 打到 `https://erdonline-production.up.railway.app/...` 且返回 JSON、页面渲染关系图（非「分享不可用」）
+- [x] [CF Pages demo 实测] Redeploy 后打开 `https://erdonline-demo.pages.dev/s/public-demo`，Playwright 截图确认页面渲染「功能鉴权示例」RBAC 关系图（非「分享不可用」）✅ 2026-08-05
 
 ## 官方 Demo 运行时 Railway（2026-08-02）
 
