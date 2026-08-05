@@ -11,7 +11,7 @@ import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
 import { ProjectMenu } from "@/components/Menu";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
-import { homeRightContent, menuHeaderDropdown } from "@/layouts/HomeLayout";
+import { getHomeRightContent, getMenuHeaderDropdown } from "@/layouts/HomeLayout";
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
 import { erdColors } from "@/theme/tokens";
@@ -43,14 +43,16 @@ const { Header, Sider, Content } = Layout;
 export const siderWidth = 320;
 
 /** GroupLayout 等复用：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
-export const headRightContent = [
-  <SaveStatus key="save-status" />,
-  <VersionDirtyChip key="version-dirty-chip" />,
-  <SaveVersionButton key="save-version" />,
-  <CollabPresence key="presence" />,
-  <ShareProjectButton key="share" />,
-  ...homeRightContent,
-];
+export function getHeadRightContent(intl: ReturnType<typeof useIntl>): React.ReactNode[] {
+  return [
+    <SaveStatus key="save-status" />,
+    <VersionDirtyChip key="version-dirty-chip" />,
+    <SaveVersionButton key="save-version" />,
+    <CollabPresence key="presence" />,
+    <ShareProjectButton key="share" />,
+    ...getHomeRightContent(intl),
+  ];
+}
 
 
 export type DesignLayoutLayoutProps = {
@@ -176,7 +178,7 @@ const ChromeOverflow: React.FC = () => {
         type: 'group',
         label: (
           <div className="design-layout__overflow-extras" onClick={(e) => e.stopPropagation()}>
-            {homeRightContent}
+            {getHomeRightContent(intl)}
           </div>
         ),
       },
@@ -187,7 +189,7 @@ const ChromeOverflow: React.FC = () => {
         disabled: true,
       },
     ],
-    [],
+    [intl],
   );
 
   return (
@@ -364,6 +366,8 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
     el.focus({ preventScroll: false });
     el.scrollIntoView({ block: 'nearest' });
   };
+
+  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
 
   return (
     <Layout className="design-layout" data-testid="design-layout">

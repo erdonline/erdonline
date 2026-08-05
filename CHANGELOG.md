@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### i18n：HomeLayout skip / chrome / 用户菜单 + GroupLayout skip key 化
+
+- `HomeLayout/index.tsx`：`getHomeRightContent` / `getMenuHeaderDropdown` 工厂（公众号/GitHub aria、个人中心/授权/退出）；skip 链接改 `homeLayout.skip.*`；补 `user-menu-dropdown` testid
+- `GroupLayout/index.tsx`：skip 复用 `homeLayout.skip.main`；`getHeadRightContent` + `getMenuHeaderDropdown`
+- `DesignLayout/index.tsx`：`headRightContent` → `getHeadRightContent`；ChromeOverflow / 用户菜单随 locale
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 8 个 `homeLayout.*` key
+- 队列：`agent-loop-vision.prompt.md` #9 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "HomeLayout 与 GroupLayout"`
+
 #### i18n：HomeLayout / GroupLayout 顶栏 aria key 化
 
 - `HomeLayout/index.tsx`：品牌首页、主导航、用户菜单 aria 改走 `useIntl`（复用 `auth.brand.homeAria` / `designLayout.user.menuAria`；新增 `homeLayout.mainNavAria`）；品牌补 `erd-chrome-brand` testid

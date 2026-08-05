@@ -193,16 +193,32 @@ test.describe('i18n：手动语言切换', () => {
     const homeMenu = page.getByTestId('home-layout-menu');
     const brand = page.getByTestId('erd-chrome-brand');
     const userMenu = page.getByTestId('user-menu-trigger');
+    const homeSkipMain = page.getByTestId('home-skip-main');
 
     await expect(homeMenu).toHaveAttribute('aria-label', '主导航');
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
     await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
+    await expect(homeSkipMain).toHaveText('跳到主内容');
+
+    await userMenu.click();
+    const userDropdown = page.getByTestId('user-menu-dropdown');
+    await expect(userDropdown.getByText('个人中心')).toBeVisible();
+    await expect(userDropdown.getByText('授权信息')).toBeVisible();
+    await expect(userDropdown.getByText('退出登录')).toBeVisible();
+    await page.keyboard.press('Escape');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
     await expect(homeMenu).toHaveAttribute('aria-label', 'Main navigation');
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
     await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
+    await expect(homeSkipMain).toHaveText('Skip to main content');
+
+    await userMenu.click();
+    await expect(userDropdown.getByText('Account settings')).toBeVisible();
+    await expect(userDropdown.getByText('License info')).toBeVisible();
+    await expect(userDropdown.getByText('Sign out')).toBeVisible();
+    await page.keyboard.press('Escape');
 
     const token = await apiToken(request, account.name, account.pass);
     const projectId = await createGroupProject(
@@ -217,15 +233,18 @@ test.describe('i18n：手动语言切换', () => {
       await expect(page.getByTestId('group-layout')).toBeVisible({ timeout: 15_000 });
 
       const siderMenu = page.getByTestId('group-layout-sider-menu');
+      const groupSkipMain = page.getByTestId('group-skip-main');
       await expect(siderMenu).toHaveAttribute('aria-label', 'Team settings navigation');
       await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
       await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
+      await expect(groupSkipMain).toHaveText('Skip to main content');
 
       await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
       await page.reload();
       await expect(siderMenu).toHaveAttribute('aria-label', '团队设置导航');
       await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
       await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
+      await expect(groupSkipMain).toHaveText('跳到主内容');
     } finally {
       await deleteGroupProject(request, token, projectId);
     }

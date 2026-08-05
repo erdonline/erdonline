@@ -70,7 +70,9 @@
 
 8. ~~HomeLayout / GroupLayout 顶栏 aria key 化（品牌/用户菜单/主导航）~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：HomeLayout skip 链接 + `homeRightContent` aria key 化；GroupLayout skip 链接 key 化；`menuHeaderDropdown` 可见文案 key 化
+9. ~~HomeLayout skip 链接 + `homeRightContent` aria key 化；GroupLayout skip 链接 key 化；`menuHeaderDropdown` 可见文案 key 化~~ ✅ 2026-08-05
+
+**下一刀候选（ROI 序）**：Landing / Share / 异常页 skip 链接 key 化；HomeLayout / GroupLayout / DesignLayout `_defaultProps` 路由名 key 化
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
