@@ -14,12 +14,14 @@ const SaveStatus: React.FC = () => {
     shallow,
   );
 
+  const chipTone = saving ? 'pending' : saved ? 'success' : 'warn';
+
   if (saveConflict) {
     const conflictLabel = intl.formatMessage({ id: 'designer.saveStatus.conflict' });
     return (
       <button
         type="button"
-        className="erd-save-status erd-save-status--dirty erd-save-status--retry"
+        className="erd-status-chip erd-status-chip--warn erd-status-chip--interactive"
         data-testid="save-status"
         aria-live="polite"
         aria-label={conflictLabel}
@@ -37,9 +39,8 @@ const SaveStatus: React.FC = () => {
     : saved
       ? intl.formatMessage({ id: 'designer.saveStatus.saved' })
       : intl.formatMessage({ id: 'designer.saveStatus.failed' });
-  const tone = saving ? 'saving' : saved ? 'saved' : 'dirty';
-  const className = `erd-save-status erd-save-status--${tone}${
-    failed ? ' erd-save-status--retry' : ''
+  const className = `erd-status-chip erd-status-chip--${chipTone}${
+    failed ? ' erd-status-chip--interactive' : ''
   }`;
 
   if (failed) {

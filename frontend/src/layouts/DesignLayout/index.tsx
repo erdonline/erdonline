@@ -46,8 +46,10 @@ export const siderWidth = 320;
 /** GroupLayout 等复用：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
 export function getHeadRightContent(intl: ReturnType<typeof useIntl>): React.ReactNode[] {
   return [
-    <SaveStatus key="save-status" />,
-    <VersionDirtyChip key="version-dirty-chip" />,
+    <div className="erd-chrome-status-cluster" key="status-cluster" data-testid="erd-chrome-status-cluster">
+      <SaveStatus key="save-status" />
+      <VersionDirtyChip key="version-dirty-chip" />
+    </div>,
     <SaveVersionButton key="save-version" />,
     <CollabPresence key="presence" />,
     <ShareProjectButton key="share" />,
@@ -446,9 +448,11 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           />
         </div>
         <div className="erd-chrome-actions design-layout__actions" data-testid="erd-chrome-actions">
-          <SaveStatus key="save-status" />
-          <VersionDirtyChip key="version-dirty-chip" />
-          <SchemaProbeControl key="schema-probe" variant="chrome" />
+          <div className="erd-chrome-status-cluster" data-testid="erd-chrome-status-cluster">
+            <SaveStatus key="save-status" />
+            <VersionDirtyChip key="version-dirty-chip" />
+            <SchemaProbeControl key="schema-probe" variant="chrome" />
+          </div>
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />
