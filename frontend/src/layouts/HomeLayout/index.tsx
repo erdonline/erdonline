@@ -14,6 +14,7 @@ import LocaleSwitcher from '@/components/LocaleSwitcher';
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
+import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import '../erd-chrome.less';
 import './index.less';
 
@@ -94,6 +95,7 @@ export function getMenuHeaderDropdown(intl: IntlShape): React.ReactNode {
 type HomeRoute = {
   path?: string;
   name?: string;
+  nameKey?: string;
   icon?: React.ReactNode;
   exact?: boolean;
 };
@@ -116,20 +118,21 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     () =>
       routes.map((r) => {
         const isExternal = Boolean(r.exact) || Boolean(r.path?.startsWith('http'));
+        const routeLabel = resolveRouteLabel(intl, r);
         const label = isExternal ? (
           <a href={r.path} target="_blank" rel="noreferrer">
-            {r.name}
+            {routeLabel}
           </a>
         ) : (
-          <Link to={r.path || '/home'}>{r.name}</Link>
+          <Link to={r.path || '/home'}>{routeLabel}</Link>
         );
         return {
-          key: r.path || String(r.name),
+          key: r.path || r.nameKey || String(routeLabel),
           icon: r.icon,
           label,
         };
       }),
-    [routes],
+    [routes, intl],
   );
 
   const selectedKey = useMemo(() => {

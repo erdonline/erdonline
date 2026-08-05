@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### i18n：Landing/Share/异常 skip + Layout 路由名 key 化
+
+- `LandingChrome` / `share/index` / `403` / `404`：skip 链接改 `common.skipMainAction` / `share.skip.canvas`
+- `HomeLayout` / `GroupLayout` / `DesignLayout` `_defaultProps`：`name` → `nameKey`；`resolveRouteLabel()` 统一解析
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 22 个 route/skip key
+- 队列：`agent-loop-vision.prompt.md` #10 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Landing / 404 skip"`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "HomeLayout 与 GroupLayout|DesignLayout 工作流"`
+
 #### i18n：HomeLayout skip / chrome / 用户菜单 + GroupLayout skip key 化
 
 - `HomeLayout/index.tsx`：`getHomeRightContent` / `getMenuHeaderDropdown` 工厂（公众号/GitHub aria、个人中心/授权/退出）；skip 链接改 `homeLayout.skip.*`；补 `user-menu-dropdown` testid

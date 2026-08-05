@@ -9,29 +9,29 @@ export default {
     routes: [
       {
         path: '/dataModels',
-        name: '返回项目列表',
+        nameKey: 'groupLayout.route.backToProjects',
         icon: <LeftC theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
       },
       {
         path: '/project/group/setting/basic',
-        name: '基本设置',
+        nameKey: 'groupLayout.route.basicSettings',
         icon: <SettingOne theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
       },
       {
         path: '/project/group/setting/permission',
-        name: '权限组',
+        nameKey: 'groupLayout.route.permissionGroups',
         icon: <Permissions theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
         access: 'canErdProjectPermissionGroup'
       },
       {
         path: '/design/table/model',
-        name: '打开模型',
+        nameKey: 'groupLayout.route.openModel',
         icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         exact: true,
         path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
-        name: 'ERD Online 论坛',
+        nameKey: 'homeLayout.route.forum',
         icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
       },
     ],
