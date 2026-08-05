@@ -2,6 +2,7 @@ import { expect, test, type APIRequestContext, type Browser } from '@playwright/
 import * as fs from 'fs';
 import * as path from 'path';
 import {
+  addFieldInline,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   E2E_PASS,
@@ -153,6 +154,7 @@ async function expectDraftContains(
  * Vision #29：防抖 600ms 窗口内离开 → closeSocket 补枪（成功落库 / 失败可见）。
  * Vision #30：浏览器级离开（reload / 关页）→ beforeunload 草稿守卫；Playwright 不对 native dialog 做硬断言，以 localStorage 为准。
  * Vision #31：双人协作 — A 落库失败离开补枪不得静默覆写 B 已落库改动（复用 sync-toast 双 context）。
+ * Vision #32：双人协作 — B 含 localDirty 时 A 失败离开补枪不得静默覆写 B 已落库 + 未保存改动。
  */
 test.describe('离开设计器的保存行为', () => {
   test('干净态离开：不发保存请求', async ({ page }) => {
@@ -565,6 +567,122 @@ test.describe('双人协作：离开补枪不覆写对方落库', () => {
       await expect(peerPage.getByText(peerField).first()).toBeVisible({ timeout: 10_000 });
       await expect(peerPage.getByTestId('save-status')).toHaveText('已落盘', { timeout: 20_000 });
     } finally {
+      await peerCtx?.close().catch(() => {});
+      await ownerCtx?.close().catch(() => {});
+      await deleteGroup(request, ownerToken, projectId).catch(() => {});
+    }
+  });
+
+  test('A 落库失败离开后 B 未保存与已落库改动均不被覆写', async ({ browser, request }) => {
+    test.setTimeout(150_000);
+    const ownerToken = await apiToken(request, E2E_SERIAL.name, E2E_SERIAL.pass);
+    const { projectId } = await createGroupWithPeer(request, ownerToken);
+    const peerModule = 'Peer模块';
+    const peerFieldSaved = 'F_PEER_SAVED';
+    const peerFieldDirty = 'F_PEER_DIRTY';
+
+    let ownerCtx: Awaited<ReturnType<Browser['newContext']>> | undefined;
+    let peerCtx: Awaited<ReturnType<Browser['newContext']>> | undefined;
+    let peerPage: import('@playwright/test').Page | undefined;
+    try {
+      const dual = await dualLoginToDesign(browser, projectId);
+      ownerCtx = dual.ownerCtx;
+      peerCtx = dual.peerCtx;
+      peerPage = dual.peerPage;
+      const { ownerPage } = dual;
+
+      await peerPage.waitForTimeout(1_500);
+      await openRelationFromEmpty(peerPage, { name: 'PEER_M', chnname: peerModule });
+      await peerPage.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(peerPage, 'T_TABLE_1')).toBeVisible({ timeout: 10_000 });
+      await expect(peerPage.getByTestId('save-status')).toHaveText('已落盘', { timeout: 20_000 });
+
+      await addFieldInline(peerPage, 'T_TABLE_1', peerFieldSaved);
+      await expect(peerPage.getByTestId('save-status')).toHaveText('已落盘', { timeout: 20_000 });
+
+      await expect(ownerPage.getByText(peerModule, { exact: true })).toBeVisible({
+        timeout: 15_000,
+      });
+      await expect
+        .poll(
+          async () => {
+            if ((await ownerPage.getByTestId('project-save-conflict-modal').count()) > 0) {
+              return 'conflict';
+            }
+            const status = await ownerPage.getByTestId('save-status').textContent();
+            return status === '已落盘' ? 'clean' : 'pending';
+          },
+          { timeout: 20_000 },
+        )
+        .toMatch(/conflict|clean/);
+      if ((await ownerPage.getByTestId('project-save-conflict-modal').count()) > 0) {
+        await ownerPage.getByTestId('project-save-conflict-refresh').click();
+        await expect(ownerPage.getByTestId('project-save-conflict-modal')).toHaveCount(0, {
+          timeout: 15_000,
+        });
+      } else if ((await ownerPage.getByTestId('save-status').textContent())?.includes('保存冲突')) {
+        await ownerPage.getByTestId('save-status').click();
+        await expect(ownerPage.getByTestId('project-save-conflict-modal')).toBeVisible({
+          timeout: 10_000,
+        });
+        await ownerPage.getByTestId('project-save-conflict-refresh').click();
+        await expect(ownerPage.getByTestId('project-save-conflict-modal')).toHaveCount(0, {
+          timeout: 15_000,
+        });
+      }
+      await expect(ownerPage.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+
+      // sync-toast 模式：阻断 B 自动保存，保持 localDirty
+      await peerPage.route(/\/ncnb\/project\/(group\/)?save/, (route) => route.abort('failed'));
+      const dirtyNode = rfNode(peerPage, 'T_TABLE_1');
+      await dirtyNode.getByTestId('canvas-add-field').click();
+      const dirtyEditRow = dirtyNode.locator('.erd-field-editing');
+      await dirtyEditRow.locator('.erd-field-type-select').selectOption('String');
+      const dirtyInput = dirtyEditRow.locator('.erd-field-input');
+      await dirtyInput.fill(peerFieldDirty);
+      await dirtyInput.press('Enter');
+      await expectToast(peerPage, '网络异常，请检查网络连接');
+      await expect(peerPage.getByTestId('save-status')).not.toHaveText('已落盘', { timeout: 10_000 });
+      await expectDraftContains(peerPage, projectId, peerFieldDirty);
+      await expect(peerPage.getByText(peerFieldSaved).first()).toBeVisible({ timeout: 10_000 });
+
+      const ownerSaveCalls: string[] = [];
+      await ownerPage.route('**/ncnb/project/group/save', (route) => {
+        ownerSaveCalls.push(route.request().url());
+        return route.abort('failed');
+      });
+
+      await openRelationCanvas(ownerPage, peerModule);
+      await ownerPage.getByTestId('canvas-create-table').click();
+      await expect(ownerPage.getByRole('button', { name: RETRY_FAILURE_ARIA })).toBeVisible({
+        timeout: 15_000,
+      });
+
+      await ownerPage.getByRole('link', { name: 'ERD Online 首页' }).click();
+      await expect(ownerPage).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect.poll(() => ownerSaveCalls.length, { timeout: 10_000 }).toBeGreaterThan(0);
+      await ownerPage.unroute('**/ncnb/project/group/save');
+
+      await openRelationCanvas(peerPage, peerModule);
+      await expect(rfNode(peerPage, 'T_TABLE_1')).toBeVisible({ timeout: 10_000 });
+      await expect(peerPage.getByText(peerFieldSaved).first()).toBeVisible({ timeout: 10_000 });
+      await expectDraftContains(peerPage, projectId, peerFieldDirty);
+      await expect(rfNode(peerPage, 'T_TABLE_2')).toHaveCount(0);
+      await expect(peerPage.getByTestId('save-status')).not.toHaveText('已落盘');
+
+      await peerPage.reload({ waitUntil: 'domcontentloaded' });
+      await expect(peerPage.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
+      if ((await peerPage.getByTestId('project-draft-recovery-content').count()) > 0) {
+        await peerPage.getByTestId('project-draft-recovery-restore').click();
+        await expect(peerPage.getByText('已恢复本地草稿')).toBeVisible({ timeout: 5_000 });
+      }
+      await openRelationCanvas(peerPage, peerModule);
+      await expect(rfNode(peerPage, 'T_TABLE_1')).toBeVisible({ timeout: 15_000 });
+      await expect(peerPage.getByText(peerFieldSaved).first()).toBeVisible({ timeout: 10_000 });
+      await expect(peerPage.getByText(peerFieldDirty).first()).toBeVisible({ timeout: 10_000 });
+      await expect(rfNode(peerPage, 'T_TABLE_2')).toHaveCount(0);
+    } finally {
+      await peerPage?.unroute(/\/ncnb\/project\/(group\/)?save/).catch(() => {});
       await peerCtx?.close().catch(() => {});
       await ownerCtx?.close().catch(() => {});
       await deleteGroup(request, ownerToken, projectId).catch(() => {});

@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：双人协作 B localDirty 时离开补枪不覆写 E2E（Vision #32 · ADR-0022）
+
+- 缺口：#31 仅覆盖 B 已落盘（clean）态；未覆盖 B 含 localDirty（阻断 save）时 A 失败离开补枪不得静默覆写 B 已落库 + 未保存改动
+- 改动：`leave-designer-save.spec.ts` 复用 sync-toast 双 context + #31 冲突刷新模式；B 先落盘字段再阻断 save 加 dirty 字段 → A 失败离开补枪 → 断言 B 已落库字段 + localStorage 草稿 + 无 A 脏表；reload 草稿恢复后双字段仍可见
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #32 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/leave-designer-save.spec.ts --grep "B 未保存与已落库"`
+
 #### 可信保存：双人协作离开补枪不覆写对方落库 E2E（Vision #31 · ADR-0022）
 
 - 缺口：#28–#30 均为单 context 个人项目；未覆盖团队项目双人同屏时 A 落库失败离开补枪不得静默覆写 B 已落库改动
