@@ -1,5 +1,43 @@
-import { expect, test } from '@playwright/test';
+import { expect, test, type APIRequestContext } from '@playwright/test';
 import { e2eAccount, login, uniqueProjectName } from './helpers';
+
+const API = process.env.API_URL || 'http://localhost:9502';
+
+async function apiToken(request: APIRequestContext, username: string, password: string) {
+  const r = await request.post(`${API}/auth/login`, {
+    data: { username, password },
+  });
+  const j = await r.json();
+  if (!j.access_token) throw new Error(`login failed: ${username}`);
+  return j.access_token as string;
+}
+
+async function createGroupProject(
+  request: APIRequestContext,
+  token: string,
+  name: string,
+) {
+  const add = await request.post(`${API}/ncnb/project/group/add`, {
+    headers: { Authorization: `Bearer ${token}` },
+    data: { projectName: name, description: 'i18n group aria', tags: 'e2e' },
+  });
+  const addJson = await add.json();
+  expect(addJson.code).toBe(200);
+  return addJson.data as string;
+}
+
+async function deleteGroupProject(
+  request: APIRequestContext,
+  token: string,
+  projectId: string,
+) {
+  await request
+    .post(`${API}/ncnb/project/group/delete`, {
+      headers: { Authorization: `Bearer ${token}` },
+      data: { id: projectId },
+    })
+    .catch(() => {});
+}
 
 /**
  * i18n MVP（ADR-0023）：umi locale 插件 + 手动 LocaleSwitcher。
@@ -143,5 +181,53 @@ test.describe('i18n：手动语言切换', () => {
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(siderMenu).toHaveAttribute('aria-label', '设计器侧栏导航');
+  });
+
+  test('HomeLayout 与 GroupLayout 顶栏 aria 随 locale 切换', async ({ page, request }) => {
+    test.setTimeout(60_000);
+    const account = e2eAccount();
+    await login(page, account);
+    await page.goto('/home');
+    await expect(page.getByTestId('home-layout')).toBeVisible({ timeout: 15_000 });
+
+    const homeMenu = page.getByTestId('home-layout-menu');
+    const brand = page.getByTestId('erd-chrome-brand');
+    const userMenu = page.getByTestId('user-menu-trigger');
+
+    await expect(homeMenu).toHaveAttribute('aria-label', '主导航');
+    await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
+    await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(homeMenu).toHaveAttribute('aria-label', 'Main navigation');
+    await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
+    await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
+
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(
+      request,
+      token,
+      uniqueProjectName('i18n-group-aria'),
+    );
+
+    try {
+      await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+      await page.goto(`/project/group/setting/basic?projectId=${projectId}`);
+      await expect(page.getByTestId('group-layout')).toBeVisible({ timeout: 15_000 });
+
+      const siderMenu = page.getByTestId('group-layout-sider-menu');
+      await expect(siderMenu).toHaveAttribute('aria-label', 'Team settings navigation');
+      await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
+      await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
+
+      await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+      await page.reload();
+      await expect(siderMenu).toHaveAttribute('aria-label', '团队设置导航');
+      await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
+      await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
+    } finally {
+      await deleteGroupProject(request, token, projectId);
+    }
   });
 });

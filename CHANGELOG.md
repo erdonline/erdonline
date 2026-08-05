@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### i18n：HomeLayout / GroupLayout 顶栏 aria key 化
+
+- `HomeLayout/index.tsx`：品牌首页、主导航、用户菜单 aria 改走 `useIntl`（复用 `auth.brand.homeAria` / `designLayout.user.menuAria`；新增 `homeLayout.mainNavAria`）；品牌补 `erd-chrome-brand` testid
+- `GroupLayout/index.tsx`：品牌首页、用户菜单、侧栏导航 aria 同上（新增 `groupLayout.siderNavAria`）；品牌补 `erd-chrome-brand` testid
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 2 个新 key
+- 队列：`agent-loop-vision.prompt.md` Home/Group 顶栏 aria ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "HomeLayout 与 GroupLayout"`
+
 #### i18n：DesignLayout 其余 aria/label key 化
 
 - `DesignLayout/index.tsx`：项目菜单 fallback/aria、overflow「更多」、品牌首页、用户菜单、侧栏导航、主工作区 label 改走 `useIntl`（`designLayout.*` + 复用 `auth.brand.homeAria`）；补 `project-menu-trigger` / `design-chrome-overflow` / `erd-chrome-brand` testid

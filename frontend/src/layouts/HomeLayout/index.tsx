@@ -175,7 +175,8 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             className="erd-chrome-brand"
             role="link"
             tabIndex={0}
-            aria-label="ERD Online 首页"
+            aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
+            data-testid="erd-chrome-brand"
             onClick={() => history.push('/home')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
@@ -193,7 +194,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             items={menuItems}
             className="home-layout__menu"
             data-testid="home-layout-menu"
-            aria-label="主导航"
+            aria-label={intl.formatMessage({ id: 'homeLayout.mainNavAria' })}
           />
           <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
             {homeRightContent}
@@ -206,7 +207,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
                 className="erd-chrome-user"
                 role="button"
                 tabIndex={0}
-                aria-label="用户菜单"
+                aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
                 data-testid="user-menu-trigger"
               >
                 <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
