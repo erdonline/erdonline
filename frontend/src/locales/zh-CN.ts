@@ -177,4 +177,10 @@ export default {
   'designLayout.workflow.pendingApproval': '待审批',
   'designLayout.workflow.pendingApprovalAria': '待审批工单',
   'designLayout.workflow.notifications': '通知',
+  'designLayout.project.fallback': '项目',
+  'designLayout.project.menuAria': '项目菜单',
+  'designLayout.overflow.moreAria': '更多',
+  'designLayout.user.menuAria': '用户菜单',
+  'designLayout.sider.navAria': '设计器侧栏导航',
+  'designLayout.workspace.aria': '主工作区',
 };

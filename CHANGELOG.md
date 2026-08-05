@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### i18n：DesignLayout 其余 aria/label key 化
+
+- `DesignLayout/index.tsx`：项目菜单 fallback/aria、overflow「更多」、品牌首页、用户菜单、侧栏导航、主工作区 label 改走 `useIntl`（`designLayout.*` + 复用 `auth.brand.homeAria`）；补 `project-menu-trigger` / `design-chrome-overflow` / `erd-chrome-brand` testid
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 6 个 `designLayout.*` key
+- 队列：`agent-loop-vision.prompt.md` #7 ✅；i18n MVP #1–#7 全部完成
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`（含 DesignLayout aria 切换 + 版本页侧栏 nav aria）
+
 #### i18n：DesignLayout 工作流按钮 + skip-nav key 化
 
 - `DesignLayout/index.tsx`：skip 链接（模型树/主工作区）+ 顶栏工作流三按钮（我的工单/待审批/通知）改走 `useIntl`（`designLayout.*` keys）；工作流按钮补 `data-testid` 供 E2E 定位与文案分离

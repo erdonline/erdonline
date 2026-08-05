@@ -64,7 +64,9 @@
 4. ~~注册页 key 化（`/register` 表单 + footer）~~ ✅ 2026-08-05
 5. ~~设计器顶栏 chrome key 化（SaveStatus / dirty chip / schema probe / DualLayerLegend）~~ ✅ 2026-08-05
 6. ~~DesignLayout 工作流按钮（我的工单/待审批/通知）+ skip-nav key 化~~ ✅ 2026-08-05
-7. **下一刀**：DesignLayout 其余硬编码 aria（项目菜单/overflow/侧栏/主工作区 label）
+7. ~~DesignLayout 其余硬编码 aria（项目菜单/overflow/侧栏/主工作区 label）~~ ✅ 2026-08-05
+
+**i18n MVP 队列 #1–#7 已全部 ✅**；下一刀候选（ROI 序）：HomeLayout / GroupLayout 顶栏 aria key 化（品牌/用户菜单/主导航）
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

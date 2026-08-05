@@ -190,4 +190,10 @@ export default {
   'designLayout.workflow.pendingApproval': 'Pending',
   'designLayout.workflow.pendingApprovalAria': 'Orders pending approval',
   'designLayout.workflow.notifications': 'Notifications',
+  'designLayout.project.fallback': 'Project',
+  'designLayout.project.menuAria': 'Project menu',
+  'designLayout.overflow.moreAria': 'More',
+  'designLayout.user.menuAria': 'User menu',
+  'designLayout.sider.navAria': 'Designer sidebar navigation',
+  'designLayout.workspace.aria': 'Main workspace',
 };
