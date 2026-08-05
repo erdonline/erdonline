@@ -78,6 +78,7 @@
 - ~~#15 五态 + dirty chip E2E 补盘：`schema-probe.spec.ts` 4 用例（mock 五态 + 未知四路 + legend）；`version-dirty-chip.spec.ts` no-baseline/clean/dirty；A 层 unknown 仍手工清单~~ ✅ 2026-08-04
 - ~~#23 基线查询失败 E2E：`version-baseline.spec.ts` mock size=1 → 500 → unknown chip/tag + 重试恢复；`fetchVersionBaseline` 失败清 `baselineLoaded`~~ ✅ 2026-08-05
 - ~~#24 本地草稿丢弃 E2E：`project-local-draft.spec.ts` 丢弃路径 + `project-draft-recovery-*` testid；丢弃后清 localStorage、回服务器模型~~ ✅ 2026-08-05
+- ~~#25 409 冲突 Modal 决策 E2E：`project-save-conflict.spec.ts` refresh/fork 路径 + 刷新清草稿；静态 Modal 改 `appFormat`/`VersionDiffPanelStatic`；fork 跳转 `/design/table/model`~~ ✅ 2026-08-05
 
 ### i18n 奠基（B 层后）✅
 

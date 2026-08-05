@@ -76,7 +76,7 @@ export async function forkLocalProjectAsCopy(): Promise<void> {
     }
     useGlobalStore.getState().dispatch.setSaveConflict(false);
     message.success('已另存为新项目');
-    history.push(`/design/table/relation?projectId=${encodeURIComponent(res.data)}`);
+    history.push(`/design/table/model?projectId=${encodeURIComponent(res.data)}`);
   } catch {
     message.error('另存为新项目失败');
   }
