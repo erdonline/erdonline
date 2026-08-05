@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### i18n：Design 版本 store confirm（useVersionStore confirmDestructive）
+
+- `useVersionStore.tsx`：sync/markSync/rebuild 三处 `confirmDestructive` 标题/正文/OK·取消改 `appFormat()`
+- 语料：新增 `versionStore.confirm.*` 9 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #22 ✅；post-MVP i18n 队列 #17–#22 全部完成
+
+验证点：
+- `cd frontend && yarn build`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/version-rebuild-confirm-keyboard.spec.ts`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/version-sync-result-keyboard.spec.ts --grep "同步确认"`
+
 #### i18n：Design 版本 store toast（useVersionStore message.*）
 
 - `useVersionStore.tsx`：`message.*` / sync 失败 fallback 全部改 `appFormat()`；复用 #19–#20 的 `versionModal.*` 校验/跨版本 key

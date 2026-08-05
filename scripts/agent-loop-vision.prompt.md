@@ -100,7 +100,9 @@
 
 21. ~~Design 版本 store 层 toast key 化（`useVersionStore` 版本同步/回滚/保存 message）~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：Design 版本 store 层 confirm 文案 key 化（`useVersionStore` sync/rebuild `confirmDestructive` 标题/正文）
+22. ~~Design 版本 store 层 confirm 文案 key 化（`useVersionStore` sync/rebuild `confirmDestructive` 标题/正文）~~ ✅ 2026-08-05
+
+**i18n post-MVP 队列 #17–#22 已全部 ✅** — 暂停 post-MVP i18n 切片，回归一致性/可信主线
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
