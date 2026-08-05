@@ -274,7 +274,7 @@ cd frontend && yarn validate:projectjson
 | `sys_audit_log` | 审计日志 | 可追溯 |
 | `biz_order` | 业务订单 | 业务切片（挂 `user_id`） |
 
-模块名 `AUTHZ` / 显示名「功能鉴权」；含 `indexs`、`defaultValue`，以及 `diagrams[]` 双图（「鉴权核心」「会话与审计」）+ Frame 分组（主体 / RBAC / 会话审计 / 业务）；主图节点水平跨度约 1072（列间距 ~28px、Frame 默认 padding 20；示例烘焙框仍可手排），`graphCanvas` 与主图布局对齐。打开即可分享截图（ADR-0016 / ADR-0017）。
+模块名 `AUTHZ` / 显示名「功能鉴权」；含 `indexs`、`defaultValue`，以及 `diagrams[]` 双图（「鉴权核心」TB 分层 / 「纵向视图」LR 分层，同一 schema 两种走向）+ Frame 分组（关联与明细 / 核心实体）。坐标由 `frontend/scripts/gen-demo-layout.ts` 调用产品同款 dagre 分层算法（`graphLayout.ts`）批量生成，Frame 包围盒按布局结果的 rank 聚类后用 `computeFrameBoundsFromNodes` 烘焙——**不再手排 x/y**，改需求先改脚本重跑，`graphCanvas` 与主图布局对齐。打开即可分享截图（ADR-0016 / ADR-0017）。
 
 ## DBML 互通（导入 / 导出）
 
