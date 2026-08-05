@@ -188,7 +188,7 @@ test.describe('在线演示', () => {
       els.map((el) => el.getAttribute('data-mode') || ''),
     );
     for (const m of modeList) {
-      expect(m).toMatch(/^(default|centerX|bypass|twoBend|astar)$/);
+      expect(m).toMatch(/^(default|centerX|bypass|twoBend|astar|sameSide)$/);
     }
     // 演示图含 hub（用户/角色等）：至少一条 hub 扇出非 0
     const hubFans = await modes.evaluateAll((els) =>
@@ -477,5 +477,26 @@ test.describe('在线演示', () => {
       path: 'test-results/ux-walkthrough/demo-share-tables-dense.png',
       fullPage: false,
     });
+  });
+
+  test('public-demo LocaleSwitcher 切换英文文案', async ({ page }) => {
+    test.setTimeout(60_000);
+    await page.goto('/s/public-demo');
+    await expect(page.getByTestId('share-relation-canvas')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByText('功能鉴权示例').first()).toBeVisible();
+
+    await page.getByTestId('locale-switcher').click();
+    await page.getByRole('option', { name: 'English' }).click();
+
+    await expect(page.getByText('AuthZ Demo').first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Subject' })).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'Session & Audit' })).toBeVisible();
+    await expect(page.getByTestId('rf__node-sys_user').locator('.erd-table-chnname')).toHaveText('User');
+    await expect(page.getByTestId('diagram-switcher')).toContainText('Auth Core');
+
+    const tablesToggle = page.getByRole('button', { name: /Show table list/i });
+    await tablesToggle.click();
+    await expect(page.getByText('8 tables total')).toBeVisible();
+    await expect(page.getByTestId('diagram-frame').filter({ hasText: 'RBAC' }).getByText('4 tables')).toBeVisible();
   });
 });

@@ -3,9 +3,17 @@ import {CopyOutlined, DownOutlined, UpOutlined} from '@ant-design/icons';
 import {Button, Segmented, Spin, Table, Tag, Typography, message} from 'antd';
 import {useIntl, useParams, history} from '@umijs/max';
 import AuthBrandShell from '@/components/AuthBrandShell';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import ShareRelationCanvas from './ShareRelationCanvas';
 import ShareEmptyState from './ShareEmptyState';
 import {listDiagrams} from '@/utils/diagram';
+import {
+  demoDiagramName,
+  demoModuleLabel,
+  demoProjectDescription,
+  demoProjectName,
+  isPublicDemoShare,
+} from '@/utils/demoShareI18n';
 import * as cache from '@/utils/cache';
 import {buildApiHref} from '@/utils/apiHref';
 import '@/layouts/erd-chrome.less';
@@ -153,6 +161,8 @@ const SharePage: React.FC = () => {
     onFork();
   }, [loading, error, data, token, autoForkDone, forking]);
 
+  const isDemoShare = isPublicDemoShare(token);
+
   const modules = data?.projectJSON?.modules || [];
   const currentModule = useMemo(
     () => modules.find(m => (m.name || m.chnname) === moduleKey) || modules[0],
@@ -175,17 +185,20 @@ const SharePage: React.FC = () => {
   const rows = useMemo(() => {
     const list: { key: string; module: string; table: string; fields: number }[] = [];
     modules.forEach((m, mi) => {
+      const moduleLabel = isDemoShare
+        ? demoModuleLabel(intl, m.name || m.chnname, m.chnname || m.name)
+        : (m.chnname || m.name || '-');
       (m.entities || []).forEach((e, ei) => {
         list.push({
           key: `${mi}-${ei}-${e.title}`,
-          module: m.chnname || m.name || '-',
+          module: moduleLabel,
           table: e.title || '-',
           fields: e.fields?.length || 0,
         });
       });
     });
     return list;
-  }, [modules]);
+  }, [modules, isDemoShare, intl]);
 
   // 表数变少时（换模块/载荷）夹紧页码，避免空页
   useEffect(() => {
@@ -237,7 +250,12 @@ const SharePage: React.FC = () => {
     );
   }
 
-  const projectName = data?.projectName || intl.formatMessage({ id: 'share.defaultProjectName' });
+  const projectName = isDemoShare
+    ? demoProjectName(intl)
+    : (data?.projectName || intl.formatMessage({ id: 'share.defaultProjectName' }));
+  const projectDescription = isDemoShare
+    ? demoProjectDescription(intl)
+    : data?.description;
   const redirectQ = `?redirect=${encodeURIComponent(shareReturnPath)}`;
 
   const focusSkipTarget = (id: string) => {
@@ -292,6 +310,7 @@ const SharePage: React.FC = () => {
           </Tag>
         </div>
         <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
+          <LocaleSwitcher variant="chrome" />
           <Button
             type="primary"
             icon={!forking ? <CopyOutlined /> : undefined}
@@ -360,7 +379,9 @@ const SharePage: React.FC = () => {
                         value={moduleKey}
                         onChange={(v) => onModuleChange(String(v))}
                         options={modules.map(m => ({
-                          label: m.chnname || m.name || intl.formatMessage({ id: 'share.module.fallback' }),
+                          label: isDemoShare
+                            ? demoModuleLabel(intl, m.name || m.chnname, m.chnname || m.name)
+                            : (m.chnname || m.name || intl.formatMessage({ id: 'share.module.fallback' })),
                           value: m.name || m.chnname || '',
                         }))}
                       />
@@ -378,7 +399,9 @@ const SharePage: React.FC = () => {
                         value={activeDiagramId}
                         onChange={(v) => setDiagramId(String(v))}
                         options={diagrams.map((d) => ({
-                          label: d.name,
+                          label: isDemoShare
+                            ? demoDiagramName(intl, d.id, d.name)
+                            : d.name,
                           value: d.id,
                         }))}
                       />
@@ -387,12 +410,12 @@ const SharePage: React.FC = () => {
                 </div>
               ) : null}
             </div>
-            {data?.description ? (
+            {projectDescription ? (
               <Typography.Paragraph
                 className="share-page__desc"
                 ellipsis={{ rows: 1, tooltip: true }}
               >
-                {data.description}
+                {projectDescription}
               </Typography.Paragraph>
             ) : null}
           </div>
@@ -400,6 +423,7 @@ const SharePage: React.FC = () => {
             <ShareRelationCanvas
               module={currentModule as React.ComponentProps<typeof ShareRelationCanvas>['module']}
               diagramId={activeDiagramId}
+              shareToken={token}
             />
           ) : (
             <ShareEmptyState message={intl.formatMessage({ id: 'share.empty.noModel' })} />

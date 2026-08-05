@@ -8,7 +8,12 @@
 
 ### 2026-08-05
 
-#### Vision loop：一致性/可信队列 #23–#32 闭环 → awaiting theme
+#### 演示：public-demo 关系图布局优化 + 分享页 i18n
+
+- **布局**：真相源 `schema/examples/demo.projectjson.json` 主图改为左→右叙事列——`sys_user`（主体）→ 中间表 `sys_user_role`/`sys_role_permission` 夹在实体之间 → RBAC 链 → 会话/审计 → 业务；junction 不再堆在 RBAC 区右侧，减少长绕线与交叉；第二图「会话与审计」独立手排；Frame 包围盒同步烘焙；Flyway `V16__public_demo_layout.sql` 增量更新已有库
+- **i18n**：`/s/public-demo` 渲染层映射（`demoShareI18n.ts`）——项目名/描述、模块与关系图 Segmented、分组 Frame 标题、表中文名、Frame meta「N 张表」；分享顶栏补 `LocaleSwitcher`；新增 `demo.*` / `share.frame.*` / `share.badge.*` 键
+- 验证点：`./backend/dev-ensure.sh --restart`；`npx playwright test tests/e2e/demo.spec.ts --project=chromium` 绿（含 LocaleSwitcher 英文断言）；`npx tsx src/utils/graphLayout.test.ts` 绿；`yarn build` 绿；浏览器打开 `http://localhost:8000/s/public-demo` 见清晰 LR 布局 + 语言切换
+
 
 - 决策：`DesignLayout` 工作流/skip-nav i18n 已在 #6/`1c63853` 完成，不重复；Pull/Push（#16）仍须用户开闸；#23–#32 E2E 续跑已全部 ✅（末刀 `76d1a1a`）
 - 改动：`agent-loop-vision.prompt.md` 标记 awaiting theme + 下一刀开闸表；`roadmap.md` 同步 i18n/队列状态；`regression-checklist.md` 补 #32 双人 B localDirty 项
