@@ -326,16 +326,64 @@ export default {
   'share.tables.col.table': '表',
   'share.tables.col.fields': '字段数',
 
-  // OAuth 授权页 skip
+  // OAuth 授权页
   'oauth.skipLabel': '跳到授权操作',
+  'oauth.title': '授权应用',
+  'oauth.subtitle': '第三方应用请求访问你的 ERD Online 数据',
+  'oauth.loading': '加载授权请求…',
+  'oauth.error.missingParams':
+    '缺少 OAuth 参数（response_type、client_id、redirect_uri、state、PKCE）',
+  'oauth.error.loadFailed': '无法加载授权信息',
+  'oauth.error.loadFailedDetail': '无法加载授权信息，请确认客户端与 redirect_uri 已注册',
+  'oauth.error.bannerTitle': '无法完成授权',
+  'oauth.error.manageClients': '管理 OAuth 客户端',
+  'oauth.consent.lead': '{clientName} 请求访问你的账户',
+  'oauth.consent.meta.application': '应用',
+  'oauth.consent.meta.scopes': '权限',
+  'oauth.consent.meta.scopesAria': '请求的权限',
+  'oauth.consent.meta.redirect': '回调',
+  'oauth.consent.deny': '拒绝',
+  'oauth.consent.allow': '允许',
+  'oauth.consent.denyAria': '拒绝授权',
+  'oauth.consent.allowAria': '允许授权',
+  'oauth.consent.footnote':
+    '允许后将跳回第三方站点并签发一次性授权码。拒绝则按 OAuth 返回 access_denied。',
+  'oauth.decision.allowFailed': '授权失败',
+  'oauth.decision.denyFailed': '拒绝失败',
 
-  // 账号设置侧栏
+  // 账号设置
   'accountSettings.menu.aria': '设置分类',
   'accountSettings.route.base': '基本设置',
   'accountSettings.route.security': '安全设置',
   'accountSettings.route.personalAccessTokens': '访问令牌',
   'accountSettings.route.oauthClients': 'OAuth 客户端',
   'accountSettings.route.identification': '授权类型',
+  'accountSettings.base.avatarTitle': '头像',
+  'accountSettings.base.avatarUploadClosed': '头像上传暂未开放',
+  'accountSettings.base.username': '用户名',
+  'accountSettings.base.usernameRequired': '请输入您的用户名!',
+  'accountSettings.base.email': '邮箱',
+  'accountSettings.base.emailRequired': '请输入您的邮箱!',
+  'accountSettings.base.phone': '联系电话',
+  'accountSettings.base.phoneRequired': '请输入您的联系电话!',
+  'accountSettings.base.submit': '更新基本信息',
+  'accountSettings.base.submitAria': '更新基本信息',
+  'accountSettings.base.updateSuccess': '更新基本信息成功',
+  'accountSettings.base.updateFailed': '更新基本信息失败',
+  'accountSettings.security.passwordTitle': '账户密码',
+  'accountSettings.security.passwordStrengthLabel': '当前密码强度：',
+  'accountSettings.security.strengthStrong': '强',
+  'accountSettings.security.strengthMedium': '中',
+  'accountSettings.security.strengthWeak': '弱',
+  'accountSettings.security.federatedDivider': '第三方登录',
+
+  // Landing SEO
+  'landing.seo.title': 'ERD Online — 数据库设计的 Git + Figma',
+  'landing.seo.description':
+    '开源数据库建模：版本与协作，像 Git + Figma。免登录打开示例模型，再决定是否注册。',
+  'landing.compare.seo.title': 'ERD Online 对照 — 协作、版本与开源',
+  'landing.compare.seo.description':
+    '诚实对照 ERD Online、dbdiagram 与 DBML：协作、版本、开放与自部署能力一览。',
 
   // HomeLayout 主导航路由名
   'homeLayout.route.home': '首页',

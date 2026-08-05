@@ -284,19 +284,43 @@ test.describe('i18n：手动语言切换', () => {
     await expect(page.getByTestId('account-settings-page')).toBeVisible({ timeout: 15_000 });
     const settingsMenu = page.getByTestId('account-settings-menu');
     const settingsTitle = page.getByTestId('account-settings-title');
+    const baseSubmit = page.getByTestId('account-settings-base-submit');
     await expect(settingsMenu.getByRole('menuitem', { name: '基本设置' })).toBeVisible();
     await expect(settingsTitle).toHaveText('基本设置');
+    await expect(baseSubmit).toHaveText('更新基本信息');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
     await expect(settingsMenu.getByRole('menuitem', { name: 'Basic settings' })).toBeVisible();
     await expect(settingsTitle).toHaveText('Basic settings');
+    await expect(baseSubmit).toHaveText('Update profile');
 
     await page.goto('/oauth/authorize');
     const oauthSkip = page.getByTestId('auth-skip-form');
+    const oauthTitle = page.getByTestId('auth-form-header').getByRole('heading', { level: 3 });
     await expect(oauthSkip).toHaveText('Skip to consent actions');
+    await expect(oauthTitle).toHaveText('Authorize application');
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(oauthSkip).toHaveText('跳到授权操作');
+    await expect(oauthTitle).toHaveText('授权应用');
+  });
+
+  test('Landing SEO title/meta 随 locale 切换', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveTitle('ERD Online — 数据库设计的 Git + Figma');
+    const descZh = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(descZh).toContain('开源数据库建模');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(page).toHaveTitle('ERD Online — Git + Figma for database design');
+    const descEn = await page.locator('meta[name="description"]').getAttribute('content');
+    expect(descEn).toContain('Open-source database modeling');
+
+    await page.goto('/compare');
+    await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveTitle('ERD Online comparison — collaboration, versions, and open source');
   });
 });

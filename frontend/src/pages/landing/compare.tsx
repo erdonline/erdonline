@@ -1,5 +1,6 @@
 import React from 'react';
 import {Link, useIntl} from '@umijs/max';
+import {usePageSeo} from '@/hooks/usePageSeo';
 import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
 
@@ -10,6 +11,7 @@ import './index.less';
 const ComparePage: React.FC = () => {
   const intl = useIntl();
   const t = (id: string) => intl.formatMessage({ id });
+  usePageSeo('landing.compare.seo.title', 'landing.compare.seo.description');
 
   return (
     <LandingChrome variant="subpage" testId="compare-page">

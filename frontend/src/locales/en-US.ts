@@ -347,16 +347,65 @@ export default {
   'share.tables.col.table': 'Table',
   'share.tables.col.fields': 'Fields',
 
-  // OAuth consent skip
+  // OAuth consent page
   'oauth.skipLabel': 'Skip to consent actions',
+  'oauth.title': 'Authorize application',
+  'oauth.subtitle': 'A third-party app is requesting access to your ERD Online data',
+  'oauth.loading': 'Loading authorization request…',
+  'oauth.error.missingParams':
+    'Missing OAuth parameters (response_type, client_id, redirect_uri, state, PKCE)',
+  'oauth.error.loadFailed': 'Unable to load authorization details',
+  'oauth.error.loadFailedDetail':
+    'Unable to load authorization details. Confirm the client and redirect_uri are registered.',
+  'oauth.error.bannerTitle': 'Authorization could not be completed',
+  'oauth.error.manageClients': 'Manage OAuth clients',
+  'oauth.consent.lead': '{clientName} is requesting access to your account',
+  'oauth.consent.meta.application': 'Application',
+  'oauth.consent.meta.scopes': 'Permissions',
+  'oauth.consent.meta.scopesAria': 'Requested permissions',
+  'oauth.consent.meta.redirect': 'Redirect',
+  'oauth.consent.deny': 'Deny',
+  'oauth.consent.allow': 'Allow',
+  'oauth.consent.denyAria': 'Deny authorization',
+  'oauth.consent.allowAria': 'Allow authorization',
+  'oauth.consent.footnote':
+    'If you allow, you will be redirected back to the third-party site with a one-time authorization code. If you deny, OAuth returns access_denied.',
+  'oauth.decision.allowFailed': 'Authorization failed',
+  'oauth.decision.denyFailed': 'Denial failed',
 
-  // Account settings sidebar
+  // Account settings
   'accountSettings.menu.aria': 'Settings sections',
   'accountSettings.route.base': 'Basic settings',
   'accountSettings.route.security': 'Security',
   'accountSettings.route.personalAccessTokens': 'Personal access tokens',
   'accountSettings.route.oauthClients': 'OAuth clients',
   'accountSettings.route.identification': 'License type',
+  'accountSettings.base.avatarTitle': 'Avatar',
+  'accountSettings.base.avatarUploadClosed': 'Avatar upload is not available yet',
+  'accountSettings.base.username': 'Username',
+  'accountSettings.base.usernameRequired': 'Please enter your username',
+  'accountSettings.base.email': 'Email',
+  'accountSettings.base.emailRequired': 'Please enter your email',
+  'accountSettings.base.phone': 'Phone',
+  'accountSettings.base.phoneRequired': 'Please enter your phone number',
+  'accountSettings.base.submit': 'Update profile',
+  'accountSettings.base.submitAria': 'Update profile',
+  'accountSettings.base.updateSuccess': 'Profile updated',
+  'accountSettings.base.updateFailed': 'Failed to update profile',
+  'accountSettings.security.passwordTitle': 'Account password',
+  'accountSettings.security.passwordStrengthLabel': 'Current password strength: ',
+  'accountSettings.security.strengthStrong': 'Strong',
+  'accountSettings.security.strengthMedium': 'Medium',
+  'accountSettings.security.strengthWeak': 'Weak',
+  'accountSettings.security.federatedDivider': 'Third-party sign-in',
+
+  // Landing SEO
+  'landing.seo.title': 'ERD Online — Git + Figma for database design',
+  'landing.seo.description':
+    'Open-source database modeling with versioning and collaboration. Open the demo without signing in, then decide whether to register.',
+  'landing.compare.seo.title': 'ERD Online comparison — collaboration, versions, and open source',
+  'landing.compare.seo.description':
+    'An honest comparison of ERD Online, dbdiagram, and DBML: collaboration, versioning, openness, and self-hosting.',
 
   // HomeLayout main nav route names
   'homeLayout.route.home': 'Home',
