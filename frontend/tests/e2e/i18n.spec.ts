@@ -492,4 +492,45 @@ test.describe('i18n：手动语言切换', () => {
     await ensureTableDesign();
     await expect(page.getByTestId('table-design-tabs').getByRole('tab', { name: '字段' })).toBeVisible();
   });
+
+  test('版本页正文随 locale 切换', async ({ page }) => {
+    test.setTimeout(120_000);
+    await login(page, e2eAccount());
+    await page.goto('/project/person');
+    await expect(page.getByTestId('project-person-page')).toBeVisible({ timeout: 15_000 });
+    if ((await page.getByTestId('project-list-open-link').count()) === 0) {
+      await page.getByTestId('project-create-trigger').click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const projectName = uniqueProjectName('i18n-version-page');
+      await dialog.getByPlaceholder(/Project name|项目名/).fill(projectName);
+      await dialog.getByPlaceholder(/description|项目描述/).fill('i18n version page locale');
+      await dialog.getByRole('button', { name: /OK|确\s*定/ }).click();
+      await expect(
+        page.getByTestId('project-list-open-link').filter({ hasText: projectName }),
+      ).toBeVisible({ timeout: 15_000 });
+    }
+    await page.getByTestId('project-list-open-link').first().click();
+    await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+
+    const projectId = new URL(page.url()).searchParams.get('projectId') ?? '';
+    await page.goto(`/design/table/version/all?projectId=${projectId}`);
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+
+    const backToModel = page.getByTestId('version-back-to-model');
+    const tagFilter = page.getByTestId('version-tag-filter');
+    await expect(backToModel).toHaveText('返回模型');
+    await expect(tagFilter).toHaveAttribute('placeholder', '按标签筛选');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+    await expect(backToModel).toHaveText('Back to model');
+    await expect(tagFilter).toHaveAttribute('placeholder', 'Filter by tag');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+    await expect(backToModel).toHaveText('返回模型');
+  });
 });

@@ -88,7 +88,11 @@
 
 **i18n MVP 队列 #1–#16 已全部 ✅**
 
-**下一刀候选（ROI 序）**：Group 设置子页 / Design 版本页正文
+**i18n post-MVP 队列（ROI 序 · 一 tick 一刀）**：
+
+17. ~~Design 版本页正文 key 化（空态/标签筛选/推送态/工具栏可见文案；不含已 key 化的 SchemaProbe / VersionLayerStatusTag / DualLayerLegend）~~ ✅ 2026-08-05
+
+**下一刀候选（ROI 序）**：Group 设置子页正文
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

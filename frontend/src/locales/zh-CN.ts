@@ -577,6 +577,39 @@ export default {
   'designTable.tab.code': '元数据应用',
   'designTable.tab.trigger': '触发器',
 
+  // 设计器版本页（空态 / 标签筛选 / 推送态 / 工具栏）
+  'versionPage.error.fetchDbFailed': '获取数据源配置失败',
+  'versionPage.pushBookmark.unknown.title':
+    '版本号或数据源书签无法比较，不能推断推送状态；实库一致性请用「探测实库」',
+  'versionPage.pushBookmark.unknown.label': '书签未知',
+  'versionPage.pushBookmark.pushed.title':
+    '版本号书签：该版本曾推送到数据源；实库一致性请用「探测实库」',
+  'versionPage.pushBookmark.pushed.label': '已推送',
+  'versionPage.pushBookmark.syncing.title': '正在推送到数据源',
+  'versionPage.pushBookmark.syncing.label': '推送中',
+  'versionPage.pushBookmark.notPushed.title':
+    '版本号高于数据源书签，尚未推送；不代表实库 schema 状态',
+  'versionPage.pushBookmark.notPushed.label': '未推送',
+  'versionPage.row.tagsAria': '版本标签',
+  'versionPage.row.tagsLabel': '标签',
+  'versionPage.row.changesAria': '变更摘要',
+  'versionPage.row.changesLabel': '变更',
+  'versionPage.action.submitOrder': '提交工单',
+  'versionPage.empty.filter': '无匹配标签的版本',
+  'versionPage.empty.noVersions': '还没有版本',
+  'versionPage.empty.saveFirst': '保存第一个版本',
+  'versionPage.nav.backToModelAria': '返回模型',
+  'versionPage.nav.backToModel': '返回模型',
+  'versionPage.nav.myOrdersAria': '我的工单',
+  'versionPage.nav.myOrders': '我的工单',
+  'versionPage.nav.myApprovalsAria': '我的审批',
+  'versionPage.nav.myApprovals': '我的审批',
+  'versionPage.hint.noDatasource':
+    '未配置数据源：可直接「新增版本」保存模型快照（不同步 DDL）。需要同步时再在设置中添加 JDBC。',
+  'versionPage.toolbar.datasource': '数据源',
+  'versionPage.toolbar.tagFilterPlaceholder': '按标签筛选',
+  'versionPage.toolbar.tagFilterAria': '按标签筛选',
+
   // HomeLayout 主导航路由名
   'homeLayout.route.home': '首页',
   'homeLayout.route.dataModels': '数据模型',

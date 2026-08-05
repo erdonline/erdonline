@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### i18n：Design 版本页正文（空态 / 标签筛选 / 推送态 / 工具栏）
+
+- `design/version/index.tsx`：空态/标签筛选/推送书签态/工具栏/顶栏导航/行 meta 可见文案 key 化（`VersionLayerStatusTag` / `DualLayerLegend` / 顶栏 SchemaProbe 已在 #5 完成，本切片不重复）
+- 语料：`versionPage.*` 共 28 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #17 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "版本页正文"`
+
 #### i18n：Group/Design 高流量页正文（团队列表 + 表设计工作区）
 
 - `project/group/index.tsx`：页标题/搜索/错误 toast key 化（复用 `projectList.*` + 新增 `projectList.group.title`）
