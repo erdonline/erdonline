@@ -398,7 +398,7 @@ import {
   ackManualPersist,
   consumeProjectAutosaveEcho,
   isAutosaveCurrent,
-  isDebouncePersistCurrent,
+  isPersistAutosaveCurrent,
   markProjectPersistEchoSuppress,
   persistProjectNow,
   preemptAutosave,
@@ -434,7 +434,7 @@ async function persistAutosave(seq: number): Promise<void> {
   try {
     const res: { code?: number; msg?: string; message?: string; data?: unknown } =
       await Save.saveProject(latest);
-    if (!isDebouncePersistCurrent(seq)) {
+    if (!isPersistAutosaveCurrent(seq)) {
       return;
     }
     if (isProjectSaveConflict(res)) {
@@ -464,7 +464,7 @@ async function persistAutosave(seq: number): Promise<void> {
       res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
     );
   } catch {
-    if (!isDebouncePersistCurrent(seq)) {
+    if (!isPersistAutosaveCurrent(seq)) {
       return;
     }
     useGlobalStore.getState().dispatch.setSaving(false);
