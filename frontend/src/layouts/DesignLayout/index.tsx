@@ -111,6 +111,7 @@ export function getNowTimeParse() {
 }
 
 const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }) => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const ignoreOpenRef = React.useRef(false);
   // 菜单内点开 Modal 后关闭下拉；短时忽略随后的 onOpenChange(true) 回声
@@ -121,7 +122,9 @@ const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }
       ignoreOpenRef.current = false;
     }, 400);
   };
-  const label = projectName?.trim() || '项目';
+  const label =
+    projectName?.trim() ||
+    intl.formatMessage({ id: 'designLayout.project.fallback' });
   return (
     <ProjectMenuCloseContext.Provider value={closeMenu}>
       <Dropdown
@@ -150,7 +153,12 @@ const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }
           </div>
         )}
       >
-        <Button type="text" aria-label="项目菜单" className="design-layout__project">
+        <Button
+          type="text"
+          aria-label={intl.formatMessage({ id: 'designLayout.project.menuAria' })}
+          className="design-layout__project"
+          data-testid="project-menu-trigger"
+        >
           <span className="design-layout__project-name">{label}</span>
           <CaretDownOutlined />
         </Button>
@@ -160,6 +168,7 @@ const ProjectMenuDropdown: React.FC<{ projectName?: string }> = ({ projectName }
 };
 
 const ChromeOverflow: React.FC = () => {
+  const intl = useIntl();
   const items: MenuProps['items'] = useMemo(
     () => [
       {
@@ -190,7 +199,8 @@ const ChromeOverflow: React.FC = () => {
       <Button
         type="text"
         className="design-layout__overflow"
-        aria-label="更多"
+        aria-label={intl.formatMessage({ id: 'designLayout.overflow.moreAria' })}
+        data-testid="design-chrome-overflow"
         icon={<MoreOutlined />}
       />
     </Dropdown>
@@ -395,7 +405,8 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           className="erd-chrome-brand"
           role="link"
           tabIndex={0}
-          aria-label="ERD Online 首页"
+          aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
+          data-testid="erd-chrome-brand"
           onClick={() => history.push('/home')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -492,7 +503,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
               className="erd-chrome-user"
               role="button"
               tabIndex={0}
-              aria-label="用户菜单"
+              aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
               data-testid="user-menu-trigger"
             >
               <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2} />
@@ -522,7 +533,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
                   items={siderMenuItems}
                   className="design-layout__sider-menu"
                   data-testid="design-layout-sider-menu"
-                  aria-label="设计器侧栏导航"
+                  aria-label={intl.formatMessage({ id: 'designLayout.sider.navAria' })}
                 />
               ) : null}
             </div>
@@ -533,7 +544,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           className="design-layout__content"
           tabIndex={-1}
           data-testid="erd-design-workspace"
-          aria-label="主工作区"
+          aria-label={intl.formatMessage({ id: 'designLayout.workspace.aria' })}
         >
           <Theme>
             {/* 硬导航首帧 store 仍为空且 projectLoading 尚未置 true；勿挂载子页（JExcel 等只 init 一次） */}

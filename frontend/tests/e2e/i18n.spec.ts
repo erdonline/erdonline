@@ -105,12 +105,22 @@ test.describe('i18n：手动语言切换', () => {
     const myOrders = page.getByTestId('design-workflow-my-orders');
     const pendingApproval = page.getByTestId('design-workflow-pending-approval');
     const notifications = page.getByTestId('design-workflow-notifications');
+    const projectMenu = page.getByTestId('project-menu-trigger');
+    const overflow = page.getByTestId('design-chrome-overflow');
+    const userMenu = page.getByTestId('user-menu-trigger');
+    const brand = page.getByTestId('erd-chrome-brand');
+    const workspace = page.getByTestId('erd-design-workspace');
 
     await expect(skipTree).toHaveText('跳到模型树');
     await expect(skipWorkspace).toHaveText('跳到主工作区');
     await expect(myOrders).toHaveText('我的工单');
     await expect(pendingApproval).toHaveText('待审批');
     await expect(notifications).toHaveText('通知');
+    await expect(projectMenu).toHaveAttribute('aria-label', '项目菜单');
+    await expect(overflow).toHaveAttribute('aria-label', '更多');
+    await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
+    await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
+    await expect(workspace).toHaveAttribute('aria-label', '主工作区');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
@@ -119,5 +129,19 @@ test.describe('i18n：手动语言切换', () => {
     await expect(myOrders).toHaveText('My orders');
     await expect(pendingApproval).toHaveText('Pending');
     await expect(notifications).toHaveText('Notifications');
+    await expect(projectMenu).toHaveAttribute('aria-label', 'Project menu');
+    await expect(overflow).toHaveAttribute('aria-label', 'More');
+    await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
+    await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
+    await expect(workspace).toHaveAttribute('aria-label', 'Main workspace');
+
+    const projectId = new URL(page.url()).searchParams.get('projectId') ?? '';
+    await page.goto(`/design/table/version/all?projectId=${projectId}`);
+    await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
+    const siderMenu = page.getByTestId('design-layout-sider-menu');
+    await expect(siderMenu).toHaveAttribute('aria-label', 'Designer sidebar navigation');
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(siderMenu).toHaveAttribute('aria-label', '设计器侧栏导航');
   });
 });
