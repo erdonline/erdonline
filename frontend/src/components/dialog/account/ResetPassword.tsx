@@ -1,6 +1,7 @@
-import React, {useRef, useState} from 'react';
+import React, {useMemo, useRef, useState} from 'react';
 import {Button, Form, Input, Modal, message, type InputRef} from 'antd';
 import {POST} from '@/services/crud';
+import {useIntl} from '@umijs/max';
 import '../io-modal.scss';
 
 export type ResetPasswordProps = {};
@@ -10,15 +11,22 @@ type FormValues = {
   pwdCK?: string;
 };
 
-const pwdRules = [
-  {required: true, message: '密码不能为空'},
-  {
-    pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-    message: '密码至少包含 数字和英文，长度6-20',
-  },
-];
-
 const ResetPassword: React.FC<ResetPasswordProps> = () => {
+  const intl = useIntl();
+  const t = (id: string, values?: Record<string, string>) =>
+    intl.formatMessage({id}, values);
+
+  const pwdRules = useMemo(
+    () => [
+      {required: true, message: t('accountSettings.resetPassword.required')},
+      {
+        pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
+        message: t('accountSettings.resetPassword.pattern'),
+      },
+    ],
+    [intl],
+  );
+
   const [open, setOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [form] = Form.useForm<FormValues>();
@@ -31,20 +39,20 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
   const handleOk = async () => {
     const values = await form.validateFields();
     if (values.pwd !== values.pwdCK) {
-      message.error('两次输入的密码不一致');
+      message.error(t('accountSettings.resetPassword.mismatch'));
       return;
     }
     setSubmitting(true);
     try {
       const r = await POST('/syst/user/settings/update', values);
       if (r?.code === 200) {
-        message.success('更新密码信息成功');
+        message.success(t('accountSettings.resetPassword.success'));
         setOpen(false);
         return;
       }
       // 业务失败：request 已 toast；失败不关窗（勿伪装成功）
       if (!r?.msg) {
-        message.error('更新密码失败');
+        message.error(t('accountSettings.resetPassword.failed'));
       }
     } catch {
       // 网络/HTTP：errorHandler 已 toast；失败不关窗
@@ -57,14 +65,14 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
     <>
       <Button
         type="link"
-        aria-label="修改密码"
+        aria-label={t('accountSettings.resetPassword.triggerAria')}
         data-testid="reset-password-trigger"
         onClick={() => setOpen(true)}
       >
-        修改
+        {t('accountSettings.resetPassword.trigger')}
       </Button>
       <Modal
-        title="修改密码"
+        title={t('accountSettings.resetPassword.title')}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -76,6 +84,7 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
         rootClassName="erd-io-modal-root"
         keyboard
         focusTriggerAfterClose
+        cancelText={t('accountSettings.common.cancel')}
         afterOpenChange={(visible) => {
           if (!visible) {
             return;
@@ -86,23 +95,26 @@ const ResetPassword: React.FC<ResetPasswordProps> = () => {
         <Form form={form} layout="vertical" size="small" preserve={false}>
           <Form.Item
             name="pwd"
-            label="密码"
-            tooltip="密码至少包含 数字和英文，长度6-20"
+            label={t('accountSettings.resetPassword.passwordLabel')}
+            tooltip={t('accountSettings.resetPassword.passwordTooltip')}
             rules={pwdRules}
           >
             <Input.Password
               ref={pwdInputRef}
-              placeholder="请输入密码"
-              aria-label="密码"
+              placeholder={t('accountSettings.resetPassword.passwordPlaceholder')}
+              aria-label={t('accountSettings.resetPassword.passwordAria')}
             />
           </Form.Item>
           <Form.Item
             name="pwdCK"
-            label="确认密码"
-            tooltip="密码至少包含 数字和英文，长度6-20"
+            label={t('accountSettings.resetPassword.confirmLabel')}
+            tooltip={t('accountSettings.resetPassword.passwordTooltip')}
             rules={pwdRules}
           >
-            <Input.Password placeholder="请输入密码" aria-label="确认密码" />
+            <Input.Password
+              placeholder={t('accountSettings.resetPassword.confirmPlaceholder')}
+              aria-label={t('accountSettings.resetPassword.confirmAria')}
+            />
           </Form.Item>
         </Form>
       </Modal>

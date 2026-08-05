@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Checkbox,
@@ -11,6 +11,7 @@ import {
 import { DEL, GET, POST } from '@/services/crud';
 import PageSkeleton from '@/components/PageSkeleton';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import { useIntl } from '@umijs/max';
 import styles from './oauthClients.less';
 
 const OAUTH_CLIENTS_URL = '/auth/oauth-clients';
@@ -67,6 +68,24 @@ function parseRedirectUris(raw?: string): string[] | undefined {
 }
 
 const OAuthClientsView: React.FC = () => {
+  const intl = useIntl();
+  const t = (id: string, values?: Record<string, string | number>) =>
+    intl.formatMessage({ id }, values);
+
+  const clientTypeOptions = useMemo(
+    () => [
+      {
+        value: 'confidential' as const,
+        label: t('accountSettings.oauthClient.typeConfidential'),
+      },
+      {
+        value: 'public' as const,
+        label: t('accountSettings.oauthClient.typePublic'),
+      },
+    ],
+    [intl],
+  );
+
   const [loading, setLoading] = useState(true);
   const [clients, setClients] = useState<OAuthClientSummary[]>([]);
   const [createOpen, setCreateOpen] = useState(false);
@@ -86,14 +105,14 @@ const OAuthClientsView: React.FC = () => {
         return;
       }
       if (!res?.msg) {
-        message.error('加载 OAuth 客户端失败');
+        message.error(t('accountSettings.oauthClient.loadFailed'));
       }
     } catch {
       // request errorHandler 已 toast
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [intl]);
 
   useEffect(() => {
     void load();
@@ -118,7 +137,7 @@ const OAuthClientsView: React.FC = () => {
     }
     const redirectUris = parseRedirectUris(values.redirectUrisText);
     if (values.clientType === 'public' && (!redirectUris || !redirectUris.length)) {
-      message.error('public 客户端须至少一条 redirect URI');
+      message.error(t('accountSettings.oauthClient.publicRedirectRequired'));
       return;
     }
     setCreating(true);
@@ -133,12 +152,12 @@ const OAuthClientsView: React.FC = () => {
         setCreateOpen(false);
         form.resetFields();
         setSecretReveal(res.data as OAuthClientCreated);
-        message.success('OAuth 客户端已注册');
+        message.success(t('accountSettings.oauthClient.registerSuccess'));
         await load();
         return;
       }
       if (!res?.msg) {
-        message.error('注册 OAuth 客户端失败');
+        message.error(t('accountSettings.oauthClient.registerFailed'));
       }
     } catch {
       // request errorHandler 已 toast
@@ -149,21 +168,21 @@ const OAuthClientsView: React.FC = () => {
 
   const onRevoke = (row: OAuthClientSummary) => {
     confirmDestructive({
-      title: '吊销 OAuth 客户端？',
-      content: `将吊销「${row.name}」。未过期的 access_token 与未消费的授权码会立即失效，且无法恢复。`,
-      okText: '吊销',
+      title: t('accountSettings.oauthClient.revokeTitle'),
+      content: t('accountSettings.oauthClient.revokeContent', { name: row.name }),
+      okText: t('accountSettings.common.revoke'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: t('accountSettings.common.cancel'),
       onOk: async () => {
         try {
           const res = await DEL(`${OAUTH_CLIENTS_URL}/${row.id}`, {});
           if (res?.code === 200) {
-            message.success('已吊销');
+            message.success(t('accountSettings.oauthClient.revokedSuccess'));
             await load();
             return;
           }
           if (!res?.msg) {
-            message.error('吊销失败');
+            message.error(t('accountSettings.oauthClient.revokeFailed'));
           }
         } catch {
           // request errorHandler 已 toast
@@ -179,25 +198,26 @@ const OAuthClientsView: React.FC = () => {
   return (
     <div className={styles.root} data-testid="account-settings-oauth-clients">
       <div className={styles.toolbar}>
-        <p className={styles.hint}>
-          注册后用于 MCP / 脚本的 OAuth（client_credentials 或 Authorization
-          Code + PKCE）。client_secret 明文仅创建时可见一次，之后无法再查看。
-        </p>
+        <p className={styles.hint}>{t('accountSettings.oauthClient.hint')}</p>
         <Button
           type="primary"
-          aria-label="注册 OAuth 客户端"
+          aria-label={t('accountSettings.oauthClient.registerButtonAria')}
+          data-testid="oauth-create-trigger"
           onClick={openCreate}
         >
-          注册客户端
+          {t('accountSettings.oauthClient.registerButton')}
         </Button>
       </div>
 
       {clients.length === 0 ? (
         <p className={styles.empty} role="status">
-          暂无 OAuth 客户端。点击「注册客户端」创建。
+          {t('accountSettings.oauthClient.empty')}
         </p>
       ) : (
-        <ul className={styles.list} aria-label="OAuth 客户端列表">
+        <ul
+          className={styles.list}
+          aria-label={t('accountSettings.oauthClient.listAria')}
+        >
           {clients.map((row) => (
             <li key={row.id} className={styles.item}>
               <div className={styles.meta}>
@@ -208,7 +228,9 @@ const OAuthClientsView: React.FC = () => {
                       row.revoked ? ` ${styles.badgeRevoked}` : ''
                     }`}
                   >
-                    {row.revoked ? '已吊销' : row.clientType || 'confidential'}
+                    {row.revoked
+                      ? t('accountSettings.oauthClient.statusRevoked')
+                      : row.clientType || 'confidential'}
                   </span>
                 </div>
                 <div className={styles.idRow}>
@@ -216,12 +238,17 @@ const OAuthClientsView: React.FC = () => {
                   <Button
                     type="link"
                     size="small"
-                    aria-label={`复制 client_id ${row.clientId}`}
+                    aria-label={t('accountSettings.oauthClient.copyIdAria', {
+                      id: row.clientId,
+                    })}
                     onClick={() =>
-                      void copyText(row.clientId, 'client_id 已复制')
+                      void copyText(
+                        row.clientId,
+                        t('accountSettings.oauthClient.copyIdSuccess'),
+                      )
                     }
                   >
-                    复制 ID
+                    {t('accountSettings.oauthClient.copyIdButton')}
                   </Button>
                 </div>
                 <p className={styles.detail}>
@@ -230,7 +257,9 @@ const OAuthClientsView: React.FC = () => {
                     ? ` · secret …${row.clientSecretHint}`
                     : ''}
                   {row.redirectUris?.length
-                    ? ` · redirect ${row.redirectUris.length} 条`
+                    ? ` · ${t('accountSettings.oauthClient.redirectCount', {
+                        count: row.redirectUris.length,
+                      })}`
                     : ''}
                 </p>
               </div>
@@ -240,10 +269,12 @@ const OAuthClientsView: React.FC = () => {
                     type="link"
                     danger
                     size="small"
-                    aria-label={`吊销 OAuth 客户端 ${row.name}`}
+                    aria-label={t('accountSettings.oauthClient.revokeButtonAria', {
+                      name: row.name,
+                    })}
                     onClick={() => onRevoke(row)}
                   >
-                    吊销
+                    {t('accountSettings.common.revoke')}
                   </Button>
                 )}
               </div>
@@ -253,7 +284,7 @@ const OAuthClientsView: React.FC = () => {
       )}
 
       <Modal
-        title="注册 OAuth 客户端"
+        title={t('accountSettings.oauthClient.createModalTitle')}
         open={createOpen}
         onCancel={() => {
           if (!creating) {
@@ -262,12 +293,15 @@ const OAuthClientsView: React.FC = () => {
         }}
         onOk={() => void onCreate()}
         confirmLoading={creating}
-        okText="注册"
-        cancelText="取消"
+        okText={t('accountSettings.oauthClient.createOk')}
+        cancelText={t('accountSettings.common.cancel')}
         destroyOnClose
         width={440}
         className="oauth-clients-form"
-        okButtonProps={{ 'aria-label': '确认注册 OAuth 客户端' }}
+        okButtonProps={{
+          'aria-label': t('accountSettings.oauthClient.createOkAria'),
+        }}
+        data-testid="oauth-create-modal"
       >
         <Form
           form={form}
@@ -282,61 +316,67 @@ const OAuthClientsView: React.FC = () => {
         >
           <Form.Item
             name="name"
-            label="名称"
+            label={t('accountSettings.oauthClient.nameLabel')}
             rules={[
-              { required: true, message: '请输入名称' },
-              { max: 64, message: '最多 64 字' },
+              {
+                required: true,
+                message: t('accountSettings.oauthClient.nameRequired'),
+              },
+              { max: 64, message: t('accountSettings.oauthClient.nameMax') },
             ]}
           >
             <Input
-              aria-label="OAuth 客户端名称"
-              placeholder="例如 ci-bot / spa-app"
+              aria-label={t('accountSettings.oauthClient.nameAria')}
+              placeholder={t('accountSettings.oauthClient.namePlaceholder')}
               autoComplete="off"
             />
           </Form.Item>
-          <Form.Item name="clientType" label="类型" rules={[{ required: true }]}>
-            <Select
-              options={[
-                {
-                  value: 'confidential',
-                  label: 'confidential（有 secret，可 M2M）',
-                },
-                {
-                  value: 'public',
-                  label: 'public（无 secret，须 PKCE + redirect）',
-                },
-              ]}
-            />
+          <Form.Item
+            name="clientType"
+            label={t('accountSettings.oauthClient.typeLabel')}
+            rules={[{ required: true }]}
+          >
+            <Select options={clientTypeOptions} />
           </Form.Item>
           <Form.Item
             name="scopes"
-            label="Scopes"
+            label={t('accountSettings.oauthClient.scopesLabel')}
             rules={[
-              { required: true, type: 'array', min: 1, message: '至少选一个 scope' },
+              {
+                required: true,
+                type: 'array',
+                min: 1,
+                message: t('accountSettings.oauthClient.scopesRequired'),
+              },
             ]}
           >
             <Checkbox.Group
               options={SCOPE_OPTIONS}
-              aria-label="OAuth 客户端 scopes"
+              aria-label={t('accountSettings.oauthClient.scopesAria')}
             />
           </Form.Item>
           <Form.Item
             name="redirectUrisText"
-            label="Redirect URIs"
+            label={t('accountSettings.oauthClient.redirectLabel')}
             extra={
               clientType === 'public'
-                ? 'public 必填；每行一条；仅 https 或 localhost'
-                : '可选；Authorization Code 流程需要时填写'
+                ? t('accountSettings.oauthClient.redirectExtraPublic')
+                : t('accountSettings.oauthClient.redirectExtraOptional')
             }
             rules={
               clientType === 'public'
-                ? [{ required: true, message: 'public 须至少一条 redirect URI' }]
+                ? [
+                    {
+                      required: true,
+                      message: t('accountSettings.oauthClient.redirectRequiredPublic'),
+                    },
+                  ]
                 : undefined
             }
           >
             <Input.TextArea
-              aria-label="OAuth redirect URIs"
-              placeholder="http://127.0.0.1:3000/cb"
+              aria-label={t('accountSettings.oauthClient.redirectLabel')}
+              placeholder={t('accountSettings.oauthClient.redirectPlaceholder')}
               rows={3}
             />
           </Form.Item>
@@ -344,26 +384,31 @@ const OAuthClientsView: React.FC = () => {
       </Modal>
 
       <Modal
-        title="请立即保存凭证"
+        title={t('accountSettings.oauthClient.revealTitle')}
         open={!!secretReveal}
         onCancel={() => setSecretReveal(null)}
         onOk={() => setSecretReveal(null)}
-        okText="我已保存"
+        okText={t('accountSettings.common.saved')}
         cancelButtonProps={{ style: { display: 'none' } }}
         className="oauth-clients-secret-dialog"
         width={480}
         destroyOnClose
-        okButtonProps={{ 'aria-label': '确认已保存 OAuth 凭证' }}
+        okButtonProps={{
+          'aria-label': t('accountSettings.oauthClient.revealOkAria'),
+        }}
+        data-testid="oauth-reveal-modal"
       >
         {secretReveal && (
           <div data-testid="oauth-client-secret-reveal">
             <p className={styles.secretWarn} role="alert">
               {secretReveal.clientSecret
-                ? 'client_secret 仅此一次显示，关闭后无法再查看，请立即复制到安全位置。'
-                : 'public 客户端无 client_secret。请保存 client_id；换票须走 Authorization Code + PKCE。'}
+                ? t('accountSettings.oauthClient.revealWarnSecret')
+                : t('accountSettings.oauthClient.revealWarnPublic')}
             </p>
             <div className={styles.secretBlock}>
-              <p className={styles.secretLabel}>client_id</p>
+              <p className={styles.secretLabel}>
+                {t('accountSettings.oauthClient.clientIdLabel')}
+              </p>
               <div className={styles.secretValue}>
                 <code className={styles.secretCode}>
                   {secretReveal.clientId}
@@ -371,18 +416,23 @@ const OAuthClientsView: React.FC = () => {
                 <Button
                   type="link"
                   size="small"
-                  aria-label="复制新建 client_id"
+                  aria-label={t('accountSettings.oauthClient.copyClientIdAria')}
                   onClick={() =>
-                    void copyText(secretReveal.clientId, 'client_id 已复制')
+                    void copyText(
+                      secretReveal.clientId,
+                      t('accountSettings.oauthClient.copyIdSuccess'),
+                    )
                   }
                 >
-                  复制
+                  {t('accountSettings.common.copy')}
                 </Button>
               </div>
             </div>
             {secretReveal.clientSecret ? (
               <div className={styles.secretBlock}>
-                <p className={styles.secretLabel}>client_secret</p>
+                <p className={styles.secretLabel}>
+                  {t('accountSettings.oauthClient.clientSecretLabel')}
+                </p>
                 <div className={styles.secretValue}>
                   <code className={styles.secretCode}>
                     {secretReveal.clientSecret}
@@ -390,15 +440,17 @@ const OAuthClientsView: React.FC = () => {
                   <Button
                     type="link"
                     size="small"
-                    aria-label="复制新建 client_secret"
+                    aria-label={t(
+                      'accountSettings.oauthClient.copyClientSecretAria',
+                    )}
                     onClick={() =>
                       void copyText(
                         secretReveal.clientSecret as string,
-                        'client_secret 已复制',
+                        t('accountSettings.oauthClient.copyClientSecretSuccess'),
                       )
                     }
                   >
-                    复制
+                    {t('accountSettings.common.copy')}
                   </Button>
                 </div>
               </div>

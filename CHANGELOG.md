@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### i18n：账号设置 PAT/OAuth/联邦绑定 Modal + ResetPassword
+
+- `personalAccessTokens` / `oauthClients` / `federatedAccounts`：列表、工具栏、铸造/注册 Modal、凭证揭示 Modal、吊销确认 key 化
+- `ResetPassword`：触发器、Modal 标题/表单/校验/成功失败 toast key 化
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 ~120 个 `accountSettings.*` key（含 `common.cancel/revoke/copy/saved`）
+- 队列：`agent-loop-vision.prompt.md` i18n #13 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "PAT/OAuth Modal|ResetPassword"`
+
 #### i18n：OAuth 授权页正文 + 账号设置基本/安全表单 + Landing SEO
 
 - `oauth/authorize`：title/subtitle/加载/错误/同意 meta/Allow·Deny/footnote 全量 `formatMessage`
