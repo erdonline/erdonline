@@ -144,8 +144,16 @@
 }
 
 .design-layout__actions {
-  gap: 8px;
+  gap: 10px;
   padding-right: 8px;
+}
+
+/* 状态簇内 SchemaProbe 分隔线移入簇容器，避免与主操作按钮视觉粘连 */
+.design-layout__actions .erd-chrome-status-cluster .schema-probe-control--chrome {
+  padding-inline: 0;
+  border-left: none;
+  margin-left: 0;
+  padding-left: 0;
 }
 
 .design-layout__workflow {

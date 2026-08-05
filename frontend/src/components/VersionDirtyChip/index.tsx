@@ -52,10 +52,19 @@ const VersionDirtyChip: React.FC = () => {
     goVersionPage(copy.openSaveFlow);
   };
 
+  const chipTone =
+    copy.tone === 'unknown'
+      ? 'neutral'
+      : copy.tone === 'warn'
+        ? 'warn'
+        : copy.tone === 'clean'
+          ? 'success'
+          : 'accent';
+
   return (
     <button
       type="button"
-      className={`erd-version-dirty-chip erd-version-dirty-chip--${copy.tone}`}
+      className={`erd-status-chip erd-status-chip--${chipTone} erd-status-chip--interactive`}
       data-testid={copy.testId}
       aria-live="polite"
       aria-label={intl.formatMessage({ id: 'designer.versionDirty.aria' }, { label: copy.label })}

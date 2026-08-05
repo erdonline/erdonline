@@ -8,6 +8,14 @@
 
 ### 2026-08-05
 
+#### UI：设计器顶栏状态簇样式统一（用户反馈「这块区域太丑」）
+
+- **范围**：`SaveStatus` / `VersionDirtyChip` / `SchemaProbeControl`（chrome 模式）顶栏状态区；行为与 i18n 文案不变
+- **改法**：新增共用 `erd-status-chip` + `erd-chrome-status-cluster` 容器——统一 22px pill、11px 字重、语义色走 `--erd-*` token；警告态改为 8% 浅 tint 替代大块 `#fffbe6`；「保存版本」主按钮与状态簇视觉分离
+- 验证点：
+  - `cd frontend && yarn build` 绿
+  - Playwright 打开 `http://localhost:8000/design/table/model?projectId=…` 截图核对顶栏：状态 chip 等高、无 header line-height 撑高、主按钮层级清晰
+
 #### 安全：`data_sources.username`/`password` 落库加密（R-DATA-06 · ADR-0024）
 
 - **根因**：ADR-0008 把 JDBC 机密收敛到唯一事实源表 `data_sources` 后，该表本身仍以明文存 `username`/`password`——MySQL 备份/慢查询日志/拿到数据卷者可直接读到用户下游数据库口令

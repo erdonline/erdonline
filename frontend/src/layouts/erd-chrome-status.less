@@ -1,0 +1,80 @@
+/* 设计器顶栏状态簇：SaveStatus / VersionDirtyChip / SchemaProbe 共用 chip 体系 */
+
+.erd-chrome-status-cluster {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: var(--erd-radius-sm);
+  background: var(--erd-surface-muted);
+  border: 1px solid var(--erd-line);
+  line-height: 1;
+}
+
+.erd-status-chip {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 22px;
+  padding: 0 7px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: 0.01em;
+  border: 1px solid transparent;
+  white-space: nowrap;
+  user-select: none;
+  flex-shrink: 0;
+  font-family: var(--erd-font-ui);
+  vertical-align: middle;
+
+  &--success {
+    color: var(--erd-success);
+    background: var(--erd-success-bg);
+    border-color: var(--erd-success-border);
+  }
+
+  &--pending {
+    color: var(--erd-ink-600);
+    background: var(--erd-surface);
+    border-color: var(--erd-line);
+  }
+
+  &--warn {
+    color: var(--erd-warning);
+    background: color-mix(in srgb, var(--erd-warning) 8%, var(--erd-surface));
+    border-color: color-mix(in srgb, var(--erd-warning) 28%, var(--erd-line));
+  }
+
+  &--accent {
+    color: var(--erd-ink-900);
+    background: color-mix(in srgb, var(--erd-brand) 6%, var(--erd-surface));
+    border-color: color-mix(in srgb, var(--erd-brand) 22%, var(--erd-line));
+  }
+
+  &--neutral {
+    color: var(--erd-ink-600);
+    background: var(--erd-surface);
+    border-color: var(--erd-line);
+  }
+
+  &--interactive {
+    appearance: none;
+    margin: 0;
+    font: inherit;
+    cursor: pointer;
+    text-align: inherit;
+
+    &:hover {
+      filter: brightness(0.97);
+    }
+
+    &:focus-visible {
+      outline: 2px solid var(--erd-brand);
+      outline-offset: 1px;
+    }
+  }
+}
