@@ -810,3 +810,9 @@
 - [x] [B 层探测五态] 设计器顶栏（模型/版本页均可见）`schema-probe-control--chrome`；UNKNOWN 四路 + mock 五态（synced/ahead/behind/diverged/connection-failed）；版本页 `dual-layer-legend` ✅ `schema-probe.spec.ts`（4 用例）
 - [x] [分享访客隐藏 B 层] 匿名打开 `/s/:token` → 无 `schema-probe-control`/`schema-probe-btn`；不 POST `/connector/schema/probe`；后端非成员 probe → 403 + `PROBE_ACL_DENIED` ✅ `share.spec.ts` + `SchemaProbeAccessGuardTest`
 - [x] [db_version 书签降级] 版本行 tag 为「已推送/未推送」；tooltip 明示非实库指纹真相 ✅ 版本页 `version-push-bookmark-tag`
+
+## Railway 部署排障（2026-08-05）
+
+- [x] [OIDC issuer 单值] `ERD_UI_URL` 逗号双源时，OIDC issuer 只取第一个合法 http(s) 条目；首项畸形（如 `ttps://`）自动跳到下一个合法条目 ✅ `OidcConfigTest`
+- [x] [畸形 Origin fail-fast] prod 下 `ERD_UI_URL` 任一逗号条目缺 `http(s)://` 前缀 → 启动失败并点名具体值；非 prod 仅 warn 放行 ✅ `CrossOriginPolicyTest`
+- [ ] [Redeploy 崩容器排障] 日志含 `oidcIdTokenService` init 失败 → 先查 `Caused by:` 是否含 `ERD_OIDC_RSA_PRIVATE_KEY`（RSA 私钥未设，与 `ERD_UI_URL` 无关，见 `docs/deployment.md` 排障段）→ 补齐私钥变量后 Redeploy → `actuator/health` 转 UP

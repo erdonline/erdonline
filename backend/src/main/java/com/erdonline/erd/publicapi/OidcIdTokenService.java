@@ -84,7 +84,7 @@ public class OidcIdTokenService {
     }
 
     public String issuer() {
-        return OidcConfig.resolveIssuer(oidcProperties, martinUiUrl);
+        return OidcConfig.resolveIssuer(oidcProperties, martinUiUrl, environment);
     }
 
     public long idTokenTtlSeconds() {

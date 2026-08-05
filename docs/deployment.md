@@ -310,7 +310,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |
 | `ERD_FEDERATE_SUCCESS_PATH` | `/login/federate` | 联邦回调后 UI 落点路径（拼在 `ERD_UI_URL` 后） |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
-| `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://erdonline-demo.pages.dev`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）+ SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；OIDC issuer 默认同源首项 |
+| `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://erdonline-demo.pages.dev`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）拿到**全部**逗号分隔条目；SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；**OIDC issuer 只取第一个合法 http(s) 条目**（`iss` 须单值，跳过畸形/通配）；任一条目缺 `http(s)://` 前缀（如打字漏字母的 `ttps://`）prod 直接 fail-fast，报错点名具体值 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
@@ -352,6 +352,14 @@ Railway CLI（项目已 `railway link` 且已登录时）：
 railway variables set ERD_UI_URL='https://app.erdonline.com,https://erdonline-demo.pages.dev'
 railway up   # 或 Dashboard → Redeploy
 ```
+
+**改 `ERD_UI_URL` 后 Redeploy 反而崩容器**（日志形如 `Error creating bean with name 'oidcIdTokenService': Invocation of init method failed → UnsatisfiedDependency → patAuthenticationFilter → Unable to start embedded Tomcat`）：
+
+- **不是** `ERD_UI_URL` 多源 CSV 本身的问题 —— CORS（`CrossOriginPolicy.resolveHttpAllowedOrigins`）与 OIDC issuer（`OidcConfig.resolveIssuer`）都已按逗号拆分，issuer 固定取**第一个合法 http(s) 条目**，见 `OidcConfigTest` / `CrossOriginPolicyTest` 回归
+- 真根因两种，且常与「顺手改了 `ERD_UI_URL`」同时发生（Railway Redeploy 会重新走 fail-fast 校验，旧容器可能是在校验加固前起的）：
+  1. **`ERD_OIDC_RSA_PRIVATE_KEY`（或 `_PATH` / `_KEYSTORE_PATH`）未设**：`OidcIdTokenService` 的 `@PostConstruct` 经 `OidcRsaKeySupport.load` 在 prod 强制要求 RS256 私钥，缺失即 fail-fast，报错信息含 `OIDC RSA private key missing in prod`；这条异常沿 `OAuthApiClientServiceImpl → patAuthenticationFilter` 的构造依赖链向上抛，最终表现为「Tomcat 起不来」——**看似跟 `ERD_UI_URL` 无关，实为同一次 Redeploy 顺带触发**。修复：在 Railway Variables 补回该私钥（`openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048` 生成后整段贴入，或挂 `_PATH` 到 Secret 文件），Redeploy
+  2. **`ERD_UI_URL` 条目本身打字错误**（如漏字母的 `ttps://...`）：这类值不是合法 http(s) Origin，本仓库已加固为 prod fail-fast（`CrossOriginPolicy.assertWellFormed`），报错信息会直接点出具体畸形值，而不是绕到 OIDC 链路——按提示修正 Origin 拼写即可
+- 排查顺序：`./backend/dev-ensure.sh --logs`（本地复现）或 Railway Deploy Logs 找 `Error creating bean with name` 后第一行 `Caused by:`；含 `ERD_OIDC_RSA_PRIVATE_KEY` → 走情形 1；含 `malformed origin` → 走情形 2
 
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
 2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）

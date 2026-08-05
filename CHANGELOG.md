@@ -6,6 +6,19 @@
 
 ## [Unreleased]
 
+### 2026-08-05
+
+#### 修复：Railway Redeploy 后 Tomcat 起不来（`oidcIdTokenService` 初始化失败）+ 加固畸形 Origin
+
+- 根因排查：日志 `Error creating bean with name 'oidcIdTokenService': Invocation of init method failed → UnsatisfiedDependency → patAuthenticationFilter → Unable to start embedded Tomcat` **不是** `ERD_UI_URL` 双源 CSV 本身的问题——`CrossOriginPolicy`（CORS）与 `OidcConfig.resolveIssuer`（OIDC issuer 取首个合法条目）此前已正确处理逗号分隔（`88d71f2` 已验证）。真根因是 `OidcIdTokenService.@PostConstruct` 经 `OidcRsaKeySupport.load` 在 prod 强制要求 RS256 私钥（`ERD_OIDC_RSA_PRIVATE_KEY`/`_PATH`/`_KEYSTORE_PATH`），缺失即 fail-fast；异常沿 `OAuthApiClientServiceImpl`（构造依赖 `OidcIdTokenService`）→ `patAuthenticationFilter`（依赖 `OAuthApiClientService`）向上抛，表现为「改了 `ERD_UI_URL` 就崩」，实为同一次 Redeploy 顺带重新触发该校验（该 RS256 门禁 `e2036de` 与 CORS CSV 修复 `88d71f2` 同日落地，此前部署未必命中过）
+- 加固（防「`ttps://` 掉字母」类畸形 Origin 静默失败）：`CrossOriginPolicy` 新增 `isWellFormedHttpOrigin` / `assertWellFormed`——prod 下 `ERD_UI_URL` 任一逗号条目缺 `http(s)://` 前缀即 fail-fast 并点名具体值；非 prod 仅 warn 日志放行（不阻断本地调试）。`OidcConfig.resolveIssuer` 同步加固：CSV 取**第一个合法**条目做 issuer（不再是裸取首项），全部畸形时 prod fail-fast、非 prod 回落 `localhost:8000`
+- 结论：CORS 多源与 OIDC 单源 issuer 的设计（CORS 用全部、issuer 用首个合法值）此前已实现，无需改动；本轮只补齐了「畸形值不再静默通过」的缺口，并把 RS256 私钥缺失的排障路径写进 `docs/deployment.md`
+
+验证点：
+- `cd backend && mvn -q -Dtest=CrossOriginPolicyTest,OidcConfigTest,OidcIdTokenServiceTest,CorsPreflightFilterTest test -Djacoco.skip=true` 绿（新增 `OidcConfigTest` 6 例 + `CrossOriginPolicyTest` 新增 6 例畸形 Origin 回归）
+- `cd backend && mvn -q test -Djacoco.skip=true`：306 例中仅 1 例 `OracleReverseDialectCommentTest` 失败，已确认为改动前既存、与本轮无关（`git stash` 验证同样失败）
+- Railway 实际修复：确认/补回 `ERD_OIDC_RSA_PRIVATE_KEY`（或 `_PATH`），`ERD_UI_URL` 维持 `https://app.erdonline.com,https://erdonline-demo.pages.dev`，Redeploy 后 `actuator/health` 应转 UP
+
 ### 2026-08-04
 
 #### 修复：Railway CORS 403（demo → production API）
