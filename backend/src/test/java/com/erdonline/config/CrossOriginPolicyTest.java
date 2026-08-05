@@ -88,4 +88,49 @@ class CrossOriginPolicyTest {
         env.setActiveProfiles("prod");
         CrossOriginPolicy.assertSocketIoOriginSafeForProfile("https://erdonline-demo.pages.dev", env);
     }
+
+    @Test
+    void prodHttpRejectsMalformedOriginMissingScheme() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        env.setProperty("martin.ui.url", "ttps://erdonline-demo.pages.dev");
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
+        assertTrue(ex.getMessage().contains("ttps://erdonline-demo.pages.dev"));
+        assertTrue(ex.getMessage().contains("malformed"));
+    }
+
+    @Test
+    void prodHttpRejectsMalformedOriginAmongValidCsvEntries() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("prod");
+        env.setProperty("martin.ui.url", "https://app.erdonline.com,ttps://erdonline-demo.pages.dev");
+        IllegalStateException ex = assertThrows(IllegalStateException.class,
+                () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
+        assertTrue(ex.getMessage().contains("ttps://erdonline-demo.pages.dev"));
+    }
+
+    @Test
+    void nonProdAllowsMalformedOriginWithoutThrowing() {
+        MockEnvironment env = new MockEnvironment();
+        env.setActiveProfiles("dev");
+        env.setProperty("martin.ui.url", "ttps://erdonline-demo.pages.dev");
+        assertEquals(
+                List.of("ttps://erdonline-demo.pages.dev"),
+                CrossOriginPolicy.resolveHttpAllowedOrigins(env));
+    }
+
+    @Test
+    void isWellFormedHttpOrigin_acceptsHttpAndHttps() {
+        assertTrue(CrossOriginPolicy.isWellFormedHttpOrigin("https://app.erdonline.com"));
+        assertTrue(CrossOriginPolicy.isWellFormedHttpOrigin("http://localhost:8000"));
+    }
+
+    @Test
+    void isWellFormedHttpOrigin_rejectsTypoedSchemeOrBlank() {
+        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin("ttps://erdonline-demo.pages.dev"));
+        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin("*"));
+        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin(""));
+        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin(null));
+    }
 }

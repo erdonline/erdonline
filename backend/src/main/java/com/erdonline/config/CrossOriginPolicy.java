@@ -1,7 +1,10 @@
 package com.erdonline.config;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -14,6 +17,8 @@ import java.util.List;
  * yml 无默认，对齐 JWT_SECRET fail-fast。</p>
  */
 public final class CrossOriginPolicy {
+
+    private static final Logger log = LoggerFactory.getLogger(CrossOriginPolicy.class);
 
     /** 本地/dev HTTP CORS 默认（与历史 CorsConfig 一致）。 */
     public static final String DEV_DEFAULT_ORIGINS =
@@ -41,6 +46,7 @@ public final class CrossOriginPolicy {
                 throw new IllegalStateException(
                         "martin.ui.url is blank after trim: set ERD_UI_URL to the UI origin");
             }
+            assertWellFormed(list, env, "martin.ui.url / ERD_UI_URL");
             return list;
         }
 
@@ -63,6 +69,44 @@ public final class CrossOriginPolicy {
             throw new IllegalStateException(
                     "martin.socketio.origin is blank or *: set ERD_UI_URL "
                             + "to the UI origin (not *)");
+        }
+    }
+
+    /**
+     * 粗校验 CSV 各条目是否为完整 http(s) Origin（拦截如 {@code ttps://foo}
+     * 掉字母的打字错误 —— 这类值会被静默塞进允许列表，浏览器 Origin 永不匹配，
+     * 表现为「配了却还是跨域失败」而非明确报错）。
+     * prod：任一条目不合法即 fail-fast 并指出具体值；非 prod：仅 warn 日志，不阻断本地调试。
+     */
+    static void assertWellFormed(List<String> origins, Environment env, String source) {
+        for (String o : origins) {
+            if (isWellFormedHttpOrigin(o)) {
+                continue;
+            }
+            if (isProd(env)) {
+                throw new IllegalStateException(
+                        source + " has a malformed origin '" + o + "': expected a full http(s) URL "
+                                + "(missing scheme? check for typos like 'ttps://' losing the 'h')");
+            }
+            log.warn("{} has a malformed origin '{}' (missing http(s):// scheme?) — ignored outside prod",
+                    source, o);
+        }
+    }
+
+    /** 是否形如 {@code http://host} / {@code https://host}（含 host，非通配）。 */
+    public static boolean isWellFormedHttpOrigin(String origin) {
+        if (origin == null) {
+            return false;
+        }
+        String o = origin.trim();
+        if (!(o.startsWith("http://") || o.startsWith("https://"))) {
+            return false;
+        }
+        try {
+            URI uri = URI.create(o);
+            return uri.getHost() != null && !uri.getHost().isBlank();
+        } catch (Exception e) {
+            return false;
         }
     }
 
