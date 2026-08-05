@@ -1,7 +1,7 @@
 import React, {useEffect, useMemo, useState} from 'react';
 import {CopyOutlined, DownOutlined, UpOutlined} from '@ant-design/icons';
 import {Button, Segmented, Spin, Table, Tag, Typography, message} from 'antd';
-import {useParams, history} from '@umijs/max';
+import {useIntl, useParams, history} from '@umijs/max';
 import AuthBrandShell from '@/components/AuthBrandShell';
 import ShareRelationCanvas from './ShareRelationCanvas';
 import ShareEmptyState from './ShareEmptyState';
@@ -38,6 +38,7 @@ type SharePayload = {
 export const SHARE_TABLES_PAGE_SIZE = 5;
 
 const SharePage: React.FC = () => {
+  const intl = useIntl();
   const {token} = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
   const [forking, setForking] = useState(false);
@@ -248,7 +249,11 @@ const SharePage: React.FC = () => {
 
   return (
     <div className="share-page">
-      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="share-skip-nav">
+      <nav
+        className="erd-skip-nav"
+        aria-label={intl.formatMessage({id: 'common.skipNav'})}
+        data-testid="share-skip-nav"
+      >
         <a
           href="#share-canvas-stage"
           className="erd-skip-link"

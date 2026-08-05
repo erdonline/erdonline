@@ -28,6 +28,8 @@ export default defineConfig({
   reporter: process.env.CI ? 'github' : 'list',
   use: {
     baseURL: process.env.E2E_BASE_URL || 'http://localhost:8000',
+    // baseNavigator 已启用：E2E 固定 zh-CN，避免英文浏览器 locale 导致中文断言失败
+    locale: 'zh-CN',
     trace: 'retain-on-failure',
     screenshot: 'only-on-failure',
   },

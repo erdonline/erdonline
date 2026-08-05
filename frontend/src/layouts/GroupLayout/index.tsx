@@ -6,7 +6,7 @@ import {Dropdown, Layout, Menu} from "antd";
 import type {MenuProps} from "antd";
 import * as cache from "@/utils/cache";
 import {fixRouteAccess, headRightContent} from "@/layouts/DesignLayout";
-import {history, Link, useModel, useSearchParams} from "@umijs/max";
+import {history, Link, useIntl, useModel, useSearchParams} from "@umijs/max";
 import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
@@ -31,6 +31,7 @@ type GroupRoute = {
 };
 
 const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
+  const intl = useIntl();
   const {setInitialState} = useModel('@@initialState');
   const access = useAccess();
   const location = useLocation();
@@ -116,7 +117,11 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
 
   return (
     <Layout className="group-layout" data-testid="group-layout">
-      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="group-skip-nav">
+      <nav
+        className="erd-skip-nav"
+        aria-label={intl.formatMessage({id: 'common.skipNav'})}
+        data-testid="group-skip-nav"
+      >
         <a
           href="#group-main-content"
           className="erd-skip-link"

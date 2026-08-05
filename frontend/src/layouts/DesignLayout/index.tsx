@@ -21,7 +21,7 @@ import { history, Outlet, useSearchParams } from "@@/exports";
 import { useAccess } from "@@/plugin-access";
 import { Me } from "@icon-park/react";
 import { useUnmount } from '@umijs/hooks';
-import { Link, useModel } from "@umijs/max";
+import { Link, useIntl, useModel } from "@umijs/max";
 import {
   AuditOutlined,
   BellOutlined,
@@ -217,6 +217,7 @@ function routeLinkLabel(
 }
 
 const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
+  const intl = useIntl();
   const access = useAccess();
   const location = useLocation();
   const pathname = location.pathname || '/design/table/model';
@@ -356,7 +357,11 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
 
   return (
     <Layout className="design-layout" data-testid="design-layout">
-      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="erd-skip-nav">
+      <nav
+        className="erd-skip-nav"
+        aria-label={intl.formatMessage({id: 'common.skipNav'})}
+        data-testid="erd-skip-nav"
+      >
         {showTreeSkip ? (
           <a
             href="#erd-design-tree"
