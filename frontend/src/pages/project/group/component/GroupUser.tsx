@@ -1,7 +1,7 @@
 import React, {useCallback, useEffect, useRef, useState} from 'react';
 import {Avatar, Button, Input, List, message, Space} from 'antd';
 import {DEL, GET} from '@/services/crud';
-import {useSearchParams} from '@@/exports';
+import {useIntl, useSearchParams} from '@@/exports';
 import {CONSTANT} from '@/utils/constant';
 import AddUser from '@/pages/project/group/component/AddUser';
 import {Access, useAccess} from '@@/plugin-access';
@@ -22,6 +22,7 @@ export type GroupUserProps = {
 };
 
 const GroupUser: React.FC<GroupUserProps> = (props) => {
+  const intl = useIntl();
   const access = useAccess();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get(CONSTANT.PROJECT_ID) || '';
@@ -56,7 +57,9 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
         );
         setTotal(result?.data?.total || 0);
       } else {
-        message.error(result?.msg || '获取成员失败');
+        message.error(
+          result?.msg || intl.formatMessage({id: 'groupSetting.user.error.fetchMembersFailed'}),
+        );
       }
     } finally {
       setLoading(false);
@@ -80,11 +83,14 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
 
   const onRemoveClick = (row: ProjectUser) => {
     confirmDestructive({
-      title: '移除成员',
-      content: `确定将「${row.username}」移出该用户组吗？`,
-      okText: '移除',
+      title: intl.formatMessage({id: 'groupSetting.user.removeTitle'}),
+      content: intl.formatMessage(
+        {id: 'groupSetting.user.removeContent'},
+        {username: row.username},
+      ),
+      okText: intl.formatMessage({id: 'groupSetting.user.removeOk'}),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({id: 'accountSettings.common.cancel'}),
       onOk: () =>
         DEL('/ncnb/project/group/role/users', {
           projectId: projectId,
@@ -92,10 +98,12 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
           userIds: [row.id],
         }).then((r) => {
           if (r.code === 200) {
-            message.success('移除成功');
+            message.success(intl.formatMessage({id: 'groupSetting.user.removeSuccess'}));
             actionRef.current.reload();
           } else {
-            message.error(r.msg || r.message || '移除失败');
+            message.error(
+              r.msg || r.message || intl.formatMessage({id: 'groupSetting.user.removeFailed'}),
+            );
           }
         }),
     });
@@ -111,9 +119,9 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
           {canSearch ? (
             <>
               <Input.Search
-                placeholder="用户名"
+                placeholder={intl.formatMessage({id: 'groupSetting.user.searchUsername'})}
                 allowClear
-                aria-label="搜索用户名"
+                aria-label={intl.formatMessage({id: 'groupSetting.user.searchUsernameAria'})}
                 onSearch={(value) => {
                   setPage(1);
                   setUsername(value || undefined);
@@ -121,9 +129,9 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
                 style={{width: 160}}
               />
               <Input.Search
-                placeholder="邮箱"
+                placeholder={intl.formatMessage({id: 'groupSetting.user.searchEmail'})}
                 allowClear
-                aria-label="搜索邮箱"
+                aria-label={intl.formatMessage({id: 'groupSetting.user.searchEmailAria'})}
                 onSearch={(value) => {
                   setPage(1);
                   setEmail(value || undefined);
@@ -162,10 +170,13 @@ const GroupUser: React.FC<GroupUserProps> = (props) => {
                       <Button
                         type="link"
                         danger
-                        aria-label={`移除成员 ${row.username}`}
+                        aria-label={intl.formatMessage(
+                          {id: 'groupSetting.user.removeAria'},
+                          {username: row.username},
+                        )}
                         onClick={() => onRemoveClick(row)}
                       >
-                        移除
+                        {intl.formatMessage({id: 'groupSetting.user.remove'})}
                       </Button>
                     </Access>,
                   ]

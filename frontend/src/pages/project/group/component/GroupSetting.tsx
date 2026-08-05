@@ -4,7 +4,7 @@ import GroupUser from '@/pages/project/group/component/GroupUser';
 import GroupPermission from '@/pages/project/group/component/GroupPermission';
 import {GET} from '@/services/crud';
 import {CONSTANT} from '@/utils/constant';
-import {useSearchParams} from '@@/exports';
+import {useIntl, useSearchParams} from '@@/exports';
 import {useAccess} from '@@/plugin-access';
 import './group-setting.scss';
 
@@ -17,6 +17,7 @@ type RoleTabItem = {
 export type GroupSettingProps = {};
 
 const GroupSetting: React.FC<GroupSettingProps> = () => {
+  const intl = useIntl();
   const [tab, setTab] = useState('');
   const [items, setItems] = useState<RoleTabItem[]>([]);
   const access = useAccess();
@@ -33,7 +34,9 @@ const GroupSetting: React.FC<GroupSettingProps> = () => {
 
     GET('/ncnb/project/group/roles', {projectId}).then((resp) => {
       if (!resp || resp.code !== 200) {
-        message.error(resp?.msg || '获取用户组失败');
+        message.error(
+          resp?.msg || intl.formatMessage({id: 'groupSetting.permission.error.fetchRolesFailed'}),
+        );
         return;
       }
       let ownerKey = '';
@@ -47,14 +50,14 @@ const GroupSetting: React.FC<GroupSettingProps> = () => {
           const nested: RoleTabItem[] = [];
           if (canRoles) {
             nested.push({
-              label: '用户组成员',
+              label: intl.formatMessage({id: 'groupSetting.permission.tab.members'}),
               key: '1',
               children: <GroupUser roleId={d.roleId} isAdmin={isAdmin} />,
             });
           }
           if (canPerm) {
             nested.push({
-              label: '权限配置',
+              label: intl.formatMessage({id: 'groupSetting.permission.tab.permissions'}),
               key: '3',
               children: (
                 <GroupPermission
@@ -84,15 +87,18 @@ const GroupSetting: React.FC<GroupSettingProps> = () => {
     access.canErdProjectRolesPage,
     access.canErdProjectRolePermission,
     projectId,
+    intl,
   ]);
 
   return (
     <div className="group-setting-page" data-testid="group-setting-page">
-      <h2 className="group-setting-page__title">用户组</h2>
+      <h2 className="group-setting-page__title" data-testid="group-setting-title">
+        {intl.formatMessage({id: 'groupSetting.permission.title'})}
+      </h2>
       <Tabs
         className="group-setting-page__role-tabs"
         data-testid="group-setting-role-tabs"
-        aria-label="用户组角色"
+        aria-label={intl.formatMessage({id: 'groupSetting.permission.rolesAria'})}
         tabPosition="left"
         activeKey={tab}
         items={items}

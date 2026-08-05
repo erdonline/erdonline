@@ -92,7 +92,9 @@
 
 17. ~~Design 版本页正文 key 化（空态/标签筛选/推送态/工具栏可见文案；不含已 key 化的 SchemaProbe / VersionLayerStatusTag / DualLayerLegend）~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：Group 设置子页正文
+18. ~~Group 设置子页正文 key 化（`group/setting/*` 表单/Modal/确认框）~~ ✅ 2026-08-05
+
+**下一刀候选（ROI 序）**：Design 版本页 Modal 文案 key 化（SaveVersion / diff / conflict 等对话框）
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
