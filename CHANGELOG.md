@@ -8,6 +8,14 @@
 
 ### 2026-08-05
 
+#### UI：版本页移除顶栏「返回模型 / 我的工单 / 我的审批」入口
+
+- **范围**：设计器版本列表页（`/design/table/version/all`）`version-page__bar` 内三个 link 按钮；侧栏与顶栏主 tab 导航不变
+- **保留**：版本状态 Tag（版本一致等）、工具条、保存/对比等操作；无数据源时仍显示 hint
+- 验证点：
+  - `cd frontend && yarn build` 绿
+  - `yarn test:e2e --project=chromium version.spec.ts --grep "版本页不再显示顶栏返回"` 绿
+
 #### UI：设计器顶栏状态簇样式统一（用户反馈「这块区域太丑」）
 
 - **范围**：`SaveStatus` / `VersionDirtyChip` / `SchemaProbeControl`（chrome 模式）顶栏状态区；行为与 i18n 文案不变
