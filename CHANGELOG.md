@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### 可信保存：基线查询失败 E2E + 失败态不沿用旧基线（Vision #23 · ADR-0022）
+
+- 缺口：回归清单「基线查询失败为未知」仅手工 + 单测；`fetchVersionBaseline` catch 未清 `baselineLoaded`；业务码非 200 被误判为「尚无版本」
+- 改动：`fetchVersionBaseline` 校验 `res.code===200`、失败显式 `baselineLoaded=false`；`version-baseline.spec.ts` 新增用例——mock `dbChange` size=1 网络中断 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown` → 解除拦截点击重试恢复「版本一致」
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #23 ✅；i18n post-MVP 暂停，回归双层主线
+
+验证点：
+- `cd frontend && npx tsx src/utils/versionDirtyStatus.test.ts`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/version-baseline.spec.ts --grep "基线查询失败"`
+
 #### i18n：Design 版本 store confirm（useVersionStore confirmDestructive）
 
 - `useVersionStore.tsx`：sync/markSync/rebuild 三处 `confirmDestructive` 标题/正文/OK·取消改 `appFormat()`

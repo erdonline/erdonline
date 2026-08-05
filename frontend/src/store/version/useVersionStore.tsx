@@ -301,6 +301,9 @@ const useVersionStore = create<VersionState>(
         }
         try {
           const res = await POST(DB_CHANGE_URL, buildLatestVersionQuery(dbKey, projectId));
+          if (!res || res.code !== 200) {
+            throw new Error(res?.msg || `baseline fetch failed (${res?.code ?? 'no response'})`);
+          }
           const records = res?.data?.records;
           const baseline: BaselineRecord =
             Array.isArray(records) && records.length > 0 ? records[0] : null;
@@ -311,7 +314,10 @@ const useVersionStore = create<VersionState>(
           get().dispatch.recalculateChanges();
           return baseline;
         } catch (error: any) {
-          // 基线未知：不得静音成「无差异」，保持 baselineLoaded=false 让 UI 走未知/重试
+          // 基线未知：不得静音成「无差异」；失败时显式清 loaded，避免沿用旧基线判「一致」
+          set(produce((state) => {
+            state.baselineLoaded = false;
+          }));
           message.error(
             appFormat()('versionStore.baseline.fetchFailedWithDetail', {
               detail: error?.message || error,

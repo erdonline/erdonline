@@ -818,7 +818,7 @@
 - [ ] [北极星计量] 后台统计「有版本保存」须过滤 `db_change.changes` 非空（待 analytics 接线；当前前端 warn + ADR-0022/vision 口径已文档化）
 - [x] [基线独立查询] 打开项目即 `size:1` + `create_time` 倒序拉最新版本；版本页列表首条被伪造成更大版本号的空模型后仍判「一致」，建议版本号仍按基线推进 ✅ `version-baseline.spec.ts` + `versionBaseline.test.ts`
 - [x] [无基线不伪装一致] 新项目未存版本 → 版本页显示「尚无版本基线，建议先保存第一个版本」，非「已与最新版本一致」 ✅ `version-baseline.spec.ts`
-- [ ] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；Playwright route 与 umi-request 拦截不稳，暂手工 + `dualLayerTokens.test.ts`/`versionDirtyStatus.test.ts`
+- [x] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；点击重试恢复 ✅ `version-baseline.spec.ts`「基线查询失败 → 未知态」
 - [x] [落库失败不假装落行] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段草稿留在编辑行、模型无该字段、toast + 顶栏重试可见；恢复后在编辑行再按 Enter 才真正落行 ✅ `save-failure.spec.ts`（原用例按旧乐观行为断言，已按诚实持久化重写）
 - [x] [落库失败本地草稿] 保存失败 → localStorage `erd:project-draft:{id}` 写入 → 重进设计器 Modal「恢复草稿/丢弃草稿」→ 恢复后模型含未落库改动 ✅ `projectLocalDraft.test.ts` + `project-local-draft.spec.ts`
 - [x] [B 层 schema 指纹] `SchemaFingerprintTest`：同构 hash 稳定；增列 → different；无 projectJSON → unknown；忽略 `db_version` 表 ✅ `SchemaFingerprintTest`

@@ -2,6 +2,7 @@ import { expect, test } from '@playwright/test';
 import {
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
+  gotoDesignModel,
   login,
   openRelationFromEmpty,
   openVersionPage,
@@ -143,6 +144,61 @@ test.describe('版本基线', () => {
       await dialog.getByRole('button', { name: /确\s*定/ }).click();
       await expect(dialog).toHaveCount(0, { timeout: 15_000 });
       await expect(page.getByTestId('version-row-1.0.1')).toBeVisible({ timeout: 15_000 });
+    } finally {
+      await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('基线查询失败 → 未知态（顶栏 chip + 版本页 tag，可重试恢复）', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('vbasefail');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'vbasefail', 'baseline query fail');
+
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await openVersionPage(page);
+      await saveVersion(page);
+      await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+      await expect(page.getByTestId('version-clean-tag')).toBeVisible({ timeout: 15_000 });
+
+      await page.route('**/ncnb/dbChange', async (route) => {
+        const req = route.request();
+        if (req.method() !== 'POST') {
+          await route.continue();
+          return;
+        }
+        let body: DbChangeBody = {};
+        try {
+          body = JSON.parse(req.postData() || '{}') as DbChangeBody;
+        } catch {
+          body = {};
+        }
+        if (Number(body.size) === 1) {
+          await route.abort('failed');
+          return;
+        }
+        await route.continue();
+      });
+
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await openVersionPage(page);
+      await expect(page.getByTestId('version-baseline-unknown')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('version-clean-tag')).toHaveCount(0);
+      await expect(page.getByTestId('version-no-baseline')).toHaveCount(0);
+      await expect(page.getByTestId('version-dirty-chip-unknown')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('version-dirty-chip-clean')).toHaveCount(0);
+
+      await gotoDesignModel(page);
+      await expect(page.getByTestId('version-dirty-chip-unknown')).toBeVisible({ timeout: 15_000 });
+
+      await page.unroute('**/ncnb/dbChange');
+      await page.getByTestId('version-dirty-chip-unknown').click();
+      await expect(page.getByTestId('version-dirty-chip-clean')).toBeVisible({ timeout: 15_000 });
     } finally {
       await page.unrouteAll({ behavior: 'ignoreErrors' }).catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});
