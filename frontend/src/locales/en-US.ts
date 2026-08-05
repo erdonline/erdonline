@@ -812,6 +812,20 @@ export default {
   'versionStore.compare.incrementNotGreater':
     'Target version must be greater than the base version',
 
+  // Version store destructive confirms (useVersionStore confirmDestructive)
+  'versionStore.confirm.cancel': 'Cancel',
+  'versionStore.confirm.sync.title': 'Confirm sync',
+  'versionStore.confirm.sync.content':
+    'Metadata will sync to the datasource. This cannot be undone. Continue?',
+  'versionStore.confirm.sync.ok': 'Sync',
+  'versionStore.confirm.markSync.content':
+    'Metadata will be marked as synced. This cannot be undone. Continue?',
+  'versionStore.confirm.markSync.ok': 'Mark',
+  'versionStore.confirm.rebuild.title': 'Rebuild baseline',
+  'versionStore.confirm.rebuild.content':
+    'Rebuild baseline clears all version history for this project. This cannot be undone. Continue?',
+  'versionStore.confirm.rebuild.ok': 'Rebuild',
+
   // Group setting subpages (basic / permission / modals)
   'groupSetting.validation.required': 'Required',
   'groupSetting.validation.max100': 'Must be 100 characters or fewer',

@@ -679,11 +679,15 @@ const useVersionStore = create<VersionState>(
           cb && cb();
         } else {
           confirmDestructive({
-            title: '同步确认',
-            content: onlyUpdateDBVersion ? '元数据即将标记为同步，标记为同步后不可撤销，确定标记吗？' : '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
-            okText: onlyUpdateDBVersion ? '标记' : '同步',
+            title: appFormat()('versionStore.confirm.sync.title'),
+            content: onlyUpdateDBVersion
+              ? appFormat()('versionStore.confirm.markSync.content')
+              : appFormat()('versionStore.confirm.sync.content'),
+            okText: onlyUpdateDBVersion
+              ? appFormat()('versionStore.confirm.markSync.ok')
+              : appFormat()('versionStore.confirm.sync.ok'),
             okType: 'danger',
-            cancelText: '取消',
+            cancelText: appFormat()('versionStore.confirm.cancel'),
             onOk: (m) => {
               const cb1 = () => {
                 get().fetch(null,get().currentPage,get().pageSize);
@@ -885,11 +889,11 @@ const useVersionStore = create<VersionState>(
               message.error(appFormat()('versionModal.compare.crossVersionError'));
             } else {
               confirmDestructive({
-                title: '同步确认',
-                content: '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
-                okText: '同步',
+                title: appFormat()('versionStore.confirm.sync.title'),
+                content: appFormat()('versionStore.confirm.sync.content'),
+                okText: appFormat()('versionStore.confirm.sync.ok'),
                 okType: 'danger',
-                cancelText: '取消',
+                cancelText: appFormat()('versionStore.confirm.cancel'),
                 onOk: (m) => {
                   // 须走 set，禁止 _.set 绕过 zustand（否则「正在同步」不刷新或失败后死态）
                   set({
@@ -1029,11 +1033,11 @@ const useVersionStore = create<VersionState>(
           document.querySelector<HTMLElement>('[aria-label="重建版本"]')
         )?.focus();
         confirmDestructive({
-          title: '重建基线',
-          content: '重建基线将会清除当前项目的所有版本信息，该操作不可逆，是否继续？',
-          okText: '重建',
+          title: appFormat()('versionStore.confirm.rebuild.title'),
+          content: appFormat()('versionStore.confirm.rebuild.content'),
+          okText: appFormat()('versionStore.confirm.rebuild.ok'),
           okType: 'danger',
-          cancelText: '取消',
+          cancelText: appFormat()('versionStore.confirm.cancel'),
           onOk: () => {
             // 重新初始化
             // 先删除所有的版本信息

@@ -772,6 +772,20 @@ export default {
   'versionStore.compare.incrementNotGreater':
     '增量脚本的版本号不能小于或等于初始版本的版本号',
 
+  // 版本 store 破坏性确认（useVersionStore confirmDestructive）
+  'versionStore.confirm.cancel': '取消',
+  'versionStore.confirm.sync.title': '同步确认',
+  'versionStore.confirm.sync.content':
+    '元数据即将同步到数据源，同步后不可撤销，确定同步吗？',
+  'versionStore.confirm.sync.ok': '同步',
+  'versionStore.confirm.markSync.content':
+    '元数据即将标记为同步，标记为同步后不可撤销，确定标记吗？',
+  'versionStore.confirm.markSync.ok': '标记',
+  'versionStore.confirm.rebuild.title': '重建基线',
+  'versionStore.confirm.rebuild.content':
+    '重建基线将会清除当前项目的所有版本信息，该操作不可逆，是否继续？',
+  'versionStore.confirm.rebuild.ok': '重建',
+
   // 团队设置子页（基本设置 / 用户组 / Modal）
   'groupSetting.validation.required': '不能为空',
   'groupSetting.validation.max100': '不能大于 100 个字符',
