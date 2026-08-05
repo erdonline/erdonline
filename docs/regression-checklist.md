@@ -820,7 +820,7 @@
 - [x] [无基线不伪装一致] 新项目未存版本 → 版本页显示「尚无版本基线，建议先保存第一个版本」，非「已与最新版本一致」 ✅ `version-baseline.spec.ts`
 - [x] [基线查询失败为未知] 断网/后端 500 时 `/ncnb/dbChange`（size:1）失败 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；点击重试恢复 ✅ `version-baseline.spec.ts`「基线查询失败 → 未知态」
 - [x] [落库失败不假装落行] 阻断 `/ncnb/project/save` 后画布内联加字段 → 字段草稿留在编辑行、模型无该字段、toast + 顶栏重试可见；恢复后在编辑行再按 Enter 才真正落行 ✅ `save-failure.spec.ts`（原用例按旧乐观行为断言，已按诚实持久化重写）
-- [x] [落库失败本地草稿] 保存失败 → localStorage `erd:project-draft:{id}` 写入 → 重进设计器 Modal「恢复草稿/丢弃草稿」→ 恢复后模型含未落库改动 ✅ `projectLocalDraft.test.ts` + `project-local-draft.spec.ts`
+- [x] [落库失败本地草稿] 保存失败 → localStorage `erd:project-draft:{id}` 写入 → 重进设计器 Modal「恢复草稿/丢弃草稿」→ 恢复后模型含未落库改动；丢弃后清草稿、用服务器模型、不再弹窗 ✅ `projectLocalDraft.test.ts` + `project-local-draft.spec.ts`（恢复 + 丢弃）
 - [x] [B 层 schema 指纹] `SchemaFingerprintTest`：同构 hash 稳定；增列 → different；无 projectJSON → unknown；忽略 `db_version` 表 ✅ `SchemaFingerprintTest`
 - [x] [B 层探测五态] 设计器顶栏（模型/版本页均可见）`schema-probe-control--chrome`；UNKNOWN 四路 + mock 五态（synced/ahead/behind/diverged/connection-failed）；版本页 `dual-layer-legend` ✅ `schema-probe.spec.ts`（4 用例）
 - [x] [分享访客隐藏 B 层] 匿名打开 `/s/:token` → 无 `schema-probe-control`/`schema-probe-btn`；不 POST `/connector/schema/probe`；后端非成员 probe → 403 + `PROBE_ACL_DENIED` ✅ `share.spec.ts` + `SchemaProbeAccessGuardTest`

@@ -1,3 +1,4 @@
+import React from 'react';
 import { Modal, message } from 'antd';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -52,13 +53,20 @@ export function offerProjectDraftRecovery(
   }
 
   recoveryModalOpen = true;
+  const draftMessage = `上次保存到服务器失败，${formatDraftTime(draft.savedAt)} 的改动仍在本机。要恢复草稿继续编辑，还是丢弃草稿并使用服务器上的模型？`;
   Modal.confirm({
     title: '发现未同步的本地草稿',
-    content: `上次保存到服务器失败，${formatDraftTime(draft.savedAt)} 的改动仍在本机。要恢复草稿继续编辑，还是丢弃草稿并使用服务器上的模型？`,
+    content: React.createElement(
+      'span',
+      { 'data-testid': 'project-draft-recovery-content' },
+      draftMessage,
+    ),
     okText: '恢复草稿',
     cancelText: '丢弃草稿',
     closable: false,
     maskClosable: false,
+    okButtonProps: { 'data-testid': 'project-draft-recovery-restore' } as React.ComponentProps<'button'>,
+    cancelButtonProps: { 'data-testid': 'project-draft-recovery-discard' } as React.ComponentProps<'button'>,
     onOk: () => {
       recoveryModalOpen = false;
       applyDraftToStore(draft, serverProject);
