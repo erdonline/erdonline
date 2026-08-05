@@ -87,7 +87,7 @@
 
 完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH；首访按浏览器语言自动匹配，**回退** zh-CN。
 
-**i18n MVP 进度（2026-08-05）**：~~baseNavigator~~✅ · ~~LocaleSwitcher~~✅ · ~~登录/联邦 + AuthBrandShell~~✅ · 下一刀：注册页 key 化
+**i18n MVP 进度（2026-08-05）**：~~baseNavigator~~✅ · ~~LocaleSwitcher~~✅ · ~~登录/联邦 + AuthBrandShell~~✅ · ~~注册页 key 化~~✅ · 下一刀：设计器顶栏 chrome key 化
 
 ### 产品深度（走出「thin CRUD」）📋
 
