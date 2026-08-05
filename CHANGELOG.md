@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### i18n：手动语言切换 LocaleSwitcher
+
+- 新增共享组件 `LocaleSwitcher`（`data-testid="locale-switcher"` + `aria-label`）：`setLocale(lang, false)` + umi `useLocalStorage`（`umi_locale`）持久化，覆盖 `baseNavigator`
+- 登录/注册/403/404/分享失效等 **AuthBrandShell** 右上角；已登录 **Home / Design / Group** 顶栏 `erd-chrome-actions`（头像左侧，经 `homeRightContent` 复用）
+- 语料：`locale.switcher.label` / `locale.option.zh-CN` / `locale.option.en-US`（zh-CN.ts + en-US.ts）
+- E2E：`i18n.spec.ts` 改走 UI 切换 → 断言 skip-nav `aria-label` 英文 → reload 持久化 → 切回中文
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`
+- `cd frontend && yarn build`
+
 #### i18n：启用浏览器语言自动匹配（baseNavigator）
 
 - `frontend/config/config.ts`：`baseNavigator: true` — 首访按 `navigator.language` 匹配 `zh-CN` / `en-US`；未知语言回退 `default: zh-CN`；`useLocalStorage: true` 保留，用户显式切换仍优先
