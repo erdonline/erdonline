@@ -182,4 +182,12 @@ export default {
   'designer.legend.parityTitle': 'Shared parity colors',
   'designer.legend.parityColors':
     '{synced}·green / ahead·blue / behind·orange / diverged·red / unknown·gray',
+
+  // DesignLayout: skip-nav + workflow top-bar buttons
+  'designLayout.skip.tree': 'Skip to model tree',
+  'designLayout.skip.workspace': 'Skip to main workspace',
+  'designLayout.workflow.myOrders': 'My orders',
+  'designLayout.workflow.pendingApproval': 'Pending',
+  'designLayout.workflow.pendingApprovalAria': 'Orders pending approval',
+  'designLayout.workflow.notifications': 'Notifications',
 };

@@ -80,4 +80,44 @@ test.describe('i18n：手动语言切换', () => {
     await page.reload();
     await expect(saveStatus).toHaveText('已落盘', { timeout: 25_000 });
   });
+
+  test('DesignLayout 工作流与 skip-nav 随 locale 切换', async ({ page }) => {
+    await login(page, e2eAccount());
+    await page.goto('/project/person');
+    await expect(page.getByTestId('project-person-page')).toBeVisible({ timeout: 15_000 });
+    if ((await page.getByTestId('project-list-open-link').count()) === 0) {
+      await page.getByTestId('project-create-trigger').click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const projectName = uniqueProjectName('i18n-layout');
+      await dialog.getByPlaceholder('请输入项目名').fill(projectName);
+      await dialog.getByPlaceholder('请输入项目描述').fill('i18n design layout locale');
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+      await expect(
+        page.getByTestId('project-list-open-link').filter({ hasText: projectName }),
+      ).toBeVisible({ timeout: 15_000 });
+    }
+    await page.getByTestId('project-list-open-link').first().click();
+    await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+
+    const skipTree = page.getByTestId('erd-skip-tree');
+    const skipWorkspace = page.getByTestId('erd-skip-workspace');
+    const myOrders = page.getByTestId('design-workflow-my-orders');
+    const pendingApproval = page.getByTestId('design-workflow-pending-approval');
+    const notifications = page.getByTestId('design-workflow-notifications');
+
+    await expect(skipTree).toHaveText('跳到模型树');
+    await expect(skipWorkspace).toHaveText('跳到主工作区');
+    await expect(myOrders).toHaveText('我的工单');
+    await expect(pendingApproval).toHaveText('待审批');
+    await expect(notifications).toHaveText('通知');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(skipTree).toHaveText('Skip to model tree');
+    await expect(skipWorkspace).toHaveText('Skip to main workspace');
+    await expect(myOrders).toHaveText('My orders');
+    await expect(pendingApproval).toHaveText('Pending');
+    await expect(notifications).toHaveText('Notifications');
+  });
 });

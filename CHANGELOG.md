@@ -8,12 +8,21 @@
 
 ### 2026-08-05
 
+#### i18n：DesignLayout 工作流按钮 + skip-nav key 化
+
+- `DesignLayout/index.tsx`：skip 链接（模型树/主工作区）+ 顶栏工作流三按钮（我的工单/待审批/通知）改走 `useIntl`（`designLayout.*` keys）；工作流按钮补 `data-testid` 供 E2E 定位与文案分离
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 6 个 `designLayout.*` key
+- 队列：`agent-loop-vision.prompt.md` #6 ✅；下一刀：DesignLayout 其余硬编码 aria（项目菜单/overflow/侧栏）
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`（4 项全绿，含 DesignLayout 工作流 + skip-nav 切换断言）
+
 #### i18n：设计器顶栏 chrome key 化
 
 - `SaveStatus` / `VersionDirtyChip` / `SchemaProbeControl` / `DualLayerLegend` + `VersionLayerStatusTag`：可见文案与 aria/tooltip 改走 `useIntl`（`designer.*` keys）
 - 共享：`messageFormat.ts`（`intlFormat` / `zhCnFormat`）；`dualLayerTokens` / `schemaProbeCopy` / `versionDirtyCopy` 接受 `MessageFormatFn`，单测默认 zh-CN 语料
 - 配置：恢复 `locale.baseNavigator: true`（浏览器首访自动匹配 + LocaleSwitcher 显式覆盖）；E2E 仍固定 `locale: zh-CN`
-- 队列：`agent-loop-vision.prompt.md` #5 ✅；下一刀：DesignLayout 工作流按钮 / skip-nav key 化
+- 队列：`agent-loop-vision.prompt.md` #5 ✅
 
 验证点：
 - `cd frontend && npx tsx src/utils/dualLayerTokens.test.ts` + `schemaProbeCopy.test.ts` + `versionDirtyStatus.test.ts` 全绿

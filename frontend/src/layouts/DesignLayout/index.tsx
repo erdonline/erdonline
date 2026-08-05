@@ -372,7 +372,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
               focusSkipTarget('erd-design-tree');
             }}
           >
-            跳到模型树
+            {intl.formatMessage({ id: 'designLayout.skip.tree' })}
           </a>
         ) : null}
         <a
@@ -384,7 +384,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
             focusSkipTarget('erd-design-workspace');
           }}
         >
-          跳到主工作区
+          {intl.formatMessage({ id: 'designLayout.skip.workspace' })}
         </a>
       </nav>
       <Header
@@ -434,44 +434,51 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />
           <div className="design-layout__workflow" data-testid="design-workflow-links">
-            <Tooltip title="我的工单">
+            <Tooltip title={intl.formatMessage({ id: 'designLayout.workflow.myOrders' })}>
               <Button
                 type="text"
                 size="small"
                 className="design-layout__workflow-btn"
                 icon={<OrderedListOutlined />}
-                aria-label="我的工单"
+                aria-label={intl.formatMessage({ id: 'designLayout.workflow.myOrders' })}
+                data-testid="design-workflow-my-orders"
                 onClick={() =>
                   history.push(`/design/table/version/order?projectId=${projectId}`)
                 }
               >
-                我的工单
+                {intl.formatMessage({ id: 'designLayout.workflow.myOrders' })}
               </Button>
             </Tooltip>
-            <Tooltip title="待审批工单">
+            <Tooltip
+              title={intl.formatMessage({ id: 'designLayout.workflow.pendingApprovalAria' })}
+            >
               <Button
                 type="text"
                 size="small"
                 className="design-layout__workflow-btn"
                 icon={<AuditOutlined />}
-                aria-label="待审批工单"
+                aria-label={intl.formatMessage({
+                  id: 'designLayout.workflow.pendingApprovalAria',
+                })}
+                data-testid="design-workflow-pending-approval"
                 onClick={() =>
                   history.push(`/design/table/version/approval?projectId=${projectId}`)
                 }
               >
-                待审批
+                {intl.formatMessage({ id: 'designLayout.workflow.pendingApproval' })}
               </Button>
             </Tooltip>
-            <Tooltip title="通知">
+            <Tooltip title={intl.formatMessage({ id: 'designLayout.workflow.notifications' })}>
               <Button
                 type="text"
                 size="small"
                 className="design-layout__workflow-btn"
                 icon={<BellOutlined />}
-                aria-label="通知"
+                aria-label={intl.formatMessage({ id: 'designLayout.workflow.notifications' })}
+                data-testid="design-workflow-notifications"
                 onClick={() => history.push('/project/notice')}
               >
-                通知
+                {intl.formatMessage({ id: 'designLayout.workflow.notifications' })}
               </Button>
             </Tooltip>
           </div>
