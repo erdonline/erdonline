@@ -8,6 +8,26 @@
 
 ### 2026-08-05
 
+#### 修复：Google 联邦登录「解绑 → 重新登录」报裸 JSON `code:500 「google-xxx」已存在`
+
+- 现象：用户首次 Google 登录成功建号 → 在账号设置解除绑定 → 再次 Google 登录时，浏览器 OAuth 回调页直出裸 JSON `{"code":500,"data":null,"msg":"「google-113298977828932750600」已存在"}`，而不是正常登录或友好错误页
+- 根因（两层，均命中）：
+  1. **DB 唯一键不识别逻辑删除**：`user_identity_link` 全局走 MyBatis-Plus `delFlag` 逻辑删除（`application.yml: logic-delete-field: delFlag`），旧 `FederateUserService#unlink` 用 `linkMapper.deleteById(...)`——被 MP 拦截改写成 `UPDATE del_flag=1`，物理行仍占着 `uk_identity_provider_subject (provider, subject)` 唯一键；而该唯一键**不区分 del_flag**。用 SQL 直接复现：`INSERT` 一行 → 逻辑删除（`UPDATE del_flag=1`）→ 再 `INSERT` 同 `(provider,subject)` → `ERROR 1062: Duplicate entry 'google-sim-sub-1' for key 'user_identity_link.uk_identity_provider_subject'`，与用户报的错误消息格式完全一致（MySQL 复合唯一键的 entry 值是多列值按 `-` 拼接，恰好撞上 `google` + subject 数字串正好长得像一个「用户名」）
+  2. **重新登录时没有「重新挂接」路径**：`resolveForLogin` 找不到链接（已被删）时只会「按邮箱找已有用户」或直接「新建用户」，没有「按约定用户名/其它信号识别孤儿账号」的分支；对无邮箱场景（微信天生无邮箱；Google 未开邮箱 scope）尤其致命——即便 1 的唯一键 bug 修掉，仍会因为约定用户名 `google_<sub>` 已被孤儿账号占用而在 `sys_user.username` 上再撞一次「已存在」
+  3. 上述 `DuplicateKeyException` 由 `handleCallback` 内部抛出，`FederateController#callback` 只 `catch FederateException/IllegalArgumentException`，未被捕获时直接冒泡到 `GlobalExceptionHandler` 的全局 `DuplicateKeyException` 兜底（`@ResponseStatus 500`），把 OAuth 回调本该走的 302 跳转变成了裸 JSON 抛给浏览器
+- 修复设计：产品语义拍板为「解绑仅收回第三方绑定权，本地账号保留；下次同身份登录自动重新挂接，不当新用户」：
+  - `UserIdentityLinkMapper` 新增 `physicalDeleteById`（`@Delete` 原生 SQL，绕开 MP 逻辑删除拦截）；`unlink()` 改用它做真删除，彻底释放 `(provider,subject)` 坑位
+  - `resolveForLogin` 新增「按约定用户名重新挂接」分支（用户名规则与 `allocateUsername` 无邮箱分支保持一致，含同样的 24 字符截断，否则两处算出的串不一致导致找不到孤儿账号），排在邮箱匹配之前；两个重新挂接分支都加 `canRelink` 防劫持检查（候选账号若已挂着同 provider 的别的 subject，说明不是孤儿账号，拒绝挂接）
+  - 兜底：`resolveForLogin` 整体包一层 `catch (DuplicateKeyException e)` 转 `FederateException(409, "账号信息冲突，请重新尝试登录")`——即便极端并发下仍撞库，也走回调既有的「302 到 `/login/federate?error=`」友好路径，不再裸 500
+  - Flyway `V15__user_identity_link_purge_soft_deleted.sql`：物理清掉存量软删行（`del_flag <> '0'`），释放已被历史 bug 卡住坑位的旧 provider+subject，无需等下次自然触发才修复
+- 前端顺带修：`federatedAccounts.tsx` 解绑失败分支去掉多余的 `message.error('解绑失败')`——`utils/request.js` 的响应/错误拦截器已按后端真实 `msg` 统一弹过一次 toast，本地再弹会同一失败重复两条（`playwright-ux-audit.mdc`「重复反馈」）
+- 新增 `FederateUserServiceTest`（10 例）：绑定新建、开放注册关闭拒绝、按约定用户名重新挂接（无邮箱）、按邮箱重新挂接、防劫持不重新挂接、`DuplicateKeyException→409`、`unlink` 走物理删除非 `deleteById`、`unlink` 未绑定报 404、`linkToUser` 冲突 409、`listLinks`
+
+验证点：
+- `cd backend && mvn -q test -Dtest=FederateUserServiceTest,FederateAuthServiceTest,FederateControllerTest -Djacoco.skip=true`：19 例全绿
+- SQL 直接复现根因 1（本机 docker MySQL）：`INSERT` 链接 → `UPDATE del_flag='1'`（模拟旧 `unlink`）→ 再 `INSERT` 同 `provider+subject` → `ERROR 1062 Duplicate entry 'google-sim-sub-1' for key 'user_identity_link.uk_identity_provider_subject'`（与用户报错格式一致）；改成先物理 `DELETE` 再 `INSERT` → 成功，`del_flag='0'` 新行落地
+- `./backend/dev-ensure.sh --restart` 后日志确认 `Migrating schema erd to version "15 - user identity link purge soft deleted"` 成功（`DbMigrate: Successfully applied 1 migration ... now at version v15`）；`SELECT COUNT(*) FROM user_identity_link WHERE del_flag<>'0'` = 0
+
 #### 修复：联邦登录 redirect 带嵌套 query（`/s/public-demo?autofork=1`）时回调炸 `IllegalArgumentException`，落到 `/login/federate?error=Invalid character '='...`
 
 - 现象：从 demo 分享页 `autofork=1` 触发登录 → 走 Federate（Google/GitHub）→ 授权成功回调时后端 500 内部抛异常被 `IllegalArgumentException` 分支兜住，302 到 `/login/federate?error=Invalid%20character%20%27%3D%27%20for%20QUERY_PARAM%20in%20%22/s/public-demo?autofork%3D1%22`；用户看到的是「登录失败」错误页而非真正落地页，一头雾水

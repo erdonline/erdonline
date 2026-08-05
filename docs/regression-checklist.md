@@ -3,6 +3,15 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 联邦登录解绑重登 / ADR-0021（2026-08-05）
+
+- [x] [解绑物理删除] `unlink` 走 `physicalDeleteById` 而非 `deleteById` ✅`FederateUserServiceTest#unlink_isPhysicalDelete_notLogicalDeleteById`
+- [x] [解绑后重登不撞已存在] 无邮箱身份按约定用户名重新挂接 ✅`FederateUserServiceTest#resolveForLogin_relinksOrphanedAccount_byConventionUsername_whenLinkMissingAndNoEmail`；有邮箱身份仍走邮箱重新挂接 ✅`resolveForLogin_relinksOrphanedAccount_byEmail_whenUsernameNotConventionBased`
+- [x] [防劫持] 候选账号已挂别的 subject 时不重新挂接 ✅`resolveForLogin_doesNotRelink_whenCandidateAlreadyLinkedToDifferentSubject`
+- [x] [错误码] 极端并发撞库转 409 `FederateException`，不再裸 500 ✅`resolveForLogin_translatesDuplicateKeyExceptionTo409`
+- [x] [存量数据] Flyway `V15` 清掉历史软删行 ✅`./backend/dev-ensure.sh --restart` 日志确认迁移成功 + `SELECT COUNT(*) FROM user_identity_link WHERE del_flag<>'0'`=0
+- [ ] [Railway 手工] 真实 Google 账号：登录建号 → 账号设置解绑 → 再次 Google 登录 → 秒登成功（原地复用旧账号，无「已存在」错误、无需重新创建项目）——需真实 IdP 回调，无法自动化，redeploy 后人工走一遍
+
 ## 公开 API / ADR-0013
 
 - [x] [PAT 哈希] 铸造后库内仅 `token_hash`/`token_hint`，无明文 ✅`PatTokenCodecTest` + `PersonalAccessTokenAuthTest`

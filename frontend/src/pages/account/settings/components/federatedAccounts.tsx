@@ -85,11 +85,9 @@ const FederatedAccountsView: React.FC = () => {
           if (res?.code === 200) {
             message.success('已解除绑定');
             await load();
-            return;
           }
-          if (!res?.msg) {
-            message.error('解绑失败');
-          }
+          // 失败时不再补 message.error：request.js 的响应/错误拦截器已按后端 msg 统一弹过一次，
+          // 这里再弹只会造成同一失败重复两条 toast（见 e2e-locators/playwright-ux-audit「重复反馈」）。
         } finally {
           setBusy(null);
         }
