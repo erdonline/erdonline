@@ -83,6 +83,7 @@
 - ~~#27 顶栏重试 seq 对齐：`isPersistAutosaveCurrent`；mock 失败 → 点重试 → 已落盘（不卡保存中）~~ ✅ 2026-08-05
 - ~~#28 离开设计器失败态 E2E：`leave-designer-save.spec.ts` 失败 → 离开补枪 → 顶栏重试 → 干净离开~~ ✅ 2026-08-05
 - ~~#29 防抖窗口离开补枪 E2E：保存中即离开 → 补枪成功 / abort 失败 → 草稿 + 顶栏重试可见~~ ✅ 2026-08-05
+- ~~#30 beforeunload + 落库失败草稿守卫 E2E：reload/关页不覆写 localStorage 草稿；native dialog 不测（Playwright 脆），以 draft 持久化验收~~ ✅ 2026-08-05
 
 ### i18n 奠基（B 层后）✅
 

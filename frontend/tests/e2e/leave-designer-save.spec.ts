@@ -12,12 +12,51 @@ import {
 
 /** Vision #28 / ADR-0022：与 save-status-failure-routing 同源 aria */
 const RETRY_FAILURE_ARIA = '自动保存失败，改动已存本地，点击重试';
+const BEFOREUNLOAD_FIELD = 'BU_FIELD';
+
+function draftStorageKey(projectId: string): string {
+  return `erd:project-draft:${projectId}`;
+}
+
+async function addFieldAndFailSave(
+  page: import('@playwright/test').Page,
+  fieldName: string,
+): Promise<void> {
+  await page.route('**/ncnb/project/save', (route) => route.abort('failed'));
+  const node = rfNode(page, 'T_TABLE_1');
+  await node.getByTestId('canvas-add-field').click();
+  const editRow = node.locator('.erd-field-editing');
+  await editRow.locator('.erd-field-type-select').selectOption('String');
+  const input = editRow.locator('.erd-field-input');
+  await input.fill(fieldName);
+  await input.press('Enter');
+  await expectToast(page, '网络异常，请检查网络连接');
+  await expect(page.getByTestId('save-status')).toHaveText('保存失败，点击重试', {
+    timeout: 10_000,
+  });
+}
+
+async function expectDraftContains(
+  page: import('@playwright/test').Page,
+  projectId: string,
+  needle: string,
+): Promise<void> {
+  await expect
+    .poll(async () =>
+      page.evaluate(
+        ({ key, text }) => localStorage.getItem(key)?.includes(text) ?? false,
+        { key: draftStorageKey(projectId), text: needle },
+      ),
+    )
+    .toBe(true);
+}
 
 /**
  * ADR-0022 并发底座：离开设计器不得盲存。
  * 干净态离开 → 零保存请求；脏态离开 → 补一枪且改动落库。
  * Vision #28：失败态离开补枪 → 回设计器顶栏重试 → 干净离开。
  * Vision #29：防抖 600ms 窗口内离开 → closeSocket 补枪（成功落库 / 失败可见）。
+ * Vision #30：浏览器级离开（reload / 关页）→ beforeunload 草稿守卫；Playwright 不对 native dialog 做硬断言，以 localStorage 为准。
  */
 test.describe('离开设计器的保存行为', () => {
   test('干净态离开：不发保存请求', async ({ page }) => {
@@ -250,6 +289,86 @@ test.describe('离开设计器的保存行为', () => {
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('落库失败后 reload：beforeunload 不覆写 localStorage 草稿', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('beforeunload');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'beforeunload', 'reload guard');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await page.waitForTimeout(1_500);
+
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await addFieldAndFailSave(page, BEFOREUNLOAD_FIELD);
+      await expectDraftContains(page, projectId!, BEFOREUNLOAD_FIELD);
+
+      // 浏览器级离开：reload 触发 beforeunload；失败态 draft 已比 store 新 → 守卫跳过覆写
+      page.once('dialog', (dialog) => dialog.dismiss().catch(() => {}));
+      await page.reload({ waitUntil: 'domcontentloaded' });
+      await expectDraftContains(page, projectId!, BEFOREUNLOAD_FIELD);
+
+      // reload 后设计器应检测到草稿（证明 beforeunload 未用 stale store 抹掉 BU_FIELD）
+      await expect(page.getByTestId('project-draft-recovery-content')).toBeVisible({
+        timeout: 15_000,
+      });
+    } finally {
+      await page.unroute('**/ncnb/project/save').catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('落库失败后关页：草稿仍在 localStorage，重开可恢复', async ({ page, context }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('beforeunloadclose');
+    let designUrl = '';
+    let projectId = '';
+    let reopen: import('@playwright/test').Page | undefined;
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'beforeunloadclose', 'close guard');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await page.waitForTimeout(1_500);
+
+      designUrl = page.url();
+      projectId = new URL(designUrl).searchParams.get('projectId') || '';
+      expect(projectId).toBeTruthy();
+
+      await addFieldAndFailSave(page, BEFOREUNLOAD_FIELD);
+      await expectDraftContains(page, projectId, BEFOREUNLOAD_FIELD);
+
+      page.once('dialog', (dialog) => dialog.dismiss().catch(() => {}));
+      await page.close();
+
+      reopen = await context.newPage();
+      await login(reopen);
+      await reopen.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await expect(reopen.getByTestId('project-draft-recovery-content')).toBeVisible({
+        timeout: 15_000,
+      });
+      await reopen.getByTestId('project-draft-recovery-restore').click();
+      await expect(reopen.getByText('已恢复本地草稿')).toBeVisible({ timeout: 5_000 });
+      await expect(reopen.getByRole('button', { name: RETRY_FAILURE_ARIA })).toBeVisible({
+        timeout: 15_000,
+      });
+    } finally {
+      const cleanupPage = reopen && !reopen.isClosed() ? reopen : page.isClosed() ? undefined : page;
+      if (cleanupPage) {
+        await deleteOwnPersonProjects(cleanupPage).catch(() => {});
+      }
+      await reopen?.close().catch(() => {});
     }
   });
 });
