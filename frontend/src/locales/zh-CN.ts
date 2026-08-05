@@ -187,4 +187,14 @@ export default {
   // HomeLayout / GroupLayout 顶栏 aria
   'homeLayout.mainNavAria': '主导航',
   'groupLayout.siderNavAria': '团队设置导航',
+
+  // HomeLayout skip + chrome + 用户菜单
+  'homeLayout.skip.main': '跳到主内容',
+  'homeLayout.skip.form': '跳到主表单',
+  'homeLayout.chrome.wechatOfficial': '公众号',
+  'homeLayout.chrome.github': 'GitHub',
+  'homeLayout.chrome.githubAria': 'GitHub 仓库',
+  'homeLayout.user.accountCenter': '个人中心',
+  'homeLayout.user.licenseInfo': '授权信息',
+  'homeLayout.user.logout': '退出登录',
 };

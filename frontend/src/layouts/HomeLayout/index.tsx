@@ -7,6 +7,7 @@ import {Dropdown, Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
+import type {IntlShape} from '@umijs/max';
 import {useIntl, useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import LocaleSwitcher from '@/components/LocaleSwitcher';
@@ -24,65 +25,71 @@ export interface HomeLayoutLayoutProps {
 }
 
 /** Home 顶栏安全子集：公众号 + GitHub；不含 SaveStatus / 分享 / presence */
-export const homeRightContent = [
-  <LocaleSwitcher key="locale" variant="chrome" />,
-  <Popover
-    key="mp"
-    placement="bottom"
-    title="公众号"
-    content={<Image src="/mp.jpg" />}
-    trigger="hover"
-  >
-    <span role="img" aria-label="公众号" style={{ display: 'inline-flex', cursor: 'pointer' }}>
-      <TwoDimensionalCodeOne theme="filled" size="18" fill={erdColors.brand} strokeWidth={2} />
-    </span>
-  </Popover>,
-  <a
-    key="github"
-    className="erd-chrome-link"
-    target="_blank"
-    rel="noreferrer"
-    href="https://github.com/erdonline/erdonline"
-    aria-label="GitHub 仓库"
-  >
-    GitHub
-  </a>,
-];
+export function getHomeRightContent(intl: IntlShape): React.ReactNode[] {
+  const wechatLabel = intl.formatMessage({ id: 'homeLayout.chrome.wechatOfficial' });
+  return [
+    <LocaleSwitcher key="locale" variant="chrome" />,
+    <Popover
+      key="mp"
+      placement="bottom"
+      title={wechatLabel}
+      content={<Image src="/mp.jpg" />}
+      trigger="hover"
+    >
+      <span role="img" aria-label={wechatLabel} style={{ display: 'inline-flex', cursor: 'pointer' }}>
+        <TwoDimensionalCodeOne theme="filled" size="18" fill={erdColors.brand} strokeWidth={2} />
+      </span>
+    </Popover>,
+    <a
+      key="github"
+      className="erd-chrome-link"
+      target="_blank"
+      rel="noreferrer"
+      href="https://github.com/erdonline/erdonline"
+      aria-label={intl.formatMessage({ id: 'homeLayout.chrome.githubAria' })}
+    >
+      {intl.formatMessage({ id: 'homeLayout.chrome.github' })}
+    </a>,
+  ];
+}
 
 /** 头像菜单：仅保留已接线入口（个人中心 / 授权信息 / 退出）；无假项 */
-export const menuHeaderDropdown = (
-  <Menu
-    selectedKeys={[]}
-    style={{ minWidth: 160 }}
-    items={[
-      {
-        key: 'center',
-        icon: <UserOutlined />,
-        label: '个人中心',
-        onClick: () => {
-          history.push('/account/settings?selectKey=base');
+export function getMenuHeaderDropdown(intl: IntlShape): React.ReactNode {
+  return (
+    <Menu
+      selectedKeys={[]}
+      style={{ minWidth: 160 }}
+      data-testid="user-menu-dropdown"
+      items={[
+        {
+          key: 'center',
+          icon: <UserOutlined />,
+          label: intl.formatMessage({ id: 'homeLayout.user.accountCenter' }),
+          onClick: () => {
+            history.push('/account/settings?selectKey=base');
+          },
         },
-      },
-      {
-        key: 'vip',
-        icon: <UserOutlined />,
-        label: '授权信息',
-        onClick: () => {
-          history.push('/account/settings?selectKey=identification');
+        {
+          key: 'vip',
+          icon: <UserOutlined />,
+          label: intl.formatMessage({ id: 'homeLayout.user.licenseInfo' }),
+          onClick: () => {
+            history.push('/account/settings?selectKey=identification');
+          },
         },
-      },
-      { type: 'divider' },
-      {
-        key: 'logout',
-        icon: <LogoutOutlined />,
-        label: '退出登录',
-        onClick: () => {
-          logout();
+        { type: 'divider' },
+        {
+          key: 'logout',
+          icon: <LogoutOutlined />,
+          label: intl.formatMessage({ id: 'homeLayout.user.logout' }),
+          onClick: () => {
+            logout();
+          },
         },
-      },
-    ]}
-  />
-);
+      ]}
+    />
+  );
+}
 
 type HomeRoute = {
   path?: string;
@@ -144,8 +151,13 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   const skipTargetId = isAccountSettings
     ? 'account-settings-form'
     : 'home-main-content';
-  const skipLabel = isAccountSettings ? '跳到主表单' : '跳到主内容';
+  const skipLabel = intl.formatMessage({
+    id: isAccountSettings ? 'homeLayout.skip.form' : 'homeLayout.skip.main',
+  });
   const skipTestId = isAccountSettings ? 'account-skip-form' : 'home-skip-main';
+
+  const homeRightContent = useMemo(() => getHomeRightContent(intl), [intl]);
+  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
 
   return (
     <Theme>

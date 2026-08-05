@@ -5,14 +5,14 @@ import {Me} from "@icon-park/react";
 import {Dropdown, Layout, Menu} from "antd";
 import type {MenuProps} from "antd";
 import * as cache from "@/utils/cache";
-import {fixRouteAccess, headRightContent} from "@/layouts/DesignLayout";
+import {fixRouteAccess, getHeadRightContent} from "@/layouts/DesignLayout";
 import {history, Link, useIntl, useModel, useSearchParams} from "@umijs/max";
 import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
-import {menuHeaderDropdown} from "@/layouts/HomeLayout";
+import {getMenuHeaderDropdown} from "@/layouts/HomeLayout";
 import '../erd-chrome.less';
 import './index.less';
 
@@ -115,6 +115,9 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     el.scrollIntoView({ block: 'nearest' });
   };
 
+  const headRightContent = useMemo(() => getHeadRightContent(intl), [intl]);
+  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
+
   return (
     <Layout className="group-layout" data-testid="group-layout">
       <nav
@@ -131,7 +134,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
             focusSkipTarget('group-main-content');
           }}
         >
-          跳到主内容
+          {intl.formatMessage({ id: 'homeLayout.skip.main' })}
         </a>
       </nav>
       <Header

@@ -200,4 +200,14 @@ export default {
   // HomeLayout / GroupLayout top-bar aria
   'homeLayout.mainNavAria': 'Main navigation',
   'groupLayout.siderNavAria': 'Team settings navigation',
+
+  // HomeLayout skip + chrome + user menu
+  'homeLayout.skip.main': 'Skip to main content',
+  'homeLayout.skip.form': 'Skip to main form',
+  'homeLayout.chrome.wechatOfficial': 'WeChat official account',
+  'homeLayout.chrome.github': 'GitHub',
+  'homeLayout.chrome.githubAria': 'GitHub repository',
+  'homeLayout.user.accountCenter': 'Account settings',
+  'homeLayout.user.licenseInfo': 'License info',
+  'homeLayout.user.logout': 'Sign out',
 };
