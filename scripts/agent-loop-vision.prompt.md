@@ -78,7 +78,9 @@
 
 12. ~~OAuth 授权页正文 key 化（title / 按钮 / 错误 / meta）；账号设置基本设置 + 安全设置子页表单 key 化；Landing / compare SEO title + meta description~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：账号设置 PAT / OAuth 客户端 / 联邦绑定子页 Modal 文案 key 化；ResetPassword 对话框 key 化
+13. ~~账号设置 PAT / OAuth 客户端 / 联邦绑定子页 Modal 文案 key 化；ResetPassword 对话框 key 化~~ ✅ 2026-08-05
+
+**下一刀候选（ROI 序）**：账号设置「授权类型」子页 key 化；Home/Group/Design 剩余硬编码页面正文
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

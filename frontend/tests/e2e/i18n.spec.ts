@@ -323,4 +323,56 @@ test.describe('i18n：手动语言切换', () => {
     await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveTitle('ERD Online comparison — collaboration, versions, and open source');
   });
+
+  test('账号设置 PAT/OAuth Modal 与 ResetPassword 随 locale 切换', async ({ page }) => {
+    await login(page, e2eAccount());
+    await page.goto('/account/settings?selectKey=security');
+    await expect(page.getByTestId('account-settings-page')).toBeVisible({ timeout: 15_000 });
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(page.getByTestId('account-settings-page')).toBeVisible({ timeout: 15_000 });
+
+    const resetTrigger = page.getByTestId('reset-password-trigger');
+    await expect(resetTrigger).toHaveText('修改');
+    await resetTrigger.click();
+    const resetDialog = page.getByRole('dialog');
+    await expect(resetDialog).toBeVisible();
+    await expect(resetDialog).toContainText('修改密码');
+    await resetDialog.getByRole('button', { name: 'Close' }).click();
+    await expect(resetDialog).not.toBeVisible();
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(resetTrigger).toHaveText('Change');
+    await resetTrigger.click();
+    await expect(resetDialog).toContainText('Change password');
+    await resetDialog.getByRole('button', { name: 'Close' }).click();
+    await expect(resetDialog).not.toBeVisible();
+
+    await page.goto('/account/settings?selectKey=personalAccessTokens');
+    const patCreate = page.getByTestId('pat-create-trigger');
+    await expect(patCreate).toHaveText('Create token');
+    await patCreate.click();
+    const patDialog = page.getByRole('dialog');
+    await expect(patDialog).toContainText('Create personal access token');
+    await patDialog.getByRole('button', { name: /Cancel/i }).click();
+    await expect(patDialog).not.toBeVisible();
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(patCreate).toHaveText('铸造令牌');
+    await patCreate.click();
+    await expect(patDialog).toContainText('铸造访问令牌');
+    await patDialog.getByRole('button', { name: /取\s*消/ }).click();
+    await expect(patDialog).not.toBeVisible();
+
+    await page.goto('/account/settings?selectKey=oauthClients');
+    const oauthCreate = page.getByTestId('oauth-create-trigger');
+    await expect(oauthCreate).toHaveText('注册客户端');
+    await oauthCreate.click();
+    const oauthDialog = page.getByRole('dialog');
+    await expect(oauthDialog).toContainText('注册 OAuth 客户端');
+    await oauthDialog.getByRole('button', { name: /取\s*消/ }).click();
+    await expect(oauthDialog).not.toBeVisible();
+  });
 });
