@@ -4,6 +4,7 @@ import {Button, Divider, Form, Input, Space, message} from 'antd';
 import * as cache from '@/utils/cache';
 import {history} from '@@/exports';
 import request from '@/utils/request';
+import {buildApiHref} from '@/utils/apiHref';
 import AuthBrandShell from '@/components/AuthBrandShell';
 
 /** @param redirectOverride 注册成功后调用时传入，避免仍停在 /register 读不到 query */
@@ -45,7 +46,7 @@ function federateStartHref(provider: FederateProviderKey): string {
     r && r.startsWith('/')
       ? `?redirect=${encodeURIComponent(r)}`
       : '';
-  return `/auth/federate/${provider}${q}`;
+  return buildApiHref(`/auth/federate/${provider}${q}`);
 }
 
 type LoginValues = {
