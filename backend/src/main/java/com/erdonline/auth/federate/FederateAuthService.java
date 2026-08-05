@@ -166,7 +166,10 @@ public class FederateAuthService {
         if (StringUtils.hasText(appRedirect)) {
             b.queryParam("redirect", appRedirect);
         }
-        return b.build(true).toUriString();
+        // 注意：不能用 build(true)——它假定各组件已预编码，appRedirect 里的原始 '?'/'=' 会被当作
+        // QUERY_PARAM 非法字符直接抛 IllegalArgumentException（如 /s/public-demo?autofork=1）。
+        // 这里的 ticket/appRedirect 都是未编码的原始值，须用 build().encode() 统一编码。
+        return b.build().encode().toUriString();
     }
 
     private String primaryUiOrigin() {

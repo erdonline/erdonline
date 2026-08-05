@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### 修复：联邦登录 redirect 带嵌套 query（`/s/public-demo?autofork=1`）时回调炸 `IllegalArgumentException`，落到 `/login/federate?error=Invalid character '='...`
+
+- 现象：从 demo 分享页 `autofork=1` 触发登录 → 走 Federate（Google/GitHub）→ 授权成功回调时后端 500 内部抛异常被 `IllegalArgumentException` 分支兜住，302 到 `/login/federate?error=Invalid%20character%20%27%3D%27%20for%20QUERY_PARAM%20in%20%22/s/public-demo?autofork%3D1%22`；用户看到的是「登录失败」错误页而非真正落地页，一头雾水
+- 根因：`FederateAuthService#buildUiRedirect` 拼最终 UI 跳转 Location 时用了 `UriComponentsBuilder.build(true)`——该重载**假定所有组件已完成编码**，只做合法性校验、不再编码；而 `appRedirect`（如 `/s/public-demo?autofork=1`，来自 `sanitizeRedirect` 允许透传的原始未编码值）里的裸 `?`/`=` 对 `QUERY_PARAM` 类型是非法字符，直接抛 `IllegalArgumentException: Invalid character '=' for QUERY_PARAM in "..."`；该异常被 `FederateController#callback` 的 `catch (IllegalArgumentException iae)` 捕获，异常消息本身被当作 `error` 文案二次编码后放进 `/login/federate?error=`，于是错误页 URL 里出现的正是这段 Java 异常消息（并非真正的第三方登录失败）
+- 改动：`buildUiRedirect` 把 `b.build(true)` 换成 `b.build().encode()`——与同文件 `buildFailureRedirect` 一致的「先立 raw 组件、再统一 percent-encode」写法，`ticket`/`redirect` 里的 `?`/`=`/`/` 等字符正确编码进 query value，前端 `URLSearchParams.get('redirect')` 解码一次即拿回原始路径
+- 新增回归测试 `FederateAuthServiceTest#handleCallback_encodesRedirectWithNestedQueryString`：mock 完整登录回调链路，redirect=`/s/public-demo?autofork=1`，断言不再抛异常且最终 Location 的 `redirect` query 参数解码后与原值一致
+
+验证点：
+- `cd backend && mvn -q test -Dtest=FederateAuthServiceTest,FederateControllerTest -Djacoco.skip=true` 绿（`handleCallback_encodesRedirectWithNestedQueryString` 在改动前会因 `IllegalArgumentException` 直接失败，改动后通过）
+- `./backend/dev-ensure.sh --restart` 后 `curl http://localhost:9502/auth/federate/providers` 200
+
 #### 修复：Google 联邦登录「开放注册已关闭」误报 code=500 + 回调裸 JSON
 
 - 根因：`FederateUserService.resolveForLogin` 在 `ERD_ALLOW_OPEN_REGISTER=false` 且无已有绑定/邮箱匹配用户时抛 `FederateException(403, …)`；`FederateController` 却用 `R.failed(msg)`（业务码固定 500），浏览器 OAuth 回调直接展示 JSON
