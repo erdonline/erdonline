@@ -79,6 +79,7 @@
 - ~~#23 基线查询失败 E2E：`version-baseline.spec.ts` mock size=1 → 500 → unknown chip/tag + 重试恢复；`fetchVersionBaseline` 失败清 `baselineLoaded`~~ ✅ 2026-08-05
 - ~~#24 本地草稿丢弃 E2E：`project-local-draft.spec.ts` 丢弃路径 + `project-draft-recovery-*` testid；丢弃后清 localStorage、回服务器模型~~ ✅ 2026-08-05
 - ~~#25 409 冲突 Modal 决策 E2E：`project-save-conflict.spec.ts` refresh/fork 路径 + 刷新清草稿；静态 Modal 改 `appFormat`/`VersionDiffPanelStatic`；fork 跳转 `/design/table/model`~~ ✅ 2026-08-05
+- ~~#26 落库失败 vs 409 冲突顶栏态分流 E2E：`save-status-failure-routing.spec.ts` 失败重试与冲突 Modal 不得混态~~ ✅ 2026-08-05
 
 ### i18n 奠基（B 层后）✅
 

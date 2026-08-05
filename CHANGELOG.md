@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：落库失败 vs 409 冲突顶栏态分流 E2E（Vision #26 · ADR-0022）
+
+- 缺口：`save-failure.spec.ts` 与 `project-save-conflict.spec.ts` 各测一路，未显式断言两种顶栏失败态不得混用（重试 CTA vs 冲突 Modal）
+- 改动：新增 `save-status-failure-routing.spec.ts`——mock 500 断言「保存失败，点击重试」+ 无冲突 Modal/文案；mock 409 断言冲突 Modal +「保存冲突，点击查看选项」+ 无失败重试 aria/文案
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #26 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/save-status-failure-routing.spec.ts`
+
 #### 可信保存：409 冲突 Modal 决策路径 E2E + 静态 Modal i18n 修复（Vision #25 · ADR-0022）
 
 - 缺口：E2E 仅断言 409 Modal 出现，未覆盖「刷新项目 / 另存为新项目」决策；i18n #19 后 `Modal.warning` 内 `useIntl()` 无 IntlProvider 致 Modal 崩溃（顶栏冲突态有、对话框无）

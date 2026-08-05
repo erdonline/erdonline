@@ -112,6 +112,8 @@
 
 25. ~~409 冲突 Modal 决策路径 E2E：`project-save-conflict-refresh/fork` 点击 → 刷新回服务器 / 另存副本；刷新清 localStorage 草稿；修静态 Modal `useIntl` 崩溃 + fork 跳转 `/design/table/model`~~ ✅ 2026-08-05
 
+26. ~~落库失败 vs 409 冲突顶栏态分流 E2E：`save-status-failure-routing.spec.ts` 断言失败重试 CTA 与冲突 Modal/文案互斥~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
