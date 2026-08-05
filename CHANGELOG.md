@@ -8,6 +8,29 @@
 
 ### 2026-08-05
 
+#### i18n：设计器顶栏 chrome key 化
+
+- `SaveStatus` / `VersionDirtyChip` / `SchemaProbeControl` / `DualLayerLegend` + `VersionLayerStatusTag`：可见文案与 aria/tooltip 改走 `useIntl`（`designer.*` keys）
+- 共享：`messageFormat.ts`（`intlFormat` / `zhCnFormat`）；`dualLayerTokens` / `schemaProbeCopy` / `versionDirtyCopy` 接受 `MessageFormatFn`，单测默认 zh-CN 语料
+- 配置：恢复 `locale.baseNavigator: true`（浏览器首访自动匹配 + LocaleSwitcher 显式覆盖）；E2E 仍固定 `locale: zh-CN`
+- 队列：`agent-loop-vision.prompt.md` #5 ✅；下一刀：DesignLayout 工作流按钮 / skip-nav key 化
+
+验证点：
+- `cd frontend && npx tsx src/utils/dualLayerTokens.test.ts` + `schemaProbeCopy.test.ts` + `versionDirtyStatus.test.ts` 全绿
+- `cd frontend && yarn build` 绿
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`（含 save-status 切换断言）
+
+#### i18n：修正 baseNavigator 违反 ADR-0023「默认 zh-CN 不变」红线
+
+- 问题：`d838b85` 引入 `locale.baseNavigator: true`，浏览器语言为 `en*` 的用户首访会静默看到英文界面，等同隐式改变产品默认语言，直接违反 [ADR-0023](./docs/adr/0023-i18n-foundation.md)「产品默认 zh-CN 不变；『英文优先』≠ 切默认」的拍板决策，也违反本轮用户显式指令
+- 修复：`frontend/config/config.ts` 的 `locale.baseNavigator` 改回 `false`；`getAppLocale()` 注释同步更正为「仅认 env 覆盖 / umi `getLocale()`（`umi_locale` localStorage，即 `LocaleSwitcher` 显式选择）/ 默认 zh-CN」；`docs/roadmap.md` i18n 小节措辞同步更正；`agent-loop-vision.prompt.md` 队列补记红线并标注禁止再改回 `true`
+- 不影响已交付的 `LocaleSwitcher` / 登录 / 联邦登录 / 注册页 key 化（均基于 `useIntl`/`umi_locale`，与 `baseNavigator` 开关无关）
+
+验证点：
+- `cd frontend && npx tsx src/utils/getAntdLocale.test.ts`（5 项全绿，含默认 zh-CN）
+- Playwright 实测：无 `umi_locale` 时 `/login` 渲染中文（`跳过导航` / `登录 ERD Online`）；写入 `umi_locale=en-US` 后重载渲染英文；清空后恢复中文
+- `cd frontend && yarn build` 绿
+
 #### i18n：注册页 key 化
 
 - `register/index.tsx`：表单标签/占位/tooltip/校验/提交/成功与密码不一致提示 + footer 链改走 `useIntl`（`register.*` keys）；演示链复用 `login.footer.demo*`
