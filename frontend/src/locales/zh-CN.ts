@@ -556,6 +556,7 @@ export default {
 
   // 项目列表页（个人 / 最近）
   'projectList.person.title': '个人项目',
+  'projectList.group.title': '团队项目',
   'projectList.recent.title': '最近项目 「个人 + 团队」',
   'projectList.search.placeholder': '项目名',
   'projectList.search.aria': '搜索项目名',
@@ -563,6 +564,18 @@ export default {
   'projectList.empty.description': '还没有项目，立即创建或体验示例',
   'projectList.empty.createNow': '立即创建',
   'projectList.empty.example': '一键示例',
+
+  // 设计器表设计工作区（空态 + 表设计签）
+  'designTable.empty.noTab.title': '还没有打开的表',
+  'designTable.empty.noTab.description': '从左侧树打开关系图，或新建第一张表',
+  'designTable.empty.noModel.title': '欢迎使用数据建模工具',
+  'designTable.empty.noModel.descriptionPrefix': '从左侧创建一个模型，或',
+  'designTable.empty.noModel.reverseLink': '从数据源逆向',
+  'designTable.empty.fallback': '这里空空如也',
+  'designTable.tab.field': '字段',
+  'designTable.tab.index': '索引',
+  'designTable.tab.code': '元数据应用',
+  'designTable.tab.trigger': '触发器',
 
   // HomeLayout 主导航路由名
   'homeLayout.route.home': '首页',

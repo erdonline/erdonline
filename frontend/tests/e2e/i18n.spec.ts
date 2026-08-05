@@ -423,4 +423,73 @@ test.describe('i18n：手动语言切换', () => {
     await page.reload();
     await expect(recentTitle).toHaveText('最近项目 「个人 + 团队」');
   });
+
+  test('团队项目列表与设计器表设计签随 locale 切换', async ({ page }) => {
+    test.setTimeout(120_000);
+    await login(page, e2eAccount());
+    await page.goto('/project/group');
+    await expect(page.getByTestId('project-group-page')).toBeVisible({ timeout: 15_000 });
+    const groupTitle = page.getByTestId('project-list-toolbar').locator('h2');
+    await expect(groupTitle).toHaveText('团队项目');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(page.getByTestId('project-group-page')).toBeVisible({ timeout: 15_000 });
+    await expect(groupTitle).toHaveText('Team projects');
+
+    await page.goto('/project/person');
+    await expect(page.getByTestId('project-person-page')).toBeVisible({ timeout: 15_000 });
+    if ((await page.getByTestId('project-list-open-link').count()) === 0) {
+      await page.getByTestId('project-create-trigger').click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const projectName = uniqueProjectName('i18n-design-table');
+      await dialog.getByPlaceholder(/Project name|项目名/).fill(projectName);
+      await dialog.getByPlaceholder(/description|项目描述/).fill('i18n design table locale');
+      await dialog.getByRole('button', { name: /OK|确\s*定/ }).click();
+      await expect(
+        page.getByTestId('project-list-open-link').filter({ hasText: projectName }),
+      ).toBeVisible({ timeout: 15_000 });
+    }
+    await page.getByTestId('project-list-open-link').first().click();
+    await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+
+    const welcomeEmpty = page.getByTestId('designer-welcome-empty-inner').locator('h2');
+    await expect(welcomeEmpty).toHaveText(/Welcome to data modeling|No table open/);
+
+    const ensureTableDesign = async () => {
+      if (await page.getByTestId('table-design-tabs').isVisible()) {
+        return;
+      }
+      if ((await page.getByTestId('add-module-empty').count()) > 0) {
+        await page.getByTestId('add-module-empty').click();
+        await page.getByTestId('entity-modal-name').fill('SHOP');
+        await page.getByTestId('entity-modal-chnname').fill('商城');
+        await page.getByTestId('entity-modal-ok').click();
+        await expect(page.getByTestId('save-status')).toHaveText(/Saved to server|已落盘/, {
+          timeout: 25_000,
+        });
+        await page.getByTestId('design-tree-add').click();
+        await page.getByTestId('menu-add-entity').click();
+        await page.getByTestId('entity-modal-name').fill('T_ORDER');
+        await page.getByTestId('entity-modal-ok').click();
+        await expect(page.getByTestId('save-status')).toHaveText(/Saved to server|已落盘/, {
+          timeout: 25_000,
+        });
+      }
+      await page.getByLabel('表操作').click();
+      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      await expect(page.getByTestId('table-design-tabs')).toBeVisible({ timeout: 10_000 });
+    };
+
+    await ensureTableDesign();
+    const tabs = page.getByTestId('table-design-tabs');
+    await expect(tabs.getByRole('tab', { name: 'Fields' })).toBeVisible();
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+    await ensureTableDesign();
+    await expect(page.getByTestId('table-design-tabs').getByRole('tab', { name: '字段' })).toBeVisible();
+  });
 });

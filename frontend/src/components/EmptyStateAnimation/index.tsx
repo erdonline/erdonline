@@ -15,7 +15,7 @@ interface EmptyStateAnimationProps {
  * 内容态必须参与 flex 高度链，否则子级 height:100%（画布）塌成 0。
  */
 const EmptyStateAnimation: React.FC<EmptyStateAnimationProps> = ({
-  title = '还没有打开的表',
+  title,
   description,
   children,
   show = true,

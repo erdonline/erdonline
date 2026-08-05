@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：Group/Design 高流量页正文（团队列表 + 表设计工作区）
+
+- `project/group/index.tsx`：页标题/搜索/错误 toast key 化（复用 `projectList.*` + 新增 `projectList.group.title`）
+- `design/table/index.tsx`：工作区空态（无 tab / 无模型 / 兜底）全文 key 化
+- `design/table/component/tab/TableTab.tsx`：字段/索引/元数据应用/触发器签 key 化
+- `EmptyStateAnimation`：移除硬编码中文默认 title
+- 语料：`projectList.group.title` + `designTable.*` 共 11 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n #16 ✅；i18n MVP 队列 #1–#16 全部完成
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "团队项目列表与设计器表设计签"`
+
 #### i18n：Home 高流量页正文（仪表盘 + 项目列表）
 
 - `home/index.tsx`：欢迎语/统计/CTA/二级导航/进行中项目/公告区全文 `formatMessage` key 化
