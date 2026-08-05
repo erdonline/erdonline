@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：beforeunload + 落库失败草稿守卫 E2E（Vision #30 · ADR-0022）
+
+- 缺口：#28/#29 覆盖 SPA 内链离开（`closeSocket` 补枪）；未覆盖浏览器级离开（reload / 关页）时 `useProjectDraftGuard` 不覆写失败态草稿
+- 改动：`leave-designer-save.spec.ts` 新增 2 用例——reload 后 localStorage 仍含失败字段 + 草稿恢复弹窗；关页重开可恢复 + 顶栏重试 CTA；**不对 Playwright `beforeunload` native dialog 做硬断言**（Chromium 空文案 + dismiss/accept 时序脆），以 draft 持久化为验收口径
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #30 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/leave-designer-save.spec.ts`
+
 #### 可信保存：防抖窗口内离开补枪 E2E（Vision #29 · ADR-0022）
 
 - 缺口：#28 覆盖失败态离开补枪 + 顶栏重试；未覆盖「编辑后见保存中即离开（<600ms 窗）→ 补枪成功/失败可见」
