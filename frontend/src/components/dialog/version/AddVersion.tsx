@@ -6,6 +6,7 @@ import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import {suggestNextVersion} from '@/utils/versionConstants';
 import {joinVersionTags} from '@/utils/versionTags';
+import {useIntl} from '@@/exports';
 
 export type AddVersionProps = {
   trigger: string;
@@ -22,7 +23,10 @@ type FormValues = {
 };
 
 const AddVersion: React.FC<AddVersionProps> = (props) => {
-  const {label = '新增版本', testId = 'add-version-btn'} = props;
+  const intl = useIntl();
+  const {label, testId = 'add-version-btn'} = props;
+  const buttonLabel =
+    label ?? intl.formatMessage({ id: 'versionModal.addVersion.button' });
   const {versions, versionBaseline, versionDispatch} = useVersionStore(
     (state) => ({
       versions: state.versions,
@@ -48,7 +52,7 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
   const openModal = () => {
     form.setFieldsValue({
       version: initialVersion,
-      versionDesc: '模型快照',
+      versionDesc: intl.formatMessage({ id: 'versionModal.addVersion.defaultDesc' }),
       tags: [],
     });
     setOpen(true);
@@ -79,14 +83,14 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
         key="artifact"
         type="primary"
         data-testid={testId}
-        aria-label={label}
+        aria-label={buttonLabel}
         onClick={openModal}
       >
         <PlusOutlined />
-        {label}
+        {buttonLabel}
       </Button>
       <Modal
-        title="新增版本"
+        title={intl.formatMessage({ id: 'versionModal.addVersion.title' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -105,37 +109,61 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="version"
-            label="版本号"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
               {
                 pattern: /^([1-9]\d|[1-9])(\.([1-9]\d|\d)){2}$/,
-                message: '版本号格式不对，正确示例：1.0.1',
+                message: intl.formatMessage({ id: 'versionModal.validation.versionFormat' }),
               },
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
-            <Input ref={versionInputRef} placeholder="请输入版本号" />
+            <Input
+              ref={versionInputRef}
+              placeholder={intl.formatMessage({ id: 'versionModal.addVersion.versionPlaceholder' })}
+            />
           </Form.Item>
           <Form.Item
             name="versionDesc"
-            label="版本描述"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.versionDescLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'versionModal.validation.required' }),
+              },
+              {
+                max: 100,
+                message: intl.formatMessage({ id: 'versionModal.validation.max100' }),
+              },
             ]}
           >
-            <Input.TextArea placeholder="请输入版本描述" rows={3} />
+            <Input.TextArea
+              placeholder={intl.formatMessage({
+                id: 'versionModal.addVersion.versionDescPlaceholder',
+              })}
+              rows={3}
+            />
           </Form.Item>
           <Form.Item
             name="tags"
-            label="版本标签"
+            label={intl.formatMessage({ id: 'versionModal.addVersion.tagsLabel' })}
             rules={[
               {
                 validator: async (_: unknown, value: string[] | undefined) => {
                   const joined = joinVersionTags(value);
                   if (joined && joined.length > 255) {
-                    return Promise.reject(new Error('标签总长度不能大于 255 个字符'));
+                    return Promise.reject(
+                      new Error(
+                        intl.formatMessage({ id: 'versionModal.validation.tagsMax255' }),
+                      ),
+                    );
                   }
                 },
               },
@@ -144,9 +172,9 @@ const AddVersion: React.FC<AddVersionProps> = (props) => {
             <Select
               mode="tags"
               tokenSeparators={[',']}
-              placeholder="可选，回车添加多个标签"
+              placeholder={intl.formatMessage({ id: 'versionModal.addVersion.tagsPlaceholder' })}
               data-testid="version-tag-input"
-              aria-label="版本标签"
+              aria-label={intl.formatMessage({ id: 'versionModal.addVersion.tagsAria' })}
               notFoundContent={null}
             />
           </Form.Item>

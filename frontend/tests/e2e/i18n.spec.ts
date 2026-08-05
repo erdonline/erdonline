@@ -534,6 +534,47 @@ test.describe('i18n：手动语言切换', () => {
     await expect(backToModel).toHaveText('返回模型');
   });
 
+  test('Design 版本页 Modal 文案随 locale 切换', async ({ page, request }) => {
+    const account = e2eAccount();
+    await login(page, account);
+    await page.goto('/project/person');
+    await expect(page.getByTestId('project-person-page')).toBeVisible({ timeout: 15_000 });
+    if ((await page.getByTestId('project-list-open-link').count()) === 0) {
+      await page.getByTestId('project-create-trigger').click();
+      const dialog = page.getByRole('dialog');
+      await expect(dialog).toBeVisible();
+      const projectName = uniqueProjectName('i18n-version-modal');
+      await dialog.getByPlaceholder(/Project name|项目名/).fill(projectName);
+      await dialog.getByPlaceholder(/description|项目描述/).fill('i18n version modal locale');
+      await dialog.getByRole('button', { name: /OK|确\s*定/ }).click();
+      await expect(
+        page.getByTestId('project-list-open-link').filter({ hasText: projectName }),
+      ).toBeVisible({ timeout: 15_000 });
+    }
+    await page.getByTestId('project-list-open-link').first().click();
+    await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
+
+    const projectId = new URL(page.url()).searchParams.get('projectId') ?? '';
+    await page.goto(`/design/table/version/all?projectId=${projectId}`);
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+
+    const addVersion = page.getByTestId('add-version-btn');
+    const compareVersion = page.getByTestId('version-compare-btn');
+    await expect(addVersion).toHaveText('新增版本');
+    await expect(compareVersion).toHaveText('版本比对');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+    await expect(addVersion).toHaveText('Add version');
+    await expect(compareVersion).toHaveText('Compare versions');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
+    await expect(addVersion).toHaveText('新增版本');
+  });
+
   test('Group 设置子页正文随 locale 切换', async ({ page, request }) => {
     const account = e2eAccount();
     await login(page, account);

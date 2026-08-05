@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { isVersionGreater, isVersionLessOrEqual } from '@/utils/string';
 import useVersionStore, { SHOW_CHANGE_TYPE } from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
@@ -16,7 +16,7 @@ import {
   FileTextOutlined,
   FlagOutlined,
 } from '@ant-design/icons';
-import { Access, useAccess } from '@@/plugin-access';
+import { Access, useAccess, useIntl } from '@@/exports';
 import SqlApproval from '@/components/dialog/approval/SqlApproval';
 import { useSearchParams } from '@@/exports';
 import * as cache from '@/utils/cache';
@@ -36,6 +36,7 @@ export type CompareVersionProps = {
 };
 
 const CompareVersion: React.FC<CompareVersionProps> = (props) => {
+  const intl = useIntl();
   const { currentVersion, dbVersion, messages, data, versions, versionDispatch } = useVersionStore(
     (state) => ({
       messages: state.messages,
@@ -66,6 +67,14 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const access = useAccess();
   const [exed, setExed] = useState(1);
 
+  const isDetail = props.type === CompareVersionType.DETAIL;
+  const isCompare = props.type === CompareVersionType.COMPARE;
+
+  const defaultButtonLabel = isDetail
+    ? intl.formatMessage({ id: 'versionModal.compare.detail' })
+    : intl.formatMessage({ id: 'versionModal.compare.compare' });
+  const buttonLabel = props.buttonLabel ?? defaultButtonLabel;
+
   useEffect(() => {
     if (versions && versions.length > 1) {
       if (!state.initVersion && !state.incrementVersion) {
@@ -92,9 +101,6 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     });
   };
 
-  const isDetail = props.type === CompareVersionType.DETAIL;
-  const isCompare = props.type === CompareVersionType.COMPARE;
-
   const stamp = () => moment().format('YYYY-MM-DD-HHmmss');
 
   const versionRangeLabel = () => {
@@ -110,18 +116,18 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const exportSql = () => {
     const sql = data != null ? String(data).trim() : '';
     if (!sql) {
-      message.warning('当前无可导出的变化脚本');
+      message.warning(intl.formatMessage({ id: 'versionModal.compare.exportSqlEmpty' }));
       return;
     }
     File.save(sql, `version-diff-${versionRangeLabel()}-${stamp()}.sql`);
-    message.success('已导出 SQL');
+    message.success(intl.formatMessage({ id: 'versionModal.compare.exportSqlSuccess' }));
   };
 
   const exportDiffMarkdown = () => {
     const sql = data != null ? String(data).trim() : '';
     const list = Array.isArray(messages) ? messages : [];
     if (!list.length && !sql) {
-      message.warning('当前无变更可导出');
+      message.warning(intl.formatMessage({ id: 'versionModal.compare.exportDiffEmpty' }));
       return;
     }
     const md = formatVersionDiffMarkdown({
@@ -131,12 +137,20 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       sql,
     });
     File.save(md, `version-diff-${versionRangeLabel()}-${stamp()}.md`);
-    message.success('已导出变更清单');
+    message.success(intl.formatMessage({ id: 'versionModal.compare.exportDiffSuccess' }));
   };
 
   const exportMenuItems: MenuProps['items'] = [
-    { key: 'md', label: '导出变更清单（Markdown）', onClick: exportDiffMarkdown },
-    { key: 'sql', label: '仅导出 SQL', onClick: exportSql },
+    {
+      key: 'md',
+      label: intl.formatMessage({ id: 'versionModal.compare.exportMd' }),
+      onClick: exportDiffMarkdown,
+    },
+    {
+      key: 'sql',
+      label: intl.formatMessage({ id: 'versionModal.compare.exportSql' }),
+      onClick: exportSql,
+    },
   ];
 
   const execSQL = (updateDBVersion: boolean, type: string) => {
@@ -157,7 +171,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         });
       }
     } else {
-      message.error('当前操作的版本之前还有版本尚未同步，请不要跨版本操作!');
+      message.error(intl.formatMessage({ id: 'versionModal.compare.crossVersionError' }));
     }
   };
 
@@ -174,13 +188,15 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const showAgain =
     isDetail && currentVersion.version && bookmarkLessOrEqual === true;
 
+  const needTwoVersionsMsg = intl.formatMessage({ id: 'versionModal.compare.needTwoVersions' });
+
   const closeModal = () => {
     setOpen(false);
   };
 
   const openModal = () => {
     if (isCompare && (!versions || versions.length < 2)) {
-      message.warning('至少需要两个版本才能比对');
+      message.warning(needTwoVersionsMsg);
       return;
     }
     if (isDetail) {
@@ -202,6 +218,19 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       ?.focus();
   };
 
+  const scriptHeading = useMemo(() => {
+    if (!currentVersion) {
+      return intl.formatMessage({ id: 'versionModal.compare.script' });
+    }
+    if (bookmarkLessOrEqual === true) {
+      return intl.formatMessage({ id: 'versionModal.compare.scriptPushed' });
+    }
+    if (bookmarkLessOrEqual === null) {
+      return intl.formatMessage({ id: 'versionModal.compare.scriptBookmarkUnknown' });
+    }
+    return intl.formatMessage({ id: 'versionModal.compare.scriptNotSynced' });
+  }, [bookmarkLessOrEqual, currentVersion, intl]);
+
   const footer = [
     <Access accessible={access.enterprise} fallback={<></>} key="approval">
       <SqlApproval
@@ -220,36 +249,40 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       buttonsRender={([leftButton, rightButton]) => [
         React.cloneElement(leftButton as React.ReactElement, {
           'data-testid': 'version-diff-export-btn',
-          'aria-label': '导出变更清单',
+          'aria-label': intl.formatMessage({ id: 'versionModal.compare.exportAria' }),
         }),
         rightButton,
       ]}
     >
       <ExportOutlined />
-      导出
+      {intl.formatMessage({ id: 'versionModal.compare.export' })}
     </Dropdown.Button>,
     <Access accessible={access.canErdConnectorDbsync} fallback={<></>} key="sync">
       <Button
         type="primary"
         loading={state.synchronous}
-        title="会更新数据源中的版本号"
+        title={intl.formatMessage({ id: 'versionModal.compare.syncTitle' })}
         style={{ display: showSyncActions ? '' : 'none' }}
         onClick={() => execSQL(true, 'synchronous')}
       >
         <CloudUploadOutlined />
-        {state.synchronous ? '正在同步' : '同步'}
+        {state.synchronous
+          ? intl.formatMessage({ id: 'versionModal.compare.syncing' })
+          : intl.formatMessage({ id: 'versionModal.compare.sync' })}
       </Button>
     </Access>,
     <Access accessible={access.canErdConnectorDbsync} fallback={<></>} key="flag">
       <Button
         type="primary"
         loading={state.flagSynchronous}
-        title="更新数据源的版本号，不会执行差异化的SQL"
+        title={intl.formatMessage({ id: 'versionModal.compare.flagSyncTitle' })}
         style={{ display: showSyncActions ? '' : 'none' }}
         onClick={() => execSQL(true, 'flagSynchronous')}
       >
         <FlagOutlined />
-        {state.flagSynchronous ? '正在标记为同步' : '标记为同步'}
+        {state.flagSynchronous
+          ? intl.formatMessage({ id: 'versionModal.compare.flagSyncing' })
+          : intl.formatMessage({ id: 'versionModal.compare.flagSync' })}
       </Button>
     </Access>,
     <Access accessible={access.canErdConnectorDbsync} fallback={<></>} key="again">
@@ -258,14 +291,16 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         danger
         ghost
         loading={state.again}
-        title="不会更新数据源中的版本号"
+        title={intl.formatMessage({ id: 'versionModal.compare.againTitle' })}
         style={{
           display: showAgain ? '' : 'none',
           marginLeft: 10,
         }}
         onClick={() => execSQL(false, 'again')}
       >
-        {state.again ? '正在执行' : '再次执行'}
+        {state.again
+          ? intl.formatMessage({ id: 'versionModal.compare.againLoading' })
+          : intl.formatMessage({ id: 'versionModal.compare.again' })}
       </Button>
     </Access>,
   ];
@@ -280,21 +315,19 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         data-testid={
           props.testId || (isDetail ? 'version-detail-btn' : 'version-compare-btn')
         }
-        aria-label={
-          props.buttonLabel || (isDetail ? '详情' : '版本比对')
-        }
+        aria-label={buttonLabel}
         disabled={isCompare && (!versions || versions.length < 2)}
         title={
-          isCompare && (!versions || versions.length < 2)
-            ? '至少需要两个版本才能比对'
-            : undefined
+          isCompare && (!versions || versions.length < 2) ? needTwoVersionsMsg : undefined
         }
         onClick={openModal}
       >
-        {props.buttonLabel || (isDetail ? '详情' : '版本比对')}
+        {buttonLabel}
       </Button>
       <Modal
-        title={isDetail ? '版本变更详情' : '任意版本比较'}
+        title={intl.formatMessage({
+          id: isDetail ? 'versionModal.compare.detailTitle' : 'versionModal.compare.compareTitle',
+        })}
         open={open}
         onCancel={closeModal}
         destroyOnClose
@@ -312,24 +345,28 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         {isCompare ? (
           <Space style={{ marginBottom: 8 }} wrap>
             <span>
-              <span style={{ marginRight: 8 }}>初始版本</span>
+              <span style={{ marginRight: 8 }}>
+                {intl.formatMessage({ id: 'versionModal.compare.initVersion' })}
+              </span>
               <Select
                 ref={initVersionSelectRef}
                 style={{ width: 160 }}
                 options={versionSelect}
                 value={state.initVersion || undefined}
                 onChange={(value) => onVersionChange(value, 'initVersion')}
-                aria-label="初始版本"
+                aria-label={intl.formatMessage({ id: 'versionModal.compare.initVersion' })}
               />
             </span>
             <span>
-              <span style={{ marginRight: 8 }}>增量版本</span>
+              <span style={{ marginRight: 8 }}>
+                {intl.formatMessage({ id: 'versionModal.compare.incrementVersion' })}
+              </span>
               <Select
                 style={{ width: 160 }}
                 options={versionSelect}
                 value={state.incrementVersion || undefined}
                 onChange={(value) => onVersionChange(value, 'incrementVersion')}
-                aria-label="增量版本"
+                aria-label={intl.formatMessage({ id: 'versionModal.compare.incrementVersion' })}
               />
             </span>
           </Space>
@@ -337,20 +374,14 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
         <Divider />
         <Row gutter={16}>
           <Col span={10}>
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>模型变更</div>
+            <div style={{ marginBottom: 8, fontWeight: 500 }}>
+              {intl.formatMessage({ id: 'versionModal.compare.modelChanges' })}
+            </div>
             <VersionDiffPanel messages={messages} hasScript={!!(data && String(data).trim())} />
           </Col>
           <Col span={14}>
             <Paragraph copyable={{ text: data }} style={{ marginBottom: 8 }}>
-              {currentVersion
-                ? `变化脚本(${
-                    bookmarkLessOrEqual === true
-                      ? '已推送（版本书签）'
-                      : bookmarkLessOrEqual === null
-                        ? '书签未知'
-                        : '未同步'
-                  })`
-                : '变化脚本'}
+              {scriptHeading}
             </Paragraph>
             <CodeEditor mode="mysql" height={`${tempHeight * 0.5}px`} value={data} />
           </Col>

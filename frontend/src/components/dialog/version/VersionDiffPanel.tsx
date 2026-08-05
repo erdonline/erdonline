@@ -6,6 +6,8 @@ import {
   changeSummaryTags,
   countChanges,
 } from '@/utils/dualLayerTokens';
+import { intlFormat } from '@/utils/messageFormat';
+import { useIntl } from '@@/exports';
 import {
   fieldOf,
   tableOf,
@@ -15,23 +17,23 @@ import {
 export type { VersionDiffItem } from './formatVersionDiffMarkdown';
 export { formatVersionDiffMarkdown } from './formatVersionDiffMarkdown';
 
-const TYPE_LABEL: Record<string, string> = {
-  entity: '表',
-  field: '字段',
-  index: '索引',
-  association: '关联',
-  diagram: '关系图',
-  profile: '项目配置',
-  datatype: '数据类型',
-  module: '模块',
-};
+const DIFF_TYPE_KEYS = [
+  'entity',
+  'field',
+  'index',
+  'association',
+  'diagram',
+  'profile',
+  'datatype',
+  'module',
+] as const;
 
 export type VersionDiffPanelProps = {
   messages: VersionDiffItem[];
   /** 右侧脚本非空但无结构化变更时的提示（全量脚本） */
   hasScript?: boolean;
-  /** 摘要行上下文说明，默认「A 层版本 diff」 */
-  summaryHint?: string;
+  /** 摘要行上下文 i18n key，默认 versionModal.diff.summaryHintDefault */
+  summaryHintId?: string;
 };
 
 /**
@@ -41,8 +43,28 @@ export type VersionDiffPanelProps = {
 const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
   messages,
   hasScript,
-  summaryHint = 'A 层版本 diff',
+  summaryHintId = 'versionModal.diff.summaryHintDefault',
 }) => {
+  const intl = useIntl();
+  const format = intlFormat(intl);
+
+  const typeLabel = (type: string) => {
+    const key = `versionModal.diff.type.${type}`;
+    if ((DIFF_TYPE_KEYS as readonly string[]).includes(type)) {
+      return intl.formatMessage({ id: key });
+    }
+    return type;
+  };
+
+  const changeLabel = (opt: string) => {
+    if (opt === 'add' || opt === 'delete' || opt === 'update') {
+      return intl.formatMessage({ id: `versionModal.diff.change.${opt}` });
+    }
+    return opt;
+  };
+
+  const summaryHint = intl.formatMessage({ id: summaryHintId });
+
   const { groups, summary } = useMemo(() => {
     const list = Array.isArray(messages) ? messages : [];
     const counts = countChanges(list);
@@ -71,7 +93,11 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
         <Empty
           data-testid="version-diff-empty"
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={hasScript ? '当前脚本为全量脚本（无增量变更条目）' : '当前版本无变化'}
+          description={
+            hasScript
+              ? intl.formatMessage({ id: 'versionModal.diff.emptyFullScript' })
+              : intl.formatMessage({ id: 'versionModal.diff.emptyNoChanges' })
+          }
         />
       </div>
     );
@@ -80,13 +106,16 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
   return (
     <div className="version-diff-panel" data-testid="version-diff-panel">
       <Space size={4} wrap className="version-diff-summary" data-testid="version-diff-summary">
-        {changeSummaryTags(summary).map(({ opt, text }) => (
+        {changeSummaryTags(summary, format).map(({ opt, text }) => (
           <Tag key={opt} color={CHANGE_OPT[opt].color}>
             {text}
           </Tag>
         ))}
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          共 {messages.length} 项 · {groups.length} 张表 · {summaryHint}
+          {intl.formatMessage(
+            { id: 'versionModal.diff.summary' },
+            { count: messages.length, tables: groups.length, hint: summaryHint },
+          )}
         </Typography.Text>
       </Space>
       <ul className="version-diff-tree">
@@ -102,7 +131,6 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
                   color: 'default' as const,
                   label: item.opt,
                 };
-                const typeLabel = TYPE_LABEL[item.type] || item.type;
                 const leaf = fieldOf(item);
                 return (
                   <li
@@ -111,9 +139,9 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
                     data-testid={`version-diff-item-${item.opt}`}
                   >
                     <Tag color={meta.color} className="version-diff-opt">
-                      {meta.label}
+                      {changeLabel(item.opt)}
                     </Tag>
-                    <span className="version-diff-type">{typeLabel}</span>
+                    <span className="version-diff-type">{typeLabel(item.type)}</span>
                     <span className="version-diff-name">
                       {item.type === 'entity' ? table : leaf || item.name}
                     </span>

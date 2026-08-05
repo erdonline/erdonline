@@ -108,13 +108,20 @@ export function formatChangeSummary(counts: ChangeCounts): string {
 }
 
 /** diff 面板摘要 Tag 文案 */
-export function changeSummaryTags(counts: ChangeCounts): { opt: ChangeOpt; count: number; text: string }[] {
+export function changeSummaryTags(
+  counts: ChangeCounts,
+  format: MessageFormatFn = zhCnFormat(),
+): { opt: ChangeOpt; count: number; text: string }[] {
   const out: { opt: ChangeOpt; count: number; text: string }[] = [];
   (['add', 'delete', 'update'] as const).forEach((opt) => {
     const n = counts[opt];
     if (n > 0) {
       const meta = CHANGE_OPT[opt];
-      out.push({ opt, count: n, text: `${meta.symbol}${n} ${meta.label}` });
+      out.push({
+        opt,
+        count: n,
+        text: `${meta.symbol}${n} ${format(`versionModal.diff.change.${opt}`)}`,
+      });
     }
   });
   return out;

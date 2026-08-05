@@ -1,5 +1,5 @@
 import { Button } from 'antd';
-import { history } from '@@/core/history';
+import { history, useIntl } from '@@/exports';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 
@@ -8,6 +8,8 @@ import { CONSTANT } from '@/utils/constant';
  * 关闭示例就绪通知后仍可完成「保存第一个版本」，不依赖侧栏找路。
  */
 const SaveVersionButton: React.FC = () => {
+  const intl = useIntl();
+
   const go = () => {
     const projectId =
       cache.getItem(CONSTANT.PROJECT_ID) ||
@@ -17,15 +19,17 @@ const SaveVersionButton: React.FC = () => {
     history.push(`/design/table/version/all${q}`);
   };
 
+  const label = intl.formatMessage({ id: 'versionModal.saveVersion.button' });
+
   return (
     <Button
       type="primary"
       size="small"
       data-testid="design-header-save-version"
-      aria-label="保存版本"
+      aria-label={intl.formatMessage({ id: 'versionModal.saveVersion.aria' })}
       onClick={go}
     >
-      保存版本
+      {label}
     </Button>
   );
 };
