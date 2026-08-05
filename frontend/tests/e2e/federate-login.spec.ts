@@ -50,6 +50,14 @@ test.describe('IdP 联邦（无凭证）', () => {
     await expect(page.getByTestId('login-github')).toBeVisible();
     await expect(page.getByTestId('login-google')).toBeVisible();
     await expect(page.getByLabel('使用 GitHub 登录')).toBeVisible();
+    await expect(page.getByTestId('login-github')).toHaveAttribute(
+      'href',
+      '/auth/federate/github',
+    );
+    await expect(page.getByTestId('login-google')).toHaveAttribute(
+      'href',
+      '/auth/federate/google',
+    );
     await expect(page.getByTestId('login-wechat')).toHaveCount(0);
     await expect(page.getByTestId('login-federate-unconfigured')).toHaveCount(0);
   });

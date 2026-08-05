@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 修复：CF Pages demo 第三方登录按钮 href 打到 SPA 而非 Railway API
+
+- 根因：登录页 `<Button href="/auth/federate/{provider}">` 为相对路径；XHR 走 `API_URL` prefix，浏览器导航不走——静态托管把 `/auth/…` 当 SPA 路由
+- 改动：`buildApiHref`（与 `request.js` 同源 `window._env_.API_URL || API_URL`）；空基址保留相对路径（本地 dev 代理）；账号绑定仍经 XHR `GET …/links/{p}/start` 取 IdP 绝对 URL，无 href 问题
+
+验证点：
+- `cd frontend && npx tsx src/utils/apiHref.test.ts` 绿
+- `yarn test:e2e --project=chromium frontend/tests/e2e/federate-login.spec.ts` mock providers 时 GitHub/Google `href` 为 `/auth/federate/{provider}`
+
 #### 修复：Railway Redeploy 后 Tomcat 起不来（`oidcIdTokenService` 初始化失败）+ 加固畸形 Origin
 
 - 根因排查：日志 `Error creating bean with name 'oidcIdTokenService': Invocation of init method failed → UnsatisfiedDependency → patAuthenticationFilter → Unable to start embedded Tomcat` **不是** `ERD_UI_URL` 双源 CSV 本身的问题——`CrossOriginPolicy`（CORS）与 `OidcConfig.resolveIssuer`（OIDC issuer 取首个合法条目）此前已正确处理逗号分隔（`88d71f2` 已验证）。真根因是 `OidcIdTokenService.@PostConstruct` 经 `OidcRsaKeySupport.load` 在 prod 强制要求 RS256 私钥（`ERD_OIDC_RSA_PRIVATE_KEY`/`_PATH`/`_KEYSTORE_PATH`），缺失即 fail-fast；异常沿 `OAuthApiClientServiceImpl`（构造依赖 `OidcIdTokenService`）→ `patAuthenticationFilter`（依赖 `OAuthApiClientService`）向上抛，表现为「改了 `ERD_UI_URL` 就崩」，实为同一次 Redeploy 顺带重新触发该校验（该 RS256 门禁 `e2036de` 与 CORS CSV 修复 `88d71f2` 同日落地，此前部署未必命中过）
