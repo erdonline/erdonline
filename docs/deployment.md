@@ -314,6 +314,27 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
+#### 生成 OIDC RSA 私钥（Railway / prod）
+
+`OidcRsaKeySupport` 接受 **PKCS#8**（`-----BEGIN PRIVATE KEY-----`）或 **PKCS#1**（`-----BEGIN RSA PRIVATE KEY-----`）RSA 私钥 PEM；2048 位；**无需**单独配置公钥——运行时从私钥推导公钥并发布到 `GET /.well-known/jwks.json`（`kid` 默认为公钥 JWK thumbprint，可选覆盖 `ERD_OIDC_RSA_KID`）。与会话 `JWT_SECRET` **分离**；**勿提交进 git**。
+
+本机生成（推荐 PKCS#8，与 dev 自动落盘格式一致）：
+
+```bash
+mkdir -p ~/.erdonline
+openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out ~/.erdonline/oidc-rsa-private.pem
+chmod 600 ~/.erdonline/oidc-rsa-private.pem
+```
+
+**Railway Variables**（二选一）：
+
+| 变量名 | 用法 |
+|---|---|
+| `ERD_OIDC_RSA_PRIVATE_KEY` | 变量类型选 **Secret**；值 = PEM **整段**（含首尾行与换行），Dashboard 多行粘贴即可；勿把换行压成一行或包一层引号 |
+| `ERD_OIDC_RSA_PRIVATE_KEY_PATH` | 仅当容器内确有挂载 PEM 文件路径时用（compose 常用 `.secrets/oidc-rsa-private.pem`）；Railway 无文件卷时优先用上行的 `_PRIVATE_KEY` |
+
+改密钥或补密钥后 **Redeploy**；验收 `GET https://<API>/.well-known/jwks.json` 返回 RSA 公钥 JWK。
+
 > **MySQL / Redis**：详见上两节。Link 插件后用原生 `MYSQL*` / `REDIS*`；`MYSQL_URL` / `REDIS_URL` / `SPRING_DATASOURCE_URL` / `SPRING_DATA_REDIS_URL` **不是**本应用主接线路径。
 
 本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
