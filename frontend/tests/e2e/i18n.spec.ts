@@ -38,4 +38,14 @@ test.describe('i18n：手动语言切换', () => {
     const storedZh = await page.evaluate(() => localStorage.getItem('umi_locale'));
     expect(storedZh).toBe('zh-CN');
   });
+
+  test('register-submit 随 LocaleSwitcher 切换文案', async ({ page }) => {
+    await page.goto('/register');
+    const registerSubmit = page.getByTestId('register-submit');
+    await expect(registerSubmit).toHaveText(/注\s*册/);
+
+    await page.getByTestId('locale-switcher').click();
+    await page.getByRole('option', { name: 'English' }).click();
+    await expect(registerSubmit).toHaveText('Register');
+  });
 });

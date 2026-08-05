@@ -61,8 +61,8 @@
 1. ~~`baseNavigator` 浏览器语言自动匹配 + E2E 固定 zh-CN~~ ✅ 2026-08-05（`d838b85`）
 2. ~~`LocaleSwitcher` 手动切换 + Auth/Home/Design 顶栏~~ ✅ 2026-08-05（`c5f8272`）
 3. ~~登录/联邦登录 + AuthBrandShell 品牌面板 key 化~~ ✅ 2026-08-05
-4. **下一刀**：注册页 key 化（`/register` 表单 + footer）
-5. 设计器顶栏 chrome key 化（SaveStatus / dirty chip / schema probe 等）
+4. ~~注册页 key 化（`/register` 表单 + footer）~~ ✅ 2026-08-05
+5. **下一刀**：设计器顶栏 chrome key 化（SaveStatus / dirty chip / schema probe 等）
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

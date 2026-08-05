@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import {QuestionCircleOutlined} from '@ant-design/icons';
 import {Button, Form, Input, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import {POST} from "@/services/crud";
 import {login} from "@/pages/login";
 import AuthBrandShell from '@/components/AuthBrandShell';
@@ -25,12 +26,13 @@ type RegisterValues = {
 };
 
 export default () => {
+  const intl = useIntl();
   const [form] = Form.useForm<RegisterValues>();
   const [submitting, setSubmitting] = useState(false);
 
   const onFinish = async (values: RegisterValues) => {
     if (values.pwd !== values.pwdCK) {
-      message.error("两次输入的密码不一致");
+      message.error(intl.formatMessage({ id: 'register.error.passwordMismatch' }));
       return;
     }
     setSubmitting(true);
@@ -42,9 +44,14 @@ export default () => {
         phone: values.phone,
       });
       if (r.code === 200) {
-        message.success("注册成功！");
+        message.success(intl.formatMessage({ id: 'register.success' }));
         const redirect = new URLSearchParams(window.location.search).get('redirect');
-        await login(values.username, values.pwd, redirect);
+        await login(
+          values.username,
+          values.pwd,
+          redirect,
+          intl.formatMessage({ id: 'login.error' }),
+        );
       }
     } finally {
       setSubmitting(false);
@@ -53,16 +60,19 @@ export default () => {
 
   return (
     <AuthBrandShell
-      title="注册 ERD Online"
-      skipLabel="跳到注册表单"
+      title={intl.formatMessage({ id: 'register.title' })}
+      skipLabel={intl.formatMessage({ id: 'register.skipLabel' })}
       footer={
         <>
-          <a href={`/login${loginQuery()}`} aria-label="去登录">
-            已有账号？去登录
+          <a
+            href={`/login${loginQuery()}`}
+            aria-label={intl.formatMessage({ id: 'register.footer.loginAria' })}
+          >
+            {intl.formatMessage({ id: 'register.footer.login' })}
           </a>
           {' · '}
-          <a href="/demo" aria-label="先看演示">
-            先看演示（免登录）
+          <a href="/demo" aria-label={intl.formatMessage({ id: 'login.footer.demoAria' })}>
+            {intl.formatMessage({ id: 'login.footer.demo' })}
           </a>
         </>
       }
@@ -77,98 +87,101 @@ export default () => {
       >
         <Form.Item
           name="username"
-          label="用户名"
+          label={intl.formatMessage({ id: 'register.username.label' })}
           htmlFor="register-username"
-          tooltip={formTip('最长为 18 位')}
+          tooltip={formTip(intl.formatMessage({ id: 'register.username.tooltip' }))}
           rules={[
-            {required: true, message: '不能为空'},
-            {max: 18, message: '不能大于 18 个字符'},
+            { required: true, message: intl.formatMessage({ id: 'register.username.required' }) },
+            { max: 18, message: intl.formatMessage({ id: 'register.username.max' }) },
           ]}
         >
           <Input
             id="register-username"
-            placeholder="请输入用户名"
-            aria-label="用户名"
+            placeholder={intl.formatMessage({ id: 'register.username.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'register.username.label' })}
             autoComplete="username"
           />
         </Form.Item>
         <Form.Item
           name="pwd"
-          label="密码"
+          label={intl.formatMessage({ id: 'register.password.label' })}
           htmlFor="register-pwd"
-          tooltip={formTip('密码至少包含 数字和英文，长度6-20')}
+          tooltip={formTip(intl.formatMessage({ id: 'register.password.tooltip' }))}
           rules={[
-            {required: true, message: '密码不能为空'},
+            { required: true, message: intl.formatMessage({ id: 'register.password.required' }) },
             {
               pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-              message: '密码至少包含 数字和英文，长度6-20',
+              message: intl.formatMessage({ id: 'register.password.pattern' }),
             },
           ]}
         >
           <Input.Password
             id="register-pwd"
-            placeholder="请输入密码"
-            aria-label="密码"
+            placeholder={intl.formatMessage({ id: 'register.password.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'register.password.label' })}
             autoComplete="new-password"
           />
         </Form.Item>
         <Form.Item
           name="pwdCK"
-          label="确认密码"
+          label={intl.formatMessage({ id: 'register.passwordConfirm.label' })}
           htmlFor="register-pwdCK"
-          tooltip={formTip('密码至少包含 数字和英文，长度6-20')}
+          tooltip={formTip(intl.formatMessage({ id: 'register.passwordConfirm.tooltip' }))}
           rules={[
-            {required: true, message: '密码不能为空'},
+            {
+              required: true,
+              message: intl.formatMessage({ id: 'register.passwordConfirm.required' }),
+            },
             {
               pattern: /^(?![0-9]+$)(?![a-zA-Z]+$)[0-9A-Za-z]{6,20}$/,
-              message: '密码至少包含 数字和英文，长度6-20',
+              message: intl.formatMessage({ id: 'register.passwordConfirm.pattern' }),
             },
           ]}
         >
           <Input.Password
             id="register-pwdCK"
-            placeholder="请输入密码"
-            aria-label="确认密码"
+            placeholder={intl.formatMessage({ id: 'register.passwordConfirm.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'register.passwordConfirm.label' })}
             autoComplete="new-password"
           />
         </Form.Item>
         <Form.Item
           name="email"
-          label="邮箱"
+          label={intl.formatMessage({ id: 'register.email.label' })}
           htmlFor="register-email"
-          tooltip={formTip('标准邮箱地址')}
+          tooltip={formTip(intl.formatMessage({ id: 'register.email.tooltip' }))}
           rules={[
-            {required: true, message: '邮箱不能为空'},
+            { required: true, message: intl.formatMessage({ id: 'register.email.required' }) },
             {
               pattern: /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/,
-              message: '请输入正确的邮箱地址',
+              message: intl.formatMessage({ id: 'register.email.pattern' }),
             },
           ]}
         >
           <Input
             id="register-email"
-            placeholder="请输入邮箱"
-            aria-label="邮箱"
+            placeholder={intl.formatMessage({ id: 'register.email.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'register.email.label' })}
             autoComplete="email"
           />
         </Form.Item>
         <Form.Item
           name="phone"
-          label="手机号码"
+          label={intl.formatMessage({ id: 'register.phone.label' })}
           htmlFor="register-phone"
-          tooltip={formTip('标准手机号码')}
+          tooltip={formTip(intl.formatMessage({ id: 'register.phone.tooltip' }))}
           rules={[
-            {required: true, message: '手机号码不能为空'},
+            { required: true, message: intl.formatMessage({ id: 'register.phone.required' }) },
             {
               pattern: /^1(3[0-9]|4[01456879]|5[0-3,5-9]|6[2567]|7[0-8]|8[0-9]|9[0-3,5-9])\d{8}$/,
-              message: '请输入正确的手机号',
+              message: intl.formatMessage({ id: 'register.phone.pattern' }),
             },
           ]}
         >
           <Input
             id="register-phone"
-            placeholder="请输入手机号码"
-            aria-label="手机号码"
+            placeholder={intl.formatMessage({ id: 'register.phone.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'register.phone.label' })}
             autoComplete="tel"
           />
         </Form.Item>
@@ -180,7 +193,7 @@ export default () => {
             loading={submitting}
             data-testid="register-submit"
           >
-            注册
+            {intl.formatMessage({ id: 'register.submit' })}
           </Button>
         </Form.Item>
       </Form>
