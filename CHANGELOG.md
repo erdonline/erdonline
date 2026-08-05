@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### i18n：Design 版本 store toast（useVersionStore message.*）
+
+- `useVersionStore.tsx`：`message.*` / sync 失败 fallback 全部改 `appFormat()`；复用 #19–#20 的 `versionModal.*` 校验/跨版本 key
+- 语料：新增 `versionStore.*` 31 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #21 ✅
+
+验证点：
+- `cd frontend && yarn build`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Design 版本页 Modal"`
+
 #### i18n：Design 版本页其余 Modal（Init / Rename / Revert / Remove / Sync / Rebuild）
 
 - `InitVersion.tsx` / `RebuildVersion.tsx`：工具栏按钮 + Modal 表单 key 化；`appFormat()` 供 init 成功/无数据源 toast

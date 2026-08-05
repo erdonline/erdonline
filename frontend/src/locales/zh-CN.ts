@@ -734,6 +734,44 @@ export default {
     '例如：1.0.0「请勿低于系统默认的数据源版本0.0.0」',
   'versionModal.rebuildVersion.versionDescPlaceholder': '例如：初始化当前项目版本',
 
+  // 版本 store toast（useVersionStore message.*）
+  'versionStore.fetch.failed': '获取版本信息失败',
+  'versionStore.fetch.failedWithDetail': '获取版本信息失败: {detail}',
+  'versionStore.baseline.fetchFailedWithDetail': '获取最新版本基线失败: {detail}',
+  'versionStore.baseline.checkFailed': '检查基线版本失败',
+  'versionStore.dbVersion.fetchSuccess': '数据源版本书签获取成功',
+  'versionStore.dbVersion.fetchFailed': '数据源版本信息获取失败',
+  'versionStore.datasource.unavailable': '无法获取到数据源信息，请切换尝试数据源',
+  'versionStore.datasource.unavailableDetailed':
+    '无法获取到数据源信息，请尝试切换数据源，并检查是否已经配置数据源信息！',
+  'versionStore.rebaseline.success': '初始化数据表成功',
+  'versionStore.rebaseline.failed': '初始化数据表失败',
+  'versionStore.rebaseline.failedWithDetail': '初始化数据表失败：{detail}',
+  'versionStore.sync.failed': '同步失败，请重试',
+  'versionStore.sync.failedWithDetail': '同步失败:{detail}',
+  'versionStore.update.success': '版本信息更新成功',
+  'versionStore.update.failed': '版本信息更新失败',
+  'versionStore.update.failedWithDetail': '版本信息更新失败{detail}',
+  'versionStore.delete.success': '版本信息删除成功',
+  'versionStore.delete.failedWithDetail': '版本信息删除失败{detail}',
+  'versionStore.revert.noSnapshot': '该版本无可用模型快照，无法回滚',
+  'versionStore.revert.noProject': '未打开项目',
+  'versionStore.revert.success': '成功回滚至「{version}」',
+  'versionStore.revert.persistFailed': '回滚保存失败',
+  'versionStore.validation.versionAndDescRequired': '版本号和版本描述不能为空',
+  'versionStore.save.noModelDiffWarning':
+    '当前与最新版本无模型差异；版本仍会保存，但不计入「有版本保存」北极星指标',
+  'versionStore.save.success': '当前版本保存成功',
+  'versionStore.save.failed': '当前版本保存失败',
+  'versionStore.save.failedWithDetail': '当前版本保存失败: {detail}',
+  'versionStore.rebuild.success': '重建基线成功',
+  'versionStore.rebuild.failed': '重建基线失败',
+  'versionStore.rebuild.failedWithDetail': '重建基线失败:{detail}',
+  'versionStore.compare.formatNotComparable':
+    '所选版本号无法比较，请检查格式（如 1.0.0）',
+  'versionStore.compare.incrementNotGreater':
+    '增量脚本的版本号不能小于或等于初始版本的版本号',
+
   // 团队设置子页（基本设置 / 用户组 / Modal）
   'groupSetting.validation.required': '不能为空',
   'groupSetting.validation.max100': '不能大于 100 个字符',
