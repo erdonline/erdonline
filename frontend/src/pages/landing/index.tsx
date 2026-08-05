@@ -1,23 +1,26 @@
 import React, {useEffect, useState} from 'react';
-import {Link} from '@umijs/max';
+import {Link, useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
 import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
 
 const LandingPage: React.FC = () => {
+  const intl = useIntl();
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     setAuthed(Boolean(cache.getItem('Authorization')));
   }, []);
 
+  const t = (id: string) => intl.formatMessage({ id });
+
   return (
     <LandingChrome variant="hero" testId="landing-page">
-      <section className="landingHero" aria-label="产品介绍">
+      <section className="landingHero" aria-label={t('landing.hero.aria')}>
         <div className="landingHeroVisual">
           <img
             src="/landing-hero.jpg"
-            alt="ERD Online 设计器关系图画布"
+            alt={t('landing.hero.imageAlt')}
             width={1600}
             height={1000}
             // React 17 DOM: camelCase fetchPriority leaks a warning; use lowercase attr
@@ -27,10 +30,8 @@ const LandingPage: React.FC = () => {
         </div>
         <div className="landingHeroInner">
           <p className="landingHeroBrand landingBrand">ERD Online</p>
-          <h1 className="landingHeroTitle">数据库设计的 Git + Figma</h1>
-          <p className="landingHeroLead">
-            版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。
-          </p>
+          <h1 className="landingHeroTitle">{t('landing.hero.title')}</h1>
+          <p className="landingHeroLead">{t('landing.hero.lead')}</p>
           <div
             className="landingCtas"
             id="landing-main-cta"
@@ -39,23 +40,43 @@ const LandingPage: React.FC = () => {
           >
             {authed ? (
               <>
-                <Link className="landingBtnPrimary" to="/home" aria-label="进入工作台">
-                  进入工作台
+                <Link
+                  className="landingBtnPrimary"
+                  to="/home"
+                  aria-label={t('landing.hero.cta.enterWorkspaceAria')}
+                >
+                  {t('landing.hero.cta.enterWorkspace')}
                 </Link>
-                <Link className="landingBtnGhost" to="/demo" aria-label="在线试用 demo">
-                  打开演示
+                <Link
+                  className="landingBtnGhost"
+                  to="/demo"
+                  aria-label={t('landing.hero.cta.openDemoAria')}
+                >
+                  {t('landing.hero.cta.openDemo')}
                 </Link>
               </>
             ) : (
               <>
-                <Link className="landingBtnPrimary" to="/demo" aria-label="在线试用 demo">
-                  在线试用
+                <Link
+                  className="landingBtnPrimary"
+                  to="/demo"
+                  aria-label={t('landing.hero.cta.tryOnlineAria')}
+                >
+                  {t('landing.hero.cta.tryOnline')}
                 </Link>
-                <Link className="landingBtnGhost" to="/register" aria-label="注册">
-                  注册
+                <Link
+                  className="landingBtnGhost"
+                  to="/register"
+                  aria-label={t('landing.hero.cta.registerAria')}
+                >
+                  {t('landing.hero.cta.register')}
                 </Link>
-                <Link className="landingBtnText" to="/login" aria-label="去登录">
-                  已有账号？登录
+                <Link
+                  className="landingBtnText"
+                  to="/login"
+                  aria-label={t('landing.hero.cta.loginExistingAria')}
+                >
+                  {t('landing.hero.cta.loginExisting')}
                 </Link>
               </>
             )}
@@ -64,98 +85,98 @@ const LandingPage: React.FC = () => {
       </section>
 
       <section className="landingSection" id="pillars" aria-labelledby="pillars-title">
-        <h2 id="pillars-title">三件事，构成壁垒</h2>
-        <p className="landingSectionLead">
-          不做对话黑盒噱头；把版本、协作与开放事实源做到 agent 也能用。
-        </p>
+        <h2 id="pillars-title">{t('landing.pillars.title')}</h2>
+        <p className="landingSectionLead">{t('landing.pillars.lead')}</p>
         <div className="landingPillars">
           <article className="landingPillar">
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>版本</h3>
-            <p>每次保存自动生成版本，diff 可见，随时回滚——像 Git 对待代码一样对待 schema。</p>
+            <h3>{t('landing.pillars.version.title')}</h3>
+            <p>{t('landing.pillars.version.body')}</p>
           </article>
           <article className="landingPillar">
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>协作</h3>
-            <p>多人同图实时编辑与 presence，评审与审批流把变更收进可审计的版本。</p>
+            <h3>{t('landing.pillars.collab.title')}</h3>
+            <p>{t('landing.pillars.collab.body')}</p>
           </article>
           <article className="landingPillar">
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>开放</h3>
-            <p>
-              projectJSON 公开格式；API / MCP 按路线图推进，agent 直接消费同一份事实源。
-            </p>
+            <h3>{t('landing.pillars.open.title')}</h3>
+            <p>{t('landing.pillars.open.body')}</p>
           </article>
         </div>
       </section>
 
       <section className="landingBand">
         <div className="landingSection" id="demo" aria-labelledby="demo-title">
-          <h2 id="demo-title">30 秒动线</h2>
-          <p className="landingSectionLead">
-            打开在线 demo，看到真实关系图，再决定是否注册或自部署。
-          </p>
+          <h2 id="demo-title">{t('landing.demo.title')}</h2>
+          <p className="landingSectionLead">{t('landing.demo.lead')}</p>
           <div className="landingCtas">
-            <Link className="landingBtnPrimary" to="/demo" aria-label="打开演示">
-              打开演示
+            <Link
+              className="landingBtnPrimary"
+              to="/demo"
+              aria-label={t('landing.hero.cta.openDemoAria')}
+            >
+              {t('landing.hero.cta.openDemo')}
             </Link>
             <a
               className="landingBtnGhost"
               href={`${DOCS_URL}`}
               target="_blank"
               rel="noreferrer"
-              aria-label="自部署指南"
+              aria-label={t('landing.demo.cta.selfHostAria')}
             >
-              自部署指南
+              {t('landing.demo.cta.selfHost')}
             </a>
           </div>
         </div>
       </section>
 
       <section className="landingSection" id="compare" aria-labelledby="compare-title">
-        <h2 id="compare-title">诚实对照</h2>
-        <p className="landingSectionLead">
-          极简画图够用时不必换；要版本、协作与开源事实源时再来。
-        </p>
+        <h2 id="compare-title">{t('landing.compare.title')}</h2>
+        <p className="landingSectionLead">{t('landing.compare.lead')}</p>
         <table className="landingCompare">
           <thead>
             <tr>
-              <th scope="col">能力</th>
-              <th scope="col">ERD Online</th>
-              <th scope="col">dbdiagram</th>
-              <th scope="col">dbml 生态</th>
+              <th scope="col">{t('landing.compare.col.capability')}</th>
+              <th scope="col">{t('landing.compare.col.erd')}</th>
+              <th scope="col">{t('landing.compare.col.dbdiagram')}</th>
+              <th scope="col">{t('landing.compare.col.dbml')}</th>
             </tr>
           </thead>
           <tbody>
             <tr>
-              <td>实时协作</td>
-              <td className="landingYes">有</td>
-              <td className="landingNo">无 / 弱</td>
-              <td className="landingNo">视工具</td>
+              <td>{t('landing.compare.row.collab')}</td>
+              <td className="landingYes">{t('landing.compare.cell.yes')}</td>
+              <td className="landingNo">{t('landing.compare.cell.noWeak')}</td>
+              <td className="landingNo">{t('landing.compare.cell.varies')}</td>
             </tr>
             <tr>
-              <td>版本与 diff</td>
-              <td className="landingYes">有</td>
-              <td className="landingNo">弱</td>
-              <td className="landingNo">靠 Git 外挂</td>
+              <td>{t('landing.compare.row.version')}</td>
+              <td className="landingYes">{t('landing.compare.cell.yes')}</td>
+              <td className="landingNo">{t('landing.compare.cell.weak')}</td>
+              <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
             </tr>
             <tr>
-              <td>开源自部署</td>
-              <td className="landingYes">MIT</td>
-              <td className="landingNo">闭源 SaaS</td>
-              <td className="landingYes">格式开源</td>
+              <td>{t('landing.compare.row.opensource')}</td>
+              <td className="landingYes">{t('landing.compare.cell.mit')}</td>
+              <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
+              <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
             </tr>
             <tr>
-              <td>Agent / API 事实源</td>
-              <td className="landingYes">路线图中</td>
-              <td className="landingNo">无</td>
-              <td className="landingNo">文本为主</td>
+              <td>{t('landing.compare.row.agent')}</td>
+              <td className="landingYes">{t('landing.compare.cell.roadmap')}</td>
+              <td className="landingNo">{t('landing.compare.cell.no')}</td>
+              <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
             </tr>
           </tbody>
         </table>
         <div className="landingCtas landingCompareMore">
-          <Link className="landingBtnGhost" to="/compare" aria-label="查看完整对照">
-            查看完整对照
+          <Link
+            className="landingBtnGhost"
+            to="/compare"
+            aria-label={t('landing.compare.cta.fullAria')}
+          >
+            {t('landing.compare.cta.full')}
           </Link>
         </div>
       </section>

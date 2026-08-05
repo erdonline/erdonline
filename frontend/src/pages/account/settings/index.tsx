@@ -1,4 +1,4 @@
-import React, {useEffect, useLayoutEffect, useRef, useState} from 'react';
+import React, {useEffect, useLayoutEffect, useMemo, useRef, useState} from 'react';
 import {Menu} from 'antd';
 import BaseView from './components/base';
 import SecurityView from './components/security';
@@ -7,7 +7,7 @@ import PersonalAccessTokensView from './components/personalAccessTokens';
 import styles from './style.less';
 import Identification from '@/pages/account/settings/components/identification';
 import {useSearchParams} from '@@/exports';
-import {history} from 'umi';
+import {history, useIntl} from 'umi';
 
 const {Item} = Menu;
 
@@ -30,6 +30,14 @@ const SETTINGS_KEYS: SettingsStateKeys[] = [
   'identification',
 ];
 
+const SETTINGS_ROUTE_KEYS: Record<SettingsStateKeys, string> = {
+  base: 'accountSettings.route.base',
+  security: 'accountSettings.route.security',
+  personalAccessTokens: 'accountSettings.route.personalAccessTokens',
+  oauthClients: 'accountSettings.route.oauthClients',
+  identification: 'accountSettings.route.identification',
+};
+
 function parseSelectKey(raw: string | null): SettingsStateKeys {
   if (raw && SETTINGS_KEYS.includes(raw as SettingsStateKeys)) {
     return raw as SettingsStateKeys;
@@ -38,13 +46,17 @@ function parseSelectKey(raw: string | null): SettingsStateKeys {
 }
 
 const Settings: React.FC = () => {
-  const menuMap: Record<SettingsStateKeys, React.ReactNode> = {
-    base: '基本设置',
-    security: '安全设置',
-    personalAccessTokens: '访问令牌',
-    oauthClients: 'OAuth 客户端',
-    identification: '授权类型',
-  };
+  const intl = useIntl();
+  const menuMap = useMemo(
+    () =>
+      Object.fromEntries(
+        SETTINGS_KEYS.map((key) => [
+          key,
+          intl.formatMessage({ id: SETTINGS_ROUTE_KEYS[key] }),
+        ]),
+      ) as Record<SettingsStateKeys, string>,
+    [intl],
+  );
 
   const [searchParams] = useSearchParams();
   const selectKeyFromUrl = parseSelectKey(searchParams.get('selectKey'));
@@ -131,7 +143,8 @@ const Settings: React.FC = () => {
         <Menu
           mode={initConfig.mode}
           selectedKeys={[initConfig.selectKey]}
-          aria-label="设置分类"
+          aria-label={intl.formatMessage({ id: 'accountSettings.menu.aria' })}
+          data-testid="account-settings-menu"
           onClick={({key}) => {
             selectTab(key as SettingsStateKeys);
           }}
@@ -149,6 +162,7 @@ const Settings: React.FC = () => {
           className={`${styles.title} account-settings-page__title`}
           role="heading"
           aria-level={1}
+          data-testid="account-settings-title"
         >
           {menuMap[initConfig.selectKey]}
         </div>

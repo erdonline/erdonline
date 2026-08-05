@@ -10,8 +10,8 @@ const NoAccessPage: React.FC = () => {
   const intl = useIntl();
   return (
     <AuthBrandShell
-      title="无权访问"
-      subtitle="抱歉，你无权访问该页面"
+      title={intl.formatMessage({ id: 'exception.403.title' })}
+      subtitle={intl.formatMessage({ id: 'exception.403.subtitle' })}
       skipLabel={intl.formatMessage({ id: 'common.skipMainAction' })}
       skipTargetId="exception-main-cta"
     >
@@ -22,10 +22,10 @@ const NoAccessPage: React.FC = () => {
         data-testid="exception-403-gate"
       >
         <Button type="primary" block onClick={() => history.push('/demo')}>
-          打开示例 demo
+          {intl.formatMessage({ id: 'exception.cta.openDemo' })}
         </Button>
         <Button block onClick={() => history.push('/')}>
-          返回首页
+          {intl.formatMessage({ id: 'exception.cta.backHome' })}
         </Button>
       </div>
     </AuthBrandShell>

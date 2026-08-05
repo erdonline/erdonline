@@ -10,8 +10,8 @@ const NoFoundPage: React.FC = () => {
   const intl = useIntl();
   return (
     <AuthBrandShell
-      title="页面不存在"
-      subtitle="抱歉，你访问的页面不存在"
+      title={intl.formatMessage({ id: 'exception.404.title' })}
+      subtitle={intl.formatMessage({ id: 'exception.404.subtitle' })}
       skipLabel={intl.formatMessage({ id: 'common.skipMainAction' })}
       skipTargetId="exception-main-cta"
     >
@@ -22,10 +22,10 @@ const NoFoundPage: React.FC = () => {
         data-testid="exception-404-gate"
       >
         <Button type="primary" block onClick={() => history.push('/demo')}>
-          打开示例 demo
+          {intl.formatMessage({ id: 'exception.cta.openDemo' })}
         </Button>
         <Button block onClick={() => history.push('/')}>
-          返回首页
+          {intl.formatMessage({ id: 'exception.cta.backHome' })}
         </Button>
       </div>
     </AuthBrandShell>

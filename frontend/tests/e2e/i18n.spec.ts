@@ -258,17 +258,45 @@ test.describe('i18n：手动语言切换', () => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
     const landingSkip = page.getByTestId('landing-skip-cta');
+    const landingHeroCta = page.getByTestId('landing-main-cta').getByRole('link').first();
     await expect(landingSkip).toHaveText('跳到主操作');
+    await expect(landingHeroCta).toHaveText('在线试用');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
     await expect(landingSkip).toHaveText('Skip to main action');
+    await expect(landingHeroCta).toHaveText('Try online');
 
     await page.goto('/404-test-path-i18n');
     const exceptionSkip = page.getByTestId('auth-skip-form');
+    const exceptionGate = page.getByTestId('exception-404-gate');
     await expect(exceptionSkip).toHaveText('Skip to main action');
+    await expect(exceptionGate.getByRole('button').first()).toHaveText('Open demo');
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(exceptionSkip).toHaveText('跳到主操作');
+    await expect(exceptionGate.getByRole('button').first()).toHaveText('打开示例 demo');
+  });
+
+  test('账号设置侧栏与 OAuth skip 随 locale 切换', async ({ page }) => {
+    await login(page, e2eAccount());
+    await page.goto('/account/settings?selectKey=base');
+    await expect(page.getByTestId('account-settings-page')).toBeVisible({ timeout: 15_000 });
+    const settingsMenu = page.getByTestId('account-settings-menu');
+    const settingsTitle = page.getByTestId('account-settings-title');
+    await expect(settingsMenu.getByRole('menuitem', { name: '基本设置' })).toBeVisible();
+    await expect(settingsTitle).toHaveText('基本设置');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(settingsMenu.getByRole('menuitem', { name: 'Basic settings' })).toBeVisible();
+    await expect(settingsTitle).toHaveText('Basic settings');
+
+    await page.goto('/oauth/authorize');
+    const oauthSkip = page.getByTestId('auth-skip-form');
+    await expect(oauthSkip).toHaveText('Skip to consent actions');
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(oauthSkip).toHaveText('跳到授权操作');
   });
 });

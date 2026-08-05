@@ -8,6 +8,19 @@
 
 ### 2026-08-05
 
+#### i18n：Landing/Share/异常正文与 CTA + OAuth skip + 账号设置侧栏
+
+- `landing/*`（`LandingChrome` / `index` / `compare`）：Hero、卖点、demo 带、对照表、顶栏/页脚 CTA 全量 `formatMessage`
+- `share/index` + `ShareEmptyState`：加载/失效门/顶栏/fork/表清单等正文与 CTA key 化
+- `403` / `404`：title/subtitle/CTA 改 `exception.*`
+- `oauth/authorize`：skip 改 `oauth.skipLabel`（正文留下一刀）
+- `account/settings`：侧栏路由名 + menu aria 改 `accountSettings.route.*`
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 ~90 个新 key
+- 队列：`agent-loop-vision.prompt.md` #11 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Landing / 404 skip|账号设置侧栏"`
+
 #### i18n：Landing/Share/异常 skip + Layout 路由名 key 化
 
 - `LandingChrome` / `share/index` / `403` / `404`：skip 链接改 `common.skipMainAction` / `share.skip.canvas`
