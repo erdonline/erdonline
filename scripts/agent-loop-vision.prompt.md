@@ -108,6 +108,8 @@
 
 23. ~~基线查询失败 E2E：`/ncnb/dbChange` size=1 返回 500 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；点击重试恢复；`fetchVersionBaseline` 失败显式清 `baselineLoaded`~~ ✅ 2026-08-05
 
+24. ~~本地草稿恢复 E2E 补盘：「丢弃草稿」路径 + 稳定 `data-testid`（恢复/丢弃按钮）；丢弃后 localStorage 清、模型回服务器、不再弹窗~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）

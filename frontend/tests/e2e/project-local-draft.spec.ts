@@ -82,4 +82,69 @@ test.describe('本地草稿恢复', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('保存失败后重进设计器可丢弃草稿并使用服务器模型', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('draftdiscard');
+    try {
+      await login(page);
+      await page.evaluate(() => {
+        Object.keys(localStorage)
+          .filter((k) => k.startsWith('erd:project-draft:'))
+          .forEach((k) => localStorage.removeItem(k));
+      });
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'draft', 'discard draft');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await page.route('**/ncnb/project/save', (route) => route.abort('failed'));
+      const node = rfNode(page, 'T_TABLE_1');
+      await node.getByTestId('canvas-add-field').click();
+      const editRow = node.locator('.erd-field-editing');
+      await editRow.locator('.erd-field-type-select').selectOption('String');
+      const input = editRow.locator('.erd-field-input');
+      await input.fill('DISCARD_ME');
+      await input.press('Enter');
+
+      await expectToast(page, '网络异常，请检查网络连接');
+      await expect(page.getByTestId('save-status')).toHaveText('保存失败，点击重试', {
+        timeout: 10_000,
+      });
+
+      const draftKey = `erd:project-draft:${projectId}`;
+      await expect
+        .poll(async () => page.evaluate((key) => localStorage.getItem(key), draftKey))
+        .not.toBeNull();
+
+      const designUrl = page.url();
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+
+      await expect(page.getByTestId('project-draft-recovery-content')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByTestId('project-draft-recovery-discard').click();
+      await expect(page.getByText('已丢弃本地草稿')).toBeVisible({ timeout: 5_000 });
+
+      await expect
+        .poll(async () => page.evaluate((key) => localStorage.getItem(key), draftKey))
+        .toBeNull();
+
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 15_000 });
+      const tableNode = rfNode(page, 'T_TABLE_1');
+      await expect(tableNode.locator('[data-field="DISCARD_ME"]')).toHaveCount(0);
+
+      // 再次进入不应再弹恢复框
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('project-draft-recovery-content')).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });

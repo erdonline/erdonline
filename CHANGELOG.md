@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：本地草稿「丢弃」路径 E2E + 稳定 testid（Vision #24 · ADR-0022）
+
+- 缺口：回归清单要求「恢复草稿/丢弃草稿」双路径，E2E 仅覆盖恢复；Modal 按钮无稳定 testid
+- 改动：`projectDraftRecovery.ts` 补 `project-draft-recovery-content/restore/discard` testid；`project-local-draft.spec.ts` 新增丢弃用例——落库失败写草稿 → 重进点丢弃 → localStorage 清、画布无未落库字段、再次进入不弹窗
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #24 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/project-local-draft.spec.ts --grep "丢弃草稿"`
+
 #### 可信保存：基线查询失败 E2E + 失败态不沿用旧基线（Vision #23 · ADR-0022）
 
 - 缺口：回归清单「基线查询失败为未知」仅手工 + 单测；`fetchVersionBaseline` catch 未清 `baselineLoaded`；业务码非 200 被误判为「尚无版本」
