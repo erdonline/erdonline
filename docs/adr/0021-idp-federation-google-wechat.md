@@ -23,9 +23,10 @@
 | 配置 | `GITHUB_CLIENT_ID`/`SECRET`/`REDIRECT_URI`；`GOOGLE_CLIENT_ID`/`SECRET`/`REDIRECT_URI`；`WECHAT_APP_ID`/`SECRET`/`REDIRECT_URI`；缺任一即该 provider **关闭**，启动不崩溃 |
 | UI | 登录页按 `/auth/federate/providers` 显示按钮；账号设置「安全」区 link/unlink（登录态） |
 | CSRF | OAuth `state` 存 Redis（TTL 短）；`redirect` 仅允许相对路径 `/…` |
+| 解绑语义（2026-08-05 补） | unlink **只删 `user_identity_link`（物理删除），不删本地账号**；同身份下次登录先按约定用户名（`provider_subject`）/邮箱找回孤儿账号并**重新挂接**，而非当新用户创建——避免「解绑→重新登录」撞用户名/唯一键报「已存在」。重新挂接前用 `canRelink` 防劫持：候选账号若已挂着同 provider 的**别的** subject 视为非孤儿，拒绝挂接 |
 
 ## 后果
 
-- 正面：PC 用户可用 GitHub / Google / 微信扫码进入同一会话面；自托管可选开启
-- 代价：多一套出站 OAuth 回调运维；开放注册关时「无本地账号」须提示联系管理员或先密码登录绑定
-- 明确不做：回潮 password-grant / `/login/success` / `/account/settings/wechat`；微信公众号网页授权；用联邦票直调 `/api/v1/**`
+- 正面：PC 用户可用 GitHub / Google / 微信扫码进入同一会话面；自托管可选开启；解绑→重新登录不丢失本地账号数据（版本/项目归属不受影响）
+- 代价：多一套出站 OAuth 回调运维；开放注册关时「无本地账号」须提示联系管理员或先密码登录绑定；`user_identity_link` 唯一键 `(provider, subject)` 不感知逻辑删除，故该表的 delete 必须走物理删除（`UserIdentityLinkMapper#physicalDeleteById`），不可用 MP 默认 `deleteById`
+- 明确不做：回潮 password-grant / `/login/success` / `/account/settings/wechat`；微信公众号网页授权；用联邦票直调 `/api/v1/**`；解绑不做「孤儿账号软删/清理」——本地账号一律保留，交由用户自己决定是否重新绑定

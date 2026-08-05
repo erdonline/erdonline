@@ -12,6 +12,7 @@ import com.erdonline.system.mapper.UserExtensionMapper;
 import com.erdonline.system.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,11 +43,34 @@ public class FederateUserService {
         if (existing != null) {
             return loadByUserId(existing.getUserId());
         }
+        try {
+            return resolveForLoginWithoutExistingLink(identity);
+        } catch (DuplicateKeyException e) {
+            // 兜底：理应已被上面的重新挂接 / 下面的 open-register 分支挡住；仍撞唯一键
+            // 大概率是极端并发（同一身份两个回调几乎同时到达）。不再让业务 500 裸抛到浏览器
+            // （旧 bug：回调页直出 JSON「已存在」），转成可读的联邦异常，callback() 会转成错误跳转。
+            log.warn("federate resolveForLogin duplicate provider={} subject={}: {}",
+                    identity.provider().wire(), identity.subject(), e.getMessage());
+            throw new FederateException(409, "账号信息冲突，请重新尝试登录");
+        }
+    }
+
+    private MartinUser resolveForLoginWithoutExistingLink(FederateIdentity identity) {
+        // 曾绑定过又解绑（unlink 只删链接，不删账号，见 unlink()）：链接找不到，但账号仍在。
+        // 按约定用户名（provider_subject，见 allocateUsername 无邮箱分支）精确匹配，重新挂链接，
+        // 而不是当作新用户创建——否则 insert 用户名撞已有账号的唯一键报「已存在」。
+        User byConventionUsername = findByUsername(conventionUsername(identity));
+        if (byConventionUsername != null && canRelink(byConventionUsername, identity)) {
+            log.info("federate relinking orphaned user id={} username={} provider={} (unbind→relogin)",
+                    byConventionUsername.getId(), byConventionUsername.getUsername(), identity.provider().wire());
+            insertLink(byConventionUsername.getId(), identity);
+            return userDetailsService.loadUserByUsername(byConventionUsername.getUsername());
+        }
         if (supportsEmailLink(identity)
                 && identity.emailVerified()
                 && StringUtils.hasText(identity.email())) {
             User byEmail = findByEmail(identity.email());
-            if (byEmail != null) {
+            if (byEmail != null && canRelink(byEmail, identity)) {
                 insertLink(byEmail.getId(), identity);
                 return userDetailsService.loadUserByUsername(byEmail.getUsername());
             }
@@ -83,7 +107,11 @@ public class FederateUserService {
         if (link == null) {
             throw new FederateException(404, "未绑定 " + provider.wire());
         }
-        linkMapper.deleteById(link.getId());
+        // 物理删除而非 deleteById（逻辑删除会被 UserIdentityLink#delFlag 全局拦截改写成
+        // UPDATE del_flag=1）：uk_identity_provider_subject(provider, subject) 不区分 del_flag，
+        // 逻辑删除的旧行会一直占坑，导致下次同身份重新登录 insert 新链接时撞唯一键 500。
+        // 产品语义：解绑=还给这个 provider+subject 组合的绑定权，不保留软删历史（见 unbind-relink ADR 讨论）。
+        linkMapper.physicalDeleteById(link.getId());
     }
 
     public List<UserIdentityLink> listLinks(String userId) {
@@ -118,6 +146,39 @@ public class FederateUserService {
         return userMapper.selectOne(new LambdaQueryWrapper<User>()
                 .eq(User::getEmail, email.trim())
                 .last("LIMIT 1"));
+    }
+
+    private User findByUsername(String username) {
+        if (!StringUtils.hasText(username)) {
+            return null;
+        }
+        return userMapper.selectOne(new LambdaQueryWrapper<User>()
+                .eq(User::getUsername, username)
+                .last("LIMIT 1"));
+    }
+
+    /**
+     * 无邮箱兜底分支的约定用户名（provider_subject），与 {@link #allocateUsername} 首个候选一致
+     * （含同样的 24 字符截断，否则长 subject——如 Google 21 位数字 sub——两处算出的串会不一致，
+     * 「解绑后重新登录」按用户名找不到孤儿账号）。由外部 subject（IdP 不透明且唯一）派生，
+     * 可安全用作重新挂接锚点。
+     */
+    private static String conventionUsername(FederateIdentity identity) {
+        String base = identity.provider().wire() + "_" + sanitizeSubject(identity.subject());
+        return base.length() > 24 ? base.substring(0, 24) : base;
+    }
+
+    private static String sanitizeSubject(String subject) {
+        return subject == null ? "" : subject.replaceAll("[^a-zA-Z0-9]", "");
+    }
+
+    /**
+     * 重新挂接前的防劫持防护：候选账号若已对同一 provider 挂着别的 subject 的活跃链接，
+     * 说明它不是「这个身份解绑后的孤儿账号」，不能重新挂接（防止用户名撞车导致身份错挂）。
+     */
+    private boolean canRelink(User candidate, FederateIdentity identity) {
+        UserIdentityLink linkedElsewhere = findLinkForUser(candidate.getId(), identity.provider());
+        return linkedElsewhere == null;
     }
 
     /** Google / GitHub 在邮箱已验证时允许按邮箱绑定已有用户。 */
@@ -162,8 +223,7 @@ public class FederateUserService {
                     .replaceAll("[^a-zA-Z0-9_]", "")
                     .toLowerCase(Locale.ROOT);
         } else {
-            base = identity.provider().wire() + "_" + identity.subject()
-                    .replaceAll("[^a-zA-Z0-9]", "");
+            base = conventionUsername(identity);
         }
         if (base.length() > 24) {
             base = base.substring(0, 24);
