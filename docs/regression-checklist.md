@@ -813,6 +813,8 @@
 - [x] [project 乐观锁 409] 陈旧 `updateTime` save → 409；匹配 → 200 + 新 `updateTime` ✅ `ProjectSaveOptimisticLockTest` + `scripts/verify-project-save-conflict.sh`
 - [x] [409 可行动 UI] mock 409 → Modal「保存冲突」+ 顶栏「保存冲突，点击查看选项」，不得显示「已落盘」 ✅ `project-save-conflict.spec.ts`
 - [x] [409 diff 预览] mock 409 → Modal 内 `project-save-conflict-preview` + `version-diff-panel` 可见（本地 vs 服务器） ✅ `project-save-conflict.spec.ts`
+- [x] [409 刷新路径] mock 409 → 点 `project-save-conflict-refresh` → toast「已加载服务器上的最新项目」+ 顶栏「已落盘」+ localStorage 草稿清 ✅ `project-save-conflict.spec.ts`
+- [x] [409 另存路径] mock 409 → 点 `project-save-conflict-fork` → toast「已另存为新项目」+ 跳转新 `projectId`（`/design/table/model`） ✅ `project-save-conflict.spec.ts`
 - [x] [顶栏 A 层 dirty chip] 设计器顶栏 `version-dirty-chip-*`：尚无版本带 +N 摘要 → 存版后「版本一致」→ 再改「未存版本」；基线失败 → `version-dirty-chip-unknown`；SaveStatus「已落盘」分离 ✅ `version-dirty-chip.spec.ts`（4 用例）
 - [x] [A 层全量 diff] 改 profile 默认字段或画布连线关联 → dirty chip「未存版本」；空 diff 存版 toast 警告但不阻断 ✅ `versionStructuralDiff.test.ts` + `version-dirty-chip.spec.ts` profile/assoc 用例
 - [ ] [北极星计量] 后台统计「有版本保存」须过滤 `db_change.changes` 非空（待 analytics 接线；当前前端 warn + ADR-0022/vision 口径已文档化）

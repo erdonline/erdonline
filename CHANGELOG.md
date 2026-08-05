@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：409 冲突 Modal 决策路径 E2E + 静态 Modal i18n 修复（Vision #25 · ADR-0022）
+
+- 缺口：E2E 仅断言 409 Modal 出现，未覆盖「刷新项目 / 另存为新项目」决策；i18n #19 后 `Modal.warning` 内 `useIntl()` 无 IntlProvider 致 Modal 崩溃（顶栏冲突态有、对话框无）
+- 改动：`project-save-conflict.spec.ts` 新增 refresh/fork 用例（testid 点击 + toast/URL/草稿断言）；`ProjectSaveConflictModal` 改 `appFormat()` + `VersionDiffPanelStatic`；Modal 重开 guard、`fork` 后 `destroyAll`；`forkLocalProjectAsCopy` 跳转修正为 `/design/table/model`
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #25 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/project-save-conflict.spec.ts`
+
 #### 可信保存：本地草稿「丢弃」路径 E2E + 稳定 testid（Vision #24 · ADR-0022）
 
 - 缺口：回归清单要求「恢复草稿/丢弃草稿」双路径，E2E 仅覆盖恢复；Modal 按钮无稳定 testid

@@ -6,7 +6,7 @@ import {
   changeSummaryTags,
   countChanges,
 } from '@/utils/dualLayerTokens';
-import { intlFormat } from '@/utils/messageFormat';
+import { intlFormat, appFormat, type MessageFormatFn } from '@/utils/messageFormat';
 import { useIntl } from '@@/exports';
 import {
   fieldOf,
@@ -34,36 +34,29 @@ export type VersionDiffPanelProps = {
   hasScript?: boolean;
   /** 摘要行上下文 i18n key，默认 versionModal.diff.summaryHintDefault */
   summaryHintId?: string;
+  /** 静态 Modal 等无 IntlProvider 场景传入 */
+  format?: MessageFormatFn;
 };
 
-/**
- * 版本模型 diff 可视化：按表分组，增绿 / 删红 / 改黄。
- * 数据来自 useVersionStore.constructorMessage（与 DDL 同源）。
- */
-const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
-  messages,
-  hasScript,
-  summaryHintId = 'versionModal.diff.summaryHintDefault',
-}) => {
-  const intl = useIntl();
-  const format = intlFormat(intl);
-
+const VersionDiffPanelInner: React.FC<
+  VersionDiffPanelProps & { format: MessageFormatFn }
+> = ({ messages, hasScript, summaryHintId = 'versionModal.diff.summaryHintDefault', format }) => {
   const typeLabel = (type: string) => {
     const key = `versionModal.diff.type.${type}`;
     if ((DIFF_TYPE_KEYS as readonly string[]).includes(type)) {
-      return intl.formatMessage({ id: key });
+      return format(key);
     }
     return type;
   };
 
   const changeLabel = (opt: string) => {
     if (opt === 'add' || opt === 'delete' || opt === 'update') {
-      return intl.formatMessage({ id: `versionModal.diff.change.${opt}` });
+      return format(`versionModal.diff.change.${opt}`);
     }
     return opt;
   };
 
-  const summaryHint = intl.formatMessage({ id: summaryHintId });
+  const summaryHint = format(summaryHintId);
 
   const { groups, summary } = useMemo(() => {
     const list = Array.isArray(messages) ? messages : [];
@@ -95,8 +88,8 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             hasScript
-              ? intl.formatMessage({ id: 'versionModal.diff.emptyFullScript' })
-              : intl.formatMessage({ id: 'versionModal.diff.emptyNoChanges' })
+              ? format('versionModal.diff.emptyFullScript')
+              : format('versionModal.diff.emptyNoChanges')
           }
         />
       </div>
@@ -112,10 +105,11 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
           </Tag>
         ))}
         <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          {intl.formatMessage(
-            { id: 'versionModal.diff.summary' },
-            { count: messages.length, tables: groups.length, hint: summaryHint },
-          )}
+          {format('versionModal.diff.summary', {
+            count: messages.length,
+            tables: groups.length,
+            hint: summaryHint,
+          })}
         </Typography.Text>
       </Space>
       <ul className="version-diff-tree">
@@ -160,5 +154,28 @@ const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({
     </div>
   );
 };
+
+/**
+ * 版本模型 diff 可视化：按表分组，增绿 / 删红 / 改黄。
+ * 数据来自 useVersionStore.constructorMessage（与 DDL 同源）。
+ */
+const VersionDiffPanelWithIntl: React.FC<Omit<VersionDiffPanelProps, 'format'>> = (props) => {
+  const intl = useIntl();
+  return <VersionDiffPanelInner {...props} format={intlFormat(intl)} />;
+};
+
+const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ format, ...props }) => {
+  if (format) {
+    return <VersionDiffPanelInner {...props} format={format} />;
+  }
+  return <VersionDiffPanelWithIntl {...props} />;
+};
+
+/** 静态 Modal（无 IntlProvider）专用 */
+export function VersionDiffPanelStatic(
+  props: Omit<VersionDiffPanelProps, 'format'>,
+): React.ReactElement {
+  return <VersionDiffPanelInner {...props} format={appFormat()} />;
+}
 
 export default React.memo(VersionDiffPanel);

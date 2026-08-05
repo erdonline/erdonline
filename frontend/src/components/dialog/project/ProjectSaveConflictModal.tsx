@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Modal, Spin, Typography } from 'antd';
-import VersionDiffPanel from '@/components/dialog/version/VersionDiffPanel';
+import { VersionDiffPanelStatic } from '@/components/dialog/version/VersionDiffPanel';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import {
@@ -13,7 +13,6 @@ import {
   reloadProjectFromServer,
 } from '@/utils/projectSaveConflict';
 import { appFormat } from '@/utils/messageFormat';
-import { useIntl } from '@@/exports';
 
 let conflictModalOpen = false;
 
@@ -23,7 +22,7 @@ type PreviewState = {
 };
 
 const ProjectSaveConflictModalContent: React.FC = () => {
-  const intl = useIntl();
+  const format = appFormat();
   const localProjectJSON = useProjectStore((s) => s.project?.projectJSON);
   const projectId = useProjectStore((s) => s.project?.id as string | undefined);
   const [preview, setPreview] = useState<PreviewState>({ loading: true, snapshot: null });
@@ -56,15 +55,15 @@ const ProjectSaveConflictModalContent: React.FC = () => {
 
   const sourceHint =
     preview.snapshot?.source === 'fetch'
-      ? intl.formatMessage({ id: 'versionModal.conflict.sourceFetch' })
+      ? format('versionModal.conflict.sourceFetch')
       : preview.snapshot?.source === 'lastKnown'
-        ? intl.formatMessage({ id: 'versionModal.conflict.sourceLastKnown' })
+        ? format('versionModal.conflict.sourceLastKnown')
         : null;
 
   return (
     <div data-testid="project-save-conflict-modal">
       <Typography.Paragraph style={{ marginBottom: 12 }}>
-        {intl.formatMessage({ id: 'versionModal.conflict.description' })}
+        {format('versionModal.conflict.description')}
       </Typography.Paragraph>
       {preview.loading ? (
         <div
@@ -73,7 +72,7 @@ const ProjectSaveConflictModalContent: React.FC = () => {
         >
           <Spin size="small" />
           <Typography.Text type="secondary">
-            {intl.formatMessage({ id: 'versionModal.conflict.loading' })}
+            {format('versionModal.conflict.loading')}
           </Typography.Text>
         </div>
       ) : (
@@ -92,7 +91,7 @@ const ProjectSaveConflictModalContent: React.FC = () => {
               style={{ display: 'block', fontSize: 12, marginBottom: 8 }}
               data-testid="project-save-conflict-preview-unavailable"
             >
-              {intl.formatMessage({ id: 'versionModal.conflict.previewUnavailable' })}
+              {format('versionModal.conflict.previewUnavailable')}
             </Typography.Text>
           )}
           <div
@@ -100,7 +99,7 @@ const ProjectSaveConflictModalContent: React.FC = () => {
             data-testid="project-save-conflict-preview"
             style={{ ['--project-conflict-preview-h' as string]: '280px' }}
           >
-            <VersionDiffPanel
+            <VersionDiffPanelStatic
               messages={diffItems}
               summaryHintId="versionModal.diff.summaryHintConflict"
             />
@@ -114,7 +113,9 @@ const ProjectSaveConflictModalContent: React.FC = () => {
 /** 409 可行动 Modal：差异预览 + 刷新 / 另存为新项目 */
 export function showProjectSaveConflictModal(): void {
   if (conflictModalOpen) {
-    return;
+    // 顶栏 CTA 重开：destroyAll 后允许再次弹出（避免 guard 与 DOM 不同步）
+    Modal.destroyAll();
+    conflictModalOpen = false;
   }
   conflictModalOpen = true;
   useGlobalStore.getState().dispatch.setSaveConflict(true);
@@ -142,6 +143,7 @@ export function showProjectSaveConflictModal(): void {
     },
     onCancel: () => {
       conflictModalOpen = false;
+      Modal.destroyAll();
       void forkLocalProjectAsCopy();
       return Promise.resolve();
     },
