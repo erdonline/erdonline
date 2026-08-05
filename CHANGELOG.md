@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：防抖窗口内离开补枪 E2E（Vision #29 · ADR-0022）
+
+- 缺口：#28 覆盖失败态离开补枪 + 顶栏重试；未覆盖「编辑后见保存中即离开（<600ms 窗）→ 补枪成功/失败可见」
+- 改动：`leave-designer-save.spec.ts` 新增 2 用例——成功：保存中离开 → waitForResponse → 重进无草稿 + T_TABLE_2；失败：abort save + 未落盘离开 → 草稿恢复 + 顶栏重试 CTA
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #29 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/leave-designer-save.spec.ts`
+
 #### 可信保存：离开设计器失败态补枪 + 顶栏重试 E2E（Vision #28 · ADR-0022）
 
 - 缺口：#27 已覆盖顶栏重试 seq；离开路径仅断言「补一枪」，未串联「失败 → 离开补枪 → 回设计器重试 → 干净离开」
