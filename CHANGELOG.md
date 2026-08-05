@@ -8,6 +8,27 @@
 
 ### 2026-08-05
 
+#### i18n：注册页 key 化
+
+- `register/index.tsx`：表单标签/占位/tooltip/校验/提交/成功与密码不一致提示 + footer 链改走 `useIntl`（`register.*` keys）；演示链复用 `login.footer.demo*`
+- 语料：`zh-CN.ts` + `en-US.ts` 同步新增 32 key（`register.*`）
+- 队列：`agent-loop-vision.prompt.md` #4 ✅；下一刀：设计器顶栏 chrome key 化
+- E2E：`i18n.spec.ts` 增 `register-submit` testid 文案切换断言
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts`
+- `cd frontend && yarn build`
+
+#### i18n：落地页顶栏 LocaleSwitcher
+
+- `LandingChrome`：`landingNavLinks` 内 GitHub 与登录 CTA 之间复用 `LocaleSwitcher`（`variant="chrome"` + `data-testid="locale-switcher"`）；`/compare` 子页同壳同步可见
+- 样式：`index.less` 深色顶栏半透明描边，不侵入 hero CTA
+- E2E：`landing.spec.ts` 断言 `locale-switcher` 可见
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"`
+- `cd frontend && yarn build`
+
 #### i18n：登录/联邦登录 + AuthBrandShell 品牌面板 key 化
 
 - `AuthBrandShell`：品牌标题/导语/CTA、`auth.subtitle.default` / `auth.skip.default` 改走 `useIntl`

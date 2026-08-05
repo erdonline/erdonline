@@ -154,6 +154,28 @@
   color: var(--erd-surface);
 }
 
+/* 顶栏语言切换：与 nav 链同色，不抢 hero CTA */
+.landingNav .landingNavLocale.locale-switcher {
+  .ant-select-selector {
+    background: color-mix(in srgb, var(--erd-surface) 8%, transparent) !important;
+    border-color: color-mix(in srgb, var(--erd-surface) 22%, transparent) !important;
+    color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  }
+
+  .ant-select-selection-item {
+    color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  }
+
+  .ant-select-arrow {
+    color: color-mix(in srgb, var(--erd-surface) 65%, transparent);
+  }
+
+  &:hover .ant-select-selector {
+    border-color: color-mix(in srgb, var(--erd-surface) 40%, transparent) !important;
+    color: var(--erd-surface);
+  }
+}
+
 .landingHero {
   position: relative;
   min-height: 100vh;
