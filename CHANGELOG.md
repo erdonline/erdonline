@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 可信保存：离开设计器失败态补枪 + 顶栏重试 E2E（Vision #28 · ADR-0022）
+
+- 缺口：#27 已覆盖顶栏重试 seq；离开路径仅断言「补一枪」，未串联「失败 → 离开补枪 → 回设计器重试 → 干净离开」
+- 改动：`leave-designer-save.spec.ts` 新增用例——mock 500×2（autosave + closeSocket 补枪）→ 草稿恢复 → 顶栏重试 → 已落盘 → 二次离开零 save；旧用例 aria 对齐 `failedAria`
+- 队列：`agent-loop-vision.prompt.md` 一致性续跑 #28 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/leave-designer-save.spec.ts`
+
 #### 可信保存：顶栏重试 seq 对齐，不卡「保存中…」（Vision #27 · ADR-0022）
 
 - 根因：`retryAutosave` 经 `preemptAutosave()` 传 `autosaveSeq`，`persistAutosave` 仅校验 `debounceSeq` → 重试结果被丢弃且 `saving` 未清
