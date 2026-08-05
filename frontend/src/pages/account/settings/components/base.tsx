@@ -5,18 +5,23 @@ import styles from './BaseView.less';
 import {useRequest} from "@umijs/hooks";
 import {GET, POST} from "@/services/crud";
 import PageSkeleton from "@/components/PageSkeleton";
+import {useIntl} from '@umijs/max';
 
-const AvatarView = ({avatar}: { avatar: string }) => (
-  <>
-    <div className={styles.avatar_title}>头像</div>
-    <div className={styles.avatar}>
-      <img src={avatar} alt="avatar"/>
-    </div>
-    <Typography.Text type="secondary" className={styles.button_view}>
-      头像上传暂未开放
-    </Typography.Text>
-  </>
-);
+const AvatarView = ({avatar}: { avatar: string }) => {
+  const intl = useIntl();
+  const t = (id: string) => intl.formatMessage({ id });
+  return (
+    <>
+      <div className={styles.avatar_title}>{t('accountSettings.base.avatarTitle')}</div>
+      <div className={styles.avatar}>
+        <img src={avatar} alt="avatar"/>
+      </div>
+      <Typography.Text type="secondary" className={styles.button_view}>
+        {t('accountSettings.base.avatarUploadClosed')}
+      </Typography.Text>
+    </>
+  );
+};
 
 type BasicValues = {
   username?: string;
@@ -25,6 +30,8 @@ type BasicValues = {
 };
 
 const BaseView: React.FC = () => {
+  const intl = useIntl();
+  const t = (id: string) => intl.formatMessage({ id });
   const {data: r, loading} = useRequest(() => {
     return GET('/syst/user/settings/basic', {});
   });
@@ -45,12 +52,12 @@ const BaseView: React.FC = () => {
     try {
       const res = await POST('/syst/user/settings/update', values);
       if (res?.code === 200) {
-        message.success('更新基本信息成功');
+        message.success(t('accountSettings.base.updateSuccess'));
         return;
       }
       // 业务码非 200：全局 response 拦截器已 toast msg；此处兜底无 msg 的静默失败
       if (!res?.msg) {
-        message.error('更新基本信息失败');
+        message.error(t('accountSettings.base.updateFailed'));
       }
     } catch {
       // HTTP/网络：request errorHandler 已 toast
@@ -72,28 +79,37 @@ const BaseView: React.FC = () => {
             >
               <Form.Item
                 name="username"
-                label="用户名"
-                rules={[{required: true, message: '请输入您的用户名!'}]}
+                label={t('accountSettings.base.username')}
+                rules={[{required: true, message: t('accountSettings.base.usernameRequired')}]}
               >
-                <Input disabled aria-label="用户名" autoComplete="username" />
+                <Input
+                  disabled
+                  aria-label={t('accountSettings.base.username')}
+                  autoComplete="username"
+                />
               </Form.Item>
               <Form.Item
                 name="email"
-                label="邮箱"
-                rules={[{required: true, message: '请输入您的邮箱!'}]}
+                label={t('accountSettings.base.email')}
+                rules={[{required: true, message: t('accountSettings.base.emailRequired')}]}
               >
-                <Input aria-label="邮箱" autoComplete="email" />
+                <Input aria-label={t('accountSettings.base.email')} autoComplete="email" />
               </Form.Item>
               <Form.Item
                 name="phone"
-                label="联系电话"
-                rules={[{required: true, message: '请输入您的联系电话!'}]}
+                label={t('accountSettings.base.phone')}
+                rules={[{required: true, message: t('accountSettings.base.phoneRequired')}]}
               >
-                <Input aria-label="联系电话" autoComplete="tel" />
+                <Input aria-label={t('accountSettings.base.phone')} autoComplete="tel" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" aria-label="更新基本信息">
-                  更新基本信息
+                <Button
+                  type="primary"
+                  htmlType="submit"
+                  aria-label={t('accountSettings.base.submitAria')}
+                  data-testid="account-settings-base-submit"
+                >
+                  {t('accountSettings.base.submit')}
                 </Button>
               </Form.Item>
             </Form>

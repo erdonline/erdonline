@@ -1,12 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
+import {usePageSeo} from '@/hooks/usePageSeo';
 import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
 
 const LandingPage: React.FC = () => {
   const intl = useIntl();
   const [authed, setAuthed] = useState(false);
+  usePageSeo('landing.seo.title', 'landing.seo.description');
 
   useEffect(() => {
     setAuthed(Boolean(cache.getItem('Authorization')));

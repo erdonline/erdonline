@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：OAuth 授权页正文 + 账号设置基本/安全表单 + Landing SEO
+
+- `oauth/authorize`：title/subtitle/加载/错误/同意 meta/Allow·Deny/footnote 全量 `formatMessage`
+- `account/settings/components/base` + `security`：表单 label/校验/提交/密码强度/第三方登录分隔 key 化
+- `landing/index` + `compare`：`usePageSeo` hook 设置 document.title + meta description（随 locale）
+- 语料：`zh-CN.ts` / `en-US.ts` 同步 ~40 个新 key
+- 队列：`agent-loop-vision.prompt.md` #12 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "账号设置侧栏|Landing SEO"`
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/oauth-consent.spec.ts`
+
 #### i18n：Landing/Share/异常正文与 CTA + OAuth skip + 账号设置侧栏
 
 - `landing/*`（`LandingChrome` / `index` / `compare`）：Hero、卖点、demo 带、对照表、顶栏/页脚 CTA 全量 `formatMessage`

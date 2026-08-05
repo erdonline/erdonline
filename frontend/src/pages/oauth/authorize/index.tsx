@@ -96,6 +96,8 @@ async function postDecision(
  */
 export default () => {
   const intl = useIntl();
+  const t = (id: string, values?: Record<string, string>) =>
+    intl.formatMessage({ id }, values);
   const location = useLocation();
   const params = useMemo(() => parseParams(location.search), [location.search]);
   const [loading, setLoading] = useState(true);
@@ -105,7 +107,7 @@ export default () => {
 
   const loadPreview = useCallback(async () => {
     if (!params) {
-      setError('缺少 OAuth 参数（response_type、client_id、redirect_uri、state、PKCE）');
+      setError(t('oauth.error.missingParams'));
       setLoading(false);
       return;
     }
@@ -122,18 +124,18 @@ export default () => {
         getResponse: false,
       });
       if (!data?.clientId || !data?.clientName) {
-        setError('无法加载授权信息');
+        setError(t('oauth.error.loadFailed'));
         setConsent(null);
         return;
       }
       setConsent(data);
     } catch {
       setConsent(null);
-      setError('无法加载授权信息，请确认客户端与 redirect_uri 已注册');
+      setError(t('oauth.error.loadFailedDetail'));
     } finally {
       setLoading(false);
     }
-  }, [params, location.search]);
+  }, [params, location.search, intl]);
 
   useEffect(() => {
     void loadPreview();
@@ -146,23 +148,25 @@ export default () => {
       const redirectTo = await postDecision(params, decision);
       window.location.assign(redirectTo);
     } catch {
-      message.error(decision === 'allow' ? '授权失败' : '拒绝失败');
+      message.error(
+        decision === 'allow' ? t('oauth.decision.allowFailed') : t('oauth.decision.denyFailed'),
+      );
       setSubmitting(null);
     }
   };
 
   return (
     <AuthBrandShell
-      title="授权应用"
-      subtitle="第三方应用请求访问你的 ERD Online 数据"
-      skipLabel={intl.formatMessage({ id: 'oauth.skipLabel' })}
+      title={t('oauth.title')}
+      subtitle={t('oauth.subtitle')}
+      skipLabel={t('oauth.skipLabel')}
       skipTargetId="oauth-consent-actions"
     >
       <div className={styles.consent} data-testid="oauth-consent-page">
         {loading ? (
           <div className={styles.loading} role="status" aria-live="polite">
             <Spin />
-            <span>加载授权请求…</span>
+            <span>{t('oauth.loading')}</span>
           </div>
         ) : null}
 
@@ -170,11 +174,11 @@ export default () => {
           <Alert
             type="error"
             showIcon
-            message="无法完成授权"
+            message={t('oauth.error.bannerTitle')}
             description={error}
             action={
               <Button size="small" href="/account/settings?selectKey=oauthClients">
-                管理 OAuth 客户端
+                {t('oauth.error.manageClients')}
               </Button>
             }
           />
@@ -183,13 +187,12 @@ export default () => {
         {!loading && consent ? (
           <>
             <Typography.Paragraph className={styles.lead}>
-              <strong>{consent.clientName}</strong>
-              {' 请求访问你的账户'}
+              {t('oauth.consent.lead', { clientName: consent.clientName })}
             </Typography.Paragraph>
 
             <dl className={styles.meta} data-testid="oauth-consent-meta">
               <div>
-                <dt>应用</dt>
+                <dt>{t('oauth.consent.meta.application')}</dt>
                 <dd>
                   <span data-testid="oauth-consent-client-name">{consent.clientName}</span>
                   <Typography.Text type="secondary" className={styles.hint}>
@@ -199,11 +202,11 @@ export default () => {
                 </dd>
               </div>
               <div>
-                <dt>权限</dt>
+                <dt>{t('oauth.consent.meta.scopes')}</dt>
                 <dd>
                   <ul
                     className={styles.scopes}
-                    aria-label="请求的权限"
+                    aria-label={t('oauth.consent.meta.scopesAria')}
                     data-testid="oauth-consent-scopes"
                   >
                     {(consent.scopes || []).map((s) => (
@@ -215,7 +218,7 @@ export default () => {
                 </dd>
               </div>
               <div>
-                <dt>回调</dt>
+                <dt>{t('oauth.consent.meta.redirect')}</dt>
                 <dd>
                   <code data-testid="oauth-consent-redirect-host">
                     {consent.redirectHost || '—'}
@@ -237,9 +240,9 @@ export default () => {
                 loading={submitting === 'deny'}
                 onClick={() => void onDecide('deny')}
                 data-testid="oauth-consent-deny"
-                aria-label="拒绝授权"
+                aria-label={t('oauth.consent.denyAria')}
               >
-                拒绝
+                {t('oauth.consent.deny')}
               </Button>
               <Button
                 type="primary"
@@ -247,15 +250,14 @@ export default () => {
                 loading={submitting === 'allow'}
                 onClick={() => void onDecide('allow')}
                 data-testid="oauth-consent-allow"
-                aria-label="允许授权"
+                aria-label={t('oauth.consent.allowAria')}
                 autoFocus
               >
-                允许
+                {t('oauth.consent.allow')}
               </Button>
             </Space>
             <Typography.Paragraph type="secondary" className={styles.footnote}>
-              允许后将跳回第三方站点并签发一次性授权码。拒绝则按 OAuth 返回
-              access_denied。
+              {t('oauth.consent.footnote')}
             </Typography.Paragraph>
           </>
         ) : null}
