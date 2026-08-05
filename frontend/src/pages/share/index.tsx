@@ -7,6 +7,7 @@ import ShareRelationCanvas from './ShareRelationCanvas';
 import ShareEmptyState from './ShareEmptyState';
 import {listDiagrams} from '@/utils/diagram';
 import * as cache from '@/utils/cache';
+import {buildApiHref} from '@/utils/apiHref';
 import '@/layouts/erd-chrome.less';
 import './index.less';
 
@@ -66,7 +67,7 @@ const SharePage: React.FC = () => {
     }
     setForking(true);
     try {
-      const res = await fetch(`/ncnb/share/${encodeURIComponent(token)}/fork`, {
+      const res = await fetch(buildApiHref(`/ncnb/share/${encodeURIComponent(token)}/fork`), {
         method: 'POST',
         headers: {
           Authorization: `Bearer ${auth}`,
@@ -105,7 +106,7 @@ const SharePage: React.FC = () => {
       }
       setLoading(true);
       try {
-        const res = await fetch(`/ncnb/share/${encodeURIComponent(token)}`);
+        const res = await fetch(buildApiHref(`/ncnb/share/${encodeURIComponent(token)}`));
         const json = await res.json();
         if (cancelled) {
           return;
