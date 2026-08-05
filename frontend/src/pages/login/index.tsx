@@ -1,6 +1,7 @@
-import React, {useEffect, useState} from 'react';
+import {useEffect, useMemo, useState} from 'react';
 import {LockOutlined, UserOutlined} from '@ant-design/icons';
 import {Button, Divider, Form, Input, Space, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
 import {history} from '@@/exports';
 import request from '@/utils/request';
@@ -8,7 +9,12 @@ import {buildApiHref} from '@/utils/apiHref';
 import AuthBrandShell from '@/components/AuthBrandShell';
 
 /** @param redirectOverride 注册成功后调用时传入，避免仍停在 /register 读不到 query */
-export async function login(username: string, password: string, redirectOverride?: string | null) {
+export async function login(
+  username: string,
+  password: string,
+  redirectOverride?: string | null,
+  errorFallback = '登录失败，请检查用户名和密码',
+) {
   const res = await request.post('/auth/login', { data: { username, password } });
   if (res?.access_token) {
     cache.setItem('Authorization', res.access_token);
@@ -30,7 +36,7 @@ export async function login(username: string, password: string, redirectOverride
     }
     return;
   }
-  message.error(res?.msg || '登录失败，请检查用户名和密码');
+  message.error(res?.msg || errorFallback);
 }
 
 function redirectQuery(): string {
@@ -56,22 +62,28 @@ type LoginValues = {
 
 type Providers = Partial<Record<FederateProviderKey, boolean>>;
 
-const PROVIDER_BUTTONS: {
-  key: FederateProviderKey;
-  label: string;
-  testId: string;
-}[] = [
-  {key: 'github', label: '使用 GitHub 登录', testId: 'login-github'},
-  {key: 'google', label: '使用 Google 登录', testId: 'login-google'},
-  {key: 'wechat', label: '使用微信扫码登录', testId: 'login-wechat'},
+const PROVIDER_KEYS: { key: FederateProviderKey; labelId: string; testId: string }[] = [
+  { key: 'github', labelId: 'login.federate.github', testId: 'login-github' },
+  { key: 'google', labelId: 'login.federate.google', testId: 'login-google' },
+  { key: 'wechat', labelId: 'login.federate.wechat', testId: 'login-wechat' },
 ];
 
 export default () => {
+  const intl = useIntl();
   const [form] = Form.useForm<LoginValues>();
   const [submitting, setSubmitting] = useState(false);
   const [providers, setProviders] = useState<Providers>({});
   /** providers 接口成功返回后才渲染「未配置」提示，避免首屏闪烁 */
   const [providersKnown, setProvidersKnown] = useState(false);
+
+  const providerButtons = useMemo(
+    () =>
+      PROVIDER_KEYS.map((b) => ({
+        ...b,
+        label: intl.formatMessage({ id: b.labelId }),
+      })),
+    [intl],
+  );
 
   useEffect(() => {
     let cancelled = false;
@@ -94,32 +106,40 @@ export default () => {
   const onFinish = async (values: LoginValues) => {
     setSubmitting(true);
     try {
-      await login(values.username, values.password);
+      await login(
+        values.username,
+        values.password,
+        undefined,
+        intl.formatMessage({ id: 'login.error' }),
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
-  const enabledButtons = PROVIDER_BUTTONS.filter((b) => providers[b.key]);
+  const enabledButtons = providerButtons.filter((b) => providers[b.key]);
   const showFederate = enabledButtons.length > 0;
   const showUnconfiguredHint = providersKnown && !showFederate;
 
   return (
     <AuthBrandShell
-      title="登录 ERD Online"
-      skipLabel="跳到登录表单"
+      title={intl.formatMessage({ id: 'login.title' })}
+      skipLabel={intl.formatMessage({ id: 'login.skipLabel' })}
       footer={
         <>
-          <a href={`/register${redirectQuery()}`} aria-label="去注册">
-            没有账号？去注册
+          <a
+            href={`/register${redirectQuery()}`}
+            aria-label={intl.formatMessage({ id: 'login.footer.registerAria' })}
+          >
+            {intl.formatMessage({ id: 'login.footer.register' })}
           </a>
           {' · '}
-          <a href="/demo" aria-label="先看演示">
-            先看演示（免登录）
+          <a href="/demo" aria-label={intl.formatMessage({ id: 'login.footer.demoAria' })}>
+            {intl.formatMessage({ id: 'login.footer.demo' })}
           </a>
           {' · '}
-          <a href="/" aria-label="了解产品">
-            了解产品
+          <a href="/" aria-label={intl.formatMessage({ id: 'login.footer.landingAria' })}>
+            {intl.formatMessage({ id: 'login.footer.landing' })}
           </a>
         </>
       }
@@ -134,29 +154,33 @@ export default () => {
       >
         <Form.Item
           name="username"
-          label="用户名"
+          label={intl.formatMessage({ id: 'login.username.label' })}
           htmlFor="login-username"
-          rules={[{required: true, message: '请输入用户名!'}]}
+          rules={[
+            { required: true, message: intl.formatMessage({ id: 'login.username.required' }) },
+          ]}
         >
           <Input
             id="login-username"
             prefix={<UserOutlined />}
-            placeholder="用户名"
-            aria-label="用户名"
+            placeholder={intl.formatMessage({ id: 'login.username.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'login.username.label' })}
             autoComplete="username"
           />
         </Form.Item>
         <Form.Item
           name="password"
-          label="密码"
+          label={intl.formatMessage({ id: 'login.password.label' })}
           htmlFor="login-password"
-          rules={[{required: true, message: '请输入密码！'}]}
+          rules={[
+            { required: true, message: intl.formatMessage({ id: 'login.password.required' }) },
+          ]}
         >
           <Input.Password
             id="login-password"
             prefix={<LockOutlined />}
-            placeholder="密码"
-            aria-label="密码"
+            placeholder={intl.formatMessage({ id: 'login.password.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'login.password.label' })}
             autoComplete="current-password"
           />
         </Form.Item>
@@ -168,14 +192,14 @@ export default () => {
             loading={submitting}
             data-testid="login-submit"
           >
-            登录
+            {intl.formatMessage({ id: 'login.submit' })}
           </Button>
         </Form.Item>
       </Form>
       {showFederate ? (
         <>
-          <Divider plain>或使用第三方登录</Divider>
-          <Space direction="vertical" style={{width: '100%'}} size="middle">
+          <Divider plain>{intl.formatMessage({ id: 'login.federate.divider' })}</Divider>
+          <Space direction="vertical" style={{ width: '100%' }} size="middle">
             {enabledButtons.map((b) => (
               <Button
                 key={b.key}
@@ -201,7 +225,7 @@ export default () => {
             lineHeight: 1.5,
           }}
         >
-          第三方登录未配置
+          {intl.formatMessage({ id: 'login.federate.unconfigured' })}
         </p>
       ) : null}
     </AuthBrandShell>

@@ -56,7 +56,15 @@
 15. ~~五态 + dirty chip 端到端 E2E 补盘：核对 `schema-probe.spec.ts` / smoke / ux-audit 是否覆盖全部五态 + 未知态的可行动文案，补齐缺口~~ ✅ 2026-08-04
 16. 【队列外 · 需用户显式开闸才可开工】Pull/Push 动作 MVP（从库反向解析→存版本；同步 DDL→钉基线）：ADR-0022 已定义动作隐喻，但**本队列不得自动开始**，仅在用户明确说「开始做 Pull/Push」后才排进 #12 之前
 
-**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地；完整 i18n MVP 仍 P3 后置。**E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
+**i18n 奠基（ADR-0023）✅ 2026-08-04**：`getAntdLocale()` + 默认 zh-CN + 删死 `locales/` + E2E 反脆弱规则已落地。**i18n MVP 队列（ROI 序 · 一 tick 一刀）**：
+
+1. ~~`baseNavigator` 浏览器语言自动匹配 + E2E 固定 zh-CN~~ ✅ 2026-08-05（`d838b85`）
+2. ~~`LocaleSwitcher` 手动切换 + Auth/Home/Design 顶栏~~ ✅ 2026-08-05（`c5f8272`）
+3. ~~登录/联邦登录 + AuthBrandShell 品牌面板 key 化~~ ✅ 2026-08-05
+4. **下一刀**：注册页 key 化（`/register` 表单 + footer）
+5. 设计器顶栏 chrome key 化（SaveStatus / dirty chip / schema probe 等）
+
+**E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
 
