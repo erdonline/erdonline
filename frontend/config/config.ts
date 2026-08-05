@@ -29,6 +29,17 @@ export default defineConfig({
   // access 插件依赖 initial State 所以需要同时开启
   initialState: {},
   deadCode: {},
+  // i18n MVP（ADR-0023 奠基已完成，本切片起步完整落地）：
+  // antd:false — antd locale 已由 Theme 的 getAntdLocale() 手动管理，避免二次包一层 ConfigProvider 冲掉自定义 token；
+  // baseNavigator:true — 首访按浏览器语言自动匹配 zh-CN / en-US；未知语言回退 default；
+  // useLocalStorage:true — 用户显式切换优先并持久化（umi_locale key），覆盖浏览器检测。
+  locale: {
+    default: 'zh-CN',
+    antd: false,
+    baseNavigator: true,
+    useLocalStorage: true,
+    title: false,
+  },
   analytics: {
     baidu: '46689e26837885690d97c7f5d08b9a0b',
   },

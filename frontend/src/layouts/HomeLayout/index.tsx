@@ -7,7 +7,7 @@ import {Dropdown, Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
 import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
-import {useModel} from "@umijs/max";
+import {useIntl, useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
@@ -92,6 +92,7 @@ type HomeRoute = {
 const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   const location = useLocation();
   const pathname = location.pathname;
+  const intl = useIntl();
   const {setInitialState} = useModel('@@initialState');
   const {tabDispatch} = useTabStore(state => ({tabDispatch: state.dispatch}));
 
@@ -147,7 +148,11 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   return (
     <Theme>
       <Layout className="home-layout" data-testid="home-layout">
-        <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="home-skip-nav">
+        <nav
+          className="erd-skip-nav"
+          aria-label={intl.formatMessage({id: 'common.skipNav'})}
+          data-testid="home-skip-nav"
+        >
           <a
             href={`#${skipTargetId}`}
             className="erd-skip-link"

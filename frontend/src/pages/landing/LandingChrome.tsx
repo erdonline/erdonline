@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link} from '@umijs/max';
+import {Link, useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
 
@@ -25,6 +25,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   variant = 'hero',
   testId = 'landing-page',
 }) => {
+  const intl = useIntl();
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
@@ -36,7 +37,11 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       className={`landing${variant === 'subpage' ? ' landing--subpage' : ''}`}
       data-testid={testId}
     >
-      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="landing-skip-nav">
+      <nav
+        className="erd-skip-nav"
+        aria-label={intl.formatMessage({id: 'common.skipNav'})}
+        data-testid="landing-skip-nav"
+      >
         <a
           href="#landing-main-cta"
           className="erd-skip-link"

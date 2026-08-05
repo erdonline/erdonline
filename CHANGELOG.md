@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：启用浏览器语言自动匹配（baseNavigator）
+
+- `frontend/config/config.ts`：`baseNavigator: true` — 首访按 `navigator.language` 匹配 `zh-CN` / `en-US`；未知语言回退 `default: zh-CN`；`useLocalStorage: true` 保留，用户显式切换仍优先
+- `getAntdLocale()` / `Theme`：读取 umi `getLocale()`（在 env `LOCALE` 非空覆盖之后），`useIntl().locale` 驱动 antd Modal OK/Cancel 同步
+- `resolveAppLocale`：`zh*` / `en*` 前缀映射；空 env `LOCALE` 不再硬锁 zh-CN，交给 umi
+- E2E：`playwright.config.ts` 固定 `locale: 'zh-CN'`，避免 CI 英文浏览器导致中文断言失败
+- ADR-0023 / `docs/roadmap.md` / `docs/development.md`：更新「禁止浏览器自动切换」为「自动检测 + localStorage 用户覆盖」
+
+验证点：
+- `cd frontend && npx tsx src/utils/getAntdLocale.test.ts`
+- `cd frontend && yarn build`
+
 #### 修复：Google 联邦登录「解绑 → 重新登录」报裸 JSON `code:500 「google-xxx」已存在`
 
 - 现象：用户首次 Google 登录成功建号 → 在账号设置解除绑定 → 再次 Google 登录时，浏览器 OAuth 回调页直出裸 JSON `{"code":500,"data":null,"msg":"「google-113298977828932750600」已存在"}`，而不是正常登录或友好错误页

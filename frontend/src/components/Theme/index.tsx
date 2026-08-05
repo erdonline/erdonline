@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ConfigProvider } from 'antd';
 import { Outlet } from '@@/exports';
+import { useIntl } from '@umijs/max';
 import { erdTheme } from '@/theme/tokens';
 import { getAntdLocale } from '@/utils/getAntdLocale';
 
@@ -10,13 +11,18 @@ export type ThemeProps = {
 };
 
 /**
- * 工作台 antd 主题入口：tokens + 可配置 locale（默认 zh-CN，见 getAntdLocale）。
+ * 工作台 antd 主题入口：tokens + umi locale → antd ConfigProvider。
  * 缺 locale 时 Modal 默认 OK/Cancel，会卡死依赖「确定」的创建项目等 E2E/旅程。
  */
-const Theme: React.FC<ThemeProps> = ({ children }) => (
-  <ConfigProvider theme={erdTheme} locale={getAntdLocale()}>
-    {children !== undefined ? children : <Outlet />}
-  </ConfigProvider>
-);
+const Theme: React.FC<ThemeProps> = ({ children }) => {
+  const { locale } = useIntl();
+  const antdLocale = useMemo(() => getAntdLocale(locale), [locale]);
+
+  return (
+    <ConfigProvider theme={erdTheme} locale={antdLocale}>
+      {children !== undefined ? children : <Outlet />}
+    </ConfigProvider>
+  );
+};
 
 export default React.memo(Theme);

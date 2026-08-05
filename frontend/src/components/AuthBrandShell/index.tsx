@@ -1,5 +1,6 @@
 import React from 'react';
 import {Typography} from 'antd';
+import {useIntl} from '@umijs/max';
 import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
 import './index.less';
 
@@ -37,9 +38,14 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
   skipLabel = '跳到表单',
   skipTargetId = 'auth-form-anchor',
 }) => {
+  const intl = useIntl();
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
-      <nav className="erd-skip-nav" aria-label="跳过导航" data-testid="auth-skip-nav">
+      <nav
+        className="erd-skip-nav"
+        aria-label={intl.formatMessage({id: 'common.skipNav'})}
+        data-testid="auth-skip-nav"
+      >
         <a
           href={`#${skipTargetId}`}
           className="erd-skip-link"
