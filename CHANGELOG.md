@@ -8,6 +8,16 @@
 
 ### 2026-08-05
 
+#### i18n：Home 高流量页正文（仪表盘 + 项目列表）
+
+- `home/index.tsx`：欢迎语/统计/CTA/二级导航/进行中项目/公告区全文 `formatMessage` key 化
+- `project/person` + `project/recent`：页标题/搜索/空态/错误 toast key 化
+- 语料：`homePage.*` + `projectList.*` 共 33 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n #15 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Home 仪表盘"`
+
 #### i18n：账号设置「授权类型」子页
 
 - `identification.tsx`：开源版/已取得授权标题 + MIT/授权详情副文案 `formatMessage` key 化

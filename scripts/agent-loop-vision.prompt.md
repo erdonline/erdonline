@@ -82,7 +82,9 @@
 
 14. ~~账号设置「授权类型」子页 key 化（开源版/已取得授权 + MIT 副文案）~~ ✅ 2026-08-05
 
-**下一刀候选（ROI 序）**：Home/Group/Design 剩余硬编码页面正文（优先 Home 高流量页）
+15. ~~Home 高流量页正文 key 化（Home 仪表盘 + 个人/最近项目列表）~~ ✅ 2026-08-05
+
+**下一刀候选（ROI 序）**：Group/Design 剩余硬编码页面正文
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

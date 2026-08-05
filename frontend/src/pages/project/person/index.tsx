@@ -9,6 +9,7 @@ import OpenProject from "@/components/dialog/project/OpenProject";
 import {searchProjects} from "@/pages/project/recent";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
 import {createExampleProjectAndOpen} from "@/utils/exampleProject";
+import {useIntl} from '@@/exports';
 import '../project-list.scss';
 
 export type ProjectListProps = {
@@ -35,6 +36,7 @@ type ProjectItem = {
 };
 
 export default () => {
+  const intl = useIntl();
 
   const [state, setState] = useState<ProjectListProps>({
     page: 1,
@@ -64,7 +66,7 @@ export default () => {
             }
           );
         } else {
-          message.error('获取项目信息失败');
+          message.error(intl.formatMessage({id: 'projectList.error.fetchFailed'}));
         }
       }
     }).finally(() => setListLoading(false));
@@ -78,16 +80,16 @@ export default () => {
   const emptyText = (
     <Empty
       image={Empty.PRESENTED_IMAGE_SIMPLE}
-      description="还没有项目，立即创建或体验示例"
+      description={intl.formatMessage({id: 'projectList.empty.description'})}
     >
       <Space>
         <Button type="primary" data-testid="person-empty-create" onClick={() => {
           (document.querySelector('[data-testid=project-create-trigger]') as HTMLElement)?.click();
         }}>
-          立即创建
+          {intl.formatMessage({id: 'projectList.empty.createNow'})}
         </Button>
         <Button data-testid="person-empty-example" onClick={() => createExampleProjectAndOpen()}>
-          一键示例
+          {intl.formatMessage({id: 'projectList.empty.example'})}
         </Button>
       </Space>
     </Empty>
@@ -99,15 +101,17 @@ export default () => {
         className="project-list-page__toolbar"
         data-testid="project-list-toolbar"
       >
-        <h2 className="project-list-page__title">个人项目</h2>
+        <h2 className="project-list-page__title">
+          {intl.formatMessage({id: 'projectList.person.title'})}
+        </h2>
         <Space wrap size={8}>
           <Input.Search
-            placeholder="项目名"
+            placeholder={intl.formatMessage({id: 'projectList.search.placeholder'})}
             allowClear
             onSearch={(value: string) => {
               searchProjects(fetchProjects, state, value);
             }}
-            aria-label="搜索项目名"
+            aria-label={intl.formatMessage({id: 'projectList.search.aria'})}
           />
           <AddProject fetchProjects={() => fetchProjects(null)} trigger="ant" type={1}/>
         </Space>

@@ -5,6 +5,7 @@ import OpenProject from "@/components/dialog/project/OpenProject";
 import {ProjectListProps} from "@/pages/project/person";
 import {recentProject} from "@/services/project";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
+import {useIntl} from '@@/exports';
 import '../project-list.scss';
 
 type ProjectItem = {
@@ -28,6 +29,7 @@ export function searchProjects(fetchProjects: (params: any) => void, state: Proj
 }
 
 export default () => {
+  const intl = useIntl();
 
   const [state, setState] = useState<ProjectListProps>({
     page: 1,
@@ -56,7 +58,7 @@ export default () => {
             }
           );
         } else {
-          message.error('获取项目信息失败');
+          message.error(intl.formatMessage({id: 'projectList.error.fetchFailed'}));
         }
       }
     }).finally(() => setListLoading(false));
@@ -73,14 +75,16 @@ export default () => {
         className="project-list-page__toolbar"
         data-testid="project-list-toolbar"
       >
-        <h2 className="project-list-page__title">最近项目 「个人 + 团队」</h2>
+        <h2 className="project-list-page__title">
+          {intl.formatMessage({id: 'projectList.recent.title'})}
+        </h2>
         <Input.Search
-          placeholder="项目名"
+          placeholder={intl.formatMessage({id: 'projectList.search.placeholder'})}
           allowClear
           onSearch={(value: string) => {
             searchProjects(fetchProjects, state, value);
           }}
-          aria-label="搜索项目名"
+          aria-label={intl.formatMessage({id: 'projectList.search.aria'})}
         />
       </div>
       <List<ProjectItem>

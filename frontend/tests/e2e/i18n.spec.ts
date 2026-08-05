@@ -392,4 +392,35 @@ test.describe('i18n：手动语言切换', () => {
     await expect(title).toHaveText('Open source');
     await expect(sub).toContainText('MIT open source');
   });
+
+  test('Home 仪表盘与项目列表正文随 locale 切换', async ({ page }) => {
+    await login(page, e2eAccount());
+    await page.goto('/home');
+    await expect(page.getByTestId('home-page')).toBeVisible({ timeout: 15_000 });
+
+    const continueBtn = page.getByTestId('home-continue-modeling');
+    const sectionTitle = page.getByTestId('home-project-section').locator('h2');
+    await expect(continueBtn).toHaveText('继续上次建模');
+    await expect(sectionTitle).toHaveText('进行中的项目');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(page.getByTestId('home-page')).toBeVisible({ timeout: 15_000 });
+    await expect(continueBtn).toHaveText('Continue last session');
+    await expect(sectionTitle).toHaveText('Projects in progress');
+
+    await page.goto('/project/person');
+    await expect(page.getByTestId('project-person-page')).toBeVisible({ timeout: 15_000 });
+    const personTitle = page.getByTestId('project-list-toolbar').locator('h2');
+    await expect(personTitle).toHaveText('Personal projects');
+
+    await page.goto('/project/recent');
+    await expect(page.getByTestId('project-recent-page')).toBeVisible({ timeout: 15_000 });
+    const recentTitle = page.getByTestId('project-list-toolbar').locator('h2');
+    await expect(recentTitle).toHaveText('Recent projects (personal + team)');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(recentTitle).toHaveText('最近项目 「个人 + 团队」');
+  });
 });
