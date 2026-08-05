@@ -51,7 +51,7 @@ function readUmiLocale(): string | undefined {
  * 解析当前应用 locale：
  * 1. env-config `LOCALE`（非空，部署覆盖）
  * 2. 构建变量 `ERD_LOCALE`
- * 3. umi `getLocale()`（baseNavigator + localStorage `umi_locale`）
+ * 3. umi `getLocale()`（localStorage `umi_locale`：LocaleSwitcher 显式选择；首访可由 baseNavigator 匹配浏览器语言）
  * 4. DEFAULT_APP_LOCALE
  */
 export function getAppLocale(): AppLocale {

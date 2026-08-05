@@ -85,9 +85,9 @@
 - ~~清理死 `locales/` Pro 骨架（零 `useIntl` 消费者）~~ ✅
 - ~~E2E 反脆弱：新控件 prefer `data-testid` / `aria-label`；定位与文案断言分离~~ ✅（`e2e-locators.mdc`）
 
-完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH；首访按浏览器语言自动匹配，**回退** zh-CN。
+完整 i18n（语言切换 UI、全站 key 化）仍为 P3 📋；「英文优先」= 新 key 同时写 EN+ZH；首访 `baseNavigator:true` 按浏览器语言匹配，`LocaleSwitcher` 显式选择 + `umi_locale` 持久化覆盖。
 
-**i18n MVP 进度（2026-08-05）**：~~baseNavigator~~✅ · ~~LocaleSwitcher~~✅ · ~~登录/联邦 + AuthBrandShell~~✅ · ~~注册页 key 化~~✅ · 下一刀：设计器顶栏 chrome key 化
+**i18n MVP 进度（2026-08-05）**：~~baseNavigator~~✅ · ~~LocaleSwitcher~~✅ · ~~登录/联邦 + AuthBrandShell~~✅ · ~~注册页 key 化~~✅ · ~~设计器顶栏 chrome key 化~~✅ · 下一刀：DesignLayout 工作流按钮 / skip-nav key 化
 
 ### 产品深度（走出「thin CRUD」）📋
 
