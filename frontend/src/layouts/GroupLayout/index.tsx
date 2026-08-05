@@ -142,7 +142,8 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
           className="erd-chrome-brand group-layout__brand"
           role="link"
           tabIndex={0}
-          aria-label="ERD Online 首页"
+          aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
+          data-testid="erd-chrome-brand"
           onClick={() => history.push('/home')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -165,7 +166,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
               className="erd-chrome-user"
               role="button"
               tabIndex={0}
-              aria-label="用户菜单"
+              aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
               data-testid="user-menu-trigger"
             >
               <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
@@ -183,7 +184,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
               items={menuItems}
               className="group-layout__sider-menu"
               data-testid="group-layout-sider-menu"
-              aria-label="团队设置导航"
+              aria-label={intl.formatMessage({ id: 'groupLayout.siderNavAria' })}
             />
           </div>
         </Sider>

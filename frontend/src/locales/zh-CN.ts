@@ -183,4 +183,8 @@ export default {
   'designLayout.user.menuAria': '用户菜单',
   'designLayout.sider.navAria': '设计器侧栏导航',
   'designLayout.workspace.aria': '主工作区',
+
+  // HomeLayout / GroupLayout 顶栏 aria
+  'homeLayout.mainNavAria': '主导航',
+  'groupLayout.siderNavAria': '团队设置导航',
 };

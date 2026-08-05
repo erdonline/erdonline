@@ -196,4 +196,8 @@ export default {
   'designLayout.user.menuAria': 'User menu',
   'designLayout.sider.navAria': 'Designer sidebar navigation',
   'designLayout.workspace.aria': 'Main workspace',
+
+  // HomeLayout / GroupLayout top-bar aria
+  'homeLayout.mainNavAria': 'Main navigation',
+  'groupLayout.siderNavAria': 'Team settings navigation',
 };
