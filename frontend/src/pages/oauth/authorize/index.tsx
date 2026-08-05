@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Alert, Button, Space, Spin, Typography, message } from 'antd';
-import { history, useLocation } from '@@/exports';
+import { history, useIntl, useLocation } from '@@/exports';
 import AuthBrandShell from '@/components/AuthBrandShell';
 import * as cache from '@/utils/cache';
 import request from '@/utils/request';
@@ -95,6 +95,7 @@ async function postDecision(
  * 仅 Allow 签发 erd_ac_；Deny → access_denied。
  */
 export default () => {
+  const intl = useIntl();
   const location = useLocation();
   const params = useMemo(() => parseParams(location.search), [location.search]);
   const [loading, setLoading] = useState(true);
@@ -154,7 +155,7 @@ export default () => {
     <AuthBrandShell
       title="授权应用"
       subtitle="第三方应用请求访问你的 ERD Online 数据"
-      skipLabel="跳到授权操作"
+      skipLabel={intl.formatMessage({ id: 'oauth.skipLabel' })}
       skipTargetId="oauth-consent-actions"
     >
       <div className={styles.consent} data-testid="oauth-consent-page">

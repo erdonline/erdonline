@@ -1,5 +1,5 @@
 import React from 'react';
-import {Link} from '@umijs/max';
+import {Link, useIntl} from '@umijs/max';
 import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
 
@@ -7,110 +7,118 @@ import './index.less';
  * 诚实对照子页：协作 / 版本 / 开放 / 自部署。
  * 极简画图够用时不必换；需要版本与开源事实源时再来（vision）。
  */
-const ComparePage: React.FC = () => (
-  <LandingChrome variant="subpage" testId="compare-page">
-    <main className="landingComparePage">
-      <section className="landingSection landingCompareHero" aria-labelledby="compare-page-title">
-        <p className="landingCompareEyebrow landingBrand">ERD Online</p>
-        <h1 id="compare-page-title">诚实对照</h1>
-        <p className="landingSectionLead">
-          极简画图工具已够用时不必换；需要版本、协作与开源事实源时再来。我们不复刻
-          dbdiagram——打差异化。
-        </p>
-      </section>
+const ComparePage: React.FC = () => {
+  const intl = useIntl();
+  const t = (id: string) => intl.formatMessage({ id });
 
-      <section className="landingSection" aria-labelledby="compare-table-title">
-        <h2 id="compare-table-title" className="visuallyHidden">
-          能力对照表
-        </h2>
-        <table className="landingCompare">
-          <thead>
-            <tr>
-              <th scope="col">能力</th>
-              <th scope="col">ERD Online</th>
-              <th scope="col">dbdiagram</th>
-              <th scope="col">dbml 生态</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>实时协作</td>
-              <td className="landingYes">多人同图 + presence</td>
-              <td className="landingNo">无 / 弱</td>
-              <td className="landingNo">视编辑器</td>
-            </tr>
-            <tr>
-              <td>版本与 diff</td>
-              <td className="landingYes">快照、diff、回滚</td>
-              <td className="landingNo">弱</td>
-              <td className="landingNo">靠 Git 外挂</td>
-            </tr>
-            <tr>
-              <td>审批 / 变更审计</td>
-              <td className="landingYes">工单 + SQL 审批</td>
-              <td className="landingNo">无</td>
-              <td className="landingNo">无</td>
-            </tr>
-            <tr>
-              <td>只读分享</td>
-              <td className="landingYes">token 链接 + fork</td>
-              <td className="landingYes">公开分享</td>
-              <td className="landingNo">视工具</td>
-            </tr>
-            <tr>
-              <td>开源自部署</td>
-              <td className="landingYes">MIT + compose</td>
-              <td className="landingNo">闭源 SaaS</td>
-              <td className="landingYes">格式开源</td>
-            </tr>
-            <tr>
-              <td>DBML 互通</td>
-              <td className="landingYes">导入 / 导出</td>
-              <td className="landingYes">原生</td>
-              <td className="landingYes">原生</td>
-            </tr>
-            <tr>
-              <td>Agent / 事实源</td>
-              <td className="landingYes">projectJSON schema；API/MCP 路线图</td>
-              <td className="landingNo">无</td>
-              <td className="landingNo">文本为主</td>
-            </tr>
-          </tbody>
-        </table>
-      </section>
+  return (
+    <LandingChrome variant="subpage" testId="compare-page">
+      <main className="landingComparePage">
+        <section className="landingSection landingCompareHero" aria-labelledby="compare-page-title">
+          <p className="landingCompareEyebrow landingBrand">ERD Online</p>
+          <h1 id="compare-page-title">{t('landing.compare.title')}</h1>
+          <p className="landingSectionLead">{t('landing.comparePage.lead')}</p>
+        </section>
 
-      <section className="landingBand">
-        <div className="landingSection" aria-labelledby="compare-cta-title">
-          <h2 id="compare-cta-title">先看图，再决定</h2>
-          <p className="landingSectionLead">
-            打开在线 demo 看真实关系图；或按文档自部署，数据留在你这边。
-          </p>
-          <div
-            className="landingCtas"
-            id="landing-main-cta"
-            tabIndex={-1}
-            data-testid="landing-main-cta"
-          >
-            <Link className="landingBtnPrimary" to="/demo" aria-label="打开演示">
-              打开演示
-            </Link>
-            <a
-              className="landingBtnGhost"
-              href={DOCS_URL}
-              target="_blank"
-              rel="noreferrer"
-              aria-label="自部署指南"
+        <section className="landingSection" aria-labelledby="compare-table-title">
+          <h2 id="compare-table-title" className="visuallyHidden">
+            {t('landing.comparePage.tableAria')}
+          </h2>
+          <table className="landingCompare">
+            <thead>
+              <tr>
+                <th scope="col">{t('landing.compare.col.capability')}</th>
+                <th scope="col">{t('landing.compare.col.erd')}</th>
+                <th scope="col">{t('landing.compare.col.dbdiagram')}</th>
+                <th scope="col">{t('landing.compare.col.dbml')}</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>{t('landing.compare.row.collab')}</td>
+                <td className="landingYes">{t('landing.compare.cell.collabDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.noWeak')}</td>
+                <td className="landingNo">{t('landing.compare.cell.variesEditor')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.version')}</td>
+                <td className="landingYes">{t('landing.compare.cell.versionDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.weak')}</td>
+                <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.approval')}</td>
+                <td className="landingYes">{t('landing.compare.cell.approvalDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.no')}</td>
+                <td className="landingNo">{t('landing.compare.cell.no')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.share')}</td>
+                <td className="landingYes">{t('landing.compare.cell.shareErd')}</td>
+                <td className="landingYes">{t('landing.compare.cell.sharePublic')}</td>
+                <td className="landingNo">{t('landing.compare.cell.varies')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.opensource')}</td>
+                <td className="landingYes">{t('landing.compare.cell.mitCompose')}</td>
+                <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
+                <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.dbml')}</td>
+                <td className="landingYes">{t('landing.compare.cell.dbmlBoth')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+              </tr>
+              <tr>
+                <td>{t('landing.compare.row.agent')}</td>
+                <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.no')}</td>
+                <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
+              </tr>
+            </tbody>
+          </table>
+        </section>
+
+        <section className="landingBand">
+          <div className="landingSection" aria-labelledby="compare-cta-title">
+            <h2 id="compare-cta-title">{t('landing.comparePage.cta.title')}</h2>
+            <p className="landingSectionLead">{t('landing.comparePage.cta.lead')}</p>
+            <div
+              className="landingCtas"
+              id="landing-main-cta"
+              tabIndex={-1}
+              data-testid="landing-main-cta"
             >
-              自部署指南
-            </a>
-            <Link className="landingBtnText" to="/" aria-label="返回产品首页">
-              返回首页
-            </Link>
+              <Link
+                className="landingBtnPrimary"
+                to="/demo"
+                aria-label={t('landing.hero.cta.openDemoAria')}
+              >
+                {t('landing.hero.cta.openDemo')}
+              </Link>
+              <a
+                className="landingBtnGhost"
+                href={DOCS_URL}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={t('landing.demo.cta.selfHostAria')}
+              >
+                {t('landing.demo.cta.selfHost')}
+              </a>
+              <Link
+                className="landingBtnText"
+                to="/"
+                aria-label={t('landing.comparePage.cta.backHomeAria')}
+              >
+                {t('landing.comparePage.cta.backHome')}
+              </Link>
+            </div>
           </div>
-        </div>
-      </section>
-    </main>
-  </LandingChrome>
-);
+        </section>
+      </main>
+    </LandingChrome>
+  );
+};
 
 export default ComparePage;

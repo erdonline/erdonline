@@ -81,13 +81,13 @@ const SharePage: React.FC = () => {
         return;
       }
       if (json?.code !== 200 || !json?.data?.projectId) {
-        message.error(json?.msg || '复制失败');
+        message.error(json?.msg || intl.formatMessage({ id: 'share.fork.failed' }));
         return;
       }
-      message.success('已复制到我的项目');
+      message.success(intl.formatMessage({ id: 'share.fork.success' }));
       history.push(`/design/table/model?projectId=${json.data.projectId}`);
     } catch (e: unknown) {
-      message.error(e instanceof Error ? e.message : '复制失败');
+      message.error(e instanceof Error ? e.message : intl.formatMessage({ id: 'share.fork.failed' }));
     } finally {
       setForking(false);
     }
@@ -101,7 +101,7 @@ const SharePage: React.FC = () => {
     let cancelled = false;
     const load = async () => {
       if (!token) {
-        setError('分享链接无效');
+        setError(intl.formatMessage({ id: 'share.error.invalidLink' }));
         setLoading(false);
         return;
       }
@@ -113,7 +113,7 @@ const SharePage: React.FC = () => {
           return;
         }
         if (json?.code !== 200) {
-          setError(json?.msg || '分享不存在或已失效');
+          setError(json?.msg || intl.formatMessage({ id: 'share.error.notFound' }));
           setData(null);
         } else {
           setData(json.data);
@@ -126,7 +126,7 @@ const SharePage: React.FC = () => {
         }
       } catch (e: unknown) {
         if (!cancelled) {
-          setError(e instanceof Error ? e.message : '加载失败');
+          setError(e instanceof Error ? e.message : intl.formatMessage({ id: 'share.error.loadFailed' }));
         }
       } finally {
         if (!cancelled) {
@@ -206,7 +206,7 @@ const SharePage: React.FC = () => {
           background: 'var(--erd-surface-sunk)',
         }}
       >
-        <Spin size="large" tip="加载分享…" />
+        <Spin size="large" tip={intl.formatMessage({ id: 'share.loading' })} />
       </div>
     );
   }
@@ -215,7 +215,7 @@ const SharePage: React.FC = () => {
   if (error) {
     return (
       <AuthBrandShell
-        title="分享不可用"
+        title={intl.formatMessage({ id: 'share.invalid.title' })}
         subtitle={error}
         skipLabel={intl.formatMessage({ id: 'common.skipMainAction' })}
         skipTargetId="exception-main-cta"
@@ -227,17 +227,17 @@ const SharePage: React.FC = () => {
           data-testid="share-invalid-gate"
         >
           <Button type="primary" block onClick={() => history.push('/demo')}>
-            打开示例 demo
+            {intl.formatMessage({ id: 'exception.cta.openDemo' })}
           </Button>
           <Button block onClick={() => history.push('/')}>
-            返回首页
+            {intl.formatMessage({ id: 'exception.cta.backHome' })}
           </Button>
         </div>
       </AuthBrandShell>
     );
   }
 
-  const projectName = data?.projectName || '只读分享';
+  const projectName = data?.projectName || intl.formatMessage({ id: 'share.defaultProjectName' });
   const redirectQ = `?redirect=${encodeURIComponent(shareReturnPath)}`;
 
   const focusSkipTarget = (id: string) => {
@@ -271,7 +271,7 @@ const SharePage: React.FC = () => {
           className="erd-chrome-brand"
           role="link"
           tabIndex={0}
-          aria-label="ERD Online 首页"
+          aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
           onClick={() => history.push('/')}
           onKeyDown={(e) => {
             if (e.key === 'Enter' || e.key === ' ') {
@@ -287,7 +287,9 @@ const SharePage: React.FC = () => {
           <Typography.Title level={4} className="share-page__project-name">
             {projectName}
           </Typography.Title>
-          <Tag className="share-page__readonly-tag">只读</Tag>
+          <Tag className="share-page__readonly-tag">
+            {intl.formatMessage({ id: 'share.readonly.tag' })}
+          </Tag>
         </div>
         <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           <Button
@@ -295,33 +297,33 @@ const SharePage: React.FC = () => {
             icon={!forking ? <CopyOutlined /> : undefined}
             loading={forking}
             onClick={onFork}
-            aria-label="复制到我的项目"
+            aria-label={intl.formatMessage({ id: 'share.fork.aria' })}
           >
-            复制到我的项目
+            {intl.formatMessage({ id: 'share.fork.cta' })}
           </Button>
           {!authed ? (
             <>
               <a
                 className="erd-chrome-link"
                 href={`/login${redirectQ}`}
-                aria-label="登录"
+                aria-label={intl.formatMessage({ id: 'share.loginAria' })}
                 onClick={(e) => {
                   e.preventDefault();
                   history.push(`/login${redirectQ}`);
                 }}
               >
-                登录
+                {intl.formatMessage({ id: 'share.login' })}
               </a>
               <a
                 className="erd-chrome-link"
                 href={`/register${redirectQ}`}
-                aria-label="注册"
+                aria-label={intl.formatMessage({ id: 'share.registerAria' })}
                 onClick={(e) => {
                   e.preventDefault();
                   history.push(`/register${redirectQ}`);
                 }}
               >
-                注册
+                {intl.formatMessage({ id: 'share.register' })}
               </a>
             </>
           ) : null}
@@ -337,7 +339,11 @@ const SharePage: React.FC = () => {
           <div className="share-page__meta" data-testid="share-page-meta">
             <div className="share-page__meta-row">
               <p className="share-page__hint">
-                <strong className="share-page__hint-strong">匿名只读</strong> · 登录后可「复制到我的项目」继续编辑并保存版本
+                <strong className="share-page__hint-strong">
+                  {intl.formatMessage({ id: 'share.hint.anonymousStrong' })}
+                </strong>
+                {' · '}
+                {intl.formatMessage({ id: 'share.hint.anonymousRest' })}
               </p>
               {(modules.length > 1 || diagrams.length > 1) ? (
                 <div className="share-page__meta-switches">
@@ -345,7 +351,7 @@ const SharePage: React.FC = () => {
                     <div
                       className="share-page__module-switch-wrap"
                       role="group"
-                      aria-label="切换模块"
+                      aria-label={intl.formatMessage({ id: 'share.moduleSwitch.aria' })}
                       data-testid="module-switcher"
                     >
                       <Segmented
@@ -354,7 +360,7 @@ const SharePage: React.FC = () => {
                         value={moduleKey}
                         onChange={(v) => onModuleChange(String(v))}
                         options={modules.map(m => ({
-                          label: m.chnname || m.name || '模块',
+                          label: m.chnname || m.name || intl.formatMessage({ id: 'share.module.fallback' }),
                           value: m.name || m.chnname || '',
                         }))}
                       />
@@ -365,7 +371,7 @@ const SharePage: React.FC = () => {
                       className="share-page__diagram-bar"
                       data-testid="diagram-switcher"
                       role="group"
-                      aria-label="切换关系图"
+                      aria-label={intl.formatMessage({ id: 'share.diagramSwitch.aria' })}
                     >
                       <Segmented
                         size="small"
@@ -396,7 +402,7 @@ const SharePage: React.FC = () => {
               diagramId={activeDiagramId}
             />
           ) : (
-            <ShareEmptyState message="该分享暂无模型" />
+            <ShareEmptyState message={intl.formatMessage({ id: 'share.empty.noModel' })} />
           )}
           <button
             type="button"
@@ -408,8 +414,11 @@ const SharePage: React.FC = () => {
           >
             <span className="share-page__tables-toggle-label">
               {tablesOpen
-                ? '收起表清单'
-                : `展开表清单（${rows.length}）`}
+                ? intl.formatMessage({ id: 'share.tables.toggle.collapse' })
+                : intl.formatMessage(
+                    { id: 'share.tables.toggle.expand' },
+                    { count: rows.length },
+                  )}
             </span>
             {tablesOpen ? <UpOutlined aria-hidden /> : <DownOutlined aria-hidden />}
           </button>
@@ -420,15 +429,15 @@ const SharePage: React.FC = () => {
             className="share-page__tables"
             data-testid="share-tables-panel"
             role="region"
-            aria-label="表清单"
+            aria-label={intl.formatMessage({ id: 'share.tables.aria' })}
           >
             <Typography.Title level={5} className="share-page__tables-title">
-              表清单
+              {intl.formatMessage({ id: 'share.tables.title' })}
             </Typography.Title>
             <Table
               size="small"
               dataSource={rows}
-              locale={{emptyText: '暂无表'}}
+              locale={{emptyText: intl.formatMessage({ id: 'share.tables.empty' })}}
               pagination={{
                 size: 'small',
                 current: tablesPage,
@@ -437,7 +446,8 @@ const SharePage: React.FC = () => {
                 showSizeChanger: true,
                 pageSizeOptions: ['5', '10', '20', '50'],
                 hideOnSinglePage: true,
-                showTotal: (total) => `共 ${total} 张表`,
+                showTotal: (total) =>
+                  intl.formatMessage({ id: 'share.tables.total' }, { total }),
                 onChange: (page, pageSize) => {
                   setTablesPage(page);
                   setTablesPageSize(pageSize);
@@ -445,9 +455,13 @@ const SharePage: React.FC = () => {
               }}
               data-testid="share-tables-table"
               columns={[
-                {title: '模块', dataIndex: 'module'},
-                {title: '表', dataIndex: 'table'},
-                {title: '字段数', dataIndex: 'fields', width: 90},
+                {title: intl.formatMessage({ id: 'share.tables.col.module' }), dataIndex: 'module'},
+                {title: intl.formatMessage({ id: 'share.tables.col.table' }), dataIndex: 'table'},
+                {
+                  title: intl.formatMessage({ id: 'share.tables.col.fields' }),
+                  dataIndex: 'fields',
+                  width: 90,
+                },
               ]}
             />
           </div>

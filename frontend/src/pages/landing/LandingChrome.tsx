@@ -56,26 +56,44 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         </a>
       </nav>
       <header className="landingNav">
-        <a className="landingNavBrand landingBrand" href="/" aria-label="ERD Online 首页">
+        <a
+          className="landingNavBrand landingBrand"
+          href="/"
+          aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
+        >
           <img src="/logo.svg" alt="" width={28} height={28} />
           ERD Online
         </a>
-        <nav className="landingNavLinks" aria-label="落地页导航">
-          <a href="/#pillars">卖点</a>
-          <Link to="/compare" aria-label="竞品对照">
-            对比
+        <nav
+          className="landingNavLinks"
+          aria-label={intl.formatMessage({ id: 'landing.nav.mainAria' })}
+        >
+          <a href="/#pillars">{intl.formatMessage({ id: 'landing.nav.pillars' })}</a>
+          <Link
+            to="/compare"
+            aria-label={intl.formatMessage({ id: 'landing.nav.compareAria' })}
+          >
+            {intl.formatMessage({ id: 'landing.nav.compare' })}
           </Link>
           <a href={GITHUB_URL} target="_blank" rel="noreferrer">
             GitHub
           </a>
           <LocaleSwitcher variant="chrome" className="landingNavLocale" />
           {authed ? (
-            <Link className="landingBtnGhost landingNavCta" to="/home" aria-label="进入工作台">
-              进入工作台
+            <Link
+              className="landingBtnGhost landingNavCta"
+              to="/home"
+              aria-label={intl.formatMessage({ id: 'landing.nav.enterWorkspaceAria' })}
+            >
+              {intl.formatMessage({ id: 'landing.nav.enterWorkspace' })}
             </Link>
           ) : (
-            <Link className="landingBtnGhost landingNavCta" to="/login" aria-label="登录">
-              登录
+            <Link
+              className="landingBtnGhost landingNavCta"
+              to="/login"
+              aria-label={intl.formatMessage({ id: 'landing.nav.loginAria' })}
+            >
+              {intl.formatMessage({ id: 'landing.nav.login' })}
             </Link>
           )}
         </nav>
@@ -85,18 +103,22 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
 
       <footer className="landingFooter">
         <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>
-        <nav aria-label="页脚链接">
+        <nav aria-label={intl.formatMessage({ id: 'landing.footer.navAria' })}>
           <a href={DOCS_URL} target="_blank" rel="noreferrer">
-            文档
+            {intl.formatMessage({ id: 'landing.footer.docs' })}
           </a>
           <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            Roadmap
+            {intl.formatMessage({ id: 'landing.footer.roadmap' })}
           </a>
-          <Link to="/compare">对照</Link>
+          <Link to="/compare">{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
           <a href={`${GITHUB_URL}/discussions`} target="_blank" rel="noreferrer">
-            社区
+            {intl.formatMessage({ id: 'landing.footer.community' })}
           </a>
-          {authed ? <Link to="/home">进入工作台</Link> : <Link to="/login">登录</Link>}
+          {authed ? (
+            <Link to="/home">{intl.formatMessage({ id: 'landing.nav.enterWorkspace' })}</Link>
+          ) : (
+            <Link to="/login">{intl.formatMessage({ id: 'landing.nav.login' })}</Link>
+          )}
         </nav>
       </footer>
     </div>
