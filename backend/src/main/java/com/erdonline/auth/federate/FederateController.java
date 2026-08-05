@@ -1,5 +1,6 @@
 package com.erdonline.auth.federate;
 
+import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
@@ -49,9 +50,9 @@ public class FederateController {
             String url = authService.startAuthorize(p, FederateAuthService.MODE_LOGIN, null, redirect);
             return ResponseEntity.status(HttpStatus.FOUND).header("Location", url).build();
         } catch (FederateException fe) {
-            return ResponseEntity.status(fe.getStatus()).body(R.failed(fe.getMessage()));
+            return federateError(fe);
         } catch (IllegalArgumentException iae) {
-            return ResponseEntity.badRequest().body(R.failed(iae.getMessage()));
+            return ResponseEntity.badRequest().body(R.failed(ApiErrorCode.BAD_REQUEST.getCode(), iae.getMessage()));
         }
     }
 
@@ -73,9 +74,9 @@ public class FederateController {
             body.put("authorizeUrl", url);
             return R.ok(body);
         } catch (FederateException fe) {
-            return R.failed(fe.getMessage());
+            return R.failed(fe.getStatus(), fe.getMessage());
         } catch (IllegalArgumentException iae) {
-            return R.failed(iae.getMessage());
+            return R.failed(ApiErrorCode.BAD_REQUEST.getCode(), iae.getMessage());
         }
     }
 
@@ -88,16 +89,16 @@ public class FederateController {
             @RequestParam(value = "error_description", required = false) String errorDescription) {
         if (StringUtils.hasText(error)) {
             String msg = StringUtils.hasText(errorDescription) ? errorDescription : error;
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(R.failed(msg));
+            return federateCallbackFailure(msg);
         }
         try {
             FederateProvider p = FederateProvider.fromWire(provider);
             String ui = authService.handleCallback(p, code, state);
             return ResponseEntity.status(HttpStatus.FOUND).header("Location", ui).build();
         } catch (FederateException fe) {
-            return ResponseEntity.status(fe.getStatus()).body(R.failed(fe.getMessage()));
+            return federateCallbackFailure(fe.getMessage());
         } catch (IllegalArgumentException iae) {
-            return ResponseEntity.badRequest().body(R.failed(iae.getMessage()));
+            return federateCallbackFailure(iae.getMessage());
         }
     }
 
@@ -108,7 +109,7 @@ public class FederateController {
             Map<String, Object> body = authService.consumeTicket(ticket);
             return ResponseEntity.ok(body);
         } catch (FederateException fe) {
-            return ResponseEntity.status(fe.getStatus()).body(R.failed(fe.getMessage()));
+            return federateError(fe);
         }
     }
 
@@ -134,10 +135,21 @@ public class FederateController {
             ok.put("unlinked", true);
             return R.ok(ok);
         } catch (FederateException fe) {
-            return R.failed(fe.getMessage());
+            return R.failed(fe.getStatus(), fe.getMessage());
         } catch (IllegalArgumentException iae) {
-            return R.failed(iae.getMessage());
+            return R.failed(ApiErrorCode.BAD_REQUEST.getCode(), iae.getMessage());
         }
+    }
+
+    /** JSON API：业务 code 与 HTTP 状态一致，避免 403 场景误报 code=500。 */
+    private static ResponseEntity<R<?>> federateError(FederateException fe) {
+        return ResponseEntity.status(fe.getStatus()).body(R.failed(fe.getStatus(), fe.getMessage()));
+    }
+
+    /** 浏览器 OAuth 回调：重定向到 UI 展示错误，避免裸 JSON。 */
+    private ResponseEntity<Void> federateCallbackFailure(String message) {
+        String ui = authService.buildFailureRedirect(message);
+        return ResponseEntity.status(HttpStatus.FOUND).header("Location", ui).build();
     }
 
     private Map<String, Object> toView(UserIdentityLink link) {

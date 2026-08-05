@@ -8,6 +8,15 @@
 
 ### 2026-08-05
 
+#### 修复：Google 联邦登录「开放注册已关闭」误报 code=500 + 回调裸 JSON
+
+- 根因：`FederateUserService.resolveForLogin` 在 `ERD_ALLOW_OPEN_REGISTER=false` 且无已有绑定/邮箱匹配用户时抛 `FederateException(403, …)`；`FederateController` 却用 `R.failed(msg)`（业务码固定 500），浏览器 OAuth 回调直接展示 JSON
+- 改动：`FederateException` 统一 `R.failed(status, msg)` 对齐 HTTP/业务码；OAuth 回调失败 302 至 `/login/federate?error=`；落地页展示可操作建议（先登录再绑定 / 联系管理员）
+- 未改 prod 默认 `ERD_ALLOW_OPEN_REGISTER=false`
+
+验证点：
+- `cd backend && mvn -q test -Dtest=FederateControllerTest,FederateAuthServiceTest` 绿
+
 #### 修复：CF Pages demo 分享页「分享不可用」（`Unexpected token '<'`）
 
 - 根因：`pages/share/index.tsx` 用裸 `fetch('/ncnb/share/{token}')`（含 fork）相对路径请求，未走全站统一的 `request`/`buildApiHref` 基址前缀；CF Pages 静态托管对未知路径走 SPA `historyApiFallback` 返回 `index.html`（200 + `text/html`），前端 `res.json()` 解析 `<!DOCTYPE html>` 炸出 `Unexpected token '<'`，落到 `AuthBrandShell` 失效态「分享不可用」

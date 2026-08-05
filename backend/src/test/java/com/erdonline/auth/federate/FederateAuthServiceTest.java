@@ -50,4 +50,24 @@ class FederateAuthServiceTest {
         assertEquals(FederateProvider.GITHUB, FederateProvider.fromWire("github"));
         assertEquals("wechat", FederateProvider.WECHAT.wire());
     }
+
+    @Test
+    void buildFailureRedirect_includesEncodedErrorOnSuccessPath() {
+        FederateProperties props = new FederateProperties();
+        props.setSuccessPath("/login/federate");
+        FederateAuthService svc = new FederateAuthService(
+                props,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null,
+                null);
+        org.springframework.test.util.ReflectionTestUtils.setField(svc, "martinUiUrl", "http://localhost:8000");
+
+        String url = svc.buildFailureRedirect("开放注册已关闭");
+        assertTrue(url.startsWith("http://localhost:8000/login/federate?"));
+        assertTrue(url.contains("error="));
+    }
 }
