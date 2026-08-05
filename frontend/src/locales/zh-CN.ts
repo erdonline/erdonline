@@ -169,4 +169,12 @@ export default {
   'designer.legend.parityTitle': '共用 parity 色',
   'designer.legend.parityColors':
     '{synced}·绿 / 领先·蓝 / 落后·橙 / 分叉·红 / 未知·灰',
+
+  // DesignLayout：skip-nav + 工作流顶栏按钮
+  'designLayout.skip.tree': '跳到模型树',
+  'designLayout.skip.workspace': '跳到主工作区',
+  'designLayout.workflow.myOrders': '我的工单',
+  'designLayout.workflow.pendingApproval': '待审批',
+  'designLayout.workflow.pendingApprovalAria': '待审批工单',
+  'designLayout.workflow.notifications': '通知',
 };
