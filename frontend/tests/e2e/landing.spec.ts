@@ -7,6 +7,7 @@ test.describe('落地页', () => {
   test('加载可见品牌与主文案；CTA 可达 demo 与登录', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible();
+    await expect(page.getByTestId('locale-switcher')).toBeVisible();
     await expect(page.getByRole('paragraph').filter({ hasText: 'ERD Online' }).first()).toBeVisible();
     await expect(
       page.getByRole('heading', { name: /数据库设计的 Git \+ Figma/ }),

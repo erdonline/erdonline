@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Link, useIntl} from '@umijs/max';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
 
@@ -67,6 +68,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           <a href={GITHUB_URL} target="_blank" rel="noreferrer">
             GitHub
           </a>
+          <LocaleSwitcher variant="chrome" className="landingNavLocale" />
           {authed ? (
             <Link className="landingBtnGhost landingNavCta" to="/home" aria-label="进入工作台">
               进入工作台
