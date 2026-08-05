@@ -8,6 +8,17 @@
 
 ### 2026-08-05
 
+#### i18n：Group 设置子页正文（基本设置 / 用户组 / Modal）
+
+- `project/group/component/BasicSetting.tsx`：表单 label/placeholder/校验/toast/删区 key 化
+- `GroupSetting.tsx` / `GroupPermission.tsx`：页标题/嵌套 tab/权限工具栏 key 化
+- `AddUser.tsx` / `GroupUser.tsx` / `RemoveGroupProject.tsx`：Modal/搜索/移除/删除确认 key 化
+- 语料：`groupSetting.*` 共 58 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #18 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Group 设置子页正文"`
+
 #### i18n：Design 版本页正文（空态 / 标签筛选 / 推送态 / 工具栏）
 
 - `design/version/index.tsx`：空态/标签筛选/推送书签态/工具栏/顶栏导航/行 meta 可见文案 key 化（`VersionLayerStatusTag` / `DualLayerLegend` / 顶栏 SchemaProbe 已在 #5 完成，本切片不重复）

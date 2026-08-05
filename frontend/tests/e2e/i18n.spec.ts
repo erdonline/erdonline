@@ -533,4 +533,48 @@ test.describe('i18n：手动语言切换', () => {
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
     await expect(backToModel).toHaveText('返回模型');
   });
+
+  test('Group 设置子页正文随 locale 切换', async ({ page, request }) => {
+    const account = e2eAccount();
+    await login(page, account);
+    const token = await apiToken(request, account.name, account.pass);
+    const projectId = await createGroupProject(
+      request,
+      token,
+      uniqueProjectName('i18n-group-setting'),
+    );
+
+    try {
+      await page.goto(`/project/group/setting/basic?projectId=${projectId}`);
+      await expect(page.getByTestId('basic-setting-page')).toBeVisible({ timeout: 15_000 });
+
+      const basicTitle = page.getByTestId('basic-setting-title');
+      const basicSubmit = page.getByTestId('basic-setting-submit');
+      const deleteHint = page.getByTestId('basic-setting-delete-hint');
+      await expect(basicTitle).toHaveText('基本设置');
+      await expect(basicSubmit).toHaveText('提 交');
+      await expect(deleteHint).toHaveText('删除项目全部模型，此操作无法恢复');
+
+      await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+      await page.reload();
+      await expect(page.getByTestId('basic-setting-page')).toBeVisible({ timeout: 15_000 });
+      await expect(basicTitle).toHaveText('Basic settings');
+      await expect(basicSubmit).toHaveText('Submit');
+      await expect(deleteHint).toHaveText(
+        'Deletes all models in this project. This cannot be undone.',
+      );
+
+      await page.goto(`/project/group/setting/permission?projectId=${projectId}`);
+      await expect(page.getByTestId('group-setting-page')).toBeVisible({ timeout: 15_000 });
+      const permissionTitle = page.getByTestId('group-setting-title');
+      await expect(permissionTitle).toHaveText('User groups');
+
+      await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+      await page.reload();
+      await expect(page.getByTestId('group-setting-page')).toBeVisible({ timeout: 15_000 });
+      await expect(permissionTitle).toHaveText('用户组');
+    } finally {
+      await deleteGroupProject(request, token, projectId);
+    }
+  });
 });

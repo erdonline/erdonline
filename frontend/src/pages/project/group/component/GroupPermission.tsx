@@ -4,7 +4,7 @@ import {GET, POST} from '@/services/crud';
 import {Button, Checkbox, Col, Divider, Empty, Form, List, message, Row, Space} from 'antd';
 import _ from 'lodash';
 import {CONSTANT} from '@/utils/constant';
-import {useSearchParams} from '@@/exports';
+import {useIntl, useSearchParams} from '@@/exports';
 import {useAccess} from '@@/plugin-access';
 
 export type PermissionGroup = {
@@ -30,6 +30,7 @@ export type GroupPermissionProps = {
   isAdmin: boolean;
 };
 const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
+  const intl = useIntl();
   const access = useAccess();
   const [loginRole, setLoginRole] = useState<number>(3);
   const [operationData, setOperationData] = useState<PermissionGroup[]>([]);
@@ -121,7 +122,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
   useEffect(() => {
     getOperationByCheckedMenus().then((r) => {
       if (!r || r.code !== 200) {
-        message.error('获取权限列表失败');
+        message.error(intl.formatMessage({id: 'groupSetting.permission.error.fetchPermissionsFailed'}));
         return;
       }
       const data = r?.data?.checkboxes;
@@ -264,7 +265,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
       checkedKeys = checkedKeys.concat(value.checkedKeys);
     });
     if (!access.canErdProjectRolePermissionEdit) {
-      message.warning('无权操作权限功能');
+      message.warning(intl.formatMessage({id: 'groupSetting.permission.warning.noEditAccess'}));
       return;
     }
     setSaving(true);
@@ -274,7 +275,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
         roleId: props.values.id,
       });
       if (result.code === 200) {
-        message.success('保存成功');
+        message.success(intl.formatMessage({id: 'groupSetting.permission.saveSuccess'}));
       } else {
         message.error(result.msg);
       }
@@ -296,7 +297,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
                   disabled={allIndeterminate.disabled}
                   onChange={onFirstChange.bind(this)}
                 >
-                  全选
+                  {intl.formatMessage({id: 'groupSetting.permission.selectAll'})}
                 </Checkbox>
               </div>
             }
@@ -354,8 +355,14 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
             }}
           >
             <Space>
-              <Button type="primary" htmlType="submit" loading={saving} aria-label="保存权限">
-                提交
+              <Button
+                type="primary"
+                htmlType="submit"
+                loading={saving}
+                aria-label={intl.formatMessage({id: 'groupSetting.permission.saveAria'})}
+                data-testid="group-permission-submit"
+              >
+                {intl.formatMessage({id: 'groupSetting.permission.submit'})}
               </Button>
             </Space>
           </div>

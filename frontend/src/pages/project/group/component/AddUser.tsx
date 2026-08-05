@@ -3,6 +3,7 @@ import {PlusOutlined} from '@ant-design/icons';
 import {Button, Form, Modal, Select, message} from 'antd';
 import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
+import {useIntl} from '@@/exports';
 
 type ReloadableRef = {
   current?: {reload?: () => void} | null;
@@ -24,6 +25,7 @@ type UserOption = {
 };
 
 const AddUser: React.FC<AddUserProps> = (props) => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
   const [options, setOptions] = useState<UserOption[]>([]);
@@ -71,7 +73,7 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         userIds: values.user,
       });
       if (resp?.code === 200) {
-        message.success('保存成功');
+        message.success(intl.formatMessage({id: 'groupSetting.user.saveSuccess'}));
         props.actionRef.current?.reload?.();
         setOpen(false);
         return;
@@ -84,19 +86,27 @@ const AddUser: React.FC<AddUserProps> = (props) => {
 
   return (
     <>
-      <Button key="add-user" type="primary" aria-label="添加成员" onClick={openModal}>
+      <Button
+        key="add-user"
+        type="primary"
+        aria-label={intl.formatMessage({id: 'groupSetting.user.addMemberAria'})}
+        data-testid="group-add-member-trigger"
+        onClick={openModal}
+      >
         <PlusOutlined />
-        添加成员
+        {intl.formatMessage({id: 'groupSetting.user.addMember'})}
       </Button>
       <Modal
-        title="添加成员"
+        title={intl.formatMessage({id: 'groupSetting.user.addModalTitle'})}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
         destroyOnClose
         width={520}
         forceRender
-        okButtonProps={{'aria-label': '确定'}}
+        okButtonProps={{
+          'aria-label': intl.formatMessage({id: 'groupSetting.user.modalOkAria'}),
+        }}
         cancelButtonProps={{type: 'dashed'}}
         keyboard
         focusTriggerAfterClose
@@ -121,8 +131,13 @@ const AddUser: React.FC<AddUserProps> = (props) => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="user"
-            label="选择用户"
-            rules={[{required: true, message: '请选择用户'}]}
+            label={intl.formatMessage({id: 'groupSetting.user.selectUser'})}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({id: 'groupSetting.user.selectUserRequired'}),
+              },
+            ]}
           >
             <Select
               ref={userSelectRef}
@@ -134,9 +149,11 @@ const AddUser: React.FC<AddUserProps> = (props) => {
               }}
               options={options}
               loading={fetching}
-              placeholder="添加用户"
-              aria-label="选择用户"
-              notFoundContent={fetching ? '加载中…' : null}
+              placeholder={intl.formatMessage({id: 'groupSetting.user.selectUserPlaceholder'})}
+              aria-label={intl.formatMessage({id: 'groupSetting.user.selectUserAria'})}
+              notFoundContent={
+                fetching ? intl.formatMessage({id: 'groupSetting.user.loading'}) : null
+              }
             />
           </Form.Item>
         </Form>
