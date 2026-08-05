@@ -122,6 +122,8 @@
 
 30. ~~beforeunload + 落库失败草稿守卫 E2E：`leave-designer-save.spec.ts` reload/关页 → localStorage 草稿不被 stale store 覆写；native dialog 不测（Playwright 脆），以 draft 持久化 + 恢复弹窗验收~~ ✅ 2026-08-05
 
+31. ~~双人协作离开补枪 E2E：`leave-designer-save.spec.ts` 双 browser context（复用 sync-toast 模式）；A 落库失败 → 离开补枪；B 已落库改动 reload 后仍可见、无 A 失败脏表、可续编落盘~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
