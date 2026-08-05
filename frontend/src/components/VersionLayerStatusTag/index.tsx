@@ -5,11 +5,13 @@ import {
   QuestionCircleFilled,
   WarningFilled,
 } from '@ant-design/icons';
+import { useIntl } from '@umijs/max';
 import {
   resolveVersionDirtyState,
   type VersionChangeItem,
 } from '@/utils/versionDirtyStatus';
 import { versionLayerPresentation } from '@/utils/dualLayerTokens';
+import { intlFormat } from '@/utils/messageFormat';
 import type { BaselineRecord } from '@/utils/versionBaseline';
 
 export type VersionLayerStatusTagProps = {
@@ -26,8 +28,10 @@ const VersionLayerStatusTag: React.FC<VersionLayerStatusTagProps> = ({
   versionBaseline,
   changes,
 }) => {
+  const intl = useIntl();
+  const format = intlFormat(intl);
   const state = resolveVersionDirtyState({ baselineLoaded, versionBaseline, changes });
-  const pres = versionLayerPresentation(state, changes);
+  const pres = versionLayerPresentation(state, changes, format);
   const toolbarTestId = versionLayerToolbarTestId(pres.testId);
 
   const icon =

@@ -89,4 +89,97 @@ export default {
   'register.success': 'Registration successful!',
   'register.footer.login': 'Already have an account? Sign in',
   'register.footer.loginAria': 'Go to sign in',
+
+  // Designer top-bar chrome (SaveStatus / VersionDirtyChip / SchemaProbe / DualLayerLegend)
+  'designer.saveStatus.saving': 'Saving…',
+  'designer.saveStatus.saved': 'Saved to server',
+  'designer.saveStatus.failed': 'Save failed — click to retry',
+  'designer.saveStatus.conflict': 'Save conflict — click for options',
+  'designer.saveStatus.conflictTitle':
+    'Project was updated elsewhere. Click to refresh or save as copy.',
+  'designer.saveStatus.failedTitle':
+    'Changes kept locally. Click to retry syncing to the server.',
+  'designer.saveStatus.autoSaveTitle': 'Model changes autosave to the server.',
+  'designer.saveStatus.autoSaveAria': 'Autosave: {label}',
+  'designer.saveStatus.failedAria': 'Autosave failed; changes kept locally. Click to retry.',
+
+  'designer.layer.a.name': 'Version',
+  'designer.layer.a.compareHint': 'Workspace ↔ saved version',
+  'designer.layer.b.name': 'Live DB',
+  'designer.layer.b.compareHint': 'Model ↔ live DB schema',
+
+  'designer.parity.synced': 'in sync',
+  'designer.parity.ahead': 'ahead',
+  'designer.parity.behind': 'behind',
+  'designer.parity.diverged': 'diverged',
+  'designer.parity.unknown': 'unknown',
+
+  'designer.versionDirty.unknown.label': '{layer} {parity}',
+  'designer.versionDirty.unknown.title':
+    'Latest version baseline not loaded yet. Click to retry; cannot tell if there are unsaved changes.',
+  'designer.versionDirty.noBaseline.label': 'No version yet{summary}',
+  'designer.versionDirty.noBaseline.title':
+    'This project has no saved version yet. Click to save the first version.',
+  'designer.versionDirty.dirty.label': 'Unsaved changes{summary}',
+  'designer.versionDirty.dirty.title':
+    'Model differs from the latest saved version (model ahead). Click to save a version.',
+  'designer.versionDirty.clean.label': '{layer} {parity}',
+  'designer.versionDirty.clean.title':
+    'Model matches the latest saved version. Click to view version history.',
+  'designer.versionDirty.aria': 'Version status: {label}',
+
+  'designer.schemaProbe.btn': 'Probe live DB',
+  'designer.schemaProbe.btnAria': 'Probe live DB schema',
+  'designer.schemaProbe.btnTooltip':
+    'Probe live DB schema (explicit action; does not auto-sync)',
+  'designer.schemaProbe.probing': 'Probing…',
+  'designer.schemaProbe.probingTooltip': 'Connecting and reverse-engineering live DB…',
+  'designer.schemaProbe.failedDefault': 'Live DB probe failed',
+  'designer.schemaProbe.status.synced': '{layer} {parity}',
+  'designer.schemaProbe.status.ahead': 'Model {parity}',
+  'designer.schemaProbe.status.behind': '{layer} {parity}',
+  'designer.schemaProbe.status.diverged': 'Both sides {parity}',
+  'designer.schemaProbe.status.unknown': '{layer} {parity}',
+  'designer.schemaProbe.hint.syncedWithFingerprint':
+    'Fingerprint {fingerprint}… · {tableCount} tables · model {parity}',
+  'designer.schemaProbe.hint.synced': 'Model {parity}',
+  'designer.schemaProbe.hint.ahead':
+    'Model has structures not yet applied to the live DB (future: push DDL).',
+  'designer.schemaProbe.hint.behind':
+    'Live DB has structures not in the model (future: pull to save a version).',
+  'designer.schemaProbe.hint.diverged':
+    'Each side has unique or conflicting changes; decide whether to pull or push.',
+  'designer.schemaProbe.unknown.noDatasource.title': 'No datasource configured',
+  'designer.schemaProbe.unknown.noDatasource.hint':
+    'Select a JDBC datasource on the left before probing live DB schema.',
+  'designer.schemaProbe.unknown.noDatasource.cta': 'Select datasource',
+  'designer.schemaProbe.unknown.notProbed.title': 'Not probed yet',
+  'designer.schemaProbe.unknown.notProbed.hint':
+    '{layer} status is {parity}. Click “Probe live DB” to compare against the live schema.',
+  'designer.schemaProbe.unknown.connectionFailed.title': 'Cannot connect to live DB',
+  'designer.schemaProbe.unknown.connectionFailed.hint':
+    'JDBC connection or reverse-engineering failed. Check network, host, and credentials.',
+  'designer.schemaProbe.unknown.noPermission.title': 'No read permission',
+  'designer.schemaProbe.unknown.noPermission.hint':
+    'Account cannot introspect target schema. Use an account with SHOW/METADATA privileges.',
+  'designer.schemaProbe.unknown.indeterminate.title': 'Cannot determine',
+  'designer.schemaProbe.unknown.indeterminate.hint': 'Probe result incomplete. Try again.',
+  'designer.schemaProbe.unknown.fallback.hint': 'No reliable live DB comparison yet.',
+  'designer.schemaProbe.unknown.retryCta': 'Retry probe',
+
+  'designer.legend.aria': 'Dual-layer consistency legend',
+  'designer.legend.title': 'Dual comparison (kept separate)',
+  'designer.legend.layerA': 'A · {name}: {hint}',
+  'designer.legend.layerB': 'B · {name}: {hint} (explicit probe required)',
+  'designer.legend.signalsTitle': 'Top bar signals',
+  'designer.legend.signal.persist': 'Persist',
+  'designer.legend.signal.persistHint': 'Model autosaves to server (project table)',
+  'designer.legend.signal.version': 'Unsaved version',
+  'designer.legend.signal.versionHint': 'Workspace ↔ saved version',
+  'designer.legend.signal.schema': 'vs DB',
+  'designer.legend.signal.schemaHint':
+    'Model ↔ live DB schema; probe via radar button in top bar',
+  'designer.legend.parityTitle': 'Shared parity colors',
+  'designer.legend.parityColors':
+    '{synced}·green / ahead·blue / behind·orange / diverged·red / unknown·gray',
 };

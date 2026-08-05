@@ -10,6 +10,7 @@ import {
   versionLayerPresentation,
   type VersionLayerState,
 } from './dualLayerTokens';
+import { type MessageFormatFn } from './messageFormat';
 
 export type VersionChangeItem = { opt?: string };
 
@@ -48,8 +49,9 @@ export type VersionDirtyCopy = {
 export function versionDirtyCopy(
   state: VersionDirtyState,
   changes: VersionChangeItem[],
+  format?: MessageFormatFn,
 ): VersionDirtyCopy {
-  const pres = versionLayerPresentation(state, changes);
+  const pres = versionLayerPresentation(state, changes, format);
   return {
     label: pres.label,
     title: pres.title,

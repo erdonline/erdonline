@@ -72,7 +72,7 @@ test('A layer: clean synced green, dirty ahead blue', () => {
 
 test('A layer unknown uses 版本未知', () => {
   const u = versionLayerPresentation('unknown', []);
-  assert.equal(u.label, `版本${PARITY_VERB.UNKNOWN}`);
+  assert.equal(u.label, '版本未知');
 });
 
 console.log('all passed');

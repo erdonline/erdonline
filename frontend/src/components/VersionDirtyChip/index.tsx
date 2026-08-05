@@ -3,9 +3,10 @@ import {
   resolveVersionDirtyState,
   versionDirtyCopy,
 } from '@/utils/versionDirtyStatus';
+import { intlFormat } from '@/utils/messageFormat';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
-import { history } from '@@/core/history';
+import { history, useIntl } from '@umijs/max';
 import React from 'react';
 import shallow from 'zustand/shallow';
 import './index.less';
@@ -15,6 +16,8 @@ import './index.less';
  * 与 SaveStatus（落盘/autosave）语义分离，不重复反馈。
  */
 const VersionDirtyChip: React.FC = () => {
+  const intl = useIntl();
+  const format = intlFormat(intl);
   const { baselineLoaded, versionBaseline, changes, versionDispatch } = useVersionStore(
     (s) => ({
       baselineLoaded: s.baselineLoaded,
@@ -30,7 +33,7 @@ const VersionDirtyChip: React.FC = () => {
     versionBaseline,
     changes,
   });
-  const copy = versionDirtyCopy(dirtyState, changes);
+  const copy = versionDirtyCopy(dirtyState, changes, format);
 
   const goVersionPage = (openSave = false) => {
     const projectId =
@@ -55,7 +58,7 @@ const VersionDirtyChip: React.FC = () => {
       className={`erd-version-dirty-chip erd-version-dirty-chip--${copy.tone}`}
       data-testid={copy.testId}
       aria-live="polite"
-      aria-label={`版本状态：${copy.label}`}
+      aria-label={intl.formatMessage({ id: 'designer.versionDirty.aria' }, { label: copy.label })}
       title={copy.title}
       onClick={handleClick}
     >

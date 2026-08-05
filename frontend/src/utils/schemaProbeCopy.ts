@@ -1,19 +1,26 @@
 /** B-layer probe status (mirrors backend SchemaProbeStatus). */
 import {
   B_STATUS_COLOR,
-  B_STATUS_LABEL,
-  LAYER,
-  PARITY_VERB,
+  bStatusLabel,
+  layerBName,
+  parityLabel,
   type SchemaProbeStatus,
 } from './dualLayerTokens';
+import { type MessageFormatFn, zhCnFormat } from './messageFormat';
 
 export type { SchemaProbeStatus } from './dualLayerTokens';
 
-/** @deprecated use B_STATUS_LABEL — kept for existing imports */
-export const STATUS_LABEL: Record<SchemaProbeStatus, string> = B_STATUS_LABEL;
+/** @deprecated use bStatusLabel — kept for existing imports */
+export const STATUS_LABEL: Record<SchemaProbeStatus, string> = {
+  SYNCED: bStatusLabel('SYNCED'),
+  AHEAD: bStatusLabel('AHEAD'),
+  BEHIND: bStatusLabel('BEHIND'),
+  DIVERGED: bStatusLabel('DIVERGED'),
+  UNKNOWN: bStatusLabel('UNKNOWN'),
+};
 
 /** @deprecated use B_STATUS_COLOR — kept for existing imports */
-export const STATUS_COLOR: Record<SchemaProbeStatus, string> = B_STATUS_COLOR;
+export { B_STATUS_COLOR as STATUS_COLOR };
 
 /** Machine-readable unknown / skip reasons (mirrors backend + client-only). */
 export type SchemaProbeReason =
@@ -43,37 +50,6 @@ export type UnknownCopy = {
   ctaTestId: string;
 };
 
-/** Four actionable unknown paths (ADR-0022 #10). */
-export const UNKNOWN_COPY: Record<
-  'PROBE_NO_DATASOURCE' | 'PROBE_NOT_PROBED' | 'PROBE_CONNECTION_FAILED' | 'PROBE_NO_PERMISSION',
-  UnknownCopy
-> = {
-  PROBE_NO_DATASOURCE: {
-    title: '未配置数据源',
-    hint: '请在左侧选择 JDBC 数据源后再探测实库 schema。',
-    ctaLabel: '选择数据源',
-    ctaTestId: 'schema-probe-cta-datasource',
-  },
-  PROBE_NOT_PROBED: {
-    title: '尚未探测',
-    hint: `${LAYER.B.name}状态${PARITY_VERB.UNKNOWN}。点击「探测实库」后才会对比活库 schema。`,
-    ctaLabel: '探测实库',
-    ctaTestId: 'schema-probe-cta-probe',
-  },
-  PROBE_CONNECTION_FAILED: {
-    title: '无法连接实库',
-    hint: 'JDBC 连接或逆向解析失败。请检查网络、地址与凭证后重试。',
-    ctaLabel: '重试探测',
-    ctaTestId: 'schema-probe-cta-retry',
-  },
-  PROBE_NO_PERMISSION: {
-    title: '无读取权限',
-    hint: '账号无法 introspect 目标库 schema。请换有 SHOW/METADATA 权限的账号。',
-    ctaLabel: '重试探测',
-    ctaTestId: 'schema-probe-cta-retry',
-  },
-};
-
 const UNKNOWN_REASON_KEYS = new Set<string>([
   'PROBE_NO_DATASOURCE',
   'PROBE_NOT_PROBED',
@@ -81,44 +57,108 @@ const UNKNOWN_REASON_KEYS = new Set<string>([
   'PROBE_NO_PERMISSION',
 ]);
 
-export function resolveUnknownCopy(reason?: SchemaProbeReason, message?: string): UnknownCopy {
+function unknownCopyForReason(
+  reason: 'PROBE_NO_DATASOURCE' | 'PROBE_NOT_PROBED' | 'PROBE_CONNECTION_FAILED' | 'PROBE_NO_PERMISSION',
+  format: MessageFormatFn,
+): UnknownCopy {
+  const layer = layerBName(format);
+  const unknownParity = parityLabel('UNKNOWN', format);
+  switch (reason) {
+    case 'PROBE_NO_DATASOURCE':
+      return {
+        title: format('designer.schemaProbe.unknown.noDatasource.title'),
+        hint: format('designer.schemaProbe.unknown.noDatasource.hint'),
+        ctaLabel: format('designer.schemaProbe.unknown.noDatasource.cta'),
+        ctaTestId: 'schema-probe-cta-datasource',
+      };
+    case 'PROBE_NOT_PROBED':
+      return {
+        title: format('designer.schemaProbe.unknown.notProbed.title'),
+        hint: format('designer.schemaProbe.unknown.notProbed.hint', {
+          layer,
+          parity: unknownParity,
+        }),
+        ctaLabel: format('designer.schemaProbe.btn'),
+        ctaTestId: 'schema-probe-cta-probe',
+      };
+    case 'PROBE_CONNECTION_FAILED':
+      return {
+        title: format('designer.schemaProbe.unknown.connectionFailed.title'),
+        hint: format('designer.schemaProbe.unknown.connectionFailed.hint'),
+        ctaLabel: format('designer.schemaProbe.unknown.retryCta'),
+        ctaTestId: 'schema-probe-cta-retry',
+      };
+    default:
+      return {
+        title: format('designer.schemaProbe.unknown.noPermission.title'),
+        hint: format('designer.schemaProbe.unknown.noPermission.hint'),
+        ctaLabel: format('designer.schemaProbe.unknown.retryCta'),
+        ctaTestId: 'schema-probe-cta-retry',
+      };
+  }
+}
+
+/** Four actionable unknown paths (ADR-0022 #10). */
+export function resolveUnknownCopy(
+  reason?: SchemaProbeReason,
+  message?: string,
+  format: MessageFormatFn = zhCnFormat(),
+): UnknownCopy {
   if (reason && UNKNOWN_REASON_KEYS.has(reason)) {
-    return UNKNOWN_COPY[reason as keyof typeof UNKNOWN_COPY];
+    return unknownCopyForReason(
+      reason as 'PROBE_NO_DATASOURCE' | 'PROBE_NOT_PROBED' | 'PROBE_CONNECTION_FAILED' | 'PROBE_NO_PERMISSION',
+      format,
+    );
   }
   if (reason === 'PROBE_REVERSE_EMPTY' || reason === 'PROBE_NO_MODEL') {
     return {
-      title: '无法判定',
-      hint: message || '探测结果不完整，请重试。',
-      ctaLabel: '重试探测',
+      title: format('designer.schemaProbe.unknown.indeterminate.title'),
+      hint: message || format('designer.schemaProbe.unknown.indeterminate.hint'),
+      ctaLabel: format('designer.schemaProbe.unknown.retryCta'),
       ctaTestId: 'schema-probe-cta-retry',
     };
   }
   return {
-    title: B_STATUS_LABEL.UNKNOWN,
-    hint: message || '尚未获得可靠的实库对比结果。',
-    ctaLabel: '探测实库',
+    title: bStatusLabel('UNKNOWN', format),
+    hint: message || format('designer.schemaProbe.unknown.fallback.hint'),
+    ctaLabel: format('designer.schemaProbe.btn'),
     ctaTestId: 'schema-probe-cta-probe',
   };
 }
 
-export function statusHint(result: ProbeResult): string | undefined {
+export function statusHint(
+  result: ProbeResult,
+  format: MessageFormatFn = zhCnFormat(),
+): string | undefined {
   const { status, reason, message, fingerprint, tableCount } = result;
+  const synced = parityLabel('SYNCED', format);
   if (status === 'SYNCED') {
     return fingerprint
-      ? `指纹 ${fingerprint.slice(0, 12)}… · ${tableCount ?? 0} 表 · 与模型${PARITY_VERB.SYNCED}`
-      : `与模型${PARITY_VERB.SYNCED}`;
+      ? format('designer.schemaProbe.hint.syncedWithFingerprint', {
+          fingerprint: fingerprint.slice(0, 12),
+          tableCount: tableCount ?? 0,
+          parity: synced,
+        })
+      : format('designer.schemaProbe.hint.synced', { parity: synced });
   }
   if (status === 'AHEAD') {
-    return '模型含实库尚未落地的结构（后续可用「推送」同步 DDL）';
+    return format('designer.schemaProbe.hint.ahead');
   }
   if (status === 'BEHIND') {
-    return '实库含模型未收录的结构（后续可用「拉取」反向存版）';
+    return format('designer.schemaProbe.hint.behind');
   }
   if (status === 'DIVERGED') {
-    return `两侧各有独有或冲突变更，需人工决策拉取或推送`;
+    return format('designer.schemaProbe.hint.diverged');
   }
   if (status === 'UNKNOWN') {
-    return resolveUnknownCopy(reason, message).hint;
+    return resolveUnknownCopy(reason, message, format).hint;
   }
   return message;
+}
+
+export function getSchemaProbeStatusLabel(
+  status: SchemaProbeStatus,
+  format: MessageFormatFn,
+): string {
+  return bStatusLabel(status, format);
 }
