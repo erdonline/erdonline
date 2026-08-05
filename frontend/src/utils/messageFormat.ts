@@ -1,5 +1,7 @@
 import type { IntlShape } from '@umijs/max';
+import enUS from '@/locales/en-US';
 import zhCN from '@/locales/zh-CN';
+import { getAppLocale } from '@/utils/getAntdLocale';
 
 /** Shared formatter for copy modules (dualLayerTokens / schemaProbeCopy / chrome). */
 export type MessageFormatFn = (
@@ -23,4 +25,13 @@ export function zhCnFormat(): MessageFormatFn {
 
 export function intlFormat(intl: IntlShape): MessageFormatFn {
   return (id, values) => intl.formatMessage({ id }, values);
+}
+
+/** Imperative modals / non-React callers: resolve keys from active app locale. */
+export function appFormat(): MessageFormatFn {
+  const dict =
+    getAppLocale() === 'en-US'
+      ? (enUS as Record<string, string>)
+      : (zhCN as Record<string, string>);
+  return (id, values) => interpolate(dict[id] ?? id, values);
 }

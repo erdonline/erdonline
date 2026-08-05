@@ -8,6 +8,18 @@
 
 ### 2026-08-05
 
+#### i18n：Design 版本页 Modal（SaveVersion / AddVersion / Compare / SyncConfig / conflict / diff）
+
+- `SaveVersionButton.tsx`：顶栏「保存版本」key 化
+- `AddVersion.tsx` / `SyncConfig.tsx` / `CompareVersion.tsx`：Modal 标题/表单/按钮/toast key 化
+- `VersionDiffPanel.tsx`：空态/类型/操作/摘要 key 化；`changeSummaryTags` 支持 `MessageFormatFn`
+- `ProjectSaveConflictModal.tsx`：409 冲突 Modal 全文 key 化；新增 `appFormat()` 供 imperative Modal
+- 语料：`versionModal.*` 共 72 key × EN+ZH
+- 队列：`agent-loop-vision.prompt.md` i18n post-MVP #19 ✅
+
+验证点：
+- `cd frontend && yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Design 版本页 Modal"`
+
 #### i18n：Group 设置子页正文（基本设置 / 用户组 / Modal）
 
 - `project/group/component/BasicSetting.tsx`：表单 label/placeholder/校验/toast/删区 key 化

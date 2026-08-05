@@ -12,6 +12,8 @@ import {
   forkLocalProjectAsCopy,
   reloadProjectFromServer,
 } from '@/utils/projectSaveConflict';
+import { appFormat } from '@/utils/messageFormat';
+import { useIntl } from '@@/exports';
 
 let conflictModalOpen = false;
 
@@ -21,6 +23,7 @@ type PreviewState = {
 };
 
 const ProjectSaveConflictModalContent: React.FC = () => {
+  const intl = useIntl();
   const localProjectJSON = useProjectStore((s) => s.project?.projectJSON);
   const projectId = useProjectStore((s) => s.project?.id as string | undefined);
   const [preview, setPreview] = useState<PreviewState>({ loading: true, snapshot: null });
@@ -53,15 +56,15 @@ const ProjectSaveConflictModalContent: React.FC = () => {
 
   const sourceHint =
     preview.snapshot?.source === 'fetch'
-      ? '已拉取服务器最新模型'
+      ? intl.formatMessage({ id: 'versionModal.conflict.sourceFetch' })
       : preview.snapshot?.source === 'lastKnown'
-        ? '预览使用上次已知服务器快照（实时拉取失败）'
+        ? intl.formatMessage({ id: 'versionModal.conflict.sourceLastKnown' })
         : null;
 
   return (
     <div data-testid="project-save-conflict-modal">
       <Typography.Paragraph style={{ marginBottom: 12 }}>
-        项目已被其他窗口或协作者更新，当前改动未能写入服务器。下方为本地工作区相对服务器的差异预览，便于决策后再刷新或另存。
+        {intl.formatMessage({ id: 'versionModal.conflict.description' })}
       </Typography.Paragraph>
       {preview.loading ? (
         <div
@@ -69,7 +72,9 @@ const ProjectSaveConflictModalContent: React.FC = () => {
           style={{ display: 'flex', alignItems: 'center', gap: 8, minHeight: 120 }}
         >
           <Spin size="small" />
-          <Typography.Text type="secondary">正在加载冲突预览…</Typography.Text>
+          <Typography.Text type="secondary">
+            {intl.formatMessage({ id: 'versionModal.conflict.loading' })}
+          </Typography.Text>
         </div>
       ) : (
         <>
@@ -87,7 +92,7 @@ const ProjectSaveConflictModalContent: React.FC = () => {
               style={{ display: 'block', fontSize: 12, marginBottom: 8 }}
               data-testid="project-save-conflict-preview-unavailable"
             >
-              暂无法加载服务器版本预览，仍可刷新或另存为新项目。
+              {intl.formatMessage({ id: 'versionModal.conflict.previewUnavailable' })}
             </Typography.Text>
           )}
           <div
@@ -97,7 +102,7 @@ const ProjectSaveConflictModalContent: React.FC = () => {
           >
             <VersionDiffPanel
               messages={diffItems}
-              summaryHint="本地工作区 vs 服务器"
+              summaryHintId="versionModal.diff.summaryHintConflict"
             />
           </div>
         </>
@@ -116,13 +121,15 @@ export function showProjectSaveConflictModal(): void {
   useGlobalStore.getState().dispatch.setSaving(false);
   useGlobalStore.getState().dispatch.setSaved(false);
 
+  const format = appFormat();
+
   Modal.warning({
-    title: '保存冲突',
+    title: format('versionModal.conflict.title'),
     width: 640,
     content: <ProjectSaveConflictModalContent />,
-    okText: '刷新项目',
+    okText: format('versionModal.conflict.refresh'),
     okCancel: true,
-    cancelText: '另存为新项目',
+    cancelText: format('versionModal.conflict.fork'),
     closable: true,
     maskClosable: false,
     okButtonProps: { 'data-testid': 'project-save-conflict-refresh' } as React.ComponentProps<'button'>,
