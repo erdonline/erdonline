@@ -517,21 +517,18 @@ test.describe('i18n：手动语言切换', () => {
     await page.goto(`/design/table/version/all?projectId=${projectId}`);
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
 
-    const backToModel = page.getByTestId('version-back-to-model');
     const tagFilter = page.getByTestId('version-tag-filter');
-    await expect(backToModel).toHaveText('返回模型');
     await expect(tagFilter).toHaveAttribute('placeholder', '按标签筛选');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
-    await expect(backToModel).toHaveText('Back to model');
     await expect(tagFilter).toHaveAttribute('placeholder', 'Filter by tag');
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
-    await expect(backToModel).toHaveText('返回模型');
+    await expect(tagFilter).toHaveAttribute('placeholder', '按标签筛选');
   });
 
   test('Design 版本页 Modal 文案随 locale 切换', async ({ page, request }) => {

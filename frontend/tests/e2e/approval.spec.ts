@@ -126,8 +126,6 @@ test.describe('版本工单/审批', () => {
       await expect(page).toHaveURL(/projectId=/, { timeout: 15_000 });
 
       await openVersionPage(page);
-      await expect(page.getByTestId('version-nav-orders')).toBeVisible();
-      await expect(page.getByTestId('version-nav-approvals')).toBeVisible();
       await expect(
         page.getByRole('menuitem', { name: '我的审批' }),
       ).toBeVisible();

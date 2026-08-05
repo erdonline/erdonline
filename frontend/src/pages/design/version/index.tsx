@@ -3,7 +3,7 @@ import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {isVersionGreater, isVersionLessOrEqual} from "@/utils/string";
-import {Button, Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
+import {Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
 import InitVersion from "@/components/dialog/version/InitVersion";
@@ -12,7 +12,6 @@ import CompareVersion, {CompareVersionType} from "@/components/dialog/version/Co
 import RenameVersion from "@/components/dialog/version/RenameVersion";
 import RemoveVersion from "@/components/dialog/version/RemoveVersion";
 import SyncVersion from "@/components/dialog/version/SyncVersion";
-import {ArrowLeftOutlined} from "@ant-design/icons";
 import {Access, useAccess} from "@@/plugin-access";
 import RevertVersion from "@/components/dialog/version/RevertVersion";
 import CopyProject from "@/components/dialog/project/CopyProject";
@@ -23,9 +22,7 @@ import DualLayerLegend from '@/components/DualLayerLegend';
 import PageSkeleton from '@/components/PageSkeleton';
 import {splitVersionTags, versionTagsMatchFilter} from '@/utils/versionTags';
 import { countChanges } from '@/utils/dualLayerTokens';
-import { history, useIntl } from '@@/exports';
-import * as cache from '@/utils/cache';
-import { CONSTANT } from '@/utils/constant';
+import { useIntl } from '@@/exports';
 
 type VersionChange = { opt?: string };
 type VersionRow = {
@@ -138,24 +135,6 @@ const Version: React.FC = () => {
     [dbs, versionDispatch, fetch, pageSize, selectedDB],
   );
 
-  const projectIdQuery = useCallback(() => {
-    const projectId =
-      new URLSearchParams(window.location.search).get('projectId') ||
-      cache.getItem(CONSTANT.PROJECT_ID) ||
-      '';
-    return projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
-  }, []);
-
-  const goBackToModel = useCallback(() => {
-    history.push(`/design/table/model${projectIdQuery()}`);
-  }, [projectIdQuery]);
-
-  const goVersionSub = useCallback(
-    (sub: 'order' | 'approval') => {
-      history.push(`/design/table/version/${sub}${projectIdQuery()}`);
-    },
-    [projectIdQuery],
-  );
 
   const setRowCurrent = useCallback((record: VersionRow) => {
     const fullIndex = (versions as VersionRow[]).findIndex((v) => v.id === record.id);
@@ -335,43 +314,13 @@ const Version: React.FC = () => {
     <>
       {isInitialized ? (
         <div className="version-page" data-testid="version-page">
-          <div className="version-page__bar">
-            <Button
-              type="link"
-              size="small"
-              icon={<ArrowLeftOutlined />}
-              onClick={goBackToModel}
-              aria-label={intl.formatMessage({ id: 'versionPage.nav.backToModelAria' })}
-              data-testid="version-back-to-model"
-            >
-              {intl.formatMessage({ id: 'versionPage.nav.backToModel' })}
-            </Button>
-            <Space size={4} className="version-page__trust-nav" wrap>
-              <Button
-                type="link"
-                size="small"
-                onClick={() => goVersionSub('order')}
-                aria-label={intl.formatMessage({ id: 'versionPage.nav.myOrdersAria' })}
-                data-testid="version-nav-orders"
-              >
-                {intl.formatMessage({ id: 'versionPage.nav.myOrders' })}
-              </Button>
-              <Button
-                type="link"
-                size="small"
-                onClick={() => goVersionSub('approval')}
-                aria-label={intl.formatMessage({ id: 'versionPage.nav.myApprovalsAria' })}
-                data-testid="version-nav-approvals"
-              >
-                {intl.formatMessage({ id: 'versionPage.nav.myApprovals' })}
-              </Button>
-            </Space>
-            {dbs.length === 0 && (
+          {dbs.length === 0 && (
+            <div className="version-page__bar">
               <span className="version-page__hint">
                 {intl.formatMessage({ id: 'versionPage.hint.noDatasource' })}
               </span>
-            )}
-          </div>
+            </div>
+          )}
 
           <div className="version-page__toolbar" data-testid="version-toolbar">
             <Space wrap size={[4, 4]} className="version-page__toolbar-status">
