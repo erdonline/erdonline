@@ -15,7 +15,7 @@ import moment from 'moment';
 import styles from './style.less';
 import type {ActivitiesType, CurrentUser} from './data.d';
 import {useRequest} from '@umijs/hooks';
-import {Link, history} from '@@/exports';
+import {Link, history, useIntl} from '@@/exports';
 import {GET, POST_ERD} from '@/services/crud';
 import React, {useEffect, useMemo, useState} from 'react';
 import {createExampleProjectAndOpen} from '@/utils/exampleProject';
@@ -40,27 +40,24 @@ type NavLink = {
   testId: string;
 };
 
-const secondaryNav: NavLink[] = [
-  {title: '个人项目', href: '/project/person', testId: 'home-link-person'},
-  {title: '最近项目', href: '/project/recent', testId: 'home-link-recent'},
-  {title: '团队项目', href: '/project/group', testId: 'home-link-group'},
-  {title: '导入模型', href: '/project/person', testId: 'home-link-import'},
-];
-
 const PageHeaderContent: FC<{
   currentUser: Partial<CurrentUser>;
   latest?: RecentRecord;
 }> = ({currentUser, latest}) => {
+  const intl = useIntl();
   const loading = currentUser && Object.keys(currentUser).length;
   if (!loading) {
     return <Skeleton avatar paragraph={{rows: 2}} active />;
   }
 
+  const timeSuffix =
+    latest?.updateTime ? ` · ${moment(latest.updateTime).fromNow()}` : '';
   const context = latest
-    ? `最近编辑「${latest.projectName}」${
-        latest.updateTime ? ` · ${moment(latest.updateTime).fromNow()}` : ''
-      }`
-    : '从最近项目继续，或新建模型开始建模';
+    ? intl.formatMessage(
+        {id: 'homePage.context.latestEdit'},
+        {projectName: latest.projectName, timeSuffix},
+      )
+    : intl.formatMessage({id: 'homePage.context.noRecent'});
 
   return (
     <div className={styles.pageHeaderContent}>
@@ -69,7 +66,10 @@ const PageHeaderContent: FC<{
       </div>
       <div className={styles.content}>
         <Title level={2} className={styles.heroTitle}>
-          欢迎回来，{currentUser.username}
+          {intl.formatMessage(
+            {id: 'homePage.welcome'},
+            {username: currentUser.username},
+          )}
         </Title>
         <Paragraph type="secondary" className={styles.heroContext}>
           {context}
@@ -89,6 +89,34 @@ const isFreshAnnouncement = (item: ActivitiesType) => {
 };
 
 const Home: React.FC<HomeProps> = () => {
+  const intl = useIntl();
+
+  const secondaryNav: NavLink[] = useMemo(
+    () => [
+      {
+        title: intl.formatMessage({id: 'homePage.nav.personProjects'}),
+        href: '/project/person',
+        testId: 'home-link-person',
+      },
+      {
+        title: intl.formatMessage({id: 'homePage.nav.recentProjects'}),
+        href: '/project/recent',
+        testId: 'home-link-recent',
+      },
+      {
+        title: intl.formatMessage({id: 'homePage.nav.teamProjects'}),
+        href: '/project/group',
+        testId: 'home-link-group',
+      },
+      {
+        title: intl.formatMessage({id: 'homePage.nav.importModel'}),
+        href: '/project/person',
+        testId: 'home-link-import',
+      },
+    ],
+    [intl],
+  );
+
   const [statisticInfo, setStatisticInfo] = useState({
     yesterday: 0,
     today: 0,
@@ -123,7 +151,7 @@ const Home: React.FC<HomeProps> = () => {
 
   const continueLastProject = () => {
     if (!latest?.id) {
-      message.info('暂无最近项目，请新建模型或从示例开始');
+      message.info(intl.formatMessage({id: 'homePage.noRecentProject'}));
       return;
     }
     history.push(`/design/table/model?projectId=${latest.id}`);
@@ -159,10 +187,18 @@ const Home: React.FC<HomeProps> = () => {
         <div className={styles.heroMain}>
           <PageHeaderContent currentUser={r?.data} latest={latest} />
           <div className={styles.heroStats} data-testid="home-quiet-stats">
-            <Statistic title="活跃模型" value={statisticInfo.today} valueStyle={quietStatStyle} />
-            <Statistic title="模型总数" value={statisticInfo.total} valueStyle={quietStatStyle} />
             <Statistic
-              title="团队项目"
+              title={intl.formatMessage({id: 'homePage.stat.activeModels'})}
+              value={statisticInfo.today}
+              valueStyle={quietStatStyle}
+            />
+            <Statistic
+              title={intl.formatMessage({id: 'homePage.stat.totalModels'})}
+              value={statisticInfo.total}
+              valueStyle={quietStatStyle}
+            />
+            <Statistic
+              title={intl.formatMessage({id: 'homePage.stat.teamProjects'})}
               value={statisticInfo.groupTotal}
               valueStyle={quietStatStyle}
             />
@@ -177,7 +213,7 @@ const Home: React.FC<HomeProps> = () => {
             disabled={!projectLoading && !latest?.id}
             data-testid="home-continue-modeling"
           >
-            继续上次建模
+            {intl.formatMessage({id: 'homePage.continueModeling'})}
           </Button>
           <div className={styles.heroSecondary}>
             <Link
@@ -185,7 +221,7 @@ const Home: React.FC<HomeProps> = () => {
               className={styles.heroSecondaryBtn}
               data-testid="home-link-new-project"
             >
-              <PlusOutlined /> 新建模型
+              <PlusOutlined /> {intl.formatMessage({id: 'homePage.newModel'})}
             </Link>
             <button
               type="button"
@@ -193,13 +229,16 @@ const Home: React.FC<HomeProps> = () => {
               data-testid="home-link-example"
               onClick={() => void createExampleProjectAndOpen()}
             >
-              从示例开始
+              {intl.formatMessage({id: 'homePage.startFromExample'})}
             </button>
           </div>
         </div>
       </section>
 
-      <nav className={styles.secondaryNav} aria-label="项目入口">
+      <nav
+        className={styles.secondaryNav}
+        aria-label={intl.formatMessage({id: 'homePage.nav.aria'})}
+      >
         {secondaryNav.map((item, i) => (
           <React.Fragment key={item.testId}>
             {i > 0 ? <span className={styles.secondarySep} aria-hidden>·</span> : null}
@@ -212,9 +251,11 @@ const Home: React.FC<HomeProps> = () => {
 
       <section className={styles.projectSection} data-testid="home-project-section">
         <div className={styles.sectionHead}>
-          <h2 className={styles.sectionTitle}>进行中的项目</h2>
+          <h2 className={styles.sectionTitle}>
+            {intl.formatMessage({id: 'homePage.section.inProgress'})}
+          </h2>
           <Link to="/dataModels" className={styles.sectionExtra}>
-            查看全部
+            {intl.formatMessage({id: 'homePage.section.viewAll'})}
           </Link>
         </div>
         {projectLoading ? (
@@ -229,13 +270,15 @@ const Home: React.FC<HomeProps> = () => {
           <div className={styles.emptyState} data-testid="home-empty-state">
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
-              description="还没有进行中的项目"
+              description={intl.formatMessage({id: 'homePage.empty.noProjects'})}
             >
               <Space>
                 <Button type="primary" onClick={() => history.push('/project/person')}>
-                  新建模型
+                  {intl.formatMessage({id: 'homePage.newModel'})}
                 </Button>
-                <Button onClick={() => void createExampleProjectAndOpen()}>从示例开始</Button>
+                <Button onClick={() => void createExampleProjectAndOpen()}>
+                  {intl.formatMessage({id: 'homePage.startFromExample'})}
+                </Button>
               </Space>
             </Empty>
           </div>
@@ -254,17 +297,27 @@ const Home: React.FC<HomeProps> = () => {
                       item.type === '1' ? styles.typePerson : styles.typeTeam
                     }
                   >
-                    {item.type === '1' ? '个人' : '团队'}
+                    {item.type === '1'
+                      ? intl.formatMessage({id: 'homePage.card.typePerson'})
+                      : intl.formatMessage({id: 'homePage.card.typeTeam'})}
                   </span>
-                  <span className={styles.openHint}>打开</span>
+                  <span className={styles.openHint}>
+                    {intl.formatMessage({id: 'homePage.card.open'})}
+                  </span>
                 </div>
                 <Text strong className={styles.cardName}>
                   {item.projectName}
                 </Text>
-                <p className={styles.cardDesc}>{item.description || '无描述'}</p>
+                <p className={styles.cardDesc}>
+                  {item.description ||
+                    intl.formatMessage({id: 'homePage.card.noDescription'})}
+                </p>
                 {item.updateTime ? (
                   <Text type="secondary" className={styles.cardMeta} title={item.updateTime}>
-                    更新于 {moment(item.updateTime).fromNow()}
+                    {intl.formatMessage(
+                      {id: 'homePage.card.updatedAt'},
+                      {time: moment(item.updateTime).fromNow()},
+                    )}
                   </Text>
                 ) : null}
               </Link>
@@ -276,15 +329,15 @@ const Home: React.FC<HomeProps> = () => {
       {showAnnouncements ? (
         <section
           className={styles.announceSection}
-          aria-label="最新公告"
+          aria-label={intl.formatMessage({id: 'homePage.announce.sectionAria'})}
           data-testid="home-announce"
         >
           <div className={styles.sectionHead}>
             <Title level={5} className={styles.sectionTitleSm}>
-              最新公告
+              {intl.formatMessage({id: 'homePage.announce.title'})}
             </Title>
             <Link to="/project/notice" className={styles.sectionExtra}>
-              更多公告
+              {intl.formatMessage({id: 'homePage.announce.more'})}
             </Link>
           </div>
           <ul className={styles.announceList}>
