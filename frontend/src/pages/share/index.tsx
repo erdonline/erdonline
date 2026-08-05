@@ -217,7 +217,7 @@ const SharePage: React.FC = () => {
       <AuthBrandShell
         title="分享不可用"
         subtitle={error}
-        skipLabel="跳到主操作"
+        skipLabel={intl.formatMessage({ id: 'common.skipMainAction' })}
         skipTargetId="exception-main-cta"
       >
         <div
@@ -263,7 +263,7 @@ const SharePage: React.FC = () => {
             focusSkipTarget('share-canvas-stage');
           }}
         >
-          跳到关系图
+          {intl.formatMessage({ id: 'share.skip.canvas' })}
         </a>
       </nav>
       <header className="erd-chrome-header share-page__header" data-testid="share-chrome-header">

@@ -3,6 +3,7 @@
  */
 export default {
   'common.skipNav': 'Skip navigation',
+  'common.skipMainAction': 'Skip to main action',
   'locale.switcher.label': 'Language',
   'locale.option.zh-CN': '中文',
   'locale.option.en-US': 'English',
@@ -210,4 +211,36 @@ export default {
   'homeLayout.user.accountCenter': 'Account settings',
   'homeLayout.user.licenseInfo': 'License info',
   'homeLayout.user.logout': 'Sign out',
+
+  // Landing / Share / exception skip
+  'share.skip.canvas': 'Skip to diagram',
+
+  // HomeLayout main nav route names
+  'homeLayout.route.home': 'Home',
+  'homeLayout.route.dataModels': 'Data models',
+  'homeLayout.route.databaseConfig': 'Data sources',
+  'homeLayout.route.forum': 'ERD Online forum',
+
+  // GroupLayout sidebar route names
+  'groupLayout.route.backToProjects': 'Back to projects',
+  'groupLayout.route.basicSettings': 'Basic settings',
+  'groupLayout.route.permissionGroups': 'Permission groups',
+  'groupLayout.route.openModel': 'Open model',
+
+  // DesignLayout top / sidebar route names
+  'designLayout.route.model': 'Model',
+  'designLayout.route.version': 'Versions',
+  'designLayout.route.versionAll': 'Version management',
+  'designLayout.route.myApproval': 'My approvals',
+  'designLayout.route.import': 'Import',
+  'designLayout.route.reverseParse': 'Reverse from data source',
+  'designLayout.route.importPdman': 'Import PdMan file',
+  'designLayout.route.importErd': 'Import ERD file',
+  'designLayout.route.export': 'Export',
+  'designLayout.route.exportCommon': 'Standard export',
+  'designLayout.route.exportMore': 'Advanced export',
+  'designLayout.route.settings': 'Settings',
+  'designLayout.route.defaultFields': 'Default fields',
+  'designLayout.route.dataTypeDict': 'Data type dictionary',
+  'designLayout.route.systemDefaults': 'System defaults',
 };

@@ -13,6 +13,7 @@ import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
 import {getMenuHeaderDropdown} from "@/layouts/HomeLayout";
+import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import '../erd-chrome.less';
 import './index.less';
 
@@ -25,6 +26,7 @@ export type GroupLayoutProps = {
 type GroupRoute = {
   path?: string;
   name?: string;
+  nameKey?: string;
   icon?: React.ReactNode;
   exact?: boolean;
   access?: string;
@@ -64,11 +66,12 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
     () =>
       routes.map((item) => {
         const isExternal = Boolean(item.exact) || Boolean(item.path?.startsWith('http'));
+        const routeLabel = resolveRouteLabel(intl, item);
         let label: React.ReactNode;
         if (isExternal) {
           label = (
             <a href={item.path || '/project'} target="_blank" rel="noreferrer">
-              {item.name}
+              {routeLabel}
             </a>
           );
         } else {
@@ -86,19 +89,19 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
                 }
               }}
             >
-              {item.name}
+              {routeLabel}
             </Link>
           );
         }
         return {
-          key: item.path || String(item.name),
+          key: item.path || item.nameKey || String(routeLabel),
           icon: item.icon,
           label,
         };
       }),
     // routes 来自可变 defaultProps；access.initialized 变化时需重算
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [access.initialized, projectId, routes.length],
+    [access.initialized, projectId, routes.length, intl],
   );
 
   const selectedKey = useMemo(() => {

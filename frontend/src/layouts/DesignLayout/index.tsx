@@ -17,6 +17,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import { erdColors } from "@/theme/tokens";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
+import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import { history, Outlet, useSearchParams } from "@@/exports";
 import { useAccess } from "@@/plugin-access";
 import { Me } from "@icon-park/react";
@@ -62,6 +63,7 @@ export type DesignLayoutLayoutProps = {
 type DesignRoute = {
   path?: string;
   name?: string;
+  nameKey?: string;
   icon?: React.ReactNode;
   exact?: boolean;
   access?: string;
@@ -212,18 +214,20 @@ const ChromeOverflow: React.FC = () => {
 function routeLinkLabel(
   item: DesignRoute,
   projectId: string,
+  intl: ReturnType<typeof useIntl>,
 ): React.ReactNode {
+  const routeLabel = resolveRouteLabel(intl, item);
   const isExternal = Boolean(item.exact) || Boolean(item.path?.startsWith('http'));
   if (isExternal) {
     return (
       <a href={item.path} target="_blank" rel="noreferrer">
-        {item.name}
+        {routeLabel}
       </a>
     );
   }
   return (
     <Link to={`${item.path || '/home'}?projectId=${projectId}`}>
-      {item.name}
+      {routeLabel}
     </Link>
   );
 }
@@ -306,12 +310,12 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
   const topMenuItems: MenuProps['items'] = useMemo(
     () =>
       primaryRoutes.map((r) => ({
-        key: r.path || String(r.name),
+        key: r.path || r.nameKey || String(resolveRouteLabel(intl, r)),
         icon: r.icon,
-        label: r.name,
+        label: resolveRouteLabel(intl, r),
       })),
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [access.initialized, primaryRoutes.length],
+    [access.initialized, primaryRoutes.length, intl],
   );
 
   const activeTopRoute = useMemo(() => {
@@ -341,11 +345,11 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
   const siderMenuItems: MenuProps['items'] = useMemo(
     () =>
       siderChildRoutes.map((r) => ({
-        key: r.path || String(r.name),
+        key: r.path || r.nameKey || String(resolveRouteLabel(intl, r)),
         icon: r.icon,
-        label: routeLinkLabel(r, projectId),
+        label: routeLinkLabel(r, projectId, intl),
       })),
-    [siderChildRoutes, projectId],
+    [siderChildRoutes, projectId, intl],
   );
 
   const siderSelectedKey = useMemo(() => {

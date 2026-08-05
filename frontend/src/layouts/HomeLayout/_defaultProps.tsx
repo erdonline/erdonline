@@ -9,24 +9,24 @@ export default {
     routes: [
       {
         path: '/home',
-        name: '首页',
+        nameKey: 'homeLayout.route.home',
         icon: <HomeTwo theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         path: '/dataModels',
-        name: '数据模型',
+        nameKey: 'homeLayout.route.dataModels',
         icon: <Table theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         path: '/databaseConfig',
-        name: '数据源',
+        nameKey: 'homeLayout.route.databaseConfig',
         icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
       },
       {
         
         exact: true,
         path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
-        name: 'ERD Online 论坛',
+        nameKey: 'homeLayout.route.forum',
         icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
       },
 

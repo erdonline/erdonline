@@ -5,6 +5,7 @@
  */
 export default {
   'common.skipNav': '跳过导航',
+  'common.skipMainAction': '跳到主操作',
   'locale.switcher.label': '语言',
   'locale.option.zh-CN': '中文',
   'locale.option.en-US': 'English',
@@ -197,4 +198,36 @@ export default {
   'homeLayout.user.accountCenter': '个人中心',
   'homeLayout.user.licenseInfo': '授权信息',
   'homeLayout.user.logout': '退出登录',
+
+  // Landing / Share / 异常页 skip
+  'share.skip.canvas': '跳到关系图',
+
+  // HomeLayout 主导航路由名
+  'homeLayout.route.home': '首页',
+  'homeLayout.route.dataModels': '数据模型',
+  'homeLayout.route.databaseConfig': '数据源',
+  'homeLayout.route.forum': 'ERD Online 论坛',
+
+  // GroupLayout 侧栏路由名
+  'groupLayout.route.backToProjects': '返回项目列表',
+  'groupLayout.route.basicSettings': '基本设置',
+  'groupLayout.route.permissionGroups': '权限组',
+  'groupLayout.route.openModel': '打开模型',
+
+  // DesignLayout 顶栏 / 侧栏路由名
+  'designLayout.route.model': '模型',
+  'designLayout.route.version': '版本',
+  'designLayout.route.versionAll': '版本管理',
+  'designLayout.route.myApproval': '我的审批',
+  'designLayout.route.import': '导入',
+  'designLayout.route.reverseParse': '数据源逆向解析',
+  'designLayout.route.importPdman': '解析PdMan文件',
+  'designLayout.route.importErd': '解析ERD文件',
+  'designLayout.route.export': '导出',
+  'designLayout.route.exportCommon': '普通导出',
+  'designLayout.route.exportMore': '高级导出',
+  'designLayout.route.settings': '设置',
+  'designLayout.route.defaultFields': '默认字段设置',
+  'designLayout.route.dataTypeDict': '数据类型字典',
+  'designLayout.route.systemDefaults': '系统默认项设置',
 };

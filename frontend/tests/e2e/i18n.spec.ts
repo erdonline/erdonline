@@ -177,10 +177,12 @@ test.describe('i18n：手动语言切换', () => {
     await page.goto(`/design/table/version/all?projectId=${projectId}`);
     await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
     const siderMenu = page.getByTestId('design-layout-sider-menu');
+    await expect(siderMenu.getByRole('link', { name: 'Version management' })).toBeVisible();
     await expect(siderMenu).toHaveAttribute('aria-label', 'Designer sidebar navigation');
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
     await expect(siderMenu).toHaveAttribute('aria-label', '设计器侧栏导航');
+    await expect(siderMenu.getByRole('link', { name: '版本管理' })).toBeVisible();
   });
 
   test('HomeLayout 与 GroupLayout 顶栏 aria 随 locale 切换', async ({ page, request }) => {
@@ -199,6 +201,7 @@ test.describe('i18n：手动语言切换', () => {
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
     await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
     await expect(homeSkipMain).toHaveText('跳到主内容');
+    await expect(homeMenu.getByRole('link', { name: '首页' })).toBeVisible();
 
     await userMenu.click();
     const userDropdown = page.getByTestId('user-menu-dropdown');
@@ -213,6 +216,7 @@ test.describe('i18n：手动语言切换', () => {
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
     await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
     await expect(homeSkipMain).toHaveText('Skip to main content');
+    await expect(homeMenu.getByRole('link', { name: 'Home' })).toBeVisible();
 
     await userMenu.click();
     await expect(userDropdown.getByText('Account settings')).toBeVisible();
@@ -248,5 +252,23 @@ test.describe('i18n：手动语言切换', () => {
     } finally {
       await deleteGroupProject(request, token, projectId);
     }
+  });
+
+  test('Landing / 404 skip 与 Home 路由名随 locale 切换', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
+    const landingSkip = page.getByTestId('landing-skip-cta');
+    await expect(landingSkip).toHaveText('跳到主操作');
+
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
+    await page.reload();
+    await expect(landingSkip).toHaveText('Skip to main action');
+
+    await page.goto('/404-test-path-i18n');
+    const exceptionSkip = page.getByTestId('auth-skip-form');
+    await expect(exceptionSkip).toHaveText('Skip to main action');
+    await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
+    await page.reload();
+    await expect(exceptionSkip).toHaveText('跳到主操作');
   });
 });

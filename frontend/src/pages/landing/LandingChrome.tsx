@@ -52,7 +52,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             focusSkipTarget('landing-main-cta');
           }}
         >
-          跳到主操作
+          {intl.formatMessage({ id: 'common.skipMainAction' })}
         </a>
       </nav>
       <header className="landingNav">
