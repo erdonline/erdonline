@@ -17,6 +17,17 @@
 验证点：
 - `cd backend && mvn -q test -Dtest=FederateControllerTest,FederateAuthServiceTest` 绿
 
+#### 修复：容器 `ERD_ALLOW_OPEN_REGISTER=true` 在 prod 不生效，Google 联邦仍报「开放注册已关闭」（R-CFG-07）
+
+- 根因：`application-prod.yml` 把 `erd.security.allow-open-register` / `allow-demo-admin` 写成**字面量** `false`（非 `${VAR:false}` 占位符）。Spring Boot 的 profile 专属文档（`application-prod.yml`）在配置数据解析中优先级高于默认文档（`application.yml`），所以只要激活 `prod` profile，这两个字面量 `false` 就会**无条件覆盖**掉 `application.yml` 里 `${ERD_ALLOW_OPEN_REGISTER:false}` / `${ERD_ALLOW_DEMO_ADMIN:false}` 对同一属性的求值结果——不管容器里 `ERD_ALLOW_OPEN_REGISTER` 设成什么，prod 生效值永远是 `false`；docs 里写的「逃生阀」从 2026-08-03 引入起就没真正生效过
+- 影响面：仅 `allow-open-register`（含联邦首次建号门控）与 `allow-demo-admin` 两个开关；`e2e-accounts-enabled` 本就按设计无逃生阀，不受影响
+- 改动：`application-prod.yml` 改为 `allow-demo-admin: ${ERD_ALLOW_DEMO_ADMIN:false}` / `allow-open-register: ${ERD_ALLOW_OPEN_REGISTER:false}`，与 `application.yml` 同占位符键，容器设 `ERD_ALLOW_OPEN_REGISTER=true` 后才真正在 prod 生效；`FederateUserService` 拒绝开放注册时补一条安全日志（打印 provider + 生效布尔值，不含密钥），方便运维直接从日志确认生效值而非猜测
+- 排查建议（Railway 等看不到 actuator/env 的场景）：改完部署后触发一次 Google 登录，看后端日志有无出现 `federate rejected open register provider=google (erd.security.allow-open-register=...)`；若日志里该值仍是 `false` 但容器 `echo $ERD_ALLOW_OPEN_REGISTER` 是 `true`，先确认 `SPRING_PROFILES_ACTIVE=prod` 已设置且该变量确实注入到了应用进程（而不是仅在调试 shell 里 `export` 的临时值）
+
+验证点：
+- `cd backend && mvn -q test -Dtest=ProdSecurityEscapeHatchBindingTest` 绿；该测试直接加载 classpath 下真实的 `application.yml`+`application-prod.yml`，用 `SPRING_PROFILES_ACTIVE=prod` + `ERD_ALLOW_OPEN_REGISTER=true`/`ERD_ALLOW_DEMO_ADMIN=true` 验证生效值为 `true`，且回退验证前置于本次修复的旧配置会导致该测试失败（复现原 bug）
+- `mvn -q test -Dtest=FederateControllerTest,FederateAuthServiceTest,UserExtensionServiceImplRegisterGateTest,ProdSecurityEscapeHatchBindingTest -Djacoco.skip=true` 绿
+
 #### 修复：CF Pages demo 分享页「分享不可用」（`Unexpected token '<'`）
 
 - 根因：`pages/share/index.tsx` 用裸 `fetch('/ncnb/share/{token}')`（含 fork）相对路径请求，未走全站统一的 `request`/`buildApiHref` 基址前缀；CF Pages 静态托管对未知路径走 SPA `historyApiFallback` 返回 `index.html`（200 + `text/html`），前端 `res.json()` 解析 `<!DOCTYPE html>` 炸出 `Unexpected token '<'`，落到 `AuthBrandShell` 失效态「分享不可用」

@@ -52,6 +52,8 @@ public class FederateUserService {
             }
         }
         if (!erdSecurityProperties.isAllowOpenRegister()) {
+            log.warn("federate rejected open register provider={} (erd.security.allow-open-register={})",
+                    identity.provider().wire(), erdSecurityProperties.isAllowOpenRegister());
             throw new FederateException(403, "开放注册已关闭，请使用已有账号登录后绑定，或联系管理员");
         }
         User created = createUser(identity);

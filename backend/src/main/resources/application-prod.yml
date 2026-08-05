@@ -1,13 +1,17 @@
 # 生产环境：全部通过环境变量注入（见根目录 .env.example / docker-compose.yml）
 
-# 禁止 e2e* / admin+种子默认口令登录 / 开放注册（即使库里有记录；改密后的 admin 仍可登）
+# 禁止 e2e* 登录（无逃生阀，prod 强制 false，忽略 ERD_E2E_ACCOUNTS_ENABLED）。
+# admin+种子默认口令登录 / 开放注册默认关闭，但保留文档承诺的逃生阀：
+# 若写成字面量 false 会让 profile-specific 属性覆盖 application.yml 里
+# ${ERD_ALLOW_DEMO_ADMIN:false} / ${ERD_ALLOW_OPEN_REGISTER:false} 的求值结果，
+# 导致即使容器里 ERD_ALLOW_OPEN_REGISTER=true 也读不到（见 R-CFG-04 / CHANGELOG）。
 # JWT：强制环境注入，无仓库默认值；缺 JWT_SECRET 时占位符解析失败（fail-fast）。
 # 另见 JwtConfig：prod 拒绝 blank 与 application.yml 已知开发默认串。
 erd:
   security:
     e2e-accounts-enabled: false
-    allow-demo-admin: false
-    allow-open-register: false
+    allow-demo-admin: ${ERD_ALLOW_DEMO_ADMIN:false}
+    allow-open-register: ${ERD_ALLOW_OPEN_REGISTER:false}
   jwt:
     secret: ${JWT_SECRET}
   # OIDC RSA：prod 由 OidcRsaKeySupport fail-fast（须 ERD_OIDC_RSA_PRIVATE_KEY /
