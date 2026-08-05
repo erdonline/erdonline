@@ -129,6 +129,16 @@ public class FederateAuthService {
         }
     }
 
+    /** IdP 回调失败时浏览器落点（与 successPath 同页，带 {@code error} 查询参数）。 */
+    public String buildFailureRedirect(String message) {
+        String msg = StringUtils.hasText(message) ? message.trim() : "第三方登录失败";
+        return UriComponentsBuilder.fromUriString(primaryUiOrigin() + properties.getSuccessPath())
+                .queryParam("error", msg)
+                .build()
+                .encode()
+                .toUriString();
+    }
+
     static String sanitizeRedirect(String redirect) {
         if (!StringUtils.hasText(redirect)) {
             return null;
