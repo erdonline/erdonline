@@ -124,7 +124,18 @@
 
 31. ~~双人协作离开补枪 E2E：`leave-designer-save.spec.ts` 双 browser context（复用 sync-toast 模式）；A 落库失败 → 离开补枪；B 已落库改动 reload 后仍可见、无 A 失败脏表、可续编落盘~~ ✅ 2026-08-05
 
-32. ~~双人协作 B localDirty 离开补枪 E2E：`leave-designer-save.spec.ts` 双 context；B 阻断 save 保持 localDirty；A 失败离开补枪；B 已落库 + 草稿未保存改动不被覆写、reload 草稿恢复后仍可见~~ ✅ 2026-08-05
+32. ~~双人协作 B localDirty 离开补枪 E2E：`leave-designer-save.spec.ts` 双 context；B 阻断 save 保持 localDirty；A 失败离开补枪；B 已落库 + 草稿未保存改动不被覆写、reload 草稿恢复后仍可见~~ ✅ 2026-08-05（`76d1a1a`）
+
+**一致性/可信续跑队列 #23–#32 已全部 ✅ — awaiting theme（2026-08-05）**
+
+本 tick 不自动开新切片。下一刀须下列之一（禁止抢跑 Pull/Push / 重复 i18n）：
+
+| 候选 | 开闸条件 |
+|---|---|
+| Pull/Push MVP | 用户显式说「开始做 Pull/Push」（#16 队列外） |
+| i18n post-MVP 续跑 | 用户重开 P3 全站 key 化（#17–#22 已 ✅，默认车道已暂停） |
+| 北极星计量 | analytics 接线：`db_change.changes` 非空过滤 |
+| 新主题 | 用户指定或 roadmap P0 阻断 |
 
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 

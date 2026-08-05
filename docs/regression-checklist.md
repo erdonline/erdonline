@@ -816,6 +816,7 @@
 - [x] [beforeunload 不覆写失败草稿] 落库失败写 draft → reload → localStorage 仍含新字段 + 草稿恢复弹窗 ✅ `leave-designer-save.spec.ts`「落库失败后 reload：beforeunload 不覆写 localStorage 草稿」
 - [x] [关页后草稿可恢复] 落库失败 → 关页重开设计器 → 恢复草稿 + 顶栏重试 CTA ✅ `leave-designer-save.spec.ts`「落库失败后关页：草稿仍在 localStorage，重开可恢复」
 - [x] [双人协作离开不覆写对方] 团队项目双 context：B 落盘 → A 失败离开补枪 → B reload 仍见 T_TABLE_1、无 A 脏表、可续编落盘 ✅ `leave-designer-save.spec.ts`「A 落库失败离开后 B 已落库改动仍可见且可续编」
+- [x] [双人协作 B localDirty 不被覆写] 团队双 context：B 已落库字段 + 阻断 save 加 dirty 字段 → A 失败离开补枪 → B 已落库仍可见、localStorage 草稿在、reload 恢复后双字段可见 ✅ `leave-designer-save.spec.ts`「A 落库失败离开后 B 未保存与已落库改动均不被覆写」
 - [x] [project 乐观锁 409] 陈旧 `updateTime` save → 409；匹配 → 200 + 新 `updateTime` ✅ `ProjectSaveOptimisticLockTest` + `scripts/verify-project-save-conflict.sh`
 - [x] [409 可行动 UI] mock 409 → Modal「保存冲突」+ 顶栏「保存冲突，点击查看选项」，不得显示「已落盘」 ✅ `project-save-conflict.spec.ts`
 - [x] [409 diff 预览] mock 409 → Modal 内 `project-save-conflict-preview` + `version-diff-panel` 可见（本地 vs 服务器） ✅ `project-save-conflict.spec.ts`
