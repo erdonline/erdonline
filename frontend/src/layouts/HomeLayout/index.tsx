@@ -9,6 +9,7 @@ import {logout} from "@/utils/request";
 import * as cache from "@/utils/cache";
 import {useIntl, useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
 import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
@@ -24,6 +25,7 @@ export interface HomeLayoutLayoutProps {
 
 /** Home 顶栏安全子集：公众号 + GitHub；不含 SaveStatus / 分享 / presence */
 export const homeRightContent = [
+  <LocaleSwitcher key="locale" variant="chrome" />,
   <Popover
     key="mp"
     placement="bottom"

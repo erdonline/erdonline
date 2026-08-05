@@ -47,6 +47,7 @@
 
 /* 登录/注册品牌壳（W5）：左暗色品牌面板 + 右 Form；颜色只认 --erd-* */
 .auth-shell {
+  position: relative;
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
@@ -83,6 +84,13 @@
   .auth-shell__brand button:focus-visible {
     outline-color: var(--erd-surface);
   }
+}
+
+.auth-shell__locale {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  z-index: 20;
 }
 
 .auth-shell__brand {

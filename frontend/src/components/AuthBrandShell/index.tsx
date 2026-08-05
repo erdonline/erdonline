@@ -2,6 +2,7 @@ import React from 'react';
 import {Typography} from 'antd';
 import {useIntl} from '@umijs/max';
 import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
+import LocaleSwitcher from '@/components/LocaleSwitcher';
 import './index.less';
 
 type AuthBrandShellProps = {
@@ -41,6 +42,9 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
   const intl = useIntl();
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
+      <div className="auth-shell__locale">
+        <LocaleSwitcher variant="auth" />
+      </div>
       <nav
         className="erd-skip-nav"
         aria-label={intl.formatMessage({id: 'common.skipNav'})}

@@ -5,4 +5,7 @@
  */
 export default {
   'common.skipNav': '跳过导航',
+  'locale.switcher.label': '语言',
+  'locale.option.zh-CN': '中文',
+  'locale.option.en-US': 'English',
 };

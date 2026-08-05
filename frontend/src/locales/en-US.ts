@@ -3,4 +3,7 @@
  */
 export default {
   'common.skipNav': 'Skip navigation',
+  'locale.switcher.label': 'Language',
+  'locale.option.zh-CN': '中文',
+  'locale.option.en-US': 'English',
 };
