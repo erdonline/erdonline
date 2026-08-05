@@ -5,6 +5,7 @@ import {
   expectToast,
   login,
   openRelationFromEmpty,
+  openRelationCanvas,
   rfNode,
   uniqueProjectName,
 } from './helpers';
@@ -16,6 +17,7 @@ const RETRY_FAILURE_ARIA = '自动保存失败，改动已存本地，点击重�
  * ADR-0022 并发底座：离开设计器不得盲存。
  * 干净态离开 → 零保存请求；脏态离开 → 补一枪且改动落库。
  * Vision #28：失败态离开补枪 → 回设计器顶栏重试 → 干净离开。
+ * Vision #29：防抖 600ms 窗口内离开 → closeSocket 补枪（成功落库 / 失败可见）。
  */
 test.describe('离开设计器的保存行为', () => {
   test('干净态离开：不发保存请求', async ({ page }) => {
@@ -154,6 +156,97 @@ test.describe('离开设计器的保存行为', () => {
       await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
       await page.waitForTimeout(1_500);
       expect(saveCallsAfterRetry).toHaveLength(0);
+    } finally {
+      await page.unroute('**/ncnb/project/save').catch(() => {});
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('防抖窗口内离开：补枪成功落库，重进无草稿弹窗', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('leavedebounce');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'leavedebounce', 'debounce flush');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await page.waitForTimeout(1_500);
+
+      const designUrl = page.url();
+
+      const saveCalls: string[] = [];
+      page.on('request', (req) => {
+        if (/\/ncnb\/project(\/group)?\/save/.test(req.url())) {
+          saveCalls.push(req.url());
+        }
+      });
+      const saveDone = page.waitForResponse(
+        (r) => /\/ncnb\/project(\/group)?\/save/.test(r.url()),
+        { timeout: 20_000 },
+      );
+
+      // 见「保存中…」即离开（<600ms 防抖窗 / 在途落库由 closeSocket 补完）
+      await page.getByTestId('canvas-create-table').click();
+      await expect(page.getByTestId('save-status')).toHaveText('保存中…', { timeout: 3_000 });
+      await page.getByRole('link', { name: 'ERD Online 首页' }).click();
+      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      const saveResp = await saveDone;
+      expect(saveResp.ok()).toBeTruthy();
+      expect(saveCalls.length).toBeGreaterThan(0);
+
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('project-draft-recovery-content')).toHaveCount(0);
+      await openRelationCanvas(page, '商城');
+      await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('防抖窗口内离开：补枪失败仍写草稿，重进可恢复', async ({ page }) => {
+    test.setTimeout(120_000);
+    const projectName = uniqueProjectName('leavedebouncefail');
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName, 'leavedebouncefail', 'debounce fail flush');
+      await openRelationFromEmpty(page);
+      await page.getByTestId('canvas-empty-create').click();
+      await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
+      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await page.waitForTimeout(1_500);
+
+      const designUrl = page.url();
+
+      await page.route('**/ncnb/project/save', (route) => route.abort('failed'));
+
+      const saveCalls: string[] = [];
+      page.on('request', (req) => {
+        if (/\/ncnb\/project(\/group)?\/save/.test(req.url())) {
+          saveCalls.push(req.url());
+        }
+      });
+
+      await page.getByTestId('canvas-create-table').click();
+      // 阻断落库时可能跳过「保存中…」直进失败态；仍须在未落盘时离开
+      await expect(page.getByTestId('save-status')).not.toHaveText('已落盘', { timeout: 3_000 });
+      await page.getByRole('link', { name: 'ERD Online 首页' }).click();
+      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect.poll(() => saveCalls.length, { timeout: 10_000 }).toBeGreaterThan(0);
+
+      await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
+      await expect(page.getByTestId('project-draft-recovery-content')).toBeVisible({
+        timeout: 15_000,
+      });
+      await page.getByTestId('project-draft-recovery-restore').click();
+      await expect(page.getByText('已恢复本地草稿')).toBeVisible({ timeout: 5_000 });
+      await expect(page.getByRole('button', { name: RETRY_FAILURE_ARIA })).toBeVisible({
+        timeout: 15_000,
+      });
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});

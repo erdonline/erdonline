@@ -118,6 +118,8 @@
 
 28. ~~离开设计器失败态 E2E：`leave-designer-save.spec.ts` 落库失败 → 离开补枪 → 回设计器顶栏重试 → 干净离开~~ ✅ 2026-08-05
 
+29. ~~防抖窗口离开补枪 E2E：`leave-designer-save.spec.ts` 保存中即离开 → 补枪成功落库 / abort 失败 → 草稿恢复 + 顶栏重试可见~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
