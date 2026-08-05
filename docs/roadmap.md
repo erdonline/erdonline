@@ -76,6 +76,7 @@
 - ~~#13 冲突可视化：project 409 Modal 补最小 diff 预览（本地 vs 服务器 / last known；复用 `VersionDiffPanel`）~~ ✅ 2026-08-04
 - ~~#14 B 层探测入口收敛：`SchemaProbeControl` 迁入设计器顶栏（icon-only chrome）；版本页移除重复；画布内可发现~~ ✅ 2026-08-04
 - ~~#15 五态 + dirty chip E2E 补盘：`schema-probe.spec.ts` 4 用例（mock 五态 + 未知四路 + legend）；`version-dirty-chip.spec.ts` no-baseline/clean/dirty；A 层 unknown 仍手工清单~~ ✅ 2026-08-04
+- ~~#23 基线查询失败 E2E：`version-baseline.spec.ts` mock size=1 → 500 → unknown chip/tag + 重试恢复；`fetchVersionBaseline` 失败清 `baselineLoaded`~~ ✅ 2026-08-05
 
 ### i18n 奠基（B 层后）✅
 

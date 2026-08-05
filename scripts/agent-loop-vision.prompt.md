@@ -104,6 +104,10 @@
 
 **i18n post-MVP 队列 #17–#22 已全部 ✅** — 暂停 post-MVP i18n 切片，回归一致性/可信主线
 
+**一致性/可信续跑队列（#23+ · ROI 序 · 一 tick 一刀）**：
+
+23. ~~基线查询失败 E2E：`/ncnb/dbChange` size=1 返回 500 → 顶栏 `version-dirty-chip-unknown` + 版本页 `version-baseline-unknown`；点击重试恢复；`fetchVersionBaseline` 失败显式清 `baselineLoaded`~~ ✅ 2026-08-05
+
 **E2E 环境**：~~fetch→fixProject autosave 竞态致 create-table 旅程 409/落库失败~~ ✅ 2026-08-04（`hydrateFetchedProject` 单次 hydrate）。
 
 ## 战略锚点（ADR-0016 · 不可再问用户方向）
