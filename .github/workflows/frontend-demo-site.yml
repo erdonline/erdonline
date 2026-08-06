@@ -59,6 +59,7 @@ jobs:
           API_URL: ${{ vars.DEMO_API_URL }}
           ERD_API_URL: ${{ vars.DEMO_API_URL }}
           ERD_REQUIRE_REMOTE_API: "1"
+          BAIDU_TONGJI_ID: ${{ vars.BAIDU_TONGJI_ID }}
         run: yarn build:prod
 
       - name: Ensure Cloudflare Pages project

@@ -66,6 +66,7 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 | `CLOUDFLARE_API_TOKEN` | **Secret** | 步骤 1 的 Token |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
 | `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://erdonline-production.up.railway.app`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
+| `BAIDU_TONGJI_ID` | Variable（可选） | 百度统计站点 ID（构建时注入 `hm.js`）；例：`bd50dd978c8d8d94792f4e987c4a7aaf`；未设则 demo 构建不带统计 |
 
 #### 5. GitHub Pages 回退
 
@@ -584,6 +585,19 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # 产物：dist/
 | Docker / Nginx 同源 | 镜像内可空；容器启动 `docker-entrypoint.sh` 按环境变量重写 `env-config.js` |
 
 浏览器读 `window._env_.API_URL`（见 `frontend/src/utils/request.js`）。静态站 **没有**同源反代时必须填可公网访问的**后端**根 URL（Railway/Zeabur），**不要**填 UI 域名（`app.erdonline.com` / `*.pages.dev`）；留空则仅适合落地/文档类页面。
+
+### 百度统计（可选）
+
+Umi 内置 `@umijs/plugins` analytics 插件，通过构建时环境变量 `BAIDU_TONGJI_ID` 注入标准 `hm.baidu.com/hm.js` 片段：
+
+| 场景 | 做法 |
+|---|---|
+| 本地 `yarn start` | 不加载（Umi `development` 环境跳过 hm.js） |
+| 本地 `yarn build`（`UMI_ENV=dev`） | 不加载 |
+| CF Pages / `yarn build:prod` | 构建前 `export BAIDU_TONGJI_ID=bd50dd978c8d8d94792f4e987c4a7aaf`；CF 工作流读 GitHub Variable `BAIDU_TONGJI_ID` |
+| Docker 前端镜像 | `docker compose build --build-arg BAIDU_TONGJI_ID=… frontend` |
+
+本项目路由为 **hash 模式**（`config.ts` `hash: true`），hm.js 会监听 hash 变化自动上报 PV，**无需**额外 `onRouteChange` 钩子。未配置 CSP `script-src` 白名单时默认可加载 `hm.baidu.com`。
 
 ## MCP（agent / CLI，ADR-0013）
 

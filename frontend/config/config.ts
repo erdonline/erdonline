@@ -12,6 +12,7 @@ const v4Token = convertLegacyToken(mapToken);
 
 
 const {REACT_APP_ENV} = process.env;
+const baiduTongjiId = process.env.BAIDU_TONGJI_ID?.trim();
 
 export default defineConfig({
   hash: true,
@@ -40,9 +41,8 @@ export default defineConfig({
     useLocalStorage: true,
     title: false,
   },
-  analytics: {
-    baidu: '46689e26837885690d97c7f5d08b9a0b',
-  },
+  // Umi analytics 插件：非 development 构建且 ID 非空时注入 hm.baidu.com/hm.js
+  ...(baiduTongjiId ? {analytics: {baidu: baiduTongjiId}} : {}),
   headScripts:[
     '/js/html2canvas.min.js',
     '/env-config.js?date='+ new Date(),

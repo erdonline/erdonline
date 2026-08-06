@@ -7,6 +7,9 @@ COPY . .
 # Empty bake-in; compose/k8s rewrite via docker-entrypoint.sh at container start.
 ENV API_URL=
 ENV ERD_API_URL=
+# Optional: docker compose build --build-arg BAIDU_TONGJI_ID=… frontend
+ARG BAIDU_TONGJI_ID=
+ENV BAIDU_TONGJI_ID=${BAIDU_TONGJI_ID}
 RUN yarn build:prod
 
 # ---- runtime stage ----

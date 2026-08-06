@@ -6,6 +6,17 @@
 
 ## [Unreleased]
 
+### 2026-08-06
+
+#### 前端：百度统计 env 化（Umi analytics.baidu）
+
+- **背景**：`config.ts` 硬编码旧站点 ID；需切换为用户提供的 `bd50dd978c8d8d94792f4e987c4a7aaf` 且本地/dev 可关
+- **改法**：`BAIDU_TONGJI_ID` 构建时注入 Umi `analytics.baidu`；未设则不启用插件；CF Pages 工作流读 GitHub Variable `BAIDU_TONGJI_ID`；Docker 前端支持 `--build-arg BAIDU_TONGJI_ID`
+- **SPA**：项目 hash 路由，hm.js 自动跟踪 hash 变化，无需额外 route listener
+- 验证点：
+  - `cd frontend && BAIDU_TONGJI_ID=bd50dd978c8d8d94792f4e987c4a7aaf yarn build:prod` 绿；`grep -r hm.baidu.com dist/index.html` 命中
+  - `cd frontend && yarn build`（无 ID）绿；`grep hm.baidu dist/index.html` 无输出
+
 ### 2026-08-05
 
 #### UI：输入类控件 focus 环全局柔化（Plan A · 保留 brand 主色）

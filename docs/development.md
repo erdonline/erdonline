@@ -311,6 +311,8 @@ JWT 含全量权限时 `Authorization` 头可达 8KB+；Boot 3 须配置 `server
 
 可选 `LOCALE`（默认空 = 不覆盖，走 umi **baseNavigator** + `umi_locale` localStorage）：非空时经 `getAntdLocale()` 强制注入 antd `ConfigProvider`；奠基切片支持 `zh-CN` / `en-US`。例：`LOCALE=en-US ./env.sh && cp env-config.js ./public/`（本地验证 antd 英文 Modal 按钮）。
 
+百度统计：本地开发默认**不**加载 hm.js（Umi analytics 插件在 `development` 环境跳过）。若要在 prod 构建产物中启用，构建前设 `BAIDU_TONGJI_ID`（见 `.env.example` 与 `docs/deployment.md`）。
+
 联调探测（登录后打常用接口，期望无 404/405/500）：
 
 ```bash
