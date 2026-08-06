@@ -2,7 +2,7 @@ import React, {useEffect, useMemo} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link, Outlet} from "@@/exports";
-import {TwoDimensionalCodeOne} from "@icon-park/react";
+import { QrcodeOutlined } from '@ant-design/icons';
 import {Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
 import type {IntlShape} from '@umijs/max';
@@ -36,7 +36,7 @@ export function getHomeRightContent(intl: IntlShape): React.ReactNode[] {
       trigger="hover"
     >
       <span role="img" aria-label={wechatLabel} style={{ display: 'inline-flex', cursor: 'pointer' }}>
-        <TwoDimensionalCodeOne theme="filled" size="18" fill={erdColors.brand} strokeWidth={2} />
+        <QrcodeOutlined style={{ fontSize: 18, color: erdColors.brand }} />
       </span>
     </Popover>,
     <a

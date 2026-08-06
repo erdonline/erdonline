@@ -2,7 +2,7 @@ import React from 'react';
 import { useRequest } from '@umijs/hooks';
 import { useIntl } from '@umijs/max';
 import { GET } from '@/services/crud';
-import { PeopleTopCard } from '@icon-park/react';
+import { IdcardOutlined } from '@ant-design/icons';
 import * as cache from '@/utils/cache';
 import PageSkeleton from '@/components/PageSkeleton';
 import styles from './identification.less';
@@ -41,13 +41,7 @@ const Identification: React.FC<IdentificationProps> = () => {
       aria-live="polite"
     >
       <span className={styles.icon} aria-hidden data-testid="identification-icon">
-        <PeopleTopCard
-          theme="filled"
-          size="40"
-          fill="currentColor"
-          strokeWidth={2}
-          strokeLinejoin="miter"
-        />
+        <IdcardOutlined style={{ fontSize: 40 }} />
       </span>
       <h3 className={styles.title}>{title}</h3>
       <p className={styles.sub}>{subTitle}</p>

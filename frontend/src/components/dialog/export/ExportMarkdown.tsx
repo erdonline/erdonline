@@ -1,6 +1,6 @@
 import React, {useContext} from 'react';
 import { Button } from "antd";
-import {MyIcon} from "@/components/Menu";
+import { FileMarkdownOutlined } from '@ant-design/icons';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
@@ -15,7 +15,7 @@ const ExportMarkdown: React.FC = () => {
       type="text"
       size="small"
       block
-      icon={<MyIcon type="icon-markdown"/>}
+      icon={<FileMarkdownOutlined />}
       onClick={() => {
         closeProjectMenu();
         projectDispatch.exportFile('Markdown');

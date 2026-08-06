@@ -1,7 +1,13 @@
-import {DatabaseNetwork, HomeTwo, Sphere, Table} from "@icon-park/react";
+import {
+  DatabaseFilled,
+  GlobalOutlined,
+  HomeFilled,
+  TableOutlined,
+} from '@ant-design/icons';
 import {erdColors} from '@/theme/tokens';
 
 const brandFill = erdColors.brand;
+const brandIcon = (size = 18) => ({ fontSize: size, color: brandFill });
 
 export default {
   route: {
@@ -10,24 +16,24 @@ export default {
       {
         path: '/home',
         nameKey: 'homeLayout.route.home',
-        icon: <HomeTwo theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        icon: <HomeFilled style={brandIcon()} />,
       },
       {
         path: '/dataModels',
         nameKey: 'homeLayout.route.dataModels',
-        icon: <Table theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        icon: <TableOutlined style={brandIcon()} />,
       },
       {
         path: '/databaseConfig',
         nameKey: 'homeLayout.route.databaseConfig',
-        icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        icon: <DatabaseFilled style={brandIcon()} />,
       },
       {
-        
+
         exact: true,
         path: 'https://github.com/erdonline/erdonline/issues',
         nameKey: 'homeLayout.route.forum',
-        icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
+        icon: <GlobalOutlined style={brandIcon()} />,
       },
 
     ],

@@ -2,7 +2,12 @@ import type {ReactNode} from 'react';
 import {List, Tag} from 'antd';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import {FileDisplay, FileLock, FileWord, HtmlFive} from "@icon-park/react";
+import {
+  FileMarkdownOutlined,
+  FileProtectOutlined,
+  FileWordOutlined,
+  Html5Outlined,
+} from '@ant-design/icons';
 import './export-common.scss';
 
 
@@ -21,25 +26,25 @@ export default () => {
       key: 'JSON',
       title: '导出ERD',
       subTitle: <Tag color="blue">ERD</Tag>,
-      avatar: <FileLock theme="filled" size="16" fill="currentColor" strokeWidth={2}/>,
+      avatar: <FileProtectOutlined style={{ fontSize: 16 }} />,
       content: '导出一个ERD格式的文件，文本内容已加密，可再次导入ERD系统',
     }, {
       key: 'Html',
       title: '导出HTML',
       subTitle: <Tag color="blue">HTML</Tag>,
-      avatar: <HtmlFive theme="filled" size="16" fill="currentColor" strokeWidth={2}/>,
+      avatar: <Html5Outlined style={{ fontSize: 16 }} />,
       content: '导出一个可以在任意浏览器中打开的HTML文件',
     }, {
       key: 'Word',
       title: '导出Word',
       subTitle: <Tag color="blue">Word</Tag>,
-      avatar: <FileWord theme="filled" size="16" fill="currentColor" strokeWidth={2}/>,
+      avatar: <FileWordOutlined style={{ fontSize: 16 }} />,
       content: '导出一个漂亮的word文件，包含表元数据和关系图',
     }, {
       key: 'Markdown',
       title: '导出Markdown',
       subTitle: <Tag color="blue">Markdown</Tag>,
-      avatar: <FileDisplay theme="filled" size="16" fill="currentColor" strokeWidth={2}/>,
+      avatar: <FileMarkdownOutlined style={{ fontSize: 16 }} />,
       content: '导出一个Markdown文件，可以在任意Markdown编辑器中预览',
     },
   ];
