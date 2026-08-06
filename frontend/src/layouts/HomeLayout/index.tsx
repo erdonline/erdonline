@@ -9,6 +9,7 @@ import type {IntlShape} from '@umijs/max';
 import {useIntl, useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import ChromeNotificationsButton from '@/components/ChromeNotificationsButton';
 import ChromeUserMenu from '@/components/ChromeUserMenu';
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
@@ -175,6 +176,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           />
           <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
             {homeRightContent}
+            <ChromeNotificationsButton />
             <ChromeUserMenu />
           </div>
         </Header>
