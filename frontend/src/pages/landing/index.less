@@ -1,5 +1,5 @@
 /* 落地页深色品牌门面：颜色/字族只认 --erd-*（theme/css-vars.less）；禁新增魔法色 */
-@import url('https://fonts.bunny.net/css?family=syne:600,700,800|ibm-plex-sans:400,500,600&display=swap');
+/* 字体经 LandingChrome Helmet 运行时加载，避免 less 构建期拉取 fonts.bunny.net 导致 CI 失败 */
 
 .erd-skip-nav {
   position: fixed;
