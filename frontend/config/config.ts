@@ -11,7 +11,18 @@ const mapToken = defaultAlgorithm(defaultSeed);
 const v4Token = convertLegacyToken(mapToken);
 
 
-const {REACT_APP_ENV} = process.env;
+const {REACT_APP_ENV, UMI_ENV} = process.env;
+
+/** Cloudflare Web Analytics — prod build only (CF Pages demo / Docker frontend). */
+const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '4df015bf119f48ff9b03f302f6a3e40a';
+const cloudflareAnalyticsHeadScripts =
+  UMI_ENV === 'prod'
+    ? [
+        {
+          content: `(function(){var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.head.appendChild(s);})();`,
+        },
+      ]
+    : [];
 
 export default defineConfig({
   hash: true,
@@ -42,9 +53,10 @@ export default defineConfig({
   },
   // Umi analytics 插件：非 development 构建时注入 hm.baidu.com/hm.js
   analytics: { baidu: 'bd50dd978c8d8d94792f4e987c4a7aaf' },
-  headScripts:[
+  headScripts: [
     '/js/html2canvas.min.js',
-    '/env-config.js?date='+ new Date(),
+    '/env-config.js?date=' + new Date(),
+    ...cloudflareAnalyticsHeadScripts,
   ],
   lessLoader: {
     modifyVars: v4Token,

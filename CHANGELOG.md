@@ -8,6 +8,15 @@
 
 ### 2026-08-06
 
+#### 前端：Cloudflare Web Analytics beacon（prod 硬编码）
+
+- **改法**：`frontend/config/config.ts` 在 `UMI_ENV=prod` 时经 `headScripts` 内联 IIFE 注入 Cloudflare beacon（token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码；Umi 无法直接写带 JSON 的 `data-cf-beacon` 属性）
+- **保留**：`analytics.baidu` 不变
+- 验证点：
+  - `cd frontend && API_URL=https://example.com yarn build:prod` 绿；`grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a' dist/index.html` 命中
+  - `cd frontend && yarn build`（dev）绿；上述 grep 无输出
+  - 部署后 `curl -sL https://erdonline-demo.pages.dev | grep cloudflareinsights` 命中
+
 #### 前端：百度统计 ID 硬编码（Umi analytics.baidu）
 
 - **改法**：`frontend/config/config.ts` 固定 `analytics.baidu: bd50dd978c8d8d94792f4e987c4a7aaf`；撤销 `377ac03` 的 `BAIDU_TONGJI_ID` 环境变量门闸（工作流 / Dockerfile / `.env.example`）

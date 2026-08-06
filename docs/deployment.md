@@ -597,6 +597,17 @@ Umi 内置 `@umijs/plugins` analytics 插件；站点 ID `bd50dd978c8d8d94792f4e
 
 本项目路由为 **hash 模式**（`config.ts` `hash: true`），hm.js 会监听 hash 变化自动上报 PV，**无需**额外 `onRouteChange` 钩子。未配置 CSP `script-src` 白名单时默认可加载 `hm.baidu.com`。
 
+### Cloudflare Web Analytics
+
+Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts`（`CLOUDFLARE_WEB_ANALYTICS_TOKEN` + prod 专用 `headScripts` 内联 bootstrap），与百度统计并列；**仅 `UMI_ENV=prod` 构建**注入（Umi 对带 JSON 的 `data-cf-beacon` script 属性会拆坏，故用 IIFE 动态 append `<script type="module">`）。
+
+| 场景 | 行为 |
+|---|---|
+| 本地 `yarn start` / `yarn build`（`UMI_ENV=dev`） | 不加载 |
+| CF Pages / `yarn build:prod` / Docker 前端镜像 | 自动加载 beacon |
+
+验收：`curl -sL https://erdonline-demo.pages.dev | grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a'` 应命中；浏览器 Network 可见 `beacon.min.js`。
+
 ## MCP（agent / CLI，ADR-0013）
 
 只读 MCP 进程在仓库 `mcp/`（非 Docker 镜像内置）。自托管后端起好后：
