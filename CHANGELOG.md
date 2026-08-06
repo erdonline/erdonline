@@ -8,6 +8,14 @@
 
 ### 2026-08-06
 
+#### UI：顶栏头像 + 用户名视觉对齐（ChromeUserMenu）
+
+- **根因**：三壳顶栏用 Icon Park `Me`（品牌红填充 + 细描边圆）作占位头像；`.erd-chrome-header` 的 `line-height: 64px` 继承到用户名，导致文字相对 28px 图标偏上；gap 6px 显松
+- **改法**：抽取 `ChromeUserMenu`（Home / Group / Design 共用）；中性灰底圆 + `UserOutlined`；用户名 `line-height: 1` + 4px gap；hover 时 avatar 淡 brand 底
+- 验证点：
+  - `cd frontend && yarn build` 绿
+  - 登录后 `/home`、设计器、Group 顶栏右上角 avatar+name 垂直居中、无红描边环
+
 #### 链接：社区与文档 URL 统一
 
 - **社区/论坛**：产品面全部改为 `https://github.com/erdonline/erdonline/issues`（落地页 footer、HomeLayout/GroupLayout 论坛菜单、Issue 模板 contact_links、历史公告 Flyway `V19`）

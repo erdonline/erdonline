@@ -61,15 +61,47 @@
 .erd-chrome-user {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   cursor: pointer;
   color: var(--erd-ink-900);
   font-family: var(--erd-font-ui);
   font-size: 14px;
+  line-height: 1;
+  max-width: 160px;
+  flex-shrink: 0;
 
   &:hover {
     color: var(--erd-brand);
+
+    .erd-chrome-user__avatar {
+      background: var(--erd-brand-a12);
+      color: var(--erd-brand);
+    }
   }
+}
+
+.erd-chrome-user__avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--erd-surface-muted);
+  color: var(--erd-ink-600);
+  font-size: 14px;
+  line-height: 1;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.erd-chrome-user__name {
+  line-height: 1;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
 }
 
 .erd-chrome-link {
