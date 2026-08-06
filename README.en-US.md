@@ -93,9 +93,13 @@ Or simply run `./scripts/dev.sh`.
 
 ## 📖 Documentation
 
-- [Architecture](docs/architecture.md)
-- [Deployment](docs/deployment.md)
-- [Development](docs/development.md)
+Published docs: [https://erdonline.github.io/erdonline/](https://erdonline.github.io/erdonline/)
+
+- [Architecture](https://erdonline.github.io/erdonline/docs/architecture)
+- [Deployment](https://erdonline.github.io/erdonline/docs/deployment)
+- [Development](https://erdonline.github.io/erdonline/docs/development)
+
+Markdown sources live under `docs/` in this repo (kept in sync with the site).
 
 ## 🤝 Contributing
 

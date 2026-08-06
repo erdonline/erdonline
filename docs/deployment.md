@@ -88,9 +88,9 @@ git push origin main
 
 | 表面 | URL |
 |---|---|
-| 文档（CF 主） | https://erdonline-docs.pages.dev |
+| 文档 | https://erdonline.github.io/erdonline/ |
+| 文档（CF 镜像，运维） | https://erdonline-docs.pages.dev |
 | 静态 demo | https://erdonline-demo.pages.dev |
-| 文档（GH 回退） | https://erdonline.github.io/erdonline/ |
 
 Actions 页确认 `Docs site` / `Frontend demo site` 对应 job 绿。
 

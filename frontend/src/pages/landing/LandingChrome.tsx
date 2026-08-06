@@ -5,7 +5,9 @@ import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
 
 const GITHUB_URL = 'https://github.com/erdonline/erdonline';
+const ISSUES_URL = 'https://github.com/erdonline/erdonline/issues';
 const DOCS_URL = 'https://erdonline.github.io/erdonline/';
+const ROADMAP_URL = `${DOCS_URL}docs/roadmap`;
 
 const focusSkipTarget = (id: string) => {
   const el = document.getElementById(id);
@@ -113,11 +115,11 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           <a href={DOCS_URL} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.docs' })}
           </a>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
+          <a href={ROADMAP_URL} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.roadmap' })}
           </a>
           <Link to="/compare">{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
-          <a href={`${GITHUB_URL}/discussions`} target="_blank" rel="noreferrer">
+          <a href={ISSUES_URL} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.community' })}
           </a>
           {authed ? (
@@ -131,5 +133,5 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   );
 };
 
-export {DOCS_URL, GITHUB_URL};
+export {DOCS_URL, GITHUB_URL, ISSUES_URL, ROADMAP_URL};
 export default LandingChrome;
