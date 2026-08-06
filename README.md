@@ -99,9 +99,13 @@ cd frontend && yarn && yarn start
 
 ## 📖 文档
 
-- [愿景与路线图](docs/vision.md) · [roadmap](docs/roadmap.md)
-- [架构说明](docs/architecture.md)（若有）
-- [部署指南](docs/deployment.md)（含 [CF Pages / GitHub Secrets 清单](docs/deployment.md#cf-pages-setup)）· [开发指南](docs/development.md)
+在线文档：[https://erdonline.github.io/erdonline/](https://erdonline.github.io/erdonline/)
+
+- [愿景与路线图](https://erdonline.github.io/erdonline/docs/vision) · [roadmap](https://erdonline.github.io/erdonline/docs/roadmap)
+- [架构说明](https://erdonline.github.io/erdonline/docs/architecture)
+- [部署指南](https://erdonline.github.io/erdonline/docs/deployment)（含 [CF Pages / GitHub Secrets 清单](https://erdonline.github.io/erdonline/docs/deployment#cf-pages-setup)）· [开发指南](https://erdonline.github.io/erdonline/docs/development)
+
+仓库内 Markdown 副本见 `docs/` 目录（与在线站同步）。
 
 ## 🤝 贡献
 

@@ -12,8 +12,9 @@ yarn build && yarn serve   # 验证本地搜索（构建后才有完整索引）
 `baseUrl` / `url` 可由环境变量覆盖（默认 GH Pages：`/erdonline/`）：
 
 ```bash
-DOCUSAURUS_URL=https://erdonline-docs.pages.dev DOCUSAURUS_BASE_URL=/ yarn build
+DOCUSAURUS_URL=https://erdonline.github.io DOCUSAURUS_BASE_URL=/erdonline/ yarn build
+# CF 镜像本地预览（运维）：DOCUSAURUS_URL=https://erdonline-docs.pages.dev DOCUSAURUS_BASE_URL=/ yarn build
 ```
 
-部署：合并到 `main` 后由 `docs-site.yml` 推送 **GitHub Pages**（回退）与 **Cloudflare Pages**（项目 `erdonline-docs`）。  
+部署：合并到 `main` 后由 `docs-site.yml` 推送 **GitHub Pages**（产品面主入口 `https://erdonline.github.io/erdonline/`）与 **Cloudflare Pages**（项目 `erdonline-docs`，运维镜像）。  
 首次配置（Token / Variable `CLOUDFLARE_PAGES_DEPLOY` / Pages Direct Upload）：见 [docs/deployment.md#cf-pages-setup](../docs/deployment.md#cf-pages-setup)。

@@ -8,7 +8,15 @@
 
 ### 2026-08-06
 
-#### 前端：Cloudflare Web Analytics beacon（prod 硬编码）
+#### 链接：社区与文档 URL 统一
+
+- **社区/论坛**：产品面全部改为 `https://github.com/erdonline/erdonline/issues`（落地页 footer、HomeLayout/GroupLayout 论坛菜单、Issue 模板 contact_links、历史公告 Flyway `V19`）
+- **文档**：产品面统一 `https://erdonline.github.io/erdonline/`（README、落地页 Roadmap 深链 `/docs/roadmap`、部署验收表主行）；CF `erdonline-docs.pages.dev` 保留为运维镜像说明
+- 验证点：
+  - `rg 'www-zerocode|/discussions' frontend .github/ISSUE_TEMPLATE docs/roadmap.md README.md` → 无产品面命中（V3 基线 seed + 迁移 WHERE 除外）
+  - `cd frontend && yarn build` 绿
+  - `gh api repos/erdonline/erdonline --jq .has_issues` → 期望 `true`（若 false，请在 GitHub Settings 开放 Issues）
+
 
 - **改法**：`frontend/config/config.ts` 在 `UMI_ENV=prod` 时经 `headScripts` 内联 IIFE 注入 Cloudflare beacon（token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码；Umi 无法直接写带 JSON 的 `data-cf-beacon` 属性）
 - **保留**：`analytics.baidu` 不变

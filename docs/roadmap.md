@@ -1,6 +1,6 @@
 # 路线图 / Roadmap
 
-> 公开路线图。欢迎通过 [Issues](https://github.com/erdonline/erdonline/issues) 与 [Discussions](https://github.com/erdonline/erdonline/discussions) 影响它。
+> 公开路线图。欢迎通过 [Issues](https://github.com/erdonline/erdonline/issues) 影响它。
 > 状态标记：✅ 已完成 · 🚧 进行中 · 📋 已规划
 
 ## 当前状态
@@ -199,5 +199,5 @@
 ## 如何影响路线图
 
 - 提需求：开 Issue 并说明它服务哪类用户价值（见 [vision.md](./vision.md)）
-- 参与讨论：Discussions 区回复路线图帖
+- 参与讨论：在 [Issues](https://github.com/erdonline/erdonline/issues) 回复或新建讨论帖
 - 直接贡献：认领 `good first issue`，阅读仓库根目录 [CONTRIBUTING.md](https://github.com/erdonline/erdonline/blob/main/CONTRIBUTING.md)

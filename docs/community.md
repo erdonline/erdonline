@@ -2,7 +2,9 @@
 
 > 目标：让第一次提 PR 的人 **2 小时内能合入** 有意义的改动，抬升贡献者留存（愿景第三层用户价值）。
 
-## 标签约定
+## 社区入口
+
+产品面统一指向 [GitHub Issues](https://github.com/erdonline/erdonline/issues)（提问、想法、路线图反馈）。维护者请确保仓库 **Issues 对公众开放**（Settings → Features → Issues）。
 
 | 标签 | 含义 |
 |---|---|

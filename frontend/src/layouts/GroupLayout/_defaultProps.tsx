@@ -30,7 +30,7 @@ export default {
       },
       {
         exact: true,
-        path: 'https://github.com/orgs/www-zerocode-net-cn/discussions',
+        path: 'https://github.com/erdonline/erdonline/issues',
         nameKey: 'homeLayout.route.forum',
         icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
       },
