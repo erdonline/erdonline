@@ -1,8 +1,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useLocation} from "react-router-dom";
 import defaultProps from './_defaultProps';
-import {Me} from "@icon-park/react";
-import {Dropdown, Layout, Menu} from "antd";
+import {Layout, Menu} from "antd";
 import type {MenuProps} from "antd";
 import * as cache from "@/utils/cache";
 import {fixRouteAccess, getHeadRightContent} from "@/layouts/DesignLayout";
@@ -11,8 +10,7 @@ import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
-import { erdColors } from "@/theme/tokens";
-import {getMenuHeaderDropdown} from "@/layouts/HomeLayout";
+import ChromeUserMenu from '@/components/ChromeUserMenu';
 import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import '../erd-chrome.less';
 import './index.less';
@@ -119,7 +117,6 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
   };
 
   const headRightContent = useMemo(() => getHeadRightContent(intl), [intl]);
-  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
 
   return (
     <Layout className="group-layout" data-testid="group-layout">
@@ -163,22 +160,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
         </div>
         <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           {headRightContent}
-          <Dropdown
-            placement="bottom"
-            arrow={{pointAtCenter: true}}
-            overlay={menuHeaderDropdown}
-          >
-            <div
-              className="erd-chrome-user"
-              role="button"
-              tabIndex={0}
-              aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
-              data-testid="user-menu-trigger"
-            >
-              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
-              {cache.getItem('username')}
-            </div>
-          </Dropdown>
+          <ChromeUserMenu placement="bottom" />
         </div>
       </Header>
       <Layout>

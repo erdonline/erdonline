@@ -2,18 +2,16 @@ import React, {useEffect, useMemo} from 'react';
 import {useLocation} from 'react-router-dom';
 import defaultProps from './_defaultProps';
 import {history, Link, Outlet} from "@@/exports";
-import {Me, TwoDimensionalCodeOne} from "@icon-park/react";
-import {Dropdown, Image, Layout, Menu, Popover, Typography} from "antd";
+import {TwoDimensionalCodeOne} from "@icon-park/react";
+import {Image, Layout, Menu, Popover, Typography} from "antd";
 import type {MenuProps} from 'antd';
-import {logout} from "@/utils/request";
-import * as cache from "@/utils/cache";
 import type {IntlShape} from '@umijs/max';
 import {useIntl, useModel} from "@umijs/max";
 import useTabStore from "@/store/tab/useTabStore";
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import ChromeUserMenu from '@/components/ChromeUserMenu';
 import Theme from "@/components/Theme";
 import { erdColors } from "@/theme/tokens";
-import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
 import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import '../erd-chrome.less';
 import './index.less';
@@ -54,43 +52,8 @@ export function getHomeRightContent(intl: IntlShape): React.ReactNode[] {
   ];
 }
 
-/** 头像菜单：仅保留已接线入口（个人中心 / 授权信息 / 退出）；无假项 */
-export function getMenuHeaderDropdown(intl: IntlShape): React.ReactNode {
-  return (
-    <Menu
-      selectedKeys={[]}
-      style={{ minWidth: 160 }}
-      data-testid="user-menu-dropdown"
-      items={[
-        {
-          key: 'center',
-          icon: <UserOutlined />,
-          label: intl.formatMessage({ id: 'homeLayout.user.accountCenter' }),
-          onClick: () => {
-            history.push('/account/settings?selectKey=base');
-          },
-        },
-        {
-          key: 'vip',
-          icon: <UserOutlined />,
-          label: intl.formatMessage({ id: 'homeLayout.user.licenseInfo' }),
-          onClick: () => {
-            history.push('/account/settings?selectKey=identification');
-          },
-        },
-        { type: 'divider' },
-        {
-          key: 'logout',
-          icon: <LogoutOutlined />,
-          label: intl.formatMessage({ id: 'homeLayout.user.logout' }),
-          onClick: () => {
-            logout();
-          },
-        },
-      ]}
-    />
-  );
-}
+/** @deprecated 请直接从 @/components/ChromeUserMenu 导入 */
+export { getMenuHeaderDropdown } from '@/components/ChromeUserMenu';
 
 type HomeRoute = {
   path?: string;
@@ -160,7 +123,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   const skipTestId = isAccountSettings ? 'account-skip-form' : 'home-skip-main';
 
   const homeRightContent = useMemo(() => getHomeRightContent(intl), [intl]);
-  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
 
   return (
     <Theme>
@@ -213,22 +175,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
           />
           <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
             {homeRightContent}
-            <Dropdown
-              placement="bottomRight"
-              arrow={{pointAtCenter: true}}
-              overlay={menuHeaderDropdown}
-            >
-              <div
-                className="erd-chrome-user"
-                role="button"
-                tabIndex={0}
-                aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
-                data-testid="user-menu-trigger"
-              >
-                <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2}/>
-                {cache.getItem('username')}
-              </div>
-            </Dropdown>
+            <ChromeUserMenu />
           </div>
         </Header>
         <Content className="home-layout__content">

@@ -11,16 +11,15 @@ import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
 import { ProjectMenu } from "@/components/Menu";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
-import { getHomeRightContent, getMenuHeaderDropdown } from "@/layouts/HomeLayout";
+import { getHomeRightContent } from "@/layouts/HomeLayout";
+import ChromeUserMenu from '@/components/ChromeUserMenu';
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
-import { erdColors } from "@/theme/tokens";
 import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
 import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import { history, Outlet, useSearchParams } from "@@/exports";
 import { useAccess } from "@@/plugin-access";
-import { Me } from "@icon-park/react";
 import { useUnmount } from '@umijs/hooks';
 import { Link, useIntl, useModel } from "@umijs/max";
 import {
@@ -373,8 +372,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
     el.scrollIntoView({ block: 'nearest' });
   };
 
-  const menuHeaderDropdown = useMemo(() => getMenuHeaderDropdown(intl), [intl]);
-
   return (
     <Layout className="design-layout" data-testid="design-layout">
       <nav
@@ -506,22 +503,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
             </Tooltip>
           </div>
           <ChromeOverflow />
-          <Dropdown
-            placement="bottomRight"
-            arrow={{ pointAtCenter: true }}
-            overlay={menuHeaderDropdown}
-          >
-            <div
-              className="erd-chrome-user"
-              role="button"
-              tabIndex={0}
-              aria-label={intl.formatMessage({ id: 'designLayout.user.menuAria' })}
-              data-testid="user-menu-trigger"
-            >
-              <Me theme="filled" size="28" fill={erdColors.brand} strokeWidth={2} />
-              {cache.getItem('username')}
-            </div>
-          </Dropdown>
+          <ChromeUserMenu />
         </div>
       </Header>
       <Layout>
