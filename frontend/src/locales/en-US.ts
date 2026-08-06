@@ -190,7 +190,6 @@ export default {
   'designLayout.workflow.myOrders': 'My orders',
   'designLayout.workflow.pendingApproval': 'Pending',
   'designLayout.workflow.pendingApprovalAria': 'Orders pending approval',
-  'designLayout.workflow.notifications': 'Notifications',
   'designLayout.project.fallback': 'Project',
   'designLayout.project.menuAria': 'Project menu',
   'designLayout.overflow.moreAria': 'More',
@@ -205,6 +204,8 @@ export default {
   // HomeLayout skip + chrome + user menu
   'homeLayout.skip.main': 'Skip to main content',
   'homeLayout.skip.form': 'Skip to main form',
+  'chrome.notifications': 'Notifications',
+
   'homeLayout.chrome.wechatOfficial': 'WeChat official account',
   'homeLayout.chrome.github': 'GitHub',
   'homeLayout.chrome.githubAria': 'GitHub repository',

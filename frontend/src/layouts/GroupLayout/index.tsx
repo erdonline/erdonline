@@ -10,6 +10,7 @@ import {GET} from "@/services/crud";
 import {useAccess} from "@@/plugin-access";
 import {CONSTANT} from "@/utils/constant";
 import Theme from "@/components/Theme";
+import ChromeNotificationsButton from '@/components/ChromeNotificationsButton';
 import ChromeUserMenu from '@/components/ChromeUserMenu';
 import { resolveRouteLabel } from '@/utils/resolveRouteLabel';
 import '../erd-chrome.less';
@@ -160,6 +161,7 @@ const GroupLayout: React.FC<GroupLayoutProps> = (props) => {
         </div>
         <div className="erd-chrome-actions" data-testid="erd-chrome-actions">
           {headRightContent}
+          <ChromeNotificationsButton />
           <ChromeUserMenu placement="bottom" />
         </div>
       </Header>

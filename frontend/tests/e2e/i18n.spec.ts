@@ -194,11 +194,14 @@ test.describe('i18n：手动语言切换', () => {
 
     const homeMenu = page.getByTestId('home-layout-menu');
     const brand = page.getByTestId('erd-chrome-brand');
+    const notifications = page.getByTestId('chrome-notifications');
     const userMenu = page.getByTestId('user-menu-trigger');
     const homeSkipMain = page.getByTestId('home-skip-main');
 
     await expect(homeMenu).toHaveAttribute('aria-label', '主导航');
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online 首页');
+    await expect(notifications).toHaveText('通知');
+    await expect(notifications).toHaveAttribute('aria-label', '通知');
     await expect(userMenu).toHaveAttribute('aria-label', '用户菜单');
     await expect(homeSkipMain).toHaveText('跳到主内容');
     await expect(homeMenu.getByRole('link', { name: '首页' })).toBeVisible();
@@ -214,6 +217,8 @@ test.describe('i18n：手动语言切换', () => {
     await page.reload();
     await expect(homeMenu).toHaveAttribute('aria-label', 'Main navigation');
     await expect(brand).toHaveAttribute('aria-label', 'ERD Online home');
+    await expect(notifications).toHaveText('Notifications');
+    await expect(notifications).toHaveAttribute('aria-label', 'Notifications');
     await expect(userMenu).toHaveAttribute('aria-label', 'User menu');
     await expect(homeSkipMain).toHaveText('Skip to main content');
     await expect(homeMenu.getByRole('link', { name: 'Home' })).toBeVisible();

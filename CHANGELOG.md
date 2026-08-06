@@ -8,6 +8,15 @@
 
 ### 2026-08-06
 
+#### UI：Home / Group 顶栏补「通知」入口（ChromeNotificationsButton）
+
+- **改法**：从 DesignLayout 工作流条抽取共用 `ChromeNotificationsButton`（`BellOutlined` + 跳转 `/project/notice`）；HomeLayout / GroupLayout 顶栏用户菜单左侧挂载；DesignLayout 改用同一组件（`data-testid="design-workflow-notifications"` 不变）
+- **i18n**：新增 `chrome.notifications`（zh/en）；移除仅设计器使用的 `designLayout.workflow.notifications`
+- 验证点：
+  - `cd frontend && yarn build` 绿
+  - 登录后 `/home` 顶栏可见「通知」，点击进 `/project/notice`
+  - `yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "HomeLayout 与 GroupLayout"` 绿
+
 #### 前端：图标统一为 @ant-design/icons
 
 - **范围**：移除 Icon Park（`@icon-park/react`）与 iconfont `MyIcon`；三壳菜单、导出/导入对话框、数据类型树、关系图画布控件等全部改用 `@ant-design/icons`

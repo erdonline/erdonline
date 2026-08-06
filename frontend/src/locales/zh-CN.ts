@@ -177,7 +177,6 @@ export default {
   'designLayout.workflow.myOrders': '我的工单',
   'designLayout.workflow.pendingApproval': '待审批',
   'designLayout.workflow.pendingApprovalAria': '待审批工单',
-  'designLayout.workflow.notifications': '通知',
   'designLayout.project.fallback': '项目',
   'designLayout.project.menuAria': '项目菜单',
   'designLayout.overflow.moreAria': '更多',
@@ -192,6 +191,8 @@ export default {
   // HomeLayout skip + chrome + 用户菜单
   'homeLayout.skip.main': '跳到主内容',
   'homeLayout.skip.form': '跳到主表单',
+  'chrome.notifications': '通知',
+
   'homeLayout.chrome.wechatOfficial': '公众号',
   'homeLayout.chrome.github': 'GitHub',
   'homeLayout.chrome.githubAria': 'GitHub 仓库',

@@ -12,6 +12,7 @@ import { APP_VERSION_LABEL } from "@/constants/appVersion";
 import { ProjectMenu } from "@/components/Menu";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import { getHomeRightContent } from "@/layouts/HomeLayout";
+import ChromeNotificationsButton from '@/components/ChromeNotificationsButton';
 import ChromeUserMenu from '@/components/ChromeUserMenu';
 import { GET } from "@/services/crud";
 import useProjectStore from "@/store/project/useProjectStore";
@@ -24,7 +25,6 @@ import { useUnmount } from '@umijs/hooks';
 import { Link, useIntl, useModel } from "@umijs/max";
 import {
   AuditOutlined,
-  BellOutlined,
   CaretDownOutlined,
   MoreOutlined,
   OrderedListOutlined,
@@ -488,19 +488,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
                 {intl.formatMessage({ id: 'designLayout.workflow.pendingApproval' })}
               </Button>
             </Tooltip>
-            <Tooltip title={intl.formatMessage({ id: 'designLayout.workflow.notifications' })}>
-              <Button
-                type="text"
-                size="small"
-                className="design-layout__workflow-btn"
-                icon={<BellOutlined />}
-                aria-label={intl.formatMessage({ id: 'designLayout.workflow.notifications' })}
-                data-testid="design-workflow-notifications"
-                onClick={() => history.push('/project/notice')}
-              >
-                {intl.formatMessage({ id: 'designLayout.workflow.notifications' })}
-              </Button>
-            </Tooltip>
+            <ChromeNotificationsButton variant="workflow" />
           </div>
           <ChromeOverflow />
           <ChromeUserMenu />
