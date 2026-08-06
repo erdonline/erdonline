@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Link, useIntl} from '@umijs/max';
+import {Helmet, Link, useIntl} from '@umijs/max';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
@@ -38,6 +38,12 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       className={`landing${variant === 'subpage' ? ' landing--subpage' : ''}`}
       data-testid={testId}
     >
+      <Helmet>
+        <link
+          rel="stylesheet"
+          href="https://fonts.bunny.net/css?family=syne:600,700,800|ibm-plex-sans:400,500,600&display=swap"
+        />
+      </Helmet>
       <nav
         className="erd-skip-nav"
         aria-label={intl.formatMessage({id: 'common.skipNav'})}
