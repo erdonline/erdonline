@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, Input, Modal, Select, Space, message} from 'antd';
 import type {BaseSelectRef} from 'rc-select';
-import {MyIcon} from '@/components/Menu';
+import { FileTextOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
@@ -143,7 +143,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           type="text"
           size="small"
           block
-          icon={<MyIcon type="icon-other_win" />}
+          icon={<FileTextOutlined />}
           style={{textAlign: 'left'}}
           aria-label="导出DBML"
           onClick={openModal}

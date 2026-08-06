@@ -1,7 +1,6 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
-import { createFromIconfontCN } from "@ant-design/icons";
 import ReverseDatabase from "../dialog/import/ReverseDatabase";
 import ReversePdMan from "@/components/dialog/import/ReversePdMan";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
@@ -34,10 +33,6 @@ type DialogKey =
   | 'export-dbml'
   | 'setup-db'
   | 'setup-default';
-
-export const MyIcon = createFromIconfontCN({
-  scriptUrl: '//at.alicdn.com/t/font_1485538_uljgplzg6rm.js', // 在 iconfont.cn 上生成
-});
 
 export interface IFileMenuProps {
   className?: string;

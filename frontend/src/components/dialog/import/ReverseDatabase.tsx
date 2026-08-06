@@ -1,7 +1,7 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Button, Form, message, Modal, Select, Steps} from 'antd';
 import type {RefSelectProps} from 'antd/es/select';
-import {MyIcon} from '@/components/Menu';
+import { DatabaseOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import _ from 'lodash';
@@ -174,7 +174,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           type="text"
           size="small"
           block
-          icon={<MyIcon type="icon-line-height" />}
+          icon={<DatabaseOutlined />}
           style={{textAlign: 'left'}}
           aria-label="数据源逆向解析"
           onClick={openModal}

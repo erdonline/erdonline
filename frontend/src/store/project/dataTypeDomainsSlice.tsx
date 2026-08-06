@@ -2,7 +2,12 @@ import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from 'immer';
 import { message } from 'antd';
-import { Data, DatabasePoint, DataNull, DataUser } from '@icon-park/react';
+import {
+  AppstoreOutlined,
+  BookOutlined,
+  DatabaseOutlined,
+  TagOutlined,
+} from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
 import type { PersistOpt } from '@/store/project/persistOpt';
 
@@ -272,12 +277,7 @@ const DataTypeDomainsSlice = (
         type: 'dataType',
         code: datatype.code,
         icon: (
-          <DataNull
-            theme="filled"
-            size="13"
-            fill={brandFill}
-            strokeWidth={2}
-          />
+          <TagOutlined style={{ fontSize: 13, color: brandFill }} />
         ),
         title: datatype.name,
         isLeaf: true,
@@ -289,12 +289,7 @@ const DataTypeDomainsSlice = (
         type: 'database',
         code: database.code,
         icon: (
-          <DatabasePoint
-            theme="filled"
-            size="13"
-            fill={brandFill}
-            strokeWidth={2}
-          />
+          <DatabaseOutlined style={{ fontSize: 13, color: brandFill }} />
         ),
         title: database.code,
         isLeaf: true,
@@ -307,12 +302,7 @@ const DataTypeDomainsSlice = (
         type: 'dataType',
         title: '数据字典',
         icon: (
-          <DataUser
-            theme="filled"
-            size="18"
-            fill={brandFill}
-            strokeWidth={2}
-          />
+          <BookOutlined style={{ fontSize: 18, color: brandFill }} />
         ),
         code: '###menu###',
         isLeaf: false,
@@ -324,7 +314,7 @@ const DataTypeDomainsSlice = (
         code: '###menu###',
         title: '数据模板',
         icon: (
-          <Data theme="filled" size="13" fill={brandFill} strokeWidth={2} />
+          <AppstoreOutlined style={{ fontSize: 13, color: brandFill }} />
         ),
         isLeaf: false,
         key: `database###database`,

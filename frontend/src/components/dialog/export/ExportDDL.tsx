@@ -11,7 +11,7 @@ import {
   TreeSelect,
 } from "antd";
 import type {RefSelectProps} from 'antd/es/select';
-import {MyIcon} from "@/components/Menu";
+import { CodeOutlined } from '@ant-design/icons';
 import CodeEditor from "@/components/CodeEditor";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
@@ -139,7 +139,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
           type="text"
           size="small"
           block
-          icon={<MyIcon type="icon-DDL"/>}
+          icon={<CodeOutlined />}
           style={{ textAlign: 'left' }}
           aria-label="导出DDL"
           onClick={openModal}

@@ -3,7 +3,7 @@ import {Button, Input, Modal, Upload, message} from 'antd';
 import type {InputRef} from 'antd/es/input';
 import {InboxOutlined} from '@ant-design/icons';
 import {history} from 'umi';
-import {MyIcon} from '@/components/Menu';
+import { FileOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import useTabStore, {TabGroup} from '@/store/tab/useTabStore';
 import shallow from 'zustand/shallow';
@@ -186,7 +186,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
           type="text"
           size="small"
           block
-          icon={<MyIcon type="icon-other_win" />}
+          icon={<FileOutlined />}
           style={{textAlign: 'left'}}
           aria-label="导入DBML"
           onClick={openModal}

@@ -1,7 +1,14 @@
-import {DatabaseNetwork, LeftC, Permissions, SettingOne, Sphere} from "@icon-park/react";
+import {
+  ArrowLeftOutlined,
+  DatabaseFilled,
+  GlobalOutlined,
+  SafetyOutlined,
+  SettingFilled,
+} from '@ant-design/icons';
 import {erdColors} from '@/theme/tokens';
 
 const brandFill = erdColors.brand;
+const brandIcon = (size = 18) => ({ fontSize: size, color: brandFill });
 
 export default {
   route: {
@@ -10,29 +17,29 @@ export default {
       {
         path: '/dataModels',
         nameKey: 'groupLayout.route.backToProjects',
-        icon: <LeftC theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <ArrowLeftOutlined style={brandIcon()} />,
       },
       {
         path: '/project/group/setting/basic',
         nameKey: 'groupLayout.route.basicSettings',
-        icon: <SettingOne theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <SettingFilled style={brandIcon()} />,
       },
       {
         path: '/project/group/setting/permission',
         nameKey: 'groupLayout.route.permissionGroups',
-        icon: <Permissions theme="filled" size="18" fill={brandFill} strokeWidth={2} strokeLinejoin="miter"/>,
+        icon: <SafetyOutlined style={brandIcon()} />,
         access: 'canErdProjectPermissionGroup'
       },
       {
         path: '/design/table/model',
         nameKey: 'groupLayout.route.openModel',
-        icon: <DatabaseNetwork theme="filled" size="18" fill={brandFill} strokeWidth={2}/>,
+        icon: <DatabaseFilled style={brandIcon()} />,
       },
       {
         exact: true,
         path: 'https://github.com/erdonline/erdonline/issues',
         nameKey: 'homeLayout.route.forum',
-        icon: <Sphere theme="filled" size="18" fill={brandFill} strokeWidth={2}/>
+        icon: <GlobalOutlined style={brandIcon()} />,
       },
     ],
   },

@@ -8,6 +8,15 @@
 
 ### 2026-08-06
 
+#### 前端：图标统一为 @ant-design/icons
+
+- **范围**：移除 Icon Park（`@icon-park/react`）与 iconfont `MyIcon`；三壳菜单、导出/导入对话框、数据类型树、关系图画布控件等全部改用 `@ant-design/icons`
+- **清理**：删除 `package.json` 中 `@icon-park/react` 依赖；移除 `Menu/index.tsx` 的 `createFromIconfontCN` / `MyIcon` 导出
+- **保留**：品牌 logo（`/logo.svg`）、空态插图（`/empty.svg`）等非 UI chrome 资源不动
+- 验证点：
+  - `rg '@icon-park|MyIcon|createFromIconfontCN' frontend/src` → 无命中
+  - `cd frontend && yarn build` 绿
+
 #### UI：顶栏头像 + 用户名视觉对齐（ChromeUserMenu）
 
 - **根因**：三壳顶栏用 Icon Park `Me`（品牌红填充 + 细描边圆）作占位头像；`.erd-chrome-header` 的 `line-height: 64px` 继承到用户名，导致文字相对 28px 图标偏上；gap 6px 显松

@@ -1,7 +1,7 @@
 import React, {useContext, useState} from 'react';
 import {Button, Modal, Upload, message} from 'antd';
 import {InboxOutlined} from '@ant-design/icons';
-import {MyIcon} from '@/components/Menu';
+import { FileOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {ProjectMenuCloseContext} from '@/components/Menu/projectMenuClose';
@@ -146,7 +146,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = ({
           type="text"
           size="small"
           block
-          icon={<MyIcon type="icon-other_win" />}
+          icon={<FileOutlined />}
           style={{textAlign: 'left'}}
           aria-label="解析PdMan文件"
           onClick={openModal}
