@@ -11,7 +11,7 @@
 </p>
 
 <p align="center">
-  <a href="https://erdonline-demo.pages.dev/demo"><img alt="Live Demo" src="https://img.shields.io/badge/▶_Live_Demo-no_login-6C5CE7?style=for-the-badge"></a>
+  <a href="https://www.erdonline.com/demo"><img alt="Live Demo" src="https://img.shields.io/badge/▶_Live_Demo-no_login-6C5CE7?style=for-the-badge"></a>
   <a href="https://erdonline.github.io/erdonline/"><img alt="Docs" src="https://img.shields.io/badge/Docs-online-2D9CDB?style=for-the-badge"></a>
 </p>
 
@@ -28,7 +28,7 @@
 
 Most database design tools force a trade-off: **dbdiagram** is pretty but closed, with no versioning or collaboration; **Navicat/PDManer** are powerful but heavy, desktop-only, and single-player; **drawio** is free but doesn't understand databases. **ERD Online fills the empty niche — collaborative database design** — with the two things nobody else open-sources: **a version snapshot + diff on every change**, and **real-time multiplayer editing**.
 
-> **Try it in 30 seconds — no signup:** [**erdonline-demo.pages.dev/demo**](https://erdonline-demo.pages.dev/demo) → open the sample project → you're inside a live ER diagram of `user` / `order` tables. Edit a table, save a version, see the diff.
+> **Try it in 30 seconds — no signup:** [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → open the sample project → you're inside a live ER diagram of `user` / `order` tables. Edit a table, save a version, see the diff.
 
 ## Why ERD Online
 
