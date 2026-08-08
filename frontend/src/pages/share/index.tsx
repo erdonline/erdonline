@@ -16,6 +16,7 @@ import {
 } from '@/utils/demoShareI18n';
 import * as cache from '@/utils/cache';
 import {buildApiHref} from '@/utils/apiHref';
+import {track} from '@/utils/analytics';
 import '@/layouts/erd-chrome.less';
 import './index.less';
 
@@ -58,6 +59,11 @@ const SharePage: React.FC = () => {
   const [authed, setAuthed] = useState(() => Boolean(cache.getItem('Authorization')));
   /** 默认折叠：图为主平面；展开后表清单落在视口折线下 */
   const [tablesOpen, setTablesOpen] = useState(false);
+
+  useEffect(() => {
+    track(isPublicDemoShare(token) ? 'demo_open' : 'share_view', {token: token || ''});
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [tablesPage, setTablesPage] = useState(1);
   const [tablesPageSize, setTablesPageSize] = useState(SHARE_TABLES_PAGE_SIZE);
 

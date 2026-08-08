@@ -1,5 +1,6 @@
 import { Modal, message } from 'antd';
 import useVersionStore from '@/store/version/useVersionStore';
+import { track } from '@/utils/analytics';
 
 /** 与后端 ApiErrorCode.VERSION_SAVE_DUPLICATE 对齐 */
 export const VERSION_SAVE_DUPLICATE_CODE = 409001;
@@ -60,5 +61,10 @@ export function handleVersionSaveResponse(
     showVersionSaveDuplicateModal();
     return false;
   }
-  return res?.code === 200;
+  const ok = res?.code === 200;
+  if (ok) {
+    // 北极星漏斗事件：一次成功的版本保存
+    track('version_save', { code: res?.code });
+  }
+  return ok;
 }
