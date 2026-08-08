@@ -13,5 +13,9 @@
       "command": "cd frontend && yarn start"
     }
   ],
-  "ports": [8000, 9502, 9092]
+  "ports": [
+    { "name": "frontend", "port": 8000 },
+    { "name": "backend", "port": 9502 },
+    { "name": "socketio", "port": 9092 }
+  ]
 }
