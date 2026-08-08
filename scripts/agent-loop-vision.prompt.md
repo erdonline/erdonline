@@ -30,13 +30,13 @@
 
 前序主线（双层一致性 ADR-0022、i18n 奠基 ADR-0023）已闭环，历史见 `CHANGELOG.md`。当前 backlog（ROI 序 · 一 tick 一刀 · 做完在此划掉并推进）：
 
-1. **埋点闭环 · 后端归因 sink**：把 `analytics.getAttribution()` 随版本保存请求发后端，落 append-only 归因表（Flyway `V*`），实现「渠道 → 北极星」端到端可查。验证：curl 存版本带 utm → 查表命中。
-2. **分享页转化 CTA 强化**：只读 `/s/:token` 的「复制到我的项目 / 登录试用」是否够显眼、有无静默失败；这是外链落地的激活点。验证：Playwright 走查 + 截图。
-3. **OG `og:image` 打磨**：每卡多显字段/更好布局；补 GitHub social-preview 资产（1280×640）。验证：`OgImageRendererTest` + curl PNG。
+1. ~~**埋点闭环 · 后端归因 sink**~~ ⏸️（2026-08-08 用户改向推广；实现可另 PR，本 tick 不做）
+2. **分享页转化 CTA 强化**：只读 `/s/:token` 的「复制到我的项目 / 登录试用」是否够显眼、有无静默失败；这是外链落地的激活点。验证：Playwright 走查 + 截图。（good-first 草稿 `40` 已投放）
+3. **OG `og:image` 打磨**：每卡多显字段/更好布局；补 GitHub social-preview 资产（1280×640）。验证：`OgImageRendererTest` + curl PNG。（good-first 草稿 `41` 已投放）
 4. **UX 静默失败走查**（`playwright-ux-audit` 规则）：核心旅程找一处「操作后无反馈 / 死 affordance」→ 修 + 回归。
 5. **激活提速**：落地首屏直达画布 / demo 秒进；30 秒惊艳链路减步。
 6. **CI 健康巡检**：保持 `backend-ci` / `frontend-ci` / `docs-site` 绿；`e2e-smoke` 为核心旅程冒烟（勿再塞全量）。新红即修。
-7. **贡献者入口**：good-first-issue 种子文案、roadmap 投票 issue 草稿（把流量转 issue）。
+7. ~~**贡献者入口**~~ ✅（2026-08-08）：good-first 草稿 40–42 + roadmap 投票模板/草稿 43 + README/CONTRIBUTING CTA；`seed-good-first-issues.sh` dry-run + gh 投放。
 
 队列空则按主题**自己发明下一刀**，不得 idle。
 
