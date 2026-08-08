@@ -4,7 +4,7 @@ const sidebars = {
     {
       type: 'category',
       label: '产品',
-      items: ['vision', 'roadmap', 'design-principles', 'community'],
+      items: ['vision', 'roadmap', 'design-principles', 'community', 'growth'],
     },
     {
       type: 'category',
