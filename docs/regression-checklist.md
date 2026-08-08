@@ -861,5 +861,6 @@
 - [x] [分享卡片] `curl -H 'User-Agent: Twitterbot' /og/s/{token}` → `og:title`=项目名·ERD Online，描述含「N 张表」+ `twitter:card=summary_large_image` ✅ 本机 curl + `OgUnfurlControllerTest`
 - [x] [失效回落] `curl /og/s/{无效token}` → 品牌通用卡片（`ERD Online · 数据库设计的 Git + Figma`），不泄露分享是否存在 ✅
 - [x] [XSS 转义] 项目名含 `<script>` → 揭示页输出 `&lt;script&gt;`，不注入可执行脚本 ✅ `OgUnfurlControllerTest`
-- [x] [nginx 分流] bot UA `/s/{token}`、`/demo` → 后端 OG HTML；真人 UA → SPA `index.html` ✅ 本机起 nginx 验证 + `nginx -t`
+- [x] [nginx 分流] bot UA `/s/{token}`、`/demo` → 后端 OG HTML；真人 UA → SPA `index.html`；`/og/**`（含 og:image）任意 UA → 后端 ✅ 本机起 nginx 验证 + `nginx -t`
+- [x] [动态 og:image] `curl /og/s/{token}/image.png` → `image/png` 1200×630，含真实表名网格；`og:image` 指向该图 ✅ `OgImageRendererTest` + 本机 curl
 - [ ] [多源取首] `ERD_UI_URL` 逗号双源时 `og:url`/`og:image` 用第一个 origin（去尾斜杠）→ 期望首源；上线后抽查

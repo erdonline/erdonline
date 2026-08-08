@@ -18,7 +18,7 @@
   - `GET /og/s/{token}`：按 token 解析项目名 / 描述 / 表数量，输出 `og:*` + `twitter:card=summary_large_image`；失效 token 回落品牌通用卡片（仍 200，不暴露存在性）。
   - `GET /og/demo`：公开演示的固定品牌卡片。
 - HTML 内含 `<meta http-equiv=refresh>` + `location.replace()`：真人若直达揭示页则跳回 `/s/{token}` / `/demo`。
-- `og:image` 一期复用既有品牌图 `${ERD_UI_URL}/landing-hero.jpg`（栅格 JPG，爬虫可解析）；二期升级为**动态渲染的 ER 图快照**（真正「敢晒」，见后续切片）。
+- `og:image` 由后端 `GET /og/s/{token}/image.png` **动态渲染**（Java2D，1200×630，无浏览器依赖）：从 projectJSON 画表名/字段网格 + 品牌 + 标语，缺 CJK 字体时按 `canDisplay` 过滤不豆腐。比静态图「敢晒」，且随项目内容变化。
 - 生产托管（nginx，同源）按 **爬虫 User-Agent** 把 `/s/*`、`/demo` 反代到后端揭示页；真人 UA 保持 SPA。真人 URL 保持干净的 `/s/:token`，不改分享按钮产物。
 
 ## 备选与否决
@@ -31,4 +31,4 @@
 
 - 正面：分享链接在各平台出正规大图卡片，闭合「分享→曝光」回环；后端揭示页可被 `curl` 断言，端到端可本机验证。
 - 成本：nginx 需一段 UA 分流（生产）；后端多一个匿名端点（已做 HTML 转义防注入、失效 token 不泄存在性）。
-- 约束：`og:image` 一期是静态品牌图，非本项目内容图；动态 ER 快照放二期，避免本切片膨胀。
+- 约束：动态图为「像 schema 的品牌卡」（表名/字段网格），非画布 1:1 截图；若日后要像素级还原布局，可另起 headless 渲染切片。

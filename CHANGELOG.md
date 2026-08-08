@@ -11,11 +11,13 @@
 #### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
 
 - **改法**：新增后端匿名揭示页 `OgUnfurlController`（`GET /og/s/{token}`、`GET /og/demo`），按 token 输出 `og:*` + `twitter:card=summary_large_image`（项目名/描述/表数量），HTML 全转义防注入，失效 token 回落品牌卡片；`ErdSecurityConfiguration` 放行 `GET /og/**`
-- **托管**：`frontend/nginx.conf` 按爬虫 UA 把 `/s/:token`、`/demo` rewrite 到内部 `/_og` 反代后端揭示页；真人保持 SPA
+- **动态图**：`GET /og/s/{token}/image.png`、`/og/demo/image.png` 由 `OgImageRenderer`（Java2D，无浏览器）从 projectJSON 渲染 1200×630 ER 缩略图（表名/字段网格 + 品牌 + 标语），缺 CJK 字体时按 `canDisplay` 过滤不豆腐；`og:image` 指向该动态图
+- **托管**：`frontend/nginx.conf` 按爬虫 UA 把 `/s/:token`、`/demo` rewrite 到内部 `/_og` 反代揭示页；`/og/**`（含 og:image 抓取，任意 UA）恒反代后端；真人保持 SPA
 - 验证点：
-  - `mvn -Dtest=OgUnfurlControllerTest test` 绿（4 项：per-project OG、XSS 转义、失效回落、多源取首）
-  - `curl -H 'User-Agent: Twitterbot' /og/s/{token}` 含正确 `og:title` 与「N 张表」；`curl /og/s/invalid` 回落品牌卡片（均本机跑过）
-  - `nginx -t` 通过；本机起 nginx 验证：bot UA `/s/{token}`→OG HTML、真人→SPA；`/demo` 同理（均跑过）
+  - `mvn -Dtest=OgUnfurlControllerTest,OgImageRendererTest test` 绿（OG：per-project/XSS/失效回落/多源取首；图：合法 PNG + 1200×630）
+  - `curl -H 'User-Agent: Twitterbot' /og/s/{token}` 含正确 `og:title` 与「N 张表」、`og:image` 指向动态图；`curl /og/s/invalid` 回落品牌卡片（均本机跑过）
+  - `curl /og/s/{token}/image.png` → `image/png` 1200×630（真实项目缩略图，含表名网格）；经 nginx 抓 og:image 返回 PNG（均本机跑过）
+  - `nginx -t` 通过；本机起 nginx：bot `/s/{token}`→OG HTML、真人→SPA、`/og/**`→后端图（均跑过）
 
 #### 修复：docusaurus 文档站构建（死链 + MDX 花括号）
 

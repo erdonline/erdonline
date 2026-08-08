@@ -4,12 +4,16 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.erd.service.ProjectShareService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.CacheControl;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.time.Duration;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +43,9 @@ public class OgUnfurlController {
     @GetMapping(value = "s/{token}", produces = MediaType.TEXT_HTML_VALUE)
     public String share(@PathVariable String token) {
         String base = uiBase();
-        String canonical = base + "/s/" + safePathSegment(token);
+        String safeToken = safePathSegment(token);
+        String canonical = base + "/s/" + safeToken;
+        String imageUrl = base + "/og/s/" + safeToken + "/image.png";
         String title;
         String description;
         R<?> r = projectShareService.getByToken(token);
@@ -59,7 +65,7 @@ public class OgUnfurlController {
             title = SITE_NAME + " · " + TAGLINE;
             description = "开源、免费的在线数据库建模与协作平台：版本快照 + 实时协作 + 关系图设计器。";
         }
-        return page(title, description, canonical, base + "/landing-hero.jpg", canonical);
+        return page(title, description, canonical, imageUrl, canonical);
     }
 
     /** 公开演示的固定品牌卡片。 */
@@ -69,7 +75,41 @@ public class OgUnfurlController {
         String canonical = base + "/demo";
         String title = SITE_NAME + " 在线演示 · " + TAGLINE;
         String description = "免登录体验：30 秒进入带用户/订单表的关系图，感受版本快照与实时协作。";
-        return page(title, description, canonical, base + "/landing-hero.jpg", canonical);
+        return page(title, description, canonical, base + "/og/demo/image.png", canonical);
+    }
+
+    /** 分享卡片 PNG（从 projectJSON 动态渲染的 ER 缩略图）。 */
+    @GetMapping(value = "s/{token}/image.png", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> shareImage(@PathVariable String token) {
+        R<?> r = projectShareService.getByToken(token);
+        byte[] png;
+        if (r != null && !r.invalid() && r.getData() instanceof Map<?, ?> data) {
+            String name = str(data.get("projectName"));
+            int tables = countTables(data.get("projectJSON"));
+            png = OgImageRenderer.render(name.isEmpty() ? "Database schema" : name,
+                    tables, extractTables(data.get("projectJSON"), 6));
+        } else {
+            png = OgImageRenderer.render(SITE_NAME, 0, List.of());
+        }
+        return imagePng(png);
+    }
+
+    /** 公开演示卡片 PNG。 */
+    @GetMapping(value = "demo/image.png", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> demoImage() {
+        List<OgImageRenderer.Table> sample = List.of(
+                new OgImageRenderer.Table("sys_user", List.of("id", "username", "password_hash", "email"), 8),
+                new OgImageRenderer.Table("sys_role", List.of("id", "code", "name"), 5),
+                new OgImageRenderer.Table("biz_order", List.of("id", "user_id", "amount", "status"), 7));
+        byte[] png = OgImageRenderer.render(SITE_NAME + " demo", 3, sample);
+        return imagePng(png);
+    }
+
+    private static ResponseEntity<byte[]> imagePng(byte[] png) {
+        return ResponseEntity.ok()
+                .contentType(MediaType.IMAGE_PNG)
+                .cacheControl(CacheControl.maxAge(Duration.ofHours(6)).cachePublic())
+                .body(png);
     }
 
     // ---- helpers -------------------------------------------------------
@@ -111,6 +151,70 @@ public class OgUnfurlController {
             // 尽力而为：结构异常不影响卡片渲染
         }
         return 0;
+    }
+
+    /** 从 projectJSON 抽取前 N 张表（ASCII 表名/字段名优先）用于渲染缩略图。 */
+    private List<OgImageRenderer.Table> extractTables(Object projectJson, int limit) {
+        List<Map<String, Object>> ents = new ArrayList<>();
+        collectEntities(projectJson, ents);
+        List<OgImageRenderer.Table> out = new ArrayList<>();
+        for (Map<String, Object> e : ents) {
+            if (out.size() >= limit) {
+                break;
+            }
+            String name = firstNonEmpty(str(e.get("title")), str(e.get("defName")),
+                    str(e.get("name")), str(e.get("chnname")));
+            List<String> fieldNames = new ArrayList<>();
+            int total = 0;
+            if (e.get("fields") instanceof List<?> fl) {
+                total = fl.size();
+                for (Object f : fl) {
+                    if (fieldNames.size() >= 6) {
+                        break;
+                    }
+                    if (f instanceof Map<?, ?> fm) {
+                        String fn = firstNonEmpty(str(fm.get("defName")), str(fm.get("name")),
+                                str(fm.get("title")), str(fm.get("chnname")));
+                        if (!fn.isEmpty()) {
+                            fieldNames.add(fn);
+                        }
+                    }
+                }
+            }
+            out.add(new OgImageRenderer.Table(name.isEmpty() ? "table" : name, fieldNames, total));
+        }
+        return out;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static void collectEntities(Object node, List<Map<String, Object>> acc) {
+        if (node instanceof Map<?, ?> map) {
+            if (map.get("entities") instanceof List<?> list) {
+                for (Object o : list) {
+                    if (o instanceof Map<?, ?> m) {
+                        acc.add((Map<String, Object>) m);
+                    }
+                }
+            }
+            for (Map.Entry<?, ?> e : map.entrySet()) {
+                if (!"entities".equals(e.getKey())) {
+                    collectEntities(e.getValue(), acc);
+                }
+            }
+        } else if (node instanceof List<?> list) {
+            for (Object o : list) {
+                collectEntities(o, acc);
+            }
+        }
+    }
+
+    private static String firstNonEmpty(String... xs) {
+        for (String x : xs) {
+            if (x != null && !x.isEmpty()) {
+                return x;
+            }
+        }
+        return "";
     }
 
     private static String str(Object o) {
