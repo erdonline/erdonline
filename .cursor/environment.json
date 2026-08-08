@@ -1,0 +1,17 @@
+{
+  "name": "ERD Online",
+  "user": "ubuntu",
+  "install": "bash .cursor/install.sh",
+  "start": "bash .cursor/start.sh",
+  "terminals": [
+    {
+      "name": "backend",
+      "command": "bash .cursor/run-backend.sh"
+    },
+    {
+      "name": "frontend",
+      "command": "cd frontend && yarn start"
+    }
+  ],
+  "ports": [8000, 9502, 9092]
+}
