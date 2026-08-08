@@ -72,7 +72,7 @@
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 左树工具条/次密距：工具条 ≤32（目标 ~28）/ 新建·搜索控件 ∈24–28；图标不 clip；sider padX ≤20；新建 Tab focus-visible ✅`model-design-ux.spec.ts`
 - [x] CommonTabs / 表设计签头密度：签栏 ≤26（目标 ~24）+ 签头 ≤28；签头 padX≤8 / gap≤4；内签 gutter/marginR≤2；不 clip 标签/关闭；Tab focus-visible + Cmd+1/2/3；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`「表设计三签」「表设计内签」
-- [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 {表名}」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
+- [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 `{表名}`」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
 - [x] 审批/工单 SQL 明细：`Modal.info` 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] 导入跳过校验：二次导入全跳过 → 首焦「知道了」；Esc/OK 归还「解析并导入」；Tab trap ✅`import-skip-warning-keyboard.spec.ts`
 - [x] 工作台 databaseConfig Drawer：新建/编辑首焦「连接名称」；Esc 归还触发器；Tab trap ✅`database-config-drawer-keyboard.spec.ts`
