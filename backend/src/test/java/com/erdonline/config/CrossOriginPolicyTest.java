@@ -86,17 +86,17 @@ class CrossOriginPolicyTest {
     void prodSocketIoAcceptsExplicitOrigin() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
-        CrossOriginPolicy.assertSocketIoOriginSafeForProfile("https://erdonline-demo.pages.dev", env);
+        CrossOriginPolicy.assertSocketIoOriginSafeForProfile("https://www.erdonline.com", env);
     }
 
     @Test
     void prodHttpRejectsMalformedOriginMissingScheme() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
-        env.setProperty("martin.ui.url", "ttps://erdonline-demo.pages.dev");
+        env.setProperty("martin.ui.url", "ttps://www.erdonline.com");
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
-        assertTrue(ex.getMessage().contains("ttps://erdonline-demo.pages.dev"));
+        assertTrue(ex.getMessage().contains("ttps://www.erdonline.com"));
         assertTrue(ex.getMessage().contains("malformed"));
     }
 
@@ -104,19 +104,19 @@ class CrossOriginPolicyTest {
     void prodHttpRejectsMalformedOriginAmongValidCsvEntries() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("prod");
-        env.setProperty("martin.ui.url", "https://app.erdonline.com,ttps://erdonline-demo.pages.dev");
+        env.setProperty("martin.ui.url", "https://app.erdonline.com,ttps://www.erdonline.com");
         IllegalStateException ex = assertThrows(IllegalStateException.class,
                 () -> CrossOriginPolicy.resolveHttpAllowedOrigins(env));
-        assertTrue(ex.getMessage().contains("ttps://erdonline-demo.pages.dev"));
+        assertTrue(ex.getMessage().contains("ttps://www.erdonline.com"));
     }
 
     @Test
     void nonProdAllowsMalformedOriginWithoutThrowing() {
         MockEnvironment env = new MockEnvironment();
         env.setActiveProfiles("dev");
-        env.setProperty("martin.ui.url", "ttps://erdonline-demo.pages.dev");
+        env.setProperty("martin.ui.url", "ttps://www.erdonline.com");
         assertEquals(
-                List.of("ttps://erdonline-demo.pages.dev"),
+                List.of("ttps://www.erdonline.com"),
                 CrossOriginPolicy.resolveHttpAllowedOrigins(env));
     }
 
@@ -128,7 +128,7 @@ class CrossOriginPolicyTest {
 
     @Test
     void isWellFormedHttpOrigin_rejectsTypoedSchemeOrBlank() {
-        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin("ttps://erdonline-demo.pages.dev"));
+        assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin("ttps://www.erdonline.com"));
         assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin("*"));
         assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin(""));
         assertTrue(!CrossOriginPolicy.isWellFormedHttpOrigin(null));

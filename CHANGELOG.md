@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### 产品 URL：demo 域名统一为 www.erdonline.com
+
+- **改法**：面向用户的 demo / CTA / CORS 示例由 `erdonline-demo.pages.dev` 换为 `https://www.erdonline.com`；`scripts/growth/lib/utm.mjs` 单一事实源；重跑 `build-package.mjs git-style-version-diff` 刷新各平台包；`docs/deployment.md` 保留 CF Pages 默认别名 `erdonline-demo.pages.dev` 作运维说明
+- **未动**：`DEMO_API_URL`（Railway 后端 API）、CF Pages 项目名 `erdonline-demo`、workflow 部署目标
+- **运维提醒**：Railway `ERD_UI_URL` 须同步改为 `https://app.erdonline.com,https://www.erdonline.com` 并 Redeploy，否则 www 域 CORS 预检会 403
+- 验证点：
+  - `curl -sI https://www.erdonline.com` / `/demo` → 200
+  - `grep -r erdonline-demo.pages.dev --include='*.md' --include='*.mjs' --include='*.java' .` 仅剩 deployment 运维别名与 CHANGELOG 历史
+  - 已同步各平台草稿的文章 CTA 需用户重跑 `sync-wechatsync.mjs` 更新线上链接
+
 #### 增长：首发文章 #3 git-style-version-diff（版本 diff 主打篇）
 
 - **正文**：`content/articles/git-style-version-diff.md` 写满全 H2（事故开场 → 机制对比 → 版本/diff 卖点 → 30s demo CTA → 协作/自部署/参与）；`status=ready`；平台 `juejin,zhihu,weixin,csdn,oschina`

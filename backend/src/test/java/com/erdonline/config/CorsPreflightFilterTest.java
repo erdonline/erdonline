@@ -34,16 +34,16 @@ class CorsPreflightFilterTest {
 
     @Test
     void preflightAllowsDemoOriginFromCsvList() throws ServletException, IOException {
-        CorsFilter filter = corsFilter("https://app.erdonline.com,https://erdonline-demo.pages.dev");
+        CorsFilter filter = corsFilter("https://app.erdonline.com,https://www.erdonline.com");
         MockHttpServletRequest request = optionsPreflight(
-                "https://erdonline-demo.pages.dev", "GET");
+                "https://www.erdonline.com", "GET");
         MockHttpServletResponse response = new MockHttpServletResponse();
         FilterChain chain = mock(FilterChain.class);
 
         filter.doFilter(request, response, chain);
 
         assertEquals(200, response.getStatus());
-        assertEquals("https://erdonline-demo.pages.dev",
+        assertEquals("https://www.erdonline.com",
                 response.getHeader("Access-Control-Allow-Origin"));
         assertEquals("GET", response.getHeader("Access-Control-Allow-Methods"));
         verify(chain, never()).doFilter(request, response);
@@ -51,7 +51,7 @@ class CorsPreflightFilterTest {
 
     @Test
     void preflightAllowsProductionOriginFromCsvList() throws ServletException, IOException {
-        CorsFilter filter = corsFilter("https://app.erdonline.com,https://erdonline-demo.pages.dev");
+        CorsFilter filter = corsFilter("https://app.erdonline.com,https://www.erdonline.com");
         MockHttpServletRequest request = optionsPreflight(
                 "https://app.erdonline.com", "POST");
         MockHttpServletResponse response = new MockHttpServletResponse();

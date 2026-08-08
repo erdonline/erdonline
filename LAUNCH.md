@@ -5,7 +5,7 @@
 ## 核心资产
 
 - 一句话定位：**The Git + Figma for database design**（数据库设计的 Git + Figma）。
-- 免登录 Demo：https://erdonline-demo.pages.dev/demo
+- 免登录 Demo：https://www.erdonline.com/demo
 - 仓库：https://github.com/erdonline/erdonline ｜ 文档：https://erdonline.github.io/erdonline/
 - 差异化：**版本快照 + diff** 与 **实时协作**（别人不开源的两件事）。
 
@@ -26,7 +26,7 @@
 - 正文：
   > I got tired of database design tools forcing a trade-off: dbdiagram is nice but closed with no versioning or collaboration; Navicat/PDManer are heavy and single-player; drawio doesn't understand databases. ERD Online is the open-source (MIT) middle: a ReactFlow ER canvas where **every change snapshots a version you can diff/restore**, and **teammates edit the same diagram in real time**. Reverse-engineer existing DBs, export docs, and there's an open API + MCP so AI agents read/write the same `projectJSON` source of truth.
   >
-  > 30-second no-login demo (opens straight into a live ER diagram): https://erdonline-demo.pages.dev/demo
+  > 30-second no-login demo (opens straight into a live ER diagram): https://www.erdonline.com/demo
   > Repo (self-host with one `docker compose up`): https://github.com/erdonline/erdonline
   >
   > Stack: React 18 + UmiJS + TypeScript, Spring Boot 3.5 / JDK 17, MySQL + Redis. Happy to answer questions.
@@ -43,7 +43,7 @@
 
 ### X/Twitter 线程
 
-1. `Databases deserve Git + Figma. ERD Online (open-source, MIT) gives your data models version diffs and real-time collaboration. 30s no-login demo 👇 https://erdonline-demo.pages.dev/demo`
+1. `Databases deserve Git + Figma. ERD Online (open-source, MIT) gives your data models version diffs and real-time collaboration. 30s no-login demo 👇 https://www.erdonline.com/demo`
 2. `Every table change auto-snapshots a version you can diff and restore. No more "final_v3_really.sql".`
 3. `Reverse-engineer an existing DB, edit on a ReactFlow canvas, export Word/HTML/Markdown. Self-host with one docker compose. ⭐ https://github.com/erdonline/erdonline`
 

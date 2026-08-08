@@ -31,16 +31,16 @@ class OriginBindingTest {
     @Test
     void prodOriginBindsSocketIoAndUiFromErdUiUrl() {
         MockEnvironment env = new MockEnvironment();
-        env.setProperty("ERD_UI_URL", "https://erdonline-demo.pages.dev");
+        env.setProperty("ERD_UI_URL", "https://www.erdonline.com");
         env.setProperty("martin.socketio.origin", "${ERD_UI_URL}");
         env.setProperty("martin.ui.url", "${ERD_UI_URL}");
 
         Binder binder = new Binder(
                 ConfigurationPropertySources.get(env),
                 new PropertySourcesPlaceholdersResolver(env));
-        assertEquals("https://erdonline-demo.pages.dev",
+        assertEquals("https://www.erdonline.com",
                 binder.bind("martin.socketio.origin", Bindable.of(String.class)).get());
-        assertEquals("https://erdonline-demo.pages.dev",
+        assertEquals("https://www.erdonline.com",
                 binder.bind("martin.ui.url", Bindable.of(String.class)).get());
     }
 
