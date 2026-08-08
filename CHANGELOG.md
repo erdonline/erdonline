@@ -8,6 +8,14 @@
 
 ### 2026-08-08
 
+#### 推广链路：贡献者入口 + Star/Issue/路线图 CTA
+
+- **改法**：新增 good-first 草稿 `40`–`42`（分享 CTA / social-preview 1280×640 / 落地页页脚贡献链）；`roadmap_vote.yml` Issue 模板 + 社区投票草稿 `43`；README（中/EN）、CONTRIBUTING、`config.yml` contact_links 补 Star / good-first / 路线图投票入口；`docs/community.md` 种子池同步
+- 验证点：
+  - `DRY_RUN=1 REPO=erdonline/erdonline ./scripts/seed-good-first-issues.sh` → 3 条 would create（40–42；43 跳过 roadmap）
+  - `REPO=erdonline/erdonline ./scripts/seed-good-first-issues.sh` → 创建 #22–#24（good first）；#25（roadmap 社区投票）
+  - `gh issue list -R erdonline/erdonline --state open` → 4 条 open
+
 #### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
 
 - **改法**：新增后端匿名揭示页 `OgUnfurlController`（`GET /og/s/{token}`、`GET /og/demo`），按 token 输出 `og:*` + `twitter:card=summary_large_image`（项目名/描述/表数量），HTML 全转义防注入，失效 token 回落品牌卡片；`ErdSecurityConfiguration` 放行 `GET /og/**`

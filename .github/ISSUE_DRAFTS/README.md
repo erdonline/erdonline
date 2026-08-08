@@ -18,9 +18,14 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 ## 当前待投放（未标已合入）
 
-（空）— a11y 微切片边际收益已低，暂不续堆草稿；正式仓就绪后可按 `docs/community.md` 从既有合入项以外选题。
+| 草稿 | 主题 |
+|------|------|
+| `40-share-cta-prominence.md` | 分享页 fork/登录 CTA 更显眼 + testid |
+| `41-github-social-preview-1280.md` | GitHub social-preview 1280×640 静态图 |
+| `42-landing-footer-contributor-cta.md` | 落地页页脚 Star / good-first 链 |
+| `43-roadmap-community-vote-q3.md` | 社区路线图投票帖（`roadmap` 标签，非 good-first） |
 
-`01`–`39` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
+`01`–`39` 已标合入。正式仓投放：`REPO=erdonline/erdonline ./scripts/seed-good-first-issues.sh`（`43` 需 `LABELS=roadmap` 单独创建）。
 
 合入后在对应草稿顶部加：
 
