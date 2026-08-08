@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### 增长：Wechatsync 多平台草稿同步（sync-wechatsync.mjs）
+
+- **识别**：用户所称 WebChatSync = 开源 [Wechatsync / 文章同步助手](https://github.com/wechatsync/Wechatsync)（Chrome 扩展 + `@wechatsync/cli`，经 WebSocket 调浏览器内已登录态的平台 Web API，默认草稿）
+- **改法**：新增 `scripts/growth/sync-wechatsync.mjs` + `lib/wechatsync.mjs`（按平台 sync `content/dist/<slug>/*.md`，跳过 v2ex）；`scripts/growth/package.json` pin `@wechatsync/cli@1.1.0` + CJS overrides（Node 20 兼容）；`.env.example` 增 `WECHATSYNC_TOKEN` / `SYNC_WS_PORT`；`docs/growth.md` / `content/articles/README.md` / publish-checklist 补接入说明
+- **边界**：实同步需本机 Chrome 扩展 + Token；CI 不跑；仍不做无扩展 cookie/Playwright 发帖；V2EX 人工
+- 验证点：
+  - `cd scripts/growth && npm install` 成功
+  - `node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run` 对 juejin/zhihu/wechat 三平台 dry-run 绿（标题/UTM 正确）
+  - 缺 `WECHATSYNC_TOKEN` 实跑 exit 1 并提示；`--check-auth` 需 Token（扩展连接后可用）
+
 #### 增长：文章发布流水线（content/articles + scripts/growth + growth-publish Action）
 
 - **改法**：新增 `content/articles/`（frontmatter 草稿：`title/slug/status/platforms/cta/utm_campaign`）+ `scripts/growth/new-article.mjs`（模板开稿）+ `scripts/growth/build-package.mjs`（按平台出可粘贴包：juejin/zhihu/wechat/segmentfault/oschina 为 `.md`、v2ex 为精简 `.txt`，外加 `publish-checklist.md`）；UTM 链接统一由 `scripts/growth/lib/utm.mjs` 注入（demo 主 CTA，source=平台、content=slug）；`.github/workflows/growth-publish.yml` 在 PR 打 `growth-publish` 标签时构建并上传 artifact

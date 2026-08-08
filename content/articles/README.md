@@ -20,7 +20,13 @@ node scripts/growth/build-package.mjs --all --status draft
 
 # 4. 产物在 content/dist/<slug>/（gitignored）：
 #    juejin.md / zhihu.md / wechat.md / v2ex.txt + publish-checklist.md
-#    → 人工粘贴发布，按 checklist 核对
+
+# 5. （可选）Wechatsync 推到各平台草稿箱 — 见 docs/growth.md
+cd scripts/growth && npm install   # 一次性
+node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
+# export WECHATSYNC_TOKEN=... && node scripts/growth/sync-wechatsync.mjs git-style-version-diff
+
+# 6. V2EX 仍人工帖 v2ex.txt；草稿箱核对后点发布；评论区答疑与数据回填
 ```
 
 ## 自动 vs 人工
@@ -30,7 +36,8 @@ node scripts/growth/build-package.mjs --all --status draft
 | 选题、模板、UTM 链接注入、平台包生成 | 脚本（本目录 + `scripts/growth/`） |
 | PR 打 `growth-publish` 标签 → CI 出发布包 artifact | GitHub Action（`.github/workflows/growth-publish.yml`） |
 | 正文写作（AI 起草 + 人改）| 半自动 |
-| 粘贴发布、评论区答疑、数据回填 | **人工**（掘金/知乎/V2EX/公众号无官方发布 API，登录态自动化违反 ToS 且易碎，不做） |
+| 掘金/知乎/思否/开源中国/公众号 → **草稿箱** | **Wechatsync**（`sync-wechatsync.mjs` + Chrome 扩展，本机 Token） |
+| V2EX 发帖、草稿箱点发布、评论区答疑、数据回填 | **人工** |
 
 ## Frontmatter 规范
 
