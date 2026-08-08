@@ -290,7 +290,7 @@ node dist/index.js      # stdio；或 yarn start -- --http → :3920/mcp
 yarn dogfood            # 读写 PAT + REST/MCP（create_version / update_project / put_project_json）
 ```
 
-详见 [`mcp/README.md`](../mcp/README.md)。
+详见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
 ## 前端如何找到后端
 
