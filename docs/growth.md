@@ -60,8 +60,46 @@ UTM 规范：`?utm_source=<平台>&utm_medium=article&utm_campaign=<战役>&utm_
 ## 发布流水线（自动化边界）
 
 - **自动化**：选题模板、frontmatter 规范、UTM 注入、平台包生成（`new-article.mjs` / `build-package.mjs`）、PR 打 `growth-publish` 标签后 CI 出 artifact。
-- **人工**：粘贴发布 + 评论区答疑 + 数据回填。掘金/知乎/V2EX/公众号均无官方发布 API；cookie/登录态自动化违反 ToS 且易碎，**明确不做**。
-- **Phase 2（若日后真需要一键发布）**：仅当平台开放官方 API 后，以「token 存 secrets + 每平台 adapter」扩展；不做浏览器自动化发布。
+- **半自动（Wechatsync）**：经 [文章同步助手 Wechatsync](https://github.com/wechatsync/Wechatsync) 把 `content/dist/<slug>/` 各平台 `.md` **推到草稿箱**（掘金/知乎/思否/开源中国/公众号等）；扩展在浏览器内用你已登录的会话调平台 Web API，**不做 cookie 抓取脚本**；默认草稿，发布前仍人审。
+- **人工**：V2EX 纯文本帖、评论区答疑、数据回填、草稿箱点「发布」。
+
+### Wechatsync 接入（Phase 2 已落地）
+
+用户口中的 **WebChatSync** 即开源项目 **Wechatsync（文章同步助手）**：Chrome 扩展 + `@wechatsync/cli`，经 WebSocket 把 Markdown 同步到 29+ 平台草稿箱。
+
+**一次性准备**
+
+1. 安装 [Chrome 扩展](https://www.wechatsync.com/#install)；在浏览器登录掘金/知乎等目标账号。
+2. 扩展设置 → 开启 **MCP 连接** → 复制 Token → 写入根目录 `.env`：`WECHATSYNC_TOKEN=<token>`（见 `.env.example`）。
+3. 安装 pinned CLI（上游 `@wechatsync/cli@1.1.0` 在 Node 20 需锁 CJS 依赖）：
+   ```bash
+   cd scripts/growth && npm install
+   ```
+
+**发一篇（ready 状态）**
+
+```bash
+# 1. 打包（UTM 已按平台注入）
+node scripts/growth/build-package.mjs git-style-version-diff
+
+# 2. 预览（不需扩展连接）
+node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
+
+# 3. 实同步到草稿箱（扩展须在线 + Token 一致）
+export WECHATSYNC_TOKEN=...   # 或 source .env
+node scripts/growth/sync-wechatsync.mjs git-style-version-diff
+
+# 可选：检查各平台登录态
+node scripts/growth/sync-wechatsync.mjs --check-auth
+```
+
+**纪律**
+
+- 每平台单独 sync 对应 `juejin.md` / `zhihu.md` …，保证 `utm_source=<平台>` 正确；`v2ex` 仍走 `v2ex.txt` 人工帖。
+- CI **不**跑 Wechatsync（需本机 Chrome 登录态）；artifact 下载后在本机执行 sync。
+- 远程开发机：扩展开「同步桥接」连 `ws://<host>:9527`，Token 与服务器一致（见 [CLI README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/cli#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)）；生产环境建议 SSH 隧道。
+
+**与旧口径的关系**：仍不做无扩展的 cookie/Playwright 发帖；Wechatsync 是用户显式安装的扩展 + 官方 Web API 草稿同步。
 
 ## 4 周节奏（启动 checklist 摘要）
 

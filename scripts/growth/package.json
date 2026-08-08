@@ -1,0 +1,13 @@
+{
+  "name": "@erd/growth-wechatsync",
+  "private": true,
+  "description": "Pinned @wechatsync/cli for Node 20 (upstream chalk/ora/open ESM mismatch)",
+  "dependencies": {
+    "@wechatsync/cli": "1.1.0"
+  },
+  "overrides": {
+    "chalk": "4.1.2",
+    "ora": "5.4.1",
+    "open": "8.4.2"
+  }
+}

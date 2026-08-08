@@ -123,6 +123,11 @@ function checklist(fm) {
 
 ${lines.join('\n')}
 
+## Wechatsync（可选，草稿）
+
+- [ ] \`cd scripts/growth && npm install\`（一次性）→ 扩展 MCP Token 写入 \`WECHATSYNC_TOKEN\`
+- [ ] \`node scripts/growth/sync-wechatsync.mjs ${fm.slug}\` → 各平台草稿箱；核对排版与 UTM 后再点发布（V2EX 仍人工 \`v2ex.txt\`）
+
 ## 发后 24h
 
 - [ ] 同步分发：思否/开源中国（若 platforms 未含，改头段后补发）
