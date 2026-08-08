@@ -15,7 +15,13 @@
   <img alt="java" src="https://img.shields.io/badge/Java-17-orange.svg?style=flat-square">
   <img alt="spring boot" src="https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen.svg?style=flat-square">
   <img alt="react" src="https://img.shields.io/badge/React-18-blue.svg?style=flat-square">
-  <a href="#"><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square"></a>
+  <a href="https://github.com/erdonline/erdonline/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/erdonline/erdonline?style=flat-square"></a>
+  <a href="https://github.com/erdonline/erdonline/issues"><img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=flat-square"></a>
+</p>
+
+<p align="center">
+  <a href="https://erdonline-demo.pages.dev/demo"><img alt="在线体验" src="https://img.shields.io/badge/▶_在线体验-免登录-6C5CE7?style=for-the-badge"></a>
+  <a href="https://erdonline.github.io/erdonline/"><img alt="文档" src="https://img.shields.io/badge/文档-在线-2D9CDB?style=for-the-badge"></a>
 </p>
 
 ---
@@ -23,6 +29,20 @@
 ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁垒，设计器体验是及格线。提供关系图画布（ReactFlow）、版本快照与 diff、导入导出、多数据源与团队权限。
 
 本仓库是 **单体架构（monolith）**：前端与 Spring Boot 同仓，docker-compose 一键起全栈。
+
+> **30 秒惊艳，免注册**：打开 [**erdonline-demo.pages.dev/demo**](https://erdonline-demo.pages.dev/demo) → 进入带 `用户`/`订单` 表的关系图，改一张表、存一个版本、看一次 diff。
+
+## 🆚 为什么选它
+
+| | ERD Online | dbdiagram.io | Navicat / PDManer | drawio |
+|---|:---:|:---:|:---:|:---:|
+| 开源免费 | ✅ MIT | ❌ | ❌ | ✅ |
+| 版本快照 + diff | ✅ | ❌ | ⚠️ 手动 | ❌ |
+| 实时协作 | ✅ | ❌ | ❌ | ⚠️ |
+| 懂数据库（正/反向） | ✅ | ⚠️ | ✅ | ❌ |
+| 团队角色与权限 | ✅ 三级 | ❌ | ⚠️ | ❌ |
+| 自托管 | ✅ 一键 | ❌ | ❌ | ✅ |
+| 开放 API / MCP（给 AI agent） | ✅ | ❌ | ❌ | ❌ |
 
 ## ✨ 特性
 
@@ -64,7 +84,7 @@ erd-online/
 ### 方式一：Docker Compose 一键启动（推荐）
 
 ```bash
-git clone <this-repo> erd-online && cd erd-online
+git clone https://github.com/erdonline/erdonline erd-online && cd erd-online
 cp .env.example .env          # 按需修改端口 / 密码
 docker compose up -d          # 启动 mysql + redis + backend + frontend
 ```
@@ -109,7 +129,9 @@ cd frontend && yarn && yarn start
 
 ## 🤝 贡献
 
-欢迎贡献！请先阅读 [贡献指南](CONTRIBUTING.md) 与 [行为准则](CODE_OF_CONDUCT.md)。
+欢迎贡献！现代技术栈 + 一键开发环境 + CI 质量门禁，让第一个 PR 很好落地；新手可从 **good first issue** 标签起步。请先阅读 [贡献指南](CONTRIBUTING.md) 与 [行为准则](CODE_OF_CONDUCT.md)。维护者推广物料见 [LAUNCH.md](./LAUNCH.md)。
+
+**如果 ERD Online 对你有用，请 [⭐ Star 一下](https://github.com/erdonline/erdonline)——这是开源项目活下去的燃料。**
 
 ## 📄 许可证
 

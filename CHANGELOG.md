@@ -6,6 +6,18 @@
 
 ## [Unreleased]
 
+### 2026-08-08
+
+#### 推广：Launch Kit + 增长巡检（待第一个 star / 社区 Issue）
+
+- **门面**：合并 PR #18 思路 — `LAUNCH.md`（Show HN / Reddit / PH 即发文案）；`README.md` / `README.en-US.md` 顶部 demo 按钮、对比表、Star CTA；中文 README clone 改用正式 URL
+- **巡检**：`scripts/growth-pulse.sh` — 输出 stars / 非 PR 的 open issue 数；达成任一里程碑 exit 0
+- **good-first 草稿**：`40` 落地页 footer Star、`41` CONTRIBUTING→LAUNCH、`42` Social Preview 文档
+- 验证点：
+  - `curl -sI https://erdonline-demo.pages.dev/demo | head -1` → 200
+  - `REPO=erdonline/erdonline ./scripts/growth-pulse.sh` → PENDING（stars=0, community_issues=0）
+  - `DRY_RUN=1 REPO=erdonline/erdonline ./scripts/seed-good-first-issues.sh` → 3 条待投放
+
 ### 2026-08-06
 
 #### UI：Home / Group 顶栏补「通知」入口（ChromeNotificationsButton）
