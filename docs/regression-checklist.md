@@ -72,7 +72,7 @@
 - [x] 左树行高密度：treenode ≤24（目标 ~22）/ font ≤13；截图 `diagram-left-tree-dense.png` ✅`model-design-ux.spec.ts`
 - [x] 左树工具条/次密距：工具条 ≤32（目标 ~28）/ 新建·搜索控件 ∈24–28；图标不 clip；sider padX ≤20；新建 Tab focus-visible ✅`model-design-ux.spec.ts`
 - [x] CommonTabs / 表设计签头密度：签栏 ≤26（目标 ~24）+ 签头 ≤28；签头 padX≤8 / gap≤4；内签 gutter/marginR≤2；不 clip 标签/关闭；Tab focus-visible + Cmd+1/2/3；截图 `diagram-common-tabs-dense.png` ✅`model-design-ux.spec.ts`「表设计三签」「表设计内签」
-- [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 {表名}」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
+- [x] CommonTabs 签头键盘：←/→ 移焦 + Enter 激活；关闭「关闭 `{表名}`」；关签焦点归还；内签同构 ✅`common-tabs-keyboard.spec.ts`
 - [x] 审批/工单 SQL 明细：`Modal.info` 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap ✅`sql-detail-keyboard.spec.ts`
 - [x] 导入跳过校验：二次导入全跳过 → 首焦「知道了」；Esc/OK 归还「解析并导入」；Tab trap ✅`import-skip-warning-keyboard.spec.ts`
 - [x] 工作台 databaseConfig Drawer：新建/编辑首焦「连接名称」；Esc 归还触发器；Tab trap ✅`database-config-drawer-keyboard.spec.ts`
@@ -855,3 +855,12 @@
 - [x] [OIDC issuer 单值] `ERD_UI_URL` 逗号双源时，OIDC issuer 只取第一个合法 http(s) 条目；首项畸形（如 `ttps://`）自动跳到下一个合法条目 ✅ `OidcConfigTest`
 - [x] [畸形 Origin fail-fast] prod 下 `ERD_UI_URL` 任一逗号条目缺 `http(s)://` 前缀 → 启动失败并点名具体值；非 prod 仅 warn 放行 ✅ `CrossOriginPolicyTest`
 - [ ] [Redeploy 崩容器排障] 日志含 `oidcIdTokenService` init 失败 → 先查 `Caused by:` 是否含 `ERD_OIDC_RSA_PRIVATE_KEY`（RSA 私钥未设，与 `ERD_UI_URL` 无关，见 `docs/deployment.md` 排障段）→ 补齐私钥变量后 Redeploy → `actuator/health` 转 UP
+
+## 社交解析 OG（ADR-0025，2026-08-08）
+
+- [x] [分享卡片] `curl -H 'User-Agent: Twitterbot' /og/s/{token}` → `og:title`=项目名·ERD Online，描述含「N 张表」+ `twitter:card=summary_large_image` ✅ 本机 curl + `OgUnfurlControllerTest`
+- [x] [失效回落] `curl /og/s/{无效token}` → 品牌通用卡片（`ERD Online · 数据库设计的 Git + Figma`），不泄露分享是否存在 ✅
+- [x] [XSS 转义] 项目名含 `<script>` → 揭示页输出 `&lt;script&gt;`，不注入可执行脚本 ✅ `OgUnfurlControllerTest`
+- [x] [nginx 分流] bot UA `/s/{token}`、`/demo` → 后端 OG HTML；真人 UA → SPA `index.html`；`/og/**`（含 og:image）任意 UA → 后端 ✅ 本机起 nginx 验证 + `nginx -t`
+- [x] [动态 og:image] `curl /og/s/{token}/image.png` → `image/png` 1200×630，含真实表名网格；`og:image` 指向该图 ✅ `OgImageRendererTest` + 本机 curl
+- [ ] [多源取首] `ERD_UI_URL` 逗号双源时 `og:url`/`og:image` 用第一个 origin（去尾斜杠）→ 期望首源；上线后抽查

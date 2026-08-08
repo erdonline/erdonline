@@ -56,6 +56,8 @@ public class ErdSecurityConfiguration {
                     auth.requestMatchers(HttpMethod.OPTIONS, "/**").permitAll();
                     // 只读分享：匿名仅 GET /share/{token}（及 /ncnb 前缀变体）；写操作需登录
                     auth.requestMatchers(HttpMethod.GET, "/share/*", "/ncnb/share/*").permitAll();
+                    // ADR-0025 社交解析揭示页：匿名 GET /og/**（爬虫抓 OG meta）
+                    auth.requestMatchers(HttpMethod.GET, "/og/**").permitAll();
                     for (String url : ignore) {
                         auth.requestMatchers(url).permitAll();
                     }

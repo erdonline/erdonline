@@ -71,7 +71,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 - **只读版本**：`GET /api/v1/projects/{id}/versions`、`…/versions/{versionId}` 需 `versions:read` + 成员；列表不含 `projectJSON`；详情清空 `profile.dbs`
 - **提交版本**：`POST /api/v1/projects/{id}/versions` 需 `versions:write` + 成员；body `projectJSON`/`snapshot`；写入前清空 `profile.dbs`；仅 insert（忽略客户端 id）；会话 JWT 不接受
 - **写项目**：`PATCH /api/v1/projects/{id}`（元数据）与 `PUT /api/v1/projects/{id}/projectJSON` 需 `projects:write` + 成员；PUT 写入前清空 `profile.dbs`
-- **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](../mcp/README.md)
+- **MCP**：仓库 `mcp/` 经 PAT（或等价 OAT）调上列 REST；stdio / Streamable HTTP；写 tools：`create_version`（`versions:write`）、`update_project` / `put_project_json`（`projects:write`）。见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)
 - **限流**：默认 60/min/token（`ERD_PUBLIC_API_RATE_LIMIT`）；Redisson 集群共享；超限 429；Redis 不可用 fail-closed → 503（读写共用）
 - **后置**：~~第三方 IdP 联邦~~ → 见 [ADR-0021](./adr/0021-idp-federation-google-wechat.md)；**不**因换票/吊销/userinfo/discovery 匿名口放宽 CORS
 - **产品 UI**：
