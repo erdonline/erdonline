@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Link, useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
 import {usePageSeo} from '@/hooks/usePageSeo';
+import {track} from '@/utils/analytics';
 import LandingChrome, {DOCS_URL} from './LandingChrome';
 import './index.less';
 
@@ -12,6 +13,7 @@ const LandingPage: React.FC = () => {
 
   useEffect(() => {
     setAuthed(Boolean(cache.getItem('Authorization')));
+    track('landing_view');
   }, []);
 
   const t = (id: string) => intl.formatMessage({ id });

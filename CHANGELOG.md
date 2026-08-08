@@ -6,6 +6,17 @@
 
 ## [Unreleased]
 
+### 2026-08-08
+
+#### 推广链路·度量：漏斗埋点 + 首触 UTM 归因
+
+- **改法**：新增 `frontend/src/utils/analytics.ts`——首触（first-touch）UTM/referrer 归因落 `localStorage`（幂等不覆盖），`track()` 落 `window.__erdFunnel`（供 E2E）并转发已接入的百度统计 `_hmt`；埋点绝不影响主流程（全程 try/catch）。
+- **挂点**：`app.tsx` 引导时 `captureAttribution()`；落地页 `landing_view`；只读分享/演示页 `demo_open`/`share_view`；版本保存成功处（`versionSaveConflict.handleVersionSaveResponse`）`version_save`（北极星）。
+- 验证点：
+  - `npx tsx src/utils/analytics.test.ts` 绿（首触幂等 / 直达无 utm 不建归因 / 外部 referrer 归因 / track 落盘）
+  - 运行态 Playwright：`/?utm_source=hn&...` → `localStorage['erd:attribution'].utm_source==='hn'` 且触发 `landing_view`；`/demo` 触发 `demo_open`（本机跑过 `WIRING_OK`）
+  - `yarn lint:js:ci` 0 error、`yarn build` 绿
+
 ### 2026-08-06
 
 #### UI：Home / Group 顶栏补「通知」入口（ChromeNotificationsButton）
