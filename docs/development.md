@@ -132,7 +132,8 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 ```
 
 - 并发隔离：本地上限 16 worker（默认 `ceil(CPU/2)`，满配 `PW_WORKERS=16`）；每 worker 登录 `e2e{n}`（`e2e0`..`e2e15`）；项目名 `e2e-w{n}-` 前缀
-- 空态/示例/导出失败用例在 `chromium-serial`（config 内 `workers: 1`，账号 `e2e-serial`）；**不要**给该 project 配 `dependencies: ['chromium']`（曾导致 `--project=chromium-serial` 先跑完整套 chromium）；CI 全量顺序见 `e2e-smoke.yml` 两步
+- 空态/示例/导出失败用例在 `chromium-serial`（config 内 `workers: 1`，账号 `e2e-serial`）；**不要**给该 project 配 `dependencies: ['chromium']`（曾导致 `--project=chromium-serial` 先跑完整套 chromium）
+- **CI 合并门只跑核心旅程冒烟**（`e2e-smoke.yml` → `tests/e2e/smoke.spec.ts`）：全量 143 条在单 job/2 worker 下需 ~45 分钟、远超 30 分钟 timeout（长期被 cancel、无信号），故不进 gate。**全量回归请本地 `yarn test:e2e`**；日后如要 CI 全量，另开分片矩阵 workflow
 - E2E / 公开 demo 种子：空卷由后端 Flyway `V5`/`V6` 写入；已有库可 `./backend/dev-ensure.sh --restart` 或查 `flyway_schema_history`
 - 改公开/登录示例模型：先改 `schema/examples/demo.projectjson.json`，再 `node scripts/sync-demo-projectjson.mjs`，再确保 Flyway `V5` 已应用（或对新库重建卷）
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录

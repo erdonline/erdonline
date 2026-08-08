@@ -1,8 +1,13 @@
 name: e2e-smoke
 
-# 核心旅程冒烟：登录 → 新建项目 → 进入设计器 → 清理
-# 全栈起服务（mysql + redis + backend:9502 + frontend:8000）后跑 Playwright。
+# 核心旅程冒烟：登录 → 新建项目 → 进入设计器 → 删除确认。
+# 全栈起服务（mysql + redis + backend:9502 + frontend:8000）后跑 Playwright 冒烟用例。
 # 红线：此 workflow 失败 = 核心旅程断裂，禁止合并。
+#
+# 范围：只跑核心旅程冒烟（tests/e2e/smoke.spec.ts）——快且稳，作为每 PR 的合并门。
+# 全量 143 条 e2e 回归不在此 gate 内跑：单 job 2 worker 跑全量需 ~45 分钟，远超 30 分钟
+# timeout（长期被 cancel，等于无信号）。全量回归本地执行：`cd frontend && yarn test:e2e`
+# （见 docs/development.md「E2E（Playwright）」）；后续如需 CI 全量应单开分片矩阵 workflow。
 
 on:
   push:
@@ -94,11 +99,9 @@ jobs:
           done
           echo "frontend FAILED to start"; tail -200 frontend.log; exit 1
 
-      - name: Run smoke tests（chromium 再 chromium-serial；无 project deps，避免单条膨胀）
+      - name: Run core-journey smoke（tests/e2e/smoke.spec.ts）
         working-directory: frontend
-        run: |
-          npx playwright test --project=chromium
-          npx playwright test --project=chromium-serial
+        run: npx playwright test tests/e2e/smoke.spec.ts --project=chromium
 
       - name: Upload failure artifacts
         if: failure()
