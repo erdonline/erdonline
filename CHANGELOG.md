@@ -8,6 +8,14 @@
 
 ### 2026-08-08
 
+#### 推广链路：存版归因后端 sink（渠道 → 北极星）
+
+- **改法**：Flyway `V20__version_attribution.sql` 新增 append-only `version_attribution` 表；`VersionAttributionService` 在 `DbChangeServiceImpl.saveVersion` 成功后落库（失败仅 warn，不影响存版）；前端 `hisProjectSave` 附带 `getAttribution()` 首触 UTM/referrer
+- 验证点：
+  - `mvn -Dtest=VersionAttributionServiceImplTest,DbChangeServiceImplAttributionTest test` 绿
+  - 重启后端 Flyway 建表；curl 登录 → 存版带 `attribution.utm_source=hn` → `SELECT utm_source FROM version_attribution WHERE utm_source='hn'` 命中
+  - Playwright：`attribution-sink.spec.ts` 断言存版 POST 携带 localStorage 归因（本机跑过）
+
 #### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
 
 - **改法**：新增后端匿名揭示页 `OgUnfurlController`（`GET /og/s/{token}`、`GET /og/demo`），按 token 输出 `og:*` + `twitter:card=summary_large_image`（项目名/描述/表数量），HTML 全转义防注入，失效 token 回落品牌卡片；`ErdSecurityConfiguration` 放行 `GET /og/**`
