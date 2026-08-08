@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 增长：首发文章 #3 git-style-version-diff（版本 diff 主打篇）
+
+- **正文**：`content/articles/git-style-version-diff.md` 写满全 H2（事故开场 → 机制对比 → 版本/diff 卖点 → 30s demo CTA → 协作/自部署/参与）；`status=ready`；平台 `juejin,zhihu,weixin,csdn,oschina`
+- **流水线**：`PLATFORMS` / `build-package` / `wechatsync` 补 `weixin`、`csdn`；Wechatsync 平台 ID 修正 `weixin`（非 `wechat`）
+- 验证点：
+  - `node scripts/growth/build-package.mjs git-style-version-diff` 出 5 平台包 + checklist
+  - Wechatsync 草稿同步：juejin ✓、weixin ✓、csdn ✓、oschina ✓；zhihu ✗（403 没有对应的权限，需账号侧排查）
+
 #### 增长：Wechatsync 多平台草稿同步（sync-wechatsync.mjs）
 
 - **识别**：用户所称 WebChatSync = 开源 [Wechatsync / 文章同步助手](https://github.com/wechatsync/Wechatsync)（Chrome 扩展 + `@wechatsync/cli`，经 WebSocket 调浏览器内已登录态的平台 Web API，默认草稿）

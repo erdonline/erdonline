@@ -22,6 +22,7 @@ import { spawnSync } from 'node:child_process';
 import { parseFrontmatter } from './lib/frontmatter.mjs';
 import {
   PLATFORM_ARTIFACT,
+  WECHATSYNC_PLATFORM_MAP,
   resolveWechatsyncPlatforms,
   ensureWechatsyncCli,
   validateWechatsyncEnv,
@@ -133,7 +134,7 @@ for (const platform of sync) {
     failed = true;
     continue;
   }
-  const wsPlatform = platform; // ids 与 growth 一致
+  const wsPlatform = WECHATSYNC_PLATFORM_MAP[platform] || platform;
   const cliArgs = ['sync', file, '-p', wsPlatform, '-t', fm.title];
   if (args.dryRun) cliArgs.push('--dry-run');
   console.log(`→ ${platform}: ${path.relative(ROOT, file)}`);

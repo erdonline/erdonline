@@ -14,7 +14,9 @@ export const GROWTH_DIR = path.resolve(__dirname, '..');
 export const WECHATSYNC_PLATFORM_MAP = {
   juejin: 'juejin',
   zhihu: 'zhihu',
-  wechat: 'wechat',
+  wechat: 'weixin',
+  weixin: 'weixin',
+  csdn: 'csdn',
   segmentfault: 'segmentfault',
   oschina: 'oschina',
 };
@@ -26,6 +28,8 @@ export const PLATFORM_ARTIFACT = {
   juejin: 'juejin.md',
   zhihu: 'zhihu.md',
   wechat: 'wechat.md',
+  weixin: 'weixin.md',
+  csdn: 'csdn.md',
   segmentfault: 'segmentfault.md',
   oschina: 'oschina.md',
 };
