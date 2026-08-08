@@ -24,6 +24,12 @@
   <a href="https://erdonline.github.io/erdonline/"><img alt="文档" src="https://img.shields.io/badge/文档-在线-2D9CDB?style=for-the-badge"></a>
 </p>
 
+<p align="center">
+  <a href="https://github.com/erdonline/erdonline/stargazers"><img alt="Star" src="https://img.shields.io/github/stars/erdonline/erdonline?style=for-the-badge&label=Star&logo=github&color=6C5CE7"></a>
+  <a href="https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"><img alt="Good first issues" src="https://img.shields.io/badge/Good_first_issues-认领任务-2D9CDB?style=for-the-badge"></a>
+  <a href="https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml"><img alt="路线图投票" src="https://img.shields.io/badge/路线图-投票反馈-10B981?style=for-the-badge"></a>
+</p>
+
 ---
 
 ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁垒，设计器体验是及格线。提供关系图画布（ReactFlow）、版本快照与 diff、导入导出、多数据源与团队权限。
@@ -129,7 +135,16 @@ cd frontend && yarn && yarn start
 
 ## 🤝 贡献
 
-欢迎贡献！现代技术栈 + 一键开发环境 + CI 质量门禁，让第一个 PR 很好落地；新手可从 **good first issue** 标签起步。请先阅读 [贡献指南](CONTRIBUTING.md) 与 [行为准则](CODE_OF_CONDUCT.md)。
+欢迎贡献！现代技术栈 + 一键开发环境 + CI 质量门禁，让第一个 PR 很好落地。
+
+| 动作 | 链接 |
+|------|------|
+| ⭐ **Star**（帮项目被看见） | [github.com/erdonline/erdonline/stargazers](https://github.com/erdonline/erdonline/stargazers) |
+| 🌱 **认领 good first issue**（约 2h 可合入） | [打开标签列表](https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) |
+| 🗳 **路线图投票** | [用模板开 Issue](https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml) |
+| 🐛 **报 Bug / 提想法** | [Issue 模板](https://github.com/erdonline/erdonline/issues/new/choose) |
+
+请先阅读 [贡献指南](CONTRIBUTING.md)、[社区运营清单](docs/community.md) 与 [行为准则](CODE_OF_CONDUCT.md)。
 
 **如果 ERD Online 对你有用，请 [⭐ Star 一下](https://github.com/erdonline/erdonline)——这是开源项目活下去的燃料。**
 

@@ -41,14 +41,17 @@ for f in "${files[@]}"; do
     echo "SKIP (no title): $f" >&2
     continue
   fi
+  if [[ "$title" == \[roadmap\]* ]]; then
+    echo "SKIP (roadmap draft — create manually with LABELS=roadmap): $(basename "$f")"
+    continue
+  fi
   echo "==> $title"
   if [[ "$DRY_RUN" == "1" ]]; then
     echo "    (dry-run) would create on $REPO with labels: $LABELS"
     created=$((created + 1))
     continue
   fi
-  # shellcheck disable=SC2086
-  gh issue create -R "$REPO" --title "$title" --body "$body" --label $LABELS
+  gh issue create -R "$REPO" --title "$title" --body "$body" --label "$LABELS"
   created=$((created + 1))
 done
 

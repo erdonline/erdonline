@@ -16,6 +16,12 @@
 </p>
 
 <p align="center">
+  <a href="https://github.com/erdonline/erdonline/stargazers"><img alt="Star" src="https://img.shields.io/github/stars/erdonline/erdonline?style=for-the-badge&label=Star&logo=github&color=6C5CE7"></a>
+  <a href="https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22"><img alt="Good first issues" src="https://img.shields.io/badge/Good_first_issues-pick_one-2D9CDB?style=for-the-badge"></a>
+  <a href="https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml"><img alt="Roadmap vote" src="https://img.shields.io/badge/Roadmap-vote-10B981?style=for-the-badge"></a>
+</p>
+
+<p align="center">
   <a href="https://github.com/erdonline/erdonline/stargazers"><img alt="stars" src="https://img.shields.io/github/stars/erdonline/erdonline?style=flat-square"></a>
   <a href="./LICENSE"><img alt="license" src="https://img.shields.io/badge/license-MIT-green.svg?style=flat-square"></a>
   <img alt="java" src="https://img.shields.io/badge/Java-17-orange.svg?style=flat-square">
@@ -101,7 +107,16 @@ Published docs: [erdonline.github.io/erdonline](https://erdonline.github.io/erdo
 
 ## 🤝 Contributing
 
-Contributions are welcome, and **good first issues** are labeled for newcomers. Please read the [Contributing Guide](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md). Modern stack, one-command dev environment, and CI-gated quality make it easy to land your first PR.
+Contributions are welcome — modern stack, one-command dev, CI gates.
+
+| Action | Link |
+|--------|------|
+| ⭐ **Star** (helps discovery) | [stargazers](https://github.com/erdonline/erdonline/stargazers) |
+| 🌱 **Good first issues** (~2h to merge) | [open list](https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22) |
+| 🗳 **Roadmap vote** | [open with template](https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml) |
+| 🐛 **Bug / idea** | [issue templates](https://github.com/erdonline/erdonline/issues/new/choose) |
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md), [docs/community.md](docs/community.md), and [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md).
 
 **If ERD Online is useful to you, please [⭐ star the repo](https://github.com/erdonline/erdonline) — it's the fuel that keeps an open-source project alive.**
 

@@ -2,6 +2,8 @@
 
 感谢你考虑为 ERD Online 做出贡献！/ Thanks for considering a contribution!
 
+**数据库设计的 Git + Figma** — 若产品对你有用，请先 [⭐ Star](https://github.com/erdonline/erdonline/stargazers)；想动手请看 [good first issues](https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22)；想影响排期请用 [路线图投票模板](https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml)。
+
 ## 开发流程
 
 1. Fork 本仓库并从 `main` 创建分支：`git checkout -b feat/your-feature`
@@ -43,8 +45,13 @@ docs(readme): 补充 Docker 部署说明
 ## 新手任务（good first issue）
 
 - 浏览带 `good first issue` 标签的 Issue，或阅读运营清单：[docs/community.md](docs/community.md)
-- 认领后按 Issue 内「验证命令」自测，再开 PR
-- 维护者：保持 3–8 个开放新手任务；模板见 `.github/ISSUE_TEMPLATE/good_first_issue.yml`
+- 认领后在 Issue 下留言「我来做」→ Fork → PR
+- 按 Issue 内「验证命令」自测，在 PR 描述贴结果摘要
+- 维护者：保持 **3–8** 个开放新手任务；模板见 `.github/ISSUE_TEMPLATE/good_first_issue.yml`；批量投放：`REPO=erdonline/erdonline ./scripts/seed-good-first-issues.sh`（草稿 `.github/ISSUE_DRAFTS/`）
+
+## 路线图反馈
+
+使用 [路线图投票 Issue 模板](https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml) 说明场景与 👍；维护者双周汇总到 [docs/roadmap.md](docs/roadmap.md)。
 
 ## 报告问题
 
