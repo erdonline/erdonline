@@ -92,7 +92,12 @@ class OracleReverseDialectCommentTest {
         when(commentRs.getString("COLUMN_NAME")).thenReturn("USER_ID");
         when(commentRs.getString("REMARKS")).thenReturn("用户ID");
 
-        when(connection.prepareStatement(anyString())).thenReturn(indexStmt, commentStmt);
+        // 按 SQL 分发而非调用顺序：列注释走 ALL_COL_COMMENTS，其余（索引等辅助查询）回空结果集。
+        // 位置式 thenReturn 会因 fillEntity 先跑索引查询而把 commentStmt 提前消费（本测试历史红因）。
+        when(connection.prepareStatement(anyString())).thenAnswer(inv -> {
+            String sql = inv.getArgument(0, String.class);
+            return sql != null && sql.toLowerCase().contains("all_col_comments") ? commentStmt : indexStmt;
+        });
         when(indexStmt.executeQuery()).thenReturn(indexRs);
         when(commentStmt.executeQuery()).thenReturn(commentRs);
 

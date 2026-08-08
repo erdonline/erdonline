@@ -8,6 +8,22 @@
 
 ### 2026-08-08
 
+#### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
+
+- **改法**：新增后端匿名揭示页 `OgUnfurlController`（`GET /og/s/{token}`、`GET /og/demo`），按 token 输出 `og:*` + `twitter:card=summary_large_image`（项目名/描述/表数量），HTML 全转义防注入，失效 token 回落品牌卡片；`ErdSecurityConfiguration` 放行 `GET /og/**`
+- **动态图**：`GET /og/s/{token}/image.png`、`/og/demo/image.png` 由 `OgImageRenderer`（Java2D，无浏览器）从 projectJSON 渲染 1200×630 ER 缩略图（表名/字段网格 + 品牌 + 标语），缺 CJK 字体时按 `canDisplay` 过滤不豆腐；`og:image` 指向该动态图
+- **托管**：`frontend/nginx.conf` 按爬虫 UA 把 `/s/:token`、`/demo` rewrite 到内部 `/_og` 反代揭示页；`/og/**`（含 og:image 抓取，任意 UA）恒反代后端；真人保持 SPA
+- 验证点：
+  - `mvn -Dtest=OgUnfurlControllerTest,OgImageRendererTest test` 绿（OG：per-project/XSS/失效回落/多源取首；图：合法 PNG + 1200×630）
+  - `curl -H 'User-Agent: Twitterbot' /og/s/{token}` 含正确 `og:title` 与「N 张表」、`og:image` 指向动态图；`curl /og/s/invalid` 回落品牌卡片（均本机跑过）
+  - `curl /og/s/{token}/image.png` → `image/png` 1200×630（真实项目缩略图，含表名网格）；经 nginx 抓 og:image 返回 PNG（均本机跑过）
+  - `nginx -t` 通过；本机起 nginx：bot `/s/{token}`→OG HTML、真人→SPA、`/og/**`→后端图（均跑过）
+
+#### 修复：docusaurus 文档站构建（死链 + MDX 花括号）
+
+- **改法**：3 处 `../mcp/README.md` 死链改指 GitHub URL；`control-matrix`/`regression-checklist`/`ui-layout-redesign` 中裸 `{username}`/`{表名}` 占位符加反引号，避免 MDX v3 当 JS 表达式求值
+- 验证点：`cd website && yarn build` → SUCCESS（此前 `main` 常年红）
+
 #### 推广链路·度量：漏斗埋点 + 首触 UTM 归因
 
 - **改法**：新增 `frontend/src/utils/analytics.ts`——首触（first-touch）UTM/referrer 归因落 `localStorage`（幂等不覆盖），`track()` 落 `window.__erdFunnel`（供 E2E）并转发已接入的百度统计 `_hmt`；埋点绝不影响主流程（全程 try/catch）。
