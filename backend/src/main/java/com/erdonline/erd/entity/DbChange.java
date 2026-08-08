@@ -82,4 +82,10 @@ public class DbChange implements Serializable {
      */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createTime;
+
+    /**
+     * 首触 UTM 归因（仅请求体携带，不落 db_change 表）。
+     */
+    @TableField(exist = false)
+    private Map<String, Object> attribution;
 }

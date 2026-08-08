@@ -4,6 +4,7 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.mapper.DbChangeMapper;
 import com.erdonline.erd.service.DbVersionService;
+import com.erdonline.erd.service.VersionAttributionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,6 +29,9 @@ class DbChangeServiceImplTagTest {
 
     @Mock
     private DbVersionService dbVersionService;
+
+    @Mock
+    private VersionAttributionService versionAttributionService;
 
     @InjectMocks
     private DbChangeServiceImpl dbChangeService;

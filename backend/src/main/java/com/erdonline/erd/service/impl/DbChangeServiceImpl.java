@@ -12,6 +12,7 @@ import com.erdonline.erd.entity.DbVersion;
 import com.erdonline.erd.mapper.DbChangeMapper;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
+import com.erdonline.erd.service.VersionAttributionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -38,6 +39,9 @@ import java.util.stream.Collectors;
 public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbChange> implements DbChangeService {
     @Autowired
     private DbVersionService dbVersionService;
+
+    @Autowired
+    private VersionAttributionService versionAttributionService;
 
     @Override
     public R loadHistory(Map map) {
@@ -107,6 +111,7 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         if (dbChange.getTag() != null && dbChange.getTag().length() > 255) {
             return R.failed("版本标签总长度不能超过 255 个字符");
         }
+        Map<String, Object> attribution = dbChange.getAttribution();
         try {
             if (StrUtil.isBlank(dbChange.getId())) {
                 this.save(dbChange);
@@ -122,6 +127,7 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
             }
             throw e;
         }
+        versionAttributionService.recordIfPresent(dbChange, attribution);
         return R.ok("保存成功");
     }
 
