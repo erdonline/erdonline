@@ -42,7 +42,7 @@ class OgUnfurlControllerTest {
         assertTrue(html.contains("twitter:card\" content=\"summary_large_image\""));
         assertTrue(html.contains("3 张表"), "table count from entities");
         assertTrue(html.contains("https://app.example.com/s/tok123"), "canonical uses first origin");
-        assertTrue(html.contains("https://app.example.com/landing-hero.jpg"), "og image on first origin");
+        assertTrue(html.contains("https://app.example.com/og/s/tok123/image.png"), "og image is dynamic per-share PNG");
         // XSS：项目名/描述必须被转义，不得原样注入标签
         assertTrue(html.contains("&lt;b&gt;用户库&lt;/b&gt;"), "name html-escaped");
         assertFalse(html.contains("<b>用户库</b>"), "raw tag must not leak into head");
