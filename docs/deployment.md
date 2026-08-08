@@ -90,7 +90,8 @@ git push origin main
 |---|---|
 | 文档 | https://erdonline.github.io/erdonline/ |
 | 文档（CF 镜像，运维） | https://erdonline-docs.pages.dev |
-| 静态 demo | https://erdonline-demo.pages.dev |
+| 静态 demo（产品 URL） | https://www.erdonline.com |
+| 静态 demo（CF Pages 默认别名，运维） | https://erdonline-demo.pages.dev |
 
 Actions 页确认 `Docs site` / `Frontend demo site` 对应 job 绿。
 
@@ -311,7 +312,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |
 | `ERD_FEDERATE_SUCCESS_PATH` | `/login/federate` | 联邦回调后 UI 落点路径（拼在 `ERD_UI_URL` 后） |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
-| `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://erdonline-demo.pages.dev`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）拿到**全部**逗号分隔条目；SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；**OIDC issuer 只取第一个合法 http(s) 条目**（`iss` 须单值，跳过畸形/通配）；任一条目缺 `http(s)://` 前缀（如打字漏字母的 `ttps://`）prod 直接 fail-fast，报错点名具体值 |
+| `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://www.erdonline.com`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）拿到**全部**逗号分隔条目；SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；**OIDC issuer 只取第一个合法 http(s) 条目**（`iss` 须单值，跳过畸形/通配）；任一条目缺 `http(s)://` 前缀（如打字漏字母的 `ttps://`）prod 直接 fail-fast，报错点名具体值 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |
 | `SOCKETIO_PORT` | `9092` | Presence 与 HTTP（9502/`PORT`）分离；**勿对公网裸放 9092**（防火墙/安全组仅内网，或经受控反代）；单公网 HTTP 口时浏览器常连不上，demo 可先忽略 |
 
@@ -356,22 +357,22 @@ chmod 600 ~/.erdonline/oidc-rsa-private.pem
 **生产 UI + 官方 demo 共用 Railway API**（当前 `erdonline-production` 推荐值）：
 
 ```text
-ERD_UI_URL=https://app.erdonline.com,https://erdonline-demo.pages.dev
+ERD_UI_URL=https://app.erdonline.com,https://www.erdonline.com
 ```
 
 改完后须 **Redeploy**（Variables 变更不会热加载）。验收：
 
 ```bash
-# 期望 HTTP 200 + Access-Control-Allow-Origin: https://erdonline-demo.pages.dev
+# 期望 HTTP 200 + Access-Control-Allow-Origin: https://www.erdonline.com
 curl -sI -X OPTIONS 'https://erdonline-production.up.railway.app/auth/federate/providers' \
-  -H 'Origin: https://erdonline-demo.pages.dev' \
+  -H 'Origin: https://www.erdonline.com' \
   -H 'Access-Control-Request-Method: GET'
 ```
 
 Railway CLI（项目已 `railway link` 且已登录时）：
 
 ```bash
-railway variables set ERD_UI_URL='https://app.erdonline.com,https://erdonline-demo.pages.dev'
+railway variables set ERD_UI_URL='https://app.erdonline.com,https://www.erdonline.com'
 railway up   # 或 Dashboard → Redeploy
 ```
 
@@ -386,7 +387,7 @@ railway up   # 或 Dashboard → Redeploy
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
 2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
 3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）；自定义域 `app.erdonline.com` 绑到对应 Pages 项目后同样依赖上述 API 注入
-4. 打开正式 UI（`https://app.erdonline.com/auth/login`）或 demo（https://erdonline-demo.pages.dev），Network 确认请求打到 Railway，而非 UI 自身
+4. 打开正式 UI（`https://app.erdonline.com/auth/login`）或 demo（https://www.erdonline.com），Network 确认请求打到 Railway，而非 UI 自身
 
 ### Zeabur 备选（中国区）{#zeabur-demo}
 
@@ -428,7 +429,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
    ```
    再导入 `db/init/02_tables.sql`；或跑 `scripts/railway-mysql-init.sh`
 3. 把平台 MySQL/Redis 的 host/port/密码注入为 `MYSQLHOST` / `MYSQLDATABASE=erd` / `REDISHOST` / `REDISPASSWORD` 等
-4. `ERD_UI_URL`（必填）= 前端 Origin：生产自定义域用 `https://app.erdonline.com`；仅 demo 用 `https://erdonline-demo.pages.dev`；禁 `*`
+4. `ERD_UI_URL`（必填）= 前端 Origin：生产自定义域用 `https://app.erdonline.com`；官方 demo 用 `https://www.erdonline.com`（CF Pages 项目 `erdonline-demo` 的自定义域；默认别名 `erdonline-demo.pages.dev` 仍可用但产品面统一 www）；禁 `*`
 5. health 绿后：GitHub Actions Variable `DEMO_API_URL=https://YOUR.zeabur.app`（无尾斜杠）→ 重跑 `frontend-demo-site.yml`（前端 API ≠ UI 域名）
 
 #### 最短路径
@@ -606,7 +607,7 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 | 本地 `yarn start` / `yarn build`（`UMI_ENV=dev`） | 不加载 |
 | CF Pages / `yarn build:prod` / Docker 前端镜像 | 自动加载 beacon |
 
-验收：`curl -sL https://erdonline-demo.pages.dev | grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a'` 应命中；浏览器 Network 可见 `beacon.min.js`。
+验收：`curl -sL https://www.erdonline.com | grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a'` 应命中；浏览器 Network 可见 `beacon.min.js`。（CF 默认别名 `erdonline-demo.pages.dev` 亦可，自定义域 www 为产品 URL。）
 
 ## MCP（agent / CLI，ADR-0013）
 

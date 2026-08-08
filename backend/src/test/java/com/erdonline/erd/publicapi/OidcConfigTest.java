@@ -26,15 +26,15 @@ class OidcConfigTest {
         OidcProperties props = new OidcProperties();
         assertEquals("https://app.erdonline.com",
                 OidcConfig.resolveIssuer(
-                        props, "https://app.erdonline.com,https://erdonline-demo.pages.dev", null));
+                        props, "https://app.erdonline.com,https://www.erdonline.com", null));
     }
 
     @Test
     void csvUiUrlSkipsMalformedFirstEntry() {
         OidcProperties props = new OidcProperties();
-        assertEquals("https://erdonline-demo.pages.dev",
+        assertEquals("https://www.erdonline.com",
                 OidcConfig.resolveIssuer(
-                        props, "ttps://app.erdonline.com,https://erdonline-demo.pages.dev", null));
+                        props, "ttps://app.erdonline.com,https://www.erdonline.com", null));
     }
 
     @Test

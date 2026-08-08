@@ -95,7 +95,7 @@ final class OgImageRenderer {
 
             g.setColor(BRAND);
             g.setFont(footFont);
-            g.drawString("erdonline-demo.pages.dev  \u2014  version diffs \u00b7 live collaboration \u00b7 open source",
+            g.drawString("www.erdonline.com  \u2014  version diffs \u00b7 live collaboration \u00b7 open source",
                     64, HEIGHT - 40);
 
             ByteArrayOutputStream out = new ByteArrayOutputStream(64 * 1024);

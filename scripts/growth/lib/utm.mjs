@@ -2,7 +2,7 @@
  * 增长链路 UTM 与链接常量（单一事实源）。
  * 纪律：文章 CTA 永远只有一个主链接 = demo；star/repo 只放文末次要位置（见 docs/growth.md）。
  */
-export const DEMO_BASE_URL = 'https://erdonline-demo.pages.dev';
+export const DEMO_BASE_URL = 'https://www.erdonline.com';
 export const DEMO_URL = `${DEMO_BASE_URL}/demo`;
 export const REPO_URL = 'https://github.com/erdonline/erdonline';
 export const DOCS_URL = 'https://erdonline.github.io/erdonline/';
