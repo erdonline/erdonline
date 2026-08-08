@@ -42,4 +42,14 @@ export function stringifyFrontmatter(data, body) {
 }
 
 export const ARTICLE_STATUSES = ['draft', 'ready', 'published'];
-export const PLATFORMS = ['juejin', 'zhihu', 'v2ex', 'wechat', 'weixin', 'csdn', 'segmentfault', 'oschina'];
+export const PLATFORMS = [
+  'juejin',
+  'zhihu',
+  'v2ex',
+  'wechat',
+  'weixin',
+  'csdn',
+  'segmentfault',
+  'oschina',
+  'xiaohongshu',
+];

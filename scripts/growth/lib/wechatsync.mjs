@@ -19,6 +19,7 @@ export const WECHATSYNC_PLATFORM_MAP = {
   csdn: 'csdn',
   segmentfault: 'segmentfault',
   oschina: 'oschina',
+  xiaohongshu: 'xiaohongshu',
 };
 
 /** growth 平台里 Wechatsync 不支持的（仍走人工包） */
@@ -32,6 +33,7 @@ export const PLATFORM_ARTIFACT = {
   csdn: 'csdn.md',
   segmentfault: 'segmentfault.md',
   oschina: 'oschina.md',
+  xiaohongshu: 'xiaohongshu.md',
 };
 
 /**

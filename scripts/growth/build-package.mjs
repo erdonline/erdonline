@@ -73,6 +73,38 @@ function renderBody(fm, body, platform) {
   return out.replace(/^<!--[\s\S]*?-->\n*/, (m) => (m.includes('写作纪律') ? '' : m));
 }
 
+/** 小红书精简版：短标题 + 痛点 + 解法 + demo CTA（非长文技术帖） */
+function renderXiaohongshu(fm, body) {
+  const demo = ctaUrl(fm.cta, 'xiaohongshu', fm.slug, fm.utm_campaign || 'launch');
+  const repo = withUtm(REPO_URL, {
+    source: 'xiaohongshu',
+    medium: 'post',
+    campaign: fm.utm_campaign || 'launch',
+    content: fm.slug,
+  });
+  const title = fm.title.length > 20 ? '数据库表改崩了谁背锅？Git 式版本 diff' : fm.title;
+  return `# ${title}
+
+周五测试环境挂了：user.status 从 TINYINT 被改成 VARCHAR，三个人互相甩锅，**没有任何记录**能证明谁、何时、改了什么。
+
+表结构会演进，但大多数 ER 工具只有「当前态」——改完即覆盖，无法 diff。Navicat 导出、Flyway 迁移脚本，都管不了**设计阶段**的字段级变更追溯。
+
+我们在开源项目 ERD Online 里做了 Git 式版本链：
+
+- 改表 → 点「保存版本」→ 当前 projectJSON 打快照
+- 任意两版之间看 diff：表 / 字段 / 关系一目了然
+- MIT 许可，可自托管 docker compose up -d
+
+30 秒免注册亲手走一遍：改一张表 → 存版 → 看 diff
+
+👉 ${demo}
+
+开源地址：${repo}
+
+（空 diff 也允许存版作书签，但不计入有效版本指标——鼓励「改动了再存」）
+`;
+}
+
 /** V2EX 精简版：标题 + 首段导语 + 链接 */
 function renderV2ex(fm, body) {
   const paragraphs = body
@@ -95,6 +127,7 @@ const PLATFORM_FILE = {
   csdn: 'csdn.md',
   segmentfault: 'segmentfault.md',
   oschina: 'oschina.md',
+  xiaohongshu: 'xiaohongshu.md',
   v2ex: 'v2ex.txt',
 };
 
@@ -106,6 +139,7 @@ const PLATFORM_NOTE = {
   csdn: '编辑器粘贴 Markdown；标签建议：数据库/开源/架构',
   segmentfault: '与掘金同稿，改头段一句即可',
   oschina: '与掘金同稿，改头段一句即可',
+  xiaohongshu: '短图文稿；Wechatsync 同步草稿后需手动补封面图（3:4 或 1:1）与 1–3 张截图',
   v2ex: '纯文本帖；发「分享创造」节点；作者需在评论区蹲守答疑',
 };
 
@@ -176,7 +210,12 @@ function buildOne(file, { allowDraft }) {
 
   for (const p of fm.platforms) {
     const name = PLATFORM_FILE[p];
-    const content = p === 'v2ex' ? renderV2ex(fm, body) : `# ${fm.title}\n\n${renderBody(fm, body, p).trim()}\n`;
+    const content =
+      p === 'v2ex'
+        ? renderV2ex(fm, body)
+        : p === 'xiaohongshu'
+          ? renderXiaohongshu(fm, body)
+          : `# ${fm.title}\n\n${renderBody(fm, body, p).trim()}\n`;
     writeFileSync(path.join(outDir, name), content, 'utf8');
   }
   writeFileSync(path.join(outDir, 'publish-checklist.md'), checklist(fm), 'utf8');

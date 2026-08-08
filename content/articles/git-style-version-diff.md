@@ -2,7 +2,7 @@
 title: 数据库表结构改崩了谁背锅？给建模加上 Git 式版本 diff
 slug: git-style-version-diff
 status: ready
-platforms: [juejin, zhihu, weixin, csdn, oschina]
+platforms: [juejin, zhihu, weixin, csdn, oschina, xiaohongshu]
 cta: demo
 utm_campaign: launch
 created: 2026-08-09

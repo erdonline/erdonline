@@ -41,7 +41,12 @@ function parseArgs(argv) {
     if (a === '--check-auth') args.checkAuth = true;
     else if (a === '--dry-run') args.dryRun = true;
     else if (a === '--rebuild') args.rebuild = true;
-    else if (a.startsWith('--')) {
+    else if (a === '--platforms') {
+      args.platforms = (argv[++i] || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter(Boolean);
+    } else if (a.startsWith('--')) {
       const key = a.slice(2);
       args[key] = argv[++i];
     } else args._.push(a);
@@ -55,6 +60,14 @@ function rebuildPackage(slug) {
     cwd: ROOT,
   });
   if (r.status !== 0) process.exit(r.status ?? 1);
+}
+
+/** 小红书等短稿用产物首行 H1 作同步标题 */
+function syncTitle(platform, filePath, fallback) {
+  if (platform !== 'xiaohongshu') return fallback;
+  const raw = readFileSync(filePath, 'utf8');
+  const m = raw.match(/^#\s+(.+)$/m);
+  return m?.[1]?.trim() || fallback;
 }
 
 function loadArticle(slug) {
@@ -84,7 +97,7 @@ if (args.checkAuth) {
 const slug = args._[0];
 if (!slug) {
   console.error(
-    '用法: node scripts/growth/sync-wechatsync.mjs <slug> [--dry-run] [--rebuild]\n' +
+    '用法: node scripts/growth/sync-wechatsync.mjs <slug> [--dry-run] [--rebuild] [--platforms a,b]\n' +
       '      node scripts/growth/sync-wechatsync.mjs --check-auth',
   );
   process.exit(1);
@@ -108,7 +121,14 @@ if (!existsSync(distDir)) {
   process.exit(1);
 }
 
-const { sync, skipped } = resolveWechatsyncPlatforms(fm.platforms || []);
+let { sync, skipped } = resolveWechatsyncPlatforms(fm.platforms || []);
+if (args.platforms?.length) {
+  const filter = new Set(args.platforms);
+  for (const p of sync) {
+    if (!filter.has(p)) skipped.push({ platform: p, reason: '未在 --platforms 列表中' });
+  }
+  sync = sync.filter((p) => filter.has(p));
+}
 if (skipped.length) {
   for (const s of skipped) console.log(`⊘ 跳过 ${s.platform}：${s.reason}`);
 }
@@ -135,7 +155,8 @@ for (const platform of sync) {
     continue;
   }
   const wsPlatform = WECHATSYNC_PLATFORM_MAP[platform] || platform;
-  const cliArgs = ['sync', file, '-p', wsPlatform, '-t', fm.title];
+  const title = syncTitle(platform, file, fm.title);
+  const cliArgs = ['sync', file, '-p', wsPlatform, '-t', title];
   if (args.dryRun) cliArgs.push('--dry-run');
   console.log(`→ ${platform}: ${path.relative(ROOT, file)}`);
   const r = spawnSync(
