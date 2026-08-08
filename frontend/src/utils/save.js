@@ -5,6 +5,7 @@ import {message} from "antd";
 import {CONSTANT} from "@/utils/constant";
 import {preferDataSourceIdPayload} from './connectorPayload';
 import { isShareGuestContext } from './shareContext';
+import { getAttribution } from '@/utils/analytics';
 
 const updateFieldName = (data) => {
   // 将带下划线的属性转化为驼峰
@@ -158,11 +159,16 @@ export const schemaProbe = (data) => {
 
 export const hisProjectSave = (data) => {
   const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+  const attribution = getAttribution();
+  const payload = {
+    ...data,
+    projectId,
+  };
+  if (attribution) {
+    payload.attribution = attribution;
+  }
   return request.post('/ncnb/hisProject/save', {
-    data: {
-      ...data,
-      projectId,
-    }
+    data: payload,
   });
 };
 
