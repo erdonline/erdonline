@@ -22,6 +22,7 @@ backend/src/main/java/rebel.xml
 website/build
 website/.docusaurus
 frontend/dist/
+content/dist/
 frontend/.umi
 frontend/.umi-production
 frontend/src/.umi

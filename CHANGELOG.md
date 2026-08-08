@@ -6,6 +6,19 @@
 
 ## [Unreleased]
 
+### 2026-08-09
+
+#### 增长：文章发布流水线（content/articles + scripts/growth + growth-publish Action）
+
+- **改法**：新增 `content/articles/`（frontmatter 草稿：`title/slug/status/platforms/cta/utm_campaign`）+ `scripts/growth/new-article.mjs`（模板开稿）+ `scripts/growth/build-package.mjs`（按平台出可粘贴包：juejin/zhihu/wechat/segmentfault/oschina 为 `.md`、v2ex 为精简 `.txt`，外加 `publish-checklist.md`）；UTM 链接统一由 `scripts/growth/lib/utm.mjs` 注入（demo 主 CTA，source=平台、content=slug）；`.github/workflows/growth-publish.yml` 在 PR 打 `growth-publish` 标签时构建并上传 artifact
+- **边界**：发布动作保持人工（掘金/知乎/V2EX/公众号无官方发布 API，登录态自动化违反 ToS 且易碎，明确不做）；Phase 2 仅预留「官方 API token + adapter」口径
+- **文档**：增长方案蒸馏至 `docs/growth.md`（漏斗/渠道 ROI/12 选题包/度量判据/4 周节奏）并挂入文档站侧栏；种子草稿 `git-style-version-diff.md`（选题 #3 大纲，status=draft）
+- 验证点：
+  - `node scripts/growth/new-article.mjs --slug smoke-test-article ...` 建稿成功；重复 slug / 非法 slug / 未知平台与 cta 均被拒（exit 1）
+  - `node scripts/growth/build-package.mjs --all --status draft` 出包：juejin.md 含 `utm_source=juejin&...&utm_content=git-style-version-diff` 的 demo 主 CTA；README.md 不参与 `--all`
+  - `cd website && yarn build` 绿（growth.md 已按 MDX 规则转义 `<`）
+  - `npx js-yaml .github/workflows/growth-publish.yml` 解析通过
+
 ### 2026-08-08
 
 #### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
