@@ -18,7 +18,9 @@ DRY_RUN=1 REPO=owner/repo ./scripts/seed-good-first-issues.sh
 
 ## 当前待投放（未标已合入）
 
-（空）— a11y 微切片边际收益已低，暂不续堆草稿；正式仓就绪后可按 `docs/community.md` 从既有合入项以外选题。
+- `40-landing-footer-star-cta.md` — 落地页 footer Star 链
+- `41-contributing-launch-kit-link.md` — CONTRIBUTING 指向 LAUNCH.md
+- `42-readme-social-preview-note.md` — Social Preview 文档指引
 
 `01`–`39` 已标合入。P2b 矩阵 **🚧=0**；延期 📋（论坛外链、VIP、实验 query/ChatSQL 等）不拆阻断型 good-first。
 
