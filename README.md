@@ -20,7 +20,7 @@
 </p>
 
 <p align="center">
-  <a href="https://erdonline-demo.pages.dev/demo"><img alt="在线体验" src="https://img.shields.io/badge/▶_在线体验-免登录-6C5CE7?style=for-the-badge"></a>
+  <a href="https://www.erdonline.com/demo"><img alt="在线体验" src="https://img.shields.io/badge/▶_在线体验-免登录-6C5CE7?style=for-the-badge"></a>
   <a href="https://erdonline.github.io/erdonline/"><img alt="文档" src="https://img.shields.io/badge/文档-在线-2D9CDB?style=for-the-badge"></a>
 </p>
 
@@ -30,7 +30,7 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 本仓库是 **单体架构（monolith）**：前端与 Spring Boot 同仓，docker-compose 一键起全栈。
 
-> **30 秒惊艳，免注册**：打开 [**erdonline-demo.pages.dev/demo**](https://erdonline-demo.pages.dev/demo) → 进入带 `用户`/`订单` 表的关系图，改一张表、存一个版本、看一次 diff。
+> **30 秒惊艳，免注册**：打开 [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → 进入带 `用户`/`订单` 表的关系图，改一张表、存一个版本、看一次 diff。
 
 ## 🆚 为什么选它
 
