@@ -101,6 +101,52 @@ node scripts/growth/sync-wechatsync.mjs --check-auth
 
 **与旧口径的关系**：仍不做无扩展的 cookie/Playwright 发帖；Wechatsync 是用户显式安装的扩展 + 官方 Web API 草稿同步。
 
+### Cursor / Claude MCP（可选）
+
+Wechatsync 提供 **MCP Server**（`packages/mcp-server`，**未单独发 npm**），与 `@wechatsync/cli` 共用同一 WebSocket 桥：
+
+```
+Cursor / Claude  ←stdio→  MCP Server (Node)  ←ws:9527→  Chrome 扩展  →  各平台草稿 API
+growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
+```
+
+**一次性准备**
+
+1. 扩展侧同上：开启 **MCP 连接**，Token 写入根目录 `.env` 的 `WECHATSYNC_TOKEN=<token>`（勿提交仓库）。
+2. 构建 MCP Server（本机路径示例，可换任意目录）：
+   ```bash
+   git clone --depth 1 -b v2 https://github.com/wechatsync/Wechatsync.git ~/.local/share/wechatsync-mcp
+   cd ~/.local/share/wechatsync-mcp && pnpm install && pnpm build:mcp
+   ```
+3. 在 **用户级** Cursor MCP 配置（`~/.cursor/mcp.json`，不进 git）增加：
+   ```json
+   {
+     "mcpServers": {
+       "wechatsync": {
+         "command": "node",
+         "args": ["/path/to/Wechatsync/packages/mcp-server/dist/index.js"],
+         "env": {
+           "MCP_TOKEN": "<与扩展相同的 token>",
+           "SYNC_WS_PORT": "9527"
+         }
+       }
+     }
+   }
+   ```
+   `MCP_TOKEN` 必须与扩展里设置的 Token **完全一致**（growth CLI 读 `WECHATSYNC_TOKEN`，语义相同）。
+
+**MCP 工具（Agent 可直接调用）**
+
+| 工具 | 用途 |
+|---|---|
+| `list_platforms` | 列出平台及登录态 |
+| `check_auth` | 检查指定平台是否已登录 |
+| `sync_article` | 同步 Markdown 到平台草稿箱 |
+| `extract_article` | 从当前浏览器页提取文章 |
+| `upload_image_file` | 上传本地图片到图床 |
+
+**日常**：Chrome 保持打开且扩展已连接；改 MCP/CLI 配置后重载 Cursor MCP。远程开发见 [MCP Server README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/mcp-server#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)（扩展开「同步桥接」连 `ws://<host>:9527`）。
+
 ## 4 周节奏（启动 checklist 摘要）
 
 - **W1 基建+首发**：UTM 规范落地（已随流水线完成）→ 记录 Baidu/CF/GitHub Traffic 基线 → 发 #1（掘金）→ V2EX 轻量帖 → HelloGitHub 投稿
