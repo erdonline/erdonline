@@ -855,3 +855,11 @@
 - [x] [OIDC issuer 单值] `ERD_UI_URL` 逗号双源时，OIDC issuer 只取第一个合法 http(s) 条目；首项畸形（如 `ttps://`）自动跳到下一个合法条目 ✅ `OidcConfigTest`
 - [x] [畸形 Origin fail-fast] prod 下 `ERD_UI_URL` 任一逗号条目缺 `http(s)://` 前缀 → 启动失败并点名具体值；非 prod 仅 warn 放行 ✅ `CrossOriginPolicyTest`
 - [ ] [Redeploy 崩容器排障] 日志含 `oidcIdTokenService` init 失败 → 先查 `Caused by:` 是否含 `ERD_OIDC_RSA_PRIVATE_KEY`（RSA 私钥未设，与 `ERD_UI_URL` 无关，见 `docs/deployment.md` 排障段）→ 补齐私钥变量后 Redeploy → `actuator/health` 转 UP
+
+## 社交解析 OG（ADR-0025，2026-08-08）
+
+- [x] [分享卡片] `curl -H 'User-Agent: Twitterbot' /og/s/{token}` → `og:title`=项目名·ERD Online，描述含「N 张表」+ `twitter:card=summary_large_image` ✅ 本机 curl + `OgUnfurlControllerTest`
+- [x] [失效回落] `curl /og/s/{无效token}` → 品牌通用卡片（`ERD Online · 数据库设计的 Git + Figma`），不泄露分享是否存在 ✅
+- [x] [XSS 转义] 项目名含 `<script>` → 揭示页输出 `&lt;script&gt;`，不注入可执行脚本 ✅ `OgUnfurlControllerTest`
+- [x] [nginx 分流] bot UA `/s/{token}`、`/demo` → 后端 OG HTML；真人 UA → SPA `index.html` ✅ 本机起 nginx 验证 + `nginx -t`
+- [ ] [多源取首] `ERD_UI_URL` 逗号双源时 `og:url`/`og:image` 用第一个 origin（去尾斜杠）→ 期望首源；上线后抽查

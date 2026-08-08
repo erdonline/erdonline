@@ -6,6 +6,22 @@
 
 ## [Unreleased]
 
+### 2026-08-08
+
+#### 推广链路：分享/演示链接社交解析 OG 卡片（ADR-0025）
+
+- **改法**：新增后端匿名揭示页 `OgUnfurlController`（`GET /og/s/{token}`、`GET /og/demo`），按 token 输出 `og:*` + `twitter:card=summary_large_image`（项目名/描述/表数量），HTML 全转义防注入，失效 token 回落品牌卡片；`ErdSecurityConfiguration` 放行 `GET /og/**`
+- **托管**：`frontend/nginx.conf` 按爬虫 UA 把 `/s/:token`、`/demo` rewrite 到内部 `/_og` 反代后端揭示页；真人保持 SPA
+- 验证点：
+  - `mvn -Dtest=OgUnfurlControllerTest test` 绿（4 项：per-project OG、XSS 转义、失效回落、多源取首）
+  - `curl -H 'User-Agent: Twitterbot' /og/s/{token}` 含正确 `og:title` 与「N 张表」；`curl /og/s/invalid` 回落品牌卡片（均本机跑过）
+  - `nginx -t` 通过；本机起 nginx 验证：bot UA `/s/{token}`→OG HTML、真人→SPA；`/demo` 同理（均跑过）
+
+#### 修复：docusaurus 文档站构建（死链 + MDX 花括号）
+
+- **改法**：3 处 `../mcp/README.md` 死链改指 GitHub URL；`control-matrix`/`regression-checklist`/`ui-layout-redesign` 中裸 `{username}`/`{表名}` 占位符加反引号，避免 MDX v3 当 JS 表达式求值
+- 验证点：`cd website && yarn build` → SUCCESS（此前 `main` 常年红）
+
 ### 2026-08-06
 
 #### UI：Home / Group 顶栏补「通知」入口（ChromeNotificationsButton）
