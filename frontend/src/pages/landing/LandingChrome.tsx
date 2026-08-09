@@ -59,26 +59,25 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         />
       </Helmet>
       <nav
-        className="erd-skip-nav"
+        className="erd-skip-nav visuallyHidden"
         aria-label={intl.formatMessage({id: 'common.skipNav'})}
         data-testid="landing-skip-nav"
-      >
-        <a
-          href={`#${skipTargetId}`}
-          className="erd-skip-link"
-          data-testid="landing-skip-cta"
-          onClick={(e) => {
-            e.preventDefault();
-            focusSkipTarget(skipTargetId);
-          }}
-        >
-          {skipTargetId === 'landing-main-cta'
-            ? intl.formatMessage({ id: 'common.skipMainAction' })
-            : intl.formatMessage({ id: 'homeLayout.skip.main' })}
-        </a>
-      </nav>
+      />
       <header className="landingNav">
         <div className="landingNavInner">
+          <a
+            href={`#${skipTargetId}`}
+            className="erd-skip-link"
+            data-testid="landing-skip-cta"
+            onClick={(e) => {
+              e.preventDefault();
+              focusSkipTarget(skipTargetId);
+            }}
+          >
+            {skipTargetId === 'landing-main-cta'
+              ? intl.formatMessage({ id: 'common.skipMainAction' })
+              : intl.formatMessage({ id: 'homeLayout.skip.main' })}
+          </a>
           <a
             className="landingNavBrand landingBrand"
             href="/"

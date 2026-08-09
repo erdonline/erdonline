@@ -165,6 +165,14 @@ html:has(.landing) {
   margin: 0 auto;
   padding: 0 clamp(1rem, 3vw, 1.5rem);
   box-sizing: border-box;
+  position: relative;
+}
+
+/* Skip 在顶栏 inner 内 DOM 首位，fixed 脱流不占 flex 位，Tab 序仍先于品牌链 */
+.landingNavInner .erd-skip-link {
+  position: fixed;
+  top: 0;
+  left: 0;
 }
 
 .landingNavBrand {
