@@ -263,7 +263,16 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                   ...(currentDbKey ? { currentDbKey } : {}),
                 });
                 rememberServerProjectJSON(project.projectJSON as Record<string, unknown>);
-                loadVersionBaseline();
+                // 先进数据源再拉 A 层基线，避免顶栏 DB 胶囊长期假「无 JDBC」
+                void (async () => {
+                  try {
+                    await get().dispatch.refreshDataSources();
+                  } catch (e) {
+                    // eslint-disable-next-line no-console
+                    console.warn('fetch: refreshDataSources failed', e);
+                  }
+                  loadVersionBaseline();
+                })();
                 offerProjectDraftRecovery(String(resolvedId), project);
               } else {
                 message.error('获取项目信息失败');
