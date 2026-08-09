@@ -1,6 +1,6 @@
 import React from 'react';
 import {Typography} from 'antd';
-import {useIntl} from '@umijs/max';
+import {Link, useIntl} from '@umijs/max';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import './index.less';
 
@@ -74,14 +74,15 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         <p className="auth-shell__brand-kicker" data-testid="auth-brand-kicker">
           {intl.formatMessage({ id: 'auth.brand.kicker' })}
         </p>
-        <a
+        <Link
           className="auth-shell__brand-logo"
-          href="/"
+          to="/"
+          data-testid="auth-brand-home"
           aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
         >
           <img src="/logo.svg" alt="" width={36} height={36} />
           <span className="auth-shell__brand-name">ERD Online</span>
-        </a>
+        </Link>
         <Typography.Title level={2} className="auth-shell__brand-title">
           {intl.formatMessage({ id: 'auth.brand.title' })}
         </Typography.Title>
@@ -115,13 +116,20 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         >
           <div className="auth-shell__form-header" data-testid="auth-form-header">
             {/* 桌面左栏已有品牌；表单区只保留标题，避免双 logo + 长副文案抢焦点 */}
-            <img
-              className="auth-shell__form-logo"
-              src="/logo.svg"
-              alt="ERD Online"
-              width={40}
-              height={40}
-            />
+            <Link
+              className="auth-shell__form-logo-link"
+              to="/"
+              data-testid="auth-form-home"
+              aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
+            >
+              <img
+                className="auth-shell__form-logo"
+                src="/logo.svg"
+                alt="ERD Online"
+                width={40}
+                height={40}
+              />
+            </Link>
             <Typography.Title level={3} className="auth-shell__form-title">
               {title}
             </Typography.Title>

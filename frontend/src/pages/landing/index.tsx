@@ -56,6 +56,14 @@ const LandingPage: React.FC = () => {
                   >
                     {t('landing.hero.cta.openDemo')}
                   </Link>
+                  <Link
+                    className="landingBtnGhost"
+                    to="/catalog"
+                    data-testid="landing-hero-catalog"
+                    aria-label={t('landing.hero.cta.browseCatalogAria')}
+                  >
+                    {t('landing.hero.cta.browseCatalog')}
+                  </Link>
                 </>
               ) : (
                 <>
@@ -65,6 +73,14 @@ const LandingPage: React.FC = () => {
                     aria-label={t('landing.hero.cta.tryOnlineAria')}
                   >
                     {t('landing.hero.cta.tryOnline')}
+                  </Link>
+                  <Link
+                    className="landingBtnGhost"
+                    to="/catalog"
+                    data-testid="landing-hero-catalog"
+                    aria-label={t('landing.hero.cta.browseCatalogAria')}
+                  >
+                    {t('landing.hero.cta.browseCatalog')}
                   </Link>
                   <Link
                     className="landingBtnGhost"

@@ -78,6 +78,13 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         >
           <a href="/#pillars">{intl.formatMessage({ id: 'landing.nav.pillars' })}</a>
           <Link
+            to="/catalog"
+            data-testid="landing-nav-catalog"
+            aria-label={intl.formatMessage({ id: 'landing.nav.catalogAria' })}
+          >
+            {intl.formatMessage({ id: 'landing.nav.catalog' })}
+          </Link>
+          <Link
             to="/compare"
             aria-label={intl.formatMessage({ id: 'landing.nav.compareAria' })}
           >
@@ -119,6 +126,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             {intl.formatMessage({ id: 'landing.footer.roadmap' })}
           </a>
           <Link to="/compare">{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
+          <Link to="/catalog">{intl.formatMessage({ id: 'landing.footer.catalog' })}</Link>
           <a href={ISSUES_URL} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.community' })}
           </a>
