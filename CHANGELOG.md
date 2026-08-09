@@ -8,6 +8,15 @@
 
 ### 2026-08-09
 
+#### ADR-0031：DDL API 与版本 API 分域（实施）
+
+- **BE**：新增 `ProjectDdlController`（`/ncnb/projectDdl/previewTemplate|export|table`）；`@RequireProjectAccess` 薄委托 `DbChangeService`；从 `HisProjectController` 移除三 DDL 端点。
+- **FE**：`ddlExportApi.ts` 切新路径；修复 `fetchTableDdl` 缺失 POST 调用。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=ProjectDdlControllerTest,DdlTemplatePreviewEngineTest,Json2CodeFullDdlEngineTest,Json2CodeTableDdlEngineTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+  - `cd frontend && yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`
+
 #### ADR-0031：DDL API 与版本 API 分域（规划）
 
 - **ADR**：新增 `docs/adr/0031-ddl-api-surface.md` — `HisProjectController` 仅保留版本生命周期（load/list/save/delete/diff + `syncSql`）；DDL 渲染迁至新 `ProjectDdlController`（`/ncnb/projectDdl/previewTemplate|export|table`）；Service/Freemarker 不变；禁止并入 `ConnectorController`。

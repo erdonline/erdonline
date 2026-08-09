@@ -1,6 +1,6 @@
 # ADR-0031：DDL 生成 API 与版本生命周期 API 分域
 
-- 状态：**已接受**（2026-08-09）；**迁移待实施**
+- 状态：**已接受**（2026-08-09）；**已实施**（2026-08-09）
 - 前置：[ADR-0030](./0030-ddl-template-engine-isomorphism.md)（Freemarker 终态、BE 权威生成）；[ADR-0022](./0022-dual-layer-consistency.md)（A 层版本 / B 层实库）
 - 关联：`HisProjectController`、`DbChangeService`、`ConnectorController`
 
@@ -129,7 +129,7 @@ ConnectorController (/ncnb/connector) — 不吸纳上述 DDL 渲染端点
 
 ## 实现切片（待办）
 
-1. [ ] `ProjectDdlController` + 三 POST
-2. [ ] FE `ddlExportApi.ts` 改路径
-3. [ ] E2E / CHANGELOG / `product-capability-map.md`
-4. [ ] 删除 `HisProjectController` 三 DDL 端点
+1. [x] `ProjectDdlController` + 三 POST
+2. [x] FE `ddlExportApi.ts` 改路径
+3. [x] E2E / CHANGELOG / `product-capability-map.md`
+4. [x] 删除 `HisProjectController` 三 DDL 端点
