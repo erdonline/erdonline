@@ -17,7 +17,7 @@ export default {
   'auth.brand.homeAria': 'ERD Online home',
   'auth.brand.panelAria': 'Product overview',
   'auth.brand.demoAria': 'Open demo',
-  'auth.subtitle.default': 'Open-source database modeling: versioning and collaboration, like Git + Figma',
+  'auth.subtitle.default': 'Versioning and collaboration, ready to go',
   'auth.skip.default': 'Skip to form',
 
   // Login page
@@ -93,7 +93,7 @@ export default {
   'register.footer.loginAria': 'Go to sign in',
 
   // Designer top-bar chrome (StatusInstrument / DualLayerLegend)
-  'designer.instrument.synced': 'Synced',
+  'designer.instrument.synced': 'Saved',
   'designer.instrument.saving': 'Saving',
   'designer.instrument.error': 'Error',
   'designer.instrument.conflict': 'Conflict',
@@ -105,7 +105,8 @@ export default {
   'designer.instrument.version.unknown': 'v?',
   'designer.instrument.versionAria': 'Version: {label}',
   'designer.instrument.db': 'DB',
-  'designer.instrument.db.probing': 'DB ·',
+  'designer.instrument.db.unknown': 'DB ·',
+  'designer.instrument.db.probing': 'DB …',
   'designer.instrument.db.synced': 'DB ✓',
   'designer.instrument.db.mismatch': 'DB ≠',
   'designer.instrument.dbAria': 'Live DB probe: {label}',

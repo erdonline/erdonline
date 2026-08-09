@@ -114,13 +114,22 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
           data-testid="auth-form-anchor"
         >
           <div className="auth-shell__form-header" data-testid="auth-form-header">
-            <img src="/logo.svg" alt="ERD Online" width={48} height={48} />
+            {/* 桌面左栏已有品牌；表单区只保留标题，避免双 logo + 长副文案抢焦点 */}
+            <img
+              className="auth-shell__form-logo"
+              src="/logo.svg"
+              alt="ERD Online"
+              width={40}
+              height={40}
+            />
             <Typography.Title level={3} className="auth-shell__form-title">
               {title}
             </Typography.Title>
-            <Typography.Paragraph type="secondary" className="auth-shell__form-desc">
-              {resolvedSubtitle}
-            </Typography.Paragraph>
+            {resolvedSubtitle ? (
+              <Typography.Paragraph type="secondary" className="auth-shell__form-desc">
+                {resolvedSubtitle}
+              </Typography.Paragraph>
+            ) : null}
           </div>
           {children}
           {footer ? <div className="auth-shell__form-links">{footer}</div> : null}

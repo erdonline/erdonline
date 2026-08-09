@@ -107,16 +107,16 @@ test.describe('i18n：手动语言切换', () => {
     await page.getByTestId('project-list-open-link').first().click();
     await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
     const saveStatus = page.getByTestId('save-status');
-    await expect(saveStatus).toHaveText('已同步', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText(/已落盘|已同步/, { timeout: 25_000 });
 
     // DesignLayout 的 LocaleSwitcher 在 ⋯ overflow 内；此处用 umi_locale 持久化机制验证 chrome 文案
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
-    await expect(saveStatus).toHaveText('Synced', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText(/Saved|Synced/, { timeout: 25_000 });
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
-    await expect(saveStatus).toHaveText('已同步', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText(/已落盘|已同步/, { timeout: 25_000 });
   });
 
   test('DesignLayout 工作流与 skip-nav 随 locale 切换', async ({ page }) => {

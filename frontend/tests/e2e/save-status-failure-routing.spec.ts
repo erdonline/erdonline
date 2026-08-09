@@ -25,7 +25,7 @@ async function openDesignerWithTable(page: Page, projectName: string) {
   await openRelationFromEmpty(page);
   await page.getByTestId('canvas-empty-create').click();
   await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 25_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
+  await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, { timeout: 25_000 });
   await page.waitForTimeout(1_500);
 }
 
@@ -99,7 +99,7 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
 
       await retry.click();
       await expect(page.getByTestId('save-status')).not.toHaveText('保存中', { timeout: 3_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 20_000 });
+      await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, { timeout: 20_000 });
       await expect(page.getByRole('button', { name: RETRY_FAILURE_ARIA })).toHaveCount(0);
 
       await assertNoConflictUi(page);
@@ -137,7 +137,7 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
       await expect(page.getByTestId('save-status')).toHaveText('冲突');
 
       await assertNoRetryFailureUi(page);
-      await expect(page.getByTestId('save-status')).not.toHaveText('已同步');
+      await expect(page.getByTestId('save-status')).not.toHaveText(/已落盘|已同步/);
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});

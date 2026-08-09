@@ -12,9 +12,10 @@ import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 import { useSchemaProbe } from '@/hooks/useSchemaProbe';
 import { history, useIntl } from '@umijs/max';
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import shallow from 'zustand/shallow';
 import { Tooltip } from 'antd';
+import useProjectStore from '@/store/project/useProjectStore';
 
 type DotTone = 'ok' | 'warn' | 'err' | 'idle';
 
@@ -95,7 +96,15 @@ const InstrumentCapsule: React.FC<CapsuleProps> = ({
   );
 };
 
-/** DesignLayout 顶栏 M2 状态仪表：autosave / version / live DB 三胶囊（ADR-0022 语义分离） */
+function resolveProjectId(): string {
+  return (
+    cache.getItem(CONSTANT.PROJECT_ID) ||
+    new URLSearchParams(window.location.search).get('projectId') ||
+    ''
+  );
+}
+
+/** DesignLayout 顶栏状态仪表：autosave / version / live DB 三胶囊（ADR-0022 语义分离） */
 const StatusInstrument: React.FC = () => {
   const intl = useIntl();
   const format = intlFormat(intl);
@@ -115,7 +124,19 @@ const StatusInstrument: React.FC = () => {
     shallow,
   );
 
+  const projectId =
+    useProjectStore((s) => s.project?.id) || resolveProjectId();
+  const projectJsonReady = Boolean(useProjectStore((s) => s.project?.projectJSON));
   const probe = useSchemaProbe();
+
+  /** A 层：进入设计器即轻量拉最新版本基线（禁止仅靠点击才正确；ADR-0022） */
+  const hydratedProjectRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!projectId || !projectJsonReady) return;
+    if (hydratedProjectRef.current === projectId) return;
+    hydratedProjectRef.current = projectId;
+    void versionDispatch.fetchVersionBaseline();
+  }, [projectId, projectJsonReady, versionDispatch]);
 
   const dirtyState = resolveVersionDirtyState({
     baselineLoaded,
@@ -125,17 +146,14 @@ const StatusInstrument: React.FC = () => {
   const versionCopy = versionDirtyCopy(dirtyState, changes, format);
 
   const goVersionPage = (openSave = false) => {
-    const projectId =
-      cache.getItem(CONSTANT.PROJECT_ID) ||
-      new URLSearchParams(window.location.search).get('projectId') ||
-      '';
-    const q = projectId ? `?projectId=${encodeURIComponent(projectId)}` : '';
+    const id = resolveProjectId();
+    const q = id ? `?projectId=${encodeURIComponent(id)}` : '';
     history.push(`/design/table/version/all${q}${openSave ? '#save' : ''}`);
   };
 
   const handleVersionClick = () => {
     if (dirtyState === 'unknown') {
-      versionDispatch.fetchVersionBaseline();
+      void versionDispatch.fetchVersionBaseline();
       return;
     }
     goVersionPage(versionCopy.openSaveFlow);
@@ -191,13 +209,14 @@ const StatusInstrument: React.FC = () => {
         ? 'ok'
         : 'warn';
 
+  // B 层：未探测/未知一律「DB ·」（ADR-0022 禁止加载即探库，但展示不得伪装已测）
   const dbLabel = probe.loading
     ? intl.formatMessage({ id: 'designer.instrument.db.probing' })
     : probe.status === 'SYNCED'
       ? intl.formatMessage({ id: 'designer.instrument.db.synced' })
       : probe.status === 'AHEAD' || probe.status === 'BEHIND' || probe.status === 'DIVERGED'
         ? intl.formatMessage({ id: 'designer.instrument.db.mismatch' })
-        : intl.formatMessage({ id: 'designer.instrument.db' });
+        : intl.formatMessage({ id: 'designer.instrument.db.unknown' });
 
   const dbDot: DotTone =
     probe.loading || probe.status === 'UNKNOWN'
@@ -217,8 +236,9 @@ const StatusInstrument: React.FC = () => {
     }
   };
 
+  // 未知态可点（选数据源 / 触发探测）；已有结果也可再点重探
   const dbInteractive =
-    probe.probeAllowed && (probe.isUnknown ? Boolean(probe.unknownCopy) : !probe.probeDisabled);
+    probe.probeAllowed && !probe.loading && (probe.isUnknown || !probe.probeDisabled);
 
   return (
     <div className="erd-instrument" data-testid="status-instrument">

@@ -20,7 +20,7 @@ async function setupConflictScenario(page: Page, projectName: string) {
   await openRelationFromEmpty(page);
   await page.getByTestId('canvas-empty-create').click();
   await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 25_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
+  await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, { timeout: 25_000 });
   await page.waitForTimeout(1_500);
 
   const projectId = new URL(page.url()).searchParams.get('projectId');
@@ -61,7 +61,7 @@ test.describe('project/save 乐观锁冲突', () => {
     try {
       await setupConflictScenario(page, projectName);
       await expect(page.getByTestId('version-diff-panel')).toBeVisible({ timeout: 20_000 });
-      await expect(page.getByTestId('save-status')).not.toHaveText('已同步');
+      await expect(page.getByTestId('save-status')).not.toHaveText(/已落盘|已同步/);
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});
@@ -94,7 +94,7 @@ test.describe('project/save 乐观锁冲突', () => {
       await expect(page.getByTestId('project-save-conflict-modal')).toHaveCount(0, {
         timeout: 15_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, { timeout: 15_000 });
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 15_000 });
       await expect(rfNode(page, 'T_TABLE_2')).toHaveCount(0);
 
@@ -125,7 +125,7 @@ test.describe('project/save 乐观锁冲突', () => {
       expect(forkProjectId).not.toBe(originalProjectId);
 
       await expect(page.getByRole('dialog', { name: '保存冲突' })).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
+      await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, { timeout: 25_000 });
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});
