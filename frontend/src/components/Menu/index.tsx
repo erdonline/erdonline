@@ -13,6 +13,7 @@ import ExportMarkdown from "@/components/dialog/export/ExportMarkdown";
 import ExportDBML from "@/components/dialog/export/ExportDBML";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
 import ReverseDBML from "@/components/dialog/import/ReverseDBML";
+import PublishTemplateModal from '@/components/catalog/PublishTemplateModal';
 import { history } from "@@/exports";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import { recentProject } from "@/services/project";
@@ -32,7 +33,8 @@ type DialogKey =
   | 'export-ddl'
   | 'export-dbml'
   | 'setup-db'
-  | 'setup-default';
+  | 'setup-default'
+  | 'publish-template';
 
 export interface IFileMenuProps {
   className?: string;
@@ -79,6 +81,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     useProjectStore((s) => s.project?.id) ||
     cache.getItem(CONSTANT.PROJECT_ID) ||
     '';
+  const currentName = useProjectStore((s) => s.project?.projectName) || '';
   const [recent, setRecent] = useState<RecentRow[]>([]);
   const [status, setStatus] = useState<RecentStatus>('idle');
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -267,6 +270,12 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
           },
         ],
       },
+      { type: 'divider' },
+      {
+        key: 'publish-template',
+        label: '发布为模板',
+        onClick: () => openDialog('publish-template'),
+      },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [status, recent, currentId, projectDispatch]);
@@ -342,6 +351,14 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       <DefaultSetUp
         hideTrigger
         open={dialog === 'setup-default'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <PublishTemplateModal
+        projectId={currentId}
+        projectName={currentName}
+        open={dialog === 'publish-template'}
         onOpenChange={(o) => {
           if (!o) closeDialog();
         }}
