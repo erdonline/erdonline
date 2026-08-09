@@ -8,6 +8,19 @@
 
 ### 2026-08-09
 
+#### 导航：「ERD Online 论坛」→「社区」
+
+- **文案**：HomeLayout / GroupLayout 侧栏外链菜单与落地页 footer 统一为「社区」（en：`Community`）；链接仍为 GitHub Issues
+- 验证点：`rg 'ERD Online 论坛|ERD Online forum' frontend` → 无命中
+
+#### 模板广场：允许多次安装（每次新建项目）
+
+- **行为**：`POST …/install` 不再复用已有安装记录；每次调用 `initPersonProject` 创建新的个人项目副本（Figma Community 模式）
+- **数据**：Flyway V23 移除 `catalog_install (template_id, user_id)` 唯一约束；`install_count` 改为累计次数
+- **UX**：详情页已安装时按钮文案「再次安装（创建新副本）」；成功 toast 区分首次/再次
+- **ADR-0028**：安装语义与安装数统计说明已更新
+- 验证点：`mvn -q -pl backend -Dtest=CatalogServiceImplTest test`；`yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "多次安装"`
+
 #### 顶栏品牌链：全站统一回产品首页 `/`
 
 - **行为**：左上角 **ERD Online**（`erd-chrome-brand`）在设计器、HomeLayout、GroupLayout 与工作区顶栏一致跳转 **`/`**（LandingChrome 产品首页）；此前工作区 chrome 指向 `/home`

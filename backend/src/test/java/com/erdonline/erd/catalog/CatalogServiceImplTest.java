@@ -1,5 +1,6 @@
 package com.erdonline.erd.catalog;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.Project;
 import com.erdonline.erd.service.ProjectService;
@@ -20,6 +21,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -105,6 +107,37 @@ class CatalogServiceImplTest {
         assertTrue(result.getCode() != 200);
         assertEquals("仅项目创建人可发布为模板", result.getMsg());
         verify(submissionMapper, never()).insert(any(CatalogSubmission.class));
+    }
+
+    @Test
+    void installTemplate_eachCallCreatesNewProjectAndIncrementsCount() {
+        CatalogTemplate template = new CatalogTemplate();
+        template.setId("blank");
+        template.setSlug("blank");
+        template.setTitle("Blank");
+        template.setStatus("published");
+        template.setProjectJson(Map.of("modules", List.of()));
+        template.setInstallCount(1);
+
+        when(templateMapper.selectOne(any(LambdaQueryWrapper.class))).thenReturn(template);
+        when(projectService.count(any(LambdaQueryWrapper.class))).thenReturn(0L);
+        when(projectService.initPersonProject(any()))
+                .thenReturn(R.ok("proj-a"))
+                .thenReturn(R.ok("proj-b"));
+
+        R first = catalogService.installTemplate("blank", "u1", "alice");
+        R second = catalogService.installTemplate("blank", "u1", "alice");
+
+        assertEquals(200, first.getCode());
+        assertEquals(200, second.getCode());
+        CatalogInstallResultView firstView = (CatalogInstallResultView) first.getData();
+        CatalogInstallResultView secondView = (CatalogInstallResultView) second.getData();
+        assertEquals("proj-a", firstView.getProjectId());
+        assertEquals("proj-b", secondView.getProjectId());
+
+        verify(installMapper, times(2)).insert(any(CatalogInstall.class));
+        verify(projectService, times(2)).initPersonProject(any());
+        assertEquals(3, template.getInstallCount());
     }
 
     @Test

@@ -135,6 +135,40 @@ test.describe('模板广场', () => {
     await expect(page.getByTestId('catalog-tile-first')).toBeVisible({ timeout: 15_000 });
   });
 
+  test('同一模板可多次安装，每次新建项目', async ({ page }) => {
+    test.setTimeout(90_000);
+    const templateId = 'blank';
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+
+      const installViaApi = () =>
+        page.evaluate(async (id) => {
+          const token = localStorage.getItem('Authorization');
+          const res = await fetch(`/ncnb/catalog/v1/templates/${encodeURIComponent(id)}/install`, {
+            method: 'POST',
+            headers: token ? { Authorization: `Bearer ${token}` } : {},
+          });
+          const json = await res.json();
+          return json?.data ?? json;
+        }, templateId);
+
+      const first = await installViaApi();
+      const second = await installViaApi();
+
+      expect(first?.projectId).toBeTruthy();
+      expect(second?.projectId).toBeTruthy();
+      expect(second.projectId).not.toBe(first.projectId);
+
+      await page.goto(`/catalog/${templateId}`);
+      await expect(page.getByTestId('catalog-install-btn')).toHaveText('再次安装（创建新副本）', {
+        timeout: 15_000,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('安装后评论限频（API）', async ({ page }) => {
     test.setTimeout(60_000);
     try {

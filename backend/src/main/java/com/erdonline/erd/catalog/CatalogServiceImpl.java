@@ -18,7 +18,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -114,10 +113,6 @@ public class CatalogServiceImpl implements CatalogService {
             return R.failed("请先登录");
         }
         CatalogTemplate t = requirePublishedTemplate(id);
-        Optional<CatalogInstallResultView> existing = findExistingInstall(t, userId, username);
-        if (existing.isPresent()) {
-            return R.ok(existing.get());
-        }
         String projectName = buildInstallName(t.getTitle(), username);
         if (projectNameExists(projectName)) {
             projectName = projectName + " (" + IdUtil.fastSimpleUUID().substring(0, 6) + ")";
@@ -439,46 +434,18 @@ public class CatalogServiceImpl implements CatalogService {
         return R.ok(Boolean.TRUE);
     }
 
-    private Optional<CatalogInstallResultView> findExistingInstall(CatalogTemplate t, String userId, String username) {
-        CatalogInstall existing = installMapper.selectOne(new LambdaQueryWrapper<CatalogInstall>()
-                .eq(CatalogInstall::getTemplateId, t.getId())
-                .eq(CatalogInstall::getUserId, userId)
-                .last("LIMIT 1"));
-        if (existing == null || !StringUtils.hasText(existing.getProjectId())) {
-            return Optional.empty();
-        }
-        Project project = projectService.getById(existing.getProjectId());
-        if (project == null) {
-            return Optional.empty();
-        }
-        return Optional.of(CatalogInstallResultView.builder()
-                .projectId(project.getId())
-                .projectName(project.getProjectName())
-                .templateId(t.getId())
-                .build());
-    }
-
     private boolean projectNameExists(String projectName) {
         return projectService.count(new LambdaQueryWrapper<Project>()
                 .eq(Project::getProjectName, projectName)) > 0;
     }
 
     private void recordInstall(CatalogTemplate t, String userId, String projectId) {
-        CatalogInstall existing = installMapper.selectOne(new LambdaQueryWrapper<CatalogInstall>()
-                .eq(CatalogInstall::getTemplateId, t.getId())
-                .eq(CatalogInstall::getUserId, userId)
-                .last("LIMIT 1"));
-        if (existing == null) {
-            installMapper.insert(new CatalogInstall()
-                    .setTemplateId(t.getId())
-                    .setUserId(userId)
-                    .setProjectId(projectId));
-            t.setInstallCount(nullSafe(t.getInstallCount()) + 1);
-            templateMapper.updateById(t);
-        } else if (!StringUtils.hasText(existing.getProjectId())) {
-            existing.setProjectId(projectId);
-            installMapper.updateById(existing);
-        }
+        installMapper.insert(new CatalogInstall()
+                .setTemplateId(t.getId())
+                .setUserId(userId)
+                .setProjectId(projectId));
+        t.setInstallCount(nullSafe(t.getInstallCount()) + 1);
+        templateMapper.updateById(t);
     }
 
     private CatalogTemplate requirePublishedTemplate(String idOrSlug) {

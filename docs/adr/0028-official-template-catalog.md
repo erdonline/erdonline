@@ -19,8 +19,8 @@
 | API | 浏览器 `GET/POST /catalog/v1/**`（会话 JWT）；MCP/PAT `GET/POST /api/v1/catalog/**`（读 `projects:read`，安装 `projects:write`） |
 | 创建 IA | `/project/new` → `/catalog`；Home CTA、空态「从模板创建」；首 tile = 空白项目 |
 | 发现面 IA | **`/catalog` 公开 CatalogLayout**（Landing 品牌壳，非 HomeLayout）；匿名浏览；安装/评分/评论须登录；维护者审核 `/catalog/review` 须登录 |
-| 安装 | `POST …/install` → `initPersonProject` + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>` |
-| 社交 P0 | 评分（须已安装，1 票/用户）；安装数去重；作者页 `GET …/creators/{handle}`（GitHub handle） |
+| 安装 | `POST …/install` → 每次调用 `initPersonProject` 新建个人项目 + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>`；**同一用户可多次安装**（Figma Community 模式，非静默复用旧项目） |
+| 社交 P0 | 评分（须至少安装过一次，1 票/用户）；安装数**累计**（含同一用户多次安装）；作者页 `GET …/creators/{handle}`（GitHub handle） |
 | 社交 P1 | 评论（须安装+限频）、举报自动隐藏、作者开关/限制评论者、hot 排序 + 官方/社区筛选 → ✅ 2026-08-09 |
 | 发布 | 项目创建人提交 → `pending` → 维护者（**须显式配置** `erd.catalog.maintainer-usernames` / `ERD_CATALOG_MAINTAINER_USERNAMES`；prod 默认空，dev 可含 `admin`）approve/reject。不要求绑定 GitHub；审核通过时作者 handle 优先 GitHub → 账号 **username** → nickname；Flyway V22 回填历史 `community-*` |
 | MCP | `list_templates` / `get_template` / `install_template` / `get_creator`；**无** `publish_template`；**无** PAT 评分/评论 |
