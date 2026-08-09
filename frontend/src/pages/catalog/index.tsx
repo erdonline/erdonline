@@ -172,9 +172,12 @@ export default function CatalogListPage() {
                   {item.description || '暂无描述'}
                 </Paragraph>
                 <Space wrap size={4}>
-                  {(item.tags ?? []).slice(0, 4).map((tag) => (
-                    <Tag key={tag}>{tag}</Tag>
-                  ))}
+                  {(item.tags ?? [])
+                    .filter((tag) => !(item.official && tag === '官方'))
+                    .slice(0, 4)
+                    .map((tag) => (
+                      <Tag key={tag}>{tag}</Tag>
+                    ))}
                   {item.official ? <Tag color="blue">官方</Tag> : null}
                 </Space>
                 <div className="catalog-card__footer">

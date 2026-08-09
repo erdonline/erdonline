@@ -78,18 +78,19 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         </a>
       </nav>
       <header className="landingNav">
-        <a
-          className="landingNavBrand landingBrand"
-          href="/"
-          aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
-        >
-          <img src="/logo.svg" alt="" width={22} height={22} />
-          ERD Online
-        </a>
-        <nav
-          className="landingNavLinks"
-          aria-label={intl.formatMessage({ id: 'landing.nav.mainAria' })}
-        >
+        <div className="landingNavInner">
+          <a
+            className="landingNavBrand landingBrand"
+            href="/"
+            aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
+          >
+            <img src="/logo.svg" alt="" width={22} height={22} />
+            ERD Online
+          </a>
+          <nav
+            className="landingNavLinks"
+            aria-label={intl.formatMessage({ id: 'landing.nav.mainAria' })}
+          >
           <a
             href="/#pillars"
             data-testid="landing-nav-pillars"
@@ -142,7 +143,8 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
               {intl.formatMessage({ id: 'landing.nav.login' })}
             </Link>
           )}
-        </nav>
+          </nav>
+        </div>
       </header>
 
       {children}
