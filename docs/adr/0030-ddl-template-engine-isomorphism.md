@@ -30,7 +30,8 @@
 
 ### 3. 模板与遗留兼容
 
-- **官方/种子模板**：语法统一为 **Freemarker**；`defaultData.json` 与 classpath 默认模板随 Freemarker 切片迁移。
+- **官方/种子模板**：语法统一为 **Freemarker**；`defaultData.json` 与 classpath 默认模板随 Freemarker 切片迁移。classpath 种子目录 `ddl/freemarker/{mysql,postgresql,oracle}/*.ftl` 与 MySQL 键集对齐（11 项）；`defaultData` 无 SQL Server 方言，故暂无 `sqlserver/` 种子。
+- **解析优先级**：`DdlTemplateRenderer.resolveFtlSource` — projectJSON `database[]` 自定义模板 **优先**；仅当字段为空时回落 classpath 种子。
 - **用户存量 doT**（projectJSON `database[]` 自定义模板）：**读时**经 **`DotToFreemarkerTranslator`** + **`DdlTemplateContextEnricher`** 预计算 `pkFieldNames`、`sameCols` 等 evaluate，**非**永久双引擎——翻译层仅为 legacy bridge。
 - **写入新模板**：projectJSON 增加 `templateSyntax: freemarker | dot`（`dot` 仅兼容旧稿；新稿默认 `freemarker`）。未标注且含 doT 特征时按 `dot` 处理。
 - **编排不变**：`Json2CodeDdlEngine.generateUpdateSql` → `VersionDdlEngine` / `VersionPanelDiffEngine`。

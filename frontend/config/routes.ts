@@ -228,6 +228,10 @@ export default [
             component: './design/setting/component/DataTypeDomains',
           },
           {
+            path: '/design/table/setting/databaseTemplates',
+            component: './design/setting/component/DatabaseTemplates',
+          },
+          {
             path: '/design/table/setting/default',
             component: './design/setting/component/DefaultSetUp',
           },

@@ -935,5 +935,6 @@ export default {
   'designLayout.route.settings': '设置',
   'designLayout.route.defaultFields': '默认字段设置',
   'designLayout.route.dataTypeDict': '数据类型字典',
+  'designLayout.route.databaseTemplates': 'DDL 模板',
   'designLayout.route.systemDefaults': '系统默认项设置',
 };
