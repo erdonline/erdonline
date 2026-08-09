@@ -8,6 +8,12 @@
 
 ### 2026-08-09
 
+#### Docs：ADR-0029 MDX 花括号转义（GitHub Pages SSG）
+
+- **Docs**：`docs/adr/0029-designer-readonly-query.md` 中 `{表名}`、`{数据源名}` 转义为 `\{表名\}`、`\{数据源名\}`，避免 Docusaurus MDX 将中文占位符当作 JS 表达式导致 SSG 失败
+- **Docs**：ADR 0028–0032 同步至 `website/i18n/en/.../adr/`，修复 en locale 相对链接无法解析导致的双语 build 失败
+- 验证点：`cd website && DOCUSAURUS_URL=https://erdonline.github.io DOCUSAURUS_BASE_URL=/erdonline/ yarn build`
+
 #### 逆向解析：目标模块选择 + 二次导入 frozen layout 修复
 
 - **FE**：Step2 可选「导入到模型」（已有模块 / 新建）+ 可改「模型名称」；`reverseImportTarget` 写入 `importReverseTable`
