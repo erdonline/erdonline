@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import doT from 'dot';
 import {message} from "antd";
+import { associationKey } from '@/utils/versionStructuralDiff';
 
 /** 方言码 → 字段物理类型（datatypeDomains.apply[code].type） */
 const getFieldType = (datatype: unknown[], type: string, code: string): string => {
@@ -584,10 +585,35 @@ const getAllTable = (dataSource, name) => {
   }, []);
 };
 
+/** 从 diff 条目的 name（module.key…）反查 association 对象 */
+function findAssociationByChangeName(dataSource, changeName) {
+  const raw = String(changeName || '');
+  const dot = raw.indexOf('.');
+  if (dot <= 0) {
+    return null;
+  }
+  const moduleName = raw.slice(0, dot);
+  const mod = (dataSource.modules || []).find((m) => m.name === moduleName);
+  if (!mod) {
+    return null;
+  }
+  const tail = raw.slice(dot + 1);
+  for (const a of mod.associations || []) {
+    const key = associationKey(a);
+    if (tail === key || tail.startsWith(`${key}.`)) {
+      return a;
+    }
+  }
+  return null;
+}
+
 const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) => {
   const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
-  const database = _.get(dataSource, 'dataTypeDomains.database', [])
-    .filter(db => db.defaultDatabase)[0];
+  const database = pickDatabaseDialect(
+    _.get(dataSource, 'dataTypeDomains.database', []),
+    code,
+  );
+  const dialectCode = (database && database.code) || code;
   // 合并字段其他变化，只留一个
   const fieldsChanges = [];
   const changes = changesData.filter(c => {
@@ -701,7 +727,7 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
           entity: dataTable,
           index,
           separator
-        }, database && database.code);
+        }, dialectCode);
       } else if (c.opt === 'update') {
         // 1.先删除再重建
         let deleteString = getTemplateString(getTemplate('deleteIndexTemplate'), {
@@ -808,6 +834,22 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
         });
       }
     }).join('');
+
+  templateResult += '\r\n';
+
+  // 4.生成外键（association add → ALTER TABLE … ADD CONSTRAINT …）
+  templateResult += changes
+    .filter((c) => c.type === 'association' && c.opt === 'add')
+    .map((c) => {
+      const assoc = findAssociationByChangeName(dataSource, c.name);
+      if (!assoc) {
+        return '';
+      }
+      return groupAssociationsForFk([assoc])
+        .map((g) => renderCreateForeignKeySql(g, separator, dialectCode))
+        .join('');
+    })
+    .join('');
 
   templateResult += '\r\n';
 

@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 修复：版本变更详情「模型变更」与「变化脚本」内容不对齐
+
+- **根因**：详情左栏曾混用 A 层 dirty diff / 落库 `changes` 与右栏 SQL 生成基线；`showChanges` 在 `currentVersionIndex === 0` 时把 `lastVersion` 误设为当前版本自身；`generateUpdateSql` 按 `defaultDatabase` 取模板而非所选 JDBC 方言，非默认库时 `CREATE TABLE` 为空；增量 SQL 未输出 `association` add 对应的外键 DDL
+- **修复**：详情/比对统一用「当前版本快照 vs 上一版快照」重算 structural diff（与后端 `VersionDiffEngine` 同算法）驱动左右两栏；SQL 基于版本快照 + 所选方言生成；补 association→FK；摘要 hint 改为「相对上一版本」
+- 验证点：
+  - `cd frontend && npx --yes tsx src/utils/json2code.changes.test.ts` ✅
+  - HMR 目视：版本变更详情左栏 N 条新增表 ↔ 右栏含 N 条 `CREATE TABLE` + 外键
+
 #### 修复：版本管理全链路闭环审计（首版创建/重命名/删除/重建）
 
 - **背景**：用户反馈 `/design/table/version/all` 版本页「好像玩不转」；端到端走查（新建→列表→切换→回滚→重命名→删除→初始化基线→重建）后定位到两处会让用户以为「版本管理坏了」的真实缺口

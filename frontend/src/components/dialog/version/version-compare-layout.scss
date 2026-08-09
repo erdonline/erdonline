@@ -1,0 +1,55 @@
+/* 版本变更详情 / 任意版本比较：双栏标题、工具行、正文顶对齐 */
+.version-compare-layout {
+  .version-compare-col {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+  }
+
+  .version-compare-col__heading {
+    flex: none;
+    min-height: 24px;
+    margin: 0 0 4px;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 22px;
+    color: var(--erd-ink-900);
+  }
+
+  .version-compare-col__toolbar {
+    flex: none;
+    box-sizing: border-box;
+    min-height: 28px;
+    margin: 0 0 8px;
+    display: flex;
+    align-items: center;
+
+    .version-diff-summary {
+      margin-bottom: 0;
+    }
+  }
+
+  .version-compare-col__body {
+    flex: none;
+    box-sizing: border-box;
+    height: 450px;
+    min-height: 450px;
+    overflow: hidden;
+
+    .version-diff-panel {
+      height: 100%;
+    }
+
+    /* Ace 从容器顶缘起笔，避免右列脚本块视觉下沉 */
+    .ace_editor {
+      border: 1px solid var(--erd-line);
+      border-radius: var(--erd-radius-sm, 4px);
+    }
+  }
+
+  .version-compare-col__copy {
+    margin: 0 !important;
+    font-size: 12px;
+    line-height: 22px;
+  }
+}
