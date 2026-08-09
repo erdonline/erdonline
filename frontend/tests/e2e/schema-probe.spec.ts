@@ -83,12 +83,16 @@ async function probeJdbcSetup(
   });
 
   await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe');
-  await openVersionPage(page);
+  // 停在模型页：进页应 refreshDataSources + 自动探库（勿依赖先打开版本页）
+  await expect(page).toHaveURL(/\/design\/table\/model/);
   await expect(page.getByTestId('status-instrument')).toBeVisible({ timeout: 15_000 });
   const probeCapsule = page.getByTestId('instrument-db');
   await expect(probeCapsule).toBeVisible();
   await expect(probeCapsule).toHaveAttribute('data-probe-status', 'SYNCED', { timeout: 15_000 });
   await expect(probeCapsule).toContainText('DB ✓');
+  // A 层基线亦应水合（尚无版本 → v—，已 loaded）
+  await expect(page.getByTestId('instrument-version')).toBeVisible();
+  await expect(page.getByTestId('version-dirty-chip-no-baseline')).toBeVisible({ timeout: 15_000 });
   return { dsId, probeCapsule };
 }
 

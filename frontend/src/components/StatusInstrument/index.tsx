@@ -129,13 +129,26 @@ const StatusInstrument: React.FC = () => {
   const projectJsonReady = Boolean(useProjectStore((s) => s.project?.projectJSON));
   const probe = useSchemaProbe();
 
-  /** A 层：进入设计器即轻量拉最新版本基线（禁止仅靠点击才正确；ADR-0022） */
+  /** A/B 层水合：先拉数据源进 version.dbs，再拉版本基线（禁空 dbs 假「无 JDBC」） */
   const hydratedProjectRef = useRef<string | null>(null);
   useEffect(() => {
     if (!projectId || !projectJsonReady) return;
     if (hydratedProjectRef.current === projectId) return;
     hydratedProjectRef.current = projectId;
-    void versionDispatch.fetchVersionBaseline();
+    let cancelled = false;
+    void (async () => {
+      try {
+        await useProjectStore.getState().dispatch.refreshDataSources();
+      } catch (e) {
+        // eslint-disable-next-line no-console
+        console.warn('StatusInstrument: refreshDataSources failed', e);
+      }
+      if (cancelled) return;
+      await versionDispatch.fetchVersionBaseline();
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, [projectId, projectJsonReady, versionDispatch]);
 
   const dirtyState = resolveVersionDirtyState({
@@ -209,7 +222,7 @@ const StatusInstrument: React.FC = () => {
         ? 'ok'
         : 'warn';
 
-  // B 层：未探测/未知一律「DB ·」（ADR-0022 禁止加载即探库，但展示不得伪装已测）
+  // B 层：未探测/未知一律「DB ·」；有 JDBC 时进页自动探一次水合（ADR-0022）
   const dbLabel = probe.loading
     ? intl.formatMessage({ id: 'designer.instrument.db.probing' })
     : probe.status === 'SYNCED'
