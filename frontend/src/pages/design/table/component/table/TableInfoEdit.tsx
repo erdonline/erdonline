@@ -5,7 +5,7 @@ import "handsontable/languages/zh-CN";
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 // @ts-ignore
-import JExcel from "@/pages/JExcel";
+import JExcel, { type JExcelHandle } from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
 import { Button, Empty, message } from 'antd';
 import InsertFromFieldLibraryModal from '@/components/field-library/InsertFromFieldLibraryModal';
@@ -53,6 +53,8 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   const [sheetEpoch, setSheetEpoch] = useState(0);
   const [fieldSaving, setFieldSaving] = useState(false);
   const [fieldLibraryOpen, setFieldLibraryOpen] = useState(false);
+  const [fieldLibrarySelectedRows, setFieldLibrarySelectedRows] = useState<number[]>([]);
+  const jexcelRef = useRef<JExcelHandle>(null);
   const pendingRef = useRef<FieldRow[] | null>(null);
   const savingRef = useRef(false);
   const prevFieldCountRef = useRef(fields.length);
@@ -191,6 +193,12 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
     return f;
   };
 
+  const openFieldLibrary = () => {
+    const indices = jexcelRef.current?.getSelectedRowIndices() ?? [];
+    setFieldLibrarySelectedRows(indices);
+    setFieldLibraryOpen(true);
+  };
+
   const columns = useMemo(() => [
     ...column1,
     {
@@ -248,16 +256,6 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
       style={{ width: '100%', height: '640px', overflow: 'auto' }}
       aria-busy={fieldSaving || undefined}
     >
-        <div className="erd-table-field-toolbar" style={{ marginBottom: 8 }}>
-          <Button
-            size="small"
-            data-testid="field-library-insert-open"
-            aria-label="从字段库插入"
-            onClick={() => setFieldLibraryOpen(true)}
-          >
-            从字段库插入
-          </Button>
-        </div>
         <div className="erd-table-field-unique-hint" data-testid="field-unique-hint">
           <span>字段没有独立的「唯一」列；UNIQUE 请在「索引」签勾选「是否唯一」。</span>
           {props.onOpenIndex ? (
@@ -273,18 +271,27 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
           ) : null}
         </div>
         <JExcel
+          ref={jexcelRef}
           key={sheetKey}
           data={data}
           columns={columns}
           saveData={afterChange}
+          onFieldLibraryClick={openFieldLibrary}
           // 与画布一致：英文名必填；类型必填（禁半成品静默丢行）
           notEmptyColumn={['name', 'typeName']}
         />
         <InsertFromFieldLibraryModal
           open={fieldLibraryOpen}
-          onOpenChange={setFieldLibraryOpen}
+          onOpenChange={(open) => {
+            setFieldLibraryOpen(open);
+            if (!open) {
+              setFieldLibrarySelectedRows([]);
+            }
+          }}
           moduleName={module}
           entityTitle={entityTitle}
+          selectedRowIndices={fieldLibrarySelectedRows}
+          onApplied={() => setSheetEpoch((e) => e + 1)}
         />
     </div>
   );

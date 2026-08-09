@@ -58,17 +58,92 @@ export type ApplyToProjectResult = {
   datatypes: ProjectEnumRow[];
   addedFieldCount: number;
   addedEnumCount: number;
+  modifiedFieldCount: number;
 };
 
-export function computeApplyToProject(opts: ApplyToProjectOptions): ApplyToProjectResult {
+export type OverwriteFieldsResult = {
+  fields: ProjectFieldRow[];
+  modifiedFieldCount: number;
+};
+
+/**
+ * 覆盖模式：按选中行索引写入库字段副本（copy-on-apply，不级联）。
+ * - 1 个库字段 + 多选行 → 同一模板覆盖各行
+ * - 多库字段 + 1 选行 → 仅取第一个库字段
+ * - 多选行 + 多库字段 → 按索引 zip（取 min 长度）
+ */
+export function overwriteFieldsAtIndices(
+  existing: ProjectFieldRow[],
+  incoming: DataDictField[],
+  indices: number[],
+): OverwriteFieldsResult {
+  const base = (existing || []).map((f) => JSON.parse(JSON.stringify(f)) as ProjectFieldRow);
+  const templates = (incoming || [])
+    .map((f) => JSON.parse(JSON.stringify(f)) as ProjectFieldRow)
+    .filter((f) => String(f?.name || '').trim());
+  const sortedIndices = [...new Set(indices)]
+    .filter((i) => Number.isInteger(i) && i >= 0 && i < base.length)
+    .sort((a, b) => a - b);
+
+  if (!templates.length || !sortedIndices.length) {
+    return { fields: base, modifiedFieldCount: 0 };
+  }
+
+  let modifiedFieldCount = 0;
+  if (templates.length === 1) {
+    const tpl = templates[0];
+    for (const idx of sortedIndices) {
+      base[idx] = JSON.parse(JSON.stringify(tpl));
+      modifiedFieldCount += 1;
+    }
+  } else if (sortedIndices.length === 1) {
+    base[sortedIndices[0]] = JSON.parse(JSON.stringify(templates[0]));
+    modifiedFieldCount = 1;
+  } else {
+    const n = Math.min(sortedIndices.length, templates.length);
+    for (let i = 0; i < n; i += 1) {
+      base[sortedIndices[i]] = JSON.parse(JSON.stringify(templates[i]));
+      modifiedFieldCount += 1;
+    }
+  }
+
+  return { fields: base, modifiedFieldCount };
+}
+
+export type ComputeApplyMode = 'append' | 'overwrite';
+
+export type ComputeApplyToProjectOptions = ApplyToProjectOptions & {
+  mode?: ComputeApplyMode;
+  /** overwrite 时必填：实体 fields 数组中的行索引 */
+  selectedRowIndices?: number[];
+};
+
+export function computeApplyToProject(opts: ComputeApplyToProjectOptions): ApplyToProjectResult {
   const beforeFieldCount = (opts.existingFields || []).length;
   const beforeEnumCount = (opts.existingDatatypes || []).length;
-  const fields = mergeFieldsIntoEntity(opts.existingFields, opts.applyResult.fields || []);
+  const mode = opts.mode ?? 'append';
+  const incoming = opts.applyResult.fields || [];
+
+  let fields: ProjectFieldRow[];
+  let modifiedFieldCount = 0;
+  if (mode === 'overwrite' && (opts.selectedRowIndices?.length ?? 0) > 0) {
+    const overwritten = overwriteFieldsAtIndices(
+      opts.existingFields,
+      incoming,
+      opts.selectedRowIndices || [],
+    );
+    fields = overwritten.fields;
+    modifiedFieldCount = overwritten.modifiedFieldCount;
+  } else {
+    fields = mergeFieldsIntoEntity(opts.existingFields, incoming);
+  }
+
   const datatypes = mergeEnumsIntoDomains(opts.existingDatatypes, opts.applyResult.enums);
   return {
     fields,
     datatypes,
     addedFieldCount: fields.length - beforeFieldCount,
     addedEnumCount: datatypes.length - beforeEnumCount,
+    modifiedFieldCount,
   };
 }

@@ -6,6 +6,8 @@ type ApplyFieldLibraryOpts = {
   moduleName: string;
   entityTitle: string;
   applyResult: DataDictApplyResult;
+  /** 有选中行时为 overwrite，否则 append */
+  selectedRowIndices?: number[];
 };
 
 /**
@@ -13,14 +15,20 @@ type ApplyFieldLibraryOpts = {
  */
 export async function applyFieldLibraryToEntity(
   opts: ApplyFieldLibraryOpts,
-): Promise<{ ok: boolean; addedFieldCount: number; addedEnumCount: number }> {
+): Promise<{
+  ok: boolean;
+  addedFieldCount: number;
+  addedEnumCount: number;
+  modifiedFieldCount: number;
+  mode: 'append' | 'overwrite';
+}> {
   const state = useProjectStore.getState();
   const project = state.project;
   const moduleIndex = project?.projectJSON?.modules?.findIndex(
     (m: { name?: string }) => m.name === opts.moduleName,
   );
   if (moduleIndex == null || moduleIndex < 0 || !project?.projectJSON) {
-    return { ok: false, addedFieldCount: 0, addedEnumCount: 0 };
+    return { ok: false, addedFieldCount: 0, addedEnumCount: 0, modifiedFieldCount: 0, mode: 'append' };
   }
   const module = project.projectJSON.modules[moduleIndex];
   const entity = module?.entities?.find(
@@ -28,17 +36,24 @@ export async function applyFieldLibraryToEntity(
       (e.title || e.name) === opts.entityTitle,
   );
   if (!entity) {
-    return { ok: false, addedFieldCount: 0, addedEnumCount: 0 };
+    return { ok: false, addedFieldCount: 0, addedEnumCount: 0, modifiedFieldCount: 0, mode: 'append' };
   }
 
   const existingFields = (entity.fields || []) as ProjectFieldRow[];
   const existingDatatypes = (project.projectJSON.dataTypeDomains?.datatype ||
     []) as ProjectEnumRow[];
+  const selectedRowIndices = (opts.selectedRowIndices || []).filter(
+    (i) => Number.isInteger(i) && i >= 0 && i < existingFields.length,
+  );
+  const mode: 'append' | 'overwrite' =
+    selectedRowIndices.length > 0 ? 'overwrite' : 'append';
 
   const merged = computeApplyToProject({
     existingFields,
     existingDatatypes,
     applyResult: opts.applyResult,
+    mode,
+    selectedRowIndices,
   });
 
   for (const en of (opts.applyResult.enums || []) as DataDictEnum[]) {
@@ -52,7 +67,13 @@ export async function applyFieldLibraryToEntity(
         state.dispatch.addDatatype(en, { persist: true }),
       );
       if (!addOk) {
-        return { ok: false, addedFieldCount: 0, addedEnumCount: 0 };
+        return {
+          ok: false,
+          addedFieldCount: 0,
+          addedEnumCount: 0,
+          modifiedFieldCount: 0,
+          mode,
+        };
       }
     }
   }
@@ -70,5 +91,7 @@ export async function applyFieldLibraryToEntity(
     ok: !!fieldsOk,
     addedFieldCount: merged.addedFieldCount,
     addedEnumCount: merged.addedEnumCount,
+    modifiedFieldCount: merged.modifiedFieldCount,
+    mode,
   };
 }
