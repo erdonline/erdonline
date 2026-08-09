@@ -44,7 +44,7 @@ public class HisProjectController {
     @SneakyThrows
     @RequestMapping(value = "/dbChange", method = RequestMethod.POST)
     @MartinLog("分页查询历史变更")
-    public R list(@ProjectId @RequestBody Map<String, Object> map) {
+    public R list(@ProjectId @DbKey @RequestBody Map<String, Object> map) {
         return R.ok(dbChangeService.getPage(map));
     }
 

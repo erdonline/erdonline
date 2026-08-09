@@ -26,12 +26,13 @@ import java.util.Map;
  * <p>Controller 方法只需声明 {@code @RequireProjectAccess} + 参数级 {@link ProjectId} /
  * {@link DbKey}，具体校验逻辑（成员判定、别名归一化、data_sources 归属）全部委托
  * {@link VersionDbKeyGuard}，不在业务代码里重复散落 assertMember/dbKey 判断。
- * {@code @Order(HIGHEST_PRECEDENCE)} 确保先于 {@code @Dynamic} 等切换数据源/执行业务的
- * 环绕通知触发，避免"先执行后拒绝"的时序问题。</p>
+ * {@code @Order(HIGHEST_PRECEDENCE + 1)}：须晚于 {@code ExposeInvocationInterceptor}
+ *（同为 HIGHEST_PRECEDENCE 时会触发「No MethodInvocation found」500），仍早于默认序的
+ * {@code @Dynamic} 环绕通知，避免「先切库/执 SQL 后拒绝」的时序问题。</p>
  */
 @Aspect
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 @RequiredArgsConstructor
 @Slf4j
 public class ProjectAccessAspect {

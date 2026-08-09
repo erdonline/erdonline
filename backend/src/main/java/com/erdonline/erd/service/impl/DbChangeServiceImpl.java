@@ -104,7 +104,7 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         if (dbChange != null) {
             // changeId 本身不携带调用者信息：先取出行归属的 projectId 再断言成员，
             // 否则任意登录用户猜/枚举 changeId 即可跨租户删除他人版本（IDOR）。
-            dbKeyGuard.assertMember(dbChange.getProjectId());
+            dbKeyGuard.assertDbKeyBelongsToCaller(dbChange.getProjectId(), dbChange.getDbKey());
             QueryWrapper<DbVersion> wrapper = new QueryWrapper<>();
             wrapper.eq("project_id", dbChange.getProjectId());
             wrapper.eq("db_key", dbChange.getDbKey());
