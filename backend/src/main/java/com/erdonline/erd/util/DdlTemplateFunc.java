@@ -10,7 +10,7 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/** 前端 json2code {@code it.func} 的 Java 实现，供 Pebble 扩展与单测复用。 */
+/** 前端 json2code {@code it.func} 的 Java 实现，供 Freemarker 共享方法与单测复用。 */
 public final class DdlTemplateFunc {
 
     private static final Pattern UNDERSCORE_WORD = Pattern.compile("_([\\w+])");

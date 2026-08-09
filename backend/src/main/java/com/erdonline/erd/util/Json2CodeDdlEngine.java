@@ -9,7 +9,7 @@ import java.util.Set;
 
 /**
  * 权威增量 DDL 生成器：后端移植自前端 {@code json2code.generateUpdateSql}。
- * 由 {@link VersionDiffEngine} 产出的 changes 驱动；模板经 doT→Pebble 适配后由 Pebble 渲染。
+ * 由 {@link VersionDiffEngine} 产出的 changes 驱动；模板经 doT→Freemarker 适配后由 Freemarker 渲染。
  */
 public final class Json2CodeDdlEngine {
 

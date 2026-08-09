@@ -1,6 +1,6 @@
 # ADR-0030：DDL 模板引擎（Freemarker 终态 + doT 遗留桥）
 
-- 状态：**已接受**（2026-08-09，终态锁定）
+- 状态：**已实现**（2026-08-09，Freemarker 终态切片完成）
 - 前置：[ADR-0022](./0022-dual-layer-consistency.md) 工作区↔版本↔实库；`docs/data-format.md` projectJSON `database[]` 模板字段
 
 ## 背景
@@ -22,16 +22,16 @@
 
 | 阶段 | 运行时 | 说明 |
 |---|---|---|
-| **过渡（当前，2026-08-09）** | Pebble 3.x | 已落地：`DdlPebbleTemplateEngine` + 编译缓存；满足「无脚本引擎、fail-closed」 |
-| **终态（下一实现切片）** | **Freemarker** | `spring-boot-starter-freemarker` 已在 classpath；benchmark 显示在具备循环/条件/helpers 能力的 JVM 引擎中吞吐与内存最优 |
+| **过渡（2026-08-09）** | Pebble 3.x | 已落地：`DdlPebbleTemplateEngine` + 编译缓存；满足「无脚本引擎、fail-closed」 |
+| **终态（2026-08-09）** | **Freemarker** | `DdlFreemarkerTemplateEngine` 已替换 Pebble；classpath 种子 `ddl/freemarker/{dialect}/*.ftl`；Pebble 依赖已移除 |
 
-- Pebble 过渡实现 **可继续服务** 直至 Freemarker 迁移切片完成；本 ADR **锁定方向**，不要求同轮替换。
-- 迁移切片：`DdlFreemarkerTemplateEngine` 替换 `DdlPebbleTemplateEngine`；classpath 种子迁至 `ddl/freemarker/{dialect}/*.ftl`；单测/golden 对齐后移除 Pebble 依赖（若无其它引用）。
+- Pebble 过渡实现 **已完成替换**；本 ADR 终态已落地。
+- 迁移完成：`DdlFreemarkerTemplateEngine` 替换 `DdlPebbleTemplateEngine`；classpath 种子迁至 `ddl/freemarker/{dialect}/*.ftl`；单测/golden 对齐后移除 Pebble 依赖。
 
 ### 3. 模板与遗留兼容
 
 - **官方/种子模板**：语法统一为 **Freemarker**；`defaultData.json` 与 classpath 默认模板随 Freemarker 切片迁移。
-- **用户存量 doT**（projectJSON `database[]` 自定义模板）：**读时**经 **`DotToFreemarkerTranslator`**（命名随实现；当前为 `DotToPebbleTranslator` 的 Pebble 版过渡）+ **`DdlTemplateContextEnricher`** 预计算 `pkFieldNames`、`sameCols` 等 evaluate，**非**永久双引擎——翻译层仅为 legacy bridge。
+- **用户存量 doT**（projectJSON `database[]` 自定义模板）：**读时**经 **`DotToFreemarkerTranslator`** + **`DdlTemplateContextEnricher`** 预计算 `pkFieldNames`、`sameCols` 等 evaluate，**非**永久双引擎——翻译层仅为 legacy bridge。
 - **写入新模板**：projectJSON 增加 `templateSyntax: freemarker | dot`（`dot` 仅兼容旧稿；新稿默认 `freemarker`）。未标注且含 doT 特征时按 `dot` 处理。
 - **编排不变**：`Json2CodeDdlEngine.generateUpdateSql` → `VersionDdlEngine` / `VersionPanelDiffEngine`。
 
@@ -64,8 +64,7 @@
 - ✅ 版本 DDL 与 changes 同源；fail-closed（`DdlTemplateException`）。
 - ✅ 存量 projectJSON doT 无需用户立即改写；翻译桥直至用户主动迁移 FTL。
 - ✅ 终态单一 JVM 引擎（Freemarker），无 perpetual dual-engine。
-- ⚠️ Freemarker 迁移切片完成前，过渡期为 Pebble + Dot→Pebble；完成后移除 Pebble DDL 路径。
-- ⚠️ FE export/sync 迁移完成前，仍可能存在非权威 FE doT 路径——按 roadmap 切片关闭，不得新增 FE DDL product 依赖。
+- ⚠️ FE export（`getAllDataSQLByFilter`）仍走前端 doT——非版本模块 product path，按 roadmap 切片关闭。
 
 ## 验证
 
@@ -74,16 +73,18 @@
 - `DdlPebbleCompatibilityTest`：defaultData MYSQL `createTableTemplate` → CREATE + 字段 + PK
 - `VersionDdlEngineTest`：N entity add → N CREATE TABLE + FK
 
-**终态（Freemarker，迁移切片验收）**
+**终态（Freemarker，已实现）**
 
-- 同上 golden + `DotToFreemarkerTranslator` 对存量 doT fixture
-- classpath `ddl/freemarker/**` 与 Pebble 期输出 diff 为零或 documented delta
-- FE product path 无 `generateUpdateSql` 调用（grep / E2E）
+- `DdlFreemarkerCompatibilityTest`：defaultData MYSQL `createTableTemplate` → CREATE + 字段 + PK
+- `VersionDdlEngineTest`：N entity add → N CREATE TABLE + FK
+- `DotToFreemarkerTranslator` 对存量 doT fixture
+- classpath `ddl/freemarker/**` 作方言兜底
+- FE 版本模块 product path 无 `generateUpdateSql` / `getAllDataSQL`（sync 改调 `/hisProject/syncSql`）
 
 ## 下一步实现切片
 
-1. `DdlFreemarkerTemplateEngine` + `ddl/freemarker/{dialect}/*.ftl` 种子
-2. `DotToFreemarkerTranslator`（自 Pebble 版机械迁移或直译 doT→FTL）
-3. 单测/golden 对齐后删除 Pebble DDL 专用代码与 `pebble` 依赖（若无它用）
-4. FE：export / sync SQL 改调后端 API；移除 product path 的 `json2code` DDL
-5. `templateSyntax` 字段写入与 `data-format.md` 文档
+1. ~~`DdlFreemarkerTemplateEngine` + `ddl/freemarker/{dialect}/*.ftl` 种子~~ ✅
+2. ~~`DotToFreemarkerTranslator`~~ ✅
+3. ~~单测/golden 对齐后删除 Pebble DDL 专用代码与 `pebble` 依赖~~ ✅
+4. ~~FE：版本 sync SQL 改调 `/hisProject/syncSql`~~ ✅；export 仍 FE doT（非版本模块）
+5. ~~`templateSyntax` 字段写入与 `data-format.md` 文档~~ ✅

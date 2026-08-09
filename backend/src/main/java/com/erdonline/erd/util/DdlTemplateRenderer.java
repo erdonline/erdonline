@@ -4,7 +4,7 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 解析 projectJSON / classpath 模板源，经 doT→Pebble 适配后由 {@link DdlPebbleTemplateEngine} 渲染。
+ * 解析 projectJSON / classpath 模板源，经 doT→Freemarker 适配后由 {@link DdlFreemarkerTemplateEngine} 渲染。
  */
 public final class DdlTemplateRenderer {
 
@@ -18,42 +18,62 @@ public final class DdlTemplateRenderer {
             String dialectCode,
             Map<String, Object> databaseRow,
             Map<String, Object> context) {
-        String pebbleSource = resolvePebbleSource(templateKey, dialectCode, databaseRow);
-        return renderPebbleSource(pebbleSource, context);
+        String ftlSource = resolveFtlSource(templateKey, dialectCode, databaseRow);
+        return renderFtlSource(ftlSource, context);
     }
 
     public static String renderInline(String templateSource, Map<String, Object> context) {
         if (templateSource == null || templateSource.isBlank()) {
             return "";
         }
-        String pebbleSource = looksLikeDotAndTranslate(templateSource);
-        return renderPebbleSource(pebbleSource, context);
+        String ftlSource = resolveInlineFtl(templateSource, Map.of());
+        return renderFtlSource(ftlSource, context);
     }
 
-    private static String renderPebbleSource(String pebbleSource, Map<String, Object> context) {
-        if (pebbleSource.isBlank()) {
+    public static String renderInline(String templateSource, Map<String, Object> databaseRow,
+                                      Map<String, Object> context) {
+        if (templateSource == null || templateSource.isBlank()) {
+            return "";
+        }
+        String ftlSource = resolveInlineFtl(templateSource, databaseRow);
+        return renderFtlSource(ftlSource, context);
+    }
+
+    private static String renderFtlSource(String ftlSource, Map<String, Object> context) {
+        if (ftlSource.isBlank()) {
             return "";
         }
         Map<String, Object> enriched = DdlTemplateContextEnricher.enrich(context);
-        return DdlPebbleTemplateEngine.renderLiteral(pebbleSource, enriched);
+        return DdlFreemarkerTemplateEngine.renderLiteral(ftlSource, enriched);
     }
 
-    private static String looksLikeDotAndTranslate(String templateSource) {
-        if (!DotToPebbleTranslator.looksLikeDot(templateSource)) {
-            return templateSource;
+    private static String resolveInlineFtl(String templateSource, Map<String, Object> databaseRow) {
+        if (shouldTranslateDot(databaseRow, templateSource)) {
+            return TRANSLATED_CACHE.computeIfAbsent(templateSource, DotToFreemarkerTranslator::translate);
         }
-        return TRANSLATED_CACHE.computeIfAbsent(templateSource, DotToPebbleTranslator::translate);
+        return templateSource;
     }
 
-    static String resolvePebbleSource(String templateKey, String dialectCode, Map<String, Object> databaseRow) {
+    static String resolveFtlSource(String templateKey, String dialectCode, Map<String, Object> databaseRow) {
         String custom = templateFromRow(databaseRow, templateKey);
         if (custom.isBlank()) {
-            return classpathPebble(dialectCode, templateKey);
+            if (DdlFreemarkerTemplateEngine.classpathTemplateExists(dialectCode, templateKey)) {
+                return DdlFreemarkerTemplateEngine.loadClasspathAsString(dialectCode, templateKey);
+            }
+            return "";
         }
-        if (!DotToPebbleTranslator.looksLikeDot(custom)) {
-            return custom;
+        return resolveInlineFtl(custom, databaseRow);
+    }
+
+    private static boolean shouldTranslateDot(Map<String, Object> databaseRow, String custom) {
+        String syntax = ProjectJsonSupport.str(databaseRow.get(DdlTemplateSyntax.FIELD));
+        if (DdlTemplateSyntax.FREEMARKER.equalsIgnoreCase(syntax)) {
+            return false;
         }
-        return looksLikeDotAndTranslate(custom);
+        if (DdlTemplateSyntax.DOT.equalsIgnoreCase(syntax)) {
+            return true;
+        }
+        return DotToFreemarkerTranslator.looksLikeDot(custom);
     }
 
     private static String templateFromRow(Map<String, Object> databaseRow, String templateKey) {
@@ -62,12 +82,5 @@ public final class DdlTemplateRenderer {
         }
         Object tpl = databaseRow.get(templateKey);
         return tpl != null ? String.valueOf(tpl) : "";
-    }
-
-    private static String classpathPebble(String dialectCode, String templateKey) {
-        if (DdlPebbleTemplateEngine.classpathTemplateExists(dialectCode, templateKey)) {
-            return DdlPebbleTemplateEngine.loadClasspathAsString(dialectCode, templateKey);
-        }
-        return "";
     }
 }

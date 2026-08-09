@@ -73,4 +73,13 @@ public interface DbChangeService extends MartinService<DbChange> {
      *             {@code baselineProjectJSON} 可选——传入则直接对该基线 diff，不查库（用于历史版本两两比对）
      */
     R diffAgainstLatest(Map<String, Object> body);
+
+    /**
+     * 版本同步 SQL（全量 / 增量）；与 {@link com.erdonline.erd.util.VersionSyncSqlEngine} 同源。
+     *
+     * @param body {@code projectJSON}、{@code dialectCode}、{@code mode}（full|incremental）必填；
+     *             incremental 时需 {@code baselineProjectJSON} 或 {@code changes}；
+     *             {@code upgradeType} 可选（increment|rebuild）
+     */
+    R generateSyncSql(Map<String, Object> body);
 }
