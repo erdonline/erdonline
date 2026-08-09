@@ -165,7 +165,7 @@
 | HomeLayout 菜单 | 数据模型 | → `/dataModels` | 项目列表别名面 | ✅ | `project-surface` |
 | HomeLayout 菜单 | 数据查询 | `_defaultProps` 已摘；路由保留实验深链 | exec 忽略所选 DS | ✅ | `home-data-query.spec` |
 | HomeLayout 菜单 | 数据源 | → `/databaseConfig` | ADR-0008 / W5 | ✅ | `project-surface` / `adr0008` |
-| HomeLayout 菜单 | ERD Online 论坛 | 外链 GitHub Issues | 社区 | ✅ | 外链不测 |
+| HomeLayout 菜单 | 社区 | 外链 GitHub Issues | 社区 | ✅ | 外链不测 |
 
 ### `/home` 快捷
 
