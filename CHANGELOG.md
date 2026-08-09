@@ -8,6 +8,25 @@
 
 ### 2026-08-09
 
+#### 逆向解析：目标模块选择 + 二次导入 frozen layout 修复
+
+- **FE**：Step2 可选「导入到模型」（已有模块 / 新建）+ 可改「模型名称」；`reverseImportTarget` 写入 `importReverseTable`
+- **FE**：解析表列表未入库表排前；「全选/反选/取消选择」作用于全部解析表（跨分页）
+- **FE**：`upsertDiagramLayout` 拷贝 `layout.nodes` 再写，修复 Immer 冻结数组导致二次逆向崩溃；导入前 shallow clone `diagrams`
+- 验证点：
+  - `cd frontend && npx --yes tsx src/utils/diagram.test.ts`
+  - `cd frontend && npx --yes tsx src/utils/reverseImportUtils.test.ts`
+  - `yarn test:e2e --project=chromium tests/e2e/import-reverse.spec.ts`
+
+#### 字段库：JExcel 工具栏写入 + 覆盖模式
+
+- **FE**：「从字段库写入」移入表设计 JExcel 底部工具栏（「末尾增加一行」右侧）；移除表格上方独立按钮区
+- **FE**：无选中行 → 追加（append）；有选中行 → 覆盖（overwrite）：1 库字段覆盖多选行；多库字段 + 单选行仅取首个；多选 + 多库 zip
+- **FE**：`fieldLibraryMerge.overwriteFieldsAtIndices` + Modal 模式提示
+- 验证点：
+  - `cd frontend && npx --yes tsx src/utils/fieldLibraryMerge.test.ts`
+  - `yarn test:e2e --project=chromium tests/e2e/field-library-insert.spec.ts`
+
 #### 字段库 MVP（ADR-0032）
 
 - **ADR**：`docs/adr/0032-field-library-data-dict.md` — platform/group/user scope；copy-on-apply + 可选 `dictRef`；含库管理 UI；不含 MCP 写库

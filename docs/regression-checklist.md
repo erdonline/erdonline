@@ -7,7 +7,8 @@
 
 - [x] [平台种子 apply] `POST /dataDict/dd-field-gender/apply` 返回 fields+enums 且带 `dictRef` ✅`DataDictServiceImplApplyTest`
 - [x] [scope ACL] platform 只读；group 成员可写；user 本人可写 ✅`DataDictAclTest`
-- [x] [E2E 插入] 表设计「从字段库插入」→ 性别 → `gender` 列落盘 ✅`field-library-insert.spec.ts`
+- [x] [E2E 写入] 表设计 JExcel 工具栏「从字段库写入」→ 追加性别 → `gender` 列落盘 ✅`field-library-insert.spec.ts`
+- [x] [E2E 覆盖] 选中行 → 从字段库写入 → 覆盖为 `gender` ✅`field-library-insert.spec.ts`
 - [ ] [手工] 团队项目：字段库 scope=group 条目仅成员可见/可编辑
 - [ ] [手工] 设置页 `/design/table/setting/fieldLibrary` 新建个人条目 CRUD
 
@@ -394,6 +395,7 @@
 - [x] [`/databaseConfig` 同步状态] 点同步 → toast（在线/不可达）+ 行状态更新 ✅`adr0008-datasource.spec.ts`
 
 - [x] [MySQL 逆向提交闭环] `reverse_demo` 数据源 → `/design/table/import/reverse` 选 `t_user`/`t_order` → 模型树可见 ✅`import-reverse.spec.ts`
+- [x] [逆向选表 UX] Step2 可选目标模块 + 重命名；未入库表排前；全选跨分页 ✅`reverseImportUtils.test.ts` + `diagram.test.ts`（frozen layout）
 - [ ] [MySQL 逆向含索引] 配置本机 MySQL 数据源 → 导入逆向 → 勾选含二级索引的表 → 预期：实体 `indexs` 有名称/字段/isUnique，PRIMARY 不重复出现；向导不显示 Schema（API curl 已覆盖；UI 深度后置）
 - [ ] [MySQL 逆向含外键] 勾选父子表一并导入 → 预期：子表模块 `associations` 有 `1:n` 边，关系图画布可见连线（字典 KEY_COLUMN_USAGE；API curl 已覆盖）
 - [x] [MySQL 复合 FK 列序] `ForeignKeyAssociationMapperTest#mapFromKeyColumnUsage_keepsCompositeOrder` ✅

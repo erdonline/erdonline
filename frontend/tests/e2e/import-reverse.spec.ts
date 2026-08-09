@@ -107,6 +107,12 @@ test.describe('数据源逆向解析', () => {
         timeout: 15_000,
       });
 
+      const targetModule = page.getByTestId('reverse-target-module');
+      await expect(targetModule).toBeVisible({ timeout: 10_000 });
+      const moduleNameInput = page.getByTestId('reverse-target-module-name');
+      await expect(moduleNameInput).toBeVisible();
+      await moduleNameInput.fill('E2E逆向模块');
+
       await page.getByRole('row').filter({ hasText: 't_user' }).getByRole('checkbox').click();
       await page.getByRole('row').filter({ hasText: 't_order' }).getByRole('checkbox').click();
 
@@ -123,10 +129,10 @@ test.describe('数据源逆向解析', () => {
       expect(saveRes.ok()).toBeTruthy();
 
       await page.goto(`/design/table/model?projectId=${projectId}`);
-      await expect(page.getByText('逆向解析_MYSQL', { exact: true })).toBeVisible({
+      await expect(page.getByText('E2E逆向模块', { exact: true })).toBeVisible({
         timeout: 20_000,
       });
-      await expandTreeTitle(page, '逆向解析_MYSQL');
+      await expandTreeTitle(page, 'E2E逆向模块');
       await expandTreeTitle(page, '表');
       await expect(page.getByText('t_user', { exact: true })).toBeVisible({
         timeout: 10_000,

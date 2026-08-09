@@ -88,6 +88,15 @@ async function main() {
     assert.deepEqual(d.layout.nodes[0], { id: 'A', title: 'A', x: 3, y: 5 });
   });
 
+  await run('upsertDiagramLayout：frozen nodes 不抛错', () => {
+    const frozenNodes = Object.freeze([{ id: 'A', title: 'A', x: 1, y: 2 }]);
+    const d = { id: 'main', name: '主', layout: { nodes: frozenNodes as any[] } };
+    upsertDiagramLayout(d, [{ id: 'A', position: { x: 10, y: 20 } }]);
+    assert.equal(d.layout.nodes[0].x, 10);
+    assert.equal(d.layout.nodes[0].y, 20);
+    assert.notEqual(d.layout.nodes, frozenNodes);
+  });
+
   await run('listDiagrams：无 diagrams 返回虚拟主图', () => {
     const list = listDiagrams({ graphCanvas: { nodes: [] } });
     assert.equal(list.length, 1);
