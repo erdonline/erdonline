@@ -906,7 +906,7 @@ export default {
   'homeLayout.route.catalog': '模板广场',
   'homeLayout.route.dataModels': '数据模型',
   'homeLayout.route.databaseConfig': '数据源',
-  'homeLayout.route.forum': 'ERD Online 论坛',
+  'homeLayout.route.forum': '社区',
 
   // GroupLayout 侧栏路由名
   'groupLayout.route.backToProjects': '返回项目列表',

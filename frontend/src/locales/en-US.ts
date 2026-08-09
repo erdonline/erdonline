@@ -949,7 +949,7 @@ export default {
   'homeLayout.route.catalog': 'Template catalog',
   'homeLayout.route.dataModels': 'Data models',
   'homeLayout.route.databaseConfig': 'Data sources',
-  'homeLayout.route.forum': 'ERD Online forum',
+  'homeLayout.route.forum': 'Community',
 
   // GroupLayout sidebar route names
   'groupLayout.route.backToProjects': 'Back to projects',
