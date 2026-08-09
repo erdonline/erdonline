@@ -229,7 +229,7 @@ export default [
           },
           {
             path: '/design/table/setting/databaseTemplates',
-            component: './design/setting/component/DatabaseTemplates',
+            component: './design/setting/component/DatabaseTemplatesRedirect',
           },
           {
             path: '/design/table/setting/default',

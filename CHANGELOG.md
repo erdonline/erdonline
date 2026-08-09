@@ -12,11 +12,12 @@
 
 - **BE**：`ddl/freemarker/postgresql/`、`oracle/` 补齐与 MySQL 对齐的 11 项 FTL（createPk、deleteField、updateTableComment、rebuildTable 等）；`defaultData` 无 SQL Server 方言，暂不建 `sqlserver/` 种子。
 - **优先级**：确认 `DdlTemplateRenderer` — projectJSON `database[]` 自定义模板优先于 classpath；单测 `customCreateTableTemplate_overridesClasspathSeed`。
-- **FE**：设置 → **DDL 模板**（`/design/table/setting/databaseTemplates`）恢复可发现入口；编辑 `database[]` 模板字段，渲染仍走后端。
+- **FE**：DDL 模板改为**设置内弹窗**编辑（不跳转独立页）：数据类型字典页工具栏 **「DDL 模板」**；项目菜单 → **设置 → DDL 模板**。旧深链 `/design/table/setting/databaseTemplates` 自动重定向至 dataType 并打开弹窗。编辑 `database[]` 模板字段，渲染仍走后端。
 - 验证点：
   - `cd backend && mvn -q test -Dtest=DdlFreemarkerCompatibilityTest -Djacoco.skip=true`
   - `./backend/dev-ensure.sh --restart`
-  - 设计器 → 设置 → DDL 模板 → 编辑 MYSQL createTableTemplate → 保存 → 元数据应用预览应反映自定义内容
+  - 设计器 → 设置 → 数据类型字典 → **DDL 模板** → 编辑 MYSQL createTableTemplate → 保存 → 元数据应用预览应反映自定义内容
+  - 项目菜单 → 设置 → **DDL 模板** 亦可打开同一弹窗
 
 #### 收口：导出 / 表元数据 DDL 迁移后端 Freemarker（ADR-0030 产品路径关闭）
 
