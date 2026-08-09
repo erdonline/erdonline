@@ -15,7 +15,6 @@ import * as cache from "@/utils/cache";
 import { CONSTANT } from "@/utils/constant";
 import { SNAPSHOT_DB, SNAPSHOT_DB_KEY } from "@/utils/versionConstants";
 import {
-  baselineProjectJSON,
   buildLatestVersionQuery,
   hasBaseline,
   resolveBaselineDbKey,
@@ -26,12 +25,13 @@ import {
   filterNoiseChanges,
   hasMeaningfulVersionChanges,
   snapshotProjectJSONForVersion,
+  type VersionStructuralChange,
 } from "@/utils/versionStructuralDiff";
 import {
   handleVersionSaveResponse,
   isVersionSaveDuplicate,
 } from "@/utils/versionSaveConflict";
-import { fetchVersionPanelDiff } from '@/utils/versionDiffApi';
+import { fetchVersionPanelDiff, fetchWorkspaceDirtyDiff } from '@/utils/versionDiffApi';
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -91,7 +91,7 @@ export type IVersionSlice = {
   checkVersionData: (dataSource1: any, dataSource2: any) => any;
   /** 独立拉取最新版本作为 A 层基线（ADR-0022）；与版本列表分页解耦 */
   fetchVersionBaseline: (db?: any) => Promise<BaselineRecord>;
-  recalculateChanges: () => void;
+  recalculateChanges: () => Promise<void>;
 }
 
 
@@ -110,8 +110,10 @@ export type VersionState =
     /** 详情/比对面板：后端 diff 失败时的错误文案（禁止 fallback 到前端 diff） */
     versionPanelDiffError: string | null;
     dbVersion: string | undefined;
-    /** A 层差异：当前模型相对基线的变更项（非版本分组） */
+    /** A 层差异：当前模型相对基线的变更项（后端 /hisProject/diff 权威） */
     changes: any[];
+    /** 工作区 diff 失败时的错误文案（fail-closed，禁止 FE fallback） */
+    workspaceDiffError: string | null;
     /** A 层基线：独立查询到的最新版本（null = 尚未存过版本） */
     versionBaseline: BaselineRecord;
     /** 基线是否已查过：未查过时不得断言「无差异」 */
@@ -140,6 +142,7 @@ const useVersionStore = create<VersionState>(
     versionPanelDiffError: null,
     dbVersion: '0.0.0',
     changes: [],
+    workspaceDiffError: null,
     versionBaseline: null,
     baselineLoaded: false,
     dbs: [],
@@ -320,13 +323,16 @@ const useVersionStore = create<VersionState>(
           set(produce((state) => {
             state.versionBaseline = baseline;
             state.baselineLoaded = true;
+            state.workspaceDiffError = null;
           }));
-          get().dispatch.recalculateChanges();
+          await get().dispatch.recalculateChanges();
           return baseline;
         } catch (error: any) {
           // 基线未知：不得静音成「无差异」；失败时显式清 loaded，避免沿用旧基线判「一致」
           set(produce((state) => {
             state.baselineLoaded = false;
+            state.workspaceDiffError = error?.message || String(error);
+            state.changes = [];
           }));
           message.error(
             appFormat()('versionStore.baseline.fetchFailedWithDetail', {
@@ -337,27 +343,8 @@ const useVersionStore = create<VersionState>(
         }
       },
       calcChanges: async () => {
-        const projectState = useProjectStore.getState();
-        const dataSource = projectState?.project?.projectJSON;
-
-        if (!dataSource) {
-          console.warn("Project JSON is not available yet");
-          return [];
-        }
-
-        const baseline = await get().dispatch.fetchVersionBaseline();
-        if (!get().baselineLoaded) {
-          return [];
-        }
-        // 无基线（尚未存过版本）→ 相对空模型算增量，脏 = 当前模型全部未提交
-        const changes = get().dispatch.checkVersionData(
-          { ...dataSource },
-          baselineProjectJSON(baseline),
-        );
-        set(produce((state) => {
-          state.changes = changes;
-        }));
-        return changes || [];
+        await get().dispatch.recalculateChanges();
+        return get().changes;
       },
       getDBVersion: () => set(produce(() => {
         const dbData = get().dispatch.getCurrentDBData();
@@ -567,8 +554,7 @@ const useVersionStore = create<VersionState>(
         });
       },
       loadVersionPanelDiff: async (options = {}) => {
-        const liveProjectJSON = _.get(useProjectStore.getState().project, 'projectJSON');
-        const { init, versions, currentVersionIndex } = get();
+        const { versions, currentVersionIndex } = get();
         let currentVersion = options.currentVersion;
         let baselineVersion = options.baselineVersion;
 
@@ -627,39 +613,14 @@ const useVersionStore = create<VersionState>(
         let tempChanges: any[];
         let sqlData = '';
         try {
-          if (init || currentVersion?.baseVersion) {
-            const versionModules =
-              currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
-            const versionProjectJSON = {
-              ...(liveProjectJSON || {}),
-              modules: versionModules,
-              profile: {
-                ...(liveProjectJSON?.profile || {}),
-                ...(currentVersion?.projectJSON?.profile || {}),
-              },
-              dataTypeDomains:
-                currentVersion?.projectJSON?.dataTypeDomains ||
-                liveProjectJSON?.dataTypeDomains ||
-                {},
-            };
-            sqlData = getAllDataSQL(versionProjectJSON, dialectCode);
-            const panel = await fetchVersionPanelDiff({
-              projectJSON: currentSnapshot as Record<string, unknown>,
-              baselineProjectJSON: baselineSnapshot as Record<string, unknown>,
-              dbKey: dbData?.key,
-              dialectCode,
-            });
-            tempChanges = panel.changes;
-          } else {
-            const panel = await fetchVersionPanelDiff({
-              projectJSON: currentSnapshot as Record<string, unknown>,
-              baselineProjectJSON: baselineSnapshot as Record<string, unknown>,
-              dbKey: dbData?.key,
-              dialectCode,
-            });
-            tempChanges = panel.changes;
-            sqlData = panel.ddl || '';
-          }
+          const panel = await fetchVersionPanelDiff({
+            projectJSON: currentSnapshot as Record<string, unknown>,
+            baselineProjectJSON: baselineSnapshot as Record<string, unknown>,
+            dbKey: dbData?.key,
+            dialectCode,
+          });
+          tempChanges = panel.changes;
+          sqlData = panel.ddl || '';
         } catch (error: any) {
           const detail = error?.message || String(error);
           set({ messages: [], data: '', versionPanelDiffError: detail });
@@ -670,55 +631,6 @@ const useVersionStore = create<VersionState>(
         }
 
         tempChanges = filterNoiseChanges(tempChanges || []);
-        const configData = _.get(useProjectStore.getState().project, 'configJSON');
-        const tempValue = {
-          ...(configData?.synchronous || { upgradeType: 'increment' }),
-        };
-        if (tempValue.upgradeType === 'rebuild') {
-          const entities: any[] = [];
-          const tempEntitiesUpdate: any[] = [];
-          tempChanges.forEach((c) => {
-            if (c.type === 'entity') {
-              tempEntitiesUpdate.push(c);
-            } else {
-              entities.push(c.name.split('.')[0]);
-            }
-          });
-          tempChanges = [...new Set(entities)].map((e) => ({
-            type: 'entity',
-            name: e,
-            opt: 'update',
-          })).concat(tempEntitiesUpdate);
-          const versionModules =
-            currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
-          const versionProjectJSON = {
-            ...(liveProjectJSON || {}),
-            modules: versionModules,
-            profile: {
-              ...(liveProjectJSON?.profile || {}),
-              ...(currentVersion?.projectJSON?.profile || {}),
-            },
-            dataTypeDomains:
-              currentVersion?.projectJSON?.dataTypeDomains ||
-              liveProjectJSON?.dataTypeDomains ||
-              {},
-          };
-          const baselineModulesForSql = baselineVersion
-            ? {
-                modules:
-                  baselineVersion.projectJSON?.modules || baselineVersion.modules || [],
-              }
-            : { modules: [] };
-          if (!init && !currentVersion?.baseVersion) {
-            sqlData = getCodeByChanges(
-              versionProjectJSON,
-              tempChanges,
-              dialectCode,
-              baselineModulesForSql,
-            );
-          }
-        }
-
         const panelMessages = get().dispatch.constructorMessage(tempChanges);
 
         set({
@@ -751,89 +663,10 @@ const useVersionStore = create<VersionState>(
           return;
         }
 
-        const liveProjectJSON = _.get(useProjectStore.getState().project, "projectJSON");
-        const {changes, init, currentVersionIndex, versions} = get();
-        if (!currentVersion) {
-          currentVersion = get().currentVersion;
-        }
-        if (!lastVersion) {
-          const idx = currentVersionIndex ?? versions.findIndex(
-            (v: { id?: string }) => v.id === currentVersion?.id,
-          );
-          lastVersion =
-            idx >= 0 && idx < versions.length - 1
-              ? versions[idx + 1]
-              : null;
-        }
-        const dbData = get().dispatch.getCurrentDBData();
-        let tempChanges = [...changes];
-        tempChanges = filterNoiseChanges(tempChanges || []);
-        const configData = _.get(useProjectStore.getState().project, 'configJSON');
-
-        const tempValue = {
-          ...(configData?.synchronous || {upgradeType: 'increment'}),
-        };
-        if (tempValue.upgradeType === 'rebuild') {
-          // 如果是重建数据表则不需要字段更新的脚本
-          // 1.提取所有字段以及索引所在的数据表
-          const entities: any = [];
-          // 2.暂存新增和删除的数据表
-          const tempEntitiesUpdate: any = [];
-          tempChanges.forEach((c) => {
-            if (c.type === 'entity') {
-              tempEntitiesUpdate.push(c);
-            } else {
-              entities.push(c.name.split('.')[0]);
-            }
-          });
-          tempChanges = [...new Set(entities)].map((e) => {
-            // 构造版本变化数据
-            return {
-              type: 'entity',
-              name: e,
-              opt: 'update',
-            };
-          }).concat(tempEntitiesUpdate);
-        } else {
-          // todo 暂时取消数据表的中文名以及其他变化时所生成的更新数据
-          // tempChanges = tempChanges.filter(c => !(c.type === 'entity' && c.opt === 'update'));
-        }
-        const messages = get().dispatch.constructorMessage(tempChanges);
-        set({
-            messages
-          }
-        );
-        const code = _.get(dbData, 'select', 'MYSQL');
-        const versionModules =
-          currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
-        const versionProjectJSON = {
-          ...(liveProjectJSON || {}),
-          modules: versionModules,
-          profile: {
-            ...(liveProjectJSON?.profile || {}),
-            ...(currentVersion?.projectJSON?.profile || {}),
-          },
-          dataTypeDomains:
-            currentVersion?.projectJSON?.dataTypeDomains ||
-            liveProjectJSON?.dataTypeDomains ||
-            {},
-        };
-        const baselineProjectJSON = lastVersion
-          ? {
-              modules: lastVersion.projectJSON?.modules || lastVersion.modules || [],
-            }
-          : { modules: [] };
-        let data = '';
-        if (init) {
-          data = getAllDataSQL(versionProjectJSON, code);
-        } else {
-          data = currentVersion.baseVersion
-            ? getAllDataSQL(versionProjectJSON, code)
-            : getCodeByChanges(versionProjectJSON, tempChanges, code, baselineProjectJSON);
-        }
-        set({
-          data
-        })
+        await get().dispatch.loadVersionPanelDiff({
+          currentVersion: currentVersion || undefined,
+          baselineVersion: lastVersion === null ? null : lastVersion,
+        });
       },
       setChanges: (changes: any) => {
         set({
@@ -1338,9 +1171,8 @@ const useVersionStore = create<VersionState>(
       },
       checkVersionData: (dataSource1: any, dataSource2: any) =>
         checkVersionStructuralDiff(dataSource1, dataSource2),
-      recalculateChanges: () => {
+      recalculateChanges: async () => {
         const state = get();
-        // 基线未查过 → 差异未知，不得断言「无差异」
         if (!state.baselineLoaded) {
           return;
         }
@@ -1348,14 +1180,29 @@ const useVersionStore = create<VersionState>(
         if (!currentProjectJSON) {
           return;
         }
-        // 基线永远是独立查询到的最新版本，与版本列表翻页无关
-        const newChanges = state.dispatch.checkVersionData(
-          currentProjectJSON,
-          baselineProjectJSON(state.versionBaseline),
-        );
-        set(produce((draft) => {
-          draft.changes = newChanges;
-        }));
+        const dbData = state.dispatch.getCurrentDBData();
+        const projectId = cache.getItem(CONSTANT.PROJECT_ID);
+        if (!projectId || !dbData?.key) {
+          return;
+        }
+        try {
+          const panel = await fetchWorkspaceDirtyDiff({
+            projectJSON: snapshotProjectJSONForVersion(currentProjectJSON) as Record<string, unknown>,
+            dbKey: dbData.key,
+            dialectCode: _.get(dbData, 'select', 'MYSQL'),
+            projectId,
+          });
+          set(produce((draft) => {
+            draft.changes = filterNoiseChanges((panel.changes || []) as VersionStructuralChange[]);
+            draft.workspaceDiffError = null;
+          }));
+        } catch (error: any) {
+          const detail = error?.message || String(error);
+          set(produce((draft) => {
+            draft.changes = [];
+            draft.workspaceDiffError = detail;
+          }));
+        }
       },
     }
   })
@@ -1363,7 +1210,7 @@ const useVersionStore = create<VersionState>(
 
 /** 画布拖移等高频 projectJSON 更新：全量 diff 防抖，避免拖动时 thrash */
 const debouncedRecalculateChanges = _.debounce(() => {
-  useVersionStore.getState().dispatch.recalculateChanges();
+  void useVersionStore.getState().dispatch.recalculateChanges();
 }, 300);
 
 useProjectStore.subscribe((state) => {

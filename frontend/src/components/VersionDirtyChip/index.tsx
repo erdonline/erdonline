@@ -18,11 +18,12 @@ import './index.less';
 const VersionDirtyChip: React.FC = () => {
   const intl = useIntl();
   const format = intlFormat(intl);
-  const { baselineLoaded, versionBaseline, changes, versionDispatch } = useVersionStore(
+  const { baselineLoaded, versionBaseline, changes, workspaceDiffError, versionDispatch } = useVersionStore(
     (s) => ({
       baselineLoaded: s.baselineLoaded,
       versionBaseline: s.versionBaseline,
       changes: s.changes,
+      workspaceDiffError: s.workspaceDiffError,
       versionDispatch: s.dispatch,
     }),
     shallow,
@@ -32,6 +33,7 @@ const VersionDirtyChip: React.FC = () => {
     baselineLoaded,
     versionBaseline,
     changes,
+    workspaceDiffError,
   });
   const copy = versionDirtyCopy(dirtyState, changes, format);
 

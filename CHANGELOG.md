@@ -8,6 +8,22 @@
 
 ### 2026-08-09
 
+#### 修复：版本详情脚本空白 + 顶栏「未存版本 +111」假脏（FE 只渲染 API）
+
+- **P0 · 变化脚本(未同步) 空白**：`loadVersionPanelDiff` 在 `init || baseVersion` 时走前端
+  `getAllDataSQL`、rebuild 时再覆盖为 `getCodeByChanges`，与后端 `/hisProject/diff` 返回的 `ddl`
+  脱节；详情右栏常空白而 API 已有 DDL。改为**始终**渲染 `panel.ddl`；失败 Alert + 清空，禁止 FE fallback。
+- **P0 · 顶栏/版本页「未存版本 +111」永不消**：A 层 dirty 仍用前端 `checkVersionStructuralDiff`
+  相对基线重算，与后端 `VersionDiffEngine` 漂移（引用/噪声字段），存版后仍报大量假变更。改为
+  `recalculateChanges` → `POST /ncnb/hisProject/diff`（工作区快照 vs 最新版本）；新增
+  `workspaceDiffError` fail-closed（API 失败 → unknown，不发明 FE dirty）。
+- **后端**：`VersionDiffEngine.filterNoiseChanges` 对齐 FE `undefined=>` 噪声过滤。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=VersionDiffEngineTest,VersionPanelDiffEngineTest,DbChangeServiceImplDiffTest` 
+  - `cd frontend && npx tsx src/utils/versionDirtyStatus.test.ts`
+  - curl `/ncnb/hisProject/diff` 存版前后 changes 归零
+  - E2E `version-dirty-chip.spec.ts` / `version.spec.ts`
+
 #### 修复：版本页全链路 — ACL 500、溢出菜单互斥、比对默认区间
 
 - **P0 · `@RequireProjectAccess` 触发 500**：`ProjectAccessAspect` 的 `@Order(HIGHEST_PRECEDENCE)` 早于

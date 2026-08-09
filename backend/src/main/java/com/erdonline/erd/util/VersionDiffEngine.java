@@ -49,7 +49,25 @@ public final class VersionDiffEngine {
         changes.addAll(compareModules(cur, base));
         changes.addAll(compareProfile(asMap(cur.get("profile")), asMap(base.get("profile"))));
         changes.addAll(compareDataTypeDomains(asMap(cur.get("dataTypeDomains")), asMap(base.get("dataTypeDomains"))));
-        return changes;
+        return filterNoiseChanges(changes);
+    }
+
+    /** 过滤展示/北极星噪声（与 frontend filterNoiseChanges 对齐） */
+    public static List<Map<String, Object>> filterNoiseChanges(List<Map<String, Object>> changes) {
+        if (changes == null || changes.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Map<String, Object> c : changes) {
+            if ("field".equals(c.get("type")) && "update".equals(c.get("opt"))) {
+                Object cd = c.get("changeData");
+                if (cd != null && String.valueOf(cd).contains("undefined=>")) {
+                    continue;
+                }
+            }
+            out.add(c);
+        }
+        return out;
     }
 
     // ---- entities / fields / indexes ----

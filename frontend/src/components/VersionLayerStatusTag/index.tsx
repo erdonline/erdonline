@@ -18,6 +18,7 @@ export type VersionLayerStatusTagProps = {
   baselineLoaded: boolean;
   versionBaseline: BaselineRecord;
   changes: VersionChangeItem[];
+  workspaceDiffError?: string | null;
 };
 
 /**
@@ -27,10 +28,16 @@ const VersionLayerStatusTag: React.FC<VersionLayerStatusTagProps> = ({
   baselineLoaded,
   versionBaseline,
   changes,
+  workspaceDiffError,
 }) => {
   const intl = useIntl();
   const format = intlFormat(intl);
-  const state = resolveVersionDirtyState({ baselineLoaded, versionBaseline, changes });
+  const state = resolveVersionDirtyState({
+    baselineLoaded,
+    versionBaseline,
+    changes,
+    workspaceDiffError,
+  });
   const pres = versionLayerPresentation(state, changes, format);
   const toolbarTestId = versionLayerToolbarTestId(pres.testId);
 
