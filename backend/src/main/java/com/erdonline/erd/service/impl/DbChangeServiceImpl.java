@@ -14,6 +14,7 @@ import com.erdonline.erd.mapper.DbChangeMapper;
 import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
+import com.erdonline.erd.util.DdlFreemarkerTemplateEngine;
 import com.erdonline.erd.util.Json2CodeFullDdlEngine;
 import com.erdonline.erd.util.DdlTemplateException;
 import com.erdonline.erd.util.DdlTemplatePreviewEngine;

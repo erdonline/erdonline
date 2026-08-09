@@ -36,18 +36,37 @@ test.describe('DDL 模板弹窗', () => {
 
       const editor = page.getByTestId('database-templates-editor');
       const dialectOptionCount = Number(await editor.getAttribute('data-dialect-option-count'));
-      expect(dialectOptionCount).toBeGreaterThanOrEqual(3);
+      expect(dialectOptionCount).toBe(4);
 
       const dialog = page.getByRole('dialog', { name: 'DDL 模板' });
       const dialectSelect = dialog.getByTestId('database-templates-dialect');
       await expect(dialectSelect).toContainText('MYSQL');
       await dialectSelect.click();
-      await expect(dialog.getByRole('option', { name: 'ORACLE' })).toBeAttached();
+      // Select 弹层可能 portal 到 body，勿限定在 dialog 内
+      await expect(page.getByRole('option', { name: 'ORACLE' })).toBeAttached();
+      await expect(page.getByRole('option', { name: 'SQLServer' })).toBeAttached();
       await page.keyboard.press('Escape');
 
       await expect(page.getByTestId('database-templates-source-editor')).toBeVisible();
 
-      await expect(page.getByTestId('database-templates-preview-sql')).toBeVisible();
+      await dialectSelect.click();
+      const sourcesReady = page.waitForResponse(
+        (res) =>
+          res.url().includes('/projectDdl/templateSources') &&
+          res.request().method() === 'POST' &&
+          res.status() === 200,
+        { timeout: 15_000 },
+      );
+      await page.getByRole('option', { name: 'SQLServer' }).click();
+      await sourcesReady;
+      await expect(page.getByTestId('database-templates-seed-badge')).toBeVisible({
+        timeout: 10_000,
+      });
+      await expect(page.getByTestId('database-templates-source-editor')).toContainText(
+        'CREATE TABLE',
+        { timeout: 5_000 },
+      );
+      await expect(page.getByTestId('database-templates-dialect-new')).toBeVisible();
       await expect(page.getByTestId('database-templates-preview-loading')).toBeHidden({
         timeout: 15_000,
       });
@@ -55,12 +74,16 @@ test.describe('DDL 模板弹窗', () => {
         'CREATE TABLE',
         { timeout: 5_000 },
       );
+      await expect(page.getByTestId('database-templates-preview-sql')).toContainText('[', {
+        timeout: 5_000,
+      });
 
       await page.getByTestId('database-templates-modal-close').click();
       await expect(page.getByTestId('database-templates-editor')).toBeHidden({
         timeout: 5_000,
       });
     } finally {
+      await page.keyboard.press('Escape');
       await deleteOwnPersonProjects(page);
     }
   });
@@ -85,6 +108,7 @@ test.describe('DDL 模板弹窗', () => {
         timeout: 10_000,
       });
     } finally {
+      await page.keyboard.press('Escape');
       await deleteOwnPersonProjects(page);
     }
   });

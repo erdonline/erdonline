@@ -8,16 +8,32 @@
 
 ### 2026-08-09
 
+#### DDL 模板：templateSources 500 修复 + 默认示例可见
+
+- **根因**：`DbChangeServiceImpl.listDdlTemplateSources` 调用 `DdlFreemarkerTemplateEngine` 但缺 import；IDE 增量编译写入 `Unresolved compilation problem` 桩字节码，运行时 500。
+- **BE**：补 import；新增 `DbChangeServiceImplTemplateSourcesTest` 回归 MYSQL/SQLServer classpath seed。
+- **FE**：未 custom 时直接在 Ace 填入 classpath 示例（灰色 +「默认示例」badge），不再依赖不可靠的 placeholder；dirty 以 seed 为基线，未编辑时保存禁用。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=DbChangeServiceImplTemplateSourcesTest,SqlServerClasspathTemplatesTest,ProjectDdlControllerTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+  - `yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`
+
 #### DDL 模板：SQL Server classpath + 灰色占位 + i18n
 
 - **BE**：新增 `ddl/freemarker/sqlserver/` 11 键 T-SQL 模板；`POST /ncnb/projectDdl/templateSources` 返回 classpath 默认 Freemarker 源码（编辑器占位，不落盘）。
 - **FE**：未 custom 的模板键显示灰色 classpath 示例（Ace placeholder）；预览仍走 seed（ADR-0030 custom > seed）；保存仅 merge 用户编辑过的模板键 + meta，不污染 projectJSON；P0 四库方言下拉（延续 0985d1a）。
 - **i18n**：DDL 模板 Modal/编辑器、数据类型字典入口、版本工单/审批页接入 zh-CN / en-US。
 - 验证点：
-  - `cd backend && mvn -q test -Dtest=SqlServerClasspathTemplatesTest,ProjectDdlControllerTest -Djacoco.skip=true`
+  - `cd backend && mvn -q test -Dtest=SqlServerClasspathTemplatesTest,DbChangeServiceImplTemplateSourcesTest,ProjectDdlControllerTest -Djacoco.skip=true`
   - `cd frontend && npx --yes tsx src/utils/ddlTemplateKeys.test.ts`
   - `./backend/dev-ensure.sh --restart`
-  - `yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`
+  - `yarn test:e2e --project=chromium --workers=1 tests/e2e/database-templates-modal.spec.ts`
+
+#### DDL 模板：seed 灰色展示与 E2E 稳定性（follow-up）
+
+- **FE**：classpath 默认模板以灰色只读展示（非 Ace placeholder，避免异步 seed 竞态）；方言 Select `virtual={false}` 保证四库 option 可定位；切换方言时清空 seed 缓存。
+- **BE**：`DbChangeServiceImpl` 补 `DdlFreemarkerTemplateEngine` import；`DbChangeServiceImplTemplateSourcesTest` 覆盖 MYSQL/SQLServer 11 键。
+- 验证点：`yarn test:e2e --project=chromium --workers=1 tests/e2e/database-templates-modal.spec.ts` 绿
 
 #### DDL 模板：方言下拉固定 P0 四库（根因修复）
 
