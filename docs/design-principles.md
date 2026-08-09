@@ -181,7 +181,8 @@
 - ✅ 索引签删除：表下「删除索引 `{name}`」+ Modal 二次确认（对齐画布删字段）；取消保留；清空回空态
 - ✅ 左树关系图「重命名关系图」→ `renameDiagram`（名称-only；禁空 FK「表1/表2」死弹层）；无未接线的复制/剪切
 - ✅ 左树树头「新建 → 新建关系图」→ EntityModal 名称-only → `createDiagram`（与画布工具栏同路径；禁空 FK 弹层）
-- ✅ 左树「关系」文件夹旁 `+`（`aria-label=新建关系图`）→ 同路径 `createDiagram`；与「表」文件夹旁 `+` 对称
+- ✅ 左树「关系图」文件夹旁 `+`（`aria-label=新建关系图`）→ 同路径 `createDiagram`；与「表」文件夹旁 `+` 对称
+- ✅ 左树点关系图叶子 → 仅切签开画布（禁 `setCurrentEntity` 把图名当表 →「表不存在」）
 - ✅ 左树表菜单「编辑表」→ 表设计字段签（`designPane: 'field'`，与画布 `canvas-open-field` 同路径）；「重命名表」另项走 EntityModal
 - ✅ 左树搜索：Enter 过滤表名；× / 清空立刻清 `searchKey`（antd Search `onSearch` 不随 clear 触发）；无匹配 →「未找到匹配的表」（`tree-search-empty`）；禁过滤残留空文件夹白屏
 - ✅ 命令面板搜表定位：`Cmd/Ctrl+K`/`F` → 输入表名 → 定位到画布（选中 + fitView + `data-locate-flash`）；禁只筛选命令、找不到表

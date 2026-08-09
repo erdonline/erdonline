@@ -30,6 +30,12 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
 
       await expect(page.getByTestId('tree-open-relation')).toBeVisible();
       await expect(page.getByTestId('diagram-switcher')).toHaveCount(1);
+      await expect(page.getByRole('tree').getByText('关系图', { exact: true })).toBeVisible();
+
+      // 点关系图叶子只开画布，禁把图名当表名 →「表 … 不存在」
+      await page.getByTestId('tree-open-relation').click();
+      await expect(page.getByText(/表 ".+" 不存在/)).toHaveCount(0);
+      await expect(page.getByTestId('reactflow-canvas')).toBeVisible();
 
       await page
         .getByTestId('diagram-switcher')
@@ -208,7 +214,7 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
     }
   });
 
-  test('左树「关系」文件夹 + 直建图：tree-folder-add-relation → createDiagram', async ({ page }) => {
+  test('左树「关系图」文件夹 + 直建图：tree-folder-add-relation → createDiagram', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('foldcre');
     try {
@@ -220,7 +226,7 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      // 「关系」文件夹旁 +（非树头「新建」、非画布工具栏）
+      // 「关系图」文件夹旁 +（非树头「新建」、非画布工具栏）
       await page.getByRole('tree').getByRole('button', { name: '新建关系图' }).click();
 
       const createDialog = page.getByRole('dialog', { name: '新建关系图' });

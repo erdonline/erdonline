@@ -16,12 +16,14 @@
 - **M2.1**：仪器盘挂载即拉 A 层版本基线；未探测实库显示 `DB ·`；落盘文案「已落盘」；登录右栏减噪
 - **M2.2**：进页有 JDBC 则自动探库水合 DB；**去掉顶栏「保存版本」主钮**（改点版本胶囊 / 版本页）；修订 ADR-0022/0027；仪器盘去掉外层灰底框（禁框中框）
 - **M2.3**：地标 Skip 目标去掉 `:focus`+品牌红描边（关签/`focus()` 会整壳套红框）；仅 `:focus-visible` + 中性环
+- **M2.4**：左树「关系」→「关系图」；点图叶子只切签开画布（禁 `setCurrentEntity` 误报「表不存在」）
 - **M3**：表设计表名 + 四签合并单行 chrome（Segmented 式 tab）
 - **M4**：左树去掉全局新建下拉；文件夹 inline +；右键菜单分段
 - 验证点：
   - `yarn test:e2e --project=chromium tests/e2e/smoke.spec.ts --grep "登录页渲染"` → brand 主钮
   - `… schema-probe.spec.ts` / `version-dirty-chip.spec.ts` → 仪器盘状态
   - Home/设计器：脚本 `focus()` 地标后无品牌红 outline；键盘 Tab Skip 仍可见中性环
+  - `… multi-diagram.spec.ts --grep "新建/重命名"` → 文件夹「关系图」；点叶子无「表不存在」
 
 #### 精密工具站：前端壳层升级（ADR-0026）
 

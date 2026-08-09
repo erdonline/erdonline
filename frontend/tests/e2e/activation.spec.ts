@@ -35,7 +35,7 @@ test.describe('新手激活', () => {
 
         await expect(page.getByText('功能鉴权', { exact: true })).toBeVisible({ timeout: 15_000 });
         await expandTreeTitle(page, '功能鉴权');
-        await expandTreeTitle(page, '关系');
+        await expandTreeTitle(page, '关系图');
         await page.getByTestId('tree-open-relation').click();
         await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
         // hasText 'sys_user' 会误匹配 sys_user_role；用 RF data-testid

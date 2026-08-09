@@ -29,11 +29,11 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-chnname').fill('商城');
       await page.getByTestId('entity-modal-ok').click();
 
-      // 不点任何 switcher：模块/表/关系三层默认展开，关系图入口直接可见
+      // 不点任何 switcher：模块/表/关系图三层默认展开，关系图入口直接可见
       const tree = page.getByRole('tree');
       await expect(tree.getByText('商城', { exact: true })).toBeVisible({ timeout: 10_000 });
       await expect(tree.getByText('表', { exact: true })).toBeVisible();
-      await expect(tree.getByText('关系', { exact: true })).toBeVisible();
+      await expect(tree.getByText('关系图', { exact: true })).toBeVisible();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
       // 虚拟滚动：Tree 带 height 后由 rc-virtual-list 承载
