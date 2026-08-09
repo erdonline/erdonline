@@ -1,0 +1,11 @@
+{
+  "modules": [],
+  "profile": {
+    "defaultFields": [],
+    "dbs": []
+  },
+  "dataTypeDomains": {
+    "datatype": [],
+    "database": [{"code": "MYSQL", "defaultDatabase": true}]
+  }
+}
