@@ -12,12 +12,13 @@
 
 - **M0**：`app.tsx` `rootContainer` 注入 `erdTheme`；登录主钮品牌红（禁 antd 蓝）
 - **M1**：`/dataModels` 对齐 `project-list` 密度；`ProjectTypeBadge`；Home「全部模型」落点 `/dataModels`
-- **M2**：设计器 `StatusInstrument`（Synced / vX / DB 胶囊）；工单/审批图标化
+- **M2**：设计器 `StatusInstrument`（落盘 / vX / DB 胶囊）；工单/审批图标化
+- **M2.1**：仪器盘挂载即拉 A 层版本基线；未探测实库显示 `DB ·`（禁伪装已测；B 层仍显式探测）；落盘文案「已落盘」与版本语义分离；登录右栏减噪
 - **M3**：表设计表名 + 四签合并单行 chrome（Segmented 式 tab）
 - **M4**：左树去掉全局新建下拉；文件夹 inline +；右键菜单分段
 - 验证点：
   - `yarn test:e2e --project=chromium tests/e2e/smoke.spec.ts --grep "登录页渲染"` → brand 主钮
-  - StatusInstrument / schema-probe / version-dirty / table-design / tree 相关 E2E（子任务已绿）
+  - `… schema-probe.spec.ts` / `version-dirty-chip.spec.ts` → 仪器盘状态
 
 #### 精密工具站：前端壳层升级（ADR-0026）
 

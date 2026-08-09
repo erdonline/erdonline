@@ -18,7 +18,7 @@ export default {
   'auth.brand.homeAria': 'ERD Online 首页',
   'auth.brand.panelAria': '产品介绍',
   'auth.brand.demoAria': '打开演示',
-  'auth.subtitle.default': '开源数据库建模：版本与协作，像 Git + Figma',
+  'auth.subtitle.default': '版本与协作，开箱即用',
   'auth.skip.default': '跳到表单',
 
   // 登录页
@@ -92,7 +92,7 @@ export default {
   'register.footer.loginAria': '去登录',
 
   // 设计器顶栏 chrome（StatusInstrument / DualLayerLegend）
-  'designer.instrument.synced': '已同步',
+  'designer.instrument.synced': '已落盘',
   'designer.instrument.saving': '保存中',
   'designer.instrument.error': '错误',
   'designer.instrument.conflict': '冲突',
@@ -104,7 +104,8 @@ export default {
   'designer.instrument.version.unknown': 'v?',
   'designer.instrument.versionAria': '版本：{label}',
   'designer.instrument.db': 'DB',
-  'designer.instrument.db.probing': 'DB ·',
+  'designer.instrument.db.unknown': 'DB ·',
+  'designer.instrument.db.probing': 'DB …',
   'designer.instrument.db.synced': 'DB ✓',
   'designer.instrument.db.mismatch': 'DB ≠',
   'designer.instrument.dbAria': '实库探测：{label}',

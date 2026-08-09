@@ -75,6 +75,8 @@ async function probeJdbcSetup(
   await expect(probeCapsule).toBeVisible();
   await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
   await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
+  // 未探测不得伪装成已测：可见「DB ·」
+  await expect(probeCapsule).toContainText('DB ·');
   return { dsId, probeCapsule };
 }
 

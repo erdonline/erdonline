@@ -157,7 +157,9 @@ export async function openRelationFromEmpty(
   await page.getByTestId('entity-modal-name').fill(name);
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
-  await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
+  await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, {
+    timeout: 25_000,
+  });
   await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
   await expandTreeTitle(page, '关系');
@@ -177,13 +179,13 @@ export async function openRelationCanvas(
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
 }
 
-/** 断言顶栏保存态已同步（兼容 已落盘 / 已同步 / Saved to server 文案漂移） */
+/** 断言顶栏自动落盘态（兼容 已落盘 / Saved / 历史 已同步|Synced） */
 export async function expectSavedToServer(
   page: import('@playwright/test').Page,
   timeout = 25_000,
 ) {
   await expect(page.getByTestId('save-status')).toHaveText(
-    /已同步|已落盘|Saved to server|Synced/i,
+    /已落盘|已同步|Saved|Synced/i,
     { timeout },
   );
 }

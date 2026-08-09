@@ -57,7 +57,9 @@ test.describe('顶栏版本 dirty chip', () => {
       await expect(page.getByTestId('version-dirty-chip-dirty')).toHaveText('v*');
 
       // SaveStatus 仍只管落盘，与 dirty chip 分离
-      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, {
+        timeout: 15_000,
+      });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -119,7 +121,9 @@ test.describe('顶栏版本 dirty chip', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible({ timeout: 15_000 });
       await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
-      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText(/已落盘|已同步/, {
+        timeout: 15_000,
+      });
       await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
       await expect(page.getByTestId('version-dirty-chip-dirty')).toBeVisible({ timeout: 15_000 });
     } finally {
