@@ -2,10 +2,8 @@ import { useProjectDraftGuard } from '@/hooks/useProjectDraftGuard';
 import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
-import SaveStatus from "@/components/SaveStatus";
+import StatusInstrument from "@/components/StatusInstrument";
 import SaveVersionButton from "@/components/SaveVersionButton";
-import VersionDirtyChip from "@/components/VersionDirtyChip";
-import SchemaProbeControl from "@/components/SchemaProbeControl";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
@@ -46,8 +44,7 @@ export const siderWidth = 320;
 export function getHeadRightContent(intl: ReturnType<typeof useIntl>): React.ReactNode[] {
   return [
     <div className="erd-chrome-status-cluster" key="status-cluster" data-testid="erd-chrome-status-cluster">
-      <SaveStatus key="save-status" />
-      <VersionDirtyChip key="version-dirty-chip" />
+      <StatusInstrument key="status-instrument" />
     </div>,
     <SaveVersionButton key="save-version" />,
     <CollabPresence key="presence" />,
@@ -446,9 +443,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
         </div>
         <div className="erd-chrome-actions design-layout__actions" data-testid="erd-chrome-actions">
           <div className="erd-chrome-status-cluster" data-testid="erd-chrome-status-cluster">
-            <SaveStatus key="save-status" />
-            <VersionDirtyChip key="version-dirty-chip" />
-            <SchemaProbeControl key="schema-probe" variant="chrome" />
+            <StatusInstrument key="status-instrument" />
           </div>
           <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
@@ -458,16 +453,14 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
               <Button
                 type="text"
                 size="small"
-                className="design-layout__workflow-btn"
+                className="design-layout__workflow-btn design-layout__workflow-btn--icon"
                 icon={<OrderedListOutlined />}
                 aria-label={intl.formatMessage({ id: 'designLayout.workflow.myOrders' })}
                 data-testid="design-workflow-my-orders"
                 onClick={() =>
                   history.push(`/design/table/version/order?projectId=${projectId}`)
                 }
-              >
-                {intl.formatMessage({ id: 'designLayout.workflow.myOrders' })}
-              </Button>
+              />
             </Tooltip>
             <Tooltip
               title={intl.formatMessage({ id: 'designLayout.workflow.pendingApprovalAria' })}
@@ -475,7 +468,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
               <Button
                 type="text"
                 size="small"
-                className="design-layout__workflow-btn"
+                className="design-layout__workflow-btn design-layout__workflow-btn--icon"
                 icon={<AuditOutlined />}
                 aria-label={intl.formatMessage({
                   id: 'designLayout.workflow.pendingApprovalAria',
@@ -484,9 +477,7 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
                 onClick={() =>
                   history.push(`/design/table/version/approval?projectId=${projectId}`)
                 }
-              >
-                {intl.formatMessage({ id: 'designLayout.workflow.pendingApproval' })}
-              </Button>
+              />
             </Tooltip>
             <ChromeNotificationsButton variant="workflow" />
           </div>

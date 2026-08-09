@@ -4,6 +4,7 @@ import {
   deleteOwnPersonProjects,
   login,
   openRelationFromEmpty,
+  expectSavedToServer,
   rfNode,
   uniqueProjectName,
 } from './helpers';
@@ -60,7 +61,7 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await expect(page.getByTestId('diagram-switcher')).toHaveCount(1);
       await expect(page.getByTestId('diagram-switcher')).toContainText('鉴权视图');
 
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
       await expect(page.getByRole('tree').getByText('鉴权视图', { exact: true })).toBeVisible({
@@ -249,7 +250,7 @@ test.describe('多关系图（ADR-0017 Phase 2a）', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const tableMenu = page.getByLabel('表操作');
       await tableMenu.click();

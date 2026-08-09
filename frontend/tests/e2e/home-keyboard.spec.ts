@@ -186,7 +186,9 @@ test.describe('Home 工作台键盘', () => {
     expect(densify.heroMb, `hero mb 应 ≤16，得 ${densify.heroMb}`).toBeLessThanOrEqual(16);
     expect(densify.heroPb, `hero pb 应 ≤16，得 ${densify.heroPb}`).toBeLessThanOrEqual(16);
     expect(densify.continueH, `主 CTA 高应 ≥40（large），得 ${densify.continueH}`).toBeGreaterThanOrEqual(40);
-    expect(densify.titleSize, `问候字号应 ≥28，得 ${densify.titleSize}`).toBeGreaterThanOrEqual(28);
+    // ADR-0026：Home hero 精密字号 24（禁回退松 28+）
+    expect(densify.titleSize, `问候字号应 ∈[22,26]，得 ${densify.titleSize}`).toBeGreaterThanOrEqual(22);
+    expect(densify.titleSize).toBeLessThanOrEqual(26);
 
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');
@@ -208,7 +210,7 @@ test.describe('Home 工作台键盘', () => {
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '团队项目' })).toBeFocused();
     await page.keyboard.press('Tab');
-    await expect(page.getByTestId('home-link-import')).toBeFocused();
+    await expect(page.getByTestId('home-link-all-models')).toBeFocused();
 
     // Tab 至首张项目卡（自然 DOM 序；可能中间还有其它可焦）
     let reachedCard = false;

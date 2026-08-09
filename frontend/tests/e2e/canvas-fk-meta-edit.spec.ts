@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   addFieldInline,
+  addEntityViaTreeFolder,
   connectFields,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
@@ -60,8 +61,7 @@ test.describe('画布边 FK 元数据可编辑', () => {
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();

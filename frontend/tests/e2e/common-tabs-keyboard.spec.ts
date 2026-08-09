@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
+  addEntityViaTreeFolder,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
@@ -28,16 +29,14 @@ test.describe('CommonTabs 签头键盘', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByRole('tree').getByText('T_ORDER', { exact: true })).toBeVisible({
         timeout: 10_000,
       });
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_USER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByRole('tree').getByText('T_USER', { exact: true })).toBeVisible({

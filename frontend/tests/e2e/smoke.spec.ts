@@ -102,6 +102,11 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.inputH).toBeLessThanOrEqual(32);
     expect(brandMetrics.btnH, `提交钮高应 ∈[24,32]（目标28），得 ${brandMetrics.btnH}`).toBeGreaterThanOrEqual(24);
     expect(brandMetrics.btnH).toBeLessThanOrEqual(32);
+    // 全站 ConfigProvider：登录主钮 = brand（禁 antd 默认蓝）
+    const loginBtnBg = await page.getByTestId('login-submit').evaluate(
+      (el) => getComputedStyle(el).backgroundColor,
+    );
+    expect(loginBtnBg).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
     expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
     // ADR-0026：精密营销壳 — kicker + landing hero 窗（非剪影 SVG）

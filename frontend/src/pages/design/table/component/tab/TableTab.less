@@ -1,4 +1,4 @@
-/* 表设计三签（ADR-0017）：签头层级条 + 卡片化签体；颜色只认 --erd-* tokens */
+/* 表设计三签（ADR-0017）：单行 chrome + 卡片化签体；颜色只认 --erd-* tokens */
 .erd-table-design {
   display: flex;
   flex-direction: column;
@@ -11,16 +11,26 @@
   font-family: var(--erd-font-ui);
 }
 
-/* ADR-0016：表设计签头 ~24（与 CommonTabs 同阶）；碎距 padX8 / gap4；禁 clip 标题 */
-.erd-table-design__header {
+/* M3：表名 + 四签切换合并为单行 chrome ~24（与 CommonTabs 同阶） */
+.erd-table-design__chrome {
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 4px;
   padding: 2px 8px;
   min-height: 24px;
   border-bottom: 1px solid var(--erd-line);
   background: linear-gradient(180deg, var(--erd-surface-muted) 0%, var(--erd-surface-sunk) 100%);
   flex-shrink: 0;
+  overflow: hidden;
+}
+
+.erd-table-design__identity {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  min-width: 0;
+  flex: 1;
   overflow: hidden;
 }
 
@@ -47,8 +57,14 @@
   min-width: 0;
 }
 
+.erd-table-design__chrome-right {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
 .erd-table-design__module {
-  margin-left: auto;
   flex-shrink: 0;
   font-size: 10px;
   color: var(--erd-ink-400);
@@ -59,9 +75,53 @@
   background: var(--erd-surface);
 }
 
-.erd-table-design__tabs {
-  --erd-inner-tabs-h: 24px;
-  /* 签体次密距：侧 pad / 底 pad 对齐 ~24 toolbar（禁 10/12 松井夹 JExcel） */
+.erd-table-design__pane-switcher {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 2px;
+  flex-shrink: 0;
+  height: 20px;
+}
+
+.erd-table-design__pane-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 20px;
+  padding: 0 6px;
+  margin: 0;
+  border: 1px solid transparent;
+  border-radius: var(--erd-radius-sm);
+  background: transparent;
+  font-family: inherit;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600);
+  cursor: pointer;
+  white-space: nowrap;
+  box-sizing: border-box;
+
+  &:hover {
+    color: var(--erd-brand);
+    background: var(--erd-surface);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--erd-brand);
+    outline-offset: -1px;
+    z-index: 1;
+  }
+
+  &.is-active {
+    color: var(--erd-brand);
+    font-weight: 600;
+    background: var(--erd-surface);
+    border-color: var(--erd-line);
+    box-shadow: inset 0 -2px 0 var(--erd-brand);
+  }
+}
+
+.erd-table-design__body {
   --erd-tab-body-pad-x: 6px;
   --erd-tab-body-pad-b: 4px;
 
@@ -70,88 +130,18 @@
   display: flex;
   flex-direction: column;
   padding: 0 var(--erd-tab-body-pad-x);
+  overflow: hidden;
+}
 
-  /* ADR-0016：字段/索引/元数据内签栏显式 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
-  > .ant-tabs-nav {
-    height: var(--erd-inner-tabs-h);
-    margin-bottom: 4px !important;
-    flex-shrink: 0;
-    /* 勿 overflow:hidden：会裁标签与 inset focus 环 */
-    overflow: visible;
-  }
+.erd-table-design__panel {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding-bottom: var(--erd-tab-body-pad-b);
+}
 
-  > .ant-tabs-nav .ant-tabs-nav-wrap {
-    height: var(--erd-inner-tabs-h);
-    overflow-y: visible;
-  }
-
-  > .ant-tabs-nav .ant-tabs-nav-list {
-    height: var(--erd-inner-tabs-h);
-    align-items: stretch;
-  }
-
-  /* 内签 gutter 对齐 CommonTabs / 子签 ~2（禁 marginR 8 松碎距） */
-  > .ant-tabs-nav .ant-tabs-tab {
-    display: inline-flex !important;
-    align-items: center !important;
-    height: var(--erd-inner-tabs-h) !important;
-    padding: 0 6px !important;
-    margin: 0 2px 0 0 !important;
-    font-size: 12px;
-    line-height: 18px;
-    color: var(--erd-ink-600);
-    box-sizing: border-box !important;
-
-    &:hover {
-      color: var(--erd-brand);
-    }
-
-    &:focus-visible,
-    &.ant-tabs-tab-focus {
-      outline: 2px solid var(--erd-brand);
-      outline-offset: -2px;
-      z-index: 1;
-    }
-
-    &.ant-tabs-tab-active .ant-tabs-tab-btn {
-      color: var(--erd-brand);
-      font-weight: 600;
-    }
-  }
-
-  > .ant-tabs-nav .ant-tabs-tab-btn {
-    display: inline-flex;
-    align-items: center;
-    font-size: 12px;
-    line-height: 18px;
-  }
-
-  > .ant-tabs-nav .ant-tabs-tab-btn:focus-visible {
-    outline: 2px solid var(--erd-brand);
-    outline-offset: -1px;
-  }
-
-  > .ant-tabs-nav .ant-tabs-ink-bar {
-    background: var(--erd-brand);
-    height: 2px;
-    border-radius: 2px;
-  }
-
-  > .ant-tabs-nav .ant-tabs-nav-more {
-    display: inline-flex !important;
-    align-items: center;
-    padding: 0 6px !important;
-    height: var(--erd-inner-tabs-h);
-  }
-
-  > .ant-tabs-content-holder {
-    flex: 1;
-    min-height: 0;
-    overflow: auto;
-    padding-bottom: var(--erd-tab-body-pad-b);
-  }
-
-  /* 元数据应用：CodeTab DB 签 + DbTab 模板签 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
+/* 元数据应用：CodeTab DB 签 + DbTab 模板签 ~24（对齐 CommonTabs）；禁 clip；保留 focus-visible */
+.erd-table-design__body {
   .erd-code-tab__tabs,
   .erd-db-tab {
     --erd-sub-tabs-h: 24px;
@@ -160,13 +150,11 @@
       height: var(--erd-sub-tabs-h);
       margin-bottom: 4px !important;
       flex-shrink: 0;
-      /* 勿 overflow:hidden：会裁标签与 inset focus 环 */
       overflow: visible;
     }
 
     > .ant-tabs-content-holder {
       padding: 0;
-      /* 勿再叠二级底 pad；外层已 --erd-tab-body-pad-b */
     }
 
     > .ant-tabs-nav .ant-tabs-nav-wrap {

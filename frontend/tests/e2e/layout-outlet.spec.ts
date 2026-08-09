@@ -528,8 +528,8 @@ test.describe('布局壳子路由出口', () => {
       await createAndOpenPersonProject(page, projectName);
       await openRelationFromEmpty(page, { name: 'CHROME', chnname: '铬' });
       // 树头「新建」唯一（页内另有「新建」勿用 role name 计数）
-      await expect(page.getByTestId('design-tree-add')).toHaveCount(1);
-      await expect(page.getByTestId('design-tree-add')).toHaveAttribute('aria-label', '新建');
+      await expect(page.getByTestId('design-tree-add-module')).toHaveCount(1);
+      await expect(page.getByTestId('design-tree-add-module')).toHaveAttribute('aria-label', '新增模型');
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
       await expect(page.getByRole('tree')).toHaveCount(1);
     } finally {

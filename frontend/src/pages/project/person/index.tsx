@@ -1,11 +1,11 @@
 import {Avatar, Button, Empty, Input, List, message, Space, Tag} from 'antd';
 import {useEffect, useState} from "react";
 import {pageProject} from "@/utils/save";
-import {TeamOutlined, UserOutlined} from "@ant-design/icons";
 import AddProject from "@/components/dialog/project/AddProject";
 import RenameProject from "@/components/dialog/project/RenameProject";
 import RemoveProject from "@/components/dialog/project/RemoveProject";
 import OpenProject from "@/components/dialog/project/OpenProject";
+import ProjectTypeBadge from "@/components/ProjectTypeBadge";
 import {searchProjects} from "@/pages/project/recent";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
 import {createExampleProjectAndOpen} from "@/utils/exampleProject";
@@ -155,11 +155,9 @@ export default () => {
                 <div className="project-list-page__meta">
                   <span>{row.description}</span>
                   <div className="project-list-page__tags">
-                    <Tag color={'blue'} key={row.projectName}>
-                      {row.type === '1' ? <UserOutlined/> : <TeamOutlined/>}
-                    </Tag>
+                    <ProjectTypeBadge type={row.type} />
                     {row.tags?.split(",").filter(Boolean).map((m: string, i: number) => {
-                      return <Tag color={i % 2 == 0 ? "#5BD8A6" : "blue"} key={m+i}>{m}</Tag>
+                      return <Tag className="erd-project-tag" key={m+i}>{m}</Tag>
                     })}
                   </div>
                   <div className="project-list-page__time">{row.updateTime}</div>

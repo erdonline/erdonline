@@ -1,18 +1,18 @@
-import type { ReactNode } from 'react';
-import { Avatar, Input, List, message, Space, Tag, Select, Typography } from 'antd';
-import { useEffect, useState } from "react";
-import { TeamOutlined, UserOutlined } from "@ant-design/icons";
-import AddProject from "@/components/dialog/project/AddProject";
-import RenameProject from "@/components/dialog/project/RenameProject";
-import RemoveProject from "@/components/dialog/project/RemoveProject";
-import ConfigProject from "@/components/dialog/project/ConfigProject";
-import { recentProject, pageProject } from "@/services/project";
-import { pageGroupProject } from "@/services/group-project";
-import * as cache from "@/utils/cache";
-import { history } from "@@/core/history";
+import { Avatar, Empty, Input, List, message, Select, Space, Tag } from 'antd';
+import { useEffect, useState } from 'react';
+import { useIntl } from '@umijs/max';
+import AddProject from '@/components/dialog/project/AddProject';
+import RenameProject from '@/components/dialog/project/RenameProject';
+import RemoveProject from '@/components/dialog/project/RemoveProject';
+import ConfigProject from '@/components/dialog/project/ConfigProject';
+import OpenProject from '@/components/dialog/project/OpenProject';
+import ProjectTypeBadge from '@/components/ProjectTypeBadge';
+import ProjectListOpenLink from '@/pages/project/ProjectListOpenLink';
+import { recentProject, pageProject } from '@/services/project';
+import { pageGroupProject } from '@/services/group-project';
+import '../project/project-list.scss';
 
 const { Option } = Select;
-const { Paragraph } = Typography;
 
 export type ProjectListProps = {
   page: number;
@@ -36,46 +36,52 @@ type ProjectItem = {
   avatar?: string;
 };
 
+/**
+ * 数据模型聚合浏览：与 /project/* 同密度、同徽章（精密 IA M1）。
+ */
 export default () => {
+  const intl = useIntl();
   const [state, setState] = useState<ProjectListProps>({
     page: 1,
     limit: 8,
     total: 0,
     projects: [],
-    order: "updateTime",
-    type: ""
+    order: 'updateTime',
+    type: '',
   });
   const [listLoading, setListLoading] = useState(true);
 
   const fetchProjects = (params: any) => {
     const fetchFunction = {
-      "": recentProject,
+      '': recentProject,
       recent: recentProject,
       personal: pageProject,
-      team: pageGroupProject
+      team: pageGroupProject,
     }[state.type];
 
     if (!fetchFunction) {
-      message.error('无效的项目类型');
+      message.error(intl.formatMessage({ id: 'projectList.error.fetchFailed' }));
       return;
     }
 
     setListLoading(true);
-    fetchFunction(params || state).then(res => {
-      if (res && res.data) {
-        setState({
-          ...state,
-          total: res.data.total,
-          projects: res.data.records?.map((m: any) => ({
-            ...m,
-            avatar: '/logo.svg',
-          }))
-        });
-      } else {
-        message.error('获取项目信息失败');
-      }
-    }).finally(() => setListLoading(false));
-  }
+    fetchFunction(params || state)
+      .then((res) => {
+        if (res && res.data) {
+          setState({
+            ...state,
+            total: res.data.total,
+            projects: res.data.records?.map((m: any) => ({
+              ...m,
+              avatar: '/logo.svg',
+            })),
+          });
+        } else {
+          message.error(intl.formatMessage({ id: 'projectList.error.fetchFailed' }));
+        }
+      })
+      .finally(() => setListLoading(false));
+  };
 
   useEffect(() => {
     fetchProjects(state);
@@ -89,53 +95,56 @@ export default () => {
     fetchProjects({
       ...state,
       projectName: value,
-      page: 1
+      page: 1,
     });
   };
 
-  const openProject = (project: ProjectItem) => {
-    cache.setItem("projectId", project.id);
-    history.push({
-      pathname: '/design/table/model',
-      search: `?projectId=${project.id}`
-    });
-  };
+  const emptyText = (
+    <Empty
+      image={Empty.PRESENTED_IMAGE_SIMPLE}
+      description={intl.formatMessage({ id: 'projectList.empty.description' })}
+    />
+  );
 
   return (
-    <div data-testid="data-models-page">
-      <div style={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 8}}>
-        <Space wrap>
+    <div className="project-list-page" data-testid="data-models-page">
+      <div className="project-list-page__toolbar" data-testid="project-list-toolbar">
+        <h2 className="project-list-page__title">
+          {intl.formatMessage({ id: 'homeLayout.route.dataModels' })}
+        </h2>
+        <Space wrap size={8}>
           <Select
             value={state.type}
             onChange={handleTypeChange}
-            style={{ width: 150 }}
-            aria-label="项目类型"
+            style={{ width: 140 }}
+            aria-label={intl.formatMessage({ id: 'dataModels.typeFilter.aria' })}
+            data-testid="data-models-type-filter"
           >
-            <Option value="">最近项目</Option>
-            <Option value="personal">个人项目</Option>
-            <Option value="team">团队项目</Option>
+            <Option value="">{intl.formatMessage({ id: 'dataModels.type.recent' })}</Option>
+            <Option value="personal">
+              {intl.formatMessage({ id: 'dataModels.type.personal' })}
+            </Option>
+            <Option value="team">{intl.formatMessage({ id: 'dataModels.type.team' })}</Option>
           </Select>
           <Input.Search
             allowClear
             onSearch={searchProjects}
-            style={{ width: 200 }}
-            placeholder="项目名"
-            aria-label="搜索项目名"
+            placeholder={intl.formatMessage({ id: 'projectList.search.placeholder' })}
+            aria-label={intl.formatMessage({ id: 'projectList.search.aria' })}
           />
+          {state.type === 'personal' || state.type === '' ? (
+            <AddProject fetchProjects={() => fetchProjects(null)} trigger="ant" type={1} />
+          ) : null}
         </Space>
-        {state.type !== 'recent' && (
-          <AddProject
-            fetchProjects={() => fetchProjects(null)}
-            trigger="ant"
-          />
-        )}
       </div>
       <List<ProjectItem>
-        size="large"
+        className="project-list-page__list"
+        size="small"
         loading={listLoading}
-        grid={{ gutter: 16, column: 4 }}
+        itemLayout="horizontal"
         rowKey="id"
         dataSource={state.projects}
+        locale={{ emptyText }}
         pagination={{
           pageSize: state.limit,
           total: state.total,
@@ -144,84 +153,61 @@ export default () => {
             setState({
               ...state,
               page,
-              limit: pageSize
-            })
-          }
+              limit: pageSize,
+            });
+          },
         }}
-        renderItem={(record) => {
-          const actions: ReactNode[] = [];
-          if (record.type === '1') {
-            actions.push(
-              <RenameProject
-                fetchProjects={() => fetchProjects(null)}
-                trigger={'ant'}
-                project={record}
-                key={'RenameProject' + record.id}
-              />,
-              <RemoveProject
-                fetchProjects={() => fetchProjects(null)}
-                project={record}
-                key={'RemoveProject' + record.id}
-              />,
-            );
-          }
-          if (record.type === '2') {
-            actions.push(
-              <ConfigProject
-                project={record}
-                type={2}
-                key={'ConfigProject' + record.id}
-              />,
-            );
-          }
+        renderItem={(row) => {
+          const actions =
+            String(row.type) === '1'
+              ? [
+                  <RenameProject
+                    fetchProjects={() => fetchProjects(null)}
+                    trigger="ant"
+                    project={row}
+                    key={`RenameProject${row.id}`}
+                  />,
+                  <RemoveProject
+                    fetchProjects={() => fetchProjects(null)}
+                    project={row}
+                    key={`RemoveProject${row.id}`}
+                  />,
+                  <OpenProject project={row} key={`OpenProject${row.id}`} />,
+                ]
+              : [
+                  <ConfigProject project={row} type={2} key={`ConfigProject${row.id}`} />,
+                  <OpenProject project={row} key={`OpenProject${row.id}`} />,
+                ];
           return (
-          <List.Item actions={actions}>
-            <div
-              role="button"
-              tabIndex={0}
-              style={{ cursor: 'pointer', width: '100%' }}
-              onClick={() => openProject(record)}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' || e.key === ' ') {
-                  e.preventDefault();
-                  openProject(record);
-                }
-              }}
+            <List.Item
+              className="project-list-page__row"
+              data-testid="project-list-row"
+              actions={actions}
             >
               <List.Item.Meta
-                avatar={<Avatar src={record.avatar || '/logo.svg'} />}
+                avatar={<Avatar size={28} src={row.avatar || '/logo.svg'} />}
                 title={
-                  <a
-                    href={'/design/table/model?projectId=' + record.id}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      openProject(record);
-                    }}
-                  >{record.projectName}</a>
+                  <ProjectListOpenLink projectId={row.id} projectName={row.projectName} />
                 }
                 description={
-                  <Space direction="vertical" size="small" style={{ width: '100%' }}>
-                    <Space size={0} wrap>
-                      <Tag color={'blue'} key={record.id}>
-                        {record.type === '1' ? <UserOutlined /> : <TeamOutlined />}
-                      </Tag>
-                      {record.tags?.split(",").filter(Boolean).map((m: string, i: number) => (
-                        <Tag color={i % 2 === 0 ? "#5BD8A6" : "blue"} key={m + i}>{m}</Tag>
-                      ))}
-                    </Space>
-                    <Paragraph
-                      type="secondary"
-                      ellipsis={{ rows: 1, tooltip: true }}
-                      style={{ marginBottom: 0 }}
-                    >
-                      {record.description}
-                    </Paragraph>
-                    <div style={{color: '#00000073'}}>更新时间：{record.updateTime}</div>
-                  </Space>
+                  <div className="project-list-page__meta">
+                    <span>{row.description}</span>
+                    <div className="project-list-page__tags">
+                      <ProjectTypeBadge type={row.type} />
+                      {row.tags
+                        ?.split(',')
+                        .filter(Boolean)
+                        .map((m: string, i: number) => (
+                          <Tag key={m + i} className="erd-project-tag">
+                            {m}
+                          </Tag>
+                        ))}
+                    </div>
+                    <div className="project-list-page__time">{row.updateTime}</div>
+                  </div>
                 }
               />
-            </div>
-          </List.Item>
+            </List.Item>
           );
         }}
       />

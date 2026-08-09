@@ -1,0 +1,24 @@
+.erd-project-type-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 22px;
+  height: 18px;
+  border-radius: 4px;
+  border: 1px solid transparent;
+  font-size: 11px;
+  line-height: 1;
+  flex-shrink: 0;
+
+  &--person {
+    color: var(--erd-ink-600);
+    background: var(--erd-surface-sunk);
+    border-color: var(--erd-hairline, var(--erd-line));
+  }
+
+  &--team {
+    color: var(--erd-success);
+    background: var(--erd-success-bg);
+    border-color: var(--erd-success-border);
+  }
+}

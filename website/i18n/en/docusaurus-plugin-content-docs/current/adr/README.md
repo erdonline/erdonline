@@ -31,3 +31,4 @@
 | [0024](/docs/adr/datasource-credential-encryption) | Datasource credential encryption at rest (AES-256-GCM, `ERD_DB_CONFIG_SECRET`) | Accepted |
 | [0025](/docs/adr/og-social-unfurl) | OG / social unfurl cards | Accepted |
 | [0026](/docs/adr/precision-tooling-visual-language) | Precision tooling visual language (dark marketing + light precision app; ≠ global dark mode) | Accepted |
+| [0027](/docs/adr/designer-chrome-ia) | Product chrome IA (global theme + status instrument + single browse + table-design hierarchy) | Accepted |

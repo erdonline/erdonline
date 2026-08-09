@@ -8,6 +8,17 @@
 
 ### 2026-08-09
 
+#### 产品 Chrome IA（ADR-0027）
+
+- **M0**：`app.tsx` `rootContainer` 注入 `erdTheme`；登录主钮品牌红（禁 antd 蓝）
+- **M1**：`/dataModels` 对齐 `project-list` 密度；`ProjectTypeBadge`；Home「全部模型」落点 `/dataModels`
+- **M2**：设计器 `StatusInstrument`（Synced / vX / DB 胶囊）；工单/审批图标化
+- **M3**：表设计表名 + 四签合并单行 chrome（Segmented 式 tab）
+- **M4**：左树去掉全局新建下拉；文件夹 inline +；右键菜单分段
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/smoke.spec.ts --grep "登录页渲染"` → brand 主钮
+  - StatusInstrument / schema-probe / version-dirty / table-design / tree 相关 E2E（子任务已绿）
+
 #### 精密工具站：前端壳层升级（ADR-0026）
 
 - **S0**：`--erd-void` / `--erd-hairline` / `--erd-chrome-blur` / kicker；`docs/adr/0026-precision-tooling-visual-language.md`；`design-principles` §8；全局 IBM Plex（`document.ejs`）
