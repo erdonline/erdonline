@@ -7,7 +7,7 @@ import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.entity.DbChange;
-import com.erdonline.erd.security.ProjectAcl;
+import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +35,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
             DateTimeFormatter.ofPattern("yyyy/M/d H:m:s");
 
     private final DbChangeService dbChangeService;
-    private final ProjectAcl projectAcl;
+    private final VersionDbKeyGuard dbKeyGuard;
 
     @Override
     public PublicVersionPageView listMine(String projectId, String dbKey, int page, int size) {
@@ -43,7 +43,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         if (!StringUtils.hasText(projectId)) {
             throw new ValidateException("projectId 为空");
         }
-        projectAcl.assertMember(projectId);
+        dbKeyGuard.assertMember(projectId);
 
         int p = Math.max(page, 1);
         int s = Math.min(Math.max(size, 1), MAX_PAGE_SIZE);
@@ -51,7 +51,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         QueryWrapper<DbChange> wrapper = new QueryWrapper<>();
         wrapper.eq("project_id", projectId);
         if (StringUtils.hasText(dbKey)) {
-            wrapper.eq("db_key", dbKey);
+            wrapper.eq("db_key", dbKeyGuard.assertDbKeyBelongsToCaller(projectId, dbKey));
         }
         // align with HisProject loadHistory: newest version first; omit heavy JSON blobs
         wrapper.select(
@@ -81,7 +81,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         if (!StringUtils.hasText(versionId)) {
             throw new ValidateException("versionId 为空");
         }
-        projectAcl.assertMember(projectId);
+        dbKeyGuard.assertMember(projectId);
 
         DbChange row = dbChangeService.getById(versionId);
         if (row == null || !projectId.equals(row.getProjectId())) {
@@ -99,7 +99,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         if (request == null) {
             throw new ValidateException("request body 为空");
         }
-        projectAcl.assertMember(projectId);
+        dbKeyGuard.assertMember(projectId);
 
         Map<String, Object> rawJson = request.resolveProjectJson();
         if (rawJson == null || rawJson.isEmpty()) {
@@ -111,7 +111,7 @@ public class PublicApiVersionServiceImpl implements PublicApiVersionService {
         // Always insert — never accept client id (blocks update/hijack via public API)
         row.setId(null);
         row.setProjectId(projectId);
-        row.setDbKey(request.getDbKey().trim());
+        row.setDbKey(dbKeyGuard.assertDbKeyBelongsToCaller(projectId, request.getDbKey().trim()));
         row.setVersion(request.getVersion().trim());
         row.setVersionDesc(request.getVersionDesc().trim());
         row.setTag(request.getTag());

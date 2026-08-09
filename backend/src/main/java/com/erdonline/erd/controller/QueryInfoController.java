@@ -9,6 +9,8 @@ import com.erdonline.common.log.annotation.MartinLog;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.common.security.util.SecurityContextUtil;
 import com.erdonline.erd.command.DbSqlExecCommand;
+import com.erdonline.erd.security.annotation.ProjectId;
+import com.erdonline.erd.security.annotation.RequireProjectAccess;
 import io.swagger.annotations.ApiOperation;
 
 
@@ -64,12 +66,15 @@ public class QueryInfoController {
     private QueryInfoService queryInfoService;
 
     @ApiOperation(value = "sql信息表 ", nickname = "create", notes = "新增sql信息表 ", tags = {"queryInfo",})
+    @RequireProjectAccess
     @RequestMapping(value = "/queryInfo", method = RequestMethod.POST)
     @MartinLog("添加sql信息表 ")
-    public R create(@ApiParam(value = "", required = true) @Valid @RequestBody QueryInfo queryInfo) {
+    public R create(@ApiParam(value = "", required = true) @ProjectId @Valid @RequestBody QueryInfo queryInfo) {
         return R.ok(queryInfoService.save(queryInfo));
     }
 
+    // delete/read/list/tree/multipleDelete：id 不携带 projectId，且本控制器当前无任何前端调用方
+    // （grep 全仓确认），非本轮高 ROI 目标；已记入 docs/regression-checklist.md 作为后续清理/补齐项。
     @ApiOperation(value = "sql信息表 ", nickname = "delete", notes = "删除sql信息表 ", tags = {"queryInfo",})
     @RequestMapping(value = "/queryInfo/{id}", method = RequestMethod.DELETE)
     @MartinLog("删除sql信息表 ")
@@ -93,9 +98,10 @@ public class QueryInfoController {
     }
 
     @ApiOperation(value = "sql信息表 ", nickname = "partialUpdate", notes = "编辑sql信息表 ", tags = {"queryInfo",})
+    @RequireProjectAccess
     @RequestMapping(value = "/queryInfo/{id}", method = RequestMethod.PATCH)
     @MartinLog("编辑sql信息表 ")
-    public R partialUpdate(@ApiParam(value = "Id", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody QueryInfo queryInfo) {
+    public R partialUpdate(@ApiParam(value = "Id", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @ProjectId @Valid @RequestBody QueryInfo queryInfo) {
         return R.ok(queryInfoService.updateById(queryInfo));
     }
 
@@ -115,29 +121,35 @@ public class QueryInfoController {
     }
 
     @ApiOperation(value = "sql信息表 ", nickname = "update", notes = "修改sql信息表 ", tags = {"queryInfo",})
+    @RequireProjectAccess
     @RequestMapping(value = "/queryInfo/{id}", method = RequestMethod.PUT)
     @MartinLog("编辑sql信息表 ")
-    public R update(@ApiParam(value = "Id", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @Valid @RequestBody QueryInfo queryInfo) {
+    public R update(@ApiParam(value = "Id", required = true) @PathVariable("id") String id, @ApiParam(value = "", required = true) @ProjectId @Valid @RequestBody QueryInfo queryInfo) {
         LambdaQueryWrapper<QueryInfo> wrapper = new LambdaQueryWrapper<>();
         wrapper.eq(QueryInfo::getId, id);
         return R.ok(queryInfoService.update(queryInfo, wrapper));
     }
 
 
+    // exec/explain 经 @Dynamic 按 map.get("key")（dataSourceId）切库执行任意只读 SQL：
+    // 真正的凭证防线在 LocalNcnbDatabaseService.getDataSourceInfoById（现已收紧为
+    // DataSourceAcl.requireOwned，见本轮修复）。这里再加一层 projectId 成员校验做纵深防御。
     @ApiOperation(value = "执行sql ", nickname = "exec", notes = "执行sql ", tags = {"queryInfo",})
+    @RequireProjectAccess
     @RequestMapping(value = "/queryInfo/exec", method = RequestMethod.POST)
     @MartinLog("执行sql ")
     @Dynamic
-    public R exec(@RequestBody Map map) {
+    public R exec(@ProjectId @RequestBody Map map) {
         return queryInfoService.exec(map);
     }
 
 
     @ApiOperation(value = "分析sql执行计划", nickname = "explain", notes = "分析sql执行计划 ", tags = {"queryInfo",})
+    @RequireProjectAccess
     @RequestMapping(value = "/queryInfo/explain", method = RequestMethod.POST)
     @MartinLog("分析sql执行计划 ")
     @Dynamic
-    public R explain(@RequestBody Map map) {
+    public R explain(@ProjectId @RequestBody Map map) {
         return queryInfoService.explain(map);
     }
 }

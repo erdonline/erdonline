@@ -7,7 +7,7 @@ import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.security.userdetail.MartinUser;
 import com.erdonline.erd.entity.DbChange;
-import com.erdonline.erd.security.ProjectAcl;
+import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import org.junit.jupiter.api.AfterEach;
@@ -33,8 +33,10 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -45,13 +47,16 @@ class PublicApiVersionServiceTest {
     @Mock
     private DbChangeService dbChangeService;
     @Mock
-    private ProjectAcl projectAcl;
+    private VersionDbKeyGuard dbKeyGuard;
 
     private PublicApiVersionServiceImpl service;
 
     @BeforeEach
     void setUp() {
-        service = new PublicApiVersionServiceImpl(dbChangeService, projectAcl);
+        service = new PublicApiVersionServiceImpl(dbChangeService, dbKeyGuard);
+        // 本文件聚焦成员/scope ACL 与 projectJSON 清洗；dbKey 归属校验专项见 VersionDbKeyGuardTest。
+        lenient().when(dbKeyGuard.assertDbKeyBelongsToCaller(anyString(), anyString()))
+                .thenAnswer(inv -> inv.getArgument(1));
     }
 
     @AfterEach
@@ -81,7 +86,7 @@ class PublicApiVersionServiceTest {
 
         PublicVersionPageView view = service.listMine("p1", "default", 1, 20);
 
-        verify(projectAcl).assertMember("p1");
+        verify(dbKeyGuard).assertMember("p1");
         assertEquals(1, view.getTotal());
         assertEquals("v1", view.getItems().get(0).getId());
         assertEquals("1.0.0", view.getItems().get(0).getVersion());
@@ -110,7 +115,7 @@ class PublicApiVersionServiceTest {
 
         PublicVersionDetailView view = service.getMine("p1", "v1");
 
-        verify(projectAcl).assertMember("p1");
+        verify(dbKeyGuard).assertMember("p1");
         assertEquals("v1", view.getId());
         @SuppressWarnings("unchecked")
         Map<String, Object> outProfile = (Map<String, Object>) view.getProjectJson().get("profile");
@@ -134,7 +139,7 @@ class PublicApiVersionServiceTest {
     @Test
     void getMine_forbiddenWhenNotMember() {
         bindUser("u1", "alice", PatScopes.DEFAULT_READ);
-        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(projectAcl).assertMember("p-other");
+        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(dbKeyGuard).assertMember("p-other");
 
         ValidateException ex = assertThrows(ValidateException.class, () -> service.getMine("p-other", "v1"));
         assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
@@ -153,7 +158,7 @@ class PublicApiVersionServiceTest {
     @Test
     void createMine_requiresMember() {
         bindUser("u1", "alice", Set.of(PatScopes.VERSIONS_WRITE));
-        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(projectAcl).assertMember("p1");
+        doThrow(new ValidateException(ApiErrorCode.FORBIDDEN)).when(dbKeyGuard).assertMember("p1");
         ValidateException ex = assertThrows(ValidateException.class,
                 () -> service.createMine("p1", minimalCreateRequest()));
         assertEquals(ApiErrorCode.FORBIDDEN.getCode(), ex.getStatus());
@@ -191,7 +196,7 @@ class PublicApiVersionServiceTest {
 
         PublicVersionDetailView view = service.createMine("p1", req);
 
-        verify(projectAcl).assertMember("p1");
+        verify(dbKeyGuard).assertMember("p1");
         assertEquals("new-v1", view.getId());
         @SuppressWarnings("unchecked")
         Map<String, Object> outProfile = (Map<String, Object>) view.getProjectJson().get("profile");
