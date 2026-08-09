@@ -29,6 +29,27 @@ test.describe('模板广场', () => {
     await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
   });
 
+  test('深色 landing 视觉：无主内容白卡片', async ({ page }) => {
+    await page.goto('/catalog');
+    await expect(page.getByTestId('catalog-tile-first')).toBeVisible({ timeout: 15_000 });
+
+    const mainBg = await page.getByTestId('catalog-main-content').evaluate((el) => {
+      const { backgroundColor } = getComputedStyle(el);
+      return backgroundColor;
+    });
+    expect(mainBg).toMatch(/rgba?\(0,\s*0,\s*0,\s*0\)|transparent/i);
+
+    const cardBg = await page.getByTestId('catalog-tile-first').evaluate((el) => {
+      return getComputedStyle(el).backgroundColor;
+    });
+    expect(cardBg).not.toBe('rgb(255, 255, 255)');
+
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/catalog-dark-surface.png',
+      fullPage: true,
+    });
+  });
+
   test('详情页展示只读关系图预览（ReactFlow）', async ({ page }) => {
     await page.goto('/catalog/demo-authz');
     await expect(page.getByTestId('catalog-detail-page')).toBeVisible({ timeout: 15_000 });

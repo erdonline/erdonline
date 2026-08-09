@@ -2,7 +2,7 @@ import {Button, List, Space, Typography, message} from 'antd';
 import {useEffect, useState} from 'react';
 import {history} from '@@/exports';
 import request from '@/utils/request';
-import '../project/project-list.scss';
+import './catalog.scss';
 
 const {Text} = Typography;
 
@@ -46,33 +46,35 @@ export default function CatalogReviewPage() {
   };
 
   return (
-    <div className="project-list-page" data-testid="catalog-review-page">
-      <Button type="link" onClick={() => history.push('/catalog')} style={{paddingLeft: 0}}>
+    <div className="catalog-page catalog-page--maint" data-testid="catalog-review-page">
+      <Button type="link" className="catalog-page__back" onClick={() => history.push('/catalog')}>
         ← 返回模板广场
       </Button>
-      <h2>模板审核（维护者）</h2>
-      <List
-        loading={loading}
-        dataSource={records}
-        renderItem={(item) => (
-          <List.Item
-            actions={[
-              <Button key="approve" type="link" onClick={() => review(item.id, 'approve')}>
-                通过
-              </Button>,
-              <Button key="reject" type="link" danger onClick={() => review(item.id, 'reject')}>
-                拒绝
-              </Button>,
-            ]}
-          >
-            <Space direction="vertical" size={0}>
-              <Text strong>{item.title}</Text>
-              <Text type="secondary">{item.description}</Text>
-              <Text type="secondary">{item.createTime}</Text>
-            </Space>
-          </List.Item>
-        )}
-      />
+      <div className="catalog-page__maint-panel">
+        <h2>模板审核（维护者）</h2>
+        <List
+          loading={loading}
+          dataSource={records}
+          renderItem={(item) => (
+            <List.Item
+              actions={[
+                <Button key="approve" type="link" onClick={() => review(item.id, 'approve')}>
+                  通过
+                </Button>,
+                <Button key="reject" type="link" danger onClick={() => review(item.id, 'reject')}>
+                  拒绝
+                </Button>,
+              ]}
+            >
+              <Space direction="vertical" size={0}>
+                <Text strong>{item.title}</Text>
+                <Text type="secondary">{item.description}</Text>
+                <Text type="secondary">{item.createTime}</Text>
+              </Space>
+            </List.Item>
+          )}
+        />
+      </div>
     </div>
   );
 }

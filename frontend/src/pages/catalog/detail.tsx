@@ -30,7 +30,6 @@ import {
   type CatalogTemplateDetail,
 } from '@/services/catalog';
 import CatalogPreviewPanel from './CatalogPreviewPanel';
-import '../project/project-list.scss';
 import './catalog.scss';
 
 const {Title, Paragraph, Text} = Typography;
@@ -172,7 +171,7 @@ export default function CatalogDetailPage() {
 
   if (loading) {
     return (
-      <div className="catalog-page project-list-page" data-testid="catalog-detail-page">
+      <div className="catalog-page" data-testid="catalog-detail-page">
         <Spin />
       </div>
     );
@@ -180,7 +179,7 @@ export default function CatalogDetailPage() {
 
   if (!detail) {
     return (
-      <div className="catalog-page project-list-page" data-testid="catalog-detail-page">
+      <div className="catalog-page" data-testid="catalog-detail-page">
         <Empty description="模板不存在">
           <Button onClick={() => history.push('/catalog')}>返回广场</Button>
         </Empty>
@@ -199,13 +198,13 @@ export default function CatalogDetailPage() {
     : 0;
 
   return (
-    <div className="catalog-page project-list-page" data-testid="catalog-detail-page">
-      <Button type="link" onClick={() => history.push('/catalog')} style={{paddingLeft: 0}}>
+    <div className="catalog-page" data-testid="catalog-detail-page">
+      <Button type="link" className="catalog-page__back" onClick={() => history.push('/catalog')}>
         ← 返回模板广场
       </Button>
       <Card>
         <Space direction="vertical" size={12} style={{width: '100%'}}>
-          <Title level={2} style={{margin: 0}}>
+          <Title level={2} className="catalog-page__title" style={{margin: 0}}>
             {detail.title}
           </Title>
           <Paragraph>{detail.description}</Paragraph>

@@ -18,7 +18,6 @@ import {
   listCatalogTemplates,
   type CatalogTemplateSummary,
 } from '@/services/catalog';
-import '../project/project-list.scss';
 import './catalog.scss';
 
 const {Title, Paragraph, Text} = Typography;
@@ -55,9 +54,9 @@ export default function CatalogListPage() {
   }, [sort, origin]);
 
   return (
-    <div className="catalog-page project-list-page" data-testid="catalog-list-page">
-      <div className="project-list-page__toolbar">
-        <Title level={2} className="project-list-page__title" style={{margin: 0}}>
+    <div className="catalog-page" data-testid="catalog-list-page">
+      <div className="catalog-page__toolbar">
+        <Title level={2} className="catalog-page__title">
           模板广场
         </Title>
         <Space wrap>
