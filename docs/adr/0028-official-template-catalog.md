@@ -20,7 +20,7 @@
 | 创建 IA | `/project/new` → `/catalog`；Home CTA、空态「从模板创建」；首 tile = 空白项目 |
 | 安装 | `POST …/install` → `initPersonProject` + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>` |
 | 社交 P0 | 评分（须已安装，1 票/用户）；安装数去重；作者页 `GET …/creators/{handle}`（GitHub handle） |
-| 社交 P1 | 评论、举报/限制、hot 排序 tab → roadmap，本 ADR 不阻塞 |
+| 社交 P1 | 评论（须安装+限频）、举报自动隐藏、作者开关/限制评论者、hot 排序 + 官方/社区筛选 → ✅ 2026-08-09 |
 | 发布 | 项目主提交 → `pending` → 维护者（默认 `admin`）approve/reject；须绑定 GitHub（ADR-0021） |
 | MCP | `list_templates` / `get_template` / `install_template` / `get_creator`；**无** `publish_template`；**无** PAT 评分/评论 |
 | 明确不做 | 付费模板、LLM 生成、模板版本继承、follow/DM、Agent 自动发布 |
@@ -41,4 +41,4 @@
 | 3 | 评分/安装数/作者页 | ✅ |
 | 4 | 发布队列 + 维护者审核 | ✅ |
 | 5 | MCP 四工具 | ✅ |
-| P1 | 评论、举报、hot tab | 📋 roadmap |
+| P1 | 评论、举报、hot tab、官方/社区筛选 | ✅ |

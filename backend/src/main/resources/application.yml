@@ -184,6 +184,8 @@ erd:
     api-url: ${ERD_CATALOG_API_URL:}
     maintainer-usernames:
       - admin
+    comment-rate-limit-seconds: ${ERD_CATALOG_COMMENT_RATE_LIMIT_SECONDS:60}
+    comment-auto-hide-report-threshold: ${ERD_CATALOG_COMMENT_AUTO_HIDE_THRESHOLD:2}
   # OIDC：RS256 id_token + JWKS；issuer 默认回落 martin.ui.url（ERD_UI_URL）
   # 密钥：ERD_OIDC_RSA_PRIVATE_KEY（PEM）或 ERD_OIDC_RSA_PRIVATE_KEY_PATH；prod 必填
   # 非 prod 未配置时自动生成 ~/.erdonline/oidc-rsa-private.pem（仓外）

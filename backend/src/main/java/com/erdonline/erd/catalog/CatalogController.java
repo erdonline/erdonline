@@ -30,11 +30,12 @@ public class CatalogController {
     public R<CatalogPageView> listTemplates(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String tag,
+            @RequestParam(required = false) String origin,
             @RequestParam(defaultValue = "installs") String sort,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         String userId = currentUserIdOrNull();
-        return R.ok(catalogService.listTemplates(q, tag, sort, page, size, userId));
+        return R.ok(catalogService.listTemplates(q, tag, origin, sort, page, size, userId));
     }
 
     @GetMapping("/templates/{id}")
@@ -92,6 +93,47 @@ public class CatalogController {
         var user = SecurityContextUtil.getAccessUser();
         String note = request != null ? request.getNote() : null;
         return catalogService.rejectSubmission(id, user.getId(), user.getUsername(), note);
+    }
+
+    @GetMapping("/templates/{id}/comments")
+    @Operation(summary = "评论列表（可见评论）")
+    public R<CatalogCommentPageView> listComments(
+            @PathVariable String id,
+            @RequestParam(defaultValue = "1") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        return R.ok(catalogService.listComments(id, currentUserIdOrNull(), page, size));
+    }
+
+    @PostMapping("/templates/{id}/comments")
+    @Operation(summary = "发表评论（须已安装；限频）")
+    public R addComment(@PathVariable String id, @Valid @RequestBody AddCommentRequest request) {
+        var user = SecurityContextUtil.getAccessUser();
+        return catalogService.addComment(id, user.getId(), user.getUsername(), request.getBody());
+    }
+
+    @PostMapping("/templates/{id}/comments/{commentId}/report")
+    @Operation(summary = "举报评论（达阈值自动隐藏待审）")
+    public R reportComment(
+            @PathVariable String id,
+            @PathVariable String commentId,
+            @RequestBody(required = false) ReportCommentRequest request) {
+        var user = SecurityContextUtil.getAccessUser();
+        String reason = request != null ? request.getReason() : null;
+        return catalogService.reportComment(id, commentId, user.getId(), reason);
+    }
+
+    @PostMapping("/templates/{id}/comments-enabled")
+    @Operation(summary = "作者/维护者开关评论")
+    public R toggleComments(@PathVariable String id, @Valid @RequestBody ToggleCommentsRequest request) {
+        var user = SecurityContextUtil.getAccessUser();
+        return catalogService.toggleComments(id, user.getId(), user.getUsername(), request.getEnabled());
+    }
+
+    @PostMapping("/templates/{id}/restrict-user")
+    @Operation(summary = "作者/维护者限制评论者")
+    public R restrictUser(@PathVariable String id, @Valid @RequestBody RestrictUserRequest request) {
+        var user = SecurityContextUtil.getAccessUser();
+        return catalogService.restrictCommenter(id, user.getId(), user.getUsername(), request.getUserId());
     }
 
     private static String currentUserIdOrNull() {

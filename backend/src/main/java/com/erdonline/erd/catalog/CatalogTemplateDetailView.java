@@ -24,5 +24,8 @@ public class CatalogTemplateDetailView {
     private Map<String, Object> configJSON;
     private Integer userRating;
     private boolean installed;
+    private boolean commentsEnabled;
+    private boolean canManageComments;
+    private boolean official;
     private LocalDateTime createTime;
 }

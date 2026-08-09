@@ -51,6 +51,9 @@ public class CatalogTemplate implements Serializable {
 
     private String sourceProjectId;
 
+    /** 1=开 0=关 */
+    private Integer commentsEnabled;
+
     @TableLogic
     private String delFlag;
 

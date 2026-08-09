@@ -19,5 +19,6 @@ public class CatalogTemplateSummaryView {
     private int installCount;
     private double ratingAverage;
     private int ratingCount;
+    private boolean official;
     private LocalDateTime createTime;
 }

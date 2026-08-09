@@ -35,12 +35,13 @@ public class CatalogPublicApiController {
     public R<CatalogPageView> listTemplates(
             @RequestParam(required = false) String q,
             @RequestParam(required = false) String tag,
+            @RequestParam(required = false) String origin,
             @RequestParam(defaultValue = "installs") String sort,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "20") int size) {
         PatScopes.require(SecurityContextUtil.getAuthorities(), PatScopes.PROJECTS_READ);
         var user = SecurityContextUtil.getAccessUser();
-        return R.ok(catalogService.listTemplates(q, tag, sort, page, size, user.getId()));
+        return R.ok(catalogService.listTemplates(q, tag, origin, sort, page, size, user.getId()));
     }
 
     @GetMapping("/templates/{id}")

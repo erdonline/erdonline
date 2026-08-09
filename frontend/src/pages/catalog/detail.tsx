@@ -2,9 +2,13 @@ import {
   Button,
   Card,
   Empty,
+  Input,
+  List,
+  Popconfirm,
   Rate,
   Space,
   Spin,
+  Switch,
   Tag,
   Typography,
   message,
@@ -14,9 +18,15 @@ import {history, Link, useParams} from '@@/exports';
 import * as cache from '@/utils/cache';
 import {CONSTANT} from '@/utils/constant';
 import {
+  addCatalogComment,
   getCatalogTemplate,
   installCatalogTemplate,
+  listCatalogComments,
   rateCatalogTemplate,
+  reportCatalogComment,
+  restrictCatalogCommenter,
+  toggleCatalogComments,
+  type CatalogComment,
   type CatalogTemplateDetail,
 } from '@/services/catalog';
 import '../project/project-list.scss';
@@ -30,6 +40,19 @@ export default function CatalogDetailPage() {
   const [loading, setLoading] = useState(true);
   const [installing, setInstalling] = useState(false);
   const [detail, setDetail] = useState<CatalogTemplateDetail | null>(null);
+  const [comments, setComments] = useState<CatalogComment[]>([]);
+  const [commentBody, setCommentBody] = useState('');
+  const [commentSubmitting, setCommentSubmitting] = useState(false);
+
+  const reloadComments = () => {
+    if (!id) return;
+    listCatalogComments(id, {page: 1, size: 50})
+      .then((res) => {
+        const data = res?.data ?? res;
+        setComments(data?.records ?? []);
+      })
+      .catch(() => setComments([]));
+  };
 
   const reload = () => {
     if (!id) return;
@@ -38,6 +61,7 @@ export default function CatalogDetailPage() {
       .then((res) => setDetail((res?.data ?? res) as CatalogTemplateDetail))
       .catch(() => message.error('模板不存在'))
       .finally(() => setLoading(false));
+    reloadComments();
   };
 
   useEffect(() => {
@@ -72,6 +96,54 @@ export default function CatalogDetailPage() {
       reload();
     } catch (e: any) {
       message.error(e?.data?.msg || e?.message || '评分失败（须先安装）');
+    }
+  };
+
+  const handleComment = async () => {
+    if (!id || !commentBody.trim()) return;
+    setCommentSubmitting(true);
+    try {
+      await addCatalogComment(id, commentBody.trim());
+      message.success('评论已发布');
+      setCommentBody('');
+      reloadComments();
+    } catch (e: any) {
+      message.error(e?.data?.msg || e?.message || '评论失败（须先安装）');
+    } finally {
+      setCommentSubmitting(false);
+    }
+  };
+
+  const handleReport = async (commentId: string) => {
+    if (!id) return;
+    try {
+      await reportCatalogComment(id, commentId);
+      message.success('已举报，感谢反馈');
+      reloadComments();
+    } catch (e: any) {
+      message.error(e?.data?.msg || e?.message || '举报失败');
+    }
+  };
+
+  const handleRestrict = async (userId: string) => {
+    if (!id) return;
+    try {
+      await restrictCatalogCommenter(id, userId);
+      message.success('已限制该用户评论');
+      reloadComments();
+    } catch (e: any) {
+      message.error(e?.data?.msg || e?.message || '操作失败');
+    }
+  };
+
+  const handleToggleComments = async (enabled: boolean) => {
+    if (!id) return;
+    try {
+      await toggleCatalogComments(id, enabled);
+      message.success(enabled ? '已开启评论' : '已关闭评论');
+      reload();
+    } catch (e: any) {
+      message.error(e?.data?.msg || e?.message || '操作失败');
     }
   };
 
@@ -151,6 +223,99 @@ export default function CatalogDetailPage() {
             )}
           </Space>
         </Space>
+      </Card>
+
+      <Card
+        className="catalog-comments"
+        title="评论"
+        data-testid="catalog-comments-section"
+        extra={
+          detail.canManageComments ? (
+            <Space>
+              <Text type="secondary">评论开关</Text>
+              <Switch
+                checked={detail.commentsEnabled !== false}
+                onChange={handleToggleComments}
+                data-testid="catalog-comments-toggle"
+              />
+            </Space>
+          ) : null
+        }
+      >
+        {detail.commentsEnabled === false ? (
+          <Text type="secondary">作者已关闭评论</Text>
+        ) : detail.installed ? (
+          <Space direction="vertical" style={{width: '100%'}} size={8}>
+            <Input.TextArea
+              rows={3}
+              value={commentBody}
+              onChange={(e) => setCommentBody(e.target.value)}
+              placeholder="分享使用体验…"
+              maxLength={2000}
+              data-testid="catalog-comment-input"
+            />
+            <Button
+              type="primary"
+              loading={commentSubmitting}
+              disabled={!commentBody.trim()}
+              data-testid="catalog-comment-submit"
+              onClick={handleComment}
+            >
+              发布评论
+            </Button>
+          </Space>
+        ) : (
+          <Text type="secondary">安装后可评论</Text>
+        )}
+        <List
+          className="catalog-comments__list"
+          dataSource={comments}
+          locale={{emptyText: '暂无评论'}}
+          renderItem={(item) => (
+            <List.Item
+              key={item.id}
+              data-testid={`catalog-comment-${item.id}`}
+              actions={[
+                !item.own ? (
+                  <Button
+                    key="report"
+                    type="link"
+                    size="small"
+                    data-testid={`catalog-comment-report-${item.id}`}
+                    onClick={() => handleReport(item.id)}
+                  >
+                    举报
+                  </Button>
+                ) : null,
+                detail.canManageComments && !item.own ? (
+                  <Popconfirm
+                    key="restrict"
+                    title="限制该用户在此模板下评论？"
+                    onConfirm={() => handleRestrict(item.userId)}
+                  >
+                    <Button type="link" size="small" data-testid={`catalog-comment-restrict-${item.id}`}>
+                      限制
+                    </Button>
+                  </Popconfirm>
+                ) : null,
+              ].filter(Boolean)}
+            >
+              <List.Item.Meta
+                title={item.username || item.userId}
+                description={
+                  <>
+                    <div>{item.body}</div>
+                    {item.createTime ? (
+                      <Text type="secondary" style={{fontSize: 12}}>
+                        {item.createTime}
+                      </Text>
+                    ) : null}
+                  </>
+                }
+              />
+            </List.Item>
+          )}
+        />
       </Card>
     </div>
   );
