@@ -110,110 +110,110 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   };
 
   return (
-    <div className="erd-secondary-pane" data-testid="import-reverse-page">
-      <h2 className="erd-secondary-pane__title">解析已有数据源</h2>
-      <p className="erd-secondary-pane__hint">
-        从 JDBC 数据源逆向导入表结构
-        <span className="erd-secondary-pane__em">（含非主键索引）</span>
-      </p>
-      <Steps
-        current={step}
-        size="small"
-        className="erd-secondary-pane__steps"
-        items={[{title: '选择数据源'}, {title: '解析数据源'}]}
-      />
-      {step === 0 && (
-        <Form
-          form={form1}
-          layout="vertical"
+    <div className="erd-secondary-pane erd-secondary-pane--import" data-testid="import-reverse-page">
+      <div className="erd-secondary-pane__content">
+        <h2 className="erd-secondary-pane__title">解析已有数据源</h2>
+        <p className="erd-secondary-pane__hint">
+          从 JDBC 数据源逆向导入表结构
+          <span className="erd-secondary-pane__em">（含非主键索引）</span>
+        </p>
+        <Steps
+          current={step}
           size="small"
-          className="erd-secondary-pane__form"
-          initialValues={{dataFormat: 'DEFAULT'}}
-          requiredMark
-        >
-          <Form.Item
-            label="数据源"
-            name="currentDB"
-            rules={[{required: true, message: '请选择数据源'}]}
+          className="erd-secondary-pane__steps"
+          items={[{title: '选择数据源'}, {title: '解析数据源'}]}
+        />
+        {step === 0 && (
+          <Form
+            form={form1}
+            layout="vertical"
+            size="small"
+            className="erd-secondary-pane__form"
+            initialValues={{dataFormat: 'DEFAULT'}}
+            requiredMark
           >
-            <DataSourceSelect
-              value={selectedDbValue}
-              onChange={(value) => {
-                setSelectedDbValue(value);
-              }}
-              onDbChange={(db) => {
-                setSelectedDb(db);
-              }}
-              style={{width: '328px'}}
-            />
-          </Form.Item>
-          {reverseMeta?.supportsSchema ? (
             <Form.Item
-              name="schema"
-              label="Schema"
-              rules={[{required: true, message: '请选择 Schema'}]}
-              extra={reverseMeta.dialectId ? `方言：${reverseMeta.dialectId}` : undefined}
+              label="数据源"
+              name="currentDB"
+              rules={[{required: true, message: '请选择数据源'}]}
             >
-              <Select
-                style={{width: 328}}
-                loading={metaLoading}
-                aria-label="Schema"
-                options={(reverseMeta.schemas || []).map((name) => ({
-                  label: name,
-                  value: name,
-                }))}
+              <DataSourceSelect
+                value={selectedDbValue}
+                onChange={(value) => {
+                  setSelectedDbValue(value);
+                }}
+                onDbChange={(db) => {
+                  setSelectedDb(db);
+                }}
+                style={{width: '100%'}}
               />
             </Form.Item>
-          ) : null}
-          <Form.Item
-            name="dataFormat"
-            label="逻辑名格式"
-            rules={[{required: true, message: '请选择逻辑名格式'}]}
-          >
-            <Select
-              style={{width: 328}}
-              aria-label="逻辑名格式"
-              options={[
-                {label: '不处理', value: 'DEFAULT'},
-                {label: '全大写', value: 'UPPERCASE'},
-                {label: '全小写', value: 'LOWCASE'},
-              ]}
-            />
-          </Form.Item>
-          <AntButton type="primary" aria-label="下一步" onClick={() => void goNext()}>
-            下一步 {'>'}
-          </AntButton>
-        </Form>
-      )}
-      {step === 1 && (
-        <>
-          <ReverseParseStep />
-          <div className="erd-secondary-pane__actions">
-            <AntButton aria-label="上一步" onClick={() => setStep(0)}>
-              {'<'} 上一步
-            </AntButton>
-            {status === 'SUCCESS' ? (
-              <AntButton
-                type="primary"
-                aria-label="提交"
-                loading={submitting}
-                onClick={() => {
-                  void (async () => {
-                    setSubmitting(true);
-                    try {
-                      await projectDispatch.getSelectedEntity();
-                    } finally {
-                      setSubmitting(false);
-                    }
-                  })();
-                }}
+            {reverseMeta?.supportsSchema ? (
+              <Form.Item
+                name="schema"
+                label="Schema"
+                rules={[{required: true, message: '请选择 Schema'}]}
+                extra={reverseMeta.dialectId ? `方言：${reverseMeta.dialectId}` : undefined}
               >
-                提交
-              </AntButton>
+                <Select
+                  loading={metaLoading}
+                  aria-label="Schema"
+                  options={(reverseMeta.schemas || []).map((name) => ({
+                    label: name,
+                    value: name,
+                  }))}
+                />
+              </Form.Item>
             ) : null}
-          </div>
-        </>
-      )}
+            <Form.Item
+              name="dataFormat"
+              label="逻辑名格式"
+              rules={[{required: true, message: '请选择逻辑名格式'}]}
+            >
+              <Select
+                aria-label="逻辑名格式"
+                options={[
+                  {label: '不处理', value: 'DEFAULT'},
+                  {label: '全大写', value: 'UPPERCASE'},
+                  {label: '全小写', value: 'LOWCASE'},
+                ]}
+              />
+            </Form.Item>
+            <AntButton type="primary" aria-label="下一步" onClick={() => void goNext()}>
+              下一步 {'>'}
+            </AntButton>
+          </Form>
+        )}
+        {step === 1 && (
+          <>
+            <ReverseParseStep />
+            <div className="erd-secondary-pane__actions">
+              <AntButton aria-label="上一步" onClick={() => setStep(0)}>
+                {'<'} 上一步
+              </AntButton>
+              {status === 'SUCCESS' ? (
+                <AntButton
+                  type="primary"
+                  aria-label="提交"
+                  loading={submitting}
+                  onClick={() => {
+                    void (async () => {
+                      setSubmitting(true);
+                      try {
+                        await projectDispatch.getSelectedEntity();
+                      } finally {
+                        setSubmitting(false);
+                      }
+                    })();
+                  }}
+                >
+                  提交
+                </AntButton>
+              ) : null}
+            </div>
+          </>
+        )}
+      </div>
     </div>
   );
 };
