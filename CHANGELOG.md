@@ -8,6 +8,13 @@
 
 ### 2026-08-09
 
+#### 模板广场：列表卡片 footer 防组内换行
+
+- **布局**：安装数 / 星级 / 作者拆为独立 `catalog-card__footer-group`，组内 `white-space: nowrap`；星级 `inline-flex` 不换行；作者超长省略
+- **描述**：`-webkit-line-clamp: 2` 两行截断
+- **卡片**：`min-width: 220px`，footer 字号略缩至 `0.75rem`
+- 验证点：HMR 目视 `/catalog` 窄列卡片（如「功能鉴权示例」）footer 不出现「装」/单星/「ERD」孤立换行
+
 #### 模板详情：Hero 双栏（身份左 · 操作右）
 
 - **布局**：`catalog-detail__hero` 网格双栏——左列 identity（标题 + meta 含作者 + 模块提示），右列 actions（安装 CTA + 你的评分）**相对整列左栏垂直居中**，避免 CTA 仅贴标题而 meta 悬空

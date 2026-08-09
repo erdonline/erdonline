@@ -168,7 +168,7 @@ export default function CatalogListPage() {
                 <Title level={5} style={{margin: 0}}>
                   {item.title}
                 </Title>
-                <Paragraph type="secondary" ellipsis={{rows: 2}} style={{margin: 0, minHeight: 40}}>
+                <Paragraph type="secondary" className="catalog-card__desc">
                   {item.description || '暂无描述'}
                 </Paragraph>
                 <Space wrap size={4}>
@@ -177,16 +177,22 @@ export default function CatalogListPage() {
                   ))}
                   {item.official ? <Tag color="blue">官方</Tag> : null}
                 </Space>
-                <Space split={<Text type="secondary">·</Text>}>
-                  <Text type="secondary">{item.installCount} 次安装</Text>
-                  <Rate disabled allowHalf value={item.ratingAverage} style={{fontSize: 12}} />
-                  <Link
-                    to={`/catalog/creator/${item.authorHandle}`}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    {item.authorDisplayName || item.authorHandle}
-                  </Link>
-                </Space>
+                <div className="catalog-card__footer">
+                  <span className="catalog-card__footer-group">
+                    <Text type="secondary">{item.installCount} 次安装</Text>
+                  </span>
+                  <span className="catalog-card__footer-group catalog-card__footer-rating">
+                    <Rate disabled allowHalf value={item.ratingAverage} />
+                  </span>
+                  <span className="catalog-card__footer-group catalog-card__footer-author">
+                    <Link
+                      to={`/catalog/creator/${item.authorHandle}`}
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {item.authorDisplayName || item.authorHandle}
+                    </Link>
+                  </span>
+                </div>
               </Space>
             </Card>
           </List.Item>
