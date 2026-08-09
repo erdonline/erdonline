@@ -87,7 +87,7 @@ test.describe('新手激活', () => {
     });
   });
 
-  test('关闭示例就绪通知后仍可经顶栏保存版本', async ({ page }) => {
+  test('关闭示例就绪通知后仍可经版本胶囊进入存版', async ({ page }) => {
     test.setTimeout(120_000);
     await withExclusiveAccount(async () => {
       try {
@@ -98,12 +98,14 @@ test.describe('新手激活', () => {
         await page.getByTestId('home-link-example').click();
         await expect(page).toHaveURL(/\/design\/table/, { timeout: 20_000 });
         await expectToast(page, /示例项目已就绪/);
-        await expect(page.getByTestId('design-header-save-version')).toBeVisible();
+        await expect(page.getByTestId('instrument-version')).toBeVisible();
+        await expect(page.getByTestId('design-header-save-version')).toHaveCount(0);
 
         await page.getByTestId('example-ready-dismiss').click();
         await expect(page.getByTestId('example-save-version-cta')).toHaveCount(0);
 
-        await page.getByTestId('design-header-save-version').click();
+        // 无顶栏「保存版本」主钮：点版本胶囊（尚无版本 → 进存版流）
+        await page.getByTestId('instrument-version').click();
         await expect(page).toHaveURL(/\/design\/table\/version\/all/, { timeout: 15_000 });
         await expect(page.getByText('Loading...')).toHaveCount(0);
 

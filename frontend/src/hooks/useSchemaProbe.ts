@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useAccess, useIntl } from '@umijs/max';
 import * as Save from '@/utils/save';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -39,11 +39,8 @@ export function useSchemaProbe() {
     if (datasourceMissing) {
       return { status: 'UNKNOWN', reason: 'PROBE_NO_DATASOURCE' };
     }
-    if (loading) {
-      return { status: 'UNKNOWN', reason: 'PROBE_NOT_PROBED' };
-    }
     return result;
-  }, [datasourceMissing, loading, result]);
+  }, [datasourceMissing, result]);
 
   const runProbe = useCallback(async () => {
     const dbData = getCurrentDBData();
@@ -79,6 +76,18 @@ export function useSchemaProbe() {
       setLoading(false);
     }
   }, [getCurrentDBData, intl, projectJSON]);
+
+  /** 进页自动感应：有 JDBC 时探一次（水合 DB 胶囊；禁止定时双向同步仍成立） */
+  const hydratedDbRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (!probeAllowed || datasourceMissing || !projectJSON) return;
+    const dbData = getCurrentDBData();
+    if (!dbData?.key) return;
+    const key = String(dbData.id || dbData.key);
+    if (hydratedDbRef.current === key) return;
+    hydratedDbRef.current = key;
+    void runProbe();
+  }, [probeAllowed, datasourceMissing, projectJSON, dbs, getCurrentDBData, runProbe]);
 
   const status = displayResult.status ?? 'UNKNOWN';
   const isUnknown = status === 'UNKNOWN';

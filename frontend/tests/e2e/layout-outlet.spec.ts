@@ -395,7 +395,8 @@ test.describe('布局壳子路由出口', () => {
       await expect(projectMenuBtn).toBeVisible({ timeout: 15_000 });
       await expect(projectMenuBtn).toContainText(projectName);
       await expect(page.getByTestId('save-status')).toBeVisible();
-      await expect(page.getByRole('button', { name: '保存版本' })).toBeVisible();
+      await expect(page.getByTestId('instrument-version')).toBeVisible();
+      await expect(page.getByTestId('design-header-save-version')).toHaveCount(0);
       await expect(page.getByTestId('collab-presence')).toBeVisible({ timeout: 20_000 });
       await expect(page.getByRole('button', { name: '只读分享' })).toBeVisible();
       // ADR-0016：设计器 actions 已覆写 gap8，勿回退到壳默认松距

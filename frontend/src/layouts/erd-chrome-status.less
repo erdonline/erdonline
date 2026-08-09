@@ -1,15 +1,18 @@
 /* 设计器顶栏状态簇：SaveStatus / VersionDirtyChip / SchemaProbe 共用 chip 体系 */
 
+/* 状态簇：仅布局，无外框（胶囊自身带边；套灰底框会「框中框」） */
 .erd-chrome-status-cluster {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   flex-shrink: 0;
-  height: 32px;
-  padding: 0 8px;
-  border-radius: var(--erd-radius-sm);
-  background: var(--erd-surface-muted);
-  border: 1px solid var(--erd-hairline);
+  height: auto;
+  min-height: 22px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
   line-height: 1;
 }
 

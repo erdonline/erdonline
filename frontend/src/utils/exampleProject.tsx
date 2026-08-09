@@ -61,7 +61,7 @@ export async function createExampleProjectAndOpen(
         key,
         message: '示例项目已就绪',
         description:
-          '鉴权域表结构与关系已建好。下一步：保存你的第一个版本（也可点顶栏「保存版本」）。',
+          '鉴权域表结构与关系已建好。下一步：点顶栏版本胶囊，或下方按钮保存第一个版本。',
         duration: 0,
         placement: 'bottomRight',
         closeIcon: (
