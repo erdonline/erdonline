@@ -2,7 +2,15 @@
 
 ## 状态
 
-提议中（设计简报，非实施决策）——2026-08-09。本文回答「要不要做、做成什么样」，**不**授权开工；进入 roadmap 需人工显式拍板并解封 `control-matrix.md` 中「📋 延期：不扩 JDBC 查询台」的现状。
+提议中（设计简报，非实施决策）——2026-08-09；同日三次修订 §5「驱动管理」。本文回答「要不要做、做成什么样」，**不**授权开工；进入 roadmap 需人工显式拍板并解封 `control-matrix.md` 中「📋 延期：不扩 JDBC 查询台」的现状。
+
+**修订记录（2026-08-09，同日，共三条用户反馈）**：
+
+1. 「不能用编译期的四库 Maven 依赖，数据库类型、版本太多了」——四库不能是永久天花板，需要不推倒重来的扩展路径
+2. 「你的所有思考、设计不要出现让用户可能出现阻塞的情况，用着用着需要让用户帮你补齐一些要素才能继续」——任何扩展机制都**不得**让建模者在使用预览功能时被要求补齐驱动 jar / 驱动类名 / 联系管理员才能继续；这条约束优先级高于「覆盖更多库类型」
+3. 「我希望编译期除了本项目要的驱动，其他的都不要打入」——`backend` 模块自身的编译/运行期依赖只应包含**应用自举**所需的驱动（系统库 `erd`/`martin` 用的 MySQL），PostgreSQL/Oracle/SQL Server 这类**服务用户数据源**的连接器不应算进 `backend` 模块的 compile/runtime scope，即便它们仍需要出现在默认发布镜像里
+
+三条反馈共同推出的结论：**系统驱动 + 官方连接器包 + 扩展连接器包**三层模型（见 §5）。day-1 对建模者的可见支持面不变（仍是四库，零阻塞），变化的是"这四库如何被组装进最终镜像"这件事的架构归属。
 
 ## 背景
 
@@ -25,7 +33,7 @@
 | 入口 | 决策 | 理由 |
 |---|---|---|
 | 画布表节点底栏「字段 \| 索引 \| 元数据 \| 触发器」旁加第 5 项「预览数据」 | ❌ 不加 | 底栏已经 4 项快到密度上限（design-principles 表节点密表纪律）；且底栏 4 项全是**改模型结构**的动作，预览数据是**看外部真实数据**，语义不同类，混进去会让用户误以为预览数据也能编辑结构 |
-| 表节点右键菜单「预览数据…」 | ✅ 加 | 上下文即工具（原则 3）；不占底栏常驻空间；只有绑定了数据源的表才出现该项，未绑定则不出现（不做灰置死 affordance） |
+| 表节点右键菜单「预览数据…」 | ✅ 加 | 上下文即工具（原则 3）；不占底栏常驻空间；只有绑定了数据源**且该数据源类型当前有可用驱动**的表才出现该项，任一条件不满足都不出现（不做灰置死 affordance，也不做「点了才告诉你不支持」）——驱动可用性判定见 §5.3 |
 | 左树表节点右键同款「预览数据…」 | ✅ 加 | 与画布对称，键盘漫游用户（左树方向键流）同样可达 |
 | 项目菜单 / DesignLayout 侧栏新增一级入口「查询」「数据预览」 | ❌ 不加 | 这正是被裁掉的旧入口的翻版——脱离表上下文的独立入口等于重建通用查询台；且会与「导入/导出/设置」等结构动作抢侧栏位置 |
 | Home / 顶栏 | ❌ 不加 | 完全脱离建模上下文，纯粹分心 |
@@ -99,62 +107,134 @@
 - 上线 4 周内，预览功能使用次数 < 项目活跃数的 10%，且无用户主动反馈"离不开这个"——降级为「维护但不再投入」，不删代码（沉没成本已付，留着比删更省事），但停止任何后续增强（不做 WHERE、不做导出等诉求一律拒绝）
 - 若实测发现预览功能显著增加"活库连接池压力"投诉/故障（尤其自托管小内存部署），先加节流/超时收紧，仍无效则收回入口（右键菜单项移除），后端接口保留但不暴露
 
-### 5. 驱动管理（新增维度）
+### 5. 驱动管理（修订：核心层 + 部署期扩展包，两条硬约束驱动的重新设计）
 
-#### 5.1 现状：驱动今天怎么管理的
+#### 5.0 修订动机
 
-驱动是**编译期 Maven 依赖**，打进后端 fat jar / Docker 镜像，**没有**运行时动态加载、没有插件市场、没有"上传 driver jar"这类 DBeaver 式机制：
+初版结论"驱动是编译期 4 库 Maven 依赖，够用，不做插件化"被用户三条反馈依次推翻：
 
-| 驱动 | pom.xml 坐标 | 版本 | 产品面是否已接入 |
-|---|---|---|---|
-| MySQL（含 MariaDB 兼容） | `com.mysql:mysql-connector-j` | `${mysql.connector.version}` | ✅ ADR-0006 P0 · `JdbcUrlGuard` 白名单 · 前端类型 Select |
-| PostgreSQL | `org.postgresql:postgresql` | `42.7.4` | ✅ 同上 |
-| Oracle | `com.oracle.database.jdbc:ojdbc8` | `${oracle.connector.version}` | ✅ 同上（`jdbc:oracle:thin\|oci`） |
-| SQL Server | `com.microsoft.sqlserver:mssql-jdbc` | `12.8.1.jre11` | ✅ 同上 |
-| DB2 | `com.ibm.db2:jcc` | `${db2.connector.version}` | ❌ **零使用**：不在 `JdbcUrlGuard` 协议白名单、不在 `ReverseDialectRegistry`/`DialectIds`、不在前端数据源类型 `Select` 选项——纯声明未接线的死依赖 |
+1. **不能封顶**：数据库类型 + 版本组合太多，把"只支持 4 种"钉成永久架构假设是错的，需要一条不推倒重来的扩展路径
+2. **不能阻塞建模者**：任何扩展机制都不能让"预览数据"这个建模内动作，中途需要用户去补一个东西（上传 jar、找管理员装驱动、填驱动类名解锁）才能继续——这条约束**优先于**"覆盖更多库类型"，覆盖面扩展必须做成对建模者完全不可见的事，发生在部署/运维时区，不发生在建模者点击时区
+3. **编译产物要瘦身**：`backend` 模块自身的 Maven `compile`/`runtime` scope 只应包含**应用自举**所需的驱动；服务用户数据源的连接器（哪怕是官方支持的 PostgreSQL/Oracle/SQL Server）不应该是"这个 Spring Boot 应用编译时就得依赖"的东西——这是"应用需要什么"与"这套自托管栈发布时想覆盖什么"的边界问题，两者不必是同一个 Maven scope
 
-**方言能力矩阵**已有前例：`ReverseDialect` SPI + `DialectCapability` + `ReverseDialectRegistry`（ADR-0006），但服务对象是"逆向解析元数据"（读表/列/索引/FK/触发器结构），不服务"执行任意 SELECT 并分页返回结果"——预览功能不能直接套用这套 SPI，只能借鉴其**模式**（按 `DialectIds` 做能力表驱动，而不是散落 `if (dbType)`）。
+下文 §5.1–§5.11 是满足这三条约束的具体设计。
 
-**连接凭据解析**已有现代路径：`ConnectorCredentialResolver.apply()` 按 `dataSourceId` 经 `DataSourceAcl` 拿到 `driverClassName`/`url`/`username`/`password`；若 `data_sources.driverClassName` 留空，`defaultDriver(type)` 按 4 种类型给内置默认类名兜底（`com.mysql.cj.jdbc.Driver` / `org.postgresql.Driver` / `oracle.jdbc.OracleDriver` / `com.microsoft.sqlserver.jdbc.SQLServerDriver`）——**预览功能必须复用这条路径**，不新建一套。
+#### 5.1 现状：驱动今天的两种用途混在同一个 compile scope 里
 
-**分页方言差异**：好消息是 MyBatis-Plus 的 `PaginationInnerInterceptor`（`MartinDataAutoConfiguration`）**没有固定 `dbType`**，按每次实际 JDBC 连接的元数据自动探测方言生成对应的 `LIMIT`/`TOP`/`ROWNUM` 分页 SQL——这是已经在生产验证过的机制（`queryInfo/exec` 现有实现已经这样用），预览功能复用同一模式不需要自己处理分页方言。
+驱动今天是**编译期 Maven 依赖**，打进后端 fat jar / Docker 镜像，没有运行时动态加载、没有插件市场、没有"上传 driver jar"这类 DBeaver 式机制。但这些驱动其实服务两种完全不同的需求，目前混在 `backend/pom.xml` 同一个 `<dependencies>` 块、同一个 compile/runtime scope 里：
 
-**已知真坑**：`QueryInfoMapper.xml` 里 `explain ${sql}` 硬编码 `EXPLAIN <sql>` 语法，只对 MySQL/PostgreSQL 有效；Oracle 需要 `EXPLAIN PLAN FOR ...` 再查 `PLAN_TABLE`，SQL Server 用 `SET SHOWPLAN_ALL ON` 会话级开关——四库根本没有统一 `EXPLAIN <SQL>` 语法。**结论：预览功能 v0/v1 不做 explain/执行计划**，这本来就是"查询台"特征功能，不是"预览"该有的。
+| 驱动 | pom.xml 坐标 | 版本 | 实际用途 | 产品面是否已接入 |
+|---|---|---|---|---|
+| MySQL（含 MariaDB 兼容） | `com.mysql:mysql-connector-j` | `${mysql.connector.version}` | **双重**：① 应用自举——`erd`/`martin` 系统库连接（`application.yml` 硬编码 `driver-class-name: com.mysql.cj.jdbc.Driver`）+ Flyway；② 用户数据源——最常见的客户 MySQL/MariaDB 库 | ✅ ADR-0006 P0 · `JdbcUrlGuard` 白名单 · 前端类型 Select |
+| PostgreSQL | `org.postgresql:postgresql` | `42.7.4` | **仅**用户数据源——应用自身系统库固定用 MySQL，从不连 PG | ✅ 同上 |
+| Oracle | `com.oracle.database.jdbc:ojdbc8` | `${oracle.connector.version}` | 仅用户数据源 | ✅ 同上（`jdbc:oracle:thin\|oci`） |
+| SQL Server | `com.microsoft.sqlserver:mssql-jdbc` | `12.8.1.jre11` | 仅用户数据源 | ✅ 同上 |
+| ~~DB2~~ | ~~`com.ibm.db2:jcc`~~ | ~~`${db2.connector.version}`~~ | 无 | **本轮已删**：核实全仓零使用（不在 `JdbcUrlGuard` 协议白名单、不在 `ReverseDialectRegistry`/`DialectIds`、不在前端数据源类型 `Select`），`pom.xml` 纯声明死依赖，随本 ADR 顺手清掉（`delete-dead-code`，trivial，不必等专门 PR）；README 中"DB2 在线管理"仍是历史遗留的不准确营销文案，属于另一条独立债务，本轮不改 |
 
-#### 5.2 v0/v1 方言范围
+**关键技术事实（已用 grep 核实全仓 `backend/src/main/java`）**：应用代码**零编译期引用**这些驱动的 Java 类（无 `import org.postgresql.*`/`oracle.jdbc.*`/`com.microsoft.sqlserver.*`）——驱动加载走纯反射：`JdbcKit.getConnection()`/`AbstractDBCommand` 系列都是 `Class.forName(driverClassName)` + `DriverManager.getConnection(url, props)`，`driverClassName` 是运行时字符串（来自 `data_sources.driverClassName` 或 `ConnectorCredentialResolver.defaultDriver(type)` 兜底）。这意味着**把用户数据源驱动移出 `backend` 模块的 compile/runtime scope 不会破坏编译**——`mvn compile` 不依赖这些 jar 是否在场，只有真正执行 `DriverManager.getConnection` 那一刻才需要驱动类在**运行时** classpath 上。这条事实是 §5.2 分层方案能落地的技术前提。
 
-- 只服务 **P0 四库**（MySQL/MariaDB、PostgreSQL、Oracle、SQL Server）——与逆向解析 P0 对齐，复用同一批已声明驱动，**不新增任何依赖**
-- `LIMIT`/`TOP`/`FETCH` 差异**不需要预览功能自己处理**：交给 MP 分页插件自动探测（见上），前提是 SQL 通过 `exec(Page, sql)` 这种注入 `IPage` 参数的调用方式，且用户不能在 SQL 里自带 `LIMIT`（v0 不给用户写 SQL 的入口，天然规避这个冲突）
-- **Prefill 模板必须按方言生成**——这是预览功能唯一真正需要"自己管方言"的地方：
+**方言能力矩阵**已有前例：`ReverseDialect` SPI + `DialectCapability` + `ReverseDialectRegistry`（ADR-0006），服务"逆向解析元数据"；**连接凭据解析**已有现代路径：`ConnectorCredentialResolver.apply()` 按 `dataSourceId` 经 `DataSourceAcl` 拿到凭据，`defaultDriver(type)` 兜底驱动类名；**分页方言**由 MyBatis-Plus `PaginationInnerInterceptor` 按实际 JDBC 连接元数据自动探测，不需要预览功能自己处理。这三条现代路径预览功能都直接复用，本轮修订不改变这部分结论。
 
-  | 方言 | Prefill 模板 |
-  |---|---|
-  | MySQL / MariaDB / PostgreSQL | `` SELECT * FROM `t` LIMIT 100 ``（PG 用双引号 `"t"`） |
-  | SQL Server | `SELECT TOP 100 * FROM [t]` |
-  | Oracle | `SELECT * FROM "T" FETCH FIRST 100 ROWS ONLY`（12c+ 语法；本项目定位新项目自建库，不兼容 11g 及更早） |
+**已知真坑（不变）**：四库没有统一 `EXPLAIN <SQL>` 语法——预览功能 v0/v1 不做 explain/执行计划。
 
-  标识符引用规则也要按方言给对（`` ` ``/`"`/`[]`），否则遇到保留字/大小写敏感表名会直接语法报错——这是"看起来能点却点了报错"的死 affordance，必须在生成 prefill 时处理，不能偷懒拼裸表名。
+#### 5.2 决策：系统驱动 + 官方连接器包 + 扩展连接器包，三层模型
 
-- Explain/执行计划：v0/v1 不做（见上「已知真坑」）。
+| 层 | 是什么 | 在 `backend` 模块 compile/runtime scope 里？ | 在默认发布镜像里？ | 谁来添加 | 建模者感知 |
+|---|---|---|---|---|---|
+| **系统驱动** | 应用自举必需——目前即 MySQL/MariaDB（`erd`/`martin` 系统库 + Flyway），同时天然覆盖最常见的客户 MySQL 数据源 | ✅ 是，且**永久是**——应用没有它连自己的系统库都连不上，谈不上"移出" | ✅ 是 | 项目维护者，仅在系统库引擎本身变化时才会变（目前无此计划） | 无感知，从来如此 |
+| **官方连接器包** | 服务用户数据源、产品已承诺 P0 支持的类型——day-1 即 PostgreSQL、Oracle、SQL Server（与逆向解析/同步/ping 已支持的类型完全一致） | ❌ **目标状态：不在**（现状仍在，见 §5.1 表；迁移路径见 §5.2a，本轮未执行） | ✅ 是——镜像构建阶段把这三个驱动 jar 合并进最终产物（`BOOT-INF/lib` 或 `loader.path` 扫描目录），与 `backend` 模块自身的编译产物分离但共同打进同一张默认镜像 | 项目维护者，走正常 PR + 发版 | 无感知——这三型在数据源类型 Select、预览菜单里"从来就在"，因为默认镜像从来都含它们 |
+| **扩展连接器包** | 面向未来新库类型（如 DB2、ClickHouse、Doris、SQLite……），产品未承诺支持 | ❌ 不在 | ❌ **不在**默认镜像；需运维显式选择备选镜像 tag 或挂载驱动目录 | 项目维护者开发 + 发版；**自托管运维方**决定是否启用（见 §5.5） | 无感知——若运维已启用，该类型"从来就在"；若未启用，该类型"从来不出现"，不是出现了再报错 |
 
-#### 5.3 驱动打包 / 升级 / 安全
+三层的共同纪律：**驱动的出现与消失只发生在部署/发布时刻，从不发生在建模者的一次点击里**；"官方连接器包"与"系统驱动"合起来才是建模者眼中"这个产品支持的库"，两者对建模者是同一件事，只是维护者视角里分属不同 Maven scope。没有第四层——本 ADR 明确拒绝：
 
-- 版本集中在 `pom.xml` 顶部 `<properties>`（`mysql.connector.version`/`postgresql.connector.version`/`oracle.connector.version`/`sqlserver.connector.version`），升级只改一处版本号 + `mvn verify`；**当前没有 Dependabot/Renovate 自动化**，是既有 gap，不在本次预览功能范围内新增负担，但值得记一笔到 roadmap 安全清单
-- 镜像体积：4 个 JDBC driver 合计几 MB 级（`ojdbc8` 最大，约 4MB；`mssql-jdbc` 约 1.5MB），相对 Boot fat jar 整体量级可忽略；**DB2 `jcc` 驱动是纯浪费**——零产品面使用却打进每个镜像，属于 `delete-dead-code` 规则的典型目标，建议独立提一刀清掉（不阻塞本 ADR，也不属于查询功能改动范围，只是顺手记录发现）
-- 预览功能**不新增任何驱动依赖**，完全复用 connector/reverse 模块已声明的 4 个驱动；**不做**运行时动态下载/加载驱动 jar——那是多租户 SaaS（用户各连各的冷门库）才需要考虑的复杂度，本项目是自托管单体，运维要接新库类型走"改 pom + 重新构建镜像"完全够用，做插件化驱动市场是过度设计
+- ❌ 管理员在线上传 driver jar 的 Web 功能（哪怕限定管理员角色）——理由见 §5.6
+- ❌ 让建模者/项目成员填写驱动类名/驱动版本来"解锁"某个类型——理由见约束 2
+- ❌ 面向终端用户的"驱动市场/插件商店"浏览安装 UI——这是 DBeaver/Navicat 的产品形态，不是"预览"该长出来的东西，也违反 vision.md「不在别人生态位内卷」
 
-#### 5.4 新增驱动的流程（未来某天要支持第 5 种库时）
+#### 5.2a 迁移路径（目标状态，本轮仅记录，未执行）
 
-1. `pom.xml` 加依赖坐标 + 版本号 property
+把 PostgreSQL/Oracle/SQL Server 从"官方连接器包"现状（仍在 `backend` 模块 compile scope）迁移到目标状态（不在该 scope，只在镜像构建阶段合并），需要：
+
+1. `backend/pom.xml`：把这三个依赖移出主 `<dependencies>`，改为独立 Maven 模块（如 `backend/connector-postgresql`、`connector-oracle`、`connector-sqlserver`）各自声明依赖，或用 Maven profile 隔离（`-Pconnectors-official` 才编译进产物）——本轮已在 `pom.xml` 加注释标注目标状态与技术依据（§5.1 的反射加载事实），未真正拆模块
+2. Docker 多阶段构建：默认镜像的构建 stage 在打包 `backend` 主产物之外，额外执行一次"只解析这三个连接器模块依赖坐标 → 下载 jar → 拷进 `BOOT-INF/lib`"（`mvn dependency:copy-dependencies` 定向到这三个 artifact，或构建三个独立子模块 jar 后合并进最终镜像 layer）
+3. CI：新增一个"官方连接器包完整性"检查——默认镜像构建产物里必须能找到这三个驱动的 class 文件，防止构建脚本改动时不小心漏打（回归测试，不是运行时探测）
+4. 验证：迁移后 `mvn -pl backend compile` 应该仍然成功（§5.1 已证明零编译期类引用，这一步理论上不会因为移除依赖而失败）；`docker compose up -d` 用默认镜像起栈后，创建 PostgreSQL/Oracle/SQL Server 数据源 + 右键「预览数据」应与迁移前行为完全一致——这是回归验证的核心断言，不是"看起来能编译就算完成"
+
+这条迁移不改变任何用户可见行为，纯粹是维护者侧的构建产物治理；因此不必抢在本 ADR 内完成，可以作为独立的后续实现工作项排期（工作量集中在 Docker 构建脚本 + CI，不涉及产品/安全决策，决策已在本 ADR 定案）。
+
+#### 5.3 不阻塞建模者：能力可见性驱动 UI（回应约束 2，核心新增设计）
+
+- 后端维护一份"当前进程实际可用的连接器类型"清单（哪些类型的驱动类此刻能被加载）——**系统驱动 + 官方连接器包**四型在任何默认发布镜像里恒为可用，属于静态已知集合，不需要探测（即便迁移到 §5.2a 目标状态、PG/Oracle/SQLServer 不再是 `backend` 模块自身的编译依赖，它们仍随默认镜像一起启动，判定逻辑不变）；扩展连接器包类型按 `@ConditionalOnClass`/模块是否在 classpath 上判定，同样在**启动时**算好，不是每次请求都探测
+- **前端两处入口都只在类型出现在该清单时才渲染**：
+  1. 数据源创建/编辑表单的类型 `Select`——不可用类型不出现选项，不存在"选了却连不上"的死选项
+  2. 表节点/左树右键「预览数据…」——已在 §1 更新为双重门槛：绑了数据源 **且** 该数据源类型当前有可用驱动，两条都满足才出现
+- 对已存在但当前部署把驱动降级/移除的历史数据源（比如运维把镜像从内置扩展连接器包的 tag 换回默认 tag，非常规操作但要覆盖）：这条数据源的其它信息（host/port/连接测试历史等）仍可查看编辑，**只是**「预览数据」菜单项静默消失——不因为一个动作的驱动缺失而让整条数据源变得不可用，影响面收得最小
+- 结果：建模者从始至终只会看到"能用的选项"，不会看到"点了才发现不能用"的选项，也不会看到"需要你去装点什么才能用"的提示——这正是约束 2 要求的效果
+
+#### 5.4 版本矩阵：产品自测组合，不是用户选驱动版本
+
+- 每个系统驱动 / 官方连接器包类型只有**一个**产品钉死的驱动版本（现状即如此：`pom.xml` 顶部 `<properties>` 各一行），不存在"MySQL 5.7 用驱动 A、MySQL 8 用驱动 B"这种用户需要理解的分支——`mysql-connector-j` 8.x 本身向下兼容到 MySQL 5.7 及主流 MariaDB 版本的只读查询路径，版本差异由驱动自身处理，不暴露给产品层
+- SQL 语法层面的方言差异（分页/标识符引用）已由 §5.1 提到的 MP 分页插件自动探测 + §5.8 的 prefill 模板表兜底，不需要"用户选版本"这层概念存在
+- 产品自己的质量保证：驱动升级时用 docker 矩阵（如 `mysql:5.7`/`mysql:8.4`/`mariadb:10.11`、`postgres:13`/`16`、`mssql:2019`、Oracle 可再分发的免费版本）跑一遍连接 + 预览 SQL 的集成测试，回归写进 CI，不要求用户自证"我的版本行不行"
+- `data_sources.driverClassName` 这个既有可编辑字段（`DatabaseConfigForm.tsx` 目前允许手填/覆盖）与本决策有张力——**记为落地时待办**：系统驱动 + 官方连接器包四型应改为按 `type` 派生只读展示（不接受用户覆盖，杜绝"填错驱动类名"这种本就不该存在的失败模式），仅扩展连接器包类型在运维接入新类型时可能需要显式声明（那是部署配置的一次性动作，不是建模者会碰到的字段）；本 ADR 不在这轮改代码，只记录方向，避免文档与目标状态脱节
+
+#### 5.5 安全结论：拒绝运行时上传，天然没有新增 RCE 面
+
+- 因为 §5.2 明确拒绝"运行时上传 jar"，扩展连接器包只能通过两条运维**已有**的信任边界进入：
+  1. 选择包含该扩展包的备选镜像 tag（需要拉取/构建镜像的权限——运维本来就有）
+  2. 把驱动 jar 挂载进 compose 声明的目录，随进程启动一次性加入 classpath（需要修改 `docker-compose.yml`/宿主文件系统——运维本来就有）
+- 这两条路径都不新增权限层级：能做这件事的人，已经能对整个自托管栈做任意事（改镜像、改 compose、改环境变量）。**不存在**"给一个只是想预览数据的项目成员一个上传入口"的攻击面，因为这个入口从设计上就不存在
+- 因此**不需要**签名校验、沙箱 ClassLoader、上传审计这类只有"允许上传"才需要的机制——省掉的不是一个"未来再补"的安全债务，是一整类本可以不引入的攻击面
+- 官方连接器包（PG/Oracle/SQLServer）走 §5.2a 的镜像构建期合并，同样不涉及运行时上传，安全结论与扩展包一致；两者唯一区别是"是否随默认镜像自动出现"，不是"是否有上传入口"（两者都没有）
+- 若未来社区确实想做"下载社区维护的连接器包"这类分发机制（比 §5.2 更进一步），需要重新过安全模型（签名/校验/信任链），另开新 ADR，不能在本 ADR 的扩展包机制上自然长出来
+
+#### 5.6 Oracle 许可结论（回应"license issues"关切）
+
+已核实（2026-08 查证 Maven Central 元数据）：`ojdbc8` 自 19.6 起改用 **Oracle Free Use Terms and Conditions（FUTC）**，非 click-through 协议，允许免费使用与**再分发**二进制，不需要签协议或联系 Oracle 销售。`pom.xml` 当前引用 `21.1.0.0` 在 FUTC 覆盖范围内，继续把 Oracle 驱动打进**官方连接器包**（无论是当前的 `backend` 模块编译期，还是 §5.2a 目标状态的镜像构建期合并）**都没有再分发许可问题**，无需把 Oracle 挪进"扩展连接器包"层单独处理。
+
+若未来评估 IBM DB2（`db2jcc`）等驱动，需要**单独核实**其许可条款是否允许类似的免费再分发——不能直接套用 Oracle FUTC 的结论；核实结果不利时，该类型应留在"扩展连接器包"层由运维自行下载挂载，而不是打进默认镜像随项目一起分发（规避项目自身背分发义务）。
+
+#### 5.7 v0 驱动范围：day-1 支持面必须完整（回应"day-1 shippable"关切）
+
+- v0 只声明支持**系统驱动 + 官方连接器包四型**（即默认发布镜像四型）；预览入口/数据源类型 Select 与既有能力（逆向解析、同步、ping）保持**完全一致**的支持面——不存在"某类型能建数据源却不能预览"或反过来的半支持状态，这是"claim 的类型必须当天可用"的具体落实
+- Prefill 模板表（§5.8）覆盖这四型，标识符引用规则一并给对，不留"点了报语法错误"的死 affordance
+- Explain/执行计划：v0/v1 不做（§5.1 已知真坑）
+
+#### 5.8 Prefill 模板（不变，随方言）
+
+| 方言 | Prefill 模板 |
+|---|---|
+| MySQL / MariaDB / PostgreSQL | `` SELECT * FROM `t` LIMIT 100 ``（PG 用双引号 `"t"`） |
+| SQL Server | `SELECT TOP 100 * FROM [t]` |
+| Oracle | `SELECT * FROM "T" FETCH FIRST 100 ROWS ONLY`（12c+ 语法；本项目定位新项目自建库，不兼容 11g 及更早） |
+
+标识符引用规则也要按方言给对（`` ` ``/`"`/`[]`），否则遇到保留字/大小写敏感表名会直接语法报错——这是"看起来能点却点了报错"的死 affordance，必须在生成 prefill 时处理，不能偷懒拼裸表名。
+
+#### 5.9 新增类型的路径（替代原「新增驱动的流程」，按三层重新定性）
+
+**系统驱动层：默认不扩容**——它只服务应用自举，不是"支持更多用户数据库类型"该动的地方。除非项目本身决定更换系统库引擎（目前无此计划，且是完全独立的重大决策，不属于本 ADR 范围），这一层永远只有 MySQL/MariaDB 一种。
+
+**官方连接器包扩容**（维护者判断某类型值得成为产品承诺支持的永久基线，比如社区反复要求且许可清晰）：
+
+1. `pom.xml`（或迁移后的独立连接器模块）加依赖坐标 + 版本号 property
 2. （可选，若要逆向解析精度）实现 `ReverseDialect` SPI，注册进 `ReverseDialectRegistry`
 3. `ConnectorCredentialResolver.defaultDriver()` / `buildJdbcUrl()` 各加一个 `case` 分支
 4. `JdbcUrlGuard` 协议白名单加对应 `jdbc:xxx` 前缀
-5. 前端 `DatabaseConfigForm` 类型 `Select` 加一项 + `dbTypeMap`/`defaultPorts` 补一行
-6. 预览功能这边只需要在 §5.2 的 prefill 模板表里加一行——如果新库属于 ANSI SQL:2008 `FETCH FIRST` 家族（新版 PG、DB2、H2、较新 MySQL 也支持但项目仍用 `LIMIT` 保持一致性)直接复用 Oracle 分支即可，不需要新写分页逻辑（MP 分页插件已经自动探测）
+5. 前端 `DatabaseConfigForm` 类型 `Select` 加一项 + `dbTypeMap`/`defaultPorts` 补一行；后端可用类型清单（§5.3）同步加入
+6. §5.8 prefill 模板表加一行
+7. 确认新驱动 jar 会被镜像构建阶段合并进默认发布镜像（§5.2a 的机制），不是加个依赖就自动生效
 
-**非目标**：不做插件化驱动加载/驱动市场；不支持用户运行时上传 driver jar；预览功能不服务"未登记类型"的裸 JDBC URL（`dataSourceId` 强制要求，见 §5.5）。
+**扩展连接器包新增**（不想让新类型成为默认镜像的一部分，或类型小众/许可未定）：
 
-#### 5.5 连接解析路径（必须明确，防止走回遗留路径）
+1. 新建独立模块（如 `erd-connector-db2`），声明驱动依赖 + 步骤 2–4（同上，但注册逻辑用 `@ConditionalOnClass` 之类的条件化装配，模块不在 classpath 上时静默不生效）
+2. 备选 Docker 镜像 tag（如 `:full`）在构建时把该模块编译进去；或文档化"把驱动 jar 挂载到某目录，启动脚本会把它加入 classpath"两种运维接入方式之一，写入 `docs/deployment.md`
+3. 不改默认镜像的体积/默认支持面；`docker compose up -d`（默认 tag）用户完全无感知这个类型存在过
+
+两条扩容路径的共同点：**都是代码/镜像层面由维护者提交、由运维选择是否启用（扩展包）或维护者直接决定发布（官方包）的变更，不由某一次预览会话触发**——满足约束 1（不封顶）的同时不违反约束 2（不阻塞建模者），也不违反约束 3（系统驱动层本身保持精简，新增类型都走"合并进镜像"而非"塞进 backend 模块编译依赖"）。
+
+**非目标（不变，且本轮进一步收紧）**：不做插件化驱动市场浏览/安装 UI；不支持任何角色在应用运行期上传 driver jar；预览功能不服务"未登记类型"的裸 JDBC URL（`dataSourceId` 强制要求，见下）。
+
+#### 5.10 连接解析路径（不变，防止走回遗留路径）
 
 预览功能**必须**走 `connector/*` 现代路径而不是 `queryInfo/exec` 现在用的遗留路径：
 
@@ -162,15 +242,16 @@
 - 用解析出的信息复用 `AbstractDBCommand` 现成的连接建立逻辑（已含 `JdbcUrlGuard.assertAllowedAndPin` 的 SSRF/DNS-rebind 防护），临时开一条只读连接，跑 `SqlGuard.assertReadOnly` 校验过的 SQL，用完关闭连接（不进连接池常驻，预览是低频轻量动作，没必要占用连接池资源）
 - **不经过** `@Dynamic` 注解、不经过 `SqlHelperDsManager` 的全局注册数据源表——现有 `QueryInfoController`/`QueryInfoServiceImpl` 因此**不能直接复活**，落地时是"新写一个 `connector/tablePreview` 端点"，不是"给旧 Controller 解禁"
 
-#### 5.6 失败态（用户可见）
+#### 5.11 失败态（修订：去掉一切"请用户补齐要素"的文案）
 
-| 失败场景 | 用户可见文案 | 处理方式 |
+| 失败场景 | 用户可见结果 | 是否要求用户"补齐要素"才能继续 |
 |---|---|---|
-| 数据源类型超出 P0 四库（边界情况，前端目前只给 4 个选项） | 「暂不支持该数据库类型的在线预览」 | 服务端能力表驱动判断，不裸抛异常 |
-| 驱动类加载失败（`ClassNotFoundException`，通常是手填 `driverClassName` 填错） | 「连接失败：驱动不可用，请检查数据源设置里的驱动类名」 | 不暴露 Java 异常堆栈/包名 |
-| 方言探测失败（分页插件拿不到连接元数据，比如连接池代理类不透明） | 无感知：服务端兜底降级为固定 `LIMIT 100` 硬拼接，不透传给用户 | 宁可退化成"总是 100 行"，不能语法直接炸裂 |
-| 查询超时（新增：当前全线路零 `setQueryTimeout` 调用，必须补） | 「预览超时，可能是数据量较大或数据源响应较慢」+「重试」 | 服务端 5–10s `Statement.setQueryTimeout` 硬顶 |
-| SQL 执行报错（表已被删/字段类型不兼容等） | 直接展示数据库驱动返回的可读错误信息（已有 `ExceptionUtil.getCausedBy(e, SQLException.class)` 模式可复用） | 复用 `queryInfo/exec` 现成的错误提取逻辑 |
+| 数据源类型当前不在可用连接器清单（未启用对应扩展包，或历史数据源的类型被降级） | 数据源类型 Select 里根本不出现该选项；已存在数据源的「预览数据」菜单项静默不出现 | **否**——建模者到达"点了却没用"这一步之前，选项已经从 UI 里消失 |
+| （防御性，理论上核心层不该发生）驱动类解析在运行期意外失败 | Drawer 内联终态文案「该数据源当前不可用于预览」+「关闭」；服务端记错误日志供运维排查 | **否**——不引导用户自己填驱动类名/找驱动/联系任何人立刻解决，运维会从日志侧发现并修复镜像/部署配置 |
+| 方言探测失败（分页插件拿不到连接元数据，比如连接池代理类不透明） | 无感知：服务端兜底降级为固定 `LIMIT 100` 硬拼接，不透传给用户 | 否 |
+| 查询超时（当前全线路零 `setQueryTimeout` 调用，必须补） | 「预览超时，可能是数据量较大或数据源响应较慢」+「重试」 | 否——重试是继续尝试同一动作，不是要求补充新信息 |
+| 连接失败（网络不通/账密错误/权限不足） | 直接展示数据库驱动返回的可读错误信息，不暴露堆栈 | 边界情况：这类失败提示用户"数据源设置里的账密/网络可能不对"，但这是**连接**问题不是**驱动**问题——账密/host 本来就是数据源设置里用户自己填、随时可编辑的常规字段，不是本轮新增的阻塞点，不违反约束 2 |
+| SQL 执行报错（表已被删/字段类型不兼容等） | 直接展示数据库驱动返回的可读错误信息（复用 `ExceptionUtil.getCausedBy(e, SQLException.class)` 模式） | 否 |
 
 ### 6. 分期
 
@@ -178,13 +259,18 @@
 |---|---|---|
 | v0 | 画布/左树表右键「预览数据…」→ Drawer；自动跑方言化 `LIMIT/TOP/FETCH 100`；只读表格；刷新/关闭；失败态文案；`dataSourceId` 现代路径 + `SqlGuard.assertReadOnly` + `JdbcUrlGuard` 复用；服务端超时 + 节流；`QueryHistory` 补 `projectId`/`dataSourceId` 落库审计（不做前端历史面板） | WHERE 输入框、自定义 SQL、排序/筛选、导出、explain、收藏、多表 JOIN、协作可见性、命令面板入口 |
 | v1（视 v0 dogfood 结果决定要不要做） | 命令面板搜表后追加「预览」入口；与 B 层探测（`behind`/`diverged`）的语义提示联动；轻量分页（下一页 100，仍不做 WHERE） | 仍不做：自定义 SQL、导出、收藏、explain、跨数据源对比 |
-| Later（需要重新立项，不是本 ADR 范围） | 若团队强烈诉求"能不能自己写 WHERE"——**应该拒绝**并引导去真正的数据库客户端；若确实要做，需要重新过一遍安全模型（自定义 SQL = 重新打开"用户可控 SQL 执行面"，不是加个输入框那么简单）且需要新的 ADR，不能顺着 v0/v1 自然长出来 | — |
+| Later（需要重新立项，不是本 ADR 范围） | 若团队强烈诉求"能不能自己写 WHERE"——**应该拒绝**并引导去真正的数据库客户端；若确实要做，需要重新过一遍安全模型（自定义 SQL = 重新打开"用户可控 SQL 执行面"，不是加个输入框那么简单）且需要新的 ADR，不能顺着 v0/v1 自然长出来；同理，第一个具体的 §5.9「扩展包」（如 DB2/ClickHouse）需要真实需求出现才立项实现，本 ADR 只定架构，不预先做任何一个 | — |
 
 ## 后果
 
 - 正：右键"预览数据"能低成本回答"我建的模型跟真实数据对不对得上"，减少建模中途因不确定而放弃的摩擦；复用现成的 `SqlGuard`/`JdbcUrlGuard`/`ConnectorCredentialResolver`/MP 分页插件，几乎不新增安全面
 - 正：命名与范围双重收紧（"预览"而非"查询"，无 WHERE/无自定义 SQL），从产品设计上排除了"变成第二个查询台"的路径依赖
+- 正（本轮修订）：驱动模型从"4 库封顶"改为"系统驱动 + 官方连接器包 + 扩展连接器包"三层，为未来新库类型留了不推倒重来的路径，同时因为拒绝运行时上传 jar，**没有**为此新增任何 RCE 攻击面——不封顶、不阻塞建模者两条约束同时满足，且互不冲突
+- 正（本轮修订）：Oracle 再分发许可已核实清楚（FUTC，Maven Central 元数据确认），排除了"Oracle 驱动打进默认镜像有许可风险"的悬而未决；`db2.connector.version`/`com.ibm.db2:jcc` 死依赖随本轮直接从 `pom.xml` 删除
+- 正（本轮修订）：已用 grep 核实全仓 `backend/src/main/java` 零编译期引用用户数据源驱动的 Java 类（纯 `Class.forName(driverClassName)` 反射加载）——这条事实使"把 PostgreSQL/Oracle/SQL Server 移出 `backend` 模块 compile/runtime scope"在技术上是安全的重构，不会牵连业务代码；`pom.xml` 已加注释标注目标状态，实际的 Maven 分模块 + Docker 多阶段构建改造是独立的后续实现工作项（§5.2a），本轮不做，不影响任何现有行为
 - 负：`QueryHistory` 需要补列迁移（Flyway）；新增服务端超时/节流是当前遗留路径缺失的能力，需要新写而非复用
+- 负（本轮修订）：`data_sources.driverClassName` 目前允许用户覆盖（`DatabaseConfigForm.tsx`），与"系统驱动/官方连接器包四型不该让用户碰驱动类名"这一目标状态有张力，需要一次后续改动把它收紧为按 `type` 派生只读展示——本 ADR 记录方向，落地时机由排期决定，不在本轮内改代码
+- 负（本轮修订）：§5.2a 迁移路径本身是一次不小的构建链改造（Maven 分模块或 profile + Docker 多阶段 + CI 完整性检查），有真实实现成本；本 ADR 只定方向和验证断言，排期时应作为独立工作项估时，不要和"预览"功能的 v0 实施捆绑成同一个不可拆分的任务
 - 负：这是一个北极星支撑性功能而非杠杆功能，若排期时误判优先级会挤占直接服务"版本保存"的切片时间——本 ADR 建议排期时明确标为低于任何 P3 版本工作流/协作类切片
 - 遗留 `QueryInfoController`/`SqlGuard.assertReadOnly` 现有代码：已核实全仓仅 `QueryInfoServiceImpl` 调用 `assertReadOnly`，审批/工单模块的「查看 SQL」明细走的是纯文本展示，不经过这条执行路径——预览功能落地后，遗留 `@Dynamic` 路径可整体下线（Controller/ServiceImpl/Mapper 一起清），另开一次 `delete-dead-code` PR，不在本 ADR 内处理
 

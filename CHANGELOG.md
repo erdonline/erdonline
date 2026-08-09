@@ -21,6 +21,14 @@
   - `mvn -q test -Dtest=DbChangeServiceImplDeleteAllTest,DbChangeServiceImplDuplicateTest,DbChangeServiceImplTagTest`（后端）✅
   - `mvn -q compile`（后端）✅
 
+#### ADR-0029 三次修订：驱动管理改为「系统驱动 + 官方连接器包 + 扩展连接器包」，不阻塞建模者、backend 编译产物瘦身
+
+- **背景（用户三条反馈依次推翻初版）**：① 编译期四库 Maven 依赖不能是数据库类型/版本的永久天花板；② 任何扩展机制都不得让建模者在使用中被要求补齐驱动 jar/驱动类名/联系管理员才能继续；③ `backend` 模块自身编译/运行期 scope 只应含应用自举所需驱动，用户数据源连接器不该算进去
+- **新决策（三层模型）**：系统驱动（MySQL/MariaDB，应用自举必需，永久编译期依赖）+ 官方连接器包（PostgreSQL/Oracle/SQL Server，day-1 支持，目标状态移出 `backend` 编译 scope、仅在镜像构建阶段合并进默认发布镜像）+ 扩展连接器包（未来新库类型，独立模块，只在部署期通过备选镜像 tag / 挂载目录加载，从不在运行期上传）；不可用类型在数据源类型 Select 与「预览数据」菜单里直接不出现，不是出现了再报错
+- **已核实**：① Oracle `ojdbc8` 现行版本 Maven Central 元数据确认为 Oracle Free Use Terms and Conditions（FUTC），允许免费再分发，打入官方连接器包无许可问题；② 全仓 `backend/src/main/java` 零编译期引用用户数据源驱动的 Java 类（`JdbcKit`/`AbstractDBCommand` 均为 `Class.forName(driverClassName)` 反射加载），证明把 PG/Oracle/SQLServer 移出 compile scope 不会破坏编译，是技术上安全的重构
+- **顺手清理**：`pom.xml` 移除全仓零使用的 `com.ibm.db2:jcc` 死依赖 + `db2.connector.version` 属性；PG/Oracle/SQLServer 依赖旁加注释标注目标状态（未拆模块，Maven 分模块 + Docker 多阶段构建改造记为独立后续实现工作项，§5.2a）
+- 验证点：`cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q compile` 通过（DB2 依赖移除、pom 注释均未破坏编译）；`docs/adr/0029-designer-readonly-query.md` §5 全量重写（三次修订记录 + 迁移路径 §5.2a）；`docs/deployment.md`/`docs/security-model.md` 同步三层模型措辞
+
 #### 导航：「ERD Online 论坛」→「社区」
 
 - **文案**：HomeLayout / GroupLayout 侧栏外链菜单与落地页 footer 统一为「社区」（en：`Community`）；链接仍为 GitHub Issues

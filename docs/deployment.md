@@ -563,6 +563,20 @@ martin:
 
 未配置时：`gendocx` / `downloadWordTemplate` 降级走内置模板；`uploadWordTemplate` 返回明确错误（提示配置 MinIO），不再 NPE。
 
+### 数据库连接驱动（系统驱动 + 官方连接器包 + 扩展连接器包，ADR-0029）
+
+默认镜像**内置** MySQL/MariaDB、PostgreSQL、Oracle、SQL Server 四种驱动，`docker compose up -d` 拉起即可用，不需要任何额外配置——这四型与设计器里逆向解析/同步/在线预览的支持面完全一致。四型内部分两类（对使用者无感知，仅维护者构建产物治理用）：
+
+- **系统驱动**：MySQL/MariaDB——应用自举必需（连接自身 `erd`/`martin` 系统库），永久打入 `backend` 模块本身
+- **官方连接器包**：PostgreSQL、Oracle、SQL Server——服务用户数据源；目标状态是从 `backend` 模块编译依赖中移出，只在**镜像构建阶段**合并进默认发布镜像，与 `backend` 应用本体解耦（迁移未完成前，现状仍随 `backend` 一起编译，行为对使用者无差异）
+
+未来若要接入这四型以外的库类型（DB2、ClickHouse 等**扩展连接器包**），走**部署时**二选一，均由运维在起栈前决定，**不会**出现"运行中要求终端用户上传驱动/填驱动类名才能继续"的情况：
+
+- 切换到包含该扩展包的备选镜像 tag（若已发布），或
+- 自行构建镜像时把驱动 jar 编译进对应可选模块
+
+尚未发布任何扩展连接器包（当前只有默认镜像四型）；三层模型的安全与许可评估见 [ADR-0029](./adr/0029-designer-readonly-query.md)「驱动管理」章节。
+
 ## 生产建议
 
 - 修改 `.env` 中所有默认密码（含 `admin`）；`prod` 即使未改密也会拒绝 `admin`/`123456` 登录（`erd.security.allow-demo-admin=false`）

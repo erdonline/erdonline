@@ -31,6 +31,8 @@
 
 FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 `dataSourceId`，客户端不附带 url/username/password（`preferDataSourceIdPayload`）。无 id 的 raw JDBC **仅**留给 ping / dbReverse*（试连与新建未保存 UX）；sqlexec/dbsync 后端硬拒。
 
+**JDBC 驱动来源**：仅默认发布镜像内置的四型（MySQL/MariaDB、PostgreSQL、Oracle、SQL Server）——MySQL 是应用自举必需的系统驱动，其余三型是官方连接器包（目标状态与 `backend` 应用本体的编译依赖解耦，只在镜像构建阶段合并，行为对使用者无差异）；**不存在**任何运行时上传驱动 jar 的接口（管理员角色也没有）——未来新库类型走部署期镜像 tag / 挂载目录扩展，详见 [ADR-0029](./adr/0029-designer-readonly-query.md)「驱动管理」章节。这是刻意的架构选择，不是待补的功能缺口：拒绝上传入口直接消灭了"任意 jar = RCE"这类攻击面，不需要额外签名/沙箱机制来兜底。
+
 ## 匿名放行（前缀剥离后路径）
 
 - 登录/退出：`/login`、`/auth/login`、`/exit`
