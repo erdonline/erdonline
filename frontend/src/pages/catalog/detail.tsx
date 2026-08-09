@@ -204,9 +204,18 @@ export default function CatalogDetailPage() {
       </Button>
       <Card>
         <Space direction="vertical" size={12} style={{width: '100%'}}>
-          <Title level={2} className="catalog-page__title" style={{margin: 0}}>
-            {detail.title}
-          </Title>
+          <div className="catalog-detail__header">
+            <Title level={2} className="catalog-page__title" style={{margin: 0}}>
+              {detail.title}
+            </Title>
+            <Link
+              to={`/catalog/creator/${detail.authorHandle}`}
+              className="catalog-detail__author"
+              data-testid="catalog-detail-author"
+            >
+              {detail.authorDisplayName || detail.authorHandle}
+            </Link>
+          </div>
           <Space wrap className="catalog-detail__meta">
             {(detail.tags ?? []).map((tag) => (
               <Tag key={tag}>{tag}</Tag>
@@ -218,9 +227,6 @@ export default function CatalogDetailPage() {
             <Text type="secondary" data-testid="catalog-rating-count">
               ({detail.ratingCount} 人评分)
             </Text>
-            <Link to={`/catalog/creator/${detail.authorHandle}`}>
-              {detail.authorDisplayName || detail.authorHandle}
-            </Link>
           </Space>
           <div className="catalog-detail__action-bar" data-testid="catalog-detail-action-bar">
             <Space wrap className="catalog-detail__actions">

@@ -245,6 +245,26 @@
     color: #9eb0c0 !important;
   }
 
+  .catalog-detail__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px 16px;
+    margin-bottom: 4px;
+  }
+
+  .catalog-detail__author {
+    flex-shrink: 0;
+    margin-top: 0.35em;
+    font-size: 0.9rem;
+    color: #9eb0c0 !important;
+    text-decoration: none;
+
+    &:hover {
+      color: var(--erd-brand) !important;
+    }
+  }
+
   .catalog-detail__meta {
     margin-bottom: 12px;
   }
