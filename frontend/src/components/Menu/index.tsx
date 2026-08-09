@@ -6,6 +6,7 @@ import ReversePdMan from "@/components/dialog/import/ReversePdMan";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
 import ExportJson from "@/components/dialog/export/ExportJson";
 import DatabaseSetUp from "@/components/dialog/setup/DatabaseSetUp";
+import DatabaseTemplatesModal from "@/components/dialog/setup/DatabaseTemplatesModal";
 import DefaultSetUp from "@/components/dialog/setup/DefaultSetUp";
 import ExportHTML from "@/components/dialog/export/ExportHTML";
 import ExportWord from "@/components/dialog/export/ExportWord";
@@ -35,6 +36,7 @@ type DialogKey =
   | 'export-ddl'
   | 'export-dbml'
   | 'setup-db'
+  | 'setup-ddl-templates'
   | 'setup-default'
   | 'publish-template';
 
@@ -273,6 +275,11 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
             onClick: () => openDialog('setup-db'),
           },
           {
+            key: 'setup-ddl-templates',
+            label: <span data-testid="project-menu-ddl-templates">DDL 模板</span>,
+            onClick: () => openDialog('setup-ddl-templates'),
+          },
+          {
             key: 'setup-default',
             label: '默认项设置',
             onClick: () => openDialog('setup-default'),
@@ -353,6 +360,13 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       <DatabaseSetUp
         hideTrigger
         open={dialog === 'setup-db'}
+        onOpenChange={(o) => {
+          if (!o) closeDialog();
+        }}
+      />
+      <DatabaseTemplatesModal
+        hideTrigger
+        open={dialog === 'setup-ddl-templates'}
         onOpenChange={(o) => {
           if (!o) closeDialog();
         }}

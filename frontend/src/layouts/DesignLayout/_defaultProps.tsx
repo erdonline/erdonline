@@ -87,12 +87,6 @@ export const secondaryRoutes = [
         access: 'canErdTableSettingDefaultfield',
       },
       {
-        path: '/design/table/setting/databaseTemplates',
-        nameKey: 'designLayout.route.databaseTemplates',
-        icon: <DatabaseFilled style={brandIcon()} />,
-        access: 'canErdTableSettingDefaultfield',
-      },
-      {
         path: '/design/table/setting/default',
         nameKey: 'designLayout.route.systemDefaults',
         icon: <ControlOutlined style={brandIcon()} />,

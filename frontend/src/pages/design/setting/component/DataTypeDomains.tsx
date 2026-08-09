@@ -1,5 +1,7 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Empty, Form, Input, Modal, Radio, Space, Table } from 'antd';
+import { history } from '@@/exports';
+import DatabaseTemplatesModal from '@/components/dialog/setup/DatabaseTemplatesModal';
 import type { ColumnsType } from 'antd/es/table';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -87,7 +89,19 @@ const DataTypeDomains: React.FC = () => {
   const [editing, setEditing] = useState<DataTypeRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [modalDialects, setModalDialects] = useState<string[]>([]);
+  const [ddlTemplatesOpen, setDdlTemplatesOpen] = useState(false);
   const kindWatch = Form.useWatch('kind', form);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('openDdlTemplates') !== '1') {
+      return;
+    }
+    setDdlTemplatesOpen(true);
+    params.delete('openDdlTemplates');
+    const next = params.toString();
+    history.replace(`${window.location.pathname}${next ? `?${next}` : ''}`);
+  }, []);
 
   const databaseDialectCodes = useMemo(() => {
     const codes: string[] = [];
@@ -313,25 +327,43 @@ const DataTypeDomains: React.FC = () => {
     },
   ];
 
+  const ddlTemplatesButton = (
+    <Button
+      size="small"
+      aria-label="编辑 DDL 模板"
+      data-testid="datatype-open-ddl-templates"
+      onClick={() => setDdlTemplatesOpen(true)}
+    >
+      DDL 模板
+    </Button>
+  );
+
   const toolbar = (
     <div className="setting-common-page__toolbar">
-      <Button
-        type="primary"
-        size="small"
-        aria-label="新增字段类型"
-        data-testid="datatype-add"
-        onClick={() => openCreate('logic')}
-      >
-        新增字段类型
-      </Button>
-      <Button
-        size="small"
-        aria-label="新增枚举"
-        data-testid="datatype-add-enum"
-        onClick={() => openCreate('enum')}
-      >
-        新增枚举
-      </Button>
+      <Space wrap size={8}>
+        {ddlTemplatesButton}
+        {datatype.length > 0 ? (
+          <>
+            <Button
+              type="primary"
+              size="small"
+              aria-label="新增字段类型"
+              data-testid="datatype-add"
+              onClick={() => openCreate('logic')}
+            >
+              新增字段类型
+            </Button>
+            <Button
+              size="small"
+              aria-label="新增枚举"
+              data-testid="datatype-add-enum"
+              onClick={() => openCreate('enum')}
+            >
+              新增枚举
+            </Button>
+          </>
+        ) : null}
+      </Space>
     </div>
   );
 
@@ -339,9 +371,10 @@ const DataTypeDomains: React.FC = () => {
     <div className="setting-common-page" data-testid="datatype-domains-page">
       <h2 className="setting-common-page__title">数据类型字典</h2>
       <p className="setting-common-page__hint">
-        逻辑类型映射各库方言；枚举写入 kind=enum + values[]，供 DBML / DDL 往返。新建/编辑/删除仅保存成功后生效
+        逻辑类型映射各库方言；枚举写入 kind=enum + values[]，供 DBML / DDL 往返。新建/编辑/删除仅保存成功后生效。DDL
+        模板在本页弹窗编辑，无需跳转
       </p>
-      {datatype.length > 0 ? toolbar : null}
+      {toolbar}
       {datatype.length === 0 ? (
         <div
           className="setting-common-page__empty"
@@ -638,6 +671,11 @@ const DataTypeDomains: React.FC = () => {
           )}
         </Form>
       </Modal>
+      <DatabaseTemplatesModal
+        hideTrigger
+        open={ddlTemplatesOpen}
+        onOpenChange={setDdlTemplatesOpen}
+      />
     </div>
   );
 };
