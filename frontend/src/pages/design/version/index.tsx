@@ -272,7 +272,7 @@ const Version: React.FC = () => {
         <RemoveVersion />
       </Access>,
       <CopyProject key="copy" projectJSON={row.projectJSON} />,
-      <RevertVersion key="revert" synced={unsynced || bookmarkUnknown} />,
+      <RevertVersion key="revert" />,
       <Access
         key="sync"
         accessible={access.canErdConnectorDbsync}

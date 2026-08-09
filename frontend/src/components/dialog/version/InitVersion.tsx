@@ -23,10 +23,12 @@ type FormValues = {
 
 const InitVersion: React.FC<InitVersionProps> = () => {
   const intl = useIntl();
-  const {hasDB, init, versionDispatch} = useVersionStore(
+  const {hasDB, init, pageSize, fetch, versionDispatch} = useVersionStore(
     (state) => ({
       hasDB: state.hasDB,
       init: state.init,
+      pageSize: state.pageSize,
+      fetch: state.fetch,
       versionDispatch: state.dispatch,
     }),
     shallow,
@@ -72,12 +74,9 @@ const InitVersion: React.FC<InitVersionProps> = () => {
       const res = await Save.hisProjectSave(version);
       if (handleVersionSaveResponse(res)) {
         message.success(fmt('versionModal.initVersion.success'));
-        versionDispatch.getVersionMessage(res.data, true);
-        versionDispatch.setState({
-          changes: [],
-          init: false,
-          versions: res.data,
-        });
+        // res.data 是后端字面量提示（如「保存成功」），不是版本记录：
+        // 必须用 fetch 从服务端拉权威列表，禁止把该字符串塞进 versions/changes 状态。
+        await fetch(currentDBData, 1, pageSize);
         versionDispatch.dropVersionTable();
         setOpen(false);
         return;

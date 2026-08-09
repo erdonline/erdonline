@@ -98,6 +98,12 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         wrapper.eq(DbChange::getProjectId, dbChange.getProjectId());
         wrapper.eq(DbChange::getDbKey, dbChange.getDbKey());
         int delete = this.baseMapper.delete(wrapper);
+        // 与 deleteHistory 保持一致：清掉该 project+dbKey 下全部推送书签，
+        // 否则重建基线后旧书签残留，「已推送/未推送」标签会拿旧版本号比较新基线，误判。
+        QueryWrapper<DbVersion> versionWrapper = new QueryWrapper<>();
+        versionWrapper.eq("project_id", dbChange.getProjectId());
+        versionWrapper.eq("db_key", dbChange.getDbKey());
+        dbVersionService.remove(versionWrapper);
         return R.ok(delete);
     }
 

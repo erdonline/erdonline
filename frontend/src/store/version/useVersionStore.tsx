@@ -53,7 +53,6 @@ export type IVersionSlice = {
   compareIndexs: (currentTable: any, checkTable: any) => any;
   compareIndex: (currentIndex: any, checkIndex: any, table: any) => any;
   compareStringArray: (currentFields: any, checkFields: any, title: any, name: any) => any;
-  setState: (value: any) => void;
   getCurrentDB: () => any;
   getCurrentDBData: () => any;
   dropVersionTable: () => void;
@@ -68,7 +67,7 @@ export type IVersionSlice = {
   generateSQL: (dbData: any, version: any, data: any, updateVersion: any, cb?: any, onlyUpdateVersion?: any) => void;
   getCMD: (updateVersion: any, onlyUpdateVersion: any) => any;
   connectJDBC: (param: any, opt: any, cb: any) => void;
-  updateVersionData: (newVersion: any, oldVersion: any, status: any) => void;
+  updateVersionData: (newVersion: any, oldVersion: any, status: any) => Promise<void>;
   /** 回滚到历史快照：仅 saveProject code===200 写 store + 成功 toast；失败不写 store */
   revertVersionData: () => Promise<boolean>;
   readDb: (status: any, version: any, lastVersion: any, changes: any, initVersion: any, updateVersion: any) => void;
@@ -439,9 +438,6 @@ const useVersionStore = create<VersionState>(
             .sort((a: any, b: any) => compareStringVersionForSort(b.version, a.version, true)),
         });
       },
-      setState: (value: any) => {
-        _.assign(get(), value);
-      },
       getCurrentDB: () => {
         const db = get().dispatch.getCurrentDBData();
         if (db) {
@@ -799,10 +795,14 @@ const useVersionStore = create<VersionState>(
           );
         });
       },
-      updateVersionData: (newVersion: any, oldVersion: any, status: any) => {
+      updateVersionData: async (newVersion: any, oldVersion: any, status: any) => {
+        // 必须 await 落盘请求后才能重拉列表：并发发起 fetch 会与 save/delete 竞态，
+        // 若 fetch 先于服务端事务提交返回，会用陈旧列表覆盖本地已摘除/已更新的乐观态，
+        // 表现为「删除/重命名成功 toast 弹了，但该行仍在列表里」。
         if (status === 'update') {
           const dbData = get().dispatch.getCurrentDBData();
-          Save.hisProjectSave({...newVersion, dbKey: dbData.key}).then((res) => {
+          try {
+            const res = await Save.hisProjectSave({...newVersion, dbKey: dbData.key});
             if (res.code === 200) {
               message.success(appFormat()('versionStore.update.success'));
               set({
@@ -818,14 +818,15 @@ const useVersionStore = create<VersionState>(
                 res?.msg || res?.message || appFormat()('versionStore.update.failed'),
               );
             }
-          }).catch((err) => {
+          } catch (err: any) {
             message.error(
               appFormat()('versionStore.update.failedWithDetail', { detail: err.message }),
             );
-          });
+          }
         } else {
           // 删除原来的
-            Save.hisProjectDelete(newVersion.id).then((res) => {
+          try {
+            const res = await Save.hisProjectDelete(newVersion.id);
             if (res.code === 200) {
               message.success(appFormat()('versionStore.delete.success'));
               const tempVersions = get().versions.filter((v: any) => v.id !== newVersion.id);
@@ -833,17 +834,16 @@ const useVersionStore = create<VersionState>(
               // 删版本后基线可能变化：重新独立查询（勿把 Promise 塞进 changes）
               get().dispatch.calcChanges();
               get().dispatch.checkBaseVersion(null);
-              return;
             }
             // 业务失败：request 已 toast；勿伪装成功
-          }).catch((err) => {
+          } catch (err: any) {
             message.error(
               appFormat()('versionStore.delete.failedWithDetail', { detail: err.message }),
             );
             get().dispatch.checkBaseVersion(null);
-          });
+          }
         }
-        get().fetch(null,get().currentPage,get().pageSize);
+        await get().fetch(null, get().currentPage, get().pageSize);
       },
       revertVersionData: async (): Promise<boolean> => {
         const ver = get()?.currentVersion;
