@@ -97,4 +97,12 @@ public interface DbChangeService extends MartinService<DbChange> {
      *             差异化模板需 {@code baselineProjectJSON} 与 {@code changes}
      */
     R generateTableDdl(Map<String, Object> body);
+
+    /**
+     * DDL 模板编辑器预览：用样例实体渲染当前草稿模板。
+     *
+     * @param body {@code dialectCode}、{@code templateKey} 必填；{@code databaseRow} 草稿方言行；
+     *             {@code projectJSON} 可选（取 sqlConfig 分隔符）
+     */
+    R previewDdlTemplate(Map<String, Object> body);
 }

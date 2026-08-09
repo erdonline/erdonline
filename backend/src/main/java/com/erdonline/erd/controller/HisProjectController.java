@@ -107,4 +107,14 @@ public class HisProjectController {
     public R tableDdl(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
         return dbChangeService.generateTableDdl(body);
     }
+
+    @ApiOperation(value = "DDL 模板草稿预览（后端 Freemarker）", nickname = "previewDdlTemplate",
+            notes = "模板编辑器右侧预览窗；样例实体 T_SAMPLE",
+            tags = {"dbChange",})
+    @RequireProjectAccess
+    @PostMapping("/hisProject/previewDdlTemplate")
+    @MartinLog("DDL 模板预览")
+    public R previewDdlTemplate(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
+        return dbChangeService.previewDdlTemplate(body);
+    }
 }

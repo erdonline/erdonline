@@ -1,16 +1,18 @@
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Button,
   Checkbox,
   Empty,
-  Radio,
   Select,
   Space,
+  Tabs,
   message,
 } from 'antd';
+import _ from 'lodash';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
+import { fetchPreviewDdlTemplate } from '@/utils/ddlExportApi';
 import {
   DDL_TEMPLATE_KEYS,
   DDL_TEMPLATE_LABELS,
@@ -19,6 +21,7 @@ import {
   isSqlDialect,
 } from '@/utils/ddlTemplateKeys';
 import './setting-common.scss';
+import './database-templates.scss';
 
 type DatabaseRow = {
   code?: string;
@@ -32,12 +35,17 @@ export type DatabaseTemplatesEditorProps = {
   compact?: boolean;
 };
 
+const PREVIEW_DEBOUNCE_MS = 400;
+const EDITOR_HEIGHT_COMPACT = '280px';
+const EDITOR_HEIGHT_FULL = '360px';
+
 const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   compact = false,
 }) => {
-  const { projectDispatch, database } = useProjectStore(
+  const { projectDispatch, projectJSON, database } = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
+      projectJSON: state.project?.projectJSON as Record<string, unknown> | undefined,
       database: (state.project?.projectJSON?.dataTypeDomains?.database ||
         []) as DatabaseRow[],
     }),
@@ -55,6 +63,10 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   const [templateKey, setTemplateKey] = useState<DdlTemplateKey>('createTableTemplate');
   const [draft, setDraft] = useState<DatabaseRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [previewSql, setPreviewSql] = useState('');
+  const [previewLoading, setPreviewLoading] = useState(false);
+  const [previewError, setPreviewError] = useState<string | null>(null);
+  const previewSeqRef = useRef(0);
 
   const activeCode = selectedCode ?? sqlDialects[0]?.code;
   const storedRow = useMemo(
@@ -63,6 +75,18 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   );
 
   const workingRow = draft ?? storedRow ?? null;
+  const editorHeight = compact ? EDITOR_HEIGHT_COMPACT : EDITOR_HEIGHT_FULL;
+
+  useEffect(() => {
+    if (!activeCode) {
+      return;
+    }
+    const stillValid = sqlDialects.some((d) => d.code === activeCode);
+    if (!stillValid && sqlDialects[0]?.code) {
+      setSelectedCode(sqlDialects[0].code);
+      setDraft(null);
+    }
+  }, [sqlDialects, activeCode]);
 
   useEffect(() => {
     if (draft == null && storedRow) {
@@ -128,6 +152,75 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     storedRow != null &&
     JSON.stringify(draft) !== JSON.stringify(storedRow);
 
+  const refreshPreview = useMemo(
+    () =>
+      _.debounce(
+        async (
+          dialectCode: string | undefined,
+          key: DdlTemplateKey,
+          row: DatabaseRow | null,
+          pj: Record<string, unknown> | undefined,
+        ) => {
+          if (!dialectCode || !row) {
+            setPreviewSql('');
+            setPreviewError(null);
+            setPreviewLoading(false);
+            return;
+          }
+          const seq = ++previewSeqRef.current;
+          setPreviewLoading(true);
+          setPreviewError(null);
+          try {
+            const { sql } = await fetchPreviewDdlTemplate({
+              projectJSON: pj,
+              dialectCode,
+              templateKey: key,
+              databaseRow: row as Record<string, unknown>,
+            });
+            if (seq !== previewSeqRef.current) {
+              return;
+            }
+            setPreviewSql(sql);
+          } catch (err) {
+            if (seq !== previewSeqRef.current) {
+              return;
+            }
+            setPreviewSql('');
+            setPreviewError(err instanceof Error ? err.message : '预览失败');
+          } finally {
+            if (seq === previewSeqRef.current) {
+              setPreviewLoading(false);
+            }
+          }
+        },
+        PREVIEW_DEBOUNCE_MS,
+      ),
+    [],
+  );
+
+  useEffect(() => {
+    refreshPreview(activeCode, templateKey, workingRow, projectJSON);
+    return () => {
+      refreshPreview.cancel();
+    };
+  }, [activeCode, templateKey, workingRow, projectJSON, refreshPreview, templateValue]);
+
+  useEffect(
+    () => () => {
+      refreshPreview.cancel();
+    },
+    [refreshPreview],
+  );
+
+  const templateTabItems = useMemo(
+    () =>
+      DDL_TEMPLATE_KEYS.map((key) => ({
+        key,
+        label: DDL_TEMPLATE_LABELS[key],
+      })),
+    [],
+  );
+
   if (sqlDialects.length === 0) {
     return (
       <div data-testid="database-templates-empty">
@@ -140,12 +233,13 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   }
 
   return (
-    <div data-testid="database-templates-editor">
-      <p className="setting-common-page__hint" style={{ marginBottom: 12 }}>
-        编辑各库方言 DDL 模板；保存后版本对比、导出与元数据应用均由后端 Freemarker 渲染。自定义模板优先于
-        classpath 官方种子
+    <div className="database-templates-editor" data-testid="database-templates-editor">
+      <p className="setting-common-page__hint" style={{ marginBottom: 0 }}>
+        编辑各库方言 DDL 模板；保存后版本对比、导出与元数据应用均由后端 Freemarker 渲染。右侧预览基于样例表
+        T_SAMPLE 实时渲染当前草稿（无需先保存）。
       </p>
-      <div className="setting-common-page__toolbar" style={{ marginBottom: 12 }}>
+
+      <div className="database-templates-editor__toolbar setting-common-page__toolbar">
         <Space wrap size={12}>
           <Select
             aria-label="选择库方言"
@@ -199,28 +293,64 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
         </Space>
       </div>
 
-      <Radio.Group
+      <Tabs
         aria-label="DDL 模板类型"
         data-testid="database-templates-tab"
-        optionType="button"
-        buttonStyle="solid"
+        className="database-templates-editor__tabs"
         size="small"
-        value={templateKey}
-        style={{ marginBottom: 12, display: 'flex', flexWrap: 'wrap', gap: 4 }}
-        options={DDL_TEMPLATE_KEYS.map((key) => ({
-          label: DDL_TEMPLATE_LABELS[key],
-          value: key,
-        }))}
-        onChange={(e) => setTemplateKey(e.target.value as DdlTemplateKey)}
+        type="card"
+        activeKey={templateKey}
+        items={templateTabItems}
+        onChange={(key) => setTemplateKey(key as DdlTemplateKey)}
       />
 
-      <div data-testid={`database-templates-editor-${templateKey}`}>
-        <CodeEditor
-          mode={editorMode}
-          height={compact ? '360px' : '420px'}
-          value={templateValue}
-          onChange={(value: string) => handleTemplateTextChange(value)}
-        />
+      <div className="database-templates-editor__panes">
+        <div
+          className="database-templates-editor__pane"
+          data-testid={`database-templates-editor-${templateKey}`}
+        >
+          <p className="database-templates-editor__pane-label">模板源码</p>
+          <CodeEditor
+            mode={editorMode}
+            height={editorHeight}
+            value={templateValue}
+            onChange={(value: string) => handleTemplateTextChange(value)}
+          />
+        </div>
+
+        <div
+          className="database-templates-editor__pane"
+          data-testid="database-templates-preview"
+        >
+          <p className="database-templates-editor__pane-label">渲染预览</p>
+          <p className="database-templates-editor__pane-hint">
+            样例：T_SAMPLE / EMAIL 等；切换方言或模板类型后自动刷新
+          </p>
+          {previewLoading ? (
+            <div
+              className="database-templates-editor__preview-loading"
+              data-testid="database-templates-preview-loading"
+            >
+              正在渲染预览…
+            </div>
+          ) : null}
+          {previewError ? (
+            <div
+              className="database-templates-editor__preview-error"
+              data-testid="database-templates-preview-error"
+            >
+              {previewError}
+            </div>
+          ) : null}
+          <div data-testid="database-templates-preview-sql">
+            <CodeEditor
+              mode={editorMode}
+              height={editorHeight}
+              readOnly
+              value={previewLoading && !previewSql ? '' : previewSql}
+            />
+          </div>
+        </div>
       </div>
     </div>
   );

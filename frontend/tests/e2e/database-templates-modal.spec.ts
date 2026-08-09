@@ -32,6 +32,19 @@ test.describe('DDL 模板弹窗', () => {
       });
       await expect(page.getByTestId('database-templates-dialect')).toBeVisible();
       await expect(page.getByTestId('database-templates-tab')).toBeVisible();
+      await expect(page.getByTestId('database-templates-preview')).toBeVisible();
+
+      const dialectSelect = page.getByTestId('database-templates-dialect');
+      await expect(dialectSelect).toContainText('MYSQL');
+
+      await expect(page.getByTestId('database-templates-preview-sql')).toBeVisible();
+      await expect(page.getByTestId('database-templates-preview-loading')).toBeHidden({
+        timeout: 15_000,
+      });
+      await expect(page.getByTestId('database-templates-preview-sql')).toContainText(
+        'CREATE TABLE',
+        { timeout: 5_000 },
+      );
 
       await page.getByRole('button', { name: '关闭 DDL 模板' }).click();
       await expect(page.getByTestId('database-templates-editor')).toBeHidden({

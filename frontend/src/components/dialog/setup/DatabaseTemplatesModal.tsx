@@ -52,8 +52,8 @@ const DatabaseTemplatesModal: React.FC<DatabaseTemplatesModalProps> = ({
         open={open}
         onCancel={closeModal}
         destroyOnClose
-        width={960}
-        className="erd-io-modal"
+        width={1120}
+        className="erd-io-modal erd-ddl-templates-modal"
         rootClassName="erd-io-modal-root"
         keyboard
         focusTriggerAfterClose

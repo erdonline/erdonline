@@ -15,6 +15,8 @@ import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import com.erdonline.erd.util.Json2CodeFullDdlEngine;
+import com.erdonline.erd.util.DdlTemplateException;
+import com.erdonline.erd.util.DdlTemplatePreviewEngine;
 import com.erdonline.erd.util.Json2CodeTableDdlEngine;
 import com.erdonline.erd.util.ProjectJsonKeys;
 import com.erdonline.erd.util.ProjectJsonSupport;
@@ -344,6 +346,46 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         Map<String, Object> result = new HashMap<>();
         result.put("sql", sql);
         return R.ok(result);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public R previewDdlTemplate(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "";
+        String templateKey = body.get("templateKey") != null
+                ? String.valueOf(body.get("templateKey"))
+                : "";
+        if (dialectCode.isBlank()) {
+            return R.failed("dialectCode 为必填");
+        }
+        if (templateKey.isBlank()) {
+            return R.failed("templateKey 为必填");
+        }
+
+        Map<String, Object> projectJSON = Map.of();
+        Object projectJSONRaw = body.get("projectJSON");
+        if (projectJSONRaw instanceof Map<?, ?> pj) {
+            projectJSON = (Map<String, Object>) pj;
+        }
+
+        Map<String, Object> databaseRow = Map.of();
+        Object databaseRowRaw = body.get("databaseRow");
+        if (databaseRowRaw instanceof Map<?, ?> row) {
+            databaseRow = (Map<String, Object>) row;
+        }
+
+        try {
+            String sql = DdlTemplatePreviewEngine.preview(
+                    projectJSON, dialectCode, templateKey, databaseRow);
+            return R.ok(Map.of("sql", sql));
+        } catch (DdlTemplateException e) {
+            return R.failed("模板渲染失败: " + e.getMessage());
+        }
     }
 
     private static List<String> parseStringList(Object raw) {

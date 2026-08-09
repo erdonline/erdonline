@@ -34,11 +34,7 @@ export function isSqlDialect(code: string | undefined): boolean {
   if (!code) {
     return false;
   }
-  const upper = code.toUpperCase();
-  if (upper === 'JAVA') {
-    return false;
-  }
-  return upper.includes('SQL') || upper === 'MYSQL' || upper === 'ORACLE' || upper === 'POSTGRESQL';
+  return code.toUpperCase() !== 'JAVA';
 }
 
 export function editorModeForDialect(code: string): string {
