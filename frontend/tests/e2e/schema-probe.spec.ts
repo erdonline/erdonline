@@ -68,15 +68,27 @@ async function probeJdbcSetup(
   await clearDataSources(request, token!);
   const dsId = await seedMysqlDs(request, token!, `e2e-probe-${Date.now().toString(36)}`);
   await deleteOwnPersonProjects(page);
+
+  // 进页会自动探库：先挂 mock，避免打真实 JDBC
+  await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
+  await page.route('**/ncnb/connector/schema/probe', async (route) => {
+    await route.fulfill({
+      status: 200,
+      contentType: 'application/json',
+      body: JSON.stringify({
+        code: 200,
+        data: { status: 'SYNCED', fingerprint: 'fp-hydrate', tableCount: 0 },
+      }),
+    });
+  });
+
   await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe');
   await openVersionPage(page);
   await expect(page.getByTestId('status-instrument')).toBeVisible({ timeout: 15_000 });
   const probeCapsule = page.getByTestId('instrument-db');
   await expect(probeCapsule).toBeVisible();
-  await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
-  await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
-  // 未探测不得伪装成已测：可见「DB ·」
-  await expect(probeCapsule).toContainText('DB ·');
+  await expect(probeCapsule).toHaveAttribute('data-probe-status', 'SYNCED', { timeout: 15_000 });
+  await expect(probeCapsule).toContainText('DB ✓');
   return { dsId, probeCapsule };
 }
 
@@ -179,7 +191,7 @@ test.describe('实库探测', () => {
     }
   });
 
-  test('有 JDBC：尚未探测 + mock 五态不伪装一致', async ({ page, request }) => {
+  test('有 JDBC：进页自动探测 + mock 五态可再点切换', async ({ page, request }) => {
     test.setTimeout(120_000);
     const projectName = uniqueProjectName('probe-ds');
     let dsId = '';
@@ -189,8 +201,8 @@ test.describe('实库探测', () => {
       dsId = setup.dsId;
       const { probeCapsule } = setup;
 
-      await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/尚未探测/);
-
+      // 水合已为 SYNCED；再点切换到 AHEAD
+      await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
       await page.route('**/ncnb/connector/schema/probe', async (route) => {
         await route.fulfill({
           status: 200,

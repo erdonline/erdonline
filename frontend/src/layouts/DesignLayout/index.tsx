@@ -3,7 +3,6 @@ import DesignLeftContent from "@/components/LeftContent/DesignLeftContent";
 import PageSkeleton from "@/components/PageSkeleton";
 import CollabPresence from "@/components/CollabPresence";
 import StatusInstrument from "@/components/StatusInstrument";
-import SaveVersionButton from "@/components/SaveVersionButton";
 import ShareProjectButton from "@/components/ShareProjectButton";
 import Theme from "@/components/Theme";
 import { APP_VERSION_LABEL } from "@/constants/appVersion";
@@ -40,13 +39,12 @@ const { Header, Sider, Content } = Layout;
 
 export const siderWidth = 320;
 
-/** GroupLayout 等复用：保存态/版本/协作/分享 + Home 安全子集（公众号/GitHub） */
+/** GroupLayout 等复用：状态仪器盘/协作/分享 + Home 安全子集（公众号/GitHub） */
 export function getHeadRightContent(intl: ReturnType<typeof useIntl>): React.ReactNode[] {
   return [
     <div className="erd-chrome-status-cluster" key="status-cluster" data-testid="erd-chrome-status-cluster">
       <StatusInstrument key="status-instrument" />
     </div>,
-    <SaveVersionButton key="save-version" />,
     <CollabPresence key="presence" />,
     <ShareProjectButton key="share" />,
     ...getHomeRightContent(intl),
@@ -445,7 +443,6 @@ const DesignLayout: React.FC<DesignLayoutLayoutProps> = () => {
           <div className="erd-chrome-status-cluster" data-testid="erd-chrome-status-cluster">
             <StatusInstrument key="status-instrument" />
           </div>
-          <SaveVersionButton key="save-version" />
           <CollabPresence key="presence" />
           <ShareProjectButton key="share" />
           <div className="design-layout__workflow" data-testid="design-workflow-links">
