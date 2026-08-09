@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### DDL 方言种子补全 + 自定义模板 UI 恢复
+
+- **BE**：`ddl/freemarker/postgresql/`、`oracle/` 补齐与 MySQL 对齐的 11 项 FTL（createPk、deleteField、updateTableComment、rebuildTable 等）；`defaultData` 无 SQL Server 方言，暂不建 `sqlserver/` 种子。
+- **优先级**：确认 `DdlTemplateRenderer` — projectJSON `database[]` 自定义模板优先于 classpath；单测 `customCreateTableTemplate_overridesClasspathSeed`。
+- **FE**：设置 → **DDL 模板**（`/design/table/setting/databaseTemplates`）恢复可发现入口；编辑 `database[]` 模板字段，渲染仍走后端。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=DdlFreemarkerCompatibilityTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+  - 设计器 → 设置 → DDL 模板 → 编辑 MYSQL createTableTemplate → 保存 → 元数据应用预览应反映自定义内容
+
 #### 收口：导出 / 表元数据 DDL 迁移后端 Freemarker（ADR-0030 产品路径关闭）
 
 - **BE**：`Json2CodeFullDdlEngine.generateAllSqlByFilter`（片段键 + 表过滤）；`Json2CodeTableDdlEngine`（单表预览，对齐 `getCodeByDataTable`）；`POST /ncnb/hisProject/exportDdl`、`POST /ncnb/hisProject/tableDdl`（`@RequireProjectAccess`）。

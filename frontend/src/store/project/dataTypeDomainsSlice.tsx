@@ -53,6 +53,14 @@ export interface IDataTypeDomainsDispatchSlice {
     code: string,
     opts?: PersistOpt,
   ) => boolean | Promise<boolean>;
+  /**
+   * 更新 database[] 中方言行（含 DDL 模板）；persist:true 时仅 saveProject 成功写 store。
+   */
+  updateDatabaseDialect: (
+    code: string,
+    payload: Record<string, unknown>,
+    opts?: PersistOpt,
+  ) => boolean | Promise<boolean>;
   updateAllDataTypes: (payload: unknown[]) => void;
   getDataTypeTree: () => unknown[];
 }
@@ -61,6 +69,11 @@ type ProjectLike = NonNullable<ProjectState['project']>;
 
 function datatypeList(project: ProjectLike | null | undefined): unknown[] {
   const list = project?.projectJSON?.dataTypeDomains?.datatype;
+  return Array.isArray(list) ? list : [];
+}
+
+function databaseList(project: ProjectLike | null | undefined): unknown[] {
+  const list = project?.projectJSON?.dataTypeDomains?.database;
   return Array.isArray(list) ? list : [];
 }
 
@@ -254,6 +267,76 @@ const DataTypeDomainsSlice = (
         }),
       );
       message.success('删除成功');
+      return true;
+    })();
+  },
+
+  updateDatabaseDialect: (
+    code: string,
+    payload: Record<string, unknown>,
+    opts?: PersistOpt,
+  ) => {
+    const persist = !!opts?.persist;
+    const project = get().project;
+    if (!project?.projectJSON) {
+      message.error('未打开项目');
+      return persist ? Promise.resolve(false) : false;
+    }
+
+    const list = databaseList(project);
+    const idx = list.findIndex((raw) => (raw as { code?: string }).code === code);
+    if (idx === -1) {
+      message.error('库方言不存在');
+      return persist ? Promise.resolve(false) : false;
+    }
+
+    const merged = { ...(list[idx] as Record<string, unknown>), ...payload, code };
+
+    if (!persist) {
+      set(
+        produce((state: ProjectState) => {
+          const domains = state.project.projectJSON.dataTypeDomains;
+          if (!domains?.database) {
+            return;
+          }
+          if (merged.defaultDatabase) {
+            domains.database = domains.database.map((d: { defaultDatabase?: boolean }) => ({
+              ...d,
+              defaultDatabase: false,
+            }));
+          }
+          domains.database[idx] = merged;
+          message.success('修改成功');
+        }),
+      );
+      return true;
+    }
+
+    const next = produce(project, (draft: ProjectLike) => {
+      const domains = draft.projectJSON.dataTypeDomains;
+      if (!domains?.database) {
+        return;
+      }
+      if (merged.defaultDatabase) {
+        domains.database = domains.database.map((d: { defaultDatabase?: boolean }) => ({
+          ...d,
+          defaultDatabase: false,
+        }));
+      }
+      domains.database[idx] = merged;
+    });
+
+    return (async () => {
+      const saved = await persistAndAck(next, 'DDL 模板保存失败');
+      if (!saved) {
+        return false;
+      }
+      set(
+        produce((state: ProjectState) => {
+          state.project.projectJSON = next.projectJSON;
+        }),
+      );
+      message.success('DDL 模板已保存');
       return true;
     })();
   },

@@ -94,4 +94,50 @@ class DdlFreemarkerCompatibilityTest {
         assertTrue(sql.contains("idx_a"), sql);
         assertTrue(sql.contains("A,B") || sql.contains("A, B"), sql);
     }
+
+    @Test
+    void customCreateTableTemplate_overridesClasspathSeed() {
+        Map<String, Object> entity = new LinkedHashMap<>();
+        entity.put("title", "T_CUSTOM");
+        entity.put("chnname", "自定义");
+        entity.put("fields", List.of(
+                Map.of("name", "ID", "dataType", "INT", "pk", true, "notNull", true)));
+
+        Map<String, Object> ctx = Map.of(
+                DdlTemplateKeys.CTX_ENTITY, entity,
+                DdlTemplateKeys.CTX_SEPARATOR, ";\n");
+
+        Map<String, Object> databaseRow = Map.of(
+                DdlTemplateKeys.CREATE_TABLE,
+                "CREATE TABLE __CUSTOM__`${entity.title}`(`id` INT);${separator}");
+
+        String sql = DdlTemplateRenderer.render(
+                DdlTemplateKeys.CREATE_TABLE, "MYSQL", databaseRow, ctx);
+
+        assertTrue(sql.contains("__CUSTOM__`T_CUSTOM`"), sql);
+        assertTrue(!sql.contains("COMMENT ="), "custom template must win over classpath seed");
+    }
+
+    @Test
+    void classpathSeeds_postgresqlAndOracle_matchMysqlTemplateKeys() {
+        List<String> keys = List.of(
+                DdlTemplateKeys.CREATE_TABLE,
+                DdlTemplateKeys.DELETE_TABLE,
+                DdlTemplateKeys.REBUILD_TABLE,
+                DdlTemplateKeys.CREATE_FIELD,
+                DdlTemplateKeys.UPDATE_FIELD,
+                DdlTemplateKeys.DELETE_FIELD,
+                DdlTemplateKeys.CREATE_PK,
+                DdlTemplateKeys.DELETE_PK,
+                DdlTemplateKeys.CREATE_INDEX,
+                DdlTemplateKeys.DELETE_INDEX,
+                DdlTemplateKeys.UPDATE_TABLE_COMMENT);
+        for (String dialect : List.of("postgresql", "oracle")) {
+            for (String key : keys) {
+                assertTrue(
+                        DdlFreemarkerTemplateEngine.classpathTemplateExists(dialect, key),
+                        dialect + " missing " + key);
+            }
+        }
+    }
 }

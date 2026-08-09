@@ -979,5 +979,6 @@ export default {
   'designLayout.route.settings': 'Settings',
   'designLayout.route.defaultFields': 'Default fields',
   'designLayout.route.dataTypeDict': 'Data type dictionary',
+  'designLayout.route.databaseTemplates': 'DDL templates',
   'designLayout.route.systemDefaults': 'System defaults',
 };
