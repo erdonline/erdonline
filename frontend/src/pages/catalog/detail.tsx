@@ -69,8 +69,9 @@ export default function CatalogDetailPage() {
   }, [id]);
 
   const handleInstall = async () => {
-    if (!id) return;
+    if (!id || !detail) return;
     const returnPath = `/catalog/${id}`;
+    const isReinstall = detail.installed === true;
     const auth = cache.getItem('Authorization');
     if (!auth) {
       history.push(`/login?redirect=${encodeURIComponent(returnPath)}`);
@@ -81,7 +82,7 @@ export default function CatalogDetailPage() {
       const res: any = await installCatalogTemplate(id);
       const data = res?.data ?? res;
       if (data?.projectId) {
-        message.success('已安装到你的项目');
+        message.success(isReinstall ? '已创建新副本，正在打开…' : '已安装到你的项目');
         cache.setItem(CONSTANT.PROJECT_ID, String(data.projectId));
         history.push(`/design/table/model?projectId=${data.projectId}`);
         return;
@@ -239,9 +240,10 @@ export default function CatalogDetailPage() {
                 size="middle"
                 loading={installing}
                 data-testid="catalog-install-btn"
+                aria-label={detail.installed ? '再次安装，创建新副本' : '安装到我的项目'}
                 onClick={handleInstall}
               >
-                安装到我的项目
+                {detail.installed ? '再次安装（创建新副本）' : '安装到我的项目'}
               </Button>
               {detail.installed ? (
                 <div className="catalog-detail__my-rating">
