@@ -31,6 +31,7 @@ import {
   handleVersionSaveResponse,
   isVersionSaveDuplicate,
 } from "@/utils/versionSaveConflict";
+import { fetchVersionPanelDiff } from '@/utils/versionDiffApi';
 
 
 export const SHOW_CHANGE_TYPE = {
@@ -61,7 +62,13 @@ export type IVersionSlice = {
   getOptName: (opt: any) => any;
   getTypeName: (type: any) => any;
   constructorMessage: (changes: any) => any;
-  showChanges: (type: string, change: any, currentVersion: any, lastVersion: any) => void;
+  /** 详情 / 比对：唯一入口，后端 VersionDiffEngine + 模板 SQL */
+  loadVersionPanelDiff: (options?: {
+    currentVersion?: any;
+    baselineVersion?: any | null;
+    compare?: { initVersion: string; incrementVersion: string };
+  }) => Promise<void>;
+  showChanges: (type: string, change: any, currentVersion: any, lastVersion: any) => Promise<void>;
   setChanges: (changes: any) => void;
   checkVersionCount: (version: any) => any;
   execSQL: (data: any, version: any, updateDBVersion: any, cb: any, onlyUpdateDBVersion: any) => void;
@@ -80,7 +87,7 @@ export type IVersionSlice = {
   /** 切换默认数据源：仅 setDefaultDb 落盘成功后更新本地标记；失败不改 store */
   dbChange: (d: any) => Promise<boolean>;
   resolveDb: () => void;
-  compare: (state: any) => void;
+  compare: (state: any) => Promise<void>;
   checkVersionData: (dataSource1: any, dataSource2: any) => any;
   /** 独立拉取最新版本作为 A 层基线（ADR-0022）；与版本列表分页解耦 */
   fetchVersionBaseline: (db?: any) => Promise<BaselineRecord>;
@@ -100,6 +107,8 @@ export type VersionState =
     pageSize: number;
     messages: any;
     data: any;
+    /** 详情/比对面板：后端 diff 失败时的错误文案（禁止 fallback 到前端 diff） */
+    versionPanelDiffError: string | null;
     dbVersion: string | undefined;
     /** A 层差异：当前模型相对基线的变更项（非版本分组） */
     changes: any[];
@@ -128,6 +137,7 @@ const useVersionStore = create<VersionState>(
     pageSize: 10,
     messages: [],
     data: undefined,
+    versionPanelDiffError: null,
     dbVersion: '0.0.0',
     changes: [],
     versionBaseline: null,
@@ -556,7 +566,191 @@ const useVersionStore = create<VersionState>(
           };
         });
       },
-      showChanges: (type: string, change: any, currentVersion: any, lastVersion: any) => {
+      loadVersionPanelDiff: async (options = {}) => {
+        const liveProjectJSON = _.get(useProjectStore.getState().project, 'projectJSON');
+        const { init, versions, currentVersionIndex } = get();
+        let currentVersion = options.currentVersion;
+        let baselineVersion = options.baselineVersion;
+
+        if (options.compare) {
+          const { initVersion, incrementVersion } = options.compare;
+          const rangeCmp = compareStringVersion(incrementVersion, initVersion);
+          if (rangeCmp === null) {
+            const msg = appFormat()('versionStore.compare.formatNotComparable');
+            message.warning(msg);
+            set({ messages: [], data: '', versionPanelDiffError: msg });
+            throw new Error(msg);
+          }
+          if (rangeCmp <= 0) {
+            const msg = appFormat()('versionStore.compare.incrementNotGreater');
+            message.warning(msg);
+            set({ messages: [], data: '', versionPanelDiffError: msg });
+            throw new Error(msg);
+          }
+          const incrementRow = versions.find((v: any) => v.version === incrementVersion);
+          const initRow = versions.find((v: any) => v.version === initVersion);
+          if (!incrementRow?.projectJSON || !initRow?.projectJSON) {
+            const msg = appFormat()('versionStore.compare.snapshotMissing');
+            message.error(msg);
+            set({ messages: [], data: '', versionPanelDiffError: msg });
+            throw new Error(msg);
+          }
+          currentVersion = incrementRow;
+          baselineVersion = initRow;
+        }
+
+        if (!currentVersion) {
+          currentVersion = get().currentVersion;
+        }
+        if (baselineVersion === undefined) {
+          const idx = currentVersionIndex ?? versions.findIndex(
+            (v: { id?: string }) => v.id === currentVersion?.id,
+          );
+          baselineVersion =
+            idx >= 0 && idx < versions.length - 1 ? versions[idx + 1] : null;
+        }
+
+        const currentSnapshot = snapshotProjectJSONForVersion(
+          currentVersion?.projectJSON || { modules: currentVersion?.modules },
+        );
+        const baselineSnapshot = baselineVersion
+          ? snapshotProjectJSONForVersion(
+              baselineVersion.projectJSON || { modules: baselineVersion.modules },
+            )
+          : { modules: [], profile: {}, dataTypeDomains: {} };
+
+        const dbData = get().dispatch.getCurrentDBData();
+        const dialectCode = _.get(dbData, 'select', 'MYSQL');
+
+        set({ versionPanelDiffError: null });
+
+        let tempChanges: any[];
+        let sqlData = '';
+        try {
+          if (init || currentVersion?.baseVersion) {
+            const versionModules =
+              currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
+            const versionProjectJSON = {
+              ...(liveProjectJSON || {}),
+              modules: versionModules,
+              profile: {
+                ...(liveProjectJSON?.profile || {}),
+                ...(currentVersion?.projectJSON?.profile || {}),
+              },
+              dataTypeDomains:
+                currentVersion?.projectJSON?.dataTypeDomains ||
+                liveProjectJSON?.dataTypeDomains ||
+                {},
+            };
+            sqlData = getAllDataSQL(versionProjectJSON, dialectCode);
+            const panel = await fetchVersionPanelDiff({
+              projectJSON: currentSnapshot as Record<string, unknown>,
+              baselineProjectJSON: baselineSnapshot as Record<string, unknown>,
+              dbKey: dbData?.key,
+              dialectCode,
+            });
+            tempChanges = panel.changes;
+          } else {
+            const panel = await fetchVersionPanelDiff({
+              projectJSON: currentSnapshot as Record<string, unknown>,
+              baselineProjectJSON: baselineSnapshot as Record<string, unknown>,
+              dbKey: dbData?.key,
+              dialectCode,
+            });
+            tempChanges = panel.changes;
+            sqlData = panel.ddl || '';
+          }
+        } catch (error: any) {
+          const detail = error?.message || String(error);
+          set({ messages: [], data: '', versionPanelDiffError: detail });
+          message.error(
+            appFormat()('versionStore.diff.fetchFailedWithDetail', { detail }),
+          );
+          throw error;
+        }
+
+        tempChanges = filterNoiseChanges(tempChanges || []);
+        const configData = _.get(useProjectStore.getState().project, 'configJSON');
+        const tempValue = {
+          ...(configData?.synchronous || { upgradeType: 'increment' }),
+        };
+        if (tempValue.upgradeType === 'rebuild') {
+          const entities: any[] = [];
+          const tempEntitiesUpdate: any[] = [];
+          tempChanges.forEach((c) => {
+            if (c.type === 'entity') {
+              tempEntitiesUpdate.push(c);
+            } else {
+              entities.push(c.name.split('.')[0]);
+            }
+          });
+          tempChanges = [...new Set(entities)].map((e) => ({
+            type: 'entity',
+            name: e,
+            opt: 'update',
+          })).concat(tempEntitiesUpdate);
+          const versionModules =
+            currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
+          const versionProjectJSON = {
+            ...(liveProjectJSON || {}),
+            modules: versionModules,
+            profile: {
+              ...(liveProjectJSON?.profile || {}),
+              ...(currentVersion?.projectJSON?.profile || {}),
+            },
+            dataTypeDomains:
+              currentVersion?.projectJSON?.dataTypeDomains ||
+              liveProjectJSON?.dataTypeDomains ||
+              {},
+          };
+          const baselineModulesForSql = baselineVersion
+            ? {
+                modules:
+                  baselineVersion.projectJSON?.modules || baselineVersion.modules || [],
+              }
+            : { modules: [] };
+          if (!init && !currentVersion?.baseVersion) {
+            sqlData = getCodeByChanges(
+              versionProjectJSON,
+              tempChanges,
+              dialectCode,
+              baselineModulesForSql,
+            );
+          }
+        }
+
+        const panelMessages = get().dispatch.constructorMessage(tempChanges);
+
+        set({
+          messages: panelMessages,
+          data: sqlData,
+          versionPanelDiffError: null,
+        });
+
+        if (options.compare) {
+          set({
+            incrementVersionData: {
+              modules: currentVersion?.projectJSON?.modules || [],
+            },
+          });
+        }
+      },
+      showChanges: async (type: string, change: any, currentVersion: any, lastVersion: any) => {
+        if (type === SHOW_CHANGE_TYPE.CURRENT) {
+          await get().dispatch.loadVersionPanelDiff({
+            currentVersion: currentVersion || undefined,
+            baselineVersion: lastVersion === null ? null : lastVersion,
+          });
+          return;
+        }
+        if (type === SHOW_CHANGE_TYPE.MULTI) {
+          await get().dispatch.loadVersionPanelDiff({
+            currentVersion,
+            baselineVersion: lastVersion,
+          });
+          return;
+        }
+
         const liveProjectJSON = _.get(useProjectStore.getState().project, "projectJSON");
         const {changes, init, currentVersionIndex, versions} = get();
         if (!currentVersion) {
@@ -571,22 +765,8 @@ const useVersionStore = create<VersionState>(
               ? versions[idx + 1]
               : null;
         }
-        let tempChanges;
-        if (type === SHOW_CHANGE_TYPE.CURRENT) {
-          const currentSnapshot = snapshotProjectJSONForVersion(
-            currentVersion?.projectJSON || { modules: currentVersion?.modules },
-          );
-          const baselineSnapshot = lastVersion
-            ? snapshotProjectJSONForVersion(
-                lastVersion.projectJSON || { modules: lastVersion.modules },
-              )
-            : { modules: [], profile: {}, dataTypeDomains: {} };
-          tempChanges = checkVersionStructuralDiff(currentSnapshot, baselineSnapshot);
-        } else if (type === SHOW_CHANGE_TYPE.MULTI) {
-          tempChanges = [...change];
-        } else {
-          tempChanges = [...changes];
-        }
+        const dbData = get().dispatch.getCurrentDBData();
+        let tempChanges = [...changes];
         tempChanges = filterNoiseChanges(tempChanges || []);
         const configData = _.get(useProjectStore.getState().project, 'configJSON');
 
@@ -623,7 +803,6 @@ const useVersionStore = create<VersionState>(
             messages
           }
         );
-        const dbData = get().dispatch.getCurrentDBData();
         const code = _.get(dbData, 'select', 'MYSQL');
         const versionModules =
           currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
@@ -1145,39 +1324,17 @@ const useVersionStore = create<VersionState>(
       resolveDb: () => set(produce(state => {
         state.hasDB = state.dbs && state.dbs.length > 0;
       })),
-      compare: (state: any) => {
-        if (get().versions.length > 1) {
-          if (!state.initVersion || !state.incrementVersion) {
-            console.warn('版本未选择，使用默认值');
-            state.initVersion = get().versions[1].version;
-            state.incrementVersion = get().versions[0].version;
-          }
-          const rangeCmp = compareStringVersion(state.incrementVersion, state.initVersion);
-          if (rangeCmp === null) {
-            message.warning(appFormat()('versionStore.compare.formatNotComparable'));
-          } else if (rangeCmp <= 0) {
-            message.warning(appFormat()('versionStore.compare.incrementNotGreater'));
-          } else {
-            // 读取两个版本下的数据信息
-            let incrementVersionData = {};
-            let initVersionData = {};
-            get().versions.forEach((v: any) => {
-              if (v.version === state.initVersion) {
-                initVersionData = {modules: v.projectJSON.modules};
-              }
-              if (v.version === state.incrementVersion) {
-                incrementVersionData = {modules: v.projectJSON.modules};
-              }
-            });
-            const changes = get().dispatch.checkVersionData(incrementVersionData, initVersionData);
-            get().dispatch.showChanges(SHOW_CHANGE_TYPE.MULTI, changes, incrementVersionData, initVersionData);
-            set({
-              incrementVersionData
-            })
-          }
-        } else {
+      compare: async (state: any) => {
+        if (get().versions.length <= 1) {
           console.warn('没有足够的版本进行比较');
+          return;
         }
+        await get().dispatch.loadVersionPanelDiff({
+          compare: {
+            initVersion: state.initVersion || get().versions[1]?.version,
+            incrementVersion: state.incrementVersion || get().versions[0]?.version,
+          },
+        });
       },
       checkVersionData: (dataSource1: any, dataSource2: any) =>
         checkVersionStructuralDiff(dataSource1, dataSource2),
