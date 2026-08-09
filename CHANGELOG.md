@@ -18,6 +18,7 @@
 - **M2.3**：地标 Skip 目标去掉 `:focus`+品牌红描边（关签/`focus()` 会整壳套红框）；仅 `:focus-visible` + 中性环
 - **M2.4**：左树「关系」→「关系图」；点图叶子只切签开画布（禁 `setCurrentEntity` 误报「表不存在」）
 - **M2.5**：进设计器 `refreshDataSources` 再拉版本基线 / 自动探库（禁空 `dbs` 假「无 JDBC」→ 永久 `DB ·`）
+- **M2.6**：登录/注册用户名·密码禁内层 input outline（antd affix 外框已够，禁框中框）
 - **M3**：表设计表名 + 四签合并单行 chrome（Segmented 式 tab）
 - **M4**：左树去掉全局新建下拉；文件夹 inline +；右键菜单分段
 - 验证点：
