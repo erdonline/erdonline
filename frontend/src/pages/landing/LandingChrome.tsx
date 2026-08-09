@@ -83,47 +83,60 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           href="/"
           aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
         >
-          <img src="/logo.svg" alt="" width={28} height={28} />
+          <img src="/logo.svg" alt="" width={22} height={22} />
           ERD Online
         </a>
         <nav
           className="landingNavLinks"
           aria-label={intl.formatMessage({ id: 'landing.nav.mainAria' })}
         >
-          <a href="/#pillars">{intl.formatMessage({ id: 'landing.nav.pillars' })}</a>
+          <a
+            href="/#pillars"
+            data-testid="landing-nav-pillars"
+            aria-label={intl.formatMessage({ id: 'landing.nav.pillarsAria' })}
+          >
+            {intl.formatMessage({ id: 'landing.nav.pillars' })}
+          </a>
           <Link
             to="/catalog"
             className={resolvedActiveNav === 'catalog' ? 'landingNavLinkActive' : undefined}
             data-testid="landing-nav-catalog"
             aria-current={resolvedActiveNav === 'catalog' ? 'page' : undefined}
-            aria-label={intl.formatMessage({ id: 'landing.nav.catalogAria' })}
           >
             {intl.formatMessage({ id: 'landing.nav.catalog' })}
           </Link>
           <Link
             to="/compare"
             className={resolvedActiveNav === 'compare' ? 'landingNavLinkActive' : undefined}
+            data-testid="landing-nav-compare"
             aria-current={resolvedActiveNav === 'compare' ? 'page' : undefined}
-            aria-label={intl.formatMessage({ id: 'landing.nav.compareAria' })}
           >
             {intl.formatMessage({ id: 'landing.nav.compare' })}
           </Link>
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer">
-            GitHub
+          <a
+            href={GITHUB_URL}
+            target="_blank"
+            rel="noreferrer"
+            data-testid="landing-nav-github"
+            aria-label={intl.formatMessage({ id: 'landing.nav.githubAria' })}
+          >
+            {intl.formatMessage({ id: 'landing.nav.github' })}
           </a>
           <LocaleSwitcher variant="chrome" className="landingNavLocale" />
           {authed ? (
             <Link
-              className="landingBtnGhost landingNavCta"
+              className="landingBtnPrimary landingNavCta"
               to="/home"
+              data-testid="landing-nav-cta"
               aria-label={intl.formatMessage({ id: 'landing.nav.enterWorkspaceAria' })}
             >
               {intl.formatMessage({ id: 'landing.nav.enterWorkspace' })}
             </Link>
           ) : (
             <Link
-              className="landingBtnGhost landingNavCta"
+              className="landingBtnPrimary landingNavCta"
               to="/login"
+              data-testid="landing-nav-cta"
               aria-label={intl.formatMessage({ id: 'landing.nav.loginAria' })}
             >
               {intl.formatMessage({ id: 'landing.nav.login' })}

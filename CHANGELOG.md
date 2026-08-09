@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 落地页顶栏：去卡片框 + 跨页稳定 + 导航文案
+
+- **样式**：移除 `.landingNav` 圆角边框/卡片阴影；改为全宽 sticky 顶栏（非浮动卡片），首页/模板广场/竞品对比共用同一套尺寸
+- **稳定**：固定 `--landing-nav-h: 56px`；active 链仅用品牌下划线（不改字重）；CTA `min-width` 防登录/工作台切换撑宽；取消 hero 绝对定位 vs 子页相对定位分叉
+- **导航**：顺序 ERD Online → 产品亮点 → 模板广场 → 竞品对比 → GitHub → 登录/进入工作台；主 CTA 品牌红；补 `data-testid`
+- **文案**：「卖点」→「产品亮点」；「对比」→「竞品对比」
+- 验证点：HMR 目视 `/`↔`/catalog`↔`/compare` 顶栏无跳动；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts`
+
 #### 模板广场：列表卡片 footer 防组内换行
 
 - **布局**：安装数 / 星级 / 作者拆为独立 `catalog-card__footer-group`，组内 `white-space: nowrap`；星级 `inline-flex` 不换行；作者超长省略
