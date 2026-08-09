@@ -3,6 +3,14 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 字段库 / ADR-0032（2026-08-09）
+
+- [x] [平台种子 apply] `POST /dataDict/dd-field-gender/apply` 返回 fields+enums 且带 `dictRef` ✅`DataDictServiceImplApplyTest`
+- [x] [scope ACL] platform 只读；group 成员可写；user 本人可写 ✅`DataDictAclTest`
+- [x] [E2E 插入] 表设计「从字段库插入」→ 性别 → `gender` 列落盘 ✅`field-library-insert.spec.ts`
+- [ ] [手工] 团队项目：字段库 scope=group 条目仅成员可见/可编辑
+- [ ] [手工] 设置页 `/design/table/setting/fieldLibrary` 新建个人条目 CRUD
+
 ## 数据源凭证落库加密 / R-DATA-06 · ADR-0024（2026-08-05）
 
 - [x] [加解密 roundtrip] 明文→密文→明文一致；IV 随机不重复；篡改/错密钥抛异常 ✅`DataSourceCredentialCipherTest`

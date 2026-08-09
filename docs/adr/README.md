@@ -36,3 +36,4 @@
 | [0029](./0029-designer-readonly-query.md) | 设计器只读查询（探库）设计简报：改名为「表数据预览」+ 驱动管理（核心层 + 部署期扩展包，不阻塞建模者） | 提议中 · 设计简报 |
 | [0030](./0030-ddl-template-engine-isomorphism.md) | DDL 模板引擎（Freemarker 终态；BE 权威；Pebble+Translator 过渡；拒 Handlebars 终态） | 已接受 |
 | [0031](./0031-ddl-api-surface.md) | DDL 生成 API 与版本 API 分域（`ProjectDdlController` / `/projectDdl/*`；拒并入 Connector） | ✅ 已实施 |
+| [0032](./0032-field-library-data-dict.md) | 字段库 data_dict（平台/团队/个人；copy-on-apply；含库管理 UI） | ✅ 已接受 · MVP |
