@@ -64,7 +64,7 @@
     outline-offset: 2px;
   }
 
-  #landing-main-cta:focus,
+  /* Skip CTA：仅 focus-visible，避免脚本 focus 常驻描边 */
   #landing-main-cta:focus-visible {
     outline: 2px solid var(--erd-brand);
     outline-offset: 4px;

@@ -117,9 +117,9 @@
     outline-offset: 2px;
   }
 
-  #share-canvas-stage:focus,
+  /* 地标仅键盘环；禁 :focus+brand（画布整级套红框） */
   #share-canvas-stage:focus-visible {
-    outline: 2px solid var(--erd-brand);
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: -2px;
   }
 }

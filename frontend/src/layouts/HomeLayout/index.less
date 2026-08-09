@@ -73,11 +73,10 @@
     outline-offset: 2px;
   }
 
-  #home-main-content:focus,
+  /* 地标仅键盘环；禁 :focus+brand（Skip/脚本 focus 会整页套红框） */
   #home-main-content:focus-visible,
-  #account-settings-form:focus,
   #account-settings-form:focus-visible {
-    outline: 2px solid var(--erd-brand);
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: -2px;
   }
 }

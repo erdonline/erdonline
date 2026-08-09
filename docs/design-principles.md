@@ -79,17 +79,17 @@
 - ✅ 命令面板键盘闭环：开面板首焦搜索；↑↓ + `aria-activedescendant` 选中；Enter 执行；无匹配「无匹配结果」+ 提示；Esc 关并归还触发器；Tab/⇧Tab 困在搜索（选项不走 Tab）
 - ✅ 表设计内签直切：`Cmd/Ctrl+1` 字段 · `2` 索引 · `3` 元数据应用（仅表设计签挂载时拦截；输入框内不拦；画布上不抢浏览器签页）；速查卡已登记
 - ✅ 表设计 JExcel（字段/索引/默认字段共用）：工具栏 `role=toolbar`「表格编辑工具栏」+ 7 项均可 Tab + Enter/Space 激活；网格 `jexcel-grid` 可聚焦，Enter 进 A1；Shift+Tab 退回工具栏（无 trap）；编辑态 Escape 丢弃草稿并焦点归还网格（禁落隐藏 textarea）；「快捷操作」`Modal.info` 首焦「知道了」+ Esc 归还 + Tab trap
-- ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；设计器内 `:focus-visible` brand 环（签栏/画布工具栏/可聚焦控件）
+- ✅ 设计器 Skip：首项 Tab「跳到模型树 / 跳到主工作区」落 `erd-design-tree` / `erd-design-workspace`（`tabIndex=-1`）；绕开顶栏 chrome；地标→下一 Tab 进搜索/签·画布（无 trap）；**地标仅 `:focus-visible` 中性环**（禁 `:focus`+品牌红整栏套框；关签脚本 `focus()` 工作区不描边）；控件仍 `:focus-visible` brand 环（签栏/画布工具栏）
 - ✅ CommonTabs 签头键盘：`navigation`「已打开的签页」；←/→ roving 切实体签；关闭钮 `aria-label=关闭 {表名}`（禁英文 `remove`）；关签焦点归还下一签或主工作区地标；关闭钮 `:focus-visible`；内签方向键不回归
-- ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；壳内 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
+- ✅ 分享壳键盘：首项 Tab Skip「跳到关系图」落 `#share-canvas-stage`（`tabIndex=-1`）；绕开顶栏 chrome；Controls（放大/缩小/适应）进序、MiniMap 出序；Fork/登录/注册可达；**画布地标仅 `:focus-visible` 中性环**；壳内控件 `:focus-visible` brand 环；模块/切图 Segmented `role=group` 有名；无 trap
 - ✅ 登录壳键盘：首项 Tab Skip「跳到登录表单」落 `#auth-form-anchor`（`tabIndex=-1`）；绕开左品牌面板；用户名→密码→登录→footer 链进序；密码框 Enter 提交；壳内 `:focus-visible` brand 环（暗面板 surface 环）；无 trap
 - ✅ 注册壳键盘：同壳 Skip「跳到注册表单」；用户名→密码→确认→邮箱→手机→注册→footer；Form tip 问号出序（悬停保留）；末字段 Enter 提交/校验；focus-visible brand 环；无 trap
 - ✅ 落地页键盘：首项 Tab Skip「跳到主操作」落 `#landing-main-cta`（`tabIndex=-1`）；绕开顶栏；试用→注册→登录（已登录：工作台→演示）；壳内 `:focus-visible` surface 环（深色门面）；地标 brand；不按 Skip 仍可达品牌链；无 trap
 - ✅ `/compare` 竞品对照页键盘：同壳 Skip→ `#landing-main-cta`；打开演示→自部署指南→返回首页；surface focus-visible；无 trap
-- ✅ Home 工作台键盘：首项 Tab Skip「跳到主内容」落 `#home-main-content`（`tabIndex=-1`）；绕开顶栏；继续建模→新建→示例→二级入口→项目卡；壳内 `:focus-visible` brand 环；无 trap
-- ✅ GroupLayout 壳键盘：首项 Tab Skip「跳到主内容」落 `#group-main-content`（`tabIndex=-1`）；绕开顶栏+侧栏；基本设置表单字段进序；壳内 `:focus-visible` brand 环；无 trap
+- ✅ Home 工作台键盘：首项 Tab Skip「跳到主内容」落 `#home-main-content`（`tabIndex=-1`）；绕开顶栏；继续建模→新建→示例→二级入口→项目卡；**主内容地标仅 `:focus-visible` 中性环**（禁 `:focus`+品牌红整壳套框）；控件 brand 环；无 trap
+- ✅ GroupLayout 壳键盘：首项 Tab Skip「跳到主内容」落 `#group-main-content`（`tabIndex=-1`）；绕开顶栏+侧栏；基本设置表单字段进序；**主内容地标仅 `:focus-visible` 中性环**；控件 brand 环；无 trap
 - ✅ 项目列表行键盘：个人/最近/团队行 stretched link（点描述亦开项目）；Enter 开设计器；Tab 行内动作（修改/删除/管理/打开）可逆；行 `:has(:focus-visible)` inset brand 环（抗 ant List outline 重置）；无 trap/死卡
-- ✅ 账号设置壳键盘：`/account/settings` 首项 Tab Skip「跳到主表单」落 `#account-settings-form`（`tabIndex=-1`）；绕开顶栏+左侧页签；邮箱→电话→更新基本信息；壳内 `:focus-visible` brand 环；无 trap
+- ✅ 账号设置壳键盘：`/account/settings` 首项 Tab Skip「跳到主表单」落 `#account-settings-form`（`tabIndex=-1`）；绕开顶栏+左侧页签；邮箱→电话→更新基本信息；**表单地标仅 `:focus-visible` 中性环**；控件 brand 环；无 trap
 - ✅ 项目动作弹窗键盘：新建/修改 Modal 打开首焦首字段；删除确认首焦「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内
 - ✅ 导入/导出弹层键盘（DBML）：导入首焦文本区；导出首焦模型 Select；Esc 关窗；空态 CTA /「项目菜单」焦点归还；Tab 困在 dialog
 - ✅ 版本动作弹窗键盘：新增→版本号；编辑→版本号（非最新只读号→描述）；删除/回滚确认→「是」；Esc 关窗；焦点归还触发器；Tab 困在 `role=dialog` 内

@@ -86,11 +86,10 @@
     outline-offset: 2px;
   }
 
-  #erd-design-tree:focus,
+  /* 地标仅键盘环；禁 :focus+brand（关签回落 workspace focus 会整栏套红框） */
   #erd-design-tree:focus-visible,
-  #erd-design-workspace:focus,
   #erd-design-workspace:focus-visible {
-    outline: 2px solid var(--erd-brand);
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: -2px;
   }
 }
