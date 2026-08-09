@@ -54,7 +54,7 @@ export async function fetchExportDdl(input: {
   if (input.entityTitles?.length) {
     body.entityTitles = input.entityTitles;
   }
-  const res = await POST('/ncnb/hisProject/exportDdl', body);
+  const res = await POST('/ncnb/projectDdl/export', body);
   if (!res || res.code !== 200) {
     throw new Error(res?.msg || res?.message || `export DDL failed (${res?.code ?? 'no response'})`);
   }
@@ -93,6 +93,10 @@ export async function fetchTableDdl(input: {
   if (input.changes?.length) {
     body.changes = input.changes;
   }
+  const res = await POST('/ncnb/projectDdl/table', body);
+  if (!res || res.code !== 200) {
+    throw new Error(res?.msg || res?.message || `table DDL failed (${res?.code ?? 'no response'})`);
+  }
   const data = res.data || {};
   return {
     sql: typeof data.sql === 'string' ? data.sql : '',
@@ -122,7 +126,7 @@ export async function fetchPreviewDdlTemplate(input: {
   if (input.projectJSON) {
     body.projectJSON = input.projectJSON;
   }
-  const res = await POST('/ncnb/hisProject/previewDdlTemplate', body);
+  const res = await POST('/ncnb/projectDdl/previewTemplate', body);
   if (!res || res.code !== 200) {
     throw new Error(
       res?.msg || res?.message || `DDL template preview failed (${res?.code ?? 'no response'})`,

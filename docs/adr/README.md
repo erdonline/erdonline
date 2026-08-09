@@ -35,4 +35,4 @@
 | [0028](./0028-official-template-catalog.md) | 官方模板广场（Open VSX；浏览/安装/评分/发布审核；MCP 四工具） | ✅ 已接受 · MVP |
 | [0029](./0029-designer-readonly-query.md) | 设计器只读查询（探库）设计简报：改名为「表数据预览」+ 驱动管理（核心层 + 部署期扩展包，不阻塞建模者） | 提议中 · 设计简报 |
 | [0030](./0030-ddl-template-engine-isomorphism.md) | DDL 模板引擎（Freemarker 终态；BE 权威；Pebble+Translator 过渡；拒 Handlebars 终态） | 已接受 |
-| [0031](./0031-ddl-api-surface.md) | DDL 生成 API 与版本 API 分域（`ProjectDdlController` / `/projectDdl/*`；拒并入 Connector） | 已接受 · 迁移待实施 |
+| [0031](./0031-ddl-api-surface.md) | DDL 生成 API 与版本 API 分域（`ProjectDdlController` / `/projectDdl/*`；拒并入 Connector） | ✅ 已实施 |
