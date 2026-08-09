@@ -12,12 +12,15 @@ import com.erdonline.erd.entity.DbVersion;
 import com.erdonline.erd.mapper.DbChangeMapper;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
+import com.erdonline.erd.util.VersionDiffEngine;
+import com.erdonline.erd.util.VersionPanelDiffEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -113,6 +116,18 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         if (dbChange.getTag() != null && dbChange.getTag().length() > 255) {
             return R.failed("版本标签总长度不能超过 255 个字符");
         }
+        // 「所见即真差异」：changes 落库前后端重算，不信任前端算的旧值（校验/存储用同一份权威算法）。
+        // 统一规则：不管 baseVersion 标记，changes 恒等于「相对当前库里最新一条」的 diff；
+        // 没有已存版本（首次存版 / 重建基线刚清空历史）时基线视为空模型，diff 即全量 add——
+        // 不再对 baseVersion=true 特殊清空，否则首版会出现「模型有表，变更摘要却是空」的错位
+        // （模型变更 UI 与实际 changes 数据不一致，用户看到的又是一次假差异）。
+        if (StrUtil.isBlank(dbChange.getId())) {
+            DbChange latest = findLatestVersion(dbChange.getProjectId(), dbChange.getDbKey());
+            Map<String, Object> baseline = latest != null && latest.getProjectJSON() != null
+                    ? latest.getProjectJSON() : Collections.emptyMap();
+            List<Map<String, Object>> computed = VersionDiffEngine.diff(dbChange.getProjectJSON(), baseline);
+            dbChange.setChanges(new ArrayList<>(computed));
+        }
         try {
             if (StrUtil.isBlank(dbChange.getId())) {
                 this.save(dbChange);
@@ -129,6 +144,70 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
             throw e;
         }
         return R.ok("保存成功");
+    }
+
+    @Override
+    public R diffAgainstLatest(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        String projectId = (String) body.get("projectId");
+        String dbKey = (String) body.get("dbKey");
+        Object projectJSONRaw = body.get("projectJSON");
+        if (StrUtil.isBlank(projectId) || StrUtil.isBlank(dbKey) || !(projectJSONRaw instanceof Map)) {
+            return R.failed("projectId / dbKey / projectJSON 均为必填");
+        }
+        @SuppressWarnings("unchecked")
+        Map<String, Object> projectJSON = (Map<String, Object>) projectJSONRaw;
+
+        Object explicitBaselineRaw = body.get("baselineProjectJSON");
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "MYSQL";
+        Map<String, Object> result = new HashMap<>();
+        if (explicitBaselineRaw instanceof Map) {
+            // 显式基线（如历史版本两两比对）：直接 diff，不查库。
+            @SuppressWarnings("unchecked")
+            Map<String, Object> explicitBaseline = (Map<String, Object>) explicitBaselineRaw;
+            Map<String, Object> panel = VersionPanelDiffEngine.compute(projectJSON, explicitBaseline, dialectCode);
+            result.put("hasBaseline", true);
+            result.put("baseline", null);
+            result.put("changes", panel.get("changes"));
+            result.put("ddl", panel.get("ddl"));
+            return R.ok(result);
+        }
+
+        DbChange latest = findLatestVersion(projectId, dbKey);
+        boolean hasBaseline = latest != null;
+        Map<String, Object> baselineProjectJSON = hasBaseline && latest.getProjectJSON() != null
+                ? latest.getProjectJSON() : Collections.emptyMap();
+
+        Map<String, Object> panel = VersionPanelDiffEngine.compute(projectJSON, baselineProjectJSON, dialectCode);
+        result.put("hasBaseline", hasBaseline);
+        result.put("baseline", hasBaseline ? baselineMeta(latest) : null);
+        result.put("changes", panel.get("changes"));
+        result.put("ddl", panel.get("ddl"));
+        return R.ok(result);
+    }
+
+    private static Map<String, Object> baselineMeta(DbChange latest) {
+        Map<String, Object> meta = new HashMap<>();
+        meta.put("id", latest.getId());
+        meta.put("version", latest.getVersion());
+        meta.put("versionDate", latest.getVersionDate());
+        meta.put("createTime", latest.getCreateTime());
+        return meta;
+    }
+
+    /** 独立查询最新版本作为 A 层基线：createTime desc 为主序，version desc 兜底旧数据（ADR-0022） */
+    private DbChange findLatestVersion(String projectId, String dbKey) {
+        QueryWrapper<DbChange> wrapper = new QueryWrapper<>();
+        wrapper.eq("project_id", projectId);
+        wrapper.eq("db_key", dbKey);
+        wrapper.orderByDesc("create_time");
+        wrapper.orderByDesc("version");
+        List<DbChange> list = this.list(wrapper);
+        return list.isEmpty() ? null : list.get(0);
     }
 
     /** 识别 db_change (project_id, db_key, version) 唯一索引冲突。 */

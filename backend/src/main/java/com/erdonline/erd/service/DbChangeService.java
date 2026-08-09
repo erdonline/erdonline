@@ -64,4 +64,13 @@ public interface DbChangeService extends MartinService<DbChange> {
      * 保存或更新历史版本；tag 为逗号分隔多标签，不做跨版本唯一校验。
      */
     R saveVersion(DbChange dbChange);
+
+    /**
+     * A 层全量 structural diff（后端权威）：当前模型 ↔ 最新版本基线（或显式传入的基线）。
+     * 「未保存版本」/ 比对面板必须消费同一份后端算法结果，前端只展示（ADR-0022 延伸）。
+     *
+     * @param body {@code projectId}、{@code dbKey}、{@code projectJSON}（当前模型）必填；
+     *             {@code baselineProjectJSON} 可选——传入则直接对该基线 diff，不查库（用于历史版本两两比对）
+     */
+    R diffAgainstLatest(Map<String, Object> body);
 }
