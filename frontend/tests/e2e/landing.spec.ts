@@ -86,10 +86,14 @@ test.describe('落地页', () => {
       page.locator('.landingNav').evaluate((el) => {
         const cs = getComputedStyle(el);
         const rect = el.getBoundingClientRect();
+        const bodyCs = getComputedStyle(document.body);
         return {
           height: Math.round(rect.height),
+          width: Math.round(rect.width),
           padLeft: parseFloat(cs.paddingLeft),
           position: cs.position,
+          bodyMarginTop: parseFloat(bodyCs.marginTop),
+          viewportWidth: window.innerWidth,
           itemCount: el.querySelectorAll('.landingNavLinks > *').length,
         };
       });
@@ -103,9 +107,14 @@ test.describe('落地页', () => {
     await page.goto('/compare');
     const compareNav = await measureNav();
 
+    for (const nav of [homeNav, catalogNav, compareNav]) {
+      expect(nav.bodyMarginTop).toBe(0);
+      expect(nav.width).toBeGreaterThanOrEqual(nav.viewportWidth - 2);
+    }
     expect(homeNav.height).toBe(catalogNav.height);
     expect(homeNav.height).toBe(compareNav.height);
-    expect(homeNav.padLeft).toBe(catalogNav.padLeft);
+    expect(homeNav.padLeft).toBe(0);
+    expect(catalogNav.padLeft).toBe(0);
     expect(homeNav.itemCount).toBe(catalogNav.itemCount);
     expect(homeNav.itemCount).toBe(compareNav.itemCount);
     expect(homeNav.position).toBe('sticky');

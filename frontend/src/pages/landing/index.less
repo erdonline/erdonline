@@ -1,6 +1,37 @@
 /* 落地页深色品牌门面：颜色/字族只认 --erd-*（theme/css-vars.less）；禁新增魔法色 */
 /* 字体经 LandingChrome Helmet 运行时加载，避免 less 构建期拉取 fonts.bunny.net 导致 CI 失败 */
 
+/* 全幅 bleed：消浏览器 body 8px 默认边距造成的「外框井」；深色滚动条 */
+html:has(.landing),
+body:has(.landing) {
+  margin: 0;
+  padding: 0;
+  background: var(--erd-void);
+  scrollbar-color: rgba(158, 176, 192, 0.38) var(--erd-void);
+  scrollbar-width: thin;
+}
+
+html:has(.landing) {
+  &::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: var(--erd-void);
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(158, 176, 192, 0.35);
+    border-radius: 4px;
+    border: 2px solid var(--erd-void);
+
+    &:hover {
+      background: rgba(158, 176, 192, 0.55);
+    }
+  }
+}
+
 .erd-skip-nav {
   position: fixed;
   z-index: 1100;
@@ -50,9 +81,11 @@
 
 .landing {
   --landing-nav-h: 56px;
+  width: 100%;
   min-height: 100vh;
+  min-height: 100dvh;
   color: var(--erd-surface);
-  background: #070d14;
+  background: var(--erd-void);
   font-family: var(--erd-font-ui);
   overflow-x: hidden;
 
@@ -108,24 +141,30 @@
 .landingNav {
   position: sticky;
   top: 0;
-  left: 0;
-  right: 0;
   z-index: 3;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
+  width: 100%;
+  max-width: none;
+  margin: 0;
+  padding: 0;
   height: var(--landing-nav-h);
   min-height: var(--landing-nav-h);
-  padding: 0 clamp(1rem, 3vw, 1.5rem);
-  max-width: var(--erd-chrome-content-max);
-  margin: 0 auto;
-  width: 100%;
   box-sizing: border-box;
   border-bottom: 1px solid rgba(158, 176, 192, 0.12);
   background: rgba(7, 13, 20, 0.42);
   backdrop-filter: saturate(1.05) blur(8px);
   -webkit-backdrop-filter: saturate(1.05) blur(8px);
+}
+
+.landingNavInner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  height: 100%;
+  max-width: var(--erd-chrome-content-max);
+  margin: 0 auto;
+  padding: 0 clamp(1rem, 3vw, 1.5rem);
+  box-sizing: border-box;
 }
 
 .landingNavBrand {

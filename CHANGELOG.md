@@ -8,13 +8,14 @@
 
 ### 2026-08-09
 
-#### 落地页顶栏：去卡片框 + 跨页稳定 + 导航文案
+#### 落地页族：全幅 bleed + 稳定顶栏 + 深色滚动条
 
-- **样式**：移除 `.landingNav` 圆角边框/卡片阴影；改为全宽 sticky 顶栏（非浮动卡片），首页/模板广场/竞品对比共用同一套尺寸
-- **稳定**：固定 `--landing-nav-h: 56px`；active 链仅用品牌下划线（不改字重）；CTA `min-width` 防登录/工作台切换撑宽；取消 hero 绝对定位 vs 子页相对定位分叉
-- **导航**：顺序 ERD Online → 产品亮点 → 模板广场 → 竞品对比 → GitHub → 登录/进入工作台；主 CTA 品牌红；补 `data-testid`
-- **文案**：「卖点」→「产品亮点」；「对比」→「竞品对比」
-- 验证点：HMR 目视 `/`↔`/catalog`↔`/compare` 顶栏无跳动；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts`
+- **全幅**：`html/body:has(.landing)` 清零默认 8px 边距 + void 背景，消除整页「外框井」；顶栏背景全宽 bleed，导航内容仍 `max-width` 内栏
+- **稳定**：固定 `--landing-nav-h: 56px` + `landingNavInner`；active 仅品牌下划线；CTA `min-width` 防切换撑宽；`/` / `/catalog` / `/compare` 共用 LandingChrome
+- **滚动条**：landing 族 `scrollbar-color` + webkit 深色 thumb/track（对齐 void 底）
+- **模板广场**：卡片 tags 与 `official` 徽章去重，不再双显「官方」
+- **导航**（保持）：产品亮点 → 模板广场 → 竞品对比 → GitHub → 登录/进入工作台
+- 验证点：Playwright 实测 body margin=0、nav 全宽；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts tests/e2e/catalog.spec.ts --grep "顶栏|跨页|匿名可浏览"`
 
 #### 模板广场：列表卡片 footer 防组内换行
 
