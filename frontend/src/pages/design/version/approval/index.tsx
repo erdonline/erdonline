@@ -1,9 +1,10 @@
-import React, {useCallback, useEffect, useRef, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useRef, useState} from "react";
 import {GET} from "@/services/crud";
 import PassApproval from "@/components/dialog/approval/PassApproval";
 import RefuseApproval from "@/components/dialog/approval/RefuseApproval";
 import {Button, Space, Table, Tag, Typography} from "antd";
 import type {ColumnsType, TablePaginationConfig} from "antd/es/table";
+import { useIntl } from '@@/exports';
 import {showSqlDetailModal} from "@/utils/sqlDetailModal";
 import "../approval-workorder.less";
 
@@ -18,16 +19,36 @@ type ApprovalItem = {
   createTime: string;
 };
 
-const STATUS_MAP: Record<number, { text: string; color: string }> = {
-  0: {text: '待审批', color: 'processing'},
-  1: {text: '通过', color: 'success'},
-  2: {text: '撤销', color: 'error'},
-  3: {text: '拒绝', color: 'error'},
-  4: {text: '复批', color: 'processing'},
-};
-
 export type ApprovalProps = {};
 const Approval: React.FC<ApprovalProps> = () => {
+  const intl = useIntl();
+  const statusMap = useMemo(
+    () =>
+      ({
+        0: {
+          text: intl.formatMessage({ id: 'versionOrder.status.pending' }),
+          color: 'processing',
+        },
+        1: {
+          text: intl.formatMessage({ id: 'versionOrder.status.approved' }),
+          color: 'success',
+        },
+        2: {
+          text: intl.formatMessage({ id: 'versionOrder.status.revoked' }),
+          color: 'error',
+        },
+        3: {
+          text: intl.formatMessage({ id: 'versionOrder.status.rejected' }),
+          color: 'error',
+        },
+        4: {
+          text: intl.formatMessage({ id: 'versionOrder.status.reReview' }),
+          color: 'processing',
+        },
+      }) as Record<number, { text: string; color: string }>,
+    [intl],
+  );
+
   const [data, setData] = useState<ApprovalItem[]>([]);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
@@ -78,7 +99,7 @@ const Approval: React.FC<ApprovalProps> = () => {
       render: (_text, _record, index) => (page - 1) * pageSize + index + 1,
     },
     {
-      title: '项目事项',
+      title: intl.formatMessage({ id: 'versionOrder.column.subject' }),
       dataIndex: 'approveRemark',
       width: 200,
       ellipsis: true,
@@ -89,38 +110,37 @@ const Approval: React.FC<ApprovalProps> = () => {
       ),
     },
     {
-      title: '审批状态',
+      title: intl.formatMessage({ id: 'versionOrder.column.status' }),
       width: 80,
       dataIndex: 'approveStatus',
-      filters: Object.entries(STATUS_MAP).map(([value, meta]) => ({
+      filters: Object.entries(statusMap).map(([value, meta]) => ({
         text: meta.text,
         value: Number(value),
       })),
-      // API 常以字符串返回 status；与旧 ProTable `==` 行为对齐
       onFilter: (value, record) => Number(record.approveStatus) === Number(value),
       render: (status: number | string) => {
-        const meta = STATUS_MAP[Number(status)] || {text: String(status), color: 'default'};
+        const meta = statusMap[Number(status)] || {text: String(status), color: 'default'};
         return <Tag color={meta.color}>{meta.text}</Tag>;
       },
     },
     {
-      title: '审批反馈',
+      title: intl.formatMessage({ id: 'versionOrder.column.feedback' }),
       width: 150,
       dataIndex: 'approveResult',
       ellipsis: true,
     },
     {
-      title: '审批时间',
+      title: intl.formatMessage({ id: 'versionOrder.column.approvedAt' }),
       width: 140,
       dataIndex: 'approveTime',
     },
     {
-      title: '发起时间',
+      title: intl.formatMessage({ id: 'versionOrder.column.createdAt' }),
       dataIndex: 'createTime',
       width: 140,
     },
     {
-      title: '操作',
+      title: intl.formatMessage({ id: 'versionOrder.column.actions' }),
       key: 'option',
       fixed: 'right',
       width: 200,
@@ -135,7 +155,7 @@ const Approval: React.FC<ApprovalProps> = () => {
           <Button
             type="link"
             size="small"
-            aria-label="查看SQL"
+            aria-label={intl.formatMessage({ id: 'versionOrder.action.viewSqlAria' })}
             data-testid="approval-view-sql"
             onClick={() =>
               showSqlDetailModal({
@@ -145,7 +165,7 @@ const Approval: React.FC<ApprovalProps> = () => {
               })
             }
           >
-            查看
+            {intl.formatMessage({ id: 'versionOrder.action.viewSql' })}
           </Button>
         </Space>
       ),
@@ -161,7 +181,7 @@ const Approval: React.FC<ApprovalProps> = () => {
     <div className="approval-workorder-page" data-testid="approval-page">
       <div className="approval-workorder-page__toolbar" data-testid="approval-toolbar">
         <h2 className="approval-workorder-page__title" data-testid="page-title-approvals">
-          我的审批
+          {intl.formatMessage({ id: 'versionOrder.title.approvals' })}
         </h2>
       </div>
       <Table<ApprovalItem>
@@ -179,7 +199,7 @@ const Approval: React.FC<ApprovalProps> = () => {
         }}
         onChange={onTableChange}
         locale={{
-          emptyText: '暂无待审事项。他人在团队项目版本行「提交工单」发起 SQL 审批后会出现在此。',
+          emptyText: intl.formatMessage({ id: 'versionOrder.empty.approvals' }),
         }}
         scroll={{x: true}}
       />

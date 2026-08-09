@@ -132,12 +132,39 @@ class DdlFreemarkerCompatibilityTest {
                 DdlTemplateKeys.CREATE_INDEX,
                 DdlTemplateKeys.DELETE_INDEX,
                 DdlTemplateKeys.UPDATE_TABLE_COMMENT);
-        for (String dialect : List.of("postgresql", "oracle")) {
+        for (String dialect : List.of("postgresql", "oracle", "sqlserver", "SQLServer")) {
             for (String key : keys) {
                 assertTrue(
                         DdlFreemarkerTemplateEngine.classpathTemplateExists(dialect, key),
                         dialect + " missing " + key);
             }
         }
+    }
+
+    @Test
+    void sqlServerDialectCode_resolvesToSqlserverFolder() {
+        assertTrue(DdlFreemarkerTemplateEngine.classpathTemplateExists("SQLServer", DdlTemplateKeys.CREATE_TABLE));
+        assertTrue(DdlFreemarkerTemplateEngine.classpathTemplateExists("mssql", DdlTemplateKeys.CREATE_TABLE));
+    }
+
+    @Test
+    void classpathSqlServerCreateTableTemplate_rendersTsql() {
+        Map<String, Object> entity = new LinkedHashMap<>();
+        entity.put("title", "T_ORDER");
+        entity.put("chnname", "订单");
+        entity.put("fields", List.of(
+                Map.of("name", "ID", "dataType", "BIGINT", "pk", true, "notNull", true),
+                Map.of("name", "AMT", "dataType", "DECIMAL(18,2)", "chnname", "金额")));
+
+        Map<String, Object> ctx = Map.of(
+                DdlTemplateKeys.CTX_ENTITY, entity,
+                DdlTemplateKeys.CTX_SEPARATOR, ";\n");
+
+        String sql = DdlTemplateRenderer.render(
+                DdlTemplateKeys.CREATE_TABLE, "SQLServer", Map.of(), ctx);
+
+        assertTrue(sql.contains("CREATE TABLE [T_ORDER]"), sql);
+        assertTrue(sql.contains("CONSTRAINT PK_T_ORDER PRIMARY KEY ([ID])"), sql);
+        assertTrue(sql.contains("[AMT] DECIMAL(18,2)"), sql);
     }
 }

@@ -1,5 +1,6 @@
 import React, { useContext, useState } from 'react';
 import { Button, Modal } from 'antd';
+import { useIntl } from '@@/exports';
 import { ProjectMenuCloseContext } from '@/components/Menu/projectMenuClose';
 import type { MenuDialogControl } from '@/components/Menu/menuDialog';
 import DatabaseTemplatesEditor from '@/pages/design/setting/component/DatabaseTemplatesEditor';
@@ -12,6 +13,7 @@ const DatabaseTemplatesModal: React.FC<DatabaseTemplatesModalProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const [innerOpen, setInnerOpen] = useState(false);
   const open = openProp ?? innerOpen;
@@ -40,15 +42,15 @@ const DatabaseTemplatesModal: React.FC<DatabaseTemplatesModalProps> = ({
           size="small"
           block
           style={{ textAlign: 'left' }}
-          aria-label="DDL 模板"
+          aria-label={intl.formatMessage({ id: 'databaseTemplates.menu.aria' })}
           data-testid="menu-ddl-templates"
           onClick={openModal}
         >
-          DDL 模板
+          {intl.formatMessage({ id: 'databaseTemplates.menu.label' })}
         </Button>
       )}
       <Modal
-        title="DDL 模板"
+        title={intl.formatMessage({ id: 'databaseTemplates.modal.title' })}
         open={open}
         onCancel={closeModal}
         destroyOnClose
@@ -58,8 +60,14 @@ const DatabaseTemplatesModal: React.FC<DatabaseTemplatesModalProps> = ({
         keyboard
         focusTriggerAfterClose
         footer={[
-          <Button key="close" size="small" aria-label="关闭 DDL 模板" onClick={closeModal}>
-            关闭
+          <Button
+            key="close"
+            size="small"
+            aria-label={intl.formatMessage({ id: 'databaseTemplates.modal.closeAria' })}
+            data-testid="database-templates-modal-close"
+            onClick={closeModal}
+          >
+            {intl.formatMessage({ id: 'databaseTemplates.modal.close' })}
           </Button>,
         ]}
       >

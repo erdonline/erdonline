@@ -96,6 +96,71 @@ export function emptyDatabaseDialectRow(code: string): { code: string; fileShow:
   return { code, fileShow: true };
 }
 
+export function hasStoredTemplate(
+  row: { [key: string]: unknown } | undefined | null,
+  key: DdlTemplateKey,
+): boolean {
+  const val = row?.[key];
+  return typeof val === 'string' && val.trim().length > 0;
+}
+
+/** 预览/渲染：仅含已落盘或用户已编辑的模板键；其余走后端 classpath seed */
+export function buildPreviewDatabaseRow(input: {
+  code: string;
+  stored?: Partial<Record<DdlTemplateKey, string>> & {
+    defaultDatabase?: boolean;
+    fileShow?: boolean;
+  } | null;
+  overrides: Partial<Record<DdlTemplateKey, string>>;
+  meta: { defaultDatabase?: boolean; fileShow?: boolean };
+}): Record<string, unknown> {
+  const row: Record<string, unknown> = {
+    code: input.code,
+    fileShow: input.meta.fileShow ?? input.stored?.fileShow ?? true,
+  };
+  if (input.meta.defaultDatabase ?? input.stored?.defaultDatabase) {
+    row.defaultDatabase = true;
+  }
+  for (const key of DDL_TEMPLATE_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(input.overrides, key)) {
+      row[key] = input.overrides[key] ?? '';
+    } else if (hasStoredTemplate(input.stored, key)) {
+      row[key] = input.stored![key];
+    }
+  }
+  return row;
+}
+
+/** 保存：仅合并 meta + 已编辑键 + 保留其它已落盘 custom 键 */
+export function buildSaveDatabaseDialectPayload(input: {
+  code: string;
+  stored?: Partial<Record<DdlTemplateKey, string>> & {
+    defaultDatabase?: boolean;
+    fileShow?: boolean;
+  } | null;
+  overrides: Partial<Record<DdlTemplateKey, string>>;
+  meta: { defaultDatabase?: boolean; fileShow?: boolean };
+}): Record<string, unknown> {
+  const payload: Record<string, unknown> = {
+    code: input.code,
+    fileShow: input.meta.fileShow ?? input.stored?.fileShow ?? true,
+  };
+  if (input.meta.defaultDatabase) {
+    payload.defaultDatabase = true;
+  }
+  for (const key of DDL_TEMPLATE_KEYS) {
+    if (Object.prototype.hasOwnProperty.call(input.overrides, key)) {
+      const trimmed = String(input.overrides[key] ?? '').trim();
+      if (trimmed) {
+        payload[key] = trimmed;
+      }
+    } else if (hasStoredTemplate(input.stored, key)) {
+      payload[key] = input.stored![key];
+    }
+  }
+  return payload;
+}
+
 export function editorModeForDialect(code: string): string {
   const norm = code.toLowerCase();
   if (norm.includes('postgres') || norm === 'pg') {

@@ -38,6 +38,16 @@ public class ProjectDdlController {
         return dbChangeService.previewDdlTemplate(body);
     }
 
+    @ApiOperation(value = "classpath 默认 DDL 模板源码", nickname = "templateSources",
+            notes = "编辑器灰色占位；custom 未配置时不写入 projectJSON",
+            tags = {"projectDdl",})
+    @RequireProjectAccess
+    @PostMapping("/templateSources")
+    @MartinLog("DDL 模板默认源码")
+    public R templateSources(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
+        return dbChangeService.listDdlTemplateSources(body);
+    }
+
     @ApiOperation(value = "项目 DDL 导出（后端权威）", nickname = "export",
             notes = "按片段键/表过滤导出全量 DDL；导出对话框消费此结果",
             tags = {"projectDdl",})

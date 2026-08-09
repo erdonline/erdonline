@@ -45,6 +45,8 @@ test.describe('DDL 模板弹窗', () => {
       await expect(dialog.getByRole('option', { name: 'ORACLE' })).toBeAttached();
       await page.keyboard.press('Escape');
 
+      await expect(page.getByTestId('database-templates-source-editor')).toBeVisible();
+
       await expect(page.getByTestId('database-templates-preview-sql')).toBeVisible();
       await expect(page.getByTestId('database-templates-preview-loading')).toBeHidden({
         timeout: 15_000,
@@ -54,7 +56,7 @@ test.describe('DDL 模板弹窗', () => {
         { timeout: 5_000 },
       );
 
-      await page.getByRole('button', { name: '关闭 DDL 模板' }).click();
+      await page.getByTestId('database-templates-modal-close').click();
       await expect(page.getByTestId('database-templates-editor')).toBeHidden({
         timeout: 5_000,
       });

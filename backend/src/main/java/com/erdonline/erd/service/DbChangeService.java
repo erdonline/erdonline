@@ -105,4 +105,11 @@ public interface DbChangeService extends MartinService<DbChange> {
      *             {@code projectJSON} 可选（取 sqlConfig 分隔符）
      */
     R previewDdlTemplate(Map<String, Object> body);
+
+    /**
+     * classpath 默认 Freemarker 模板源码（11 键）；供 DDL 模板编辑器灰色占位，不落盘 projectJSON。
+     *
+     * @param body {@code dialectCode} 必填
+     */
+    R listDdlTemplateSources(Map<String, Object> body);
 }

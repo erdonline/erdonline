@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Button, Empty, Form, Input, Modal, Radio, Space, Table } from 'antd';
-import { history } from '@@/exports';
+import { history, useIntl } from '@@/exports';
 import DatabaseTemplatesModal from '@/components/dialog/setup/DatabaseTemplatesModal';
 import type { ColumnsType } from 'antd/es/table';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -73,6 +73,7 @@ const buildApplyFromTypes = (
 };
 
 const DataTypeDomains: React.FC = () => {
+  const intl = useIntl();
   const { projectDispatch, datatype, database } = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -330,11 +331,11 @@ const DataTypeDomains: React.FC = () => {
   const ddlTemplatesButton = (
     <Button
       size="small"
-      aria-label="编辑 DDL 模板"
+      aria-label={intl.formatMessage({ id: 'datatypeDomains.openDdlTemplatesAria' })}
       data-testid="datatype-open-ddl-templates"
       onClick={() => setDdlTemplatesOpen(true)}
     >
-      DDL 模板
+      {intl.formatMessage({ id: 'datatypeDomains.openDdlTemplates' })}
     </Button>
   );
 
@@ -369,10 +370,11 @@ const DataTypeDomains: React.FC = () => {
 
   return (
     <div className="setting-common-page" data-testid="datatype-domains-page">
-      <h2 className="setting-common-page__title">数据类型字典</h2>
+      <h2 className="setting-common-page__title">
+        {intl.formatMessage({ id: 'datatypeDomains.title' })}
+      </h2>
       <p className="setting-common-page__hint">
-        逻辑类型映射各库方言；枚举写入 kind=enum + values[]，供 DBML / DDL 往返。新建/编辑/删除仅保存成功后生效。DDL
-        模板在本页弹窗编辑，无需跳转
+        {intl.formatMessage({ id: 'datatypeDomains.hint' })}
       </p>
       {toolbar}
       {datatype.length === 0 ? (
