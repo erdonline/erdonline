@@ -1,3 +1,5 @@
+@import url('https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|ibm-plex-mono:400,500&display=swap');
+
 :root {
   --ifm-color-primary: #de2910;
   --ifm-color-primary-dark: #c8250e;
@@ -6,4 +8,26 @@
   --ifm-color-primary-light: #e43e28;
   --ifm-color-primary-lighter: #e64a36;
   --ifm-color-primary-lightest: #eb6b5b;
+  --ifm-font-family-base: 'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+  --ifm-heading-font-family: 'IBM Plex Sans', 'PingFang SC', 'Noto Sans SC', system-ui, sans-serif;
+  --ifm-navbar-background-color: rgba(7, 13, 20, 0.86);
+  --ifm-navbar-link-color: rgba(232, 238, 244, 0.82);
+  --ifm-navbar-link-hover-color: #fff;
+}
+
+html[data-theme='light'] {
+  --ifm-navbar-background-color: rgba(255, 255, 255, 0.86);
+  --ifm-navbar-link-color: #0b1c2c;
+  --ifm-navbar-link-hover-color: #de2910;
+}
+
+.navbar {
+  backdrop-filter: saturate(1.15) blur(12px);
+  border-bottom: 1px solid rgba(158, 176, 192, 0.12);
+  box-shadow: none;
+}
+
+.footer--dark {
+  background: #070d14;
+  border-top: 1px solid rgba(158, 176, 192, 0.12);
 }

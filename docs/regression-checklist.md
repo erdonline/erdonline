@@ -588,6 +588,8 @@
 
 ## 官方 Demo 运行时 Railway（2026-08-02）
 
+- [x] [文档站用户手册收口] Navbar「文档」→ `guide/intro`；贡献区默认折叠；Footer 有 Demo/对照/GitHub；七篇 guide 含成功态+排障；`cd website && yarn build` 绿 ✅ 2026-08-09（走查见 `docs/guide/docs-qa-checklist.md`）
+- [x] [文档站再打磨] 首页用户 CTA；Demo 只读写清；百度统计 + SPA 追踪；`zh-Hans`/`en` locale 切换与 guide 英译；`yarn build` 绿 ✅ 2026-08-09
 - [x] [ADR-0019 + deployment] 文档站可打开 ADR-0019；`deployment.md` 含 Railway 五步与 env 对照；`yarn build`（website）无 MDX 失败 ✅ 2026-08-02
 - [x] [Railway monorepo 构建] `backend/railway.toml` + Dockerfile 跟 `PORT`；文档写明 Root Directory=`backend`、Config=`/backend/railway.toml`；本地 `mvn -DskipTests package` + `docker build ./backend` ✅ 2026-08-02
 - [ ] [单库 ADR-0020] 空卷 `docker compose up` → 仅一库 `erd`；后端启动后 `sys_user` 有种子；`flyway_schema_history` ≥ V6

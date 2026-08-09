@@ -11,8 +11,11 @@ created: {{date}}
 <!-- 写作纪律（发布前删除本注释块）：
   1. CTA 永远只有一个主链接 = demo（构建时自动注入文末，正文别手写裸链接）
   2. 正文用 {{CTA}} 占位符标记主 CTA 插入点；{{REPO}} {{DOCS}} 同理
-  3. 截图存 content/articles/assets/<slug>/，相对路径引用，平台上传时替换
-  4. 写完把 status 改为 ready，再跑 build-package 出平台包
+  3. 禁止读者打不开的仓库内相对路径（docs/foo.md、frontend/...、./backend/...）
+  4. 外链只用 {{DOC:}} / {{GH:}} / {{GH_TREE:}} / {{DOCS}} / {{REPO}} / {{CTA}}
+  5. {{DOCS}}/{{REPO}} 必须用 Markdown 链接或独立列表行，禁止同一句塞两个裸 URL
+  6. 截图存 content/articles/assets/<slug>/，相对路径引用，平台上传时替换
+  7. 写完把 status 改为 ready，再跑 build-package 出平台包
 -->
 
 ## 开场：场景化痛点
@@ -43,4 +46,7 @@ MIT、`docker compose up -d` 一键起、projectJSON 开放格式承诺。
 
 ## 路线图与参与
 
-公开 roadmap、good first issue；star 请求放最末（{{REPO}}）。
+- 文档 / 路线图 / ADR：[文档站]({{DOCS}})
+- Issue / PR / star：[GitHub 仓库]({{REPO}})
+
+（一句号召，不含 URL）

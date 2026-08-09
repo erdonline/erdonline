@@ -225,6 +225,7 @@ export default {
   'landing.footer.navAria': '页脚链接',
   'landing.hero.aria': '产品介绍',
   'landing.hero.imageAlt': 'ERD Online 设计器关系图画布',
+  'landing.hero.kicker': 'Open source · MIT',
   'landing.hero.title': '数据库设计的 Git + Figma',
   'landing.hero.lead': '版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。',
   'landing.hero.cta.enterWorkspace': '进入工作台',

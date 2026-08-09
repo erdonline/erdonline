@@ -238,6 +238,7 @@ export default {
   'landing.footer.navAria': 'Footer links',
   'landing.hero.aria': 'Product overview',
   'landing.hero.imageAlt': 'ERD Online designer relationship diagram canvas',
+  'landing.hero.kicker': 'Open source · MIT',
   'landing.hero.title': 'Git + Figma for database design',
   'landing.hero.lead':
     'Versioning, collaboration, and an open format—humans and AI agents share one source of truth. Try in 30 seconds, no signup.',

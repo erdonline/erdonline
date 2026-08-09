@@ -8,6 +8,63 @@
 
 ### 2026-08-09
 
+#### 文档：用户手册再打磨 + 统计 + i18n
+
+- **文案**：guide 改成带入式路径（场景开场）；修正 Demo **只读** → **复制到我的项目** 再存版
+- **首页**：文档站首页 CTA 改为 Demo / 从这里开始 + 三条路径卡（不再默认推愿景/本地开发）
+- **统计**：接入与产品同 ID 的百度统计；`clientModules` 对 SPA 路由 `_trackPageview`
+- **i18n**：`zh-Hans` + `en`；Navbar 语言切换；用户 guide 英文译本在 `website/i18n/en/.../guide/`
+- **i18n 补全**：自托管三篇、贡献区七篇、全部 ADR 英译；修正 ADR 绝对链接勿带数字前缀（Docusaurus 会剥离）
+- **首页观感**：文档站与产品落地页统一为精密工具站语言——去掉 Syne/模糊全幅；网格氛围 + 右侧锐利产品窗；IBM Plex；品牌红 CTA
+- **落地对齐文档站**：`:8000/` hero 改为与 `:3000/erdonline/` 同构图（kicker + 双栏 + chrome 窗）；底色 `#070d14`
+- **科技感加深**：落地次屏编号面板 / 对照表壳 / 玻璃顶栏；文档首页 signal 条（MIT · version/diff · compose · API/MCP）
+- **Hero 实例图**：v3 深色关系图（Synced/v1.0.4 芯片 + 更清晰 FK）；去掉双重 chrome；窗体光扫 + 底光脉冲 + hover 浮起
+- 验证点：硬刷 `:8000/?` 与 `:3000/erdonline/?`（`?v=20260809c`）；`yarn build` 绿
+
+#### 文档：精致完备用户站（intro + 指南加厚 + 导航收口）
+
+- **首页**：`docs/guide/intro.md`「从这里开始」；Navbar「文档」直达该页
+- **加厚**：七篇 guide 统一「目标/步骤/成功态/排障/下一步」
+- **导航**：贡献与工程默认折叠；Footer 补 Demo/对照/GitHub；搜索 `indexBlog: true`
+- **验收**：`docs/guide/docs-qa-checklist.md`（维护者，侧栏贡献区末项）
+- 验证点：`cd website && yarn build` 绿；本地 `yarn serve` 按 checklist A/B 走查
+
+#### 文档：用户视角重构（guide + 侧栏分流 + blog 索引）
+
+- **指南**：新增 `docs/guide/`（是什么 / 存版 diff / DBML / 逆向 / 角色审批 / 五分钟自托管 / API·MCP）
+- **导航**：`website/sidebars.js` 三分「使用指南 / 自托管与开放 / 贡献与工程」；`growth`、回归清单、UI 过程稿等撤出默认侧栏
+- **Blog**：启用 Docusaurus blog；索引帖 `website/blog/2026-08-09-guides-and-articles.md`；Navbar 增加「指南索引」「试用 Demo」
+- **语气**：vision / roadmap / design-principles / growth / community 加读者 callout；deployment / data-format 文首「你将得到什么」
+- **增长**：选题表增加「指南页」列；`content/articles` frontmatter 约定可选 `guide:`
+- 验证点：`cd website && yarn build` 绿（死链门禁）
+
+#### 增长：2026-08-09 全量同步台账
+
+- **记录**：`content/articles/publish-status-2026-08-09.md` + `.json`（成功 50 / 失败 34；含各平台草稿 URL）
+- **成功**：掘金/开源中国/小红书/微信 各 12；CSDN 2
+- **失败**：知乎 12（403）、思否 12（未登录）、CSDN 10（频控）
+- 验证点：打开台账核对掘金草稿链接可达；失败项按台账「处理建议」重试
+
+#### 增长：公开稿禁止仓库内路径 + 排版纪律
+
+- **改法**：稿件 `{{DOC:page}}` / `{{GH:path}}` / `{{GH_TREE:path}}` 展开为文档站或 GitHub 公开 URL；12 篇去掉 `docs/*.md` 等读者打不开的相对路径；文末链接独立列表行；`website/sidebars.js` 补 `data-format`
+- 验证点：`build-package --all` 后 `g6-to-reactflow-strangler/juejin.md` 含 `docs/data-format?utm_` 公开链，无裸 `docs/data-format.md`
+
+#### 增长：选题包 12 篇全部 ready + 全量发布包
+
+- **正文**：`content/articles/` 补齐 #1/#2/#5–#12（#3/#4 已有）；一律 `status=ready`；默认同步 `juejin,csdn,oschina,xiaohongshu`（#2/#10 含 v2ex；#9 含 segmentfault）；运营排除 weixin/zhihu
+- **流水线**：`build-package` CTA 文案按 `demo/compare/docs/deploy/repo` 区分；小红书包按篇生成（`xhs_title`）
+- **文档**：`docs/growth.md` 选题表改为 slug + ✅ ready
+- 验证点：`node scripts/growth/build-package.mjs --all` → 12 篇均出 `content/dist/<slug>/`
+
+#### 增长：选题 #4 from-dbdiagram-in-5-min（DBML 搬家）+ 小红书包按篇生成
+
+- **正文**：`content/articles/from-dbdiagram-in-5-min.md`（`status=ready`）；平台 `juejin,csdn,oschina,xiaohongshu`（按运营要求排除 weixin/zhihu）
+- **改法**：`build-package.mjs` 的 `renderXiaohongshu` 不再写死 #3 文案，改为从正文抽导语/要点；支持可选 `xhs_title`
+- 验证点：
+  - `node scripts/growth/build-package.mjs from-dbdiagram-in-5-min` → 小红书稿含「dbdiagram / DBML」，UTM `utm_content=from-dbdiagram-in-5-min`
+  - Wechatsync 草稿：juejin / csdn / oschina / xiaohongshu
+
 #### 产品 URL：demo 域名统一为 www.erdonline.com
 
 - **改法**：面向用户的 demo / CTA / CORS 示例由 `erdonline-demo.pages.dev` 换为 `https://www.erdonline.com`；`scripts/growth/lib/utm.mjs` 单一事实源；重跑 `build-package.mjs git-style-version-diff` 刷新各平台包；`docs/deployment.md` 保留 CF Pages 默认别名 `erdonline-demo.pages.dev` 作运维说明

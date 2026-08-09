@@ -17,8 +17,19 @@ const config = {
   },
   i18n: {
     defaultLocale: 'zh-Hans',
-    locales: ['zh-Hans'],
+    locales: ['zh-Hans', 'en'],
+    localeConfigs: {
+      'zh-Hans': { label: '简体中文' },
+      en: { label: 'English' },
+    },
   },
+  clientModules: [require.resolve('./src/clientModules/baiduAnalytics.js')],
+  scripts: [
+    {
+      src: 'https://hm.baidu.com/hm.js?bd50dd978c8d8d94792f4e987c4a7aaf',
+      async: true,
+    },
+  ],
   presets: [
     [
       'classic',
@@ -31,7 +42,14 @@ const config = {
           editUrl: 'https://github.com/erdonline/erdonline/tree/main/docs/',
           exclude: ['**/releases/**'],
         },
-        blog: false,
+        blog: {
+          path: 'blog',
+          routeBasePath: 'blog',
+          showReadingTime: true,
+          blogTitle: '指南与文章',
+          blogDescription: '使用指南索引与深度文章入口',
+          editUrl: 'https://github.com/erdonline/erdonline/tree/main/website/blog/',
+        },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
         },
@@ -47,7 +65,7 @@ const config = {
         language: ['en', 'zh'],
         docsDir: '../docs',
         docsRouteBasePath: 'docs',
-        indexBlog: false,
+        indexBlog: true,
         highlightSearchTermsOnTargetPage: true,
       }),
     ],
@@ -58,17 +76,53 @@ const config = {
       navbar: {
         title: 'ERD Online',
         items: [
-          { type: 'docSidebar', sidebarId: 'docs', position: 'left', label: '文档' },
+          {
+            type: 'doc',
+            docId: 'guide/intro',
+            position: 'left',
+            label: '文档',
+          },
+          { to: '/blog', label: '指南索引', position: 'left' },
+          {
+            href: 'https://www.erdonline.com/demo',
+            label: '试用 Demo',
+            position: 'left',
+          },
           {
             href: 'https://github.com/erdonline/erdonline/tree/main/docs/releases',
             label: '发版笔记',
             position: 'left',
+          },
+          {
+            type: 'localeDropdown',
+            position: 'right',
           },
           { href: 'https://github.com/erdonline/erdonline', label: 'GitHub', position: 'right' },
         ],
       },
       footer: {
         style: 'dark',
+        links: [
+          {
+            title: '使用',
+            items: [
+              { label: '从这里开始', to: '/docs/guide/intro' },
+              { label: '试用 Demo', href: 'https://www.erdonline.com/demo' },
+              { label: '工具对照', href: 'https://www.erdonline.com/compare' },
+            ],
+          },
+          {
+            title: '更多',
+            items: [
+              { label: '指南索引', to: '/blog' },
+              {
+                label: '发版笔记',
+                href: 'https://github.com/erdonline/erdonline/tree/main/docs/releases',
+              },
+              { label: 'GitHub', href: 'https://github.com/erdonline/erdonline' },
+            ],
+          },
+        ],
         copyright: `Copyright © ${new Date().getFullYear()} ERD Online · MIT`,
       },
     }),

@@ -1,10 +1,19 @@
 # 社区与新手任务
 
+:::info 读者
+面向想提 PR 的贡献者。使用产品请从 [使用指南](/docs/guide/what-is-erd-online) 开始。
+:::
+
 > 目标：让第一次提 PR 的人 **2 小时内能合入** 有意义的改动，抬升贡献者留存（愿景第三层用户价值）。
 
 ## 社区入口
 
 产品面统一指向 [GitHub Issues](https://github.com/erdonline/erdonline/issues)（提问、想法、路线图反馈）。维护者请确保仓库 **Issues 对公众开放**（Settings → Features → Issues）。
+
+画布迁移与贡献体验的背景阅读（外发长文蒸馏入口）：
+
+- 设计器已完成 G6 → ReactFlow Strangler（R0–R3）；缺口以 Issue 为准，见 [路线图](./roadmap.md)
+- 如何写好第一个 Issue / PR：见下文 good first 标准；仓库根目录 [CONTRIBUTING.md](https://github.com/erdonline/erdonline/blob/main/CONTRIBUTING.md)
 
 | 标签 | 含义 |
 |---|---|
