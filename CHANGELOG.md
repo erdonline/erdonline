@@ -29,8 +29,8 @@
 - **滚动条**：landing 族 `scrollbar-color` + webkit 深色 thumb/track（对齐 void 底）
 - **模板广场**：卡片 tags 与 `official` 徽章去重，不再双显「官方」
 - **导航**（保持）：产品亮点 → 模板广场 → 竞品对比 → GitHub → 登录/进入工作台
-- **Skip**：`.erd-skip-link` 改 off-screen translate（非 clip 1px），恢复 Tab 首焦可达
-- 验证点：Playwright 实测 body margin=0、nav 全宽；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts tests/e2e/catalog.spec.ts --grep "顶栏|跨页|匿名可浏览|键盘"`
+- **Skip**：Skip 链移入 `landingNavInner` DOM 首位（fixed 脱流），修复全宽顶栏下 Tab 首焦
+- 验证点：Playwright 实测 body margin=0、nav 全宽；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts --grep "顶栏|跨页|键盘"`
 
 #### 模板广场：列表卡片 footer 防组内换行
 
