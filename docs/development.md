@@ -292,6 +292,18 @@ yarn dogfood            # 读写 PAT + REST/MCP（create_version / update_projec
 
 详见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
+### 模板广场（ADR-0028）
+
+```bash
+curl -sS 'http://127.0.0.1:9502/catalog/v1/templates?page=1&size=5' | jq .
+curl -sS 'http://127.0.0.1:9502/catalog/v1/templates/blank' | jq .
+# 安装须 Bearer 会话 JWT 或 PAT（projects:write）
+curl -sS -X POST 'http://127.0.0.1:9502/catalog/v1/templates/blank/install' \
+  -H "Authorization: Bearer $TOKEN" | jq .
+```
+
+前端：`http://localhost:8000/catalog`；`/project/new` 重定向至 `/catalog`。可选 `ERD_CATALOG_API_URL`（空 = 仅本地种子 offline）。
+
 ## 前端如何找到后端
 
 对外规范：[data-format.md](./data-format.md)。改 `schema/projectjson.schema.json` 或示例后：

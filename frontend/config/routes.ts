@@ -67,6 +67,33 @@ export default [
   },
 
   {
+    path: '/catalog',
+    component: '../layouts/HomeLayout',
+    routes: [
+      {
+        path: '/catalog',
+        component: './catalog',
+      },
+      {
+        path: '/catalog/creator/:handle',
+        component: './catalog/creator',
+      },
+      {
+        path: '/catalog/publish',
+        component: './catalog/publish',
+      },
+      {
+        path: '/catalog/review',
+        component: './catalog/review',
+      },
+      {
+        path: '/catalog/:id',
+        component: './catalog/detail',
+      },
+    ],
+  },
+
+  {
     path: '/project',
     component: '../layouts/HomeLayout',
     routes: [
@@ -88,7 +115,7 @@ export default [
       },
       {
         path: '/project/new',
-        redirect: '/project/person',
+        redirect: '/catalog',
       },
       {
         component: './404',

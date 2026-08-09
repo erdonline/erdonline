@@ -24,7 +24,7 @@ import javax.sql.DataSource;
  */
 @Configuration
 @MapperScan(
-        basePackages = "com.erdonline.erd.mapper",
+        basePackages = {"com.erdonline.erd.mapper", "com.erdonline.erd.catalog"},
         sqlSessionFactoryRef = "erdSqlSessionFactory",
         nameGenerator = FullyQualifiedMapperNameGenerator.class
 )

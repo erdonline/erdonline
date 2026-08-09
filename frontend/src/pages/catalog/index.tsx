@@ -1,0 +1,154 @@
+import {
+  Button,
+  Card,
+  Col,
+  Empty,
+  Input,
+  List,
+  Rate,
+  Row,
+  Space,
+  Tag,
+  Typography,
+  message,
+} from 'antd';
+import {useEffect, useState} from 'react';
+import {history, Link} from '@@/exports';
+import {
+  listCatalogTemplates,
+  type CatalogTemplateSummary,
+} from '@/services/catalog';
+import '../project/project-list.scss';
+import './catalog.scss';
+
+const {Title, Paragraph, Text} = Typography;
+
+export default function CatalogListPage() {
+  const [loading, setLoading] = useState(true);
+  const [records, setRecords] = useState<CatalogTemplateSummary[]>([]);
+  const [total, setTotal] = useState(0);
+  const [page, setPage] = useState(1);
+  const [q, setQ] = useState('');
+  const [sort, setSort] = useState('installs');
+
+  const fetchList = (nextPage = page, keyword = q, nextSort = sort) => {
+    setLoading(true);
+    listCatalogTemplates({q: keyword || undefined, sort: nextSort, page: nextPage, size: 12})
+      .then((res) => {
+        const data = res?.data ?? res;
+        setRecords(data?.records ?? []);
+        setTotal(data?.total ?? 0);
+      })
+      .catch(() => message.error('加载模板失败'))
+      .finally(() => setLoading(false));
+  };
+
+  useEffect(() => {
+    fetchList(1);
+  }, [sort]);
+
+  return (
+    <div className="catalog-page project-list-page" data-testid="catalog-list-page">
+      <div className="project-list-page__toolbar">
+        <Title level={2} className="project-list-page__title" style={{margin: 0}}>
+          模板广场
+        </Title>
+        <Space wrap>
+          <Input.Search
+            placeholder="搜索模板"
+            allowClear
+            onSearch={(value) => {
+              setQ(value);
+              setPage(1);
+              fetchList(1, value, sort);
+            }}
+            aria-label="搜索模板"
+            data-testid="catalog-search"
+          />
+          <Button
+            type={sort === 'installs' ? 'primary' : 'default'}
+            data-testid="catalog-sort-installs"
+            onClick={() => setSort('installs')}
+          >
+            最多安装
+          </Button>
+          <Button
+            type={sort === 'rating' ? 'primary' : 'default'}
+            data-testid="catalog-sort-rating"
+            onClick={() => setSort('rating')}
+          >
+            最高评分
+          </Button>
+          <Button
+            type={sort === 'newest' ? 'primary' : 'default'}
+            data-testid="catalog-sort-newest"
+            onClick={() => setSort('newest')}
+          >
+            最新
+          </Button>
+          <Button data-testid="catalog-publish-link" onClick={() => history.push('/catalog/publish')}>
+            发布模板
+          </Button>
+        </Space>
+      </div>
+
+      <List
+        grid={{gutter: 12, xs: 1, sm: 2, md: 2, lg: 3, xl: 3, xxl: 4}}
+        loading={loading}
+        dataSource={records}
+        locale={{
+          emptyText: (
+            <Empty description="暂无模板">
+              <Button type="primary" onClick={() => history.push('/catalog/blank')}>
+                从空白项目开始
+              </Button>
+            </Empty>
+          ),
+        }}
+        pagination={{
+          current: page,
+          pageSize: 12,
+          total,
+          onChange: (p) => {
+            setPage(p);
+            fetchList(p);
+          },
+        }}
+        renderItem={(item, index) => (
+          <List.Item>
+            <Card
+              hoverable
+              className="catalog-card"
+              data-testid={index === 0 ? 'catalog-tile-first' : `catalog-tile-${item.id}`}
+              onClick={() => history.push(`/catalog/${item.slug || item.id}`)}
+            >
+              <Space direction="vertical" size={8} style={{width: '100%'}}>
+                <Title level={5} style={{margin: 0}}>
+                  {item.title}
+                </Title>
+                <Paragraph type="secondary" ellipsis={{rows: 2}} style={{margin: 0, minHeight: 40}}>
+                  {item.description || '暂无描述'}
+                </Paragraph>
+                <Space wrap size={4}>
+                  {(item.tags ?? []).slice(0, 4).map((tag) => (
+                    <Tag key={tag}>{tag}</Tag>
+                  ))}
+                </Space>
+                <Space split={<Text type="secondary">·</Text>}>
+                  <Text type="secondary">{item.installCount} 次安装</Text>
+                  <Rate disabled allowHalf value={item.ratingAverage} style={{fontSize: 12}} />
+                  <Link
+                    to={`/catalog/creator/${item.authorHandle}`}
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {item.authorDisplayName || item.authorHandle}
+                  </Link>
+                </Space>
+              </Space>
+            </Card>
+          </List.Item>
+        )}
+      />
+    </div>
+  );
+}

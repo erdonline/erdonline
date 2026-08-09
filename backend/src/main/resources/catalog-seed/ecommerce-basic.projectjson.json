@@ -1,0 +1,77 @@
+{
+  "modules": [
+    {
+      "name": "SHOP",
+      "chnname": "电商",
+      "entities": [
+        {
+          "title": "shop_product",
+          "chnname": "商品",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "sku", "chnname": "SKU", "type": "MiddleString", "notNull": true},
+            {"name": "name", "chnname": "名称", "type": "MiddleString", "notNull": true},
+            {"name": "price", "chnname": "价格", "type": "Money", "notNull": true, "defaultValue": "0"},
+            {"name": "stock", "chnname": "库存", "type": "Integer", "defaultValue": "0"},
+            {"name": "category_id", "chnname": "分类", "type": "IdOrKey"},
+            {"name": "status", "chnname": "状态", "type": "ShortString", "defaultValue": "'active'"},
+            {"name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP"}
+          ],
+          "indexs": [
+            {"name": "uk_shop_product_sku", "isUnique": true, "fields": ["sku"]},
+            {"name": "idx_shop_product_category", "isUnique": false, "fields": ["category_id"]}
+          ]
+        },
+        {
+          "title": "shop_category",
+          "chnname": "分类",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "name", "chnname": "名称", "type": "MiddleString", "notNull": true},
+            {"name": "parent_id", "chnname": "父分类", "type": "IdOrKey"}
+          ],
+          "indexs": [
+            {"name": "uk_shop_category_name", "isUnique": true, "fields": ["name"]}
+          ]
+        },
+        {
+          "title": "shop_order",
+          "chnname": "订单",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "order_no", "chnname": "订单号", "type": "MiddleString", "notNull": true},
+            {"name": "user_id", "chnname": "用户", "type": "IdOrKey", "notNull": true},
+            {"name": "total_amount", "chnname": "总额", "type": "Money", "notNull": true},
+            {"name": "status", "chnname": "状态", "type": "ShortString", "defaultValue": "'pending'"},
+            {"name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP"}
+          ],
+          "indexs": [
+            {"name": "uk_shop_order_no", "isUnique": true, "fields": ["order_no"]},
+            {"name": "idx_shop_order_user", "isUnique": false, "fields": ["user_id"]}
+          ]
+        },
+        {
+          "title": "shop_order_item",
+          "chnname": "订单明细",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "order_id", "chnname": "订单", "type": "IdOrKey", "notNull": true},
+            {"name": "product_id", "chnname": "商品", "type": "IdOrKey", "notNull": true},
+            {"name": "quantity", "chnname": "数量", "type": "Integer", "notNull": true},
+            {"name": "unit_price", "chnname": "单价", "type": "Money", "notNull": true}
+          ],
+          "indexs": [
+            {"name": "idx_shop_order_item_order", "isUnique": false, "fields": ["order_id"]}
+          ]
+        }
+      ],
+      "associations": [
+        {"relation": "1:n", "from": {"entity": "shop_product", "field": "category_id"}, "to": {"entity": "shop_category", "field": "id"}},
+        {"relation": "1:n", "from": {"entity": "shop_order_item", "field": "order_id"}, "to": {"entity": "shop_order", "field": "id"}},
+        {"relation": "1:n", "from": {"entity": "shop_order_item", "field": "product_id"}, "to": {"entity": "shop_product", "field": "id"}}
+      ]
+    }
+  ],
+  "profile": {"dbs": [], "defaultFields": []},
+  "dataTypeDomains": {"datatype": [], "database": [{"code": "MYSQL", "defaultDatabase": true}]}
+}

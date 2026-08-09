@@ -53,11 +53,11 @@ async function deleteGroupProject(
  */
 
 test.describe('项目面闭环', () => {
-  test('/project/new 重定向到个人项目', async ({ page }) => {
+  test('/project/new 重定向到模板广场', async ({ page }) => {
     await login(page);
     await page.goto('/project/new');
-    await expect(page).toHaveURL(/\/project\/person/, { timeout: 15_000 });
-    await expect(page.getByRole('button', { name: /新\s*建|立即创建/ }).first()).toBeVisible({
+    await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });
+    await expect(page.getByTestId('catalog-list-page')).toBeVisible({
       timeout: 15_000,
     });
   });

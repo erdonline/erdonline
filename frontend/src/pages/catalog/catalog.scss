@@ -1,0 +1,15 @@
+.catalog-page {
+  .catalog-card {
+    border-radius: 8px;
+    cursor: pointer;
+    min-height: 168px;
+  }
+
+  .catalog-detail__meta {
+    margin-bottom: 12px;
+  }
+
+  .catalog-detail__actions {
+    margin-top: 16px;
+  }
+}
