@@ -68,7 +68,7 @@ export default [
 
   {
     path: '/catalog',
-    component: '../layouts/HomeLayout',
+    component: '../layouts/CatalogLayout',
     routes: [
       {
         path: '/catalog',

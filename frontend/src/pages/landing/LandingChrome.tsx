@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {Helmet, Link, useIntl} from '@umijs/max';
+import {Helmet, Link, useIntl, useLocation} from '@umijs/max';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
@@ -21,19 +21,31 @@ export type LandingChromeProps = {
   /** 子页用相对顶栏；落地首页仍绝对叠在 hero 上 */
   variant?: 'hero' | 'subpage';
   testId?: string;
+  /** Skip 目标地标 id；catalog 等子页指向主内容区 */
+  skipTargetId?: string;
+  /** 顶栏当前高亮项 */
+  activeNav?: 'catalog' | 'compare';
 };
 
 const LandingChrome: React.FC<LandingChromeProps> = ({
   children,
   variant = 'hero',
   testId = 'landing-page',
+  skipTargetId = 'landing-main-cta',
+  activeNav,
 }) => {
   const intl = useIntl();
+  const location = useLocation();
   const [authed, setAuthed] = useState(false);
 
   useEffect(() => {
     setAuthed(Boolean(cache.getItem('Authorization')));
   }, []);
+
+  const resolvedActiveNav =
+    activeNav ??
+    (location.pathname.startsWith('/catalog') ? 'catalog' : undefined) ??
+    (location.pathname.startsWith('/compare') ? 'compare' : undefined);
 
   return (
     <div
@@ -52,15 +64,17 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         data-testid="landing-skip-nav"
       >
         <a
-          href="#landing-main-cta"
+          href={`#${skipTargetId}`}
           className="erd-skip-link"
           data-testid="landing-skip-cta"
           onClick={(e) => {
             e.preventDefault();
-            focusSkipTarget('landing-main-cta');
+            focusSkipTarget(skipTargetId);
           }}
         >
-          {intl.formatMessage({ id: 'common.skipMainAction' })}
+          {skipTargetId === 'landing-main-cta'
+            ? intl.formatMessage({ id: 'common.skipMainAction' })
+            : intl.formatMessage({ id: 'homeLayout.skip.main' })}
         </a>
       </nav>
       <header className="landingNav">
@@ -79,13 +93,17 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           <a href="/#pillars">{intl.formatMessage({ id: 'landing.nav.pillars' })}</a>
           <Link
             to="/catalog"
+            className={resolvedActiveNav === 'catalog' ? 'landingNavLinkActive' : undefined}
             data-testid="landing-nav-catalog"
+            aria-current={resolvedActiveNav === 'catalog' ? 'page' : undefined}
             aria-label={intl.formatMessage({ id: 'landing.nav.catalogAria' })}
           >
             {intl.formatMessage({ id: 'landing.nav.catalog' })}
           </Link>
           <Link
             to="/compare"
+            className={resolvedActiveNav === 'compare' ? 'landingNavLinkActive' : undefined}
+            aria-current={resolvedActiveNav === 'compare' ? 'page' : undefined}
             aria-label={intl.formatMessage({ id: 'landing.nav.compareAria' })}
           >
             {intl.formatMessage({ id: 'landing.nav.compare' })}

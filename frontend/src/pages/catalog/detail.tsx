@@ -71,6 +71,12 @@ export default function CatalogDetailPage() {
 
   const handleInstall = async () => {
     if (!id) return;
+    const returnPath = `/catalog/${id}`;
+    const auth = cache.getItem('Authorization');
+    if (!auth) {
+      history.push(`/login?redirect=${encodeURIComponent(returnPath)}`);
+      return;
+    }
     setInstalling(true);
     try {
       const res: any = await installCatalogTemplate(id);
@@ -81,8 +87,16 @@ export default function CatalogDetailPage() {
         history.push(`/design/table/model?projectId=${data.projectId}`);
         return;
       }
+      if (res?.code === 401) {
+        history.push(`/login?redirect=${encodeURIComponent(returnPath)}`);
+        return;
+      }
       message.error(res?.msg || '安装失败，请先登录');
     } catch (e: any) {
+      if (e?.data?.code === 401 || e?.response?.status === 401) {
+        history.push(`/login?redirect=${encodeURIComponent(returnPath)}`);
+        return;
+      }
       message.error(e?.data?.msg || e?.message || '安装失败');
     } finally {
       setInstalling(false);
@@ -91,6 +105,10 @@ export default function CatalogDetailPage() {
 
   const handleRate = async (value: number) => {
     if (!id) return;
+    if (!cache.getItem('Authorization')) {
+      history.push(`/login?redirect=${encodeURIComponent(`/catalog/${id}`)}`);
+      return;
+    }
     try {
       await rateCatalogTemplate(id, value);
       message.success('感谢评分');
@@ -102,6 +120,10 @@ export default function CatalogDetailPage() {
 
   const handleComment = async () => {
     if (!id || !commentBody.trim()) return;
+    if (!cache.getItem('Authorization')) {
+      history.push(`/login?redirect=${encodeURIComponent(`/catalog/${id}`)}`);
+      return;
+    }
     setCommentSubmitting(true);
     try {
       await addCatalogComment(id, commentBody.trim());
