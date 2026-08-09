@@ -8,10 +8,11 @@
 
 ### 2026-08-09
 
-#### 模板详情：作者移至标题行右上角
+#### 模板详情：安装/评分并入标题行右上角
 
-- **布局**：标题左、作者右（`catalog-detail__header`）；安装/评分等指标行不再混排作者
-- 验证点：HMR 目视 `/catalog/demo-authz`；`yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览"`
+- **布局**：标题左、**安装到我的项目 + 你的评分** 右（`catalog-detail__header`）；作者仍在 meta 指标行
+- **移除**：独立全宽 `catalog-detail__action-bar` 底栏
+- 验证点：HMR 目视 `/catalog/demo-authz`；`yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览|只读关系图|安装与评分"`
 
 #### 模板详情：安装/评分操作条上移至预览区上方
 

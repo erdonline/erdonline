@@ -18,7 +18,7 @@ test.describe('模板广场', () => {
     await expect(page.getByTestId('catalog-tile-first')).toBeVisible({ timeout: 15_000 });
     await page.getByTestId('catalog-tile-first').click();
     await expect(page.getByTestId('catalog-detail-page')).toBeVisible({ timeout: 15_000 });
-    await expect(page.getByTestId('catalog-detail-author')).toBeVisible();
+    await expect(page.getByTestId('catalog-detail-action-bar')).toBeVisible();
     await expect(page.getByTestId('catalog-install-btn')).toBeVisible();
   });
 

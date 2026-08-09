@@ -249,36 +249,19 @@
     display: flex;
     align-items: flex-start;
     justify-content: space-between;
+    flex-wrap: wrap;
     gap: 12px 16px;
     margin-bottom: 4px;
   }
 
-  .catalog-detail__author {
+  .catalog-detail__header-actions {
     flex-shrink: 0;
-    margin-top: 0.35em;
-    font-size: 0.9rem;
-    color: #9eb0c0 !important;
-    text-decoration: none;
-
-    &:hover {
-      color: var(--erd-brand) !important;
-    }
+    margin-left: auto;
+    justify-content: flex-end;
   }
 
   .catalog-detail__meta {
     margin-bottom: 12px;
-  }
-
-  .catalog-detail__action-bar {
-    margin: 4px 0 12px;
-    padding: 12px 14px;
-    border: 1px solid rgba(158, 176, 192, 0.16);
-    border-radius: 10px;
-    background: rgba(255, 255, 255, 0.04);
-  }
-
-  .catalog-detail__actions {
-    width: 100%;
   }
 
   .catalog-detail__metrics {

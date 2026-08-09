@@ -208,28 +208,11 @@ export default function CatalogDetailPage() {
             <Title level={2} className="catalog-page__title" style={{margin: 0}}>
               {detail.title}
             </Title>
-            <Link
-              to={`/catalog/creator/${detail.authorHandle}`}
-              className="catalog-detail__author"
-              data-testid="catalog-detail-author"
+            <Space
+              wrap
+              className="catalog-detail__header-actions"
+              data-testid="catalog-detail-action-bar"
             >
-              {detail.authorDisplayName || detail.authorHandle}
-            </Link>
-          </div>
-          <Space wrap className="catalog-detail__meta">
-            {(detail.tags ?? []).map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-            <Text type="secondary" data-testid="catalog-install-count">
-              {detail.installCount} 次安装
-            </Text>
-            <Rate disabled allowHalf value={detail.ratingAverage} data-testid="catalog-rating-display" />
-            <Text type="secondary" data-testid="catalog-rating-count">
-              ({detail.ratingCount} 人评分)
-            </Text>
-          </Space>
-          <div className="catalog-detail__action-bar" data-testid="catalog-detail-action-bar">
-            <Space wrap className="catalog-detail__actions">
               <Button
                 type="primary"
                 loading={installing}
@@ -252,6 +235,21 @@ export default function CatalogDetailPage() {
               )}
             </Space>
           </div>
+          <Space wrap className="catalog-detail__meta">
+            {(detail.tags ?? []).map((tag) => (
+              <Tag key={tag}>{tag}</Tag>
+            ))}
+            <Text type="secondary" data-testid="catalog-install-count">
+              {detail.installCount} 次安装
+            </Text>
+            <Rate disabled allowHalf value={detail.ratingAverage} data-testid="catalog-rating-display" />
+            <Text type="secondary" data-testid="catalog-rating-count">
+              ({detail.ratingCount} 人评分)
+            </Text>
+            <Link to={`/catalog/creator/${detail.authorHandle}`}>
+              {detail.authorDisplayName || detail.authorHandle}
+            </Link>
+          </Space>
           <Text type="secondary" className="catalog-detail__metrics">
             {moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
           </Text>
