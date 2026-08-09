@@ -36,7 +36,8 @@ test.describe('只读分享', () => {
       return {
         widthRatio: el.getBoundingClientRect().width / window.innerWidth,
         ink900: root.getPropertyValue('--erd-ink-900').trim(),
-        bgImage: cs.backgroundImage,
+        voidBg: root.getPropertyValue('--erd-void').trim(),
+        bgColor: cs.backgroundColor,
         brandPadT: parseFloat(cs.paddingTop),
         brandPadL: parseFloat(cs.paddingLeft),
         brandGap: parseFloat(cs.gap) || 0,
@@ -49,7 +50,8 @@ test.describe('只读分享', () => {
     expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
     expect(brandMetrics.widthRatio).toBeLessThan(0.48);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
-    expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
+    expect(brandMetrics.voidBg).toBe('#070d14');
+    expect(brandMetrics.bgColor).toBe('rgb(7, 13, 20)');
     // ADR-0016：失效门碎距三压（与登录壳同源：gap12 / 门头 mb12）；品牌层次不弱化
     expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);

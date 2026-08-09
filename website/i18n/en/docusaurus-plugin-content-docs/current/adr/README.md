@@ -29,3 +29,5 @@
 | [0022](/docs/adr/dual-layer-consistency) | Dual-layer consistency (workspace ↔ version ↔ live DB); no automatic bidirectional sync | ✅ Accepted |
 | [0023](/docs/adr/i18n-foundation) | i18n foundation: default zh-CN; English-first ≠ switch default; one slice after B layer | Accepted |
 | [0024](/docs/adr/datasource-credential-encryption) | Datasource credential encryption at rest (AES-256-GCM, `ERD_DB_CONFIG_SECRET`) | Accepted |
+| [0025](/docs/adr/og-social-unfurl) | OG / social unfurl cards | Accepted |
+| [0026](/docs/adr/precision-tooling-visual-language) | Precision tooling visual language (dark marketing + light precision app; ≠ global dark mode) | Accepted |

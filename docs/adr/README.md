@@ -29,3 +29,5 @@
 | [0022](./0022-dual-layer-consistency.md) | 双层一致性（工作区↔版本↔实库）；禁止自动双向同步 | ✅ 已接受 |
 | [0023](./0023-i18n-foundation.md) | i18n 奠基：默认 zh-CN；英文优先 ≠ 切默认；B 层后一个切片 | 已接受 |
 | [0024](./0024-datasource-credential-encryption.md) | 数据源凭证落库加密（AES-256-GCM，`ERD_DB_CONFIG_SECRET`） | 已接受 |
+| [0025](./0025-og-social-unfurl.md) | OG / 社交展开卡片 | 已接受 |
+| [0026](./0026-precision-tooling-visual-language.md) | 精密工具站视觉语言（营销深色 + 工作台浅色精密化；≠ 全局暗色） | 已接受 |

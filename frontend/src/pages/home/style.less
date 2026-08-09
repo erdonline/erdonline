@@ -40,9 +40,9 @@
 .heroTitle {
   margin: 0 0 4px !important;
   font-family: var(--erd-font-display);
-  font-size: 28px !important;
+  font-size: 24px !important;
   line-height: 1.25 !important;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
   color: var(--erd-ink-900);
 }
 
@@ -60,12 +60,17 @@
 
   :global(.ant-statistic-title) {
     color: var(--erd-ink-400);
-    font-size: 12px;
+    font-size: var(--erd-kicker-size);
+    font-family: var(--erd-font-mono);
+    letter-spacing: var(--erd-kicker-tracking);
+    text-transform: uppercase;
     margin-bottom: 0;
   }
 
   :global(.ant-statistic-content) {
-    font-family: var(--erd-font-ui);
+    font-family: var(--erd-font-mono);
+    font-size: 20px;
+    letter-spacing: -0.02em;
   }
 }
 
@@ -219,18 +224,19 @@
   gap: 4px;
   min-height: 96px;
   padding: 10px 12px;
-  background: var(--erd-surface);
-  border: 1px solid var(--erd-line);
-  border-radius: 6px;
-  box-shadow: 0 1px 2px var(--erd-ink-a06);
+  background: var(--erd-surface-elevated);
+  border: 1px solid var(--erd-hairline);
+  border-radius: var(--erd-radius-sm);
+  box-shadow: none;
   text-decoration: none;
   color: inherit;
-  transition: box-shadow 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease;
 
   &:hover {
     transform: translateY(-1px);
-    box-shadow: 0 4px 16px var(--erd-ink-a06);
-    border-color: var(--erd-ink-400);
+    box-shadow: none;
+    border-color: color-mix(in srgb, var(--erd-ink-900) 22%, var(--erd-line));
+    background: var(--erd-surface);
 
     .openHint {
       opacity: 1;
@@ -309,15 +315,17 @@
   padding-top: 4px;
   font-size: 11px !important;
   line-height: 18px;
+  font-family: var(--erd-font-mono) !important;
+  letter-spacing: 0.02em;
   color: var(--erd-ink-400) !important;
 }
 
 // ADR-0016：空态/公告次密 — 禁 40×16 空井 / 公告行 8×16 松距
 .emptyState {
   padding: 24px 12px;
-  border: 1px dashed var(--erd-line);
-  border-radius: var(--erd-radius, 8px);
-  background: var(--erd-surface-sunk);
+  border: 1px solid var(--erd-hairline);
+  border-radius: var(--erd-radius-sm);
+  background: var(--erd-surface);
 
   :global(.ant-empty) {
     margin-block: 0;

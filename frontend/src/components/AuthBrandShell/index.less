@@ -98,6 +98,7 @@
 }
 
 .auth-shell__brand {
+  position: relative;
   flex: 0 0 40%;
   max-width: 40%;
   box-sizing: border-box;
@@ -108,11 +109,53 @@
   gap: 12px;
   padding: 20px 16px;
   color: var(--erd-surface);
-  background: linear-gradient(
-    160deg,
-    var(--erd-ink-900) 0%,
-    color-mix(in srgb, var(--erd-ink-900) 86%, var(--erd-brand)) 100%
-  );
+  /* ADR-0026：void + 细网格，对齐落地页营销壳 */
+  overflow: hidden;
+  background: var(--erd-void);
+  isolation: isolate;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background-image:
+      linear-gradient(var(--erd-hairline-on-dark) 1px, transparent 1px),
+      linear-gradient(90deg, var(--erd-hairline-on-dark) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.35;
+    mask-image: radial-gradient(ellipse 80% 70% at 30% 40%, #000 20%, transparent 75%);
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(
+      ellipse 60% 50% at 20% 30%,
+      color-mix(in srgb, var(--erd-brand) 18%, transparent),
+      transparent 70%
+    );
+  }
+
+  > * {
+    position: relative;
+    z-index: 1;
+  }
+}
+
+.auth-shell__brand-kicker {
+  margin: 0;
+  font-family: var(--erd-font-mono);
+  font-size: var(--erd-kicker-size);
+  font-weight: 500;
+  letter-spacing: var(--erd-kicker-tracking);
+  line-height: 1.2;
+  color: var(--erd-steel);
+  text-transform: uppercase;
 }
 
 .auth-shell__brand-logo {
@@ -156,24 +199,45 @@
 .auth-shell__brand-thumb {
   align-self: flex-start;
   margin-top: 4px;
-  padding: 12px;
-  background: color-mix(in srgb, var(--erd-surface) 8%, transparent);
-  border: 1px solid color-mix(in srgb, var(--erd-surface) 16%, transparent);
-  border-radius: var(--erd-radius);
+  padding: 6px;
+  max-width: min(280px, 100%);
+  background: color-mix(in srgb, var(--erd-surface) 6%, transparent);
+  border: 1px solid var(--erd-hairline-on-dark);
+  border-radius: var(--erd-radius-sm);
+  box-shadow: 0 12px 40px color-mix(in srgb, #000 45%, transparent);
+}
+
+.auth-shell__brand-hero {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 280px;
+  border-radius: 4px;
+  object-fit: cover;
+  aspect-ratio: 5 / 3;
 }
 
 .auth-shell__brand-cta {
   align-self: flex-start;
   margin-top: 4px;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 14px;
   color: var(--erd-surface);
-  font-size: 15px;
+  font-size: 13px;
   font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  text-decoration: none;
+  background: var(--erd-brand);
+  border-radius: var(--erd-radius-sm);
+  border: 1px solid color-mix(in srgb, var(--erd-brand) 70%, #fff);
+  transition: background 0.15s ease, filter 0.15s ease;
 }
 
 .auth-shell__brand-cta:hover {
-  color: color-mix(in srgb, var(--erd-surface) 88%, var(--erd-brand));
+  color: var(--erd-surface);
+  background: var(--erd-brand-hover);
+  filter: brightness(1.05);
 }
 
 .auth-shell__form {

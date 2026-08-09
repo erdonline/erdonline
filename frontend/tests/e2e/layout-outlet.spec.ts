@@ -176,25 +176,32 @@ test.describe('布局壳子路由出口', () => {
     const homeChrome = await page.evaluate(() => {
       const layout = document.querySelector('[data-testid="home-layout"]');
       const header = document.querySelector('[data-testid="erd-chrome-header"]');
-      const menuIcon = document.querySelector(
-        '.home-layout__menu .ant-menu-item .i-icon svg path, .home-layout__menu .ant-menu-item svg path',
-      );
+      const menuIcon =
+        document.querySelector('.home-layout__menu .ant-menu-item .anticon') ||
+        document.querySelector('.home-layout__menu .ant-menu-item svg');
       const root = getComputedStyle(document.documentElement);
+      const iconCs = menuIcon ? getComputedStyle(menuIcon) : null;
       return {
         hasWatermark: Boolean(document.querySelector('.ant-watermark')),
         headerH: header ? Math.round(header.getBoundingClientRect().height) : 0,
         brand: root.getPropertyValue('--erd-brand').trim(),
+        voidBg: root.getPropertyValue('--erd-void').trim(),
+        hairline: root.getPropertyValue('--erd-hairline').trim(),
         surfaceSunk: root.getPropertyValue('--erd-surface-sunk').trim(),
         layoutBg: layout ? getComputedStyle(layout).backgroundColor : '',
+        headerBorder: header ? getComputedStyle(header).borderBottomColor : '',
         fontUi: root.getPropertyValue('--erd-font-ui').trim(),
-        navIconFill: (menuIcon?.getAttribute('fill') || '').toLowerCase(),
+        // antd icon 用 color→currentColor；断言计算色而非 path[fill] 字面量
+        navIconColor: iconCs?.color || '',
       };
     });
     expect(homeChrome.hasWatermark).toBe(false);
     expect(homeChrome.headerH).toBe(64);
     expect(homeChrome.brand.toLowerCase()).toBe('#de2910');
-    // 主导航图标走 erdColors.brand（与 --erd-brand 同源；禁组件内硬编码字面量）
-    expect(homeChrome.navIconFill).toBe(homeChrome.brand.toLowerCase());
+    expect(homeChrome.voidBg).toBe('#070d14');
+    expect(homeChrome.hairline.length).toBeGreaterThan(0);
+    // 主导航图标走 erdColors.brand（与 --erd-brand 同源）
+    expect(homeChrome.navIconColor).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
     // surface-sunk #fafbfc → rgb(250, 251, 252)
     expect(homeChrome.layoutBg).toMatch(/250,\s*251,\s*252/);
     expect(homeChrome.fontUi).toMatch(/IBM Plex Sans/i);
@@ -229,7 +236,11 @@ test.describe('布局壳子路由出口', () => {
       const pageEl = document.querySelector(
         '[data-testid="home-page"]',
       ) as HTMLElement | null;
-      const title = pageEl?.querySelector('h2') as HTMLElement | null;
+      // 区标题（禁误取 hero h2 / Title level2）
+      const title =
+        ([...(pageEl?.querySelectorAll('h2') || [])].find((el) =>
+          /进行中的项目/.test(el.textContent || ''),
+        ) as HTMLElement | null) || null;
       const card = pageEl?.querySelector(
         '[data-testid="home-project-card"]',
       ) as HTMLElement | null;

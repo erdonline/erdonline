@@ -1,7 +1,6 @@
 import React from 'react';
 import {Typography} from 'antd';
 import {useIntl} from '@umijs/max';
-import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import './index.less';
 
@@ -46,9 +45,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
     skipLabel ?? intl.formatMessage({ id: 'auth.skip.default' });
   return (
     <div className="auth-shell" data-testid="auth-brand-shell">
-      <div className="auth-shell__locale">
-        <LocaleSwitcher variant="auth" />
-      </div>
+      {/* Skip 必须为壳内首个 Tab 停（ADR-0016 键盘契约）；Locale 放其后 */}
       <nav
         className="erd-skip-nav"
         aria-label={intl.formatMessage({id: 'common.skipNav'})}
@@ -66,11 +63,17 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
           {resolvedSkipLabel}
         </a>
       </nav>
+      <div className="auth-shell__locale">
+        <LocaleSwitcher variant="auth" />
+      </div>
       <aside
         className="auth-shell__brand"
         data-testid="auth-brand-panel"
         aria-label={intl.formatMessage({ id: 'auth.brand.panelAria' })}
       >
+        <p className="auth-shell__brand-kicker" data-testid="auth-brand-kicker">
+          {intl.formatMessage({ id: 'auth.brand.kicker' })}
+        </p>
         <a
           className="auth-shell__brand-logo"
           href="/"
@@ -85,8 +88,14 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         <Typography.Paragraph className="auth-shell__brand-lead">
           {intl.formatMessage({ id: 'auth.brand.lead' })}
         </Typography.Paragraph>
-        <div className="auth-shell__brand-thumb" aria-hidden="true">
-          <ErdEmptyDiagram size="hero" />
+        <div className="auth-shell__brand-thumb" aria-hidden="true" data-testid="auth-brand-thumb">
+          <img
+            className="auth-shell__brand-hero"
+            src="/landing-hero.jpg?v=20260809c"
+            alt=""
+            width={280}
+            height={168}
+          />
         </div>
         <a
           className="auth-shell__brand-cta"

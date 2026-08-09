@@ -41,12 +41,16 @@
   height: var(--erd-chrome-header-h);
   line-height: var(--erd-chrome-header-h);
   padding: 0 16px;
-  background: var(--erd-surface);
-  border-bottom: 1px solid var(--erd-line);
+  /* ADR-0026：浅色精密顶栏 — hairline + 轻玻璃；≠ 暗色模式 */
+  background: color-mix(in srgb, var(--erd-surface-elevated) 88%, transparent);
+  backdrop-filter: var(--erd-chrome-blur);
+  -webkit-backdrop-filter: var(--erd-chrome-blur);
+  border-bottom: 1px solid var(--erd-hairline);
   position: sticky;
   top: 0;
   z-index: 100;
   font-family: var(--erd-font-ui);
+  letter-spacing: -0.01em;
 }
 
 .erd-chrome-actions {

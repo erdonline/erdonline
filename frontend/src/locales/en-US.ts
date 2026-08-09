@@ -9,6 +9,7 @@ export default {
   'locale.option.en-US': 'English',
 
   // AuthBrandShell brand panel (login / register / 403 / 404 / share expired)
+  'auth.brand.kicker': 'OPEN SOURCE · VERSION + COLLAB',
   'auth.brand.title': 'Git + Figma for database design',
   'auth.brand.lead':
     'Open the demo model without signing in, then decide whether to register. Versioning and collaboration are the moat; the canvas is the storefront.',

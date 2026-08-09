@@ -1165,12 +1165,11 @@
   max-width: 300px;
   padding: 10px 12px; // ADR-0016 8–12；原 14×18×12
   text-align: center;
-  background: var(--erd-surface);
-  border: 1px solid var(--erd-line);
-  border-radius: var(--erd-radius);
-  box-shadow:
-    0 1px 2px color-mix(in srgb, var(--erd-ink-900) 4%, transparent),
-    0 8px 20px color-mix(in srgb, var(--erd-ink-900) 5%, transparent);
+  background: var(--erd-surface-elevated, var(--erd-surface));
+  border: 1px solid var(--erd-hairline, var(--erd-line));
+  border-radius: var(--erd-radius-sm, var(--erd-radius));
+  /* ADR-0026：弱阴影精密面板，禁厚卡片堆 */
+  box-shadow: 0 1px 2px color-mix(in srgb, var(--erd-ink-900) 4%, transparent);
   font-family: var(--erd-font-ui);
 
   .erd-empty-title {

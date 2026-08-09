@@ -11,6 +11,7 @@ export default {
   'locale.option.en-US': 'English',
 
   // AuthBrandShell 品牌面板（登录/注册/403/404/分享失效共用）
+  'auth.brand.kicker': 'OPEN SOURCE · VERSION + COLLAB',
   'auth.brand.title': '数据库设计的 Git + Figma',
   'auth.brand.lead': '免登录打开示例模型，再决定是否注册。版本与协作是壁垒，画布体验是门面。',
   'auth.brand.cta': '打开演示',
