@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 模板详情：安装/评分操作条上移至预览区上方
+
+- **布局**：标题 → 元信息 → **安装 + 评分** → 模块指标 → ReactFlow 只读预览 → 描述 → 评论
+- **视觉**：操作条加 `catalog-detail__action-bar` 深色底栏，强化 CTA 权重
+- 验证点：
+  - HMR 目视：`/catalog/demo-authz` 详情页，红按钮 + 评分在预览框之上
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览|只读关系图"`
+
 #### 模板广场：作者 handle 用真实账号 + 维护者须显式配置
 
 - **作者 handle**：审核通过时优先 GitHub handle → 账号 **username** → nickname；不再生成 `community-{userId前缀}`（曾导致发布者显示为 `community-2` 等）

@@ -207,7 +207,6 @@ export default function CatalogDetailPage() {
           <Title level={2} className="catalog-page__title" style={{margin: 0}}>
             {detail.title}
           </Title>
-          <Paragraph>{detail.description}</Paragraph>
           <Space wrap className="catalog-detail__meta">
             {(detail.tags ?? []).map((tag) => (
               <Tag key={tag}>{tag}</Tag>
@@ -223,32 +222,35 @@ export default function CatalogDetailPage() {
               {detail.authorDisplayName || detail.authorHandle}
             </Link>
           </Space>
-          <CatalogPreviewPanel projectJSON={detail.projectJSON} />
+          <div className="catalog-detail__action-bar" data-testid="catalog-detail-action-bar">
+            <Space wrap className="catalog-detail__actions">
+              <Button
+                type="primary"
+                loading={installing}
+                data-testid="catalog-install-btn"
+                onClick={handleInstall}
+              >
+                安装到我的项目
+              </Button>
+              {detail.installed ? (
+                <Space>
+                  <Text>你的评分：</Text>
+                  <Rate
+                    value={detail.userRating ?? 0}
+                    onChange={handleRate}
+                    data-testid="catalog-rate"
+                  />
+                </Space>
+              ) : (
+                <Text type="secondary">安装后可评分</Text>
+              )}
+            </Space>
+          </div>
           <Text type="secondary" className="catalog-detail__metrics">
             {moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
           </Text>
-          <Space className="catalog-detail__actions">
-            <Button
-              type="primary"
-              loading={installing}
-              data-testid="catalog-install-btn"
-              onClick={handleInstall}
-            >
-              安装到我的项目
-            </Button>
-            {detail.installed ? (
-              <Space>
-                <Text>你的评分：</Text>
-                <Rate
-                  value={detail.userRating ?? 0}
-                  onChange={handleRate}
-                  data-testid="catalog-rate"
-                />
-              </Space>
-            ) : (
-              <Text type="secondary">安装后可评分</Text>
-            )}
-          </Space>
+          <CatalogPreviewPanel projectJSON={detail.projectJSON} />
+          {detail.description ? <Paragraph>{detail.description}</Paragraph> : null}
         </Space>
       </Card>
 

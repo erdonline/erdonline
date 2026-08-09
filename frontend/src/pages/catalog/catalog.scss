@@ -249,16 +249,24 @@
     margin-bottom: 12px;
   }
 
+  .catalog-detail__action-bar {
+    margin: 4px 0 12px;
+    padding: 12px 14px;
+    border: 1px solid rgba(158, 176, 192, 0.16);
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+  }
+
   .catalog-detail__actions {
-    margin-top: 16px;
+    width: 100%;
   }
 
   .catalog-detail__metrics {
-    margin-top: 4px;
+    margin-bottom: 8px;
   }
 
   .catalog-preview {
-    margin-top: 16px;
+    margin-top: 0;
     display: flex;
     flex-direction: column;
     gap: 8px;
