@@ -8,6 +8,20 @@
 
 ### 2026-08-09
 
+#### 官方模板广场 MVP（ADR-0028 · 切片 0–5）
+
+- **Slice 0**：ADR-0028 + roadmap/architecture/deployment/development/design-principles
+- **Slice 1**：Flyway `catalog_*` 表 + `/catalog/v1/templates` 列表/详情 + 4 官方种子 + `/catalog` UI
+- **Slice 2**：`POST …/install` fork 脱敏 + `sourceTemplateId` tag + `/project/new`→`/catalog` + Home/空态 CTA
+- **Slice 3**：评分（须安装）+ 安装数去重 + 作者页 `/catalog/creator/:handle`
+- **Slice 4**：发布队列 + GitHub gate + 维护者审核 `/catalog/review`
+- **Slice 5**：MCP `list_templates` / `get_template` / `install_template` / `get_creator`
+- 验证点：
+  - `curl http://127.0.0.1:9502/catalog/v1/templates` → 含 `blank`
+  - `cd backend && mvn -q test -Dtest=CatalogServiceImplTest`
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts`
+  - `yarn build` 绿
+
 #### 产品 Chrome IA（ADR-0027）
 
 - **M0**：`app.tsx` `rootContainer` 注入 `erdTheme`；登录主钮品牌红（禁 antd 蓝）

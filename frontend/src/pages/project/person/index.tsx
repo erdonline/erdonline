@@ -10,6 +10,7 @@ import {searchProjects} from "@/pages/project/recent";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
 import {createExampleProjectAndOpen} from "@/utils/exampleProject";
 import {useIntl} from '@@/exports';
+import {history} from '@@/core/history';
 import '../project-list.scss';
 
 export type ProjectListProps = {
@@ -84,9 +85,9 @@ export default () => {
     >
       <Space>
         <Button type="primary" data-testid="person-empty-create" onClick={() => {
-          (document.querySelector('[data-testid=project-create-trigger]') as HTMLElement)?.click();
+          history.push('/catalog');
         }}>
-          {intl.formatMessage({id: 'projectList.empty.createNow'})}
+          从模板创建
         </Button>
         <Button data-testid="person-empty-example" onClick={() => createExampleProjectAndOpen()}>
           {intl.formatMessage({id: 'projectList.empty.example'})}
