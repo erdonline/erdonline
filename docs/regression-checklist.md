@@ -866,3 +866,12 @@
 - [x] [nginx 分流] bot UA `/s/{token}`、`/demo` → 后端 OG HTML；真人 UA → SPA `index.html`；`/og/**`（含 og:image）任意 UA → 后端 ✅ 本机起 nginx 验证 + `nginx -t`
 - [x] [动态 og:image] `curl /og/s/{token}/image.png` → `image/png` 1200×630，含真实表名网格；`og:image` 指向该图 ✅ `OgImageRendererTest` + 本机 curl
 - [ ] [多源取首] `ERD_UI_URL` 逗号双源时 `og:url`/`og:image` 用第一个 origin（去尾斜杠）→ 期望首源；上线后抽查
+
+## 版本管理全链路闭环审计（2026-08-09）
+
+- [x] [初始化基线真实提交不炸列表] 有 JDBC 数据源 + 尚无版本 → 点「初始化基线」填版本号/描述 → 确定 → 版本行可见、`version-list` 不空、不白屏；旧代码必现「该行不可见」（git stash 对照验证）✅ `version-init-submit.spec.ts`
+- [x] [删除版本行即时消失] 存两版 → 删旧版 → toast「版本信息删除成功」→ 该行立即从列表消失，不因并发重拉「诈尸」；重命名同理 ✅ `version.spec.ts`「重命名描述与删除版本有 toast 且行消失」（此前必现失败，`updateVersionData` 改 `await` 落库后才 `fetch` 修复）
+- [x] [重建版本清书签一致] `deleteAllHistory`（重建版本路径）与单删 `deleteHistory` 一样清空该 project+dbKey 下 `db_version` 推送书签，不留旧版本号误判「已推送」✅ `DbChangeServiceImplDeleteAllTest`
+- [x] [无 JDBC 快照零摩擦回归] 无数据源仍可保存首版、列表可见（未受本轮改动影响）✅ `version.spec.ts`「无数据源也可新增版本并在列表可见」
+- [ ] [hisProject 接口权限仅前端] `canErdHisprojectAdd/Edit/Del/Init/Rebuild` 仅前端 `<Access>` 隐藏按钮，后端 `HisProjectController` 无细粒度 `@PreAuthorize`；已登录用户越权调用可 save/delete 任意项目版本（探索阶段发现，未在本轮修复，需排期评估团队权限模型）
+- [ ] [CompareVersion 同步按钮 loading 假态] `execSQL` 的 `loading` 在同步方法体 try/finally 内同步清零，未覆盖弹窗确认后的真实异步窗口（低优 P2，未在本轮修复）

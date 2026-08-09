@@ -5,13 +5,9 @@ import shallow from 'zustand/shallow';
 import {RollbackOutlined} from '@ant-design/icons';
 import {useIntl} from '@@/exports';
 
-export type RevertVersionProps = {
-  synced: boolean;
-};
-
 const REVERT_WRAP = 'version-revert-modal-wrap';
 
-const RevertVersion: React.FC<RevertVersionProps> = () => {
+const RevertVersion: React.FC = () => {
   const intl = useIntl();
   const {currentVersion, versionDispatch} = useVersionStore(
     (state) => ({

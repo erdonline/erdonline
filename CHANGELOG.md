@@ -8,6 +8,19 @@
 
 ### 2026-08-09
 
+#### 修复：版本管理全链路闭环审计（首版创建/重命名/删除/重建）
+
+- **背景**：用户反馈 `/design/table/version/all` 版本页「好像玩不转」；端到端走查（新建→列表→切换→回滚→重命名→删除→初始化基线→重建）后定位到两处会让用户以为「版本管理坏了」的真实缺口
+- **P0 · 初始化基线提交后整页可能白屏**：`InitVersion.tsx` 成功回调把后端字面量提示（`res.data`，如字符串「保存成功」）当版本列表塞进 `versions` 状态（`versionDispatch.setState({versions: res.data})`），使 `versions` 从数组变成字符串；后续 `filteredVersions.filter(...)` 等数组方法炸掉整页渲染。此前唯一覆盖「初始化基线」的键盘用例只开弹层按 Esc，从未真正点「确定」提交，故长期未被发现。改为提交成功后 `await fetch(...)` 从服务端拉权威列表；顺手删除已无调用者且绕过 zustand `set`（直接 `_.assign(get(), value)`，不会触发订阅刷新）的死方法 `dispatch.setState`
+- **P1 · 删除/重命名版本后该行「诈尸」**：`useVersionStore.updateVersionData` 在发起 `Save.hisProjectSave`/`Save.hisProjectDelete` 的**同一时刻**（未 `await`）就并发调用 `get().fetch(...)` 重拉列表；若重拉先于落库事务提交返回，会用陈旧列表覆盖本地已摘除/已更新的乐观态——表现为「删除成功」toast 弹了，该行却还在列表里。改为 `await` 落库请求结算后才 `fetch`，消除竞态
+- **顺手**：`RevertVersion` 声明了从未使用的 `synced` prop（页面侧传入的语义还是反的），按 delete-dead-code 清理
+- **顺手（后端一致性）**：`DbChangeServiceImpl.deleteAllHistory`（重建版本走此路径）此前只删 `db_change`、不清 `db_version` 推送书签，与单删 `deleteHistory` 行为不一致，导致重建基线后旧书签残留、「已推送/未推送」标签可能用旧版本号误判新基线；补齐清理
+- 验证点：
+  - `yarn playwright test tests/e2e/version-init-submit.spec.ts --project=chromium` ✅（新增，先用 `git stash` 验证旧代码必现「列表白屏/该版本行不可见」，再验证修复后必现该行可见且可继续存版）
+  - `yarn playwright test tests/e2e/version.spec.ts --project=chromium` 9/9 ✅（含此前必现失败的「重命名描述与删除版本有 toast 且行消失」）
+  - `mvn -q test -Dtest=DbChangeServiceImplDeleteAllTest,DbChangeServiceImplDuplicateTest,DbChangeServiceImplTagTest`（后端）✅
+  - `mvn -q compile`（后端）✅
+
 #### 导航：「ERD Online 论坛」→「社区」
 
 - **文案**：HomeLayout / GroupLayout 侧栏外链菜单与落地页 footer 统一为「社区」（en：`Community`）；链接仍为 GitHub Issues
