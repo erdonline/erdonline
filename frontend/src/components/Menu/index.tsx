@@ -14,6 +14,7 @@ import ExportDBML from "@/components/dialog/export/ExportDBML";
 import ReverseERD from "@/components/dialog/import/ReverseERD";
 import ReverseDBML from "@/components/dialog/import/ReverseDBML";
 import PublishTemplateModal from '@/components/catalog/PublishTemplateModal';
+import RenameProject from '@/components/dialog/project/RenameProject';
 import { history } from "@@/exports";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 import { recentProject } from "@/services/project";
@@ -26,6 +27,7 @@ type RecentRow = { id: string; projectName: string };
 type RecentStatus = 'idle' | 'loading' | 'ok' | 'error';
 
 type DialogKey =
+  | 'rename-project'
   | 'import-reverse'
   | 'import-pdman'
   | 'import-erd'
@@ -73,15 +75,16 @@ export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
+  const project = useProjectStore((s) => s.project, shallow);
   const { projectDispatch } = useProjectStore(
     (s) => ({ projectDispatch: s.dispatch }),
     shallow,
   );
   const currentId =
-    useProjectStore((s) => s.project?.id) ||
+    project?.id ||
     cache.getItem(CONSTANT.PROJECT_ID) ||
     '';
-  const currentName = useProjectStore((s) => s.project?.projectName) || '';
+  const currentName = project?.projectName || '';
   const [recent, setRecent] = useState<RecentRow[]>([]);
   const [status, setStatus] = useState<RecentStatus>('idle');
   const [openKeys, setOpenKeys] = useState<string[]>([]);
@@ -187,6 +190,12 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
         type: 'group',
         label: '最近项目',
         children: recentChildren,
+      },
+      { type: 'divider' },
+      {
+        key: 'rename-project',
+        label: <span data-testid="project-menu-rename">修改项目</span>,
+        onClick: () => openDialog('rename-project'),
       },
       { type: 'divider' },
       {
@@ -363,6 +372,35 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
           if (!o) closeDialog();
         }}
       />
+      {currentId ? (
+        <RenameProject
+          hideTrigger
+          open={dialog === 'rename-project'}
+          onOpenChange={(o) => {
+            if (!o) closeDialog();
+          }}
+          project={{
+            id: currentId,
+            projectName: project?.projectName,
+            description: project?.description,
+            tags: project?.tags,
+          }}
+          onSuccess={(values) => {
+            const current = useProjectStore.getState().project;
+            if (!current) {
+              return;
+            }
+            useProjectStore.setState({
+              project: {
+                ...current,
+                projectName: values.projectName,
+                description: values.description,
+                tags: values.tags,
+              },
+            });
+          }}
+        />
+      ) : null}
     </>
   );
 };
