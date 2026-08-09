@@ -73,9 +73,9 @@
     outline-offset: 2px;
   }
 
-  #group-main-content:focus,
+  /* 地标仅键盘环；禁 :focus+brand（整页套红框） */
   #group-main-content:focus-visible {
-    outline: 2px solid var(--erd-brand);
+    outline: 2px solid var(--erd-control-focus-outline);
     outline-offset: -2px;
   }
 }

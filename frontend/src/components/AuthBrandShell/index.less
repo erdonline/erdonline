@@ -75,9 +75,8 @@
     outline-offset: 2px;
   }
 
-  #auth-form-anchor:focus,
+  /* Skip 锚点：仅 focus-visible，避免脚本 focus 常驻描边 */
   #auth-form-anchor:focus-visible,
-  #exception-main-cta:focus,
   #exception-main-cta:focus-visible {
     outline: 2px solid var(--erd-brand);
     outline-offset: 2px;
