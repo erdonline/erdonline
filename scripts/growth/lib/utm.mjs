@@ -8,6 +8,9 @@ export const REPO_URL = 'https://github.com/erdonline/erdonline';
 export const DOCS_URL = 'https://erdonline.github.io/erdonline/';
 export const COMPARE_URL = `${DEMO_BASE_URL}/compare`;
 export const DEPLOY_DOC_URL = `${DOCS_URL}docs/deployment`;
+/** GitHub 上可公开打开的路径前缀（blob/main） */
+export const GH_BLOB_URL = `${REPO_URL}/blob/main`;
+export const GH_TREE_URL = `${REPO_URL}/tree/main`;
 
 /** CTA 落点 → 目标 URL（frontmatter `cta:` 的合法取值） */
 export const CTA_TARGETS = {
@@ -17,6 +20,36 @@ export const CTA_TARGETS = {
   deploy: DEPLOY_DOC_URL,
   repo: REPO_URL,
 };
+
+/**
+ * 文档站子页（读者可打开）。page 如 `data-format`、`deployment`、`adr/0013-public-api-mcp`。
+ * @param {string} page
+ * @param {{source: string, medium?: string, campaign?: string, content?: string}} opts
+ */
+export function docsPageUrl(page, opts) {
+  const id = String(page || '')
+    .replace(/^\/+/, '')
+    .replace(/\.md$/i, '');
+  if (!id) throw new Error('docsPageUrl: page is required');
+  return withUtm(`${DOCS_URL}docs/${id}`, opts);
+}
+
+/**
+ * GitHub 公开文件/目录（贡献者向）。path 如 `CONTRIBUTING.md`、`mcp/README.md`。
+ * @param {string} repoPath
+ * @param {{source: string, medium?: string, campaign?: string, content?: string, tree?: boolean}} opts
+ */
+export function githubPublicUrl(repoPath, opts = {}) {
+  const p = String(repoPath || '').replace(/^\/+/, '');
+  if (!p) throw new Error('githubPublicUrl: path is required');
+  const base = opts.tree ? GH_TREE_URL : GH_BLOB_URL;
+  return withUtm(`${base}/${p}`, {
+    source: opts.source,
+    medium: opts.medium,
+    campaign: opts.campaign,
+    content: opts.content,
+  });
+}
 
 /**
  * 给 URL 追加 UTM。缺省 medium=article；campaign 默认 launch。

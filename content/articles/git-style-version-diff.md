@@ -2,7 +2,7 @@
 title: 数据库表结构改崩了谁背锅？给建模加上 Git 式版本 diff
 slug: git-style-version-diff
 status: ready
-platforms: [juejin, zhihu, weixin, csdn, oschina, xiaohongshu]
+platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
 cta: demo
 utm_campaign: launch
 created: 2026-08-09
@@ -69,14 +69,17 @@ created: 2026-08-09
 - **三级权限与审批流**：成员改结构、负责人审、管理员兜底——适合「谁可以动生产库对应的设计」。
 - **回滚到历史版本**：选定目标版本，把 projectJSON 恢复到该快照（落盘前仍有确认步骤）。
 
-以上能力在开源版均已提供；细节见官方文档 {{DOCS}}，此处不展开配置截图。
+以上能力在开源版均已提供；细节见[官方文档]({{DOCS}})，此处不展开配置截图。
 
 ## 开源与自部署
 
 - **许可**：MIT，可商用、可 fork、可内网部署。
-- **一键起栈**：仓库根目录 `docker compose up -d`，MySQL + Redis + 前后端按 compose 编排启动（见部署文档）。
+- **一键起栈**：仓库根目录 `docker compose up -d`，MySQL + Redis + 前后端按 compose 编排启动（见 [部署文档]({{DOC:deployment}})）。
 - **开放格式**：核心数据为 projectJSON，schema 版本化，承诺**仅加法、不破坏**已有字段——便于自建工具、AI agent 或 MCP 集成读写同一份事实源。
 
 ## 路线图与参与
 
-路线图、贡献指南与 good first issue 均公开在文档站（{{DOCS}}）。若这篇对你有用，欢迎在 GitHub 点 star、提 issue 或 PR（{{REPO}}）——我们会优先把「版本 + diff + 协作」长板做长，而不是做另一个 dbdiagram 复刻。
+- 文档 / 路线图 / good first issue：[文档站]({{DOCS}})
+- Issue / PR / star：[GitHub 仓库]({{REPO}})
+
+若这篇对你有用，欢迎点 star、提 issue 或 PR——我们会优先把「版本 + diff + 协作」长板做长，而不是做另一个 dbdiagram 复刻。

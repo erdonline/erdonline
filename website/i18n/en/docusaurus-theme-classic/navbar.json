@@ -1,0 +1,26 @@
+{
+  "title": {
+    "message": "ERD Online",
+    "description": "The title in the navbar"
+  },
+  "item.label.文档": {
+    "message": "Docs",
+    "description": "Navbar item with label 文档"
+  },
+  "item.label.指南索引": {
+    "message": "Guide index",
+    "description": "Navbar item with label 指南索引"
+  },
+  "item.label.试用 Demo": {
+    "message": "Try Demo",
+    "description": "Navbar item with label 试用 Demo"
+  },
+  "item.label.发版笔记": {
+    "message": "Release notes",
+    "description": "Navbar item with label 发版笔记"
+  },
+  "item.label.GitHub": {
+    "message": "GitHub",
+    "description": "Navbar item with label GitHub"
+  }
+}

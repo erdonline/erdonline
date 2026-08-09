@@ -1,5 +1,9 @@
 # 部署指南 / Deployment
 
+:::tip 你将得到什么
+在自己的机器或内网用 Docker / 云托管跑起 ERD Online；官方试用拓扑与镜像发布流程也写在本文。若只想最快起栈，先看 [五分钟自托管](/docs/guide/quick-self-host)。
+:::
+
 ## 官方托管拓扑（无 VPS）
 
 决策见 [ADR-0018](./adr/0018-hosting-topology-no-vps.md)。项目方**不买生产 VPS**、不托管用户生产数据；公开表面用 GitHub + Cloudflare 免费档。

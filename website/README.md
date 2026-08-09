@@ -1,13 +1,16 @@
 # ERD Online 文档站（Docusaurus）
 
-消费仓库根目录 `docs/`（ADR-0003）。发版笔记目录 `docs/releases/` 映射为 blog。
+消费仓库根目录 `docs/`（ADR-0003）。面向终端用户的使用指南在 `docs/guide/`；英文译本在 `i18n/en/docusaurus-plugin-content-docs/current/guide/`。
 
 ```bash
 cd website
 yarn
 yarn start    # http://localhost:3000/erdonline/
 yarn build && yarn serve   # 验证本地搜索（构建后才有完整索引）
+yarn docusaurus write-translations --locale en   # 刷新 UI 文案骨架（勿覆盖已译 guide）
 ```
+
+语言：默认 `zh-Hans`，另有 `en`（Navbar 语言切换）。访问统计：与产品同百度站点 ID，SPA 路由经 `src/clientModules/baiduAnalytics.js` 上报。
 
 `baseUrl` / `url` 可由环境变量覆盖（默认 GH Pages：`/erdonline/`）：
 

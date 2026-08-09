@@ -15,7 +15,7 @@
 import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, existsSync } from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ctaUrl, withUtm, REPO_URL, DOCS_URL } from './lib/utm.mjs';
+import { ctaUrl, withUtm, docsPageUrl, githubPublicUrl, REPO_URL, DOCS_URL } from './lib/utm.mjs';
 import { parseFrontmatter, ARTICLE_STATUSES, PLATFORMS } from './lib/frontmatter.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -40,6 +40,15 @@ function parseArgs(argv) {
   return args;
 }
 
+/** 主 CTA 文案（按 cta 落点，避免 docs/deploy/repo 仍写「免注册 demo」） */
+const CTA_LABEL = {
+  demo: '30 秒免注册亲手验证',
+  compare: '打开竞品对照页 /compare',
+  docs: '阅读文档与 API / MCP 说明',
+  deploy: '打开自托管部署指南',
+  repo: '打开 GitHub 仓库（Issue / PR）',
+};
+
 /** 主 CTA 区块（每平台一份，链接带该平台 source 的 UTM） */
 function ctaBlock(fm, platform) {
   const url = ctaUrl(fm.cta, platform, fm.slug, fm.utm_campaign || 'launch');
@@ -48,24 +57,31 @@ function ctaBlock(fm, platform) {
     campaign: fm.utm_campaign || 'launch',
     content: fm.slug,
   });
-  return [
-    `> 👉 **30 秒免注册亲手验证**：${url}`,
-    '',
-    `开源地址（MIT，欢迎 star / issue / PR）：${repo}`,
-  ].join('\n');
+  const label = CTA_LABEL[fm.cta] || CTA_LABEL.demo;
+  const lines = [`> 👉 **${label}**：${url}`];
+  if (fm.cta !== 'repo') {
+    lines.push('', `开源地址（MIT，欢迎 star / issue / PR）：${repo}`);
+  }
+  return lines.join('\n');
 }
 
 /** 替换正文占位符；未写 {{CTA}} 则在文末自动补主 CTA 区块 */
 function renderBody(fm, body, platform) {
+  const utm = {
+    source: platform,
+    campaign: fm.utm_campaign || 'launch',
+    content: fm.slug,
+  };
   let out = body
     .replaceAll('{{CTA}}', ctaBlock(fm, platform))
-    .replaceAll(
-      '{{REPO}}',
-      withUtm(REPO_URL, { source: platform, campaign: fm.utm_campaign || 'launch', content: fm.slug }),
-    )
-    .replaceAll(
-      '{{DOCS}}',
-      withUtm(DOCS_URL, { source: platform, campaign: fm.utm_campaign || 'launch', content: fm.slug }),
+    .replaceAll('{{REPO}}', withUtm(REPO_URL, utm))
+    .replaceAll('{{DOCS}}', withUtm(DOCS_URL, utm))
+    // {{DOC:data-format}} → 文档站子页（公开可读）
+    .replace(/\{\{DOC:([a-zA-Z0-9_./-]+)\}\}/g, (_, page) => docsPageUrl(page, utm))
+    // {{GH:CONTRIBUTING.md}} / {{GH_TREE:mcp}} → GitHub 公开路径
+    .replace(/\{\{GH:([a-zA-Z0-9_./-]+)\}\}/g, (_, p) => githubPublicUrl(p, utm))
+    .replace(/\{\{GH_TREE:([a-zA-Z0-9_./-]+)\}\}/g, (_, p) =>
+      githubPublicUrl(p, { ...utm, tree: true }),
     );
   if (!body.includes('{{CTA}}')) {
     out = `${out.trimEnd()}\n\n---\n\n${ctaBlock(fm, platform)}\n`;
@@ -73,35 +89,81 @@ function renderBody(fm, body, platform) {
   return out.replace(/^<!--[\s\S]*?-->\n*/, (m) => (m.includes('写作纪律') ? '' : m));
 }
 
-/** 小红书精简版：短标题 + 痛点 + 解法 + demo CTA（非长文技术帖） */
+/** 去掉 Markdown 装饰，留给小红书短图文 */
+function plainText(md) {
+  return md
+    .replace(/^#+\s*/gm, '')
+    .replace(/!\[[^\]]*\]\([^)]*\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
+    .replace(/[`*_~>|-]/g, '')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+/** 小红书精简版：从正文抽导语 + 要点 + demo CTA（按篇生成，禁止写死某篇文案） */
 function renderXiaohongshu(fm, body) {
-  const demo = ctaUrl(fm.cta, 'xiaohongshu', fm.slug, fm.utm_campaign || 'launch');
   const repo = withUtm(REPO_URL, {
     source: 'xiaohongshu',
     medium: 'post',
     campaign: fm.utm_campaign || 'launch',
     content: fm.slug,
   });
-  const title = fm.title.length > 20 ? '数据库表改崩了谁背锅？Git 式版本 diff' : fm.title;
+  const title =
+    typeof fm.xhs_title === 'string' && fm.xhs_title.trim()
+      ? fm.xhs_title.trim()
+      : fm.title.length > 22
+        ? `${fm.title.slice(0, 20)}…`
+        : fm.title;
+
+  const clean = body
+    .replace(/<!--[\s\S]*?-->/g, '')
+    .replace(/\{\{(CTA|REPO|DOCS)\}\}/g, '')
+    .trim();
+  const blocks = clean
+    .split(/\n\s*\n/)
+    .map((b) => b.trim())
+    .filter((b) => b && !b.startsWith('|') && !b.startsWith('>'));
+
+  let hook = '';
+  for (const b of blocks) {
+    if (/^#+\s/.test(b) || /^- /.test(b)) continue;
+    const t = plainText(b);
+    if (t.length > 40) {
+      hook = t.slice(0, 180);
+      break;
+    }
+  }
+  if (!hook) hook = plainText(blocks[0] || fm.title).slice(0, 180);
+
+  const bullets = [];
+  for (const b of blocks) {
+    for (const line of b.split('\n')) {
+      const m = line.match(/^\s*[-*]\s+\**(.+?)\**\s*$/);
+      if (!m) continue;
+      const item = plainText(m[1]);
+      if (item.length >= 8 && item.length <= 60) bullets.push(item);
+      if (bullets.length >= 3) break;
+    }
+    if (bullets.length >= 3) break;
+  }
+  if (bullets.length === 0) {
+    bullets.push('版本快照 + 字段级 diff', 'MIT 可自托管 docker compose up -d', '开放 projectJSON，可协作可逆向');
+  }
+
+  const ctaLabel = CTA_LABEL[fm.cta] || CTA_LABEL.demo;
+  const primary = ctaUrl(fm.cta, 'xiaohongshu', fm.slug, fm.utm_campaign || 'launch');
+
   return `# ${title}
 
-周五测试环境挂了：user.status 从 TINYINT 被改成 VARCHAR，三个人互相甩锅，**没有任何记录**能证明谁、何时、改了什么。
+${hook}
 
-表结构会演进，但大多数 ER 工具只有「当前态」——改完即覆盖，无法 diff。Navicat 导出、Flyway 迁移脚本，都管不了**设计阶段**的字段级变更追溯。
+${bullets.map((x) => `- ${x}`).join('\n')}
 
-我们在开源项目 ERD Online 里做了 Git 式版本链：
+${ctaLabel} 👇
 
-- 改表 → 点「保存版本」→ 当前 projectJSON 打快照
-- 任意两版之间看 diff：表 / 字段 / 关系一目了然
-- MIT 许可，可自托管 docker compose up -d
-
-30 秒免注册亲手走一遍：改一张表 → 存版 → 看 diff
-
-👉 ${demo}
+👉 ${primary}
 
 开源地址：${repo}
-
-（空 diff 也允许存版作书签，但不计入有效版本指标——鼓励「改动了再存」）
 `;
 }
 

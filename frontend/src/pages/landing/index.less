@@ -51,7 +51,7 @@
 .landing {
   min-height: 100vh;
   color: var(--erd-surface);
-  background: var(--erd-ink-900);
+  background: #070d14;
   font-family: var(--erd-font-ui);
   overflow-x: hidden;
 
@@ -74,7 +74,7 @@
 /* 对照等子页：顶栏相对定位，不叠 hero */
 .landing--subpage .landingNav {
   position: relative;
-  border-bottom: 1px solid color-mix(in srgb, var(--erd-surface) 10%, transparent);
+  margin: 0.75rem auto;
 }
 
 .landingComparePage {
@@ -116,42 +116,50 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.9rem 1.5rem;
+  padding: 0.75rem 1.25rem;
   max-width: var(--erd-chrome-content-max);
-  margin: 0 auto;
-  width: 100%;
+  margin: 0.75rem auto 0;
+  width: calc(100% - 2rem);
   box-sizing: border-box;
+  border: 1px solid rgba(158, 176, 192, 0.14);
+  border-radius: 10px;
+  background: rgba(7, 13, 20, 0.72);
+  backdrop-filter: saturate(1.15) blur(14px);
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
 }
 
 .landingNavBrand {
   display: inline-flex;
   align-items: center;
   gap: 0.55rem;
-  color: var(--erd-surface);
+  color: #fff;
   text-decoration: none;
-  font-size: 1.15rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: -0.02em;
 }
 
 .landingNavBrand img {
-  width: 28px;
-  height: 28px;
+  width: 22px;
+  height: 22px;
 }
 
 .landingNavLinks {
   display: flex;
   align-items: center;
-  gap: 0.85rem;
+  gap: 0.75rem;
 }
 
 .landingNavLinks a {
-  color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  color: rgba(232, 238, 244, 0.78);
   text-decoration: none;
-  font-size: 0.95rem;
+  font-size: 0.88rem;
   font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 .landingNavLinks a:hover {
-  color: var(--erd-surface);
+  color: #fff;
 }
 
 /* 顶栏语言切换：与 nav 链同色，不抢 hero CTA */
@@ -181,87 +189,170 @@
   min-height: 100vh;
   min-height: 100dvh;
   display: flex;
-  align-items: flex-end;
-  padding: 6.5rem 1.5rem 3.5rem;
+  align-items: center;
+  padding: 5.5rem 1.5rem 3rem;
   box-sizing: border-box;
   isolation: isolate;
+  overflow: hidden;
+  background: #070d14;
 }
 
-.landingHeroVisual {
+.landingHeroAtmosphere {
   position: absolute;
   inset: 0;
   z-index: 0;
-  overflow: hidden;
-  background: var(--erd-ink-900);
+  pointer-events: none;
 }
 
-.landingHeroVisual img {
+.landingHeroGrid {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  object-position: 62% 42%;
-  opacity: 1;
-  transform-origin: 60% 40%;
-  animation: landingHeroKen 24s ease-in-out infinite alternate;
-  filter: saturate(1.08) contrast(1.04);
+  background-image:
+    linear-gradient(rgba(158, 176, 192, 0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(158, 176, 192, 0.14) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse 70% 60% at 60% 40%, #000 20%, transparent 75%);
+  opacity: 0.55;
 }
 
-.landingHeroScrim {
+.landingHeroGlow {
   position: absolute;
-  inset: 0;
-  z-index: 1;
+  inset: -20% -10% auto auto;
+  width: min(70vw, 720px);
+  height: min(70vw, 720px);
   background:
-    linear-gradient(
-      105deg,
-      color-mix(in srgb, var(--erd-ink-900) 93%, transparent) 0%,
-      color-mix(in srgb, var(--erd-ink-900) 78%, transparent) 30%,
-      color-mix(in srgb, var(--erd-ink-900) 32%, transparent) 54%,
-      color-mix(in srgb, var(--erd-ink-900) 12%, transparent) 100%
-    ),
-    linear-gradient(
-      180deg,
-      color-mix(in srgb, var(--erd-ink-900) 40%, transparent) 0%,
-      transparent 32%,
-      color-mix(in srgb, var(--erd-ink-900) 70%, transparent) 100%
-    );
+    radial-gradient(circle at 40% 40%, rgba(222, 41, 16, 0.14), transparent 42%),
+    radial-gradient(circle at 70% 55%, rgba(90, 140, 190, 0.16), transparent 50%);
+  filter: blur(8px);
 }
 
-.landingHeroInner {
+.landingHeroStage {
   position: relative;
-  z-index: 2;
-  max-width: var(--erd-chrome-content-max);
+  z-index: 1;
   width: 100%;
+  max-width: var(--erd-chrome-content-max);
   margin: 0 auto;
-  animation: landingRise 0.9s ease-out both;
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1.15fr);
+  gap: 2.5rem;
+  align-items: center;
+  animation: landingRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.landingHeroCopy {
+  max-width: 34rem;
+}
+
+.landingHeroKicker {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 1.1rem;
+  padding: 0.28rem 0.65rem 0.28rem 0.45rem;
+  border: 1px solid rgba(158, 176, 192, 0.16);
+  border-radius: 999px;
+  font-family: var(--erd-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9eb0c0;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.landingHeroKickerDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--erd-brand);
+  box-shadow: 0 0 0 3px rgba(222, 41, 16, 0.2);
 }
 
 .landingHeroBrand {
-  margin: 0 0 0.85rem;
-  font-size: clamp(2.75rem, 7vw, 4.75rem);
-  line-height: 0.95;
-  color: var(--erd-surface);
-  text-shadow: 0 2px 24px color-mix(in srgb, var(--erd-ink-900) 45%, transparent);
+  margin: 0 0 0.65rem;
+  font-family: var(--erd-font-ui);
+  font-weight: 600;
+  font-size: clamp(2.4rem, 5.5vw, 3.75rem);
+  line-height: 1.02;
+  letter-spacing: -0.045em;
+  color: #fff;
+  text-shadow: none;
 }
 
 .landingHeroTitle {
-  margin: 0 0 1rem;
-  max-width: 16ch;
-  font-family: var(--erd-font-display);
-  font-weight: 700;
-  font-size: clamp(1.35rem, 3.2vw, 2rem);
-  line-height: 1.25;
+  margin: 0 0 0.85rem;
+  max-width: 14ch;
+  font-family: var(--erd-font-ui);
+  font-weight: 500;
+  font-size: clamp(1.15rem, 2.2vw, 1.55rem);
+  line-height: 1.35;
   letter-spacing: -0.02em;
-  color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  color: rgba(232, 238, 244, 0.88);
 }
 
 .landingHeroLead {
   margin: 0 0 1.75rem;
-  max-width: 34ch;
-  font-size: 1.05rem;
-  line-height: 1.55;
-  color: var(--erd-ink-400);
+  max-width: 36ch;
+  font-size: 0.98rem;
+  line-height: 1.6;
+  color: #9eb0c0;
+}
+
+.landingHeroFrame {
+  position: relative;
+  border-radius: 14px;
+  border: 1px solid rgba(158, 176, 192, 0.28);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.01));
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 40px 100px rgba(0, 0, 0, 0.55),
+    0 0 60px rgba(222, 41, 16, 0.12),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+  transform-origin: center center;
+  animation: landingHeroFloat 8s ease-in-out infinite;
+  transition: transform 0.35s ease, box-shadow 0.35s ease;
+}
+
+.landingHeroFrame:hover {
+  transform: translateY(-4px);
+  box-shadow:
+    0 0 0 1px rgba(0, 0, 0, 0.45),
+    0 48px 120px rgba(0, 0, 0, 0.6),
+    0 0 80px rgba(222, 41, 16, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+}
+
+.landingHeroImg {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  object-position: 50% 45%;
+  filter: contrast(1.08) saturate(1.06) brightness(1.01);
+}
+
+.landingHeroFrameSheen {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(
+    115deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.07) 48%,
+    transparent 62%
+  );
+  transform: translateX(-120%);
+  animation: landingHeroSheen 5.5s ease-in-out infinite;
+}
+
+.landingHeroFrameGlow {
+  position: absolute;
+  inset: auto -15% -35% -15%;
+  height: 60%;
+  background: radial-gradient(ellipse at center, rgba(222, 41, 16, 0.28), transparent 62%);
+  pointer-events: none;
+  animation: landingHeroPulse 4.5s ease-in-out infinite;
 }
 
 .landingCtas {
@@ -277,20 +368,23 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  min-height: 48px;
-  padding: 0 1.25rem;
-  border-radius: 2px;
+  min-height: 44px;
+  padding: 0 1.15rem;
+  border-radius: 4px;
   font-family: inherit;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 600;
+  letter-spacing: -0.01em;
   text-decoration: none;
-  transition: transform 0.2s ease, background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease, border-color 0.15s ease,
+    box-shadow 0.15s ease;
 }
 
 .landingBtnPrimary {
   background: var(--erd-brand);
   color: var(--erd-surface);
   border: 1px solid var(--erd-brand);
+  box-shadow: 0 0 0 1px rgba(222, 41, 16, 0.2), 0 10px 28px rgba(222, 41, 16, 0.18);
 }
 
 .landingBtnPrimary:hover {
@@ -301,14 +395,14 @@
 }
 
 .landingBtnGhost {
-  background: color-mix(in srgb, var(--erd-ink-900) 35%, transparent);
+  background: color-mix(in srgb, var(--erd-surface) 3%, transparent);
   color: var(--erd-surface);
-  border: 1px solid color-mix(in srgb, var(--erd-surface) 45%, transparent);
-  backdrop-filter: blur(4px);
+  border: 1px solid color-mix(in srgb, var(--erd-surface) 28%, transparent);
+  backdrop-filter: blur(6px);
 }
 
 .landingBtnGhost:hover {
-  border-color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  border-color: color-mix(in srgb, var(--erd-surface) 70%, transparent);
   color: var(--erd-surface);
   transform: translateY(-1px);
 }
@@ -331,6 +425,15 @@
   margin: 0 auto;
 }
 
+.landingSectionKicker {
+  margin: 0 0 0.65rem;
+  font-family: var(--erd-font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #9eb0c0;
+}
+
 /* 对照子页头区：压顶距（须压在 .landingSection 之后，双 class 胜出） */
 .landingSection.landingCompareHero {
   padding-top: 1.5rem;
@@ -339,60 +442,87 @@
 
 .landingSection h2 {
   margin: 0 0 0.5rem;
-  font-family: var(--erd-font-display);
-  font-weight: 700;
-  font-size: clamp(1.5rem, 3vw, 2rem);
-  letter-spacing: -0.02em;
+  font-family: var(--erd-font-ui);
+  font-weight: 600;
+  font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+  letter-spacing: -0.025em;
+  color: #fff;
 }
 
 .landingCompareHero h1 {
   margin: 0 0 0.5rem;
-  font-family: var(--erd-font-display);
-  font-weight: 800;
+  font-family: var(--erd-font-ui);
+  font-weight: 600;
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   letter-spacing: -0.03em;
-  color: var(--erd-surface);
+  color: #fff;
 }
 
 .landingSectionLead {
   margin: 0 0 1.5rem;
   max-width: 48ch;
-  color: var(--erd-ink-400);
+  color: #9eb0c0;
   line-height: 1.55;
+  font-size: 0.95rem;
 }
 
 .landingPillars {
   display: grid;
-  gap: 1.5rem;
+  gap: 0.85rem;
   grid-template-columns: 1fr;
 }
 
 @media (min-width: 800px) {
   .landingPillars {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1.25rem;
+    gap: 0.85rem;
   }
+}
+
+.landingPillar {
+  position: relative;
+  padding: 1.15rem 1.15rem 1.25rem;
+  border: 1px solid rgba(158, 176, 192, 0.16);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.02);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+}
+
+.landingPillar:hover {
+  border-color: rgba(222, 41, 16, 0.35);
+  background: rgba(222, 41, 16, 0.05);
+  transform: translateY(-2px);
+}
+
+.landingPillarIndex {
+  display: block;
+  margin-bottom: 0.55rem;
+  font-family: var(--erd-font-mono);
+  font-size: 0.75rem;
+  letter-spacing: 0.04em;
+  color: var(--erd-brand);
 }
 
 .landingPillar h3 {
   margin: 0 0 0.4rem;
-  font-family: var(--erd-font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  font-family: var(--erd-font-ui);
+  font-size: 1.05rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  color: #fff;
 }
 
 .landingPillar p {
   margin: 0;
-  color: var(--erd-ink-400);
+  color: #9eb0c0;
   line-height: 1.55;
-  font-size: 0.98rem;
+  font-size: 0.9rem;
 }
 
 .landingPillarMark {
   display: block;
-  width: 2rem;
-  height: 3px;
+  width: 1.75rem;
+  height: 2px;
   margin-bottom: 0.75rem;
   background: var(--erd-success);
 }
@@ -406,49 +536,67 @@
 }
 
 .landingBand {
-  background: linear-gradient(
-    180deg,
-    color-mix(in srgb, var(--erd-ink-900) 90%, var(--erd-surface)) 0%,
-    var(--erd-ink-900) 100%
-  );
-  border-top: 1px solid color-mix(in srgb, var(--erd-surface) 8%, transparent);
-  border-bottom: 1px solid color-mix(in srgb, var(--erd-surface) 8%, transparent);
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, rgba(222, 41, 16, 0.08), transparent 55%),
+    #070d14;
+  border-top: 1px solid rgba(158, 176, 192, 0.12);
+  border-bottom: 1px solid rgba(158, 176, 192, 0.12);
+}
+
+.landingCompareShell {
+  border: 1px solid rgba(158, 176, 192, 0.16);
+  border-radius: 10px;
+  overflow: auto;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .landingCompare {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
 .landingCompare th,
 .landingCompare td {
-  padding: 0.5rem 0.65rem;
+  padding: 0.7rem 0.85rem;
   text-align: left;
-  border-bottom: 1px solid color-mix(in srgb, var(--erd-surface) 12%, transparent);
+  border-bottom: 1px solid rgba(158, 176, 192, 0.12);
+}
+
+.landingCompare tr:last-child td {
+  border-bottom: 0;
 }
 
 .landingCompare th {
-  color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
-  font-weight: 600;
+  font-family: var(--erd-font-mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: #9eb0c0;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .landingCompare td {
-  color: var(--erd-ink-400);
+  color: #9eb0c0;
 }
 
 .landingCompare td:first-child,
 .landingCompare th:first-child {
-  color: var(--erd-surface);
+  color: #e8eef4;
 }
 
 .landingYes {
-  color: var(--erd-success);
+  color: #5dcca8;
   font-weight: 600;
+  font-family: var(--erd-font-mono);
+  font-size: 0.82rem;
 }
 
 .landingNo {
-  color: color-mix(in srgb, var(--erd-ink-400) 55%, transparent);
+  color: rgba(158, 176, 192, 0.55);
+  font-family: var(--erd-font-mono);
+  font-size: 0.82rem;
 }
 
 .landingFooter {
@@ -460,8 +608,9 @@
   gap: 0.75rem 1.5rem;
   justify-content: space-between;
   align-items: center;
-  color: var(--erd-ink-400);
-  font-size: 0.9rem;
+  color: #9eb0c0;
+  font-size: 0.85rem;
+  border-top: 1px solid rgba(158, 176, 192, 0.12);
 }
 
 .landingFooter nav {
@@ -471,18 +620,19 @@
 }
 
 .landingFooter a {
-  color: color-mix(in srgb, var(--erd-surface) 88%, transparent);
+  color: rgba(232, 238, 244, 0.82);
   text-decoration: none;
+  font-size: 0.85rem;
 }
 
 .landingFooter a:hover {
-  color: var(--erd-surface);
+  color: #fff;
 }
 
 @keyframes landingRise {
   from {
     opacity: 0;
-    transform: translateY(18px);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
@@ -490,33 +640,59 @@
   }
 }
 
-@keyframes landingHeroKen {
-  from {
-    transform: scale(1.02);
+@keyframes landingHeroFloat {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  to {
-    transform: scale(1.08);
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes landingHeroSheen {
+  0%,
+  55% {
+    transform: translateX(-120%);
+  }
+  75%,
+  100% {
+    transform: translateX(120%);
+  }
+}
+
+@keyframes landingHeroPulse {
+  0%,
+  100% {
+    opacity: 0.7;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@media (max-width: 996px) {
+  .landingHeroStage {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .landingHeroFrame {
+    order: -1;
+    max-width: 560px;
+    margin: 0 auto;
+    animation: none;
+  }
+
+  .landingHeroCopy {
+    max-width: none;
   }
 }
 
 @media (max-width: 720px) {
-  .landingHeroVisual img {
-    object-position: 70% 35%;
-  }
-
-  .landingHeroScrim {
-    background:
-      linear-gradient(
-        180deg,
-        color-mix(in srgb, var(--erd-ink-900) 55%, transparent) 0%,
-        color-mix(in srgb, var(--erd-ink-900) 72%, transparent) 40%,
-        color-mix(in srgb, var(--erd-ink-900) 94%, transparent) 100%
-      ),
-      linear-gradient(
-        90deg,
-        color-mix(in srgb, var(--erd-ink-900) 70%, transparent) 0%,
-        color-mix(in srgb, var(--erd-ink-900) 35%, transparent) 100%
-      );
+  .landingHero {
+    align-items: flex-start;
+    padding-top: 5rem;
   }
 
   .landingNavLinks a:not(.landingNavCta) {
@@ -525,8 +701,10 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .landingHeroInner,
-  .landingHeroVisual img {
-    animation: none;
+  .landingHeroStage,
+  .landingHeroFrame,
+  .landingHeroFrameSheen,
+  .landingHeroFrameGlow {
+    animation: none !important;
   }
 }

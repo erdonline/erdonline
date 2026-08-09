@@ -1,5 +1,9 @@
 # 增长方案（引流与内容推广）
 
+:::caution 维护者文档
+本文**不在**文档站默认侧栏。面向运营与内容流水线；终端用户请看 [使用指南](/docs/guide/what-is-erd-online) 与文档站 [指南索引](https://erdonline.github.io/erdonline/blog/)。
+:::
+
 > 对齐北极星：**每周产生版本保存的活跃建模项目数**。所有内容按同一漏斗设计，虚荣指标（star/阅读数）只看不优化。
 > 本文是结论与执行口径；写文章走流水线：[`content/articles/`](https://github.com/erdonline/erdonline/tree/main/content/articles)。
 
@@ -27,22 +31,27 @@
 
 ## 文章选题包（12 个，按发布序）
 
-| # | 标题（暂定） | 角度 | 平台 | CTA |
-|---|---|---|---|---|
-| 1 | 数据库设计的 Git + Figma：我们把版本管理和实时协作塞进了 ER 建模 | 品牌宣言，定位与生态位空白 | 掘金首发→思否/开源中国 | demo |
-| 2 | 还在用 drawio 画 ER 图？它根本不知道什么是外键 | 通用画图 vs 懂数据库语义 | 掘金 + V2EX | demo |
-| 3 | 数据库表结构改崩了谁背锅？给建模加上 Git 式版本 diff | 版本叙事最强卖点，事故开场 | 掘金 + 投稿公众号大号 | demo→存版本 |
-| 4 | 从 dbdiagram 搬家只要 5 分钟：DBML 导入 + 自托管指南 | 迁移收割，抢竞品用户 | 掘金 + 知乎 | demo→导入 |
-| 5 | MySQL/Oracle/PG/SQLServer 存量库一键逆向成关系图 | 逆向工程深度，存量库刚需 | 掘金 | demo |
-| 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | 掘金 + 少数派 | API 文档 |
-| 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | 思否 + 开源中国 | 部署文档 |
-| 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | 掘金 | demo |
-| 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾收割机；自己排第一但对照必须诚实 | 知乎 + 思否 | /compare |
-| 10 | 30 秒免注册：打开这个链接，改一张表，存一个版本 | 纯 demo 体验帖，图多字少 | V2EX + 即刻 | demo |
-| 11 | 从 G6 到 ReactFlow：画布 Strangler 迁移实录 | 技术深度，服务贡献者漏斗 | 掘金 | GitHub |
-| 12 | 我们怎么设计 good first issue：让第一个 PR 两小时内合入 | 贡献者招募 | 掘金 + 开源中国 | GitHub Issues |
+| # | 标题（暂定） | 角度 | slug（稿件） | CTA | 指南页（docs 蒸馏） | 状态 |
+|---|---|---|---|---|---|---|
+| 1 | 数据库设计的 Git + Figma：我们把版本管理和实时协作塞进了 ER 建模 | 品牌宣言，定位与生态位空白 | `git-figma-for-database-design` | demo | [`guide/what-is-erd-online`](/docs/guide/what-is-erd-online) | ✅ ready |
+| 2 | 还在用 drawio 画 ER 图？它根本不知道什么是外键 | 通用画图 vs 懂数据库语义 | `drawio-doesnt-know-fk` | demo | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含 v2ex.txt） |
+| 3 | 数据库表结构改崩了谁背锅？给建模加上 Git 式版本 diff | 版本叙事最强卖点，事故开场 | `git-style-version-diff` | demo | [`guide/save-version-and-diff`](/docs/guide/save-version-and-diff) | ✅ ready |
+| 4 | 从 dbdiagram 搬家只要 5 分钟：DBML 导入 + 自托管指南 | 迁移收割，抢竞品用户 | `from-dbdiagram-in-5-min` | demo | [`guide/import-dbml`](/docs/guide/import-dbml) | ✅ ready |
+| 5 | MySQL/Oracle/PG/SQLServer 存量库一键逆向成关系图 | 逆向工程深度，存量库刚需 | `reverse-engineer-four-dbs` | demo | [`guide/reverse-engineer`](/docs/guide/reverse-engineer) | ✅ ready |
+| 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
+| 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
+| 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
+| 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾；对照必须诚实 | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含思否） |
+| 10 | 30 秒免注册：打开这个链接，改一张表，存一个版本 | 纯 demo 体验帖，图多字少 | `thirty-seconds-demo-version` | demo | [`guide/save-version-and-diff`](/docs/guide/save-version-and-diff) | ✅ ready（含 v2ex.txt） |
+| 11 | 从 G6 到 ReactFlow：画布 Strangler 迁移实录 | 技术深度，服务贡献者漏斗 | `g6-to-reactflow-strangler` | repo | [`community`](./community.md)（贡献者） | ✅ ready |
+| 12 | 我们怎么设计 good first issue：让第一个 PR 两小时内合入 | 贡献者招募 | `good-first-issue-two-hours` | repo | [`community`](./community.md)（贡献者） | ✅ ready |
 
-节奏：每周 1–2 篇，前 4 周发 #1–#8 中的 6 篇，#9–#12 视产能排第 5–6 周。
+纪律：增长长文**不整篇**进手册；可蒸馏任务写成 `docs/guide/*` How-to。索引见文档站 [Blog](https://erdonline.github.io/erdonline/blog/)。
+
+**发布包**：`node scripts/growth/build-package.mjs --all` → `content/dist/<slug>/`。  
+**Wechatsync 默认同步平台**：掘金 / CSDN / 开源中国 / 小红书 / 微信 / 知乎 / 思否；V2EX 用各篇 `v2ex.txt` 人工发。  
+**点发布仍是人工**：草稿箱核对 UTM / 封面后再发。  
+**同步结果台账**：[content/articles/publish-status-2026-08-09.md](https://github.com/erdonline/erdonline/blob/main/content/articles/publish-status-2026-08-09.md)（成功/失败 URL；JSON 同目录）。
 
 ## 度量（4 周后怎样算有效）
 

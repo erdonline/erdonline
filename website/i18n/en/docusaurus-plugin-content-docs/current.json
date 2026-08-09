@@ -1,0 +1,26 @@
+{
+  "version.label": {
+    "message": "Next",
+    "description": "The label for version current"
+  },
+  "sidebar.docs.category.使用指南": {
+    "message": "User guides",
+    "description": "The label for category '使用指南' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.自托管与开放接口": {
+    "message": "Self-host & open APIs",
+    "description": "The label for category '自托管与开放接口' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.贡献与工程": {
+    "message": "Contribute & engineering",
+    "description": "The label for category '贡献与工程' in sidebar 'docs'"
+  },
+  "sidebar.docs.category.ADR": {
+    "message": "ADR",
+    "description": "The label for category 'ADR' in sidebar 'docs'"
+  },
+  "sidebar.docs.link.与其它工具对照": {
+    "message": "Compare with other tools",
+    "description": "The label for link '与其它工具对照' in sidebar 'docs', linking to 'https://www.erdonline.com/compare'"
+  }
+}

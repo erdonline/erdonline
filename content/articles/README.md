@@ -11,6 +11,9 @@ node scripts/growth/new-article.mjs --slug git-style-version-diff \
   --title "数据库表结构改崩了谁背锅？" --platforms juejin,zhihu --cta demo
 
 # 2. 写正文（{{CTA}} / {{REPO}} / {{DOCS}} 占位符，构建时按平台注入 UTM 链接）
+#    写作纪律：禁止读者打不开的仓库内相对路径（docs/foo.md、frontend/...、./backend/...）
+#    外链只用 {{DOC:}} / {{GH:}} / {{GH_TREE:}} / {{DOCS}} / {{REPO}} / {{CTA}}
+#    {{DOCS}}/{{REPO}} 必须用 Markdown 链接或独立列表行，禁止同一句塞两个裸 URL
 #    写完把 frontmatter status 改为 ready
 
 # 3. 打包（单篇 / 全部 ready / 预览草稿）
@@ -49,6 +52,9 @@ status: draft               # draft → ready → published
 platforms: [juejin, zhihu]  # juejin/zhihu/v2ex/wechat/segmentfault/oschina
 cta: demo                   # demo/compare/docs/deploy/repo（见 scripts/growth/lib/utm.mjs）
 utm_campaign: launch
+guide: docs/guide/save-version-and-diff.md   # 可选：蒸馏到文档站 How-to（不整篇搬营销稿）
 created: 2026-08-09
 ---
 ```
+
+长文进平台；可复用的「怎么做」写进 `docs/guide/`，并在 [`docs/growth.md`](../../docs/growth.md) 选题表「指南页」列登记。索引见文档站 Blog。

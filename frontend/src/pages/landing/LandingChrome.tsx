@@ -43,7 +43,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       <Helmet>
         <link
           rel="stylesheet"
-          href="https://fonts.bunny.net/css?family=syne:600,700,800|ibm-plex-sans:400,500,600&display=swap"
+          href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600,700|ibm-plex-mono:400,500&display=swap"
         />
       </Helmet>
       <nav

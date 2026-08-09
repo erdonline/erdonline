@@ -1,5 +1,9 @@
 # projectJSON 数据格式（对外规范 · 初稿）
 
+:::tip 你将得到什么
+人和脚本 / Agent 如何读写项目模型的**唯一 JSON 事实源**。上手步骤见 [API 与 MCP](/docs/guide/api-and-mcp)。
+:::
+
 > **读者问题**：人和 AI agent 如何读写 ERD Online 的项目模型事实源？  
 > **答案**：`projectJSON` 是项目建模的唯一 JSON 事实源；机器可校验定义见仓库根目录 [`schema/projectjson.schema.json`](../schema/projectjson.schema.json)（JSON Schema draft 2020-12）。
 

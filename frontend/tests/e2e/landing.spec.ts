@@ -34,7 +34,7 @@ test.describe('落地页', () => {
     });
     expect(tokenMetrics.ink900).toBe('#0b1c2c');
     expect(tokenMetrics.brand.toLowerCase()).toBe('#de2910');
-    expect(tokenMetrics.pageBg).toMatch(/rgb\(\s*11,\s*28,\s*44\s*\)/);
+    expect(tokenMetrics.pageBg).toMatch(/rgb\(\s*7,\s*13,\s*20\s*\)/);
     expect(tokenMetrics.primaryBg).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
     expect(tokenMetrics.fontUi.toLowerCase()).toMatch(/ibm plex sans/);
     expect(tokenMetrics.mark3Bg).toMatch(/rgb\(\s*212,\s*136,\s*6\s*\)/); // --erd-warning
