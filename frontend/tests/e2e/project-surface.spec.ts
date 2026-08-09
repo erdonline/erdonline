@@ -4,6 +4,7 @@ import {
   createPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
+  expectToast,
   login,
   uniqueProjectName,
 } from './helpers';
@@ -392,6 +393,56 @@ test.describe('项目面闭环', () => {
         page.getByRole('link', { name: renamed, exact: true }).first(),
       ).toBeVisible({ timeout: 15_000 });
       await expect(page.getByRole('link', { name: projectName, exact: true })).toHaveCount(0);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
+  test('数据模型列表：行内发布为模板', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('dm-publish');
+    let capturedBody: { projectId?: string; title?: string } | null = null;
+
+    await page.route('**/ncnb/catalog/v1/submissions', async (route) => {
+      if (route.request().method() === 'POST') {
+        capturedBody = route.request().postDataJSON() as {
+          projectId?: string;
+          title?: string;
+        };
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ code: 200, data: { id: 'e2e-submission' } }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+      await page.goto('/dataModels');
+      await expect(page.getByTestId('data-models-page')).toBeVisible({ timeout: 15_000 });
+      await createPersonProject(page, projectName, 'pub', 'dataModels publish');
+
+      const row = page
+        .getByTestId('data-models-page')
+        .getByRole('listitem')
+        .filter({ has: page.getByRole('link', { name: projectName, exact: true }) });
+      await expect(row).toBeVisible({ timeout: 15_000 });
+      await row.getByTestId('project-publish-template').click();
+
+      const publishDialog = page.getByRole('dialog', { name: '发布为模板' });
+      await expect(publishDialog).toBeVisible();
+      await expect(publishDialog.getByTestId('catalog-publish-title')).toHaveValue(projectName);
+      await expect(page.getByTestId('catalog-publish-project-id')).toHaveCount(0);
+
+      await publishDialog.getByRole('button', { name: '提交审核' }).click();
+      await expectToast(page, /已提交审核/);
+
+      expect(capturedBody?.title).toBe(projectName);
+      expect(capturedBody?.projectId).toBeTruthy();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }

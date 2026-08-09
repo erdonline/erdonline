@@ -8,6 +8,12 @@
 
 ### 2026-08-09
 
+#### 数据模型列表：补「发布为模板」行内入口
+
+- **入口**：`/dataModels` 每行 actions（最近 / 个人视图）；团队项目筛选仍仅配置 + 打开（与团队列表一致）
+- **复用**：`PublishTemplateAction` + `PublishTemplateModal`（与设计器项目菜单、个人/最近列表同一套）
+- 验证点：`yarn test:e2e --project=chromium tests/e2e/project-surface.spec.ts --grep "数据模型列表：行内发布为模板"`
+
 #### 设计器：解析页布局收紧（逆向 / PdMan / ERD）
 
 - **布局**：三页共用 `.erd-secondary-pane--import` + `__content` 列（max-width 680px）；标题·副标题·Steps·表单/拖入区同列对齐，Steps 不再全宽 bleed
