@@ -25,6 +25,7 @@ import {
 } from '@/utils/diagram';
 import { resolveEntityPositions } from '@/utils/graphLayout';
 import { suggestImportFrames } from '@/utils/suggestImportFrames';
+import { resolveReverseImportTarget } from '@/utils/reverseImportUtils';
 import {
   ackManualPersist,
   persistProjectNow,
@@ -76,6 +77,12 @@ export interface IProfileDispatchSlice {
   checkField: (data: any) => any;
   getAllTable: (dataSource: any) => any;
   saveSelectedRowKeys: (selectedRowKeys: any) => void;
+  /** 逆向导入目标模块（code + 显示名） */
+  setReverseImportTarget: (target: {
+    moduleCode: string;
+    moduleChnname: string;
+    useExistingModule: boolean;
+  }) => void;
   /** 选表后导入；覆盖确认后 await；仅 importReverseTable 成功才 true（弹层可关） */
   getSelectedEntity: () => Promise<boolean>;
   /**
@@ -439,13 +446,16 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       ...(schema ? {schema} : {}),
     }).then((res) => {
       if (res && res.code === 200) {
+        const parsed = res.data || res;
+        const parsedModule = _.get(parsed, 'module', {});
         get().dispatch.setProfileSliceState({
           ...get().profileSliceState,
-          data: res.data || res,
-          exists: get().dispatch.checkField(res.data || res),
+          data: parsed,
+          exists: get().dispatch.checkField(parsed),
           status: 'SUCCESS',
           flag: false,
           errorMessage: undefined,
+          reverseImportTarget: resolveReverseImportTarget(parsedModule),
         });
       } else {
         // request 拦截器已 toast 业务 msg；此处只写可读状态，禁止 `'' + res` → [object Object]
@@ -505,6 +515,12 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }).filter((k: any) => !!k)
     });
   },
+  setReverseImportTarget: (target) => {
+    get().dispatch.setProfileSliceState({
+      ...get().profileSliceState,
+      reverseImportTarget: target,
+    });
+  },
   getSelectedEntity: (): Promise<boolean> => {
     const keys = get().profileSliceState?.keys || [];
     if (keys.length === 0) {
@@ -549,6 +565,9 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const {data, keys} = get().profileSliceState;
     const dbType = _.get(data, 'dbType', 'MYSQL');
     const module = _.get(data, 'module', {});
+    const importTarget = resolveReverseImportTarget(module, get().profileSliceState.reverseImportTarget);
+    const targetModuleCode = importTarget.moduleCode;
+    const targetModuleChnname = importTarget.moduleChnname;
     const datatypeObj = _.get(data, 'dataTypeMap', {});
     let currentDataTypes = [...(_.get(dataSource, 'dataTypeDomains.datatype', []) || [])];
     const database = [...(_.get(dataSource, 'dataTypeDomains.database', []) || [])];
@@ -611,12 +630,13 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         return dbEntity || e;
       })
     }));
-    if (modules.map((m: any) => m.name).includes(module.code)) {
+    if (modules.map((m: any) => m.name).includes(targetModuleCode)) {
       // 如果该模型已经存在了
       modules = modules.map((m: any) => {
-        if (m.name === module.code) {
+        if (m.name === targetModuleCode) {
           return {
             ...m,
+            chnname: importTarget.useExistingModule ? (m.chnname || targetModuleChnname) : targetModuleChnname,
             entities: (m.entities || []).concat(tempKeys),
           };
         }
@@ -624,8 +644,8 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       })
     } else {
       modules.push({
-        name: module.code,
-        chnname: module.name,
+        name: targetModuleCode,
+        chnname: targetModuleChnname,
         entities: tempKeys,
         associations: [],
       });
@@ -657,7 +677,21 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       if (!didAutoLayout) {
         return m;
       }
-      const next = { ...m };
+      const next = {
+        ...m,
+        diagrams: Array.isArray(m.diagrams)
+          ? m.diagrams.map((d: any) => ({
+              ...d,
+              layout: { nodes: [...(d.layout?.nodes || [])] },
+              groups: Array.isArray(d.groups)
+                ? d.groups.map((g: any) => ({
+                    ...g,
+                    memberEntityIds: [...(g.memberEntityIds || [])],
+                  }))
+                : d.groups,
+            }))
+          : m.diagrams,
+      };
       ensureDiagrams(next);
       const diagram =
         next.diagrams.find((d: any) => d.id === DEFAULT_DIAGRAM_ID) || next.diagrams[0];

@@ -215,7 +215,8 @@ export function upsertDiagramLayout(
   if (!diagram.layout) {
     diagram.layout = { nodes: [] };
   }
-  const layout = diagram.layout.nodes || [];
+  // Immer/frozen store 可能冻结 nodes；须拷贝后再写
+  const layout = [...(diagram.layout.nodes || [])];
   layoutNodes.forEach((n) => {
     const idx = layout.findIndex(
       (s) => (s.title || '').split(':')[0] === n.id || s.id === n.id,
