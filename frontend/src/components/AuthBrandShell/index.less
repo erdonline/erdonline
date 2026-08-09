@@ -63,10 +63,23 @@
     outline-offset: 2px;
   }
 
+  /* 用户名/密码：antd affix 外框 + activeShadow 已够；禁内层 input 再套 outline（框中框） */
+  input:focus,
   input:focus-visible,
-  .ant-input:focus-visible {
-    outline: 2px solid var(--erd-control-focus-outline);
-    outline-offset: 2px;
+  .ant-input:focus,
+  .ant-input:focus-visible,
+  .ant-input-affix-wrapper:focus,
+  .ant-input-affix-wrapper:focus-visible,
+  .ant-input-affix-wrapper:focus-within {
+    outline: none !important;
+  }
+
+  .auth-shell-form {
+    .ant-input-affix-wrapper .ant-input,
+    .ant-input-affix-wrapper input {
+      outline: none !important;
+      box-shadow: none !important;
+    }
   }
 
   /* 压过 antd Button :focus-visible 默认蓝环 (#91caff) */
