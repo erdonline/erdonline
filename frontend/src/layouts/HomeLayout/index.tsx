@@ -157,11 +157,11 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             tabIndex={0}
             aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
             data-testid="erd-chrome-brand"
-            onClick={() => history.push('/home')}
+            onClick={() => history.push('/')}
             onKeyDown={(e) => {
               if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                history.push('/home');
+                history.push('/');
               }
             }}
           >
