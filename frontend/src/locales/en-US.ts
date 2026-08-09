@@ -758,6 +758,8 @@ export default {
   'versionModal.diff.emptyFullScript': 'Full script with no incremental change entries',
   'versionModal.diff.summary': '{count} items · {tables} tables · {hint}',
   'versionModal.diff.summaryHintDefault': 'Layer A version diff',
+  'versionModal.diff.summaryHintVersionDetail': 'Vs previous version',
+  'versionModal.diff.summaryHintCompare': 'Increment vs initial version',
   'versionModal.diff.summaryHintConflict': 'Local workspace vs server',
   'versionModal.diff.type.entity': 'Table',
   'versionModal.diff.type.field': 'Field',

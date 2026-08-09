@@ -23,6 +23,7 @@ import {
 } from "@/utils/versionBaseline";
 import {
   checkVersionStructuralDiff,
+  filterNoiseChanges,
   hasMeaningfulVersionChanges,
   snapshotProjectJSONForVersion,
 } from "@/utils/versionStructuralDiff";
@@ -556,29 +557,37 @@ const useVersionStore = create<VersionState>(
         });
       },
       showChanges: (type: string, change: any, currentVersion: any, lastVersion: any) => {
-        const dataSource = _.get(useProjectStore.getState().project, "projectJSON");
+        const liveProjectJSON = _.get(useProjectStore.getState().project, "projectJSON");
         const {changes, init, currentVersionIndex, versions} = get();
-        if (!currentVersion || !lastVersion) {
+        if (!currentVersion) {
           currentVersion = get().currentVersion;
-          lastVersion = currentVersionIndex ? versions[currentVersionIndex + 1] || currentVersion : currentVersion;
+        }
+        if (!lastVersion) {
+          const idx = currentVersionIndex ?? versions.findIndex(
+            (v: { id?: string }) => v.id === currentVersion?.id,
+          );
+          lastVersion =
+            idx >= 0 && idx < versions.length - 1
+              ? versions[idx + 1]
+              : null;
         }
         let tempChanges;
         if (type === SHOW_CHANGE_TYPE.CURRENT) {
-          tempChanges = currentVersion.changes || [];
+          const currentSnapshot = snapshotProjectJSONForVersion(
+            currentVersion?.projectJSON || { modules: currentVersion?.modules },
+          );
+          const baselineSnapshot = lastVersion
+            ? snapshotProjectJSONForVersion(
+                lastVersion.projectJSON || { modules: lastVersion.modules },
+              )
+            : { modules: [], profile: {}, dataTypeDomains: {} };
+          tempChanges = checkVersionStructuralDiff(currentSnapshot, baselineSnapshot);
         } else if (type === SHOW_CHANGE_TYPE.MULTI) {
           tempChanges = [...change];
         } else {
           tempChanges = [...changes];
         }
-        if (tempChanges) {
-          _.remove(tempChanges, function (n: any) {
-            return (
-              n?.type === "field"
-              && n?.opt === 'update'
-              && (n?.changeData && n?.changeData?.search('undefined=>') > -1)
-            );
-          });
-        }
+        tempChanges = filterNoiseChanges(tempChanges || []);
         const configData = _.get(useProjectStore.getState().project, 'configJSON');
 
         const tempValue = {
@@ -609,38 +618,39 @@ const useVersionStore = create<VersionState>(
           // todo 暂时取消数据表的中文名以及其他变化时所生成的更新数据
           // tempChanges = tempChanges.filter(c => !(c.type === 'entity' && c.opt === 'update'));
         }
-        let messages;
-        if (type === SHOW_CHANGE_TYPE.CURRENT) {
-          messages = get().dispatch.constructorMessage(currentVersion?.changes || []);
-        } else if (type === SHOW_CHANGE_TYPE.MULTI) {
-          messages = get().dispatch.constructorMessage(change || []);
-        } else {
-          messages = get().dispatch.constructorMessage(changes || []);
-        }
+        const messages = get().dispatch.constructorMessage(tempChanges);
         set({
             messages
           }
         );
         const dbData = get().dispatch.getCurrentDBData();
         const code = _.get(dbData, 'select', 'MYSQL');
+        const versionModules =
+          currentVersion?.projectJSON?.modules || currentVersion?.modules || [];
+        const versionProjectJSON = {
+          ...(liveProjectJSON || {}),
+          modules: versionModules,
+          profile: {
+            ...(liveProjectJSON?.profile || {}),
+            ...(currentVersion?.projectJSON?.profile || {}),
+          },
+          dataTypeDomains:
+            currentVersion?.projectJSON?.dataTypeDomains ||
+            liveProjectJSON?.dataTypeDomains ||
+            {},
+        };
+        const baselineProjectJSON = lastVersion
+          ? {
+              modules: lastVersion.projectJSON?.modules || lastVersion.modules || [],
+            }
+          : { modules: [] };
         let data = '';
         if (init) {
-          data = getAllDataSQL({
-            ...dataSource,
-            modules: dataSource?.modules || [],
-          }, code);
+          data = getAllDataSQL(versionProjectJSON, code);
         } else {
-          data = currentVersion.baseVersion ?
-            getAllDataSQL({
-              ...dataSource,
-              modules: currentVersion.projectJSON ? currentVersion.projectJSON.modules : currentVersion.modules,
-            }, code) :
-            getCodeByChanges({
-              ...dataSource,
-              modules: currentVersion.projectJSON ? currentVersion.projectJSON.modules : currentVersion.modules,
-            }, tempChanges, code, {
-              modules: lastVersion.projectJSON ? lastVersion.projectJSON.modules : lastVersion.modules,
-            });
+          data = currentVersion.baseVersion
+            ? getAllDataSQL(versionProjectJSON, code)
+            : getCodeByChanges(versionProjectJSON, tempChanges, code, baselineProjectJSON);
         }
         set({
           data

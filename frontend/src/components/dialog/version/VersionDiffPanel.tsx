@@ -34,13 +34,69 @@ export type VersionDiffPanelProps = {
   hasScript?: boolean;
   /** 摘要行上下文 i18n key，默认 versionModal.diff.summaryHintDefault */
   summaryHintId?: string;
+  /** 为 false 时摘要由父级（如 CompareVersion 双栏工具行）渲染，便于与右列对齐 */
+  showSummary?: boolean;
   /** 静态 Modal 等无 IntlProvider 场景传入 */
   format?: MessageFormatFn;
 };
 
+export type VersionDiffSummaryProps = {
+  messages: VersionDiffItem[];
+  summaryHintId?: string;
+  format?: MessageFormatFn;
+};
+
+const VersionDiffSummaryInner: React.FC<
+  VersionDiffSummaryProps & { format: MessageFormatFn }
+> = ({ messages, summaryHintId = 'versionModal.diff.summaryHintDefault', format }) => {
+  const summaryHint = format(summaryHintId);
+
+  const { groups, summary } = useMemo(() => {
+    const list = Array.isArray(messages) ? messages : [];
+    const counts = countChanges(list);
+    const map = new Map<string, VersionDiffItem[]>();
+    list.forEach((m) => {
+      const key = tableOf(m);
+      if (!map.has(key)) {
+        map.set(key, []);
+      }
+      map.get(key)!.push(m);
+    });
+    const groups = Array.from(map.entries()).map(([table, items]) => ({ table, items }));
+    return { groups, summary: counts };
+  }, [messages]);
+
+  if (!messages?.length) {
+    return null;
+  }
+
+  return (
+    <Space size={4} wrap className="version-diff-summary" data-testid="version-diff-summary">
+      {changeSummaryTags(summary, format).map(({ opt, text }) => (
+        <Tag key={opt} color={CHANGE_OPT[opt].color}>
+          {text}
+        </Tag>
+      ))}
+      <Typography.Text type="secondary" style={{ fontSize: 12 }}>
+        {format('versionModal.diff.summary', {
+          count: messages.length,
+          tables: groups.length,
+          hint: summaryHint,
+        })}
+      </Typography.Text>
+    </Space>
+  );
+};
+
 const VersionDiffPanelInner: React.FC<
   VersionDiffPanelProps & { format: MessageFormatFn }
-> = ({ messages, hasScript, summaryHintId = 'versionModal.diff.summaryHintDefault', format }) => {
+> = ({
+  messages,
+  hasScript,
+  summaryHintId = 'versionModal.diff.summaryHintDefault',
+  showSummary = true,
+  format,
+}) => {
   const typeLabel = (type: string) => {
     const key = `versionModal.diff.type.${type}`;
     if ((DIFF_TYPE_KEYS as readonly string[]).includes(type)) {
@@ -56,11 +112,8 @@ const VersionDiffPanelInner: React.FC<
     return opt;
   };
 
-  const summaryHint = format(summaryHintId);
-
-  const { groups, summary } = useMemo(() => {
+  const { groups } = useMemo(() => {
     const list = Array.isArray(messages) ? messages : [];
-    const counts = countChanges(list);
     const map = new Map<string, VersionDiffItem[]>();
     list.forEach((m) => {
       const key = tableOf(m);
@@ -77,7 +130,7 @@ const VersionDiffPanelInner: React.FC<
         return oa - ob || String(a.type).localeCompare(String(b.type));
       }),
     }));
-    return { groups, summary: counts };
+    return { groups };
   }, [messages]);
 
   if (!messages?.length) {
@@ -98,20 +151,13 @@ const VersionDiffPanelInner: React.FC<
 
   return (
     <div className="version-diff-panel" data-testid="version-diff-panel">
-      <Space size={4} wrap className="version-diff-summary" data-testid="version-diff-summary">
-        {changeSummaryTags(summary, format).map(({ opt, text }) => (
-          <Tag key={opt} color={CHANGE_OPT[opt].color}>
-            {text}
-          </Tag>
-        ))}
-        <Typography.Text type="secondary" style={{ fontSize: 12 }}>
-          {format('versionModal.diff.summary', {
-            count: messages.length,
-            tables: groups.length,
-            hint: summaryHint,
-          })}
-        </Typography.Text>
-      </Space>
+      {showSummary ? (
+        <VersionDiffSummaryInner
+          messages={messages}
+          summaryHintId={summaryHintId}
+          format={format}
+        />
+      ) : null}
       <ul className="version-diff-tree">
         {groups.map(({ table, items }) => (
           <li key={table} className="version-diff-table">
@@ -164,11 +210,23 @@ const VersionDiffPanelWithIntl: React.FC<Omit<VersionDiffPanelProps, 'format'>> 
   return <VersionDiffPanelInner {...props} format={intlFormat(intl)} />;
 };
 
+const VersionDiffSummaryWithIntl: React.FC<Omit<VersionDiffSummaryProps, 'format'>> = (props) => {
+  const intl = useIntl();
+  return <VersionDiffSummaryInner {...props} format={intlFormat(intl)} />;
+};
+
 const VersionDiffPanel: React.FC<VersionDiffPanelProps> = ({ format, ...props }) => {
   if (format) {
     return <VersionDiffPanelInner {...props} format={format} />;
   }
   return <VersionDiffPanelWithIntl {...props} />;
+};
+
+export const VersionDiffSummary: React.FC<VersionDiffSummaryProps> = ({ format, ...props }) => {
+  if (format) {
+    return <VersionDiffSummaryInner {...props} format={format} />;
+  }
+  return <VersionDiffSummaryWithIntl {...props} />;
 };
 
 /** 静态 Modal（无 IntlProvider）专用 */

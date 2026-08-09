@@ -21,10 +21,11 @@ import SqlApproval from '@/components/dialog/approval/SqlApproval';
 import { useSearchParams } from '@@/exports';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
-import VersionDiffPanel from './VersionDiffPanel';
+import VersionDiffPanel, { VersionDiffSummary } from './VersionDiffPanel';
 import { formatVersionDiffMarkdown } from './formatVersionDiffMarkdown';
+import './version-compare-layout.scss';
 
-const { Paragraph } = Typography;
+const { Text } = Typography;
 
 export const CompareVersionType = { DETAIL: 'detail', COMPARE: 'compare' };
 
@@ -49,8 +50,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     shallow,
   );
 
-  const height = document.body.clientHeight;
-  const tempHeight = height - 25;
+  const compareBodyHeight = '450px';
 
   const [open, setOpen] = useState(false);
   const [state, setState] = useState({
@@ -372,20 +372,55 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
           </Space>
         ) : null}
         <Divider />
-        <Row gutter={16}>
-          <Col span={10}>
-            <div style={{ marginBottom: 8, fontWeight: 500 }}>
-              {intl.formatMessage({ id: 'versionModal.compare.modelChanges' })}
-            </div>
-            <VersionDiffPanel messages={messages} hasScript={!!(data && String(data).trim())} />
-          </Col>
-          <Col span={14}>
-            <Paragraph copyable={{ text: data }} style={{ marginBottom: 8 }}>
-              {scriptHeading}
-            </Paragraph>
-            <CodeEditor mode="mysql" height={`${tempHeight * 0.5}px`} value={data} />
-          </Col>
-        </Row>
+        <div className="version-compare-layout" data-testid="version-compare-layout">
+          <Row gutter={16} align="top">
+            <Col span={10}>
+              <div className="version-compare-col">
+                <div className="version-compare-col__heading">
+                  {intl.formatMessage({ id: 'versionModal.compare.modelChanges' })}
+                </div>
+                <div className="version-compare-col__toolbar">
+                  <VersionDiffSummary
+                    messages={messages}
+                    summaryHintId={
+                      isDetail
+                        ? 'versionModal.diff.summaryHintVersionDetail'
+                        : 'versionModal.diff.summaryHintCompare'
+                    }
+                  />
+                </div>
+                <div className="version-compare-col__body">
+                  <VersionDiffPanel
+                    messages={messages}
+                    showSummary={false}
+                    hasScript={!!(data && String(data).trim())}
+                  />
+                </div>
+              </div>
+            </Col>
+            <Col span={14}>
+              <div className="version-compare-col">
+                <div className="version-compare-col__heading">{scriptHeading}</div>
+                <div className="version-compare-col__toolbar">
+                  <Text
+                    className="version-compare-col__copy"
+                    copyable={
+                      data && String(data).trim()
+                        ? { text: String(data), tooltips: false }
+                        : false
+                    }
+                    type="secondary"
+                  >
+                    {intl.formatMessage({ id: 'accountSettings.common.copy' })}
+                  </Text>
+                </div>
+                <div className="version-compare-col__body">
+                  <CodeEditor mode="mysql" height={compareBodyHeight} value={data} />
+                </div>
+              </div>
+            </Col>
+          </Row>
+        </div>
       </Modal>
     </>
   );

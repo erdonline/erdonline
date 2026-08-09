@@ -727,6 +727,8 @@ export default {
   'versionModal.diff.emptyFullScript': '当前脚本为全量脚本（无增量变更条目）',
   'versionModal.diff.summary': '共 {count} 项 · {tables} 张表 · {hint}',
   'versionModal.diff.summaryHintDefault': 'A 层版本 diff',
+  'versionModal.diff.summaryHintVersionDetail': '相对上一版本',
+  'versionModal.diff.summaryHintCompare': '增量版本相对初始版本',
   'versionModal.diff.summaryHintConflict': '本地工作区 vs 服务器',
   'versionModal.diff.type.entity': '表',
   'versionModal.diff.type.field': '字段',
