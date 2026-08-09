@@ -8,6 +8,12 @@
 
 ### 2026-08-09
 
+#### ADR-0031：DDL API 与版本 API 分域（规划）
+
+- **ADR**：新增 `docs/adr/0031-ddl-api-surface.md` — `HisProjectController` 仅保留版本生命周期（load/list/save/delete/diff + `syncSql`）；DDL 渲染迁至新 `ProjectDdlController`（`/ncnb/projectDdl/previewTemplate|export|table`）；Service/Freemarker 不变；禁止并入 `ConnectorController`。
+- **现状**：`exportDdl` / `tableDdl` / `previewDdlTemplate` 仍挂 `/hisProject/*`；FE 唯一入口 `ddlExportApi.ts`。
+- 验证点：文档评审；实现切片待后续 PR（双路径兼容 → FE 切换 → 删旧端点）。
+
 #### DDL 方言种子补全 + 自定义模板 UI 恢复
 
 - **BE**：`ddl/freemarker/postgresql/`、`oracle/` 补齐与 MySQL 对齐的 11 项 FTL（createPk、deleteField、updateTableComment、rebuildTable 等）；`defaultData` 无 SQL Server 方言，暂不建 `sqlserver/` 种子。
