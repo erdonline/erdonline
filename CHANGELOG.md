@@ -8,6 +8,20 @@
 
 ### 2026-08-09
 
+#### 设计器：解析页布局收紧（逆向 / PdMan / ERD）
+
+- **布局**：三页共用 `.erd-secondary-pane--import` + `__content` 列（max-width 680px）；标题·副标题·Steps·表单/拖入区同列对齐，Steps 不再全宽 bleed
+- **表单**：数据源 / Schema / 逻辑名格式控件改为列内 100% 宽，去掉 328px 固定宽
+- **视觉**：浅边框卡片 grouping，保留 ADR-0016 碎密度（外层 pad 8/12 不变）
+- 验证点：`yarn test:e2e --project=chromium tests/e2e/designer-secondary-pane.spec.ts tests/e2e/reverse-parse-failure.spec.ts --grep "次屏|逆向"`
+
+#### 设计器：项目菜单支持修改项目（改名/描述/标签）
+
+- **入口**：设计器顶栏 **项目名 ▾** → **修改项目**（与项目列表「修改」同一 Modal）
+- **能力**：项目名、标签、描述；成功后顶栏项目名即时更新（store 同步）
+- **E2E**：`project-menu.spec.ts`「修改项目名后顶栏即时更新」
+- 验证点：`yarn test:e2e --project=chromium tests/e2e/project-menu.spec.ts --grep "修改项目名"`
+
 #### 落地页族：全幅 bleed + 稳定顶栏 + 深色滚动条
 
 - **全幅**：`html/body:has(.landing)` 清零默认 8px 边距 + void 背景，消除整页「外框井」；顶栏背景全宽 bleed，导航内容仍 `max-width` 内栏
@@ -15,7 +29,8 @@
 - **滚动条**：landing 族 `scrollbar-color` + webkit 深色 thumb/track（对齐 void 底）
 - **模板广场**：卡片 tags 与 `official` 徽章去重，不再双显「官方」
 - **导航**（保持）：产品亮点 → 模板广场 → 竞品对比 → GitHub → 登录/进入工作台
-- 验证点：Playwright 实测 body margin=0、nav 全宽；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts tests/e2e/catalog.spec.ts --grep "顶栏|跨页|匿名可浏览"`
+- **Skip**：`.erd-skip-link` 改 off-screen translate（非 clip 1px），恢复 Tab 首焦可达
+- 验证点：Playwright 实测 body margin=0、nav 全宽；`yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/compare.spec.ts tests/e2e/catalog.spec.ts --grep "顶栏|跨页|匿名可浏览|键盘"`
 
 #### 模板广场：列表卡片 footer 防组内换行
 
