@@ -105,7 +105,7 @@
 
 ### 产品深度（走出「thin CRUD」）📋
 
-- 数据字典 / 治理：字段级文档、~~枚举域~~✅（`/setting/dataType` kind=enum + `values[]` 可编）、~~逻辑类型 apply 方言映射~~✅（密表编 `apply[code].type`）、跨表复用（承接 📋 dataDomain 实验页的定位重估）
+- 数据字典 / 治理：~~字段级文档~~✅ 字段库 MVP（ADR-0032 `/setting/fieldLibrary` + copy-on-apply）；~~枚举域~~✅（`/setting/dataType` kind=enum + `values[]` 可编）；~~逻辑类型 apply 方言映射~~✅（密表编 `apply[code].type`）；跨表复用（字段库 platform/group/user scope）
 - 逆向保真🚧：~~FK 约束名 + ON DELETE/UPDATE~~✅（`constraintName`/`deleteRule`/`updateRule`；复合仍拆边同名；~~画布可编参照动作~~✅；~~DDL/DBML FK 回写~~✅）、复合 FK `fields[]`（ADR-0011 **仍延期**，解封=FE 多字段边协议）、~~PG 表/列注释 → chnname~~✅（字典 `obj_description`/`col_description`）、~~SQL Server 表/列注释 → chnname~~✅（`MS_Description`）、~~Oracle 表/列注释 → chnname~~✅（`ALL_TAB_COMMENTS`/`ALL_COL_COMMENTS`）、~~列默认值 `COLUMN_DEF` → `defaultValue`~~✅（JDBC 通用）、~~索引已字典化~~✅、~~PG/MySQL 表达式·函数索引 → `indexs[].fields[]`~~✅（`pg_get_indexdef` / `STATISTICS.EXPRESSION`）、~~Oracle/SQL Server 函数·计算列索引 → `indexs[].fields[]`~~✅（`ALL_IND_EXPRESSIONS` / `sys.computed_columns.definition`；P0 四库闭环）、~~PG/SQL Server 部分·过滤索引谓词 → `indexs[].filter`~~✅（`pg_get_expr(indpred)` / `filter_definition`）、~~索引签字段/表达式可编辑~~✅（JExcel text；分号混写；persist-on-200）、~~索引签过滤条件列~~✅（文本读写 `filter`）、~~DDL/DBML `filter` 回写~~✅（PG/SQLServer `WHERE`；DBML `note: filter:` 约定）、~~MySQL 触发器 → `triggers[]`~~✅（`INFORMATION_SCHEMA.TRIGGERS`）、~~PG 触发器 → `triggers[]`~~✅（`information_schema.triggers`）、~~SQL Server 触发器 → `triggers[]`~~✅（`sys.triggers`）、~~Oracle 触发器 → `triggers[]`~~✅（`ALL_TRIGGERS`+`ALL_SOURCE`；P0 四库闭环）、~~DDL `triggers[]` 回写~~✅（`createTrigger`；优先 `ddl`/方言重建）
 - 版本工作流：分支式演进、~~版本标签/里程碑~~✅（`db_change.tag` 逗号分隔多标签 + chips 筛选；无跨版本唯一）、~~跨版本 diff 的导出~~✅（W3 切片 1：Markdown 变更清单 + SQL）
 - 协作 → 版本自然发生（下一季③ ✅）；后续深化见版本工作流（分支式演进等）

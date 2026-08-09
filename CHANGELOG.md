@@ -8,6 +8,18 @@
 
 ### 2026-08-09
 
+#### 字段库 MVP（ADR-0032）
+
+- **ADR**：`docs/adr/0032-field-library-data-dict.md` — platform/group/user scope；copy-on-apply + 可选 `dictRef`；含库管理 UI；不含 MCP 写库
+- **Flyway**：`V25__data_dict_baseline.sql` — 建表 + 平台种子（性别/状态/审计字段组）
+- **BE**：`DataDictAcl` + `POST /dataDict/{id}/apply`；typed `dict_info` DTO
+- **FE**：`InsertFromFieldLibraryModal`（表设计）；`FieldLibraryDrawer`（画布工具栏）；`/design/table/setting/fieldLibrary` CRUD；`proxy.ts` 补 `/dataDict/` 代理
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=DataDictAclTest,DataDictServiceImplApplyTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart` → `data_dict` 表存在
+  - `cd frontend && npx --yes tsx src/utils/fieldLibraryMerge.test.ts`
+  - `yarn test:e2e --project=chromium tests/e2e/field-library-insert.spec.ts`
+
 #### DDL 模板：默认示例灰色再弱化
 
 - **FE**：classpath 默认示例 Ace 文本与「默认示例」badge 改为更浅的 `#8c8c8c` / `#a6a6a6`，并压平语法高亮色，与自定义源码区分更明显。

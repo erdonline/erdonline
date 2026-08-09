@@ -58,7 +58,7 @@
 
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
-| 数据字典 CRUD | DataDictController 全量 CRUD + tree | 实验页 `dataDomain` 已删（W2）；后端 CRUD 保留 | thin：本阶段不扩 UI；P5 产品深度再重估 |
+| 字段库（data_dict） | `DataDictController` CRUD + `/dataDict/tree` + `POST /dataDict/{id}/apply` | 表设计「从字段库插入」Modal；画布工具栏 Drawer；设置 `/setting/fieldLibrary` | ✅ MVP（ADR-0032）；**不含** MCP 写库 |
 
 ## 死壳与过度建设（只删不增）
 
