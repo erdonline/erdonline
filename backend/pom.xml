@@ -32,7 +32,6 @@
         <oracle.connector.version>21.1.0.0</oracle.connector.version>
         <postgresql.connector.version>42.7.4</postgresql.connector.version>
         <sqlserver.connector.version>12.8.1.jre11</sqlserver.connector.version>
-        <db2.connector.version>11.5.0.0</db2.connector.version>
         <ttl.version>2.14.5</ttl.version>
         <jasypt.version>3.0.5</jasypt.version>
         <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
@@ -120,6 +119,7 @@
             <artifactId>druid-spring-boot-3-starter</artifactId>
             <version>${druid.version}</version>
         </dependency>
+        <!-- 系统驱动：应用自举必需（erd/martin 系统库 + Flyway，见 application.yml），永久编译期依赖 -->
         <dependency>
             <groupId>com.mysql</groupId>
             <artifactId>mysql-connector-j</artifactId>
@@ -133,6 +133,15 @@
             <groupId>org.flywaydb</groupId>
             <artifactId>flyway-mysql</artifactId>
         </dependency>
+        <!--
+          官方连接器包（面向用户数据源，非应用自举所需）：postgresql/ojdbc8/mssql-jdbc。
+          目标状态（ADR-0029 §5 2026-08-09 三修）：这三个应移出 backend 模块编译/运行期作用域，
+          仅在镜像构建阶段合并进默认发布镜像（BOOT-INF/lib 或 loader.path），backend 模块自身
+          编译产物只保留上面的系统驱动。可行性已核实：全仓 Java 源码零编译期引用这三个包的类
+          （JdbcKit/AbstractDBCommand 均按字符串 Class.forName(driverClassName) 反射加载），
+          scope 调整不影响 `mvn compile`。本轮仅记录目标状态，未做 Maven 分模块/Docker 多阶段
+          构建改造（属于后续实现任务，不在本次 ADR 修订范围内）。
+        -->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -147,11 +156,6 @@
             <groupId>com.microsoft.sqlserver</groupId>
             <artifactId>mssql-jdbc</artifactId>
             <version>${sqlserver.connector.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>com.ibm.db2</groupId>
-            <artifactId>jcc</artifactId>
-            <version>${db2.connector.version}</version>
         </dependency>
         <dependency>
             <groupId>io.minio</groupId>
