@@ -55,4 +55,13 @@ public class HisProjectController {
         log.info("dbChange: {}", dbChange);
         return dbChangeService.saveVersion(dbChange);
     }
+
+    @ApiOperation(value = "A 层全量差异（后端权威）", nickname = "diff",
+            notes = "当前模型 ↔ 最新版本基线的 structural diff；「未保存版本」/ 比对面板均消费此结果",
+            tags = {"dbChange",})
+    @PostMapping("/hisProject/diff")
+    @MartinLog("A 层差异计算")
+    public R diff(@RequestBody Map<String, Object> body) {
+        return dbChangeService.diffAgainstLatest(body);
+    }
 }
