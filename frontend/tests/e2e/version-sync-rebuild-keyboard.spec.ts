@@ -41,7 +41,8 @@ test.describe('同步配置/重建版本弹层键盘', () => {
       await createAndOpenPersonProject(page, projectName, 'vsync', 'sync config keyboard');
       await openVersionPage(page);
 
-      const trigger = page.getByRole('button', { name: '同步配置' });
+      await page.getByTestId('version-toolbar-more-btn').click();
+      const trigger = page.getByTestId('version-sync-config-btn');
       await expect(trigger).toBeEnabled();
       await trigger.click();
 
@@ -72,6 +73,7 @@ test.describe('同步配置/重建版本弹层键盘', () => {
       await saveVersion(page);
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
 
+      await page.getByTestId('version-toolbar-more-btn').click();
       const trigger = page.getByTestId('version-rebuild-btn');
       await expect(trigger).toBeEnabled({ timeout: 10_000 });
       await trigger.click();

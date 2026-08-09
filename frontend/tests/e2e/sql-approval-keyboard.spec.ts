@@ -5,6 +5,7 @@ import {
   openVersionPage,
   saveVersion,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 /**
@@ -81,7 +82,9 @@ test.describe('发起SQL审批弹层键盘', () => {
       await openVersionPage(page);
       await saveVersion(page);
 
-      const submitBtn = page.getByTestId('version-submit-order-btn');
+      // 「提交工单」已移入行内「更多」溢出菜单
+      await page.getByTestId('row-more-btn').click();
+      const submitBtn = visibleTestId(page, 'version-submit-order-btn');
       await expect(submitBtn).toBeVisible({ timeout: 15_000 });
       await submitBtn.click();
 

@@ -568,9 +568,12 @@ test.describe('i18n：手动语言切换', () => {
 
     const addVersion = page.getByTestId('add-version-btn');
     const compareVersion = page.getByTestId('version-compare-btn');
+    const toolbarMore = page.getByTestId('version-toolbar-more-btn');
     const rebuildVersion = page.getByTestId('version-rebuild-btn');
     await expect(addVersion).toHaveText('新增版本');
     await expect(compareVersion).toHaveText('版本比对');
+    // 「重建版本」已收进版本页「更多」溢出菜单（Git 心智：非首要操作）
+    await toolbarMore.click();
     await expect(rebuildVersion).toHaveText('重建版本');
 
     const renameBtn = page.getByTestId('version-rename-btn').first();
@@ -584,6 +587,7 @@ test.describe('i18n：手动语言切换', () => {
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
     await expect(addVersion).toHaveText('Add version');
     await expect(compareVersion).toHaveText('Compare versions');
+    await toolbarMore.click();
     await expect(rebuildVersion).toHaveText('Rebuild versions');
     if ((await renameBtn.count()) > 0) {
       await expect(renameBtn).toHaveText('Edit');
@@ -594,6 +598,7 @@ test.describe('i18n：手动语言切换', () => {
     await page.reload();
     await expect(page.getByTestId('version-page')).toBeVisible({ timeout: 15_000 });
     await expect(addVersion).toHaveText('新增版本');
+    await toolbarMore.click();
     await expect(rebuildVersion).toHaveText('重建版本');
   });
 

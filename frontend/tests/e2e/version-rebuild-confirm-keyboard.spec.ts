@@ -44,6 +44,7 @@ test.describe('重建基线确认键盘', () => {
       await saveVersion(page);
       await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
 
+      await page.getByTestId('version-toolbar-more-btn').click();
       const trigger = page.getByTestId('version-rebuild-btn');
       await expect(trigger).toBeEnabled({ timeout: 10_000 });
       await trigger.click();

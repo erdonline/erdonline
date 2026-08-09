@@ -7,6 +7,7 @@ import {
   login,
   openVersionPage,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 /**
@@ -23,7 +24,9 @@ test.describe('同步配置失败不关窗', () => {
       await createAndOpenPersonProject(page, projectName, 'scfail', 'sync config fail');
       await openVersionPage(page);
 
-      await page.getByRole('button', { name: '同步配置' }).click();
+      // 「同步配置」已收进版本页工具条「更多」溢出菜单（次要/危险操作降级）
+      await page.getByTestId('version-toolbar-more-btn').click();
+      await visibleTestId(page, 'version-sync-config-btn').click();
       const dialog = page.getByRole('dialog', { name: /同步配置/ });
       await expect(dialog).toBeVisible({ timeout: 10_000 });
       await dialog.getByRole('radio', { name: '重建数据表' }).check();

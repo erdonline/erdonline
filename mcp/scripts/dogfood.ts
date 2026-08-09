@@ -16,6 +16,27 @@ const API = (process.env.ERD_API_URL ?? 'http://127.0.0.1:9502').replace(
 );
 const USER = process.env.ERD_DOGFOOD_USER ?? 'admin';
 const PASS = process.env.ERD_DOGFOOD_PASSWORD ?? '123456';
+const SNAPSHOT_DB_KEY = '__erd_snapshot__';
+
+async function resolveVersionDbKey(
+  jwt: string,
+  projectJSON?: Record<string, unknown> & {
+    profile?: { defaultDataSourceId?: string };
+  },
+): Promise<string> {
+  const fromProfile = projectJSON?.profile?.defaultDataSourceId;
+  if (fromProfile && String(fromProfile).trim()) {
+    return String(fromProfile).trim();
+  }
+  const res = await fetch(`${API}/ncnb/dataSources?size=10&current=1`, {
+    headers: { Authorization: `Bearer ${jwt}` },
+  });
+  const json = (await res.json()) as {
+    data?: { records?: Array<{ id?: string }> };
+  };
+  const first = json?.data?.records?.[0]?.id;
+  return first?.trim() || SNAPSHOT_DB_KEY;
+}
 
 async function loginJwt(): Promise<string> {
   const res = await fetch(`${API}/auth/login`, {
@@ -98,6 +119,8 @@ async function main() {
     `[dogfood] REST list_projects items=${projects?.items?.length ?? 0}`,
   );
 
+  let versionDbKey = SNAPSHOT_DB_KEY;
+
   if (firstId) {
     const detail = (await api.getProject(firstId)) as {
       name?: string;
@@ -151,8 +174,10 @@ async function main() {
         dbs: [{ url: 'jdbc:should-be-stripped' }],
       },
     };
+    versionDbKey = await resolveVersionDbKey(jwt, projectJSON);
+    console.error(`[dogfood] version dbKey=${versionDbKey}`);
     const created = (await api.createVersion(firstId, {
-      dbKey: 'defaultDB',
+      dbKey: versionDbKey,
       version: verLabel,
       versionDesc: 'mcp dogfood write slice',
       projectJSON: snapshot,
@@ -292,7 +317,7 @@ async function main() {
       name: 'create_version',
       arguments: {
         projectId: firstId,
-        dbKey: 'defaultDB',
+        dbKey: versionDbKey,
         version: mcpVer,
         versionDesc: 'mcp create_version tool',
         projectJSON: { modules: [], profile: { dbs: [] } },

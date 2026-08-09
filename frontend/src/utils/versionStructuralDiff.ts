@@ -72,8 +72,22 @@ export const PROFILE_MODELING_KEYS = [
 
 const FIELD_DIFF_SKIP = new Set(['typeName', 'dataType']);
 
+/** 非原始值（数组/对象）走 JSON 序列化展示，禁止模板字面量隐式 toString（`[]` 会变成空串，误导成「无变化」） */
+function formatScalar(value: unknown): string {
+  return value !== null && typeof value === 'object' ? JSON.stringify(value) : String(value);
+}
+
 function formatChangeData(before: unknown, after: unknown): string {
-  return `${before}=>${after}`;
+  return `${formatScalar(before)}=>${formatScalar(after)}`;
+}
+
+/**
+ * 「所见即真差异」：结构比较必须按内容判等，禁止 `!==` 引用比较。
+ * 数组/对象属性（如 entity.triggers）用 `!==` 时，两份从不同响应反序列化出来的
+ * 内容相同的空数组永远判不等 → 存版后仍显示「未存版本」的假阳性。
+ */
+function valuesDiffer(a: unknown, b: unknown): boolean {
+  return !_.isEqual(a, b);
 }
 
 function getAllTables(dataSource: ProjectJSONForDiff): EntityForDiff[] {
@@ -93,7 +107,7 @@ function compareField(
     if (FIELD_DIFF_SKIP.has(name)) {
       return;
     }
-    if (checkField[name] !== currentField[name]) {
+    if (valuesDiffer(checkField[name], currentField[name])) {
       changes.push({
         type: 'field',
         name: `${table.title}.${currentField.name}.${name}`,
@@ -112,7 +126,7 @@ function compareIndex(
 ): VersionStructuralChange[] {
   const changes: VersionStructuralChange[] = [];
   Object.keys(currentIndex).forEach((name) => {
-    if (checkIndex[name] !== currentIndex[name]) {
+    if (valuesDiffer(checkIndex[name], currentIndex[name])) {
       changes.push({
         type: 'index',
         name: `${table.title}.${currentIndex.name}.${name}`,
@@ -201,7 +215,7 @@ function compareIndexs(currentTable: EntityForDiff, checkTable: EntityForDiff): 
 function compareEntity(currentTable: EntityForDiff, checkTable: EntityForDiff): VersionStructuralChange[] {
   const changes: VersionStructuralChange[] = [];
   Object.keys(currentTable).forEach((name) => {
-    if (checkTable[name] !== currentTable[name]) {
+    if (valuesDiffer(checkTable[name], currentTable[name])) {
       changes.push({
         type: 'entity',
         name: `${currentTable.title}.${name}`,

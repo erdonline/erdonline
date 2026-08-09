@@ -10,6 +10,7 @@ import {
   openVersionPage,
   saveVersion,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 const API = process.env.API_URL || 'http://localhost:9502';
@@ -131,7 +132,9 @@ test.describe('版本工单/审批', () => {
       ).toBeVisible();
 
       await saveVersion(page);
-      const submitBtn = page.getByTestId('version-submit-order-btn');
+      // 「提交工单」已移入行内「更多」溢出菜单
+      await page.getByTestId('row-more-btn').click();
+      const submitBtn = visibleTestId(page, 'version-submit-order-btn');
       await expect(submitBtn).toBeVisible({ timeout: 15_000 });
       await submitBtn.click();
       const detail = page.getByRole('dialog').filter({ hasText: '版本变更详情' });

@@ -5,6 +5,7 @@ import {
   e2eAccount,
   login,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 /**
@@ -106,10 +107,14 @@ test.describe('设计器次屏碎密度', () => {
       ).toBeLessThanOrEqual(8);
 
       await page.goto(`/design/table/version/all?projectId=${projectId}`);
-      await expect(page.getByRole('button', { name: '同步配置' })).toBeVisible({
+      // 「同步配置」已收进版本页工具条「更多」溢出菜单（次要/危险操作降级）
+      await expect(page.getByTestId('version-toolbar-more-btn')).toBeVisible({
         timeout: 15_000,
       });
-      await page.getByRole('button', { name: '同步配置' }).click();
+      await page.getByTestId('version-toolbar-more-btn').click();
+      const syncConfigTrigger = visibleTestId(page, 'version-sync-config-btn');
+      await expect(syncConfigTrigger).toBeVisible({ timeout: 5_000 });
+      await syncConfigTrigger.click();
       const syncDialog = page.getByRole('dialog', { name: '同步配置' });
       await expect(syncDialog).toBeVisible({ timeout: 5_000 });
       await expect(page.getByTestId('sync-config-upgrade-type')).toBeVisible();
