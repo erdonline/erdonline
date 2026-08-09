@@ -8,16 +8,24 @@
 
 ### 2026-08-09
 
+#### ADR-0030 终态锁定：Freemarker DDL 引擎 + 后端单一权威（Pebble 过渡）
+
+- **架构**：版本详情/对比、export、sync SQL 等 product path DDL **仅后端**生成；FE 只渲染 API `ddl`。
+- **终态引擎**：**Freemarker**（classpath 已有 starter；JVM 吞吐/内存最优）；**过渡** Pebble 3.x 已落地，下一切片迁移。
+- **模板**：官方种子迁 FTL；存量 doT 经读时 Translator + ContextEnricher（legacy bridge，非永久双引擎）；新模板 `templateSyntax: freemarker|dot`。
+- **拒绝终态**：Handlebars 双运行时（同构税 + ~5× 慢）、Mustache、Liqp、GraalJS/doT 嵌入。
+- ADR：[0030-ddl-template-engine-isomorphism.md](docs/adr/0030-ddl-template-engine-isomorphism.md) → **已接受**
+- 验证点：文档/ADR 一致性；无代码行为变更（Freemarker 迁移留下一切片）
+
 #### 后端：版本增量 DDL — Pebble 引擎 + doT 兼容层（拒绝嵌入 doT.js）
 
-- **引擎**：Pebble 3.x 作为 JVM 原生模板运行时（编译缓存、无 ScriptEngine）。
+- **引擎**：Pebble 3.x 作为 JVM 原生模板运行时（编译缓存、无 ScriptEngine）；ADR-0030 锁定 Freemarker 为终态。
 - **兼容**：`DotToPebbleTranslator` 将 projectJSON 存量 doT（`{{=}}` / `{{~}}` / 条件）转为 Pebble；
   `pkList`/`sameCols` evaluate 由 `DdlTemplateContextEnricher` 预计算；classpath 方言默认模板
   `ddl/pebble/{dialect}/*.pebble` 作兜底。
 - **编排**：`Json2CodeDdlEngine.generateUpdateSql` 为权威增量 DDL；`VersionPanelDiffEngine` 仍
   `VersionDiffEngine` + DDL；常量类 `ProjectJsonKeys` / `VersionDiffKeys` / `DdlTemplateKeys`。
 - **删除**：`resources/dot/doT.js`、`dot-render.js`、Rhino/GraalJS 嵌入路径。
-- ADR：[0030-ddl-template-engine-isomorphism.md](docs/adr/0030-ddl-template-engine-isomorphism.md)
 - 验证点：
   - `cd backend && mvn -q test -Dtest=VersionDiffEngineTest,VersionDdlEngineTest,VersionPanelDiffEngineTest,DdlForeignKeyRendererTest,DdlPebbleCompatibilityTest`
   - `./backend/dev-ensure.sh --restart`
