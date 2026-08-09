@@ -8,6 +8,24 @@
 
 ### 2026-08-09
 
+#### 修复：版本页全链路 — ACL 500、溢出菜单互斥、比对默认区间
+
+- **P0 · `@RequireProjectAccess` 触发 500**：`ProjectAccessAspect` 的 `@Order(HIGHEST_PRECEDENCE)` 早于
+  `ExposeInvocationInterceptor`，AspectJ 取 JoinPoint 抛 `No MethodInvocation found`，导致 `/ncnb/dbChange`、
+  `/hisProject/save`/`diff` 等版本接口全线 500、列表假空。改为 `HIGHEST_PRECEDENCE + 1`。
+- **P1 · 版本列表 foreign dbKey 未拒**：`/dbChange` 分页仅标 `@ProjectId` 未标 `@DbKey`，他人
+  `dataSourceId` 静默返回空列表而非 403；补 `@DbKey`。单删 `deleteHistory` 同步升级为
+  `assertDbKeyBelongsToCaller`（不只验成员）。
+- **P1 · 多行「更多」菜单 portal 互挡**：各行共用 `menuTestId` 且 hover 切换时不收起，E2E/真实操作会
+  点不到其它行的「更多/删除」；改为每行唯一 menu id + hover 互斥收起 + 打开时广播关闭其它菜单。
+- **P1 · 「版本比对」打开时不拉 diff**：`CompareVersion` 在 versions 0→2 时 `open` 与默认区间
+  `useEffect` 竞态，弹层空白且不请求 `/hisProject/diff`；`openModal` 每次打开强制写入
+  `[versions[1], versions[0]]` 默认区间。
+- 验证点：
+  - API dogfood（project `91310f52…`）：list/save/diff/delete + foreign dbKey→403 ✅
+  - `mvn -q test -Dtest=VersionDbKeyGuardTest,ProjectAccessAspectTest,DbChangeServiceImpl*Test` ✅
+  - `yarn playwright test tests/e2e/version-first-save-jdbc.spec.ts tests/e2e/version.spec.ts:33,285 --project=chromium` ✅
+
 #### 安全：version/dbKey/connector/queryInfo 全链路 ACL 审计 + 声明式统一鉴权机制
 
 - **背景**：审计发现 version / hisProject / dbChange / db_version / connector / queryInfo 一带接口普遍缺

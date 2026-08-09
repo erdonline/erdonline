@@ -76,12 +76,27 @@ const MoreMenu: React.FC<{
   // 表现为「点了却没打开」。因此改为幂等式打开：只要点了触发钮就保证展开、并刷新
   // 定位；收起只交给「点击面板外」/ Escape。
   const openMenu = () => {
+    // 互斥：同一页只能有一个溢出菜单展开，避免 portal 层叠挡点击其它行的「更多」
+    window.dispatchEvent(
+      new CustomEvent('erd-version-more-menu-open', { detail: { id: menuTestId } }),
+    );
     if (btnRef.current) {
       const rect = btnRef.current.getBoundingClientRect();
       setPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - 180) });
     }
     setOpen(true);
   };
+
+  useEffect(() => {
+    const onPeerOpen = (e: Event) => {
+      const peerId = (e as CustomEvent<{ id?: string }>).detail?.id;
+      if (peerId && peerId !== menuTestId) {
+        setOpen(false);
+      }
+    };
+    window.addEventListener('erd-version-more-menu-open', onPeerOpen);
+    return () => window.removeEventListener('erd-version-more-menu-open', onPeerOpen);
+  }, [menuTestId]);
 
   useEffect(() => {
     if (!open) {
@@ -243,6 +258,10 @@ const Version: React.FC = () => {
 
 
   const setRowCurrent = useCallback((record: VersionRow) => {
+    // 切换 hover 行时收起其它行的溢出菜单，避免 portal 层叠挡点击
+    window.dispatchEvent(
+      new CustomEvent('erd-version-more-menu-open', { detail: { id: `hover-${record.id}` } }),
+    );
     const fullIndex = (versions as VersionRow[]).findIndex((v) => v.id === record.id);
     versionDispatch.setCurrentVersion(record, fullIndex >= 0 ? fullIndex : 0);
   }, [versions, versionDispatch]);
@@ -384,7 +403,7 @@ const Version: React.FC = () => {
         key="more"
         items={moreItems}
         triggerTestId="row-more-btn"
-        menuTestId="row-more-menu"
+        menuTestId={`row-more-menu-${row.id}`}
         label={intl.formatMessage({ id: 'versionPage.action.more' })}
         ariaLabel={intl.formatMessage({ id: 'versionPage.action.more' })}
         linkStyle

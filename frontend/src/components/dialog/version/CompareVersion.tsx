@@ -233,6 +233,14 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
       message.warning(needTwoVersionsMsg);
       return;
     }
+    if (isCompare && versions.length >= 2) {
+      // 每次打开比对弹层都刷新默认区间，避免 versions 从 0→2 时 useEffect 与 open 竞态导致 diff 未拉取
+      setState((prev) => ({
+        ...prev,
+        initVersion: versions[1].version,
+        incrementVersion: versions[0].version,
+      }));
+    }
     setOpen(true);
   };
 
