@@ -33,3 +33,4 @@
 | [0026](./0026-precision-tooling-visual-language.md) | 精密工具站视觉语言（营销深色 + 工作台浅色精密化；≠ 全局暗色） | 已接受 |
 | [0027](./0027-designer-chrome-ia.md) | 产品 Chrome IA（全站 Theme + 状态仪器盘 + 单一项目浏览 + 表设计层级） | 已接受 |
 | [0028](./0028-official-template-catalog.md) | 官方模板广场（Open VSX；浏览/安装/评分/发布审核；MCP 四工具） | ✅ 已接受 · MVP |
+| [0029](./0029-designer-readonly-query.md) | 设计器只读查询（探库）设计简报：改名为「表数据预览」+ 驱动管理 | 提议中 · 设计简报 |
