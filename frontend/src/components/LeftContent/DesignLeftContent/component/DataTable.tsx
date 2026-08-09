@@ -106,12 +106,12 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       );
       globalDispatch.requestLocateTable(node.module, node.title);
     } else if (node.type === "relation") {
-      // 同模块关系图就地切签（ADR-0017），避免堆多个 canvas
+      // 同模块关系图就地切签（ADR-0017）；图名 ≠ 表名，禁 setCurrentEntity
+      projectDispatch.setCurrentModule(node.module);
       tabDispatch.switchRelationDiagram(
         node.module,
         relationTabEntity(node.module, node.diagramId),
       );
-      activeEntity(node.module, node)
     }
 
     if (history.location.pathname !== '/design/table/model') {
@@ -405,7 +405,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         />
       );
     }
-    if (node.type === 'folder' && node.title === '关系') {
+    if (node.type === 'folder' && node.title === '关系图') {
       return (
         <PlusOutlined
           role="button"
@@ -513,7 +513,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       );
     } else if (node.type === 'module') {
       const tablesCount = node.children.find((child: any) => child.title === '表')?.children.length || 0;
-      const relationsCount = node.children.find((child: any) => child.title === '关系')?.children.length || 0;
+      const relationsCount = node.children.find((child: any) => child.title === '关系图')?.children.length || 0;
       return (
         <Badge
           count={tablesCount + relationsCount}
@@ -556,7 +556,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     } else if (node.type === "folder") {
       if (node.title === '表') {
         return <DatabaseOutlined style={{ color: erdColors.ink600 }} />;
-      } else if (node.title === '关系') {
+      } else if (node.title === '关系图') {
         return <NodeIndexOutlined style={{ color: erdColors.ink600 }} />;
       }
       return <FolderOutlined style={{ color: erdColors.ink400 }} />;
@@ -644,7 +644,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
 
       <EntityModal
         visible={modalVisible}
-        title={`${currentNode && !currentNode.isNew ? '编辑' : '新增'}${modalType === 'module' ? '模型' : modalType === 'entity' ? '表' : '关系'}`}
+        title={`${currentNode && !currentNode.isNew ? '编辑' : '新增'}${modalType === 'module' ? '模型' : modalType === 'entity' ? '表' : '关系图'}`}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
         initialValues={currentNode}

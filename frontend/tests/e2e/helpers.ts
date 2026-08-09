@@ -162,7 +162,7 @@ export async function openRelationFromEmpty(
   });
   await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
-  await expandTreeTitle(page, '关系');
+  await expandTreeTitle(page, '关系图');
   await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
   await page.getByTestId('tree-open-relation').click();
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
@@ -174,7 +174,7 @@ export async function openRelationCanvas(
   moduleChnname: string,
 ) {
   await expandTreeTitle(page, moduleChnname);
-  await expandTreeTitle(page, '关系');
+  await expandTreeTitle(page, '关系图');
   await page.getByTestId('tree-open-relation').click();
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
 }

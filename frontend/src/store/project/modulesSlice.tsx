@@ -1704,7 +1704,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
         const relationsNode = {
           key: `${module.name}-relations`,
-          title: '关系',
+          title: '关系图',
           type: 'folder',
           children: [],
         };
@@ -1747,7 +1747,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           });
         }
 
-        // ADR-0017：关系文件夹列「图列表」，不再逐边堆叶子（边归画布）
+        // ADR-0017：「关系图」文件夹列图列表，不再逐边堆叶子（边归画布）
         const diagrams = listDiagrams(module);
         diagrams.forEach((d, idx) => {
           relationsNode.children.push({
