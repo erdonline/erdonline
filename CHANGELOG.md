@@ -8,6 +8,15 @@
 
 ### 2026-08-09
 
+#### 收口：导出 / 表元数据 DDL 迁移后端 Freemarker（ADR-0030 产品路径关闭）
+
+- **BE**：`Json2CodeFullDdlEngine.generateAllSqlByFilter`（片段键 + 表过滤）；`Json2CodeTableDdlEngine`（单表预览，对齐 `getCodeByDataTable`）；`POST /ncnb/hisProject/exportDdl`、`POST /ncnb/hisProject/tableDdl`（`@RequireProjectAccess`）。
+- **FE**：`exportSlice.setExportData` → `fetchExportDdl`；`TableCodeShow` → `fetchTableDdl`；新增 `ddlExportApi.ts`。
+- **遗留**：`frontend/src/utils/json2code.ts` 及 `json2code.*.test.ts` 保留作单测/回归对照，**无 product 引用**；导入（ERD/PdMan/DBML/逆向库）不生成 DDL，无需迁移。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=Json2CodeFullDdlEngineTest,Json2CodeTableDdlEngineTest,DdlFreemarkerCompatibilityTest,VersionDdlEngineTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+
 #### Freemarker 终态：版本模块 DDL 全量迁移（ADR-0030 实现切片）
 
 - **引擎**：`DdlFreemarkerTemplateEngine` 替换 Pebble；`DotToFreemarkerTranslator` + `DdlTemplateContextEnricher` 读时桥接存量 doT；移除 `pebble` 依赖与 `ddl/pebble/**`。

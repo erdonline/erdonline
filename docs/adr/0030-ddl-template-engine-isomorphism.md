@@ -64,7 +64,7 @@
 - ✅ 版本 DDL 与 changes 同源；fail-closed（`DdlTemplateException`）。
 - ✅ 存量 projectJSON doT 无需用户立即改写；翻译桥直至用户主动迁移 FTL。
 - ✅ 终态单一 JVM 引擎（Freemarker），无 perpetual dual-engine。
-- ⚠️ FE export（`getAllDataSQLByFilter`）仍走前端 doT——非版本模块 product path，按 roadmap 切片关闭。
+- ⚠️ ~~FE export（`getAllDataSQLByFilter`）仍走前端 doT——非版本模块 product path，按 roadmap 切片关闭~~ ✅（2026-08-09：`POST /hisProject/exportDdl` + `POST /hisProject/tableDdl`）
 
 ## 验证
 
@@ -80,11 +80,12 @@
 - `DotToFreemarkerTranslator` 对存量 doT fixture
 - classpath `ddl/freemarker/**` 作方言兜底
 - FE 版本模块 product path 无 `generateUpdateSql` / `getAllDataSQL`（sync 改调 `/hisProject/syncSql`）
+- FE 导出 / 表元数据 DDL 预览无本地 `json2code`（改调 `/hisProject/exportDdl`、`/hisProject/tableDdl`）
 
 ## 下一步实现切片
 
 1. ~~`DdlFreemarkerTemplateEngine` + `ddl/freemarker/{dialect}/*.ftl` 种子~~ ✅
 2. ~~`DotToFreemarkerTranslator`~~ ✅
 3. ~~单测/golden 对齐后删除 Pebble DDL 专用代码与 `pebble` 依赖~~ ✅
-4. ~~FE：版本 sync SQL 改调 `/hisProject/syncSql`~~ ✅；export 仍 FE doT（非版本模块）
+4. ~~FE：版本 sync SQL 改调 `/hisProject/syncSql`~~ ✅；~~export 仍 FE doT（非版本模块）~~ ✅（`/hisProject/exportDdl` + `/hisProject/tableDdl`）
 5. ~~`templateSyntax` 字段写入与 `data-format.md` 文档~~ ✅

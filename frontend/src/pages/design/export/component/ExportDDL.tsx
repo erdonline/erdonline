@@ -4,6 +4,7 @@ import {
   Checkbox,
   Form,
   Radio,
+  Spin,
   Steps,
   TreeSelect,
 } from "antd";
@@ -27,8 +28,9 @@ type Step2Values = {
 };
 
 const ExportDDL: React.FC<ExportDDLProps> = () => {
-  const {projectDispatch, data} = useProjectStore(state => ({
+  const {projectDispatch, data, exportDdlLoading} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
+    exportDdlLoading: state.exportSliceState?.exportDdlLoading,
     projectDispatch: state.dispatch,
   }), shallow);
 
@@ -168,12 +170,14 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
             </Form.Item>
           )}
           <Form.Item label="预览">
-            <CodeEditor
-              height={'50vh'}
-              width={'70vw'}
-              mode='mysql'
-              value={data}
-            />
+            <Spin spinning={Boolean(exportDdlLoading)}>
+              <CodeEditor
+                height={'50vh'}
+                width={'70vw'}
+                mode='mysql'
+                value={data}
+              />
+            </Spin>
           </Form.Item>
           <div className="erd-secondary-pane__actions">
             <AntButton key="gotoTwo" onClick={() => setStep(0)}>
