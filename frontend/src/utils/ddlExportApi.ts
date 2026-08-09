@@ -2,6 +2,7 @@
  * 项目 DDL 导出 / 单表预览 — 后端 Freemarker 权威（Json2CodeFullDdlEngine / Json2CodeTableDdlEngine）。
  * 产品路径禁止再调用前端 json2code 本地渲染。
  */
+import type { DdlTemplateKey } from '@/utils/ddlTemplateKeys';
 import { POST } from '@/services/crud';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
@@ -101,6 +102,35 @@ export async function fetchTableDdl(input: {
   return {
     sql: typeof data.sql === 'string' ? data.sql : '',
   };
+}
+
+export async function fetchDdlTemplateSources(input: {
+  dialectCode: string;
+  projectId?: string;
+  dbKey?: string;
+}): Promise<Partial<Record<DdlTemplateKey, string>>> {
+  const projectId = input.projectId || cache.getItem(CONSTANT.PROJECT_ID);
+  if (!projectId) {
+    throw new Error('projectId is required for DDL template sources');
+  }
+  const dbKey = input.dbKey || SNAPSHOT_DB_KEY;
+  const body: Record<string, unknown> = {
+    projectId,
+    dbKey,
+    dialectCode: input.dialectCode,
+  };
+  const res = await POST('/ncnb/projectDdl/templateSources', body);
+  if (!res || res.code !== 200) {
+    throw new Error(
+      res?.msg || res?.message || `DDL template sources failed (${res?.code ?? 'no response'})`,
+    );
+  }
+  const data = res.data || {};
+  const sources = data.sources;
+  if (!sources || typeof sources !== 'object') {
+    return {};
+  }
+  return sources as Partial<Record<DdlTemplateKey, string>>;
 }
 
 export async function fetchPreviewDdlTemplate(input: {

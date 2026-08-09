@@ -1,5 +1,6 @@
 import assert from 'node:assert/strict';
 import {
+  buildSaveDatabaseDialectPayload,
   listDdlTemplateDialectCodes,
   PRODUCT_SQL_DIALECT_CODES,
 } from './ddlTemplateKeys';
@@ -29,4 +30,26 @@ run('listDdlTemplateDialectCodes：排除 JAVA', () => {
   ]);
   assert.equal(codes.includes('JAVA'), false);
   assert.ok(codes.length >= 3);
+});
+
+run('buildSaveDatabaseDialectPayload：仅落盘已编辑键', () => {
+  const payload = buildSaveDatabaseDialectPayload({
+    code: 'MYSQL',
+    stored: { code: 'MYSQL', createTableTemplate: 'CUSTOM' },
+    overrides: { updateFieldTemplate: 'ALTER ...' },
+    meta: { fileShow: true },
+  });
+  assert.equal(payload.createTableTemplate, 'CUSTOM');
+  assert.equal(payload.updateFieldTemplate, 'ALTER ...');
+  assert.equal(Object.prototype.hasOwnProperty.call(payload, 'deleteTableTemplate'), false);
+});
+
+run('buildSaveDatabaseDialectPayload：清空 custom 不写空键', () => {
+  const payload = buildSaveDatabaseDialectPayload({
+    code: 'MYSQL',
+    stored: { code: 'MYSQL', createTableTemplate: 'CUSTOM' },
+    overrides: { createTableTemplate: '   ' },
+    meta: { fileShow: true },
+  });
+  assert.equal(Object.prototype.hasOwnProperty.call(payload, 'createTableTemplate'), false);
 });

@@ -8,6 +8,17 @@
 
 ### 2026-08-09
 
+#### DDL 模板：SQL Server classpath + 灰色占位 + i18n
+
+- **BE**：新增 `ddl/freemarker/sqlserver/` 11 键 T-SQL 模板；`POST /ncnb/projectDdl/templateSources` 返回 classpath 默认 Freemarker 源码（编辑器占位，不落盘）。
+- **FE**：未 custom 的模板键显示灰色 classpath 示例（Ace placeholder）；预览仍走 seed（ADR-0030 custom > seed）；保存仅 merge 用户编辑过的模板键 + meta，不污染 projectJSON；P0 四库方言下拉（延续 0985d1a）。
+- **i18n**：DDL 模板 Modal/编辑器、数据类型字典入口、版本工单/审批页接入 zh-CN / en-US。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=SqlServerClasspathTemplatesTest,ProjectDdlControllerTest -Djacoco.skip=true`
+  - `cd frontend && npx --yes tsx src/utils/ddlTemplateKeys.test.ts`
+  - `./backend/dev-ensure.sh --restart`
+  - `yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`
+
 #### DDL 模板：方言下拉固定 P0 四库（根因修复）
 
 - **根因**：下拉仅渲染 `projectJSON.dataTypeDomains.database[]` 已有行；新建/空白项目 catalog seed 只有 `MYSQL`，故只显示一项。`isSqlDialect` 仅排除 JAVA 无法补全缺失方言。

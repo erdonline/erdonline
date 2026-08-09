@@ -65,4 +65,16 @@ class ProjectDdlControllerTest {
         assertSame(expected, result);
         verify(dbChangeService).generateTableDdl(body);
     }
+
+    @Test
+    void templateSources_delegatesToService() {
+        Map<String, Object> body = Map.of("projectId", "p1", "dbKey", "default", "dialectCode", "SQLServer");
+        R expected = R.ok(Map.of("sources", Map.of("createTableTemplate", "CREATE TABLE")));
+        when(dbChangeService.listDdlTemplateSources(same(body))).thenReturn(expected);
+
+        R result = controller.templateSources(body);
+
+        assertSame(expected, result);
+        verify(dbChangeService).listDdlTemplateSources(body);
+    }
 }

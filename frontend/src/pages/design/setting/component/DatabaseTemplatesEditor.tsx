@@ -9,17 +9,22 @@ import {
   message,
 } from 'antd';
 import _ from 'lodash';
+import { useIntl } from '@@/exports';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
-import { fetchPreviewDdlTemplate } from '@/utils/ddlExportApi';
+import {
+  fetchDdlTemplateSources,
+  fetchPreviewDdlTemplate,
+} from '@/utils/ddlExportApi';
 import {
   DDL_TEMPLATE_KEYS,
-  DDL_TEMPLATE_LABELS,
   type DdlTemplateKey,
+  buildPreviewDatabaseRow,
+  buildSaveDatabaseDialectPayload,
   editorModeForDialect,
-  emptyDatabaseDialectRow,
   findDatabaseDialectRow,
+  hasStoredTemplate,
   listDdlTemplateDialectCodes,
 } from '@/utils/ddlTemplateKeys';
 import './setting-common.scss';
@@ -44,6 +49,7 @@ const EDITOR_HEIGHT_FULL = '360px';
 const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   compact = false,
 }) => {
+  const intl = useIntl();
   const { projectDispatch, projectJSON, database } = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -67,7 +73,16 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     return defaultRow?.code ?? dialectCodes[0];
   });
   const [templateKey, setTemplateKey] = useState<DdlTemplateKey>('createTableTemplate');
-  const [draft, setDraft] = useState<DatabaseRow | null>(null);
+  const [metaDraft, setMetaDraft] = useState<{
+    defaultDatabase?: boolean;
+    fileShow?: boolean;
+  }>({ fileShow: true });
+  const [templateOverrides, setTemplateOverrides] = useState<
+    Partial<Record<DdlTemplateKey, string>>
+  >({});
+  const [seedSources, setSeedSources] = useState<
+    Partial<Record<DdlTemplateKey, string>>
+  >({});
   const [submitting, setSubmitting] = useState(false);
   const [previewSql, setPreviewSql] = useState('');
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -79,12 +94,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     () => findDatabaseDialectRow(database, activeCode),
     [database, activeCode],
   );
-  const storedRow = useMemo(
-    () => storedInProject ?? (activeCode ? emptyDatabaseDialectRow(activeCode) : null),
-    [storedInProject, activeCode],
-  );
 
-  const workingRow = draft ?? storedRow ?? null;
   const editorHeight = compact ? EDITOR_HEIGHT_COMPACT : EDITOR_HEIGHT_FULL;
 
   useEffect(() => {
@@ -94,56 +104,107 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     const stillValid = activeCode != null && dialectCodes.includes(activeCode);
     if (!stillValid && dialectCodes[0]) {
       setSelectedCode(dialectCodes[0]);
-      setDraft(null);
     }
   }, [dialectCodes, activeCode]);
 
   useEffect(() => {
-    if (draft == null && storedRow) {
-      setDraft({ ...storedRow });
-    }
-  }, [storedRow, draft]);
+    setTemplateOverrides({});
+    setMetaDraft({
+      defaultDatabase: storedInProject?.defaultDatabase,
+      fileShow: storedInProject?.fileShow ?? true,
+    });
+  }, [activeCode, storedInProject]);
 
-  const syncDraftFromStore = useCallback(
-    (code: string | undefined) => {
-      if (!code) {
-        setDraft(null);
-        return;
-      }
-      const row =
-        findDatabaseDialectRow(database, code) ?? emptyDatabaseDialectRow(code);
-      setDraft({ ...row });
-    },
-    [database],
-  );
+  useEffect(() => {
+    if (!activeCode) {
+      setSeedSources({});
+      return;
+    }
+    let cancelled = false;
+    void fetchDdlTemplateSources({ dialectCode: activeCode })
+      .then((sources) => {
+        if (!cancelled) {
+          setSeedSources(sources);
+        }
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setSeedSources({});
+        }
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [activeCode]);
 
   const handleDialectChange = (code: string) => {
     setSelectedCode(code);
-    syncDraftFromStore(code);
   };
 
-  const handleFieldChange = (patch: Partial<DatabaseRow>) => {
-    setDraft((prev) => ({ ...(prev ?? storedRow ?? {}), ...patch }));
+  const handleMetaChange = (patch: Partial<{ defaultDatabase?: boolean; fileShow?: boolean }>) => {
+    setMetaDraft((prev) => ({ ...prev, ...patch }));
   };
 
   const handleTemplateTextChange = (value: string) => {
-    handleFieldChange({ [templateKey]: value });
+    setTemplateOverrides((prev) => ({ ...prev, [templateKey]: value }));
   };
 
+  const previewRow = useMemo(
+    () =>
+      activeCode
+        ? buildPreviewDatabaseRow({
+            code: activeCode,
+            stored: storedInProject ?? undefined,
+            overrides: templateOverrides,
+            meta: metaDraft,
+          })
+        : null,
+    [activeCode, storedInProject, templateOverrides, metaDraft],
+  );
+
+  const dirty = useMemo(() => {
+    const storedDefault = !!storedInProject?.defaultDatabase;
+    const draftDefault = !!metaDraft.defaultDatabase;
+    const storedFileShow = storedInProject?.fileShow ?? true;
+    const draftFileShow = metaDraft.fileShow ?? true;
+    if (storedDefault !== draftDefault || storedFileShow !== draftFileShow) {
+      return true;
+    }
+    for (const key of DDL_TEMPLATE_KEYS) {
+      if (!Object.prototype.hasOwnProperty.call(templateOverrides, key)) {
+        continue;
+      }
+      const next = String(templateOverrides[key] ?? '').trim();
+      const prev = hasStoredTemplate(storedInProject, key)
+        ? String(storedInProject![key]).trim()
+        : '';
+      if (next !== prev) {
+        return true;
+      }
+    }
+    return false;
+  }, [storedInProject, metaDraft, templateOverrides]);
+
   const handleSave = async () => {
-    if (!workingRow?.code) {
-      message.error('请选择库方言');
+    if (!activeCode) {
+      message.error(intl.formatMessage({ id: 'databaseTemplates.error.noDialect' }));
       return false;
     }
     setSubmitting(true);
     try {
+      const payload = buildSaveDatabaseDialectPayload({
+        code: activeCode,
+        stored: storedInProject ?? undefined,
+        overrides: templateOverrides,
+        meta: metaDraft,
+      });
       const ok = await projectDispatch.updateDatabaseDialect(
-        workingRow.code,
-        workingRow,
+        activeCode,
+        payload,
         { persist: true },
       );
       if (ok) {
-        setDraft(null);
+        setTemplateOverrides({});
       }
       return ok;
     } finally {
@@ -152,25 +213,26 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   };
 
   const handleResetDraft = () => {
-    syncDraftFromStore(activeCode);
-    message.info('已还原为上次保存内容');
+    setTemplateOverrides({});
+    setMetaDraft({
+      defaultDatabase: storedInProject?.defaultDatabase,
+      fileShow: storedInProject?.fileShow ?? true,
+    });
+    message.info(intl.formatMessage({ id: 'databaseTemplates.reset.done' }));
   };
 
-  const templateValue = String(workingRow?.[templateKey] ?? '');
-  const editorMode = editorModeForDialect(workingRow?.code ?? 'MYSQL');
-  const dirty =
-    draft != null &&
-    storedRow != null &&
-    JSON.stringify(draft) !== JSON.stringify(storedRow);
+  const hasOverride = Object.prototype.hasOwnProperty.call(templateOverrides, templateKey);
+  const storedCustomValue = storedInProject?.[templateKey];
+  const editorValue = hasOverride
+    ? (templateOverrides[templateKey] ?? '')
+    : (storedCustomValue ?? '');
+  const seedPlaceholder = seedSources[templateKey] ?? '';
+  const isSeedPlaceholder =
+    !hasStoredTemplate(storedInProject, templateKey) &&
+    !hasOverride &&
+    seedPlaceholder.length > 0;
 
-  const dialectSelectOptions = useMemo(
-    () =>
-      dialectCodes.map((code) => ({
-        label: code,
-        value: code,
-      })),
-    [dialectCodes],
-  );
+  const editorMode = editorModeForDialect(activeCode ?? 'MYSQL');
 
   const refreshPreview = useMemo(
     () =>
@@ -178,7 +240,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
         async (
           dialectCode: string | undefined,
           key: DdlTemplateKey,
-          row: DatabaseRow | null,
+          row: Record<string, unknown> | null,
           pj: Record<string, unknown> | undefined,
         ) => {
           if (!dialectCode || !row) {
@@ -195,7 +257,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
               projectJSON: pj,
               dialectCode,
               templateKey: key,
-              databaseRow: row as Record<string, unknown>,
+              databaseRow: row,
             });
             if (seq !== previewSeqRef.current) {
               return;
@@ -206,7 +268,11 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
               return;
             }
             setPreviewSql('');
-            setPreviewError(err instanceof Error ? err.message : '预览失败');
+            setPreviewError(
+              err instanceof Error
+                ? err.message
+                : intl.formatMessage({ id: 'databaseTemplates.preview.failed' }),
+            );
           } finally {
             if (seq === previewSeqRef.current) {
               setPreviewLoading(false);
@@ -215,15 +281,22 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
         },
         PREVIEW_DEBOUNCE_MS,
       ),
-    [],
+    [intl],
   );
 
   useEffect(() => {
-    refreshPreview(activeCode, templateKey, workingRow, projectJSON);
+    refreshPreview(activeCode, templateKey, previewRow, projectJSON);
     return () => {
       refreshPreview.cancel();
     };
-  }, [activeCode, templateKey, workingRow, projectJSON, refreshPreview, templateValue]);
+  }, [
+    activeCode,
+    templateKey,
+    previewRow,
+    projectJSON,
+    refreshPreview,
+    editorValue,
+  ]);
 
   useEffect(
     () => () => {
@@ -236,9 +309,18 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     () =>
       DDL_TEMPLATE_KEYS.map((key) => ({
         key,
-        label: DDL_TEMPLATE_LABELS[key],
+        label: intl.formatMessage({ id: `databaseTemplates.template.${key}` }),
       })),
-    [],
+    [intl],
+  );
+
+  const dialectSelectOptions = useMemo(
+    () =>
+      dialectCodes.map((code) => ({
+        label: code,
+        value: code,
+      })),
+    [dialectCodes],
   );
 
   if (dialectCodes.length === 0) {
@@ -246,7 +328,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
       <div data-testid="database-templates-empty">
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="暂无可用 SQL 库方言"
+          description={intl.formatMessage({ id: 'databaseTemplates.empty.noDialect' })}
         />
       </div>
     );
@@ -259,14 +341,13 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
       data-dialect-option-count={dialectCodes.length}
     >
       <p className="setting-common-page__hint" style={{ marginBottom: 0 }}>
-        编辑各库方言 DDL 模板；保存后版本对比、导出与元数据应用均由后端 Freemarker 渲染。右侧预览基于样例表
-        T_SAMPLE 实时渲染当前草稿（无需先保存）。
+        {intl.formatMessage({ id: 'databaseTemplates.editor.hint' })}
       </p>
 
       <div className="database-templates-editor__toolbar setting-common-page__toolbar">
         <Space wrap size={12}>
           <Select
-            aria-label="选择库方言"
+            aria-label={intl.formatMessage({ id: 'databaseTemplates.dialect.aria' })}
             data-testid="database-templates-dialect"
             style={{ minWidth: 180 }}
             value={activeCode}
@@ -281,29 +362,29 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
               className="database-templates-editor__dialect-hint"
               data-testid="database-templates-dialect-new"
             >
-              首次保存将写入 database[]
+              {intl.formatMessage({ id: 'databaseTemplates.dialect.firstSave' })}
             </span>
           ) : null}
           <Checkbox
             data-testid="database-templates-default-db"
-            checked={!!workingRow?.defaultDatabase}
+            checked={!!metaDraft.defaultDatabase}
             onChange={(e) =>
-              handleFieldChange({ defaultDatabase: e.target.checked })
+              handleMetaChange({ defaultDatabase: e.target.checked })
             }
           >
-            设为默认库
+            {intl.formatMessage({ id: 'databaseTemplates.meta.defaultDb' })}
           </Checkbox>
           <Checkbox
             data-testid="database-templates-file-show"
-            checked={workingRow?.fileShow !== false}
-            onChange={(e) => handleFieldChange({ fileShow: e.target.checked })}
+            checked={metaDraft.fileShow !== false}
+            onChange={(e) => handleMetaChange({ fileShow: e.target.checked })}
           >
-            生成至文档
+            {intl.formatMessage({ id: 'databaseTemplates.meta.fileShow' })}
           </Checkbox>
           <Button
             type="primary"
             size="small"
-            aria-label="保存 DDL 模板"
+            aria-label={intl.formatMessage({ id: 'databaseTemplates.save.aria' })}
             data-testid="database-templates-save"
             loading={submitting}
             disabled={!dirty}
@@ -311,22 +392,22 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
               void handleSave();
             }}
           >
-            保存
+            {intl.formatMessage({ id: 'databaseTemplates.save' })}
           </Button>
           <Button
             size="small"
-            aria-label="还原未保存修改"
+            aria-label={intl.formatMessage({ id: 'databaseTemplates.reset.aria' })}
             data-testid="database-templates-reset"
             disabled={!dirty}
             onClick={handleResetDraft}
           >
-            还原
+            {intl.formatMessage({ id: 'databaseTemplates.reset' })}
           </Button>
         </Space>
       </div>
 
       <Tabs
-        aria-label="DDL 模板类型"
+        aria-label={intl.formatMessage({ id: 'databaseTemplates.tabs.aria' })}
         data-testid="database-templates-tab"
         className="database-templates-editor__tabs"
         size="small"
@@ -341,29 +422,51 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
           className="database-templates-editor__pane"
           data-testid={`database-templates-editor-${templateKey}`}
         >
-          <p className="database-templates-editor__pane-label">模板源码</p>
-          <CodeEditor
-            mode={editorMode}
-            height={editorHeight}
-            value={templateValue}
-            onChange={(value: string) => handleTemplateTextChange(value)}
-          />
+          <p className="database-templates-editor__pane-label">
+            {intl.formatMessage({ id: 'databaseTemplates.pane.source' })}
+            {isSeedPlaceholder ? (
+              <span
+                className="database-templates-editor__seed-badge"
+                data-testid="database-templates-seed-badge"
+              >
+                {intl.formatMessage({ id: 'databaseTemplates.pane.seedBadge' })}
+              </span>
+            ) : null}
+          </p>
+          <div
+            className={
+              isSeedPlaceholder
+                ? 'database-templates-editor__seed-placeholder'
+                : undefined
+            }
+            data-testid="database-templates-source-editor"
+          >
+            <CodeEditor
+              mode={editorMode}
+              height={editorHeight}
+              value={editorValue}
+              placeholder={isSeedPlaceholder ? seedPlaceholder : undefined}
+              onChange={(value: string) => handleTemplateTextChange(value)}
+            />
+          </div>
         </div>
 
         <div
           className="database-templates-editor__pane"
           data-testid="database-templates-preview"
         >
-          <p className="database-templates-editor__pane-label">渲染预览</p>
+          <p className="database-templates-editor__pane-label">
+            {intl.formatMessage({ id: 'databaseTemplates.pane.preview' })}
+          </p>
           <p className="database-templates-editor__pane-hint">
-            样例：T_SAMPLE / EMAIL 等；切换方言或模板类型后自动刷新
+            {intl.formatMessage({ id: 'databaseTemplates.pane.previewHint' })}
           </p>
           {previewLoading ? (
             <div
               className="database-templates-editor__preview-loading"
               data-testid="database-templates-preview-loading"
             >
-              正在渲染预览…
+              {intl.formatMessage({ id: 'databaseTemplates.preview.loading' })}
             </div>
           ) : null}
           {previewError ? (

@@ -388,6 +388,21 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         }
     }
 
+    @Override
+    public R listDdlTemplateSources(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "";
+        if (dialectCode.isBlank()) {
+            return R.failed("dialectCode 为必填");
+        }
+        Map<String, String> sources = DdlFreemarkerTemplateEngine.loadAllClasspathSources(dialectCode);
+        return R.ok(Map.of("sources", sources));
+    }
+
     private static List<String> parseStringList(Object raw) {
         if (!(raw instanceof List<?> list)) {
             return null;

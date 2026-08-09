@@ -11,6 +11,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
+import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,6 +21,19 @@ public final class DdlFreemarkerTemplateEngine {
 
     private static final Configuration CONFIG = buildConfiguration();
     private static final ConcurrentHashMap<String, Template> LITERAL_CACHE = new ConcurrentHashMap<>();
+
+    private static final List<String> TEMPLATE_KEYS = List.of(
+            DdlTemplateKeys.CREATE_TABLE,
+            DdlTemplateKeys.UPDATE_TABLE_COMMENT,
+            DdlTemplateKeys.DELETE_TABLE,
+            DdlTemplateKeys.CREATE_INDEX,
+            DdlTemplateKeys.REBUILD_TABLE,
+            DdlTemplateKeys.CREATE_FIELD,
+            DdlTemplateKeys.UPDATE_FIELD,
+            DdlTemplateKeys.DELETE_FIELD,
+            DdlTemplateKeys.DELETE_INDEX,
+            DdlTemplateKeys.CREATE_PK,
+            DdlTemplateKeys.DELETE_PK);
 
     private DdlFreemarkerTemplateEngine() {
     }
@@ -112,5 +127,17 @@ public final class DdlFreemarkerTemplateEngine {
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
+    }
+
+    /** classpath 默认 Freemarker 源码（ADR-0030：custom > seed；编辑器占位用） */
+    public static Map<String, String> loadAllClasspathSources(String dialectCode) {
+        Map<String, String> out = new LinkedHashMap<>();
+        for (String templateKey : TEMPLATE_KEYS) {
+            String source = loadClasspathAsString(dialectCode, templateKey);
+            if (source != null && !source.isBlank()) {
+                out.put(templateKey, source);
+            }
+        }
+        return out;
     }
 }

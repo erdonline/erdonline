@@ -681,6 +681,7 @@ export default {
   'versionPage.row.changesAria': 'Change summary',
   'versionPage.row.changesLabel': 'Changes',
   'versionPage.action.submitOrder': 'Submit order',
+  'versionPage.action.more': 'More',
   'versionPage.empty.filter': 'No versions match this tag filter',
   'versionPage.empty.noVersions': 'No versions yet',
   'versionPage.empty.saveFirst': 'Save first version',
@@ -695,6 +696,8 @@ export default {
   'versionPage.toolbar.datasource': 'Datasource',
   'versionPage.toolbar.tagFilterPlaceholder': 'Filter by tag',
   'versionPage.toolbar.tagFilterAria': 'Filter by tag',
+  'versionPage.toolbar.more': 'More',
+  'versionPage.toolbar.moreAria': 'More version actions',
 
   // Designer version page modals (AddVersion / Compare / SyncConfig / diff / conflict)
   'versionModal.saveVersion.button': 'Save version',
@@ -981,4 +984,71 @@ export default {
   'designLayout.route.dataTypeDict': 'Data type dictionary',
   'designLayout.route.databaseTemplates': 'DDL templates',
   'designLayout.route.systemDefaults': 'System defaults',
+
+  // DDL templates editor / modal
+  'databaseTemplates.modal.title': 'DDL templates',
+  'databaseTemplates.modal.close': 'Close',
+  'databaseTemplates.modal.closeAria': 'Close DDL templates',
+  'databaseTemplates.menu.label': 'DDL templates',
+  'databaseTemplates.menu.aria': 'DDL templates',
+  'databaseTemplates.editor.hint':
+    'Edit per-dialect DDL templates; after save, version diff, export, and metadata apply use backend Freemarker. Preview renders sample table T_SAMPLE from the current draft (no save required). Uncustomized templates show classpath defaults in gray; projectJSON is updated only after you edit.',
+  'databaseTemplates.dialect.aria': 'Select SQL dialect',
+  'databaseTemplates.dialect.firstSave': 'First save writes to database[]',
+  'databaseTemplates.meta.defaultDb': 'Default dialect',
+  'databaseTemplates.meta.fileShow': 'Include in docs export',
+  'databaseTemplates.save': 'Save',
+  'databaseTemplates.save.aria': 'Save DDL templates',
+  'databaseTemplates.reset': 'Revert',
+  'databaseTemplates.reset.aria': 'Revert unsaved changes',
+  'databaseTemplates.reset.done': 'Reverted to last saved content',
+  'databaseTemplates.tabs.aria': 'DDL template type',
+  'databaseTemplates.pane.source': 'Template source',
+  'databaseTemplates.pane.seedBadge': 'Default example',
+  'databaseTemplates.pane.preview': 'Rendered preview',
+  'databaseTemplates.pane.previewHint':
+    'Sample: T_SAMPLE / EMAIL; refreshes when dialect or template type changes',
+  'databaseTemplates.preview.loading': 'Rendering preview…',
+  'databaseTemplates.preview.failed': 'Preview failed',
+  'databaseTemplates.empty.noDialect': 'No SQL dialects available',
+  'databaseTemplates.error.noDialect': 'Select a dialect',
+  'databaseTemplates.template.createTableTemplate': 'Create table',
+  'databaseTemplates.template.updateTableComment': 'Table comment',
+  'databaseTemplates.template.deleteTableTemplate': 'Drop table',
+  'databaseTemplates.template.createIndexTemplate': 'Create index',
+  'databaseTemplates.template.rebuildTableTemplate': 'Rebuild table',
+  'databaseTemplates.template.createFieldTemplate': 'Add column',
+  'databaseTemplates.template.updateFieldTemplate': 'Alter column',
+  'databaseTemplates.template.deleteFieldTemplate': 'Drop column',
+  'databaseTemplates.template.deleteIndexTemplate': 'Drop index',
+  'databaseTemplates.template.createPkTemplate': 'Add primary key',
+  'databaseTemplates.template.deletePkTemplate': 'Drop primary key',
+
+  // Data type dictionary (settings)
+  'datatypeDomains.title': 'Data type dictionary',
+  'datatypeDomains.hint':
+    'Logical types map to dialect physical types; enums use kind=enum + values[] for DBML / DDL round-trip. Create/edit/delete apply only after save. DDL templates open in a modal on this page.',
+  'datatypeDomains.openDdlTemplates': 'DDL templates',
+  'datatypeDomains.openDdlTemplatesAria': 'Edit DDL templates',
+
+  // Version orders / approvals
+  'versionOrder.title.my': 'My orders',
+  'versionOrder.title.approvals': 'My approvals',
+  'versionOrder.column.subject': 'Subject',
+  'versionOrder.column.status': 'Status',
+  'versionOrder.column.feedback': 'Feedback',
+  'versionOrder.column.approvedAt': 'Reviewed at',
+  'versionOrder.column.createdAt': 'Submitted at',
+  'versionOrder.column.actions': 'Actions',
+  'versionOrder.action.viewSql': 'View',
+  'versionOrder.action.viewSqlAria': 'View SQL',
+  'versionOrder.empty.my':
+    'No orders yet. On team projects, use “Submit order” on a version row in Version management.',
+  'versionOrder.empty.approvals':
+    'Nothing pending. SQL approval requests from team project versions appear here.',
+  'versionOrder.status.pending': 'Pending',
+  'versionOrder.status.approved': 'Approved',
+  'versionOrder.status.revoked': 'Revoked',
+  'versionOrder.status.rejected': 'Rejected',
+  'versionOrder.status.reReview': 'Re-review',
 };
