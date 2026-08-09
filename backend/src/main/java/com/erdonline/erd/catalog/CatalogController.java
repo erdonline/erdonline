@@ -65,7 +65,7 @@ public class CatalogController {
     }
 
     @PostMapping("/submissions")
-    @Operation(summary = "提交发布为模板（须绑定 GitHub）")
+    @Operation(summary = "提交发布为模板（须为项目创建人；维护者审核）")
     public R submitTemplate(@Valid @RequestBody SubmitTemplateRequest request) {
         var user = SecurityContextUtil.getAccessUser();
         return catalogService.submitTemplate(user.getId(), user.getUsername(), request);

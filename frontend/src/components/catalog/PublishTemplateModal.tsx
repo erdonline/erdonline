@@ -53,7 +53,7 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
         onSuccess?.();
         return;
       }
-      message.error(res?.msg || '提交失败（须绑定 GitHub 且为项目创建人）');
+      message.error(res?.msg || '提交失败');
     } catch (e: unknown) {
       const err = e as {data?: {msg?: string}; message?: string};
       message.error(err?.data?.msg || err?.message || '提交失败');
@@ -75,7 +75,7 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
       data-testid="catalog-publish-modal"
     >
       <Typography.Paragraph type="secondary" style={{marginBottom: 12}}>
-        须为项目创建人且已绑定 GitHub（账号设置 → 安全）。提交后由维护者审核。
+        须为项目创建人。提交后由维护者审核，通过后会上架到模板广场。
       </Typography.Paragraph>
       <Form form={form} layout="vertical" requiredMark={false}>
         <Form.Item

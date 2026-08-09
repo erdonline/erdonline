@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### 发布为模板：临时放宽 GitHub 绑定门槛
+
+- **移除**：提交时须绑定 GitHub（账号设置 → 安全）
+- **保留**：须为项目创建人；维护者审核队列（`pending` → approve/reject）；审核通过时作者 handle 仍优先 GitHub，无绑定则 `community-{userId前缀}`
+- **UI**：发布弹窗文案改为「须为项目创建人。提交后由维护者审核…」（不再提 GitHub）
+- ADR-0028 发布行标注临时放宽
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=CatalogServiceImplTest`
+  - `yarn test:e2e --project=chromium tests/e2e/project-menu.spec.ts --grep "发布为模板"`
+
 #### 模板广场视觉：对齐 landing 深色发现面
 
 - **问题**：CatalogLayout 主区整块白卡片 + 默认 antd 浅色，像工作台模块贴在 void 落地页上

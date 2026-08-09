@@ -367,6 +367,8 @@ test.describe('设计器项目菜单', () => {
       await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '发布为模板' }).click();
       const publishDialog = page.getByRole('dialog', { name: '发布为模板' });
       await expect(publishDialog).toBeVisible();
+      await expect(publishDialog.getByText(/须为项目创建人/)).toBeVisible();
+      await expect(publishDialog.getByText(/GitHub/)).toHaveCount(0);
       await expect(page.getByTestId('catalog-publish-project-id')).toHaveCount(0);
       await expect(publishDialog.getByTestId('catalog-publish-title')).toHaveValue(projectName);
 
