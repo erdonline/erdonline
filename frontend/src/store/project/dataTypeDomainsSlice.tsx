@@ -9,7 +9,7 @@ import {
   TagOutlined,
 } from '@ant-design/icons';
 import { erdColors } from '@/theme/tokens';
-import type { PersistOpt } from '@/store/project/persistOpt';
+import { normalizeDialectCode } from '@/utils/json2code';
 
 /** 与 DesignLayout / Home·Group `brandFill` 同源；禁组件内硬编码 #DE2910 */
 const brandFill = erdColors.brand;
@@ -75,6 +75,14 @@ function datatypeList(project: ProjectLike | null | undefined): unknown[] {
 function databaseList(project: ProjectLike | null | undefined): unknown[] {
   const list = project?.projectJSON?.dataTypeDomains?.database;
   return Array.isArray(list) ? list : [];
+}
+
+function databaseIndexByCode(list: unknown[], code: string): number {
+  const norm = normalizeDialectCode(code);
+  return list.findIndex((raw) => {
+    const rowCode = (raw as { code?: string }).code;
+    return rowCode != null && normalizeDialectCode(rowCode) === norm;
+  });
 }
 
 function duplicateIndex(
@@ -284,20 +292,21 @@ const DataTypeDomainsSlice = (
     }
 
     const list = databaseList(project);
-    const idx = list.findIndex((raw) => (raw as { code?: string }).code === code);
-    if (idx === -1) {
-      message.error('库方言不存在');
-      return persist ? Promise.resolve(false) : false;
-    }
-
-    const merged = { ...(list[idx] as Record<string, unknown>), ...payload, code };
+    const idx = databaseIndexByCode(list, code);
+    const merged =
+      idx === -1
+        ? { fileShow: true, ...payload, code }
+        : { ...(list[idx] as Record<string, unknown>), ...payload, code };
 
     if (!persist) {
       set(
         produce((state: ProjectState) => {
           const domains = state.project.projectJSON.dataTypeDomains;
-          if (!domains?.database) {
+          if (!domains) {
             return;
+          }
+          if (!Array.isArray(domains.database)) {
+            domains.database = [];
           }
           if (merged.defaultDatabase) {
             domains.database = domains.database.map((d: { defaultDatabase?: boolean }) => ({
@@ -305,8 +314,12 @@ const DataTypeDomainsSlice = (
               defaultDatabase: false,
             }));
           }
-          domains.database[idx] = merged;
-          message.success('修改成功');
+          if (idx === -1) {
+            domains.database.push(merged);
+          } else {
+            domains.database[idx] = merged;
+          }
+          message.success(idx === -1 ? '方言已添加' : '修改成功');
         }),
       );
       return true;
@@ -314,16 +327,24 @@ const DataTypeDomainsSlice = (
 
     const next = produce(project, (draft: ProjectLike) => {
       const domains = draft.projectJSON.dataTypeDomains;
-      if (!domains?.database) {
-        return;
+      if (!domains) {
+        draft.projectJSON.dataTypeDomains = { datatype: [], database: [] };
+      }
+      const dbDomains = draft.projectJSON.dataTypeDomains!;
+      if (!Array.isArray(dbDomains.database)) {
+        dbDomains.database = [];
       }
       if (merged.defaultDatabase) {
-        domains.database = domains.database.map((d: { defaultDatabase?: boolean }) => ({
+        dbDomains.database = dbDomains.database.map((d: { defaultDatabase?: boolean }) => ({
           ...d,
           defaultDatabase: false,
         }));
       }
-      domains.database[idx] = merged;
+      if (idx === -1) {
+        dbDomains.database.push(merged);
+      } else {
+        dbDomains.database[idx] = merged;
+      }
     });
 
     return (async () => {

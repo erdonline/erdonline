@@ -1,3 +1,18 @@
+/** 与 json2code.normalizeDialectCode 对齐；避免 ddlTemplateKeys ↔ json2code 环依赖 */
+function normalizeDialectCodeLocal(code: string | undefined | null): string {
+  return String(code || '')
+    .toLowerCase()
+    .replace(/[\s_-]/g, '');
+}
+export const PRODUCT_SQL_DIALECT_CODES = [
+  'MYSQL',
+  'ORACLE',
+  'PostgreSQL',
+  'SQLServer',
+] as const;
+
+export type ProductSqlDialectCode = (typeof PRODUCT_SQL_DIALECT_CODES)[number];
+
 /** projectJSON.dataTypeDomains.database[] DDL 模板字段（与后端 DdlTemplateKeys 对齐） */
 export const DDL_TEMPLATE_KEYS = [
   'createTableTemplate',
@@ -34,7 +49,51 @@ export function isSqlDialect(code: string | undefined): boolean {
   if (!code) {
     return false;
   }
-  return code.toUpperCase() !== 'JAVA';
+  const norm = normalizeDialectCodeLocal(code);
+  return norm !== 'java' && norm !== 'vr';
+}
+
+/** DDL 模板方言下拉：产品 P0 全集 + 项目 database[] 中其它 SQL 方言（去重、保序） */
+export function listDdlTemplateDialectCodes(
+  databaseRows: Array<{ code?: string }>,
+): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  const push = (code: string | undefined) => {
+    if (!code || !isSqlDialect(code)) {
+      return;
+    }
+    const norm = normalizeDialectCodeLocal(code);
+    if (seen.has(norm)) {
+      return;
+    }
+    seen.add(norm);
+    out.push(code);
+  };
+  for (const code of PRODUCT_SQL_DIALECT_CODES) {
+    push(code);
+  }
+  for (const row of databaseRows) {
+    push(row.code);
+  }
+  return out;
+}
+
+export function findDatabaseDialectRow<T extends { code?: string }>(
+  databaseRows: T[],
+  code: string | undefined,
+): T | undefined {
+  if (!code) {
+    return undefined;
+  }
+  const norm = normalizeDialectCodeLocal(code);
+  return databaseRows.find(
+    (row) => row.code && normalizeDialectCodeLocal(row.code) === norm,
+  );
+}
+
+export function emptyDatabaseDialectRow(code: string): { code: string; fileShow: boolean } {
+  return { code, fileShow: true };
 }
 
 export function editorModeForDialect(code: string): string {

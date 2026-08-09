@@ -18,7 +18,9 @@ import {
   DDL_TEMPLATE_LABELS,
   type DdlTemplateKey,
   editorModeForDialect,
-  isSqlDialect,
+  emptyDatabaseDialectRow,
+  findDatabaseDialectRow,
+  listDdlTemplateDialectCodes,
 } from '@/utils/ddlTemplateKeys';
 import './setting-common.scss';
 import './database-templates.scss';
@@ -52,14 +54,18 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     shallow,
   );
 
-  const sqlDialects = useMemo(
-    () => database.filter((row) => isSqlDialect(row.code)),
+  const dialectCodes = useMemo(
+    () => listDdlTemplateDialectCodes(database),
     [database],
   );
 
-  const [selectedCode, setSelectedCode] = useState<string | undefined>(
-    () => sqlDialects.find((d) => d.defaultDatabase)?.code ?? sqlDialects[0]?.code,
-  );
+  const [selectedCode, setSelectedCode] = useState<string | undefined>(() => {
+    const defaultRow = findDatabaseDialectRow(
+      database,
+      database.find((d) => d.defaultDatabase)?.code,
+    );
+    return defaultRow?.code ?? dialectCodes[0];
+  });
   const [templateKey, setTemplateKey] = useState<DdlTemplateKey>('createTableTemplate');
   const [draft, setDraft] = useState<DatabaseRow | null>(null);
   const [submitting, setSubmitting] = useState(false);
@@ -68,10 +74,14 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
   const [previewError, setPreviewError] = useState<string | null>(null);
   const previewSeqRef = useRef(0);
 
-  const activeCode = selectedCode ?? sqlDialects[0]?.code;
+  const activeCode = selectedCode ?? dialectCodes[0];
+  const storedInProject = useMemo(
+    () => findDatabaseDialectRow(database, activeCode),
+    [database, activeCode],
+  );
   const storedRow = useMemo(
-    () => sqlDialects.find((d) => d.code === activeCode),
-    [sqlDialects, activeCode],
+    () => storedInProject ?? (activeCode ? emptyDatabaseDialectRow(activeCode) : null),
+    [storedInProject, activeCode],
   );
 
   const workingRow = draft ?? storedRow ?? null;
@@ -81,12 +91,12 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     if (!activeCode) {
       return;
     }
-    const stillValid = sqlDialects.some((d) => d.code === activeCode);
-    if (!stillValid && sqlDialects[0]?.code) {
-      setSelectedCode(sqlDialects[0].code);
+    const stillValid = activeCode != null && dialectCodes.includes(activeCode);
+    if (!stillValid && dialectCodes[0]) {
+      setSelectedCode(dialectCodes[0]);
       setDraft(null);
     }
-  }, [sqlDialects, activeCode]);
+  }, [dialectCodes, activeCode]);
 
   useEffect(() => {
     if (draft == null && storedRow) {
@@ -100,10 +110,11 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
         setDraft(null);
         return;
       }
-      const row = sqlDialects.find((d) => d.code === code);
-      setDraft(row ? { ...row } : null);
+      const row =
+        findDatabaseDialectRow(database, code) ?? emptyDatabaseDialectRow(code);
+      setDraft({ ...row });
     },
-    [sqlDialects],
+    [database],
   );
 
   const handleDialectChange = (code: string) => {
@@ -151,6 +162,15 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     draft != null &&
     storedRow != null &&
     JSON.stringify(draft) !== JSON.stringify(storedRow);
+
+  const dialectSelectOptions = useMemo(
+    () =>
+      dialectCodes.map((code) => ({
+        label: code,
+        value: code,
+      })),
+    [dialectCodes],
+  );
 
   const refreshPreview = useMemo(
     () =>
@@ -221,19 +241,23 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
     [],
   );
 
-  if (sqlDialects.length === 0) {
+  if (dialectCodes.length === 0) {
     return (
       <div data-testid="database-templates-empty">
         <Empty
           image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description="当前项目尚无 SQL 库方言（database[]）"
+          description="暂无可用 SQL 库方言"
         />
       </div>
     );
   }
 
   return (
-    <div className="database-templates-editor" data-testid="database-templates-editor">
+    <div
+      className="database-templates-editor"
+      data-testid="database-templates-editor"
+      data-dialect-option-count={dialectCodes.length}
+    >
       <p className="setting-common-page__hint" style={{ marginBottom: 0 }}>
         编辑各库方言 DDL 模板；保存后版本对比、导出与元数据应用均由后端 Freemarker 渲染。右侧预览基于样例表
         T_SAMPLE 实时渲染当前草稿（无需先保存）。
@@ -246,12 +270,20 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
             data-testid="database-templates-dialect"
             style={{ minWidth: 180 }}
             value={activeCode}
-            options={sqlDialects.map((d) => ({
-              label: d.code,
-              value: d.code,
-            }))}
+            getPopupContainer={(trigger) =>
+              trigger.parentElement ?? document.body
+            }
+            options={dialectSelectOptions}
             onChange={handleDialectChange}
           />
+          {!storedInProject ? (
+            <span
+              className="database-templates-editor__dialect-hint"
+              data-testid="database-templates-dialect-new"
+            >
+              首次保存将写入 database[]
+            </span>
+          ) : null}
           <Checkbox
             data-testid="database-templates-default-db"
             checked={!!workingRow?.defaultDatabase}

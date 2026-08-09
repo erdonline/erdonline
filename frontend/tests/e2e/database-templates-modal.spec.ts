@@ -34,8 +34,16 @@ test.describe('DDL 模板弹窗', () => {
       await expect(page.getByTestId('database-templates-tab')).toBeVisible();
       await expect(page.getByTestId('database-templates-preview')).toBeVisible();
 
-      const dialectSelect = page.getByTestId('database-templates-dialect');
+      const editor = page.getByTestId('database-templates-editor');
+      const dialectOptionCount = Number(await editor.getAttribute('data-dialect-option-count'));
+      expect(dialectOptionCount).toBeGreaterThanOrEqual(3);
+
+      const dialog = page.getByRole('dialog', { name: 'DDL 模板' });
+      const dialectSelect = dialog.getByTestId('database-templates-dialect');
       await expect(dialectSelect).toContainText('MYSQL');
+      await dialectSelect.click();
+      await expect(dialog.getByRole('option', { name: 'ORACLE' })).toBeAttached();
+      await page.keyboard.press('Escape');
 
       await expect(page.getByTestId('database-templates-preview-sql')).toBeVisible();
       await expect(page.getByTestId('database-templates-preview-loading')).toBeHidden({
