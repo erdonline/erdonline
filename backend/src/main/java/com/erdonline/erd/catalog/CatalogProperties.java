@@ -22,4 +22,10 @@ public class CatalogProperties {
      * 可审核社区提交的维护者用户名列表（默认 admin）。
      */
     private List<String> maintainerUsernames = new ArrayList<>(List.of("admin"));
+
+    /** 同一用户在同一模板下发表评论的最小间隔（秒）。 */
+    private int commentRateLimitSeconds = 60;
+
+    /** 举报达此阈值自动隐藏（pending review）。 */
+    private int commentAutoHideReportThreshold = 2;
 }

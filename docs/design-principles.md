@@ -88,6 +88,7 @@
 - ✅ `/compare` 竞品对照页键盘：同壳 Skip→ `#landing-main-cta`；打开演示→自部署指南→返回首页；surface focus-visible；无 trap
 - ✅ Home 工作台键盘：首项 Tab Skip「跳到主内容」落 `#home-main-content`（`tabIndex=-1`）；绕开顶栏；继续建模→新建→示例→二级入口→项目卡；**主内容地标仅 `:focus-visible` 中性环**（禁 `:focus`+品牌红整壳套框）；控件 brand 环；无 trap
 - ✅ **从模板创建（ADR-0028）**：Home/空态 CTA → `/catalog`；首 tile 空白项目；安装 → 设计器；失败 toast 可读；未登录安装引导登录
+- ✅ **模板广场社交 P1（ADR-0028）**：评论须已安装 + 限频 toast；举报一键隐藏待审；作者可关评/限制评论者；列表「热门」+ 官方/社区筛选；E2E 用 `data-testid` 定位
 - ✅ GroupLayout 壳键盘：首项 Tab Skip「跳到主内容」落 `#group-main-content`（`tabIndex=-1`）；绕开顶栏+侧栏；基本设置表单字段进序；**主内容地标仅 `:focus-visible` 中性环**；控件 brand 环；无 trap
 - ✅ 项目列表行键盘：个人/最近/团队行 stretched link（点描述亦开项目）；Enter 开设计器；Tab 行内动作（修改/删除/管理/打开）可逆；行 `:has(:focus-visible)` inset brand 环（抗 ant List outline 重置）；无 trap/死卡
 - ✅ 账号设置壳键盘：`/account/settings` 首项 Tab Skip「跳到主表单」落 `#account-settings-form`（`tabIndex=-1`）；绕开顶栏+左侧页签；邮箱→电话→更新基本信息；**表单地标仅 `:focus-visible` 中性环**；控件 brand 环；无 trap

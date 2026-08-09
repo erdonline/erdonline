@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### 官方模板广场 P1（ADR-0028 · 切片 6–7）
+
+- **Slice 6**：Flyway `catalog_comment` / `catalog_comment_report` / `catalog_comment_restriction` + `comments_enabled`；评论须已安装 + 60s 限频；举报达阈值自动 `hidden_pending`
+- **Slice 7**：`sort=hot`（安装×2+评分和）+ `origin=official|community` 筛选；详情页评论/举报/作者限制；列表默认「热门」tab
+- 验证点：
+  - `curl 'http://127.0.0.1:9502/catalog/v1/templates?sort=hot&origin=official'` → 含 `blank`
+  - `cd backend && mvn -q test -Dtest=CatalogServiceImplTest,CatalogSocialLogicTest`
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts` → 5 passed
+  - `./backend/dev-ensure.sh --restart` 后 Flyway V21 生效
+
 #### 官方模板广场 MVP（ADR-0028 · 切片 0–5）
 
 - **Slice 0**：ADR-0028 + roadmap/architecture/deployment/development/design-principles

@@ -29,11 +29,18 @@ export default function CatalogListPage() {
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);
   const [q, setQ] = useState('');
-  const [sort, setSort] = useState('installs');
+  const [sort, setSort] = useState('hot');
+  const [origin, setOrigin] = useState<string | undefined>(undefined);
 
-  const fetchList = (nextPage = page, keyword = q, nextSort = sort) => {
+  const fetchList = (nextPage = page, keyword = q, nextSort = sort, nextOrigin = origin) => {
     setLoading(true);
-    listCatalogTemplates({q: keyword || undefined, sort: nextSort, page: nextPage, size: 12})
+    listCatalogTemplates({
+      q: keyword || undefined,
+      origin: nextOrigin,
+      sort: nextSort,
+      page: nextPage,
+      size: 12,
+    })
       .then((res) => {
         const data = res?.data ?? res;
         setRecords(data?.records ?? []);
@@ -45,7 +52,7 @@ export default function CatalogListPage() {
 
   useEffect(() => {
     fetchList(1);
-  }, [sort]);
+  }, [sort, origin]);
 
   return (
     <div className="catalog-page project-list-page" data-testid="catalog-list-page">
@@ -60,11 +67,18 @@ export default function CatalogListPage() {
             onSearch={(value) => {
               setQ(value);
               setPage(1);
-              fetchList(1, value, sort);
+              fetchList(1, value, sort, origin);
             }}
             aria-label="搜索模板"
             data-testid="catalog-search"
           />
+          <Button
+            type={sort === 'hot' ? 'primary' : 'default'}
+            data-testid="catalog-sort-hot"
+            onClick={() => setSort('hot')}
+          >
+            热门
+          </Button>
           <Button
             type={sort === 'installs' ? 'primary' : 'default'}
             data-testid="catalog-sort-installs"
@@ -85,6 +99,20 @@ export default function CatalogListPage() {
             onClick={() => setSort('newest')}
           >
             最新
+          </Button>
+          <Button
+            type={origin === 'official' ? 'primary' : 'default'}
+            data-testid="catalog-origin-official"
+            onClick={() => setOrigin(origin === 'official' ? undefined : 'official')}
+          >
+            官方
+          </Button>
+          <Button
+            type={origin === 'community' ? 'primary' : 'default'}
+            data-testid="catalog-origin-community"
+            onClick={() => setOrigin(origin === 'community' ? undefined : 'community')}
+          >
+            社区
           </Button>
           <Button data-testid="catalog-publish-link" onClick={() => history.push('/catalog/publish')}>
             发布模板
@@ -133,6 +161,7 @@ export default function CatalogListPage() {
                   {(item.tags ?? []).slice(0, 4).map((tag) => (
                     <Tag key={tag}>{tag}</Tag>
                   ))}
+                  {item.official ? <Tag color="blue">官方</Tag> : null}
                 </Space>
                 <Space split={<Text type="secondary">·</Text>}>
                   <Text type="secondary">{item.installCount} 次安装</Text>

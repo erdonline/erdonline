@@ -18,7 +18,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Optional;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -33,17 +35,21 @@ import java.util.stream.Collectors;
 public class CatalogServiceImpl implements CatalogService {
 
     private static final String STATUS_PUBLISHED = "published";
+    private static final String COMMENT_VISIBLE = "visible";
 
     private final CatalogTemplateMapper templateMapper;
     private final CatalogRatingMapper ratingMapper;
     private final CatalogInstallMapper installMapper;
     private final CatalogSubmissionMapper submissionMapper;
+    private final CatalogCommentMapper commentMapper;
+    private final CatalogCommentReportMapper commentReportMapper;
+    private final CatalogCommentRestrictionMapper commentRestrictionMapper;
     private final ProjectService projectService;
     private final UserIdentityLinkMapper identityLinkMapper;
     private final CatalogProperties catalogProperties;
 
     @Override
-    public CatalogPageView listTemplates(String q, String tag, String sort, int page, int size, String userId) {
+    public CatalogPageView listTemplates(String q, String tag, String origin, String sort, int page, int size, String userId) {
         LambdaQueryWrapper<CatalogTemplate> wrapper = new LambdaQueryWrapper<CatalogTemplate>()
                 .eq(CatalogTemplate::getStatus, STATUS_PUBLISHED);
         if (StringUtils.hasText(q)) {
@@ -55,6 +61,7 @@ public class CatalogServiceImpl implements CatalogService {
         if (StringUtils.hasText(tag)) {
             wrapper.like(CatalogTemplate::getTags, tag.trim());
         }
+        applyOriginFilter(wrapper, origin);
         applySort(wrapper, sort);
         Page<CatalogTemplate> p = templateMapper.selectPage(new Page<>(Math.max(page, 1), clampSize(size)), wrapper);
         CatalogPageView view = new CatalogPageView();
@@ -95,6 +102,9 @@ public class CatalogServiceImpl implements CatalogService {
                 .configJSON(t.getConfigJson())
                 .userRating(userRating)
                 .installed(installed)
+                .commentsEnabled(isCommentsEnabled(t))
+                .canManageComments(canManageTemplate(t, userId, resolveHandle(userId, null)))
+                .official(isOfficial(t))
                 .createTime(t.getCreateTime())
                 .build();
     }
@@ -106,7 +116,14 @@ public class CatalogServiceImpl implements CatalogService {
             return R.failed("请先登录");
         }
         CatalogTemplate t = requirePublishedTemplate(id);
+        Optional<CatalogInstallResultView> existing = findExistingInstall(t, userId, username);
+        if (existing.isPresent()) {
+            return R.ok(existing.get());
+        }
         String projectName = buildInstallName(t.getTitle(), username);
+        if (projectNameExists(projectName)) {
+            projectName = projectName + " (" + IdUtil.fastSimpleUUID().substring(0, 6) + ")";
+        }
         ProjectDto dto = new ProjectDto();
         dto.setProjectName(projectName);
         dto.setDescription(StringUtils.hasText(t.getDescription()) ? t.getDescription() : t.getTitle());
@@ -303,6 +320,162 @@ public class CatalogServiceImpl implements CatalogService {
         return R.ok(toSubmissionView(submission));
     }
 
+    @Override
+    public CatalogCommentPageView listComments(String templateId, String userId, int page, int size) {
+        CatalogTemplate t = requirePublishedTemplate(templateId);
+        Page<CatalogComment> p = commentMapper.selectPage(
+                new Page<>(Math.max(page, 1), clampSize(size)),
+                new LambdaQueryWrapper<CatalogComment>()
+                        .eq(CatalogComment::getTemplateId, t.getId())
+                        .eq(CatalogComment::getStatus, COMMENT_VISIBLE)
+                        .orderByDesc(CatalogComment::getCreateTime));
+        CatalogCommentPageView view = new CatalogCommentPageView();
+        view.setTotal(p.getTotal());
+        view.setRecords(p.getRecords().stream()
+                .map(c -> toCommentView(c, userId))
+                .collect(Collectors.toList()));
+        return view;
+    }
+
+    @Override
+    @Transactional
+    public R addComment(String templateId, String userId, String username, String body) {
+        if (!StringUtils.hasText(userId)) {
+            return R.failed("请先登录");
+        }
+        if (!StringUtils.hasText(body) || body.trim().length() > 2000) {
+            return R.failed("评论内容无效");
+        }
+        CatalogTemplate t = requirePublishedTemplate(templateId);
+        if (!isCommentsEnabled(t)) {
+            return R.failed("作者已关闭评论");
+        }
+        if (isRestricted(t.getId(), userId)) {
+            return R.failed("你已被限制在此模板下评论");
+        }
+        boolean installed = installMapper.selectCount(new LambdaQueryWrapper<CatalogInstall>()
+                .eq(CatalogInstall::getTemplateId, t.getId())
+                .eq(CatalogInstall::getUserId, userId)) > 0;
+        if (!installed) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "须先安装模板才能评论");
+        }
+        enforceCommentRateLimit(t.getId(), userId);
+        CatalogComment row = new CatalogComment()
+                .setTemplateId(t.getId())
+                .setUserId(userId)
+                .setUsername(StringUtils.hasText(username) ? username : userId)
+                .setBody(body.trim())
+                .setStatus(COMMENT_VISIBLE)
+                .setReportCount(0);
+        commentMapper.insert(row);
+        return R.ok(toCommentView(row, userId));
+    }
+
+    @Override
+    @Transactional
+    public R reportComment(String templateId, String commentId, String reporterUserId, String reason) {
+        if (!StringUtils.hasText(reporterUserId)) {
+            return R.failed("请先登录");
+        }
+        CatalogTemplate t = requirePublishedTemplate(templateId);
+        CatalogComment comment = requireVisibleComment(t.getId(), commentId);
+        if (comment.getUserId().equals(reporterUserId)) {
+            return R.failed("不能举报自己的评论");
+        }
+        CatalogCommentReport existing = commentReportMapper.selectOne(new LambdaQueryWrapper<CatalogCommentReport>()
+                .eq(CatalogCommentReport::getCommentId, comment.getId())
+                .eq(CatalogCommentReport::getReporterUserId, reporterUserId)
+                .last("LIMIT 1"));
+        if (existing != null) {
+            return R.failed("你已举报过该评论");
+        }
+        commentReportMapper.insert(new CatalogCommentReport()
+                .setCommentId(comment.getId())
+                .setReporterUserId(reporterUserId)
+                .setReason(reason));
+        int reports = nullSafe(comment.getReportCount()) + 1;
+        comment.setReportCount(reports);
+        if (reports >= catalogProperties.getCommentAutoHideReportThreshold()) {
+            comment.setStatus("hidden_pending");
+        }
+        commentMapper.updateById(comment);
+        return R.ok(Boolean.TRUE);
+    }
+
+    @Override
+    @Transactional
+    public R toggleComments(String templateId, String userId, String username, boolean enabled) {
+        if (!StringUtils.hasText(userId)) {
+            return R.failed("请先登录");
+        }
+        CatalogTemplate t = requirePublishedTemplate(templateId);
+        if (!canManageTemplate(t, userId, username)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "仅作者或维护者可管理评论");
+        }
+        t.setCommentsEnabled(enabled ? 1 : 0);
+        templateMapper.updateById(t);
+        return R.ok(enabled);
+    }
+
+    @Override
+    @Transactional
+    public R restrictCommenter(String templateId, String actorUserId, String actorUsername, String targetUserId) {
+        if (!StringUtils.hasText(actorUserId)) {
+            return R.failed("请先登录");
+        }
+        if (!StringUtils.hasText(targetUserId)) {
+            return R.failed("userId 不能为空");
+        }
+        CatalogTemplate t = requirePublishedTemplate(templateId);
+        if (!canManageTemplate(t, actorUserId, actorUsername)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "仅作者或维护者可限制评论者");
+        }
+        CatalogCommentRestriction existing = commentRestrictionMapper.selectOne(
+                new LambdaQueryWrapper<CatalogCommentRestriction>()
+                        .eq(CatalogCommentRestriction::getTemplateId, t.getId())
+                        .eq(CatalogCommentRestriction::getRestrictedUserId, targetUserId)
+                        .last("LIMIT 1"));
+        if (existing == null) {
+            commentRestrictionMapper.insert(new CatalogCommentRestriction()
+                    .setTemplateId(t.getId())
+                    .setRestrictedUserId(targetUserId)
+                    .setRestrictedByUserId(actorUserId));
+        }
+        List<CatalogComment> comments = commentMapper.selectList(new LambdaQueryWrapper<CatalogComment>()
+                .eq(CatalogComment::getTemplateId, t.getId())
+                .eq(CatalogComment::getUserId, targetUserId)
+                .eq(CatalogComment::getStatus, COMMENT_VISIBLE));
+        for (CatalogComment c : comments) {
+            c.setStatus("restricted");
+            commentMapper.updateById(c);
+        }
+        return R.ok(Boolean.TRUE);
+    }
+
+    private Optional<CatalogInstallResultView> findExistingInstall(CatalogTemplate t, String userId, String username) {
+        CatalogInstall existing = installMapper.selectOne(new LambdaQueryWrapper<CatalogInstall>()
+                .eq(CatalogInstall::getTemplateId, t.getId())
+                .eq(CatalogInstall::getUserId, userId)
+                .last("LIMIT 1"));
+        if (existing == null || !StringUtils.hasText(existing.getProjectId())) {
+            return Optional.empty();
+        }
+        Project project = projectService.getById(existing.getProjectId());
+        if (project == null) {
+            return Optional.empty();
+        }
+        return Optional.of(CatalogInstallResultView.builder()
+                .projectId(project.getId())
+                .projectName(project.getProjectName())
+                .templateId(t.getId())
+                .build());
+    }
+
+    private boolean projectNameExists(String projectName) {
+        return projectService.count(new LambdaQueryWrapper<Project>()
+                .eq(Project::getProjectName, projectName)) > 0;
+    }
+
     private void recordInstall(CatalogTemplate t, String userId, String projectId) {
         CatalogInstall existing = installMapper.selectOne(new LambdaQueryWrapper<CatalogInstall>()
                 .eq(CatalogInstall::getTemplateId, t.getId())
@@ -374,8 +547,95 @@ public class CatalogServiceImpl implements CatalogService {
                 .installCount(nullSafe(t.getInstallCount()))
                 .ratingAverage(averageRating(t))
                 .ratingCount(nullSafe(t.getRatingCount()))
+                .official(isOfficial(t))
                 .createTime(t.getCreateTime())
                 .build();
+    }
+
+    private static CatalogCommentView toCommentView(CatalogComment c, String viewerUserId) {
+        return CatalogCommentView.builder()
+                .id(c.getId())
+                .userId(c.getUserId())
+                .username(c.getUsername())
+                .body(c.getBody())
+                .createTime(c.getCreateTime())
+                .own(StringUtils.hasText(viewerUserId) && viewerUserId.equals(c.getUserId()))
+                .build();
+    }
+
+    private CatalogComment requireVisibleComment(String templateId, String commentId) {
+        CatalogComment c = commentMapper.selectOne(new LambdaQueryWrapper<CatalogComment>()
+                .eq(CatalogComment::getId, commentId)
+                .eq(CatalogComment::getTemplateId, templateId)
+                .last("LIMIT 1"));
+        if (c == null || !COMMENT_VISIBLE.equals(c.getStatus())) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "评论不存在");
+        }
+        return c;
+    }
+
+    private void enforceCommentRateLimit(String templateId, String userId) {
+        int seconds = Math.max(catalogProperties.getCommentRateLimitSeconds(), 1);
+        LocalDateTime since = LocalDateTime.now().minusSeconds(seconds);
+        CatalogComment recent = commentMapper.selectOne(new LambdaQueryWrapper<CatalogComment>()
+                .eq(CatalogComment::getTemplateId, templateId)
+                .eq(CatalogComment::getUserId, userId)
+                .ge(CatalogComment::getCreateTime, since)
+                .orderByDesc(CatalogComment::getCreateTime)
+                .last("LIMIT 1"));
+        if (recent != null) {
+            throw new ResponseStatusException(HttpStatus.TOO_MANY_REQUESTS,
+                    "评论过于频繁，请 " + seconds + " 秒后再试");
+        }
+    }
+
+    private boolean isRestricted(String templateId, String userId) {
+        return commentRestrictionMapper.selectCount(new LambdaQueryWrapper<CatalogCommentRestriction>()
+                .eq(CatalogCommentRestriction::getTemplateId, templateId)
+                .eq(CatalogCommentRestriction::getRestrictedUserId, userId)) > 0;
+    }
+
+    private boolean isCommentsEnabled(CatalogTemplate t) {
+        return CatalogSocialLogic.isCommentsEnabled(t);
+    }
+
+    private static boolean isOfficial(CatalogTemplate t) {
+        return CatalogSocialLogic.isOfficial(t);
+    }
+
+    private boolean canManageTemplate(CatalogTemplate t, String userId, String username) {
+        if (StringUtils.hasText(username)
+                && catalogProperties.getMaintainerUsernames().stream()
+                .anyMatch(u -> u.equalsIgnoreCase(username))) {
+            return true;
+        }
+        String handle = resolveHandle(userId, username);
+        return StringUtils.hasText(handle) && handle.equalsIgnoreCase(t.getAuthorHandle());
+    }
+
+    private String resolveHandle(String userId, String username) {
+        if (!StringUtils.hasText(userId)) {
+            return username != null ? username.trim().toLowerCase(Locale.ROOT) : "";
+        }
+        UserIdentityLink github = identityLinkMapper.selectOne(new LambdaQueryWrapper<UserIdentityLink>()
+                .eq(UserIdentityLink::getUserId, userId)
+                .eq(UserIdentityLink::getProvider, "github")
+                .last("LIMIT 1"));
+        if (github != null && StringUtils.hasText(github.getDisplayName())) {
+            return github.getDisplayName().trim().toLowerCase(Locale.ROOT);
+        }
+        return StringUtils.hasText(username) ? username.trim().toLowerCase(Locale.ROOT) : "";
+    }
+
+    private static void applyOriginFilter(LambdaQueryWrapper<CatalogTemplate> wrapper, String origin) {
+        if (!StringUtils.hasText(origin)) {
+            return;
+        }
+        if ("official".equalsIgnoreCase(origin)) {
+            wrapper.isNull(CatalogTemplate::getSourceProjectId);
+        } else if ("community".equalsIgnoreCase(origin)) {
+            wrapper.isNotNull(CatalogTemplate::getSourceProjectId);
+        }
     }
 
     private static CatalogSubmissionView toSubmissionView(CatalogSubmission s) {
@@ -420,9 +680,12 @@ public class CatalogServiceImpl implements CatalogService {
 
     private static void applySort(LambdaQueryWrapper<CatalogTemplate> wrapper, String sort) {
         if ("rating".equalsIgnoreCase(sort)) {
-            wrapper.orderByDesc(CatalogTemplate::getRatingSum);
+            wrapper.orderByDesc(CatalogTemplate::getRatingSum)
+                    .orderByDesc(CatalogTemplate::getRatingCount);
         } else if ("newest".equalsIgnoreCase(sort)) {
             wrapper.orderByDesc(CatalogTemplate::getCreateTime);
+        } else if ("hot".equalsIgnoreCase(sort)) {
+            wrapper.last("ORDER BY (install_count * 2 + rating_sum) DESC, create_time DESC");
         } else {
             wrapper.orderByDesc(CatalogTemplate::getInstallCount);
         }

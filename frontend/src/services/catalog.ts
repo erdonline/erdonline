@@ -11,6 +11,7 @@ export type CatalogTemplateSummary = {
   installCount: number;
   ratingAverage: number;
   ratingCount: number;
+  official?: boolean;
   createTime?: string;
 };
 
@@ -19,6 +20,22 @@ export type CatalogTemplateDetail = CatalogTemplateSummary & {
   configJSON?: Record<string, unknown>;
   userRating?: number | null;
   installed?: boolean;
+  commentsEnabled?: boolean;
+  canManageComments?: boolean;
+};
+
+export type CatalogComment = {
+  id: string;
+  userId: string;
+  username?: string;
+  body: string;
+  createTime?: string;
+  own?: boolean;
+};
+
+export type CatalogCommentPage = {
+  total: number;
+  records: CatalogComment[];
 };
 
 export type CatalogPage<T> = {
@@ -35,6 +52,7 @@ export type CatalogInstallResult = {
 export const listCatalogTemplates = (params?: {
   q?: string;
   tag?: string;
+  origin?: string;
   sort?: string;
   page?: number;
   size?: number;
@@ -65,3 +83,33 @@ export const submitCatalogTemplate = (body: {
   description?: string;
   tags?: string;
 }) => request.post('/ncnb/catalog/v1/submissions', { data: body });
+
+export const listCatalogComments = (templateId: string, params?: { page?: number; size?: number }) =>
+  request.get<CatalogCommentPage>(
+    `/ncnb/catalog/v1/templates/${encodeURIComponent(templateId)}/comments`,
+    { params },
+  );
+
+export const addCatalogComment = (templateId: string, body: string) =>
+  request.post<CatalogComment>(
+    `/ncnb/catalog/v1/templates/${encodeURIComponent(templateId)}/comments`,
+    { data: { body } },
+  );
+
+export const reportCatalogComment = (templateId: string, commentId: string, reason?: string) =>
+  request.post(
+    `/ncnb/catalog/v1/templates/${encodeURIComponent(templateId)}/comments/${encodeURIComponent(commentId)}/report`,
+    { data: reason ? { reason } : {} },
+  );
+
+export const toggleCatalogComments = (templateId: string, enabled: boolean) =>
+  request.post<boolean>(
+    `/ncnb/catalog/v1/templates/${encodeURIComponent(templateId)}/comments-enabled`,
+    { data: { enabled } },
+  );
+
+export const restrictCatalogCommenter = (templateId: string, userId: string) =>
+  request.post(
+    `/ncnb/catalog/v1/templates/${encodeURIComponent(templateId)}/restrict-user`,
+    { data: { userId } },
+  );
