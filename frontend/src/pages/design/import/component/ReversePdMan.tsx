@@ -97,19 +97,21 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
 
 
   return (
-    <div className="erd-secondary-pane" data-testid="import-pdman-page">
-      <h2 className="erd-secondary-pane__title">解析 PdMan 文件</h2>
-      <p className="erd-secondary-pane__hint">上传完毕后自动解析；每次仅支持一个 PdMan json</p>
-      <div className="erd-secondary-pane__upload">
-        <Dragger {...prop}>
-          <p className="ant-upload-drag-icon">
-            <InboxOutlined/>
-          </p>
-          <p className="ant-upload-text">点击或者拖拽PdMand导出的json文件到此区域以上传</p>
-          <p className="ant-upload-hint">
-            上传完毕后，系统会自动开始解析；每次仅支持解析一个PdMan文件。
-          </p>
-        </Dragger>
+    <div className="erd-secondary-pane erd-secondary-pane--import" data-testid="import-pdman-page">
+      <div className="erd-secondary-pane__content">
+        <h2 className="erd-secondary-pane__title">解析 PdMan 文件</h2>
+        <p className="erd-secondary-pane__hint">上传完毕后自动解析；每次仅支持一个 PdMan json</p>
+        <div className="erd-secondary-pane__upload">
+          <Dragger {...prop}>
+            <p className="ant-upload-drag-icon">
+              <InboxOutlined/>
+            </p>
+            <p className="ant-upload-text">点击或者拖拽PdMand导出的json文件到此区域以上传</p>
+            <p className="ant-upload-hint">
+              上传完毕后，系统会自动开始解析；每次仅支持解析一个PdMan文件。
+            </p>
+          </Dragger>
+        </div>
       </div>
     </div>
   );

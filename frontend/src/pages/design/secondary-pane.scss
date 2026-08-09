@@ -7,6 +7,48 @@
   max-width: 960px;
 }
 
+// 解析页（逆向 / PdMan / ERD）：标题·步骤·表单同列，避免 Steps 全宽 + 窄表单失衡
+.erd-secondary-pane--import {
+  max-width: none;
+  width: 100%;
+
+  .erd-secondary-pane__content {
+    max-width: 680px;
+    width: 100%;
+    padding: 14px 16px 16px;
+    border: 1px solid var(--erd-line, #e5e7eb);
+    border-radius: 8px;
+    background: var(--erd-surface, #fff);
+    box-sizing: border-box;
+  }
+
+  .erd-secondary-pane__hint {
+    margin-bottom: 6px;
+  }
+
+  .erd-secondary-pane__steps {
+    margin: 6px 0 8px !important;
+  }
+
+  .erd-secondary-pane__form {
+    max-width: none;
+
+    .ant-select,
+    .ant-select-single,
+    .ant-input-affix-wrapper {
+      width: 100%;
+    }
+  }
+
+  .erd-secondary-pane__upload {
+    margin-top: 2px;
+  }
+
+  .erd-secondary-pane__actions {
+    margin-top: 8px;
+  }
+}
+
 .erd-secondary-pane__title {
   margin: 0 0 2px;
   font-size: 13px;

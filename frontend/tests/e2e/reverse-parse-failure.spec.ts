@@ -107,12 +107,11 @@ test.describe('逆向解析失败可重试', () => {
       await expect(page.getByTestId('import-reverse-page')).toBeVisible({ timeout: 15_000 });
       await expect(page.getByText(dsName).first()).toBeVisible({ timeout: 15_000 });
 
-      // DataSourceSelect 可能未默认选中：点选数据源
-      const dsCombo = page.getByRole('combobox', { name: /数据源/ }).or(
-        page.locator('[aria-label="数据源"]').first(),
-      );
-      if (await dsCombo.count()) {
-        await dsCombo.first().click();
+      const dsSelect = page.getByTestId('datasource-select');
+      const selectionItem = dsSelect.locator('.ant-select-selection-item');
+      const currentLabel = ((await selectionItem.textContent()) ?? '').trim();
+      if (currentLabel !== dsName) {
+        await dsSelect.click();
         await page.getByRole('option', { name: dsName }).click();
       }
 
