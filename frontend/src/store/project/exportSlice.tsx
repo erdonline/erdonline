@@ -8,11 +8,16 @@ import * as cache from "@/utils/cache";
 import request from "@/utils/request";
 import _ from 'lodash';
 import {generateHtml} from "@/utils/generatehtml";
-import {getAllDataSQLByFilter} from "@/utils/json2code";
 import produce from "immer";
 import moment from "moment";
 import {CONSTANT} from "@/utils/constant";
 import {docxBlobFailureReason} from "@/utils/docxBlobGate";
+import {
+  EXPORT_DDL_ALL_SEGMENTS,
+  fetchExportDdl,
+  type ExportDdlFilterKey,
+} from "@/utils/ddlExportApi";
+import {SNAPSHOT_DB_KEY} from "@/utils/versionConstants";
 
 const WORD_EXPORT_BLOB_COPY = {
   missing: '服务器未返回文档内容',
@@ -35,7 +40,7 @@ export interface IExportDispatchSlice {
   onExportTypeChange: (exportType: string) => void;
   initAllKeys: () => any;
   onSelectTableChange: (selectTable: []) => any;
-  setExportData: () => any;
+  setExportData: () => Promise<void>;
   getExportData: () => any;
   /** @returns true 成功；false 失败（调用方据此保持对话框不关闭） */
   exportSQL: () => boolean;
@@ -310,37 +315,46 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     });
     get().dispatch.setExportData();
   },
-  setExportData: () => {
+  setExportData: async () => {
     const {projectJSON: dataSource} = get().project;
     const {defaultDb, selectTable, customType} = get()?.exportSliceState || {};
-    let tempDataSource = {...dataSource};
-    if (selectTable) {
-      tempDataSource = {
-        ...tempDataSource,
-        modules: (tempDataSource.modules || []).map((m: any) => {
-          return {
-            ...m,
-            entities: (m.entities || []).filter((e: any) => selectTable.includes(e.title)),
-          };
-        }),
-      };
-    }
-    // @ts-ignore
-    const data = getAllDataSQLByFilter(tempDataSource,
-      defaultDb || get()?.dispatch.getCurrentDBName(),
-      customType || [
-        'deleteTable',
-        'createTable',
-        'createIndex',
-        'createTrigger',
-        'createForeignKey',
-        'updateComment',
-      ]);
+    const dialectCode = defaultDb || get()?.dispatch.getCurrentDBData()?.select || 'MYSQL';
+    const entityTitles = selectTable?.length ? [...selectTable] : undefined;
+    const filter: ExportDdlFilterKey[] = (customType?.length
+      ? customType
+      : EXPORT_DDL_ALL_SEGMENTS) as ExportDdlFilterKey[];
+
     get().dispatch.setExportSliceState({
       ...get().exportSliceState,
-      data: data
+      exportDdlLoading: true,
+      exportDdlError: undefined,
     });
 
+    const dbKey = get().dispatch.getCurrentDBData()?.key || SNAPSHOT_DB_KEY;
+    try {
+      const {sql} = await fetchExportDdl({
+        projectJSON: dataSource as Record<string, unknown>,
+        dialectCode,
+        filter,
+        entityTitles,
+        dbKey,
+      });
+      get().dispatch.setExportSliceState({
+        ...get().exportSliceState,
+        data: sql,
+        exportDdlLoading: false,
+        exportDdlError: undefined,
+      });
+    } catch (err: unknown) {
+      const reason = err instanceof Error ? err.message : 'DDL 生成失败';
+      get().dispatch.setExportSliceState({
+        ...get().exportSliceState,
+        data: '',
+        exportDdlLoading: false,
+        exportDdlError: reason,
+      });
+      message.error(`DDL 预览失败：${reason}`);
+    }
   },
   getExportData: () => {
     return get().exportSliceState?.data || '';

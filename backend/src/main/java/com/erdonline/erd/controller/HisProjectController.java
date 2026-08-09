@@ -87,4 +87,24 @@ public class HisProjectController {
     public R syncSql(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
         return dbChangeService.generateSyncSql(body);
     }
+
+    @ApiOperation(value = "项目 DDL 导出（后端权威）", nickname = "exportDdl",
+            notes = "按片段键/表过滤导出全量 DDL；导出对话框消费此结果",
+            tags = {"dbChange",})
+    @RequireProjectAccess
+    @PostMapping("/hisProject/exportDdl")
+    @MartinLog("项目 DDL 导出")
+    public R exportDdl(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
+        return dbChangeService.generateExportDdl(body);
+    }
+
+    @ApiOperation(value = "单表元数据 DDL 预览（后端权威）", nickname = "tableDdl",
+            notes = "表属性页 DDL 标签消费此结果",
+            tags = {"dbChange",})
+    @RequireProjectAccess
+    @PostMapping("/hisProject/tableDdl")
+    @MartinLog("单表 DDL 预览")
+    public R tableDdl(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
+        return dbChangeService.generateTableDdl(body);
+    }
 }

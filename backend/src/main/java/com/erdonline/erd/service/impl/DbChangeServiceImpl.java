@@ -14,6 +14,10 @@ import com.erdonline.erd.mapper.DbChangeMapper;
 import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
+import com.erdonline.erd.util.Json2CodeFullDdlEngine;
+import com.erdonline.erd.util.Json2CodeTableDdlEngine;
+import com.erdonline.erd.util.ProjectJsonKeys;
+import com.erdonline.erd.util.ProjectJsonSupport;
 import com.erdonline.erd.util.VersionDiffEngine;
 import com.erdonline.erd.util.VersionPanelDiffEngine;
 import com.erdonline.erd.util.VersionSyncSqlEngine;
@@ -263,6 +267,121 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         Map<String, Object> result = new HashMap<>();
         result.put("sql", sql);
         return R.ok(result);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public R generateExportDdl(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        Object projectJSONRaw = body.get("projectJSON");
+        if (!(projectJSONRaw instanceof Map)) {
+            return R.failed("projectJSON 为必填");
+        }
+        Map<String, Object> projectJSON = (Map<String, Object>) projectJSONRaw;
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "MYSQL";
+
+        List<String> filter = parseStringList(body.get("filter"));
+        List<String> entityTitles = parseStringList(body.get("entityTitles"));
+
+        String sql = Json2CodeFullDdlEngine.generateAllSqlByFilter(
+                projectJSON, dialectCode, filter, entityTitles);
+        Map<String, Object> result = new HashMap<>();
+        result.put("sql", sql);
+        return R.ok(result);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public R generateTableDdl(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        Object projectJSONRaw = body.get("projectJSON");
+        if (!(projectJSONRaw instanceof Map)) {
+            return R.failed("projectJSON 为必填");
+        }
+        Map<String, Object> projectJSON = (Map<String, Object>) projectJSONRaw;
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "MYSQL";
+        String templateKey = body.get("templateKey") != null
+                ? String.valueOf(body.get("templateKey"))
+                : "";
+        String entityTitle = body.get("entityTitle") != null
+                ? String.valueOf(body.get("entityTitle"))
+                : "";
+        if (templateKey.isBlank()) {
+            return R.failed("templateKey 为必填");
+        }
+        if (entityTitle.isBlank()) {
+            return R.failed("entityTitle 为必填");
+        }
+
+        Map<String, Object> entity = ProjectJsonSupport.findEntityByTitle(
+                ProjectJsonSupport.allEntities(projectJSON, "_moduleName"), entityTitle);
+        if (entity == null) {
+            return R.failed("未找到数据表: " + entityTitle);
+        }
+        String moduleName = ProjectJsonSupport.str(entity.get("_moduleName"));
+        if (moduleName.isEmpty()) {
+            moduleName = findModuleNameForEntity(projectJSON, entityTitle);
+        }
+
+        Map<String, Object> baseline = Map.of();
+        Object baselineRaw = body.get("baselineProjectJSON");
+        if (baselineRaw instanceof Map) {
+            baseline = (Map<String, Object>) baselineRaw;
+        }
+
+        List<Map<String, Object>> changes = parseChangeList(body.get("changes"));
+
+        String sql = Json2CodeTableDdlEngine.generateTableSql(
+                projectJSON, moduleName, entity, dialectCode, templateKey, changes, baseline);
+        Map<String, Object> result = new HashMap<>();
+        result.put("sql", sql);
+        return R.ok(result);
+    }
+
+    private static List<String> parseStringList(Object raw) {
+        if (!(raw instanceof List<?> list)) {
+            return null;
+        }
+        List<String> out = new ArrayList<>();
+        for (Object item : list) {
+            if (item != null) {
+                out.add(String.valueOf(item));
+            }
+        }
+        return out;
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<Map<String, Object>> parseChangeList(Object raw) {
+        if (!(raw instanceof List<?> list)) {
+            return List.of();
+        }
+        List<Map<String, Object>> out = new ArrayList<>();
+        for (Object item : list) {
+            if (item instanceof Map<?, ?> m) {
+                out.add((Map<String, Object>) m);
+            }
+        }
+        return out;
+    }
+
+    private static String findModuleNameForEntity(Map<String, Object> projectJSON, String entityTitle) {
+        for (Map<String, Object> mod : ProjectJsonSupport.asMapList(projectJSON.get(ProjectJsonKeys.MODULES))) {
+            for (Map<String, Object> entity : ProjectJsonSupport.asMapList(mod.get(ProjectJsonKeys.ENTITIES))) {
+                if (entityTitle.equals(ProjectJsonSupport.str(entity.get(ProjectJsonKeys.TITLE)))) {
+                    return ProjectJsonSupport.str(mod.get(ProjectJsonKeys.NAME));
+                }
+            }
+        }
+        return "";
     }
 
     private static Map<String, Object> baselineMeta(DbChange latest) {

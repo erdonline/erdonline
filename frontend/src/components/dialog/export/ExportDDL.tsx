@@ -7,6 +7,7 @@ import {
   Modal,
   Radio,
   Select,
+  Spin,
   Steps,
   TreeSelect,
 } from "antd";
@@ -43,8 +44,9 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
   onOpenChange,
 }) => {
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
-  const {projectDispatch, data} = useProjectStore(state => ({
+  const {projectDispatch, data, exportDdlLoading} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
+    exportDdlLoading: state.exportSliceState?.exportDdlLoading,
     projectDispatch: state.dispatch,
   }), shallow);
   const [dbs, setDbs] = useState<ExportDbOption[]>([]);
@@ -296,7 +298,9 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
             )}
             <Form.Item label="预览">
               <Input style={{ display: 'none' }} />
-              <CodeEditor mode="mysql" value={data} />
+              <Spin spinning={Boolean(exportDdlLoading)}>
+                <CodeEditor mode="mysql" value={data} />
+              </Spin>
             </Form.Item>
           </Form>
         )}

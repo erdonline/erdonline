@@ -82,4 +82,19 @@ public interface DbChangeService extends MartinService<DbChange> {
      *             {@code upgradeType} 可选（increment|rebuild）
      */
     R generateSyncSql(Map<String, Object> body);
+
+    /**
+     * 项目 DDL 导出（全量片段）；与 {@link com.erdonline.erd.util.Json2CodeFullDdlEngine} 同源。
+     *
+     * @param body {@code projectJSON}、{@code dialectCode} 必填；{@code filter}、{@code entityTitles} 可选
+     */
+    R generateExportDdl(Map<String, Object> body);
+
+    /**
+     * 单表元数据 DDL 预览；与 {@link com.erdonline.erd.util.Json2CodeTableDdlEngine} 同源。
+     *
+     * @param body {@code projectJSON}、{@code dialectCode}、{@code templateKey}、{@code entityTitle} 必填；
+     *             差异化模板需 {@code baselineProjectJSON} 与 {@code changes}
+     */
+    R generateTableDdl(Map<String, Object> body);
 }
