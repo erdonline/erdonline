@@ -1,0 +1,1 @@
+ALTER TABLE `${entity.title}` ADD COLUMN `${field.name}` ${field.dataType}<#if field.notNull> NOT NULL</#if><#if field.defaultValue?has_content> DEFAULT ${field.defaultValue}</#if><#if field.pk> PRIMARY KEY</#if><#if field.chnname?has_content> COMMENT '${field.chnname}'</#if>;${separator}

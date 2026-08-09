@@ -8,6 +8,16 @@
 
 ### 2026-08-09
 
+#### Freemarker 终态：版本模块 DDL 全量迁移（ADR-0030 实现切片）
+
+- **引擎**：`DdlFreemarkerTemplateEngine` 替换 Pebble；`DotToFreemarkerTranslator` + `DdlTemplateContextEnricher` 读时桥接存量 doT；移除 `pebble` 依赖与 `ddl/pebble/**`。
+- **种子**：`ddl/freemarker/mysql|postgresql|oracle/*.ftl`（createTable/createField 等）；`DdlTemplateSyntax` 常量 + `templateSyntax` 字段语义见 `data-format.md`。
+- **编排**：`Json2CodeDdlEngine`（增量）、`Json2CodeFullDdlEngine`（全量）、`VersionSyncSqlEngine`（sync 过滤）；`POST /ncnb/hisProject/syncSql` 新增。
+- **FE**：版本面板 / dirty / diff 仍只渲染 API `ddl`；**同步到库**改调 `fetchVersionSyncSql`，移除 `getAllDataSQL` / `getCodeByChanges` product 路径。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=DdlFreemarkerCompatibilityTest,VersionDdlEngineTest,DbChangeServiceImplDiffTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+
 #### ADR-0030 终态锁定：Freemarker DDL 引擎 + 后端单一权威（Pebble 过渡）
 
 - **架构**：版本详情/对比、export、sync SQL 等 product path DDL **仅后端**生成；FE 只渲染 API `ddl`。

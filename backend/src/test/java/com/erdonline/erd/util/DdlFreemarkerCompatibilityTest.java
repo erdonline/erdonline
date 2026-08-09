@@ -13,9 +13,9 @@ import java.util.Map;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 /**
- * 证明 doT→Pebble 兼容层可渲染 defaultData 真实 createTableTemplate（含字段循环 + PK）。
+ * 证明 doT→Freemarker 兼容层可渲染 defaultData 真实 createTableTemplate（含字段循环 + PK）。
  */
-class DdlPebbleCompatibilityTest {
+class DdlFreemarkerCompatibilityTest {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
 
@@ -78,5 +78,20 @@ class DdlPebbleCompatibilityTest {
         assertTrue(sql.contains("CREATE TABLE `T_ORDER`"), sql);
         assertTrue(sql.contains("PRIMARY KEY (`ID`)"), sql);
         assertTrue(sql.contains("`AMT` DECIMAL(18,2)"), sql);
+    }
+
+    @Test
+    void dotToFreemarkerTranslator_preservesJoinSpreadForIndex() {
+        String dot = "ALTER TABLE `{{=it.entity.title}}` ADD INDEX `{{=it.index.name}}`({{=it.func.join(...it.index.fields,',')}});";
+        String ftl = DotToFreemarkerTranslator.translate(dot);
+        assertTrue(ftl.contains("erdJoin"), ftl);
+
+        Map<String, Object> ctx = Map.of(
+                DdlTemplateKeys.CTX_ENTITY, Map.of("title", "T_X"),
+                DdlTemplateKeys.CTX_INDEX, Map.of("name", "idx_a", "fields", List.of("A", "B")),
+                DdlTemplateKeys.CTX_SEPARATOR, ";\n");
+        String sql = DdlTemplateRenderer.renderInline(ftl, ctx);
+        assertTrue(sql.contains("idx_a"), sql);
+        assertTrue(sql.contains("A,B") || sql.contains("A, B"), sql);
     }
 }

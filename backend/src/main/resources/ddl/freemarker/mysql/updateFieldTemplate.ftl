@@ -1,0 +1,1 @@
+ALTER TABLE `${entity.title}` MODIFY COLUMN `${field.name}` ${field.dataType}<#if field.notNull> NOT NULL</#if><#if field.defaultValue?has_content> DEFAULT ${field.defaultValue}</#if><#if field.autoIncrement> AUTO_INCREMENT</#if><#if field.chnname?has_content> COMMENT '${field.chnname}'</#if>;${separator}

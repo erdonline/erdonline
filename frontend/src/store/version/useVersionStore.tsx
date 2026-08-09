@@ -7,7 +7,6 @@ import {showSyncResultModal} from "@/utils/syncResultModal";
 import {compareStringVersion, compareStringVersionForSort} from "@/utils/string";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as Save from '@/utils/save';
-import {getAllDataSQL, getCodeByChanges} from "@/utils/json2code";
 import moment from "moment";
 import produce from "immer";
 import { POST } from "@/services/crud";
@@ -31,8 +30,7 @@ import {
   handleVersionSaveResponse,
   isVersionSaveDuplicate,
 } from "@/utils/versionSaveConflict";
-import { fetchVersionPanelDiff, fetchWorkspaceDirtyDiff } from '@/utils/versionDiffApi';
-
+import { fetchVersionPanelDiff, fetchVersionSyncSql, fetchWorkspaceDirtyDiff } from '@/utils/versionDiffApi';
 
 export const SHOW_CHANGE_TYPE = {
   // 默认为最新版本变化
@@ -922,8 +920,7 @@ const useVersionStore = create<VersionState>(
                 okText: appFormat()('versionStore.confirm.sync.ok'),
                 okType: 'danger',
                 cancelText: appFormat()('versionStore.confirm.cancel'),
-                onOk: (m) => {
-                  // 须走 set，禁止 _.set 绕过 zustand（否则「正在同步」不刷新或失败后死态）
+                onOk: async (m) => {
                   set({
                     synchronous: {
                       ...get().synchronous,
@@ -936,45 +933,32 @@ const useVersionStore = create<VersionState>(
                     ...(configData?.synchronous || {upgradeType: 'increment'}),
                   };
                   let data = '';
-                  // 判断是否为初始版本，如果为初始版本则需要生成全量脚本
-                  if (initVersion) {
-                    data = getAllDataSQL({
+                  try {
+                    const projectJSON = {
                       ..._.get(useProjectStore.getState().project, "projectJSON"),
                       modules: version?.projectJSON?.modules || [],
-                    }, _.get(dbData, 'select', 'MYSQL'));
-                  } else {
-                    let tempChanges: any[] = [...(changes || [])];
-                    // @ts-ignore
-                    if (tempValue.upgradeType === 'rebuild') {
-                      // 如果是重建数据表则不需要字段更新的脚本
-                      // 1.提取所有字段以及索引所在的数据表
-                      let entities: any = [];
-                      // 2.暂存新增和删除的数据表
-                      const tempEntitiesUpdate: any = [];
-                      tempChanges.forEach((c: any) => {
-                        if (c.type === 'entity') {
-                          tempEntitiesUpdate.push(c);
-                        } else {
-                          entities.push(c.name.split('.')[0]);
-                        }
-                      });
-                      tempChanges = [...new Set(entities)].map((e) => {
-                        // 构造版本变化数据
-                        return {
-                          type: 'entity',
-                          name: e,
-                          opt: 'update',
-                        };
-                      }).concat(tempEntitiesUpdate);
-                    } else {
-                      // todo 暂时取消数据表的中文名以及其他变化时所生成的更新数据
-                      tempChanges = tempChanges.filter((c: any) => !(c.type === 'entity' && c.opt === 'update'));
-                    }
-                    data = getCodeByChanges({
-                        ..._.get(useProjectStore.getState().project, "projectJSON"),
-                        modules: version?.projectJSON?.modules || [],
-                      }, tempChanges,
-                      _.get(dbData, 'select', 'MYSQL'), lastVersion?.projectJSON);
+                    };
+                    const syncResult = await fetchVersionSyncSql({
+                      projectJSON,
+                      baselineProjectJSON: initVersion ? undefined : lastVersion?.projectJSON,
+                      dialectCode: _.get(dbData, 'select', 'MYSQL'),
+                      mode: initVersion ? 'full' : 'incremental',
+                      upgradeType: tempValue.upgradeType,
+                      changes: initVersion ? undefined : changes,
+                      dbKey: dbData.key,
+                    });
+                    data = syncResult.sql;
+                  } catch (err: any) {
+                    message.error(
+                      appFormat()('versionStore.sync.failedWithDetail', { detail: err?.message || String(err) }),
+                    );
+                    set({
+                      synchronous: {
+                        ...get().synchronous,
+                        [version.version]: false,
+                      },
+                    });
+                    return;
                   }
                   get().dispatch.generateSQL(dbData, version, data, updateVersion, () => get().fetch(null,get().currentPage,get().pageSize));
                 }

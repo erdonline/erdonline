@@ -67,6 +67,54 @@ export async function fetchVersionPanelDiff(input: {
   };
 }
 
+export type VersionSyncSqlResponse = {
+  sql: string;
+};
+
+/** 版本同步到库：全量 / 增量 SQL（后端 VersionSyncSqlEngine 权威） */
+export async function fetchVersionSyncSql(input: {
+  projectJSON: Record<string, unknown>;
+  baselineProjectJSON?: Record<string, unknown>;
+  dialectCode?: string;
+  mode?: 'full' | 'incremental';
+  upgradeType?: string;
+  changes?: VersionDiffChange[];
+  projectId?: string;
+  dbKey?: string;
+}): Promise<VersionSyncSqlResponse> {
+  const projectId = input.projectId || cache.getItem(CONSTANT.PROJECT_ID);
+  if (!projectId) {
+    throw new Error('projectId is required for version sync SQL');
+  }
+  if (!input.dbKey) {
+    throw new Error('dbKey is required for version sync SQL');
+  }
+  const body: Record<string, unknown> = {
+    projectId,
+    dbKey: input.dbKey,
+    projectJSON: input.projectJSON,
+    dialectCode: input.dialectCode || 'MYSQL',
+    mode: input.mode || 'incremental',
+  };
+  if (input.baselineProjectJSON) {
+    body.baselineProjectJSON = input.baselineProjectJSON;
+  }
+  if (input.upgradeType) {
+    body.upgradeType = input.upgradeType;
+  }
+  if (input.changes) {
+    body.changes = input.changes;
+  }
+  const res = await POST('/ncnb/hisProject/syncSql', body);
+  if (!res || res.code !== 200) {
+    throw new Error(res?.msg || res?.message || `version sync SQL failed (${res?.code ?? 'no response'})`);
+  }
+  const data = res.data || {};
+  return {
+    sql: typeof data.sql === 'string' ? data.sql : '',
+  };
+}
+
 /** @deprecated 使用 fetchVersionPanelDiff */
 export async function fetchVersionStructuralDiff(
   input: Parameters<typeof fetchVersionPanelDiff>[0],

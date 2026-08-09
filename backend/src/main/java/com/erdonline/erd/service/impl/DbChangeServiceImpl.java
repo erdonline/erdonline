@@ -16,6 +16,7 @@ import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import com.erdonline.erd.util.VersionDiffEngine;
 import com.erdonline.erd.util.VersionPanelDiffEngine;
+import com.erdonline.erd.util.VersionSyncSqlEngine;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
@@ -216,6 +217,51 @@ public class DbChangeServiceImpl extends MartinServiceImpl<DbChangeMapper, DbCha
         result.put("baseline", hasBaseline ? baselineMeta(latest) : null);
         result.put("changes", panel.get("changes"));
         result.put("ddl", panel.get("ddl"));
+        return R.ok(result);
+    }
+
+    @Override
+    @SuppressWarnings("unchecked")
+    public R generateSyncSql(Map<String, Object> body) {
+        if (body == null) {
+            return R.failed("请求体不能为空");
+        }
+        Object projectJSONRaw = body.get("projectJSON");
+        if (!(projectJSONRaw instanceof Map)) {
+            return R.failed("projectJSON 为必填");
+        }
+        Map<String, Object> projectJSON = (Map<String, Object>) projectJSONRaw;
+        String dialectCode = body.get("dialectCode") != null
+                ? String.valueOf(body.get("dialectCode"))
+                : "MYSQL";
+        String mode = body.get("mode") != null
+                ? String.valueOf(body.get("mode"))
+                : VersionSyncSqlEngine.MODE_INCREMENTAL;
+        String upgradeType = body.get("upgradeType") != null
+                ? String.valueOf(body.get("upgradeType"))
+                : VersionSyncSqlEngine.UPGRADE_INCREMENT;
+
+        Map<String, Object> baseline = Map.of();
+        Object baselineRaw = body.get("baselineProjectJSON");
+        if (baselineRaw instanceof Map) {
+            baseline = (Map<String, Object>) baselineRaw;
+        }
+
+        List<Map<String, Object>> changes = null;
+        Object changesRaw = body.get("changes");
+        if (changesRaw instanceof List<?> list) {
+            changes = new ArrayList<>();
+            for (Object item : list) {
+                if (item instanceof Map<?, ?> m) {
+                    changes.add((Map<String, Object>) m);
+                }
+            }
+        }
+
+        String sql = VersionSyncSqlEngine.generate(
+                projectJSON, baseline, changes, dialectCode, mode, upgradeType);
+        Map<String, Object> result = new HashMap<>();
+        result.put("sql", sql);
         return R.ok(result);
     }
 

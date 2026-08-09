@@ -77,4 +77,14 @@ public class HisProjectController {
     public R diff(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
         return dbChangeService.diffAgainstLatest(body);
     }
+
+    @ApiOperation(value = "版本同步 SQL（后端权威）", nickname = "syncSql",
+            notes = "全量 / 增量同步脚本；版本面板「同步到库」消费此结果",
+            tags = {"dbChange",})
+    @RequireProjectAccess
+    @PostMapping("/hisProject/syncSql")
+    @MartinLog("版本同步 SQL")
+    public R syncSql(@ProjectId @DbKey @RequestBody Map<String, Object> body) {
+        return dbChangeService.generateSyncSql(body);
+    }
 }
