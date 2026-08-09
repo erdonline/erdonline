@@ -93,9 +93,40 @@ export async function fetchTableDdl(input: {
   if (input.changes?.length) {
     body.changes = input.changes;
   }
-  const res = await POST('/ncnb/hisProject/tableDdl', body);
+  const data = res.data || {};
+  return {
+    sql: typeof data.sql === 'string' ? data.sql : '',
+  };
+}
+
+export async function fetchPreviewDdlTemplate(input: {
+  projectJSON?: Record<string, unknown>;
+  dialectCode: string;
+  templateKey: string;
+  databaseRow: Record<string, unknown>;
+  projectId?: string;
+  dbKey?: string;
+}): Promise<DdlSqlResponse> {
+  const projectId = input.projectId || cache.getItem(CONSTANT.PROJECT_ID);
+  if (!projectId) {
+    throw new Error('projectId is required for DDL template preview');
+  }
+  const dbKey = input.dbKey || SNAPSHOT_DB_KEY;
+  const body: Record<string, unknown> = {
+    projectId,
+    dbKey,
+    dialectCode: input.dialectCode,
+    templateKey: input.templateKey,
+    databaseRow: input.databaseRow,
+  };
+  if (input.projectJSON) {
+    body.projectJSON = input.projectJSON;
+  }
+  const res = await POST('/ncnb/hisProject/previewDdlTemplate', body);
   if (!res || res.code !== 200) {
-    throw new Error(res?.msg || res?.message || `table DDL failed (${res?.code ?? 'no response'})`);
+    throw new Error(
+      res?.msg || res?.message || `DDL template preview failed (${res?.code ?? 'no response'})`,
+    );
   }
   const data = res.data || {};
   return {

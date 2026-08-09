@@ -14,6 +14,17 @@
 - **现状**：`exportDdl` / `tableDdl` / `previewDdlTemplate` 仍挂 `/hisProject/*`；FE 唯一入口 `ddlExportApi.ts`。
 - 验证点：文档评审；实现切片待后续 PR（双路径兼容 → FE 切换 → 删旧端点）。
 
+#### DDL 模板：方言列表修复 + 后端预览窗
+
+- **FE**：`isSqlDialect` 改为仅排除 `JAVA`，`database[]` 中 MYSQL / ORACLE / PostgreSQL / SQLServer 等全部出现在方言下拉；模板类型改用 Tabs（11 项）；左右分栏「模板源码 / 渲染预览」，切换方言或模板后 debounce 刷新预览。
+- **BE**：`DdlTemplatePreviewEngine` + `POST /ncnb/hisProject/previewDdlTemplate`（`@RequireProjectAccess`）；样例实体 T_SAMPLE 渲染当前草稿，无需先保存。
+- **Modal**：宽 1120px、body 可滚动，修复仅见方言下拉、Tabs 与编辑器不可见的问题。
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=DdlTemplatePreviewEngineTest,DdlFreemarkerCompatibilityTest -Djacoco.skip=true`
+  - `./backend/dev-ensure.sh --restart`
+  - `cd frontend && yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`
+  - 设计器 → 数据类型字典 → **DDL 模板** → 切换 ORACLE / 创建表 → 右侧预览应出现 CREATE TABLE 样例 SQL
+
 #### DDL 方言种子补全 + 自定义模板 UI 恢复
 
 - **BE**：`ddl/freemarker/postgresql/`、`oracle/` 补齐与 MySQL 对齐的 11 项 FTL（createPk、deleteField、updateTableComment、rebuildTable 等）；`defaultData` 无 SQL Server 方言，暂不建 `sqlserver/` 种子。
