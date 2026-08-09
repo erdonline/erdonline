@@ -7,6 +7,7 @@ import RemoveProject from '@/components/dialog/project/RemoveProject';
 import ConfigProject from '@/components/dialog/project/ConfigProject';
 import OpenProject from '@/components/dialog/project/OpenProject';
 import ProjectTypeBadge from '@/components/ProjectTypeBadge';
+import PublishTemplateAction from '@/components/catalog/PublishTemplateAction';
 import ProjectListOpenLink from '@/pages/project/ProjectListOpenLink';
 import { recentProject, pageProject } from '@/services/project';
 import { pageGroupProject } from '@/services/group-project';
@@ -158,26 +159,43 @@ export default () => {
           },
         }}
         renderItem={(row) => {
-          const actions =
-            String(row.type) === '1'
-              ? [
-                  <RenameProject
-                    fetchProjects={() => fetchProjects(null)}
-                    trigger="ant"
-                    project={row}
-                    key={`RenameProject${row.id}`}
-                  />,
-                  <RemoveProject
-                    fetchProjects={() => fetchProjects(null)}
-                    project={row}
-                    key={`RemoveProject${row.id}`}
-                  />,
-                  <OpenProject project={row} key={`OpenProject${row.id}`} />,
-                ]
-              : [
-                  <ConfigProject project={row} type={2} key={`ConfigProject${row.id}`} />,
-                  <OpenProject project={row} key={`OpenProject${row.id}`} />,
-                ];
+          const isPersonalRow = String(row.type) === '1';
+          const isTeamFilter = state.type === 'team';
+          const actions = [];
+
+          if (isPersonalRow && !isTeamFilter) {
+            actions.push(
+              <RenameProject
+                fetchProjects={() => fetchProjects(null)}
+                trigger="ant"
+                project={row}
+                key={`RenameProject${row.id}`}
+              />,
+              <RemoveProject
+                fetchProjects={() => fetchProjects(null)}
+                project={row}
+                key={`RemoveProject${row.id}`}
+              />,
+            );
+          } else if (!isPersonalRow) {
+            actions.push(
+              <ConfigProject project={row} type={2} key={`ConfigProject${row.id}`} />,
+            );
+          }
+
+          if (!isTeamFilter) {
+            actions.push(
+              <PublishTemplateAction
+                key={`PublishTemplate${row.id}`}
+                projectId={String(row.id)}
+                projectName={row.projectName}
+                testId="project-publish-template"
+              />,
+            );
+          }
+
+          actions.push(<OpenProject project={row} key={`OpenProject${row.id}`} />);
+
           return (
             <List.Item
               className="project-list-page__row"
