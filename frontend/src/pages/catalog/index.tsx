@@ -18,6 +18,8 @@ import {
   listCatalogTemplates,
   type CatalogTemplateSummary,
 } from '@/services/catalog';
+import request from '@/utils/request';
+import * as cache from '@/utils/cache';
 import './catalog.scss';
 
 const {Title, Paragraph, Text} = Typography;
@@ -30,6 +32,17 @@ export default function CatalogListPage() {
   const [q, setQ] = useState('');
   const [sort, setSort] = useState('hot');
   const [origin, setOrigin] = useState<string | undefined>(undefined);
+  const [showReviewLink, setShowReviewLink] = useState(false);
+
+  useEffect(() => {
+    if (!cache.getItem('Authorization')) {
+      return;
+    }
+    request
+      .get('/ncnb/catalog/v1/submissions', {params: {page: 1, size: 1}})
+      .then(() => setShowReviewLink(true))
+      .catch(() => setShowReviewLink(false));
+  }, []);
 
   const fetchList = (nextPage = page, keyword = q, nextSort = sort, nextOrigin = origin) => {
     setLoading(true);
@@ -113,6 +126,11 @@ export default function CatalogListPage() {
           >
             社区
           </Button>
+          {showReviewLink ? (
+            <Link to="/catalog/review" data-testid="catalog-review-link">
+              模板审核
+            </Link>
+          ) : null}
         </Space>
       </div>
 
