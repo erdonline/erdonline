@@ -75,10 +75,19 @@ test.describe('落地页', () => {
     await page.goto('/');
     await page.getByRole('link', { name: '去登录' }).click();
     await expect(page).toHaveURL(/\/login/);
-    await expect(page.getByRole('link', { name: '了解产品' })).toBeVisible();
-    await page.getByRole('link', { name: '了解产品' }).click();
+    await expect(page.getByTestId('auth-brand-home')).toBeVisible();
+    await page.getByTestId('auth-brand-home').click();
     await expect(page).toHaveURL(/\/$/);
     await expect(page.getByTestId('landing-page')).toBeVisible();
+  });
+
+  test('顶栏与 Hero 可进入模板广场', async ({ page }) => {
+    await page.goto('/');
+    await expect(page.getByTestId('landing-nav-catalog')).toBeVisible();
+    await expect(page.getByTestId('landing-hero-catalog')).toBeVisible();
+    await page.getByTestId('landing-nav-catalog').click();
+    await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });
+    await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
   });
 
   test('已登录时主 CTA 进入工作台，不被营销页困住', async ({ page }) => {
@@ -116,6 +125,8 @@ test.describe('落地页', () => {
 
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '注册' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: '浏览模板广场' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '去登录' })).toBeFocused();
     await page.keyboard.press('Shift+Tab');

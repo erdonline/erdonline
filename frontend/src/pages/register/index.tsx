@@ -74,6 +74,14 @@ export default () => {
           <a href="/demo" aria-label={intl.formatMessage({ id: 'login.footer.demoAria' })}>
             {intl.formatMessage({ id: 'login.footer.demo' })}
           </a>
+          {' · '}
+          <a
+            href="/"
+            data-testid="register-footer-home"
+            aria-label={intl.formatMessage({ id: 'login.footer.landingAria' })}
+          >
+            {intl.formatMessage({ id: 'login.footer.landing' })}
+          </a>
         </>
       }
     >

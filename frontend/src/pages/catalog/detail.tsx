@@ -29,6 +29,7 @@ import {
   type CatalogComment,
   type CatalogTemplateDetail,
 } from '@/services/catalog';
+import CatalogPreviewPanel from './CatalogPreviewPanel';
 import '../project/project-list.scss';
 import './catalog.scss';
 
@@ -190,15 +191,20 @@ export default function CatalogDetailPage() {
             {(detail.tags ?? []).map((tag) => (
               <Tag key={tag}>{tag}</Tag>
             ))}
-            <Text type="secondary">{detail.installCount} 次安装</Text>
-            <Rate disabled allowHalf value={detail.ratingAverage} />
-            <Text type="secondary">({detail.ratingCount} 人评分)</Text>
+            <Text type="secondary" data-testid="catalog-install-count">
+              {detail.installCount} 次安装
+            </Text>
+            <Rate disabled allowHalf value={detail.ratingAverage} data-testid="catalog-rating-display" />
+            <Text type="secondary" data-testid="catalog-rating-count">
+              ({detail.ratingCount} 人评分)
+            </Text>
             <Link to={`/catalog/creator/${detail.authorHandle}`}>
               {detail.authorDisplayName || detail.authorHandle}
             </Link>
           </Space>
-          <Text type="secondary">
-            预览：{moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
+          <CatalogPreviewPanel projectJSON={detail.projectJSON} />
+          <Text type="secondary" className="catalog-detail__metrics">
+            {moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
           </Text>
           <Space className="catalog-detail__actions">
             <Button

@@ -18,6 +18,61 @@ test.describe('模板广场', () => {
     await expect(page.getByTestId('catalog-install-btn')).toBeVisible();
   });
 
+  test('详情页展示只读关系图预览（ReactFlow）', async ({ page }) => {
+    await page.goto('/catalog/demo-authz');
+    await expect(page.getByTestId('catalog-detail-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByTestId('catalog-preview-panel')).toBeVisible();
+    await expect(page.getByTestId('catalog-preview-readonly-tag')).toHaveText('只读预览');
+    await expect(page.getByTestId('share-relation-canvas')).toBeVisible({ timeout: 15_000 });
+  });
+
+  test('安装与评分后指标来自 API 并刷新', async ({ page }) => {
+    test.setTimeout(90_000);
+    const templateId = 'demo-authz';
+    try {
+      await login(page);
+      await deleteOwnPersonProjects(page);
+
+      const fetchDetail = () =>
+        page.evaluate(async (id) => {
+          const res = await fetch(`/ncnb/catalog/v1/templates/${encodeURIComponent(id)}`, {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem('Authorization') || ''}`,
+            },
+          });
+          const json = await res.json();
+          return json?.data ?? json;
+        }, templateId);
+
+      const before = await fetchDetail();
+      const installBefore = Number(before?.installCount ?? 0);
+      const ratingCountBefore = Number(before?.ratingCount ?? 0);
+
+      await page.goto(`/catalog/${templateId}`);
+      await expect(page.getByTestId('catalog-install-btn')).toBeVisible({ timeout: 15_000 });
+      await page.getByTestId('catalog-install-btn').click();
+      await expect(page).toHaveURL(/\/design\/table\/model\?projectId=/, { timeout: 30_000 });
+
+      const afterInstall = await fetchDetail();
+      expect(Number(afterInstall?.installCount ?? 0)).toBeGreaterThanOrEqual(installBefore + 1);
+      expect(afterInstall?.installed).toBe(true);
+
+      await page.goto(`/catalog/${templateId}`);
+      await expect(page.getByTestId('catalog-rate')).toBeVisible({ timeout: 15_000 });
+      await page.getByTestId('catalog-rate').locator('.ant-rate-star').nth(4).click();
+      await expect(page.getByTestId('catalog-rating-count')).toContainText(
+        String(ratingCountBefore + 1),
+        { timeout: 15_000 },
+      );
+
+      const afterRate = await fetchDetail();
+      expect(Number(afterRate?.ratingCount ?? 0)).toBeGreaterThanOrEqual(ratingCountBefore + 1);
+      expect(Number(afterRate?.userRating ?? 0)).toBe(5);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('登录安装 blank 模板进入设计器', async ({ page }) => {
     test.setTimeout(60_000);
     try {

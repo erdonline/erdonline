@@ -13,6 +13,38 @@
     margin-top: 16px;
   }
 
+  .catalog-preview {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .catalog-preview__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .catalog-preview__stage {
+    height: min(56vh, 520px);
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+
+    .share-relation-canvas {
+      flex: 1 1 auto;
+      height: auto !important;
+      min-height: 0;
+    }
+  }
+
+  .catalog-detail__metrics {
+    margin-top: 4px;
+  }
+
   .catalog-comments {
     margin-top: 16px;
 

@@ -74,6 +74,11 @@ test.describe('会话闭环', () => {
     expect(densify.btnH, `提交钮高应 ∈[24,32]，得 ${densify.btnH}`).toBeGreaterThanOrEqual(24);
     expect(densify.btnH).toBeLessThanOrEqual(32);
     expect(densify.titleSize).toBeGreaterThanOrEqual(24);
+
+    await expect(page.getByTestId('register-footer-home')).toBeVisible();
+    await page.getByTestId('register-footer-home').click();
+    await expect(page).toHaveURL(/\/$/);
+    await expect(page.getByTestId('landing-page')).toBeVisible();
   });
 
   test('注册成功进入 /home', async ({ page }) => {

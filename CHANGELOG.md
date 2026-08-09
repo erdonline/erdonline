@@ -8,6 +8,18 @@
 
 ### 2026-08-09
 
+#### 落地页模板广场入口 + 登录/注册返回首页 + 模板只读预览
+
+- **Landing**：顶栏 / Hero 次 CTA / 页脚增加「模板广场」→ `/catalog`（匿名可浏览）
+- **AuthBrandShell**：品牌 logo 改 `Link` + `data-testid="auth-brand-home"`；窄屏表单 logo 可点回 `/`；登录/注册页脚「返回首页」
+- **Catalog 预览**：详情页嵌入 `ShareRelationCanvas`（与 `/s/:token` 同源 ReactFlow 只读画布），数据来自 `GET /catalog/v1/templates/:id` 的 `projectJSON`
+- **社交指标**：安装数 / 评分 / 评论均走 `/catalog/v1` 持久化；详情页展示 API 返回值并安装/评分后 re-fetch
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "模板广场|CTA 可达"`
+  - `yarn test:e2e --project=chromium tests/e2e/session.spec.ts --grep "去注册"`
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "只读关系图|安装与评分"`
+  - `curl -s http://127.0.0.1:9502/ncnb/catalog/v1/templates/demo-authz | jq '.data | {installCount,ratingCount}'` → 安装/评分后数值递增
+
 #### 官方模板广场 P1（ADR-0028 · 切片 6–7）
 
 - **Slice 6**：Flyway `catalog_comment` / `catalog_comment_report` / `catalog_comment_restriction` + `comments_enabled`；评论须已安装 + 60s 限频；举报达阈值自动 `hidden_pending`
