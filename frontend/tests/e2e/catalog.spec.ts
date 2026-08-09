@@ -12,6 +12,11 @@ test.describe('模板广场', () => {
   test('匿名可浏览列表与详情', async ({ page }) => {
     await page.goto('/catalog');
     await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
+    const catalogNav = page.getByTestId('home-layout-menu').getByRole('menuitem', { name: '模板广场' });
+    await expect(catalogNav).toHaveClass(/ant-menu-item-selected/);
+    await expect(
+      page.getByTestId('home-layout-menu').getByRole('menuitem', { name: '首页' }),
+    ).not.toHaveClass(/ant-menu-item-selected/);
     await expect(page.getByTestId('catalog-tile-first')).toBeVisible({ timeout: 15_000 });
     await page.getByTestId('catalog-tile-first').click();
     await expect(page.getByTestId('catalog-detail-page')).toBeVisible({ timeout: 15_000 });
