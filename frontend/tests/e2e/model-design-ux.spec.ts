@@ -1,5 +1,6 @@
 import { expect, test } from '@playwright/test';
 import {
+  addEntityViaTreeFolder,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
@@ -58,7 +59,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       // 工具条再收：~24 控件 + 次密距 4；禁 clip 图标；命中 ∈24–28
       const toolbarMetrics = await page.getByTestId('query-tree-toolbar').evaluate((toolbar) => {
         const btn = toolbar.querySelector(
-          '[data-testid="design-tree-add"]',
+          '[data-testid="design-tree-add-module"]',
         ) as HTMLElement | null;
         const searchBtn = toolbar.querySelector(
           '.ant-input-search-button',
@@ -133,7 +134,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       expect(toolbarMetrics.siderPadX).toBeGreaterThanOrEqual(8);
 
       // focus-visible：搜索 → 搜索钮 → 新建（须经 Tab 触发 :focus-visible）
-      const addBtn = page.getByTestId('design-tree-add');
+      const addBtn = page.getByTestId('design-tree-add-module');
       const search = page.getByLabel('搜索表名');
       await search.focus();
       await page.keyboard.press('Tab');
@@ -180,8 +181,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -331,8 +331,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -473,8 +472,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -633,8 +631,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -652,19 +649,17 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         const tabsRoot = root.querySelector(
           '[data-testid="table-design-tabs"]',
         ) as HTMLElement | null;
-        const nav = (tabsRoot || root).querySelector(
-          ':scope > .ant-tabs-nav, .ant-tabs-nav',
-        ) as HTMLElement | null;
+        const switcher = tabsRoot;
         const tabs = Array.from(
-          (tabsRoot || root).querySelectorAll('.ant-tabs-nav .ant-tabs-tab'),
+          switcher?.querySelectorAll('[role="tab"]') || [],
         ) as HTMLElement[];
-        const tab = tabs.find((t) => t.classList.contains('ant-tabs-tab-active')) || tabs[0];
-        const btn = tab?.querySelector('.ant-tabs-tab-btn') as HTMLElement | null;
-        if (!nav || !tab || !btn || tabs.length < 2) {
+        const tab = tabs.find((t) => t.getAttribute('aria-selected') === 'true') || tabs[0];
+        const btn = tab;
+        if (!switcher || !tab || !btn || tabs.length < 2) {
           return { navH: -1, tabH: -1, gutter: -1, labelClipped: true };
         }
         const eps = 2;
-        const nr = nav.getBoundingClientRect();
+        const sr = switcher.getBoundingClientRect();
         const tr = tab.getBoundingClientRect();
         const br = btn.getBoundingClientRect();
         const a = tabs[0].getBoundingClientRect();
@@ -672,15 +667,15 @@ test.describe('模型设计 UX（ADR-0017）', () => {
         const gutter = Math.max(0, Math.round(b.left - a.right));
         const tcs = getComputedStyle(tab);
         return {
-          navH: nr.height,
+          navH: sr.height,
           tabH: tr.height,
           gutter,
           marginR: parseFloat(tcs.marginRight) || 0,
           labelClipped:
             br.top < tr.top - eps ||
             br.bottom > tr.bottom + eps ||
-            br.top < nr.top - eps ||
-            br.bottom > nr.bottom + eps,
+            br.top < sr.top - eps ||
+            br.bottom > sr.bottom + eps,
         };
       });
 
@@ -766,8 +761,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -886,8 +880,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('tree-open-relation')).toHaveCount(1);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
 
@@ -902,9 +895,9 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await expect(page.getByTestId('field-unique-hint')).toBeVisible();
 
       const bodyMetrics = await designer.evaluate((root) => {
-        const tabs = root.querySelector('.erd-table-design__tabs') as HTMLElement | null;
+        const body = root.querySelector('.erd-table-design__body') as HTMLElement | null;
         const holder = root.querySelector(
-          '.erd-table-design__tabs > .ant-tabs-content-holder',
+          '.erd-table-design__panel',
         ) as HTMLElement | null;
         const hint = root.querySelector(
           '[data-testid="field-unique-hint"]',
@@ -922,7 +915,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
           inner.bottom <= outer.bottom + eps &&
           inner.left >= outer.left - eps &&
           inner.right <= outer.right + eps;
-        const tabsCs = tabs ? getComputedStyle(tabs) : null;
+        const tabsCs = body ? getComputedStyle(body) : null;
         const holderCs = holder ? getComputedStyle(holder) : null;
         const hintCs = hint ? getComputedStyle(hint) : null;
         // 竖直：工具栏落在签体可视区内；水平允许宽表横溢（与 JExcel 行密度用例同阶）
@@ -1047,8 +1040,7 @@ test.describe('模型设计 UX（ADR-0017）', () => {
       await createAndOpenPersonProject(page, projectName);
 
       await openRelationFromEmpty(page, { name: 'SHOP', chnname: '商城' });
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });

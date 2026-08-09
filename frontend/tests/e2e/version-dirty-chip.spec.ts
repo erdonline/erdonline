@@ -1,6 +1,7 @@
 import { expect, test } from '@playwright/test';
 import {
   addFieldInline,
+  addEntityViaTreeFolder,
   connectFields,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
@@ -38,7 +39,7 @@ test.describe('顶栏版本 dirty chip', () => {
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       // 无基线时仍走「尚无版本」，但可带 +N 变更摘要
       await expect(noBaselineChip).toBeVisible({ timeout: 15_000 });
-      await expect(noBaselineChip).toContainText('+');
+      await expect(noBaselineChip).toHaveText('v—');
 
       await openVersionPage(page);
       await saveVersion(page);
@@ -53,10 +54,10 @@ test.describe('顶栏版本 dirty chip', () => {
       await page.getByTestId('canvas-create-table').click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 15_000 });
       await expect(page.getByTestId('version-dirty-chip-dirty')).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByTestId('version-dirty-chip-dirty')).toContainText('+');
+      await expect(page.getByTestId('version-dirty-chip-dirty')).toHaveText('v*');
 
       // SaveStatus 仍只管落盘，与 dirty chip 分离
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 15_000 });
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -113,13 +114,12 @@ test.describe('顶栏版本 dirty chip', () => {
 
       await page.getByTestId('tree-open-relation').click();
       await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 15_000 });
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible({ timeout: 15_000 });
       await addFieldInline(page, 'T_ORDER', 'USER_ID', 'IdOrKey');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 15_000 });
       await connectFields(page, 'T_ORDER', 'USER_ID', 'T_TABLE_1', 'id');
       await expect(page.getByTestId('version-dirty-chip-dirty')).toBeVisible({ timeout: 15_000 });
     } finally {

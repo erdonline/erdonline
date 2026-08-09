@@ -1,5 +1,5 @@
 import { expect, test, type APIRequestContext } from '@playwright/test';
-import { e2eAccount, login, uniqueProjectName } from './helpers';
+import { e2eAccount, login, uniqueProjectName, addEntityViaTreeFolder, expectSavedToServer } from './helpers';
 
 const API = process.env.API_URL || 'http://localhost:9502';
 
@@ -107,16 +107,16 @@ test.describe('i18n：手动语言切换', () => {
     await page.getByTestId('project-list-open-link').first().click();
     await expect(page).toHaveURL(/\/design\/table\/model/, { timeout: 15_000 });
     const saveStatus = page.getByTestId('save-status');
-    await expect(saveStatus).toHaveText('已落盘', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText('已同步', { timeout: 25_000 });
 
     // DesignLayout 的 LocaleSwitcher 在 ⋯ overflow 内；此处用 umi_locale 持久化机制验证 chrome 文案
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
-    await expect(saveStatus).toHaveText('Saved to server', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText('Synced', { timeout: 25_000 });
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'zh-CN'));
     await page.reload();
-    await expect(saveStatus).toHaveText('已落盘', { timeout: 25_000 });
+    await expect(saveStatus).toHaveText('已同步', { timeout: 25_000 });
   });
 
   test('DesignLayout 工作流与 skip-nav 随 locale 切换', async ({ page }) => {
@@ -471,19 +471,25 @@ test.describe('i18n：手动语言切换', () => {
         await page.getByTestId('entity-modal-name').fill('SHOP');
         await page.getByTestId('entity-modal-chnname').fill('商城');
         await page.getByTestId('entity-modal-ok').click();
-        await expect(page.getByTestId('save-status')).toHaveText(/Saved to server|已落盘/, {
-          timeout: 25_000,
-        });
-        await page.getByTestId('design-tree-add').click();
-        await page.getByTestId('menu-add-entity').click();
+        await expectSavedToServer(page);
+        await addEntityViaTreeFolder(page);
         await page.getByTestId('entity-modal-name').fill('T_ORDER');
         await page.getByTestId('entity-modal-ok').click();
-        await expect(page.getByTestId('save-status')).toHaveText(/Saved to server|已落盘/, {
-          timeout: 25_000,
-        });
+        await expectSavedToServer(page);
+      } else if ((await page.getByRole('treeitem', { name: /T_ORDER/ }).count()) === 0) {
+        if ((await page.getByTestId('tree-folder-add-entity').count()) === 0) {
+          const tablesFolders = page.getByRole('tree').getByText('表', { exact: true });
+          for (let i = 0; i < (await tablesFolders.count()); i += 1) {
+            await tablesFolders.nth(i).click();
+          }
+        }
+        await page.getByTestId('tree-folder-add-entity').first().click();
+        await page.getByTestId('entity-modal-name').fill('T_ORDER');
+        await page.getByTestId('entity-modal-ok').click();
+        await expectSavedToServer(page);
       }
       await page.getByLabel('表操作').click();
-      await page.getByRole('menuitem', { name: '编辑表' }).click();
+      await page.getByRole('menuitem', { name: /编辑表|Edit table/i }).click();
       await expect(page.getByTestId('table-design-tabs')).toBeVisible({ timeout: 10_000 });
     };
 

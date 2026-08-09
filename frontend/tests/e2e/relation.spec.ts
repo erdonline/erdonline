@@ -1,10 +1,12 @@
 import { expect, test } from '@playwright/test';
 import {
   addFieldInline,
+  addEntityViaTreeFolder,
   connectFields,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   expectToast,
+  expectSavedToServer,
   login,
   openRelationCanvas,
   openRelationFromEmpty,
@@ -55,8 +57,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(firstNode.locator('.erd-pk-badge.active')).toHaveCount(1);
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -100,7 +101,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.mouse.down();
       await page.mouse.move(box!.x + 180, box!.y + 140, { steps: 8 });
       await page.mouse.up();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       // 并发下偶发读到保存前快照：再留一拍给落库
       await page.waitForTimeout(1_500);
       const draggedTransform = await t1Node.evaluate((el) => (el as HTMLElement).style.transform);
@@ -134,7 +135,7 @@ test.describe('关系图画布（ReactFlow）', () => {
         (el) => (el as HTMLElement).style.transform,
       );
       await page.getByRole('button', { name: '自动布局' }).click();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       const afterLayout = await rfNode(page, 'T_ORDER').evaluate(
         (el) => (el as HTMLElement).style.transform,
       );
@@ -151,7 +152,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await rfNode(page, 'T_ORDER').click({ modifiers: ['Shift'] });
       await expect(page.locator('.react-flow__node.selected')).toHaveCount(2);
       await page.getByTestId('align-left').click();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       const parseTx = (t: string) => {
         const m = t.match(/translate\(([-\d.]+)px/);
         return m ? Number(m[1]) : NaN;
@@ -331,7 +332,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       const renameBtn = node.getByTestId('table-rename-btn');
       await expect(renameBtn).toBeVisible({ timeout: 10_000 });
       // pointer 易被 RF 吞；DOM click 可靠。改名后节点无可见文案，勿再挂 rfNode 链
@@ -358,7 +359,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       let node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // 编辑态标题进 input，勿用 hasText 链；用 page 级 role
       await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
@@ -375,7 +376,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(page.getByRole('textbox', { name: '表中文名' })).toHaveCount(0);
       node = rfNode(page, 'T_TABLE_1');
       await expect(node.locator('.erd-table-chnname')).toHaveText('用户表');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // Escape：中文名草稿不经 blur 落盘
       await node.getByTestId('table-rename-btn').evaluate((el: HTMLElement) => el.click());
@@ -394,7 +395,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByRole('textbox', { name: '表中文名' }).press('Enter');
       node = rfNode(page, 'T_TABLE_1');
       await expect(node.locator('.erd-table-chnname')).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -412,7 +413,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const titleColor = await node.locator('.erd-table-title').evaluate(
         (el) => getComputedStyle(el).color,
@@ -467,8 +468,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-chnname').fill('订单');
       await page.getByTestId('entity-modal-ok').click();
@@ -723,7 +723,7 @@ test.describe('关系图画布（ReactFlow）', () => {
         'data-marker-end',
         /erd-cf-one/,
       );
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       const designUrl = page.url();
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
       await page.getByTestId('tree-open-relation').click();
@@ -773,8 +773,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -816,8 +815,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -858,14 +856,12 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ITEM');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ITEM')).toBeVisible();
@@ -1136,8 +1132,7 @@ test.describe('关系图画布（ReactFlow）', () => {
 
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -1196,8 +1191,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -1247,7 +1241,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -1264,7 +1258,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameInput.press('Enter');
       await expect(node.locator('[data-field="NICK"]')).toBeVisible();
       await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // 空名不得静默丢改动
       const nickRow = node.locator('[data-field="NICK"]');
@@ -1294,11 +1288,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       await addFieldInline(page, 'T_TABLE_1', 'AGE');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // Tab：字段名 → 中文名 → 类型 → 默认值 → 提交并进下一字段
       const nameRow = node.locator('[data-field="NAME"]');
@@ -1338,7 +1332,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(node.locator('[data-field="CODE"]')).toBeVisible();
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await expect(node.getByRole('textbox', { name: '字段名' })).toHaveValue('');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
 
       // 仅改类型：不必 Enter/blur，顶栏 save-status 即时回到已保存
@@ -1346,7 +1340,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(node.getByRole('textbox', { name: '字段名' })).toBeVisible();
       await node.getByRole('combobox', { name: '字段类型' }).selectOption('Integer');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
       await expect(node.locator('[data-field="NAME"] .erd-field-type')).toHaveText('Integer');
@@ -1366,7 +1360,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const openIndex = node.getByTestId('canvas-open-index');
       await expect(openIndex).toBeVisible();
@@ -1413,7 +1407,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const designer = page.getByTestId('table-design');
@@ -1450,7 +1444,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
@@ -1486,7 +1480,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
@@ -1530,7 +1524,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // 字段签：无 unique 列 → 引导去索引
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
@@ -1578,7 +1572,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
@@ -1627,7 +1621,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
@@ -1903,11 +1897,11 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       await page.getByTestId('canvas-create-table').click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       await addFieldInline(page, 'T_TABLE_1', 'AGE');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const t1 = rfNode(page, 'T_TABLE_1');
       const t2 = rfNode(page, 'T_TABLE_2');
@@ -1968,7 +1962,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
       await page.getByTestId('canvas-create-table').click();
       await expect(rfNode(page, 'T_TABLE_2')).toBeVisible({ timeout: 10_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_2', 'T1_ID', 'IdOrKey');
       await connectFields(page, 'T_TABLE_2', 'T1_ID', 'T_TABLE_1', 'id');
@@ -2039,7 +2033,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
@@ -2085,7 +2079,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await node.getByTestId('canvas-open-index').evaluate((el: HTMLElement) => el.click());
       const indexEdit = page.getByTestId('table-index-edit');
@@ -2138,7 +2132,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const openField = node.getByTestId('canvas-open-field');
       await expect(openField).toBeVisible();
@@ -2185,7 +2179,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const openCode = node.getByTestId('canvas-open-code');
       await expect(openCode).toBeVisible();
@@ -2231,7 +2225,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       const openTrigger = node.getByTestId('canvas-open-trigger');
       await expect(openTrigger).toBeVisible();
@@ -2278,10 +2272,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await openVersionPage(page);
       await saveVersion(page);
       await gotoDesignModel(page);
@@ -2295,10 +2289,10 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(nodeAfter.getByRole('textbox', { name: '字段名' })).toHaveValue('NAME');
       await nodeAfter.getByRole('combobox', { name: '字段类型' }).selectOption('Integer');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       if (await nodeAfter.locator('.erd-field-editing').count()) {
         await nodeAfter.getByRole('textbox', { name: '字段名' }).press('Enter');
-        await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+        await expectSavedToServer(page, 15_000);
       }
 
       await nodeAfter.getByTestId('canvas-open-code').evaluate((el: HTMLElement) => el.click());
@@ -2337,7 +2331,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'STATUS');
       const statusRow = node.locator('[data-field="STATUS"]');
@@ -2355,7 +2349,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await defInput.press('Enter');
       await expect(node.locator('.erd-field-editing')).toHaveCount(0);
       await expect(statusRow.locator('.erd-field-default')).toHaveText(/\s*='NEW'/);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // Escape：默认值草稿不经 blur 落盘
       await statusRow.hover();
@@ -2375,7 +2369,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await statusRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(node.getByRole('textbox', { name: '字段名' })).toBeVisible();
       await node.getByRole('combobox', { name: '字段类型' }).selectOption('Integer');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       // selectOption 可能 blur→commit 退出编辑；浏览态已见类型即可
       if (await node.locator('.erd-field-editing').count()) {
         await node.getByRole('textbox', { name: '字段名' }).press('Tab');
@@ -2398,7 +2392,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await node.getByRole('textbox', { name: '默认值' }).fill('');
       await node.getByRole('textbox', { name: '默认值' }).press('Enter');
       await expect(statusRow.locator('.erd-field-default')).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -2415,7 +2409,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2431,14 +2425,14 @@ test.describe('关系图画布（ReactFlow）', () => {
       await chnInput.press('Enter');
       await expect(node.locator('.erd-field-editing')).toHaveCount(0);
       await expect(nameRow.locator('.erd-field-chnname')).toHaveText(/\s*姓名/);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       // Escape：中文名草稿不经 blur 落盘；PK 即时落盘仍保留
       await nameRow.hover();
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(node.getByRole('textbox', { name: '中文名' })).toHaveValue('姓名');
       await node.getByRole('checkbox', { name: '主键' }).check();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
       await node.getByRole('textbox', { name: '中文名' }).fill('别名草稿');
       await node.getByRole('textbox', { name: '中文名' }).press('Escape');
@@ -2458,7 +2452,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await node.getByRole('textbox', { name: '中文名' }).fill('');
       await node.getByRole('textbox', { name: '中文名' }).press('Enter');
       await expect(nameRow.locator('.erd-field-chnname')).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -2475,7 +2469,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2487,7 +2481,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       const pkBox = node.getByRole('checkbox', { name: '主键' });
       await expect(pkBox).not.toBeChecked();
       await pkBox.check();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
       await expect(nameRow.getByRole('button', { name: '取消主键' })).toBeVisible();
@@ -2496,7 +2490,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameRow.hover();
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await node.getByRole('checkbox', { name: '主键' }).uncheck();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await node.getByRole('textbox', { name: '字段名' }).fill('');
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
       await expectToast(page, '字段名不能为空');
@@ -2521,7 +2515,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2533,7 +2527,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(nnBox).not.toBeChecked();
       await expect(nnBox).toBeEnabled();
       await nnBox.check();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
 
@@ -2542,7 +2536,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(node.getByRole('checkbox', { name: '非空' })).toBeChecked();
       await node.getByRole('checkbox', { name: '非空' }).uncheck();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await node.getByRole('textbox', { name: '字段名' }).fill('');
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
       await expectToast(page, '字段名不能为空');
@@ -2570,7 +2564,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2581,7 +2575,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       const aiBox = node.getByRole('checkbox', { name: '自增' });
       await expect(aiBox).not.toBeChecked();
       await aiBox.check();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('.erd-field-editing')).toBeVisible();
       await node.getByRole('textbox', { name: '字段名' }).press('Escape');
 
@@ -2590,7 +2584,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await nameRow.getByRole('button', { name: '编辑字段' }).evaluate((el: HTMLElement) => el.click());
       await expect(node.getByRole('checkbox', { name: '自增' })).toBeChecked();
       await node.getByRole('checkbox', { name: '自增' }).uncheck();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await node.getByRole('textbox', { name: '字段名' }).fill('');
       await node.getByRole('textbox', { name: '字段名' }).press('Tab');
       await expectToast(page, '字段名不能为空');
@@ -2618,7 +2612,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2655,7 +2649,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -2666,7 +2660,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       // 勾选后行立刻卸下；勿用 .check()（会等 checked，而控件已卸载且始终受控 false）
       await node.getByRole('checkbox', { name: '在关系图中隐藏' }).evaluate((el: HTMLElement) => el.click());
       await expectToast(page, '已在关系图中隐藏「NAME」');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('[data-field="NAME"]')).toHaveCount(0);
       // 默认字段可能已有若干 relationNoShow；只断言 NAME 进表底列表并可恢复
       await expect(node.getByTestId('field-hidden-toggle')).toBeVisible();
@@ -2674,7 +2668,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await expect(node.getByTestId('field-hidden-NAME')).toBeVisible();
       await node.getByRole('button', { name: '在关系图中显示 NAME' }).evaluate((el: HTMLElement) => el.click());
       await expectToast(page, '已在关系图中显示「NAME」');
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await expect(node.locator('[data-field="NAME"]')).toBeVisible();
       await expect(node.getByTestId('field-hidden-NAME')).toHaveCount(0);
     } finally {
@@ -2693,7 +2687,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await addFieldInline(page, 'T_TABLE_1', 'NAME');
       const nameRow = node.locator('[data-field="NAME"]');
@@ -3061,7 +3055,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       const node = rfNode(page, 'T_TABLE_1');
       await expect(node).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await node.getByTestId('canvas-open-field').evaluate((el: HTMLElement) => el.click());
       const designer = page.getByTestId('table-design');
@@ -3245,8 +3239,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       const dialog = page.getByRole('dialog', { name: '新增表' });
       await expect(dialog).toBeVisible();
       await expect(page.getByTestId('entity-modal-name')).toBeVisible();
@@ -3371,8 +3364,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();
@@ -3391,7 +3383,7 @@ test.describe('关系图画布（ReactFlow）', () => {
         await edgeDialog.getByRole('button', { name: /删\s*除/ }).filter({ visible: true }).click();
       }
       await expect(page.locator('.react-flow__edge')).toHaveCount(0);
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
       await page.waitForTimeout(1_500);
 
       const designUrl = page.url();
@@ -3417,8 +3409,7 @@ test.describe('关系图画布（ReactFlow）', () => {
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_ORDER');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_ORDER')).toBeVisible();

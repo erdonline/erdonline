@@ -70,13 +70,12 @@ async function probeJdbcSetup(
   await deleteOwnPersonProjects(page);
   await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe');
   await openVersionPage(page);
-  await expect(page.getByTestId('schema-probe-control')).toBeVisible({ timeout: 15_000 });
-  const status = page.getByTestId('schema-probe-status');
-  await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
-  await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
-  const probeBtn = page.getByTestId('schema-probe-btn');
-  await expect(probeBtn).toBeEnabled();
-  return { dsId, status, probeBtn };
+  await expect(page.getByTestId('status-instrument')).toBeVisible({ timeout: 15_000 });
+  const probeCapsule = page.getByTestId('instrument-db');
+  await expect(probeCapsule).toBeVisible();
+  await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
+  await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NOT_PROBED');
+  return { dsId, probeCapsule };
 }
 
 async function cleanupProbeDs(
@@ -110,11 +109,11 @@ test.describe('实库探测', () => {
       // 停在模型页，不 navigate 到版本页
       await expect(page).toHaveURL(/\/design\/table\/model/);
 
-      await expect(page.getByTestId('schema-probe-control')).toBeVisible({ timeout: 15_000 });
-      await expect(page.getByTestId('schema-probe-control')).toHaveClass(/schema-probe-control--chrome/);
-      const status = page.getByTestId('schema-probe-status');
-      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
-      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NO_DATASOURCE');
+      await expect(page.getByTestId('status-instrument')).toBeVisible({ timeout: 15_000 });
+      const probeCapsule = page.getByTestId('instrument-db');
+      await expect(probeCapsule).toBeVisible();
+      await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
+      await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NO_DATASOURCE');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/未配置数据源/);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
@@ -134,12 +133,12 @@ test.describe('实库探测', () => {
       await createAndOpenPersonProject(page, projectName, 'probe', 'schema probe no ds');
       await openVersionPage(page);
 
-      await expect(page.getByTestId('schema-probe-control')).toBeVisible({ timeout: 15_000 });
-      const status = page.getByTestId('schema-probe-status');
-      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
-      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NO_DATASOURCE');
+      await expect(page.getByTestId('status-instrument')).toBeVisible({ timeout: 15_000 });
+      const probeCapsule = page.getByTestId('instrument-db');
+      await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
+      await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NO_DATASOURCE');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/未配置数据源/);
-      await expect(page.getByTestId('schema-probe-btn')).toBeDisabled();
+      await expect(probeCapsule).toBeEnabled();
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
@@ -153,7 +152,7 @@ test.describe('实库探测', () => {
       await login(page, e2eAccount());
       const setup = await probeJdbcSetup(page, request, projectName);
       dsId = setup.dsId;
-      const { status, probeBtn } = setup;
+      const { probeCapsule } = setup;
 
       for (const data of [
         { status: 'SYNCED', fingerprint: 'fp-sync', tableCount: 3 },
@@ -168,8 +167,8 @@ test.describe('实库探测', () => {
             body: JSON.stringify({ code: 200, data }),
           });
         });
-        await probeBtn.click();
-        await expect(status).toHaveAttribute('data-probe-status', data.status, { timeout: 10_000 });
+        await probeCapsule.click();
+        await expect(probeCapsule).toHaveAttribute('data-probe-status', data.status, { timeout: 10_000 });
       }
     } finally {
       await page.unroute('**/ncnb/connector/schema/probe').catch(() => {});
@@ -186,7 +185,7 @@ test.describe('实库探测', () => {
       await login(page, e2eAccount());
       const setup = await probeJdbcSetup(page, request, projectName);
       dsId = setup.dsId;
-      const { status, probeBtn } = setup;
+      const { probeCapsule } = setup;
 
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/尚未探测/);
 
@@ -207,9 +206,9 @@ test.describe('实库探测', () => {
         });
       });
 
-      await probeBtn.click();
+      await probeCapsule.click();
 
-      await expect(status).toHaveAttribute('data-probe-status', 'AHEAD', { timeout: 10_000 });
+      await expect(probeCapsule).toHaveAttribute('data-probe-status', 'AHEAD', { timeout: 10_000 });
 
       await page.unroute('**/ncnb/connector/schema/probe');
       await page.route('**/ncnb/connector/schema/probe', async (route) => {
@@ -227,9 +226,9 @@ test.describe('实库探测', () => {
         });
       });
 
-      await probeBtn.click();
-      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN');
-      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_NO_PERMISSION');
+      await probeCapsule.click();
+      await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN');
+      await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_NO_PERMISSION');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/无读取权限/);
 
       await page.unroute('**/ncnb/connector/schema/probe');
@@ -240,9 +239,9 @@ test.describe('实库探测', () => {
           body: JSON.stringify({ code: 500, msg: 'JDBC connection refused' }),
         });
       });
-      await probeBtn.click();
-      await expect(status).toHaveAttribute('data-probe-status', 'UNKNOWN', { timeout: 10_000 });
-      await expect(status).toHaveAttribute('data-probe-reason', 'PROBE_CONNECTION_FAILED');
+      await probeCapsule.click();
+      await expect(probeCapsule).toHaveAttribute('data-probe-status', 'UNKNOWN', { timeout: 10_000 });
+      await expect(probeCapsule).toHaveAttribute('data-probe-reason', 'PROBE_CONNECTION_FAILED');
       await expect(page.getByTestId('schema-probe-unknown-hint')).toContainText(/无法连接实库/);
 
       await expect(page.getByTestId('dual-layer-legend')).toBeVisible();

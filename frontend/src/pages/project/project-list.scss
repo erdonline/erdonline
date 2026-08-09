@@ -204,6 +204,16 @@
   gap: 2px;
 }
 
+/* 标签：中性 hairline，禁 antd blue / #5BD8A6 */
+.erd-project-tag.ant-tag {
+  margin-inline-end: 0;
+  color: var(--erd-ink-600);
+  background: var(--erd-surface-muted);
+  border-color: var(--erd-hairline, var(--erd-line));
+  font-size: 11px;
+  line-height: 18px;
+}
+
 .project-list-page__time {
   color: var(--erd-ink-400, rgba(0, 0, 0, 0.45));
   font-size: 11px;

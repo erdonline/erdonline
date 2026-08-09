@@ -12,11 +12,11 @@ import {
 /**
  * Vision #26 / ADR-0022：落库失败顶栏重试 vs 409 冲突 Modal 不得混态。
  * Vision #27：顶栏重试须用 persistAutosave 认可的序号，成功后清除失败态（不卡「保存中…」）。
- * - 失败重试：`save-status`「保存失败，点击重试」+ retry aria；无冲突 Modal
- * - 409 冲突：`save-status`「保存冲突，点击查看选项」+ 冲突 Modal；无失败重试 CTA
+ * - 失败重试：`instrument-synced`「错误」+ retry aria；无冲突 Modal
+ * - 409 冲突：`instrument-synced`「冲突」+ 冲突 Modal；无失败重试 CTA
  */
 
-const RETRY_FAILURE_ARIA = '自动保存失败，改动已存本地，点击重试';
+const RETRY_FAILURE_ARIA = '自动保存失败，点击重试';
 
 async function openDesignerWithTable(page: Page, projectName: string) {
   await login(page);
@@ -25,19 +25,19 @@ async function openDesignerWithTable(page: Page, projectName: string) {
   await openRelationFromEmpty(page);
   await page.getByTestId('canvas-empty-create').click();
   await expect(rfNode(page, 'T_TABLE_1')).toBeVisible({ timeout: 25_000 });
-  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 25_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
   await page.waitForTimeout(1_500);
 }
 
 async function assertNoConflictUi(page: Page) {
   await expect(page.getByRole('dialog', { name: '保存冲突' })).toHaveCount(0);
   await expect(page.getByTestId('project-save-conflict-modal')).toHaveCount(0);
-  await expect(page.getByTestId('save-status')).not.toHaveText('保存冲突，点击查看选项');
+  await expect(page.getByTestId('save-status')).not.toHaveText('冲突');
 }
 
 async function assertNoRetryFailureUi(page: Page) {
   await expect(page.getByRole('button', { name: RETRY_FAILURE_ARIA })).toHaveCount(0);
-  await expect(page.getByTestId('save-status')).not.toHaveText('保存失败，点击重试');
+  await expect(page.getByTestId('save-status')).not.toHaveText('错误');
 }
 
 test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
@@ -60,8 +60,8 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
 
       const retry = page.getByRole('button', { name: RETRY_FAILURE_ARIA });
       await expect(retry).toBeVisible({ timeout: 15_000 });
-      await expect(retry).toHaveText('保存失败，点击重试');
-      await expect(page.getByTestId('save-status')).toHaveAttribute('aria-label', RETRY_FAILURE_ARIA);
+      await expect(page.getByTestId('save-status')).toHaveText('错误');
+      await expect(page.getByTestId('instrument-synced')).toHaveAttribute('aria-label', RETRY_FAILURE_ARIA);
 
       await assertNoConflictUi(page);
     } finally {
@@ -95,11 +95,11 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
 
       const retry = page.getByRole('button', { name: RETRY_FAILURE_ARIA });
       await expect(retry).toBeVisible({ timeout: 15_000 });
-      await expect(retry).toHaveText('保存失败，点击重试');
+      await expect(page.getByTestId('save-status')).toHaveText('错误');
 
       await retry.click();
-      await expect(page.getByTestId('save-status')).not.toHaveText('保存中…', { timeout: 3_000 });
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 20_000 });
+      await expect(page.getByTestId('save-status')).not.toHaveText('保存中', { timeout: 3_000 });
+      await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 20_000 });
       await expect(page.getByRole('button', { name: RETRY_FAILURE_ARIA })).toHaveCount(0);
 
       await assertNoConflictUi(page);
@@ -134,10 +134,10 @@ test.describe('顶栏失败态分流：重试 vs 409 冲突', () => {
       await expect(page.getByTestId('project-save-conflict-modal')).toBeVisible({
         timeout: 20_000,
       });
-      await expect(page.getByTestId('save-status')).toHaveText('保存冲突，点击查看选项');
+      await expect(page.getByTestId('save-status')).toHaveText('冲突');
 
       await assertNoRetryFailureUi(page);
-      await expect(page.getByTestId('save-status')).not.toHaveText('已落盘');
+      await expect(page.getByTestId('save-status')).not.toHaveText('已同步');
     } finally {
       await page.unroute('**/ncnb/project/save').catch(() => {});
       await deleteOwnPersonProjects(page).catch(() => {});

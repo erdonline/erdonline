@@ -157,7 +157,7 @@ export async function openRelationFromEmpty(
   await page.getByTestId('entity-modal-name').fill(name);
   await page.getByTestId('entity-modal-chnname').fill(chnname);
   await page.getByTestId('entity-modal-ok').click();
-  await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 25_000 });
+  await expect(page.getByTestId('save-status')).toHaveText('已同步', { timeout: 25_000 });
   await expect(page.getByText(chnname, { exact: true }).first()).toBeVisible();
   await expandTreeTitle(page, chnname);
   await expandTreeTitle(page, '关系');
@@ -175,6 +175,28 @@ export async function openRelationCanvas(
   await expandTreeTitle(page, '关系');
   await page.getByTestId('tree-open-relation').click();
   await expect(page.getByTestId('reactflow-canvas')).toBeVisible({ timeout: 10_000 });
+}
+
+/** 断言顶栏保存态已同步（兼容 已落盘 / 已同步 / Saved to server 文案漂移） */
+export async function expectSavedToServer(
+  page: import('@playwright/test').Page,
+  timeout = 25_000,
+) {
+  await expect(page.getByTestId('save-status')).toHaveText(
+    /已同步|已落盘|Saved to server|Synced/i,
+    { timeout },
+  );
+}
+
+/** 左树「表」文件夹 inline + → 打开新增表弹层（M4 去重全局 + 后） */
+export async function addEntityViaTreeFolder(
+  page: import('@playwright/test').Page,
+  opts: { moduleChnname?: string } = {},
+) {
+  const moduleChnname = opts.moduleChnname || '商城';
+  await expandTreeTitle(page, moduleChnname);
+  await expandTreeTitle(page, '表');
+  await page.getByTestId('tree-folder-add-entity').click();
 }
 
 /** ReactFlow 表节点（库结构类名，非 antd） */

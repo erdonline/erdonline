@@ -1,9 +1,11 @@
 import { expect, test } from '@playwright/test';
 import {
+  addEntityViaTreeFolder,
   createAndOpenPersonProject,
   deleteOwnPersonProjects,
   e2eAccount,
   expectToast,
+  expectSavedToServer,
   login,
   openRelationFromEmpty,
   rfNode,
@@ -49,7 +51,7 @@ test.describe('左树剪切/粘贴表落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       await page.getByLabel('表操作').click();
       await page.getByRole('menuitem', { name: '复制表' }).click();
@@ -113,14 +115,13 @@ test.describe('左树剪切/粘贴表落盘失败可重试', () => {
       await openRelationFromEmpty(page);
       await page.getByTestId('canvas-empty-create').click();
       await expect(rfNode(page, 'T_TABLE_1')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
-      await page.getByTestId('design-tree-add').click();
-      await page.getByTestId('menu-add-entity').click();
+      await addEntityViaTreeFolder(page);
       await page.getByTestId('entity-modal-name').fill('T_KEEP');
       await page.getByTestId('entity-modal-ok').click();
       await expect(rfNode(page, 'T_KEEP')).toBeVisible();
-      await expect(page.getByTestId('save-status')).toHaveText('已落盘', { timeout: 15_000 });
+      await expectSavedToServer(page, 15_000);
 
       let saveHits = 0;
       await page.route('**/ncnb/project/save', async (route) => {

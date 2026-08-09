@@ -4,8 +4,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
 import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
-import { Badge, Button, Dropdown, Empty, Menu, message, Tooltip, Typography } from 'antd';
-import type { MenuProps } from 'antd';
+import { Badge, Button, Dropdown, Empty, Menu, message, Typography } from 'antd';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
@@ -390,6 +389,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           role="button"
           tabIndex={0}
           aria-label="新建表"
+          data-testid="tree-folder-add-entity"
           style={folderAddIconStyle}
           onClick={(e) => {
             e.stopPropagation();
@@ -428,6 +428,10 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       );
     }
 
+    const hasClipboard = node.type !== 'relation';
+    const hasPaste = node.type === 'module' || node.type === 'entity';
+    const canDelete = !(node.type === 'relation' && node.diagramId === DEFAULT_DIAGRAM_ID);
+
     const menu = (
       <Menu className="erd-dense-menu" onClick={(e) => e.domEvent.stopPropagation()}>
         {node.type !== 'folder' && (
@@ -450,32 +454,34 @@ const DataTable: React.FC<DataTableProps> = (props) => {
                 {node.type === 'module' ? '编辑模型' : '重命名关系图'}
               </Menu.Item>
             )}
-            {/* 关系图无 copy/cut 实现；隐藏死 affordance（ADR-0017 图列表） */}
-            {node.type !== 'relation' && (
+            {hasClipboard && (
               <>
+                <Menu.Divider />
                 <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle(erdColors.success)} />} onClick={() => handleCopy(node)}>
                   {`复制${node.type === 'module' ? '模型' : '表'}`}
                 </Menu.Item>
                 <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle(erdColors.warning)} />} onClick={() => handleCut(node)}>
                   {`剪切${node.type === 'module' ? '模型' : '表'}`}
                 </Menu.Item>
+                {hasPaste && (
+                  <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handlePaste(node)}>
+                    {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
+                  </Menu.Item>
+                )}
               </>
             )}
-            {(node.type === 'module' || node.type === 'entity') && (
-              <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handlePaste(node)}>
-                {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
-              </Menu.Item>
-            )}
-            <Menu.Divider />
-            {!(node.type === 'relation' && node.diagramId === DEFAULT_DIAGRAM_ID) && (
-              <Menu.Item
-                key="remove"
-                icon={<DeleteOutlined style={iconStyle(erdColors.brand)} />}
-                danger
-                onClick={() => handleRemove(node)}
-              >
-                {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}`}
-              </Menu.Item>
+            {canDelete && (
+              <>
+                <Menu.Divider />
+                <Menu.Item
+                  key="remove"
+                  icon={<DeleteOutlined style={iconStyle(erdColors.brand)} />}
+                  danger
+                  onClick={() => handleRemove(node)}
+                >
+                  {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}`}
+                </Menu.Item>
+              </>
             )}
           </>
         )}
@@ -558,43 +564,16 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     return null;
   };
 
-  const handleAdd = () => {
-    const items: MenuProps['items'] = [
-      {
-        key: 'addModule',
-        icon: <AppstoreOutlined style={{ color: erdColors.ink900 }} />,
-        label: <span data-testid="menu-add-module">新增模型</span>,
-        onClick: () => showModal('module'),
-      },
-      {
-        key: 'addEntity',
-        icon: <TableOutlined style={{ color: erdColors.warning }} />,
-        label: <span data-testid="menu-add-entity">新增表</span>,
-        onClick: () => showModal('entity'),
-      },
-      {
-        key: 'addRelation',
-        icon: <NodeIndexOutlined style={{ color: erdColors.success }} />,
-        label: '新建关系图',
-        onClick: () => showModal('relation'),
-      },
-    ];
-
-    return (
-      <Dropdown
-        menu={{ items, className: 'erd-dense-menu' }}
-        trigger={['click']}
-        placement="bottomLeft"
-      >
-        <Button
-          size="small"
-          icon={<PlusOutlined />}
-          aria-label="新建"
-          data-testid="design-tree-add"
-        />
-      </Dropdown>
-    );
-  };
+  /** 有模块时：树头仅保留「新增模型」（表/关系图走文件夹 inline +） */
+  const renderAddModuleButton = () => (
+    <Button
+      size="small"
+      icon={<PlusOutlined />}
+      aria-label="新增模型"
+      data-testid="design-tree-add-module"
+      onClick={() => showModal('module')}
+    />
+  );
 
   const renderEmptyState = () => (
     <Empty
@@ -657,7 +636,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           renderExtraIcons={renderExtraIcons}
           renderIcon={renderIcon}
           compactLevel={2}
-          onAdd={handleAdd()}
+          onAdd={renderAddModuleButton()}
           expandedKeys={expandedKeys}
           onExpand={(keys) => setExpandedKeys(keys)}
         />

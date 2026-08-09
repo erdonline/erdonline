@@ -31,3 +31,4 @@
 | [0024](./0024-datasource-credential-encryption.md) | 数据源凭证落库加密（AES-256-GCM，`ERD_DB_CONFIG_SECRET`） | 已接受 |
 | [0025](./0025-og-social-unfurl.md) | OG / 社交展开卡片 | 已接受 |
 | [0026](./0026-precision-tooling-visual-language.md) | 精密工具站视觉语言（营销深色 + 工作台浅色精密化；≠ 全局暗色） | 已接受 |
+| [0027](./0027-designer-chrome-ia.md) | 产品 Chrome IA（全站 Theme + 状态仪器盘 + 单一项目浏览 + 表设计层级） | 已接受 |

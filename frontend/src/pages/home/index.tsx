@@ -109,9 +109,9 @@ const Home: React.FC<HomeProps> = () => {
         testId: 'home-link-group',
       },
       {
-        title: intl.formatMessage({id: 'homePage.nav.importModel'}),
-        href: '/project/person',
-        testId: 'home-link-import',
+        title: intl.formatMessage({id: 'homePage.nav.allModels'}),
+        href: '/dataModels',
+        testId: 'home-link-all-models',
       },
     ],
     [intl],

@@ -364,16 +364,21 @@
 
 ---
 
-## 8. 精密工具站（ADR-0026）
+## 8. 精密工具站（ADR-0026 / ADR-0027）
 
 营销壳与工作台共用「工程级精度」语言；**浅色工作台精密化 ≠ 全局暗色**（ADR-0010）。
 
 - ✅ 落地 / AuthBrandShell：`--erd-void` + 细网格 + IBM Plex + 品牌红 CTA；产品窗/hero 锐利，不做霓虹 glow
-- ✅ Home / Design chrome：hairline 顶栏、mono 状态 chip、项目卡细边框弱阴影（非厚卡片堆）
-- ✅ Token 真相源：`theme/tokens.ts` + `css-vars.less`（`--erd-hairline` / `--erd-chrome-blur` / kicker）
+- ✅ **全站** `erdTheme`（`app.tsx` rootContainer）：登录/404/分享主钮 = 品牌红，禁 antd 默认蓝
+- ✅ 设计器状态仪器盘：Synced / `vX` / `DB ·` 胶囊（语义分离 ADR-0022）；长文案下沉
+- ✅ 项目浏览一套脸：`project-list` + `ProjectTypeBadge`；禁第二套卡片墙与 `Tag color="blue"`
+- ✅ 表设计：表名 + 内容签同一 chrome 行；禁四条同高 Tabs 叠罗汉
+- ✅ Home / Design chrome：hairline 顶栏、mono 元数据、弱阴影面板
+- ✅ Token 真相源：`theme/tokens.ts` + `css-vars.less`
 - ❌ 本阶段给设计器/工作台加暗色 toggle 或 `prefers-color-scheme` 半套换皮
 - ❌ 用紫色渐变 / 赛博霓虹 / 厚多层阴影「模板营销页」盖过产品感
-- ❌ 为炫酷重画 ReactFlow 表节点皮肤（与分享图、视觉 E2E 基线冲突；后置）
+- ❌ 为炫酷重画 ReactFlow 表节点皮肤（后置）
+- ❌ 导航文案与落点不一致（语义死链，如「导入」却打开空列表）
 
 ---
 
