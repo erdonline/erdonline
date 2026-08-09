@@ -5,7 +5,6 @@ import {
   getCatalogCreator,
   type CatalogTemplateSummary,
 } from '@/services/catalog';
-import '../project/project-list.scss';
 import './catalog.scss';
 
 const {Title, Paragraph, Text} = Typography;
@@ -31,12 +30,14 @@ export default function CatalogCreatorPage() {
   }, [handle]);
 
   return (
-    <div className="catalog-page project-list-page" data-testid="catalog-creator-page">
-      <Button type="link" onClick={() => history.push('/catalog')} style={{paddingLeft: 0}}>
+    <div className="catalog-page" data-testid="catalog-creator-page">
+      <Button type="link" className="catalog-page__back" onClick={() => history.push('/catalog')}>
         ← 返回模板广场
       </Button>
-      <Title level={2}>{displayName || handle}</Title>
-      <Paragraph type="secondary">@{handle}</Paragraph>
+      <Title level={2} className="catalog-page__title">
+        {displayName || handle}
+      </Title>
+      <Paragraph className="catalog-page__subtitle">@{handle}</Paragraph>
       <List
         loading={loading}
         dataSource={templates}
@@ -45,6 +46,7 @@ export default function CatalogCreatorPage() {
           <List.Item>
             <Card
               hoverable
+              className="catalog-card"
               style={{width: '100%'}}
               onClick={() => history.push(`/catalog/${item.slug || item.id}`)}
             >

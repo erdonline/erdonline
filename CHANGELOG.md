@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 模板广场视觉：对齐 landing 深色发现面
+
+- **问题**：CatalogLayout 主区整块白卡片 + 默认 antd 浅色，像工作台模块贴在 void 落地页上
+- **修复**：主区透明铺于 void；模板卡/筛选/搜索/分页/详情/评论统一 hairline-on-dark + 品牌红点缀（ADR-0026）；预览框复用 compare 玻璃壳
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "深色 landing 视觉"`
+  - 截图 `test-results/ux-walkthrough/catalog-dark-surface.png`
+
 #### 模板广场 IA：公开发现面，脱离 HomeLayout
 
 - **问题**：模板广场是公开浏览面（类 Figma Community），不应嵌在 HomeLayout「首页/数据模型」同级顶栏里

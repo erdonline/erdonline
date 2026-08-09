@@ -1,22 +1,22 @@
-/* 公开模板广场：Landing 深色壳 + 浅色内容井（与 compare 子页同族，内容区可读） */
+/* 公开模板广场：void 背景上直接铺内容，禁 home 式大白卡片 */
 .catalog-layout__main {
   max-width: var(--erd-chrome-content-max);
   margin: 0 auto 2rem;
-  padding: 0 1rem 1.5rem;
+  padding: 0 1.25rem 2rem;
   width: 100%;
   box-sizing: border-box;
-  color: var(--erd-ink);
-  background: var(--erd-surface);
-  border: 1px solid var(--erd-line);
-  border-radius: var(--erd-radius);
+  color: rgba(232, 238, 244, 0.92);
+  background: transparent;
+  border: none;
+  border-radius: 0;
   min-height: min(72vh, 720px);
 
   &:focus-visible {
-    outline: 2px solid var(--erd-control-focus-outline);
-    outline-offset: -2px;
+    outline: 2px solid var(--erd-brand);
+    outline-offset: 4px;
   }
 }
 
 .landing--subpage .catalog-layout__main {
-  margin-top: 0.5rem;
+  margin-top: 0.25rem;
 }
