@@ -8,6 +8,13 @@
 
 ### 2026-08-09
 
+#### 模板详情：Hero 双栏（身份左 · 操作右）
+
+- **布局**：`catalog-detail__hero` 网格双栏——左列 identity（标题 + meta 含作者 + 模块提示），右列 actions（安装 CTA + 你的评分）**相对整列左栏垂直居中**，避免 CTA 仅贴标题而 meta 悬空
+- **响应式**：≤640px 单列，操作区叠于标题下、按钮全宽
+- **细节**：标题 `min-width:0` + `overflow-wrap`；操作区紧凑字号，无重复 action bar
+- 验证点：HMR 目视 `/catalog/demo-authz`；`yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览|只读关系图|安装与评分"`
+
 #### 模板详情：安装/评分并入标题行右上角
 
 - **布局**：标题左、**安装到我的项目 + 你的评分** 右（`catalog-detail__header`）；作者仍在 meta 指标行

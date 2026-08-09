@@ -245,27 +245,93 @@
     color: #9eb0c0 !important;
   }
 
-  .catalog-detail__header {
-    display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 12px 16px;
-    margin-bottom: 4px;
+  .catalog-detail__hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: center;
+    gap: 16px 28px;
+    padding-bottom: 4px;
+
+    @media (max-width: 640px) {
+      grid-template-columns: 1fr;
+      align-items: stretch;
+      gap: 14px;
+    }
   }
 
-  .catalog-detail__header-actions {
-    flex-shrink: 0;
-    margin-left: auto;
-    justify-content: flex-end;
+  .catalog-detail__identity {
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .catalog-detail__title {
+    margin: 0 !important;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .catalog-detail__meta {
-    margin-bottom: 12px;
+    margin: 0;
+    row-gap: 4px !important;
   }
 
   .catalog-detail__metrics {
-    margin-bottom: 8px;
+    margin: 0;
+    font-size: 0.8125rem;
+    line-height: 1.45;
+  }
+
+  .catalog-detail__actions {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    flex-shrink: 0;
+    padding-left: 8px;
+
+    .ant-btn-primary {
+      min-width: 148px;
+      height: 36px;
+      font-size: 0.875rem;
+    }
+
+    @media (max-width: 640px) {
+      align-items: stretch;
+      padding-left: 0;
+      padding-top: 2px;
+
+      .ant-btn-primary {
+        width: 100%;
+        min-width: 0;
+      }
+    }
+  }
+
+  .catalog-detail__my-rating {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+
+    .ant-rate {
+      font-size: 16px;
+    }
+
+    @media (max-width: 640px) {
+      justify-content: center;
+    }
+  }
+
+  .catalog-detail__rate-hint {
+    font-size: 0.8125rem;
+    text-align: right;
+
+    @media (max-width: 640px) {
+      text-align: center;
+    }
   }
 
   .catalog-preview {

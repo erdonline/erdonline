@@ -203,18 +203,40 @@ export default function CatalogDetailPage() {
         ← 返回模板广场
       </Button>
       <Card>
-        <Space direction="vertical" size={12} style={{width: '100%'}}>
-          <div className="catalog-detail__header">
-            <Title level={2} className="catalog-page__title" style={{margin: 0}}>
-              {detail.title}
-            </Title>
-            <Space
-              wrap
-              className="catalog-detail__header-actions"
-              data-testid="catalog-detail-action-bar"
-            >
+        <Space direction="vertical" size={16} style={{width: '100%'}}>
+          <div className="catalog-detail__hero">
+            <div className="catalog-detail__identity">
+              <Title level={2} className="catalog-page__title catalog-detail__title">
+                {detail.title}
+              </Title>
+              <Space wrap className="catalog-detail__meta">
+                {(detail.tags ?? []).map((tag) => (
+                  <Tag key={tag}>{tag}</Tag>
+                ))}
+                <Text type="secondary" data-testid="catalog-install-count">
+                  {detail.installCount} 次安装
+                </Text>
+                <Rate
+                  disabled
+                  allowHalf
+                  value={detail.ratingAverage}
+                  data-testid="catalog-rating-display"
+                />
+                <Text type="secondary" data-testid="catalog-rating-count">
+                  ({detail.ratingCount} 人评分)
+                </Text>
+                <Link to={`/catalog/creator/${detail.authorHandle}`}>
+                  {detail.authorDisplayName || detail.authorHandle}
+                </Link>
+              </Space>
+              <Text type="secondary" className="catalog-detail__metrics">
+                {moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
+              </Text>
+            </div>
+            <div className="catalog-detail__actions" data-testid="catalog-detail-action-bar">
               <Button
                 type="primary"
+                size="middle"
                 loading={installing}
                 data-testid="catalog-install-btn"
                 onClick={handleInstall}
@@ -222,37 +244,21 @@ export default function CatalogDetailPage() {
                 安装到我的项目
               </Button>
               {detail.installed ? (
-                <Space>
-                  <Text>你的评分：</Text>
+                <div className="catalog-detail__my-rating">
+                  <Text type="secondary">你的评分</Text>
                   <Rate
                     value={detail.userRating ?? 0}
                     onChange={handleRate}
                     data-testid="catalog-rate"
                   />
-                </Space>
+                </div>
               ) : (
-                <Text type="secondary">安装后可评分</Text>
+                <Text type="secondary" className="catalog-detail__rate-hint">
+                  安装后可评分
+                </Text>
               )}
-            </Space>
+            </div>
           </div>
-          <Space wrap className="catalog-detail__meta">
-            {(detail.tags ?? []).map((tag) => (
-              <Tag key={tag}>{tag}</Tag>
-            ))}
-            <Text type="secondary" data-testid="catalog-install-count">
-              {detail.installCount} 次安装
-            </Text>
-            <Rate disabled allowHalf value={detail.ratingAverage} data-testid="catalog-rating-display" />
-            <Text type="secondary" data-testid="catalog-rating-count">
-              ({detail.ratingCount} 人评分)
-            </Text>
-            <Link to={`/catalog/creator/${detail.authorHandle}`}>
-              {detail.authorDisplayName || detail.authorHandle}
-            </Link>
-          </Space>
-          <Text type="secondary" className="catalog-detail__metrics">
-            {moduleCount} 个模块 · {entityCount} 张表（安装后可编辑并保存版本）
-          </Text>
           <CatalogPreviewPanel projectJSON={detail.projectJSON} />
           {detail.description ? <Paragraph>{detail.description}</Paragraph> : null}
         </Space>
