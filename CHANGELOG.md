@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### DDL 模板：方言下拉固定 P0 四库（根因修复）
+
+- **根因**：下拉仅渲染 `projectJSON.dataTypeDomains.database[]` 已有行；新建/空白项目 catalog seed 只有 `MYSQL`，故只显示一项。`isSqlDialect` 仅排除 JAVA 无法补全缺失方言。
+- **FE**：`PRODUCT_SQL_DIALECT_CODES`（MYSQL / ORACLE / PostgreSQL / SQLServer）始终出现在 DDL 模板方言 Select；未入库方言用 classpath 默认预览，保存时 `updateDatabaseDialect` upsert 写入 `database[]`。
+- 验证点：
+  - `cd frontend && node --import tsx src/utils/ddlTemplateKeys.test.ts`
+  - `yarn test:e2e --project=chromium tests/e2e/database-templates-modal.spec.ts`（方言 option ≥3）
+
 #### ADR-0031：DDL API 与版本 API 分域（实施）
 
 - **BE**：新增 `ProjectDdlController`（`/ncnb/projectDdl/previewTemplate|export|table`）；`@RequireProjectAccess` 薄委托 `DbChangeService`；从 `HisProjectController` 移除三 DDL 端点。
