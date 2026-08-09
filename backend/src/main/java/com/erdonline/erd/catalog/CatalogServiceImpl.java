@@ -220,13 +220,6 @@ public class CatalogServiceImpl implements CatalogService {
         if (!StringUtils.hasText(request.getTitle())) {
             return R.failed("标题不能为空");
         }
-        UserIdentityLink github = identityLinkMapper.selectOne(new LambdaQueryWrapper<UserIdentityLink>()
-                .eq(UserIdentityLink::getUserId, userId)
-                .eq(UserIdentityLink::getProvider, "github")
-                .last("LIMIT 1"));
-        if (github == null) {
-            return R.failed("发布模板须先绑定 GitHub 账号（账号设置 → 安全）");
-        }
         Project project = projectService.getById(request.getProjectId());
         if (project == null) {
             return R.failed("项目不存在");
