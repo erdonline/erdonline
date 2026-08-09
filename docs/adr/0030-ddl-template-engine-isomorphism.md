@@ -65,7 +65,7 @@
 - ✅ 版本 DDL 与 changes 同源；fail-closed（`DdlTemplateException`）。
 - ✅ 存量 projectJSON doT 无需用户立即改写；翻译桥直至用户主动迁移 FTL。
 - ✅ 终态单一 JVM 引擎（Freemarker），无 perpetual dual-engine。
-- ⚠️ ~~FE export（`getAllDataSQLByFilter`）仍走前端 doT——非版本模块 product path，按 roadmap 切片关闭~~ ✅（2026-08-09：`POST /hisProject/exportDdl` + `POST /hisProject/tableDdl`）
+- ⚠️ ~~FE export（`getAllDataSQLByFilter`）仍走前端 doT——非版本模块 product path，按 roadmap 切片关闭~~ ✅（2026-08-09：`POST /hisProject/exportDdl` + `POST /hisProject/tableDdl`；HTTP 分域见 [ADR-0031](./0031-ddl-api-surface.md) → `/projectDdl/*`）
 
 ## 验证
 
