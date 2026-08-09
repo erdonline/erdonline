@@ -50,7 +50,7 @@ test.describe('竞品对照页', () => {
   test('落地页「对比」与完整对照链进入 /compare', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible();
-    await page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: '竞品对照' }).click();
+    await page.getByTestId('landing-nav-compare').click();
     await expect(page).toHaveURL(/\/compare/);
     await expect(page.getByTestId('compare-page')).toBeVisible();
 
@@ -104,9 +104,10 @@ test.describe('竞品对照页', () => {
 
     // 不按 Skip：DOM 序首焦为品牌链（Skip 非唯一入口）
     await page.goto('/compare');
+    await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');
-    await expect(page.getByTestId('landing-skip-cta')).toBeFocused();
+    await expect(page.getByTestId('landing-skip-cta')).toBeFocused({ timeout: 5_000 });
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'ERD Online 首页' })).toBeFocused();
   });

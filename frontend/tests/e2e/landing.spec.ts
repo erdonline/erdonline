@@ -81,6 +81,38 @@ test.describe('落地页', () => {
     await expect(page.getByTestId('landing-page')).toBeVisible();
   });
 
+  test('落地页族顶栏跨页尺寸一致', async ({ page }) => {
+    const measureNav = async () =>
+      page.locator('.landingNav').evaluate((el) => {
+        const cs = getComputedStyle(el);
+        const rect = el.getBoundingClientRect();
+        return {
+          height: Math.round(rect.height),
+          padLeft: parseFloat(cs.paddingLeft),
+          position: cs.position,
+          itemCount: el.querySelectorAll('.landingNavLinks > *').length,
+        };
+      });
+
+    await page.goto('/');
+    const homeNav = await measureNav();
+
+    await page.goto('/catalog');
+    const catalogNav = await measureNav();
+
+    await page.goto('/compare');
+    const compareNav = await measureNav();
+
+    expect(homeNav.height).toBe(catalogNav.height);
+    expect(homeNav.height).toBe(compareNav.height);
+    expect(homeNav.padLeft).toBe(catalogNav.padLeft);
+    expect(homeNav.itemCount).toBe(catalogNav.itemCount);
+    expect(homeNav.itemCount).toBe(compareNav.itemCount);
+    expect(homeNav.position).toBe('sticky');
+    expect(catalogNav.position).toBe('sticky');
+    expect(compareNav.position).toBe('sticky');
+  });
+
   test('顶栏与 Hero 可进入模板广场', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-nav-catalog')).toBeVisible();
@@ -124,9 +156,9 @@ test.describe('落地页', () => {
     await expect(primaryCta).toBeFocused();
 
     await page.keyboard.press('Tab');
-    await expect(page.getByRole('link', { name: '注册' })).toBeFocused();
-    await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '浏览模板广场' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByRole('link', { name: '注册' })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '去登录' })).toBeFocused();
     await page.keyboard.press('Shift+Tab');
@@ -134,6 +166,8 @@ test.describe('落地页', () => {
 
     // focus-visible surface 环（深色门面；须经 Tab 触发 :focus-visible）
     await page.getByRole('link', { name: '注册' }).focus();
+    await page.keyboard.press('Shift+Tab');
+    await expect(page.getByRole('link', { name: '浏览模板广场' })).toBeFocused();
     await page.keyboard.press('Shift+Tab');
     await expect(primaryCta).toBeFocused();
     const ring = await primaryCta.evaluate((el) => {

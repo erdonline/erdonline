@@ -49,6 +49,7 @@
 }
 
 .landing {
+  --landing-nav-h: 56px;
   min-height: 100vh;
   color: var(--erd-surface);
   background: #070d14;
@@ -71,12 +72,7 @@
   }
 }
 
-/* 对照等子页：顶栏相对定位，不叠 hero */
-.landing--subpage .landingNav {
-  position: relative;
-  margin: 0.75rem auto;
-}
-
+/* 子页仅影响内容区距，顶栏样式与首页完全一致 */
 .landingComparePage {
   padding-top: 0.25rem;
 }
@@ -110,22 +106,26 @@
 }
 
 .landingNav {
-  position: absolute;
-  inset: 0 0 auto;
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0.75rem 1.25rem;
+  gap: 1rem;
+  height: var(--landing-nav-h);
+  min-height: var(--landing-nav-h);
+  padding: 0 clamp(1rem, 3vw, 1.5rem);
   max-width: var(--erd-chrome-content-max);
-  margin: 0.75rem auto 0;
-  width: calc(100% - 2rem);
+  margin: 0 auto;
+  width: 100%;
   box-sizing: border-box;
-  border: 1px solid rgba(158, 176, 192, 0.14);
-  border-radius: 10px;
-  background: rgba(7, 13, 20, 0.72);
-  backdrop-filter: saturate(1.15) blur(14px);
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.28);
+  border-bottom: 1px solid rgba(158, 176, 192, 0.12);
+  background: rgba(7, 13, 20, 0.42);
+  backdrop-filter: saturate(1.05) blur(8px);
+  -webkit-backdrop-filter: saturate(1.05) blur(8px);
 }
 
 .landingNavBrand {
@@ -156,15 +156,30 @@
   font-size: 0.88rem;
   font-weight: 500;
   letter-spacing: -0.01em;
+  white-space: nowrap;
 }
 
 .landingNavLinks a:hover {
   color: #fff;
 }
 
+/* 高亮仅改色 + 下划线，不改字重，避免 active 态撑宽 */
 .landingNavLinkActive {
   color: #fff !important;
-  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-color: var(--erd-brand);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 0.22em;
+}
+
+/* 顶栏主 CTA：品牌红、固定最小宽防登录/工作台切换时跳动 */
+.landingNavCta {
+  min-height: 36px;
+  min-width: 7rem;
+  padding: 0 0.9rem;
+  font-size: 0.88rem;
+  justify-content: center;
+  box-shadow: 0 0 0 1px rgba(222, 41, 16, 0.16), 0 6px 18px rgba(222, 41, 16, 0.14);
 }
 
 /* 顶栏语言切换：与 nav 链同色，不抢 hero CTA */
@@ -191,11 +206,11 @@
 
 .landingHero {
   position: relative;
-  min-height: 100vh;
-  min-height: 100dvh;
+  min-height: calc(100vh - var(--landing-nav-h));
+  min-height: calc(100dvh - var(--landing-nav-h));
   display: flex;
   align-items: center;
-  padding: 5.5rem 1.5rem 3rem;
+  padding: 2.5rem 1.5rem 3rem;
   box-sizing: border-box;
   isolation: isolate;
   overflow: hidden;
@@ -697,7 +712,7 @@
 @media (max-width: 720px) {
   .landingHero {
     align-items: flex-start;
-    padding-top: 5rem;
+    padding-top: 2rem;
   }
 
   .landingNavLinks a:not(.landingNavCta) {
