@@ -5,6 +5,7 @@ import ProjectTypeBadge from "@/components/ProjectTypeBadge";
 import {ProjectListProps} from "@/pages/project/person";
 import {recentProject} from "@/services/project";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
+import PublishTemplateAction from '@/components/catalog/PublishTemplateAction';
 import {useIntl} from '@@/exports';
 import '../project-list.scss';
 
@@ -111,6 +112,11 @@ export default () => {
             className="project-list-page__row"
             data-testid="project-list-row"
             actions={[
+              <PublishTemplateAction
+                key={`PublishTemplate${row.id}`}
+                projectId={String(row.id)}
+                projectName={row.projectName}
+              />,
               <OpenProject project={row} key={'OpenProject' + row.id}/>
             ]}
           >

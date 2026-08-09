@@ -114,9 +114,6 @@ export default function CatalogListPage() {
           >
             社区
           </Button>
-          <Button data-testid="catalog-publish-link" onClick={() => history.push('/catalog/publish')}>
-            发布模板
-          </Button>
         </Space>
       </div>
 

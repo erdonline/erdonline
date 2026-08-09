@@ -8,6 +8,7 @@ import OpenProject from "@/components/dialog/project/OpenProject";
 import ProjectTypeBadge from "@/components/ProjectTypeBadge";
 import {searchProjects} from "@/pages/project/recent";
 import ProjectListOpenLink from "@/pages/project/ProjectListOpenLink";
+import PublishTemplateAction from '@/components/catalog/PublishTemplateAction';
 import {createExampleProjectAndOpen} from "@/utils/exampleProject";
 import {useIntl} from '@@/exports';
 import {history} from '@@/core/history';
@@ -144,6 +145,11 @@ export default () => {
             actions={[
               <RenameProject fetchProjects={() => fetchProjects(null)} trigger={'ant'} project={row} key={'RenameProject'+row.id}/>,
               <RemoveProject fetchProjects={() => fetchProjects(null)} project={row} key={'RemoveProject'+row.id}/>,
+              <PublishTemplateAction
+                key={`PublishTemplate${row.id}`}
+                projectId={String(row.id)}
+                projectName={row.projectName}
+              />,
               <OpenProject project={row} key={'OpenProject'+row.id}/>
             ]}
           >

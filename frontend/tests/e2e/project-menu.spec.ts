@@ -337,4 +337,46 @@ test.describe('设计器项目菜单', () => {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
   });
+
+  test('项目菜单发布为模板：无需填写项目 ID', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('publish');
+    let capturedBody: {projectId?: string; title?: string} | null = null;
+
+    await page.route('**/ncnb/catalog/v1/submissions', async (route) => {
+      if (route.request().method() === 'POST') {
+        capturedBody = route.request().postDataJSON() as {projectId?: string; title?: string};
+        await route.fulfill({
+          status: 200,
+          contentType: 'application/json',
+          body: JSON.stringify({ code: 200, data: { id: 'e2e-submission' } }),
+        });
+        return;
+      }
+      await route.continue();
+    });
+
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+      const projectId = new URL(page.url()).searchParams.get('projectId');
+      expect(projectId).toBeTruthy();
+
+      await page.getByRole('button', { name: '项目菜单' }).click();
+      await page.getByTestId('project-menu-panel').getByRole('menuitem', { name: '发布为模板' }).click();
+      const publishDialog = page.getByRole('dialog', { name: '发布为模板' });
+      await expect(publishDialog).toBeVisible();
+      await expect(page.getByTestId('catalog-publish-project-id')).toHaveCount(0);
+      await expect(publishDialog.getByTestId('catalog-publish-title')).toHaveValue(projectName);
+
+      await publishDialog.getByRole('button', { name: '提交审核' }).click();
+      await expectToast(page, /已提交审核/);
+
+      expect(capturedBody?.projectId).toBe(projectId);
+      expect(capturedBody?.title).toBe(projectName);
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
 });
