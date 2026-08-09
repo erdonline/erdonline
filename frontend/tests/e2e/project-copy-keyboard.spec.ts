@@ -6,6 +6,7 @@ import {
   openVersionPage,
   saveVersion,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 /**
@@ -44,7 +45,8 @@ test.describe('复刻弹层键盘', () => {
       const row = page.getByTestId('version-row-1.0.0');
       await expect(row).toBeVisible({ timeout: 10_000 });
       await row.hover();
-      const trigger = row.getByTestId('project-copy-trigger');
+      await row.getByTestId('row-more-btn').click();
+      const trigger = visibleTestId(page, 'project-copy-trigger');
       await expect(trigger).toBeVisible();
       await trigger.click();
 

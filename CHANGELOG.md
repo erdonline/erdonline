@@ -8,6 +8,40 @@
 
 ### 2026-08-09
 
+#### 安全：version/dbKey/connector/queryInfo 全链路 ACL 审计 + 声明式统一鉴权机制
+
+- **背景**：审计发现 version / hisProject / dbChange / db_version / connector / queryInfo 一带接口普遍缺
+  「项目成员」与「db_key 归属」校验——登录用户只要传他人 `projectId` 或伪造 `dbKey`（他人
+  `dataSourceId`）即可跨租户读写版本历史、db_version 推送书签，甚至对他人数据源下发 DDL/DML
+  （R-AUTH-08）。
+- **P0（本轮最高危）**：`@Dynamic`（`queryInfo/exec`/`explain` 等任意只读 SQL 执行路径）唯一的凭证来源
+  `LocalNcnbDatabaseService.getDataSourceInfoById` 此前直接 `dataSourcesService.getById(id)`，**零 ACL**——
+  任意登录用户传任意 `dataSourceId` 即可拿到明文库连接信息（url/username/password）并对其执行任意只读
+  SQL，是跨租户凭证泄露 + 数据越权读取（R-AUTH-09）。改走 `DataSourceAcl.requireOwned`（与
+  `DataSourcesController` 同一套 creator 归属判定），不存在与非本人归属统一返回 403，避免信息差异枚举。
+- **机制**（用户反馈「散落 assertMember 太污染代码」后收敛）：新增 `VersionDbKeyGuard`
+  （成员 + db_key 归属统一判定，复用既有 `ProjectAcl`/`ResourceOwnership`，不另起炉灶）+
+  `@RequireProjectAccess`/`@ProjectId`/`@DbKey` 注解 + `ProjectAccessAspect`（`@Before`，
+  `@Order(HIGHEST_PRECEDENCE)` 先于 `@Dynamic` 等切数据源的环绕通知执行）。Controller 方法只需声明
+  注解，取值参数可以是 String/Map/POJO（反射 getter），Service 层只保留 db_key 别名归一化（业务逻辑），
+  鉴权不重复散落。详见 `docs/security-model.md`「统一项目/db_key 权限校验」。
+- **应用范围**：`HisProjectController`（load/list/deleteAll/save/diff）、`ConnectorController`
+  （ping/dbReverseParse/dbReverseMeta/dbversion/checkdbversion/rebaseline/dbsync/sqlexec/updateVersion）、
+  `QueryInfoController`（create/update/partialUpdate/exec/explain，纵深防御）、
+  `PublicApiVersionServiceImpl`（service 层显式调用 `VersionDbKeyGuard`，规模小无需 AOP）。
+- **审计范围内确认已安全，未改动**：`DataSourcesController`（既有 `DataSourceAcl` 全覆盖）、
+  `ProjectShareController`（既有 creator 校验）、`CatalogController` submit/approve/reject/toggleComments
+  （既有 `isProjectOwner`/`assertMaintainer`）、`Public API v1`（既有 `assertMember` + PAT scope）。
+  `QueryInfoController` 的 `delete`/`read`/`list`/`tree`/`multipleDelete`（id 不带 projectId，全仓 grep
+  确认无前端调用方，大概率死代码）本轮未动，登记为下一刀。
+- 验证点：
+  - `cd backend && mvn -q compile && mvn -q test`（全量）✅
+  - 新增 `VersionDbKeyGuardTest`（非成员 403 / 快照放行 / 自有数据源放行 / 他人数据源 403 / 缺失 403 / 空 dbKey 直通）、
+    `ProjectAccessAspectTest`（Map/String/POJO 三种参数取值 + 缺 projectId 400 + guard 拒绝透传）、
+    `LocalNcnbDatabaseServiceTest`（本人数据源返回凭证 / 他人数据源 403 且不泄露存在性 / 不存在同码 403）全绿
+  - 既有 `DbChangeServiceImpl*Test`/`PublicApiVersionServiceTest` 更新 mock（`assertDbKeyBelongsToCaller`
+    → `resolveDbKey`，鉴权已上移到 Controller 注解）后仍绿
+
 #### 修复：版本变更详情 / 比对 — 后端统一 diff + DDL，消除左栏与脚本错位
 
 - **根因（用户粘贴仍错位）**：

@@ -7,6 +7,7 @@ import {
   openVersionPage,
   saveVersion,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 const API = process.env.API_URL || 'http://localhost:9502';
@@ -74,9 +75,12 @@ async function seedMysqlDs(
 async function openSyncConfirm(page: Page) {
   await openVersionPage(page);
   await saveVersion(page);
-  await expect(page.getByTestId('version-row-1.0.0')).toBeVisible({ timeout: 10_000 });
+  const row = page.getByTestId('version-row-1.0.0');
+  await expect(row).toBeVisible({ timeout: 10_000 });
+  await row.hover();
+  await row.getByTestId('row-more-btn').click();
 
-  const trigger = page.getByTestId('version-sync-btn');
+  const trigger = visibleTestId(page, 'version-sync-btn');
   await expect(trigger).toBeEnabled({ timeout: 15_000 });
   await trigger.click();
 

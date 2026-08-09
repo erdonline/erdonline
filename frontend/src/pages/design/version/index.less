@@ -120,6 +120,25 @@
   font-size: 12px;
 }
 
+// 「更多」溢出菜单：把独立弹窗按钮（同步配置/重建版本/编辑/删除/复刻/同步）竖排收纳，
+// 不改各自内部实现，只做布局容器（ADR：Git 心智模型下这些都是次要操作）。
+.version-page__more-menu {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+  min-width: 160px;
+  padding: 6px;
+  background: var(--erd-surface, #fff);
+  border-radius: 8px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.12), 0 3px 6px rgba(0, 0, 0, 0.08);
+
+  .ant-btn {
+    justify-content: flex-start;
+    width: 100%;
+  }
+}
+
 .version-page__list {
   flex: 1 1 auto;
   min-height: 0;

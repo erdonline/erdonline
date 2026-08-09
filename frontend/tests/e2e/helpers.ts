@@ -417,6 +417,16 @@ export async function saveVersion(
   await expect(dialog).toHaveCount(0);
 }
 
+/**
+ * 版本页「更多」溢出菜单（行内 / 工具条）内的按钮默认 portal 到 document.body，
+ * 关闭后 antd 只隐藏不销毁；先后打开多个菜单时，同一 data-testid 会有多个隐藏副本
+ * 残留在 DOM，裸用 getByTestId 在 strict mode 下会撞「resolved to N elements」。
+ * 用 :visible 只取当前真正展示的那一个。
+ */
+export function visibleTestId(page: import('@playwright/test').Page, testId: string) {
+  return page.locator(`[data-testid="${testId}"]:visible`);
+}
+
 /** 从版本等子页回模型（侧栏「模型」menuitem 在部分页不可见） */
 export async function gotoDesignModel(page: import('@playwright/test').Page) {
   const projectId = new URL(page.url()).searchParams.get('projectId');

@@ -1,12 +1,13 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useEffect, useRef, useState} from 'react';
+import {createPortal} from 'react-dom';
 import shallow from "zustand/shallow";
 import useVersionStore from "@/store/version/useVersionStore";
 import './index.less';
 import {isVersionGreater, isVersionLessOrEqual} from "@/utils/string";
-import {Empty, Input, List, message, Space, Tag, Tooltip} from "antd";
+import {Button, Empty, Input, List, message, Space, Tag} from "antd";
+import {MoreOutlined} from "@ant-design/icons";
 import AddVersion from "@/components/dialog/version/AddVersion";
 import SyncConfig from "@/components/dialog/version/SyncConfig";
-import InitVersion from "@/components/dialog/version/InitVersion";
 import RebuildVersion from "@/components/dialog/version/RebuildVersion";
 import CompareVersion, {CompareVersionType} from "@/components/dialog/version/CompareVersion";
 import RenameVersion from "@/components/dialog/version/RenameVersion";
@@ -37,6 +38,115 @@ type VersionRow = {
 };
 
 type DbOption = { name: string; value?: string; label?: string };
+
+/**
+ * 溢出菜单容器：自制轻量弹层，不用 antd Dropdown/Trigger。
+ *
+ * 原因：菜单里的操作（编辑/删除/复刻/同步/重建版本/同步配置…）大多是「点了就开一个
+ * 自带 Modal 的组件」，Modal 默认 portal 到 document.body、脱离菜单 popup 子树。
+ * antd Dropdown 一旦判定用户点击落在 popup 之外（哪怕是点了自己弹出来的 Modal 里的
+ * 确定/取消按钮），就会收起并（无论是否设置 destroyOnHidden）在关闭动画结束后把
+ * popup 子树连带其中的 Modal 一起卸载——用户填表填到一半，触发按钮和 Modal 同时消失。
+ *
+ * 因此这里的面板**始终挂载**在 document.body（只用 CSS display 切换可见性），
+ * 从不因为「关闭菜单」而卸载 `items`——items 里各触发组件（SyncVersion/CopyProject
+ * 等）的内部 Modal state 因此永不受菜单开关影响。菜单本身**不**在点击内部项后自动
+ * 收起：点击「同步/编辑/删除…」后 Modal 会覆盖在上层，用户关闭 Modal 后期望焦点
+ * 归还到刚点的触发按钮——若顺手收起菜单，触发按钮跟着隐藏，焦点无处可归。收起
+ * 只在点击面板外（且非 Modal/Confirm 内容）时发生，与 antd Dropdown 默认语义一致。
+ */
+const MoreMenu: React.FC<{
+  items: React.ReactNode[];
+  triggerTestId: string;
+  menuTestId: string;
+  label: string;
+  ariaLabel: string;
+  linkStyle?: boolean;
+}> = ({ items, triggerTestId, menuTestId, label, ariaLabel, linkStyle }) => {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState<{ top: number; left: number }>({ top: -9999, left: -9999 });
+  const btnRef = useRef<HTMLButtonElement | null>(null);
+  const panelRef = useRef<HTMLDivElement | null>(null);
+
+  // 点触发钮**只开不切换**（不做「已展开再点一次收起」的 toggle）：菜单内点项后
+  // 不主动收起（见上方注释），意味着 open 状态会在「打开→点项→Modal 关闭」这轮
+  // 交互结束后仍停留在 true——若行的版本号后续变化（重命名/回滚使某行版本号更新），
+  // List.Item 按 key=row.id 复用同一个 MoreMenu 实例，其 open 状态原样保留。用户再次
+  // 点「更多」时如果这里做 toggle，会把「上一轮遗留的 open=true」直接翻成 false，
+  // 表现为「点了却没打开」。因此改为幂等式打开：只要点了触发钮就保证展开、并刷新
+  // 定位；收起只交给「点击面板外」/ Escape。
+  const openMenu = () => {
+    if (btnRef.current) {
+      const rect = btnRef.current.getBoundingClientRect();
+      setPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - 180) });
+    }
+    setOpen(true);
+  };
+
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+    const onDocMouseDown = (e: MouseEvent) => {
+      const target = e.target as Element | null;
+      if (btnRef.current?.contains(target)) return;
+      // 面板内点击（编辑/删除/复刻/同步…）不在这里收起：见 openMenu 上方注释，
+      // 收起会让触发按钮跟着隐藏，Modal 关闭后 focusTriggerAfterClose 找不到焦点归宿。
+      if (panelRef.current?.contains(target)) return;
+      if (target?.closest?.('[role="dialog"]')) return;
+      setOpen(false);
+    };
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && !document.querySelector('[role="dialog"]')) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', onDocMouseDown);
+    document.addEventListener('keydown', onKeyDown);
+    return () => {
+      document.removeEventListener('mousedown', onDocMouseDown);
+      document.removeEventListener('keydown', onKeyDown);
+    };
+  }, [open]);
+
+  if (items.length === 0) {
+    return null;
+  }
+
+  return (
+    <>
+      <Button
+        ref={btnRef}
+        type={linkStyle ? 'link' : 'default'}
+        size="small"
+        icon={<MoreOutlined />}
+        data-testid={triggerTestId}
+        aria-label={ariaLabel}
+        aria-expanded={open}
+        onClick={openMenu}
+      >
+        {label}
+      </Button>
+      {createPortal(
+        <div
+          ref={panelRef}
+          className="version-page__more-menu"
+          data-testid={menuTestId}
+          style={{
+            position: 'fixed',
+            top: pos.top,
+            left: pos.left,
+            zIndex: 1050,
+            display: open ? 'flex' : 'none',
+          }}
+        >
+          {items}
+        </div>,
+        document.body,
+      )}
+    </>
+  );
+};
 
 const Version: React.FC = () => {
   const intl = useIntl();
@@ -80,16 +190,12 @@ const Version: React.FC = () => {
       try {
         const databases = await fetchDatabaseConfigs();
         setDbs(databases || []);
-        if (databases && databases.length > 0) {
-          const firstDb = databases[0];
-          setSelectedDB({ value: firstDb.name, label: firstDb.name });
-          versionDispatch.initDbs(databases);
-          await fetch(firstDb, 1, pageSize);
-        } else {
-          // 无 JDBC：走模型快照通道，禁止永远 Loading
-          versionDispatch.initDbs([]);
-          await fetch(null, 1, pageSize);
+        versionDispatch.initDbs(databases || []);
+        const currentDb = useVersionStore.getState().dispatch.getCurrentDBData();
+        if (currentDb?.name && !currentDb.isSnapshot) {
+          setSelectedDB({ value: currentDb.name, label: currentDb.name });
         }
+        await fetch(null, 1, pageSize);
         setIsInitialized(true);
       } catch (error) {
         console.error('Error fetching database configs:', error);
@@ -244,42 +350,45 @@ const Version: React.FC = () => {
     const bookmarkGreater = isVersionGreater(row.version, dbVersion);
     const unsynced = bookmarkGreater === true;
     const bookmarkUnknown = bookmarkGreater === null;
+
+    // Git 心智：每行只留「详情」（=diff-against-parent）「回滚」（=checkout）两个主操作；
+    // 编辑/删除/复刻/推送同步都是低频次要操作，收进「更多」溢出菜单，减少行内图标噪音。
+    const moreItems: React.ReactNode[] = [];
+    if (access.enterprise && unsynced) {
+      moreItems.push(
+        <CompareVersion
+          key="submit-order"
+          type={CompareVersionType.DETAIL}
+          buttonLabel={intl.formatMessage({ id: 'versionPage.action.submitOrder' })}
+          testId="version-submit-order-btn"
+        />,
+      );
+    }
+    if (access.canErdHisprojectEdit) {
+      moreItems.push(<RenameVersion key="rename" />);
+    }
+    if (access.canErdHisprojectDel) {
+      moreItems.push(<RemoveVersion key="remove" />);
+    }
+    moreItems.push(<CopyProject key="copy" projectJSON={row.projectJSON} />);
+    if (access.canErdConnectorDbsync) {
+      moreItems.push(
+        <SyncVersion key="sync" synced={!unsynced && !bookmarkUnknown} version={row} />,
+      );
+    }
+
     return [
       <CompareVersion key="detail" type={CompareVersionType.DETAIL} />,
-      <Access key="submit-order" accessible={access.enterprise} fallback={<></>}>
-        {unsynced ? (
-          <CompareVersion
-            type={CompareVersionType.DETAIL}
-            buttonLabel={intl.formatMessage({ id: 'versionPage.action.submitOrder' })}
-            testId="version-submit-order-btn"
-          />
-        ) : (
-          <></>
-        )}
-      </Access>,
-      <Access
-        key="rename"
-        accessible={access.canErdHisprojectEdit}
-        fallback={<></>}
-      >
-        <RenameVersion />
-      </Access>,
-      <Access
-        key="remove"
-        accessible={access.canErdHisprojectDel}
-        fallback={<></>}
-      >
-        <RemoveVersion />
-      </Access>,
-      <CopyProject key="copy" projectJSON={row.projectJSON} />,
       <RevertVersion key="revert" />,
-      <Access
-        key="sync"
-        accessible={access.canErdConnectorDbsync}
-        fallback={<></>}
-      >
-        <SyncVersion synced={!unsynced && !bookmarkUnknown} version={row} />
-      </Access>,
+      <MoreMenu
+        key="more"
+        items={moreItems}
+        triggerTestId="row-more-btn"
+        menuTestId="row-more-menu"
+        label={intl.formatMessage({ id: 'versionPage.action.more' })}
+        ariaLabel={intl.formatMessage({ id: 'versionPage.action.more' })}
+        linkStyle
+      />,
     ];
   };
 
@@ -361,24 +470,16 @@ const Version: React.FC = () => {
                 <AddVersion trigger="bp"/>
               </Access>
               <CompareVersion type={CompareVersionType.COMPARE}/>
-              <Access
-                accessible={access.canErdHisprojectConfig}
-                fallback={<></>}
-              >
-                <SyncConfig/>
-              </Access>
-              <Access
-                accessible={access.canErdHisprojectInit}
-                fallback={<></>}
-              >
-                <InitVersion/>
-              </Access>
-              <Access
-                accessible={access.canErdHisprojectRebuild}
-                fallback={<></>}
-              >
-                <RebuildVersion/>
-              </Access>
+              <MoreMenu
+                items={[
+                  ...(access.canErdHisprojectConfig ? [<SyncConfig key="sync-config" />] : []),
+                  ...(access.canErdHisprojectRebuild ? [<RebuildVersion key="rebuild" />] : []),
+                ]}
+                triggerTestId="version-toolbar-more-btn"
+                menuTestId="version-toolbar-more-menu"
+                label={intl.formatMessage({ id: 'versionPage.toolbar.more' })}
+                ariaLabel={intl.formatMessage({ id: 'versionPage.toolbar.moreAria' })}
+              />
             </Space>
           </div>
 
