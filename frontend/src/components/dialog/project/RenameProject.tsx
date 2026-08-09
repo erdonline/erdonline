@@ -2,10 +2,16 @@ import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
 import type {InputRef} from 'antd/es/input';
 import {updateProject} from '@/services/project';
+import type {MenuDialogControl} from '@/components/Menu/menuDialog';
 import _ from 'lodash';
 
-export type RenameProjectProps = {
-  fetchProjects: () => void;
+export type RenameProjectProps = MenuDialogControl & {
+  fetchProjects?: () => void;
+  onSuccess?: (values: {
+    projectName: string;
+    description?: string;
+    tags?: string;
+  }) => void;
   trigger?: string;
   project: {
     id: string;
@@ -32,7 +38,23 @@ function splitProjectTags(tags?: string): string[] {
 }
 
 const RenameProject: React.FC<RenameProjectProps> = (props) => {
-  const [open, setOpen] = useState(false);
+  const {
+    hideTrigger,
+    open: openProp,
+    onOpenChange,
+    fetchProjects,
+    onSuccess,
+    project,
+  } = props;
+  const [innerOpen, setInnerOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const open = openProp ?? innerOpen;
+  const setOpen = (v: boolean) => {
+    if (openProp === undefined) {
+      setInnerOpen(v);
+    }
+    onOpenChange?.(v);
+  };
   const [form] = Form.useForm<FormValues>();
   const nameInputRef = useRef<InputRef>(null);
 
@@ -42,31 +64,43 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
 
   const handleOk = async () => {
     const values = await form.validateFields();
-    const res = await updateProject({
-      id: props.project.id,
-      projectName: values.projectName,
-      description: values.description,
-      tags: _.join(values.tags, ','),
-    });
-    if (res?.code === 200) {
-      props.fetchProjects();
-      message.success('修改成功');
-      setOpen(false);
-      return;
+    setSubmitting(true);
+    try {
+      const res = await updateProject({
+        id: project.id,
+        projectName: values.projectName,
+        description: values.description,
+        tags: _.join(values.tags, ','),
+      });
+      if (res?.code === 200) {
+        fetchProjects?.();
+        onSuccess?.({
+          projectName: values.projectName!,
+          description: values.description,
+          tags: _.join(values.tags, ','),
+        });
+        message.success('修改成功');
+        setOpen(false);
+        return;
+      }
+      message.error(res?.message || res?.msg || '修改失败');
+    } finally {
+      setSubmitting(false);
     }
-    message.error(res?.message || res?.msg || '修改失败');
   };
 
   return (
     <>
-      <Button
-        type="link"
-        data-testid="project-rename-trigger"
-        aria-label="修改项目"
-        onClick={() => setOpen(true)}
-      >
-        修改
-      </Button>
+      {hideTrigger ? null : (
+        <Button
+          type="link"
+          data-testid="project-rename-trigger"
+          aria-label="修改项目"
+          onClick={() => setOpen(true)}
+        >
+          修改
+        </Button>
+      )}
       <Modal
         title="修改项目"
         open={open}
@@ -76,14 +110,16 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
         width={520}
         keyboard
         focusTriggerAfterClose
+        confirmLoading={submitting}
+        data-testid="project-rename-modal"
         afterOpenChange={(visible) => {
           if (!visible) {
             return;
           }
           form.setFieldsValue({
-            projectName: props.project.projectName,
-            description: props.project.description,
-            tags: splitProjectTags(props.project.tags),
+            projectName: project.projectName,
+            description: project.description,
+            tags: splitProjectTags(project.tags),
           });
           window.setTimeout(() => nameInputRef.current?.focus(), 0);
         }}
@@ -97,7 +133,11 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input ref={nameInputRef} placeholder="请输入项目名" />
+            <Input
+              ref={nameInputRef}
+              placeholder="请输入项目名"
+              data-testid="project-rename-name"
+            />
           </Form.Item>
           <Form.Item
             name="tags"
@@ -120,7 +160,11 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
               {max: 100, message: '不能大于 100 个字符'},
             ]}
           >
-            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+            <Input.TextArea
+              placeholder="请输入项目描述"
+              rows={3}
+              data-testid="project-rename-description"
+            />
           </Form.Item>
         </Form>
       </Modal>

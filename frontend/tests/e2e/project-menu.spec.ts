@@ -38,6 +38,36 @@ async function openProjectSubEntry(
 }
 
 test.describe('设计器项目菜单', () => {
+  test('项目菜单：修改项目名后顶栏即时更新', async ({ page }) => {
+    test.setTimeout(90_000);
+    const projectName = uniqueProjectName('rename');
+    const renamed = uniqueProjectName('renamed');
+    try {
+      await login(page, e2eAccount());
+      await deleteOwnPersonProjects(page);
+      await createAndOpenPersonProject(page, projectName);
+
+      const panel = await openProjectMenu(page);
+      await panel.getByRole('menuitem', { name: '修改项目' }).click();
+
+      const dialog = page.getByRole('dialog', { name: '修改项目' });
+      await expect(dialog).toBeVisible({ timeout: 10_000 });
+      const nameInput = dialog.getByRole('textbox', { name: /项目名/ });
+      await nameInput.click();
+      await nameInput.fill(renamed);
+      await expect(nameInput).toHaveValue(renamed);
+      await dialog.getByRole('button', { name: /确\s*定/ }).click();
+      await expectToast(page, '修改成功');
+      await expect(dialog).toBeHidden({ timeout: 10_000 });
+
+      await expect(page.getByTestId('project-menu-trigger')).toContainText(renamed, {
+        timeout: 10_000,
+      });
+    } finally {
+      await deleteOwnPersonProjects(page).catch(() => {});
+    }
+  });
+
   test('项目 → 设置 → 数据源设置 可打开', async ({ page }) => {
     test.setTimeout(90_000);
     const projectName = uniqueProjectName('menu');
