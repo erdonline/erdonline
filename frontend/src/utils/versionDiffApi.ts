@@ -21,6 +21,16 @@ export type VersionDiffResponse = {
   ddl: string;
 };
 
+/** 工作区 ↔ 最新版本基线（A 层 dirty chip / 存版前 changes） */
+export async function fetchWorkspaceDirtyDiff(input: {
+  projectJSON: Record<string, unknown>;
+  dialectCode?: string;
+  projectId?: string;
+  dbKey?: string;
+}): Promise<VersionDiffResponse> {
+  return fetchVersionPanelDiff(input);
+}
+
 export async function fetchVersionPanelDiff(input: {
   projectJSON: Record<string, unknown>;
   baselineProjectJSON?: Record<string, unknown>;

@@ -24,8 +24,10 @@ export function resolveVersionDirtyState(input: {
   baselineLoaded: boolean;
   versionBaseline: BaselineRecord;
   changes: VersionChangeItem[];
+  /** 工作区 diff API 失败：fail-closed，不得沿用前端 fallback 判 dirty */
+  workspaceDiffError?: string | null;
 }): VersionDirtyState {
-  if (!input.baselineLoaded) {
+  if (!input.baselineLoaded || input.workspaceDiffError) {
     return 'unknown';
   }
   if (!hasBaseline(input.versionBaseline)) {

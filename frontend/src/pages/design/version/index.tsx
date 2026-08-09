@@ -172,6 +172,7 @@ const Version: React.FC = () => {
     versions,
     versionBaseline,
     baselineLoaded,
+    workspaceDiffError,
     pageSize,
     fetch,
     versionDispatch,
@@ -182,6 +183,7 @@ const Version: React.FC = () => {
     versions: state.versions,
     versionBaseline: state.versionBaseline,
     baselineLoaded: state.baselineLoaded,
+    workspaceDiffError: state.workspaceDiffError,
     pageSize: state.pageSize,
     fetch: state.fetch,
     versionDispatch: state.dispatch,
@@ -456,6 +458,7 @@ const Version: React.FC = () => {
                 baselineLoaded={baselineLoaded}
                 versionBaseline={versionBaseline}
                 changes={changes}
+                workspaceDiffError={workspaceDiffError}
               />
               <DualLayerLegend />
               <Space size={4}>

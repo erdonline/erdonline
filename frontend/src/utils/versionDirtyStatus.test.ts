@@ -36,6 +36,16 @@ run('no-baseline when loaded but empty', () => {
   if (state !== 'no-baseline') throw new Error(state);
 });
 
+run('unknown when workspace diff failed', () => {
+  const state = resolveVersionDirtyState({
+    baselineLoaded: true,
+    versionBaseline: { id: '1', version: '1.0.0' },
+    changes: [{ opt: 'add' }],
+    workspaceDiffError: 'version diff failed',
+  });
+  if (state !== 'unknown') throw new Error(state);
+});
+
 run('dirty when changes exist', () => {
   const state = resolveVersionDirtyState({
     baselineLoaded: true,
