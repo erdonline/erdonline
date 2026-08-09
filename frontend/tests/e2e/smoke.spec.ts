@@ -42,7 +42,8 @@ test.describe('冒烟：核心旅程', () => {
       const btn = shellForm?.querySelector('.ant-btn-primary') as HTMLElement | null;
       const title = el.querySelector('.auth-shell__brand-title') as HTMLElement | null;
       const thumb = el.querySelector('.auth-shell__brand-thumb') as HTMLElement | null;
-      const svg = el.querySelector('[data-testid="erd-empty-diagram"]') as SVGElement | null;
+      const hero = el.querySelector('.auth-shell__brand-hero') as HTMLImageElement | null;
+      const kicker = el.querySelector('[data-testid="auth-brand-kicker"]') as HTMLElement | null;
       const fcs = form ? getComputedStyle(form) : null;
       const hcs = header ? getComputedStyle(header) : null;
       const ftCs = formTitle ? getComputedStyle(formTitle) : null;
@@ -70,7 +71,10 @@ test.describe('冒烟：核心旅程', () => {
         btnH: bcs ? parseFloat(bcs.height) : -1,
         titleSize: tcs ? parseFloat(tcs.fontSize) : 0,
         thumbPad: thCs ? parseFloat(thCs.paddingTop) : -1,
-        svgW: svg ? parseFloat(svg.getAttribute('width') || '0') : 0,
+        heroW: hero ? parseFloat(hero.getAttribute('width') || '0') : 0,
+        heroSrc: hero?.getAttribute('src') || '',
+        voidBg: root.getPropertyValue('--erd-void').trim(),
+        kickerVisible: !!kicker,
       };
     });
     expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
@@ -79,7 +83,8 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.shellHasBg2).toBe(false);
     expect(brandMetrics.shellHas1677).toBe(false);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
-    // ADR-0016：登录门碎距 — pad 20×16 + gap12 + 门头 mb12；表单 Title mt6 / 项 mb12 / 控件 28；hero ≤180
+    expect(brandMetrics.voidBg).toBe('#070d14');
+    // ADR-0016：登录门碎距 — pad 20×16 + gap12 + 门头 mb12；表单 Title mt6 / 项 mb12 / 控件 28
     expect(brandMetrics.brandPadT, `品牌 padTop 应 ≤20，得 ${brandMetrics.brandPadT}`).toBeLessThanOrEqual(20);
     expect(brandMetrics.brandPadL, `品牌 padL 应 ≤16，得 ${brandMetrics.brandPadL}`).toBeLessThanOrEqual(16);
     expect(brandMetrics.brandPadT).toBeGreaterThanOrEqual(16);
@@ -99,8 +104,11 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.btnH).toBeLessThanOrEqual(32);
     expect(brandMetrics.titleSize).toBeGreaterThanOrEqual(24);
     expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
-    expect(brandMetrics.svgW, `hero 剪影应 ≤180，得 ${brandMetrics.svgW}`).toBeLessThanOrEqual(180);
-    expect(brandMetrics.svgW).toBeGreaterThan(132);
+    // ADR-0026：精密营销壳 — kicker + landing hero 窗（非剪影 SVG）
+    expect(brandMetrics.kickerVisible).toBe(true);
+    expect(brandMetrics.heroSrc).toMatch(/landing-hero\.jpg/);
+    expect(brandMetrics.heroW, `hero 窗宽应 ≤280，得 ${brandMetrics.heroW}`).toBeLessThanOrEqual(280);
+    expect(brandMetrics.heroW).toBeGreaterThan(200);
 
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');

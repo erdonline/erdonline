@@ -20,13 +20,16 @@ test.describe('404 页', () => {
       return {
         widthRatio: el.getBoundingClientRect().width / window.innerWidth,
         ink900: root.getPropertyValue('--erd-ink-900').trim(),
-        bgImage: cs.backgroundImage,
+        voidBg: root.getPropertyValue('--erd-void').trim(),
+        bgColor: cs.backgroundColor,
       };
     });
     expect(brandMetrics.widthRatio).toBeGreaterThan(0.32);
     expect(brandMetrics.widthRatio).toBeLessThan(0.48);
     expect(brandMetrics.ink900).toBe('#0b1c2c');
-    expect(brandMetrics.bgImage).toMatch(/linear-gradient/i);
+    // ADR-0026：营销壳 void（非历史 ink900 渐变）
+    expect(brandMetrics.voidBg).toBe('#070d14');
+    expect(brandMetrics.bgColor).toBe('rgb(7, 13, 20)');
 
     await page.screenshot({
       path: 'test-results/ux-walkthrough/exception-404-brand-shell.png',

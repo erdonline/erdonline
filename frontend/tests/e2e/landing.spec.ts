@@ -26,6 +26,8 @@ test.describe('落地页', () => {
         ink900: root.getPropertyValue('--erd-ink-900').trim(),
         brand: root.getPropertyValue('--erd-brand').trim(),
         warning: root.getPropertyValue('--erd-warning').trim(),
+        voidBg: root.getPropertyValue('--erd-void').trim(),
+        hairline: root.getPropertyValue('--erd-hairline').trim(),
         pageBg: pageCs.backgroundColor,
         primaryBg: primary ? getComputedStyle(primary).backgroundColor : '',
         fontUi: pageCs.fontFamily,
@@ -34,6 +36,8 @@ test.describe('落地页', () => {
     });
     expect(tokenMetrics.ink900).toBe('#0b1c2c');
     expect(tokenMetrics.brand.toLowerCase()).toBe('#de2910');
+    expect(tokenMetrics.voidBg).toBe('#070d14');
+    expect(tokenMetrics.hairline.length).toBeGreaterThan(0);
     expect(tokenMetrics.pageBg).toMatch(/rgb\(\s*7,\s*13,\s*20\s*\)/);
     expect(tokenMetrics.primaryBg).toMatch(/rgb\(\s*222,\s*41,\s*16\s*\)/);
     expect(tokenMetrics.fontUi.toLowerCase()).toMatch(/ibm plex sans/);

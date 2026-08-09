@@ -9,7 +9,7 @@
   padding: 0 8px;
   border-radius: var(--erd-radius-sm);
   background: var(--erd-surface-muted);
-  border: 1px solid var(--erd-line);
+  border: 1px solid var(--erd-hairline);
   line-height: 1;
 }
 
@@ -23,12 +23,13 @@
   font-size: 11px;
   font-weight: 500;
   line-height: 1;
-  letter-spacing: 0.01em;
+  letter-spacing: 0.02em;
   border: 1px solid transparent;
   white-space: nowrap;
   user-select: none;
   flex-shrink: 0;
-  font-family: var(--erd-font-ui);
+  /* ADR-0026：状态元数据走 mono */
+  font-family: var(--erd-font-mono);
   vertical-align: middle;
 
   &--success {

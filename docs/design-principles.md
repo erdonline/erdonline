@@ -364,6 +364,19 @@
 
 ---
 
+## 8. 精密工具站（ADR-0026）
+
+营销壳与工作台共用「工程级精度」语言；**浅色工作台精密化 ≠ 全局暗色**（ADR-0010）。
+
+- ✅ 落地 / AuthBrandShell：`--erd-void` + 细网格 + IBM Plex + 品牌红 CTA；产品窗/hero 锐利，不做霓虹 glow
+- ✅ Home / Design chrome：hairline 顶栏、mono 状态 chip、项目卡细边框弱阴影（非厚卡片堆）
+- ✅ Token 真相源：`theme/tokens.ts` + `css-vars.less`（`--erd-hairline` / `--erd-chrome-blur` / kicker）
+- ❌ 本阶段给设计器/工作台加暗色 toggle 或 `prefers-color-scheme` 半套换皮
+- ❌ 用紫色渐变 / 赛博霓虹 / 厚多层阴影「模板营销页」盖过产品感
+- ❌ 为炫酷重画 ReactFlow 表节点皮肤（与分享图、视觉 E2E 基线冲突；后置）
+
+---
+
 ## 评审检查单
 
 提交涉及 UI 的 PR 前自问：
@@ -374,3 +387,4 @@
 4. 第一次来的用户知道这个页面该点哪吗？
 5. 误操作能撤销吗？危险操作有确认吗？
 6. 等待超过 300ms 的地方有加载态吗？
+7. 壳层是否仍是「精密工具站」而非暗色半套或模板卡片堆？

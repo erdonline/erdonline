@@ -1,6 +1,9 @@
 import type { ThemeConfig } from 'antd';
 
-/** 工作台亮色系统（与 docs/ui-home-model-redesign.md 一致；落地页深色门面不走此表） */
+/**
+ * 工作台亮色系统（与 docs/ui-home-model-redesign.md 一致）。
+ * 营销壳深色虚空见 void / steel（ADR-0026）；≠ 全局暗色（ADR-0010）。
+ */
 export const erdColors = {
   brand: '#DE2910',
   brandHover: '#B91E0C',
@@ -12,6 +15,14 @@ export const erdColors = {
   surfaceSunk: '#FAFBFC',
   /** 表头 / 次级面板（略深于 sunk，截图层次更清晰） */
   surfaceMuted: '#F3F5F7',
+  /** 营销壳 / Auth 品牌井底色 */
+  void: '#070D14',
+  /** 深色面上的次级字 / 元数据 */
+  steel: '#8B9CB3',
+  /** 浅色 hairline（面板描边，弱于 line） */
+  hairline: 'rgba(11, 28, 44, 0.1)',
+  hairlineOnDark: 'rgba(255, 255, 255, 0.1)',
+  surfaceElevated: '#FFFFFF',
   success: '#2F8F7B',
   warning: '#D48806',
   /** PK 徽章底 / 描边（与 warning 成对） */
@@ -31,6 +42,14 @@ export const erdColors = {
   brandA12: 'rgba(222, 41, 16, 0.12)',
   /** 表 / Frame 共用选中光晕环（CSS `--erd-selection-ring`） */
   brandA18: 'rgba(222, 41, 16, 0.18)',
+} as const;
+
+/** 精密壳：kicker / blur（与 css-vars 同值） */
+export const erdPrecision = {
+  chromeBlur: 'saturate(180%) blur(12px)',
+  kickerSize: 11,
+  kickerTracking: '0.14em',
+  chromeHeaderH: 64,
 } as const;
 
 /** 输入类控件 focus — 中性灰环/描边；invalid 仍走 antd colorError */

@@ -8,6 +8,19 @@
 
 ### 2026-08-09
 
+#### 精密工具站：前端壳层升级（ADR-0026）
+
+- **S0**：`--erd-void` / `--erd-hairline` / `--erd-chrome-blur` / kicker；`docs/adr/0026-precision-tooling-visual-language.md`；`design-principles` §8；全局 IBM Plex（`document.ejs`）
+- **S1**：AuthBrandShell 对齐落地——void + 细网格 + kicker + `landing-hero` 窗 + 品牌红 CTA（≠ 全局暗色）
+- **S2**：Home/项目列表浅色精密化——玻璃顶栏、hairline 项目卡、mono 元数据
+- **S3**：DesignLayout 侧栏 hairline + 状态簇 mono chip；画布空态弱阴影；**节点/边皮肤不动**
+- **键盘**：AuthBrandShell Skip 链恢复为壳内首个 Tab 停（LocaleSwitcher 其后）
+- 验证点：
+  - `cd frontend && yarn test:e2e --project=chromium tests/e2e/landing.spec.ts tests/e2e/smoke.spec.ts --grep "加载可见品牌|登录页渲染" --workers=1 --retries=0` → 2 passed
+  - `… session/share/not-found --grep "登录壳键盘|注册壳键盘|分享失效门键盘|未知路径见品牌壳"` → 4 passed
+  - `… layout-outlet.spec.ts --grep "三壳同语言|项目卡密度"` → 2 passed
+  - `… share.spec.ts --grep "失效|品牌壳"` → 3 passed
+
 #### 文档：用户手册再打磨 + 统计 + i18n
 
 - **文案**：guide 改成带入式路径（场景开场）；修正 Demo **只读** → **复制到我的项目** 再存版

@@ -67,6 +67,11 @@
 }
 
 .project-list-page__list {
+  border: 1px solid var(--erd-hairline, var(--erd-line));
+  border-radius: var(--erd-radius-sm, 6px);
+  background: var(--erd-surface-elevated, var(--erd-surface));
+  overflow: hidden;
+
   .ant-list-empty-text {
     padding: 12px 8px;
   }
@@ -75,6 +80,7 @@
     padding-block: 4px;
     padding-inline: 8px;
     align-items: flex-start;
+    border-block-end: 1px solid var(--erd-hairline, var(--erd-line)) !important;
   }
 
   /* ADR-0016：整行可点开项目（stretched link），动作区抬层；禁死卡区 */
@@ -199,9 +205,11 @@
 }
 
 .project-list-page__time {
-  color: rgba(0, 0, 0, 0.45);
-  font-size: 12px;
+  color: var(--erd-ink-400, rgba(0, 0, 0, 0.45));
+  font-size: 11px;
   line-height: 18px;
+  font-family: var(--erd-font-mono);
+  letter-spacing: 0.02em;
 }
 
 /* ADR-0016：公告行标题↔时间 gap 8（8–12 族）；行 pad 已密，勿再压工具条 */
