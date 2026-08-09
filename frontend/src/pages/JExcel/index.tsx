@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, {useEffect, useRef} from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
 import jspreadsheet, {CellValue} from "jspreadsheet-ce";
 
 import _ from 'lodash';
@@ -19,6 +19,12 @@ export type JExcelProps = {
   columns: any,
   saveData: any,
   notEmptyColumn: string[],
+  /** 表设计字段签：在「末尾增加一行」后注入「从字段库写入」 */
+  onFieldLibraryClick?: () => void,
+};
+
+export type JExcelHandle = {
+  getSelectedRowIndices: () => number[];
 };
 
 /** 空单元格：含索引签 fields[] / 多选「;」串，禁把 [] 当已填导致半成品漏检 */
@@ -47,7 +53,7 @@ const isCompletelyBlankRow = (row: Record<string, unknown>) => {
   });
 };
 
-const JExcel: React.FC<JExcelProps> = (props) => {
+const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
   const {syncing, setSyncing, datatype, database,projectName} = useProjectStore(state => ({
     syncing: state.syncing,
     setSyncing: state.dispatch.setSyncing,
@@ -57,7 +63,21 @@ const JExcel: React.FC<JExcelProps> = (props) => {
   }), shallow);
 
 
-  const {data, columns, saveData, notEmptyColumn} = props;
+  const {data, columns, saveData, notEmptyColumn, onFieldLibraryClick} = props;
+  const onFieldLibraryClickRef = useRef(onFieldLibraryClick);
+  onFieldLibraryClickRef.current = onFieldLibraryClick;
+
+  useImperativeHandle(ref, () => ({
+    getSelectedRowIndices: () => {
+      const selectedRows = jRef?.current?.jexcel?.getSelectedRows?.();
+      if (!selectedRows?.length) {
+        return [];
+      }
+      return selectedRows
+        .map((row: HTMLElement) => parseInt(row?.dataset?.y ?? '', 10))
+        .filter((y: number) => Number.isInteger(y) && y >= 0);
+    },
+  }), []);
   const saveValidData = (excelData: any) => {
     //正在同步远程数据
     if (syncing) {
@@ -128,18 +148,7 @@ const JExcel: React.FC<JExcelProps> = (props) => {
 
   const pagination = 10;
 
-  const options = {
-    data,
-    columns,
-    csvFileName: projectName,
-    allowExport: true,
-    loadingSpin: true,
-    minDimensions: [1, 1],
-    csvHeaders: true,
-    columnDrag: false,
-    columnResize: true,
-    search: false,
-    toolbar: [
+  const toolbar = [
       {
         type: 'i',
         content: 'undo',
@@ -257,7 +266,20 @@ const JExcel: React.FC<JExcelProps> = (props) => {
           });
         }
       },
-    ],
+    ];
+
+  const options = {
+    data,
+    columns,
+    csvFileName: projectName,
+    allowExport: true,
+    loadingSpin: true,
+    minDimensions: [1, 1],
+    csvHeaders: true,
+    columnDrag: false,
+    columnResize: true,
+    search: false,
+    toolbar,
     text: {
       "noRecordsFound": "未找到",
       "showingPage": `第 {0} 页中的 ${pagination} 条`,
@@ -422,10 +444,71 @@ const JExcel: React.FC<JExcelProps> = (props) => {
     }
   }, [options]);
 
+  useEffect(() => {
+    const host = jRef.current as HTMLElement | null;
+    if (!host || !onFieldLibraryClick) {
+      return undefined;
+    }
+
+    const injectFieldLibraryBtn = () => {
+      const toolbar = host.querySelector('.jexcel_toolbar') as HTMLElement | null;
+      if (!toolbar) {
+        return false;
+      }
+      if (toolbar.querySelector('[data-testid="field-library-insert-open"]')) {
+        return true;
+      }
+
+      const items = Array.from(toolbar.querySelectorAll('.jexcel_toolbar_item'));
+      const addBtn = items.find(
+        (el) =>
+          el.getAttribute('title') === '末尾增加一行'
+          || el.getAttribute('aria-label') === '末尾增加一行',
+      );
+
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'erd-jexcel-toolbar-text-btn';
+      btn.setAttribute('data-testid', 'field-library-insert-open');
+      btn.setAttribute('aria-label', '从字段库写入');
+      btn.textContent = '从字段库写入';
+      const open = () => onFieldLibraryClickRef.current?.();
+      btn.addEventListener('click', open);
+      btn.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key !== 'Enter' && e.key !== ' ') {
+          return;
+        }
+        e.preventDefault();
+        open();
+      });
+
+      if (addBtn?.nextSibling) {
+        toolbar.insertBefore(btn, addBtn.nextSibling);
+      } else if (addBtn) {
+        addBtn.after(btn);
+      } else {
+        toolbar.appendChild(btn);
+      }
+      return true;
+    };
+
+    if (injectFieldLibraryBtn()) {
+      return undefined;
+    }
+    const timer = window.setInterval(() => {
+      if (injectFieldLibraryBtn()) {
+        window.clearInterval(timer);
+      }
+    }, 50);
+    return () => window.clearInterval(timer);
+  }, [onFieldLibraryClick]);
+
   return (
 
     <div ref={jRef} data-testid="jexcel-root"/>
   );
-}
+});
+
+JExcel.displayName = 'JExcel';
 
 export default React.memo(JExcel);
