@@ -316,6 +316,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `WECHAT_APP_ID` / `WECHAT_APP_SECRET` / `WECHAT_REDIRECT_URI` | 通常不设 | ADR-0021：微信开放平台网站应用扫码；三项齐才启用 |
 | `ERD_FEDERATE_SUCCESS_PATH` | `/login/federate` | 联邦回调后 UI 落点路径（拼在 `ERD_UI_URL` 后） |
 | `ERD_CATALOG_API_URL` | 通常**不设**（空 = 仅本地模板种子） | ADR-0028：可选远程 catalog 合并；自托管 offline 默认可用 |
+| `ERD_CATALOG_MAINTAINER_USERNAMES` | **prod 必填**（逗号分隔，如 `alice,bob`） | ADR-0028：可审核 `/catalog/review` 的维护者账号；**默认空**，不设则无人可审核社区提交；勿依赖仓库 `admin` 种子 |
 | `MYSQL_USE_SSL` / `MYSQL_REQUIRE_SSL` / `MYSQL_ALLOW_PUBLIC_KEY_RETRIEVAL` | Railway 默认勿设（走 prod 开 SSL）；compose 已关 | 见「Railway MySQL」TLS 段；无 TLS 插件须显式关 |
 | `ERD_UI_URL` | **双源（推荐）**：`https://app.erdonline.com,https://www.erdonline.com`（无尾斜杠、逗号无空格）；单 UI 时可只写一项 | **prod 必填**：CORS（`martin.ui.url`）拿到**全部**逗号分隔条目；SocketIO origin **仅此一键**（c15de0c 后勿再设 `SOCKETIO_ORIGIN`/`CORS_ALLOWED_ORIGINS`）；禁 `*` / 空串；**OIDC issuer 只取第一个合法 http(s) 条目**（`iss` 须单值，跳过畸形/通配）；任一条目缺 `http(s)://` 前缀（如打字漏字母的 `ttps://`）prod 直接 fail-fast，报错点名具体值 |
 | `OSS_ENDPOINT` / `OSS_ACCESS_KEY` / `OSS_SECRET_KEY` | 通常**不设** | 可选 MinIO；未设 endpoint = 不建客户端；启用时须非 `minio`/`minio123`（`OssCredentialGuard`） |

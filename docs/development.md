@@ -304,6 +304,8 @@ curl -sS -X POST 'http://127.0.0.1:9502/catalog/v1/templates/blank/install' \
 
 前端：`http://localhost:8000/catalog`；`/project/new` 重定向至 `/catalog`。可选 `ERD_CATALOG_API_URL`（空 = 仅本地种子 offline）。
 
+**维护者审核（dev）**：`application-dev.yml` 默认 `erd.catalog.maintainer-usernames: [admin]`，本地用种子 `admin/123456` 可进 `/catalog/review`。prod 须设 `ERD_CATALOG_MAINTAINER_USERNAMES=你的运维账号`（逗号分隔）。
+
 ## 前端如何找到后端
 
 对外规范：[data-format.md](./data-format.md)。改 `schema/projectjson.schema.json` 或示例后：

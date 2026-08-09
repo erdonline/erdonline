@@ -8,10 +8,19 @@
 
 ### 2026-08-09
 
+#### 模板广场：作者 handle 用真实账号 + 维护者须显式配置
+
+- **作者 handle**：审核通过时优先 GitHub handle → 账号 **username** → nickname；不再生成 `community-{userId前缀}`（曾导致发布者显示为 `community-2` 等）
+- **历史回填**：Flyway `V22__catalog_author_handle_backfill.sql` 将已有 `community-*` 行改回 submitter 的 username
+- **维护者 gate**：`erd.catalog.maintainer-usernames` prod 默认**空**；dev profile 保留 `admin`；线上设 `ERD_CATALOG_MAINTAINER_USERNAMES=alice,bob`
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=CatalogAuthorResolverTest,CatalogServiceImplTest`
+  - `./backend/dev-ensure.sh --restart` 后审核通过一条无 GitHub 绑定的提交 → 作者 handle = 提交者 username
+
 #### 发布为模板：临时放宽 GitHub 绑定门槛
 
 - **移除**：提交时须绑定 GitHub（账号设置 → 安全）
-- **保留**：须为项目创建人；维护者审核队列（`pending` → approve/reject）；审核通过时作者 handle 仍优先 GitHub，无绑定则 `community-{userId前缀}`
+- **保留**：须为项目创建人；维护者审核队列（`pending` → approve/reject）；审核通过时作者 handle 优先 GitHub，否则用账号 username（见上节）
 - **UI**：发布弹窗文案改为「须为项目创建人。提交后由维护者审核…」（不再提 GitHub）
 - ADR-0028 发布行标注临时放宽
 - 验证点：
