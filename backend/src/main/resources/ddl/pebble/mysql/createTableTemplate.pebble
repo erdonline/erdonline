@@ -1,0 +1,8 @@
+CREATE TABLE `{{ entity.title }}`(
+{% for field in entity.fields %}
+    `{{ field.name }}` {{ field.dataType }}{% if field.notNull %} NOT NULL{% endif %}{% if field.autoIncrement %} AUTO_INCREMENT{% endif %}{% if field.defaultValue %} DEFAULT {{ field.defaultValue }}{% endif %} COMMENT '{{ erdJoin(a=field.chnname, b=field.remark, delimiter=' ') }}'{% if not loop.last or pkFieldNames|length > 0 %},{% endif %}
+{% endfor %}
+{% if pkFieldNames|length > 0 %}
+    PRIMARY KEY ({% for pkName in pkFieldNames %}`{{ pkName }}`{% if not loop.last %},{% endif %}{% endfor %})
+{% endif %}
+) COMMENT = '{{ erdJoin(a=entity.chnname, b=entity.remark, delimiter=' ') }}';{{ separator }}
