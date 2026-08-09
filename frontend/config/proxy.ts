@@ -15,12 +15,14 @@ export default {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
+    '/dataDict/': backendProxy,
     '/.well-known/': backendProxy,
   },
   test: {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
+    '/dataDict/': backendProxy,
     '/.well-known/': backendProxy,
   },
 };

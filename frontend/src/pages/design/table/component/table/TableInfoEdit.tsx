@@ -8,6 +8,7 @@ import shallow from "zustand/shallow";
 import JExcel from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
 import { Button, Empty, message } from 'antd';
+import InsertFromFieldLibraryModal from '@/components/field-library/InsertFromFieldLibraryModal';
 import { jexcelTypeDropdownSource } from '@/utils/fieldTypeOptions';
 
 export type TableInfoEditProps = {
@@ -51,8 +52,17 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   /** 落盘失败时重挂 JExcel（组件不吃 props.data），回滚到 store 快照 */
   const [sheetEpoch, setSheetEpoch] = useState(0);
   const [fieldSaving, setFieldSaving] = useState(false);
+  const [fieldLibraryOpen, setFieldLibraryOpen] = useState(false);
   const pendingRef = useRef<FieldRow[] | null>(null);
   const savingRef = useRef(false);
+  const prevFieldCountRef = useRef(fields.length);
+
+  useEffect(() => {
+    if (fields.length !== prevFieldCountRef.current) {
+      prevFieldCountRef.current = fields.length;
+      setSheetEpoch((e) => e + 1);
+    }
+  }, [fields.length]);
 
   useEffect(() => {
     setStarted(false);
@@ -238,6 +248,16 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
       style={{ width: '100%', height: '640px', overflow: 'auto' }}
       aria-busy={fieldSaving || undefined}
     >
+        <div className="erd-table-field-toolbar" style={{ marginBottom: 8 }}>
+          <Button
+            size="small"
+            data-testid="field-library-insert-open"
+            aria-label="从字段库插入"
+            onClick={() => setFieldLibraryOpen(true)}
+          >
+            从字段库插入
+          </Button>
+        </div>
         <div className="erd-table-field-unique-hint" data-testid="field-unique-hint">
           <span>字段没有独立的「唯一」列；UNIQUE 请在「索引」签勾选「是否唯一」。</span>
           {props.onOpenIndex ? (
@@ -259,6 +279,12 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
           saveData={afterChange}
           // 与画布一致：英文名必填；类型必填（禁半成品静默丢行）
           notEmptyColumn={['name', 'typeName']}
+        />
+        <InsertFromFieldLibraryModal
+          open={fieldLibraryOpen}
+          onOpenChange={setFieldLibraryOpen}
+          moduleName={module}
+          entityTitle={entityTitle}
         />
     </div>
   );

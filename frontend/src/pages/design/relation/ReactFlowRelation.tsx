@@ -71,6 +71,7 @@ import {
 } from '@/utils/fieldTypeOptions';
 import CollabCursors from '@/components/CollabCursors';
 import ReverseDBML from '@/components/dialog/import/ReverseDBML';
+import FieldLibraryDrawer from '@/components/field-library/FieldLibraryDrawer';
 import CommandPalette, { CommandItem } from './CommandPalette';
 import ShortcutHelp from './ShortcutHelp';
 import ErdCrowFootMarkers from './ErdCrowFootMarkers';
@@ -1541,6 +1542,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const [diagramModalSubmitting, setDiagramModalSubmitting] = useState(false);
   const [frameAssignModal, setFrameAssignModal] = useState<null | { frameId: string }>(null);
   const [dbmlImportOpen, setDbmlImportOpen] = useState(false);
+  const [fieldLibraryOpen, setFieldLibraryOpen] = useState(false);
   /** 关系图弹层首焦「关系图名称」 */
   const diagramNameInputRef = useRef<InputRef>(null);
   /** 加入分组弹层首焦「选择分组」 */
@@ -3122,6 +3124,16 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
             <button
               type="button"
               className="erd-canvas-tool"
+              data-testid="canvas-field-library"
+              onClick={() => setFieldLibraryOpen(true)}
+              title="打开字段库"
+              aria-label="字段库"
+            >
+              字段库
+            </button>
+            <button
+              type="button"
+              className="erd-canvas-tool"
               data-testid="canvas-create-table"
               onClick={createFirstTable}
               title="新建表并立即上图"
@@ -3317,6 +3329,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         hideTrigger
         open={dbmlImportOpen}
         onOpenChange={setDbmlImportOpen}
+      />
+      <FieldLibraryDrawer
+        open={fieldLibraryOpen}
+        onClose={() => setFieldLibraryOpen(false)}
       />
       <Modal
         title={diagramModal?.mode === 'rename' ? '重命名关系图' : '新建关系图'}

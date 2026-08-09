@@ -228,6 +228,10 @@ export default [
             component: './design/setting/component/DataTypeDomains',
           },
           {
+            path: '/design/table/setting/fieldLibrary',
+            component: './design/setting/component/FieldLibraryPage',
+          },
+          {
             path: '/design/table/setting/databaseTemplates',
             component: './design/setting/component/DatabaseTemplatesRedirect',
           },

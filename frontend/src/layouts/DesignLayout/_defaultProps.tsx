@@ -1,5 +1,6 @@
 import {
   AuditOutlined,
+  BookOutlined,
   CloudDownloadOutlined,
   ColumnHeightOutlined,
   ControlOutlined,
@@ -84,6 +85,12 @@ export const secondaryRoutes = [
         nameKey: 'designLayout.route.dataTypeDict',
         icon: <TagOutlined style={brandIcon()} />,
         // 复用默认字段权限，避免本轮扩 privileges
+        access: 'canErdTableSettingDefaultfield',
+      },
+      {
+        path: '/design/table/setting/fieldLibrary',
+        nameKey: 'designLayout.route.fieldLibrary',
+        icon: <BookOutlined style={brandIcon()} />,
         access: 'canErdTableSettingDefaultfield',
       },
       {
