@@ -18,6 +18,7 @@
 | 数据 | Flyway `catalog_template` / `catalog_rating` / `catalog_install` / `catalog_submission`；官方种子来自 `schema/examples` + `backend/.../catalog-seed/` |
 | API | 浏览器 `GET/POST /catalog/v1/**`（会话 JWT）；MCP/PAT `GET/POST /api/v1/catalog/**`（读 `projects:read`，安装 `projects:write`） |
 | 创建 IA | `/project/new` → `/catalog`；Home CTA、空态「从模板创建」；首 tile = 空白项目 |
+| 发现面 IA | **`/catalog` 公开 CatalogLayout**（Landing 品牌壳，非 HomeLayout）；匿名浏览；安装/评分/评论须登录；维护者审核 `/catalog/review` 须登录 |
 | 安装 | `POST …/install` → `initPersonProject` + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>` |
 | 社交 P0 | 评分（须已安装，1 票/用户）；安装数去重；作者页 `GET …/creators/{handle}`（GitHub handle） |
 | 社交 P1 | 评论（须安装+限频）、举报自动隐藏、作者开关/限制评论者、hot 排序 + 官方/社区筛选 → ✅ 2026-08-09 |

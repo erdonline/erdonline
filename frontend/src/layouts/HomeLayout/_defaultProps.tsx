@@ -1,5 +1,4 @@
 import {
-  AppstoreFilled,
   DatabaseFilled,
   GlobalOutlined,
   HomeFilled,
@@ -18,11 +17,6 @@ export default {
         path: '/home',
         nameKey: 'homeLayout.route.home',
         icon: <HomeFilled style={brandIcon()} />,
-      },
-      {
-        path: '/catalog',
-        nameKey: 'homeLayout.route.catalog',
-        icon: <AppstoreFilled style={brandIcon()} />,
       },
       {
         path: '/dataModels',

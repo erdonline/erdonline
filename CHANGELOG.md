@@ -8,13 +8,19 @@
 
 ### 2026-08-09
 
-#### 模板广场 IA：HomeLayout 顶栏同级导航
+#### 模板广场 IA：公开发现面，脱离 HomeLayout
 
-- **问题**：`/catalog` 走 HomeLayout 但未注册顶栏项，`selectedKeys` 回退为「首页」，像嵌在 Home 里的子页
-- **修复**：顶栏新增「模板广场」（与首页/数据模型同级）；`/catalog*` 高亮该项；内容区 `home-layout--catalog` 去掉双层白卡片框
+- **问题**：模板广场是公开浏览面（类 Figma Community），不应嵌在 HomeLayout「首页/数据模型」同级顶栏里
+- **修复**：新增 `CatalogLayout`（复用 LandingChrome 品牌壳）；`/catalog*` 匿名可浏览；安装/评分/评论未登录跳转 `/login?redirect=…`；维护者 `/catalog/review` 仍须登录
+- **HomeLayout**：移除顶栏「模板广场」；Home「从模板创建」仍链到公开 `/catalog`
 - 验证点：
-  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览"`
-  - 打开 `/catalog` → 顶栏「模板广场」选中，「首页」不选中
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览|已登录仍走公开壳"`
+  - 未登录/已登录打开 `/catalog` → `catalog-chrome` 可见、`home-layout` 不可见
+  - 落地页顶栏「模板广场」→ `/catalog` 仍可达
+
+#### ~~模板广场 IA：HomeLayout 顶栏同级导航~~（已撤销）
+
+- ~~顶栏新增「模板广场」~~ → 改回公开 CatalogLayout（见上）
 
 #### 发布为模板：上下文入口 + 去掉项目 ID 输入
 

@@ -108,8 +108,6 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
     return matches[0]?.path || '/home';
   }, [pathname, routes]);
 
-  const isCatalogSurface = pathname.startsWith('/catalog');
-
   const focusSkipTarget = (id: string) => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -131,7 +129,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
 
   return (
     <Theme>
-      <Layout className={`home-layout${isCatalogSurface ? ' home-layout--catalog' : ''}`} data-testid="home-layout">
+      <Layout className="home-layout" data-testid="home-layout">
         <nav
           className="erd-skip-nav"
           aria-label={intl.formatMessage({id: 'common.skipNav'})}
@@ -191,7 +189,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             tabIndex={-1}
             data-testid="home-main-content"
           >
-            <div className={`home-layout__body${isCatalogSurface ? ' home-layout__body--catalog' : ''}`}>
+            <div className="home-layout__body">
               <Outlet />
             </div>
             <div className="home-layout__footer">
