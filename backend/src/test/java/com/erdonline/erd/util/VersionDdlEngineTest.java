@@ -30,7 +30,9 @@ class VersionDdlEngineTest {
                 "code", "MYSQL",
                 "defaultDatabase", defaultDb,
                 "createTableTemplate",
-                "CREATE TABLE `{{=it.entity.title}}`(`id` INT);{{=it.separator}}");
+                "CREATE TABLE `{{=it.entity.title}}`(`id` INT);{{=it.separator}}",
+                "createFieldTemplate",
+                "ALTER TABLE `{{=it.entity.title}}` ADD COLUMN `{{=it.field.name}}` {{=it.field.type}};{{=it.separator}}");
     }
 
     private static Map<String, Object> entity(String title) {

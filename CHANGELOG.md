@@ -8,6 +8,20 @@
 
 ### 2026-08-09
 
+#### 后端：版本增量 DDL — Pebble 引擎 + doT 兼容层（拒绝嵌入 doT.js）
+
+- **引擎**：Pebble 3.x 作为 JVM 原生模板运行时（编译缓存、无 ScriptEngine）。
+- **兼容**：`DotToPebbleTranslator` 将 projectJSON 存量 doT（`{{=}}` / `{{~}}` / 条件）转为 Pebble；
+  `pkList`/`sameCols` evaluate 由 `DdlTemplateContextEnricher` 预计算；classpath 方言默认模板
+  `ddl/pebble/{dialect}/*.pebble` 作兜底。
+- **编排**：`Json2CodeDdlEngine.generateUpdateSql` 为权威增量 DDL；`VersionPanelDiffEngine` 仍
+  `VersionDiffEngine` + DDL；常量类 `ProjectJsonKeys` / `VersionDiffKeys` / `DdlTemplateKeys`。
+- **删除**：`resources/dot/doT.js`、`dot-render.js`、Rhino/GraalJS 嵌入路径。
+- ADR：[0030-ddl-template-engine-isomorphism.md](docs/adr/0030-ddl-template-engine-isomorphism.md)
+- 验证点：
+  - `cd backend && mvn -q test -Dtest=VersionDiffEngineTest,VersionDdlEngineTest,VersionPanelDiffEngineTest,DdlForeignKeyRendererTest,DdlPebbleCompatibilityTest`
+  - `./backend/dev-ensure.sh --restart`
+
 #### 修复：版本详情脚本空白 + 顶栏「未存版本 +111」假脏（FE 只渲染 API）
 
 - **P0 · 变化脚本(未同步) 空白**：`loadVersionPanelDiff` 在 `init || baseVersion` 时走前端
