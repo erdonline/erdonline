@@ -34,7 +34,7 @@
         <sqlserver.connector.version>12.8.1.jre11</sqlserver.connector.version>
         <ttl.version>2.14.5</ttl.version>
         <jasypt.version>3.0.5</jasypt.version>
-        <org.mapstruct.version>1.5.5.Final</org.mapstruct.version>
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
         <redisson.version>3.37.0</redisson.version>
         <netty-socketio.version>1.7.19</netty-socketio.version>
         <minio.version>8.5.12</minio.version>
