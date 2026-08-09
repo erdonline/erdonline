@@ -120,6 +120,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
       setSeedSources({});
       return;
     }
+    setSeedSources({});
     let cancelled = false;
     void fetchDdlTemplateSources({ dialectCode: activeCode })
       .then((sources) => {
@@ -177,13 +178,13 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
       const next = String(templateOverrides[key] ?? '').trim();
       const prev = hasStoredTemplate(storedInProject, key)
         ? String(storedInProject![key]).trim()
-        : '';
+        : String(seedSources[key] ?? '').trim();
       if (next !== prev) {
         return true;
       }
     }
     return false;
-  }, [storedInProject, metaDraft, templateOverrides]);
+  }, [storedInProject, metaDraft, templateOverrides, seedSources]);
 
   const handleSave = async () => {
     if (!activeCode) {
@@ -223,14 +224,18 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
 
   const hasOverride = Object.prototype.hasOwnProperty.call(templateOverrides, templateKey);
   const storedCustomValue = storedInProject?.[templateKey];
-  const editorValue = hasOverride
-    ? (templateOverrides[templateKey] ?? '')
-    : (storedCustomValue ?? '');
-  const seedPlaceholder = seedSources[templateKey] ?? '';
-  const isSeedPlaceholder =
+  const seedDisplay = seedSources[templateKey] ?? '';
+  const isSeedDisplay =
     !hasStoredTemplate(storedInProject, templateKey) &&
     !hasOverride &&
-    seedPlaceholder.length > 0;
+    seedDisplay.length > 0;
+  const editorValue = hasOverride
+    ? (templateOverrides[templateKey] ?? '')
+    : hasStoredTemplate(storedInProject, templateKey)
+      ? String(storedCustomValue ?? '')
+      : isSeedDisplay
+        ? seedDisplay
+        : '';
 
   const editorMode = editorModeForDialect(activeCode ?? 'MYSQL');
 
@@ -351,6 +356,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
             data-testid="database-templates-dialect"
             style={{ minWidth: 180 }}
             value={activeCode}
+            virtual={false}
             getPopupContainer={(trigger) =>
               trigger.parentElement ?? document.body
             }
@@ -424,7 +430,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
         >
           <p className="database-templates-editor__pane-label">
             {intl.formatMessage({ id: 'databaseTemplates.pane.source' })}
-            {isSeedPlaceholder ? (
+            {isSeedDisplay ? (
               <span
                 className="database-templates-editor__seed-badge"
                 data-testid="database-templates-seed-badge"
@@ -435,8 +441,8 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
           </p>
           <div
             className={
-              isSeedPlaceholder
-                ? 'database-templates-editor__seed-placeholder'
+              isSeedDisplay
+                ? 'database-templates-editor__seed-display'
                 : undefined
             }
             data-testid="database-templates-source-editor"
@@ -445,7 +451,6 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
               mode={editorMode}
               height={editorHeight}
               value={editorValue}
-              placeholder={isSeedPlaceholder ? seedPlaceholder : undefined}
               onChange={(value: string) => handleTemplateTextChange(value)}
             />
           </div>
