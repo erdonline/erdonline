@@ -8,6 +8,12 @@
 
 ### 2026-08-09
 
+#### 顶栏品牌链：全站统一回产品首页 `/`
+
+- **行为**：左上角 **ERD Online**（`erd-chrome-brand`）在设计器、HomeLayout、GroupLayout 与工作区顶栏一致跳转 **`/`**（LandingChrome 产品首页）；此前工作区 chrome 指向 `/home`
+- **已对齐**：LandingChrome、AuthBrandShell、分享页顶栏本就指向 `/`
+- 验证点：`yarn test:e2e --project=chromium tests/e2e/home-keyboard.spec.ts --grep "品牌链统一"`；`leave-designer-save.spec.ts` 品牌离开断言同步为 `/`
+
 #### 数据模型列表：补「发布为模板」行内入口
 
 - **入口**：`/dataModels` 每行 actions（最近 / 个人视图）；团队项目筛选仍仅配置 + 打开（与团队列表一致）

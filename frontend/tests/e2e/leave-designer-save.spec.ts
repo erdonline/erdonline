@@ -179,7 +179,7 @@ test.describe('离开设计器的保存行为', () => {
       });
 
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       await page.waitForTimeout(1_500);
       expect(saveCalls).toHaveLength(0);
     } finally {
@@ -216,7 +216,7 @@ test.describe('离开设计器的保存行为', () => {
       });
 
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       await page.waitForTimeout(1_500);
       expect(saveCalls.length).toBeGreaterThan(0);
     } finally {
@@ -262,7 +262,7 @@ test.describe('离开设计器的保存行为', () => {
 
       // 离开 → closeSocket 补枪（第 2 次 save，仍失败）
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       await page.waitForTimeout(1_000);
       expect(saveAttempts).toBeGreaterThanOrEqual(2);
 
@@ -290,7 +290,7 @@ test.describe('离开设计器的保存行为', () => {
       });
       await page.waitForTimeout(500);
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       await page.waitForTimeout(1_500);
       expect(saveCallsAfterRetry).toHaveLength(0);
     } finally {
@@ -329,7 +329,7 @@ test.describe('离开设计器的保存行为', () => {
       await page.getByTestId('canvas-create-table').click();
       await expect(page.getByTestId('save-status')).toHaveText('保存中…', { timeout: 3_000 });
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       const saveResp = await saveDone;
       expect(saveResp.ok()).toBeTruthy();
       expect(saveCalls.length).toBeGreaterThan(0);
@@ -372,7 +372,7 @@ test.describe('离开设计器的保存行为', () => {
       // 阻断落库时可能跳过「保存中…」直进失败态；仍须在未落盘时离开
       await expect(page.getByTestId('save-status')).not.toHaveText('已落盘', { timeout: 3_000 });
       await page.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(page).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
       await expect.poll(() => saveCalls.length, { timeout: 10_000 }).toBeGreaterThan(0);
 
       await page.goto(designUrl, { waitUntil: 'domcontentloaded' });
@@ -538,7 +538,7 @@ test.describe('双人协作：离开补枪不覆写对方落库', () => {
       });
 
       await ownerPage.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(ownerPage).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(ownerPage).toHaveURL(/\/$/, { timeout: 15_000 });
       await expect.poll(() => ownerSaveCalls.length, { timeout: 10_000 }).toBeGreaterThan(0);
       await ownerPage.unroute('**/ncnb/project/group/save');
 
@@ -659,7 +659,7 @@ test.describe('双人协作：离开补枪不覆写对方落库', () => {
       });
 
       await ownerPage.getByRole('link', { name: 'ERD Online 首页' }).click();
-      await expect(ownerPage).toHaveURL(/\/home/, { timeout: 15_000 });
+      await expect(ownerPage).toHaveURL(/\/$/, { timeout: 15_000 });
       await expect.poll(() => ownerSaveCalls.length, { timeout: 10_000 }).toBeGreaterThan(0);
       await ownerPage.unroute('**/ncnb/project/group/save');
 

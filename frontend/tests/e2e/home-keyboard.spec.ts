@@ -255,4 +255,13 @@ test.describe('Home 工作台键盘', () => {
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: 'ERD Online 首页' })).toBeFocused();
   });
+
+  test('顶栏品牌链统一回产品首页 /', async ({ page }) => {
+    await login(page);
+    await page.goto('/home');
+    await expect(page.getByTestId('home-page')).toBeVisible();
+    await page.getByRole('link', { name: 'ERD Online 首页' }).click();
+    await expect(page).toHaveURL(/\/$/, { timeout: 15_000 });
+    await expect(page.getByTestId('landing-page')).toBeVisible();
+  });
 });
