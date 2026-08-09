@@ -99,6 +99,32 @@ ADR-0008 把 JDBC 机密唯一事实源收敛到表 `data_sources` 后，该表�
 - **密钥轮换代价**：换 `ERD_DB_CONFIG_SECRET` 会让旧密文全部不可解（`decrypt()` 抛 `IllegalStateException`，日志不含明文）；轮换前必须先用**旧密钥**把所有连接重新保存一遍（触发重新加密），或导出连接信息后用新密钥重建
 - **不做**：不加密 `projectJSON`/版本快照（ADR-0008 已确保其不含机密）；不引入 Jasypt/KMS（仓库规模用应用层 AES-GCM 已足够，见 [ADR-0024](./adr/0024-datasource-credential-encryption.md) 取舍）
 
+## 统一项目 / db_key 权限校验（`@RequireProjectAccess`）
+
+version / hisProject / dbChange / connector 等按 `projectId`（+ 可选 `dbKey`）操作的接口，权限校验
+不再散落在每个 Controller/Service 方法体里手写 `assertMember`/dbKey 判断，而是收敛成一套声明式机制：
+
+- **`@RequireProjectAccess`**（方法级）：标在 Controller 方法上，触发 `ProjectAccessAspect` 在方法体
+  执行前统一校验。
+- **`@ProjectId(field=...)` / `@DbKey(field=...)`**（参数级）：告诉切面去哪个参数取值——参数可以是
+  `String`（路径变量/查询参数）、`Map`（请求体，按 `field` 取键）、或任意实体/DTO（反射调用对应
+  getter）。两个注解可以标在同一个参数上（如同一个 `Map` body 里既有 `projectId` 又有 `dbKey`）。
+- **`ProjectAccessAspect`**（`@Order(HIGHEST_PRECEDENCE)`，先于 `@Dynamic` 等切数据源的环绕通知执行）：
+  只标 `@ProjectId` → 只做项目成员校验（`VersionDbKeyGuard.assertMember` → `ProjectAcl`）；同时标了
+  `@DbKey` → 额外做 db_key 归属校验（`VersionDbKeyGuard.assertDbKeyBelongsToCaller`：别名归一化后必须
+  是快照哨兵 `__erd_snapshot__` 或调用者名下的 `data_sources.id`，否则 403）。取不到 `projectId` 一律
+  400 fail-closed，不静默放行。
+- 已应用：`HisProjectController`（load/list/deleteAll/save/diff）、`ConnectorController`
+  （ping/dbReverseParse/dbReverseMeta/dbversion/checkdbversion/rebaseline/dbsync/sqlexec/updateVersion）、
+  `QueryInfoController`（create/update/partialUpdate/exec/explain）。Service 层
+  （`DbChangeServiceImpl`/`DbVersionServiceImpl`）只保留 db_key 别名归一化（业务逻辑），不再重复鉴权。
+- **两处有意保留的例外**（不适合参数级注解，仍是单点显式调用，非"散落"）：
+  1. `HisProjectController.deleteHistory(changeId)` / `QueryInfoController` 的 `delete`/`read`：
+     路径参数只有资源自身 id，不带 `projectId`，必须先查库拿归属再判——`DbChangeServiceImpl.deleteHistory`
+     内联一行 `dbKeyGuard.assertMember(dbChange.getProjectId())`。
+  2. `ConnectorController.schemaProbe`：拒绝时要返回结构化的 `SchemaProbeResult`（含 reason/status
+     供前端渲染），而非通用 403，故保留显式调用 `SchemaProbeAccessGuard.assertCanProbe`。
+
 ## 已知风险（后端登记，2026-08-03）
 
 梳理范围：Spring Security / JWT / CORS / springdoc / datasource / Redis / 用户库 SQL 执行 / 上传 / admin / actuator / SocketIO / 密钥与 ignore-urls / 项目 ACL / 死配置。下列为**已核实**安全或生产风险（非泛 code smell）。级别：P0 公网可利用或密钥可预测；P1 需登录但横向越权/破坏面大；P2 收紧面或误导运维。
@@ -114,6 +140,8 @@ ADR-0008 把 JDBC 机密唯一事实源收敛到表 `data_sources` 后，该表�
 | R-AUTH-05 | P1 | ~~SocketIO 仅验短票/JWT，不验项目成员~~ | ~~`SocketIoAuthorizationListener` / `JOIN_ROOM`~~ | **✅ 已关闭（2026-08-03）**：短票载荷含 `userId`；握手 + `JOIN_ROOM` 均 `ProjectAcl.isMember`；cursor/sync 仅已入房会话可广播 | 保持；成员多人协作见 `verify-socket-presence` / `verify-socket-membership` |
 | R-AUTH-06 | P2 | ~~开放注册双入口~~ | ~~ignore：`/user/register`；产品：`/project/group/user/register`~~ | **✅ 已关闭（2026-08-03）**：去 `RemoteSystemUser.userRegister` HTTP 映射；ignore 仅留产品路径；`allow-open-register` prod/默认=false，`dev`=true；`ERD_ALLOW_OPEN_REGISTER=true` 逃生 | 公网勿开；需自注册自托管显式开阀 |
 | R-AUTH-07 | P2 | ~~`frameOptions` 关闭~~ | ~~`ErdSecurityConfiguration.java:63`~~ | **✅ 已关闭（2026-08-03）**：`headers.frameOptions.deny()`；分享为 SPA `/share/:token`，不 iframe 嵌 API | 保持 DENY；第三方嵌 UI 走前端托管 CSP `frame-ancestors`，勿在此链 `disable` |
+| R-AUTH-08 | P1 | ~~version/hisProject/dbChange/db_version：`db_key` 无归属校验，`projectId` 无成员校验~~ | ~~`DbChangeServiceImpl`（load/getPage/deleteAll/saveVersion/diff）、`DbVersionServiceImpl`（dbversion/checkdbversion/rebaseline）、`ConnectorController`（dbsync/updateVersion）、`PublicApiVersionServiceImpl`~~ | **✅ 已关闭（2026-08-09）**：新增 `VersionDbKeyGuard`（成员 + db_key 归属统一判定）+ `@RequireProjectAccess`/`@ProjectId`/`@DbKey` + `ProjectAccessAspect`（见上「统一项目/db_key 权限校验」）；此前任意登录用户传他人 `projectId`/伪造 `dbKey`（他人 `dataSourceId`）即可跨租户读写版本历史、db_version 书签、下发 DDL/DML | 新增 version/dbChange 相关接口一律加 `@RequireProjectAccess` + `@ProjectId`/`@DbKey`，不要手写内联校验 |
+| R-AUTH-09 | P0 | ~~`LocalNcnbDatabaseService.getDataSourceInfoById` 无归属校验：任意登录用户传任意 `dataSourceId` 即可拿到明文库连接信息~~ | ~~`LocalNcnbDatabaseService`（`@Dynamic`/`DynamicAspect` 唯一凭证来源，供 `queryInfo/exec`、`queryInfo/explain` 等任意 SQL 执行路径切库）~~ | **✅ 已关闭（2026-08-09）**：改走 `DataSourceAcl.requireOwned`（与 `DataSourcesController`/`ConnectorCredentialResolver` 同一套 creator 归属判定），不存在与非本人归属统一返回 403，不因信息差异可枚举真实 id；`QueryInfoController` 的 `exec`/`explain`/`create`/`update`/`partialUpdate` 再加 `@RequireProjectAccess` 纵深防御 | 任何新增 `@Dynamic` 消费方天然继承此收紧；`queryInfo/**` 的 `delete`/`read`/`list`/`tree`（id 不带 projectId 且当前无前端调用方）仍待补，见 regression-checklist |
 
 ### 配置与密钥
 
@@ -164,4 +192,5 @@ ADR-0008 把 JDBC 机密唯一事实源收敛到表 `data_sources` 后，该表�
 ### 建议下一刀（按 ROI）
 
 1. （本轮 R-DATA-02 pin-IP 已关）残余面：raw ping/reverse 仍可带 JDBC（有 Guard + pin）；TLS 主机名校验与钉 IP 的张力（见 R-DATA-02 建议列）。
-2. 贡献者路径 / Agent schema 等非安全项见 roadmap。
+2. `QueryInfoController` 的 `delete`/`read`/`list`/`tree`/`multipleDelete`：id 不带 `projectId` 且全仓 grep 确认无前端调用方（大概率死代码），本轮未动；下一刀要么补 `@RequireProjectAccess`（走类似 `deleteHistory` 的查库-取归属模式）要么按 `delete-dead-code` 整个删除，二选一，不要留着无 ACL 的半成品。
+3. 贡献者路径 / Agent schema 等非安全项见 roadmap。

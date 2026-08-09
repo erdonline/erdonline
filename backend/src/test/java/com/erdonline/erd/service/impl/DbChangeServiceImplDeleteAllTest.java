@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.entity.DbVersion;
 import com.erdonline.erd.mapper.DbChangeMapper;
+import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbVersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.util.Collection;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -35,6 +37,9 @@ class DbChangeServiceImplDeleteAllTest {
     @Mock
     private DbVersionService dbVersionService;
 
+    @Mock
+    private VersionDbKeyGuard dbKeyGuard;
+
     @InjectMocks
     private DbChangeServiceImpl dbChangeService;
 
@@ -46,6 +51,8 @@ class DbChangeServiceImplDeleteAllTest {
     @Test
     void deleteAllHistory_alsoClearsDbVersionBookmarks() {
         when(dbChangeMapper.delete(any())).thenReturn(3);
+        when(dbKeyGuard.resolveDbKey(anyString(), anyString()))
+                .thenAnswer(inv -> inv.getArgument(1));
 
         DbChange criteria = new DbChange();
         criteria.setProjectId("p1");

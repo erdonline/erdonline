@@ -2,7 +2,6 @@ package com.erdonline.erd.controller;
 
 import cn.hutool.core.util.IdUtil;
 import com.erdonline.common.core.api.ApiErrorCode;
-import com.erdonline.common.core.api.ApiErrorCode;
 import com.erdonline.common.core.api.R;
 import com.erdonline.common.core.exception.ValidateException;
 import com.erdonline.common.vip.annotation.VIP;
@@ -20,6 +19,9 @@ import com.erdonline.erd.schema.SchemaProbeResult;
 import com.erdonline.erd.schema.SchemaProbeStatus;
 import com.erdonline.erd.security.ConnectorCredentialResolver;
 import com.erdonline.erd.security.SchemaProbeAccessGuard;
+import com.erdonline.erd.security.annotation.DbKey;
+import com.erdonline.erd.security.annotation.ProjectId;
+import com.erdonline.erd.security.annotation.RequireProjectAccess;
 import com.erdonline.erd.service.DbChangeService;
 import com.erdonline.erd.service.DbVersionService;
 import com.erdonline.erd.vip.rights.ProjectVersionCountRight;
@@ -60,15 +62,17 @@ public class ConnectorController {
     @Autowired
     private SchemaProbeAccessGuard schemaProbeAccessGuard;
 
+    @RequireProjectAccess
     @PostMapping("ping")
-    public R ping(@RequestBody Map map) {
+    public R ping(@ProjectId @RequestBody Map map) {
         connectorCredentialResolver.apply(map);
         PingDBCommand pingDBCommand = new PingDBCommand();
         return pingDBCommand.exec(map);
     }
 
+    @RequireProjectAccess
     @PostMapping("dbReverseParse")
-    public R dbReverseParse(@RequestBody Map map) {
+    public R dbReverseParse(@ProjectId @RequestBody Map map) {
         connectorCredentialResolver.apply(map);
         DBReverseParseCommand dbReverseParseCommand = new DBReverseParseCommand();
         return dbReverseParseCommand.exec(map);
@@ -77,8 +81,9 @@ public class ConnectorController {
     /**
      * 逆向导入元数据：方言能力矩阵 + schema 列表。
      */
+    @RequireProjectAccess
     @PostMapping("dbReverseMeta")
-    public R dbReverseMeta(@RequestBody Map map) {
+    public R dbReverseMeta(@ProjectId @RequestBody Map map) {
         connectorCredentialResolver.apply(map);
         return new DBReverseMetaCommand().exec(map);
     }
@@ -108,9 +113,10 @@ public class ConnectorController {
         return new SchemaProbeCommand().exec(map);
     }
 
+    @RequireProjectAccess
     @PostMapping("dbversion")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {ProjectVersionCountRight.class}, reset = true)
-    public R dbversion(@RequestBody Map map) {
+    public R dbversion(@ProjectId @DbKey @RequestBody Map map) {
         String version = dbVersionService.dbversion(map);
         if (null == version) {
             DbVersion dbVersion = new DbVersion();
@@ -127,22 +133,27 @@ public class ConnectorController {
 
     }
 
+    @RequireProjectAccess
     @PostMapping("checkdbversion")
-    public R checkdbversion(@RequestBody Map map) {
+    public R checkdbversion(@ProjectId @DbKey @RequestBody Map map) {
         List<String> version = dbVersionService.checkdbversion(map);
         return R.ok(version.size());
 
     }
 
 
+    @RequireProjectAccess
     @PostMapping("rebaseline")
-    public R rebaseline(@RequestBody Map map) {
+    public R rebaseline(@ProjectId @DbKey @RequestBody Map map) {
         return R.ok(dbVersionService.rebaseline((map)));
     }
 
+    // 成员 + db_key 归属须在真正对目标库下发 DDL/DML 之前断言（@RequireProjectAccess 在方法体
+    // 之前触发），否则非成员/伪造 dbKey 也能先把 SQL 打到已鉴权的 dataSourceId 上再被拒绝（为时已晚）。
+    @RequireProjectAccess
     @PostMapping("dbsync")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
-    public R dbsync(@RequestBody Map map) {
+    public R dbsync(@ProjectId @DbKey @RequestBody Map map) {
         connectorCredentialResolver.applyMutate(map);
         DbSyncCommand dbSyncCommand = new DbSyncCommand();
         R result = dbSyncCommand.exec(map);
@@ -153,28 +164,28 @@ public class ConnectorController {
     }
 
 
+    @RequireProjectAccess
     @PostMapping("sqlexec")
     @VIP(module = VIPModuleEnum.ERD,vipLevel = {VIPLevelEnum.NONE,VIPLevelEnum.PRO}, rights = {SQLAuditRight.class}, reset = true)
-    public R sqlexec(@RequestBody Map map) {
+    public R sqlexec(@ProjectId @RequestBody Map map) {
         connectorCredentialResolver.applyMutate(map);
         DbSqlExecCommand dbSqlExecCommand = new DbSqlExecCommand();
         return dbSqlExecCommand.exec(map);
     }
 
+    @RequireProjectAccess
     @PostMapping("updateVersion")
-    public R updateVersion(@RequestBody Map<String, Object> params) {
+    public R updateVersion(@ProjectId @DbKey @RequestBody Map<String, Object> params) {
         String id = IdUtil.fastSimpleUUID();
         String version = (String) params.get("version");
-        String dbKey = (String) params.get("dbKey");
         String versionDesc = (String) params.get("versionDesc");
-        String projectId = (String) params.get("projectId");
         DbVersion dbVersion = new DbVersion();
         dbVersion.setId(id);
         dbVersion.setDbVersion(version);
-        dbVersion.setDbKey(dbKey);
+        dbVersion.setDbKey((String) params.get("dbKey"));
         dbVersion.setVersionDesc(versionDesc);
-        dbVersion.setProjectId(projectId);
-        return R.ok(dbVersionService.save(dbVersion));
+        dbVersion.setProjectId((String) params.get("projectId"));
+        return R.ok(dbVersionService.saveWithCanonicalDbKey(dbVersion));
     }
 
 

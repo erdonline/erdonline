@@ -51,4 +51,10 @@ public interface DbVersionService extends MartinService<DbVersion> {
      * @return
      */
     List<String> checkdbversion(Map map);
+
+    /**
+     * 保存 db_version 行；{@code dbKey} 经 {@link com.erdonline.erd.util.VersionDbKeyResolver} 别名归一化。
+     * 调用方须已在 Controller 层完成成员 + db_key 归属校验（{@code @RequireProjectAccess}）。
+     */
+    Boolean saveWithCanonicalDbKey(DbVersion dbVersion);
 }

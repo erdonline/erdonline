@@ -3,6 +3,7 @@ package com.erdonline.erd.service.impl;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.mapper.DbChangeMapper;
+import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbVersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -17,6 +18,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -29,12 +32,17 @@ class DbChangeServiceImplTagTest {
     @Mock
     private DbVersionService dbVersionService;
 
+    @Mock
+    private VersionDbKeyGuard dbKeyGuard;
+
     @InjectMocks
     private DbChangeServiceImpl dbChangeService;
 
     @BeforeEach
     void wireMapper() {
         ReflectionTestUtils.setField(dbChangeService, "baseMapper", dbChangeMapper);
+        lenient().when(dbKeyGuard.resolveDbKey(anyString(), anyString()))
+                .thenAnswer(inv -> inv.getArgument(1));
     }
 
     @Test

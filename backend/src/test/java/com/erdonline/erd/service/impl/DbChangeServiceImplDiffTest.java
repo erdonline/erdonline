@@ -3,6 +3,7 @@ package com.erdonline.erd.service.impl;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.DbChange;
 import com.erdonline.erd.mapper.DbChangeMapper;
+import com.erdonline.erd.security.VersionDbKeyGuard;
 import com.erdonline.erd.service.DbVersionService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -25,6 +26,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.lenient;
 import static org.mockito.Mockito.when;
 
 /**
@@ -39,12 +42,19 @@ class DbChangeServiceImplDiffTest {
     @Mock
     private DbVersionService dbVersionService;
 
+    @Mock
+    private VersionDbKeyGuard dbKeyGuard;
+
     @InjectMocks
     private DbChangeServiceImpl dbChangeService;
 
     @BeforeEach
     void wireMapper() {
         ReflectionTestUtils.setField(dbChangeService, "baseMapper", dbChangeMapper);
+        // 本测试聚焦 diff/changes 算法，不是权限测试：dbKey 归属校验直通即可（专项见 DbChangeServiceImplAclTest）。
+        // lenient：部分用例（如缺 projectJSON）在触达守卫前就已短路返回，不应因未消费而判 UnnecessaryStubbing。
+        lenient().when(dbKeyGuard.resolveDbKey(anyString(), anyString()))
+                .thenAnswer(inv -> inv.getArgument(1));
     }
 
     private static Map<String, Object> projectJson(String moduleName, String tableTitle) {
