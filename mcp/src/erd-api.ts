@@ -136,6 +136,34 @@ export class ErdApiClient {
     );
   }
 
+  async listCatalogTemplates(
+    opts: { q?: string; tag?: string; sort?: string; page?: number; size?: number } = {},
+  ): Promise<unknown> {
+    const q = new URLSearchParams({
+      page: String(opts.page ?? 1),
+      size: String(opts.size ?? 20),
+    });
+    if (opts.q) q.set('q', opts.q);
+    if (opts.tag) q.set('tag', opts.tag);
+    if (opts.sort) q.set('sort', opts.sort);
+    return this.get(`/api/v1/catalog/templates?${q}`);
+  }
+
+  async getCatalogTemplate(templateId: string): Promise<unknown> {
+    return this.get(`/api/v1/catalog/templates/${encodeURIComponent(templateId)}`);
+  }
+
+  async installCatalogTemplate(templateId: string): Promise<unknown> {
+    return this.post(
+      `/api/v1/catalog/templates/${encodeURIComponent(templateId)}/install`,
+      {},
+    );
+  }
+
+  async getCatalogCreator(handle: string): Promise<unknown> {
+    return this.get(`/api/v1/catalog/creators/${encodeURIComponent(handle)}`);
+  }
+
   private async get(path: string): Promise<unknown> {
     return this.request('GET', path);
   }

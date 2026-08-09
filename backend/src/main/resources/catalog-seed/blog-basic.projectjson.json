@@ -1,0 +1,71 @@
+{
+  "modules": [
+    {
+      "name": "BLOG",
+      "chnname": "博客",
+      "entities": [
+        {
+          "title": "blog_post",
+          "chnname": "文章",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "title", "chnname": "标题", "type": "MiddleString", "notNull": true},
+            {"name": "slug", "chnname": "URL 别名", "type": "MiddleString", "notNull": true},
+            {"name": "content", "chnname": "正文", "type": "LongText"},
+            {"name": "author_id", "chnname": "作者", "type": "IdOrKey", "notNull": true},
+            {"name": "status", "chnname": "状态", "type": "ShortString", "defaultValue": "'draft'"},
+            {"name": "published_at", "chnname": "发布时间", "type": "DateTime"},
+            {"name": "create_time", "chnname": "创建时间", "type": "DateTime", "defaultValue": "CURRENT_TIMESTAMP"}
+          ],
+          "indexs": [
+            {"name": "uk_blog_post_slug", "isUnique": true, "fields": ["slug"]},
+            {"name": "idx_blog_post_author", "isUnique": false, "fields": ["author_id"]}
+          ]
+        },
+        {
+          "title": "blog_author",
+          "chnname": "作者",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "name", "chnname": "姓名", "type": "MiddleString", "notNull": true},
+            {"name": "email", "chnname": "邮箱", "type": "MiddleString"},
+            {"name": "bio", "chnname": "简介", "type": "LongString"}
+          ],
+          "indexs": [
+            {"name": "uk_blog_author_email", "isUnique": true, "fields": ["email"]}
+          ]
+        },
+        {
+          "title": "blog_tag",
+          "chnname": "标签",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "name", "chnname": "标签名", "type": "MiddleString", "notNull": true}
+          ],
+          "indexs": [
+            {"name": "uk_blog_tag_name", "isUnique": true, "fields": ["name"]}
+          ]
+        },
+        {
+          "title": "blog_post_tag",
+          "chnname": "文章标签",
+          "fields": [
+            {"name": "id", "chnname": "主键", "type": "IdOrKey", "pk": true, "notNull": true},
+            {"name": "post_id", "chnname": "文章", "type": "IdOrKey", "notNull": true},
+            {"name": "tag_id", "chnname": "标签", "type": "IdOrKey", "notNull": true}
+          ],
+          "indexs": [
+            {"name": "uk_blog_post_tag", "isUnique": true, "fields": ["post_id", "tag_id"]}
+          ]
+        }
+      ],
+      "associations": [
+        {"relation": "1:n", "from": {"entity": "blog_post", "field": "author_id"}, "to": {"entity": "blog_author", "field": "id"}},
+        {"relation": "1:n", "from": {"entity": "blog_post_tag", "field": "post_id"}, "to": {"entity": "blog_post", "field": "id"}},
+        {"relation": "1:n", "from": {"entity": "blog_post_tag", "field": "tag_id"}, "to": {"entity": "blog_tag", "field": "id"}}
+      ]
+    }
+  ],
+  "profile": {"dbs": [], "defaultFields": []},
+  "dataTypeDomains": {"datatype": [], "database": [{"code": "MYSQL", "defaultDatabase": true}]}
+}

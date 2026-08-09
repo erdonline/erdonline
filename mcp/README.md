@@ -14,6 +14,12 @@ ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `
 | `create_version` | `POST /api/v1/projects/{id}/versions` | `versions:write` |
 | `update_project` | `PATCH /api/v1/projects/{id}` | `projects:write` |
 | `put_project_json` | `PUT /api/v1/projects/{id}/projectJSON` | `projects:write` |
+| `list_templates` | `GET /api/v1/catalog/templates` | `projects:read` |
+| `get_template` | `GET /api/v1/catalog/templates/{id}` | `projects:read` |
+| `install_template` | `POST /api/v1/catalog/templates/{id}/install` | `projects:write` |
+| `get_creator` | `GET /api/v1/catalog/creators/{handle}` | `projects:read` |
+
+ADR-0028：**无** `publish_template`；**无** PAT 评分/评论。
 
 ## 环境变量
 

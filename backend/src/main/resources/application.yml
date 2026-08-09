@@ -179,6 +179,13 @@ erd:
     oauth-auth-code-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_CODE_TTL:120}
     # refresh_token TTL（秒），默认 30 天；仅 authorization_code 换票签发；轮换复用检测
     oauth-refresh-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_REFRESH_TTL:2592000}
+  # ADR-0028 模板广场（Open VSX：空 api-url = 仅本地种子）
+  catalog:
+    api-url: ${ERD_CATALOG_API_URL:}
+    maintainer-usernames:
+      - admin
+    comment-rate-limit-seconds: ${ERD_CATALOG_COMMENT_RATE_LIMIT_SECONDS:60}
+    comment-auto-hide-report-threshold: ${ERD_CATALOG_COMMENT_AUTO_HIDE_THRESHOLD:2}
   # OIDC：RS256 id_token + JWKS；issuer 默认回落 martin.ui.url（ERD_UI_URL）
   # 密钥：ERD_OIDC_RSA_PRIVATE_KEY（PEM）或 ERD_OIDC_RSA_PRIVATE_KEY_PATH；prod 必填
   # 非 prod 未配置时自动生成 ~/.erdonline/oidc-rsa-private.pem（仓外）
@@ -252,4 +259,11 @@ security:
         - /webjars/**
         # 只读分享：匿名仅 GET token（create/revoke/fork 需登录；见 ErdSecurityConfiguration）
         # 不再用 /share/** 全方法放行，避免匿名 POST revoke
+        # ADR-0028 模板广场：匿名浏览（install/rating/submit 仍须 JWT）
+        - /catalog/v1/templates
+        - /catalog/v1/templates/**
+        - /catalog/v1/creators/**
+        - /ncnb/catalog/v1/templates
+        - /ncnb/catalog/v1/templates/**
+        - /ncnb/catalog/v1/creators/**
         # R-DEAD-03：勿加 /endpoint/**（无控制器；匿名误挂面）

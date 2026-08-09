@@ -217,11 +217,11 @@ const Home: React.FC<HomeProps> = () => {
           </Button>
           <div className={styles.heroSecondary}>
             <Link
-              to="/project/person"
+              to="/catalog"
               className={styles.heroSecondaryBtn}
               data-testid="home-link-new-project"
             >
-              <PlusOutlined /> {intl.formatMessage({id: 'homePage.newModel'})}
+              <PlusOutlined /> 从模板创建
             </Link>
             <button
               type="button"

@@ -234,5 +234,63 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
       )(),
   );
 
+  server.registerTool(
+    'list_templates',
+    {
+      description:
+        'List official/community templates (GET /api/v1/catalog/templates). Requires projects:read.',
+      inputSchema: {
+        q: z.string().optional().describe('Search keyword'),
+        tag: z.string().optional().describe('Tag filter'),
+        sort: z
+          .enum(['installs', 'rating', 'newest'])
+          .optional()
+          .describe('Sort order'),
+        page: z.number().int().min(1).default(1),
+        size: z.number().int().min(1).max(100).default(20),
+      },
+    },
+    async ({ q, tag, sort, page, size }) =>
+      wrapTool(() =>
+        api.listCatalogTemplates({ q, tag, sort, page: page ?? 1, size: size ?? 20 }),
+      )(),
+  );
+
+  server.registerTool(
+    'get_template',
+    {
+      description:
+        'Template detail with sanitized projectJSON (GET /api/v1/catalog/templates/{id}). Requires projects:read.',
+      inputSchema: {
+        templateId: z.string().min(1).describe('Template id or slug'),
+      },
+    },
+    async ({ templateId }) => wrapTool(() => api.getCatalogTemplate(templateId))(),
+  );
+
+  server.registerTool(
+    'install_template',
+    {
+      description:
+        'Install template as a new personal project (POST /api/v1/catalog/templates/{id}/install). Requires projects:write.',
+      inputSchema: {
+        templateId: z.string().min(1).describe('Template id or slug'),
+      },
+    },
+    async ({ templateId }) => wrapTool(() => api.installCatalogTemplate(templateId))(),
+  );
+
+  server.registerTool(
+    'get_creator',
+    {
+      description:
+        'Author page with published templates (GET /api/v1/catalog/creators/{handle}). Requires projects:read.',
+      inputSchema: {
+        handle: z.string().min(1).describe('GitHub handle or erdonline'),
+      },
+    },
+    async ({ handle }) => wrapTool(() => api.getCatalogCreator(handle))(),
+  );
+
   return server;
 }

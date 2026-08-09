@@ -11,7 +11,7 @@
 
 工程与设计器为**可用雏形**：核心旅程可跑；数据源已按 ADR-0008 隔离。联调基线：`./scripts/audit-fe-apis.sh`。
 
-**下一阶段战略（服务北极星，不推翻愿景）**：P2b 矩阵 🚧 已清零（见 [control-matrix.md](./control-matrix.md)）；余下矩阵 📋 为延期（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery 等，见矩阵）。
+**下一阶段战略（服务北极星，不推翻愿景）**：P2b 矩阵 🚧 已清零（见 [control-matrix.md](./control-matrix.md)）；余下矩阵 📋 为延期（论坛外链、VIP 角标、实验 query/ChatSQL/dataDomain/dataQuery 等，见矩阵）。**模板广场 MVP ✅**（[ADR-0028](./adr/0028-official-template-catalog.md) 切片 0–5）；**P1 评论/举报/hot ✅**（切片 6–7）；转化看板 stub 📋。
 
 ### Vision 自动轨重定向（2026-08-04）
 
