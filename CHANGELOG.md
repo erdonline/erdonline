@@ -8,6 +8,14 @@
 
 ### 2026-08-09
 
+#### 模板广场 IA：HomeLayout 顶栏同级导航
+
+- **问题**：`/catalog` 走 HomeLayout 但未注册顶栏项，`selectedKeys` 回退为「首页」，像嵌在 Home 里的子页
+- **修复**：顶栏新增「模板广场」（与首页/数据模型同级）；`/catalog*` 高亮该项；内容区 `home-layout--catalog` 去掉双层白卡片框
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览"`
+  - 打开 `/catalog` → 顶栏「模板广场」选中，「首页」不选中
+
 #### 发布为模板：上下文入口 + 去掉项目 ID 输入
 
 - **入口**：设计器「项目菜单 → 发布为模板」（当前打开项目）；项目列表行「发布为模板」（个人/最近）

@@ -945,6 +945,7 @@ export default {
 
   // HomeLayout main nav route names
   'homeLayout.route.home': 'Home',
+  'homeLayout.route.catalog': 'Template catalog',
   'homeLayout.route.dataModels': 'Data models',
   'homeLayout.route.databaseConfig': 'Data sources',
   'homeLayout.route.forum': 'ERD Online forum',

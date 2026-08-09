@@ -100,11 +100,15 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
   );
 
   const selectedKey = useMemo(() => {
-    const match = routes.find(
-      (r) => r.path && !r.path.startsWith('http') && pathname.startsWith(r.path),
-    );
-    return match?.path || '/home';
+    const matches = routes
+      .filter(
+        (r) => r.path && !r.path.startsWith('http') && pathname.startsWith(r.path),
+      )
+      .sort((a, b) => (b.path?.length ?? 0) - (a.path?.length ?? 0));
+    return matches[0]?.path || '/home';
   }, [pathname, routes]);
+
+  const isCatalogSurface = pathname.startsWith('/catalog');
 
   const focusSkipTarget = (id: string) => {
     const el = document.getElementById(id);
@@ -127,7 +131,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
 
   return (
     <Theme>
-      <Layout className="home-layout" data-testid="home-layout">
+      <Layout className={`home-layout${isCatalogSurface ? ' home-layout--catalog' : ''}`} data-testid="home-layout">
         <nav
           className="erd-skip-nav"
           aria-label={intl.formatMessage({id: 'common.skipNav'})}
@@ -187,7 +191,7 @@ const HomeLayout: React.FC<HomeLayoutLayoutProps> = props => {
             tabIndex={-1}
             data-testid="home-main-content"
           >
-            <div className="home-layout__body">
+            <div className={`home-layout__body${isCatalogSurface ? ' home-layout__body--catalog' : ''}`}>
               <Outlet />
             </div>
             <div className="home-layout__footer">

@@ -902,6 +902,7 @@ export default {
 
   // HomeLayout 主导航路由名
   'homeLayout.route.home': '首页',
+  'homeLayout.route.catalog': '模板广场',
   'homeLayout.route.dataModels': '数据模型',
   'homeLayout.route.databaseConfig': '数据源',
   'homeLayout.route.forum': 'ERD Online 论坛',
