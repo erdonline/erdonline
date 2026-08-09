@@ -8,6 +8,9 @@ erd:
     e2e-accounts-enabled: true
     allow-demo-admin: true
     allow-open-register: true
+  catalog:
+    maintainer-usernames:
+      - admin
 
 spring:
   thymeleaf:

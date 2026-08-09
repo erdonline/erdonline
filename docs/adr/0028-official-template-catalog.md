@@ -22,7 +22,7 @@
 | 安装 | `POST …/install` → `initPersonProject` + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>` |
 | 社交 P0 | 评分（须已安装，1 票/用户）；安装数去重；作者页 `GET …/creators/{handle}`（GitHub handle） |
 | 社交 P1 | 评论（须安装+限频）、举报自动隐藏、作者开关/限制评论者、hot 排序 + 官方/社区筛选 → ✅ 2026-08-09 |
-| 发布 | 项目创建人提交 → `pending` → 维护者（默认 `admin`）approve/reject。**临时放宽**（2026-08-09）：不要求绑定 GitHub；审核通过时仍优先用 GitHub handle 作作者页，无绑定则 `community-{userId前缀}` |
+| 发布 | 项目创建人提交 → `pending` → 维护者（**须显式配置** `erd.catalog.maintainer-usernames` / `ERD_CATALOG_MAINTAINER_USERNAMES`；prod 默认空，dev 可含 `admin`）approve/reject。不要求绑定 GitHub；审核通过时作者 handle 优先 GitHub → 账号 **username** → nickname；Flyway V22 回填历史 `community-*` |
 | MCP | `list_templates` / `get_template` / `install_template` / `get_creator`；**无** `publish_template`；**无** PAT 评分/评论 |
 | 明确不做 | 付费模板、LLM 生成、模板版本继承、follow/DM、Agent 自动发布 |
 

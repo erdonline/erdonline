@@ -6,8 +6,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.dto.ProjectDto;
 import com.erdonline.erd.entity.Project;
-import com.erdonline.erd.entity.UserIdentityLink;
-import com.erdonline.erd.mapper.UserIdentityLinkMapper;
 import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -45,8 +43,8 @@ public class CatalogServiceImpl implements CatalogService {
     private final CatalogCommentReportMapper commentReportMapper;
     private final CatalogCommentRestrictionMapper commentRestrictionMapper;
     private final ProjectService projectService;
-    private final UserIdentityLinkMapper identityLinkMapper;
     private final CatalogProperties catalogProperties;
+    private final CatalogAuthorResolver authorResolver;
 
     @Override
     public CatalogPageView listTemplates(String q, String tag, String origin, String sort, int page, int size, String userId) {
@@ -269,13 +267,9 @@ public class CatalogServiceImpl implements CatalogService {
         if (project == null) {
             return R.failed("来源项目不存在");
         }
-        UserIdentityLink github = identityLinkMapper.selectOne(new LambdaQueryWrapper<UserIdentityLink>()
-                .eq(UserIdentityLink::getUserId, submission.getSubmitterUserId())
-                .eq(UserIdentityLink::getProvider, "github")
-                .last("LIMIT 1"));
-        String handle = github != null && StringUtils.hasText(github.getDisplayName())
-                ? github.getDisplayName().trim().toLowerCase(Locale.ROOT)
-                : "community-" + submission.getSubmitterUserId().substring(0, Math.min(8, submission.getSubmitterUserId().length()));
+        CatalogAuthorResolver.AuthorIdentity author = authorResolver.resolve(submission.getSubmitterUserId());
+        String handle = author.handle();
+        String displayName = author.displayName();
         String templateId = IdUtil.fastSimpleUUID();
         String slug = slugify(submission.getTitle()) + "-" + templateId.substring(0, 6);
         CatalogTemplate template = new CatalogTemplate()
@@ -285,7 +279,7 @@ public class CatalogServiceImpl implements CatalogService {
                 .setDescription(submission.getDescription())
                 .setTags(submission.getTags())
                 .setAuthorHandle(handle)
-                .setAuthorDisplayName(github != null ? github.getDisplayName() : handle)
+                .setAuthorDisplayName(displayName)
                 .setProjectJson(ProjectShareServiceImpl.sanitizeProjectJson(project.getProjectJSON()))
                 .setConfigJson(project.getConfigJSON())
                 .setStatus(STATUS_PUBLISHED)
@@ -607,17 +601,7 @@ public class CatalogServiceImpl implements CatalogService {
     }
 
     private String resolveHandle(String userId, String username) {
-        if (!StringUtils.hasText(userId)) {
-            return username != null ? username.trim().toLowerCase(Locale.ROOT) : "";
-        }
-        UserIdentityLink github = identityLinkMapper.selectOne(new LambdaQueryWrapper<UserIdentityLink>()
-                .eq(UserIdentityLink::getUserId, userId)
-                .eq(UserIdentityLink::getProvider, "github")
-                .last("LIMIT 1"));
-        if (github != null && StringUtils.hasText(github.getDisplayName())) {
-            return github.getDisplayName().trim().toLowerCase(Locale.ROOT);
-        }
-        return StringUtils.hasText(username) ? username.trim().toLowerCase(Locale.ROOT) : "";
+        return authorResolver.resolveHandle(userId, username);
     }
 
     private static void applyOriginFilter(LambdaQueryWrapper<CatalogTemplate> wrapper, String origin) {

@@ -182,8 +182,8 @@ erd:
   # ADR-0028 模板广场（Open VSX：空 api-url = 仅本地种子）
   catalog:
     api-url: ${ERD_CATALOG_API_URL:}
-    maintainer-usernames:
-      - admin
+    # prod 默认空；自托管须设 ERD_CATALOG_MAINTAINER_USERNAMES=alice,bob；dev profile 覆盖为 admin
+    maintainer-usernames: []
     comment-rate-limit-seconds: ${ERD_CATALOG_COMMENT_RATE_LIMIT_SECONDS:60}
     comment-auto-hide-report-threshold: ${ERD_CATALOG_COMMENT_AUTO_HIDE_THRESHOLD:2}
   # OIDC：RS256 id_token + JWKS；issuer 默认回落 martin.ui.url（ERD_UI_URL）

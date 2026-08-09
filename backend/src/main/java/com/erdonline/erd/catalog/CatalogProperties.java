@@ -19,9 +19,9 @@ public class CatalogProperties {
     private String apiUrl = "";
 
     /**
-     * 可审核社区提交的维护者用户名列表（默认 admin）。
+     * 可审核社区提交的维护者用户名列表（prod 默认空，须显式配置）。
      */
-    private List<String> maintainerUsernames = new ArrayList<>(List.of("admin"));
+    private List<String> maintainerUsernames = new ArrayList<>();
 
     /** 同一用户在同一模板下发表评论的最小间隔（秒）。 */
     private int commentRateLimitSeconds = 60;

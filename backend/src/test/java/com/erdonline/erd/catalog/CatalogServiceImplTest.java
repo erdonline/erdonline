@@ -2,14 +2,6 @@ package com.erdonline.erd.catalog;
 
 import com.erdonline.common.core.api.R;
 import com.erdonline.erd.entity.Project;
-import com.erdonline.erd.mapper.CatalogCommentMapper;
-import com.erdonline.erd.mapper.CatalogCommentReportMapper;
-import com.erdonline.erd.mapper.CatalogCommentRestrictionMapper;
-import com.erdonline.erd.mapper.CatalogInstallMapper;
-import com.erdonline.erd.mapper.CatalogRatingMapper;
-import com.erdonline.erd.mapper.CatalogSubmissionMapper;
-import com.erdonline.erd.mapper.CatalogTemplateMapper;
-import com.erdonline.erd.mapper.UserIdentityLinkMapper;
 import com.erdonline.erd.service.ProjectService;
 import com.erdonline.erd.service.impl.ProjectShareServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
@@ -52,9 +44,9 @@ class CatalogServiceImplTest {
     @Mock
     private ProjectService projectService;
     @Mock
-    private UserIdentityLinkMapper identityLinkMapper;
-    @Mock
     private CatalogProperties catalogProperties;
+    @Mock
+    private CatalogAuthorResolver authorResolver;
 
     private CatalogServiceImpl catalogService;
 
@@ -69,8 +61,8 @@ class CatalogServiceImplTest {
                 commentReportMapper,
                 commentRestrictionMapper,
                 projectService,
-                identityLinkMapper,
-                catalogProperties);
+                catalogProperties,
+                authorResolver);
     }
 
     @Test
@@ -94,7 +86,7 @@ class CatalogServiceImplTest {
         assertEquals("u1", row.getSubmitterUserId());
         assertEquals("My Template", row.getTitle());
         assertEquals("pending", row.getStatus());
-        verifyNoInteractions(identityLinkMapper);
+        verifyNoInteractions(authorResolver);
     }
 
     @Test
