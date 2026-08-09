@@ -725,6 +725,8 @@ export default {
     '当前操作的版本之前还有版本尚未同步，请不要跨版本操作!',
   'versionModal.diff.emptyNoChanges': '当前版本无变化',
   'versionModal.diff.emptyFullScript': '当前脚本为全量脚本（无增量变更条目）',
+  'versionModal.diff.loadError': '无法加载版本差异',
+  'versionModal.diff.loadErrorEmpty': '后端差异计算失败，请稍后重试',
   'versionModal.diff.summary': '共 {count} 项 · {tables} 张表 · {hint}',
   'versionModal.diff.summaryHintDefault': 'A 层版本 diff',
   'versionModal.diff.summaryHintVersionDetail': '相对上一版本',
@@ -829,6 +831,8 @@ export default {
     '所选版本号无法比较，请检查格式（如 1.0.0）',
   'versionStore.compare.incrementNotGreater':
     '增量脚本的版本号不能小于或等于初始版本的版本号',
+  'versionStore.compare.snapshotMissing': '所选版本缺少模型快照，无法比对',
+  'versionStore.diff.fetchFailedWithDetail': '获取版本差异失败: {detail}',
 
   // 版本 store 破坏性确认（useVersionStore confirmDestructive）
   'versionStore.confirm.cancel': '取消',

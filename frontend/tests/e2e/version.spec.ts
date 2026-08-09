@@ -12,6 +12,7 @@ import {
   rfNode,
   saveVersion,
   uniqueProjectName,
+  visibleTestId,
 } from './helpers';
 
 /**
@@ -51,7 +52,11 @@ test.describe('版本快照', () => {
 
       const row100 = page.getByTestId('version-row-1.0.0');
       await row100.hover();
+      const detailDiffResponse = page.waitForResponse(
+        (r) => r.url().includes('/ncnb/hisProject/diff') && r.status() === 200,
+      );
       await row100.getByTestId('version-detail-btn').click();
+      await detailDiffResponse;
       await expect(page.getByText('版本变更详情')).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('version-diff-panel')).toBeVisible();
       await expect(page.getByTestId('version-diff-summary')).toBeVisible();
@@ -79,7 +84,11 @@ test.describe('版本快照', () => {
       await saveVersion(page);
       await expect(page.getByTestId('version-row-1.0.1')).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('version-compare-btn')).toBeEnabled();
+      const compareDiffResponse = page.waitForResponse(
+        (r) => r.url().includes('/ncnb/hisProject/diff') && r.status() === 200,
+      );
       await page.getByTestId('version-compare-btn').click();
+      await compareDiffResponse;
       await expect(page.getByText('任意版本比较')).toBeVisible({ timeout: 10_000 });
       await expect(page.getByTestId('version-diff-panel')).toBeVisible();
       await expect(page.getByTestId('version-diff-item-add').first()).toBeVisible();
@@ -166,7 +175,9 @@ test.describe('版本快照', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'syncfg', 'sync config');
       await openVersionPage(page);
-      await page.getByRole('button', { name: '同步配置' }).click();
+      // 「同步配置」已移入版本页「更多」溢出菜单（非首要操作）
+      await page.getByTestId('version-toolbar-more-btn').click();
+      await page.getByTestId('version-sync-config-btn').click();
       const dlg = page.getByRole('dialog').filter({ hasText: '同步配置' });
       await expect(dlg).toBeVisible({ timeout: 10_000 });
       await dlg.getByRole('radio', { name: '重建数据表' }).check();
@@ -187,9 +198,10 @@ test.describe('版本快照', () => {
       await deleteOwnPersonProjects(page);
       await createAndOpenPersonProject(page, projectName, 'rebuild', 'rebuild dialog');
       await openVersionPage(page);
-      // 有版本后 init=false，「重建版本」才可点
+      // 有版本后 init=false，「重建版本」才可点；已移入「更多」溢出菜单
       await saveVersion(page);
-      const rebuildBtn = page.getByTestId('version-rebuild-btn');
+      await page.getByTestId('version-toolbar-more-btn').click();
+      const rebuildBtn = visibleTestId(page, 'version-rebuild-btn');
       await expect(rebuildBtn).toBeEnabled({ timeout: 10_000 });
       await rebuildBtn.click();
       const dlg = page.getByRole('dialog').filter({ hasText: '重建版本' });
@@ -287,7 +299,8 @@ test.describe('版本快照', () => {
 
       const row101 = page.getByTestId('version-row-1.0.1');
       await row101.hover();
-      await row101.getByTestId('version-rename-btn').click();
+      await row101.getByTestId('row-more-btn').click();
+      await visibleTestId(page, 'version-rename-btn').click();
       const renameDlg = page.getByRole('dialog').filter({ hasText: '编辑版本' });
       await expect(renameDlg).toBeVisible();
       await renameDlg.getByRole('textbox', { name: '版本号' }).fill('1.0.2');
@@ -301,7 +314,8 @@ test.describe('版本快照', () => {
       await expect(row102.getByText('E2E 重命名描述')).toBeVisible({ timeout: 10_000 });
 
       await row102.hover();
-      await row102.getByTestId('version-rename-btn').click();
+      await row102.getByTestId('row-more-btn').click();
+      await visibleTestId(page, 'version-rename-btn').click();
       await expect(renameDlg).toBeVisible();
       await renameDlg.getByRole('textbox', { name: '版本号' }).fill('1.0.0');
       await renameDlg.getByRole('button', { name: /确\s*定/ }).click();
@@ -314,7 +328,8 @@ test.describe('版本快照', () => {
 
       const row100 = page.getByTestId('version-row-1.0.0');
       await row100.hover();
-      await row100.getByTestId('version-delete-btn').click();
+      await row100.getByTestId('row-more-btn').click();
+      await visibleTestId(page, 'version-delete-btn').click();
       const deleteDlg = page.getByRole('dialog', { name: '删除版本' });
       await expect(deleteDlg).toBeVisible();
       await deleteDlg.getByRole('button', { name: '是' }).click();
@@ -340,7 +355,8 @@ test.describe('版本快照', () => {
       const row = page.getByTestId('version-row-1.0.0');
       await expect(row).toBeVisible({ timeout: 10_000 });
       await row.hover();
-      await row.getByTestId('project-copy-trigger').click();
+      await row.getByTestId('row-more-btn').click();
+      await visibleTestId(page, 'project-copy-trigger').click();
 
       const dialog = page.getByRole('dialog', {
         name: '复刻为新项目(从当前版本创建新项目)',

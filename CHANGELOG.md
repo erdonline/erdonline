@@ -8,13 +8,19 @@
 
 ### 2026-08-09
 
-#### 修复：版本变更详情「模型变更」与「变化脚本」内容不对齐
+#### 修复：版本变更详情 / 比对 — 后端统一 diff + DDL，消除左栏与脚本错位
 
-- **根因**：详情左栏曾混用 A 层 dirty diff / 落库 `changes` 与右栏 SQL 生成基线；`showChanges` 在 `currentVersionIndex === 0` 时把 `lastVersion` 误设为当前版本自身；`generateUpdateSql` 按 `defaultDatabase` 取模板而非所选 JDBC 方言，非默认库时 `CREATE TABLE` 为空；增量 SQL 未输出 `association` add 对应的外键 DDL
-- **修复**：详情/比对统一用「当前版本快照 vs 上一版快照」重算 structural diff（与后端 `VersionDiffEngine` 同算法）驱动左右两栏；SQL 基于版本快照 + 所选方言生成；补 association→FK；摘要 hint 改为「相对上一版本」
+- **根因（用户粘贴仍错位）**：
+  1. `df5f057` 及未提交 WIP 仍在前端用 `checkVersionStructuralDiff` / `getCodeByChanges` **分两路计算**；左栏含 profile/datatype/61 条 entity add，右栏 `generateUpdateSql` 仅输出 association FK（entity add 因方言模板未命中 → CREATE 为空）
+  2. `/ncnb/hisProject/diff` 原先只返回 `changes` 无 `ddl`，FE 仍本地拼 SQL → 必然漂移
+- **后端（先做并通过单测）**：
+  - `VersionPanelDiffEngine`：`changes` + `ddl` 同源（`VersionDiffEngine` + `VersionDdlEngine`）
+  - `VersionDdlEngine`：entity add → CREATE TABLE、field add → ALTER、association add → FK；profile/datatype 仅出现在 changes
+  - `POST /ncnb/hisProject/diff` 增 `dialectCode`、响应增 `ddl`
+- **前端（后端绿后再接）**：`loadVersionPanelDiff` → `fetchVersionPanelDiff`，右栏直接渲染 `ddl`；失败清空并 Alert，禁止 FE diff fallback
 - 验证点：
-  - `cd frontend && npx --yes tsx src/utils/json2code.changes.test.ts` ✅
-  - HMR 目视：版本变更详情左栏 N 条新增表 ↔ 右栏含 N 条 `CREATE TABLE` + 外键
+  - `cd backend && mvn -q test -Dtest=VersionDiffEngineTest,VersionDdlEngineTest,VersionPanelDiffEngineTest,DbChangeServiceImplDiffTest` ✅ 21 tests
+  - curl `/ncnb/hisProject/diff`：N 条 entity add 响应 ddl 含 N 条 CREATE TABLE
 
 #### 修复：版本管理全链路闭环审计（首版创建/重命名/删除/重建）
 

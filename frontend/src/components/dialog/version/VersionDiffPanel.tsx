@@ -32,6 +32,8 @@ export type VersionDiffPanelProps = {
   messages: VersionDiffItem[];
   /** 右侧脚本非空但无结构化变更时的提示（全量脚本） */
   hasScript?: boolean;
+  /** 后端 diff 失败：禁止展示 stale 数据 */
+  loadError?: string | null;
   /** 摘要行上下文 i18n key，默认 versionModal.diff.summaryHintDefault */
   summaryHintId?: string;
   /** 为 false 时摘要由父级（如 CompareVersion 双栏工具行）渲染，便于与右列对齐 */
@@ -93,6 +95,7 @@ const VersionDiffPanelInner: React.FC<
 > = ({
   messages,
   hasScript,
+  loadError,
   summaryHintId = 'versionModal.diff.summaryHintDefault',
   showSummary = true,
   format,
@@ -132,6 +135,18 @@ const VersionDiffPanelInner: React.FC<
     }));
     return { groups };
   }, [messages]);
+
+  if (loadError) {
+    return (
+      <div className="version-diff-panel" data-testid="version-diff-panel">
+        <Empty
+          data-testid="version-diff-load-error-empty"
+          image={Empty.PRESENTED_IMAGE_SIMPLE}
+          description={format('versionModal.diff.loadErrorEmpty')}
+        />
+      </div>
+    );
+  }
 
   if (!messages?.length) {
     return (
@@ -203,7 +218,7 @@ const VersionDiffPanelInner: React.FC<
 
 /**
  * 版本模型 diff 可视化：按表分组，增绿 / 删红 / 改黄。
- * 数据来自 useVersionStore.constructorMessage（与 DDL 同源）。
+ * 数据来自后端 VersionDiffEngine（/ncnb/hisProject/diff）；SQL 仅按变更条目模板渲染。
  */
 const VersionDiffPanelWithIntl: React.FC<Omit<VersionDiffPanelProps, 'format'>> = (props) => {
   const intl = useIntl();

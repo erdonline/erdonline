@@ -1,9 +1,9 @@
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { isVersionGreater, isVersionLessOrEqual } from '@/utils/string';
-import useVersionStore, { SHOW_CHANGE_TYPE } from '@/store/version/useVersionStore';
+import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
 import CodeEditor from '@/components/CodeEditor';
-import { Button, Col, Divider, Dropdown, Modal, Row, Select, Space, Typography, message } from 'antd';
+import { Alert, Button, Col, Divider, Dropdown, Modal, Row, Select, Space, Spin, Typography, message } from 'antd';
 import type { MenuProps } from 'antd';
 import type { BaseSelectRef } from 'rc-select';
 import moment from 'moment';
@@ -38,13 +38,15 @@ export type CompareVersionProps = {
 
 const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const intl = useIntl();
-  const { currentVersion, dbVersion, messages, data, versions, versionDispatch } = useVersionStore(
+  const { currentVersion, dbVersion, messages, data, versions, versionPanelDiffError, versionDispatch } =
+    useVersionStore(
     (state) => ({
       messages: state.messages,
       data: state.data,
       versions: state.versions,
       currentVersion: state.currentVersion,
       dbVersion: state.dbVersion,
+      versionPanelDiffError: state.versionPanelDiffError,
       versionDispatch: state.dispatch,
     }),
     shallow,
@@ -53,6 +55,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const compareBodyHeight = '450px';
 
   const [open, setOpen] = useState(false);
+  const [diffLoading, setDiffLoading] = useState(false);
   const [state, setState] = useState({
     initVersion: (versions[1] && versions[1].version) || '',
     incrementVersion: (versions[0] && versions[0].version) || '',
@@ -76,18 +79,39 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   const buttonLabel = props.buttonLabel ?? defaultButtonLabel;
 
   useEffect(() => {
-    if (versions && versions.length > 1) {
-      if (!state.initVersion && !state.incrementVersion) {
-        setState((prevState) => ({
-          ...prevState,
-          initVersion: versions[1].version,
-          incrementVersion: versions[0].version,
-        }));
-      } else if (state.initVersion && state.incrementVersion) {
-        versionDispatch.compare(state);
-      }
+    if (versions && versions.length > 1 && !state.initVersion && !state.incrementVersion) {
+      setState((prevState) => ({
+        ...prevState,
+        initVersion: versions[1].version,
+        incrementVersion: versions[0].version,
+      }));
     }
-  }, [state.initVersion, state.incrementVersion, exed, versions]);
+  }, [versions, state.initVersion, state.incrementVersion]);
+
+  const loadVersionDiff = useCallback(async () => {
+    setDiffLoading(true);
+    try {
+      if (isDetail) {
+        await versionDispatch.loadVersionPanelDiff();
+      } else {
+        await versionDispatch.loadVersionPanelDiff({
+          compare: {
+            initVersion: state.initVersion,
+            incrementVersion: state.incrementVersion,
+          },
+        });
+      }
+    } catch {
+      // 错误已在 store 写入 versionPanelDiffError 并 toast；禁止 fallback 到前端 diff
+    } finally {
+      setDiffLoading(false);
+    }
+  }, [
+    isDetail,
+    state.initVersion,
+    state.incrementVersion,
+    versionDispatch,
+  ]);
 
   const versionSelect = versions.map((v: { version: string }) => ({
     label: v.version,
@@ -95,11 +119,21 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
   }));
 
   const onVersionChange = (value: string, version: 'initVersion' | 'incrementVersion') => {
-    setState({
-      ...state,
+    setState((prev) => ({
+      ...prev,
       [version]: value,
-    });
+    }));
   };
+
+  useEffect(() => {
+    if (!open) {
+      return;
+    }
+    if (isCompare && (!state.initVersion || !state.incrementVersion)) {
+      return;
+    }
+    void loadVersionDiff();
+  }, [open, isCompare, state.initVersion, state.incrementVersion, loadVersionDiff]);
 
   const stamp = () => moment().format('YYYY-MM-DD-HHmmss');
 
@@ -198,11 +232,6 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     if (isCompare && (!versions || versions.length < 2)) {
       message.warning(needTwoVersionsMsg);
       return;
-    }
-    if (isDetail) {
-      versionDispatch.showChanges(SHOW_CHANGE_TYPE.CURRENT, null, null, null);
-    } else {
-      versionDispatch.compare(state);
     }
     setOpen(true);
   };
@@ -372,7 +401,18 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
           </Space>
         ) : null}
         <Divider />
-        <div className="version-compare-layout" data-testid="version-compare-layout">
+        {versionPanelDiffError ? (
+          <Alert
+            type="error"
+            showIcon
+            message={intl.formatMessage({ id: 'versionModal.diff.loadError' })}
+            description={versionPanelDiffError}
+            data-testid="version-diff-error"
+            style={{ marginBottom: 12 }}
+          />
+        ) : null}
+        <Spin spinning={diffLoading}>
+          <div className="version-compare-layout" data-testid="version-compare-layout">
           <Row gutter={16} align="top">
             <Col span={10}>
               <div className="version-compare-col">
@@ -380,20 +420,23 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
                   {intl.formatMessage({ id: 'versionModal.compare.modelChanges' })}
                 </div>
                 <div className="version-compare-col__toolbar">
-                  <VersionDiffSummary
-                    messages={messages}
-                    summaryHintId={
-                      isDetail
-                        ? 'versionModal.diff.summaryHintVersionDetail'
-                        : 'versionModal.diff.summaryHintCompare'
-                    }
-                  />
+                  {!versionPanelDiffError ? (
+                    <VersionDiffSummary
+                      messages={messages}
+                      summaryHintId={
+                        isDetail
+                          ? 'versionModal.diff.summaryHintVersionDetail'
+                          : 'versionModal.diff.summaryHintCompare'
+                      }
+                    />
+                  ) : null}
                 </div>
                 <div className="version-compare-col__body">
                   <VersionDiffPanel
-                    messages={messages}
+                    messages={versionPanelDiffError ? [] : messages}
                     showSummary={false}
-                    hasScript={!!(data && String(data).trim())}
+                    hasScript={!versionPanelDiffError && !!(data && String(data).trim())}
+                    loadError={versionPanelDiffError}
                   />
                 </div>
               </div>
@@ -415,12 +458,17 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
                   </Text>
                 </div>
                 <div className="version-compare-col__body">
-                  <CodeEditor mode="mysql" height={compareBodyHeight} value={data} />
+                  <CodeEditor
+                    mode="mysql"
+                    height={compareBodyHeight}
+                    value={versionPanelDiffError ? '' : data}
+                  />
                 </div>
               </div>
             </Col>
           </Row>
         </div>
+        </Spin>
       </Modal>
     </>
   );

@@ -755,7 +755,9 @@ export default {
   'versionModal.compare.crossVersionError':
     'Earlier versions are not synced yet. Do not skip versions.',
   'versionModal.diff.emptyNoChanges': 'No changes in this version',
-  'versionModal.diff.emptyFullScript': 'Full script with no incremental change entries',
+  'versionModal.diff.emptyFullScript': 'Full script (no incremental change items)',
+  'versionModal.diff.loadError': 'Could not load version diff',
+  'versionModal.diff.loadErrorEmpty': 'Backend diff failed; please retry later',
   'versionModal.diff.summary': '{count} items · {tables} tables · {hint}',
   'versionModal.diff.summaryHintDefault': 'Layer A version diff',
   'versionModal.diff.summaryHintVersionDetail': 'Vs previous version',
@@ -870,6 +872,9 @@ export default {
     'Selected versions cannot be compared; check format (e.g. 1.0.0)',
   'versionStore.compare.incrementNotGreater':
     'Target version must be greater than the base version',
+  'versionStore.compare.snapshotMissing':
+    'Selected version is missing a model snapshot; cannot compare',
+  'versionStore.diff.fetchFailedWithDetail': 'Failed to load version diff: {detail}',
 
   // Version store destructive confirms (useVersionStore confirmDestructive)
   'versionStore.confirm.cancel': 'Cancel',
