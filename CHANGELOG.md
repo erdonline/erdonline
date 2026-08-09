@@ -8,6 +8,11 @@
 
 ### 2026-08-09
 
+#### DDL 模板：默认示例灰色再弱化
+
+- **FE**：classpath 默认示例 Ace 文本与「默认示例」badge 改为更浅的 `#8c8c8c` / `#a6a6a6`，并压平语法高亮色，与自定义源码区分更明显。
+- 验证点：HMR 打开 DDL 模板 Modal → 未 custom 模板应呈浅灰只读示例。
+
 #### DDL 模板：templateSources 500 修复 + 默认示例可见
 
 - **根因**：`DbChangeServiceImpl.listDdlTemplateSources` 调用 `DdlFreemarkerTemplateEngine` 但缺 import；IDE 增量编译写入 `Unresolved compilation problem` 桩字节码，运行时 500。

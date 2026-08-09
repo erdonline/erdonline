@@ -19,11 +19,19 @@
   margin-left: 8px;
   font-size: 11px;
   font-weight: 400;
-  color: rgba(0, 0, 0, 0.45);
+  color: #a6a6a6;
 }
 
-.database-templates-editor__seed-display .ace_text-layer {
-  color: rgba(0, 0, 0, 0.38) !important;
+.database-templates-editor__seed-display {
+  .ace_text-layer,
+  .ace_text-layer span {
+    color: #8c8c8c !important;
+    opacity: 0.88;
+  }
+
+  .ace_active-line {
+    background: rgba(140, 140, 140, 0.06) !important;
+  }
 }
 
 .database-templates-editor__tabs {
