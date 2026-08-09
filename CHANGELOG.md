@@ -8,6 +8,11 @@
 
 ### 2026-08-09
 
+#### 模板详情：作者移至标题行右上角
+
+- **布局**：标题左、作者右（`catalog-detail__header`）；安装/评分等指标行不再混排作者
+- 验证点：HMR 目视 `/catalog/demo-authz`；`yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "匿名可浏览"`
+
 #### 模板详情：安装/评分操作条上移至预览区上方
 
 - **布局**：标题 → 元信息 → **安装 + 评分** → 模块指标 → ReactFlow 只读预览 → 描述 → 评论
