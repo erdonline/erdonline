@@ -307,7 +307,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `ERD_DB_CONFIG_SECRET` | random ≥32 bytes (manual, different from `JWT_SECRET`) | **Must change**; encryption key for `data_sources.username`/`password` at rest (R-DATA-06, AES-256-GCM); do not use repo default; missing or default value prod fail-fast |
 | `ERD_OIDC_RSA_PRIVATE_KEY` or `_PATH` / keystore | PKCS#8/PKCS#1 PEM or PKCS12 | **Required in prod**; OIDC `id_token` RS256; public key via `/.well-known/jwks.json`; do not commit private key; compose mounts `.secrets/` |
 | `ERD_OIDC_ISSUER` | optional; no trailing slash | empty → issuer=`ERD_UI_URL`; set API public root when hitting API directly |
-| `JWT_EXPIRES_IN` | `43200` | optional |
+| `JWT_EXPIRES_IN` | `604800` (7 days) | optional; session JWT seconds. No UI refresh; public deploys may tighten (e.g. `86400`) |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | Forbid e2e weak passwords on public internet |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | Forbid `admin`/`123456` seed password on public internet; unaffected after password change |
 | `ERD_ALLOW_OPEN_REGISTER` | `false` | Forbid anonymous open registration on public internet; local/E2E uses `dev` profile; escape hatch explicit `true` (before 2026-08-05 prod escape ineffective due to YAML literal override, see R-CFG-07, now fixed); **federation first-time account creation also gated**; confirm via backend log `federate rejected open register ... allow-open-register=...` (printed on reject, no secrets) |

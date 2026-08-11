@@ -158,7 +158,8 @@ management:
 erd:
   jwt:
     secret: ${JWT_SECRET:erd-online-dev-jwt-secret-change-me-32bytes!!}
-    expires-in: ${JWT_EXPIRES_IN:43200}
+    # 会话 JWT TTL（秒）；默认 7 天。无 UI refresh，偏长以减少设计器重登；公网可收紧
+    expires-in: ${JWT_EXPIRES_IN:604800}
     issuer: erd-online
   # data_sources.username/password 落库加密密钥（R-DATA-06，AES-256-GCM）；
   # 本地/dev 弱默认仅供 DX；prod 见 application-prod.yml 无默认 + DataSourceCredentialCipher 拒仓库串

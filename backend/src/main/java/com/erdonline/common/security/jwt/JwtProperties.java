@@ -15,7 +15,7 @@ public class JwtProperties {
 
     /** HS256 密钥，生产必须用环境变量覆盖 */
     private String secret = INSECURE_DEV_DEFAULT;
-    /** 秒 */
-    private long expiresIn = 12 * 60 * 60L;
+    /** 秒；默认 7 天（与 application.yml / JWT_EXPIRES_IN 一致） */
+    private long expiresIn = 7 * 24 * 60 * 60L;
     private String issuer = "erd-online";
 }

@@ -3,6 +3,10 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 会话 JWT TTL（2026-08-11）
+
+- [x] [登录 expires_in] `POST /auth/login` 响应 `expires_in` 为 `604800`（7 天；或部署覆盖的 `JWT_EXPIRES_IN`） ✅ curl 2026-08-11
+
 ## 字段库 / ADR-0032（2026-08-09）
 
 - [x] [平台种子 apply] `POST /dataDict/dd-field-gender/apply` 返回 fields+enums 且带 `dictRef` ✅`DataDictServiceImplApplyTest`

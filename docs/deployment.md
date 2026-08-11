@@ -307,7 +307,7 @@ Redis bound host=….railway.internal port=6379 database=0 url=missing password=
 | `ERD_DB_CONFIG_SECRET` | 随机 ≥32 字节（手填，与 `JWT_SECRET` 不同值） | **必改**；`data_sources.username`/`password` 落库加密密钥（R-DATA-06，AES-256-GCM）；勿用仓库默认值；缺失或用默认值 prod fail-fast |
 | `ERD_OIDC_RSA_PRIVATE_KEY` 或 `_PATH` / keystore | PKCS#8/PKCS#1 PEM 或 PKCS12 | **prod 必填**；OIDC `id_token` RS256；公钥经 `/.well-known/jwks.json`；勿提交私钥；compose 挂载 `.secrets/` |
 | `ERD_OIDC_ISSUER` | 可选；无尾斜杠 | 空则 issuer=`ERD_UI_URL`；直连 API 时设 API 公网根 |
-| `JWT_EXPIRES_IN` | `43200` | 可选 |
+| `JWT_EXPIRES_IN` | `604800`（7 天） | 可选；会话 JWT 秒数。无 UI refresh；公网可收紧（如 `86400`） |
 | `ERD_E2E_ACCOUNTS_ENABLED` | `false` | 公网禁止 e2e 弱口令 |
 | `ERD_ALLOW_DEMO_ADMIN` | `false` | 公网禁止 `admin`/`123456` 种子口令；改密后不受影响 |
 | `ERD_ALLOW_OPEN_REGISTER` | `false` | 公网禁止匿名开放注册；本地/E2E 靠 `dev` profile；逃生阀显式 `true`（2026-08-05 前 prod 该逃生阀因 YAML 字面量覆盖失效，见 R-CFG-07，现已修复）；**联邦首次建号也走此门控**；确认生效看后端日志 `federate rejected open register ... allow-open-register=...`（拒绝时打印，不含密钥） |
