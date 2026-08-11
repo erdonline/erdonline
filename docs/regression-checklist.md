@@ -505,6 +505,7 @@
 
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
+- [ ] [登录页过期 JWT] localStorage 有过期 `Authorization` → `/login` 仍显示第三方按钮或「未配置」提示（providers 匿名 200）；`GET /auth/federate/providers` 带坏 Bearer 仍 200 ✅ E2E `federate-login.spec.ts`
 - [x] [存量 console.log] 已清零（`rg console\.(log|debug|info) src` = 0；`lint:js:ci` 0 error）✅自动
 - [ ] [CORS 收敛] curl 实证：localhost:8000 预检放行含 ACAO；evil.example.com 无 ACAO ✓（2026-08-01）——**部署注意**：生产直连后端须设 `ERD_UI_URL`；prod 禁 SocketIO/CORS `*`（`CrossOriginPolicy`）；prod profile 必须注入 MYSQLUSER/MYSQLPASSWORD/REDISPASSWORD/`ERD_UI_URL`/JWT 否则启动失败（fail-fast；compose 无 Redis 密码时 `REDISPASSWORD=`；**勿**再强制假 `OSS_*`）
 - [ ] [R-CFG-04 Origin] prod 未设 `ERD_UI_URL` → 启动失败；`ERD_UI_URL=*` → 启动失败含 `*`；dev profile 本地 dogfood 不受影响
