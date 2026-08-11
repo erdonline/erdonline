@@ -58,7 +58,8 @@
 
 | 能力 | API / SQL | UI 暴露面 | 缺口 |
 |---|---|---|---|
-| 字段库（data_dict） | `DataDictController` CRUD + `/dataDict/tree` + `POST /dataDict/{id}/apply` | 表设计「从字段库插入」Modal；画布工具栏 Drawer；设置 `/setting/fieldLibrary` | ✅ MVP（ADR-0032）；**不含** MCP 写库 |
+| 字段库（data_dict） | `DataDictController` CRUD + `/dataDict/tree` + `POST /dataDict/{id}/apply` | 项目菜单「设置 → 字段库」；表设计「从字段库写入」Modal（含管理深链）；画布工具栏 Drawer；设置 `/setting/fieldLibrary` | ✅ MVP（ADR-0032）；**不含** MCP 写库 |
+| 数据类型字典（dataTypeDomains） | 项目 JSON `dataTypeDomains`（逻辑类型 / 枚举 / apply 方言） | 项目菜单「设置 → 数据类型字典」；设置 `/setting/dataType`；DDL 模板弹层 | ✅ 菜单可达 |
 
 ## 死壳与过度建设（只删不增）
 

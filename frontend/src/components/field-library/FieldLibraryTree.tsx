@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { Empty, Input, Spin, Tree } from 'antd';
+import { Button, Empty, Input, Spin, Tree } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import {
   fetchDataDictTree,
@@ -14,6 +14,8 @@ export type FieldLibraryTreeProps = {
   onSelectLeaf?: (node: DataDictTreeNode) => void;
   /** 仅展示叶子（插入场景） */
   leafOnly?: boolean;
+  /** 空态「去字段库管理」 */
+  onManage?: () => void;
 };
 
 function toAntdNodes(
@@ -130,7 +132,18 @@ const FieldLibraryTree: React.FC<FieldLibraryTreeProps> = (props) => {
       />
       <Spin spinning={loading}>
         {antdTree.length === 0 && !loading ? (
-          <Empty description="暂无字段库条目" />
+          <Empty description="暂无字段库条目">
+            {props.onManage ? (
+              <Button
+                type="link"
+                data-testid="field-library-tree-empty-manage"
+                aria-label="去字段库管理"
+                onClick={props.onManage}
+              >
+                去字段库管理
+              </Button>
+            ) : null}
+          </Empty>
         ) : (
           <Tree
             treeData={antdTree}

@@ -1,24 +1,50 @@
 import React from 'react';
-import { Drawer } from 'antd';
+import { Button, Drawer, Space } from 'antd';
+import { history } from '@@/exports';
 import FieldLibraryManager from '@/pages/design/setting/component/FieldLibraryManager';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
 
 export type FieldLibraryDrawerProps = {
   open: boolean;
   onClose: () => void;
 };
 
-const FieldLibraryDrawer: React.FC<FieldLibraryDrawerProps> = (props) => (
-  <Drawer
-    title="字段库"
-    placement="right"
-    width={480}
-    open={props.open}
-    onClose={props.onClose}
-    destroyOnClose
-    data-testid="field-library-drawer"
-  >
-    <FieldLibraryManager compact />
-  </Drawer>
-);
+const FieldLibraryDrawer: React.FC<FieldLibraryDrawerProps> = (props) => {
+  const projectId = useProjectStore((s) => s.project?.id, shallow);
+
+  const openSettingsPage = () => {
+    props.onClose();
+    const q = projectId ? `?projectId=${projectId}` : '';
+    history.push(`/design/table/setting/fieldLibrary${q}`);
+  };
+
+  return (
+    <Drawer
+      title="字段库"
+      placement="right"
+      width={480}
+      open={props.open}
+      onClose={props.onClose}
+      destroyOnClose
+      data-testid="field-library-drawer"
+      extra={
+        <Button
+          type="link"
+          size="small"
+          data-testid="field-library-drawer-open-settings"
+          aria-label="在设置页打开字段库"
+          onClick={openSettingsPage}
+        >
+          在设置页打开
+        </Button>
+      }
+    >
+      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+        <FieldLibraryManager compact />
+      </Space>
+    </Drawer>
+  );
+};
 
 export default React.memo(FieldLibraryDrawer);

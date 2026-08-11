@@ -142,6 +142,13 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     history.push('/project/recent');
   };
 
+  const openSettingPage = (path: string) => {
+    closeProjectMenu();
+    setOpenKeys([]);
+    const q = currentId ? `?projectId=${currentId}` : '';
+    history.push(`${path}${q}`);
+  };
+
   const switchTo = (id: string) => {
     closeProjectMenu();
     if (!id || id === currentId) {
@@ -269,6 +276,28 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
         label: '设置',
         popupClassName: 'erd-dense-menu',
         children: [
+          {
+            key: 'setup-datatype',
+            label: (
+              <span data-testid="project-menu-datatype-dict">数据类型字典</span>
+            ),
+            onClick: () =>
+              openSettingPage('/design/table/setting/dataType'),
+          },
+          {
+            key: 'setup-field-library',
+            label: <span data-testid="project-menu-field-library">字段库</span>,
+            onClick: () =>
+              openSettingPage('/design/table/setting/fieldLibrary'),
+          },
+          {
+            key: 'setup-default-fields',
+            label: (
+              <span data-testid="project-menu-default-fields">默认字段设置</span>
+            ),
+            onClick: () =>
+              openSettingPage('/design/table/setting/defaultField'),
+          },
           {
             key: 'setup-db',
             label: '数据源设置',

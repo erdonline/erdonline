@@ -15,14 +15,15 @@ export default {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
-    '/dataDict/': backendProxy,
+    // 精确 /dataDict（POST 新建）与前缀 /dataDict/**（tree/apply/id）均需代理
+    '/dataDict': backendProxy,
     '/.well-known/': backendProxy,
   },
   test: {
     '/auth/': backendProxy,
     '/syst/': backendProxy,
     '/ncnb/': backendProxy,
-    '/dataDict/': backendProxy,
+    '/dataDict': backendProxy,
     '/.well-known/': backendProxy,
   },
 };
