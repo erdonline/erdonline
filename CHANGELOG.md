@@ -8,6 +8,15 @@
 
 ### 2026-08-11
 
+#### 配置：会话 JWT 默认 TTL 12h → 7 天
+
+- **BE**：`erd.jwt.expires-in` / `JWT_EXPIRES_IN` 默认 `604800`（7 天）；`JwtProperties` Java 默认对齐
+- **Docs**：`docs/deployment.md`（及 en i18n）注明默认与公网可收紧
+- 动机：设计器长会话；当前无 UI refresh，12h 偏短；公开 API OAuth access（1h）不动
+- 验证点：
+  - `./backend/dev-ensure.sh --restart` 后 `POST /auth/login` 响应 `expires_in` 为 `604800`
+  - `mvn -q -Dtest=JwtTokenServiceTest test`（签发契约不变；TTL 由配置注入）
+
 #### 修复：过期 JWT 导致登录页第三方按钮消失
 
 - **FE**：`request.js` 请求拦截器对 `/auth/federate/providers`、`/auth/federate/session` 及 OAuth 起跳路径不附加 `Authorization`（保留 `/auth/federate/links` 需 JWT）

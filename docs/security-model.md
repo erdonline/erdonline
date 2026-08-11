@@ -36,6 +36,7 @@ FE 热路径（已保存数据源）：ping / dbReverse* / sqlexec / dbsync 传 
 ## 匿名放行（前缀剥离后路径）
 
 - 登录/退出：`/login`、`/auth/login`、`/exit`
+- **会话 JWT TTL**：默认 `JWT_EXPIRES_IN=604800`（7 天）；HS256，存前端 `localStorage`，**无** UI refresh / 服务端吊销会话票。公网可收紧。公开 API 的 OAuth access（默认 1h）+ refresh 是另一平面，见下。
 - 注册：仅 `/project/group/user/register`（前端 `POST /ncnb/project/group/user/register`）；受 `erd.security.allow-open-register` 门控（`dev`=true，`prod`/默认=false）；重复入口 `/user/register` 已去 HTTP 映射并不再 ignore
 - 第三方 IdP 联邦（ADR-0021）：`/federate/providers`、`/federate/{github|google|wechat}`、`/federate/{github|google|wechat}/callback`、`/federate/session`（及 `/auth/federate/…` 前缀形态）；**不含** `/federate/links/**`（须会话 JWT）
 - 只读分享：**仅** `GET /share/{token}`（及 `/ncnb/share/{token}` 前缀剥离前形态），见 ADR-0007；`create` / `revoke` / `fork` **不在** ignore-urls（需登录）
