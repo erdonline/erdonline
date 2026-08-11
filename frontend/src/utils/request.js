@@ -42,12 +42,17 @@ const errorHandler = error => {
   const serverMsg = (data && (data.msg || data.message || data.error_description)) || '';
   const errorText = serverMsg || codeMessage[status] || response.statusText;
 
-    if (status === 401) {
-        if (url && (url.indexOf('/auth/login') >= 0 || url.indexOf('/login') >= 0)) {
-            message.error(serverMsg || '用户名或密码错误');
-        } else if (history.location.pathname !== '/login') {
-      message.error('登录已失效，请重新登录');
-      history.push('/login');
+  if (status === 401) {
+    const isLoginAttempt =
+      url && (url.indexOf('/auth/login') >= 0 || url.indexOf('/login') >= 0);
+    if (isLoginAttempt) {
+      message.error(serverMsg || '用户名或密码错误');
+    } else {
+      cache.removeItem('Authorization');
+      if (history.location.pathname !== '/login') {
+        message.error('登录已失效，请重新登录');
+        history.push('/login');
+      }
     }
     return;
   }
@@ -56,6 +61,20 @@ const errorHandler = error => {
 
 export const BASE_URL = window._env_.API_URL || API_URL;
 export const ERD_BASE_URL = window._env_.ERD_API_URL || API_URL;
+
+/** permitAll 鉴权端点：勿带过期 JWT，否则 Resource Server 401 阻断匿名访问 */
+const PUBLIC_AUTH_PATHS = [
+  '/auth/login',
+  '/auth/federate/providers',
+  '/auth/federate/session',
+  '/auth/federate/github',
+  '/auth/federate/google',
+  '/auth/federate/wechat',
+];
+
+function isPublicAuthUrl(url) {
+  return PUBLIC_AUTH_PATHS.some((path) => url.indexOf(path) >= 0);
+}
 
 /**
  * 配置request请求时的默认参数
@@ -74,8 +93,8 @@ const request_erd = extend({
 
 
 request.interceptors.request.use((url, options) => {
-  const isLogin = url.indexOf('/auth/login') >= 0 || url.endsWith('/login');
-  if (!isLogin) {
+  const skipAuth = isPublicAuthUrl(url) || url.endsWith('/login');
+  if (!skipAuth) {
     const authorization = cache.getItem('Authorization');
     const projectId = cache.getItem(CONSTANT.PROJECT_ID);
     if (authorization) {

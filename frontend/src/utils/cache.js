@@ -37,6 +37,10 @@ export const getItem = (key) => {
   return myStorage.getItem(key);
 };
 
+export const removeItem = (key) => {
+  myStorage.removeItem(key);
+};
+
 export const getItem2object = (key) => {
   return JSON.parse(getItem(key) || '{}');
 };

@@ -6,6 +6,17 @@
 
 ## [Unreleased]
 
+### 2026-08-11
+
+#### 修复：过期 JWT 导致登录页第三方按钮消失
+
+- **FE**：`request.js` 请求拦截器对 `/auth/federate/providers`、`/auth/federate/session` 及 OAuth 起跳路径不附加 `Authorization`（保留 `/auth/federate/links` 需 JWT）
+- **FE**：非登录尝试的 401 响应清除 `localStorage.Authorization`，避免 stale token 阻断匿名鉴权端点
+- **FE**：`cache.removeItem` 供会话清理复用
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/federate-login.spec.ts --grep "过期 Authorization"`
+  - `curl http://localhost:9502/auth/federate/providers` → 200（无 Bearer）；前端 providers 请求不携带 Authorization
+
 ### 2026-08-09
 
 #### Docs：ADR-0029 MDX 花括号转义（GitHub Pages SSG）

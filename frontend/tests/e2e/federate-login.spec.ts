@@ -62,6 +62,29 @@ test.describe('IdP 联邦（无凭证）', () => {
     await expect(page.getByTestId('login-federate-unconfigured')).toHaveCount(0);
   });
 
+  test('过期 Authorization 仍显示第三方按钮（providers 匿名 200）', async ({ page }) => {
+    await page.route('**/auth/federate/providers', async (route) => {
+      const auth = route.request().headers()['authorization'];
+      expect(auth).toBeUndefined();
+      await route.fulfill({
+        status: 200,
+        contentType: 'application/json',
+        body: JSON.stringify({
+          code: 200,
+          data: { github: true, google: false, wechat: false },
+        }),
+      });
+    });
+    await page.addInitScript(() => {
+      localStorage.setItem('Authorization', 'expired.jwt.token');
+    });
+    await page.goto('/login');
+    await expect(page.getByTestId('auth-shell-form')).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByTestId('login-github')).toBeVisible();
+    await expect(page.getByTestId('login-google')).toHaveCount(0);
+    await expect(page.getByTestId('login-federate-unconfigured')).toHaveCount(0);
+  });
+
   test('账密登录后退出清除会话（联邦同源 logout）', async ({ page }) => {
     await login(page, e2eAccount());
     await page.goto('/home');
