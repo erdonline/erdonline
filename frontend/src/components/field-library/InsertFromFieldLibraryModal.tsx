@@ -1,8 +1,11 @@
 import React, { useMemo, useState } from 'react';
-import { Alert, Button, Modal, message } from 'antd';
+import { Alert, Button, Modal, Space, message } from 'antd';
+import { history } from '@@/exports';
 import FieldLibraryTree from '@/components/field-library/FieldLibraryTree';
 import { applyDataDict, type DataDictTreeNode } from '@/services/data-dict';
 import { applyFieldLibraryToEntity } from '@/utils/applyFieldLibrary';
+import useProjectStore from '@/store/project/useProjectStore';
+import shallow from 'zustand/shallow';
 
 export type InsertFromFieldLibraryModalProps = {
   open: boolean;
@@ -18,6 +21,7 @@ export type InsertFromFieldLibraryModalProps = {
 const InsertFromFieldLibraryModal: React.FC<InsertFromFieldLibraryModalProps> = (
   props,
 ) => {
+  const projectId = useProjectStore((s) => s.project?.id, shallow);
   const [selected, setSelected] = useState<DataDictTreeNode | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const selectedCount = props.selectedRowIndices?.length ?? 0;
@@ -32,6 +36,13 @@ const InsertFromFieldLibraryModal: React.FC<InsertFromFieldLibraryModalProps> = 
     }
     return `已选中 ${selectedCount} 行：写入后将按行覆盖（1 个库字段覆盖全部选中行；多库字段按顺序 zip）。`;
   }, [isOverwrite, selectedCount]);
+
+  const goManage = () => {
+    props.onOpenChange(false);
+    setSelected(null);
+    const q = projectId ? `?projectId=${projectId}` : '';
+    history.push(`/design/table/setting/fieldLibrary${q}`);
+  };
 
   const onApply = async () => {
     if (!selected?.id) {
@@ -74,7 +85,20 @@ const InsertFromFieldLibraryModal: React.FC<InsertFromFieldLibraryModalProps> = 
 
   return (
     <Modal
-      title="从字段库写入"
+      title={
+        <Space>
+          <span>从字段库写入</span>
+          <Button
+            type="link"
+            size="small"
+            data-testid="field-library-insert-manage"
+            aria-label="管理字段库"
+            onClick={goManage}
+          >
+            管理字段库
+          </Button>
+        </Space>
+      }
       open={props.open}
       onCancel={() => {
         props.onOpenChange(false);
@@ -117,6 +141,7 @@ const InsertFromFieldLibraryModal: React.FC<InsertFromFieldLibraryModalProps> = 
         selectable
         selectedId={selected?.id}
         onSelectLeaf={(node) => setSelected(node)}
+        onManage={goManage}
       />
     </Modal>
   );

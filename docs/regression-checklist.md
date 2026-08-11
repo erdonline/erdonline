@@ -13,8 +13,10 @@
 - [x] [scope ACL] platform 只读；group 成员可写；user 本人可写 ✅`DataDictAclTest`
 - [x] [E2E 写入] 表设计 JExcel 工具栏「从字段库写入」→ 追加性别 → `gender` 列落盘 ✅`field-library-insert.spec.ts`
 - [x] [E2E 覆盖] 选中行 → 从字段库写入 → 覆盖为 `gender` ✅`field-library-insert.spec.ts`
+- [x] [E2E 菜单露出] 项目菜单 → 类型字典 / 字段库页可达；表单新建条目（不手写 JSON）✅`field-library-manage.spec.ts`
 - [ ] [手工] 团队项目：字段库 scope=group 条目仅成员可见/可编辑
 - [ ] [手工] 设置页 `/design/table/setting/fieldLibrary` 新建个人条目 CRUD
+- [ ] [手工] 表字段空态「从字段库写入」→ Modal → 管理字段库深链
 
 ## 数据源凭证落库加密 / R-DATA-06 · ADR-0024（2026-08-05）
 

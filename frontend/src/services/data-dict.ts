@@ -79,6 +79,7 @@ export async function applyDataDict(id: string): Promise<DataDictApplyResult> {
 }
 
 export async function createDataDict(payload: DataDictPayload) {
+  // 无尾斜杠：后端映射 `/dataDict`；dev proxy 需匹配 `/dataDict`（见 proxy.ts）
   return POST('/dataDict', payload);
 }
 

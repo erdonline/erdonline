@@ -7,7 +7,7 @@ import shallow from "zustand/shallow";
 // @ts-ignore
 import JExcel, { type JExcelHandle } from "@/pages/JExcel";
 import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
-import { Button, Empty, message } from 'antd';
+import { Button, Empty, Space, message } from 'antd';
 import InsertFromFieldLibraryModal from '@/components/field-library/InsertFromFieldLibraryModal';
 import { jexcelTypeDropdownSource } from '@/utils/fieldTypeOptions';
 
@@ -199,6 +199,30 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
     setFieldLibraryOpen(true);
   };
 
+  const openFieldLibraryFromEmpty = () => {
+    setFieldLibrarySelectedRows([]);
+    setFieldLibraryOpen(true);
+  };
+
+  const fieldLibraryModal = currentModule && entityTitle ? (
+    <InsertFromFieldLibraryModal
+      open={fieldLibraryOpen}
+      onOpenChange={(open) => {
+        setFieldLibraryOpen(open);
+        if (!open) {
+          setFieldLibrarySelectedRows([]);
+        }
+      }}
+      moduleName={currentModule}
+      entityTitle={entityTitle}
+      selectedRowIndices={fieldLibrarySelectedRows}
+      onApplied={() => {
+        setStarted(true);
+        setSheetEpoch((e) => e + 1);
+      }}
+    />
+  ) : null;
+
   const columns = useMemo(() => [
     ...column1,
     {
@@ -227,18 +251,30 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
             </span>
           }
         >
-          <Button
-            type="primary"
-            size="small"
-            data-testid="field-empty-add"
-            aria-label="添加第一个字段"
-            loading={fieldSaving}
-            disabled={fieldSaving}
-            onClick={() => { void addFirstField(); }}
-          >
-            添加第一个字段
-          </Button>
+          <Space wrap>
+            <Button
+              type="primary"
+              size="small"
+              data-testid="field-empty-add"
+              aria-label="添加第一个字段"
+              loading={fieldSaving}
+              disabled={fieldSaving}
+              onClick={() => { void addFirstField(); }}
+            >
+              添加第一个字段
+            </Button>
+            <Button
+              size="small"
+              data-testid="field-empty-from-library"
+              aria-label="从字段库写入"
+              disabled={fieldSaving || !entityTitle}
+              onClick={openFieldLibraryFromEmpty}
+            >
+              从字段库写入
+            </Button>
+          </Space>
         </Empty>
+        {fieldLibraryModal}
       </div>
     );
   }
@@ -295,6 +331,6 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
         />
     </div>
   );
-}
+};
 
-export default React.memo(TableInfoEdit)
+export default React.memo(TableInfoEdit);

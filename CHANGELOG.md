@@ -35,6 +35,16 @@
 - **Docs**：`growth.md`、`landing.md`、`ui-layout-redesign.md` 等 7 篇未翻译文档同步至 en i18n，修复 cache 冷启动后 en 链接校验失败
 - 验证点：`cd website && DOCUSAURUS_URL=https://erdonline.github.io DOCUSAURUS_BASE_URL=/erdonline/ yarn build`
 
+#### 字段库表单化 + 设置能力露出
+
+- **FE**：新建/编辑字段库改为 `Form.List`（英文名/中文名/类型/非空/主键）；高级 JSON 折叠；父级文件夹可选；编辑保留既有 `enums`
+- **FE**：项目菜单「设置」补「数据类型字典 / 字段库 / 默认字段设置」页面导航（保留原弹层项）
+- **FE**：写入 Modal「管理字段库」、画布 Drawer「在设置页打开」、树空态 CTA、表字段空态「从字段库写入」
+- **FE**：`proxy.ts` 增加 `/dataDict`（无尾斜杠）代理，修复 `POST /dataDict` 新建未打到后端
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/field-library-manage.spec.ts --workers=1`
+  - `yarn test:e2e --project=chromium tests/e2e/field-library-insert.spec.ts`
+
 #### 逆向解析：目标模块选择 + 二次导入 frozen layout 修复
 
 - **FE**：Step2 可选「导入到模型」（已有模块 / 新建）+ 可改「模型名称」；`reverseImportTarget` 写入 `importReverseTable`
