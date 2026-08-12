@@ -17,6 +17,7 @@ import {
 import * as cache from '@/utils/cache';
 import {buildApiHref} from '@/utils/apiHref';
 import {track} from '@/utils/analytics';
+import {usePageSeo} from '@/hooks/usePageSeo';
 import '@/layouts/erd-chrome.less';
 import './index.less';
 
@@ -48,6 +49,7 @@ export const SHARE_TABLES_PAGE_SIZE = 5;
 
 const SharePage: React.FC = () => {
   const intl = useIntl();
+  usePageSeo('share.seo.title', 'share.seo.description');
   const {token} = useParams<{ token: string }>();
   const [loading, setLoading] = useState(true);
   const [forking, setForking] = useState(false);

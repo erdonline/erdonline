@@ -1,7 +1,8 @@
 import React from 'react';
 import {Link, useIntl} from '@umijs/max';
 import {usePageSeo} from '@/hooks/usePageSeo';
-import LandingChrome, {DOCS_URL} from './LandingChrome';
+import {docsUrl} from '@/utils/docsUrl';
+import LandingChrome from './LandingChrome';
 import './index.less';
 
 /**
@@ -101,7 +102,7 @@ const ComparePage: React.FC = () => {
               </Link>
               <a
                 className="landingBtnGhost"
-                href={DOCS_URL}
+                href={docsUrl(intl.locale)}
                 target="_blank"
                 rel="noreferrer"
                 aria-label={t('landing.demo.cta.selfHostAria')}

@@ -3,6 +3,13 @@
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 
+## 英文漏斗 i18n / SEO（2026-08-12）
+
+- [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
+- [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
+- [ ] [落地页 Docs 分流] 英文态页脚 Docs → `erdonline.github.io/erdonline/en/`；中文态 → 根路径无 `/en/`
+- [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
+
 ## 会话 JWT TTL（2026-08-11）
 
 - [x] [登录 expires_in] `POST /auth/login` 响应 `expires_in` 为 `604800`（7 天；或部署覆盖的 `JWT_EXPIRES_IN`） ✅ curl 2026-08-11

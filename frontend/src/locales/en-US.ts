@@ -603,6 +603,9 @@ export default {
   'landing.compare.seo.title': 'ERD Online comparison — collaboration, versions, and open source',
   'landing.compare.seo.description':
     'An honest comparison of ERD Online, dbdiagram, and DBML: collaboration, versioning, openness, and self-hosting.',
+  'share.seo.title': 'ERD Online demo — view a real ER diagram without signing in',
+  'share.seo.description':
+    'Explore a real ER diagram in read-only mode without signing in. Get started with ERD Online in 30 seconds.',
 
   // Home dashboard body copy
   'homePage.welcome': 'Welcome back, {username}',

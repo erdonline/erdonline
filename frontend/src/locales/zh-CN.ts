@@ -574,6 +574,9 @@ export default {
   'landing.compare.seo.title': 'ERD Online 对照 — 协作、版本与开源',
   'landing.compare.seo.description':
     '诚实对照 ERD Online、dbdiagram 与 DBML：协作、版本、开放与自部署能力一览。',
+  'share.seo.title': 'ERD Online 示例 — 免登录查看真实 ER 图',
+  'share.seo.description':
+    '无需登录，以只读方式查看真实 ER 图，30 秒上手 ERD Online 数据库建模。',
 
   // Home 仪表盘正文
   'homePage.welcome': '欢迎回来，{username}',
