@@ -17,9 +17,16 @@
 #### chore(ci)：LocaleRoute 路由 flatten 门禁 + pre-push
 
 - **Script**：`scripts/check-routes.mjs` — 用 `@umijs/core` `getConfigRoutes` 模拟 umi wrapper 树，跑 React Router `flattenRoutes` 前缀断言；`--self-test` 内置 bad/good fixture
-- **FE**：`yarn check:routes`；CI `frontend-ci.yml` + demo build 前置步骤
+- **FE**：`yarn check:routes`；CI 快速前置步骤（**辅门禁**，不能替代 smoke）
 - **Pre-push**：`scripts/git-hooks/pre-push` → `yarn check:routes` + `yarn check:i18n`；安装 `./scripts/install-git-hooks.sh`
 - 验证点：`node scripts/check-routes.mjs --self-test` PASS；`cd frontend && yarn check:routes` PASS（当前 routes.ts）；注入绝对子路径 `/catalog` → FAIL
+
+#### chore(ci)：生产 boot smoke 门禁（举一反三 · 防整站白屏）
+
+- **主门禁**：`yarn check:prod-smoke` — `yarn build` → serve `dist/` → Playwright 公开 URL（`/`、`/compare`、`/catalog`、`/demo`、`/en*`）断言无 `pageerror` 且 `#root` 有内容；无需后端即可捕获 SPA init 崩溃
+- **CI**：`frontend-ci.yml` build 后跑 smoke；`frontend-demo-site.yml` build:prod 后 **阻断 CF deploy**
+- **Pre-push**：frontend 变更时跑全量 smoke（可 `PROD_SMOKE_SKIP_PRE_PUSH=1` 跳过；CI/deploy 仍必跑）
+- 验证点：当前 main smoke 6 URL PASS；ADR-0034 坏路由会在 `/` 即 pageerror（比静态 flatten 更通用）
 
 #### growth：README / OSChina / 落地页漏斗深链 + localhost 统计降噪
 

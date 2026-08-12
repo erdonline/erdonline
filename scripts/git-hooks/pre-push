@@ -1,15 +1,46 @@
 #!/usr/bin/env sh
-# Pre-push gate: fast frontend route + i18n checks (ADR-0034 LocaleRoute crash).
+# Pre-push: fast config checks + prod boot smoke when frontend changes.
 # Install: ./scripts/install-git-hooks.sh
+#
+# Skip full smoke locally: PROD_SMOKE_SKIP_PRE_PUSH=1 git push
 set -eu
 
 ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
 cd "$ROOT/frontend"
 
-echo "[pre-push] yarn check:routes"
+echo "[pre-push] yarn check:routes (fast complement)"
 yarn check:routes
 
 echo "[pre-push] yarn check:i18n"
 yarn check:i18n
+
+if [ "${PROD_SMOKE_SKIP_PRE_PUSH:-}" = "1" ]; then
+  echo "[pre-push] PROD_SMOKE_SKIP_PRE_PUSH=1 — skipping prod smoke (CI/deploy still required)"
+  echo "[pre-push] OK"
+  exit 0
+fi
+
+NEED_SMOKE=0
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ -n "${local_ref:-}" ] || continue
+  if [ "$local_sha" = "0000000000000000000000000000000000000000" ]; then
+    continue
+  fi
+  if [ "$remote_sha" = "0000000000000000000000000000000000000000" ]; then
+    range="$local_sha"
+  else
+    range="$remote_sha..$local_sha"
+  fi
+  if git diff --name-only "$range" 2>/dev/null | grep -qE '^(frontend/|scripts/check-routes|scripts/load-routes)'; then
+    NEED_SMOKE=1
+  fi
+done
+
+if [ "$NEED_SMOKE" = "1" ]; then
+  echo "[pre-push] frontend changed — yarn check:prod-smoke (build + boot smoke, ~3–5 min)"
+  yarn check:prod-smoke
+else
+  echo "[pre-push] no frontend changes in push range — skipping prod smoke"
+fi
 
 echo "[pre-push] OK"

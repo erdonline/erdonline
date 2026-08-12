@@ -8,6 +8,7 @@
 - [x] [i18n 键对齐 CI] `cd frontend && yarn check:i18n-keys` → 4 locale 文件、952 键、zh/en 零 diff、占位符一致 ✅ 2026-08-12
 - [x] [硬编码中文棘轮 CI] `cd frontend && yarn check:i18n-cjk` → baseline 1570 CJK 字符，只减不增 ✅ 2026-08-12
 - [x] [LocaleRoute 路由 flatten] `cd frontend && yarn check:routes` PASS；`node scripts/check-routes.mjs --self-test` bad fixture FAIL / good PASS ✅ 2026-08-12
+- [x] [生产 boot smoke] `cd frontend && PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 6 公开 URL 无 pageerror、`#root` 有内容 ✅ 2026-08-12
 - [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
 - [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
 - [ ] [落地页 Docs 分流] 英文态页脚 Docs → `erdonline.github.io/erdonline/en/`；中文态 → 根路径无 `/en/`

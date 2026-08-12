@@ -140,23 +140,39 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 
 ## 质量门禁（CI / pre-push）
 
+**主门禁：构建后 SPA 能否启动**（防「review 看着没问题、上线整站白屏」）
+
 ```bash
 cd frontend
-yarn check:routes      # ADR-0034：LocaleRoute wrapper 下禁止绝对子 path（秒级）
-yarn check:i18n        # locale 键对齐 + 硬编码中文棘轮
-node ../scripts/check-routes.mjs --self-test   # 内置 bad/good fixture 回归
+yarn check:prod-smoke          # yarn build（若无 dist）→ serve dist → 公开 URL 无 pageerror + #root 有内容
+PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke   # CI：build 后只跑 smoke
+PROD_SMOKE_SKIP_PRE_PUSH=1 git push             # 跳过 pre-push 全量 smoke（CI/deploy 仍会跑）
 ```
 
-**Pre-push（可选，推荐）**：仓库无 husky；用脚本安装 git hook：
+公开 URL 集：`/`、`/compare`、`/catalog`、`/demo`（→ `/s/public-demo`）、`/en`、`/en/compare`。无需后端即可验证 **SPA 初始化**；会捕获 route flatten、坏 import 等 init 级崩溃（2026-08 `/demo` 白屏即此类）。
+
+**辅门禁（秒级，不能替代 smoke）**：
+
+```bash
+yarn check:routes      # umi wrapper + 绝对子 path 静态断言（ADR-0034 举一反三之一）
+yarn check:i18n        # locale 键对齐 + 硬编码中文棘轮
+node ../scripts/check-routes.mjs --self-test
+```
+
+| 场景 | 门禁 |
+|---|---|
+| **CI** `frontend-ci.yml` | build → **`check:prod-smoke`**（阻断合并） |
+| **Deploy** `frontend-demo-site.yml` | build:prod → **`check:prod-smoke`** → CF Pages（阻断发布） |
+| **Pre-push** | `check:routes` + `check:i18n`；若 push 含 `frontend/**` 变更则 **`check:prod-smoke`**（~3–5 min，可 `PROD_SMOKE_SKIP_PRE_PUSH=1` 跳过） |
+
+安装 pre-push hook：
 
 ```bash
 chmod +x scripts/install-git-hooks.sh scripts/git-hooks/pre-push
 ./scripts/install-git-hooks.sh
 ```
 
-`pre-push` 顺序：`check:routes` → `check:i18n`（不跑 `yarn build`）。CI 见 `.github/workflows/frontend-ci.yml`（`check:routes` 在 build 前）。
-
-**LocaleRoute 子路由规则**：父路由带 `wrappers: ['@/components/LocaleRoute']` 且有 `routes` 时，子 `path` 写相对段（`''`、`publish`、`:id`），勿写 `/catalog/...` 绝对路径——umi 插入 wrapper 后 React Router flatten 会抛错，整站 SPA 白屏。
+**LocaleRoute 子路由规则**（静态补网）：带 `wrappers: ['@/components/LocaleRoute']` 且有 `routes` 时，子 `path` 用相对段（`''`、`publish`、`:id`），勿写 `/catalog/...` 绝对路径。
 
 ### Schema 双源（`db/init` vs Flyway）
 
