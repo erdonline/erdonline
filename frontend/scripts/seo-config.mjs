@@ -45,40 +45,41 @@ export const ROBOTS_DISALLOW = [
 ];
 
 /**
- * Cloudflare Pages _redirects rules (200 proxy → index.html).
+ * Cloudflare Pages _redirects rules (200 proxy → `/`).
+ * Do NOT proxy to `/index.html` — CF Pages 308-redirects *.html to extension-less URLs.
  * Do NOT add a catch-all `/*` — unknown paths must fall through to 404.html (HTTP 404).
  * Root `/` is served by index.html statically; no rule needed.
  *
  * @type {readonly string[]}
  */
 export const CF_SPA_REDIRECT_RULES = [
-  "/compare /index.html 200",
-  "/demo /index.html 200",
-  "/en /index.html 200",
-  "/en/compare /index.html 200",
-  "/en/demo /index.html 200",
-  "/en/catalog /index.html 200",
-  "/catalog /index.html 200",
-  "/catalog/* /index.html 200",
-  "/s/* /index.html 200",
-  "/login /index.html 200",
-  "/login/* /index.html 200",
-  "/register /index.html 200",
-  "/register/* /index.html 200",
-  "/oauth/authorize /index.html 200",
-  "/403 /index.html 200",
-  "/project/* /index.html 200",
-  "/project/group/setting /index.html 200",
-  "/project/group/setting/* /index.html 200",
-  "/design/* /index.html 200",
-  "/dataModels /index.html 200",
-  "/dataModels/* /index.html 200",
-  "/home /index.html 200",
-  "/home/* /index.html 200",
-  "/databaseConfig /index.html 200",
-  "/databaseConfig/* /index.html 200",
-  "/account /index.html 200",
-  "/account/* /index.html 200",
+  "/compare / 200",
+  "/demo / 200",
+  "/en / 200",
+  "/en/compare / 200",
+  "/en/demo / 200",
+  "/en/catalog / 200",
+  "/catalog / 200",
+  "/catalog/* / 200",
+  "/s/* / 200",
+  "/login / 200",
+  "/login/* / 200",
+  "/register / 200",
+  "/register/* / 200",
+  "/oauth/authorize / 200",
+  "/403 / 200",
+  "/project/* / 200",
+  "/project/group/setting / 200",
+  "/project/group/setting/* / 200",
+  "/design/* / 200",
+  "/dataModels / 200",
+  "/dataModels/* / 200",
+  "/home / 200",
+  "/home/* / 200",
+  "/databaseConfig / 200",
+  "/databaseConfig/* / 200",
+  "/account / 200",
+  "/account/* / 200",
 ];
 
 /**
