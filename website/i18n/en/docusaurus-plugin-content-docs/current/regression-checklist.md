@@ -1,9 +1,14 @@
-# 回归检查单
+# Regression checklist
 
-> 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
-> 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
+:::info Maintainer-only checklist
+This is an **internal regression checklist** for maintainers. **Section and subsection headings are in English**; checklist item bodies remain in Chinese (same text as the zh-CN source) so they stay aligned with E2E labels and manual steps used in CN development. Automated coverage is marked ✅自动 in items; everything else is manual and must be rechecked when the related module changes.
+:::
 
-## 字段库 / ADR-0032（2026-08-09）
+> Rule source: `.cursor/rules/change-points-as-tests.mdc` — every change point must be registered as a verifiable checkpoint.
+
+## Field library / ADR-0032 (2026-08-09)
+
+Platform seed apply, scope ACL, designer insert-from-library, and field-library management pages.
 
 - [x] [平台种子 apply] `POST /dataDict/dd-field-gender/apply` 返回 fields+enums 且带 `dictRef` ✅`DataDictServiceImplApplyTest`
 - [x] [scope ACL] platform 只读；group 成员可写；user 本人可写 ✅`DataDictAclTest`
@@ -14,7 +19,9 @@
 - [ ] [手工] 设置页 `/design/table/setting/fieldLibrary` 新建个人条目 CRUD
 - [ ] [手工] 表字段空态「从字段库写入」→ Modal → 管理字段库深链
 
-## 数据源凭证落库加密 / R-DATA-06 · ADR-0024（2026-08-05）
+## Datasource credential encryption at rest / R-DATA-06 · ADR-0024 (2026-08-05)
+
+Encrypt credentials at rest; API and connector paths still receive plaintext; legacy plaintext rows migrate on save.
 
 - [x] [加解密 roundtrip] 明文→密文→明文一致；IV 随机不重复；篡改/错密钥抛异常 ✅`DataSourceCredentialCipherTest`
 - [x] [幂等加密] 已加密值再 `encrypt()` 不二次包裹 ✅`DataSourceCredentialCipherTest#encrypt_isIdempotent_doesNotDoubleEncrypt`
@@ -26,7 +33,9 @@
 - [x] [ACL 路径同覆盖] `DataSourceAcl.requireOwned` 直查 mapper 路径同样解密，`ConnectorCredentialResolver` 建连仍拿明文 ✅`ConnectorCredentialResolverTest`（mock 层）+ 手工建连验证需求未变
 - [ ] [手工 dogfood] 设计器内新建/编辑数据库连接、测试连接、批量删除，UI 无回归（DatabaseConfigForm/index.tsx 未改动，仅后端加解密透明层）——建议下轮 Playwright UX 走查覆盖
 
-## 联邦登录解绑重登 / ADR-0021（2026-08-05）
+## Federated login unlink and re-login / ADR-0021 (2026-08-05)
+
+Physical unlink, safe re-link on next IdP login, and no duplicate-account collisions under concurrency.
 
 - [x] [解绑物理删除] `unlink` 走 `physicalDeleteById` 而非 `deleteById` ✅`FederateUserServiceTest#unlink_isPhysicalDelete_notLogicalDeleteById`
 - [x] [解绑后重登不撞已存在] 无邮箱身份按约定用户名重新挂接 ✅`FederateUserServiceTest#resolveForLogin_relinksOrphanedAccount_byConventionUsername_whenLinkMissingAndNoEmail`；有邮箱身份仍走邮箱重新挂接 ✅`resolveForLogin_relinksOrphanedAccount_byEmail_whenUsernameNotConventionBased`
@@ -35,7 +44,9 @@
 - [x] [存量数据] Flyway `V15` 清掉历史软删行 ✅`./backend/dev-ensure.sh --restart` 日志确认迁移成功 + `SELECT COUNT(*) FROM user_identity_link WHERE del_flag<>'0'`=0
 - [ ] [Railway 手工] 真实 Google 账号：登录建号 → 账号设置解绑 → 再次 Google 登录 → 秒登成功（原地复用旧账号，无「已存在」错误、无需重新创建项目）——需真实 IdP 回调，无法自动化，redeploy 后人工走一遍
 
-## 公开 API / ADR-0013
+## Public API / ADR-0013
+
+PAT/OAuth scopes, rate limiting, REST `/api/v1`, MCP read/write tools, and account settings UI for token/client management.
 
 - [x] [PAT 哈希] 铸造后库内仅 `token_hash`/`token_hint`，无明文 ✅`PatTokenCodecTest` + `PersonalAccessTokenAuthTest`
 - [x] [scope 门禁] 默认只读；写 scope 须显式铸造 ✅`PatScopesTest`
@@ -67,7 +78,9 @@
 - [x] [OAuth client 管理 UI] `/account/settings?selectKey=oauthClients` 注册→secret 揭示→复制 ID→吊销 ✅`oauth-clients.spec.ts`
 - [x] [PAT 管理 UI] `/account/settings?selectKey=personalAccessTokens` 铸造→明文揭示→复制→吊销 ✅`personal-access-tokens.spec.ts`
 
-## 图本身可读可分享 / ADR-0016（续）
+## Diagram readability and shareability / ADR-0016 (continued)
+
+Diagram density, keyboard facades, modal/drawer traps, and share/demo visual parity — mostly E2E-automated under ADR-0016.
 
 - [x] [几何择柄] 竖叠同列表 FK → `data-port=same`；截图 `diagram-port-same-side.png` ✅`relation.spec.ts`「PK/FK 与边样式」
 - [x] [字段行再压一档] `.erd-field-row` min-height 22 / line-height 16 / pad 2；`FIELD_ROW_H=26` ✅`graphLayout.test.ts` + `relation.spec.ts`「表节点视觉」
@@ -75,7 +88,7 @@
 - [x] [表节点底栏/空表井碎距] 表头/字段行已密不改；添加 margin≤6 + minH≥22；打开表设计 margin≤6×4 + btn minH≥22；空表井 pad≤6 / gap≤4 / marginT≤4；`NODE_FOOTER_H=28`；截图 `diagram-table-fields-empty-dense.png` ✅`relation`「PK/FK」+ `table-field-empty`「画布空表」
 - [x] [导入后首屏] 空态「导入 DBML」→ 直开关系图 + 节点落入画布可视区；截图 `diagram-import-first-screen.png` ✅`dbml-import.spec.ts`「空态导入 DBML」
 
-### 已自动化
+### Automated
 
 - [x] 工作台壳外井次密：HomeLayout shell/body ≤12×16；GroupLayout content/body ≤12×16；列表空态 ≤12；截图 `workspace-shell-dense.png` / `group-shell-dense.png` ✅`layout-outlet.spec.ts`
 - [x] 模型树「表/关系」默认展开：不点 switcher 即见三层 + `tree-open-relation` ✅`model-design-ux.spec.ts`
@@ -230,14 +243,16 @@
 - [x] 画布「元数据」→ 表设计元数据应用签（无死 affordance；再入仍落元数据应用）✅`relation.spec.ts`「画布打开元数据应用签」
 - [x] [元数据应用修改/删除字段签对齐] 版本基线后改类型→「修改字段」含 MODIFY 不含 DROP；「删除字段」空（无 MODIFY/DROP） ✅`relation.spec.ts`「元数据应用：修改/删除字段签标签对齐模板」
 
-### 手工
+### Manual
 
 - [ ] [大模型树滚动] 灌 100+ 表（`__ERD_E2E__.ensureTables`）→ 左树滚动流畅、搜索命中可见
 - [ ] [工作区留白] 模型设计/表设计页四边有 12px 留白，画布圆角面板不贴边
 
-## 多关系图 / ADR-0017 Phase 2a（2026-08-02）
+## Multiple relation diagrams / ADR-0017 Phase 2a (2026-08-02)
 
-### 已自动化
+Multi-diagram switcher, tree diagram list, command palette locate, and lazy migration from legacy `graphCanvas`.
+
+### Automated
 
 - [x] 工具栏新建/重命名/切换关系图 + 树图列表 + 布局按图持久化/刷新 ✅`multi-diagram.spec.ts`
 - [x] 左树重命名关系图：菜单接通 `renameDiagram`；无空 FK 弹层；无复制/剪切死项 ✅`multi-diagram.spec.ts`「左树重命名关系图」
@@ -253,7 +268,7 @@
 - [x] schema 含 `diagrams` ✅`validate-projectjson.mjs`
 - [x] 公开 demo / 示例：双图「鉴权核心」「会话与审计」+ 切换器 ✅`demo.spec.ts` / `activation.spec.ts`
 
-### 手工
+### Manual
 
 - [ ] [旧项目打开] 仅有 `graphCanvas`、无 `diagrams` 的项目 → 打开画布见主关系图，拖动后 projectJSON 出现 `diagrams[0]`
 - [x] [分享页] 含 `diagrams` 的项目分享链接 → 只读画布用主图布局 ✅`demo.spec.ts`（/demo）
@@ -261,9 +276,11 @@
 - [x] [demo 布局无重叠] `/s/public-demo` 8 表卡片两两不重叠、边不穿卡（dagre 分层替代手排 x/y，用户反馈 `7bbcbfa` 手排失败）✅`graphLayout.test.ts`「节点两两不重叠」+ Playwright 截图人工核对
 - [x] [分享画布视口铺满] `/demo` `share-relation-canvas` 高 >480 且占视口过半、贴近视口底；截图 `demo-share-canvas-viewport.png` ✅`demo.spec.ts`
 
-## 图内分组 Frame / ADR-0017 Phase 2b（2026-08-02）
+## In-diagram Frame groups / ADR-0017 Phase 2b (2026-08-02)
 
-### 已自动化
+Visual Frame nodes, member drag/resize/fit, import frame suggestions, and demo/share diagram polish.
+
+### Automated
 
 - [x] 选中表→新建分组→`memberEntityIds` 写入 + 刷新仍见框 ✅`diagram-frame.spec.ts`
 - [x] 空分组→选表→加入分组 ✅`diagram-frame.spec.ts`
@@ -280,7 +297,7 @@
 - [x] dagre 默认间距 ≤ 旧走廊 80/160 ✅`graphLayout.test.ts`
 - [x] Frame 默认 padding 20（适应成员更贴表）✅`diagram.test.ts`
 
-### 手工
+### Manual
 
 - [x] [分享页 Frame] 含 `groups` 的项目分享 → 只读画布见虚线分组框 ✅`demo.spec.ts`
 - [x] [Frame 主题色] demo Frame 底无 Ant 蓝；含 success `frameFill`；截图 `demo-frame-theme-tokens.png` ✅`demo.spec.ts` + `diagram.test.ts` 色板轮换
@@ -310,15 +327,17 @@
 - [x] [导入 Frame 建议] 前缀表 DBML → toast「已建议 N 个分组」+ 画布 2 个 `diagram-frame`（sys/biz）；截图 `diagram-import-frame-suggest.png` ✅`dbml-import.spec`「前缀表」+ `suggestImportFrames.test` / `yarn test:unit:dbml`
 - [ ] [拖入/出] 拖表中心进入空分组 → 成员+1 且框扩边；再拖出 → 成员-1（toast「已移出」）
 
-## 第 0 轮（2026-08-01）
+## Round 0 (2026-08-01)
 
-### 已自动化（`yarn test:e2e` / CI e2e-smoke）
+Foundation slices before ReactFlow migration: smoke, datasource ACL, reverse import baseline.
+
+### Automated (`yarn test:e2e` / CI e2e-smoke)
 
 - [x] 登录页渲染；错误凭证停留登录页 ✅自动
 - [x] 登录 → 新建项目（4 必填字段）→ 列表可见 → 打开模型进设计器 → 删除清理 ✅自动
 - [x] VIP 计数缓存：删除项目后可再次创建（自清理用例隐含覆盖）✅自动
 
-### 手工/接口断言项
+### Manual / API assertions
 
 - [x] [自部署可观测] `GET /actuator/health` → `{"status":"UP"}`；`GET /actuator/info` → `app.name=erd-online`；未暴露 `/actuator/env` → HTTP 404（非假 500）✅curl 2026-08-02
 - [x] [自部署 DX 验收] `./scripts/verify-self-deploy.sh` → health/info/404/FE + `flyway_schema_history` 有成功版本 ✅脚本 2026-08-02（ok=5）
@@ -328,9 +347,11 @@
 - [x] [statistic 不含已删项目] 有软删除项目时 `GET /ncnb/project/statistic` → 预期：total/personTotal 只计 del_flag=0，与 /project/recent 列表数一致（2026-08-01 curl 验证通过）
 - [ ] [VIP 计数缓存失效] 建项目 → 删除 → 立即再建 → 预期：不报「个人项目已超过1个」
 
-## 多库逆向 Dialect SPI（2026-08-01）
+## Multi-DB reverse Dialect SPI (2026-08-01)
 
-### 已自动化
+Per-dialect reverse parse (indexes, FKs, comments) and wizard UX — mix of unit tests, curl, and manual DB instances.
+
+### Automated
 
 - [x] IndexResultSetMapper：PRIMARY/统计行跳过、复合索引、STATISTICS LOWCASE ✅自动
 - [x] Registry：MySQL/MariaDB → Mysql；PostgreSQL → Postgresql；Oracle → Oracle；SQL Server → SqlServer；其余 → Generic ✅自动
@@ -390,7 +411,7 @@
 - [x] [顶栏仓库链] 设计器 GitHub 链指向 `erdonline/erdonline`，无旧 Gitee ✅`presence.spec.ts`
 - [x] [开源品牌文案] 设计器无「零代科技」✅`presence.spec.ts`
 
-### 手工
+### Manual
 
 - [x] [ADR-0008 设计器] 设置→数据源：增改测连写到 `/ncnb/dataSources`；保存项目后 `profile` 无 password/url，有 `defaultDataSourceId` ✅`adr0008-datasource.spec.ts`
 - [x] [`/databaseConfig` 编辑/删除] 新建→编辑改名→更新成功→删除确认→删除成功 ✅`adr0008-datasource.spec.ts`
@@ -410,9 +431,11 @@
 - [ ] [SQL Server 逆向含外键] 勾选父子表 → `associations` 有 `1:n`（sys.foreign_keys）
 - [ ] [其它库兜底] H2/达梦等走 Generic → 表/列/PK 可导入；索引尽力
 
-## 第 3 轮（2026-08-01）：Blueprint → antd 清零
+## Round 3 (2026-08-01): Blueprint → antd zero-out
 
-### 已自动化
+ProLayout/ProForm peel milestones and designer menu wiring toward pure antd shells.
+
+### Automated
 
 - [x] 登录/新建项目/设计器/版本/导出/关系图/UX 走查共 15 条 E2E 全绿（4 workers，1.6min）✅自动
 - [x] [设计器顶栏菜单] 项目 → 设置 → 数据源设置 dialog ✅`project-menu.spec.ts`
@@ -420,9 +443,11 @@
 - [x] [逆向解析入口] 导入 → 数据源逆向/PdMan/ERD 弹窗可见 ✅`project-menu.spec.ts`
 - [x] [导出入口] 导出五项可见且 DDL 配置弹窗可开 ✅`project-menu.spec.ts`
 
-## 第 2 轮（进行中）
+## Round 2 (in progress)
 
-### 质量基线 · Jackson / 单测
+ReactFlow entity-as-node migration, Jackson/fastjson baseline, and relation.spec full-journey coverage.
+
+### Quality baseline · Jackson / unit tests
 
 - [x] [fastjson 已移除] `pom` 无 fastjson；`JsonUtilTest` + `ErdJsonTypeHandlerTest` 通过 ✅自动
 - [x] [projectJSON 仍可读] JWT 登录 → 进设计器（smoke/relation）✅E2E
@@ -437,21 +462,21 @@
 - [x] [RenameProject antd Form] 修改项目弹窗非 Pro ModalForm；改名成功 toast + 列表见新名、旧名消失 ✅`project-surface.spec.ts`「修改弹窗可改名并回列表」
 - [x] [CopyProject antd Form] 版本行复刻弹窗非 Pro ModalForm；复刻成功 toast + 个人项目列表见新名 ✅`version.spec.ts`「版本行复刻弹窗可创建个人项目」
 
-### 已自动化（`yarn test:e2e`）
+### Automated (`yarn test:e2e`)
 
 - [x] [实体即节点] relation.spec.ts：建 2 表 → 关系图立即渲染 2 节点（含画布开启中建表即时出现）✅自动
 - [x] [画布高度] 空模块打开关系图画布可见（.react-flow 非 0 高度，历史塌陷 bug 回归断言含于上条）✅自动
 - [x] [拖动持久化] 拖节点 → 重载 → 画布 transform 坐标不变 ✅自动
 - [x] [节点删除守卫] 选中节点按 Delete → 提示走模型树 + 节点保留 ✅自动
 
-### 手工/接口断言（2026-08-01 已验证）
+### Manual / API assertions (verified 2026-08-01)
 
 - [x] [字段连线建关联] T_B.A_ID 右锚点拖至 T_A.ID 左锚点 → 边出现；DB associations 落库；重载后边仍在 ✅浏览器+SQL 实证
 - [x] [删边] 边 focus+Delete → Modal 确认后边消失 + DB associations 清空 ✅`relation`「画布删表/删边二次确认」「删边后刷新」
 - [x] [画布键盘删表二次确认] 选中表 Delete → 取消保留；确认 toast「表删除成功」+ 节点消失 ✅`relation`「画布删表/删边二次确认」
 - [x] [手柄可点] overflow/z-index 修复后 elementFromPoint 命中手柄（修复前被节点埋住）✅浏览器实证
 
-### R2 已自动化（relation.spec.ts 全旅程）
+### R2 automated (relation.spec.ts full journey)
 
 - [x] [空态 CTA] 0 表显示「新建第一张表」→ 点击即上图 ✅自动
 - [x] [内联加字段] 节点「+ 添加字段」→ 输名回车 → 字段行出现 ✅自动
@@ -459,7 +484,7 @@
 - [x] [字段改名跟边] 双击外键改名 → 边仍在（associations 锚点同步）✅自动
 - [x] [dagre 自动布局] 点「自动布局」→ 节点 transform 改变 ✅自动
 
-### 待办
+### Pending
 
 - [x] [边点击区域] `interactionWidth=24`；`relation.spec` 删边不再 `force` ✅
 - [ ] [旧坐标复用] 含 g6 graphCanvas 坐标的老项目打开新画布，节点位置应保持（无老数据样本）
@@ -484,14 +509,16 @@
 - [x] [R3 切 g6] 打开关系图仅 ReactFlow（无 G6Relation）；relation.spec 全旅程绿 ✅自动
 - [x] [导出去 G6] 设计器导出 Markdown 下载 .md（DOM+html2canvas）✅自动 export.spec.ts
 
-## 第 1 轮（2026-08-01）
+## Round 1 (2026-08-01)
 
-### 已自动化（`yarn test:e2e` / CI e2e-smoke）
+Early session/login/project-list fixes and security hygiene (JWT, dead OAuth routes, console cleanup).
+
+### Automated (`yarn test:e2e` / CI e2e-smoke)
 
 - [x] 错误凭证登录展示后端业务文案（查无此用户）且同一条错误只弹一次 ✅自动
 - [x] 全量冒烟 3 条通过（2026-08-01 本地）✅自动
 
-### 手工/接口断言项
+### Manual / API assertions
 
 - [x] [create_time/creator 填充] curl 建项目 → 库中 creator=admin、create_time 非空、返回 id 与库中一致（2026-08-01 验证通过）
 - [x] [项目卡片可点] 个人/团队/最近/数据模型 4 页项目名可点进设计器（2026-08-01 浏览器手工验证通过，卡片显示创建时间）
@@ -503,7 +530,7 @@
 - [x] [画布撤销/重做] relation.spec.ts 覆盖 ✅自动
 - [x] [登录 console 无账密] ux-audit / smoke 覆盖 ✅自动
 
-### 新发现待办
+### Newly discovered pending
 
 - [x] [关系图入口缺失] 已修（见走查发现区，浏览器实证）
 - [x] [/oauth/token] 已废弃；现 JWT 登录，错误凭证 401+业务文案（curl+E2E）
@@ -515,16 +542,18 @@
 - [x] [R-OPS-03] deployment 标明 9092 勿公网裸放
 - [ ] [生产凭证 fail-fast] 待 Docker 部署验证：`docker-compose up`（compose 显式传 env，应正常启动）
 
-## UX 走查（playwright-ux-audit 规则，2026-08-01 首轮）
+## UX walkthrough (playwright-ux-audit rules, 2026-08-01 first pass)
 
-### 已自动化（ux-audit.spec.ts）
+First-pass real-journey friction log; items here promoted into E2E or closed as fixed.
+
+### Automated (ux-audit.spec.ts)
 
 - [x] 个人/最近/数据模型页项目卡片标题是**真链接**（getByRole('link')，含 href 可键盘聚焦）✅自动
 - [x] 点卡片标题直达设计器（affordance 端到端有效）✅自动
 - [x] 全旅程 console 无明文账密 ✅自动
 - [x] 全旅程截图存档 test-results/ux-walkthrough/（6 张，每轮人工翻阅找新摩擦）
 
-### 走查发现（本轮新摩擦）
+### Walkthrough findings (new friction this round)
 
 - [x] [假链接] 卡片标题首版修复用 `` `<a onClick>` `` 无 href，无 link role、不可键盘聚焦 → 已改真链接（走查首轮即抓出，P1 已修）
 - [x] [关系图入口缺失] 文件夹模式树下无「关系图」节点（`getModuleEntityTree` 仅扁平模式返回入口，而界面恒用文件夹模式）→ 已在「关系」文件夹置顶入口，浏览器验证画布可打开渲染（P0 已修）
@@ -533,13 +562,13 @@
 - [x] [建表链路] 树/弹窗建表后直开关系图；中文名可选；不再出现「建表即空壳」✅同上
 - [x] [连线后改字段名边消失] 先连线再改外键名，边仍在；再 Delete 可删干净 ✅ `relation.spec.ts`
 
-## 第 1 轮待启用（test.fixme 转正目标）
+## Round 1 pending activation (test.fixme promotion targets)
 
 - [x] ~~错误凭证登录出现明确错误提示~~（第 1 轮已转正并通过）
 - [x] ~~画布/树删除表需二次确认~~ → 树删除确认已自动化（`smoke`）；画布 Delete 见 `relation`「画布删表/删边二次确认」
 - [x] ~~左树删除模型/关系图二次确认~~ → `multi-diagram`「左树删除关系图/模型二次确认」
 
-## 第 3 轮：版本 diff 可视化（2026-08-01）
+## Round 3: version diff visualization (2026-08-01)
 
 - [x] [详情可视化] 建表→保存版本→点「详情」→ 见 `version-diff-panel` 着色项与表名 ✅ `version.spec.ts`
 - [x] [跨版本 diff 导出] 详情弹层点「导出」→ download `version-diff-*.md` + toast「已导出变更清单」 ✅ `version.spec.ts`
@@ -550,23 +579,23 @@
 - [ ] [团队审批 UI 发起+通过] 手工：团队项目→版本行「提交工单」→SQL审批→选审批人→通过（需真实 JDBC 目标库）
 - [x] [W3 审批入口] 版本页顶栏工单/审批直达；团队未同步行「提交工单」→详情「SQL审批」✅ `approval.spec`「版本页：提交工单入口可达」
 
-## 新手激活（2026-08-01）
+## New-user activation (2026-08-01)
 
 - [x] [首页示例] 登录→/home→示例项目→设计器关系图见 sys_user 等 8 表 + 7 边 ✅ `activation.spec.ts`
 - [x] [去死链] 「新建模型」href 指向 `/project/person` ✅同上
 - [x] [多项目] 开源版可连续创建 ≥2 个个人项目 ✅ `activation.spec.ts`
 - [x] [30s 计时] 落地→demo→登录→示例就绪→保存首版本；计时段 ≤30s（基线 ~3.5s） ✅ `activation-30s.spec.ts`
 
-## 设计器保存状态（2026-08-01）
+## Designer save status (2026-08-01)
 
 - [x] [自动保存反馈] DesignLayout 顶栏见「保存中…」→「已保存」 ✅ `relation.spec.ts`
 
-## 项目激活链路（2026-08-01）
+## Project activation flow (2026-08-01)
 
 - [x] [空态引导] 清空个人项目 → /project/person 见「立即创建/一键示例」→ 一键示例进设计器树见 sys_user/sys_role/sys_permission/biz_order ✅ `project-activation.spec.ts`
 - [x] [新建表单减负] 打开新建弹窗 → 类型默认个人项目、标签已填 → 只填名称/描述可创建，成功有「创建成功」提示 ✅同上
 
-## 开发基建（2026-08-01）
+## Dev infrastructure (2026-08-01)
 
 - [x] [后端常驻] `./backend/dev-ensure.sh` 首跑拉起、二跑秒退（幂等）；终端关闭后 curl /actuator/health 仍 UP（tmux 会话 erd-be）
 - [x] [保存失败可重试] 断网/业务码失败 → 单条 toast + 顶栏「保存失败，点击重试」→ 点后「已保存」且字段落库；无叠弹「自动保存失败」 ✅`save-failure.spec.ts`
@@ -575,30 +604,30 @@
 - [x] [版本保存失败可读可重试] mock `hisProject/save` → 初始化基线 toast + 窗仍开 → 重试成功；重建失败无「重建基线成功」且不调 rebaseline ✅`version-save-failure.spec.ts`
 - [x] [只读分享创建失败可重试] mock `share/create` 业务码 → toast「模拟创建分享拒绝」+ 空链 +「重新生成链接」可点 → 二次成功出 `/s/` +「复制链接」 ✅`share-create-failure.spec.ts`
 
-## 加载骨架（2026-08-01）
+## Loading skeleton (2026-08-01)
 
 - [x] [项目列表] 慢网打开 /project/person 见 list loading，完成后可新建 ✅ `loading.spec.ts`
 - [x] [进设计器] 慢网打开模型见 `page-skeleton`，加载后消失 ✅同上
 - [x] [版本页] 进版本管理首屏见骨架而非 `Loading...` ✅`loading.spec.ts`「版本管理首屏慢网」
 - [x] [版本页返回模型] 「返回模型」→ `/design/table/model?projectId=` 且见模型空态/树 ✅`version.spec.ts`「返回模型」
 
-## UI 收敛 antd（2026-08-01）
+## UI convergence on antd (2026-08-01)
 
 - [x] [无 MUI] `rg '@mui/' frontend/src` 零命中；package.json 无 `@mui/*`
 - [ ] [数据源对话框] 手工：设置→数据源设置→测试/确定按钮为 antd 样式；预览编辑抽屉布局正常
 - [x] [版本编辑] 版本页「编辑」仍可打开表单；最新版改号成功；重复号 toast 且弹窗不关 ✅ `version.spec.ts`「重命名与删除」
 
-## 画布视口裁剪（2026-08-01）
+## Canvas viewport culling (2026-08-01)
 
 - [x] [大图裁剪] 30 表 + 放大视口 → DOM `.react-flow__node` 数量 `< 30`；`data-viewport-cull=1` ✅ `canvas-scale.spec.ts`
 - [x] [E2E 定位] 新建模型/开关系图走 testid，不依赖 `.ant-tree [class*=title]` ✅同上
 
-## 分享页裸 fetch 走 buildApiHref（2026-08-05）
+## Share page raw fetch via buildApiHref (2026-08-05)
 
 - [x] [分享页初始加载/复制到我的项目] `pages/share/index.tsx` 两处 `fetch` 套 `buildApiHref`；本地 dev（API_URL 空）走既有 proxy 不变 ✅ `share.spec.ts` + `share-revoke-keyboard.spec.ts` + `share-create-failure.spec.ts` + `share-project-keyboard.spec.ts` 10 例全绿
 - [x] [CF Pages demo 实测] Redeploy 后打开 `https://www.erdonline.com/s/public-demo`，Playwright 截图确认页面渲染「功能鉴权示例」RBAC 关系图（非「分享不可用」）✅ 2026-08-05
 
-## 官方 Demo 运行时 Railway（2026-08-02）
+## Official demo runtime on Railway (2026-08-02)
 
 - [x] [文档站用户手册收口] Navbar「文档」→ `guide/intro`；贡献区默认折叠；Footer 有 Demo/对照/GitHub；七篇 guide 含成功态+排障；`cd website && yarn build` 绿 ✅ 2026-08-09（走查见 `docs/guide/docs-qa-checklist.md`）
 - [x] [文档站再打磨] 首页用户 CTA；Demo 只读写清；百度统计 + SPA 追踪；`zh-Hans`/`en` locale 切换与 guide 英译；`yarn build` 绿 ✅ 2026-08-09
@@ -610,13 +639,13 @@
 - [ ] [Railway Dashboard] Root Directory=`backend` + Config=`/backend/railway.toml` → Deploy → Link MySQL/Redis（原生变量）+ schema init → Public → `actuator/health` UP → 设 `DEMO_API_URL`
 - [ ] [Zeabur Dashboard] Root Directory=`backend` → Dockerfile 构建 → MySQL 8 + Redis + `MYSQL*`/`REDIS*`/`JWT_*`/`CORS_*` → 域名 → `curl /actuator/health` UP（`/` 可为 404）→ `DEMO_API_URL` 指该 URL
 
-## 创建项目 / JWT 头（2026-08-02）
+## Create project / JWT header (2026-08-02)
 
 - [x] [新增项目 Modal 中文按钮] `/project/person`→新建→见「确定/取消」（非 OK/Cancel）→创建成功关窗 ✅ `smoke`「登录→新建→设计器」
 - [x] [大 JWT POST 非 HTML] Authorization≈8KB 时 `POST /ncnb/project/add|group/add` 返回 JSON 非 Tomcat HTML 400 ✅ curl + ADR-0015
 - [x] [DesignLayout 出口] 登录→新建→设计器见顶栏 save/share/presence + 模型空态 ✅ `layout-outlet` DesignLayout
 
-## 布局壳子路由（2026-08-02）
+## Layout shell child routes (2026-08-02)
 
 - [x] [HomeLayout 主内容] 登录→/home 见 `home-link-new-project`；/project/person 见新建/立即创建（非仅 slogan）✅ `layout-outlet.spec.ts`
 - [x] [HomeLayout 顶栏] `/home` 无 `save-status` / `collab-presence` /「只读分享」；仍有「GitHub 仓库」与「公众号」（`homeRightContent`）✅ `layout-outlet.spec.ts`
@@ -625,35 +654,35 @@
 - [x] [S0 依赖矩阵] installed `@umijs/max@4.6.84` / `antd@5.29.3` / `@ant-design/pro-components@2.8.10` / `rc-util@5.44.4`；`yarn build` 绿 ✅
 - [x] [GroupLayout 主内容] 登录→/project/group/setting/basic?projectId= 见「基本设置」+「项目名」且不双挂载 ✅同上
 
-## W6 团队项目基本设置（2026-08-02）
+## W6 team project basic settings (2026-08-02)
 
 - [x] [基本设置保存成功 toast] API 建团队项目→/project/group/setting/basic →改项目名→提 交→「修改成功」✅ `group-basic-setting.spec.ts`
 - [x] [基本设置保存失败 toast] mock update 非 200 →「修改失败」✅同上
 
-## Home S2 hero CTA（2026-08-02）
+## Home S2 hero CTA (2026-08-02)
 
 - [x] [继续上次建模] 有最近项目时 Home 主按钮可达 → 直达 `/design/table/model?projectId=` ✅ `project-surface.spec.ts`
 - [x] [彩虹色清零] `pages/home` 无 `#1890ff/#52c41a/#faad14` ✅rg
 
-## W5 404/403（2026-08-02）
+## W5 404/403 (2026-08-02)
 
 - [x] [404] 未知路径见「404」「抱歉，你访问的页面不存在」；「返回首页」离开该路径；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `not-found.spec.ts`
 - [x] [403/404] 无 `antd/dist/reset.css`、无自定义 `no-found`/`no-access` svg（标准 Result）✅ 源码断言
 
-## W5 404/403 品牌对齐（2026-08-03）
+## W5 404/403 brand alignment (2026-08-03)
 
 - [x] [404] 未知路径见 `AuthBrandShell`「页面不存在」+ `exception-404-gate`；品牌面板 ~40%；主 CTA「打开示例 demo」→ `/demo`|`/s/public-demo`；「返回首页」离开该路径✅ `not-found.spec.ts`
 - [x] [403] `pages/403.tsx` 同构 `AuthBrandShell`「无权访问」+ `exception-403-gate`；深链 `/403`（layout false）可达✅ `not-found.spec.ts`
 - [x] [404/403 壳键盘] Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap✅ `not-found.spec.ts`
 - [x] [深链/死认证] 空壳深链与 `/login/success` 等见 `exception-404-gate`（非裸 Result「404」）✅ `data-domain`/`design-query`/`home-data-query`/`dead-auth-routes`
 
-## W5 切片 2 — 分享失效态（2026-08-02）
+## W5 slice 2 — share invalid state (2026-08-02)
 
 - [x] [无效 token] `/s/not-a-real-…` 见 Result「403」+ 失效文案；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec.ts`
 - [x] [吊销后] 创建→吊销→匿名打开见 Result「403」+「打开示例 demo」/「返回首页」；无画布✅ `share.spec.ts`
 - [x] [分享失效门键盘] Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap✅ `share.spec.ts`
 
-## 分享失效/空态品牌对齐（2026-08-03 · ADR-0016）
+## Share invalid/empty state brand alignment (2026-08-03 · ADR-0016)
 
 - [x] [无效 token] `/s/not-a-real-…` 见 `auth-brand-shell` +「分享不可用」+ `share-invalid-gate`；左面板 ~40%；无画布；「打开示例 demo」→ `/demo`|`/s/public-demo`✅ `share.spec`「无效 token…」
 - [x] [空模块] 新建空项目分享 → 匿名见 `share-empty-module` + `erd-empty-diagram` + 主标题「该分享暂无模型|该模块暂无表」+ hint + 唯一主 CTA✅ `share.spec`「空模块分享…」
@@ -662,82 +691,82 @@
 - [x] [分享表清单分页] 展开表清单 →「共 8 张表」+ 第 2 页见 `biz_order`（默认 pageSize=5；demo 8 表）；密度锁不退 ✅`demo.spec`「免登录」
 - [x] [DBML Trigger 缺口] `@dbml/core` 9.x 无 `Trigger` 块；`Note` 仅 chnname；不伪造互导（见 `data-format.md`）✅文档
 
-## W5 切片 4 — 登录/注册品牌壳（2026-08-03）
+## W5 slice 4 — login/register brand shell (2026-08-03)
 
 - [x] [登录壳] `/login` 见 `auth-brand-shell`；左面板 ~40%；无 `bg2.png`/`#1677FF`；「打开演示」为 link✅ `smoke.spec.ts`
 - [x] [注册同构] 登录「去注册」→ `/register` 同壳 +「打开演示」✅ `session.spec.ts`
 
-## 竞品对照子页（2026-08-03）
+## Competitor comparison subpage (2026-08-03)
 
 - [x] [路由] `/compare` 可见对照表（版本/开源自部署等）+ CTA→demo/首页✅ `compare.spec.ts`
 - [x] [入口] 落地顶栏「对比」与「查看完整对照」进 `/compare`✅ `compare.spec.ts`
 - [x] [落地回归] `/` hero/CTA 仍绿✅ `landing.spec.ts`
 - [x] [对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap✅ `compare.spec.ts`「竞品对照页键盘」
 
-## 落地页 token 同源（2026-08-03）
+## Landing page token alignment (2026-08-03)
 
 - [x] [色板] `/` 底色 = `--erd-ink-900`；主 CTA = `--erd-brand`；第三柱 mark = `--erd-warning`；字族含 IBM Plex Sans✅ `landing.spec.ts`
 - [x] [源码] `pages/landing/index.less` 无 `@ink`/`@accent`/`#e85d04`/`#4aa3c8`✅ `rg`
 
-## W2 切片 3 — 设计器 chrome（2026-08-02）
+## W2 slice 3 — designer chrome (2026-08-02)
 
 - [x] [左树唯一] 空项目仅 1 份 `add-module-empty`；有模块后仅 1 份 `tree-open-relation` / `design-tree-add` / `role=tree`✅ `layout-outlet.spec.ts`
 - [x] [sider 320 + 无 footer] `.design-layout__sider` width 320px；无 `.design-layout__sider-footer`✅同上
 
-## W2 切片 4 — 设计器 calc(100vh) 清零（2026-08-02）
+## W2 slice 4 — designer calc(100vh) zero-out (2026-08-02)
 
 - [x] [树填满 sider] 有模块后 `.tree-container` 底边距 sider-inner ≤24px；无 `calc(100vh)`✅ `layout-outlet.spec.ts`
 - [x] [版本页填满 content] `version-page` 高度与 `.design-layout__content` 差 `<8px`✅同上
 
-## W6 权限组 / GroupLayout 导航 / 404（2026-08-02）
+## W6 permission groups / GroupLayout nav / 404 (2026-08-02)
 
 - [x] [权限组成员可见] `/project/group/setting/permission` 见角色 tab +「用户组成员」「权限配置」；权限配置见「全选」「团队基础设置」✅ `group-layout-nav.spec.ts`
 - [x] [返回项目列表] GroupLayout「返回项目列表」→ `/dataModels`（无 projectId）✅同上
 - [x] [打开模型] GroupLayout「打开模型」→ `/design/table/model?projectId=` 设计器可见✅同上
 - [x] [404] 未知路径见「页面不存在」/`exception-404-gate`；「返回首页」离开该路径✅ `not-found.spec.ts`
 
-## W2 项目公告（2026-08-02）
+## W2 project announcements (2026-08-02)
 
 - [x] [更多公告] `/home`「更多公告」→ `/project/notice` 见 heading「公告」+ 种子标题链（含 ERDOnline）✅ `project-notice.spec.ts`
 - [x] [公告加载失败 toast] mock `/syst/sysAnnouncement` 非 200 →「加载公告失败」✅同上
 - [x] [公告列表行密度] 行 pad / 页标题 / 工具条与 22–28 同阶；notice-row gap ≤8；截图 `project-notice-list-dense.png` ✅同上「公告列表行密度」
 
-## W4 切片 5 — module/entity/database 死 ModalForm（2026-08-02）
+## W4 slice 5 — dead module/entity/database ModalForm (2026-08-02)
 
 - [x] [零引用对话框已删] `frontend/src` 无 `dialog/module|entity|database|dataType`、`DataDomain`、`DynamicDialog`；模型/表走 `EntityModal` ✅ `empty-projectjson.spec.ts`
 - [x] [空 JSON 仍可新增模型] 无 projectJSON 团队项目 → 空态「新增模型」→ EntityModal 填名 → toast「模型添加成功」✅同上
 
-## W4 切片 6 — CopyProject antd Form+Modal（2026-08-02）
+## W4 slice 6 — CopyProject antd Form+Modal (2026-08-02)
 
 - [x] [复刻弹窗非 ModalForm] 版本行「复刻」→ antd dialog；填名/标签/描述 → toast「复刻成功」→ `/project/person` 见新项目 ✅ `version.spec.ts`
 
-## W4 切片 7 — DatabaseSetUp antd Form+Modal（2026-08-02）
+## W4 slice 7 — DatabaseSetUp antd Form+Modal (2026-08-02)
 
 - [x] [数据源设置非 ModalForm] 项目菜单→数据源设置 → dialog「数据源连接配置」；「新增数据源」POST `/ncnb/dataSources` 且 profile 无 password ✅ `adr0008-datasource.spec.ts` + `project-menu.spec.ts`
 - [x] [setting 死页已删] `pages/design/setting/component/DatabaseSetUp.tsx` 不存在 ✅
 
-## W4 切片 8 — DefaultSetUp antd Form+Modal（2026-08-02）
+## W4 slice 8 — DefaultSetUp antd Form+Modal (2026-08-02)
 
 - [x] [默认项设置非 ModalForm] 项目菜单→默认项设置 → dialog 两 Tab（默认字段/默认配置）；确定 → toast「设置成功」 ✅ `project-menu.spec.ts`
 
-## W4 切片 9 — CompareVersion / SyncConfig antd Modal+Form（2026-08-02）
+## W4 slice 9 — CompareVersion / SyncConfig antd Modal+Form (2026-08-02)
 
 - [x] [版本详情/比对非 ModalForm] 行「详情」/工具栏「版本比对」→ antd dialog；diff 面板 + 导出 `.md` 不变 ✅ `version.spec.ts` 可视化 diff
 - [x] [同步配置非 ModalForm] 工具栏「同步配置」→ antd dialog；选「重建数据表」→ toast「设置成功」 ✅ `version.spec.ts`「同步配置弹窗可保存升级方式」
 
-## W4 切片 10 — RebuildVersion / InitVersion / setting DefaultSetUp → antd（2026-08-02）
+## W4 slice 10 — RebuildVersion / InitVersion / setting DefaultSetUp → antd (2026-08-02)
 
 - [x] [重建版本非 ModalForm] 有版本后工具栏「重建版本」→ antd dialog 见版本号/描述；取消关窗（不真重建） ✅ `version.spec.ts`「重建版本弹窗可打开」
 - [x] [初始化基线非 ModalForm] `InitVersion` 无 `@ant-design/pro-components`；testid `version-init-btn` ✅ rg
 - [x] [设置页系统默认项非 ProForm] `/design/table/setting/default` 仍可打开；无 `@ant-design/pro-components` ✅ rg
 
-## W4 切片 11 — ResetPassword / AddUser / ReversePdMan / ReverseERD → antd（2026-08-02）
+## W4 slice 11 — ResetPassword / AddUser / ReversePdMan / ReverseERD → antd (2026-08-02)
 
 - [x] [修改密码非 ModalForm] 安全设置 →「修改」→ antd dialog 见密码/确认密码；「取消」关窗 ✅ `account-settings.spec.ts`
 - [x] [PdMan/ERD 导入非 ModalForm] 项目菜单导入子弹窗 + 上传 fixture 成功 toast；无 `@ant-design/pro-components` ✅ `import-pdman` / `import-erd` / `project-menu`
 - [x] [添加成员非 ModalForm] 团队项目角色页「添加成员」→ antd dialog 可搜索用户 ✅`add-user-keyboard.spec.ts`（键盘闭环；不提交加人）
 
-## W4 切片 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd（2026-08-02）
+## W4 slice 12 — SqlApproval / BasicSetting / GroupSetting / notice / TableTab → antd (2026-08-02)
 
 - [x] [基本设置非 ProForm] `/project/group/setting/basic` 保存成功/失败 toast ✅ `group-basic-setting.spec.ts`
 - [x] [用户组非 ProCard] `/project/group/setting/permission` 角色 tab + 用户组成员/权限配置可见 ✅ `group-layout-nav.spec.ts`
@@ -745,7 +774,7 @@
 - [x] [SqlApproval/TableTab 无 Pro] `rg '@ant-design/pro-components' …SqlApproval TableTab` = 0 ✅
 - [ ] [SQL审批非 ModalForm] 版本比对弹层「SQL审批」→ antd dialog 见审批人/库/说明（手工；需有 SQL 变更）
 
-## W4 切片 13 — person / recent / group / dataModels / ExportCommon ProList → antd（2026-08-02）
+## W4 slice 13 — person / recent / group / dataModels / ExportCommon ProList → antd (2026-08-02)
 
 - [x] [项目列表非 ProList] `/project/person|recent|group` 标题+搜索+行链接/操作 ✅ `project-surface` / `layout-outlet`
 - [ ] [个人空态 CTA] `/project/person` 无项目时见 `person-empty-create`/`person-empty-example`（`project-activation` chromium-serial；本轮账号锁超时未重验）
@@ -754,7 +783,7 @@
 - [x] [列表 loading] 个人项目慢网见 `aria-busy` ✅ `loading.spec.ts`
 - [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 15 ✅
 
-## W4 切片 14 — approval/order/home/login/register/databaseConfig/ExportDDL → antd（2026-08-02）
+## W4 slice 14 — approval/order/home/login/register/databaseConfig/ExportDDL → antd (2026-08-02)
 
 - [x] [审批/工单非 ProTable] 侧栏「我的工单/我的审批」表头 + 空态；种子拒绝/复批/SQL 失败仍待审 ✅ `approval.spec.ts`
 - [x] [Home 非 PageContainer] `/home` 快捷入口 `home-link-*` 可见 ✅ `project-surface` / `activation`
@@ -764,7 +793,7 @@
 - [x] [ExportDDL 非 StepsForm] 菜单「导出DDL」弹窗两步 + 下载 `.sql` ✅ `project-menu` 导出DDL
 - [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}' | wc -l` → 8 ✅
 
-## W4 切片 15 — Pro 清零 + 依赖移除（2026-08-02）
+## W4 slice 15 — Pro zero-out + dependency removal (2026-08-02)
 
 - [x] [account/settings 非 ProLayout] `/account/settings` 基本资料 toast + 页签切换；挂 HomeLayout ✅ `account-settings.spec.ts`
 - [x] [GroupUser/Permission 非 Pro] 权限组「用户组成员/权限配置/全选」可见 ✅ `group-layout-nav`
@@ -772,23 +801,23 @@
 - [x] [Pro 计数] `rg -l '@ant-design/pro-components' frontend/src --glob '*.{ts,tsx}'` → **0** ✅
 - [x] [依赖移除] `package.json` 无 `@ant-design/pro-components` / `umi-presets-pro`；`config.ts` 无 presets/layout 空壳 ✅
 
-## W6 数据域裁剪（2026-08-02）
+## W6 data domain trim (2026-08-02)
 
 - [x] [无数据域入口] 设计器项目菜单无 menuitem「数据域」；无导航 link「数据域」✅ `data-domain.spec.ts`
 - [x] [深链实验页] `/design/dataDomain` 见「实验功能」✅同上
 
-## W6 设计器查询裁剪（2026-08-02）
+## W6 designer query trim (2026-08-02)
 
 - [x] [无查询入口] 设计器项目菜单无 menuitem「查询」；无导航 link「查询」✅ `design-query.spec.ts`
 - [x] [深链实验页] `/design/table/query` 见「实验功能」+ `design-query-page` ✅同上
 - [ ] [深链运行失败有 toast] 打开查询叶子 → 选非法 SQL 运行 → 见 error toast（手工；后端仍打应用库）
 
-## W6 Home 数据查询裁剪（2026-08-02）
+## W6 Home data query trim (2026-08-02)
 
 - [x] [无数据查询入口] `/home` 主导航无 link「数据查询」；仍有「数据模型」「数据源」✅ `home-data-query.spec.ts`
 - [x] [深链实验页] `/dataQuery` 见「实验功能」+ `home-data-query-page` ✅同上
 
-## DBML 导入/导出互通（2026-08-02）
+## DBML import/export interoperability (2026-08-02)
 
 - [x] [DBML→projectJSON] Table/fields/note→chnname/Ref→1:n/Indexes→indexs/default→defaultValue；schema 可选校验 ✅ `yarn test:unit:dbml`
 - [x] [projectJSON→DBML] 逻辑类型反查 + Ref + indexs + default；round-trip 实体/字段/FK/indexs/default 稳定 ✅ `fromProjectJSON.test.ts`（`yarn test:unit:dbml`）
@@ -820,12 +849,12 @@
 - [x] [导入菜单四项] 数据源/PdMan/ERD/DBML 均可开弹窗 ✅ `project-menu.spec.ts`
 - [x] [导出菜单六项] HTML/Word/Markdown/DDL/ERD/DBML 可见 ✅ `project-menu.spec.ts`
 
-## 设计器项目 ▾ 最近切换（2026-08-02）
+## Designer project ▾ recent switch (2026-08-02)
 
 - [x] [最近项目当前项] 项目菜单见「最近项目」+ `✓ <当前项目名>` ✅ `project-menu`「全部项目可达」
 - [x] [最近项目切换] 建 A/B → 在 B 菜单点 A → URL `projectId=A` 且顶栏名变 A、面板关闭 ✅ `project-menu`「最近项目可切换」
 
-## W6 账户设置基本资料（2026-08-02）
+## W6 account settings basic profile (2026-08-02)
 
 - [x] [基本资料保存成功 toast] `/account/settings?selectKey=base` →「更新基本信息」→「更新基本信息成功」✅ `account-settings.spec.ts`
 - [x] [security/identification 页签] 头像→个人中心→「安全设置」见账户密码/修改→密码弹窗；「授权类型」见开源版/已授权；头像「授权信息」直达 identification ✅ `account-settings.spec.ts`
@@ -833,7 +862,7 @@
 - [x] [基本资料保存失败 toast] mock update 非 200 →「更新基本信息失败」✅同上
 - [x] [头像无假 Upload] 见「头像上传暂未开放」；无「更换头像」/file input ✅同上
 
-## 双层一致性与可信保存（ADR-0022，2026-08-04）
+## Dual-layer consistency and trustworthy save (ADR-0022, 2026-08-04)
 
 - [x] [离开设计器不盲存] 干净态点顶栏品牌回 `/home` → 无 `/ncnb/project/save` 请求 ✅ `leave-designer-save.spec.ts`「干净态离开」
 - [x] [失败态离开补一枪] 阻断 save 制造失败态 → 放开后离开 → 至少 1 次 save 且失败仍有可见反馈 ✅ `leave-designer-save.spec.ts`「落库失败后离开」
@@ -864,13 +893,13 @@
 - [x] [分享访客隐藏 B 层] 匿名打开 `/s/:token` → 无 `schema-probe-control`/`schema-probe-btn`；不 POST `/connector/schema/probe`；后端非成员 probe → 403 + `PROBE_ACL_DENIED` ✅ `share.spec.ts` + `SchemaProbeAccessGuardTest`
 - [x] [db_version 书签降级] 版本行 tag 为「已推送/未推送」；tooltip 明示非实库指纹真相 ✅ 版本页 `version-push-bookmark-tag`
 
-## Railway 部署排障（2026-08-05）
+## Railway deployment troubleshooting (2026-08-05)
 
 - [x] [OIDC issuer 单值] `ERD_UI_URL` 逗号双源时，OIDC issuer 只取第一个合法 http(s) 条目；首项畸形（如 `ttps://`）自动跳到下一个合法条目 ✅ `OidcConfigTest`
 - [x] [畸形 Origin fail-fast] prod 下 `ERD_UI_URL` 任一逗号条目缺 `http(s)://` 前缀 → 启动失败并点名具体值；非 prod 仅 warn 放行 ✅ `CrossOriginPolicyTest`
 - [ ] [Redeploy 崩容器排障] 日志含 `oidcIdTokenService` init 失败 → 先查 `Caused by:` 是否含 `ERD_OIDC_RSA_PRIVATE_KEY`（RSA 私钥未设，与 `ERD_UI_URL` 无关，见 `docs/deployment.md` 排障段）→ 补齐私钥变量后 Redeploy → `actuator/health` 转 UP
 
-## 社交解析 OG（ADR-0025，2026-08-08）
+## Social unfurl OG (ADR-0025, 2026-08-08)
 
 - [x] [分享卡片] `curl -H 'User-Agent: Twitterbot' /og/s/{token}` → `og:title`=项目名·ERD Online，描述含「N 张表」+ `twitter:card=summary_large_image` ✅ 本机 curl + `OgUnfurlControllerTest`
 - [x] [失效回落] `curl /og/s/{无效token}` → 品牌通用卡片（`ERD Online · 数据库设计的 Git + Figma`），不泄露分享是否存在 ✅
@@ -879,7 +908,7 @@
 - [x] [动态 og:image] `curl /og/s/{token}/image.png` → `image/png` 1200×630，含真实表名网格；`og:image` 指向该图 ✅ `OgImageRendererTest` + 本机 curl
 - [ ] [多源取首] `ERD_UI_URL` 逗号双源时 `og:url`/`og:image` 用第一个 origin（去尾斜杠）→ 期望首源；上线后抽查
 
-## 版本管理全链路闭环审计（2026-08-09）
+## Version management end-to-end closure audit (2026-08-09)
 
 - [x] [初始化基线真实提交不炸列表] 有 JDBC 数据源 + 尚无版本 → 点「初始化基线」填版本号/描述 → 确定 → 版本行可见、`version-list` 不空、不白屏；旧代码必现「该行不可见」（git stash 对照验证）✅ `version-init-submit.spec.ts`
 - [x] [删除版本行即时消失] 存两版 → 删旧版 → toast「版本信息删除成功」→ 该行立即从列表消失，不因并发重拉「诈尸」；重命名同理 ✅ `version.spec.ts`「重命名描述与删除版本有 toast 且行消失」（此前必现失败，`updateVersionData` 改 `await` 落库后才 `fetch` 修复）

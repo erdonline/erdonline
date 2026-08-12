@@ -35,7 +35,7 @@ Issue title suggestion: `[good first] <one-line outcome>`. Body must include: **
 ### Issue draft seeding rules
 
 - Source files: `.github/ISSUE_DRAFTS/NN-*.md` (see `README.md` in the same directory)
-- **Skip**: blockquotes starting with `> **已合入**` at line start only (other “merged” text in the body does not skip)
+- **Skip**: blockquotes starting with the zh-CN merged marker blockquote at line start only (see `.github/ISSUE_DRAFTS/README.md`; other “merged” text in the body does not skip)
 - **Target**: canonical repo always has **3–8** open `good first issue` items
 - Dry-run: `DRY_RUN=1 REPO=owner/name ./scripts/seed-good-first-issues.sh`
 
@@ -77,10 +77,10 @@ Known low-risk debt in the current repo — copy acceptance criteria when openin
 23. ~~**Version management page skeleton**~~ (merged; `loading.spec.ts`)
 24. ~~**Model tree delete table confirm E2E**~~ (merged `smoke` cancel/confirm)
 25. ~~**Import/export opens modal closes dropdown mask**~~ (merged)
-26. ~~**Delete confirm primary button → “Delete”**~~ (merged; E2E `/删\s*除/`)
+26. ~~**Delete confirm primary button → “Delete”**~~ (merged; E2E matches zh-CN delete label regex)
 27. ~~**Sidebar and project menu “Versions” narrative aligned**~~ (merged)
 28. ~~**Export DDL wizard button aria-label**~~ (merged)
-29. ~~**ISSUE_DRAFTS README and seed checklist**~~ (merged; seed only recognizes line-start `> **已合入**`)
+29. ~~**ISSUE_DRAFTS README and seed checklist**~~ (merged; seed only recognizes the zh-CN line-start merged marker blockquote)
 30. ~~**Version sort page eslint**~~ (merged)
 31. ~~**canvasHistory remove any**~~ (merged)
 32. ~~**Relation diagram edge hit area**~~ (merged `interactionWidth=24`)

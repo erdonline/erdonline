@@ -29,6 +29,12 @@
 - **Docs**：`docs/deployment.md` 主站 SEO 段
 - 验证点：`cd frontend && yarn build` → `dist/sitemap.xml` + `xmllint --noout`；部署后 curl 见 `docs/deployment.md` 验收清单
 
+#### Docs：英文 locale 残留中文页全文翻译
+
+- **Website**：`website/i18n/en/…` — growth / landing / product-capability-map、5 篇 ADR（0028–0032、0029）、ui-layout / ui-home / control-matrix 等 12 篇目标页译英
+- **保留**：`regression-checklist.md` 条目正文 deliberately 保留中文（对齐 E2E/手工步骤）；章节标题 + 顶部英文说明已补
+- 验证点：`cd website && yarn build` zh-Hans + en 双 locale 通过；en locale 除 regression 正文外无大块中文
+
 ### 2026-08-11
 
 #### 配置：会话 JWT 默认 TTL 12h → 7 天

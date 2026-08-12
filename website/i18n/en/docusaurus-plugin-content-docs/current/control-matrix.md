@@ -1,388 +1,388 @@
-# 全站控件矩阵（单一事实源）
+# Site-Wide Control Matrix (Single Source of Truth)
 
-> 服务 P2b「全站控件闭环」。每波收口同步改本表。  
-> 状态：✅ 已有 E2E/自动化覆盖 · 🚧 开放待闭环 · 🗑 已裁剪/待删 · 📋 延期  
-> 采集：手工可跑 `frontend/tests/e2e/control-inventory.spec.ts`（默认 skip，不进 CI）。
+> Serves P2b "site-wide control closure". Update this table at the end of each wave.  
+> Status: ✅ E2E/automation coverage exists · 🚧 open, pending closure · 🗑 trimmed/pending removal · 📋 deferred  
+> Collection: run manually `frontend/tests/e2e/control-inventory.spec.ts` (skipped by default, not in CI).
 
-## 波次索引
+## Wave Index
 
-| 波 | 范围 | roadmap |
+| Wave | Scope | roadmap |
 |---|---|---|
-| W0 | HomeLayout / GroupLayout 子路由壳 | ✅ |
-| W1 | 获客与会话（登录/注册/退出/头像） | ✅ |
-| W2 | 项目面（home / person / group / recent / new） | ✅ |
-| W3 | 设计器核心（模型树/关系图/项目菜单） | ✅ |
-| W4 | 版本时光机（版本/工单/审批） | ✅ |
-| W5 | 导入导出 + 数据源 | ✅ |
-| W6 | 外围裁剪（dataDomain/query/ChatSQL/account/占位） | ✅ |
+| W0 | HomeLayout / GroupLayout child route shells | ✅ |
+| W1 | Acquisition & session (login/register/logout/avatar) | ✅ |
+| W2 | Project surfaces (home / person / group / recent / new) | ✅ |
+| W3 | Designer core (model tree / relation diagram / project menu) | ✅ |
+| W4 | Version time machine (versions / work orders / approvals) | ✅ |
+| W5 | Import/export + data sources | ✅ |
+| W6 | Perimeter trim (dataDomain/query/ChatSQL/account/placeholders) | ✅ |
 
 ---
 
-## W0 — 布局壳
+## W0 — Layout Shell
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| HomeLayout | 子路由内容区 | 渲染 `props.children`，主内容可见（非仅 slogan） | `/home` 等 Home 路由 | ✅ | `layout-outlet.spec` `/home` |
-| HomeLayout | 顶栏 actions | `homeRightContent`（公众号/GitHub）；无 SaveStatus / presence / 只读分享 | `/home` | ✅ | `layout-outlet.spec` `/home` |
-| GroupLayout | 子路由内容区 | 同上 | `/project/group/setting/*` | ✅ | `layout-outlet.spec` basic |
-| DesignLayout | `props.children` | 设计器主区渲染 | 已正确接线 | ✅ | `smoke` / `relation` / `loading` |
+| HomeLayout | Child route content area | Renders `props.children`; main content visible (not slogan only) | Home routes such as `/home` | ✅ | `layout-outlet.spec` `/home` |
+| HomeLayout | Top bar actions | `homeRightContent` (WeChat official account/GitHub); no SaveStatus / presence / read-only share | `/home` | ✅ | `layout-outlet.spec` `/home` |
+| GroupLayout | Child route content area | Same as above | `/project/group/setting/*` | ✅ | `layout-outlet.spec` basic |
+| DesignLayout | `props.children` | Designer main area renders | Correctly wired | ✅ | `smoke` / `relation` / `loading` |
 
 ---
 
-## W1 — 获客与会话
+## W1 — Acquisition & Session
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| `/login` | 登录按钮 | 成功进 `/home`；错误凭证单次明确提示 | JWT 会话 | ✅ | `smoke`「错误凭证」「登录→新建」 |
-| `/login` | 注册链接 | 导航 `/register` | 转化漏斗 | ✅ | `session.spec`「去注册」 |
-| `/login` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到登录表单」→ form；用户名→密码→登录→footer；Enter 提交；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「登录壳键盘」 |
-| `/login` AuthBrandShell | 次密距 | 品牌/表单 pad ≤20×16；gap ∈[8,12]；门头 mb ∈[8,12]；表单 Title mt≤8；项 mb∈[8,16]；控件 ∈[24,32]；标题 ≥24；hero ≤180；~40% 面板 | ADR-0016 密度 | ✅ | `smoke`「登录页渲染」 |
-| `/register` AuthBrandShell | Skip + Tab 序 + Enter | 首项 Skip「跳到注册表单」→ form；字段链（tip 出序）→注册→footer；Enter 校验；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `session`「注册壳键盘」 |
-| `/register` AuthBrandShell | 次密距 | 与登录同源 pad 20×16 + gap12 + 门头 mb12 + 表单 body 12/28；「去注册」+ 注册键盘 densify | ADR-0016 密度 | ✅ | `session`「去注册」+「注册壳键盘」 |
-| `/s/*` 失效门 | 次密距 | 品牌/表单 pad 同上；门头 mb ≤20；键盘用例不改 | ADR-0016 密度 | ✅ | `share`「无效 token」 |
-| `/` LandingChrome | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#landing-main-cta`；试用→注册→登录；focus-visible surface；无 trap | ADR-0016 键盘门面 | ✅ | `landing`「落地页键盘」 |
-| `/` LandingChrome | 次密距 | 次屏 section pad ≤52；对照行 ≤12；nav ≤20；footer ≤36；hero 品牌字 ≥36 + 全幅 | ADR-0016 密度 | ✅ | `landing`「加载可见品牌」 |
-| `/compare` LandingChrome | Skip + Tab 序 | 同壳 Skip→ `#landing-main-cta`；打开演示→自部署→返回首页；surface focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `compare`「竞品对照页键盘」 |
-| `/compare` LandingChrome | 次密距 | compare hero ≤36；section ≤52；对照行 ≤12；eyebrow ≥22；nav ≤20 | ADR-0016 密度 | ✅ | `compare`「加载对照表」 |
-| `/s/*` 成功态 meta/表清单 | 次密距 | meta ≤60 / gap≤2 / stage≤6；表清单 pad≤6·标题≤12·行∈20–26；折叠默认 | ADR-0016 密度 | ✅ | `demo`「免登录 /demo」 |
-| 只读分享 Modal | 次密距 | `.erd-io-modal` body≤8；hint mb≤8；链接行 mb≤10；输入 ~28；键盘不回归 | ADR-0016 密度 | ✅ | `share-project-keyboard` |
-| HomeLayout `/home` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#home-main-content`；继续建模→新建→示例→二级入口→项目卡；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `home-keyboard`「Home 键盘」 |
-| `/home` hero CTA | 次密距 | actions gap ≤8；secondary 钮 pad ≤4×10；hero gap ≤24 / mb·pb ≤16；主 CTA ≥40；问候字 ≥28 | ADR-0016 密度 | ✅ | `home-keyboard` densify |
-| `/home` 空态/公告 | 次密距 | 空态 pad ≤24×12；二级入口 mb ≤16；项目区 mb ≤20；公告 pt ≤4 / 行 pad ≤4·gap ≤10 / 标题 ≤13；CTA 保留 | ADR-0016 密度 | ✅ | `home-keyboard` empty/announce densify |
-| HomeLayout / GroupLayout 外井 | 次密距 | shell/content pad ≤12×16；body ≤12×16；列表空态 ≤12×8；禁 24/20；Skip/顶栏不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` shell densify |
-| `/account/settings` BaseView | 次密距 | 表单/头像列 gap ≤16（窄屏 ≤12）；禁 24；表单项/控件 28 不动；Skip/保存不弱化 | ADR-0016 密度 | ✅ | `account-settings` densify |
-| 三壳顶栏 `erd-chrome-actions` | 次密距 | Home/Group/分享 gap ≤12；Design ≤8；禁 16；顶栏 64 / Skip·用户菜单不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify |
-| 三壳顶栏 `erd-chrome-header` | 次密距 | padX ≤16；brand–nav gap ≤12（Design ≤8）；禁 20/16；顶栏 64 / Skip 不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify |
-| Home 水平导航 Menu | 次密距 | 项 padX ∈[8,12]；项高 64；命中宽 ≥44；禁 padX16；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `home-keyboard` |
-| Group 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；Skip/键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` + `group-keyboard` |
-| DesignLayout 侧栏 nav Menu | 次密距 | 项高 ∈[28,32]；padX ∈[8,12]；marginY ≤4；禁高40/pad24；版本/导入/导出/设置同源；`menuitem` 键盘不弱化 | ADR-0016 密度 | ✅ | `layout-outlet` densify + 侧栏键盘 |
-| 项目列表工具条 | 碎密度 | Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；禁 Search 默认 32；键盘不弱化 | ADR-0016 密度 | ✅ | `project-surface` densify + `project-list-keyboard` |
-| `/project/notice` 公告行 | 碎密度 | `.project-list-page__notice-row` gap ∈[8,12]（目标 8）；行 pad ≤4×8；禁 gap12；工具条不弱化 | ADR-0016 密度 | ✅ | `project-notice` densify |
-| 画布空态 CTA `.erd-empty-cta` | 碎密度 | pad ∈[8,12]（目标 10×12）；主 CTA hit ∈[26,28]；禁 14×18；Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
-| 画布空态剪影 `ErdEmptyDiagram` compact | 碎密度 | 宽 **112**（原 132）；∈[96,120]；禁 ≥132；hero 176 / Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
-| 画布空态 panel `.erd-empty-panel` | 碎密度 | mt ≈ min(8vh,64) 且 ∈[32,64]；禁 min(10vh,88)；CTA pad / Auth logo / 欢迎 pad 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
-| 画布空态纵节奏 title/desc | 碎密度 | title mt ≈8∈[6,10]；desc mb ≈12∈[8,12]；desc mt≤8；禁历史 16/18；Auth logo / 欢迎 pad / CTA pad / panel 顶距不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」 |
-| 画布空态次链 `.erd-empty-links` | 碎密度 | mt ≈10∈[8,12]；Controls 22/pad0 已密不改；禁 links mt>12；Auth logo / 欢迎 / CTA / panel / title·desc 不弱化 | ADR-0016 密度 | ✅ | `relation`「空态构图」+「Controls」 |
-| 团队成员工具条 | 碎密度 | mb≤8；Space gap ∈[8,12]；搜索/钮高 ≤28；工具条高 ≤32；钮 padX∈[8,12]；禁 Search 默认 32 / mb16 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
-| Group 用户组页头/左角色签 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→签 ≤12；左签 padX∈[8,12]·高∈[28,32]·字≤13；禁 Title level4 / Space large / padX24 | ADR-0016 密度 | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
-| Group 基本设置页头 | 碎密度 | 标题 ≤14·lh≤24·mb≤8·mt≤4；标题→表单 ≤12；禁 Title level4 | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
-| Group 基本设置 Form | 碎密度 | 项 mb∈[8,16]（目标12）；Input/Select/钮高∈[24,32]（目标28）；label≤13；禁 antd 默认 24/32 | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
-| Group 基本设置删区 | 碎密度 | Divider mt/mb∈[8,16]（目标12）；body gap∈[4,12]（目标8）；次文≤13/lh≤20；标题 mb≤2；禁 Divider24 + Space 叠 mb | ADR-0016 密度 | ✅ | `group-basic-setting` densify + `group-project-delete-keyboard` |
-| DesignLayout 次屏 | 碎密度 | `.erd-secondary-pane` pad ≤8×12；Steps mt/mb ≤10/12；设置 hint mb ≤8；SyncConfig→`.erd-io-modal`；禁 16/24 Steps | ADR-0016 密度 | ✅ | `designer-secondary-pane` densify |
-| 导入/导出 Modal Steps | 次密距对齐 | `.erd-io-modal__steps` mt/mb ≤10/12；标题 ≤13；与次屏同阶；键盘不回归 | ADR-0016 密度 | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
-| 导入/导出 Modal 头身脚 | 碎密度 | `.erd-io-modal` header/body/footer pad ≤8×12（禁头 10×14×8 / 脚 8×14 / body 12×14）；标题 ≤14·lh≥20；footer 钮 ≥28；键盘不回归 | ADR-0016 密度 | ✅ | `dbml-import` + `dbml-export` densify |
-| EntityModal 头身脚 | 碎密度 | `.erd-entity-modal` header/body/footer pad ≤8×12；宽≤420；标题 ≤14·lh≥20；输入/OK ≥28；键盘不回归 | ADR-0016 密度 | ✅ | `relation`「实体新建弹层密度」 |
-| GroupLayout `/project/group/setting/*` | Skip + Tab 序 | 首项 Skip「跳到主内容」→ `#group-main-content`；绕开顶栏+侧栏；基本设置字段进序；brand focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `group-keyboard`「Group 键盘」 |
-| 项目列表 `/project/{person,recent,group}` | 行 Enter / Tab 动作 | stretched link 消死卡；Enter 开设计器；Tab 行内动作可逆；行 `:has` inset brand focus-visible；无 trap | ADR-0016 键盘列表 | ✅ | `project-list-keyboard` |
-| 项目动作弹窗 新建/修改/删除 | 打开首焦 / Esc / Tab trap | 新增→类型；修改→项目名；删除→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-action-modals-keyboard` |
-| 导入/导出弹层 DBML | 打开首焦 / Esc / Tab trap | 导入→DBML文本；导出→导出模型；Esc 归还空态 CTA / 项目菜单；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `import-export-keyboard` |
-| 导入跳过校验 Modal.warning | 打开首焦 / Esc·OK / Tab trap | 二次导入全跳过→首焦「知道了」；Esc/OK 归还「解析并导入」 | ADR-0016 键盘弹层 | ✅ | `import-skip-warning-keyboard` |
-| 版本动作弹窗 新增/编辑/删除/回滚 | 打开首焦 / Esc / Tab trap | 新增/编辑最新→版本号；编辑非最新→描述；删除/回滚→「是」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-action-modals-keyboard` |
-| 版本对比/详情 diff Modal | 打开首焦 / Esc / Tab trap | 比对→「初始版本」；详情→「导出变更清单」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-diff-keyboard` |
-| 同步配置/重建版本 Modal | 打开首焦 / Esc / Tab trap | 同步配置→「字段增量」；重建版本→「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-rebuild-keyboard` |
-| 重建基线二次确认 | 打开首焦 / Esc / Tab trap | 首焦「重建」；Esc 归还不落盘、归还「重建版本」钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-rebuild-confirm-keyboard` |
-| 初始化基线 Modal | 打开首焦 / Esc / Tab trap | 首焦「版本号」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-init-keyboard` |
-| 复刻 Modal | 打开首焦 / Esc / Tab trap | 首焦「项目名」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `project-copy-keyboard` |
-| 数据源设置 Modal | 打开首焦 / Esc / Tab trap | 首焦「新增数据源」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-keyboard` |
-| 默认项设置 Modal | 打开首焦 / Esc / Tab trap | 首焦「默认字段」Tab；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `default-setup-keyboard` |
-| 数据源逆向解析 Modal | 打开首焦 / Esc / Tab trap | 首焦「数据源」Select；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reverse-database-keyboard` |
-| 导出DDL Modal | 打开首焦 / Esc / Tab trap | 首焦「数据源」Select；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `export-ddl-keyboard` |
-| 解析ERD文件 Modal | 打开首焦 / Esc / Tab trap | 首焦上传区「选择ERD文件」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reverse-erd-keyboard` |
-| 解析PdMan文件 Modal | 打开首焦 / Esc / Tab trap | 首焦上传区「选择PdMan文件」；Esc 归还「项目菜单」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reverse-pdman-keyboard` |
-| 修改密码 Modal | 打开首焦 / Esc / Tab trap | 首焦「密码」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `reset-password-keyboard` |
-| 修改密码失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `reset-password-failure` |
-| 同步配置失败 | 业务码失败 / 重试 | 仅 code===200 写 store+「设置成功」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `sync-config-failure` |
-| 默认项设置失败 | 业务码失败 / 重试 | 仅 code===200 写 store+「设置成功」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `default-setup-failure` |
-| 数据源设置确定失败 | 业务码失败 / 重试 | 仅 PUT 成功「保存成功！」关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `database-setup-failure` |
-| EntityModal 落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+toast+关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `entity-modal-failure` |
-| 画布关系图弹层落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+toast+关窗；失败 toast 可读；不关窗可重试 | 零静默失败 | ✅ | `diagram-modal-failure` |
-| 画布表头改名落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写 store+退出编辑；失败 toast 可读；草稿/节点 id 保留可重试 | 零静默失败 | ✅ | `table-rename-failure` |
-| 画布建表/行内加字段落盘失败 | 业务码失败 / 重试 | 仅 save code===200 上图/关新建编辑；失败 toast；无节点或草稿可重试；空名 toast/空字段 CTA 保留 | 零静默失败 | ✅ | `canvas-create-field-failure` |
-| 画布字段改名/删字段落盘失败 | 业务码失败 / 重试 | 仅 save code===200 退出编辑/移出行；失败 toast；改名草稿保留；删确认窗 keep（reject）可再删 | 零静默失败 | ✅ | `canvas-field-rename-delete-failure` |
-| 画布删表落盘失败 | 业务码失败 / 重试 | 仅 save code===200 移出+「表删除成功」；失败 toast；节点保留；删确认窗 keep（reject）可再删 | 零静默失败 | ✅ | `canvas-delete-table-failure` |
-| 左树删模型/关系图落盘失败 | 业务码失败 / 重试 | 仅 save code===200 移出+成功 toast；失败 toast；树/表保留；删确认窗 keep（reject）可再删 | 零静默失败 | ✅ | `tree-delete-module-diagram-failure` |
-| 左树剪切/粘贴表落盘失败 | 业务码失败 / 重试 | 仅 save code===200 写剪贴板与移出/写入+成功 toast；失败 toast；无副本或表保留；可重试；复制不落盘 | 零静默失败 | ✅ | `tree-cut-paste-failure` |
-| 画布拖表坐标落盘失败 | 业务码失败 / 重试 | `commitDiagramGeometry` 仅 save code===200 写 layout；失败 toast；RF transform 回滚可再拖 | 零静默失败 | ✅ | `canvas-drag-reposition-failure` |
-| 画布对齐/自动布局落盘失败 | 业务码失败 / 重试 | `alignSelected`/`autoLayout`→`commitDiagramGeometry`；失败 toast；RF 回滚可再点 | 零静默失败 | ✅ | `canvas-align-layout-failure` |
-| Frame 改名/适应成员落盘失败 | 业务码失败 / 重试 | `renameFrame`/`commitDiagramGeometry` persist；失败 toast；改名草稿保留；适应成员 RF+store 回滚；可重试 | 零静默失败 | ✅ | `canvas-frame-rename-bounds-failure` |
-| Frame 新建/成员加减落盘失败 | 业务码失败 / 重试 | `createFrame`/`addFrameMembers`/`removeFrameMembers` persist；失败 toast；不上图/成员不变；加入拒关窗；可重试 | 零静默失败 | ✅ | `canvas-frame-members-failure` |
-| 画布连线建关联落盘失败 | 业务码失败 / 重试 | `addAssociation` persist；失败 toast；不上边；可再拖重试 | 零静默失败 | ✅ | `canvas-connect-edge-failure` |
-| 画布改边基数落盘失败 | 业务码失败 / 重试 | `updateAssociationRelation` persist；失败 toast；chip 保持原基数；可再选重试 | 零静默失败 | ✅ | `canvas-cardinality-failure` |
-| 画布边 FK 元数据 | 约束名 / 规则 / 失败重试 | `updateAssociationFkMeta` persist；同旧 constraintName 拆边同步改名；`erd-edge-constraint-name` | 零静默失败 | ✅ | `canvas-fk-meta-edit` |
-| 画布字段 meta 落盘失败 | 业务码失败 / 重试 | 类型/PK/NN/AI/隐藏/浏览 PK：仅 save code===200 写 store；失败 toast；编辑草稿回滚；隐藏不退出 | 零静默失败 | ✅ | `canvas-field-meta-failure` |
-| 表设计 JExcel 字段 meta 落盘失败 | 业务码失败 / 重试 | 字段签 PK/隐藏等：仅 save code===200 写 store；失败 toast + 重挂网格回滚勾选；可重试；画布对齐 | 零静默失败 | ✅ | `jexcel-field-meta-failure` |
-| 表设计索引签落盘失败 | 业务码失败 / 重试 | 添加/唯一勾选等：仅 save code===200 写 store + 成功 toast；失败 toast + 空态/重挂回滚；删确认失败拒关窗；可重试；画布 UK | 零静默失败 | ✅ | `jexcel-index-failure` |
-| 表设计索引签字段/表达式 | 文本落盘 / 失败回滚 | 「字段/表达式*」分号混写 → `fields[]`；业务码失败重挂回滚；成功可见 `id;LOWER(…)` | 零静默失败 | ✅ | `index-expression-edit` |
-| 发起SQL审批 Modal | 打开首焦 / Esc / Tab trap | 首焦「审批人」；Esc 归还触发器（父详情仍开）；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-approval-keyboard` |
-| 添加成员 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择用户」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `add-user-keyboard` |
-| 添加成员邀请失败 | 业务码失败 / 重试 | toast 可读；失败不关窗；重试成功关窗；不叠弹 | 零静默失败 | ✅ | `add-user-invite-failure` |
-| 版本初始化/重建保存失败 | 业务码失败 / 重试 | 初始化失败不关窗可重试；重建失败无伪装成功、无 rebaseline | 零静默失败 | ✅ | `version-save-failure` |
-| 只读分享创建失败 | 业务码失败 / 重试 | toast 可读；窗保持开；「重新生成」可重试；不叠弹；禁禁用死 affordance | 零静默失败 | ✅ | `share-create-failure` |
-| 只读分享 Modal | 打开首焦 / Esc / Tab trap | 首焦「分享链接」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-project-keyboard` |
-| 只读分享吊销确认 | 打开首焦 / Esc / Tab trap | 首焦「吊销」；Esc 归还不吊销；外层分享窗仍开；焦点归还吊销钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `share-revoke-keyboard` |
-| 团队项目删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还「删除团队项目」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-project-delete-keyboard` |
-| 团队成员移除确认 | 打开首焦 / Esc / Tab trap | 首焦「移除」；Esc 归还不移；焦点归还「移除成员 `{username}`」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `group-user-remove-keyboard` |
-| 审批动作确认（通过/拒绝/撤销/复批） | 打开首焦 / Esc / Tab trap | 首焦语义 OK；Esc 归还不落盘；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
-| 审批/工单 SQL 明细 Modal.info | 打开首焦 / Esc·OK / Tab trap | 首焦「知道了」；Esc/OK 归还「查看SQL」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `sql-detail-keyboard` |
-| 导入跳过校验 Modal.warning | 打开首焦 / Esc·OK / Tab trap | 首焦「知道了」；Esc/OK 归还「解析并导入」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `import-skip-warning-keyboard` |
-| EntityModal 新增模型/表/关系图 | 打开首焦 / Esc / Tab trap | 新增模型首焦「名称」；新增表首焦「所属模型」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `entity-modal-keyboard` |
-| 画布新建/重命名关系图 Modal | 打开首焦 / Esc / Tab trap | 首焦「关系图名称」；Esc 归还触发器；焦点不逃出 dialog；提交中禁 Esc | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard` |
-| 画布加入分组 Modal | 打开首焦 / Esc / Tab trap | 首焦「选择分组」；Esc 归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `diagram-modal-keyboard`（同源产品） |
-| 画布删表确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-table-keyboard` |
-| 画布删边/删分组确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-edge-frame-keyboard` |
-| 画布删字段确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `canvas-delete-field-keyboard` |
-| 表设计删索引确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `table-index-delete-keyboard` |
-| JExcel 工具栏删行确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还触发器；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-toolbar-delete-keyboard` |
-| JExcel 快捷操作 Modal.info | 打开首焦 / Esc / Tab trap | 首焦「知道了」；Esc/OK 归还「快捷操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `jexcel-grid-keyboard` |
-| JExcel Escape 退格 | 编辑态 Esc / 焦点归还 | Esc 丢弃单元格草稿；焦点归还 `jexcel-grid`；签页不关；禁落隐藏 textarea | ADR-0016 键盘网格 | ✅ | `jexcel-grid-keyboard` |
-| 左树删模型/表/关系图确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行「…操作」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `tree-delete-keyboard` |
-| 数据源设置删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮；外层配置窗仍开；焦点不逃出确认 dialog | ADR-0016 键盘弹层 | ✅ | `database-setup-delete-keyboard` |
-| 工作台 databaseConfig 删/批删确认 | 打开首焦 / Esc / Tab trap | 首焦「删除」；Esc 归还不删；焦点归还行删钮/批删钮；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-config-delete-keyboard` |
-| 版本同步结果 Modal.success/warn | 打开首焦 / Esc·OK / Tab trap；行绑定 | 首焦「知道了」；Esc/OK 归还「同步」；点击行「同步」不依赖悬停；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `version-sync-result-keyboard` |
-| 工作台 databaseConfig Drawer | 打开首焦 / Esc / Tab trap | 首焦「连接名称」；Esc 归还「新建连接」/「编辑」；焦点不逃出 dialog | ADR-0016 键盘弹层 | ✅ | `database-config-drawer-keyboard` |
-| `/404` AuthBrandShell 门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `not-found`「404 壳键盘」 |
-| `/403` AuthBrandShell 门 | Skip + Tab 序 | 同 404；深链 `/403` 可达 | ADR-0016 键盘门面 | ✅ | `not-found`「403 壳键盘」 |
-| `/s/:token` 失效门 | Skip + Tab 序 | 首项 Skip「跳到主操作」→ `#exception-main-cta`（`share-invalid-gate`）；打开示例→返回首页；focus-visible brand；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享失效门键盘」 |
-| `/register` | 注册提交 | 成功进 `/home`；可带 redirect | `share` autofork | ✅ | `session.spec`「注册成功」；`share` redirect |
-| `/demo` | 重定向 | → `/s/public-demo` 只读图 + 复制 CTA | ADR-0007 | ✅ | `demo.spec` |
-| `/s/:token` | 复制到我的项目 | 未登录→注册 redirect；登录→fork | 分享 fork | ✅ | `share.spec` |
-| 头像菜单 | 个人中心 | → `/account/settings?selectKey=base` | account | ✅ | `session.spec` |
-| 头像菜单 | 授权信息 | → `selectKey=identification` | licence | ✅ | `session.spec` |
-| 头像菜单 | 退出登录 | `cache.clear()` 回 `/login` | `logout()` | ✅ | `session.spec` |
-| DesignLayout 顶栏 | GitHub stars 链 | 外链 `erdonline/erdonline` | 社区 | ✅ | 文案/链已合入 |
-| DesignLayout 顶栏 | 分享按钮 | 生成只读链接 | ADR-0007 | ✅ | `share.spec` |
-| DesignLayout 顶栏 | 协作 presence | 可见在线名单 | ADR-0009 | ✅ | `presence.spec` |
+| `/login` | Sign-in button | Success navigates to `/home`; invalid credentials show one clear message | JWT session | ✅ | `smoke` "invalid credentials" / "login→create" |
+| `/login` | Register link | Navigates to `/register` | Conversion funnel | ✅ | `session.spec` "go to register" |
+| `/login` AuthBrandShell | Skip + Tab order + Enter | First Skip "Skip to sign-in form" → form; username→password→sign in→footer; Enter submits; focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `session` "login shell keyboard" |
+| `/login` AuthBrandShell | Secondary density | Brand/form pad ≤20×16; gap ∈[8,12]; header mb ∈[8,12]; form Title mt≤8; item mb∈[8,16]; controls ∈[24,32]; title ≥24; hero ≤180; ~40% panel | ADR-0016 density | ✅ | `smoke` "login page render" |
+| `/register` AuthBrandShell | Skip + Tab order + Enter | First Skip "Skip to registration form" → form; field chain (tip out of order)→register→footer; Enter validates; focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `session` "register shell keyboard" |
+| `/register` AuthBrandShell | Secondary density | Same as login: pad 20×16 + gap12 + header mb12 + form body 12/28; "go to register" + register keyboard densify | ADR-0016 density | ✅ | `session` "go to register" + "register shell keyboard" |
+| `/s/*` invalid gate | Secondary density | Brand/form pad same as above; header mb ≤20; keyboard cases unchanged | ADR-0016 density | ✅ | `share` "invalid token" |
+| `/` LandingChrome | Skip + Tab order | First Skip "Skip to main action" → `#landing-main-cta`; try demo→register→login; focus-visible surface; no trap | ADR-0016 keyboard facade | ✅ | `landing` "landing page keyboard" |
+| `/` LandingChrome | Secondary density | Below-fold section pad ≤52; comparison row ≤12; nav ≤20; footer ≤36; hero brand text ≥36 + full width | ADR-0016 density | ✅ | `landing` "load visible brand" |
+| `/compare` LandingChrome | Skip + Tab order | Same shell Skip→ `#landing-main-cta`; open demo→self-host→back to home; surface focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `compare` "compare page keyboard" |
+| `/compare` LandingChrome | Secondary density | compare hero ≤36; section ≤52; comparison row ≤12; eyebrow ≥22; nav ≤20 | ADR-0016 density | ✅ | `compare` "load comparison table" |
+| `/s/*` success meta/table list | Secondary density | meta ≤60 / gap≤2 / stage≤6; table list pad≤6·title≤12·row∈20–26; collapsed by default | ADR-0016 density | ✅ | `demo` "guest /demo" |
+| Read-only share Modal | Secondary density | `.erd-io-modal` body≤8; hint mb≤8; link row mb≤10; input ~28; keyboard no regression | ADR-0016 density | ✅ | `share-project-keyboard` |
+| HomeLayout `/home` | Skip + Tab order | First Skip "Skip to main content" → `#home-main-content`; continue modeling→create→example→secondary entries→project cards; brand focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `home-keyboard` "Home keyboard" |
+| `/home` hero CTA | Secondary density | actions gap ≤8; secondary button pad ≤4×10; hero gap ≤24 / mb·pb ≤16; primary CTA ≥40; greeting text ≥28 | ADR-0016 density | ✅ | `home-keyboard` densify |
+| `/home` empty state/announcements | Secondary density | empty state pad ≤24×12; secondary entry mb ≤16; project area mb ≤20; announcement pt ≤4 / row pad ≤4·gap ≤10 / title ≤13; CTA preserved | ADR-0016 density | ✅ | `home-keyboard` empty/announce densify |
+| HomeLayout / GroupLayout outer well | Secondary density | shell/content pad ≤12×16; body ≤12×16; list empty state ≤12×8; forbid 24/20; Skip/top bar not weakened | ADR-0016 density | ✅ | `layout-outlet` shell densify |
+| `/account/settings` BaseView | Secondary density | form/avatar column gap ≤16 (narrow ≤12); forbid 24; form items/controls 28 unchanged; Skip/save not weakened | ADR-0016 density | ✅ | `account-settings` densify |
+| Three-shell top bar `erd-chrome-actions` | Secondary density | Home/Group/share gap ≤12; Design ≤8; forbid 16; top bar 64 / Skip·user menu not weakened | ADR-0016 density | ✅ | `layout-outlet` densify |
+| Three-shell top bar `erd-chrome-header` | Secondary density | padX ≤16; brand–nav gap ≤12 (Design ≤8); forbid 20/16; top bar 64 / Skip not weakened | ADR-0016 density | ✅ | `layout-outlet` densify |
+| Home horizontal nav Menu | Secondary density | item padX ∈[8,12]; item height 64; hit width ≥44; forbid padX16; Skip/keyboard not weakened | ADR-0016 density | ✅ | `layout-outlet` + `home-keyboard` |
+| Group sidebar nav Menu | Secondary density | item height ∈[28,32]; padX ∈[8,12]; marginY ≤4; forbid height40/pad24; Skip/keyboard not weakened | ADR-0016 density | ✅ | `layout-outlet` + `group-keyboard` |
+| DesignLayout sidebar nav Menu | Secondary density | item height ∈[28,32]; padX ∈[8,12]; marginY ≤4; forbid height40/pad24; version/import/export/settings same source; `menuitem` keyboard not weakened | ADR-0016 density | ✅ | `layout-outlet` densify + sidebar keyboard |
+| Project list toolbar | Fragment density | Space gap ∈[8,12]; search/button height ≤28; toolbar height ≤32; forbid Search default 32; keyboard not weakened | ADR-0016 density | ✅ | `project-surface` densify + `project-list-keyboard` |
+| `/project/notice` announcement row | Fragment density | `.project-list-page__notice-row` gap ∈[8,12] (target 8); row pad ≤4×8; forbid gap12; toolbar not weakened | ADR-0016 density | ✅ | `project-notice` densify |
+| Canvas empty-state CTA `.erd-empty-cta` | Fragment density | pad ∈[8,12] (target 10×12); primary CTA hit ∈[26,28]; forbid 14×18; Auth logo / welcome pad not weakened | ADR-0016 density | ✅ | `relation` "empty state layout" |
+| Canvas empty-state silhouette `ErdEmptyDiagram` compact | Fragment density | width **112** (was 132); ∈[96,120]; forbid ≥132; hero 176 / Auth logo / welcome pad not weakened | ADR-0016 density | ✅ | `relation` "empty state layout" |
+| Canvas empty-state panel `.erd-empty-panel` | Fragment density | mt ≈ min(8vh,64) and ∈[32,64]; forbid min(10vh,88); CTA pad / Auth logo / welcome pad not weakened | ADR-0016 density | ✅ | `relation` "empty state layout" |
+| Canvas empty-state vertical rhythm title/desc | Fragment density | title mt ≈8∈[6,10]; desc mb ≈12∈[8,12]; desc mt≤8; forbid legacy 16/18; Auth logo / welcome pad / CTA pad / panel top spacing not weakened | ADR-0016 density | ✅ | `relation` "empty state layout" |
+| Canvas empty-state secondary links `.erd-empty-links` | Fragment density | mt ≈10∈[8,12]; Controls 22/pad0 already dense, unchanged; forbid links mt>12; Auth logo / welcome / CTA / panel / title·desc not weakened | ADR-0016 density | ✅ | `relation` "empty state layout" + "Controls" |
+| Team member toolbar | Fragment density | mb≤8; Space gap ∈[8,12]; search/button height ≤28; toolbar height ≤32; button padX∈[8,12]; forbid Search default 32 / mb16 | ADR-0016 density | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
+| Group user-group page header/left role tabs | Fragment density | title ≤14·lh≤24·mb≤8·mt≤4; title→tab ≤12; left tab padX∈[8,12]·height∈[28,32]·text≤13; forbid Title level4 / Space large / padX24 | ADR-0016 density | ✅ | `group-layout-nav` densify + `group-keyboard` / `add-user-keyboard` |
+| Group basic settings page header | Fragment density | title ≤14·lh≤24·mb≤8·mt≤4; title→form ≤12; forbid Title level4 | ADR-0016 density | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
+| Group basic settings Form | Fragment density | item mb∈[8,16] (target 12); Input/Select/button height∈[24,32] (target 28); label≤13; forbid antd default 24/32 | ADR-0016 density | ✅ | `group-basic-setting` densify + `group-layout-nav` / `group-keyboard` |
+| Group basic settings delete zone | Fragment density | Divider mt/mb∈[8,16] (target 12); body gap∈[4,12] (target 8); secondary text≤13/lh≤20; title mb≤2; forbid Divider24 + Space stacked mb | ADR-0016 density | ✅ | `group-basic-setting` densify + `group-project-delete-keyboard` |
+| DesignLayout secondary pane | Fragment density | `.erd-secondary-pane` pad ≤8×12; Steps mt/mb ≤10/12; settings hint mb ≤8; SyncConfig→`.erd-io-modal`; forbid 16/24 Steps | ADR-0016 density | ✅ | `designer-secondary-pane` densify |
+| Import/export Modal Steps | Secondary density alignment | `.erd-io-modal__steps` mt/mb ≤10/12; title ≤13; same tier as secondary pane; keyboard no regression | ADR-0016 density | ✅ | `reverse-database-keyboard` + `export-ddl-keyboard` densify |
+| Import/export Modal header/body/footer | Fragment density | `.erd-io-modal` header/body/footer pad ≤8×12 (forbid header 10×14×8 / footer 8×14 / body 12×14); title ≤14·lh≥20; footer buttons ≥28; keyboard no regression | ADR-0016 density | ✅ | `dbml-import` + `dbml-export` densify |
+| EntityModal header/body/footer | Fragment density | `.erd-entity-modal` header/body/footer pad ≤8×12; width≤420; title ≤14·lh≥20; input/OK ≥28; keyboard no regression | ADR-0016 density | ✅ | `relation` "entity create modal density" |
+| GroupLayout `/project/group/setting/*` | Skip + Tab order | First Skip "Skip to main content" → `#group-main-content`; bypass top bar + sidebar; basic settings fields enter order; brand focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `group-keyboard` "Group keyboard" |
+| Project list `/project/{person,recent,group}` | Row Enter / Tab actions | stretched link removes dead card; Enter opens designer; Tab row actions reversible; row `:has` inset brand focus-visible; no trap | ADR-0016 keyboard list | ✅ | `project-list-keyboard` |
+| Project action modals create/edit/delete | Open focus / Esc / Tab trap | create→type; edit→project name; delete→"Yes"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `project-action-modals-keyboard` |
+| Import/export modal DBML | Open focus / Esc / Tab trap | import→DBML text; export→export model; Esc returns to empty-state CTA / project menu; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `import-export-keyboard` |
+| Import skip validation Modal.warning | Open focus / Esc·OK / Tab trap | second import all skipped→focus "Got it"; Esc/OK returns to "Parse and import" | ADR-0016 keyboard modal | ✅ | `import-skip-warning-keyboard` |
+| Version action modals create/edit/delete/revert | Open focus / Esc / Tab trap | create/edit latest→version number; edit non-latest→description; delete/revert→"Yes"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-action-modals-keyboard` |
+| Version compare/detail diff Modal | Open focus / Esc / Tab trap | compare→"Initial version"; detail→"Export change list"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-diff-keyboard` |
+| Sync config/rebuild version Modal | Open focus / Esc / Tab trap | sync config→"Field increment"; rebuild version→"Version number"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-sync-rebuild-keyboard` |
+| Rebuild baseline second confirmation | Open focus / Esc / Tab trap | focus "Rebuild"; Esc cancels without persisting, returns to "Rebuild version" button; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-rebuild-confirm-keyboard` |
+| Initialize baseline Modal | Open focus / Esc / Tab trap | focus "Version number"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-init-keyboard` |
+| Duplicate Modal | Open focus / Esc / Tab trap | focus "Project name"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `project-copy-keyboard` |
+| Data source settings Modal | Open focus / Esc / Tab trap | focus "Add data source"; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `database-setup-keyboard` |
+| Default items settings Modal | Open focus / Esc / Tab trap | focus "Default fields" Tab; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `default-setup-keyboard` |
+| Data source reverse parse Modal | Open focus / Esc / Tab trap | focus "Data source" Select; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `reverse-database-keyboard` |
+| Export DDL Modal | Open focus / Esc / Tab trap | focus "Data source" Select; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `export-ddl-keyboard` |
+| Parse ERD file Modal | Open focus / Esc / Tab trap | focus upload area "Select ERD file"; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `reverse-erd-keyboard` |
+| Parse PdMan file Modal | Open focus / Esc / Tab trap | focus upload area "Select PdMan file"; Esc returns to "Project menu"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `reverse-pdman-keyboard` |
+| Change password Modal | Open focus / Esc / Tab trap | focus "Password"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `reset-password-keyboard` |
+| Change password failure | Business code failure / retry | readable toast; failure keeps modal open; retry success closes modal; no stacked modals | zero silent failure | ✅ | `reset-password-failure` |
+| Sync config failure | Business code failure / retry | only code===200 writes store + "Settings saved" closes modal; failure toast readable; modal stays open, retryable | zero silent failure | ✅ | `sync-config-failure` |
+| Default items settings failure | Business code failure / retry | only code===200 writes store + "Settings saved" closes modal; failure toast readable; modal stays open, retryable | zero silent failure | ✅ | `default-setup-failure` |
+| Data source settings confirm failure | Business code failure / retry | only PUT success "Saved successfully!" closes modal; failure toast readable; modal stays open, retryable | zero silent failure | ✅ | `database-setup-failure` |
+| EntityModal persist failure | Business code failure / retry | only save code===200 writes store+toast+closes modal; failure toast readable; modal stays open, retryable | zero silent failure | ✅ | `entity-modal-failure` |
+| Canvas relation diagram modal persist failure | Business code failure / retry | only save code===200 writes store+toast+closes modal; failure toast readable; modal stays open, retryable | zero silent failure | ✅ | `diagram-modal-failure` |
+| Canvas table header rename persist failure | Business code failure / retry | only save code===200 writes store+exits edit; failure toast readable; draft/node id preserved, retryable | zero silent failure | ✅ | `table-rename-failure` |
+| Canvas create table/inline add field persist failure | Business code failure / retry | only save code===200 adds to canvas/closes create edit; failure toast; no node or draft retryable; empty name toast/empty field CTA preserved | zero silent failure | ✅ | `canvas-create-field-failure` |
+| Canvas field rename/delete field persist failure | Business code failure / retry | only save code===200 exits edit/removes row; failure toast; rename draft preserved; delete confirm modal keep (reject) can delete again | zero silent failure | ✅ | `canvas-field-rename-delete-failure` |
+| Canvas delete table persist failure | Business code failure / retry | only save code===200 removes+"Table deleted successfully"; failure toast; node preserved; delete confirm modal keep (reject) can delete again | zero silent failure | ✅ | `canvas-delete-table-failure` |
+| Left tree delete model/relation diagram persist failure | Business code failure / retry | only save code===200 removes+success toast; failure toast; tree/table preserved; delete confirm modal keep (reject) can delete again | zero silent failure | ✅ | `tree-delete-module-diagram-failure` |
+| Left tree cut/paste table persist failure | Business code failure / retry | only save code===200 writes clipboard and remove/write+success toast; failure toast; no duplicate or table preserved; retryable; copy does not persist | zero silent failure | ✅ | `tree-cut-paste-failure` |
+| Canvas drag table coordinates persist failure | Business code failure / retry | `commitDiagramGeometry` only save code===200 writes layout; failure toast; RF transform rolls back, can drag again | zero silent failure | ✅ | `canvas-drag-reposition-failure` |
+| Canvas align/auto-layout persist failure | Business code failure / retry | `alignSelected`/`autoLayout`→`commitDiagramGeometry`; failure toast; RF rolls back, can click again | zero silent failure | ✅ | `canvas-align-layout-failure` |
+| Frame rename/fit members persist failure | Business code failure / retry | `renameFrame`/`commitDiagramGeometry` persist; failure toast; rename draft preserved; fit members RF+store rollback; retryable | zero silent failure | ✅ | `canvas-frame-rename-bounds-failure` |
+| Frame create/member add/remove persist failure | Business code failure / retry | `createFrame`/`addFrameMembers`/`removeFrameMembers` persist; failure toast; not added to canvas/members unchanged; add rejects close modal; retryable | zero silent failure | ✅ | `canvas-frame-members-failure` |
+| Canvas connect edge create association persist failure | Business code failure / retry | `addAssociation` persist; failure toast; no edge added; can drag again to retry | zero silent failure | ✅ | `canvas-connect-edge-failure` |
+| Canvas change edge cardinality persist failure | Business code failure / retry | `updateAssociationRelation` persist; failure toast; chip keeps original cardinality; can select again to retry | zero silent failure | ✅ | `canvas-cardinality-failure` |
+| Canvas edge FK metadata | Constraint name / rules / failure retry | `updateAssociationFkMeta` persist; same old constraintName split edge sync rename; `erd-edge-constraint-name` | zero silent failure | ✅ | `canvas-fk-meta-edit` |
+| Canvas field meta persist failure | Business code failure / retry | type/PK/NN/AI/hidden/browse PK: only save code===200 writes store; failure toast; edit draft rolls back; hidden does not exit | zero silent failure | ✅ | `canvas-field-meta-failure` |
+| Table design JExcel field meta persist failure | Business code failure / retry | field tab PK/hidden etc.: only save code===200 writes store; failure toast + re-mount grid rolls back checkbox; retryable; canvas aligned | zero silent failure | ✅ | `jexcel-field-meta-failure` |
+| Table design index tab persist failure | Business code failure / retry | add/unique checkbox etc.: only save code===200 writes store + success toast; failure toast + empty state/re-mount rollback; delete confirm failure rejects close; retryable; canvas UK | zero silent failure | ✅ | `jexcel-index-failure` |
+| Table design index tab fields/expression | Text persist / failure rollback | "Fields/expression*" semicolon mix → `fields[]`; business code failure re-mount rollback; success shows `id;LOWER(…)` | zero silent failure | ✅ | `index-expression-edit` |
+| Initiate SQL approval Modal | Open focus / Esc / Tab trap | focus "Approver"; Esc returns to trigger (parent detail still open); focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `sql-approval-keyboard` |
+| Add member Modal | Open focus / Esc / Tab trap | focus "Select user"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `add-user-keyboard` |
+| Add member invite failure | Business code failure / retry | readable toast; failure keeps modal open; retry success closes modal; no stacked modals | zero silent failure | ✅ | `add-user-invite-failure` |
+| Version init/rebuild save failure | Business code failure / retry | init failure keeps modal open, retryable; rebuild failure no fake success, no rebaseline | zero silent failure | ✅ | `version-save-failure` |
+| Read-only share create failure | Business code failure / retry | readable toast; modal stays open; "Regenerate" retryable; no stacked modals; forbid disabled dead affordance | zero silent failure | ✅ | `share-create-failure` |
+| Read-only share Modal | Open focus / Esc / Tab trap | focus "Share link"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `share-project-keyboard` |
+| Read-only share revoke confirmation | Open focus / Esc / Tab trap | focus "Revoke"; Esc cancels without revoking; outer share modal still open; focus returns to revoke button; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `share-revoke-keyboard` |
+| Team project delete confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to "Delete team project"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `group-project-delete-keyboard` |
+| Team member remove confirmation | Open focus / Esc / Tab trap | focus "Remove"; Esc cancels without removing; focus returns to "Remove member `{username}`"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `group-user-remove-keyboard` |
+| Approval action confirmation (approve/reject/revoke/re-approve) | Open focus / Esc / Tab trap | focus semantic OK; Esc cancels without persisting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `approval-action-keyboard` |
+| Approval/work order SQL detail Modal.info | Open focus / Esc·OK / Tab trap | focus "Got it"; Esc/OK returns to "View SQL"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `sql-detail-keyboard` |
+| Import skip validation Modal.warning | Open focus / Esc·OK / Tab trap | focus "Got it"; Esc/OK returns to "Parse and import"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `import-skip-warning-keyboard` |
+| EntityModal create model/table/relation diagram | Open focus / Esc / Tab trap | create model focus "Name"; create table focus "Parent model"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `entity-modal-keyboard` |
+| Canvas create/rename relation diagram Modal | Open focus / Esc / Tab trap | focus "Relation diagram name"; Esc returns to trigger; focus cannot escape dialog; Esc disabled while submitting | ADR-0016 keyboard modal | ✅ | `diagram-modal-keyboard` |
+| Canvas add to group Modal | Open focus / Esc / Tab trap | focus "Select group"; Esc returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `diagram-modal-keyboard` (same product source) |
+| Canvas delete table confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `canvas-delete-table-keyboard` |
+| Canvas delete edge/delete group confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `canvas-delete-edge-frame-keyboard` |
+| Canvas delete field confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `canvas-delete-field-keyboard` |
+| Table design delete index confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `table-index-delete-keyboard` |
+| JExcel toolbar delete row confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to trigger; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `jexcel-toolbar-delete-keyboard` |
+| JExcel quick actions Modal.info | Open focus / Esc / Tab trap | focus "Got it"; Esc/OK returns to "Quick actions"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `jexcel-grid-keyboard` |
+| JExcel Escape backspace | Edit mode Esc / focus return | Esc discards cell draft; focus returns to `jexcel-grid`; tab stays open; forbid persist hidden textarea | ADR-0016 keyboard grid | ✅ | `jexcel-grid-keyboard` |
+| Left tree delete model/table/relation diagram confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to row "…actions"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `tree-delete-keyboard` |
+| Data source settings delete confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to row delete button; outer config modal still open; focus cannot escape confirm dialog | ADR-0016 keyboard modal | ✅ | `database-setup-delete-keyboard` |
+| Workbench databaseConfig delete/batch delete confirmation | Open focus / Esc / Tab trap | focus "Delete"; Esc cancels without deleting; focus returns to row delete button/batch delete button; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `database-config-delete-keyboard` |
+| Version sync result Modal.success/warn | Open focus / Esc·OK / Tab trap; row binding | focus "Got it"; Esc/OK returns to "Sync"; clicking row "Sync" does not depend on hover; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `version-sync-result-keyboard` |
+| Workbench databaseConfig Drawer | Open focus / Esc / Tab trap | focus "Connection name"; Esc returns to "New connection"/"Edit"; focus cannot escape dialog | ADR-0016 keyboard modal | ✅ | `database-config-drawer-keyboard` |
+| `/404` AuthBrandShell gate | Skip + Tab order | First Skip "Skip to main action" → `#exception-main-cta`; open example→back to home; focus-visible brand; no trap | ADR-0016 keyboard facade | ✅ | `not-found` "404 shell keyboard" |
+| `/403` AuthBrandShell gate | Skip + Tab order | Same as 404; deep link `/403` reachable | ADR-0016 keyboard facade | ✅ | `not-found` "403 shell keyboard" |
+| `/s/:token` invalid gate | Skip + Tab order | First Skip "Skip to main action" → `#exception-main-cta` (`share-invalid-gate`); open example→back to home; focus-visible brand; no trap | ADR-0016 keyboard facade | ✅ | `share` "share invalid gate keyboard" |
+| `/register` | Register submit | Success navigates to `/home`; may carry redirect | `share` autofork | ✅ | `session.spec` "register success"; `share` redirect |
+| `/demo` | Redirect | → `/s/public-demo` read-only diagram + copy CTA | ADR-0007 | ✅ | `demo.spec` |
+| `/s/:token` | Copy to my project | Not logged in→register redirect; logged in→fork | share fork | ✅ | `share.spec` |
+| Avatar menu | Account center | → `/account/settings?selectKey=base` | account | ✅ | `session.spec` |
+| Avatar menu | License info | → `selectKey=identification` | licence | ✅ | `session.spec` |
+| Avatar menu | Sign out | `cache.clear()` returns to `/login` | `logout()` | ✅ | `session.spec` |
+| DesignLayout top bar | GitHub stars link | External link `erdonline/erdonline` | community | ✅ | copy/link merged |
+| DesignLayout top bar | Share button | Generates read-only link | ADR-0007 | ✅ | `share.spec` |
+| DesignLayout top bar | Collaboration presence | Visible online list | ADR-0009 | ✅ | `presence.spec` |
 
 ---
 
-## W2 — 项目面（HomeLayout 菜单 + `/project/*`）
+## W2 — Project Surfaces (HomeLayout menu + `/project/*`)
 
-### HomeLayout 主导航
+### HomeLayout main navigation
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| HomeLayout 菜单 | 首页 | → `/home` 主内容 | W0 | ✅ | `layout-outlet` / `project-surface` |
-| HomeLayout 菜单 | 数据模型 | → `/dataModels` | 项目列表别名面 | ✅ | `project-surface` |
-| HomeLayout 菜单 | 数据查询 | `_defaultProps` 已摘；路由保留实验深链 | exec 忽略所选 DS | ✅ | `home-data-query.spec` |
-| HomeLayout 菜单 | 数据源 | → `/databaseConfig` | ADR-0008 / W5 | ✅ | `project-surface` / `adr0008` |
-| HomeLayout 菜单 | 社区 | 外链 GitHub Issues | 社区 | ✅ | 外链不测 |
+| HomeLayout menu | Home | → `/home` main content | W0 | ✅ | `layout-outlet` / `project-surface` |
+| HomeLayout menu | Data models | → `/dataModels` | Project list alias surface | ✅ | `project-surface` |
+| HomeLayout menu | Data query | `_defaultProps` removed; route kept for experimental deep links | exec ignores selected DS | ✅ | `home-data-query.spec` |
+| HomeLayout menu | Data sources | → `/databaseConfig` | ADR-0008 / W5 | ✅ | `project-surface` / `adr0008` |
+| HomeLayout menu | Community | External link GitHub Issues | community | ✅ | external link not tested |
 
-### `/home` 快捷
+### `/home` shortcuts
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| `/home` | 新建模型 `home-link-new-project` | → `/project/person` | 空态新建 | ✅ | `activation` / `project-activation` |
-| `/home` | 示例项目 `home-link-example` | 建示例并进设计器见表 | 30s 激活 | ✅ | `activation.spec` |
-| `/home` | 导入模型 | → `/project/person`（引导） | 导入在设计器 | ✅ | `project-surface` 导航类同 person |
-| `/home` | 最近项目 | → `/project/recent` | | ✅ | `project-surface` |
-| `/home` | 个人项目 | → `/project/person` | | ✅ | `project-surface` / `smoke` |
-| `/home` | 团队项目 | → `/project/group` | | ✅ | `project-surface` |
-| `/home` | VIP/授权角标 | → account identification | | 📋 | 头像菜单已覆盖 identification |
+| `/home` | Create model `home-link-new-project` | → `/project/person` | Empty-state create | ✅ | `activation` / `project-activation` |
+| `/home` | Example project `home-link-example` | Creates example and opens designer with tables | 30s activation | ✅ | `activation.spec` |
+| `/home` | Import model | → `/project/person` (guided) | Import in designer | ✅ | `project-surface` navigation same as person |
+| `/home` | Recent projects | → `/project/recent` | | ✅ | `project-surface` |
+| `/home` | Personal projects | → `/project/person` | | ✅ | `project-surface` / `smoke` |
+| `/home` | Team projects | → `/project/group` | | ✅ | `project-surface` |
+| `/home` | VIP/license badge | → account identification | | 📋 | Avatar menu already covers identification |
 
-### 项目列表路由
+### Project list routes
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| `/project/person` | 空态「新建」 | 弹窗→创建→列表可见 | VIP/开源不限数 | ✅ | `project-activation`「新建」 |
-| `/project/person` | 一键示例 | 示例进设计器 | | ✅ | `project-activation` / `activation` |
-| `/project/person` | 项目卡片打开 | 进 `/design/table/model?projectId=` | 死链已修 | ✅ | `smoke`「登录→新建→设计器」 |
-| `/project/person` | 删除项目 | 确认后列表消失；可再建 | 缓存 | ✅ | `smoke` 清理路径 |
-| `/project/recent` | 列表/打开 | 打开最近项目进设计器 | | ✅ | `project-surface` |
-| `/project/group` | 团队项目列表/打开 | 进设计器或设置 | 权限 | ✅ | `project-surface` 可达；`empty-projectjson` |
-| `/project/group` | 进入团队设置 | → `/project/group/setting/basic` | GroupLayout | ✅ | `layout-outlet` |
-| `/project/notice` | 通知列表 | 首页「更多公告」→列表可读；失败 toast；notice-row gap ≤8 | | ✅ | `project-notice.spec` |
-| `/project/new` | （整页） | redirect→`/project/person`；占位页已删 | W2 新建走 person | ✅ | `project-surface` |
-| `/dataModels` | 模型列表入口 | 与项目列表等价可用 | | ✅ | `project-surface` |
+| `/project/person` | Empty state "Create" | Modal→create→visible in list | VIP/open-source unlimited count | ✅ | `project-activation` "create" |
+| `/project/person` | One-click example | Example opens designer | | ✅ | `project-activation` / `activation` |
+| `/project/person` | Project card open | Opens `/design/table/model?projectId=` | Dead link fixed | ✅ | `smoke` "login→create→designer" |
+| `/project/person` | Delete project | After confirm, disappears from list; can create again | cache | ✅ | `smoke` cleanup path |
+| `/project/recent` | List/open | Opens recent project in designer | | ✅ | `project-surface` |
+| `/project/group` | Team project list/open | Opens designer or settings | permissions | ✅ | `project-surface` reachable; `empty-projectjson` |
+| `/project/group` | Enter team settings | → `/project/group/setting/basic` | GroupLayout | ✅ | `layout-outlet` |
+| `/project/notice` | Notification list | Home "More announcements"→readable list; failure toast; notice-row gap ≤8 | | ✅ | `project-notice.spec` |
+| `/project/new` | (whole page) | redirect→`/project/person`; placeholder page removed | W2 create goes through person | ✅ | `project-surface` |
+| `/dataModels` | Model list entry | Equivalent to project list, usable | | ✅ | `project-surface` |
 
 ---
 
-## W3 — 设计器核心
+## W3 — Designer Core
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| DesignLayout 菜单 | 模型 | → `/design/table/model` | 关系图 | ✅ | `relation` / `smoke` |
-| `/design/table/model` | 树「关系图」`tree-open-relation` | 打开画布标签 | RF | ✅ | `relation.spec` |
-| `/design/table/model` | 空态建表 CTA | 表节点出现 | | ✅ | `relation` 全旅程 |
-| `/design/table/model` | 内联字段/连线/守卫 | 持久化刷新仍在；chnname/defaultValue 行内；删字段二次确认（× / 选中 Delete·Backspace） | | ✅ | `relation` |
-| `/design/table/model` | 表节点「索引」`canvas-open-index` | 直达表设计索引签（`aria-selected`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开索引签」 |
-| `/design/table/model` | 索引签空态 CTA `index-empty-add` | 「添加第一个索引」→ 种子行 + 表格；无白屏 | | ✅ | `relation`「索引签空态 CTA」 |
-| `/design/table/model` | 字段签空态 CTA `field-empty-add` | 「添加第一个字段」→ 种子首 defaultField / id + 表格；无白屏 | | ✅ | `table-field-empty` |
-| `/design/table/model` | 画布空表字段 CTA `canvas-fields-empty` | 「添加第一个字段」→ 内联新建；有字段后回「添加字段」 | | ✅ | `table-field-empty` |
-| `/design/table/model` | 索引签再加一行 `index-add-row` | 已有索引后「+ 再添加一条索引」→ 追加种子行；无死 affordance | | ✅ | `relation`「索引签再加一行 CTA」 |
-| `/design/table/model` | 索引签删除 `index-delete-N` | 「删除索引 `{name}`」→ Modal 确认才删；取消保留；删空回空态 CTA；键盘首焦/Esc/Tab trap | | ✅ | `relation`「索引签删除二次确认」+`table-index-delete-keyboard` |
-| `/design/table/model` | JExcel 工具栏删除 `jexcel-toolbar-remove` | 「删除选中行」→ Modal 确认才 `deleteRow`；取消保留；未选中 toast；键盘首焦/Esc/Tab trap | | ✅ | `relation`「JExcel 工具栏删除二次确认」+`jexcel-toolbar-delete-keyboard` |
-| `/design/table/model` | JExcel 工具栏/网格 Tab 序 | 7 工具栏按钮 Tab+Enter；`jexcel-grid` 可聚焦；Shift+Tab 无 trap | | ✅ | `relation`「工具栏 Tab 可达」 |
-| `/design/table/model` | JExcel Escape 退格 / 快捷操作 Modal | 编辑态 Esc 丢弃→焦点回 `jexcel-grid`；快捷操作首焦「知道了」；Esc 归还；Tab trap | ADR-0016 键盘 | ✅ | `jexcel-grid-keyboard` |
-| `/design/table/model` | 表设计字段签半成品写回 | 缺 `name`/`typeName` → toast + 中止写回；全空草稿可丢；Esc 停网格 | | ✅ | `relation`「半成品行不静默丢」 |
-| `/design/table/model` | 表设计索引签半成品写回 | 缺 `name`/`fields`（含 `[]`/「;」空）→ toast + 中止写回；Esc 停网格；重入索引仍在 | | ✅ | `relation`「索引签：半成品行不静默丢」 |
-| `/design/table/model` | 表节点「字段」`canvas-open-field` | 直达表设计字段签（`aria-selected` + `table-field-edit`）；可切索引后再经画布重入 | | ✅ | `relation`「画布打开字段签」 |
-| `/design/table/model` | 表节点「元数据」`canvas-open-code` | 直达表设计元数据应用签（`aria-selected` + `table-code-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开元数据应用签」 |
-| `/design/table/model` | 表节点「触发器」`canvas-open-trigger` | 直达表设计触发器签（`aria-selected` + `table-trigger-edit`）；可切字段后再经画布重入 | | ✅ | `relation`「画布打开触发器签」 |
-| `/design/table/model` | 触发器签编辑已有行 | 行「编辑」弹层；结构变重建 DDL；persist-on-200；失败不关窗可重试；首焦名称 | 零静默失败 | ✅ | `table-triggers` 编辑 / 编辑落盘失败 |
-| `/design/table/model` | 表头 ✎ 改名 | 名称更新；chnname 双栏内联 | | ✅ | `relation`「改名」/「表头中文名」 |
-| `/design/table/model` | PK 徽标切换 | 取消/恢复 | | ✅ | `relation`「PK」 |
-| `/design/table/model` | 树删表 | 二次确认；确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep | | ✅ | `smoke` 取消/确认 + `canvas-delete-table-failure` |
-| `/design/table/model` | 树删模型/关系图 | 二次确认；确认后 `removeModule`/`removeDiagram` `persist:true`；失败窗 keep；取消保留 | | ✅ | `multi-diagram`「左树删除关系图/模型二次确认」+`tree-delete-module-diagram-failure` |
-| `/design/table/model` | 树剪切/粘贴表·模型 | `cut*`/`past*` `persist:true`（仅 save 成功写剪贴板与移出/写入）；失败保留；复制不落盘 | | ✅ | `tree-cut-paste-failure` |
-| `/design/table/model` | 画布拖表/拖框坐标 | `commitDiagramGeometry` `persist:true`；仅 save 成功写 layout/bounds；失败 RF 回滚 | | ✅ | `canvas-drag-reposition-failure` |
-| `/design/table/model` | 画布对齐/自动布局 | `commitDiagramGeometry` `persist:true`；仅 save 成功写 layout；失败 RF 回滚；成功才 fitView | | ✅ | `canvas-align-layout-failure` |
-| `/design/table/model` | Frame 改名/适应成员 | `renameFrame`/`commitDiagramGeometry` persist；失败草稿/RF 回滚；成功才「已适应成员」 | | ✅ | `canvas-frame-rename-bounds-failure` |
-| `/design/table/model` | Frame 新建/成员加减 | `createFrame`/`add*Members`/`remove*Members` persist；失败不上图/成员不变 | | ✅ | `canvas-frame-members-failure` |
-| `/design/table/model` | 拖连线建关联 | `addAssociation` persist；失败不上边可重试 | | ✅ | `canvas-connect-edge-failure` + `relation` PK/FK |
-| `/design/table/model` | 改边基数 | `updateAssociationRelation` persist；失败保持原基数可重试 | | ✅ | `canvas-cardinality-failure` + `relation` PK/FK |
-| `/design/table/model` | undo/redo | 可撤销画布操作 | canvasHistory | ✅ | `relation` 全旅程 Meta+z |
-| `/design/table/model` | 删边 | Delete → Modal 确认后 `removeAssociation` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留 | | ✅ | `relation`「画布删表/删边」「删边后刷新」+`canvas-delete-edge-frame-failure` |
-| `/design/table/model` | 画布删表 | Delete → Modal 确认后 `removeEntity` `persist:true`（仅 save 成功移出）；失败窗 keep；取消保留；键盘首焦/Esc/Tab trap | | ✅ | `relation`「画布删表/删边二次确认」+`canvas-delete-table-keyboard`+`canvas-delete-table-failure` |
-| `/design/table/model` | 画布删分组 | Delete → Modal 确认后 `removeFrame` `persist:true`（仅 save 成功移出）；失败窗 keep；仅删框不删表 | | ✅ | `diagram-frame`「删除分组二次确认」+`canvas-delete-edge-frame-keyboard`+`canvas-delete-edge-frame-failure` |
-| DesignLayout | 项目菜单按钮 | 下拉打开 | | ✅ | `project-menu.spec` |
-| 项目菜单 | 全部项目 | → `/project/recent` | | ✅ | `project-menu`「全部项目」 |
-| 项目菜单 | 最近项目 | 最多 5 条；当前 ✓；点其它项切设计器 | | ✅ | `project-menu`「最近项目可切换」 |
-| 项目菜单 | 版本（已迁顶栏） | 顶栏「版本」→ 版本管理；菜单内无「版本」 | | ✅ | `project-menu`「全部项目…顶栏版本」 |
-| 项目菜单 | 导入→三项 | 弹窗可开、关下拉不挡 | | ✅ | `project-menu`「导入」 |
-| 项目菜单 | 导出→五项 | 可见；DDL 可开 | | ✅ | `project-menu`「导出」 |
-| 项目菜单 | 设置→数据源设置 | 弹窗可开 | ADR-0008 | ✅ | `project-menu`「数据源设置」 |
-| 项目菜单 | 设置→默认项设置 | 打开+保存成功提示 | | ✅ | `project-menu`「默认项」 |
-| DesignLayout | 自动保存状态 | 顶栏可见保存中/已保存；失败为可点「保存失败，点击重试」+ 单条 toast（断网不叠弹） | P1 | ✅ | `relation.spec`「保存中…→已保存」+ `save-failure` |
-| DesignLayout | CommonTabs / 表设计签头 | 栏高 ~24；签头 padX≤8/gap≤4；内签 gutter≤2；标签/关闭钮不 clip；Tab focus-visible；Cmd+1/2/3 | ADR-0016 密度 | ✅ | `model-design-ux`「表设计三签」「表设计内签」 |
-| DesignLayout | CommonTabs 签头键盘 | ←/→ roving + Enter 激活；关闭 `aria-label=关闭 {表名}`；关签焦点归还；focus-visible；内签同构 | ADR-0016 键盘门面 | ✅ | `common-tabs-keyboard` |
-| RF TableNode | 底栏 / 空表井 chrome | 表头 pad≤6 / 字段 minH20 已密；添加 margin≤6 + minH≥22；打开表设计 margin≤6×4 + btn minH≥22；空表井 pad≤6/gap≤4；`NODE_FOOTER_H` 28；persist 不回归 | ADR-0016 密度 | ✅ | `relation`「PK/FK」+ `table-field-empty`「画布空表」 |
-| DesignLayout | 命令面板/快捷键 | Cmd/Ctrl+K/F 开合；搜表定位+高亮；↑↓/aria-activedescendant；空态「无匹配结果」pad≤8×8 / list≤2；footer pad≤4×8；Esc 归还；Tab trap | RF CommandPalette | ✅ | `relation.spec`「命令面板」+「搜表定位」 |
-| DesignLayout | 快捷键速查卡 | `?` / 工具栏「?」→ aria dialog「快捷键」；含 Cmd+1/2/3 表设计签；密度 maxH≤360 / list 2×4 / row padY≤6；Esc + 关闭钮可焦；与命令面板互斥 | RF ShortcutHelp | ✅ | `relation.spec`「快捷键速查」 |
-| DesignLayout | Skip 跳过导航 | 首项 Tab「跳到模型树/主工作区」→ 地标 focus；无 trap | 焦点环审计 | ✅ | `relation`「设计器 Skip」 |
-| DesignLayout | 左树工具条密度 | 工具条 ≤32 / 控件 ∈24–28；图标不 clip；sider 次密距；新建 focus-visible | QueryTree toolbar + sider-inner | ✅ | `model-design-ux`「模型树」 |
-| DesignLayout | 版本列表二次密度 | 工具条控件 ∈24–28；图标不 clip；token 色；新增钮 focus-visible；键盘弹层不回归 | version-page toolbar/list | ✅ | `version.spec`「版本列表行密度」+ `version-action-modals-keyboard` |
-| DesignLayout | 版本列表空态井次密 | 空态 pad ≤12×8；禁 16×12；保留「保存第一个版本」CTA | version-empty / list empty-text | ✅ | `version.spec`「无数据源也可新增版本」 |
-| DesignLayout | 工单/审批列表密度 | 标题栏 ~24；行 pad 4×8；动作钮 ∈22–28；图标不 clip；focus-visible；确认键盘不回归 | approval-workorder-page | ✅ | `approval.spec`「工单/审批列表行密度」+ `approval-action-keyboard` |
-| DesignLayout | 次屏表密度（JExcel / 版本 diff） | JExcel 工具栏 ~24；表头/行 pad 4×8；图标不 clip；focus-visible；diff 组头/行 ~24 token 色；工具栏 Tab / 可视化 diff 不回归 | jexcel-root / version-diff-panel | ✅ | `model-design-ux`「表设计 JExcel 行密度」+ `relation`「工具栏 Tab」+ `version.spec` diff |
-| DesignLayout | 元数据应用子签密度 | CodeTab/DbTab 栏 ~24；标签不 clip；子签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-code-tab / erd-db-tab | ✅ | `model-design-ux`「元数据应用子签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
-| DesignLayout | 表设计内签密度 | 字段/索引/元数据栏 ~24；标签不 clip；内签 Tab focus-visible；Cmd+1/2/3 不回归 | erd-table-design__tabs / #tableNav | ✅ | `model-design-ux`「表设计内签」+ `relation`「表设计 Cmd/Ctrl+1/2/3」 |
-| DesignLayout | 表设计签体内容次密距 | 侧/底 pad 6/4；hint ~24；JExcel 不 clip；元数据 tip 密；空字段 CTA / 空名 toast 保留 | erd-tab-body-pad / erd-meta-ddl-hint | ✅ | `model-design-ux`「表设计签体内容次密距」+ `table-field-empty` |
-| DesignLayout | 设计器空态次密距 | 兜底禁 marginTop:100；字段/索引 Empty margin-block 0 + pad 贴 tab-body；保留 CTA | erd-pane-empty / erd-table-*-empty | ✅ | `model-design-ux`「设计器空态次密距」+ `table-field-empty` |
-| DesignLayout | 欢迎空态次密距 | pad 20×16；标题 18/mt12·lh22；hero 176；逆向链 + 左树新增模型 | erd-welcome-empty / designer-welcome-empty(-inner) | ✅ | `model-design-ux`「欢迎空态次密距」 |
-| DesignLayout | 右键/树操作菜单密度 | 项高 ~28（∈26–30）；border-box + padY≤2；图标/文案不 clip；`role=menuitem`；方向键/Esc | `.erd-dense-menu` | ✅ | `model-design-ux`「右键/树操作菜单密度」 |
-| DesignLayout | 左树键盘漫游 | Skip→↓入树；方向键+Enter 定位表/开关系；active brand 环；Tab 进搜索无 trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation`「左树键盘漫游」 |
-| RF TableNode | 字段浏览器 Tab 环 | 仅选中表字段/添加/开表设计进序；行内微钮 -1；无 trap + focus-visible | 键盘建模 | ✅ | `relation`「字段浏览器 Tab 环」 |
-| RF canvas chrome | Controls / 工具栏 Tab；MiniMap 出序 | Controls→工具栏；MiniMap `tabindex=-1`；Controls focus-visible | 键盘 chrome | ✅ | `relation`「画布 chrome Tab 序」 |
-| RF MiniMap | panel chrome 碎距 | 128×96 概览；margin ≈8∈[8,12]；sunk 底；禁 RF margin15；Controls 按钮/版本工具条不动 | ADR-0016 密度 | ✅ | `relation`「MiniMap」+ `demo` |
-| RF Controls / 工具栏 Panel | panel chrome 碎距 | margin ≈8∈[8,12]（禁 RF 默认 15）；钮≤22；对齐 MiniMap；版本工具条/边标签不动 | ADR-0016 密度 | ✅ | `relation`「Controls」+ `demo` |
-| 边基数 Select / Entity Form | 控件密度锁 | Select 高≤28；项 mb≤12；输入/OK≤28；禁回退 32/24 | ADR-0016 密度 | ✅ | `relation`「PK/FK」+「实体新建弹层密度」 |
-| RF 节点级 Tab | 选中门控；RF wrapper 出序 | `nodesFocusable/edgesFocusable=false`；选中表/边 chip/Frame 进序 | 键盘建模 | ✅ | `relation`「画布节点级 Tab」 |
-| `/s/:token` 分享壳 | Skip + Controls Tab | 首项 Skip「跳到关系图」→ stage；放大/缩小/适应可达；MiniMap 出序；focus-visible；无 trap | ADR-0016 键盘门面 | ✅ | `share`「分享壳键盘」 |
-| TableTab | Cmd/Ctrl+1/2/3 | 表设计：字段 / 索引 / 元数据应用；输入中不拦；仅表设计签挂载 | TableTab activatePane | ✅ | `relation`「表设计 Cmd/Ctrl+1/2/3」 |
-| DesignLayout | 左树点表定位 | 点表 → 切关系图 + 选中 + fitView + flash；不开表设计 | DataTable → pendingLocate + focusTable | ✅ | `relation.spec`「左树点表」 |
-| `ProjectSortMenu` | 创建时间/最近修改 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
-| `ProjectFilterMenu` | 过滤1/过滤2 | 已从 Menu 导出删除 | 死代码 | 🗑 | 代码已不存在（grep 零命中） |
-| `NavigationMenu` | （空水平菜单） | 已从 Menu 导出删除 | | 🗑 | 代码已不存在（grep 零命中） |
+| DesignLayout menu | Model | → `/design/table/model` | Relation diagram | ✅ | `relation` / `smoke` |
+| `/design/table/model` | Tree "Relation diagram" `tree-open-relation` | Opens canvas tab | RF | ✅ | `relation.spec` |
+| `/design/table/model` | Empty-state create table CTA | Table node appears | | ✅ | `relation` full journey |
+| `/design/table/model` | Inline fields/connect/guards | Persists after refresh; chnname/defaultValue inline; delete field second confirmation (× / selected Delete·Backspace) | | ✅ | `relation` |
+| `/design/table/model` | Table node "Index" `canvas-open-index` | Direct to table design index tab (`aria-selected`); can switch to fields then re-enter via canvas | | ✅ | `relation` "canvas open index tab" |
+| `/design/table/model` | Index tab empty-state CTA `index-empty-add` | "Add first index"→ seed row + grid; no blank screen | | ✅ | `relation` "index tab empty-state CTA" |
+| `/design/table/model` | Fields tab empty-state CTA `field-empty-add` | "Add first field"→ seed first defaultField / id + grid; no blank screen | | ✅ | `table-field-empty` |
+| `/design/table/model` | Canvas empty table fields CTA `canvas-fields-empty` | "Add first field"→ inline create; after fields exist returns to "Add field" | | ✅ | `table-field-empty` |
+| `/design/table/model` | Index tab add another row `index-add-row` | After index exists "+ Add another index"→ append seed row; no dead affordance | | ✅ | `relation` "index tab add another row CTA" |
+| `/design/table/model` | Index tab delete `index-delete-N` | "Delete index `{name}`"→ Modal confirm before delete; cancel preserves; delete all returns to empty-state CTA; keyboard initial focus/Esc/Tab trap | | ✅ | `relation` "index tab delete second confirmation"+`table-index-delete-keyboard` |
+| `/design/table/model` | JExcel toolbar delete `jexcel-toolbar-remove` | "Delete selected rows"→ Modal confirm before `deleteRow`; cancel preserves; unselected toast; keyboard initial focus/Esc/Tab trap | | ✅ | `relation` "JExcel toolbar delete second confirmation"+`jexcel-toolbar-delete-keyboard` |
+| `/design/table/model` | JExcel toolbar/grid Tab order | 7 toolbar buttons Tab+Enter; `jexcel-grid` focusable; Shift+Tab no trap | | ✅ | `relation` "toolbar Tab reachable" |
+| `/design/table/model` | JExcel Escape backspace / quick actions Modal | Edit mode Esc discards→focus back to `jexcel-grid`; quick actions focus "Got it"; Esc returns; Tab trap | ADR-0016 keyboard | ✅ | `jexcel-grid-keyboard` |
+| `/design/table/model` | Table design fields tab draft write-back | Missing `name`/`typeName` → toast + abort write-back; all-empty draft discardable; Esc stops grid | | ✅ | `relation` "draft row not silently dropped" |
+| `/design/table/model` | Table design index tab draft write-back | Missing `name`/`fields` (incl. `[]`/`";"` empty) → toast + abort write-back; Esc stops grid; re-enter index still there | | ✅ | `relation` "index tab: draft row not silently dropped" |
+| `/design/table/model` | Table node "Fields" `canvas-open-field` | Direct to table design fields tab (`aria-selected` + `table-field-edit`); can switch to index then re-enter via canvas | | ✅ | `relation` "canvas open fields tab" |
+| `/design/table/model` | Table node "Metadata" `canvas-open-code` | Direct to table design metadata application tab (`aria-selected` + `table-code-edit`); can switch to fields then re-enter via canvas | | ✅ | `relation` "canvas open metadata application tab" |
+| `/design/table/model` | Table node "Triggers" `canvas-open-trigger` | Direct to table design triggers tab (`aria-selected` + `table-trigger-edit`); can switch to fields then re-enter via canvas | | ✅ | `relation` "canvas open triggers tab" |
+| `/design/table/model` | Triggers tab edit existing row | Row "Edit" modal; structural change rebuilds DDL; persist-on-200; failure keeps modal open, retryable; focus name | zero silent failure | ✅ | `table-triggers` edit / edit persist failure |
+| `/design/table/model` | Table header ✎ rename | Name updates; chnname dual-column inline | | ✅ | `relation` "rename" / "table header Chinese name" |
+| `/design/table/model` | PK badge toggle | Cancel/restore | | ✅ | `relation` "PK" |
+| `/design/table/model` | Tree delete table | Second confirmation; confirm `removeEntity` `persist:true` (only save success removes); failure modal keep | | ✅ | `smoke` cancel/confirm + `canvas-delete-table-failure` |
+| `/design/table/model` | Tree delete model/relation diagram | Second confirmation; confirm `removeModule`/`removeDiagram` `persist:true`; failure modal keep; cancel preserves | | ✅ | `multi-diagram` "left tree delete relation diagram/model second confirmation"+`tree-delete-module-diagram-failure` |
+| `/design/table/model` | Tree cut/paste table·model | `cut*`/`past*` `persist:true` (only save success writes clipboard and remove/write); failure preserved; copy does not persist | | ✅ | `tree-cut-paste-failure` |
+| `/design/table/model` | Canvas drag table/drag frame coordinates | `commitDiagramGeometry` `persist:true`; only save success writes layout/bounds; failure RF rollback | | ✅ | `canvas-drag-reposition-failure` |
+| `/design/table/model` | Canvas align/auto-layout | `commitDiagramGeometry` `persist:true`; only save success writes layout; failure RF rollback; fitView only on success | | ✅ | `canvas-align-layout-failure` |
+| `/design/table/model` | Frame rename/fit members | `renameFrame`/`commitDiagramGeometry` persist; failure draft/RF rollback; "Members fitted" only on success | | ✅ | `canvas-frame-rename-bounds-failure` |
+| `/design/table/model` | Frame create/member add/remove | `createFrame`/`add*Members`/`remove*Members` persist; failure not added to canvas/members unchanged | | ✅ | `canvas-frame-members-failure` |
+| `/design/table/model` | Drag connect create association | `addAssociation` persist; failure no edge, retryable | | ✅ | `canvas-connect-edge-failure` + `relation` PK/FK |
+| `/design/table/model` | Change edge cardinality | `updateAssociationRelation` persist; failure keeps original cardinality, retryable | | ✅ | `canvas-cardinality-failure` + `relation` PK/FK |
+| `/design/table/model` | undo/redo | Can undo canvas operations | canvasHistory | ✅ | `relation` full journey Meta+z |
+| `/design/table/model` | Delete edge | Delete → Modal confirm then `removeAssociation` `persist:true` (only save success removes); failure modal keep; cancel preserves | | ✅ | `relation` "canvas delete table/delete edge" "after delete edge refresh"+`canvas-delete-edge-frame-failure` |
+| `/design/table/model` | Canvas delete table | Delete → Modal confirm then `removeEntity` `persist:true` (only save success removes); failure modal keep; cancel preserves; keyboard initial focus/Esc/Tab trap | | ✅ | `relation` "canvas delete table/delete edge second confirmation"+`canvas-delete-table-keyboard`+`canvas-delete-table-failure` |
+| `/design/table/model` | Canvas delete group | Delete → Modal confirm then `removeFrame` `persist:true` (only save success removes); failure modal keep; deletes frame only, not tables | | ✅ | `diagram-frame` "delete group second confirmation"+`canvas-delete-edge-frame-keyboard`+`canvas-delete-edge-frame-failure` |
+| DesignLayout | Project menu button | Dropdown opens | | ✅ | `project-menu.spec` |
+| Project menu | All projects | → `/project/recent` | | ✅ | `project-menu` "all projects" |
+| Project menu | Recent projects | Max 5 items; current ✓; click other item switches designer | | ✅ | `project-menu` "recent projects switchable" |
+| Project menu | Version (moved to top bar) | Top bar "Version"→ version management; no "Version" in menu | | ✅ | `project-menu` "all projects…top bar version" |
+| Project menu | Import→three items | Modal opens; closing dropdown does not block | | ✅ | `project-menu` "import" |
+| Project menu | Export→five items | Visible; DDL opens | | ✅ | `project-menu` "export" |
+| Project menu | Settings→data source settings | Modal opens | ADR-0008 | ✅ | `project-menu` "data source settings" |
+| Project menu | Settings→default items settings | Opens + save success message | | ✅ | `project-menu` "default items" |
+| DesignLayout | Autosave status | Top bar shows saving/saved; failure shows clickable "Save failed, click to retry" + single toast (offline no stacked modals) | P1 | ✅ | `relation.spec` "Saving…→Saved" + `save-failure` |
+| DesignLayout | CommonTabs / table design tab bar | Bar height ~24; tab padX≤8/gap≤4; inner tab gutter≤2; label/close button not clipped; Tab focus-visible; Cmd+1/2/3 | ADR-0016 density | ✅ | `model-design-ux` "table design three tabs" "table design inner tabs" |
+| DesignLayout | CommonTabs tab bar keyboard | ←/→ roving + Enter activate; close `aria-label=Close {table name}`; close tab focus returns; focus-visible; inner tabs same pattern | ADR-0016 keyboard facade | ✅ | `common-tabs-keyboard` |
+| RF TableNode | Footer / empty table well chrome | Header pad≤6 / field minH20 already dense; add margin≤6 + minH≥22; open table design margin≤6×4 + btn minH≥22; empty table well pad≤6/gap≤4; `NODE_FOOTER_H` 28; persist no regression | ADR-0016 density | ✅ | `relation` "PK/FK" + `table-field-empty` "canvas empty table" |
+| DesignLayout | Command palette/shortcuts | Cmd/Ctrl+K/F toggle; search table locate+highlight; ↑↓/aria-activedescendant; empty state "No matches" pad≤8×8 / list≤2; footer pad≤4×8; Esc returns; Tab trap | RF CommandPalette | ✅ | `relation.spec` "command palette" + "search table locate" |
+| DesignLayout | Shortcut cheat sheet | `?` / toolbar "?"→ aria dialog "Shortcuts"; includes Cmd+1/2/3 table design tabs; density maxH≤360 / list 2×4 / row padY≤6; Esc + close button focusable; mutually exclusive with command palette | RF ShortcutHelp | ✅ | `relation.spec` "shortcut cheat sheet" |
+| DesignLayout | Skip navigation | First Tab "Skip to model tree/main workspace"→ landmark focus; no trap | focus ring audit | ✅ | `relation` "designer Skip" |
+| DesignLayout | Left tree toolbar density | Toolbar ≤32 / controls ∈24–28; icons not clipped; sider secondary density; create focus-visible | QueryTree toolbar + sider-inner | ✅ | `model-design-ux` "model tree" |
+| DesignLayout | Version list secondary density | Toolbar controls ∈24–28; icons not clipped; token colors; create button focus-visible; keyboard modals no regression | version-page toolbar/list | ✅ | `version.spec` "version list row density" + `version-action-modals-keyboard` |
+| DesignLayout | Version list empty well secondary density | Empty state pad ≤12×8; forbid 16×12; preserve "Save first version" CTA | version-empty / list empty-text | ✅ | `version.spec` "can add version without data source" |
+| DesignLayout | Work order/approval list density | Title bar ~24; row pad 4×8; action buttons ∈22–28; icons not clipped; focus-visible; confirm keyboard no regression | approval-workorder-page | ✅ | `approval.spec` "work order/approval list row density" + `approval-action-keyboard` |
+| DesignLayout | Secondary pane table density (JExcel / version diff) | JExcel toolbar ~24; header/row pad 4×8; icons not clipped; focus-visible; diff group header/row ~24 token colors; toolbar Tab / visual diff no regression | jexcel-root / version-diff-panel | ✅ | `model-design-ux` "table design JExcel row density" + `relation` "toolbar Tab" + `version.spec` diff |
+| DesignLayout | Metadata application sub-tab density | CodeTab/DbTab bar ~24; labels not clipped; sub-tab Tab focus-visible; Cmd+1/2/3 no regression | erd-code-tab / erd-db-tab | ✅ | `model-design-ux` "metadata application sub-tabs" + `relation` "table design Cmd/Ctrl+1/2/3" |
+| DesignLayout | Table design inner tab density | Fields/index/metadata bar ~24; labels not clipped; inner tab Tab focus-visible; Cmd+1/2/3 no regression | erd-table-design__tabs / #tableNav | ✅ | `model-design-ux` "table design inner tabs" + `relation` "table design Cmd/Ctrl+1/2/3" |
+| DesignLayout | Table design tab body content secondary density | Side/bottom pad 6/4; hint ~24; JExcel not clipped; metadata tip dense; empty field CTA / empty name toast preserved | erd-tab-body-pad / erd-meta-ddl-hint | ✅ | `model-design-ux` "table design tab body secondary density" + `table-field-empty` |
+| DesignLayout | Designer empty state secondary density | Fallback forbid marginTop:100; fields/index Empty margin-block 0 + pad flush tab-body; preserve CTA | erd-pane-empty / erd-table-*-empty | ✅ | `model-design-ux` "designer empty state secondary density" + `table-field-empty` |
+| DesignLayout | Welcome empty state secondary density | pad 20×16; title 18/mt12·lh22; hero 176; reverse links + left tree create model | erd-welcome-empty / designer-welcome-empty(-inner) | ✅ | `model-design-ux` "welcome empty state secondary density" |
+| DesignLayout | Context menu/tree action menu density | Item height ~28 (∈26–30); border-box + padY≤2; icons/copy not clipped; `role=menuitem`; arrow keys/Esc | `.erd-dense-menu` | ✅ | `model-design-ux` "context menu/tree action menu density" |
+| DesignLayout | Left tree keyboard roving | Skip→↓ enter tree; arrow keys+Enter locate table/open relation; active brand ring; Tab into search no trap | QueryTree.focusKeyboard + handleSelect | ✅ | `relation` "left tree keyboard roving" |
+| RF TableNode | Field browser Tab loop | Only selected table fields/add/open table design in order; inline micro button -1; no trap + focus-visible | keyboard modeling | ✅ | `relation` "field browser Tab loop" |
+| RF canvas chrome | Controls / toolbar Tab; MiniMap out of order | Controls→toolbar; MiniMap `tabindex=-1`; Controls focus-visible | keyboard chrome | ✅ | `relation` "canvas chrome Tab order" |
+| RF MiniMap | Panel chrome fragment spacing | 128×96 overview; margin ≈8∈[8,12]; sunken background; forbid RF margin15; Controls buttons/version toolbar unchanged | ADR-0016 density | ✅ | `relation` "MiniMap" + `demo` |
+| RF Controls / toolbar Panel | Panel chrome fragment spacing | margin ≈8∈[8,12] (forbid RF default 15); buttons≤22; aligned with MiniMap; version toolbar/edge labels unchanged | ADR-0016 density | ✅ | `relation` "Controls" + `demo` |
+| Edge cardinality Select / Entity Form | Control density lock | Select height≤28; item mb≤12; input/OK≤28; forbid revert to 32/24 | ADR-0016 density | ✅ | `relation` "PK/FK" + "entity create modal density" |
+| RF node-level Tab | Selection gate; RF wrapper out of order | `nodesFocusable/edgesFocusable=false`; selected table/edge chip/Frame in order | keyboard modeling | ✅ | `relation` "canvas node-level Tab" |
+| `/s/:token` share shell | Skip + Controls Tab | First Skip "Skip to relation diagram"→ stage; zoom in/out/fit reachable; MiniMap out of order; focus-visible; no trap | ADR-0016 keyboard facade | ✅ | `share` "share shell keyboard" |
+| TableTab | Cmd/Ctrl+1/2/3 | Table design: fields / index / metadata application; does not intercept while typing; mounted only on table design tab | TableTab activatePane | ✅ | `relation` "table design Cmd/Ctrl+1/2/3" |
+| DesignLayout | Left tree click table locate | Click table → switch relation diagram + select + fitView + flash; does not open table design | DataTable → pendingLocate + focusTable | ✅ | `relation.spec` "left tree click table" |
+| `ProjectSortMenu` | Created time/last modified | Removed from Menu export | dead code | 🗑 | Code no longer exists (grep zero hits) |
+| `ProjectFilterMenu` | Filter1/Filter2 | Removed from Menu export | dead code | 🗑 | Code no longer exists (grep zero hits) |
+| `NavigationMenu` | (empty horizontal menu) | Removed from Menu export | | 🗑 | Code no longer exists (grep zero hits) |
 
 ---
 
-## W4 — 版本时光机
+## W4 — Version Time Machine
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| DesignLayout 菜单 | 版本管理 | → `/design/table/version/all` | | ✅ | `project-menu` / `version` / `loading` |
-| `/design/table/version/all` | 新增版本（无数据源） | 列表可见新版本 | 北极星 | ✅ | `version.spec`「新增」 |
-| `/design/table/version/all` | 返回模型 | → `/design/table/model?projectId=` | | ✅ | `version.spec`「返回模型」 |
-| `/design/table/version/all` | 版本详情 diff | 增删改着色 | | ✅ | `version.spec`「diff」 |
-| `/design/table/version/all` | 重命名/删除版本 | 列表更新+toast；最新版改号成功；重复号 toast 且弹窗不关 | VersionHandle | ✅ | `version.spec`「重命名与删除」 |
-| `/design/table/version/all` | 对比版本 | 对比结果可见 | | ✅ | `version.spec`「可视化 diff」双版比对（`version-compare-btn`→任意版本比较） |
-| `/design/table/version/all` | 回滚 | 落库；刷新后模型仍回滚 | | ✅ | 回滚落库；version/approval 绿 |
-| DesignLayout 菜单 | 我的工单 | → `/design/table/version/order` 空态引导 | | ✅ | `approval.spec` |
-| DesignLayout 菜单 | 我的审批 | → `.../approval` 空态引导 | | ✅ | `approval.spec` |
-| `/design/table/version/all` | 顶栏「我的工单/我的审批」 | 直达 order/approval 页 | W3 切片 3 | ✅ | `approval.spec`「提交工单入口」 |
-| `/design/table/version/all` | 版本行「提交工单」 | 团队未同步行 → 详情「SQL审批」可见 | W3 切片 3 | ✅ | `approval.spec`「提交工单入口」 |
-| 工单/审批 | 提交→通过/拒绝全链路 | 状态变更可见 | 需有数据 | ✅ | `approval.spec`：API 种子→UI 拒绝 toast→工单复批（通过=JDBC 过重未覆盖） |
-| 工单/审批 | 通过/拒绝/撤销/复批确认键盘 | 首焦主操作；Esc 不落盘；Tab trap | ADR-0016 键盘弹层 | ✅ | `approval-action-keyboard` |
-| 工单/审批 | SQL 明细 Modal.info 键盘 | 首焦「知道了」；Esc/OK 归还「查看SQL」；Tab trap | ADR-0016 键盘弹层 | ✅ | `sql-detail-keyboard` |
+| DesignLayout menu | Version management | → `/design/table/version/all` | | ✅ | `project-menu` / `version` / `loading` |
+| `/design/table/version/all` | Add version (no data source) | New version visible in list | North Star | ✅ | `version.spec` "add" |
+| `/design/table/version/all` | Back to model | → `/design/table/model?projectId=` | | ✅ | `version.spec` "back to model" |
+| `/design/table/version/all` | Version detail diff | Add/delete/modify color-coded | | ✅ | `version.spec` "diff" |
+| `/design/table/version/all` | Rename/delete version | List updates+toast; latest version number change succeeds; duplicate number toast and modal stays open | VersionHandle | ✅ | `version.spec` "rename and delete" |
+| `/design/table/version/all` | Compare versions | Compare result visible | | ✅ | `version.spec` "visual diff" two-version compare (`version-compare-btn`→compare any version) |
+| `/design/table/version/all` | Revert | Persists; model still reverted after refresh | | ✅ | revert persists; version/approval green |
+| DesignLayout menu | My work orders | → `/design/table/version/order` empty-state guide | | ✅ | `approval.spec` |
+| DesignLayout menu | My approvals | → `.../approval` empty-state guide | | ✅ | `approval.spec` |
+| `/design/table/version/all` | Top bar "My work orders/My approvals" | Direct to order/approval page | W3 slice 3 | ✅ | `approval.spec` "submit work order entry" |
+| `/design/table/version/all` | Version row "Submit work order" | Team not synced row → detail "SQL approval" visible | W3 slice 3 | ✅ | `approval.spec` "submit work order entry" |
+| Work orders/approvals | Submit→approve/reject full flow | Status change visible | requires data | ✅ | `approval.spec`: API seed→UI reject toast→work order re-approve (approve=JDBC too heavy, not covered) |
+| Work orders/approvals | Approve/reject/revoke/re-approve confirm keyboard | Focus primary action; Esc does not persist; Tab trap | ADR-0016 keyboard modal | ✅ | `approval-action-keyboard` |
+| Work orders/approvals | SQL detail Modal.info keyboard | Focus "Got it"; Esc/OK returns to "View SQL"; Tab trap | ADR-0016 keyboard modal | ✅ | `sql-detail-keyboard` |
 
 ---
 
-## W5 — 导入导出 + 数据源
+## W5 — Import/Export + Data Sources
 
-### 侧栏导入/导出页
+### Sidebar import/export pages
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| `/design/table/import/reverse` | 逆向解析提交 | 表进入模型 | ADR-0006 | ✅ | `import-reverse.spec`（MySQL `reverse_demo`） |
-| `/design/table/import/reverse` | 解析失败可读 + 重试 | toast/页内文案；「重新解析」恢复 | ADR-0016 零静默 | ✅ | `reverse-parse-failure`（mock API） |
-| `/design/table/import/pdman` | 上传 PdMan | 模型可见 | | ✅ | `import-pdman.spec` |
-| `/design/table/import/erd` | 上传 ERD | 模型可见 | | ✅ | `import-erd.spec` |
-| `ReverseERWin` | 解析 ERWin 文件 | 组件已删；菜单未挂 | stub | 🗑 | 代码已不存在（grep 零命中） |
-| `/design/table/export/common` | 导出 Markdown | 文件下载 | 无 G6 | ✅ | `export.spec` |
-| `/design/table/export/common` | 导出 HTML/Word/ERD | 下载或明确失败 | | ✅ | `export.spec` HTML+ERD |
-| `/design/table/export/more` | 高级导出 DDL | 有源+表时可进第二步 | ADR-0008 | ✅ | `project-menu`「DDL 第二步」 |
-| `/design/table/export/more` | DDL 终步下载 | 产出 SQL 文件 | | ✅ | `project-menu`「DDL 下载」 |
+| `/design/table/import/reverse` | Reverse parse submit | Tables enter model | ADR-0006 | ✅ | `import-reverse.spec` (MySQL `reverse_demo`) |
+| `/design/table/import/reverse` | Parse failure readable + retry | toast/page copy; "Re-parse" restores | ADR-0016 zero silent | ✅ | `reverse-parse-failure` (mock API) |
+| `/design/table/import/pdman` | Upload PdMan | Model visible | | ✅ | `import-pdman.spec` |
+| `/design/table/import/erd` | Upload ERD | Model visible | | ✅ | `import-erd.spec` |
+| `ReverseERWin` | Parse ERWin file | Component removed; menu not wired | stub | 🗑 | Code no longer exists (grep zero hits) |
+| `/design/table/export/common` | Export Markdown | File download | no G6 | ✅ | `export.spec` |
+| `/design/table/export/common` | Export HTML/Word/ERD | Download or explicit failure | | ✅ | `export.spec` HTML+ERD |
+| `/design/table/export/more` | Advanced export DDL | With source+tables can enter step 2 | ADR-0008 | ✅ | `project-menu` "DDL step 2" |
+| `/design/table/export/more` | DDL final step download | Produces SQL file | | ✅ | `project-menu` "DDL download" |
 
 ### `/databaseConfig`
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| `/databaseConfig` | 新建/保存数据源 | POST dataSources；profile 无 password | ADR-0008 | ✅ | `adr0008-datasource.spec` |
-| `/databaseConfig` | 测试连接 | 成功/失败 toast | | ✅ | `adr0008-datasource.spec`「测试连接」 |
-| `/databaseConfig` | 编辑/删除/批量删 | 列表更新+确认；行内 aria | | ✅ | `adr0008-datasource`「编辑保存 + 删除确认」 |
-| `/databaseConfig` | 删/批删确认键盘 | 首焦「删除」；Esc 归还不删；Tab trap | ADR-0016 键盘弹层 | ✅ | `database-config-delete-keyboard` |
-| `/databaseConfig` | 新建/编辑 Drawer 键盘 | 首焦「连接名称」；Esc 归还触发器；Tab trap | ADR-0016 键盘弹层 | ✅ | `database-config-drawer-keyboard` |
-| `/databaseConfig` | 同步状态钮 | ping + toast + 徽章更新 | | ✅ | `adr0008-datasource`「同步状态」 |
-| `/databaseConfig` 顶栏 | 「统计」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | 顶栏无该按钮（仅表单「需要帮助？」文案） |
-| `/databaseConfig` 顶栏 | 「帮助」按钮 | 已移除（原无 onClick） | 死 affordance | 🗑 | 顶栏无该按钮（仅表单「需要帮助？」文案） |
+| `/databaseConfig` | Create/save data source | POST dataSources; profile no password | ADR-0008 | ✅ | `adr0008-datasource.spec` |
+| `/databaseConfig` | Test connection | Success/failure toast | | ✅ | `adr0008-datasource.spec` "test connection" |
+| `/databaseConfig` | Edit/delete/batch delete | List updates+confirm; row inline aria | | ✅ | `adr0008-datasource` "edit save + delete confirm" |
+| `/databaseConfig` | Delete/batch delete confirm keyboard | Focus "Delete"; Esc cancels without deleting; Tab trap | ADR-0016 keyboard modal | ✅ | `database-config-delete-keyboard` |
+| `/databaseConfig` | Create/edit Drawer keyboard | Focus "Connection name"; Esc returns to trigger; Tab trap | ADR-0016 keyboard modal | ✅ | `database-config-drawer-keyboard` |
+| `/databaseConfig` | Sync status button | ping + toast + badge update | | ✅ | `adr0008-datasource` "sync status" |
+| `/databaseConfig` top bar | "Statistics" button | Removed (originally no onClick) | dead affordance | 🗑 | Top bar has no such button (only form "Need help?" copy) |
+| `/databaseConfig` top bar | "Help" button | Removed (originally no onClick) | dead affordance | 🗑 | Top bar has no such button (only form "Need help?" copy) |
 
 ---
 
-## W6 — 外围与账户
+## W6 — Perimeter & Account
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| DesignLayout 菜单 | 数据域 | `_defaultProps` 已摘；路由保留实验页 | 北极星弱 | ✅ | `data-domain.spec`；深链见「实验功能」 |
-| DesignLayout 菜单 | 查询 | `_defaultProps` 已摘；路由保留实验深链 | exec 忽略所选 DS | ✅ | `design-query.spec` |
-| DesignLayout 菜单 | Chat SQL | 侧栏已隐藏；路由保留实验页 | AI 后置 | ✅ | W6 裁剪导航 |
-| `/design/dataDomain` | 页内类型域树 | 实验；不扩主旅程闭环 | | 📋 | 不扩 E2E 编辑 |
-| `/design/table/query` | 页内运行/计划 | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
-| `/design/table/chatsql` | 页内发送等 | 实验；不作为北极星闭环 | | 📋 | 不扩模型 |
-| `/design/table/setting/defaultField` | 默认字段保存 | toast + 新表带默认字段；仅 code===200；失败回滚可重试 | | ✅ | `default-field.spec`「编辑保存有 toast」；`default-field-failure` |
-| `/design/table/setting/dataType` | 数据类型字典 CRUD | `add`/`update`/`remove` `persist:true`；仅 save code===200；失败窗 keep | | ✅ | `datatype-domains-failure` |
-| `/design/table/setting/dataType` | 逻辑类型 apply 方言映射 | Modal「库方言映射」编 `apply[code].type`；枚举 `buildEnumApply` | | ✅ | `datatype-apply-ux` |
-| `/design/table/setting/dataType` | 新增/编辑类型 Modal 键盘 | 首焦「类型名称」；Esc 归还触发器；Tab trap；提交中禁 Esc | ADR-0016 键盘弹层 | ✅ | `datatype-domains-keyboard` |
-| 项目菜单 / 导入次屏 | ERD·PdMan·DBML / 数据源逆向提交 | `setProjectJson`/`importReverseTable` persist；仅 save code===200；失败不写 store | | ✅ | `import-erd-failure`（文件）；`import-reverse`（happy） |
-| 项目菜单→数据源设置 | 切默认数据源 Radio | `setDefaultDb` 仅 save code===200；失败 toast+列表回滚 | | ✅ | `default-db-failure` |
-| 版本行→回滚 | 确认回滚 | 仅 save code===200 写 store+「成功回滚」关窗；失败 toast；不关窗可重试；禁先 setModules | | ✅ | `version-revert-failure` |
-| 默认项设置→下载模板 | `downloadWordTemplate` | 仅非空 ZIP(`PK`) blob 落盘；空/JSON 错误体 toast、无假 .docx | | ✅ | `word-template-download-failure` |
-| 导出文件→导出Word | `POST /doc/gendocx` | 同 `docxBlobGate`；空/JSON/非 ZIP toast、无假下载 | | ✅ | `word-gendocx-download-failure` |
-| `/design/table/setting/default` | 系统默认项 | 同项目菜单默认项 | | ✅ | `project-menu`「默认项设置」 |
-| `/dataQuery` | 页内运行/CRUD | 实验；失败有 toast；不扩真·DS SELECT | | 📋 | 不扩 JDBC 查询台 |
-| `/account/settings` | 基本资料保存 | toast | | ✅ | `account-settings.spec` |
-| `/account/settings` | 壳键盘 Skip/Tab | Skip→主表单；字段→保存；focus-visible；无 trap | HomeLayout | ✅ | `account-settings-keyboard.spec` |
-| `/account/settings` | 「更换头像」Upload | 改为「头像上传暂未开放」文案 | | ✅ | W6 去假上传 |
-| `/account/settings` | 其它 selectKey 页签 | 可切换有内容 | | ✅ | `account-settings.spec` 头像→security/identification |
-| `/project/group/setting/basic` | 保存基本设置 | toast | GroupLayout/W0 | ✅ | `group-basic-setting.spec` |
-| `/project/group/setting/permission` | 权限组维护 | 成员可见 | access | ✅ | `group-layout-nav`「权限组」 |
-| GroupLayout 菜单 | 返回项目列表 | → `/dataModels` | | ✅ | `group-layout-nav`「返回/打开」 |
-| GroupLayout 菜单 | 打开模型 | → 设计器 | projectId | ✅ | `group-layout-nav`「返回/打开」 |
-| `/*` | 404 页 | 未知路径友好提示 | | ✅ | `not-found.spec` |
+| DesignLayout menu | Data domain | `_defaultProps` removed; route kept for experimental page | weak North Star | ✅ | `data-domain.spec`; deep link see "experimental features" |
+| DesignLayout menu | Query | `_defaultProps` removed; route kept for experimental deep links | exec ignores selected DS | ✅ | `design-query.spec` |
+| DesignLayout menu | Chat SQL | Sidebar hidden; route kept for experimental page | AI deferred | ✅ | W6 trim navigation |
+| `/design/dataDomain` | In-page type domain tree | Experimental; do not expand main journey closure | | 📋 | Do not expand E2E editing |
+| `/design/table/query` | In-page run/schedule | Experimental; failure has toast; do not expand real DS SELECT | | 📋 | Do not expand JDBC query console |
+| `/design/table/chatsql` | In-page send etc. | Experimental; not North Star closure | | 📋 | Do not expand model |
+| `/design/table/setting/defaultField` | Default fields save | toast + new tables get default fields; only code===200; failure rollback retryable | | ✅ | `default-field.spec` "edit save has toast"; `default-field-failure` |
+| `/design/table/setting/dataType` | Logical type dictionary CRUD | `add`/`update`/`remove` `persist:true`; only save code===200; failure modal keep | | ✅ | `datatype-domains-failure` |
+| `/design/table/setting/dataType` | Logical type apply dialect mapping | Modal "Database dialect mapping" edits `apply[code].type`; enum `buildEnumApply` | | ✅ | `datatype-apply-ux` |
+| `/design/table/setting/dataType` | Create/edit type Modal keyboard | Focus "Type name"; Esc returns to trigger; Tab trap; Esc disabled while submitting | ADR-0016 keyboard modal | ✅ | `datatype-domains-keyboard` |
+| Project menu / import secondary pane | ERD·PdMan·DBML / data source reverse submit | `setProjectJson`/`importReverseTable` persist; only save code===200; failure does not write store | | ✅ | `import-erd-failure` (file); `import-reverse` (happy) |
+| Project menu→data source settings | Switch default data source Radio | `setDefaultDb` only save code===200; failure toast+list rollback | | ✅ | `default-db-failure` |
+| Version row→revert | Confirm revert | Only save code===200 writes store+"Revert successful" closes modal; failure toast; modal stays open retryable; forbid setModules first | | ✅ | `version-revert-failure` |
+| Default items settings→download template | `downloadWordTemplate` | Only non-empty ZIP(`PK`) blob saves; empty/JSON error body toast, no fake .docx | | ✅ | `word-template-download-failure` |
+| Export file→export Word | `POST /doc/gendocx` | Same `docxBlobGate`; empty/JSON/non-ZIP toast, no fake download | | ✅ | `word-gendocx-download-failure` |
+| `/design/table/setting/default` | System default items | Same as project menu default items | | ✅ | `project-menu` "default items settings" |
+| `/dataQuery` | In-page run/CRUD | Experimental; failure has toast; do not expand real DS SELECT | | 📋 | Do not expand JDBC query console |
+| `/account/settings` | Basic profile save | toast | | ✅ | `account-settings.spec` |
+| `/account/settings` | Shell keyboard Skip/Tab | Skip→main form; fields→save; focus-visible; no trap | HomeLayout | ✅ | `account-settings-keyboard.spec` |
+| `/account/settings` | "Change avatar" Upload | Changed to "Avatar upload not yet available" copy | | ✅ | W6 remove fake upload |
+| `/account/settings` | Other selectKey tabs | Switchable with content | | ✅ | `account-settings.spec` avatar→security/identification |
+| `/project/group/setting/basic` | Save basic settings | toast | GroupLayout/W0 | ✅ | `group-basic-setting.spec` |
+| `/project/group/setting/permission` | Permission group maintenance | Members visible | access | ✅ | `group-layout-nav` "permission groups" |
+| GroupLayout menu | Back to project list | → `/dataModels` | | ✅ | `group-layout-nav` "back/open" |
+| GroupLayout menu | Open model | → designer | projectId | ✅ | `group-layout-nav` "back/open" |
+| `/*` | 404 page | Unknown path friendly message | | ✅ | `not-found.spec` |
 
 ---
 
-## 其它已覆盖横切
+## Other Covered Cross-Cutting Concerns
 
-| 表面 | 控件 | 预期闭环 | 关联链路 | 状态 | 验证 |
+| Surface | Control | Expected closure | Related flow | Status | Verification |
 |---|---|---|---|---|---|
-| 已删认证路径 | `/login/success` 等 | 前端无页；后端不可用 | 清死代码 | ✅ | `dead-auth-routes.spec` |
-| 画布大项目 | 视口裁剪 | 离屏节点不渲染 | 性能预算 | ✅ | `canvas-scale.spec` |
-| 协作 sync | 远端改动 toast | info / warning +「保存版本」→ version/all 落库（≤1/min） | ADR-0009 | ✅ | `sync-toast.spec`（全路径+节流） |
-| 加载骨架 | 列表/设计器/版本 | `aria-busy` + 可访问名 | | ✅ | `loading.spec` |
-| UX 不变量 | 死 affordance/账密 | 全旅程截图+断言 | | ✅ | `ux-audit.spec` |
-| 空 projectJSON | 团队项目加模型 | 可新增模型 | | ✅ | `empty-projectjson.spec` |
+| Removed auth paths | `/login/success` etc. | No frontend page; backend unavailable | dead code cleanup | ✅ | `dead-auth-routes.spec` |
+| Canvas large project | Viewport culling | Off-screen nodes not rendered | performance budget | ✅ | `canvas-scale.spec` |
+| Collaboration sync | Remote change toast | info / warning + "Save version"→ version/all persist (≤1/min) | ADR-0009 | ✅ | `sync-toast.spec` (full path + throttle) |
+| Loading skeleton | List/designer/version | `aria-busy` + accessible name | | ✅ | `loading.spec` |
+| UX invariants | Dead affordance/credentials | Full journey screenshots + assertions | | ✅ | `ux-audit.spec` |
+| Empty projectJSON | Team project add model | Can add model | | ✅ | `empty-projectjson.spec` |
 
 ---
 
-## 统计（v1 初版）
+## Statistics (v1 initial)
 
-| 状态 | 行数 |
+| Status | Row count |
 |---|---|
 | ✅ | 93 |
 | 🚧 | 0 |
 | 🗑 | 6 |
 | 📋 | 6 |
-| **合计** | **105** |
+| **Total** | **105** |
 
-📋 延期（本阶段不啃）：论坛外链、VIP 角标、dataDomain / query / chatsql / dataQuery。  
-Vision loop：矩阵 🚧=0 时，优先可行动矩阵 📋 或 roadmap 下一 📋（Issue seed / AI），见 `scripts/agent-loop-vision.prompt.md`。
+📋 Deferred (not in this phase): forum external link, VIP badge, dataDomain / query / chatsql / dataQuery.  
+Vision loop: when matrix 🚧=0, prioritize actionable matrix 📋 or roadmap next 📋 (Issue seed / AI), see `scripts/agent-loop-vision.prompt.md`.
