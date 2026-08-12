@@ -18,8 +18,8 @@
 
 - **Locale**：`pages/design/locales/{zh-CN,en-US}.ts` + `intl.ts`（`designIntl()`）；设计器 React 组件硬编码文案 key 化
 - **FE**：关系图/设置/表编辑/导入导出等 `pages/design/**` 接入 `designIntl`；`ReactFlowRelation` Tab 焦点改 `data-edit-part`（避免 aria-label 比较）
-- **Baseline**：CJK 棘轮 **564**（基线 1150 → 564，−586）
-- **验证点**：`yarn check:i18n` PASS（**2014** 键 zh/en 对齐、零重复）；CJK baseline 564；`yarn build` 通过
+- **Baseline**：CJK 棘轮 **489**（基线 979 → 489，−490）
+- **验证点**：`yarn check:i18n` PASS（**2014** 键 zh/en 对齐、零重复）；CJK baseline 489；`yarn build` 通过
 
 #### i18n：store 层 toast/校验抽取（ADR-0033）
 
