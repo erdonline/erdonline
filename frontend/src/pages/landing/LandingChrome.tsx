@@ -1,6 +1,7 @@
 import React, {useEffect, useState} from 'react';
-import {Helmet, Link, useIntl, useLocation} from '@umijs/max';
+import {Helmet, Link, useIntl} from '@umijs/max';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
+import {useLocalePath} from '@/hooks/useLocalePath';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
 import {docsUrl} from '@/utils/docsUrl';
@@ -34,7 +35,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   activeNav,
 }) => {
   const intl = useIntl();
-  const location = useLocation();
+  const {lp, basePath} = useLocalePath();
   const [authed, setAuthed] = useState(false);
   const docsHomeUrl = docsUrl(intl.locale);
   const roadmapUrl = docsUrl(intl.locale, 'docs/roadmap');
@@ -45,8 +46,8 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
 
   const resolvedActiveNav =
     activeNav ??
-    (location.pathname.startsWith('/catalog') ? 'catalog' : undefined) ??
-    (location.pathname.startsWith('/compare') ? 'compare' : undefined);
+    (basePath.startsWith('/catalog') ? 'catalog' : undefined) ??
+    (basePath.startsWith('/compare') ? 'compare' : undefined);
 
   return (
     <div
@@ -81,7 +82,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           </a>
           <a
             className="landingNavBrand landingBrand"
-            href="/"
+            href={lp('/')}
             aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
           >
             <img src="/logo.svg" alt="" width={22} height={22} />
@@ -92,14 +93,14 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             aria-label={intl.formatMessage({ id: 'landing.nav.mainAria' })}
           >
           <a
-            href="/#pillars"
+            href={`${lp('/')}#pillars`}
             data-testid="landing-nav-pillars"
             aria-label={intl.formatMessage({ id: 'landing.nav.pillarsAria' })}
           >
             {intl.formatMessage({ id: 'landing.nav.pillars' })}
           </a>
           <Link
-            to="/catalog"
+            to={lp('/catalog')}
             className={resolvedActiveNav === 'catalog' ? 'landingNavLinkActive' : undefined}
             data-testid="landing-nav-catalog"
             aria-current={resolvedActiveNav === 'catalog' ? 'page' : undefined}
@@ -107,7 +108,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             {intl.formatMessage({ id: 'landing.nav.catalog' })}
           </Link>
           <Link
-            to="/compare"
+            to={lp('/compare')}
             className={resolvedActiveNav === 'compare' ? 'landingNavLinkActive' : undefined}
             data-testid="landing-nav-compare"
             aria-current={resolvedActiveNav === 'compare' ? 'page' : undefined}
@@ -158,8 +159,8 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
           <a href={roadmapUrl} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.roadmap' })}
           </a>
-          <Link to="/compare">{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
-          <Link to="/catalog">{intl.formatMessage({ id: 'landing.footer.catalog' })}</Link>
+          <Link to={lp('/compare')}>{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
+          <Link to={lp('/catalog')}>{intl.formatMessage({ id: 'landing.footer.catalog' })}</Link>
           <a href={ISSUES_URL} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.community' })}
           </a>

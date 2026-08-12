@@ -1,6 +1,7 @@
 import React from 'react';
 import {Link, useIntl} from '@umijs/max';
 import {usePageSeo} from '@/hooks/usePageSeo';
+import {useLocalePath} from '@/hooks/useLocalePath';
 import {docsUrl} from '@/utils/docsUrl';
 import LandingChrome from './LandingChrome';
 import './index.less';
@@ -11,6 +12,7 @@ import './index.less';
  */
 const ComparePage: React.FC = () => {
   const intl = useIntl();
+  const {lp} = useLocalePath();
   const t = (id: string) => intl.formatMessage({ id });
   usePageSeo('landing.compare.seo.title', 'landing.compare.seo.description');
 
@@ -95,7 +97,7 @@ const ComparePage: React.FC = () => {
             >
               <Link
                 className="landingBtnPrimary"
-                to="/demo"
+                to={lp('/demo')}
                 aria-label={t('landing.hero.cta.openDemoAria')}
               >
                 {t('landing.hero.cta.openDemo')}
@@ -111,7 +113,7 @@ const ComparePage: React.FC = () => {
               </a>
               <Link
                 className="landingBtnText"
-                to="/"
+                to={lp('/')}
                 aria-label={t('landing.comparePage.cta.backHomeAria')}
               >
                 {t('landing.comparePage.cta.backHome')}

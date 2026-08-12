@@ -8,6 +8,12 @@
 
 ### 2026-08-12
 
+#### i18n：营销页 `/en/*` locale 路径路由（ADR-0034）
+
+- **Routes**：`/`、`/compare`、`/catalog`、`/demo` 及 `/en`、`/en/compare`、`/en/catalog`、`/en/demo`；`LocaleRoute` 按路径强制 locale，应用内页零改动
+- **SEO**：`usePageSeo` 补 canonical + hreflang；`seo-config.mjs` sitemap / CF `_redirects` / nginx map 收录 `/en/*`
+- **验证点**：`yarn build` + `yarn check:i18n` PASS
+
 #### i18n：`databaseConfig` + `JExcel` + `utils/` message 抽取（ADR-0033）
 
 - **Locale**：`pages/databaseConfig/locales/`、`design.jexcel.*`、`locales/*/utils.ts` 分片

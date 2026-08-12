@@ -2,11 +2,26 @@ export default [
   {
     path: '/',
     layout: false,
+    wrappers: ['@/components/LocaleRoute'],
     component: './landing',
   },
   {
     path: '/compare',
     layout: false,
+    wrappers: ['@/components/LocaleRoute'],
+    component: './landing/compare',
+  },
+  /** ADR-0034: English marketing paths — same components, locale forced by LocaleRoute */
+  {
+    path: '/en',
+    layout: false,
+    wrappers: ['@/components/LocaleRoute'],
+    component: './landing',
+  },
+  {
+    path: '/en/compare',
+    layout: false,
+    wrappers: ['@/components/LocaleRoute'],
     component: './landing/compare',
   },
   {
@@ -18,6 +33,13 @@ export default [
   {
     path: '/demo',
     layout: false,
+    wrappers: ['@/components/LocaleRoute'],
+    redirect: '/s/public-demo',
+  },
+  {
+    path: '/en/demo',
+    layout: false,
+    wrappers: ['@/components/LocaleRoute'],
     redirect: '/s/public-demo',
   },
   {
@@ -68,6 +90,7 @@ export default [
 
   {
     path: '/catalog',
+    wrappers: ['@/components/LocaleRoute'],
     component: '../layouts/CatalogLayout',
     routes: [
       {
@@ -89,6 +112,18 @@ export default [
       {
         path: '/catalog/:id',
         component: './catalog/detail',
+      },
+    ],
+  },
+  /** ADR-0034: English catalog list only (/catalog/:id stays unprefixed) */
+  {
+    path: '/en/catalog',
+    wrappers: ['@/components/LocaleRoute'],
+    component: '../layouts/CatalogLayout',
+    routes: [
+      {
+        path: '/en/catalog',
+        component: './catalog',
       },
     ],
   },
