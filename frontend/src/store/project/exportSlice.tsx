@@ -12,6 +12,7 @@ import produce from "immer";
 import moment from "moment";
 import {CONSTANT} from "@/utils/constant";
 import {docxBlobFailureReason} from "@/utils/docxBlobGate";
+import { storeFmt } from '@/store/storeIntl';
 import {
   EXPORT_DDL_ALL_SEGMENTS,
   fetchExportDdl,
@@ -19,12 +20,12 @@ import {
 } from "@/utils/ddlExportApi";
 import {SNAPSHOT_DB_KEY} from "@/utils/versionConstants";
 
-const WORD_EXPORT_BLOB_COPY = {
-  missing: '服务器未返回文档内容',
-  notBlob: '响应不是文件',
-  empty: '文档内容为空',
-  failDefault: '文档生成失败',
-  notDocx: '返回内容不是 Word 文档（.docx）',
+const WORD_EXPORT_BLOB_KEYS = {
+  missing: 'store.export.word.missing',
+  notBlob: 'store.export.word.notBlob',
+  empty: 'store.export.word.empty',
+  failDefault: 'store.export.word.failDefault',
+  notDocx: 'store.export.word.notDocx',
 } as const;
 
 export type IExportSlice = {
@@ -46,21 +47,21 @@ export interface IExportDispatchSlice {
   exportSQL: () => boolean;
 }
 
-const HTTP_REASON: Record<number, string> = {
-  400: '请求参数有误',
-  401: '登录已失效，请重新登录',
-  403: '当前权限不足',
-  404: '导出接口不存在',
-  500: '服务器发生错误',
-  502: '网关错误',
-  503: '服务暂不可用',
-  504: '网关超时',
+const HTTP_REASON_KEYS: Record<number, string> = {
+  400: 'store.export.http.400',
+  401: 'store.export.http.401',
+  403: 'store.export.http.403',
+  404: 'store.export.http.404',
+  500: 'store.export.http.500',
+  502: 'store.export.http.502',
+  503: 'store.export.http.503',
+  504: 'store.export.http.504',
 };
 
 /** 统一导出失败文案：原因 + 重试引导（零静默失败） */
 export function showExportFailure(type: string, reason: string) {
-  const detail = reason?.trim() || '未知错误';
-  message.error(`${type}导出失败!请重试！出错原因：${detail}`);
+  const detail = reason?.trim() || storeFmt('store.export.unknownError');
+  message.error(storeFmt('store.export.failed', { type, detail }));
 }
 
 type ExportRequestError = {
@@ -73,7 +74,7 @@ type ExportRequestError = {
 async function resolveExportErrorReason(err: unknown): Promise<string> {
   const e = err as ExportRequestError;
   if (!e?.response) {
-    return '网络异常，请检查网络连接后重试';
+    return storeFmt('store.export.networkError');
   }
   const data = e.data;
   if (data instanceof Blob) {
@@ -95,13 +96,24 @@ async function resolveExportErrorReason(err: unknown): Promise<string> {
     }
   }
   const status = e.response?.status;
-  if (status && HTTP_REASON[status]) {
-    return HTTP_REASON[status];
+  if (status && HTTP_REASON_KEYS[status]) {
+    return storeFmt(HTTP_REASON_KEYS[status]);
   }
   if (e.message && e.message !== 'http error') {
     return e.message;
   }
-  return e.response?.statusText || '未知错误';
+  return e.response?.statusText || storeFmt('store.export.unknownError');
+}
+
+/** 函数内格式化，供 docxBlobFailureReason 消费（ADR-0033） */
+function wordExportBlobCopy() {
+  return {
+    missing: storeFmt(WORD_EXPORT_BLOB_KEYS.missing),
+    notBlob: storeFmt(WORD_EXPORT_BLOB_KEYS.notBlob),
+    empty: storeFmt(WORD_EXPORT_BLOB_KEYS.empty),
+    failDefault: storeFmt(WORD_EXPORT_BLOB_KEYS.failDefault),
+    notDocx: storeFmt(WORD_EXPORT_BLOB_KEYS.notDocx),
+  };
 }
 
 /** 强制 reject，避免全局 errorHandler return 后 Promise resolve(undefined) 静默失败 */
@@ -138,7 +150,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         });
       }, (err: unknown) => {
         Modal.destroyAll();
-        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        const reason = err instanceof Error ? err.message : storeFmt('store.export.renderDiagramFailed');
         showExportFailure(type, reason);
       });
     } else if (type === 'Word' || type === 'PDF') {
@@ -165,7 +177,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         }).then(async (res) => {
           if (type === 'Word') {
             // 与 downloadWordTemplate 同闸：非空 + ZIP(PK)；拒 JSON/空/垃圾 blob 假 .docx
-            const reason = await docxBlobFailureReason(res, WORD_EXPORT_BLOB_COPY);
+            const reason = await docxBlobFailureReason(res, wordExportBlobCopy());
             if (reason) {
               Modal.destroyAll();
               showExportFailure(type, reason);
@@ -178,13 +190,13 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
           // PDF 等：至少拒空体与 JSON 错误体（勿用 ZIP 闸，非 docx）
           if (!res) {
             Modal.destroyAll();
-            showExportFailure(type, '服务器未返回文档内容');
+            showExportFailure(type, storeFmt(WORD_EXPORT_BLOB_KEYS.missing));
             return;
           }
           const blob = res as Blob;
           if (blob.size === 0) {
             Modal.destroyAll();
-            showExportFailure(type, '文档内容为空');
+            showExportFailure(type, storeFmt(WORD_EXPORT_BLOB_KEYS.empty));
             return;
           }
           if (blob.type && blob.type.includes('json')) {
@@ -192,9 +204,9 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
             try {
               const text = await blob.text();
               const json = JSON.parse(text) as { msg?: string; message?: string };
-              showExportFailure(type, json.msg || json.message || '文档生成失败');
+              showExportFailure(type, json.msg || json.message || storeFmt(WORD_EXPORT_BLOB_KEYS.failDefault));
             } catch {
-              showExportFailure(type, '文档生成失败');
+              showExportFailure(type, storeFmt(WORD_EXPORT_BLOB_KEYS.failDefault));
             }
             return;
           }
@@ -207,7 +219,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         });
       }, (err: unknown) => {
         Modal.destroyAll();
-        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        const reason = err instanceof Error ? err.message : storeFmt('store.export.renderDiagramFailed');
         showExportFailure(type, reason);
       });
     } else if (type === 'Html') {
@@ -219,7 +231,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         });
       }, (err: unknown) => {
         Modal.destroyAll();
-        const reason = err instanceof Error ? err.message : '渲染关系图失败';
+        const reason = err instanceof Error ? err.message : storeFmt('store.export.renderDiagramFailed');
         showExportFailure(type, reason);
       });
     } else if (type === 'JSON') {
@@ -229,7 +241,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         const secret = get().dispatch.encrypt("AES", originERDJson);
         File.save(secret, `${project}.erd.json`);
       } catch (err: unknown) {
-        const reason = err instanceof Error ? err.message : '序列化失败';
+        const reason = err instanceof Error ? err.message : storeFmt('store.export.serializeFailed');
         showExportFailure(type, reason);
       }
     }
@@ -346,14 +358,14 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
         exportDdlError: undefined,
       });
     } catch (err: unknown) {
-      const reason = err instanceof Error ? err.message : 'DDL 生成失败';
+      const reason = err instanceof Error ? err.message : storeFmt('store.export.ddlGenerateFailed');
       get().dispatch.setExportSliceState({
         ...get().exportSliceState,
         data: '',
         exportDdlLoading: false,
         exportDdlError: reason,
       });
-      message.error(`DDL 预览失败：${reason}`);
+     message.error(storeFmt('store.export.ddlPreviewFailed', { reason }));
     }
   },
   getExportData: () => {
@@ -364,15 +376,15 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     if (data) {
       try {
         File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
-        message.success('导出成功');
+        message.success(storeFmt('store.export.success'));
         return true;
       } catch (err: unknown) {
-        const reason = err instanceof Error ? err.message : '文件写入失败';
+        const reason = err instanceof Error ? err.message : storeFmt('store.export.fileWriteFailed');
         showExportFailure('DDL', reason);
         return false;
       }
     }
-    showExportFailure('DDL', '暂无可导出的 SQL 内容，请检查数据源与导出配置后重试');
+    showExportFailure('DDL', storeFmt('store.export.noSqlContent'));
     return false;
   }
 

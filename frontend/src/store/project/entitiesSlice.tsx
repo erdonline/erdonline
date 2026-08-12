@@ -5,6 +5,7 @@ import { message } from 'antd';
 import useShortcutStore, { PANEL } from '@/store/shortcut/useShortcutStore';
 import * as cache from '@/utils/cache';
 import { snapshotModules } from '@/store/project/canvasHistory';
+import { storeFmt } from '@/store/storeIntl';
 import {
   ackManualPersist,
   persistProjectNow,
@@ -142,12 +143,12 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
     if (!entityData.name && !entityData.title) {
-      showMessage('error', '表名称不能为空');
+      showMessage('error', storeFmt('store.entity.titleRequired'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -159,7 +160,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     );
 
     if (!isEntityNameUnique) {
-      showMessage('error', `表名 "${entityName}" 已存在于项目中`);
+      showMessage('error', storeFmt('store.entity.titleExists', { name: entityName }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -192,7 +193,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.currentEntity = entityName;
         state.currentEntityIndex = state.project.projectJSON.modules[idx].entities.length - 1;
         if (!persist) {
-          showMessage('success', '表添加成功');
+          showMessage('success', storeFmt('store.entity.addSuccess'));
         }
       }));
     };
@@ -213,7 +214,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
     return (async () => {
       snapshotModules(modules);
-      const saved = await persistProjectNow(next, '表保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.entitySaveFailed'));
       if (!saved) {
         return false;
       }
@@ -225,7 +226,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.currentEntity = entityName;
         state.currentEntityIndex = state.project.projectJSON.modules[idx].entities.length - 1;
       }));
-      showMessage('success', '表添加成功');
+      showMessage('success', storeFmt('store.entity.addSuccess'));
       return true;
     })();
   },
@@ -248,19 +249,19 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     );
 
     if (!isNewNameUnique) {
-      showMessage('error', `表名 "${newTitle}" 已存在于项目中`);
+      showMessage('error', storeFmt('store.entity.titleExists', { name: newTitle }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
     const oldModuleIndex = modules.findIndex((m: any) => m.name === oldModuleName);
     if (oldModuleIndex === -1) {
-      showMessage('error', `原模型 "${oldModuleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.oldModuleNotFound', { name: oldModuleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
     const entityIndex = modules[oldModuleIndex].entities.findIndex((e: any) => e.title === oldTitle || e.name === oldTitle);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${oldTitle}" 不存在于模型 "${oldModuleName}" 中`);
+      showMessage('error', storeFmt('store.entity.oldTitleNotFound', { title: oldTitle, moduleName: oldModuleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -342,7 +343,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
 
       // 画布内联改名不弹 toast（UI 即反馈）；跨模块移动等场景仍提示
       if (oldModuleName !== newModuleName && !persist) {
-        showMessage('success', `表 "${oldTitle}" 已成功重命名为 "${newTitle}"`);
+        showMessage('success', storeFmt('store.entity.renameSuccess', { oldTitle, newTitle }));
       }
     };
 
@@ -361,7 +362,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '表保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.entitySaveFailed'));
       if (!saved) {
         return false;
       }
@@ -371,7 +372,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       }));
       ackManualPersist(true);
       if (oldModuleName !== newModuleName) {
-        showMessage('success', `表 "${oldTitle}" 已成功重命名为 "${newTitle}"`);
+        showMessage('success', storeFmt('store.entity.renameSuccess', { oldTitle, newTitle }));
       }
       return true;
     })();
@@ -386,7 +387,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       (t): t is string => typeof t === 'string' && !!t,
     );
     if (!titles.length) {
-      showMessage('error', '未指定要删除的表');
+      showMessage('error', storeFmt('store.entity.deleteNotSpecified'));
       return persist ? Promise.resolve(false) : undefined;
     }
     const titleSet = new Set(titles);
@@ -415,27 +416,27 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     if (!persist) {
       const modules = get().project?.projectJSON?.modules || [];
       if (!modules.some((m: any) => m.name === moduleName)) {
-        showMessage('error', `模型 "${moduleName}" 不存在`);
+        showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
         return;
       }
       snapshotModules(modules);
       set(produce((state: any) => {
         if (!applyRemove(state.project.projectJSON.modules)) {
-          showMessage('error', `模型 "${moduleName}" 不存在`);
+          showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
           return;
         }
-        showMessage('success', '表删除成功');
+        showMessage('success', storeFmt('store.entity.deleteSuccess'));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      showMessage('error', '未打开项目');
+      showMessage('error', storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m.name === moduleName)) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -444,7 +445,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '表保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.entitySaveFailed'));
       if (!saved) {
         return false;
       }
@@ -453,56 +454,56 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      showMessage('success', '表删除成功');
+      showMessage('success', storeFmt('store.entity.deleteSuccess'));
       return true;
     })();
   },
   removeIndex: (moduleName: string, entityTitle: string, index: number) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return;
     }
     const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityTitle }));
       return;
     }
     state.project.projectJSON.modules[moduleIndex].entities[entityIndex].indexs =
       state.project.projectJSON.modules[moduleIndex].entities[entityIndex].indexs.filter((_: any, i: number) => i !== index);
-    showMessage('success', '索引删除成功');
+    showMessage('success', storeFmt('store.entity.indexDeleteSuccess'));
   })),
   updateEntity: (moduleName: string, entityTitle: string, payload: any) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return;
     }
     const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityTitle }));
       return;
     }
     state.project.projectJSON.modules[moduleIndex].entities[entityIndex] = {
       ...state.project.projectJSON.modules[moduleIndex].entities[entityIndex],
       ...payload
     };
-    showMessage('success', '表更新成功');
+    showMessage('success', storeFmt('store.entity.updateSuccess'));
   })),
   copyEntity: (moduleName: string, entityTitle: string) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `未找到名为 "${moduleName}" 的模型`);
+      showMessage('error', storeFmt('store.module.notFoundByName', { name: moduleName }));
       return;
     }
     const entityIndex = state.project.projectJSON.modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle);
     if (entityIndex === -1) {
-      showMessage('error', `在模型 "${moduleName}" 中未找到名为 "${entityTitle}" 的表`);
+      showMessage('error', storeFmt('store.entity.notFoundInModule', { moduleName, title: entityTitle }));
       return;
     }
     const currentEntity = state.project.projectJSON.modules[moduleIndex].entities[entityIndex];
     cache.setItem(ERD_ENTITY_CLIPBOARD, JSON.stringify(currentEntity));
-    showMessage('success', `表 "${entityTitle}" 已成功复制到剪贴板`);
+    showMessage('success', storeFmt('store.entity.copySuccess', { title: entityTitle }));
   })),
   // 剪切表（移出实体）；persist:true 时仅 saveProject code===200 写剪贴板+移出+toast
   cutEntity: (moduleName: string, entityTitle: string, opts?: PersistOpt) => {
@@ -510,14 +511,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `未找到名为 "${moduleName}" 的模型`);
+      showMessage('error', storeFmt('store.module.notFoundByName', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const entityIndex = modules[moduleIndex].entities.findIndex(
       (e: any) => e.title === entityTitle || e.name === entityTitle,
     );
     if (entityIndex === -1) {
-      showMessage('error', `在模型 "${moduleName}" 中未找到名为 "${entityTitle}" 的表`);
+      showMessage('error', storeFmt('store.entity.notFoundInModule', { moduleName, title: entityTitle }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const currentEntity = modules[moduleIndex].entities[entityIndex];
@@ -535,14 +536,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
           return;
         }
         state.project.projectJSON.modules[mi].entities.splice(ei, 1);
-        showMessage('success', `表 "${entityTitle}" 已成功剪切到剪贴板`);
+        showMessage('success', storeFmt('store.entity.cutSuccess', { title: entityTitle }));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      showMessage('error', '未打开项目');
+      showMessage('error', storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const next = produce(project, (draft: any) => {
@@ -554,7 +555,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '表保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.entitySaveFailed'));
       if (!saved) {
         return false;
       }
@@ -564,7 +565,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      showMessage('success', `表 "${entityTitle}" 已成功剪切到剪贴板`);
+      showMessage('success', storeFmt('store.entity.cutSuccess', { title: entityTitle }));
       return true;
     })();
   },
@@ -580,14 +581,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     }
 
     if (!data || !validateEntity(data)) {
-      showMessage('error', '剪贴板中没有有效的表数据');
+      showMessage('error', storeFmt('store.entity.clipboardInvalid'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `未找到名为 "${moduleName}" 的模型`);
+      showMessage('error', storeFmt('store.module.notFoundByName', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -622,14 +623,14 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       set(produce((state: any) => {
         const mi = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
         state.project.projectJSON.modules[mi].entities.push(newEntity);
-        showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
+        showMessage('success', storeFmt('store.entity.pasteSuccess', { entityName, moduleName }));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      showMessage('error', '未打开项目');
+      showMessage('error', storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const next = produce(project, (draft: any) => {
@@ -638,7 +639,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '表保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.entitySaveFailed'));
       if (!saved) {
         return false;
       }
@@ -647,7 +648,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      showMessage('success', `表 "${entityName}" 已成功粘贴到模型 "${moduleName}"`);
+      showMessage('success', storeFmt('store.entity.pasteSuccess', { entityName, moduleName }));
       return true;
     })();
   },
@@ -660,18 +661,18 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const persist = !!opts?.persist;
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
-      showMessage('error', '更新失败：无效的模块名称');
+      showMessage('error', storeFmt('store.entity.invalidModuleName'));
       return persist ? Promise.resolve(false) : undefined;
     }
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const entityIndex = modules[moduleIndex].entities.findIndex((e: any) => e.title === entityTitle || e.name === entityTitle);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityTitle }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -686,7 +687,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     }
 
     if (duplicateFields.length > 0) {
-      showMessage('error', `以下字段名重复: ${duplicateFields.join(', ')}`);
+      showMessage('error', storeFmt('store.entity.duplicateFields', { fields: duplicateFields.join(', ') }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -756,7 +757,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '字段保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.fieldSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -777,20 +778,20 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const persist = !!opts?.persist;
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
-      showMessage('error', '更新失败：无效的模块名称');
+      showMessage('error', storeFmt('store.entity.invalidModuleName'));
       return persist ? Promise.resolve(false) : undefined;
     }
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const entityIndex = modules[moduleIndex].entities.findIndex(
       (e: any) => e.title === entityTitle || e.name === entityTitle,
     );
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityTitle }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -805,7 +806,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     }
 
     if (duplicateIndexes.length > 0) {
-      showMessage('error', `以下索引名重复: ${duplicateIndexes.join(', ')}`);
+      showMessage('error', storeFmt('store.entity.duplicateIndexes', { indexes: duplicateIndexes.join(', ') }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -818,7 +819,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       set(produce((state: any) => {
         applyIndex(state);
       }));
-      showMessage('success', '索引更新成功');
+      showMessage('success', storeFmt('store.entity.indexUpdateSuccess'));
       return;
     }
 
@@ -828,7 +829,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '索引保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.indexSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -837,7 +838,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      showMessage('success', '索引更新成功');
+      showMessage('success', storeFmt('store.entity.indexUpdateSuccess'));
       return true;
     })();
   },
@@ -850,20 +851,20 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     const persist = !!opts?.persist;
     if (typeof moduleName !== 'string') {
       console.error('模块名称必须是字符串', moduleName);
-      showMessage('error', '更新失败：无效的模块名称');
+      showMessage('error', storeFmt('store.entity.invalidModuleName'));
       return persist ? Promise.resolve(false) : undefined;
     }
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const entityIndex = modules[moduleIndex].entities.findIndex(
       (e: any) => e.title === entityTitle || e.name === entityTitle,
     );
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityTitle}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityTitle }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -877,7 +878,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       names.add(n);
     }
     if (duplicates.length > 0) {
-      showMessage('error', `以下触发器名重复: ${duplicates.join(', ')}`);
+      showMessage('error', storeFmt('store.entity.duplicateTriggers', { triggers: duplicates.join(', ') }));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -890,7 +891,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
       set(produce((state: any) => {
         applyTriggers(state);
       }));
-      showMessage('success', '触发器更新成功');
+      showMessage('success', storeFmt('store.entity.triggerUpdateSuccess'));
       return;
     }
 
@@ -900,7 +901,7 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '触发器保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.triggerSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -909,24 +910,24 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      showMessage('success', '触发器更新成功');
+      showMessage('success', storeFmt('store.entity.triggerUpdateSuccess'));
       return true;
     })();
   },
   setCurrentEntity: (moduleName: string, entityName: string) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return;
     }
     const module = state.project.projectJSON.modules[moduleIndex];
     if (!module.entities) {
-      showMessage('error', `模型 "${moduleName}" 没有表`);
+      showMessage('error', storeFmt('store.entity.moduleNoEntities', { name: moduleName }));
       return;
     }
     const entityIndex = module.entities.findIndex((e: any) => e.name === entityName || e.title === entityName);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityName }));
       return;
     }
     state.currentModule = moduleName;
@@ -938,17 +939,17 @@ const EntitiesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>)
   setCurrentModuleAndEntity: (moduleName: string, entityName: string) => set(produce((state: any) => {
     const moduleIndex = state.project.projectJSON.modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      showMessage('error', `模型 "${moduleName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.moduleNotFound', { name: moduleName }));
       return;
     }
     const module = state.project.projectJSON.modules[moduleIndex];
     if (!module.entities) {
-      showMessage('error', `模型 "${moduleName}" 没有表`);
+      showMessage('error', storeFmt('store.entity.moduleNoEntities', { name: moduleName }));
       return;
     }
     const entityIndex = module.entities.findIndex((e: any) => e.name === entityName || e.title === entityName);
     if (entityIndex === -1) {
-      showMessage('error', `表 "${entityName}" 不存在`);
+      showMessage('error', storeFmt('store.entity.entityNotFound', { title: entityName }));
       return;
     }
     state.currentModule = moduleName;

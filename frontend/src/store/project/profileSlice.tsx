@@ -8,6 +8,7 @@ import {confirmDestructive} from "@/utils/destructiveConfirm";
 import request from "@/utils/request";
 import {saveByBlob} from "@/utils/file";
 import {docxBlobFailureReason} from "@/utils/docxBlobGate";
+import { storeFmt } from '@/store/storeIntl';
 import {
   createDatabaseConfig,
   deleteDatabaseConfig,
@@ -100,30 +101,40 @@ function rethrowDownloadError(error: unknown): never {
   throw error;
 }
 
-const WORD_TEMPLATE_BLOB_COPY = {
-  missing: '服务器未返回模板内容',
-  notBlob: '响应不是文件',
-  empty: '模板内容为空',
-  failDefault: '下载模板失败',
-  notDocx: '返回内容不是 Word 模板（.docx）',
+const WORD_TEMPLATE_BLOB_KEYS = {
+  missing: 'store.profile.templateMissing',
+  notBlob: 'store.profile.templateNotBlob',
+  empty: 'store.profile.templateEmpty',
+  failDefault: 'store.profile.templateFailDefault',
+  notDocx: 'store.profile.templateNotDocx',
 } as const;
+
+function wordTemplateBlobCopy() {
+  return {
+    missing: storeFmt(WORD_TEMPLATE_BLOB_KEYS.missing),
+    notBlob: storeFmt(WORD_TEMPLATE_BLOB_KEYS.notBlob),
+    empty: storeFmt(WORD_TEMPLATE_BLOB_KEYS.empty),
+    failDefault: storeFmt(WORD_TEMPLATE_BLOB_KEYS.failDefault),
+    notDocx: storeFmt(WORD_TEMPLATE_BLOB_KEYS.notDocx),
+  };
+}
 
 /** 逆向业务/异常 → 可读短句（禁止对象拼接出 [object Object]） */
 function reverseParseErrorText(source: unknown): string {
   if (source == null) {
-    return '解析失败，请重试';
+    return storeFmt('store.profile.reverseParseFailed');
   }
   if (typeof source === 'string') {
     const t = source.trim();
-    return t || '解析失败，请重试';
+    return t || storeFmt('store.profile.reverseParseFailed');
   }
   if (source instanceof Error) {
     const m = source.message || '';
     if (!m || m === 'Failed to fetch' || /network/i.test(m)) {
-      return '网络异常，请检查网络连接';
+      return storeFmt('store.profile.reverseParseNetwork');
     }
     if (source.name === 'NonJsonApiError') {
-      return '接口返回异常，请确认后端已启动';
+      return storeFmt('store.profile.reverseParseNonJson');
     }
     return m;
   }
@@ -136,7 +147,7 @@ function reverseParseErrorText(source: unknown): string {
       return o.message.trim();
     }
   }
-  return '解析失败，请重试';
+  return storeFmt('store.profile.reverseParseFailed');
 }
 
 
@@ -149,7 +160,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const persist = !!opts?.persist;
     const project = get().project;
     if (!project?.projectJSON?.profile) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -168,7 +179,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '默认字段保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.defaultFieldsSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -176,7 +187,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success('默认字段已更新');
+      message.success(storeFmt('store.profile.defaultFieldsUpdated'));
       return true;
     })();
   },
@@ -232,7 +243,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         });
         if (res?.code !== 200) {
           if (!res?.msg) {
-            message.error('保存默认数据源失败');
+            message.error(storeFmt('store.profile.defaultDatasourceSaveFailed'));
           }
           return false;
         }
@@ -271,7 +282,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       const list = await fetchDatabaseConfigs();
       const prev = list.find((d: any) => d.key === key);
       if (!prev) {
-        message.error('数据源不存在');
+        message.error(storeFmt('store.profile.datasourceNotFound'));
         return false;
       }
       const next = {
@@ -308,7 +319,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   setDefaultDb: async (payload: string): Promise<boolean> => {
     const project = get().project;
     if (!project?.projectJSON) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return false;
     }
     const next = produce(project, (draft: any) => {
@@ -317,7 +328,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       profile.defaultDataSourceId = payload;
       profile.dbs = [];
     });
-    const saved = await persistProjectNow(next, '保存默认数据源失败');
+    const saved = await persistProjectNow(next, storeFmt('store.persist.defaultDatasourceSaveFailed'));
     if (!saved) {
       return false;
     }
@@ -338,13 +349,13 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   updateWordTemplateConfig: async (payload: any): Promise<boolean> => {
     const project = get().project;
     if (!project?.projectJSON?.profile) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return false;
     }
     const next = produce(project, (draft: any) => {
       draft.projectJSON.profile.wordTemplateConfig = payload;
     });
-    const saved = await persistProjectNow(next, 'WORD模板配置保存失败');
+    const saved = await persistProjectNow(next, storeFmt('store.persist.wordTemplateSaveFailed'));
     if (!saved) {
       return false;
     }
@@ -354,13 +365,13 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }),
     );
     ackManualPersist(true);
-    message.success('WORD模板已更新');
+    message.success(storeFmt('store.profile.wordTemplateUpdated'));
     return true;
   },
   updateProfile: async (payload: any): Promise<boolean> => {
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return false;
     }
     const next = produce(project, (draft) => {
@@ -385,7 +396,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       }
       // 业务失败：request 已 toast；失败不写 store（勿伪装成功）
       if (!res?.msg) {
-        message.error('设置失败');
+        message.error(storeFmt('store.common.settingsFailed'));
       }
       return false;
     } catch {
@@ -424,7 +435,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   dbReverseParse: (db: any, dataFormat: string, schema?: string) => set(produce(() => {
     const flag = dataFormat || 'DEFAULT';
     if (!db) {
-      message.error('未选中或配置数据源');
+      message.error(storeFmt('store.profile.datasourceNotConfigured'));
       return;
     }
     get().dispatch.setProfileSliceState({
@@ -483,7 +494,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   retryDbReverseParse: () => {
     const last = get().profileSliceState?.lastReverseParse;
     if (!last?.db) {
-      message.error('无法重试：请返回上一步重新选择数据源');
+      message.error(storeFmt('store.profile.reverseRetryHint'));
       return;
     }
     get().dispatch.dbReverseParse(last.db, last.dataFormat, last.schema);
@@ -524,17 +535,17 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   getSelectedEntity: (): Promise<boolean> => {
     const keys = get().profileSliceState?.keys || [];
     if (keys.length === 0) {
-      message.warning('未选中要导入数据表');
+      message.warning(storeFmt('store.profile.noTablesSelected'));
       return Promise.resolve(false);
     }
     if (keys?.some((k: any) => get().profileSliceState.exists.includes(k.title))) {
       return new Promise((resolve) => {
         confirmDestructive({
-          title: '温馨提示',
-          content: '勾选的数据表中包含模型中已经存在的数据表，继续操作将会覆盖模型中的数据，是否继续？',
-          okText: '确认',
+          title: storeFmt('store.profile.reverseImportConfirmTitle'),
+          content: storeFmt('store.profile.reverseImportConfirmContent'),
+          okText: storeFmt('store.profile.reverseImportConfirmOk'),
           okType: 'danger',
-          cancelText: '取消',
+          cancelText: storeFmt('store.profile.reverseImportConfirmCancel'),
           onOk: async () => {
             const ok = await get().dispatch.importReverseTable();
             resolve(ok);
@@ -559,7 +570,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const project = get().project;
     const dataSource = project?.projectJSON;
     if (!project || !dataSource) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return false;
     }
     const {data, keys} = get().profileSliceState;
@@ -730,7 +741,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       };
     });
 
-    const saved = await persistProjectNow(nextProject, '逆向导入保存失败');
+    const saved = await persistProjectNow(nextProject, storeFmt('store.persist.reverseImportSaveFailed'));
     if (!saved) {
       return false;
     }
@@ -738,7 +749,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       state.project.projectJSON = nextProject.projectJSON;
     }));
     ackManualPersist(true);
-    message.success('操作成功！');
+    message.success(storeFmt('store.common.operationSuccess'));
     return true;
   },
   getDefaultFields: () => {
@@ -773,22 +784,22 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           doctpl: doctpl,
         },
       });
-      const reason = await docxBlobFailureReason(res, WORD_TEMPLATE_BLOB_COPY);
+      const reason = await docxBlobFailureReason(res, wordTemplateBlobCopy());
       if (reason) {
-        message.error(`下载模板出错!出错原因：${reason}！`);
+       message.error(storeFmt('store.profile.templateDownloadFailed', { reason }));
         return false;
       }
       saveByBlob(res as Blob, 'wordTemplate.docx');
       return true;
     } catch (err: unknown) {
-      let reason = '未知错误';
+      let reason = storeFmt('store.export.unknownError');
       const e = err as {
         message?: string;
         data?: unknown;
         response?: { status?: number };
       };
       if (!e?.response) {
-        reason = '网络异常，请检查网络连接后重试';
+        reason = storeFmt('store.export.networkError');
       } else if (e.data instanceof Blob) {
         try {
           const text = await e.data.text();
@@ -805,7 +816,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       } else if (e.message && e.message !== 'http error') {
         reason = e.message;
       }
-      message.error(`下载模板出错!出错原因：${reason}！`);
+     message.error(storeFmt('store.profile.templateDownloadFailed', { reason }));
       return false;
     }
   },

@@ -2,6 +2,7 @@ import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from 'immer';
 import { message } from 'antd';
+import { storeFmt } from '@/store/storeIntl';
 import {
   AppstoreOutlined,
   BookOutlined,
@@ -108,13 +109,13 @@ const DataTypeDomainsSlice = (
     const persist = !!opts?.persist;
     const project = get().project;
     if (!project?.projectJSON) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : false;
     }
 
     const list = datatypeList(project);
     if (duplicateIndex(list, payload.name, payload.code) !== -1) {
-      message.error(`名称[${String(payload.name)}] 或 代码[${String(payload.code)}] 已经存在`);
+     message.error(storeFmt('store.datatype.duplicateNameCode', { name: String(payload.name), code: String(payload.code) }));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -129,7 +130,7 @@ const DataTypeDomainsSlice = (
             domains.datatype = [];
           }
           domains.datatype.push(payload);
-          message.success('提交成功');
+          message.success(storeFmt('store.common.submitSuccess'));
         }),
       );
       return true;
@@ -147,7 +148,7 @@ const DataTypeDomainsSlice = (
     });
 
     return (async () => {
-      const saved = await persistAndAck(next, '数据类型保存失败');
+      const saved = await persistAndAck(next, storeFmt('store.persist.datatypeSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -156,7 +157,7 @@ const DataTypeDomainsSlice = (
           state.project.projectJSON = next.projectJSON;
         }),
       );
-      message.success('提交成功');
+      message.success(storeFmt('store.common.submitSuccess'));
       return true;
     })();
   },
@@ -168,7 +169,7 @@ const DataTypeDomainsSlice = (
     const persist = !!opts?.persist;
     const project = get().project;
     if (!project?.projectJSON) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -178,13 +179,13 @@ const DataTypeDomainsSlice = (
       (raw) => (raw as { code?: unknown }).code === key,
     );
     if (idx < 0) {
-      message.error('数据类型不存在');
+      message.error(storeFmt('store.datatype.notFound'));
       return persist ? Promise.resolve(false) : false;
     }
 
     const { originalCode: _omit, ...rest } = payload;
     if (duplicateIndex(list, rest.name, rest.code, key) !== -1) {
-      message.error(`名称[${String(rest.name)}] 或 代码[${String(rest.code)}] 已经存在`);
+     message.error(storeFmt('store.datatype.duplicateNameCode', { name: String(rest.name), code: String(rest.code) }));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -196,7 +197,7 @@ const DataTypeDomainsSlice = (
             return;
           }
           domains.datatype[idx] = rest;
-          message.success('修改成功');
+          message.success(storeFmt('store.common.updateSuccess'));
         }),
       );
       return true;
@@ -211,7 +212,7 @@ const DataTypeDomainsSlice = (
     });
 
     return (async () => {
-      const saved = await persistAndAck(next, '数据类型保存失败');
+      const saved = await persistAndAck(next, storeFmt('store.persist.datatypeSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -220,7 +221,7 @@ const DataTypeDomainsSlice = (
           state.project.projectJSON = next.projectJSON;
         }),
       );
-      message.success('修改成功');
+      message.success(storeFmt('store.common.updateSuccess'));
       return true;
     })();
   },
@@ -229,13 +230,13 @@ const DataTypeDomainsSlice = (
     const persist = !!opts?.persist;
     const project = get().project;
     if (!project?.projectJSON) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : false;
     }
 
     const list = datatypeList(project);
     if (!list.some((raw) => (raw as { code?: unknown }).code === code)) {
-      message.error('数据类型不存在');
+      message.error(storeFmt('store.datatype.notFound'));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -265,7 +266,7 @@ const DataTypeDomainsSlice = (
     });
 
     return (async () => {
-      const saved = await persistAndAck(next, '数据类型保存失败');
+      const saved = await persistAndAck(next, storeFmt('store.persist.datatypeSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -274,7 +275,7 @@ const DataTypeDomainsSlice = (
           state.project.projectJSON = next.projectJSON;
         }),
       );
-      message.success('删除成功');
+      message.success(storeFmt('store.common.deleteSuccess'));
       return true;
     })();
   },
@@ -287,7 +288,7 @@ const DataTypeDomainsSlice = (
     const persist = !!opts?.persist;
     const project = get().project;
     if (!project?.projectJSON) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -319,7 +320,7 @@ const DataTypeDomainsSlice = (
           } else {
             domains.database[idx] = merged;
           }
-          message.success(idx === -1 ? '方言已添加' : '修改成功');
+         message.success(idx === -1 ? storeFmt('store.datatype.dialectAdded') : storeFmt('store.common.updateSuccess'));
         }),
       );
       return true;
@@ -348,7 +349,7 @@ const DataTypeDomainsSlice = (
     });
 
     return (async () => {
-      const saved = await persistAndAck(next, 'DDL 模板保存失败');
+      const saved = await persistAndAck(next, storeFmt('store.persist.ddlTemplateSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -357,7 +358,7 @@ const DataTypeDomainsSlice = (
           state.project.projectJSON = next.projectJSON;
         }),
       );
-      message.success('DDL 模板已保存');
+      message.success(storeFmt('store.datatype.ddlSaved'));
       return true;
     })();
   },

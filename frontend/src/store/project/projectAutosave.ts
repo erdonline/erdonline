@@ -2,6 +2,7 @@ import { message } from 'antd';
 import * as Save from '@/utils/save';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
+import { storeFmt } from '@/store/storeIntl';
 import {
   handleSaveResponseSideEffects,
   isProjectSaveConflict,
@@ -103,10 +104,10 @@ export function isPersistAutosaveCurrent(seq: number): boolean {
 /** 立即 Save；仅 code===200 为 true；409 弹可行动冲突 Modal */
 export async function persistProjectNow(
   project: ProjectLike | null | undefined,
-  fallbackMsg = '保存失败',
+  fallbackMsg = storeFmt('store.common.saveFailed'),
 ): Promise<boolean> {
   if (!project || JSON.stringify(project) === '{}') {
-    message.error('未打开项目');
+    message.error(storeFmt('store.common.projectNotOpen'));
     return false;
   }
   const seq = preemptAutosave();

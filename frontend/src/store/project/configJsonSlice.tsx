@@ -4,6 +4,7 @@ import produce from 'immer';
 import _ from 'lodash';
 import { message } from 'antd';
 import * as Save from '@/utils/save';
+import { storeFmt } from '@/store/storeIntl';
 
 export type IConfigJsonSlice = Record<string, never>;
 
@@ -30,7 +31,7 @@ const ConfigJsonSlice = (
   setUpgradeType: async (value: UpgradeTypePayload): Promise<boolean> => {
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return false;
     }
     const next = produce(project, (draft) => {
@@ -55,7 +56,7 @@ const ConfigJsonSlice = (
       }
       // 业务失败：request 已 toast；失败不写 store（勿伪装成功）
       if (!res?.msg) {
-        message.error('设置失败');
+        message.error(storeFmt('store.common.settingsFailed'));
       }
       return false;
     } catch {
