@@ -1,80 +1,80 @@
-# 产品能力对照表（Capability Map）
+# Product capability map
 
-> 读者：排期者与 UI 切片实现者。回答一个问题：**后端/SQL 已经能做什么，UI 暴露到哪，缺口是什么**。
-> 缺口分级：**missing**（后端能做，UI 不可达）· **thin**（有入口但浅/难找）· **overbuilt**（UI 投入超过能力价值）· ✅（暴露充分，勿重复投资）。
-> 维护：每轮迭代收尾核对本表；UI 排期优先消灭 missing，其次 thin，overbuilt 只删不增。
+> Audience: schedulers and UI slice implementers. Answers one question: **what backend/SQL can already do, what the UI exposes, and where the gaps are**.
+> Gap grading: **missing** (backend can do it, UI unreachable) · **thin** (entry exists but shallow/hard to find) · **overbuilt** (UI investment exceeds capability value) · ✅ (fully exposed—do not re-invest).
+> Maintenance: reconcile this table at each iteration close; UI scheduling prioritizes eliminating missing, then thin; overbuilt—delete only, no additions.
 
-## 版本与审计（北极星直接相关）
+## Versions and audit (North Star direct)
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| 保存版本（快照） | `POST /hisProject/save`（HisProjectController → db_change） | 设计器顶栏「保存版本」常驻 ✅；示例项目通知卡直达 ✅ | ✅ |
-| 版本列表 + 多标签筛选 | `POST /dbChange` 分页；`db_change.tag`（Flyway V1 加列、V2 多标签放宽） | 设计器 version tab：antd List（W3 切片 2）+ tag chips + 筛选 + 空态「保存第一个版本」✅ | ✅ |
-| 版本 diff | CompareVersion / VersionDiffPanel | version 页行操作 ✅ | ✅（屏上） |
-| 跨版本 diff **导出** | 同 diff 数据，`File.save` 管道 | CompareVersion「导出」→ Markdown 变更清单（模型变更+SQL）/ 仅 SQL ✅（W3 切片 1） | ✅ |
-| 版本回滚 | RevertVersion → `hisProject/load` + save | version 页行操作「回滚」✅ | ✅ |
-| 版本 → 数据源同步 | `POST /connector/dbsync` / `rebaseline` / `checkdbversion` / `updateVersion` | version 页同步状态 tag + SyncConfig/InitVersion ✅ | ✅ |
-| 版本删除 / 重建 | `hisProject/delete{,All}` | version 页，二次确认 ✅ | ✅ |
+| Save version (snapshot) | `POST /hisProject/save` (HisProjectController → db_change) | Designer top bar "Save version" always visible ✅; example project notice card shortcut ✅ | ✅ |
+| Version list + multi-tag filter | `POST /dbChange` paginated; `db_change.tag` (Flyway V1 column, V2 multi-tag relaxed) | Designer version tab: antd List (W3 slice 2) + tag chips + filter + empty state "Save first version" ✅ | ✅ |
+| Version diff | CompareVersion / VersionDiffPanel | Version page row action ✅ | ✅ (on-screen) |
+| Cross-version diff **export** | Same diff data, `File.save` pipeline | CompareVersion "Export" → Markdown change list (model changes + SQL) / SQL only ✅ (W3 slice 1) | ✅ |
+| Version revert | RevertVersion → `hisProject/load` + save | Version page row action "Revert" ✅ | ✅ |
+| Version → datasource sync | `POST /connector/dbsync` / `rebaseline` / `checkdbversion` / `updateVersion` | Version page sync status tag + SyncConfig/InitVersion ✅ | ✅ |
+| Version delete / rebuild | `hisProject/delete{,All}` | Version page, double confirm ✅ | ✅ |
 
-## 分享与传播
+## Share and spread
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| 只读分享创建 | `POST /share/create`（token 匿名读，ADR-0007） | 设计器顶栏「分享」一键复制 ✅ | ✅ |
-| 分享**吊销 / 链接管理** | `POST /share/revoke` | 设计器顶栏「分享」弹层：创建/复制/吊销 ✅（W2 切片 1） | ✅ |
-| 分享 → fork | `POST /share/{token}/fork` | 分享页 fork + autofork ✅ | ✅ |
-| 分享失效态 | `GET /share/{token}` | 无效/吊销 → `AuthBrandShell`「分享不可用」+ 主 CTA「打开示例 demo」+「返回首页」✅（ADR-0016 品牌对齐；W5 切片 2 能力保留） | ✅ |
-| 分享只读空态 | 无模型 / 模块 0 表 | `ShareEmptyState`（`ErdEmptyDiagram` + 主 CTA）✅ | ✅ |
-| 分享成功态顶栏 | 只读 `/s/:token` | 64px `erd-chrome-header` + logo + 项目名 + Fork CTA + 登录/注册链 ✅（W5 切片 3） | ✅ |
-| 404 / 403 页 | 路由 `/*` / `403.tsx` | `AuthBrandShell` +「打开示例 demo」+「返回首页」✅（ADR-0016 品牌对齐；W5 切片 1 能力保留） | ✅ |
-| 登录/注册品牌壳 | `/login` `/register` | 左 40% 暗色品牌面板 + 右 Form；`--erd-*`；无 `bg2`/`#1677FF` ✅（W5 切片 4） | ✅ |
-| 落地页色板 | `/` | 深色门面构图不变；less 只读 `--erd-*`；次屏/对照表次密距 ✅（2026-08-03） | ✅ |
-| 竞品对照 | `/compare`（落地摘要 `#compare`） | 诚实对照表 + demo/自部署 CTA；`LandingChrome` 共用壳；次密距 ✅ | ✅ |
+| Read-only share create | `POST /share/create` (token anonymous read, ADR-0007) | Designer top bar "Share" one-click copy ✅ | ✅ |
+| Share **revoke / link management** | `POST /share/revoke` | Designer top bar "Share" modal: create/copy/revoke ✅ (W2 slice 1) | ✅ |
+| Share → fork | `POST /share/{token}/fork` | Share page fork + autofork ✅ | ✅ |
+| Share invalid state | `GET /share/{token}` | Invalid/revoked → `AuthBrandShell` "Share unavailable" + primary CTA "Open example demo" + "Back to home" ✅ (ADR-0016 brand aligned; W5 slice 2 capability retained) | ✅ |
+| Share read-only empty state | No model / module 0 tables | `ShareEmptyState` (`ErdEmptyDiagram` + primary CTA) ✅ | ✅ |
+| Share success top bar | Read-only `/s/:token` | 64px `erd-chrome-header` + logo + project name + Fork CTA + login/register links ✅ (W5 slice 3) | ✅ |
+| 404 / 403 pages | Routes `/*` / `403.tsx` | `AuthBrandShell` + "Open example demo" + "Back to home" ✅ (ADR-0016 brand aligned; W5 slice 1 capability retained) | ✅ |
+| Login/register brand shell | `/login` `/register` | Left 40% dark brand panel + right Form; `--erd-*`; no `bg2`/`#1677FF` ✅ (W5 slice 4) | ✅ |
+| Landing palette | `/` | Dark facade layout unchanged; less reads `--erd-*` only; below-fold/comparison secondary density ✅ (2026-08-03) | ✅ |
+| Competitor comparison | `/compare` (landing summary `#compare`) | Honest comparison table + demo/self-host CTAs; shared `LandingChrome` shell; secondary density ✅ | ✅ |
 
-## 协作
+## Collaboration
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| presence + 增量 sync | WsController / SocketIO（ADR-0009） | 设计器顶栏 CollabPresence ✅；远端 sync 提示直达「保存版本」✅ | ✅ |
-| 团队/权限三级 | GroupProject / *Privilege 系列 | project/group 子页 ✅ | thin（W4 平移时理顺） |
+| presence + incremental sync | WsController / SocketIO (ADR-0009) | Designer top bar CollabPresence ✅; remote sync toast shortcut to "Save version" ✅ | ✅ |
+| Team/permission three tiers | GroupProject / *Privilege series | project/group subpages ✅ | thin (straighten during W4 migration) |
 
-## 数据进出
+## Data in/out
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| 逆向解析（四库） | `POST /connector/dbReverseParse` / `dbReverseMeta`（ADR-0006） | 设计器 import tab ✅；边 chip 展示约束名/ON DELETE ✅ | ✅（复合 FK `fields[]` 仍延期 ADR-0011；`constraintName`/`deleteRule`/`updateRule` ✅） |
-| DDL 导出 | `POST /projectDdl/export`（ProjectDdlController → Freemarker）；单表 `POST /projectDdl/table`；模板预览 `POST /projectDdl/previewTemplate`（ADR-0031） | 设计器 export tab；表属性 DDL 标签；DDL 模板弹窗预览 ✅ | ✅ |
-| Word 文档导出 | `POST /doc/gendocx`（classpath 模板 + MinIO 缺席降级 ✅） | export 流程内 ✅ | ✅ |
-| 数据源管理 | DataSourcesController + `connector/ping` | databaseConfig 页（状态/ping/批量删）✅ | thin（W4 摘 ProTable 平移） |
+| Reverse parse (four DBs) | `POST /connector/dbReverseParse` / `dbReverseMeta` (ADR-0006) | Designer import tab ✅; edge chip shows constraint name/ON DELETE ✅ | ✅ (composite FK `fields[]` still deferred ADR-0011; `constraintName`/`deleteRule`/`updateRule` ✅) |
+| DDL export | `POST /projectDdl/export` (ProjectDdlController → Freemarker); single table `POST /projectDdl/table`; template preview `POST /projectDdl/previewTemplate` (ADR-0031) | Designer export tab; table properties DDL tab; DDL template modal preview ✅ | ✅ |
+| Word doc export | `POST /doc/gendocx` (classpath template + MinIO absent fallback ✅) | In export flow ✅ | ✅ |
+| Datasource management | DataSourcesController + `connector/ping` | databaseConfig page (status/ping/batch delete) ✅ | thin (W4 ProTable migration) |
 
-## 审批与 SQL 信任链
+## Approval and SQL trust chain
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| 工单提交/审批 | ApprovalController CRUD；通过必须先 SQL 成功再落库/sync（✅ 已修） | 设计器 version 页：未同步行「提交工单」→ 详情「SQL审批」；工具栏/侧栏「我的工单」「我的审批」直达 ✅（W3 切片 3） | ✅ |
-| 在线 SQL（只读白名单） | `POST /connector/sqlexec`（jsqlparser，仅 SELECT/EXPLAIN/SHOW/DESC） | UI 实验页已删（W2）；后端接口保留供版本审批 SQL | **overbuilt 已裁**：control-matrix 📋 延期，本阶段不恢复查询台 |
+| Ticket submit/approve | ApprovalController CRUD; pass requires SQL success before persist/sync (✅ fixed) | Designer version page: unsynced row "Submit ticket" → detail "SQL approval"; toolbar/sidebar "My tickets" / "My approvals" shortcuts ✅ (W3 slice 3) | ✅ |
+| Online SQL (read-only whitelist) | `POST /connector/sqlexec` (jsqlparser, SELECT/EXPLAIN/SHOW/DESC only) | UI experiment page removed (W2); backend API kept for version approval SQL | **overbuilt trimmed**: control-matrix 📋 deferred; no query console this phase |
 
-## 数据字典 / 治理
+## Data dictionary / governance
 
-| 能力 | API / SQL | UI 暴露面 | 缺口 |
+| Capability | API / SQL | UI surface | Gap |
 |---|---|---|---|
-| 字段库（data_dict） | `DataDictController` CRUD + `/dataDict/tree` + `POST /dataDict/{id}/apply` | 项目菜单「设置 → 字段库」；表设计「从字段库写入」Modal（含管理深链）；画布工具栏 Drawer；设置 `/setting/fieldLibrary` | ✅ MVP（ADR-0032）；**不含** MCP 写库 |
-| 数据类型字典（dataTypeDomains） | 项目 JSON `dataTypeDomains`（逻辑类型 / 枚举 / apply 方言） | 项目菜单「设置 → 数据类型字典」；设置 `/setting/dataType`；DDL 模板弹层 | ✅ 菜单可达 |
+| Field library (data_dict) | `DataDictController` CRUD + `/dataDict/tree` + `POST /dataDict/{id}/apply` | Project menu "Settings → Field library"; table design "Insert from field library" Modal (incl. manage deep link); canvas toolbar Drawer; settings `/setting/fieldLibrary` | ✅ MVP (ADR-0032); **no** MCP write |
+| Data type dictionary (dataTypeDomains) | Project JSON `dataTypeDomains` (logical types / enums / apply dialect) | Project menu "Settings → Data type dictionary"; settings `/setting/dataType`; DDL template modal | ✅ menu reachable |
 
-## 死壳与过度建设（只删不增）
+## Dead shells and overbuild (delete only, no additions)
 
-| 对象 | 现状 | 处置 |
+| Object | Status | Action |
 |---|---|---|
-| `pages/design/query`、`pages/dataQuery` | 实验页延期 | W2 切片 2：源文件 + QueryLeftContent/dialog/query/useQueryStore 已删；路由 404 |
-| `pages/design/chatsql` | ADR-0012 明说不做营销包装 | W2 切片 2：源文件已删；依赖 `@chatui/core` 移除 |
-| `pages/design/dataDomain` | 实验页延期 | W2 切片 2：源文件已删；路由 404 |
-| `pages/design/test`、`pages/test` | 演示/测试残留 | W2 切片 1：已删（`pages/JExcel` 为表编辑组件，保留） |
-| Home `components/Radar/`、`_mock.ts`、`fakeChartData`、未渲染 `Pie`、重复「项目概览」、slogan 轮转 | 死代码 | W2 切片 2：已删；`@ant-design/charts` 移除 |
-| `account/settings/geographic`（province/city json） | 无后端字段 | W2 切片 1：已删 |
-| `plaza/Material*` 后端控制器 | 前端零引用 | ✅ 已删（2026-08-02；Java/XML/MapperScan；表不动） |
-| `dialog/import/ReversePDM`（「玩命开发中」） | 菜单零引用 | ✅ 已删（2026-08-02） |
-| `pages/design/import/index.tsx` 空壳 | 路由不引用 | ✅ 已删；`component/*` 仍服务 sider 深链，勿整目录删 |
+| `pages/design/query`, `pages/dataQuery` | Experiment deferred | W2 slice 2: sources + QueryLeftContent/dialog/query/useQueryStore deleted; route 404 |
+| `pages/design/chatsql` | ADR-0012 says no marketing wrapper | W2 slice 2: sources deleted; `@chatui/core` removed |
+| `pages/design/dataDomain` | Experiment deferred | W2 slice 2: sources deleted; route 404 |
+| `pages/design/test`, `pages/test` | Demo/test residue | W2 slice 1: deleted (`pages/JExcel` is table edit component, kept) |
+| Home `components/Radar/`, `_mock.ts`, `fakeChartData`, unrendered `Pie`, duplicate "Project overview", slogan rotation | Dead code | W2 slice 2: deleted; `@ant-design/charts` removed |
+| `account/settings/geographic` (province/city json) | No backend field | W2 slice 1: deleted |
+| `plaza/Material*` backend controllers | Zero frontend refs | ✅ deleted (2026-08-02; Java/XML/MapperScan; tables untouched) |
+| `dialog/import/ReversePDM` ("under heavy development") | Zero menu refs | ✅ deleted (2026-08-02) |
+| `pages/design/import/index.tsx` empty shell | Route not referenced | ✅ deleted; `component/*` still serves sider deep links—do not delete whole directory |
 
-## 北极星对齐结论
+## North Star alignment conclusion
 
-直接服务「每周版本保存」的 UI 缺口：分享吊销/管理已 ✅（W2 切片 1）；设计器 chrome 左树去重 + 画布空间回收已 ✅（W2 切片 3）；设计器内 `calc(100vh)` 清零（树/版本页 flex）已 ✅（W2 切片 4）；跨版本 diff 导出已 ✅（W3 切片 1）；version ProList→List + 空态 CTA 已 ✅（W3 切片 2）；审批/工单入口理顺已 ✅（W3 切片 3）。W5 share 顶栏 ✅（切片 3）；登录/注册品牌壳 ✅（切片 4）。
+UI gaps directly serving "weekly version saves": share revoke/manage ✅ (W2 slice 1); designer chrome left tree dedup + canvas space reclaimed ✅ (W2 slice 3); designer `calc(100vh)` zeroed (tree/version flex) ✅ (W2 slice 4); cross-version diff export ✅ (W3 slice 1); version ProList→List + empty CTA ✅ (W3 slice 2); approval/ticket entry straightened ✅ (W3 slice 3). W5 share top bar ✅ (slice 3); login/register brand shell ✅ (slice 4).

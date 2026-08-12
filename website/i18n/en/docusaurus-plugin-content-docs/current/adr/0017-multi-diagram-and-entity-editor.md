@@ -32,7 +32,7 @@ Model design page / table design page flagged by user: tone inconsistent with `e
    - Entities and associations still unique in `module.entities` / `module.associations` (single source of truth, ADR-0001 unchanged).
    - Legacy `module.graphCanvas` treated as "main relation diagram" layout, lazy migrate into `diagrams[0]`; projects without `diagrams` behavior fully unchanged (backward compatible, rollback-safe).
    - Single selector: `getActiveDiagram(module, diagramId?)` (`frontend/src/utils/diagram.ts`); write path `updateGraphCanvasLayout` writes `diagrams` only.
-   - UI: canvas toolbar diagram switcher (Select + new/rename); left tree "Relations" child nodes = diagram list (main diagram `tree-open-relation`); tab: `关系图-${module}` / `关系图-${module}-${diagramId}`.
+   - UI: canvas toolbar diagram switcher (Select + new/rename); left tree "Relations" child nodes = diagram list (main diagram `tree-open-relation`); tab: `relation-diagram-${module}` / `relation-diagram-${module}-${diagramId}`.
    - `includeEntities` / delete main diagram: types and API reserved; filter UI and Frame render in Phase 2b.
    - Same-module relation diagram tab in-place switch (`switchRelationDiagram`), toolbar and left tree don't stack multiple canvases.
 

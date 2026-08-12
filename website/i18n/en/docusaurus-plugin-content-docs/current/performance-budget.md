@@ -7,7 +7,7 @@
 | Metric | Budget | Current baseline | Measurement |
 |---|---|---|---|
 | `frontend/dist` total size | ≤ 20 MB | ~14 MB | `du -sh frontend/dist` (after `yarn build`) |
-| Smoke “login → create → enter designer” | ≤ 30 s | ~10.4 s (local) | `npx playwright test tests/e2e/smoke.spec.ts -g "登录 → 新建"` |
+| Smoke “login → create → enter designer” | ≤ 30 s | ~10.4 s (local) | `npx playwright test tests/e2e/smoke.spec.ts` (third test: login → new project → designer) |
 | Relation diagram full journey E2E | ≤ 60 s | ~26 s (local) | `npx playwright test tests/e2e/relation.spec.ts` |
 | **Activation: landing → demo → login → example → first version** | ≤ 30 s (wall clock, timed segments) | **~3.5 s** (local 2026-08-02) | `npx playwright test tests/e2e/activation-30s.spec.ts --project=chromium` |
 | Designer hot-path `console.log` | 0 (all src `log/debug/info`) | ✅ cleared | `rg 'console\.(log\|debug\|info)' src` |

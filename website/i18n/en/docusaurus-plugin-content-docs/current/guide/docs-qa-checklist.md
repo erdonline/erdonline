@@ -18,7 +18,7 @@ Confirm:
 2. Sidebar **Contribute & engineering** is **collapsed by default**
 3. Search hits guide titles (DBML, reverse, self-host); blog is indexed
 4. Footer has Demo / Docs / GitHub (not copyright-only)
-5. Locale dropdown switches **简体中文 / English**; under EN, guides **and** deployment / data-format / security-model / contrib docs / ADRs are English (not Chinese fallback)
+5. Locale dropdown switches **Simplified Chinese (zh-Hans) / English**; under EN, guides **and** deployment / data-format / security-model / contrib docs / ADRs are English (not Chinese fallback)
 6. Production build loads Baidu Tongji (`hm.baidu.com`); SPA navigations still track
 
 ## B. User journey (~15 minutes)

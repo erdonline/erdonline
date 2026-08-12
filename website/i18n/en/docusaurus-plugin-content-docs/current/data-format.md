@@ -63,7 +63,7 @@ Multiple “views” of the same module schema: entities/associations exist once
 ```json
 {
   "id": "main",
-  "name": "主关系图",
+  "name": "Main relation diagram",
   "includeEntities": ["AUTH_USER", "AUTH_ROLE"],
   "layout": { "nodes": [{ "id": "AUTH_USER", "x": 0, "y": 0 }] },
   "groups": []
@@ -85,7 +85,7 @@ Visual grouping rectangle; **explicit member list**, no RF parent reparenting. W
 ```json
 {
   "id": "f_abc",
-  "name": "鉴权域",
+  "name": "Auth domain",
   "color": "rgba(47, 143, 123, 0.10)",
   "x": 40,
   "y": 40,
@@ -227,7 +227,7 @@ Connection secrets (JDBC `url` / `username` / `password` / `driver`) have **one 
 {
   "datatype": [
     {
-      "name": "标识号",
+      "name": "Identifier",
       "code": "IdOrKey",
       "apply": {
         "MYSQL": { "type": "VARCHAR(32)" },
@@ -294,7 +294,7 @@ Designer “Import → Import DBML” parses [DBML](https://dbml.dbdiagram.io/) 
 | `Ref` / column `[ref: …]` | `associations[]` (`1:1` / `1:n` / `n:n`; `from`=FK-holding side) |
 | `indexes { … }` | `entities[].indexs[]` (`name` / `isUnique` / `fields[]`; skip pk indexes; column names and expressions both in `fields[]`, export expressions with backticks) |
 | `Enum` / value `[note: …]` | `dataTypeDomains.datatype[]`: `kind: "enum"`, `code`/`name`=enum name, `values[]`=`{ name, chnname? }`; column type writes `fields[].type = code`; `apply.MYSQL`=`ENUM('a','b')`, `PostgreSQL`=type name, other dialects string fallback |
-| `Project` name / Note | module `name` / `chnname` (default `DBML` / `DBML导入`) |
+| `Project` name / Note | module `name` / `chnname` (default `DBML` / `DBML import`) |
 
 **Not mapped**: triggers, table-level checks, composite FK; Enum **level** Note (`@dbml/core` 9.x does not parse `[note]` / `Note:` on Enum, only value-level note ↔ `values[].chnname`). Import merge path reuses `importModuleAndProfile` (same as ERD/PdMan reverse-engineering, includes `fixModules`; datatype union by `code`).
 

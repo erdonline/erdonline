@@ -1,45 +1,45 @@
-# ADR-0028：官方模板广场（Open VSX 模式）
+# ADR-0028: Official template catalog (Open VSX model)
 
-- 状态：**✅ 已接受**（MVP 2026-08-09）
-- 决策者：项目维护者（推翻 vision「不做广场/社交」专项解封）
-- 前置：[ADR-0007](./0007-readonly-project-share.md) 分享 fork 脱敏；[ADR-0013](./0013-public-api-mcp.md) PAT scope；[ADR-0021](./0021-idp-federation-google-wechat.md) GitHub 身份
+- Status: **✅ Accepted** (MVP 2026-08-09)
+- Decision makers: Project maintainers (overrides vision "no plaza/social" with targeted exception)
+- Prerequisites: [ADR-0007](./0007-readonly-project-share.md) share fork scrubbing; [ADR-0013](./0013-public-api-mcp.md) PAT scopes; [ADR-0021](./0021-idp-federation-google-wechat.md) GitHub identity
 
-## 背景
+## Context
 
-新用户「创建项目」空态转化低；官方示例 projectJSON 藏在代码/文档里，不可浏览、不可一键安装。Figma Community 类比：浏览 → 预览 → 安装（=fork）→ 编辑 → 存版本。历史 vision 写「不做广场/社交」；维护者拍板解封 **官方 networked 模板 catalog**（非 LLM 模型市场）。
+New-user "create project" empty-state conversion is low; official example projectJSON hides in code/docs—not browsable, not one-click install. Figma Community analogy: browse → preview → install (=fork) → edit → save version. Historical vision said "no plaza/social"; maintainers approved **official networked template catalog** (not an LLM model marketplace).
 
-与 ADR-0007 关系：分享链接服务「只读传播」；模板广场服务「可发现 + 可安装起跑」。二者复用 `ProjectShareServiceImpl.sanitizeProjectJson` 脱敏纪律。
+Relation to ADR-0007: share links serve "read-only spread"; template catalog serves "discoverable + installable starting point". Both reuse `ProjectShareServiceImpl.sanitizeProjectJson` scrubbing discipline.
 
-## 决策
+## Decision
 
-| 议题 | 决策 |
+| Topic | Decision |
 |---|---|
-| 形态 | **Open VSX 模式**：catalog 代码 MIT 在主仓；`ERD_CATALOG_API_URL` 可选（空 = 仅本地 Flyway/种子 offline）；不做闭源 cloud fork |
-| 数据 | Flyway `catalog_template` / `catalog_rating` / `catalog_install` / `catalog_submission`；官方种子来自 `schema/examples` + `backend/.../catalog-seed/` |
-| API | 浏览器 `GET/POST /catalog/v1/**`（会话 JWT）；MCP/PAT `GET/POST /api/v1/catalog/**`（读 `projects:read`，安装 `projects:write`） |
-| 创建 IA | `/project/new` → `/catalog`；Home CTA、空态「从模板创建」；首 tile = 空白项目 |
-| 发现面 IA | **`/catalog` 公开 CatalogLayout**（Landing 品牌壳，非 HomeLayout）；匿名浏览；安装/评分/评论须登录；维护者审核 `/catalog/review` 须登录 |
-| 安装 | `POST …/install` → 每次调用 `initPersonProject` 新建个人项目 + fork 等价 scrubbing；tags 含 `sourceTemplateId=<id>`；**同一用户可多次安装**（Figma Community 模式，非静默复用旧项目） |
-| 社交 P0 | 评分（须至少安装过一次，1 票/用户）；安装数**累计**（含同一用户多次安装）；作者页 `GET …/creators/{handle}`（GitHub handle） |
-| 社交 P1 | 评论（须安装+限频）、举报自动隐藏、作者开关/限制评论者、hot 排序 + 官方/社区筛选 → ✅ 2026-08-09 |
-| 发布 | 项目创建人提交 → `pending` → 维护者（**须显式配置** `erd.catalog.maintainer-usernames` / `ERD_CATALOG_MAINTAINER_USERNAMES`；prod 默认空，dev 可含 `admin`）approve/reject。不要求绑定 GitHub；审核通过时作者 handle 优先 GitHub → 账号 **username** → nickname；Flyway V22 回填历史 `community-*` |
-| MCP | `list_templates` / `get_template` / `install_template` / `get_creator`；**无** `publish_template`；**无** PAT 评分/评论 |
-| 明确不做 | 付费模板、LLM 生成、模板版本继承、follow/DM、Agent 自动发布 |
+| Shape | **Open VSX model**: catalog code MIT in main repo; optional `ERD_CATALOG_API_URL` (empty = Flyway/seed offline only); no closed-source cloud fork |
+| Data | Flyway `catalog_template` / `catalog_rating` / `catalog_install` / `catalog_submission`; official seeds from `schema/examples` + `backend/.../catalog-seed/` |
+| API | Browser `GET/POST /catalog/v1/**` (session JWT); MCP/PAT `GET/POST /api/v1/catalog/**` (read `projects:read`, install `projects:write`) |
+| Create IA | `/project/new` → `/catalog`; Home CTA, empty state "Create from template"; first tile = blank project |
+| Discovery IA | **Public `/catalog` CatalogLayout** (Landing brand shell, not HomeLayout); anonymous browse; install/rating/review require login; maintainer review `/catalog/review` requires login |
+| Install | `POST …/install` → each call `initPersonProject` new personal project + fork-equivalent scrubbing; tags include `sourceTemplateId=<id>`; **same user may install multiple times** (Figma Community model, not silent reuse of old project) |
+| Social P0 | Ratings (must have installed once, 1 vote/user); install count **cumulative** (incl. same user multiple installs); author page `GET …/creators/{handle}` (GitHub handle) |
+| Social P1 | Comments (install + rate limit), report auto-hide, author toggle/restrict commenters, hot sort + official/community filter → ✅ 2026-08-09 |
+| Publish | Project creator submits → `pending` → maintainer (**must explicitly configure** `erd.catalog.maintainer-usernames` / `ERD_CATALOG_MAINTAINER_USERNAMES`; prod default empty, dev may include `admin`) approve/reject. GitHub binding not required; on approve author handle prefers GitHub → account **username** → nickname; Flyway V22 backfills historical `community-*` |
+| MCP | `list_templates` / `get_template` / `install_template` / `get_creator`; **no** `publish_template`; **no** PAT rating/comment |
+| Explicitly out | Paid templates, LLM generation, template version inheritance, follow/DM, Agent auto-publish |
 
-## 后果
+## Consequences
 
-- 正面：30s 惊艳入口；示例可发现；agent 可 `install_template` 起跑；自托管 offline 可用
-- 代价：新表 + 审核运维；社区模板质量靠 maintainer gate；远程 catalog 合并在 `ERD_CATALOG_API_URL` 非空时再迭代
-- 与 discoverability：补全「从 0 到第一个版本」漏斗，不替代分享/文档站
+- Positive: 30s wow entry; examples discoverable; agents can `install_template` bootstrap; self-host offline works
+- Cost: new tables + review ops; community template quality via maintainer gate; remote catalog merge when `ERD_CATALOG_API_URL` non-empty is a later iteration
+- Discoverability: completes "zero to first version" funnel; does not replace share/docs site
 
-## 切片
+## Slices
 
-| # | 交付 | 状态 |
+| # | Deliverable | Status |
 |---|---|---|
-| 0 | 本 ADR + roadmap/CHANGELOG/architecture/deployment | ✅ |
-| 1 | 列表/详情 API + 种子 + `/catalog` UI | ✅ |
-| 2 | install + 创建 IA 重定向 | ✅ |
-| 3 | 评分/安装数/作者页 | ✅ |
-| 4 | 发布队列 + 维护者审核 | ✅ |
-| 5 | MCP 四工具 | ✅ |
-| P1 | 评论、举报、hot tab、官方/社区筛选 | ✅ |
+| 0 | This ADR + roadmap/CHANGELOG/architecture/deployment | ✅ |
+| 1 | List/detail API + seeds + `/catalog` UI | ✅ |
+| 2 | install + create IA redirect | ✅ |
+| 3 | ratings/install count/author page | ✅ |
+| 4 | publish queue + maintainer review | ✅ |
+| 5 | MCP four tools | ✅ |
+| P1 | comments, reports, hot tab, official/community filter | ✅ |

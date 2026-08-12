@@ -108,7 +108,7 @@ Workbench styles prefer antd 5 **ConfigProvider theme tokens**; minimize scatter
 | antd tokens | `frontend/src/theme/tokens.ts` → `components/Theme` (`ConfigProvider`) |
 | CSS variables (same values) | `frontend/src/theme/css-vars.less` (imported by `global.less`) |
 
-Layout chrome (Home/Group/Design use BEM + `var(--erd-*)`; `account/settings` still on ProLayout); **landing** `pages/landing/index.less` keeps dark facade scoped less but colors/type read `--erd-*` (no second palette). New colors/radius → edit `tokens.ts` first. Details: [ui-home-model-redesign.md](https://github.com/erdonline/erdonline/blob/main/docs/ui-home-model-redesign.md)#样式策略token-first.
+Layout chrome (Home/Group/Design use BEM + `var(--erd-*)`; `account/settings` still on ProLayout); **landing** `pages/landing/index.less` keeps dark facade scoped less but colors/type read `--erd-*` (no second palette). New colors/radius → edit `tokens.ts` first. Details: [ui-home-model-redesign.md](https://github.com/erdonline/erdonline/blob/main/docs/ui-home-model-redesign.md#style-strategy-token-first).
 
 ## Frontend unit tests (lightweight)
 
