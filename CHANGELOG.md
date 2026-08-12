@@ -10,7 +10,7 @@
 
 #### i18n：`components/` 域抽取（ADR-0033）
 
-- **Locale**：`locales/{zh-CN,en-US}/components.ts`（**449** 键）；根 locale spread 合并
+- **Locale**：`locales/{zh-CN,en-US}/components.ts`（**454** 键）；根 locale spread 合并
 - **FE**：`components/**` 对话框/审批/导出/导入/字段库/目录等用户可见文案走 `formatMessage` / `getIntl()`
 - **验证点**：`yarn check:i18n` PASS（components 提交后键对齐）；`yarn build` 通过
 
