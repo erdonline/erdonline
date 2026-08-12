@@ -14,6 +14,13 @@
 - **修复**：`frontend/config/routes.ts` catalog 子路由改为相对路径（`''`、`creator/:handle`、`:id` 等）；`/en/catalog` 同理
 - **验证点**：route flatten 73 条 OK；本地 prod build `/demo` → `/s/public-demo` 无 `umi.* forEach` stack overflow，页面标题与空态/分享壳正常渲染
 
+#### chore(ci)：LocaleRoute 路由 flatten 门禁 + pre-push
+
+- **Script**：`scripts/check-routes.mjs` — 用 `@umijs/core` `getConfigRoutes` 模拟 umi wrapper 树，跑 React Router `flattenRoutes` 前缀断言；`--self-test` 内置 bad/good fixture
+- **FE**：`yarn check:routes`；CI `frontend-ci.yml` + demo build 前置步骤
+- **Pre-push**：`scripts/git-hooks/pre-push` → `yarn check:routes` + `yarn check:i18n`；安装 `./scripts/install-git-hooks.sh`
+- 验证点：`node scripts/check-routes.mjs --self-test` PASS；`cd frontend && yarn check:routes` PASS（当前 routes.ts）；注入绝对子路径 `/catalog` → FAIL
+
 #### growth：README / OSChina / 落地页漏斗深链 + localhost 统计降噪
 
 - **README**（中/英）：顶栏 CTA 增 **Compare** badge；「为什么选它」链到 `https://www.erdonline.com/compare`

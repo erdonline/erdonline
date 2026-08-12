@@ -1,0 +1,15 @@
+#!/usr/bin/env sh
+# Pre-push gate: fast frontend route + i18n checks (ADR-0034 LocaleRoute crash).
+# Install: ./scripts/install-git-hooks.sh
+set -eu
+
+ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+cd "$ROOT/frontend"
+
+echo "[pre-push] yarn check:routes"
+yarn check:routes
+
+echo "[pre-push] yarn check:i18n"
+yarn check:i18n
+
+echo "[pre-push] OK"

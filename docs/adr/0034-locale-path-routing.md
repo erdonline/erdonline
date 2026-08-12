@@ -55,3 +55,4 @@
 - 代价：营销页多一层 `LocaleRoute` 与「路径压过 localStorage」的特例；营销页与应用页的语言决定机制不一致（须在 `docs/development.md` 写清）；新增 sitemap 需随营销路由维护。
 - 风险：客户端跳转依赖 UA 判定爬虫，正则需与 `nginx.conf` 保持同步（同一份常量，写进注释交叉引用）；CSR 索引若 90 天不达标则触发 SSG 切片。
 - 验证点：`curl -A Googlebot https://.../en` 返回 200 且 SPA 壳内 `hreflang` 齐全；E2E 断言 `/en` 渲染英文且 `<html lang="en">`、`/` 渲染中文且 `<html lang="zh-CN">`、英文浏览器首访 `/` 自动到 `/en` 且显式切回中文后不再跳。
+- **路由门禁**：带 `wrappers: ['@/components/LocaleRoute']` 且有 `routes` 子节点时，子 `path` 必须用相对段（`''`、`:id`、`publish` 等），禁止绝对路径 `/catalog/...`（umi wrapper 会使 React Router `flattenRoutes` 断言失败、整站白屏）。CI / pre-push：`yarn check:routes`（`scripts/check-routes.mjs`）。
