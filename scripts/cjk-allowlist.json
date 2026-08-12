@@ -1,0 +1,15 @@
+{
+  "$comment": "ADR-0033：不参与硬编码中文计数的文件（projectJSON 种子 / 持久化数据字面量）",
+  "files": [
+    "frontend/src/store/project/modulesSlice.tsx",
+    "frontend/src/store/project/entitiesSlice.tsx",
+    "frontend/src/utils/projectSaveConflict.ts"
+  ],
+  "patterns": [
+    {
+      "file": "**/*",
+      "line": "^\\s*//",
+      "comment": "单行注释（主扫描器已剥离块注释；此行模式作双保险）"
+    }
+  ]
+}

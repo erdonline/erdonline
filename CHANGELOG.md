@@ -41,6 +41,13 @@
 - **ADR-0034**：locale 路径前缀仅 `/`、`/compare`、`/catalog`（及 `/en/*`）；应用内页与 `/s/:token` 不动
 - 验证点：`docs/adr/README.md` 索引已登记；`website/i18n/en/…/adr/0033|0034` 链通 `yarn build`
 
+#### i18n：ADR-0033 CI 门禁 + 术语表 + CJK 基线
+
+- **Scripts**：`scripts/check-locale-keys.mjs`（zh/en 键对齐、重复键、占位符一致）；`scripts/check-hardcoded-cjk.mjs`（硬编码中文只减不增，基线 `scripts/cjk-baseline.json`）；白名单 `scripts/cjk-allowlist.json`（projectJSON 种子 / 持久化数据字面量）
+- **Docs**：`docs/i18n-glossary.md` — 英文 UI 术语单一事实源
+- **FE**：`yarn check:locale-keys` / `check:hardcoded-cjk` / `check:i18n`；`frontend-ci.yml` 在 ESLint 后跑 i18n gates
+- 验证点：`cd frontend && yarn check:i18n` 绿；基线 **1570** CJK 字符 / **105** 文件 / **952** locale 键（zh=en）；PR 新增硬编码中文即 FAIL
+
 ### 2026-08-11
 
 #### 配置：会话 JWT 默认 TTL 12h → 7 天

@@ -3,9 +3,21 @@ name: Frontend CI
 on:
   push:
     branches: [main]
-    paths: ['frontend/**', '.github/workflows/frontend-ci.yml']
+    paths:
+      - 'frontend/**'
+      - 'scripts/check-locale-keys.mjs'
+      - 'scripts/check-hardcoded-cjk.mjs'
+      - 'scripts/cjk-baseline.json'
+      - 'scripts/cjk-allowlist.json'
+      - '.github/workflows/frontend-ci.yml'
   pull_request:
-    paths: ['frontend/**', '.github/workflows/frontend-ci.yml']
+    paths:
+      - 'frontend/**'
+      - 'scripts/check-locale-keys.mjs'
+      - 'scripts/check-hardcoded-cjk.mjs'
+      - 'scripts/cjk-baseline.json'
+      - 'scripts/cjk-allowlist.json'
+      - '.github/workflows/frontend-ci.yml'
 
 jobs:
   build:
@@ -24,9 +36,21 @@ jobs:
         working-directory: frontend
         run: yarn install --frozen-lockfile
 
+      - name: i18n locale key alignment
+        working-directory: frontend
+        run: yarn check:i18n-keys
+
+      - name: i18n hardcoded CJK ratchet
+        working-directory: frontend
+        run: yarn check:i18n-cjk
+
       - name: ESLint errors only
         working-directory: frontend
         run: yarn lint:js:ci
+
+      - name: i18n gates (ADR-0033)
+        working-directory: frontend
+        run: yarn check:i18n
 
       - name: Build
         working-directory: frontend
