@@ -5,8 +5,9 @@
 
 ## 英文漏斗 i18n / SEO（2026-08-12）
 
+- [x] [i18n 键对齐 CI] `cd frontend && yarn check:i18n-keys` → 4 locale 文件、952 键、zh/en 零 diff、占位符一致 ✅ 2026-08-12
+- [x] [硬编码中文棘轮 CI] `cd frontend && yarn check:i18n-cjk` → baseline 1570 CJK 字符，只减不增 ✅ 2026-08-12
 - [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
-- [x] [i18n CI 门禁] `cd frontend && yarn check:i18n` — locale 键对齐 + CJK 基线只减不增 ✅ 2026-08-12
 - [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
 - [ ] [落地页 Docs 分流] 英文态页脚 Docs → `erdonline.github.io/erdonline/en/`；中文态 → 根路径无 `/en/`
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`

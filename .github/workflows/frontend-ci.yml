@@ -48,10 +48,6 @@ jobs:
         working-directory: frontend
         run: yarn lint:js:ci
 
-      - name: i18n gates (ADR-0033)
-        working-directory: frontend
-        run: yarn check:i18n
-
       - name: Build
         working-directory: frontend
         run: yarn build

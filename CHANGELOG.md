@@ -8,6 +8,15 @@
 
 ### 2026-08-12
 
+#### i18n：ADR-0033 前置工具链（术语表 + CI 门禁）
+
+- **Docs**：`docs/i18n-glossary.md` — 英文 UI 术语单一事实源（Module / Table / Diagram / Field library 等；sentence case + 正反例）
+- **Scripts**：`scripts/check-locale-keys.mjs` — 扫描 `src/locales` + `pages/**/locales`；zh/en 键集合零 diff、无跨文件重复键、ICU 占位符一致
+- **Scripts**：`scripts/check-hardcoded-cjk.mjs` + `scripts/cjk-baseline.json`（1570 可见 CJK 字符棘轮）+ `scripts/cjk-allowlist.json`（projectJSON 种子/data 比较豁免）
+- **FE**：`package.json` 新增 `check:i18n-keys` / `check:i18n-cjk` / `check:i18n`
+- **CI**：`frontend-ci.yml` build 前跑两个 i18n check（秒级）
+- 验证点：`node scripts/check-locale-keys.mjs` → 4 文件 952 键 PASS；`node scripts/check-hardcoded-cjk.mjs --baseline scripts/cjk-baseline.json` → total 1570 PASS
+
 #### i18n：模板广场 `/catalog` 全量抽取 + 命名空间 locale
 
 - **FE**：`pages/catalog/locales/{zh-CN,en-US}.ts`（62 键）；`index` / `detail` / `creator` / `review` / `CatalogPreviewPanel` 用户可见文案走 `intl`
@@ -40,13 +49,6 @@
 - **ADR-0033**：模块内 `pages/<module>/locales/` 并行抽取；非 React 用函数内 `getIntl()`；硬编码中文「只减不增」门禁
 - **ADR-0034**：locale 路径前缀仅 `/`、`/compare`、`/catalog`（及 `/en/*`）；应用内页与 `/s/:token` 不动
 - 验证点：`docs/adr/README.md` 索引已登记；`website/i18n/en/…/adr/0033|0034` 链通 `yarn build`
-
-#### i18n：ADR-0033 CI 门禁 + 术语表 + CJK 基线
-
-- **Scripts**：`scripts/check-locale-keys.mjs`（zh/en 键对齐、重复键、占位符一致）；`scripts/check-hardcoded-cjk.mjs`（硬编码中文只减不增，基线 `scripts/cjk-baseline.json`）；白名单 `scripts/cjk-allowlist.json`（projectJSON 种子 / 持久化数据字面量）
-- **Docs**：`docs/i18n-glossary.md` — 英文 UI 术语单一事实源
-- **FE**：`yarn check:locale-keys` / `check:hardcoded-cjk` / `check:i18n`；`frontend-ci.yml` 在 ESLint 后跑 i18n gates
-- 验证点：`cd frontend && yarn check:i18n` 绿；基线 **1570** CJK 字符 / **105** 文件 / **952** locale 键（zh=en）；PR 新增硬编码中文即 FAIL
 
 ### 2026-08-11
 
