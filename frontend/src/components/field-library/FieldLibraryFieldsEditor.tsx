@@ -1,5 +1,6 @@
 import React, { useMemo } from 'react';
 import { Button, Checkbox, Form, Input, Select, Space } from 'antd';
+import { useIntl } from '@umijs/max';
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons';
 import {
   FIELD_TYPE_GROUP_ENUM,
@@ -14,11 +15,11 @@ export type FieldLibraryFieldsEditorProps = {
   datatype: DataTypeDomainRow[] | undefined | null;
 };
 
-export const emptyFieldRow = (): DataDictField => ({
+export const emptyFieldRow = (intl: ReturnType<typeof useIntl>): DataDictField => ({
   name: '',
   chnname: '',
   type: 'MiddleString',
-  typeName: '字串',
+  typeName: intl.formatMessage({ id: 'fieldLibrary.fields.defaultTypeName' }),
   pk: false,
   notNull: false,
 });
@@ -26,12 +27,13 @@ export const emptyFieldRow = (): DataDictField => ({
 const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
   datatype,
 }) => {
+  const intl = useIntl();
   const form = Form.useFormInstance();
 
   const typeOptions = useMemo(() => {
     const { logic, enums, byCode } = partitionFieldTypes(datatype);
     if (!byCode.has('MiddleString')) {
-      logic.push({ code: 'MiddleString', name: '字串', kind: 'logic' });
+      logic.push({ code: 'MiddleString', name: intl.formatMessage({ id: 'fieldLibrary.fields.defaultTypeName' }), kind: 'logic' });
     }
     return [
       {
@@ -55,7 +57,7 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
           ]
         : []),
     ];
-  }, [datatype]);
+  }, [datatype, intl]);
 
   const typeNameByCode = useMemo(() => {
     const map = new Map<string, string>();
@@ -82,13 +84,13 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
               <Form.Item
                 {...field}
                 name={[field.name, 'name']}
-                rules={[{ required: true, message: '请输入英文名' }]}
+                rules={[{ required: true, message: intl.formatMessage({ id: 'fieldLibrary.fields.nameRequired' }) }]}
                 style={{ marginBottom: 0 }}
               >
                 <Input
-                  placeholder="英文名"
+                  placeholder={intl.formatMessage({ id: 'fieldLibrary.fields.namePlaceholder' })}
                   data-testid="field-library-form-field-name"
-                  aria-label={`字段英文名 ${index + 1}`}
+                  aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.nameAria' }, { index: index + 1 })}
                   style={{ width: 120 }}
                 />
               </Form.Item>
@@ -98,26 +100,26 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
                 style={{ marginBottom: 0 }}
               >
                 <Input
-                  placeholder="中文名"
+                  placeholder={intl.formatMessage({ id: 'fieldLibrary.fields.chnnamePlaceholder' })}
                   data-testid="field-library-form-field-chnname"
-                  aria-label={`字段中文名 ${index + 1}`}
+                  aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.chnnameAria' }, { index: index + 1 })}
                   style={{ width: 120 }}
                 />
               </Form.Item>
               <Form.Item
                 {...field}
                 name={[field.name, 'type']}
-                rules={[{ required: true, message: '请选择类型' }]}
+                rules={[{ required: true, message: intl.formatMessage({ id: 'fieldLibrary.fields.typeRequired' }) }]}
                 style={{ marginBottom: 0 }}
               >
                 <Select
-                  placeholder="类型"
+                  placeholder={intl.formatMessage({ id: 'fieldLibrary.fields.typePlaceholder' })}
                   options={typeOptions}
                   style={{ width: 180 }}
                   showSearch
                   optionFilterProp="label"
                   data-testid="field-library-form-field-type"
-                  aria-label={`字段类型 ${index + 1}`}
+                  aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.typeAria' }, { index: index + 1 })}
                   onChange={(code: string) => {
                     form.setFieldValue(
                       ['fields', field.name, 'typeName'],
@@ -140,7 +142,9 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
                 valuePropName="checked"
                 style={{ marginBottom: 0 }}
               >
-                <Checkbox aria-label={`字段非空 ${index + 1}`}>非空</Checkbox>
+                <Checkbox aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.notNullAria' }, { index: index + 1 })}>
+                  {intl.formatMessage({ id: 'fieldLibrary.fields.notNull' })}
+                </Checkbox>
               </Form.Item>
               <Form.Item
                 {...field}
@@ -148,14 +152,16 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
                 valuePropName="checked"
                 style={{ marginBottom: 0 }}
               >
-                <Checkbox aria-label={`字段主键 ${index + 1}`}>主键</Checkbox>
+                <Checkbox aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.pkAria' }, { index: index + 1 })}>
+                  {intl.formatMessage({ id: 'fieldLibrary.fields.pk' })}
+                </Checkbox>
               </Form.Item>
               {fields.length > 1 ? (
                 <Button
                   type="text"
                   danger
                   icon={<MinusCircleOutlined />}
-                  aria-label={`删除字段行 ${index + 1}`}
+                  aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.removeAria' }, { index: index + 1 })}
                   data-testid="field-library-form-field-remove"
                   onClick={() => remove(field.name)}
                 />
@@ -167,10 +173,10 @@ const FieldLibraryFieldsEditor: React.FC<FieldLibraryFieldsEditorProps> = ({
             block
             icon={<PlusOutlined />}
             data-testid="field-library-form-field-add"
-            aria-label="添加字段"
-            onClick={() => add(emptyFieldRow())}
+            aria-label={intl.formatMessage({ id: 'fieldLibrary.fields.addAria' })}
+            onClick={() => add(emptyFieldRow(intl))}
           >
-            添加字段
+            {intl.formatMessage({ id: 'fieldLibrary.fields.add' })}
           </Button>
         </div>
       )}

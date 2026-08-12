@@ -6,6 +6,7 @@ import {ModuleEntity} from "@/store/tab/useTabStore";
 import JExcel from "@/pages/JExcel";
 import { Button, Empty, Space, message } from 'antd';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import { designIntl } from '@/pages/design/locales/intl';
 import {
   formatIndexFieldsCell,
   parseIndexFieldsCell,
@@ -103,7 +104,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
         return;
       }
     } catch {
-      message.error('索引保存失败');
+      message.error(designIntl('design.table.index.error.saveFailed'));
       pendingRef.current = null;
       setSheetEpoch((e) => e + 1);
     } finally {
@@ -140,7 +141,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       );
       return !!ok;
     } catch {
-      message.error('索引保存失败');
+      message.error(designIntl('design.table.index.error.saveFailed'));
       return false;
     }
   };
@@ -187,7 +188,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   /** 已有索引后表内明确 CTA；勿只靠 JExcel 工具栏「+」图标（无文案死 affordance） */
   const addAnotherIndex = (isUnique = false) => {
     if (!firstFieldName(entity || {})) {
-      message.warning('请先添加字段再创建索引');
+      message.warning(designIntl('design.table.index.warn.noFields'));
       return;
     }
     void seedIndex(indexs, isUnique);
@@ -196,22 +197,22 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   /** 破坏性：表内明确「删除」+ Modal 二次确认；勿只靠 JExcel 工具栏无确认 remove */
   const confirmDeleteIndex = (rowIndex: number) => {
     if (!currentModule || !entity || !entityTitle) {
-      message.error('当前模块或实体未定义');
+      message.error(designIntl('design.common.error.moduleUndefined'));
       return;
     }
     const target = indexs[rowIndex];
-    const indexName = target?.name || `第 ${rowIndex + 1} 条`;
+    const indexName = target?.name || designIntl('design.table.index.rowFallback', {index: rowIndex + 1});
     confirmDestructive({
-      title: `确定删除索引 "${indexName}" 吗?`,
-      content: '此操作不可逆，请谨慎操作。',
-      okText: '删除',
+      title: designIntl('design.table.index.confirmDelete.title', {name: indexName}),
+      content: designIntl('design.common.destructive.content'),
+      okText: designIntl('design.common.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: designIntl('design.common.cancel'),
       async onOk() {
         const next = indexs.filter((_, i) => i !== rowIndex);
         const ok = await persistIndex(next);
         if (!ok) {
-          return Promise.reject(new Error('索引删除落盘失败'));
+          return Promise.reject(new Error(designIntl('design.table.index.error.deleteFailed')));
         }
       },
     });
@@ -228,7 +229,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             <span data-testid="index-unique-hint">
-              还没有索引。字段唯一约束请在此创建唯一索引（勾选「是否唯一」）
+              {designIntl('design.table.index.empty.hint')}
             </span>
           }
         >
@@ -237,23 +238,23 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
               type="primary"
               size="small"
               data-testid="index-empty-add"
-              aria-label="添加第一个索引"
+              aria-label={designIntl('design.table.index.aria.addFirst')}
               loading={indexSaving}
               disabled={indexSaving}
               onClick={addFirstIndex}
             >
-              添加第一个索引
+              {designIntl('design.table.index.aria.addFirst')}
             </Button>
             <Button
               type="link"
               size="small"
               data-testid="index-empty-add-unique"
-              aria-label="添加唯一索引"
+              aria-label={designIntl('design.table.index.aria.addUnique')}
               loading={indexSaving}
               disabled={indexSaving}
               onClick={addFirstUniqueIndex}
             >
-              添加唯一索引
+              {designIntl('design.table.index.aria.addUnique')}
             </Button>
           </Space>
         </Empty>
@@ -267,27 +268,27 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   }));
   const columns = [
     {
-      title: '索引名*',
+      title: designIntl('design.table.index.col.name'),
       name: 'name',
       type: 'text',
       width: document.body.clientWidth * 0.2,
     },
     {
       // 文本格：列名与表达式可混写（分号分隔）；禁 dropdown 丢掉 LOWER(email) 等
-      title: '字段/表达式*',
+      title: designIntl('design.table.index.col.fields'),
       name: 'fields',
       type: 'text',
       width: document.body.clientWidth * 0.35,
     },
     {
-      title: '是否唯一',
+      title: designIntl('design.table.index.col.unique'),
       name: 'isUnique',
       type: 'checkbox',
       width: document.body.clientWidth * 0.1,
     },
     {
       // 部分/过滤索引谓词原样（PG WHERE / SQL Server filter_definition）；无则为空
-      title: '过滤条件',
+      title: designIntl('design.table.index.col.filter'),
       name: 'filter',
       type: 'text',
       width: document.body.clientWidth * 0.2,
@@ -297,7 +298,10 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
   const sheetKey = `index-grid-${module}-${entityName}-${indexs.length}-${sheetEpoch}`;
   const columnHint =
     columnNames.length > 0
-      ? `可选列：${columnNames.slice(0, 8).join('、')}${columnNames.length > 8 ? '…' : ''}。`
+      ? designIntl('design.table.index.hint.columns', {
+          names: columnNames.slice(0, 8).join('、'),
+          ellipsis: columnNames.length > 8 ? designIntl('design.table.index.hint.ellipsis') : '',
+        })
       : '';
 
   return (
@@ -309,11 +313,9 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
       <p
         className="erd-table-index-hint"
         data-testid="index-unique-hint"
-        aria-label="索引字段编辑说明"
+        aria-label={designIntl('design.table.index.aria.help')}
       >
-        勾选「是否唯一」= UNIQUE；画布显示 UK。字段/表达式列用分号分隔列名或表达式（如
-        {' '}
-        id;LOWER(email)）。过滤条件为部分/过滤索引谓词（可选）。{columnHint}
+        {designIntl('design.table.index.hint.body')}{columnHint}
       </p>
       {/* key：条数/epoch 变则重挂，JExcel 不吃 props.data 更新 */}
       <JExcel
@@ -330,7 +332,7 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
             data-testid="index-delete-list"
           >
             {indexs.map((idx, i) => {
-              const name = idx.name || `第 ${i + 1} 条`;
+              const name = idx.name || designIntl('design.table.index.rowFallback', {index: i + 1});
               return (
                 <Button
                   key={`${name}-${i}`}
@@ -338,11 +340,11 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
                   type="link"
                   size="small"
                   data-testid={`index-delete-${i}`}
-                  aria-label={`删除索引 ${name}`}
+                  aria-label={designIntl('design.table.index.aria.delete', {name})}
                   disabled={indexSaving}
                   onClick={() => confirmDeleteIndex(i)}
                 >
-                  删除索引 {name}
+                  {designIntl('design.table.index.action.deleteWithName', {name})}
                 </Button>
               );
             })}
@@ -354,24 +356,24 @@ const TableIndexEdit: React.FC<TableIndexEditProps> = (props) => {
                 size="small"
                 block
                 data-testid="index-add-row"
-                aria-label="再添加一条索引"
+                aria-label={designIntl('design.table.index.aria.add')}
                 loading={indexSaving}
                 disabled={indexSaving}
                 onClick={() => addAnotherIndex(false)}
               >
-                + 再添加一条索引
+                {designIntl('design.table.index.action.addAnother')}
               </Button>
               <Button
                 type="link"
                 size="small"
                 block
                 data-testid="index-add-row-unique"
-                aria-label="再添加一条唯一索引"
+                aria-label={designIntl('design.table.index.aria.addUnique')}
                 loading={indexSaving}
                 disabled={indexSaving}
                 onClick={() => addAnotherIndex(true)}
               >
-                + 再添加一条唯一索引
+                {designIntl('design.table.index.action.addAnotherUnique')}
               </Button>
             </Space>
           </div>

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button, Drawer, Space } from 'antd';
+import { useIntl } from '@umijs/max';
 import { history } from '@@/exports';
 import FieldLibraryManager from '@/pages/design/setting/component/FieldLibraryManager';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -11,6 +12,7 @@ export type FieldLibraryDrawerProps = {
 };
 
 const FieldLibraryDrawer: React.FC<FieldLibraryDrawerProps> = (props) => {
+  const intl = useIntl();
   const projectId = useProjectStore((s) => s.project?.id, shallow);
 
   const openSettingsPage = () => {
@@ -21,7 +23,7 @@ const FieldLibraryDrawer: React.FC<FieldLibraryDrawerProps> = (props) => {
 
   return (
     <Drawer
-      title="字段库"
+      title={intl.formatMessage({ id: 'designLayout.route.fieldLibrary' })}
       placement="right"
       width={480}
       open={props.open}
@@ -33,10 +35,10 @@ const FieldLibraryDrawer: React.FC<FieldLibraryDrawerProps> = (props) => {
           type="link"
           size="small"
           data-testid="field-library-drawer-open-settings"
-          aria-label="在设置页打开字段库"
+          aria-label={intl.formatMessage({ id: 'fieldLibrary.drawer.openSettingsAria' })}
           onClick={openSettingsPage}
         >
-          在设置页打开
+          {intl.formatMessage({ id: 'fieldLibrary.drawer.openSettings' })}
         </Button>
       }
     >

@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {Button, Input, Modal, Space, message, type InputRef} from 'antd';
+import {useIntl} from '@umijs/max';
 import {ShareAltOutlined} from '@ant-design/icons';
 import request from '@/utils/request';
 import * as cache from '@/utils/cache';
@@ -22,6 +23,7 @@ type ShareCreatePayload = {
  * 设计器顶栏：只读分享管理（创建/复制/吊销）。
  */
 const ShareProjectButton: React.FC = () => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [revoking, setRevoking] = useState(false);
@@ -32,7 +34,7 @@ const ShareProjectButton: React.FC = () => {
   const ensureShare = async (): Promise<string | null> => {
     const projectId = cache.getItem(CONSTANT.PROJECT_ID);
     if (!projectId) {
-      message.warning('未打开项目');
+      message.warning(intl.formatMessage({ id: 'shareModal.noProject' }));
       return null;
     }
     setLoading(true);
@@ -41,7 +43,6 @@ const ShareProjectButton: React.FC = () => {
         data: {projectId},
       })) as ApiResult<ShareCreatePayload>;
       if (res?.code !== 200 || !res?.data?.token) {
-        // 业务失败：request 已 toast；失败不叠弹；窗保持开 + 「重新生成」可重试
         setToken(null);
         setShareUrl(null);
         return null;
@@ -52,7 +53,6 @@ const ShareProjectButton: React.FC = () => {
       setShareUrl(url);
       return nextToken;
     } catch {
-      // 网络/HTTP：errorHandler 已 toast；失败不叠弹；「重新生成」可重试
       setToken(null);
       setShareUrl(null);
       return null;
@@ -68,21 +68,22 @@ const ShareProjectButton: React.FC = () => {
 
   const onPrimary = async () => {
     if (!shareUrl) {
-      // 创建失败或首开：主钮「重新生成」可重试（勿禁用死 affordance）
       await ensureShare();
       return;
     }
     try {
       await navigator.clipboard.writeText(shareUrl);
-      message.success('只读链接已复制');
+      message.success(intl.formatMessage({ id: 'shareModal.copySuccess' }));
     } catch {
-      message.success(`分享链接：${shareUrl}`);
+      message.success(
+        intl.formatMessage({ id: 'shareModal.copyFallback' }, { url: shareUrl }),
+      );
     }
   };
 
   const onRevoke = async () => {
     if (!token) {
-      message.warning('当前无有效分享链接');
+      message.warning(intl.formatMessage({ id: 'shareModal.noValidLink' }));
       return;
     }
     setRevoking(true);
@@ -91,15 +92,14 @@ const ShareProjectButton: React.FC = () => {
         data: {token},
       })) as ApiResult<boolean>;
       if (res?.code !== 200) {
-        // request 已 toast；失败不叠弹、不关窗
         return;
       }
-      message.success('分享已吊销');
+      message.success(intl.formatMessage({ id: 'shareModal.revokeSuccess' }));
       setToken(null);
       setShareUrl(null);
       setOpen(false);
     } catch {
-      // 网络/HTTP：errorHandler 已 toast
+      // network/HTTP: errorHandler already toasts
     } finally {
       setRevoking(false);
     }
@@ -107,15 +107,15 @@ const ShareProjectButton: React.FC = () => {
 
   const onRevokeClick = () => {
     if (!token) {
-      message.warning('当前无有效分享链接');
+      message.warning(intl.formatMessage({ id: 'shareModal.noValidLink' }));
       return;
     }
     confirmDestructive({
-      title: '确认吊销分享？',
-      content: '吊销后链接将立即失效，他人将无法再打开。',
-      okText: '吊销',
+      title: intl.formatMessage({ id: 'shareModal.revokeConfirmTitle' }),
+      content: intl.formatMessage({ id: 'shareModal.revokeConfirmContent' }),
+      okText: intl.formatMessage({ id: 'shareModal.revokeOk' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       onOk: onRevoke,
     });
   };
@@ -128,12 +128,12 @@ const ShareProjectButton: React.FC = () => {
         icon={<ShareAltOutlined/>}
         loading={loading && !open}
         onClick={onOpen}
-        aria-label="只读分享"
+        aria-label={intl.formatMessage({ id: 'shareModal.shareAria' })}
       >
-        分享
+        {intl.formatMessage({ id: 'shareModal.shareButton' })}
       </Button>
       <Modal
-        title="只读分享"
+        title={intl.formatMessage({ id: 'shareModal.title' })}
         open={open}
         onCancel={() => setOpen(false)}
         footer={null}
@@ -147,7 +147,6 @@ const ShareProjectButton: React.FC = () => {
           if (!visible) {
             return;
           }
-          // 首焦「分享链接」只读输入；挂载后经 ref.focus
           const tryFocus = (attempt = 0) => {
             if (shareUrlInputRef.current) {
               shareUrlInputRef.current.focus();
@@ -162,7 +161,7 @@ const ShareProjectButton: React.FC = () => {
         }}
       >
         <p className="erd-share-modal__hint">
-          获得链接的人可匿名查看模型；吊销后链接立即失效。仅项目创建人可管理。
+          {intl.formatMessage({ id: 'shareModal.hint' })}
         </p>
         <Space.Compact className="erd-share-modal__link-row">
           <Input
@@ -170,17 +169,27 @@ const ShareProjectButton: React.FC = () => {
             readOnly
             size="small"
             value={shareUrl || ''}
-            placeholder={loading ? '正在生成链接…' : '暂无分享链接'}
-            aria-label="分享链接"
+            placeholder={
+              loading
+                ? intl.formatMessage({ id: 'shareModal.linkPlaceholderLoading' })
+                : intl.formatMessage({ id: 'shareModal.linkPlaceholderEmpty' })
+            }
+            aria-label={intl.formatMessage({ id: 'shareModal.linkAria' })}
           />
           <Button
             type="primary"
             size="small"
             loading={loading}
             onClick={() => void onPrimary()}
-            aria-label={shareUrl ? '复制链接' : '重新生成链接'}
+            aria-label={
+              shareUrl
+                ? intl.formatMessage({ id: 'shareModal.copyLink' })
+                : intl.formatMessage({ id: 'shareModal.regenerateAria' })
+            }
           >
-            {shareUrl ? '复制链接' : '重新生成'}
+            {shareUrl
+              ? intl.formatMessage({ id: 'shareModal.copyLink' })
+              : intl.formatMessage({ id: 'shareModal.regenerateLink' })}
           </Button>
         </Space.Compact>
         <Space className="erd-share-modal__actions" size={8}>
@@ -190,12 +199,16 @@ const ShareProjectButton: React.FC = () => {
             disabled={!token}
             loading={revoking}
             onClick={onRevokeClick}
-            aria-label="吊销分享"
+            aria-label={intl.formatMessage({ id: 'shareModal.revokeAria' })}
           >
-            吊销分享
+            {intl.formatMessage({ id: 'shareModal.revokeButton' })}
           </Button>
-          <Button size="small" onClick={() => setOpen(false)} aria-label="关闭分享">
-            关闭
+          <Button
+            size="small"
+            onClick={() => setOpen(false)}
+            aria-label={intl.formatMessage({ id: 'shareModal.closeAria' })}
+          >
+            {intl.formatMessage({ id: 'shareModal.close' })}
           </Button>
         </Space>
       </Modal>

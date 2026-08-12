@@ -7,6 +7,7 @@ import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { buildEnumApply } from '@/utils/dbml/toProjectJSON';
+import { designIntl } from '@/pages/design/locales/intl';
 import './setting-common.scss';
 
 type EnumValueRow = {
@@ -174,7 +175,7 @@ const DataTypeDomains: React.FC = () => {
         form.setFields([
           {
             name: 'values',
-            errors: ['枚举至少需要一个非空取值'],
+            errors: [designIntl('design.setting.dataType.error.enumMinOne')],
           },
         ]);
         return;
@@ -233,11 +234,14 @@ const DataTypeDomains: React.FC = () => {
 
   const handleRemove = (row: DataTypeRow) => {
     confirmDestructive({
-      title: '删除字段类型',
-      content: `确认删除「${row.name}」（${row.code}）？引用此类型的字段不会自动改名。`,
-      okText: '删除',
+      title: designIntl('design.setting.dataType.confirmDelete.title'),
+      content: designIntl('design.setting.dataType.confirmDelete.content', {
+        name: row.name,
+        code: row.code,
+      }),
+      okText: designIntl('design.common.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: designIntl('design.common.cancel'),
       onOk: async () => {
         const ok = await Promise.resolve(
           projectDispatch.removeDatatype(row.code, { persist: true }),
@@ -251,31 +255,35 @@ const DataTypeDomains: React.FC = () => {
 
   const columns: ColumnsType<DataTypeRow> = [
     {
-      title: '名称',
+      title: designIntl('design.setting.dataType.col.name'),
       dataIndex: 'name',
       key: 'name',
       ellipsis: true,
     },
     {
-      title: '代码',
+      title: designIntl('design.setting.dataType.col.code'),
       dataIndex: 'code',
       key: 'code',
       width: 128,
       ellipsis: true,
     },
     {
-      title: '种类',
+      title: designIntl('design.setting.dataType.col.kind'),
       key: 'kind',
       width: 64,
       render: (_: unknown, row) =>
         row.kind === 'enum' ? (
-          <span data-testid={`datatype-kind-${row.code}`}>枚举</span>
+          <span data-testid={`datatype-kind-${row.code}`}>
+            {designIntl('design.setting.dataType.kind.enumShort')}
+          </span>
         ) : (
-          <span data-testid={`datatype-kind-${row.code}`}>逻辑</span>
+          <span data-testid={`datatype-kind-${row.code}`}>
+            {designIntl('design.setting.dataType.kind.logicShort')}
+          </span>
         ),
     },
     {
-      title: '取值',
+      title: designIntl('design.setting.dataType.col.values'),
       key: 'values',
       ellipsis: true,
       render: (_: unknown, row) => {
@@ -289,17 +297,24 @@ const DataTypeDomains: React.FC = () => {
         const names = (row.values || [])
           .map((v) => v.name)
           .filter(Boolean);
-        const text = names.length ? names.join(', ') : '（无取值）';
+        const text = names.length
+          ? names.join(', ')
+          : designIntl('design.setting.dataType.values.none');
         return (
           <span
             data-testid={`datatype-values-${row.code}`}
             title={text}
-          >{`${names.length}：${text}`}</span>
+          >
+            {designIntl('design.setting.dataType.values.count', {
+              count: names.length,
+              text,
+            })}
+          </span>
         );
       },
     },
     {
-      title: '操作',
+      title: designIntl('design.setting.dataType.col.actions'),
       key: 'actions',
       width: 120,
       render: (_: unknown, row) => (
@@ -307,21 +322,21 @@ const DataTypeDomains: React.FC = () => {
           <Button
             type="link"
             size="small"
-            aria-label={`编辑类型 ${row.code}`}
+            aria-label={designIntl('design.setting.dataType.aria.edit', {code: row.code})}
             data-testid={`datatype-edit-${row.code}`}
             onClick={() => openEdit(row)}
           >
-            编辑
+            {designIntl('design.common.edit')}
           </Button>
           <Button
             type="link"
             size="small"
             danger
-            aria-label={`删除类型 ${row.code}`}
+            aria-label={designIntl('design.setting.dataType.aria.delete', {code: row.code})}
             data-testid={`datatype-remove-${row.code}`}
             onClick={() => handleRemove(row)}
           >
-            删除
+            {designIntl('design.common.delete')}
           </Button>
         </Space>
       ),
@@ -348,19 +363,19 @@ const DataTypeDomains: React.FC = () => {
             <Button
               type="primary"
               size="small"
-              aria-label="新增字段类型"
+              aria-label={designIntl('design.setting.dataType.aria.addType')}
               data-testid="datatype-add"
               onClick={() => openCreate('logic')}
             >
-              新增字段类型
+              {designIntl('design.setting.dataType.modal.addType')}
             </Button>
             <Button
               size="small"
-              aria-label="新增枚举"
+              aria-label={designIntl('design.setting.dataType.aria.addEnum')}
               data-testid="datatype-add-enum"
               onClick={() => openCreate('enum')}
             >
-              新增枚举
+              {designIntl('design.setting.dataType.modal.addEnum')}
             </Button>
           </>
         ) : null}
@@ -386,7 +401,7 @@ const DataTypeDomains: React.FC = () => {
             image={Empty.PRESENTED_IMAGE_SIMPLE}
             description={
               <span data-testid="datatype-empty-hint">
-                还没有自定义类型。可新增逻辑类型，或直接建枚举（values[]）。
+                {designIntl('design.setting.dataType.empty.customHint')}
               </span>
             }
           >
@@ -394,19 +409,19 @@ const DataTypeDomains: React.FC = () => {
               <Button
                 type="primary"
                 size="small"
-                aria-label="新增第一个字段类型"
+                aria-label={designIntl('design.setting.dataType.aria.addFirstType')}
                 data-testid="datatype-empty-add"
                 onClick={() => openCreate('logic')}
               >
-                新增字段类型
+                {designIntl('design.setting.dataType.modal.addType')}
               </Button>
               <Button
                 size="small"
-                aria-label="新增第一个枚举"
+                aria-label={designIntl('design.setting.dataType.aria.addFirstEnum')}
                 data-testid="datatype-empty-add-enum"
                 onClick={() => openCreate('enum')}
               >
-                新增枚举
+                {designIntl('design.setting.dataType.modal.addEnum')}
               </Button>
             </Space>
           </Empty>
@@ -420,18 +435,18 @@ const DataTypeDomains: React.FC = () => {
           dataSource={datatype}
           columns={columns}
           data-testid="datatype-table"
-          locale={{ emptyText: '暂无类型，请新增' }}
+          locale={{ emptyText: designIntl('design.setting.dataType.empty') }}
         />
       )}
       <Modal
         title={
           kindWatch === 'enum'
             ? editing
-              ? '编辑枚举'
-              : '新增枚举'
+              ? designIntl('design.setting.dataType.modal.editEnum')
+              : designIntl('design.setting.dataType.modal.addEnum')
             : editing
-              ? '编辑字段类型'
-              : '新增字段类型'
+              ? designIntl('design.setting.dataType.modal.editType')
+              : designIntl('design.setting.dataType.modal.addType')
         }
         open={open}
         onOk={() => {
@@ -447,8 +462,8 @@ const DataTypeDomains: React.FC = () => {
         rootClassName="erd-io-modal-root"
         transitionName=""
         maskTransitionName=""
-        okText={editing ? '保存' : '提交'}
-        cancelText="取消"
+        okText={editing ? designIntl('design.common.save') : designIntl('design.common.submit')}
+        cancelText={designIntl('design.common.cancel')}
         afterOpenChange={(visible) => {
           if (!visible) {
             return;
@@ -508,14 +523,14 @@ const DataTypeDomains: React.FC = () => {
         >
           <Form.Item
             name="kind"
-            label="种类"
-            rules={[{ required: true, message: '请选择种类' }]}
+            label={designIntl('design.setting.dataType.form.kind')}
+            rules={[{ required: true, message: designIntl('design.setting.dataType.form.kindRequired') }]}
           >
             <Radio.Group
-              aria-label="类型种类"
+              aria-label={designIntl('design.setting.dataType.form.kindAria')}
               options={[
-                { label: '逻辑类型', value: 'logic' },
-                { label: '枚举', value: 'enum' },
+                { label: designIntl('design.setting.dataType.form.kindLogic'), value: 'logic' },
+                { label: designIntl('design.setting.dataType.form.kindEnum'), value: 'enum' },
               ]}
               optionType="button"
               buttonStyle="solid"
@@ -524,35 +539,35 @@ const DataTypeDomains: React.FC = () => {
           </Form.Item>
           <Form.Item
             name="name"
-            label="名称"
+            label={designIntl('design.setting.dataType.col.name')}
             rules={[
-              { required: true, message: '不能为空' },
-              { max: 100, message: '不能大于 100 个字符' },
+              { required: true, message: designIntl('design.common.required') },
+              { max: 100, message: designIntl('design.common.max100') },
             ]}
           >
             <Input
               id="datatype-name"
-              placeholder="请输入名称"
-              aria-label="类型名称"
+              placeholder={designIntl('design.setting.dataType.form.namePlaceholder')}
+              aria-label={designIntl('design.setting.dataType.form.nameAria')}
               data-testid="datatype-name"
             />
           </Form.Item>
           <Form.Item
             name="code"
-            label="代码"
+            label={designIntl('design.setting.dataType.col.code')}
             rules={[
-              { required: true, message: '不能为空' },
-              { max: 100, message: '不能大于 100 个字符' },
+              { required: true, message: designIntl('design.common.required') },
+              { max: 100, message: designIntl('design.common.max100') },
             ]}
             extra={
               kindWatch === 'enum'
-                ? '字段 type 引用此 code；DBML 导出为 Enum 块名'
+                ? designIntl('design.setting.dataType.form.codeExtra')
                 : undefined
             }
           >
             <Input
-              placeholder="请输入代码"
-              aria-label="类型代码"
+              placeholder={designIntl('design.setting.dataType.form.codePlaceholder')}
+              aria-label={designIntl('design.setting.dataType.form.codeAria')}
               data-testid="datatype-code"
             />
           </Form.Item>
@@ -561,7 +576,7 @@ const DataTypeDomains: React.FC = () => {
               {(fields, { add, remove }) => (
                 <div data-testid="datatype-enum-values">
                   <div className="setting-common-form__list-label">
-                    枚举取值
+                    {designIntl('design.setting.dataType.form.enumValuesLabel')}
                   </div>
                   {fields.map((field, index) => (
                     <Space
@@ -575,14 +590,14 @@ const DataTypeDomains: React.FC = () => {
                         {...field}
                         name={[field.name, 'name']}
                         rules={[
-                          { required: true, message: '取值不能为空' },
-                          { max: 100, message: '不能大于 100 个字符' },
+                          { required: true, message: designIntl('design.setting.dataType.form.enumValueRequired') },
+                          { max: 100, message: designIntl('design.common.max100') },
                         ]}
                         style={{ marginBottom: 0, flex: 1 }}
                       >
                         <Input
-                          placeholder="取值名"
-                          aria-label={`枚举值名 ${index + 1}`}
+                          placeholder={designIntl('design.setting.dataType.form.enumValuePlaceholder')}
+                          aria-label={designIntl('design.setting.dataType.form.enumValueAria', {index: index + 1})}
                           data-testid={`datatype-enum-value-name-${index}`}
                         />
                       </Form.Item>
@@ -592,8 +607,8 @@ const DataTypeDomains: React.FC = () => {
                         style={{ marginBottom: 0, flex: 1 }}
                       >
                         <Input
-                          placeholder="显示名（可选）"
-                          aria-label={`枚举显示名 ${index + 1}`}
+                          placeholder={designIntl('design.setting.dataType.form.enumLabelPlaceholder')}
+                          aria-label={designIntl('design.setting.dataType.form.enumLabelAria', {index: index + 1})}
                           data-testid={`datatype-enum-value-chnname-${index}`}
                         />
                       </Form.Item>
@@ -602,11 +617,11 @@ const DataTypeDomains: React.FC = () => {
                         size="small"
                         danger
                         disabled={fields.length <= 1}
-                        aria-label={`删除取值行 ${index + 1}`}
+                        aria-label={designIntl('design.setting.dataType.form.enumDeleteAria', {index: index + 1})}
                         data-testid={`datatype-enum-value-remove-${index}`}
                         onClick={() => remove(field.name)}
                       >
-                        删除
+                        {designIntl('design.common.delete')}
                       </Button>
                     </Space>
                   ))}
@@ -614,11 +629,11 @@ const DataTypeDomains: React.FC = () => {
                     type="dashed"
                     size="small"
                     block
-                    aria-label="添加枚举取值"
+                    aria-label={designIntl('design.setting.dataType.form.enumAddAria')}
                     data-testid="datatype-enum-value-add"
                     onClick={() => add({ name: '', chnname: '' })}
                   >
-                    添加取值
+                    {designIntl('design.setting.dataType.action.addValue')}
                   </Button>
                 </div>
               )}
@@ -626,20 +641,20 @@ const DataTypeDomains: React.FC = () => {
           ) : (
             <div data-testid="datatype-apply-map">
               <div className="setting-common-form__list-label">
-                库方言映射
+                {designIntl('design.setting.dataType.form.applyMapLabel')}
               </div>
               <p
                 className="setting-common-form__list-hint"
                 data-testid="datatype-apply-hint"
               >
-                按方言填写物理类型（如 VARCHAR(32)）；空值表示该库暂无映射。枚举种类由系统自动生成 apply。
+                {designIntl('design.setting.dataType.form.applyHint')}
               </p>
               {modalDialects.length === 0 ? (
                 <p
                   className="setting-common-form__list-hint"
                   data-testid="datatype-apply-empty"
                 >
-                  当前项目尚无库方言；请先在数据源/模板中配置 database[]。
+                  {designIntl('design.setting.dataType.form.applyEmpty')}
                 </p>
               ) : (
                 modalDialects.map((code) => (
@@ -656,13 +671,13 @@ const DataTypeDomains: React.FC = () => {
                     <Form.Item
                       name={['applyTypes', code]}
                       rules={[
-                        { max: 200, message: '不能大于 200 个字符' },
+                        { max: 200, message: designIntl('design.common.max200') },
                       ]}
                       style={{ marginBottom: 0, flex: 1 }}
                     >
                       <Input
-                        placeholder="物理类型，如 VARCHAR(32)"
-                        aria-label={`方言 ${code} 物理类型`}
+                        placeholder={designIntl('design.setting.dataType.form.physicalPlaceholder')}
+                        aria-label={designIntl('design.setting.dataType.form.physicalAria', {code})}
                         data-testid={`datatype-apply-${code}`}
                       />
                     </Form.Item>

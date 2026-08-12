@@ -1,3 +1,4 @@
+import { designIntl } from '@/pages/design/locales/intl';
 import useProjectStore from "@/store/project/useProjectStore";
 import { ModuleEntity } from "@/store/tab/useTabStore";
 import 'handsontable/dist/handsontable.full.css';
@@ -6,7 +7,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 // @ts-ignore
 import JExcel, { type JExcelHandle } from "@/pages/JExcel";
-import { column1, column2 } from "@/pages/design/setting/component/DefaultField";
+import { getDefaultFieldColumns1, getDefaultFieldColumns2 } from "@/pages/design/setting/component/DefaultField";
 import { Button, Empty, Space, message } from 'antd';
 import InsertFromFieldLibraryModal from '@/components/field-library/InsertFromFieldLibraryModal';
 import { jexcelTypeDropdownSource } from '@/utils/fieldTypeOptions';
@@ -101,7 +102,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
         return;
       }
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
       pendingRef.current = null;
       setSheetEpoch((e) => e + 1);
     } finally {
@@ -138,7 +139,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
       );
       return !!ok;
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
       return false;
     }
   };
@@ -226,13 +227,13 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   const columns = useMemo(() => [
     ...column1,
     {
-      title: '类型*',
+      title: designIntl('design.table.info.col.typeRequired'),
       name: 'typeName',
       type: 'dropdown',
       source: jexcelTypeDropdownSource(datatype),
       width: 150,
     },
-    ...column2
+    ...getDefaultFieldColumns2()
   ], [datatype]);
 
   if (!named && !started) {
@@ -256,7 +257,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
               type="primary"
               size="small"
               data-testid="field-empty-add"
-              aria-label="添加第一个字段"
+              aria-label={designIntl('design.table.info.aria.addFirstField')}
               loading={fieldSaving}
               disabled={fieldSaving}
               onClick={() => { void addFirstField(); }}
@@ -266,7 +267,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
             <Button
               size="small"
               data-testid="field-empty-from-library"
-              aria-label="从字段库写入"
+              aria-label={designIntl('design.table.info.aria.insertFromLibrary')}
               disabled={fieldSaving || !entityTitle}
               onClick={openFieldLibraryFromEmpty}
             >
@@ -299,7 +300,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
               type="link"
               size="small"
               data-testid="field-goto-index"
-              aria-label="去索引签设置唯一"
+              aria-label={designIntl('design.table.info.aria.goIndexUnique')}
               onClick={props.onOpenIndex}
             >
               去索引签设置唯一

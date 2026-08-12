@@ -11,6 +11,7 @@ import {
   Steps,
   TreeSelect,
 } from "antd";
+import { useIntl } from '@umijs/max';
 import type {RefSelectProps} from 'antd/es/select';
 import { CodeOutlined } from '@ant-design/icons';
 import CodeEditor from "@/components/CodeEditor";
@@ -43,6 +44,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, data, exportDdlLoading} = useProjectStore(state => ({
     data: state.exportSliceState?.data || '',
@@ -72,6 +74,8 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
     () => dbs.map((db) => ({ label: db.name, value: db.key })),
     [dbs],
   );
+
+  const dataSourceAria = intl.formatMessage({ id: 'exportModal.dataSourceAria' });
 
   const openModal = () => {
     closeProjectMenu();
@@ -143,14 +147,14 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
           block
           icon={<CodeOutlined />}
           style={{ textAlign: 'left' }}
-          aria-label="导出DDL"
+          aria-label={intl.formatMessage({ id: 'exportModal.ddl.triggerAria' })}
           onClick={openModal}
         >
-          导出DDL
+          {intl.formatMessage({ id: 'exportModal.ddl.trigger' })}
         </Button>
       )}
       <Modal
-        title="SQL导出配置"
+        title={intl.formatMessage({ id: 'exportModal.ddl.title' })}
         open={open}
         onCancel={() => setOpen(false)}
         destroyOnClose
@@ -165,10 +169,9 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
           if (!visible) {
             return;
           }
-          // 第一步主决策：选数据源；Select 挂载后经 ref.focus（antd 自管 combobox）
           const tryFocus = (attempt = 0) => {
             const input = document.querySelector<HTMLInputElement>(
-              '.erd-io-modal-root [aria-label="数据源"]',
+              '.erd-io-modal-root [data-testid="export-ddl-db-select"]',
             );
             if (input) {
               dbSelectRef.current?.focus();
@@ -184,22 +187,22 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
         footer={
           step === 0
             ? [
-                <Button key="next" type="primary" aria-label="下一步" onClick={() => void goNext()}>
-                  下一步
+                <Button key="next" type="primary" aria-label={intl.formatMessage({ id: 'exportModal.nextAria' })} onClick={() => void goNext()}>
+                  {intl.formatMessage({ id: 'exportModal.next' })}
                 </Button>,
               ]
             : [
-                <Button key="prev" aria-label="上一步" onClick={() => setStep(0)}>
-                  上一步
+                <Button key="prev" aria-label={intl.formatMessage({ id: 'exportModal.prevAria' })} onClick={() => setStep(0)}>
+                  {intl.formatMessage({ id: 'exportModal.prev' })}
                 </Button>,
                 <Button
                   key="export"
                   type="primary"
-                  aria-label="导出"
+                  aria-label={intl.formatMessage({ id: 'exportModal.exportAria' })}
                   loading={exporting}
                   onClick={() => void handleExport()}
                 >
-                  导出
+                  {intl.formatMessage({ id: 'exportModal.export' })}
                 </Button>,
               ]
         }
@@ -209,21 +212,22 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
           size="small"
           className="erd-io-modal__steps"
           items={[
-            { title: '选择数据源及导出的表' },
-            { title: '导出配置' },
+            { title: intl.formatMessage({ id: 'exportModal.step1' }) },
+            { title: intl.formatMessage({ id: 'exportModal.step2' }) },
           ]}
         />
         {step === 0 && (
           <Form form={form1} layout="vertical" size="small" requiredMark>
             <Form.Item
               name="currentDB"
-              label="数据源"
-              rules={[{ required: true, message: '此项为必填项' }]}
+              label={intl.formatMessage({ id: 'exportModal.dataSourceLabel' })}
+              rules={[{ required: true, message: intl.formatMessage({ id: 'exportModal.required' }) }]}
               initialValue={currentDb?.key}
             >
               <Select
                 ref={dbSelectRef}
-                aria-label="数据源"
+                aria-label={dataSourceAria}
+                data-testid="export-ddl-db-select"
                 options={dbOptions}
                 onChange={(value: string) => {
                   const db = dbs.find((d) => d.key === value);
@@ -233,13 +237,13 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
             </Form.Item>
             <Form.Item
               name="name"
-              label="导出数据表"
-              rules={[{ required: true, message: '此项为必填项' }]}
+              label={intl.formatMessage({ id: 'exportModal.tablesLabel' })}
+              rules={[{ required: true, message: intl.formatMessage({ id: 'exportModal.required' }) }]}
             >
               <TreeSelect
-                aria-label="导出数据表"
+                aria-label={intl.formatMessage({ id: 'exportModal.tablesAria' })}
                 data-testid="export-ddl-tables"
-                placeholder="点击选择要导出的表"
+                placeholder={intl.formatMessage({ id: 'exportModal.tablesPlaceholder' })}
                 allowClear
                 treeData={treeData}
                 filterTreeNode
@@ -267,28 +271,28 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
             size="small"
             initialValues={{ exportType: 'all' }}
           >
-            <Form.Item name="exportType" label="导出内容">
+            <Form.Item name="exportType" label={intl.formatMessage({ id: 'exportModal.contentLabel' })}>
               <Radio.Group
                 onChange={(e: RadioChangeEvent) => {
                   setExportType(e.target.value);
                   projectDispatch.onExportTypeChange(e.target.value);
                 }}
                 options={[
-                  { label: '全部', value: 'all' },
-                  { label: '自定义', value: 'customer' },
+                  { label: intl.formatMessage({ id: 'exportModal.contentAll' }), value: 'all' },
+                  { label: intl.formatMessage({ id: 'exportModal.contentCustom' }), value: 'customer' },
                 ]}
               />
             </Form.Item>
             {exportType === 'customer' && (
-              <Form.Item name="customer" label="自定义导出内容">
+              <Form.Item name="customer" label={intl.formatMessage({ id: 'exportModal.customContentLabel' })}>
                 <Checkbox.Group
                   options={[
-                    { label: '删表语句', value: 'deleteTable' },
-                    { label: '建表语句', value: 'createTable' },
-                    { label: '建索引语句', value: 'createIndex' },
-                    { label: '建触发器语句', value: 'createTrigger' },
-                    { label: '建外键语句', value: 'createForeignKey' },
-                    { label: '表注释语句', value: 'updateComment' },
+                    { label: intl.formatMessage({ id: 'exportModal.deleteTable' }), value: 'deleteTable' },
+                    { label: intl.formatMessage({ id: 'exportModal.createTable' }), value: 'createTable' },
+                    { label: intl.formatMessage({ id: 'exportModal.createIndex' }), value: 'createIndex' },
+                    { label: intl.formatMessage({ id: 'exportModal.createTrigger' }), value: 'createTrigger' },
+                    { label: intl.formatMessage({ id: 'exportModal.createForeignKey' }), value: 'createForeignKey' },
+                    { label: intl.formatMessage({ id: 'exportModal.updateComment' }), value: 'updateComment' },
                   ]}
                   onChange={(checkedValue) => {
                     projectDispatch.onCustomTypeChange(checkedValue as unknown as string);
@@ -296,7 +300,7 @@ const ExportDDL: React.FC<MenuDialogControl> = ({
                 />
               </Form.Item>
             )}
-            <Form.Item label="预览">
+            <Form.Item label={intl.formatMessage({ id: 'exportModal.previewLabel' })}>
               <Input style={{ display: 'none' }} />
               <Spin spinning={Boolean(exportDdlLoading)}>
                 <CodeEditor mode="mysql" value={data} />

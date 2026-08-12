@@ -5,6 +5,7 @@ import useTabStore, { TabGroup } from "@/store/tab/useTabStore";
 import { history } from "@@/core/history";
 import { AppstoreOutlined, DatabaseOutlined, FolderOutlined, NodeIndexOutlined, PlusOutlined, TableOutlined, EditOutlined, CopyOutlined, ScissorOutlined, SnippetsOutlined, DeleteOutlined, EllipsisOutlined } from "@ant-design/icons";
 import { Badge, Button, Dropdown, Empty, Menu, message, Typography } from 'antd';
+import { useIntl } from '@umijs/max';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import shallow from "zustand/shallow";
 import EntityModal from './EntityModal';
@@ -35,6 +36,7 @@ export type DataTableProps = {};
 const { Text } = Typography;
 
 const DataTable: React.FC<DataTableProps> = (props) => {
+  const intl = useIntl();
   const { modules, projectDispatch } = useProjectStore(state => ({
     modules: state.project?.projectJSON?.modules,
     projectDispatch: state.dispatch,
@@ -210,7 +212,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       case 'relation': {
         const moduleName = currentNode?.module || (modules && modules.length > 0 ? modules[0].name : null);
         if (!moduleName) {
-          message.warning('请先创建模型');
+          message.warning(intl.formatMessage({ id: 'designLeft.createModuleFirst' }));
           return false;
         }
         if (isNew) {
@@ -272,67 +274,70 @@ const DataTable: React.FC<DataTableProps> = (props) => {
   const handleRemove = (node: any) => {
     const actionLabel =
       node.type === 'module'
-        ? '模型操作'
+        ? intl.formatMessage({ id: 'designLeft.actionModule' })
         : node.type === 'entity'
-          ? '表操作'
-          : '关系图操作';
+          ? intl.formatMessage({ id: 'designLeft.actionTable' })
+          : intl.formatMessage({ id: 'designLeft.actionDiagram' });
     // Dropdown menuitem unmounts; park focus on the row trigger for Esc return
     focusTreeActionTrigger(node.title, actionLabel);
 
     if (node.type === 'relation') {
       if (node.diagramId === DEFAULT_DIAGRAM_ID) {
-        message.warning('主关系图不可删除');
+        message.warning(intl.formatMessage({ id: 'designLeft.mainDiagramNoDelete' }));
         return;
       }
       confirmDestructive({
-        title: `确定删除关系图 "${node.title}" 吗?`,
+        title: intl.formatMessage({ id: 'designLeft.deleteDiagramTitle' }, { name: node.title }),
         icon: <ExclamationCircleOutlined />,
-        content: '仅删除该关系图，表不会一起删除。',
-        okText: '删除',
+        content: intl.formatMessage({ id: 'designLeft.deleteDiagramContent' }),
+        okText: intl.formatMessage({ id: 'designLeft.deleteOk' }),
         okType: 'danger',
-        cancelText: '取消',
+        cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
         async onOk() {
-          // 禁止本地 mutate 即「关系图删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
           const ok = await Promise.resolve(
             projectDispatch.removeDiagram(node.module, node.diagramId, { persist: true }),
           );
           if (!ok) {
-            return Promise.reject(new Error('关系图删除落盘失败'));
+            return Promise.reject(new Error(intl.formatMessage({ id: 'designLeft.diagramDeletePersistFailed' })));
           }
         },
       });
       return;
     }
 
-    const kind = node.type === 'module' ? '模型' : '表';
+    const kind =
+      node.type === 'module'
+        ? intl.formatMessage({ id: 'designLeft.kindModule' })
+        : intl.formatMessage({ id: 'designLeft.kindTable' });
     confirmDestructive({
-      title: `确定删除${kind} "${node.title}" 吗?`,
+      title: intl.formatMessage(
+        { id: node.type === 'module' ? 'designLeft.deleteModuleTitle' : 'designLeft.deleteTableTitle' },
+        { name: node.title },
+      ),
       icon: <ExclamationCircleOutlined />,
       content:
         node.type === 'module'
-          ? '将删除模型内全部表与关系图，此操作不可逆。'
-          : '此操作不可逆，请谨慎操作。',
-      okText: '删除',
+          ? intl.formatMessage({ id: 'designLeft.deleteModuleContent' })
+          : intl.formatMessage({ id: 'designLeft.deleteTableContent' }),
+      okText: intl.formatMessage({ id: 'designLeft.deleteOk' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       async onOk() {
         if (node.type === 'module') {
-          // 禁止本地 mutate 即「模型删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
           const ok = await Promise.resolve(
             projectDispatch.removeModule(node.module || node.name, { persist: true }),
           );
           if (!ok) {
-            return Promise.reject(new Error('模型删除落盘失败'));
+            return Promise.reject(new Error(intl.formatMessage({ id: 'designLeft.moduleDeletePersistFailed' })));
           }
           return;
         }
         if (node.type === 'entity') {
-          // 禁止本地 mutate 即「表删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
           const ok = await Promise.resolve(
             projectDispatch.removeEntity(node.module, node.title, { persist: true }),
           );
           if (!ok) {
-            return Promise.reject(new Error('表删除落盘失败'));
+            return Promise.reject(new Error(intl.formatMessage({ id: 'designLeft.tableDeletePersistFailed' })));
           }
         }
       },
@@ -388,7 +393,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <PlusOutlined
           role="button"
           tabIndex={0}
-          aria-label="新建表"
+          aria-label={intl.formatMessage({ id: 'designLeft.addTableAria' })}
           data-testid="tree-folder-add-entity"
           style={folderAddIconStyle}
           onClick={(e) => {
@@ -410,7 +415,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         <PlusOutlined
           role="button"
           tabIndex={0}
-          aria-label="新建关系图"
+          aria-label={intl.formatMessage({ id: 'designLeft.addDiagramAria' })}
           data-testid="tree-folder-add-relation"
           style={folderAddIconStyle}
           onClick={(e) => {
@@ -443,29 +448,37 @@ const DataTable: React.FC<DataTableProps> = (props) => {
                   icon={<EditOutlined style={iconStyle(erdColors.ink600)} />}
                   onClick={() => handleOpenEntityDesign(node)}
                 >
-                  编辑表
+                  {intl.formatMessage({ id: 'designLeft.editTable' })}
                 </Menu.Item>
                 <Menu.Item key="rename" onClick={() => handleRename(node)}>
-                  重命名表
+                  {intl.formatMessage({ id: 'designLeft.renameTable' })}
                 </Menu.Item>
               </>
             ) : (
               <Menu.Item key="rename" icon={<EditOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handleRename(node)}>
-                {node.type === 'module' ? '编辑模型' : '重命名关系图'}
+                {node.type === 'module'
+                  ? intl.formatMessage({ id: 'designLeft.editModule' })
+                  : intl.formatMessage({ id: 'designLeft.renameDiagram' })}
               </Menu.Item>
             )}
             {hasClipboard && (
               <>
                 <Menu.Divider />
                 <Menu.Item key="copy" icon={<CopyOutlined style={iconStyle(erdColors.success)} />} onClick={() => handleCopy(node)}>
-                  {`复制${node.type === 'module' ? '模型' : '表'}`}
+                  {node.type === 'module'
+                    ? intl.formatMessage({ id: 'designLeft.copyModule' })
+                    : intl.formatMessage({ id: 'designLeft.copyTable' })}
                 </Menu.Item>
                 <Menu.Item key="cut" icon={<ScissorOutlined style={iconStyle(erdColors.warning)} />} onClick={() => handleCut(node)}>
-                  {`剪切${node.type === 'module' ? '模型' : '表'}`}
+                  {node.type === 'module'
+                    ? intl.formatMessage({ id: 'designLeft.cutModule' })
+                    : intl.formatMessage({ id: 'designLeft.cutTable' })}
                 </Menu.Item>
                 {hasPaste && (
                   <Menu.Item key="paste" icon={<SnippetsOutlined style={iconStyle(erdColors.ink600)} />} onClick={() => handlePaste(node)}>
-                    {`粘贴${node.type === 'module' ? '到模型' : '到表'}`}
+                    {node.type === 'module'
+                      ? intl.formatMessage({ id: 'designLeft.pasteToModule' })
+                      : intl.formatMessage({ id: 'designLeft.pasteToTable' })}
                   </Menu.Item>
                 )}
               </>
@@ -479,7 +492,11 @@ const DataTable: React.FC<DataTableProps> = (props) => {
                   danger
                   onClick={() => handleRemove(node)}
                 >
-                  {`删除${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}`}
+                  {node.type === 'module'
+                    ? intl.formatMessage({ id: 'designLeft.deleteModule' })
+                    : node.type === 'entity'
+                      ? intl.formatMessage({ id: 'designLeft.deleteTable' })
+                      : intl.formatMessage({ id: 'designLeft.deleteDiagram' })}
                 </Menu.Item>
               </>
             )}
@@ -494,7 +511,13 @@ const DataTable: React.FC<DataTableProps> = (props) => {
           role="button"
           tabIndex={0}
           data-testid="tree-node-menu"
-          aria-label={`${node.type === 'module' ? '模型' : node.type === 'entity' ? '表' : '关系图'}操作`}
+          aria-label={
+            node.type === 'module'
+              ? intl.formatMessage({ id: 'designLeft.actionModule' })
+              : node.type === 'entity'
+                ? intl.formatMessage({ id: 'designLeft.actionTable' })
+                : intl.formatMessage({ id: 'designLeft.actionDiagram' })
+          }
           style={{ padding: '0 4px', fontSize: 12 }}
           onClick={(e) => e.stopPropagation()}
         />
@@ -569,7 +592,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
     <Button
       size="small"
       icon={<PlusOutlined />}
-      aria-label="新增模型"
+      aria-label={intl.formatMessage({ id: 'designLeft.addModuleAria' })}
       data-testid="design-tree-add-module"
       onClick={() => showModal('module')}
     />
@@ -582,7 +605,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         height: 60,
       }}
       description={
-        <span>还没有任何模型哦</span>
+        <span>{intl.formatMessage({ id: 'designLeft.emptyDescription' })}</span>
       }
     >
       <Button
@@ -591,7 +614,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
         onClick={() => showModal('module')}
         data-testid="add-module-empty"
       >
-        新增模型
+        {intl.formatMessage({ id: 'designLeft.addModule' })}
       </Button>
     </Empty>
   );
@@ -614,7 +637,7 @@ const DataTable: React.FC<DataTableProps> = (props) => {
       data-testid="erd-design-tree"
       tabIndex={-1}
       role="navigation"
-      aria-label="模型树"
+      aria-label={intl.formatMessage({ id: 'designLeft.treeAria' })}
       onKeyDown={onTreeLandmarkKeyDown}
       style={{
         height: '100%',
@@ -644,7 +667,17 @@ const DataTable: React.FC<DataTableProps> = (props) => {
 
       <EntityModal
         visible={modalVisible}
-        title={`${currentNode && !currentNode.isNew ? '编辑' : '新增'}${modalType === 'module' ? '模型' : modalType === 'entity' ? '表' : '关系图'}`}
+        title={`${
+          currentNode && !currentNode.isNew
+            ? intl.formatMessage({ id: 'designLeft.modalEdit' })
+            : intl.formatMessage({ id: 'designLeft.modalAdd' })
+        }${
+          modalType === 'module'
+            ? intl.formatMessage({ id: 'designLeft.kindModule' })
+            : modalType === 'entity'
+              ? intl.formatMessage({ id: 'designLeft.kindTable' })
+              : intl.formatMessage({ id: 'designLeft.kindDiagram' })
+        }`}
         onOk={handleModalOk}
         onCancel={() => setModalVisible(false)}
         initialValues={currentNode}

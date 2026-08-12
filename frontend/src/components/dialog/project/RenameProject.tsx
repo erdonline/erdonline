@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd/es/input';
 import {updateProject} from '@/services/project';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
@@ -38,6 +39,7 @@ function splitProjectTags(tags?: string): string[] {
 }
 
 const RenameProject: React.FC<RenameProjectProps> = (props) => {
+  const intl = useIntl();
   const {
     hideTrigger,
     open: openProp,
@@ -79,11 +81,13 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
           description: values.description,
           tags: _.join(values.tags, ','),
         });
-        message.success('修改成功');
+        message.success(intl.formatMessage({ id: 'projectModal.renameSuccess' }));
         setOpen(false);
         return;
       }
-      message.error(res?.message || res?.msg || '修改失败');
+      message.error(
+        res?.message || res?.msg || intl.formatMessage({ id: 'projectModal.renameFailed' }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -95,14 +99,14 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
         <Button
           type="link"
           data-testid="project-rename-trigger"
-          aria-label="修改项目"
+          aria-label={intl.formatMessage({ id: 'projectModal.renameAria' })}
           onClick={() => setOpen(true)}
         >
-          修改
+          {intl.formatMessage({ id: 'projectModal.renameTrigger' })}
         </Button>
       )}
       <Modal
-        title="修改项目"
+        title={intl.formatMessage({ id: 'projectModal.renameTitle' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -127,41 +131,41 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="projectName"
-            label="项目名"
+            label={intl.formatMessage({ id: 'projectModal.nameLabelShort' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
             <Input
               ref={nameInputRef}
-              placeholder="请输入项目名"
+              placeholder={intl.formatMessage({ id: 'projectModal.namePlaceholderShort' })}
               data-testid="project-rename-name"
             />
           </Form.Item>
           <Form.Item
             name="tags"
-            label="标签"
-            rules={[{required: true, message: '不能为空'}]}
+            label={intl.formatMessage({ id: 'projectModal.tagsLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })}]}
           >
             <Select
               mode="tags"
               tokenSeparators={[',']}
-              placeholder="请输入项目标签,按回车分割"
+              placeholder={intl.formatMessage({ id: 'projectModal.tagsPlaceholder' })}
               data-testid="project-rename-tags"
               notFoundContent={null}
             />
           </Form.Item>
           <Form.Item
             name="description"
-            label="项目描述"
+            label={intl.formatMessage({ id: 'projectModal.descLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
             <Input.TextArea
-              placeholder="请输入项目描述"
+              placeholder={intl.formatMessage({ id: 'projectModal.descPlaceholder' })}
               rows={3}
               data-testid="project-rename-description"
             />

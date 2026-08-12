@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Form, Input, Modal, Typography, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import {submitCatalogTemplate} from '@/services/catalog';
 
 export type PublishTemplateModalProps = {
@@ -20,6 +21,7 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
   onOpenChange,
   onSuccess,
 }) => {
+  const intl = useIntl();
   const [form] = Form.useForm<{title: string; description?: string}>();
   const [submitting, setSubmitting] = useState(false);
 
@@ -36,7 +38,7 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
 
   const handleSubmit = async () => {
     if (!projectId) {
-      message.error('未找到当前项目，请先打开一个项目');
+      message.error(intl.formatMessage({ id: 'catalogPublish.noProject' }));
       return;
     }
     const values = await form.validateFields();
@@ -48,15 +50,17 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
         description: values.description?.trim(),
       });
       if (res?.code === 200) {
-        message.success('已提交审核，维护者通过后会上架');
+        message.success(intl.formatMessage({ id: 'catalogPublish.submitSuccess' }));
         close();
         onSuccess?.();
         return;
       }
-      message.error(res?.msg || '提交失败');
+      message.error(res?.msg || intl.formatMessage({ id: 'catalogPublish.submitFailed' }));
     } catch (e: unknown) {
       const err = e as {data?: {msg?: string}; message?: string};
-      message.error(err?.data?.msg || err?.message || '提交失败');
+      message.error(
+        err?.data?.msg || err?.message || intl.formatMessage({ id: 'catalogPublish.submitFailed' }),
+      );
     } finally {
       setSubmitting(false);
     }
@@ -64,33 +68,40 @@ const PublishTemplateModal: React.FC<PublishTemplateModalProps> = ({
 
   return (
     <Modal
-      title="发布为模板"
+      title={intl.formatMessage({ id: 'catalogPublish.title' })}
       open={open}
       onOk={handleSubmit}
       onCancel={close}
-      okText="提交审核"
+      okText={intl.formatMessage({ id: 'catalogPublish.okText' })}
       confirmLoading={submitting}
       destroyOnClose
       width={480}
       data-testid="catalog-publish-modal"
     >
       <Typography.Paragraph type="secondary" style={{marginBottom: 12}}>
-        须为项目创建人。提交后由维护者审核，通过后会上架到模板广场。
+        {intl.formatMessage({ id: 'catalogPublish.hint' })}
       </Typography.Paragraph>
       <Form form={form} layout="vertical" requiredMark={false}>
         <Form.Item
           name="title"
-          label="模板标题"
-          rules={[{required: true, message: '请输入模板标题'}, {max: 100, message: '最多 100 字'}]}
+          label={intl.formatMessage({ id: 'catalogPublish.titleLabel' })}
+          rules={[
+            {required: true, message: intl.formatMessage({ id: 'catalogPublish.titleRequired' })},
+            {max: 100, message: intl.formatMessage({ id: 'catalogPublish.titleMax' })},
+          ]}
         >
-          <Input data-testid="catalog-publish-title" aria-label="模板标题" />
+          <Input data-testid="catalog-publish-title" aria-label={intl.formatMessage({ id: 'catalogPublish.titleAria' })} />
         </Form.Item>
-        <Form.Item name="description" label="简介（可选）" rules={[{max: 500, message: '最多 500 字'}]}>
+        <Form.Item
+          name="description"
+          label={intl.formatMessage({ id: 'catalogPublish.descLabel' })}
+          rules={[{max: 500, message: intl.formatMessage({ id: 'catalogPublish.descMax' })}]}
+        >
           <Input.TextArea
             rows={3}
             data-testid="catalog-publish-description"
-            aria-label="模板简介"
-            placeholder="一句话说明适用场景"
+            aria-label={intl.formatMessage({ id: 'catalogPublish.descAria' })}
+            placeholder={intl.formatMessage({ id: 'catalogPublish.descPlaceholder' })}
           />
         </Form.Item>
       </Form>

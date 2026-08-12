@@ -1,11 +1,13 @@
 import React, {useContext} from 'react';
 import { Button } from "antd";
+import { useIntl } from '@umijs/max';
 import { Html5Outlined } from '@ant-design/icons';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 const ExportHTML: React.FC = () => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
@@ -21,8 +23,8 @@ const ExportHTML: React.FC = () => {
         projectDispatch.exportFile('Html');
       }}
       style={{ textAlign: 'left' }}
-      aria-label="导出HTML"
-    >导出HTML</Button>
+      aria-label={intl.formatMessage({ id: 'exportModal.htmlAria' })}
+    >{intl.formatMessage({ id: 'exportModal.html' })}</Button>
   );
 };
 

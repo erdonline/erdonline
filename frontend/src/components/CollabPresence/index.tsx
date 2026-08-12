@@ -1,5 +1,6 @@
 import useProjectStore from '@/store/project/useProjectStore';
 import { erdColors } from '@/theme/tokens';
+import { getIntl } from '@umijs/max';
 import React from 'react';
 import shallow from 'zustand/shallow';
 
@@ -12,10 +13,14 @@ const CollabPresence: React.FC = () => {
   if (!socket && (!onlineUsers || onlineUsers.length === 0)) {
     return null;
   }
+  const intl = getIntl();
   const label =
     onlineUsers && onlineUsers.length > 0
-      ? `在线 ${onlineUsers.length}：${onlineUsers.join('、')}`
-      : '连接协作中…';
+      ? intl.formatMessage(
+          { id: 'collabPresence.online' },
+          { count: onlineUsers.length, users: onlineUsers.join('、') },
+        )
+      : intl.formatMessage({ id: 'collabPresence.connecting' });
   return (
     <span
       data-testid="collab-presence"

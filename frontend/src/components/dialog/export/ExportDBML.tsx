@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {Button, Input, Modal, Select, Space, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {BaseSelectRef} from 'rc-select';
 import { FileTextOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -18,6 +19,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const [innerOpen, setInnerOpen] = useState(false);
   const open = openProp ?? innerOpen;
@@ -69,7 +71,7 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
       setPreview('');
-      message.error(msg || 'DBML 导出失败');
+      message.error(msg || intl.formatMessage({ id: 'exportModal.dbml.exportFailed' }));
     } finally {
       setLoading(false);
     }
@@ -90,9 +92,8 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
       void rebuildPreview(preferred);
     } else {
       setPreview('');
-      message.warning('项目中没有任何模型可导出');
+      message.warning(intl.formatMessage({ id: 'exportModal.dbml.noModules' }));
     }
-    // 仅在打开时初始化
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
@@ -115,24 +116,24 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
 
   const handleDownload = () => {
     if (!preview.trim()) {
-      message.error('没有可下载的 DBML 内容');
+      message.error(intl.formatMessage({ id: 'exportModal.dbml.noContent' }));
       return;
     }
     const base = moduleName || 'export';
     File.save(preview, `${base}.dbml`);
-    message.success('已下载 DBML');
+    message.success(intl.formatMessage({ id: 'exportModal.dbml.downloadSuccess' }));
   };
 
   const handleCopy = async () => {
     if (!preview.trim()) {
-      message.error('没有可复制的 DBML 内容');
+      message.error(intl.formatMessage({ id: 'exportModal.dbml.noCopyContent' }));
       return;
     }
     try {
       await navigator.clipboard.writeText(preview);
-      message.success('已复制到剪贴板');
+      message.success(intl.formatMessage({ id: 'exportModal.dbml.copySuccess' }));
     } catch {
-      message.error('复制失败，请手动选择文本复制');
+      message.error(intl.formatMessage({ id: 'exportModal.dbml.copyFailed' }));
     }
   };
 
@@ -145,14 +146,14 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           block
           icon={<FileTextOutlined />}
           style={{textAlign: 'left'}}
-          aria-label="导出DBML"
+          aria-label={intl.formatMessage({ id: 'exportModal.dbml.triggerAria' })}
           onClick={openModal}
         >
-          导出DBML
+          {intl.formatMessage({ id: 'exportModal.dbml.trigger' })}
         </Button>
       )}
       <Modal
-        title="导出 DBML"
+        title={intl.formatMessage({ id: 'exportModal.dbml.title' })}
         open={open}
         onCancel={closeModal}
         destroyOnClose
@@ -169,14 +170,13 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           }
           const tryFocus = (attempt = 0) => {
             const input = document.querySelector<HTMLInputElement>(
-              '.erd-io-modal-root [aria-label="导出模型"]',
+              '.erd-io-modal-root [data-testid="export-dbml-module-select"]',
             );
             if (input && !input.disabled) {
               moduleSelectRef.current?.focus();
               return;
             }
             if (attempt >= 20) {
-              // 无模型时 Select 禁用：首焦「取消」
               document
                 .querySelector<HTMLButtonElement>(
                   '.erd-io-modal-root .ant-modal-footer .ant-btn:not(.ant-btn-primary)',
@@ -191,23 +191,23 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
         footer={
           <Space>
             <Button onClick={closeModal} disabled={loading}>
-              取消
+              {intl.formatMessage({ id: 'exportModal.dbml.cancel' })}
             </Button>
             <Button
-              aria-label="复制DBML"
+              aria-label={intl.formatMessage({ id: 'exportModal.dbml.copyAria' })}
               onClick={() => void handleCopy()}
               disabled={loading || !preview.trim()}
             >
-              复制
+              {intl.formatMessage({ id: 'exportModal.dbml.copy' })}
             </Button>
             <Button
               type="primary"
-              aria-label="下载DBML"
+              aria-label={intl.formatMessage({ id: 'exportModal.dbml.downloadAria' })}
               onClick={handleDownload}
               loading={loading}
               disabled={!preview.trim()}
             >
-              下载 .dbml
+              {intl.formatMessage({ id: 'exportModal.dbml.download' })}
             </Button>
           </Space>
         }
@@ -215,10 +215,11 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
         <div className="erd-io-modal__field">
           <Select
             ref={moduleSelectRef}
-            aria-label="导出模型"
+            aria-label={intl.formatMessage({ id: 'exportModal.dbml.moduleAria' })}
+            data-testid="export-dbml-module-select"
             size="small"
             style={{width: '100%'}}
-            placeholder="选择要导出的模型"
+            placeholder={intl.formatMessage({ id: 'exportModal.dbml.modulePlaceholder' })}
             value={moduleName || undefined}
             options={moduleOptions}
             onChange={handleModuleChange}
@@ -226,15 +227,15 @@ const ExportDBML: React.FC<MenuDialogControl> = ({
           />
         </div>
         <TextArea
-          aria-label="DBML预览"
+          aria-label={intl.formatMessage({ id: 'exportModal.dbml.previewAria' })}
           value={preview}
           readOnly
           rows={10}
-          placeholder="选择模型后在此预览 DBML…"
+          placeholder={intl.formatMessage({ id: 'exportModal.dbml.previewPlaceholder' })}
           disabled={loading}
         />
         <p className="erd-io-modal__hint">
-          导出表、字段、默认值、索引、外键与注释（chnname→note）；枚举/触发器本切片不导出。
+          {intl.formatMessage({ id: 'exportModal.dbml.hint' })}
         </p>
       </Modal>
     </>

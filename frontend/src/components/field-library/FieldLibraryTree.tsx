@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Button, Empty, Input, Spin, Tree } from 'antd';
+import { useIntl } from '@umijs/max';
 import type { DataNode } from 'antd/es/tree';
 import {
   fetchDataDictTree,
@@ -18,55 +19,51 @@ export type FieldLibraryTreeProps = {
   onManage?: () => void;
 };
 
-function toAntdNodes(
-  nodes: DataDictTreeNode[],
-  leafOnly: boolean,
-): DataNode[] {
-  return (nodes || [])
-    .filter((n) => !leafOnly || n.isLeaf || (n.children && n.children.length > 0))
-    .map((n) => {
-      const children = n.children?.length
-        ? toAntdNodes(n.children, leafOnly)
-        : undefined;
-      if (leafOnly && !n.isLeaf && (!children || children.length === 0)) {
-        return null;
-      }
-      const scopeLabel =
-        n.scopeType === 'platform'
-          ? '平台'
-          : n.scopeType === 'group'
-            ? '团队'
-            : n.scopeType === 'user'
-              ? '个人'
-              : '';
-      return {
-        key: n.id,
-        title: scopeLabel ? `${n.title} (${scopeLabel})` : n.title,
-        isLeaf: !!n.isLeaf,
-        disabled: leafOnly ? !n.isLeaf : false,
-        children,
-        // @ts-expect-error antd DataNode 允许扩展
-        raw: n,
-      } as DataNode;
-    })
-    .filter(Boolean) as DataNode[];
-}
-
-function flatten(nodes: DataDictTreeNode[]): Map<string, DataDictTreeNode> {
-  const map = new Map<string, DataDictTreeNode>();
-  const walk = (list: DataDictTreeNode[]) => {
-    for (const n of list) {
-      map.set(n.id, n);
-      if (n.children?.length) {
-        walk(n.children);
-      }
-    }
-  };
-  walk(nodes);
-  return map;
-}
-
 const FieldLibraryTree: React.FC<FieldLibraryTreeProps> = (props) => {
+  const intl = useIntl();
+
+  const scopeLabelOf = useCallback(
+    (scopeType?: string) => {
+      if (scopeType === 'platform') {
+        return intl.formatMessage({ id: 'fieldLibrary.tree.scopePlatform' });
+      }
+      if (scopeType === 'group') {
+        return intl.formatMessage({ id: 'fieldLibrary.tree.scopeGroup' });
+      }
+      if (scopeType === 'user') {
+        return intl.formatMessage({ id: 'fieldLibrary.tree.scopeUser' });
+      }
+      return '';
+    },
+    [intl],
+  );
+
+  const toAntdNodes = useCallback(
+    (nodes: DataDictTreeNode[], leafOnly: boolean): DataNode[] =>
+      (nodes || [])
+        .filter((n) => !leafOnly || n.isLeaf || (n.children && n.children.length > 0))
+        .map((n) => {
+          const children = n.children?.length
+            ? toAntdNodes(n.children, leafOnly)
+            : undefined;
+          if (leafOnly && !n.isLeaf && (!children || children.length === 0)) {
+            return null;
+          }
+          const scopeLabel = scopeLabelOf(n.scopeType);
+          return {
+            key: n.id,
+            title: scopeLabel ? `${n.title} (${scopeLabel})` : n.title,
+            isLeaf: !!n.isLeaf,
+            disabled: leafOnly ? !n.isLeaf : false,
+            children,
+            // @ts-expect-error antd DataNode 允许扩展
+            raw: n,
+          } as DataNode;
+        })
+        .filter(Boolean) as DataNode[],
+    [leafOnly, scopeLabelOf],
+  );
+
   const { projectId } = useProjectStore(
     (s) => ({ projectId: s.project?.id }),
     shallow,
@@ -92,10 +89,23 @@ const FieldLibraryTree: React.FC<FieldLibraryTreeProps> = (props) => {
     void load();
   }, [load]);
 
-  const nodeMap = useMemo(() => flatten(treeData), [treeData]);
+  const nodeMap = useMemo(() => {
+    const map = new Map<string, DataDictTreeNode>();
+    const walk = (list: DataDictTreeNode[]) => {
+      for (const n of list) {
+        map.set(n.id, n);
+        if (n.children?.length) {
+          walk(n.children);
+        }
+      }
+    };
+    walk(treeData);
+    return map;
+  }, [treeData]);
+
   const antdTree = useMemo(
     () => toAntdNodes(treeData, !!props.leafOnly),
-    [treeData, props.leafOnly],
+    [treeData, props.leafOnly, toAntdNodes],
   );
 
   const allExpandKeys = useMemo(() => {
@@ -121,10 +131,10 @@ const FieldLibraryTree: React.FC<FieldLibraryTreeProps> = (props) => {
   return (
     <div data-testid="field-library-tree">
       <Input.Search
-        placeholder="搜索字段库"
+        placeholder={intl.formatMessage({ id: 'fieldLibrary.tree.searchPlaceholder' })}
         allowClear
         data-testid="field-library-search"
-        aria-label="搜索字段库"
+        aria-label={intl.formatMessage({ id: 'fieldLibrary.tree.searchAria' })}
         onSearch={(v) => { void load(v); }}
         onChange={(e) => setKeyword(e.target.value)}
         onPressEnter={() => { void load(keyword); }}
@@ -132,15 +142,15 @@ const FieldLibraryTree: React.FC<FieldLibraryTreeProps> = (props) => {
       />
       <Spin spinning={loading}>
         {antdTree.length === 0 && !loading ? (
-          <Empty description="暂无字段库条目">
+          <Empty description={intl.formatMessage({ id: 'fieldLibrary.tree.empty' })}>
             {props.onManage ? (
               <Button
                 type="link"
                 data-testid="field-library-tree-empty-manage"
-                aria-label="去字段库管理"
+                aria-label={intl.formatMessage({ id: 'fieldLibrary.tree.manageEmptyAria' })}
                 onClick={props.onManage}
               >
-                去字段库管理
+                {intl.formatMessage({ id: 'fieldLibrary.tree.manageEmpty' })}
               </Button>
             ) : null}
           </Empty>

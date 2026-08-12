@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
+import { useIntl } from '@umijs/max';
 import { RotateLeftOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
@@ -11,21 +12,23 @@ export type CancelApprovalProps = {
 };
 
 const CancelApproval: React.FC<CancelApprovalProps> = (props) => {
+  const intl = useIntl();
+
   const onCancelClick = () => {
     confirmDestructive({
-      title: '撤销审批',
-      content: '确认撤销该审批工单？撤销后可重新提交复批。',
-      okText: '撤销',
+      title: intl.formatMessage({ id: 'approvalModal.cancelTitle' }),
+      content: intl.formatMessage({ id: 'approvalModal.cancelContent' }),
+      okText: intl.formatMessage({ id: 'approvalModal.cancelOk' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 2,
-            approveResult: '已撤销',
+            approveResult: intl.formatMessage({ id: 'approvalModal.cancelResult' }),
           }),
           props.actionRef,
-          '已撤销',
+          intl.formatMessage({ id: 'approvalModal.cancelSuccess' }),
         ),
     });
   };
@@ -38,7 +41,7 @@ const CancelApproval: React.FC<CancelApprovalProps> = (props) => {
       icon={<RotateLeftOutlined />}
       onClick={onCancelClick}
     >
-      撤销
+      {intl.formatMessage({ id: 'approvalModal.cancelButton' })}
     </Button>
   );
 };

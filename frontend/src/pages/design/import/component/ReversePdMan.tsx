@@ -5,6 +5,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {importModuleAndProfile} from "@/pages/design/import/component/ReverseERD";
 import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
+import { designIntl } from '@/pages/design/locales/intl';
 import '../../secondary-pane.scss';
 
 const { Dragger } = Upload;
@@ -25,7 +26,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
     beforeUpload(file: any) {
       const isJSON = file.type === 'application/json';
       if (!isJSON) {
-        message.error('请确认上传文件是PDMan导出的标准json文件!');
+        message.error(designIntl('design.import.reversePdMan.error.notStandardJson'));
         return false;
       }
 
@@ -38,20 +39,20 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
             // @ts-ignore
             pdmanJson = JSON.parse(reader.result.toString());
           } catch {
-            message.error('您导入的是非法的PDMan文件!');
+            message.error(designIntl('design.import.reversePdMan.error.invalidFile'));
             return;
           }
           let pdmanJsonModules = pdmanJson['modules'];
           if (!pdmanJsonModules) {
-            message.error('您导入的是非法的PDMan文件!');
+            message.error(designIntl('design.import.reversePdMan.error.invalidFile'));
             return;
           }
           if (!(pdmanJsonModules instanceof Array)) {
-            message.error('您导入的是非法的PDMan文件!');
+            message.error(designIntl('design.import.reversePdMan.error.invalidFile'));
             return;
           }
           if (pdmanJsonModules.length <= 0) {
-            message.warning('您尚未在PDMan新建模型，无需导入，可直接在本系统新建模型!');
+            message.warning(designIntl('design.import.reversePdMan.warn.noModel'));
             return;
           }
           // @ts-ignore
@@ -63,7 +64,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
             if (!hasMulti) {
               resultModules.push(module);
             } else {
-              resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+              resultMsg.push(designIntl('design.import.reversePdMan.skipModule', { name: module.name }));
             }
           });
           if (resultModules.length <= 0) {
@@ -84,7 +85,7 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
             if (resultMsg.length > 0) {
               showImportSkipWarning(resultMsg);
             } else {
-              message.success('PdMan文件导入成功！');
+              message.success(designIntl('design.import.reversePdMan.success'));
             }
           } finally {
             setImporting(false);
@@ -99,16 +100,16 @@ const ReversePdMan: React.FC<ReversePdManProps> = () => {
   return (
     <div className="erd-secondary-pane erd-secondary-pane--import" data-testid="import-pdman-page">
       <div className="erd-secondary-pane__content">
-        <h2 className="erd-secondary-pane__title">解析 PdMan 文件</h2>
-        <p className="erd-secondary-pane__hint">上传完毕后自动解析；每次仅支持一个 PdMan json</p>
+        <h2 className="erd-secondary-pane__title">{designIntl('design.import.reversePdMan.page.title')}</h2>
+        <p className="erd-secondary-pane__hint">{designIntl('design.import.reversePdMan.page.hint')}</p>
         <div className="erd-secondary-pane__upload">
           <Dragger {...prop}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">点击或者拖拽PdMand导出的json文件到此区域以上传</p>
+            <p className="ant-upload-text">{designIntl('design.import.reversePdMan.upload.text')}</p>
             <p className="ant-upload-hint">
-              上传完毕后，系统会自动开始解析；每次仅支持解析一个PdMan文件。
+              {designIntl('design.import.reversePdMan.upload.hint')}
             </p>
           </Dragger>
         </div>

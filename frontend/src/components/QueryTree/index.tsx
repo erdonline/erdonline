@@ -6,6 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { Tree, Input, Button, Typography, Empty } from 'antd';
+import { useIntl } from '@umijs/max';
 import { PlusOutlined, DownOutlined, FolderOutlined, CodeOutlined } from '@ant-design/icons';
 import type { DataNode, DirectoryTreeProps } from 'antd/es/tree';
 import { erdColors } from '@/theme/tokens';
@@ -66,6 +67,7 @@ const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree
   },
   ref,
 ) {
+  const intl = useIntl();
   const containerRef = useRef<HTMLDivElement>(null);
   const treeHostRef = useRef<HTMLDivElement>(null);
   const treeRef = useRef<RcTreeKeyboard | null>(null);
@@ -175,7 +177,7 @@ const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree
           size="small"
           icon={<PlusOutlined />}
           onClick={onAdd}
-          aria-label="新建"
+          aria-label={intl.formatMessage({ id: 'queryTree.createAria' })}
         />
       );
     } else if (React.isValidElement(onAdd)) {
@@ -194,8 +196,8 @@ const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree
       <div className="query-tree__toolbar" data-testid="query-tree-toolbar">
         <Search
           size="small"
-          placeholder="搜索表名"
-          aria-label="搜索表名"
+          placeholder={intl.formatMessage({ id: 'queryTree.searchPlaceholder' })}
+          aria-label={intl.formatMessage({ id: 'queryTree.searchAria' })}
           value={draft}
           onChange={(e) => {
             const next = e.target.value;
@@ -224,7 +226,9 @@ const QueryTree = forwardRef<QueryTreeHandle, QueryTreeProps>(function QueryTree
             <Empty
               image={Empty.PRESENTED_IMAGE_SIMPLE}
               imageStyle={{ height: 48 }}
-              description={<span>未找到匹配的表</span>}
+              description={
+                <span>{intl.formatMessage({ id: 'queryTree.emptyDescription' })}</span>
+              }
             />
           </div>
         ) : (

@@ -1,6 +1,7 @@
 import React, { useContext, useEffect, useMemo, useState } from "react";
 import { Menu } from "antd";
 import type { MenuProps } from "antd";
+import { useIntl } from '@umijs/max';
 import ReverseDatabase from "../dialog/import/ReverseDatabase";
 import ReversePdMan from "@/components/dialog/import/ReversePdMan";
 import ExportDDL from "@/components/dialog/export/ExportDDL";
@@ -76,6 +77,7 @@ export const SetUpMenu: React.FunctionComponent<IFileMenuProps> = (props) => (
 );
 
 export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const project = useProjectStore((s) => s.project, shallow);
   const { projectDispatch } = useProjectStore(
@@ -130,7 +132,7 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     setOpenKeys([]);
     // 子菜单项随面板卸载；先把焦点交给「项目菜单」，便于 Modal focusTriggerAfterClose
     document
-      .querySelector<HTMLElement>('button[aria-label="项目菜单"]')
+      .querySelector<HTMLElement>(`button[aria-label="${intl.formatMessage({ id: 'designLayout.project.menuAria' })}"]`)
       ?.focus();
     setDialog(key);
   };
@@ -167,17 +169,17 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
   const items: MenuProps['items'] = useMemo(() => {
     const recentChildren: MenuProps['items'] =
       status === 'loading' || status === 'idle'
-        ? [{ key: 'recent-loading', label: '加载中…', disabled: true }]
+        ? [{ key: 'recent-loading', label: intl.formatMessage({ id: 'menu.loading' }), disabled: true }]
         : status === 'error'
           ? [
               {
                 key: 'recent-error',
-                label: '加载失败，点全部项目查看',
+                label: intl.formatMessage({ id: 'menu.loadError' }),
                 disabled: true,
               },
             ]
           : recent.length === 0
-            ? [{ key: 'recent-empty', label: '暂无最近项目', disabled: true }]
+            ? [{ key: 'recent-empty', label: intl.formatMessage({ id: 'menu.recentEmpty' }), disabled: true }]
             : recent.map((p) => {
                 const isCurrent = p.id === currentId;
                 return {
@@ -191,126 +193,126 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
     return [
       {
         key: 'all-projects',
-        label: '全部项目',
+        label: intl.formatMessage({ id: 'menu.allProjects' }),
         onClick: openAllProjects,
       },
       { type: 'divider' },
       {
         type: 'group',
-        label: '最近项目',
+        label: intl.formatMessage({ id: 'menu.recentProjects' }),
         children: recentChildren,
       },
       { type: 'divider' },
       {
         key: 'rename-project',
-        label: <span data-testid="project-menu-rename">修改项目</span>,
+        label: <span data-testid="project-menu-rename">{intl.formatMessage({ id: 'menu.renameProject' })}</span>,
         onClick: () => openDialog('rename-project'),
       },
       { type: 'divider' },
       {
         key: 'import',
-        label: '导入',
+        label: intl.formatMessage({ id: 'designLayout.route.import' }),
         popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'import-reverse',
-            label: '数据源逆向解析',
+            label: intl.formatMessage({ id: 'designLayout.route.reverseParse' }),
             onClick: () => openDialog('import-reverse'),
           },
           {
             key: 'import-pdman',
-            label: '解析PdMan文件',
+            label: intl.formatMessage({ id: 'designLayout.route.importPdman' }),
             onClick: () => openDialog('import-pdman'),
           },
           {
             key: 'import-erd',
-            label: '解析ERD文件',
+            label: intl.formatMessage({ id: 'designLayout.route.importErd' }),
             onClick: () => openDialog('import-erd'),
           },
           {
             key: 'import-dbml',
-            label: '导入DBML',
+            label: intl.formatMessage({ id: 'menu.importDbml' }),
             onClick: () => openDialog('import-dbml'),
           },
         ],
       },
       {
         key: 'export',
-        label: '导出',
+        label: intl.formatMessage({ id: 'designLayout.route.export' }),
         popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'export-html',
-            label: '导出HTML',
+            label: intl.formatMessage({ id: 'menu.exportHtml' }),
             onClick: () => exportFile('Html'),
           },
           {
             key: 'export-word',
-            label: '导出Word',
+            label: intl.formatMessage({ id: 'menu.exportWord' }),
             onClick: () => exportFile('Word'),
           },
           {
             key: 'export-md',
-            label: '导出Markdown',
+            label: intl.formatMessage({ id: 'menu.exportMarkdown' }),
             onClick: () => exportFile('Markdown'),
           },
           {
             key: 'export-ddl',
-            label: '导出DDL',
+            label: intl.formatMessage({ id: 'menu.exportDdl' }),
             onClick: () => openDialog('export-ddl'),
           },
           {
             key: 'export-erd',
-            label: '导出ERD',
+            label: intl.formatMessage({ id: 'menu.exportErd' }),
             onClick: () => exportFile('JSON'),
           },
           {
             key: 'export-dbml',
-            label: '导出DBML',
+            label: intl.formatMessage({ id: 'menu.exportDbml' }),
             onClick: () => openDialog('export-dbml'),
           },
         ],
       },
       {
         key: 'setup',
-        label: '设置',
+        label: intl.formatMessage({ id: 'designLayout.route.settings' }),
         popupClassName: 'erd-dense-menu',
         children: [
           {
             key: 'setup-datatype',
             label: (
-              <span data-testid="project-menu-datatype-dict">数据类型字典</span>
+              <span data-testid="project-menu-datatype-dict">{intl.formatMessage({ id: 'designLayout.route.dataTypeDict' })}</span>
             ),
             onClick: () =>
               openSettingPage('/design/table/setting/dataType'),
           },
           {
             key: 'setup-field-library',
-            label: <span data-testid="project-menu-field-library">字段库</span>,
+            label: <span data-testid="project-menu-field-library">{intl.formatMessage({ id: 'designLayout.route.fieldLibrary' })}</span>,
             onClick: () =>
               openSettingPage('/design/table/setting/fieldLibrary'),
           },
           {
             key: 'setup-default-fields',
             label: (
-              <span data-testid="project-menu-default-fields">默认字段设置</span>
+              <span data-testid="project-menu-default-fields">{intl.formatMessage({ id: 'designLayout.route.defaultFields' })}</span>
             ),
             onClick: () =>
               openSettingPage('/design/table/setting/defaultField'),
           },
           {
             key: 'setup-db',
-            label: '数据源设置',
+            label: intl.formatMessage({ id: 'menu.setupDb' }),
             onClick: () => openDialog('setup-db'),
           },
           {
             key: 'setup-ddl-templates',
-            label: <span data-testid="project-menu-ddl-templates">DDL 模板</span>,
+            label: <span data-testid="project-menu-ddl-templates">{intl.formatMessage({ id: 'designLayout.route.databaseTemplates' })}</span>,
             onClick: () => openDialog('setup-ddl-templates'),
           },
           {
             key: 'setup-default',
-            label: '默认项设置',
+            label: intl.formatMessage({ id: 'menu.setupDefault' }),
             onClick: () => openDialog('setup-default'),
           },
         ],
@@ -318,12 +320,12 @@ export const ProjectMenu: React.FunctionComponent<IFileMenuProps> = (props) => {
       { type: 'divider' },
       {
         key: 'publish-template',
-        label: '发布为模板',
+        label: intl.formatMessage({ id: 'menu.publishTemplate' }),
         onClick: () => openDialog('publish-template'),
       },
     ];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [status, recent, currentId, projectDispatch]);
+  }, [status, recent, currentId, projectDispatch, intl]);
 
   return (
     <>

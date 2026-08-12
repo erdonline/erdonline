@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {
   Button as AntButton,
   Checkbox,
@@ -13,6 +13,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {RadioChangeEvent} from "antd/lib/radio/interface";
 import { DataSourceSelect } from "@/components/DataSourceSelect";
+import { designIntl } from '@/pages/design/locales/intl';
 import '../../secondary-pane.scss';
 
 export type ExportDDLProps = {};
@@ -42,6 +43,16 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
   const [form1] = Form.useForm<Step1Values>();
   const [form2] = Form.useForm<Step2Values>();
 
+  const exportContentOptions = useMemo(
+    () => [
+      { label: designIntl('design.export.ddl.content.dropTable'), value: 'deleteTable' },
+      { label: designIntl('design.export.ddl.content.createTable'), value: 'createTable' },
+      { label: designIntl('design.export.ddl.content.createIndex'), value: 'createIndex' },
+      { label: designIntl('design.export.ddl.content.tableComment'), value: 'updateComment' },
+    ],
+    [],
+  );
+
   useEffect(() => {
     projectDispatch.setExportData();
     setTreeData(projectDispatch.initAllKeys() || []);
@@ -70,15 +81,15 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
 
   return (
     <div className="erd-secondary-pane" data-testid="export-ddl-page">
-      <h2 className="erd-secondary-pane__title">导出 DDL</h2>
-      <p className="erd-secondary-pane__hint">选择数据源与表后导出 SQL；步骤条与设置页同密</p>
+      <h2 className="erd-secondary-pane__title">{designIntl('design.export.ddl.title')}</h2>
+      <p className="erd-secondary-pane__hint">{designIntl('design.export.ddl.hint')}</p>
       <Steps
         current={step}
         size="small"
         className="erd-secondary-pane__steps"
         items={[
-          { title: '选择数据源及导出的表' },
-          { title: '导出配置' },
+          { title: designIntl('design.export.ddl.step.select') },
+          { title: designIntl('design.export.ddl.step.config') },
         ]}
       />
       {step === 0 && (
@@ -89,9 +100,9 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
           className="erd-secondary-pane__form"
         >
           <Form.Item
-            label="数据源"
+            label={designIntl('design.common.datasource')}
             name="currentDB"
-            rules={[{ required: true, message: '请选择数据源' }]}
+            rules={[{ required: true, message: designIntl('design.common.selectDatasource') }]}
           >
             <DataSourceSelect
               value={selectedDbValue}
@@ -106,12 +117,12 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
           </Form.Item>
           <Form.Item
             name="name"
-            label="导出数据表"
-            rules={[{ required: true, message: '此项为必填项' }]}
+            label={designIntl('design.export.ddl.tables.label')}
+            rules={[{ required: true, message: designIntl('design.common.requiredField') }]}
           >
             <TreeSelect
               style={{ width: '100%' }}
-              placeholder="点击选择要导出的表"
+              placeholder={designIntl('design.export.ddl.tables.placeholder')}
               allowClear
               treeData={treeData}
               filterTreeNode
@@ -130,7 +141,7 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
             />
           </Form.Item>
           <AntButton type="primary" onClick={() => void goNext()}>
-            下一步
+            {designIntl('design.common.next')}
           </AntButton>
         </Form>
       )}
@@ -142,34 +153,29 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
           className="erd-secondary-pane__form"
           initialValues={{ exportType: 'all' }}
         >
-          <Form.Item name="exportType" label="导出内容">
+          <Form.Item name="exportType" label={designIntl('design.export.ddl.content.label')}>
             <Radio.Group
               onChange={(e: RadioChangeEvent) => {
                 setExportType(e.target.value);
                 projectDispatch.onExportTypeChange(e.target.value);
               }}
               options={[
-                { label: '全部', value: 'all' },
-                { label: '自定义', value: 'customer' },
+                { label: designIntl('design.common.all'), value: 'all' },
+                { label: designIntl('design.common.custom'), value: 'customer' },
               ]}
             />
           </Form.Item>
           {exportType === 'customer' && (
-            <Form.Item name="customer" label="自定义导出内容">
+            <Form.Item name="customer" label={designIntl('design.export.ddl.content.customLabel')}>
               <Checkbox.Group
-                options={[
-                  { label: '删表语句', value: 'deleteTable' },
-                  { label: '建表语句', value: 'createTable' },
-                  { label: '建索引语句', value: 'createIndex' },
-                  { label: '表注释语句', value: 'updateComment' },
-                ]}
+                options={exportContentOptions}
                 onChange={(checkedValue) => {
                   projectDispatch.onCustomTypeChange(checkedValue as unknown as string);
                 }}
               />
             </Form.Item>
           )}
-          <Form.Item label="预览">
+          <Form.Item label={designIntl('design.common.preview')}>
             <Spin spinning={Boolean(exportDdlLoading)}>
               <CodeEditor
                 height={'50vh'}
@@ -181,7 +187,7 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
           </Form.Item>
           <div className="erd-secondary-pane__actions">
             <AntButton key="gotoTwo" onClick={() => setStep(0)}>
-              上一步
+              {designIntl('design.common.prev')}
             </AntButton>
             <AntButton
               type="primary"
@@ -189,7 +195,7 @@ const ExportDDL: React.FC<ExportDDLProps> = () => {
               loading={exporting}
               onClick={() => void handleExport()}
             >
-              导出
+              {designIntl('design.export.ddl.action.export')}
             </AntButton>
           </div>
         </Form>

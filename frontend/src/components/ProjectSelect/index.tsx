@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Select, message } from 'antd';
+import { getIntl } from '@umijs/max';
 import { pageProject, recentProject } from "@/services/project";
 
 const { Option, OptGroup } = Select;
@@ -73,7 +74,7 @@ const ProjectSelect: React.FC<ProjectSelectProps> = ({ value, onChange, style, s
       onChange={onChange}
       style={style}
       size={size}
-      placeholder="选择数据模型"
+      placeholder={getIntl().formatMessage({ id: 'projectSelect.placeholder' })}
       showSearch
       filterOption={false}
       onSearch={handleSearch}
@@ -81,12 +82,12 @@ const ProjectSelect: React.FC<ProjectSelectProps> = ({ value, onChange, style, s
       allowClear
       onClear={handleClear}
     >
-      <OptGroup label="个人项目">
+      <OptGroup label={getIntl().formatMessage({ id: 'dataModels.type.personal' })}>
         {groupedDataModels.personal?.map(model => (
           <Option key={model.id} value={model.id}>{model.projectName}</Option>
         ))}
       </OptGroup>
-      <OptGroup label="团队项目">
+      <OptGroup label={getIntl().formatMessage({ id: 'dataModels.type.team' })}>
         {groupedDataModels.team?.map(model => (
           <Option key={model.id} value={model.id}>{model.projectName}</Option>
         ))}

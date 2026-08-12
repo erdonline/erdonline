@@ -1,3 +1,4 @@
+import { designIntl } from '@/pages/design/locales/intl';
 /**
  * 自定义 smoothstep 边：圆角肘 + 多 FK 分流 + 障碍避让（centerX/bypass/twoBend/astar）+ 干道 bundling（ADR-0016）。
  * 设计器：基数 chip 可点选 1:1 / 1:n / n:1 / n:n；约束名 + ON DELETE/UPDATE；两端 Crow's foot（IE）；分享只读。
@@ -74,16 +75,6 @@ const CARDINALITY_SELECT_OPTIONS = CARDINALITY_OPTIONS.map((v) => ({
   label: v,
 }));
 
-const DELETE_RULE_SELECT_OPTIONS = [
-  { value: '', label: 'ON DELETE · 默认' },
-  ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON DELETE ${v}` })),
-];
-
-const UPDATE_RULE_SELECT_OPTIONS = [
-  { value: '', label: 'ON UPDATE · 默认' },
-  ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON UPDATE ${v}` })),
-];
-
 function ErdRelationEdge({
   id,
   source,
@@ -118,6 +109,20 @@ function ErdRelationEdge({
   const cardOpenRef = useRef(false);
   const skipConstraintCommitRef = useRef(false);
   cardOpenRef.current = cardOpen;
+  const deleteRuleSelectOptions = useMemo(
+    () => [
+      { value: '', label: designIntl('design.relation.edge.onDeleteDefault') },
+      ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON DELETE ${v}` })),
+    ],
+    [],
+  );
+  const updateRuleSelectOptions = useMemo(
+    () => [
+      { value: '', label: designIntl('design.relation.edge.onUpdateDefault') },
+      ...FK_RULE_OPTIONS.map((v) => ({ value: v, label: `ON UPDATE ${v}` })),
+    ],
+    [],
+  );
   // 垂直 Y 分流：肘段错开；端点仍贴近字段手柄（0.4 系数避免断柄感）
   const yShift = lane * 0.4;
 
@@ -402,9 +407,9 @@ function ErdRelationEdge({
 
   const fkMeta = formatAssociationFkMeta(data);
   const baseAria = editable
-    ? `关系基数 ${displayLabel || '未设'}，点击修改约束名与 ON DELETE/UPDATE；Delete 删除关系`
+    ? designIntl('design.relation.edge.aria.summaryEditable', { label: displayLabel || designIntl('design.relation.edge.aria.summaryUnset') })
     : displayLabel
-      ? `关系 ${displayLabel}`
+      ? designIntl('design.relation.edge.aria.summaryReadonly', { label: displayLabel })
       : undefined;
   const ariaLabel =
     baseAria && fkMeta ? `${baseAria}（${fkMeta}）` : baseAria;
@@ -485,11 +490,11 @@ function ErdRelationEdge({
                         return;
                       }
                       confirmDestructive({
-                        title: `确定删除关系 "${from.entity}.${from.field} → ${to.entity}.${to.field}" 吗?`,
-                        content: '此操作不可逆，请谨慎操作。',
-                        okText: '删除',
+                        title: designIntl('design.relation.edge.confirmDelete.title', { fromEntity: from.entity, fromField: from.field, toEntity: to.entity, toField: to.field }),
+                        content: designIntl('design.common.destructive.content'),
+                        okText: designIntl('design.common.delete'),
                         okType: 'danger',
-                        cancelText: '取消',
+                        cancelText: designIntl('design.common.cancel'),
                         async onOk() {
                           // 禁止本地 mutate 即「关系删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
                           const ok = await Promise.resolve(
@@ -500,7 +505,7 @@ function ErdRelationEdge({
                             ),
                           );
                           if (!ok) {
-                            return Promise.reject(new Error('关系删除落盘失败'));
+                            return Promise.reject(new Error(designIntl('design.relation.edge.error.deleteFailed')));
                           }
                         },
                       });
@@ -537,7 +542,7 @@ function ErdRelationEdge({
                   open={cardOpen}
                   className="erd-edge-cardinality-select"
                   data-testid="erd-edge-cardinality"
-                  aria-label="选择关系基数"
+                  aria-label={designIntl('design.relation.edge.aria.cardinality')}
                   value={isCardinality(String(currentValue)) ? currentValue : 'n:1'}
                   options={CARDINALITY_SELECT_OPTIONS}
                   onChange={(v) => commitRelation(String(v))}
@@ -550,8 +555,8 @@ function ErdRelationEdge({
                   size="small"
                   className="erd-edge-constraint-input"
                   data-testid="erd-edge-constraint-name"
-                  aria-label="FK 约束名"
-                  placeholder="约束名（可选）"
+                  aria-label={designIntl('design.relation.edge.aria.constraint')}
+                  placeholder={designIntl('design.relation.edge.placeholder.constraint')}
                   value={constraintDraft}
                   onClick={() => setCardOpen(false)}
                   onFocus={() => setCardOpen(false)}
@@ -579,7 +584,7 @@ function ErdRelationEdge({
                   data-testid="erd-edge-delete-rule"
                   aria-label="ON DELETE"
                   value={deleteRuleValue}
-                  options={DELETE_RULE_SELECT_OPTIONS}
+                  options={deleteRuleSelectOptions}
                   onClick={() => setCardOpen(false)}
                   onFocus={() => setCardOpen(false)}
                   onChange={(v) => commitFkMeta({ deleteRule: String(v ?? '') })}
@@ -593,7 +598,7 @@ function ErdRelationEdge({
                   data-testid="erd-edge-update-rule"
                   aria-label="ON UPDATE"
                   value={updateRuleValue}
-                  options={UPDATE_RULE_SELECT_OPTIONS}
+                  options={updateRuleSelectOptions}
                   onClick={() => setCardOpen(false)}
                   onFocus={() => setCardOpen(false)}
                   onChange={(v) => commitFkMeta({ updateRule: String(v ?? '') })}

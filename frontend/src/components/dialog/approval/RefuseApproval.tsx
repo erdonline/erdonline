@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
+import { useIntl } from '@umijs/max';
 import { CloseCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
@@ -11,21 +12,23 @@ export type RefuseApprovalProps = {
 };
 
 const RefuseApproval: React.FC<RefuseApprovalProps> = (props) => {
+  const intl = useIntl();
+
   const onRefuseClick = () => {
     confirmDestructive({
-      title: '拒绝审批',
-      content: '确认拒绝该审批？发起人可在工单页复批。',
-      okText: '拒绝',
+      title: intl.formatMessage({ id: 'approvalModal.refuseTitle' }),
+      content: intl.formatMessage({ id: 'approvalModal.refuseContent' }),
+      okText: intl.formatMessage({ id: 'approvalModal.refuseOk' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 3,
-            approveResult: '请检查后重新发起审批',
+            approveResult: intl.formatMessage({ id: 'approvalModal.refuseResult' }),
           }),
           props.actionRef,
-          '已拒绝',
+          intl.formatMessage({ id: 'approvalModal.refuseSuccess' }),
         ),
     });
   };
@@ -39,7 +42,7 @@ const RefuseApproval: React.FC<RefuseApprovalProps> = (props) => {
       icon={<CloseCircleOutlined />}
       onClick={onRefuseClick}
     >
-      拒绝
+      {intl.formatMessage({ id: 'approvalModal.refuseButton' })}
     </Button>
   );
 };

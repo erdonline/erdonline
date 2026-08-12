@@ -22,6 +22,7 @@ import useProjectStore from '@/store/project/useProjectStore';
 import useGlobalStore from '@/store/global/globalStore';
 import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { history } from 'umi';
+import { designIntl } from '@/pages/design/locales/intl';
 import { erdColors } from '@/theme/tokens';
 import ErdEmptyDiagram from '@/components/ErdEmptyDiagram';
 import {
@@ -301,7 +302,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
       return true;
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
       if (revert) {
         editingRef.current = revert;
         setEditing(revert);
@@ -339,9 +340,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       setEditing(null);
       setShowHiddenFields(true);
       setTimeout(() => { ignoreBlurRef.current = false; }, 0);
-      message.info(`已在关系图中隐藏「${fieldName}」；可点表底「已隐藏」恢复，或在表设计「字段」签取消隐藏`);
+      message.info(designIntl('design.relation.field.hiddenInfo', { name: fieldName }));
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
     } finally {
       fieldSavingRef.current = false;
       setFieldSaving(false);
@@ -364,9 +365,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       if (!ok) {
         return;
       }
-      message.success(`已在关系图中显示「${fieldName}」`);
+      message.success(designIntl('design.relation.field.shown', { name: fieldName }));
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
     }
   };
 
@@ -431,18 +432,18 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         setEditing(null);
         return;
       }
-      message.warning('字段名不能为空');
+      message.warning(designIntl('design.relation.field.error.emptyName'));
       return;
     }
     if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
-      message.warning('字段名仅支持字母、数字、下划线，且以字母或下划线开头');
+      message.warning(designIntl('design.relation.field.error.invalidName'));
       return;
     }
     const allFields = entityFieldsRef.current;
     const visible = allFields.filter(f => !f.relationNoShow);
     const dup = visible.some(f => f.name === name && f.name !== current.key);
     if (dup) {
-      message.warning(`字段 ${name} 已存在`);
+      message.warning(designIntl('design.relation.field.error.duplicate', { name }));
       return;
     }
 
@@ -500,7 +501,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         }
         finishFieldCommit(nextFields, name, advance);
       } catch {
-        message.error('字段保存失败');
+        message.error(designIntl('design.common.error.fieldSaveFailed'));
         if (advance) {
           ignoreBlurRef.current = false;
         }
@@ -529,7 +530,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       setSelectedField(prev => (prev === fieldName ? null : prev));
       return true;
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
       return false;
     }
   };
@@ -537,15 +538,15 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   /** 破坏性：按钮 / 浏览态 Delete·Backspace 共用二次确认；确认后落盘失败拒关窗可再点删除 */
   const confirmRemoveField = (fieldName: string) => {
     confirmDestructive({
-      title: `确定删除字段 "${fieldName}" 吗?`,
-      content: '此操作不可逆，请谨慎操作。',
-      okText: '删除',
+      title: designIntl('design.relation.field.confirmDelete.title', { name: fieldName }),
+      content: designIntl('design.common.destructive.content'),
+      okText: designIntl('design.common.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: designIntl('design.common.cancel'),
       async onOk() {
         const ok = await removeField(fieldName);
         if (!ok) {
-          return Promise.reject(new Error('字段删除落盘失败'));
+          return Promise.reject(new Error(designIntl('design.relation.field.error.deleteFailed')));
         }
       },
     });
@@ -567,7 +568,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         ),
       );
     } catch {
-      message.error('字段保存失败');
+      message.error(designIntl('design.common.error.fieldSaveFailed'));
     }
   };
 
@@ -587,8 +588,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     headerIgnoreBlurRef.current = true;
     const root = document.activeElement?.closest('.erd-table-header');
     const sel = part === 'name'
-      ? 'input[aria-label="表名"]'
-      : 'input[aria-label="表中文名"]';
+      ? 'input[aria-label={designIntl('design.common.table.name')}]'
+      : 'input[aria-label={designIntl('design.common.table.chnname')}]';
     setTimeout(() => {
       (root?.querySelector(sel) as HTMLElement | null)?.focus();
       headerIgnoreBlurRef.current = false;
@@ -603,11 +604,11 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     const chn = headerChnname.trim();
     if (!name) {
       // 与字段空名同形：toast 并留在编辑（禁止静默丢）
-      message.warning('表名不能为空');
+      message.warning(designIntl('design.relation.table.error.emptyName'));
       return;
     }
     if (!/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) {
-      message.warning('表名仅支持字母、数字、下划线，且以字母或下划线开头');
+      message.warning(designIntl('design.relation.table.error.invalidName'));
       return;
     }
     const titleSame = name === entity.title;
@@ -638,7 +639,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       }
     } catch {
       // renameEntity 同步抛错时仍保持编辑态；业务失败已由 request/persist toast
-      message.error('表保存失败');
+      message.error(designIntl('design.relation.table.error.saveFailed'));
     } finally {
       headerSavingRef.current = false;
       setHeaderSaving(false);
@@ -662,16 +663,16 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     }
     if (e.key === 'Tab') {
       e.preventDefault();
-      const label = (e.currentTarget as HTMLElement).getAttribute('aria-label');
+      const part = (e.currentTarget as HTMLElement).dataset.editPart;
       if (!e.shiftKey) {
-        if (label === '表名') {
+        if (part === 'name') {
           focusHeaderPart('chnname');
           return;
         }
         void commitHeader();
         return;
       }
-      if (label === '表中文名') {
+      if (part === 'chnname') {
         focusHeaderPart('name');
         return;
       }
@@ -704,12 +705,12 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     ignoreBlurRef.current = true;
     const root = document.activeElement?.closest('.erd-field-editing');
     const sel = part === 'name'
-      ? 'input[aria-label="字段名"]'
+      ? 'input[aria-label={designIntl('design.common.field.name')}]'
       : part === 'chnname'
-        ? 'input[aria-label="中文名"]'
+        ? 'input[aria-label={designIntl('design.common.field.chnname')}]'
         : part === 'type'
-          ? 'select[aria-label="字段类型"]'
-          : 'input[aria-label="默认值"]';
+          ? 'select[aria-label={designIntl('design.common.field.type')}]'
+          : 'input[aria-label={designIntl('design.common.field.defaultValue')}]';
     // 等当前 keydown 结束再 focus，避免与 blur 竞态
     setTimeout(() => {
       (root?.querySelector(sel) as HTMLElement | null)?.focus();
@@ -730,11 +731,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
     }
     if (e.key === 'Tab') {
       e.preventDefault();
-      const label = (e.currentTarget as HTMLElement).getAttribute('aria-label');
+      const part = (e.currentTarget as HTMLElement).dataset.editPart;
       const nameTrim = (editingRef.current?.name ?? '').trim();
       if (!e.shiftKey) {
-        // 字段名 Tab → 中文名；空名仍走 commit 校验（保留空名 toast）
-        if (label === '字段名') {
+        if (part === 'name') {
           if (!nameTrim) {
             commit();
             return;
@@ -742,29 +742,26 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           focusEditPart('chnname');
           return;
         }
-        // 中文名 Tab → 类型（不跳行）
-        if (label === '中文名') {
+        if (part === 'chnname') {
           focusEditPart('type');
           return;
         }
-        // 类型 Tab → 默认值（不跳行；默认放次行避免挤爆主栏）
-        if (label === '字段类型') {
+        if (part === 'type') {
           focusEditPart('default');
           return;
         }
-        // 默认值 Tab → 提交并跳下一行
         commit('next');
         return;
       }
-      if (label === '中文名') {
+      if (part === 'chnname') {
         focusEditPart('name');
         return;
       }
-      if (label === '字段类型') {
+      if (part === 'type') {
         focusEditPart('chnname');
         return;
       }
-      if (label === '默认值') {
+      if (part === 'default') {
         focusEditPart('type');
         return;
       }
@@ -791,10 +788,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
       aria-busy={fieldSaving || undefined}
     >
       <div className="erd-field-edit-main">
-        <label className="erd-field-meta-toggle erd-field-pk-toggle" title="主键">
+        <label className="erd-field-meta-toggle erd-field-pk-toggle" title={designIntl('design.common.field.pk')}>
           <input
             type="checkbox"
-            aria-label="主键"
+            aria-label={designIntl('design.common.field.pk')}
             checked={!!editing?.pk}
             disabled={fieldSaving}
             onChange={e => {
@@ -812,10 +809,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           />
           PK
         </label>
-        <label className="erd-field-meta-toggle erd-field-nn-toggle" title="非空">
+        <label className="erd-field-meta-toggle erd-field-nn-toggle" title={designIntl('design.common.field.notNull')}>
           <input
             type="checkbox"
-            aria-label="非空"
+            aria-label={designIntl('design.common.field.notNull')}
             checked={!!editing?.notNull}
             disabled={!!editing?.pk || fieldSaving}
             onChange={e => {
@@ -832,10 +829,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           />
           NN
         </label>
-        <label className="erd-field-meta-toggle erd-field-ai-toggle" title="自增">
+        <label className="erd-field-meta-toggle erd-field-ai-toggle" title={designIntl('design.common.field.autoIncrement')}>
           <input
             type="checkbox"
-            aria-label="自增"
+            aria-label={designIntl('design.common.field.autoIncrement')}
             checked={!!editing?.autoIncrement}
             disabled={fieldSaving}
             onChange={e => {
@@ -853,10 +850,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
           AI
         </label>
         {editing?.key !== '__NEW__' ? (
-          <label className="erd-field-meta-toggle erd-field-hide-toggle" title="在关系图中隐藏">
+          <label className="erd-field-meta-toggle erd-field-hide-toggle" title={designIntl('design.common.field.hideOnDiagram')}>
             <input
               type="checkbox"
-              aria-label="在关系图中隐藏"
+              aria-label={designIntl('design.common.field.hideOnDiagram')}
               checked={false}
               disabled={fieldSaving}
               onChange={e => {
@@ -872,9 +869,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         ) : null}
         <input
           className="erd-field-input"
-          aria-label="字段名"
+          aria-label={designIntl('design.common.field.name')}
           autoFocus
-          placeholder="字段名"
+          placeholder={designIntl('design.common.field.name')}
           disabled={fieldSaving}
           value={editing?.name ?? ''}
           onChange={e => {
@@ -891,8 +888,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         />
         <input
           className="erd-field-chnname-input"
-          aria-label="中文名"
-          placeholder="中文名"
+          aria-label={designIntl('design.common.field.chnname')}
+          placeholder={designIntl('design.common.field.chnname')}
           disabled={fieldSaving}
           value={editing?.chnname ?? ''}
           onChange={e => {
@@ -909,7 +906,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         />
         <select
           className="erd-field-type-select"
-          aria-label="字段类型"
+          aria-label={designIntl('design.common.field.type')}
+          data-edit-part="type"
           data-testid="field-type-select"
           disabled={fieldSaving}
           value={editing?.type ?? 'String'}
@@ -953,18 +951,19 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             </optgroup>
           ) : null}
           {editing?.type && !typePartitions.byCode.has(editing.type) ? (
-            <optgroup label="当前值">
+            <optgroup label={designIntl('design.relation.field.optgroup.current')}>
               <option value={editing.type}>{editing.type}</option>
             </optgroup>
           ) : null}
         </select>
       </div>
       <div className="erd-field-edit-default">
-        <span className="erd-field-default-label" aria-hidden>默认</span>
+        <span className="erd-field-default-label" aria-hidden>{designIntl('design.relation.field.defaultLabel')}</span>
         <input
           className="erd-field-default-input"
-          aria-label="默认值"
-          placeholder="默认值（可选）"
+          aria-label={designIntl('design.common.field.defaultValue')}
+          data-edit-part="default"
+          placeholder={designIntl('design.common.field.defaultOptional')}
           disabled={fieldSaving}
           value={editing?.defaultValue ?? ''}
           onChange={e => {
@@ -1001,13 +1000,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             setHeaderEditing(true);
           }
         }}
-        title="选中后再点表头，或双击，可改表名与中文名"
+        title={designIntl('design.relation.table.title.selectHint')}
       >
         {headerEditing ? (
           <div className="erd-header-inputs" aria-busy={headerSaving || undefined}>
             <input
               className="erd-header-input"
-              aria-label="表名"
+              aria-label={designIntl('design.common.table.name')}
+              data-edit-part="name"
               autoFocus
               disabled={headerSaving}
               value={headerName}
@@ -1017,8 +1017,9 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             />
             <input
               className="erd-header-chnname-input"
-              aria-label="表中文名"
-              placeholder="中文名"
+              aria-label={designIntl('design.common.table.chnname')}
+              data-edit-part="chnname"
+              placeholder={designIntl('design.common.field.chnname')}
               disabled={headerSaving}
               value={headerChnname}
               onChange={e => setHeaderChnname(e.target.value)}
@@ -1034,8 +1035,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               type="button"
               className="erd-header-edit nodrag nopan"
               data-testid="table-rename-btn"
-              aria-label="修改表名"
-              title="修改表名与中文名"
+              aria-label={designIntl('design.relation.table.aria.editName')}
+              title={designIntl('design.common.table.editNameTitle')}
               tabIndex={selected ? 0 : -1}
               onClick={e => {
                 e.stopPropagation();
@@ -1062,7 +1063,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               ].filter(Boolean).join(' ')}
               // 字段浏览器 Tab 环：仅选中表进序；行内 PK/✎/× 用 tabIndex=-1，避免每行 4 停 trap
               tabIndex={selected ? 0 : -1}
-              aria-label={`字段 ${f.name}`}
+              aria-label={designIntl('design.relation.field.aria.row', { name: f.name })}
               aria-current={selectedField === f.name ? 'true' : undefined}
               onClick={e => {
                 const t = e.target as HTMLElement;
@@ -1099,7 +1100,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 e.preventDefault();
                 confirmRemoveField(f.name);
               }}
-              title="单击选中后 Delete/Backspace 删除；Enter/双击/✎ 编辑；Tab 下一字段"
+              title={designIntl('design.relation.field.title.rowHint')}
               data-field={f.name}
             >
               {/* 双侧 src/tgt：左靶在上（易落点）、右源在上（易拖出）；几何择柄消竖叠 circle-route */}
@@ -1109,8 +1110,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 <button
                   type="button"
                   className={`erd-pk-badge nodrag${f.pk ? ' active' : ' inactive'}`}
-                  aria-label={f.pk ? '取消主键' : '设为主键'}
-                  title={f.pk ? '取消主键' : '设为主键'}
+                  aria-label={f.pk ? designIntl('design.relation.field.aria.untogglePk') : designIntl('design.relation.field.aria.togglePk')}
+                  title={f.pk ? designIntl('design.relation.field.title.untogglePk') : designIntl('design.relation.field.title.togglePk')}
                   tabIndex={-1}
                   onClick={e => {
                     e.stopPropagation();
@@ -1120,13 +1121,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                   PK
                 </button>
                 {fkSet.has(f.name) ? (
-                  <span className="erd-fk-badge" title="外键" aria-label="外键">FK</span>
+                  <span className="erd-fk-badge" title={designIntl('design.common.field.fk')} aria-label={designIntl('design.common.field.fk')}>FK</span>
                 ) : null}
                 {uniqueSet.has(f.name) ? (
                   <span
                     className="erd-uk-badge"
-                    title="唯一索引（在表设计·索引签设置）"
-                    aria-label="唯一"
+                    title={designIntl('design.relation.field.title.uniqueIndex')}
+                    aria-label={designIntl('design.common.field.unique')}
                     data-testid="field-uk-badge"
                   >
                     UK
@@ -1141,14 +1142,14 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                   <span
                     className="erd-field-type-enum-badge"
                     data-testid={`field-type-enum-badge-${f.name}`}
-                    title="枚举类型"
+                    title={designIntl('design.relation.field.title.enumType')}
                   >
                     {' '}
                     枚举
                   </span>
                 ) : null}
                 {f.defaultValue ? (
-                  <span className="erd-field-default" title={`默认 ${f.defaultValue}`}>
+                  <span className="erd-field-default" title={designIntl('design.relation.field.title.defaultValue', { value: f.defaultValue })}>
                     {' '}={f.defaultValue}
                   </span>
                 ) : null}
@@ -1157,8 +1158,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 type="button"
                 className="erd-field-edit nodrag"
                 data-testid="field-edit-btn"
-                aria-label="编辑字段"
-                title="编辑字段"
+                aria-label={designIntl('design.relation.field.aria.edit')}
+                title={designIntl('design.relation.field.aria.edit')}
                 tabIndex={-1}
                 onClick={e => {
                   e.stopPropagation();
@@ -1170,8 +1171,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               <button
                 type="button"
                 className="erd-field-delete nodrag"
-                aria-label="删除字段"
-                title="删除字段"
+                aria-label={designIntl('design.relation.field.aria.delete')}
+                title={designIntl('design.relation.field.aria.delete')}
                 tabIndex={-1}
                 onClick={e => {
                   e.stopPropagation();
@@ -1193,7 +1194,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               type="button"
               className="erd-field-add erd-field-add--cta nodrag"
               data-testid="canvas-add-field"
-              aria-label="添加第一个字段"
+              aria-label={designIntl('design.relation.field.aria.addFirst')}
               tabIndex={selected ? 0 : -1}
               onClick={() => {
                 setSelectedField(null);
@@ -1212,7 +1213,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="button"
             className="erd-field-add nodrag"
             data-testid="canvas-add-field"
-            aria-label="添加字段"
+            aria-label={designIntl('design.relation.field.aria.add')}
             tabIndex={selected ? 0 : -1}
             onClick={() => {
               setSelectedField(null);
@@ -1232,7 +1233,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
               className="erd-field-hidden-toggle"
               data-testid="field-hidden-toggle"
               aria-expanded={showHiddenFields}
-              aria-label={`已隐藏 ${hiddenFields.length} 个字段`}
+              aria-label={designIntl('design.relation.field.aria.hiddenCount', { count: hiddenFields.length })}
               tabIndex={selected ? 0 : -1}
               onClick={e => {
                 e.stopPropagation();
@@ -1251,7 +1252,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
                 <button
                   type="button"
                   className="erd-field-unhide"
-                  aria-label={`在关系图中显示 ${f.name}`}
+                  aria-label={designIntl('design.relation.field.aria.showHidden', { name: f.name })}
                   tabIndex={selected ? 0 : -1}
                   onClick={e => {
                     e.stopPropagation();
@@ -1264,13 +1265,13 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             ))}
           </div>
         )}
-        <div className="erd-open-design nodrag nopan" role="group" aria-label="打开表设计">
+        <div className="erd-open-design nodrag nopan" role="group" aria-label={designIntl('design.relation.canvas.openDesign')}>
           <button
             type="button"
             className="erd-open-design__btn"
             data-testid="canvas-open-field"
-            aria-label="打开字段"
-            title="打开表设计 · 字段"
+            aria-label={designIntl('design.relation.canvas.openFields')}
+            title={designIntl('design.relation.canvas.openFieldsTitle')}
             tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
@@ -1291,8 +1292,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="button"
             className="erd-open-design__btn"
             data-testid="canvas-open-index"
-            aria-label="打开索引"
-            title="打开表设计 · 索引"
+            aria-label={designIntl('design.relation.canvas.openIndexes')}
+            title={designIntl('design.relation.canvas.openIndexesTitle')}
             tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
@@ -1313,8 +1314,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="button"
             className="erd-open-design__btn"
             data-testid="canvas-open-code"
-            aria-label="打开元数据应用"
-            title="打开表设计 · 元数据应用"
+            aria-label={designIntl('design.relation.canvas.openMetadata')}
+            title={designIntl('design.relation.canvas.openMetadataTitle')}
             tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
@@ -1335,8 +1336,8 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
             type="button"
             className="erd-open-design__btn"
             data-testid="canvas-open-trigger"
-            aria-label="打开触发器"
-            title="打开表设计 · 触发器"
+            aria-label={designIntl('design.relation.canvas.openTriggers')}
+            title={designIntl('design.relation.canvas.openTriggersTitle')}
             tabIndex={selected ? 0 : -1}
             onClick={e => {
               e.stopPropagation();
@@ -1423,7 +1424,7 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
         setRenaming(false);
       }
     } catch {
-      message.error('分组保存失败');
+      message.error(designIntl('design.relation.frame.error.saveFailed'));
     } finally {
       savingRef.current = false;
       setSaving(false);
@@ -1451,14 +1452,14 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
           height: '100%',
           background: f.color || erdColors.frameFill,
         }}
-        aria-label={`分组 ${f.name}`}
+        aria-label={designIntl('design.relation.frame.aria.group', { name: f.name })}
       >
         <div className="erd-frame-chrome">
           {renaming ? (
             <input
               className="erd-frame-rename nodrag nopan"
               data-testid="frame-rename-input"
-              aria-label="分组名称"
+              aria-label={designIntl('design.relation.frame.aria.name')}
               value={draft}
               autoFocus
               disabled={saving}
@@ -1486,8 +1487,8 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
               data-testid="frame-rename-label"
               role="button"
               tabIndex={selected ? 0 : -1}
-              aria-label={`重命名分组 ${f.name}`}
-              title="双击或 Enter 重命名"
+              aria-label={designIntl('design.relation.frame.aria.rename', { name: f.name })}
+              title={designIntl('design.relation.frame.title.rename')}
               onDoubleClick={(e) => {
                 e.stopPropagation();
                 setDraft(f.name);
@@ -1826,14 +1827,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         const titles = tableRemoves.map((c) => c.id);
         const titleText =
           titles.length === 1
-            ? `确定删除表 "${titles[0]}" 吗?`
-            : `确定删除 ${titles.length} 张表吗?`;
+            ? designIntl('design.relation.table.confirmDelete.one', { name: titles[0] })
+            : designIntl('design.relation.table.confirmDelete.many', { count: titles.length });
         confirmDestructive({
           title: titleText,
-          content: '此操作不可逆，请谨慎操作。',
-          okText: '删除',
+          content: designIntl('design.common.destructive.content'),
+          okText: designIntl('design.common.delete'),
           okType: 'danger',
-          cancelText: '取消',
+          cancelText: designIntl('design.common.cancel'),
           async onOk() {
             // 禁止本地 mutate 即「表删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
             const ok = await Promise.resolve(
@@ -1844,7 +1845,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               ),
             );
             if (!ok) {
-              return Promise.reject(new Error('表删除落盘失败'));
+              return Promise.reject(new Error(designIntl('design.relation.table.error.deleteFailed')));
             }
           },
         });
@@ -1859,14 +1860,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         });
         const titleText =
           framesToRemove.length === 1
-            ? `确定删除分组 "${framesToRemove[0].name}" 吗?`
-            : `确定删除 ${framesToRemove.length} 个分组吗?`;
+            ? designIntl('design.relation.frame.confirmDelete.one', { name: framesToRemove[0].name })
+            : designIntl('design.relation.frame.confirmDelete.many', { count: framesToRemove.length });
         confirmDestructive({
           title: titleText,
-          content: '仅删除分组框，表不会一起删除。',
-          okText: '删除',
+          content: designIntl('design.relation.frame.confirmDelete.content'),
+          okText: designIntl('design.common.delete'),
           okType: 'danger',
-          cancelText: '取消',
+          cancelText: designIntl('design.common.cancel'),
           async onOk() {
             // 禁止本地 mutate 即「已删除分组」；仅 saveProject code===200 移出；失败拒关窗可重试
             const ok = await Promise.resolve(
@@ -1878,7 +1879,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               ),
             );
             if (!ok) {
-              return Promise.reject(new Error('分组删除落盘失败'));
+              return Promise.reject(new Error(designIntl('design.relation.frame.error.deleteFailed')));
             }
           },
         });
@@ -2296,7 +2297,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
   const onFitSelectedFrame = useCallback(() => {
     const frameNode = nodes.find((n) => n.selected && n.type === 'frame');
     if (!frameNode) {
-      message.info('请先选中一个分组');
+      message.info(designIntl('design.relation.frame.info.selectFirst'));
       return;
     }
     const frame = frameNode.data?.frame as DiagramFrame;
@@ -2304,7 +2305,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       (n) => n.type === 'table' && (frame.memberEntityIds || []).includes(n.id),
     );
     if (!members.length) {
-      message.info('分组内还没有表，可拖表进入或点「加入分组」');
+      message.info(designIntl('design.relation.frame.info.empty'));
       return;
     }
     const bounds = computeFrameBoundsFromNodes(nodesForBounds(members));
@@ -2357,18 +2358,18 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         }
         return;
       }
-      message.success('已适应成员');
+      message.success(designIntl('design.relation.frame.success.fitMembers'));
     })();
   }, [nodes, projectDispatch, moduleName, activeDiagramId, setNodes]);
 
   const onAssignToFrame = useCallback(() => {
     const selected = nodes.filter((n) => n.selected && n.type === 'table');
     if (!selected.length) {
-      message.info('请先选中要加入分组的表');
+      message.info(designIntl('design.relation.frame.info.selectTables'));
       return;
     }
     if (!frames.length) {
-      message.info('请先新建分组');
+      message.info(designIntl('design.relation.frame.info.createFirst'));
       return;
     }
     const applyJoin = async (frameId: string) => {
@@ -2412,7 +2413,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     const prev = nodesRef.current;
     const selected = prev.filter((n) => n.selected && n.type === 'table');
     if (selected.length < 2) {
-      message.info('请先选中至少两张表（Shift+点击或框选）');
+      message.info(designIntl('design.relation.frame.info.selectMultiTables'));
       return;
     }
     const w = (n: Node) => n.width || 220;
@@ -2480,13 +2481,13 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       connectAttemptRef.current.connected = true;
       const { source, sourceHandle, target, targetHandle } = connection;
       if (!source || !target || !sourceHandle || !targetHandle) {
-        message.warning('连线未完成，请从外键字段拖到主键字段的接入点');
+        message.warning(designIntl('design.relation.connect.warn.incomplete'));
         return;
       }
       const fromH = parseFieldHandle(sourceHandle);
       const toH = parseFieldHandle(targetHandle);
       if (!fromH || fromH.role !== 'src' || !toH || toH.role !== 'tgt') {
-        message.warning('请从外键字段实心锚点拖出，接到主键字段空心接入点');
+        message.warning(designIntl('design.relation.connect.warn.fromFk'));
         return;
       }
       void projectDispatch.addAssociation(
@@ -2525,10 +2526,10 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     }
     const el = document.elementFromPoint(point.x, point.y);
     if (el && typeof el.closest === 'function' && el.closest('.react-flow__handle')) {
-      message.warning('请拖到目标字段的接入点（空心圆）；不能接到同类型锚点');
+      message.warning(designIntl('design.relation.connect.warn.wrongTarget'));
       return;
     }
-    message.warning('请对准字段旁的接入点（空心圆）松开，才能建立关联');
+    message.warning(designIntl('design.relation.connect.warn.missPort'));
   }, []);
 
   // 边变更：只保留选中态；忽略 RF 因 handle 失效产生的 remove（边列表由 associations 派生）。
@@ -2579,21 +2580,26 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       }
       const titleText =
         toRemove.length === 1
-          ? `确定删除关系 "${toRemove[0].from.entity}.${toRemove[0].from.field} → ${toRemove[0].to.entity}.${toRemove[0].to.field}" 吗?`
-          : `确定删除 ${toRemove.length} 条关系吗?`;
+          ? designIntl('design.relation.relation.confirmDelete.one', {
+              fromEntity: toRemove[0].from.entity,
+              fromField: toRemove[0].from.field,
+              toEntity: toRemove[0].to.entity,
+              toField: toRemove[0].to.field,
+            })
+          : designIntl('design.relation.relation.confirmDelete.many', { count: toRemove.length });
       confirmDestructive({
         title: titleText,
-        content: '此操作不可逆，请谨慎操作。',
-        okText: '删除',
+        content: designIntl('design.common.destructive.content'),
+        okText: designIntl('design.common.delete'),
         okType: 'danger',
-        cancelText: '取消',
+        cancelText: designIntl('design.common.cancel'),
         async onOk() {
           // 禁止本地 mutate 即「关系删除成功」；仅 saveProject code===200 移出；失败拒关窗可重试
           const ok = await Promise.resolve(
             projectDispatch.removeAssociation(moduleEntity.module, toRemove, { persist: true }),
           );
           if (!ok) {
-            return Promise.reject(new Error('关系删除落盘失败'));
+            return Promise.reject(new Error(designIntl('design.relation.edge.error.deleteFailed')));
           }
           setEdgeSelected({});
         },
@@ -2636,7 +2642,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     const prev = nodesRef.current;
     const tables = prev.filter((n) => n.type === 'table');
     if (!tables.length) {
-      message.info('画布上还没有表');
+      message.info(designIntl('design.relation.canvas.info.noTables'));
       return;
     }
     const rest = prev.filter((n) => n.type !== 'table');
@@ -2972,37 +2978,37 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
     const actions: CommandItem[] = [
       {
         id: 'new-table',
-        title: '新建表',
-        hint: '创建并立即上图',
+        title: designIntl('design.relation.cmd.newTable'),
+        hint: designIntl('design.relation.cmd.newTableHint'),
         run: createFirstTable,
       },
       {
         id: 'auto-layout',
-        title: '自动布局',
-        hint: '按关联分层排布',
+        title: designIntl('design.relation.cmd.autoLayout'),
+        hint: designIntl('design.relation.cmd.autoLayoutHint'),
         run: autoLayout,
       },
       {
         id: 'align-left',
-        title: '左对齐',
-        hint: '选中 ≥2 张表',
+        title: designIntl('design.relation.cmd.alignLeft'),
+        hint: designIntl('design.relation.cmd.alignHint'),
         run: () => alignSelected('left'),
       },
       {
         id: 'align-top',
-        title: '顶对齐',
-        hint: '选中 ≥2 张表',
+        title: designIntl('design.relation.cmd.alignTop'),
+        hint: designIntl('design.relation.cmd.alignHint'),
         run: () => alignSelected('top'),
       },
       {
         id: 'undo',
-        title: '撤销',
+        title: designIntl('design.relation.shortcut.undo'),
         hint: '⌘Z',
         run: () => projectDispatch.undoCanvas(),
       },
       {
         id: 'redo',
-        title: '重做',
+        title: designIntl('design.relation.shortcut.redo'),
         hint: '⌘⇧Z',
         run: () => projectDispatch.redoCanvas(),
       },
@@ -3015,7 +3021,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         return {
           id: `locate-${n.id}`,
           title: entity.title,
-          hint: chn ? `定位 · ${chn}` : '定位到画布',
+          hint: chn ? designIntl('design.relation.cmd.locate', { name: chn }) : designIntl('design.relation.cmd.locateCanvas'),
           run: () => focusTable(n.id),
         };
       });
@@ -3074,7 +3080,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           <ErdMiniMap
             pannable
             zoomable
-            ariaLabel="画布缩略图"
+            ariaLabel={designIntl('design.relation.canvas.minimap')}
             nodeColor={erdColors.surface}
             nodeStrokeColor={erdColors.line}
             nodeStrokeWidth={1.5}
@@ -3087,7 +3093,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           <div
             className="erd-canvas-toolbar"
             role="toolbar"
-            aria-label="画布工具"
+            aria-label={designIntl('design.relation.canvas.toolbar')}
             data-testid="canvas-toolbar"
           >
             <span className="erd-diagram-switcher" data-testid="diagram-switcher">
@@ -3100,14 +3106,14 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 popupMatchSelectWidth={false}
                 getPopupContainer={() => document.body}
                 // 仅挂 input/combobox，避免外层 div 与 search input 双 aria-label
-                aria-label="切换关系图"
+                aria-label={designIntl('design.relation.canvas.switchDiagram')}
               />
               <button
                 type="button"
                 className="erd-canvas-tool"
                 onClick={onCreateDiagram}
-                title="新建关系图"
-                aria-label="新建关系图"
+                title={designIntl('design.relation.canvas.newDiagram')}
+                aria-label={designIntl('design.relation.canvas.newDiagram')}
               >
                 新建图
               </button>
@@ -3115,8 +3121,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 type="button"
                 className="erd-canvas-tool"
                 onClick={onRenameDiagram}
-                title="重命名当前关系图"
-                aria-label="重命名关系图"
+                title={designIntl('design.relation.canvas.renameDiagram')}
+                aria-label={designIntl('design.relation.canvas.renameDiagram')}
               >
                 重命名
               </button>
@@ -3126,8 +3132,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               className="erd-canvas-tool"
               data-testid="canvas-field-library"
               onClick={() => setFieldLibraryOpen(true)}
-              title="打开字段库"
-              aria-label="字段库"
+              title={designIntl('design.relation.canvas.openFieldLibrary')}
+              aria-label={designIntl('design.relation.canvas.fieldLibrary')}
             >
               字段库
             </button>
@@ -3136,8 +3142,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               className="erd-canvas-tool"
               data-testid="canvas-create-table"
               onClick={createFirstTable}
-              title="新建表并立即上图"
-              aria-label="新建表"
+              title={designIntl('design.relation.canvas.newTableTitle')}
+              aria-label={designIntl('design.relation.canvas.newTable')}
             >
               新建表
             </button>
@@ -3146,8 +3152,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               className="erd-canvas-tool"
               data-testid="create-frame"
               onClick={onCreateFrame}
-              title="新建分组（可选先选中表）"
-              aria-label="新建分组"
+              title={designIntl('design.relation.canvas.newFrameTitle')}
+              aria-label={designIntl('design.relation.canvas.newFrame')}
             >
               新建分组
             </button>
@@ -3156,8 +3162,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               className="erd-canvas-tool"
               data-testid="assign-frame"
               onClick={onAssignToFrame}
-              title="将选中表加入分组（框自动扩边）"
-              aria-label="加入分组"
+              title={designIntl('design.relation.canvas.addToFrameTitle')}
+              aria-label={designIntl('design.relation.canvas.addToFrame')}
             >
               加入分组
             </button>
@@ -3167,8 +3173,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 className="erd-canvas-tool"
                 data-testid="fit-frame"
                 onClick={onFitSelectedFrame}
-                title="按成员表包围盒调整分组大小"
-                aria-label="适应成员"
+                title={designIntl('design.relation.canvas.fitMembersTitle')}
+                aria-label={designIntl('design.relation.canvas.fitMembers')}
               >
                 适应成员
               </button>
@@ -3177,8 +3183,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               type="button"
               className="erd-canvas-tool"
               onClick={() => setCmdOpen(true)}
-              title="命令面板 (Cmd/Ctrl+K)"
-              aria-label="命令"
+              title={designIntl('design.relation.canvas.commandsTitle')}
+              aria-label={designIntl('design.relation.canvas.commands')}
             >
               命令
             </button>
@@ -3189,8 +3195,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 setCmdOpen(false);
                 setHelpOpen(true);
               }}
-              title="快捷键 (?)"
-              aria-label="快捷键"
+              title={designIntl('design.relation.canvas.shortcutsTitle')}
+              aria-label={designIntl('design.relation.canvas.shortcuts')}
             >
               ?
             </button>
@@ -3198,8 +3204,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               type="button"
               className="erd-canvas-tool"
               onClick={() => projectDispatch.undoCanvas()}
-              title="撤销 (Cmd/Ctrl+Z)"
-              aria-label="撤销"
+              title={designIntl('design.relation.canvas.undoTitle')}
+              aria-label={designIntl('design.relation.canvas.undoTitle').replace(/ \(.*\)/, '')}
             >
               撤销
             </button>
@@ -3207,8 +3213,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               type="button"
               className="erd-canvas-tool"
               onClick={() => projectDispatch.redoCanvas()}
-              title="重做 (Cmd/Ctrl+Shift+Z)"
-              aria-label="重做"
+              title={designIntl('design.relation.canvas.redoTitle')}
+              aria-label={designIntl('design.relation.shortcut.redo')}
             >
               重做
             </button>
@@ -3216,20 +3222,20 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
               type="button"
               className="erd-canvas-tool erd-canvas-tool--primary"
               onClick={autoLayout}
-              title="按关联关系自动排布全部表"
-              aria-label="自动布局"
+              title={designIntl('design.relation.canvas.autoLayoutTitle')}
+              aria-label={designIntl('design.relation.canvas.autoLayout')}
             >
               自动布局
             </button>
             {selectedCount >= 2 && (
-              <span className="erd-align-group" role="group" aria-label="对齐">
+              <span className="erd-align-group" role="group" aria-label={designIntl('design.relation.canvas.alignGroup')}>
                 <button
                   type="button"
                   className="erd-canvas-tool"
                   data-testid="align-left"
                   onClick={() => alignSelected('left')}
-                  title="左对齐"
-                  aria-label="左对齐"
+                  title={designIntl('design.relation.canvas.alignLeft')}
+                  aria-label={designIntl('design.relation.canvas.alignLeft')}
                 >
                   左齐
                 </button>
@@ -3237,8 +3243,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-canvas-tool"
                   onClick={() => alignSelected('hcenter')}
-                  title="水平居中"
-                  aria-label="水平居中"
+                  title={designIntl('design.relation.canvas.alignHCenter')}
+                  aria-label={designIntl('design.relation.canvas.alignHCenter')}
                 >
                   水平中
                 </button>
@@ -3246,8 +3252,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-canvas-tool"
                   onClick={() => alignSelected('right')}
-                  title="右对齐"
-                  aria-label="右对齐"
+                  title={designIntl('design.relation.canvas.alignRight')}
+                  aria-label={designIntl('design.relation.canvas.alignRight')}
                 >
                   右齐
                 </button>
@@ -3256,8 +3262,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   className="erd-canvas-tool"
                   data-testid="align-top"
                   onClick={() => alignSelected('top')}
-                  title="顶对齐"
-                  aria-label="顶对齐"
+                  title={designIntl('design.relation.canvas.alignTop')}
+                  aria-label={designIntl('design.relation.canvas.alignTop')}
                 >
                   顶齐
                 </button>
@@ -3265,8 +3271,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-canvas-tool"
                   onClick={() => alignSelected('vcenter')}
-                  title="垂直居中"
-                  aria-label="垂直居中"
+                  title={designIntl('design.relation.canvas.alignVCenter')}
+                  aria-label={designIntl('design.relation.canvas.alignVCenter')}
                 >
                   垂直中
                 </button>
@@ -3274,8 +3280,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-canvas-tool"
                   onClick={() => alignSelected('bottom')}
-                  title="底对齐"
-                  aria-label="底对齐"
+                  title={designIntl('design.relation.canvas.alignBottom')}
+                  aria-label={designIntl('design.relation.canvas.alignBottom')}
                 >
                   底齐
                 </button>
@@ -3293,7 +3299,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                 type="button"
                 className="erd-empty-button nodrag"
                 data-testid="canvas-empty-create"
-                aria-label="新建第一张表"
+                aria-label={designIntl('design.relation.canvas.newFirstTable')}
                 onClick={createFirstTable}
               >
                 + 新建第一张表
@@ -3303,7 +3309,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-empty-secondary nodrag"
                   data-testid="canvas-empty-import-dbml"
-                  aria-label="导入 DBML"
+                  aria-label={designIntl('design.relation.canvas.importDbml')}
                   onClick={() => setDbmlImportOpen(true)}
                 >
                   导入 DBML
@@ -3315,7 +3321,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
                   type="button"
                   className="erd-empty-secondary nodrag"
                   data-testid="canvas-empty-reverse"
-                  aria-label="从数据源逆向"
+                  aria-label={designIntl('design.relation.canvas.reverseDb')}
                   onClick={() => history.push('/design/table/import/reverse')}
                 >
                   从数据源逆向
@@ -3335,7 +3341,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         onClose={() => setFieldLibraryOpen(false)}
       />
       <Modal
-        title={diagramModal?.mode === 'rename' ? '重命名关系图' : '新建关系图'}
+        title={diagramModal?.mode === 'rename' ? designIntl('design.relation.canvas.modal.renameDiagram') : designIntl('design.relation.canvas.modal.newDiagram')}
         open={!!diagramModal}
         onOk={() => {
           void onDiagramModalOk();
@@ -3344,8 +3350,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           if (diagramModalSubmitting) return;
           setDiagramModal(null);
         }}
-        okText={diagramModal?.mode === 'rename' ? '保存' : '创建'}
-        cancelText="取消"
+        okText={diagramModal?.mode === 'rename' ? designIntl('design.common.save') : designIntl('design.common.create')}
+        cancelText={designIntl('design.common.cancel')}
         confirmLoading={diagramModalSubmitting}
         destroyOnClose
         keyboard={!diagramModalSubmitting}
@@ -3370,8 +3376,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       >
         <Input
           ref={diagramNameInputRef}
-          aria-label="关系图名称"
-          placeholder="例如：鉴权域"
+          aria-label={designIntl('design.relation.canvas.modal.diagramName')}
+          placeholder={designIntl('design.relation.canvas.modal.diagramPlaceholder')}
           value={diagramModal?.name || ''}
           onChange={(e) =>
             setDiagramModal((prev) => (prev ? { ...prev, name: e.target.value } : prev))
@@ -3382,7 +3388,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
         />
       </Modal>
       <Modal
-        title="加入分组"
+        title={designIntl('design.relation.canvas.modal.addToFrame')}
         open={!!frameAssignModal}
         onOk={async () => {
           if (!frameAssignModal) return;
@@ -3411,8 +3417,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           setFrameAssignModal(null);
         }}
         onCancel={() => setFrameAssignModal(null)}
-        okText="加入"
-        cancelText="取消"
+        okText={designIntl('design.common.join')}
+        cancelText={designIntl('design.common.cancel')}
         destroyOnClose
         keyboard
         focusTriggerAfterClose
@@ -3436,7 +3442,7 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
       >
         <Select
           ref={frameAssignSelectRef}
-          aria-label="选择分组"
+          aria-label={designIntl('design.relation.canvas.modal.selectFrame')}
           style={{ width: '100%' }}
           value={frameAssignModal?.frameId}
           onChange={(id) => setFrameAssignModal({ frameId: id })}

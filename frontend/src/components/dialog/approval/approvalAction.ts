@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { getIntl } from '@umijs/max';
 
 /**
  * 审批类操作统一反馈：成功提示并刷新表；失败不静默。
@@ -15,10 +16,14 @@ export async function runApprovalAction(
       actionRef?.current?.reload?.(false);
       return true;
     }
-    message.error(r?.msg || r?.message || '操作失败');
+    message.error(
+      r?.msg || r?.message || getIntl().formatMessage({ id: 'approvalModal.actionFailed' }),
+    );
     return false;
   } catch (e: any) {
-    message.error(e?.message || '操作失败');
+    message.error(
+      e?.message || getIntl().formatMessage({ id: 'approvalModal.actionFailed' }),
+    );
     return false;
   }
 }
