@@ -1189,7 +1189,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
         {editing?.key === '__NEW__' && editRow('__NEW__')}
         {editing === null && fields.length === 0 && (
           <div className="erd-table-fields-empty" data-testid="canvas-fields-empty">
-            <p className="erd-table-fields-empty__hint">还没有字段</p>
+            <p className="erd-table-fields-empty__hint">{designIntl('design.relation.field.emptyHint')}</p>
             <button
               type="button"
               className="erd-field-add erd-field-add--cta nodrag"
@@ -1507,9 +1507,9 @@ const FrameNode: React.FC<NodeProps<FrameNodeData>> = ({ data, selected }) => {
             </div>
           )}
           {(f.memberEntityIds?.length || 0) > 0 ? (
-            <div className="erd-frame-meta">{f.memberEntityIds.length} 张表</div>
+            <div className="erd-frame-meta">{designIntl('design.relation.frame.meta.tables', { count: f.memberEntityIds.length })}</div>
           ) : (
-            <div className="erd-frame-meta">拖表入框或点「加入分组」</div>
+            <div className="erd-frame-meta">{designIntl('design.relation.frame.meta.empty')}</div>
           )}
         </div>
       </div>
@@ -3293,8 +3293,8 @@ const ReactFlowRelation: React.FC<ReactFlowRelationProps> = ({ moduleEntity }) =
           <Panel position="top-center" className="erd-empty-panel" data-testid="canvas-empty-panel">
             <div className="erd-empty-cta" data-testid="canvas-empty-state">
               <ErdEmptyDiagram size="compact" />
-              <div className="erd-empty-title">开始你的第一张关系图</div>
-              <div className="erd-empty-desc">一张表即可上图；也可导入或逆向</div>
+              <div className="erd-empty-title">{designIntl('design.relation.canvas.empty.title')}</div>
+              <div className="erd-empty-desc">{designIntl('design.relation.canvas.empty.desc')}</div>
               <button
                 type="button"
                 className="erd-empty-button nodrag"
