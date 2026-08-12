@@ -608,15 +608,18 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # 产物：dist/
 
 ### 百度统计
 
-Umi 内置 `@umijs/plugins` analytics 插件；站点 ID `bd50dd978c8d8d94792f4e987c4a7aaf` 硬编码于 `frontend/config/config.ts`（`analytics.baidu`），prod 构建自动注入 `hm.baidu.com/hm.js`。
+站点 ID `bd50dd978c8d8d94792f4e987c4a7aaf` 硬编码于 `frontend/config/config.ts`（`BAIDU_TONGJI_ID`）；**prod 构建**（`UMI_ENV=prod`）经 `headScripts` 动态注入 `hm.baidu.com/hm.js`，并在运行时 **跳过 `localhost` / `127.0.0.1` / `[::1]`**，避免本地 `yarn build:prod && serve` 或文档站 `website/yarn serve` 污染线上 PV。文档站见 `website/docusaurus.config.js` + `src/clientModules/baiduAnalytics.js`（同源守卫）。
 
 | 场景 | 行为 |
 |---|---|
-| 本地 `yarn start` | 不加载（Umi `development` 环境跳过 hm.js） |
+| 本地 `yarn start` | 不加载（`UMI_ENV=dev`） |
 | 本地 `yarn build`（`UMI_ENV=dev`） | 不加载 |
-| CF Pages / `yarn build:prod` / Docker 前端镜像 | 自动加载 hm.js |
+| 本地 serve prod 产物（localhost） | 守卫跳过 hm.js / CF beacon |
+| CF Pages / `yarn build:prod` / Docker 前端镜像 | 公网 hostname 自动加载 hm.js |
 
 本项目路由为 **hash 模式**（`config.ts` `hash: true`），hm.js 会监听 hash 变化自动上报 PV，**无需**额外 `onRouteChange` 钩子。未配置 CSP `script-src` 白名单时默认可加载 `hm.baidu.com`。
+
+**控制台降噪**（历史数据）：排除主机名 `localhost` / `127.0.0.1`；排除来源 URL 含 `tongji.baidu.com`、`accounts.google.com`；排除页面 URL 含 `/login/federate`。
 
 ### Cloudflare Web Analytics
 

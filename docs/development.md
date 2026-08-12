@@ -325,7 +325,15 @@ JWT 含全量权限时 `Authorization` 头可达 8KB+；Boot 3 须配置 `server
 
 可选 `LOCALE`（默认空 = 不覆盖，走 umi **baseNavigator** + `umi_locale` localStorage）：非空时经 `getAntdLocale()` 强制注入 antd `ConfigProvider`；奠基切片支持 `zh-CN` / `en-US`。例：`LOCALE=en-US ./env.sh && cp env-config.js ./public/`（本地验证 antd 英文 Modal 按钮）。
 
-百度统计：站点 ID 硬编码于 `frontend/config/config.ts`；本地 `yarn start` 不加载 hm.js（Umi analytics 在 `development` 跳过），`yarn build:prod` 产物自动注入（见 `docs/deployment.md`）。
+百度统计：站点 ID 硬编码于 `frontend/config/config.ts`；本地 `yarn start` 不加载 hm.js（`UMI_ENV=dev`），`yarn build:prod` 产物经 **hostname 守卫**在 `localhost` / `127.0.0.1` / `[::1]` 跳过注入（见 `docs/deployment.md`）。文档站 `website/docusaurus.config.js` 同理，`yarn serve` 本地预览不再污染线上统计。
+
+**百度统计后台降噪**（控制台 → 过滤条件 / 排除规则）：
+
+| 噪声来源 | 建议过滤 |
+|---|---|
+| 本地文档预览 | 主机名含 `localhost` 或 `127.0.0.1`（代码已跳过上报；历史数据仍可在后台排除） |
+| 统计自身 / OAuth 回流 | 来源 URL 含 `tongji.baidu.com`、`accounts.google.com` |
+| 登录联邦回调 | 页面 URL 含 `/login/federate` |
 
 联调探测（登录后打常用接口，期望无 404/405/500）：
 

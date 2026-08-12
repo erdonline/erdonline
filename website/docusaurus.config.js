@@ -26,8 +26,7 @@ const config = {
   clientModules: [require.resolve('./src/clientModules/baiduAnalytics.js')],
   scripts: [
     {
-      src: 'https://hm.baidu.com/hm.js?bd50dd978c8d8d94792f4e987c4a7aaf',
-      async: true,
+      innerHTML: `(function(){var h=location.hostname;if(h==='localhost'||h==='127.0.0.1'||h==='[::1]')return;var s=document.createElement('script');s.src='https://hm.baidu.com/hm.js?bd50dd978c8d8d94792f4e987c4a7aaf';s.async=true;document.head.appendChild(s);})();`,
     },
   ],
   presets: [

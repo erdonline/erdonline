@@ -13,13 +13,18 @@ const v4Token = convertLegacyToken(mapToken);
 
 const {REACT_APP_ENV, UMI_ENV} = process.env;
 
-/** Cloudflare Web Analytics — prod build only (CF Pages demo / Docker frontend). */
+/** Cloudflare Web Analytics + Baidu Tongji — prod build only; skip localhost / 127.0.0.1 at runtime. */
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '4df015bf119f48ff9b03f302f6a3e40a';
-const cloudflareAnalyticsHeadScripts =
+const BAIDU_TONGJI_ID = 'bd50dd978c8d8d94792f4e987c4a7aaf';
+const ANALYTICS_HOST_GUARD = "var h=location.hostname;if(h==='localhost'||h==='127.0.0.1'||h==='[::1]')return;";
+const prodAnalyticsHeadScripts =
   UMI_ENV === 'prod'
     ? [
         {
-          content: `(function(){var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.head.appendChild(s);})();`,
+          content: `(function(){${ANALYTICS_HOST_GUARD}var s=document.createElement('script');s.src='https://hm.baidu.com/hm.js?${BAIDU_TONGJI_ID}';document.head.appendChild(s);})();`,
+        },
+        {
+          content: `(function(){${ANALYTICS_HOST_GUARD}var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.head.appendChild(s);})();`,
         },
       ]
     : [];
@@ -51,12 +56,11 @@ export default defineConfig({
     useLocalStorage: true,
     title: false,
   },
-  // Umi analytics 插件：非 development 构建时注入 hm.baidu.com/hm.js
-  analytics: { baidu: 'bd50dd978c8d8d94792f4e987c4a7aaf' },
+  // 百度 / CF 统计：prod 构建经 headScripts 按 hostname 注入（跳过 localhost）；不用 Umi analytics 插件以免本地 serve prod 产物污染
   headScripts: [
     '/js/html2canvas.min.js',
     '/env-config.js?date=' + new Date(),
-    ...cloudflareAnalyticsHeadScripts,
+    ...prodAnalyticsHeadScripts,
   ],
   lessLoader: {
     modifyVars: v4Token,
