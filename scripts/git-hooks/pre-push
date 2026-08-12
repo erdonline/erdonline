@@ -5,7 +5,7 @@
 # Skip full smoke locally: PROD_SMOKE_SKIP_PRE_PUSH=1 git push
 set -eu
 
-ROOT="$(CDPATH= cd -- "$(dirname "$0")/.." && pwd)"
+ROOT="$(git rev-parse --show-toplevel 2>/dev/null || CDPATH= cd -- "$(dirname "$0")/../.." && pwd)"
 cd "$ROOT/frontend"
 
 echo "[pre-push] yarn check:routes (fast complement)"
