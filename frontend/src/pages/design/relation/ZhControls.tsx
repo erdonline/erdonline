@@ -14,11 +14,7 @@ import {
   useStoreApi,
   FitViewOptions,
 } from 'reactflow';
-
-/**
- * ReactFlow Controls 中文可访问名（库默认硬编码 zoom in / fit view 等英文）。
- * RF v11 无 ariaLabels prop → 关掉默认按钮，用 ControlButton 自绘。
- */
+import { designIntl } from '@/pages/design/locales/intl';
 
 type ZhControlsProps = {
   showInteractive?: boolean;
@@ -39,13 +35,18 @@ const ZhControls: React.FC<ZhControlsProps> = ({
   const minZoomReached = useStore((s) => s.transform[2] <= s.minZoom);
   const maxZoomReached = useStore((s) => s.transform[2] >= s.maxZoom);
 
+  const zoomInLabel = designIntl('design.relation.controls.zoomIn');
+  const zoomOutLabel = designIntl('design.relation.controls.zoomOut');
+  const fitViewLabel = designIntl('design.relation.controls.fitView');
+  const toggleLabel = designIntl('design.relation.controls.toggleInteractive');
+
   return (
     <Controls showZoom={false} showFitView={false} showInteractive={false}>
       <ControlButton
         onClick={() => zoomIn()}
         className="react-flow__controls-zoomin"
-        title="放大"
-        aria-label="放大"
+        title={zoomInLabel}
+        aria-label={zoomInLabel}
         disabled={maxZoomReached}
       >
         <PlusOutlined style={controlIconStyle} aria-hidden />
@@ -53,8 +54,8 @@ const ZhControls: React.FC<ZhControlsProps> = ({
       <ControlButton
         onClick={() => zoomOut()}
         className="react-flow__controls-zoomout"
-        title="缩小"
-        aria-label="缩小"
+        title={zoomOutLabel}
+        aria-label={zoomOutLabel}
         disabled={minZoomReached}
       >
         <MinusOutlined style={controlIconStyle} aria-hidden />
@@ -62,8 +63,8 @@ const ZhControls: React.FC<ZhControlsProps> = ({
       <ControlButton
         className="react-flow__controls-fitview erd-controls-primary"
         onClick={() => fitView(fitViewOptions)}
-        title="适应画布"
-        aria-label="适应画布"
+        title={fitViewLabel}
+        aria-label={fitViewLabel}
       >
         <BorderOuterOutlined style={controlIconStyle} aria-hidden />
       </ControlButton>
@@ -77,8 +78,8 @@ const ZhControls: React.FC<ZhControlsProps> = ({
               elementsSelectable: !isInteractive,
             });
           }}
-          title="切换交互"
-          aria-label="切换交互"
+          title={toggleLabel}
+          aria-label={toggleLabel}
         >
           {isInteractive ? (
             <UnlockOutlined style={controlIconStyle} aria-hidden />

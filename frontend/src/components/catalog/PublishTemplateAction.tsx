@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Button} from 'antd';
+import {useIntl} from '@umijs/max';
 import PublishTemplateModal from './PublishTemplateModal';
 
 export type PublishTemplateActionProps = {
@@ -16,6 +17,7 @@ const PublishTemplateAction: React.FC<PublishTemplateActionProps> = ({
   variant = 'link',
   testId = 'project-publish-template',
 }) => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
 
   return (
@@ -23,11 +25,14 @@ const PublishTemplateAction: React.FC<PublishTemplateActionProps> = ({
       <Button
         type="link"
         data-testid={testId}
-        aria-label={`发布为模板：${projectName || projectId}`}
+        aria-label={intl.formatMessage(
+          { id: 'catalogPublish.actionAria' },
+          { name: projectName || projectId },
+        )}
         onClick={() => setOpen(true)}
         style={variant === 'menu' ? {padding: 0, height: 'auto'} : undefined}
       >
-        发布为模板
+        {intl.formatMessage({ id: 'catalogPublish.action' })}
       </Button>
       <PublishTemplateModal
         projectId={projectId}

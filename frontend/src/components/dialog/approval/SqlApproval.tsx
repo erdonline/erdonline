@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
 import {ConsoleSqlOutlined} from '@ant-design/icons';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
 import useVersionStore from '@/store/version/useVersionStore';
@@ -32,6 +33,7 @@ type ApproverOption = {
 };
 
 const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
+  const intl = useIntl();
   const {dbs} = useVersionStore(
     (state) => ({
       dbs: state.dbs as DbRow[] | undefined,
@@ -88,7 +90,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
     const values = await form.validateFields();
     const db = dbs?.find((d) => d.name === values.dbInfo);
     if (!db?.properties) {
-      message.error('请选择有效的目标数据库');
+      message.error(intl.formatMessage({ id: 'approvalModal.invalidDb' }));
       return;
     }
     const dbConfig = _.omit(db.properties, ['driver_class_name']);
@@ -106,14 +108,18 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
         approveSql: props.approveSql,
       });
       if (resp?.code === 200) {
-        message.success('审批已发起');
+        message.success(intl.formatMessage({ id: 'approvalModal.submitSuccess' }));
         setOpen(false);
         return;
       }
-      message.error(resp?.msg || resp?.message || '发起审批失败');
+      message.error(
+        resp?.msg || resp?.message || intl.formatMessage({ id: 'approvalModal.submitFailed' }),
+      );
     } catch (e: unknown) {
       const err = e as {message?: string};
-      message.error(err?.message || '发起审批失败');
+      message.error(
+        err?.message || intl.formatMessage({ id: 'approvalModal.submitFailed' }),
+      );
     }
   };
 
@@ -123,22 +129,22 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
         key="approval"
         type="primary"
         style={{display: props.display}}
-        aria-label="SQL审批"
+        aria-label={intl.formatMessage({ id: 'approvalModal.sqlButtonAria' })}
         data-testid="sql-approval-btn"
         onClick={openModal}
       >
         <ConsoleSqlOutlined />
-        SQL审批
+        {intl.formatMessage({ id: 'approvalModal.sqlButton' })}
       </Button>
       <Modal
-        title="发起SQL审批"
+        title={intl.formatMessage({ id: 'approvalModal.sqlTitle' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
         destroyOnClose
         width={520}
         forceRender
-        okButtonProps={{'aria-label': '确定'}}
+        okButtonProps={{'aria-label': intl.formatMessage({ id: 'approvalModal.sqlOkAria' })}}
         cancelButtonProps={{type: 'dashed'}}
         keyboard
         focusTriggerAfterClose
@@ -146,7 +152,6 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
           if (!visible) {
             return;
           }
-          // 首焦「审批人」；嵌套在版本详情 Modal 内，Select 挂载后经 ref.focus
           const tryFocus = (attempt = 0) => {
             if (approverSelectRef.current) {
               approverSelectRef.current.focus();
@@ -163,43 +168,43 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="approver"
-            label="审批人"
-            rules={[{required: true, message: '请输入审批人'}]}
+            label={intl.formatMessage({ id: 'approvalModal.approverLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'approvalModal.approverRequired' })}]}
           >
             <Select
               ref={approverSelectRef}
               showSearch
               filterOption={false}
-              placeholder="审批人"
+              placeholder={intl.formatMessage({ id: 'approvalModal.approverPlaceholder' })}
               options={approverOptions}
               loading={fetching}
               onSearch={(v) => void fetchApprovers(v)}
-              aria-label="审批人"
+              aria-label={intl.formatMessage({ id: 'approvalModal.approverAria' })}
             />
           </Form.Item>
           <Form.Item
             name="dbInfo"
-            label="目标数据库"
-            rules={[{required: true, message: '选择一个目标数据库!'}]}
+            label={intl.formatMessage({ id: 'approvalModal.targetDbLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'approvalModal.targetDbRequired' })}]}
           >
             <Select
               options={dbOptions}
-              placeholder="请选择目标数据库"
-              aria-label="目标数据库"
+              placeholder={intl.formatMessage({ id: 'approvalModal.targetDbPlaceholder' })}
+              aria-label={intl.formatMessage({ id: 'approvalModal.targetDbAria' })}
             />
           </Form.Item>
           <Form.Item
             name="approveRemark"
-            label="审批说明"
+            label={intl.formatMessage({ id: 'approvalModal.remarkLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {min: 5, max: 500, message: '只能输入5~500 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {min: 5, max: 500, message: intl.formatMessage({ id: 'approvalModal.remarkLength' })},
             ]}
           >
             <Input.TextArea
-              placeholder="审批说明，不少于5个字"
+              placeholder={intl.formatMessage({ id: 'approvalModal.remarkPlaceholder' })}
               rows={3}
-              aria-label="审批说明"
+              aria-label={intl.formatMessage({ id: 'approvalModal.remarkAria' })}
             />
           </Form.Item>
         </Form>

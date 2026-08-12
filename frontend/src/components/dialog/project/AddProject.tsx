@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {BaseSelectRef} from 'rc-select';
 import defaultData from '@/utils/defaultData.json';
 import _ from 'lodash';
@@ -31,6 +32,7 @@ const emptyProject = {
 };
 
 const AddProject: React.FC<AddProjectProps> = (props) => {
+  const intl = useIntl();
   const initialType = props.type ?? 1;
   const [open, setOpen] = useState(false);
   const [form] = Form.useForm<FormValues>();
@@ -50,13 +52,13 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
       tags: _.join(values.tags, ','),
     });
     if (res?.code === 200) {
-      message.success('创建成功');
+      message.success(intl.formatMessage({ id: 'projectModal.createSuccess' }));
       props.fetchProjects();
       setOpen(false);
       return;
     }
     if (!res?.msg && !res?.message) {
-      message.error('创建失败');
+      message.error(intl.formatMessage({ id: 'projectModal.createFailed' }));
     }
   };
 
@@ -67,15 +69,15 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
         data-testid="project-create-trigger"
         onClick={() => setOpen(true)}
       >
-        新建
+        {intl.formatMessage({ id: 'projectModal.create' })}
       </Button>
       <Modal
-        title="新增项目"
+        title={intl.formatMessage({ id: 'projectModal.addTitle' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
-        okText="确定"
-        cancelText="取消"
+        okText={intl.formatMessage({ id: 'projectModal.ok' })}
+        cancelText={intl.formatMessage({ id: 'projectModal.cancel' })}
         destroyOnClose
         width={520}
         keyboard
@@ -95,50 +97,50 @@ const AddProject: React.FC<AddProjectProps> = (props) => {
         >
           <Form.Item
             name="type"
-            label="项目类型"
-            rules={[{required: true, message: '请选择项目类型'}]}
+            label={intl.formatMessage({ id: 'projectModal.typeLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'projectModal.typeRequired' })}]}
           >
             <Select
               ref={typeSelectRef}
-              placeholder="请选择项目类型"
+              placeholder={intl.formatMessage({ id: 'projectModal.typePlaceholder' })}
               options={[
-                {label: '个人项目', value: 1},
-                {label: '团队项目', value: 2},
+                {label: intl.formatMessage({ id: 'projectList.type.person' }), value: 1},
+                {label: intl.formatMessage({ id: 'projectList.type.team' }), value: 2},
               ]}
             />
           </Form.Item>
           <Form.Item
             name="projectName"
-            label="项目名"
+            label={intl.formatMessage({ id: 'projectModal.nameLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
-            <Input placeholder="请输入项目名" />
+            <Input placeholder={intl.formatMessage({ id: 'projectModal.namePlaceholder' })} />
           </Form.Item>
           <Form.Item
             name="tags"
-            label="标签"
-            rules={[{required: true, message: '不能为空'}]}
+            label={intl.formatMessage({ id: 'projectModal.tagsLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })}]}
           >
             <Select
               mode="tags"
               tokenSeparators={[',']}
-              placeholder="请输入项目标签,按回车分割"
+              placeholder={intl.formatMessage({ id: 'projectModal.tagsPlaceholder' })}
               data-testid="project-tags"
               notFoundContent={null}
             />
           </Form.Item>
           <Form.Item
             name="description"
-            label="项目描述"
+            label={intl.formatMessage({ id: 'projectModal.descLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
-            <Input.TextArea placeholder="请输入项目描述" rows={3} />
+            <Input.TextArea placeholder={intl.formatMessage({ id: 'projectModal.descPlaceholder' })} rows={3} />
           </Form.Item>
         </Form>
       </Modal>

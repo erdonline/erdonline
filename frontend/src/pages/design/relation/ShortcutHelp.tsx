@@ -1,4 +1,5 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
+import { designIntl } from '@/pages/design/locales/intl';
 import './shortcut-help.scss';
 
 export type ShortcutRow = {
@@ -6,19 +7,21 @@ export type ShortcutRow = {
   desc: string;
 };
 
-const DEFAULT_SHORTCUTS: ShortcutRow[] = [
-  { keys: '⌘/Ctrl+K · ⌘/Ctrl+F', desc: '命令面板（搜表定位、建表、布局）' },
-  { keys: '⌘/Ctrl+1 · 2 · 3 · 4', desc: '表设计：字段 / 索引 / 元数据应用 / 触发器' },
-  { keys: '⌘/Ctrl+Z', desc: '撤销' },
-  { keys: '⌘/Ctrl+⇧Z', desc: '重做' },
-  { keys: 'Delete · Backspace', desc: '删除选中表 / 边 / 字段（二次确认）' },
-  { keys: 'Tab · ⇧Tab', desc: '浏览：选中表/边/分组控件（字段环·基数·重命名，无 trap）；编辑：下一/上一列或行，末行新建' },
-  { keys: '↓ ↑ ← → · Enter', desc: '模型树：漫游 / 展开；Enter 定位表或打开关系图（Skip→Tab 仍进搜索）' },
-  { keys: 'Enter', desc: '浏览聚焦字段→编辑；编辑态提交' },
-  { keys: 'Esc', desc: '取消编辑 / 关闭本卡与命令面板' },
-  { keys: 'Shift + 点选', desc: '多选表' },
-  { keys: '?', desc: '打开 / 关闭本速查卡' },
-];
+function buildDefaultShortcuts(): ShortcutRow[] {
+  return [
+    { keys: '⌘/Ctrl+K · ⌘/Ctrl+F', desc: designIntl('design.relation.shortcut.cmdPalette') },
+    { keys: '⌘/Ctrl+1 · 2 · 3 · 4', desc: designIntl('design.relation.shortcut.tableDesign') },
+    { keys: '⌘/Ctrl+Z', desc: designIntl('design.relation.shortcut.undo') },
+    { keys: '⌘/Ctrl+⇧Z', desc: designIntl('design.relation.shortcut.redo') },
+    { keys: 'Delete · Backspace', desc: designIntl('design.relation.shortcut.delete') },
+    { keys: 'Tab · ⇧Tab', desc: designIntl('design.relation.shortcut.tabNav') },
+    { keys: '↓ ↑ ← → · Enter', desc: designIntl('design.relation.shortcut.treeNav') },
+    { keys: 'Enter', desc: designIntl('design.relation.shortcut.enter') },
+    { keys: 'Esc', desc: designIntl('design.relation.shortcut.esc') },
+    { keys: designIntl('design.relation.shortcut.multiSelectKeys'), desc: designIntl('design.relation.shortcut.multiSelect') },
+    { keys: '?', desc: designIntl('design.relation.shortcut.toggleHelp') },
+  ];
+}
 
 type Props = {
   open: boolean;
@@ -26,15 +29,14 @@ type Props = {
   shortcuts?: ShortcutRow[];
 };
 
-/**
- * 画布快捷键速查（ADR-0005 设计器域自研，不用 antd Modal）
- * `?` 打开；Esc / 再按 `?` / 点遮罩关闭。
- */
-const ShortcutHelp: React.FC<Props> = ({ open, onClose, shortcuts = DEFAULT_SHORTCUTS }) => {
+const ShortcutHelp: React.FC<Props> = ({ open, onClose, shortcuts }) => {
+  const rows = useMemo(
+    () => shortcuts ?? buildDefaultShortcuts(),
+    [shortcuts, open],
+  );
+
   useEffect(() => {
-    if (!open) {
-      return;
-    }
+    if (!open) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') {
         e.preventDefault();
@@ -45,9 +47,9 @@ const ShortcutHelp: React.FC<Props> = ({ open, onClose, shortcuts = DEFAULT_SHOR
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onClose]);
 
-  if (!open) {
-    return null;
-  }
+  if (!open) return null;
+
+  const title = designIntl('design.relation.shortcut.title');
 
   return (
     <div className="erd-help-overlay" onMouseDown={onClose}>
@@ -56,29 +58,31 @@ const ShortcutHelp: React.FC<Props> = ({ open, onClose, shortcuts = DEFAULT_SHOR
         onMouseDown={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="快捷键"
+        aria-label={title}
         data-testid="shortcut-help"
       >
         <header className="erd-help-header">
-          <h2 className="erd-help-title">快捷键</h2>
+          <h2 className="erd-help-title">{title}</h2>
           <button
             type="button"
             className="erd-help-close"
             onClick={onClose}
-            aria-label="关闭快捷键"
+            aria-label={designIntl('design.relation.shortcut.closeAria')}
           >
             Esc
           </button>
         </header>
         <ul className="erd-help-list">
-          {shortcuts.map(row => (
+          {rows.map(row => (
             <li key={row.keys} className="erd-help-row">
               <kbd className="erd-help-keys">{row.keys}</kbd>
               <span className="erd-help-desc">{row.desc}</span>
             </li>
           ))}
         </ul>
-        <footer className="erd-help-footer">输入框内不拦截 · Esc 关闭</footer>
+        <footer className="erd-help-footer">
+          {designIntl('design.relation.shortcut.footer')}
+        </footer>
       </div>
     </div>
   );

@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useRef, useState} from 'react';
 import {Button, Form, message, Modal, Select, Steps} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {RefSelectProps} from 'antd/es/select';
 import { DatabaseOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -31,6 +32,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, profileSliceState} = useProjectStore(
     (state) => ({
@@ -58,6 +60,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
   const dbSelectRef = useRef<RefSelectProps>(null);
 
   const {status} = profileSliceState;
+  const dataSourceAria = intl.formatMessage({ id: 'exportModal.dataSourceAria' });
 
   useEffect(() => {
     const fetchDatabases = async () => {
@@ -107,12 +110,22 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           });
         } else {
           setReverseMeta(null);
-          message.error('读取数据源 schema 失败：' + (res?.msg || '未知错误'));
+          message.error(
+            intl.formatMessage(
+              { id: 'importModal.reverse.schemaFailed' },
+              { msg: res?.msg || intl.formatMessage({ id: 'importModal.reverse.schemaFailedUnknown' }) },
+            ),
+          );
         }
       } catch (e: any) {
         if (!cancelled) {
           setReverseMeta(null);
-          message.error('读取数据源 schema 失败：' + (e?.message || e));
+          message.error(
+            intl.formatMessage(
+              { id: 'importModal.reverse.schemaFailed' },
+              { msg: e?.message || String(e) },
+            ),
+          );
         }
       } finally {
         if (!cancelled) {
@@ -124,7 +137,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
     return () => {
       cancelled = true;
     };
-  }, [currentDbName, dbs, open, form1]);
+  }, [currentDbName, dbs, open, form1, intl]);
 
   useEffect(() => {
     if (!open) {
@@ -176,17 +189,19 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           block
           icon={<DatabaseOutlined />}
           style={{textAlign: 'left'}}
-          aria-label="数据源逆向解析"
+          aria-label={intl.formatMessage({ id: 'importModal.reverse.triggerAria' })}
           onClick={openModal}
         >
-          数据源逆向解析
+          {intl.formatMessage({ id: 'importModal.reverse.trigger' })}
         </Button>
       )}
       <Modal
         title={
           <span>
-            解析已有数据源
-            <span style={{color: '#888', fontSize: 12}}>（含非主键索引）</span>
+            {intl.formatMessage({ id: 'importModal.reverse.title' })}
+            <span style={{color: '#888', fontSize: 12}}>
+              {intl.formatMessage({ id: 'importModal.reverse.indexHint' })}
+            </span>
           </span>
         }
         open={open}
@@ -203,10 +218,9 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           if (!visible) {
             return;
           }
-          // 第一步主决策：选数据源；Select 挂载后经 ref.focus（antd 自管 combobox）
           const tryFocus = (attempt = 0) => {
             const input = document.querySelector<HTMLInputElement>(
-              '.erd-io-modal-root [aria-label="数据源"]',
+              '.erd-io-modal-root [data-testid="reverse-db-select"]',
             );
             if (input) {
               dbSelectRef.current?.focus();
@@ -222,24 +236,24 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
         footer={
           step === 0
             ? [
-                <Button key="next" type="primary" aria-label="下一步" onClick={() => void goNext()}>
-                  下一步 {'>'}
+                <Button key="next" type="primary" aria-label={intl.formatMessage({ id: 'exportModal.nextAria' })} onClick={() => void goNext()}>
+                  {intl.formatMessage({ id: 'importModal.reverse.nextWithArrow' })}
                 </Button>,
               ]
             : [
-                <Button key="prev" aria-label="上一步" onClick={() => setStep(0)}>
-                  {'<'} 上一步
+                <Button key="prev" aria-label={intl.formatMessage({ id: 'exportModal.prevAria' })} onClick={() => setStep(0)}>
+                  {intl.formatMessage({ id: 'importModal.reverse.prevWithArrow' })}
                 </Button>,
                 ...(status === 'SUCCESS'
                   ? [
                       <Button
                         key="submit"
                         type="primary"
-                        aria-label="提交"
+                        aria-label={intl.formatMessage({ id: 'importModal.reverse.submitAria' })}
                         loading={submitting}
                         onClick={() => void handleSubmit()}
                       >
-                        提交 √
+                        {intl.formatMessage({ id: 'importModal.reverse.submitWithCheck' })}
                       </Button>,
                     ]
                   : []),
@@ -250,7 +264,10 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           current={step}
           size="small"
           className="erd-io-modal__steps"
-          items={[{title: '选择数据源'}, {title: '解析数据源'}]}
+          items={[
+            { title: intl.formatMessage({ id: 'importModal.reverse.step1' }) },
+            { title: intl.formatMessage({ id: 'importModal.reverse.step2' }) },
+          ]}
         />
         {step === 0 && (
           <Form
@@ -265,13 +282,14 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
           >
             <Form.Item
               name="currentDB"
-              label="请选择需要解析的数据源："
-              rules={[{required: true, message: '此项为必填项'}]}
+              label={intl.formatMessage({ id: 'importModal.reverse.dataSourceLabel' })}
+              rules={[{required: true, message: intl.formatMessage({ id: 'exportModal.required' })}]}
             >
               <Select
                 ref={dbSelectRef}
                 style={{maxWidth: 328}}
-                aria-label="数据源"
+                aria-label={dataSourceAria}
+                data-testid="reverse-db-select"
                 options={dbs.map((db: any) => ({label: db.name, value: db.name}))}
                 onChange={(value: string) => setCurrentDbName(value)}
               />
@@ -279,8 +297,8 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
             {reverseMeta?.supportsSchema ? (
               <Form.Item
                 name="schema"
-                label="Schema："
-                rules={[{required: true, message: '请选择 Schema'}]}
+                label={intl.formatMessage({ id: 'importModal.reverse.schemaLabel' })}
+                rules={[{required: true, message: intl.formatMessage({ id: 'importModal.reverse.schemaRequired' })}]}
               >
                 <Select
                   style={{maxWidth: 328}}
@@ -295,16 +313,16 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
             ) : null}
             <Form.Item
               name="dataFormat"
-              label="逻辑名格式："
-              rules={[{required: true, message: '此项为必填项'}]}
+              label={intl.formatMessage({ id: 'importModal.reverse.logicNameLabel' })}
+              rules={[{required: true, message: intl.formatMessage({ id: 'exportModal.required' })}]}
             >
               <Select
                 style={{maxWidth: 328}}
-                aria-label="逻辑名格式"
+                aria-label={intl.formatMessage({ id: 'importModal.reverse.logicNameLabel' })}
                 options={[
-                  {label: '不处理', value: 'DEFAULT'},
-                  {label: '全大写', value: 'UPPERCASE'},
-                  {label: '全小写', value: 'LOWCASE'},
+                  {label: intl.formatMessage({ id: 'importModal.reverse.logicDefault' }), value: 'DEFAULT'},
+                  {label: intl.formatMessage({ id: 'importModal.reverse.logicUpper' }), value: 'UPPERCASE'},
+                  {label: intl.formatMessage({ id: 'importModal.reverse.logicLower' }), value: 'LOWCASE'},
                 ]}
               />
             </Form.Item>

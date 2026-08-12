@@ -1,5 +1,6 @@
 import React, { useCallback, useLayoutEffect, useMemo } from 'react';
 import { Dropdown, Menu, Tabs, TabsProps, Tooltip } from 'antd';
+import { useIntl } from '@umijs/max';
 import useTabStore, { ModuleEntity, TabGroup } from '@/store/tab/useTabStore';
 import { CommonTabsProps } from './interface';
 import { CloseOutlined, LeftOutlined, RightOutlined, CloseCircleOutlined, EllipsisOutlined } from '@ant-design/icons';
@@ -9,8 +10,6 @@ const { TabPane } = Tabs;
 
 const tabKeyOf = (tab: Pick<ModuleEntity, 'module' | 'entity'>) =>
   `${tab.module}###${tab.entity}`;
-
-const closeLabelOf = (entity: string) => `关闭 ${entity}`;
 
 const focusAfterTabRemove = () => {
   const root = document.querySelector<HTMLElement>('[data-testid="common-tabs"]');
@@ -34,9 +33,15 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
     onCloseAll,
     renderTabContent,
 }) => {
+    const intl = useIntl();
     const tabDispatch = useTabStore(state => state.dispatch);
 
-    // rc-tabs 关闭钮默认 aria-label="remove"；按实体刷成「关闭 {表名}」供读屏 / getByRole
+    const closeLabelOf = useCallback(
+      (entity: string) =>
+        intl.formatMessage({ id: 'commonTabs.closeEntity' }, { entity }),
+      [intl],
+    );
+
     useLayoutEffect(() => {
       const root = document.querySelector<HTMLElement>('[data-testid="common-tabs"]');
       if (!root || !tabs?.length) {
@@ -52,9 +57,8 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
         remove.setAttribute('aria-label', closeLabelOf(tab.entity));
         remove.setAttribute('data-testid', `common-tab-close-${tab.entity}`);
       }
-    }, [tabs, activeKey]);
+    }, [tabs, activeKey, closeLabelOf]);
 
-    // 默认的关闭方法
     const defaultOnTabClose = useCallback((tab: ModuleEntity) => {
         tabDispatch.removeTab(tab);
     }, [tabDispatch]);
@@ -71,13 +75,11 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
         tabDispatch.removeAllTab(tab);
     }, [tabDispatch]);
 
-    // 使用传入的方法或默认方法
     const handleTabClose = onTabClose || defaultOnTabClose;
     const handleCloseLeft = onCloseLeft || defaultOnCloseLeft;
     const handleCloseRight = onCloseRight || defaultOnCloseRight;
     const handleCloseAll = onCloseAll || defaultOnCloseAll;
 
-    // 关签卸掉关闭钮后焦点常坠 body → 归还下一 active 签或主工作区地标
     const restoreFocusAfterClose = useCallback(() => {
         requestAnimationFrame(() => {
             requestAnimationFrame(focusAfterTabRemove);
@@ -94,13 +96,13 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
             {
                 key: 'closeCurrent',
                 icon: <CloseOutlined />,
-                label: '关闭当前',
+                label: intl.formatMessage({ id: 'commonTabs.closeCurrent' }),
                 onClick: () => closeOne(tab),
             },
             {
                 key: 'closeLeft',
                 icon: <LeftOutlined />,
-                label: '关闭左边',
+                label: intl.formatMessage({ id: 'commonTabs.closeLeft' }),
                 onClick: () => {
                     handleCloseLeft(tab);
                     restoreFocusAfterClose();
@@ -109,7 +111,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
             {
                 key: 'closeRight',
                 icon: <RightOutlined />,
-                label: '关闭右边',
+                label: intl.formatMessage({ id: 'commonTabs.closeRight' }),
                 onClick: () => {
                     handleCloseRight(tab);
                     restoreFocusAfterClose();
@@ -118,7 +120,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
             {
                 key: 'closeAll',
                 icon: <CloseCircleOutlined />,
-                label: '关闭全部',
+                label: intl.formatMessage({ id: 'commonTabs.closeAll' }),
                 onClick: () => {
                     handleCloseAll(tab);
                     restoreFocusAfterClose();
@@ -128,7 +130,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
         ];
 
         return <Menu className="erd-dense-menu" items={menuItems} />;
-    }, [closeOne, handleCloseLeft, handleCloseRight, handleCloseAll, restoreFocusAfterClose]);
+    }, [closeOne, handleCloseLeft, handleCloseRight, handleCloseAll, restoreFocusAfterClose, intl]);
 
     const tabPanes = useMemo(() => {
         if (!tabs || !Array.isArray(tabs)) {
@@ -176,7 +178,7 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
           className="erd-common-tabs"
           data-testid="common-tabs"
           role="navigation"
-          aria-label="已打开的签页"
+          aria-label={intl.formatMessage({ id: 'commonTabs.navAria' })}
           style={{ height: '100%', minHeight: 0, display: 'flex', flexDirection: 'column' }}
         >
             <Tabs
@@ -191,10 +193,10 @@ const CommonTabs: React.FC<CommonTabsProps> = ({
                 style={{ height: '100%' }}
                 destroyOnHidden
                 locale={{
-                  removeAriaLabel: '关闭标签',
-                  dropdownAriaLabel: '更多标签',
+                  removeAriaLabel: intl.formatMessage({ id: 'commonTabs.removeAria' }),
+                  dropdownAriaLabel: intl.formatMessage({ id: 'commonTabs.dropdownAria' }),
                 }}
-                moreIcon={<Tooltip title="更多标签页"><EllipsisOutlined /></Tooltip>}
+                moreIcon={<Tooltip title={intl.formatMessage({ id: 'commonTabs.moreTooltip' })}><EllipsisOutlined /></Tooltip>}
             >
                 {tabPanes}
             </Tabs>

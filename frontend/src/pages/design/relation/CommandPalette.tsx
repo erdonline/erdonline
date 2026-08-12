@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { designIntl } from '@/pages/design/locales/intl';
 import './command-palette.scss';
 
 export type CommandItem = {
@@ -120,19 +121,19 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
         onMouseDown={e => e.stopPropagation()}
         role="dialog"
         aria-modal="true"
-        aria-label="命令面板"
+        aria-label={designIntl('design.relation.cmd.title')}
       >
         <input
           ref={inputRef}
           className="erd-cmd-input"
           data-testid="cmd-palette-input"
-          aria-label="命令搜索"
+          aria-label={designIntl('design.relation.cmd.searchAria')}
           role="combobox"
           aria-expanded="true"
           aria-controls="erd-cmd-list"
           aria-autocomplete="list"
           aria-activedescendant={activeItem ? optionDomId(activeItem.id) : undefined}
-          placeholder="输入命令或表名…（定位、建表、布局）"
+          placeholder={designIntl('design.relation.cmd.searchPlaceholder')}
           value={query}
           onChange={e => setQuery(e.target.value)}
           onKeyDown={e => {
@@ -156,15 +157,19 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
           id="erd-cmd-list"
           className="erd-cmd-list"
           role="listbox"
-          aria-label="命令列表"
+          aria-label={designIntl('design.relation.cmd.listAria')}
         >
           {filtered.length === 0 && (
             <li className="erd-cmd-empty" role="presentation" aria-live="polite">
               <span className="erd-cmd-empty__title">
-                {hasQuery ? '无匹配结果' : '暂无命令'}
+                {hasQuery
+                  ? designIntl('design.relation.cmd.empty.noMatch')
+                  : designIntl('design.relation.cmd.empty.noCommands')}
               </span>
               <span className="erd-cmd-empty__hint">
-                {hasQuery ? '试试表名、定位、建表或布局 · Esc 关闭' : 'Esc 关闭'}
+                {hasQuery
+                  ? designIntl('design.relation.cmd.empty.hintMatch')
+                  : designIntl('design.relation.cmd.empty.hintDefault')}
               </span>
             </li>
           )}
@@ -184,7 +189,7 @@ const CommandPalette: React.FC<Props> = ({ open, onClose, commands }) => {
             </li>
           ))}
         </ul>
-        <div className="erd-cmd-footer">↑↓ 选择 · Enter 执行 · Esc 关闭 · Tab 困在搜索</div>
+        <div className="erd-cmd-footer">{designIntl('design.relation.cmd.footer')}</div>
       </div>
     </div>
   );

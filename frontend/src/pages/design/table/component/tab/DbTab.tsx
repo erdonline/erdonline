@@ -2,6 +2,7 @@ import React from 'react';
 import TableCodeShow from "@/pages/design/table/component/table/TableCodeShow";
 import {ModuleEntity} from "@/store/tab/useTabStore";
 import {Tabs} from "antd";
+import { designIntl } from '@/pages/design/locales/intl';
 
 const {TabPane} = Tabs;
 
@@ -9,6 +10,20 @@ export type DbTabProps = {
   dbCode: string;
   moduleEntity: ModuleEntity
 };
+
+const TEMPLATE_TABS: Array<{ key: string; templateCode: string; labelId: string }> = [
+  { key: 'createTableTemplate', templateCode: 'createTableTemplate', labelId: 'databaseTemplates.template.createTableTemplate' },
+  { key: 'updateTableTemplate', templateCode: 'updateTableComment', labelId: 'databaseTemplates.template.updateTableComment' },
+  { key: 'deleteTableTemplate', templateCode: 'deleteTableTemplate', labelId: 'databaseTemplates.template.deleteTableTemplate' },
+  { key: 'createIndexTemplate', templateCode: 'createIndexTemplate', labelId: 'databaseTemplates.template.createIndexTemplate' },
+  { key: 'rebuildTableTemplate', templateCode: 'rebuildTableTemplate', labelId: 'databaseTemplates.template.rebuildTableTemplate' },
+  { key: 'createFieldTemplate', templateCode: 'createFieldTemplate', labelId: 'databaseTemplates.template.createFieldTemplate' },
+  { key: 'updateFieldTemplate', templateCode: 'updateFieldTemplate', labelId: 'databaseTemplates.template.updateFieldTemplate' },
+  { key: 'deleteFieldTemplate', templateCode: 'deleteFieldTemplate', labelId: 'databaseTemplates.template.deleteFieldTemplate' },
+  { key: 'deleteIndexTemplate', templateCode: 'deleteIndexTemplate', labelId: 'databaseTemplates.template.deleteIndexTemplate' },
+  { key: 'createPkTemplate', templateCode: 'createPkTemplate', labelId: 'databaseTemplates.template.createPkTemplate' },
+  { key: 'deletePkTemplate', templateCode: 'deletePkTemplate', labelId: 'databaseTemplates.template.deletePkTemplate' },
+];
 
 const DbTab: React.FC<DbTabProps> = (props) => {
   const {dbCode, moduleEntity} = props;
@@ -19,39 +34,11 @@ const DbTab: React.FC<DbTabProps> = (props) => {
       className="erd-db-tab"
       data-testid={`table-db-tab-${dbCode}`}
     >
-      <TabPane key="createTableTemplate" tab="创建表">
-        <TableCodeShow dbCode={dbCode} templateCode="createTableTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="updateTableTemplate" tab="表注释">
-        <TableCodeShow dbCode={dbCode} templateCode="updateTableComment" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="deleteTableTemplate" tab="删除表">
-        <TableCodeShow dbCode={dbCode} templateCode="deleteTableTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="createIndexTemplate" tab="创建索引">
-        <TableCodeShow dbCode={dbCode} templateCode="createIndexTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="rebuildTableTemplate" tab={"重建表"}>
-        <TableCodeShow dbCode={dbCode} templateCode="rebuildTableTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="createFieldTemplate" tab="添加字段">
-        <TableCodeShow dbCode={dbCode} templateCode="createFieldTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="updateFieldTemplate" tab="修改字段">
-        <TableCodeShow dbCode={dbCode} templateCode="updateFieldTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="deleteFieldTemplate" tab="删除字段">
-        <TableCodeShow dbCode={dbCode} templateCode="deleteFieldTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="deleteIndexTemplate" tab="删除索引">
-        <TableCodeShow dbCode={dbCode} templateCode="deleteIndexTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="createPkTemplate" tab="创建主键">
-        <TableCodeShow dbCode={dbCode} templateCode="createPkTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
-      <TabPane key="deletePkTemplate" tab="删除主键">
-        <TableCodeShow dbCode={dbCode} templateCode="deletePkTemplate" moduleEntity={moduleEntity}/>
-      </TabPane>
+      {TEMPLATE_TABS.map(({ key, templateCode, labelId }) => (
+        <TabPane key={key} tab={designIntl(labelId)}>
+          <TableCodeShow dbCode={dbCode} templateCode={templateCode} moduleEntity={moduleEntity}/>
+        </TabPane>
+      ))}
     </Tabs>
   );
 }

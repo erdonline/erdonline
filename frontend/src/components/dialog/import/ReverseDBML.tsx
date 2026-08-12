@@ -1,5 +1,6 @@
 import React, {useContext, useRef, useState} from 'react';
 import {Button, Input, Modal, Upload, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd/es/input';
 import {InboxOutlined} from '@ant-design/icons';
 import {history} from 'umi';
@@ -27,6 +28,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const [innerOpen, setInnerOpen] = useState(false);
   const open = openProp ?? innerOpen;
@@ -61,7 +63,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
   const mergeImported = async (dbmlJson: DbmlProjectJSON) => {
     const modules = dbmlJson.modules || [];
     if (modules.length <= 0) {
-      message.warning('DBML 中未找到可导入的模型');
+      message.warning(intl.formatMessage({ id: 'importModal.dbml.noModule' }));
       return;
     }
     const dataSource = projectJSON as {
@@ -78,7 +80,9 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       if (!hasMulti) {
         resultModules.push(module);
       } else {
-        resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
+        resultMsg.push(
+          intl.formatMessage({ id: 'importModal.dbml.moduleExists' }, { name: module.name }),
+        );
       }
     });
     if (resultModules.length <= 0) {
@@ -92,7 +96,6 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       projectDispatch,
     );
     if (!ok) {
-      // 失败 toast 已由 persist；窗保持可重试
       return;
     }
     if (resultMsg.length > 0) {
@@ -109,11 +112,13 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       }, 0);
       message.success(
         frameN > 0
-          ? `DBML 导入成功（${n} 张表，已建议 ${frameN} 个分组）`
-          : `DBML 导入成功（${n} 张表）`,
+          ? intl.formatMessage(
+              { id: 'importModal.dbml.successWithFrames' },
+              { tables: n, frames: frameN },
+            )
+          : intl.formatMessage({ id: 'importModal.dbml.success' }, { tables: n }),
       );
     }
-    // ADR-0016：导入后直开关系图首屏（空态 CTA / 菜单导入同路径）
     const firstName = resultModules[0]?.name;
     if (firstName) {
       useTabStore.getState().dispatch.addTab({
@@ -133,18 +138,18 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
   const runImport = async (text: string) => {
     const trimmed = String(text || '').trim();
     if (!trimmed) {
-      message.error('请粘贴 DBML 文本或上传 .dbml 文件');
+      message.error(intl.formatMessage({ id: 'importModal.dbml.pasteRequired' }));
       return;
     }
     setLoading(true);
-    const hide = message.loading('正在解析 DBML…', 0);
+    const hide = message.loading(intl.formatMessage({ id: 'importModal.dbml.parsing' }), 0);
     try {
       const {dbmlToProjectJSON} = await import('@/utils/dbml/toProjectJSON');
       const json = await dbmlToProjectJSON(trimmed);
       await mergeImported(json);
     } catch (e) {
       const msg = e instanceof Error ? e.message : String(e);
-      message.error(msg || 'DBML 导入失败');
+      message.error(msg || intl.formatMessage({ id: 'importModal.dbml.importFailed' }));
     } finally {
       hide();
       setLoading(false);
@@ -163,7 +168,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         file.type === 'text/plain' ||
         file.type === '';
       if (!ok) {
-        message.error('请上传 .dbml 或纯文本文件');
+        message.error(intl.formatMessage({ id: 'importModal.dbml.fileTypeError' }));
         return false;
       }
       const reader = new FileReader();
@@ -172,7 +177,7 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         void runImport(String(reader.result || ''));
       };
       reader.onerror = () => {
-        message.error('读取文件失败');
+        message.error(intl.formatMessage({ id: 'importModal.dbml.readFailed' }));
       };
       return false;
     },
@@ -188,14 +193,14 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
           block
           icon={<FileOutlined />}
           style={{textAlign: 'left'}}
-          aria-label="导入DBML"
+          aria-label={intl.formatMessage({ id: 'importModal.dbml.triggerAria' })}
           onClick={openModal}
         >
-          导入DBML
+          {intl.formatMessage({ id: 'importModal.dbml.trigger' })}
         </Button>
       )}
       <Modal
-        title="导入 DBML"
+        title={intl.formatMessage({ id: 'importModal.dbml.title' })}
         open={open}
         onCancel={closeModal}
         destroyOnClose
@@ -206,8 +211,8 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
         maskTransitionName=""
         keyboard
         focusTriggerAfterClose
-        okText="解析并导入"
-        cancelText="取消"
+        okText={intl.formatMessage({ id: 'importModal.dbml.okText' })}
+        cancelText={intl.formatMessage({ id: 'shareModal.cancel' })}
         confirmLoading={loading}
         onOk={() => void runImport(paste)}
         afterOpenChange={(visible) => {
@@ -219,8 +224,8 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
       >
         <TextArea
           ref={pasteRef}
-          aria-label="DBML文本"
-          placeholder="粘贴 DBML 文本（Table / Ref / Note）…"
+          aria-label={intl.formatMessage({ id: 'importModal.dbml.textAria' })}
+          placeholder={intl.formatMessage({ id: 'importModal.dbml.textPlaceholder' })}
           value={paste}
           onChange={(e) => setPaste(e.target.value)}
           rows={6}
@@ -231,9 +236,9 @@ const ReverseDBML: React.FC<ReverseDBMLProps> = ({
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">点击或拖拽 .dbml 文件到此区域</p>
+          <p className="ant-upload-text">{intl.formatMessage({ id: 'importModal.dbml.uploadHint' })}</p>
           <p className="ant-upload-hint">
-            映射表、字段、默认值、索引、外键与注释（note→显示名）；枚举/触发器本切片不导入。
+            {intl.formatMessage({ id: 'importModal.dbml.draggerHint' })}
           </p>
         </Dragger>
       </Modal>

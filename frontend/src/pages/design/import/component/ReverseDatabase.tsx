@@ -1,10 +1,11 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import {Button as AntButton, Form, message, Select, Steps} from 'antd';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {DataSourceSelect} from '@/components/DataSourceSelect';
 import {dbReverseMeta} from '@/utils/save';
+import { designIntl } from '@/pages/design/locales/intl';
 import _ from 'lodash';
 import '../../secondary-pane.scss';
 
@@ -40,6 +41,15 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   const [form1] = Form.useForm<Step1Values>();
 
   const {status} = profileSliceState;
+
+  const nameFormatOptions = useMemo(
+    () => [
+      { label: designIntl('design.import.reverseDb.nameFormat.default'), value: 'DEFAULT' },
+      { label: designIntl('design.import.reverseDb.nameFormat.upper'), value: 'UPPERCASE' },
+      { label: designIntl('design.import.reverseDb.nameFormat.lower'), value: 'LOWCASE' },
+    ],
+    [],
+  );
 
   useEffect(() => {
     if (selectedDbValue) {
@@ -80,12 +90,20 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           });
         } else {
           setReverseMeta(null);
-          message.error('读取数据源 schema 失败：' + (res?.msg || '未知错误'));
+          message.error(
+            designIntl('design.import.reverseDb.error.readSchema', {
+              reason: res?.msg || designIntl('design.import.reverseDb.error.unknown'),
+            }),
+          );
         }
       } catch (e: any) {
         if (!cancelled) {
           setReverseMeta(null);
-          message.error('读取数据源 schema 失败：' + (e?.message || e));
+          message.error(
+            designIntl('design.import.reverseDb.error.readSchema', {
+              reason: e?.message || String(e),
+            }),
+          );
         }
       } finally {
         if (!cancelled) {
@@ -112,16 +130,19 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
   return (
     <div className="erd-secondary-pane erd-secondary-pane--import" data-testid="import-reverse-page">
       <div className="erd-secondary-pane__content">
-        <h2 className="erd-secondary-pane__title">解析已有数据源</h2>
+        <h2 className="erd-secondary-pane__title">{designIntl('design.import.reverseDb.title')}</h2>
         <p className="erd-secondary-pane__hint">
-          从 JDBC 数据源逆向导入表结构
-          <span className="erd-secondary-pane__em">（含非主键索引）</span>
+          {designIntl('design.import.reverseDb.hint')}
+          <span className="erd-secondary-pane__em">{designIntl('design.import.reverseDb.hintIndex')}</span>
         </p>
         <Steps
           current={step}
           size="small"
           className="erd-secondary-pane__steps"
-          items={[{title: '选择数据源'}, {title: '解析数据源'}]}
+          items={[
+            {title: designIntl('design.import.reverseDb.step.select')},
+            {title: designIntl('design.import.reverseDb.step.parse')},
+          ]}
         />
         {step === 0 && (
           <Form
@@ -133,9 +154,9 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
             requiredMark
           >
             <Form.Item
-              label="数据源"
+              label={designIntl('design.common.datasource')}
               name="currentDB"
-              rules={[{required: true, message: '请选择数据源'}]}
+              rules={[{required: true, message: designIntl('design.common.selectDatasource')}]}
             >
               <DataSourceSelect
                 value={selectedDbValue}
@@ -152,8 +173,12 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
               <Form.Item
                 name="schema"
                 label="Schema"
-                rules={[{required: true, message: '请选择 Schema'}]}
-                extra={reverseMeta.dialectId ? `方言：${reverseMeta.dialectId}` : undefined}
+                rules={[{required: true, message: designIntl('design.import.reverseDb.schema.required')}]}
+                extra={
+                  reverseMeta.dialectId
+                    ? designIntl('design.import.reverseDb.dialect.extra', { dialect: reverseMeta.dialectId })
+                    : undefined
+                }
               >
                 <Select
                   loading={metaLoading}
@@ -167,20 +192,20 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
             ) : null}
             <Form.Item
               name="dataFormat"
-              label="逻辑名格式"
-              rules={[{required: true, message: '请选择逻辑名格式'}]}
+              label={designIntl('design.import.reverseDb.nameFormat.label')}
+              rules={[{required: true, message: designIntl('design.import.reverseDb.nameFormat.required')}]}
             >
               <Select
-                aria-label="逻辑名格式"
-                options={[
-                  {label: '不处理', value: 'DEFAULT'},
-                  {label: '全大写', value: 'UPPERCASE'},
-                  {label: '全小写', value: 'LOWCASE'},
-                ]}
+                aria-label={designIntl('design.import.reverseDb.nameFormat.label')}
+                options={nameFormatOptions}
               />
             </Form.Item>
-            <AntButton type="primary" aria-label="下一步" onClick={() => void goNext()}>
-              下一步 {'>'}
+            <AntButton
+              type="primary"
+              aria-label={designIntl('design.import.reverseDb.nextAria')}
+              onClick={() => void goNext()}
+            >
+              {designIntl('design.common.next')} {'>'}
             </AntButton>
           </Form>
         )}
@@ -188,13 +213,13 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
           <>
             <ReverseParseStep />
             <div className="erd-secondary-pane__actions">
-              <AntButton aria-label="上一步" onClick={() => setStep(0)}>
-                {'<'} 上一步
+              <AntButton aria-label={designIntl('design.import.reverseDb.prevAria')} onClick={() => setStep(0)}>
+                {'<'} {designIntl('design.common.prev')}
               </AntButton>
               {status === 'SUCCESS' ? (
                 <AntButton
                   type="primary"
-                  aria-label="提交"
+                  aria-label={designIntl('design.import.reverseDb.submitAria')}
                   loading={submitting}
                   onClick={() => {
                     void (async () => {
@@ -207,7 +232,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
                     })();
                   }}
                 >
-                  提交
+                  {designIntl('design.common.submit')}
                 </AntButton>
               ) : null}
             </div>

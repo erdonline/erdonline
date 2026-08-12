@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Select, message } from 'antd';
+import { getIntl } from '@umijs/max';
 import _ from 'lodash';
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 
@@ -36,7 +37,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
       }
     } catch (error) {
       console.error('Error fetching data sources:', error);
-      message.error('获取数据源失败');
+      message.error(getIntl().formatMessage({ id: 'dataSourceSelect.fetchFailed' }));
     } finally {
       setLoading(false);
     }
@@ -74,7 +75,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
       if (selectedDb) {
         onDbChange?.(selectedDb);
       } else {
-        message.error('无法找到选中的数据源信息');
+        message.error(getIntl().formatMessage({ id: 'dataSourceSelect.notFound' }));
       }
     }
   };
@@ -85,7 +86,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
       value={value}
       style={style || { width: 200 }}
       onChange={handleChange}
-      placeholder="请选择数据源"
+      placeholder={getIntl().formatMessage({ id: 'dataSourceSelect.placeholder' })}
       showSearch
       filterOption={false}
       onSearch={handleSearch}
@@ -95,7 +96,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
       loading={loading}
       size={size}
       data-testid="datasource-select"
-      aria-label="选择数据源"
+      aria-label={getIntl().formatMessage({ id: 'dataSourceSelect.aria' })}
     >
       {Object.entries(groupedDataSources).map(([group, databases]) => (
         <OptGroup key={group} label={group}>

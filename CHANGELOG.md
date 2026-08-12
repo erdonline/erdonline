@@ -8,12 +8,24 @@
 
 ### 2026-08-12
 
-#### i18n：store 层 toast / 校验文案抽取（ADR-0033）
+#### i18n：`components/` 域抽取（ADR-0033）
 
-- **Locale**：`frontend/src/locales/{zh-CN,en-US}/store.ts` 分片（187 key）；根 locale spread 合并；`versionStore.*` 迁入分片
-- **Store**：`storeFmt()`（函数内 `getIntl()`）替换 `frontend/src/store/**` 全部 `message.*` / `persistProjectNow` fallback / 校验 toast；`副本` 等 projectJSON 种子未动
-- **Utils**：`messageFormat.appFormat()` 合并 store 分片
-- **验证点**：`yarn check:i18n` PASS（1969 keys 对齐；CJK 1324/1324 baseline）
+- **Locale**：`locales/{zh-CN,en-US}/components.ts`（**449** 键）；根 locale spread 合并
+- **FE**：`components/**` 对话框/审批/导出/导入/字段库/目录等用户可见文案走 `formatMessage` / `getIntl()`
+- **验证点**：`yarn check:i18n` PASS（components 提交后键对齐）；`yarn build` 通过
+
+#### i18n：设计器 `pages/design/` 抽取（ADR-0033）
+
+- **Locale**：`pages/design/locales/{zh-CN,en-US}.ts` + `intl.ts`（`designIntl()`）；设计器 React 组件硬编码文案 key 化
+- **FE**：关系图/设置/表编辑/导入导出等 `pages/design/**` 接入 `designIntl`
+- **Baseline**：CJK 棘轮 **600**（基线 979 → 600，−379，含 components + design 两轮）
+- **验证点**：`yarn check:i18n` PASS（**2014** 键 zh/en 对齐、零重复）；CJK baseline 600；`yarn build` 通过
+
+#### i18n：store 层 toast/校验抽取（ADR-0033）
+
+- **Locale**：`locales/{zh-CN,en-US}/store.ts` 分片；根 locale spread 合并；移除根文件与 `store.ts` 重复的 `versionStore.*`
+- **Store**：`storeIntl.ts` + `storeFmt()` 替换 `store/**` 硬编码 toast/校验
+- **验证点**：`yarn check:i18n` PASS；`6ad41733`
 
 #### i18n：ADR-0033 前置工具链（术语表 + CI 门禁）
 

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
+import { useIntl } from '@umijs/max';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
@@ -11,20 +12,22 @@ export type RepeatApprovalProps = {
 };
 
 const RepeatApproval: React.FC<RepeatApprovalProps> = (props) => {
+  const intl = useIntl();
+
   const onRepeatClick = () => {
     confirmDestructive({
-      title: '复批',
-      content: '确认重新提交该审批？',
-      okText: '复批',
-      cancelText: '取消',
+      title: intl.formatMessage({ id: 'approvalModal.repeatTitle' }),
+      content: intl.formatMessage({ id: 'approvalModal.repeatContent' }),
+      okText: intl.formatMessage({ id: 'approvalModal.repeatOk' }),
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 4,
-            approveResult: '正在复批',
+            approveResult: intl.formatMessage({ id: 'approvalModal.repeatResult' }),
           }),
           props.actionRef,
-          '已重新提交审批',
+          intl.formatMessage({ id: 'approvalModal.repeatSuccess' }),
         ),
     });
   };
@@ -37,7 +40,7 @@ const RepeatApproval: React.FC<RepeatApprovalProps> = (props) => {
       icon={<CheckCircleOutlined />}
       onClick={onRepeatClick}
     >
-      复批
+      {intl.formatMessage({ id: 'approvalModal.repeatButton' })}
     </Button>
   );
 };

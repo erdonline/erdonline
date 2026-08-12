@@ -11,6 +11,7 @@ import {QuestionCircleOutlined} from "@ant-design/icons";
 import {SNAPSHOT_DB} from "@/utils/versionConstants";
 import {fetchTableDdl} from "@/utils/ddlExportApi";
 import type {VersionDiffChange} from "@/utils/versionDiffApi";
+import { designIntl } from '@/pages/design/locales/intl';
 
 const {Paragraph} = Typography;
 
@@ -98,8 +99,12 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
           } catch (err: unknown) {
             if (!cancelled) {
               setResult('');
-              const reason = err instanceof Error ? err.message : 'DDL 生成失败';
-              message.warning(`表 DDL 预览失败：${reason}`);
+              const reason = err instanceof Error
+                ? err.message
+                : designIntl('design.table.code.error.ddlFailed');
+              message.warning(
+                designIntl('design.table.code.warn.ddlPreview', {reason}),
+              );
             }
           } finally {
             if (!cancelled) {
@@ -110,7 +115,7 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
       } else {
         setResult('');
         setLoading(false);
-        message.warning('拉取版本失败，无法生成差异脚本');
+        message.warning(designIntl('design.table.code.warn.versionFailed'));
       }
     }).catch(() => {
       if (cancelled) {
@@ -118,7 +123,7 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
       }
       setResult('');
       setLoading(false);
-      message.warning('拉取版本失败，无法生成差异脚本');
+      message.warning(designIntl('design.table.code.warn.versionFailed'));
     });
     return () => {
       cancelled = true;
@@ -126,21 +131,24 @@ const TableCodeShow: React.FC<TableCodeShowProps> = (props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps -- 差异跟模板/表/模型走；旧 DataSource 随版本回调注入
   }, [templateCode, dataSource, dataTable, dbCode]);
 
+  const isFullScript =
+    templateCode === 'createTableTemplate' ||
+    templateCode === 'deleteTableTemplate' ||
+    templateCode === 'createIndexTemplate';
+
   return (<>
     <Spin spinning={loading}>
-    <Paragraph className="erd-meta-ddl-hint" copyable={{text: result}}>    {
-      (templateCode === 'createTableTemplate' ||
-        templateCode === 'deleteTableTemplate' ||
-        templateCode === 'createIndexTemplate') ? '该脚本为全量脚本' :
-        <Tooltip placement="top" title='差异化脚本:
-        1、根据最后一个版本的元数据，计算和当前模型的差异，然后按模板渲染；
-        2、未同步版本时这里为空;
-        3、当前项未产生变化，这里为空;
-        '>
-          <QuestionCircleOutlined/> 该脚本为差异化脚本
+    <Paragraph className="erd-meta-ddl-hint" copyable={{text: result}}>
+      {isFullScript ? (
+        designIntl('design.table.code.hint.fullScript')
+      ) : (
+        <Tooltip
+          placement="top"
+          title={designIntl('design.table.code.tooltip.diffScript')}
+        >
+          <QuestionCircleOutlined/> {designIntl('design.table.code.hint.diffScript')}
         </Tooltip>
-    }
-
+      )}
     </Paragraph>
 
     {/* 供 E2E / 复制外断言 DDL；Ace 渲染不必解析 */}

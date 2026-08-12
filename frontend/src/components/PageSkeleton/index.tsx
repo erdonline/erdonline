@@ -1,5 +1,6 @@
 import React from 'react';
 import { Skeleton, Space } from 'antd';
+import { getIntl } from '@umijs/max';
 
 export type PageSkeletonProps = {
   /** 内容区行数，默认 4 */
@@ -17,7 +18,7 @@ const PageSkeleton: React.FC<PageSkeletonProps> = ({ rows = 4, avatar = false })
     data-testid="page-skeleton"
     role="status"
     aria-busy="true"
-    aria-label="页面加载中"
+    aria-label={getIntl().formatMessage({ id: 'pageSkeleton.loadingAria' })}
     style={{ padding: 24 }}
   >
     <Space direction="vertical" size="large" style={{ width: '100%' }}>

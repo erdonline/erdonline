@@ -6,6 +6,7 @@ import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import _ from "lodash";
 import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
+import { designIntl } from '@/pages/design/locales/intl';
 import '../../secondary-pane.scss';
 
 
@@ -86,7 +87,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
         name.endsWith('.json') ||
         name.endsWith('.erd.json');
       if (!isJSON) {
-        message.error('请确认上传文件是ERD导出的标准json文件!');
+        message.error(designIntl('design.import.reverseErd.error.notStandardJson'));
         return false;
       }
 
@@ -99,27 +100,27 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
             // @ts-ignore
             originJson = projectDispatch.decrypt('AES', reader.result.toString());
           } catch (e) {
-            message.error(`ERD文件解密失败！`)
+            message.error(designIntl('design.import.reverseErd.error.decryptFailed'));
             return;
           }
           let erdJson;
           try {
             erdJson = JSON.parse(originJson);
           } catch {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(designIntl('design.import.reverseErd.error.invalidFile'));
             return;
           }
           let erdJsonModules = erdJson['modules'];
           if (!erdJsonModules) {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(designIntl('design.import.reverseErd.error.invalidFile'));
             return;
           }
           if (!(erdJsonModules instanceof Array)) {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(designIntl('design.import.reverseErd.error.invalidFile'));
             return;
           }
           if (erdJsonModules.length <= 0) {
-            message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
+            message.warning(designIntl('design.import.reverseErd.warn.noModel'));
             return;
           }
           // @ts-ignore
@@ -131,7 +132,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
             if (!hasMulti) {
               resultModules.push(module);
             } else {
-              resultMsg.push("[" + module.name + "]已经在本系统中存在，已跳过导入");
+              resultMsg.push(designIntl('design.import.reverseErd.skipModule', { name: module.name }));
             }
           });
           if (resultModules.length <= 0) {
@@ -152,7 +153,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
             if (resultMsg.length > 0) {
               showImportSkipWarning(resultMsg);
             } else {
-              message.success('ERD文件导入成功！');
+              message.success(designIntl('design.import.reverseErd.success'));
             }
           } finally {
             setImporting(false);
@@ -167,16 +168,16 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
   return (
     <div className="erd-secondary-pane erd-secondary-pane--import" data-testid="import-erd-page">
       <div className="erd-secondary-pane__content">
-        <h2 className="erd-secondary-pane__title">解析 ERD 文件</h2>
-        <p className="erd-secondary-pane__hint">上传完毕后自动解析；每次仅支持一个 ERD json</p>
+        <h2 className="erd-secondary-pane__title">{designIntl('design.import.reverseErd.page.title')}</h2>
+        <p className="erd-secondary-pane__hint">{designIntl('design.import.reverseErd.page.hint')}</p>
         <div className="erd-secondary-pane__upload">
           <Dragger {...prop}>
             <p className="ant-upload-drag-icon">
               <InboxOutlined/>
             </p>
-            <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
+            <p className="ant-upload-text">{designIntl('design.import.reverseErd.upload.text')}</p>
             <p className="ant-upload-hint">
-              上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
+              {designIntl('design.import.reverseErd.upload.hint')}
             </p>
           </Dragger>
         </div>

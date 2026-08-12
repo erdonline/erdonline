@@ -32,6 +32,7 @@ import FieldLibraryFieldsEditor, {
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import { designIntl } from '@/pages/design/locales/intl';
 import './setting-common.scss';
 
 type FormValues = {
@@ -49,7 +50,11 @@ export type FieldLibraryManagerProps = {
   compact?: boolean;
 };
 
-function toManagerNodes(nodes: DataDictTreeNode[]): DataNode[] {
+function toManagerNodes(
+  nodes: DataDictTreeNode[],
+  readonlyLabel: string,
+  platformLabel: string,
+): DataNode[] {
   return (nodes || []).map((n) => ({
     key: n.id,
     title: (
@@ -57,18 +62,20 @@ function toManagerNodes(nodes: DataDictTreeNode[]): DataNode[] {
         {n.title}
         {n.readOnly ? (
           <Tag color="default" style={{ marginLeft: 8 }}>
-            只读
+            {readonlyLabel}
           </Tag>
         ) : null}
         {n.scopeType === 'platform' ? (
           <Tag color="blue" style={{ marginLeft: 4 }}>
-            平台
+            {platformLabel}
           </Tag>
         ) : null}
       </span>
     ),
     isLeaf: !!n.isLeaf,
-    children: n.children?.length ? toManagerNodes(n.children) : undefined,
+    children: n.children?.length
+      ? toManagerNodes(n.children, readonlyLabel, platformLabel)
+      : undefined,
     // @ts-expect-error 扩展 raw
     raw: n,
   }));
@@ -166,7 +173,15 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
   }, [load]);
 
   const nodeMap = useMemo(() => flatten(treeData), [treeData]);
-  const antdTree = useMemo(() => toManagerNodes(treeData), [treeData]);
+  const antdTree = useMemo(
+    () =>
+      toManagerNodes(
+        treeData,
+        designIntl('design.setting.fieldLibrary.tag.readonly'),
+        designIntl('design.setting.fieldLibrary.tag.platform'),
+      ),
+    [treeData],
+  );
   const allExpandKeys = useMemo(() => {
     const keys: string[] = [];
     const walk = (nodes: DataDictTreeNode[]) => {
@@ -184,7 +199,7 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
   }, [allExpandKeys]);
   const parentOptions = useMemo(
     () => [
-      { value: '0', label: '（根目录）' },
+      { value: '0', label: designIntl('design.setting.fieldLibrary.form.root') },
       ...collectFolderOptions(treeData),
     ],
     [treeData],
@@ -217,7 +232,7 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
 
   const openEdit = (node: DataDictTreeNode) => {
     if (node.readOnly) {
-      message.info('平台字段库只读');
+      message.info(designIntl('design.setting.fieldLibrary.readonly'));
       return;
     }
     setEditing(node);
@@ -284,11 +299,11 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
     } catch (e) {
       const err = e as Error;
       if (err.message === 'INVALID_JSON') {
-        message.error('字段 JSON 格式无效');
+        message.error(designIntl('design.setting.fieldLibrary.error.invalidJson'));
       } else if (err.message === 'EMPTY_FIELDS') {
-        message.error('请至少填写一个字段英文名');
+        message.error(designIntl('design.setting.fieldLibrary.error.noEnglishName'));
       } else {
-        message.error('字段定义无效');
+        message.error(designIntl('design.setting.fieldLibrary.error.invalidDef'));
       }
       throw e;
     }
@@ -306,15 +321,15 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
       };
       if (editing?.id) {
         await updateDataDict(editing.id, payload);
-        message.success('已更新');
+        message.success(designIntl('design.setting.fieldLibrary.success.updated'));
       } else {
         await createDataDict(payload);
-        message.success('已创建');
+        message.success(designIntl('design.setting.fieldLibrary.success.created'));
       }
       setModalOpen(false);
       await load();
     } catch (e) {
-      message.error('保存失败');
+      message.error(designIntl('design.common.error.saveFailed'));
       throw e;
     } finally {
       setSubmitting(false);
@@ -323,16 +338,16 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
 
   const onDelete = (node: DataDictTreeNode) => {
     if (node.readOnly) {
-      message.info('平台字段库只读');
+      message.info(designIntl('design.setting.fieldLibrary.readonly'));
       return;
     }
     confirmDestructive({
-      title: '删除字段库条目',
-      content: `确定删除「${node.title}」？`,
-      okText: '删除',
+      title: designIntl('design.setting.fieldLibrary.confirmDelete.title'),
+      content: designIntl('design.setting.fieldLibrary.confirmDelete.content', {name: node.title}),
+      okText: designIntl('design.common.delete'),
       onOk: async () => {
         await deleteDataDict(node.id);
-        message.success('已删除');
+        message.success(designIntl('design.setting.fieldLibrary.success.deleted'));
         await load();
       },
     });
@@ -350,38 +365,38 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
           type="primary"
           size="small"
           data-testid="field-library-create"
-          aria-label="新建字段库条目"
+          aria-label={designIntl('design.setting.fieldLibrary.aria.new')}
           onClick={() => openCreate(selected?.isLeaf ? selected.parentId : selectedId)}
         >
-          新建
+          {designIntl('design.common.create')}
         </Button>
         <Button
           size="small"
           data-testid="field-library-edit"
-          aria-label="编辑选中条目"
+          aria-label={designIntl('design.setting.fieldLibrary.aria.edit')}
           disabled={!selected || selected.readOnly}
           onClick={() => selected && openEdit(selected)}
         >
-          编辑
+          {designIntl('design.common.edit')}
         </Button>
         <Button
           size="small"
           danger
           data-testid="field-library-delete"
-          aria-label="删除选中条目"
+          aria-label={designIntl('design.setting.fieldLibrary.aria.delete')}
           disabled={!selected || selected.readOnly}
           onClick={() => selected && onDelete(selected)}
         >
-          删除
+          {designIntl('design.common.delete')}
         </Button>
         {!compact ? (
           <Button
             size="small"
             data-testid="field-library-refresh"
-            aria-label="刷新字段库"
+            aria-label={designIntl('design.setting.fieldLibrary.aria.refresh')}
             onClick={() => { void load(); }}
           >
-            刷新
+            {designIntl('design.common.refresh')}
           </Button>
         ) : null}
       </Space>
@@ -397,7 +412,11 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
       </Spin>
 
       <Modal
-        title={editing ? '编辑字段库' : '新建字段库'}
+        title={
+          editing
+            ? designIntl('design.setting.fieldLibrary.modal.edit')
+            : designIntl('design.setting.fieldLibrary.modal.new')
+        }
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
         onOk={() => onSubmit()}
@@ -407,16 +426,23 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
         okButtonProps={{ 'data-testid': 'field-library-form-submit' } as never}
       >
         <Form form={form} layout="vertical" preserve={false}>
-          <Form.Item name="title" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
-            <Input data-testid="field-library-form-title" placeholder="如：客户姓名" />
+          <Form.Item
+            name="title"
+            label={designIntl('design.common.name')}
+            rules={[{ required: true, message: designIntl('design.setting.fieldLibrary.form.titleRequired') }]}
+          >
+            <Input
+              data-testid="field-library-form-title"
+              placeholder={designIntl('design.setting.fieldLibrary.form.titlePlaceholder')}
+            />
           </Form.Item>
-          <Form.Item name="dictCode" label="代码">
-            <Input placeholder="可选，如 customer_name" />
+          <Form.Item name="dictCode" label={designIntl('design.common.code')}>
+            <Input placeholder={designIntl('design.setting.fieldLibrary.form.codePlaceholder')} />
           </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input.TextArea rows={2} placeholder="可选说明" />
+          <Form.Item name="description" label={designIntl('design.common.description')}>
+            <Input.TextArea rows={2} placeholder={designIntl('design.setting.fieldLibrary.form.descPlaceholder')} />
           </Form.Item>
-          <Form.Item name="parentId" label="父级文件夹">
+          <Form.Item name="parentId" label={designIntl('design.setting.fieldLibrary.form.parent')}>
             <Select
               options={parentOptions}
               showSearch
@@ -426,19 +452,21 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
           </Form.Item>
           <Form.Item
             name="scopeType"
-            label="范围"
+            label={designIntl('design.setting.fieldLibrary.form.scope')}
             extra={
               isGroupProject
-                ? '个人库仅自己可见；团队库对当前团队项目成员可见。'
-                : '当前为个人项目，仅可创建个人字段库。'
+                ? designIntl('design.setting.fieldLibrary.form.scopeTeamHint')
+                : designIntl('design.setting.fieldLibrary.form.scopePersonalHint')
             }
           >
             <Radio.Group>
-              <Radio value="user">个人</Radio>
-              {isGroupProject ? <Radio value="group">团队</Radio> : null}
+              <Radio value="user">{designIntl('design.setting.fieldLibrary.scope.personal')}</Radio>
+              {isGroupProject ? (
+                <Radio value="group">{designIntl('design.setting.fieldLibrary.scope.team')}</Radio>
+              ) : null}
             </Radio.Group>
           </Form.Item>
-          <Form.Item name="isLeaf" label="类型">
+          <Form.Item name="isLeaf" label={designIntl('design.setting.fieldLibrary.form.type')}>
             <Radio.Group
               onChange={(e) => {
                 if (e.target.value) {
@@ -450,15 +478,15 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
                 }
               }}
             >
-              <Radio value={false}>文件夹</Radio>
-              <Radio value={true}>字段条目</Radio>
+              <Radio value={false}>{designIntl('design.setting.fieldLibrary.type.folder')}</Radio>
+              <Radio value={true}>{designIntl('design.setting.fieldLibrary.type.entry')}</Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item noStyle shouldUpdate={(p, c) => p.isLeaf !== c.isLeaf}>
             {({ getFieldValue }) =>
               getFieldValue('isLeaf') ? (
                 <>
-                  <Form.Item label="字段定义" required>
+                  <Form.Item label={designIntl('design.setting.fieldLibrary.form.fieldsRequired')} required>
                     <FieldLibraryFieldsEditor datatype={datatype} />
                   </Form.Item>
                   <Collapse
@@ -472,12 +500,12 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
                     items={[
                       {
                         key: 'json',
-                        label: '高级：原始 JSON',
+                        label: designIntl('design.setting.fieldLibrary.form.advancedJson'),
                         children: (
                           <Form.Item
                             name="fieldJson"
                             style={{ marginBottom: 0 }}
-                            extra="展开后若修改 JSON，保存时以 JSON 为准；否则以上方字段表单为准。"
+                            extra={designIntl('design.setting.fieldLibrary.form.advancedJsonExtra')}
                           >
                             <Input.TextArea
                               rows={10}
@@ -494,7 +522,7 @@ const FieldLibraryManager: React.FC<FieldLibraryManagerProps> = ({ compact }) =>
                 </>
               ) : (
                 <Typography.Paragraph type="secondary" style={{ marginBottom: 0 }}>
-                  文件夹用于分组，不含字段定义。
+                  {designIntl('design.setting.fieldLibrary.folderHint')}
                 </Typography.Paragraph>
               )
             }

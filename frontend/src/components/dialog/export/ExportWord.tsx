@@ -1,11 +1,13 @@
 import React, {useContext} from 'react';
 import { Button } from "antd";
+import { useIntl } from '@umijs/max';
 import { FileWordOutlined } from '@ant-design/icons';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 const ExportWord: React.FC = () => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
@@ -21,8 +23,8 @@ const ExportWord: React.FC = () => {
         projectDispatch.exportFile('Word');
       }}
       style={{ textAlign: 'left' }}
-      aria-label="导出Word"
-    >导出Word</Button>
+      aria-label={intl.formatMessage({ id: 'exportModal.wordAria' })}
+    >{intl.formatMessage({ id: 'exportModal.word' })}</Button>
   );
 };
 

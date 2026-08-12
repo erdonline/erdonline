@@ -1,3 +1,4 @@
+import { designIntl } from '@/pages/design/locales/intl';
 import React, {useEffect} from 'react';
 import {Access, useAccess} from '@@/plugin-access';
 import {Button, Form, Input, InputNumber, Upload, message} from 'antd';
@@ -43,15 +44,15 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
   const handleFinish = async (values: FormValues) => {
     const ok = await projectDispatch.updateProfile(values);
     if (ok) {
-      message.success('设置成功');
+      message.success(designIntl('design.common.error.settingsSaved'));
     }
     // 失败：request 已 toast
   };
 
   return (
     <div className="setting-common-page" data-testid="default-setup-page">
-      <h2 className="setting-common-page__title">系统默认项设置</h2>
-      <p className="setting-common-page__hint">配置导入导出秘钥、元数据展示与 WORD 模板</p>
+      <h2 className="setting-common-page__title">{designIntl('design.setting.defaultSetup.page.title')}</h2>
+      <p className="setting-common-page__hint">{designIntl('design.setting.defaultSetup.page.hint')}</p>
       <Form
         form={form}
         layout="vertical"
@@ -61,45 +62,45 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
       >
         <Form.Item
           name="erdPassword"
-          label="ERD秘钥"
-          extra="仅用于ERD导入导出加密解密"
+          label={designIntl('design.setting.defaultSetup.erdPassword.label')}
+          extra={designIntl('design.setting.defaultSetup.erdPassword.extra')}
         >
-          <Input.Password placeholder="默认为ERDOnline" />
+          <Input.Password placeholder={designIntl('design.setting.defaultSetup.erdPassword.placeholder')} />
         </Form.Item>
         <Form.Item
           name="tableLimit"
-          label="元数据表展示上限"
-          extra="控制元数据表展示上限，默认展示1000个表。当可见范围看不到表时，请使用元数据搜索功能；当元数据表很多时，可以减小此参数，加快页面渲染速度，减少卡顿。"
+          label={designIntl('design.setting.defaultSetup.tableLimit.label')}
+          extra={designIntl('design.setting.defaultSetup.tableLimit.extra')}
         >
-          <InputNumber min={1} max={1000} placeholder="默认1000，最小1，最大1000" />
+          <InputNumber min={1} max={1000} placeholder={designIntl('design.setting.defaultSetup.tableLimit.placeholder')} />
         </Form.Item>
         <Form.Item
           name="sqlConfig"
-          label="SQL分隔符"
-          extra="分隔每条往数据库执行的SQL"
-          rules={[{max: 100, message: '不能大于 100 个字符'}]}
+          label={designIntl('design.setting.defaultSetup.sqlConfig.label')}
+          extra={designIntl('design.setting.defaultSetup.sqlConfig.extra')}
+          rules={[{max: 100, message: designIntl('design.common.max100')}]}
         >
-          <Input placeholder="默认为/*SQL@Run*/" />
+          <Input placeholder={designIntl('design.setting.defaultSetup.sqlConfig.placeholder')} />
         </Form.Item>
         <Form.Item
           name="moduleNameFormat"
-          label="元数据->模型名显示格式"
-          extra="模型->元数据中，模型名称显示格式：{name}显示英文名，{chnname}显示中文名，{name} {chnname}为英文和中文的组合名"
-          rules={[{max: 100, message: '不能大于 100 个字符'}]}
+          label={designIntl('design.setting.defaultSetup.moduleFormat.label')}
+          extra={designIntl('design.setting.defaultSetup.moduleFormat.extra')}
+          rules={[{max: 100, message: designIntl('design.common.max100')}]}
         >
-          <Input placeholder="默认为 {name} {chnname}" />
+          <Input placeholder={designIntl('design.setting.defaultSetup.moduleFormat.placeholder')} />
         </Form.Item>
         <Form.Item
           name="tableNameFormat"
-          label="元数据->表名显示格式"
-          extra="模型->元数据中，表名称显示格式：{title}显示英文名，{chnname}显示中文名，{title} {chnname}为英文和中文的组合名"
-          rules={[{max: 100, message: '不能大于 100 个字符'}]}
+          label={designIntl('design.setting.defaultSetup.tableFormat.label')}
+          extra={designIntl('design.setting.defaultSetup.tableFormat.extra')}
+          rules={[{max: 100, message: designIntl('design.common.max100')}]}
         >
-          <Input placeholder="默认为 {title} {chnname}" />
+          <Input placeholder={designIntl('design.setting.defaultSetup.tableFormat.placeholder')} />
         </Form.Item>
         <Form.Item
-          label="WORD模板配置"
-          extra="默认为系统自带的模板，如需修改，请先下载，再重新上传模板文件"
+          label={designIntl('design.setting.defaultSetup.wordTemplate.label')}
+          extra={designIntl('design.setting.defaultSetup.wordTemplate.extra')}
         >
           <Access accessible={access.canErdDocUploadwordtemplate} fallback={<></>}>
             <Upload
@@ -113,22 +114,22 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = () => {
                       e.file.response.data,
                     );
                   } else {
-                    message.error(e.file.response?.msg ?? '上传失败');
+                    message.error(e.file.response?.msg ?? designIntl('design.common.uploadFailed'));
                   }
                 } else if (e.file.status === 'error') {
-                  message.error('上传失败');
+                  message.error(designIntl('design.common.uploadFailed'));
                 }
               }}
               action={`${API_URL}/ncnb/doc/uploadWordTemplate/${projectId}`}
             >
-              <Button>点击上传</Button>
+              <Button>{designIntl('design.common.upload')}</Button>
             </Upload>
           </Access>
           <Access accessible={access.canErdDocDownloadwordtemplate} fallback={<></>}>
             <Button
               style={{marginLeft: 8}}
-              title="下载模板"
-              aria-label="下载模板"
+              title={designIntl('design.setting.defaultSetup.wordTemplate.download')}
+              aria-label={designIntl('design.setting.defaultSetup.wordTemplate.downloadAria')}
               onClick={() => {
                 void projectDispatch.downloadWordTemplate();
               }}

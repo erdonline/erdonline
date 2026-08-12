@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Modal, Form, Input, Select } from 'antd';
+import { useIntl } from '@umijs/max';
 import type { InputRef } from 'antd/es/input';
 import type { RefSelectProps } from 'antd/es/select';
 import './entity-modal.scss';
@@ -23,6 +24,7 @@ const EntityModal: React.FC<EntityModalProps> = ({
     modules,
     modalType,
 }) => {
+    const intl = useIntl();
     const [form] = Form.useForm();
     const nameInputRef = useRef<InputRef>(null);
     const moduleSelectRef = useRef<RefSelectProps>(null);
@@ -54,7 +56,6 @@ const EntityModal: React.FC<EntityModalProps> = ({
             setSubmitting(true);
             try {
                 const result = await onOk(values);
-                // false = 失败留窗；true/void = 调用方已关窗或同步成功
                 if (result === false) {
                     return;
                 }
@@ -66,18 +67,21 @@ const EntityModal: React.FC<EntityModalProps> = ({
         }
     };
 
-    // 根据modalType和initialValues来决定标题
     const getModalTitle = () => {
         const isNew = !initialValues || Object.keys(initialValues).length === 0 || initialValues.isNew;
         switch (modalType) {
             case 'module':
-                return isNew ? '新增模型' : '编辑模型';
+                return isNew
+                  ? intl.formatMessage({ id: 'entityModal.addModule' })
+                  : intl.formatMessage({ id: 'entityModal.editModule' });
             case 'entity':
-                // 「编辑表」已改开表设计；本弹层仅新建/重命名
-                return isNew ? '新增表' : '重命名表';
+                return isNew
+                  ? intl.formatMessage({ id: 'entityModal.addTable' })
+                  : intl.formatMessage({ id: 'entityModal.renameTable' });
             case 'relation':
-                // 关系图 = diagrams[] 命名（ADR-0017）；不再走已废弃的空 FK 表单
-                return isNew ? '新建关系图' : '重命名关系图';
+                return isNew
+                  ? intl.formatMessage({ id: 'entityModal.addDiagram' })
+                  : intl.formatMessage({ id: 'entityModal.renameDiagram' });
             default:
                 return title;
         }
@@ -95,7 +99,6 @@ const EntityModal: React.FC<EntityModalProps> = ({
             width={400}
             className="erd-entity-modal"
             rootClassName="erd-entity-modal-root"
-            // 小表单无需 zoom 戏剧感；亦避免 E2E 量到 scale 中的 bbox
             transitionName=""
             maskTransitionName=""
             destroyOnHidden
@@ -105,7 +108,6 @@ const EntityModal: React.FC<EntityModalProps> = ({
                 if (!opened) {
                     return;
                 }
-                // 新增表首焦「所属模型」；模型/关系图首焦名称
                 const tryFocus = (attempt = 0) => {
                     if (modalType === 'entity') {
                         if (moduleSelectRef.current) {
@@ -130,10 +132,10 @@ const EntityModal: React.FC<EntityModalProps> = ({
                 {modalType === 'entity' && (
                     <Form.Item
                         name="moduleName"
-                        label="所属模型"
-                        rules={[{ required: true, message: '请选择所属模型！' }]}
+                        label={intl.formatMessage({ id: 'entityModal.moduleLabel' })}
+                        rules={[{ required: true, message: intl.formatMessage({ id: 'entityModal.moduleRequired' }) }]}
                     >
-                        <Select ref={moduleSelectRef} aria-label="所属模型">
+                        <Select ref={moduleSelectRef} aria-label={intl.formatMessage({ id: 'entityModal.moduleAria' })}>
                             {modules?.map(module => (
                                 <Select.Option key={module.name} value={module.name}>
                                     {module.chnname || module.name}
@@ -144,26 +146,51 @@ const EntityModal: React.FC<EntityModalProps> = ({
                 )}
                 <Form.Item
                     name="name"
-                    label={isRelation ? '关系图名称' : '名称'}
-                    rules={[{ required: true, message: isRelation ? '请输入关系图名称！' : '请输入名称！' }]}
+                    label={
+                      isRelation
+                        ? intl.formatMessage({ id: 'entityModal.diagramNameLabel' })
+                        : intl.formatMessage({ id: 'entityModal.nameLabel' })
+                    }
+                    rules={[{
+                      required: true,
+                      message: isRelation
+                        ? intl.formatMessage({ id: 'entityModal.diagramNameRequired' })
+                        : intl.formatMessage({ id: 'entityModal.nameRequired' }),
+                    }]}
                 >
                     <Input
                       ref={nameInputRef}
-                      aria-label={isRelation ? '关系图名称' : '名称'}
+                      aria-label={
+                        isRelation
+                          ? intl.formatMessage({ id: 'entityModal.diagramNameAria' })
+                          : intl.formatMessage({ id: 'entityModal.nameAria' })
+                      }
                       data-testid="entity-modal-name"
-                      placeholder={isRelation ? '例如：鉴权域' : undefined}
+                      placeholder={
+                        isRelation
+                          ? intl.formatMessage({ id: 'entityModal.diagramNamePlaceholder' })
+                          : undefined
+                      }
                     />
                 </Form.Item>
                 {!isRelation && (
                     <Form.Item
                         name="chnname"
-                        label="中文名"
-                        rules={modalType === 'entity' ? [] : [{ required: true, message: '请输入中文名！' }]}
+                        label={intl.formatMessage({ id: 'entityModal.chnnameLabel' })}
+                        rules={
+                          modalType === 'entity'
+                            ? []
+                            : [{ required: true, message: intl.formatMessage({ id: 'entityModal.chnnameRequired' }) }]
+                        }
                     >
                         <Input
-                          aria-label="中文名"
+                          aria-label={intl.formatMessage({ id: 'entityModal.chnnameAria' })}
                           data-testid="entity-modal-chnname"
-                          placeholder={modalType === 'entity' ? '可选' : undefined}
+                          placeholder={
+                            modalType === 'entity'
+                              ? intl.formatMessage({ id: 'entityModal.chnnameOptional' })
+                              : undefined
+                          }
                         />
                     </Form.Item>
                 )}

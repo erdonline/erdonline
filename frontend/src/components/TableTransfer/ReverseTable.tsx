@@ -1,6 +1,7 @@
 import {Descriptions, Form, Input, Select, Table, Typography} from 'antd';
 import type {ColumnsType} from 'antd/es/table';
 import React, {useEffect, useMemo} from 'react';
+import {useIntl} from '@umijs/max';
 import _ from 'lodash';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -19,6 +20,7 @@ export type TableListItem = {
 export type ReverseTableProps = {};
 
 const ReverseTable: React.FC<ReverseTableProps> = () => {
+  const intl = useIntl();
   const {projectDispatch, profileSliceState, projectModules} = useProjectStore(
     (state) => ({
       projectDispatch: state.dispatch,
@@ -67,18 +69,18 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
     }));
     return [
       {
-        label: `新建：${parsedName}`,
+        label: intl.formatMessage({ id: 'reverseTable.newModuleOption' }, { name: parsedName }),
         value: REVERSE_NEW_MODULE,
       },
       ...existing,
     ];
-  }, [parsedName, projectModules]);
+  }, [parsedName, projectModules, intl]);
 
   const moduleSelectValue = useExistingModule ? targetModuleCode : REVERSE_NEW_MODULE;
 
   const columns: ColumnsType<TableListItem> = [
     {
-      title: '表名「英文名」',
+      title: intl.formatMessage({ id: 'reverseTable.colTitle' }),
       width: 150,
       dataIndex: 'title',
       fixed: 'left',
@@ -95,7 +97,7 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
       },
     },
     {
-      title: '注释「中文名」',
+      title: intl.formatMessage({ id: 'reverseTable.colChnname' }),
       width: 150,
       dataIndex: 'chnname',
       align: 'left',
@@ -106,9 +108,9 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
   return (
     <div data-testid="reverse-entity-list">
       <Form layout="vertical" size="small" className="erd-secondary-pane__form">
-        <Form.Item label="导入到模型" required>
+        <Form.Item label={intl.formatMessage({ id: 'reverseTable.targetModuleLabel' })} required>
           <Select
-            aria-label="导入到模型"
+            aria-label={intl.formatMessage({ id: 'reverseTable.targetModuleAria' })}
             data-testid="reverse-target-module"
             value={moduleSelectValue}
             options={moduleOptions}
@@ -132,9 +134,9 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
             }}
           />
         </Form.Item>
-        <Form.Item label="模型名称" required>
+        <Form.Item label={intl.formatMessage({ id: 'reverseTable.moduleNameLabel' })} required>
           <Input
-            aria-label="模型名称"
+            aria-label={intl.formatMessage({ id: 'reverseTable.moduleNameAria' })}
             data-testid="reverse-target-module-name"
             value={targetModuleChnname}
             disabled={useExistingModule}
@@ -150,12 +152,14 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
       </Form>
       <div className="erd-secondary-pane__meta">
         <Descriptions size="small" column={3}>
-          <Descriptions.Item label="数据源">
+          <Descriptions.Item label={intl.formatMessage({ id: 'reverseTable.dataSourceLabel' })}>
             {projectDispatch.getCurrentDBName()}
           </Descriptions.Item>
-          <Descriptions.Item label="解析表">{parsedModule?.entities?.length}</Descriptions.Item>
+          <Descriptions.Item label={intl.formatMessage({ id: 'reverseTable.parsedTablesLabel' })}>
+            {parsedModule?.entities?.length}
+          </Descriptions.Item>
           <Descriptions.Item
-            label="存量表"
+            label={intl.formatMessage({ id: 'reverseTable.existingTablesLabel' })}
             labelStyle={{color: 'var(--erd-brand)'}}
             contentStyle={{color: 'var(--erd-brand)'}}
           >
@@ -174,14 +178,14 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
             selections: [
               {
                 key: 'select-all',
-                text: '全选',
+                text: intl.formatMessage({ id: 'reverseTable.selectAll' }),
                 onSelect: () => {
                   projectDispatch.saveSelectedRowKeys(allRowKeys);
                 },
               },
               {
                 key: 'select-invert',
-                text: '反选',
+                text: intl.formatMessage({ id: 'reverseTable.selectInvert' }),
                 onSelect: () => {
                   const selected = new Set(selectedRowKeys);
                   const inverted = allRowKeys.filter((k) => !selected.has(k));
@@ -190,7 +194,7 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
               },
               {
                 key: 'select-none',
-                text: '取消选择',
+                text: intl.formatMessage({ id: 'reverseTable.selectNone' }),
                 onSelect: () => {
                   projectDispatch.saveSelectedRowKeys([]);
                 },

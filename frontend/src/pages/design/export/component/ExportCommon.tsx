@@ -1,4 +1,5 @@
 import type {ReactNode} from 'react';
+import { useMemo } from 'react';
 import {List, Tag} from 'antd';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
@@ -8,6 +9,7 @@ import {
   FileWordOutlined,
   Html5Outlined,
 } from '@ant-design/icons';
+import { designIntl } from '@/pages/design/locales/intl';
 import './export-common.scss';
 
 
@@ -21,33 +23,33 @@ type ExportItem = {
 
 export default () => {
 
-  const data: ExportItem[] = [
+  const data: ExportItem[] = useMemo(() => [
     {
       key: 'JSON',
-      title: '导出ERD',
+      title: designIntl('design.export.erd.title'),
       subTitle: <Tag color="blue">ERD</Tag>,
       avatar: <FileProtectOutlined style={{ fontSize: 16 }} />,
-      content: '导出一个ERD格式的文件，文本内容已加密，可再次导入ERD系统',
+      content: designIntl('design.export.erd.content'),
     }, {
       key: 'Html',
-      title: '导出HTML',
+      title: designIntl('design.export.html.title'),
       subTitle: <Tag color="blue">HTML</Tag>,
       avatar: <Html5Outlined style={{ fontSize: 16 }} />,
-      content: '导出一个可以在任意浏览器中打开的HTML文件',
+      content: designIntl('design.export.html.content'),
     }, {
       key: 'Word',
-      title: '导出Word',
+      title: designIntl('design.export.word.title'),
       subTitle: <Tag color="blue">Word</Tag>,
       avatar: <FileWordOutlined style={{ fontSize: 16 }} />,
-      content: '导出一个漂亮的word文件，包含表元数据和关系图',
+      content: designIntl('design.export.word.content'),
     }, {
       key: 'Markdown',
-      title: '导出Markdown',
+      title: designIntl('design.export.markdown.title'),
       subTitle: <Tag color="blue">Markdown</Tag>,
       avatar: <FileMarkdownOutlined style={{ fontSize: 16 }} />,
-      content: '导出一个Markdown文件，可以在任意Markdown编辑器中预览',
+      content: designIntl('design.export.markdown.content'),
     },
-  ];
+  ], []);
 
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
@@ -55,8 +57,8 @@ export default () => {
 
   return (
     <div className="export-common-page" data-testid="export-common-page">
-      <h2 className="export-common-page__title">导出文件</h2>
-      <p className="export-common-page__hint">单击下方区块即可导出</p>
+      <h2 className="export-common-page__title">{designIntl('design.export.page.title')}</h2>
+      <p className="export-common-page__hint">{designIntl('design.export.page.hint')}</p>
       <List<ExportItem>
         grid={{gutter: 8, column: 2}}
         dataSource={data}

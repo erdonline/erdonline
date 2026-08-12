@@ -1,5 +1,6 @@
 import React from 'react';
 import { Button } from 'antd';
+import { useIntl } from '@umijs/max';
 import { CheckCircleOutlined } from '@ant-design/icons';
 import { EDIT } from '@/services/crud';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -13,6 +14,7 @@ export type PassApprovalProps = {
 };
 
 const PassApproval: React.FC<PassApprovalProps> = (props) => {
+  const intl = useIntl();
   const { separator } = useProjectStore(
     (state) => ({
       separator: state.project?.projectJSON?.profile?.sqlConfig || '/*SQL@Run*/',
@@ -22,19 +24,19 @@ const PassApproval: React.FC<PassApprovalProps> = (props) => {
 
   const onPassClick = () => {
     confirmDestructive({
-      title: '通过审批',
-      content: '确认通过该审批？通过后将执行审批 SQL。',
-      okText: '通过',
-      cancelText: '取消',
+      title: intl.formatMessage({ id: 'approvalModal.passTitle' }),
+      content: intl.formatMessage({ id: 'approvalModal.passContent' }),
+      okText: intl.formatMessage({ id: 'approvalModal.passOk' }),
+      cancelText: intl.formatMessage({ id: 'shareModal.cancel' }),
       onOk: () =>
         runApprovalAction(
           EDIT(`/ncnb/approval/${props.id}`, {
             approveStatus: 1,
-            approveResult: '通过',
+            approveResult: intl.formatMessage({ id: 'approvalModal.passResult' }),
             separator,
           }),
           props.actionRef,
-          '已通过',
+          intl.formatMessage({ id: 'approvalModal.passSuccess' }),
         ),
     });
   };
@@ -47,7 +49,7 @@ const PassApproval: React.FC<PassApprovalProps> = (props) => {
       icon={<CheckCircleOutlined />}
       onClick={onPassClick}
     >
-      通过
+      {intl.formatMessage({ id: 'approvalModal.passButton' })}
     </Button>
   );
 };

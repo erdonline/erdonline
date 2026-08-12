@@ -1,11 +1,13 @@
 import React, {useContext} from 'react';
 import { Button } from "antd";
+import { useIntl } from '@umijs/max';
 import { FileMarkdownOutlined } from '@ant-design/icons';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import { ProjectMenuCloseContext } from "@/components/Menu/projectMenuClose";
 
 const ExportMarkdown: React.FC = () => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch} = useProjectStore(state => ({
     projectDispatch: state.dispatch,
@@ -21,8 +23,8 @@ const ExportMarkdown: React.FC = () => {
         projectDispatch.exportFile('Markdown');
       }}
       style={{ textAlign: 'left' }}
-      aria-label="导出Markdown"
-    >导出Markdown</Button>
+      aria-label={intl.formatMessage({ id: 'exportModal.markdownAria' })}
+    >{intl.formatMessage({ id: 'exportModal.markdown' })}</Button>
   );
 };
 
