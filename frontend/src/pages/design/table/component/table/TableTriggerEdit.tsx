@@ -1,10 +1,10 @@
-import { designIntl } from '@/pages/design/locales/intl';
 import React, { useEffect, useState } from 'react';
 import { Button, Empty, Form, Input, Modal, Select, Space, message } from 'antd';
 import type { FormInstance } from 'antd/es/form';
 import useProjectStore from '@/store/project/useProjectStore';
 import { ModuleEntity } from '@/store/tab/useTabStore';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
+import { designIntl } from '@/pages/design/locales/intl';
 
 export type TableTriggerEditProps = {
   moduleEntity: ModuleEntity;
@@ -213,7 +213,9 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
 
   const confirmDelete = (rowIndex: number) => {
     const target = triggers[rowIndex];
-    const triggerName = target?.name || designIntl('design.table.trigger.rowFallback', { index: rowIndex + 1 });
+    const triggerName =
+      target?.name ||
+      designIntl('design.table.trigger.rowFallback', { index: rowIndex + 1 });
     confirmDestructive({
       title: designIntl('design.table.trigger.confirmDelete.title', { name: triggerName }),
       content: designIntl('design.common.destructive.content'),
@@ -226,7 +228,9 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           const next = triggers.filter((_, i) => i !== rowIndex);
           const ok = await persistTriggers(next);
           if (!ok) {
-            return Promise.reject(new Error(designIntl('design.table.trigger.error.deleteFailed')));
+            return Promise.reject(
+              new Error(designIntl('design.table.trigger.error.deleteFailed')),
+            );
           }
           if (selected === rowIndex) setSelected(null);
           else if (selected != null && selected > rowIndex) setSelected(selected - 1);
@@ -267,7 +271,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
             disabled={saving}
             onClick={openAdd}
           >
-            添加第一个触发器
+            {designIntl('design.table.trigger.aria.addFirst')}
           </Button>
         </Empty>
         <TriggerEditorModal
@@ -298,7 +302,8 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
         data-testid="trigger-list"
       >
         {triggers.map((t, i) => {
-          const name = t.name || designIntl('design.table.trigger.rowFallback', { index: i + 1 });
+          const name =
+            t.name || designIntl('design.table.trigger.rowFallback', { index: i + 1 });
           const selectedHere = selected === i;
           return (
             <li key={`${name}-${i}`} className="erd-table-trigger-row" role="none">
@@ -328,7 +333,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                 disabled={saving}
                 onClick={() => openEdit(i)}
               >
-                编辑
+                {designIntl('design.common.edit')}
               </Button>
               <Button
                 danger
@@ -339,7 +344,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                 disabled={saving}
                 onClick={() => confirmDelete(i)}
               >
-                删除
+                {designIntl('design.common.delete')}
               </Button>
             </li>
           );
@@ -363,7 +368,9 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
         <section
           className="erd-table-trigger-ddl"
           data-testid="trigger-ddl-panel"
-          aria-label={designIntl('design.table.trigger.aria.ddl', { name: selectedRow.name || '' })}
+          aria-label={designIntl('design.table.trigger.aria.ddl', {
+            name: selectedRow.name || '',
+          })}
         >
           <header className="erd-table-trigger-ddl__head">
             <span>DDL · {selectedRow.name}</span>
@@ -382,7 +389,9 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           </pre>
           {selectedRow.statement?.trim() ? (
             <p className="erd-table-trigger-ddl__stmt" data-testid="trigger-statement">
-              {designIntl('design.table.trigger.ddl.bodyLabel', { statement: selectedRow.statement.trim() })}
+              {designIntl('design.table.trigger.ddl.bodyLabel', {
+                statement: selectedRow.statement.trim(),
+              })}
             </p>
           ) : null}
         </section>
@@ -421,9 +430,15 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
   onOk,
 }) => {
   const isEdit = mode === 'edit';
-  const title = isEdit ? designIntl('design.table.trigger.modal.edit') : designIntl('design.table.trigger.modal.add');
-  const okAria = isEdit ? designIntl('design.table.trigger.aria.saveEdit') : designIntl('design.table.trigger.aria.saveAdd');
-  const cancelAria = isEdit ? designIntl('design.table.trigger.aria.cancelEdit') : designIntl('design.table.trigger.aria.cancelAdd');
+  const title = isEdit
+    ? designIntl('design.table.trigger.modal.edit')
+    : designIntl('design.table.trigger.modal.add');
+  const okAria = isEdit
+    ? designIntl('design.table.trigger.aria.saveEdit')
+    : designIntl('design.table.trigger.aria.saveAdd');
+  const cancelAria = isEdit
+    ? designIntl('design.table.trigger.aria.cancelEdit')
+    : designIntl('design.table.trigger.aria.cancelAdd');
 
   return (
     <Modal
@@ -464,7 +479,12 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
         <Form.Item
           name="name"
           label={designIntl('design.table.trigger.form.name')}
-          rules={[{ required: true, message: designIntl('design.table.trigger.form.nameRequired') }]}
+          rules={[
+            {
+              required: true,
+              message: designIntl('design.table.trigger.form.nameRequired'),
+            },
+          ]}
         >
           <Input
             data-testid="trigger-form-name"
@@ -473,14 +493,22 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
           />
         </Form.Item>
         <Space size={8} style={{ width: '100%' }} wrap>
-          <Form.Item name="timing" label={designIntl('design.table.trigger.form.timing')} style={{ marginBottom: 8, minWidth: 120 }}>
+          <Form.Item
+            name="timing"
+            label={designIntl('design.table.trigger.form.timing')}
+            style={{ marginBottom: 8, minWidth: 120 }}
+          >
             <Select
               options={TIMING_OPTS.map((v) => ({ value: v, label: v }))}
               aria-label={designIntl('design.table.trigger.form.timingAria')}
               data-testid="trigger-form-timing"
             />
           </Form.Item>
-          <Form.Item name="event" label={designIntl('design.table.trigger.form.event')} style={{ marginBottom: 8, minWidth: 120 }}>
+          <Form.Item
+            name="event"
+            label={designIntl('design.table.trigger.form.event')}
+            style={{ marginBottom: 8, minWidth: 120 }}
+          >
             <Select
               options={EVENT_OPTS.map((v) => ({ value: v, label: v }))}
               aria-label={designIntl('design.table.trigger.form.eventAria')}
@@ -499,7 +527,11 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
             />
           </Form.Item>
         </Space>
-        <Form.Item name="statement" label={designIntl('design.table.trigger.form.statement')} style={{ marginBottom: 8 }}>
+        <Form.Item
+          name="statement"
+          label={designIntl('design.table.trigger.form.statement')}
+          style={{ marginBottom: 8 }}
+        >
           <Input.TextArea
             rows={3}
             data-testid="trigger-form-statement"
