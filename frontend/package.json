@@ -40,6 +40,9 @@
     "test:unit:version-baseline": "npx --yes tsx src/utils/versionBaseline.test.ts && npx --yes tsx src/utils/versionDirtyStatus.test.ts && npx --yes tsx src/utils/versionStructuralDiff.test.ts && npx --yes tsx src/utils/projectLocalDraft.test.ts",
     "test:unit:dbml": "npx --yes tsx src/utils/graphLayout.test.ts && npx --yes tsx src/utils/suggestImportFrames.test.ts && npx --yes tsx src/utils/dbml/toProjectJSON.test.ts && npx --yes tsx src/utils/dbml/fromProjectJSON.test.ts && npx --yes tsx src/utils/json2code.indexFilter.test.ts && npx --yes tsx src/utils/json2code.trigger.test.ts && npx --yes tsx src/utils/json2code.fk.test.ts",
     "validate:projectjson": "node ../scripts/validate-projectjson.mjs",
+    "check:locale-keys": "node ../scripts/check-locale-keys.mjs",
+    "check:hardcoded-cjk": "node ../scripts/check-hardcoded-cjk.mjs",
+    "check:i18n": "node ../scripts/check-locale-keys.mjs && node ../scripts/check-hardcoded-cjk.mjs",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
