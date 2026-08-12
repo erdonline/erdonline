@@ -1,5 +1,6 @@
 import React, {useContext, useState} from 'react';
 import {Button, Modal, Upload, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import {InboxOutlined} from '@ant-design/icons';
 import { FileOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
@@ -21,6 +22,7 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const [innerOpen, setInnerOpen] = useState(false);
   const [importing, setImporting] = useState(false);
@@ -62,7 +64,7 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
         name.endsWith('.json') ||
         name.endsWith('.erd.json');
       if (!isJSON) {
-        message.error('请确认上传文件是ERD导出的标准json文件!');
+        message.error(intl.formatMessage({ id: 'importModal.erd.invalidJson' }));
         return false;
       }
 
@@ -74,7 +76,7 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
           try {
             originJson = projectDispatch.decrypt('AES', String(reader.result));
           } catch {
-            message.error('ERD文件解密失败！');
+            message.error(intl.formatMessage({ id: 'importModal.erd.decryptFailed' }));
             return;
           }
           let erdJson: {
@@ -85,20 +87,20 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
           try {
             erdJson = JSON.parse(originJson);
           } catch {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(intl.formatMessage({ id: 'importModal.erd.invalidFile' }));
             return;
           }
           const erdJsonModules = erdJson.modules;
           if (!erdJsonModules) {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(intl.formatMessage({ id: 'importModal.erd.invalidFile' }));
             return;
           }
           if (!(erdJsonModules instanceof Array)) {
-            message.error('您导入的是非法的ERD文件!');
+            message.error(intl.formatMessage({ id: 'importModal.erd.invalidFile' }));
             return;
           }
           if (erdJsonModules.length <= 0) {
-            message.warning('您尚未在ERD新建模型，无需导入，可直接在本系统新建模型!');
+            message.warning(intl.formatMessage({ id: 'importModal.erd.noModule' }));
             return;
           }
           const dataSource = projectJSON as {
@@ -115,7 +117,9 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
             if (!hasMulti) {
               resultModules.push(module);
             } else {
-              resultMsg.push(`[${module.name}]已经在本系统中存在，已跳过导入`);
+              resultMsg.push(
+                intl.formatMessage({ id: 'importModal.dbml.moduleExists' }, { name: module.name }),
+              );
             }
           });
           if (resultModules.length <= 0) {
@@ -136,7 +140,7 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
             if (resultMsg.length > 0) {
               showImportSkipWarning(resultMsg);
             } else {
-              message.success('ERD文件导入成功！');
+              message.success(intl.formatMessage({ id: 'importModal.erd.success' }));
             }
           } finally {
             setImporting(false);
@@ -146,6 +150,8 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
       return false;
     },
   };
+
+  const fileAria = intl.formatMessage({ id: 'importModal.erd.fileAria' });
 
   return (
     <>
@@ -157,14 +163,14 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
           block
           icon={<FileOutlined />}
           style={{textAlign: 'left'}}
-          aria-label="解析ERD文件"
+          aria-label={intl.formatMessage({ id: 'importModal.erd.triggerAria' })}
           onClick={openModal}
         >
-          解析ERD文件
+          {intl.formatMessage({ id: 'importModal.erd.trigger' })}
         </Button>
       )}
       <Modal
-        title="解析已有ERD文件"
+        title={intl.formatMessage({ id: 'importModal.erd.title' })}
         open={open}
         onOk={closeModal}
         onCancel={closeModal}
@@ -182,13 +188,12 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
           if (!visible) {
             return;
           }
-          // rc-upload 把 aria-* 挂到隐藏 input；键盘面在 `.ant-upload-btn`
           const tryFocus = (attempt = 0) => {
             const btn = document.querySelector<HTMLElement>(
               '.erd-io-modal-root .ant-upload-btn',
             );
             if (btn) {
-              btn.setAttribute('aria-label', '选择ERD文件');
+              btn.setAttribute('aria-label', fileAria);
               btn.focus();
               return;
             }
@@ -204,9 +209,9 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
           <p className="ant-upload-drag-icon">
             <InboxOutlined />
           </p>
-          <p className="ant-upload-text">点击或者拖拽ERD导出的json文件到此区域以上传</p>
+          <p className="ant-upload-text">{intl.formatMessage({ id: 'importModal.erd.uploadHint' })}</p>
           <p className="ant-upload-hint">
-            上传完毕后，系统会自动开始解析；每次仅支持解析一个ERD文件。
+            {intl.formatMessage({ id: 'importModal.erd.draggerHint' })}
           </p>
         </Dragger>
       </Modal>

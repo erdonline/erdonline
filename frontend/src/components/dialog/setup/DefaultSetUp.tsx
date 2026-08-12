@@ -1,5 +1,6 @@
 import React, {useContext, useEffect, useState} from 'react';
 import {Button, Form, Input, Modal, Switch, Tabs, Upload, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import './index.less';
 import '../io-modal.scss';
 import DefaultField from '@/components/dialog/setup/DefaultField';
@@ -23,6 +24,7 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const [tab, setTab] = useState('tab1');
   const [innerOpen, setInnerOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -76,10 +78,9 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
         operationMode: values.operationMode,
       });
       if (ok) {
-        message.success('设置成功');
+        message.success(intl.formatMessage({ id: 'setupModal.default.success' }));
         setOpen(false);
       }
-      // 失败：request 已 toast；失败不关窗可重试
     } finally {
       setSubmitting(false);
     }
@@ -94,14 +95,14 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
           size="small"
           block
           style={{textAlign: 'left'}}
-          aria-label="默认项设置"
+          aria-label={intl.formatMessage({ id: 'setupModal.default.triggerAria' })}
           onClick={openModal}
         >
-          默认项设置
+          {intl.formatMessage({ id: 'setupModal.default.trigger' })}
         </Button>
       )}
       <Modal
-        title="默认项设置"
+        title={intl.formatMessage({ id: 'setupModal.default.title' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -116,7 +117,6 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
           if (!visible) {
             return;
           }
-          // tab1「默认字段」为默认页；Handsontable 首焦不稳，落在选中 Tab
           window.setTimeout(() => {
             document
               .querySelector<HTMLElement>(
@@ -135,32 +135,32 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
             items={[
               {
                 key: 'tab1',
-                label: '默认字段',
+                label: intl.formatMessage({ id: 'setupModal.default.tabFields' }),
                 children: <DefaultField />,
               },
               {
                 key: 'tab2',
-                label: '默认配置',
+                label: intl.formatMessage({ id: 'setupModal.default.tabConfig' }),
                 children: (
                   <>
                     <Form.Item
                       name="erdPassword"
-                      label="ERD秘钥"
-                      extra="仅用于ERD导入导出加密解密"
+                      label={intl.formatMessage({ id: 'setupModal.default.erdKeyLabel' })}
+                      extra={intl.formatMessage({ id: 'setupModal.default.erdKeyExtra' })}
                     >
-                      <Input.Password placeholder="默认为ERDOnline" />
+                      <Input.Password placeholder={intl.formatMessage({ id: 'setupModal.default.erdKeyPlaceholder' })} />
                     </Form.Item>
                     <Form.Item
                       name="sqlConfig"
-                      label="SQL分隔符"
-                      extra="分隔每条往数据库执行的SQL"
-                      rules={[{max: 100, message: '不能大于 100 个字符'}]}
+                      label={intl.formatMessage({ id: 'setupModal.default.sqlSepLabel' })}
+                      extra={intl.formatMessage({ id: 'setupModal.default.sqlSepExtra' })}
+                      rules={[{max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })}]}
                     >
-                      <Input placeholder="默认为/*SQL@Run*/" />
+                      <Input placeholder={intl.formatMessage({ id: 'setupModal.default.sqlSepPlaceholder' })} />
                     </Form.Item>
                     <Form.Item
-                      label="WORD模板配置"
-                      extra="默认为系统自带的模板，如需修改，请先下载，再重新上传模板文件"
+                      label={intl.formatMessage({ id: 'setupModal.default.wordLabel' })}
+                      extra={intl.formatMessage({ id: 'setupModal.default.wordExtra' })}
                     >
                       <Upload
                         maxCount={1}
@@ -175,31 +175,33 @@ const DefaultSetUp: React.FC<DefaultSetUpProps> = ({
                                 e.file.response.data,
                               );
                             } else {
-                              message.error(e.file.response?.msg ?? '上传失败');
+                              message.error(
+                                e.file.response?.msg ?? intl.formatMessage({ id: 'setupModal.default.uploadFailed' }),
+                              );
                             }
                           } else if (e.file.status === 'error') {
-                            message.error('上传失败');
+                            message.error(intl.formatMessage({ id: 'setupModal.default.uploadFailed' }));
                           }
                         }}
                         action={`${API_URL}/ncnb/doc/uploadWordTemplate/${projectId}`}
                       >
-                        <Button>点击上传</Button>
+                        <Button>{intl.formatMessage({ id: 'setupModal.default.uploadButton' })}</Button>
                       </Upload>
                       <Button
                         style={{marginLeft: 8}}
-                        title="下载模板"
-                        aria-label="下载模板"
+                        title={intl.formatMessage({ id: 'setupModal.default.downloadTemplate' })}
+                        aria-label={intl.formatMessage({ id: 'setupModal.default.downloadAria' })}
                         onClick={() => {
                           void projectDispatch.downloadWordTemplate();
                         }}
                       >
-                        下载模板
+                        {intl.formatMessage({ id: 'setupModal.default.downloadTemplate' })}
                       </Button>
                     </Form.Item>
                     <Form.Item
                       name="operationMode"
-                      label="新手模式"
-                      extra="开启新手模式，所有菜单均需要一次单击才能打开或关闭"
+                      label={intl.formatMessage({ id: 'setupModal.default.noviceLabel' })}
+                      extra={intl.formatMessage({ id: 'setupModal.default.noviceExtra' })}
                       valuePropName="checked"
                     >
                       <Switch />
