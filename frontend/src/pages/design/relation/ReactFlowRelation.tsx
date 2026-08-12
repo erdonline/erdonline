@@ -587,9 +587,7 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const focusHeaderPart = (part: 'name' | 'chnname') => {
     headerIgnoreBlurRef.current = true;
     const root = document.activeElement?.closest('.erd-table-header');
-    const sel = part === 'name'
-      ? 'input[aria-label={designIntl('design.common.table.name')}]'
-      : 'input[aria-label={designIntl('design.common.table.chnname')}]';
+    const sel = `input[data-edit-part="${part}"]`;
     setTimeout(() => {
       (root?.querySelector(sel) as HTMLElement | null)?.focus();
       headerIgnoreBlurRef.current = false;
@@ -704,13 +702,10 @@ const TableNode: React.FC<NodeProps<TableNodeData>> = React.memo(({ id, data, se
   const focusEditPart = (part: 'name' | 'chnname' | 'type' | 'default') => {
     ignoreBlurRef.current = true;
     const root = document.activeElement?.closest('.erd-field-editing');
-    const sel = part === 'name'
-      ? 'input[aria-label={designIntl('design.common.field.name')}]'
-      : part === 'chnname'
-        ? 'input[aria-label={designIntl('design.common.field.chnname')}]'
-        : part === 'type'
-          ? 'select[aria-label={designIntl('design.common.field.type')}]'
-          : 'input[aria-label={designIntl('design.common.field.defaultValue')}]';
+    const sel =
+      part === 'type'
+        ? 'select[data-edit-part="type"]'
+        : `input[data-edit-part="${part}"]`;
     // 等当前 keydown 结束再 focus，避免与 blur 竞态
     setTimeout(() => {
       (root?.querySelector(sel) as HTMLElement | null)?.focus();
