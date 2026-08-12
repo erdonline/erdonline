@@ -3,11 +3,10 @@ import {Helmet, Link, useIntl, useLocation} from '@umijs/max';
 import LocaleSwitcher from '@/components/LocaleSwitcher';
 import * as cache from '@/utils/cache';
 import {APP_VERSION_LABEL} from '@/constants/appVersion';
+import {docsUrl} from '@/utils/docsUrl';
 
 const GITHUB_URL = 'https://github.com/erdonline/erdonline';
 const ISSUES_URL = 'https://github.com/erdonline/erdonline/issues';
-const DOCS_URL = 'https://erdonline.github.io/erdonline/';
-const ROADMAP_URL = `${DOCS_URL}docs/roadmap`;
 
 const focusSkipTarget = (id: string) => {
   const el = document.getElementById(id);
@@ -37,6 +36,8 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   const intl = useIntl();
   const location = useLocation();
   const [authed, setAuthed] = useState(false);
+  const docsHomeUrl = docsUrl(intl.locale);
+  const roadmapUrl = docsUrl(intl.locale, 'docs/roadmap');
 
   useEffect(() => {
     setAuthed(Boolean(cache.getItem('Authorization')));
@@ -151,10 +152,10 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       <footer className="landingFooter">
         <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>
         <nav aria-label={intl.formatMessage({ id: 'landing.footer.navAria' })}>
-          <a href={DOCS_URL} target="_blank" rel="noreferrer">
+          <a href={docsHomeUrl} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.docs' })}
           </a>
-          <a href={ROADMAP_URL} target="_blank" rel="noreferrer">
+          <a href={roadmapUrl} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.roadmap' })}
           </a>
           <Link to="/compare">{intl.formatMessage({ id: 'landing.footer.compare' })}</Link>
@@ -173,5 +174,5 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   );
 };
 
-export {DOCS_URL, GITHUB_URL, ISSUES_URL, ROADMAP_URL};
+export {GITHUB_URL, ISSUES_URL};
 export default LandingChrome;

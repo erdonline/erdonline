@@ -6,6 +6,29 @@
 
 ## [Unreleased]
 
+### 2026-08-12
+
+#### i18n：模板广场 `/catalog` 全量抽取 + 命名空间 locale
+
+- **FE**：`pages/catalog/locales/{zh-CN,en-US}.ts`（62 键）；`index` / `detail` / `creator` / `review` / `CatalogPreviewPanel` 用户可见文案走 `intl`
+- **保留**：`tag === '官方'` 数据判定、后端模板标题/描述/标签、代码注释
+- 验证点：`umi_locale=en-US` 打开 `/catalog` → 「Template catalog / Trending / Most installed」且无 `catalog.*` 裸键；catalog zh/en 键集合 diff 为 0
+
+#### SEO：落地页文档外链按 locale 分流 + 页面 head 元数据
+
+- **FE**：`utils/docsUrl.ts` — en-US → `…/erdonline/en/`，zh-CN → 根路径；落地页 Docs / Roadmap / Self-host guide 四处已接入
+- **FE**：`usePageSeo` 补 `html[lang]`、canonical、og:*；分享/demo 页新增 `share.seo.title|description`
+- **Test**：`npx tsx src/utils/docsUrl.test.ts` 3 项通过
+- 验证点：英文态页脚 Docs 链到 `/en/`；`/s/public-demo` title 含 demo 描述；`document.documentElement.lang=en`
+
+#### SEO：主站 sitemap / robots / 真 404（Cloudflare Pages + nginx）
+
+- **FE**：`frontend/scripts/seo-config.mjs` + `gen-seo-static.mjs` — 构建后在 `dist/` 生成 `sitemap.xml`、`robots.txt`、`_redirects`（无 catch-all）、`404.html`
+- **FE**：删除 `public/_redirects` 通配 `/* /index.html 200`；`nginx.conf` 对齐 `map $spa_fallback` 真 404
+- **CI**：`scripts/seo-index-health.mjs` 增补 robots.txt 与未知路径 HTTP 404 断言
+- **Docs**：`docs/deployment.md` 主站 SEO 段
+- 验证点：`cd frontend && yarn build` → `dist/sitemap.xml` + `xmllint --noout`；部署后 curl 见 `docs/deployment.md` 验收清单
+
 ### 2026-08-11
 
 #### 配置：会话 JWT 默认 TTL 12h → 7 天
