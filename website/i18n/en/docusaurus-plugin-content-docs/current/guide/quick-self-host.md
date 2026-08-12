@@ -2,6 +2,8 @@
 
 Want accounts and data on your machine or intranet? Bring the stack up with Docker Compose, then smoke-test **Save version**.
 
+Not sure yet? Try the **[live Demo](https://www.erdonline.com/demo)** (no login) or **[Compare](https://www.erdonline.com/compare)** first.
+
 > **Goal**: Run ERD Online locally or on a private network.  
 > **Prereq**: Docker + Compose; 2C4G recommended. Full options: [Deployment](/docs/deployment).
 

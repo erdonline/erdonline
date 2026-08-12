@@ -13,9 +13,8 @@
 - **README**（中/英）：顶栏 CTA 增 **Compare** badge；「为什么选它」链到 `https://www.erdonline.com/compare`
 - **OSChina 投递稿**（`docs/oschina-software-update-2026-08.md`）：「下载与体验」置顶 Demo + Compare 深链
 - **落地页**：页脚增 Demo 链（`landing.footer.demo`）；未登录 hero 增 Compare 次要 CTA
-- **文档**：`guide/quick-self-host.md` 首段链 Demo / Compare；`development.md` / `deployment.md` 补百度后台过滤表
-- **Analytics**：前端 prod 改 hostname 守卫注入 hm.js + CF beacon（移除 Umi analytics 插件）；文档站 `docusaurus.config.js` + `baiduAnalytics.js` 同步跳过 localhost
-- **验证点**：`cd frontend && yarn check:i18n` PASS；`yarn build:prod` 后 `grep hm.baidu dist/index.html` 命中守卫 IIFE；`grep localhost frontend/config/config.ts` 命中 `ANALYTICS_HOST_GUARD`
+- **文档**：`guide/quick-self-host.md` 首段链 Demo / Compare
+- **验证点**：`cd frontend && yarn check:i18n` PASS（2217 键对齐）
 
 #### fix：CF Pages `_redirects` 代理目标改为 `/`（修复全站 308→根）
 

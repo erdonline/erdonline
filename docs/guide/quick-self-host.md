@@ -2,6 +2,8 @@
 
 想把数据和账号留在自己机器 / 内网？用 Docker Compose 拉起一套可用实例，再按「存版」做一次冒烟。
 
+还没决定要不要自托管？可先 **[打开在线 Demo](https://www.erdonline.com/demo)**（免登录）或看 **[工具对照](https://www.erdonline.com/compare)**。
+
 > **目标**：本机或内网跑通 ERD Online。  
 > **前置**：已装 Docker 与 Compose；建议 2C4G 以上。完整选项见 [部署指南](../deployment.md)。
 

@@ -246,6 +246,7 @@ export default {
   'landing.nav.login': '登录',
   'landing.nav.loginAria': '登录账号',
   'landing.footer.docs': '文档',
+  'landing.footer.demo': '在线 Demo',
   'landing.footer.roadmap': 'Roadmap',
   'landing.footer.compare': '对照',
   'landing.footer.catalog': '模板广场',
