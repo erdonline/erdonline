@@ -25,6 +25,8 @@
 
 - **主门禁**：`yarn check:prod-smoke` — `yarn build` → serve `dist/` → Playwright 公开 URL（`/`、`/compare`、`/catalog`、`/demo`、`/en*`）断言无 `pageerror` 且 `#root` 有内容；无需后端即可捕获 SPA init 崩溃
 - **CI**：`frontend-ci.yml` build 后跑 smoke；`frontend-demo-site.yml` build:prod 后 **阻断 CF deploy**
+- **fix(ci)**：`frontend-ci.yml` build 前 `env.sh` → `public/env-config.js`，避免 dist 缺 runtime env 导致 smoke 全红（`Unexpected token '<'` / `API_URL`）
+  - 验证点：本地 `env.sh && cp … && yarn build && PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 6 URL PASS
 - **Pre-push**：frontend 变更时跑全量 smoke（可 `PROD_SMOKE_SKIP_PRE_PUSH=1` 跳过；CI/deploy 仍必跑）
 - 验证点：当前 main smoke 6 URL PASS；ADR-0034 坏路由会在 `/` 即 pageerror（比静态 flatten 更通用）
 
