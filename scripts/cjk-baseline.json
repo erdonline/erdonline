@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-08-12",
-  "total": 489,
+  "total": 485,
   "byFile": {
     "frontend/src/.umi-production/plugin-locale/SelectLang.tsx": 6,
     "frontend/src/components/dialog/project/AddProject.tsx": 1,
@@ -15,7 +15,7 @@
     "frontend/src/pages/account/settings/_mock.ts": 10,
     "frontend/src/pages/databaseConfig/DatabaseConfigForm.tsx": 39,
     "frontend/src/pages/databaseConfig/index.tsx": 50,
-    "frontend/src/pages/design/relation/ReactFlowRelation.tsx": 7,
+    "frontend/src/pages/design/relation/ReactFlowRelation.tsx": 3,
     "frontend/src/pages/design/setting/component/FieldLibraryManager.tsx": 1,
     "frontend/src/pages/design/table/component/table/TableIndexEdit.tsx": 2,
     "frontend/src/pages/design/table/component/table/TableInfoEdit.tsx": 4,
