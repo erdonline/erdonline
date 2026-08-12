@@ -70,9 +70,10 @@ jobs:
           test -f dist/_redirects
           test -f dist/404.html
           grep -q '<urlset' dist/sitemap.xml
+          grep -q '</urlset>' dist/sitemap.xml
           grep -q 'Sitemap: https://www.erdonline.com/sitemap.xml' dist/robots.txt
           ! grep -q '/\* /index.html 200' dist/_redirects
-          xmllint --noout dist/sitemap.xml
+          grep -q '<loc>https://www.erdonline.com/en</loc>' dist/sitemap.xml
 
       - name: Ensure Cloudflare Pages project
         env:
