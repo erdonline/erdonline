@@ -1,6 +1,7 @@
 import {useEffect} from 'react';
-import {useIntl} from '@umijs/max';
+import {useIntl, useLocation} from '@umijs/max';
 import {resolveAppLocale} from '@/utils/getAntdLocale';
+import {getMarketingHreflang} from '@/utils/localePath';
 
 type HeadElementOptions = {
   tagName: 'link' | 'meta';
@@ -10,6 +11,29 @@ type HeadElementOptions = {
   valueAttribute: 'content' | 'href';
   value: string;
 };
+
+function setHreflangLink(hreflang: string, href: string): () => void {
+  const selector = `link[rel="alternate"][hreflang="${hreflang}"]`;
+  let element = document.querySelector<HTMLLinkElement>(selector);
+  const created = !element;
+  if (!element) {
+    element = document.createElement('link');
+    element.setAttribute('rel', 'alternate');
+    element.setAttribute('hreflang', hreflang);
+    document.head.appendChild(element);
+  }
+  const previousHref = element.getAttribute('href');
+  element.setAttribute('href', href);
+  return () => {
+    if (created) {
+      element?.remove();
+    } else if (previousHref == null) {
+      element?.removeAttribute('href');
+    } else {
+      element?.setAttribute('href', previousHref);
+    }
+  };
+}
 
 function setHeadElement(options: HeadElementOptions): () => void {
   let element = document.querySelector<HTMLElement>(options.selector);
@@ -39,6 +63,7 @@ function setHeadElement(options: HeadElementOptions): () => void {
  */
 export function usePageSeo(titleId: string, descriptionId: string) {
   const intl = useIntl();
+  const {pathname} = useLocation();
 
   useEffect(() => {
     const prevTitle = document.title;
@@ -46,7 +71,8 @@ export function usePageSeo(titleId: string, descriptionId: string) {
     const title = intl.formatMessage({id: titleId});
     const description = intl.formatMessage({id: descriptionId});
     const locale = resolveAppLocale(intl.locale);
-    const canonicalUrl = `${window.location.origin}${window.location.pathname}`;
+    const hreflang = getMarketingHreflang(pathname, window.location.origin);
+    const canonicalUrl = hreflang?.canonical ?? `${window.location.origin}${pathname}`;
     document.title = title;
     document.documentElement.lang = locale === 'en-US' ? 'en' : 'zh-CN';
 
@@ -67,6 +93,13 @@ export function usePageSeo(titleId: string, descriptionId: string) {
         valueAttribute: 'href',
         value: canonicalUrl,
       }),
+      ...(hreflang
+        ? [
+            setHreflangLink('zh-CN', hreflang.zh),
+            setHreflangLink('en', hreflang.en),
+            setHreflangLink('x-default', hreflang.xDefault),
+          ]
+        : []),
       ...[
         ['og:title', title],
         ['og:description', description],
@@ -95,5 +128,5 @@ export function usePageSeo(titleId: string, descriptionId: string) {
       }
       restoreHeadElements.reverse().forEach((restore) => restore());
     };
-  }, [intl, titleId, descriptionId]);
+  }, [intl, pathname, titleId, descriptionId]);
 }

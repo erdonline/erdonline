@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo } from 'react';
 import { Select } from 'antd';
-import { setLocale, useIntl } from '@umijs/max';
+import { history, setLocale, useIntl, useLocation } from '@umijs/max';
+import { isMarketingLocalePath, stripLocalePrefix, toLocalePath } from '@/utils/localePath';
 import './index.less';
 
 const LOCALE_OPTIONS = ['zh-CN', 'en-US'] as const;
@@ -17,11 +18,22 @@ export type LocaleSwitcherProps = {
  */
 const LocaleSwitcher: React.FC<LocaleSwitcherProps> = ({ variant = 'chrome', className }) => {
   const intl = useIntl();
+  const location = useLocation();
   const current = (intl.locale || 'zh-CN') as AppLocale;
+  const marketingPath = isMarketingLocalePath(location.pathname);
 
-  const handleChange = useCallback((value: AppLocale) => {
-    setLocale(value, false);
-  }, []);
+  const handleChange = useCallback(
+    (value: AppLocale) => {
+      setLocale(value, false);
+      if (marketingPath) {
+        const target = toLocalePath(stripLocalePrefix(location.pathname), value);
+        if (target !== location.pathname) {
+          history.push(target);
+        }
+      }
+    },
+    [location.pathname, marketingPath],
+  );
 
   const options = useMemo(
     () =>

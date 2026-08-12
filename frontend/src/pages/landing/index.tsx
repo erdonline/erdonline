@@ -2,6 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {Link, useIntl} from '@umijs/max';
 import * as cache from '@/utils/cache';
 import {usePageSeo} from '@/hooks/usePageSeo';
+import {useLocalePath} from '@/hooks/useLocalePath';
 import {track} from '@/utils/analytics';
 import {docsUrl} from '@/utils/docsUrl';
 import LandingChrome from './LandingChrome';
@@ -9,6 +10,7 @@ import './index.less';
 
 const LandingPage: React.FC = () => {
   const intl = useIntl();
+  const {lp} = useLocalePath();
   const [authed, setAuthed] = useState(false);
   usePageSeo('landing.seo.title', 'landing.seo.description');
 
@@ -52,14 +54,14 @@ const LandingPage: React.FC = () => {
                   </Link>
                   <Link
                     className="landingBtnGhost"
-                    to="/demo"
+                    to={lp('/demo')}
                     aria-label={t('landing.hero.cta.openDemoAria')}
                   >
                     {t('landing.hero.cta.openDemo')}
                   </Link>
                   <Link
                     className="landingBtnGhost"
-                    to="/catalog"
+                    to={lp('/catalog')}
                     data-testid="landing-hero-catalog"
                     aria-label={t('landing.hero.cta.browseCatalogAria')}
                   >
@@ -70,14 +72,14 @@ const LandingPage: React.FC = () => {
                 <>
                   <Link
                     className="landingBtnPrimary"
-                    to="/demo"
+                    to={lp('/demo')}
                     aria-label={t('landing.hero.cta.tryOnlineAria')}
                   >
                     {t('landing.hero.cta.tryOnline')}
                   </Link>
                   <Link
                     className="landingBtnGhost"
-                    to="/catalog"
+                    to={lp('/catalog')}
                     data-testid="landing-hero-catalog"
                     aria-label={t('landing.hero.cta.browseCatalogAria')}
                   >
@@ -156,7 +158,7 @@ const LandingPage: React.FC = () => {
           <div className="landingCtas">
             <Link
               className="landingBtnPrimary"
-              to="/demo"
+              to={lp('/demo')}
               aria-label={t('landing.hero.cta.openDemoAria')}
             >
               {t('landing.hero.cta.openDemo')}
@@ -219,7 +221,7 @@ const LandingPage: React.FC = () => {
         <div className="landingCtas landingCompareMore">
           <Link
             className="landingBtnGhost"
-            to="/compare"
+            to={lp('/compare')}
             aria-label={t('landing.compare.cta.fullAria')}
           >
             {t('landing.compare.cta.full')}

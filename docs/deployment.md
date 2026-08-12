@@ -635,7 +635,7 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 
 | 产物 | 作用 |
 |---|---|
-| `sitemap.xml` | 公开落地路径：`/`、`/compare`、`/catalog`、`/demo` |
+| `sitemap.xml` | 公开落地路径：`/`、`/compare`、`/catalog`、`/demo` 及 `/en/*` 英文镜像（ADR-0034） |
 | `robots.txt` | 项目自控（覆盖 CF 注入的默认 robots）；含 `Sitemap:` 绝对 URL；`Disallow` 登录区/设计器等 |
 | `_redirects` | **仅**列已知 SPA pathname 的 `200` 反代到 `index.html`；**禁止** `/* /index.html 200` 通配 |
 | `404.html` | 与 `index.html` 同壳；配合 CF「有顶层 404.html 则关闭自动 SPA 模式」，未知路径返回 **HTTP 404** |

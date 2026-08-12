@@ -16,7 +16,16 @@ export function resolveSiteUrl() {
  * Paths included in sitemap.xml (pathname, leading slash).
  * Dynamic segments (/catalog/:id, /s/:token) are intentionally omitted.
  */
-export const SITEMAP_PATHS = ["/", "/compare", "/catalog", "/demo"];
+export const SITEMAP_PATHS = [
+  '/',
+  '/compare',
+  '/catalog',
+  '/demo',
+  '/en',
+  '/en/compare',
+  '/en/catalog',
+  '/en/demo',
+];
 
 /**
  * robots.txt Disallow prefixes (private / low-SEO areas).
@@ -45,6 +54,10 @@ export const ROBOTS_DISALLOW = [
 export const CF_SPA_REDIRECT_RULES = [
   "/compare /index.html 200",
   "/demo /index.html 200",
+  "/en /index.html 200",
+  "/en/compare /index.html 200",
+  "/en/demo /index.html 200",
+  "/en/catalog /index.html 200",
   "/catalog /index.html 200",
   "/catalog/* /index.html 200",
   "/s/* /index.html 200",
@@ -78,6 +91,10 @@ export const NGINX_SPA_URI_REGEXES = [
   "^/$",
   "^/compare$",
   "^/demo$",
+  "^/en$",
+  "^/en/compare$",
+  "^/en/demo$",
+  "^/en/catalog$",
   "^/catalog(/|$)",
   "^/s/[^/]+$",
   "^/login(/|$)",
