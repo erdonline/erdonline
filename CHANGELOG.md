@@ -35,6 +35,12 @@
 - **保留**：`regression-checklist.md` 条目正文 deliberately 保留中文（对齐 E2E/手工步骤）；章节标题 + 顶部英文说明已补
 - 验证点：`cd website && yarn build` zh-Hans + en 双 locale 通过；en locale 除 regression 正文外无大块中文
 
+#### ADR-0033 / ADR-0034：批量 i18n 约定 + 营销页 `/en/*` 路由
+
+- **ADR-0033**：模块内 `pages/<module>/locales/` 并行抽取；非 React 用函数内 `getIntl()`；硬编码中文「只减不增」门禁
+- **ADR-0034**：locale 路径前缀仅 `/`、`/compare`、`/catalog`（及 `/en/*`）；应用内页与 `/s/:token` 不动
+- 验证点：`docs/adr/README.md` 索引已登记；`website/i18n/en/…/adr/0033|0034` 链通 `yarn build`
+
 ### 2026-08-11
 
 #### 配置：会话 JWT 默认 TTL 12h → 7 天
