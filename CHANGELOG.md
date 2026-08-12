@@ -8,7 +8,11 @@
 
 ### 2026-08-12
 
-#### i18n：营销页 `/en/*` locale 路径路由（ADR-0034）
+#### fix：CF Pages `_redirects` 代理目标改为 `/`（修复全站 308→根）
+
+- **根因**：`/path /index.html 200` 被 CF 再 308 到 `/`，导致 `/compare`、`/en/*` 等深链失效
+- **修复**：`seo-config.mjs` 全部 SPA 规则改为 `/path / 200`
+- **验证点**：部署后 `curl -sI https://www.erdonline.com/compare` → 200；`/en` → 200
 
 - **Routes**：`/`、`/compare`、`/catalog`、`/demo` 及 `/en`、`/en/compare`、`/en/catalog`、`/en/demo`；`LocaleRoute` 按路径强制 locale，应用内页零改动
 - **SEO**：`usePageSeo` 补 canonical + hreflang；`seo-config.mjs` sitemap / CF `_redirects` / nginx map 收录 `/en/*`
