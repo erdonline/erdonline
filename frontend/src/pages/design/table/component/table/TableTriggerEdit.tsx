@@ -1,3 +1,4 @@
+import { designIntl } from '@/pages/design/locales/intl';
 import React, { useEffect, useState } from 'react';
 import { Button, Empty, Form, Input, Modal, Select, Space, message } from 'antd';
 import type { FormInstance } from 'antd/es/form';
@@ -80,7 +81,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
 
   const persistTriggers = async (payload: TriggerRow[]): Promise<boolean> => {
     if (!module || !entityTitle) {
-      message.error('当前模块或实体未定义');
+      message.error(designIntl('design.common.error.moduleUndefined'));
       return false;
     }
     try {
@@ -91,7 +92,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       );
       return !!ok;
     } catch {
-      message.error('触发器保存失败');
+      message.error(designIntl('design.table.trigger.error.saveFailed'));
       return false;
     }
   };
@@ -144,7 +145,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
     }
     const name = String(values.name || '').trim();
     if (!name) {
-      message.error('触发器名不能为空');
+      message.error(designIntl('design.table.trigger.error.emptyName'));
       return;
     }
     const conflict = triggers.some((t, i) => {
@@ -152,7 +153,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       return t.name === name;
     });
     if (conflict) {
-      message.error(`触发器名重复: ${name}`);
+      message.error(designIntl('design.table.trigger.error.duplicate', { name }));
       return;
     }
     const timing = values.timing || 'BEFORE';
@@ -212,20 +213,20 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
 
   const confirmDelete = (rowIndex: number) => {
     const target = triggers[rowIndex];
-    const triggerName = target?.name || `第 ${rowIndex + 1} 条`;
+    const triggerName = target?.name || designIntl('design.table.trigger.rowFallback', { index: rowIndex + 1 });
     confirmDestructive({
-      title: `确定删除触发器 "${triggerName}" 吗?`,
-      content: '此操作不可逆，请谨慎操作。',
-      okText: '删除',
+      title: designIntl('design.table.trigger.confirmDelete.title', { name: triggerName }),
+      content: designIntl('design.common.destructive.content'),
+      okText: designIntl('design.common.delete'),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: designIntl('design.common.cancel'),
       async onOk() {
         setSaving(true);
         try {
           const next = triggers.filter((_, i) => i !== rowIndex);
           const ok = await persistTriggers(next);
           if (!ok) {
-            return Promise.reject(new Error('触发器删除落盘失败'));
+            return Promise.reject(new Error(designIntl('design.table.trigger.error.deleteFailed')));
           }
           if (selected === rowIndex) setSelected(null);
           else if (selected != null && selected > rowIndex) setSelected(selected - 1);
@@ -253,7 +254,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           image={Empty.PRESENTED_IMAGE_SIMPLE}
           description={
             <span data-testid="trigger-empty-hint">
-              还没有触发器。逆向保真的 triggers[] 会出现在此；亦可手动添加。
+              {designIntl('design.table.trigger.empty.hint')}
             </span>
           }
         >
@@ -261,7 +262,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
             type="primary"
             size="small"
             data-testid="trigger-empty-add"
-            aria-label="添加第一个触发器"
+            aria-label={designIntl('design.table.trigger.aria.addFirst')}
             loading={saving}
             disabled={saving}
             onClick={openAdd}
@@ -288,16 +289,16 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
       aria-busy={saving || undefined}
     >
       <p className="erd-table-trigger-hint" data-testid="trigger-list-hint">
-        列表 + 编辑 + 查看 DDL；保存走 saveProject（仅 200 写 store）。DBML 不互导触发器。
+        {designIntl('design.table.trigger.hint.list')}
       </p>
       <ul
         className="erd-table-trigger-list"
         role="listbox"
-        aria-label="触发器列表"
+        aria-label={designIntl('design.table.trigger.aria.list')}
         data-testid="trigger-list"
       >
         {triggers.map((t, i) => {
-          const name = t.name || `第 ${i + 1} 条`;
+          const name = t.name || designIntl('design.table.trigger.rowFallback', { index: i + 1 });
           const selectedHere = selected === i;
           return (
             <li key={`${name}-${i}`} className="erd-table-trigger-row" role="none">
@@ -311,7 +312,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                     : 'erd-table-trigger-row__select'
                 }
                 data-testid={`trigger-select-${i}`}
-                aria-label={`查看触发器 ${name}`}
+                aria-label={designIntl('design.table.trigger.aria.view', { name })}
                 onClick={() => setSelected(i)}
               >
                 <span className="erd-table-trigger-row__name">{name}</span>
@@ -323,7 +324,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                 type="link"
                 size="small"
                 data-testid={`trigger-edit-${i}`}
-                aria-label={`编辑触发器 ${name}`}
+                aria-label={designIntl('design.table.trigger.aria.edit', { name })}
                 disabled={saving}
                 onClick={() => openEdit(i)}
               >
@@ -334,7 +335,7 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
                 type="link"
                 size="small"
                 data-testid={`trigger-delete-${i}`}
-                aria-label={`删除触发器 ${name}`}
+                aria-label={designIntl('design.table.trigger.aria.delete', { name })}
                 disabled={saving}
                 onClick={() => confirmDelete(i)}
               >
@@ -350,19 +351,19 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           size="small"
           block
           data-testid="trigger-add-row"
-          aria-label="再添加一条触发器"
+          aria-label={designIntl('design.table.trigger.aria.add')}
           loading={saving}
           disabled={saving}
           onClick={openAdd}
         >
-          + 再添加一条触发器
+          {designIntl('design.table.trigger.action.addAnother')}
         </Button>
       </div>
       {selectedRow ? (
         <section
           className="erd-table-trigger-ddl"
           data-testid="trigger-ddl-panel"
-          aria-label={`触发器 ${selectedRow.name || ''} DDL`}
+          aria-label={designIntl('design.table.trigger.aria.ddl', { name: selectedRow.name || '' })}
         >
           <header className="erd-table-trigger-ddl__head">
             <span>DDL · {selectedRow.name}</span>
@@ -381,13 +382,13 @@ const TableTriggerEdit: React.FC<TableTriggerEditProps> = (props) => {
           </pre>
           {selectedRow.statement?.trim() ? (
             <p className="erd-table-trigger-ddl__stmt" data-testid="trigger-statement">
-              体：{selectedRow.statement.trim()}
+              {designIntl('design.table.trigger.ddl.bodyLabel', { statement: selectedRow.statement.trim() })}
             </p>
           ) : null}
         </section>
       ) : (
         <p className="erd-table-trigger-ddl-empty" data-testid="trigger-ddl-placeholder">
-          选择一条触发器以查看 DDL
+          {designIntl('design.table.trigger.ddl.selectHint')}
         </p>
       )}
       <TriggerEditorModal
@@ -420,9 +421,9 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
   onOk,
 }) => {
   const isEdit = mode === 'edit';
-  const title = isEdit ? '编辑触发器' : '添加触发器';
-  const okAria = isEdit ? '确认保存触发器' : '确认添加触发器';
-  const cancelAria = isEdit ? '取消编辑触发器' : '取消添加触发器';
+  const title = isEdit ? designIntl('design.table.trigger.modal.edit') : designIntl('design.table.trigger.modal.add');
+  const okAria = isEdit ? designIntl('design.table.trigger.aria.saveEdit') : designIntl('design.table.trigger.aria.saveAdd');
+  const cancelAria = isEdit ? designIntl('design.table.trigger.aria.cancelEdit') : designIntl('design.table.trigger.aria.cancelAdd');
 
   return (
     <Modal
@@ -430,8 +431,8 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
       open={open}
       onCancel={onCancel}
       onOk={onOk}
-      okText="保存"
-      cancelText="取消"
+      okText={designIntl('design.common.save')}
+      cancelText={designIntl('design.common.cancel')}
       confirmLoading={saving}
       destroyOnClose
       width={480}
@@ -462,60 +463,60 @@ const TriggerEditorModal: React.FC<EditorModalProps> = ({
       <Form form={form} layout="vertical" size="small" requiredMark={false}>
         <Form.Item
           name="name"
-          label="名称"
-          rules={[{ required: true, message: '请输入触发器名' }]}
+          label={designIntl('design.table.trigger.form.name')}
+          rules={[{ required: true, message: designIntl('design.table.trigger.form.nameRequired') }]}
         >
           <Input
             data-testid="trigger-form-name"
-            aria-label="触发器名称"
+            aria-label={designIntl('design.table.trigger.form.nameAria')}
             autoComplete="off"
           />
         </Form.Item>
         <Space size={8} style={{ width: '100%' }} wrap>
-          <Form.Item name="timing" label="时机" style={{ marginBottom: 8, minWidth: 120 }}>
+          <Form.Item name="timing" label={designIntl('design.table.trigger.form.timing')} style={{ marginBottom: 8, minWidth: 120 }}>
             <Select
               options={TIMING_OPTS.map((v) => ({ value: v, label: v }))}
-              aria-label="触发时机"
+              aria-label={designIntl('design.table.trigger.form.timingAria')}
               data-testid="trigger-form-timing"
             />
           </Form.Item>
-          <Form.Item name="event" label="事件" style={{ marginBottom: 8, minWidth: 120 }}>
+          <Form.Item name="event" label={designIntl('design.table.trigger.form.event')} style={{ marginBottom: 8, minWidth: 120 }}>
             <Select
               options={EVENT_OPTS.map((v) => ({ value: v, label: v }))}
-              aria-label="触发事件"
+              aria-label={designIntl('design.table.trigger.form.eventAria')}
               data-testid="trigger-form-event"
             />
           </Form.Item>
           <Form.Item
             name="orientation"
-            label="粒度"
+            label={designIntl('design.table.trigger.form.granularity')}
             style={{ marginBottom: 8, minWidth: 120 }}
           >
             <Select
               options={ORIENT_OPTS.map((v) => ({ value: v, label: v }))}
-              aria-label="触发粒度"
+              aria-label={designIntl('design.table.trigger.form.granularityAria')}
               data-testid="trigger-form-orientation"
             />
           </Form.Item>
         </Space>
-        <Form.Item name="statement" label="语句体" style={{ marginBottom: 8 }}>
+        <Form.Item name="statement" label={designIntl('design.table.trigger.form.statement')} style={{ marginBottom: 8 }}>
           <Input.TextArea
             rows={3}
             data-testid="trigger-form-statement"
-            aria-label="触发器语句体"
+            aria-label={designIntl('design.table.trigger.form.statementAria')}
             placeholder="SET NEW.updated_at = NOW()"
           />
         </Form.Item>
         <Form.Item
           name="ddl"
-          label="DDL（可选，空则按时机/事件重建）"
+          label={designIntl('design.table.trigger.form.ddl')}
           style={{ marginBottom: 0 }}
         >
           <Input.TextArea
             rows={3}
             data-testid="trigger-form-ddl"
-            aria-label="触发器 DDL"
-            placeholder="留空则自动生成 CREATE TRIGGER …"
+            aria-label={designIntl('design.table.trigger.form.ddlAria')}
+            placeholder={designIntl('design.table.trigger.form.ddlPlaceholder')}
           />
         </Form.Item>
       </Form>
