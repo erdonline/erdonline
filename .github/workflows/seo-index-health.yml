@@ -1,0 +1,29 @@
+name: SEO index health
+
+on:
+  schedule:
+    # Daily 10:17 UTC+8
+    - cron: '17 2 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Run indexability + sitemap checks
+        env:
+          SEO_BASE_URL: ${{ vars.SEO_BASE_URL || 'https://www.erdonline.com' }}
+          SEO_SITEMAP_SAMPLE: ${{ vars.SEO_SITEMAP_SAMPLE || '20' }}
+          SEO_TIMEOUT_MS: ${{ vars.SEO_TIMEOUT_MS || '15000' }}
+        run: node scripts/seo-index-health.mjs
+

@@ -70,6 +70,41 @@ if [[ "$SKIP_FE" != "1" ]]; then
   else
     die "GET FE / → HTTP $fe_code (set SKIP_FE=1 to skip)"
   fi
+
+  # SEO / nginx true-404 (see frontend/nginx.conf + gen-seo-static.mjs)
+  sitemap_tmp=$(mktemp)
+  sitemap_code=$(curl -sS -o "$sitemap_tmp" -w '%{http_code}' "$FE_BASE/sitemap.xml" || echo 000)
+  if [[ "$sitemap_code" == "200" ]] && grep -q '<urlset' "$sitemap_tmp"; then
+    pass "GET FE /sitemap.xml → 200 + urlset"
+  else
+    die "GET FE /sitemap.xml → HTTP $sitemap_code (expected 200 xml urlset)"
+  fi
+  rm -f "$sitemap_tmp"
+
+  robots_tmp=$(mktemp)
+  robots_code=$(curl -sS -o "$robots_tmp" -w '%{http_code}' "$FE_BASE/robots.txt" || echo 000)
+  if [[ "$robots_code" == "200" ]] && grep -qi 'sitemap:' "$robots_tmp"; then
+    pass "GET FE /robots.txt → 200 + Sitemap directive"
+  else
+    die "GET FE /robots.txt → HTTP $robots_code (expected project robots.txt)"
+  fi
+  rm -f "$robots_tmp"
+
+  soft404_code=$(curl -sS -o /dev/null -w '%{http_code}' "$FE_BASE/__seo_health_nonexistent_path__" || echo 000)
+  if [[ "$soft404_code" == "404" ]]; then
+    pass "GET FE unknown path → 404 (not soft 200)"
+  else
+    die "GET FE /__seo_health_nonexistent_path__ → HTTP $soft404_code (expected 404)"
+  fi
+
+  for spa_path in /compare /catalog /demo /login; do
+    spa_code=$(curl -sS -o /dev/null -w '%{http_code}' "$FE_BASE$spa_path" || echo 000)
+    if [[ "$spa_code" == "200" ]]; then
+      pass "GET FE $spa_path → 200"
+    else
+      die "GET FE $spa_path → HTTP $spa_code (expected 200 SPA route)"
+    fi
+  done
 else
   echo "SKIP FE check (SKIP_FE=1)"
 fi

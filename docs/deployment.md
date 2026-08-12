@@ -629,6 +629,55 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 
 验收：`curl -sL https://www.erdonline.com | grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a'` 应命中；浏览器 Network 可见 `beacon.min.js`。（CF 默认别名 `erdonline-demo.pages.dev` 亦可，自定义域 www 为产品 URL。）
 
+### 主站 SEO / 爬虫索引（www.erdonline.com）
+
+主站 SPA 由 **Cloudflare Pages** 项目 `erdonline-demo` 托管（工作流 `frontend-demo-site.yml` → `pages deploy frontend/dist`）。构建后 **`frontend/scripts/gen-seo-static.mjs`** 在 `dist/` 写入：
+
+| 产物 | 作用 |
+|---|---|
+| `sitemap.xml` | 公开落地路径：`/`、`/compare`、`/catalog`、`/demo` |
+| `robots.txt` | 项目自控（覆盖 CF 注入的默认 robots）；含 `Sitemap:` 绝对 URL；`Disallow` 登录区/设计器等 |
+| `_redirects` | **仅**列已知 SPA pathname 的 `200` 反代到 `index.html`；**禁止** `/* /index.html 200` 通配 |
+| `404.html` | 与 `index.html` 同壳；配合 CF「有顶层 404.html 则关闭自动 SPA 模式」，未知路径返回 **HTTP 404** |
+| `_headers` | CF Pages 响应头；含 `sitemap.xml` / `robots.txt` 的 `Content-Type` |
+
+站点根 URL 由环境变量 **`ERD_SITE_URL`**（或 `SEO_BASE_URL`）决定，默认 `https://www.erdonline.com`。新增公开路由时同步改 `frontend/scripts/seo-config.mjs`（sitemap 列表 + `_redirects` + nginx map）。
+
+**Cloudflare Pages 行为（已验证官方文档）**
+
+- 无顶层 `404.html` 时：Pages 假定 SPA，所有未命中静态文件的路径 **200 + index.html**（软 404）。
+- 有顶层 `404.html` 时：关闭自动 SPA；未匹配静态文件且无 `_redirects` 规则的路径 → **404 + 404.html**。
+- 静态 `robots.txt` / `sitemap.xml` 在构建产物根目录时 **优先于** 平台默认 robots 注入。
+- `_redirects` 中 **200 代理**仅对显式列出的 pathname 生效；勿恢复 catch-all。
+
+**Docker / 自托管 nginx**（`frontend/nginx.conf`）：`map $uri $spa_fallback` 与 `seo-config.mjs` 对齐；未知路径 `return 404` + `error_page 404 /404.html`（仍渲染 SPA 404 页）。`./scripts/verify-self-deploy.sh` 会顺带断言 `sitemap.xml`、`robots.txt`、未知路径 404、已知 SPA 路由 200。
+
+**部署后验收（须等新版本上线后再跑）**
+
+```bash
+# 真 sitemap（Content-Type 含 xml，body 含 <urlset）
+curl -sI https://www.erdonline.com/sitemap.xml
+curl -sL https://www.erdonline.com/sitemap.xml | head
+
+# 项目 robots（非 CF Content-Signal 模板）
+curl -sL https://www.erdonline.com/robots.txt
+
+# 软 404 已修复：未知路径须 404（非 200）
+curl -sI https://www.erdonline.com/__seo_health_nonexistent_path__
+
+# 已知公开路由仍 200
+curl -sI https://www.erdonline.com/compare
+curl -sI https://www.erdonline.com/catalog
+curl -sI https://www.erdonline.com/demo
+curl -sI https://www.erdonline.com/login
+curl -sI 'https://www.erdonline.com/s/public-demo'
+
+# 每日巡检（本地或 CI）
+node scripts/seo-index-health.mjs
+```
+
+本地构建验收：`cd frontend && yarn build` 后 `dist/` 应含上述四文件；`xmllint --noout dist/sitemap.xml` 或 `node -e "..."` 校验 XML。
+
 ## MCP（agent / CLI，ADR-0013）
 
 只读 MCP 进程在仓库 `mcp/`（非 Docker 镜像内置）。自托管后端起好后：

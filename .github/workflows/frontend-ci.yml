@@ -31,3 +31,14 @@ jobs:
       - name: Build
         working-directory: frontend
         run: yarn build
+
+      - name: Verify SEO build artifacts
+        working-directory: frontend
+        run: |
+          test -f dist/sitemap.xml
+          test -f dist/robots.txt
+          test -f dist/_redirects
+          test -f dist/404.html
+          grep -q '<urlset' dist/sitemap.xml
+          grep -q 'Sitemap: https://www.erdonline.com/sitemap.xml' dist/robots.txt
+          ! grep -q '/\* /index.html 200' dist/_redirects
