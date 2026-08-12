@@ -8,6 +8,12 @@
 
 ### 2026-08-12
 
+#### fix：LocaleRoute + catalog 绝对子路径导致全站路由崩溃（/demo 白屏）
+
+- **根因**：ADR-0034 给 `/catalog` 加 `LocaleRoute` wrapper 后，子路由仍写绝对路径（`/catalog/...`）；React Router `flattenRoutes` 断言失败并递归抛错，**整站 SPA 初始化即崩**，`/demo` → `/s/public-demo` 亦空白
+- **修复**：`frontend/config/routes.ts` catalog 子路由改为相对路径（`''`、`creator/:handle`、`:id` 等）；`/en/catalog` 同理
+- **验证点**：route flatten 73 条 OK；本地 prod build `/demo` → `/s/public-demo` 无 `umi.* forEach` stack overflow，页面标题与空态/分享壳正常渲染
+
 #### growth：README / OSChina / 落地页漏斗深链 + localhost 统计降噪
 
 - **README**（中/英）：顶栏 CTA 增 **Compare** badge；「为什么选它」链到 `https://www.erdonline.com/compare`
