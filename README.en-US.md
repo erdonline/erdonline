@@ -12,6 +12,7 @@
 
 <p align="center">
   <a href="https://www.erdonline.com/demo"><img alt="Live Demo" src="https://img.shields.io/badge/▶_Live_Demo-no_login-6C5CE7?style=for-the-badge"></a>
+  <a href="https://www.erdonline.com/compare"><img alt="Compare" src="https://img.shields.io/badge/🆚_Compare-open_vs_SaaS-FF6B6B?style=for-the-badge"></a>
   <a href="https://erdonline.github.io/erdonline/"><img alt="Docs" src="https://img.shields.io/badge/Docs-online-2D9CDB?style=for-the-badge"></a>
 </p>
 
@@ -37,6 +38,8 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 - **A codebase you'll enjoy contributing to** — modern stack (React 18 + UmiJS Max + TypeScript, Spring Boot 3.5 + JDK 17), one-command Docker bring-up, and an open `projectJSON` + public API/MCP so humans *and* AI agents read/write the same source of truth.
 
 ## How it compares
+
+[Full comparison → www.erdonline.com/compare](https://www.erdonline.com/compare)
 
 | | ERD Online | dbdiagram.io | Navicat / PDManer | drawio |
 |---|:---:|:---:|:---:|:---:|

@@ -259,6 +259,7 @@ export default {
   'landing.nav.login': 'Sign in',
   'landing.nav.loginAria': 'Sign in to your account',
   'landing.footer.docs': 'Docs',
+  'landing.footer.demo': 'Live demo',
   'landing.footer.roadmap': 'Roadmap',
   'landing.footer.compare': 'Compare',
   'landing.footer.catalog': 'Template catalog',

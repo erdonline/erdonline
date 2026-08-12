@@ -153,6 +153,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
       <footer className="landingFooter">
         <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>
         <nav aria-label={intl.formatMessage({ id: 'landing.footer.navAria' })}>
+          <Link to={lp('/demo')}>{intl.formatMessage({ id: 'landing.footer.demo' })}</Link>
           <a href={docsHomeUrl} target="_blank" rel="noreferrer">
             {intl.formatMessage({ id: 'landing.footer.docs' })}
           </a>

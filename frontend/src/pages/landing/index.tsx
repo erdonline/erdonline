@@ -87,6 +87,14 @@ const LandingPage: React.FC = () => {
                   </Link>
                   <Link
                     className="landingBtnGhost"
+                    to={lp('/compare')}
+                    data-testid="landing-hero-compare"
+                    aria-label={t('landing.compare.cta.fullAria')}
+                  >
+                    {t('landing.compare.cta.full')}
+                  </Link>
+                  <Link
+                    className="landingBtnGhost"
                     to="/register"
                     aria-label={t('landing.hero.cta.registerAria')}
                   >
