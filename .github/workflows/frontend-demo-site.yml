@@ -41,6 +41,10 @@ jobs:
         working-directory: frontend
         run: yarn install --frozen-lockfile
 
+      - name: Umi route flatten (LocaleRoute gate)
+        working-directory: frontend
+        run: yarn check:routes
+
       # Runtime injection: env.sh → public/env-config.js → bundled into dist/.
       - name: Verify demo API URL
         env:

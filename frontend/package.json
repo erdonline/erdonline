@@ -45,6 +45,7 @@
     "check:i18n-keys": "node ../scripts/check-locale-keys.mjs",
     "check:i18n-cjk": "node ../scripts/check-hardcoded-cjk.mjs",
     "check:i18n": "yarn check:i18n-keys && yarn check:i18n-cjk",
+    "check:routes": "node ../scripts/check-routes.mjs",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {

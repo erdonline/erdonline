@@ -7,6 +7,8 @@ on:
       - 'frontend/**'
       - 'scripts/check-locale-keys.mjs'
       - 'scripts/check-hardcoded-cjk.mjs'
+      - 'scripts/check-routes.mjs'
+      - 'scripts/load-routes-for-check.ts'
       - 'scripts/cjk-baseline.json'
       - 'scripts/cjk-allowlist.json'
       - '.github/workflows/frontend-ci.yml'
@@ -15,6 +17,8 @@ on:
       - 'frontend/**'
       - 'scripts/check-locale-keys.mjs'
       - 'scripts/check-hardcoded-cjk.mjs'
+      - 'scripts/check-routes.mjs'
+      - 'scripts/load-routes-for-check.ts'
       - 'scripts/cjk-baseline.json'
       - 'scripts/cjk-allowlist.json'
       - '.github/workflows/frontend-ci.yml'
@@ -35,6 +39,10 @@ jobs:
       - name: Install dependencies
         working-directory: frontend
         run: yarn install --frozen-lockfile
+
+      - name: Umi route flatten (LocaleRoute gate)
+        working-directory: frontend
+        run: yarn check:routes
 
       - name: i18n locale key alignment
         working-directory: frontend

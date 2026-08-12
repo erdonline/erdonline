@@ -138,6 +138,26 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 - 后端 `dev` 打开 `erd.security.e2e-accounts-enabled`；`prod` 拒绝 `e2e\\d+` / `e2e-serial` 登录
 - 定位优先级见 `.cursor/rules/e2e-locators.mdc`：`getByRole` → label/placeholder → `getByTestId`；禁止 `.ant-*`
 
+## 质量门禁（CI / pre-push）
+
+```bash
+cd frontend
+yarn check:routes      # ADR-0034：LocaleRoute wrapper 下禁止绝对子 path（秒级）
+yarn check:i18n        # locale 键对齐 + 硬编码中文棘轮
+node ../scripts/check-routes.mjs --self-test   # 内置 bad/good fixture 回归
+```
+
+**Pre-push（可选，推荐）**：仓库无 husky；用脚本安装 git hook：
+
+```bash
+chmod +x scripts/install-git-hooks.sh scripts/git-hooks/pre-push
+./scripts/install-git-hooks.sh
+```
+
+`pre-push` 顺序：`check:routes` → `check:i18n`（不跑 `yarn build`）。CI 见 `.github/workflows/frontend-ci.yml`（`check:routes` 在 build 前）。
+
+**LocaleRoute 子路由规则**：父路由带 `wrappers: ['@/components/LocaleRoute']` 且有 `routes` 时，子 `path` 写相对段（`''`、`publish`、`:id`），勿写 `/catalog/...` 绝对路径——umi 插入 wrapper 后 React Router flatten 会抛错，整站 SPA 白屏。
+
 ### Schema 双源（`db/init` vs Flyway）
 
 | 来源 | 路径 | 职责 |
