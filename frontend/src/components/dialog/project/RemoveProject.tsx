@@ -1,5 +1,6 @@
 import React, {useState} from 'react';
 import {Button, Modal, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import {deleteProject} from '@/services/project';
 
 export type RemoveProjectProps = {
@@ -10,24 +11,25 @@ export type RemoveProjectProps = {
 const REMOVE_WRAP = 'project-remove-modal-wrap';
 
 const RemoveProject: React.FC<RemoveProjectProps> = (props) => {
+  const intl = useIntl();
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleOk = async () => {
     if (!props.project?.id) {
-      message.error('删除失败');
+      message.error(intl.formatMessage({ id: 'projectModal.removeFailed' }));
       return;
     }
     setLoading(true);
     try {
       const res = await deleteProject({id: props.project.id});
       if (res?.code === 200) {
-        message.success('删除成功');
+        message.success(intl.formatMessage({ id: 'projectModal.removeSuccess' }));
         props.fetchProjects?.();
         setOpen(false);
         return;
       }
-      message.error(res?.message || res?.msg || '删除失败');
+      message.error(res?.message || res?.msg || intl.formatMessage({ id: 'projectModal.removeFailed' }));
     } finally {
       setLoading(false);
     }
@@ -39,18 +41,18 @@ const RemoveProject: React.FC<RemoveProjectProps> = (props) => {
         type="link"
         danger
         data-testid="project-remove-trigger"
-        aria-label="删除项目"
+        aria-label={intl.formatMessage({ id: 'projectModal.removeAria' })}
         onClick={() => setOpen(true)}
       >
-        删除
+        {intl.formatMessage({ id: 'projectModal.removeTrigger' })}
       </Button>
       <Modal
-        title="删除项目"
+        title={intl.formatMessage({ id: 'projectModal.removeTitle' })}
         open={open}
         onOk={handleOk}
         onCancel={() => setOpen(false)}
-        okText="是"
-        cancelText="否"
+        okText={intl.formatMessage({ id: 'versionModal.confirm.yes' })}
+        cancelText={intl.formatMessage({ id: 'versionModal.confirm.no' })}
         okButtonProps={{danger: true, loading}}
         destroyOnClose
         keyboard
@@ -69,7 +71,7 @@ const RemoveProject: React.FC<RemoveProjectProps> = (props) => {
           }, 0);
         }}
       >
-        确定删除该项目吗？此操作不可逆。
+        {intl.formatMessage({ id: 'projectModal.removeBody' })}
       </Modal>
     </>
   );

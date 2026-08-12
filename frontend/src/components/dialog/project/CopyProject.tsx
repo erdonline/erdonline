@@ -1,5 +1,6 @@
 import React, {useRef, useState} from 'react';
 import {Button, Form, Input, Modal, Select, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd';
 import defaultData from '@/utils/defaultData.json';
 import _ from 'lodash';
@@ -33,6 +34,7 @@ const emptyProject = {
 };
 
 const CopyProject: React.FC<CopyProjectProps> = (props) => {
+  const intl = useIntl();
   const {profile, dataTypeDomains} = useProjectStore(
     (state) => ({
       profile: state.project?.projectJSON?.profile,
@@ -75,15 +77,15 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
     if (res?.code === 200) {
       message.success(
         <>
-          复刻成功，
-          <a href="/project/recent">立即打开</a>
+          {intl.formatMessage({ id: 'projectModal.copySuccess' })}
+          <a href="/project/recent">{intl.formatMessage({ id: 'projectModal.copyOpenNow' })}</a>
         </>,
         5,
       );
       setOpen(false);
       return;
     }
-    message.error(res?.message || res?.msg || '复刻失败');
+    message.error(res?.message || res?.msg || intl.formatMessage({ id: 'projectModal.copyFailed' }));
   };
 
   return (
@@ -94,13 +96,13 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
         type="link"
         icon={<CopyOutlined />}
         data-testid="project-copy-trigger"
-        aria-label="复刻"
+        aria-label={intl.formatMessage({ id: 'projectModal.copyAria' })}
         onClick={openModal}
       >
-        复刻
+        {intl.formatMessage({ id: 'projectModal.copyTrigger' })}
       </Button>
       <Modal
-        title="复刻为新项目(从当前版本创建新项目)"
+        title={intl.formatMessage({ id: 'projectModal.copyTitle' })}
         open={open}
         onOk={handleOk}
         onCancel={closeModal}
@@ -118,55 +120,55 @@ const CopyProject: React.FC<CopyProjectProps> = (props) => {
         <Form form={form} layout="vertical" preserve={false}>
           <Form.Item
             name="projectName"
-            label="项目名"
+            label={intl.formatMessage({ id: 'projectModal.nameLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
             <Input
               ref={projectNameInputRef}
-              aria-label="项目名"
-              placeholder="请输入项目名"
+              aria-label={intl.formatMessage({ id: 'projectModal.nameLabelShort' })}
+              placeholder={intl.formatMessage({ id: 'projectModal.namePlaceholder' })}
             />
           </Form.Item>
           <Form.Item
             name="type"
-            label="项目类型"
-            rules={[{required: true, message: '请选择项目类型'}]}
+            label={intl.formatMessage({ id: 'projectModal.typeLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'projectModal.typeRequiredShort' })}]}
           >
             <Select
-              placeholder="请选择项目类型"
+              placeholder={intl.formatMessage({ id: 'projectModal.typePlaceholder' })}
               options={[
-                {label: '个人项目', value: 1},
-                {label: '团队项目', value: 2},
+                {label: intl.formatMessage({ id: 'projectList.type.person' }), value: 1},
+                {label: intl.formatMessage({ id: 'projectList.type.team' }), value: 2},
               ]}
             />
           </Form.Item>
           <Form.Item
             name="tags"
-            label="标签"
-            rules={[{required: true, message: '不能为空'}]}
+            label={intl.formatMessage({ id: 'projectModal.tagsLabel' })}
+            rules={[{required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })}]}
           >
             <Select
               mode="tags"
               tokenSeparators={[',']}
-              placeholder="请输入项目标签,按回车分割"
+              placeholder={intl.formatMessage({ id: 'projectModal.tagsPlaceholder' })}
               data-testid="project-copy-tags"
               notFoundContent={null}
             />
           </Form.Item>
           <Form.Item
             name="description"
-            label="项目描述"
+            label={intl.formatMessage({ id: 'projectModal.descLabel' })}
             rules={[
-              {required: true, message: '不能为空'},
-              {max: 100, message: '不能大于 100 个字符'},
+              {required: true, message: intl.formatMessage({ id: 'versionModal.validation.required' })},
+              {max: 100, message: intl.formatMessage({ id: 'versionModal.validation.max100' })},
             ]}
           >
             <Input.TextArea
-              aria-label="项目描述"
-              placeholder="请输入项目描述"
+              aria-label={intl.formatMessage({ id: 'projectModal.descLabel' })}
+              placeholder={intl.formatMessage({ id: 'projectModal.descPlaceholder' })}
               rows={3}
             />
           </Form.Item>

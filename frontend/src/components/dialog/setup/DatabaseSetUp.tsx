@@ -1,6 +1,7 @@
-import React, {useContext, useEffect, useRef, useState} from 'react';
+import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {DeleteOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Col, Form, Input, Modal, Radio, Row, Select, Space, message} from 'antd';
+import {useIntl} from '@umijs/max';
 import _ from 'lodash';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -39,23 +40,11 @@ type FormValues = DbProperties & {
   dbs?: DataSourceRow[];
 };
 
-const URL_TEMPLATES: Record<string, {url: string; driver_class_name: string}> = {
-  mysql: {
-    url: 'jdbc:mysql://IP地址:端口号/数据库名?characterEncoding=UTF-8&useSSL=false&useUnicode=true&serverTimezone=UTC',
-    driver_class_name: 'com.mysql.jdbc.Driver',
-  },
-  oracle: {
-    url: 'jdbc:oracle:thin:@IP地址:端口号/数据库名',
-    driver_class_name: 'oracle.jdbc.driver.OracleDriver',
-  },
-  sqlserver: {
-    url: 'jdbc:sqlserver://IP地址:端口号;DatabaseName=数据库名',
-    driver_class_name: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
-  },
-  postgresql: {
-    url: 'jdbc:postgresql://IP地址:端口号/数据库名',
-    driver_class_name: 'org.postgresql.Driver',
-  },
+const DRIVER_BY_DIALECT: Record<string, string> = {
+  mysql: 'com.mysql.jdbc.Driver',
+  oracle: 'oracle.jdbc.driver.OracleDriver',
+  sqlserver: 'com.microsoft.sqlserver.jdbc.SQLServerDriver',
+  postgresql: 'org.postgresql.Driver',
 };
 
 /** 设计器菜单「数据源设置」：读写 /ncnb/dataSources（ADR-0008），不写 profile.dbs */
@@ -64,6 +53,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
   open: openProp,
   onOpenChange,
 }) => {
+  const intl = useIntl();
   const closeProjectMenu = useContext(ProjectMenuCloseContext);
   const {projectDispatch, dialects} = useProjectStore(
     (state) => ({
@@ -71,6 +61,28 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
       dialects: (state.project?.projectJSON?.dataTypeDomains?.database || []) as DialectRow[],
     }),
     shallow,
+  );
+
+  const urlTemplates = useMemo(
+    () => ({
+      mysql: {
+        url: intl.formatMessage({ id: 'setupModal.db.urlTemplateMysql' }),
+        driver_class_name: DRIVER_BY_DIALECT.mysql,
+      },
+      oracle: {
+        url: intl.formatMessage({ id: 'setupModal.db.urlTemplateOracle' }),
+        driver_class_name: DRIVER_BY_DIALECT.oracle,
+      },
+      sqlserver: {
+        url: intl.formatMessage({ id: 'setupModal.db.urlTemplateSqlserver' }),
+        driver_class_name: DRIVER_BY_DIALECT.sqlserver,
+      },
+      postgresql: {
+        url: intl.formatMessage({ id: 'setupModal.db.urlTemplatePostgresql' }),
+        driver_class_name: DRIVER_BY_DIALECT.postgresql,
+      },
+    }),
+    [intl],
   );
 
   const [innerOpen, setInnerOpen] = useState(false);
@@ -98,17 +110,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
 
   const defaultDatabase =
     _.find(dialects, {defaultDatabase: true})?.code || dialects[0]?.code || 'MYSQL';
-  const defaultDBData = URL_TEMPLATES[defaultDatabase.toLowerCase()] || URL_TEMPLATES.mysql;
+  const defaultDBData = urlTemplates[defaultDatabase.toLowerCase()] || urlTemplates.mysql;
 
   const defaultDbs = databases.find((d) => d.defaultDB) || databases[0];
   const defaultDB = databases.find((d) => d.defaultDB);
 
-  // 左侧列表：随 API 列表刷新
   useEffect(() => {
     form.setFieldsValue({dbs: databases});
   }, [databases, form]);
 
-  // 右侧连接字段：仅在切换默认源 / 方言时重置；勿在每次 reload 冲掉用户未提交编辑
   useEffect(() => {
     if (!defaultDbs?.key) {
       return;
@@ -127,13 +137,15 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
       })
         .then((res: {code?: number; msg?: string}) => {
           if (res.code !== 200) {
-            message.error('连接失败:' + res.msg);
+            message.error(
+              intl.formatMessage({ id: 'setupModal.db.connectFailed' }, { msg: res.msg ?? '' }),
+            );
           } else {
-            message.success('连接成功');
+            message.success(intl.formatMessage({ id: 'setupModal.db.connectSuccess' }));
           }
         })
         .catch(() => {
-          message.error('连接失败！');
+          message.error(intl.formatMessage({ id: 'setupModal.db.connectFailedGeneric' }));
         })
         .finally(() => {
           setPingLoading(false);
@@ -160,7 +172,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
     if (data?.defaultDB) {
       const ok = await projectDispatch.setDefaultDb(key);
       if (!ok) {
-        // 失败 toast 已弹；重载列表回滚 Radio
         await reload();
         return;
       }
@@ -189,7 +200,6 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
     setOpen(false);
   };
 
-  /** 确定：把右侧表单刷到 API；仅 code===200 才 toast/关窗（禁无条件「保存成功」） */
   const handleOk = async () => {
     if (!defaultDbs?.key) {
       setOpen(false);
@@ -208,20 +218,23 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
         },
       });
       if (ok) {
-        message.success('保存成功！');
+        message.success(intl.formatMessage({ id: 'setupModal.db.saveSuccess' }));
         setOpen(false);
       }
-      // 失败：request 已 toast；失败不关窗可重试
     } finally {
       setSubmitting(false);
     }
   };
 
   const listLabel = defaultDB
-    ? ` 当前使用的数据源为「${defaultDB.name}」`
+    ? intl.formatMessage({ id: 'setupModal.db.currentDefault' }, { name: defaultDB.name ?? '' })
     : databases.length > 0
-      ? ' 当前未选择默认数据源'
-      : '当前未创建数据源';
+      ? intl.formatMessage({ id: 'setupModal.db.noDefaultSelected' })
+      : intl.formatMessage({ id: 'setupModal.db.noDataSource' });
+
+  const requiredMsg = intl.formatMessage({ id: 'versionModal.validation.required' });
+  const max300Msg = intl.formatMessage({ id: 'setupModal.validation.max300' });
+  const max100Msg = intl.formatMessage({ id: 'versionModal.validation.max100' });
 
   return (
     <>
@@ -232,14 +245,14 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
           size="small"
           block
           style={{textAlign: 'left'}}
-          aria-label="数据源设置"
+          aria-label={intl.formatMessage({ id: 'setupModal.db.triggerAria' })}
           onClick={openModal}
         >
-          数据源设置
+          {intl.formatMessage({ id: 'setupModal.db.trigger' })}
         </Button>
       )}
       <Modal
-        title="数据源连接配置"
+        title={intl.formatMessage({ id: 'setupModal.db.title' })}
         open={open}
         onCancel={closeModal}
         destroyOnClose
@@ -262,17 +275,19 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
             loading={pingLoading}
             onClick={() => connectJDBC()}
           >
-            {pingLoading ? '正在连接' : '测试'}
+            {pingLoading
+              ? intl.formatMessage({ id: 'setupModal.db.testing' })
+              : intl.formatMessage({ id: 'setupModal.db.test' })}
           </Button>,
           <Button
             type="primary"
             key="submit"
             size="small"
             loading={submitting}
-            aria-label="确定"
+            aria-label={intl.formatMessage({ id: 'setupModal.db.okAria' })}
             onClick={() => void handleOk()}
           >
-            确定
+            {intl.formatMessage({ id: 'setupModal.db.ok' })}
           </Button>,
         ]}
       >
@@ -302,8 +317,11 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                               <Radio
                                 aria-label={
                                   record?.name
-                                    ? `设为默认数据源 ${record.name}`
-                                    : '设为默认数据源'
+                                    ? intl.formatMessage(
+                                        { id: 'setupModal.db.setDefaultNamed' },
+                                        { name: record.name },
+                                      )
+                                    : intl.formatMessage({ id: 'setupModal.db.setDefault' })
                                 }
                                 onChange={() => {
                                   if (!record?.key) return;
@@ -321,8 +339,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                                 style={{width: 120}}
                                 onChange={(value: string) => {
                                   if (!record?.key) return;
-                                  const tpl =
-                                    URL_TEMPLATES[value.toLowerCase()] || defaultDBData;
+                                  const tpl = urlTemplates[value.toLowerCase()] || defaultDBData;
                                   updateDatabase(record.key, {
                                     ...record,
                                     select: value,
@@ -360,20 +377,23 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                               icon={<DeleteOutlined />}
                               aria-label={
                                 record?.name
-                                  ? `删除数据源 ${record.name}`
-                                  : '删除数据源'
+                                  ? intl.formatMessage(
+                                      { id: 'setupModal.db.deleteNamed' },
+                                      { name: record.name },
+                                    )
+                                  : intl.formatMessage({ id: 'setupModal.db.delete' })
                               }
                               onClick={() => {
                                 if (!record?.key) return;
                                 confirmDestructive({
-                                  title: '删除数据源',
+                                  title: intl.formatMessage({ id: 'setupModal.db.deleteTitle' }),
                                   icon: <ExclamationCircleOutlined />,
                                   content: record.defaultDB
-                                    ? '是否要删除默认数据源？删除之后，系统将不存在默认数据源！'
-                                    : '是否删除该数据源？',
-                                  okText: '删除',
+                                    ? intl.formatMessage({ id: 'setupModal.db.deleteDefaultContent' })
+                                    : intl.formatMessage({ id: 'setupModal.db.deleteContent' }),
+                                  okText: intl.formatMessage({ id: 'setupModal.db.deleteOk' }),
                                   okType: 'danger',
-                                  cancelText: '取消',
+                                  cancelText: intl.formatMessage({ id: 'setupModal.db.deleteCancel' }),
                                   onOk: () => removeDatabase(record.key),
                                 });
                               }}
@@ -391,14 +411,13 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                 block
                 size="small"
                 icon={<PlusOutlined />}
-                aria-label="新增数据源"
+                aria-label={intl.formatMessage({ id: 'setupModal.db.addAria' })}
                 onClick={async () => {
-                  // 以 API 列表为准，避免闭包里 databases 过期导致首条未标 defaultDB、不落盘 defaultDataSourceId
                   const latest =
                     ((await projectDispatch.refreshDataSources()) as DataSourceRow[] | undefined) ||
                     [];
                   await addDatabase({
-                    name: `数据源_${uuid(8)}`,
+                    name: `${intl.formatMessage({ id: 'setupModal.db.newNamePrefix' })}${uuid(8)}`,
                     select: defaultDatabase,
                     key: uuid(32),
                     defaultDB: latest.findIndex((db) => db.defaultDB) === -1,
@@ -411,7 +430,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                   });
                 }}
               >
-                新增数据源
+                {intl.formatMessage({ id: 'setupModal.db.add' })}
               </Button>
             </Col>
             <Col span={12}>
@@ -419,8 +438,8 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                 name="driver_class_name"
                 label="driver_class_name"
                 rules={[
-                  {required: true, message: '不能为空'},
-                  {max: 300, message: '不能大于 300 个字符'},
+                  {required: true, message: requiredMsg},
+                  {max: 300, message: max300Msg},
                 ]}
               >
                 <Input placeholder="driver_class_name" />
@@ -429,31 +448,31 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
                 name="url"
                 label="url"
                 rules={[
-                  {required: true, message: '不能为空'},
-                  {max: 300, message: '不能大于 300 个字符'},
+                  {required: true, message: requiredMsg},
+                  {max: 300, message: max300Msg},
                 ]}
               >
-                <Input placeholder="请输入url" />
+                <Input placeholder={intl.formatMessage({ id: 'setupModal.db.urlPlaceholder' })} />
               </Form.Item>
               <Form.Item
                 name="username"
                 label="username"
                 rules={[
-                  {required: true, message: '不能为空'},
-                  {max: 100, message: '不能大于 100 个字符'},
+                  {required: true, message: requiredMsg},
+                  {max: 100, message: max100Msg},
                 ]}
               >
-                <Input placeholder="请输入username" />
+                <Input placeholder={intl.formatMessage({ id: 'setupModal.db.usernamePlaceholder' })} />
               </Form.Item>
               <Form.Item
                 name="password"
                 label="password"
                 rules={[
-                  {required: true, message: '不能为空'},
-                  {max: 100, message: '不能大于 100 个字符'},
+                  {required: true, message: requiredMsg},
+                  {max: 100, message: max100Msg},
                 ]}
               >
-                <Input.Password placeholder="请输入password" />
+                <Input.Password placeholder={intl.formatMessage({ id: 'setupModal.db.passwordPlaceholder' })} />
               </Form.Item>
             </Col>
           </Row>
