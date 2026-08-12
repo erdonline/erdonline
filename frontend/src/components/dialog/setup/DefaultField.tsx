@@ -1,4 +1,5 @@
 import React, {useRef, useState} from 'react';
+import {getIntl, useIntl} from '@umijs/max';
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
 import {message} from "antd";
@@ -76,7 +77,7 @@ export function handsontableAfterRowMove(hotTableComponent: React.MutableRefObje
 // Empty validator
 export const emptyValidator = (value: any, callback: any) => {
   if (!value || value.length === 0) {
-    message.error("当前编辑项不允许为空");
+    message.error(getIntl().formatMessage({ id: 'setupModal.defaultField.emptyError' }));
     callback(false);
   } else {
     callback(true);
@@ -138,6 +139,7 @@ export const column2 = [{
   }];
 
 const DefaultField: React.FC<DefaultFieldProps> = () => {
+  const intl = useIntl();
   const {datatype, database, projectDispatch} = useProjectStore(state => ({
     datatype: state.project?.projectJSON?.dataTypeDomains?.datatype,
     database: state.project?.projectJSON?.dataTypeDomains?.database,
@@ -172,7 +174,7 @@ const DefaultField: React.FC<DefaultFieldProps> = () => {
         return;
       }
     } catch {
-      message.error('默认字段保存失败');
+      message.error(intl.formatMessage({ id: 'setupModal.defaultField.saveFailed' }));
       pendingRef.current = null;
       setSheetEpoch((e) => e + 1);
     } finally {
@@ -218,18 +220,18 @@ const DefaultField: React.FC<DefaultFieldProps> = () => {
     manualColumnResize: true,
     rowHeaders: true,
     colHeaders: [
-      '字段名*',
-      '逻辑名(英文名)*',
-      '类型*',
-      '类型(code)',
-      '数据源类型',
-      '说明',
-      '主键',
-      '非空',
-      '自增',
-      '默认值',
-      '关系图',
-      'UI建议',
+      intl.formatMessage({ id: 'setupModal.defaultField.colName' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colLogicName' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colType' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colTypeCode' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colDbType' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colRemark' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colPk' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colNotNull' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colAutoInc' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colDefault' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colDiagram' }),
+      intl.formatMessage({ id: 'setupModal.defaultField.colUiHint' }),
     ],
     manualRowMove: true,
     manualColumnMove: true,
