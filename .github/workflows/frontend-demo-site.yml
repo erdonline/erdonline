@@ -41,6 +41,10 @@ jobs:
         working-directory: frontend
         run: yarn install --frozen-lockfile
 
+      - name: Install Playwright (prod smoke)
+        working-directory: frontend
+        run: npx playwright install --with-deps chromium
+
       - name: Umi route flatten (LocaleRoute gate)
         working-directory: frontend
         run: yarn check:routes
@@ -65,6 +69,12 @@ jobs:
           ERD_REQUIRE_REMOTE_API: "1"
           ERD_SITE_URL: ${{ vars.SEO_BASE_URL || 'https://www.erdonline.com' }}
         run: yarn build:prod
+
+      - name: Production boot smoke (built dist, blocks deploy)
+        working-directory: frontend
+        env:
+          PROD_SMOKE_SKIP_BUILD: '1'
+        run: yarn check:prod-smoke
 
       - name: Verify SEO build artifacts
         working-directory: frontend

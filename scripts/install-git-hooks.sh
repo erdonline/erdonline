@@ -23,4 +23,4 @@ for hook in pre-push; do
   echo "installed $dest -> scripts/git-hooks/$hook"
 done
 
-echo "Done. Pre-push runs: cd frontend && yarn check:routes && yarn check:i18n"
+echo "Done. Pre-push: check:routes + check:i18n; frontend changes → check:prod-smoke (~3–5 min)"

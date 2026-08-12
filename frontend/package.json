@@ -46,6 +46,8 @@
     "check:i18n-cjk": "node ../scripts/check-hardcoded-cjk.mjs",
     "check:i18n": "yarn check:i18n-keys && yarn check:i18n-cjk",
     "check:routes": "node ../scripts/check-routes.mjs",
+    "check:prod-smoke": "node ./scripts/run-prod-smoke.mjs",
+    "smoke:prod": "node ./scripts/run-prod-smoke.mjs",
     "tsc": "tsc --noEmit"
   },
   "lint-staged": {
