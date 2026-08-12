@@ -3,6 +3,7 @@ import {Segmented, Tag} from 'antd';
 import ShareRelationCanvas from '@/pages/share/ShareRelationCanvas';
 import ShareEmptyState from '@/pages/share/ShareEmptyState';
 import {listDiagrams} from '@/utils/diagram';
+import {useIntl} from '@@/exports';
 import '@/pages/share/index.less';
 
 type ModuleData = {
@@ -29,6 +30,7 @@ const moduleKeyOf = (mod?: ModuleData) => mod?.name || mod?.chnname || '';
  * 模板详情只读预览：复用分享页 ShareRelationCanvas（ReactFlow），数据来自 catalog API projectJSON。
  */
 const CatalogPreviewPanel: React.FC<CatalogPreviewPanelProps> = ({projectJSON}) => {
+  const intl = useIntl();
   const modules = projectJSON?.modules ?? [];
 
   const [moduleKey, setModuleKey] = useState(() => moduleKeyOf(modules[0]));
@@ -63,9 +65,11 @@ const CatalogPreviewPanel: React.FC<CatalogPreviewPanelProps> = ({projectJSON}) 
   if (modules.length === 0) {
     return (
       <div className="catalog-preview" data-testid="catalog-preview-panel">
-        <Tag data-testid="catalog-preview-readonly-tag">只读预览</Tag>
+        <Tag data-testid="catalog-preview-readonly-tag">
+          {intl.formatMessage({id: 'catalog.preview.readonly'})}
+        </Tag>
         <div className="catalog-preview__stage" data-testid="catalog-preview-stage">
-          <ShareEmptyState message="此模板暂无表结构，安装后从空白画布开始" />
+          <ShareEmptyState message={intl.formatMessage({id: 'catalog.preview.empty'})} />
         </div>
       </div>
     );
@@ -78,7 +82,9 @@ const CatalogPreviewPanel: React.FC<CatalogPreviewPanelProps> = ({projectJSON}) 
   return (
     <div className="catalog-preview" data-testid="catalog-preview-panel">
       <div className="catalog-preview__toolbar">
-        <Tag data-testid="catalog-preview-readonly-tag">只读预览</Tag>
+        <Tag data-testid="catalog-preview-readonly-tag">
+          {intl.formatMessage({id: 'catalog.preview.readonly'})}
+        </Tag>
         {modules.length > 1 ? (
           <Segmented
             size="small"
@@ -89,7 +95,7 @@ const CatalogPreviewPanel: React.FC<CatalogPreviewPanelProps> = ({projectJSON}) 
               value: moduleKeyOf(m),
             }))}
             onChange={(v) => onModuleChange(String(v))}
-            aria-label="切换模块"
+            aria-label={intl.formatMessage({id: 'catalog.preview.switchModule'})}
             data-testid="catalog-preview-module-switch"
           />
         ) : null}
@@ -100,7 +106,7 @@ const CatalogPreviewPanel: React.FC<CatalogPreviewPanelProps> = ({projectJSON}) 
               value={activeDiagramId}
               options={diagrams.map((d) => ({label: d.name, value: d.id}))}
               onChange={(v) => setDiagramId(String(v))}
-              aria-label="切换关系图"
+              aria-label={intl.formatMessage({id: 'catalog.preview.switchDiagram'})}
             />
           </div>
         ) : null}

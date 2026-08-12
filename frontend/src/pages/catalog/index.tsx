@@ -13,7 +13,7 @@ import {
   message,
 } from 'antd';
 import {useEffect, useState} from 'react';
-import {history, Link} from '@@/exports';
+import {history, Link, useIntl} from '@@/exports';
 import {
   listCatalogTemplates,
   type CatalogTemplateSummary,
@@ -25,6 +25,7 @@ import './catalog.scss';
 const {Title, Paragraph, Text} = Typography;
 
 export default function CatalogListPage() {
+  const intl = useIntl();
   const [loading, setLoading] = useState(true);
   const [records, setRecords] = useState<CatalogTemplateSummary[]>([]);
   const [total, setTotal] = useState(0);
@@ -58,7 +59,7 @@ export default function CatalogListPage() {
         setRecords(data?.records ?? []);
         setTotal(data?.total ?? 0);
       })
-      .catch(() => message.error('加载模板失败'))
+      .catch(() => message.error(intl.formatMessage({id: 'catalog.list.loadError'})))
       .finally(() => setLoading(false));
   };
 
@@ -70,18 +71,18 @@ export default function CatalogListPage() {
     <div className="catalog-page" data-testid="catalog-list-page">
       <div className="catalog-page__toolbar">
         <Title level={2} className="catalog-page__title">
-          模板广场
+          {intl.formatMessage({id: 'catalog.title'})}
         </Title>
         <Space wrap>
           <Input.Search
-            placeholder="搜索模板"
+            placeholder={intl.formatMessage({id: 'catalog.search.placeholder'})}
             allowClear
             onSearch={(value) => {
               setQ(value);
               setPage(1);
               fetchList(1, value, sort, origin);
             }}
-            aria-label="搜索模板"
+            aria-label={intl.formatMessage({id: 'catalog.search.ariaLabel'})}
             data-testid="catalog-search"
           />
           <Button
@@ -89,46 +90,46 @@ export default function CatalogListPage() {
             data-testid="catalog-sort-hot"
             onClick={() => setSort('hot')}
           >
-            热门
+            {intl.formatMessage({id: 'catalog.sort.trending'})}
           </Button>
           <Button
             type={sort === 'installs' ? 'primary' : 'default'}
             data-testid="catalog-sort-installs"
             onClick={() => setSort('installs')}
           >
-            最多安装
+            {intl.formatMessage({id: 'catalog.sort.mostInstalled'})}
           </Button>
           <Button
             type={sort === 'rating' ? 'primary' : 'default'}
             data-testid="catalog-sort-rating"
             onClick={() => setSort('rating')}
           >
-            最高评分
+            {intl.formatMessage({id: 'catalog.sort.topRated'})}
           </Button>
           <Button
             type={sort === 'newest' ? 'primary' : 'default'}
             data-testid="catalog-sort-newest"
             onClick={() => setSort('newest')}
           >
-            最新
+            {intl.formatMessage({id: 'catalog.sort.newest'})}
           </Button>
           <Button
             type={origin === 'official' ? 'primary' : 'default'}
             data-testid="catalog-origin-official"
             onClick={() => setOrigin(origin === 'official' ? undefined : 'official')}
           >
-            官方
+            {intl.formatMessage({id: 'catalog.origin.official'})}
           </Button>
           <Button
             type={origin === 'community' ? 'primary' : 'default'}
             data-testid="catalog-origin-community"
             onClick={() => setOrigin(origin === 'community' ? undefined : 'community')}
           >
-            社区
+            {intl.formatMessage({id: 'catalog.origin.community'})}
           </Button>
           {showReviewLink ? (
             <Link to="/catalog/review" data-testid="catalog-review-link">
-              模板审核
+              {intl.formatMessage({id: 'catalog.review.link'})}
             </Link>
           ) : null}
         </Space>
@@ -140,9 +141,9 @@ export default function CatalogListPage() {
         dataSource={records}
         locale={{
           emptyText: (
-            <Empty description="暂无模板">
+            <Empty description={intl.formatMessage({id: 'catalog.empty.templates'})}>
               <Button type="primary" onClick={() => history.push('/catalog/blank')}>
-                从空白项目开始
+                {intl.formatMessage({id: 'catalog.empty.startBlank'})}
               </Button>
             </Empty>
           ),
@@ -169,7 +170,7 @@ export default function CatalogListPage() {
                   {item.title}
                 </Title>
                 <Paragraph type="secondary" className="catalog-card__desc">
-                  {item.description || '暂无描述'}
+                  {item.description || intl.formatMessage({id: 'catalog.empty.description'})}
                 </Paragraph>
                 <Space wrap size={4}>
                   {(item.tags ?? [])
@@ -178,11 +179,18 @@ export default function CatalogListPage() {
                     .map((tag) => (
                       <Tag key={tag}>{tag}</Tag>
                     ))}
-                  {item.official ? <Tag color="blue">官方</Tag> : null}
+                  {item.official ? (
+                    <Tag color="blue">{intl.formatMessage({id: 'catalog.origin.official'})}</Tag>
+                  ) : null}
                 </Space>
                 <div className="catalog-card__footer">
                   <span className="catalog-card__footer-group">
-                    <Text type="secondary">{item.installCount} 次安装</Text>
+                    <Text type="secondary">
+                      {intl.formatMessage(
+                        {id: 'catalog.installCount'},
+                        {count: item.installCount},
+                      )}
+                    </Text>
                   </span>
                   <span className="catalog-card__footer-group catalog-card__footer-rating">
                     <Rate disabled allowHalf value={item.ratingAverage} />
