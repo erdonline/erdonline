@@ -94,23 +94,23 @@ export default [
     component: '../layouts/CatalogLayout',
     routes: [
       {
-        path: '/catalog',
+        path: '',
         component: './catalog',
       },
       {
-        path: '/catalog/creator/:handle',
+        path: 'creator/:handle',
         component: './catalog/creator',
       },
       {
-        path: '/catalog/publish',
+        path: 'publish',
         component: './catalog/publish',
       },
       {
-        path: '/catalog/review',
+        path: 'review',
         component: './catalog/review',
       },
       {
-        path: '/catalog/:id',
+        path: ':id',
         component: './catalog/detail',
       },
     ],
@@ -122,7 +122,7 @@ export default [
     component: '../layouts/CatalogLayout',
     routes: [
       {
-        path: '/en/catalog',
+        path: '',
         component: './catalog',
       },
     ],
