@@ -8,6 +8,13 @@
 
 ### 2026-08-12
 
+#### i18n：store 层 toast / 校验文案抽取（ADR-0033）
+
+- **Locale**：`frontend/src/locales/{zh-CN,en-US}/store.ts` 分片（187 key）；根 locale spread 合并；`versionStore.*` 迁入分片
+- **Store**：`storeFmt()`（函数内 `getIntl()`）替换 `frontend/src/store/**` 全部 `message.*` / `persistProjectNow` fallback / 校验 toast；`副本` 等 projectJSON 种子未动
+- **Utils**：`messageFormat.appFormat()` 合并 store 分片
+- **验证点**：`yarn check:i18n` PASS（1969 keys 对齐；CJK 1324/1324 baseline）
+
 #### i18n：ADR-0033 前置工具链（术语表 + CI 门禁）
 
 - **Docs**：`docs/i18n-glossary.md` — 英文 UI 术语单一事实源（Module / Table / Diagram / Field library 等；sentence case + 正反例）

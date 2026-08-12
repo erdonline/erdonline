@@ -1,7 +1,7 @@
 import create, {GetState, SetState} from "zustand";
 import _ from "lodash";
 import {message} from "antd";
-import {appFormat} from '@/utils/messageFormat';
+import { storeFmt } from '@/store/storeIntl';
 import {confirmDestructive} from "@/utils/destructiveConfirm";
 import {showSyncResultModal} from "@/utils/syncResultModal";
 import {compareStringVersion, compareStringVersionForSort} from "@/utils/string";
@@ -175,12 +175,12 @@ const useVersionStore = create<VersionState>(
           get().dispatch.checkBaseVersion(currentDB);
           get().dispatch.calcChanges();
         } else {
-          message.error(appFormat()('versionStore.fetch.failed'));
+          message.error(storeFmt('versionStore.fetch.failed'));
           get().dispatch.checkBaseVersion(currentDB);
         }
       } catch (error: any) {
         message.error(
-          appFormat()('versionStore.fetch.failedWithDetail', {
+          storeFmt('versionStore.fetch.failedWithDetail', {
             detail: error?.message || error,
           }),
         );
@@ -333,7 +333,7 @@ const useVersionStore = create<VersionState>(
             state.changes = [];
           }));
           message.error(
-            appFormat()('versionStore.baseline.fetchFailedWithDetail', {
+            storeFmt('versionStore.baseline.fetchFailedWithDetail', {
               detail: error?.message || error,
             }),
           );
@@ -360,20 +360,20 @@ const useVersionStore = create<VersionState>(
               dbVersion: res.data,
               hasDB: true,
             });
-            message.success(appFormat()('versionStore.dbVersion.fetchSuccess'));
+            message.success(storeFmt('versionStore.dbVersion.fetchSuccess'));
           } else {
             set({
               dbVersion: '',
               hasDB: false,
             });
-            message.error(appFormat()('versionStore.dbVersion.fetchFailed'));
+            message.error(storeFmt('versionStore.dbVersion.fetchFailed'));
           }
         }).catch(() => {
           set({
             dbVersion: '',
             hasDB: false,
           });
-          message.error(appFormat()('versionStore.dbVersion.fetchFailed'));
+          message.error(storeFmt('versionStore.dbVersion.fetchFailed'));
         });
       })),
       checkBaseVersion: async (db: any) => {
@@ -415,7 +415,7 @@ const useVersionStore = create<VersionState>(
             // message.warning('当前数据不存在任何版本，请先初始化基线', 2);
           }
         } catch (error) {
-          message.error(appFormat()('versionStore.baseline.checkFailed'));
+          message.error(storeFmt('versionStore.baseline.checkFailed'));
           // message.error(`检查基线版本失败: ${error.message}`);
           // set({ init: true }); // 在错误情况下也设置 init 为 true
         }
@@ -452,7 +452,7 @@ const useVersionStore = create<VersionState>(
           set({
             dbVersion: '',
           })
-          message.error(appFormat()('versionStore.datasource.unavailable'));
+          message.error(storeFmt('versionStore.datasource.unavailable'));
         } else {
           Save.rebaseline({
             ...dbData,
@@ -461,14 +461,14 @@ const useVersionStore = create<VersionState>(
             versionDesc: '基线本，新建版本时请勿低于该版本',
           }).then((res) => {
             if (res && res.code === 200) {
-              message.success(appFormat()('versionStore.rebaseline.success'));
+              message.success(storeFmt('versionStore.rebaseline.success'));
               get().dispatch.getDBVersion();
             } else {
-              message.error(appFormat()('versionStore.rebaseline.failed'));
+              message.error(storeFmt('versionStore.rebaseline.failed'));
             }
           }).catch((err) => {
             message.error(
-              appFormat()('versionStore.rebaseline.failedWithDetail', {
+              storeFmt('versionStore.rebaseline.failedWithDetail', {
                 detail: err.message,
               }),
             );
@@ -560,13 +560,13 @@ const useVersionStore = create<VersionState>(
           const { initVersion, incrementVersion } = options.compare;
           const rangeCmp = compareStringVersion(incrementVersion, initVersion);
           if (rangeCmp === null) {
-            const msg = appFormat()('versionStore.compare.formatNotComparable');
+            const msg = storeFmt('versionStore.compare.formatNotComparable');
             message.warning(msg);
             set({ messages: [], data: '', versionPanelDiffError: msg });
             throw new Error(msg);
           }
           if (rangeCmp <= 0) {
-            const msg = appFormat()('versionStore.compare.incrementNotGreater');
+            const msg = storeFmt('versionStore.compare.incrementNotGreater');
             message.warning(msg);
             set({ messages: [], data: '', versionPanelDiffError: msg });
             throw new Error(msg);
@@ -574,7 +574,7 @@ const useVersionStore = create<VersionState>(
           const incrementRow = versions.find((v: any) => v.version === incrementVersion);
           const initRow = versions.find((v: any) => v.version === initVersion);
           if (!incrementRow?.projectJSON || !initRow?.projectJSON) {
-            const msg = appFormat()('versionStore.compare.snapshotMissing');
+            const msg = storeFmt('versionStore.compare.snapshotMissing');
             message.error(msg);
             set({ messages: [], data: '', versionPanelDiffError: msg });
             throw new Error(msg);
@@ -623,7 +623,7 @@ const useVersionStore = create<VersionState>(
           const detail = error?.message || String(error);
           set({ messages: [], data: '', versionPanelDiffError: detail });
           message.error(
-            appFormat()('versionStore.diff.fetchFailedWithDetail', { detail }),
+            storeFmt('versionStore.diff.fetchFailedWithDetail', { detail }),
           );
           throw error;
         }
@@ -696,20 +696,20 @@ const useVersionStore = create<VersionState>(
           set({
             dbVersion: '',
           });
-          message.error(appFormat()('versionStore.datasource.unavailable'));
+          message.error(storeFmt('versionStore.datasource.unavailable'));
           // eslint-disable-next-line @typescript-eslint/no-unused-expressions
           cb && cb();
         } else {
           confirmDestructive({
-            title: appFormat()('versionStore.confirm.sync.title'),
+            title: storeFmt('versionStore.confirm.sync.title'),
             content: onlyUpdateDBVersion
-              ? appFormat()('versionStore.confirm.markSync.content')
-              : appFormat()('versionStore.confirm.sync.content'),
+              ? storeFmt('versionStore.confirm.markSync.content')
+              : storeFmt('versionStore.confirm.sync.content'),
             okText: onlyUpdateDBVersion
-              ? appFormat()('versionStore.confirm.markSync.ok')
-              : appFormat()('versionStore.confirm.sync.ok'),
+              ? storeFmt('versionStore.confirm.markSync.ok')
+              : storeFmt('versionStore.confirm.sync.ok'),
             okType: 'danger',
-            cancelText: appFormat()('versionStore.confirm.cancel'),
+            cancelText: storeFmt('versionStore.confirm.cancel'),
             onOk: (m) => {
               const cb1 = () => {
                 get().fetch(null,get().currentPage,get().pageSize);
@@ -806,12 +806,12 @@ const useVersionStore = create<VersionState>(
           focusSyncTrigger();
           showSyncResultModal({
             ok: false,
-            content: res.msg || res.message || appFormat()('versionStore.sync.failed'),
+            content: res.msg || res.message || storeFmt('versionStore.sync.failed'),
           });
         }).catch((err: any) => {
           clearSyncing();
           message.error(
-            appFormat()('versionStore.sync.failedWithDetail', { detail: err.message }),
+            storeFmt('versionStore.sync.failedWithDetail', { detail: err.message }),
           );
         });
       },
@@ -824,7 +824,7 @@ const useVersionStore = create<VersionState>(
           try {
             const res = await Save.hisProjectSave({...newVersion, dbKey: dbData.key});
             if (res.code === 200) {
-              message.success(appFormat()('versionStore.update.success'));
+              message.success(storeFmt('versionStore.update.success'));
               set({
                 versions: get().versions.map((v: any, vIndex: any) => {
                   if (vIndex === get().currentVersionIndex) {
@@ -835,12 +835,12 @@ const useVersionStore = create<VersionState>(
               });
             } else {
               message.error(
-                res?.msg || res?.message || appFormat()('versionStore.update.failed'),
+                res?.msg || res?.message || storeFmt('versionStore.update.failed'),
               );
             }
           } catch (err: any) {
             message.error(
-              appFormat()('versionStore.update.failedWithDetail', { detail: err.message }),
+              storeFmt('versionStore.update.failedWithDetail', { detail: err.message }),
             );
           }
         } else {
@@ -848,7 +848,7 @@ const useVersionStore = create<VersionState>(
           try {
             const res = await Save.hisProjectDelete(newVersion.id);
             if (res.code === 200) {
-              message.success(appFormat()('versionStore.delete.success'));
+              message.success(storeFmt('versionStore.delete.success'));
               const tempVersions = get().versions.filter((v: any) => v.id !== newVersion.id);
               set({ versions: tempVersions });
               // 删版本后基线可能变化：重新独立查询（勿把 Promise 塞进 changes）
@@ -858,7 +858,7 @@ const useVersionStore = create<VersionState>(
             // 业务失败：request 已 toast；勿伪装成功
           } catch (err: any) {
             message.error(
-              appFormat()('versionStore.delete.failedWithDetail', { detail: err.message }),
+              storeFmt('versionStore.delete.failedWithDetail', { detail: err.message }),
             );
             get().dispatch.checkBaseVersion(null);
           }
@@ -869,12 +869,12 @@ const useVersionStore = create<VersionState>(
         const ver = get()?.currentVersion;
         const modules = ver?.projectJSON?.modules;
         if (!(modules instanceof Array) || modules.length === 0) {
-          message.error(appFormat()('versionStore.revert.noSnapshot'));
+          message.error(storeFmt('versionStore.revert.noSnapshot'));
           return false;
         }
         const project = useProjectStore.getState().project;
         if (!project?.projectJSON) {
-          message.error(appFormat()('versionStore.revert.noProject'));
+          message.error(storeFmt('versionStore.revert.noProject'));
           return false;
         }
         // 禁止先 setModules 再异步 save：失败时树/画布已回滚像成功
@@ -887,7 +887,7 @@ const useVersionStore = create<VersionState>(
         } = await import('@/store/project/projectAutosave');
         const saved = await persistProjectNow(
           next,
-          appFormat()('versionStore.revert.persistFailed'),
+          storeFmt('versionStore.revert.persistFailed'),
         );
         if (!saved) {
           // 失败 toast 已弹；不写 store，弹层保持可重试
@@ -896,7 +896,7 @@ const useVersionStore = create<VersionState>(
         useProjectStore.getState().dispatch.setModules(modules);
         ackManualPersist(true);
         message.success(
-          appFormat()('versionStore.revert.success', { version: ver?.version ?? '' }),
+          storeFmt('versionStore.revert.success', { version: ver?.version ?? '' }),
         );
         get().fetch(null, get().currentPage, get().pageSize);
         return true;
@@ -905,21 +905,21 @@ const useVersionStore = create<VersionState>(
         if (!status) {
           const dbData = get().dispatch.getCurrentDBData();
           if (!dbData) {
-            message.error(appFormat()('versionStore.datasource.unavailableDetailed'));
+            message.error(storeFmt('versionStore.datasource.unavailableDetailed'));
           } else {
             let flag = false;
             if (!initVersion) {
               flag = get().dispatch.checkVersionCount(version);
             }
             if (flag) {
-              message.error(appFormat()('versionModal.compare.crossVersionError'));
+              message.error(storeFmt('versionModal.compare.crossVersionError'));
             } else {
               confirmDestructive({
-                title: appFormat()('versionStore.confirm.sync.title'),
-                content: appFormat()('versionStore.confirm.sync.content'),
-                okText: appFormat()('versionStore.confirm.sync.ok'),
+                title: storeFmt('versionStore.confirm.sync.title'),
+                content: storeFmt('versionStore.confirm.sync.content'),
+                okText: storeFmt('versionStore.confirm.sync.ok'),
                 okType: 'danger',
-                cancelText: appFormat()('versionStore.confirm.cancel'),
+                cancelText: storeFmt('versionStore.confirm.cancel'),
                 onOk: async (m) => {
                   set({
                     synchronous: {
@@ -950,7 +950,7 @@ const useVersionStore = create<VersionState>(
                     data = syncResult.sql;
                   } catch (err: any) {
                     message.error(
-                      appFormat()('versionStore.sync.failedWithDetail', { detail: err?.message || String(err) }),
+                      storeFmt('versionStore.sync.failedWithDetail', { detail: err?.message || String(err) }),
                     );
                     set({
                       synchronous: {
@@ -968,7 +968,7 @@ const useVersionStore = create<VersionState>(
         }
       },
       saveNewVersion: async (tempValue: any) => {
-        const fmt = appFormat();
+        const fmt = storeFmt;
         if (!tempValue.version || !tempValue.versionDesc) {
           message.error(fmt('versionStore.validation.versionAndDescRequired'));
           return false;
@@ -1045,20 +1045,20 @@ const useVersionStore = create<VersionState>(
           document.querySelector<HTMLElement>('[aria-label="重建版本"]')
         )?.focus();
         confirmDestructive({
-          title: appFormat()('versionStore.confirm.rebuild.title'),
-          content: appFormat()('versionStore.confirm.rebuild.content'),
-          okText: appFormat()('versionStore.confirm.rebuild.ok'),
+          title: storeFmt('versionStore.confirm.rebuild.title'),
+          content: storeFmt('versionStore.confirm.rebuild.content'),
+          okText: storeFmt('versionStore.confirm.rebuild.ok'),
           okType: 'danger',
-          cancelText: appFormat()('versionStore.confirm.cancel'),
+          cancelText: storeFmt('versionStore.confirm.cancel'),
           onOk: () => {
             // 重新初始化
             // 先删除所有的版本信息
-            get().dispatch.initBase(tempValue, appFormat()('versionStore.rebuild.success'));
+            get().dispatch.initBase(tempValue, storeFmt('versionStore.rebuild.success'));
           }
         });
       },
       initBase: (tempValue: any, msg: any) => {
-        const fmt = appFormat();
+        const fmt = storeFmt;
         if (!tempValue.version || !tempValue.versionDesc) {
           message.error(fmt('versionStore.validation.versionAndDescRequired'));
         } else {
@@ -1092,7 +1092,7 @@ const useVersionStore = create<VersionState>(
         }
       },
       initSave: (version: any, msg: any) => {
-        const fmt = appFormat();
+        const fmt = storeFmt;
         Save.hisProjectSave(version).then((res) => {
           if (handleVersionSaveResponse(res)) {
             message.success(msg || fmt('versionModal.initVersion.success'));

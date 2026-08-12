@@ -28,6 +28,7 @@ import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 import defaultData from "@/utils/defaultData.json";
 import { sanitizeProfileDataSources } from '@/utils/projectDataSource';
+import { storeFmt } from '@/store/storeIntl';
 
 const REMOTE_SYNC_TOAST_KEY = 'remote-sync-toast';
 /** 远端同步提示节流：同会话 ≤1 次/分钟 */
@@ -45,8 +46,8 @@ function goSaveVersionFromSyncToast() {
 
 function showRemoteSyncToast(username: string, localDirty: boolean) {
   const text = localDirty
-    ? `${username} 更新了模型；你有未保存改动，请核对后保存`
-    : `${username} 同步了模型变更`;
+    ? storeFmt('store.collab.remoteSyncDirty', { username })
+    : storeFmt('store.collab.remoteSyncClean', { username });
   notification.open({
     key: REMOTE_SYNC_TOAST_KEY,
     type: localDirty ? 'warning' : 'info',
@@ -275,7 +276,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 })();
                 offerProjectDraftRecovery(String(resolvedId), project);
               } else {
-                message.error('获取项目信息失败');
+                message.error(storeFmt('store.project.fetchFailed'));
               }
             });
           } finally {
@@ -334,7 +335,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 } catch (err) {
                   // eslint-disable-next-line no-console
                   console.warn('[sync] patch failed', err);
-                  message.error('同步模型失败，请刷新页面重试');
+                  message.error(storeFmt('store.project.syncFailed'));
                 } finally {
                   // 下一 macrotask 再放开，避免 subscribe 同轮回声
                   setTimeout(() => {
@@ -348,7 +349,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
             });
             set({ socket });
           } catch (e: any) {
-            message.warning(e?.message || '协作在线状态连接失败');
+           message.warning(e?.message || storeFmt('store.collab.connectionFailed'));
           }
         },
         closeSocket: (projectId: string) => {
@@ -366,7 +367,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
           const { needSave, saved } = useGlobalStore.getState();
           if (project && JSON.stringify(project) !== '{}' && needSave && !saved) {
             writeProjectDraft(project, project.updateTime as string | undefined);
-            void persistProjectNow(project, '离开前保存失败，重新打开项目可重试');
+            void persistProjectNow(project, storeFmt('store.persist.leaveSaveFailed'));
           }
           set({
             socket: null,
@@ -469,9 +470,7 @@ async function persistAutosave(seq: number): Promise<void> {
     useGlobalStore.getState().dispatch.setSaving(false);
     useGlobalStore.getState().dispatch.setSaved(false);
     writeProjectDraft(latest, latest.updateTime as string | undefined);
-    message.error(
-      res?.msg || res?.message || '自动保存失败，点击顶栏可重试',
-    );
+   message.error(res?.msg || res?.message || storeFmt('store.persist.autosaveFailed'));
   } catch {
     if (!isPersistAutosaveCurrent(seq)) {
       return;

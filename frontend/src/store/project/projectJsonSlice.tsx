@@ -13,6 +13,7 @@ import _ from "lodash";
 import {message} from "antd";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
+import { storeFmt } from '@/store/storeIntl';
 import {
   ackManualPersist,
   persistProjectNow,
@@ -114,14 +115,14 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     }
     const project = get().project;
     if (!project) {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const next = produce(project, (draft: ProjectState['project']) => {
       draft.projectJSON = value;
     });
     return (async () => {
-      const saved = await persistProjectNow(next, '导入保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.importSaveFailed'));
       if (!saved) {
         return false;
       }

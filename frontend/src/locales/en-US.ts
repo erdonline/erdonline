@@ -1,6 +1,10 @@
 /**
  * i18n MVP 起步语料（ADR-0023）。与 zh-CN.ts 一一对应；key 集合必须保持同步。
  */
+import storeMessages from './en-US/store';
+
+import componentsLocale from './en-US/components';
+
 export default {
   'common.skipNav': 'Skip navigation',
   'common.skipMainAction': 'Skip to main action',
@@ -836,66 +840,6 @@ export default {
     'Example: 1.0.0 — do not go below the default datasource version 0.0.0',
   'versionModal.rebuildVersion.versionDescPlaceholder': 'Example: initialize project version',
 
-  // Version store toasts (useVersionStore message.*)
-  'versionStore.fetch.failed': 'Failed to load version list',
-  'versionStore.fetch.failedWithDetail': 'Failed to load version list: {detail}',
-  'versionStore.baseline.fetchFailedWithDetail':
-    'Failed to load latest version baseline: {detail}',
-  'versionStore.baseline.checkFailed': 'Failed to check baseline version',
-  'versionStore.dbVersion.fetchSuccess': 'Datasource version bookmark loaded',
-  'versionStore.dbVersion.fetchFailed': 'Failed to load datasource version info',
-  'versionStore.datasource.unavailable':
-    'Cannot resolve datasource. Try switching datasource.',
-  'versionStore.datasource.unavailableDetailed':
-    'Cannot resolve datasource. Try switching datasource and verify it is configured.',
-  'versionStore.rebaseline.success': 'Datasource tables initialized',
-  'versionStore.rebaseline.failed': 'Failed to initialize datasource tables',
-  'versionStore.rebaseline.failedWithDetail':
-    'Failed to initialize datasource tables: {detail}',
-  'versionStore.sync.failed': 'Sync failed. Please retry.',
-  'versionStore.sync.failedWithDetail': 'Sync failed: {detail}',
-  'versionStore.update.success': 'Version updated',
-  'versionStore.update.failed': 'Failed to update version',
-  'versionStore.update.failedWithDetail': 'Failed to update version{detail}',
-  'versionStore.delete.success': 'Version deleted',
-  'versionStore.delete.failedWithDetail': 'Failed to delete version{detail}',
-  'versionStore.revert.noSnapshot':
-    'This version has no model snapshot; cannot revert',
-  'versionStore.revert.noProject': 'No project is open',
-  'versionStore.revert.success': 'Reverted to “{version}”',
-  'versionStore.revert.persistFailed': 'Revert save failed',
-  'versionStore.validation.versionAndDescRequired':
-    'Version number and description are required',
-  'versionStore.save.noModelDiffWarning':
-    'No model changes vs latest version; save proceeds but does not count toward the north-star metric',
-  'versionStore.save.success': 'Version saved',
-  'versionStore.save.failed': 'Failed to save version',
-  'versionStore.save.failedWithDetail': 'Failed to save version: {detail}',
-  'versionStore.rebuild.success': 'Baseline rebuilt',
-  'versionStore.rebuild.failed': 'Failed to rebuild baseline',
-  'versionStore.rebuild.failedWithDetail': 'Failed to rebuild baseline: {detail}',
-  'versionStore.compare.formatNotComparable':
-    'Selected versions cannot be compared; check format (e.g. 1.0.0)',
-  'versionStore.compare.incrementNotGreater':
-    'Target version must be greater than the base version',
-  'versionStore.compare.snapshotMissing':
-    'Selected version is missing a model snapshot; cannot compare',
-  'versionStore.diff.fetchFailedWithDetail': 'Failed to load version diff: {detail}',
-
-  // Version store destructive confirms (useVersionStore confirmDestructive)
-  'versionStore.confirm.cancel': 'Cancel',
-  'versionStore.confirm.sync.title': 'Confirm sync',
-  'versionStore.confirm.sync.content':
-    'Metadata will sync to the datasource. This cannot be undone. Continue?',
-  'versionStore.confirm.sync.ok': 'Sync',
-  'versionStore.confirm.markSync.content':
-    'Metadata will be marked as synced. This cannot be undone. Continue?',
-  'versionStore.confirm.markSync.ok': 'Mark',
-  'versionStore.confirm.rebuild.title': 'Rebuild baseline',
-  'versionStore.confirm.rebuild.content':
-    'Rebuild baseline clears all version history for this project. This cannot be undone. Continue?',
-  'versionStore.confirm.rebuild.ok': 'Rebuild',
-
   // Group setting subpages (basic / permission / modals)
   'groupSetting.validation.required': 'Required',
   'groupSetting.validation.max100': 'Must be 100 characters or fewer',
@@ -1055,4 +999,8 @@ export default {
   'versionOrder.status.revoked': 'Revoked',
   'versionOrder.status.rejected': 'Rejected',
   'versionOrder.status.reReview': 'Re-review',
+
+  ...componentsLocale,
+
+  ...storeMessages,
 };

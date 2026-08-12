@@ -6,6 +6,7 @@ import {message} from "antd";
 import _ from 'lodash';
 import * as cache from '../../utils/cache';
 import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasHistory";
+import { storeFmt } from '@/store/storeIntl';
 import {
   DEFAULT_DIAGRAM_ID,
   DEFAULT_DIAGRAM_NAME,
@@ -191,7 +192,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const moduleName = payload.name;
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -212,10 +213,10 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           });
           ok = true;
           if (!persist) {
-            message.success('模型添加成功');
+            message.success(storeFmt('store.module.addSuccess'));
           }
         } else {
-          message.error(`模型${moduleName}已经存在`);
+         message.error(storeFmt('store.module.alreadyExists', { name: moduleName }));
         }
       }));
       return ok;
@@ -227,7 +228,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const modules = project.projectJSON?.modules || [];
     if ((modules as any[]).some((m: any) => m.name === moduleName)) {
-      message.error(`模型${moduleName}已经存在`);
+     message.error(storeFmt('store.module.alreadyExists', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -245,12 +246,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '模型保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.moduleSaveFailed'));
       if (!saved) {
         return false;
       }
       ackManualPersist(true);
-      message.success('模型添加成功');
+      message.success(storeFmt('store.module.addSuccess'));
       return true;
     })();
   },
@@ -268,10 +269,10 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
           state.project.projectJSON.modules[state.currentModuleIndex].chnname = payload.chnname;
           ok = true;
           if (!persist) {
-            message.success('修改成功');
+            message.success(storeFmt('store.common.updateSuccess'));
           }
         } else {
-          message.error(`模型${moduleName}已经存在`);
+         message.error(storeFmt('store.module.alreadyExists', { name: moduleName }));
         }
       }));
       return ok;
@@ -283,16 +284,16 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const findIndex = project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
     if (findIndex !== -1) {
-      message.error(`模型${moduleName}已经存在`);
+     message.error(storeFmt('store.module.alreadyExists', { name: moduleName }));
       return Promise.resolve(false);
     }
     if (currentModuleIndex == null || currentModuleIndex < 0) {
-      message.error('未选中模型');
+      message.error(storeFmt('store.module.notSelected'));
       return Promise.resolve(false);
     }
 
@@ -302,7 +303,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '模型保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.moduleSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -311,7 +312,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON.modules[state.currentModuleIndex].chnname = payload.chnname;
       }));
       ackManualPersist(true);
-      message.success('修改成功');
+      message.success(storeFmt('store.common.updateSuccess'));
       return true;
     })();
   },
@@ -322,7 +323,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       get().currentModule ||
       '';
     if (!name) {
-      message.error('未指定要删除的模型');
+      message.error(storeFmt('store.module.deleteNotSpecified'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -345,23 +346,23 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON.modules =
           state.project.projectJSON.modules?.filter((m: any) => m?.name !== name) || [];
         if ((state.project.projectJSON.modules?.length || 0) === before) {
-          message.error(`模型 "${name}" 不存在`);
+         message.error(storeFmt('store.module.notFound', { name }));
           return;
         }
         syncCurrentAfterRemove(state);
-        message.success('模型删除成功');
+        message.success(storeFmt('store.module.deleteSuccess'));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const modules = project.projectJSON?.modules || [];
     if (!modules.some((m: any) => m?.name === name)) {
-      message.error(`模型 "${name}" 不存在`);
+     message.error(storeFmt('store.module.notFound', { name }));
       return Promise.resolve(false);
     }
 
@@ -371,7 +372,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '模型保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.moduleSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -381,7 +382,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         syncCurrentAfterRemove(state);
       }));
       ackManualPersist(true);
-      message.success('模型删除成功');
+      message.success(storeFmt('store.module.deleteSuccess'));
       return true;
     })();
   },
@@ -391,7 +392,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   copyModule: (payload: any) => set(produce(state => {
     const moduleName = payload.name || payload.title;
     if (!moduleName) {
-      message.error('无效的模型数据');
+      message.error(storeFmt('store.module.invalidData'));
       return;
     }
     const currentModule = state.project.projectJSON?.modules?.find((m: any) => m.name === moduleName);
@@ -401,9 +402,9 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         chnname: payload.chnname || currentModule.chnname
       };
       cache.setItem(ERD_MODULE_CLIPBOARD, JSON.stringify(moduleToCopy));
-      message.success(`模型 "${moduleName}" 已成功复制到剪贴板`);
+     message.success(storeFmt('store.module.copySuccess', { name: moduleName }));
     } else {
-      message.error(`未找到名为 "${moduleName}" 的模型`);
+     message.error(storeFmt('store.module.notFoundByName', { name: moduleName }));
     }
   })),
   // 剪切模型；persist:true 时仅 saveProject code===200 写剪贴板+移出+toast
@@ -411,14 +412,14 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const persist = !!opts?.persist;
     const moduleName = payload?.name || payload?.title;
     if (!moduleName) {
-      message.error('无效的模型数据');
+      message.error(storeFmt('store.module.invalidData'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
     const modules = get().project?.projectJSON?.modules || [];
     const moduleIndex = modules.findIndex((m: any) => m.name === moduleName);
     if (moduleIndex === -1) {
-      message.error(`未找到名为 "${moduleName}" 的模型`);
+     message.error(storeFmt('store.module.notFoundByName', { name: moduleName }));
       return persist ? Promise.resolve(false) : undefined;
     }
     const currentModule = modules[moduleIndex];
@@ -435,18 +436,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       set(produce(state => {
         const mi = state.project.projectJSON?.modules?.findIndex((m: any) => m.name === moduleName);
         if (mi === -1 || mi == null) {
-          message.error(`未找到名为 "${moduleName}" 的模型`);
+         message.error(storeFmt('store.module.notFoundByName', { name: moduleName }));
           return;
         }
         state.project.projectJSON.modules.splice(mi, 1);
-        message.success(`模型 "${moduleName}" 已成功剪切到剪贴板`);
+       message.success(storeFmt('store.module.cutSuccess', { name: moduleName }));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const next = produce(project, (draft: any) => {
@@ -455,7 +456,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '模型保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.moduleSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -465,7 +466,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success(`模型 "${moduleName}" 已成功剪切到剪贴板`);
+     message.success(storeFmt('store.module.cutSuccess', { name: moduleName }));
       return true;
     })();
   },
@@ -481,7 +482,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
 
     if (!data || !validateModule(data)) {
-      message.error('剪贴板中没有有效的模型数据');
+      message.error(storeFmt('store.module.clipboardInvalid'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -522,14 +523,14 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       snapshotModules(modules);
       set(produce(state => {
         state.project.projectJSON.modules.push(newModule);
-        message.success(`模型 "${moduleName}" 已成功粘贴`);
+       message.success(storeFmt('store.module.pasteSuccess', { name: moduleName }));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const next = produce(project, (draft: any) => {
@@ -537,7 +538,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '模型保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.moduleSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -546,7 +547,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success(`模型 "${moduleName}" 已成功粘贴`);
+     message.success(storeFmt('store.module.pasteSuccess', { name: moduleName }));
       return true;
     })();
   },
@@ -610,11 +611,11 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -623,12 +624,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       applied = apply(draft.projectJSON.modules);
     });
     if (!applied) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '布局保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.layoutSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -669,19 +670,19 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         createdId = id;
       }));
       if (createdId) {
-        message.success('已新建关系图');
+        message.success(storeFmt('store.module.diagramCreated'));
       }
       return createdId;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(undefined);
     }
     const module = project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
     if (!module) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(undefined);
     }
 
@@ -702,7 +703,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '关系图保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.diagramSaveFailed'));
       if (!saved) {
         return undefined;
       }
@@ -711,7 +712,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success('已新建关系图');
+      message.success(storeFmt('store.module.diagramCreated'));
       return createdId;
     })();
   },
@@ -719,7 +720,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const persist = !!opts?.persist;
     const nextName = (name || '').trim();
     if (!nextName) {
-      message.warning('图名称不能为空');
+      message.warning(storeFmt('store.module.diagramNameRequired'));
       return persist ? Promise.resolve(false) : false;
     }
 
@@ -742,7 +743,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
 
@@ -762,12 +763,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     if (!renamed) {
-      message.error('关系图不存在');
+      message.error(storeFmt('store.module.diagramNotFound'));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '关系图保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.diagramSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -782,7 +783,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   removeDiagram: (moduleName: string, diagramId: string, opts?: PersistOpt) => {
     const persist = !!opts?.persist;
     if (diagramId === DEFAULT_DIAGRAM_ID) {
-      message.warning('主关系图不可删除');
+      message.warning(storeFmt('store.module.mainDiagramNoDelete'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -796,26 +797,26 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         }
         const diagrams = ensureDiagrams(module);
         if (diagrams.length <= 1) {
-          message.warning('至少保留一张关系图');
+          message.warning(storeFmt('store.module.keepOneDiagram'));
           return;
         }
         module.diagrams = diagrams.filter((d) => d.id !== diagramId);
         removed = true;
       }));
       if (removed) {
-        message.success('关系图删除成功');
+        message.success(storeFmt('store.module.diagramDeleteSuccess'));
       }
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     const module = project.projectJSON?.modules?.find((m: any) => m?.name === moduleName);
     if (!module) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -839,16 +840,16 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     if (blockedReason === 'last') {
-      message.warning('至少保留一张关系图');
+      message.warning(storeFmt('store.module.keepOneDiagram'));
       return Promise.resolve(false);
     }
     if (!removed) {
-      message.error('关系图不存在');
+      message.error(storeFmt('store.module.diagramNotFound'));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '关系图保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.diagramSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -857,7 +858,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success('关系图删除成功');
+      message.success(storeFmt('store.module.diagramDeleteSuccess'));
       return true;
     })();
   },
@@ -880,18 +881,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         createdId = frame.id;
       }));
       if (createdId) {
-        message.success('已新建分组');
+        message.success(storeFmt('store.module.frameCreated'));
       }
       return createdId;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(undefined);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(undefined);
     }
 
@@ -911,12 +912,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       createdId = frame.id;
     });
     if (!createdId) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(undefined);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '分组保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return undefined;
       }
@@ -925,14 +926,14 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success('已新建分组');
+      message.success(storeFmt('store.module.frameCreated'));
       return createdId;
     })();
   },
   addFrameMembers: (moduleName, diagramId, frameId, memberEntityIds, opts?) => {
     const persist = !!opts?.persist;
     if (!memberEntityIds.length) {
-      message.info('请先选中要加入分组的表');
+      message.info(storeFmt('store.module.selectTablesForFrame'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -958,20 +959,20 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         frameName = apply(state.project.projectJSON?.modules);
       }));
       if (frameName) {
-        message.success(`已加入「${frameName}」`);
+       message.success(storeFmt('store.module.joinedFrame', { frameName }));
       } else {
-        message.warning('未找到分组');
+        message.warning(storeFmt('store.module.frameNotFound'));
       }
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -980,12 +981,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       frameName = apply(draft.projectJSON.modules);
     });
     if (!frameName) {
-      message.warning('未找到分组');
+      message.warning(storeFmt('store.module.frameNotFound'));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '分组保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -994,7 +995,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success(`已加入「${frameName}」`);
+     message.success(storeFmt('store.module.joinedFrame', { frameName }));
       return true;
     })();
   },
@@ -1026,18 +1027,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         frameName = apply(state.project.projectJSON?.modules);
       }));
       if (frameName) {
-        message.info(`已移出「${frameName}」`);
+       message.info(storeFmt('store.module.leftFrame', { frameName }));
       }
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1050,7 +1051,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '分组保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1059,7 +1060,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.info(`已移出「${frameName}」`);
+     message.info(storeFmt('store.module.leftFrame', { frameName }));
       return true;
     })();
   },
@@ -1094,11 +1095,11 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1107,12 +1108,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       applied = apply(draft.projectJSON.modules);
     });
     if (!applied) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '分组保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1130,7 +1131,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       (id): id is string => typeof id === 'string' && !!id,
     );
     if (!ids.length) {
-      message.error('未指定要删除的分组');
+      message.error(storeFmt('store.module.frameDeleteNotSpecified'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1153,21 +1154,21 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       snapshotModules(get().project?.projectJSON?.modules);
       set(produce(state => {
         if (!applyRemove(state.project.projectJSON?.modules)) {
-          message.error(`模型 "${moduleName}" 不存在`);
+          message.error(storeFmt('store.module.notFound', { name: moduleName }));
           return;
         }
-        message.success('已删除分组');
+        message.success(storeFmt('store.module.frameDeleted'));
       }));
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1176,7 +1177,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '分组保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1185,7 +1186,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success('已删除分组');
+      message.success(storeFmt('store.module.frameDeleted'));
       return true;
     })();
   },
@@ -1193,7 +1194,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const persist = !!opts?.persist;
     const next = (name || '').trim();
     if (!next) {
-      message.warning('分组名称不能为空');
+      message.warning(storeFmt('store.module.frameNameRequired'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1222,11 +1223,11 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1235,12 +1236,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       applied = apply(draft.projectJSON.modules);
     });
     if (!applied) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(nextProject, '分组保存失败');
+      const saved = await persistProjectNow(nextProject, storeFmt('store.persist.frameSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1259,14 +1260,14 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const modules = get().project?.projectJSON?.modules;
     const module = modules?.find((m: any) => m?.name === moduleName);
     if (!module) {
-      message.warning('未找到当前模块，无法建立关联');
+      message.warning(storeFmt('store.module.moduleNotFoundForRelation'));
       return persist ? Promise.resolve(false) : undefined;
     }
     const exists = (module.associations || []).some((a: any) =>
       a?.from?.entity === association.from?.entity && a?.from?.field === association.from?.field &&
       a?.to?.entity === association.to?.entity && a?.to?.field === association.to?.field);
     if (exists) {
-      message.warning('该字段关联已存在，无需重复连线');
+      message.warning(storeFmt('store.module.relationExists'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1298,7 +1299,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
 
@@ -1313,12 +1314,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         a?.from?.entity === payload.from?.entity && a?.from?.field === payload.from?.field &&
         a?.to?.entity === payload.to?.entity && a?.to?.field === payload.to?.field),
     )) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(next, '关系保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.relationSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1337,7 +1338,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       (a) => a?.from?.entity && a?.from?.field && a?.to?.entity && a?.to?.field,
     );
     if (!list.length) {
-      message.error('未指定要删除的关系');
+      message.error(storeFmt('store.module.relationDeleteNotSpecified'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1362,7 +1363,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       snapshotModules(get().project?.projectJSON?.modules);
       set(produce(state => {
         if (!applyRemove(state.project.projectJSON?.modules)) {
-          message.error(`模型 "${moduleName}" 不存在`);
+          message.error(storeFmt('store.module.notFound', { name: moduleName }));
         }
       }));
       return;
@@ -1370,11 +1371,11 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1383,7 +1384,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
 
     return (async () => {
-      const saved = await persistProjectNow(next, '关系保存失败');
+      const saved = await persistProjectNow(next, storeFmt('store.persist.relationSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1392,7 +1393,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         state.project.projectJSON = next.projectJSON;
       }));
       ackManualPersist(true);
-      message.success(list.length === 1 ? '关系删除成功' : `已删除 ${list.length} 条关系`);
+     message.success(list.length === 1 ? storeFmt('store.module.relationDeleteSuccess') : storeFmt('store.module.relationsDeleted', { count: list.length }));
       return true;
     })();
   },
@@ -1401,7 +1402,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const persist = !!opts?.persist;
     const next = normalizeRelation(relation);
     if (!next) {
-      message.warning('基数不能为空');
+      message.warning(storeFmt('store.module.cardinalityRequired'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1433,18 +1434,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         found = applyUpdate(state.project.projectJSON?.modules);
       }));
       if (!found) {
-        message.warning('未找到该关联');
+        message.warning(storeFmt('store.module.associationNotFound'));
       }
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1457,12 +1458,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         && (m.associations || []).some((a: any) => matches(a) && a.relation === next),
     );
     if (!updated) {
-      message.warning('未找到该关联');
+      message.warning(storeFmt('store.module.associationNotFound'));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(nextProject, '关系保存失败');
+      const saved = await persistProjectNow(nextProject, storeFmt('store.persist.relationSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1485,7 +1486,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     if (Object.prototype.hasOwnProperty.call(meta, 'constraintName')) {
       const n = normalizeConstraintName(meta.constraintName);
       if (n === null) {
-        message.warning('约束名无效（过长或含非法字符）');
+        message.warning(storeFmt('store.module.constraintNameInvalid'));
         return persist ? Promise.resolve(false) : undefined;
       }
       patch.constraintName = n;
@@ -1493,7 +1494,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     if (Object.prototype.hasOwnProperty.call(meta, 'deleteRule')) {
       const n = normalizeFkRule(meta.deleteRule);
       if (n === null) {
-        message.warning('ON DELETE 取值无效');
+        message.warning(storeFmt('store.module.onDeleteInvalid'));
         return persist ? Promise.resolve(false) : undefined;
       }
       patch.deleteRule = n;
@@ -1501,13 +1502,13 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     if (Object.prototype.hasOwnProperty.call(meta, 'updateRule')) {
       const n = normalizeFkRule(meta.updateRule);
       if (n === null) {
-        message.warning('ON UPDATE 取值无效');
+        message.warning(storeFmt('store.module.onUpdateInvalid'));
         return persist ? Promise.resolve(false) : undefined;
       }
       patch.updateRule = n;
     }
     if (!Object.keys(patch).length) {
-      message.warning('未指定要修改的 FK 元数据');
+      message.warning(storeFmt('store.module.fkPatchNotSpecified'));
       return persist ? Promise.resolve(false) : undefined;
     }
 
@@ -1563,7 +1564,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
             && String(a?.constraintName || '').trim() === patch.constraintName,
         );
         if (collided) {
-          message.warning(`约束名已存在: ${patch.constraintName}`);
+         message.warning(storeFmt('store.module.constraintNameExists', { name: patch.constraintName }));
           return 'collision';
         }
       }
@@ -1586,18 +1587,18 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         status = applyUpdate(state.project.projectJSON?.modules);
       }));
       if (status === 'missing') {
-        message.warning('未找到该关联');
+        message.warning(storeFmt('store.module.associationNotFound'));
       }
       return;
     }
 
     const project = get().project;
     if (!project || JSON.stringify(project) === '{}') {
-      message.error('未打开项目');
+      message.error(storeFmt('store.common.projectNotOpen'));
       return Promise.resolve(false);
     }
     if (!project.projectJSON?.modules?.some((m: any) => m?.name === moduleName)) {
-      message.error(`模型 "${moduleName}" 不存在`);
+      message.error(storeFmt('store.module.notFound', { name: moduleName }));
       return Promise.resolve(false);
     }
 
@@ -1607,7 +1608,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
     if (status !== 'ok') {
       if (status === 'missing') {
-        message.warning('未找到该关联');
+        message.warning(storeFmt('store.module.associationNotFound'));
       }
       return Promise.resolve(false);
     }
@@ -1632,12 +1633,12 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         }),
     );
     if (!updated) {
-      message.warning('未找到该关联');
+      message.warning(storeFmt('store.module.associationNotFound'));
       return Promise.resolve(false);
     }
 
     return (async () => {
-      const saved = await persistProjectNow(nextProject, '关系保存失败');
+      const saved = await persistProjectNow(nextProject, storeFmt('store.persist.relationSaveFailed'));
       if (!saved) {
         return false;
       }
@@ -1652,7 +1653,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   undoCanvas: () => {
     const restored = undoModules(get().project?.projectJSON?.modules);
     if (!restored) {
-      message.info('没有可撤销的操作');
+      message.info(storeFmt('store.module.undoEmpty'));
       return;
     }
     set(produce(state => {
@@ -1662,7 +1663,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
   redoCanvas: () => {
     const restored = redoModules(get().project?.projectJSON?.modules);
     if (!restored) {
-      message.info('没有可重做的操作');
+      message.info(storeFmt('store.module.redoEmpty'));
       return;
     }
     set(produce(state => {

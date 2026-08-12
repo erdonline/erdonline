@@ -2,6 +2,7 @@ import { GetState, SetState } from "zustand";
 import produce from "immer";
 import { message } from "antd";
 import _ from 'lodash';
+import { storeFmt } from '@/store/storeIntl';
 
 export type GlobalDatabaseConfig = {
   databases: any[];
@@ -17,15 +18,15 @@ export interface GlobalDatabaseConfigDispatchSlice {
 const GlobalDatabaseConfigSlice = (set: SetState<GlobalDatabaseConfig>, get: GetState<GlobalDatabaseConfig>) => ({
   addDatabase: (payload: any) => set(produce(state => {
     state.databases.push(payload);
-    message.success('数据库添加成功');
+    message.success(storeFmt('store.globalDb.addSuccess'));
   })),
   removeDatabase: (index: number) => set(produce(state => {
     state.databases.splice(index, 1);
-    message.success('数据库删除成功');
+    message.success(storeFmt('store.globalDb.removeSuccess'));
   })),
   updateDatabase: (index: number, payload: any) => set(produce(state => {
     state.databases[index] = payload;
-    message.success('数据库更新成功');
+    message.success(storeFmt('store.globalDb.updateSuccess'));
   })),
   setDatabases: (databases: any[]) => set(produce(state => {
     state.databases = databases;
