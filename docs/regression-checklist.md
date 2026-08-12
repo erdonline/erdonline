@@ -10,6 +10,13 @@
 - [ ] [落地页 Docs 分流] 英文态页脚 Docs → `erdonline.github.io/erdonline/en/`；中文态 → 根路径无 `/en/`
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
 
+## 主站 SEO 索引（2026-08-12）
+
+- [x] [构建产物] `cd frontend && yarn build` → `dist/sitemap.xml` + `robots.txt` + `_redirects` + `404.html`；`xmllint --noout dist/sitemap.xml` ✅ 2026-08-12
+- [ ] [线上 sitemap] 部署后 `curl -sI https://www.erdonline.com/sitemap.xml` → `content-type` 含 xml，非 HTML
+- [ ] [线上真 404] 部署后 `curl -sI https://www.erdonline.com/__seo_health_nonexistent_path__` → HTTP 404
+- [ ] [线上 SPA 仍 200] 部署后 `/compare`、`/catalog`、`/demo`、`/login`、`/s/public-demo` 仍 200
+
 ## 会话 JWT TTL（2026-08-11）
 
 - [x] [登录 expires_in] `POST /auth/login` 响应 `expires_in` 为 `604800`（7 天；或部署覆盖的 `JWT_EXPIRES_IN`） ✅ curl 2026-08-11
