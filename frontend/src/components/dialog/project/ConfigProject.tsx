@@ -1,5 +1,6 @@
 import React from 'react';
 import {Button} from "antd";
+import {useIntl} from '@umijs/max';
 import * as cache from "@/utils/cache";
 import {history} from "@@/core/history";
 
@@ -9,13 +10,14 @@ export type ConfigProjectProps = {
 };
 
 const ConfigProject: React.FC<ConfigProjectProps> = (props) => {
+  const intl = useIntl();
 
   return (<>
     <Button
       type="link"
       ghost
       data-testid="project-config-trigger"
-      aria-label="管理项目"
+      aria-label={intl.formatMessage({ id: 'projectModal.configAria' })}
       onClick={() => {
         cache.setItem('projectId', props.project.id);
         history.push({
@@ -23,7 +25,7 @@ const ConfigProject: React.FC<ConfigProjectProps> = (props) => {
         });
       }}
     >
-      管理
+      {intl.formatMessage({ id: 'projectModal.configTrigger' })}
     </Button>
   </>);
 }
