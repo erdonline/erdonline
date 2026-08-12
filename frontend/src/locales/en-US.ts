@@ -5,6 +5,8 @@ import storeMessages from './en-US/store';
 
 import componentsLocale from './en-US/components';
 
+import utilsLocale from './en-US/utils';
+
 export default {
   'common.skipNav': 'Skip navigation',
   'common.skipMainAction': 'Skip to main action',
@@ -1001,6 +1003,8 @@ export default {
   'versionOrder.status.reReview': 'Re-review',
 
   ...componentsLocale,
+
+  ...utilsLocale,
 
   ...storeMessages,
 };

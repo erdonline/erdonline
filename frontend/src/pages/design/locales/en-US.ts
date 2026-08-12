@@ -532,4 +532,72 @@ export default {
   'design.table.trigger.ddl.bodyLabel': 'Body: {statement}',
   'design.table.trigger.action.addAnother': '+ Add another trigger',
   'design.table.trigger.rowFallback': 'Row {index}',
+
+  // ── jexcel (embedded jspreadsheet grid) ──
+  'design.jexcel.incompleteRow':
+    'Some rows are missing required fields — changes were not saved. Complete them, then press Enter/Tab to commit.',
+  'design.jexcel.toolbar.undo': 'Undo',
+  'design.jexcel.toolbar.redo': 'Redo',
+  'design.jexcel.toolbar.addRow': 'Add row at end',
+  'design.jexcel.toolbar.removeRow': 'Delete selected rows',
+  'design.jexcel.toolbar.insertBefore': 'Insert row before',
+  'design.jexcel.toolbar.insertAfter': 'Insert row after',
+  'design.jexcel.toolbar.shortcuts': 'Shortcuts',
+  'design.jexcel.noRowSelected': 'No row selected',
+  'design.jexcel.confirmDeleteRow.title': 'Delete selected rows?',
+  'design.jexcel.shortcuts.copy': 'Copy',
+  'design.jexcel.shortcuts.paste': 'Paste',
+  'design.jexcel.shortcuts.cut': 'Cut',
+  'design.jexcel.shortcuts.undo': 'Undo',
+  'design.jexcel.shortcuts.redo': 'Redo',
+  'design.jexcel.shortcuts.copyDesc':
+    'Windows: Ctrl + C              |             Mac: command + C',
+  'design.jexcel.shortcuts.pasteDesc':
+    'Windows: Ctrl + V              |             Mac: command + V',
+  'design.jexcel.shortcuts.cutDesc':
+    'Windows: Ctrl + X              |             Mac: command + X',
+  'design.jexcel.shortcuts.undoDesc':
+    'Windows: Ctrl + Z              |            Mac: command + Z',
+  'design.jexcel.shortcuts.redoDesc':
+    'Windows: Ctrl + Shift + Z              |            Mac: command + Shift + Z',
+  'design.jexcel.easterEgg':
+    'Tip: this grid works like Excel — paste from spreadsheets, export metadata, and right-click for more actions.',
+  'design.jexcel.aria.toolbar': 'Spreadsheet toolbar',
+  'design.jexcel.aria.toolbarAction': 'Toolbar action',
+  'design.jexcel.aria.grid': 'Spreadsheet — Enter to edit; Escape to exit cell edit',
+  'design.jexcel.fieldLibrary.insert': 'Insert from field library',
+  'design.jexcel.text.noRecordsFound': 'No records found',
+  'design.jexcel.text.showingPage': 'Showing {pageSize} entries on page {page}',
+  'design.jexcel.text.show': 'Show ',
+  'design.jexcel.text.search': 'Search',
+  'design.jexcel.text.entries': ' entries',
+  'design.jexcel.text.columnName': 'Column title',
+  'design.jexcel.text.insertANewColumnBefore': 'Insert column before',
+  'design.jexcel.text.insertANewColumnAfter': 'Insert column after',
+  'design.jexcel.text.deleteSelectedColumns': 'Delete selected columns',
+  'design.jexcel.text.renameThisColumn': 'Rename column',
+  'design.jexcel.text.orderAscending': 'Sort ascending',
+  'design.jexcel.text.orderDescending': 'Sort descending',
+  'design.jexcel.text.insertANewRowBefore': 'Insert row before',
+  'design.jexcel.text.insertANewRowAfter': 'Insert row after',
+  'design.jexcel.text.deleteSelectedRows': 'Delete selected rows',
+  'design.jexcel.text.editComments': 'Edit comment',
+  'design.jexcel.text.addComments': 'Insert comment',
+  'design.jexcel.text.comments': 'Comments',
+  'design.jexcel.text.clearComments': 'Delete comment',
+  'design.jexcel.text.copy': 'Copy…',
+  'design.jexcel.text.paste': 'Paste…',
+  'design.jexcel.text.saveAs': 'Save as…',
+  'design.jexcel.text.about': 'About',
+  'design.jexcel.text.areYouSureToDeleteTheSelectedRows': 'Delete selected rows?',
+  'design.jexcel.text.areYouSureToDeleteTheSelectedColumns': 'Delete selected columns?',
+  'design.jexcel.text.thisActionWillDestroyAnyExistingMergedCellsAreYouSure':
+    'This will destroy existing merged cells. Continue?',
+  'design.jexcel.text.thisActionWillClearYourSearchResultsAreYouSure':
+    'This will clear search results. Continue?',
+  'design.jexcel.text.thereIsAConflictWithAnotherMergedCell':
+    'Conflicts with another merged cell',
+  'design.jexcel.text.invalidMergeProperties': 'Invalid merge properties',
+  'design.jexcel.text.cellAlreadyMerged': 'Cell already merged',
+  'design.jexcel.text.noCellsSelected': 'No cells selected',
 };

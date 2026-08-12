@@ -4,29 +4,35 @@
  */
 import {extend} from 'umi-request';
 import {message} from 'antd';
+import {getIntl} from '@umijs/max';
 import * as cache from "./cache";
 import {CONSTANT} from "@/utils/constant";
 import {history} from '@@/exports';
 
 
-const codeMessage = {
-  200: '服务器成功返回请求的数据。',
-  201: '新建或修改数据成功。',
-  202: '一个请求已经进入后台排队（异步任务）。',
-  204: '删除数据成功。',
-  400: '发出的请求有错误，服务器没有进行新建或修改数据的操作。',
-  401: '用户没有权限（令牌、用户名、密码错误）。',
-  403: '当前用户权限不够，无法操作此功能。',
-  404: '发出的请求针对的是不存在的记录，服务器没有进行操作。',
-  409: '资源冲突，请刷新后重试。',
-  406: '请求的格式不可得。',
-  410: '请求的资源被永久删除，且不会再得到的。',
-  422: '当创建一个对象时，发生一个验证错误。',
-  500: '服务器发生错误，请联系管理员。',
-  502: '网关错误。',
-  503: '服务不可用，服务器暂时过载或维护。',
-  504: '网关超时。',
+const HTTP_STATUS_KEYS = {
+  200: 'utils.request.http.200',
+  201: 'utils.request.http.201',
+  202: 'utils.request.http.202',
+  204: 'utils.request.http.204',
+  400: 'utils.request.http.400',
+  401: 'utils.request.http.401',
+  403: 'utils.request.http.403',
+  404: 'utils.request.http.404',
+  406: 'utils.request.http.406',
+  409: 'utils.request.http.409',
+  410: 'utils.request.http.410',
+  422: 'utils.request.http.422',
+  500: 'utils.request.http.500',
+  502: 'utils.request.http.502',
+  503: 'utils.request.http.503',
+  504: 'utils.request.http.504',
 };
+
+function formatHttpStatus(code) {
+  const key = HTTP_STATUS_KEYS[code];
+  return key ? getIntl().formatMessage({ id: key }) : '';
+}
 
 /**
  * 异常处理程序：所有 HTTP 错误必须有用户可见反馈（设计原则：零静默失败）
@@ -34,23 +40,23 @@ const codeMessage = {
 const errorHandler = error => {
   const {response, data} = error;
   if (!response) {
-    message.error('网络异常，请检查网络连接');
+    message.error(getIntl().formatMessage({ id: 'utils.request.networkError' }));
     return;
   }
   const {status, url} = response;
   // 优先展示后端返回的业务错误信息（R.msg / OAuth error_description），其次状态码通用文案
   const serverMsg = (data && (data.msg || data.message || data.error_description)) || '';
-  const errorText = serverMsg || codeMessage[status] || response.statusText;
+  const errorText = serverMsg || formatHttpStatus(status) || response.statusText;
 
   if (status === 401) {
     const isLoginAttempt =
       url && (url.indexOf('/auth/login') >= 0 || url.indexOf('/login') >= 0);
     if (isLoginAttempt) {
-      message.error(serverMsg || '用户名或密码错误');
+      message.error(serverMsg || getIntl().formatMessage({ id: 'utils.request.badCredentials' }));
     } else {
       cache.removeItem('Authorization');
       if (history.location.pathname !== '/login') {
-        message.error('登录已失效，请重新登录');
+        message.error(getIntl().formatMessage({ id: 'utils.request.sessionExpired' }));
         history.push('/login');
       }
     }
@@ -123,7 +129,7 @@ request.interceptors.response.use(async (response, options) => {
   if (!contentType.includes('application/json')) {
     const peek = (await response.clone().text()).trimStart();
     if (peek.startsWith('<!') || peek.startsWith('<html') || peek.startsWith('<HTML')) {
-      message.error('接口返回了页面而非 JSON，请确认后端已启动且代理指向 9502');
+      message.error(getIntl().formatMessage({ id: 'utils.request.nonJsonResponse' }));
       const err = new Error('Non-JSON API response');
       err.name = 'NonJsonApiError';
       err.response = response;
@@ -134,7 +140,7 @@ request.interceptors.response.use(async (response, options) => {
   try {
     data = await response.clone().json();
   } catch (e) {
-    message.error('接口响应解析失败（非 JSON）');
+    message.error(getIntl().formatMessage({ id: 'utils.request.parseFailed' }));
     const err = e instanceof Error ? e : new Error('JSON parse failed');
     err.response = response;
     throw err;
@@ -150,7 +156,7 @@ request.interceptors.response.use(async (response, options) => {
     } else if (code === 409001 && isVersionSave) {
       // 版本号唯一冲突由 version store 弹 Modal，勿重复 toast
     } else if (code && code !== 200) {
-      const errorText = msg || codeMessage[code];
+      const errorText = msg || formatHttpStatus(code);
       message.error(errorText);
     }
   }

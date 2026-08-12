@@ -1,5 +1,5 @@
 // @ts-nocheck
-import React, { forwardRef, useEffect, useImperativeHandle, useRef } from "react";
+import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import jspreadsheet, {CellValue} from "jspreadsheet-ce";
 
 import _ from 'lodash';
@@ -13,6 +13,8 @@ import shallow from "zustand/shallow";
 import {List, message, Modal, Tag} from "antd";
 import {ExclamationCircleOutlined} from "@ant-design/icons";
 import {confirmDestructive} from "@/utils/destructiveConfirm";
+import { useIntl } from "@@/exports";
+import { buildJspreadsheetText } from "./i18n";
 
 export type JExcelProps = {
   data: any,
@@ -54,6 +56,7 @@ const isCompletelyBlankRow = (row: Record<string, unknown>) => {
 };
 
 const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
+  const intl = useIntl();
   const {syncing, setSyncing, datatype, database,projectName} = useProjectStore(state => ({
     syncing: state.syncing,
     setSyncing: state.dispatch.setSyncing,
@@ -104,7 +107,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       // 半成品：中止整次写回，保留 store 上次完整快照；禁静默 discard 导致丢字段/索引
       if (incomplete > 0) {
         message.warning({
-          content: '有行未填完必填项，未保存以免丢数据；请补全后再继续（Enter/Tab 落盘）',
+          content: intl.formatMessage({ id: 'design.jexcel.incompleteRow' }),
           key: 'jexcel-incomplete',
           duration: 3,
         });
@@ -122,37 +125,40 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
 
   const jRef = useRef(null);
 
-  const introduces = [
-    {
-      title: '复制',
-      description: 'Windows：Ctrl + C              |             Mac：command + C',
-    },
-    {
-      title: '粘贴',
-      description: 'Windows：Ctrl + V              |             Mac：command + V',
-    },
-    {
-      title: '剪切',
-      description: 'Windows：Ctrl + X              |             Mac：command + X',
-    },
-    {
-      title: '撤销',
-      description: 'Windows：Ctrl + Z              |            Mac：command + Z',
-    },
-    {
-      title: '重做',
-      description: 'Windows：Ctrl + Shit + Z              |            Mac：command + Shit + Z',
-    },
-
-  ];
-
   const pagination = 10;
 
-  const toolbar = [
+  const introduces = useMemo(
+    () => [
+      {
+        title: intl.formatMessage({ id: 'design.jexcel.shortcuts.copy' }),
+        description: intl.formatMessage({ id: 'design.jexcel.shortcuts.copyDesc' }),
+      },
+      {
+        title: intl.formatMessage({ id: 'design.jexcel.shortcuts.paste' }),
+        description: intl.formatMessage({ id: 'design.jexcel.shortcuts.pasteDesc' }),
+      },
+      {
+        title: intl.formatMessage({ id: 'design.jexcel.shortcuts.cut' }),
+        description: intl.formatMessage({ id: 'design.jexcel.shortcuts.cutDesc' }),
+      },
+      {
+        title: intl.formatMessage({ id: 'design.jexcel.shortcuts.undo' }),
+        description: intl.formatMessage({ id: 'design.jexcel.shortcuts.undoDesc' }),
+      },
+      {
+        title: intl.formatMessage({ id: 'design.jexcel.shortcuts.redo' }),
+        description: intl.formatMessage({ id: 'design.jexcel.shortcuts.redoDesc' }),
+      },
+    ],
+    [intl],
+  );
+
+  const toolbar = useMemo(
+    () => [
       {
         type: 'i',
         content: 'undo',
-        tooltip: '撤销',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.undo' }),
         onclick: function () {
           jRef?.current?.jexcel.undo();
         }
@@ -160,7 +166,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'redo',
-        tooltip: '重做',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.redo' }),
         onclick: function () {
           // @ts-ignore
           jRef?.current?.jexcel.redo();
@@ -169,7 +175,8 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'add',
-        tooltip: '末尾增加一行',
+        id: 'jexcel-toolbar-add-row',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.addRow' }),
         onclick: function () {
           // @ts-ignore
           jRef?.current?.jexcel.insertRow();
@@ -178,20 +185,20 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'remove',
-        tooltip: '删除选中行',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.removeRow' }),
         id: 'jexcel-toolbar-remove',
         onclick: function () {
           const selectedRows = jRef?.current?.jexcel.getSelectedRows();
           if (!selectedRows || !selectedRows.length) {
-            message.warning('未选中行');
+            message.warning(intl.formatMessage({ id: 'design.jexcel.noRowSelected' }));
             return;
           }
           confirmDestructive({
-            title: '确定删除选定行吗?',
-            content: '此操作不可逆，请谨慎操作。',
-            okText: '删除',
+            title: intl.formatMessage({ id: 'design.jexcel.confirmDeleteRow.title' }),
+            content: intl.formatMessage({ id: 'design.common.destructive.content' }),
+            okText: intl.formatMessage({ id: 'design.common.delete' }),
             okType: 'danger',
-            cancelText: '取消',
+            cancelText: intl.formatMessage({ id: 'design.common.cancel' }),
             onOk() {
               jRef?.current?.jexcel.deleteRow();
             },
@@ -201,12 +208,12 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'publish',
-        tooltip: '在此前插入行',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.insertBefore' }),
         onclick: function () {
           const selectedRows = jRef?.current?.jexcel.getSelectedRows();
 
           if (!selectedRows || !selectedRows[0]?.dataset) {
-            message.warning('未选中行');
+            message.warning(intl.formatMessage({ id: 'design.jexcel.noRowSelected' }));
             return;
           }
           jRef?.current?.jexcel.insertRow(1, parseInt(selectedRows[0].dataset.y), 1);
@@ -216,12 +223,12 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'get_app',
-        tooltip: '在此后插入行',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.insertAfter' }),
         onclick: function () {
           const selectedRows = jRef?.current?.jexcel.getSelectedRows();
 
           if (!selectedRows || !selectedRows[selectedRows.length - 1]?.dataset) {
-            message.warning('未选中行');
+            message.warning(intl.formatMessage({ id: 'design.jexcel.noRowSelected' }));
             return;
           }
           // @ts-ignore
@@ -232,16 +239,16 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       {
         type: 'i',
         content: 'help_outline',
-        tooltip: '快捷操作',
+        tooltip: intl.formatMessage({ id: 'design.jexcel.toolbar.shortcuts' }),
         id: 'jexcel-toolbar-help',
         onclick: function () {
           Modal.info({
-            title: "快捷操作",
+            title: intl.formatMessage({ id: 'design.jexcel.toolbar.shortcuts' }),
             width: 500,
             keyboard: true,
             autoFocusButton: 'ok',
             focusTriggerAfterClose: true,
-            okText: '知道了',
+            okText: intl.formatMessage({ id: 'utils.modal.gotIt' }),
             content: <>
               <List
                 itemLayout="horizontal"
@@ -256,19 +263,17 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
                 )}
               />
               <Tag icon={<ExclamationCircleOutlined />} color="warning">
-                小彩蛋： 您还不知道吧！<br/>
-                这个列表可以像excel一样操作；<br/>
-                能从excel里面粘贴数据；<br/>
-                还能将元数据导出到excel；<br/>
-                像excel一样，在列表点击右键，开启不一样的体验！<br/>
+                {intl.formatMessage({ id: 'design.jexcel.easterEgg' })}
               </Tag>
             </>
           });
         }
       },
-    ];
+    ],
+    [intl, introduces],
+  );
 
-  const options = {
+  const options = useMemo(() => ({
     data,
     columns,
     csvFileName: projectName,
@@ -280,39 +285,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
     columnResize: true,
     search: false,
     toolbar,
-    text: {
-      "noRecordsFound": "未找到",
-      "showingPage": `第 {0} 页中的 ${pagination} 条`,
-      "show": "显示 ",
-      "search": "搜索",
-      "entries": " 条目",
-      "columnName": "列标题",
-      "insertANewColumnBefore": "在此前插入列",
-      "insertANewColumnAfter": "在此后插入列",
-      "deleteSelectedColumns": "删除选定列",
-      "renameThisColumn": "重命名列",
-      "orderAscending": "升序",
-      "orderDescending": "降序",
-      "insertANewRowBefore": "在此前插入行",
-      "insertANewRowAfter": "在此后插入行",
-      "deleteSelectedRows": "删除选定行",
-      "editComments": "编辑批注",
-      "addComments": "插入批注",
-      "comments": "批注",
-      "clearComments": "删除批注",
-      "copy": "复制...",
-      "paste": "粘贴...",
-      "saveAs": "保存为...",
-      "about": "关于",
-      "areYouSureToDeleteTheSelectedRows": "确定删除选定行?",
-      "areYouSureToDeleteTheSelectedColumns": "确定删除选定列?",
-      "thisActionWillDestroyAnyExistingMergedCellsAreYouSure": "这一操作会破坏所有现存的合并单元格，确认操作？",
-      "thisActionWillClearYourSearchResultsAreYouSure": "这一操作会清空搜索结果，确认操作？",
-      "thereIsAConflictWithAnotherMergedCell": "与其他合并单元格有冲突",
-      "invalidMergeProperties": "无效的合并属性",
-      "cellAlreadyMerged": "单元格已合并",
-      "noCellsSelected": "未选定单元格"
-    },
+    text: buildJspreadsheetText(pagination),
     about: false,
     onchange: (instance: HTMLElement,
                cell: HTMLTableCellElement,
@@ -327,7 +300,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       const code = _.get(d, 'code');
       const path = `apply.${defaultDatabaseCode}.type`;
       const type = _.get(d, path);
-      //只有类��一列变化时，才更新后两列
+      //只有类型一列变化时，才更新后两列
       if (d && defaultDatabaseCode && code && type && Number(columnIndex) == 2) {
         jRef?.current?.jexcel?.setValueFromCoords(Number(columnIndex) + 1, rowIndex, code, true);
         jRef?.current?.jexcel?.setValueFromCoords(Number(columnIndex) + 2, rowIndex, type, true);
@@ -353,7 +326,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
     onredo: () => {
       saveValidData(jRef?.current?.jexcel.getJson())
     },
-  };
+  }), [data, columns, projectName, toolbar, datatype, database, intl]);
 
   useEffect(() => {
     if (!jRef.current) {
@@ -369,7 +342,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       const toolbar = host.querySelector('.jexcel_toolbar') as HTMLElement | null;
       if (toolbar) {
         toolbar.setAttribute('role', 'toolbar');
-        toolbar.setAttribute('aria-label', '表格编辑工具栏');
+        toolbar.setAttribute('aria-label', intl.formatMessage({ id: 'design.jexcel.aria.toolbar' }));
         toolbar.setAttribute('data-testid', 'jexcel-toolbar');
       }
       host.querySelectorAll('.jexcel_toolbar_item').forEach((el) => {
@@ -378,7 +351,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
           item.getAttribute('title') ||
           item.getAttribute('aria-label') ||
           item.textContent?.trim() ||
-          '工具栏操作';
+          intl.formatMessage({ id: 'design.jexcel.aria.toolbarAction' });
         item.setAttribute('role', 'button');
         item.setAttribute('aria-label', label);
         item.setAttribute('tabindex', '0');
@@ -399,7 +372,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
         (host.querySelector('.jexcel_content') as HTMLElement | null) || host;
       grid.setAttribute('data-testid', 'jexcel-grid');
       grid.setAttribute('tabindex', '0');
-      grid.setAttribute('aria-label', '表格，Enter 进入编辑区；Escape 退出单元格编辑');
+      grid.setAttribute('aria-label', intl.formatMessage({ id: 'design.jexcel.aria.grid' }));
       grid.addEventListener('keydown', (e: KeyboardEvent) => {
         if (e.key !== 'Enter') return;
         if (e.target !== grid) return;
@@ -442,7 +415,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
         true,
       );
     }
-  }, [options]);
+  }, [options, intl]);
 
   useEffect(() => {
     const host = jRef.current as HTMLElement | null;
@@ -450,28 +423,32 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       return undefined;
     }
 
+    const fieldLibraryLabel = intl.formatMessage({ id: 'design.jexcel.fieldLibrary.insert' });
+
     const injectFieldLibraryBtn = () => {
       const toolbar = host.querySelector('.jexcel_toolbar') as HTMLElement | null;
       if (!toolbar) {
         return false;
       }
       if (toolbar.querySelector('[data-testid="field-library-insert-open"]')) {
+        const existing = toolbar.querySelector(
+          '[data-testid="field-library-insert-open"]',
+        ) as HTMLButtonElement | null;
+        if (existing) {
+          existing.setAttribute('aria-label', fieldLibraryLabel);
+          existing.textContent = fieldLibraryLabel;
+        }
         return true;
       }
 
-      const items = Array.from(toolbar.querySelectorAll('.jexcel_toolbar_item'));
-      const addBtn = items.find(
-        (el) =>
-          el.getAttribute('title') === '末尾增加一行'
-          || el.getAttribute('aria-label') === '末尾增加一行',
-      );
+      const addBtn = toolbar.querySelector('#jexcel-toolbar-add-row');
 
       const btn = document.createElement('button');
       btn.type = 'button';
       btn.className = 'erd-jexcel-toolbar-text-btn';
       btn.setAttribute('data-testid', 'field-library-insert-open');
-      btn.setAttribute('aria-label', '从字段库写入');
-      btn.textContent = '从字段库写入';
+      btn.setAttribute('aria-label', fieldLibraryLabel);
+      btn.textContent = fieldLibraryLabel;
       const open = () => onFieldLibraryClickRef.current?.();
       btn.addEventListener('click', open);
       btn.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -501,7 +478,7 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
       }
     }, 50);
     return () => window.clearInterval(timer);
-  }, [onFieldLibraryClick]);
+  }, [onFieldLibraryClick, intl]);
 
   return (
 

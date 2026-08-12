@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal } from 'antd';
+import { getIntl } from '@umijs/max';
 import CodeEditor from '@/components/CodeEditor';
 
 export type ShowSqlDetailModalOptions = {
@@ -18,12 +19,12 @@ export function showSqlDetailModal({
   editorHeight,
 }: ShowSqlDetailModalOptions): void {
   Modal.info({
-    title: 'SQL明细',
+    title: getIntl().formatMessage({ id: 'utils.sqlDetail.title' }),
     width,
     keyboard: true,
     autoFocusButton: 'ok',
     focusTriggerAfterClose: true,
-    okText: '知道了',
+    okText: getIntl().formatMessage({ id: 'utils.modal.gotIt' }),
     content: (
       <CodeEditor mode="mysql" height={editorHeight} value={sql} />
     ),

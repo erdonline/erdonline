@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from 'antd';
 import React, { useEffect, useState } from 'react';
+import { useIntl } from '@@/exports';
 
 const { Option } = Select;
 
@@ -26,6 +27,7 @@ interface DatabaseConfigFormProps {
 }
 
 const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, onFinish }) => {
+  const intl = useIntl();
   const [form] = Form.useForm();
   const [connectionType, setConnectionType] = useState(initialValues?.connectionType || 'host');
   const [testing, setTesting] = useState(false);
@@ -35,10 +37,18 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
     const url = initialValues ? `${DATABASE_CONFIG_URL}/${initialValues.id}` : DATABASE_CONFIG_URL;
     const res = await action(url, values);
     if (res.code === 200) {
-      message.success(initialValues ? '更新成功' : '添加成功');
+      message.success(
+        intl.formatMessage({
+          id: initialValues ? 'datasource.form.success.update' : 'datasource.form.success.add',
+        }),
+      );
       onFinish();
     } else {
-      message.error(initialValues ? '更新失败' : '添加失败');
+      message.error(
+        intl.formatMessage({
+          id: initialValues ? 'datasource.form.error.update' : 'datasource.form.error.add',
+        }),
+      );
     }
   };
 
@@ -56,13 +66,13 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
 
       const success = await pingDatabase(pingParams);
       if (success) {
-        message.success('连接测试成功');
+        message.success(intl.formatMessage({ id: 'datasource.form.test.success' }));
       } else {
-        message.error('连接测试失败');
+        message.error(intl.formatMessage({ id: 'datasource.form.test.failed' }));
       }
     } catch (error) {
       console.error('Connection test error:', error);
-      message.error('表单验证失败，请检查输入');
+      message.error(intl.formatMessage({ id: 'datasource.form.validation.failed' }));
     } finally {
       setTesting(false);
     }
@@ -165,26 +175,36 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
             name="name"
             label={
               <Space size={4}>
-                连接名称
-                <Tooltip title="为您的连接起一个易记的名字">
+                {intl.formatMessage({ id: 'datasource.form.name.label' })}
+                <Tooltip title={intl.formatMessage({ id: 'datasource.form.name.tooltip' })}>
                   <QuestionCircleOutlined />
                 </Tooltip>
               </Space>
             }
-            rules={[{ required: true, message: '请输入连接名称' }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'datasource.form.name.required' }),
+              },
+            ]}
           >
             <Input
               id="database-config-name"
-              placeholder="例如：生产环境主数据库"
-              aria-label="连接名称"
+              placeholder={intl.formatMessage({ id: 'datasource.form.name.placeholder' })}
+              aria-label={intl.formatMessage({ id: 'datasource.form.name.ariaLabel' })}
             />
           </Form.Item>
         </Col>
         <Col span={12}>
           <Form.Item
             name="type"
-            label="数据库类型"
-            rules={[{ required: true, message: '请选择数据库类型' }]}
+            label={intl.formatMessage({ id: 'datasource.form.type.label' })}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'datasource.form.type.required' }),
+              },
+            ]}
           >
             <Select>
               <Option value="MySQL">MySQL</Option>
@@ -196,9 +216,15 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
         </Col>
       </Row>
 
-      <Form.Item name="connectionType" label="连接方式" initialValue="host">
+      <Form.Item
+        name="connectionType"
+        label={intl.formatMessage({ id: 'datasource.form.connectionType.label' })}
+        initialValue="host"
+      >
         <Radio.Group onChange={(e) => setConnectionType(e.target.value)}>
-          <Radio value="host">主机</Radio>
+          <Radio value="host">
+            {intl.formatMessage({ id: 'datasource.form.connectionType.host' })}
+          </Radio>
           <Radio value="url">URL</Radio>
         </Radio.Group>
       </Form.Item>
@@ -207,8 +233,13 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
         <Form.Item
           name="url"
           label="URL"
-          rules={[{ required: true, message: '请输入数据库URL' }]}
-          extra="例如：jdbc:mysql://localhost:3306/mydatabase"
+          rules={[
+            {
+              required: true,
+              message: intl.formatMessage({ id: 'datasource.form.url.required' }),
+            },
+          ]}
+          extra={intl.formatMessage({ id: 'datasource.form.url.extra' })}
         >
           <Input
             placeholder="jdbc:mysql://localhost:3306/mydatabase"
@@ -226,28 +257,46 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
             <Col span={12}>
               <Form.Item
                 name="host"
-                label="主机"
-                rules={[{ required: true, message: '请输入主机地址' }]}
+                label={intl.formatMessage({ id: 'datasource.form.host.label' })}
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({ id: 'datasource.form.host.required' }),
+                  },
+                ]}
               >
-                <Input placeholder="例如：localhost 或 192.168.1.1" />
+                <Input placeholder={intl.formatMessage({ id: 'datasource.form.host.placeholder' })} />
               </Form.Item>
             </Col>
             <Col span={12}>
               <Form.Item
                 name="port"
-                label="端口"
-                rules={[{ required: true, message: '请输入端口号' }]}
+                label={intl.formatMessage({ id: 'datasource.form.port.label' })}
+                rules={[
+                  {
+                    required: true,
+                    message: intl.formatMessage({ id: 'datasource.form.port.required' }),
+                  },
+                ]}
               >
-                <Input type="number" placeholder="例如：3306" />
+                <Input
+                  type="number"
+                  placeholder={intl.formatMessage({ id: 'datasource.form.port.placeholder' })}
+                />
               </Form.Item>
             </Col>
           </Row>
           <Form.Item
             name="databaseName"
-            label="数据库名称"
-            rules={[{ required: true, message: '请输入数据库名称' }]}
+            label={intl.formatMessage({ id: 'datasource.form.databaseName.label' })}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'datasource.form.databaseName.required' }),
+              },
+            ]}
           >
-            <Input placeholder="例如：mydatabase" />
+            <Input placeholder={intl.formatMessage({ id: 'datasource.form.databaseName.placeholder' })} />
           </Form.Item>
         </>
       )}
@@ -256,32 +305,53 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
         name="driverClassName"
         label={
           <Space size={4}>
-            驱动类名
-            <Tooltip title="数据库驱动的完整类名">
+            {intl.formatMessage({ id: 'datasource.form.driver.label' })}
+            <Tooltip title={intl.formatMessage({ id: 'datasource.form.driver.tooltip' })}>
               <QuestionCircleOutlined />
             </Tooltip>
           </Space>
         }
-        rules={[{ required: true, message: '请输入驱动类名' }]}
+        rules={[
+          {
+            required: true,
+            message: intl.formatMessage({ id: 'datasource.form.driver.required' }),
+          },
+        ]}
       >
-        <Input placeholder="例如：com.mysql.cj.jdbc.Driver" />
+        <Input placeholder={intl.formatMessage({ id: 'datasource.form.driver.placeholder' })} />
       </Form.Item>
 
-      <Form.Item label="认证信息">
+      <Form.Item label={intl.formatMessage({ id: 'datasource.form.auth.label' })}>
         <Input.Group compact>
           <Form.Item
             name="username"
             noStyle
-            rules={[{ required: true, message: '请输入用户名' }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'datasource.form.username.required' }),
+              },
+            ]}
           >
-            <Input placeholder="用户名" style={{ width: '50%' }} />
+            <Input
+              placeholder={intl.formatMessage({ id: 'datasource.form.username.placeholder' })}
+              style={{ width: '50%' }}
+            />
           </Form.Item>
           <Form.Item
             name="password"
             noStyle
-            rules={[{ required: true, message: '请输入密码' }]}
+            rules={[
+              {
+                required: true,
+                message: intl.formatMessage({ id: 'datasource.form.password.required' }),
+              },
+            ]}
           >
-            <Input.Password placeholder="密码" style={{ width: '50%' }} />
+            <Input.Password
+              placeholder={intl.formatMessage({ id: 'datasource.form.password.placeholder' })}
+              style={{ width: '50%' }}
+            />
           </Form.Item>
         </Input.Group>
       </Form.Item>
@@ -291,21 +361,27 @@ const DatabaseConfigForm: React.FC<DatabaseConfigFormProps> = ({ initialValues, 
       <Form.Item>
         <Space size={8}>
           <Button type="primary" htmlType="submit" icon={<SaveOutlined />}>
-            {initialValues ? '更新连接' : '保存连接'}
+            {intl.formatMessage({
+              id: initialValues ? 'datasource.form.submit.update' : 'datasource.form.submit.save',
+            })}
           </Button>
           <Button
             onClick={testConnection}
             icon={<LinkOutlined />}
             loading={testing}
-            aria-label="测试连接"
+            aria-label={intl.formatMessage({ id: 'datasource.form.test.ariaLabel' })}
           >
-            测试连接
+            {intl.formatMessage({ id: 'datasource.form.test.label' })}
           </Button>
-          <Button onClick={onFinish}>取消</Button>
+          <Button onClick={onFinish}>
+            {intl.formatMessage({ id: 'datasource.action.cancel' })}
+          </Button>
         </Space>
       </Form.Item>
 
-      <p className="database-config-form__hint">保存后可在列表中同步状态或批量管理连接</p>
+      <p className="database-config-form__hint">
+        {intl.formatMessage({ id: 'datasource.form.hint' })}
+      </p>
     </Form>
   );
 };

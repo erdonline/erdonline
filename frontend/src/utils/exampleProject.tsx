@@ -3,6 +3,7 @@ import demoProjectJSON from '@/utils/demo.projectjson.json';
 import { addProject } from '@/services/project';
 import { history } from '@@/core/history';
 import { Button, message, notification } from 'antd';
+import { getIntl } from '@umijs/max';
 import * as cache from '@/utils/cache';
 import { CONSTANT } from '@/utils/constant';
 
@@ -31,14 +32,14 @@ function isQuotaExceeded(code: unknown, msg: unknown): boolean {
 
 function goQuotaFull() {
   message.destroy();
-  message.error('个人项目名额已满，请先到「个人项目」删除后再试示例');
+  message.error(getIntl().formatMessage({ id: 'utils.example.quotaFull' }));
   history.push('/project/person');
 }
 
 export async function createExampleProjectAndOpen(
   projectName?: string,
 ): Promise<boolean> {
-  const hide = message.loading('正在创建示例项目…', 0);
+  const hide = message.loading(getIntl().formatMessage({ id: 'utils.example.creating' }), 0);
   try {
     const res: any = await addProject({
       projectName: projectName || `功能鉴权示例-${Date.now().toString().slice(-6)}`,
@@ -59,13 +60,12 @@ export async function createExampleProjectAndOpen(
       const key = `example-ready-${id}`;
       notification.open({
         key,
-        message: '示例项目已就绪',
-        description:
-          '鉴权域表结构与关系已建好。下一步：点顶栏版本胶囊，或下方按钮保存第一个版本。',
+        message: getIntl().formatMessage({ id: 'utils.example.readyTitle' }),
+        description: getIntl().formatMessage({ id: 'utils.example.readyDescription' }),
         duration: 0,
         placement: 'bottomRight',
         closeIcon: (
-          <span data-testid="example-ready-dismiss" aria-label="关闭示例就绪通知">
+          <span data-testid="example-ready-dismiss" aria-label={getIntl().formatMessage({ id: 'utils.example.dismissAria' })}>
             ×
           </span>
         ),
@@ -78,7 +78,7 @@ export async function createExampleProjectAndOpen(
               history.push(`/design/table/version/all?projectId=${id}`);
             }}
           >
-            保存第一个版本
+            {getIntl().formatMessage({ id: 'utils.example.saveFirstVersion' })}
           </Button>
         ),
       });
@@ -90,7 +90,7 @@ export async function createExampleProjectAndOpen(
     }
     // request 拦截器可能已弹过后端 msg；无文案时再补一条
     if (!msg) {
-      message.error('创建示例项目失败');
+      message.error(getIntl().formatMessage({ id: 'utils.example.createFailed' }));
     }
     return false;
   } catch (e: any) {
@@ -101,7 +101,7 @@ export async function createExampleProjectAndOpen(
       goQuotaFull();
       return false;
     }
-    message.error(msg || '创建示例项目失败');
+    message.error(msg || getIntl().formatMessage({ id: 'utils.example.createFailed' }));
     return false;
   }
 }

@@ -8,6 +8,13 @@
 
 ### 2026-08-12
 
+#### i18n：`databaseConfig` + `JExcel` + `utils/` message 抽取（ADR-0033）
+
+- **Locale**：`pages/databaseConfig/locales/`、`design.jexcel.*`、`locales/*/utils.ts` 分片
+- **FE**：数据源页、JExcel（扩展 `i18n.ts`）、`utils/` 用户可见 message/Modal 走 `getIntl()`
+- **Baseline**：CJK 棘轮 **176**（−227）
+- **验证点**：`yarn check:i18n` PASS（2216 键 zh/en 对齐）
+
 #### i18n：`components/` 域抽取（ADR-0033）
 
 - **Locale**：`locales/{zh-CN,en-US}/components.ts`（**454** 键）；根 locale spread 合并
