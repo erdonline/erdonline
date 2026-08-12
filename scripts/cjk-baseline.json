@@ -1,6 +1,6 @@
 {
   "generatedAt": "2026-08-12",
-  "total": 485,
+  "total": 471,
   "byFile": {
     "frontend/src/.umi-production/plugin-locale/SelectLang.tsx": 6,
     "frontend/src/components/dialog/project/AddProject.tsx": 1,
@@ -8,7 +8,6 @@
     "frontend/src/components/dialog/project/CopyProject.tsx": 22,
     "frontend/src/components/dialog/project/RemoveProject.tsx": 7,
     "frontend/src/components/dialog/setup/DatabaseSetUp.tsx": 38,
-    "frontend/src/components/dialog/setup/DefaultField.tsx": 14,
     "frontend/src/global.tsx": 3,
     "frontend/src/pages/JExcel/i18n.ts": 31,
     "frontend/src/pages/JExcel/index.tsx": 59,
