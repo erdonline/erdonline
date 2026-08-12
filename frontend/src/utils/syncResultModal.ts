@@ -1,4 +1,5 @@
 import { Modal } from 'antd';
+import { getIntl } from '@umijs/max';
 import type { ReactNode } from 'react';
 
 export type ShowSyncResultModalOptions = {
@@ -18,18 +19,18 @@ export function showSyncResultModal({
     keyboard: true as const,
     autoFocusButton: 'ok' as const,
     focusTriggerAfterClose: true,
-    okText: '知道了',
+    okText: getIntl().formatMessage({ id: 'utils.modal.gotIt' }),
     content,
   };
   if (ok) {
     Modal.success({
-      title: '同步成功',
+      title: getIntl().formatMessage({ id: 'utils.syncResult.okTitle' }),
       ...common,
     });
     return;
   }
   Modal.warn({
-    title: '同步失败',
+    title: getIntl().formatMessage({ id: 'utils.syncResult.failTitle' }),
     ...common,
   });
 }

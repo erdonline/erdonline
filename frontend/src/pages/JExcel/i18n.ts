@@ -1,33 +1,59 @@
-export const i18n_json={
-    "noRecordsFound": "未找到",
-    "showingPage": "显示 {1} 条中的第 {0} 条", 
-    "show": "显示 ",
-    "search": "搜索",
-    "entries": " 条目",
-    "columnName": "列标题",
-    "insertANewColumnBefore": "在此前插入列",
-    "insertANewColumnAfter": "在此后插入列",
-    "deleteSelectedColumns": "删除选定列",
-    "renameThisColumn": "重命名列",
-    "orderAscending": "升序",
-    "orderDescending": "降序",
-    "insertANewRowBefore": "在此前插入行",
-    "insertANewRowAfter": "在此后插入行",
-    "deleteSelectedRows": "删除选定行",
-    "editComments": "编辑批注",
-    "addComments": "插入批注",
-    "comments": "批注",
-    "clearComments": "删除批注",
-    "copy": "复制...",
-    "paste": "粘贴...",
-    "saveAs": "保存为...",
-    "about": "关于",
-    "areYouSureToDeleteTheSelectedRows": "确定删除选定行?",
-    "areYouSureToDeleteTheSelectedColumns": "确定删除选定列?",
-    "thisActionWillDestroyAnyExistingMergedCellsAreYouSure": "这一操作会破坏所有现存的合并单元格，确认操作？",
-    "thisActionWillClearYourSearchResultsAreYouSure": "这一操作会清空搜索结果，确认操作？",
-    "thereIsAConflictWithAnotherMergedCell": "与其他合并单元格有冲突",
-    "invalidMergeProperties": "无效的合并属性",
-    "cellAlreadyMerged": "单元格已合并",
-    "noCellsSelected": "未选定单元格"
- }
+import { getIntl } from '@umijs/max';
+
+/** jspreadsheet `text` 键 → umi message id（ADR-0033：函数内取 locale） */
+const JSPREADSHEET_TEXT_KEY_MAP = {
+  noRecordsFound: 'design.jexcel.text.noRecordsFound',
+  show: 'design.jexcel.text.show',
+  search: 'design.jexcel.text.search',
+  entries: 'design.jexcel.text.entries',
+  columnName: 'design.jexcel.text.columnName',
+  insertANewColumnBefore: 'design.jexcel.text.insertANewColumnBefore',
+  insertANewColumnAfter: 'design.jexcel.text.insertANewColumnAfter',
+  deleteSelectedColumns: 'design.jexcel.text.deleteSelectedColumns',
+  renameThisColumn: 'design.jexcel.text.renameThisColumn',
+  orderAscending: 'design.jexcel.text.orderAscending',
+  orderDescending: 'design.jexcel.text.orderDescending',
+  insertANewRowBefore: 'design.jexcel.text.insertANewRowBefore',
+  insertANewRowAfter: 'design.jexcel.text.insertANewRowAfter',
+  deleteSelectedRows: 'design.jexcel.text.deleteSelectedRows',
+  editComments: 'design.jexcel.text.editComments',
+  addComments: 'design.jexcel.text.addComments',
+  comments: 'design.jexcel.text.comments',
+  clearComments: 'design.jexcel.text.clearComments',
+  copy: 'design.jexcel.text.copy',
+  paste: 'design.jexcel.text.paste',
+  saveAs: 'design.jexcel.text.saveAs',
+  about: 'design.jexcel.text.about',
+  areYouSureToDeleteTheSelectedRows: 'design.jexcel.text.areYouSureToDeleteTheSelectedRows',
+  areYouSureToDeleteTheSelectedColumns: 'design.jexcel.text.areYouSureToDeleteTheSelectedColumns',
+  thisActionWillDestroyAnyExistingMergedCellsAreYouSure:
+    'design.jexcel.text.thisActionWillDestroyAnyExistingMergedCellsAreYouSure',
+  thisActionWillClearYourSearchResultsAreYouSure:
+    'design.jexcel.text.thisActionWillClearYourSearchResultsAreYouSure',
+  thereIsAConflictWithAnotherMergedCell: 'design.jexcel.text.thereIsAConflictWithAnotherMergedCell',
+  invalidMergeProperties: 'design.jexcel.text.invalidMergeProperties',
+  cellAlreadyMerged: 'design.jexcel.text.cellAlreadyMerged',
+  noCellsSelected: 'design.jexcel.text.noCellsSelected',
+} as const;
+
+/** ADR-0033: call inside functions only — never at module scope. */
+export function jexcelIntl(
+  id: string,
+  values?: Record<string, string | number | boolean>,
+) {
+  return getIntl().formatMessage({ id }, values);
+}
+
+/** jspreadsheet 内嵌文案（含分页占位） */
+export function buildJspreadsheetText(pageSize: number): Record<string, string> {
+  const intl = getIntl();
+  const text: Record<string, string> = {};
+  for (const [jspKey, msgId] of Object.entries(JSPREADSHEET_TEXT_KEY_MAP)) {
+    text[jspKey] = intl.formatMessage({ id: msgId });
+  }
+  text.showingPage = intl.formatMessage(
+    { id: 'design.jexcel.text.showingPage' },
+    { page: '{0}', pageSize: String(pageSize) },
+  );
+  return text;
+}

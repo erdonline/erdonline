@@ -7,6 +7,8 @@ import storeMessages from './zh-CN/store';
 
 import componentsLocale from './zh-CN/components';
 
+import utilsLocale from './zh-CN/utils';
+
 export default {
   'common.skipNav': '跳过导航',
   'common.skipMainAction': '跳到主操作',
@@ -962,6 +964,8 @@ export default {
   'versionOrder.status.reReview': '复批',
 
   ...componentsLocale,
+
+  ...utilsLocale,
 
   ...storeMessages,
 };

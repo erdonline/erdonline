@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal } from 'antd';
+import { getIntl } from '@umijs/max';
 
 /**
  * 导入跳过/冲突提示（Modal.warning）
@@ -7,11 +8,11 @@ import { Modal } from 'antd';
  */
 export function showImportSkipWarning(messages: string[]): void {
   Modal.warning({
-    title: '重要提示',
+    title: getIntl().formatMessage({ id: 'utils.importSkip.title' }),
     keyboard: true,
     autoFocusButton: 'ok',
     focusTriggerAfterClose: true,
-    okText: '知道了',
+    okText: getIntl().formatMessage({ id: 'utils.modal.gotIt' }),
     content: (
       <>
         {messages.map((m) => (

@@ -1,4 +1,5 @@
 import { message } from 'antd';
+import { getIntl } from '@umijs/max';
 import { history } from '@@/core/history';
 import * as Save from '@/utils/save';
 import useGlobalStore from '@/store/global/globalStore';
@@ -41,7 +42,7 @@ export function mergeSaveRevision<T extends Record<string, unknown>>(
 export async function reloadProjectFromServer(): Promise<void> {
   const projectId = useProjectStore.getState().project?.id as string | undefined;
   if (!projectId) {
-    message.error('未打开项目');
+    message.error(getIntl().formatMessage({ id: 'utils.saveConflict.noProject' }));
     return;
   }
   clearProjectDraft(projectId);
@@ -49,13 +50,13 @@ export async function reloadProjectFromServer(): Promise<void> {
   useGlobalStore.getState().dispatch.setSaveConflict(false);
   useGlobalStore.getState().dispatch.setSaved(true);
   useGlobalStore.getState().dispatch.setSaving(false);
-  message.info('已加载服务器上的最新项目');
+  message.info(getIntl().formatMessage({ id: 'utils.saveConflict.reloaded' }));
 }
 
 export async function forkLocalProjectAsCopy(): Promise<void> {
   const project = useProjectStore.getState().project as Record<string, unknown> | undefined;
   if (!project?.projectJSON) {
-    message.error('没有可另存的本地模型');
+    message.error(getIntl().formatMessage({ id: 'utils.saveConflict.noLocalModel' }));
     return;
   }
   const baseName =
@@ -71,14 +72,14 @@ export async function forkLocalProjectAsCopy(): Promise<void> {
       configJSON: project.configJSON,
     })) as { code?: number; data?: string; msg?: string };
     if (res?.code !== 200 || !res.data) {
-      message.error(res?.msg || '另存为新项目失败');
+      message.error(res?.msg || getIntl().formatMessage({ id: 'utils.saveConflict.forkFailed' }));
       return;
     }
     useGlobalStore.getState().dispatch.setSaveConflict(false);
-    message.success('已另存为新项目');
+    message.success(getIntl().formatMessage({ id: 'utils.saveConflict.forkSuccess' }));
     history.push(`/design/table/model?projectId=${encodeURIComponent(res.data)}`);
   } catch {
-    message.error('另存为新项目失败');
+    message.error(getIntl().formatMessage({ id: 'utils.saveConflict.forkFailed' }));
   }
 }
 

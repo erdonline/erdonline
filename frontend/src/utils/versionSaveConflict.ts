@@ -1,4 +1,5 @@
 import { Modal, message } from 'antd';
+import { getIntl } from '@umijs/max';
 import useVersionStore from '@/store/version/useVersionStore';
 import { track } from '@/utils/analytics';
 
@@ -26,10 +27,9 @@ export function showVersionSaveDuplicateModal(): void {
   }
   duplicateModalOpen = true;
   Modal.warning({
-    title: '版本号冲突',
-    content:
-      '该版本号已被其他窗口或协作者占用。请刷新版本列表后改用更大的版本号再保存。',
-    okText: '刷新版本列表',
+    title: getIntl().formatMessage({ id: 'utils.versionConflict.title' }),
+    content: getIntl().formatMessage({ id: 'utils.versionConflict.content' }),
+    okText: getIntl().formatMessage({ id: 'utils.versionConflict.refresh' }),
     closable: true,
     maskClosable: false,
     onOk: () => {
@@ -46,12 +46,12 @@ export async function refreshVersionListAfterDuplicate(): Promise<void> {
   const store = useVersionStore.getState();
   const dbData = store.dispatch.getCurrentDBData();
   if (!dbData?.key) {
-    message.error('未找到当前数据源');
+    message.error(getIntl().formatMessage({ id: 'utils.versionConflict.noDatasource' }));
     return;
   }
   await store.fetch(dbData, store.currentPage, store.pageSize);
   await store.dispatch.fetchVersionBaseline(dbData);
-  message.info('已刷新版本列表');
+  message.info(getIntl().formatMessage({ id: 'utils.versionConflict.listRefreshed' }));
 }
 
 export function handleVersionSaveResponse(

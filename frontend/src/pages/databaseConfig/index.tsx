@@ -18,7 +18,8 @@ import {
   message,
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useIntl } from '@@/exports';
 import {confirmDestructive} from '@/utils/destructiveConfirm';
 import DatabaseConfigForm from './DatabaseConfigForm';
 import './database-config.scss';
@@ -46,6 +47,7 @@ interface DatabaseConfigItem {
 type ConnectionStatus = 'online' | 'offline' | 'error';
 
 const DatabaseConfigPage: React.FC = () => {
+  const intl = useIntl();
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [editingRecord, setEditingRecord] = useState<DatabaseConfigItem | null>(null);
   const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -125,18 +127,18 @@ const DatabaseConfigPage: React.FC = () => {
         setData(updatedRecords);
         setTotal(res.data.total);
       } else {
-        message.error('获取数据库配置信息失败');
+        message.error(intl.formatMessage({ id: 'datasource.error.loadFailed' }));
         setData([]);
         setTotal(0);
       }
     } catch {
-      message.error('获取数据库配置信息失败');
+      message.error(intl.formatMessage({ id: 'datasource.error.loadFailed' }));
       setData([]);
       setTotal(0);
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [intl]);
 
   const reload = useCallback(() => {
     void loadData();
@@ -149,23 +151,23 @@ const DatabaseConfigPage: React.FC = () => {
 
   const handleDelete = (id: string) => {
     confirmDestructive({
-      title: '确认删除',
-      content: '您确定要删除这个数据库连接吗？此操作不可逆。',
-      okText: '删除',
+      title: intl.formatMessage({ id: 'datasource.confirm.delete.title' }),
+      content: intl.formatMessage({ id: 'datasource.confirm.delete.single' }),
+      okText: intl.formatMessage({ id: 'datasource.action.delete' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'datasource.action.cancel' }),
       onOk: async () => {
         try {
           const res = await DEL(`${DATABASE_CONFIG_URL}/${id}`);
           if (res.code === 200) {
-            message.success('删除成功');
+            message.success(intl.formatMessage({ id: 'datasource.success.delete' }));
             reload();
           } else {
-            message.error('删除失败');
+            message.error(intl.formatMessage({ id: 'datasource.error.delete' }));
           }
         } catch (error) {
           console.error('删除出错:', error);
-          message.error('删除出错，请稍后重试');
+          message.error(intl.formatMessage({ id: 'datasource.error.deleteRetry' }));
         }
       },
     });
@@ -173,26 +175,34 @@ const DatabaseConfigPage: React.FC = () => {
 
   const handleBatchDelete = () => {
     confirmDestructive({
-      title: '确认删除',
-      content: `您确定要删除选中的 ${selectedRowKeys.length} 条记录吗？`,
-      okText: '删除',
+      title: intl.formatMessage({ id: 'datasource.confirm.delete.title' }),
+      content: intl.formatMessage(
+        { id: 'datasource.confirm.delete.batch' },
+        { count: selectedRowKeys.length },
+      ),
+      okText: intl.formatMessage({ id: 'datasource.action.delete' }),
       okType: 'danger',
-      cancelText: '取消',
+      cancelText: intl.formatMessage({ id: 'datasource.action.cancel' }),
       onOk: async () => {
         try {
           const res = await DEL(`${DATABASE_CONFIG_URL}/multiple_delete`, {
             keys: selectedRowKeys,
           });
           if (res.code === 200) {
-            message.success(`成功删除 ${selectedRowKeys.length} 条记录`);
+            message.success(
+              intl.formatMessage(
+                { id: 'datasource.success.batchDelete' },
+                { count: selectedRowKeys.length },
+              ),
+            );
             setSelectedRowKeys([]);
             reload();
           } else {
-            message.error('批量删除失败');
+            message.error(intl.formatMessage({ id: 'datasource.error.batchDelete' }));
           }
         } catch (error) {
           console.error('批量删除出错:', error);
-          message.error('批量删除出错，请稍后重试');
+          message.error(intl.formatMessage({ id: 'datasource.error.batchDeleteRetry' }));
         }
       },
     });
@@ -219,121 +229,143 @@ const DatabaseConfigPage: React.FC = () => {
       const nextStatus: ConnectionStatus = success ? 'online' : 'error';
       setStatusOverrides((prev) => ({ ...prev, [record.id]: nextStatus }));
       if (success) {
-        message.success('连接在线，状态已更新');
+        message.success(intl.formatMessage({ id: 'datasource.success.syncOnline' }));
       } else {
-        message.warning('连接不可达，状态已更新为错误');
+        message.warning(intl.formatMessage({ id: 'datasource.warning.syncOffline' }));
       }
     } catch (error) {
       console.error('同步状态出错:', error);
-      message.error('同步状态出错，请稍后重试');
+      message.error(intl.formatMessage({ id: 'datasource.error.syncRetry' }));
     } finally {
       setSyncingId(null);
     }
   };
 
-  const columns: ColumnsType<DatabaseConfigItem> = [
-    {
-      title: '连接名称',
-      dataIndex: 'name',
-      key: 'name',
-      render: (text: string, record) => (
-        <Link
-          onClick={() => openDrawer(record)}
-          aria-label={`编辑连接 ${text}`}
-        >
-          {text}
-        </Link>
-      ),
+  const statusLabel = useCallback(
+    (status: ConnectionStatus) => {
+      if (status === 'online') {
+        return intl.formatMessage({ id: 'datasource.status.online' });
+      }
+      if (status === 'offline') {
+        return intl.formatMessage({ id: 'datasource.status.offline' });
+      }
+      return intl.formatMessage({ id: 'datasource.status.error' });
     },
-    {
-      title: '数据库类型',
-      dataIndex: 'type',
-      key: 'type',
-      filters: [
-        { text: 'MySQL', value: 'MySQL' },
-        { text: 'PostgreSQL', value: 'PostgreSQL' },
-        { text: 'Oracle', value: 'Oracle' },
-        { text: 'SQL Server', value: 'SQLServer' },
-      ],
-      filterMultiple: false,
-      onFilter: (value, record) => record.type === value,
-    },
-    {
-      title: '主机',
-      dataIndex: 'host',
-      key: 'host',
-    },
-    {
-      title: '端口',
-      dataIndex: 'port',
-      key: 'port',
-    },
-    {
-      title: '用户名',
-      dataIndex: 'username',
-      key: 'username',
-    },
-    {
-      title: '数据库',
-      dataIndex: 'databaseName',
-      key: 'databaseName',
-    },
-    {
-      title: '驱动类名',
-      dataIndex: 'driverClassName',
-      key: 'driverClassName',
-      ellipsis: true,
-    },
-    {
-      title: '状态',
-      dataIndex: 'status',
-      key: 'status',
-      render: (_status, record) => {
-        const status = resolveStatus(record);
-        return (
-          <Badge
-            status={status === 'online' ? 'success' : status === 'offline' ? 'default' : 'error'}
-            text={status === 'online' ? '在线' : status === 'offline' ? '离线' : '错误'}
-          />
-        );
+    [intl],
+  );
+
+  const columns: ColumnsType<DatabaseConfigItem> = useMemo(
+    () => [
+      {
+        title: intl.formatMessage({ id: 'datasource.column.name' }),
+        dataIndex: 'name',
+        key: 'name',
+        render: (text: string, record) => (
+          <Link
+            onClick={() => openDrawer(record)}
+            aria-label={intl.formatMessage(
+              { id: 'datasource.aria.editConnection' },
+              { name: text },
+            )}
+          >
+            {text}
+          </Link>
+        ),
       },
-    },
-    {
-      title: '操作',
-      key: 'action',
-      render: (_text, record) => (
-        <Space size={4}>
-          <Tooltip title="编辑">
-            <Button
-              type="link"
-              icon={<EditOutlined />}
-              aria-label="编辑"
-              onClick={() => openDrawer(record)}
+      {
+        title: intl.formatMessage({ id: 'datasource.column.type' }),
+        dataIndex: 'type',
+        key: 'type',
+        filters: [
+          { text: 'MySQL', value: 'MySQL' },
+          { text: 'PostgreSQL', value: 'PostgreSQL' },
+          { text: 'Oracle', value: 'Oracle' },
+          { text: 'SQL Server', value: 'SQLServer' },
+        ],
+        filterMultiple: false,
+        onFilter: (value, record) => record.type === value,
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.host' }),
+        dataIndex: 'host',
+        key: 'host',
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.port' }),
+        dataIndex: 'port',
+        key: 'port',
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.username' }),
+        dataIndex: 'username',
+        key: 'username',
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.database' }),
+        dataIndex: 'databaseName',
+        key: 'databaseName',
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.driver' }),
+        dataIndex: 'driverClassName',
+        key: 'driverClassName',
+        ellipsis: true,
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.status' }),
+        dataIndex: 'status',
+        key: 'status',
+        render: (_status, record) => {
+          const status = resolveStatus(record);
+          return (
+            <Badge
+              status={status === 'online' ? 'success' : status === 'offline' ? 'default' : 'error'}
+              text={statusLabel(status)}
             />
-          </Tooltip>
-          <Tooltip title="删除">
-            <Button
-              type="link"
-              danger
-              icon={<DeleteOutlined />}
-              aria-label={`删除连接 ${record.name}`}
-              onClick={() => handleDelete(record.id)}
-            />
-          </Tooltip>
-          <Tooltip title="同步状态">
-            <Button
-              type="link"
-              icon={<SyncOutlined spin={syncingId === record.id} />}
-              aria-label="同步状态"
-              loading={syncingId === record.id}
-              disabled={syncingId !== null && syncingId !== record.id}
-              onClick={() => handleSyncStatus(record)}
-            />
-          </Tooltip>
-        </Space>
-      ),
-    },
-  ];
+          );
+        },
+      },
+      {
+        title: intl.formatMessage({ id: 'datasource.column.actions' }),
+        key: 'action',
+        render: (_text, record) => (
+          <Space size={4}>
+            <Tooltip title={intl.formatMessage({ id: 'datasource.action.edit' })}>
+              <Button
+                type="link"
+                icon={<EditOutlined />}
+                aria-label={intl.formatMessage({ id: 'datasource.action.edit' })}
+                onClick={() => openDrawer(record)}
+              />
+            </Tooltip>
+            <Tooltip title={intl.formatMessage({ id: 'datasource.action.delete' })}>
+              <Button
+                type="link"
+                danger
+                icon={<DeleteOutlined />}
+                aria-label={intl.formatMessage(
+                  { id: 'datasource.aria.deleteConnection' },
+                  { name: record.name },
+                )}
+                onClick={() => handleDelete(record.id)}
+              />
+            </Tooltip>
+            <Tooltip title={intl.formatMessage({ id: 'datasource.action.syncStatus' })}>
+              <Button
+                type="link"
+                icon={<SyncOutlined spin={syncingId === record.id} />}
+                aria-label={intl.formatMessage({ id: 'datasource.action.syncStatus' })}
+                loading={syncingId === record.id}
+                disabled={syncingId !== null && syncingId !== record.id}
+                onClick={() => handleSyncStatus(record)}
+              />
+            </Tooltip>
+          </Space>
+        ),
+      },
+    ],
+    [intl, syncingId, statusLabel],
+  );
 
   const onTableChange = (pagination: TablePaginationConfig) => {
     setPage(pagination.current || 1);
@@ -342,17 +374,23 @@ const DatabaseConfigPage: React.FC = () => {
 
   return (
     <div className="database-config-page" data-testid="database-config-page">
-      <h2 className="database-config-page__title">数据库连接管理</h2>
-      <p className="database-config-page__hint">管理和监控您的所有数据库连接</p>
+      <h2 className="database-config-page__title">
+        {intl.formatMessage({ id: 'datasource.page.title' })}
+      </h2>
+      <p className="database-config-page__hint">
+        {intl.formatMessage({ id: 'datasource.page.hint' })}
+      </p>
       <div className="database-config-page__sheet">
         <div className="database-config-page__toolbar">
-          <p className="database-config-page__toolbar-title">数据库连接列表</p>
+          <p className="database-config-page__toolbar-title">
+            {intl.formatMessage({ id: 'datasource.list.title' })}
+          </p>
           <Space size={8} wrap>
             <Input.Search
               allowClear
               size="small"
-              placeholder="搜索连接名称"
-              aria-label="搜索连接名称"
+              placeholder={intl.formatMessage({ id: 'datasource.search.placeholder' })}
+              aria-label={intl.formatMessage({ id: 'datasource.search.ariaLabel' })}
               onSearch={(value) => {
                 setPage(1);
                 setKeyword(value);
@@ -364,7 +402,7 @@ const DatabaseConfigPage: React.FC = () => {
               icon={<PlusOutlined />}
               onClick={() => openDrawer(null)}
             >
-              新建连接
+              {intl.formatMessage({ id: 'datasource.action.new' })}
             </Button>
             <Button
               danger
@@ -372,7 +410,7 @@ const DatabaseConfigPage: React.FC = () => {
               disabled={selectedRowKeys.length === 0}
               onClick={handleBatchDelete}
             >
-              批量删除
+              {intl.formatMessage({ id: 'datasource.action.batchDelete' })}
             </Button>
           </Space>
         </div>
@@ -399,7 +437,9 @@ const DatabaseConfigPage: React.FC = () => {
       <Drawer
         className="database-config-drawer"
         rootClassName="database-config-drawer-root"
-        title={editingRecord ? '编辑数据库连接' : '新建数据库连接'}
+        title={intl.formatMessage({
+          id: editingRecord ? 'datasource.drawer.edit' : 'datasource.drawer.new',
+        })}
         placement="right"
         width={520}
         onClose={closeDrawer}

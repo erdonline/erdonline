@@ -1,15 +1,12 @@
 {
   "generatedAt": "2026-08-12",
-  "total": 403,
+  "total": 176,
   "byFile": {
     "frontend/src/.umi-production/plugin-locale/SelectLang.tsx": 6,
     "frontend/src/components/dialog/project/AddProject.tsx": 1,
     "frontend/src/global.tsx": 3,
-    "frontend/src/pages/JExcel/i18n.ts": 31,
-    "frontend/src/pages/JExcel/index.tsx": 59,
     "frontend/src/pages/account/settings/_mock.ts": 10,
-    "frontend/src/pages/databaseConfig/DatabaseConfigForm.tsx": 39,
-    "frontend/src/pages/databaseConfig/index.tsx": 50,
+    "frontend/src/pages/databaseConfig/index.tsx": 3,
     "frontend/src/pages/design/relation/ReactFlowRelation.tsx": 3,
     "frontend/src/pages/design/setting/component/FieldLibraryManager.tsx": 1,
     "frontend/src/pages/design/table/component/table/TableIndexEdit.tsx": 2,
@@ -28,22 +25,16 @@
     "frontend/src/utils/ddlTemplateKeys.ts": 11,
     "frontend/src/utils/diagram.ts": 5,
     "frontend/src/utils/dualLayerTokens.ts": 7,
-    "frontend/src/utils/exampleProject.tsx": 10,
+    "frontend/src/utils/exampleProject.tsx": 3,
     "frontend/src/utils/fieldTypeOptions.ts": 2,
     "frontend/src/utils/generatehtml.js": 15,
-    "frontend/src/utils/importSkipWarningModal.tsx": 2,
-    "frontend/src/utils/json2code.ts": 23,
+    "frontend/src/utils/json2code.ts": 19,
     "frontend/src/utils/markdown.js": 13,
-    "frontend/src/utils/projectDraftRecovery.ts": 7,
     "frontend/src/utils/projectSaveConflictPreview.ts": 11,
     "frontend/src/utils/relation2file.js": 2,
-    "frontend/src/utils/request.js": 21,
     "frontend/src/utils/save.js": 1,
-    "frontend/src/utils/sqlDetailModal.tsx": 2,
     "frontend/src/utils/suggestImportFrames.ts": 1,
-    "frontend/src/utils/syncResultModal.ts": 3,
-    "frontend/src/utils/versionConstants.ts": 1,
-    "frontend/src/utils/versionSaveConflict.ts": 5
+    "frontend/src/utils/versionConstants.ts": 1
   },
   "note": "ADR-0033 ratchet baseline — CJK char count in user-visible strings (excludes locales/, tests, allowlist)"
 }

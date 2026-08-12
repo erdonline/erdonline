@@ -2,6 +2,7 @@
 import _ from 'lodash';
 import doT from 'dot';
 import {message} from "antd";
+import { getIntl } from '@umijs/max';
 import { associationKey } from '@/utils/versionStructuralDiff';
 
 /** 方言码 → 字段物理类型（datatypeDomains.apply[code].type） */
@@ -904,7 +905,7 @@ const getCodeByRebuildTableTemplate = (dataSource, changes, code, oldDataSource)
       })
     });
   } catch (e) {
-    message.error('数据库模板出错，请参考Dot.js配置模板信息');
+    message.error(getIntl().formatMessage({ id: 'utils.json2code.templateError' }));
     sqlString = JSON.stringify(e.message);
   }
   return sqlString;
@@ -915,7 +916,7 @@ export const getCodeByChanges = (dataSource, changes, code, oldDataSource = {}) 
   try {
     sqlString = generateUpdateSql(dataSource, changes, code, oldDataSource)
   } catch (e) {
-    message.error('数据库模板出错，请参考Dot.js配置模板信息');
+    message.error(getIntl().formatMessage({ id: 'utils.json2code.templateError' }));
     sqlString = JSON.stringify(e.message);
   }
   return sqlString;
@@ -934,7 +935,7 @@ export const getCodeByDataTable = (dataSource, module, dataTable, code, template
       sqlString = getCodeByChanges(dataSource, changes, code, oldDataSource);
     }
   } catch (e) {
-    message.error('数据库模板出错，请参考Dot.js配置模板信息');
+    message.error(getIntl().formatMessage({ id: 'utils.json2code.templateError' }));
     sqlString = JSON.stringify(e.message);
   }
   return sqlString;
@@ -1188,7 +1189,7 @@ export const getDataByTemplate = (data, template) => {
   try {
     sqlString = getTemplateString(template, data);
   } catch (e) {
-    message.error('数据库模板出错，请参考Dot.js配置模板信息');
+    message.error(getIntl().formatMessage({ id: 'utils.json2code.templateError' }));
     sqlString = JSON.stringify(e.message);
   }
   return sqlString;

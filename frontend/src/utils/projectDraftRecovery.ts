@@ -1,5 +1,6 @@
 import React from 'react';
 import { Modal, message } from 'antd';
+import { getIntl } from '@umijs/max';
 import useGlobalStore from '@/store/global/globalStore';
 import useProjectStore from '@/store/project/useProjectStore';
 import {
@@ -53,16 +54,19 @@ export function offerProjectDraftRecovery(
   }
 
   recoveryModalOpen = true;
-  const draftMessage = `上次保存到服务器失败，${formatDraftTime(draft.savedAt)} 的改动仍在本机。要恢复草稿继续编辑，还是丢弃草稿并使用服务器上的模型？`;
+  const draftMessage = getIntl().formatMessage(
+    { id: 'utils.draftRecovery.content' },
+    { savedAt: formatDraftTime(draft.savedAt) },
+  );
   Modal.confirm({
-    title: '发现未同步的本地草稿',
+    title: getIntl().formatMessage({ id: 'utils.draftRecovery.title' }),
     content: React.createElement(
       'span',
       { 'data-testid': 'project-draft-recovery-content' },
       draftMessage,
     ),
-    okText: '恢复草稿',
-    cancelText: '丢弃草稿',
+    okText: getIntl().formatMessage({ id: 'utils.draftRecovery.restore' }),
+    cancelText: getIntl().formatMessage({ id: 'utils.draftRecovery.discard' }),
     closable: false,
     maskClosable: false,
     okButtonProps: { 'data-testid': 'project-draft-recovery-restore' } as React.ComponentProps<'button'>,
@@ -70,12 +74,12 @@ export function offerProjectDraftRecovery(
     onOk: () => {
       recoveryModalOpen = false;
       applyDraftToStore(draft, serverProject);
-      message.info('已恢复本地草稿，请核对后重试保存');
+      message.info(getIntl().formatMessage({ id: 'utils.draftRecovery.restored' }));
     },
     onCancel: () => {
       recoveryModalOpen = false;
       clearProjectDraft(projectId);
-      message.info('已丢弃本地草稿');
+      message.info(getIntl().formatMessage({ id: 'utils.draftRecovery.discarded' }));
     },
   });
 }
