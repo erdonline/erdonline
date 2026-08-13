@@ -646,6 +646,8 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 
 站点根 URL 由环境变量 **`ERD_SITE_URL`**（或 `SEO_BASE_URL`）决定，默认 `https://www.erdonline.com`。新增公开路由时同步改 `frontend/scripts/seo-config.mjs`（sitemap 列表 + `_redirects` + nginx map）。
 
+**百度站长验证**：平台下发的 `baidu_verify_*.html` 放 `frontend/public/`（构建后位于站点根），验证通过后**勿删**；勿写入 sitemap 或 `_redirects` SPA 规则。
+
 **Cloudflare Pages 行为（已验证官方文档）**
 
 - 无顶层 `404.html` 时：Pages 假定 SPA，所有未命中静态文件的路径 **200 + index.html**（软 404）。
