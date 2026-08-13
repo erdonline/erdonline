@@ -6,6 +6,14 @@
 
 ## [Unreleased]
 
+### 2026-08-13
+
+#### chore(seo)：百度站长 HTML 文件验证
+
+- **FE**：`frontend/public/baidu_verify_codeva-ZYlI0smyen.html` — Umi 构建复制至 `dist/` 根，CF Pages 静态文件优先于 SPA fallback
+- **文档**：`docs/deployment.md` SEO 节补充百度验证文件约定
+- 验证点：部署后 `curl -sI https://www.erdonline.com/baidu_verify_codeva-ZYlI0smyen.html` → 200；body 为 `3618160c610fcb1326d8d91aa6484b5f`（非 SPA `index.html`）
+
 ### 2026-08-12
 
 #### fix：LocaleRoute + catalog 绝对子路径导致全站路由崩溃（/demo 白屏）
