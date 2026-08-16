@@ -45,6 +45,7 @@
 - 公开路由 `/`（未登录可访问）；登录「了解产品」回链；未登录主 CTA → `/demo`，已登录主 CTA → `/home`
 - 实现约束：品牌优先 + **全幅**真实画布截图（`landing-hero.jpg`），禁止侧栏嵌图 / 紫色渐变 AI slop；见 [landing.md](./landing.md)
 - E2E：`landing.spec.ts`（加载 + CTA→demo/登录 + 已登录→工作台）✅
+- GSC snippet 对齐（2026-08-16）：静态 title/description + JSON-LD WebApplication；H1 品牌定位不动 ✅
 
 ### 双层一致性与可信保存 🚧
 
