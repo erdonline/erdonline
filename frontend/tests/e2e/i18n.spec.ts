@@ -314,15 +314,20 @@ test.describe('i18n：手动语言切换', () => {
   test('Landing SEO title/meta 随 locale 切换', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
-    await expect(page).toHaveTitle('ERD Online — 数据库设计的 Git + Figma');
+    await expect(page).toHaveTitle('ERD Online — 在线绘制 ER 图');
     const descZh = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(descZh).toContain('开源数据库建模');
+    expect(descZh).toContain('免费在线 ER 图');
+    await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
+      'content',
+      'ERD Online — 在线绘制 ER 图',
+    );
 
     await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
     await page.reload();
-    await expect(page).toHaveTitle('ERD Online — Git + Figma for database design');
+    await expect(page).toHaveTitle('ERD Online — Draw ER Diagrams Online');
     const descEn = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(descEn).toContain('Open-source database modeling');
+    expect(descEn).toContain('ERD diagram maker');
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/$/);
 
     await page.goto('/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });

@@ -4,6 +4,16 @@ import { expect, test } from '@playwright/test';
  * P5 落地页：公开叙事 + CTA → demo / 登录；已登录主 CTA → /home
  */
 test.describe('落地页', () => {
+  test('静态 HTML 含 GSC 查询词与 JSON-LD（爬虫首屏）', async ({ request }) => {
+    const res = await request.get('/');
+    expect(res.ok()).toBeTruthy();
+    const html = await res.text();
+    expect(html).toContain('ERD Online — Draw ER Diagrams Online');
+    expect(html).toMatch(/entity-relationship diagrams/i);
+    expect(html).toContain('application/ld+json');
+    expect(html).toContain('rel="canonical"');
+  });
+
   test('加载可见品牌与主文案；CTA 可达 demo 与登录', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible();

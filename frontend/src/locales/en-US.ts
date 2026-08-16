@@ -270,7 +270,7 @@ export default {
   'landing.hero.kicker': 'Open source · MIT',
   'landing.hero.title': 'Git + Figma for database design',
   'landing.hero.lead':
-    'Versioning, collaboration, and an open format—humans and AI agents share one source of truth. Try in 30 seconds, no signup.',
+    'Draw ER diagrams online — versioning, collaboration, and an open format humans and AI agents share. Try in 30 seconds, no signup.',
   'landing.hero.cta.enterWorkspace': 'Open workspace',
   'landing.hero.cta.enterWorkspaceAria': 'Open workspace',
   'landing.hero.cta.openDemo': 'Open demo',
@@ -604,9 +604,9 @@ export default {
     'Third-party sign-in is not configured (admin must set GitHub / Google / WeChat env vars).',
 
   // Landing SEO
-  'landing.seo.title': 'ERD Online — Git + Figma for database design',
+  'landing.seo.title': 'ERD Online — Draw ER Diagrams Online',
   'landing.seo.description':
-    'Open-source database modeling with versioning and collaboration. Open the demo without signing in, then decide whether to register.',
+    'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser — versions, collaboration, no signup.',
   'landing.compare.seo.title': 'ERD Online comparison — collaboration, versions, and open source',
   'landing.compare.seo.description':
     'An honest comparison of ERD Online, dbdiagram, and DBML: collaboration, versioning, openness, and self-hosting.',

@@ -6,6 +6,16 @@
 
 ## [Unreleased]
 
+### 2026-08-16
+
+#### SEO：对准 GSC 英文查询改 SERP 摘要（0 点击 → 可点）
+
+- **证据**：Search Console 过去 3 个月（网络）0 点击 / 42 次展示；热门查询 `erd online`（均位 52.6）、`erd diagram online`（81.9）、`make|create|draw erd online`；桌面 100%；新加坡均位 1 仍 0 点击 → 摘要不像画图工具
+- **改法**：Umi 4 忽略 `pages/document.ejs`，改在 `config.ts` 注入静态 title/description/OG/JSON-LD（英文 job-to-be-done）；清掉 Ant Design Pro 残留 keywords；`landing.seo.*` + hero lead 写入 Draw/在线绘制 ER 图；H1 仍为 Git + Figma。不覆盖线上已有 CF `robots.txt` / 多语言 `sitemap.xml`。
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "静态 HTML"` 绿
+  - `yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Landing SEO"` 绿
+
 ### 2026-08-13
 
 #### chore(seo)：百度站长 HTML 文件验证
