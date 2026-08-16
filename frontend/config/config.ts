@@ -13,6 +13,24 @@ const v4Token = convertLegacyToken(mapToken);
 
 const {REACT_APP_ENV, UMI_ENV} = process.env;
 
+/** Crawler-visible SERP copy (GSC: erd online / erd diagram online / draw|create ERD). */
+const SEO_TITLE = 'ERD Online — Draw ER Diagrams Online';
+const SEO_DESCRIPTION =
+  'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser — versions, collaboration, no signup.';
+const SEO_ORIGIN = 'https://www.erdonline.com';
+const SEO_JSON_LD = JSON.stringify({
+  '@context': 'https://schema.org',
+  '@type': 'WebApplication',
+  name: 'ERD Online',
+  alternateName: 'ERD diagram online',
+  url: `${SEO_ORIGIN}/`,
+  applicationCategory: 'DeveloperApplication',
+  operatingSystem: 'Any',
+  offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+  description:
+    'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser.',
+});
+
 /** Cloudflare Web Analytics — prod build only (CF Pages demo / Docker frontend). */
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '4df015bf119f48ff9b03f302f6a3e40a';
 const cloudflareAnalyticsHeadScripts =
@@ -29,7 +47,28 @@ export default defineConfig({
   fastRefresh: true,
   // umi routes: https://umijs.org/docs/routing
   routes,
-  title:'ERD Online',
+  title: SEO_TITLE,
+  metas: [
+    { name: 'description', content: SEO_DESCRIPTION },
+    {
+      name: 'keywords',
+      content:
+        'ERD Online, ERD diagram online, draw ERD online, create ERD online, ER diagram maker, entity relationship diagram, online ERD tool',
+    },
+    { property: 'og:type', content: 'website' },
+    { property: 'og:site_name', content: 'ERD Online' },
+    { property: 'og:url', content: `${SEO_ORIGIN}/` },
+    { property: 'og:title', content: SEO_TITLE },
+    { property: 'og:description', content: SEO_DESCRIPTION },
+    { property: 'og:image', content: `${SEO_ORIGIN}/landing-hero.jpg` },
+    { name: 'twitter:card', content: 'summary_large_image' },
+    { name: 'twitter:title', content: SEO_TITLE },
+    { name: 'twitter:description', content: SEO_DESCRIPTION },
+  ],
+  links: [
+    { rel: 'canonical', href: `${SEO_ORIGIN}/` },
+    { rel: 'sitemap', type: 'application/xml', title: 'Sitemap', href: '/sitemap.xml' },
+  ],
   ignoreMomentLocale: true,
   proxy: proxy[REACT_APP_ENV || 'dev'],
   manifest: {
@@ -54,6 +93,7 @@ export default defineConfig({
   // Umi analytics 插件：非 development 构建时注入 hm.baidu.com/hm.js
   analytics: { baidu: 'bd50dd978c8d8d94792f4e987c4a7aaf' },
   headScripts: [
+    { type: 'application/ld+json', content: SEO_JSON_LD },
     '/js/html2canvas.min.js',
     '/env-config.js?date=' + new Date(),
     ...cloudflareAnalyticsHeadScripts,

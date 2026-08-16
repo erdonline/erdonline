@@ -660,6 +660,11 @@
 - [x] [落地回归] `/` hero/CTA 仍绿✅ `landing.spec.ts`
 - [x] [对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap✅ `compare.spec.ts`「竞品对照页键盘」
 
+## GSC SERP 摘要（2026-08-16）
+
+- [x] [静态 HTML] `/` 含 `Draw ER Diagrams Online`、JSON-LD WebApplication、canonical ✅`landing.spec.ts`「静态 HTML」
+- [x] [locale title] zh「在线绘制 ER 图」/ en「Draw ER Diagrams Online」+ og:title + canonical ✅`i18n.spec.ts`「Landing SEO」
+
 ## 落地页 token 同源（2026-08-03）
 
 - [x] [色板] `/` 底色 = `--erd-ink-900`；主 CTA = `--erd-brand`；第三柱 mark = `--erd-warning`；字族含 IBM Plex Sans✅ `landing.spec.ts`
