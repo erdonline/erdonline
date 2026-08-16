@@ -256,7 +256,8 @@ export default {
   'landing.hero.imageAlt': 'ERD Online 设计器关系图画布',
   'landing.hero.kicker': 'Open source · MIT',
   'landing.hero.title': '数据库设计的 Git + Figma',
-  'landing.hero.lead': '版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。',
+  'landing.hero.lead':
+    '在线绘制 ER 图：版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。',
   'landing.hero.cta.enterWorkspace': '进入工作台',
   'landing.hero.cta.enterWorkspaceAria': '进入工作台',
   'landing.hero.cta.openDemo': '打开演示',
@@ -575,9 +576,9 @@ export default {
     '未配置第三方登录（需管理员设置 GitHub / Google / 微信环境变量）。',
 
   // Landing SEO
-  'landing.seo.title': 'ERD Online — 数据库设计的 Git + Figma',
+  'landing.seo.title': 'ERD Online — 在线绘制 ER 图',
   'landing.seo.description':
-    '开源数据库建模：版本与协作，像 Git + Figma。免登录打开示例模型，再决定是否注册。',
+    '免费在线 ER 图工具。在浏览器中创建、绘制、查看实体关系图；开源，带版本与协作。免登录打开示例。',
   'landing.compare.seo.title': 'ERD Online 对照 — 协作、版本与开源',
   'landing.compare.seo.description':
     '诚实对照 ERD Online、dbdiagram 与 DBML：协作、版本、开放与自部署能力一览。',

@@ -117,6 +117,19 @@ export function usePageSeo(titleId: string, descriptionId: string) {
           value: content,
         }),
       ),
+      ...[
+        ['twitter:title', title],
+        ['twitter:description', description],
+      ].map(([name, content]) =>
+        setHeadElement({
+          tagName: 'meta',
+          selector: `meta[name="${name}"]`,
+          selectorAttribute: 'name',
+          selectorValue: name,
+          valueAttribute: 'content',
+          value: content,
+        }),
+      ),
     ];
 
     return () => {

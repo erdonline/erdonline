@@ -22,8 +22,9 @@
 ## Hero 文案
 
 - 品牌：ERD Online（hero 级，压过副标题）
-- 主标题：数据库设计的 Git + Figma
-- 副标题：版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。
+- 主标题（H1，品牌定位，不改成工具词堆砌）：数据库设计的 Git + Figma
+- 副标题：在线绘制 ER 图：版本、协作、开放格式——人和 AI agent 共用同一份数据结构。30 秒免注册试用。
+- SERP `<title>` / meta description：对准 Google Search Console 英文查询（`erd online` / `erd diagram online` / `draw|create ERD online`）。静态 HTML 默认英文（`html lang=en`）；hydrate 后随 locale。H1 与 title 允许不一致。
 - 未登录 CTA：在线试用（主）/ 注册（次）/ 已有账号？登录（文本）；GitHub 仅在顶栏
 - 已登录 CTA：进入工作台（主）/ 打开演示（次）；顶栏与页脚同步「进入工作台」
 
