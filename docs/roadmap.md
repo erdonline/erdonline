@@ -38,7 +38,7 @@
 2. **导出/版本信任链打穿**（Word/MinIO 解耦或降级、审批通过路径、导出失败可见）✅（导出失败可见 ✅；Word/MinIO 解耦：classpath 默认模板 + MinIO 缺席降级 ✅；审批通过路径：SQL 失败不落通过/不 sync ✅ 2026-08-02）
 3. **协作 → 版本自然发生**（presence 到「本周一起改并保存」的引导，不扩 AI）✅（远端 sync 提示带「保存版本」直达版本页，节流 ≤1/min/会话；全路径 E2E：toast→CTA→AddVersion 落库 + 60s 节流回归 ✅ 2026-08-02）
 
-**依赖外部或后置**：AI、i18n、正式仓 Issue 投放（`REPO=… ./scripts/seed-good-first-issues.sh`，待正式仓就绪）。
+**依赖外部或后置**：AI、i18n；~~正式仓 Issue 投放~~ ✅（2026-08-08：good-first 40–42 + roadmap 投票模板/帖；`seed-good-first-issues.sh`）。
 
 ## P5：AI 时代数据结构平台 🚧
 
@@ -168,7 +168,7 @@
 - 下一刀：raw ping·reverse JDBC 面 / 贡献者路径（见 security-model R-DATA-02）
 ### 用户没说的缺口（主动补齐）📋
 
-- 贡献者漏斗：good-first-issue → 首个 PR → 维护者的路径文档化（`community.md` 延伸）
+- ~~贡献者漏斗：good-first-issue 种子 + README/CONTRIBUTING Star·Issue·投票 CTA~~ ✅（2026-08-08；草稿 40–43 + `roadmap_vote.yml`）；首个 PR 路径仍见 `community.md`
 - ~~Schema 版本化对外承诺：projectJSON 兼容性政策成文（agent 依赖稳定性）~~✅（`data-format.md`「仅加法 / 禁止原地破坏」）
 - ~~Agent 可读 projectJSON：机器可校验的 JSON Schema + 示例~~✅（`schema/` + `node scripts/validate-projectjson.mjs`）
 - ~~可观测性：自部署者的健康检查/指标端点（少量、低成本）~~✅（`/actuator/health` + `/actuator/info` app/version；未暴露路径 404；见 [deployment.md](./deployment.md)）

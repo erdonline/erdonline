@@ -108,7 +108,21 @@ Issue 标题建议：`[good first] <一句话结果>`。正文必含：**背景 
 54. ~~**`lint:js:ci` 分享页 Array 类型 + DataDomain hooks**~~（已合入；`yarn lint:js:ci` 0 error；`share.spec`）
 55. ~~**编辑版本号校验失败仍关弹窗**~~（已合入；`RenameVersion` `onFinish` 失败返回 false；`version.spec`「重命名」）
 
-> 种子池暂空：a11y 微切片停。Word 导出已去 MinIO 硬依赖（classpath 默认模板）；真实 Word 下载 E2E 可另开切片覆盖。正式仓投放时从合入项外另选题。
+> 种子池（2026-08-08 推广切片）：开放 good-first 草稿 `40`–`42`；路线图社区票 `43`。历史合入项见下方列表。
+
+## 种子任务池（可直接开 Issue）
+
+下列为当前仓库已知低风险债，开 Issue 时复制「接受标准」即可：
+
+**待投放（good first · 草稿 40–42）**
+
+1. **分享页转化 CTA**（`40-share-cta-prominence.md`）：fork/login testid + 窄屏可见 + 失败 toast E2E
+2. **GitHub social-preview 1280×640**（`41-github-social-preview-1280.md`）：静态预览图 + 文档说明
+3. **落地页页脚贡献者 CTA**（`42-landing-footer-contributor-cta.md`）：Star / good-first 外链 + landing E2E
+
+**社区投票（非 good-first · 草稿 43）**：`43-roadmap-community-vote-q3.md` → 标签 `roadmap`
+
+> 上表 `#1`–`#55` 为历史已合入条目，见本文件上文列表。
 
 ## 贡献者怎么认领
 

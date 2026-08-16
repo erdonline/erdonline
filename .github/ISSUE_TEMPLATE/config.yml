@@ -1,5 +1,14 @@
 blank_issues_enabled: false
 contact_links:
+  - name: ⭐ Star 支持项目
+    url: https://github.com/erdonline/erdonline/stargazers
+    about: Star 是开源项目活下去的燃料 / Stars keep the project alive
+  - name: Good first issues（新手认领）
+    url: https://github.com/erdonline/erdonline/issues?q=is%3Aissue+is%3Aopen+label%3A%22good+first+issue%22
+    about: 约 2 小时可合入的小任务 / Small tasks (~2h to merge)
+  - name: 路线图投票 / Roadmap vote
+    url: https://github.com/erdonline/erdonline/issues/new?template=roadmap_vote.yml
+    about: 为公开路线图优先级投票 / Vote on public roadmap priorities
   - name: 社区 / Community
     url: https://github.com/erdonline/erdonline/issues
     about: 提问、想法与经验交流 / Questions, ideas and general discussion
