@@ -184,7 +184,8 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | MCP npx | 08-28 | ✅ 30 秒路径改为 `npx -y --package` GitHub Release tarball，不必 clone+build；npmjs 未发（无登录）。自托管只改 `ERD_API_URL` | `mcpJsonSnippet.ts`、指南、README、PAT 弹层文案 | `mcpJsonSnippet.test.ts`；`npm pack` + `npx -y --package` 冒烟；未发 XHS；未请求 GSC |
 | 稿件 npx | 08-28 | ✅ 稿 #13 源稿+掘金粘贴包、#6 源稿主路径改为 npx；clone/build 仅备选。**未**发小红书/掘金 | `content/articles/cursor-mcp-read-and-suggest-version{,.juejin}.md`、`projectjson-mcp-for-agents.md` | 正文 json 含 `--package` 与 `erdonline-mcp-0.1.0.tgz`；未发 XHS；未请求 GSC |
 | llms.txt | 08-28 | ✅ 文档站 + www 增加短 `llms.txt`（Git + Figma 主叙事；MCP 次路径 npx）；无 llms-full.txt | `website/static/llms.txt` `frontend/public/llms.txt` | `assert-docs-seo.mjs`；`yarn test:seo-static`；未发 XHS |
-| Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；未发 XHS |
+| Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；live 中/英指南 200 含 install-link；未发 XHS |
+| PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用**本次 PAT**（非占位符）打开同一官方 install-link。H1 未改 | `personalAccessTokens.tsx` | `personal-access-tokens.spec.ts` 绿；未发 XHS；未发 npm |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

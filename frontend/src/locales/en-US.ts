@@ -543,6 +543,9 @@ export default {
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
   'accountSettings.pat.mcpDocsLink': '30-second setup docs',
   'accountSettings.pat.mcpDocsAria': 'Open docs: let Cursor read your ER diagram via MCP',
+  'accountSettings.pat.mcpCursorInstallLink': 'Add to Cursor (this PAT is filled in)',
+  'accountSettings.pat.mcpCursorInstallAria':
+    'Open the official Cursor install link with this PAT in the MCP config',
 
   'accountSettings.oauthClient.loadFailed': 'Failed to load OAuth clients',
   'accountSettings.oauthClient.registerSuccess': 'OAuth client registered',

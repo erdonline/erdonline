@@ -13,7 +13,10 @@ import PageSkeleton from '@/components/PageSkeleton';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { useIntl } from '@umijs/max';
 import { docsUrl } from '@/utils/docsUrl';
-import { buildCursorMcpJson } from '@/utils/mcpJsonSnippet';
+import {
+  buildCursorMcpJson,
+  cursorMcpInstallWebHref,
+} from '@/utils/mcpJsonSnippet';
 import styles from './personalAccessTokens.less';
 
 const PAT_URL = '/auth/personal-access-tokens';
@@ -87,11 +90,15 @@ const PersonalAccessTokensView: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [tokenReveal, setTokenReveal] = useState<PatCreated | null>(null);
   const [form] = Form.useForm<CreateFormValues>();
+  const mcpApiUrl = window._env_?.ERD_API_URL || window._env_?.API_URL;
   const mcpJson = tokenReveal
-    ? buildCursorMcpJson(
-        tokenReveal.token,
-        window._env_?.ERD_API_URL || window._env_?.API_URL,
-      )
+    ? buildCursorMcpJson(tokenReveal.token, mcpApiUrl)
+    : '';
+  const mcpInstallHref = tokenReveal
+    ? cursorMcpInstallWebHref({
+        pat: tokenReveal.token,
+        apiUrl: mcpApiUrl,
+      })
     : '';
 
   const load = useCallback(async () => {
@@ -400,6 +407,17 @@ const PersonalAccessTokensView: React.FC = () => {
                   aria-label={t('accountSettings.pat.mcpDocsAria')}
                 >
                   {t('accountSettings.pat.mcpDocsLink')}
+                </a>
+              </p>
+              <p className={styles.mcpHint}>
+                <a
+                  href={mcpInstallHref}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-testid="pat-cursor-install-link"
+                  aria-label={t('accountSettings.pat.mcpCursorInstallAria')}
+                >
+                  {t('accountSettings.pat.mcpCursorInstallLink')}
                 </a>
               </p>
             </div>

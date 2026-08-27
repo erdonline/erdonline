@@ -44,8 +44,15 @@ export function buildCursorMcpJson(
   )}\n`;
 }
 
+export type CursorMcpInstallOpts = {
+  pat?: string;
+  apiUrl?: string | null;
+};
+
 /** Inner server object Cursor encodes in install-link `config` (official docs). */
-export function cursorMcpInstallConfig(): {
+export function cursorMcpInstallConfig(
+  opts?: CursorMcpInstallOpts,
+): {
   command: 'npx';
   args: string[];
   env: {ERD_API_URL: string; ERD_PAT: string};
@@ -54,8 +61,10 @@ export function cursorMcpInstallConfig(): {
     command: 'npx',
     args: [...MCP_NPX_ARGS],
     env: {
-      ERD_API_URL: PRODUCTION_MCP_API_URL,
-      ERD_PAT: MCP_PAT_PLACEHOLDER,
+      ERD_API_URL: resolveMcpApiUrl(
+        opts?.apiUrl === undefined ? PRODUCTION_MCP_API_URL : opts.apiUrl,
+      ),
+      ERD_PAT: opts?.pat ?? MCP_PAT_PLACEHOLDER,
     },
   };
 }
@@ -69,16 +78,16 @@ function utf8ToBase64(text: string): string {
   return btoa(bin);
 }
 
-function cursorInstallQuery(): string {
-  const b64 = utf8ToBase64(JSON.stringify(cursorMcpInstallConfig()));
+function cursorInstallQuery(opts?: CursorMcpInstallOpts): string {
+  const b64 = utf8ToBase64(JSON.stringify(cursorMcpInstallConfig(opts)));
   return `name=erdonline&config=${encodeURIComponent(b64)}`;
 }
 
 /** https://cursor.com/docs/mcp/install-links — web stand-in for cursor:// */
-export function cursorMcpInstallWebHref(): string {
-  return `https://cursor.com/link/mcp/install?${cursorInstallQuery()}`;
+export function cursorMcpInstallWebHref(opts?: CursorMcpInstallOpts): string {
+  return `https://cursor.com/link/mcp/install?${cursorInstallQuery(opts)}`;
 }
 
-export function cursorMcpInstallDeeplink(): string {
-  return `cursor://anysphere.cursor-deeplink/mcp/install?${cursorInstallQuery()}`;
+export function cursorMcpInstallDeeplink(opts?: CursorMcpInstallOpts): string {
+  return `cursor://anysphere.cursor-deeplink/mcp/install?${cursorInstallQuery(opts)}`;
 }

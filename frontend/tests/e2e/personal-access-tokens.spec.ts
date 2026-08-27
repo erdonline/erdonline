@@ -187,6 +187,20 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
+    const install = reveal.getByTestId('pat-cursor-install-link');
+    await expect(install).toBeVisible();
+    const href = await install.getAttribute('href');
+    expect(href).toContain('https://cursor.com/link/mcp/install');
+    const cfgB64 = new URL(href!).searchParams.get('config');
+    expect(cfgB64).toBeTruthy();
+    const cfg = JSON.parse(
+      Buffer.from(cfgB64!, 'base64').toString('utf8'),
+    ) as {args: string[]; env: {ERD_PAT: string}};
+    expect(cfg.env.ERD_PAT).toBe(token);
+    expect(cfg.args).toContain('--package');
+    expect(cfg.args.some((a) => a.endsWith('erdonline-mcp-0.1.0.tgz'))).toBe(
+      true,
+    );
     await page.getByTestId('pat-copy-mcp-json').click();
     await expectToast(page, /mcp\.json/);
   });

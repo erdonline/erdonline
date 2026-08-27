@@ -94,6 +94,24 @@ run('Cursor install-link config is shipped npx tarball + PAT placeholder', () =>
   assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
 });
 
+run('install-link with minted PAT is not the README placeholder', () => {
+  const pat = 'erd_pat_minted_secret';
+  const href = cursorMcpInstallWebHref({
+    pat,
+    apiUrl: 'https://erdonline-production.up.railway.app',
+  });
+  const q = new URL(href).searchParams.get('config');
+  assert.ok(q);
+  const decoded = JSON.parse(Buffer.from(q, 'base64').toString('utf8')) as {
+    args: string[];
+    env: {ERD_PAT: string; ERD_API_URL: string};
+  };
+  assert.equal(decoded.env.ERD_PAT, pat);
+  assert.notEqual(decoded.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
+  assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
+  assert.notEqual(href, cursorMcpInstallWebHref());
+});
+
 run('README and MCP guide contain the Cursor install web link', () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
   const href = cursorMcpInstallWebHref();
