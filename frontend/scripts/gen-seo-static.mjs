@@ -208,10 +208,19 @@ function writeRobots(distDir, siteUrl) {
     "Allow: /",
     ...ROBOTS_DISALLOW.map((p) => `Disallow: ${p}`),
     "",
+    `# Agent index (llmstxt.org): ${siteUrl}/llms.txt`,
     `Sitemap: ${siteUrl}/sitemap.xml`,
     "",
   ];
   fs.writeFileSync(path.join(distDir, "robots.txt"), lines.join("\n"), "utf8");
+}
+
+function writeLlmsTxt(distDir) {
+  const src = path.join(__dirname, "..", "public", "llms.txt");
+  if (!fs.existsSync(src)) {
+    throw new Error(`missing ${src}`);
+  }
+  fs.copyFileSync(src, path.join(distDir, "llms.txt"));
 }
 
 function writeRedirects(distDir) {
@@ -269,6 +278,7 @@ export function generateSeoStatic(distDir = defaultDistDir(), siteUrl = resolveS
   const builtAt = new Date().toISOString().slice(0, 10);
   writeSitemap(distDir, siteUrl, builtAt);
   writeRobots(distDir, siteUrl);
+  writeLlmsTxt(distDir);
   writeRedirects(distDir);
   write404Shell(distDir, indexHtml);
   writePrerenderedShells(distDir, indexHtml, siteUrl);

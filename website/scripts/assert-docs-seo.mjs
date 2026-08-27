@@ -34,6 +34,29 @@ for (const sitemap of [
     fail(`static/robots.txt must list ${sitemap}`);
   }
 }
+if (!robots.includes('https://doc.erdonline.com/llms.txt')) {
+  fail('static/robots.txt must point agents at https://doc.erdonline.com/llms.txt');
+}
+
+const llms = read('static/llms.txt');
+if (!llms.includes('https://doc.erdonline.com/docs/guide/api-and-mcp/')) {
+  fail('static/llms.txt must link MCP guide with trailing slash');
+}
+if (!llms.includes('https://doc.erdonline.com/en/docs/guide/api-and-mcp/')) {
+  fail('static/llms.txt must link English MCP guide with trailing slash');
+}
+if (!llms.includes('--package') || !llms.includes('erdonline-mcp-0.1.0.tgz')) {
+  fail('static/llms.txt must include npx --package Release tarball mcp.json');
+}
+if (!/Git \+ Figma/i.test(llms)) {
+  fail('static/llms.txt must keep Git + Figma positioning');
+}
+if (/github\.io/i.test(llms)) {
+  fail('static/llms.txt must not use github.io docs host');
+}
+if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
+  fail('do not add llms-full.txt unless the site already had that pattern');
+}
 
 const redirects = read('static/_redirects');
 for (const raw of redirects.split('\n')) {

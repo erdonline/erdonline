@@ -8,6 +8,14 @@
 
 ### 2026-08-28
 
+#### growth：docs/www 增加 llms.txt（指向 MCP npx）
+
+- **证据**：Agent 落在文档站/www 没有短索引；指南已是 npx `--package`。仓内无 `llms-full.txt` 惯例，不新增。www H1 仍 Git + Figma；未发小红书/掘金；未请求 GSC。
+- **改法**：`website/static/llms.txt` + `frontend/public/llms.txt`（构建拷到 dist）；docs `robots.txt` 注释指向 llms.txt。稿 #15 / #13 xhs / CI REST 稿若提到 MCP 则写 npx，不作主 CTA。
+- 验证点：
+  - `cd website && node scripts/assert-docs-seo.mjs` → PASS
+  - `cd frontend && yarn test:seo-static` → dist/llms.txt 含 MCP 尾斜杠 URL 与 `--package`
+
 #### growth：稿件 MCP 主路径改为 npx（未公开发布）
 
 - **证据**：`c1afb1f0` docs-site [33112134723](https://github.com/erdonline/erdonline/actions/runs/33112134723) **success** 后，live 中/英指南 HTML 含 `--package` 与 `erdonline-mcp-0.1.0.tgz`；`/ABS/PATH` 仅出现在贡献者备选句。稿 #13 源稿与掘金粘贴包、#6 源稿仍把 `yarn build` 当主安装。www H1 仍 Git + Figma；未发小红书；未发掘金；未请求 GSC。

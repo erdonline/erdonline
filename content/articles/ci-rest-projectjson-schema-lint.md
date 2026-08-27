@@ -19,7 +19,7 @@ guide: docs/data-format.md
 
 ## 为什么不是「再装一个 MCP」
 
-MCP 适合本地：铸造 PAT → 粘进 `mcp.json` → 对 Agent 说「列出我的项目」。那条路径的逐步说明仍在文档页：[用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。
+MCP 适合本地：铸造 PAT → 把 `npx -y --package` 的 `mcp.json` 粘进 Cursor → 对 Agent 说「列出我的项目」。不必 clone。那条路径的逐步说明仍在文档页：[用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。
 
 CI 要的是另一件事：
 

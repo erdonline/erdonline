@@ -1,0 +1,13 @@
+# ERD Online
+
+> The Git + Figma for database design: versioned ER diagrams, diffs, and live collaboration.
+
+Human start (no login): https://www.erdonline.com/demo
+
+## Docs
+
+- What it is: https://doc.erdonline.com/docs/guide/what-is-erd-online/
+- MCP for Cursor (secondary; same projectJSON, not ChatSQL): https://doc.erdonline.com/docs/guide/api-and-mcp/
+- English MCP: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
+
+mcp.json uses `npx -y --package <GitHub Release tarball> erd-mcp` plus `ERD_PAT`. Demo share is not a PAT. Self-host: `ERD_API_URL=http://127.0.0.1:9502`.

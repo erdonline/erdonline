@@ -42,7 +42,7 @@ PNG 还有一个更隐蔽的成本：它没法进 CI。你不能对一张图跑 
 
 {{CTA}}
 
-已经有登录项目、想让 Cursor 读同一份 JSON：铸造 PAT，复制 Cursor `mcp.json`（揭示弹层里就能拷），步骤在 [用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。写操作必须人在版本 diff 里审批，禁止 Agent 静默覆盖工作区。
+已经有登录项目、想让 Cursor 读同一份 JSON：铸造 PAT，复制弹层里的 `mcp.json`（`npx --package` Release tarball，不必 clone）。步骤在 [用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。写操作必须人在版本 diff 里审批，禁止 Agent 静默覆盖工作区。官方 Demo **铸不了 PAT**。
 
 ## 收尾：搜索词是画图，壁垒是版本
 

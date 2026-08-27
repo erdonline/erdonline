@@ -1,0 +1,37 @@
+# ERD Online
+
+> The Git + Figma for database design: versioned ER diagrams, diffs, and live collaboration. Open-source (MIT).
+
+Not ChatSQL. Not a one-shot “generate an ERD” product. Agents may read the same `projectJSON` the canvas uses; humans still approve versions.
+
+- Product: https://www.erdonline.com/
+- Demo (no login): https://www.erdonline.com/demo
+- Docs: https://doc.erdonline.com/docs/guide/what-is-erd-online/
+
+## MCP (secondary)
+
+Mint a PAT (the public Demo is not a PAT). Paste into Cursor `~/.cursor/mcp.json`. Full steps: https://doc.erdonline.com/docs/guide/api-and-mcp/
+
+English: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`.
