@@ -39,6 +39,7 @@ Best if you need intranet deploy, approval, or agents/scripts on the same model.
 | Full deploy & cloud topologies | [Deployment](/docs/deployment) |
 | Roles & SQL approval | [Roles and approval](./roles-and-approval.md) |
 | Scripts / agents (API · MCP) | [API and MCP](./api-and-mcp.md) |
+| Let Cursor read the diagram, then suggest a version | Same guide; pick prompt `suggest-erd-version`. The public Demo is **not** a PAT. `create_version` API 200 is **not** human approval |
 
 ---
 

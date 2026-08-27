@@ -8,11 +8,18 @@
 
 ### 2026-08-28
 
+#### docs：「从这里开始」点名 suggest-erd-version
+
+- **证据**：what-is 已 live。Navbar「文档」落在 `guide/intro`，路径三只写「API · MCP」不点名 prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
+- **改法**：路径三加一行：Cursor prompt `suggest-erd-version`；Demo 不能当 PAT；API 200 不是人批准。中/英同步。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`；intro 含 `suggest-erd-version`
+
 #### docs：「是什么」点名 suggest-erd-version（次路径）
 
 - **证据**：#13035 / HelloGitHub #3605 无维护者新评。对照页已 live。手册入口 `what-is-erd-online` 只把 MCP 写成一颗子弹，人不知道选 prompt、也不知道 Demo 不能当 PAT。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber；不推 frontend；PAT 不进 URL。
 - **改法**：能力表 + FAQ + 下一步第 4 条链到 MCP 指南；点名 `suggest-erd-version`；API 200 不是人批准。中/英同步。
 - 验证点：`cd website && node scripts/assert-docs-seo.mjs`；what-is 含 `suggest-erd-version`；`yarn build` 绿
+- **线上**：docs-site [33123388278](https://github.com/erdonline/erdonline/actions/runs/33123388278) **success**。`https://doc.erdonline.com/docs/guide/what-is-erd-online/` 与 `/en/docs/guide/what-is-erd-online/` 各含 `suggest-erd-version` ×3。`/docs/guide/what-is/` 404（无短路径）。`/docs/guide/intro/` 当时尚无 prompt（下一刀）。
 
 #### www：对照表 Agent 格点名 suggest-erd-version
 
