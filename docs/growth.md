@@ -232,6 +232,12 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **蒸馏**：`docs/deployment.md`。
 - **状态**：✅ 2026-08-28。live（`ec296a9e` Pages [33109350832](https://github.com/erdonline/erdonline/actions/runs/33109350832) success）：未知 ID **200 保原 URL** 列表壳；`_item` **301 → `/catalog/`**；官方 demo-authz 仍独立 title。同日 hydrate 不再把详情套成列表 SEO。未请求 GSC。
 
+### 营销路径 JSON-LD（2026-08-28）
+
+- **证据**：prerender 只改 JSON-LD `url`，`@type` 仍是首页 WebApplication。
+- **改法**：`/` WebApplication；catalog CollectionPage；官方详情 ItemPage；compare/demo/en WebPage。
+- **状态**：✅ 2026-08-28。live（`0c7f224d` Pages [33110676901](https://github.com/erdonline/erdonline/actions/runs/33110676901) success）curl 如上。未请求 GSC。
+
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
 - **W1 基建+首发**：UTM 规范落地（已随流水线完成）→ 记录 Baidu/CF/GitHub Traffic 基线 → 发 #1（掘金）→ V2EX 轻量帖 → HelloGitHub 投稿
