@@ -636,7 +636,8 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 |---|---|
 | Docusaurus `sitemap.xml` | 现有 `/docs/guide/*`、ADR、首页；`<loc>` 随 `DOCUSAURUS_URL`（CF 构建 = `https://doc.erdonline.com`） |
 | `website/static/robots.txt` | 覆盖 CF 默认 Content-Signal 模板；`Allow: /` + `Sitemap:` |
-| `website/static/_redirects` | `erdonline-docs.pages.dev` → `doc.erdonline.com`；旧路径 **301** 到现行指南（`/docs/faq` → `/docs/guide/intro` 等） |
+| `website/static/_redirects` | 旧路径 **301** 到现行指南（`/docs/faq` → `/docs/guide/intro` 等） |
+| `website/functions/_middleware.js` | `erdonline-docs.pages.dev` **301** 到 `doc.erdonline.com`（`_redirects` 绑不了默认 pages.dev 宿主） |
 | `website/static/_headers` | `robots.txt` / `sitemap.xml` 的 Content-Type |
 
 **自定义域（GSC 能抓到的前提）**

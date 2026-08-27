@@ -17,7 +17,7 @@
 
 - **改法**：`docs-site.yml` 只按 `doc.erdonline.com` 构建并部署 Cloudflare Pages。随后关闭仓库 GitHub Pages（`DELETE /repos/erdonline/erdonline/pages`），删除跳转 stub，github.io 不再提供站点。
 - 验证点：`curl -sI https://erdonline.github.io/erdonline/` → 404；`curl -sI https://doc.erdonline.com/` → 200
-- **补**：`_redirects` 把 `erdonline-docs.pages.dev` 301 到 `doc.erdonline.com`，避免第二套可索引宿主
+- **补**：Pages Function 把 `erdonline-docs.pages.dev` 301 到 `doc.erdonline.com`（CF `_redirects` 无法绑默认 pages.dev 宿主）
 - 验证点：`curl -sI https://erdonline-docs.pages.dev/` → 301 Location 含 `doc.erdonline.com`
 
 #### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
