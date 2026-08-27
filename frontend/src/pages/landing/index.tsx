@@ -238,10 +238,10 @@ const LandingPage: React.FC = () => {
                 <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
                 <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
               </tr>
-              <tr>
+              <tr data-testid="compare-row-agent">
                 <td>{t('landing.compare.row.agent')}</td>
                 <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
-                <td className="landingNo">{t('landing.compare.cell.noSchema')}</td>
+                <td className="landingNo">{t('landing.compare.cell.drawioXml')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
               </tr>

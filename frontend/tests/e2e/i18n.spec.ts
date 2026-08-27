@@ -338,6 +338,10 @@ test.describe('i18n：手动语言切换', () => {
     await page.goto('/en/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveTitle('ERD Online vs draw.io — collaboration, versions, and FK semantics');
+    const enAgent = page.getByTestId('compare-row-agent');
+    await expect(enAgent).toContainText('Agent / MCP');
+    await expect(enAgent).toContainText('projectJSON + MCP');
+    await expect(enAgent).toContainText('Drawing XML, no FK semantics');
 
     await page.goto('/en/catalog');
     await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });

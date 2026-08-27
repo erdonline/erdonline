@@ -30,6 +30,14 @@
 - 验证点：`npx tsx src/utils/mcpJsonSnippet.test.ts` → `install-link href never contains a minted PAT secret`；`yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` 绿（href 不含 minted token）
 - **线上**（2026-08-28）：frontend-demo-site [33114045041](https://github.com/erdonline/erdonline/actions/runs/33114045041) **success**（`762e3d88`）。www `umi.*.js` 已是「装好后把 PAT 换成上方明文 / placeholder PAT」，不再是「已填入本次 PAT」。未发小红书；未请求 GSC；未发 npm。
 
+#### growth：`/compare` 增加 Agent / MCP 行
+
+- **证据**：对照表已有外键行，Agent 行文案仍是「API 事实源 / 无 schema」，搜 draw-ER 的人看不到 Cursor 可读差异。www H1 仍 Git + Figma；首页 SERP 仍 Draw-ERD；未发小红书；未请求 GSC；不发 npm；PAT 不进 URL。
+- **改法**：能力行改为 **Agent / MCP**；ERD = `projectJSON + MCP`；draw.io = 绘图 XML、无外键语义。不宣称 ChatSQL / 一句话生成 ERD。prerender `/compare` `/en/compare` description 补 Agent/MCP，**title/canonical 仍是对照页**。
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/compare.spec.ts --grep "加载对照表"` → 行含 Agent / MCP、projectJSON + MCP、绘图 XML
+  - `yarn test:seo-static` → `/compare` 壳 title 非首页 Draw-ERD；description 含 Agent/MCP
+
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 
 - **证据**：Agent 落在文档站/www 没有短索引；指南已是 npx `--package`。仓内无 `llms-full.txt` 惯例，不新增。www H1 仍 Git + Figma；未发小红书/掘金；未请求 GSC。
