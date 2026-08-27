@@ -21,7 +21,8 @@ permissions:
   deployments: write
 
 concurrency:
-  group: pages
+  # Do not use group name `pages`: GitHub Pages deploys cancel sibling jobs in that group.
+  group: docs-site-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
