@@ -13,6 +13,7 @@
 - **证据**：渠道只剩登录墙。铸造弹层与落地/Home 次链只说到「配 MCP」，人不知道下一步是 `create_version` 给人 diff。不发小红书/npm；不重试 Glama；H1/SERP 未改；PAT 不进 URL。
 - **改法**：PAT `mcpSnippetHint` + 落地开放支柱 CTA + Home 次链点名 `suggest-erd-version` / `create_version`。
 - 验证点：`yarn check:i18n`；`personal-access-tokens.spec.ts` hint 含 suggest-erd-version；landing/home MCP 链文案含「提交一版」；install-link 仍无明文 PAT
+- **线上**：[frontend-demo-site 33120659741](https://github.com/erdonline/erdonline/actions/runs/33120659741) `5cc70f76` **success**。首屏 HTML title 仍 `Draw ER Diagram Online — Free Editor | ERD Online`（无 H1）。hydrate `https://www.erdonline.com/umi.2f10c7f4.js` 含 `suggest-erd-version` / `create_version` / 中文「给 Cursor 配 MCP：读图再提交一版」与 EN “then suggest a version”。`/en/` 同壳 title。未发 npm；未再推 frontend。
 
 #### mcp：clobber 线上 tarball（93ee5272 prompt）
 
