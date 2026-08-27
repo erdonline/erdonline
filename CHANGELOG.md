@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：EN awesome-mcp-servers 种子 PR
+
+- **证据**：`docs/growth.md` 只写「awesome 列表 PR 3–5」，未点名具体仓。英文 MCP 列表以 [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) 为准；仓内当时无 `erdonline`。不发小红书/掘金；不发 npm；不请求 GSC；H1 仍 Git + Figma；PAT 不进 URL。
+- **改法**：fork `whaty/awesome-mcp-servers`，按 CONTRIBUTING 在 **Architecture & Design** 按字母序插入一行（agent 读/写 `projectJSON`，不是 NL 生成图）；安装写 GitHub Release `mcp-v0.1.0` 的 `npx -y --package … erd-mcp`；文档链 `https://doc.erdonline.com/docs/guide/api-and-mcp/`。Agent PR 标题含 🤖🤖🤖。
+- 验证点：PR [punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035) **OPEN**；正文含 repo + docs + npx tarball；未 spam 其它列表。
+
 #### ci：MCP npx tarball 冒烟门禁
 
 - **证据**：30 秒路径依赖 `npm pack` + `npx --package … erd-mcp`；仓内无 CI，tarball 会静默腐坏。无 `NPM_TOKEN`，不发 npmjs。www H1 仍 Git + Figma；未发小红书；未请求 GSC；PAT 不进 URL。

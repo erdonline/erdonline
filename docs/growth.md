@@ -21,7 +21,7 @@
 
 ## 渠道优先级（ROI 排序）
 
-**立刻做（2026-08-28 证据改写）**：今晚 MCP **产品漏斗已收口**（npx / llms / Cursor 一键 / compare 行 / 壳 / JSON-LD）。渠道仍：小红书勿再点发布 → 掘金/思否待登录 → **下一刀未阻塞 = EN awesome-list 种子 PR**。HelloGitHub / 阮一峰 / V2EX / 知乎答题仍做，但不抢已收口的 MCP 产品路径。H1 仍 Git + Figma；www SERP title 仍 draw-ERD。
+**立刻做（2026-08-28 证据改写）**：今晚 MCP **产品漏斗已收口**（npx / llms / Cursor 一键 / compare 行 / 壳 / JSON-LD）。EN 种子 PR 已开：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)（Architecture & Design；agent-readable `projectJSON`，不是 NL 生成图）。渠道仍：小红书勿再点发布 → 掘金/思否待登录 → **下一刀 = HelloGitHub / 阮一峰 / V2EX / 知乎答题**（不抢 MCP 产品路径）。H1 仍 Git + Figma；www SERP title 仍 draw-ERD。
 
 **暂缓（有前置条件）**：Show HN / Reddit / dev.to —— 等 demo 与落地页英文体验完整（i18n 在 P3），EN 用户撞中文 demo = 转化率塌方，宁可晚发不可烂发；B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
 
@@ -189,7 +189,8 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` Agent / MCP 行已上线；壳 description 含 projectJSON。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | Pages `e88434af` 绿；curl description 含 projectJSON；About 已有 mcp |
 | MCP npx CI | 08-28 | ✅ `yarn smoke:npx` 已挂 `mcp-ci.yml`；Actions [33116445179](https://github.com/erdonline/erdonline/actions/runs/33116445179) **success**（`ddd4934c`）。不发 npmjs | `mcp/scripts/smoke-npx-pack.mjs` `.github/workflows/mcp-ci.yml` | GH MCP pack smoke 绿；未发 XHS |
 | 今晚 MCP 漏斗 | 08-28 | ✅ **收口（产品路径）**：npx tarball、llms.txt、Cursor install-link、PAT 明文不进 URL、`/compare` Agent/MCP 行、catalog/compare prerender 壳、路径 JSON-LD。渠道侧 #13 勿再点发布；掘金/思否登录墙 | `docs/growth.md` | 上表各行 + mcp-ci 绿 |
-| 下一刀 | 08-28 | 📋 EN awesome-list 种子 PR（W3「英文只埋种子」）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 未开工 |
+| EN awesome-list | 08-28 | ✅ 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)（`whaty` fork；Architecture & Design；npx Release `mcp-v0.1.0`）。仓内当时未收录。growth.md 未点名第二份空列表，不另开。**不**发小红书/掘金；**不**请求 GSC | README 一行 + CONTRIBUTING 🤖🤖🤖 | PR OPEN；未合入上游 |
+| 下一刀 | 08-28 | 📋 HelloGitHub / 阮一峰 / V2EX / 知乎答题。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 未开工 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 
