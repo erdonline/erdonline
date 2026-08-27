@@ -324,5 +324,49 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     async ({ handle }) => wrapTool(() => api.getCatalogCreator(handle))(),
   );
 
+  server.registerResource(
+    'mcp-guide',
+    'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+    {
+      title: 'ERD Online MCP guide',
+      description:
+        'How agents read/write the same versioned projectJSON as the designer. Git + Figma for schema; not ChatSQL or one-shot ERD generation.',
+      mimeType: 'text/plain',
+    },
+    async (uri) => ({
+      contents: [
+        {
+          uri: String(uri),
+          mimeType: 'text/plain',
+          text:
+            'ERD Online MCP: agents list projects and read/write projectJSON (the designer source of truth). ' +
+            'Mint a PAT; never put a live token in a URL. ' +
+            'Install: npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp ' +
+            'Docs: https://doc.erdonline.com/docs/guide/api-and-mcp/',
+        },
+      ],
+    }),
+  );
+
+  server.registerPrompt(
+    'list-erd-projects',
+    {
+      title: 'List my ER diagrams',
+      description:
+        'List ERD Online projects and read projectJSON. Do not generate an ER diagram from natural language.',
+    },
+    () => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text: 'List my ERD Online projects. Use get_project_schema for the same projectJSON the designer uses. Do not generate an ER diagram from a sentence.',
+          },
+        },
+      ],
+    }),
+  );
+
   return server;
 }

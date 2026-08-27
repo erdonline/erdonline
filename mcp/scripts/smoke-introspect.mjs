@@ -83,6 +83,10 @@ if (init.error) {
 child.stdin.write(JSON.stringify({jsonrpc: '2.0', method: 'notifications/initialized'}) + '\n');
 child.stdin.write(rpc(2, 'tools/list', {}));
 const listed = await waitFor((m) => m.id === 2, 8000);
+child.stdin.write(rpc(3, 'resources/list', {}));
+const resources = await waitFor((m) => m.id === 3, 8000);
+child.stdin.write(rpc(4, 'prompts/list', {}));
+const prompts = await waitFor((m) => m.id === 4, 8000);
 clearTimeout(timer);
 child.kill('SIGTERM');
 
@@ -102,10 +106,26 @@ if (byName.put_project_json?.annotations?.destructiveHint !== true) {
 if (byName.create_version?.annotations?.readOnlyHint !== false) {
   fail('create_version must set annotations.readOnlyHint=false');
 }
+const resourceUris = (resources.result?.resources ?? []).map((r) => r.uri);
+if (!resourceUris.some((u) => String(u).includes('doc.erdonline.com/docs/guide/api-and-mcp'))) {
+  fail(`resources/list missing MCP guide: ${JSON.stringify(resources)}`);
+}
+const promptNames = (prompts.result?.prompts ?? []).map((p) => p.name);
+if (!promptNames.includes('list-erd-projects')) {
+  fail(`prompts/list missing list-erd-projects: ${JSON.stringify(prompts)}`);
+}
 if (stderr.includes('Missing ERD_PAT') && !stderr.includes('stdio ready')) {
   fail('boot still requires PAT');
 }
-console.log('INTROSPECT OK', names.length, 'tools:', names.join(','));
+console.log(
+  'INTROSPECT OK',
+  names.length,
+  'tools;',
+  resourceUris.length,
+  'resources;',
+  promptNames.length,
+  'prompts',
+);
 process.exit(0);
 
 function waitFor(pred, ms) {

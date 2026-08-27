@@ -193,7 +193,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | HelloGitHub | 08-28 | ✅ 投稿 [issue #3605](https://github.com/521xueweihan/HelloGitHub/issues/3605)；截图评论（可选字段、利于收录）：[issuecomment-5445315760](https://github.com/521xueweihan/HelloGitHub/issues/3605#issuecomment-5445315760) 用 `https://doc.erdonline.com/img/guide/mcp-agent-tools.png`（工具表，**不是** PAT 揭示弹层）。**不**发小红书/掘金；**不**请求 GSC | `submit-cn.yaml` + 评论 | issue OPEN；未入月刊 |
 | EN 第二列表 | 08-28 | ⏭ 未开第二份 PR：`appcypher/awesome-mcp-servers` 已 **archived**（fork 无法建 PR）；`wong2/awesome-mcp-servers` 声明不收 PR（改投 mcpservers.org）；官方 `modelcontextprotocol/servers` 已撤第三方列表。不同名小仓 / remote-only 列表当 spam 跳过 | — | 跳过 |
 | MCP Registry | 08-28 | 📋 官方 Registry **未发**：无 `NPM_TOKEN`；`mcp-publisher login github` 要 device OAuth + erdonline **Owner**（`whaty`/`gh` 不够）。Release `.tgz` 不是 mcpb。runbook [`docs/mcp-registry.md`](./mcp-registry.md)。本切片改 tarball 含 README + 弹层「一键后粘贴 PAT」。**不**发 npm / 小红书；**不**请求 GSC | `mcp/server.json` `mcp/README.md` locales | runbook 落地；Registry 空 |
-| MCP annotations | 08-28 | ✅ 12 个 MCP tool 声明 readOnly/destructive（Glama TDQS / Cursor）。#13035 仍 OPEN；Glama URL 404。**不**发小红书/npm；**不**请求 GSC | `mcp/src/create-server.ts` | `yarn smoke:introspect` 断言 annotations |
+| MCP resources | 08-28 | ✅ Glama 未登录（Sign Up），未提交。仓内补 `resources/list` 文档指南 + prompt `list-erd-projects`。**不**发小红书/npm；**不**请求 GSC | `mcp/src/create-server.ts` | `yarn smoke:introspect` |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
