@@ -337,7 +337,16 @@ test.describe('i18n：手动语言切换', () => {
 
     await page.goto('/en/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
-    await expect(page).toHaveTitle('ERD Online comparison — collaboration, versions, and open source');
+    await expect(page).toHaveTitle('ERD Online vs draw.io — collaboration, versions, and FK semantics');
+
+    await page.goto('/en/catalog');
+    await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveTitle('ER diagram templates — free database models | ERD Online');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /ER diagram templates/,
+    );
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/en\/catalog\/?$/);
   });
 
   test('账号设置 PAT/OAuth Modal 与 ResetPassword 随 locale 切换', async ({ page }) => {

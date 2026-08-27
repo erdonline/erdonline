@@ -16,6 +16,7 @@
 - [x] [稿 #15 小红书长文草稿] 梁工造物写长文已填标题+正文，字数 1358，自动保存于 01:32；**未点一键排版、未点发布** ✅ 2026-08-28
 - [x] [稿 #16 小红书长文草稿] 梁工造物写长文已填标题+开头/中间/结尾，字数 1385，自动保存于 02:05；**未点一键排版、未点发布** ✅ 2026-08-28
 - [x] [对照页 draw.io] `/compare` + 落地摘要表含 draw.io 列与「关系语义 / 外键」；对照 title 含 draw.io；www H1/SERP 未改 ✅ 2026-08-28
+- [x] [catalog 独立 SEO] `catalog.spec.ts`「列表 SEO」title 含「ER 图模板」且不含 Draw ER Diagram Online；`i18n.spec.ts` `/en/catalog` 含 ER diagram templates；www H1/SERP 未改 ✅ 2026-08-28
 - [x] [掘金粘贴包] `content/articles/cursor-mcp-read-and-suggest-version.juejin.md` 主 CTA 为文档 MCP + `utm_source=juejin` ✅ 2026-08-28
 - [ ] [掘金发 #13] Chrome 登录掘金后粘贴上述稿 → 公开发布 URL（本机 2026-08-28 为验证码墙，未发；切片 6 跳过）
 - [x] [稿 #14 CI schema-lint] `node scripts/growth/build-package.mjs ci-rest-projectjson-schema-lint` → 主 CTA 文档 MCP 页 + `utm_source=juejin`；汉字 ≥ 800 ✅ 2026-08-28

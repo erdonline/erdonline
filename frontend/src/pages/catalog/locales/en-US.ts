@@ -3,6 +3,9 @@
  */
 export default {
   'catalog.title': 'Template catalog',
+  'catalog.seo.title': 'ER diagram templates — free database models | ERD Online',
+  'catalog.seo.description':
+    'Browse free ER diagram templates. Install an official or community database model in the browser, then edit, version, and collaborate.',
   'catalog.backToCatalog': '← Back to template catalog',
   'catalog.backToCatalogShort': 'Back to catalog',
   'catalog.installCount': '{count, plural, one {# install} other {# installs}}',

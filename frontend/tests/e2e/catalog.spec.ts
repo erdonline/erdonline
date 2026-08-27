@@ -9,6 +9,17 @@ import {
  * ADR-0028：模板广场 MVP — 浏览 → 安装 → 设计器
  */
 test.describe('模板广场', () => {
+  test('列表 SEO 独立于首页 title', async ({ page }) => {
+    await page.goto('/catalog');
+    await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveTitle(/ER 图模板/);
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /ER 图模板/,
+    );
+    await expect(page).not.toHaveTitle(/Draw ER Diagram Online/);
+  });
+
   test('匿名可浏览列表与详情', async ({ page }) => {
     await page.goto('/catalog');
     await expect(page.getByTestId('catalog-chrome')).toBeVisible({ timeout: 15_000 });
