@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：Glama 内省 + awesome PR badge
+
+- **证据**：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035) bot 要求上 Glama 并加 score badge。HelloGitHub #3605 无维护者回复。不发小红书/npm；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。
+- **改法**：无 PAT 也可 boot + `tools/list`；`mcp/Dockerfile`（stdio，无密钥）；根 `glama.json`；CI `yarn smoke:introspect`。PR 补 Glama badge。
+- 验证点：`cd mcp && yarn smoke:introspect` → `INTROSPECT OK` 12 tools；本机 `docker build` 拉 `node:20-alpine` 超时未完成（Dockerfile 仍提交，供 Glama 云端构建）。
+
 #### growth：官方 MCP Registry 发不出去；tarball 带 README
 
 - **证据**：现行 [quickstart](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx) 要求 npm 制品 + `mcp-publisher login github`（device OAuth）。无 `NPM_TOKEN`；`gh`/`whaty` 不能代替 org Owner 授权；Release `.tgz` 不是 `mcpb`。不发小红书；不发 npmjs；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。

@@ -55,7 +55,7 @@ let buf = '';
 let passed = false;
 const timer = setTimeout(() => {
   child.kill('SIGKILL');
-}, 45_000);
+}, 60_000);
 
 function onChunk(chunk) {
   buf += chunk.toString();

@@ -31,3 +31,7 @@ jobs:
       - name: yarn build + npm pack + npx erd-mcp
         working-directory: mcp
         run: yarn smoke:npx
+
+      - name: stdio initialize + tools/list without PAT
+        working-directory: mcp
+        run: yarn smoke:introspect
