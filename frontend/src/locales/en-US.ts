@@ -294,9 +294,10 @@ export default {
     'Multiplayer editing with presence; reviews and approvals land in auditable versions.',
   'landing.pillars.open.title': 'Open',
   'landing.pillars.open.body':
-    'Public projectJSON; agents read the same model via MCP, then humans diff and approve versions.',
-  'landing.pillars.open.mcpCta': 'Connect Cursor / Claude via MCP',
-  'landing.pillars.open.mcpCtaAria': 'Open docs: let Cursor or Claude read your ER diagram via MCP',
+    'Public projectJSON; agents read the same model via MCP, then create_version so a human can diff. Do not generate an ER diagram from a sentence.',
+  'landing.pillars.open.mcpCta': 'Connect Cursor via MCP — then suggest a version',
+  'landing.pillars.open.mcpCtaAria':
+    'Open docs: let Cursor read your ER diagram via MCP, then create_version for a human diff — do not generate a new diagram',
   'landing.demo.title': '30-second path',
   'landing.demo.lead':
     'Open the online demo, see a real diagram, then decide whether to register or self-host.',
@@ -538,7 +539,7 @@ export default {
   'accountSettings.pat.copiedSuccess': 'Token copied',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    'Paste into ~/.cursor/mcp.json. npx fetches the MCP package — no local clone. The public Demo is not a PAT. Self-host: set ERD_API_URL to http://127.0.0.1:9502.',
+    'Paste into ~/.cursor/mcp.json. npx fetches the MCP package — no local clone. The public Demo is not a PAT. After connect, run prompt suggest-erd-version or have the agent call create_version; you open the version diff. Do not generate a new ER diagram from a sentence. Self-host: set ERD_API_URL to http://127.0.0.1:9502.',
   'accountSettings.pat.copyMcpJsonAria': 'Copy Cursor mcp.json config',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
   'accountSettings.pat.mcpDocsLink': '30-second setup docs',
@@ -644,8 +645,9 @@ export default {
   'homePage.newModel': 'New model',
   'homePage.startFromExample': 'Start from example',
   'homePage.fromTemplate': 'Create from template',
-  'homePage.mcpDocs': 'Connect Cursor via MCP',
-  'homePage.mcpDocsAria': 'Open docs: let Cursor read your ER diagram via MCP',
+  'homePage.mcpDocs': 'Connect Cursor via MCP — then suggest a version',
+  'homePage.mcpDocsAria':
+    'Open docs: let Cursor read your ER diagram via MCP, then create_version for a human diff — do not generate a new diagram',
   'homePage.noRecentProject': 'No recent projects. Create a model or try the example.',
   'homePage.nav.personProjects': 'Personal projects',
   'homePage.nav.recentProjects': 'Recent projects',

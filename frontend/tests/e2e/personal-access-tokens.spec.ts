@@ -67,6 +67,12 @@ test.describe('访问令牌设置', () => {
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
+    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
+      'suggest-erd-version',
+    );
+    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
+      'create_version',
+    );
 
     await page.getByRole('button', { name: '复制新建访问令牌' }).click();
     await expectToast(page, '访问令牌已复制');
@@ -186,6 +192,12 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     await expect(page.getByTestId('pat-mcp-docs')).toHaveAttribute(
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+    );
+    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
+      'suggest-erd-version',
+    );
+    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
+      'create_version',
     );
     const install = reveal.getByTestId('pat-cursor-install-link');
     await expect(install).toBeVisible();

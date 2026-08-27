@@ -278,9 +278,10 @@ export default {
   'landing.pillars.collab.body': '多人同图实时编辑与 presence，评审与审批流把变更收进可审计的版本。',
   'landing.pillars.open.title': '开放',
   'landing.pillars.open.body':
-    'projectJSON 公开格式；Agent 可通过 MCP 读取同一份模型，人再 diff 审批版本。',
-  'landing.pillars.open.mcpCta': '给 Cursor / Claude 配 MCP',
-  'landing.pillars.open.mcpCtaAria': '打开文档：用 MCP 让 Cursor 或 Claude 读取 ER 图',
+    'projectJSON 公开格式；Agent 可通过 MCP 读取同一份模型，用 create_version 提交一版，人再 diff。不要让 Agent 凭一句话生成新图。',
+  'landing.pillars.open.mcpCta': '给 Cursor 配 MCP：读图再提交一版',
+  'landing.pillars.open.mcpCtaAria':
+    '打开文档：用 MCP 让 Cursor 读取 ER 图，再 create_version 给人 diff，不要生成新图',
   'landing.demo.title': '30 秒动线',
   'landing.demo.lead': '打开在线 demo，看到真实关系图，再决定是否注册或自部署。',
   'landing.demo.cta.selfHost': '自部署指南',
@@ -515,7 +516,7 @@ export default {
   'accountSettings.pat.copiedSuccess': '访问令牌已复制',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    '粘进 ~/.cursor/mcp.json。npx 会拉取 MCP 包，不必本机 clone。官方 Demo 不能当 PAT。自托管把 ERD_API_URL 改成 http://127.0.0.1:9502。',
+    '粘进 ~/.cursor/mcp.json。npx 会拉取 MCP 包，不必本机 clone。官方 Demo 不能当 PAT。接通后在 Cursor 选 prompt suggest-erd-version，或让 Agent 调 create_version，你再打开版本 diff；不要凭一句话生成新图。自托管把 ERD_API_URL 改成 http://127.0.0.1:9502。',
   'accountSettings.pat.copyMcpJsonAria': '复制 Cursor mcp.json 配置',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
@@ -617,8 +618,9 @@ export default {
   'homePage.newModel': '新建模型',
   'homePage.startFromExample': '从示例开始',
   'homePage.fromTemplate': '从模板创建',
-  'homePage.mcpDocs': '给 Cursor 配 MCP',
-  'homePage.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
+  'homePage.mcpDocs': '给 Cursor 配 MCP：读图再提交一版',
+  'homePage.mcpDocsAria':
+    '打开文档：用 MCP 让 Cursor 读取 ER 图，再 create_version 给人 diff，不要生成新图',
   'homePage.noRecentProject': '暂无最近项目，请新建模型或从示例开始',
   'homePage.nav.personProjects': '个人项目',
   'homePage.nav.recentProjects': '最近项目',
