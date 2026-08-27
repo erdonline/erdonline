@@ -37,6 +37,11 @@
 - 验证点：
   - `yarn test:e2e --project=chromium tests/e2e/compare.spec.ts --grep "加载对照表"` → 行含 Agent / MCP、projectJSON + MCP、绘图 XML
   - `yarn test:seo-static` → `/compare` 壳 title 非首页 Draw-ERD；description 含 Agent/MCP
+- **线上**（2026-08-28）：frontend-demo-site [33115307526](https://github.com/erdonline/erdonline/actions/runs/33115307526) **success**（`0567a74a`）。未发小红书；未请求 GSC；未发 npm；PAT 不进 URL。
+  - `https://www.erdonline.com/compare` **200** title「ERD Online vs draw.io — 协作、版本与外键语义」canonical `/compare`（非首页 Draw-ERD）；description 含 Agent/MCP
+  - `https://www.erdonline.com/en/compare` **200** 英文对照 title + canonical `/en/compare`；description 含 Agent/MCP
+  - hydrate `umi.4002ab0d.js` 含 `Agent / MCP` 与 `projectJSON + MCP`
+  - 首屏 HTML 当时无 `projectJSON` 字样 → 壳 description 补 `projectJSON`
 
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 
