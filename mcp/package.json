@@ -14,13 +14,15 @@
   "type": "module",
   "files": [
     "dist",
-    "README.md"
+    "README.md",
+    "guide"
   ],
   "bin": {
     "erd-mcp": "./dist/index.js"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json",
+    "sync-guide": "node scripts/sync-guide.mjs",
+    "build": "node scripts/sync-guide.mjs && tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "dogfood": "tsx scripts/dogfood.ts",

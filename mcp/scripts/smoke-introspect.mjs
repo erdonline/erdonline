@@ -87,6 +87,16 @@ child.stdin.write(rpc(3, 'resources/list', {}));
 const resources = await waitFor((m) => m.id === 3, 8000);
 child.stdin.write(rpc(4, 'prompts/list', {}));
 const prompts = await waitFor((m) => m.id === 4, 8000);
+child.stdin.write(
+  rpc(5, 'resources/read', {
+    uri: 'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+  }),
+);
+const guide = await waitFor((m) => m.id === 5, 8000);
+child.stdin.write(
+  rpc(6, 'tools/call', {name: 'list_projects', arguments: {}}),
+);
+const called = await waitFor((m) => m.id === 6, 8000);
 clearTimeout(timer);
 child.kill('SIGTERM');
 
@@ -113,6 +123,20 @@ if (!resourceUris.some((u) => String(u).includes('doc.erdonline.com/docs/guide/a
 const promptNames = (prompts.result?.prompts ?? []).map((p) => p.name);
 if (!promptNames.includes('list-erd-projects')) {
   fail(`prompts/list missing list-erd-projects: ${JSON.stringify(prompts)}`);
+}
+const guideText = guide.result?.contents?.[0]?.text ?? '';
+if (!guideText.includes('projectJSON') || !guideText.includes('30 秒接到 Cursor')) {
+  fail(`resources/read must serve api-and-mcp markdown: ${guideText.slice(0, 200)}`);
+}
+if (called.result?.isError !== true) {
+  fail(`tools/call without PAT must be isError: ${JSON.stringify(called)}`);
+}
+const callText = called.result?.content?.[0]?.text ?? '';
+if (!callText.includes('ERD_PAT') || !callText.includes('doc.erdonline.com/docs/guide/api-and-mcp')) {
+  fail(`missing-PAT tool error must name ERD_PAT and the guide URL: ${callText}`);
+}
+if (callText.includes('erd_pat_m') || /erd_pat_[a-z0-9]{8,}/i.test(callText)) {
+  fail(`tool error leaked a PAT-shaped secret: ${callText}`);
 }
 if (stderr.includes('Missing ERD_PAT') && !stderr.includes('stdio ready')) {
   fail('boot still requires PAT');

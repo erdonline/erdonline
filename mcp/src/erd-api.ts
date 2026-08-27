@@ -44,6 +44,18 @@ export type UpdateProjectInput = {
   tags?: string;
 };
 
+/** Shown on tools/call when boot succeeded without a usable PAT. */
+export const MISSING_PAT_MESSAGE =
+  'Missing ERD_PAT. Mint a personal access token in ERD Online (Account settings → Personal access tokens: https://www.erdonline.com/account/settings?selectKey=personalAccessTokens), then set env ERD_PAT in mcp.json. The Cursor install-link uses placeholder erd_pat_… — that is not a token; never put a live PAT in a URL. Guide: https://doc.erdonline.com/docs/guide/api-and-mcp/';
+
+export function isUnusablePat(pat: string | undefined): boolean {
+  const t = (pat ?? '').trim();
+  if (!t) return true;
+  if (t === 'erd_pat_…' || t === 'erd_pat_...') return true;
+  if (/^erd_pat_[.…]+$/.test(t)) return true;
+  return false;
+}
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {
@@ -181,11 +193,8 @@ export class ErdApiClient {
     path: string,
     body?: unknown,
   ): Promise<unknown> {
-    if (!this.config.pat) {
-      throw new ErdApiError(
-        'Missing ERD_PAT (or ERD_API_TOKEN). Mint via POST /auth/personal-access-tokens',
-        401,
-      );
+    if (isUnusablePat(this.config.pat)) {
+      throw new ErdApiError(MISSING_PAT_MESSAGE, 401);
     }
     const url = `${this.config.baseUrl}${path}`;
     const headers: Record<string, string> = {
