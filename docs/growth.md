@@ -200,7 +200,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | MCP tarball clobber FAQ | 08-28 | ✅ 同 tag `--clobber` 含 55561b50 FAQ。文档站 live。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11303 B；live npx ready；doc.erdonline.com FAQ 200 |
 | MCP suggest-version prompt | 08-28 | ✅ EN FAQ live 已核。仓内 prompt `suggest-erd-version` + README 30 秒收口。**不**发小红书/npm；不重试 Glama | `mcp/src/create-server.ts` README | `yarn smoke:introspect` prompts 含该名 |
 | MCP tarball clobber prompt | 08-28 | ✅ 同 tag `--clobber` 含 93ee5272 `suggest-erd-version`。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11462 B；live npx `stdio ready` |
-| www MCP CTA / PAT 弹层 | 08-28 | ✅ 弹层 hint + 落地/Home 次链写明 `suggest-erd-version` / `create_version` 人 diff。**不**发小红书/npm；H1 未改；PAT 不进 URL | locales + PAT Modal | `check:i18n`；pat hint + landing/home E2E |
+| www MCP CTA / PAT 弹层 | 08-28 | ✅ 弹层 hint + 落地/Home 次链写明 `suggest-erd-version` / `create_version` 人 diff。**不**发小红书/npm；H1 未改；PAT 不进 URL | locales + PAT Modal | Pages [33120659741](https://github.com/erdonline/erdonline/actions/runs/33120659741) 绿；`umi.2f10c7f4.js` 含 CTA；SERP title 仍 Draw ER |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
