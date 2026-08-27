@@ -15,7 +15,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 ![铸造 PAT 后明文只显示一次，弹层可复制 mcp.json](/img/guide/mcp-pat-reveal.png)
 
-2. 铸造 PAT 后可 [一键加入 Cursor](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)（官方 [install-links](https://cursor.com/docs/mcp/install-links)；协议 `cursor://anysphere.cursor-deeplink/mcp/install`）。装好后把 `ERD_PAT` 换成弹层明文。
+2. 铸造 PAT 后可 [一键加入 Cursor](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)（官方 [install-links](https://cursor.com/docs/mcp/install-links)；协议 `cursor://anysphere.cursor-deeplink/mcp/install`）。**一键链接不会把 PAT 编进 URL**；请从弹层复制框粘贴已填好的 `mcp.json`，或装好后把占位符换成明文。
 
 或把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`（Claude Desktop 同结构）。把 `erd_pat_…` 换成你的 PAT（弹层已填好）。`npx -y --package … erd-mcp` 会拉取 GitHub Release 里的 MCP 包，**不必**本机 clone。
 
