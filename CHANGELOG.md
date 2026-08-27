@@ -8,6 +8,16 @@
 
 ### 2026-08-28
 
+#### mcp：clobber 线上 tarball（7e693748 README）
+
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11785 B；live `package/README.md` 含 `suggest-erd-version` / `API 200`；live npx → `erd-mcp stdio ready`。未发 npm；未改 tag。
+
+#### docs：根 README 写明 API 200 不是人批准
+
+- **证据**：#13035/#3605 无新维护者评。仓根 README 已有 `suggest-erd-version`，但没写 API 200 ≠ 人批准。渠道只剩登录墙。不发小红书/npm；不推 frontend。
+- **改法**：中/英 README 30 秒 MCP 段补一句：`create_version` 的 API 200 不是人批准。
+- 验证点：`README.md` 与 `README.en-US.md` 含 `API 200` + `suggest-erd-version`
+
 #### mcp：README 30 秒路径点名 suggest-erd-version
 
 - **证据**：存版指南已 live。GitHub `mcp/README` 安装段只写 npx，不点名 Cursor prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；**不 clobber** tarball。
