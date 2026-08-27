@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### docs：「是什么」点名 suggest-erd-version（次路径）
+
+- **证据**：#13035 / HelloGitHub #3605 无维护者新评。对照页已 live。手册入口 `what-is-erd-online` 只把 MCP 写成一颗子弹，人不知道选 prompt、也不知道 Demo 不能当 PAT。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber；不推 frontend；PAT 不进 URL。
+- **改法**：能力表 + FAQ + 下一步第 4 条链到 MCP 指南；点名 `suggest-erd-version`；API 200 不是人批准。中/英同步。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`；what-is 含 `suggest-erd-version`；`yarn build` 绿
+
 #### www：对照表 Agent 格点名 suggest-erd-version
 
 - **证据**：MCP 指南已 live。GSC `/compare` 有展示，但格子仍是泛化 `projectJSON + MCP`，壳 description 未点名 prompt。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber；PAT 不进 URL；H1/对照 title 未改。

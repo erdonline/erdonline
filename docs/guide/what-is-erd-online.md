@@ -26,6 +26,7 @@
 | 数据源逆向 | MySQL / PostgreSQL / Oracle / SQL Server |
 | 协作与权限 | 多人同项目；角色与 SQL 审批 |
 | 自托管 | `docker compose up -d` |
+| Agent / MCP（次路径） | Cursor prompt `suggest-erd-version`：读同一份 projectJSON，`create_version` 后人 diff。官方 Demo **不能**当 PAT |
 
 ## 第一次打开 Demo 你会看到什么
 
@@ -42,12 +43,14 @@
 | Demo 打不开 / 一直转圈 | 换网络或稍后再试；确认是 [www.erdonline.com/demo](https://www.erdonline.com/demo) |
 | 想改表但提示只读 | 点 **复制到我的项目** 或登录后再进设计器 |
 | 想连自己的数据库 | Demo / 公开分享**不能**连私有库 → [五分钟自托管](./quick-self-host.md) |
-| 想和 draw.io / dbdiagram 对比 | [对照页](https://www.erdonline.com/compare)（含外键语义一行） |
+| 想和 draw.io / dbdiagram 对比 | [对照页](https://www.erdonline.com/compare)（含外键语义与 Agent/MCP 行） |
+| 想让 Cursor 读正在画的图 | 官方 Demo **不能**当 PAT。先复制到自己的项目并铸造令牌，再走 [MCP 指南](./api-and-mcp.md)；选 prompt `suggest-erd-version`。`create_version` 的 API 200 **不是**人批准 |
 
 ## 下一步
 
 1. [保存版本并查看 diff](./save-version-and-diff.md) — 走通核心闭环（推荐）  
 2. [导入 DBML](./import-dbml.md) 或 [数据源逆向](./reverse-engineer.md) — 迁入已有模型  
 3. [五分钟自托管](./quick-self-host.md) — 数据留在自己环境  
+4. [用 MCP 让 Cursor 读取 ER 图](./api-and-mcp.md) — 次路径；选 prompt `suggest-erd-version`；API 200 不是人批准  
 
 定位与取舍长文（维护者）：[愿景](../vision.md)
