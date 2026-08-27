@@ -2,5 +2,7 @@
 User-agent: *
 Allow: /
 
+# Agent index (llmstxt.org): https://doc.erdonline.com/llms.txt
+
 Sitemap: https://doc.erdonline.com/sitemap.xml
 Sitemap: https://doc.erdonline.com/en/sitemap.xml

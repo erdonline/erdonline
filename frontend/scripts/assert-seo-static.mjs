@@ -257,6 +257,30 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
   assertSitemapFile(distDir, siteUrl);
   assertRedirects(distDir);
 
+  const llmsPath = path.join(distDir, "llms.txt");
+  if (!fs.existsSync(llmsPath)) {
+    fail("dist/llms.txt missing");
+  } else {
+    const llms = fs.readFileSync(llmsPath, "utf8");
+    if (!llms.includes("https://doc.erdonline.com/docs/guide/api-and-mcp/")) {
+      fail("llms.txt must link MCP guide with trailing slash");
+    }
+    if (!llms.includes("npx") || !llms.includes("--package")) {
+      fail("llms.txt must mention npx --package mcp.json shape");
+    }
+    if (!/Git \+ Figma/i.test(llms)) {
+      fail("llms.txt must keep Git + Figma positioning");
+    }
+    if (/github\.io/i.test(llms)) {
+      fail("llms.txt must not use github.io");
+    }
+  }
+
+  const robotsTxt = fs.readFileSync(path.join(distDir, "robots.txt"), "utf8");
+  if (!robotsTxt.includes(`${siteUrl}/llms.txt`)) {
+    fail("robots.txt must point agents at llms.txt");
+  }
+
   assertShell(distDir, siteUrl, "/", {
     title: HOME_SEO.title,
     canonical: `${siteUrl}/`,

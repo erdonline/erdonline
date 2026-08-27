@@ -9,6 +9,9 @@
 /robots.txt
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
 
 # Umi content-hashed build output: safe to cache forever (new hash per deploy).
 # Patterns avoid /env-config.js and /js/html2canvas.min.js (unhashed) to prevent
