@@ -53,7 +53,7 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 | 1 Docs 30-second MCP path + SEO + article #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) copy-paste; landing Open pillar link; `content/articles/cursor-mcp-read-and-suggest-version.md` |
 | 2 Publish #13 on Xiaohongshu / Juejin | 🚧 2026-08-28 | XHS in review [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd) (do not republish); Juejin paste pack tracked, publish blocked on login |
 | 3 Logged-in workspace MCP secondary entry | ✅ 2026-08-28 | Home hero MCP link; stat relabel “Edited today” |
-| 4 PAT success screen embeds mcp.json | 📋 | Copy after mint |
+| 4 PAT success screen embeds mcp.json | ✅ 2026-08-28 | Reveal modal copies PAT-filled Cursor `mcp.json` |
 | 5–8 screenshots / indexing / CI-lint article / two-week review | 📋 | See growth table |
 
 ### Landing (public, brand-first, one composition) ✅

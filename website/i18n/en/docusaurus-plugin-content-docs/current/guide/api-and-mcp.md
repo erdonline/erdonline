@@ -11,7 +11,7 @@ Want Cursor or Claude to read the ER diagram you are editing? Use authenticated 
 
 ## Connect Cursor in 30 seconds
 
-1. After sign-in, open **Account settings → Personal access tokens**: [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens). Read-only is enough to start; the plaintext is shown once. The public Demo is a read-only share—**not** a PAT. You need your own project.
+1. After sign-in, open **Account settings → Personal access tokens**: [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens). Read-only is enough to start; the plaintext is shown once, **and the success dialog includes a PAT-filled `mcp.json` you can copy**. The public Demo is a read-only share—**not** a PAT. You need your own project.
 2. MCP is **not** in the Docker image. Clone and build:
 
 ```bash
