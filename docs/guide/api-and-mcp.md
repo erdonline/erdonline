@@ -43,7 +43,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。MCP **不在** Docker 镜像内。
 
-3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。
+3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。列表为空时，先在设计器里建一个**自己的**项目（官方 Demo 不能当 PAT）。Agent 若仍提示 `erd_pat_…`：把弹层明文粘进 `mcp.json`——一键链接不会带 PAT。不要让 Agent 凭一句话生成一张新 ER 图。
 
 贡献者若要从源码跑：`cd mcp && yarn install && yarn build`，再用 `node /ABS/PATH/to/erdonline/mcp/dist/index.js`。开发免编译可用 `npx tsx mcp/src/index.ts`。
 
@@ -92,7 +92,10 @@ cd mcp && yarn start -- --http
 
 | 现象 | 可尝试 |
 |---|---|
-| 401 / 403 | 检查 PAT 是否过期、scope 是否足够、是否打到正确环境 |
+| 401 / 403 | 检查 PAT 是否过期、scope 是否足够、是否打到正确环境；过期则重新[铸造](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) |
+| Agent 说 Missing ERD_PAT / 仍是 `erd_pat_…` | 占位符不是令牌。把铸造弹层里的明文粘进 `mcp.json` 的 `ERD_PAT`。一键安装链接**不会**把 PAT 编进 URL |
+| `list_projects` 为空 | 先在设计器新建自己的项目，再说「列出我的 ERD 项目」。官方 Demo 分享链接**不能**当 PAT |
+| Agent 画了一张新 ER 图 | 叫它 `list_projects` 再 `get_project_schema`，读写你已有的 projectJSON，不要从自然语言生成图 |
 | 分享链接能看图但 API 失败 | 分享只读 token **不能**当 API 凭证 |
 | MCP 连不上 | 确认 MCP 进程已单独启动；Token / 路径与文档一致 |
 | compose 起来了但没有 MCP | 预期行为；MCP 在 `mcp/` 目录另启 |

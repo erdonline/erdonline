@@ -43,7 +43,7 @@ Or paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the
 
 For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. MCP is **not** in the Docker image.
 
-3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`.
+3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`. If the list is empty, create **your own** project in the designer first (the official Demo is not a PAT). If the agent still says `erd_pat_…`, paste the minted token into `mcp.json` — the one-click install link never embeds a live PAT. Do not ask the agent to generate a new ER diagram from a sentence.
 
 To run from source: `cd mcp && yarn install && yarn build`, then `node /ABS/PATH/to/erdonline/mcp/dist/index.js`. During development you can use `npx tsx mcp/src/index.ts`.
 
@@ -92,7 +92,10 @@ cd mcp && yarn start -- --http
 
 | Symptom | Try |
 |---|---|
-| 401 / 403 | Expired PAT, insufficient scope, or wrong environment |
+| 401 / 403 | Expired PAT, insufficient scope, or wrong environment; remint at [Personal access tokens](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) |
+| Agent says Missing ERD_PAT / still `erd_pat_…` | The placeholder is not a token. Paste the minted plaintext into `mcp.json` `ERD_PAT`. The one-click install link **never** puts a PAT in the URL |
+| `list_projects` is empty | Create your own project in the designer, then ask again. The official Demo share is **not** a PAT |
+| Agent drew a new ER diagram | Tell it to `list_projects` then `get_project_schema` — read/write your existing projectJSON; do not generate a diagram from natural language |
 | Share link works but API fails | Share read-only tokens are **not** API credentials |
 | MCP won’t connect | MCP process must be started separately; token/path must match docs |
 | Compose is up but no MCP | Expected; start MCP from `mcp/` |

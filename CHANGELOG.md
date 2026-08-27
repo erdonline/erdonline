@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：首次接通空列表 / 占位符 PAT 可感知排障
+
+- **证据**：渠道只剩登录墙。人按 30 秒 npx 接通后最常见两件事：Agent 仍拿着 `erd_pat_…`，或 `list_projects` 为空却被理解成「没产品」。不发小红书/npm；不请求 GSC；不重试 Glama；H1 未改。
+- **改法**：中/英 MCP 指南第 3 步 + FAQ 写清占位符不是令牌、Demo 不是 PAT、空列表先建自己的项目。MCP 对空 `items` 附加 hint；API 401/403 附铸造链接。
+- 验证点：`cd mcp && yarn smoke:introspect`；`docs/guide/api-and-mcp.md` 与英译本含 `erd_pat_…` 排障行与「Demo」
+
 #### mcp：clobber 线上 tarball（8370490a）
 
 - **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：10606 B；`tar tzf` 含 `package/guide/api-and-mcp.md` 与 `package/dist/load-guide.js`；`npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp` → `erd-mcp stdio ready`。未发 npm；未改 tag。
