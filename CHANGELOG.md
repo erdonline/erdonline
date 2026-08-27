@@ -8,6 +8,10 @@
 
 ### 2026-08-28
 
+#### mcp：clobber 线上 tarball（55561b50 FAQ）
+
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11303 B；`tar tzf` 含 `package/guide/api-and-mcp.md`（占位符不是令牌 / 不要从自然语言生成图）；live npx → `erd-mcp stdio ready`。文档站 [33119782923](https://github.com/erdonline/erdonline/actions/runs/33119782923) **success**；`https://doc.erdonline.com/docs/guide/api-and-mcp/` 已含 FAQ。未发 npm；未改 tag。
+
 #### mcp：首次接通空列表 / 占位符 PAT 可感知排障
 
 - **证据**：渠道只剩登录墙。人按 30 秒 npx 接通后最常见两件事：Agent 仍拿着 `erd_pat_…`，或 `list_projects` 为空却被理解成「没产品」。不发小红书/npm；不请求 GSC；不重试 Glama；H1 未改。

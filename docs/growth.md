@@ -197,6 +197,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | MCP PAT 报错 + 指南正文 | 08-28 | ✅ 缺 PAT / 占位符 `erd_pat_…` 时 `tools/call` 给出铸造路径 + 文档 URL；`resources/read` 返回 api-and-mcp.md。**不**发小红书/npm；**不**请求 GSC；不重试 Glama | `mcp/src/erd-api.ts` `mcp/src/load-guide.ts` | `yarn smoke:introspect`（read + call） |
 | MCP tarball clobber | 08-28 | ✅ 同 tag `mcp-v0.1.0` `--clobber` 含 8370490a。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 10606 B；live npx `stdio ready`；`tar tzf` 含 guide md |
 | MCP 首次接通排障 | 08-28 | ✅ 文档第 3 步 + FAQ：占位符 PAT / 空列表 / 禁止生成图；`list_projects` 空结果带 hint。**不**发小红书/npm；不重试 Glama | `docs/guide/api-and-mcp.md` `mcp/src/erd-api.ts` | `yarn smoke:introspect`；指南含 Demo 排障 |
+| MCP tarball clobber FAQ | 08-28 | ✅ 同 tag `--clobber` 含 55561b50 FAQ。文档站 live。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11303 B；live npx ready；doc.erdonline.com FAQ 200 |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
