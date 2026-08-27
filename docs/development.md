@@ -329,7 +329,7 @@ yarn dogfood            # 读写 PAT + REST/MCP（create_version / update_projec
 yarn smoke:npx          # CI：npm pack 后 npx --package tarball 须打出 stdio ready
 ```
 
-详见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
+详见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。官方 Registry 发布（📋 待 npm + org Owner）：[`docs/mcp-registry.md`](./mcp-registry.md)。
 
 ### 模板广场（ADR-0028）
 

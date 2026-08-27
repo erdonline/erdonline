@@ -2,6 +2,7 @@
   "name": "@erdonline/mcp",
   "version": "0.1.0",
   "private": true,
+  "mcpName": "io.github.erdonline/erdonline",
   "description": "MCP server for ERD Online Public API v1 (PAT; read + write tools)",
   "license": "MIT",
   "homepage": "https://doc.erdonline.com/docs/guide/api-and-mcp/",
@@ -12,7 +13,8 @@
   },
   "type": "module",
   "files": [
-    "dist"
+    "dist",
+    "README.md"
   ],
   "bin": {
     "erd-mcp": "./dist/index.js"

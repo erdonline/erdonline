@@ -521,9 +521,9 @@ export default {
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
   'accountSettings.pat.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
   'accountSettings.pat.mcpCursorInstallLink':
-    '一键加入 Cursor（装好后把 PAT 换成上方明文）',
+    '一键加入 Cursor（链接是占位符；装好后把上方复制框里的明文 PAT 贴进去）',
   'accountSettings.pat.mcpCursorInstallAria':
-    '打开官方 Cursor 安装链接（配置里是占位符，明文 PAT 只在上方 mcp.json）',
+    '打开官方 Cursor 安装链接（URL 里是占位符，装好后把复制框里的明文 PAT 贴进去）',
 
   'accountSettings.oauthClient.loadFailed': '加载 OAuth 客户端失败',
   'accountSettings.oauthClient.registerSuccess': 'OAuth 客户端已注册',

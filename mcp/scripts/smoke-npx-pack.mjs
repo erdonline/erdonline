@@ -29,6 +29,17 @@ if (!fs.existsSync(tgz)) {
   process.exit(1);
 }
 
+const listing = spawnSync('tar', ['tzf', tgz], {encoding: 'utf8'});
+if (listing.status !== 0) {
+  console.error(listing.stderr || 'tar tzf failed');
+  process.exit(listing.status ?? 1);
+}
+if (!listing.stdout.split('\n').some((l) => l === 'package/README.md')) {
+  console.error(listing.stdout);
+  console.error('FAIL: tarball missing package/README.md (npx users must see install copy)');
+  process.exit(1);
+}
+
 const env = {
   ...process.env,
   ERD_PAT: 'erd_pat_ci_dead',
