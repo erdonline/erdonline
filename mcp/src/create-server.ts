@@ -1,6 +1,11 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
-import { ErdApiClient, ErdApiError, type ErdApiConfig } from './erd-api.js';
+import {
+  ErdApiClient,
+  ErdApiError,
+  attachEmptyProjectsHint,
+  type ErdApiConfig,
+} from './erd-api.js';
 import { loadApiAndMcpMarkdown, MCP_GUIDE_URI } from './load-guide.js';
 
 function textResult(payload: unknown, isError = false) {
@@ -79,7 +84,9 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
       },
     },
     async ({ page, size }) =>
-      wrapTool(() => api.listProjects(page ?? 1, size ?? 20))(),
+      wrapTool(async () =>
+        attachEmptyProjectsHint(await api.listProjects(page ?? 1, size ?? 20)),
+      )(),
   );
 
   server.registerTool(

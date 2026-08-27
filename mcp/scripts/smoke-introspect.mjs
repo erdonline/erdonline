@@ -6,6 +6,10 @@
 import {spawn} from 'node:child_process';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {
+  attachEmptyProjectsHint,
+  EMPTY_PROJECTS_HINT,
+} from '../dist/erd-api.js';
 
 const mcpRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 const READY = 'erd-mcp stdio ready';
@@ -137,6 +141,19 @@ if (!callText.includes('ERD_PAT') || !callText.includes('doc.erdonline.com/docs/
 }
 if (callText.includes('erd_pat_m') || /erd_pat_[a-z0-9]{8,}/i.test(callText)) {
   fail(`tool error leaked a PAT-shaped secret: ${callText}`);
+}
+const hinted = attachEmptyProjectsHint({items: [], total: 0});
+if (
+  !hinted ||
+  typeof hinted !== 'object' ||
+  hinted.hint !== EMPTY_PROJECTS_HINT ||
+  !String(hinted.hint).includes('Demo')
+) {
+  fail(`empty list must attach designer/Demo hint: ${JSON.stringify(hinted)}`);
+}
+const occupied = attachEmptyProjectsHint({items: [{id: 'p1'}], total: 1});
+if (occupied && typeof occupied === 'object' && 'hint' in occupied) {
+  fail('non-empty list must not attach hint');
 }
 if (stderr.includes('Missing ERD_PAT') && !stderr.includes('stdio ready')) {
   fail('boot still requires PAT');

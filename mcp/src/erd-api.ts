@@ -56,6 +56,28 @@ export function isUnusablePat(pat: string | undefined): boolean {
   return false;
 }
 
+export const EMPTY_PROJECTS_HINT =
+  'No projects yet. Create one in the ERD Online designer (https://www.erdonline.com/) — the official Demo share is not a PAT. Then ask list_projects and get_project_schema. Do not generate an ER diagram from a sentence. Guide: https://doc.erdonline.com/docs/guide/api-and-mcp/';
+
+export const REJECTED_PAT_HINT =
+  'Remint at https://www.erdonline.com/account/settings?selectKey=personalAccessTokens (Demo share is not a PAT). Guide: https://doc.erdonline.com/docs/guide/api-and-mcp/';
+
+/** Public list uses `items`; tolerate `records` if a proxy rewrites the page. */
+export function attachEmptyProjectsHint(data: unknown): unknown {
+  if (!data || typeof data !== 'object') return data;
+  const o = data as { items?: unknown; records?: unknown; total?: number };
+  const list = Array.isArray(o.items)
+    ? o.items
+    : Array.isArray(o.records)
+      ? o.records
+      : undefined;
+  const empty =
+    (list !== undefined && list.length === 0) ||
+    (list === undefined && o.total === 0);
+  if (!empty) return data;
+  return { ...o, hint: EMPTY_PROJECTS_HINT };
+}
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {
@@ -225,7 +247,12 @@ export class ErdApiClient {
       const code =
         typeof env?.code === 'number' && env.code !== 0 ? env.code : res.status;
       const msg = env?.msg ?? `HTTP ${res.status} ${res.statusText}`;
-      throw new ErdApiError(String(msg), code, json);
+      const unauthorized = res.status === 401 || res.status === 403 || code === 401 || code === 403;
+      throw new ErdApiError(
+        unauthorized ? `${msg}. ${REJECTED_PAT_HINT}` : String(msg),
+        code,
+        json,
+      );
     }
     const env = json as ApiEnvelope<unknown>;
     if (typeof env?.code === 'number' && env.code !== 200) {
