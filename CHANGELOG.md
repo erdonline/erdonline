@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：HelloGitHub 投稿
+
+- **证据**：W1 节奏写过 HelloGitHub；GitHub issue / 月刊检索当时无 `erdonline`。不等 awesome-mcp-servers#13035 合入。不发小红书/掘金；不发 npm；不请求 GSC；H1 仍 Git + Figma。
+- **改法**：按 `submit-cn.yaml` 开一条中文 issue：开源数据库建模、版本+协作、可选 MCP（Cursor 读 `projectJSON`，不是一句话生成图）。链 `github.com/erdonline/erdonline` 与 `doc.erdonline.com`。
+- 验证点：[521xueweihan/HelloGitHub#3605](https://github.com/521xueweihan/HelloGitHub/issues/3605) **OPEN**；未 spam 第二份列表/平台。
+
 #### growth：EN awesome-mcp-servers 种子 PR
 
 - **证据**：`docs/growth.md` 只写「awesome 列表 PR 3–5」，未点名具体仓。英文 MCP 列表以 [punkpeye/awesome-mcp-servers](https://github.com/punkpeye/awesome-mcp-servers) 为准；仓内当时无 `erdonline`。不发小红书/掘金；不发 npm；不请求 GSC；H1 仍 Git + Figma；PAT 不进 URL。
