@@ -169,7 +169,8 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **2** | 08-28 | 小红书 #13 已点发布（**审核中**，禁止再点发布）；掘金包已出 + 粘贴稿入库；本机 Chrome 未登录掘金，未公开发布 | `content/articles/cursor-mcp-read-and-suggest-version.juejin.md`；XHS [explore/6a90682300000000290346fd](https://www.xiaohongshu.com/explore/6a90682300000000290346fd) | 创作台笔记管理可见「审核中」+ 该 URL；掘金稿含 `utm_source=juejin` 且主 CTA 为文档 MCP 页 |
 | **3** | 08-28 | 已登录工作台露出「给 Cursor 配 MCP」次入口；「活跃模型」改为诚实的「今日编辑」（20 个模型仍显示 0 会吓跑回访） | Home hero 次链 + locales | ✅ `home-mcp.spec.ts`（假会话，不删用户数据） |
 | **4** | 08-28 | PAT 铸造成功弹层内嵌已填 PAT 的 Cursor `mcp.json` + 复制按钮；不必再翻 GitHub README | PAT UI + `mcpJsonSnippet.ts` | ✅ `personal-access-tokens.spec.ts`（铸造 → 可见 mcpServers + ERD_PAT） |
-| **5** | 09-01 | 文档 MCP 页补 3 张截图（PAT / mcp.json / Agent 列表），供小红书封面 | `docs/guide/` + `content/articles/assets/` | 文档站构建；XHS 配图清单 |
+| **5** | 08-28 | 文档 MCP 页补 3 张截图（PAT 揭示弹层 / mcp.json / Agent 工具清单），供小红书封面 | `website/static/img/guide/mcp-*.png`；`content/articles/assets/` 同名副本 | ✅ 中/英指南含 `/img/guide/mcp-*.png`；`cd website && yarn build` |
+| **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |
 | **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |
 | **7** | 09-05 | 英文文档 MCP 页被 GSC 收录探测；www 不改 title | `curl` canonical | `https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/docs/guide/api-and-mcp/` 200、尾斜杠 |
 | **8** | 09-08 | 下一稿：CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/` 新 slug | 不群发旧 12 篇 |

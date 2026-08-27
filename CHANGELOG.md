@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### growth：MCP 切片 5 — 文档 MCP 页 3 张截图
+
+- **证据**：30 秒路径与小红书封面需要可见的 PAT 揭示 / mcp.json / Agent 工具清单，纯文字不够。
+- **改法**：`website/static/img/guide/mcp-pat-reveal.png`、`mcp-json.png`、`mcp-agent-tools.png` 写入中/英 `guide/api-and-mcp`；同名副本进 `content/articles/assets/` 供 XHS。揭示弹层与 mcp.json 来自产品 UI（假会话 fixture `erd_pat_e2e_mcp_secret`，无生产密钥）；工具清单来自线上文档表。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL。
+- 验证点：
+  - 三张 PNG 存在且正文不含生产 PAT
+  - 中/英指南 markdown 链到 `/img/guide/mcp-*.png`（文件扩展名，不破坏 trailingSlash）
+  - `cd website && yarn build` 绿
+
 #### growth：MCP 切片 4 — PAT 揭示弹层内嵌 mcp.json
 
 - **证据**：铸造成功只给明文 PAT，用户还要去 GitHub README / 文档页手拼 `mcp.json` 才会接到 Cursor。

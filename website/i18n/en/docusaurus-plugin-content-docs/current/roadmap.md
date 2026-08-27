@@ -54,7 +54,8 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 | 2 Publish #13 on Xiaohongshu / Juejin | 🚧 2026-08-28 | XHS in review [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd) (do not republish); Juejin paste pack tracked, publish blocked on login |
 | 3 Logged-in workspace MCP secondary entry | ✅ 2026-08-28 | Home hero MCP link; stat relabel “Edited today” |
 | 4 PAT success screen embeds mcp.json | ✅ 2026-08-28 | Reveal modal copies PAT-filled Cursor `mcp.json` |
-| 5–8 screenshots / indexing / CI-lint article / two-week review | 📋 | See growth table |
+| 5 Docs MCP page 3 screenshots | ✅ 2026-08-28 | PAT reveal / mcp.json / agent tool list; XHS covers in `content/articles/assets/mcp-*.png` |
+| 6–8 indexing / CI-lint article / two-week review | 📋 | See growth table |
 
 ### Landing (public, brand-first, one composition) ✅
 
