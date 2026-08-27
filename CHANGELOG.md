@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：HelloGitHub 补文档截图；第二份 EN MCP 列表跳过
+
+- **证据**：`submit-cn.yaml` 截图为可选，但「提高收录」强烈建议有图。文档站已有公开 `mcp-*.png`。第二份列表：`appcypher/awesome-mcp-servers` **archived**（无法 CreatePullRequest）；`wong2` 不收 PR。不发小红书/掘金；不发 npm；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。
+- **改法**：在 #3605 评论公开图 `https://doc.erdonline.com/img/guide/mcp-agent-tools.png`（工具清单，不用 `mcp-pat-reveal.png`）。第二份 awesome PR 不开，避免 spam。
+- 验证点：评论 [issuecomment-5445315760](https://github.com/521xueweihan/HelloGitHub/issues/3605#issuecomment-5445315760)；未对 archived/同名小仓开 PR。
+
 #### growth：HelloGitHub 投稿
 
 - **证据**：W1 节奏写过 HelloGitHub；GitHub issue / 月刊检索当时无 `erdonline`。不等 awesome-mcp-servers#13035 合入。不发小红书/掘金；不发 npm；不请求 GSC；H1 仍 Git + Figma。
