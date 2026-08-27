@@ -91,6 +91,21 @@ for (const [label, text] of [
     fail(`${label} must name prompt suggest-erd-version as a secondary path`);
   }
 }
+const zhIntro = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/intro.md'),
+  'utf8',
+);
+const enIntro = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/intro.md',
+);
+for (const [label, text] of [
+  ['zh intro', zhIntro],
+  ['en intro', enIntro],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version`);
+  }
+}
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');
 }

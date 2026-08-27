@@ -39,6 +39,7 @@ ERD Online 是开源（MIT）数据库建模工具：改表结构可以**存版�
 | 完整部署与云拓扑 | [部署指南](../deployment.md) |
 | 团队角色与 SQL 审批 | [角色与审批](./roles-and-approval.md) |
 | 脚本 / Agent（API · MCP） | [API 与 MCP](./api-and-mcp.md) |
+| 让 Cursor 读图再提交一版 | 同上；选 prompt `suggest-erd-version`。官方 Demo **不能**当 PAT。`create_version` 的 API 200 **不是**人批准 |
 
 ---
 
