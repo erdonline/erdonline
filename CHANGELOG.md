@@ -8,11 +8,18 @@
 
 ### 2026-08-28
 
+#### docs：存版指南接到 suggest-erd-version
+
+- **证据**：intro 已 live。北极星 How-to「存版与 diff」下一步没有 Agent 路径，人走完改表存版不知道同一套 diff 也审 `create_version`。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
+- **改法**：FAQ + 下一步链到 MCP 指南；点名 `suggest-erd-version`；API 200 不是人批准；Demo 不能当 PAT。中/英同步。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`；save-version 含 `suggest-erd-version`
+
 #### docs：「从这里开始」点名 suggest-erd-version
 
 - **证据**：what-is 已 live。Navbar「文档」落在 `guide/intro`，路径三只写「API · MCP」不点名 prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
 - **改法**：路径三加一行：Cursor prompt `suggest-erd-version`；Demo 不能当 PAT；API 200 不是人批准。中/英同步。
 - 验证点：`cd website && node scripts/assert-docs-seo.mjs`；intro 含 `suggest-erd-version`
+- **线上**：docs-site [33123783735](https://github.com/erdonline/erdonline/actions/runs/33123783735) **success**（`0b50781d`）。`https://doc.erdonline.com/docs/guide/intro/` 与 `/en/docs/guide/intro/` 各含 `suggest-erd-version` ×1。
 
 #### docs：「是什么」点名 suggest-erd-version（次路径）
 
