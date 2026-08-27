@@ -1,4 +1,0 @@
-User-agent: *
-Disallow: /
-
-Sitemap: https://doc.erdonline.com/sitemap.xml

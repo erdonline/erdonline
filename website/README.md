@@ -18,5 +18,5 @@ yarn docusaurus write-translations --locale en   # 刷新 UI 文案骨架（勿�
 DOCUSAURUS_URL=https://doc.erdonline.com DOCUSAURUS_BASE_URL=/ yarn build
 ```
 
-部署：合并到 `main` 后由 `docs-site.yml` 推送 **Cloudflare Pages**（项目 `erdonline-docs`，自定义域 **https://doc.erdonline.com**）。旧 GitHub Pages 只部署跳转页，不再发布文档内容。  
+部署：合并到 `main` 后由 `docs-site.yml` 推送 **Cloudflare Pages**（项目 `erdonline-docs`，自定义域 **https://doc.erdonline.com**）。不要启用 GitHub Pages。  
 首次配置（Token / Variable `CLOUDFLARE_PAGES_DEPLOY` / Pages Direct Upload）：见 [docs/deployment.md#cf-pages-setup](../docs/deployment.md#cf-pages-setup)。

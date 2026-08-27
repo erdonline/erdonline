@@ -13,7 +13,7 @@ Maintainer constraint: **no production VPS purchase**; formal business data not 
 | Surface | Host | Notes |
 |---|---|---|
 | Docs site (Docusaurus) | **Cloudflare Pages** (project `erdonline-docs`) | **Sole public URL** `https://doc.erdonline.com`; `main` via Actions + Wrangler |
-| Legacy GitHub Pages | **Retired (redirect stub)** | `docs-site.yml` only overwrites github.io with a jump to `doc.erdonline.com`; no docs content |
+| Legacy GitHub Pages | **Off** | Unpublished 2026-08-27; `docs-site.yml` no longer deploys github.io |
 | Frontend static demo | **Cloudflare Pages** (project `erdonline-demo`) | `yarn build:prod` + `env-config.js`; API may be empty |
 | Runtime images | **GHCR** | `ghcr.io/erdonline/erdonline-backend` / `…-frontend`; tags on release |
 | Self-hosted data plane | **User's own machine** | `docker compose` pull images; project does not host production DB |
@@ -29,5 +29,5 @@ Explicitly not doing (this ADR):
 - Positive: zero fixed server cost; docs and static site public; self-hosters have reproducible image path.
 - Cost: full online trial depends on future demo API; CF / GH free quotas and domain need secrets maintenance.
 - Risk: empty `DEMO_API_URL` static site only shows landing/guidance, API journeys unavailable — must document clearly to avoid "broken demo" expectation.
-- vs existing ADR: does not overturn ADR-0003 (Docusaurus); public host is Cloudflare Pages. GitHub Pages docs copy retired 2026-08-27.
+- vs existing ADR: does not overturn ADR-0003 (Docusaurus); public host is Cloudflare Pages. GitHub Pages unpublished 2026-08-27.
 - Ops checklist (Token / Pages projects / GitHub Secrets / acceptance URLs): see [Deployment — GitHub Actions × Cloudflare Pages setup](/docs/deployment#cf-pages-setup).

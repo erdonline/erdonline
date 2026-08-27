@@ -29,7 +29,7 @@
 
 | 表面 | 工作流 | 所需配置 |
 |---|---|---|
-| 文档 | `.github/workflows/docs-site.yml`（`deploy-cloudflare`；github.io 仅跳转 stub） | 见下清单；须 `CLOUDFLARE_PAGES_DEPLOY=true` |
+| 文档 | `.github/workflows/docs-site.yml`（仅 `deploy-cloudflare`） | 见下清单；须 `CLOUDFLARE_PAGES_DEPLOY=true` |
 | 静态 demo | `.github/workflows/frontend-demo-site.yml` | 同上 + 可选 Variable `DEMO_API_URL` |
 | 发版镜像 | `.github/workflows/release.yml`（tag `v*`，job `ghcr`） | `GITHUB_TOKEN` + `packages:write`（通常无需额外 Secret） |
 
@@ -70,9 +70,9 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
 | `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://erdonline-production.up.railway.app`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
 
-#### 5. 旧 GitHub Pages（已退役，仅跳转）
+#### 5. 不要启用 GitHub Pages
 
-仓库 **Settings → Pages → Source** 仍可为 **GitHub Actions**，但 `docs-site.yml` **不再发布 Docusaurus**，只部署 `website/gh-pages-retire/`（跳到 `https://doc.erdonline.com`，并 `Disallow: /`）。不要把 github.io 当文档入口。`erdonline-docs.pages.dev` 只是自定义域 CNAME 目标，不要当文档链接用。
+文档只在 `https://doc.erdonline.com`。仓库 **Settings → Pages** 应保持 **None**（已用 API 关闭）。不要重新 Source = GitHub Actions，否则 github.io 会再长出第二套站。`erdonline-docs.pages.dev` 只是自定义域 CNAME 目标，不要当文档链接用。
 
 #### 6. 远程与触发
 
