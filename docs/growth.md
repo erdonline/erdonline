@@ -177,6 +177,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **7** | 08-28（原 09-05 提前） | ✅ 中/英 MCP 文档页 live 探测：200 + 尾斜杠 canonical + sitemap loc；GSC 两 URL 均「尚未收录 / 无法识别」→ 已请求编入索引；补交 `en/sitemap.xml` | `curl` + GSC 网址检查 | 见 CHANGELOG 切片 7；未检查无斜杠 301 路径 |
 | **8** | 08-28（原 09-08；切片 6 阻塞提前做） | ✅ CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/ci-rest-projectjson-schema-lint.md` | 汉字≥800；`node scripts/validate-projectjson.mjs`；`build-package.mjs` 主 CTA 文档 MCP 页 |
 | 评审 | 08-28（原 09-10 提前） | ✅ 见下「两周评审（提前）」 | `docs/growth.md` | 楔子不停；GSC 持平不是变差 |
+| GSC catalog/compare | 08-28 | ✅ `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引 | GSC 网址检查 | 四 URL 200；未检查 301；未发 XHS |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 
@@ -207,6 +208,13 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **证据**：GSC `/catalog` 1 点击 / 6 展示（均位约 2–3），但 `CatalogLayout` 未调 `usePageSeo`，SPA 200 后 title 仍是首页 `Draw ER Diagram Online`，与 `/` 抢同一摘要。
 - **改法**：`catalog.seo.title` / `description`（中/英）写入 CatalogLayout；英文「ER diagram templates」，中文「ER 图模板」。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT；不发掘金；不点小红书 #15/#16 排版/发布。
 - **蒸馏**：`docs/landing.md` — catalog 必须有独立摘要，禁止套用首页 title。
+- **状态**：✅ 2026-08-28
+
+### GSC 网址检查 catalog / compare（2026-08-28）
+
+- **范围**：`sc-domain:erdonline.com`；只检查 200 URL；不检查 301/308；不发小红书。
+- **结果**：`/catalog`、`/compare`、`/en/compare` **已收录**（未再请求索引）。`/en/catalog` **已发现 - 尚未编入索引**（sitemap 已列）→ 已请求编入索引。
+- **未做**：静态壳 `document.ejs` 仍把所有公开路径的 `<title>` / canonical 指回首页；hydrate 后 `usePageSeo` 才改摘要。修 prerender/canonical 不是本刀。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
