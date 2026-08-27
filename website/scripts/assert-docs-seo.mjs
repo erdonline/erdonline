@@ -48,11 +48,33 @@ if (!llms.includes('https://doc.erdonline.com/en/docs/guide/api-and-mcp/')) {
 if (!llms.includes('--package') || !llms.includes('erdonline-mcp-0.1.0.tgz')) {
   fail('static/llms.txt must include npx --package Release tarball mcp.json');
 }
+if (!llms.includes('suggest-erd-version')) {
+  fail('static/llms.txt must name prompt suggest-erd-version');
+}
 if (!/Git \+ Figma/i.test(llms)) {
   fail('static/llms.txt must keep Git + Figma positioning');
 }
 if (/github\.io/i.test(llms)) {
   fail('static/llms.txt must not use github.io docs host');
+}
+
+const zhMcpGuide = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/api-and-mcp.md'),
+  'utf8',
+);
+const enMcpGuide = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/api-and-mcp.md',
+);
+for (const [label, text] of [
+  ['zh MCP guide', zhMcpGuide],
+  ['en MCP guide', enMcpGuide],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version`);
+  }
+  if (!text.includes('API 200')) {
+    fail(`${label} must say API 200 is not human approval`);
+  }
 }
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');

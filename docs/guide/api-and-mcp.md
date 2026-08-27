@@ -5,9 +5,9 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 想把正在画的 ER 图交给 Cursor 或 Claude？走鉴权后的 REST / MCP，读写**同一份** projectJSON（和设计器里看到的模型一致）。分享链接不是 API 密钥。
 
-> **30 秒目标**：铸造 PAT → 粘贴 MCP 配置 → Agent 列出你的项目。  
+> **30 秒目标**：铸造 PAT → 粘贴 MCP 配置 → 在 Cursor 选 prompt `suggest-erd-version`（或让 Agent 调 `create_version`）。  
 > **前置**：可登录实例（[自托管](./quick-self-host.md) 或 [www.erdonline.com](https://www.erdonline.com/)）；格式见 [data-format](../data-format.md)。  
-> **不做**：一句话生成 ERD、ChatSQL；写操作必须人在版本 diff 里审批。
+> **不做**：一句话生成 ERD、ChatSQL；写操作必须人在版本 diff 里审批。`create_version` 的 API 200 不是人批准。
 
 ## 30 秒接到 Cursor
 
@@ -43,7 +43,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。MCP **不在** Docker 镜像内。
 
-3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。列表为空时，先在设计器里建一个**自己的**项目（官方 Demo 不能当 PAT）。Agent 若仍提示 `erd_pat_…`：把弹层明文粘进 `mcp.json`——一键链接不会带 PAT。不要让 Agent 凭一句话生成一张新 ER 图。
+3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。列表为空时，先在设计器里建一个**自己的**项目（官方 Demo 不能当 PAT）。要改模型：在 Cursor 选 prompt **`suggest-erd-version`**，或让 Agent 调 `create_version`。Agent 若仍提示 `erd_pat_…`：把弹层明文粘进 `mcp.json`——一键链接不会带 PAT。不要让 Agent 凭一句话生成一张新 ER 图。
 
 贡献者若要从源码跑：`cd mcp && yarn install && yarn build`，再用 `node /ABS/PATH/to/erdonline/mcp/dist/index.js`。开发免编译可用 `npx tsx mcp/src/index.ts`。
 
@@ -69,9 +69,9 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 ## 让 Agent 提交一版建议
 
-铸造 PAT 时显式勾选 `versions:write`。请 Agent 调用 `create_version`，版本说明写清「Agent 建议」。你在设计器版本列表打开 diff，通过或回滚。
+铸造 PAT 时显式勾选 `versions:write`。在 Cursor 选 prompt **`suggest-erd-version`**，或请 Agent 调用 `create_version`，版本说明写清「Agent 建议」。
 
-不要让 Agent 静默 `put_project_json` 覆盖工作区——那会跳过人类审批。
+`create_version` 返回 **API 200 不是人批准**。你必须打开设计器版本 diff，通过或回滚。不要让 Agent 静默 `put_project_json` 覆盖工作区。
 
 ## Streamable HTTP（可选）
 
@@ -96,6 +96,7 @@ cd mcp && yarn start -- --http
 | Agent 说 Missing ERD_PAT / 仍是 `erd_pat_…` | 占位符不是令牌。把铸造弹层里的明文粘进 `mcp.json` 的 `ERD_PAT`。一键安装链接**不会**把 PAT 编进 URL |
 | `list_projects` 为空 | 先在设计器新建自己的项目，再说「列出我的 ERD 项目」。官方 Demo 分享链接**不能**当 PAT |
 | Agent 画了一张新 ER 图 | 叫它 `list_projects` 再 `get_project_schema`，读写你已有的 projectJSON，不要从自然语言生成图 |
+| `create_version` 已 200 | 还要打开版本 diff 确认或回滚。**API 200 不是人批准** |
 | 分享链接能看图但 API 失败 | 分享只读 token **不能**当 API 凭证 |
 | MCP 连不上 | 确认 MCP 进程已单独启动；Token / 路径与文档一致 |
 | compose 起来了但没有 MCP | 预期行为；MCP 在 `mcp/` 目录另启 |

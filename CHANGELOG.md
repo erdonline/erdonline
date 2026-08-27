@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### docs：MCP 指南点名 suggest-erd-version；API 200 不是人批准
+
+- **证据**：漏斗主 CTA 是文档 MCP 页，但正文只说「调用 create_version」，没点名 Cursor prompt `suggest-erd-version`；也没写 API 200 ≠ 人批准。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber tarball；PAT 不进 URL。
+- **改法**：中/英 How-to 30 秒目标 + 第 3 步 + 「提交一版」节 + FAQ；`llms.txt` 同步。仓内 `mcp/guide` 由 sync-guide 复制（下一刀 pack 才进 npx）。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`（含 `yarn build --require-build`）；指南与 llms 含 `suggest-erd-version` / `API 200`
+
 #### mcp：clobber 线上 tarball（c272f445 人确认）
 
 - **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11665 B；live `tar` 含 `MUST ask the human`；`npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp` → `erd-mcp stdio ready`。未发 npm；未改 tag。
