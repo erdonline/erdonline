@@ -10,6 +10,7 @@ test.describe('落地页', () => {
     const html = await res.text();
     expect(html).toContain('Draw ER Diagram Online — Free Editor | ERD Online');
     expect(html).toMatch(/Draw ER diagrams online for free/i);
+    expect(html).toContain('suggest-erd-version');
     expect(html).toMatch(/ERD editor and maker/i);
     expect(html).toMatch(/entity-relationship models/i);
     expect(html).toContain('application/ld+json');

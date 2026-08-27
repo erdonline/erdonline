@@ -626,7 +626,7 @@ export default {
   // Landing SEO
   'landing.seo.title': 'Draw ER Diagram Online — Free Editor | ERD Online',
   'landing.seo.description':
-    'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.',
+    'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup. MCP prompt suggest-erd-version: agents call create_version; humans still diff. Not ChatSQL.',
   'landing.compare.seo.title': 'ERD Online vs draw.io — collaboration, versions, and FK semantics',
   'landing.compare.seo.description':
     'An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, self-hosting, and Agent/MCP (projectJSON).',

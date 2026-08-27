@@ -291,6 +291,15 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       description: HOME_SEO.description,
     },
   });
+  {
+    const homeHtml = fs.readFileSync(distHtmlPath(distDir, "/"), "utf8");
+    if (!homeHtml.includes(`<title>${HOME_SEO.title}</title>`)) {
+      fail("/ first HTML title must stay Draw-ERD SERP");
+    }
+    if (!homeHtml.includes("suggest-erd-version")) {
+      fail("/ crawler shell must mention suggest-erd-version");
+    }
+  }
 
   for (const page of PRERENDER_PAGES) {
     assertShell(distDir, siteUrl, page.path, {
@@ -299,6 +308,15 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       lang: page.locale === "en-US" ? "en" : "zh-CN",
       jsonLdPage: page,
     });
+    if (page.path === "/en") {
+      const html = fs.readFileSync(distHtmlPath(distDir, page.path), "utf8");
+      if (!html.includes(`<title>${HOME_SEO.title}</title>`)) {
+        fail("/en first HTML title must stay Draw-ERD SERP");
+      }
+      if (!html.includes("suggest-erd-version")) {
+        fail("/en crawler shell must mention suggest-erd-version");
+      }
+    }
     if (page.path === "/compare" || page.path === "/en/compare") {
       if (!page.description.includes("Agent/MCP")) {
         fail(`${page.path} prerender description must mention Agent/MCP`);

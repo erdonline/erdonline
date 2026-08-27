@@ -10,7 +10,7 @@ export const DEFAULT_SITE_URL = "https://www.erdonline.com";
 export const HOME_SEO = {
   title: "Draw ER Diagram Online — Free Editor | ERD Online",
   description:
-    "Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.",
+    "Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup. MCP prompt suggest-erd-version: agents call create_version; humans still diff. Not ChatSQL.",
 };
 
 /** @returns {string} */
@@ -189,8 +189,7 @@ export function jsonLdForPage(page, siteUrl) {
       applicationCategory: "DeveloperApplication",
       operatingSystem: "Any",
       offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
-      description:
-        "Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser.",
+      description: HOME_SEO.description,
     };
   }
   if (page.path === "/catalog" || page.path === "/en/catalog") {
