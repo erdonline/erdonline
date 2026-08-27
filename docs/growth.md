@@ -210,7 +210,9 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | 手册入口点名 prompt | 08-28 | ✅ #13035/#3605 无维护者新评。`what-is-erd-online` 能力表/FAQ/下一步：`suggest-erd-version`。**不**发小红书/npm；不推 frontend | `docs/guide/what-is-erd-online.md` 英译本 | docs-site [33123388278](https://github.com/erdonline/erdonline/actions/runs/33123388278) 绿；live 中/英 what-is 含 prompt |
 | 从这里开始点名 prompt | 08-28 | ✅ Navbar 文档落点 `intro` 路径三写明 `suggest-erd-version`。**不**发小红书/npm；不推 frontend | `docs/guide/intro.md` 英译本 | docs-site [33123783735](https://github.com/erdonline/erdonline/actions/runs/33123783735) 绿；live 中/英 intro 含 prompt |
 | 存版指南接到 prompt | 08-28 | ✅ 北极星 How-to FAQ/下一步：`suggest-erd-version` 人 diff。**不**发小红书/npm；不推 frontend | `docs/guide/save-version-and-diff.md` 英译本 | docs-site [33124148500](https://github.com/erdonline/erdonline/actions/runs/33124148500) 绿；live 中/英 save-version-and-diff 含 prompt |
-| MCP README 点名 prompt | 08-28 | ✅ GitHub `mcp/README` 30 秒路径写明 `suggest-erd-version`。**不**发 npm；**不 clobber** | `mcp/README.md` | 文件含 prompt 与 API 200 |
+| MCP README 点名 prompt | 08-28 | ✅ GitHub `mcp/README` 30 秒路径写明 `suggest-erd-version`。**不**发 npm | `mcp/README.md` | 文件含 prompt 与 API 200 |
+| MCP tarball clobber README | 08-28 | ✅ 同 tag `--clobber` 含 7e693748 README。**不**发 npm | Release `erdonline-mcp-0.1.0.tgz` | 11785 B；live npx `stdio ready`；tar README 含 prompt |
+| 根 README API 200 | 08-28 | ✅ 仓根中/英 README：`create_version` API 200 不是人批准。**不**发小红书/npm；不推 frontend | `README.md` `README.en-US.md` | 两文件含 `API 200` |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。

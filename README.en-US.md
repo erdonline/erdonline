@@ -62,7 +62,7 @@ Or paste this into Cursor user-level `~/.cursor/mcp.json`. `npx` fetches the Git
 }
 ```
 
-Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`. Full steps: [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/) · [中文](https://doc.erdonline.com/docs/guide/api-and-mcp/). Reload MCP and ask: `List my ERD projects`. If the list is empty, create **your own** project in the designer first. Propose model changes with `create_version` (you still open the diff). Do not generate a new ER diagram from a sentence. Cursor can also run the `suggest-erd-version` prompt.
+Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`. Full steps: [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/) · [中文](https://doc.erdonline.com/docs/guide/api-and-mcp/). Reload MCP and ask: `List my ERD projects`. If the list is empty, create **your own** project in the designer first. Propose model changes with `create_version` (you still open the diff). Do not generate a new ER diagram from a sentence. Cursor can also run the `suggest-erd-version` prompt. `create_version` API 200 is **not** human approval.
 
 ## Why ERD Online
 
