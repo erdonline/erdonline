@@ -55,7 +55,9 @@
 | 3 已登录工作台 MCP 次入口 | ✅ 2026-08-28 | Home hero「给 Cursor 配 MCP」；统计改「今日编辑」 |
 | 4 PAT 成功页内嵌 mcp.json | ✅ 2026-08-28 | 铸造后弹层可复制已填 PAT 的 Cursor `mcp.json` |
 | 5 文档 MCP 页 3 张截图 | ✅ 2026-08-28 | PAT 揭示 / mcp.json / Agent 工具清单；XHS 封面用 `content/articles/assets/mcp-*.png` |
-| 6–8 收录 / CI lint 稿 / 两周评审 | 📋 | 见 growth 表 |
+| 6 掘金 CTA 复盘 | ⛔ 验证码墙 | 待登录掘金后再做；不群发 |
+| 7 GSC EN 收录探测 | 📋 09-05 | curl 中/英 MCP 页 200 + 尾斜杠 |
+| 8 CI REST schema-lint 稿 | ✅ 2026-08-28 | `ci-rest-projectjson-schema-lint`；蒸馏进 [`data-format`](./data-format.md) |
 
 ### 落地页（公开，品牌优先，一个构图）✅
 

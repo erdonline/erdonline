@@ -11,7 +11,9 @@
 - [x] [小红书草稿] 创作台长文编辑器已填标题+正文并自动保存；未点公开发布（需封面/人审）。粘贴稿：`content/articles/cursor-mcp-read-and-suggest-version.xhs.md`
 - [x] [小红书 #13 已点发布] 创作台笔记管理「审核中」；explore `https://www.xiaohongshu.com/explore/6a90682300000000290346fd`；**禁止再点发布** ✅ 2026-08-28 00:38
 - [x] [掘金粘贴包] `content/articles/cursor-mcp-read-and-suggest-version.juejin.md` 主 CTA 为文档 MCP + `utm_source=juejin` ✅ 2026-08-28
-- [ ] [掘金发 #13] Chrome 登录掘金后粘贴上述稿 → 公开发布 URL（本机 2026-08-28 为验证码墙，未发）
+- [ ] [掘金发 #13] Chrome 登录掘金后粘贴上述稿 → 公开发布 URL（本机 2026-08-28 为验证码墙，未发；切片 6 跳过）
+- [x] [稿 #14 CI schema-lint] `node scripts/growth/build-package.mjs ci-rest-projectjson-schema-lint` → 主 CTA 文档 MCP 页 + `utm_source=juejin`；汉字 ≥ 800 ✅ 2026-08-28
+- [x] [projectJSON schema lint] `node scripts/validate-projectjson.mjs` 正例过、负例非零 ✅ 2026-08-28
 - [x] [www SERP] 落地页 H1 仍 Git + Figma；静态 title 仍 Draw ER Diagram Online ✅ 未改 title；landing E2E 仍断言 draw-ERD
 - [x] [Home MCP 次入口] `yarn test:e2e --project=chromium tests/e2e/home-mcp.spec.ts` ✅ 2026-08-28
 

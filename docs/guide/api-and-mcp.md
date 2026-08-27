@@ -96,9 +96,10 @@ cd mcp && yarn start -- --http
 | MCP 连不上 | 确认 MCP 进程已单独启动；Token / 路径与文档一致 |
 | compose 起来了但没有 MCP | 预期行为；MCP 在 `mcp/` 目录另启 |
 | 想改模型 schema 含义 | 遵守「仅加法」；见 [data-format](../data-format.md) |
+| 想在 CI 里校验模型 | **不要**在 runner 上起 MCP。用 REST 拉 `projectJson` 再跑 `node scripts/validate-projectjson.mjs`；见 [data-format · 从公开 API 拉再校验](../data-format.md#ci-fetch-then-lint) |
 
 ## 下一步
 
-- [projectJSON 数据格式](../data-format.md)
+- [projectJSON 数据格式](../data-format.md)（含 CI 用 REST 拉 JSON 再 lint）
 - [安全模型](../security-model.md)
 - [从这里开始](./intro.md)
