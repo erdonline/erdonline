@@ -8,11 +8,18 @@
 
 ### 2026-08-28
 
+#### mcp：README 30 秒路径点名 suggest-erd-version
+
+- **证据**：存版指南已 live。GitHub `mcp/README` 安装段只写 npx，不点名 Cursor prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；**不 clobber** tarball。
+- **改法**：30 秒路径段补 `suggest-erd-version`；API 200 不是人批准；勿生成图。
+- 验证点：`mcp/README.md` 含 `suggest-erd-version` 与 `API 200`
+
 #### docs：存版指南接到 suggest-erd-version
 
 - **证据**：intro 已 live。北极星 How-to「存版与 diff」下一步没有 Agent 路径，人走完改表存版不知道同一套 diff 也审 `create_version`。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
 - **改法**：FAQ + 下一步链到 MCP 指南；点名 `suggest-erd-version`；API 200 不是人批准；Demo 不能当 PAT。中/英同步。
 - 验证点：`cd website && node scripts/assert-docs-seo.mjs`；save-version 含 `suggest-erd-version`
+- **线上**：docs-site [33124148500](https://github.com/erdonline/erdonline/actions/runs/33124148500) **success**（`4cb41e36`）。`https://doc.erdonline.com/docs/guide/save-version-and-diff/` 与 `/en/docs/guide/save-version-and-diff/` 各含 `suggest-erd-version` ×2。`/docs/guide/versions/` 404。
 
 #### docs：「从这里开始」点名 suggest-erd-version
 

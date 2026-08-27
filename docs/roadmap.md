@@ -68,6 +68,7 @@
 | 手册入口点名 prompt | ✅ 2026-08-28 | `what-is-erd-online` 次路径：`suggest-erd-version`；Demo 不能当 PAT |
 | 从这里开始点名 prompt | ✅ 2026-08-28 | `guide/intro` 路径三：`suggest-erd-version` |
 | 存版指南接到 prompt | ✅ 2026-08-28 | `save-version-and-diff` FAQ/下一步：`suggest-erd-version` |
+| MCP README 点名 prompt | ✅ 2026-08-28 | `mcp/README` 30 秒路径：`suggest-erd-version`（未 clobber tarball） |
 | 两周评审（提前） | ✅ 2026-08-28 | XHS #13 已发布浏览 5（#6 仍 51）；GSC 2/103 持平、无 doc 页；www home 无 P0 泄漏；稿 #15 dunk+demo |
 
 ### 落地页（公开，品牌优先，一个构图）✅
