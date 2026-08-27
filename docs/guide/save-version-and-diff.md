@@ -39,9 +39,11 @@
 | Diff 显示「无变更」 | 两次选到同一版，或两版之间确实没结构差 |
 | 想当书签存一版但没改结构 | 可以存，但空 diff 对追溯帮助有限；有改动再存更有意义 |
 | 误操作想恢复 | 回滚 / 同步到历史版本前会有确认，读清再点 |
+| Agent 刚 `create_version` | 同一套版本列表打开 **diff**，通过或回滚。选 prompt `suggest-erd-version`。API 200 **不是**人批准。官方 Demo **不能**当 PAT |
 
 ## 下一步
 
 - 迁入已有模型：[导入 DBML](./import-dbml.md) · [数据源逆向](./reverse-engineer.md)  
+- 让 Cursor 提交一版建议（人再 diff）：[MCP 指南](./api-and-mcp.md) — prompt `suggest-erd-version`  
 - 团队落库约束：[角色与审批](./roles-and-approval.md)  
 - 回到总览：[从这里开始](./intro.md)

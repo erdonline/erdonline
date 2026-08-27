@@ -106,6 +106,21 @@ for (const [label, text] of [
     fail(`${label} must name prompt suggest-erd-version`);
   }
 }
+const zhSave = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/save-version-and-diff.md'),
+  'utf8',
+);
+const enSave = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/save-version-and-diff.md',
+);
+for (const [label, text] of [
+  ['zh save-version', zhSave],
+  ['en save-version', enSave],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version`);
+  }
+}
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');
 }

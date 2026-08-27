@@ -39,9 +39,11 @@ Self-hosted or existing account projects: open that project and skip this sectio
 | Diff says “no changes” | Same version twice, or truly no structural delta |
 | Bookmark save with no schema change | Allowed, but empty diffs help little; save after real edits |
 | Need to restore | Confirm prompts before rollback / sync to a historical version |
+| Agent just called `create_version` | Open the same version **diff**, accept or roll back. Pick prompt `suggest-erd-version`. API 200 is **not** human approval. The public Demo is **not** a PAT |
 
 ## Next
 
 - Bring models in: [Import DBML](./import-dbml.md) · [Reverse engineer](./reverse-engineer.md)  
+- Let Cursor suggest a version (you still diff): [MCP guide](./api-and-mcp.md) — prompt `suggest-erd-version`  
 - Team apply constraints: [Roles and approval](./roles-and-approval.md)  
 - Overview: [Start here](./intro.md)
