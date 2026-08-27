@@ -37,3 +37,9 @@ run('already-slashed path is not doubled', () => {
   const expected = 'https://doc.erdonline.com/docs/guide/intro/';
   if (actual !== expected) throw new Error(actual);
 });
+
+run('MCP guide path is canonical with trailing slash', () => {
+  const actual = docsUrl('zh-CN', 'docs/guide/api-and-mcp');
+  const expected = 'https://doc.erdonline.com/docs/guide/api-and-mcp/';
+  if (actual !== expected) throw new Error(actual);
+});

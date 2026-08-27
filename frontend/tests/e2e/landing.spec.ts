@@ -143,6 +143,15 @@ test.describe('落地页', () => {
     await page.goto('/');
     await expect(page.getByTestId('landing-nav-catalog')).toBeVisible();
     await expect(page.getByTestId('landing-hero-catalog')).toBeVisible();
+    const mcpDocs = page.getByTestId('landing-mcp-docs');
+    await expect(mcpDocs).toBeVisible();
+    await expect(mcpDocs).toHaveAttribute(
+      'href',
+      'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+    );
+    await expect(mcpDocs).toHaveAccessibleName(/MCP/);
+    await expect(page.getByRole('cell', { name: /projectJSON schema/ })).toBeVisible();
+    await expect(page.locator('#compare')).not.toContainText('路线图中');
     await page.getByTestId('landing-nav-catalog').click();
     await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });
     await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });

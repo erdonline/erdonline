@@ -7,7 +7,8 @@ export const DEMO_URL = `${DEMO_BASE_URL}/demo`;
 export const REPO_URL = 'https://github.com/erdonline/erdonline';
 export const DOCS_URL = 'https://doc.erdonline.com/';
 export const COMPARE_URL = `${DEMO_BASE_URL}/compare`;
-export const DEPLOY_DOC_URL = `${DOCS_URL}docs/deployment`;
+export const DEPLOY_DOC_URL = `${DOCS_URL}docs/deployment/`;
+export const MCP_DOC_URL = `${DOCS_URL}docs/guide/api-and-mcp/`;
 /** GitHub 上可公开打开的路径前缀（blob/main） */
 export const GH_BLOB_URL = `${REPO_URL}/blob/main`;
 export const GH_TREE_URL = `${REPO_URL}/tree/main`;
@@ -17,6 +18,7 @@ export const CTA_TARGETS = {
   demo: DEMO_URL,
   compare: COMPARE_URL,
   docs: DOCS_URL,
+  mcp: MCP_DOC_URL,
   deploy: DEPLOY_DOC_URL,
   repo: REPO_URL,
 };
@@ -31,7 +33,7 @@ export function docsPageUrl(page, opts) {
     .replace(/^\/+/, '')
     .replace(/\.md$/i, '');
   if (!id) throw new Error('docsPageUrl: page is required');
-  return withUtm(`${DOCS_URL}docs/${id}`, opts);
+  return withUtm(`${DOCS_URL}docs/${id}/`, opts);
 }
 
 /**

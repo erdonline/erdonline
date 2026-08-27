@@ -6,6 +6,17 @@
 
 ## [Unreleased]
 
+### 2026-08-28
+
+#### growth：MCP/Agent 两周猛攻 · 切片 1（30 秒文档路径 + SEO + 稿 #13）
+
+- **证据**：小红书「开放 projectJSON + MCP 给 Agent」15 条中阅读最高；落地页对照表 Agent 行仍写「路线图中」（MCP 已上线）；文档 MCP 页无 copy-paste 配置。
+- **改法**：`docs/growth.md` + `docs/roadmap.md` 写入两周日历；中/英 `guide/api-and-mcp` 改为 30 秒 PAT + Cursor `mcp.json`；落地页开放支柱补 MCP 链（非 H1）；对照表 Agent 格改为已上线文案；稿 `cursor-mcp-read-and-suggest-version`。www SERP title 仍 draw-ERD。
+- 验证点：
+  - `cd website && yarn build && yarn test:seo`（MCP 页 title 含 MCP，正文含 `mcpServers`）
+  - `cd frontend && yarn check:i18n`；`npx tsx src/utils/docsUrl.test.ts`
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "顶栏与 Hero"` 绿
+
 ### 2026-08-27
 
 #### SEO：首页 SERP 摘要改为 job-first（www CTR）

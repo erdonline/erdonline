@@ -44,6 +44,18 @@
 
 > 依据 [ADR-0012](./adr/0012-ai-era-data-structure-platform.md)（**已接受 · 选项 B**）：「数据库设计的 Git + Figma + AI agent 可读的开源事实源」，关键词 **开放 + 安全**。落地页先行；API/MCP 见 [ADR-0013](./adr/0013-public-api-mcp.md)（✅ MVP：切片 1–5 + write REST/MCP + Redis + OAuth A+B + PAT/client UI + 同意页）。
 
+### MCP / Agent 增长楔子（2026-08-28 起，两周）🚧
+
+> 详细日历与验证点见 [`growth.md`](./growth.md)「MCP / Agent 两周猛攻」。愿景锁：AI 是期权；H1 仍 Git + Figma；www SERP title 仍 draw-ERD；公开文档只认 `https://doc.erdonline.com`。
+
+| 切片 | 状态 | 交付 |
+|---|---|---|
+| 1 文档 30 秒 MCP 路径 + SEO + 稿 #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](./guide/api-and-mcp.md) copy-paste；落地页开放支柱链；`content/articles/cursor-mcp-read-and-suggest-version.md` |
+| 2 小红书/掘金发 #13 | 📋 | 创作台发布或留下粘贴稿 |
+| 3 已登录工作台 MCP 次入口 | 📋 | 不抢新建项目主 CTA |
+| 4 PAT 成功页内嵌 mcp.json | 📋 | 铸造后可复制 |
+| 5–8 截图 / 收录 / CI lint 稿 / 两周评审 | 📋 | 见 growth 表 |
+
 ### 落地页（公开，品牌优先，一个构图）✅
 
 - 公开路由 `/`（未登录可访问）；登录「了解产品」回链；未登录主 CTA → `/demo`，已登录主 CTA → `/home`

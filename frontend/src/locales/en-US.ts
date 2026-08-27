@@ -294,7 +294,9 @@ export default {
     'Multiplayer editing with presence; reviews and approvals land in auditable versions.',
   'landing.pillars.open.title': 'Open',
   'landing.pillars.open.body':
-    'Public projectJSON format; API / MCP on the roadmap so agents consume the same fact source.',
+    'Public projectJSON; agents read the same model via MCP, then humans diff and approve versions.',
+  'landing.pillars.open.mcpCta': 'Connect Cursor / Claude via MCP',
+  'landing.pillars.open.mcpCtaAria': 'Open docs: let Cursor or Claude read your ER diagram via MCP',
   'landing.demo.title': '30-second path',
   'landing.demo.lead':
     'Open the online demo, see a real diagram, then decide whether to register or self-host.',
@@ -324,7 +326,6 @@ export default {
   'landing.compare.cell.mitCompose': 'MIT + compose',
   'landing.compare.cell.closedSaas': 'Closed SaaS',
   'landing.compare.cell.formatOpen': 'Open format',
-  'landing.compare.cell.roadmap': 'On roadmap',
   'landing.compare.cell.no': 'No',
   'landing.compare.cell.textOnly': 'Text-first',
   'landing.compare.cell.collabDetail': 'Multiplayer + presence',
@@ -334,7 +335,7 @@ export default {
   'landing.compare.cell.sharePublic': 'Public share',
   'landing.compare.cell.dbmlBoth': 'Import / export',
   'landing.compare.cell.native': 'Native',
-  'landing.compare.cell.agentDetail': 'projectJSON schema; API/MCP roadmap',
+  'landing.compare.cell.agentDetail': 'projectJSON schema; public API / MCP',
   'landing.compare.cta.full': 'Full comparison',
   'landing.compare.cta.fullAria': 'Full comparison',
   'landing.comparePage.lead':

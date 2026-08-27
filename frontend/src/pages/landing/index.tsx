@@ -154,6 +154,16 @@ const LandingPage: React.FC = () => {
             <span className="landingPillarMark" aria-hidden="true" />
             <h3>{t('landing.pillars.open.title')}</h3>
             <p>{t('landing.pillars.open.body')}</p>
+            <a
+              className="landingPillarLink"
+              href={docsUrl(intl.locale, 'docs/guide/api-and-mcp')}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="landing-mcp-docs"
+              aria-label={t('landing.pillars.open.mcpCtaAria')}
+            >
+              {t('landing.pillars.open.mcpCta')}
+            </a>
           </article>
         </div>
       </section>
@@ -219,7 +229,7 @@ const LandingPage: React.FC = () => {
               </tr>
               <tr>
                 <td>{t('landing.compare.row.agent')}</td>
-                <td className="landingYes">{t('landing.compare.cell.roadmap')}</td>
+                <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
               </tr>
