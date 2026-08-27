@@ -81,6 +81,16 @@
   - `/catalog/_item` 与 `/catalog/_item/` **301 → `/catalog/`**；跟随后列表 title + canonical `…/catalog`
   - `/` 仍 Draw-ERD + canonical `https://www.erdonline.com/`
 
+#### fix：hydrate 不再把 `/catalog/:id` 套成列表 SEO
+
+- **证据**：首屏官方 ID 已独立 title/canonical；`CatalogLayout` 一律 `usePageSeo(catalog.seo.*)`，hydrate 后详情 title 变回列表「ER 图模板」，与 prerender 抢摘要。sitemap 已含 4 个官方 ID。未请求 GSC。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- **改法**：列表才套 list SEO；详情等 API title 后写 `{name} — ER 图模板`，canonical 为 `/catalog/:id`（en hreflang → `/en/catalog`）。未知 ID 无详情数据则不改 prerender 列表壳。
+- 验证点：
+  - `npx tsx src/utils/catalogSeoPath.test.ts` → 详情 canonical 不是 `/catalog`
+  - `yarn test:seo-static` → sitemap 含 4 官方 ID、无 `_item`
+  - `yarn check:i18n` → keys aligned
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "详情 SEO"` → title 含「功能鉴权示例」，canonical 以 `/catalog/demo-authz` 结尾（需 8000+9502）
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。

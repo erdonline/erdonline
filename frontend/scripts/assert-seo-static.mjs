@@ -173,6 +173,24 @@ function assertRedirects(distDir) {
   }
 }
 
+function assertSitemapFile(distDir, siteUrl) {
+  const sitemapPath = path.join(distDir, "sitemap.xml");
+  if (!fs.existsSync(sitemapPath)) {
+    fail("missing sitemap.xml");
+    return;
+  }
+  const xml = fs.readFileSync(sitemapPath, "utf8");
+  if (xml.includes("/catalog/_item")) {
+    fail("sitemap.xml must not list /catalog/_item");
+  }
+  for (const fixture of CATALOG_DETAIL_FIXTURES) {
+    const loc = `${siteUrl}/catalog/${fixture.id}`;
+    if (!xml.includes(`<loc>${loc}</loc>`)) {
+      fail(`sitemap.xml missing official template ${loc}`);
+    }
+  }
+}
+
 function assertSitemapCoverage() {
   const prerendered = new Set([
     ...PRERENDER_PAGES.map((p) => p.path),
@@ -197,6 +215,7 @@ function assertSitemapCoverage() {
  */
 export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
   assertSitemapCoverage();
+  assertSitemapFile(distDir, siteUrl);
   assertRedirects(distDir);
 
   assertShell(distDir, siteUrl, "/", {
