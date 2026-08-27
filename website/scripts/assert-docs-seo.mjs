@@ -86,6 +86,28 @@ if (requireBuild && !sitemapExists) {
 if (sitemapExists) {
   assertSitemapFile('build/sitemap.xml', '/docs/guide/intro/');
   assertSitemapFile('build/en/sitemap.xml', '/en/docs/guide/intro/');
+
+  const mcpZh = path.join(websiteRoot, 'build/docs/guide/api-and-mcp/index.html');
+  const mcpEn = path.join(websiteRoot, 'build/en/docs/guide/api-and-mcp/index.html');
+  if (!fs.existsSync(mcpZh)) fail('build/docs/guide/api-and-mcp/index.html missing');
+  else {
+    const html = fs.readFileSync(mcpZh, 'utf8');
+    if (!/<title[^>]*>[^<]*MCP/i.test(html)) {
+      fail('zh MCP page <title> must contain MCP');
+    }
+    if (!/name="description"[^>]*content="[^"]*projectJSON/i.test(html) && !/content="[^"]*projectJSON[^"]*"[^>]*name="description"/i.test(html)) {
+      fail('zh MCP page description must mention projectJSON');
+    }
+    if (!/mcpServers/.test(html)) fail('zh MCP page must include copy-paste mcpServers JSON');
+  }
+  if (!fs.existsSync(mcpEn)) fail('build/en/docs/guide/api-and-mcp/index.html missing');
+  else {
+    const html = fs.readFileSync(mcpEn, 'utf8');
+    if (!/<title[^>]*>[^<]*MCP/i.test(html)) {
+      fail('en MCP page <title> must contain MCP');
+    }
+    if (!/mcpServers/.test(html)) fail('en MCP page must include copy-paste mcpServers JSON');
+  }
 }
 
 if (failures.length) {

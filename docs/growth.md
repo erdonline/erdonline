@@ -17,19 +17,19 @@
         → 每周版本保存（北极星：非空 diff 的版本保存数）
 ```
 
-纪律：**每篇文章 CTA 永远只有一个主链接 = demo**，GitHub star 只放文末次要位置。任何一篇阅读高但 demo 点击率低于 1.5%，先改 CTA 位置与文案，而不是写新文章。
+纪律：**画图/版本类文章 CTA 永远只有一个主链接 = demo**。MCP 操作帖例外：主 CTA = 文档 MCP 页（Demo 是只读分享，铸不了 PAT）。GitHub star 只放文末次要位置。任何一篇阅读高但主 CTA 点击率低于 1.5%，先改 CTA 位置与文案，而不是写新文章。
 
 ## 渠道优先级（ROI 排序）
 
-**立刻做**：掘金（每周 1 篇主发）→ HelloGitHub 月刊投稿（一次性）→ 阮一峰周刊投稿（一次性）→ V2EX（首发 + 每里程碑一次）→ 开源中国/思否（掘金稿零成本同步）→ 知乎答题（长尾存量问题，写一次吃几年）。
+**立刻做（2026-08-28 证据改写）**：小红书「梁工造物」（MCP/Agent 标题阅读最高）→ 掘金（每周 1 篇主发，MCP 操作帖）→ 文档站 MCP 页 SEO（agent/MCP 查询）→ 落地页次要 MCP 链（H1 仍 Git + Figma；www SERP title 仍 draw-ERD）→ 开源中国/思否零成本同步。HelloGitHub / 阮一峰 / V2EX / 知乎答题仍做，但不抢 MCP 楔子。
 
 **暂缓（有前置条件）**：Show HN / Reddit / dev.to —— 等 demo 与落地页英文体验完整（i18n 在 P3），EN 用户撞中文 demo = 转化率塌方，宁可晚发不可烂发；B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
 
-**不做**：付费投放、抖音/小红书（受众错配）、自建公众号矩阵（改为投稿既有大号）、AI 噱头营销、刷量、10+ 平台机械同步（只维护掘金主发 + 思否/开源中国同步 + 知乎答题）。
+**不做**：付费投放、抖音、自建公众号矩阵、ChatSQL /「一句话生成 ERD」噱头、刷量、把 12 篇旧稿再群发一遍。小红书**不是**受众错配——已有 15 条笔记；AI 邻接标题是当前最高阅读，续做**具体操作帖**，不改品牌 H1。
 
 **CN vs EN 判断**：中文「ER 图工具/数据库建模工具」搜索是真空（无像样横评文），抢增量；英文侧 dbdiagram/DrawDB 已霸屏，只埋种子（awesome list PR、README.en-US 质量），等 i18n 完整再 Show HN。
 
-## 文章选题包（12 个，按发布序）
+## 文章选题包（按发布序；#13 起为 MCP 楔子续篇）
 
 | # | 标题（暂定） | 角度 | slug（稿件） | CTA | 指南页（docs 蒸馏） | 状态 |
 |---|---|---|---|---|---|---|
@@ -38,7 +38,8 @@
 | 3 | 数据库表结构改崩了谁背锅？给建模加上 Git 式版本 diff | 版本叙事最强卖点，事故开场 | `git-style-version-diff` | demo | [`guide/save-version-and-diff`](/docs/guide/save-version-and-diff) | ✅ ready |
 | 4 | 从 dbdiagram 搬家只要 5 分钟：DBML 导入 + 自托管指南 | 迁移收割，抢竞品用户 | `from-dbdiagram-in-5-min` | demo | [`guide/import-dbml`](/docs/guide/import-dbml) | ✅ ready |
 | 5 | MySQL/Oracle/PG/SQLServer 存量库一键逆向成关系图 | 逆向工程深度，存量库刚需 | `reverse-engineer-four-dbs` | demo | [`guide/reverse-engineer`](/docs/guide/reverse-engineer) | ✅ ready |
-| 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
+| 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready（XHS 2026-08-28 阅读最高） |
+| 13 | Cursor 连上 MCP：读一张图，提交一版建议 | #6 的操作续篇；30 秒 copy-paste | `cursor-mcp-read-and-suggest-version` | mcp | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
 | 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
 | 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
 | 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾；对照必须诚实 | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含思否） |
@@ -156,7 +157,27 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 
 **日常**：Chrome 保持打开且扩展已连接；改 MCP/CLI 配置后重载 Cursor MCP。远程开发见 [MCP Server README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/mcp-server#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)（扩展开「同步桥接」连 `ws://<host>:9527`）。
 
-## 4 周节奏（启动 checklist 摘要）
+## MCP / Agent 两周猛攻（2026-08-28 → 2026-09-10）
+
+> 证据：小红书 15 条笔记里，**开放 projectJSON + MCP 给 Agent** 阅读最高（51）；draw.io 对比 41；诚实横评 14。GSC www 查询仍是 draw/create/make ER diagram，2 点击 / 103 展示。因此：**中文增长楔子 = MCP 可演示**；www SERP title **保持** draw-ERD；H1 **不改** Git + Figma；不做 ChatSQL。
+
+近端指标：落地页 → demo / 注册、GSC CTR、小红书阅读。北极星仍是每周非空 diff 版本保存。
+
+| 切片 | 日 | 结果 | 文件 | 验证 |
+|---|---|---|---|---|
+| **1** 今晚 | 08-28 | 文档 MCP 页变成 30 秒 copy-paste；SERP title/description 对准 agent/MCP；落地页开放支柱补一句 + 链到文档（非 H1）；稿 #13 掘金+小红书 | `docs/guide/api-and-mcp.md`（中/英）、`frontend/src/locales/{zh-CN,en-US}.ts`、`frontend/src/pages/landing/index.tsx`、`content/articles/cursor-mcp-read-and-suggest-version.md` | ✅ `yarn test:seo`；构建 HTML title 含 MCP；`yarn check:i18n`；`landing.spec.ts` MCP 链；`build-package.mjs` 出包 |
+| **2** | 08-29 | 小红书发 #13（创作台已登录则发；验证码则贴草稿）；掘金发同一 slug | `content/dist/cursor-mcp-read-and-suggest-version/` | 平台公开 URL；24h 阅读 vs #6 |
+| **3** | 08-30 | 已登录工作台空态 / 项目列表露出「给 Agent 配 MCP」次入口（testid，不抢新建项目主 CTA） | 工作台 / 账户 PAT 页 | `personal-access-tokens.spec.ts` + 新 E2E；不删用户数据 |
+| **4** | 08-31 | PAT 铸造成功后显示 MCP 配置片段（复制按钮）；减少「去 GitHub 翻 README」 | PAT UI | E2E：铸造 → 可见 mcp.json 片段 |
+| **5** | 09-01 | 文档 MCP 页补 3 张截图（PAT / mcp.json / Agent 列表），供小红书封面 | `docs/guide/` + `content/articles/assets/` | 文档站构建；XHS 配图清单 |
+| **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |
+| **7** | 09-05 | 英文文档 MCP 页被 GSC 收录探测；www 不改 title | `curl` canonical | `https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/docs/guide/api-and-mcp/` 200、尾斜杠 |
+| **8** | 09-08 | 下一稿：CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/` 新 slug | 不群发旧 12 篇 |
+| 评审 | 09-10 | 两周决策：XHS MCP 帖阅读是否 > #6；docs MCP 页展示是否上升；落地页 MCP 链点击是否可测 | `docs/growth.md` 本表勾状态 | 连续两周指标变差 → 停下来与用户重议 |
+
+纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
+
+## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
 - **W1 基建+首发**：UTM 规范落地（已随流水线完成）→ 记录 Baidu/CF/GitHub Traffic 基线 → 发 #1（掘金）→ V2EX 轻量帖 → HelloGitHub 投稿
 - **W2 卖点主打**：发 #3（版本 diff，重点篇）+ #5；阮一峰周刊投稿；知乎答 3 个存量问题；周末复盘 referrer/转化

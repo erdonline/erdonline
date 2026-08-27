@@ -44,6 +44,18 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 
 > Per [ADR-0012](/docs/adr/ai-era-data-structure-platform) (**accepted · option B**): “Git + Figma + AI-agent-readable open source of truth for database design”; keywords **open + secure**. Landing first; API/MCP see [ADR-0013](/docs/adr/public-api-mcp) (✅ MVP: slices 1–5 + write REST/MCP + Redis + OAuth A+B + PAT/client UI + consent page).
 
+### MCP / Agent growth wedge (from 2026-08-28, two weeks) 🚧
+
+> Calendar and verify points: [`growth.md`](/docs/growth). Vision lock: AI is an option; H1 stays Git + Figma; www SERP title stays draw-ERD; public docs only `https://doc.erdonline.com`.
+
+| Slice | Status | Ships |
+|---|---|---|
+| 1 Docs 30-second MCP path + SEO + article #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) copy-paste; landing Open pillar link; `content/articles/cursor-mcp-read-and-suggest-version.md` |
+| 2 Publish #13 on Xiaohongshu / Juejin | 📋 | Creator publish or leave paste text |
+| 3 Logged-in workspace MCP secondary entry | 📋 | Must not steal New Project primary CTA |
+| 4 PAT success screen embeds mcp.json | 📋 | Copy after mint |
+| 5–8 screenshots / indexing / CI-lint article / two-week review | 📋 | See growth table |
+
 ### Landing (public, brand-first, one composition) ✅
 
 - Public route `/` (accessible logged out); logged-in “Learn more” back link; logged-out primary CTA → `/demo`, logged-in primary CTA → `/home`

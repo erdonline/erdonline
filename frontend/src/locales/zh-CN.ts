@@ -277,7 +277,10 @@ export default {
   'landing.pillars.collab.title': '协作',
   'landing.pillars.collab.body': '多人同图实时编辑与 presence，评审与审批流把变更收进可审计的版本。',
   'landing.pillars.open.title': '开放',
-  'landing.pillars.open.body': 'projectJSON 公开格式；API / MCP 按路线图推进，agent 直接消费同一份事实源。',
+  'landing.pillars.open.body':
+    'projectJSON 公开格式；Agent 可通过 MCP 读取同一份模型，人再 diff 审批版本。',
+  'landing.pillars.open.mcpCta': '给 Cursor / Claude 配 MCP',
+  'landing.pillars.open.mcpCtaAria': '打开文档：用 MCP 让 Cursor 或 Claude 读取 ER 图',
   'landing.demo.title': '30 秒动线',
   'landing.demo.lead': '打开在线 demo，看到真实关系图，再决定是否注册或自部署。',
   'landing.demo.cta.selfHost': '自部署指南',
@@ -305,7 +308,6 @@ export default {
   'landing.compare.cell.mitCompose': 'MIT + compose',
   'landing.compare.cell.closedSaas': '闭源 SaaS',
   'landing.compare.cell.formatOpen': '格式开源',
-  'landing.compare.cell.roadmap': '路线图中',
   'landing.compare.cell.no': '无',
   'landing.compare.cell.textOnly': '文本为主',
   'landing.compare.cell.collabDetail': '多人同图 + presence',
@@ -315,7 +317,7 @@ export default {
   'landing.compare.cell.sharePublic': '公开分享',
   'landing.compare.cell.dbmlBoth': '导入 / 导出',
   'landing.compare.cell.native': '原生',
-  'landing.compare.cell.agentDetail': 'projectJSON schema；API/MCP 路线图',
+  'landing.compare.cell.agentDetail': 'projectJSON schema；公开 API / MCP',
   'landing.compare.cta.full': '查看完整对照',
   'landing.compare.cta.fullAria': '查看完整对照',
   'landing.comparePage.lead':

@@ -50,7 +50,7 @@ title: 标题
 slug: kebab-case            # 文件名 = slug.md；进 utm_content 归因单篇
 status: draft               # draft → ready → published
 platforms: [juejin, zhihu]  # juejin/zhihu/v2ex/wechat/segmentfault/oschina
-cta: demo                   # demo/compare/docs/deploy/repo（见 scripts/growth/lib/utm.mjs）
+cta: demo                   # demo/compare/docs/mcp/deploy/repo（见 scripts/growth/lib/utm.mjs）
 utm_campaign: launch
 guide: docs/guide/save-version-and-diff.md   # 可选：蒸馏到文档站 How-to（不整篇搬营销稿）
 created: 2026-08-09

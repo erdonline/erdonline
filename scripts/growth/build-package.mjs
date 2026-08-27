@@ -45,6 +45,7 @@ const CTA_LABEL = {
   demo: '30 秒免注册亲手验证',
   compare: '打开竞品对照页 /compare',
   docs: '阅读文档与 API / MCP 说明',
+  mcp: '30 秒复制 Cursor MCP 配置',
   deploy: '打开自托管部署指南',
   repo: '打开 GitHub 仓库（Issue / PR）',
 };

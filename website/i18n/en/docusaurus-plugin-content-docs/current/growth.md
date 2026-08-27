@@ -21,11 +21,11 @@ Discipline: **every article has one primary CTA = demo**; GitHub star only at th
 
 ## Channel priority (ROI order)
 
-**Do now**: Juejin (1 main post/week) → HelloGitHub monthly submission (one-time) → Ruanyifeng weekly submission (one-time) → V2EX (launch + once per milestone) → OSChina / SegmentFault (zero-cost sync from Juejin drafts) → Zhihu answers (long-tail stock questions; write once, eat for years).
+**Do now (rewritten 2026-08-28)**: Xiaohongshu “梁工造物” (MCP/Agent titles read highest) → Juejin (1 MCP how-to/week) → docs MCP page SEO → landing secondary MCP link (H1 stays Git + Figma; www SERP title stays draw-ERD) → OSChina / SegmentFault sync. HelloGitHub / Ruanyifeng / V2EX / Zhihu still run, but must not preempt the MCP wedge.
 
 **Defer (preconditions)**: Show HN / Reddit / dev.to — wait until demo and landing English experience is complete (i18n is P3); EN users hitting Chinese demo = conversion collapse—better late than bad; Bilibili — wait for a visually strong milestone, then one 3-minute demo.
 
-**Do not**: Paid ads; Douyin/Xiaohongshu (audience mismatch); self-built WeChat official account matrix (submit to existing accounts instead); AI hype marketing; fake engagement; mechanical sync to 10+ platforms (only maintain Juejin primary + SegmentFault/OSChina sync + Zhihu answers).
+**Do not**: Paid ads; Douyin; self-built WeChat official-account matrix; ChatSQL / “generate an ERD in one prompt”; fake engagement; re-blast the old 12 posts. Xiaohongshu is **not** an audience mismatch—15 notes already shipped; AI-adjacent titles are the current read leader. Continue **concrete how-tos**. Do not change the brand H1.
 
 **CN vs EN**: Chinese search for "ER diagram tool / database modeling tool" is a vacuum (no decent comparison posts)—capture incremental traffic; English side dbdiagram/DrawDB dominate—plant seeds only (awesome list PRs, README.en-US quality); Show HN after i18n is complete.
 
@@ -38,7 +38,8 @@ Discipline: **every article has one primary CTA = demo**; GitHub star only at th
 | 3 | Who owns it when schema changes break prod? Git-style version diff for modeling | Strongest version narrative; incident opening | `git-style-version-diff` | demo | [`guide/save-version-and-diff`](/docs/guide/save-version-and-diff) | ✅ ready |
 | 4 | Move from dbdiagram in 5 minutes: DBML import + self-host guide | Migration harvest; competitor users | `from-dbdiagram-in-5-min` | demo | [`guide/import-dbml`](/docs/guide/import-dbml) | ✅ ready |
 | 5 | One-click reverse engineer MySQL/Oracle/PG/SQL Server into a relation diagram | Reverse engineering depth; existing DB need | `reverse-engineer-four-dbs` | demo | [`guide/reverse-engineer`](/docs/guide/reverse-engineer) | ✅ ready |
-| 6 | Let AI agents read your database design: open projectJSON + MCP | AI platform narrative (open and auditable only) | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
+| 6 | Let AI agents read your database design: open projectJSON + MCP | AI platform narrative (open and auditable only) | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready (highest XHS reads 2026-08-28) |
+| 13 | Cursor + MCP: read one diagram, suggest one version | How-to sequel to #6; 30-second copy-paste | `cursor-mcp-read-and-suggest-version` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | 🚧 slice 1 |
 | 7 | MIT open-source database modeling platform with docker-compose one-click deploy | Self-host SEO article | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
 | 8 | How do teams govern modeling permissions? Three-tier roles + approval flow in practice | Team scenario; single-user tool pain | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
 | 9 | Honest comparison of 8 ER / database design tools in 2026 | SEO long-tail; comparisons must be honest | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare) (not in handbook body) | ✅ ready (incl. SegmentFault) |
@@ -156,7 +157,17 @@ growth CLI       ←same WS bridge, WECHATSYNC_TOKEN matches extension Token→
 
 **Daily**: keep Chrome open with extension connected; reload Cursor MCP after MCP/CLI config changes. Remote dev: see [MCP Server README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/mcp-server#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5) (extension "sync bridge" to `ws://<host>:9527`).
 
-## 4-week rhythm (launch checklist summary)
+## MCP / Agent two-week push (2026-08-28 → 2026-09-10)
+
+> Evidence: among 15 Xiaohongshu notes, **open projectJSON + MCP to agents** led reads (51); draw.io dunk 41; honest compare 14. GSC www queries remain draw/create/make ER diagram (2 clicks / 103 impressions). Therefore: **CN growth wedge = demoable MCP**; www SERP title **stays** draw-ERD; H1 **stays** Git + Figma; no ChatSQL.
+
+Near-term metrics: landing → demo / signup, GSC CTR, Xiaohongshu reads. North star remains weekly non-empty-diff version saves.
+
+Full slice table (outcomes / files / verify): see Chinese [`growth.md`](https://github.com/erdonline/erdonline/blob/main/docs/growth.md) — same calendar. Slice 1 = docs 30-second MCP path + SEO + article #13. Slices 2–8 = publish, logged-in MCP entry, PAT snippet, screenshots, GSC indexing, CI-lint article, two-week review.
+
+Exception: MCP how-to posts use **docs MCP page** as primary CTA (not demo). Demo is a read-only share and cannot mint a PAT.
+
+## Historical 4-week rhythm (2026-08 launch pack; topics 1–12 done)
 
 - **W1 infra + launch**: UTM rules landed (done with pipeline) → record Baidu/CF/GitHub Traffic baseline → publish #1 (Juejin) → V2EX light post → HelloGitHub submission
 - **W2 selling points**: publish #3 (version diff, key post) + #5; Ruanyifeng weekly submission; answer 3 Zhihu stock questions; weekend review referrer/conversion
