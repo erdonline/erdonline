@@ -83,6 +83,7 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
   test('crawler first HTML uses path canonical (not homepage)', async ({ request }) => {
     const home = await (await request.get('/')).text();
     expect(home).toContain('<title>Draw ER Diagram Online — Free Editor | ERD Online</title>');
+    expect(home).toContain('suggest-erd-version');
     expect(home).toMatch(/rel="canonical"[^>]*href="https:\/\/www\.erdonline\.com\/"/);
     expect(home).toContain('"@type":"WebApplication"');
 
@@ -164,6 +165,9 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       );
       const html = await res.text();
       expect(html, c.path).toContain(`<title>${c.title}</title>`);
+      if (c.path === '/en') {
+        expect(html, c.path).toContain('suggest-erd-version');
+      }
       const canon = html.match(/rel="canonical"[^>]*href="([^"]+)"/)?.[1] ?? '';
       expect(canon, c.path).toBe(c.canonical);
       expect(canon, `${c.path} must not canonicalize to homepage`).not.toBe(

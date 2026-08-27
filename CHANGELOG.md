@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### www：首页 prerender 壳写入 MCP 次路径（title 仍 Draw-ERD）
+
+- **证据**：live 首屏 HTML 无 CTA；`suggest-erd-version` / 「读图再提交一版」只在 hydrate `umi.*.js`。对照 `/compare` 把 projectJSON 写进 description（e88434af）。不改 H1/SERP title。不发小红书/npm；不重试 Glama；PAT 不进 URL。
+- **改法**：`HOME_SEO.description`（`/` document.ejs + `/en/` 壳）补 MCP prompt `suggest-erd-version` / `create_version` 人 diff。
+- 验证点：`yarn test:seo-static`；`/` 与 `/en/` title 仍 Draw-ERD；壳含 `suggest-erd-version`
+
 #### www：PAT 弹层 / MCP CTA 写明 suggest-erd-version
 
 - **证据**：渠道只剩登录墙。铸造弹层与落地/Home 次链只说到「配 MCP」，人不知道下一步是 `create_version` 给人 diff。不发小红书/npm；不重试 Glama；H1/SERP 未改；PAT 不进 URL。

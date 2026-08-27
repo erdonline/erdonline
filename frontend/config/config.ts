@@ -16,7 +16,7 @@ const {REACT_APP_ENV, UMI_ENV} = process.env;
 /** Crawler-visible `/` SERP copy. Per-path shells for /catalog /compare /en/* are written after build by scripts/gen-seo-static.mjs. */
 const SEO_TITLE = 'Draw ER Diagram Online — Free Editor | ERD Online';
 const SEO_DESCRIPTION =
-  'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.';
+  'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup. MCP prompt suggest-erd-version: agents call create_version; humans still diff. Not ChatSQL.';
 const SEO_ORIGIN = 'https://www.erdonline.com';
 const SEO_JSON_LD = JSON.stringify({
   '@context': 'https://schema.org',
@@ -27,8 +27,7 @@ const SEO_JSON_LD = JSON.stringify({
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Any',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
-  description:
-    'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser.',
+  description: SEO_DESCRIPTION,
 });
 
 /** Cloudflare Web Analytics + Baidu Tongji — prod build only; skip localhost / 127.0.0.1 at runtime. */

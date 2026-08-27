@@ -62,6 +62,7 @@
 | 今晚产品漏斗 | ✅ 2026-08-28 | llms.txt、Cursor install-link（PAT 不进 URL）、`/compare` Agent/MCP、catalog/compare 壳、JSON-LD |
 | 首次接通排障 | ✅ 2026-08-28 | MCP 指南空列表 / 占位符 PAT FAQ；`list_projects` 空结果 hint |
 | www MCP CTA 收口 | ✅ 2026-08-28 | PAT 弹层 + 落地/Home 次链点名 `suggest-erd-version` / `create_version`（非 H1） |
+| 首页壳 MCP 次路径 | ✅ 2026-08-28 | `/` `/en/` prerender description 含 `suggest-erd-version`；SERP title 仍 Draw-ERD |
 | 两周评审（提前） | ✅ 2026-08-28 | XHS #13 已发布浏览 5（#6 仍 51）；GSC 2/103 持平、无 doc 页；www home 无 P0 泄漏；稿 #15 dunk+demo |
 
 ### 落地页（公开，品牌优先，一个构图）✅
