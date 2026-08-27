@@ -1,0 +1,5 @@
+# ERD Online docs — overrides Cloudflare Pages default robots so Google can index.
+User-agent: *
+Allow: /
+
+Sitemap: https://doc.erdonline.com/sitemap.xml

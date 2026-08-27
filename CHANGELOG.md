@@ -6,6 +6,14 @@
 
 ## [Unreleased]
 
+### 2026-08-27
+
+#### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
+
+- **证据**：GSC 列出 `/docs/faq`、`/docs/quick-start/*`、`/docs/advanced/*` 等，最后抓取 2026-03～05；当前 Docusaurus 无这些路径；`doc.erdonline.com` 现 500/TLS 失败，CF 文档 `robots.txt` 只有平台 Content-Signal、无 `Sitemap:`
+- **改法**：`website/static/robots.txt`（Allow + Sitemap）+ `_redirects` 旧路径 301 到 `/docs/guide/*`；CF 构建 `DOCUSAURUS_URL=https://doc.erdonline.com`；部署文档写明 Pages 自定义域 CNAME
+- 验证点：`cd website && yarn build` 后 `build/robots.txt` 含 `Sitemap:`、`build/_redirects` 含 `/docs/faq`
+
 ### 2026-08-16
 
 #### SEO：对准 GSC 英文查询改 SERP 摘要（0 点击 → 可点）
