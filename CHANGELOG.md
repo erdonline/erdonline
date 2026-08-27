@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：GitHub README 30 秒 Cursor MCP 楔子
+
+- **证据**：落在仓库的人/Agent 看不到 PAT + `mcp.json` 最短路径；文档站已有 30 秒指南，README 未对齐。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书；未请求 GSC。
+- **改法**：默认 `README.md` 与 `README.en-US.md` 在 30 秒 demo 之后增加次路径（copy-paste `mcp.json`，占位符 `/ABS/PATH` + 生产 `ERD_API_URL` 与指南 / PAT 弹层一致）。文档只链 `https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/` 对应页。不是 ChatSQL。
+- 验证点：两份 README 的 json 块与 `docs/guide/api-and-mcp.md`「30 秒接到 Cursor」一致；无 `github.io`；PAT 铸造 URL 为 `/account/settings?selectKey=personalAccessTokens`
+
 #### fix：公开路径静态壳 canonical / title 不再指回首页
 
 - **证据**：GSC `/en/catalog` crawled not indexed；`/catalog` `/compare` 与 `/` 抢同一份 Draw-ERD 首屏 HTML（CF `_redirects` `200` 反代到 `/`）。hydrate 后 `usePageSeo` 才改摘要，爬虫首屏仍是首页。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；未发小红书；不铸 PAT。
