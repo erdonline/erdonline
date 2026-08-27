@@ -94,22 +94,20 @@ run('Cursor install-link config is shipped npx tarball + PAT placeholder', () =>
   assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
 });
 
-run('install-link with minted PAT is not the README placeholder', () => {
-  const pat = 'erd_pat_minted_secret';
-  const href = cursorMcpInstallWebHref({
-    pat,
-    apiUrl: 'https://erdonline-production.up.railway.app',
-  });
+run('install-link href never contains a minted PAT secret', () => {
+  const secret = 'erd_pat_minted_secret';
+  const json = buildCursorMcpJson(secret, PRODUCTION_MCP_API_URL);
+  assert.match(json, new RegExp(secret));
+  const href = cursorMcpInstallWebHref();
+  assert.ok(!href.includes(secret));
+  assert.ok(!decodeURIComponent(href).includes(secret));
   const q = new URL(href).searchParams.get('config');
   assert.ok(q);
-  const decoded = JSON.parse(Buffer.from(q, 'base64').toString('utf8')) as {
-    args: string[];
-    env: {ERD_PAT: string; ERD_API_URL: string};
-  };
-  assert.equal(decoded.env.ERD_PAT, pat);
-  assert.notEqual(decoded.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
-  assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
-  assert.notEqual(href, cursorMcpInstallWebHref());
+  const raw = Buffer.from(q, 'base64').toString('utf8');
+  assert.ok(!raw.includes(secret));
+  const decoded = JSON.parse(raw) as {env: {ERD_PAT: string}};
+  assert.equal(decoded.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
+  assert.ok(!decoded.env.ERD_PAT.startsWith('erd_pat_m'));
 });
 
 run('README and MCP guide contain the Cursor install web link', () => {

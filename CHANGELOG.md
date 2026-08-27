@@ -23,6 +23,12 @@
 - **改法**：`cursorMcpInstallWebHref({ pat, apiUrl })`；弹层次链 `pat-cursor-install-link`。Home 次 CTA 仍指向文档。
 - 验证点：`npx tsx src/utils/mcpJsonSnippet.test.ts`；`yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` 绿
 
+#### security：PAT 一键链接不得把明文令牌写入 URL
+
+- **证据**：`1684f5b0` 把铸造明文编进 `cursor.com/link/mcp/install` 的 base64 `config`，会进浏览历史、Referer、cursor.com 日志。不可接受。
+- **改法**：install-link 的 `ERD_PAT` 固定为占位符 `erd_pat_…`；弹层一键链与 README 同 href。明文只出现在 mcp.json 复制框。
+- 验证点：`npx tsx src/utils/mcpJsonSnippet.test.ts` → `install-link href never contains a minted PAT secret`；`yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` 绿（href 不含 minted token）
+
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 
 - **证据**：Agent 落在文档站/www 没有短索引；指南已是 npx `--package`。仓内无 `llms-full.txt` 惯例，不新增。www H1 仍 Git + Figma；未发小红书/掘金；未请求 GSC。
