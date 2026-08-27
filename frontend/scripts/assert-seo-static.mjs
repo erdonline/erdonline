@@ -324,6 +324,9 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       if (!page.description.includes("projectJSON")) {
         fail(`${page.path} prerender description must mention projectJSON`);
       }
+      if (!page.description.includes("suggest-erd-version")) {
+        fail(`${page.path} prerender description must mention suggest-erd-version`);
+      }
       if (/ChatSQL|one-shot|一句话生成/i.test(page.description)) {
         fail(`${page.path} must not claim ChatSQL`);
       }

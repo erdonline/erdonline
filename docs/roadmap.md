@@ -64,6 +64,7 @@
 | www MCP CTA 收口 | ✅ 2026-08-28 | PAT 弹层 + 落地/Home 次链点名 `suggest-erd-version` / `create_version`（非 H1） |
 | 首页壳 MCP 次路径 | ✅ 2026-08-28 | `/` `/en/` prerender description 含 `suggest-erd-version`；SERP title 仍 Draw-ERD |
 | 文档 MCP 点名 prompt | ✅ 2026-08-28 | 指南 + `llms.txt`：`suggest-erd-version`；API 200 不是人批准 |
+| 对照 Agent 格点名 prompt | ✅ 2026-08-28 | `/compare` 格子 + 壳 description：`suggest-erd-version`；title 仍 vs draw.io |
 | 两周评审（提前） | ✅ 2026-08-28 | XHS #13 已发布浏览 5（#6 仍 51）；GSC 2/103 持平、无 doc 页；www home 无 P0 泄漏；稿 #15 dunk+demo |
 
 ### 落地页（公开，品牌优先，一个构图）✅
