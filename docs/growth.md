@@ -230,7 +230,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **证据**：列表已对；`/catalog/:id / 200` 仍把详情首屏变成首页 Draw-ERD。数据 API-only，社区 ID 无界。
 - **改法**：官方种子 per-id prerender；未知 ID 200 到 `/catalog/` 列表壳（不生成 `_item`）。CF identity-200 挡 placeholder。未请求 GSC。www H1 / 首页 SERP 未改；未发小红书。
 - **蒸馏**：`docs/deployment.md`。
-- **状态**：✅ 2026-08-28。live 曾 308→`/catalog/_item/`；同日改为 200→`/catalog/` + `_item` 301。未请求 GSC。
+- **状态**：✅ 2026-08-28。live（`ec296a9e` Pages [33109350832](https://github.com/erdonline/erdonline/actions/runs/33109350832) success）：未知 ID **200 保原 URL** 列表壳；`_item` **301 → `/catalog/`**；官方 demo-authz 仍独立 title。未请求 GSC。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 

@@ -74,6 +74,12 @@
 - 验证点：
   - `cd frontend && yarn test:seo-static` → PASS；无 `catalog/_item/index.html`；`_redirects` 无指向 `_item` 的 rewrite
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog/demo-authz` 仍独立 title；未知 ID 不落 `_item`；`/catalog/_item/` 301 到 `/catalog/`
+- **线上**（2026-08-28 03:41）：Pages [33109350832](https://github.com/erdonline/erdonline/actions/runs/33109350832)（`ec296a9e`）**success**（deploy-cloudflare 3m59s）。未请求 GSC。未发小红书；H1/SERP 未改。
+  - `/catalog/demo-authz` **308 → `/catalog/demo-authz/`**；title「功能鉴权示例 — ER 图模板 | ERD Online」、canonical `…/catalog/demo-authz`
+  - `/catalog/not-a-real-id-xyz` **200 保原 URL**（无 Location）；title 列表壳、canonical `…/catalog`；最终 URL **不含** `_item`
+  - `/catalog/not-a-real-id-xyz/` **200 保原 URL**；同上列表壳
+  - `/catalog/_item` 与 `/catalog/_item/` **301 → `/catalog/`**；跟随后列表 title + canonical `…/catalog`
+  - `/` 仍 Draw-ERD + canonical `https://www.erdonline.com/`
 
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
