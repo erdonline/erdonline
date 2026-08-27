@@ -3,7 +3,8 @@
  * Cloudflare Pages-like static server for prod-smoke.
  *
  * `/catalog` → dist/catalog/index.html when that shell exists.
- * `/catalog/:id` with no file → dist/catalog/_item/index.html (not homepage).
+ * `/catalog/:id` with no file → dist/catalog/index.html (list shell, keep URL).
+ * `/catalog/_item` → 301 /catalog/ (must not be crawlable).
  * Missing extension-less paths → dist/index.html (SPA).
  *
  * Do not use `npx serve -s`: its `** → /index.html` rewrite (and cleanUrls)
@@ -14,9 +15,22 @@ import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { CATALOG_DETAIL_SHELL_PATH } from "./seo-config.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+/** 301 leftover CF junk URL onto the catalog list. */
+export function catalogJunkRedirect(urlPath) {
+  const raw = (urlPath || "/").split("?")[0].split("#")[0];
+  let pathname;
+  try {
+    pathname = decodeURIComponent(raw);
+  } catch {
+    pathname = raw;
+  }
+  if (!pathname.startsWith("/")) pathname = `/${pathname}`;
+  if (pathname === "/catalog/_item" || pathname === "/catalog/_item/") return "/catalog/";
+  return null;
+}
 
 export function defaultDistDir() {
   return process.env.ERD_DIST_DIR || path.join(__dirname, "..", "dist");
@@ -78,12 +92,11 @@ export function resolveDistFile(distDir, urlPath) {
   }
 
   const catalogItem = pathname.match(/^\/catalog\/([^/]+)\/?$/);
-  if (catalogItem) {
-    const genericRel = CATALOG_DETAIL_SHELL_PATH.replace(/^\//, "");
-    const generic = path.resolve(path.join(root, genericRel, "index.html"));
-    if (generic.startsWith(root + path.sep)) {
+  if (catalogItem && catalogItem[1] !== "_item") {
+    const list = path.resolve(path.join(root, "catalog", "index.html"));
+    if (list.startsWith(root + path.sep)) {
       try {
-        if (fs.statSync(generic).isFile()) return generic;
+        if (fs.statSync(list).isFile()) return list;
       } catch {
         /* fall through to SPA */
       }
@@ -124,7 +137,8 @@ function checkResolver(distDir) {
     ["/en/demo", "en/demo/index.html"],
     ["/catalog/demo-authz", "catalog/demo-authz/index.html"],
     ["/catalog/demo-authz/", "catalog/demo-authz/index.html"],
-    ["/catalog/not-a-real-template", "catalog/_item/index.html"],
+    ["/catalog/not-a-real-template", "catalog/index.html"],
+    ["/catalog/not-a-real-template/", "catalog/index.html"],
   ];
   for (const [urlPath, rel] of cases) {
     const got = resolveDistFile(distDir, urlPath);
@@ -132,11 +146,23 @@ function checkResolver(distDir) {
       fail(`${urlPath} → ${got}`);
     }
   }
+  if (catalogJunkRedirect("/catalog/_item") !== "/catalog/") {
+    fail("/catalog/_item must 301 to /catalog/");
+  }
+  if (catalogJunkRedirect("/catalog/_item/") !== "/catalog/") {
+    fail("/catalog/_item/ must 301 to /catalog/");
+  }
   console.log("serve-dist-pages --check: PASS (directory shells before SPA fallback)");
 }
 
 function listen(distDir, port) {
   const server = http.createServer((req, res) => {
+    const loc = catalogJunkRedirect(req.url || "/");
+    if (loc) {
+      res.writeHead(301, { Location: loc, "Cache-Control": "no-store" });
+      res.end();
+      return;
+    }
     const file = resolveDistFile(distDir, req.url || "/");
     if (!file) {
       res.writeHead(404, { "Content-Type": "text/plain; charset=utf-8" });

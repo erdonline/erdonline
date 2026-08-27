@@ -27,7 +27,7 @@
 - [x] [切片 7 GSC] 两 URL 未知 → 已请求编入索引；GSC 补交 `en/sitemap.xml` 成功（66 URL）✅ 2026-08-28
 - [x] [GSC catalog/compare] `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引；四 URL curl 200、未检查 301、未发 XHS ✅ 2026-08-28
 - [x] [公开路径 prerender 壳] `yarn test:seo-static`：`/catalog` `/compare` `/en` `/en/catalog` `/en/compare` 首屏 canonical 为该路径，不是首页；`_redirects` 无这些精确路径的 `200` 反代 ✅ 2026-08-28
-- [x] [catalog 详情壳] `yarn test:seo-static` + prod-smoke：`/catalog/demo-authz` title 非 Draw-ERD、canonical 非 `https://www.erdonline.com/`；未知 ID 走 `_item` 列表壳 ✅ 2026-08-28
+- [x] [catalog 详情壳] `yarn test:seo-static` + prod-smoke：`/catalog/demo-authz` title 非 Draw-ERD、canonical 非 `https://www.erdonline.com/`；未知 ID 不落 `/catalog/_item`；`_item` 301 到列表 ✅ 2026-08-28
 
 ## 英文漏斗 i18n / SEO（2026-08-12）
 

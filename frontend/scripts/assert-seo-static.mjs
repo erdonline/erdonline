@@ -11,7 +11,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   CATALOG_DETAIL_FIXTURES,
-  CATALOG_DETAIL_SHELL_PATH,
   HOME_SEO,
   PRERENDER_PAGES,
   SITEMAP_PATHS,
@@ -131,23 +130,45 @@ function assertRedirects(distDir) {
       );
     }
   }
+  for (const line of rules) {
+    if (line.split(/\s+/)[1]?.replace(/\/$/, "") === "/catalog/_item") {
+      fail(`_redirects must not rewrite onto /catalog/_item (CF 308s directory to /catalog/_item/): ${line}`);
+    }
+  }
   const detailRule = rules.find((r) => r.split(/\s+/)[0] === "/catalog/:id");
   if (!detailRule) {
-    fail("_redirects must 200-rewrite /catalog/:id details without matching /catalog/");
+    fail("_redirects must handle /catalog/:id without matching /catalog/");
   } else if (detailRule.split(/\s+/)[1] === "/") {
     fail("_redirects /catalog/:id must not 200-rewrite to homepage /");
   }
-  if (!rules.includes(`/catalog/:id ${CATALOG_DETAIL_SHELL_PATH} 200`)) {
-    fail(`_redirects must be /catalog/:id ${CATALOG_DETAIL_SHELL_PATH} 200 (generic detail shell)`);
+  if (!rules.includes("/catalog/:id /catalog/ 200")) {
+    fail("_redirects must 200-rewrite unknown /catalog/:id to /catalog/ (list shell, already slashed)");
+  }
+  if (!rules.includes("/catalog/:id/ /catalog/ 200")) {
+    fail("_redirects must 200-rewrite unknown /catalog/:id/ to /catalog/ (avoid 404)");
+  }
+  if (!rules.includes("/catalog/_item /catalog/ 301")) {
+    fail("_redirects must 301 /catalog/_item to /catalog/");
+  }
+  if (!rules.includes("/catalog/_item/ /catalog/ 301")) {
+    fail("_redirects must 301 /catalog/_item/ to /catalog/");
   }
   const idIdx = rules.findIndex((r) => r.split(/\s+/)[0] === "/catalog/:id");
+  const idSlashIdx = rules.findIndex((r) => r.split(/\s+/)[0] === "/catalog/:id/");
   for (const fixture of CATALOG_DETAIL_FIXTURES) {
     const identity = `/catalog/${fixture.id} /catalog/${fixture.id} 200`;
+    const identitySlash = `/catalog/${fixture.id}/ /catalog/${fixture.id}/ 200`;
     const idx = rules.indexOf(identity);
+    const slashIdx = rules.indexOf(identitySlash);
     if (idx < 0) {
-      fail(`_redirects must identity-200 ${identity} so CF does not proxy the fixture to _item`);
+      fail(`_redirects must identity-200 ${identity} so CF does not proxy the fixture to the list`);
     } else if (idIdx >= 0 && idx > idIdx) {
       fail(`_redirects ${identity} must appear before /catalog/:id (CF first-match)`);
+    }
+    if (slashIdx < 0) {
+      fail(`_redirects must identity-200 ${identitySlash} so /catalog/:id/ does not steal official shells`);
+    } else if (idSlashIdx >= 0 && slashIdx > idSlashIdx) {
+      fail(`_redirects ${identitySlash} must appear before /catalog/:id/`);
     }
   }
 }
@@ -160,8 +181,8 @@ function assertSitemapCoverage() {
   const skip = new Set(["/"]);
   for (const p of SITEMAP_PATHS) {
     if (skip.has(p)) continue;
-    if (p === CATALOG_DETAIL_SHELL_PATH) {
-      fail("SITEMAP_PATHS must not list generic /catalog/_item shell");
+    if (p === "/catalog/_item" || p === "/catalog/_item/") {
+      fail("SITEMAP_PATHS must not list /catalog/_item");
       continue;
     }
     if (!prerendered.has(p)) {
@@ -201,29 +222,9 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
     });
   }
 
-  const catalogList = PRERENDER_PAGES.find((p) => p.path === "/catalog");
-  if (catalogList) {
-    const genericFile = distHtmlPath(distDir, CATALOG_DETAIL_SHELL_PATH);
-    const rel = path.relative(distDir, genericFile);
-    if (!fs.existsSync(genericFile)) {
-      fail(`missing shell ${rel}`);
-    } else {
-      const html = fs.readFileSync(genericFile, "utf8");
-      const title = extractTitle(html);
-      const canonical = extractCanonical(html);
-      if (title === HOME_SEO.title) {
-        fail(`${rel} must not use homepage Draw-ERD title`);
-      }
-      if (canonical === `${siteUrl}/`) {
-        fail(`${rel} must not canonicalize to homepage`);
-      }
-      if (title !== catalogList.title) {
-        fail(`${rel} <title> expected list shell, got ${JSON.stringify(title)}`);
-      }
-      if (canonical !== `${siteUrl}/catalog`) {
-        fail(`${rel} canonical expected ${siteUrl}/catalog, got ${canonical || "(missing)"}`);
-      }
-    }
+  const junkFile = distHtmlPath(distDir, "/catalog/_item");
+  if (fs.existsSync(junkFile)) {
+    fail("must not emit catalog/_item/index.html (crawlable junk; CF 308s onto it)");
   }
 
   if (failures.length) {

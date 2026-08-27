@@ -67,6 +67,14 @@
   - `/catalog` **308 → `/catalog/`**；列表仍「ER 图模板 — 免费数据库模型广场 | ERD Online」、canonical `…/catalog`
   - `/` 仍 Draw-ERD + canonical `https://www.erdonline.com/`
 
+#### fix：未知 `/catalog/:id` 不再 308 到 `/catalog/_item/`
+
+- **证据**：`0a5f3aff` live 官方 ID 独立壳 OK；未知 ID **308 → `/catalog/_item/`**（CF 把 200-rewrite 目标目录再 308 尾斜杠），尾斜杠未知 ID **404**。`_item` 可被爬。未请求 GSC。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- **改法**：不再生成 `dist/catalog/_item/`。未知 `/catalog/:id` 与 `/catalog/:id/` **200 到 `/catalog/`**（列表壳，目标已带斜杠）。`/catalog/_item` `/catalog/_item/` **301 → `/catalog/`**。官方 ID 无斜杠+有斜杠均 identity-200，避免 `:id/` 抢走独立壳。
+- 验证点：
+  - `cd frontend && yarn test:seo-static` → PASS；无 `catalog/_item/index.html`；`_redirects` 无指向 `_item` 的 rewrite
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog/demo-authz` 仍独立 title；未知 ID 不落 `_item`；`/catalog/_item/` 301 到 `/catalog/`
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
