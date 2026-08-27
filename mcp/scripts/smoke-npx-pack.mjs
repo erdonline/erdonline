@@ -34,9 +34,15 @@ if (listing.status !== 0) {
   console.error(listing.stderr || 'tar tzf failed');
   process.exit(listing.status ?? 1);
 }
-if (!listing.stdout.split('\n').some((l) => l === 'package/README.md')) {
+const tarNames = listing.stdout.split('\n');
+if (!tarNames.some((l) => l === 'package/README.md')) {
   console.error(listing.stdout);
   console.error('FAIL: tarball missing package/README.md (npx users must see install copy)');
+  process.exit(1);
+}
+if (!tarNames.some((l) => l === 'package/guide/api-and-mcp.md')) {
+  console.error(listing.stdout);
+  console.error('FAIL: tarball missing package/guide/api-and-mcp.md (resources/read)');
   process.exit(1);
 }
 

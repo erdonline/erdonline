@@ -1,6 +1,7 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { z } from 'zod';
 import { ErdApiClient, ErdApiError, type ErdApiConfig } from './erd-api.js';
+import { loadApiAndMcpMarkdown, MCP_GUIDE_URI } from './load-guide.js';
 
 function textResult(payload: unknown, isError = false) {
   return {
@@ -326,23 +327,19 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
 
   server.registerResource(
     'mcp-guide',
-    'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+    MCP_GUIDE_URI,
     {
       title: 'ERD Online MCP guide',
       description:
-        'How agents read/write the same versioned projectJSON as the designer. Git + Figma for schema; not ChatSQL or one-shot ERD generation.',
-      mimeType: 'text/plain',
+        'How-to markdown: agents read/write the same versioned projectJSON as the designer. Git + Figma for schema; not ChatSQL or one-shot ERD generation.',
+      mimeType: 'text/markdown',
     },
     async (uri) => ({
       contents: [
         {
           uri: String(uri),
-          mimeType: 'text/plain',
-          text:
-            'ERD Online MCP: agents list projects and read/write projectJSON (the designer source of truth). ' +
-            'Mint a PAT; never put a live token in a URL. ' +
-            'Install: npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp ' +
-            'Docs: https://doc.erdonline.com/docs/guide/api-and-mcp/',
+          mimeType: 'text/markdown',
+          text: loadApiAndMcpMarkdown(),
         },
       ],
     }),

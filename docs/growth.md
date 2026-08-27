@@ -194,6 +194,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | EN 第二列表 | 08-28 | ⏭ 未开第二份 PR：`appcypher/awesome-mcp-servers` 已 **archived**（fork 无法建 PR）；`wong2/awesome-mcp-servers` 声明不收 PR（改投 mcpservers.org）；官方 `modelcontextprotocol/servers` 已撤第三方列表。不同名小仓 / remote-only 列表当 spam 跳过 | — | 跳过 |
 | MCP Registry | 08-28 | 📋 官方 Registry **未发**：无 `NPM_TOKEN`；`mcp-publisher login github` 要 device OAuth + erdonline **Owner**（`whaty`/`gh` 不够）。Release `.tgz` 不是 mcpb。runbook [`docs/mcp-registry.md`](./mcp-registry.md)。本切片改 tarball 含 README + 弹层「一键后粘贴 PAT」。**不**发 npm / 小红书；**不**请求 GSC | `mcp/server.json` `mcp/README.md` locales | runbook 落地；Registry 空 |
 | MCP resources | 08-28 | ✅ Glama 未登录（Sign Up），未提交。仓内补 `resources/list` 文档指南 + prompt `list-erd-projects`。**不**发小红书/npm；**不**请求 GSC | `mcp/src/create-server.ts` | `yarn smoke:introspect` |
+| MCP PAT 报错 + 指南正文 | 08-28 | ✅ 缺 PAT / 占位符 `erd_pat_…` 时 `tools/call` 给出铸造路径 + 文档 URL；`resources/read` 返回 api-and-mcp.md。**不**发小红书/npm；**不**请求 GSC；不重试 Glama | `mcp/src/erd-api.ts` `mcp/src/load-guide.ts` | `yarn smoke:introspect`（read + call） |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。

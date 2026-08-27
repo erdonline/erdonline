@@ -1,3 +1,4 @@
 dist/
 *.tsbuildinfo
 *.tgz
+guide/api-and-mcp.md

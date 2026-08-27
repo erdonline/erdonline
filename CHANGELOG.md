@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：缺 PAT 时 tools/call 可执行报错 + resource 吐出指南正文
+
+- **证据**：Glama 未登录（Sign Up），不重试。Agent 先 `tools/list` 再调 `list_projects` 时，旧文案只写 POST 铸造接口，没有文档 URL / 占位符不是令牌。resource 原先只有一句摘要。不发小红书/npm；不请求 GSC；H1 未改。
+- **改法**：空 PAT 与 `erd_pat_…` 占位符在 `tools/call` 返回带指南 URL 的 401；`resources/read` 返回打包的 `docs/guide/api-and-mcp.md`（构建时 copy，无运行时拉取）。
+- 验证点：`cd mcp && yarn smoke:introspect` → `resources/read` 含「30 秒接到 Cursor」；无 PAT 的 `list_projects` `isError` 且文案含 `ERD_PAT` + 文档 URL
+
 #### mcp：无 PAT 的 resources/list + prompt（Glama 能力面）
 
 - **证据**：Chrome 打开 glama.ai/mcp/servers 可见 **Sign Up** / **Add Server**，未登录 GitHub，按纪律停提。#13035 bot 仍要 Glama score。不发小红书/npm；不请求 GSC；H1 未改。
