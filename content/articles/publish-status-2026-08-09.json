@@ -1,4 +1,16 @@
 {
+  "cursor-reads-erd-drawio-cannot": {
+    "title": "Cursor 读得懂你的 ER 图，draw.io 连外键都不认识",
+    "platforms": {
+      "xiaohongshu": {
+        "status": "draft-autosaved",
+        "url": "https://creator.xiaohongshu.com/publish/publish?from=menu&target=article",
+        "error": null,
+        "note": "2026-08-28 01:32 梁工造物长文编辑器：标题 33/64，字数 1358/10000，自动保存。未点一键排版、未点发布。无独立草稿 ID。"
+      }
+    },
+    "synced_at": "2026-08-28"
+  },
   "cursor-mcp-read-and-suggest-version": {
     "title": "Cursor 连上 MCP：读一张 ER 图，提交一版建议",
     "platforms": {

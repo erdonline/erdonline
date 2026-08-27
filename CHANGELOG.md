@@ -8,6 +8,11 @@
 
 ### 2026-08-28
 
+#### growth：稿 #15 贴入小红书长文草稿（未发布）
+
+- **改法**：梁工造物创作台「写长文 → 新的创作」贴入 head/middle/tail；自动保存于 01:32。**未点一键排版、未点发布。** 台账：`content/articles/publish-status-2026-08-09.md` / `.json`。
+- 验证点：编辑器标题 33/64、字数 1358/10000、可见「自动保存于 01:32」；主 CTA 含 `utm_source=xiaohongshu`
+
 #### growth：MCP 两周评审（提前）+ 稿 #15 draw.io dunk
 
 - **证据**（2026-08-28 01:23）：切片 6 仍验证码墙；1–5、7–8 已交付。XHS 创作台「梁工造物」：#13 *Cursor 连上 MCP读一张 ER 图* **已发布**（审核中 Tab「没有找到相关笔记」），浏览 **5**；#6 仍 **51**；draw.io dunk **41**。GSC 3 个月 Web：**2 / 103 / 1.9% / 62.7**（与楔子启动相同）；网页仅 www 五行，**无 doc.erdonline.com**。已登录 `/home`：MCP 为真实外链，项目卡进设计器，无死 affordance。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT；不发掘金、不重发 XHS。
