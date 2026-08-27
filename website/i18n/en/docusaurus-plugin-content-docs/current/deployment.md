@@ -29,7 +29,7 @@ Self-host data plane ─► your docker compose (MySQL/Redis + images above)
 
 | Surface | Workflow | Required config |
 |---|---|---|
-| Docs | `.github/workflows/docs-site.yml` (`deploy-cloudflare`; github.io is redirect stub only) | See checklist below; requires `CLOUDFLARE_PAGES_DEPLOY=true` |
+| Docs | `.github/workflows/docs-site.yml` (`deploy-cloudflare` only) | See checklist below; requires `CLOUDFLARE_PAGES_DEPLOY=true` |
 | Static demo | `.github/workflows/frontend-demo-site.yml` | Same + optional Variable `DEMO_API_URL` |
 | Release images | `.github/workflows/release.yml` (tag `v*`, job `ghcr`) | `GITHUB_TOKEN` + `packages:write` (usually no extra Secret) |
 
@@ -70,9 +70,9 @@ Repo **Settings → Secrets and variables → Actions**:
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | Account ID from step 2 |
 | `DEMO_API_URL` | Variable (optional) | Public API root URL (official demo: `https://erdonline-production.up.railway.app`); **if unset `env-config.js` API is empty** (landing works, full trial waits for backend) |
 
-#### 5. Legacy GitHub Pages (retired, redirect only)
+#### 5. Do not enable GitHub Pages
 
-Repo **Settings → Pages → Source** may stay **GitHub Actions**, but `docs-site.yml` **no longer publishes Docusaurus**. It only deploys `website/gh-pages-retire/` (jump to `https://doc.erdonline.com`, `Disallow: /`). Do not use github.io as a docs entry. `erdonline-docs.pages.dev` is the custom-domain CNAME target, not a docs link.
+Docs live only at `https://doc.erdonline.com`. Repo **Settings → Pages** should stay **None** (unpublished via API). Do not set Source = GitHub Actions or github.io will grow a second site. `erdonline-docs.pages.dev` is the custom-domain CNAME target, not a docs link.
 
 #### 6. Remote and trigger
 

@@ -197,7 +197,7 @@ cd website && yarn build           # 产物 website/build；死链会失败
 
 消费仓库 `docs/`（ADR-0003）。**产品面文档入口**：[https://doc.erdonline.com/](https://doc.erdonline.com/)（唯一公开地址）。本地中文搜索：`@easyops-cn/docusaurus-search-local`（需 `yarn build && yarn serve` 验证索引；dev 下索引可能不全）。  
 CI：`.github/workflows/docs-site.yml`（PR 构建；`main` → Cloudflare Pages `erdonline-docs` 绑定 `doc.erdonline.com`）。  
-须仓库 Variable `CLOUDFLARE_PAGES_DEPLOY=true`。旧 GitHub Pages 只部署跳转 stub，不提供文档。  
+须仓库 Variable `CLOUDFLARE_PAGES_DEPLOY=true`。GitHub Pages 已关闭，不要再开。  
 静态 demo：`.github/workflows/frontend-demo-site.yml` → CF 项目 `erdonline-demo`（见 [deployment.md](./deployment.md) 托管拓扑）。
 
 ## 协作 Presence（SocketIO）
