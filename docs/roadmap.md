@@ -194,6 +194,7 @@
 - ~~对照表补 draw.io 列 + 关系语义行（GSC `/compare` 已有点击；www H1/SERP 不动）~~✅ 2026-08-28
 - ~~`/catalog` 独立 SEO（GSC 已有点击但套用首页 title；templates 摘要）~~✅ 2026-08-28
 - ~~GSC 网址检查 `/catalog` `/compare`（及 `/en`）：已收录者不请求；`/en/catalog` 未知 → 已请求编入索引~~✅ 2026-08-28
+- ~~`/demo` `/en/demo` 静态壳（首屏 title/canonical 不再指回首页；真人仍跳 `/s/public-demo`）~~✅ 2026-08-28
 
 ## 阶段总览
 

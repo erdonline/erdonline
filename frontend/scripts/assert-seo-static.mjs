@@ -128,7 +128,7 @@ function assertRedirects(distDir) {
 
 function assertSitemapCoverage() {
   const prerendered = new Set(PRERENDER_PAGES.map((p) => p.path));
-  const skip = new Set(["/", "/demo", "/en/demo"]);
+  const skip = new Set(["/"]);
   for (const p of SITEMAP_PATHS) {
     if (skip.has(p)) continue;
     if (!prerendered.has(p)) {

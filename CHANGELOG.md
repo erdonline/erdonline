@@ -22,6 +22,16 @@
 - **改法（门禁）**：prod-smoke 不再用 `npx serve@14 -s`（`** → /index.html` 把已有 `dist/catalog/index.html` 盖成首页，假阴性拦 CF）。改为 `scripts/serve-dist-pages.mjs`（目录壳优先，缺文件才 SPA）。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
 - 验证点：`cd frontend && node scripts/serve-dist-pages.mjs --check` → PASS；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 「crawler first HTML uses path canonical」绿
 
+#### fix：`/demo` `/en/demo` 静态壳不再指回首页
+
+- **证据**：sitemap 已列 `/demo` `/en/demo`，但 `_redirects` `200` 反代到 `/`，爬虫首屏仍是 Draw-ERD + canonical `/`。真人 hydrate 后仍跳 `/s/public-demo`（行为不变）。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书；不铸 PAT。
+- **改法**：`PRERENDER_PAGES` 增加 `/demo` `/en/demo`（title 与 `share.seo` 对齐）；从 `CF_SPA_REDIRECT_RULES` 去掉这两条精确 200。`/catalog/:id` 仍 rewrite。
+- 验证点：
+  - `cd frontend && yarn test:seo-static` → PASS
+  - `node scripts/gen-seo-static.mjs` 后 `node scripts/assert-seo-static.mjs` → `/demo` title 含「免登录」、canonical `…/demo`
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/demo` `/en/demo` 首屏 canonical 不是首页
+- **线上**（本切片提交时）：`461a0c68` Pages [33105049554](https://github.com/erdonline/erdonline/actions/runs/33105049554) 仍 in_progress；curl `/catalog` `/en/catalog` `/compare` 首屏仍 Draw-ERD + canonical `/`。**未请求 GSC** `/en/catalog`（禁止对首页壳送检）。未发小红书；H1/SERP 未改。
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
