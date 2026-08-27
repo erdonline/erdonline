@@ -8,6 +8,11 @@
 
 ### 2026-08-28
 
+#### growth：稿 #16 贴入小红书长文草稿（未发布）
+
+- **改法**：梁工造物创作台「写长文 → 新的创作」贴入 开头/中间/结尾；自动保存于 02:05。**未点一键排版、未点发布。** 台账：`content/articles/publish-status-2026-08-09.md` / `.json`。
+- 验证点：编辑器标题 30/64、字数 1385/10000、可见「自动保存于 02:05」；主 CTA 含 `utm_source=xiaohongshu`
+
 #### growth：稿 #16 对准 GSC make/create/maker 查询
 
 - **证据**：GSC 查询 `make erd online` / `create erd online` / `erd diagram maker` 有展示、0 点击（均位约 74–86）；www SERP title 仍 draw-ERD，不改 H1。

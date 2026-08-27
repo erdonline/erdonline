@@ -7,6 +7,15 @@
 
 ## MCP 楔子公开发布（2026-08-28）
 
+### 搜 make ERD online 时，别再打开又一个画框图
+
+- slug: `make-create-erd-online`
+- **小红书长文草稿**（梁工造物，**未点发布、未点一键排版**）：创作台 `publish?from=menu&target=article` → 新的创作
+  - 标题：`搜 make ERD online 时，别再打开又一个画框图`（30/64）
+  - 正文 开头/中间/结尾 已贴入 Tiptap；字数 **1385** / 10000；**自动保存于 02:05**
+  - 主 CTA：`https://www.erdonline.com/demo?utm_source=xiaohongshu&utm_medium=article&utm_campaign=launch&utm_content=make-create-erd-online`
+  - 无独立草稿 ID；回创作台按标题找
+
 ### Cursor 读得懂你的 ER 图，draw.io 连外键都不认识
 
 - slug: `cursor-reads-erd-drawio-cannot`
