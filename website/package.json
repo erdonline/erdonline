@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "start": "docusaurus start",
-    "build": "docusaurus build && mkdir -p build/functions && cp functions/_middleware.js build/functions/",
+    "build": "docusaurus build",
     "serve": "docusaurus serve",
     "clear": "docusaurus clear"
   },
