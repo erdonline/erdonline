@@ -698,10 +698,15 @@
 - [x] [落地回归] `/` hero/CTA 仍绿✅ `landing.spec.ts`
 - [x] [对照页键盘] `/compare` 首项 Tab Skip「跳到主操作」→ `#landing-main-cta`→「打开演示」→「自部署指南」→「返回产品首页」可逆；surface focus-visible；无 trap✅ `compare.spec.ts`「竞品对照页键盘」
 
+## GSC SERP 摘要（2026-08-27 CTR）
+
+- [x] [静态 HTML] `/` job-first title `Draw ER Diagram Online — Free Editor | ERD Online`、description 含 draw + `ERD editor and maker` + entity-relationship models、JSON-LD `alternateName`、不含 file viewer / Google Draw ✅`landing.spec.ts`「静态 HTML」
+- [x] [locale title] `/` 中文「在线绘制 ER 图 — 免费编辑器 | ERD Online」；`/en` 英文同静态 title；`/en/compare` 对照英标题 ✅`i18n.spec.ts`「Landing SEO」
+
 ## GSC SERP 摘要（2026-08-16）
 
-- [x] [静态 HTML] `/` 含 `Draw ER Diagrams Online`、JSON-LD WebApplication、canonical ✅`landing.spec.ts`「静态 HTML」
-- [x] [locale title] zh「在线绘制 ER 图」/ en「Draw ER Diagrams Online」+ og:title + canonical ✅`i18n.spec.ts`「Landing SEO」
+- [x] [静态 HTML] `/` 含 `Draw ER Diagrams Online`、JSON-LD WebApplication、canonical ✅`landing.spec.ts`「静态 HTML」（2026-08-27 已改为 job-first 题，见上节）
+- [x] [locale title] zh「在线绘制 ER 图」/ en「Draw ER Diagrams Online」+ og:title + canonical ✅`i18n.spec.ts`「Landing SEO」（2026-08-27 文案已更新）
 
 ## 落地页 token 同源（2026-08-03）
 

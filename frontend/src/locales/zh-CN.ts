@@ -576,9 +576,9 @@ export default {
     '未配置第三方登录（需管理员设置 GitHub / Google / 微信环境变量）。',
 
   // Landing SEO
-  'landing.seo.title': 'ERD Online — 在线绘制 ER 图',
+  'landing.seo.title': '在线绘制 ER 图 — 免费编辑器 | ERD Online',
   'landing.seo.description':
-    '免费在线 ER 图工具。在浏览器中创建、绘制、查看实体关系图；开源，带版本与协作。免登录打开示例。',
+    '免费在线绘制 ER 图。实体关系模型编辑器与作图工具，在浏览器中创建；开源，带版本与协作。无需注册即可打开示例。',
   'landing.compare.seo.title': 'ERD Online 对照 — 协作、版本与开源',
   'landing.compare.seo.description':
     '诚实对照 ERD Online、dbdiagram 与 DBML：协作、版本、开放与自部署能力一览。',

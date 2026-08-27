@@ -314,22 +314,28 @@ test.describe('i18n：手动语言切换', () => {
   test('Landing SEO title/meta 随 locale 切换', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
-    await expect(page).toHaveTitle('ERD Online — 在线绘制 ER 图');
-    const descZh = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(descZh).toContain('免费在线 ER 图');
+    await expect(page.getByRole('heading', { level: 1, name: '数据库设计的 Git + Figma' })).toBeVisible();
+    await expect(page).toHaveTitle('在线绘制 ER 图 — 免费编辑器 | ERD Online');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /免费在线绘制 ER 图/,
+    );
     await expect(page.locator('meta[property="og:title"]')).toHaveAttribute(
       'content',
-      'ERD Online — 在线绘制 ER 图',
+      '在线绘制 ER 图 — 免费编辑器 | ERD Online',
     );
 
-    await page.evaluate(() => localStorage.setItem('umi_locale', 'en-US'));
-    await page.reload();
-    await expect(page).toHaveTitle('ERD Online — Draw ER Diagrams Online');
-    const descEn = await page.locator('meta[name="description"]').getAttribute('content');
-    expect(descEn).toContain('ERD diagram maker');
-    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/$/);
+    await page.goto('/en');
+    await expect(page.getByTestId('landing-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page.getByRole('heading', { level: 1, name: 'Git + Figma for database design' })).toBeVisible();
+    await expect(page).toHaveTitle('Draw ER Diagram Online — Free Editor | ERD Online');
+    await expect(page.locator('meta[name="description"]')).toHaveAttribute(
+      'content',
+      /ERD editor and maker/,
+    );
+    await expect(page.locator('link[rel="canonical"]')).toHaveAttribute('href', /\/en\/?$/);
 
-    await page.goto('/compare');
+    await page.goto('/en/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible({ timeout: 15_000 });
     await expect(page).toHaveTitle('ERD Online comparison — collaboration, versions, and open source');
   });

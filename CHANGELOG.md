@@ -8,6 +8,15 @@
 
 ### 2026-08-27
 
+#### SEO：首页 SERP 摘要改为 job-first（www CTR）
+
+- **证据**：GSC `sc-domain:erdonline.com` 近 3 个月 Web：2 点击 / 103 展示 / CTR 1.9% / 均位 62.7；`https://www.erdonline.com/` 1/90 / 1.1% CTR / 均位 61.3（主泄漏）；`/en` 0/19。全表查询均为 0 点击；最佳排名 `draw er diagram online`（均位 27）。8/16 已写入 Draw，但 title 仍品牌先行，且未覆盖 editor/maker、ER model 簇。
+- **改法**：静态 + locale title/description/OG/JSON-LD job-first：`Draw ER Diagram Online — Free Editor | ERD Online`；description 含 draw + ERD editor and maker + entity-relationship models。不宣称独立 file viewer（仅有 ERD/PdMan/DBML 导入，无专用查看器）；不点名 Google Draw（对照页只对 dbdiagram/DBML）；不堆越南语。H1 仍为 Git + Figma。`/compare` `/catalog` 均位 ~2–3，不改。
+- 验证点：
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "静态 HTML"` 绿
+  - `yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Landing SEO"` 绿
+  - `yarn check:i18n` 绿
+
 #### 文档公开地址统一为 doc.erdonline.com
 
 - **改法**：产品面链接（README、落地页 `docsUrl`、Issue 模板、增长 UTM、部署验收表）全部改为 `https://doc.erdonline.com`；不再把 `erdonline.github.io/erdonline/` 或 `erdonline-docs.pages.dev` 当文档入口。Docusaurus 默认 `url`/`baseUrl` 与线上一致。
