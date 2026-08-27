@@ -8,6 +8,10 @@
 
 ### 2026-08-28
 
+#### mcp：clobber 线上 tarball（c272f445 人确认）
+
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11665 B；live `tar` 含 `MUST ask the human`；`npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp` → `erd-mcp stdio ready`。未发 npm；未改 tag。
+
 #### mcp：create_version 必须让人确认 diff
 
 - **证据**：#13035 / HelloGitHub #3605 无维护者新评（仅 bot / 我方评论）。渠道只剩登录墙。Agent 把 API 200 当审批。不发小红书/npm；不重试 Glama/GSC；PAT 不进 URL。
