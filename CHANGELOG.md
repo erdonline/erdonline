@@ -98,6 +98,12 @@
 - 验证点：
   - `cd frontend && yarn test:seo-static` → `/catalog` CollectionPage 且 url 为 `…/catalog`；`/` 仍 WebApplication
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog` JSON-LD 非 WebApplication
+- **线上**（2026-08-28 03:58）：Pages [33110676901](https://github.com/erdonline/erdonline/actions/runs/33110676901)（`0c7f224d`）**success**（deploy-cloudflare 4m12s）。未请求 GSC。未发小红书；H1/SERP 未改。
+  - `/` JSON-LD **WebApplication** url `https://www.erdonline.com/`；title 仍 Draw-ERD
+  - `/catalog` **CollectionPage** url `…/catalog`
+  - `/catalog/demo-authz` **ItemPage** url `…/catalog/demo-authz`
+  - `/compare` `/demo` **WebPage**（各自 canonical）
+  - `/en/catalog` **CollectionPage** url `…/en/catalog`
 
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
