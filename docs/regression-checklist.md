@@ -10,6 +10,9 @@
 - [x] [稿 #13 打包] `node scripts/growth/build-package.mjs cursor-mcp-read-and-suggest-version` 产出掘金 + 小红书包 ✅ 2026-08-28
 - [x] [小红书草稿] 创作台长文编辑器已填标题+正文并自动保存；未点公开发布（需封面/人审）。粘贴稿：`content/articles/cursor-mcp-read-and-suggest-version.xhs.md`
 - [x] [小红书 #13 已点发布] 创作台笔记管理「审核中」；explore `https://www.xiaohongshu.com/explore/6a90682300000000290346fd`；**禁止再点发布** ✅ 2026-08-28 00:38
+- [x] [小红书 #13 过审] 审核中 Tab 空；已发布浏览 5（2026-08-28 01:23）；仍禁止再点发布
+- [x] [两周评审提前] GSC 3mo 2/103/1.9%/62.7；网页无 doc.erdonline.com；www `/home` 无 P0 泄漏 ✅ 2026-08-28
+- [x] [稿 #15 dunk+demo] `node scripts/growth/build-package.mjs cursor-reads-erd-drawio-cannot` → 主 CTA demo + `utm_source=juejin`；汉字 ≥ 800 ✅ 2026-08-28
 - [x] [掘金粘贴包] `content/articles/cursor-mcp-read-and-suggest-version.juejin.md` 主 CTA 为文档 MCP + `utm_source=juejin` ✅ 2026-08-28
 - [ ] [掘金发 #13] Chrome 登录掘金后粘贴上述稿 → 公开发布 URL（本机 2026-08-28 为验证码墙，未发；切片 6 跳过）
 - [x] [稿 #14 CI schema-lint] `node scripts/growth/build-package.mjs ci-rest-projectjson-schema-lint` → 主 CTA 文档 MCP 页 + `utm_source=juejin`；汉字 ≥ 800 ✅ 2026-08-28

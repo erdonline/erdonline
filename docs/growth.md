@@ -41,6 +41,7 @@
 | 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready（XHS 2026-08-28 阅读最高） |
 | 13 | Cursor 连上 MCP：读一张图，提交一版建议 | #6 的操作续篇；30 秒 copy-paste | `cursor-mcp-read-and-suggest-version` | mcp | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
 | 14 | CI 里用 REST 拉 projectJSON 做 schema lint：不必绑死 MCP | 流水线走 curl + ajv，不是再装一个 MCP | `ci-rest-projectjson-schema-lint` | mcp | [`data-format`](/docs/data-format) | ✅ ready |
+| 15 | Cursor 读得懂你的 ER 图，draw.io 连外键都不认识 | 两周评审：GSC 仍是 draw-ER；用 dunk + demo CTA 抢点击 | `cursor-reads-erd-drawio-cannot` | demo | [`guide/what-is-erd-online`](/docs/guide/what-is-erd-online) | ✅ ready |
 | 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
 | 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
 | 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾；对照必须诚实 | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含思否） |
@@ -174,9 +175,24 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **6** | 09-03 | ⛔ **跳过**：掘金 CTA 复盘依赖公开发布；本机 Chrome 验证码墙。不群发、不重发。 | — | 待人过验证码后再做 |
 | **7** | 08-28（原 09-05 提前） | ✅ 中/英 MCP 文档页 live 探测：200 + 尾斜杠 canonical + sitemap loc；GSC 两 URL 均「尚未收录 / 无法识别」→ 已请求编入索引；补交 `en/sitemap.xml` | `curl` + GSC 网址检查 | 见 CHANGELOG 切片 7；未检查无斜杠 301 路径 |
 | **8** | 08-28（原 09-08；切片 6 阻塞提前做） | ✅ CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/ci-rest-projectjson-schema-lint.md` | 汉字≥800；`node scripts/validate-projectjson.mjs`；`build-package.mjs` 主 CTA 文档 MCP 页 |
-| 评审 | 09-10 | 两周决策：XHS MCP 帖阅读是否 > #6；docs MCP 页展示是否上升；落地页 MCP 链点击是否可测 | `docs/growth.md` 本表勾状态 | 连续两周指标变差 → 停下来与用户重议 |
+| 评审 | 08-28（原 09-10 提前） | ✅ 见下「两周评审（提前）」 | `docs/growth.md` | 楔子不停；GSC 持平不是变差 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
+
+### 两周评审（提前 · 2026-08-28 01:23）
+
+日历原定 09-10。切片 6 仍被掘金验证码挡住；1–5、7–8 已交付，提前取数。**不是连续两周变差**（GSC 与 08-16/08-28 基线持平），楔子不停。
+
+| 指标 | 数 | 判读 |
+|---|---|---|
+| XHS #13 `explore/6a90682300000000290346fd` | **已发布**（审核中 Tab 空）；浏览 **5**；赞/评/藏/分享 0 | 00:38 过审后约 1h；**禁止再点发布** |
+| XHS #6 开放 projectJSON + MCP | 浏览 **51** | 仍为账号最高；#13 尚未 > #6（发布时间差 ~19 天，不可比） |
+| XHS draw.io dunk | 浏览 **41** | 第二高，对 GSC draw 查询仍有效 |
+| GSC 3 个月 Web（`sc-domain:erdonline.com`，更新日期约 4.5h 前；图 8/11–8/25） | **2 点击 / 103 展示 / CTR 1.9% / 均位 62.7** | 与楔子启动时相同 |
+| GSC 网页 | `/` 1/90；`/compare` 1/8；`/catalog` 1/6；`/en` 0/19；`/en/compare` 0/4；**无任何 `doc.erdonline.com` 行** | MCP 文档尚未进效果报告（切片 7 已请求编入索引） |
+| 已登录 www `/home`（erdonline154） | 「继续上次建模」可点；项目卡链到设计器；「给 Cursor 配 MCP」为真实 `<a>` → 文档 MCP 页；今日编辑 0 / 模型 20 | **无 P0 点击泄漏**；H1/SERP 未改 |
+
+决策：下一件要点击 → 稿 #15 draw.io dunk + **demo CTA**（对准现有 GSC 查询）。MCP 操作帖等 #13 阅读上来再续。掘金仍跳过。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 

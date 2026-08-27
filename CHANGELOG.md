@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### growth：MCP 两周评审（提前）+ 稿 #15 draw.io dunk
+
+- **证据**（2026-08-28 01:23）：切片 6 仍验证码墙；1–5、7–8 已交付。XHS 创作台「梁工造物」：#13 *Cursor 连上 MCP读一张 ER 图* **已发布**（审核中 Tab「没有找到相关笔记」），浏览 **5**；#6 仍 **51**；draw.io dunk **41**。GSC 3 个月 Web：**2 / 103 / 1.9% / 62.7**（与楔子启动相同）；网页仅 www 五行，**无 doc.erdonline.com**。已登录 `/home`：MCP 为真实外链，项目卡进设计器，无死 affordance。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT；不发掘金、不重发 XHS。
+- **改法**：楔子不停（持平 ≠ 变差）。新稿 `content/articles/cursor-reads-erd-drawio-cannot.md`：draw.io dunk + **demo CTA**，对准现有 GSC 查询抢点击；MCP 只作已登录次路径。未点发布。
+- 验证点：
+  - 创作台已发布列表可见 #13 且审核中为空
+  - GSC 效果页 3 个月仍 2/103；网页 Tab 无 `doc.erdonline.com`
+  - 正文汉字 ≥ 800（实测 814）；`node scripts/growth/build-package.mjs cursor-reads-erd-drawio-cannot` 掘金包主链为 `https://www.erdonline.com/demo` 且含 `utm_source=juejin`
+
 #### growth：MCP 切片 7 — 中/英 MCP 文档页 GSC 探测
 
 - **证据**：日历切片 7 原定 09-05；切片 6 仍被掘金验证码挡住，提前做 live/GSC。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT。

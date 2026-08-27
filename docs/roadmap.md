@@ -51,13 +51,14 @@
 | 切片 | 状态 | 交付 |
 |---|---|---|
 | 1 文档 30 秒 MCP 路径 + SEO + 稿 #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](./guide/api-and-mcp.md) copy-paste；落地页开放支柱链；`content/articles/cursor-mcp-read-and-suggest-version.md` |
-| 2 小红书/掘金发 #13 | 🚧 2026-08-28 | 小红书审核中 [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd)（勿再点发布）；掘金粘贴稿 `content/articles/cursor-mcp-read-and-suggest-version.juejin.md`，待登录后发 |
+| 2 小红书/掘金发 #13 | 🚧 2026-08-28 | 小红书**已发布**浏览 5 [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd)（勿再点发布）；掘金粘贴稿待登录后发 |
 | 3 已登录工作台 MCP 次入口 | ✅ 2026-08-28 | Home hero「给 Cursor 配 MCP」；统计改「今日编辑」 |
 | 4 PAT 成功页内嵌 mcp.json | ✅ 2026-08-28 | 铸造后弹层可复制已填 PAT 的 Cursor `mcp.json` |
 | 5 文档 MCP 页 3 张截图 | ✅ 2026-08-28 | PAT 揭示 / mcp.json / Agent 工具清单；XHS 封面用 `content/articles/assets/mcp-*.png` |
 | 6 掘金 CTA 复盘 | ⛔ 验证码墙 | 待登录掘金后再做；不群发 |
 | 7 GSC EN 收录探测 | ✅ 2026-08-28 | 中/英 MCP 页 200 + 尾斜杠 canonical + sitemap loc；GSC 未知 → 已请求编入索引；补交 EN sitemap |
 | 8 CI REST schema-lint 稿 | ✅ 2026-08-28 | `ci-rest-projectjson-schema-lint`；蒸馏进 [`data-format`](./data-format.md) |
+| 两周评审（提前） | ✅ 2026-08-28 | XHS #13 已发布浏览 5（#6 仍 51）；GSC 2/103 持平、无 doc 页；www home 无 P0 泄漏；稿 #15 dunk+demo |
 
 ### 落地页（公开，品牌优先，一个构图）✅
 
