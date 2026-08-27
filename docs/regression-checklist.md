@@ -102,6 +102,7 @@
 - [x] [OAuth client 管理 UI] `/account/settings?selectKey=oauthClients` 注册→secret 揭示→复制 ID→吊销 ✅`oauth-clients.spec.ts`
 - [x] [PAT 管理 UI] `/account/settings?selectKey=personalAccessTokens` 铸造→明文揭示→复制→吊销 ✅`personal-access-tokens.spec.ts`
 - [x] [PAT 揭示弹层 mcp.json] 铸造后见 `pat-mcp-json`（含 `mcpServers` + 明文 PAT）+ 复制按钮 ✅`personal-access-tokens.spec.ts` 2026-08-28
+- [x] [文档 MCP 三截图] 指南含 `/img/guide/mcp-pat-reveal.png` `/img/guide/mcp-json.png` `/img/guide/mcp-agent-tools.png`；XHS 封面副本在 `content/articles/assets/` ✅ 2026-08-28
 
 ## 图本身可读可分享 / ADR-0016（续）
 

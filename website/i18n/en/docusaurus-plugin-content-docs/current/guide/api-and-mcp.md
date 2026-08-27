@@ -12,6 +12,9 @@ Want Cursor or Claude to read the ER diagram you are editing? Use authenticated 
 ## Connect Cursor in 30 seconds
 
 1. After sign-in, open **Account settings → Personal access tokens**: [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens). Read-only is enough to start; the plaintext is shown once, **and the success dialog includes a PAT-filled `mcp.json` you can copy**. The public Demo is a read-only share—**not** a PAT. You need your own project.
+
+![PAT plaintext is shown once; the dialog also copies mcp.json](/img/guide/mcp-pat-reveal.png)
+
 2. MCP is **not** in the Docker image. Clone and build:
 
 ```bash
@@ -37,6 +40,8 @@ yarn install && yarn build
 }
 ```
 
+![Cursor mcp.json snippet (replace /ABS/PATH and the PAT)](/img/guide/mcp-json.png)
+
 For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. During development you can use `npx tsx /ABS/PATH/to/erdonline/mcp/src/index.ts` instead of `node dist/...`.
 
 4. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`.
@@ -56,6 +61,8 @@ For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. During develo
 | `create_version` | Submit a version (human diffs next) | `versions:write` |
 | `update_project` / `put_project_json` | Patch metadata / replace JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | Template catalog | read / `projects:write` |
+
+![MCP tools the agent can call](/img/guide/mcp-agent-tools.png)
 
 No `publish_template`, no PAT ratings. See [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md).
 

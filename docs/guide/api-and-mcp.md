@@ -12,6 +12,9 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 ## 30 秒接到 Cursor
 
 1. 登录后打开 **账户设置 → 访问令牌**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。默认只读即可；明文只显示一次，**铸造成功弹层会给出已填入 PAT 的 `mcp.json`，可直接复制**。官方 Demo 是只读分享，**不能**当 PAT——需要你自己的项目。
+
+![铸造 PAT 后明文只显示一次，弹层可复制 mcp.json](/img/guide/mcp-pat-reveal.png)
+
 2. MCP **不在** Docker 镜像内。克隆并构建：
 
 ```bash
@@ -37,6 +40,8 @@ yarn install && yarn build
 }
 ```
 
+![Cursor mcp.json 配置片段（把 /ABS/PATH 和 PAT 换成你的）](/img/guide/mcp-json.png)
+
 本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。开发免编译可用 `npx tsx /ABS/PATH/to/erdonline/mcp/src/index.ts` 代替 `node dist/...`。
 
 4. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。
@@ -56,6 +61,8 @@ yarn install && yarn build
 | `create_version` | 提交一版（人再 diff） | `versions:write` |
 | `update_project` / `put_project_json` | 改项目元数据 / 整份 JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | 模板广场 | read / `projects:write` |
+
+![Agent 可调用的 MCP 工具清单](/img/guide/mcp-agent-tools.png)
 
 没有 `publish_template`，也没有 PAT 评分。仓库说明见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
