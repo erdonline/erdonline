@@ -264,6 +264,20 @@ cd frontend && yarn validate:projectjson
 
 First run installs `ajv@8` under `schema/` (see `schema/package.json`). Re-run after schema or example changes.
 
+### Fetch from the public API, then validate (CI) {#ci-fetch-then-lint}
+
+Do **not** start MCP on GitHub Actions runners. Use a read-only PAT (`projects:read`), extract the inner model, then run the script. The envelope is `{ code, data: { projectJson } }` (Jackson field `projectJson`, not `projectJSON`):
+
+```bash
+export ERD_API_URL=https://erdonline-production.up.railway.app   # self-host: your API root
+curl -fsS -H "Authorization: Bearer $ERD_PAT" \
+  "$ERD_API_URL/api/v1/projects/$ERD_PROJECT_ID" \
+  | jq '.data.projectJson' > /tmp/ci-project.json
+node scripts/validate-projectjson.mjs /tmp/ci-project.json
+```
+
+Store the PAT in a CI secret; do not commit it. The public Demo cannot mint a PAT. How-to article: [`ci-rest-projectjson-schema-lint`](https://github.com/erdonline/erdonline/blob/main/content/articles/ci-rest-projectjson-schema-lint.md). Auth and scopes: [API and MCP](/docs/guide/api-and-mcp).
+
 ## Example (public demo)
 
 Canonical sample isomorphic to `/demo` → `/s/public-demo` and logged-in “Start from example”: [`schema/examples/demo.projectjson.json`](https://github.com/erdonline/erdonline/blob/main/schema/examples/demo.projectjson.json).

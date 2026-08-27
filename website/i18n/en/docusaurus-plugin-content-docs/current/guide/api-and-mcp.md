@@ -96,9 +96,10 @@ cd mcp && yarn start -- --http
 | MCP won’t connect | MCP process must be started separately; token/path must match docs |
 | Compose is up but no MCP | Expected; start MCP from `mcp/` |
 | Changing model schema meaning | Additive-only rules; see [data-format](/docs/data-format) |
+| Lint the model in CI | Do **not** start MCP on the runner. Fetch `projectJson` over REST, then `node scripts/validate-projectjson.mjs`; see [data-format · Fetch from the public API](/docs/data-format#ci-fetch-then-lint) |
 
 ## Next
 
-- [projectJSON data format](/docs/data-format)
+- [projectJSON data format](/docs/data-format) (includes CI fetch-then-lint)
 - [Security model](/docs/security-model)
 - [Start here](/docs/guide/intro)

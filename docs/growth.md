@@ -40,6 +40,7 @@
 | 5 | MySQL/Oracle/PG/SQLServer 存量库一键逆向成关系图 | 逆向工程深度，存量库刚需 | `reverse-engineer-four-dbs` | demo | [`guide/reverse-engineer`](/docs/guide/reverse-engineer) | ✅ ready |
 | 6 | 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP | AI 平台叙事（只讲开放可审计） | `projectjson-mcp-for-agents` | docs | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready（XHS 2026-08-28 阅读最高） |
 | 13 | Cursor 连上 MCP：读一张图，提交一版建议 | #6 的操作续篇；30 秒 copy-paste | `cursor-mcp-read-and-suggest-version` | mcp | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
+| 14 | CI 里用 REST 拉 projectJSON 做 schema lint：不必绑死 MCP | 流水线走 curl + ajv，不是再装一个 MCP | `ci-rest-projectjson-schema-lint` | mcp | [`data-format`](/docs/data-format) | ✅ ready |
 | 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
 | 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
 | 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾；对照必须诚实 | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含思否） |
@@ -170,10 +171,9 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **3** | 08-28 | 已登录工作台露出「给 Cursor 配 MCP」次入口；「活跃模型」改为诚实的「今日编辑」（20 个模型仍显示 0 会吓跑回访） | Home hero 次链 + locales | ✅ `home-mcp.spec.ts`（假会话，不删用户数据） |
 | **4** | 08-28 | PAT 铸造成功弹层内嵌已填 PAT 的 Cursor `mcp.json` + 复制按钮；不必再翻 GitHub README | PAT UI + `mcpJsonSnippet.ts` | ✅ `personal-access-tokens.spec.ts`（铸造 → 可见 mcpServers + ERD_PAT） |
 | **5** | 08-28 | 文档 MCP 页补 3 张截图（PAT 揭示弹层 / mcp.json / Agent 工具清单），供小红书封面 | `website/static/img/guide/mcp-*.png`；`content/articles/assets/` 同名副本 | ✅ 中/英指南含 `/img/guide/mcp-*.png`；`cd website && yarn build` |
-| **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |
-| **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |
-| **7** | 09-05 | 英文文档 MCP 页被 GSC 收录探测；www 不改 title | `curl` canonical | `https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/docs/guide/api-and-mcp/` 200、尾斜杠 |
-| **8** | 09-08 | 下一稿：CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/` 新 slug | 不群发旧 12 篇 |
+| **6** | 09-03 | ⛔ **跳过**：掘金 CTA 复盘依赖公开发布；本机 Chrome 验证码墙。不群发、不重发。 | — | 待人过验证码后再做 |
+| **7** | 09-05 | 英文文档 MCP 页被 GSC 收录探测；www 不改 title | `curl` canonical | 待做：`https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/docs/guide/api-and-mcp/` 200、尾斜杠 |
+| **8** | 08-28（原 09-08；切片 6 阻塞提前做） | ✅ CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/ci-rest-projectjson-schema-lint.md` | 汉字≥800；`node scripts/validate-projectjson.mjs`；`build-package.mjs` 主 CTA 文档 MCP 页 |
 | 评审 | 09-10 | 两周决策：XHS MCP 帖阅读是否 > #6；docs MCP 页展示是否上升；落地页 MCP 链点击是否可测 | `docs/growth.md` 本表勾状态 | 连续两周指标变差 → 停下来与用户重议 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。

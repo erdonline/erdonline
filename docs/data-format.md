@@ -265,6 +265,20 @@ cd frontend && yarn validate:projectjson
 
 首次运行会在 `schema/` 下安装 `ajv@8`（见 `schema/package.json`）。Schema 与示例变更后请重跑本命令。
 
+### 从公开 API 拉再校验（CI） {#ci-fetch-then-lint}
+
+GitHub Actions 等 runner **不要**起 MCP。用只读 PAT（`projects:read`）拉详情，取出内层模型后再喂脚本。响应包装是 `{ code, data: { projectJson } }`（Jackson 字段名 `projectJson`，不是 `projectJSON`）：
+
+```bash
+export ERD_API_URL=https://erdonline-production.up.railway.app   # 自托管改成你的 API 根
+curl -fsS -H "Authorization: Bearer $ERD_PAT" \
+  "$ERD_API_URL/api/v1/projects/$ERD_PROJECT_ID" \
+  | jq '.data.projectJson' > /tmp/ci-project.json
+node scripts/validate-projectjson.mjs /tmp/ci-project.json
+```
+
+PAT 放进 CI Secret，不要提交。官方 Demo 铸不了 PAT。完整操作稿见仓库 [`content/articles/ci-rest-projectjson-schema-lint.md`](https://github.com/erdonline/erdonline/blob/main/content/articles/ci-rest-projectjson-schema-lint.md)。鉴权与 scope 见 [API 与 MCP](./guide/api-and-mcp.md)。
+
 ## 示例（公开 demo）
 
 与 `/demo` → `/s/public-demo` 及登录态「从示例开始」同构的正例见 [`schema/examples/demo.projectjson.json`](../schema/examples/demo.projectjson.json)。

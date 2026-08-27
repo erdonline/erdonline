@@ -8,6 +8,16 @@
 
 ### 2026-08-28
 
+#### growth：MCP 切片 8 — CI REST schema-lint 稿
+
+- **证据**：日历切片 6（掘金 CTA 复盘）被验证码墙挡住；下一件未阻塞项是切片 8（原 09-08）。#6 已点出「CI 用 REST 拉 projectJSON 做 schema lint」，仓库已有 `validate-projectjson.mjs` 与 `GET /api/v1/projects/{id}`，缺一篇可粘贴的操作稿。
+- **改法**：新稿 `content/articles/ci-rest-projectjson-schema-lint.md`（cta=`mcp`，不群发旧 12 篇、不发掘金、不上小红书）。蒸馏：`docs/data-format.md` 补「从公开 API 拉再校验」；MCP 指南 FAQ 标明 CI 不要起 MCP。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；www 不铸新 PAT。
+- 验证点：
+  - 正文汉字 ≥ 800（实测 814）
+  - `node scripts/validate-projectjson.mjs` 绿（正例过、负例失败）
+  - `node scripts/growth/build-package.mjs ci-rest-projectjson-schema-lint` 掘金包主链为 `https://doc.erdonline.com/docs/guide/api-and-mcp/` 且含 `utm_source=juejin`
+  - `cd website && yarn build` 绿
+
 #### growth：MCP 切片 5 — 文档 MCP 页 3 张截图
 
 - **证据**：30 秒路径与小红书封面需要可见的 PAT 揭示 / mcp.json / Agent 工具清单，纯文字不够。
