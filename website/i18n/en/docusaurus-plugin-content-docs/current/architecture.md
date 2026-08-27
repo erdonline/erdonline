@@ -27,7 +27,7 @@ ERD Online uses a **frontend/backend split** monolith:
 > strips them in-process (equivalent to gateway `StripPrefix=1`) — no standalone gateway needed.
 > Collaboration Presence uses port `9092` (ticket auth, see ADR-0009), not the HTTP proxy.
 >
-> **Official hosting (no VPS)**: docs / static demo → Cloudflare Pages (GH Pages fallback); runtime image → GHCR;
+> **Official hosting (no VPS)**: sole docs URL `https://doc.erdonline.com` (Cloudflare Pages); static demo → Cloudflare Pages; runtime image → GHCR;
 > data plane self-hosted only. See [ADR-0018](/docs/adr/hosting-topology-no-vps) and [Deployment](/docs/deployment).
 
 ## Backend modules (business packages inside the monolith)

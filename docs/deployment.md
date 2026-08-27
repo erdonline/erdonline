@@ -10,7 +10,6 @@
 
 ```
 文档站 ──► Cloudflare Pages（erdonline-docs）→ https://doc.erdonline.com  [唯一公开]
-       └─► GitHub Pages（/erdonline/）         [未公开灾备]
 
 静态 demo ─► Cloudflare Pages（erdonline-demo）
              env-config.js ← Variables: DEMO_API_URL
@@ -30,7 +29,7 @@
 
 | 表面 | 工作流 | 所需配置 |
 |---|---|---|
-| 文档 | `.github/workflows/docs-site.yml`（Jobs: `deploy-github-pages` / `deploy-cloudflare`） | 见下清单；无 CF 门闸时仅 GH Pages |
+| 文档 | `.github/workflows/docs-site.yml`（`deploy-cloudflare`；github.io 仅跳转 stub） | 见下清单；须 `CLOUDFLARE_PAGES_DEPLOY=true` |
 | 静态 demo | `.github/workflows/frontend-demo-site.yml` | 同上 + 可选 Variable `DEMO_API_URL` |
 | 发版镜像 | `.github/workflows/release.yml`（tag `v*`，job `ghcr`） | `GITHUB_TOKEN` + `packages:write`（通常无需额外 Secret） |
 
@@ -66,16 +65,14 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 
 | Name | 类型 | 值 |
 |---|---|---|
-| `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true`（门闸；未设则跳过 CF job，文档仍走 GH Pages） |
+| `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true`（门闸；未设则**不部署文档站**） |
 | `CLOUDFLARE_API_TOKEN` | **Secret** | 步骤 1 的 Token |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
 | `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://erdonline-production.up.railway.app`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
 
-#### 5. GitHub Pages 回退
+#### 5. 旧 GitHub Pages（已退役，仅跳转）
 
-**Settings → Pages → Build and deployment → Source** = **GitHub Actions**（对应 `docs-site.yml` 的 `deploy-github-pages`）。
-
-文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`。**唯一公开地址** `https://doc.erdonline.com`（base `/`）。GitHub Pages 构建用 github.io + `/erdonline/`，仅作灾备，不作为产品入口。`erdonline-docs.pages.dev` 只是自定义域 CNAME 目标，不要当文档链接用。
+仓库 **Settings → Pages → Source** 仍可为 **GitHub Actions**，但 `docs-site.yml` **不再发布 Docusaurus**，只部署 `website/gh-pages-retire/`（跳到 `https://doc.erdonline.com`，并 `Disallow: /`）。不要把 github.io 当文档入口。`erdonline-docs.pages.dev` 只是自定义域 CNAME 目标，不要当文档链接用。
 
 #### 6. 远程与触发
 
@@ -84,7 +81,7 @@ git remote -v   # 须指向将跑 Actions 的 GitHub 仓库
 git push origin main
 ```
 
-- `docs-site.yml`：`push` 到 `main` 且改动 `docs/**` / `website/**` / 本 workflow 时构建；CF job 另需 `CLOUDFLARE_PAGES_DEPLOY=true`
+- `docs-site.yml`：`push` 到 `main` 且改动 `docs/**` / `website/**` / 本 workflow 时构建；CF 部署须 `CLOUDFLARE_PAGES_DEPLOY=true`
 - `frontend-demo-site.yml`：同样门闸；可 `workflow_dispatch` 手动跑
 - 无 `git remote` / 未 push `main` → Actions 不会跑
 

@@ -15,7 +15,7 @@ Need a docs publishing stack for: landing page, user docs, contributor docs, ADR
 - docs = doc site, consuming repo `docs/` directly (single source of truth, readable on GitHub too)
 - blog = release log / devlog
 
-Supporting: early `docusaurus-search-local` (Chinese tokenization); apply for Algolia DocSearch after going public; versioning when first major release ships (not premature); i18n default zh-CN, English in P3; docs build in CI (broken links fail).
+Supporting: early `docusaurus-search-local` (Chinese tokenization); apply for Algolia DocSearch after going public; versioning when first major release ships (not premature); i18n default zh-CN, English in P3; docs build in CI (broken links fail). Public host is [ADR-0018](./0018-hosting-topology-no-vps.md) (`https://doc.erdonline.com`; GitHub Pages no longer publishes docs).
 
 ## Consequences
 
