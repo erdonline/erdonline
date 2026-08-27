@@ -36,6 +36,26 @@ function wrapTool(run: () => Promise<unknown>) {
   };
 }
 
+/** Glama / Cursor TDQS: declare side effects on every tool. */
+const readAnno = {
+  readOnlyHint: true,
+  destructiveHint: false,
+  idempotentHint: true,
+  openWorldHint: true,
+} as const;
+const writeAnno = {
+  readOnlyHint: false,
+  destructiveHint: false,
+  idempotentHint: false,
+  openWorldHint: true,
+} as const;
+const replaceAnno = {
+  readOnlyHint: false,
+  destructiveHint: true,
+  idempotentHint: true,
+  openWorldHint: true,
+} as const;
+
 /**
  * MCP tools → Public API REST (read + versions:write + projects:write).
  */
@@ -50,7 +70,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'list_projects',
     {
       description:
-        'List projects the PAT user belongs to (GET /api/v1/projects). Requires projects:read.',
+        'List projects the PAT user belongs to (GET /api/v1/projects). Requires projects:read. Does not generate diagrams.',
+      annotations: readAnno,
       inputSchema: {
         page: z.number().int().min(1).default(1).describe('Page (1-based)'),
         size: z.number().int().min(1).max(100).default(20).describe('Page size'),
@@ -64,7 +85,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'get_project',
     {
       description:
-        'Get project detail including sanitized projectJSON (GET /api/v1/projects/{id}). profile.dbs is always empty.',
+        'Get project detail including sanitized projectJSON (GET /api/v1/projects/{id}). profile.dbs is always empty. Not ChatSQL.',
+      annotations: readAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
       },
@@ -76,7 +98,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'get_project_schema',
     {
       description:
-        'Agent-oriented schema: returns projectJSON (and id/name) from project detail. Same as get_project but focused payload.',
+        'Agent-oriented schema: returns projectJSON (and id/name) from project detail. Same as get_project but focused payload. Humans still diff versions; do not one-shot generate ERD.',
+      annotations: readAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
       },
@@ -100,6 +123,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'List saved versions for a project (GET /api/v1/projects/{id}/versions). Requires versions:read. No projectJSON in list.',
+      annotations: readAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
         page: z.number().int().min(1).default(1).describe('Page (1-based)'),
@@ -125,6 +149,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'Version detail with sanitized projectJSON snapshot (GET /api/v1/projects/{id}/versions/{versionId}).',
+      annotations: readAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
         versionId: z.string().min(1).describe('Version / db_change id'),
@@ -138,7 +163,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'create_version',
     {
       description:
-        'Commit a new version snapshot (POST /api/v1/projects/{id}/versions). Requires versions:write + membership. profile.dbs is stripped server-side before persist.',
+        'Commit a new version snapshot (POST /api/v1/projects/{id}/versions). Requires versions:write + membership. profile.dbs is stripped server-side before persist. A human should still open the version diff.',
+      annotations: writeAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
         dbKey: z.string().min(1).describe('Database key (e.g. defaultDB)'),
@@ -186,6 +212,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'Partial update project metadata (PATCH /api/v1/projects/{id}). Requires projects:write + membership. At least one of projectName/name, description, tags.',
+      annotations: writeAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
         projectName: z
@@ -217,7 +244,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'put_project_json',
     {
       description:
-        'Replace workspace projectJSON (PUT /api/v1/projects/{id}/projectJSON). Requires projects:write + membership. profile.dbs is stripped server-side before persist.',
+        'Replace workspace projectJSON (PUT /api/v1/projects/{id}/projectJSON). Requires projects:write + membership. Overwrites the current model; profile.dbs is stripped server-side.',
+      annotations: replaceAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
         projectJSON: z
@@ -239,6 +267,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'List official/community templates (GET /api/v1/catalog/templates). Requires projects:read.',
+      annotations: readAnno,
       inputSchema: {
         q: z.string().optional().describe('Search keyword'),
         tag: z.string().optional().describe('Tag filter'),
@@ -261,6 +290,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'Template detail with sanitized projectJSON (GET /api/v1/catalog/templates/{id}). Requires projects:read.',
+      annotations: readAnno,
       inputSchema: {
         templateId: z.string().min(1).describe('Template id or slug'),
       },
@@ -272,7 +302,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'install_template',
     {
       description:
-        'Install template as a new personal project (POST /api/v1/catalog/templates/{id}/install). Requires projects:write.',
+        'Install template as a new personal project (POST /api/v1/catalog/templates/{id}/install). Requires projects:write. Creates a project; does not overwrite existing ones.',
+      annotations: writeAnno,
       inputSchema: {
         templateId: z.string().min(1).describe('Template id or slug'),
       },
@@ -285,6 +316,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     {
       description:
         'Author page with published templates (GET /api/v1/catalog/creators/{handle}). Requires projects:read.',
+      annotations: readAnno,
       inputSchema: {
         handle: z.string().min(1).describe('GitHub handle or erdonline'),
       },
