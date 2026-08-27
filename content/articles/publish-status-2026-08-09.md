@@ -7,6 +7,15 @@
 
 ## MCP 楔子公开发布（2026-08-28）
 
+### Cursor 读得懂你的 ER 图，draw.io 连外键都不认识
+
+- slug: `cursor-reads-erd-drawio-cannot`
+- **小红书长文草稿**（梁工造物，**未点发布、未点一键排版**）：创作台 `publish?from=menu&target=article` → 新的创作
+  - 标题：`Cursor 读得懂你的 ER 图，draw.io 连外键都不认识`（33/64）
+  - 正文 head/middle/tail 已贴入 Tiptap；字数 **1358** / 10000；**自动保存于 01:32**
+  - 主 CTA：`https://www.erdonline.com/demo?utm_source=xiaohongshu&utm_medium=article&utm_campaign=launch&utm_content=cursor-reads-erd-drawio-cannot`
+  - 无独立草稿 ID；回创作台按标题找
+
 ### Cursor 连上 MCP：读一张 ER 图，提交一版建议
 
 - slug: `cursor-mcp-read-and-suggest-version`
