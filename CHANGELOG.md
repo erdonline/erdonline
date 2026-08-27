@@ -38,6 +38,10 @@
 - **改法**：`frontend-demo-site.yml` 改为 `node scripts/assert-seo-static.mjs`（与 `frontend-ci.yml` 一致）：精确 prerender 路径不得 200 到 `/`。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
 - 验证点：本地 `cd frontend && node scripts/assert-seo-static.mjs` PASS；`grep -q '^/compare / 200$' dist/_redirects` 为 1（不应再作为门禁绿条件）
 
+#### 线上：`9cc55d02` Pages 成功后的首屏 + GSC `/en/catalog`
+
+- **Actions** [33105835708](https://github.com/erdonline/erdonline/actions/runs/33105835708) **success**（含 `f8f59cec` 壳 + CI 门禁修复）。`curl -sI`：`/catalog` `/en/catalog` `/compare` `/demo` `/en/demo` 均为 **308 → 尾斜杠**；`curl -sL` 后：`/en/catalog` title「ER diagram templates — free database models | ERD Online」canonical `…/en/catalog`；`/compare` 对照 title + `…/compare`；`/demo`「免登录查看真实 ER 图」+ `…/demo`；`/en/demo` 英文 demo title + `…/en/demo`。**`/catalog` 与 `/catalog/` 仍 Draw-ERD + canonical `/`**（`_redirects` `/catalog/*` 吃掉尾斜杠目录）。GSC `/en/catalog`（已收录）→ **已请求编入索引**（「已将网址添加到优先抓取队列中」）。未重检 `/catalog` `/compare` `/en/compare`。未发小红书；H1/SERP 未改。
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
