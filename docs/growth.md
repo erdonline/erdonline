@@ -186,7 +186,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | llms.txt | 08-28 | ✅ 文档站 + www 增加短 `llms.txt`（Git + Figma 主叙事；MCP 次路径 npx）；无 llms-full.txt | `website/static/llms.txt` `frontend/public/llms.txt` | `assert-docs-seo.mjs`；`yarn test:seo-static`；未发 XHS |
 | Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；live 中/英指南 200 含 install-link；未发 XHS |
 | PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用官方 install-link；**明文不进 URL**（占位符 `erd_pat_…`）。H1 未改 | `personalAccessTokens.tsx` | `install-link href never contains a minted PAT secret`；www Pages `762e3d88` 已绿 |
-| compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` 增加 Agent / MCP 行（projectJSON + MCP vs 绘图 XML）。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | `compare.spec.ts`；`yarn test:seo-static`；未发 XHS |
+| compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` Agent / MCP 行已上线（壳非首页 title）。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | Pages `0567a74a` 绿；curl 对照 title；hydrate 含 projectJSON + MCP |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

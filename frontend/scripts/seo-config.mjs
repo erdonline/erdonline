@@ -95,7 +95,7 @@ export const PRERENDER_PAGES = [
     locale: "zh-CN",
     title: "ERD Online vs draw.io — 协作、版本与外键语义",
     description:
-      "诚实对照 ERD Online、draw.io、dbdiagram 与 DBML：外键语义、协作、版本、开放、自部署与 Agent/MCP。",
+      "诚实对照 ERD Online、draw.io、dbdiagram 与 DBML：外键语义、协作、版本、开放、自部署与 Agent/MCP（projectJSON）。",
   },
   {
     path: "/catalog",
@@ -115,7 +115,7 @@ export const PRERENDER_PAGES = [
     locale: "en-US",
     title: "ERD Online vs draw.io — collaboration, versions, and FK semantics",
     description:
-      "An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, self-hosting, and Agent/MCP.",
+      "An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, self-hosting, and Agent/MCP (projectJSON).",
   },
   {
     path: "/en/catalog",

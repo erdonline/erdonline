@@ -601,7 +601,7 @@ export default {
     '免费在线绘制 ER 图。实体关系模型编辑器与作图工具，在浏览器中创建；开源，带版本与协作。无需注册即可打开示例。',
   'landing.compare.seo.title': 'ERD Online vs draw.io — 协作、版本与外键语义',
   'landing.compare.seo.description':
-    '诚实对照 ERD Online、draw.io、dbdiagram 与 DBML：外键语义、协作、版本、开放、自部署与 Agent/MCP。',
+    '诚实对照 ERD Online、draw.io、dbdiagram 与 DBML：外键语义、协作、版本、开放、自部署与 Agent/MCP（projectJSON）。',
   'share.seo.title': 'ERD Online 示例 — 免登录查看真实 ER 图',
   'share.seo.description':
     '无需登录，以只读方式查看真实 ER 图，30 秒上手 ERD Online 数据库建模。',

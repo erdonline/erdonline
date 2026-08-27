@@ -628,7 +628,7 @@ export default {
     'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.',
   'landing.compare.seo.title': 'ERD Online vs draw.io — collaboration, versions, and FK semantics',
   'landing.compare.seo.description':
-    'An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, self-hosting, and Agent/MCP.',
+    'An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, self-hosting, and Agent/MCP (projectJSON).',
   'share.seo.title': 'ERD Online demo — view a real ER diagram without signing in',
   'share.seo.description':
     'Explore a real ER diagram in read-only mode without signing in. Get started with ERD Online in 30 seconds.',
