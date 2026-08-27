@@ -43,6 +43,7 @@ jobs:
         run: |
           yarn install --frozen-lockfile
           yarn build
+          yarn test:seo
 
       - name: Upload Cloudflare artifact
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'

@@ -3,3 +3,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://doc.erdonline.com/sitemap.xml
+Sitemap: https://doc.erdonline.com/en/sitemap.xml

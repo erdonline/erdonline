@@ -6,6 +6,9 @@ const config = {
   // 公开文档站只有 https://doc.erdonline.com（base /）。
   url: process.env.DOCUSAURUS_URL || 'https://doc.erdonline.com',
   baseUrl: process.env.DOCUSAURUS_BASE_URL || '/',
+  // CF Pages 对目录 URL 308 到尾斜杠。canonical / sitemap / 实网必须同一形态，否则 GSC 出现
+  // 「站点地图临时处理错误」且 sitemap loc 再跳一次。
+  trailingSlash: true,
   organizationName: 'erdonline',
   projectName: 'erdonline',
   // CI / Pages：死链应失败；本地改文档时可临时改为 warn
@@ -46,6 +49,17 @@ const config = {
         },
         theme: {
           customCss: require.resolve('./src/css/custom.css'),
+        },
+        sitemap: {
+          ignorePatterns: [
+            '**/search',
+            '**/search/',
+            '**/blog/tags/**',
+            '**/blog/archive',
+            '**/blog/archive/',
+            '**/blog/authors',
+            '**/blog/authors/',
+          ],
         },
       }),
     ],

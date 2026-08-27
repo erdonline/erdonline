@@ -634,10 +634,10 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 
 | 产物 | 作用 |
 |---|---|
-| Docusaurus `sitemap.xml` | 现有 `/docs/guide/*`、ADR、首页；`<loc>` 随 `DOCUSAURUS_URL`（CF 构建 = `https://doc.erdonline.com`） |
+| Docusaurus `sitemap.xml` | 现有 `/docs/guide/*`、ADR、首页；`<loc>` 一律**尾斜杠**（`trailingSlash: true`，与 CF Pages 308 一致）；不含 `/search` 与 blog 标签/归档页 |
 | `website/static/robots.txt` | 覆盖 CF 默认 Content-Signal 模板；`Allow: /` + `Sitemap:` |
-| `website/static/_redirects` | 旧路径 **301** 到现行指南（`/docs/faq` → `/docs/guide/intro` 等） |
-| `website/functions/_middleware.js` | `erdonline-docs.pages.dev` **301** 到 `doc.erdonline.com`（`_redirects` 绑不了默认 pages.dev 宿主） |
+| `website/static/_redirects` | 旧路径 **301** 到现行指南（`/docs/faq` → `/docs/guide/intro/`，目标带尾斜杠，避免再 308） |
+| `website/functions/_middleware.js` | `erdonline-docs.pages.dev` **301** 到 `doc.erdonline.com`，无扩展名路径补尾斜杠（`_redirects` 绑不了默认 pages.dev 宿主） |
 | `website/static/_headers` | `robots.txt` / `sitemap.xml` 的 Content-Type |
 
 **自定义域（GSC 能抓到的前提）**
@@ -654,8 +654,11 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 ```bash
 curl -sL https://doc.erdonline.com/robots.txt | grep Sitemap
 curl -sL https://doc.erdonline.com/sitemap.xml | grep doc.erdonline.com | head
-curl -sI https://doc.erdonline.com/docs/faq/          # 301 → /docs/guide/intro
-curl -sI https://doc.erdonline.com/docs/guide/intro   # 200
+curl -sI https://doc.erdonline.com/docs/faq/          # 301 → /docs/guide/intro/
+curl -sI https://doc.erdonline.com/docs/guide/intro   # 308 → /docs/guide/intro/
+curl -sI https://doc.erdonline.com/docs/guide/intro/  # 200
+# sitemap <loc> 必须带尾斜杠，且不含 /search
+# robots.txt 须含中文 sitemap 与 https://doc.erdonline.com/en/sitemap.xml
 ```
 
 ### 主站 SEO / 爬虫索引（www.erdonline.com）
