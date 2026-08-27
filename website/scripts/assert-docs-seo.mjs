@@ -76,6 +76,21 @@ for (const [label, text] of [
     fail(`${label} must say API 200 is not human approval`);
   }
 }
+const zhWhat = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/what-is-erd-online.md'),
+  'utf8',
+);
+const enWhat = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/what-is-erd-online.md',
+);
+for (const [label, text] of [
+  ['zh what-is', zhWhat],
+  ['en what-is', enWhat],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version as a secondary path`);
+  }
+}
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');
 }
