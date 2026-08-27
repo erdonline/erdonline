@@ -1,15 +1,4 @@
----
-title: Cursor 连上 MCP：读一张 ER 图，提交一版建议
-slug: cursor-mcp-read-and-suggest-version
-status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
-cta: mcp
-utm_campaign: mcp-agent
-xhs_title: Cursor 连上 MCP 读一张 ER 图
-xhs_url: https://www.xiaohongshu.com/explore/6a90682300000000290346fd
-created: 2026-08-28
-guide: docs/guide/api-and-mcp.md
----
+# Cursor 连上 MCP：读一张 ER 图，提交一版建议
 
 ## 上一篇讲完「为什么」，今晚只验证「读得出来」
 
@@ -25,7 +14,7 @@ guide: docs/guide/api-and-mcp.md
 2. 让它读某个项目的 projectJSON：它应报出表名和外键，而不是猜「用户表大概有个 id」。
 3. 若铸造时勾了写权限，它只能走「创建版本」；你在设计器版本列表看 diff，通过或回滚。禁止它静默覆盖工作区。
 
-逐步说明、完整 JSON、排障表与线上文档同一份：[用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。
+逐步说明、完整 JSON、排障表与线上文档同一份：[用 MCP 让 Cursor / Claude 读取 ER 图](https://doc.erdonline.com/docs/guide/api-and-mcp/?utm_source=juejin&utm_medium=article&utm_campaign=mcp-agent&utm_content=cursor-mcp-read-and-suggest-version)。
 
 ## 第一步：铸造只读 PAT
 
@@ -78,7 +67,9 @@ yarn install && yarn build
 
 不要让它调用 `put_project_json` 悄悄改工作区——那会跳过人类审批。ERD Online 的壁垒是版本和协作；Agent 只是多一个读写客户端，不是替代评审的黑盒。
 
-{{CTA}}
+> 👉 **30 秒复制 Cursor MCP 配置**：https://doc.erdonline.com/docs/guide/api-and-mcp/?utm_source=juejin&utm_medium=article&utm_campaign=mcp-agent&utm_content=cursor-mcp-read-and-suggest-version
+
+开源地址（MIT，欢迎 star / issue / PR）：https://github.com/erdonline/erdonline?utm_source=juejin&utm_medium=article&utm_campaign=mcp-agent&utm_content=cursor-mcp-read-and-suggest-version
 
 ## 收尾：人还是版本的主人
 

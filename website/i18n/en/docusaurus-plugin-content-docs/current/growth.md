@@ -163,7 +163,7 @@ growth CLI       ←same WS bridge, WECHATSYNC_TOKEN matches extension Token→
 
 Near-term metrics: landing → demo / signup, GSC CTR, Xiaohongshu reads. North star remains weekly non-empty-diff version saves.
 
-Full slice table (outcomes / files / verify): see Chinese [`growth.md`](https://github.com/erdonline/erdonline/blob/main/docs/growth.md) — same calendar. Slice 1 = docs 30-second MCP path + SEO + article #13. Slices 2–8 = publish, logged-in MCP entry, PAT snippet, screenshots, GSC indexing, CI-lint article, two-week review.
+Full slice table (outcomes / files / verify): see Chinese [`growth.md`](https://github.com/erdonline/erdonline/blob/main/docs/growth.md) — same calendar. Slice 1 = docs 30-second MCP path + SEO + article #13. Slice 2 = XHS #13 in review (`https://www.xiaohongshu.com/explore/6a90682300000000290346fd`, do not republish); Juejin paste pack tracked, public post blocked on login. Slices 3–8 = logged-in MCP entry (✅), PAT snippet, screenshots, GSC indexing, CI-lint article, two-week review.
 
 Exception: MCP how-to posts use **docs MCP page** as primary CTA (not demo). Demo is a read-only share and cannot mint a PAT.
 

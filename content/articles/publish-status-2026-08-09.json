@@ -1,4 +1,22 @@
 {
+  "cursor-mcp-read-and-suggest-version": {
+    "title": "Cursor 连上 MCP：读一张 ER 图，提交一版建议",
+    "platforms": {
+      "xiaohongshu": {
+        "status": "published-reviewing",
+        "url": "https://www.xiaohongshu.com/explore/6a90682300000000290346fd",
+        "error": null,
+        "note": "2026-08-28 00:38 创作台「审核中」；禁止再点发布。标题：Cursor 连上 MCP读一张 ER 图"
+      },
+      "juejin": {
+        "status": "pack-ready",
+        "url": null,
+        "error": null,
+        "note": "content/articles/cursor-mcp-read-and-suggest-version.juejin.md；本机 Chrome 未登录掘金（验证码墙），未点发布"
+      }
+    },
+    "synced_at": "2026-08-28"
+  },
   "docker-compose-mit-modeler": {
     "title": "docker-compose 一键部署的 MIT 开源数据库建模平台",
     "platforms": {

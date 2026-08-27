@@ -8,6 +8,16 @@
 
 ### 2026-08-28
 
+#### growth：MCP 切片 2 — 小红书 #13 台账 + 掘金粘贴包
+
+- **证据**：创作台「梁工造物」笔记管理显示《Cursor 连上 MCP读一张 ER 图》**审核中**（2026-08-28 00:38）；explore URL 已有。本机 Chrome 掘金为验证码登录墙，不能公开发布。
+- **改法**：记录 XHS 公开 URL，禁止再点发布；`build-package.mjs` 出掘金包并入库 `content/articles/cursor-mcp-read-and-suggest-version.juejin.md`（`content/dist/` gitignore，粘贴稿进 git）。主 CTA 仍文档 MCP 页 + `utm_source=juejin`。不改 www H1（仍 Git + Figma），不做 ChatSQL。
+- 验证点：
+  - 创作台笔记管理标题匹配且状态为审核中；URL `https://www.xiaohongshu.com/explore/6a90682300000000290346fd`
+  - 掘金稿含 `utm_source=juejin`、`utm_content=cursor-mcp-read-and-suggest-version`、主链 `https://doc.erdonline.com/docs/guide/api-and-mcp/`
+  - 线上 `https://www.erdonline.com/home` 硬刷新后可见「给 Cursor 配 MCP」+「今日编辑」（切片 3 已上线，本切片未改 UI）
+  - 线上文档 `https://doc.erdonline.com/docs/guide/api-and-mcp/` title 含 MCP，正文含 `mcpServers`，「不做 ChatSQL」
+
 #### growth：MCP/Agent 两周猛攻 · 切片 1（30 秒文档路径 + SEO + 稿 #13）
 
 - **证据**：小红书「开放 projectJSON + MCP 给 Agent」15 条中阅读最高；落地页对照表 Agent 行仍写「路线图中」（MCP 已上线）；文档 MCP 页无 copy-paste 配置。

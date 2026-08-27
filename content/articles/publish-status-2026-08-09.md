@@ -5,6 +5,15 @@
 > V2EX：Wechatsync 不支持，见 `content/dist/<slug>/v2ex.txt` 人工发。
 > CSDN 补发：2026-08-09 间隔 180s 重试后 **12/12 草稿成功**。
 
+## MCP 楔子公开发布（2026-08-28）
+
+### Cursor 连上 MCP：读一张 ER 图，提交一版建议
+
+- slug: `cursor-mcp-read-and-suggest-version`
+- **小红书**（审核中，**禁止再点发布**）：https://www.xiaohongshu.com/explore/6a90682300000000290346fd
+  - 创作台 2026-08-28 00:38；笔记管理标题「Cursor 连上 MCP读一张 ER 图」
+- **掘金**：未公开发布。本机 Chrome 跳到验证码登录墙。粘贴稿：[`cursor-mcp-read-and-suggest-version.juejin.md`](./cursor-mcp-read-and-suggest-version.juejin.md)（主 CTA = 文档 MCP 页 + `utm_source=juejin`）
+
 ## 汇总
 
 - 成功：**60**
