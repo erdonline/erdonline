@@ -28,6 +28,7 @@
 - [x] [GSC catalog/compare] `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引；四 URL curl 200、未检查 301、未发 XHS ✅ 2026-08-28
 - [x] [公开路径 prerender 壳] `yarn test:seo-static`：`/catalog` `/compare` `/en` `/en/catalog` `/en/compare` 首屏 canonical 为该路径，不是首页；`_redirects` 无这些精确路径的 `200` 反代 ✅ 2026-08-28
 - [x] [catalog 详情 hydrate SEO] `npx tsx src/utils/catalogSeoPath.test.ts` + `catalog.spec.ts`「详情 SEO」：canonical 为 `/catalog/demo-authz` 不是列表；title 含模板名 ✅ 2026-08-28
+- [x] [营销路径 JSON-LD] `yarn test:seo-static`：`/` WebApplication；`/catalog` CollectionPage；官方详情 ItemPage；其余 WebPage；url 对齐该路径 ✅ 2026-08-28
 
 ## 英文漏斗 i18n / SEO（2026-08-12）
 

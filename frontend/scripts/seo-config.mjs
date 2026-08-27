@@ -170,6 +170,60 @@ export function marketingHreflang(pathname, origin) {
 }
 
 /**
+ * Path-appropriate JSON-LD. WebApplication only on `/`.
+ * Catalog list = CollectionPage; official `/catalog/:id` = ItemPage; other marketing = WebPage.
+ *
+ * @param {{ path: string, title: string, description: string }} page
+ * @param {string} siteUrl
+ */
+export function jsonLdForPage(page, siteUrl) {
+  const url = marketingHreflang(page.path, siteUrl).canonical;
+  const site = { "@type": "WebSite", name: "ERD Online", url: `${siteUrl}/` };
+  if (page.path === "/") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      name: "ERD Online",
+      alternateName: ["Draw ER diagram online", "ERD editor", "ERD diagram online"],
+      url,
+      applicationCategory: "DeveloperApplication",
+      operatingSystem: "Any",
+      offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+      description:
+        "Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser.",
+    };
+  }
+  if (page.path === "/catalog" || page.path === "/en/catalog") {
+    return {
+      "@context": "https://schema.org",
+      "@type": "CollectionPage",
+      name: page.title,
+      url,
+      description: page.description,
+      isPartOf: site,
+    };
+  }
+  if (/^\/catalog\/[^/]+$/.test(page.path)) {
+    return {
+      "@context": "https://schema.org",
+      "@type": "ItemPage",
+      name: page.title,
+      url,
+      description: page.description,
+      isPartOf: site,
+    };
+  }
+  return {
+    "@context": "https://schema.org",
+    "@type": "WebPage",
+    name: page.title,
+    url,
+    description: page.description,
+    isPartOf: site,
+  };
+}
+
+/**
  * robots.txt Disallow prefixes (private / low-SEO areas).
  * Trailing slash = prefix match per robots convention.
  */
