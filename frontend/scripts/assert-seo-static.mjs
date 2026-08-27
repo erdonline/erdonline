@@ -10,9 +10,12 @@ import os from "node:os";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
+  CATALOG_DETAIL_FIXTURES,
+  CATALOG_DETAIL_SHELL_PATH,
   HOME_SEO,
   PRERENDER_PAGES,
   SITEMAP_PATHS,
+  catalogDetailPage,
   marketingHreflang,
   resolveSiteUrl,
 } from "./seo-config.mjs";
@@ -110,11 +113,12 @@ function assertRedirects(distDir) {
   }
   const text = fs.readFileSync(redirectsPath, "utf8");
   const exact = new Set();
+  const rules = [];
   for (const raw of text.split("\n")) {
     const line = raw.replace(/#.*$/, "").trim();
     if (!line) continue;
-    const from = line.split(/\s+/)[0];
-    exact.add(from);
+    rules.push(line);
+    exact.add(line.split(/\s+/)[0]);
   }
   for (const page of PRERENDER_PAGES) {
     if (exact.has(page.path)) {
@@ -127,18 +131,41 @@ function assertRedirects(distDir) {
       );
     }
   }
-  if (!exact.has("/catalog/:id")) {
+  const detailRule = rules.find((r) => r.split(/\s+/)[0] === "/catalog/:id");
+  if (!detailRule) {
     fail("_redirects must 200-rewrite /catalog/:id details without matching /catalog/");
+  } else if (detailRule.split(/\s+/)[1] === "/") {
+    fail("_redirects /catalog/:id must not 200-rewrite to homepage /");
+  }
+  if (!rules.includes(`/catalog/:id ${CATALOG_DETAIL_SHELL_PATH} 200`)) {
+    fail(`_redirects must be /catalog/:id ${CATALOG_DETAIL_SHELL_PATH} 200 (generic detail shell)`);
+  }
+  const idIdx = rules.findIndex((r) => r.split(/\s+/)[0] === "/catalog/:id");
+  for (const fixture of CATALOG_DETAIL_FIXTURES) {
+    const identity = `/catalog/${fixture.id} /catalog/${fixture.id} 200`;
+    const idx = rules.indexOf(identity);
+    if (idx < 0) {
+      fail(`_redirects must identity-200 ${identity} so CF does not proxy the fixture to _item`);
+    } else if (idIdx >= 0 && idx > idIdx) {
+      fail(`_redirects ${identity} must appear before /catalog/:id (CF first-match)`);
+    }
   }
 }
 
 function assertSitemapCoverage() {
-  const prerendered = new Set(PRERENDER_PAGES.map((p) => p.path));
+  const prerendered = new Set([
+    ...PRERENDER_PAGES.map((p) => p.path),
+    ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id}`),
+  ]);
   const skip = new Set(["/"]);
   for (const p of SITEMAP_PATHS) {
     if (skip.has(p)) continue;
+    if (p === CATALOG_DETAIL_SHELL_PATH) {
+      fail("SITEMAP_PATHS must not list generic /catalog/_item shell");
+      continue;
+    }
     if (!prerendered.has(p)) {
-      fail(`SITEMAP_PATHS ${p} has no PRERENDER_PAGES entry (crawlers would get homepage shell)`);
+      fail(`SITEMAP_PATHS ${p} has no prerender shell (crawlers would get homepage HTML)`);
     }
   }
 }
@@ -163,6 +190,40 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       canonical: marketingHreflang(page.path, siteUrl).canonical,
       lang: page.locale === "en-US" ? "en" : "zh-CN",
     });
+  }
+
+  for (const fixture of CATALOG_DETAIL_FIXTURES) {
+    const page = catalogDetailPage(fixture);
+    assertShell(distDir, siteUrl, page.path, {
+      title: page.title,
+      canonical: `${siteUrl}${page.path}`,
+      lang: "zh-CN",
+    });
+  }
+
+  const catalogList = PRERENDER_PAGES.find((p) => p.path === "/catalog");
+  if (catalogList) {
+    const genericFile = distHtmlPath(distDir, CATALOG_DETAIL_SHELL_PATH);
+    const rel = path.relative(distDir, genericFile);
+    if (!fs.existsSync(genericFile)) {
+      fail(`missing shell ${rel}`);
+    } else {
+      const html = fs.readFileSync(genericFile, "utf8");
+      const title = extractTitle(html);
+      const canonical = extractCanonical(html);
+      if (title === HOME_SEO.title) {
+        fail(`${rel} must not use homepage Draw-ERD title`);
+      }
+      if (canonical === `${siteUrl}/`) {
+        fail(`${rel} must not canonicalize to homepage`);
+      }
+      if (title !== catalogList.title) {
+        fail(`${rel} <title> expected list shell, got ${JSON.stringify(title)}`);
+      }
+      if (canonical !== `${siteUrl}/catalog`) {
+        fail(`${rel} canonical expected ${siteUrl}/catalog, got ${canonical || "(missing)"}`);
+      }
+    }
   }
 
   if (failures.length) {

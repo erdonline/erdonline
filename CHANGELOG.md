@@ -52,6 +52,15 @@
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog` 与 `/catalog/` 首屏 title 含「ER 图模板」、canonical `…/catalog`
 - **线上**（2026-08-28 03:15）：Pages [33107173633](https://github.com/erdonline/erdonline/actions/runs/33107173633)（`36256ce1`）**success**。`/catalog` HEAD **308 → `/catalog/`**；`/catalog/` **200**；两者 `curl -sL` title「ER 图模板 — 免费数据库模型广场 | ERD Online」、canonical `https://www.erdonline.com/catalog`。`/en/catalog/` 仍 templates + `…/en/catalog`。GSC `/catalog`（已收录）点「请求编入索引」两次均弹「提交您的索引编制请求时出现了问题。请稍后重试」（reCAPTCHA）；**未入队**。未再请求 `/en/catalog`。未发小红书；H1/SERP 未改。
 
+#### fix：`/catalog/:id` 首屏不再是首页 Draw-ERD
+
+- **证据**：列表壳已对；`_redirects` `/catalog/:id / 200` 仍把详情（含 `/catalog/demo-authz`）反代成首页 HTML。模板数据 API-only、社区 ID 无界；无 `/en/catalog/:id` 路由（ADR-0034）。未再请求 GSC `/catalog`（reCAPTCHA）。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- **改法**：官方 4 个种子（`blank` / `demo-authz` / `blog-basic` / `ecommerce-basic`）写出 `dist/catalog/<id>/index.html`（独立 title + canonical `…/catalog/<id>`）；未知 ID 用 `dist/catalog/_item/index.html`（列表 title，canonical `…/catalog`，不是首页）。`_redirects`：`/catalog/:id /catalog/_item 200`，且官方 ID **先** identity-200（CF 匹配即跟，静态文件挡不住 placeholder）。无 EN 详情壳。
+- 验证点：
+  - `cd frontend && yarn test:seo-static` → PASS
+  - `node scripts/gen-seo-static.mjs` 后 `node scripts/assert-seo-static.mjs` → `/catalog/demo-authz` title「功能鉴权示例 — ER 图模板 | ERD Online」、canonical `…/catalog/demo-authz`；`_item` 非 Draw-ERD、canonical 非 `/`
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog/demo-authz` 与未知 ID 首屏不是首页
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。

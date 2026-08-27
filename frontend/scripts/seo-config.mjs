@@ -20,18 +20,67 @@ export function resolveSiteUrl() {
 }
 
 /**
+ * Official catalog templates (keep in sync with CatalogSeedRunner.OFFICIAL).
+ * Community / unbounded IDs use CATALOG_DETAIL_SHELL_PATH via _redirects.
+ * No /en/catalog/:id route (ADR-0034).
+ *
+ * @typedef {{ id: string, title: string, description: string }} CatalogDetailFixture
+ * @type {readonly CatalogDetailFixture[]}
+ */
+export const CATALOG_DETAIL_FIXTURES = [
+  {
+    id: "demo-authz",
+    title: "功能鉴权示例",
+    description: "RBAC 用户/角色/权限/会话/审计 + 业务订单",
+  },
+  {
+    id: "blank",
+    title: "空白项目",
+    description: "从零开始建模",
+  },
+  {
+    id: "blog-basic",
+    title: "博客基础模型",
+    description: "文章/作者/标签及多对多",
+  },
+  {
+    id: "ecommerce-basic",
+    title: "电商基础模型",
+    description: "商品/分类/订单/明细",
+  },
+];
+
+/** Generic SPA shell for unknown /catalog/:id (not homepage). */
+export const CATALOG_DETAIL_SHELL_PATH = "/catalog/_item";
+
+/**
+ * @param {CatalogDetailFixture} fixture
+ * @returns {PrerenderPage}
+ */
+export function catalogDetailPage(fixture) {
+  return {
+    path: `/catalog/${fixture.id}`,
+    locale: "zh-CN",
+    title: `${fixture.title} — ER 图模板 | ERD Online`,
+    description: fixture.description,
+  };
+}
+
+/**
  * Paths included in sitemap.xml (pathname, leading slash).
- * Dynamic segments (/catalog/:id, /s/:token) are intentionally omitted.
+ * Unbounded /catalog/:id and /s/:token stay out; official fixtures are listed.
+ * Do not list CATALOG_DETAIL_SHELL_PATH (`/catalog/_item`).
  */
 export const SITEMAP_PATHS = [
-  '/',
-  '/compare',
-  '/catalog',
-  '/demo',
-  '/en',
-  '/en/compare',
-  '/en/catalog',
-  '/en/demo',
+  "/",
+  "/compare",
+  "/catalog",
+  ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id}`),
+  "/demo",
+  "/en",
+  "/en/compare",
+  "/en/catalog",
+  "/en/demo",
 ];
 
 /**
@@ -101,11 +150,20 @@ export const PRERENDER_PAGES = [
  * @param {string} origin
  */
 export function marketingHreflang(pathname, origin) {
+  const abs = (p) => `${origin}${p === "/" ? "/" : p}`;
+  // No /en/catalog/:id route (ADR-0034); EN alternate is the catalog list.
+  if (/^\/catalog\/[^/]+$/.test(pathname)) {
+    return {
+      canonical: abs(pathname),
+      zh: abs(pathname),
+      en: abs("/en/catalog"),
+      xDefault: abs(pathname),
+    };
+  }
   const base =
     pathname === "/en" ? "/" : pathname.startsWith("/en/") ? pathname.slice(3) || "/" : pathname;
   const zhPath = base;
   const enPath = base === "/" ? "/en" : `/en${base}`;
-  const abs = (p) => `${origin}${p === "/" ? "/" : p}`;
   return {
     canonical: abs(pathname === "/" ? "/" : pathname),
     zh: abs(zhPath),
@@ -139,11 +197,15 @@ export const ROBOTS_DISALLOW = [
  * Exact prerendered marketing paths (PRERENDER_PAGES) must NOT appear here —
  * CF 200-rewrite to `/` would ship the homepage title/canonical to crawlers.
  * Do NOT use `/catalog/*` — CF splat matches `/catalog/` (empty) and hides dist/catalog/index.html.
+ * `/catalog/:id` rewrites to `/catalog/_item` (generic detail shell), not `/`.
+ * CF always applies matching redirects even when a static file exists, so each
+ * official fixture gets an identity 200 *before* the `:id` placeholder.
  *
  * @type {readonly string[]}
  */
 export const CF_SPA_REDIRECT_RULES = [
-  "/catalog/:id / 200",
+  ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id} /catalog/${f.id} 200`),
+  "/catalog/:id /catalog/_item 200",
   "/catalog/creator/:handle / 200",
   "/s/* / 200",
   "/login / 200",

@@ -3,6 +3,7 @@
  * Cloudflare Pages-like static server for prod-smoke.
  *
  * `/catalog` → dist/catalog/index.html when that shell exists.
+ * `/catalog/:id` with no file → dist/catalog/_item/index.html (not homepage).
  * Missing extension-less paths → dist/index.html (SPA).
  *
  * Do not use `npx serve -s`: its `** → /index.html` rewrite (and cleanUrls)
@@ -13,6 +14,7 @@ import fs from "node:fs";
 import http from "node:http";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { CATALOG_DETAIL_SHELL_PATH } from "./seo-config.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -75,6 +77,19 @@ export function resolveDistFile(distDir, urlPath) {
     }
   }
 
+  const catalogItem = pathname.match(/^\/catalog\/([^/]+)\/?$/);
+  if (catalogItem) {
+    const genericRel = CATALOG_DETAIL_SHELL_PATH.replace(/^\//, "");
+    const generic = path.resolve(path.join(root, genericRel, "index.html"));
+    if (generic.startsWith(root + path.sep)) {
+      try {
+        if (fs.statSync(generic).isFile()) return generic;
+      } catch {
+        /* fall through to SPA */
+      }
+    }
+  }
+
   const ext = path.extname(pathname);
   if (ext && ext !== ".html") return null;
   const spa = path.join(root, "index.html");
@@ -107,6 +122,9 @@ function checkResolver(distDir) {
     ["/compare", "compare/index.html"],
     ["/demo", "demo/index.html"],
     ["/en/demo", "en/demo/index.html"],
+    ["/catalog/demo-authz", "catalog/demo-authz/index.html"],
+    ["/catalog/demo-authz/", "catalog/demo-authz/index.html"],
+    ["/catalog/not-a-real-template", "catalog/_item/index.html"],
   ];
   for (const [urlPath, rel] of cases) {
     const got = resolveDistFile(distDir, urlPath);

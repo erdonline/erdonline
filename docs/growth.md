@@ -179,6 +179,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | 评审 | 08-28（原 09-10 提前） | ✅ 见下「两周评审（提前）」 | `docs/growth.md` | 楔子不停；GSC 持平不是变差 |
 | GSC catalog/compare | 08-28 | ✅ `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引 | GSC 网址检查 | 四 URL 200；未检查 301；未发 XHS |
 | prerender 壳 | 08-28 | ✅ `/catalog` `/compare` `/demo` `/en` `/en/catalog` `/en/compare` `/en/demo` 首屏 title/canonical 为该路径，不再 200 反代到首页 | `seo-config.mjs` `gen-seo-static.mjs` | `yarn test:seo-static`；prod-smoke crawler first HTML |
+| catalog 详情壳 | 08-28 | ✅ 官方 `/catalog/:id` 独立 title/canonical；未知 ID `_item` 列表壳，不再 Draw-ERD + `/` | 官方 4 种子 + `_redirects` `/catalog/_item` | `yarn test:seo-static`；prod-smoke `/catalog/demo-authz` |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 
@@ -222,7 +223,14 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **证据**：GSC `/en/catalog` crawled not indexed；`/catalog` `/compare` 与 `/` 共用首页 Draw-ERD 首屏 HTML（CF `_redirects` `200` → `/`）。
 - **改法**：构建后写出 `dist/<path>/index.html`；从 `_redirects` 去掉这些精确路径。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；未发小红书；不铸 PAT。
 - **蒸馏**：`docs/deployment.md`、`docs/landing.md`。
-- **状态**：✅ 2026-08-28。`/demo` `/en/demo` 同日补静态壳（真人仍 hydrate → `/s/public-demo`）。`/catalog/*` splat 会匹配 `/catalog/` → 已改为 `/catalog/:id`。仍未 prerender：`/catalog/:id` 详情页 HTML。
+- **状态**：✅ 2026-08-28。`/demo` `/en/demo` 同日补静态壳（真人仍 hydrate → `/s/public-demo`）。`/catalog/*` splat 会匹配 `/catalog/` → 已改为 `/catalog/:id`。官方详情 4 个 ID 已独立壳；未知 ID 用 `_item` 列表壳（canonical 指向 `/catalog`）。无 `/en/catalog/:id`。
+
+### `/catalog/:id` 详情首屏（2026-08-28）
+
+- **证据**：列表已对；`/catalog/:id / 200` 仍把详情首屏变成首页 Draw-ERD。数据 API-only，社区 ID 无界。
+- **改法**：官方种子 per-id prerender；未知 ID generic `_item`（列表 title + canonical `/catalog`）。CF identity-200 挡 placeholder。未请求 GSC。www H1 / 首页 SERP 未改；未发小红书。
+- **蒸馏**：`docs/deployment.md`。
+- **状态**：✅ 2026-08-28
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
