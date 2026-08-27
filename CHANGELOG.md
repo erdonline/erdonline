@@ -13,6 +13,15 @@
 - **证据**：`gh secret list` 仅有 Cloudflare，无 `NPM_TOKEN`，不发 npmjs。官方协议为 `cursor://anysphere.cursor-deeplink/mcp/install`，网页入口 `https://cursor.com/link/`。www H1 仍 Git + Figma；未发小红书；未请求 GSC。
 - **改法**：README 与中/英 `guide/api-and-mcp` 增加 Add to Cursor 链，config 为已上线的 `npx -y --package` Release tarball + PAT 占位。工作台/落地页次链仍指向文档（须先铸造 PAT）。
 - 验证点：`cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → install-link 解码后 args 与 snippet 一致；README/指南含 `cursor.com/link/mcp/install`
+- **线上**（2026-08-28）：docs-site [33113431683](https://github.com/erdonline/erdonline/actions/runs/33113431683) **success**（`3898b761`）。
+  - `https://doc.erdonline.com/docs/guide/api-and-mcp/` **200** 含 `cursor.com/link/mcp/install`、`--package`、`erdonline-mcp-0.1.0.tgz`
+  - `https://doc.erdonline.com/en/docs/guide/api-and-mcp/` **200** 同上
+
+#### growth：PAT 揭示弹层次链一键加入 Cursor（真实 PAT）
+
+- **证据**：铸造成功弹层已有 mcp.json 复制，但没有与文档相同的官方 install-link。README 链用占位符 PAT，弹层必须填入本次明文。www H1 仍 Git + Figma；未发小红书；未请求 GSC；不发 npm。
+- **改法**：`cursorMcpInstallWebHref({ pat, apiUrl })`；弹层次链 `pat-cursor-install-link`。Home 次 CTA 仍指向文档。
+- 验证点：`npx tsx src/utils/mcpJsonSnippet.test.ts`；`yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` 绿
 
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 
