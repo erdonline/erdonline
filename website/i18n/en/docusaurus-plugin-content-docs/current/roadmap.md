@@ -51,13 +51,14 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 | Slice | Status | Ships |
 |---|---|---|
 | 1 Docs 30-second MCP path + SEO + article #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) copy-paste; landing Open pillar link; `content/articles/cursor-mcp-read-and-suggest-version.md` |
-| 2 Publish #13 on Xiaohongshu / Juejin | 🚧 2026-08-28 | XHS in review [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd) (do not republish); Juejin paste pack tracked, publish blocked on login |
+| 2 Publish #13 on Xiaohongshu / Juejin | 🚧 2026-08-28 | XHS **published**, 5 views [explore/6a906823…](https://www.xiaohongshu.com/explore/6a90682300000000290346fd) (do not republish); Juejin paste pack tracked, publish blocked on login |
 | 3 Logged-in workspace MCP secondary entry | ✅ 2026-08-28 | Home hero MCP link; stat relabel “Edited today” |
 | 4 PAT success screen embeds mcp.json | ✅ 2026-08-28 | Reveal modal copies PAT-filled Cursor `mcp.json` |
 | 5 Docs MCP page 3 screenshots | ✅ 2026-08-28 | PAT reveal / mcp.json / agent tool list; XHS covers in `content/articles/assets/mcp-*.png` |
 | 6 Juejin CTA retro | ⛔ captcha wall | Skip until human login; do not mass-post |
 | 7 GSC EN indexing probe | ✅ 2026-08-28 | ZH/EN MCP docs 200 + trailing-slash canonical + sitemap loc; GSC unknown → requested indexing; submitted EN sitemap |
 | 8 CI REST schema-lint article | ✅ 2026-08-28 | `ci-rest-projectjson-schema-lint`; distilled into [`data-format`](/docs/data-format) |
+| Two-week review (early) | ✅ 2026-08-28 | XHS #13 live, 5 views (#6 still 51); GSC 2/103 unchanged, no doc pages; no P0 www leak; article #15 dunk+demo |
 
 ### Landing (public, brand-first, one composition) ✅
 
