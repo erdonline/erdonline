@@ -62,7 +62,7 @@ ADR-0028：**无** `publish_template`；**无** PAT 评分/评论。
 }
 ```
 
-官方 Demo 不能当 PAT。自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+官方 Demo 不能当 PAT。自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。接通后在 Cursor 选 prompt **`suggest-erd-version`**，或让 Agent 调 `create_version`。API 200 **不是**人批准。不要凭一句话生成新图。完整步骤：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
 从源码跑：
 
