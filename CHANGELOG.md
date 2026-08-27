@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：无 PAT 的 resources/list + prompt（Glama 能力面）
+
+- **证据**：Chrome 打开 glama.ai/mcp/servers 可见 **Sign Up** / **Add Server**，未登录 GitHub，按纪律停提。#13035 bot 仍要 Glama score。不发小红书/npm；不请求 GSC；H1 未改。
+- **改法**：登记只读 resource（文档 MCP 指南 URL）+ prompt `list-erd-projects`（读 projectJSON，不生成图）。内省不需 PAT。
+- 验证点：`cd mcp && yarn smoke:introspect` → resources 含 `doc.erdonline.com/docs/guide/api-and-mcp`；prompts 含 `list-erd-projects`
+
 #### mcp：tools/list 带 MCP annotations（Glama TDQS）
 
 - **证据**：#13035 bot 再要 Glama quality score；Glama 页仍 404（OAuth 提交墙）。HelloGitHub #3605 维护者沉默。无 PAT 的 `tools/list` 未声明 readOnly/destructive，内省分会差。不发小红书/npm；不请求 GSC；H1 未改。
