@@ -11,13 +11,13 @@
 - [x] [生产 boot smoke] `cd frontend && PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 6 公开 URL 无 pageerror、`#root` 有内容 ✅ 2026-08-12
 - [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
 - [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
-- [ ] [落地页 Docs 分流] 英文态页脚 Docs → `https://doc.erdonline.com/en/`；中文态 → `https://doc.erdonline.com/`（无 `/en/`）
+- [x] [落地页 Docs 分流] 英文态页脚 Docs → `https://doc.erdonline.com/en/`；中文态 → `https://doc.erdonline.com/`（无 `/en/`）✅ Playwright 生产 2026-08-27
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
 
 ## 主站 SEO 索引（2026-08-12）
 
 - [x] [构建产物] `cd frontend && yarn build` → `dist/sitemap.xml` + `robots.txt` + `_redirects` + `404.html`；`xmllint --noout dist/sitemap.xml` ✅ 2026-08-12
-- [ ] [线上 sitemap] 部署后 `curl -sI https://www.erdonline.com/sitemap.xml` → `content-type` 含 xml，非 HTML
+- [x] [线上 sitemap] 部署后 `curl -sI https://www.erdonline.com/sitemap.xml` → `content-type` 含 xml，非 HTML ✅ 2026-08-27
 - [ ] [线上真 404] 部署后 `curl -sI https://www.erdonline.com/__seo_health_nonexistent_path__` → HTTP 404
 - [ ] [线上 SPA 仍 200] 部署后 `/compare`、`/catalog`、`/demo`、`/login`、`/s/public-demo` 仍 200
 
