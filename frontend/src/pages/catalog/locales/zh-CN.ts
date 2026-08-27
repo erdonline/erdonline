@@ -3,6 +3,9 @@
  */
 export default {
   'catalog.title': '模板广场',
+  'catalog.seo.title': 'ER 图模板 — 免费数据库模型广场 | ERD Online',
+  'catalog.seo.description':
+    '浏览免费 ER 图模板。安装官方或社区数据库模型到浏览器，随后可编辑、保存版本并协作。',
   'catalog.backToCatalog': '← 返回模板广场',
   'catalog.backToCatalogShort': '返回广场',
   'catalog.installCount': '{count} 次安装',

@@ -43,7 +43,7 @@
 | 版本 | **Version** | 快照/基线；`Version history` |
 | 差异 / Diff | **Diff** | 作名词：`View diff`；作动词：`Compare` |
 | 模板 | **Template** | 可安装模型包 |
-| 模板广场 | **Template catalog** | `landing.footer.catalog` 已定型 |
+| 模板广场 | **Template catalog** | `landing.footer.catalog` 已定型；SERP 用 `catalog.seo.title`（ER diagram templates），勿套用首页 Draw ER Diagram Online |
 | 协作 | **Collaboration** | 名词；`Real-time collaboration` |
 | 工作区 | **Workspace** | 登录后应用区；`Open workspace` |
 | 项目 | **Project** | 顶层容器 |

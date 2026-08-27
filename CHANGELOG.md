@@ -8,6 +8,16 @@
 
 ### 2026-08-28
 
+#### growth：`/catalog` 独立 SEO（www 转化）
+
+- **证据**：GSC `/catalog` 1 点击 / 6 展示（均位约 2–3），但模板广场未设 page SEO，hydrate 后仍是首页 `Draw ER Diagram Online`，与 `/` 抢摘要。稿 #15/#16 小红书草稿已存（未排版、未发布）；掘金仍跳过。
+- **改法**：`CatalogLayout` 调用 `usePageSeo`；中文 title「ER 图模板 — 免费数据库模型广场 | ERD Online」，英文「ER diagram templates — free database models | ERD Online」。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT。
+- 验证点：
+  - `cd frontend && yarn check:i18n` → keys aligned；CJK ratchet PASS
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "列表 SEO"` → title 含「ER 图模板」，不含 Draw ER Diagram Online
+  - `yarn test:e2e --project=chromium tests/e2e/i18n.spec.ts --grep "Landing SEO"` → `/en/catalog` title 含 ER diagram templates；`/` H1 仍 Git + Figma；静态 title 仍 Draw ER Diagram Online
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"` → 首页 H1 仍 Git + Figma
+
 #### growth：稿 #16 贴入小红书长文草稿（未发布）
 
 - **改法**：梁工造物创作台「写长文 → 新的创作」贴入 开头/中间/结尾；自动保存于 02:05。**未点一键排版、未点发布。** 台账：`content/articles/publish-status-2026-08-09.md` / `.json`。

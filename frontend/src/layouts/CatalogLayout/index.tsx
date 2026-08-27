@@ -2,6 +2,7 @@ import React, {useEffect} from 'react';
 import {Outlet, history, useLocation} from '@@/exports';
 import Theme from '@/components/Theme';
 import LandingChrome from '@/pages/landing/LandingChrome';
+import {usePageSeo} from '@/hooks/usePageSeo';
 import '@/pages/landing/index.less';
 import * as cache from '@/utils/cache';
 import './index.less';
@@ -9,6 +10,7 @@ import './index.less';
 /** 模板广场：公开发现面，复用 Landing 品牌壳，不走 HomeLayout 工作台导航 */
 const CatalogLayout: React.FC = () => {
   const location = useLocation();
+  usePageSeo('catalog.seo.title', 'catalog.seo.description');
   const isReview = location.pathname.startsWith('/catalog/review');
 
   useEffect(() => {
