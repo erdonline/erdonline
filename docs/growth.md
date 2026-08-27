@@ -42,6 +42,7 @@
 | 13 | Cursor 连上 MCP：读一张图，提交一版建议 | #6 的操作续篇；30 秒 copy-paste | `cursor-mcp-read-and-suggest-version` | mcp | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) | ✅ ready |
 | 14 | CI 里用 REST 拉 projectJSON 做 schema lint：不必绑死 MCP | 流水线走 curl + ajv，不是再装一个 MCP | `ci-rest-projectjson-schema-lint` | mcp | [`data-format`](/docs/data-format) | ✅ ready |
 | 15 | Cursor 读得懂你的 ER 图，draw.io 连外键都不认识 | 两周评审：GSC 仍是 draw-ER；用 dunk + demo CTA 抢点击 | `cursor-reads-erd-drawio-cannot` | demo | [`guide/what-is-erd-online`](/docs/guide/what-is-erd-online) | ✅ ready |
+| 16 | 搜 make ERD online 时，别再打开又一个画框图 | GSC make/create/maker 查询；demo 主 CTA + compare 次链 | `make-create-erd-online` | demo | [`guide/what-is-erd-online`](/docs/guide/what-is-erd-online) | ✅ ready |
 | 7 | docker-compose 一键部署的 MIT 开源数据库建模平台 | 自部署 SEO 文 | `docker-compose-mit-modeler` | deploy | [`guide/quick-self-host`](/docs/guide/quick-self-host) | ✅ ready |
 | 8 | 团队建模怎么管权限？三级角色 + 审批流落地实录 | 团队场景，打单机工具痛点 | `team-roles-approval-flow` | demo | [`guide/roles-and-approval`](/docs/guide/roles-and-approval) | ✅ ready |
 | 9 | 2026 年 8 款 ER 图/数据库设计工具诚实横评 | SEO 长尾；对照必须诚实 | `honest-er-tools-compare-2026` | compare | blog + [/compare](https://www.erdonline.com/compare)（不进手册正文） | ✅ ready（含思否） |
