@@ -5,9 +5,9 @@ description: Copy-paste Cursor MCP config and a PAT so agents read the same ERD 
 
 Want Cursor or Claude to read the ER diagram you are editing? Use authenticated REST / MCP to read/write the **same** projectJSON the designer uses. A share-link token is not an API key.
 
-> **30-second goal**: mint a PAT → paste MCP config → the agent lists your projects.  
+> **30-second goal**: mint a PAT → paste MCP config → pick prompt `suggest-erd-version` in Cursor (or have the agent call `create_version`).  
 > **Prereq**: a signed-in instance ([self-host](./quick-self-host.md) or [www.erdonline.com](https://www.erdonline.com/)); format in [data-format](/docs/data-format).  
-> **Not this**: one-shot “generate an ERD”, ChatSQL; writes must be reviewed in a version diff.
+> **Not this**: one-shot “generate an ERD”, ChatSQL; writes must be reviewed in a version diff. `create_version` API 200 is not human approval.
 
 ## Connect Cursor in 30 seconds
 
@@ -43,7 +43,7 @@ Or paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the
 
 For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. MCP is **not** in the Docker image.
 
-3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`. If the list is empty, create **your own** project in the designer first (the official Demo is not a PAT). If the agent still says `erd_pat_…`, paste the minted token into `mcp.json` — the one-click install link never embeds a live PAT. Do not ask the agent to generate a new ER diagram from a sentence.
+3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`. If the list is empty, create **your own** project in the designer first (the official Demo is not a PAT). To change the model, pick prompt **`suggest-erd-version`** in Cursor, or have the agent call `create_version`. If the agent still says `erd_pat_…`, paste the minted token into `mcp.json` — the one-click install link never embeds a live PAT. Do not ask the agent to generate a new ER diagram from a sentence.
 
 To run from source: `cd mcp && yarn install && yarn build`, then `node /ABS/PATH/to/erdonline/mcp/dist/index.js`. During development you can use `npx tsx mcp/src/index.ts`.
 
@@ -69,9 +69,9 @@ No `publish_template`, no PAT ratings. See [`mcp/README.md`](https://github.com/
 
 ## Let the agent suggest a version
 
-When minting the PAT, include `versions:write`. Ask the agent to call `create_version` with a note like “agent suggestion”. Open the designer version list, read the diff, accept or roll back.
+When minting the PAT, include `versions:write`. Pick prompt **`suggest-erd-version`** in Cursor, or ask the agent to call `create_version` with a note like “agent suggestion”.
 
-Do not let the agent silently `put_project_json` over the workspace—that skips human review.
+`create_version` returning **API 200 is not human approval**. You must open the designer version diff and accept or roll back. Do not let the agent silently `put_project_json` over the workspace.
 
 ## Streamable HTTP (optional)
 
@@ -96,6 +96,7 @@ cd mcp && yarn start -- --http
 | Agent says Missing ERD_PAT / still `erd_pat_…` | The placeholder is not a token. Paste the minted plaintext into `mcp.json` `ERD_PAT`. The one-click install link **never** puts a PAT in the URL |
 | `list_projects` is empty | Create your own project in the designer, then ask again. The official Demo share is **not** a PAT |
 | Agent drew a new ER diagram | Tell it to `list_projects` then `get_project_schema` — read/write your existing projectJSON; do not generate a diagram from natural language |
+| `create_version` already 200 | Still open the version diff and confirm or roll back. **API 200 is not human approval** |
 | Share link works but API fails | Share read-only tokens are **not** API credentials |
 | MCP won’t connect | MCP process must be started separately; token/path must match docs |
 | Compose is up but no MCP | Expected; start MCP from `mcp/` |

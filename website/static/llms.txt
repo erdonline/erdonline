@@ -10,7 +10,7 @@ Not ChatSQL. Not a one-shot “generate an ERD” product. Agents may read the s
 
 ## MCP (secondary)
 
-Mint a PAT (the public Demo is not a PAT). Paste into Cursor `~/.cursor/mcp.json`. Full steps: https://doc.erdonline.com/docs/guide/api-and-mcp/
+Mint a PAT (the public Demo is not a PAT). Paste into Cursor `~/.cursor/mcp.json`. After connect, run prompt `suggest-erd-version`; `create_version` API 200 is not human approval — open the designer diff. Full steps: https://doc.erdonline.com/docs/guide/api-and-mcp/
 
 English: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
 
