@@ -15,7 +15,7 @@
 
 #### 退役 GitHub Pages 文档宿主
 
-- **改法**：`docs-site.yml` 只按 `doc.erdonline.com` 构建并部署 Cloudflare Pages；github.io 改为 `website/gh-pages-retire/` 跳转 stub（`Disallow: /`），覆盖旧 Docusaurus 副本。ADR-0018 同步修订。
+- **改法**：`docs-site.yml` 只按 `doc.erdonline.com` 构建并部署 Cloudflare Pages；github.io 改为 `website/gh-pages-retire/` 跳转 stub（`Disallow: /`），覆盖旧 Docusaurus 副本。ADR-0018 同步修订。工作流 concurrency 组从 `pages` 改为 `docs-site-*`，避免 Pages 部署取消 CF job。
 - 验证点：`grep -F 'https://doc.erdonline.com' website/gh-pages-retire/index.html website/gh-pages-retire/robots.txt`；部署后 `curl -sL https://erdonline.github.io/erdonline/` 含跳转且无完整文档站 Navbar
 
 #### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
