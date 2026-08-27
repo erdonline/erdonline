@@ -45,10 +45,10 @@ REST 示例：`GET /api/v1/projects`、`GET …/versions`、`POST …/versions`�
 
 ## MCP：stdio/HTTP，独立进程
 
-MCP Server 在 [MCP 目录]({{GH_TREE:mcp}})，**不包含在 Docker 镜像内**。自托管后端就绪后，在该目录执行：
+MCP Server 在 [MCP 目录]({{GH_TREE:mcp}})，**不包含在 Docker 镜像内**。30 秒接到 Cursor：铸造 PAT 后粘贴 `npx -y --package <GitHub Release tarball> erd-mcp`（见 [用 MCP 让 Cursor 读取 ER 图]({{DOC:guide/api-and-mcp}})），不必 clone。贡献者从源码跑：
 
 ```bash
-yarn install && yarn build
+cd mcp && yarn install && yarn build
 export ERD_API_URL=https://your-api.example.com
 export ERD_PAT=erd_pat_…   # 账户设置里铸造，明文仅一次
 node dist/index.js          # stdio；或 yarn start -- --http
