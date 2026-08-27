@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：稿件 MCP 主路径改为 npx（未公开发布）
+
+- **证据**：`c1afb1f0` docs-site [33112134723](https://github.com/erdonline/erdonline/actions/runs/33112134723) **success** 后，live 中/英指南 HTML 含 `--package` 与 `erdonline-mcp-0.1.0.tgz`；`/ABS/PATH` 仅出现在贡献者备选句。稿 #13 源稿与掘金粘贴包、#6 源稿仍把 `yarn build` 当主安装。www H1 仍 Git + Figma；未发小红书；未发掘金；未请求 GSC。
+- **改法**：三份稿件 30 秒主路径改为 `npx -y --package` Release tarball；clone/`yarn build` 仅备选。
+- 验证点：`rg --package content/articles/cursor-mcp-read-and-suggest-version` 命中 json 块；curl `https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/` 对应页含 `--package`
+
 #### growth：MCP 30 秒路径改为 npx tarball（不必 clone+build）
 
 - **证据**：包已在仓内 `@erdonline/mcp`（`bin: erd-mcp`），但 `private` 且本机无 npm 登录，不能发 npmjs；README/文档/PAT 弹层仍要 `/ABS/PATH` + 本机 `yarn build`。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书；未请求 GSC。

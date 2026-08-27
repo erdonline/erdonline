@@ -35,28 +35,23 @@ guide: docs/guide/api-and-mcp.md
 
 若分享链接能看图、调 API 却 401：分享只读 token 和 PAT 不是同一套面，别混用。
 
-## 第二步：MCP 不在 Docker 里
+## 第二步：粘贴 Cursor 配置（不必 clone）
 
-`docker compose up` 拉起的是应用本身，**不会**带上 MCP 进程。这是预期行为，不是安装失败。MCP 在仓库的 `mcp/` 目录，要单独构建：
+`docker compose up` 拉起的是应用本身，**不会**带上 MCP 进程。这是预期行为。30 秒路径用 `npx` 拉 GitHub Release 包，**不必**本机 `yarn build`。
 
-```bash
-git clone https://github.com/erdonline/erdonline.git
-cd erdonline/mcp
-yarn install && yarn build
-```
-
-记下本机 `mcp/dist/index.js` 的绝对路径，下一步要写进配置。开发免编译可以用 `npx tsx …/mcp/src/index.ts` 代替 `node dist/...`。
-
-## 第三步：粘贴 Cursor 配置
-
-把下面这段放进用户级 `~/.cursor/mcp.json`（Claude Desktop 结构相同）。把绝对路径和 PAT 换成你的，不要把真实令牌提交进 git：
+把下面这段放进用户级 `~/.cursor/mcp.json`（Claude Desktop 结构相同）。把 `erd_pat_…` 换成你的（铸造弹层已填好），不要把真实令牌提交进 git：
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "node",
-      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
       "env": {
         "ERD_API_URL": "https://erdonline-production.up.railway.app",
         "ERD_PAT": "erd_pat_…"
@@ -70,9 +65,9 @@ yarn install && yarn build
 
 重载 Cursor 的 MCP 后，对 Agent 说：「列出我的 ERD 项目」。成功时工具列表里出现 `list_projects`，回复里是工作台能看到的那些项目名，不是空数组。再问：「读取项目某某的 projectJSON，列出所有表名和外键」。它应调用 `get_project` 或 `get_project_schema`，说出你在设计器里能看见的表——同一份 JSON，不是模型自己编的。
 
-401 / 403：PAT 过期、scope 不够、或打到了错误环境。compose 已经起来但 MCP 连不上：回到第二步，确认 `command` 指向刚 build 出来的那个 `dist/index.js`。
+401 / 403：PAT 过期、scope 不够、或打到了错误环境。npx 拉不下包：检查 Release 地址是否 302。贡献者要从源码跑：`cd mcp && yarn install && yarn build`，再用 `node /ABS/PATH/to/erdonline/mcp/dist/index.js`（这是备选，不是 30 秒主路径）。
 
-## 可选第四步：让它提交一版建议
+## 第三步：让它提交一版建议
 
 需要写的时候，再铸造一枚 PAT，显式勾选 `versions:write`。对 Agent 说：「基于当前模型提交一版建议，版本说明写 Agent 建议，不要直接覆盖工作区。」它应调用 `create_version`。然后你打开设计器 → 版本列表 → 看表/字段/关系级 diff → 通过或回滚。
 
