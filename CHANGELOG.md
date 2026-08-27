@@ -8,6 +8,10 @@
 
 ### 2026-08-28
 
+#### mcp：clobber 线上 tarball（93ee5272 prompt）
+
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11462 B；`tar` 含 `registerPrompt('suggest-erd-version'`；live npx → `erd-mcp stdio ready`。未发 npm；未改 tag。
+
 #### mcp：prompt `suggest-erd-version`（人 diff 一版）
 
 - **证据**：EN FAQ 已 live（`/en/docs/guide/api-and-mcp/` 含 placeholder is not a token / do not generate）。渠道只剩登录墙。人接通后缺「读图 → 提交一版给人审批」的可点 prompt。不发小红书/npm；不重试 Glama；H1 未改。
