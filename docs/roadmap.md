@@ -191,6 +191,7 @@
 - ~~可观测性：自部署者的健康检查/指标端点（少量、低成本）~~✅（`/actuator/health` + `/actuator/info` app/version；未暴露路径 404；见 [deployment.md](./deployment.md)）
 - ~~自部署 DX：docker-compose 一键起的文档化验收 + 升级路径演练~~✅（`scripts/verify-self-deploy.sh` + [deployment.md](./deployment.md) 验收/升级演练；Flyway 不靠重跑 `db/init`）
 - ~~竞品对比页：vs dbdiagram / dbml 的诚实对照（协作/版本/开放/自部署），落地页子页~~✅（`/compare` + 落地摘要表；E2E `compare.spec.ts`）
+- ~~对照表补 draw.io 列 + 关系语义行（GSC `/compare` 已有点击；www H1/SERP 不动）~~✅ 2026-08-28
 
 ## 阶段总览
 

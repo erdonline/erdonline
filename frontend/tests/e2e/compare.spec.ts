@@ -7,12 +7,16 @@ test.describe('竞品对照页', () => {
   test('加载对照表；顶栏/CTA 可达 demo 与首页', async ({ page }) => {
     await page.goto('/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible();
+    await expect(page).toHaveTitle(/draw\.io/i);
     await expect(page.getByRole('heading', { name: '诚实对照' })).toBeVisible();
 
     const table = page.getByRole('table');
     await expect(table.getByRole('columnheader', { name: 'ERD Online' })).toBeVisible();
+    await expect(table.getByRole('columnheader', { name: 'draw.io' })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: 'dbdiagram' })).toBeVisible();
     await expect(table.getByRole('columnheader', { name: 'dbml 生态' })).toBeVisible();
+    await expect(table.getByRole('cell', { name: '关系语义 / 外键' })).toBeVisible();
+    await expect(table.getByRole('cell', { name: '连线 ≠ 外键' })).toBeVisible();
     await expect(table.getByRole('cell', { name: '版本与 diff' })).toBeVisible();
     await expect(table.getByRole('cell', { name: '开源自部署' })).toBeVisible();
     await expect(table.getByRole('cell', { name: 'MIT + compose' })).toBeVisible();

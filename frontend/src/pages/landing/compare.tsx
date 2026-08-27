@@ -7,7 +7,7 @@ import LandingChrome from './LandingChrome';
 import './index.less';
 
 /**
- * 诚实对照子页：协作 / 版本 / 开放 / 自部署。
+ * 诚实对照子页：外键语义 / 协作 / 版本 / 开放 / 自部署（含 draw.io）。
  * 极简画图够用时不必换；需要版本与开源事实源时再来（vision）。
  */
 const ComparePage: React.FC = () => {
@@ -34,20 +34,30 @@ const ComparePage: React.FC = () => {
               <tr>
                 <th scope="col">{t('landing.compare.col.capability')}</th>
                 <th scope="col">{t('landing.compare.col.erd')}</th>
+                <th scope="col">{t('landing.compare.col.drawio')}</th>
                 <th scope="col">{t('landing.compare.col.dbdiagram')}</th>
                 <th scope="col">{t('landing.compare.col.dbml')}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td>{t('landing.compare.row.fk')}</td>
+                <td className="landingYes">{t('landing.compare.cell.fkNative')}</td>
+                <td className="landingNo">{t('landing.compare.cell.linesNotFk')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+              </tr>
+              <tr>
                 <td>{t('landing.compare.row.collab')}</td>
                 <td className="landingYes">{t('landing.compare.cell.collabDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.canvasCollab')}</td>
                 <td className="landingNo">{t('landing.compare.cell.noWeak')}</td>
                 <td className="landingNo">{t('landing.compare.cell.variesEditor')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.version')}</td>
                 <td className="landingYes">{t('landing.compare.cell.versionDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
                 <td className="landingNo">{t('landing.compare.cell.weak')}</td>
                 <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
               </tr>
@@ -56,28 +66,33 @@ const ComparePage: React.FC = () => {
                 <td className="landingYes">{t('landing.compare.cell.approvalDetail')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
+                <td className="landingNo">{t('landing.compare.cell.no')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.share')}</td>
                 <td className="landingYes">{t('landing.compare.cell.shareErd')}</td>
+                <td className="landingYes">{t('landing.compare.cell.sharePublic')}</td>
                 <td className="landingYes">{t('landing.compare.cell.sharePublic')}</td>
                 <td className="landingNo">{t('landing.compare.cell.varies')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.opensource')}</td>
                 <td className="landingYes">{t('landing.compare.cell.mitCompose')}</td>
+                <td className="landingYes">{t('landing.compare.cell.apacheDraw')}</td>
                 <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
                 <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.dbml')}</td>
                 <td className="landingYes">{t('landing.compare.cell.dbmlBoth')}</td>
+                <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingYes">{t('landing.compare.cell.native')}</td>
                 <td className="landingYes">{t('landing.compare.cell.native')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.agent')}</td>
                 <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.noSchema')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
               </tr>

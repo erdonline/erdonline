@@ -8,6 +8,16 @@
 
 ### 2026-08-28
 
+#### growth：对照页收割 draw.io（www 转化）
+
+- **证据**：GSC `/compare` 已有 1 点击 / 8 展示，但对照表只有 dbdiagram / DBML，搜 draw-ER 的人看不到差异。稿 #15 小红书长文草稿已存（未排版、未发布）；掘金仍跳过。
+- **改法**：落地摘要表与 `/compare` 增加 draw.io 列 +「关系语义 / 外键」行；对照 SEO title/description 点名 draw.io。蒸馏 `docs/guide/what-is-erd-online.md`。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT。
+- 验证点：
+  - `cd frontend && yarn check:i18n` → keys aligned 2234；CJK ratchet PASS
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"` → H1 仍 Git + Figma，表含 draw.io 列与「连线 ≠ 外键」
+  - `yarn test:e2e --project=chromium tests/e2e/compare.spec.ts --grep "加载对照表"` → `document.title` 含 draw.io；列头含 draw.io
+  - 线上 `https://www.erdonline.com/` `<title>` 仍为 `Draw ER Diagram Online — Free Editor | ERD Online`（仓库 `document.ejs` 未改；本机 `yarn start` 自 08-16 起未重启，静态壳仍旧 title，未杀 8000）
+
 #### growth：稿 #15 贴入小红书长文草稿（未发布）
 
 - **改法**：梁工造物创作台「写长文 → 新的创作」贴入 head/middle/tail；自动保存于 01:32。**未点一键排版、未点发布。** 台账：`content/articles/publish-status-2026-08-09.md` / `.json`。

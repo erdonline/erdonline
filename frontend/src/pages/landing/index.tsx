@@ -204,32 +204,44 @@ const LandingPage: React.FC = () => {
               <tr>
                 <th scope="col">{t('landing.compare.col.capability')}</th>
                 <th scope="col">{t('landing.compare.col.erd')}</th>
+                <th scope="col">{t('landing.compare.col.drawio')}</th>
                 <th scope="col">{t('landing.compare.col.dbdiagram')}</th>
                 <th scope="col">{t('landing.compare.col.dbml')}</th>
               </tr>
             </thead>
             <tbody>
               <tr>
+                <td>{t('landing.compare.row.fk')}</td>
+                <td className="landingYes">{t('landing.compare.cell.yes')}</td>
+                <td className="landingNo">{t('landing.compare.cell.linesNotFk')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+                <td className="landingYes">{t('landing.compare.cell.native')}</td>
+              </tr>
+              <tr>
                 <td>{t('landing.compare.row.collab')}</td>
                 <td className="landingYes">{t('landing.compare.cell.yes')}</td>
+                <td className="landingNo">{t('landing.compare.cell.canvasCollab')}</td>
                 <td className="landingNo">{t('landing.compare.cell.noWeak')}</td>
                 <td className="landingNo">{t('landing.compare.cell.varies')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.version')}</td>
                 <td className="landingYes">{t('landing.compare.cell.yes')}</td>
+                <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
                 <td className="landingNo">{t('landing.compare.cell.weak')}</td>
                 <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.opensource')}</td>
                 <td className="landingYes">{t('landing.compare.cell.mit')}</td>
+                <td className="landingYes">{t('landing.compare.cell.apacheDraw')}</td>
                 <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
                 <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
               </tr>
               <tr>
                 <td>{t('landing.compare.row.agent')}</td>
                 <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
+                <td className="landingNo">{t('landing.compare.cell.noSchema')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
               </tr>
