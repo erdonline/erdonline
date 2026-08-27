@@ -13,22 +13,22 @@ const v4Token = convertLegacyToken(mapToken);
 
 const {REACT_APP_ENV, UMI_ENV} = process.env;
 
-/** Crawler-visible SERP copy (GSC: erd online / erd diagram online / draw|create ERD). */
-const SEO_TITLE = 'ERD Online — Draw ER Diagrams Online';
+/** Crawler-visible SERP copy. Intent clusters from full GSC query table (not stuffed): draw/create/make ER diagram online; ERD editor/tool/maker; ER model / entity-relationship. */
+const SEO_TITLE = 'Draw ER Diagram Online — Free Editor | ERD Online';
 const SEO_DESCRIPTION =
-  'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser — versions, collaboration, no signup.';
+  'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.';
 const SEO_ORIGIN = 'https://www.erdonline.com';
 const SEO_JSON_LD = JSON.stringify({
   '@context': 'https://schema.org',
   '@type': 'WebApplication',
   name: 'ERD Online',
-  alternateName: 'ERD diagram online',
+  alternateName: ['Draw ER diagram online', 'ERD editor', 'ERD diagram online'],
   url: `${SEO_ORIGIN}/`,
   applicationCategory: 'DeveloperApplication',
   operatingSystem: 'Any',
   offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
   description:
-    'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser.',
+    'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser.',
 });
 
 /** Cloudflare Web Analytics + Baidu Tongji — prod build only; skip localhost / 127.0.0.1 at runtime. */
@@ -58,7 +58,7 @@ export default defineConfig({
     {
       name: 'keywords',
       content:
-        'ERD Online, ERD diagram online, draw ERD online, create ERD online, ER diagram maker, entity relationship diagram, online ERD tool',
+        'ERD Online, draw ER diagram online, ERD editor, ER diagram maker, entity relationship model',
     },
     { property: 'og:type', content: 'website' },
     { property: 'og:site_name', content: 'ERD Online' },

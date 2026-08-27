@@ -604,9 +604,9 @@ export default {
     'Third-party sign-in is not configured (admin must set GitHub / Google / WeChat env vars).',
 
   // Landing SEO
-  'landing.seo.title': 'ERD Online — Draw ER Diagrams Online',
+  'landing.seo.title': 'Draw ER Diagram Online — Free Editor | ERD Online',
   'landing.seo.description':
-    'Free online ERD diagram maker. Create, draw, and view entity-relationship diagrams in the browser — versions, collaboration, no signup.',
+    'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.',
   'landing.compare.seo.title': 'ERD Online comparison — collaboration, versions, and open source',
   'landing.compare.seo.description':
     'An honest comparison of ERD Online, dbdiagram, and DBML: collaboration, versioning, openness, and self-hosting.',

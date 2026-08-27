@@ -8,9 +8,16 @@ test.describe('落地页', () => {
     const res = await request.get('/');
     expect(res.ok()).toBeTruthy();
     const html = await res.text();
-    expect(html).toContain('ERD Online — Draw ER Diagrams Online');
-    expect(html).toMatch(/entity-relationship diagrams/i);
+    expect(html).toContain('Draw ER Diagram Online — Free Editor | ERD Online');
+    expect(html).toMatch(/Draw ER diagrams online for free/i);
+    expect(html).toMatch(/ERD editor and maker/i);
+    expect(html).toMatch(/entity-relationship models/i);
     expect(html).toContain('application/ld+json');
+    expect(html).toContain('"alternateName"');
+    expect(html).toContain('Draw ER diagram online');
+    expect(html).toContain('ERD editor');
+    expect(html).not.toMatch(/file viewer/i);
+    expect(html).not.toMatch(/Google Draw/i);
     expect(html).toContain('rel="canonical"');
   });
 
