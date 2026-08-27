@@ -18,6 +18,7 @@
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 「crawler first HTML uses path canonical」
   - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"` → 首页 H1 仍 Git + Figma
   - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "列表 SEO"` → hydrate 后 title 仍「ER 图模板」
+- **线上首屏**（2026-08-28 02:36 / 02:39 重试）：`curl -sL` `https://www.erdonline.com/catalog` 与 `https://www.erdonline.com/en/catalog` 均为 200；`<title>Draw ER Diagram Online — Free Editor | ERD Online</title>`；`rel=canonical` → `https://www.erdonline.com/`。Actions `frontend-demo-site.yml` [33103900237](https://github.com/erdonline/erdonline/actions/runs/33103900237)（SHA `376f92ec`）**failure**（prod-smoke 拦部署，未上 CF）。未再请求 GSC `/en/catalog`。
 
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
