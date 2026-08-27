@@ -15,6 +15,7 @@ import {
   PRERENDER_PAGES,
   SITEMAP_PATHS,
   catalogDetailPage,
+  jsonLdForPage,
   marketingHreflang,
   resolveSiteUrl,
 } from "./seo-config.mjs";
@@ -59,6 +60,41 @@ function extractHtmlLang(html) {
 
 const HOME_CANONICAL_RE = /href=["']https:\/\/www\.erdonline\.com\/["']/;
 
+function extractJsonLd(html) {
+  const m = html.match(
+    /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/i,
+  );
+  if (!m) return null;
+  try {
+    return JSON.parse(m[1]);
+  } catch {
+    return null;
+  }
+}
+
+function assertJsonLd(rel, html, page, siteUrl) {
+  const ld = extractJsonLd(html);
+  const expected = jsonLdForPage(page, siteUrl);
+  if (!ld) {
+    fail(`${rel} missing JSON-LD`);
+    return;
+  }
+  if (ld["@type"] !== expected["@type"]) {
+    fail(`${rel} JSON-LD @type expected ${expected["@type"]}, got ${ld["@type"]}`);
+  }
+  if (ld.url !== expected.url) {
+    fail(`${rel} JSON-LD url expected ${expected.url}, got ${ld.url || "(missing)"}`);
+  }
+  if (page.path !== "/") {
+    if (ld["@type"] === "WebApplication") {
+      fail(`${rel} JSON-LD must not be homepage WebApplication`);
+    }
+    if (ld.url === `${siteUrl}/`) {
+      fail(`${rel} JSON-LD url still points at homepage`);
+    }
+  }
+}
+
 function assertShell(distDir, siteUrl, pathname, expected) {
   const file = distHtmlPath(distDir, pathname);
   const rel = path.relative(distDir, file);
@@ -101,6 +137,9 @@ function assertShell(distDir, siteUrl, pathname, expected) {
   }
   if (expected.lang && extractHtmlLang(html) !== expected.lang) {
     fail(`${rel} html lang expected ${expected.lang}, got ${extractHtmlLang(html) || "(missing)"}`);
+  }
+  if (expected.jsonLdPage) {
+    assertJsonLd(rel, html, expected.jsonLdPage, siteUrl);
   }
 }
 
@@ -222,6 +261,11 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
     title: HOME_SEO.title,
     canonical: `${siteUrl}/`,
     lang: "en",
+    jsonLdPage: {
+      path: "/",
+      title: HOME_SEO.title,
+      description: HOME_SEO.description,
+    },
   });
 
   for (const page of PRERENDER_PAGES) {
@@ -229,6 +273,7 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       title: page.title,
       canonical: marketingHreflang(page.path, siteUrl).canonical,
       lang: page.locale === "en-US" ? "en" : "zh-CN",
+      jsonLdPage: page,
     });
   }
 
@@ -238,6 +283,7 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       title: page.title,
       canonical: `${siteUrl}${page.path}`,
       lang: "zh-CN",
+      jsonLdPage: page,
     });
   }
 

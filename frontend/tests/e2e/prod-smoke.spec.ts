@@ -84,12 +84,14 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
     const home = await (await request.get('/')).text();
     expect(home).toContain('<title>Draw ER Diagram Online — Free Editor | ERD Online</title>');
     expect(home).toMatch(/rel="canonical"[^>]*href="https:\/\/www\.erdonline\.com\/"/);
+    expect(home).toContain('"@type":"WebApplication"');
 
-    const cases: { path: string; title: string; canonical: string }[] = [
+    const cases: { path: string; title: string; canonical: string; jsonLdType?: string }[] = [
       {
         path: '/catalog',
         title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
         canonical: 'https://www.erdonline.com/catalog',
+        jsonLdType: 'CollectionPage',
       },
       {
         path: '/catalog/',
@@ -100,6 +102,7 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         path: '/compare',
         title: 'ERD Online vs draw.io — 协作、版本与外键语义',
         canonical: 'https://www.erdonline.com/compare',
+        jsonLdType: 'WebPage',
       },
       {
         path: '/en',
@@ -135,6 +138,7 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         path: '/catalog/demo-authz',
         title: '功能鉴权示例 — ER 图模板 | ERD Online',
         canonical: 'https://www.erdonline.com/catalog/demo-authz',
+        jsonLdType: 'ItemPage',
       },
       {
         path: '/catalog/demo-authz/',
@@ -165,6 +169,17 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       expect(canon, `${c.path} must not canonicalize to homepage`).not.toBe(
         'https://www.erdonline.com/',
       );
+      if (c.jsonLdType) {
+        const ldMatch = html.match(
+          /<script[^>]*type="application\/ld\+json"[^>]*>([\s\S]*?)<\/script>/i,
+        );
+        const ld = ldMatch ? JSON.parse(ldMatch[1]) : {};
+        expect(ld['@type'], `${c.path} JSON-LD`).toBe(c.jsonLdType);
+        expect(ld.url, `${c.path} JSON-LD url`).toBe(c.canonical);
+        expect(ld['@type'], `${c.path} must not claim homepage WebApplication`).not.toBe(
+          'WebApplication',
+        );
+      }
     }
 
     for (const junk of ['/catalog/_item', '/catalog/_item/']) {

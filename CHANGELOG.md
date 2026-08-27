@@ -91,6 +91,14 @@
   - `yarn check:i18n` → keys aligned
   - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "详情 SEO"` → title 含「功能鉴权示例」，canonical 以 `/catalog/demo-authz` 结尾（需 8000+9502）
 
+#### fix：营销路径 JSON-LD 不再套首页 WebApplication
+
+- **证据**：prerender 只改 JSON-LD `url`，`@type` 仍是首页 `WebApplication`，`/catalog` `/compare` `/demo` 官方详情都声称自己是站点根上的应用。未请求 GSC。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- **改法**：`jsonLdForPage`：`/` 仍 WebApplication；`/catalog` `/en/catalog` CollectionPage；官方 `/catalog/:id` ItemPage；`/compare` `/demo` `/en` 等 WebPage。`applyPageSeo` 整段替换 ld+json。
+- 验证点：
+  - `cd frontend && yarn test:seo-static` → `/catalog` CollectionPage 且 url 为 `…/catalog`；`/` 仍 WebApplication
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog` JSON-LD 非 WebApplication
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。

@@ -16,6 +16,7 @@ import {
   SITEMAP_PATHS,
   catalogDetailPage,
   cfSpaRedirectRules,
+  jsonLdForPage,
   marketingHreflang,
   resolveSiteUrl,
 } from "./seo-config.mjs";
@@ -98,6 +99,20 @@ export function upsertHreflang(html, hreflang) {
 }
 
 /**
+ * Replace every application/ld+json script with path-appropriate structured data.
+ * @param {string} html
+ * @param {object} data
+ */
+export function replaceJsonLd(html, data) {
+  const script = `<script type="application/ld+json">${JSON.stringify(data)}</script>`;
+  const re = /<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi;
+  if (re.test(html)) {
+    return html.replace(re, script);
+  }
+  return html.replace(/<\/head>/i, `    ${script}\n</head>`);
+}
+
+/**
  * Dist path for a marketing pathname (`/` → index.html).
  * @param {string} distDir
  * @param {string} pathname
@@ -119,7 +134,6 @@ export function applyPageSeo(html, page, siteUrl) {
   const lang = page.locale === "en-US" ? "en" : "zh-CN";
   const ogLocale = page.locale === "en-US" ? "en_US" : "zh_CN";
   const title = escapeAttr(page.title);
-  const originPattern = escapeRe(siteUrl);
 
   let out = html.replace(/<html\b[^>]*>/i, `<html lang="${lang}">`);
   out = out.replace(/<title>[^<]*<\/title>/gi, `<title>${title}</title>`);
@@ -131,6 +145,7 @@ export function applyPageSeo(html, page, siteUrl) {
   out = replaceMetaContent(out, "twitter:description", page.description);
   out = replaceCanonicalHref(out, canonical);
   out = upsertHreflang(out, hreflang);
+  out = replaceJsonLd(out, jsonLdForPage(page, siteUrl));
 
   if (/property=["']og:locale["']/i.test(out)) {
     out = replaceMetaContent(out, "og:locale", ogLocale);
@@ -140,11 +155,6 @@ export function applyPageSeo(html, page, siteUrl) {
       `$1\n    <meta property="og:locale" content="${ogLocale}"/>`,
     );
   }
-
-  out = out.replace(
-    new RegExp(`("url"\\s*:\\s*")${originPattern}/(")`, "g"),
-    `$1${canonical}$2`,
-  );
 
   return out;
 }
