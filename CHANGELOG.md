@@ -13,6 +13,7 @@
 - **证据**：现行 [quickstart](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx) 要求 npm 制品 + `mcp-publisher login github`（device OAuth）。无 `NPM_TOKEN`；`gh`/`whaty` 不能代替 org Owner 授权；Release `.tgz` 不是 `mcpb`。不发小红书；不发 npmjs；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。
 - **改法**：runbook [`docs/mcp-registry.md`](docs/mcp-registry.md)（📋）+ `mcp/server.json`；`package.json` 增加 `mcpName` 且 `files` 含 `README.md`；PAT 弹层文案改为「一键后粘贴复制框明文」。
 - 验证点：`cd mcp && yarn smoke:npx` → `SMOKE OK` 且 tarball 含 `package/README.md`；`curl` Registry search `io.github.erdonline/erdonline` 仍空。
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：Release 6565 B；`tar tzf` 含 `package/README.md`；`npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp` → `erd-mcp stdio ready`。未发 npm；未改 H1。
 
 #### growth：HelloGitHub 补文档截图；第二份 EN MCP 列表跳过
 
