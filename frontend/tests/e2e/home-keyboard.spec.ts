@@ -202,6 +202,12 @@ test.describe('Home 工作台键盘', () => {
     await expect(page.getByRole('link', { name: /新建模型/ })).toBeFocused();
     await page.keyboard.press('Tab');
     await expect(page.getByRole('button', { name: '从示例开始' })).toBeFocused();
+    await page.keyboard.press('Tab');
+    await expect(page.getByTestId('home-mcp-docs')).toBeFocused();
+    await expect(page.getByTestId('home-mcp-docs')).toHaveAttribute(
+      'href',
+      'https://doc.erdonline.com/docs/guide/api-and-mcp/',
+    );
 
     await page.keyboard.press('Tab');
     await expect(page.getByRole('link', { name: '个人项目' })).toBeFocused();

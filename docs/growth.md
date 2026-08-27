@@ -167,7 +167,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 |---|---|---|---|---|
 | **1** 今晚 | 08-28 | 文档 MCP 页变成 30 秒 copy-paste；SERP title/description 对准 agent/MCP；落地页开放支柱补一句 + 链到文档（非 H1）；稿 #13 掘金+小红书 | `docs/guide/api-and-mcp.md`（中/英）、`frontend/src/locales/{zh-CN,en-US}.ts`、`frontend/src/pages/landing/index.tsx`、`content/articles/cursor-mcp-read-and-suggest-version.md` | ✅ `yarn test:seo`；构建 HTML title 含 MCP；`yarn check:i18n`；`landing.spec.ts` MCP 链；`build-package.mjs` 出包 |
 | **2** | 08-29 | 小红书发 #13（创作台已登录则发；验证码则贴草稿）；掘金发同一 slug | `content/dist/cursor-mcp-read-and-suggest-version/` | 平台公开 URL；24h 阅读 vs #6 |
-| **3** | 08-30 | 已登录工作台空态 / 项目列表露出「给 Agent 配 MCP」次入口（testid，不抢新建项目主 CTA） | 工作台 / 账户 PAT 页 | `personal-access-tokens.spec.ts` + 新 E2E；不删用户数据 |
+| **3** | 08-28 | 已登录工作台露出「给 Cursor 配 MCP」次入口；「活跃模型」改为诚实的「今日编辑」（20 个模型仍显示 0 会吓跑回访） | Home hero 次链 + locales | ✅ `home-mcp.spec.ts`（假会话，不删用户数据） |
 | **4** | 08-31 | PAT 铸造成功后显示 MCP 配置片段（复制按钮）；减少「去 GitHub 翻 README」 | PAT UI | E2E：铸造 → 可见 mcp.json 片段 |
 | **5** | 09-01 | 文档 MCP 页补 3 张截图（PAT / mcp.json / Agent 列表），供小红书封面 | `docs/guide/` + `content/articles/assets/` | 文档站构建；XHS 配图清单 |
 | **6** | 09-03 | 掘金长文上线后复盘 CTA：主链仍 docs MCP；demo 为次链 | 增长台账 | UTM `utm_content=cursor-mcp-read-and-suggest-version` |

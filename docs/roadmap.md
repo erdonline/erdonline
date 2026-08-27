@@ -52,7 +52,7 @@
 |---|---|---|
 | 1 文档 30 秒 MCP 路径 + SEO + 稿 #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](./guide/api-and-mcp.md) copy-paste；落地页开放支柱链；`content/articles/cursor-mcp-read-and-suggest-version.md` |
 | 2 小红书/掘金发 #13 | 📋 | 创作台发布或留下粘贴稿 |
-| 3 已登录工作台 MCP 次入口 | 📋 | 不抢新建项目主 CTA |
+| 3 已登录工作台 MCP 次入口 | ✅ 2026-08-28 | Home hero「给 Cursor 配 MCP」；统计改「今日编辑」 |
 | 4 PAT 成功页内嵌 mcp.json | 📋 | 铸造后可复制 |
 | 5–8 截图 / 收录 / CI lint 稿 / 两周评审 | 📋 | 见 growth 表 |
 

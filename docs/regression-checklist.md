@@ -8,8 +8,9 @@
 - [x] [文档 MCP 页 SEO] `cd website && yarn build && yarn test:seo` → 中/英 `/docs/guide/api-and-mcp/` title 含 MCP，正文含 `mcpServers` ✅ 2026-08-28
 - [x] [落地页 MCP 链] `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "顶栏与 Hero"` → `landing-mcp-docs` 指向 `https://doc.erdonline.com/docs/guide/api-and-mcp/`；对照表 Agent 格不再是「路线图中」 ✅ 2026-08-28
 - [x] [稿 #13 打包] `node scripts/growth/build-package.mjs cursor-mcp-read-and-suggest-version` 产出掘金 + 小红书包 ✅ 2026-08-28
-- [ ] [小红书发布] 创作台发「Cursor 连上 MCP 读一张 ER 图」或留下粘贴稿（验证码则停）
+- [x] [小红书草稿] 创作台长文编辑器已填标题+正文并自动保存；未点公开发布（需封面/人审）。粘贴稿：`content/articles/cursor-mcp-read-and-suggest-version.xhs.md`
 - [x] [www SERP] 落地页 H1 仍 Git + Figma；静态 title 仍 Draw ER Diagram Online ✅ 未改 title；landing E2E 仍断言 draw-ERD
+- [x] [Home MCP 次入口] `yarn test:e2e --project=chromium tests/e2e/home-mcp.spec.ts` ✅ 2026-08-28
 
 ## 英文漏斗 i18n / SEO（2026-08-12）
 
