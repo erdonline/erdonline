@@ -203,6 +203,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | www MCP CTA / PAT 弹层 | 08-28 | ✅ 弹层 hint + 落地/Home 次链写明 `suggest-erd-version` / `create_version` 人 diff。**不**发小红书/npm；H1 未改；PAT 不进 URL | locales + PAT Modal | Pages [33120659741](https://github.com/erdonline/erdonline/actions/runs/33120659741) 绿；`umi.2f10c7f4.js` 含 CTA；SERP title 仍 Draw ER |
 | 首页壳 MCP description | 08-28 | ✅ `/` `/en/` prerender description 含 `suggest-erd-version`；title 仍 Draw-ERD。**不**发小红书/npm | `seo-config.mjs` `document.ejs` | Pages [33121386372](https://github.com/erdonline/erdonline/actions/runs/33121386372) 绿；live 首屏 description 含 suggest-erd-version |
 | MCP create_version 人确认 | 08-28 | ✅ #13035/#3605 无维护者新评。工具描述 + 成功 hint：必须让人 diff 确认。**不**发小红书/npm；不重试 Glama | `mcp/src/create-server.ts` `mcp/src/erd-api.ts` | `yarn smoke:introspect` |
+| MCP tarball clobber 人确认 | 08-28 | ✅ 同 tag `--clobber` 含 c272f445 `MUST ask the human`。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11665 B；live npx `stdio ready` |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
