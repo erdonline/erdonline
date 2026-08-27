@@ -10,8 +10,13 @@
 
 #### 文档公开地址统一为 doc.erdonline.com
 
-- **改法**：产品面链接（README、落地页 `docsUrl`、Issue 模板、增长 UTM、部署验收表）全部改为 `https://doc.erdonline.com`；不再把 `erdonline.github.io/erdonline/` 或 `erdonline-docs.pages.dev` 当文档入口。Docusaurus 默认 `url`/`baseUrl` 与线上一致。GH Pages 仅保留为未公开灾备。
-- 验证点：`cd frontend && npx tsx src/utils/docsUrl.test.ts`；仓库内除 CHANGELOG 历史条目与 CI 灾备 env 外，无对外文档链到 github.io / pages.dev
+- **改法**：产品面链接（README、落地页 `docsUrl`、Issue 模板、增长 UTM、部署验收表）全部改为 `https://doc.erdonline.com`；不再把 `erdonline.github.io/erdonline/` 或 `erdonline-docs.pages.dev` 当文档入口。Docusaurus 默认 `url`/`baseUrl` 与线上一致。
+- 验证点：`cd frontend && npx tsx src/utils/docsUrl.test.ts`；仓库内除 CHANGELOG 历史条目外，无对外文档链到 github.io / pages.dev
+
+#### 退役 GitHub Pages 文档宿主
+
+- **改法**：`docs-site.yml` 只按 `doc.erdonline.com` 构建并部署 Cloudflare Pages；github.io 改为 `website/gh-pages-retire/` 跳转 stub（`Disallow: /`），覆盖旧 Docusaurus 副本。ADR-0018 同步修订。
+- 验证点：`grep -F 'https://doc.erdonline.com' website/gh-pages-retire/index.html website/gh-pages-retire/robots.txt`；部署后 `curl -sL https://erdonline.github.io/erdonline/` 含跳转且无完整文档站 Navbar
 
 #### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
 

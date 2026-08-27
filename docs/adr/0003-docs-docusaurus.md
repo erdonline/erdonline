@@ -15,7 +15,7 @@
 - docs = 文档站，直接消费仓库 `docs/` 目录（单一事实源，GitHub 上同样可读）
 - blog = 发布日志 / devlog
 
-配套：早期 docusaurus-search-local（中文分词），公开后申请 Algolia DocSearch；版本化随首个大版本开启（不早产）；i18n 默认 zh-CN，P3 开英文；docs 构建进 CI（死链即失败）。
+配套：早期 docusaurus-search-local（中文分词），公开后申请 Algolia DocSearch；版本化随首个大版本开启（不早产）；i18n 默认 zh-CN，P3 开英文；docs 构建进 CI（死链即失败）。公开宿主见 [ADR-0018](./0018-hosting-topology-no-vps.md)（`https://doc.erdonline.com`，不再用 GitHub Pages 发文档）。
 
 ## 后果
 

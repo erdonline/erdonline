@@ -10,7 +10,6 @@ Decision: [ADR-0018](/docs/adr/hosting-topology-no-vps). The project **does not 
 
 ```
 Docs site ──► Cloudflare Pages (erdonline-docs) → https://doc.erdonline.com  [sole public]
-          └─► GitHub Pages (/erdonline/)         [unpublished fallback]
 
 Static demo ─► Cloudflare Pages (erdonline-demo)
                env-config.js ← Variables: DEMO_API_URL
@@ -30,7 +29,7 @@ Self-host data plane ─► your docker compose (MySQL/Redis + images above)
 
 | Surface | Workflow | Required config |
 |---|---|---|
-| Docs | `.github/workflows/docs-site.yml` (Jobs: `deploy-github-pages` / `deploy-cloudflare`) | See checklist below; GH Pages only when no CF gate |
+| Docs | `.github/workflows/docs-site.yml` (`deploy-cloudflare`; github.io is redirect stub only) | See checklist below; requires `CLOUDFLARE_PAGES_DEPLOY=true` |
 | Static demo | `.github/workflows/frontend-demo-site.yml` | Same + optional Variable `DEMO_API_URL` |
 | Release images | `.github/workflows/release.yml` (tag `v*`, job `ghcr`) | `GITHUB_TOKEN` + `packages:write` (usually no extra Secret) |
 
@@ -66,16 +65,14 @@ Repo **Settings → Secrets and variables → Actions**:
 
 | Name | Type | Value |
 |---|---|---|
-| `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true` (gate; without it CF job skipped, docs still on GH Pages) |
+| `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true` (gate; without it **docs are not deployed**) |
 | `CLOUDFLARE_API_TOKEN` | **Secret** | Token from step 1 |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | Account ID from step 2 |
 | `DEMO_API_URL` | Variable (optional) | Public API root URL (official demo: `https://erdonline-production.up.railway.app`); **if unset `env-config.js` API is empty** (landing works, full trial waits for backend) |
 
-#### 5. GitHub Pages fallback
+#### 5. Legacy GitHub Pages (retired, redirect only)
 
-**Settings → Pages → Build and deployment → Source** = **GitHub Actions** (matches `docs-site.yml` `deploy-github-pages`).
-
-Dual doc hosts: `website/docusaurus.config.js` reads `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`. **Sole public URL** `https://doc.erdonline.com` (base `/`). GitHub Pages builds with github.io + `/erdonline/` as unpublished disaster recovery only. `erdonline-docs.pages.dev` is the custom-domain CNAME target, not a docs link.
+Repo **Settings → Pages → Source** may stay **GitHub Actions**, but `docs-site.yml` **no longer publishes Docusaurus**. It only deploys `website/gh-pages-retire/` (jump to `https://doc.erdonline.com`, `Disallow: /`). Do not use github.io as a docs entry. `erdonline-docs.pages.dev` is the custom-domain CNAME target, not a docs link.
 
 #### 6. Remote and trigger
 
@@ -84,7 +81,7 @@ git remote -v   # must point to GitHub repo that runs Actions
 git push origin main
 ```
 
-- `docs-site.yml`: `push` to `main` when `docs/**` / `website/**` / this workflow changes; CF job also needs `CLOUDFLARE_PAGES_DEPLOY=true`
+- `docs-site.yml`: `push` to `main` when `docs/**` / `website/**` / this workflow changes; CF deploy needs `CLOUDFLARE_PAGES_DEPLOY=true`
 - `frontend-demo-site.yml`: same gate; can `workflow_dispatch` manually
 - No `git remote` / no push to `main` → Actions will not run
 

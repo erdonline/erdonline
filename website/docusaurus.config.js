@@ -4,7 +4,6 @@ const config = {
   title: 'ERD Online',
   tagline: '数据库设计的 Git + Figma',
   // 公开文档站只有 https://doc.erdonline.com（base /）。
-  // CI 灾备 GH Pages 用环境变量覆盖为 github.io + /erdonline/，不作为产品入口。
   url: process.env.DOCUSAURUS_URL || 'https://doc.erdonline.com',
   baseUrl: process.env.DOCUSAURUS_BASE_URL || '/',
   organizationName: 'erdonline',
