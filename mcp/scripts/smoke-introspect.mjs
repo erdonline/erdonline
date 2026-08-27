@@ -128,6 +128,9 @@ const promptNames = (prompts.result?.prompts ?? []).map((p) => p.name);
 if (!promptNames.includes('list-erd-projects')) {
   fail(`prompts/list missing list-erd-projects: ${JSON.stringify(prompts)}`);
 }
+if (!promptNames.includes('suggest-erd-version')) {
+  fail(`prompts/list missing suggest-erd-version: ${JSON.stringify(prompts)}`);
+}
 const guideText = guide.result?.contents?.[0]?.text ?? '';
 if (!guideText.includes('projectJSON') || !guideText.includes('30 秒接到 Cursor')) {
   fail(`resources/read must serve api-and-mcp markdown: ${guideText.slice(0, 200)}`);
