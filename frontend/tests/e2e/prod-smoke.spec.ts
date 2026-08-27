@@ -131,6 +131,16 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         title: 'ERD Online demo — view a real ER diagram without signing in',
         canonical: 'https://www.erdonline.com/en/demo',
       },
+      {
+        path: '/catalog/demo-authz',
+        title: '功能鉴权示例 — ER 图模板 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog/demo-authz',
+      },
+      {
+        path: '/catalog/not-a-real-template',
+        title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog',
+      },
     ];
     for (const c of cases) {
       const res = await request.get(c.path);
