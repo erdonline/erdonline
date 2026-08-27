@@ -1,0 +1,39 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.erdonline/erdonline",
+  "title": "ERD Online",
+  "description": "MCP for ERD Online: agents read/write the same projectJSON as the designer. Not ChatSQL.",
+  "websiteUrl": "https://doc.erdonline.com/docs/guide/api-and-mcp/",
+  "repository": {
+    "url": "https://github.com/erdonline/erdonline",
+    "source": "github",
+    "subfolder": "mcp"
+  },
+  "version": "0.1.0",
+  "packages": [
+    {
+      "registryType": "npm",
+      "identifier": "@erdonline/mcp",
+      "version": "0.1.0",
+      "transport": {
+        "type": "stdio"
+      },
+      "runtimeHint": "npx",
+      "environmentVariables": [
+        {
+          "name": "ERD_PAT",
+          "description": "Personal access token (erd_pat_…). Mint in account settings; never put the live token in a URL.",
+          "isRequired": true,
+          "isSecret": true,
+          "format": "string"
+        },
+        {
+          "name": "ERD_API_URL",
+          "description": "API root. Cloud: https://erdonline-production.up.railway.app; self-host: http://127.0.0.1:9502",
+          "isRequired": false,
+          "format": "string"
+        }
+      ]
+    }
+  ]
+}

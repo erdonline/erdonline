@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：官方 MCP Registry 发不出去；tarball 带 README
+
+- **证据**：现行 [quickstart](https://github.com/modelcontextprotocol/registry/blob/main/docs/modelcontextprotocol-io/quickstart.mdx) 要求 npm 制品 + `mcp-publisher login github`（device OAuth）。无 `NPM_TOKEN`；`gh`/`whaty` 不能代替 org Owner 授权；Release `.tgz` 不是 `mcpb`。不发小红书；不发 npmjs；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。
+- **改法**：runbook [`docs/mcp-registry.md`](docs/mcp-registry.md)（📋）+ `mcp/server.json`；`package.json` 增加 `mcpName` 且 `files` 含 `README.md`；PAT 弹层文案改为「一键后粘贴复制框明文」。
+- 验证点：`cd mcp && yarn smoke:npx` → `SMOKE OK` 且 tarball 含 `package/README.md`；`curl` Registry search `io.github.erdonline/erdonline` 仍空。
+
 #### growth：HelloGitHub 补文档截图；第二份 EN MCP 列表跳过
 
 - **证据**：`submit-cn.yaml` 截图为可选，但「提高收录」强烈建议有图。文档站已有公开 `mcp-*.png`。第二份列表：`appcypher/awesome-mcp-servers` **archived**（无法 CreatePullRequest）；`wong2` 不收 PR。不发小红书/掘金；不发 npm；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。

@@ -1,6 +1,10 @@
 # ERD Online MCP
 
-ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `/api/v1/**`。
+品牌是**数据库设计的 Git + Figma**。本 server 让 Cursor / Claude **读写设计器同一份 versioned `projectJSON`**，不是 ChatSQL，也不是一句话生成 ER 图。
+
+ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `/api/v1/**`。文档：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+
+官方 MCP Registry 登记见仓库 [`docs/mcp-registry.md`](../docs/mcp-registry.md)（📋 待 `NPM_TOKEN` + org Owner device 登录）。
 
 ## 工具
 
