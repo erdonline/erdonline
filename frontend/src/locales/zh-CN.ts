@@ -506,6 +506,13 @@ export default {
   'accountSettings.pat.tokenLabel': 'token',
   'accountSettings.pat.copyButtonAria': '复制新建访问令牌',
   'accountSettings.pat.copiedSuccess': '访问令牌已复制',
+  'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
+  'accountSettings.pat.mcpSnippetHint':
+    '粘进 ~/.cursor/mcp.json。把 /ABS/PATH 换成本机 clone 的 mcp/dist/index.js。MCP 不在 Docker 镜像里。',
+  'accountSettings.pat.copyMcpJsonAria': '复制 Cursor mcp.json 配置',
+  'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
+  'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
+  'accountSettings.pat.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
 
   'accountSettings.oauthClient.loadFailed': '加载 OAuth 客户端失败',
   'accountSettings.oauthClient.registerSuccess': 'OAuth 客户端已注册',

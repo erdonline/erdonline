@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### growth：MCP 切片 4 — PAT 揭示弹层内嵌 mcp.json
+
+- **证据**：铸造成功只给明文 PAT，用户还要去 GitHub README / 文档页手拼 `mcp.json` 才会接到 Cursor。
+- **改法**：揭示弹层增加已填 PAT 与当前 API 根的 Cursor `mcp.json` + 复制按钮 + 文档次链。路径仍用 `/ABS/PATH` 占位（本机 clone 因人而异）。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL。
+- 验证点：
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts`
+  - `yarn check:i18n`
+  - `yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep "假会话"` 绿（不依赖本机 9502）
+
 #### growth：MCP 切片 2 — 小红书 #13 台账 + 掘金粘贴包
 
 - **证据**：创作台「梁工造物」笔记管理显示《Cursor 连上 MCP读一张 ER 图》**审核中**（2026-08-28 00:38）；explore URL 已有。本机 Chrome 掘金为验证码登录墙，不能公开发布。

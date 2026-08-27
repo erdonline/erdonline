@@ -11,7 +11,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 ## 30 秒接到 Cursor
 
-1. 登录后打开 **账户设置 → 访问令牌**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。默认只读即可；明文只显示一次。官方 Demo 是只读分享，**不能**当 PAT——需要你自己的项目。
+1. 登录后打开 **账户设置 → 访问令牌**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。默认只读即可；明文只显示一次，**铸造成功弹层会给出已填入 PAT 的 `mcp.json`，可直接复制**。官方 Demo 是只读分享，**不能**当 PAT——需要你自己的项目。
 2. MCP **不在** Docker 镜像内。克隆并构建：
 
 ```bash

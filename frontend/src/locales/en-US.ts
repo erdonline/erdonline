@@ -529,6 +529,13 @@ export default {
   'accountSettings.pat.tokenLabel': 'token',
   'accountSettings.pat.copyButtonAria': 'Copy new personal access token',
   'accountSettings.pat.copiedSuccess': 'Token copied',
+  'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
+  'accountSettings.pat.mcpSnippetHint':
+    'Paste into ~/.cursor/mcp.json. Replace /ABS/PATH with your clone of mcp/dist/index.js. MCP is not in the Docker image.',
+  'accountSettings.pat.copyMcpJsonAria': 'Copy Cursor mcp.json config',
+  'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
+  'accountSettings.pat.mcpDocsLink': '30-second setup docs',
+  'accountSettings.pat.mcpDocsAria': 'Open docs: let Cursor read your ER diagram via MCP',
 
   'accountSettings.oauthClient.loadFailed': 'Failed to load OAuth clients',
   'accountSettings.oauthClient.registerSuccess': 'OAuth client registered',

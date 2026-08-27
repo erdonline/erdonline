@@ -12,6 +12,8 @@ import { DEL, GET, POST } from '@/services/crud';
 import PageSkeleton from '@/components/PageSkeleton';
 import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { useIntl } from '@umijs/max';
+import { docsUrl } from '@/utils/docsUrl';
+import { buildCursorMcpJson } from '@/utils/mcpJsonSnippet';
 import styles from './personalAccessTokens.less';
 
 const PAT_URL = '/auth/personal-access-tokens';
@@ -85,6 +87,12 @@ const PersonalAccessTokensView: React.FC = () => {
   const [creating, setCreating] = useState(false);
   const [tokenReveal, setTokenReveal] = useState<PatCreated | null>(null);
   const [form] = Form.useForm<CreateFormValues>();
+  const mcpJson = tokenReveal
+    ? buildCursorMcpJson(
+        tokenReveal.token,
+        window._env_?.ERD_API_URL || window._env_?.API_URL,
+      )
+    : '';
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -333,7 +341,7 @@ const PersonalAccessTokensView: React.FC = () => {
         okText={t('accountSettings.common.saved')}
         cancelButtonProps={{ style: { display: 'none' } }}
         className="pat-token-reveal-dialog"
-        width={480}
+        width={560}
         destroyOnClose
         okButtonProps={{ 'aria-label': t('accountSettings.pat.revealOkAria') }}
         data-testid="pat-reveal-modal"
@@ -361,6 +369,39 @@ const PersonalAccessTokensView: React.FC = () => {
                   {t('accountSettings.common.copy')}
                 </Button>
               </div>
+            </div>
+            <div className={styles.mcpBlock}>
+              <div className={styles.mcpHead}>
+                <p className={styles.secretLabel}>
+                  {t('accountSettings.pat.mcpSnippetLabel')}
+                </p>
+                <Button
+                  type="link"
+                  size="small"
+                  data-testid="pat-copy-mcp-json"
+                  aria-label={t('accountSettings.pat.copyMcpJsonAria')}
+                  onClick={() =>
+                    void copyText(mcpJson, t('accountSettings.pat.mcpCopiedSuccess'))
+                  }
+                >
+                  {t('accountSettings.common.copy')}
+                </Button>
+              </div>
+              <pre className={styles.mcpJson} data-testid="pat-mcp-json">
+                <code>{mcpJson}</code>
+              </pre>
+              <p className={styles.mcpHint}>
+                {t('accountSettings.pat.mcpSnippetHint')}{' '}
+                <a
+                  href={docsUrl(intl.locale, 'docs/guide/api-and-mcp')}
+                  target="_blank"
+                  rel="noreferrer"
+                  data-testid="pat-mcp-docs"
+                  aria-label={t('accountSettings.pat.mcpDocsAria')}
+                >
+                  {t('accountSettings.pat.mcpDocsLink')}
+                </a>
+              </p>
             </div>
           </div>
         )}

@@ -169,6 +169,57 @@
   color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
 }
 
+.mcpBlock {
+  margin: 8px 0 0;
+}
+
+.mcpHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.mcpHead .secretLabel {
+  margin: 0;
+}
+
+.mcpHead :global(.ant-btn-link) {
+  height: 22px;
+  padding: 0 4px;
+  font-size: 12px;
+}
+
+.mcpJson {
+  margin: 4px 0 0;
+  max-height: 180px;
+  overflow: auto;
+  padding: 8px 10px;
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--erd-ink-900, #000) 4%, transparent);
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+  font-size: 11px;
+  line-height: 16px;
+  white-space: pre;
+  color: var(--erd-ink-900, rgba(0, 0, 0, 0.88));
+}
+
+.mcpJson code {
+  font-family: inherit;
+  font-size: inherit;
+}
+
+.mcpHint {
+  margin: 6px 0 0;
+  font-size: 12px;
+  line-height: 18px;
+  color: var(--erd-ink-600, rgba(0, 0, 0, 0.65));
+}
+
+.mcpHint a {
+  color: var(--erd-brand, #de2910);
+}
+
 :global {
   .pat-form {
     .ant-form-item {
