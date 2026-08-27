@@ -90,6 +90,18 @@ const names = (listed.result?.tools ?? []).map((t) => t.name);
 if (!names.includes('list_projects') || !names.includes('get_project_schema')) {
   fail(`tools/list missing schema tools: ${names.join(',')}`);
 }
+const byName = Object.fromEntries(
+  (listed.result?.tools ?? []).map((t) => [t.name, t]),
+);
+if (byName.list_projects?.annotations?.readOnlyHint !== true) {
+  fail('list_projects must set annotations.readOnlyHint');
+}
+if (byName.put_project_json?.annotations?.destructiveHint !== true) {
+  fail('put_project_json must set annotations.destructiveHint');
+}
+if (byName.create_version?.annotations?.readOnlyHint !== false) {
+  fail('create_version must set annotations.readOnlyHint=false');
+}
 if (stderr.includes('Missing ERD_PAT') && !stderr.includes('stdio ready')) {
   fail('boot still requires PAT');
 }

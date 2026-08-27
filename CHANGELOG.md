@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：tools/list 带 MCP annotations（Glama TDQS）
+
+- **证据**：#13035 bot 再要 Glama quality score；Glama 页仍 404（OAuth 提交墙）。HelloGitHub #3605 维护者沉默。无 PAT 的 `tools/list` 未声明 readOnly/destructive，内省分会差。不发小红书/npm；不请求 GSC；H1 未改。
+- **改法**：12 个 tool 补 `readOnlyHint` / `destructiveHint` / `idempotentHint` / `openWorldHint`；写工具与 `put_project_json`（覆盖模型）分开。
+- 验证点：`cd mcp && yarn smoke:introspect` → `list_projects.readOnlyHint===true`、`put_project_json.destructiveHint===true`
+
 #### growth：Glama 内省 + awesome PR badge
 
 - **证据**：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035) bot 要求上 Glama 并加 score badge。HelloGitHub #3605 无维护者回复。不发小红书/npm；不请求 GSC；PAT 不进 URL；H1 仍 Git + Figma。
