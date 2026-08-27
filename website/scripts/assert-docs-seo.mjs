@@ -139,6 +139,21 @@ for (const [label, text] of [
     fail(`${label} must point self-host MCP at 127.0.0.1:9502`);
   }
 }
+const zhRev = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/reverse-engineer.md'),
+  'utf8',
+);
+const enRev = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/reverse-engineer.md',
+);
+for (const [label, text] of [
+  ['zh reverse-engineer', zhRev],
+  ['en reverse-engineer', enRev],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version`);
+  }
+}
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');
 }

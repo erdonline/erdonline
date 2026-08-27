@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### docs：逆向指南接到 suggest-erd-version
+
+- **证据**：自托管 FAQ 已点名 prompt。逆向 How-to 只写「存一版当基线」，没写 Agent `create_version` 必须人 diff。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
+- **改法**：排障行 + 下一步：prompt `suggest-erd-version`；API 200 不是人批准；Demo 不能当 PAT。中/英同步。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`；reverse-engineer 含 `suggest-erd-version`
+
 #### docs：自托管指南接到 suggest-erd-version
 
 - **证据**：仓根 README 已写 API 200。五分钟自托管 FAQ 只说「MCP 不在 compose」，人起栈后不知道 `ERD_API_URL` 与 prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
