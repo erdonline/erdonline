@@ -32,6 +32,12 @@
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/demo` `/en/demo` 首屏 canonical 不是首页
 - **线上**（本切片提交时）：`461a0c68` Pages [33105049554](https://github.com/erdonline/erdonline/actions/runs/33105049554) 仍 in_progress；curl `/catalog` `/en/catalog` `/compare` 首屏仍 Draw-ERD + canonical `/`。**未请求 GSC** `/en/catalog`（禁止对首页壳送检）。未发小红书；H1/SERP 未改。
 
+#### fix：Pages 门禁不再要求 `_redirects` 把 `/compare` 反代到首页
+
+- **证据**：`f8f59cec` Actions [33105350454](https://github.com/erdonline/erdonline/actions/runs/33105350454) **failure**。build + prod-smoke **8 passed**；「Verify SEO build artifacts」仍 `grep '^/compare / 200$'`，与 prerender 壳冲突，未部署。live 仍 Draw-ERD + canonical `/`。未请求 GSC。
+- **改法**：`frontend-demo-site.yml` 改为 `node scripts/assert-seo-static.mjs`（与 `frontend-ci.yml` 一致）：精确 prerender 路径不得 200 到 `/`。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- 验证点：本地 `cd frontend && node scripts/assert-seo-static.mjs` PASS；`grep -q '^/compare / 200$' dist/_redirects` 为 1（不应再作为门禁绿条件）
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
