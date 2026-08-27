@@ -1,0 +1,47 @@
+# Legacy docs IA (GSC still lists these; last crawl 2026-03..05). 301 to current Docusaurus paths.
+# Trailing-slash variants included — Google stored both.
+
+/docs/faq /docs/guide/intro 301
+/docs/faq/ /docs/guide/intro 301
+/docs/quick-start /docs/guide/intro 301
+/docs/quick-start/ /docs/guide/intro 301
+/docs/quick-start/introduction /docs/guide/intro 301
+/docs/quick-start/introduction/ /docs/guide/intro 301
+/docs/getting-started /docs/guide/intro 301
+/docs/getting-started/ /docs/guide/intro 301
+/docs/advanced /docs/architecture 301
+/docs/advanced/ /docs/architecture 301
+/docs/advanced/technology /docs/architecture 301
+/docs/advanced/technology/ /docs/architecture 301
+/docs/advanced/publish /docs/deployment 301
+/docs/advanced/publish/ /docs/deployment 301
+/docs/advanced/server /docs/deployment 301
+/docs/advanced/server/ /docs/deployment 301
+/docs/advanced/environment /docs/deployment 301
+/docs/advanced/environment/ /docs/deployment 301
+/docs/advanced/custom /docs/guide/quick-self-host 301
+/docs/advanced/custom/ /docs/guide/quick-self-host 301
+/docs/advanced/json-structure /docs/data-format 301
+/docs/advanced/json-structure/ /docs/data-format 301
+/docs/changelog /blog 301
+/docs/changelog/ /blog 301
+/docs/openapi /docs/guide/api-and-mcp 301
+/docs/openapi/ /docs/guide/api-and-mcp 301
+/docs/openapi/module /docs/guide/api-and-mcp 301
+/docs/openapi/module/ /docs/guide/api-and-mcp 301
+/docs/comparison https://www.erdonline.com/compare 301
+/docs/comparison/ https://www.erdonline.com/compare 301
+/docs/source /docs/development 301
+/docs/source/ /docs/development 301
+/docs/quick-start/try-manual-install /docs/guide/quick-self-host 301
+/docs/quick-start/try-manual-install/ /docs/guide/quick-self-host 301
+/docs/quick-start/try-out-install /docs/guide/quick-self-host 301
+/docs/quick-start/try-out-install/ /docs/guide/quick-self-host 301
+/docs/quick-start/compatibility /docs/guide/what-is-erd-online 301
+/docs/quick-start/compatibility/ /docs/guide/what-is-erd-online 301
+/docs/quick-start/a-basic-project /docs/guide/what-is-erd-online 301
+/docs/quick-start/a-basic-project/ /docs/guide/what-is-erd-online 301
+/docs/quick-start/jdbc /docs/guide/reverse-engineer 301
+/docs/quick-start/jdbc/ /docs/guide/reverse-engineer 301
+/docs/benefit-profit /docs/vision 301
+/docs/benefit-profit/ /docs/vision 301

@@ -3,7 +3,8 @@
 const config = {
   title: 'ERD Online',
   tagline: '数据库设计的 Git + Figma',
-  // GH Pages: /erdonline/；Cloudflare Pages（根域）: DOCUSAURUS_BASE_URL=/
+  // GH Pages: DOCUSAURUS_URL=https://erdonline.github.io + base /erdonline/
+  // CF Pages 产品域: DOCUSAURUS_URL=https://doc.erdonline.com + base /
   url: process.env.DOCUSAURUS_URL || 'https://erdonline.github.io',
   baseUrl: process.env.DOCUSAURUS_BASE_URL || '/erdonline/',
   organizationName: 'erdonline',
@@ -24,11 +25,6 @@ const config = {
     },
   },
   clientModules: [require.resolve('./src/clientModules/baiduAnalytics.js')],
-  scripts: [
-    {
-      innerHTML: `(function(){var h=location.hostname;if(h==='localhost'||h==='127.0.0.1'||h==='[::1]')return;var s=document.createElement('script');s.src='https://hm.baidu.com/hm.js?bd50dd978c8d8d94792f4e987c4a7aaf';s.async=true;document.head.appendChild(s);})();`,
-    },
-  ],
   presets: [
     [
       'classic',

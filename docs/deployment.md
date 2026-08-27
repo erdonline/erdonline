@@ -75,7 +75,7 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 
 **Settings → Pages → Build and deployment → Source** = **GitHub Actions**（对应 `docs-site.yml` 的 `deploy-github-pages`）。
 
-文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`（GH：`https://erdonline.github.io` + `/erdonline/`；CF：`https://erdonline-docs.pages.dev` + `/`）。
+文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`（GH：`https://erdonline.github.io` + `/erdonline/`；CF 产品域：`https://doc.erdonline.com` + `/`；`erdonline-docs.pages.dev` 为运维别名）。
 
 #### 6. 远程与触发
 
@@ -92,8 +92,9 @@ git push origin main
 
 | 表面 | URL |
 |---|---|
-| 文档 | https://erdonline.github.io/erdonline/ |
-| 文档（CF 镜像，运维） | https://erdonline-docs.pages.dev |
+| 文档（产品 URL） | https://doc.erdonline.com |
+| 文档（GH Pages 回退） | https://erdonline.github.io/erdonline/ |
+| 文档（CF Pages 默认别名，运维） | https://erdonline-docs.pages.dev |
 | 静态 demo（产品 URL） | https://www.erdonline.com |
 | 静态 demo（CF Pages 默认别名，运维） | https://erdonline-demo.pages.dev |
 
@@ -631,6 +632,35 @@ Token `4df015bf119f48ff9b03f302f6a3e40a` 硬编码于 `frontend/config/config.ts
 | CF Pages / `yarn build:prod` / Docker 前端镜像 | 自动加载 beacon |
 
 验收：`curl -sL https://www.erdonline.com | grep -E 'cloudflareinsights|4df015bf119f48ff9b03f302f6a3e40a'` 应命中；浏览器 Network 可见 `beacon.min.js`。（CF 默认别名 `erdonline-demo.pages.dev` 亦可，自定义域 www 为产品 URL。）
+
+### 文档站 SEO / 爬虫索引（doc.erdonline.com）
+
+文档由 Cloudflare Pages 项目 **`erdonline-docs`** 托管（`docs-site.yml`）。GSC 里 `doc.erdonline.com/docs/faq`、`/docs/quick-start/*` 等是 **2026-03～05 旧 IA**，当前 Docusaurus 没有这些路径，直出 404/域名 500 时 Google 会标「无法编入索引」。
+
+| 产物 | 作用 |
+|---|---|
+| Docusaurus `sitemap.xml` | 现有 `/docs/guide/*`、ADR、首页；`<loc>` 随 `DOCUSAURUS_URL`（CF 构建 = `https://doc.erdonline.com`） |
+| `website/static/robots.txt` | 覆盖 CF 默认 Content-Signal 模板；`Allow: /` + `Sitemap:` |
+| `website/static/_redirects` | 旧路径 **301** 到现行指南（`/docs/faq` → `/docs/guide/intro` 等） |
+| `website/static/_headers` | `robots.txt` / `sitemap.xml` 的 Content-Type |
+
+**自定义域（GSC 能抓到的前提）**
+
+1. Cloudflare Dashboard → Pages → `erdonline-docs` → **Custom domains** → 添加 `doc.erdonline.com`
+2. DNS：`doc` **CNAME** → `erdonline-docs.pages.dev`（橙云代理；等 SSL 变为 Active）
+3. 验收：`curl -sI https://doc.erdonline.com/` → **200**（不是 TLS 失败 / 500）
+4. Search Console 提交 `https://doc.erdonline.com/sitemap.xml`，并对首页与 `/docs/guide/intro` 请求编入索引
+
+旧 URL 不会作为独立页面再进索引；301 后 Google 会把权重收到新路径。勿在 GSC 对已 301 的旧 URL 反复「请求编入索引」。
+
+**部署后验收**
+
+```bash
+curl -sL https://doc.erdonline.com/robots.txt | grep Sitemap
+curl -sL https://doc.erdonline.com/sitemap.xml | grep doc.erdonline.com | head
+curl -sI https://doc.erdonline.com/docs/faq/          # 301 → /docs/guide/intro
+curl -sI https://doc.erdonline.com/docs/guide/intro   # 200
+```
 
 ### 主站 SEO / 爬虫索引（www.erdonline.com）
 

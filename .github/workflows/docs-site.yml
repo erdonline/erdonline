@@ -89,7 +89,8 @@ jobs:
       - name: Install and build (Cloudflare Pages root baseUrl)
         working-directory: website
         env:
-          DOCUSAURUS_URL: https://erdonline-docs.pages.dev
+          # Public docs host (GSC property). Bind CNAME doc → this Pages project first.
+          DOCUSAURUS_URL: https://doc.erdonline.com
           DOCUSAURUS_BASE_URL: /
         run: |
           yarn install --frozen-lockfile
