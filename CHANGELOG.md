@@ -13,6 +13,7 @@
 - **证据**：MCP 指南已 live。GSC `/compare` 有展示，但格子仍是泛化 `projectJSON + MCP`，壳 description 未点名 prompt。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber；PAT 不进 URL；H1/对照 title 未改。
 - **改法**：落地摘要表与 `/compare` Agent 格改为 `suggest-erd-version，人 diff`；中/英 prerender description 同步。
 - 验证点：`yarn check:i18n`；`yarn test:seo-static`；`compare.spec.ts` 行含 suggest-erd-version；title 仍 vs draw.io
+- **线上**：[frontend-demo-site 33122905547](https://github.com/erdonline/erdonline/actions/runs/33122905547) `6b5e6feb` **success**。`https://www.erdonline.com/compare` 与 `/en/compare` 首屏 title 仍 vs draw.io（非首页 Draw-ERD）；description 含 `suggest-erd-version`。未再推 frontend。
 
 #### docs：MCP 指南点名 suggest-erd-version；API 200 不是人批准
 
