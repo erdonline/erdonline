@@ -6,53 +6,84 @@ platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
 cta: mcp
 utm_campaign: mcp-agent
 xhs_title: Cursor 连上 MCP 读一张 ER 图
+xhs_url: https://www.xiaohongshu.com/explore/6a90682300000000290346fd
 created: 2026-08-28
 guide: docs/guide/api-and-mcp.md
 ---
 
-## 开场：Agent 不该再画一张黑盒图
+## 上一篇讲完「为什么」，今晚只验证「读得出来」
 
-上一篇讲了为什么要开放 [projectJSON + MCP]({{DOC:guide/api-and-mcp}})，而不是「一句话生成 ERD」。这篇只做一件能今晚验证的事：**让 Cursor 读你正在维护的那张图，必要时提交一版建议，人再 diff。**
+上一篇《开放 projectJSON + MCP 给 Agent》讲的是定位：不要把一句 prompt 丢给大模型「帮我画一张电商 ER 图」。那样通常会得到一份看起来合理、没法跟团队**已经在维护的模型**对上、也无法在设计器里做字段级 diff 的 DDL。Agent 该读的，是你们已经存版的 projectJSON，而不是再发明一张黑盒图。
 
-不是让模型替你设计电商库。是让它看见你们已经存版的表、字段、外键，然后在权限内说话。
+这篇不重复那个「为什么」。今晚只做一件能亲手验证的事：**让 Cursor 连上 MCP，读你正在维护的那张图；必要时提交一版建议，人再打开版本 diff。**
 
-## 你今晚会得到什么
+写给谁：你已经在 [ERD Online](https://www.erdonline.com/) 登录过，工作台项目列表里至少有一张自己的图。官方 Demo 是只读分享，**铸不了 PAT**，分享链接也不是 API 密钥。还没有项目的，先新建或从模板复制一张，再回来跟做。
 
-- 铸造 PAT 后粘贴 Cursor mcp.json，30 秒列出项目
-- Agent 读取 projectJSON，看表和外键，而不是猜
-- 写权限只走创建版本，人在设计器里 diff
+## 今晚三件可见的结果
 
-官方 Demo 只能看图，**不能**当 API 密钥。需要登录后自己的项目 + PAT。
-Cursor / Claude 工具名是 `list_projects`、`get_project_schema`、`create_version`。
+1. 铸造 PAT，把配置粘进 Cursor 的 `mcp.json`，大约 30 秒后 Agent 能列出你的项目名。
+2. 让它读某个项目的 projectJSON：它应报出表名和外键，而不是猜「用户表大概有个 id」。
+3. 若铸造时勾了写权限，它只能走「创建版本」；你在设计器版本列表看 diff，通过或回滚。禁止它静默覆盖工作区。
 
-## 三步（文档页可复制）
+逐步说明、完整 JSON、排障表与线上文档同一份：[用 MCP 让 Cursor / Claude 读取 ER 图]({{DOC:guide/api-and-mcp}})。
 
-1. 登录 [ERD Online](https://www.erdonline.com/) → 账户设置 → 访问令牌，铸造 PAT（明文只一次）。只读即可先跑通。
-2. 克隆仓库，在 `mcp/` 里 `yarn install && yarn build`（MCP **不在** docker-compose 默认镜像里）。
-3. 把文档里的 JSON 粘进 `~/.cursor/mcp.json`。官方实例的 `ERD_API_URL` 是 Railway API 根；自托管改成 `http://127.0.0.1:9502`。
+## 第一步：铸造只读 PAT
 
-逐步说明、完整 JSON、排障表：[如何使用公开 API 与 MCP]({{DOC:guide/api-and-mcp}})。
+登录后打开 **账户设置 → 访问令牌**：<https://www.erdonline.com/account/settings?selectKey=personalAccessTokens>
 
-对 Agent 说：
+点铸造。默认 `projects:read` 和 `versions:read` 就够今晚把图读出来。明文以 `erd_pat_` 开头，**只显示一次**，复制走之后弹层关掉就再也看不到。
 
-- 「列出我的 ERD 项目」
-- 「读取项目 X 的 projectJSON，总结有哪些表和外键」
-- （可选）「基于当前模型提交一版建议，说明写 Agent 建议，不要直接覆盖工作区」
+若分享链接能看图、调 API 却 401：分享只读 token 和 PAT 不是同一套面，别混用。
 
-最后一句是关键：**禁止** Agent 静默 `put_project_json`。那会跳过人类审批。正确路径是 `create_version`，你打开版本 diff。
+## 第二步：MCP 不在 Docker 里
+
+`docker compose up` 拉起的是应用本身，**不会**带上 MCP 进程。这是预期行为，不是安装失败。MCP 在仓库的 `mcp/` 目录，要单独构建：
+
+```bash
+git clone https://github.com/erdonline/erdonline.git
+cd erdonline/mcp
+yarn install && yarn build
+```
+
+记下本机 `mcp/dist/index.js` 的绝对路径，下一步要写进配置。开发免编译可以用 `npx tsx …/mcp/src/index.ts` 代替 `node dist/...`。
+
+## 第三步：粘贴 Cursor 配置
+
+把下面这段放进用户级 `~/.cursor/mcp.json`（Claude Desktop 结构相同）。把绝对路径和 PAT 换成你的，不要把真实令牌提交进 git：
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "node",
+      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+连官方站时保持上面的 `ERD_API_URL`；自己电脑上的实例改成 `http://127.0.0.1:9502`。
+
+重载 Cursor 的 MCP 后，对 Agent 说：「列出我的 ERD 项目」。成功时工具列表里出现 `list_projects`，回复里是工作台能看到的那些项目名，不是空数组。再问：「读取项目某某的 projectJSON，列出所有表名和外键」。它应调用 `get_project` 或 `get_project_schema`，说出你在设计器里能看见的表——同一份 JSON，不是模型自己编的。
+
+401 / 403：PAT 过期、scope 不够、或打到了错误环境。compose 已经起来但 MCP 连不上：回到第二步，确认 `command` 指向刚 build 出来的那个 `dist/index.js`。
+
+## 可选第四步：让它提交一版建议
+
+需要写的时候，再铸造一枚 PAT，显式勾选 `versions:write`。对 Agent 说：「基于当前模型提交一版建议，版本说明写 Agent 建议，不要直接覆盖工作区。」它应调用 `create_version`。然后你打开设计器 → 版本列表 → 看表/字段/关系级 diff → 通过或回滚。
+
+不要让它调用 `put_project_json` 悄悄改工作区——那会跳过人类审批。ERD Online 的壁垒是版本和协作；Agent 只是多一个读写客户端，不是替代评审的黑盒。
 
 {{CTA}}
 
-## 和小红书上那条「开放 MCP」的关系
+## 收尾：人还是版本的主人
 
-那条是定位帖。这条是操作帖。读完如果还是去搜 ChatGPT「帮我画 ER 图」，你拿到的是无法审计的 DDL；接到 MCP 之后，Agent 和同事改的是同一份 JSON。
+今晚如果三步都通了，你验证的不是「AI 会画图」，而是：**人和 Cursor 读的是同一份可审计的 JSON。** 配置随时可以从文档页再复制一份。公开 API 不暴露连接器上的任意 SQL；MCP 是旁路进程，PAT 自己保管，不要写进 compose 默认值。
 
-## 开源与边界
+30 秒复制 Cursor MCP 配置，从这里开始：见文末主链接（文档页带尾斜杠，与线上一致）。
 
-MIT；MCP 是旁路进程，PAT 自己保管，不要写进 compose 默认值。公开 API **不**暴露 connector 任意 SQL。壁垒仍是版本 + 协作，AI 是期权——见 [ADR-0012]({{DOC:adr/0012-ai-era-data-structure-platform}}) / [ADR-0013]({{DOC:adr/0013-public-api-mcp}})。
-
-## 路线图与参与
-
-- 30 秒配置：[API 与 MCP]({{DOC:guide/api-and-mcp}})
-- 文档站：[文档]({{DOCS}})
-- Issue / PR：[GitHub 仓库]({{REPO}})
+#MCP #数据库设计 #ER图 #Cursor
