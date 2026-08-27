@@ -13,6 +13,7 @@
 - **证据**：live 首屏 HTML 无 CTA；`suggest-erd-version` / 「读图再提交一版」只在 hydrate `umi.*.js`。对照 `/compare` 把 projectJSON 写进 description（e88434af）。不改 H1/SERP title。不发小红书/npm；不重试 Glama；PAT 不进 URL。
 - **改法**：`HOME_SEO.description`（`/` document.ejs + `/en/` 壳）补 MCP prompt `suggest-erd-version` / `create_version` 人 diff。
 - 验证点：`yarn test:seo-static`；`/` 与 `/en/` title 仍 Draw-ERD；壳含 `suggest-erd-version`
+- **线上**：[frontend-demo-site 33121386372](https://github.com/erdonline/erdonline/actions/runs/33121386372) `6e4f32d4` **success**。`https://www.erdonline.com/` 与 `/en/` 首屏 `<title>` 仍 `Draw ER Diagram Online — Free Editor | ERD Online`；description 含 `suggest-erd-version` / `create_version`。未再推 frontend。
 
 #### www：PAT 弹层 / MCP CTA 写明 suggest-erd-version
 
