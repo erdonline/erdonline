@@ -1,8 +1,3 @@
-# Sole public host is https://doc.erdonline.com. Do not leave pages.dev indexable.
-https://erdonline-docs.pages.dev https://doc.erdonline.com/ 301
-https://erdonline-docs.pages.dev/ https://doc.erdonline.com/ 301
-https://erdonline-docs.pages.dev/* https://doc.erdonline.com/:splat 301
-
 # Legacy docs IA (GSC still lists these; last crawl 2026-03..05). 301 to current Docusaurus paths.
 # Trailing-slash variants included — Google stored both.
 
