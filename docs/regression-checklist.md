@@ -11,7 +11,7 @@
 - [x] [生产 boot smoke] `cd frontend && PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 6 公开 URL 无 pageerror、`#root` 有内容 ✅ 2026-08-12
 - [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
 - [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
-- [ ] [落地页 Docs 分流] 英文态页脚 Docs → `erdonline.github.io/erdonline/en/`；中文态 → 根路径无 `/en/`
+- [ ] [落地页 Docs 分流] 英文态页脚 Docs → `https://doc.erdonline.com/en/`；中文态 → `https://doc.erdonline.com/`（无 `/en/`）
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
 
 ## 主站 SEO 索引（2026-08-12）

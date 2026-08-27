@@ -1,7 +1,7 @@
 # Growth plan (traffic and content promotion)
 
 :::caution Maintainer doc
-This page is **not** in the docs site default sidebar. It is for ops and the content pipeline; end users should read [User guide](/docs/guide/what-is-erd-online) and the docs site [guide index](https://erdonline.github.io/erdonline/blog/).
+This page is **not** in the docs site default sidebar. It is for ops and the content pipeline; end users should read [User guide](/docs/guide/what-is-erd-online) and the docs site [guide index](https://doc.erdonline.com/blog/).
 :::
 
 > Aligned with the North Star: **weekly count of active modeling projects that produce a version save**. All content follows one funnel; vanity metrics (stars/views) are observed but not optimized.
@@ -46,7 +46,7 @@ Discipline: **every article has one primary CTA = demo**; GitHub star only at th
 | 11 | From G6 to ReactFlow: canvas Strangler migration notes | Technical depth; contributor funnel | `g6-to-reactflow-strangler` | repo | [`community`](./community.md) (contributors) | ✅ ready |
 | 12 | How we design good first issues: first PR merged within two hours | Contributor recruitment | `good-first-issue-two-hours` | repo | [`community`](./community.md) (contributors) | ✅ ready |
 
-Discipline: growth long-form **does not** go wholesale into the handbook; distillable tasks become `docs/guide/*` how-tos. Index: docs site [Blog](https://erdonline.github.io/erdonline/blog/).
+Discipline: growth long-form **does not** go wholesale into the handbook; distillable tasks become `docs/guide/*` how-tos. Index: docs site [Blog](https://doc.erdonline.com/blog/).
 
 **Publish package**: `node scripts/growth/build-package.mjs --all` → `content/dist/<slug>/`.  
 **Wechatsync default sync platforms**: Juejin / CSDN / OSChina / Xiaohongshu / WeChat / Zhihu / SegmentFault; V2EX uses each article's `v2ex.txt` manually.  

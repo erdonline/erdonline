@@ -8,6 +8,11 @@
 
 ### 2026-08-27
 
+#### 文档公开地址统一为 doc.erdonline.com
+
+- **改法**：产品面链接（README、落地页 `docsUrl`、Issue 模板、增长 UTM、部署验收表）全部改为 `https://doc.erdonline.com`；不再把 `erdonline.github.io/erdonline/` 或 `erdonline-docs.pages.dev` 当文档入口。Docusaurus 默认 `url`/`baseUrl` 与线上一致。GH Pages 仅保留为未公开灾备。
+- 验证点：`cd frontend && npx tsx src/utils/docsUrl.test.ts`；仓库内除 CHANGELOG 历史条目与 CI 灾备 env 外，无对外文档链到 github.io / pages.dev
+
 #### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
 
 - **证据**：GSC 列出 `/docs/faq`、`/docs/quick-start/*`、`/docs/advanced/*` 等，最后抓取 2026-03～05；当前 Docusaurus 无这些路径；`doc.erdonline.com` 现 500/TLS 失败，CF 文档 `robots.txt` 只有平台 Content-Signal、无 `Sitemap:`

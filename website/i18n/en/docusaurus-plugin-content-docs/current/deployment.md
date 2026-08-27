@@ -9,8 +9,8 @@ Run ERD Online on your machine or intranet with Docker / cloud hosting; official
 Decision: [ADR-0018](/docs/adr/hosting-topology-no-vps). The project **does not buy production VPS** or host user production data; public surfaces use GitHub + Cloudflare free tier.
 
 ```
-Docs site ──► Cloudflare Pages (erdonline-docs)  [primary]
-          └─► GitHub Pages (/erdonline/)         [fallback]
+Docs site ──► Cloudflare Pages (erdonline-docs) → https://doc.erdonline.com  [sole public]
+          └─► GitHub Pages (/erdonline/)         [unpublished fallback]
 
 Static demo ─► Cloudflare Pages (erdonline-demo)
                env-config.js ← Variables: DEMO_API_URL
@@ -75,7 +75,7 @@ Repo **Settings → Secrets and variables → Actions**:
 
 **Settings → Pages → Build and deployment → Source** = **GitHub Actions** (matches `docs-site.yml` `deploy-github-pages`).
 
-Dual doc hosts: `website/docusaurus.config.js` reads `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL` (GH: `https://erdonline.github.io` + `/erdonline/`; CF: `https://erdonline-docs.pages.dev` + `/`).
+Dual doc hosts: `website/docusaurus.config.js` reads `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`. **Sole public URL** `https://doc.erdonline.com` (base `/`). GitHub Pages builds with github.io + `/erdonline/` as unpublished disaster recovery only. `erdonline-docs.pages.dev` is the custom-domain CNAME target, not a docs link.
 
 #### 6. Remote and trigger
 
@@ -92,8 +92,7 @@ git push origin main
 
 | Surface | URL |
 |---|---|
-| Docs | https://erdonline.github.io/erdonline/ |
-| Docs (CF mirror, ops) | https://erdonline-docs.pages.dev |
+| Docs (sole public URL) | https://doc.erdonline.com |
 | Static demo (product URL) | https://www.erdonline.com |
 | Static demo (CF Pages default alias, ops) | https://erdonline-demo.pages.dev |
 

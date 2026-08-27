@@ -9,7 +9,7 @@
 ```bash
 cd website && yarn build
 cd website && yarn serve
-# 默认 http://localhost:3000/erdonline/
+# 默认 http://localhost:3000/
 ```
 
 确认：

@@ -10,7 +10,7 @@ Main narrative on `/`, comparison deep link `/compare` (shared landing shell; no
 2. **Three value props**: versions / collaboration / open (API/MCP roadmap, see ADR-0013)
 3. **30-second path**: `/demo` + self-host docs external link
 4. **Comparison summary**: vs dbdiagram / dbml four-row table + "View full comparison" → `/compare`
-5. **Footer**: docs ([GitHub Pages](https://erdonline.github.io/erdonline/)), Roadmap (`/docs/roadmap`), comparison, community (GitHub Issues), login (logged-in: "Go to workspace")
+5. **Footer**: docs ([doc.erdonline.com](https://doc.erdonline.com/)), Roadmap (`/docs/roadmap`), comparison, community (GitHub Issues), login (logged-in: "Go to workspace")
 
 ### `/compare` subpage
 

@@ -16,18 +16,18 @@ function run(name: string, fn: () => void) {
 
 run('zh-CN uses the default docs locale', () => {
   const actual = docsUrl('zh-CN');
-  const expected = 'https://erdonline.github.io/erdonline/';
+  const expected = 'https://doc.erdonline.com/';
   if (actual !== expected) throw new Error(actual);
 });
 
 run('en-US uses the English docs locale', () => {
   const actual = docsUrl('en-US');
-  const expected = 'https://erdonline.github.io/erdonline/en/';
+  const expected = 'https://doc.erdonline.com/en/';
   if (actual !== expected) throw new Error(actual);
 });
 
 run('path joins without duplicate slashes', () => {
   const actual = docsUrl('en-US', '/docs/roadmap');
-  const expected = 'https://erdonline.github.io/erdonline/en/docs/roadmap';
+  const expected = 'https://doc.erdonline.com/en/docs/roadmap';
   if (actual !== expected) throw new Error(actual);
 });

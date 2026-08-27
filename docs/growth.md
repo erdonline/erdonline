@@ -1,7 +1,7 @@
 # 增长方案（引流与内容推广）
 
 :::caution 维护者文档
-本文**不在**文档站默认侧栏。面向运营与内容流水线；终端用户请看 [使用指南](/docs/guide/what-is-erd-online) 与文档站 [指南索引](https://erdonline.github.io/erdonline/blog/)。
+本文**不在**文档站默认侧栏。面向运营与内容流水线；终端用户请看 [使用指南](/docs/guide/what-is-erd-online) 与文档站 [指南索引](https://doc.erdonline.com/blog/)。
 :::
 
 > 对齐北极星：**每周产生版本保存的活跃建模项目数**。所有内容按同一漏斗设计，虚荣指标（star/阅读数）只看不优化。
@@ -46,7 +46,7 @@
 | 11 | 从 G6 到 ReactFlow：画布 Strangler 迁移实录 | 技术深度，服务贡献者漏斗 | `g6-to-reactflow-strangler` | repo | [`community`](./community.md)（贡献者） | ✅ ready |
 | 12 | 我们怎么设计 good first issue：让第一个 PR 两小时内合入 | 贡献者招募 | `good-first-issue-two-hours` | repo | [`community`](./community.md)（贡献者） | ✅ ready |
 
-纪律：增长长文**不整篇**进手册；可蒸馏任务写成 `docs/guide/*` How-to。索引见文档站 [Blog](https://erdonline.github.io/erdonline/blog/)。
+纪律：增长长文**不整篇**进手册；可蒸馏任务写成 `docs/guide/*` How-to。索引见文档站 [Blog](https://doc.erdonline.com/blog/)。
 
 **发布包**：`node scripts/growth/build-package.mjs --all` → `content/dist/<slug>/`。  
 **Wechatsync 默认同步平台**：掘金 / CSDN / 开源中国 / 小红书 / 微信 / 知乎 / 思否；V2EX 用各篇 `v2ex.txt` 人工发。  

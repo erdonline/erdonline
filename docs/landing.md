@@ -10,7 +10,7 @@
 2. **三卖点**：版本 / 协作 / 开放（API/MCP 路线图，见 ADR-0013）
 3. **30 秒动线**：`/demo` + 自部署文档外链
 4. **对比摘要**：vs dbdiagram / dbml 四行表 +「查看完整对照」→ `/compare`
-5. **Footer**：文档（[GitHub Pages](https://erdonline.github.io/erdonline/)）、Roadmap（`/docs/roadmap`）、对照、社区（GitHub Issues）、登录（已登录则「进入工作台」）
+5. **Footer**：文档（[doc.erdonline.com](https://doc.erdonline.com/)）、Roadmap（`/docs/roadmap`）、对照、社区（GitHub Issues）、登录（已登录则「进入工作台」）
 
 ### `/compare` 子页
 

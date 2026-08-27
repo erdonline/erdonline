@@ -6,7 +6,7 @@
 
 - 一句话定位：**The Git + Figma for database design**（数据库设计的 Git + Figma）。
 - 免登录 Demo：https://www.erdonline.com/demo
-- 仓库：https://github.com/erdonline/erdonline ｜ 文档：https://erdonline.github.io/erdonline/
+- 仓库：https://github.com/erdonline/erdonline ｜ 文档：https://doc.erdonline.com/
 - 差异化：**版本快照 + diff** 与 **实时协作**（别人不开源的两件事）。
 
 ## 渠道优先级（开源开发工具冷启动，全部免费）

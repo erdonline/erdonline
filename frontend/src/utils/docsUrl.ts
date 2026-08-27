@@ -1,6 +1,6 @@
 import {resolveAppLocale} from './getAntdLocale';
 
-const DOCS_ORIGIN = 'https://erdonline.github.io/erdonline/';
+const DOCS_ORIGIN = 'https://doc.erdonline.com/';
 
 export function docsUrl(locale?: string, path = ''): string {
   const base =

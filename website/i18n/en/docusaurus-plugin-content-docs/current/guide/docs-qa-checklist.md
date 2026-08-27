@@ -9,7 +9,7 @@ For maintainers verifying the user docs experience. End users should start at [S
 ```bash
 cd website && yarn build
 cd website && yarn serve
-# default http://localhost:3000/erdonline/
+# default http://localhost:3000/
 ```
 
 Confirm:

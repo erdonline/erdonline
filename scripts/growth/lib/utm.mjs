@@ -5,7 +5,7 @@
 export const DEMO_BASE_URL = 'https://www.erdonline.com';
 export const DEMO_URL = `${DEMO_BASE_URL}/demo`;
 export const REPO_URL = 'https://github.com/erdonline/erdonline';
-export const DOCS_URL = 'https://erdonline.github.io/erdonline/';
+export const DOCS_URL = 'https://doc.erdonline.com/';
 export const COMPARE_URL = `${DEMO_BASE_URL}/compare`;
 export const DEPLOY_DOC_URL = `${DOCS_URL}docs/deployment`;
 /** GitHub 上可公开打开的路径前缀（blob/main） */
