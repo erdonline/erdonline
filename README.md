@@ -64,7 +64,7 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 }
 ```
 
-自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[中文](https://doc.erdonline.com/docs/guide/api-and-mcp/) · [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)。重载后对 Agent 说：`列出我的 ERD 项目`。
+自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[中文](https://doc.erdonline.com/docs/guide/api-and-mcp/) · [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)。重载后对 Agent 说：`列出我的 ERD 项目`。列表为空就先在设计器建**自己的**项目；要改模型用 `create_version`（人再 diff），不要凭一句话生成新图。Cursor 也可选 prompt `suggest-erd-version`。
 
 ## 🆚 为什么选它
 

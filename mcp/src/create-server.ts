@@ -372,5 +372,28 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     }),
   );
 
+  server.registerPrompt(
+    'suggest-erd-version',
+    {
+      title: 'Suggest a version (human diffs)',
+      description:
+        'Read projectJSON, then create_version with a short note. Humans approve in the designer diff. Do not put_project_json. Do not generate an ER diagram.',
+    },
+    () => ({
+      messages: [
+        {
+          role: 'user',
+          content: {
+            type: 'text',
+            text:
+              'List my ERD Online projects. If the list is empty, tell me to create a project in the designer (the official Demo is not a PAT). ' +
+              'Otherwise get_project_schema, propose a small additive change, and call create_version (not put_project_json). ' +
+              'I will open the version diff. Do not generate an ER diagram from a sentence.',
+          },
+        },
+      ],
+    }),
+  );
+
   return server;
 }

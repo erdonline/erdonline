@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：prompt `suggest-erd-version`（人 diff 一版）
+
+- **证据**：EN FAQ 已 live（`/en/docs/guide/api-and-mcp/` 含 placeholder is not a token / do not generate）。渠道只剩登录墙。人接通后缺「读图 → 提交一版给人审批」的可点 prompt。不发小红书/npm；不重试 Glama；H1 未改。
+- **改法**：登记 prompt `suggest-erd-version`（空列表先建项目；`create_version` 非 `put_project_json`；不生成图）。README 30 秒段补同一句。
+- 验证点：`cd mcp && yarn smoke:introspect` → prompts 含 `suggest-erd-version`；curl EN 指南含 `placeholder is not a token`
+
 #### mcp：clobber 线上 tarball（55561b50 FAQ）
 
 - **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11303 B；`tar tzf` 含 `package/guide/api-and-mcp.md`（占位符不是令牌 / 不要从自然语言生成图）；live npx → `erd-mcp stdio ready`。文档站 [33119782923](https://github.com/erdonline/erdonline/actions/runs/33119782923) **success**；`https://doc.erdonline.com/docs/guide/api-and-mcp/` 已含 FAQ。未发 npm；未改 tag。
