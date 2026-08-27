@@ -82,5 +82,6 @@ jobs:
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
           accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
-          command: pages deploy website/build --project-name=erdonline-docs --commit-dirty=true
+          workingDirectory: website
+          command: pages deploy build --project-name=erdonline-docs --commit-dirty=true
           gitHubToken: ${{ secrets.GITHUB_TOKEN }}
