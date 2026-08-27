@@ -8,6 +8,10 @@
 
 ### 2026-08-28
 
+#### mcp：clobber 线上 tarball（8370490a）
+
+- **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：10606 B；`tar tzf` 含 `package/guide/api-and-mcp.md` 与 `package/dist/load-guide.js`；`npx -y --package https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz erd-mcp` → `erd-mcp stdio ready`。未发 npm；未改 tag。
+
 #### mcp：缺 PAT 时 tools/call 可执行报错 + resource 吐出指南正文
 
 - **证据**：Glama 未登录（Sign Up），不重试。Agent 先 `tools/list` 再调 `list_projects` 时，旧文案只写 POST 铸造接口，没有文档 URL / 占位符不是令牌。resource 原先只有一句摘要。不发小红书/npm；不请求 GSC；H1 未改。
