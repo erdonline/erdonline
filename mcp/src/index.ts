@@ -19,9 +19,15 @@ async function runStdio() {
   const server = createErdMcpServer(config);
   const transport = new StdioServerTransport();
   await server.connect(transport);
-  console.error(
-    `erd-mcp stdio ready → ${config.baseUrl} (PAT hint …${config.pat.slice(-4)})`,
-  );
+  if (!config.pat) {
+    console.error(
+      `erd-mcp stdio ready → ${config.baseUrl} (no ERD_PAT; tools/list only until you mint a token)`,
+    );
+  } else {
+    console.error(
+      `erd-mcp stdio ready → ${config.baseUrl} (PAT hint …${config.pat.slice(-4)})`,
+    );
+  }
 }
 
 async function runHttp() {

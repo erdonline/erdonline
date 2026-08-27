@@ -6,6 +6,8 @@ ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `
 
 官方 MCP Registry 登记见仓库 [`docs/mcp-registry.md`](../docs/mcp-registry.md)（📋 待 `NPM_TOKEN` + org Owner device 登录）。
 
+Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list` 即可）。`yarn smoke:introspect` 覆盖该握手。
+
 ## 工具
 
 | Tool | REST | Scope |

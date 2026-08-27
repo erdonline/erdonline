@@ -24,7 +24,8 @@
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
     "dogfood": "tsx scripts/dogfood.ts",
-    "smoke:npx": "node scripts/smoke-npx-pack.mjs"
+    "smoke:npx": "node scripts/smoke-npx-pack.mjs",
+    "smoke:introspect": "yarn build && node scripts/smoke-introspect.mjs"
   },
   "engines": {
     "node": ">=18"

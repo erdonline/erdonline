@@ -21,7 +21,7 @@
 
 ## 渠道优先级（ROI 排序）
 
-**立刻做（2026-08-28 证据改写）**：MCP 产品漏斗已收口。EN 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)。HelloGitHub [issue #3605](https://github.com/521xueweihan/HelloGitHub/issues/3605) + [截图评论](https://github.com/521xueweihan/HelloGitHub/issues/3605#issuecomment-5445315760)。官方 MCP Registry **📋**（无 `NPM_TOKEN`、device 登录须 org Owner）→ [`docs/mcp-registry.md`](./mcp-registry.md)。**登录墙仍挡住**阮一峰 / V2EX / 知乎 / 掘金 / 思否。不发小红书；不发 npm；不请求 GSC。H1 仍 Git + Figma。
+**立刻做（2026-08-28 证据改写）**：MCP 产品漏斗已收口。EN 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)（已按 bot 补 Glama badge；Dockerfile/`glama.json` 已入库）。HelloGitHub [issue #3605](https://github.com/521xueweihan/HelloGitHub/issues/3605) 维护者沉默。官方 MCP Registry **📋**。**登录墙仍挡住**阮一峰 / V2EX / 知乎 / 掘金 / 思否。不发小红书；不发 npm；不请求 GSC。H1 仍 Git + Figma。
 
 **暂缓（有前置条件）**：Show HN / Reddit / dev.to —— 等 demo 与落地页英文体验完整（i18n 在 P3），EN 用户撞中文 demo = 转化率塌方，宁可晚发不可烂发；B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
 
@@ -189,7 +189,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` Agent / MCP 行已上线；壳 description 含 projectJSON。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | Pages `e88434af` 绿；curl description 含 projectJSON；About 已有 mcp |
 | MCP npx CI | 08-28 | ✅ `yarn smoke:npx` 已挂 `mcp-ci.yml`；Actions [33116445179](https://github.com/erdonline/erdonline/actions/runs/33116445179) **success**（`ddd4934c`）。不发 npmjs | `mcp/scripts/smoke-npx-pack.mjs` `.github/workflows/mcp-ci.yml` | GH MCP pack smoke 绿；未发 XHS |
 | 今晚 MCP 漏斗 | 08-28 | ✅ **收口（产品路径）**：npx tarball、llms.txt、Cursor install-link、PAT 明文不进 URL、`/compare` Agent/MCP 行、catalog/compare prerender 壳、路径 JSON-LD。渠道侧 #13 勿再点发布；掘金/思否登录墙 | `docs/growth.md` | 上表各行 + mcp-ci 绿 |
-| EN awesome-list | 08-28 | ✅ 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)（`whaty` fork；Architecture & Design；npx Release `mcp-v0.1.0`）。仓内当时未收录。growth.md 未点名第二份空列表，不另开。**不**发小红书/掘金；**不**请求 GSC | README 一行 + CONTRIBUTING 🤖🤖🤖 | PR OPEN；未合入上游 |
+| EN awesome-list | 08-28 | ✅ 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)。bot 要 Glama：已补 badge + 仓内 `mcp/Dockerfile` / `glama.json` / 无 PAT `tools/list`。**不**发小红书/掘金；**不**请求 GSC | fork README + `mcp/Dockerfile` | PR OPEN；Glama 页仍可能 404 至爬取 |
 | HelloGitHub | 08-28 | ✅ 投稿 [issue #3605](https://github.com/521xueweihan/HelloGitHub/issues/3605)；截图评论（可选字段、利于收录）：[issuecomment-5445315760](https://github.com/521xueweihan/HelloGitHub/issues/3605#issuecomment-5445315760) 用 `https://doc.erdonline.com/img/guide/mcp-agent-tools.png`（工具表，**不是** PAT 揭示弹层）。**不**发小红书/掘金；**不**请求 GSC | `submit-cn.yaml` + 评论 | issue OPEN；未入月刊 |
 | EN 第二列表 | 08-28 | ⏭ 未开第二份 PR：`appcypher/awesome-mcp-servers` 已 **archived**（fork 无法建 PR）；`wong2/awesome-mcp-servers` 声明不收 PR（改投 mcpservers.org）；官方 `modelcontextprotocol/servers` 已撤第三方列表。不同名小仓 / remote-only 列表当 spam 跳过 | — | 跳过 |
 | MCP Registry | 08-28 | 📋 官方 Registry **未发**：无 `NPM_TOKEN`；`mcp-publisher login github` 要 device OAuth + erdonline **Owner**（`whaty`/`gh` 不够）。Release `.tgz` 不是 mcpb。runbook [`docs/mcp-registry.md`](./mcp-registry.md)。本切片改 tarball 含 README + 弹层「一键后粘贴 PAT」。**不**发 npm / 小红书；**不**请求 GSC | `mcp/server.json` `mcp/README.md` locales | runbook 落地；Registry 空 |

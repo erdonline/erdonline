@@ -1,6 +1,7 @@
 /**
  * Thin PAT client for Public API v1 (`/api/v1/**`).
- * Env: ERD_API_URL (default http://127.0.0.1:9502), ERD_PAT (required).
+ * Env: ERD_API_URL (default http://127.0.0.1:9502), ERD_PAT (required for API tools;
+ * empty PAT still boots so Glama/tools/list introspection can run).
  */
 
 export type ErdApiConfig = {
@@ -51,12 +52,7 @@ export function loadConfigFromEnv(
     '',
   );
   const pat = env.ERD_PAT ?? env.ERD_API_TOKEN ?? '';
-  if (!pat) {
-    throw new Error(
-      'Missing ERD_PAT (or ERD_API_TOKEN). Mint via POST /auth/personal-access-tokens',
-    );
-  }
-  if (!pat.startsWith('erd_pat_')) {
+  if (pat && !pat.startsWith('erd_pat_')) {
     throw new Error('ERD_PAT must start with erd_pat_ (session JWT is not accepted on /api/v1)');
   }
   return { baseUrl, pat };
@@ -185,6 +181,12 @@ export class ErdApiClient {
     path: string,
     body?: unknown,
   ): Promise<unknown> {
+    if (!this.config.pat) {
+      throw new ErdApiError(
+        'Missing ERD_PAT (or ERD_API_TOKEN). Mint via POST /auth/personal-access-tokens',
+        401,
+      );
+    }
     const url = `${this.config.baseUrl}${path}`;
     const headers: Record<string, string> = {
       Authorization: `Bearer ${this.config.pat}`,
