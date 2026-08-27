@@ -20,6 +20,12 @@
 - **补**：Pages Function 把 `erdonline-docs.pages.dev` 301 到 `doc.erdonline.com`（CF `_redirects` 无法绑默认 pages.dev 宿主）
 - 验证点：`curl -sI https://erdonline-docs.pages.dev/` → 301 Location 含 `doc.erdonline.com`
 
+#### fix：文档站 canonical / sitemap / 301 统一尾斜杠
+
+- **证据**：GSC 首页「发现」显示站点地图临时处理错误；`/docs/guide/intro` 无斜杠 308 到有斜杠，但 sitemap/canonical 无斜杠；旧 IA `_redirects` 301 到无斜杠后再 308（两次跳转）
+- **改法**：Docusaurus `trailingSlash: true`；`_redirects` 目标带 `/`；pages.dev 中间件一次 301 到带斜杠的 `doc.erdonline.com`；sitemap 去掉 `/search` 与 blog 标签/归档/作者索引；`robots.txt` 同时列出中/英 sitemap；`docsUrl()` 外链对齐
+- 验证点：`cd website && yarn build && yarn test:seo`；`cd frontend && npx tsx src/utils/docsUrl.test.ts`
+
 #### SEO：文档站旧 URL 无法索引（doc.erdonline.com）
 
 - **证据**：GSC 列出 `/docs/faq`、`/docs/quick-start/*`、`/docs/advanced/*` 等，最后抓取 2026-03～05；当前 Docusaurus 无这些路径；`doc.erdonline.com` 现 500/TLS 失败，CF 文档 `robots.txt` 只有平台 Content-Signal、无 `Sitemap:`

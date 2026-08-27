@@ -26,8 +26,14 @@ run('en-US uses the English docs locale', () => {
   if (actual !== expected) throw new Error(actual);
 });
 
-run('path joins without duplicate slashes', () => {
+run('path joins without duplicate slashes and ends with trailing slash', () => {
   const actual = docsUrl('en-US', '/docs/roadmap');
-  const expected = 'https://doc.erdonline.com/en/docs/roadmap';
+  const expected = 'https://doc.erdonline.com/en/docs/roadmap/';
+  if (actual !== expected) throw new Error(actual);
+});
+
+run('already-slashed path is not doubled', () => {
+  const actual = docsUrl('zh-CN', 'docs/guide/intro/');
+  const expected = 'https://doc.erdonline.com/docs/guide/intro/';
   if (actual !== expected) throw new Error(actual);
 });

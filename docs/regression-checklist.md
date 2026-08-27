@@ -10,7 +10,8 @@
 - [x] [LocaleRoute 路由 flatten] `cd frontend && yarn check:routes` PASS；`node scripts/check-routes.mjs --self-test` bad fixture FAIL / good PASS ✅ 2026-08-12
 - [x] [生产 boot smoke] `cd frontend && PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 6 公开 URL 无 pageerror、`#root` 有内容 ✅ 2026-08-12
 - [x] [catalog 英文 UI] `localStorage umi_locale=en-US` → `/catalog` 顶栏与筛选为英文（Template catalog / Trending…），无 `catalog.*` 裸键 ✅ Playwright 2026-08-12
-- [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 3 项通过 ✅ 2026-08-12
+- [x] [docsUrl 单测] `cd frontend && npx tsx src/utils/docsUrl.test.ts` 路径带尾斜杠 ✅ 2026-08-27
+- [x] [文档站 SEO 尾斜杠] `cd website && yarn build && yarn test:seo`：sitemap loc 全带 `/`、无 `/search`、`_redirects` 目标带 `/` ✅ 构建门禁
 - [x] [落地页 Docs 分流] 英文态页脚 Docs → `https://doc.erdonline.com/en/`；中文态 → `https://doc.erdonline.com/`（无 `/en/`）✅ Playwright 生产 2026-08-27
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
 
