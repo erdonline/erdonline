@@ -22,6 +22,7 @@ const PUBLIC_CASES: PublicCase[] = [
   { path: '/demo', label: 'demo', url: /\/s\/public-demo/ },
   { path: '/en', label: 'en-landing' },
   { path: '/en/compare', label: 'en-compare' },
+  { path: '/en/catalog', label: 'en-catalog' },
 ];
 
 function attachBootListeners(page: import('@playwright/test').Page) {
@@ -78,4 +79,49 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       await assertRootBoot(page, path);
     });
   }
+
+  test('crawler first HTML uses path canonical (not homepage)', async ({ request }) => {
+    const home = await (await request.get('/')).text();
+    expect(home).toContain('<title>Draw ER Diagram Online — Free Editor | ERD Online</title>');
+    expect(home).toMatch(/rel="canonical"[^>]*href="https:\/\/www\.erdonline\.com\/"/);
+
+    const cases: { path: string; title: string; canonical: string }[] = [
+      {
+        path: '/catalog',
+        title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog',
+      },
+      {
+        path: '/compare',
+        title: 'ERD Online vs draw.io — 协作、版本与外键语义',
+        canonical: 'https://www.erdonline.com/compare',
+      },
+      {
+        path: '/en',
+        title: 'Draw ER Diagram Online — Free Editor | ERD Online',
+        canonical: 'https://www.erdonline.com/en',
+      },
+      {
+        path: '/en/catalog',
+        title: 'ER diagram templates — free database models | ERD Online',
+        canonical: 'https://www.erdonline.com/en/catalog',
+      },
+      {
+        path: '/en/compare',
+        title: 'ERD Online vs draw.io — collaboration, versions, and FK semantics',
+        canonical: 'https://www.erdonline.com/en/compare',
+      },
+    ];
+    for (const c of cases) {
+      const res = await request.get(c.path);
+      expect(res.ok(), c.path).toBeTruthy();
+      const html = await res.text();
+      expect(html, c.path).toContain(`<title>${c.title}</title>`);
+      const canon = html.match(/rel="canonical"[^>]*href="([^"]+)"/)?.[1] ?? '';
+      expect(canon, c.path).toBe(c.canonical);
+      expect(canon, `${c.path} must not canonicalize to homepage`).not.toBe(
+        'https://www.erdonline.com/',
+      );
+    }
+  });
 });

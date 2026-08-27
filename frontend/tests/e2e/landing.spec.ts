@@ -19,6 +19,8 @@ test.describe('落地页', () => {
     expect(html).not.toMatch(/file viewer/i);
     expect(html).not.toMatch(/Google Draw/i);
     expect(html).toContain('rel="canonical"');
+    // Other public paths: first-HTML canonical is a dist/ prerender (not this dev shell).
+    // Gate: `yarn test:seo-static` + prod-smoke 「crawler first HTML」.
   });
 
   test('加载可见品牌与主文案；CTA 可达 demo 与登录', async ({ page }) => {

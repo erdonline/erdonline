@@ -44,6 +44,10 @@ jobs:
         working-directory: frontend
         run: npx playwright install --with-deps chromium
 
+      - name: SEO prerender shells (no umi build)
+        working-directory: frontend
+        run: yarn test:seo-static
+
       - name: Umi route flatten (LocaleRoute gate)
         working-directory: frontend
         run: yarn check:routes
@@ -82,3 +86,4 @@ jobs:
           grep -q '<urlset' dist/sitemap.xml
           grep -q 'Sitemap: https://www.erdonline.com/sitemap.xml' dist/robots.txt
           ! grep -q '/\* /index.html 200' dist/_redirects
+          node ./scripts/assert-seo-static.mjs
