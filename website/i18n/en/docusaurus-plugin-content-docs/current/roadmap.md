@@ -189,6 +189,7 @@ Full i18n (language switch UI, site-wide keying) remains P3 📋; “English fir
 - ~~Observability: self-deployer health/metrics endpoints (few, low cost)~~✅ (`/actuator/health` + `/actuator/info` app/version; unexposed paths 404; see [deployment](/docs/deployment))
 - ~~Self-deploy DX: docker-compose one-click docs acceptance + upgrade path drill~~✅ (`scripts/verify-self-deploy.sh` + [deployment](/docs/deployment) acceptance/upgrade drill; Flyway doesn’t rely on re-running `db/init`)
 - ~~Competitor compare page: honest vs dbdiagram / dbml (collab/version/open/self-host), landing subpage~~✅ (`/compare` + landing summary table; E2E `compare.spec.ts`)
+- ~~Compare table: draw.io column + FK-semantics row (GSC `/compare` already has clicks; www H1/SERP unchanged)~~✅ 2026-08-28
 
 ## Phase overview
 

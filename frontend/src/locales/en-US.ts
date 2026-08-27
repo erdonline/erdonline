@@ -304,11 +304,13 @@ export default {
   'landing.demo.cta.selfHostAria': 'Self-host guide',
   'landing.compare.title': 'Honest comparison',
   'landing.compare.lead':
-    'If a minimal diagram tool is enough, stay there; come here when you need versions, collaboration, and an open source of truth.',
+    'If a minimal diagram tool (including draw.io) is enough, stay there; come here when you need versions, collaboration, foreign-key semantics, and an open source of truth.',
   'landing.compare.col.capability': 'Capability',
   'landing.compare.col.erd': 'ERD Online',
+  'landing.compare.col.drawio': 'draw.io',
   'landing.compare.col.dbdiagram': 'dbdiagram',
   'landing.compare.col.dbml': 'DBML ecosystem',
+  'landing.compare.row.fk': 'Relationship semantics / FK',
   'landing.compare.row.collab': 'Real-time collaboration',
   'landing.compare.row.version': 'Versions & diff',
   'landing.compare.row.opensource': 'Open source & self-host',
@@ -336,10 +338,15 @@ export default {
   'landing.compare.cell.dbmlBoth': 'Import / export',
   'landing.compare.cell.native': 'Native',
   'landing.compare.cell.agentDetail': 'projectJSON schema; public API / MCP',
+  'landing.compare.cell.canvasCollab': 'Generic canvas',
+  'landing.compare.cell.apacheDraw': 'Apache drawing',
+  'landing.compare.cell.noSchema': 'No schema',
+  'landing.compare.cell.fkNative': 'FK as first-class',
+  'landing.compare.cell.linesNotFk': 'Lines ≠ FKs',
   'landing.compare.cta.full': 'Full comparison',
   'landing.compare.cta.fullAria': 'Full comparison',
   'landing.comparePage.lead':
-    'If a minimal diagram tool is enough, stay there; come when you need versions, collaboration, and an open source of truth. We are not cloning dbdiagram—we differentiate.',
+    'If a minimal diagram tool (including draw.io) is enough, stay there; come when you need foreign-key semantics, versions, collaboration, and an open source of truth. We are not cloning dbdiagram—we differentiate.',
   'landing.comparePage.tableAria': 'Capability comparison table',
   'landing.comparePage.cta.title': 'See the diagram first',
   'landing.comparePage.cta.lead':
@@ -615,9 +622,9 @@ export default {
   'landing.seo.title': 'Draw ER Diagram Online — Free Editor | ERD Online',
   'landing.seo.description':
     'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.',
-  'landing.compare.seo.title': 'ERD Online comparison — collaboration, versions, and open source',
+  'landing.compare.seo.title': 'ERD Online vs draw.io — collaboration, versions, and FK semantics',
   'landing.compare.seo.description':
-    'An honest comparison of ERD Online, dbdiagram, and DBML: collaboration, versioning, openness, and self-hosting.',
+    'An honest comparison of ERD Online, draw.io, dbdiagram, and DBML: foreign-key semantics, collaboration, versioning, openness, and self-hosting.',
   'share.seo.title': 'ERD Online demo — view a real ER diagram without signing in',
   'share.seo.description':
     'Explore a real ER diagram in read-only mode without signing in. Get started with ERD Online in 30 seconds.',

@@ -12,7 +12,7 @@
 
 ## 不太适合，如果…
 
-- 只要一张静态 ER 截图、从不改结构 → 通用画图工具可能更轻  
+- 只要一张静态 ER 截图、从不改结构 → **draw.io** 等通用画图可能更轻  
 - 只关心已落库的 DDL 迁移历史、不关心设计态 diff → 继续用 Flyway 等即可；本产品补的是**设计阶段**追溯  
 - 需要完整企业 IAM / SSO 开箱替代 → 当前是**项目级**角色与审批，不是全家桶 IAM  
 
@@ -42,7 +42,7 @@
 | Demo 打不开 / 一直转圈 | 换网络或稍后再试；确认是 [www.erdonline.com/demo](https://www.erdonline.com/demo) |
 | 想改表但提示只读 | 点 **复制到我的项目** 或登录后再进设计器 |
 | 想连自己的数据库 | Demo / 公开分享**不能**连私有库 → [五分钟自托管](./quick-self-host.md) |
-| 想和竞品对比 | [对照页](https://www.erdonline.com/compare) |
+| 想和 draw.io / dbdiagram 对比 | [对照页](https://www.erdonline.com/compare)（含外键语义一行） |
 
 ## 下一步
 

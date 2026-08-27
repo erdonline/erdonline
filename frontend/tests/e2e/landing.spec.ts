@@ -29,6 +29,8 @@ test.describe('落地页', () => {
     await expect(
       page.getByRole('heading', { name: /数据库设计的 Git \+ Figma/ }),
     ).toBeVisible();
+    await expect(page.getByRole('columnheader', { name: 'draw.io' })).toBeVisible();
+    await expect(page.getByRole('cell', { name: '连线 ≠ 外键' })).toBeVisible();
     await expect(
       page.getByRole('img', { name: 'ERD Online 设计器关系图画布' }),
     ).toBeVisible();

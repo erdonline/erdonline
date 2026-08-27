@@ -12,7 +12,7 @@ If you want something that remembers schema changes like Git and edits like a ca
 
 ## Probably not if you…
 
-- Only need a static ER screenshot → a drawing tool may be lighter  
+- Only need a static ER screenshot → **draw.io** or another drawing tool may be lighter  
 - Only care about applied DDL history → keep Flyway (etc.); we cover **design-time** tracing  
 - Need full enterprise IAM / SSO out of the box → we offer **project-level** roles & approval, not a full IAM suite  
 
@@ -42,7 +42,7 @@ If the page spins forever or stays blank, see troubleshooting below.
 | Demo won’t open / endless spinner | Retry network; confirm [www.erdonline.com/demo](https://www.erdonline.com/demo) |
 | Want to edit but see read-only | **Copy to my project** or sign in, then open the designer |
 | Want to connect your own DB | Public demo/share **cannot** reach private DBs → [Quick self-host](./quick-self-host.md) |
-| Want a competitor comparison | [Compare page](https://www.erdonline.com/compare) |
+| Want to compare with draw.io / dbdiagram | [Compare page](https://www.erdonline.com/compare) (includes an FK-semantics row) |
 
 ## Next steps
 

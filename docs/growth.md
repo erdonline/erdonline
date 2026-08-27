@@ -192,7 +192,13 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | GSC 网页 | `/` 1/90；`/compare` 1/8；`/catalog` 1/6；`/en` 0/19；`/en/compare` 0/4；**无任何 `doc.erdonline.com` 行** | MCP 文档尚未进效果报告（切片 7 已请求编入索引） |
 | 已登录 www `/home`（erdonline154） | 「继续上次建模」可点；项目卡链到设计器；「给 Cursor 配 MCP」为真实 `<a>` → 文档 MCP 页；今日编辑 0 / 模型 20 | **无 P0 点击泄漏**；H1/SERP 未改 |
 
-决策：下一件要点击 → 稿 #15 draw.io dunk + **demo CTA**（对准现有 GSC 查询）。MCP 操作帖等 #13 阅读上来再续。掘金仍跳过。
+决策：稿 #15 已入库 + 小红书长文草稿（未排版、未发布）。下一件要点击 → **对照页收割 draw.io**（`/compare` 已有 GSC 点击，表里原先没有 draw.io）。MCP 操作帖等 #13 阅读上来再续。掘金仍跳过。
+
+### 对照页收割 draw.io（2026-08-28 日历后）
+
+- **证据**：GSC `/compare` 1 点击 / 8 展示（均位约 2–3），但对照表只有 dbdiagram / DBML，搜 draw-ER 的人看不到「连线 ≠ 外键」。
+- **改法**：落地摘要表与 `/compare` 增加 **draw.io 列** + **关系语义 / 外键**行；对照 SEO title/description 点名 draw.io。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT；不发掘金、不上小红书。
+- **蒸馏**：`docs/guide/what-is-erd-online.md` 标明静态截图可继续用 draw.io，对比走对照页。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
