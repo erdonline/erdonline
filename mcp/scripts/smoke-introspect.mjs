@@ -8,7 +8,9 @@ import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
   attachEmptyProjectsHint,
+  attachCreateVersionHint,
   EMPTY_PROJECTS_HINT,
+  CREATE_VERSION_HUMAN_HINT,
 } from '../dist/erd-api.js';
 
 const mcpRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
@@ -120,6 +122,9 @@ if (byName.put_project_json?.annotations?.destructiveHint !== true) {
 if (byName.create_version?.annotations?.readOnlyHint !== false) {
   fail('create_version must set annotations.readOnlyHint=false');
 }
+if (!String(byName.create_version?.description ?? '').includes('MUST ask the human')) {
+  fail('create_version description must require asking the human to confirm the diff');
+}
 const resourceUris = (resources.result?.resources ?? []).map((r) => r.uri);
 if (!resourceUris.some((u) => String(u).includes('doc.erdonline.com/docs/guide/api-and-mcp'))) {
   fail(`resources/list missing MCP guide: ${JSON.stringify(resources)}`);
@@ -157,6 +162,15 @@ if (
 const occupied = attachEmptyProjectsHint({items: [{id: 'p1'}], total: 1});
 if (occupied && typeof occupied === 'object' && 'hint' in occupied) {
   fail('non-empty list must not attach hint');
+}
+const versioned = attachCreateVersionHint({id: 'v1'});
+if (
+  !versioned ||
+  typeof versioned !== 'object' ||
+  versioned.hint !== CREATE_VERSION_HUMAN_HINT ||
+  !String(versioned.hint).includes('API success is not human approval')
+) {
+  fail(`create_version must attach human-diff hint: ${JSON.stringify(versioned)}`);
 }
 if (stderr.includes('Missing ERD_PAT') && !stderr.includes('stdio ready')) {
   fail('boot still requires PAT');

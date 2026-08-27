@@ -4,6 +4,7 @@ import {
   ErdApiClient,
   ErdApiError,
   attachEmptyProjectsHint,
+  attachCreateVersionHint,
   type ErdApiConfig,
 } from './erd-api.js';
 import { loadApiAndMcpMarkdown, MCP_GUIDE_URI } from './load-guide.js';
@@ -171,7 +172,7 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     'create_version',
     {
       description:
-        'Commit a new version snapshot (POST /api/v1/projects/{id}/versions). Requires versions:write + membership. profile.dbs is stripped server-side before persist. A human should still open the version diff.',
+        'Commit a new version snapshot (POST /api/v1/projects/{id}/versions). Requires versions:write + membership. profile.dbs is stripped server-side. After this call you MUST ask the human to open the version diff and confirm or roll back. API 200 is not approval. Do not put_project_json. Do not generate an ER diagram.',
       annotations: writeAnno,
       inputSchema: {
         projectId: z.string().min(1).describe('Project id'),
@@ -202,16 +203,18 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
       baseVersion,
       changes,
     }) =>
-      wrapTool(() =>
-        api.createVersion(projectId, {
-          dbKey,
-          version,
-          versionDesc,
-          projectJSON: projectJSON as Record<string, unknown>,
-          tag,
-          baseVersion,
-          changes,
-        }),
+      wrapTool(async () =>
+        attachCreateVersionHint(
+          await api.createVersion(projectId, {
+            dbKey,
+            version,
+            versionDesc,
+            projectJSON: projectJSON as Record<string, unknown>,
+            tag,
+            baseVersion,
+            changes,
+          }),
+        ),
       )(),
   );
 
@@ -388,7 +391,8 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
             text:
               'List my ERD Online projects. If the list is empty, tell me to create a project in the designer (the official Demo is not a PAT). ' +
               'Otherwise get_project_schema, propose a small additive change, and call create_version (not put_project_json). ' +
-              'I will open the version diff. Do not generate an ER diagram from a sentence.',
+              'Then you MUST tell me to open the version diff and confirm or roll back. API success is not my approval. ' +
+              'Do not generate an ER diagram from a sentence.',
           },
         },
       ],
