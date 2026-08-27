@@ -1,0 +1,33 @@
+name: MCP pack smoke
+
+# Keep the 30s `npx --package <tarball> erd-mcp` path from rotting.
+# Does not publish npmjs.
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'mcp/**'
+      - '.github/workflows/mcp-ci.yml'
+  pull_request:
+    paths:
+      - 'mcp/**'
+      - '.github/workflows/mcp-ci.yml'
+
+jobs:
+  npx-pack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+          cache: yarn
+          cache-dependency-path: mcp/yarn.lock
+
+      - name: yarn build + npm pack + npx erd-mcp
+        working-directory: mcp
+        run: yarn smoke:npx

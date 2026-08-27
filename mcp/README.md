@@ -65,6 +65,9 @@ cd mcp
 yarn install
 yarn build
 
+# CI 冒烟：pack 后 npx --package 本地 tarball 须打出 stdio ready（不发 npmjs）
+yarn smoke:npx
+
 export ERD_API_URL=http://127.0.0.1:9502
 export ERD_PAT=erd_pat_…   # 明文只见一次
 

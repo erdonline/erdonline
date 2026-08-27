@@ -187,6 +187,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；live 中/英指南 200 含 install-link；未发 XHS |
 | PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用官方 install-link；**明文不进 URL**（占位符 `erd_pat_…`）。H1 未改 | `personalAccessTokens.tsx` | `install-link href never contains a minted PAT secret`；www Pages `762e3d88` 已绿 |
 | compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` Agent / MCP 行已上线；壳 description 含 projectJSON。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | Pages `e88434af` 绿；curl description 含 projectJSON；About 已有 mcp |
+| MCP npx CI | 08-28 | ✅ `yarn smoke:npx`：pack 后 npx tarball 须 stdio ready。不发 npmjs | `mcp/scripts/smoke-npx-pack.mjs` `.github/workflows/mcp-ci.yml` | 本地 smoke OK；未发 XHS |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

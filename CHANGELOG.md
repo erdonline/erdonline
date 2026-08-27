@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### ci：MCP npx tarball 冒烟门禁
+
+- **证据**：30 秒路径依赖 `npm pack` + `npx --package … erd-mcp`；仓内无 CI，tarball 会静默腐坏。无 `NPM_TOKEN`，不发 npmjs。www H1 仍 Git + Figma；未发小红书；未请求 GSC；PAT 不进 URL。
+- **改法**：`mcp/scripts/smoke-npx-pack.mjs` + workflow `mcp-ci.yml`（仅 `mcp/**`）。
+- 验证点：`cd mcp && yarn smoke:npx` → `SMOKE OK erd-mcp stdio ready`
+
 #### growth：Cursor 一键安装 MCP（官方 install-link）
 
 - **证据**：`gh secret list` 仅有 Cloudflare，无 `NPM_TOKEN`，不发 npmjs。官方协议为 `cursor://anysphere.cursor-deeplink/mcp/install`，网页入口 `https://cursor.com/link/`。www H1 仍 Git + Figma；未发小红书；未请求 GSC。
