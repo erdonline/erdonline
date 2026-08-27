@@ -13,6 +13,7 @@
 - **证据**：30 秒路径依赖 `npm pack` + `npx --package … erd-mcp`；仓内无 CI，tarball 会静默腐坏。无 `NPM_TOKEN`，不发 npmjs。www H1 仍 Git + Figma；未发小红书；未请求 GSC；PAT 不进 URL。
 - **改法**：`mcp/scripts/smoke-npx-pack.mjs` + workflow `mcp-ci.yml`（仅 `mcp/**`）。
 - 验证点：`cd mcp && yarn smoke:npx` → `SMOKE OK erd-mcp stdio ready`
+- **CI**（2026-08-28）：workflow `mcp-ci.yml`（MCP pack smoke）[33116445179](https://github.com/erdonline/erdonline/actions/runs/33116445179) **success**（`ddd4934c`）。未发 npmjs；未发小红书；未请求 GSC。
 
 #### growth：Cursor 一键安装 MCP（官方 install-link）
 
