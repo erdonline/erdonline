@@ -1,4 +1,6 @@
 /** ADR-0034: marketing pages only; keep in sync with frontend/nginx.conf `$og_is_bot`. */
+import {isCatalogDetailPath, normalizeCatalogPathname} from '@/utils/catalogSeoPath';
+
 const CRAWLER_UA_RE =
   /facebookexternalhit|Twitterbot|Slackbot|LinkedInBot|WhatsApp|TelegramBot|Discordbot|Pinterest|redditbot|Googlebot|Google-InspectionTool|bingbot|Applebot|Embedly|Qwantify|SkypeUriPreview|vkShare|Mastodon|Prerender|WeChat|MicroMessenger|Bytespider|Baiduspider|Sogou|360Spider/i;
 
@@ -58,13 +60,23 @@ export type MarketingHreflang = {
 };
 
 export function getMarketingHreflang(pathname: string, origin: string): MarketingHreflang | null {
-  if (!isMarketingLocalePath(pathname)) return null;
-  const base = stripLocalePrefix(pathname);
+  const path = normalizeCatalogPathname(pathname);
+  const abs = (p: string) => `${origin}${p === '/' ? '/' : p}`;
+  // Keep in sync with frontend/scripts/seo-config.mjs marketingHreflang.
+  if (isCatalogDetailPath(path)) {
+    return {
+      canonical: abs(path),
+      zh: abs(path),
+      en: abs('/en/catalog'),
+      xDefault: abs(path),
+    };
+  }
+  if (!isMarketingLocalePath(path)) return null;
+  const base = stripLocalePrefix(path);
   const zhPath = base;
   const enPath = toLocalePath(base, 'en-US');
-  const abs = (p: string) => `${origin}${p === '/' ? '/' : p}`;
   return {
-    canonical: abs(pathname),
+    canonical: abs(path),
     zh: abs(zhPath),
     en: abs(enPath),
     xDefault: abs(zhPath),

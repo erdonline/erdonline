@@ -196,7 +196,7 @@
 - ~~GSC 网址检查 `/catalog` `/compare`（及 `/en`）：已收录者不请求；`/en/catalog` 未知 → 已请求编入索引~~✅ 2026-08-28
 - ~~`/demo` `/en/demo` 静态壳（首屏 title/canonical 不再指回首页；真人仍跳 `/s/public-demo`）~~✅ 2026-08-28
 - ~~`/catalog/` 不被 `/catalog/*` splat 盖成首页（改为 `/catalog/:id`）~~✅ 2026-08-28
-- ~~`/catalog/:id` 首屏不再是首页 Draw-ERD（官方 ID 独立壳 + 未知 ID 200 到列表；`_item` 301）~~✅ 2026-08-28
+- ~~`/catalog/:id` hydrate 不套列表 SEO（官方/有 title 的社区详情 canonical 为 item URL）~~✅ 2026-08-28
 
 ## 阶段总览
 

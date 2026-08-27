@@ -30,6 +30,7 @@ import {
   type CatalogTemplateDetail,
 } from '@/services/catalog';
 import CatalogPreviewPanel from './CatalogPreviewPanel';
+import {usePageSeo} from '@/hooks/usePageSeo';
 import './catalog.scss';
 
 const {Title, Paragraph, Text} = Typography;
@@ -44,6 +45,16 @@ export default function CatalogDetailPage() {
   const [comments, setComments] = useState<CatalogComment[]>([]);
   const [commentBody, setCommentBody] = useState('');
   const [commentSubmitting, setCommentSubmitting] = useState(false);
+
+  const seoName = (detail?.title || '').replace(/[{}]/g, '');
+  const seoDescription = (detail?.description || '').replace(/[{}]/g, '');
+  usePageSeo('catalog.detail.seo.title', 'catalog.detail.seo.description', {
+    enabled: Boolean(detail?.title),
+    values: {
+      name: seoName,
+      description: seoDescription || seoName,
+    },
+  });
 
   const reloadComments = () => {
     if (!id) return;

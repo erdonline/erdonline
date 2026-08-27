@@ -60,19 +60,30 @@ function setHeadElement(options: HeadElementOptions): () => void {
 
 /**
  * Sets localized page SEO metadata; restores on unmount.
+ * `enabled: false` leaves prerender (or the previous owner) untouched.
  */
-export function usePageSeo(titleId: string, descriptionId: string) {
+export function usePageSeo(
+  titleId: string,
+  descriptionId: string,
+  options?: {enabled?: boolean; values?: Record<string, string>},
+) {
   const intl = useIntl();
   const {pathname} = useLocation();
+  const enabled = options?.enabled ?? true;
+  const valuesKey = JSON.stringify(options?.values ?? null);
 
   useEffect(() => {
+    if (!enabled) return undefined;
+    const values = valuesKey === 'null' ? undefined : (JSON.parse(valuesKey) as Record<string, string>);
     const prevTitle = document.title;
     const prevLang = document.documentElement.getAttribute('lang');
-    const title = intl.formatMessage({id: titleId});
-    const description = intl.formatMessage({id: descriptionId});
+    const title = intl.formatMessage({id: titleId}, values);
+    const description = intl.formatMessage({id: descriptionId}, values);
     const locale = resolveAppLocale(intl.locale);
     const hreflang = getMarketingHreflang(pathname, window.location.origin);
-    const canonicalUrl = hreflang?.canonical ?? `${window.location.origin}${pathname}`;
+    const path = pathname.replace(/\/+$/, '') || '/';
+    const canonicalUrl =
+      hreflang?.canonical ?? `${window.location.origin}${path === '/' ? '/' : path}`;
     document.title = title;
     document.documentElement.lang = locale === 'en-US' ? 'en' : 'zh-CN';
 
@@ -141,5 +152,5 @@ export function usePageSeo(titleId: string, descriptionId: string) {
       }
       restoreHeadElements.reverse().forEach((restore) => restore());
     };
-  }, [intl, pathname, titleId, descriptionId]);
+  }, [intl, pathname, titleId, descriptionId, enabled, valuesKey]);
 }

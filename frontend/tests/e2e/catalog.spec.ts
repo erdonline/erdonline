@@ -33,6 +33,16 @@ test.describe('模板广场', () => {
     await expect(page.getByTestId('catalog-install-btn')).toBeVisible();
   });
 
+  test('详情 SEO 不套用列表 canonical', async ({ page }) => {
+    await page.goto('/catalog/demo-authz');
+    await expect(page.getByTestId('catalog-detail-page')).toBeVisible({ timeout: 15_000 });
+    await expect(page).toHaveTitle(/功能鉴权示例/);
+    await expect(page).not.toHaveTitle(/Draw ER Diagram Online/);
+    const canon = await page.locator('link[rel="canonical"]').getAttribute('href');
+    expect(canon, 'canonical').toMatch(/\/catalog\/demo-authz$/);
+    expect(new URL(canon || 'http://invalid.example/').pathname).not.toBe('/catalog');
+  });
+
   test('已登录仍走公开壳，非 HomeLayout', async ({ page }) => {
     await login(page);
     await page.goto('/catalog');
