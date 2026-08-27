@@ -15,22 +15,19 @@ Want Cursor or Claude to read the ER diagram you are editing? Use authenticated 
 
 ![PAT plaintext is shown once; the dialog also copies mcp.json](/img/guide/mcp-pat-reveal.png)
 
-2. MCP is **not** in the Docker image. Clone and build:
-
-```bash
-git clone https://github.com/erdonline/erdonline.git
-cd erdonline/mcp
-yarn install && yarn build
-```
-
-3. Paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the same shape). Replace the absolute path and PAT:
+2. Paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the same shape). Replace `erd_pat_…` with your PAT (the dialog already fills it). `npx -y --package … erd-mcp` fetches the MCP tarball from GitHub Releases — **no** local clone.
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "node",
-      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
       "env": {
         "ERD_API_URL": "https://erdonline-production.up.railway.app",
         "ERD_PAT": "erd_pat_…"
@@ -40,11 +37,13 @@ yarn install && yarn build
 }
 ```
 
-![Cursor mcp.json snippet (replace /ABS/PATH and the PAT)](/img/guide/mcp-json.png)
+![Cursor mcp.json snippet (npx tarball; replace the PAT)](/img/guide/mcp-json.png)
 
-For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. During development you can use `npx tsx /ABS/PATH/to/erdonline/mcp/src/index.ts` instead of `node dist/...`.
+For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. MCP is **not** in the Docker image.
 
-4. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`.
+3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`.
+
+To run from source: `cd mcp && yarn install && yarn build`, then `node /ABS/PATH/to/erdonline/mcp/dist/index.js`. During development you can use `npx tsx mcp/src/index.ts`.
 
 ## What you get
 

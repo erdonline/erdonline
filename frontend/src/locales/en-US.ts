@@ -538,7 +538,7 @@ export default {
   'accountSettings.pat.copiedSuccess': 'Token copied',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    'Paste into ~/.cursor/mcp.json. Replace /ABS/PATH with your clone of mcp/dist/index.js. MCP is not in the Docker image.',
+    'Paste into ~/.cursor/mcp.json. npx fetches the MCP package — no local clone. The public Demo is not a PAT. Self-host: set ERD_API_URL to http://127.0.0.1:9502.',
   'accountSettings.pat.copyMcpJsonAria': 'Copy Cursor mcp.json config',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
   'accountSettings.pat.mcpDocsLink': '30-second setup docs',

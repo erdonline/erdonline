@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### growth：MCP 30 秒路径改为 npx tarball（不必 clone+build）
+
+- **证据**：包已在仓内 `@erdonline/mcp`（`bin: erd-mcp`），但 `private` 且本机无 npm 登录，不能发 npmjs；README/文档/PAT 弹层仍要 `/ABS/PATH` + 本机 `yarn build`。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书；未请求 GSC。
+- **改法**：`mcp.json` 改为 `npx -y` + GitHub Release `mcp-v0.1.0` 的 `erdonline-mcp-0.1.0.tgz`；自托管只改 `ERD_API_URL=http://127.0.0.1:9502`。源码 clone 退为贡献者备选。GitHub About 加 topic `mcp`。
+- 验证点：
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → command 为 `npx`，无 `ABS/PATH`
+  - `cd mcp && yarn build && npm pack` → tarball 含 `dist/index.js`；`npx -y --package ./erdonline-mcp-0.1.0.tgz erd-mcp` 打出 `erd-mcp stdio ready`
+  - 文档只链 `doc.erdonline.com`；PAT 占位仍 `erd_pat_…`；Demo ≠ PAT
+
 #### growth：GitHub README 30 秒 Cursor MCP 楔子
 
 - **证据**：落在仓库的人/Agent 看不到 PAT + `mcp.json` 最短路径；文档站已有 30 秒指南，README 未对齐。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书；未请求 GSC。

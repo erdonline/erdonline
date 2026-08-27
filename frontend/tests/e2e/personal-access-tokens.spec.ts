@@ -56,6 +56,10 @@ test.describe('访问令牌设置', () => {
     const mcp = reveal.getByTestId('pat-mcp-json');
     await expect(mcp).toBeVisible();
     await expect(mcp).toContainText('"mcpServers"');
+    await expect(mcp).toContainText('"command": "npx"');
+    await expect(mcp).toContainText('--package');
+    await expect(mcp).toContainText('erdonline-mcp-0.1.0.tgz');
+    await expect(mcp).toContainText('erd-mcp');
     const tokenText = (await reveal.locator('code').first().innerText()).trim();
     await expect(mcp).toContainText(tokenText);
     await expect(mcp).toContainText('127.0.0.1:9502');
@@ -173,6 +177,10 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     const mcp = reveal.getByTestId('pat-mcp-json');
     await expect(mcp).toBeVisible();
     await expect(mcp).toContainText('"mcpServers"');
+    await expect(mcp).toContainText('"command": "npx"');
+    await expect(mcp).toContainText('--package');
+    await expect(mcp).toContainText('erdonline-mcp-0.1.0.tgz');
+    await expect(mcp).toContainText('erd-mcp');
     await expect(mcp).toContainText(token);
     await expect(mcp).toContainText('127.0.0.1:9502');
     await expect(page.getByTestId('pat-mcp-docs')).toHaveAttribute(
