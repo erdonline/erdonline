@@ -172,7 +172,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **4** | 08-28 | PAT 铸造成功弹层内嵌已填 PAT 的 Cursor `mcp.json` + 复制按钮；不必再翻 GitHub README | PAT UI + `mcpJsonSnippet.ts` | ✅ `personal-access-tokens.spec.ts`（铸造 → 可见 mcpServers + ERD_PAT） |
 | **5** | 08-28 | 文档 MCP 页补 3 张截图（PAT 揭示弹层 / mcp.json / Agent 工具清单），供小红书封面 | `website/static/img/guide/mcp-*.png`；`content/articles/assets/` 同名副本 | ✅ 中/英指南含 `/img/guide/mcp-*.png`；`cd website && yarn build` |
 | **6** | 09-03 | ⛔ **跳过**：掘金 CTA 复盘依赖公开发布；本机 Chrome 验证码墙。不群发、不重发。 | — | 待人过验证码后再做 |
-| **7** | 09-05 | 英文文档 MCP 页被 GSC 收录探测；www 不改 title | `curl` canonical | 待做：`https://doc.erdonline.com/docs/guide/api-and-mcp/` 与 `/en/docs/guide/api-and-mcp/` 200、尾斜杠 |
+| **7** | 08-28（原 09-05 提前） | ✅ 中/英 MCP 文档页 live 探测：200 + 尾斜杠 canonical + sitemap loc；GSC 两 URL 均「尚未收录 / 无法识别」→ 已请求编入索引；补交 `en/sitemap.xml` | `curl` + GSC 网址检查 | 见 CHANGELOG 切片 7；未检查无斜杠 301 路径 |
 | **8** | 08-28（原 09-08；切片 6 阻塞提前做） | ✅ CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/ci-rest-projectjson-schema-lint.md` | 汉字≥800；`node scripts/validate-projectjson.mjs`；`build-package.mjs` 主 CTA 文档 MCP 页 |
 | 评审 | 09-10 | 两周决策：XHS MCP 帖阅读是否 > #6；docs MCP 页展示是否上升；落地页 MCP 链点击是否可测 | `docs/growth.md` 本表勾状态 | 连续两周指标变差 → 停下来与用户重议 |
 
