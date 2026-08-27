@@ -222,7 +222,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **证据**：GSC `/en/catalog` crawled not indexed；`/catalog` `/compare` 与 `/` 共用首页 Draw-ERD 首屏 HTML（CF `_redirects` `200` → `/`）。
 - **改法**：构建后写出 `dist/<path>/index.html`；从 `_redirects` 去掉这些精确路径。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；未发小红书；不铸 PAT。
 - **蒸馏**：`docs/deployment.md`、`docs/landing.md`。
-- **状态**：✅ 2026-08-28。`/demo` `/en/demo` 同日补静态壳（真人仍 hydrate → `/s/public-demo`）。仍未 prerender：`/catalog/:id`。
+- **状态**：✅ 2026-08-28。`/demo` `/en/demo` 同日补静态壳（真人仍 hydrate → `/s/public-demo`）。`/catalog/*` splat 会匹配 `/catalog/` → 已改为 `/catalog/:id`。仍未 prerender：`/catalog/:id` 详情页 HTML。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 

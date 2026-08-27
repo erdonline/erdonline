@@ -42,6 +42,15 @@
 
 - **Actions** [33105835708](https://github.com/erdonline/erdonline/actions/runs/33105835708) **success**（含 `f8f59cec` 壳 + CI 门禁修复）。`curl -sI`：`/catalog` `/en/catalog` `/compare` `/demo` `/en/demo` 均为 **308 → 尾斜杠**；`curl -sL` 后：`/en/catalog` title「ER diagram templates — free database models | ERD Online」canonical `…/en/catalog`；`/compare` 对照 title + `…/compare`；`/demo`「免登录查看真实 ER 图」+ `…/demo`；`/en/demo` 英文 demo title + `…/en/demo`。**`/catalog` 与 `/catalog/` 仍 Draw-ERD + canonical `/`**（`_redirects` `/catalog/*` 吃掉尾斜杠目录）。GSC `/en/catalog`（已收录）→ **已请求编入索引**（「已将网址添加到优先抓取队列中」）。未重检 `/catalog` `/compare` `/en/compare`。未发小红书；H1/SERP 未改。
 
+#### fix：`/catalog/` 不再被 `/catalog/*` splat 反代成首页
+
+- **证据**：live `/catalog` **308 → `/catalog/`**；CF `_redirects` `/catalog/*` 把空 splat 当成详情，200 到 `/`，首屏仍 Draw-ERD + canonical `/`。`/en/catalog/` 无对应 splat，已正确。canonical / sitemap 保持无尾斜杠（`…/catalog`），与 308 目标同壳。未再请求 GSC `/en/catalog`。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- **改法**：`CF_SPA_REDIRECT_RULES` 将 `/catalog/*` 改为 `/catalog/:id` + `/catalog/creator/:handle`（非空段才 rewrite）。
+- 验证点：
+  - `yarn test:seo-static` 先红（splat 断言）后绿
+  - `node scripts/assert-seo-static.mjs` → `_redirects` 无 `/catalog/*`，有 `/catalog/:id`
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog` 与 `/catalog/` 首屏 title 含「ER 图模板」、canonical `…/catalog`
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。

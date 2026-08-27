@@ -138,11 +138,13 @@ export const ROBOTS_DISALLOW = [
  * Root `/` is served by index.html statically; no rule needed.
  * Exact prerendered marketing paths (PRERENDER_PAGES) must NOT appear here —
  * CF 200-rewrite to `/` would ship the homepage title/canonical to crawlers.
+ * Do NOT use `/catalog/*` — CF splat matches `/catalog/` (empty) and hides dist/catalog/index.html.
  *
  * @type {readonly string[]}
  */
 export const CF_SPA_REDIRECT_RULES = [
-  "/catalog/* / 200",
+  "/catalog/:id / 200",
+  "/catalog/creator/:handle / 200",
   "/s/* / 200",
   "/login / 200",
   "/login/* / 200",

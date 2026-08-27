@@ -670,7 +670,7 @@ curl -sI https://doc.erdonline.com/docs/guide/intro/  # 200
 | `sitemap.xml` | 公开落地路径：`/`、`/compare`、`/catalog`、`/demo` 及 `/en/*` 英文镜像（ADR-0034） |
 | `robots.txt` | 项目自控（覆盖 CF 注入的默认 robots）；含 `Sitemap:` 绝对 URL；`Disallow` 登录区/设计器等 |
 | `dist/<path>/index.html` | 公开营销路径的独立 SPA 壳（`/catalog`、`/compare`、`/demo`、`/en`、`/en/catalog`、`/en/compare`、`/en/demo`）。爬虫首屏 `<title>` / canonical / hreflang 指向**该路径**，不是首页 Draw-ERD。由 `PRERENDER_PAGES` 驱动。`/demo` 真人仍会 hydrate 后跳到 `/s/public-demo`。 |
-| `_redirects` | **仅**列尚无静态壳的 SPA pathname 的 `200` 反代到 `/`（勿写 `/index.html`，CF 会 308 到根）；**禁止**把已 prerender 的精确路径（`/catalog`、`/compare`、`/en`…）再写回 `/`；**禁止** `/* / 200` 通配 |
+| `_redirects` | **仅**列尚无静态壳的 SPA pathname 的 `200` 反代到 `/`（勿写 `/index.html`，CF 会 308 到根）；**禁止**把已 prerender 的精确路径（`/catalog`、`/compare`、`/en`…）再写回 `/`；**禁止** `/* / 200` 通配；**禁止** `/catalog/*`（splat 会匹配 `/catalog/` 空段，把列表壳盖成首页）。详情用 `/catalog/:id` |
 | `404.html` | 与构建出的根 `index.html` 同壳；配合 CF「有顶层 404.html 则关闭自动 SPA 模式」，未知路径返回 **HTTP 404** |
 | `_headers` | CF Pages 响应头；含 `sitemap.xml` / `robots.txt` 的 `Content-Type` |
 

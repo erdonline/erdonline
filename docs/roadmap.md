@@ -195,6 +195,7 @@
 - ~~`/catalog` 独立 SEO（GSC 已有点击但套用首页 title；templates 摘要）~~✅ 2026-08-28
 - ~~GSC 网址检查 `/catalog` `/compare`（及 `/en`）：已收录者不请求；`/en/catalog` 未知 → 已请求编入索引~~✅ 2026-08-28
 - ~~`/demo` `/en/demo` 静态壳（首屏 title/canonical 不再指回首页；真人仍跳 `/s/public-demo`）~~✅ 2026-08-28
+- ~~`/catalog/` 不被 `/catalog/*` splat 盖成首页（改为 `/catalog/:id`）~~✅ 2026-08-28
 
 ## 阶段总览
 
