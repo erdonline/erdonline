@@ -7,7 +7,7 @@ import LandingChrome from './LandingChrome';
 import './index.less';
 
 /**
- * 诚实对照子页：外键语义 / 协作 / 版本 / 开放 / 自部署（含 draw.io）。
+ * 诚实对照子页：外键语义 / 协作 / 版本 / 开放 / Agent·MCP（含 draw.io）。
  * 极简画图够用时不必换；需要版本与开源事实源时再来（vision）。
  */
 const ComparePage: React.FC = () => {
@@ -89,10 +89,10 @@ const ComparePage: React.FC = () => {
                 <td className="landingYes">{t('landing.compare.cell.native')}</td>
                 <td className="landingYes">{t('landing.compare.cell.native')}</td>
               </tr>
-              <tr>
+              <tr data-testid="compare-row-agent">
                 <td>{t('landing.compare.row.agent')}</td>
                 <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
-                <td className="landingNo">{t('landing.compare.cell.noSchema')}</td>
+                <td className="landingNo">{t('landing.compare.cell.drawioXml')}</td>
                 <td className="landingNo">{t('landing.compare.cell.no')}</td>
                 <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
               </tr>

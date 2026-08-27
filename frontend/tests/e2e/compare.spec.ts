@@ -17,6 +17,12 @@ test.describe('竞品对照页', () => {
     await expect(table.getByRole('columnheader', { name: 'dbml 生态' })).toBeVisible();
     await expect(table.getByRole('cell', { name: '关系语义 / 外键' })).toBeVisible();
     await expect(table.getByRole('cell', { name: '连线 ≠ 外键' })).toBeVisible();
+    const agentRow = page.getByTestId('compare-row-agent');
+    await expect(agentRow).toBeVisible();
+    await expect(agentRow).toContainText('Agent / MCP');
+    await expect(agentRow).toContainText('projectJSON + MCP');
+    await expect(agentRow).toContainText('绘图 XML，无外键语义');
+    await expect(agentRow).not.toContainText(/ChatSQL|一句话生成/);
     await expect(table.getByRole('cell', { name: '版本与 diff' })).toBeVisible();
     await expect(table.getByRole('cell', { name: '开源自部署' })).toBeVisible();
     await expect(table.getByRole('cell', { name: 'MIT + compose' })).toBeVisible();

@@ -299,6 +299,21 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       lang: page.locale === "en-US" ? "en" : "zh-CN",
       jsonLdPage: page,
     });
+    if (page.path === "/compare" || page.path === "/en/compare") {
+      if (!page.description.includes("Agent/MCP")) {
+        fail(`${page.path} prerender description must mention Agent/MCP`);
+      }
+      if (/ChatSQL|one-shot|一句话生成/i.test(page.description)) {
+        fail(`${page.path} must not claim ChatSQL`);
+      }
+      const html = fs.readFileSync(distHtmlPath(distDir, page.path), "utf8");
+      if (!html.includes(page.description)) {
+        fail(`${page.path} shell meta must include Agent/MCP description`);
+      }
+      if (html.includes(`<title>${HOME_SEO.title}</title>`)) {
+        fail(`${page.path} first HTML must stay the compare title, not homepage`);
+      }
+    }
   }
 
   for (const fixture of CATALOG_DETAIL_FIXTURES) {
