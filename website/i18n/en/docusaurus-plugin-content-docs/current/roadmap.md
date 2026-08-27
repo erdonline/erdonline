@@ -56,7 +56,7 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 | 4 PAT success screen embeds mcp.json | ✅ 2026-08-28 | Reveal modal copies PAT-filled Cursor `mcp.json` |
 | 5 Docs MCP page 3 screenshots | ✅ 2026-08-28 | PAT reveal / mcp.json / agent tool list; XHS covers in `content/articles/assets/mcp-*.png` |
 | 6 Juejin CTA retro | ⛔ captcha wall | Skip until human login; do not mass-post |
-| 7 GSC EN indexing probe | 📋 09-05 | curl ZH/EN MCP docs 200 + trailing slash |
+| 7 GSC EN indexing probe | ✅ 2026-08-28 | ZH/EN MCP docs 200 + trailing-slash canonical + sitemap loc; GSC unknown → requested indexing; submitted EN sitemap |
 | 8 CI REST schema-lint article | ✅ 2026-08-28 | `ci-rest-projectjson-schema-lint`; distilled into [`data-format`](/docs/data-format) |
 
 ### Landing (public, brand-first, one composition) ✅

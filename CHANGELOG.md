@@ -8,6 +8,22 @@
 
 ### 2026-08-28
 
+#### growth：MCP 切片 7 — 中/英 MCP 文档页 GSC 探测
+
+- **证据**：日历切片 7 原定 09-05；切片 6 仍被掘金验证码挡住，提前做 live/GSC。www H1 仍 Git + Figma；SERP title 仍 draw-ERD；不做 ChatSQL；不铸 PAT。
+- **线上 HTTP**（2026-08-28）：
+  - `https://doc.erdonline.com/docs/guide/api-and-mcp/` → **200**；canonical 同 URL（尾斜杠）；title 含 MCP；正文含 `mcpServers`
+  - 无斜杠 → **308** `Location: /docs/guide/api-and-mcp/`（未对该 301/308 路径做 GSC 检查）
+  - `https://doc.erdonline.com/en/docs/guide/api-and-mcp/` → **200**；canonical 同 URL（尾斜杠）；EN title 含 MCP
+  - 无斜杠 → **308** `Location: /en/docs/guide/api-and-mcp/`
+  - `sitemap.xml` loc：`https://doc.erdonline.com/docs/guide/api-and-mcp/`（尾斜杠）
+  - `en/sitemap.xml` loc：`https://doc.erdonline.com/en/docs/guide/api-and-mcp/`（尾斜杠）
+  - `robots.txt` 已列上述两份 sitemap。无 title/slash/sitemap 代码缺口，未改产品页。
+- **GSC**（`sc-domain:erdonline.com`，账号 erdonline154）：
+  - 中/英两 URL 均为「网址尚未收录 / Google 无法识别此网址」→ 各点一次「请求编入索引」（已入优先抓取队列）
+  - 站点地图原仅有 ZH docs + www；**补交** `https://doc.erdonline.com/en/sitemap.xml` → 成功，已发现 66 个网页（2026-08-28）
+- 验证点：上列 curl 状态码 / canonical / sitemap loc 与 GSC 对话框文案（已请求编入索引；EN sitemap 成功）
+
 #### growth：MCP 切片 8 — CI REST schema-lint 稿
 
 - **证据**：日历切片 6（掘金 CTA 复盘）被验证码墙挡住；下一件未阻塞项是切片 8（原 09-08）。#6 已点出「CI 用 REST 拉 projectJSON 做 schema lint」，仓库已有 `validate-projectjson.mjs` 与 `GET /api/v1/projects/{id}`，缺一篇可粘贴的操作稿。
