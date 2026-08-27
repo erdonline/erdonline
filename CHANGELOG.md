@@ -15,6 +15,9 @@
 - 验证点：
   - `cd website && node scripts/assert-docs-seo.mjs` → PASS
   - `cd frontend && yarn test:seo-static` → dist/llms.txt 含 MCP 尾斜杠 URL 与 `--package`
+- **线上**（2026-08-28 04:23）：docs-site [33112728380](https://github.com/erdonline/erdonline/actions/runs/33112728380) **success**；frontend-demo-site [33112728350](https://github.com/erdonline/erdonline/actions/runs/33112728350) **success**（`3d9c5527`）。未发小红书；未请求 GSC；H1/SERP 未改。
+  - `https://doc.erdonline.com/llms.txt` **HTTP/2 200** `text/plain`；正文含 Git + Figma、MCP (secondary)、`npx` `--package`、`https://doc.erdonline.com/docs/guide/api-and-mcp/`
+  - `https://www.erdonline.com/llms.txt` **HTTP/2 200** `text/plain`；同上 Git + Figma + MCP secondary + 同 MCP 指南 URL
 
 #### growth：稿件 MCP 主路径改为 npx（未公开发布）
 
