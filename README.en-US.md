@@ -31,6 +31,31 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 
 > **Try it in 30 seconds — no signup:** [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → open the sample project → you're inside a live ER diagram of `user` / `order` tables. Edit a table, save a version, see the diff.
 
+### Cursor MCP in 30 seconds (agents)
+
+Secondary path — the product is still **Git + Figma for database design**, not ChatSQL. Agents read the **same** `projectJSON` the canvas uses. Demo share links are **not** a PAT.
+
+1. Sign in → [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) (read-only is enough). The success dialog copies a PAT-filled `mcp.json`.
+2. MCP is **not** in Docker. Clone, then `cd mcp && yarn install && yarn build`.
+3. Paste into Cursor user-level `~/.cursor/mcp.json` (replace `/ABS/PATH` and the PAT):
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "node",
+      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`. Full steps: [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/) · [中文](https://doc.erdonline.com/docs/guide/api-and-mcp/). Reload MCP and ask: `List my ERD projects`.
+
 ## Why ERD Online
 
 - **Wow in 30 seconds** — the no-login demo drops you straight into a real ER diagram (ReactFlow canvas), not a blank page.
@@ -100,7 +125,7 @@ cd frontend && yarn && yarn start        # 3. frontend (:8000), in another termi
 
 ## 📖 Documentation
 
-Published docs: [doc.erdonline.com](https://doc.erdonline.com/) — [Architecture](https://doc.erdonline.com/docs/architecture) · [Deployment](https://doc.erdonline.com/docs/deployment) · [Development](https://doc.erdonline.com/docs/development)
+Published docs: [doc.erdonline.com](https://doc.erdonline.com/) — [Architecture](https://doc.erdonline.com/docs/architecture) · [Deployment](https://doc.erdonline.com/docs/deployment) · [Development](https://doc.erdonline.com/docs/development) · [MCP for Cursor](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)
 
 ## 🤝 Contributing
 

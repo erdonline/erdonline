@@ -33,6 +33,31 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 > **30 秒惊艳，免注册**：打开 [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → 进入带 `用户`/`订单` 表的关系图，改一张表、存一个版本、看一次 diff。
 
+### 30 秒接到 Cursor MCP（给 Agent）
+
+次路径：品牌仍是**数据库设计的 Git + Figma**，不是 ChatSQL。Agent 读写的是设计器同一份 `projectJSON`。官方 Demo 是只读分享，**不能当 PAT**。
+
+1. 登录后 [铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)（默认只读即可）。铸造成功弹层会给出已填 PAT 的 `mcp.json`，可直接复制。
+2. MCP **不在** Docker 镜像内。克隆后 `cd mcp && yarn install && yarn build`。
+3. 粘进 Cursor 用户级 `~/.cursor/mcp.json`（把绝对路径和 PAT 换成你的）：
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "node",
+      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[中文](https://doc.erdonline.com/docs/guide/api-and-mcp/) · [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)。重载后对 Agent 说：`列出我的 ERD 项目`。
+
 ## 🆚 为什么选它
 
 [完整工具对照 → www.erdonline.com/compare](https://www.erdonline.com/compare)
@@ -125,6 +150,7 @@ cd frontend && yarn && yarn start
 在线文档：[https://doc.erdonline.com/](https://doc.erdonline.com/)
 
 - [愿景与路线图](https://doc.erdonline.com/docs/vision) · [roadmap](https://doc.erdonline.com/docs/roadmap)
+- [用 MCP 让 Cursor 读取 ER 图](https://doc.erdonline.com/docs/guide/api-and-mcp/)
 - [架构说明](https://doc.erdonline.com/docs/architecture)
 - [部署指南](https://doc.erdonline.com/docs/deployment)（含 [CF Pages / GitHub Secrets 清单](https://doc.erdonline.com/docs/deployment#cf-pages-setup)）· [开发指南](https://doc.erdonline.com/docs/development)
 
