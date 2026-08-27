@@ -13,7 +13,7 @@ const v4Token = convertLegacyToken(mapToken);
 
 const {REACT_APP_ENV, UMI_ENV} = process.env;
 
-/** Crawler-visible SERP copy. Intent clusters from full GSC query table (not stuffed): draw/create/make ER diagram online; ERD editor/tool/maker; ER model / entity-relationship. */
+/** Crawler-visible `/` SERP copy. Per-path shells for /catalog /compare /en/* are written after build by scripts/gen-seo-static.mjs. */
 const SEO_TITLE = 'Draw ER Diagram Online — Free Editor | ERD Online';
 const SEO_DESCRIPTION =
   'Draw ER diagrams online for free. ERD editor and maker for entity-relationship models in the browser — versions, collaboration, no signup.';

@@ -669,11 +669,12 @@ curl -sI https://doc.erdonline.com/docs/guide/intro/  # 200
 |---|---|
 | `sitemap.xml` | 公开落地路径：`/`、`/compare`、`/catalog`、`/demo` 及 `/en/*` 英文镜像（ADR-0034） |
 | `robots.txt` | 项目自控（覆盖 CF 注入的默认 robots）；含 `Sitemap:` 绝对 URL；`Disallow` 登录区/设计器等 |
-| `_redirects` | **仅**列已知 SPA pathname 的 `200` 反代到 `/`（勿写 `/index.html`，CF 会 308 到根）；**禁止** `/* / 200` 通配 |
-| `404.html` | 与 `index.html` 同壳；配合 CF「有顶层 404.html 则关闭自动 SPA 模式」，未知路径返回 **HTTP 404** |
+| `dist/<path>/index.html` | 公开营销路径的独立 SPA 壳（`/catalog`、`/compare`、`/en`、`/en/catalog`、`/en/compare`）。爬虫首屏 `<title>` / canonical / hreflang 指向**该路径**，不是首页 Draw-ERD。由 `PRERENDER_PAGES` 驱动。 |
+| `_redirects` | **仅**列尚无静态壳的 SPA pathname 的 `200` 反代到 `/`（勿写 `/index.html`，CF 会 308 到根）；**禁止**把已 prerender 的精确路径（`/catalog`、`/compare`、`/en`…）再写回 `/`；**禁止** `/* / 200` 通配 |
+| `404.html` | 与构建出的根 `index.html` 同壳；配合 CF「有顶层 404.html 则关闭自动 SPA 模式」，未知路径返回 **HTTP 404** |
 | `_headers` | CF Pages 响应头；含 `sitemap.xml` / `robots.txt` 的 `Content-Type` |
 
-站点根 URL 由环境变量 **`ERD_SITE_URL`**（或 `SEO_BASE_URL`）决定，默认 `https://www.erdonline.com`。新增公开路由时同步改 `frontend/scripts/seo-config.mjs`（sitemap 列表 + `_redirects` + nginx map）。
+站点根 URL 由环境变量 **`ERD_SITE_URL`**（或 `SEO_BASE_URL`）决定，默认 `https://www.erdonline.com`。新增公开路由时同步改 `frontend/scripts/seo-config.mjs`（sitemap 列表 + `PRERENDER_PAGES` + `_redirects` + nginx map）。`/` 仍用 `document.ejs` 英文 SERP；hydrate 后 `usePageSeo` 再改中文。本地门禁：`cd frontend && yarn test:seo-static`（无 umi）；`yarn build` 后 `node scripts/assert-seo-static.mjs`。
 
 **百度站长验证**：平台下发的 `baidu_verify_*.html` 放 `frontend/public/`（构建后位于站点根），验证通过后**勿删**；勿写入 sitemap 或 `_redirects` SPA 规则。
 
@@ -699,9 +700,11 @@ curl -sL https://www.erdonline.com/robots.txt
 # 软 404 已修复：未知路径须 404（非 200）
 curl -sI https://www.erdonline.com/__seo_health_nonexistent_path__
 
-# 已知公开路由仍 200
+# 已知公开路由仍 200；首屏 title/canonical 必须是该路径（不是首页 Draw-ERD）
 curl -sI https://www.erdonline.com/compare
 curl -sI https://www.erdonline.com/catalog
+curl -s https://www.erdonline.com/catalog | grep -E '<title>|rel="canonical"'
+curl -s https://www.erdonline.com/en/catalog | grep -E '<title>|rel="canonical"'
 curl -sI https://www.erdonline.com/demo
 curl -sI https://www.erdonline.com/login
 curl -sI 'https://www.erdonline.com/s/public-demo'
@@ -710,7 +713,7 @@ curl -sI 'https://www.erdonline.com/s/public-demo'
 node scripts/seo-index-health.mjs
 ```
 
-本地构建验收：`cd frontend && yarn build` 后 `dist/` 应含上述四文件；`xmllint --noout dist/sitemap.xml` 或 `node -e "..."` 校验 XML。
+本地构建验收：`cd frontend && yarn test:seo-static`；`yarn build` 后 `dist/` 应含 sitemap/robots/`_redirects`/`404.html` 以及 `catalog/index.html`、`compare/index.html`、`en/catalog/index.html` 等；`node scripts/assert-seo-static.mjs`。
 
 ## MCP（agent / CLI，ADR-0013）
 

@@ -8,6 +8,17 @@
 
 ### 2026-08-28
 
+#### fix：公开路径静态壳 canonical / title 不再指回首页
+
+- **证据**：GSC `/en/catalog` crawled not indexed；`/catalog` `/compare` 与 `/` 抢同一份 Draw-ERD 首屏 HTML（CF `_redirects` `200` 反代到 `/`）。hydrate 后 `usePageSeo` 才改摘要，爬虫首屏仍是首页。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；未发小红书；不铸 PAT。
+- **改法**：`gen-seo-static.mjs` 按 `PRERENDER_PAGES` 写出 `dist/catalog/index.html` 等独立 SPA 壳（该路径 title + canonical + hreflang）；从 CF `_redirects` 去掉这些精确路径的 `200` 反代。`/catalog/*` 详情仍 rewrite。
+- 验证点：
+  - `cd frontend && yarn test:seo-static`（无 umi 构建）→ PASS
+  - `yarn build` 后 `node scripts/assert-seo-static.mjs` → `/catalog` 首屏 title 含「ER 图模板」、canonical 为 `…/catalog`，不是 `…/`
+  - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 「crawler first HTML uses path canonical」
+  - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"` → 首页 H1 仍 Git + Figma
+  - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "列表 SEO"` → hydrate 后 title 仍「ER 图模板」
+
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
 - **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
