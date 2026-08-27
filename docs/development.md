@@ -326,6 +326,7 @@ export ERD_API_URL=http://127.0.0.1:9502
 export ERD_PAT="$PAT"   # 写工具需含 versions:write / projects:write
 node dist/index.js      # stdio；或 yarn start -- --http → :3920/mcp
 yarn dogfood            # 读写 PAT + REST/MCP（create_version / update_project / put_project_json）
+yarn smoke:npx          # CI：npm pack 后 npx --package tarball 须打出 stdio ready
 ```
 
 详见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。

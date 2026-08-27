@@ -21,7 +21,8 @@
     "build": "tsc -p tsconfig.json",
     "start": "node dist/index.js",
     "dev": "tsx src/index.ts",
-    "dogfood": "tsx scripts/dogfood.ts"
+    "dogfood": "tsx scripts/dogfood.ts",
+    "smoke:npx": "node scripts/smoke-npx-pack.mjs"
   },
   "engines": {
     "node": ">=18"
