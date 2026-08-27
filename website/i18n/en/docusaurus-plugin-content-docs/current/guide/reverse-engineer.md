@@ -28,10 +28,12 @@ Database already running, ER diagram missing? Connect with a **read-only** accou
 | Permission errors | Use a read-only account with dictionary privileges |
 | Too many tables / timeouts | Narrow selection; reverse by schema or prefix batches |
 | Missing indexes or FKs | Read parse hints; some dialect features are skipped, not invented |
-| No reverse entry on Demo | Expected — [self-host](./quick-self-host.md) or a signed-in instance |
+| No reverse entry on Demo | Expected — [self-host](./quick-self-host.md) or a signed-in instance. The public Demo is **not** a PAT |
+| Agent just called `create_version` | Open the same version **diff**, accept or roll back. Pick prompt `suggest-erd-version`. API 200 is **not** human approval |
 
 ## Next
 
 - File-only / no JDBC: [Import DBML](./import-dbml.md)  
+- Let Cursor suggest a version (you still diff): [MCP guide](./api-and-mcp.md) — prompt `suggest-erd-version`  
 - Secrets isolation: [Security model](/docs/security-model)  
 - [Start here](./intro.md)

@@ -213,7 +213,8 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | MCP README 点名 prompt | 08-28 | ✅ GitHub `mcp/README` 30 秒路径写明 `suggest-erd-version`。**不**发 npm | `mcp/README.md` | 文件含 prompt 与 API 200 |
 | MCP tarball clobber README | 08-28 | ✅ 同 tag `--clobber` 含 7e693748 README。**不**发 npm | Release `erdonline-mcp-0.1.0.tgz` | 11785 B；live npx `stdio ready`；tar README 含 prompt |
 | 根 README API 200 | 08-28 | ✅ 仓根中/英 README：`create_version` API 200 不是人批准。**不**发小红书/npm；不推 frontend | `README.md` `README.en-US.md` | 两文件含 `API 200` |
-| 自托管指南接到 prompt | 08-28 | ✅ 五分钟自托管 FAQ/下一步：`suggest-erd-version` + 本机 `ERD_API_URL`。**不**发小红书/npm；不推 frontend；不 clobber | `docs/guide/quick-self-host.md` 英译本 | `cd website && node scripts/assert-docs-seo.mjs` |
+| 自托管指南接到 prompt | 08-28 | ✅ 五分钟自托管 FAQ/下一步：`suggest-erd-version` + 本机 `ERD_API_URL`。**不**发小红书/npm；不推 frontend；不 clobber | `docs/guide/quick-self-host.md` 英译本 | docs-site [33124795856](https://github.com/erdonline/erdonline/actions/runs/33124795856) 绿；live 中/英 quick-self-host 含 `suggest-erd-version` 与 `127.0.0.1:9502` |
+| 逆向指南接到 prompt | 08-28 | ✅ 存量库逆向 FAQ/下一步：`suggest-erd-version` / `create_version` 人 diff / Demo 不能当 PAT。**不**发小红书/npm；不推 frontend；不 clobber | `docs/guide/reverse-engineer.md` 英译本 | `cd website && node scripts/assert-docs-seo.mjs` |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。

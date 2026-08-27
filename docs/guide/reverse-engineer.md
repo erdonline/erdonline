@@ -28,10 +28,12 @@
 | 权限错误 | 换只读账号并授予读字典权限 |
 | 表太多 / 超时 | 缩小选择范围；按 schema 或前缀分批逆向 |
 | 缺索引或外键 | 看解析提示；个别方言特性可能跳过而非伪造 |
-| Demo 里找不到逆向 | 正常：请 [自托管](./quick-self-host.md) 或已登录实例 |
+| Demo 里找不到逆向 | 正常：请 [自托管](./quick-self-host.md) 或已登录实例。官方 Demo **不能**当 PAT |
+| Agent 刚 `create_version` | 同一套版本列表打开 **diff**，通过或回滚。选 prompt `suggest-erd-version`。API 200 **不是**人批准 |
 
 ## 下一步
 
 - 无 JDBC、只有文件时：[导入 DBML](./import-dbml.md)  
+- 让 Cursor 提交一版建议（人再 diff）：[MCP 指南](./api-and-mcp.md) — prompt `suggest-erd-version`  
 - 安全与密钥隔离：[安全模型](../security-model.md)  
 - [从这里开始](./intro.md)
