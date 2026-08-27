@@ -60,6 +60,12 @@
   - `cd frontend && yarn test:seo-static` → PASS
   - `node scripts/gen-seo-static.mjs` 后 `node scripts/assert-seo-static.mjs` → `/catalog/demo-authz` title「功能鉴权示例 — ER 图模板 | ERD Online」、canonical `…/catalog/demo-authz`；`_item` 非 Draw-ERD、canonical 非 `/`
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → `/catalog/demo-authz` 与未知 ID 首屏不是首页
+- **线上**（2026-08-28 03:32）：Pages [33108570273](https://github.com/erdonline/erdonline/actions/runs/33108570273)（`0a5f3aff`）**success**（deploy-cloudflare 4m8s）。未请求 GSC。未发小红书；H1/SERP 未改。
+  - `/catalog/demo-authz` **308 → `/catalog/demo-authz/`**；两者 `curl -sL` title「功能鉴权示例 — ER 图模板 | ERD Online」、canonical `https://www.erdonline.com/catalog/demo-authz`（identity-200 / 目录壳生效，不是列表也不是首页）
+  - `/catalog/blank` 同模式：308 尾斜杠 + title「空白项目 — ER 图模板 | ERD Online」、canonical `…/catalog/blank`
+  - `/catalog/not-a-real-id-xyz` **308 → `/catalog/_item/`**（非 200 保原 URL）；跟随后列表 title + canonical `…/catalog`。`/catalog/not-a-real-id-xyz/` **404**
+  - `/catalog` **308 → `/catalog/`**；列表仍「ER 图模板 — 免费数据库模型广场 | ERD Online」、canonical `…/catalog`
+  - `/` 仍 Draw-ERD + canonical `https://www.erdonline.com/`
 
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 
