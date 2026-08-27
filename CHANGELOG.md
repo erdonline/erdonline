@@ -42,6 +42,10 @@
   - `https://www.erdonline.com/en/compare` **200** 英文对照 title + canonical `/en/compare`；description 含 Agent/MCP
   - hydrate `umi.4002ab0d.js` 含 `Agent / MCP` 与 `projectJSON + MCP`
   - 首屏 HTML 当时无 `projectJSON` 字样 → 壳 description 补 `projectJSON`
+- **线上壳**（2026-08-28）：frontend-demo-site [33115807465](https://github.com/erdonline/erdonline/actions/runs/33115807465) **success**（`e88434af`）。
+  - `https://www.erdonline.com/compare` description 含 `Agent/MCP（projectJSON）`；title 仍对照页
+  - `https://www.erdonline.com/en/compare` description 含 `Agent/MCP (projectJSON)`；title 仍对照页
+  - GitHub About 已含 Git + Figma 与 topic `mcp`；www `robots.txt` 已有 `# Agent index …/llms.txt`。未改 About/topics；未动 frontend。未发小红书；未请求 GSC；未发 npm
 
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 
