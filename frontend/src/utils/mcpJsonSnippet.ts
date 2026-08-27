@@ -45,11 +45,13 @@ export function buildCursorMcpJson(
 }
 
 export type CursorMcpInstallOpts = {
-  pat?: string;
   apiUrl?: string | null;
 };
 
-/** Inner server object Cursor encodes in install-link `config` (official docs). */
+/**
+ * Inner server object Cursor encodes in install-link `config`.
+ * ERD_PAT is always the placeholder — never a minted secret (URL leaks).
+ */
 export function cursorMcpInstallConfig(
   opts?: CursorMcpInstallOpts,
 ): {
@@ -64,7 +66,7 @@ export function cursorMcpInstallConfig(
       ERD_API_URL: resolveMcpApiUrl(
         opts?.apiUrl === undefined ? PRODUCTION_MCP_API_URL : opts.apiUrl,
       ),
-      ERD_PAT: opts?.pat ?? MCP_PAT_PLACEHOLDER,
+      ERD_PAT: MCP_PAT_PLACEHOLDER,
     },
   };
 }

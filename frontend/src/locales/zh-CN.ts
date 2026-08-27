@@ -520,9 +520,10 @@ export default {
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
   'accountSettings.pat.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
-  'accountSettings.pat.mcpCursorInstallLink': '一键加入 Cursor（已填入本次 PAT）',
+  'accountSettings.pat.mcpCursorInstallLink':
+    '一键加入 Cursor（装好后把 PAT 换成上方明文）',
   'accountSettings.pat.mcpCursorInstallAria':
-    '用官方安装链接把本次 PAT 加入 Cursor MCP',
+    '打开官方 Cursor 安装链接（配置里是占位符，明文 PAT 只在上方 mcp.json）',
 
   'accountSettings.oauthClient.loadFailed': '加载 OAuth 客户端失败',
   'accountSettings.oauthClient.registerSuccess': 'OAuth 客户端已注册',

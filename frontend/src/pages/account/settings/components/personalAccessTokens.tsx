@@ -94,12 +94,8 @@ const PersonalAccessTokensView: React.FC = () => {
   const mcpJson = tokenReveal
     ? buildCursorMcpJson(tokenReveal.token, mcpApiUrl)
     : '';
-  const mcpInstallHref = tokenReveal
-    ? cursorMcpInstallWebHref({
-        pat: tokenReveal.token,
-        apiUrl: mcpApiUrl,
-      })
-    : '';
+  /** Placeholder PAT only — minted token stays in mcp.json, never in this URL. */
+  const mcpInstallHref = cursorMcpInstallWebHref();
 
   const load = useCallback(async () => {
     setLoading(true);
