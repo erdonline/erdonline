@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### growth：稿 #16 对准 GSC make/create/maker 查询
+
+- **证据**：GSC 查询 `make erd online` / `create erd online` / `erd diagram maker` 有展示、0 点击（均位约 74–86）；www SERP title 仍 draw-ERD，不改 H1。
+- **改法**：新稿 `content/articles/make-create-erd-online.md`（开头/中间/结尾；cta=`demo`，对照页次链）。未点小红书发布；不做 ChatSQL；不改 www H1 / SERP title。
+- 验证点：正文汉字 ≥ 800（实测 861）；`node scripts/growth/build-package.mjs make-create-erd-online` 掘金包主链为 `https://www.erdonline.com/demo` 且含 `utm_source=juejin`；对照次链含 `/compare`
+
 #### growth：对照页收割 draw.io（www 转化）
 
 - **证据**：GSC `/compare` 已有 1 点击 / 8 展示，但对照表只有 dbdiagram / DBML，搜 draw-ER 的人看不到差异。稿 #15 小红书长文草稿已存（未排版、未发布）；掘金仍跳过。
