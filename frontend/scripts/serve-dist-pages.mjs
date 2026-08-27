@@ -101,7 +101,9 @@ function checkResolver(distDir) {
   const cases = [
     ["/", "index.html"],
     ["/catalog", "catalog/index.html"],
+    ["/catalog/", "catalog/index.html"],
     ["/en/catalog", "en/catalog/index.html"],
+    ["/en/catalog/", "en/catalog/index.html"],
     ["/compare", "compare/index.html"],
     ["/demo", "demo/index.html"],
     ["/en/demo", "en/demo/index.html"],

@@ -92,6 +92,11 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         canonical: 'https://www.erdonline.com/catalog',
       },
       {
+        path: '/catalog/',
+        title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog',
+      },
+      {
         path: '/compare',
         title: 'ERD Online vs draw.io — 协作、版本与外键语义',
         canonical: 'https://www.erdonline.com/compare',
@@ -103,6 +108,11 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       },
       {
         path: '/en/catalog',
+        title: 'ER diagram templates — free database models | ERD Online',
+        canonical: 'https://www.erdonline.com/en/catalog',
+      },
+      {
+        path: '/en/catalog/',
         title: 'ER diagram templates — free database models | ERD Online',
         canonical: 'https://www.erdonline.com/en/catalog',
       },

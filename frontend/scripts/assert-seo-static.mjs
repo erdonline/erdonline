@@ -120,9 +120,15 @@ function assertRedirects(distDir) {
     if (exact.has(page.path)) {
       fail(`_redirects must not 200-rewrite prerendered ${page.path} to /`);
     }
+    const splat = `${page.path}/*`;
+    if (exact.has(splat)) {
+      fail(
+        `_redirects ${splat} splat matches ${page.path}/ (empty segment) and would serve homepage shell`,
+      );
+    }
   }
-  if (!exact.has("/catalog/*")) {
-    fail("_redirects must keep /catalog/* / 200 for detail pages");
+  if (!exact.has("/catalog/:id")) {
+    fail("_redirects must 200-rewrite /catalog/:id details without matching /catalog/");
   }
 }
 
