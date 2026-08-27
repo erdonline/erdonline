@@ -206,6 +206,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | MCP tarball clobber 人确认 | 08-28 | ✅ 同 tag `--clobber` 含 c272f445 `MUST ask the human`。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11665 B；live npx `stdio ready` |
 | 文档 MCP 点名 prompt | 08-28 | ✅ 指南 30 秒路径 + FAQ：`suggest-erd-version`；**API 200 不是人批准**。**不**发小红书/npm | `docs/guide/api-and-mcp.md` 英译本 `llms.txt` | docs-site [33122325266](https://github.com/erdonline/erdonline/actions/runs/33122325266) 绿；live 中/英指南含 prompt |
 | MCP tarball clobber 指南 | 08-28 | ✅ 同 tag `--clobber` 含 067f419f 指南。**不**发 npm；不重试 Glama | Release `erdonline-mcp-0.1.0.tgz` | 11749 B；live npx `stdio ready`；tar 含 `API 200 不是人批准` |
+| 对照 Agent 格点名 prompt | 08-28 | ✅ `/compare` 格子 + 壳 description：`suggest-erd-version` / 人 diff。**不**发小红书/npm；title 仍 vs draw.io | locales `seo-config.mjs` | `yarn test:seo-static`；`compare.spec.ts` |
 | 下一刀 | 08-28 | 📋 阮一峰 / V2EX / 知乎答题（需人登录；本切片不代发）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 被登录墙挡住 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。

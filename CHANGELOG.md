@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### www：对照表 Agent 格点名 suggest-erd-version
+
+- **证据**：MCP 指南已 live。GSC `/compare` 有展示，但格子仍是泛化 `projectJSON + MCP`，壳 description 未点名 prompt。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；不 clobber；PAT 不进 URL；H1/对照 title 未改。
+- **改法**：落地摘要表与 `/compare` Agent 格改为 `suggest-erd-version，人 diff`；中/英 prerender description 同步。
+- 验证点：`yarn check:i18n`；`yarn test:seo-static`；`compare.spec.ts` 行含 suggest-erd-version；title 仍 vs draw.io
+
 #### docs：MCP 指南点名 suggest-erd-version；API 200 不是人批准
 
 - **证据**：漏斗主 CTA 是文档 MCP 页，但正文只说「调用 create_version」，没点名 Cursor prompt `suggest-erd-version`；也没写 API 200 ≠ 人批准。渠道只剩登录墙。不发小红书/npm；不重试 Glama/GSC；PAT 不进 URL。

@@ -165,7 +165,7 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       );
       const html = await res.text();
       expect(html, c.path).toContain(`<title>${c.title}</title>`);
-      if (c.path === '/en') {
+      if (c.path === '/en' || c.path === '/compare' || c.path === '/en/compare') {
         expect(html, c.path).toContain('suggest-erd-version');
       }
       const canon = html.match(/rel="canonical"[^>]*href="([^"]+)"/)?.[1] ?? '';

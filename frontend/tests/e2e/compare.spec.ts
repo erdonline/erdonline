@@ -20,7 +20,8 @@ test.describe('竞品对照页', () => {
     const agentRow = page.getByTestId('compare-row-agent');
     await expect(agentRow).toBeVisible();
     await expect(agentRow).toContainText('Agent / MCP');
-    await expect(agentRow).toContainText('projectJSON + MCP');
+    await expect(agentRow).toContainText('suggest-erd-version');
+    await expect(agentRow).toContainText('人 diff');
     await expect(agentRow).toContainText('绘图 XML，无外键语义');
     await expect(agentRow).not.toContainText(/ChatSQL|一句话生成/);
     await expect(table.getByRole('cell', { name: '版本与 diff' })).toBeVisible();

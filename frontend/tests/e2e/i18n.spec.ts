@@ -340,7 +340,8 @@ test.describe('i18n：手动语言切换', () => {
     await expect(page).toHaveTitle('ERD Online vs draw.io — collaboration, versions, and FK semantics');
     const enAgent = page.getByTestId('compare-row-agent');
     await expect(enAgent).toContainText('Agent / MCP');
-    await expect(enAgent).toContainText('projectJSON + MCP');
+    await expect(enAgent).toContainText('suggest-erd-version');
+    await expect(enAgent).toContainText('human diffs');
     await expect(enAgent).toContainText('Drawing XML, no FK semantics');
 
     await page.goto('/en/catalog');
