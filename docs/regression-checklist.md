@@ -25,6 +25,7 @@
 - [x] [Home MCP 次入口] `yarn test:e2e --project=chromium tests/e2e/home-mcp.spec.ts` ✅ 2026-08-28
 - [x] [切片 7 MCP 文档 live] 中/英 `/docs/guide/api-and-mcp/` 200、canonical 尾斜杠、sitemap loc 尾斜杠；无斜杠 308 ✅ curl 2026-08-28
 - [x] [切片 7 GSC] 两 URL 未知 → 已请求编入索引；GSC 补交 `en/sitemap.xml` 成功（66 URL）✅ 2026-08-28
+- [x] [GSC catalog/compare] `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引；四 URL curl 200、未检查 301、未发 XHS ✅ 2026-08-28
 
 ## 英文漏斗 i18n / SEO（2026-08-12）
 

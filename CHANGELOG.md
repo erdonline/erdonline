@@ -8,6 +8,17 @@
 
 ### 2026-08-28
 
+#### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
+
+- **证据**：对照页 / 模板广场刚改 SERP 摘要；GSC 效果页已有 `/compare` 1/8、`/catalog` 1/6、`/en/compare` 0/4。未检查 301。未发小红书。
+- **线上 HTTP**（2026-08-28）：四 URL 均为 **200**、无 Location。尾斜杠 `/compare/` `/en/catalog/` `/en/compare/` 为 404，未送检。
+- **GSC**（`sc-domain:erdonline.com`，账号 erdonline154）：
+  - `https://www.erdonline.com/catalog` → **网址已收录到 Google** / 网页已编入索引（未再请求）
+  - `https://www.erdonline.com/compare` → **网址已收录到 Google** / 网页已编入索引（未再请求）
+  - `https://www.erdonline.com/en/catalog` → **尚未收录** / 已发现 - 尚未编入索引（sitemap `www.erdonline.com/sitemap.xml`）→ **已请求编入索引**（入优先抓取队列）
+  - `https://www.erdonline.com/en/compare` → **网址已收录到 Google** / 网页已编入索引（未再请求）
+- 验证点：curl 200 无跳转；GSC 对话框文案如上；`/en/catalog` 弹层「已将网址添加到优先抓取队列中」
+
 #### growth：`/catalog` 独立 SEO（www 转化）
 
 - **证据**：GSC `/catalog` 1 点击 / 6 展示（均位约 2–3），但模板广场未设 page SEO，hydrate 后仍是首页 `Draw ER Diagram Online`，与 `/` 抢摘要。稿 #15/#16 小红书草稿已存（未排版、未发布）；掘金仍跳过。
