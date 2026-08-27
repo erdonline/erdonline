@@ -18,7 +18,9 @@
   - `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 「crawler first HTML uses path canonical」
   - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "加载可见品牌"` → 首页 H1 仍 Git + Figma
   - `yarn test:e2e --project=chromium tests/e2e/catalog.spec.ts --grep "列表 SEO"` → hydrate 后 title 仍「ER 图模板」
-- **线上首屏**（2026-08-28 02:36 / 02:39 重试）：`curl -sL` `https://www.erdonline.com/catalog` 与 `https://www.erdonline.com/en/catalog` 均为 200；`<title>Draw ER Diagram Online — Free Editor | ERD Online</title>`；`rel=canonical` → `https://www.erdonline.com/`。Actions `frontend-demo-site.yml` [33103900237](https://github.com/erdonline/erdonline/actions/runs/33103900237)（SHA `376f92ec`）**failure**（prod-smoke 拦部署，未上 CF）。未再请求 GSC `/en/catalog`。
+- **线上首屏**（2026-08-28 02:36 / 02:39 / 02:42）：`curl -sI`/`-sL` `https://www.erdonline.com/catalog`、`/en/catalog`、`/compare` 均为 **HTTP/2 200**、无 Location；首屏仍 `<title>Draw ER Diagram Online — Free Editor | ERD Online</title>`、`rel=canonical` → `https://www.erdonline.com/`。Actions [33103900237](https://github.com/erdonline/erdonline/actions/runs/33103900237)（`376f92ec`）**failure**（非 in_progress）。未请求 GSC `/en/catalog`。未做 `/demo` prerender。
+- **改法（门禁）**：prod-smoke 不再用 `npx serve@14 -s`（`** → /index.html` 把已有 `dist/catalog/index.html` 盖成首页，假阴性拦 CF）。改为 `scripts/serve-dist-pages.mjs`（目录壳优先，缺文件才 SPA）。www H1 仍 Git + Figma；首页 SERP 仍 draw-ERD；未发小红书。
+- 验证点：`cd frontend && node scripts/serve-dist-pages.mjs --check` → PASS；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` → 「crawler first HTML uses path canonical」绿
 
 #### SEO：GSC 网址检查 `/catalog` `/compare`（及 `/en`）
 

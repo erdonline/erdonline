@@ -144,7 +144,7 @@ npx playwright test tests/e2e/activation.spec.ts --project=chromium-serial --gre
 
 ```bash
 cd frontend
-yarn check:prod-smoke          # yarn build（若无 dist）→ serve dist → 公开 URL 无 pageerror + #root 有内容
+yarn check:prod-smoke          # yarn build（若无 dist）→ CF-like serve dist（目录 index.html 优先于 SPA）→ 公开 URL 无 pageerror + #root 有内容
 PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke   # CI：build 后只跑 smoke
 PROD_SMOKE_SKIP_PRE_PUSH=1 git push             # 跳过 pre-push 全量 smoke（CI/deploy 仍会跑）
 ```

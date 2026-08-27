@@ -40,6 +40,9 @@ function main() {
     console.log('[prod-smoke] using existing dist/');
   }
 
+  console.log('[prod-smoke] directory shells resolve before SPA fallback…');
+  run('node', ['./scripts/serve-dist-pages.mjs', '--check']);
+
   console.log('[prod-smoke] Playwright boot smoke on public URLs…');
   run('npx', [
     'playwright',

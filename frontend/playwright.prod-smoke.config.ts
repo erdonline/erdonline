@@ -3,6 +3,8 @@ import { defineConfig, devices } from '@playwright/test';
 /**
  * Serves pre-built `dist/` and runs boot-only smoke (no backend required).
  * CI / deploy: set PROD_SMOKE_SKIP_BUILD=1 after yarn build.
+ * Serves via scripts/serve-dist-pages.mjs (directory shells before SPA).
+ * Do not use `npx serve -s` — it rewrites prerendered /catalog to homepage HTML.
  */
 const PORT = Number(process.env.PROD_SMOKE_PORT || 4173);
 
@@ -25,7 +27,7 @@ export default defineConfig({
   webServer: process.env.PROD_SMOKE_BASE_URL
     ? undefined
     : {
-        command: `npx --yes serve@14 dist -l ${PORT} -s`,
+        command: 'node ./scripts/serve-dist-pages.mjs',
         url: `http://127.0.0.1:${PORT}`,
         reuseExistingServer: !process.env.CI,
         timeout: 120_000,
