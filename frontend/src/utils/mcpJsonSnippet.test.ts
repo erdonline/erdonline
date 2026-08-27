@@ -2,11 +2,19 @@
  * 运行：cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts
  */
 import assert from 'node:assert/strict';
+import fs from 'node:fs';
+import path from 'node:path';
+import {fileURLToPath} from 'node:url';
 import {
   LOCAL_MCP_API_URL,
   MCP_NPX_ARGS,
   MCP_NPX_PACKAGE,
+  MCP_PAT_PLACEHOLDER,
+  PRODUCTION_MCP_API_URL,
   buildCursorMcpJson,
+  cursorMcpInstallConfig,
+  cursorMcpInstallDeeplink,
+  cursorMcpInstallWebHref,
   resolveMcpApiUrl,
 } from './mcpJsonSnippet';
 
@@ -67,4 +75,35 @@ run('dev empty API_URL uses 127.0.0.1:9502', () => {
     mcpServers: {erdonline: {env: Record<string, string>}};
   };
   assert.equal(parsed.mcpServers.erdonline.env.ERD_API_URL, LOCAL_MCP_API_URL);
+});
+
+run('Cursor install-link config is shipped npx tarball + PAT placeholder', () => {
+  const cfg = cursorMcpInstallConfig();
+  assert.equal(cfg.command, 'npx');
+  assert.deepEqual(cfg.args, [...MCP_NPX_ARGS]);
+  assert.equal(cfg.env.ERD_API_URL, PRODUCTION_MCP_API_URL);
+  assert.equal(cfg.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
+  const web = cursorMcpInstallWebHref();
+  assert.match(web, /^https:\/\/cursor\.com\/link\/mcp\/install\?name=erdonline&config=/);
+  assert.match(cursorMcpInstallDeeplink(), /^cursor:\/\/anysphere\.cursor-deeplink\/mcp\/install\?/);
+  const q = new URL(web).searchParams.get('config');
+  assert.ok(q);
+  const decoded = JSON.parse(
+    Buffer.from(q, 'base64').toString('utf8'),
+  ) as {command: string; args: string[]};
+  assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
+});
+
+run('README and MCP guide contain the Cursor install web link', () => {
+  const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
+  const href = cursorMcpInstallWebHref();
+  for (const rel of [
+    'README.md',
+    'README.en-US.md',
+    'docs/guide/api-and-mcp.md',
+    'website/i18n/en/docusaurus-plugin-content-docs/current/guide/api-and-mcp.md',
+  ]) {
+    const text = fs.readFileSync(path.join(root, rel), 'utf8');
+    assert.ok(text.includes(href), `${rel} missing Cursor install web href`);
+  }
 });
