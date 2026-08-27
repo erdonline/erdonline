@@ -78,6 +78,16 @@ export function attachEmptyProjectsHint(data: unknown): unknown {
   return { ...o, hint: EMPTY_PROJECTS_HINT };
 }
 
+export const CREATE_VERSION_HUMAN_HINT =
+  'Ask the human to open this version in the ERD Online designer, read the diff, and confirm or roll back. API success is not human approval. Do not call put_project_json. Do not generate a new ER diagram.';
+
+export function attachCreateVersionHint(data: unknown): unknown {
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    return { result: data, hint: CREATE_VERSION_HUMAN_HINT };
+  }
+  return { ...(data as Record<string, unknown>), hint: CREATE_VERSION_HUMAN_HINT };
+}
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {

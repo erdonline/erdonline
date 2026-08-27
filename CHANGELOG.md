@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### mcp：create_version 必须让人确认 diff
+
+- **证据**：#13035 / HelloGitHub #3605 无维护者新评（仅 bot / 我方评论）。渠道只剩登录墙。Agent 把 API 200 当审批。不发小红书/npm；不重试 Glama/GSC；PAT 不进 URL。
+- **改法**：`create_version` 描述写明 MUST 让人打开版本 diff 确认；成功结果附 `hint`（API 成功 ≠ 人批准）。prompt `suggest-erd-version` 同步。
+- 验证点：`cd mcp && yarn smoke:introspect` → description 含 `MUST ask the human`；`attachCreateVersionHint` 含 `API success is not human approval`
+
 #### www：首页 prerender 壳写入 MCP 次路径（title 仍 Draw-ERD）
 
 - **证据**：live 首屏 HTML 无 CTA；`suggest-erd-version` / 「读图再提交一版」只在 hydrate `umi.*.js`。对照 `/compare` 把 projectJSON 写进 description（e88434af）。不改 H1/SERP title。不发小红书/npm；不重试 Glama；PAT 不进 URL。
