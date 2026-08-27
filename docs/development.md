@@ -318,6 +318,8 @@ curl -sS 'http://127.0.0.1:9502/api/v1/projects?page=1&size=20' -H "Authorizatio
 
 ### MCP（切片 4–5 + projects:write tools）
 
+30 秒接到 Cursor（不必 clone）：[用 MCP 让 Cursor 读取 ER 图](https://doc.erdonline.com/docs/guide/api-and-mcp/)。本机源码：
+
 ```bash
 cd mcp && yarn install && yarn build
 export ERD_API_URL=http://127.0.0.1:9502

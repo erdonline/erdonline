@@ -15,22 +15,19 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 ![铸造 PAT 后明文只显示一次，弹层可复制 mcp.json](/img/guide/mcp-pat-reveal.png)
 
-2. MCP **不在** Docker 镜像内。克隆并构建：
-
-```bash
-git clone https://github.com/erdonline/erdonline.git
-cd erdonline/mcp
-yarn install && yarn build
-```
-
-3. 把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`（Claude Desktop 同结构）。把绝对路径和 PAT 换成你的：
+2. 把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`（Claude Desktop 同结构）。把 `erd_pat_…` 换成你的 PAT（弹层已填好）。`npx -y --package … erd-mcp` 会拉取 GitHub Release 里的 MCP 包，**不必**本机 clone。
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "node",
-      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
       "env": {
         "ERD_API_URL": "https://erdonline-production.up.railway.app",
         "ERD_PAT": "erd_pat_…"
@@ -40,11 +37,13 @@ yarn install && yarn build
 }
 ```
 
-![Cursor mcp.json 配置片段（把 /ABS/PATH 和 PAT 换成你的）](/img/guide/mcp-json.png)
+![Cursor mcp.json 配置片段（npx tarball；PAT 换成你的）](/img/guide/mcp-json.png)
 
-本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。开发免编译可用 `npx tsx /ABS/PATH/to/erdonline/mcp/src/index.ts` 代替 `node dist/...`。
+本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。MCP **不在** Docker 镜像内。
 
-4. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。
+3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。
+
+贡献者若要从源码跑：`cd mcp && yarn install && yarn build`，再用 `node /ABS/PATH/to/erdonline/mcp/dist/index.js`。开发免编译可用 `npx tsx mcp/src/index.ts`。
 
 ## 你会得到什么
 

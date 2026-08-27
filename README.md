@@ -38,15 +38,19 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 次路径：品牌仍是**数据库设计的 Git + Figma**，不是 ChatSQL。Agent 读写的是设计器同一份 `projectJSON`。官方 Demo 是只读分享，**不能当 PAT**。
 
 1. 登录后 [铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)（默认只读即可）。铸造成功弹层会给出已填 PAT 的 `mcp.json`，可直接复制。
-2. MCP **不在** Docker 镜像内。克隆后 `cd mcp && yarn install && yarn build`。
-3. 粘进 Cursor 用户级 `~/.cursor/mcp.json`（把绝对路径和 PAT 换成你的）：
+2. 粘进 Cursor 用户级 `~/.cursor/mcp.json`（把 `erd_pat_…` 换成你的；弹层已填好）。`npx` 会拉 GitHub Release 包，不必 clone：
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "node",
-      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
       "env": {
         "ERD_API_URL": "https://erdonline-production.up.railway.app",
         "ERD_PAT": "erd_pat_…"

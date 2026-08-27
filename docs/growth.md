@@ -181,6 +181,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | prerender 壳 | 08-28 | ✅ `/catalog` `/compare` `/demo` `/en` `/en/catalog` `/en/compare` `/en/demo` 首屏 title/canonical 为该路径，不再 200 反代到首页 | `seo-config.mjs` `gen-seo-static.mjs` | `yarn test:seo-static`；prod-smoke crawler first HTML |
 | catalog 详情壳 | 08-28 | ✅ 官方 `/catalog/:id` 独立 title/canonical；未知 ID 200 到 `/catalog/`，`_item` 301 走 | 官方 4 种子 + `_redirects` | `yarn test:seo-static`；prod-smoke `/catalog/demo-authz` |
 | README MCP | 08-28 | ✅ GitHub 默认 README + en-US 顶部 30 秒 `mcp.json` 楔子（次路径，H1 仍 Git + Figma）；文档只链 `doc.erdonline.com` | `README.md` `README.en-US.md` | json 块与 `docs/guide/api-and-mcp` 一致；无 github.io；未发 XHS；未请求 GSC |
+| MCP npx | 08-28 | ✅ 30 秒路径改为 `npx -y` GitHub Release tarball，不必 clone+build；npmjs 未发（无登录）。自托管只改 `ERD_API_URL` | `mcpJsonSnippet.ts`、指南、README、PAT 弹层文案 | `mcpJsonSnippet.test.ts`；`npm pack` + `npx -y` 冒烟；未发 XHS；未请求 GSC |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

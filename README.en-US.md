@@ -36,15 +36,19 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 Secondary path — the product is still **Git + Figma for database design**, not ChatSQL. Agents read the **same** `projectJSON` the canvas uses. Demo share links are **not** a PAT.
 
 1. Sign in → [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) (read-only is enough). The success dialog copies a PAT-filled `mcp.json`.
-2. MCP is **not** in Docker. Clone, then `cd mcp && yarn install && yarn build`.
-3. Paste into Cursor user-level `~/.cursor/mcp.json` (replace `/ABS/PATH` and the PAT):
+2. Paste into Cursor user-level `~/.cursor/mcp.json` (the dialog already fills the PAT). `npx` fetches the GitHub Release package — no clone:
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "node",
-      "args": ["/ABS/PATH/to/erdonline/mcp/dist/index.js"],
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
       "env": {
         "ERD_API_URL": "https://erdonline-production.up.railway.app",
         "ERD_PAT": "erd_pat_…"

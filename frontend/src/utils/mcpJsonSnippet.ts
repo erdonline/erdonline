@@ -1,7 +1,10 @@
-/** Cursor / Claude Desktop mcp.json fragment after PAT mint (growth slice 4). */
+/** Cursor / Claude Desktop mcp.json fragment after PAT mint. */
 
-export const MCP_DIST_PATH_PLACEHOLDER =
-  '/ABS/PATH/to/erdonline/mcp/dist/index.js';
+/** GitHub Release tarball of in-repo `@erdonline/mcp` (no clone + yarn build). */
+export const MCP_NPX_PACKAGE =
+  'https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz';
+
+export const MCP_NPX_ARGS = ['-y', '--package', MCP_NPX_PACKAGE, 'erd-mcp'];
 
 /** MCP is a Node process; empty SPA API_URL cannot be same-origin. */
 export const LOCAL_MCP_API_URL = 'http://127.0.0.1:9502';
@@ -22,8 +25,8 @@ export function buildCursorMcpJson(
     {
       mcpServers: {
         erdonline: {
-          command: 'node',
-          args: [MCP_DIST_PATH_PLACEHOLDER],
+          command: 'npx',
+          args: [...MCP_NPX_ARGS],
           env: {
             ERD_API_URL: resolveMcpApiUrl(apiUrl),
             ERD_PAT: pat,

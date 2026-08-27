@@ -34,6 +34,32 @@ ADR-0028：**无** `publish_template`；**无** PAT 评分/评论。
 
 ## 安装与 stdio
 
+30 秒路径用 GitHub Release tarball（不必 clone 全仓）：
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+官方 Demo 不能当 PAT。自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+
+从源码跑：
+
 ```bash
 cd mcp
 yarn install
@@ -48,7 +74,7 @@ node dist/index.js
 yarn dev
 ```
 
-### Cursor MCP 配置示例
+### Cursor MCP 配置示例（源码）
 
 ```json
 {

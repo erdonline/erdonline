@@ -4,7 +4,8 @@
 import assert from 'node:assert/strict';
 import {
   LOCAL_MCP_API_URL,
-  MCP_DIST_PATH_PLACEHOLDER,
+  MCP_NPX_ARGS,
+  MCP_NPX_PACKAGE,
   buildCursorMcpJson,
   resolveMcpApiUrl,
 } from './mcpJsonSnippet';
@@ -33,13 +34,15 @@ run('strips trailing slash from absolute API URL', () => {
   );
 });
 
-run('snippet fills PAT and keeps path placeholder', () => {
+run('snippet fills PAT and uses npx tarball (no local clone path)', () => {
   const json = buildCursorMcpJson(
     'erd_pat_secret',
     'https://erdonline-production.up.railway.app/',
   );
   const parsed = JSON.parse(json) as {
-    mcpServers: {erdonline: {args: string[]; env: Record<string, string>}};
+    mcpServers: {
+      erdonline: {command: string; args: string[]; env: Record<string, string>};
+    };
   };
   assert.equal(
     parsed.mcpServers.erdonline.env.ERD_PAT,
@@ -49,7 +52,12 @@ run('snippet fills PAT and keeps path placeholder', () => {
     parsed.mcpServers.erdonline.env.ERD_API_URL,
     'https://erdonline-production.up.railway.app',
   );
-  assert.equal(parsed.mcpServers.erdonline.args[0], MCP_DIST_PATH_PLACEHOLDER);
+  assert.equal(parsed.mcpServers.erdonline.command, 'npx');
+  assert.deepEqual(parsed.mcpServers.erdonline.args, [...MCP_NPX_ARGS]);
+  assert.match(MCP_NPX_PACKAGE, /erdonline-mcp-0\.1\.0\.tgz$/);
+  assert.equal(MCP_NPX_ARGS[1], '--package');
+  assert.equal(MCP_NPX_ARGS[3], 'erd-mcp');
+  assert.doesNotMatch(json, /ABS\/PATH/);
   assert.match(json, /"mcpServers"/);
 });
 

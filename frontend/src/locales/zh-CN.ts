@@ -515,7 +515,7 @@ export default {
   'accountSettings.pat.copiedSuccess': '访问令牌已复制',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    '粘进 ~/.cursor/mcp.json。把 /ABS/PATH 换成本机 clone 的 mcp/dist/index.js。MCP 不在 Docker 镜像里。',
+    '粘进 ~/.cursor/mcp.json。npx 会拉取 MCP 包，不必本机 clone。官方 Demo 不能当 PAT。自托管把 ERD_API_URL 改成 http://127.0.0.1:9502。',
   'accountSettings.pat.copyMcpJsonAria': '复制 Cursor mcp.json 配置',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
