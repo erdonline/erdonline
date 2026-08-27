@@ -10,7 +10,6 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 import {
   CATALOG_DETAIL_FIXTURES,
-  CATALOG_DETAIL_SHELL_PATH,
   HOME_SEO,
   PRERENDER_PAGES,
   ROBOTS_DISALLOW,
@@ -240,12 +239,8 @@ function writePrerenderedShells(distDir, indexHtml, siteUrl) {
     fs.writeFileSync(outPath, applyPageSeo(indexHtml, page, siteUrl), "utf8");
   }
 
-  const catalogList = PRERENDER_PAGES.find((p) => p.path === "/catalog");
-  if (catalogList) {
-    const genericPath = distHtmlPath(distDir, CATALOG_DETAIL_SHELL_PATH);
-    fs.mkdirSync(path.dirname(genericPath), { recursive: true });
-    fs.writeFileSync(genericPath, applyPageSeo(indexHtml, catalogList, siteUrl), "utf8");
-  }
+  fs.rmSync(path.join(distDir, "catalog", "_item"), { recursive: true, force: true });
+
   for (const fixture of CATALOG_DETAIL_FIXTURES) {
     const page = catalogDetailPage(fixture);
     const outPath = distHtmlPath(distDir, page.path);
@@ -269,7 +264,6 @@ export function generateSeoStatic(distDir = defaultDistDir(), siteUrl = resolveS
   writePrerenderedShells(distDir, indexHtml, siteUrl);
   const shells = [
     ...PRERENDER_PAGES.map((p) => p.path),
-    CATALOG_DETAIL_SHELL_PATH,
     ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id}`),
   ].join(", ");
   console.log(

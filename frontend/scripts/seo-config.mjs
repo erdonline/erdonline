@@ -21,7 +21,7 @@ export function resolveSiteUrl() {
 
 /**
  * Official catalog templates (keep in sync with CatalogSeedRunner.OFFICIAL).
- * Community / unbounded IDs use CATALOG_DETAIL_SHELL_PATH via _redirects.
+ * Unknown /catalog/:id 200-rewrites to `/catalog/` (list shell). Do not emit `/catalog/_item`.
  * No /en/catalog/:id route (ADR-0034).
  *
  * @typedef {{ id: string, title: string, description: string }} CatalogDetailFixture
@@ -50,9 +50,6 @@ export const CATALOG_DETAIL_FIXTURES = [
   },
 ];
 
-/** Generic SPA shell for unknown /catalog/:id (not homepage). */
-export const CATALOG_DETAIL_SHELL_PATH = "/catalog/_item";
-
 /**
  * @param {CatalogDetailFixture} fixture
  * @returns {PrerenderPage}
@@ -69,7 +66,7 @@ export function catalogDetailPage(fixture) {
 /**
  * Paths included in sitemap.xml (pathname, leading slash).
  * Unbounded /catalog/:id and /s/:token stay out; official fixtures are listed.
- * Do not list CATALOG_DETAIL_SHELL_PATH (`/catalog/_item`).
+ * Never list `/catalog/_item`.
  */
 export const SITEMAP_PATHS = [
   "/",
@@ -197,15 +194,22 @@ export const ROBOTS_DISALLOW = [
  * Exact prerendered marketing paths (PRERENDER_PAGES) must NOT appear here —
  * CF 200-rewrite to `/` would ship the homepage title/canonical to crawlers.
  * Do NOT use `/catalog/*` — CF splat matches `/catalog/` (empty) and hides dist/catalog/index.html.
- * `/catalog/:id` rewrites to `/catalog/_item` (generic detail shell), not `/`.
- * CF always applies matching redirects even when a static file exists, so each
- * official fixture gets an identity 200 *before* the `:id` placeholder.
+ * Live 0a5f3aff: 200-rewrite to `/catalog/_item` (a directory) 308d onto `/catalog/_item/` (junk URL).
+ * Unknown `/catalog/:id` 200-rewrites to `/catalog/` (list shell, already slashed) so CF cannot
+ * 308 onto a new junk path. Official fixtures get identity 200 *before* the placeholder
+ * (with and without trailing slash). Leftover `/catalog/_item` 301s to `/catalog/`.
  *
  * @type {readonly string[]}
  */
 export const CF_SPA_REDIRECT_RULES = [
-  ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id} /catalog/${f.id} 200`),
-  "/catalog/:id /catalog/_item 200",
+  ...CATALOG_DETAIL_FIXTURES.flatMap((f) => [
+    `/catalog/${f.id} /catalog/${f.id} 200`,
+    `/catalog/${f.id}/ /catalog/${f.id}/ 200`,
+  ]),
+  "/catalog/_item /catalog/ 301",
+  "/catalog/_item/ /catalog/ 301",
+  "/catalog/:id /catalog/ 200",
+  "/catalog/:id/ /catalog/ 200",
   "/catalog/creator/:handle / 200",
   "/s/* / 200",
   "/login / 200",

@@ -137,7 +137,17 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         canonical: 'https://www.erdonline.com/catalog/demo-authz',
       },
       {
+        path: '/catalog/demo-authz/',
+        title: '功能鉴权示例 — ER 图模板 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog/demo-authz',
+      },
+      {
         path: '/catalog/not-a-real-template',
+        title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
+        canonical: 'https://www.erdonline.com/catalog',
+      },
+      {
+        path: '/catalog/not-a-real-template/',
         title: 'ER 图模板 — 免费数据库模型广场 | ERD Online',
         canonical: 'https://www.erdonline.com/catalog',
       },
@@ -145,6 +155,9 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
     for (const c of cases) {
       const res = await request.get(c.path);
       expect(res.ok(), c.path).toBeTruthy();
+      expect(res.url(), `${c.path} must not land on /catalog/_item`).not.toMatch(
+        /\/catalog\/_item\/?/,
+      );
       const html = await res.text();
       expect(html, c.path).toContain(`<title>${c.title}</title>`);
       const canon = html.match(/rel="canonical"[^>]*href="([^"]+)"/)?.[1] ?? '';
@@ -152,6 +165,14 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
       expect(canon, `${c.path} must not canonicalize to homepage`).not.toBe(
         'https://www.erdonline.com/',
       );
+    }
+
+    for (const junk of ['/catalog/_item', '/catalog/_item/']) {
+      const res = await request.get(junk, { maxRedirects: 0 });
+      expect(res.status(), junk).toBe(301);
+      const loc = res.headers()['location'] ?? '';
+      expect(loc, junk).toMatch(/\/catalog\/?$/);
+      expect(loc, junk).not.toMatch(/_item/);
     }
   });
 });
