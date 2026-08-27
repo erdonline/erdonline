@@ -17,6 +17,12 @@
   - `cd frontend && yarn check:i18n`；`npx tsx src/utils/docsUrl.test.ts`
   - `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "顶栏与 Hero"` 绿
 
+#### growth：MCP 切片 3 — 工作台次入口 + 诚实「今日编辑」
+
+- **证据**：www 已登录用户 `erdonline154` 有 20 个模型、最近编辑「444」14 天前，但「活跃模型」显示 0（实际是今日计数）；工作台无 MCP 入口。
+- **改法**：Home hero 次链 `home-mcp-docs` → 文档 MCP 页（不抢「继续上次建模」）；统计文案改为「今日编辑」。
+- 验证点：`yarn test:e2e --project=chromium tests/e2e/home-mcp.spec.ts` 绿；`yarn check:i18n` 绿
+
 ### 2026-08-27
 
 #### SEO：首页 SERP 摘要改为 job-first（www CTR）

@@ -20,6 +20,7 @@ import {GET, POST_ERD} from '@/services/crud';
 import React, {useEffect, useMemo, useState} from 'react';
 import {createExampleProjectAndOpen} from '@/utils/exampleProject';
 import {erdColors} from '@/theme/tokens';
+import {docsUrl} from '@/utils/docsUrl';
 
 const {Title, Text, Paragraph} = Typography;
 
@@ -221,7 +222,7 @@ const Home: React.FC<HomeProps> = () => {
               className={styles.heroSecondaryBtn}
               data-testid="home-link-new-project"
             >
-              <PlusOutlined /> 从模板创建
+              <PlusOutlined /> {intl.formatMessage({id: 'homePage.fromTemplate'})}
             </Link>
             <button
               type="button"
@@ -231,6 +232,16 @@ const Home: React.FC<HomeProps> = () => {
             >
               {intl.formatMessage({id: 'homePage.startFromExample'})}
             </button>
+            <a
+              className={styles.heroTextLink}
+              href={docsUrl(intl.locale, 'docs/guide/api-and-mcp')}
+              target="_blank"
+              rel="noreferrer"
+              data-testid="home-mcp-docs"
+              aria-label={intl.formatMessage({id: 'homePage.mcpDocsAria'})}
+            >
+              {intl.formatMessage({id: 'homePage.mcpDocs'})}
+            </a>
           </div>
         </div>
       </section>

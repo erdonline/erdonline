@@ -52,7 +52,7 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 |---|---|---|
 | 1 Docs 30-second MCP path + SEO + article #13 | ✅ 2026-08-28 | [`guide/api-and-mcp`](/docs/guide/api-and-mcp) copy-paste; landing Open pillar link; `content/articles/cursor-mcp-read-and-suggest-version.md` |
 | 2 Publish #13 on Xiaohongshu / Juejin | 📋 | Creator publish or leave paste text |
-| 3 Logged-in workspace MCP secondary entry | 📋 | Must not steal New Project primary CTA |
+| 3 Logged-in workspace MCP secondary entry | ✅ 2026-08-28 | Home hero MCP link; stat relabel “Edited today” |
 | 4 PAT success screen embeds mcp.json | 📋 | Copy after mint |
 | 5–8 screenshots / indexing / CI-lint article / two-week review | 📋 | See growth table |
 
