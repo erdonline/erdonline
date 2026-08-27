@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### www：PAT 弹层 / MCP CTA 写明 suggest-erd-version
+
+- **证据**：渠道只剩登录墙。铸造弹层与落地/Home 次链只说到「配 MCP」，人不知道下一步是 `create_version` 给人 diff。不发小红书/npm；不重试 Glama；H1/SERP 未改；PAT 不进 URL。
+- **改法**：PAT `mcpSnippetHint` + 落地开放支柱 CTA + Home 次链点名 `suggest-erd-version` / `create_version`。
+- 验证点：`yarn check:i18n`；`personal-access-tokens.spec.ts` hint 含 suggest-erd-version；landing/home MCP 链文案含「提交一版」；install-link 仍无明文 PAT
+
 #### mcp：clobber 线上 tarball（93ee5272 prompt）
 
 - **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11462 B；`tar` 含 `registerPrompt('suggest-erd-version'`；live npx → `erd-mcp stdio ready`。未发 npm；未改 tag。

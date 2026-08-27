@@ -50,6 +50,7 @@ test.describe('Home MCP 次入口', () => {
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
     await expect(mcp).toHaveAccessibleName(/MCP/);
+    await expect(mcp).toContainText(/提交一版|suggest a version/);
     await expect(page.getByTestId('home-continue-modeling')).toBeVisible();
     await expect(page.getByTestId('home-link-new-project')).toBeVisible();
   });

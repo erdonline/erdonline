@@ -155,7 +155,8 @@ test.describe('落地页', () => {
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
     await expect(mcpDocs).toHaveAccessibleName(/MCP/);
-    await expect(page.getByRole('cell', { name: /projectJSON schema/ })).toBeVisible();
+    await expect(mcpDocs).toContainText(/提交一版|suggest a version/);
+    await expect(page.getByRole('cell', { name: /projectJSON \+ MCP/ })).toBeVisible();
     await expect(page.locator('#compare')).not.toContainText('路线图中');
     await page.getByTestId('landing-nav-catalog').click();
     await expect(page).toHaveURL(/\/catalog/, { timeout: 15_000 });

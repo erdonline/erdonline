@@ -393,7 +393,7 @@ const PersonalAccessTokensView: React.FC = () => {
               <pre className={styles.mcpJson} data-testid="pat-mcp-json">
                 <code>{mcpJson}</code>
               </pre>
-              <p className={styles.mcpHint}>
+              <p className={styles.mcpHint} data-testid="pat-mcp-snippet-hint">
                 {t('accountSettings.pat.mcpSnippetHint')}{' '}
                 <a
                   href={docsUrl(intl.locale, 'docs/guide/api-and-mcp')}
