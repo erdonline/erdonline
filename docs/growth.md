@@ -21,7 +21,7 @@
 
 ## 渠道优先级（ROI 排序）
 
-**立刻做（2026-08-28 证据改写）**：小红书「梁工造物」（MCP/Agent 标题阅读最高）→ 掘金（每周 1 篇主发，MCP 操作帖）→ 文档站 MCP 页 SEO（agent/MCP 查询）→ 落地页次要 MCP 链（H1 仍 Git + Figma；www SERP title 仍 draw-ERD）→ 开源中国/思否零成本同步。HelloGitHub / 阮一峰 / V2EX / 知乎答题仍做，但不抢 MCP 楔子。
+**立刻做（2026-08-28 证据改写）**：今晚 MCP **产品漏斗已收口**（npx / llms / Cursor 一键 / compare 行 / 壳 / JSON-LD）。渠道仍：小红书勿再点发布 → 掘金/思否待登录 → **下一刀未阻塞 = EN awesome-list 种子 PR**。HelloGitHub / 阮一峰 / V2EX / 知乎答题仍做，但不抢已收口的 MCP 产品路径。H1 仍 Git + Figma；www SERP title 仍 draw-ERD。
 
 **暂缓（有前置条件）**：Show HN / Reddit / dev.to —— 等 demo 与落地页英文体验完整（i18n 在 P3），EN 用户撞中文 demo = 转化率塌方，宁可晚发不可烂发；B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
 
@@ -187,7 +187,9 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；live 中/英指南 200 含 install-link；未发 XHS |
 | PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用官方 install-link；**明文不进 URL**（占位符 `erd_pat_…`）。H1 未改 | `personalAccessTokens.tsx` | `install-link href never contains a minted PAT secret`；www Pages `762e3d88` 已绿 |
 | compare MCP 行 | 08-28 | ✅ `/compare` `/en/compare` Agent / MCP 行已上线；壳 description 含 projectJSON。H1/SERP 未改 | `compare.tsx` locales `seo-config.mjs` | Pages `e88434af` 绿；curl description 含 projectJSON；About 已有 mcp |
-| MCP npx CI | 08-28 | ✅ `yarn smoke:npx`：pack 后 npx tarball 须 stdio ready。不发 npmjs | `mcp/scripts/smoke-npx-pack.mjs` `.github/workflows/mcp-ci.yml` | 本地 smoke OK；未发 XHS |
+| MCP npx CI | 08-28 | ✅ `yarn smoke:npx` 已挂 `mcp-ci.yml`；Actions [33116445179](https://github.com/erdonline/erdonline/actions/runs/33116445179) **success**（`ddd4934c`）。不发 npmjs | `mcp/scripts/smoke-npx-pack.mjs` `.github/workflows/mcp-ci.yml` | GH MCP pack smoke 绿；未发 XHS |
+| 今晚 MCP 漏斗 | 08-28 | ✅ **收口（产品路径）**：npx tarball、llms.txt、Cursor install-link、PAT 明文不进 URL、`/compare` Agent/MCP 行、catalog/compare prerender 壳、路径 JSON-LD。渠道侧 #13 勿再点发布；掘金/思否登录墙 | `docs/growth.md` | 上表各行 + mcp-ci 绿 |
+| 下一刀 | 08-28 | 📋 EN awesome-list 种子 PR（W3「英文只埋种子」）。开源中国草稿已在 08-09 台账；思否 session 失败待人登录。**不**发小红书/掘金；**不**请求 GSC | — | 未开工 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

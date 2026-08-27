@@ -58,6 +58,8 @@
 | 6 掘金 CTA 复盘 | ⛔ 验证码墙 | 待登录掘金后再做；不群发 |
 | 7 GSC EN 收录探测 | ✅ 2026-08-28 | 中/英 MCP 页 200 + 尾斜杠 canonical + sitemap loc；GSC 未知 → 已请求编入索引；补交 EN sitemap |
 | 8 CI REST schema-lint 稿 | ✅ 2026-08-28 | `ci-rest-projectjson-schema-lint`；蒸馏进 [`data-format`](./data-format.md) |
+| npx tarball + MCP CI | ✅ 2026-08-28 | Release `mcp-v0.1.0`；`yarn smoke:npx` 挂 [MCP pack smoke](https://github.com/erdonline/erdonline/actions/workflows/mcp-ci.yml) |
+| 今晚产品漏斗 | ✅ 2026-08-28 | llms.txt、Cursor install-link（PAT 不进 URL）、`/compare` Agent/MCP、catalog/compare 壳、JSON-LD |
 | 两周评审（提前） | ✅ 2026-08-28 | XHS #13 已发布浏览 5（#6 仍 51）；GSC 2/103 持平、无 doc 页；www home 无 P0 泄漏；稿 #15 dunk+demo |
 
 ### 落地页（公开，品牌优先，一个构图）✅
