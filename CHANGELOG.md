@@ -28,6 +28,7 @@
 - **证据**：`1684f5b0` 把铸造明文编进 `cursor.com/link/mcp/install` 的 base64 `config`，会进浏览历史、Referer、cursor.com 日志。不可接受。
 - **改法**：install-link 的 `ERD_PAT` 固定为占位符 `erd_pat_…`；弹层一键链与 README 同 href。明文只出现在 mcp.json 复制框。
 - 验证点：`npx tsx src/utils/mcpJsonSnippet.test.ts` → `install-link href never contains a minted PAT secret`；`yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` 绿（href 不含 minted token）
+- **线上**（2026-08-28）：frontend-demo-site [33114045041](https://github.com/erdonline/erdonline/actions/runs/33114045041) **success**（`762e3d88`）。www `umi.*.js` 已是「装好后把 PAT 换成上方明文 / placeholder PAT」，不再是「已填入本次 PAT」。未发小红书；未请求 GSC；未发 npm。
 
 #### growth：docs/www 增加 llms.txt（指向 MCP npx）
 

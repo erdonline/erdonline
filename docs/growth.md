@@ -185,7 +185,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | 稿件 npx | 08-28 | ✅ 稿 #13 源稿+掘金粘贴包、#6 源稿主路径改为 npx；clone/build 仅备选。**未**发小红书/掘金 | `content/articles/cursor-mcp-read-and-suggest-version{,.juejin}.md`、`projectjson-mcp-for-agents.md` | 正文 json 含 `--package` 与 `erdonline-mcp-0.1.0.tgz`；未发 XHS；未请求 GSC |
 | llms.txt | 08-28 | ✅ 文档站 + www 增加短 `llms.txt`（Git + Figma 主叙事；MCP 次路径 npx）；无 llms-full.txt | `website/static/llms.txt` `frontend/public/llms.txt` | `assert-docs-seo.mjs`；`yarn test:seo-static`；未发 XHS |
 | Cursor 一键 | 08-28 | ✅ 无 NPM_TOKEN，不发 npm。README + 指南加官方 `cursor.com/link/mcp/install`（stdio npx tarball）。Home 次链仍文档 | `mcpJsonSnippet.ts` README `guide/api-and-mcp` | `mcpJsonSnippet.test.ts`；live 中/英指南 200 含 install-link；未发 XHS |
-| PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用官方 install-link；**明文不进 URL**（占位符 `erd_pat_…`）。H1 未改 | `personalAccessTokens.tsx` | `install-link href never contains a minted PAT secret`；`personal-access-tokens.spec.ts` 绿 |
+| PAT 弹层一键 | 08-28 | ✅ 铸造揭示弹层次链用官方 install-link；**明文不进 URL**（占位符 `erd_pat_…`）。H1 未改 | `personalAccessTokens.tsx` | `install-link href never contains a minted PAT secret`；www Pages `762e3d88` 已绿 |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 

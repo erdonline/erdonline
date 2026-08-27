@@ -15,7 +15,7 @@ Want Cursor or Claude to read the ER diagram you are editing? Use authenticated 
 
 ![PAT plaintext is shown once; the dialog also copies mcp.json](/img/guide/mcp-pat-reveal.png)
 
-2. After minting a PAT, [Add to Cursor](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D) (official [install-links](https://cursor.com/docs/mcp/install-links); protocol `cursor://anysphere.cursor-deeplink/mcp/install`). Then replace `ERD_PAT` with the plaintext from the dialog.
+2. After minting a PAT, [Add to Cursor](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D) (official [install-links](https://cursor.com/docs/mcp/install-links); protocol `cursor://anysphere.cursor-deeplink/mcp/install`). One-click install does **not** embed the PAT; paste the filled `mcp.json` from the copy box, or replace the placeholder after install.
 
 Or paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the same shape). Replace `erd_pat_…` with your PAT (the dialog already fills it). `npx -y --package … erd-mcp` fetches the MCP tarball from GitHub Releases — **no** local clone.
 
