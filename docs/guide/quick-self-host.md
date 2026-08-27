@@ -34,10 +34,11 @@ docker compose up -d
 | 后端反复重启 | 看 backend 日志：多为等 MySQL 未就绪或口令/库名不匹配 |
 | 拉镜像失败 | 检查网络访问 GHCR；或按部署文档改为本地 build |
 | 生产仍用默认口令 | 必须改；逆向请用只读库账号 |
-| 需要 Agent / MCP | MCP **不在**默认 compose 内 → [API 与 MCP](./api-and-mcp.md) |
+| 需要 Agent / MCP | MCP **不在**默认 compose 内。自托管把 `ERD_API_URL` 设为 `http://127.0.0.1:9502`，走 [API 与 MCP](./api-and-mcp.md)。选 prompt `suggest-erd-version`。`create_version` 的 API 200 **不是**人批准。官方 Demo **不能**当 PAT |
 
 ## 下一步
 
 - 更细的拓扑与云托管：[部署指南](../deployment.md)  
+- 让 Cursor 读本机图再提交一版：[MCP 指南](./api-and-mcp.md) — prompt `suggest-erd-version`；`ERD_API_URL=http://127.0.0.1:9502`  
 - 迁入模型：[导入 DBML](./import-dbml.md) · [数据源逆向](./reverse-engineer.md)  
 - [从这里开始](./intro.md)

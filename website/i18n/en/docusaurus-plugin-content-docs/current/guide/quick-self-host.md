@@ -34,10 +34,11 @@ docker compose up -d
 | Backend restart loop | Backend logs: often waiting on MySQL or wrong password/db name |
 | Image pull failed | Network access to GHCR; or build locally per deployment docs |
 | Default passwords in prod | Change them; use read-only DB users for reverse engineering |
-| Need Agent / MCP | MCP is **not** in the default compose → [API and MCP](./api-and-mcp.md) |
+| Need Agent / MCP | MCP is **not** in the default compose. Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`, then [API and MCP](./api-and-mcp.md). Pick prompt `suggest-erd-version`. `create_version` API 200 is **not** human approval. The public Demo is **not** a PAT |
 
 ## Next
 
 - Deeper topologies & cloud: [Deployment](/docs/deployment)  
+- Let Cursor read the local diagram, then suggest a version: [MCP guide](./api-and-mcp.md) — prompt `suggest-erd-version`; `ERD_API_URL=http://127.0.0.1:9502`  
 - Bring models in: [Import DBML](./import-dbml.md) · [Reverse engineer](./reverse-engineer.md)  
 - [Start here](./intro.md)

@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### docs：自托管指南接到 suggest-erd-version
+
+- **证据**：仓根 README 已写 API 200。五分钟自托管 FAQ 只说「MCP 不在 compose」，人起栈后不知道 `ERD_API_URL` 与 prompt。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
+- **改法**：排障行 + 下一步：`ERD_API_URL=http://127.0.0.1:9502`；prompt `suggest-erd-version`；API 200 不是人批准；Demo 不能当 PAT。中/英同步。
+- 验证点：`cd website && node scripts/assert-docs-seo.mjs`；quick-self-host 含 `suggest-erd-version` 与 `127.0.0.1:9502`
+
 #### mcp：clobber 线上 tarball（7e693748 README）
 
 - **线上资产**（同 tag `mcp-v0.1.0`、同文件名 `erdonline-mcp-0.1.0.tgz`，`--clobber`）：11785 B；live `package/README.md` 含 `suggest-erd-version` / `API 200`；live npx → `erd-mcp stdio ready`。未发 npm；未改 tag。

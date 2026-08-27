@@ -121,6 +121,24 @@ for (const [label, text] of [
     fail(`${label} must name prompt suggest-erd-version`);
   }
 }
+const zhHost = fs.readFileSync(
+  path.join(websiteRoot, '../docs/guide/quick-self-host.md'),
+  'utf8',
+);
+const enHost = read(
+  'i18n/en/docusaurus-plugin-content-docs/current/guide/quick-self-host.md',
+);
+for (const [label, text] of [
+  ['zh quick-self-host', zhHost],
+  ['en quick-self-host', enHost],
+]) {
+  if (!text.includes('suggest-erd-version')) {
+    fail(`${label} must name prompt suggest-erd-version`);
+  }
+  if (!text.includes('127.0.0.1:9502')) {
+    fail(`${label} must point self-host MCP at 127.0.0.1:9502`);
+  }
+}
 if (fs.existsSync(path.join(websiteRoot, 'static/llms-full.txt'))) {
   fail('do not add llms-full.txt unless the site already had that pattern');
 }
