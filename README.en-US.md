@@ -13,7 +13,7 @@
 <p align="center">
   <a href="https://www.erdonline.com/demo"><img alt="Live Demo" src="https://img.shields.io/badge/▶_Live_Demo-no_login-6C5CE7?style=for-the-badge"></a>
   <a href="https://www.erdonline.com/compare"><img alt="Compare" src="https://img.shields.io/badge/🆚_Compare-open_vs_SaaS-FF6B6B?style=for-the-badge"></a>
-  <a href="https://erdonline.github.io/erdonline/"><img alt="Docs" src="https://img.shields.io/badge/Docs-online-2D9CDB?style=for-the-badge"></a>
+  <a href="https://doc.erdonline.com/"><img alt="Docs" src="https://img.shields.io/badge/Docs-online-2D9CDB?style=for-the-badge"></a>
 </p>
 
 <p align="center">
@@ -100,7 +100,7 @@ cd frontend && yarn && yarn start        # 3. frontend (:8000), in another termi
 
 ## 📖 Documentation
 
-Published docs: [erdonline.github.io/erdonline](https://erdonline.github.io/erdonline/) — [Architecture](https://erdonline.github.io/erdonline/docs/architecture) · [Deployment](https://erdonline.github.io/erdonline/docs/deployment) · [Development](https://erdonline.github.io/erdonline/docs/development)
+Published docs: [doc.erdonline.com](https://doc.erdonline.com/) — [Architecture](https://doc.erdonline.com/docs/architecture) · [Deployment](https://doc.erdonline.com/docs/deployment) · [Development](https://doc.erdonline.com/docs/development)
 
 ## 🤝 Contributing
 

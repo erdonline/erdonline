@@ -9,8 +9,8 @@
 决策见 [ADR-0018](./adr/0018-hosting-topology-no-vps.md)。项目方**不买生产 VPS**、不托管用户生产数据；公开表面用 GitHub + Cloudflare 免费档。
 
 ```
-文档站 ──► Cloudflare Pages（erdonline-docs）  [主]
-       └─► GitHub Pages（/erdonline/）         [回退]
+文档站 ──► Cloudflare Pages（erdonline-docs）→ https://doc.erdonline.com  [唯一公开]
+       └─► GitHub Pages（/erdonline/）         [未公开灾备]
 
 静态 demo ─► Cloudflare Pages（erdonline-demo）
              env-config.js ← Variables: DEMO_API_URL
@@ -75,7 +75,7 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 
 **Settings → Pages → Build and deployment → Source** = **GitHub Actions**（对应 `docs-site.yml` 的 `deploy-github-pages`）。
 
-文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`（GH：`https://erdonline.github.io` + `/erdonline/`；CF 产品域：`https://doc.erdonline.com` + `/`；`erdonline-docs.pages.dev` 为运维别名）。
+文档双宿主：`website/docusaurus.config.js` 读 `DOCUSAURUS_URL` / `DOCUSAURUS_BASE_URL`。**唯一公开地址** `https://doc.erdonline.com`（base `/`）。GitHub Pages 构建用 github.io + `/erdonline/`，仅作灾备，不作为产品入口。`erdonline-docs.pages.dev` 只是自定义域 CNAME 目标，不要当文档链接用。
 
 #### 6. 远程与触发
 
@@ -92,9 +92,7 @@ git push origin main
 
 | 表面 | URL |
 |---|---|
-| 文档（产品 URL） | https://doc.erdonline.com |
-| 文档（GH Pages 回退） | https://erdonline.github.io/erdonline/ |
-| 文档（CF Pages 默认别名，运维） | https://erdonline-docs.pages.dev |
+| 文档（唯一公开地址） | https://doc.erdonline.com |
 | 静态 demo（产品 URL） | https://www.erdonline.com |
 | 静态 demo（CF Pages 默认别名，运维） | https://erdonline-demo.pages.dev |
 

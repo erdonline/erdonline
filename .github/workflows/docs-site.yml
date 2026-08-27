@@ -37,9 +37,10 @@ jobs:
           cache: yarn
           cache-dependency-path: website/yarn.lock
 
-      - name: Install and build (GitHub Pages baseUrl)
+      - name: Install and build (GitHub Pages unpublished fallback)
         working-directory: website
         env:
+          # Not a product URL. Public docs are https://doc.erdonline.com (CF job below).
           DOCUSAURUS_URL: https://erdonline.github.io
           DOCUSAURUS_BASE_URL: /erdonline/
         run: |

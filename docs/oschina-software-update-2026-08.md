@@ -83,7 +83,7 @@ ERD Online **5.0.0** 本次迭代主要围绕建模复用、DDL 导出与登录�
 - **在线 Demo（免登录，约 30 秒进关系图）**：https://www.erdonline.com/demo
 - **工具对照（vs dbdiagram / DBML 等）**：https://www.erdonline.com/compare
 - 源码（v5.0.0）：https://github.com/erdonline/erdonline
-- 项目文档：https://erdonline.github.io/erdonline/
+- 项目文档：https://doc.erdonline.com/
 - 本地启动：
 
 ```bash
@@ -133,7 +133,7 @@ cd frontend && yarn start
 
 - 在线 Demo：https://www.erdonline.com/demo
 - 工具对照：https://www.erdonline.com/compare
-- 文档：https://erdonline.github.io/erdonline/docs/development
+- 文档：https://doc.erdonline.com/docs/development
 
 ---
 

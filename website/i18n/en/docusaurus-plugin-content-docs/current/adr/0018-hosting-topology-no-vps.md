@@ -12,8 +12,8 @@ Maintainer constraint: **no production VPS purchase**; formal business data not 
 
 | Surface | Host | Notes |
 |---|---|---|
-| Docs site (Docusaurus) | **Cloudflare Pages** primary (project `erdonline-docs`) | Free tier; `main` deployed via Actions + Wrangler |
-| Docs fallback | **GitHub Pages** | Same `docs-site.yml` continues deploy; GH only if no CF secrets |
+| Docs site (Docusaurus) | **Cloudflare Pages** primary (project `erdonline-docs`) | Free tier; `main` via Actions + Wrangler; **sole public URL** `https://doc.erdonline.com` |
+| Docs fallback | **GitHub Pages** | Same `docs-site.yml`; GH only if no CF secrets; **not a product URL, do not link it** |
 | Frontend static demo | **Cloudflare Pages** (project `erdonline-demo`) | `yarn build:prod` + `env-config.js`; API may be empty |
 | Runtime images | **GHCR** | `ghcr.io/erdonline/erdonline-backend` / `…-frontend`; tags on release |
 | Self-hosted data plane | **User's own machine** | `docker compose` pull images; project does not host production DB |
@@ -29,5 +29,5 @@ Explicitly not doing (this ADR):
 - Positive: zero fixed server cost; docs and static site public; self-hosters have reproducible image path.
 - Cost: full online trial depends on future demo API; CF / GH free quotas and domain need secrets maintenance.
 - Risk: empty `DEMO_API_URL` static site only shows landing/guidance, API journeys unavailable — must document clearly to avoid "broken demo" expectation.
-- vs existing ADR: does not overturn ADR-0003 (Docusaurus); host extended from "GH Pages only" to "CF primary + GH fallback".
+- vs existing ADR: does not overturn ADR-0003 (Docusaurus); host extended from "GH Pages only" to "CF primary + GH fallback". Public docs URL is only `https://doc.erdonline.com`.
 - Ops checklist (Token / Pages projects / GitHub Secrets / acceptance URLs): see [Deployment — GitHub Actions × Cloudflare Pages setup](/docs/deployment#cf-pages-setup).

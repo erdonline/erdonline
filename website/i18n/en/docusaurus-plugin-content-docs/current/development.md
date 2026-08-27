@@ -155,13 +155,13 @@ Conventions:
 ## Docs site (Docusaurus)
 
 ```bash
-cd website && yarn && yarn start   # http://localhost:3000/erdonline/
+cd website && yarn && yarn start   # http://localhost:3000/
 cd website && yarn build           # output website/build; broken links fail build
 ```
 
-Consumes repo `docs/` (ADR-0003). **Product docs entry**: [https://erdonline.github.io/erdonline/](https://erdonline.github.io/erdonline/) (CF Pages `erdonline-docs` ops mirror, see [Deployment](/docs/deployment)). Local Chinese search: `@easyops-cn/docusaurus-search-local` (verify index with `yarn build && yarn serve`; dev index may be incomplete).  
-CI: `.github/workflows/docs-site.yml` (PR build; `main` → GitHub Pages **and** (if secrets configured) Cloudflare Pages `erdonline-docs`).  
-Fallback: without `CLOUDFLARE_*` secrets, GH Pages only. Repo Settings → Pages → Source **GitHub Actions**.  
+Consumes repo `docs/` (ADR-0003). **Product docs entry**: [https://doc.erdonline.com/](https://doc.erdonline.com/) (sole public URL; GitHub Pages is unpublished disaster recovery). Local Chinese search: `@easyops-cn/docusaurus-search-local` (verify index with `yarn build && yarn serve`; dev index may be incomplete).  
+CI: `.github/workflows/docs-site.yml` (PR build; `main` → Cloudflare Pages `erdonline-docs` on `doc.erdonline.com`; unpublished GH Pages fallback).  
+Fallback: without `CLOUDFLARE_*` secrets, GH Pages only (not a product URL). Repo Settings → Pages → Source **GitHub Actions**.  
 Static demo: `.github/workflows/frontend-demo-site.yml` → CF project `erdonline-demo` (hosting topology in [Deployment](/docs/deployment)).
 
 ## Collaboration Presence (SocketIO)
