@@ -36,8 +36,9 @@ export const SITEMAP_PATHS = [
 
 /**
  * Marketing paths that get a distinct SPA shell in dist/<path>/index.html.
- * Titles/descriptions must stay in sync with locale files (landing.seo / catalog.seo).
- * `/` stays document.ejs (English SERP). `/demo` + `/en/demo` redirect to /s/public-demo — not prerendered.
+ * Titles/descriptions must stay in sync with locale files (landing.seo / catalog.seo / share.seo).
+ * `/` stays document.ejs (English SERP). `/demo` + `/en/demo` still client-redirect to /s/public-demo;
+ * crawlers get a per-path shell (not the homepage Draw-ERD HTML).
  *
  * @typedef {{ path: string, locale: 'zh-CN' | 'en-US', title: string, description: string }} PrerenderPage
  * @type {readonly PrerenderPage[]}
@@ -76,6 +77,19 @@ export const PRERENDER_PAGES = [
     title: "ER diagram templates — free database models | ERD Online",
     description:
       "Browse free ER diagram templates. Install an official or community database model in the browser, then edit, version, and collaborate.",
+  },
+  {
+    path: "/demo",
+    locale: "zh-CN",
+    title: "ERD Online 示例 — 免登录查看真实 ER 图",
+    description: "无需登录，以只读方式查看真实 ER 图，30 秒上手 ERD Online 数据库建模。",
+  },
+  {
+    path: "/en/demo",
+    locale: "en-US",
+    title: "ERD Online demo — view a real ER diagram without signing in",
+    description:
+      "Explore a real ER diagram in read-only mode without signing in. Get started with ERD Online in 30 seconds.",
   },
 ];
 
@@ -128,8 +142,6 @@ export const ROBOTS_DISALLOW = [
  * @type {readonly string[]}
  */
 export const CF_SPA_REDIRECT_RULES = [
-  "/demo / 200",
-  "/en/demo / 200",
   "/catalog/* / 200",
   "/s/* / 200",
   "/login / 200",

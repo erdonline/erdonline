@@ -93,26 +93,24 @@ function isDirectRun() {
 }
 
 function checkResolver(distDir) {
-  const catalog = resolveDistFile(distDir, "/catalog");
-  const enCatalog = resolveDistFile(distDir, "/en/catalog");
-  const compare = resolveDistFile(distDir, "/compare");
-  const home = resolveDistFile(distDir, "/");
   const want = (p) => path.join(path.resolve(distDir), p);
   const fail = (msg) => {
     console.error(`serve-dist-pages --check: ${msg}`);
     process.exit(1);
   };
-  if (!catalog || path.resolve(catalog) !== want("catalog/index.html")) {
-    fail(`/catalog → ${catalog}`);
-  }
-  if (!enCatalog || path.resolve(enCatalog) !== want("en/catalog/index.html")) {
-    fail(`/en/catalog → ${enCatalog}`);
-  }
-  if (!compare || path.resolve(compare) !== want("compare/index.html")) {
-    fail(`/compare → ${compare}`);
-  }
-  if (!home || path.resolve(home) !== want("index.html")) {
-    fail(`/ → ${home}`);
+  const cases = [
+    ["/", "index.html"],
+    ["/catalog", "catalog/index.html"],
+    ["/en/catalog", "en/catalog/index.html"],
+    ["/compare", "compare/index.html"],
+    ["/demo", "demo/index.html"],
+    ["/en/demo", "en/demo/index.html"],
+  ];
+  for (const [urlPath, rel] of cases) {
+    const got = resolveDistFile(distDir, urlPath);
+    if (!got || path.resolve(got) !== want(rel)) {
+      fail(`${urlPath} → ${got}`);
+    }
   }
   console.log("serve-dist-pages --check: PASS (directory shells before SPA fallback)");
 }

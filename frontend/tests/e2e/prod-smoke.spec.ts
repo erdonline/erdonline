@@ -111,6 +111,16 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
         title: 'ERD Online vs draw.io — collaboration, versions, and FK semantics',
         canonical: 'https://www.erdonline.com/en/compare',
       },
+      {
+        path: '/demo',
+        title: 'ERD Online 示例 — 免登录查看真实 ER 图',
+        canonical: 'https://www.erdonline.com/demo',
+      },
+      {
+        path: '/en/demo',
+        title: 'ERD Online demo — view a real ER diagram without signing in',
+        canonical: 'https://www.erdonline.com/en/demo',
+      },
     ];
     for (const c of cases) {
       const res = await request.get(c.path);

@@ -178,7 +178,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 | **8** | 08-28（原 09-08；切片 6 阻塞提前做） | ✅ CI 用 REST 拉 projectJSON 做 schema lint（不是 MCP-only） | `content/articles/ci-rest-projectjson-schema-lint.md` | 汉字≥800；`node scripts/validate-projectjson.mjs`；`build-package.mjs` 主 CTA 文档 MCP 页 |
 | 评审 | 08-28（原 09-10 提前） | ✅ 见下「两周评审（提前）」 | `docs/growth.md` | 楔子不停；GSC 持平不是变差 |
 | GSC catalog/compare | 08-28 | ✅ `/catalog` `/compare` `/en/compare` 已收录；`/en/catalog` 已发现尚未编入索引 → 已请求编入索引 | GSC 网址检查 | 四 URL 200；未检查 301；未发 XHS |
-| prerender 壳 | 08-28 | ✅ `/catalog` `/compare` `/en` `/en/catalog` `/en/compare` 首屏 title/canonical 为该路径，不再 200 反代到首页 | `seo-config.mjs` `gen-seo-static.mjs` | `yarn test:seo-static`；prod-smoke crawler first HTML |
+| prerender 壳 | 08-28 | ✅ `/catalog` `/compare` `/demo` `/en` `/en/catalog` `/en/compare` `/en/demo` 首屏 title/canonical 为该路径，不再 200 反代到首页 | `seo-config.mjs` `gen-seo-static.mjs` | `yarn test:seo-static`；prod-smoke crawler first HTML |
 
 纪律：每切片一个意图、验证通过再 commit；MCP 是期权不是噱头（[vision](./vision.md)、[ADR-0012](./adr/0012-ai-era-data-structure-platform.md)、[ADR-0013](./adr/0013-public-api-mcp.md)）。
 
@@ -222,7 +222,7 @@ growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
 - **证据**：GSC `/en/catalog` crawled not indexed；`/catalog` `/compare` 与 `/` 共用首页 Draw-ERD 首屏 HTML（CF `_redirects` `200` → `/`）。
 - **改法**：构建后写出 `dist/<path>/index.html`；从 `_redirects` 去掉这些精确路径。www H1 仍 Git + Figma；首页 SERP title 仍 draw-ERD；未发小红书；不铸 PAT。
 - **蒸馏**：`docs/deployment.md`、`docs/landing.md`。
-- **状态**：✅ 2026-08-28。仍未 prerender：`/demo`（→ `/s/public-demo`）、`/catalog/:id`。
+- **状态**：✅ 2026-08-28。`/demo` `/en/demo` 同日补静态壳（真人仍 hydrate → `/s/public-demo`）。仍未 prerender：`/catalog/:id`。
 
 ## 历史 4 周节奏（2026-08 启动包，已完成选题 1–12）
 
