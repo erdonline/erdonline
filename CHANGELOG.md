@@ -14,10 +14,10 @@
 - **改法**：
   1. `frontend/scripts/prerender-landing.mjs`：在 Playwright 渲染后将 `LocaleSwitcher` 替换为无 JS 的 `<a href="/">中文</a>` / `<a href="/en">EN</a>` 链接。
   2. `frontend/scripts/gen-seo-static.mjs`：
-     - 把 SPA 壳写入 `dist/app.html`（带 `.html` 扩展名，确保 CF Pages 200 重写后 `Content-Type` 正确）。
+     - 把 SPA 壳写入 `dist/app/index.html`（目录形式，CF Pages 200 重写目标为 `/app/`），确保 `Content-Type: text/html` 且 URL 不变。
      - `dist/index.html` 仅保留预渲染落地页 DOM + JSON-LD + env-config + beacon，删掉 `<script src="/framework.*.js">`、`<script src="/preload_helper.*.js">`、`<script src="/umi.*.js">`。
      - 在 `dist/index.html` 的 `</head>` 前注入 `p__landing__index.*.chunk.css`，保证静态页样式完整。
-  3. `frontend/scripts/seo-config.mjs`：所有 SPA 路由的 `_redirects` 目标从 `/` 改为 `/app.html`。
+  3. `frontend/scripts/seo-config.mjs`：所有 SPA 路由的 `_redirects` 目标从 `/` 改为 `/app/`。
   4. `frontend/public/_headers`：`favicon.ico` 改为 `immutable` 长缓存。
 - **验证点**：`yarn build:prod` 绿；`test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 不含 `umi.js` 并含 `p__landing__index.*.chunk.css`；`dist/app` 文件存在且含 `umi.js`
 
