@@ -22,6 +22,12 @@
   2. `utils/relation2file.js` 在导出模块关系图时按需 `document.createElement('script')` 加载 `/js/html2canvas.min.js`。
 - **验证点**：`dist/index.html` 不再包含 `html2canvas`；`dist/js/html2canvas.min.js` 仍存在；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
 
+#### perf(frontend): 按需加载 socket.io-client，减少 ~100KB umi.js 体积
+
+- **问题**：`src/services/collabPresence.ts` 顶部 `require('socket.io-client')` 把 `engine.io-client` 等 ~70KB 拖进 `umi.js` 主包，但协作 Websocket 只有设计页才需要。
+- **改法**：`collabPresence.ts` 移除顶部 import，`connectPresence` 内部 `await import('socket.io-client')` 动态加载。
+- **验证点**：`yarn build:prod` 绿；`dist/umi.*.js` 从 ~2.0MB 降到 ~1.9MB；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 禁用 BABEL_POLYFILL，减少 100KB+ umi.js 体积
 
 - **问题**：Umi 默认按 `targets` 注入 `core-js` polyfill，`umi.js` 因此多出 ~126KB parsed，但项目 `targets` 已是 chrome 120 / firefox 120 / safari 17，现代浏览器不需要。
