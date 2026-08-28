@@ -30,16 +30,12 @@ const SEO_JSON_LD = JSON.stringify({
   description: SEO_DESCRIPTION,
 });
 
-/** Cloudflare Web Analytics + Baidu Tongji — prod build only; skip localhost / 127.0.0.1 at runtime. */
+/** Cloudflare Web Analytics — prod build only; skip localhost / 127.0.0.1 at runtime. */
 const CLOUDFLARE_WEB_ANALYTICS_TOKEN = '4df015bf119f48ff9b03f302f6a3e40a';
-const BAIDU_TONGJI_ID = 'bd50dd978c8d8d94792f4e987c4a7aaf';
 const ANALYTICS_HOST_GUARD = "var h=location.hostname;if(h==='localhost'||h==='127.0.0.1'||h==='[::1]')return;";
 const prodAnalyticsHeadScripts =
   UMI_ENV === 'prod'
     ? [
-        {
-          content: `(function(){${ANALYTICS_HOST_GUARD}var s=document.createElement('script');s.src='https://hm.baidu.com/hm.js?${BAIDU_TONGJI_ID}';document.head.appendChild(s);})();`,
-        },
         {
           content: `(function(){${ANALYTICS_HOST_GUARD}var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.head.appendChild(s);})();`,
         },
@@ -81,9 +77,7 @@ export default defineConfig({
       imagesizes: '100vw',
     },
     { rel: 'preconnect', href: 'https://fonts.bunny.net' },
-    { rel: 'preconnect', href: 'https://hm.baidu.com' },
     { rel: 'preconnect', href: 'https://static.cloudflareinsights.com' },
-    { rel: 'dns-prefetch', href: 'https://hm.baidu.com' },
     { rel: 'canonical', href: `${SEO_ORIGIN}/` },
     { rel: 'sitemap', type: 'application/xml', title: 'Sitemap', href: '/sitemap.xml' },
   ],
