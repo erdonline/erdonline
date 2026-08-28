@@ -42,6 +42,10 @@
 - [x] [落地页 Docs 分流] 英文态页脚 Docs → `https://doc.erdonline.com/en/`；中文态 → `https://doc.erdonline.com/`（无 `/en/`）✅ Playwright 生产 2026-08-27
 - [ ] [分享页 SEO] `/s/public-demo` 英文态 `document.title` 含 demo 文案；`meta[name=description]` 非空；`html[lang=en]`
 
+## 性能 umi.js 瘦身（2026-08-28）
+
+- [ ] [crypto-js 按需加载] 导出 `.erd.json` 能正常生成加密文件；导入 `.erd.json` 能正确解密并加载（手工：设计页 → 导入 → 选择 .erd.json）
+
 ## 主站 SEO 索引（2026-08-12）
 
 - [x] [构建产物] `cd frontend && yarn build` → `dist/sitemap.xml` + `robots.txt` + `_redirects` + `404.html`；`xmllint --noout dist/sitemap.xml` ✅ 2026-08-12

@@ -34,7 +34,7 @@ export type IExportSlice = {
 
 export interface IExportDispatchSlice {
   setExportSliceState: (exportSlice: any) => void;
-  exportFile: (type: string) => void;
+  exportFile: (type: string) => Promise<void>;
   showExportMessage: () => void;
   onDBChange: (defaultDb: string) => void;
   onCustomTypeChange: (customType: any) => void;
@@ -125,7 +125,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
   setExportSliceState: (exportSlice: any) => set(produce(state => {
     state.exportSliceState = exportSlice;
   })),
-  exportFile: (type: string) => {
+  exportFile: async (type: string) => {
     const {projectJSON, projectName: project} = get().project;
     const dataSource = JSON.parse(JSON.stringify(projectJSON));
     const columnOrder = [
@@ -238,7 +238,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
       try {
         const tempDataSource = {...dataSource};
         const originERDJson = JSON.stringify(tempDataSource, null, 2);
-        const secret = get().dispatch.encrypt("AES", originERDJson);
+        const secret = await get().dispatch.encrypt("AES", originERDJson);
         File.save(secret, `${project}.erd.json`);
       } catch (err: unknown) {
         const reason = err instanceof Error ? err.message : storeFmt('store.export.serializeFailed');

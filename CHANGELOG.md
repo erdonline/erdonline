@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 按需加载 crypto-js，减少 umi.js 初始体积
+
+- **问题**：`crypto-js` 被 `projectJsonSlice` 顶部 `import` 拖进 `umi.js` 主包，但加/解密只在导出/导入 `.erd.json` 时触发，首屏不需要。
+- **改法**：`projectJsonSlice` 的 `encrypt` / `decrypt` 改为 `async`，内部 `await import('crypto-js')` 动态加载；`exportSlice` 与两个 `ReverseERD` 组件同步改为 `await`。
+- **验证点**：`yarn build:prod` 绿；`dist/1354.*.async.js` 53KB 即 `crypto-js` 独立 chunk；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 给 umi.js 加 defer，让 LCP 图片提前
 
 - **问题**：`umi.js` 作为普通 `<script>` 在 `<head>` 阻塞 HTML 解析，且与 LCP 图片争带宽；Lighthouse LCP 回到 7.3s。
