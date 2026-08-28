@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### chore(frontend): 清理 src 下未使用死代码
+
+- **范围**：删除 Umi 死码检测确认未引用的 35 个文件/目录（未删 `.test.ts` 和 `typings.d.ts`）。
+  - 废弃组件：`EllipsisMiddle`、`ProjectSelect`、`SaveStatus`、`SchemaProbeControl`、`VersionDirtyChip`、`ZeroCodeGridLayout` 等
+  - 模板残留：`services/ant-design-pro`、`services/swagger`、`store/api`、`store/createStore.tsx`
+  - 未使用页面/片段：`pages/design/export/index.tsx`、`pages/design/index.*`、`DatabaseTemplates.tsx`、`MenuPrivilege.tsx`、`OperationPrivilege.tsx` 等
+  - 旧 store 切片：`globalDatabaseConfigSlice.tsx`、`filters/filtersSlice.tsx` 等
+- **验证点**：`yarn build:prod` 绿；Playwright `prod-smoke` 8 条绿
+
 #### perf(frontend): 提高 Umi Babel targets，精简 polyfill
 
 - **证据**：`core-js` 在 `umi.js` 中占 145 KB，通过 `browserslist`/`caniuse-lite` 调整后变化极小，但设置明确的 `targets` 可让 Babel 少转译一些现代语法。
