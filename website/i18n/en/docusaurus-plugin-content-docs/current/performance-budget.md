@@ -41,3 +41,34 @@ Full spec (including warmup cleanup) ~ ~10 s — not counted in 30s budget. If C
 | DOM nodes when zoomed | < logical table count | ✅ `canvas-scale.spec.ts` |
 
 Full virtualization (tables >100, very many fields) can still be optimized; Lighthouse CI pending stable demo site.
+
+## Landing page Lighthouse & CWV (2026-08-28)
+
+Tested against `https://www.erdonline.com/` with Lighthouse mobile 4G simulation (local CLI).
+
+### Current baseline
+
+| Metric | Baseline | Notes |
+|---|---|---|
+| Performance | ~65 | Volatile (62–69); LCP is the main driver |
+| Accessibility | 96 | — |
+| Best Practices | 61 | Viewport fixed; remainder mostly source maps, robots signal, third-party cookies |
+| SEO | 92 | — |
+| FCP | ~1.8–2.4 s | Text/nav fast |
+| LCP | ~8.4–9.5 s | LCP element is `landingHeroImg`; bottlenecked by `umi.js` 628KB competing with hero webp |
+| TTI | ~8.4–9.5 s | Largely aligned with LCP |
+| TBT | ~300–430 ms | `umi.js` main-thread work |
+| CLS | 0 | — |
+
+### Optimizations attempted this round
+
+- Inline `env-config.js`: removed a 200ms blocking request ✅
+- Responsive hero `srcSet` + `preload`: smaller image ✅, but LCP still dominated by `umi.js`
+- Drop `decoding="async"` on LCP image
+- Lazy-load `html2canvas` on demand: removes 39KB from initial load and `load` event wait ✅
+- `<picture>` vs single `<img>`: single `<img>` did not improve LCP; kept `<picture>`
+- `umi.js defer`: `Best Practices` hit 100, but `Performance` fell to 57–63; reverted
+
+### Next biggest lever
+
+The `umi.js` main bundle at 628KB is still the dominant `LCP`/`TTI` bottleneck. Continuing would require code-splitting the bundle or deferring landing-only non-essential modules.
