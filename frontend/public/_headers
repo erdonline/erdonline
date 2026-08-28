@@ -94,10 +94,6 @@
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
 
 # Subdirectory unhashed assets.
-/erd/*
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/icons/*
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
 /js/*
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
 /woff2/*

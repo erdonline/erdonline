@@ -8,10 +8,16 @@
 
 ### 2026-08-28
 
+#### chore(frontend): 删除 public 下未使用的静态资源
+
+- **证据**：`frontend/public/` 下 `ant-1.png`、`ant-3.png`、`empty.svg`、`erd/`、`gongzhonghao.jpg`、`icons/`、`img.png`、`js/g6*.min.js`、`login-bg*`、`loco.svg`、`project.json`、`xiaochengxu.jpg`、`zanshang.jpg`、`zerocode.*`、`zhuzhuangtu.svg` 在 `frontend/src`、`config`、`scripts` 中零引用。
+- **改法**：`rm -rf` 删除未使用目录与文件；同步从 `public/_headers` 移除 `/erd/*`、`/icons/*` 缓存规则。
+- 验证点：`ls frontend/public` 只剩已使用/元文件；`yarn build:prod` 绿；`git diff --stat` 只删除目标文件
+
 #### fix(cloudflare): 防止 _headers 图片规则重复匹配
 
 - **证据**：上一条 `/*.png`、`/*.jpg` 等通配会因 Cloudflare Pages splat 贪婪匹配子目录（如 `/erd/保存.png`、`/img/hero.jpg`），与 `/erd/*`、`/img/*` 产生重复 `Cache-Control`。
-- **改法**：把根图片规则从 `/*.png` 等改为 `/:file.png` 等占位符，限制为单一段落；保留 `/erd/*`、`/icons/*`、`/js/*`、`/woff2/*`、`/img/*` 子目录规则。
+- **改法**：把根图片规则从 `/*.png` 等改为 `/:file.png` 等占位符，限制为单一段落；保留 `/js/*`、`/woff2/*`、`/img/*` 子目录规则。
 - 验证点：`dist/_headers` 与 `build/_headers` 无 `s-maxage=86400, must-revalidate, public, ...` 重复；`curl -sI` 子目录图片只返回一次 `Cache-Control`
 
 #### frontend + docs：为未哈希静态资源加边缘缓存
