@@ -1,8 +1,30 @@
-/robots.txt
-  Content-Type: text/plain; charset=utf-8
-
-/llms.txt
-  Content-Type: text/plain; charset=utf-8
-
+# SEO artifacts
 /sitemap.xml
   Content-Type: application/xml; charset=utf-8
+  Cache-Control: public, max-age=3600
+/robots.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+/llms.txt
+  Content-Type: text/plain; charset=utf-8
+  Cache-Control: public, max-age=3600
+
+# HTML pages (root, directory indices, direct .html requests).
+# Browser: must revalidate (max-age=0). Edge: cache 10 minutes (s-maxage=600).
+# IMPORTANT: Cloudflare Pages treats text/html as Dynamic by default. You still need to create
+# a Cache Rule in the Cloudflare dashboard (Caching > Cache Rules) to make HTML eligible for cache:
+#   When incoming requests match: (http.host eq "doc.erdonline.com")
+#   Then: Eligible for cache
+#   Edge TTL: Use cache-control header if present, bypass cache if not
+/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/*.html
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/*/:file.html
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/*/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
+# Docusaurus hashed assets (JS/CSS with content hash in filename): safe to cache forever.
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

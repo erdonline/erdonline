@@ -15,6 +15,13 @@
 - **依赖**：Cloudflare 后台仍需创建 Cache Rule，使 text/html 在边缘可被缓存（见 `_headers` 内注释）。
 - 验证点：`yarn build:prod` 绿；`dist/_headers` 包含新增规则；部署并配置 Cache Rule 后 `curl -sI https://www.erdonline.com/` 应出现 `cf-cache-status: HIT`
 
+#### docs：为 Cloudflare Pages 文档站添加 HTML 边缘缓存头
+
+- **证据**：线上 `https://doc.erdonline.com/` 返回 `CF-Cache-Status: DYNAMIC` 且 `TTFB ≈ 3.8s`。
+- **改法**：`website/static/_headers` 为 `/`、`/*.html`、`/*/:file.html`、`/*/` 设置 `Cache-Control: public, max-age=0, s-maxage=600, must-revalidate`；SEO 文件缓存 1 小时；`/assets/*` 哈希资源 immutable。
+- **依赖**：Cloudflare 后台 Cache Rule 需同时覆盖 `doc.erdonline.com`（或一个规则同时匹配 `www.erdonline.com` 与 `doc.erdonline.com`）。
+- 验证点：`cd website && yarn build` 绿；`build/_headers` 包含新增规则；部署并配置 Cache Rule 后 `curl -sI https://doc.erdonline.com/` 应出现 `cf-cache-status: HIT`
+
 #### docs：逆向指南接到 suggest-erd-version
 
 - **证据**：自托管 FAQ 已点名 prompt。逆向 How-to 只写「存一版当基线」，没写 Agent `create_version` 必须人 diff。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
