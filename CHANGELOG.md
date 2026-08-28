@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### frontend + docs：为未哈希静态资源加边缘缓存
+
+- **证据**：`frontend/public/` 与 `website/static/img/` 中有大量图片、图标、字体、JS helper 文件名未哈希，仍按 Pages 默认 `max-age=0` 处理，LCP 受影响。
+- **改法**：`frontend/public/_headers` 新增 `/*.png`、`/*.jpg`、`/*.svg`、`/erd/*`、`/icons/*`、`/js/*`、`/woff2/*`；`website/static/_headers` 新增 `/img/*`、`/*.png` 等静态资源规则，均 `s-maxage=86400, max-age=0, must-revalidate`。
+- 验证点：`yarn build:prod` 绿；`yarn build`（docs）绿；`dist/_headers` 与 `build/_headers` 包含新增规则；部署后 `curl -sI` 图片资源 `cf-cache-status: HIT`
+
 #### frontend：为 Cloudflare Pages 添加 HTML 边缘缓存头
 
 - **证据**：线上 `https://www.erdonline.com/` 返回 `CF-Cache-Status: DYNAMIC` 且 `TTFB ≈ 1.6s`，Google Search Console 提示展示次数下降。

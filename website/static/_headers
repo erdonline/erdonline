@@ -13,7 +13,7 @@
 # Browser: must revalidate (max-age=0). Edge: cache 10 minutes (s-maxage=600).
 # IMPORTANT: Cloudflare Pages treats text/html as Dynamic by default. You still need to create
 # a Cache Rule in the Cloudflare dashboard (Caching > Cache Rules) to make HTML eligible for cache:
-#   When incoming requests match: (http.host eq "doc.erdonline.com")
+#   When incoming requests match: (http.host eq "www.erdonline.com") or (http.host eq "doc.erdonline.com")
 #   Then: Eligible for cache
 #   Edge TTL: Use cache-control header if present, bypass cache if not
 /
@@ -24,6 +24,24 @@
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 /*/
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
+# Images and other static assets: edge cache 1 day, browser must revalidate.
+/img/*
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.png
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.jpg
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.jpeg
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.webp
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.svg
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.ico
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+/*.gif
+  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
 
 # Docusaurus hashed assets (JS/CSS with content hash in filename): safe to cache forever.
 /assets/*
