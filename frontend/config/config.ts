@@ -70,6 +70,10 @@ export default defineConfig({
     { name: 'twitter:description', content: SEO_DESCRIPTION },
   ],
   links: [
+    { rel: 'preconnect', href: 'https://fonts.bunny.net' },
+    { rel: 'preconnect', href: 'https://hm.baidu.com' },
+    { rel: 'preconnect', href: 'https://static.cloudflareinsights.com' },
+    { rel: 'dns-prefetch', href: 'https://hm.baidu.com' },
     { rel: 'canonical', href: `${SEO_ORIGIN}/` },
     { rel: 'sitemap', type: 'application/xml', title: 'Sitemap', href: '/sitemap.xml' },
   ],
