@@ -22,6 +22,12 @@
   2. `utils/relation2file.js` 在导出模块关系图时按需 `document.createElement('script')` 加载 `/js/html2canvas.min.js`。
 - **验证点**：`dist/index.html` 不再包含 `html2canvas`；`dist/js/html2canvas.min.js` 仍存在；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
 
+#### perf(frontend): 禁用 BABEL_POLYFILL，减少 100KB+ umi.js 体积
+
+- **问题**：Umi 默认按 `targets` 注入 `core-js` polyfill，`umi.js` 因此多出 ~126KB parsed，但项目 `targets` 已是 chrome 120 / firefox 120 / safari 17，现代浏览器不需要。
+- **改法**：`frontend/package.json` 的 `build:prod` 增加 `BABEL_POLYFILL=none`。
+- **验证点**：`yarn build:prod` 绿；`dist/umi.*.js` 从 ~2.1MB 降到 ~2.0MB；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 移除百度统计，仅保留 Cloudflare Web Analytics
 
 - **问题**：百度统计 `hm.baidu.com/hm.js` 通过 `document.createElement` 插入，无 `async/defer`，阻塞页面；同时触发 Lighthouse `third-party-cookies` 警告。
