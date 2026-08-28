@@ -8,6 +8,13 @@
 
 ### 2026-08-28
 
+#### frontend：为 Cloudflare Pages 添加 HTML 边缘缓存头
+
+- **证据**：线上 `https://www.erdonline.com/` 返回 `CF-Cache-Status: DYNAMIC` 且 `TTFB ≈ 1.6s`，Google Search Console 提示展示次数下降。
+- **改法**：`frontend/public/_headers` 为 `/` 与预渲染营销页设置 `Cache-Control: public, max-age=0, s-maxage=600, must-revalidate`；保留 `env-config.js` no-store、哈希资源 immutable。
+- **依赖**：Cloudflare 后台仍需创建 Cache Rule，使 text/html 在边缘可被缓存（见 `_headers` 内注释）。
+- 验证点：`yarn build:prod` 绿；`dist/_headers` 包含新增规则；部署并配置 Cache Rule 后 `curl -sI https://www.erdonline.com/` 应出现 `cf-cache-status: HIT`
+
 #### docs：逆向指南接到 suggest-erd-version
 
 - **证据**：自托管 FAQ 已点名 prompt。逆向 How-to 只写「存一版当基线」，没写 Agent `create_version` 必须人 diff。渠道只剩登录墙。不发小红书/npm；不推 frontend；不 clobber。
