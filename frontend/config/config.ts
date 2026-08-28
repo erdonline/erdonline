@@ -37,7 +37,7 @@ const prodAnalyticsHeadScripts =
   UMI_ENV === 'prod'
     ? [
         {
-          content: `(function(){${ANALYTICS_HOST_GUARD}var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.head.appendChild(s);})();`,
+          content: `(function(){${ANALYTICS_HOST_GUARD}function load(){var s=document.createElement('script');s.type='module';s.src='https://static.cloudflareinsights.com/beacon.min.js';s.setAttribute('data-cf-beacon','{"token":"${CLOUDFLARE_WEB_ANALYTICS_TOKEN}"}');document.body.appendChild(s);}if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',load);}else{load();}})();`,
         },
       ]
     : [];
