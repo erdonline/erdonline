@@ -104,6 +104,12 @@ export default defineConfig({
     useLocalStorage: true,
     title: false,
   },
+  // 让 Umi locale 插件用 dayjs 替换 moment，移除 umi.js 中 ~60KB 的 moment
+  moment2dayjs: {},
+  // Umi 4 自动分包：把 node_modules 按 package 拆成独立 chunk，降低 umi.js 主包体积
+  codeSplitting: {
+    jsStrategy: 'granularChunks',
+  },
   // 百度 / CF 统计：prod 构建经 headScripts 按 hostname 注入（跳过 localhost）；不用 Umi analytics 插件以免本地 serve prod 产物污染
   headScripts: [
     { type: 'application/ld+json', content: SEO_JSON_LD },

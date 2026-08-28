@@ -28,6 +28,12 @@
 - **改法**：`collabPresence.ts` 移除顶部 import，`connectPresence` 内部 `await import('socket.io-client')` 动态加载。
 - **验证点**：`yarn build:prod` 绿；`dist/umi.*.js` 从 ~2.0MB 降到 ~1.9MB；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
 
+#### perf(frontend): Umi codeSplitting granularChunks + moment2dayjs，大幅降 umi.js 体积
+
+- **问题**：`umi.js` 主包仍集中打包所有 `node_modules` 和 `moment`；`moment` 体积/本地化大，且 `antd 5` 本已用 `dayjs`。
+- **改法**：`config/config.ts` 增加 `moment2dayjs: {}` 让 locale 插件用 `dayjs`；增加 `codeSplitting: { jsStrategy: 'granularChunks' }` 按 package 粒度拆分 node_modules，使 umi.js 只保留主入口/业务代码。
+- **验证点**：`yarn build:prod` 绿；`dist/umi.*.js` 从 ~1.9MB 降到 **~1.7MB**（1,950,664 bytes 减到 1,786,082 bytes）；生成大量 `shared-*.async.js` chunk；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 禁用 BABEL_POLYFILL，减少 100KB+ umi.js 体积
 
 - **问题**：Umi 默认按 `targets` 注入 `core-js` polyfill，`umi.js` 因此多出 ~126KB parsed，但项目 `targets` 已是 chrome 120 / firefox 120 / safari 17，现代浏览器不需要。
