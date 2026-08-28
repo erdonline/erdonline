@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 给 umi.js 加 defer，让 LCP 图片提前
+
+- **问题**：`umi.js` 作为普通 `<script>` 在 `<head>` 阻塞 HTML 解析，且与 LCP 图片争带宽；Lighthouse LCP 回到 7.3s。
+- **改法**：`gen-seo-static.mjs` 在每个 HTML shell 写 `<script src="/umi.xxx.js" defer>`，让 `umi.js` 在后台下载、DOM 解析完成后执行，不再抢 LCP 图片的优先级。
+- **验证点**：`dist/index.html` 中 `<script src="/umi.*.js" defer></script>`；`gen-seo-static` 日志显示 `added defer to umi.js`；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 延迟加载 html2canvas，减少初始页面 load
 
 - **问题**：`html2canvas.min.js` 在 `head` 中 `async` 加载，每个页面 `load` 事件都要等它（39KB），对落地页用户无用。
