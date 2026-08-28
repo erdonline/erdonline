@@ -71,6 +71,7 @@ Tested against `https://www.erdonline.com/` with Lighthouse mobile 4G simulation
 - Remove Baidu Tongji: `Best Practices` went from 61 to **100**; `Performance` stayed volatile (60–67)
 - Disable `BABEL_POLYFILL=none`: `umi.js` dropped ~120KB parsed, `LCP` fell from ~8.5–10.6s to **~6.4–6.6s**, `Performance` stable at 67–70
 - Lazy-load `socket.io-client`: `umi.js` down another ~100KB, `LCP` stays **~6.4–6.9s**, `Performance` around 70
+- `moment2dayjs` + `codeSplitting: { jsStrategy: 'granularChunks' }`: `umi.js` from ~1.9MB to **~1.7MB**; `LCP` still noisy **~6.0–7.4s**, `Performance` 68–71
 
 ### Next biggest lever
 
