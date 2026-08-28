@@ -77,6 +77,16 @@ export async function prerenderLanding(distDir = defaultDistDir()) {
     });
     // Give React an extra beat to finish initial paint/hydration.
     await page.waitForTimeout(500);
+    await page.evaluate(() => {
+      const switcher = document.querySelector('[data-testid="locale-switcher"]');
+      if (switcher) {
+        switcher.outerHTML =
+          '<div class="landingNavLocaleStatic" aria-label="语言">' +
+          '<a href="/" lang="zh-CN" class="landingNavLocaleLink" style="color:inherit;text-decoration:none;margin-inline-end:12px;">中文</a>' +
+          '<a href="/en" lang="en-US" class="landingNavLocaleLink" style="color:inherit;text-decoration:none;">EN</a>' +
+          '</div>';
+      }
+    });
     const rootHtml = await page.evaluate(() => {
       const root = document.getElementById("root");
       return root ? root.innerHTML : "";

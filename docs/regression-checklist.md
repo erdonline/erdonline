@@ -47,6 +47,14 @@
 - [ ] [crypto-js 按需加载] 导出 `.erd.json` 能正常生成加密文件；导入 `.erd.json` 能正确解密并加载（手工：设计页 → 导入 → 选择 .erd.json）
 - [ ] [jsondiffpatch 按需加载] 设计页「保存版本」能正常产生 diff；版本列表能正常显示 diff；协作远程同步能正常 patch（手工：创建版本 → 打开版本对比；或两人在设计页同时操作）
 
+## 落地页静态化（2026-08-28）
+
+- [ ] [`/` 静态页] 访问 `https://www.erdonline.com/` 时，DevTools Network 不出现 `framework.*.js` / `preload_helper.*.js` / `umi.*.js` 请求；FCP 与 hero 图快速出现
+- [ ] [CTA 链接] 落地页「在线试用」「打开演示」「Compare」等 CTA 跳转后，Umi SPA 正常启动并进入对应页面
+- [ ] [语言切换] 静态页顶部的 `中文` / `EN` 链接能正确跳转 `/` 和 `/en`
+- [ ] [SPA 路由] `/home`、`/demo`、`/login`、`/design/*`、`/project/*` 等仍正常 200 并提供 SPA 壳
+- [ ] [分享页] 任意 `/s/<token>` 分享链接仍能正常打开
+
 ## 主站 SEO 索引（2026-08-12）
 
 - [x] [构建产物] `cd frontend && yarn build` → `dist/sitemap.xml` + `robots.txt` + `_redirects` + `404.html`；`xmllint --noout dist/sitemap.xml` ✅ 2026-08-12
