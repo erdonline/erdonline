@@ -24,7 +24,6 @@ import {Button, message, notification} from "antd";
 import {history} from "@@/core/history";
 import {CONSTANT} from "@/utils/constant";
 import {connectPresence, disconnectPresence, emitCursor, emitSync} from "@/services/collabPresence";
-import {jsondiffpatch} from "./jsondiffpatch";
 import {resetCanvasHistory} from "./canvasHistory";
 import defaultData from "@/utils/defaultData.json";
 import { sanitizeProfileDataSources } from '@/utils/projectDataSource';
@@ -308,7 +307,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                   },
                 });
               },
-              onSync: ({ username, timestamp, delta }) => {
+              onSync: async ({ username, timestamp, delta }) => {
                 const me = cache.getItem('username');
                 if (me && me === username) return;
                 if (!delta || timestamp <= get().timestamp) return;
@@ -317,6 +316,7 @@ const useProjectStore = create<ProjectState, SetState<ProjectState>, GetState<Pr
                 const localDirty = !useGlobalStore.getState().saved;
                 try {
                   applyingRemoteSync = true;
+                  const { jsondiffpatch } = await import('./jsondiffpatch');
                   const nextJson = jsondiffpatch.patch(
                     JSON.parse(JSON.stringify(project.projectJSON)),
                     delta,
@@ -522,7 +522,7 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
   // 协作增量：仅同步 projectJSON（防抖）；远端 patch 不回声
   if (!applyingRemoteSync && project.projectJSON) {
     if (syncEmitTimer) clearTimeout(syncEmitTimer);
-    syncEmitTimer = setTimeout(() => {
+    syncEmitTimer = setTimeout(async () => {
       const st = useProjectStore.getState();
       const current = st.project?.projectJSON;
       if (!current || !st.socket?.connected || applyingRemoteSync) return;
@@ -531,6 +531,7 @@ useProjectStore.subscribe(state => state.project, (project, previousProject) => 
         lastSyncedProjectJson = JSON.parse(JSON.stringify(current));
         return;
       }
+      const { jsondiffpatch } = await import('./jsondiffpatch');
       const delta = jsondiffpatch.diff(base, current);
       if (delta && JSON.stringify(delta) !== '{}') {
         st.sync({ delta, timestamp: Date.now() });
