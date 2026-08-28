@@ -41,3 +41,34 @@
 | 放大后 DOM 节点 | < 逻辑表数 | ✅ `canvas-scale.spec.ts` |
 
 完整虚拟化（表 >100、字段极多）仍可继续压；Lighthouse CI 待 demo 站稳定后接入。
+
+## 落地页 Lighthouse 与 CWV（2026-08-28）
+
+测量站点：`https://www.erdonline.com/`，Lighthouse mobile 4G 模拟（本机 CLI）。
+
+### 当前基线
+
+| 指标 | 基线 | 备注 |
+|---|---|---|
+| Performance | ~65 | 波动较大（62–69），LCP 是主因 |
+| Accessibility | 96 | — |
+| Best Practices | 61 | viewport 已修复；剩余多为 source maps / robots 信号 / 第三方 cookie |
+| SEO | 92 | — |
+| FCP | ~1.8–2.4 s | 文本/导航快速出现 |
+| LCP | ~8.4–9.5 s | LCP 元素为 `landingHeroImg`；受 `umi.js` 628KB 与 hero webp 竞争影响 |
+| TTI | ~8.4–9.5 s | 与 LCP 基本重合 |
+| TBT | ~300–430 ms | umi.js 执行占用主线程 |
+| CLS | 0 | — |
+
+### 本轮已尝试的优化
+
+- `env-config.js` 内联：消除 200ms 阻塞请求 ✅
+- 响应式 hero `srcSet` + `preload`：减少下载体积 ✅ 但 LCP 仍被 `umi.js` 压制
+- 移除 `decoding="async"` 从 LCP 图片：避免延迟解码
+- `html2canvas` 按需加载：减少 39KB 初始下载与 `load` 事件等待 ✅
+- `<picture>` vs 单 `<img>`：单 `<img>` 未改善 LCP；回退到 `<picture>`
+- `umi.js defer`：`Best Practices` 升至 100，但 `Performance` 跌至 57–63，回退
+
+### 后续最大杠杆
+
+`umi.js` 主包 628KB 仍是 `LCP`/`TTI` 的主要瓶颈。要显著继续提升，需对其做代码分割 / 延迟加载 landing 非必须模块。
