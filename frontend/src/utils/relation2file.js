@@ -124,6 +124,17 @@ const buildModuleDom = (module) => {
   return wrap;
 };
 
+/** 按需加载 html2canvas（仅在导出关系图时触发） */
+const loadHtml2canvas = () => new Promise((resolve, reject) => {
+  if (typeof html2canvas === 'function') return resolve();
+  const s = document.createElement('script');
+  s.src = '/js/html2canvas.min.js?v=20260828a';
+  s.async = true;
+  s.onload = () => resolve();
+  s.onerror = () => reject(new Error('html2canvas 加载失败'));
+  document.head.appendChild(s);
+});
+
 /**
  * @param {object} dataSource projectJSON
  * @param {any} _columnOrder 保留签名兼容 exportSlice（新实现按 entities 字段渲染）
@@ -142,16 +153,14 @@ export const saveImage = (dataSource, _columnOrder, callBack, errorCallback) => 
     host.appendChild(graph);
     document.body.appendChild(host);
     setTimeout(() => {
-      if (typeof html2canvas !== 'function') {
-        host.parentNode && host.parentNode.removeChild(host);
-        reject(new Error('html2canvas 未加载'));
-        return;
-      }
-      html2canvas(graph).then((canvas) => {
+      loadHtml2canvas().then(() => html2canvas(graph).then((canvas) => {
         images[module.name] = canvas.toDataURL('png');
         host.parentNode && host.parentNode.removeChild(host);
         resolve();
       }).catch((err) => {
+        host.parentNode && host.parentNode.removeChild(host);
+        reject(err);
+      })).catch((err) => {
         host.parentNode && host.parentNode.removeChild(host);
         reject(err);
       });

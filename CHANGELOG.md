@@ -8,6 +8,14 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 延迟加载 html2canvas，减少初始页面 load
+
+- **问题**：`html2canvas.min.js` 在 `head` 中 `async` 加载，每个页面 `load` 事件都要等它（39KB），对落地页用户无用。
+- **改法**：
+  1. `config/config.ts` 移除 `html2canvas.min.js` 的 `headScripts`。
+  2. `utils/relation2file.js` 在导出模块关系图时按需 `document.createElement('script')` 加载 `/js/html2canvas.min.js`。
+- **验证点**：`dist/index.html` 不再包含 `html2canvas`；`dist/js/html2canvas.min.js` 仍存在；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 强制内联 env-config.js，消除 200ms 阻塞请求
 
 - **问题**：Cloudflare Pages 构建时 `API_URL` 未设，导致 `inlineEnvConfig` 之前未触发，`env-config.js` 仍以 `?date=...` 单独请求并阻塞。
