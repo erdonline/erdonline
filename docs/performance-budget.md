@@ -71,6 +71,7 @@
 - 移除百度统计：`Best Practices` 从 61 升到 **100**；`Performance` 轻微波动（60–67）
 - 禁用 `BABEL_POLYFILL=none`：`umi.js` 减少 ~120KB parsed，`LCP` 从 ~8.5–10.6s 降到 **~6.4–6.6s**，`Performance` 稳定在 67–70
 - `socket.io-client` 按需加载：`umi.js` 再降 ~100KB，`LCP` 继续稳定在 **~6.4–6.9s**，`Performance` 70 左右
+- `moment2dayjs` + `codeSplitting: { jsStrategy: 'granularChunks' }`：`umi.js` 从 ~1.9MB 降到 **~1.7MB**；`LCP` 仍受网络波动在 **~6.0–7.4s** 之间，`Performance` 68–71
 
 ### 后续最大杠杆
 
