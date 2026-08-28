@@ -30,6 +30,14 @@
   3. 移动端优先下载 400/800 webp（~10–31KB），桌面端按 `sizes="100vw"` 自动选 1600。
 - **验证点**：`yarn build:prod` 后 `dist/landing-hero-*.webp/jpg` 存在；`dist/index.html` 中 `<source>` 已带 `srcSet`；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿
 
+#### perf(frontend): preload hero 图片，改善 LCP
+
+- **问题**：接 `srcSet` 后 Lighthouse LCP 掉到 8.8s；英雄图虽变小但下载仍被延迟到 `umi.js` 后。
+- **改法**：
+  1. `config/config.ts` 增加 `<link rel="preload" as="image" ... imagesrcset ... imagesizes="100vw">`，让浏览器在 HTML 解析早期就发起英雄图请求。
+  2. `pages/landing/index.tsx` 移除 LCP 图片的 `decoding="async"`，避免 `async` 解码推迟 LCP 绘制。
+- **验证点**：产物中出现 `<link rel="preload" as="image" ...>`；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### a11y(frontend): 修复 viewport 禁缩放
 
 - **问题**：Lighthouse Best Practices 报 `[user-scalable="no"]` / `maximum-scale` < 5。
