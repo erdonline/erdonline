@@ -127,7 +127,6 @@ const LandingPage: React.FC = () => {
                 width={1600}
                 height={1000}
                 loading="eager"
-                decoding="async"
                 {...{fetchpriority: 'high' as const}}
               />
             </picture>
