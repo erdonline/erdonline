@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### perf(deploy): framework.*.js 加 immutable 长缓存，避免 304 往返
+
+- **问题**：`framework.*.js` 每次刷新都返回 304，0.5 KB 却要 200ms+ RTT，因为它没被 `public/_headers` 的 `immutable` 规则覆盖。
+- **改法**：`frontend/public/_headers` 增加 `/framework.*.js → Cache-Control: public, max-age=31536000, immutable`，和 `umi.*.js` / `*.async.js` 一致。
+- **验证点**：`yarn build:prod` 绿；`dist/_headers` 含 `/framework.*.js` 规则；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 按需加载 jsondiffpatch，再降 umi.js 体积
 
 - **问题**：`jsondiffpatch` 被 `useProjectStore` 和 `projectJsonSlice` 顶部 `import` 拖进 `umi.js`，但首屏落地页不需要版本 diff / patch。
