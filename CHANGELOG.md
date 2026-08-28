@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 添加关键域预连接 / DNS 预取
+
+- **问题**：Lighthouse 显示 `Preconnect to required origins` 可节省约 740ms。
+- **改法**：在 `config/config.ts` 的 `links` 中加入 `preconnect`/`dns-prefetch`：
+  - `https://fonts.bunny.net`
+  - `https://hm.baidu.com`
+  - `https://static.cloudflareinsights.com`
+- **验证点**：`yarn build:prod` 绿；产物 `dist/index.html` 中出现 `<link rel="preconnect" ...>`；Playwright `prod-smoke` 8 条绿
+
 #### chore(frontend): 清理 src 下未使用死代码
 
 - **范围**：删除 Umi 死码检测确认未引用的 35 个文件/目录（未删 `.test.ts` 和 `typings.d.ts`）。
