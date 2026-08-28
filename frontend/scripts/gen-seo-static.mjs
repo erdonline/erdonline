@@ -310,7 +310,6 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
   const indexPath = ensureDist(distDir);
   let indexHtml = fs.readFileSync(indexPath, "utf8");
   indexHtml = inlineEnvConfig(distDir, indexHtml);
-  indexHtml = deferUmi(indexHtml);
   const builtAt = new Date().toISOString().slice(0, 10);
   writeSitemap(distDir, siteUrl, builtAt);
   writeRobots(distDir, siteUrl);
