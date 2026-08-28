@@ -23,12 +23,7 @@
 /
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
-# SPA fallback shell (no file extension to avoid CF Pages 308 to a directory).
-/app
-  Content-Type: text/html; charset=utf-8
-  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
-
-# Root .html files (e.g. index.html, 404.html)
+# Root .html files (e.g. index.html, 404.html, app.html)
 /:file.html
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
