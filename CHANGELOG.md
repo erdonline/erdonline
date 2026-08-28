@@ -46,6 +46,12 @@
   2. `pages/landing/index.tsx` 移除 LCP 图片的 `decoding="async"`，避免 `async` 解码推迟 LCP 绘制。
 - **验证点**：产物中出现 `<link rel="preload" as="image" ...>`；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
 
+#### perf(frontend): 把 LCP 图片的 picture/source 改成单 img，恢复 fetchpriority
+
+- **问题**：`<picture><source srcSet=webp ...><img ...></picture>` 模式下，`img` 上的 `fetchpriority="high"` 对 webp `source` 不生效，且 `<link rel="preload" imagesrcset>` 匹配的是 `img` 的 `srcSet`，不是 `source` 的；导致 `landing-hero-800.webp` 被延迟到 `umi.js` 后，LCP 从 3.1s 掉到 7.6s。
+- **改法**：`pages/landing/index.tsx` 去掉 `<picture>`，改用单个 `<img>`，`srcSet` 全部用 webp，`src` 回退 jpg。这样 `fetchpriority="high"` 和 `preload imagesrcset` 直接作用在 LCP 图片上。
+- **验证点**：产物中 `landingHeroImg` 没有 `<picture>` 包装；`dist/index.html` 中 LCP 图片 `fetchpriority="high"` 且 `srcSet` 正确；`yarn build:prod` 绿；`check:prod-smoke` 8/8 绿
+
 #### a11y(frontend): 修复 viewport 禁缩放
 
 - **问题**：Lighthouse Best Practices 报 `[user-scalable="no"]` / `maximum-scale` < 5。
