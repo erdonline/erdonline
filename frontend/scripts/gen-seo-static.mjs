@@ -349,6 +349,23 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
         `  <link rel="stylesheet" href="/${landingCss}" />\n  </head>`,
       );
     }
+    const authedCtaScript = `
+  <script>
+    (function () {
+      var authed = false;
+      try { authed = !!localStorage.getItem('Authorization'); } catch (e) {}
+      if (!authed) return;
+      var en = /^en/i.test((document.documentElement && document.documentElement.lang) || '');
+      var enterText = en ? 'Workspace' : '进入工作台';
+      var navCta = document.querySelector('[data-testid="landing-nav-cta"]');
+      if (navCta) { navCta.href = '/home'; navCta.textContent = enterText; }
+      var mainCta = document.querySelector('#landing-main-cta .landingBtnPrimary');
+      if (mainCta) { mainCta.href = '/home'; mainCta.textContent = enterText; }
+      var footerLogin = document.querySelector('.landingFooter a[href="/login"]');
+      if (footerLogin) { footerLogin.href = '/home'; footerLogin.textContent = enterText; }
+    })();
+  </script>`;
+    staticLanding = staticLanding.replace('</body>', `${authedCtaScript}\n</body>`);
     fs.writeFileSync(homePath, staticLanding, 'utf8');
     console.log('gen-seo-static: prerendered / static landing DOM into dist/index.html');
   }
