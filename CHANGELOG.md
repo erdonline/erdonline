@@ -22,6 +22,15 @@
   2. `utils/relation2file.js` 在导出模块关系图时按需 `document.createElement('script')` 加载 `/js/html2canvas.min.js`。
 - **验证点**：`dist/index.html` 不再包含 `html2canvas`；`dist/js/html2canvas.min.js` 仍存在；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
 
+#### perf(frontend): 移除百度统计，仅保留 Cloudflare Web Analytics
+
+- **问题**：百度统计 `hm.baidu.com/hm.js` 通过 `document.createElement` 插入，无 `async/defer`，阻塞页面；同时触发 Lighthouse `third-party-cookies` 警告。
+- **改法**：
+  1. `config/config.ts` 移除 `BAIDU_TONGJI_ID` 和对应 `headScripts`。
+  2. 同步删除 `hm.baidu.com` 的 `preconnect` 与 `dns-prefetch`。
+  3. 保留 Cloudflare Web Analytics（`beacon.min.js`，`type=module`）。
+- **验证点**：`dist/index.html` 不再包含 `hm.baidu`；`yarn build:prod` 绿；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 强制内联 env-config.js，消除 200ms 阻塞请求
 
 - **问题**：Cloudflare Pages 构建时 `API_URL` 未设，导致 `inlineEnvConfig` 之前未触发，`env-config.js` 仍以 `?date=...` 单独请求并阻塞。
