@@ -82,6 +82,8 @@ export default defineConfig({
   access: {},
   // access 插件依赖 initial State 所以需要同时开启
   initialState: {},
+  // 提高 Babel targets，减少 core-js 等 polyfill 的打包量
+  targets: { chrome: 120, firefox: 120, safari: 17, edge: 120 },
   deadCode: {},
   // i18n MVP（ADR-0023）：
   // antd:false — antd locale 已由 Theme 的 getAntdLocale() 手动管理，避免二次包一层 ConfigProvider 冲掉自定义 token；
