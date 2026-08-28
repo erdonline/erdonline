@@ -68,6 +68,7 @@ Tested against `https://www.erdonline.com/` with Lighthouse mobile 4G simulation
 - Lazy-load `html2canvas` on demand: removes 39KB from initial load and `load` event wait ✅
 - `<picture>` vs single `<img>`: single `<img>` did not improve LCP; kept `<picture>`
 - `umi.js defer`: `Best Practices` hit 100, but `Performance` fell to 57–63; reverted
+- Remove Baidu Tongji: Lighthouse `Best Practices` went from 61 to **100**; `Performance` stayed volatile (60–67), `LCP` still dominated by `umi.js`
 
 ### Next biggest lever
 
