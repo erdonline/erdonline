@@ -74,7 +74,7 @@ const ReverseERD: React.FC<ReverseERDProps> = ({
         void (async () => {
           let originJson: string;
           try {
-            originJson = projectDispatch.decrypt('AES', String(reader.result));
+            originJson = await projectDispatch.decrypt('AES', String(reader.result));
           } catch {
             message.error(intl.formatMessage({ id: 'importModal.erd.decryptFailed' }));
             return;

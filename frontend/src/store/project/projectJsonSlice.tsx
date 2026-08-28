@@ -8,7 +8,6 @@ import DatabaseDomainsSlice from "@/store/project/databaseDomainsSlice";
 import useGlobalStore from "@/store/global/globalStore";
 import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
-import * as CryptoJS from 'crypto-js';
 import { find as _find, get as _get } from 'lodash-es';
 import {message} from "antd";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
@@ -19,6 +18,11 @@ import {
   persistProjectNow,
 } from "@/store/project/projectAutosave";
 import type {PersistOpt} from "@/store/project/persistOpt";
+
+async function loadCryptoJS(): Promise<any> {
+  const mod: any = await import('crypto-js');
+  return mod.default || mod;
+}
 
 export type IProjectJsonSlice = Record<string, never>;
 
@@ -36,8 +40,8 @@ export interface IProjectJsonDispatchSlice {
   setProfile: (value: any) => void;
   addProjectTableTitle: (title: string) => void;
   getGlobalStore: () => State;
-  encrypt: (type: string, origin: string) => string;
-  decrypt: (type: string, secret: string) => string;
+  encrypt: (type: string, origin: string) => Promise<string>;
+  decrypt: (type: string, secret: string) => Promise<string>;
   diff: (previousProject: any, project: any) => any;
   patch: (r: any) => void;
   setSyncing: (sync: any) => void;
@@ -148,7 +152,8 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
   getGlobalStore: () => {
     return globalState;
   },
-  encrypt: (type: string, origin: string) => {
+  encrypt: async (type: string, origin: string) => {
+    const CryptoJS = await loadCryptoJS();
     const erdPassword = get().project?.projectJSON?.profile?.erdPassword || 'ERDOnline';
     const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.MD5(erdPassword).toString());
     const iv = CryptoJS.enc.Utf8.parse(CryptoJS.MD5(secretKey).toString().substr(0, 16));
@@ -163,7 +168,8 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     }
     return "";
   },
-  decrypt: (type: string, secret: string) => {
+  decrypt: async (type: string, secret: string) => {
+    const CryptoJS = await loadCryptoJS();
     if (type === 'AES') {
       const erdPassword = get().project?.projectJSON?.profile?.erdPassword || 'ERDOnline';
       const secretKey = CryptoJS.enc.Utf8.parse(CryptoJS.MD5(erdPassword).toString());

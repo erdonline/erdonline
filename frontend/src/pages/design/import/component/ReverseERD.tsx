@@ -98,7 +98,7 @@ const ReverseERD: React.FC<ReverseERDProps> = () => {
           let originJson;
           try {
             // @ts-ignore
-            originJson = projectDispatch.decrypt('AES', reader.result.toString());
+            originJson = await projectDispatch.decrypt('AES', reader.result.toString());
           } catch (e) {
             message.error(designIntl('design.import.reverseErd.error.decryptFailed'));
             return;
