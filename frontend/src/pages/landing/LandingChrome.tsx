@@ -85,7 +85,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             href={lp('/')}
             aria-label={intl.formatMessage({ id: 'landing.nav.brandAria' })}
           >
-            <img src="/logo.svg" alt="" width={22} height={22} />
+            <img src="/logo.svg?v=20260828a" alt="" width={22} height={22} />
             ERD Online
           </a>
           <nav
