@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {CheckboxValueType} from 'antd/lib/checkbox/Group';
 import {GET, POST} from '@/services/crud';
 import {Button, Checkbox, Col, Divider, Empty, Form, List, message, Row, Space} from 'antd';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import {CONSTANT} from '@/utils/constant';
 import {useIntl, useSearchParams} from '@@/exports';
 import {useAccess} from '@@/plugin-access';

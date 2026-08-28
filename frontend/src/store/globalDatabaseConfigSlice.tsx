@@ -1,7 +1,7 @@
 import { GetState, SetState } from "zustand";
 import produce from "immer";
 import { message } from "antd";
-import _ from 'lodash';
+import _ from 'lodash-es';
 import { storeFmt } from '@/store/storeIntl';
 
 export type GlobalDatabaseConfig = {

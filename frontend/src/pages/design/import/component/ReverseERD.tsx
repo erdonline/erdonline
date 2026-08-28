@@ -4,7 +4,7 @@ import Dragger from "antd/es/upload/Dragger";
 import {message} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import _ from "lodash";
+import _ from 'lodash-es';
 import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import { designIntl } from '@/pages/design/locales/intl';
 import '../../secondary-pane.scss';

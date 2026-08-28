@@ -5,7 +5,7 @@ import type {RefSelectProps} from 'antd/es/select';
 import { DatabaseOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {fetchDatabaseConfigs} from '@/utils/databaseUtils';
 import {dbReverseMeta} from '@/utils/save';

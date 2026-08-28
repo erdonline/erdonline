@@ -1,6 +1,6 @@
 import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export type IDatabaseDomainsSlice = Record<string, never>;
 

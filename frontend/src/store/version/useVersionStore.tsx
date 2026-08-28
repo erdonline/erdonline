@@ -1,5 +1,5 @@
 import create, {GetState, SetState} from "zustand";
-import _ from "lodash";
+import _ from 'lodash-es';
 import {message} from "antd";
 import { storeFmt } from '@/store/storeIntl';
 import {confirmDestructive} from "@/utils/destructiveConfirm";
@@ -7,7 +7,7 @@ import {showSyncResultModal} from "@/utils/syncResultModal";
 import {compareStringVersion, compareStringVersionForSort} from "@/utils/string";
 import useProjectStore from "@/store/project/useProjectStore";
 import * as Save from '@/utils/save';
-import moment from "moment";
+import dayjs from '@/utils/dayjs';
 import produce from "immer";
 import { POST } from "@/services/crud";
 import * as cache from "@/utils/cache";
@@ -1016,7 +1016,7 @@ const useVersionStore = create<VersionState>(
             versionDesc: tempValue.versionDesc,
             tag: tag || undefined,
             changes: changesArray,
-            versionDate: moment().format('YYYY/M/D H:m:s'),
+            versionDate: dayjs().format('YYYY/M/D H:m:s'),
           };
 
           const res = await Save.hisProjectSave(version);
@@ -1072,7 +1072,7 @@ const useVersionStore = create<VersionState>(
             version: tempValue.version,
             versionDesc: tempValue.versionDesc,
             changes: [],
-            versionDate: moment().format('YYYY/M/D H:m:s'),
+            versionDate: dayjs().format('YYYY/M/D H:m:s'),
           };
           if (msg) {
             Save.hisProjectDeleteAll(dbData.key).then((res) => {

@@ -1,7 +1,7 @@
 import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from 'immer';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import { message } from 'antd';
 import * as Save from '@/utils/save';
 import { storeFmt } from '@/store/storeIntl';

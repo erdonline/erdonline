@@ -6,10 +6,10 @@ import {generateMD} from "@/utils/markdown";
 import * as File from "@/utils/file";
 import * as cache from "@/utils/cache";
 import request from "@/utils/request";
-import _ from 'lodash';
+import _ from 'lodash-es';
 import {generateHtml} from "@/utils/generatehtml";
 import produce from "immer";
-import moment from "moment";
+import dayjs from '@/utils/dayjs';
 import {CONSTANT} from "@/utils/constant";
 import {docxBlobFailureReason} from "@/utils/docxBlobGate";
 import { storeFmt } from '@/store/storeIntl';
@@ -375,7 +375,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
     const data = get().exportSliceState?.data;
     if (data) {
       try {
-        File.save(data, `${moment().format('YYYY-MM-D-h-mm-ss')}.sql`);
+        File.save(data, `${dayjs().format('YYYY-MM-D-h-mm-ss')}.sql`);
         message.success(storeFmt('store.export.success'));
         return true;
       } catch (err: unknown) {

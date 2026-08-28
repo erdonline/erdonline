@@ -4,7 +4,7 @@ import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd/es/input';
 import {updateProject} from '@/services/project';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export type RenameProjectProps = MenuDialogControl & {
   fetchProjects?: () => void;

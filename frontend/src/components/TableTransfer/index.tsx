@@ -1,6 +1,6 @@
 import React from "react";
 import {Table, Transfer} from 'antd';
-import difference from 'lodash/difference';
+import { difference } from 'lodash-es';
 import {TransferProps} from "antd/lib/transfer";
 
 export type TableTransferProps = {

@@ -3,7 +3,7 @@ import type {ProjectState} from "@/store/project/useProjectStore";
 import produce from "immer";
 import EntitiesSlice from "@/store/project/entitiesSlice";
 import {message} from "antd";
-import _ from 'lodash';
+import _ from 'lodash-es';
 import * as cache from '../../utils/cache';
 import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasHistory";
 import { storeFmt } from '@/store/storeIntl';

@@ -1,5 +1,5 @@
 // @ts-nocheck
-import _ from 'lodash';
+import _ from 'lodash-es';
 import doT from 'dot';
 import {message} from "antd";
 import { getIntl } from '@umijs/max';

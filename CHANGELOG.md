@@ -8,6 +8,14 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 用 dayjs 替换 moment，lodash 迁移到 lodash-es
+
+- **证据**：bundle analyzer 显示 `umi.js` 里有 `moment` 64KB、`lodash` 124KB。
+- **改法**：
+  - 新增 `src/utils/dayjs.ts`（dayjs + relativeTime + zh-cn），5 处 `moment` 调用统一改为 `dayjs`。
+  - `yarn remove lodash moment`；29 处 `from 'lodash'` 改为 `from 'lodash-es'`，`utils/markdown.js` / `utils/generatehtml.js` / `TableTransfer/index.tsx` 使用命名导入。
+- 验证点：`yarn build:prod` 绿；`grep` 全仓无 `from 'lodash'`（`src` 内）；`umi.js` 重新 bundle 分析；Playwright `prod-smoke` 8 条绿
+
 #### perf(frontend): 首页 LCP 与渲染阻塞优化
 
 - **证据**：`html2canvas.min.js` 在 `<head>` 中无 `async/defer`，阻塞首页渲染；`landing-hero.jpg` 353KB，LCP 核心资源。

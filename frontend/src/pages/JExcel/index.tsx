@@ -2,7 +2,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import jspreadsheet, {CellValue} from "jspreadsheet-ce";
 
-import _ from 'lodash';
+import _ from 'lodash-es';
 import "jspreadsheet-ce/dist/jspreadsheet.css";
 import "jspreadsheet-ce/dist/jspreadsheet.datatables.css";
 import "jsuites/dist/jsuites.css"

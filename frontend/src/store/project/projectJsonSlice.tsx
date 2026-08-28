@@ -9,7 +9,7 @@ import useGlobalStore from "@/store/global/globalStore";
 import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import * as CryptoJS from 'crypto-js';
-import _ from "lodash";
+import _ from 'lodash-es';
 import {message} from "antd";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";

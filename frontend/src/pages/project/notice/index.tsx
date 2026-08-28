@@ -1,6 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {List, message} from 'antd';
-import moment from 'moment';
+import dayjs from '@/utils/dayjs';
 import {POST_ERD} from '@/services/crud';
 import type {ActivitiesType} from '@/pages/home/data.d';
 import '../project-list.scss';
@@ -75,7 +75,7 @@ const Index: React.FC<NoticeProps> = () => {
                     {item?.title}
                   </a>
                   <span className="project-list-page__time" title={item.createTime}>
-                    {moment(item.createTime).fromNow()}
+                    {dayjs(item.createTime).fromNow()}
                   </span>
                 </div>
               }

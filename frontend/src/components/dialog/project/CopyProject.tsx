@@ -3,7 +3,7 @@ import {Button, Form, Input, Modal, Select, message} from 'antd';
 import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd';
 import defaultData from '@/utils/defaultData.json';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import {addProject} from '@/services/project';
 import {addGroupProject} from '@/services/group-project';
 import {CopyOutlined} from '@ant-design/icons';
