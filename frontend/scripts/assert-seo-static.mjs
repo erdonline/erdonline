@@ -382,10 +382,10 @@ const HOME_FIXTURE = `<!DOCTYPE html>
 </html>
 `;
 
-function selfTest() {
+async function selfTest() {
   const dir = fs.mkdtempSync(path.join(os.tmpdir(), "erd-seo-static-"));
   fs.writeFileSync(path.join(dir, "index.html"), HOME_FIXTURE, "utf8");
-  generateSeoStatic(dir, "https://www.erdonline.com");
+  await generateSeoStatic(dir, "https://www.erdonline.com");
   assertSeoStatic(dir, "https://www.erdonline.com");
 }
 
@@ -397,7 +397,7 @@ function isDirectRun() {
 
 if (isDirectRun()) {
   if (process.argv.includes("--self-test")) {
-    selfTest();
+    await selfTest();
   } else {
     const distDir = process.env.ERD_DIST_DIR || path.join(__dirname, "..", "dist");
     assertSeoStatic(distDir);
