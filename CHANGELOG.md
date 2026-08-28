@@ -8,6 +8,19 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 强制内联 env-config.js，消除 200ms 阻塞请求
+
+- **问题**：Cloudflare Pages 构建时 `API_URL` 未设，导致 `inlineEnvConfig` 之前未触发，`env-config.js` 仍以 `?date=...` 单独请求并阻塞。
+- **改法**：
+  1. `gen-seo-static.mjs` 的 `inlineEnvConfig` 对所有 prod build 直接内联，不再要求 `API_URL` 非空。
+  2. `docker-entrypoint.sh` 用 `sed` 重写所有 `index.html` 里内联的 `window._env_`，保留 Docker 运行时注入能力。
+- **验证点**：`yarn build:prod` 绿；`dist/index.html` 中无 `<script src="/env-config.js">`，只有内联 `window._env_`
+
+#### perf(frontend): 更新静态资源 ?v 查询串以生效新缓存头
+
+- **改法**：将 `landing-hero.webp/jpg`、`logo.svg`、`html2canvas.min.js` 的 `?v` 从 `20260809c` 更新为 `20260828a`，使 Cloudflare 使用新的 `max-age=86400` 缓存头。
+- **验证点**：产物中这些 URL 已带 `?v=20260828a`
+
 #### perf(frontend): 调整静态资源缓存头，减少 304 往返
 
 - **问题**：`logo.svg`、`landing-hero.webp`、`html2canvas.min.js` 等返回 `304`，每次仍要 200–300ms 回源确认。

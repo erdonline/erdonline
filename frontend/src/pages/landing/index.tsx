@@ -114,12 +114,12 @@ const LandingPage: React.FC = () => {
           <div className="landingHeroFrame">
             <picture>
               <source
-                srcSet="/landing-hero.webp?v=20260809c"
+                srcSet="/landing-hero.webp?v=20260828a"
                 type="image/webp"
               />
               <img
                 className="landingHeroImg"
-                src="/landing-hero.jpg?v=20260809c"
+                src="/landing-hero.jpg?v=20260828a"
                 alt={t('landing.hero.imageAlt')}
                 width={1600}
                 height={1000}

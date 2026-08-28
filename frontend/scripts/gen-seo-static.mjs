@@ -231,10 +231,6 @@ function writeLlmsTxt(distDir) {
  * @returns {string} updated HTML
  */
 function inlineEnvConfig(distDir, homeHtml) {
-  const hasApi = Boolean(
-    process.env.API_URL || process.env.ERD_API_URL || process.env.DEMO_API_URL,
-  );
-  if (!hasApi) return homeHtml;
   const envPath = path.join(distDir, "env-config.js");
   if (!fs.existsSync(envPath)) return homeHtml;
   const envJs = fs.readFileSync(envPath, "utf8").trim();

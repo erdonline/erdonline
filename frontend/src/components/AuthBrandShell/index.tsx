@@ -80,7 +80,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
           data-testid="auth-brand-home"
           aria-label={intl.formatMessage({ id: 'auth.brand.homeAria' })}
         >
-          <img src="/logo.svg" alt="" width={36} height={36} />
+          <img src="/logo.svg?v=20260828a" alt="" width={36} height={36} />
           <span className="auth-shell__brand-name">ERD Online</span>
         </Link>
         <Typography.Title level={2} className="auth-shell__brand-title">
@@ -92,12 +92,12 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         <div className="auth-shell__brand-thumb" aria-hidden="true" data-testid="auth-brand-thumb">
           <picture>
             <source
-              srcSet="/landing-hero.webp?v=20260809c"
+              srcSet="/landing-hero.webp?v=20260828a"
               type="image/webp"
             />
             <img
               className="auth-shell__brand-hero"
-              src="/landing-hero.jpg?v=20260809c"
+              src="/landing-hero.jpg?v=20260828a"
               alt=""
               width={280}
               height={168}
@@ -132,7 +132,7 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
             >
               <img
                 className="auth-shell__form-logo"
-                src="/logo.svg"
+                src="/logo.svg?v=20260828a"
                 alt="ERD Online"
                 width={40}
                 height={40}
