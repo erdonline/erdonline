@@ -21,6 +21,12 @@
 - **改法**：将 `landing-hero.webp/jpg`、`logo.svg`、`html2canvas.min.js` 的 `?v` 从 `20260809c` 更新为 `20260828a`，使 Cloudflare 使用新的 `max-age=86400` 缓存头。
 - **验证点**：产物中这些 URL 已带 `?v=20260828a`
 
+#### a11y(frontend): 修复 viewport 禁缩放
+
+- **问题**：Lighthouse Best Practices 报 `[user-scalable="no"]` / `maximum-scale` < 5。
+- **改法**：在 `config/config.ts` 显式覆盖 viewport meta 为 `width=device-width, initial-scale=1.0`。
+- **验证点**：产物 `dist/index.html` 中 `<meta name="viewport" content="width=device-width, initial-scale=1.0">`；Lighthouse `meta-viewport` 不再报错
+
 #### perf(frontend): 调整静态资源缓存头，减少 304 往返
 
 - **问题**：`logo.svg`、`landing-hero.webp`、`html2canvas.min.js` 等返回 `304`，每次仍要 200–300ms 回源确认。

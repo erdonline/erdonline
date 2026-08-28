@@ -53,6 +53,7 @@ export default defineConfig({
   routes,
   title: SEO_TITLE,
   metas: [
+    { name: 'viewport', content: 'width=device-width, initial-scale=1.0' },
     { name: 'description', content: SEO_DESCRIPTION },
     {
       name: 'keywords',
