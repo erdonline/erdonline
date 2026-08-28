@@ -56,7 +56,7 @@
 
 - **尝试 1**：把 `<picture>` 改成单个 `<img>` + `srcSet webp` + `src jpg fallback`；Lighthouse 从 87 跌到 66/57，说明 `img` 单标签并没有改善 LCP。
 - **尝试 2**：给 `umi.js` 加 `defer`，试图让它不阻塞 LCP；`Best Practices` 升到 100，但 `Performance` 跌到 63/57，且 `FCP` 明显变差——`umi.js` 执行被推迟后反而让 `load`/`TTI` 更晚，并没有帮助 LCP。
-- **结论**：回退到 `<picture>` 方案，保持 `umi.js` 默认阻塞（Umi 产物），保留 `preload` + 响应式 srcSet + 移除 `decoding="async"` 的组合。
+- **结论**：回退到 `<picture>` 方案，保持 `umi.js` 默认阻塞（Umi 产物），保留 `preload` + 响应式 srcSet + 移除 `decoding="async"` 的组合。新增 `html2canvas` 按需加载仍是页面 `load` 时间的收益点。
 - **验证点**：`dist/index.html` 恢复 `<picture>`；`<script src="/umi.*.js">` 无 `defer`；`yarn build:prod` 绿；`check:prod-smoke` 8/8 绿
 - **改法**：`pages/landing/index.tsx` 去掉 `<picture>`，改用单个 `<img>`，`srcSet` 全部用 webp，`src` 回退 jpg。这样 `fetchpriority="high"` 和 `preload imagesrcset` 直接作用在 LCP 图片上。
 - **验证点**：产物中 `landingHeroImg` 没有 `<picture>` 包装；`dist/index.html` 中 LCP 图片 `fetchpriority="high"` 且 `srcSet` 正确；`yarn build:prod` 绿；`check:prod-smoke` 8/8 绿
