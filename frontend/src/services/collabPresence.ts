@@ -1,7 +1,10 @@
 // netty-socketio 1.7 ↔ Engine.IO 3 / Socket.IO 2；勿用 socket.io-client@4
-// eslint-disable-next-line @typescript-eslint/no-var-requires
-const io = require('socket.io-client');
 import request from '@/utils/request';
+
+async function getIo(): Promise<any> {
+  const mod: any = await import('socket.io-client');
+  return mod.default || mod.io || mod;
+}
 
 /** 与后端 WebsocketConstants 对齐 */
 export const JOIN_ROOM = 'martin:event:joinRoom';
@@ -57,6 +60,7 @@ export async function connectPresence(
     throw new Error('socket-ticket 签发失败');
   }
 
+  const io = await getIo();
   const socket = io(`${SOCKET_URL}/project/erd`, {
     transports: ['websocket', 'polling'],
     query: { ticket, username, projectId },
