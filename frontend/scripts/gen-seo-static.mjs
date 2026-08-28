@@ -244,16 +244,16 @@ function inlineEnvConfig(distDir, homeHtml) {
 }
 
 /**
- * Add `defer` to the main umi.js script so it does not block HTML parsing
- * and does not starve the LCP image of network bandwidth.
+ * Add `defer` to all entry scripts so they don't block HTML parsing
+ * and the LCP image can paint before the JS runs.
  */
-function deferUmi(homeHtml) {
+function deferScripts(homeHtml) {
   const deferred = homeHtml.replace(
-    /<script([^>]*)\ssrc="(\/umi\.[0-9a-f]+\.js)"([^>]*)>/,
+    /<script([^>]*)\ssrc="(\/(?:umi|framework|preload_helper)\.[0-9a-f]+(?:\.chunk)?\.js)"([^>]*)>/g,
     '<script$1 src="$2"$3 defer>',
   );
   if (deferred === homeHtml) return homeHtml;
-  console.log("gen-seo-static: added defer to umi.js");
+  console.log("gen-seo-static: added defer to entry scripts");
   return deferred;
 }
 
@@ -310,6 +310,7 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
   const indexPath = ensureDist(distDir);
   let indexHtml = fs.readFileSync(indexPath, "utf8");
   indexHtml = inlineEnvConfig(distDir, indexHtml);
+  indexHtml = deferScripts(indexHtml);
   const builtAt = new Date().toISOString().slice(0, 10);
   writeSitemap(distDir, siteUrl, builtAt);
   writeRobots(distDir, siteUrl);
