@@ -13,6 +13,68 @@
   Content-Type: text/plain; charset=utf-8
   Cache-Control: public, max-age=3600
 
+# HTML shells (root + prerendered marketing pages).
+# Browser: must revalidate (max-age=0). Edge: cache 10 minutes (s-maxage=600).
+# IMPORTANT: Cloudflare Pages treats text/html as Dynamic by default. You still need to create
+# a Cache Rule in the Cloudflare dashboard (Caching > Cache Rules) to make HTML eligible for cache:
+#   When incoming requests match: (http.host eq "www.erdonline.com")
+#   Then: Eligible for cache
+#   Edge TTL: Use cache-control header if present, bypass cache if not
+/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
+# Direct .html requests and directory index.html files
+/*.html
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/*/:file.html
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
+# Extension-less prerendered marketing paths (both /path and /path/)
+/compare
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/compare/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/demo-authz
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/demo-authz/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/blank
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/blank/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/blog-basic
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/blog-basic/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/ecommerce-basic
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/catalog/ecommerce-basic/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/demo
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/demo/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/compare
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/compare/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/catalog
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/catalog/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/demo
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+/en/demo/
+  Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
 # Umi content-hashed build output: safe to cache forever (new hash per deploy).
 # Patterns avoid /env-config.js and /js/html2canvas.min.js (unhashed) to prevent
 # header merging (CF Pages joins Cache-Control from multiple matching rules with a comma).
