@@ -97,7 +97,7 @@ export default defineConfig({
   // 百度 / CF 统计：prod 构建经 headScripts 按 hostname 注入（跳过 localhost）；不用 Umi analytics 插件以免本地 serve prod 产物污染
   headScripts: [
     { type: 'application/ld+json', content: SEO_JSON_LD },
-    '/js/html2canvas.min.js',
+    { src: '/js/html2canvas.min.js', async: true },
     '/env-config.js?date=' + new Date(),
     ...prodAnalyticsHeadScripts,
   ],

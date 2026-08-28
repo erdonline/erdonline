@@ -90,13 +90,21 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
           {intl.formatMessage({ id: 'auth.brand.lead' })}
         </Typography.Paragraph>
         <div className="auth-shell__brand-thumb" aria-hidden="true" data-testid="auth-brand-thumb">
-          <img
-            className="auth-shell__brand-hero"
-            src="/landing-hero.jpg?v=20260809c"
-            alt=""
-            width={280}
-            height={168}
-          />
+          <picture>
+            <source
+              srcSet="/landing-hero.webp?v=20260809c"
+              type="image/webp"
+            />
+            <img
+              className="auth-shell__brand-hero"
+              src="/landing-hero.jpg?v=20260809c"
+              alt=""
+              width={280}
+              height={168}
+              loading="eager"
+              decoding="async"
+            />
+          </picture>
         </div>
         <a
           className="auth-shell__brand-cta"

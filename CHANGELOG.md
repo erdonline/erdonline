@@ -8,6 +8,15 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 首页 LCP 与渲染阻塞优化
+
+- **证据**：`html2canvas.min.js` 在 `<head>` 中无 `async/defer`，阻塞首页渲染；`landing-hero.jpg` 353KB，LCP 核心资源。
+- **改法**：
+  - `config/config.ts` 的 `headScripts` 把 `/js/html2canvas.min.js` 改成 `{ src: '...', async: true }`。
+  - `cwebp -q 85` 生成 `public/landing-hero.webp`（138KB）。
+  - `src/pages/landing/index.tsx` 和 `components/AuthBrandShell/index.tsx` 用 `<picture>` 优先 `webp`，`jpg` 回退，并加 `loading="eager"`、`decoding="async"`、`fetchpriority="high"`。
+- 验证点：`yarn build:prod` 绿；`dist/index.html` 出现 `<script async src="/js/html2canvas.min.js">`；`dist/landing-hero.webp` 存在；Playwright `prod-smoke` 8 条绿；线上 `curl -sI` 验证 `landing-hero.webp` 返回 `image/webp`
+
 #### chore(frontend): 删除 public 下未使用的静态资源
 
 - **证据**：`frontend/public/` 下 `ant-1.png`、`ant-3.png`、`empty.svg`、`erd/`、`gongzhonghao.jpg`、`icons/`、`img.png`、`js/g6*.min.js`、`login-bg*`、`loco.svg`、`project.json`、`xiaochengxu.jpg`、`zanshang.jpg`、`zerocode.*`、`zhuzhuangtu.svg` 在 `frontend/src`、`config`、`scripts` 中零引用。
