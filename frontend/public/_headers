@@ -77,27 +77,28 @@
 /en/demo/
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
-# Root unhashed static assets: edge cache 1 day, browser must revalidate.
+# Root unhashed static assets: cache 1 day in browser and edge.
+# landing-hero.webp is query-busted (?v=...), so safe to cache without revalidation.
 /:file.png
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.jpg
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.jpeg
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.webp
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.svg
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.ico
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /:file.gif
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 
-# Subdirectory unhashed assets.
+# Subdirectory unhashed assets (html2canvas.min.js, fonts).
 /js/*
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 /woff2/*
-  Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+  Cache-Control: public, max-age=86400, s-maxage=86400
 
 # Umi content-hashed build output: safe to cache forever (new hash per deploy).
 # Patterns avoid /env-config.js and /js/html2canvas.min.js (unhashed) to prevent
