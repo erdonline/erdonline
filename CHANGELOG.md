@@ -21,6 +21,15 @@
 - **改法**：将 `landing-hero.webp/jpg`、`logo.svg`、`html2canvas.min.js` 的 `?v` 从 `20260809c` 更新为 `20260828a`，使 Cloudflare 使用新的 `max-age=86400` 缓存头。
 - **验证点**：产物中这些 URL 已带 `?v=20260828a`
 
+#### perf(frontend): landing hero 图片响应式 srcSet，减少 100KB+
+
+- **问题**：Lighthouse `properly-size-images` 报 LCP 图片 125KB 浪费；`landing-hero.webp` 2100×1312 单张 140KB。
+- **改法**：
+  1. 用 `cwebp`/`sips` 生成 400/800/1600 宽度的 `landing-hero-{w}.webp/jpg`。
+  2. 在 `pages/landing/index.tsx`、`AuthBrandShell/index.tsx` 的 `<picture>` 中接入 `srcSet` + `sizes`。
+  3. 移动端优先下载 400/800 webp（~10–31KB），桌面端按 `sizes="100vw"` 自动选 1600。
+- **验证点**：`yarn build:prod` 后 `dist/landing-hero-*.webp/jpg` 存在；`dist/index.html` 中 `<source>` 已带 `srcSet`；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿
+
 #### a11y(frontend): 修复 viewport 禁缩放
 
 - **问题**：Lighthouse Best Practices 报 `[user-scalable="no"]` / `maximum-scale` < 5。

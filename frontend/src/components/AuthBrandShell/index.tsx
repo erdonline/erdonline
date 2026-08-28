@@ -92,12 +92,15 @@ const AuthBrandShell: React.FC<AuthBrandShellProps> = ({
         <div className="auth-shell__brand-thumb" aria-hidden="true" data-testid="auth-brand-thumb">
           <picture>
             <source
-              srcSet="/landing-hero.webp?v=20260828a"
+              srcSet="/landing-hero-400.webp?v=20260828a 400w, /landing-hero-800.webp?v=20260828a 800w, /landing-hero-1600.webp?v=20260828a 1600w, /landing-hero.webp?v=20260828a 2100w"
+              sizes="280px"
               type="image/webp"
             />
             <img
               className="auth-shell__brand-hero"
-              src="/landing-hero.jpg?v=20260828a"
+              src="/landing-hero-800.jpg?v=20260828a"
+              srcSet="/landing-hero-400.jpg?v=20260828a 400w, /landing-hero-800.jpg?v=20260828a 800w, /landing-hero-1600.jpg?v=20260828a 1600w, /landing-hero.jpg?v=20260828a 2100w"
+              sizes="280px"
               alt=""
               width={280}
               height={168}
