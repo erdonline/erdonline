@@ -8,6 +8,13 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 内联 env-config.js，避免阻塞请求
+
+- **问题**：`env-config.js` 单独请求约 200ms，且阻塞 `umi.js`。
+- **改法**：在 `gen-seo-static.mjs` 中，prod build 且 API_URL/ERD_API_URL 非空时，把 `env-config.js` 的内容直接写进每个 `index.html` 的 `<script>` 内联。
+- **边界**：Docker 构建时 `API_URL` 为空，保持 `src="/env-config.js"`，`docker-entrypoint.sh` 仍可按运行时环境重写。
+- **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿
+
 #### feat(frontend): 首页 SSG（prerender landing DOM）
 
 - **问题**：`dist/index.html` 是空的 `<div id="root"></div>`，FCP 7.2s、LCP 8.9s。
