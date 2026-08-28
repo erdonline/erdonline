@@ -8,6 +8,13 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 调整静态资源缓存头，减少 304 往返
+
+- **问题**：`logo.svg`、`landing-hero.webp`、`html2canvas.min.js` 等返回 `304`，每次仍要 200–300ms 回源确认。
+- **改法**：`frontend/public/_headers` 把图片、`/js/*`、`/woff2/*` 的 `Cache-Control` 从 `max-age=0, must-revalidate` 改为 `max-age=86400, s-maxage=86400`。
+- **边界**：`landing-hero.webp` 已有 `?v=...` 查询串做版本戳；`logo.svg` 这类不常变资产 1 天缓存可接受。
+- **验证点**：部署后二次刷新 DevTools Network 中 `logo.svg` / `hero.webp` 应显示 `(disk cache)` 或 0ms；`cf-cache-status` 为 `HIT`
+
 #### perf(frontend): 内联 env-config.js，避免阻塞请求
 
 - **问题**：`env-config.js` 单独请求约 200ms，且阻塞 `umi.js`。
