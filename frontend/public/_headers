@@ -23,9 +23,11 @@
 /
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
-# Direct .html requests and directory index.html files
-/*.html
+# Root .html files (e.g. index.html, 404.html)
+/:file.html
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
+
+# Nested directory index.html files (e.g. /catalog/index.html)
 /*/:file.html
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
@@ -75,21 +77,23 @@
 /en/demo/
   Cache-Control: public, max-age=0, s-maxage=600, must-revalidate
 
-# Unhashed static assets (images, icons, fonts, JS helpers): edge cache 1 day, browser must revalidate.
-/*.png
+# Root unhashed static assets: edge cache 1 day, browser must revalidate.
+/:file.png
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.jpg
+/:file.jpg
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.jpeg
+/:file.jpeg
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.webp
+/:file.webp
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.svg
+/:file.svg
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.ico
+/:file.ico
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
-/*.gif
+/:file.gif
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
+
+# Subdirectory unhashed assets.
 /erd/*
   Cache-Control: public, max-age=0, s-maxage=86400, must-revalidate
 /icons/*

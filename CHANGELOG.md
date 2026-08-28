@@ -8,10 +8,16 @@
 
 ### 2026-08-28
 
+#### fix(cloudflare): 防止 _headers 图片规则重复匹配
+
+- **证据**：上一条 `/*.png`、`/*.jpg` 等通配会因 Cloudflare Pages splat 贪婪匹配子目录（如 `/erd/保存.png`、`/img/hero.jpg`），与 `/erd/*`、`/img/*` 产生重复 `Cache-Control`。
+- **改法**：把根图片规则从 `/*.png` 等改为 `/:file.png` 等占位符，限制为单一段落；保留 `/erd/*`、`/icons/*`、`/js/*`、`/woff2/*`、`/img/*` 子目录规则。
+- 验证点：`dist/_headers` 与 `build/_headers` 无 `s-maxage=86400, must-revalidate, public, ...` 重复；`curl -sI` 子目录图片只返回一次 `Cache-Control`
+
 #### frontend + docs：为未哈希静态资源加边缘缓存
 
 - **证据**：`frontend/public/` 与 `website/static/img/` 中有大量图片、图标、字体、JS helper 文件名未哈希，仍按 Pages 默认 `max-age=0` 处理，LCP 受影响。
-- **改法**：`frontend/public/_headers` 新增 `/*.png`、`/*.jpg`、`/*.svg`、`/erd/*`、`/icons/*`、`/js/*`、`/woff2/*`；`website/static/_headers` 新增 `/img/*`、`/*.png` 等静态资源规则，均 `s-maxage=86400, max-age=0, must-revalidate`。
+- **改法**：`frontend/public/_headers` 新增 `/:file.png`、`/:file.jpg`、`/:file.svg`、`/erd/*`、`/icons/*`、`/js/*`、`/woff2/*`；`website/static/_headers` 新增 `/img/*`、`/:file.png` 等静态资源规则，均 `s-maxage=86400, max-age=0, must-revalidate`。
 - 验证点：`yarn build:prod` 绿；`yarn build`（docs）绿；`dist/_headers` 与 `build/_headers` 包含新增规则；部署后 `curl -sI` 图片资源 `cf-cache-status: HIT`
 
 #### frontend：为 Cloudflare Pages 添加 HTML 边缘缓存头
