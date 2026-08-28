@@ -81,9 +81,12 @@ export async function prerenderLanding(distDir = defaultDistDir()) {
       const switcher = document.querySelector('[data-testid="locale-switcher"]');
       if (switcher) {
         switcher.outerHTML =
-          '<div class="landingNavLocaleStatic" aria-label="语言">' +
-          '<a href="/" lang="zh-CN" class="landingNavLocaleLink" style="color:inherit;text-decoration:none;margin-inline-end:12px;">中文</a>' +
-          '<a href="/en" lang="en-US" class="landingNavLocaleLink" style="color:inherit;text-decoration:none;">EN</a>' +
+          '<div class="landingNavLocaleStatic" data-testid="locale-switcher" aria-label="语言">' +
+          '<select class="locale-switcher-static" onchange="location.href=this.value" aria-label="语言" ' +
+          'style="background:transparent;color:inherit;border:1px solid rgba(255,255,255,.25);border-radius:4px;padding:2px 6px;font-size:12px;"> ' +
+          '<option value="/" selected>中文</option>' +
+          '<option value="/en">EN</option>' +
+          '</select>' +
           '</div>';
       }
     });

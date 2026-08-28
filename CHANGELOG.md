@@ -8,6 +8,15 @@
 
 ### 2026-08-29
 
+#### fix(frontend): 登录态 CTA 统一为 "Open workspace"，语言切换统一为下拉
+
+- **问题**：顶栏/主 CTA 登录态文案中英不一致；静态页语言切换被预渲染成横向 `<a>`，切到 SPA 页面后变成 antd 下拉，形态不一致。
+- **改法**：
+  1. `frontend/src/locales/zh-CN.ts`：`landing.nav.enterWorkspace*`、`landing.hero.cta.enterWorkspace*` 统一为 "Open workspace"。
+  2. `frontend/scripts/gen-seo-static.mjs`：静态 `/` 的登录态 IIFE 也统一显示 "Open workspace"。
+  3. `frontend/scripts/prerender-landing.mjs`：把 `LocaleSwitcher` 替换为原生 `<select>` 下拉（中文/EN），与 SPA 的 antd Select 形态保持一致。
+- **验证点**：`yarn build:prod` 绿；`test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 含 `<select class="locale-switcher-static">` 与 `Open workspace` 文案
+
 #### perf(frontend): 关键 CSS 内联 + hero 尺寸 + 长缓存 + beacon 延迟
 
 - **问题**：`/` 静态页 Performance 99，最后 1 分卡在 `render-blocking-insight`、偏大 hero 图、`uses-long-cache-ttl` 和 `network-dependency-tree` 里的 beacon 长链。
@@ -24,7 +33,7 @@
 
 - **问题**：`/` 作为 Umi SPA 入口，必须等 `framework` + `umi.js` 加载并执行后才能 paint `landingHeroImg`，LCP 被主包死死压制。
 - **改法**：
-  1. `frontend/scripts/prerender-landing.mjs`：在 Playwright 渲染后将 `LocaleSwitcher` 替换为无 JS 的 `<a href="/">中文</a>` / `<a href="/en">EN</a>` 链接。
+  1. `frontend/scripts/prerender-landing.mjs`：在 Playwright 渲染后将 `LocaleSwitcher` 替换为无 JS 的 `<select>` 下拉（中文/EN）。
   2. `frontend/scripts/gen-seo-static.mjs`：
      - 把 SPA 壳写入 `dist/app`（无扩展名文件，CF Pages 200 重写目标为 `/app`）。
      - 生成并追加 `_headers` 规则：对每个 200 重写的 SPA 源路径强制 `Content-Type: text/html; charset=utf-8`，避免 CF 把无扩展名目标当成 `application/octet-stream` 下载。

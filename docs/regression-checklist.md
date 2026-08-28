@@ -51,7 +51,8 @@
 
 - [ ] [`/` 静态页] 访问 `https://www.erdonline.com/` 时，DevTools Network 不出现 `framework.*.js` / `preload_helper.*.js` / `umi.*.js` 请求；FCP 与 hero 图快速出现
 - [ ] [CTA 链接] 落地页「在线试用」「打开演示」「Compare」等 CTA 跳转后，Umi SPA 正常启动并进入对应页面
-- [ ] [语言切换] 静态页顶部的 `中文` / `EN` 链接能正确跳转 `/` 和 `/en`
+- [ ] [语言切换] 静态页与 SPA 页顶部的语言切换都保持下拉形态；切换后正确跳转 `/` 或 `/en`
+- [ ] [登录态] 已登录状态下刷新 `/`，顶栏和主 CTA 显示 "Open workspace" 并跳转 `/home`
 - [ ] [SPA 路由] `/home`、`/demo`、`/login`、`/design/*`、`/project/*` 等仍正常 200 并提供 SPA 壳
 - [ ] [登录/注册] `/login`、`/register` 在浏览器中打开是正常 HTML 页面，不会变成文件下载
 - [ ] [登录态] 已登录状态下刷新 `/`，顶栏和主 CTA 显示「进入工作台」（英文 `Workspace`）并跳转 `/home`
