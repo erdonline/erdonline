@@ -343,10 +343,26 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
     const landingCss = fs.readdirSync(distDir)
       .filter((f) => /^p__landing__index\..+\.chunk\.css$/.test(f))
       .sort((a, b) => b.length - a.length)[0];
-    if (landingCss) {
+    const umiCss = fs.readdirSync(distDir).find((f) => /^umi\.[0-9a-f]+\.css$/.test(f));
+    const umiCssContent = umiCss ? fs.readFileSync(path.join(distDir, umiCss), 'utf8') : '';
+    const landingCssContent = landingCss ? fs.readFileSync(path.join(distDir, landingCss), 'utf8') : '';
+    if (umiCssContent || landingCssContent) {
+      const combinedCss = (umiCssContent + '\n' + landingCssContent).trim();
+      if (umiCss) {
+        staticLanding = staticLanding.replace(
+          new RegExp(`<link[^>]*href="/${escapeRe(umiCss)}"[^>]*/?>`, 'g'),
+          '',
+        );
+      }
+      if (landingCss) {
+        staticLanding = staticLanding.replace(
+          new RegExp(`<link[^>]*href="/${escapeRe(landingCss)}"[^>]*/?>`, 'g'),
+          '',
+        );
+      }
       staticLanding = staticLanding.replace(
         '</head>',
-        `  <link rel="stylesheet" href="/${landingCss}" />\n  </head>`,
+        `  <style>${combinedCss}</style>\n  </head>`,
       );
     }
     const authedCtaScript = `

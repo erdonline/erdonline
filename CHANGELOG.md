@@ -6,6 +6,18 @@
 
 ## [Unreleased]
 
+### 2026-08-29
+
+#### perf(frontend): 关键 CSS 内联 + hero 尺寸 + 长缓存 + beacon 延迟
+
+- **问题**：`/` 静态页 Performance 99，最后 1 分卡在 `render-blocking-insight`、偏大 hero 图、`uses-long-cache-ttl` 和 `network-dependency-tree` 里的 beacon 长链。
+- **改法**：
+  1. `frontend/scripts/gen-seo-static.mjs`：把 `umi.*.css` 与 `p__landing__index.*.chunk.css` 内联到 `dist/index.html` 的 `<style>`，移除关键路径上的两个外部 CSS 请求。
+  2. `frontend/src/pages/landing/index.tsx`：hero 图片 `sizes` 从 `100vw` 改为 `(max-width: 996px) 100vw, 640px`，避免桌面端拉取 2100w 图。
+  3. `frontend/public/_headers`：`landing-hero.webp` / `landing-hero.jpg` / `logo.svg` 改为 `immutable` 长缓存。
+  4. `frontend/config/config.ts`：Cloudflare beacon `beacon.min.js` 延迟到 `DOMContentLoaded` 后从 `</body>` 注入，不再阻塞 `<head>`。
+- **验证点**：`yarn build:prod` 绿；`test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 含 `<style>` 内联 CSS 且无 `<link>` 到 `umi.css`
+
 ### 2026-08-28
 
 #### perf(frontend): / 落地页静态化，彻底移除 umi.js 首屏阻塞
