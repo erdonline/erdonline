@@ -105,13 +105,20 @@ export function resolveDistFile(distDir, urlPath) {
 
   const ext = path.extname(pathname);
   if (ext && ext !== ".html") return null;
-  const spa = path.join(root, "index.html");
+  // CF Pages SPA fallback: dist/app (no-extension shell) for unmatched paths.
+  const spa = path.join(root, "app");
   try {
     if (fs.statSync(spa).isFile()) return spa;
   } catch {
+    /* fall through to static landing */
+  }
+  const fallback = path.join(root, "index.html");
+  try {
+    if (fs.statSync(fallback).isFile()) return fallback;
+  } catch {
     return null;
   }
-  return spa;
+  return fallback;
 }
 
 function isDirectRun() {
@@ -170,8 +177,12 @@ function listen(distDir, port) {
       return;
     }
     const ext = path.extname(file);
+    const isSpaFallback = path.resolve(file) === path.resolve(path.join(distDir, "app"));
+    const contentType = isSpaFallback
+      ? "text/html; charset=utf-8"
+      : MIME[ext] || "application/octet-stream";
     res.writeHead(200, {
-      "Content-Type": MIME[ext] || "application/octet-stream",
+      "Content-Type": contentType,
       "Cache-Control": "no-store",
     });
     fs.createReadStream(file).pipe(res);

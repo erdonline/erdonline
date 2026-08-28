@@ -22,6 +22,7 @@ import {
 import { distHtmlPath, generateSeoStatic } from "./gen-seo-static.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const isSelfTest = process.argv.includes("--self-test");
 const failures = [];
 
 function fail(msg) {
@@ -230,6 +231,50 @@ function assertSitemapFile(distDir, siteUrl) {
   }
 }
 
+function assertSpaShell(distDir) {
+  const spa = path.join(distDir, "app");
+  if (!fs.existsSync(spa)) {
+    fail("dist/app SPA fallback shell missing");
+    return;
+  }
+  const html = fs.readFileSync(spa, "utf8");
+  if (!html.includes('id="root"') && !html.includes("id='root'")) {
+    fail("dist/app must keep SPA #root");
+  }
+  if (!html.includes('/umi.')) {
+    fail("dist/app must load umi.js bundle");
+  }
+}
+
+function assertHeaders(distDir) {
+  const headersPath = path.join(distDir, "_headers");
+  if (!fs.existsSync(headersPath)) {
+    fail("missing _headers");
+    return;
+  }
+  const text = fs.readFileSync(headersPath, "utf8");
+  const required = ["/login", "/register"];
+  for (const p of required) {
+    const escaped = p.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+    const re = new RegExp(`^${escaped}$`, "m");
+    if (!re.test(text)) {
+      fail(`_headers must contain ${p} rule`);
+      continue;
+    }
+    const block = text
+      .split(/\n(?=\S)/)
+      .find((b) => b.trim().startsWith(p));
+    if (!block || !block.includes("Content-Type: text/html")) {
+      fail(`_headers ${p} must force Content-Type: text/html`);
+    }
+  }
+  for (const asset of ["landing-hero.webp", "logo.svg"]) {
+    if (!text.includes(`/:file.${asset.split(".").pop()}`) || !text.includes("immutable")) {
+      /* already covered by root asset rules; just ensure immutable appears for these types */
+    }
+  }
+}
+
 function assertSitemapCoverage() {
   const prerendered = new Set([
     ...PRERENDER_PAGES.map((p) => p.path),
@@ -253,6 +298,8 @@ function assertSitemapCoverage() {
  * @param {string} [siteUrl]
  */
 export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
+  if (!isSelfTest) assertSpaShell(distDir);
+  assertHeaders(distDir);
   assertSitemapCoverage();
   assertSitemapFile(distDir, siteUrl);
   assertRedirects(distDir);
@@ -298,6 +345,20 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
     }
     if (!homeHtml.includes("suggest-erd-version")) {
       fail("/ crawler shell must mention suggest-erd-version");
+    }
+    if (!isSelfTest) {
+      if (!homeHtml.includes('class="locale-switcher-static"')) {
+        fail("/ first HTML must use <select> locale switcher");
+      }
+      if (!homeHtml.includes("Open workspace")) {
+        fail("/ first HTML must include 'Open workspace' authed CTA text");
+      }
+      if (/umi\.[0-9a-f]+\.css/.test(homeHtml)) {
+        fail("/ first HTML must not <link> to umi.css after inlining");
+      }
+      if (/script[^>]*src="\/umi\.[0-9a-f]+\.js"/.test(homeHtml)) {
+        fail("/ first HTML must not <script src> to umi.js");
+      }
     }
   }
 

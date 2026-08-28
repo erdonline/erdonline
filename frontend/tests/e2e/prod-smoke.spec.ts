@@ -195,3 +195,36 @@ test.describe('prod smoke: built SPA boots on public URLs', () => {
     }
   });
 });
+
+test.describe('regression: previous issues now have coverage', () => {
+  test('/login and /register served as text/html (not file download)', async ({ request }) => {
+    for (const path of ['/login', '/register']) {
+      const res = await request.get(path);
+      expect(res.status(), path).toBe(200);
+      expect(res.headers()['content-type'], path).toMatch(/text\/html/);
+      const text = await res.text();
+      expect(text, path).toMatch(/id="root"/);
+    }
+  });
+
+  test('/ landing keeps a <select> language dropdown and switches to /en', async ({ page }) => {
+    await page.goto('/');
+    const select = page.locator('select.locale-switcher-static');
+    await expect(select).toBeVisible();
+    await select.selectOption('/en');
+    await expect(page).toHaveURL('/en', { timeout: 5_000 });
+  });
+
+  test('/ landing shows "Open workspace" when logged in', async ({ page }) => {
+    await page.addInitScript(() => {
+      localStorage.setItem('Authorization', 'e2e-landing-session');
+    });
+    await page.goto('/');
+    const navCta = page.getByTestId('landing-nav-cta');
+    await expect(navCta).toHaveText('Open workspace');
+    await expect(navCta).toHaveAttribute('href', '/home');
+    const heroPrimary = page.locator('.landingHero .landingBtnPrimary');
+    await expect(heroPrimary).toHaveText('Open workspace');
+    await expect(heroPrimary).toHaveAttribute('href', '/home');
+  });
+});

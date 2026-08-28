@@ -15,7 +15,12 @@
   1. `frontend/src/locales/zh-CN.ts`：`landing.nav.enterWorkspace*`、`landing.hero.cta.enterWorkspace*` 统一为 "Open workspace"。
   2. `frontend/scripts/gen-seo-static.mjs`：静态 `/` 的登录态 IIFE 也统一显示 "Open workspace"。
   3. `frontend/scripts/prerender-landing.mjs`：把 `LocaleSwitcher` 替换为原生 `<select>` 下拉（中文/EN），与 SPA 的 antd Select 形态保持一致。
-- **验证点**：`yarn build:prod` 绿；`test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 含 `<select class="locale-switcher-static">` 与 `Open workspace` 文案
+  4. 把上述问题**变成验收测试**：
+     - `assert-seo-static.mjs` 校验 `dist/_headers` 含 `/login`、`/register` 的 `Content-Type: text/html`，`dist/app` 存在，`dist/index.html` 内联 CSS 且含 `<select>` 与 `Open workspace`。
+     - `prod-smoke.spec.ts` 新增 3 个回归用例：`/login` 和 `/register` 返回 `text/html` 且非下载；`/` 语言切换保持 `<select>` 下拉；`/` 已登录时 CTA 显示 `Open workspace`。
+     - `landing.spec.ts` 已登录用例改为 `Open workspace`。
+     - `serve-dist-pages.mjs` 支持 `dist/app` 作为 SPA fallback 并强制 `Content-Type: text/html`，让本地 prod-smoke 仿真 Cloudflare 200-rewrite。
+- **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿
 
 #### perf(frontend): 关键 CSS 内联 + hero 尺寸 + 长缓存 + beacon 延迟
 
