@@ -74,6 +74,7 @@
 - `moment2dayjs` + `codeSplitting: { jsStrategy: 'granularChunks' }`：`umi.js` 从 ~1.9MB 降到 **~1.7MB**；`LCP` 仍受网络波动在 **~6.0–7.4s** 之间，`Performance` 68–71
 - `crypto-js` 按需加载：`projectJsonSlice` 的 `encrypt`/`decrypt` 改为异步 `import('crypto-js')`；生成 53KB 独立 chunk；`umi.js` 轻微下降。
 - `jsondiffpatch` 按需加载：`useProjectStore` 与 `projectJsonSlice` 移除顶部 `import`；远端同步/版本 diff 首次触发时 `import('jsondiffpatch')`；`umi.js` 从 ~1.7MB 降到 **~1.6MB**。
+- `/` 落地页完全静态化：移除 `framework`/`preload_helper`/`umi.js` 的 `<script>`，把 SPA 壳放到 `dist/app` 无扩展名文件并用 `_redirects` 200 重写；`/` 不再加载任何 JS bundle；LCP 从 **~6.7–7.5s** 降到 **~1.1s**，Lighthouse Performance 从 62–69 升到 **99**。
 
 ### 后续最大杠杆
 
