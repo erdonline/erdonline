@@ -78,6 +78,7 @@ export default defineConfig({
     },
     { rel: 'preconnect', href: 'https://fonts.bunny.net' },
     { rel: 'preconnect', href: 'https://static.cloudflareinsights.com' },
+    { rel: 'icon', href: '/favicon.ico?v=20260828a' },
     { rel: 'canonical', href: `${SEO_ORIGIN}/` },
     { rel: 'sitemap', type: 'application/xml', title: 'Sitemap', href: '/sitemap.xml' },
   ],
