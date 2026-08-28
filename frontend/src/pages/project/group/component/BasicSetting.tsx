@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Divider, Form, Input, Select, message} from 'antd';
 import {GET} from '@/services/crud';
 import {useIntl, useSearchParams} from '@@/exports';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import RemoveGroupProject from '@/pages/project/group/component/RemoveGroupProject';
 import {updateGroupProject} from '@/services/group-project';
 import {Access, useAccess} from '@@/plugin-access';

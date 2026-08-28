@@ -8,7 +8,7 @@ import {
   Tabs,
   message,
 } from 'antd';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import { useIntl } from '@@/exports';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';

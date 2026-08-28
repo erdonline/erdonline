@@ -11,7 +11,7 @@ import {
 } from 'antd';
 import {PlusOutlined} from '@ant-design/icons';
 
-import moment from 'moment';
+import dayjs from '@/utils/dayjs';
 import styles from './style.less';
 import type {ActivitiesType, CurrentUser} from './data.d';
 import {useRequest} from '@umijs/hooks';
@@ -52,7 +52,7 @@ const PageHeaderContent: FC<{
   }
 
   const timeSuffix =
-    latest?.updateTime ? ` · ${moment(latest.updateTime).fromNow()}` : '';
+    latest?.updateTime ? ` · ${dayjs(latest.updateTime).fromNow()}` : '';
   const context = latest
     ? intl.formatMessage(
         {id: 'homePage.context.latestEdit'},
@@ -86,7 +86,7 @@ const quietStatStyle = {color: erdColors.ink900, fontSize: 20};
 
 const isFreshAnnouncement = (item: ActivitiesType) => {
   if (!item?.createTime) return false;
-  return moment().diff(moment(item.createTime), 'days') <= ANNOUNCEMENT_MAX_AGE_DAYS;
+  return dayjs().diff(dayjs(item.createTime), 'day') <= ANNOUNCEMENT_MAX_AGE_DAYS;
 };
 
 const Home: React.FC<HomeProps> = () => {
@@ -327,7 +327,7 @@ const Home: React.FC<HomeProps> = () => {
                   <Text type="secondary" className={styles.cardMeta} title={item.updateTime}>
                     {intl.formatMessage(
                       {id: 'homePage.card.updatedAt'},
-                      {time: moment(item.updateTime).fromNow()},
+                      {time: dayjs(item.updateTime).fromNow()},
                     )}
                   </Text>
                 ) : null}
@@ -358,7 +358,7 @@ const Home: React.FC<HomeProps> = () => {
                   {item?.title}
                 </a>
                 <span className={styles.announceTime} title={item.createTime}>
-                  {moment(item.createTime).fromNow()}
+                  {dayjs(item.createTime).fromNow()}
                 </span>
               </li>
             ))}

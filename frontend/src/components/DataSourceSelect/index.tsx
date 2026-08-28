@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Select, message } from 'antd';
 import { getIntl } from '@umijs/max';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 
 const { Option, OptGroup } = Select;

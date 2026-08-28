@@ -6,7 +6,7 @@ import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {DataSourceSelect} from '@/components/DataSourceSelect';
 import {dbReverseMeta} from '@/utils/save';
 import { designIntl } from '@/pages/design/locales/intl';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import '../../secondary-pane.scss';
 
 export type DatabaseReverseProps = {};

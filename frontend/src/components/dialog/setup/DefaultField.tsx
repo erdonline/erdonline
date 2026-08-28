@@ -6,7 +6,7 @@ import {message} from "antd";
 import {HotTable} from "@handsontable/react";
 // @ts-ignore
 import {CellChange, ChangeSource} from "handsontable";
-import _ from "lodash";
+import _ from 'lodash-es';
 import { flatTypeNamesPreferEnum } from '@/utils/fieldTypeOptions';
 
 

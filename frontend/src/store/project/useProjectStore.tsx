@@ -13,7 +13,7 @@ import type {IDataTypeDomainsDispatchSlice, IDataTypeDomainsSlice} from "@/store
 import type {IProfileDispatchSlice, IProfileSlice} from "@/store/project/profileSlice";
 import type {IEntitiesDispatchSlice, IEntitiesSlice} from "@/store/project/entitiesSlice";
 import type {IDatabaseDomainsDispatchSlice, IDatabaseDomainsSlice} from "@/store/project/databaseDomainsSlice";
-import _ from "lodash";
+import _ from 'lodash-es';
 import * as cache from "@/utils/cache";
 import request from "@/utils/request";
 import * as Save from '@/utils/save';

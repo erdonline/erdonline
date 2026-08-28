@@ -6,7 +6,7 @@ import CodeEditor from '@/components/CodeEditor';
 import { Alert, Button, Col, Divider, Dropdown, Modal, Row, Select, Space, Spin, Typography, message } from 'antd';
 import type { MenuProps } from 'antd';
 import type { BaseSelectRef } from 'rc-select';
-import moment from 'moment';
+import dayjs from '@/utils/dayjs';
 import * as File from '@/utils/file';
 import {
   CloudUploadOutlined,
@@ -135,7 +135,7 @@ const CompareVersion: React.FC<CompareVersionProps> = (props) => {
     void loadVersionDiff();
   }, [open, isCompare, state.initVersion, state.incrementVersion, loadVersionDiff]);
 
-  const stamp = () => moment().format('YYYY-MM-DD-HHmmss');
+  const stamp = () => dayjs().format('YYYY-MM-DD-HHmmss');
 
   const versionRangeLabel = () => {
     if (isCompare && state.initVersion && state.incrementVersion) {

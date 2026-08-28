@@ -1,5 +1,5 @@
 /* eslint-disable */
-import _ from 'lodash/object';
+import { get } from 'lodash-es';
 
 const moduleList = '模块清单';
 const relation = '关联关系';
@@ -15,7 +15,7 @@ const remark = '备注';
 const getFieldType = (datatype, type, code) => {
   const data = (datatype || []).filter(dt => dt.code === type)[0];
   if (data) {
-    return _.get(data, `apply.${code}.type`,'');
+    return get(data, `apply.${code}.type`,'');
   }
   return type;
 };
@@ -51,7 +51,7 @@ const generateHeader = (dataSource) => {
 			- ###### 1.1.3.1. 用户信息表3
    */
   let moduleString = ` - ### 1. ${moduleList}\n`;
-  const modules = _.get(dataSource, 'modules', []);
+  const modules = get(dataSource, 'modules', []);
   modules.forEach((module, index) => {
     const entities = module.entities || [];
     moduleString += `- [<h4 id="module-${module.name}-from">1.${index + 1}. ${escapingChar(module.chnname || module.name)}</h4>](#module-${module.name} "${module.name}")\n`;
@@ -73,7 +73,7 @@ const generateTableListTable = (dataSource, moduleName) => {
    */
   let tableString = `| ${name} | ${code} | ${remark} |\n`;
   tableString += `| ------------ | ------------ | ------------ |\n`;
-  const modules = _.get(dataSource, 'modules', []);
+  const modules = get(dataSource, 'modules', []);
   modules.forEach((module) => {
     if (module.name === moduleName) {
       const entities = module.entities || [];
@@ -91,12 +91,12 @@ const generateTableColumnListTable = (dataSource, moduleName, tableName) => {
   | ------------ | ------------ |
   | 用户信息  | userManage  |
    */
-  const datatypes = _.get(dataSource, 'dataTypeDomains.datatype', []);
-  const databases = _.get(dataSource, 'dataTypeDomains.database', []).filter(database => database.fileShow);
+  const datatypes = get(dataSource, 'dataTypeDomains.datatype', []);
+  const databases = get(dataSource, 'dataTypeDomains.database', []).filter(database => database.fileShow);
   const databaseColumn = databases.length !== 0 && `(${databases.map(data => data.code).join('/')})` || '';
   let tableString = `| ${code} | ${name} | ${dataType}${databaseColumn} | ${main} | ${remark} |\n`;
   tableString += `| ------------ | ------------ | ------------ | ------------ | ------------ |\n`;
-  const modules = _.get(dataSource, 'modules', []);
+  const modules = get(dataSource, 'modules', []);
   modules.forEach((module) => {
     if (module.name === moduleName) {
       const entities = module.entities || [];
@@ -154,7 +154,7 @@ const generateModuleBody = (dataSource, images = {}, projectName) => {
    */
   let modulesString = `  ---\n\n`;
   modulesString += `### 1. ${moduleList}\n`;
-  const modules = _.get(dataSource, 'modules', []);
+  const modules = get(dataSource, 'modules', []);
   // 循环所有的模块
   // 生成关系图
   // 生成该模块的表清单

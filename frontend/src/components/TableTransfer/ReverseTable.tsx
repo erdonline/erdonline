@@ -2,7 +2,7 @@ import {Descriptions, Form, Input, Select, Table, Typography} from 'antd';
 import type {ColumnsType} from 'antd/es/table';
 import React, {useEffect, useMemo} from 'react';
 import {useIntl} from '@umijs/max';
-import _ from 'lodash';
+import _ from 'lodash-es';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {

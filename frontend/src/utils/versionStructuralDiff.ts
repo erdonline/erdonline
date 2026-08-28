@@ -3,7 +3,7 @@
  * 覆盖 modules（entities/fields/indexes）、associations、diagrams、profile、dataTypeDomains。
  */
 
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export type VersionStructuralChange = {
   type: 'entity' | 'field' | 'index' | 'association' | 'diagram' | 'profile' | 'datatype' | 'module';

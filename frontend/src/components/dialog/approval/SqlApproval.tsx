@@ -6,7 +6,7 @@ import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 export type SqlApprovalProps = {
   projectId: string;
