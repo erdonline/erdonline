@@ -1,5 +1,5 @@
 import create, {GetState, SetState} from "zustand";
-import _ from 'lodash-es';
+import { debounce as _debounce, get as _get, omit as _omit, pick as _pick } from 'lodash-es';
 import {message} from "antd";
 import { storeFmt } from '@/store/storeIntl';
 import {confirmDestructive} from "@/utils/destructiveConfirm";
@@ -246,8 +246,8 @@ const useVersionStore = create<VersionState>(
             });
           } else {
             const checkIndex = checkIndexs.filter((c: any) => c.name === cIndex.name)[0] || {};
-            changes.push(...get().dispatch.compareIndex(_.omit(cIndex, ['fields']),
-              _.omit(checkIndex, ['fields']), currentTable));
+            changes.push(...get().dispatch.compareIndex(_omit(cIndex, ['fields']),
+              _omit(checkIndex, ['fields']), currentTable));
             // 比较索引中的属性
             const checkFields = checkIndex.fields || [];
             const currentFields = cIndex.fields || [];
@@ -429,7 +429,7 @@ const useVersionStore = create<VersionState>(
           tempVersions = only ? [].concat(versionData) : versions.concat(versionData);
         }
         set({
-          versions: tempVersions.map((data: any) => _.pick(data,
+          versions: tempVersions.map((data: any) => _pick(data,
             ['id', 'version', 'versionDesc', 'changes', 'versionDate', 'projectJSON', 'baseVersion','creator']))
             .sort((a: any, b: any) => compareStringVersionForSort(b.version, a.version, true)),
         });
@@ -604,7 +604,7 @@ const useVersionStore = create<VersionState>(
           : { modules: [], profile: {}, dataTypeDomains: {} };
 
         const dbData = get().dispatch.getCurrentDBData();
-        const dialectCode = _.get(dbData, 'select', 'MYSQL');
+        const dialectCode = _get(dbData, 'select', 'MYSQL');
 
         set({ versionPanelDiffError: null });
 
@@ -725,7 +725,7 @@ const useVersionStore = create<VersionState>(
         // 判断是否是标记为同步还是同步
         const cmd = get().dispatch.getCMD(updateVersion, onlyUpdateVersion);
         // 获取外层目录
-        const dataSource = _.get(useProjectStore.getState().project, 'projectJSON');
+        const dataSource = _get(useProjectStore.getState().project, 'projectJSON');
         if (dbData) {
           const sqlParam = {
             version: undefined,
@@ -738,7 +738,7 @@ const useVersionStore = create<VersionState>(
             sqlParam.version = version.version;
           }
           if (!onlyUpdateVersion) {
-            const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/');
+            const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/');
             sqlParam.sql = data;
             sqlParam.separator = separator;
           }
@@ -928,20 +928,20 @@ const useVersionStore = create<VersionState>(
                     },
                   });
                   m && m();
-                  const configData = _.get(useProjectStore.getState().project, "configJSON");
+                  const configData = _get(useProjectStore.getState().project, "configJSON");
                   const tempValue = {
                     ...(configData?.synchronous || {upgradeType: 'increment'}),
                   };
                   let data = '';
                   try {
                     const projectJSON = {
-                      ..._.get(useProjectStore.getState().project, "projectJSON"),
+                      ..._get(useProjectStore.getState().project, "projectJSON"),
                       modules: version?.projectJSON?.modules || [],
                     };
                     const syncResult = await fetchVersionSyncSql({
                       projectJSON,
                       baselineProjectJSON: initVersion ? undefined : lastVersion?.projectJSON,
-                      dialectCode: _.get(dbData, 'select', 'MYSQL'),
+                      dialectCode: _get(dbData, 'select', 'MYSQL'),
                       mode: initVersion ? 'full' : 'incremental',
                       upgradeType: tempValue.upgradeType,
                       changes: initVersion ? undefined : changes,
@@ -1173,7 +1173,7 @@ const useVersionStore = create<VersionState>(
           const panel = await fetchWorkspaceDirtyDiff({
             projectJSON: snapshotProjectJSONForVersion(currentProjectJSON) as Record<string, unknown>,
             dbKey: dbData.key,
-            dialectCode: _.get(dbData, 'select', 'MYSQL'),
+            dialectCode: _get(dbData, 'select', 'MYSQL'),
             projectId,
           });
           set(produce((draft) => {
@@ -1193,7 +1193,7 @@ const useVersionStore = create<VersionState>(
 );
 
 /** 画布拖移等高频 projectJSON 更新：全量 diff 防抖，避免拖动时 thrash */
-const debouncedRecalculateChanges = _.debounce(() => {
+const debouncedRecalculateChanges = _debounce(() => {
   void useVersionStore.getState().dispatch.recalculateChanges();
 }, 300);
 

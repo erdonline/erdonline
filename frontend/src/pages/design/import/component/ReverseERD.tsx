@@ -4,7 +4,7 @@ import Dragger from "antd/es/upload/Dragger";
 import {message} from "antd";
 import useProjectStore from "@/store/project/useProjectStore";
 import shallow from "zustand/shallow";
-import _ from 'lodash-es';
+import { cloneDeep as _cloneDeep, merge as _merge, set as _set, unionBy as _unionBy } from 'lodash-es';
 import {showImportSkipWarning} from '@/utils/importSkipWarningModal';
 import { designIntl } from '@/pages/design/locales/intl';
 import '../../secondary-pane.scss';
@@ -22,32 +22,32 @@ export const importModuleAndProfile = async (
   resultModules: any,
   projectDispatch: any,
 ): Promise<{ ok: boolean; modules: any[] }> => {
-  const nextDomains = _.cloneDeep(dataSource?.dataTypeDomains || {});
-  const nextProfile = _.cloneDeep(dataSource?.profile || {});
+  const nextDomains = _cloneDeep(dataSource?.dataTypeDomains || {});
+  const nextProfile = _cloneDeep(dataSource?.profile || {});
 
-  const datatype = _.unionBy(
+  const datatype = _unionBy(
     nextDomains?.datatype,
     erdJson?.dataTypeDomains?.datatype,
     'code',
   );
-  const database = _.unionBy(
+  const database = _unionBy(
     nextDomains?.database,
     erdJson?.dataTypeDomains?.database,
     'code',
   );
-  _.merge(nextDomains, erdJson?.dataTypeDomains);
-  _.set(nextDomains, 'datatype', datatype);
-  _.set(nextDomains, 'database', database);
+  _merge(nextDomains, erdJson?.dataTypeDomains);
+  _set(nextDomains, 'datatype', datatype);
+  _set(nextDomains, 'database', database);
 
-  const defaultFields = _.unionBy(
+  const defaultFields = _unionBy(
     nextProfile?.defaultFields,
     erdJson?.profile?.defaultFields,
     'name',
   );
-  const dbs = _.unionBy(nextProfile?.dbs, erdJson?.profile?.dbs, 'name');
-  _.merge(nextProfile, erdJson?.profile);
-  _.set(nextProfile, 'defaultFields', defaultFields);
-  _.set(nextProfile, 'dbs', dbs);
+  const dbs = _unionBy(nextProfile?.dbs, erdJson?.profile?.dbs, 'name');
+  _merge(nextProfile, erdJson?.profile);
+  _set(nextProfile, 'defaultFields', defaultFields);
+  _set(nextProfile, 'dbs', dbs);
 
   let modules = resultModules;
   if (modules) {

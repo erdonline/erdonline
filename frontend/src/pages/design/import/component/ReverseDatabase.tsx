@@ -6,7 +6,7 @@ import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {DataSourceSelect} from '@/components/DataSourceSelect';
 import {dbReverseMeta} from '@/utils/save';
 import { designIntl } from '@/pages/design/locales/intl';
-import _ from 'lodash-es';
+import { omit as _omit } from 'lodash-es';
 import '../../secondary-pane.scss';
 
 export type DatabaseReverseProps = {};
@@ -67,7 +67,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = () => {
       }
       setMetaLoading(true);
       try {
-        const dbConfig = _.omit(selectedDb.properties, ['driver_class_name']);
+        const dbConfig = _omit(selectedDb.properties, ['driver_class_name']);
         const res = await dbReverseMeta({
           ...dbConfig,
           driverClassName: selectedDb.properties['driver_class_name'],

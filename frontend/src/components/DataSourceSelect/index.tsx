@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Select, message } from 'antd';
 import { getIntl } from '@umijs/max';
-import _ from 'lodash-es';
+import { debounce as _debounce, groupBy as _groupBy } from 'lodash-es';
 import { fetchDatabaseConfigs } from '@/utils/databaseUtils';
 
 const { Option, OptGroup } = Select;
@@ -44,7 +44,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
   }, [onChange, onDbChange, value]);
 
   const debouncedFetchDataSources = useMemo(
-    () => _.debounce((search: string) => fetchDataSources(search), 300),
+    () => _debounce((search: string) => fetchDataSources(search), 300),
     [fetchDataSources]
   );
 
@@ -53,7 +53,7 @@ export const DataSourceSelect: React.FC<DataSourceSelectProps> = ({
   }, [debouncedFetchDataSources, searchValue]);
 
   const groupedDataSources = useMemo(() => {
-    return _.groupBy(dataSources, 'select');
+    return _groupBy(dataSources, 'select');
   }, [dataSources]);
 
   const handleSearch = (search: string) => {

@@ -8,7 +8,7 @@ import {
   Tabs,
   message,
 } from 'antd';
-import _ from 'lodash-es';
+import { debounce as _debounce } from 'lodash-es';
 import { useIntl } from '@@/exports';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
@@ -241,7 +241,7 @@ const DatabaseTemplatesEditor: React.FC<DatabaseTemplatesEditorProps> = ({
 
   const refreshPreview = useMemo(
     () =>
-      _.debounce(
+      _debounce(
         async (
           dialectCode: string | undefined,
           key: DdlTemplateKey,

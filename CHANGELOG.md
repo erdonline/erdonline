@@ -8,6 +8,12 @@
 
 ### 2026-08-28
 
+#### perf(frontend): lodash-es 默认导入改为命名导入
+
+- **证据**：`lodash-es` 被默认导入，webpack 仍打包整包（97 KB）。
+- **改法**：用脚本把 25 个文件里的 `import _ from 'lodash-es'` 改成 `import { a as _a, b as _b } from 'lodash-es'`，并删除未使用的 `import _ from 'lodash-es'`（`store/globalDatabaseConfigSlice.tsx`）。
+- 验证点：`yarn build:prod` 绿；bundle analyzer `lodash-es` 从 97 KB → 32 KB，`umi.js` gzip 从 683 KB → 659 KB
+
 #### perf(frontend): 用 dayjs 替换 moment，lodash 迁移到 lodash-es
 
 - **证据**：bundle analyzer 显示 `umi.js` 里有 `moment` 64KB、`lodash` 124KB。

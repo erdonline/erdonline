@@ -4,7 +4,7 @@ import {useIntl} from '@umijs/max';
 import type {InputRef} from 'antd/es/input';
 import {updateProject} from '@/services/project';
 import type {MenuDialogControl} from '@/components/Menu/menuDialog';
-import _ from 'lodash-es';
+import { join as _join } from 'lodash-es';
 
 export type RenameProjectProps = MenuDialogControl & {
   fetchProjects?: () => void;
@@ -72,14 +72,14 @@ const RenameProject: React.FC<RenameProjectProps> = (props) => {
         id: project.id,
         projectName: values.projectName,
         description: values.description,
-        tags: _.join(values.tags, ','),
+        tags: _join(values.tags, ','),
       });
       if (res?.code === 200) {
         fetchProjects?.();
         onSuccess?.({
           projectName: values.projectName!,
           description: values.description,
-          tags: _.join(values.tags, ','),
+          tags: _join(values.tags, ','),
         });
         message.success(intl.formatMessage({ id: 'projectModal.renameSuccess' }));
         setOpen(false);

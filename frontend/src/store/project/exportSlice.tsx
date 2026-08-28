@@ -6,7 +6,7 @@ import {generateMD} from "@/utils/markdown";
 import * as File from "@/utils/file";
 import * as cache from "@/utils/cache";
 import request from "@/utils/request";
-import _ from 'lodash-es';
+import { get as _get } from 'lodash-es';
 import {generateHtml} from "@/utils/generatehtml";
 import produce from "immer";
 import dayjs from '@/utils/dayjs';
@@ -171,7 +171,7 @@ const ExportSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) =
             imgs: tempImages,
             projectId,
             type,
-            doctpl: _.get(dataSource, 'profile.wordTemplateConfig', ""),
+            doctpl: _get(dataSource, 'profile.wordTemplateConfig', ""),
             dbKey: defaultDatabase?.key || ''
           }
         }).then(async (res) => {

@@ -6,7 +6,7 @@ import type {RefSelectProps} from 'antd/es/select';
 import {GET, POST} from '@/services/crud';
 import useVersionStore from '@/store/version/useVersionStore';
 import shallow from 'zustand/shallow';
-import _ from 'lodash-es';
+import { groupBy as _groupBy, omit as _omit } from 'lodash-es';
 
 export type SqlApprovalProps = {
   projectId: string;
@@ -47,7 +47,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
   const [fetching, setFetching] = useState(false);
   const approverSelectRef = useRef<RefSelectProps>(null);
 
-  const groupDb = _.groupBy(dbs || [], (g) => g.select);
+  const groupDb = _groupBy(dbs || [], (g) => g.select);
   const dbOptions = Object.keys(groupDb).map((m) => ({
     label: m,
     options: groupDb[m].map((m1) => ({
@@ -93,7 +93,7 @@ const SqlApproval: React.FC<SqlApprovalProps> = (props) => {
       message.error(intl.formatMessage({ id: 'approvalModal.invalidDb' }));
       return;
     }
-    const dbConfig = _.omit(db.properties, ['driver_class_name']);
+    const dbConfig = _omit(db.properties, ['driver_class_name']);
     const params = {
       ...dbConfig,
       driverClassName: db.properties.driver_class_name,

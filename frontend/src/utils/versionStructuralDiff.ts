@@ -3,7 +3,7 @@
  * 覆盖 modules（entities/fields/indexes）、associations、diagrams、profile、dataTypeDomains。
  */
 
-import _ from 'lodash-es';
+import { isEqual as _isEqual, omit as _omit } from 'lodash-es';
 
 export type VersionStructuralChange = {
   type: 'entity' | 'field' | 'index' | 'association' | 'diagram' | 'profile' | 'datatype' | 'module';
@@ -87,7 +87,7 @@ function formatChangeData(before: unknown, after: unknown): string {
  * 内容相同的空数组永远判不等 → 存版后仍显示「未存版本」的假阳性。
  */
 function valuesDiffer(a: unknown, b: unknown): boolean {
-  return !_.isEqual(a, b);
+  return !_isEqual(a, b);
 }
 
 function getAllTables(dataSource: ProjectJSONForDiff): EntityForDiff[] {
@@ -185,8 +185,8 @@ function compareIndexs(currentTable: EntityForDiff, checkTable: EntityForDiff): 
       const checkIndex = checkIndexs.find((c) => c.name === cIndex.name) || {};
       changes.push(
         ...compareIndex(
-          _.omit(cIndex, ['fields']) as IndexForDiff,
-          _.omit(checkIndex, ['fields']) as IndexForDiff,
+          _omit(cIndex, ['fields']) as IndexForDiff,
+          _omit(checkIndex, ['fields']) as IndexForDiff,
           currentTable,
         ),
       );
@@ -264,8 +264,8 @@ function compareTables(dataSource1: ProjectJSONForDiff, dataSource2: ProjectJSON
       });
       changes.push(
         ...compareEntity(
-          _.omit(table, ['fields', 'indexs', 'headers']) as EntityForDiff,
-          _.omit(checkTable, ['fields', 'indexs']) as EntityForDiff,
+          _omit(table, ['fields', 'indexs', 'headers']) as EntityForDiff,
+          _omit(checkTable, ['fields', 'indexs']) as EntityForDiff,
         ),
       );
       changes.push(...compareIndexs(table, checkTable));
@@ -326,7 +326,7 @@ function compareAssociations(
         });
       }
     });
-    if (!_.isEqual(assoc.from, base.from)) {
+    if (!_isEqual(assoc.from, base.from)) {
       changes.push({
         type: 'association',
         name: `${prefix}.from`,
@@ -334,7 +334,7 @@ function compareAssociations(
         changeData: formatChangeData(JSON.stringify(base.from), JSON.stringify(assoc.from)),
       });
     }
-    if (!_.isEqual(assoc.to, base.to)) {
+    if (!_isEqual(assoc.to, base.to)) {
       changes.push({
         type: 'association',
         name: `${prefix}.to`,
@@ -381,7 +381,7 @@ function compareDiagrams(
         changeData: formatChangeData(base.name, diagram.name),
       });
     }
-    if (!_.isEqual(diagram.includeEntities, base.includeEntities)) {
+    if (!_isEqual(diagram.includeEntities, base.includeEntities)) {
       changes.push({
         type: 'diagram',
         name: `${prefix}.includeEntities`,
@@ -392,7 +392,7 @@ function compareDiagrams(
         ),
       });
     }
-    if (!_.isEqual(diagram.layout, base.layout)) {
+    if (!_isEqual(diagram.layout, base.layout)) {
       changes.push({
         type: 'diagram',
         name: `${prefix}.layout`,
@@ -400,7 +400,7 @@ function compareDiagrams(
         changeData: 'layout changed',
       });
     }
-    if (!_.isEqual(diagram.groups, base.groups)) {
+    if (!_isEqual(diagram.groups, base.groups)) {
       changes.push({
         type: 'diagram',
         name: `${prefix}.groups`,
@@ -424,7 +424,7 @@ function compareGraphCanvas(
   current: ModuleForDiff['graphCanvas'],
   baseline: ModuleForDiff['graphCanvas'],
 ): VersionStructuralChange[] {
-  if (_.isEqual(current, baseline)) {
+  if (_isEqual(current, baseline)) {
     return [];
   }
   if (!current && !baseline) {
@@ -494,7 +494,7 @@ function compareProfile(
   const base = baseline || {};
 
   PROFILE_MODELING_KEYS.forEach((key) => {
-    if (!_.isEqual(cur[key], base[key])) {
+    if (!_isEqual(cur[key], base[key])) {
       changes.push({
         type: 'profile',
         name: key,
@@ -530,7 +530,7 @@ function compareDataTypeDomains(
     curMap.forEach((item, code) => {
       if (!baseMap.has(code)) {
         changes.push({ type: 'datatype', name: `${label}.${code}`, opt: 'add' });
-      } else if (!_.isEqual(item, baseMap.get(code))) {
+      } else if (!_isEqual(item, baseMap.get(code))) {
         changes.push({
           type: 'datatype',
           name: `${label}.${code}`,

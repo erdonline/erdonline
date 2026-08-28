@@ -1,5 +1,5 @@
 // @ts-nocheck
-import _ from 'lodash-es';
+import { get as _get, omit as _omit } from 'lodash-es';
 import doT from 'dot';
 import {message} from "antd";
 import { getIntl } from '@umijs/max';
@@ -9,7 +9,7 @@ import { associationKey } from '@/utils/versionStructuralDiff';
 const getFieldType = (datatype: unknown[], type: string, code: string): string => {
   const data = (datatype || []).filter((dt: { code?: string }) => dt.code === type)[0];
   if (data) {
-    return _.get(data, `apply.${code}.type`, '');
+    return _get(data, `apply.${code}.type`, '');
   }
   return type;
 };
@@ -548,10 +548,10 @@ const getTemplateString = (template, templateData) => {
 };
 
 const generateIncreaseSql = (dataSource, module, dataTable, code, templateShow) => {
-  const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
-  const database = _.get(dataSource, 'dataTypeDomains.database', []).filter(db => db.code===code)[0];
+  const datatype = _get(dataSource, 'dataTypeDomains.datatype', []);
+  const database = _get(dataSource, 'dataTypeDomains.database', []).filter(db => db.code===code)[0];
   const template = templateShow ? ((database && database[templateShow]) || '') : ((database && database.template) || '');
-  const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
+  const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
   // 构造新的数据表传递给模板
   const tempDataTable = {
     ...dataTable,
@@ -609,9 +609,9 @@ function findAssociationByChangeName(dataSource, changeName) {
 }
 
 const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) => {
-  const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
+  const datatype = _get(dataSource, 'dataTypeDomains.datatype', []);
   const database = pickDatabaseDialect(
-    _.get(dataSource, 'dataTypeDomains.database', []),
+    _get(dataSource, 'dataTypeDomains.database', []),
     code,
   );
   const dialectCode = (database && database.code) || code;
@@ -634,7 +634,7 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
   const getTemplate = (templateShow) => {
     return `${(database && database[templateShow]) || ''}`;
   };
-  const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
+  const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
   // 构造新的数据表传递给模板
   const tempEntities = getAllTable(dataSource, 'name').map((entity) => {
     return {
@@ -719,7 +719,7 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
       const change = c.name.split('.');
       const dataTable = tempEntities.filter(t => t.title === change[0])[0] || {};
       const indexName = change[1];
-      const indexData = _.get(dataTable, 'indexs', []);
+      const indexData = _get(dataTable, 'indexs', []);
       const index = indexData.filter(i => i.name === indexName)[0] || {name: indexName};
       if (c.opt === 'add') {
         // 根据数据表中的内容获取索引
@@ -860,10 +860,10 @@ const generateUpdateSql = (dataSource, changesData = [], code, oldDataSource) =>
 const getCodeByRebuildTableTemplate = (dataSource, changes, code, oldDataSource) => {
   let sqlString = '';
   try {
-    const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
-    const database = _.get(dataSource, 'dataTypeDomains.database', [])
+    const datatype = _get(dataSource, 'dataTypeDomains.datatype', []);
+    const database = _get(dataSource, 'dataTypeDomains.database', [])
       .filter(db => db.defaultDatabase)[0];
-    const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/');
+    const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/');
     const getTemplate = (templateShow) => {
       return `${(database && database[templateShow]) || ''}`;
     };
@@ -1102,9 +1102,9 @@ export const getDemoTemplateData = (templateShow) => {
       break;
     case 'rebuildTableTemplate':
       data = JSON.stringify({
-        oldEntity: _.get(demoTable, 'entity'),
-        newEntity: _.get(demoTable, 'entity'),
-        ..._.omit(demoTable, 'entity'),
+        oldEntity: _get(demoTable, 'entity'),
+        newEntity: _get(demoTable, 'entity'),
+        ..._omit(demoTable, 'entity'),
         separator: '/*SQL@Run*/'
       }, null, 2);
       break;
@@ -1197,12 +1197,12 @@ export const getDataByTemplate = (data, template) => {
 
 export const getAllDataSQL = (dataSource, code) => {
   // 获取全量脚本（删表，建表，建索引）
-  const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
+  const datatype = _get(dataSource, 'dataTypeDomains.datatype', []);
   const database = pickDatabaseDialect(
-    _.get(dataSource, 'dataTypeDomains.database', []),
+    _get(dataSource, 'dataTypeDomains.database', []),
     code,
   );
-  const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
+  const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
   const getTemplate = (templateShow) => {
     return `${(database && database[templateShow]) || ''}`;
   };
@@ -1267,9 +1267,9 @@ export const getAllDataSQLByFilter = (
   filter: string[] = [],
 ): string => {
   // 获取全量脚本（删表，建表，建索引，触发器，外键，表注释）；模板按所选方言 code，非仅 defaultDatabase
-  const datatype = _.get(dataSource, 'dataTypeDomains.datatype', []);
+  const datatype = _get(dataSource, 'dataTypeDomains.datatype', []);
   const database = pickDatabaseDialect(
-    _.get(dataSource, 'dataTypeDomains.database', []) as Array<{
+    _get(dataSource, 'dataTypeDomains.database', []) as Array<{
       code?: string;
       defaultDatabase?: boolean;
     }>,
@@ -1278,7 +1278,7 @@ export const getAllDataSQLByFilter = (
   const getTemplate = (templateShow: string) => {
     return `${(database && database[templateShow]) || ''}`;
   };
-  const separator = _.get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
+  const separator = _get(dataSource, 'profile.sqlConfig', '/*SQL@Run*/') + '\n';
   let sqlString = '';
   // 1.获取所有的表
   const tempEntities = getAllTable(dataSource, 'name').map((entity) => {

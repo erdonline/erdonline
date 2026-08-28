@@ -2,7 +2,7 @@ import {Descriptions, Form, Input, Select, Table, Typography} from 'antd';
 import type {ColumnsType} from 'antd/es/table';
 import React, {useEffect, useMemo} from 'react';
 import {useIntl} from '@umijs/max';
-import _ from 'lodash-es';
+import { get as _get } from 'lodash-es';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {
@@ -30,7 +30,7 @@ const ReverseTable: React.FC<ReverseTableProps> = () => {
     shallow,
   );
   const {data, exists, keys, reverseImportTarget} = profileSliceState;
-  const parsedModule = _.get(data, 'module', {});
+  const parsedModule = _get(data, 'module', {});
   const parsedCode = parsedModule.code || '';
   const parsedName = parsedModule.name || parsedCode;
 

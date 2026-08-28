@@ -2,7 +2,7 @@ import React, {useEffect, useMemo, useState} from 'react';
 import {Button, Divider, Form, Input, Select, message} from 'antd';
 import {GET} from '@/services/crud';
 import {useIntl, useSearchParams} from '@@/exports';
-import _ from 'lodash-es';
+import { join as _join } from 'lodash-es';
 import RemoveGroupProject from '@/pages/project/group/component/RemoveGroupProject';
 import {updateGroupProject} from '@/services/group-project';
 import {Access, useAccess} from '@@/plugin-access';
@@ -80,7 +80,7 @@ const BasicSetting: React.FC<BasicSettingProps> = () => {
         id: projectId,
         projectName: values.projectName,
         description: values.description,
-        tags: _.join(values.tags, ','),
+        tags: _join(values.tags, ','),
       });
       if (r?.code === 200) {
         message.success(intl.formatMessage({id: 'groupSetting.basic.updateSuccess'}));

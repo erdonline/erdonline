@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react';
 import {CheckboxValueType} from 'antd/lib/checkbox/Group';
 import {GET, POST} from '@/services/crud';
 import {Button, Checkbox, Col, Divider, Empty, Form, List, message, Row, Space} from 'antd';
-import _ from 'lodash-es';
+import { filter as _filter, find as _find, map as _map, omit as _omit } from 'lodash-es';
 import {CONSTANT} from '@/utils/constant';
 import {useIntl, useSearchParams} from '@@/exports';
 import {useAccess} from '@@/plugin-access';
@@ -57,11 +57,11 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
     tmpLoginRole: number,
   ) {
     //有部分选中
-    const someChecked = _.find(data, function (value) {
+    const someChecked = _find(data, function (value) {
       return value?.defaultValue?.length > 0;
     });
     //全选中
-    const allChecked = _.filter(data, function (value) {
+    const allChecked = _filter(data, function (value) {
       return value?.defaultValue?.length === value?.operations?.length;
     });
 
@@ -89,11 +89,11 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
 
   function firstCheckConfig(data: any, tmpAllIndeterminate: SecondCheckedGroup) {
     //有部分选中
-    const someChecked = _.find(data, function (value) {
+    const someChecked = _find(data, function (value) {
       return value?.defaultValue?.length > 0;
     });
     //全选中
-    const allChecked = _.filter(data, function (value) {
+    const allChecked = _filter(data, function (value) {
       return value?.defaultValue?.length === value?.operations?.length;
     });
 
@@ -153,7 +153,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
                 : indeterminateSecond || value?.defaultValue?.length === 0, //半选或者全不选置灰
         });
       });
-      setIndeterminate(_.omit(secondCheckedGroups));
+      setIndeterminate(_omit(secondCheckedGroups));
       setOperationCheckedGroup(checkedGroups);
       setOperationData(data);
       firstAllConfig(data, tmpAllIndeterminate, tmpLoginRole);
@@ -197,8 +197,8 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
         indeterminate: false,
         checked: true,
       };
-      setIndeterminate(_.omit(indeterminate));
-      const checkedKeys = _.map(operationData[key].operations || [], 'value');
+      setIndeterminate(_omit(indeterminate));
+      const checkedKeys = _map(operationData[key].operations || [], 'value');
       operationCheckedGroup[key] = {
         key,
         checkedKeys,
@@ -216,7 +216,7 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
         indeterminate: false,
         checked: false,
       };
-      setIndeterminate(_.omit(indeterminate));
+      setIndeterminate(_omit(indeterminate));
     }
   };
 
@@ -234,8 +234,8 @@ const GroupPermission: React.FC<GroupPermissionProps> = (props) => {
           operationData[key]?.operations?.length,
       checked: operationCheckedGroup[key].checkedKeys?.length > 0,
     };
-    setIndeterminate(_.omit(indeterminate));
-    firstCheckConfig(operationData, _.omit(allIndeterminate));
+    setIndeterminate(_omit(indeterminate));
+    firstCheckConfig(operationData, _omit(allIndeterminate));
   };
 
   const getOperation = (operations: any[], parentIndex: number) => {
