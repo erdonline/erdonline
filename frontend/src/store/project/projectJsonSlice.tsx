@@ -10,7 +10,6 @@ import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import { find as _find, get as _get } from 'lodash-es';
 import {message} from "antd";
-import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
 import { storeFmt } from '@/store/storeIntl';
 import {
@@ -183,14 +182,19 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
     }
     return "";
   },
-  diff: (previousProject: any, project: any) =>
-    jsondiffpatch.diff(previousProject, project),
-  patch: (r: any) => set(produce(state => {
-    const patchedProject = jsondiffpatch.patch(JSON.parse(JSON.stringify(get().project)), r.delta);
-    patchedProject.timestamp = r.timestamp;
-    state.project = patchedProject;
-    state.syncing = true;
-  })),
+  diff: async (previousProject: any, project: any) => {
+    const { jsondiffpatch } = await import('@/store/project/jsondiffpatch');
+    return jsondiffpatch.diff(previousProject, project);
+  },
+  patch: async (r: any) => {
+    const { jsondiffpatch } = await import('@/store/project/jsondiffpatch');
+    set(produce(state => {
+      const patchedProject = jsondiffpatch.patch(JSON.parse(JSON.stringify(get().project)), r.delta);
+      patchedProject.timestamp = r.timestamp;
+      state.project = patchedProject;
+      state.syncing = true;
+    }));
+  },
   setSyncing: (syncing: any) => set(produce(state => {
     state.syncing = syncing;
   })),

@@ -8,6 +8,14 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 按需加载 jsondiffpatch，再降 umi.js 体积
+
+- **问题**：`jsondiffpatch` 被 `useProjectStore` 和 `projectJsonSlice` 顶部 `import` 拖进 `umi.js`，但首屏落地页不需要版本 diff / patch。
+- **改法**：
+  1. `src/store/project/useProjectStore.tsx` 移除顶部 `import {jsondiffpatch}`；远端同步 `onSync` 与本地 diff `setTimeout` 回调内改为 `await import('./jsondiffpatch')`。
+  2. `src/store/project/projectJsonSlice.tsx` 移除顶部 `import {jsondiffpatch}`；`diff` / `patch` 方法改为 `async` 并 `await import('@/store/project/jsondiffpatch')`。
+- **验证点**：`yarn build:prod` 绿；`dist/umi.*.js` 从 ~1.7MB 降到 **~1.6MB**；`test:seo-static` 绿；`check:prod-smoke` 8/8 绿
+
 #### perf(frontend): 按需加载 crypto-js，减少 umi.js 初始体积
 
 - **问题**：`crypto-js` 被 `projectJsonSlice` 顶部 `import` 拖进 `umi.js` 主包，但加/解密只在导出/导入 `.erd.json` 时触发，首屏不需要。
