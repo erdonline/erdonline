@@ -164,7 +164,7 @@ test.describe('落地页', () => {
     await expect(page.getByTestId('catalog-list-page')).toBeVisible({ timeout: 15_000 });
   });
 
-  test('已登录时主 CTA 进入工作台，不被营销页困住', async ({ page }) => {
+  test('已登录时主 CTA 显示 Open workspace 并跳转 /home，不被营销页困住', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('Authorization', 'e2e-landing-session');
     });
@@ -172,8 +172,8 @@ test.describe('落地页', () => {
     await expect(page.getByTestId('landing-page')).toBeVisible();
     const heroPrimary = page.locator('.landingHero .landingBtnPrimary');
     await expect(heroPrimary).toHaveAttribute('href', /\/home/);
-    await expect(heroPrimary).toHaveAccessibleName('进入工作台');
-    await expect(page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: '进入工作台' })).toBeVisible();
+    await expect(heroPrimary).toHaveAccessibleName('Open workspace');
+    await expect(page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: 'Open workspace' })).toBeVisible();
   });
 
   // ADR-0016：落地页键盘 — Skip 绕开顶栏；主 CTA 区 Tab 序；focus-visible；无 trap
