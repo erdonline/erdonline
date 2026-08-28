@@ -8,6 +8,17 @@
 
 ### 2026-08-28
 
+#### feat(frontend): 首页 SSG（prerender landing DOM）
+
+- **问题**：`dist/index.html` 是空的 `<div id="root"></div>`，FCP 7.2s、LCP 8.9s。
+- **改法**：
+  1. 新增 `scripts/prerender-landing.mjs`，用 Playwright 在本地起 `dist/` 服务后渲染 `/`，抓取 `#root` innerHTML。
+  2. 在 `gen-seo-static.mjs` 的 prod build 中把抓取的 landing DOM 写回 `dist/index.html`。
+  3. `package.json build:prod` 给 `node ./scripts/gen-seo-static.mjs` 也加上 `cross-env REACT_APP_ENV=prod UMI_ENV=prod`，让 prod build 能触发 SSG。
+  4. `assert-seo-static.mjs` 的 `selfTest` 改为 `async/await` 以配合新的异步 `generateSeoStatic`。
+- **收益**：本地 Lighthouse 性能从 55 → 68；FCP 7.2s → 1.1s；Best Practices 61 → 100；SEO 92 → 100。
+- **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 包含 landing 内容。
+
 #### perf(frontend): 添加关键域预连接 / DNS 预取
 
 - **问题**：Lighthouse 显示 `Preconnect to required origins` 可节省约 740ms。

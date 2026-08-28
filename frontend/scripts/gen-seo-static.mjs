@@ -272,7 +272,7 @@ function writePrerenderedShells(distDir, indexHtml, siteUrl) {
  * @param {string} [distDir]
  * @param {string} [siteUrl]
  */
-export function generateSeoStatic(distDir = defaultDistDir(), siteUrl = resolveSiteUrl()) {
+export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = resolveSiteUrl()) {
   const indexPath = ensureDist(distDir);
   const indexHtml = fs.readFileSync(indexPath, "utf8");
   const builtAt = new Date().toISOString().slice(0, 10);
@@ -282,6 +282,21 @@ export function generateSeoStatic(distDir = defaultDistDir(), siteUrl = resolveS
   writeRedirects(distDir);
   write404Shell(distDir, indexHtml);
   writePrerenderedShells(distDir, indexHtml, siteUrl);
+
+  // SSG: for prod builds, prerender the landing page DOM into dist/index.html.
+  if (process.env.UMI_ENV === 'prod' && process.env.SSG_LANDING !== '0') {
+    const { prerenderLanding } = await import('./prerender-landing.mjs');
+    const landingHtml = await prerenderLanding(distDir);
+    const homePath = path.join(distDir, 'index.html');
+    const homeHtml = fs.readFileSync(homePath, 'utf8');
+    const withPrerender = homeHtml.replace(
+      /<div id="root"([^>]*)>\s*<\/div>/,
+      (match, attrs) => `<div id="root"${attrs}>${landingHtml}</div>`,
+    );
+    fs.writeFileSync(homePath, withPrerender, 'utf8');
+    console.log('gen-seo-static: prerendered / landing DOM into dist/index.html');
+  }
+
   const shells = [
     ...PRERENDER_PAGES.map((p) => p.path),
     ...CATALOG_DETAIL_FIXTURES.map((f) => `/catalog/${f.id}`),
@@ -298,5 +313,5 @@ function isDirectRun() {
 }
 
 if (isDirectRun()) {
-  generateSeoStatic();
+  await generateSeoStatic();
 }
