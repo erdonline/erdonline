@@ -75,6 +75,7 @@
 - `crypto-js` 按需加载：`projectJsonSlice` 的 `encrypt`/`decrypt` 改为异步 `import('crypto-js')`；生成 53KB 独立 chunk；`umi.js` 轻微下降。
 - `jsondiffpatch` 按需加载：`useProjectStore` 与 `projectJsonSlice` 移除顶部 `import`；远端同步/版本 diff 首次触发时 `import('jsondiffpatch')`；`umi.js` 从 ~1.7MB 降到 **~1.6MB**。
 - `/` 落地页完全静态化：移除 `framework`/`preload_helper`/`umi.js` 的 `<script>`，把 SPA 壳放到 `dist/app` 无扩展名文件并用 `_redirects` 200 重写；`/` 不再加载任何 JS bundle；LCP 从 **~6.7–7.5s** 降到 **~1.1s**，Lighthouse Performance 从 62–69 升到 **99**。
+- 关键 CSS 内联：把 `umi.*.css` 与 `p__landing__index.*.chunk.css` 合并写入 `dist/index.html` `<style>`；hero `sizes` 限制为 `(max-width: 996px) 100vw, 640px`；`landing-hero.webp/jpg`、`logo.svg` 改 `immutable`；Cloudflare beacon 延迟到 `DOMContentLoaded`；Lighthouse Performance 从 99 升到 **100**。
 
 ### 后续最大杠杆
 
