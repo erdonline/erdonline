@@ -8,6 +8,17 @@
 
 ### 2026-08-28
 
+#### perf(frontend): / 落地页静态化，彻底移除 umi.js 首屏阻塞
+
+- **问题**：`/` 作为 Umi SPA 入口，必须等 `framework` + `umi.js` 加载并执行后才能 paint `landingHeroImg`，LCP 被主包死死压制。
+- **改法**：
+  1. `frontend/scripts/prerender-landing.mjs`：在 Playwright 渲染后将 `LocaleSwitcher` 替换为无 JS 的 `<a href="/">中文</a>` / `<a href="/en">EN</a>` 链接。
+  2. `frontend/scripts/gen-seo-static.mjs`：
+     - 把 SPA 壳复制一份到 `dist/app/index.html`。
+     - `dist/index.html` 仅保留预渲染落地页 DOM + JSON-LD + env-config + beacon，删掉 `<script src="/framework.*.js">`、`<script src="/preload_helper.*.js">`、`<script src="/umi.*.js">`。
+  3. `frontend/scripts/seo-config.mjs`：所有 SPA 路由的 `_redirects` 目标从 `/` 改为 `/app`。
+- **验证点**：`yarn build:prod` 绿；`test:seo-static` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 8/8 绿；`dist/index.html` 不含 `umi.js`，`dist/app/index.html` 含 `umi.js`
+
 #### perf(deploy): framework.*.js 加 immutable 长缓存，避免 304 往返
 
 - **问题**：`framework.*.js` 每次刷新都返回 304，0.5 KB 却要 200ms+ RTT，因为它没被 `public/_headers` 的 `immutable` 规则覆盖。
