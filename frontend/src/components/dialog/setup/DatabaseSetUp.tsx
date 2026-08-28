@@ -2,7 +2,7 @@ import React, {useContext, useEffect, useMemo, useRef, useState} from 'react';
 import {DeleteOutlined, ExclamationCircleOutlined, PlusOutlined} from '@ant-design/icons';
 import {Button, Col, Form, Input, Modal, Radio, Row, Select, Space, message} from 'antd';
 import {useIntl} from '@umijs/max';
-import _ from 'lodash-es';
+import { find as _find } from 'lodash-es';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
 import {uuid} from '@/utils/uuid';
@@ -109,7 +109,7 @@ const DatabaseSetUp: React.FC<DatabaseSetUpProps> = ({
   }, []);
 
   const defaultDatabase =
-    _.find(dialects, {defaultDatabase: true})?.code || dialects[0]?.code || 'MYSQL';
+    _find(dialects, {defaultDatabase: true})?.code || dialects[0]?.code || 'MYSQL';
   const defaultDBData = urlTemplates[defaultDatabase.toLowerCase()] || urlTemplates.mysql;
 
   const defaultDbs = databases.find((d) => d.defaultDB) || databases[0];

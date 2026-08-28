@@ -3,7 +3,7 @@ import type {ProjectState} from "@/store/project/useProjectStore";
 import produce from "immer";
 import EntitiesSlice from "@/store/project/entitiesSlice";
 import {message} from "antd";
-import _ from 'lodash-es';
+import { concat as _concat, escapeRegExp as _escapeRegExp } from 'lodash-es';
 import * as cache from '../../utils/cache';
 import {redoModules, snapshotModules, undoModules} from "@/store/project/canvasHistory";
 import { storeFmt } from '@/store/storeIntl';
@@ -1717,7 +1717,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
               return;
             }
             if (searchKey && searchKey.length > 0) {
-              const flag = (entity.name || entity.title).search(_.escapeRegExp(searchKey)) >= 0;
+              const flag = (entity.name || entity.title).search(_escapeRegExp(searchKey)) >= 0;
               if (flag) {
                 const entityNode = {
                   key: `${module.name}-${entity.name || entity.title}`,
@@ -1788,7 +1788,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
               return true;
             }
             if (searchKey && searchKey.length > 0) {
-              const flag = (f.name || f.title).search(_.escapeRegExp(searchKey)) >= 0;
+              const flag = (f.name || f.title).search(_escapeRegExp(searchKey)) >= 0;
               if (flag) {
                 match_entities.push(f);
                 tempExpandedKeys.push(`module${module.name}`);
@@ -1841,7 +1841,7 @@ const ModulesSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
         type: 'module',
         title: module.name,
         key: module.name,
-        children: _.concat(relations, entities)
+        children: _concat(relations, entities)
       }
     });
   })),

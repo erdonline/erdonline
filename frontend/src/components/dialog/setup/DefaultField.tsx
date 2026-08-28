@@ -6,7 +6,7 @@ import {message} from "antd";
 import {HotTable} from "@handsontable/react";
 // @ts-ignore
 import {CellChange, ChangeSource} from "handsontable";
-import _ from 'lodash-es';
+import { find as _find, get as _get, sortBy as _sortBy } from 'lodash-es';
 import { flatTypeNamesPreferEnum } from '@/utils/fieldTypeOptions';
 
 
@@ -20,11 +20,11 @@ export function handsontableBeforeChange(hotTableComponent: React.MutableRefObje
         // @ts-ignore
         const {hotInstance} = hotTableComponent.current;
         if (prop === 'typeName' && oldValue !== newValue) {
-          const d = _.find(datatype, {'name': newValue});
-          const defaultDatabaseCode = _.find(database, {"defaultDatabase": true}).code || database[0].code;
+          const d = _find(datatype, {'name': newValue});
+          const defaultDatabaseCode = _find(database, {"defaultDatabase": true}).code || database[0].code;
           const path = `apply.${defaultDatabaseCode}.type`;
-          hotInstance.setDataAtRowProp(row, 'type', _.get(d, 'code'));
-          hotInstance.setDataAtRowProp(row, 'dataType', _.get(d, path));
+          hotInstance.setDataAtRowProp(row, 'type', _get(d, 'code'));
+          hotInstance.setDataAtRowProp(row, 'dataType', _get(d, path));
         }
       });
     }
@@ -66,7 +66,7 @@ export function handsontableAfterRowMove(hotTableComponent: React.MutableRefObje
     // 延迟一会保存数据，避免页面渲染混乱
     setTimeout(() => {
       // eslint-disable-next-line no-underscore-dangle
-      hotInstance.getPlugin('manualRowMove').rowsMapper._arrayMap = _.sortBy(_arrayMap);
+      hotInstance.getPlugin('manualRowMove').rowsMapper._arrayMap = _sortBy(_arrayMap);
       // eslint-disable-next-line no-underscore-dangle
       afterChange(finalData);
     }, 200);

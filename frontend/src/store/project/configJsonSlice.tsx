@@ -1,7 +1,7 @@
 import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from 'immer';
-import _ from 'lodash-es';
+import { set as _set } from 'lodash-es';
 import { message } from 'antd';
 import * as Save from '@/utils/save';
 import { storeFmt } from '@/store/storeIntl';
@@ -35,7 +35,7 @@ const ConfigJsonSlice = (
       return false;
     }
     const next = produce(project, (draft) => {
-      _.set(draft, 'configJSON.synchronous.upgradeType', value.upgradeType);
+      _set(draft, 'configJSON.synchronous.upgradeType', value.upgradeType);
     });
     try {
       const res: { code?: number; msg?: string } = await Save.saveProject({
@@ -45,7 +45,7 @@ const ConfigJsonSlice = (
       if (res?.code === 200) {
         set(
           produce((state) => {
-            _.set(
+            _set(
               state.project,
               'configJSON.synchronous.upgradeType',
               value.upgradeType,

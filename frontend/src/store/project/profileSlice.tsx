@@ -1,7 +1,7 @@
 import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
 import produce from "immer";
-import _ from 'lodash-es';
+import { assign as _assign, find as _find, flatten as _flatten, get as _get, omit as _omit } from 'lodash-es';
 import * as Save from '@/utils/save';
 import {message} from "antd";
 import {confirmDestructive} from "@/utils/destructiveConfirm";
@@ -376,7 +376,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }
     const next = produce(project, (draft) => {
       const profile = draft.projectJSON.profile || (draft.projectJSON.profile = {});
-      _.assign(profile, payload);
+      _assign(profile, payload);
     });
     try {
       const res: { code?: number; msg?: string } = await Save.saveProject({
@@ -389,7 +389,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
             const profile =
               state.project.projectJSON.profile ||
               (state.project.projectJSON.profile = {});
-            _.assign(profile, payload);
+            _assign(profile, payload);
           }),
         );
         return true;
@@ -448,7 +448,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       errorMessage: undefined,
       lastReverseParse: {db, dataFormat: flag, schema},
     });
-    const dbConfig = _.omit(db.properties, ['driver_class_name']);
+    const dbConfig = _omit(db.properties, ['driver_class_name']);
     Save.dbReverseParse({
       ...dbConfig,
       driverClassName: db.properties['driver_class_name'], // eslint-disable-line
@@ -458,7 +458,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     }).then((res) => {
       if (res && res.code === 200) {
         const parsed = res.data || res;
-        const parsedModule = _.get(parsed, 'module', {});
+        const parsedModule = _get(parsed, 'module', {});
         get().dispatch.setProfileSliceState({
           ...get().profileSliceState,
           data: parsed,
@@ -505,7 +505,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     // 当前模型中已经拥有的数据表
     const allTable = get().dispatch.getAllTable(dataSource);
     // 从数据库解析中获取到的数据表
-    const entities = _.get(data, 'module.entities', []).map((d: any) => d.title);
+    const entities = _get(data, 'module.entities', []).map((d: any) => d.title);
     entities.forEach((e: any) => {
       if (allTable.includes(e)) {
         tempExists.push(e);
@@ -574,14 +574,14 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
       return false;
     }
     const {data, keys} = get().profileSliceState;
-    const dbType = _.get(data, 'dbType', 'MYSQL');
-    const module = _.get(data, 'module', {});
+    const dbType = _get(data, 'dbType', 'MYSQL');
+    const module = _get(data, 'module', {});
     const importTarget = resolveReverseImportTarget(module, get().profileSliceState.reverseImportTarget);
     const targetModuleCode = importTarget.moduleCode;
     const targetModuleChnname = importTarget.moduleChnname;
-    const datatypeObj = _.get(data, 'dataTypeMap', {});
-    let currentDataTypes = [...(_.get(dataSource, 'dataTypeDomains.datatype', []) || [])];
-    const database = [...(_.get(dataSource, 'dataTypeDomains.database', []) || [])];
+    const datatypeObj = _get(data, 'dataTypeMap', {});
+    let currentDataTypes = [...(_get(dataSource, 'dataTypeDomains.datatype', []) || [])];
+    const database = [...(_get(dataSource, 'dataTypeDomains.database', []) || [])];
     if (!database.some((d: any) => d.code === dbType)) {
       database.push({
         code: dbType
@@ -614,7 +614,7 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     });
     let tempKeys = [...keys];
     const selectedTitles = new Set(keys.map((k: any) => k.title));
-    const incomingAssociations = (_.get(module, 'associations', []) || []).filter((a: any) =>
+    const incomingAssociations = (_get(module, 'associations', []) || []).filter((a: any) =>
       selectedTitles.has(a?.from?.entity) && selectedTitles.has(a?.to?.entity)
       && a?.from?.field && a?.to?.field);
     const mergeAssociations = (existing: any[] = [], incoming: any[] = []) => {
@@ -758,14 +758,14 @@ const ProfileSlice = (set: SetState<ProjectState>, get: GetState<ProjectState>) 
     const datatype = get().project?.projectJSON?.dataTypeDomains?.datatype || [];
     // 兼容误存成 [[fields]] 的旧数据
     const flat = Array.isArray(defaultFields[0])
-      ? _.flatten(defaultFields)
+      ? _flatten(defaultFields)
       : defaultFields;
     return flat.filter((f: any) => f != null && typeof f === 'object').map((d: any) => {
-      const defaultField = _.find(datatype, ['code', d.type]);
+      const defaultField = _find(datatype, ['code', d.type]);
       if (defaultField) {
         return {
           ...d,
-          dataType: defaultDatabaseCode ? _.get(defaultField, `apply.${defaultDatabaseCode}.type`) : d.dataType || '',
+          dataType: defaultDatabaseCode ? _get(defaultField, `apply.${defaultDatabaseCode}.type`) : d.dataType || '',
           typeName: defaultField.name || d.typeName || ''
         };
       }

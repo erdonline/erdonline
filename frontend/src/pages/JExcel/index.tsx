@@ -2,7 +2,7 @@
 import React, { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import jspreadsheet, {CellValue} from "jspreadsheet-ce";
 
-import _ from 'lodash-es';
+import { find as _find, get as _get } from 'lodash-es';
 import "jspreadsheet-ce/dist/jspreadsheet.css";
 import "jspreadsheet-ce/dist/jspreadsheet.datatables.css";
 import "jsuites/dist/jsuites.css"
@@ -295,11 +295,11 @@ const JExcel = forwardRef<JExcelHandle, JExcelProps>((props, ref) => {
                rowIndex: string,
                value: CellValue,) => {
       const rowData = jRef?.current?.jexcel.getRowData(rowIndex);
-      const d = _.find(datatype, {'name': value});
-      const defaultDatabaseCode = _.find(database, {"defaultDatabase": true}).code || database[0].code;
-      const code = _.get(d, 'code');
+      const d = _find(datatype, {'name': value});
+      const defaultDatabaseCode = _find(database, {"defaultDatabase": true}).code || database[0].code;
+      const code = _get(d, 'code');
       const path = `apply.${defaultDatabaseCode}.type`;
-      const type = _.get(d, path);
+      const type = _get(d, path);
       //只有类型一列变化时，才更新后两列
       if (d && defaultDatabaseCode && code && type && Number(columnIndex) == 2) {
         jRef?.current?.jexcel?.setValueFromCoords(Number(columnIndex) + 1, rowIndex, code, true);

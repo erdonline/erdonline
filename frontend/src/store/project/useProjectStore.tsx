@@ -13,7 +13,7 @@ import type {IDataTypeDomainsDispatchSlice, IDataTypeDomainsSlice} from "@/store
 import type {IProfileDispatchSlice, IProfileSlice} from "@/store/project/profileSlice";
 import type {IEntitiesDispatchSlice, IEntitiesSlice} from "@/store/project/entitiesSlice";
 import type {IDatabaseDomainsDispatchSlice, IDatabaseDomainsSlice} from "@/store/project/databaseDomainsSlice";
-import _ from 'lodash-es';
+import { flatMapDepth as _flatMapDepth, map as _map } from 'lodash-es';
 import * as cache from "@/utils/cache";
 import request from "@/utils/request";
 import * as Save from '@/utils/save';
@@ -134,9 +134,9 @@ export function hydrateFetchedProject(
   if (typeof profile?.defaultDataSourceId === 'string') {
     currentDbKey = profile.defaultDataSourceId;
   }
-  const tables = _.flatMapDepth(
+  const tables = _flatMapDepth(
     (pjson?.modules as { entities?: { title?: string }[] }[]) || [],
-    (m) => _.map(m.entities || [], 'title'),
+    (m) => _map(m.entities || [], 'title'),
     2,
   ) as string[];
   return { project, currentDbKey, tables };

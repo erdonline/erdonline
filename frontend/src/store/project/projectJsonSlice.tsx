@@ -9,7 +9,7 @@ import useGlobalStore from "@/store/global/globalStore";
 import type {State} from "zustand/vanilla";
 import ExportSlice from "@/store/project/exportSlice";
 import * as CryptoJS from 'crypto-js';
-import _ from 'lodash-es';
+import { find as _find, get as _get } from 'lodash-es';
 import {message} from "antd";
 import {jsondiffpatch} from "@/store/project/jsondiffpatch";
 import {sanitizeProfileDataSources} from "@/utils/projectDataSource";
@@ -70,7 +70,7 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
   fixModules: (data: any, datatypeArg: any, databaseArg: any) => {
     const datatype = datatypeArg || get().project?.projectJSON?.dataTypeDomains?.datatype || [];
     const database = databaseArg || get().project?.projectJSON?.dataTypeDomains?.database || [];
-    const defaultDatabaseCode = _.find(database, {"defaultDatabase": true})?.code || database[0]?.code;
+    const defaultDatabaseCode = _find(database, {"defaultDatabase": true})?.code || database[0]?.code;
     if (!defaultDatabaseCode) {
       return data;
     }
@@ -82,9 +82,9 @@ const ProjectJsonSlice = (set: SetState<ProjectState>, get: GetState<ProjectStat
             ...e,
             fields: e?.fields?.map((f: any) => {
               let tmpField = f;
-              const d = _.find(datatype, {'code': f?.type});
+              const d = _find(datatype, {'code': f?.type});
               const path = `apply.${defaultDatabaseCode}.type`;
-              const type = _.get(d, path);
+              const type = _get(d, path);
 
               if (!f.typeName && d?.name) {
                 tmpField = {

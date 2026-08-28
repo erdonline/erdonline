@@ -1,6 +1,6 @@
 import type { GetState, SetState } from 'zustand';
 import type { ProjectState } from '@/store/project/useProjectStore';
-import _ from 'lodash-es';
+import { find as _find } from 'lodash-es';
 
 export type IDatabaseDomainsSlice = Record<string, never>;
 
@@ -20,7 +20,7 @@ const DatabaseDomainsSlice = (
 ) => ({
   getDefaultDatabase: () => {
     const database = get().project?.projectJSON?.dataTypeDomains?.database;
-    return _.find(database, { defaultDatabase: true });
+    return _find(database, { defaultDatabase: true });
   },
   getDefaultDatabaseCode: () => {
     const defaultDatabase = get().dispatch.getDefaultDatabase();

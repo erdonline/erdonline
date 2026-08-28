@@ -5,7 +5,7 @@ import type {RefSelectProps} from 'antd/es/select';
 import { DatabaseOutlined } from '@ant-design/icons';
 import useProjectStore from '@/store/project/useProjectStore';
 import shallow from 'zustand/shallow';
-import _ from 'lodash-es';
+import { omit as _omit } from 'lodash-es';
 import ReverseParseStep from '@/components/TableTransfer/ReverseParseStep';
 import {fetchDatabaseConfigs} from '@/utils/databaseUtils';
 import {dbReverseMeta} from '@/utils/save';
@@ -87,7 +87,7 @@ const ReverseDatabase: React.FC<DatabaseReverseProps> = ({
       }
       setMetaLoading(true);
       try {
-        const dbConfig = _.omit(db.properties, ['driver_class_name']);
+        const dbConfig = _omit(db.properties, ['driver_class_name']);
         const res = await dbReverseMeta({
           ...dbConfig,
           driverClassName: db.properties['driver_class_name'],
