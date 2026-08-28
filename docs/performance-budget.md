@@ -68,7 +68,8 @@
 - `html2canvas` 按需加载：减少 39KB 初始下载与 `load` 事件等待 ✅
 - `<picture>` vs 单 `<img>`：单 `<img>` 未改善 LCP；回退到 `<picture>`
 - `umi.js defer`：`Best Practices` 升至 100，但 `Performance` 跌至 57–63，回退
-- 移除百度统计：Lighthouse `Best Practices` 从 61 升到 **100**；`Performance` 轻微波动（60–67），`LCP` 仍由 `umi.js` 主导
+- 移除百度统计：`Best Practices` 从 61 升到 **100**；`Performance` 轻微波动（60–67）
+- 禁用 `BABEL_POLYFILL=none`：`umi.js` 减少 ~120KB parsed，`LCP` 从 ~8.5–10.6s 降到 **~6.4–6.6s**，`Performance` 稳定在 67–70
 
 ### 后续最大杠杆
 
