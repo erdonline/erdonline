@@ -8,6 +8,18 @@
 
 ### 2026-08-28
 
+#### perf(frontend): 提高 Umi Babel targets，精简 polyfill
+
+- **证据**：`core-js` 在 `umi.js` 中占 145 KB，通过 `browserslist`/`caniuse-lite` 调整后变化极小，但设置明确的 `targets` 可让 Babel 少转译一些现代语法。
+- **改法**：`config/config.ts` 加入 `targets: { chrome: 120, firefox: 120, safari: 17, edge: 120 }`。
+- **验证点**：`yarn build:prod` 绿；`umi.js` gzip 从约 659 KB → 650 KB；Playwright `prod-smoke` 8 条绿
+
+#### chore(frontend): 构建依赖整理
+
+- `@ant-design/compatible` 只在 `config/config.ts` 的构建阶段使用，移到 `devDependencies`。
+- 更新 `caniuse-lite` 数据库。
+- 验证点：`yarn build:prod` 绿
+
 #### perf(frontend): lodash-es 默认导入改为命名导入
 
 - **证据**：`lodash-es` 被默认导入，webpack 仍打包整包（97 KB）。

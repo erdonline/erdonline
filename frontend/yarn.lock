@@ -49,11 +49,13 @@
   dependencies:
     "@ant-design/fast-color" "^2.0.6"
 
-"@ant-design/compatible@^5.1.1":
-  version "5.1.1"
-  resolved "https://registry.npmmirror.com/@ant-design/compatible/-/compatible-5.1.1.tgz#e9188b782f9c8ec93ca787dfd3722318055fd6ce"
-  integrity sha512-frGsAfzW49y5dq5U9jFDnIsYsEO84IYWF0mNKHCEYE+vyAPbZ+Kzlpv9CBqHtRy4cc0yVE5LHAuNqavKY/cigw==
+"@ant-design/compatible@^5.1.5":
+  version "5.1.5"
+  resolved "https://registry.npmmirror.com/@ant-design/compatible/-/compatible-5.1.5.tgz#9ad71c661855828d787173f994da79c85050aaee"
+  integrity sha512-8ksVbT8rSBKWYYrtmWV6WnrmFYTp3FNRmHGXks8qVji3sZNdnBcLalmJsIPYkz+r2M8njckrsLZcUBvqxW2iCw==
   dependencies:
+    "@ant-design/cssinjs" "^1.23.0"
+    "@ctrl/tinycolor" "^3.6.1"
     classnames "^2.2.6"
     dayjs "^1.11.4"
     lodash.camelcase "^4.3.0"
@@ -1672,6 +1674,11 @@
   version "3.6.0"
   resolved "https://registry.npmmirror.com/@ctrl/tinycolor/-/tinycolor-3.6.0.tgz#53fa5fe9c34faee89469e48f91d51a3766108bc8"
   integrity sha512-/Z3l6pXthq0JvMYdUFyX9j0MaCltlIn6mfh9jLyQwg5aPKxkyNa0PTHtU1AlFXLNk55ZuAeJRcpvq+tmLfKmaQ==
+
+"@ctrl/tinycolor@^3.6.1":
+  version "3.6.1"
+  resolved "https://registry.npmmirror.com/@ctrl/tinycolor/-/tinycolor-3.6.1.tgz#b6c75a56a1947cc916ea058772d666a2c8932f31"
+  integrity sha512-SITSV6aIXsuVNV3f3O0f2n/cgyEDWoSqtZMYiAmcsYHydcKrOz3gUxB/iXd/Qf08+IZX4KpgNbvUdMBmWz+kcA==
 
 "@dbml/core@^9.1.1":
   version "9.1.1"
@@ -5618,15 +5625,10 @@ camelize@^1.0.0:
   resolved "https://registry.npmmirror.com/camelize/-/camelize-1.0.1.tgz#89b7e16884056331a35d6b5ad064332c91daa6c3"
   integrity sha512-dU+Tx2fsypxTgtLoE36npi3UqcjSSMNYfkqgmoEhtZrraP5VWq0K7FkWVTYa8eMPtnU/G2txVsfdCJTn9uzpuQ==
 
-caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001449, caniuse-lite@^1.0.30001464:
-  version "1.0.30001658"
-  resolved "https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001658.tgz"
-  integrity sha512-N2YVqWbJELVdrnsW5p+apoQyYt51aBMSsBZki1XZEfeBCexcM/sf4xiAHcXQBkuOwJBXtWF7aW1sYX6tKebPHw==
-
-caniuse-lite@^1.0.30001806:
-  version "1.0.30001806"
-  resolved "https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001806.tgz#1bc8e502b723fa393455dfbedd5ccec0c29bb74e"
-  integrity sha512-72Cuvd95zbSYPKq6Fhg8eDJRlzgWDf7/mtoZv6Qe/DYNCEBdNxoA3+rZAU2ZhGCpZlns3EssFavaZomckT5Uuw==
+caniuse-lite@^1.0.30001109, caniuse-lite@^1.0.30001449, caniuse-lite@^1.0.30001464, caniuse-lite@^1.0.30001806:
+  version "1.0.30001810"
+  resolved "https://registry.npmmirror.com/caniuse-lite/-/caniuse-lite-1.0.30001810.tgz"
+  integrity sha512-TITQPUkaz+aVk5GL6NhOdwk1aEaNTSDPsGFWrTuhKGtjTF70jL/Oht2W4c6rXUe5fu7Ie19VIahAXHIIiWWNeg==
 
 cardinal@^2.1.1:
   version "2.1.1"
@@ -10764,12 +10766,12 @@ lodash.upperfirst@^4.3.1:
   resolved "https://registry.npmmirror.com/lodash.upperfirst/-/lodash.upperfirst-4.3.1.tgz#1365edf431480481ef0d1c68957a5ed99d49f7ce"
   integrity sha512-sReKOYJIJf74dhJONhU4e0/shzi1trVbSWDOhKYE5XV2O+H7Sb2Dihwuc7xWxVl+DgFPyTqIN3zMfT9cq5iWDg==
 
-lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21, lodash@^4.17.4:
+lodash@^4.0.1, lodash@^4.17.11, lodash@^4.17.14, lodash@^4.17.15, lodash@^4.17.20, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmmirror.com/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
   integrity sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==
 
-lodash@^4.18.1:
+lodash@^4.17.4, lodash@^4.18.1:
   version "4.18.1"
   resolved "https://registry.npmmirror.com/lodash/-/lodash-4.18.1.tgz#ff2b66c1f6326d59513de2407bf881439812771c"
   integrity sha512-dMInicTPVE8d1e5otfwmmjlxkZoUpiVLwyeTdUsi/Caj/gfzzblBcCE5sRHV/AsjuCmxWrte2TNGSYuCeCq+0Q==

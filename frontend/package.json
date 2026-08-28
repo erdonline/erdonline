@@ -64,7 +64,6 @@
     "not ie <= 10"
   ],
   "dependencies": {
-    "@ant-design/compatible": "^5.1.1",
     "@ant-design/icons": "^5.3.1",
     "@dbml/core": "^9.1.1",
     "@handsontable/react": "^5.0.0",
@@ -111,6 +110,7 @@
     "zustand": "^3.6.1"
   },
   "devDependencies": {
+    "@ant-design/compatible": "^5.1.5",
     "@babel/core": "^7.0.0-0",
     "@playwright/test": "^1.62.1",
     "@types/crypto-js": "^4.1.1",
