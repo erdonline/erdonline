@@ -33,7 +33,14 @@
   5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
 - **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
 
-#### fix(llms): 修正 llms.txt Content-Type 为 text/plain 并优化链接格式
+#### fix(llms): 按 llmstxt.org v2 补全 describedby 与格式
+
+- **问题**：PageSpeed Insights 报告 `doc.erdonline.com` 的「智能体浏览」中 `llms.txt 不符合建议的准则`。
+- **改法**：
+  1. `website/static/llms.txt` 与 `frontend/public/llms.txt`：链接统一改为 `- [Title](url): Description` 格式，补充每项一句话说明。
+  2. `website/static/_headers` 与 `frontend/public/_headers`：`/llms.txt` 的 `Content-Type` 从 `text/markdown` 改为 `text/plain; charset=utf-8`。
+  3. `website/docusaurus.config.js`：所有页面 `<head>` 注入 `<link rel="describedby" href="/llms.txt" type="text/plain">`，符合 llmstxt.org v2 的机器可读发现规范。
+- **验证点**：`npx @dualnova/llms-txt validate` 对 `website/static/llms.txt` 与 `frontend/public/llms.txt` 均通过；`cd website && yarn build` 后所有 `build/**/index.html` 均含 `rel="describedby"`。
 
 - **问题**：PageSpeed Insights 报告 `doc.erdonline.com` 的「智能体浏览」中 `llms.txt 不符合建议的准则`；且 `llms.txt` 实际返回 `Content-Type: text/markdown`，部分 AI 爬虫会因此拒绝解析。
 - **改法**：

@@ -1,7 +1,7 @@
 # 回归检查单
 
 - [x] [落地页 a11y] `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 中 `/ landing a11y: has main landmark and high-contrast red links` 通过；Lighthouse 不再报对比度与 main landmark ✅ 2026-08-29
-- [x] [llms.txt 规范] `npx @dualnova/llms-txt validate` 对 `website/static/llms.txt` 与 `frontend/public/llms.txt` 均通过；`_headers` 中 `/llms.txt` 返回 `text/plain; charset=utf-8` ✅ 2026-08-29
+- [x] [llms.txt 规范] `npx @dualnova/llms-txt validate` 对 `website/static/llms.txt` 与 `frontend/public/llms.txt` 均通过；`_headers` 中 `/llms.txt` 返回 `text/plain; charset=utf-8`；`website` 构建后所有页面 head 含 `rel="describedby"` ✅ 2026-08-29
 
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
