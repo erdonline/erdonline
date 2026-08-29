@@ -13,10 +13,15 @@
 - **改动**：`mcp/src/contract-schema.ts` 新增契约渐进披露纯函数（表清单 / 单表字段 + FK 邻域 / `found:false` + suggestions，兼容 `projectJSON`/`projectJson` 两种键）；`create-server.ts` 注册 `list_tables`、`describe_table` 两个只读工具（可选 `versionId` 读已批准版本快照；不连库、不执行 SQL，符合 ADR-0013）；`dogfood.ts` 期望工具清单补两只并断言未知表返回 `found:false`；新增 `mcp/scripts/verify-contract-tools.mjs`（无后端，跑 demo fixture）；`mcp/README.md` 与 `docs/guide/api-and-mcp.md` 工具表同步。
 - **验证点**：`cd mcp && yarn build && node scripts/verify-contract-tools.mjs` → `PASS tables=8 sys_user.fields=9 inbound=4`；`yarn smoke:introspect` → `INTROSPECT OK 14 tools`（原 12 + 新 2）；`describe_table` 查 `user_id` 实际输出含 `"found": false` 与 `suggestions: [sys_user, sys_user_role]`。
 
+#### docs(content): Job 1 platforms only from proven publish records
+
+- **改动**：`content/articles/dont-give-agent-prod-db.md` `platforms:` 收窄为 growth-data 有公网 permalink 的国内四平台（juejin/csdn/oschina/zhihu），移除 segmentfault/weixin；`content/articles/README.md` frontmatter 示例与 platforms 纪律说明；`.cursor/rules/growth-post-paths.mdc` 新增「文章 YAML platforms」节（禁止抄 Wechatsync 草稿箱名单）。
+- **验证点**：`grep 'platforms:' content/articles/dont-give-agent-prod-db.md` 无 segmentfault/weixin；四平台均在 `docs/growth-data/2026-08-29.md` Launch log 有公网 URL。
+
 #### docs(content): Job 1 article 别再让 AI Agent 直连生产库了
 
-- **改动**：`content/articles/dont-give-agent-prod-db.md`（status: ready，掘金/CSDN/开源中国/知乎/思否/微信）：锁定七步结构（`column does not exist` 钩子 → 命名「编列」→ 已试过的 prompt/@schema.sql/实时目录 MCP → 实时目录四堵墙 + 结构≠语义 → 读已批准版本契约 → MCP 渐进披露最后出现 → CTA=保存一个版本）；文中 `found:false` JSON 为工具真实输出；未克隆 PAT→mcp.json 手册结构。
-- **验证点**：`grep '别再让 AI Agent 直连生产库了' content/articles/dont-give-agent-prod-db.md` 命中标题；`grep -c '安装我们的 MCP'` 为 0；`node scripts/growth/build-package.mjs dont-give-agent-prod-db` 打包 6 平台成功；通读核对七步顺序与 CTA（主 CTA=存版本 demo 旅程，非装 MCP）。
+- **改动**：`content/articles/dont-give-agent-prod-db.md`（status: ready，掘金/CSDN/开源中国/知乎）：锁定七步结构（`column does not exist` 钩子 → 命名「编列」→ 已试过的 prompt/@schema.sql/实时目录 MCP → 实时目录四堵墙 + 结构≠语义 → 读已批准版本契约 → MCP 渐进披露最后出现 → CTA=保存一个版本）；文中 `found:false` JSON 为工具真实输出；未克隆 PAT→mcp.json 手册结构。
+- **验证点**：`grep '别再让 AI Agent 直连生产库了' content/articles/dont-give-agent-prod-db.md` 命中标题；`grep -c '安装我们的 MCP'` 为 0；`node scripts/growth/build-package.mjs dont-give-agent-prod-db` 打包 4 平台成功；通读核对七步顺序与 CTA（主 CTA=存版本 demo 旅程，非装 MCP）。
 
 #### docs(rules): Job 2 is one Approve title, not two camera shots
 

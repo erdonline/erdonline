@@ -49,12 +49,14 @@ node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
 title: 标题
 slug: kebab-case            # 文件名 = slug.md；进 utm_content 归因单篇
 status: draft               # draft → ready → published
-platforms: [juejin, zhihu]  # juejin/zhihu/v2ex/wechat/segmentfault/oschina
+platforms: [juejin, csdn, oschina, zhihu]  # 仅列 growth-data 有公网 permalink 的 chrome-devtools 路径卡平台
 cta: demo                   # demo/compare/docs/mcp/deploy/repo（见 scripts/growth/lib/utm.mjs）
 utm_campaign: launch
 guide: docs/guide/save-version-and-diff.md   # 可选：蒸馏到文档站 How-to（不整篇搬营销稿）
 created: 2026-08-09
 ---
 ```
+
+**platforms = 有公网 permalink 的冻结路径卡平台，不是 Wechatsync 草稿箱名单。** 以 `docs/growth-data/` + `platform-post-recipes.md` Live URL 为准；旧稿 frontmatter 若含 weixin/segmentfault 等为 Wechatsync 时代遗留，新稿勿抄。
 
 长文进平台；可复用的「怎么做」写进 `docs/guide/`，并在 [`docs/growth.md`](../../docs/growth.md) 选题表「指南页」列登记。索引见文档站 Blog。

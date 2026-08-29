@@ -2,7 +2,7 @@
 title: 别再让 AI Agent 直连生产库了
 slug: dont-give-agent-prod-db
 status: ready
-platforms: [juejin, csdn, oschina, zhihu, segmentfault, weixin]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: mcp-agent
 created: 2026-08-29
