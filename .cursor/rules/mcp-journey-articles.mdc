@@ -29,25 +29,26 @@ alwaysApply: true
 
 ### 旅程 A：别把 Agent 指向生产库，指向你批准的那个版本
 - 内容：契约的渐进式披露（`list_tables` / `describe_table`，`found:false` + suggestions）。成功标准 = JOIN 全对且**零数据库凭证**。
-- 标题（锁定）：**Cursor invented a column. The fix wasn't a better prompt.**
-  - 备选 EN：`Stop pointing your AI agent at the production database`
-  - 中文：**Cursor 凭空造了一个列。解法不是更好的 prompt。**（备选：别再让 AI Agent 直连生产库了）
+- 标题（锁定）：**Don't give your agent the production database**
+  - 中文：**别再让 AI Agent 直连生产库了**
+  - 备选 EN：`Cursor invented a column. The fix wasn't a better prompt.`
+  - 备选中文：Cursor 凭空造了一个列。解法不是更好的 prompt。
 
 ### 旅程 B：Agent 用 create_version 声明意图，人审语义 diff
 - 成功标准 = 产生一个**命名的契约版本**；200 不是批准。
-- 标题（锁定）：**The agent wrote the migration. Nobody approved it.**
-  - 备选 EN：`API 200 is not approval`
-  - 中文：**Agent 写好了迁移，但没人批准过它**（备选：API 返回 200，不等于我批准了这次改表）
+- 标题（锁定）：**The agent wrote the migration. Are you really going to Approve it?**
+  - 中文：**AI 写的改表，你真敢点 Approve？**
+  - 备选：别把 Approve 点在你没看懂的 ALTER 上
 
 ### 旅程 C：审 3 处语义变更，而不是 80 行 ALTER
 - 内容：`diff_versions` + 可选 DDL 草稿（从已批准版本生成，仍不执行）。
-- 标题（锁定）：**Review 3 semantic changes, not 80 lines of ALTER**
-  - 中文：**审 3 处语义变更，而不是 80 行 ALTER**
+- 标题（锁定）：**Which three lines in this migration will take production down?**
+  - 中文：**这 80 行 ALTER，到底哪三句会炸？**
 
 ### 旅程 D：值班溯源——这个列是哪个批准版本引入的
 - 内容：按表切片的版本溯源。
-- 标题（锁定）：**On-call at 3 AM: which approved version added this column?**
-  - 中文：**凌晨三点值班：这个列是哪个版本进来的？**
+- 标题（锁定）：**The pager went off. Nobody knows which change added this column.**
+  - 中文：**告警响了，没人知道这列是哪次改进来的**
 
 ## 标题公式（近 30 天验证过的，各配真实例子）
 

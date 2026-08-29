@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): MCP 旅程 A–D 锁定标题改为人话痛点
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` 四条旅程锁定标题（中英）由拗口/说明书腔改为口语痛点（生产库、Approve、ALTER、告警溯源）；旧「Cursor invented a column…」等降为备选。
+- **验证点**：`grep -E '别再让 AI Agent 直连生产库了|AI 写的改表，你真敢点 Approve|这 80 行 ALTER，到底哪三句会炸|告警响了，没人知道这列是哪次改进来的' .cursor/rules/mcp-journey-articles.mdc` 四条均命中。
+
 #### docs(rules): 新增 mcp-journey-articles 规则（四条旅程 + 标题公式 + MCP 禁止项）
 
 - **改动**：新增 `.cursor/rules/mcp-journey-articles.mdc`（alwaysApply）：冻结 MCP 战略分工（契约 vs 实时目录，不做又一个 Postgres 查询 MCP）、四条旅程 A–D 及锁定标题（中英）、近 30 天验证的 7 条标题公式、场景先行文章结构、MCP 建设顺序与禁止项（禁克隆 `cursor-mcp-read-and-suggest-version.md` 工具手册结构、禁 leftover REST、写路径只有 `create_version`）。
