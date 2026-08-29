@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): Job 2 is one Approve title, not two camera shots
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` Job 2 合并为**一 Job 一锁定标题**（`Agent 写的改表，你真敢点 Approve？` / EN 对应句）；删除「手悬在 Approve」「盯着 80 行问哪三句是幻觉」两个镜头式切角与第二组锁定标题；「80 行 / 哪三句是幻觉」保留在现场/痛点正文与备选钩子，非第二篇文章；多平台发同一标题，不拆第二个 cinematic moment。Jobs 1/3/4 未动。
+- **验证点**：`grep '手悬在' .cursor/rules/mcp-journey-articles.mdc` 无命中；`grep 'Agent 写的改表，你真敢点 Approve' .cursor/rules/mcp-journey-articles.mdc` 命中；`grep '中文（锁定）.*哪三句是幻觉' .cursor/rules/mcp-journey-articles.mdc` 无命中；`grep '哪三句是幻觉' .cursor/rules/mcp-journey-articles.mdc` 仅命中备选/正文语境。
+
 #### docs(rules): make Job 2 a specific review week, not slogans
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` Job 2 由口号式标签改为具体一周：新增「现场」（junior 的 Agent migration PR、Lead 的政治困境、行 diff 读不出的三类炸点、装懂/装严两种失败）；痛点落到复盘会背锅那一下；痒点落到「相对上一批准版的 3 个语义变化」；爽点落到指着三处变化说看过了再点 Approve；两篇切角明确为同一周两个时刻；锁定标题不动。

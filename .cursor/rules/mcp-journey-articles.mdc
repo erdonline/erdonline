@@ -38,7 +38,7 @@ alwaysApply: true
 
 **场景在前，MCP 在后**。BA/产品向文章近 30 天语料中缺席，**不先写**。New hire / cold-start Agent 可折叠进 **Job 1** 作为额外文章切角，不单独开 Job。
 
-> **旧 A–D 映射（仅供 prior chat 对照，下文不再用字母作主键）**：A「别让 Agent 连生产」→ **Job 1**；B「人审 diff / Approve」与 C「80 行 ALTER 哪三句幻觉」→ **Job 2** 两篇切角；D「告警溯源」→ **Job 3**；DBA merge 前否决 → **Job 4**。
+> **旧 A–D 映射（仅供 prior chat 对照，下文不再用字母作主键）**：A「别让 Agent 连生产」→ **Job 1**；B「人审 diff / Approve」（含 80 行 ALTER 审读）→ **Job 2**；D「告警溯源」→ **Job 3**；DBA merge 前否决 → **Job 4**。
 
 下文「文章结构」适用于**每一条** MCP/Agent 旅程文章，不限篇数。
 
@@ -67,14 +67,12 @@ alwaysApply: true
 - **爽点**：能指着三处语义变化说「这三处我都看过了」，再点 Approve。命名的契约版本是这个动作的产物（对北极星），不是爽点本身的形容词。
 - **已经试过什么**：更严的 CI、让 Agent 自评「应该没问题」、Prisma 那类声明式 diff（声明不是将要执行的语句）、更细的 code review 规范。审的仍是 SQL 噪声，不是语义。「No human can review at this speed」这类判断（Atlas 句式可作证据气质，别写成产品名堆砌）说的就是这件事：生成速度上去了，人的审读速度没变。
 - **成功标准**：对着「这一版 vs 上一批准版」的语义 diff 审；API 200 ≠ 批准；产生命名的契约版本后再谈 merge。
-- **文章切角 / 锁定标题**（同一周里的两个时刻，不是两个 Job）：
-  1. 手悬在 Approve 按钮上的那一刻。
-     - 中文（锁定）：**Agent 写的改表，你真敢点 Approve？**
-     - EN（锁定）：**The agent wrote the migration. Are you really going to Approve it?**
-     - 备选：别把 Agent 写的 Approve 点在你没看懂的 ALTER 上
-  2. 盯着 80 行 ALTER 问哪三句是幻觉的那一刻。
-     - 中文（锁定）：**这 80 行 ALTER 里，哪三句是幻觉？**
-     - EN（锁定）：**Which three lines in this migration are hallucinated?**
+- **文章切角 / 锁定标题**（一 Job 一锁定标题；「80 行 / 哪三句是幻觉」写在正文现场与痛点里，不是第二篇）：
+  - 中文（锁定）：**Agent 写的改表，你真敢点 Approve？**
+  - EN（锁定）：**The agent wrote the migration. Are you really going to Approve it?**
+  - 备选：别把 Agent 写的 Approve 点在你没看懂的 ALTER 上
+  - 备选（正文钩子，非锁定标题）：这 80 行 ALTER 里，哪三句是幻觉？ / Which three lines in this migration are hallucinated?
+  - 多平台：同一锁定标题可发 HN / 掘金 / X 等，不是发明第二个「镜头」标题
 - **MCP 缺口**：没有语义 `diff_versions` 时，Lead 只能审 SQL 噪声；`create_version` 是意图落点（文案里唯一的写）；可选 DDL 草稿从已批准版本生成、仍不执行。merge 前的门禁与否决叙事留给 Job 4，Job 2 的现场停在 Lead 的 Approve 按钮上。
 
 ### Job 3：告警时能问哪版引进这列
