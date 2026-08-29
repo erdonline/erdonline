@@ -3,7 +3,8 @@
 > **执行人**：便宜的模型 / 运营助理  
 > **监督人**：你（Devin）  
 > **核心目标**：从 4 star → 100 star（30 天内），建立可持续的获客通道  
-> **北极星指标**：每周活跃建模项目数（非空 diff 的版本保存）
+> **北极星指标**：每周活跃建模项目数（非空 diff 的版本保存）  
+> **核心策略**：**AI 方向优先**，用 MCP 集成（Cursor / Claude / Cline）作为差异化获客钩子
 
 ---
 
@@ -20,6 +21,8 @@
 
 **核心结论**：不是转化率问题，是**零流量 + 零曝光**。先解决"让人知道"，再解决"让人喜欢"。
 
+**差异化优势**：MCP 集成（AI Agent 读写 schema）是**2026 年最热的技术方向**，也是我们唯一比 dbdiagram / Navicat / drawio 强的地方。
+
 ---
 
 ## 二、增长漏斗（每周复盘）
@@ -33,15 +36,19 @@ Demo 打开（Demo Views）
   ↓ Demo 完成率（改表→存版本→看 diff）
 注册（Signups）
   ↓ 激活率（创建第一个项目）
+MCP 接入（PAT 铸造 + mcp.json 配置）
+  ↓ AI Agent 使用率（list_projects / create_version 调用）
 留存（Weekly Active Projects）
   ↓ 推荐意愿（NPS / Star / Share）
 ```
 
 **当前断点**：曝光 → 访问（0 visits）
 
+**关键转化点**：MCP 接入（这是差异化优势，必须强化）
+
 ---
 
-## 三、可重复执行 SOP（每周循环）
+## 三、可重复执行 SOP（每周循环，集中执行）
 
 ### Phase A：数据采集与诊断（每周一，30 分钟）
 
@@ -51,13 +58,16 @@ Demo 打开（Demo Views）
 1. **运行数据拉取脚本**（见附录 A）：
    - 拉取过去 7 天：Visits、Page Views、Top Pages、Traffic Sources
    - 拉取 GitHub API：Stars、Forks、Issues、Traffic
+   - 拉取 MCP 使用数据：PAT 铸造数、`list_projects` 调用数、`create_version` 调用数
    - 输出到 `docs/growth-data/YYYY-MM-DD.md`
 
 2. **人工诊断**（你，10 分钟）：
-   - 对比上周数据，标记异常（流量下跌？跳出率上升？）
+   - 对比上周数据，标记异常（流量下跌？跳出率上升？MCP 接入率低？）
    - 决定本周重点：修 bug / 写内容 / 发渠道
 
-### Phase B：产品体验优化（每周二-三，2-4 小时）
+---
+
+### Phase B：产品体验优化（每周集中 2-4 小时）
 
 **执行者**：cheap model  
 **优先级**：P0（阻断转化）→ P1（影响信任）→ P2（锦上添花）
@@ -69,37 +79,45 @@ Demo 打开（Demo Views）
 - [ ] **Demo 页增加"Fork 开始编辑"强引导**：
   - 在 Demo 页顶部增加 banner："这是公开演示。Fork 到你的项目，开始编辑、保存版本、邀请协作。"
   - CTA：`Fork 开始编辑`（跳转注册，带 redirect）
-- [ ] **Landing 页 CTA 收敛**：
-  - 未登录：主 CTA = `打开在线 Demo`，次 CTA = `浏览模板`
+- [ ] **Landing 页 CTA 收敛 + AI 强化**：
+  - 未登录：主 CTA = `打开在线 Demo`，次 CTA = `给 Cursor 配 MCP`
   - 移除"查看完整对照"（放到 footer）
+  - 在 Hero 下方增加"MCP 集成"卡片：展示 Cursor / Claude / Cline 图标 + "30 秒接入"链接
 
 **P1 清单（下周完成）**：
-- [ ] 注册页文案优化："注册后即可保存、分享、协作"
+- [ ] 注册页文案优化："注册后即可保存、分享、协作、给 AI Agent 配 MCP"
 - [ ] 错误/空态文案统一（参考 `.cursor/rules/copywriting-style.mdc`）
 - [ ] `cursor-mcp` 页增加"手动复制" fallback 提示
+- [ ] PAT 铸造弹层增加"已复制。现在把 erd_pat_… 换成你的明文 PAT。"成功反馈
 
-### Phase C：内容生产与推广（每周四-五，4-6 小时）
+---
+
+### Phase C：内容生产与推广（每周集中 4-6 小时，一天完成）
 
 **执行者**：cheap model + 你（审核）  
-**渠道优先级**：
+**核心策略**：**AI 方向优先**，所有内容围绕"AI Agent 管理数据库 schema"
 
-| 渠道 | 频率 | 内容类型 | 目标 |
-|---|---|---|---|
-| **Product Hunt** | 一次性（本周） | Launch post | 首日曝光 500+ |
-| **Hacker News** | 每两周 | Show HN | 首页曝光 |
-| **Reddit** | 每周 | r/programming, r/webdev, r/selfhosted | 精准流量 |
-| **X/Twitter** | 每日 | 短内容 + GIF 演示 | 持续曝光 |
-| **技术博客** | 每周 | Dev.to / Hashnode / Medium | SEO + 长尾 |
-| **中文社区** | 每周 | 掘金、V2EX、知乎 | 中文用户 |
+#### 渠道优先级（按 ROI 排序）
+
+| 渠道 | 频率 | 内容类型 | 目标 | AI 重点 |
+|---|---|---|---|---|
+| **Product Hunt** | 一次性（本周） | Launch post | 首日曝光 500+ | ✅ 强调 MCP |
+| **Hacker News** | 每两周 | Show HN | 首页曝光 | ✅ 强调 MCP |
+| **Reddit r/programming** | 每周 | 技术深度 | 精准流量 | ✅ 强调 MCP |
+| **Reddit r/ClaudeAI** | 每周 | MCP 集成 | 精准流量 | ✅✅ 核心渠道 |
+| **Reddit r/cursor** | 每周 | MCP 集成 | 精准流量 | ✅✅ 核心渠道 |
+| **X/Twitter** | 每日 | 短内容 + GIF 演示 | 持续曝光 | ✅ 强调 MCP |
+| **技术博客** | 每周 | Dev.to / Hashnode / Medium | SEO + 长尾 | ✅ 强调 MCP |
+| **中文社区** | 每周 | 掘金、V2EX、知乎 | 中文用户 | ✅ 强调 MCP |
 
 #### 1. Product Hunt Launch（本周执行）
 
 **准备材料**（cheap model 生成，你审核）：
-- [ ] Tagline（60 字符）：`Git + Figma for database design`
-- [ ] Description（260 字符）：`Open-source ERD tool with versioning, real-time collaboration, and MCP for AI agents. Try the live demo in 30 seconds.`
-- [ ] 3 张截图：Landing / Demo / Designer
-- [ ] 1 个 GIF：30 秒 demo 动线（改表→存版本→看 diff）
-- [ ] First comment：详细介绍 + 技术栈 + 差异化
+- [ ] Tagline（60 字符）：`Git + Figma for database design, with MCP for AI agents`
+- [ ] Description（260 字符）：`Open-source ERD tool with versioning, real-time collaboration, and MCP integration. Let Cursor, Claude, and Cline read/write your schema. Try the live demo in 30 seconds — no signup required.`
+- [ ] 3 张截图：Landing / Demo / MCP 集成（Cursor 中调用 `list_projects`）
+- [ ] 1 个 GIF：30 秒 demo 动线（改表→存版本→看 diff→给 Cursor 配 MCP）
+- [ ] First comment：详细介绍 + 技术栈 + 差异化 + **MCP 是核心卖点**
 
 **发布 checklist**：
 - [ ] 周二 00:01 PST 发布（流量高峰）
@@ -111,64 +129,202 @@ Demo 打开（Demo Views）
 
 **标题模板**：
 ```
-Show HN: ERD Online – Open-source database design with versioning and MCP
+Show HN: ERD Online – Open-source database design with MCP for AI agents
 ```
 
 **正文模板**：
 ```
 I built ERD Online because existing tools force a trade-off:
 
-- dbdiagram: pretty but closed, no versioning
-- Navicat/PDManer: powerful but heavy, desktop-only
-- drawio: free but doesn't understand databases
+- dbdiagram: pretty but closed, no versioning, no AI integration
+- Navicat/PDManer: powerful but heavy, desktop-only, no AI integration
+- drawio: free but doesn't understand databases, no AI integration
 
-ERD Online is Git + Figma for database design:
-- Every save creates a version you can diff and rollback
-- Real-time multiplayer editing (like Figma)
-- Open projectJSON format + MCP for AI agents
+ERD Online is Git + Figma for database design, with MCP for AI agents:
+
+**Versioning**: Every save creates a version you can diff and rollback
+
+**Collaboration**: Real-time multiplayer editing (like Figma)
+
+**MCP Integration**: AI agents (Cursor, Claude, Cline) can read your schema via MCP and suggest changes via create_version. You still diff and approve in the designer.
+
+This is the key difference: AI agents read/write the same projectJSON the canvas uses. No black-box magic. You stay in control.
 
 Try the live demo (no signup): https://www.erdonline.com/demo
 
 Tech stack: React 18 + UmiJS + Spring Boot 3.5 + PostgreSQL
 License: MIT
 
-Would love feedback on the versioning approach and MCP integration.
+Would love feedback on the MCP integration. Is this the right boundary for AI agents?
 ```
 
-**发布时间**：周二或周三 9-11 AM PST
+**发布时间**：周二 9-11 AM PST（与 Product Hunt 同一天）
 
-#### 3. Reddit（每周一次）
+#### 3. Reddit（每周集中发布，一天完成）
 
-**Subreddit 清单**：
-- r/programming（周二）
-- r/webdev（周三）
-- r/selfhosted（周四）
-- r/Database（周五）
-- r/opensource（周六）
+**Subreddit 清单**（按优先级排序）：
+- **r/cursor**（AI 编辑器用户，MCP 核心用户）
+- **r/ClaudeAI**（Claude 用户，MCP 核心用户）
+- **r/programming**（技术深度，MCP 技术细节）
+- **r/webdev**（前端技术，MCP 集成）
+- **r/selfhosted**（自部署，MCP 自部署）
+- **r/Database**（数据库专业，MCP 应用）
+- **r/opensource**（开源社区，MCP 开源）
 
 **标题模板**（按 subreddit 调整）：
+
+**r/cursor**：
 ```
-[OSS] ERD Online – Git + Figma for database design (versioning, collaboration, MCP)
+[OSS] ERD Online – Let Cursor read/write your database schema via MCP
 ```
 
-**正文要点**：
-- 先说痛点（现有工具的不足）
-- 再说差异化（版本 + 协作 + MCP）
-- 给 Demo 链接（不要直接给 GitHub，先让人体验）
-- 最后给 GitHub 链接（求 star）
+**r/ClaudeAI**：
+```
+[OSS] ERD Online – Let Claude read/write your database schema via MCP
+```
 
-#### 4. X/Twitter（每日一条）
+**r/programming**：
+```
+[OSS] ERD Online – Git + Figma for database design, with MCP for AI agents
+```
 
-**内容日历**：
-- 周一：功能演示 GIF（改表→存版本→看 diff）
-- 周二：用户场景（"如何用 ERD Online + Cursor 让 AI 帮你改 schema"）
-- 周三：技术细节（"为什么我们用 projectJSON 作为开放格式"）
-- 周四：对比（"ERD Online vs dbdiagram vs drawio"）
-- 周五：社区互动（"你最想要的数据库设计功能是什么？"）
+**正文要点**（所有 subreddit 通用）：
+- **先说痛点**：现有工具没有 AI 集成
+- **再说差异化**：MCP 集成，AI Agent 读写 schema
+- **给 Demo 链接**：不要直接给 GitHub，先让人体验
+- **最后给 GitHub 链接**：求 star
+
+**发布策略**：
+- **集中在一天发布**（比如周二下午）
+- **每个 subreddit 间隔 30 分钟**（避免被标记为 spam）
+- **发布后 1 小时内回复所有评论**
+
+#### 4. X/Twitter（每日一条，集中在同一天发布）
+
+**内容日历**（AI 方向优先）：
+
+**周一**：功能演示 GIF（改表→存版本→看 diff→给 Cursor 配 MCP）
+```
+🎯 ERD Online demo in 30 seconds:
+
+1. Open the live demo (no signup)
+2. Edit a table
+3. Save a version
+4. See the diff
+5. Give Cursor MCP access
+
+AI agents read/write your schema. You stay in control.
+
+Try it: https://www.erdonline.com/demo
+
+#opensource #database #ai #mcp
+```
+
+**周二**：用户场景（"如何用 ERD Online + Cursor 让 AI 帮你改 schema"）
+```
+💡 How to use ERD Online + Cursor to let AI manage your schema:
+
+1. Mint a PAT in ERD Online
+2. Add MCP config to Cursor
+3. Ask Cursor: "List my ERD projects"
+4. Ask Cursor: "Suggest a new version"
+5. You diff and approve in the designer
+
+AI agents read/write the same projectJSON. No black-box magic.
+
+Docs: https://doc.erdonline.com/docs/guide/api-and-mcp/
+
+#ai #database #mcp #cursor
+```
+
+**周三**：技术细节（"为什么我们用 projectJSON 作为 AI Agent 的事实源"）
+```
+🔧 Why we use projectJSON as the source of truth for AI agents:
+
+- Language-agnostic (any AI agent can read/write)
+- Versioned (never breaks in-place)
+- Open (public format, not proprietary)
+- Both humans and AI agents read/write the same format
+
+This is the key to "Git + Figma for database design, with MCP for AI agents".
+
+Tech details: https://doc.erdonline.com/docs/data-format
+
+#database #architecture #ai #mcp
+```
+
+**周四**：对比（"ERD Online vs dbdiagram vs drawio: AI integration"）
+```
+🆚 ERD Online vs dbdiagram vs drawio: AI integration
+
+ERD Online:
+✅ MCP integration (Cursor, Claude, Cline)
+✅ AI agents read/write schema
+✅ You diff and approve in the designer
+
+dbdiagram:
+❌ No AI integration
+
+drawio:
+❌ No AI integration
+
+Choose the right tool for your AI-powered workflow.
+
+Full comparison: https://www.erdonline.com/compare
+
+#database #devtools #ai #comparison
+```
+
+**周五**：社区互动（"你最想用 AI Agent 做什么数据库操作？"）
+```
+🤔 Question for database developers:
+
+What would you want an AI agent to do with your database schema?
+
+A) Generate migration scripts
+B) Suggest index optimizations
+C) Detect schema drift
+D) Review schema changes
+E) Something else (reply below)
+
+Building ERD Online to solve this with MCP integration.
+
+#database #devtools #ai #community
+```
+
+**周六**：开源社区（"ERD Online 寻求 AI 方向的贡献者"）
+```
+🌟 ERD Online is looking for contributors interested in AI integration!
+
+Good first issues:
+- Add support for more AI agents (Gemini, GPT-4)
+- Improve MCP tool descriptions
+- Add more MCP tools (e.g., generate_migration, suggest_indexes)
+- Improve AI agent prompts
+
+Tech stack: React 18 + Spring Boot 3.5 + PostgreSQL + MCP
+
+GitHub: https://github.com/erdonline/erdonline
+
+#opensource #contributors #ai #mcp
+```
+
+**周日**：用户故事（"如何用 ERD Online + Cursor 让 AI 帮你管理 500+ 表"）
+```
+📖 How Team X uses ERD Online + Cursor to manage 500+ tables:
+
+"We used to manually review schema changes. Now we use ERD Online + Cursor.
+
+AI agents read our schema via MCP and suggest changes. We diff and approve in the designer. It's like having a junior DBA that never sleeps."
+
+Read the full story: [blog post link]
+
+#database #casestudy #ai #mcp
+```
 
 **统一登录**：用 Google 账号登录 X/Twitter（`Erdonline154@gmail.com`）
 
-#### 5. 技术博客（每周一篇）
+#### 5. 技术博客（每周一篇，集中在同一天发布）
 
 **平台**：Dev.to / Hashnode / Medium / 掘金 / 知乎
 
@@ -176,40 +332,47 @@ Would love feedback on the versioning approach and MCP integration.
 
 **标题**：
 ```
-How I built an open-source ERD tool with versioning and MCP integration
+How to let AI agents manage your database schema (with MCP)
 ```
 
 **结构**：
-1. **Hook**：现有工具的痛点（200 字）
-2. **Solution**：ERD Online 的核心差异化（300 字）
+1. **Hook**：AI Agent 是 2026 年最热的技术方向，但数据库 schema 管理还是手动（200 字）
+2. **Solution**：ERD Online + MCP 让 AI Agent 读写 schema（300 字）
 3. **Technical Deep Dive**：
-   - 版本系统设计（Git-like snapshots + diff）
-   - 实时协作（WebSocket + CRDT）
-   - MCP 集成（PAT + stdio server）
-   - 技术栈（React + Spring Boot）
-4. **Demo**：30 秒动线截图/GIF
-5. **Call to Action**：GitHub 链接 + Demo 链接
+   - MCP 协议介绍（300 字）
+   - ERD Online 的 MCP 集成（`list_projects`、`get_project`、`create_version`）（500 字）
+   - 为什么 AI Agent 读写 projectJSON 而不是生成 ER 图（200 字）
+4. **Demo**：30 秒动线截图/GIF（改表→存版本→看 diff→给 Cursor 配 MCP）
+5. **Call to Action**：GitHub 链接 + Demo 链接 + MCP 文档链接
 
 **SEO 关键词**：
-- `open source erd tool`
-- `database design with versioning`
-- `erd tool with collaboration`
 - `mcp for database schema`
+- `ai agent database management`
+- `cursor mcp integration`
+- `claude mcp integration`
+- `database schema versioning with ai`
 
-#### 6. 中文社区（每周一次）
+#### 6. 中文社区（每周一次，集中在同一天发布）
 
 **平台**：掘金、V2EX、知乎、SegmentFault
 
 **标题模板**：
 ```
-开源项目推荐：ERD Online - 数据库设计的 Git + Figma
+开源项目推荐：ERD Online - 让 AI Agent 帮你管理数据库 schema（支持 MCP 协议）
 ```
 
 **正文要点**：
-- 痛点：dbdiagram 闭源、Navicat 太重、drawio 不懂数据库
-- 差异化：版本 + 协作 + MCP
-- Demo：30 秒免注册体验
-- 求 star：GitHub 链接
+- **痛点**：现有工具没有 AI 集成
+- **差异化**：MCP 集成，AI Agent 读写 schema
+- **Demo**：30 秒免注册体验
+- **求 star**：GitHub 链接
+
+**发布策略**：
+- **集中在一天发布**（比如周二下午）
+- **每个平台间隔 30 分钟**（避免被标记为 spam）
+- **发布后 1 小时内回复所有评论**
+
+---
 
 ### Phase D：数据复盘与迭代（每周日，30 分钟）
 
@@ -220,6 +383,8 @@ How I built an open-source ERD tool with versioning and MCP integration
 - [ ] 本周新增 star 数
 - [ ] 本周新增注册数
 - [ ] 本周 Demo 完成率
+- [ ] 本周 MCP 接入数（PAT 铸造数）
+- [ ] 本周 AI Agent 使用数（`list_projects` / `create_version` 调用数）
 - [ ] 本周流量来源（哪个渠道效果最好）
 - [ ] 本周用户反馈（issue / 评论 / 私信）
 - [ ] 下周重点（修 bug / 写内容 / 发渠道）
@@ -230,87 +395,73 @@ How I built an open-source ERD tool with versioning and MCP integration
 
 ### 附录 A：Cloudflare 数据拉取脚本
 
-```bash
-#!/bin/bash
-# scripts/growth-data.sh
-# 每周一运行，拉取过去 7 天数据
-
-TOKEN=$(cat ~/.cloudflare_token)
-ZONE_ID="e87a9219db971c46a51c33530605212c"
-OUTPUT_DIR="docs/growth-data"
-DATE=$(date +%Y-%m-%d)
-
-mkdir -p "$OUTPUT_DIR"
-
-# 拉取过去 7 天数据
-for i in {0..6}; do
-  DAY=$(date -v-${i}d +%Y-%m-%d)
-  START="${DAY}T00:00:00Z"
-  END="${DAY}T23:59:59Z"
-  
-  # 总请求数
-  TOTAL=$(curl -s "https://api.cloudflare.com/client/v4/graphql" \
-    -X POST \
-    -H "Authorization: Bearer $TOKEN" \
-    -H "Content-Type: application/json" \
-    -d "{\"query\":\"query { viewer { zones(filter: {zoneTag: \\\"$ZONE_ID\\\"}) { httpRequestsAdaptiveGroups(limit: 1, filter: {datetime_geq: \\\"$START\\\", datetime_leq: \\\"$END\\\"}) { count } } } }\"}" | jq -r '.data.viewer.zones[0].httpRequestsAdaptiveGroups[0].count // 0')
-  
-  echo "$DAY: $TOTAL requests" >> "$OUTPUT_DIR/$DATE.txt"
-done
-
-# GitHub 数据
-gh api repos/erdonline/erdonline --jq '{stars: .stargazers_count, forks: .forks_count, issues: .open_issues_count}' > "$OUTPUT_DIR/$DATE-github.json"
-
-echo "Data saved to $OUTPUT_DIR/$DATE.txt"
-```
-
-### 附录 B：推广内容模板库
-
-见 `docs/growth-templates/` 目录（待创建）：
-- `product-hunt.md`
-- `hacker-news.md`
-- `reddit.md`
-- `twitter.md`
-- `blog-post.md`
-- `chinese-community.md`
+见 `scripts/growth-data.sh`（已存在，无需修改）
 
 ---
 
 ## 五、执行清单（给 cheap model）
 
-### 本周任务（Week 1）
+### 本周任务（Week 1：Launch Week，集中执行）
 
 **Day 1（周一）**：
 - [ ] 运行 `scripts/growth-data.sh` 拉取数据
 - [ ] 修复 Landing 页 i18n bug（P0）
-- [ ] 准备 Product Hunt 材料（tagline、description、截图）
+- [ ] 准备 Product Hunt 材料（tagline、description、截图、GIF）
 
-**Day 2（周二）**：
-- [ ] 发布 Product Hunt（00:01 PST）
-- [ ] 修复 Demo 页"Fork 开始编辑"引导（P0）
-- [ ] 发布 Hacker News（Show HN）
+**Day 2（周二，集中执行）**：
+- [ ] **上午**：
+  - [ ] 修复 Demo 页"Fork 开始编辑"引导（P0）
+  - [ ] 修复 Landing 页 CTA 收敛 + AI 强化（P0）
+  - [ ] 验证所有修复（`yarn build:prod` + `yarn test:e2e`）
+- [ ] **下午**：
+  - [ ] 发布 Product Hunt（00:01 PST）
+  - [ ] 发布 Hacker News（9-11 AM PST）
+  - [ ] 发布 Reddit r/cursor（下午 2 点 PST）
+  - [ ] 发布 Reddit r/ClaudeAI（下午 2:30 PST）
+  - [ ] 发布 Reddit r/programming（下午 3 点 PST）
+  - [ ] 发布 X/Twitter（功能演示 GIF）
+  - [ ] 发布技术博客（Dev.to）
+  - [ ] 发布掘金
+- [ ] **晚上**：
+  - [ ] 回复所有评论（Product Hunt / HN / Reddit / X）
+  - [ ] 统计数据（流量、注册、star）
 
 **Day 3（周三）**：
-- [ ] 发布 Reddit r/programming
-- [ ] 发布第一篇技术博客（Dev.to）
-- [ ] 发布 X/Twitter（功能演示 GIF）
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（用户场景）
+- [ ] 发布知乎
 
 **Day 4（周四）**：
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（技术细节）
 - [ ] 发布 Reddit r/webdev
-- [ ] 发布掘金/V2EX
-- [ ] 回复 Product Hunt / HN 评论
 
 **Day 5（周五）**：
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（对比）
 - [ ] 发布 Reddit r/selfhosted
-- [ ] 发布知乎
 - [ ] 数据复盘，准备下周计划
 
-### 下周任务（Week 2）
+---
 
+### 下周任务（Week 2：Content Week，集中执行）
+
+**Day 1（周一）**：
+- [ ] 运行 `scripts/growth-data.sh`
 - [ ] 分析 Week 1 数据，找出效果最好的渠道
-- [ ] 加大该渠道投入（如果 Reddit 效果好，每周发 2-3 次）
 - [ ] 优化 Landing 页（P1 清单）
-- [ ] 写第二篇技术博客（深度技术文章）
+
+**Day 2（周二，集中执行）**：
+- [ ] 生成第二篇技术博客初稿（"How to version your database schema like Git with AI agents"）
+- [ ] 发布技术博客（Dev.to / Hashnode）
+- [ ] 发布 Reddit r/Database
+- [ ] 发布 X/Twitter（社区互动）
+- [ ] 发布掘金
+
+**Day 3-5（周三-五）**：
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（每日一条）
+- [ ] 数据复盘，准备下周计划
 
 ---
 
@@ -322,6 +473,8 @@ echo "Data saved to $OUTPUT_DIR/$DATE.txt"
 | Cloudflare Visits（周） | ~0 | 500 | 2,000 |
 | Demo 打开数（周） | ? | 100 | 500 |
 | 注册数（周） | ? | 20 | 100 |
+| **MCP 接入数（周）** | ? | 10 | 50 |
+| **AI Agent 使用数（周）** | ? | 20 | 200 |
 | 活跃建模项目数（周） | ? | 5 | 25 |
 | Landing 跳出率 | ? | <60% | <50% |
 
@@ -335,16 +488,17 @@ echo "Data saved to $OUTPUT_DIR/$DATE.txt"
 | Landing i18n bug 修复后仍有其他 bug | 高 | 每周走查一遍，建立 E2E 测试 |
 | 内容生产质量不高 | 中 | cheap model 生成初稿，你审核后发布 |
 | 没有真实用户反馈 | 高 | 主动 outreach（发邮件给潜在用户） |
-| 竞品抄袭 | 低 | 保持技术领先（版本 + 协作 + MCP） |
+| 竞品抄袭 MCP 集成 | 低 | 保持技术领先（版本 + 协作 + MCP） |
+| MCP 接入门槛太高 | 中 | 简化 PAT 铸造流程，提供更多客户端支持 |
 
 ---
 
 ## 八、下一步行动
 
 1. **立即执行**：修复 Landing 页 i18n bug（P0）
-2. **今天准备**：Product Hunt 材料（tagline、description、截图）
-3. **明天发布**：Product Hunt + Hacker News
-4. **本周持续**：Reddit + 技术博客 + X/Twitter
+2. **今天准备**：Product Hunt 材料（tagline、description、截图、GIF）
+3. **明天集中发布**：Product Hunt + Hacker News + Reddit + X/Twitter + 技术博客 + 掘金
+4. **本周持续**：回复评论 + X/Twitter 每日一条
 5. **每周复盘**：数据驱动迭代
 
 **你负责**：审核内容、决策优先级、回复评论  
