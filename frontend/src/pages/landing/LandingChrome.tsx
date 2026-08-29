@@ -36,7 +36,9 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
 }) => {
   const intl = useIntl();
   const {lp, basePath} = useLocalePath();
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() =>
+    typeof window !== 'undefined' ? Boolean(cache.getItem('Authorization')) : false,
+  );
   const docsHomeUrl = docsUrl(intl.locale);
   const roadmapUrl = docsUrl(intl.locale, 'docs/roadmap');
 

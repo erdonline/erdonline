@@ -11,7 +11,9 @@ import './index.less';
 const LandingPage: React.FC = () => {
   const intl = useIntl();
   const {lp} = useLocalePath();
-  const [authed, setAuthed] = useState(false);
+  const [authed, setAuthed] = useState(() =>
+    typeof window !== 'undefined' ? Boolean(cache.getItem('Authorization')) : false,
+  );
   usePageSeo('landing.seo.title', 'landing.seo.description');
 
   useEffect(() => {
