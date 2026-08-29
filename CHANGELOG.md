@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): require an AI-domain keyword in each MCP journey title
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` 四条旅程锁定标题（中英）各含一个 AI 领域高频词（Agent / AI Agent / 幻觉 / hallucinated / prompt / Cursor）；B 中文 `AI 写的`→`Agent 写的`，C 锁定「哪三句是幻觉」/ `hallucinated`，D 锁定「Agent 哪次改进」/ `agent change`；备选 B 补 Agent 关键词。
+- **验证点**：`grep -E '别再让 AI Agent 直连生产库了|Agent 写的改表，你真敢点 Approve|这 80 行 ALTER 里，哪三句是幻觉|告警响了，没人知道这列是 Agent 哪次改进来的' .cursor/rules/mcp-journey-articles.mdc` 四条均命中；逐条确认含 Agent|幻觉|prompt|Cursor 之一。
+
 #### docs(rules): MCP 旅程 A–D 锁定标题改为人话痛点
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` 四条旅程锁定标题（中英）由拗口/说明书腔改为口语痛点（生产库、Approve、ALTER、告警溯源）；旧「Cursor invented a column…」等降为备选。
