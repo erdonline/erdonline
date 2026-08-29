@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): make Job 2 a specific review week, not slogans
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` Job 2 由口号式标签改为具体一周：新增「现场」（junior 的 Agent migration PR、Lead 的政治困境、行 diff 读不出的三类炸点、装懂/装严两种失败）；痛点落到复盘会背锅那一下；痒点落到「相对上一批准版的 3 个语义变化」；爽点落到指着三处变化说看过了再点 Approve；两篇切角明确为同一周两个时刻；锁定标题不动。
+- **验证点**：打开 Job 2 能看到「现场」段落与装懂/装严；`grep -E '现场|装懂|Approve' .cursor/rules/mcp-journey-articles.mdc` 均命中。
+
 #### docs(rules): MCP journeys keyed by job, with role pain itch delight
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` 用户旅程主轴由「用户旅程 = 角色」改回 **Job 为主键**（一件工作：触发 → 已试过 → 卡点 → 做成）；角色 / 痛点 / 痒点 / 爽点为描述层；四条 Job（别让 Agent 连生产 / 改表必须可审 / 告警溯源 / merge 前否决）；Job 2 保留 Tech Lead 两篇切角，Job 4 独立 DBA 门禁 Job；MCP 建设顺序按 Job 狗食。
