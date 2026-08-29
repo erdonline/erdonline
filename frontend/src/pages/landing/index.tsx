@@ -39,8 +39,6 @@ const LandingPage: React.FC = () => {
             <p className="landingHeroLead">{t('landing.hero.lead')}</p>
             <div
               className="landingCtas"
-              id="landing-main-cta"
-              tabIndex={-1}
               data-testid="landing-main-cta"
             >
               {authed ? (
@@ -85,187 +83,94 @@ const LandingPage: React.FC = () => {
                   >
                     {t('landing.hero.cta.browseCatalog')}
                   </Link>
-                  <Link
-                    className="landingBtnGhost"
-                    to={lp('/compare')}
-                    data-testid="landing-hero-compare"
-                    aria-label={t('landing.compare.cta.fullAria')}
-                  >
-                    {t('landing.compare.cta.full')}
-                  </Link>
-                  <Link
-                    className="landingBtnGhost"
-                    to="/register"
-                    aria-label={t('landing.hero.cta.registerAria')}
-                  >
-                    {t('landing.hero.cta.register')}
-                  </Link>
-                  <Link
-                    className="landingBtnText"
-                    to="/login"
-                    aria-label={t('landing.hero.cta.loginExistingAria')}
-                  >
-                    {t('landing.hero.cta.loginExisting')}
-                  </Link>
                 </>
               )}
             </div>
           </div>
-          <div className="landingHeroFrame">
-            <picture>
-              <source
-                srcSet="/landing-hero-400.webp?v=20260828a 400w, /landing-hero-800.webp?v=20260828a 800w, /landing-hero-1600.webp?v=20260828a 1600w, /landing-hero.webp?v=20260828a 2100w"
-                sizes="(max-width: 996px) 100vw, 640px"
-                type="image/webp"
-              />
-              <img
-                className="landingHeroImg"
-                src="/landing-hero.jpg?v=20260828a"
-                srcSet="/landing-hero-400.jpg?v=20260828a 400w, /landing-hero-800.jpg?v=20260828a 800w, /landing-hero-1600.jpg?v=20260828a 1600w, /landing-hero.jpg?v=20260828a 2100w"
-                sizes="(max-width: 996px) 100vw, 640px"
-                alt={t('landing.hero.imageAlt')}
-                width={1600}
-                height={1000}
-                loading="eager"
-                {...{fetchpriority: 'high' as const}}
-              />
-            </picture>
-            <div className="landingHeroFrameSheen" aria-hidden="true" />
-            <div className="landingHeroFrameGlow" aria-hidden="true" />
-          </div>
+          <img
+            className="landingHeroShot"
+            src="/landing-hero.webp"
+            alt=""
+            width={960}
+            height={600}
+            loading="eager"
+            decoding="async"
+            fetchpriority="high"
+          />
         </div>
       </section>
 
       <section className="landingSection" id="pillars" aria-labelledby="pillars-title">
-        <p className="landingSectionKicker">01 — Capabilities</p>
-        <h2 id="pillars-title">{t('landing.pillars.title')}</h2>
-        <p className="landingSectionLead">{t('landing.pillars.lead')}</p>
-        <div className="landingPillars">
-          <article className="landingPillar">
-            <span className="landingPillarIndex" aria-hidden="true">
-              01
-            </span>
+        <div className="landingSectionHead">
+          <p className="landingSectionKicker">{t('landing.pillars.kicker')}</p>
+          <h2 id="pillars-title" className="landingSectionTitle">
+            {t('landing.pillars.title')}
+          </h2>
+          <p className="landingSectionLead">{t('landing.pillars.lead')}</p>
+        </div>
+        <div className="landingPillars" role="list">
+          <article className="landingPillar" role="listitem">
+            <span className="landingPillarIndex" aria-hidden="true">01</span>
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillars.version.title')}</h3>
-            <p>{t('landing.pillars.version.body')}</p>
-          </article>
-          <article className="landingPillar">
-            <span className="landingPillarIndex" aria-hidden="true">
-              02
-            </span>
-            <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillars.collab.title')}</h3>
-            <p>{t('landing.pillars.collab.body')}</p>
-          </article>
-          <article className="landingPillar">
-            <span className="landingPillarIndex" aria-hidden="true">
-              03
-            </span>
-            <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillars.open.title')}</h3>
-            <p>{t('landing.pillars.open.body')}</p>
-            <a
+            <h3>{t('landing.pillar.mcp.title')}</h3>
+            <p>{t('landing.pillar.mcp.body')}</p>
+            <Link
               className="landingPillarLink"
-              href={docsUrl(intl.locale, 'docs/guide/api-and-mcp')}
-              target="_blank"
-              rel="noreferrer"
-              data-testid="landing-mcp-docs"
-              aria-label={t('landing.pillars.open.mcpCtaAria')}
+              to={lp('/compare')}
+              aria-label={t('landing.pillar.mcp.linkAria')}
             >
-              {t('landing.pillars.open.mcpCta')}
-            </a>
+              {t('landing.pillar.mcp.link')}
+            </Link>
+          </article>
+          <article className="landingPillar" role="listitem">
+            <span className="landingPillarIndex" aria-hidden="true">02</span>
+            <span className="landingPillarMark" aria-hidden="true" />
+            <h3>{t('landing.pillar.version.title')}</h3>
+            <p>{t('landing.pillar.version.body')}</p>
+            <Link
+              className="landingPillarLink"
+              to={lp('/compare')}
+              aria-label={t('landing.pillar.version.linkAria')}
+            >
+              {t('landing.pillar.version.link')}
+            </Link>
+          </article>
+          <article className="landingPillar" role="listitem">
+            <span className="landingPillarIndex" aria-hidden="true">03</span>
+            <span className="landingPillarMark" aria-hidden="true" />
+            <h3>{t('landing.pillar.collab.title')}</h3>
+            <p>{t('landing.pillar.collab.body')}</p>
+            <Link
+              className="landingPillarLink"
+              to={lp('/compare')}
+              aria-label={t('landing.pillar.collab.linkAria')}
+            >
+              {t('landing.pillar.collab.link')}
+            </Link>
           </article>
         </div>
       </section>
 
-      <section className="landingBand">
-        <div className="landingSection" id="demo" aria-labelledby="demo-title">
-          <p className="landingSectionKicker">02 — Try</p>
-          <h2 id="demo-title">{t('landing.demo.title')}</h2>
-          <p className="landingSectionLead">{t('landing.demo.lead')}</p>
+      <section className="landingBand" aria-labelledby="compare-teaser-title">
+        <div className="landingSection">
+          <h2 id="compare-teaser-title">{t('landing.compareTeaser.title')}</h2>
+          <p className="landingSectionLead">{t('landing.compareTeaser.lead')}</p>
           <div className="landingCtas">
             <Link
               className="landingBtnPrimary"
-              to={lp('/demo')}
-              aria-label={t('landing.hero.cta.openDemoAria')}
+              to={lp('/compare')}
+              aria-label={t('landing.compare.cta.primaryAria')}
             >
-              {t('landing.hero.cta.openDemo')}
+              {t('landing.compare.cta.primary')}
             </Link>
-            <a
+            <Link
               className="landingBtnGhost"
-              href={docsUrl(intl.locale)}
-              target="_blank"
-              rel="noreferrer"
-              aria-label={t('landing.demo.cta.selfHostAria')}
+              to={lp('/compare')}
+              aria-label={t('landing.compare.cta.fullAria')}
             >
-              {t('landing.demo.cta.selfHost')}
-            </a>
+              {t('landing.compare.cta.full')}
+            </Link>
           </div>
-        </div>
-      </section>
-
-      <section className="landingSection" id="compare" aria-labelledby="compare-title">
-        <p className="landingSectionKicker">03 — Compare</p>
-        <h2 id="compare-title">{t('landing.compare.title')}</h2>
-        <p className="landingSectionLead">{t('landing.compare.lead')}</p>
-        <div className="landingCompareShell">
-          <table className="landingCompare">
-            <thead>
-              <tr>
-                <th scope="col">{t('landing.compare.col.capability')}</th>
-                <th scope="col">{t('landing.compare.col.erd')}</th>
-                <th scope="col">{t('landing.compare.col.drawio')}</th>
-                <th scope="col">{t('landing.compare.col.dbdiagram')}</th>
-                <th scope="col">{t('landing.compare.col.dbml')}</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>{t('landing.compare.row.fk')}</td>
-                <td className="landingYes">{t('landing.compare.cell.yes')}</td>
-                <td className="landingNo">{t('landing.compare.cell.linesNotFk')}</td>
-                <td className="landingYes">{t('landing.compare.cell.native')}</td>
-                <td className="landingYes">{t('landing.compare.cell.native')}</td>
-              </tr>
-              <tr>
-                <td>{t('landing.compare.row.collab')}</td>
-                <td className="landingYes">{t('landing.compare.cell.yes')}</td>
-                <td className="landingNo">{t('landing.compare.cell.canvasCollab')}</td>
-                <td className="landingNo">{t('landing.compare.cell.noWeak')}</td>
-                <td className="landingNo">{t('landing.compare.cell.varies')}</td>
-              </tr>
-              <tr>
-                <td>{t('landing.compare.row.version')}</td>
-                <td className="landingYes">{t('landing.compare.cell.yes')}</td>
-                <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
-                <td className="landingNo">{t('landing.compare.cell.weak')}</td>
-                <td className="landingNo">{t('landing.compare.cell.gitExternal')}</td>
-              </tr>
-              <tr>
-                <td>{t('landing.compare.row.opensource')}</td>
-                <td className="landingYes">{t('landing.compare.cell.mit')}</td>
-                <td className="landingYes">{t('landing.compare.cell.apacheDraw')}</td>
-                <td className="landingNo">{t('landing.compare.cell.closedSaas')}</td>
-                <td className="landingYes">{t('landing.compare.cell.formatOpen')}</td>
-              </tr>
-              <tr data-testid="compare-row-agent">
-                <td>{t('landing.compare.row.agent')}</td>
-                <td className="landingYes">{t('landing.compare.cell.agentDetail')}</td>
-                <td className="landingNo">{t('landing.compare.cell.drawioXml')}</td>
-                <td className="landingNo">{t('landing.compare.cell.no')}</td>
-                <td className="landingNo">{t('landing.compare.cell.textOnly')}</td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-        <div className="landingCtas landingCompareMore">
-          <Link
-            className="landingBtnGhost"
-            to={lp('/compare')}
-            aria-label={t('landing.compare.cta.fullAria')}
-          >
-            {t('landing.compare.cta.full')}
-          </Link>
         </div>
       </section>
     </LandingChrome>

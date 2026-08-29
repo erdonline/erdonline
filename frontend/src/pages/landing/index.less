@@ -99,7 +99,7 @@ html:has(.landing) {
   }
 
   /* Skip CTA：仅 focus-visible，避免脚本 focus 常驻描边 */
-  #landing-main-cta:focus-visible {
+  #landing-main-content:focus-visible {
     outline: 2px solid var(--erd-brand);
     outline-offset: 4px;
   }
@@ -568,7 +568,7 @@ html:has(.landing) {
   font-family: var(--erd-font-mono);
   font-size: 0.75rem;
   letter-spacing: 0.04em;
-  color: var(--erd-brand);
+  color: #ff7a6c;
 }
 
 .landingPillar h3 {
@@ -589,15 +589,15 @@ html:has(.landing) {
 
 .landingPillarLink {
   margin-top: 0.65rem;
-  color: var(--erd-brand);
+  color: #ff7a6c;
   font-size: 0.85rem;
   font-weight: 600;
-  text-decoration: none;
+  text-decoration: underline;
 }
 
 .landingPillarLink:hover,
 .landingPillarLink:focus-visible {
-  text-decoration: underline;
+  color: #ff9988;
 }
 
 .landingPillarMark {

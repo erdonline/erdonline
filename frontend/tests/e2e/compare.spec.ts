@@ -71,22 +71,23 @@ test.describe('竞品对照页', () => {
     await expect(page.getByRole('heading', { name: '诚实对照' })).toBeVisible();
   });
 
-  // ADR-0016：`/compare` 共用 LandingChrome — Skip 绕开顶栏；CTA Tab 序；focus-visible；无 trap
-  test('竞品对照页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap', async ({ page }) => {
+  // ADR-0016：`/compare` 共用 LandingChrome — Skip 绕开顶栏；主内容区 Tab 序；focus-visible；无 trap
+  test('竞品对照页键盘：Skip→主内容；Tab 序；focus-visible；无 trap', async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto('/compare');
     await expect(page.getByTestId('compare-page')).toBeVisible();
-    await expect(page.getByTestId('landing-skip-cta')).toHaveText('跳到主操作');
-    await expect(page.getByTestId('landing-main-cta')).toHaveAttribute('tabindex', '-1');
+    await expect(page.getByTestId('landing-skip-cta')).toHaveText('跳到主内容');
+    await expect(page.getByTestId('landing-main-content')).toHaveAttribute('tabindex', '-1');
+    await expect(page.locator('main')).toHaveAttribute('data-testid', 'landing-main-content');
 
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');
     await expect(page.getByTestId('landing-skip-cta')).toBeFocused({ timeout: 5_000 });
     await page.keyboard.press('Enter');
-    await expect(page.getByTestId('landing-main-cta')).toBeFocused();
+    await expect(page.getByTestId('landing-main-content')).toBeFocused();
 
     await page.keyboard.press('Tab');
-    await expect(page.getByTestId('landing-main-cta')).not.toBeFocused();
+    await expect(page.getByTestId('landing-main-content')).not.toBeFocused();
     const primaryCta = page.getByRole('link', { name: '打开演示' });
     await expect(primaryCta).toBeFocused();
 

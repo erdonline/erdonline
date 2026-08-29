@@ -106,8 +106,6 @@ const ComparePage: React.FC = () => {
             <p className="landingSectionLead">{t('landing.comparePage.cta.lead')}</p>
             <div
               className="landingCtas"
-              id="landing-main-cta"
-              tabIndex={-1}
               data-testid="landing-main-cta"
             >
               <Link
