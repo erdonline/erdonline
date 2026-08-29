@@ -39,6 +39,13 @@ if (!robots.includes('https://doc.erdonline.com/llms.txt')) {
 }
 
 const llms = read('static/llms.txt');
+if (!/^# .+/m.test(llms)) {
+  fail('static/llms.txt must have an H1 heading');
+}
+const markdownLinks = [...llms.matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g)];
+if (markdownLinks.length < 3) {
+  fail(`static/llms.txt must contain at least 3 Markdown-style links (found ${markdownLinks.length})`);
+}
 if (!llms.includes('https://doc.erdonline.com/docs/guide/api-and-mcp/')) {
   fail('static/llms.txt must link MCP guide with trailing slash');
 }
