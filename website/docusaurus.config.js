@@ -31,6 +31,14 @@ const config = {
     {
       tagName: 'link',
       attributes: {
+        rel: 'describedby',
+        href: '/llms.txt',
+        type: 'text/plain',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
         rel: 'preconnect',
         href: 'https://fonts.bunny.net',
         crossorigin: 'true',
