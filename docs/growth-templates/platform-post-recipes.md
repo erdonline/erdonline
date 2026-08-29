@@ -142,10 +142,11 @@ SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公
 | **语言** | 英文 |
 | **稿件路径** | `docs/growth-content/*-seo-essay-x.md`（`## X title` + `## X body`）；**禁止**整篇 `.md` 粘贴 |
 | **登录检查** | @BuilderLiang 已登录 |
-| **compose/edit URL** | 新建：`https://x.com/compose/articles` → **Write Article**；续编：`https://x.com/compose/articles/edit/<draftId>`；Preview：`…/edit/<id>/preview` |
+| **compose/edit URL** | 新建：`https://x.com/compose/articles` → **`button[aria-label="create"]`** → 等 URL **`compose/articles/edit/{id}`**（例 `…/edit/2093728235884605440`）；续编：已在 edit URL；Preview：`…/edit/<id>/preview` |
+| **Create 控件** | `button[aria-label="create"][role="button"]` — 点 Create 后 **必须**等到 edit URL 再 type；hub-only 或 `compose/post` → throw |
 | **编辑器** | 富文本 WYSIWYG（`#toolbar-styling-buttons`）；字号 **Heading / Subheading / Body**（正文默认 Body）；title 在标题框，正文勿重复大标题 |
 | **填法** | 按 block + 官方快捷键（`# ` / `## ` / `> ` / `- ` / ⌘B / ⌘K / ⌘⇧, 降至 Body）；段间 Enter 一次；详见 playbook § 填稿步骤 |
-| **脚本（可选）** | `node scripts/fill-x-article-shortcuts.mjs [--pageId=N] [--preview] [--submit]` — 不能替代 Preview |
+| **脚本（唯一入口）** | `node scripts/fill-x-article-shortcuts.mjs --slug=<slug> [--pageId=N] [--preview] [--submit]` 或 `node scripts/x-article-publish.mjs <slug> …` — 脚本内自动 navigate + click Create；**禁止** `fill-x-article-dont-give-agent-prod-db.mjs`（已删） |
 | **Preview** | **强制**；字号像杂志、无 `\n{3,}`、Heading 层级 OK → 才 Publish |
 | **提交** | 工具栏 **Publish** → 对话框 **Publish** |
 | **公网验正文** | `https://x.com/BuilderLiang/article/<id>`（**必须** `/article/`）；articleLen≈12000+ |

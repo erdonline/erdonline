@@ -67,7 +67,9 @@ node scripts/post-seo-essay.mjs medium-import --slug=dont-give-agent-prod-db --h
 node scripts/post-seo-essay.mjs devto --slug=dont-give-agent-prod-db --submit
 
 # X Article（B 类 WYSIWYG）— 独立脚本 + playbook，禁止 post-seo-essay.mjs x
-# 见下方 HARD RULE
+# node scripts/x-article-publish.mjs dont-give-agent-prod-db --preview --submit
+# node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db [--preview] [--submit]
+# 见下方 HARD RULE — 必须先点 button[aria-label="create"]
 
 # PH / HN / Reddit / X 短讯 Post（≤280 字；长文走 Article，脚本会 throw）
 node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ... [--submit]
@@ -79,14 +81,17 @@ node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ..
 
 > **长文 = Article only；Post composer 发长文 = 失败。**
 
-**运行时硬停：** `scripts/growth/lib/assert-x-article-composer.mjs` — `post-seo-essay.mjs x|twitter|x-article` 与 `post-all-browser.mjs --platform x` 灌长文会 **throw**（不连 Chrome）；`fill-x-article-*.mjs` 在 `compose/post` 上也会 throw。
+**运行时硬停：** `scripts/growth/lib/assert-x-article-composer.mjs` — `post-seo-essay.mjs x|twitter|x-article` 与 `post-all-browser.mjs --platform x` 灌长文会 **throw**（不连 Chrome）；`fill-x-article-shortcuts.mjs` 在 `compose/post` 上也会 throw；未点 Create 则 `typeText` throw。
 
 | 禁止 | 必须 |
 |---|---|
-| 整篇复制 / paste 全文进 `[contenteditable="true"]` | `node scripts/fill-x-article-shortcuts.mjs` + [x-article-playbook.md](../../../docs/growth-templates/x-article-playbook.md) **8 步** |
+| 整篇复制 / paste 全文进 `[contenteditable="true"]` | `node scripts/fill-x-article-shortcuts.mjs --slug=<slug>`（或 `x-article-publish.mjs`）+ playbook **8 步** |
+| `fill-x-article-dont-give-agent-prod-db.mjs`（已删） | **唯一** fill 脚本 + Create 点击 |
+| chrome-devtools 裸 `type_text` / `evaluate` insertText 灌长文 | `cdp-type-if-article.mjs` 或 fill 脚本（内含 guarded CDP） |
 | `setNative` 全文 / `insertText` 全文 dump markdown | block IR **逐块** + 官方快捷键（`# ` / `## ` / Body） |
-| `post-seo-essay.mjs x`（会 throw） | 打开 `compose/articles` → shortcuts 填稿 → **Preview 强制** → 才 Publish |
-| `x.com/compose/post` 发 SEO essay | Article editor only |
+| `post-seo-essay.mjs x`（会 throw） | 打开 `compose/articles` → **点 `button[aria-label="create"]`** → shortcuts 填稿 → **Preview 强制** → 才 Publish |
+| 在 hub `/compose/articles` 未等到 `/edit/{id}` 就 type | 点 Create → **等** `compose/articles/edit/2093728235884605440` 形态 URL → 再 shortcuts |
+| `x.com/compose/post` 发 SEO essay | Article edit composer only |
 
 国内 **A 类**（掘金 `CM.setValue`、Dev.to markdown textarea、CSDN `pre.textContent`）**可以**一次填 MD；**不要把 A 类填法用到 X**。
 

@@ -8,6 +8,23 @@
 
 ### 2026-08-29
 
+#### fix(growth): type only on X Article edit URL
+
+- **根因**：打开 `compose/articles` hub 并点 Create 后，脚本未等到 **`compose/articles/edit/{id}`** 就开始 type → keystrokes 仍进 Post / 错误 surface（2026-08-29 Job 1 事故）。
+- **改动**：`assert-x-article-composer.mjs` 拆分 **`assertXArticleHubUrl`**（Create 前）与 **`assertXArticleEditUrl`**（type 前）；edit 正则 `^https://x.com/compose/articles/edit/\d+`；public `/{user}/article/{id}` 禁止 type。
+- **改动**：`x-article-open-editor.mjs` — click Create → **`waitForEditUrl` poll** → 再填；`x-article-cdp-guarded.mjs` — `typeText`/`press` 仅 `requireArticleEditEditor`；**删除** `fill-x-article-dont-give-agent-prod-db.mjs`；唯一入口 `fill-x-article-shortcuts.mjs --slug=`。
+- **改动**：playbook step 0–2、`platform-post-recipes.md`、`publish-article/SKILL.md` — Create 后等 edit URL（例 `…/edit/2093728235884605440`）。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/assert-x-article-composer.test.mjs → 5 pass
+  assertXArticleUrl('https://x.com/compose/post') throw
+  assertXArticleHubUrl('https://x.com/compose/articles') ok
+  assertXArticleEditUrl('https://x.com/compose/articles/edit/2093728235884605440') ok
+  assertXArticleEditUrl('https://x.com/compose/articles') throw (hub)
+  test ! -e scripts/fill-x-article-dont-give-agent-prod-db.mjs
+  node --check scripts/fill-x-article-shortcuts.mjs scripts/growth/lib/x-article-open-editor.mjs → 绿
+  ```
+
 #### fix(growth): reject X longform on Post composer
 
 - **改动**：新增 `scripts/growth/lib/assert-x-article-composer.mjs`（`assertXPlatformBlockedForEssay` / `assertNotXPostEssay` / `assertXArticleUrl`）；`post-seo-essay.mjs` 对 `x|twitter|x-article` throw；`post-all-browser.mjs` 在连 Chrome 前校验 body 长度 / `*-x.md` / `content/articles/` / 多 heading markdown；`fill-x-article-shortcuts.mjs` 与 `fill-x-article-dont-give-agent-prod-db.mjs` 填稿前 assert `compose/articles`。
