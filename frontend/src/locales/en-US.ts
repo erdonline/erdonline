@@ -248,6 +248,7 @@ export default {
   // Landing chrome / hero / pillars / demo / compare
   'landing.nav.brandAria': 'ERD Online home',
   'landing.nav.mainAria': 'Landing navigation',
+  'landing.mainAria': 'ERD Online main content',
   'landing.nav.pillars': 'Highlights',
   'landing.nav.pillarsAria': 'View product highlights',
   'landing.nav.catalog': 'Templates',

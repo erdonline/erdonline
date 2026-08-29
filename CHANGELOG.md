@@ -33,6 +33,17 @@
   5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
 - **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
 
+#### fix(frontend): 落地页可访问性修复：增加 <main> 地标并提升红字对比度
+
+- **问题**：PageSpeed Insights 报告 `www.erdonline.com` 落地页缺少 `<main>` 主地标；`.landingPillarIndex`、`.landingPillarLink` 使用品牌红 `#de2910` 在深色背景 `#070d14` 上对比度不足（约 4.1:1，未达 WCAG 4.5:1）。
+- **改法**：
+  1. `frontend/src/pages/landing/LandingChrome.tsx`：内容区包裹 `<main id="landing-main-content" tabindex="-1" aria-label="...">`，Skip 链接指向该地标。
+  2. `frontend/src/pages/landing/index.less`：`.landingPillarIndex` 与 `.landingPillarLink` 颜色从 `var(--erd-brand)` 改为 `#ff7a6c`（对比度约 7.6:1），`.landingPillarLink` 默认带下划线。
+  3. `frontend/src/locales/zh-CN.ts` 与 `en-US.ts`：新增 `landing.mainAria` 文案。
+  4. `frontend/tests/e2e/prod-smoke.spec.ts`：新增 `/ landing a11y` 回归用例，断言存在 `<main>`、红字颜色为 `rgb(255, 122, 108)`。
+  5. `frontend/tests/e2e/landing.spec.ts` 与 `compare.spec.ts`：Skip 目标从 `#landing-main-cta` 更新为 `#landing-main-content`，断言文案更新为“跳到主内容”。
+- **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 中 a11y 回归通过；`yarn check:i18n` 绿。
+
 #### fix(seo): llms.txt 使用 Markdown 链接语法，提高智能体可理解性
 
 - **问题**：无障碍 / 智能体检索工具报 `llms.txt` 不包含 H1 和可识别链接；原文件使用裸 URL，工具未解析为链接。

@@ -21,7 +21,7 @@ export type LandingChromeProps = {
   /** 子页用相对顶栏；落地首页仍绝对叠在 hero 上 */
   variant?: 'hero' | 'subpage';
   testId?: string;
-  /** Skip 目标地标 id；catalog 等子页指向主内容区 */
+  /** Skip 目标地标 id；统一指向主内容区 */
   skipTargetId?: string;
   /** 顶栏当前高亮项 */
   activeNav?: 'catalog' | 'compare';
@@ -31,7 +31,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
   children,
   variant = 'hero',
   testId = 'landing-page',
-  skipTargetId = 'landing-main-cta',
+  skipTargetId = 'landing-main-content',
   activeNav,
 }) => {
   const intl = useIntl();
@@ -79,6 +79,7 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
             {skipTargetId === 'landing-main-cta'
               ? intl.formatMessage({ id: 'common.skipMainAction' })
               : intl.formatMessage({ id: 'homeLayout.skip.main' })}
+
           </a>
           <a
             className="landingNavBrand landingBrand"
@@ -148,7 +149,14 @@ const LandingChrome: React.FC<LandingChromeProps> = ({
         </div>
       </header>
 
-      {children}
+      <main
+        id="landing-main-content"
+        data-testid="landing-main-content"
+        tabIndex={-1}
+        aria-label={intl.formatMessage({ id: 'landing.mainAria' })}
+      >
+        {children}
+      </main>
 
       <footer className="landingFooter">
         <span className="landingBrand">ERD Online · MIT · {APP_VERSION_LABEL}</span>

@@ -188,24 +188,25 @@ test.describe('落地页', () => {
     await expect(page.getByRole('navigation', { name: '落地页导航' }).getByRole('link', { name: '中文' })).not.toBeVisible();
   });
 
-  // ADR-0016：落地页键盘 — Skip 绕开顶栏；主 CTA 区 Tab 序；focus-visible；无 trap
-  test('落地页键盘：Skip→主 CTA；Tab 序；focus-visible；无 trap', async ({ page }) => {
+  // ADR-0016：落地页键盘 — Skip 绕开顶栏；主内容区 Tab 序；focus-visible；无 trap
+  test('落地页键盘：Skip→主内容；Tab 序；focus-visible；无 trap', async ({ page }) => {
     test.setTimeout(60_000);
     await page.goto('/');
     await expect(page.getByTestId('landing-page')).toBeVisible();
-    await expect(page.getByTestId('landing-skip-cta')).toHaveText('跳到主操作');
-    await expect(page.getByTestId('landing-main-cta')).toHaveAttribute('tabindex', '-1');
+    await expect(page.getByTestId('landing-skip-cta')).toHaveText('跳到主内容');
+    await expect(page.getByTestId('landing-main-content')).toHaveAttribute('tabindex', '-1');
+    await expect(page.locator('main')).toHaveAttribute('data-testid', 'landing-main-content');
 
-    // 首项 Tab = Skip；Enter 落到主 CTA 地标
+    // 首项 Tab = Skip；Enter 落到 main 地标
     await page.mouse.click(2, 2);
     await page.keyboard.press('Tab');
     await expect(page.getByTestId('landing-skip-cta')).toBeFocused({ timeout: 5_000 });
     await page.keyboard.press('Enter');
-    await expect(page.getByTestId('landing-main-cta')).toBeFocused();
+    await expect(page.getByTestId('landing-main-content')).toBeFocused();
 
     // 地标 tabIndex=-1：下一 Tab 离开，进首个主 CTA（无 trap）
     await page.keyboard.press('Tab');
-    await expect(page.getByTestId('landing-main-cta')).not.toBeFocused();
+    await expect(page.getByTestId('landing-main-content')).not.toBeFocused();
     const primaryCta = page.getByRole('link', { name: '在线试用 demo' });
     await expect(primaryCta).toBeFocused();
 

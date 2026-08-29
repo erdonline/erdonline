@@ -229,4 +229,14 @@ test.describe('regression: previous issues now have coverage', () => {
     await expect(heroPrimary).toHaveAttribute('href', '/home');
     await expect(heroPrimary).not.toHaveText('中文');
   });
+
+  test('/ landing a11y: has main landmark and high-contrast red links', async ({ page }) => {
+    await page.goto('/');
+    const main = page.getByTestId('landing-main-content');
+    await expect(main).toBeVisible();
+    await expect(main).toHaveAttribute('tabindex', '-1');
+    await expect(page.locator('main')).toBeVisible();
+    await expect(page.locator('.landingPillarIndex').first()).toHaveCSS('color', 'rgb(255, 122, 108)');
+    await expect(page.locator('.landingPillarLink').first()).toHaveCSS('color', 'rgb(255, 122, 108)');
+  });
 });
