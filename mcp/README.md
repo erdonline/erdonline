@@ -8,6 +8,23 @@ ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `
 
 Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list` 即可）。`yarn smoke:introspect` 覆盖该握手。
 
+## 支持的 MCP 客户端 / Supported clients
+
+只要支持 stdio MCP 即可接入。常用客户端配置位置：
+
+| 客户端 / Client | 配置文件 / Config location | 备注 / Notes |
+|---|---|---|
+| **Cursor** | `~/.cursor/mcp.json` | [一键安装页](https://www.erdonline.com/cursor-mcp/) / [Cursor install-links](https://cursor.com/docs/mcp/install-links) |
+| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS） / `%APPDATA%/Claude/claude_desktop_config.json`（Windows） | 与 Cursor 同配置结构 |
+| **Claude Code** | `~/.claude/config.json` 或环境变量 | 终端 Agent |
+| **Cline** | `cline.mcp.json` 或 VS Code `mcp.marketplace` | 粘贴 `mcpServers` 块 |
+| **Roo Code** | `roo.mcpServers` | 与 Cline 同格式 |
+| **Windsurf** | `~/.windsurf/mcp.json` 或 Cascade MCP panel | Codeium |
+| **Glama** | [glama.ai/mcp/servers](https://glama.ai/mcp/servers) | 无 PAT 可内省；读写仍需 PAT |
+| **5ire / Smithery / 其它** | 按各自 MCP 设置填入 `command`/`args`/`env` | 支持 stdio 即可 |
+
+完整步骤见 [doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+
 ## 工具
 
 | Tool | REST | Scope |

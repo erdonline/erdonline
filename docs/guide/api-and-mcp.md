@@ -1,6 +1,6 @@
 ---
-title: 用 MCP 让 Cursor / Claude 读取 ER 图
-description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD projectJSON。人再 diff 审批版本。不做一句话生成 ER 图。
+title: 用 MCP 让 Cursor / Claude / Cline 等读取 ER 图
+description: 复制 mcp.json 配置，用 PAT 让 Cursor、Claude、Cline、Windsurf 等 Agent 读写同一份 ERD projectJSON。人再 diff 审批版本。不做一句话生成 ER 图。
 ---
 
 想把正在画的 ER 图交给 Cursor 或 Claude？走鉴权后的 REST / MCP，读写**同一份** projectJSON（和设计器里看到的模型一致）。分享链接不是 API 密钥。
@@ -8,6 +8,23 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 > **30 秒目标**：铸造 PAT → 粘贴 MCP 配置 → 在 Cursor 选 prompt `suggest-erd-version`（或让 Agent 调 `create_version`）。  
 > **前置**：可登录实例（[自托管](./quick-self-host.md) 或 [www.erdonline.com](https://www.erdonline.com/)）；格式见 [data-format](../data-format.md)。  
 > **不做**：一句话生成 ERD、ChatSQL；写操作必须人在版本 diff 里审批。`create_version` 的 API 200 不是人批准。
+
+## 支持哪些 AI 客户端
+
+只要客户端支持 MCP（Model Context Protocol），就可以用同样的 `mcpServers.erdonline` 配置读写 ERD projectJSON。下面是常见客户端的接入位置：
+
+| 客户端 | 配置文件位置 | 备注 |
+|---|---|---|
+| **Cursor** | `~/.cursor/mcp.json` | [官网 install-links](https://cursor.com/docs/mcp/install-links)；可用 [一键安装页](https://www.erdonline.com/cursor-mcp/) |
+| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS） / `%APPDATA%/Claude/claude_desktop_config.json`（Windows） | Anthropic 官方，配置与 Cursor 同结构 |
+| **Claude Code** | 命令行 `claude config set mcpServers '{...}'` 或写入 `~/.claude/config.json` | 终端 Agent；`ERD_PAT` 可在环境变量或文件里 |
+| **Cline** | VS Code 设置 → `mcp.marketplace` 或 `cline.mcp.json` | 支持自定义 MCP server；把 JSON 粘进 `mcpServers` |
+| **Roo Code** | VS Code 设置 → `roo.mcpServers` | 与 Cline 同格式 |
+| **Windsurf** | `~/.windsurf/mcp.json`（或 Cascade Settings 中的 MCP 面板） | Codeium；配置字段与 Cursor 一致 |
+| **Glama** | 托管市场 [glama.ai/mcp/servers](https://glama.ai/mcp/servers) | 无需 PAT 即可做 `tools/list` 内省；读写仍需 PAT |
+| **5ire / Smithery / 其他** | 按各自 MCP 设置填入 `command`/`args`/`env` | 只要支持 stdio MCP 就能用 |
+
+**同一套 `mcp.json`**：下面是 Cursor 示例，其它客户端把同一 JSON 粘到对应位置即可。
 
 ## 30 秒接到 Cursor
 
