@@ -1,0 +1,22 @@
+# 错误回归即单测
+
+所有因 AI/实现疏忽导致的错误、用户反馈的问题、CI 失败或线上回归，修复时必须同步写成自动化测试或验收断言，禁止只改不验。
+
+## 执行要求
+
+1. **先写失败用例**：在动手修复之前或同时，先新增/更新一个能复现该错误的测试，让它先失败或红掉。
+2. **修复后让测试变绿**：修复必须让新增用例和既有相关用例都通过。
+3. **选择合适层级**：
+   - 构建产物 / SEO / 部署配置错误 → `frontend/scripts/assert-*.mjs` 或 `website/scripts/assert-*.mjs`
+   - 页面行为 / i18n / 可见文案回归 → `frontend/tests/e2e/*.spec.ts` Playwright
+   - 接口 / 业务逻辑 → 单测或 `curl` 断言脚本
+   - 不能自动化的临时步骤 → `docs/regression-checklist.md` 手工清单
+4. **i18n 文案特判**：
+   - 新增可见文案不能是语言本身名称（如 zh-CN 下把 CTA 写成"中文"），必须有语义。
+   - 相关 `assert-seo-static`、`assert-docs-seo` 必须断言文案包含语义且不等于语言名称。
+5. **收尾必查**：提交前运行受影响的测试脚本并绿灯；在 `CHANGELOG.md` 标注「验证点」。
+
+## 与现有规则关系
+
+- 与 `.cursor/rules/change-points-as-tests.mdc` 互补：本规则专门约束 AI 引入的回归，强调**每个错误必须成为单测资产**。
+- 与 `playwright-ux-audit.mdc` 互补：体验问题同样要先 Playwright 复现再修复。

@@ -372,7 +372,7 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
       try { authed = !!localStorage.getItem('Authorization'); } catch (e) {}
       if (!authed) return;
       var en = /^en/i.test((document.documentElement && document.documentElement.lang) || '');
-      var enterText = en ? 'Open workspace' : '中文';
+      var enterText = en ? 'Open workspace' : '进入工作台';
       var navCta = document.querySelector('[data-testid="landing-nav-cta"]');
       if (navCta) { navCta.href = '/home'; navCta.textContent = enterText; }
       var mainCta = document.querySelector('#landing-main-cta .landingBtnPrimary');
