@@ -114,40 +114,40 @@ const LandingPage: React.FC = () => {
           <article className="landingPillar" role="listitem">
             <span className="landingPillarIndex" aria-hidden="true">01</span>
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillar.mcp.title')}</h3>
-            <p>{t('landing.pillar.mcp.body')}</p>
+            <h3>{t('landing.pillars.open.title')}</h3>
+            <p>{t('landing.pillars.open.body')}</p>
             <Link
               className="landingPillarLink"
-              to={lp('/compare')}
-              aria-label={t('landing.pillar.mcp.linkAria')}
+              to={lp('/docs/guide/api-and-mcp')}
+              aria-label={t('landing.pillars.open.mcpCtaAria')}
             >
-              {t('landing.pillar.mcp.link')}
+              {t('landing.pillars.open.mcpCta')}
             </Link>
           </article>
           <article className="landingPillar" role="listitem">
             <span className="landingPillarIndex" aria-hidden="true">02</span>
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillar.version.title')}</h3>
-            <p>{t('landing.pillar.version.body')}</p>
+            <h3>{t('landing.pillars.version.title')}</h3>
+            <p>{t('landing.pillars.version.body')}</p>
             <Link
               className="landingPillarLink"
               to={lp('/compare')}
-              aria-label={t('landing.pillar.version.linkAria')}
+              aria-label={t('landing.pillars.version.linkAria')}
             >
-              {t('landing.pillar.version.link')}
+              {t('landing.pillars.version.link')}
             </Link>
           </article>
           <article className="landingPillar" role="listitem">
             <span className="landingPillarIndex" aria-hidden="true">03</span>
             <span className="landingPillarMark" aria-hidden="true" />
-            <h3>{t('landing.pillar.collab.title')}</h3>
-            <p>{t('landing.pillar.collab.body')}</p>
+            <h3>{t('landing.pillars.collab.title')}</h3>
+            <p>{t('landing.pillars.collab.body')}</p>
             <Link
               className="landingPillarLink"
               to={lp('/compare')}
-              aria-label={t('landing.pillar.collab.linkAria')}
+              aria-label={t('landing.pillars.collab.linkAria')}
             >
-              {t('landing.pillar.collab.link')}
+              {t('landing.pillars.collab.link')}
             </Link>
           </article>
         </div>
