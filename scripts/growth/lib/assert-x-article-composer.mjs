@@ -90,16 +90,20 @@ export function assertNotXPostEssay({ platform, body = '', bodyFile = '', slugAr
 }
 
 /** fill-x-article-*.mjs: refuse typing unless Article composer is open. */
-export function assertXArticleUrl(url) {
-  const href = (url || '').toLowerCase();
-  if (!href) {
-    throw new Error(
-      [
-        'HARD STOP: cannot resolve page URL for X Article fill.',
-        `Open ${ARTICLE_URL} before running scripts/${ARTICLE_PATH}.`,
-      ].join('\n'),
-    );
-  }
+
+/** Post-create edit composer — typing allowed only here. Example: …/edit/2093728235884605440 */
+export const X_ARTICLE_EDIT_URL_RE =
+  /^https?:\/\/(?:www\.)?(?:x|twitter)\.com\/compose\/articles\/edit\/\d+(?:\/|$|\?)/i;
+
+/** Pre-create articles hub — Create click only; no typing. */
+export const X_ARTICLE_HUB_URL_RE =
+  /^https?:\/\/(?:www\.)?(?:x|twitter)\.com\/compose\/articles\/?(?:\?.*)?$/i;
+
+/** Public viewer — not the composer; never type here. */
+export const X_ARTICLE_PUBLIC_VIEWER_RE =
+  /^https?:\/\/(?:www\.)?(?:x|twitter)\.com\/[^/]+\/article\/\d+/i;
+
+function rejectComposePost(href, url) {
   if (href.includes('compose/post') || href.includes('/compose/post')) {
     throw new Error(
       [
@@ -111,6 +115,116 @@ export function assertXArticleUrl(url) {
       ].join('\n'),
     );
   }
+}
+
+function rejectPublicViewer(href, url, context) {
+  if (X_ARTICLE_PUBLIC_VIEWER_RE.test(href) && !href.includes('compose/articles')) {
+    throw new Error(
+      [
+        `HARD STOP: ${context} — public article viewer is not the composer.`,
+        `Got: ${url}`,
+        'Open compose/articles hub, click Create, wait for compose/articles/edit/<id>.',
+      ].join('\n'),
+    );
+  }
+}
+
+export function isXArticleHubUrl(url) {
+  const href = (url || '').toLowerCase();
+  if (!href || href.includes('compose/post')) return false;
+  if (href.includes('/compose/articles/edit/')) return false;
+  return X_ARTICLE_HUB_URL_RE.test(href);
+}
+
+export function isXArticleEditUrl(url) {
+  return X_ARTICLE_EDIT_URL_RE.test(url || '');
+}
+
+/** Pre-create: hub list at compose/articles (no /edit/). */
+export function assertXArticleHubUrl(url) {
+  const href = (url || '').toLowerCase();
+  if (!href) {
+    throw new Error(
+      [
+        'HARD STOP: cannot resolve page URL for X Article hub.',
+        `Open ${ARTICLE_URL} before clicking Create.`,
+      ].join('\n'),
+    );
+  }
+  rejectComposePost(href, url);
+  rejectPublicViewer(href, url, 'hub navigation');
+  if (/x\.com\/home(\?|$|\/)/.test(href) || /twitter\.com\/home(\?|$|\/)/.test(href)) {
+    throw new Error(
+      [
+        'HARD STOP: home timeline is not X Article hub.',
+        '',
+        `Open ${ARTICLE_URL} before clicking Create.`,
+      ].join('\n'),
+    );
+  }
+  if (!isXArticleHubUrl(url)) {
+    throw new Error(
+      [
+        'HARD STOP: expected X Article hub (compose/articles, no /edit/).',
+        `Got: ${url}`,
+        `Open ${ARTICLE_URL} — not edit URL, not compose/post.`,
+      ].join('\n'),
+    );
+  }
+}
+
+/** Post-create: edit composer — required before any type_text / press_key. */
+export function assertXArticleEditUrl(url) {
+  const href = (url || '').toLowerCase();
+  if (!href) {
+    throw new Error(
+      [
+        'HARD STOP: cannot resolve page URL for X Article editor.',
+        'Click button[aria-label="create"] and wait for compose/articles/edit/<id>.',
+      ].join('\n'),
+    );
+  }
+  rejectComposePost(href, url);
+  rejectPublicViewer(href, url, 'typing');
+  if (isXArticleHubUrl(url)) {
+    throw new Error(
+      [
+        'HARD STOP: still on compose/articles hub — Create did not land.',
+        '',
+        'Click button[aria-label="create"] and wait until URL is compose/articles/edit/<id>.',
+        `Example: https://x.com/compose/articles/edit/2093728235884605440`,
+        `Got: ${url}`,
+      ].join('\n'),
+    );
+  }
+  if (!isXArticleEditUrl(url)) {
+    throw new Error(
+      [
+        'HARD STOP: typing requires compose/articles/edit/<numericId>.',
+        `Got: ${url}`,
+        `Expected match: ${X_ARTICLE_EDIT_URL_RE}`,
+        'Public /article/<id> viewer URLs are not the composer.',
+      ].join('\n'),
+    );
+  }
+}
+
+/** @deprecated Prefer assertXArticleHubUrl (pre-create) or assertXArticleEditUrl (typing). */
+export function assertXArticleUrlOrThrow(url) {
+  return assertXArticleUrl(url);
+}
+
+export function assertXArticleUrl(url) {
+  const href = (url || '').toLowerCase();
+  if (!href) {
+    throw new Error(
+      [
+        'HARD STOP: cannot resolve page URL for X Article fill.',
+        `Open ${ARTICLE_URL} before running scripts/${ARTICLE_PATH}.`,
+      ].join('\n'),
+    );
+  }
+  rejectComposePost(href, url);
   if (/x\.com\/home(\?|$|\/)/.test(href) || /twitter\.com\/home(\?|$|\/)/.test(href)) {
     throw new Error(
       [
@@ -120,15 +234,23 @@ export function assertXArticleUrl(url) {
       ].join('\n'),
     );
   }
-  if (!href.includes('compose/articles') && !href.includes('/article/')) {
+  if (isXArticleHubUrl(url) || isXArticleEditUrl(url)) return;
+  if (X_ARTICLE_PUBLIC_VIEWER_RE.test(href)) {
     throw new Error(
       [
-        'HARD STOP: current page is not X Article composer.',
+        'HARD STOP: public article viewer is not the composer.',
         `Got: ${url}`,
-        `Expected URL containing compose/articles — open ${ARTICLE_URL} first.`,
+        'Use compose/articles/edit/<id> for fill.',
       ].join('\n'),
     );
   }
+  throw new Error(
+    [
+      'HARD STOP: current page is not X Article composer.',
+      `Got: ${url}`,
+      `Expected compose/articles hub or compose/articles/edit/<id>.`,
+    ].join('\n'),
+  );
 }
 
 export function pageUrlFromList(pagesJson, pageId) {

@@ -1,6 +1,6 @@
 # X long-form — Job 1: Don't give your agent the production database
 
-**长文 = Article only；Post composer 发长文 = 失败。** 入口 `https://x.com/compose/articles` + `node scripts/fill-x-article-shortcuts.mjs`；**禁止** `x.com/compose/post` / `post-all-browser.mjs --platform x`。
+**长文 = Article only；Post composer 发长文 = 失败。** 入口 `https://x.com/compose/articles` → **`button[aria-label="create"]`** → 等 **`compose/articles/edit/{id}`**（例 `…/edit/2093728235884605440`）→ `node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db`；**禁止** hub 未进 edit 就 type / `compose/post` / 已删的 `fill-x-article-dont-give-agent-prod-db.mjs`。
 
 Companion to `content/articles/dont-give-agent-prod-db.en.md`.
 

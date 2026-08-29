@@ -27,8 +27,8 @@
 
 | 用途 | URL |
 |---|---|
-| **新建** | `https://x.com/compose/articles` → 左侧 **Write** / **Write Article** |
-| **续编草稿** | `https://x.com/compose/articles/edit/<draftId>`（例 `…/edit/2093657683534745600`） |
+| **新建** | `https://x.com/compose/articles` → **`button[aria-label="create"]`** → URL 变为 **`compose/articles/edit/{id}`**（例 `…/edit/2093728235884605440`）→ 再填稿 |
+| **续编草稿** | 已在 `https://x.com/compose/articles/edit/<draftId>` — 可跳过 Create，但 URL **必须**含 `/edit/<numericId>` |
 | **Preview（强制）** | 编辑器内 **Preview** 链接 → `/compose/articles/edit/<draftId>/preview` |
 | **Live 验收例** | https://x.com/BuilderLiang/article/2093670417458491425（2026-08-29 · SEO essay · shortcuts + Preview ✓） |
 
@@ -169,25 +169,27 @@ X Article 是 **富文本 WYSIWYG**，**不是** Markdown 源码编辑器。
 
 ## 填稿步骤（编号 · copy-paste 照做）
 
-1. **开 Article composer**（`compose/articles` 或 `compose/articles/edit/<id>`）— **非** Post / `compose/post`
-2. **标题框**填 `## X title` 段内容（例：`Average position 1. Zero clicks…`）
-3. **按块插入正文：**
+0. **导航** `https://x.com/compose/articles` — **非** Post / `compose/post`
+1. **点 Create** — `button[aria-label="create"]`（role=button；**只用 aria-label**，勿用 `css-g5y9jx` 等哈希类）
+2. **等 edit URL** — href **必须**变为 `https://x.com/compose/articles/edit/{id}`（例 `…/edit/2093728235884605440`）。仍在 hub-only `/compose/articles` → **throw**（Create 未落地）。`compose/post` → **throw**
+3. **标题框**填 `## X title` 段内容（例：`Don't give your agent the production database`）
+4. **按块插入正文：**
    - 新段、无 marker → **Body**（开篇 stats hook 可用 `> ` quote block）
    - 大节名 → 新 block 行首 `# ` → Heading
    - 小节名 → 新 block 行首 `## ` → Subheading
    - 数据钩子 / 金句 → `> `
    - 清单 → `- ` 或 ⌘⇧7；编号步骤 → `1. ` 或 ⌘⇧8
-4. **选词加粗 / 链接：** 选中短语 → ⌘B；URL → ⌘K
-5. **字号不对：** 选中段落 → **⌘⇧,** 重复直到 **Body**（全文 Heading = 失败态）
-6. **段间只 Enter 一次**；禁止 chunk `insertText` 夹 `\n\n\n`
-7. **Preview 强制** — 点 Preview → 检查：
+5. **选词加粗 / 链接：** 选中短语 → ⌘B；URL → ⌘K
+6. **字号不对：** 选中段落 → **⌘⇧,** 重复直到 **Body**（全文 Heading = 失败态）
+7. **段间只 Enter 一次**；禁止 chunk `insertText` 夹 `\n\n\n`
+8. **Preview 强制** — 点 Preview → 检查：
    - 字号像杂志（Heading 少、Body 为主）
    - 无巨大空行（triple `\n` ≤ 2）；Heading 间优先 **Insert → Divider**，勿靠连按 Enter
    - Heading 层级可见（H1 节 + H2 小节）
    - **Insert 块真渲染**：Divider 为横线、Code 为代码块、Table 为表格 — 非字面量
    - 关键段可见（例：Search Console、github.com/erdonline）
    - **不过就改，禁止直接 Publish**
-8. **Publish** → 对话框再点 **Publish** → 打开公网 URL 验正文：
+9. **Publish** → 对话框再点 **Publish** → 打开公网 URL 验正文：
    - URL **必须**含 `/article/`，不是 `/status/`
    - articleLen ≈ 12000+（英文 SEO essay 量级）
    - 含预期关键词 / 链接
@@ -210,36 +212,34 @@ X Article 是 **富文本 WYSIWYG**，**不是** Markdown 源码编辑器。
 
 ## 脚本：`scripts/fill-x-article-shortcuts.mjs`
 
-**存在。** 用 chrome-devtools CLI 在已打开的 Article 编辑器里**模拟官方快捷键 + 行首 marker** 填 block，比裸 `insertText` dump 可靠。
+**唯一** X 长文填稿入口（`fill-x-article-dont-give-agent-prod-db.mjs` 已删，勿再引用）。
+
+**存在。** 用 chrome-devtools CLI：navigate `compose/articles` → click **`button[aria-label="create"]`** → assert URL → 模拟官方快捷键 + 行首 marker 填 block。
 
 ### 何时调用
 
-- 同一篇 SEO essay **已验证过的 block 结构**需要复填（续编草稿、误清编辑器后重填）
-- 人手填太长、但 block 映射规则已在脚本里写死（当前绑定 `2026-08-29-seo-essay-x.md`）
+- Job 1 / SEO essay 等 `--slug=` 对应 `docs/growth-content/*-x.md`
+- 同一篇 **已验证过的 block 结构**需要复填（续编草稿、误清编辑器后重填）
 
 ### 用法
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v22.22.0/bin:$PATH"
-# 填稿（默认打开 EDIT_URL 草稿）
-node scripts/fill-x-article-shortcuts.mjs
-# 指定已开 page
-node scripts/fill-x-article-shortcuts.mjs --pageId=12
-# 填完跑 Preview 断言（不过则 exit 1）
-node scripts/fill-x-article-shortcuts.mjs --preview
-# Preview 通过才 Publish（不过禁止提交）
-node scripts/fill-x-article-shortcuts.mjs --preview --submit
+# Job 1（默认 slug）
+node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --preview
+# 或 wrapper
+node scripts/x-article-publish.mjs dont-give-agent-prod-db --preview --submit
+# SEO essay
+node scripts/fill-x-article-shortcuts.mjs --slug=seo-essay --preview
+# 指定已开 page（仍须 openArticleEditor / Create）
+node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --pageId=12
 ```
 
 ### 它做什么
 
-- 读 `docs/growth-content/2026-08-29-seo-essay-x.md` 的 `## X body` 段，按段落语义 emit：
-  - `# ` / `## ` Heading / Subheading
-  - `> ` quote（开篇 stats、金句）
-  - ⌘⇧7/8 列表
-  - ⌘B / ⌘⇧X / ⌘K 加粗、删除线、链接
-  - 每 Body 段前 **⌘⇧,** 降至 Body
-- `--preview`：点 Preview，断言 `spacingOk`（triple `\n` ≤ 2）、articleLen > 8000、含 Search Console + github
+- `openArticlesPage()` → `button[aria-label="create"]` → **poll `compose/articles/edit/<id>`** → `requireArticleEditEditor` → 填稿
+- 读 pack 对应 `docs/growth-content/*-x.md` 的 `## X body` 段，按段落语义 emit block IR
+- `--preview`：点 Preview，按 pack 断言 articleLen / 关键词
 - `--submit`：仅 Preview 通过才 double-click Publish
 
 ### 不能替代 Preview
