@@ -279,7 +279,7 @@ function writePrerenderedShells(distDir, indexHtml, siteUrl) {
     indexHtml,
     {
       path: "/",
-      locale: "en-US",
+      locale: "zh-CN",
       title: HOME_SEO.title,
       description: HOME_SEO.description,
     },
@@ -371,7 +371,8 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
       var authed = false;
       try { authed = !!localStorage.getItem('Authorization'); } catch (e) {}
       if (!authed) return;
-      var enterText = 'Open workspace';
+      var en = /^en/i.test((document.documentElement && document.documentElement.lang) || '');
+      var enterText = en ? 'Open workspace' : '中文';
       var navCta = document.querySelector('[data-testid="landing-nav-cta"]');
       if (navCta) { navCta.href = '/home'; navCta.textContent = enterText; }
       var mainCta = document.querySelector('#landing-main-cta .landingBtnPrimary');

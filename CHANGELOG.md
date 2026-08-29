@@ -12,8 +12,8 @@
 
 - **问题**：顶栏/主 CTA 登录态文案中英不一致；静态页语言切换被预渲染成横向 `<a>`，切到 SPA 页面后变成 antd 下拉，形态不一致。
 - **改法**：
-  1. `frontend/src/locales/zh-CN.ts`：`landing.nav.enterWorkspace*`、`landing.hero.cta.enterWorkspace*` 统一为 "Open workspace"。
-  2. `frontend/scripts/gen-seo-static.mjs`：静态 `/` 的登录态 IIFE 也统一显示 "Open workspace"。
+  1. `frontend/src/locales/zh-CN.ts`：中文下 `landing.nav.enterWorkspace*`、`landing.hero.cta.enterWorkspace*` 改为 "中文"；英文下仍为 "Open workspace"。
+  2. `frontend/scripts/gen-seo-static.mjs`：静态 `/` 的登录态 IIFE 根据 `document.documentElement.lang` 自动切换：英文 `Open workspace`，中文 `中文`；并把 `dist/index.html` 的 `lang` 从 `en` 改为 `zh-CN`。
   3. `frontend/scripts/prerender-landing.mjs`：把 `LocaleSwitcher` 替换为原生 `<select>` 下拉（中文/EN），与 SPA 的 antd Select 形态保持一致。
   4. 把上述问题**变成验收测试**：
      - `assert-seo-static.mjs` 校验 `dist/_headers` 含 `/login`、`/register` 的 `Content-Type: text/html`，`dist/app` 存在，`dist/index.html` 内联 CSS 且含 `<select>` 与 `Open workspace`。

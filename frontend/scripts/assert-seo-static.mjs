@@ -331,7 +331,7 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
   assertShell(distDir, siteUrl, "/", {
     title: HOME_SEO.title,
     canonical: `${siteUrl}/`,
-    lang: "en",
+    lang: "zh-CN",
     jsonLdPage: {
       path: "/",
       title: HOME_SEO.title,
@@ -350,8 +350,8 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       if (!homeHtml.includes('class="locale-switcher-static"')) {
         fail("/ first HTML must use <select> locale switcher");
       }
-      if (!homeHtml.includes("Open workspace")) {
-        fail("/ first HTML must include 'Open workspace' authed CTA text");
+      if (!homeHtml.includes('Open workspace') || !homeHtml.includes('中文')) {
+        fail("/ first HTML must include both 'Open workspace' (en) and '中文' (zh) authed CTA text");
       }
       if (/umi\.[0-9a-f]+\.css/.test(homeHtml)) {
         fail("/ first HTML must not <link> to umi.css after inlining");
