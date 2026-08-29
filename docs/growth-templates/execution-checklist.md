@@ -2,7 +2,8 @@
 
 > **执行人**：便宜的模型 / 运营助理  
 > **监督人**：你（Devin）  
-> **频率**：每周循环
+> **频率**：每周循环  
+> **核心策略**：**AI 方向优先**，集中执行（不要分散到周三、周四、周五）
 
 ---
 
@@ -22,16 +23,14 @@
 - [ ] 数据报告生成成功
 - [ ] 包含 Cloudflare 流量数据
 - [ ] 包含 GitHub star/fork/issue 数据
-- [ ] 标记异常（流量下跌？star 不涨？）
+- [ ] 包含 MCP 使用数据（PAT 铸造数、`list_projects` 调用数）
+- [ ] 标记异常（流量下跌？star 不涨？MCP 接入率低？）
 
 ---
 
-### Day 2（周二）：产品体验优化
+### Day 2（周二）：集中执行日（产品优化 + 推广发布）
 
-**任务**：
-1. 检查 P0 清单（阻断转化的 bug）
-2. 修复 P0 问题
-3. 验证修复（build + E2E）
+**上午（产品优化，2-4 小时）**：
 
 **P0 清单**（本周必须完成）：
 - [ ] **修复 Landing 页 i18n bug**：`landing.compare.cta.primary`、`landing.pillar.*.title` 显示原始 key
@@ -40,71 +39,67 @@
 - [ ] **Demo 页增加"Fork 开始编辑"强引导**：
   - 在 Demo 页顶部增加 banner："这是公开演示。Fork 到你的项目，开始编辑、保存版本、邀请协作。"
   - CTA：`Fork 开始编辑`（跳转注册，带 redirect）
-- [ ] **Landing 页 CTA 收敛**：
-  - 未登录：主 CTA = `打开在线 Demo`，次 CTA = `浏览模板`
+- [ ] **Landing 页 CTA 收敛 + AI 强化**：
+  - 未登录：主 CTA = `打开在线 Demo`，次 CTA = `给 Cursor 配 MCP`
   - 移除"查看完整对照"（放到 footer）
+  - 在 Hero 下方增加"MCP 集成"卡片：展示 Cursor / Claude / Cline 图标 + "30 秒接入"链接
 
 **验收标准**：
 - [ ] `yarn build:prod` 绿
 - [ ] `yarn test:e2e` 绿
 - [ ] Playwright 走查 Landing 页，无原始 key
 - [ ] Playwright 走查 Demo 页，有"Fork 开始编辑"按钮
+- [ ] Playwright 走查 Landing 页，有"MCP 集成"卡片
 
----
+**下午（推广发布，2-3 小时）**：
 
-### Day 3（周三）：内容生产
+**渠道清单**（按优先级排序，集中在一天发布）：
 
-**任务**：
-1. 选择内容类型（技术深度 / 教程 / 对比）
-2. 使用模板生成初稿
-3. 提交给你审核
-
-**内容日历**：
-- **Week 1**：技术深度文章（"How I built ERD Online"）
-- **Week 2**：教程文章（"How to version your database schema like Git"）
-- **Week 3**：对比文章（"ERD Online vs dbdiagram vs drawio"）
-- **Week 4**：用户故事（"How Team X uses ERD Online"）
-
-**输出**：
-- `docs/growth-content/week-N-article.md`
-
-**验收标准**：
-- [ ] 初稿生成成功
-- [ ] 包含 Demo 链接和 GitHub 链接
-- [ ] 包含 SEO 关键词
-- [ ] 字数 1500-2500 字
-
----
-
-### Day 4（周四）：推广执行
-
-**任务**：
-1. 发布内容到各渠道
-2. 回复评论
-3. 统计流量
-
-**渠道清单**：
-
-| 渠道 | 频率 | 本周任务 |
-|---|---|---|
-| Product Hunt | 一次性 | 发布（周二 00:01 PST） |
-| Hacker News | 每两周 | 发布（周二 9-11 AM PST） |
-| Reddit | 每周 | r/programming（周二） |
-| X/Twitter | 每日 | 每日一条（美东时间上午 9-11 点） |
-| 技术博客 | 每周 | Dev.to（周四） |
-| 中文社区 | 每周 | 掘金（周四） |
+| 渠道 | 时间 | 内容 | AI 重点 |
+|---|---|---|---|
+| Product Hunt | 00:01 PST | Launch post | ✅ 强调 MCP |
+| Hacker News | 9-11 AM PST | Show HN | ✅ 强调 MCP |
+| Reddit r/cursor | 2:00 PM PST | MCP 集成 | ✅✅ 核心渠道 |
+| Reddit r/ClaudeAI | 2:30 PM PST | MCP 集成 | ✅✅ 核心渠道 |
+| Reddit r/programming | 3:00 PM PST | 技术深度 | ✅ 强调 MCP |
+| X/Twitter | 4:00 PM PST | 功能演示 GIF | ✅ 强调 MCP |
+| 技术博客 | 5:00 PM PST | Dev.to | ✅ 强调 MCP |
+| 掘金 | 6:00 PM PST | 中文社区 | ✅ 强调 MCP |
 
 **输出**：
 - 发布链接列表（`docs/growth-data/week-N-links.md`）
 
 **验收标准**：
 - [ ] 所有渠道发布成功
-- [ ] 回复所有评论（前 1 小时最重要）
-- [ ] 统计流量和注册
+- [ ] 每个渠道间隔 30 分钟（避免被标记为 spam）
+- [ ] 所有内容都强调 MCP 集成（AI 方向优先）
+
+**晚上（互动回复，1-2 小时）**：
+- [ ] 回复所有评论（Product Hunt / HN / Reddit / X）
+- [ ] 统计数据（流量、注册、star、MCP 接入数）
 
 ---
 
-### Day 5（周五）：数据复盘
+### Day 3-5（周三-五）：持续互动
+
+**任务**：
+1. 继续回复评论
+2. 发布 X/Twitter（每日一条，AI 方向优先）
+3. 发布其他渠道（Reddit r/webdev、r/selfhosted、知乎等）
+
+**X/Twitter 内容日历**（AI 方向优先）：
+- **周三**：用户场景（"如何用 ERD Online + Cursor 让 AI 帮你改 schema"）
+- **周四**：技术细节（"为什么我们用 projectJSON 作为 AI Agent 的事实源"）
+- **周五**：对比（"ERD Online vs dbdiagram vs drawio: AI integration"）
+
+**验收标准**：
+- [ ] 每日 X/Twitter 发布成功
+- [ ] 所有评论回复完毕
+- [ ] 其他渠道发布成功
+
+---
+
+### Day 6（周六）：数据复盘
 
 **任务**：
 1. 拉取本周数据
@@ -116,6 +111,8 @@
 - [ ] 本周新增 star 数
 - [ ] 本周新增注册数
 - [ ] 本周 Demo 完成率
+- [ ] 本周 MCP 接入数（PAT 铸造数）
+- [ ] 本周 AI Agent 使用数（`list_projects` / `create_version` 调用数）
 - [ ] 本周流量来源（哪个渠道效果最好）
 - [ ] 本周用户反馈（issue / 评论 / 私信）
 - [ ] 下周重点（修 bug / 写内容 / 发渠道）
@@ -132,61 +129,66 @@
 
 ## 每周任务清单（Week 1 示例）
 
-### Week 1：Launch Week
+### Week 1：Launch Week（集中执行）
 
 **Day 1（周一）**：
 - [ ] 运行 `scripts/growth-data.sh`
 - [ ] 修复 Landing 页 i18n bug（P0）
-- [ ] 准备 Product Hunt 材料（tagline、description、截图）
+- [ ] 准备 Product Hunt 材料（tagline、description、截图、GIF）
 
-**Day 2（周二）**：
-- [ ] 发布 Product Hunt（00:01 PST）
-- [ ] 修复 Demo 页"Fork 开始编辑"引导（P0）
-- [ ] 发布 Hacker News（Show HN）
+**Day 2（周二，集中执行）**：
+- [ ] **上午**：
+  - [ ] 修复 Demo 页"Fork 开始编辑"引导（P0）
+  - [ ] 修复 Landing 页 CTA 收敛 + AI 强化（P0）
+  - [ ] 验证所有修复（`yarn build:prod` + `yarn test:e2e`）
+- [ ] **下午**：
+  - [ ] 发布 Product Hunt（00:01 PST）
+  - [ ] 发布 Hacker News（9-11 AM PST）
+  - [ ] 发布 Reddit r/cursor（2:00 PM PST）
+  - [ ] 发布 Reddit r/ClaudeAI（2:30 PM PST）
+  - [ ] 发布 Reddit r/programming（3:00 PM PST）
+  - [ ] 发布 X/Twitter（功能演示 GIF，4:00 PM PST）
+  - [ ] 发布技术博客（Dev.to，5:00 PM PST）
+  - [ ] 发布掘金（6:00 PM PST）
+- [ ] **晚上**：
+  - [ ] 回复所有评论（Product Hunt / HN / Reddit / X）
+  - [ ] 统计数据（流量、注册、star、MCP 接入数）
 
 **Day 3（周三）**：
-- [ ] 发布 Reddit r/programming
-- [ ] 生成第一篇技术博客初稿（"How I built ERD Online"）
-- [ ] 发布 X/Twitter（功能演示 GIF）
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（用户场景）
+- [ ] 发布知乎
 
 **Day 4（周四）**：
-- [ ] 发布技术博客（Dev.to）
-- [ ] 发布掘金
-- [ ] 发布 X/Twitter（用户场景）
-- [ ] 回复 Product Hunt / HN 评论
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（技术细节）
+- [ ] 发布 Reddit r/webdev
 
 **Day 5（周五）**：
-- [ ] 发布 Reddit r/webdev
-- [ ] 发布知乎
-- [ ] 发布 X/Twitter（技术细节）
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（对比）
+- [ ] 发布 Reddit r/selfhosted
 - [ ] 数据复盘，准备下周计划
 
 ---
 
-### Week 2：Content Week
+### Week 2：Content Week（集中执行）
 
 **Day 1（周一）**：
 - [ ] 运行 `scripts/growth-data.sh`
 - [ ] 分析 Week 1 数据，找出效果最好的渠道
 - [ ] 优化 Landing 页（P1 清单）
 
-**Day 2（周二）**：
-- [ ] 生成第二篇技术博客初稿（"How to version your database schema like Git"）
-- [ ] 发布 X/Twitter（对比）
-
-**Day 3（周三）**：
+**Day 2（周二，集中执行）**：
+- [ ] 生成第二篇技术博客初稿（"How to version your database schema like Git with AI agents"）
 - [ ] 发布技术博客（Dev.to / Hashnode）
-- [ ] 发布 Reddit r/selfhosted
-- [ ] 发布 X/Twitter（社区互动）
-
-**Day 4（周四）**：
-- [ ] 发布掘金
-- [ ] 发布 X/Twitter（开源社区）
-
-**Day 5（周五）**：
 - [ ] 发布 Reddit r/Database
-- [ ] 发布知乎
-- [ ] 发布 X/Twitter（用户故事）
+- [ ] 发布 X/Twitter（社区互动）
+- [ ] 发布掘金
+
+**Day 3-5（周三-五）**：
+- [ ] 继续回复评论
+- [ ] 发布 X/Twitter（每日一条，AI 方向优先）
 - [ ] 数据复盘，准备下周计划
 
 ---
@@ -197,6 +199,7 @@
 
 - **技术准确性**：所有技术细节必须正确
 - **文案风格**：遵守 `.cursor/rules/copywriting-style.mdc`
+- **AI 方向优先**：所有内容都强调 MCP 集成
 - **SEO**：包含关键词，但不过度堆砌
 - **CTA**：每篇文章必须有 Demo 链接和 GitHub 链接
 
@@ -209,8 +212,9 @@
 ### 推广质量
 
 - **时机**：在渠道活跃时间发布
+- **集中执行**：不要分散到周三、周四、周五，集中在周二一天发布
 - **互动**：发布后 1 小时内回复所有评论
-- **一致性**：每天同一时间发布
+- **一致性**：每天同一时间发布 X/Twitter
 
 ---
 
@@ -274,9 +278,9 @@
 ## 下一步行动
 
 1. **立即执行**：修复 Landing 页 i18n bug（P0）
-2. **今天准备**：Product Hunt 材料（tagline、description、截图）
-3. **明天发布**：Product Hunt + Hacker News
-4. **本周持续**：Reddit + 技术博客 + X/Twitter
+2. **今天准备**：Product Hunt 材料（tagline、description、截图、GIF）
+3. **明天集中发布**：Product Hunt + Hacker News + Reddit + X/Twitter + 技术博客 + 掘金（全部在周二一天完成）
+4. **本周持续**：回复评论 + X/Twitter 每日一条（AI 方向优先）
 5. **每周复盘**：数据驱动迭代
 
 **你负责**：审核内容、决策优先级、回复评论  
