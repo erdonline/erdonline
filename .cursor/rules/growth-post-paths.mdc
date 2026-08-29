@@ -60,7 +60,7 @@ Agent 在 growth 渠道发帖时 **必须** 遵循已冻结路径，**禁止** �
 
 ## 文章 YAML `platforms`
 
-`content/articles/*.md` 的 `platforms:` **必须是** `platform-post-recipes.md` 且 `docs/growth-data/` 有**成功公网 permalink** 的平台子集。**禁止**从旧文章抄 weixin/segmentfault 等 Wechatsync 草稿箱名单凑数（微信仅草稿、思否从未成功）。中文长文当前 proven 集：`juejin, csdn, oschina, zhihu`；国际英文另轨，无 EN 稿勿写进中文 YAML。
+`content/articles/*.md` 的 `platforms:` **必须是** `platform-post-recipes.md` 且 `docs/growth-data/` 有**成功公网 permalink** 的平台子集。**禁止**从旧文章抄 weixin/segmentfault 等 Wechatsync 草稿箱名单凑数（微信仅草稿、思否从未成功）。中文长文 proven 集：`juejin, csdn, oschina, zhihu`；国际英文 proven 集：`hashnode, devto, medium`（Hashnode import）、X Article — **不写进中文 YAML，但发长文时双轨都跑**（`content/articles/<slug>.en.md` + `--slug=`）。
 
 ## 记录
 

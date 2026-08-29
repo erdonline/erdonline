@@ -122,6 +122,24 @@ function loadSlugPackage(platform) {
   return { title, body };
 }
 
+function slugEnFile() {
+  return path.join(ROOT, 'content/articles', `${slugArg}.en.md`);
+}
+
+function getEnContent() {
+  if (slugArg) {
+    const enFile = slugEnFile();
+    if (!fs.existsSync(enFile)) {
+      throw new Error(`EN article not found: ${enFile} — write EN before publishing international platforms`);
+    }
+    const fm = parseFrontmatter(enFile);
+    const title = fm.title || slugArg;
+    const body = stripFrontmatter(fs.readFileSync(enFile, 'utf-8'));
+    return { title, body };
+  }
+  return { title: EN_TITLE, body: readEnBody() };
+}
+
 function getZhContent(platform) {
   if (slugArg) return loadSlugPackage(platform);
   return { title: ZH_TITLE, body: readZhBody() };
@@ -291,7 +309,7 @@ function verifyPublic(url, checks = {}) {
 }
 
 async function hashnode(submit) {
-  const body = readEnBody();
+  const { title: enTitle, body } = getEnContent();
   const pid = openUrl('https://hashnode.com/new');
   // Check login
   const loginCheck = evaluate(pid, `() => ({ href: location.href, hasSignIn: !!document.body?.innerText?.includes('Sign in') })`);
@@ -309,7 +327,7 @@ async function hashnode(submit) {
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(EN_TITLE)};
+      const title = ${esc(enTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('textarea[placeholder*="Article Title" i], textarea[placeholder*="title" i]');
       const bodyEl = document.querySelector('textarea[placeholder*="markdown" i], textarea[placeholder*="Write" i]') 
@@ -343,7 +361,15 @@ async function hashnode(submit) {
   spawnSync('sleep', ['5']);
   const href = evaluate(pid, `() => ({ href: location.href, title: document.title })`);
   console.log('hashnode published:', href);
-  return { fill, href };
+  const publicUrl = href.href?.includes('hashnode.dev/') ? href.href.split('?')[0] : null;
+  let pub = null;
+  if (publicUrl) {
+    pub = verifyPublic(publicUrl);
+    pub.ok = pub.articleLen >= 500 && !pub.hasSeoHealth;
+    console.log('hashnode public:', JSON.stringify(pub, null, 2));
+    if (!pub.ok) throw new Error(`Hashnode public verify FAILED: articleLen=${pub.articleLen}`);
+  }
+  return { fill, href, pub };
 }
 
 async function mediumImport(hashnodeUrl, submit) {
@@ -402,7 +428,7 @@ async function mediumImport(hashnodeUrl, submit) {
 }
 
 async function devto(submit) {
-  const body = readEnBody();
+  const { title: enTitle, body } = getEnContent();
   const pid = openUrl('https://dev.to/new');
   evaluate(pid, `() => {
     const skip = [...document.querySelectorAll('a, button')].find(el => /Skip for now/i.test(el.innerText));
@@ -414,7 +440,7 @@ async function devto(submit) {
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(EN_TITLE)};
+      const title = ${esc(enTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('#article-form-title, input[name="article[title]"], textarea[placeholder*="Title" i]');
       const bodyEl = document.querySelector('#article_body_markdown, textarea[name="article[body_markdown]"]');
@@ -433,17 +459,25 @@ async function devto(submit) {
   }`);
   spawnSync('sleep', ['5']);
   const href = evaluate(pid, `() => ({ href: location.href }))`);
-  return { fill, href };
+  const publicUrl = href.href?.includes('dev.to/') && !href.href.includes('/new') ? href.href.split('?')[0] : null;
+  let pub = null;
+  if (publicUrl) {
+    pub = verifyPublic(publicUrl);
+    pub.ok = pub.articleLen >= 500 && !pub.hasSeoHealth;
+    console.log('devto public:', JSON.stringify(pub, null, 2));
+    if (!pub.ok) throw new Error(`Dev.to public verify FAILED: articleLen=${pub.articleLen}`);
+  }
+  return { fill, href, pub };
 }
 
 async function xLongform(submit) {
-  const body = readXBody();
+  const { title: xTitle, body } = slugArg ? getEnContent() : { title: X_TITLE, body: readXBody() };
   const pid = openUrl('https://x.com/compose/articles');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
     `() => {
-      const title = ${esc(X_TITLE)};
+      const title = ${esc(xTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('textarea[placeholder*="Title" i], input[placeholder*="Title" i], [data-testid*="title"] textarea, textarea');
       const setNative = (el, value) => {
