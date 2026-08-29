@@ -30,6 +30,8 @@ test.describe('空表字段引导', () => {
 
   test('表设计字段签空态 CTA：清字段→添加第一个字段', async ({ page }) => {
     test.setTimeout(90_000);
+    const errors: string[] = [];
+    page.on('pageerror', (err) => errors.push(err.message || String(err)));
     const projectName = uniqueProjectName('fldempty');
     try {
       await login(page);
@@ -58,6 +60,7 @@ test.describe('空表字段引导', () => {
       await expect(fieldEdit.getByRole('cell', { name: 'id', exact: true })).toBeVisible({
         timeout: 10_000,
       });
+      expect(errors, `TableInfoEdit 抛错：${errors.join('; ')}`).toHaveLength(0);
     } finally {
       await deleteOwnPersonProjects(page).catch(() => {});
     }
