@@ -10,9 +10,9 @@
 
 #### chore: remove Wechatsync pipeline; publish via chrome-devtools MCP only
 
-- **删除**：`scripts/growth/sync-wechatsync.mjs`、`lib/wechatsync.mjs`、`sync-all-ready.mjs`、`emit-sync-jobs.mjs`、`retry-csdn.mjs`、`scripts/growth/package.json` + lockfile；`content/articles/publish-status-2026-08-09.{md,json}`。
+- **删除**：growth 多平台草稿同步流水线（7 个脚本/包文件及 lib 映射模块）；`content/articles/publish-status-2026-08-09.{md,json}`（旧草稿箱台账）。
 - **改动**：`docs/growth.md`、英译 growth、`content/articles/README.md`、`build-package.mjs` publish-checklist、`.env.example`、`execution-checklist.md`、skills/rules — 公开发布仅 chrome-devtools MCP + 路径卡；16 篇 `platforms:` 收窄为 proven 集（无 weixin/segmentfault/xiaohongshu）。
-- **验证点**：`rg -i wechatsync` 工作区零命中（CHANGELOG 已发版历史段除外）；`test ! -e scripts/growth/sync-wechatsync.mjs`；`node scripts/growth/build-package.mjs dont-give-agent-prod-db` 打包成功。
+- **验证点**：`test ! -e scripts/growth/package.json`；`node scripts/growth/build-package.mjs dont-give-agent-prod-db` 打包成功且 checklist 含 chrome-devtools MCP 节。
 
 #### fix(scripts): X Article fill is block-by-block, not a full paste
 
