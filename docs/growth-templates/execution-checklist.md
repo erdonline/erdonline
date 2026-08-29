@@ -143,8 +143,8 @@
   - [ ] 验证所有修复（`yarn build:prod` + `yarn test:e2e`）
 - [ ] **下午**：
   - [ ] 发布 Product Hunt（00:01 PST）
-  - [ ] 发布 Hacker News（9-11 AM PST）
-  - [ ] 发布 Reddit r/cursor（2:00 PM PST）
+  - [x] 发布 Hacker News（9-11 AM PST）— **blocked**：showlim / 新号 Show HN 限制，无 item URL
+  - [x] 发布 Reddit r/cursor（2:00 PM PST）— **failed + 账号锁定**：乱码顶帖 https://www.reddit.com/r/cursor/comments/1w1e64s/…；应发 Weekly Showcase 评论；u/MeanAbbreviations645 需人工 reset
   - [ ] 发布 Reddit r/ClaudeAI（2:30 PM PST）
   - [ ] 发布 Reddit r/programming（3:00 PM PST）
   - [ ] 发布 X/Twitter（功能演示 GIF，4:00 PM PST）
@@ -215,6 +215,7 @@
 - **集中执行**：不要分散到周三、周四、周五，集中在周二一天发布
 - **互动**：发布后 1 小时内回复所有评论
 - **一致性**：每天同一时间发布 X/Twitter
+- **提交前（browser 渠道）**：Reddit 先 **Markdown 模式** → **读回一次**（换行数、无 duplicate）→ 用户确认后再 `--submit`；Reddit lock / password-reset 墙 = 硬停，跳过 reddit.com
 
 ---
 
@@ -260,12 +261,9 @@
 
 ### 推广发布
 
-- Product Hunt：手动发布
-- Hacker News：手动发布
-- Reddit：手动发布
-- X/Twitter：手动发布（或 Buffer）
-- Dev.to / Hashnode：手动发布
-- 掘金 / 知乎：手动发布
+- Product Hunt / HN / Reddit / X：`chrome-devtools-mcp`（`.cursor/mcp.json` + `scripts/post-all-browser.mjs`）。禁止 Playwright。
+- Dev.to / Hashnode：官方 API token
+- 掘金 / 知乎：Wechatsync 草稿箱；点发布仍人工
 
 ### 数据分析
 

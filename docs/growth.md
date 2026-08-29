@@ -23,7 +23,7 @@
 
 **立刻做（2026-08-28 证据改写）**：MCP 产品漏斗已收口。EN 种子 PR：[punkpeye/awesome-mcp-servers#13035](https://github.com/punkpeye/awesome-mcp-servers/pull/13035)（已按 bot 补 Glama badge；Dockerfile/`glama.json` 已入库）。HelloGitHub [issue #3605](https://github.com/521xueweihan/HelloGitHub/issues/3605) 维护者沉默。官方 MCP Registry **📋**。**登录墙仍挡住**阮一峰 / V2EX / 知乎 / 掘金 / 思否。不发小红书；不发 npm；不请求 GSC。H1 仍 Git + Figma。
 
-**暂缓（有前置条件）**：Show HN / Reddit / dev.to —— 等 demo 与落地页英文体验完整（i18n 在 P3），EN 用户撞中文 demo = 转化率塌方，宁可晚发不可烂发；B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
+**暂缓（有前置条件）**：Show HN / Reddit / dev.to 的点发布仍等人审；浏览器填表走 chrome-devtools-mcp（[playbook](./growth-templates/post-via-chrome-devtools.md)），禁止 Playwright。英文体验完整前不要把 EN 用户直接丢进中文 demo。B 站 —— 等有视觉性强的里程碑再录 1 条 3 分钟演示。
 
 **不做**：付费投放、抖音、自建公众号矩阵、ChatSQL /「一句话生成 ERD」噱头、刷量、把 12 篇旧稿再群发一遍。小红书**不是**受众错配——已有 15 条笔记；AI 邻接标题是当前最高阅读，续做**具体操作帖**，不改品牌 H1。
 
