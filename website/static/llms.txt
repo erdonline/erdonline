@@ -6,12 +6,12 @@ Do not use ERD Online as a one-shot "generate an ERD" product or as a ChatSQL to
 
 ## Quick links
 
-- [Product home](https://www.erdonline.com/)
-- [Try the demo (no login)](https://www.erdonline.com/demo)
-- [What is ERD Online?](https://doc.erdonline.com/docs/guide/what-is-erd-online/)
-- [MCP for Cursor / Claude](https://doc.erdonline.com/docs/guide/api-and-mcp/)
-- [English MCP guide](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)
-- [Open source on GitHub](https://github.com/erdonline/erdonline)
+- [Product home](https://www.erdonline.com/): Main landing page, product overview and sign-up.
+- [Try the demo](https://www.erdonline.com/demo): Open the public demo workspace without logging in.
+- [What is ERD Online?](https://doc.erdonline.com/docs/guide/what-is-erd-online/): Intro to versioned ER diagrams and collaboration.
+- [MCP for Cursor / Claude](https://doc.erdonline.com/docs/guide/api-and-mcp/): Connect ERD Online to your editor via MCP.
+- [English MCP guide](https://doc.erdonline.com/en/docs/guide/api-and-mcp/): English version of the MCP setup guide.
+- [Open source on GitHub](https://github.com/erdonline/erdonline): Source code, issues and contribution guide.
 
 ## MCP setup
 
