@@ -33,6 +33,14 @@
   5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
 - **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
 
+#### fix(frontend): 落地页点击“产品亮点”不再被顶栏遮挡
+
+- **问题**：点击顶栏“产品亮点”锚点 `#pillars` 后，页面滚动到 section，但 `id="pillars"` 顶部与 sticky 顶栏上沿对齐，导致 section 标题/内容被顶栏盖住。
+- **改法**：
+  1. `frontend/src/pages/landing/index.less`：给 `.landingSection` 加 `scroll-margin-top: var(--landing-nav-h)`，所有锚点 section 自动留出 56px 顶栏高度。
+  2. `frontend/tests/e2e/landing.spec.ts`：新增回归用例，点击 `landing-nav-pillars` 后断言 `#pillars` 顶部位于 `.landingNav` 高度以下。
+- **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿。
+
 #### fix(frontend): Home projectSection CLS 回归 — 加 min-height 并加单测
 
 - **问题**：Debug View 报 `www.erdonline.com/home` 的 `projectSection` 有 CLS，来源是项目列表从骨架屏/空态/有数据切换时高度不稳。
