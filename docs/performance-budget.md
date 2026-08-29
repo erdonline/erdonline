@@ -98,6 +98,21 @@
 1. Hero 大图 `static/img/hero.jpg` 353KB → `hero-800.webp` 27KB + `hero-1600.webp` 71KB，并加 `srcSet` / `sizes` / `preload` / `fetchpriority="high"`。
 2. 字体 CSS 从 `custom.css` 的 `@import` 改为 `docusaurus.config.js` `headTags` 非阻塞 `media="print" onload="this.media='all'"`，减少渲染阻塞。
 3. `headTags` 增加 `preconnect` 到 `https://fonts.bunny.net`。
+4. `docs/guide/api-and-mcp.md` 与英文版中的三张大 PNG 改为 webp，并为首屏 `mcp-pat-reveal` 加 `loading="eager"` / `fetchpriority="high"`。
+5. 字体 `display=swap` 改为 `display=optional`，消除文档页字体 swap 导致的 CLS。
+
+### 2026-08-30 子页补充优化后
+
+`http://localhost:4175/docs/guide/api-and-mcp/` 本机 Lighthouse：
+
+| 指标 | 优化前 | 优化后 |
+|---|---|---|
+| Performance | 72 | 98 |
+| Best Practices | 57 | 93 |
+| FCP | ~2.9 s | ~0.9 s |
+| LCP | ~6.4 s | ~2.3 s |
+| SI | ~4.9 s | ~0.9 s |
+| CLS | ~0.2 | 0 |
 
 线上实测待 CF Pages 部署后复测，目标：Performance ≥ 90。
 

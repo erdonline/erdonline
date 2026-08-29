@@ -22,6 +22,15 @@
      - `serve-dist-pages.mjs` 支持 `dist/app` 作为 SPA fallback 并强制 `Content-Type: text/html`，让本地 prod-smoke 仿真 Cloudflare 200-rewrite。
 - **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿
 
+#### perf(website): MCP 指南页 LCP 6.4s → 2.3s，Performance 98
+
+- **问题**：`doc.erdonline.com/docs/guide/api-and-mcp/` LCP 元素是 `mcp-pat-reveal.png`，耗时 6.4s；文档页字体 `display=swap` 导致 CLS ~0.2。
+- **改法**：
+  1. `website/static/img/guide/mcp-*.png` 转为 `.webp`（`mcp-pat-reveal` 47KB → 13KB 等）。
+  2. `docs/guide/api-and-mcp.md` 与英文版：首屏 `mcp-pat-reveal` 用 `<img loading="eager" fetchpriority="high" width="464" height="336" />`；其余图片 `loading="lazy"` 并带 `width`/`height`。
+  3. `website/docusaurus.config.js`：`fonts.bunny.net` 从 `display=swap` 改为 `display=optional`，消除字体 swap 的 CLS。
+- **验证点**：`cd website && yarn build` 绿；`npx serve build -l 4175` + `npx lighthouse http://localhost:4175/docs/guide/api-and-mcp/`：Performance 98，LCP 2.3s，CLS 0；`yarn test:seo` 绿。
+
 #### perf(website): 文档站 Lighthouse Performance 72 → 92
 
 - **问题**：`doc.erdonline.com/` Lighthouse Performance 72，`LCP` 5.3s；`Best Practices` 57（渲染阻塞字体、大图未优化）。

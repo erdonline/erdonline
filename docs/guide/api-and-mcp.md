@@ -13,7 +13,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 
 1. 登录后打开 **账户设置 → 访问令牌**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。默认只读即可；明文只显示一次，**铸造成功弹层会给出已填入 PAT 的 `mcp.json`，可直接复制**。官方 Demo 是只读分享，**不能**当 PAT——需要你自己的项目。
 
-![铸造 PAT 后明文只显示一次，弹层可复制 mcp.json](/img/guide/mcp-pat-reveal.png)
+<img src="/img/guide/mcp-pat-reveal.webp" alt="铸造 PAT 后明文只显示一次，弹层可复制 mcp.json" width="464" height="336" loading="eager" fetchpriority="high" />
 
 2. 铸造 PAT 后可 [一键加入 Cursor](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)（官方 [install-links](https://cursor.com/docs/mcp/install-links)；协议 `cursor://anysphere.cursor-deeplink/mcp/install`）。**一键链接不会把 PAT 编进 URL**；请从弹层复制框粘贴已填好的 `mcp.json`，或装好后把占位符换成明文。
 
@@ -39,7 +39,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 }
 ```
 
-![Cursor mcp.json 配置片段（npx tarball；PAT 换成你的）](/img/guide/mcp-json.png)
+<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json 配置片段（npx tarball；PAT 换成你的）" width="512" height="196" loading="lazy" />
 
 本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。MCP **不在** Docker 镜像内。
 
@@ -63,7 +63,7 @@ description: 复制 Cursor MCP 配置，用 PAT 让 Agent 读写同一份 ERD pr
 | `update_project` / `put_project_json` | 改项目元数据 / 整份 JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | 模板广场 | read / `projects:write` |
 
-![Agent 可调用的 MCP 工具清单](/img/guide/mcp-agent-tools.png)
+<img src="/img/guide/mcp-agent-tools.webp" alt="Agent 可调用的 MCP 工具清单" width="703" height="393" loading="lazy" />
 
 没有 `publish_template`，也没有 PAT 评分。仓库说明见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
