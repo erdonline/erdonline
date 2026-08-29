@@ -5,7 +5,7 @@ import { parseFrontmatter, stringifyFrontmatter } from './lib/frontmatter.mjs';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../..');
 const dir = path.join(ROOT, 'content/articles');
-const CORE = ['juejin', 'csdn', 'oschina', 'xiaohongshu', 'weixin', 'zhihu', 'segmentfault'];
+const CORE = ['juejin', 'csdn', 'oschina', 'zhihu'];
 for (const f of readdirSync(dir)) {
   if (!f.endsWith('.md') || f.toLowerCase() === 'readme.md') continue;
   const raw = readFileSync(path.join(dir, f), 'utf8');

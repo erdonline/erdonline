@@ -2,7 +2,7 @@
 title: 从 dbdiagram 搬家只要 5 分钟：DBML 导入 + 自托管指南
 slug: from-dbdiagram-in-5-min
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: 从 dbdiagram 搬家只要 5 分钟

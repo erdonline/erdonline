@@ -53,9 +53,9 @@
 纪律：增长长文**不整篇**进手册；可蒸馏任务写成 `docs/guide/*` How-to。索引见文档站 [Blog](https://doc.erdonline.com/blog/)。
 
 **发布包**：`node scripts/growth/build-package.mjs --all` → `content/dist/<slug>/`。  
-**Wechatsync 默认同步平台**：掘金 / CSDN / 开源中国 / 小红书 / 微信 / 知乎 / 思否；V2EX 用各篇 `v2ex.txt` 人工发。  
-**点发布仍是人工**：草稿箱核对 UTM / 封面后再发。  
-**同步结果台账**：[content/articles/publish-status-2026-08-09.md](https://github.com/erdonline/erdonline/blob/main/content/articles/publish-status-2026-08-09.md)（成功/失败 URL；JSON 同目录）。
+**公开发布**：chrome-devtools MCP + 冻结路径卡（见 [`platform-post-recipes.md`](./growth-templates/platform-post-recipes.md)、[`post-via-chrome-devtools.md`](./growth-templates/post-via-chrome-devtools.md)、[publish-article skill](../.cursor/skills/publish-article/SKILL.md)）。  
+**发布记录**：`docs/growth-data/YYYY-MM-DD.md`（公网 permalink、username、click 序列）。  
+**V2EX**：各篇 `v2ex.txt` 人工发。
 
 ## 度量（4 周后怎样算有效）
 
@@ -73,92 +73,29 @@ UTM 规范：`?utm_source=<平台>&utm_medium=article&utm_campaign=<战役>&utm_
 ## 发布流水线（自动化边界）
 
 - **自动化**：选题模板、frontmatter 规范、UTM 注入、平台包生成（`new-article.mjs` / `build-package.mjs`）、PR 打 `growth-publish` 标签后 CI 出 artifact。
-- **半自动（Wechatsync）**：经 [文章同步助手 Wechatsync](https://github.com/wechatsync/Wechatsync) 把 `content/dist/<slug>/` 各平台 `.md` **推到草稿箱**（掘金/知乎/思否/开源中国/公众号等）；扩展在浏览器内用你已登录的会话调平台 Web API，**不做 cookie 抓取脚本**；默认草稿，发布前仍人审。
-- **人工**：V2EX 纯文本帖、评论区答疑、数据回填、草稿箱点「发布」。
+- **chrome-devtools MCP**：长文/短讯按 [`platform-post-recipes.md`](./growth-templates/platform-post-recipes.md) 路径卡填表 → 公网验正文 → 写入 `docs/growth-data/`。**禁止 Playwright**；禁止非 chrome-devtools 发帖扩展/同步器。
+- **人工**：V2EX 纯文本帖、评论区答疑、数据回填。
 
-### Wechatsync 接入（Phase 2 已落地）
-
-用户口中的 **WebChatSync** 即开源项目 **Wechatsync（文章同步助手）**：Chrome 扩展 + `@wechatsync/cli`，经 WebSocket 把 Markdown 同步到 29+ 平台草稿箱。
-
-**一次性准备**
-
-1. 安装 [Chrome 扩展](https://www.wechatsync.com/#install)；在浏览器登录掘金/知乎等目标账号。
-2. 扩展设置 → 开启 **MCP 连接** → 复制 Token → 写入根目录 `.env`：`WECHATSYNC_TOKEN=<token>`（见 `.env.example`）。
-3. 安装 pinned CLI（上游 `@wechatsync/cli@1.1.0` 在 Node 20 需锁 CJS 依赖）：
-   ```bash
-   cd scripts/growth && npm install
-   ```
-
-**发一篇（ready 状态）**
+### 发一篇（ready 状态）
 
 ```bash
 # 1. 打包（UTM 已按平台注入）
 node scripts/growth/build-package.mjs git-style-version-diff
 
-# 2. 预览（不需扩展连接）
-node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
+# 2. 中文长文（掘金 / CSDN / 开源中国 / 知乎）
+node scripts/post-seo-essay.mjs juejin --slug=git-style-version-diff [--submit]
 
-# 3. 实同步到草稿箱（扩展须在线 + Token 一致）
-export WECHATSYNC_TOKEN=...   # 或 source .env
-node scripts/growth/sync-wechatsync.mjs git-style-version-diff
+# 3. 国际英文（Hashnode / Dev.to / Medium import / X Article — 见 platform-post-recipes + x-article-playbook）
+node scripts/post-seo-essay.mjs hashnode --slug=<slug> --submit
 
-# 可选：检查各平台登录态
-node scripts/growth/sync-wechatsync.mjs --check-auth
+# 4. 记录 permalink → docs/growth-data/YYYY-MM-DD.md
 ```
 
 **纪律**
 
-- 每平台单独 sync 对应 `juejin.md` / `zhihu.md` …，保证 `utm_source=<平台>` 正确；`v2ex` 仍走 `v2ex.txt` 人工帖。
-- CI **不**跑 Wechatsync（需本机 Chrome 登录态）；artifact 下载后在本机执行 sync。
-- 远程开发机：扩展开「同步桥接」连 `ws://<host>:9527`，Token 与服务器一致（见 [CLI README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/cli#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)）；生产环境建议 SSH 隧道。
-
-**与旧口径的关系**：仍不做无扩展的 cookie/Playwright 发帖；Wechatsync 是用户显式安装的扩展 + 官方 Web API 草稿同步。
-
-### Cursor / Claude MCP（可选）
-
-Wechatsync 提供 **MCP Server**（`packages/mcp-server`，**未单独发 npm**），与 `@wechatsync/cli` 共用同一 WebSocket 桥：
-
-```
-Cursor / Claude  ←stdio→  MCP Server (Node)  ←ws:9527→  Chrome 扩展  →  各平台草稿 API
-growth CLI       ←同上 WS 桥，WECHATSYNC_TOKEN 与扩展 Token 一致→
-```
-
-**一次性准备**
-
-1. 扩展侧同上：开启 **MCP 连接**，Token 写入根目录 `.env` 的 `WECHATSYNC_TOKEN=<token>`（勿提交仓库）。
-2. 构建 MCP Server（本机路径示例，可换任意目录）：
-   ```bash
-   git clone --depth 1 -b v2 https://github.com/wechatsync/Wechatsync.git ~/.local/share/wechatsync-mcp
-   cd ~/.local/share/wechatsync-mcp && pnpm install && pnpm build:mcp
-   ```
-3. 在 **用户级** Cursor MCP 配置（`~/.cursor/mcp.json`，不进 git）增加：
-   ```json
-   {
-     "mcpServers": {
-       "wechatsync": {
-         "command": "node",
-         "args": ["/path/to/Wechatsync/packages/mcp-server/dist/index.js"],
-         "env": {
-           "MCP_TOKEN": "<与扩展相同的 token>",
-           "SYNC_WS_PORT": "9527"
-         }
-       }
-     }
-   }
-   ```
-   `MCP_TOKEN` 必须与扩展里设置的 Token **完全一致**（growth CLI 读 `WECHATSYNC_TOKEN`，语义相同）。
-
-**MCP 工具（Agent 可直接调用）**
-
-| 工具 | 用途 |
-|---|---|
-| `list_platforms` | 列出平台及登录态 |
-| `check_auth` | 检查指定平台是否已登录 |
-| `sync_article` | 同步 Markdown 到平台草稿箱 |
-| `extract_article` | 从当前浏览器页提取文章 |
-| `upload_image_file` | 上传本地图片到图床 |
-
-**日常**：Chrome 保持打开且扩展已连接；改 MCP/CLI 配置后重载 Cursor MCP。远程开发见 [MCP Server README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/mcp-server#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)（扩展开「同步桥接」连 `ws://<host>:9527`）。
+- 国内平台 = 中文稿；国际 = `content/articles/<slug>.en.md`；`platforms:` YAML 只登记有 chrome-devtools 路径卡且 growth-data 有公网 permalink 的平台。
+- 提交后 **必须** 打开公网 URL 验正文；编辑器读回不算。
+- lock / captcha / phone-verify → **立即停止**。
 
 ## MCP / Agent 两周猛攻（2026-08-28 → 2026-09-10）
 

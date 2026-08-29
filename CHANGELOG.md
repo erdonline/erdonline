@@ -8,12 +8,11 @@
 
 ### 2026-08-29
 
-#### docs(skills): publish-article is chrome-devtools MCP only
+#### chore: remove Wechatsync pipeline; publish via chrome-devtools MCP only
 
-- **改动**：`.cursor/skills/publish-article/SKILL.md` 剔除 Wechatsync/草稿箱/wishlist 历史课；单一栈 = chrome-devtools MCP + 冻结路径卡；显式禁止 Playwright 与非 chrome-devtools 发帖扩展/同步器。
-- **改动**：`.cursor/rules/growth-post-paths.mdc` §文章 YAML `platforms` 改为路径卡 ∩ growth-data permalink，不再提 Wechatsync/weixin/segmentfault。
-- **改动**：`.cursor/skills/explore-generate-article/SKILL.md` platforms 行去掉 Wechatsync 括号说明；`content/articles/README.md` 顶栏注明公开发布走 publish-article skill。
-- **验证点**：`grep -i wechatsync .cursor/skills/publish-article/SKILL.md .cursor/rules/growth-post-paths.mdc .cursor/skills/explore-generate-article/SKILL.md` 无命中；`grep 'chrome-devtools MCP' .cursor/skills/publish-article/SKILL.md` 有命中；`grep '禁止.*Playwright' .cursor/skills/publish-article/SKILL.md` 有命中。
+- **删除**：`scripts/growth/sync-wechatsync.mjs`、`lib/wechatsync.mjs`、`sync-all-ready.mjs`、`emit-sync-jobs.mjs`、`retry-csdn.mjs`、`scripts/growth/package.json` + lockfile；`content/articles/publish-status-2026-08-09.{md,json}`。
+- **改动**：`docs/growth.md`、英译 growth、`content/articles/README.md`、`build-package.mjs` publish-checklist、`.env.example`、`execution-checklist.md`、skills/rules — 公开发布仅 chrome-devtools MCP + 路径卡；16 篇 `platforms:` 收窄为 proven 集（无 weixin/segmentfault/xiaohongshu）。
+- **验证点**：`rg -i wechatsync` 工作区零命中（CHANGELOG 已发版历史段除外）；`test ! -e scripts/growth/sync-wechatsync.mjs`；`node scripts/growth/build-package.mjs dont-give-agent-prod-db` 打包成功。
 
 #### fix(scripts): X Article fill is block-by-block, not a full paste
 
@@ -39,7 +38,7 @@
 
 #### docs(content): Job 1 platforms only from proven publish records
 
-- **改动**：`content/articles/dont-give-agent-prod-db.md` `platforms:` 收窄为 growth-data 有公网 permalink 的国内四平台（juejin/csdn/oschina/zhihu），移除 segmentfault/weixin；`content/articles/README.md` frontmatter 示例与 platforms 纪律说明；`.cursor/rules/growth-post-paths.mdc` 新增「文章 YAML platforms」节（禁止抄 Wechatsync 草稿箱名单）。
+- **改动**：`content/articles/dont-give-agent-prod-db.md` `platforms:` 收窄为 growth-data 有公网 permalink 的国内四平台（juejin/csdn/oschina/zhihu），移除 segmentfault/weixin；`content/articles/README.md` frontmatter 示例与 platforms 纪律说明；`.cursor/rules/growth-post-paths.mdc` 新增「文章 YAML platforms」节（路径卡 ∩ growth-data permalink）。
 - **验证点**：`grep 'platforms:' content/articles/dont-give-agent-prod-db.md` 无 segmentfault/weixin；四平台均在 `docs/growth-data/2026-08-29.md` Launch log 有公网 URL。
 
 #### docs(content): Job 1 article 别再让 AI Agent 直连生产库了

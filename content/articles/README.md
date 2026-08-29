@@ -1,6 +1,6 @@
 # 增长文章流水线
 
-> **公开发布**以 chrome-devtools 路径卡为准，见 [publish-article skill](../../.cursor/skills/publish-article/SKILL.md)；该 skill 不走 Wechatsync 草稿同步。
+> **公开发布**以 chrome-devtools MCP + 冻结路径卡为准，见 [publish-article skill](../../.cursor/skills/publish-article/SKILL.md) 与 [`docs/growth-templates/platform-post-recipes.md`](../../docs/growth-templates/platform-post-recipes.md)。
 > 方案全貌与选题包见 [`docs/growth.md`](../../docs/growth.md)。
 > 定位纪律：CTA 永远只有一个主链接 = demo；star/repo 只放文末次要位置。
 
@@ -9,7 +9,7 @@
 ```bash
 # 1. 开新稿（从模板生成 frontmatter + 大纲骨架）
 node scripts/growth/new-article.mjs --slug git-style-version-diff \
-  --title "数据库表结构改崩了谁背锅？" --platforms juejin,zhihu --cta demo
+  --title "数据库表结构改崩了谁背锅？" --platforms juejin,csdn,oschina,zhihu --cta demo
 
 # 2. 写正文（{{CTA}} / {{REPO}} / {{DOCS}} 占位符，构建时按平台注入 UTM 链接）
 #    写作纪律：禁止读者打不开的仓库内相对路径（docs/foo.md、frontend/...、./backend/...）
@@ -23,14 +23,14 @@ node scripts/growth/build-package.mjs --all
 node scripts/growth/build-package.mjs --all --status draft
 
 # 4. 产物在 content/dist/<slug>/（gitignored）：
-#    juejin.md / zhihu.md / wechat.md / v2ex.txt + publish-checklist.md
+#    juejin.md / zhihu.md / csdn.md / oschina.md / v2ex.txt + publish-checklist.md
 
-# 5. （可选）Wechatsync 推到各平台草稿箱 — 见 docs/growth.md
-cd scripts/growth && npm install   # 一次性
-node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
-# export WECHATSYNC_TOKEN=... && node scripts/growth/sync-wechatsync.mjs git-style-version-diff
+# 5. 公开发布（chrome-devtools MCP）
+node scripts/post-seo-essay.mjs juejin --slug=git-style-version-diff [--submit]
+# 国际英文：node scripts/post-seo-essay.mjs hashnode --slug=<slug> --submit
+# X Article：见 docs/growth-templates/x-article-playbook.md + fill-x-article-shortcuts.mjs
 
-# 6. V2EX 仍人工帖 v2ex.txt；草稿箱核对后点发布；评论区答疑与数据回填
+# 6. 公网验正文 → 写入 docs/growth-data/YYYY-MM-DD.md；V2EX 仍人工帖 v2ex.txt
 ```
 
 ## 自动 vs 人工
@@ -40,8 +40,8 @@ node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
 | 选题、模板、UTM 链接注入、平台包生成 | 脚本（本目录 + `scripts/growth/`） |
 | PR 打 `growth-publish` 标签 → CI 出发布包 artifact | GitHub Action（`.github/workflows/growth-publish.yml`） |
 | 正文写作（AI 起草 + 人改）| 半自动 |
-| 掘金/知乎/思否/开源中国/公众号 → **草稿箱** | **Wechatsync**（`sync-wechatsync.mjs` + Chrome 扩展，本机 Token） |
-| V2EX 发帖、草稿箱点发布、评论区答疑、数据回填 | **人工** |
+| 掘金/CSDN/开源中国/知乎/Hashnode/Dev.to/Medium/X Article 公开发布 | **chrome-devtools MCP**（`post-seo-essay.mjs` / `post-all-browser.mjs` + 路径卡） |
+| V2EX 发帖、评论区答疑、数据回填 | **人工** |
 
 ## Frontmatter 规范
 
@@ -58,6 +58,6 @@ created: 2026-08-09
 ---
 ```
 
-**platforms = 有公网 permalink 的 chrome-devtools 路径卡平台。** 以 `docs/growth-data/` + `platform-post-recipes.md` Live URL 为准；旧稿 frontmatter 若含不在 proven 集的平台名，新稿勿抄。
+**platforms = 有公网 permalink 的 chrome-devtools 路径卡平台。** 以 `docs/growth-data/` + `platform-post-recipes.md` Live URL 为准。weixin、segmentfault、xiaohongshu 等无 chrome-devtools 公网 permalink 路径卡的平台 **勿写进 YAML**；旧稿 frontmatter 若含这些名字，新稿勿抄。
 
 长文进平台；可复用的「怎么做」写进 `docs/guide/`，并在 [`docs/growth.md`](../../docs/growth.md) 选题表「指南页」列登记。索引见文档站 Blog。

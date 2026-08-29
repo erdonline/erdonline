@@ -2,7 +2,7 @@
 title: 团队建模怎么管权限？三级角色 + 审批流落地实录
 slug: team-roles-approval-flow
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: 三级角色 + 审批流管建模

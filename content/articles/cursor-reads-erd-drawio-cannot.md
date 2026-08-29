@@ -2,7 +2,7 @@
 title: Cursor 读得懂你的 ER 图，draw.io 连外键都不认识
 slug: cursor-reads-erd-drawio-cannot
 status: ready
-platforms: [juejin, csdn, oschina, weixin, zhihu, segmentfault, xiaohongshu]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: Cursor 懂 ER，draw.io 不懂外键

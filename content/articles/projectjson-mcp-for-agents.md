@@ -2,7 +2,7 @@
 title: 让 AI Agent 读懂你的数据库设计：开放 projectJSON + MCP
 slug: projectjson-mcp-for-agents
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: docs
 utm_campaign: launch
 xhs_title: 开放 projectJSON + MCP 给 Agent

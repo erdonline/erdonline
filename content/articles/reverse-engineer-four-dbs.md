@@ -2,7 +2,7 @@
 title: MySQL/Oracle/PG/SQLServer 存量库一键逆向成关系图
 slug: reverse-engineer-four-dbs
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: 四库存量一键逆向成 ER 图
