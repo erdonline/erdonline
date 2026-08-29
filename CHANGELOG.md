@@ -8,6 +8,12 @@
 
 ### 2026-08-29
 
+#### docs(rules): 新增 mcp-journey-articles 规则（四条旅程 + 标题公式 + MCP 禁止项）
+
+- **改动**：新增 `.cursor/rules/mcp-journey-articles.mdc`（alwaysApply）：冻结 MCP 战略分工（契约 vs 实时目录，不做又一个 Postgres 查询 MCP）、四条旅程 A–D 及锁定标题（中英）、近 30 天验证的 7 条标题公式、场景先行文章结构、MCP 建设顺序与禁止项（禁克隆 `cursor-mcp-read-and-suggest-version.md` 工具手册结构、禁 leftover REST、写路径只有 `create_version`）。
+- **依据**：last30days 近 30 天调研（raw: `~/Documents/Last30Days/viral-developer-and-ai-tool-article-titles-and-writing-formulas-that-got-traction-raw-v3.md`）+ 已拍板结论；语音仍归 `copywriting-style.mdc`。
+- **验证点**：打开 rule 文件核对四条旅程标题与 MCP 禁止项 — `grep -c "旅程 [A-D]" .cursor/rules/mcp-journey-articles.mdc` = 4；`grep -E "禁止克隆|create_version|API 200"` 有命中。
+
 #### fix(frontend): 落地页 hero 图圆角 + 渐隐软化
 
 - **改法**：`.landingHeroShotWrap` / `.landingHeroShotBlend` 加 `14px` 圆角（对齐 `.landingHeroFrame`）；mask 实心区 52%→40%、渐隐延至 92%；`inset box-shadow` 略加强；保留 `mix-blend-mode: screen` 与 `overflow-x: clip`。

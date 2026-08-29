@@ -1,0 +1,109 @@
+---
+description: MCP 旅程文章与标题公式：四条冻结旅程、爆款标题公式、场景先行结构、MCP 建设顺序与禁止项（写 MCP/Agent/增长文章前必读）
+alwaysApply: true
+---
+
+# MCP 旅程文章（定位 · 旅程 · 标题 · 结构 · 禁止项）
+
+> 写任何 MCP / Agent 相关文章、狗食旅程、增长内容前必读。
+> 语气、术语、CTA 纪律遵守 `copywriting-style.mdc`；本规则只管：**定位、旅程队列、标题公式、文章结构、MCP 缺口与「不建什么」**。
+> 标题公式来自 2026-08 近 30 天语料（last30days 调研，raw: `~/Documents/Last30Days/viral-developer-and-ai-tool-article-titles-and-writing-formulas-that-got-traction-raw-v3.md`）。
+
+## 战略定位（冻结结论，不得重开）
+
+| 议题 | 冻结结论 |
+|---|---|
+| 市场分工 | 「实时目录 MCP」（crystaldba/postgres-mcp、supabase/mcp）解决「别再幻觉列名」；ERD Online **不做**又一个 Postgres 查询 MCP |
+| ERD 生态位 | **已批准版本的 schema 是契约（CONTRACT）**，Agent 读契约，不读生产库 |
+| 命名失败 | "Cursor invented a column"：自信 SQL → `column does not exist` |
+| 实时目录自身的幻觉 | 权限过滤后的 information_schema、240 张表全量 dump 爆上下文、MCP tool-list 缓存到重启才刷新 |
+| 结构 vs 语义 | 结构问题正在被实时目录解决；**语义**（`is_deleted = false` 这类部落知识）才是缺口 → ERD 注释/语义层补位；v1 **不做**新的 live-DB 语义 MCP |
+| 安全 | 生产库凭证**永不**进 IDE |
+| 写路径 | Agent 声明意图（`create_version`）；迁移执行是 Atlas/CI 的事；**ERD 不执行 SQL**（ADR-0013：公开 API 不暴露 connector / mutate SQL） |
+| 审批 | **API 200 ≠ 人批准**；文案里的写路径只有 `create_version`，**永不**把 `put_project_json` 当教程路径 |
+| 北极星 | 每周非空版本保存数；不是 MCP `list_projects` 演示数 |
+
+## 四条旅程（唯一的文章 / MCP 狗食队列）
+
+一旅程一文章；**场景在前，MCP 在后**。禁止先写 BA/产品向文章（近 30 天语料中缺席）；语义/FK 叙事是旅程 A 的附加层，不独立成第一篇。
+
+### 旅程 A：别把 Agent 指向生产库，指向你批准的那个版本
+- 内容：契约的渐进式披露（`list_tables` / `describe_table`，`found:false` + suggestions）。成功标准 = JOIN 全对且**零数据库凭证**。
+- 标题（锁定）：**Cursor invented a column. The fix wasn't a better prompt.**
+  - 备选 EN：`Stop pointing your AI agent at the production database`
+  - 中文：**Cursor 凭空造了一个列。解法不是更好的 prompt。**（备选：别再让 AI Agent 直连生产库了）
+
+### 旅程 B：Agent 用 create_version 声明意图，人审语义 diff
+- 成功标准 = 产生一个**命名的契约版本**；200 不是批准。
+- 标题（锁定）：**The agent wrote the migration. Nobody approved it.**
+  - 备选 EN：`API 200 is not approval`
+  - 中文：**Agent 写好了迁移，但没人批准过它**（备选：API 返回 200，不等于我批准了这次改表）
+
+### 旅程 C：审 3 处语义变更，而不是 80 行 ALTER
+- 内容：`diff_versions` + 可选 DDL 草稿（从已批准版本生成，仍不执行）。
+- 标题（锁定）：**Review 3 semantic changes, not 80 lines of ALTER**
+  - 中文：**审 3 处语义变更，而不是 80 行 ALTER**
+
+### 旅程 D：值班溯源——这个列是哪个批准版本引入的
+- 内容：按表切片的版本溯源。
+- 标题（锁定）：**On-call at 3 AM: which approved version added this column?**
+  - 中文：**凌晨三点值班：这个列是哪个版本进来的？**
+
+## 标题公式（近 30 天验证过的，各配真实例子）
+
+1. **具体数字 + 可验证断言**：`Show HN: Graft – Claude Code hooks that cut grep tokens by 42%`（HN 39 分 44 评，2026-08-14）。数字必须可核查；为凑数字而数字会被 flag。
+2. **命名失败 + 反转**：`my AI translations were flawless. that was the problem.`（r/PromptEngineering）——先承认「成功了」，第二句反转。
+3. **Stop X. Do Y instead.**：`Stop describing your tone to an AI writing tool. Make it reverse-engineer it instead.`（r/PromptEngineering，47 分）
+4. **POV 控诉**：`As the person who actually has to use your software at work, I'm tired of the "I built this in a weekend with AI" founders`（r/SaaS，322 分 110 评）
+5. **X is doing Y instead of Z（对比转向）**：`MCP is rebuilding its authorization around agents instead of people in browsers`（HN 174 分）
+6. **反直觉忏悔**：`Tell HN: Pretending not to use AI has made me a better developer`（HN）
+7. **If I were X, I'd Y**：`If I were 17, I'd learn how to build LLMs from scratch`（HN 首页，2026-08-26）
+
+HN 硬机制（hn-virality-predictor + 1,200 次 Show HN 的 NLP 分析）：标题 60–80 字符；括号塞关键约束（`(written in Zig)`）；句子式大小写，大写比率高 = 营销味 = 死；「I built」>「We built」；点名具体技术（Postgres/Rust/WASM）CTR 约 +28%；AI 只是顺带就别拿 AI 当标题；无信息标题（`Show HN: ProjectName`）没人点。
+
+## 文章结构（锁定顺序）
+
+1. **钩子场景**：具体时刻、具体报错（`column "user_id" does not exist`、凌晨告警）——不是功能清单。
+2. **命名失败**：给失败起名字（"Cursor invented a column"），让读者能拿去复述。
+3. **他们已经试过的**：更好的 prompt、实时目录 MCP——诚实承认它们解决了哪一半。
+4. **为什么实时目录是错的工作 / 只做了一半**：权限过滤、全表 dump、tool-list 缓存；结构 ≠ 语义。
+5. **ERD 的契约动作**：读已批准版本；`create_version` 声明意图；设计器里 diff 审批。
+6. **MCP 最后才出现**：此时读者已经想要它了。
+7. **CTA = 保存一个版本**（或 demo 旅程），**不是**「安装我们的 MCP」。
+
+证据：失败故事比成功故事多 3.4x 分享；「I」开头标题 3.2x 互动；2–3 个代码块优于 10+；真实报错/前后对比截图 4.2x 互动（500 篇爆款开发者文章分析）；「从失败状态开场，而不是从功能开场」；「我的项目能做而显眼替代品做不到的一件事，一句话说完、放最前、删掉形容词」。
+
+## 禁止项
+
+### 禁止的开头
+- 「ERD Online MCP 使用教程」「XX 集成指南」——手册腔。
+- 「我们很高兴地宣布」「我们上线了 MCP」——changelog 腔。
+- 「MCP 是什么」「随着 AI 编程的普及」——科普开场。
+- 功能清单开场（feature tally is a pitch failure）。
+
+### 禁止的 CTA
+- 「安装我们的 MCP」「立即体验」「欢迎 star」当主 CTA。
+- 任何把 `put_project_json` 写成教程路径的 CTA（写路径只有 `create_version`）。
+
+### 禁止的结构
+- **禁止克隆 `content/articles/cursor-mcp-read-and-suggest-version.md` 的工具手册结构**（铸 PAT → 粘 mcp.json → 调工具三步）：它可当文档伴侣，不是旅程文章。新旅程文章一律场景先行。
+- 禁止工具盘点文（「10 个最好用的 MCP server」）。
+
+### MCP 建设顺序（禁止实现 leftover REST 凑数）
+1. 契约读：`list_tables` / `describe_table` / FK 邻域（**不是**第一步就全量 `get_project_schema`）。
+2. `diff_versions`。
+3. `create_version` = 文案里唯一的写。
+4. 后续：按表版本溯源；从已批准版本生成 DDL 草稿；把实体注释暴露为语义层。
+
+## 平台差异（仅写有证据的，不杜撰）
+
+- **HN**：朴素事实标题、60–80 字符、括号差异化；2,000+ 字深度文约 10:1 优于短文；发布后 2 小时内回每条评论。
+- **X Article**：1,000–1,500 字（不是 2,500+）；第一句承担 thread 第一推的钩子职责；dwell-time 加权。排版执行照 `docs/growth-templates/x-article-playbook.md`。
+- **Dev.to**：how-to 文答案先行（读者带搜索意图）；经验文用故事结构（经历本身就是内容）。
+- **中文社区（掘金/OSChina 等）**：本次 30 天语料**无证据**，不杜撰平台规律；遵守 `copywriting-style.mdc` 与 `docs/growth-templates/platform-post-recipes.md`。
+
+## 与既有规则的关系
+
+- 语气 / 术语 / CTA 纪律：`copywriting-style.mdc`
+- 发布路径与排版：`growth-post-paths.mdc`、`docs/growth-templates/`
+- API/MCP 边界：ADR-0013；定位与「不做什么」：ADR-0012、`erd-project-context.mdc`
