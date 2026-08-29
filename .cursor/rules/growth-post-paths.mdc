@@ -1,0 +1,63 @@
+# Growth 发帖路径（禁止 UI 探索）
+
+Agent 在 growth 渠道发帖时 **必须** 遵循已冻结路径，**禁止** 重新探索 composer UI。
+
+## 单一真相源
+
+[`docs/growth-templates/platform-post-recipes.md`](../../docs/growth-templates/platform-post-recipes.md) — 各平台路径卡（语言、compose URL、填目标、填法、提交按钮、公网验正文、live URL、硬停）。
+
+环境准备（Node 22、daemon、`--autoConnect`、native setter 纪律）见 [`docs/growth-templates/post-via-chrome-devtools.md`](../../docs/growth-templates/post-via-chrome-devtools.md)。
+
+**填法决策依据：** [ADR-0035](../../docs/adr/0035-publishing-adapters-md-vs-wysiwyg.md) — **按编辑器能力选适配器，不是按心情**。四类：**A** MD 一次填入 / **B** WYSIWYG 逐块 / **C** API 持久化 / **D** 官方 import。平台归类见 recipes 顶部「编辑器类型 → 填法」表。
+
+## 强制纪律
+
+| 规则 | 说明 |
+|---|---|
+| **路径优先** | 路径卡已有步骤 → **照做**；**禁止** snapshot 后自行摸索 DOM |
+| **工具** | 只用 chrome-devtools MCP/CLI + Node 22；**禁止** Playwright |
+| **适配器分类** | 填稿前先判定 A/B/C/D（[ADR-0035](../../docs/adr/0035-publishing-adapters-md-vs-wysiwyg.md)）；**禁止跨类混用**：A 类不逐段、B 类不整篇 paste、C 类不只涂 contenteditable |
+| **填表（A 类）** | 有 md 框 → native value setter + `input`/`change`；**fill 一次**；保留 `\n`；**禁止**为「细节可控」改成逐段（倒退） |
+| **逐块（B 类）** | 无 md 框、有块级富文本 → **block IR 逐块**走平台原生快捷键/工具栏，段间 Enter **一次**；范本 [`x-article-playbook.md`](../../docs/growth-templates/x-article-playbook.md) |
+| **公网验收** | 提交后 **必须** 打开公网 URL 验正文；**编辑器读回不算**；公网空 = 失败；**公网持久化优先于编辑器观感** |
+| **语言** | 国内平台 = 中文；国际 = 英文 |
+| **硬停** | lock / unusual activity / password-reset / captcha / phone-verify → **立即停止**；禁止代过验证或 reset |
+| **新 selector** | Job 中确认的新 URL/控件 → **立刻追加** 到 `platform-post-recipes.md` 对应路径卡 |
+
+## X 长文（Article）
+
+**Canonical playbook：** [`docs/growth-templates/x-article-playbook.md`](../../docs/growth-templates/x-article-playbook.md) — 何时 Article vs Post、入口 URL、编辑器模型、**Insert 下拉菜单**（7 项）、官方快捷键、8 步填稿、禁止项、`fill-x-article-shortcuts.mjs` 用法。
+
+**同时是所有 B 类（WYSIWYG 逐块）平台的范本**（[ADR-0035](../../docs/adr/0035-publishing-adapters-md-vs-wysiwyg.md)）：新接入的无 md 框富文本平台，按本 playbook 的 block 映射 + Preview 门禁照搬，**不要**重新摸索。
+
+| 规则 | 说明 |
+|---|---|
+| **Article only** | SEO essay / 长文 **只用** Article editor（`compose/articles`、Preview）；**禁止** `x.com/compose/post` / `/status/` |
+| **快捷键** | 行首 `# ` / `## ` / `> ` / `- ` / `1. `；⌘B ⌘I ⌘U ⌘⇧X ⌘K ⌘⇧7/8/9；字号 ⌘⇧. / ⌘⇧,；过大 → **⌘⇧,** 降至 Body |
+| **Preview 强制** | Publish 前必须 Preview；字号像杂志、无 `\n{3,}`、Heading 层级 OK |
+| **验收** | 公网 URL **必须** `x.com/.../article/<id>`，不是 `/status/` |
+
+## 硬跳过（永不尝试）
+
+| 平台/场景 | 原因 |
+|---|---|
+| **Reddit u/MeanAbbreviations645** | 已 LOCKED — 永不使用 |
+| **Reddit r/programming** | Rule 5: "I made this" / product demo off-topic |
+| **HN Show HN（新号）** | showlim 限流 — 勿重试；换有 karma 老号 |
+| **OSChina 19750362** | 空正文重复帖 — 勿再编辑；日常新帖走 `post-seo-essay.mjs oschina`（swap→MD→textarea native setter→公网验） |
+| **Reddit 乱码顶帖 1w1e64s** | 失败样例 — 勿当成功 |
+| **Medium save error（手动填正文）** | 「Something is wrong…」— **HARD STOP**；改走 **Hashnode import**（`medium.com/p/import`） |
+
+## Reddit 特例
+
+| 规则 | 说明 |
+|---|---|
+| **当前账号** | u/erdonline；发帖前 username ≠ MeanAbbreviations645 |
+| **r/cursor** | 仅 Weekly Showcase **评论**；禁止 `submit/?type=TEXT` 开新帖 |
+| **r/ClaudeAI** | TEXT 帖 + flair Claude Workflow；**所有帖** AutoMod 排队 |
+| **「筛选器移除」** | 常 = pending/held（非 spam-kill）；等待数分钟；**禁止**立即重发 / panic modmail |
+| **节奏** | 每 sub 一次 submit；禁止 rapid re-fill / post-then-delete |
+
+## 记录
+
+操作结果写入 `docs/growth-data/YYYY-MM-DD.md`（permalink、username、精确 click 序列）。

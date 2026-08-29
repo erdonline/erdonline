@@ -85,7 +85,7 @@
 **任务**：
 1. 继续回复评论
 2. 发布 X/Twitter（每日一条，AI 方向优先）
-3. 发布其他渠道（Reddit r/webdev、r/selfhosted、知乎等）
+3. 发布其他渠道（Reddit r/webdev、r/selfhosted 等）；Hashnode / Medium / 开源中国待 Chrome 登录后补发
 
 **X/Twitter 内容日历**（AI 方向优先）：
 - **周三**：用户场景（"如何用 ERD Online + Cursor 让 AI 帮你改 schema"）
@@ -157,7 +157,10 @@
 **Day 3（周三）**：
 - [ ] 继续回复评论
 - [ ] 发布 X/Twitter（用户场景）
-- [ ] 发布知乎
+- [x] 发布知乎 — **已发** https://zhuanlan.zhihu.com/p/2077045243858392500（2026-08-29 提前执行）
+- [x] 发布 Hashnode — **已发** https://erdonline.hashnode.dev/how-to-let-ai-agents-manage-your-database-schema-with-mcp
+- [ ] 发布 Medium — **blocked** save error「Something is wrong and we cannot save your story」
+- [x] 发布开源中国 — **已发** https://my.oschina.net/u/3339242/blog/19750362
 
 **Day 4（周四）**：
 - [ ] 继续回复评论
