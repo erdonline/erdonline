@@ -31,7 +31,7 @@ description: >-
 
 ## platforms（YAML 仅登记，本 skill 不发帖）
 
-`platforms:` = [platform-post-recipes.md](../../../docs/growth-templates/platform-post-recipes.md) 且 `docs/growth-data/` 有**公网 permalink** 的子集。中文长文 proven 集：`juejin, csdn, oschina, zhihu`。**禁止**从旧稿抄 weixin/segmentfault（Wechatsync 草稿 ≠ 已发布）。
+`platforms:` = [platform-post-recipes.md](../../../docs/growth-templates/platform-post-recipes.md) 有 chrome-devtools 路径卡 **且** `docs/growth-data/` 有**公网 permalink** 的交集。中文长文 proven 集：`juejin, csdn, oschina, zhihu`。勿从旧稿抄不在 proven 集的平台名。
 
 ## Workflow
 

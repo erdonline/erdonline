@@ -1,9 +1,10 @@
 ---
 name: publish-article
 description: >-
-  Publishes ERD Online growth articles to platforms via frozen chrome-devtools path
-  cards. Use when the user asks to 发布, 发帖, post to 掘金/CSDN/OSChina/知乎/X
-  Article/Dev.to, or run post-seo-essay / post-all-browser.
+  Publishes ERD Online growth articles via chrome-devtools MCP and frozen path
+  cards only. Use when the user asks to 发布, 发帖, post to 掘金/CSDN/OSChina/知乎/X
+  Article/Dev.to/Hashnode/Medium, or run post-seo-essay / post-all-browser /
+  fill-x-article-shortcuts.
 ---
 
 # Publish Articles
@@ -19,29 +20,27 @@ description: >-
 | Node 22、daemon、`--autoConnect`、native setter | [post-via-chrome-devtools.md](../../../docs/growth-templates/post-via-chrome-devtools.md) |
 | X Article：Preview 门禁、block IR、禁止 compose/post 长文 | [x-article-playbook.md](../../../docs/growth-templates/x-article-playbook.md) |
 
-**路径卡优先：** 已有步骤 → **照做**；**禁止** snapshot 后自行摸索 DOM。**禁止 Playwright**。
+**单一栈：** 只用 **chrome-devtools MCP/CLI** + 冻结路径卡。**路径卡优先** — 已有步骤 → **照做**；**禁止** snapshot 后自行摸索 DOM。
+
+**禁止：** Playwright；任何非 chrome-devtools 的发帖扩展、同步器或 MCP（含草稿箱批量同步）。
 
 ## platforms = permalink 子集
 
-`content/articles/*.md` 的 `platforms:` 必须是 recipes + `docs/growth-data/` 有**成功公网 permalink** 的平台。
+`content/articles/*.md` 的 `platforms:` = [platform-post-recipes.md](../../../docs/growth-templates/platform-post-recipes.md) 有路径卡 **且** `docs/growth-data/` 有**成功公网 permalink** 的平台交集。无路径卡或无 permalink 的平台 **不在集合内**，勿写进 YAML。
 
 | 轨道 | proven 集 |
 |---|---|
 | 中文长文 | `juejin, csdn, oschina, zhihu` |
 | 国际英文长文 | `hashnode, devto, medium`（D 类：Hashnode import）、X Article |
 
-**Never** 从旧 YAML 加 weixin/segmentfault（微信仅草稿、思否无成功 permalink）；**Never** HN Show HN 新号、Reddit u/MeanAbbreviations645、r/programming、OSChina 19750362 空帖、Medium 手填长文（save error → 改 Hashnode import）。
+**Never** 从旧 YAML 抄不在上表 proven 集的平台名。**Never** HN Show HN 新号、Reddit u/MeanAbbreviations645、r/programming、OSChina 19750362 空帖、Medium 手填长文（save error → 改 Hashnode import）。
 
 ## 语言与双轨
 
 - 国内平台 → **中文**（`content/dist/<slug>/*.md`）
 - 国际平台 → **英文**（`content/articles/<slug>.en.md`）
-- 中文 YAML 的 `platforms:` **仍只写国内四家**；国际走 EN 稿 + 上表 proven 集。**不是**「没写进中文 YAML 就不发国外」
+- 中文 YAML 的 `platforms:` **仍只写国内四家**；国际走 EN 稿 + 上表 proven 集
 - 发长文时 **两条轨道都跑**（有对应语言稿才发；缺 EN 就先写 EN 再发，**禁止**默默跳过国外）
-
-## 为何 skill 曾漏掉国际平台
-
-旧版写「国际英文另轨 / 无 EN 稿勿硬发」是为挡 Wechatsync wishlist（weixin/segmentfault），**误把已有 growth-data permalink 的 EN 平台**（Hashnode/Dev.to/Medium import/X Article）也藏起来了。HN Show HN 新号与 r/programming 仍硬跳过。
 
 ## 硬跳过（永不尝试）
 

@@ -8,6 +8,13 @@
 
 ### 2026-08-29
 
+#### docs(skills): publish-article is chrome-devtools MCP only
+
+- **改动**：`.cursor/skills/publish-article/SKILL.md` 剔除 Wechatsync/草稿箱/wishlist 历史课；单一栈 = chrome-devtools MCP + 冻结路径卡；显式禁止 Playwright 与非 chrome-devtools 发帖扩展/同步器。
+- **改动**：`.cursor/rules/growth-post-paths.mdc` §文章 YAML `platforms` 改为路径卡 ∩ growth-data permalink，不再提 Wechatsync/weixin/segmentfault。
+- **改动**：`.cursor/skills/explore-generate-article/SKILL.md` platforms 行去掉 Wechatsync 括号说明；`content/articles/README.md` 顶栏注明公开发布走 publish-article skill。
+- **验证点**：`grep -i wechatsync .cursor/skills/publish-article/SKILL.md .cursor/rules/growth-post-paths.mdc .cursor/skills/explore-generate-article/SKILL.md` 无命中；`grep 'chrome-devtools MCP' .cursor/skills/publish-article/SKILL.md` 有命中；`grep '禁止.*Playwright' .cursor/skills/publish-article/SKILL.md` 有命中。
+
 #### fix(scripts): X Article fill is block-by-block, not a full paste
 
 - **改动**：`scripts/post-seo-essay.mjs` `xLongform()` 删除 `execCommand('insertText')` 全文 dump；`case 'x':` 改 `xLongformBlocked()` throw，指向 `fill-x-article-shortcuts.mjs` + `x-article-playbook.md`；移除仅服务错误路径的 `readXBody`/`X_FILE`/`X_TITLE`。

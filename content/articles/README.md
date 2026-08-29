@@ -1,5 +1,6 @@
 # 增长文章流水线
 
+> **公开发布**以 chrome-devtools 路径卡为准，见 [publish-article skill](../../.cursor/skills/publish-article/SKILL.md)；该 skill 不走 Wechatsync 草稿同步。
 > 方案全貌与选题包见 [`docs/growth.md`](../../docs/growth.md)。
 > 定位纪律：CTA 永远只有一个主链接 = demo；star/repo 只放文末次要位置。
 
@@ -57,6 +58,6 @@ created: 2026-08-09
 ---
 ```
 
-**platforms = 有公网 permalink 的冻结路径卡平台，不是 Wechatsync 草稿箱名单。** 以 `docs/growth-data/` + `platform-post-recipes.md` Live URL 为准；旧稿 frontmatter 若含 weixin/segmentfault 等为 Wechatsync 时代遗留，新稿勿抄。
+**platforms = 有公网 permalink 的 chrome-devtools 路径卡平台。** 以 `docs/growth-data/` + `platform-post-recipes.md` Live URL 为准；旧稿 frontmatter 若含不在 proven 集的平台名，新稿勿抄。
 
 长文进平台；可复用的「怎么做」写进 `docs/guide/`，并在 [`docs/growth.md`](../../docs/growth.md) 选题表「指南页」列登记。索引见文档站 Blog。
