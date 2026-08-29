@@ -375,7 +375,7 @@ export async function generateSeoStatic(distDir = defaultDistDir(), siteUrl = re
       var enterText = en ? 'Open workspace' : '进入工作台';
       var navCta = document.querySelector('[data-testid="landing-nav-cta"]');
       if (navCta) { navCta.href = '/home'; navCta.textContent = enterText; }
-      var mainCta = document.querySelector('#landing-main-cta .landingBtnPrimary');
+      var mainCta = document.querySelector('[data-testid="landing-main-cta"] .landingBtnPrimary');
       if (mainCta) { mainCta.href = '/home'; mainCta.textContent = enterText; }
       var footerLogin = document.querySelector('.landingFooter a[href="/login"]');
       if (footerLogin) { footerLogin.href = '/home'; footerLogin.textContent = enterText; }
