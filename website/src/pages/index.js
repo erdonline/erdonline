@@ -6,7 +6,8 @@ import Layout from '@theme/Layout';
 import styles from './index.module.css';
 
 function HomepageHeader() {
-  const heroImg = `${useBaseUrl('/img/hero.jpg')}?v=20260809c`;
+  const heroImg = `${useBaseUrl('/img/hero-1600.webp')}?v=20260830a`;
+  const heroImgSmall = `${useBaseUrl('/img/hero-800.webp')}?v=20260830a`;
   return (
     <header className={styles.hero} aria-label="ERD Online">
       <div className={styles.heroAtmosphere} aria-hidden="true">
@@ -41,10 +42,14 @@ function HomepageHeader() {
           <img
             className={styles.heroImg}
             src={heroImg}
+            srcSet={`${heroImgSmall} 800w, ${heroImg} 1600w`}
+            sizes="(max-width: 996px) 100vw, 800px"
             alt=""
             width={1600}
             height={1000}
             fetchPriority="high"
+            loading="eager"
+            decoding="async"
           />
           <div className={styles.heroFrameSheen} aria-hidden="true" />
           <div className={styles.heroFrameGlow} aria-hidden="true" />
