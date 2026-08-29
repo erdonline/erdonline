@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="noindex" />
-  <title>Install ERD Online MCP in Cursor</title>
+  <meta name="description" content="Connect Cursor, Claude, Cline, Windsurf and other MCP clients to ERD Online in 30 seconds. Mint a PAT, paste the mcp.json, and let the agent read or suggest versions of your ER diagram." />
+  <title>ERD Online MCP · Cursor / Claude / Cline</title>
   <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
   <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600&display=optional" />
   <style>
@@ -13,72 +14,209 @@
       --erd-surface: #f4f6f9;
       --erd-ink: #0f1720;
       --erd-brand: #ff7a6c;
+      --erd-brand-2: #ff9f8a;
       --erd-muted: #9eb0c0;
+      --erd-border: rgba(158,176,192,.18);
+      --erd-card: #0f1720;
+      font-size: 16px;
     }
     * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
     body {
       margin: 0;
       min-height: 100dvh;
-      display: grid;
-      place-items: center;
       background: var(--erd-void);
       color: var(--erd-surface);
       font-family: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       line-height: 1.6;
-      padding: 24px;
+      padding: 0;
+    }
+    a { color: var(--erd-brand-2); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+    code, pre { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .container {
+      width: 100%;
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 28px 20px 64px;
+    }
+    .lang-switch {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .lang-switch button {
+      background: transparent;
+      border: 1px solid var(--erd-border);
+      color: var(--erd-muted);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .lang-switch button.active, .lang-switch button:hover {
+      background: rgba(255,122,108,.12);
+      color: #fff;
+      border-color: var(--erd-brand);
+    }
+    .hero {
+      text-align: center;
+      padding: 32px 0 24px;
+    }
+    .hero h1 { margin: 0 0 12px; font-size: 32px; font-weight: 600; line-height: 1.2; }
+    .hero p { margin: 0; color: var(--erd-muted); font-size: 18px; }
+    .brand {
+      color: var(--erd-brand);
+      font-weight: 600;
+    }
+    .steps {
+      display: grid;
+      gap: 16px;
+      margin: 24px 0;
     }
     .card {
-      width: 100%;
-      max-width: 640px;
-      background: #0f1720;
-      border: 1px solid rgba(158,176,192,.2);
-      border-radius: 16px;
-      padding: 32px;
-      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+      background: var(--erd-card);
+      border: 1px solid var(--erd-border);
+      border-radius: 14px;
+      padding: 24px;
+      box-shadow: 0 16px 48px rgba(0,0,0,.28);
     }
-    h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; }
-    p { margin: 0 0 20px; color: var(--erd-muted); }
-    a.cta {
+    .card h2 { margin: 0 0 14px; font-size: 20px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+    .step-num {
+      width: 28px; height: 28px;
+      display: grid; place-items: center;
+      background: var(--erd-brand);
+      color: #fff;
+      border-radius: 50%;
+      font-size: 14px;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+    .card p, .card li { color: #c8d2db; }
+    .card ul { padding-left: 18px; margin: 8px 0; }
+    .card li { margin: 6px 0; }
+    .cta-row { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; margin: 16px 0 8px; }
+    .cta {
       display: inline-flex;
       align-items: center;
       gap: 8px;
       background: var(--erd-brand);
       color: #fff;
-      padding: 12px 20px;
+      padding: 12px 22px;
       border-radius: 8px;
       text-decoration: none;
       font-weight: 600;
+      border: none;
+      cursor: pointer;
       transition: opacity .2s;
     }
-    a.cta:hover { opacity: .9; }
-    .hint {
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid rgba(158,176,192,.15);
+    .cta:hover { opacity: .9; text-decoration: none; }
+    .cta.secondary {
+      background: transparent;
+      border: 1px solid var(--erd-border);
+      color: var(--erd-surface);
     }
+    .copy-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .copy-bar span { color: var(--erd-muted); font-size: 13px; }
+    .copy-btn {
+      background: rgba(255,255,255,.08);
+      border: 1px solid var(--erd-border);
+      color: var(--erd-surface);
+      border-radius: 6px;
+      padding: 6px 12px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .copy-btn:hover { background: rgba(255,255,255,.14); }
     pre {
       background: #05080c;
-      border: 1px solid rgba(158,176,192,.15);
+      border: 1px solid var(--erd-border);
       border-radius: 8px;
       padding: 16px;
       overflow: auto;
       font-size: 13px;
       color: var(--erd-surface);
+      margin: 0;
     }
-    code { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
-    .status { margin-top: 12px; font-size: 13px; color: var(--erd-muted); }
+    .clients { display: grid; gap: 8px; margin-top: 10px; }
+    .client { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; padding: 8px 0; border-bottom: 1px solid var(--erd-border); }
+    .client:last-child { border-bottom: none; }
+    .client strong { min-width: 110px; color: #fff; }
+    .client code { color: var(--erd-brand-2); font-size: 12px; }
+    .client span { color: var(--erd-muted); font-size: 14px; }
+    .hint { color: var(--erd-muted); font-size: 14px; margin-top: 12px; }
+    .warning {
+      border-left: 3px solid var(--erd-brand);
+      padding: 12px 16px;
+      background: rgba(255,122,108,.08);
+      border-radius: 0 8px 8px 0;
+      margin: 14px 0;
+    }
+    .faq { margin-top: 8px; }
+    .faq h3 { margin: 16px 0 6px; font-size: 16px; color: #fff; }
+    .faq p { margin: 0 0 4px; color: #c8d2db; font-size: 14px; }
+    .footer {
+      text-align: center;
+      color: var(--erd-muted);
+      font-size: 13px;
+      margin-top: 40px;
+      padding-top: 24px;
+      border-top: 1px solid var(--erd-border);
+    }
+    .hidden { display: none !important; }
+    [data-i18n] { transition: opacity .1s; }
+    @media (max-width: 600px) {
+      .hero h1 { font-size: 26px; }
+      .hero p { font-size: 16px; }
+      .client { flex-direction: column; gap: 2px; }
+      .client strong { min-width: auto; }
+    }
   </style>
 </head>
 <body>
-  <main class="card">
-    <h1>Install ERD Online MCP in Cursor</h1>
-    <p>One-click install opens the Cursor app. Replace <code>ERD_PAT</code> with your minted token after install.</p>
-    <a id="open-cursor" class="cta" href="cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&amp;config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D">
-      Open in Cursor
-    </a>
-    <p class="status" id="status">If nothing happens, copy the JSON below into <code>~/.cursor/mcp.json</code> and reload Cursor.</p>
-    <div class="hint">
-      <pre><code>{
+  <div class="container">
+    <div class="lang-switch" role="tablist" aria-label="Language switcher">
+      <button data-set-lang="zh-CN" class="active" role="tab" aria-selected="true" lang="zh-CN">中文</button>
+      <button data-set-lang="en" role="tab" aria-selected="false" lang="en">English</button>
+    </div>
+
+    <header class="hero">
+      <p class="brand" data-i18n="tagline">ERD Online MCP</p>
+      <h1 data-i18n="heroTitle">让 Cursor / Claude / Cline 读懂你的 ER 图</h1>
+      <p data-i18n="heroLead">30 秒接入：铸造 PAT → 粘贴 mcp.json → Agent 读取 projectJSON 并建议版本</p>
+    </header>
+
+    <section class="steps">
+      <div class="card">
+        <h2><span class="step-num">1</span><span data-i18n="step1Title">铸造 Personal Access Token</span></h2>
+        <p data-i18n="step1Body">登录后进入 <a href="https://www.erdonline.com/account/settings?selectKey=personalAccessTokens" target="_blank" rel="noopener">账户设置 → 访问令牌</a>，创建一个 PAT。默认只读即可；若需要让 Agent 提版本，请勾选 <code>versions:write</code>。</p>
+        <p class="hint" data-i18n="step1Hint">铸造成功后弹层会给一个已填入 PAT 的 mcp.json，可直接复制。明文只显示一次。</p>
+      </div>
+
+      <div class="card">
+        <h2><span class="step-num">2</span><span data-i18n="step2Title">把配置粘进 MCP 客户端</span></h2>
+        <p data-i18n="step2Body">下面 JSON 适用于所有支持 stdio MCP 的客户端。点击复制后，粘到对应位置并把 <code>erd_pat_…</code> 换成你的明文 PAT。</p>
+
+        <div class="clients" data-i18n="clients">
+          <div class="client"><strong>Cursor</strong> <code>~/.cursor/mcp.json</code> <span>或点下方 Open in Cursor</span></div>
+          <div class="client"><strong>Claude Desktop</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></div>
+          <div class="client"><strong>Claude Code</strong> <code>~/.claude/config.json</code> <span>或环境变量</span></div>
+          <div class="client"><strong>Cline / Roo</strong> <code>VS Code mcp settings</code></div>
+          <div class="client"><strong>Windsurf</strong> <code>~/.windsurf/mcp.json</code></div>
+        </div>
+
+        <div class="copy-bar">
+          <span data-i18n="configLabel">mcp.json</span>
+          <button class="copy-btn" data-copy-target="mcp-config" data-i18n="copyBtn">复制</button>
+        </div>
+        <pre id="mcp-config">{
   "mcpServers": {
     "erdonline": {
       "command": "npx",
@@ -94,16 +232,173 @@
       }
     }
   }
-}</code></pre>
-    </div>
-  </main>
+}</pre>
+
+        <div class="cta-row">
+          <a id="open-cursor" class="cta" href="cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&amp;config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D" data-i18n="openCursorBtn">一键在 Cursor 中打开</a>
+          <a class="cta secondary" href="https://doc.erdonline.com/docs/guide/api-and-mcp/" target="_blank" rel="noopener" data-i18n="docsLink">完整文档</a>
+        </div>
+
+        <div class="warning" data-i18n="patWarning">这个一键链接不会把你的 PAT 编进 URL。Cursor 打开后，仍需把明文 PAT 替换掉上面 JSON 里的 <code>erd_pat_…</code>。</div>
+      </div>
+
+      <div class="card">
+        <h2><span class="step-num">3</span><span data-i18n="step3Title">对 Agent 发出第一条指令</span></h2>
+        <p data-i18n="step3Body">重载客户端后，尝试说：</p>
+        <ul>
+          <li data-i18n="cmd1"><code>列出我的 ERD 项目</code> → 应出现 <code>list_projects</code></li>
+          <li data-i18n="cmd2"><code>读取项目 X 的 projectJSON</code> → 应返回模型结构</li>
+          <li data-i18n="cmd3"><code>建议一个新版本</code> → 可让 Agent 调用 <code>create_version</code>（需 <code>versions:write</code>）</li>
+        </ul>
+        <p class="hint" data-i18n="step3Hint">所有写操作都需要你在设计器里做 diff 审批。API 200 不是人批准。</p>
+      </div>
+
+      <div class="card faq">
+        <h2 data-i18n="faqTitle">常见问题</h2>
+        <h3 data-i18n="faq1Q">点「一键打开」没反应？</h3>
+        <p data-i18n="faq1A">请确保已安装 Cursor 0.40+ / Claude Desktop。直接复制上面的 mcp.json 粘到客户端也能用。</p>
+        <h3 data-i18n="faq2Q">Agent 说 ERD_PAT 缺失？</h3>
+        <p data-i18n="faq2A"><code>erd_pat_…</code> 是占位符。把铸造弹层里的明文 PAT 粘贴进去，不要直接发给 Agent。</p>
+        <h3 data-i18n="faq3Q">可以接入 Claude / Cline / Windsurf 吗？</h3>
+        <p data-i18n="faq3A">可以。只要客户端支持 stdio MCP，把同一 JSON 粘到对应配置位置即可。详见 <a href="https://doc.erdonline.com/docs/guide/api-and-mcp/" target="_blank" rel="noopener">完整文档</a>。</p>
+        <h3 data-i18n="faq4Q">会泄露我的数据库密码吗？</h3>
+        <p data-i18n="faq4A">不会。MCP 返回的 projectJSON 里不含有数据库连接密码；只返回模型结构、字段、关系等。</p>
+      </div>
+    </section>
+
+    <footer class="footer" data-i18n="footer">
+      ERD Online · 数据库设计的 Git + Figma · <a href="https://www.erdonline.com/" target="_blank" rel="noopener">www.erdonline.com</a>
+    </footer>
+  </div>
+
   <script>
-    var openCursor = document.getElementById('open-cursor');
-    if (openCursor) {
-      openCursor.addEventListener('click', function () {
-        document.getElementById('status').textContent = 'Attempted to open Cursor. If it did not open, copy the JSON above.';
+    const i18n = {
+      'zh-CN': {
+        tagline: 'ERD Online MCP',
+        heroTitle: '让 Cursor / Claude / Cline 读懂你的 ER 图',
+        heroLead: '30 秒接入：铸造 PAT → 粘贴 mcp.json → Agent 读取 projectJSON 并建议版本',
+        step1Title: '铸造 Personal Access Token',
+        step1Body: '登录后进入 <a href="https://www.erdonline.com/account/settings?selectKey=personalAccessTokens" target="_blank" rel="noopener">账户设置 → 访问令牌</a>，创建一个 PAT。默认只读即可；若需要让 Agent 提版本，请勾选 <code>versions:write</code>。',
+        step1Hint: '铸造成功后弹层会给一个已填入 PAT 的 mcp.json，可直接复制。明文只显示一次。',
+        step2Title: '把配置粘进 MCP 客户端',
+        step2Body: '下面 JSON 适用于所有支持 stdio MCP 的客户端。点击复制后，粘到对应位置并把 <code>erd_pat_…</code> 换成你的明文 PAT。',
+        clients: '<div class="client"><strong>Cursor</strong> <code>~/.cursor/mcp.json</code> <span>或点下方 Open in Cursor</span></div><div class="client"><strong>Claude Desktop</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></div><div class="client"><strong>Claude Code</strong> <code>~/.claude/config.json</code> <span>或环境变量</span></div><div class="client"><strong>Cline / Roo</strong> <code>VS Code mcp settings</code></div><div class="client"><strong>Windsurf</strong> <code>~/.windsurf/mcp.json</code></div>',
+        copyBtnDone: '已复制',
+        configLabel: 'mcp.json',
+        copyBtn: '复制',
+        openCursorBtn: '一键在 Cursor 中打开',
+        docsLink: '完整文档',
+        patWarning: '这个一键链接不会把你的 PAT 编进 URL。Cursor 打开后，仍需把明文 PAT 替换掉上面 JSON 里的 <code>erd_pat_…</code>。',
+        step3Title: '对 Agent 发出第一条指令',
+        step3Body: '重载客户端后，尝试说：',
+        cmd1: '<code>列出我的 ERD 项目</code> → 应出现 <code>list_projects</code>',
+        cmd2: '<code>读取项目 X 的 projectJSON</code> → 应返回模型结构',
+        cmd3: '<code>建议一个新版本</code> → 可让 Agent 调用 <code>create_version</code>（需 <code>versions:write</code>）',
+        step3Hint: '所有写操作都需要你在设计器里做 diff 审批。API 200 不是人批准。',
+        faqTitle: '常见问题',
+        faq1Q: '点「一键打开」没反应？',
+        faq1A: '请确保已安装 Cursor 0.40+ / Claude Desktop。直接复制上面的 mcp.json 粘到客户端也能用。',
+        faq2Q: 'Agent 说 ERD_PAT 缺失？',
+        faq2A: '<code>erd_pat_…</code> 是占位符。把铸造弹层里的明文 PAT 粘贴进去，不要直接发给 Agent。',
+        faq3Q: '可以接入 Claude / Cline / Windsurf 吗？',
+        faq3A: '可以。只要客户端支持 stdio MCP，把同一 JSON 粘到对应配置位置即可。详见 <a href="https://doc.erdonline.com/docs/guide/api-and-mcp/" target="_blank" rel="noopener">完整文档</a>。',
+        faq4Q: '会泄露我的数据库密码吗？',
+        faq4A: '不会。MCP 返回的 projectJSON 里不含有数据库连接密码；只返回模型结构、字段、关系等。',
+        footer: 'ERD Online · 数据库设计的 Git + Figma · <a href="https://www.erdonline.com/" target="_blank" rel="noopener">www.erdonline.com</a>'
+      },
+      en: {
+        tagline: 'ERD Online MCP',
+        heroTitle: 'Let Cursor / Claude / Cline read your ER diagram',
+        heroLead: '30 seconds: mint a PAT → paste mcp.json → agent reads projectJSON and suggests versions',
+        step1Title: 'Mint a Personal Access Token',
+        step1Body: 'Sign in and go to <a href="https://www.erdonline.com/account/settings?selectKey=personalAccessTokens" target="_blank" rel="noopener">Account Settings → Personal Access Tokens</a>. Read-only is enough to start; check <code>versions:write</code> if you want the agent to suggest versions.',
+        step1Hint: 'The reveal dialog gives you a pre-filled mcp.json. The plaintext PAT is shown only once.',
+        step2Title: 'Paste the config into your MCP client',
+        step2Body: 'The JSON below works in any stdio MCP client. Copy it, paste it in the right place, and replace <code>erd_pat_…</code> with your plaintext PAT.',
+        clients: '<div class="client"><strong>Cursor</strong> <code>~/.cursor/mcp.json</code> <span>or click Open in Cursor below</span></div><div class="client"><strong>Claude Desktop</strong> <code>~/Library/Application Support/Claude/claude_desktop_config.json</code></div><div class="client"><strong>Claude Code</strong> <code>~/.claude/config.json</code> <span>or env var</span></div><div class="client"><strong>Cline / Roo</strong> <code>VS Code mcp settings</code></div><div class="client"><strong>Windsurf</strong> <code>~/.windsurf/mcp.json</code></div>',
+        copyBtnDone: 'Copied',
+        configLabel: 'mcp.json',
+        copyBtn: 'Copy',
+        openCursorBtn: 'Open in Cursor',
+        docsLink: 'Full docs',
+        patWarning: 'This one-click link does <strong>not</strong> put your PAT in the URL. After Cursor opens, paste your real PAT to replace <code>erd_pat_…</code> in the JSON above.',
+        step3Title: 'Send the first command to the agent',
+        step3Body: 'Reload the client, then try:',
+        cmd1: '<code>List my ERD projects</code> → should show <code>list_projects</code>',
+        cmd2: '<code>Read projectJSON for project X</code> → should return the model structure',
+        cmd3: '<code>Suggest a new version</code> → lets the agent call <code>create_version</code> (needs <code>versions:write</code>)',
+        step3Hint: 'All writes still need you to diff and approve in the designer. API 200 is not human approval.',
+        faqTitle: 'FAQ',
+        faq1Q: 'Nothing happens when I click "Open in Cursor"?',
+        faq1A: 'Make sure Cursor 0.40+ / Claude Desktop is installed. You can also copy the mcp.json above and paste it manually.',
+        faq2Q: 'Agent says ERD_PAT is missing?',
+        faq2A: '<code>erd_pat_…</code> is a placeholder. Paste the plaintext PAT from the mint dialog; do not give it to the agent to generate.',
+        faq3Q: 'Can I use Claude / Cline / Windsurf?',
+        faq3A: 'Yes. Any stdio MCP client works: paste the same JSON into the matching config. See the <a href="https://doc.erdonline.com/en/docs/guide/api-and-mcp/" target="_blank" rel="noopener">full guide</a>.',
+        faq4Q: 'Will it leak my database password?',
+        faq4A: 'No. The projectJSON returned by MCP does not include DB connection passwords; only model structure, fields, and relationships.',
+        footer: 'ERD Online · Git + Figma for database design · <a href="https://www.erdonline.com/" target="_blank" rel="noopener">www.erdonline.com</a>'
+      }
+    };
+
+    const html = document.documentElement;
+    const buttons = document.querySelectorAll('[data-set-lang]');
+    const els = document.querySelectorAll('[data-i18n]');
+
+    function setLang(lang) {
+      const dict = i18n[lang] || i18n['zh-CN'];
+      html.lang = lang === 'en' ? 'en' : 'zh-CN';
+      buttons.forEach(b => {
+        b.classList.toggle('active', b.dataset.setLang === lang);
+        b.setAttribute('aria-selected', String(b.dataset.setLang === lang));
       });
+      els.forEach(el => {
+        const key = el.dataset.i18n;
+        if (!dict[key]) return;
+        if (el.dataset.i18nAttr) {
+          el.setAttribute(el.dataset.i18nAttr, dict[key]);
+        } else if (['INPUT','TEXTAREA'].includes(el.tagName)) {
+          el.value = dict[key];
+        } else {
+          el.innerHTML = dict[key];
+        }
+      });
+      try { localStorage.setItem('erd-cursor-mcp-lang', lang); } catch (e) {}
     }
+
+    function detectLang() {
+      const params = new URLSearchParams(location.search);
+      const paramLang = params.get('lang');
+      if (paramLang && i18n[paramLang]) return paramLang;
+      try {
+        const stored = localStorage.getItem('erd-cursor-mcp-lang');
+        if (stored && i18n[stored]) return stored;
+      } catch (e) {}
+      const nav = navigator.language || navigator.userLanguage || 'zh-CN';
+      return nav.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en';
+    }
+
+    buttons.forEach(b => b.addEventListener('click', () => setLang(b.dataset.setLang)));
+    setLang(detectLang());
+
+    // Copy mcp.json
+    const copyBtn = document.querySelector('[data-copy-target="mcp-config"]');
+    const pre = document.getElementById('mcp-config');
+    copyBtn.addEventListener('click', () => {
+      if (!pre) return;
+      const text = pre.textContent.replace(/\n$/, '');
+      navigator.clipboard.writeText(text).then(() => {
+        const old = copyBtn.textContent;
+        const done = i18n[html.lang === 'en' ? 'en' : 'zh-CN'].copyBtnDone || '已复制 / Copied';
+        copyBtn.textContent = '已复制 / Copied';
+        setTimeout(() => copyBtn.textContent = old, 1500);
+      }).catch(() => {
+        const range = document.createRange();
+        range.selectNode(pre);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+      });
+    });
   </script>
 </body>
 </html>
