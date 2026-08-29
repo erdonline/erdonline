@@ -330,9 +330,9 @@ export PATH="$HOME/.nvm/versions/node/v22.22.0/bin:$PATH"
 | **稿件路径** | `content/articles/cursor-mcp-read-and-suggest-version.juejin.md` |
 | **登录检查** | 梁工造物账号已登录 |
 | **compose/edit URL** | `https://juejin.cn/editor/drafts/new` 或草稿 URL |
-| **编辑器模式** | Markdown 编辑器 |
-| **填目标** | 标题栏 + Markdown 正文区 |
-| **填法** | native setter；**一次** |
+| **编辑器模式** | ByteMD + CodeMirror 5 Markdown（`.bytemd`；**非**裸 `textarea` / 裸 `contenteditable`） |
+| **填目标** | 标题 `input[placeholder*="标题"]`（`input.title-input`，**勿**当正文）；正文 **`.bytemd .CodeMirror textarea`**（CM5 源码框）；备选 CM6 **`.bytemd .cm-content[contenteditable="true"]`**（仅 `.bytemd` 内，非 preview） |
+| **填法** | 标题：native setter + `input`/`change`；正文：`.bytemd .CodeMirror textarea` → **`CodeMirror.setValue(body)`**（CM5 隐藏 textarea 的 `value` 读回恒为 0，勿 `setNative`）；备选 CM6：`.bytemd .cm-content` → `textContent` + `input`；**禁止** `querySelector('textarea')`、裸 `[contenteditable="true"]`、`execCommand('insertText')`（吞 `\n`）；**一次** |
 | **提交按钮** | **发布** → 弹窗：分类 **后端** + 标签（数据库、MCP 等）→ **确定并发布** |
 | **公网验正文** | `juejin.cn/post/<id>` 正文可见；isChinese=true |
 | **本次 live URL** | https://juejin.cn/post/7679054762877763635 |

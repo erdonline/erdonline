@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Publish SEO essay (2026-08-29) via chrome-devtools CLI.
- * Usage: node scripts/post-seo-essay.mjs <platform> [--submit]
+ * Publish SEO essay or content/dist package via chrome-devtools CLI.
+ * Usage: node scripts/post-seo-essay.mjs <platform> [--submit] [--slug=<slug>]
  * Platforms: hashnode | medium-import | devto | x | juejin | csdn | oschina | zhihu
  */
 import { spawnSync } from 'node:child_process';
@@ -35,9 +35,19 @@ function cdt(args, { json = false } = {}) {
 }
 
 function parseEval(raw) {
-  const m = raw.match(/```json\n([\s\S]*?)\n```/);
+  const text = typeof raw === 'string' ? raw : JSON.stringify(raw);
   try {
-    return JSON.parse(m ? m[1] : raw);
+    const outer = JSON.parse(text);
+    if (outer && typeof outer.message === 'string') {
+      const inner = outer.message.match(/```json\n([\s\S]*?)\n```/);
+      if (inner) return JSON.parse(inner[1]);
+    }
+  } catch {
+    /* not JSON envelope */
+  }
+  const m = text.match(/```json\n([\s\S]*?)\n```/);
+  try {
+    return JSON.parse(m ? m[1] : text);
   } catch {
     return raw;
   }
@@ -80,6 +90,51 @@ function stripFrontmatter(text) {
     if (end !== -1) text = text.slice(end + 4);
   }
   return text.trimEnd();
+}
+
+function stripMdTitle(text) {
+  return text.replace(/^# .+\n+/, '').trimEnd();
+}
+
+function parseFrontmatter(file) {
+  const raw = fs.readFileSync(file, 'utf-8');
+  if (!raw.startsWith('---')) return {};
+  const end = raw.indexOf('---\n', 3);
+  if (end === -1) return {};
+  const fm = {};
+  for (const line of raw.slice(3, end).split('\n')) {
+    const m = line.match(/^(\w+):\s*(.+)$/);
+    if (m) fm[m[1]] = m[2].replace(/^['"]|['"]$/g, '');
+  }
+  return fm;
+}
+
+const slugArg = process.argv.find((a) => a.startsWith('--slug='))?.slice(7) || null;
+
+function loadSlugPackage(platform) {
+  const articleFile = path.join(ROOT, 'content/articles', `${slugArg}.md`);
+  const bodyFile = path.join(ROOT, 'content/dist', slugArg, `${platform}.md`);
+  if (!fs.existsSync(articleFile)) throw new Error(`Article not found: ${articleFile}`);
+  if (!fs.existsSync(bodyFile)) throw new Error(`Dist body not found: ${bodyFile}`);
+  const fm = parseFrontmatter(articleFile);
+  const title = fm.title || slugArg;
+  const body = stripMdTitle(fs.readFileSync(bodyFile, 'utf-8'));
+  return { title, body };
+}
+
+function getZhContent(platform) {
+  if (slugArg) return loadSlugPackage(platform);
+  return { title: ZH_TITLE, body: readZhBody() };
+}
+
+function juejinTags() {
+  if (slugArg === 'dont-give-agent-prod-db') return { category: '后端', tags: ['数据库', 'MCP', 'AI', '开源'] };
+  return { category: '前端', tags: ['SEO', '前端', 'Cloudflare', '开源'] };
+}
+
+function csdnTags() {
+  if (slugArg === 'dont-give-agent-prod-db') return ['数据库', '开源', '架构', 'MCP'];
+  return ['SEO', '前端', 'Cloudflare', '开源', '数据库'];
 }
 
 function readEnBody() {
@@ -427,27 +482,85 @@ async function xLongform(submit) {
   return { fill, href };
 }
 
+/** Locked in live inspect 2026-08-29 — ByteMD CM5 first, CM6 fallback only under .bytemd */
+const JUEJIN_BODY_SELECTORS = [
+  '.bytemd .CodeMirror textarea',
+  '.bytemd .cm-content[contenteditable="true"]',
+];
+
+const PICK_JUEJIN_BODY_EL = `
+function pickJuejinBodyEl() {
+  const selectors = ${JSON.stringify(JUEJIN_BODY_SELECTORS)};
+  for (const bodySelector of selectors) {
+    const el = document.querySelector(bodySelector);
+    if (el) return { el, bodySelector };
+  }
+  return { el: null, bodySelector: null };
+}
+
+function fillJuejinBody(bodyEl, body) {
+  const cm = bodyEl?.closest?.('.CodeMirror')?.CodeMirror;
+  if (cm) {
+    cm.setValue(body);
+    return cm.getValue();
+  }
+  if (bodyEl instanceof HTMLTextAreaElement) {
+    setNative(bodyEl, body);
+    return bodyEl.value;
+  }
+  bodyEl.textContent = body;
+  bodyEl.dispatchEvent(new Event('input', { bubbles: true }));
+  return bodyEl.textContent ?? bodyEl.innerText ?? '';
+}
+`;
+
 async function juejin(submit) {
-  const body = readZhBody();
+  const { title: zhTitle, body } = getZhContent('juejin');
+  const minBodyLen = Math.max(500, Math.floor(body.length * 0.5));
+  const minNewlines = Math.max(10, Math.floor((body.match(/\n/g) || []).length * 0.5));
   const pid = openUrl('https://juejin.cn/editor/drafts/new');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(ZH_TITLE)};
+      ${PICK_JUEJIN_BODY_EL}
+      const title = ${esc(zhTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('input[placeholder*="标题"], textarea[placeholder*="标题"]');
-      const bodyEl = document.querySelector('.editor textarea, textarea') 
-        || document.querySelector('[contenteditable="true"]');
+      const { el: bodyEl, bodySelector } = pickJuejinBodyEl();
       if (titleEl) setNative(titleEl, title);
-      if (bodyEl?.tagName === 'TEXTAREA') setNative(bodyEl, body);
-      else if (bodyEl) { bodyEl.focus(); document.execCommand('selectAll', false, null); document.execCommand('insertText', false, body); }
-      const val = bodyEl?.value || bodyEl?.innerText || '';
-      return { titleLen: titleEl?.value?.length ?? 0, bodyLen: val.length, newlineCount: (val.match(/\\n/g)||[]).length, isChinese: /[\\u4e00-\\u9fff]/.test(val), href: location.href };
+      if (!bodyEl) {
+        return {
+          bodySelector: null,
+          titleLen: titleEl?.value?.length ?? 0,
+          bodyLen: 0,
+          newlineCount: 0,
+          isChinese: false,
+          href: location.href,
+          error: 'Juejin body element not found — check ByteMD mount or login wall',
+        };
+      }
+      const val = fillJuejinBody(bodyEl, body);
+      return {
+        bodySelector,
+        titleLen: titleEl?.value?.length ?? 0,
+        bodyLen: val.length,
+        newlineCount: (val.match(/\\n/g) || []).length,
+        isChinese: /[\\u4e00-\\u9fff]/.test(val),
+        href: location.href,
+      };
     }`,
   );
   console.log('juejin fill:', JSON.stringify(fill, null, 2));
+  if (fill.error || !fill.bodySelector) {
+    throw new Error(fill.error || 'Juejin: locked body selector missed — HARD STOP');
+  }
+  if (submit && (fill.bodyLen < minBodyLen || fill.newlineCount < minNewlines)) {
+    throw new Error(
+      `Juejin: body read-back too short (bodyLen=${fill.bodyLen} < ${minBodyLen}, newlineCount=${fill.newlineCount} < ${minNewlines}) — abort submit`,
+    );
+  }
   if (!submit) return { fill, pid };
 
   evaluate(pid, `() => {
@@ -456,11 +569,11 @@ async function juejin(submit) {
     return { clickedPublish: !!btn };
   }`);
   spawnSync('sleep', ['2']);
-  // Category 前端 + tags
+  const { category, tags } = juejinTags();
   evaluate(pid, `() => {
-    const cat = [...document.querySelectorAll('label, span, div, li')].find(el => el.innerText?.trim() === '前端');
+    const cat = [...document.querySelectorAll('label, span, div, li')].find(el => el.innerText?.trim() === ${esc(category)});
     cat?.click();
-    for (const tag of ['SEO', '前端', 'Cloudflare', '开源']) {
+    for (const tag of ${JSON.stringify(tags)}) {
       const t = [...document.querySelectorAll('label, span, div, li, button')].find(el => el.innerText?.trim() === tag);
       t?.click();
     }
@@ -474,18 +587,26 @@ async function juejin(submit) {
   }`);
   spawnSync('sleep', ['5']);
   const href = evaluate(pid, `() => ({ href: location.href }))`);
-  return { fill, href };
+  const publicUrl = href.href?.includes('/post/') ? href.href.split('?')[0] : null;
+  let pub = null;
+  if (publicUrl) {
+    pub = verifyPublic(publicUrl);
+    pub.ok = pub.articleLen >= 500 && pub.chinese >= 100;
+    console.log('juejin public:', JSON.stringify(pub, null, 2));
+    if (!pub.ok) throw new Error(`Juejin public verify FAILED: articleLen=${pub.articleLen}`);
+  }
+  return { fill, href, pub };
 }
 
 async function csdn(submit) {
-  const body = readZhBody();
+  const { title: zhTitle, body } = getZhContent('csdn');
   const pid = openUrl('https://editor.csdn.net/md');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(ZH_TITLE)};
+      const title = ${esc(zhTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('input.article-bar__title, input[placeholder*="标题"]');
       if (titleEl) setNative(titleEl, title);
@@ -507,7 +628,7 @@ async function csdn(submit) {
     return { clicked: !!btn };
   }`);
   spawnSync('sleep', ['2']);
-  for (const tag of ['SEO', '前端', 'Cloudflare', '开源', '数据库']) {
+  for (const tag of csdnTags()) {
     evaluate(pid, `() => {
       const t = [...document.querySelectorAll('span, label, li')].find(el => el.innerText?.trim() === ${esc(tag)});
       t?.click();
@@ -522,11 +643,19 @@ async function csdn(submit) {
   }`);
   spawnSync('sleep', ['5']);
   const href = evaluate(pid, `() => ({ href: location.href }))`);
-  return { fill, href };
+  const publicUrl = href.href?.includes('/details/') ? href.href.split('?')[0] : null;
+  let pub = null;
+  if (publicUrl) {
+    pub = verifyPublic(publicUrl);
+    pub.ok = pub.articleLen >= 500 && pub.chinese >= 100;
+    console.log('csdn public:', JSON.stringify(pub, null, 2));
+    if (!pub.ok) throw new Error(`CSDN public verify FAILED: articleLen=${pub.articleLen}`);
+  }
+  return { fill, href, pub };
 }
 
 async function oschina(submit) {
-  const body = readZhBody();
+  const { title: zhTitle, body } = getZhContent('oschina');
   const minFillLen = Math.max(1000, Math.floor(body.length * 0.5));
   const pid = openUrl('https://my.oschina.net/u/3339242/blog/ai-write');
   sleepJitter(1, 3);
@@ -538,7 +667,7 @@ async function oschina(submit) {
   }
   sleepJitter(1, 3);
 
-  const fill = fillOschinaEditor(pid, ZH_TITLE, body);
+  const fill = fillOschinaEditor(pid, zhTitle, body);
   console.log('oschina fill:', JSON.stringify(fill, null, 2));
   if (!fill.hasTextarea) throw new Error('OSChina: visible body textarea not found — HARD STOP');
   if (fill.textareaLen < minFillLen) {
@@ -575,15 +704,69 @@ async function oschina(submit) {
   return { fill, href, pub };
 }
 
+function mdToZhihuHtml(md) {
+  const escHtml = (s) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  let html = '';
+  let inCode = false;
+  for (const line of md.split('\n')) {
+    if (line.startsWith('```')) {
+      if (!inCode) {
+        html += '<pre><code>';
+        inCode = true;
+      } else {
+        html += '</code></pre>';
+        inCode = false;
+      }
+      continue;
+    }
+    if (inCode) {
+      html += `${escHtml(line)}\n`;
+      continue;
+    }
+    if (line.startsWith('## ')) {
+      html += `<h2>${escHtml(line.slice(3))}</h2>`;
+      continue;
+    }
+    if (line.startsWith('> ')) {
+      html += `<blockquote><p>${escHtml(line.slice(2))}</p></blockquote>`;
+      continue;
+    }
+    if (line.trim() === '') continue;
+    let t = escHtml(line);
+    t = t.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    t = t.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2">$1</a>');
+    html += `<p>${t}</p>`;
+  }
+  return html;
+}
+
+async function zhihuPatchDraft(pageId, articleId, body) {
+  const html = mdToZhihuHtml(body);
+  return evaluate(
+    pageId,
+    `async (articleId, html) => {
+      const xsrf = document.cookie.match(/_xsrf=([^;]+)/)?.[1];
+      const res = await fetch('/api/articles/' + articleId + '/draft', {
+        method: 'PATCH',
+        headers: { 'content-type': 'application/json', 'x-xsrftoken': xsrf },
+        credentials: 'include',
+        body: JSON.stringify({ content: html, table_of_contents: false, can_reward: false, delta_time: 30 }),
+      });
+      return { status: res.status, htmlLen: html.length, chinese: (html.match(/[\\u4e00-\\u9fff]/g) || []).length, ok: res.ok };
+    }`,
+    [articleId, html],
+  );
+}
+
 async function zhihu(submit) {
-  const body = readZhBody();
+  const { title: zhTitle, body } = getZhContent('zhihu');
   const pid = openUrl('https://zhuanlan.zhihu.com/write');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(ZH_TITLE)};
+      const title = ${esc(zhTitle)};
       const body = ${esc(body)};
       const titleEl = document.querySelector('textarea[placeholder*="标题"], input[placeholder*="标题"]');
       if (titleEl) setNative(titleEl, title);
@@ -604,6 +787,26 @@ async function zhihu(submit) {
   console.log('zhihu fill:', JSON.stringify(fill, null, 2));
   if (!submit) return { fill, pid };
 
+  // Save draft first to get article id, then PATCH body (reliable path per recipes)
+  evaluate(pid, `() => {
+    const btn = [...document.querySelectorAll('button')].find(b => /保存草稿|暂存|保存/.test(b.innerText) && !b.disabled);
+    btn?.click();
+    return { clickedSave: !!btn, href: location.href };
+  }`);
+  spawnSync('sleep', ['3']);
+  const draftMeta = evaluate(pid, `() => {
+    const m = location.href.match(/\\/p\\/(\\d+)/);
+    return { href: location.href, articleId: m?.[1] || null };
+  }`);
+  let patch = null;
+  if (draftMeta.articleId) {
+    patch = await zhihuPatchDraft(pid, draftMeta.articleId, body);
+    console.log('zhihu patch:', JSON.stringify(patch, null, 2));
+    if (!patch.ok) throw new Error(`Zhihu PATCH draft failed: status=${patch.status}`);
+    openUrl(`https://zhuanlan.zhihu.com/p/${draftMeta.articleId}/edit`);
+    spawnSync('sleep', ['3']);
+  }
+
   evaluate(pid, `() => {
     const btn = [...document.querySelectorAll('button')].find(b => b.innerText?.trim() === '发布' && !b.disabled);
     btn?.click();
@@ -611,7 +814,19 @@ async function zhihu(submit) {
   }`);
   spawnSync('sleep', ['5']);
   const href = evaluate(pid, `() => ({ href: location.href }))`);
-  return { fill, href };
+  const publicUrl = /zhuanlan\.zhihu\.com\/p\/\d+/.test(href.href)
+    ? href.href.split('/edit')[0].split('?')[0]
+    : draftMeta.articleId
+      ? `https://zhuanlan.zhihu.com/p/${draftMeta.articleId}`
+      : null;
+  let pub = null;
+  if (publicUrl) {
+    pub = verifyPublic(publicUrl);
+    pub.ok = pub.articleLen >= 500 && pub.chinese >= 100;
+    console.log('zhihu public:', JSON.stringify(pub, null, 2));
+    if (!pub.ok) throw new Error(`Zhihu public verify FAILED: articleLen=${pub.articleLen}`);
+  }
+  return { fill, href, patch, pub };
 }
 
 const platform = process.argv[2];
