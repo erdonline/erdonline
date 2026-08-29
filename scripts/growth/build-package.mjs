@@ -198,11 +198,11 @@ const PLATFORM_NOTE = {
   juejin: '编辑器直接粘贴 Markdown；文末外链允许；标签建议：前端/数据库/开源',
   zhihu: '编辑器「导入 Markdown」；或作为回答投放到存量问题（ER 图工具哪个好）',
   wechat: '粘贴进公众号编辑器后重排版（标题层级会丢，需手调）；投稿大号时附本文件 + 截图包',
-  weixin: '同 wechat；Wechatsync 同步到公众号草稿箱',
+  weixin: '同 wechat；无 chrome-devtools 公网 permalink 路径卡，新稿勿列入 platforms',
   csdn: '编辑器粘贴 Markdown；标签建议：数据库/开源/架构',
-  segmentfault: '与掘金同稿，改头段一句即可',
-  oschina: '与掘金同稿，改头段一句即可',
-  xiaohongshu: '短图文稿；Wechatsync 同步草稿后需手动补封面图（3:4 或 1:1）与 1–3 张截图',
+  segmentfault: '无 chrome-devtools 公网 permalink 路径卡；勿写进 platforms YAML',
+  oschina: '与掘金同稿，改头段一句即可；或 node scripts/post-seo-essay.mjs oschina --slug=…',
+  xiaohongshu: '短图文稿；无 chrome-devtools 长文路径卡；勿写进 platforms YAML',
   v2ex: '纯文本帖；发「分享创造」节点；作者需在评论区蹲守答疑',
 };
 
@@ -212,7 +212,7 @@ function checklist(fm) {
   );
   return `# 发布核对单：${fm.title}
 
-> 发布是人工动作（平台无官方 API/登录态不可自动化）。本包已把「写什么」压到零决策。
+> 公开发布走 chrome-devtools MCP + 路径卡（见 publish-article skill）。本包已把「写什么」压到零决策。
 
 ## 发前
 
@@ -224,10 +224,10 @@ function checklist(fm) {
 
 ${lines.join('\n')}
 
-## Wechatsync（可选，草稿）
+## 公开发布（chrome-devtools MCP）
 
-- [ ] \`cd scripts/growth && npm install\`（一次性）→ 扩展 MCP Token 写入 \`WECHATSYNC_TOKEN\`
-- [ ] \`node scripts/growth/sync-wechatsync.mjs ${fm.slug}\` → 各平台草稿箱；核对排版与 UTM 后再点发布（V2EX 仍人工 \`v2ex.txt\`）
+- [ ] 读 \`.cursor/skills/publish-article/SKILL.md\` + \`docs/growth-templates/platform-post-recipes.md\` 路径卡
+- [ ] 各平台 \`.md\` 经 chrome-devtools MCP 填表发帖；验公网 permalink；记入 \`docs/growth-data/\`（V2EX 仍人工 \`v2ex.txt\`）
 
 ## 发后 24h
 

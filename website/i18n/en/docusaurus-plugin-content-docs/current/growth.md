@@ -52,9 +52,9 @@ Discipline: **every article has one primary CTA = demo**; GitHub star only at th
 Discipline: growth long-form **does not** go wholesale into the handbook; distillable tasks become `docs/guide/*` how-tos. Index: docs site [Blog](https://doc.erdonline.com/blog/).
 
 **Publish package**: `node scripts/growth/build-package.mjs --all` → `content/dist/<slug>/`.  
-**Wechatsync default sync platforms**: Juejin / CSDN / OSChina / Xiaohongshu / WeChat / Zhihu / SegmentFault; V2EX uses each article's `v2ex.txt` manually.  
-**Publish click is still manual**: verify UTM / cover in drafts before posting.  
-**Sync ledger**: [content/articles/publish-status-2026-08-09.md](https://github.com/erdonline/erdonline/blob/main/content/articles/publish-status-2026-08-09.md) (success/fail URLs; JSON in same dir).
+**Public publish**: chrome-devtools MCP + frozen path cards (see [`platform-post-recipes.md`](./growth-templates/platform-post-recipes.md), [`post-via-chrome-devtools.md`](./growth-templates/post-via-chrome-devtools.md), [publish-article skill](../.cursor/skills/publish-article/SKILL.md)).  
+**Publish log**: `docs/growth-data/YYYY-MM-DD.md` (public permalinks, username, click sequence).  
+**V2EX**: manual post from each article's `v2ex.txt`.
 
 ## Metrics (what "working" means after 4 weeks)
 
@@ -72,92 +72,29 @@ UTM spec: `?utm_source=<platform>&utm_medium=article&utm_campaign=<campaign>&utm
 ## Publish pipeline (automation boundary)
 
 - **Automated**: topic templates, frontmatter rules, UTM injection, platform package generation (`new-article.mjs` / `build-package.mjs`); CI artifact after PR tagged `growth-publish`.
-- **Semi-auto (Wechatsync)**: via [Wechatsync](https://github.com/wechatsync/Wechatsync) push `content/dist/<slug>/` platform `.md` files **to drafts** (Juejin/Zhihu/SegmentFault/OSChina/WeChat official account, etc.); extension uses your logged-in browser session and platform Web APIs—**no cookie scraping scripts**; default draft; human review before publish.
-- **Manual**: V2EX plain-text posts, comment Q&A, data backfill, click "Publish" in drafts.
+- **chrome-devtools MCP**: long-form/short posts via frozen path cards in [`platform-post-recipes.md`](./growth-templates/platform-post-recipes.md) → verify public URL → write `docs/growth-data/`. **No Playwright**; no non-chrome-devtools posting extensions or syncers.
+- **Manual**: V2EX plain-text posts, comment Q&A, data backfill.
 
-### Wechatsync integration (Phase 2 shipped)
-
-User-facing **WebChatSync** is the open project **Wechatsync**: Chrome extension + `@wechatsync/cli`, WebSocket sync of Markdown to 29+ platform drafts.
-
-**One-time setup**
-
-1. Install [Chrome extension](https://www.wechatsync.com/#install); log into Juejin/Zhihu etc. in the browser.
-2. Extension settings → enable **MCP connection** → copy Token → write to repo root `.env`: `WECHATSYNC_TOKEN=<token>` (see `.env.example`).
-3. Install pinned CLI (upstream `@wechatsync/cli@1.1.0` needs locked CJS deps on Node 20):
-   ```bash
-   cd scripts/growth && npm install
-   ```
-
-**Publish one (ready status)**
+### Publish one (ready status)
 
 ```bash
 # 1. Package (UTM injected per platform)
 node scripts/growth/build-package.mjs git-style-version-diff
 
-# 2. Preview (no extension connection)
-node scripts/growth/sync-wechatsync.mjs git-style-version-diff --dry-run
+# 2. CN long-form (Juejin / CSDN / OSChina / Zhihu)
+node scripts/post-seo-essay.mjs juejin --slug=git-style-version-diff [--submit]
 
-# 3. Sync to drafts (extension online + Token match)
-export WECHATSYNC_TOKEN=...   # or source .env
-node scripts/growth/sync-wechatsync.mjs git-style-version-diff
+# 3. EN long-form (Hashnode / Dev.to / Medium import / X Article — see platform-post-recipes + x-article-playbook)
+node scripts/post-seo-essay.mjs hashnode --slug=<slug> --submit
 
-# Optional: check platform login state
-node scripts/growth/sync-wechatsync.mjs --check-auth
+# 4. Log permalink → docs/growth-data/YYYY-MM-DD.md
 ```
 
 **Discipline**
 
-- Sync each platform's `juejin.md` / `zhihu.md` … separately so `utm_source=<platform>` is correct; `v2ex` still uses `v2ex.txt` manual posts.
-- CI **does not** run Wechatsync (needs local Chrome login); run sync locally after downloading artifact.
-- Remote dev box: extension "sync bridge" connects `ws://<host>:9527`, Token matches server (see [CLI README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/cli#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5)); production should use SSH tunnel.
-
-**Relation to old rules**: still no extension-less cookie/Playwright posting; Wechatsync is user-installed extension + official Web API draft sync.
-
-### Cursor / Claude MCP (optional)
-
-Wechatsync provides an **MCP Server** (`packages/mcp-server`, **not published to npm separately**), sharing the WebSocket bridge with `@wechatsync/cli`:
-
-```
-Cursor / Claude  ←stdio→  MCP Server (Node)  ←ws:9527→  Chrome extension  →  platform draft APIs
-growth CLI       ←same WS bridge, WECHATSYNC_TOKEN matches extension Token→
-```
-
-**One-time setup**
-
-1. Extension side as above: enable **MCP connection**, Token in repo root `.env` as `WECHATSYNC_TOKEN=<token>` (do not commit).
-2. Build MCP Server (local path example):
-   ```bash
-   git clone --depth 1 -b v2 https://github.com/wechatsync/Wechatsync.git ~/.local/share/wechatsync-mcp
-   cd ~/.local/share/wechatsync-mcp && pnpm install && pnpm build:mcp
-   ```
-3. Add to **user-level** Cursor MCP config (`~/.cursor/mcp.json`, not in git):
-   ```json
-   {
-     "mcpServers": {
-       "wechatsync": {
-         "command": "node",
-         "args": ["/path/to/Wechatsync/packages/mcp-server/dist/index.js"],
-         "env": {
-           "MCP_TOKEN": "<same token as extension>",
-           "SYNC_WS_PORT": "9527"
-         }
-       }
-     }
-   }
-   ```
-   `MCP_TOKEN` must **exactly match** the extension Token (growth CLI reads `WECHATSYNC_TOKEN`, same semantics).
-
-**MCP tools (Agent can call directly)**
-
-| Tool | Purpose |
-|---|---|
-| `list_platforms` | List platforms and login state |
-| `check_auth` | Check if a platform is logged in |
-| `sync_article` | Sync Markdown to platform drafts |
-| `extract_article` | Extract article from current browser page |
-| `upload_image_file` | Upload local image to image host |
-
-**Daily**: keep Chrome open with extension connected; reload Cursor MCP after MCP/CLI config changes. Remote dev: see [MCP Server README](https://github.com/wechatsync/Wechatsync/tree/v2/packages/mcp-server#%E8%BF%9C%E7%A8%8B%E6%A1%A5%E6%8E%A5) (extension "sync bridge" to `ws://<host>:9527`).
+- CN platforms = Chinese draft; EN = `content/articles/<slug>.en.md`; YAML `platforms:` only lists platforms with chrome-devtools path cards and growth-data public permalinks.
+- After submit, **must** open public URL and verify body; editor read-back does not count.
+- lock / captcha / phone-verify → **stop immediately**.
 
 ## MCP / Agent two-week push (2026-08-28 → 2026-09-10)
 

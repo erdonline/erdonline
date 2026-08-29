@@ -2,7 +2,7 @@
 title: 还在用 drawio 画 ER 图？它根本不知道什么是外键
 slug: drawio-doesnt-know-fk
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault, v2ex]
+platforms: [juejin, csdn, oschina, zhihu, v2ex]
 cta: demo
 utm_campaign: launch
 xhs_title: drawio 画 ER？它不懂外键

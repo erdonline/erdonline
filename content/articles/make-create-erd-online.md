@@ -2,7 +2,7 @@
 title: 搜 make ERD online 时，别再打开又一个画框图
 slug: make-create-erd-online
 status: ready
-platforms: [juejin, csdn, oschina, weixin, zhihu, segmentfault, xiaohongshu]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: 在线做 ER 图，别再只画框

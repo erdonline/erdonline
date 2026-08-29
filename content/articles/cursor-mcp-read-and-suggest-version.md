@@ -2,7 +2,7 @@
 title: Cursor 连上 MCP：读一张 ER 图，提交一版建议
 slug: cursor-mcp-read-and-suggest-version
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: mcp
 utm_campaign: mcp-agent
 xhs_title: Cursor 连上 MCP 读一张 ER 图

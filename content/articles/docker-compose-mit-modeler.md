@@ -2,7 +2,7 @@
 title: docker-compose 一键部署的 MIT 开源数据库建模平台
 slug: docker-compose-mit-modeler
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: deploy
 utm_campaign: launch
 xhs_title: docker compose 一键部署建模平台

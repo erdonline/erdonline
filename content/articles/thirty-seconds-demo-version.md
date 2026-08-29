@@ -2,7 +2,7 @@
 title: 30 秒免注册：打开这个链接，改一张表，存一个版本
 slug: thirty-seconds-demo-version
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault, v2ex]
+platforms: [juejin, csdn, oschina, zhihu, v2ex]
 cta: demo
 utm_campaign: launch
 xhs_title: 30 秒：改表 → 存版本

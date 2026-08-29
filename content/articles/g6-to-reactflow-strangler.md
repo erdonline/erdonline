@@ -2,7 +2,7 @@
 title: 从 G6 到 ReactFlow：画布 Strangler 迁移实录
 slug: g6-to-reactflow-strangler
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: repo
 utm_campaign: launch
 xhs_title: G6 → ReactFlow Strangler 实录

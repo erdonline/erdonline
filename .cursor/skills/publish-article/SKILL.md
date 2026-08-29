@@ -22,7 +22,7 @@ description: >-
 
 **单一栈：** 只用 **chrome-devtools MCP/CLI** + 冻结路径卡。**路径卡优先** — 已有步骤 → **照做**；**禁止** snapshot 后自行摸索 DOM。
 
-**禁止：** Playwright；任何非 chrome-devtools 的发帖扩展、同步器或 MCP（含草稿箱批量同步）。
+**禁止：** Playwright；任何非 chrome-devtools 的发帖扩展、同步器或 MCP。
 
 ## platforms = permalink 子集
 

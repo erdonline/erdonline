@@ -2,7 +2,7 @@
 title: 2026 年 8 款 ER 图/数据库设计工具诚实横评
 slug: honest-er-tools-compare-2026
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: compare
 utm_campaign: launch
 xhs_title: 2026 年 ER 工具诚实横评

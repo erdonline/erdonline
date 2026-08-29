@@ -2,7 +2,7 @@
 title: 我们怎么设计 good first issue：让第一个 PR 两小时内合入
 slug: good-first-issue-two-hours
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: repo
 utm_campaign: launch
 xhs_title: good first issue 两小时合入

@@ -266,7 +266,7 @@
 
 - Product Hunt / HN / Reddit / X：`chrome-devtools-mcp`（`.cursor/mcp.json` + `scripts/post-all-browser.mjs`）。禁止 Playwright。
 - Dev.to / Hashnode：官方 API token
-- 掘金 / 知乎：Wechatsync 草稿箱；点发布仍人工
+- 掘金 / 知乎 / CSDN / 开源中国：`chrome-devtools-mcp` + `scripts/post-seo-essay.mjs`（路径卡见 `platform-post-recipes.md`）
 
 ### 数据分析
 

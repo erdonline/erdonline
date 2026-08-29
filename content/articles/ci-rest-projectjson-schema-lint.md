@@ -2,7 +2,7 @@
 title: CI 里用 REST 拉 projectJSON 做 schema lint：不必把流水线绑死在 MCP
 slug: ci-rest-projectjson-schema-lint
 status: ready
-platforms: [juejin, csdn, oschina, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: mcp
 utm_campaign: mcp-agent
 created: 2026-08-28

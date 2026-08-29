@@ -2,7 +2,7 @@
 title: 数据库设计的 Git + Figma：我们把版本管理和实时协作塞进了 ER 建模
 slug: git-figma-for-database-design
 status: ready
-platforms: [juejin, csdn, oschina, xiaohongshu, weixin, zhihu, segmentfault]
+platforms: [juejin, csdn, oschina, zhihu]
 cta: demo
 utm_campaign: launch
 xhs_title: 数据库设计的 Git + Figma
