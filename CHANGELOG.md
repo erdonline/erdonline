@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): organize MCP journeys by role, not capability letters
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` 用户旅程主轴由 A–D 能力切片改为**按角色**（后端 / Tech Lead 审 schema / 值班 / DBA）；B 与 C 合并为 Tech Lead **一旅程两篇文章切角**；补回 DBA 角色与锁定标题；MCP 建设顺序改为按角色狗食所需能力；旧 A–D 仅作映射脚注。
+- **验证点**：`grep -E '按角色|一旅程可写多篇|Tech Lead|审 schema' .cursor/rules/mcp-journey-articles.mdc` 均命中；`grep -E '别再让 AI Agent 直连生产库了|Agent 写的改表，你真敢点 Approve|这 80 行 ALTER 里，哪三句是幻觉|告警响了，没人知道这列是 Agent 哪次改进来的' .cursor/rules/mcp-journey-articles.mdc` 四条旧锁定中文标题仍在。
+
 #### docs(rules): journeys are not a four-article cap; require AI keywords in titles
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` 将 A–D 从「四篇文章配额」改述为四个用户旅程（**一旅程可写多篇**）；新增独立小节「标题 AI 领域词（必守）」——每条标题含且只突出一个 AI 高频词；旅程 H3 改短口语标签；MCP 建设顺序标注为按旅程狗食而非发文篇数。
