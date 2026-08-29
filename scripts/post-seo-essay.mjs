@@ -2,7 +2,8 @@
 /**
  * Publish SEO essay or content/dist package via chrome-devtools CLI.
  * Usage: node scripts/post-seo-essay.mjs <platform> [--submit] [--slug=<slug>]
- * Platforms: hashnode | medium-import | devto | x | juejin | csdn | oschina | zhihu
+ * Platforms: hashnode | medium-import | devto | juejin | csdn | oschina | zhihu
+ * X Article (B-class WYSIWYG): use scripts/fill-x-article-shortcuts.mjs — never via this script
  */
 import { spawnSync } from 'node:child_process';
 import fs from 'node:fs';
@@ -16,12 +17,9 @@ const NODE22 = path.join(os.homedir(), '.nvm/versions/node/v22.22.0/bin');
 
 const EN_FILE = path.join(ROOT, 'docs/growth-content/2026-08-29-seo-essay.en.md');
 const ZH_FILE = path.join(ROOT, 'docs/growth-content/2026-08-29-seo-essay.zh.md');
-const X_FILE = path.join(ROOT, 'docs/growth-content/2026-08-29-seo-essay-x.md');
 
 const EN_TITLE = 'Average position 1. Zero clicks. Eight URLs, one identity.';
 const ZH_TITLE = '平均排名 1，点击 0：纯前端站点的 SEO 病根不在内容，在 _redirects';
-const X_TITLE = 'Average position 1. Zero clicks. Our site had eight URLs and one identity.';
-
 function cdt(args, { json = false } = {}) {
   const cmdArgs = ['-y', '--package=chrome-devtools-mcp', 'chrome-devtools', ...args];
   if (json) cmdArgs.push('--output-format=json');
@@ -163,20 +161,22 @@ function readZhBody() {
   return stripFrontmatter(fs.readFileSync(ZH_FILE, 'utf-8'));
 }
 
-function readXBody() {
-  const text = fs.readFileSync(X_FILE, 'utf-8');
-  const marker = '## X body (paste as-is, below the line)';
-  const idx = text.indexOf(marker);
-  if (idx === -1) throw new Error('X body marker not found');
-  let body = text.slice(idx + marker.length).trim();
-  const tagIdx = body.indexOf('\n---\n\n## Platform tag lines');
-  if (tagIdx !== -1) body = body.slice(0, tagIdx).trim();
-  return body;
-}
-
 function esc(s) {
   return JSON.stringify(s);
 }
+
+function b64(s) {
+  return Buffer.from(s, 'utf-8').toString('base64');
+}
+
+const DECODE_UTF8_B64 = `
+const decodeUtf8B64 = (b64) => {
+  const bin = atob(b64);
+  const bytes = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+  return new TextDecoder().decode(bytes);
+};
+`;
 
 function sleepJitter(minSec = 1, maxSec = 3) {
   const sec = minSec + Math.random() * (maxSec - minSec);
@@ -327,8 +327,9 @@ async function hashnode(submit) {
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(enTitle)};
-      const body = ${esc(body)};
+      ${DECODE_UTF8_B64}
+      const title = decodeUtf8B64(${esc(b64(enTitle))});
+      const body = decodeUtf8B64(${esc(b64(body))});
       const titleEl = document.querySelector('textarea[placeholder*="Article Title" i], textarea[placeholder*="title" i]');
       const bodyEl = document.querySelector('textarea[placeholder*="markdown" i], textarea[placeholder*="Write" i]') 
         || [...document.querySelectorAll('textarea')].find(t => t !== titleEl && t.offsetHeight > 100);
@@ -422,7 +423,7 @@ async function mediumImport(hashnodeUrl, submit) {
     return { clickedSubmissionPublish: !!btn, href: location.href };
   }`);
   spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   console.log('medium published:', href);
   return { state, href };
 }
@@ -440,8 +441,9 @@ async function devto(submit) {
     pid,
     `() => {
       ${SET_NATIVE}
-      const title = ${esc(enTitle)};
-      const body = ${esc(body)};
+      ${DECODE_UTF8_B64}
+      const title = decodeUtf8B64(${esc(b64(enTitle))});
+      const body = decodeUtf8B64(${esc(b64(body))});
       const titleEl = document.querySelector('#article-form-title, input[name="article[title]"], textarea[placeholder*="Title" i]');
       const bodyEl = document.querySelector('#article_body_markdown, textarea[name="article[body_markdown]"]');
       setNative(titleEl, title);
@@ -458,7 +460,7 @@ async function devto(submit) {
     return { clicked: !!btn };
   }`);
   spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   const publicUrl = href.href?.includes('dev.to/') && !href.href.includes('/new') ? href.href.split('?')[0] : null;
   let pub = null;
   if (publicUrl) {
@@ -470,50 +472,19 @@ async function devto(submit) {
   return { fill, href, pub };
 }
 
-async function xLongform(submit) {
-  const { title: xTitle, body } = slugArg ? getEnContent() : { title: X_TITLE, body: readXBody() };
-  const pid = openUrl('https://x.com/compose/articles');
-  spawnSync('sleep', ['3']);
-  const fill = evaluate(
-    pid,
-    `() => {
-      const title = ${esc(xTitle)};
-      const body = ${esc(body)};
-      const titleEl = document.querySelector('textarea[placeholder*="Title" i], input[placeholder*="Title" i], [data-testid*="title"] textarea, textarea');
-      const setNative = (el, value) => {
-        if (!el) return false;
-        const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
-        Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, value);
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-        el.dispatchEvent(new Event('change', { bubbles: true }));
-        return true;
-      };
-      if (titleEl) setNative(titleEl, title);
-      const bodyEl = document.querySelector('[contenteditable="true"][role="textbox"], [data-testid="tweetTextarea_0"], [contenteditable="true"]');
-      if (bodyEl) {
-        bodyEl.focus();
-        document.execCommand('selectAll', false, null);
-        document.execCommand('insertText', false, body);
-      }
-      return {
-        titleLen: titleEl?.value?.length ?? 0,
-        bodyLen: bodyEl?.innerText?.length ?? 0,
-        newlineCount: (bodyEl?.innerText?.match(/\\n/g) || []).length,
-        href: location.href
-      };
-    }`,
+/** X Article is B-class WYSIWYG — block IR + official shortcuts + Preview; never full-body paste. */
+function xLongformBlocked() {
+  throw new Error(
+    [
+      'X Article is B-class WYSIWYG: use scripts/fill-x-article-shortcuts.mjs + x-article-playbook.md; never insertText full markdown.',
+      '',
+      '正文不是一下全部复制进去的 — 按 block 打字 + 官方快捷键 (# / ## / Body)，Preview 强制后再 Publish。',
+      '',
+      'Playbook: docs/growth-templates/x-article-playbook.md',
+      '  1. Open https://x.com/compose/articles',
+      '  2. node scripts/fill-x-article-shortcuts.mjs [--pageId=N] [--preview] [--submit]',
+    ].join('\n'),
   );
-  console.log('x fill:', JSON.stringify(fill, null, 2));
-  if (!submit) return { fill, pid };
-
-  evaluate(pid, `() => {
-    const btn = [...document.querySelectorAll('button, [role="button"]')].find(b => /Publish|Post|Next/i.test(b.innerText) && !b.disabled);
-    btn?.click();
-    return { clicked: !!btn, text: btn?.innerText };
-  }`);
-  spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
-  return { fill, href };
 }
 
 /** Locked in live inspect 2026-08-29 — ByteMD CM5 first, CM6 fallback only under .bytemd */
@@ -620,7 +591,7 @@ async function juejin(submit) {
     return { clickedConfirm: !!btn, text: btn?.innerText };
   }`);
   spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   const publicUrl = href.href?.includes('/post/') ? href.href.split('?')[0] : null;
   let pub = null;
   if (publicUrl) {
@@ -676,7 +647,7 @@ async function csdn(submit) {
     return { clickedConfirm: !!btn, href: location.href };
   }`);
   spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   const publicUrl = href.href?.includes('/details/') ? href.href.split('?')[0] : null;
   let pub = null;
   if (publicUrl) {
@@ -724,7 +695,7 @@ async function oschina(submit) {
     return { confirmed: !!btn, href: location.href };
   }`);
   sleepJitter(2, 3);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   const publicUrl = href.href?.includes('/blog/') && !href.href.includes('ai-write') ? href.href : null;
   if (!publicUrl) throw new Error(`OSChina: no public URL after publish (${href.href}) — HARD STOP`);
 
@@ -847,7 +818,7 @@ async function zhihu(submit) {
     return { clicked: !!btn };
   }`);
   spawnSync('sleep', ['5']);
-  const href = evaluate(pid, `() => ({ href: location.href }))`);
+  const href = evaluate(pid, `() => ({ href: location.href })`);
   const publicUrl = /zhuanlan\.zhihu\.com\/p\/\d+/.test(href.href)
     ? href.href.split('/edit')[0].split('?')[0]
     : draftMeta.articleId
@@ -881,7 +852,7 @@ try {
       console.log(JSON.stringify(await devto(submit), null, 2));
       break;
     case 'x':
-      console.log(JSON.stringify(await xLongform(submit), null, 2));
+      xLongformBlocked();
       break;
     case 'juejin':
       console.log(JSON.stringify(await juejin(submit), null, 2));

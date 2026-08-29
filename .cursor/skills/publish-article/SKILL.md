@@ -62,11 +62,13 @@ Reddit 当前账号：**u/erdonline**（发帖前 username ≠ MeanAbbreviations
 # 中文长文（掘金/CSDN/OSChina/知乎）— 正向路径
 node scripts/post-seo-essay.mjs <platform> --slug=<slug> [--submit]
 
-# 国际英文长文（Hashnode / Dev.to / Medium import / X Article）— 同一脚本，必须 --slug= 指向 EN 稿
+# 国际英文长文 A/D 类（Hashnode / Dev.to / Medium import）— 同一脚本，必须 --slug= 指向 EN 稿
 node scripts/post-seo-essay.mjs hashnode --slug=dont-give-agent-prod-db --submit
 node scripts/post-seo-essay.mjs medium-import --slug=dont-give-agent-prod-db --hashnode-url=<url> --submit
 node scripts/post-seo-essay.mjs devto --slug=dont-give-agent-prod-db --submit
-node scripts/post-seo-essay.mjs x --slug=dont-give-agent-prod-db --submit   # compose/articles + Preview，禁止 compose/post
+
+# X Article（B 类 WYSIWYG）— 独立脚本 + playbook，禁止 post-seo-essay.mjs x
+# 见下方 HARD RULE
 
 # PH / HN / Reddit / X 短讯 Post
 node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ... [--submit]
@@ -74,7 +76,20 @@ node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ..
 
 填稿前先判 **ADR-0035** 适配器类：**A** MD 一次填入 / **B** WYSIWYG 逐块 / **C** API / **D** import。**禁止跨类混用**。
 
-X 长文：**只用** Article editor（`compose/articles` + Preview）；**禁止** `x.com/compose/post` 发 SEO essay。
+### HARD RULE — X 长文（B 类 WYSIWYG）
+
+> **正文不是一下全部复制进去的。**
+
+| 禁止 | 必须 |
+|---|---|
+| 整篇复制 / paste 全文进 `[contenteditable="true"]` | `node scripts/fill-x-article-shortcuts.mjs` + [x-article-playbook.md](../../../docs/growth-templates/x-article-playbook.md) **8 步** |
+| `setNative` 全文 / `insertText` 全文 dump markdown | block IR **逐块** + 官方快捷键（`# ` / `## ` / Body） |
+| `post-seo-essay.mjs x`（会 throw） | 打开 `compose/articles` → shortcuts 填稿 → **Preview 强制** → 才 Publish |
+| `x.com/compose/post` 发 SEO essay | Article editor only |
+
+国内 **A 类**（掘金 `CM.setValue`、Dev.to markdown textarea、CSDN `pre.textContent`）**可以**一次填 MD；**不要把 A 类填法用到 X**。
+
+Live 例：https://x.com/BuilderLiang/article/2093670417458491425
 
 ## Workflow
 
