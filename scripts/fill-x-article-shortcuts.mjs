@@ -8,6 +8,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertXArticleUrl, pageUrlFromList } from './growth/lib/assert-x-article-composer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -252,17 +253,38 @@ function openPage() {
   return (list.find((p) => p.url.includes('2093657683534745600')) || list[list.length - 1]).id;
 }
 
+function getPageHref(pageId) {
+  try {
+    const pages = JSON.parse(cdt(['list_pages', '--output-format=json']));
+    const url = pageUrlFromList(pages, pageId);
+    if (url) return url;
+  } catch {
+    /* fall through to live href */
+  }
+  const live = evaluate(pageId, `() => ({ href: location.href })`);
+  return live?.href || '';
+}
+
+function requireArticleComposer(pageId) {
+  assertXArticleUrl(getPageHref(pageId));
+}
+
 const pageIdArg = process.argv.find((a) => a.startsWith('--pageId='))?.slice(9);
 const doPreview = process.argv.includes('--preview');
 const doSubmit = process.argv.includes('--submit');
-const pageId = pageIdArg ? Number(pageIdArg) : openPage();
-const paragraphs = readParagraphs();
 
-console.log(`pageId=${pageId} paragraphs=${paragraphs.length}`);
-cdt(['navigate_page', String(pageId), 'reload', '--timeout=30000']);
-sleep(5);
-clearEditor(pageId);
-sleep(0.5);
+try {
+  cdt(['status']);
+  const pageId = pageIdArg ? Number(pageIdArg) : openPage();
+  const paragraphs = readParagraphs();
+
+  console.log(`pageId=${pageId} paragraphs=${paragraphs.length}`);
+  requireArticleComposer(pageId);
+  cdt(['navigate_page', String(pageId), 'reload', '--timeout=30000']);
+  sleep(5);
+  requireArticleComposer(pageId);
+  clearEditor(pageId);
+  sleep(0.5);
 
 emitQuote(pageId, paragraphs[0]);
 
@@ -406,3 +428,7 @@ const verify = evaluate(pub?.id || pageId, `() => {
 console.log('public:', JSON.stringify(verify, null, 2));
 console.log('shortcuts_used:', [...applied].sort().join('; '));
 console.log('preview_ok:', doPreview || doSubmit ? previewOk : 'skipped');
+} catch (e) {
+  console.error(e.message || e);
+  process.exit(1);
+}

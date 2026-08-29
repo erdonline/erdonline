@@ -8,11 +8,24 @@
 
 ### 2026-08-29
 
+#### fix(growth): reject X longform on Post composer
+
+- **改动**：新增 `scripts/growth/lib/assert-x-article-composer.mjs`（`assertXPlatformBlockedForEssay` / `assertNotXPostEssay` / `assertXArticleUrl`）；`post-seo-essay.mjs` 对 `x|twitter|x-article` throw；`post-all-browser.mjs` 在连 Chrome 前校验 body 长度 / `*-x.md` / `content/articles/` / 多 heading markdown；`fill-x-article-shortcuts.mjs` 与 `fill-x-article-dont-give-agent-prod-db.mjs` 填稿前 assert `compose/articles`。
+- **改动**：`.cursor/skills/publish-article/SKILL.md`、`x-article-playbook.md`、`platform-post-recipes.md` 各补一句运行时 throw 指向。
+- **验证点**：
+  ```text
+  node scripts/post-seo-essay.mjs x --slug=dont-give-agent-prod-db
+  → exit 1；stderr 含「HARD STOP」与 fill-x-article-shortcuts.mjs / compose/articles
+  node scripts/post-all-browser.mjs --platform x --title "t" --body-file docs/growth-content/dont-give-agent-prod-db-x.md
+  → exit 1；stderr 含「Article only」；未连 Chrome
+  node --check scripts/growth/lib/assert-x-article-composer.mjs scripts/post-seo-essay.mjs scripts/post-all-browser.mjs 绿
+  ```
+
 #### docs(growth): X longform is Article-only, never Post
 
 - **策略**：X 长文 / SEO essay / `content/articles/` / `docs/growth-content/*-x.md` / `fill-x-article-shortcuts` 来源 **只能** 走 Article（`compose/articles`）；**禁止** `compose/post`、`post-all-browser.mjs --platform x` 灌长文。
 - **改动**：`.cursor/skills/publish-article/SKILL.md`、`.cursor/rules/growth-post-paths.mdc`、`docs/growth-templates/x-article-playbook.md`、`platform-post-recipes.md`、`post-via-chrome-devtools.md`、`docs/growth-content/dont-give-agent-prod-db-x.md` — 首行硬规则 **长文 = Article only；Post composer 发长文 = 失败**。
-- **改动**：`scripts/post-seo-essay.mjs` `xLongformBlocked()` 错误信息强化（never compose/post）；`scripts/post-all-browser.mjs` 新增 `assertXPostIsShortOnly()` — `*-x.md` / `content/articles/` / `--slug=` / body >280 字 → throw，不打开 `compose/post`。
+- **改动**：`scripts/post-seo-essay.mjs` / `scripts/post-all-browser.mjs` 共用 `scripts/growth/lib/assert-x-article-composer.mjs` — `x`/`twitter`/`x-article` platform、`docs/growth-content/*-x.md` / `content/articles/` / `--slug=` / body >280 字 / 多 heading markdown → throw，不打开 `compose/post`。
 - **验证点**：`grep '长文 = Article only' .cursor/skills/publish-article/SKILL.md docs/growth-templates/x-article-playbook.md docs/growth-templates/platform-post-recipes.md` 均有命中；`node scripts/post-seo-essay.mjs x` exit 1 且 stderr 含 `compose/post`；`node scripts/post-all-browser.mjs --platform x --body-file docs/growth-content/dont-give-agent-prod-db-x.md` exit 1 且 stderr 含 `Article only`；`node --check scripts/post-all-browser.mjs` 绿。
 
 #### chore: remove Wechatsync pipeline; publish via chrome-devtools MCP only
