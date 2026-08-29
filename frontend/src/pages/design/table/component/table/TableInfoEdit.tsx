@@ -225,7 +225,7 @@ const TableInfoEdit: React.FC<TableInfoEditProps> = (props) => {
   ) : null;
 
   const columns = useMemo(() => [
-    ...column1,
+    ...getDefaultFieldColumns1(),
     {
       title: designIntl('design.table.info.col.typeRequired'),
       name: 'typeName',

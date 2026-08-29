@@ -8,6 +8,13 @@
 
 ### 2026-08-29
 
+#### fix(frontend): 设计器字段签 TableInfoEdit 未定义变量 column1 崩溃
+
+- **问题**：`https://www.erdonline.com/design/table/model?projectId=...` 打开表设计字段签时，控制台抛 `ReferenceError: column1 is not defined`，页面白屏/无法编辑表。`TableInfoEdit.tsx` 的 `columns` useMemo 里展开 `...column1`，但该文件既未导入也未定义 `column1`。
+- **改法**：`frontend/src/pages/design/table/component/table/TableInfoEdit.tsx` 第 228 行改为 `...getDefaultFieldColumns1()`（同文件已导入的函数）。`DefaultField.tsx` 里的 `getDefaultFieldColumns1()` 返回相同列配置。
+- **回归测试**：`frontend/tests/e2e/table-field-empty.spec.ts` 在「清字段→添加第一个字段」用例中挂载 `page.on('pageerror')` 收集器，并在末尾断言 `errors` 为空，可捕获此类运行时 JS 崩溃。
+- **验证点**：`npx eslint src/pages/design/table/component/table/TableInfoEdit.tsx` 绿；`yarn build` 绿；`rg column1 frontend/dist` 无命中；`tests/e2e/table-field-empty.spec.ts` 需通过（涉及本地前后端 E2E 环境）。
+
 #### perf(website): doc 站 hero webp 走强缓存，消除 304 验证开销
 
 - **问题**：`doc.erdonline.com` 首屏 hero 图 `Imagehero-1600.webp?v=20260830a` 与 `Imagehero-800.webp` 返回 `304 Not Modified`，每次刷新仍需 200–400 ms 往返验证；浏览器无法从本地/边缘缓存直接命中。
