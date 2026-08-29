@@ -237,26 +237,23 @@ Dev.to / Hashnode 可直接 API 发。中文社区（掘金、知乎、V2EX）�
 
 ## 7. 实施建议
 
+**已拍板**：发帖走 [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp/) 接管已登录 Chrome（`--autoConnect`）。**禁止 Playwright / CDP 脚本**。Playbook：[`post-via-chrome-devtools.md`](./growth-templates/post-via-chrome-devtools.md)。
+
 ### Phase 1（今天就能跑）
 
-1. 收集凭据
-   - Reddit: client_id / client_secret / username / password
-   - HN: username / password
-   - X: auth_token / ct0 cookies
-2. 写 `scripts/post-reddit.py` 和 `scripts/post-hackernews.sh`
-3. 用 GitHub Actions 或本地手动跑
+1. Chrome 打开 `chrome://inspect/#remote-debugging` → Allow
+2. Cursor 加载 `.cursor/mcp.json` 的 `chrome-devtools`（Node ≥ 20.19）
+3. `node scripts/post-all-browser.mjs --platform …` 填表；`--submit` 才点发布
 
 ### Phase 2（本周）
 
-1. 申请 Product Hunt write API
-2. 设置 Dev.to / Hashnode API
-3. 把 X 的 cookies 导出，写 `scripts/post-x.py`
+1. 用 MCP `take_snapshot` 把 Product Hunt 新帖表单 uid 补进脚本
+2. Dev.to / Hashnode 仍可用官方 API token（不必浏览器）
 
 ### Phase 3（长期）
 
-1. 统一成一个 `scripts/post-all.py`，读 `docs/growth-content/*.md`
-2. 配合 `growth-data.sh` 做 A/B 测试
-3. 低 karma/新账号问题：先用老账号养权重
+1. 配合 `growth-data.sh` 做发布后回填
+2. 低 karma/新账号问题：先用老账号养权重
 
 ---
 

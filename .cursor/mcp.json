@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "chrome-devtools": {
+      "command": "/bin/bash",
+      "args": ["scripts/chrome-devtools-mcp.sh"],
+      "env": {
+        "PATH": "/Users/liangcan9/.nvm/versions/node/v22.22.0/bin:/opt/homebrew/opt/node@22/bin:/opt/homebrew/bin:/usr/local/bin:/usr/bin:/bin"
+      }
+    }
+  }
+}

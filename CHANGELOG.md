@@ -8,6 +8,30 @@
 
 ### 2026-08-29
 
+#### chore(growth): PH 排期 + X 已发，废弃周二等待
+
+- Product Hunt 草稿已 **Schedule**：2026-08-29 12:01 AM PDT（平台最早档，非即时 live）。https://www.producthunt.com/products/erd-online?launch=erd-online
+- X：https://x.com/BuilderLiang/status/2093575187761713453
+- HN：表单已提交 → `showlim`（新号 Show HN 限制），无 item URL；勿重试。
+- Reddit r/cursor：乱码顶帖（失败，勿当成功）https://www.reddit.com/r/cursor/comments/1w1e64s/…；账号 u/MeanAbbreviations645 锁定；正确路径为 Weekly Showcase 评论 + Markdown 模式。
+- **验证点**：PH 产品页横幅含 draft/scheduled；X status 可打开。
+
+#### docs(growth): chrome-devtools 发帖 playbook 补 Reddit 纪律
+
+- `docs/growth-templates/post-via-chrome-devtools.md`：填表 native setter、fill-once、读回换行；Reddit lockout 硬停。
+- `docs/growth-templates/platform-post-recipes.md`：各平台配方（Reddit Markdown vs Fancy Pants、Weekly Showcase 评论、HN showlim、PH URL 前缀、X/Dev.to）。
+- **验证点**：文档可读；`docs/growth-data/2026-08-29.md` 含操作记录与 blockers。
+
+#### chore(growth): 发帖改走 chrome-devtools-mcp，去掉 Playwright CDP
+
+- **问题**：`scripts/post-all-browser.mjs` 用 Playwright `connectOverCDP` 猜选择器；Product Hunt 仍是空壳。正确入口是 [chrome-devtools-mcp](https://github.com/ChromeDevTools/chrome-devtools-mcp/) 接管已登录 Chrome。
+- **改法**：
+  1. `.cursor/mcp.json` 增加 `chrome-devtools`，经 `scripts/chrome-devtools-mcp.sh` 用 Node 22 跑 `--autoConnect --no-usage-statistics`（本机默认 Node 20.18 不够 20.19）。
+  2. `scripts/post-all-browser.mjs` 改为调用 `chrome-devtools` CLI（`new_page` / `evaluate_script` / `take_snapshot`），默认只填表，`--submit` 才点发布。
+  3. `scripts/start-chrome-debug.sh` 引导打开 `chrome://inspect/#remote-debugging`。
+  4. Playbook：`docs/growth-templates/post-via-chrome-devtools.md`。
+- **验证点**：`PATH` 含 Node 22 时 `npx chrome-devtools-mcp@latest --help` 退出 0；`./scripts/chrome-devtools-mcp.sh --help` 退出 0；`node --check scripts/post-all-browser.mjs` 绿。连 Chrome 需先 Allow remote debugging（未开时 `list_pages` 报 `DevToolsActivePort`）。
+
 #### fix(frontend): 设计器字段签 TableInfoEdit 未定义变量 column1 崩溃
 
 - **问题**：`https://www.erdonline.com/design/table/model?projectId=...` 打开表设计字段签时，控制台抛 `ReferenceError: column1 is not defined`，页面白屏/无法编辑表。`TableInfoEdit.tsx` 的 `columns` useMemo 里展开 `...column1`，但该文件既未导入也未定义 `column1`。
