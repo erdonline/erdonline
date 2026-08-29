@@ -15,7 +15,7 @@ import { useIntl } from '@umijs/max';
 import { docsUrl } from '@/utils/docsUrl';
 import {
   buildCursorMcpJson,
-  cursorMcpInstallWebHref,
+  cursorMcpInstallDeeplink,
 } from '@/utils/mcpJsonSnippet';
 import styles from './personalAccessTokens.less';
 
@@ -95,7 +95,7 @@ const PersonalAccessTokensView: React.FC = () => {
     ? buildCursorMcpJson(tokenReveal.token, mcpApiUrl)
     : '';
   /** Placeholder PAT only — minted token stays in mcp.json, never in this URL. */
-  const mcpInstallHref = cursorMcpInstallWebHref();
+  const mcpInstallHref = cursorMcpInstallDeeplink();
 
   const load = useCallback(async () => {
     setLoading(true);

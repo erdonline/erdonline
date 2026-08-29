@@ -202,7 +202,7 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     const install = reveal.getByTestId('pat-cursor-install-link');
     await expect(install).toBeVisible();
     const href = await install.getAttribute('href');
-    expect(href).toContain('https://cursor.com/link/mcp/install');
+    expect(href).toContain('cursor://anysphere.cursor-deeplink/mcp/install');
     expect(href).not.toContain(token);
     const cfgB64 = new URL(href!).searchParams.get('config');
     expect(cfgB64).toBeTruthy();
