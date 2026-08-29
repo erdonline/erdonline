@@ -75,6 +75,7 @@ description: 复制 mcp.json 配置，用 PAT 让 Cursor、Claude、Cline、Wind
 | Tool | 作用 | Scope |
 |---|---|---|
 | `list_projects` / `get_project` / `get_project_schema` | 列项目、读 projectJSON | `projects:read` |
+| `list_tables` / `describe_table` | 契约渐进披露：先列表、再按需读单表字段 + FK 邻域；表名写错返回 `found:false` + suggestions；可选 `versionId` 读已批准版本 | `projects:read` |
 | `list_versions` / `get_version` | 读版本历史 | `versions:read` |
 | `create_version` | 提交一版（人再 diff） | `versions:write` |
 | `update_project` / `put_project_json` | 改项目元数据 / 整份 JSON | `projects:write` |

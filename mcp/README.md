@@ -32,6 +32,8 @@ Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list
 | `list_projects` | `GET /api/v1/projects` | `projects:read` |
 | `get_project` | `GET /api/v1/projects/{id}` | `projects:read` |
 | `get_project_schema` | 同上，返回 `{ id, name, projectJSON }` | `projects:read` |
+| `list_tables` | 契约渐进披露①：表清单（模块/表名/字段数），不 dump 全量 schema；可选 `versionId` 读已批准版本 | `projects:read` |
+| `describe_table` | 契约渐进披露②：单表字段 + FK 邻域；表不存在返回 `found:false` + suggestions | `projects:read` |
 | `list_versions` | `GET /api/v1/projects/{id}/versions` | `versions:read` |
 | `get_version` | `GET /api/v1/projects/{id}/versions/{versionId}` | `versions:read` |
 | `create_version` | `POST /api/v1/projects/{id}/versions` | `versions:write` |

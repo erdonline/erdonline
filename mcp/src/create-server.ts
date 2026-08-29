@@ -8,6 +8,11 @@ import {
   type ErdApiConfig,
 } from './erd-api.js';
 import { loadApiAndMcpMarkdown, MCP_GUIDE_URI } from './load-guide.js';
+import {
+  describeContractTable,
+  extractProjectJson,
+  listContractTables,
+} from './contract-schema.js';
 
 function textResult(payload: unknown, isError = false) {
   return {
@@ -124,6 +129,80 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
           name: detail?.name,
           projectJSON: detail?.projectJSON,
         };
+      })(),
+  );
+
+  server.registerTool(
+    'list_tables',
+    {
+      description:
+        'Progressive disclosure step 1: compact table list (module, title, chnname, field count) from the approved projectJSON contract — NOT a live database, NOT a full schema dump. Reads the saved version snapshot when versionId is given, else the current workspace projectJSON. Follow up with describe_table for the one table you need.',
+      annotations: readAnno,
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        versionId: z
+          .string()
+          .optional()
+          .describe('Optional approved version id; defaults to current projectJSON'),
+      },
+    },
+    async ({ projectId, versionId }) =>
+      wrapTool(async () => {
+        const detail = versionId
+          ? await api.getVersion(projectId, versionId)
+          : await api.getProject(projectId);
+        const projectJSON = extractProjectJson(detail);
+        if (!projectJSON) {
+          return {
+            error: 'No projectJSON in response',
+            hint: 'Call list_projects, then get_project_schema to inspect the payload.',
+          };
+        }
+        const tables = listContractTables(projectJSON);
+        return {
+          source: versionId ? 'version' : 'workspace',
+          tableCount: tables.length,
+          tables,
+          hint: 'Pick ONE table and call describe_table. Do not dump the whole schema into context.',
+        };
+      })(),
+  );
+
+  server.registerTool(
+    'describe_table',
+    {
+      description:
+        'Progressive disclosure step 2: fields + FK neighborhood (inbound/outbound associations) for ONE table, from the approved projectJSON contract — never a live database. Unknown table returns found:false with suggestions; use a suggestion instead of inventing columns.',
+      annotations: readAnno,
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        table: z.string().min(1).describe('Table title, e.g. sys_user'),
+        versionId: z
+          .string()
+          .optional()
+          .describe('Optional approved version id; defaults to current projectJSON'),
+      },
+    },
+    async ({ projectId, table, versionId }) =>
+      wrapTool(async () => {
+        const detail = versionId
+          ? await api.getVersion(projectId, versionId)
+          : await api.getProject(projectId);
+        const projectJSON = extractProjectJson(detail);
+        if (!projectJSON) {
+          return {
+            error: 'No projectJSON in response',
+            hint: 'Call list_projects, then get_project_schema to inspect the payload.',
+          };
+        }
+        const result = describeContractTable(projectJSON, table);
+        if (!result.found) {
+          return {
+            ...result,
+            hint: 'Table not in the approved contract. Retry with one of the suggestions; do not invent columns.',
+          };
+        }
+        return result;
       })(),
   );
 
