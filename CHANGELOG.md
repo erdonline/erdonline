@@ -8,6 +8,12 @@
 
 ### 2026-08-29
 
+#### fix(scripts): lock Juejin markdown body selector for chrome-devtools fill
+
+- **改动**：`scripts/post-seo-essay.mjs` `juejin()` 新增 `pickJuejinBodyEl()`，正文锁定 `.bytemd .CodeMirror textarea`（2026-08-29 live inspect @ `juejin.cn/editor/drafts/new`，ByteMD + CM5）；备选 `.bytemd .cm-content[contenteditable="true"]`（CM6）；CM5 填值用 `CodeMirror.setValue` + `getValue` 读回（隐藏 textarea `value` 恒 0）；移除 greedy `querySelector('.editor textarea, textarea')` / 裸 `[contenteditable="true"]` / `execCommand('insertText')`；读回返回 `bodySelector`；submit 前 `bodyLen`/`newlineCount` 不足则 abort；`parseEval` 解包 chrome-devtools CLI `message` 信封。
+- **改动**：`docs/growth-templates/platform-post-recipes.md` §掘金 填目标/填法写入锁定 CSS 与禁止项。
+- **验证点**：`grep "querySelector('.editor textarea, textarea')" scripts/post-seo-essay.mjs` 无命中；`grep '.bytemd .CodeMirror textarea' docs/growth-templates/platform-post-recipes.md scripts/post-seo-essay.mjs` 均有命中；live inspect 确认 CM5 正文框 offsetWidth=1000、标题 `input[placeholder*="标题"]` 与 CM textarea 分离。
+
 #### docs(skills): explore-generate-article and publish-article Cursor skills
 
 - **改动**：`.cursor/skills/explore-generate-article/SKILL.md`（选题/探索旅程/写 MCP 增长文，指向 Job 规则与 `new-article.mjs`，不发布）；`.cursor/skills/publish-article/SKILL.md`（chrome-devtools 路径卡发帖、公网验 permalink、growth-data 记录，不选题）。
