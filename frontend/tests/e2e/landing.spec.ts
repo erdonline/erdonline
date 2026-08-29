@@ -104,6 +104,16 @@ test.describe('落地页', () => {
     await expect(page.getByTestId('landing-page')).toBeVisible();
   });
 
+  test('点击产品亮点锚点，标题不被顶栏遮挡', async ({ page }) => {
+    await page.goto('/');
+    const navHeight = await page.locator('.landingNav').evaluate((el) => el.getBoundingClientRect().height);
+    await page.getByTestId('landing-nav-pillars').click();
+    const title = page.locator('#pillars-title');
+    await expect(title).toBeVisible();
+    const pillarsTop = await page.locator('#pillars').evaluate((el) => el.getBoundingClientRect().top);
+    expect(pillarsTop, 'pillars 顶部应位于顶栏下方').toBeGreaterThanOrEqual(navHeight - 2);
+  });
+
   test('落地页族顶栏跨页尺寸一致', async ({ page }) => {
     const measureNav = async () =>
       page.locator('.landingNav').evaluate((el) => {
