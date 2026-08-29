@@ -2,6 +2,8 @@
 
 **长文 = Article only；Post composer 发长文 = 失败。**
 
+**运行时：** `post-seo-essay.mjs x` / `post-all-browser.mjs --platform x` 对长文或 `*-x.md` 会 **throw**（见 `scripts/growth/lib/assert-x-article-composer.mjs`）；`fill-x-article-shortcuts.mjs` 仅在 `compose/articles` 才填稿。
+
 **Agent 下次发 X 长文照此执行，禁止重新摸索 UI。** 环境准备见 [`post-via-chrome-devtools.md`](post-via-chrome-devtools.md)；路径卡摘要见 [`platform-post-recipes.md`](platform-post-recipes.md) § X — 长文 Article。
 
 ---

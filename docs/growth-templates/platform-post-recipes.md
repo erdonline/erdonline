@@ -115,7 +115,7 @@
 
 **长文 = Article only；Post composer 发长文 = 失败。**
 
-SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公网 URL 必须是 `/article/<id>`，不是 `/status/<id>`。`content/articles/`、`docs/growth-content/*-x.md`、`fill-x-article-shortcuts` 来源的稿件 **只能** 走 Article。
+SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公网 URL 必须是 `/article/<id>`，不是 `/status/<id>`。`content/articles/`、`docs/growth-content/*-x.md`、`fill-x-article-shortcuts` 来源的稿件 **只能** 走 Article。CLI 误走 Post 路径时 `assert-x-article-composer.mjs` 会 **throw**，不打开浏览器。
 
 ### X — 短讯 Post（≤280 字）
 

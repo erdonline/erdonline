@@ -79,7 +79,7 @@ node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ..
 
 > **长文 = Article only；Post composer 发长文 = 失败。**
 
-> **正文不是一下全部复制进去的。**
+**运行时硬停：** `scripts/growth/lib/assert-x-article-composer.mjs` — `post-seo-essay.mjs x|twitter|x-article` 与 `post-all-browser.mjs --platform x` 灌长文会 **throw**（不连 Chrome）；`fill-x-article-*.mjs` 在 `compose/post` 上也会 throw。
 
 | 禁止 | 必须 |
 |---|---|
