@@ -8,6 +8,12 @@
 
 ### 2026-08-29
 
+#### fix(scripts): X Article fill is block-by-block, not a full paste
+
+- **改动**：`scripts/post-seo-essay.mjs` `xLongform()` 删除 `execCommand('insertText')` 全文 dump；`case 'x':` 改 `xLongformBlocked()` throw，指向 `fill-x-article-shortcuts.mjs` + `x-article-playbook.md`；移除仅服务错误路径的 `readXBody`/`X_FILE`/`X_TITLE`。
+- **改动**：`.cursor/skills/publish-article/SKILL.md` CLI 区移除 `post-seo-essay.mjs x`；新增 HARD RULE（正文不是一下全部复制进去的；B 类 block IR + Preview；A 类一次填 MD 不套用到 X）。
+- **验证点**：`grep "insertText', false, body" scripts/post-seo-essay.mjs` 无命中（medium-import 的 URL 单行 insertText 保留）；`grep '禁止整篇\|不是一下全部复制' .cursor/skills/publish-article/SKILL.md` 有命中；`node scripts/post-seo-essay.mjs x` exit 1 且 stderr 含 `fill-x-article-shortcuts.mjs`。
+
 #### fix(scripts): lock Juejin markdown body selector for chrome-devtools fill
 
 - **改动**：`scripts/post-seo-essay.mjs` `juejin()` 新增 `pickJuejinBodyEl()`，正文锁定 `.bytemd .CodeMirror textarea`（2026-08-29 live inspect @ `juejin.cn/editor/drafts/new`，ByteMD + CM5）；备选 `.bytemd .cm-content[contenteditable="true"]`（CM6）；CM5 填值用 `CodeMirror.setValue` + `getValue` 读回（隐藏 textarea `value` 恒 0）；移除 greedy `querySelector('.editor textarea, textarea')` / 裸 `[contenteditable="true"]` / `execCommand('insertText')`；读回返回 `bodySelector`；submit 前 `bodyLen`/`newlineCount` 不足则 abort；`parseEval` 解包 chrome-devtools CLI `message` 信封。
