@@ -1,14 +1,13 @@
 {
   "mcpServers": {
-    "google-gmail": {
-      "command": "uvx",
+    "chrome-devtools": {
+      "command": "npx",
       "args": [
-        "mcp-google-gmail@latest"
-      ],
-      "env": {
-        "GMAIL_CREDENTIALS_PATH": ".cursor/gcp-oauth.keys.json",
-        "GMAIL_TOKEN_PATH": ".cursor/gmail-token.json"
-      }
+        "-y",
+        "chrome-devtools-mcp@latest",
+        "--browser-url=http://127.0.0.1:9222",
+        "--no-usage-statistics"
+      ]
     }
   }
 }
