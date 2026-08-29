@@ -2,7 +2,7 @@
 
 > **频率**：每日一条  
 > **执行人**：cheap model 生成初稿，你审核  
-> **统一登录**：Google 账号 `Erdonline154@gmail.com`
+> **统一登录**：Google 账号 `builderliang@gmail.com`
 
 ---
 

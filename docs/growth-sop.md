@@ -322,7 +322,7 @@ Read the full story: [blog post link]
 #database #casestudy #ai #mcp
 ```
 
-**统一登录**：用 Google 账号登录 X/Twitter（`Erdonline154@gmail.com`）
+**统一登录**：用 Google 账号登录 X/Twitter（`builderliang@gmail.com`）
 
 #### 5. 技术博客（每周一篇，集中在同一天发布）
 
