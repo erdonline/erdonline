@@ -27,6 +27,12 @@
 
 ---
 
+<p align="center">
+  <a href="https://www.erdonline.com/">
+    <img src="docs/images/homepage-zh.png" alt="ERD Online 首页" width="800"/>
+  </a>
+</p>
+
 ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁垒，设计器体验是及格线。提供关系图画布（ReactFlow）、版本快照与 diff、导入导出、多数据源与团队权限。
 
 本仓库是 **单体架构（monolith）**：前端与 Spring Boot 同仓，docker-compose 一键起全栈。
