@@ -110,9 +110,9 @@ run('install-link href never contains a minted PAT secret', () => {
   assert.ok(!decoded.env.ERD_PAT.startsWith('erd_pat_m'));
 });
 
-run('README and MCP guide contain the Cursor install deeplink', () => {
+run('README and MCP guide link to the cursor-mcp bridge page', () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-  const href = cursorMcpInstallDeeplink();
+  const bridge = 'https://www.erdonline.com/cursor-mcp/';
   for (const rel of [
     'README.md',
     'README.en-US.md',
@@ -120,6 +120,6 @@ run('README and MCP guide contain the Cursor install deeplink', () => {
     'website/i18n/en/docusaurus-plugin-content-docs/current/guide/api-and-mcp.md',
   ]) {
     const text = fs.readFileSync(path.join(root, rel), 'utf8');
-    assert.ok(text.includes(href), `${rel} missing Cursor install deeplink`);
+    assert.ok(text.includes(bridge), `${rel} missing cursor-mcp bridge link`);
   }
 });

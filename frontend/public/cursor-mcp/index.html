@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex" />
+  <title>Install ERD Online MCP in Cursor</title>
+  <link rel="preconnect" href="https://fonts.bunny.net" crossorigin />
+  <link rel="stylesheet" href="https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600&display=optional" />
+  <style>
+    :root {
+      --erd-void: #070d14;
+      --erd-surface: #f4f6f9;
+      --erd-ink: #0f1720;
+      --erd-brand: #ff7a6c;
+      --erd-muted: #9eb0c0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100dvh;
+      display: grid;
+      place-items: center;
+      background: var(--erd-void);
+      color: var(--erd-surface);
+      font-family: "IBM Plex Sans", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+      padding: 24px;
+    }
+    .card {
+      width: 100%;
+      max-width: 640px;
+      background: #0f1720;
+      border: 1px solid rgba(158,176,192,.2);
+      border-radius: 16px;
+      padding: 32px;
+      box-shadow: 0 24px 80px rgba(0,0,0,.35);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; font-weight: 600; }
+    p { margin: 0 0 20px; color: var(--erd-muted); }
+    a.cta {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--erd-brand);
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      transition: opacity .2s;
+    }
+    a.cta:hover { opacity: .9; }
+    .hint {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid rgba(158,176,192,.15);
+    }
+    pre {
+      background: #05080c;
+      border: 1px solid rgba(158,176,192,.15);
+      border-radius: 8px;
+      padding: 16px;
+      overflow: auto;
+      font-size: 13px;
+      color: var(--erd-surface);
+    }
+    code { font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; }
+    .status { margin-top: 12px; font-size: 13px; color: var(--erd-muted); }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>Install ERD Online MCP in Cursor</h1>
+    <p>One-click install opens the Cursor app. Replace <code>ERD_PAT</code> with your minted token after install.</p>
+    <a id="open-cursor" class="cta" href="cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&amp;config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D">
+      Open in Cursor
+    </a>
+    <p class="status" id="status">If nothing happens, copy the JSON below into <code>~/.cursor/mcp.json</code> and reload Cursor.</p>
+    <div class="hint">
+      <pre><code>{
+  "mcpServers": {
+    "erdonline": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}</code></pre>
+    </div>
+  </main>
+  <script>
+    var openCursor = document.getElementById('open-cursor');
+    if (openCursor) {
+      openCursor.addEventListener('click', function () {
+        document.getElementById('status').textContent = 'Attempted to open Cursor. If it did not open, copy the JSON above.';
+      });
+    }
+  </script>
+</body>
+</html>
