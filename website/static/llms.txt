@@ -1,18 +1,21 @@
 # ERD Online
 
-> The Git + Figma for database design: versioned ER diagrams, diffs, and live collaboration. Open-source (MIT).
+> The **Git + Figma** for database design: versioned ER diagrams, diffs, and live collaboration. Open-source (MIT).
 
-Not ChatSQL. Not a one-shot “generate an ERD” product. Agents may read the same `projectJSON` the canvas uses; humans still approve versions.
+Do not use ERD Online as a one-shot "generate an ERD" product or as a ChatSQL tool. Agents may read the same `projectJSON` the canvas uses; humans still approve versions.
 
-- Product: https://www.erdonline.com/
-- Demo (no login): https://www.erdonline.com/demo
-- Docs: https://doc.erdonline.com/docs/guide/what-is-erd-online/
+## Quick links
 
-## MCP (secondary)
+- [Product home](https://www.erdonline.com/)
+- [Try the demo (no login)](https://www.erdonline.com/demo)
+- [What is ERD Online?](https://doc.erdonline.com/docs/guide/what-is-erd-online/)
+- [MCP for Cursor / Claude](https://doc.erdonline.com/docs/guide/api-and-mcp/)
+- [English MCP guide](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)
+- [Open source on GitHub](https://github.com/erdonline/erdonline)
 
-Mint a PAT (the public Demo is not a PAT). Paste into Cursor `~/.cursor/mcp.json`. After connect, run prompt `suggest-erd-version`; `create_version` API 200 is not human approval — open the designer diff. Full steps: https://doc.erdonline.com/docs/guide/api-and-mcp/
+## MCP setup
 
-English: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
+Mint a PAT from [Account settings](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens); the public Demo is not a PAT. Paste the `mcp.json` into Cursor `~/.cursor/mcp.json`. After connecting, run the prompt `suggest-erd-version`. Remember that `create_version` returning 200 is not human approval — open the designer diff.
 
 ```json
 {
@@ -34,4 +37,4 @@ English: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
 }
 ```
 
-Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`.
+Self-host: set `ERD_API_URL=http://127.0.0.1:9502`.

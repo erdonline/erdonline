@@ -1,13 +1,40 @@
 # ERD Online
 
-> The Git + Figma for database design: versioned ER diagrams, diffs, and live collaboration.
+> The **Git + Figma** for database design: versioned ER diagrams, diffs, and live collaboration. Open-source (MIT).
 
-Human start (no login): https://www.erdonline.com/demo
+Do not use ERD Online as a one-shot "generate an ERD" product or as a ChatSQL tool. Agents may read the same `projectJSON` the canvas uses; humans still approve versions.
 
-## Docs
+## Quick links
 
-- What it is: https://doc.erdonline.com/docs/guide/what-is-erd-online/
-- MCP for Cursor (secondary; same projectJSON, not ChatSQL): https://doc.erdonline.com/docs/guide/api-and-mcp/
-- English MCP: https://doc.erdonline.com/en/docs/guide/api-and-mcp/
+- [Product home](https://www.erdonline.com/)
+- [Try the demo (no login)](https://www.erdonline.com/demo)
+- [What is ERD Online?](https://doc.erdonline.com/docs/guide/what-is-erd-online/)
+- [MCP for Cursor / Claude](https://doc.erdonline.com/docs/guide/api-and-mcp/)
+- [English MCP guide](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)
+- [Open source on GitHub](https://github.com/erdonline/erdonline)
 
-mcp.json uses `npx -y --package <GitHub Release tarball> erd-mcp` plus `ERD_PAT`. Demo share is not a PAT. Self-host: `ERD_API_URL=http://127.0.0.1:9502`.
+## MCP setup
+
+Mint a PAT from [Account settings](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens); the public Demo is not a PAT. Paste the `mcp.json` into Cursor `~/.cursor/mcp.json`. After connecting, run the prompt `suggest-erd-version`. Remember that `create_version` returning 200 is not human approval — open the designer diff.
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "--package",
+        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
+        "erd-mcp"
+      ],
+      "env": {
+        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_PAT": "erd_pat_…"
+      }
+    }
+  }
+}
+```
+
+Self-host: set `ERD_API_URL=http://127.0.0.1:9502`.

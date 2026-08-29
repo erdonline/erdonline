@@ -33,6 +33,15 @@
   5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
 - **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
 
+#### fix(seo): llms.txt 使用 Markdown 链接语法，提高智能体可理解性
+
+- **问题**：无障碍 / 智能体检索工具报 `llms.txt` 不包含 H1 和可识别链接；原文件使用裸 URL，工具未解析为链接。
+- **改法**：
+  1. `frontend/public/llms.txt` 与 `website/static/llms.txt` 重写为规范 Markdown：保留 H1、使用 `[text](url)` 链接、保持 `Git + Figma` 定位、`suggest-erd-version`、MCP `npx --package erdonline-mcp-0.1.0.tgz` 等关键信息。
+  2. `frontend/public/_headers` 与 `website/static/_headers`：将 `/llms.txt` 的 `Content-Type` 从 `text/plain` 改为 `text/markdown`。
+  3. `frontend/scripts/assert-seo-static.mjs` 与 `website/scripts/assert-docs-seo.mjs`：新增 H1 检测与 Markdown 链接数量（≥3）断言，作为回归单测。
+- **验证点**：`yarn test:seo-static` 绿；`website yarn test:seo` 绿；`yarn build:prod` + `node ./scripts/assert-seo-static.mjs` + `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`cd website && yarn build` 绿。
+
 #### fix(frontend): 落地页点击“产品亮点”不再被顶栏遮挡
 
 - **问题**：点击顶栏“产品亮点”锚点 `#pillars` 后，页面滚动到 section，但 `id="pillars"` 顶部与 sticky 顶栏上沿对齐，导致 section 标题/内容被顶栏盖住。

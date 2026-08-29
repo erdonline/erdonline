@@ -309,11 +309,24 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
     fail("dist/llms.txt missing");
   } else {
     const llms = fs.readFileSync(llmsPath, "utf8");
+    if (!/^# .+/m.test(llms)) {
+      fail("llms.txt must have an H1 heading");
+    }
+    const markdownLinks = [...llms.matchAll(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g)];
+    if (markdownLinks.length < 3) {
+      fail(`llms.txt must contain at least 3 Markdown-style links (found ${markdownLinks.length})`);
+    }
     if (!llms.includes("https://doc.erdonline.com/docs/guide/api-and-mcp/")) {
       fail("llms.txt must link MCP guide with trailing slash");
     }
     if (!llms.includes("npx") || !llms.includes("--package")) {
       fail("llms.txt must mention npx --package mcp.json shape");
+    }
+    if (!llms.includes("erdonline-mcp-0.1.0.tgz")) {
+      fail("llms.txt must name the erdonline-mcp-0.1.0.tgz release tarball");
+    }
+    if (!llms.includes("suggest-erd-version")) {
+      fail("llms.txt must name the suggest-erd-version prompt");
     }
     if (!/Git \+ Figma/i.test(llms)) {
       fail("llms.txt must keep Git + Figma positioning");
