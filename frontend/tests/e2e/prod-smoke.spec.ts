@@ -215,16 +215,16 @@ test.describe('regression: previous issues now have coverage', () => {
     await expect(page).toHaveURL('/en', { timeout: 5_000 });
   });
 
-  test('/ landing shows "Open workspace" when logged in', async ({ page }) => {
+  test('/ landing shows 中文 when logged in (zh locale)', async ({ page }) => {
     await page.addInitScript(() => {
       localStorage.setItem('Authorization', 'e2e-landing-session');
     });
     await page.goto('/');
     const navCta = page.getByTestId('landing-nav-cta');
-    await expect(navCta).toHaveText('Open workspace');
+    await expect(navCta).toHaveText('中文');
     await expect(navCta).toHaveAttribute('href', '/home');
     const heroPrimary = page.locator('.landingHero .landingBtnPrimary');
-    await expect(heroPrimary).toHaveText('Open workspace');
+    await expect(heroPrimary).toHaveText('中文');
     await expect(heroPrimary).toHaveAttribute('href', '/home');
   });
 });
