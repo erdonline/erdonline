@@ -252,10 +252,12 @@ async function main() {
   console.error('[dogfood] MCP tools:', names.join(', '));
   const expected = [
     'create_version',
+    'describe_table',
     'get_project',
     'get_project_schema',
     'get_version',
     'list_projects',
+    'list_tables',
     'list_versions',
     'put_project_json',
     'update_project',
@@ -286,6 +288,33 @@ async function main() {
       );
     }
     console.error('[dogfood] MCP get_project_schema ok');
+
+    const tablesCall = await client.callTool({
+      name: 'list_tables',
+      arguments: { projectId: firstId },
+    });
+    if (tablesCall.isError) {
+      throw new Error(`list_tables tool error: ${JSON.stringify(tablesCall)}`);
+    }
+    console.error('[dogfood] MCP list_tables ok');
+
+    const describeCall = await client.callTool({
+      name: 'describe_table',
+      arguments: { projectId: firstId, table: '__no_such_table__' },
+    });
+    if (describeCall.isError) {
+      throw new Error(
+        `describe_table tool error: ${JSON.stringify(describeCall)}`,
+      );
+    }
+    const describeText =
+      (describeCall.content as Array<{ text?: string }>)?.[0]?.text ?? '';
+    if (!describeText.includes('"found": false')) {
+      throw new Error(
+        `describe_table should return found:false for unknown table: ${describeText.slice(0, 200)}`,
+      );
+    }
+    console.error('[dogfood] MCP describe_table found:false ok');
 
     const mcpName = `mcp-up-${String(Date.now()).slice(-8)}`;
     const updateCall = await client.callTool({
