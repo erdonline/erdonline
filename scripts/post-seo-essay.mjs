@@ -10,6 +10,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertXPlatformBlockedForEssay } from './growth/lib/assert-x-article-composer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, '..');
@@ -472,21 +473,6 @@ async function devto(submit) {
   return { fill, href, pub };
 }
 
-/** X Article is B-class WYSIWYG — block IR + official shortcuts + Preview; never full-body paste. */
-function xLongformBlocked() {
-  throw new Error(
-    [
-      'X Article is B-class WYSIWYG: use scripts/fill-x-article-shortcuts.mjs + x-article-playbook.md; never insertText full markdown.',
-      '',
-      '正文不是一下全部复制进去的 — 按 block 打字 + 官方快捷键 (# / ## / Body)，Preview 强制后再 Publish。',
-      '',
-      'Playbook: docs/growth-templates/x-article-playbook.md',
-      '  1. Open https://x.com/compose/articles',
-      '  2. node scripts/fill-x-article-shortcuts.mjs [--pageId=N] [--preview] [--submit]',
-    ].join('\n'),
-  );
-}
-
 /** Locked in live inspect 2026-08-29 — ByteMD CM5 first, CM6 fallback only under .bytemd */
 const JUEJIN_BODY_SELECTORS = [
   '.bytemd .CodeMirror textarea',
@@ -852,7 +838,9 @@ try {
       console.log(JSON.stringify(await devto(submit), null, 2));
       break;
     case 'x':
-      xLongformBlocked();
+    case 'twitter':
+    case 'x-article':
+      assertXPlatformBlockedForEssay(platform);
       break;
     case 'juejin':
       console.log(JSON.stringify(await juejin(submit), null, 2));

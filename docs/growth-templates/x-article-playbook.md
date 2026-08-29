@@ -1,5 +1,7 @@
 # X Article Playbook（Premium 长文 · 可复用）
 
+**长文 = Article only；Post composer 发长文 = 失败。**
+
 **Agent 下次发 X 长文照此执行，禁止重新摸索 UI。** 环境准备见 [`post-via-chrome-devtools.md`](post-via-chrome-devtools.md)；路径卡摘要见 [`platform-post-recipes.md`](platform-post-recipes.md) § X — 长文 Article。
 
 ---
@@ -264,4 +266,4 @@ node scripts/fill-x-article-shortcuts.mjs --preview --submit
 - 路径卡（Post vs Article 分流）：[`platform-post-recipes.md`](platform-post-recipes.md) § X
 - Agent 规则：[`.cursor/rules/growth-post-paths.mdc`](../../.cursor/rules/growth-post-paths.mdc)
 - 稿件例：[`docs/growth-content/2026-08-29-seo-essay-x.md`](../growth-content/2026-08-29-seo-essay-x.md)
-- 短讯 Post CLI：`node scripts/post-all-browser.mjs --platform x --body-file …`
+- 短讯 Post CLI（≤280 字；长文会 throw）：`node scripts/post-all-browser.mjs --platform x --body-file …`

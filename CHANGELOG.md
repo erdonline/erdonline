@@ -8,6 +8,13 @@
 
 ### 2026-08-29
 
+#### docs(growth): X longform is Article-only, never Post
+
+- **策略**：X 长文 / SEO essay / `content/articles/` / `docs/growth-content/*-x.md` / `fill-x-article-shortcuts` 来源 **只能** 走 Article（`compose/articles`）；**禁止** `compose/post`、`post-all-browser.mjs --platform x` 灌长文。
+- **改动**：`.cursor/skills/publish-article/SKILL.md`、`.cursor/rules/growth-post-paths.mdc`、`docs/growth-templates/x-article-playbook.md`、`platform-post-recipes.md`、`post-via-chrome-devtools.md`、`docs/growth-content/dont-give-agent-prod-db-x.md` — 首行硬规则 **长文 = Article only；Post composer 发长文 = 失败**。
+- **改动**：`scripts/post-seo-essay.mjs` `xLongformBlocked()` 错误信息强化（never compose/post）；`scripts/post-all-browser.mjs` 新增 `assertXPostIsShortOnly()` — `*-x.md` / `content/articles/` / `--slug=` / body >280 字 → throw，不打开 `compose/post`。
+- **验证点**：`grep '长文 = Article only' .cursor/skills/publish-article/SKILL.md docs/growth-templates/x-article-playbook.md docs/growth-templates/platform-post-recipes.md` 均有命中；`node scripts/post-seo-essay.mjs x` exit 1 且 stderr 含 `compose/post`；`node scripts/post-all-browser.mjs --platform x --body-file docs/growth-content/dont-give-agent-prod-db-x.md` exit 1 且 stderr 含 `Article only`；`node --check scripts/post-all-browser.mjs` 绿。
+
 #### chore: remove Wechatsync pipeline; publish via chrome-devtools MCP only
 
 - **删除**：growth 多平台草稿同步流水线（7 个脚本/包文件及 lib 映射模块）；`content/articles/publish-status-2026-08-09.{md,json}`（旧草稿箱台账）。

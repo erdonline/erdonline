@@ -24,7 +24,7 @@
 3. 默认**停在提交按钮前**；用户明确说「提交」或 `--submit` 才 click
 4. 提交后 **公网 URL 验正文**（见 recipes 各平台验收标准）
 
-CLI 入口（PH/HN/Reddit/X 短讯 Post）：`scripts/post-all-browser.mjs`；X 长文 Article：`scripts/fill-x-article-shortcuts.mjs`（见 [`x-article-playbook.md`](x-article-playbook.md)）；知乎补正文：`scripts/zhihu-patch-draft.mjs`。
+CLI 入口（PH/HN/Reddit/X 短讯 Post ≤280 字）：`scripts/post-all-browser.mjs` — **`--platform x` 发长文会 throw**；X 长文 Article：`scripts/fill-x-article-shortcuts.mjs`（见 [`x-article-playbook.md`](x-article-playbook.md)，**长文 = Article only；Post composer 发长文 = 失败**）；知乎补正文：`scripts/zhihu-patch-draft.mjs`。
 
 ## 故障排除
 

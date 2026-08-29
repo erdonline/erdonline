@@ -113,7 +113,9 @@
 
 ## X (Twitter)
 
-**硬规则：长文 = Article only；Post 仅短讯。** SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公网 URL 必须是 `/article/<id>`，不是 `/status/<id>`。
+**长文 = Article only；Post composer 发长文 = 失败。**
+
+SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公网 URL 必须是 `/article/<id>`，不是 `/status/<id>`。`content/articles/`、`docs/growth-content/*-x.md`、`fill-x-article-shortcuts` 来源的稿件 **只能** 走 Article。
 
 ### X — 短讯 Post（≤280 字）
 
@@ -150,7 +152,7 @@
 | **SEO essay live URL** | https://x.com/BuilderLiang/article/2093670417458491425 |
 | **硬停** | Playwright；整篇 md paste；Preview 未过就发；误开 `compose/post` → 关闭改 Article |
 
-CLI（短讯 Post）：`node scripts/post-all-browser.mjs --platform x --body-file … [--submit]`
+CLI（短讯 Post ≤280 字）：`node scripts/post-all-browser.mjs --platform x --body-file … [--submit]` — **长文 / growth-content / content/articles 会 throw**；长文走 `fill-x-article-shortcuts.mjs`
 
 ---
 

@@ -26,6 +26,8 @@ Agent 在 growth 渠道发帖时 **必须** 遵循已冻结路径，**禁止** �
 
 ## X 长文（Article）
 
+**长文 = Article only；Post composer 发长文 = 失败。**
+
 **Canonical playbook：** [`docs/growth-templates/x-article-playbook.md`](../../docs/growth-templates/x-article-playbook.md) — 何时 Article vs Post、入口 URL、编辑器模型、**Insert 下拉菜单**（7 项）、官方快捷键、8 步填稿、禁止项、`fill-x-article-shortcuts.mjs` 用法。
 
 **同时是所有 B 类（WYSIWYG 逐块）平台的范本**（[ADR-0035](../../docs/adr/0035-publishing-adapters-md-vs-wysiwyg.md)）：新接入的无 md 框富文本平台，按本 playbook 的 block 映射 + Preview 门禁照搬，**不要**重新摸索。
