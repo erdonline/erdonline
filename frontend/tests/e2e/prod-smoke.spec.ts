@@ -220,6 +220,9 @@ test.describe('regression: previous issues now have coverage', () => {
       localStorage.setItem('Authorization', 'e2e-landing-session');
     });
     await page.goto('/');
+    // ensure both LandingChrome and landing/index.tsx read localStorage before assertions
+    await page.evaluate(() => localStorage.setItem('Authorization', 'e2e-landing-session'));
+    await page.reload();
     const navCta = page.getByTestId('landing-nav-cta');
     await expect(navCta).toHaveText('进入工作台');
     await expect(navCta).toHaveAttribute('href', '/home');
