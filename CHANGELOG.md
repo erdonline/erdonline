@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): MCP journeys keyed by job, with role pain itch delight
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` 用户旅程主轴由「用户旅程 = 角色」改回 **Job 为主键**（一件工作：触发 → 已试过 → 卡点 → 做成）；角色 / 痛点 / 痒点 / 爽点为描述层；四条 Job（别让 Agent 连生产 / 改表必须可审 / 告警溯源 / merge 前否决）；Job 2 保留 Tech Lead 两篇切角，Job 4 独立 DBA 门禁 Job；MCP 建设顺序按 Job 狗食。
+- **验证点**：`grep '用户旅程 = 角色' .cursor/rules/mcp-journey-articles.mdc` 无命中；`grep -E '痛点|痒点|爽点|一 Job|一件 Job' .cursor/rules/mcp-journey-articles.mdc` 均命中；五条锁定中文标题仍在。
+
 #### docs(rules): organize MCP journeys by role, not capability letters
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` 用户旅程主轴由 A–D 能力切片改为**按角色**（后端 / Tech Lead 审 schema / 值班 / DBA）；B 与 C 合并为 Tech Lead **一旅程两篇文章切角**；补回 DBA 角色与锁定标题；MCP 建设顺序改为按角色狗食所需能力；旧 A–D 仅作映射脚注。
