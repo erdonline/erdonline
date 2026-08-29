@@ -27,6 +27,35 @@ const config = {
     },
   },
   clientModules: [require.resolve('./src/clientModules/baiduAnalytics.js')],
+  headTags: [
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preconnect',
+        href: 'https://fonts.bunny.net',
+        crossorigin: 'true',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'stylesheet',
+        href: 'https://fonts.bunny.net/css?family=ibm-plex-sans:400,500,600|ibm-plex-mono:400,500&display=swap',
+        media: 'print',
+        onload: 'this.media="all"',
+      },
+    },
+    {
+      tagName: 'link',
+      attributes: {
+        rel: 'preload',
+        as: 'image',
+        imagesrcset: '/img/hero-800.webp?v=20260830a 800w, /img/hero-1600.webp?v=20260830a 1600w',
+        imagesizes: '(max-width: 996px) 100vw, 800px',
+        type: 'image/webp',
+      },
+    },
+  ],
   presets: [
     [
       'classic',

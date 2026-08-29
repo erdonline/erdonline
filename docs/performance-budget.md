@@ -77,6 +77,30 @@
 - `/` 落地页完全静态化：移除 `framework`/`preload_helper`/`umi.js` 的 `<script>`，把 SPA 壳放到 `dist/app` 无扩展名文件并用 `_redirects` 200 重写；`/` 不再加载任何 JS bundle；LCP 从 **~6.7–7.5s** 降到 **~1.1s**，Lighthouse Performance 从 62–69 升到 **99**。
 - 关键 CSS 内联：把 `umi.*.css` 与 `p__landing__index.*.chunk.css` 合并写入 `dist/index.html` `<style>`；hero `sizes` 限制为 `(max-width: 996px) 100vw, 640px`；`landing-hero.webp/jpg`、`logo.svg` 改 `immutable`；Cloudflare beacon 延迟到 `DOMContentLoaded`；Lighthouse Performance 从 99 升到 **100**。
 
-### 后续最大杠杆
+## 文档站 Lighthouse（doc.erdonline.com）
+
+测量：本机 `npx lighthouse http://localhost:4175/`（Docusaurus 生产 build `npx serve build`），2026-08-30。
+
+| 指标 | 优化前（线上） | 优化后（本机 build） |
+|---|---|---|
+| Performance | 72 | 92 |
+| SEO | 100 | 100 |
+| Best Practices | 57 | 96 |
+| Accessibility | 100 | 100 |
+| FCP | ~2.9 s | ~0.9 s |
+| LCP | ~5.3 s | ~3.3 s |
+| SI | ~4.9 s | ~1.5 s |
+| TBT | 30 ms | 60 ms |
+| CLS | 0 | 0 |
+
+主要改动（`website/`）：
+
+1. Hero 大图 `static/img/hero.jpg` 353KB → `hero-800.webp` 27KB + `hero-1600.webp` 71KB，并加 `srcSet` / `sizes` / `preload` / `fetchpriority="high"`。
+2. 字体 CSS 从 `custom.css` 的 `@import` 改为 `docusaurus.config.js` `headTags` 非阻塞 `media="print" onload="this.media='all'"`，减少渲染阻塞。
+3. `headTags` 增加 `preconnect` 到 `https://fonts.bunny.net`。
+
+线上实测待 CF Pages 部署后复测，目标：Performance ≥ 90。
+
+## 落地页后续最大杠杆
 
 `umi.js` 主包 628KB 仍是 `LCP`/`TTI` 的主要瓶颈。要显著继续提升，需对其做代码分割 / 延迟加载 landing 非必须模块。

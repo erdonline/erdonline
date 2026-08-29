@@ -22,6 +22,15 @@
      - `serve-dist-pages.mjs` 支持 `dist/app` 作为 SPA fallback 并强制 `Content-Type: text/html`，让本地 prod-smoke 仿真 Cloudflare 200-rewrite。
 - **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿
 
+#### perf(website): 文档站 Lighthouse Performance 72 → 92
+
+- **问题**：`doc.erdonline.com/` Lighthouse Performance 72，`LCP` 5.3s；`Best Practices` 57（渲染阻塞字体、大图未优化）。
+- **改法**：
+  1. `website/src/pages/index.js`：Hero 图 `hero.jpg` 改为 `hero-800.webp` + `hero-1600.webp`，加 `srcSet` / `sizes` / `preload` / `fetchpriority="high"` / `loading="eager"`。
+  2. `website/src/css/custom.css`：移除字体 `@import`。
+  3. `website/docusaurus.config.js`：用 `headTags` 非阻塞加载 `fonts.bunny.net` 样式（`media="print" onload="this.media='all'"`），并 `preconnect` 到字体域名。
+- **验证点**：`cd website && yarn build` 绿；`npx serve build -l 4175` + `npx lighthouse http://localhost:4175/`：Performance 92，SEO 100，Best Practices 96，Accessibility 100。
+
 #### perf(frontend): 关键 CSS 内联 + hero 尺寸 + 长缓存 + beacon 延迟
 
 - **问题**：`/` 静态页 Performance 99，最后 1 分卡在 `render-blocking-insight`、偏大 hero 图、`uses-long-cache-ttl` 和 `network-dependency-tree` 里的 beacon 长链。
