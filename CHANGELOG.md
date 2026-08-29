@@ -8,6 +8,31 @@
 
 ### 2026-08-29
 
+#### fix(frontend): 落地页 hero 图圆角 + 渐隐软化
+
+- **改法**：`.landingHeroShotWrap` / `.landingHeroShotBlend` 加 `14px` 圆角（对齐 `.landingHeroFrame`）；mask 实心区 52%→40%、渐隐延至 92%；`inset box-shadow` 略加强；保留 `mix-blend-mode: screen` 与 `overflow-x: clip`。
+- **验证点**：`/` 375px / 1280px 无横向溢出；hero 图四角可见圆角、外缘无矩形硬边。
+
+#### fix(frontend): 落地页 hero 图溶入背景，消除矩形硬边
+
+- **问题**：`landing-hero.webp` 纯黑底与 hero 炭灰 `#070d14`+网格不连续；矩形裁切硬边；图内透视网格与页面 2D 网格错位；底部红霓虹在图片下缘被截断。
+- **改法**（纯 CSS，未重导 webp）：
+  1. `.landingHeroShotBlend` 包裹 `<picture>`；`.landingHeroShot` 用 `mix-blend-mode: screen` 让图内纯黑溶入 hero 背景。
+  2. 椭圆 `mask-image: radial-gradient` 四边渐隐 + `inset box-shadow: #070d14` 外缘晕。
+  3. `::before` 叠与 `.landingHeroGrid` 同规格的 48px 网格（`soft-light`），淡化透视网格错位。
+  4. `.landingHeroShotWrap::after` 模糊径向红晕补底部被裁切的 neon。
+  5. 保留横向防溢出：`max-width:100%`、`min-width:0`、`overflow-x: clip`。
+- **验证点**：`/` 在 375px / 1280px 视口 `document.documentElement.scrollWidth <= window.innerWidth`；hero 图可见且无矩形贴图感；Playwright 截图 `localhost:8002/` 人工目视。
+
+#### fix(frontend): 落地页 hero 图横向溢出视口
+
+- **问题**：`/` hero 使用裸 `<img class="landingHeroShot">` 指向 2100×1312 的 `landing-hero.webp`，无 CSS 约束；HTML `width=960` 与 grid 列 intrinsic 宽叠加，桌面/移动出现横向滚动条，图片右侧 bleed 出视口。
+- **改法**：
+  1. 恢复 `<picture>` + `srcSet` / `sizes="(max-width: 996px) 100vw, 640px"`，外包 `.landingHeroShotWrap`（`overflow: hidden`）。
+  2. `.landingHeroShot`：`width: 100%`、`max-width: 100%`、`height: auto`、`object-fit: contain`；`.landingHeroStage > *` 补 `min-width: 0` 防 grid 被 intrinsic 撑破。
+  3. `config.ts` preload `imagesizes` 与 hero `sizes` 对齐（640px 桌面槽宽）。
+- **验证点**：首页无横向溢出 — `document.documentElement.scrollWidth <= window.innerWidth` 在 `/` 与 `/en`、375px 与 1280px 视口均成立；Playwright `landing.spec.ts` hero alt 可见。
+
 #### chore(growth): PH 排期 + X 已发，废弃周二等待
 
 - Product Hunt 草稿已 **Schedule**：2026-08-29 12:01 AM PDT（平台最早档，非即时 live）。https://www.producthunt.com/products/erd-online?launch=erd-online
