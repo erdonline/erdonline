@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(skills): explore-generate-article and publish-article Cursor skills
+
+- **改动**：`.cursor/skills/explore-generate-article/SKILL.md`（选题/探索旅程/写 MCP 增长文，指向 Job 规则与 `new-article.mjs`，不发布）；`.cursor/skills/publish-article/SKILL.md`（chrome-devtools 路径卡发帖、公网验 permalink、growth-data 记录，不选题）。
+- **验证点**：两文件存在且 `name` 唯一（explore-generate-article / publish-article）；`description` 含探索/发布 trigger 词（选题/探索旅程/写文章 vs 发布/发帖/post-seo-essay）；均无 `disable-model-invocation`；正文 <200 行且不粘贴整段 rules。
+
 #### feat(mcp): contract reads list_tables / describe_table (Job 1 dogfood)
 
 - **改动**：`mcp/src/contract-schema.ts` 新增契约渐进披露纯函数（表清单 / 单表字段 + FK 邻域 / `found:false` + suggestions，兼容 `projectJSON`/`projectJson` 两种键）；`create-server.ts` 注册 `list_tables`、`describe_table` 两个只读工具（可选 `versionId` 读已批准版本快照；不连库、不执行 SQL，符合 ADR-0013）；`dogfood.ts` 期望工具清单补两只并断言未知表返回 `found:false`；新增 `mcp/scripts/verify-contract-tools.mjs`（无后端，跑 demo fixture）；`mcp/README.md` 与 `docs/guide/api-and-mcp.md` 工具表同步。
