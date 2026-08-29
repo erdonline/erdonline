@@ -37,7 +37,7 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 
 > **Try it in 30 seconds — no signup:** [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → open the sample project → you're inside a live ER diagram of `user` / `order` tables. Edit a table, save a version, see the diff.
 
-### Cursor MCP in 30 seconds (agents)
+### AI Agent / MCP in 30 seconds
 
 Secondary path — the product is still **Git + Figma for database design**, not ChatSQL. Agents read the **same** `projectJSON` the canvas uses. Demo share links are **not** a PAT.
 
@@ -45,6 +45,8 @@ Secondary path — the product is still **Git + Figma for database design**, not
 2. After minting a PAT, one-click install in Cursor (then replace `ERD_PAT` with the plaintext; the public Demo is **not** a PAT):
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
+
+> Also works with **Claude Desktop, Claude Code, Cline, Roo Code, Windsurf, Glama** and any stdio MCP client. Paste the same JSON into the matching config. [Full client list](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
 
 Or paste this into Cursor user-level `~/.cursor/mcp.json`. `npx` fetches the GitHub Release package — no clone:
 

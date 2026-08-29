@@ -39,7 +39,7 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 > **30 秒惊艳，免注册**：打开 [**www.erdonline.com/demo**](https://www.erdonline.com/demo) → 进入带 `用户`/`订单` 表的关系图，改一张表、存一个版本、看一次 diff。
 
-### 30 秒接到 Cursor MCP（给 Agent）
+### 30 秒接到 AI Agent（MCP）
 
 次路径：品牌仍是**数据库设计的 Git + Figma**，不是 ChatSQL。Agent 读写的是设计器同一份 `projectJSON`。官方 Demo 是只读分享，**不能当 PAT**。
 
@@ -47,6 +47,8 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 2. 先铸造 PAT，再一键装进 Cursor（装好后把 `ERD_PAT` 换成弹层里的明文；官方 Demo **不能当 PAT**）：
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
+
+> 也支持 **Claude Desktop、Claude Code、Cline、Roo Code、Windsurf、Glama** 等 stdio MCP 客户端。把同一 JSON 粘到对应配置位置即可；[完整客户端列表与接入位置](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
 或把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`。`npx` 会拉 GitHub Release 包，不必 clone：
 
