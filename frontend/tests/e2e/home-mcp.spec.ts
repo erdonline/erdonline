@@ -53,5 +53,12 @@ test.describe('Home MCP 次入口', () => {
     await expect(mcp).toContainText(/提交一版|suggest a version/);
     await expect(page.getByTestId('home-continue-modeling')).toBeVisible();
     await expect(page.getByTestId('home-link-new-project')).toBeVisible();
+
+    // ADR-0016 CLS 回归：projectSection / projectCard 必须有稳定最小高度
+    const section = page.getByTestId('home-project-section');
+    await expect(section).toBeVisible();
+    await expect(section).toHaveCSS('min-height', /160px/);
+    const card = page.locator('.projectCard').first();
+    await expect(card).toHaveCSS('min-height', /116px/);
   });
 });
