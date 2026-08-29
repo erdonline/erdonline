@@ -59,19 +59,23 @@ alwaysApply: true
 
 ### Job 2：改表必须可审、有人批
 
+**现场**：周二下午，junior 在群里丢了个 PR，说是 Agent 生成的 migration，80 行 ALTER，「机械上看着都挺合理」（MergeBrake 那类：agent-generated, looks plausible）。你点开 diff，每一行都认识，连起来不知道它会干什么。全盘打回吧，像在反 AI、挡团队效率；直接点了吧，Approve 上签的是你的名字，出了事是你给幻觉背书。真正会炸的东西行 diff 里根本看不出来：这张表锁多久、NOT NULL 没给 default 在老数据上跑不跑得过去、down 能不能回到原 schema。你不可能每个 PR 都自己搭个库跑一遍。最后只剩两种演法：装懂，评两句 naming 就点了；装严，让人改三轮格式，少了一张关联表还是没人发现。
+
 - **角色**：Tech Lead（审 schema PR，主）；DBA 也会走进来（career Approve vs 生产门禁是不同 Job，见 Job 4）
-- **痛点**：点 Approve = 给幻觉背书；80 行 ALTER 看不出哪三句会炸
-- **痒点**：会上能指着一版说话；shift-left 仍是专家而非被 Agent 架空
-- **爽点**：留下**命名的契约版本**
-- **已经试过什么**：更严的 CI、人工扫 ALTER、让 Agent 自评「应该没问题」——200 仍不等于人看懂 diff
-- **成功标准**：对着「这一版 vs 上一批准版」的语义 diff 审；API 200 ≠ 批准；产生**命名的契约版本**后再谈 merge
-- **文章切角 / 锁定标题**（同一 Job，两篇切角给 Lead）：
-  1. 中文（锁定）：**Agent 写的改表，你真敢点 Approve？**
+- **痛点**：Agent 写的 migration 真在生产炸了，复盘会上被问「这版谁审的」，只能答「CI 过了、我看着也行」。不是审不过来，是审了等于没审，还要为这个「审过」签字负责。会丢人、会背锅的那一下在复盘会，不在 review 界面。
+- **痒点**：产品在会上问「这次改表会不会炸」，现在只能凭记忆答；想打开的是「相对上一批准版改了哪 3 个语义变化」，指着它说话，而不是当场翻 80 行 SQL。
+- **爽点**：能指着三处语义变化说「这三处我都看过了」，再点 Approve。命名的契约版本是这个动作的产物（对北极星），不是爽点本身的形容词。
+- **已经试过什么**：更严的 CI、让 Agent 自评「应该没问题」、Prisma 那类声明式 diff（声明不是将要执行的语句）、更细的 code review 规范。审的仍是 SQL 噪声，不是语义。「No human can review at this speed」这类判断（Atlas 句式可作证据气质，别写成产品名堆砌）说的就是这件事：生成速度上去了，人的审读速度没变。
+- **成功标准**：对着「这一版 vs 上一批准版」的语义 diff 审；API 200 ≠ 批准；产生命名的契约版本后再谈 merge。
+- **文章切角 / 锁定标题**（同一周里的两个时刻，不是两个 Job）：
+  1. 手悬在 Approve 按钮上的那一刻。
+     - 中文（锁定）：**Agent 写的改表，你真敢点 Approve？**
      - EN（锁定）：**The agent wrote the migration. Are you really going to Approve it?**
      - 备选：别把 Agent 写的 Approve 点在你没看懂的 ALTER 上
-  2. 中文（锁定）：**这 80 行 ALTER 里，哪三句是幻觉？**
+  2. 盯着 80 行 ALTER 问哪三句是幻觉的那一刻。
+     - 中文（锁定）：**这 80 行 ALTER 里，哪三句是幻觉？**
      - EN（锁定）：**Which three lines in this migration are hallucinated?**
-- **MCP 缺口**：`create_version` = 文案里唯一的写；`diff_versions`；可选 DDL 草稿（从已批准版本生成，**仍不执行**）
+- **MCP 缺口**：没有语义 `diff_versions` 时，Lead 只能审 SQL 噪声；`create_version` 是意图落点（文案里唯一的写）；可选 DDL 草稿从已批准版本生成、仍不执行。merge 前的门禁与否决叙事留给 Job 4，Job 2 的现场停在 Lead 的 Approve 按钮上。
 
 ### Job 3：告警时能问哪版引进这列
 
