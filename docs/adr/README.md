@@ -39,3 +39,4 @@
 | [0032](./0032-field-library-data-dict.md) | 字段库 data_dict（平台/团队/个人；copy-on-apply；含库管理 UI） | ✅ 已接受 · MVP |
 | [0033](./0033-app-i18n-extraction-conventions.md) | 应用主体批量 i18n 工程约定（模块内 `locales/`、`getIntl()`、硬编码中文只减不增门禁） | 已接受 |
 | [0034](./0034-locale-path-routing.md) | locale 路由只做营销页 `/en/*`，应用内页不做 | 已接受 |
+| [0035](./0035-publishing-adapters-md-vs-wysiwyg.md) | 发布适配器：Markdown 一次填入 vs 原生编辑器逐块（按编辑器能力选，共享 block IR） | 已接受 |
