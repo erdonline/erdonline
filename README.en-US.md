@@ -44,7 +44,7 @@ Secondary path — the product is still **Git + Figma for database design**, not
 1. Sign in → [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) (read-only is enough). The success dialog copies a PAT-filled `mcp.json`.
 2. After minting a PAT, one-click install in Cursor (then replace `ERD_PAT` with the plaintext; the public Demo is **not** a PAT):
 
-[![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://cursor.com/link/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)
+[![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)
 
 Or paste this into Cursor user-level `~/.cursor/mcp.json`. `npx` fetches the GitHub Release package — no clone:
 

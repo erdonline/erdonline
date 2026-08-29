@@ -14,7 +14,6 @@ import {
   buildCursorMcpJson,
   cursorMcpInstallConfig,
   cursorMcpInstallDeeplink,
-  cursorMcpInstallWebHref,
   resolveMcpApiUrl,
 } from './mcpJsonSnippet';
 
@@ -83,10 +82,10 @@ run('Cursor install-link config is shipped npx tarball + PAT placeholder', () =>
   assert.deepEqual(cfg.args, [...MCP_NPX_ARGS]);
   assert.equal(cfg.env.ERD_API_URL, PRODUCTION_MCP_API_URL);
   assert.equal(cfg.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
-  const web = cursorMcpInstallWebHref();
-  assert.match(web, /^https:\/\/cursor\.com\/link\/mcp\/install\?name=erdonline&config=/);
-  assert.match(cursorMcpInstallDeeplink(), /^cursor:\/\/anysphere\.cursor-deeplink\/mcp\/install\?/);
-  const q = new URL(web).searchParams.get('config');
+  const href = cursorMcpInstallDeeplink();
+  assert.match(href, /^cursor:\/\/anysphere\.cursor-deeplink\/mcp\/install\?name=erdonline&config=/);
+  const u = new URL(href.replace(/^cursor:/, 'http:'));
+  const q = u.searchParams.get('config');
   assert.ok(q);
   const decoded = JSON.parse(
     Buffer.from(q, 'base64').toString('utf8'),
@@ -98,10 +97,11 @@ run('install-link href never contains a minted PAT secret', () => {
   const secret = 'erd_pat_minted_secret';
   const json = buildCursorMcpJson(secret, PRODUCTION_MCP_API_URL);
   assert.match(json, new RegExp(secret));
-  const href = cursorMcpInstallWebHref();
+  const href = cursorMcpInstallDeeplink();
   assert.ok(!href.includes(secret));
   assert.ok(!decodeURIComponent(href).includes(secret));
-  const q = new URL(href).searchParams.get('config');
+  const u = new URL(href.replace(/^cursor:/, 'http:'));
+  const q = u.searchParams.get('config');
   assert.ok(q);
   const raw = Buffer.from(q, 'base64').toString('utf8');
   assert.ok(!raw.includes(secret));
@@ -110,9 +110,9 @@ run('install-link href never contains a minted PAT secret', () => {
   assert.ok(!decoded.env.ERD_PAT.startsWith('erd_pat_m'));
 });
 
-run('README and MCP guide contain the Cursor install web link', () => {
+run('README and MCP guide contain the Cursor install deeplink', () => {
   const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../..');
-  const href = cursorMcpInstallWebHref();
+  const href = cursorMcpInstallDeeplink();
   for (const rel of [
     'README.md',
     'README.en-US.md',
@@ -120,6 +120,6 @@ run('README and MCP guide contain the Cursor install web link', () => {
     'website/i18n/en/docusaurus-plugin-content-docs/current/guide/api-and-mcp.md',
   ]) {
     const text = fs.readFileSync(path.join(root, rel), 'utf8');
-    assert.ok(text.includes(href), `${rel} missing Cursor install web href`);
+    assert.ok(text.includes(href), `${rel} missing Cursor install deeplink`);
   }
 });

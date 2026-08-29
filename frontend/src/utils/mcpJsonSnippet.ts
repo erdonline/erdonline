@@ -85,11 +85,7 @@ function cursorInstallQuery(opts?: CursorMcpInstallOpts): string {
   return `name=erdonline&config=${encodeURIComponent(b64)}`;
 }
 
-/** https://cursor.com/docs/mcp/install-links — web stand-in for cursor:// */
-export function cursorMcpInstallWebHref(opts?: CursorMcpInstallOpts): string {
-  return `https://cursor.com/link/mcp/install?${cursorInstallQuery(opts)}`;
-}
-
+/** https://cursor.com/docs/mcp/install-links — opens the Cursor app. */
 export function cursorMcpInstallDeeplink(opts?: CursorMcpInstallOpts): string {
   return `cursor://anysphere.cursor-deeplink/mcp/install?${cursorInstallQuery(opts)}`;
 }
