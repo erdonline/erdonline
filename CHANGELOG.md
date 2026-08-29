@@ -33,6 +33,14 @@
   5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
 - **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
 
+#### fix(frontend): Home projectSection CLS 回归 — 加 min-height 并加单测
+
+- **问题**：Debug View 报 `www.erdonline.com/home` 的 `projectSection` 有 CLS，来源是项目列表从骨架屏/空态/有数据切换时高度不稳。
+- **改法**：
+  1. `frontend/src/pages/home/style.less`：`.projectSection` 加 `min-height: 160px`；`.projectCard` `min-height` 从 96px 提到 116px，匹配单卡内容高度。
+  2. `frontend/tests/e2e/home-mcp.spec.ts`：新增 CLS 回归断言，验证 `home-project-section` 和 `.projectCard` 都应用了稳定 `min-height`。
+- **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿。
+
 #### perf(website): MCP 指南页 LCP 6.4s → 2.3s，Performance 98
 
 - **问题**：`doc.erdonline.com/docs/guide/api-and-mcp/` LCP 元素是 `mcp-pat-reveal.png`，耗时 6.4s；文档页字体 `display=swap` 导致 CLS ~0.2。
