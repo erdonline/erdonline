@@ -69,13 +69,15 @@ node scripts/post-seo-essay.mjs devto --slug=dont-give-agent-prod-db --submit
 # X Article（B 类 WYSIWYG）— 独立脚本 + playbook，禁止 post-seo-essay.mjs x
 # 见下方 HARD RULE
 
-# PH / HN / Reddit / X 短讯 Post
+# PH / HN / Reddit / X 短讯 Post（≤280 字；长文走 Article，脚本会 throw）
 node scripts/post-all-browser.mjs --platform <name> --title "..." --body-file ... [--submit]
 ```
 
 填稿前先判 **ADR-0035** 适配器类：**A** MD 一次填入 / **B** WYSIWYG 逐块 / **C** API / **D** import。**禁止跨类混用**。
 
 ### HARD RULE — X 长文（B 类 WYSIWYG）
+
+> **长文 = Article only；Post composer 发长文 = 失败。**
 
 > **正文不是一下全部复制进去的。**
 

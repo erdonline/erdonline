@@ -20,6 +20,10 @@
  *   --url      link URL (HN / PH website)
  *   --subreddit cursor (reddit only)
  *   --submit   actually click Publish/Submit (off by default: fill only)
+ *
+ * X (--platform x): **short Post only (≤280 chars)**. Long-form / SEO essay /
+ * growth-content *-x.md / content/articles/ → HARD STOP; use fill-x-article-shortcuts.mjs
+ * + compose/articles instead. Script throws before opening compose/post.
  */
 
 import { spawnSync } from 'node:child_process';
@@ -27,6 +31,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { assertNotXPostEssay } from './growth/lib/assert-x-article-composer.mjs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const NODE22_CANDIDATES = [
@@ -235,8 +240,15 @@ function main() {
     process.exit(1);
   }
   const body = cleanBody(opts.bodyFile);
+  const slugArg = process.argv.find((a) => a.startsWith('--slug=')) ?? null;
   console.log(`Platform=${opts.platform} submit=${opts.submit}`);
   try {
+    assertNotXPostEssay({
+      platform: opts.platform,
+      body,
+      bodyFile: opts.bodyFile,
+      slugArg,
+    });
     ensureDaemon();
     const pages = listPages();
     if (typeof pages === 'string' && /Could not connect to Chrome/i.test(pages)) {
