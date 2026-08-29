@@ -22,6 +22,17 @@
      - `serve-dist-pages.mjs` 支持 `dist/app` 作为 SPA fallback 并强制 `Content-Type: text/html`，让本地 prod-smoke 仿真 Cloudflare 200-rewrite。
 - **验证点**：`yarn build:prod` 绿；`yarn test:seo-static` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿
 
+#### fix(frontend): 已登录 CTA 文案修复为“进入工作台”并加回归单测
+
+- **问题**：用户反馈 `www.erdonline.com/` 登录后 CTA 不应是字面“中文”二字，而应是语义文案。
+- **改法**：
+  1. `frontend/src/locales/zh-CN.ts`：`landing.nav.enterWorkspace*`、`landing.hero.cta.enterWorkspace*` 从“中文”改回“进入工作台”。
+  2. `frontend/scripts/gen-seo-static.mjs`：静态 `/` IIFE 中的 `enterText` 也改为“进入工作台”。
+  3. `frontend/scripts/assert-seo-static.mjs`：新增断言，确认 `dist/index.html` 同时含 `Open workspace` 和 `进入工作台`，且不把 CTA 写成 `'中文'`。
+  4. `frontend/tests/e2e/landing.spec.ts` 和 `tests/e2e/prod-smoke.spec.ts`：已登录 CTA 断言改为 `进入工作台`，并 `.not.toHaveText('中文')`。
+  5. 新增 `.devin/rules/mistakes-as-tests.mdc`：把“每个错误必须变成单测”写成规则。
+- **验证点**：`yarn build:prod` 绿；`node ./scripts/assert-seo-static.mjs` 绿；`PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 11/11 绿；`yarn check:i18n` 绿。
+
 #### perf(website): MCP 指南页 LCP 6.4s → 2.3s，Performance 98
 
 - **问题**：`doc.erdonline.com/docs/guide/api-and-mcp/` LCP 元素是 `mcp-pat-reveal.png`，耗时 6.4s；文档页字体 `display=swap` 导致 CLS ~0.2。

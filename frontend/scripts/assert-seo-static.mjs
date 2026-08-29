@@ -350,8 +350,11 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
       if (!homeHtml.includes('class="locale-switcher-static"')) {
         fail("/ first HTML must use <select> locale switcher");
       }
-      if (!homeHtml.includes('Open workspace') || !homeHtml.includes('中文')) {
-        fail("/ first HTML must include both 'Open workspace' (en) and '中文' (zh) authed CTA text");
+      if (!homeHtml.includes('Open workspace') || !homeHtml.includes('进入工作台')) {
+        fail("/ first HTML must include both 'Open workspace' (en) and '进入工作台' (zh) authed CTA text");
+      }
+      if (homeHtml.includes("'中文'") || homeHtml.includes('"中文"')) {
+        fail("/ first HTML must not use the CTA value '中文' in the authed IIFE");
       }
       if (/umi\.[0-9a-f]+\.css/.test(homeHtml)) {
         fail("/ first HTML must not <link> to umi.css after inlining");
