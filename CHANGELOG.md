@@ -8,6 +8,12 @@
 
 ### 2026-08-29
 
+#### perf(website): doc 站 hero webp 走强缓存，消除 304 验证开销
+
+- **问题**：`doc.erdonline.com` 首屏 hero 图 `Imagehero-1600.webp?v=20260830a` 与 `Imagehero-800.webp` 返回 `304 Not Modified`，每次刷新仍需 200–400 ms 往返验证；浏览器无法从本地/边缘缓存直接命中。
+- **改法**：`website/static/_headers` 新增 `/img/hero-*.webp` 规则，设置 `Cache-Control: public, max-age=31536000, immutable`。图片 URL 已带 `?v=` cache-buster，文件名仅在重设计时变更，适合永久强缓存。其余 `/img/*` 保持 `max-age=0, s-maxage=86400`（指南图可能无版本控制）。HTML 仍保持 `max-age=0, s-maxage=600` 不变。
+- **验证点**：`cd website && yarn build` 绿；`build/_headers` 与 `build/en/_headers` 均包含 `/img/hero-*.webp → public, max-age=31536000, immutable`；规则位于 `/img/*` 之前，确保优先匹配。
+
 #### fix(frontend): 登录态 CTA 统一为 "Open workspace"，语言切换统一为下拉
 
 - **问题**：顶栏/主 CTA 登录态文案中英不一致；静态页语言切换被预渲染成横向 `<a>`，切到 SPA 页面后变成 antd 下拉，形态不一致。
