@@ -46,7 +46,7 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 1. 登录后 [铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)（默认只读即可）。铸造成功弹层会给出已填 PAT 的 `mcp.json`，可直接复制。
 2. 先铸造 PAT，再一键装进 Cursor（装好后把 `ERD_PAT` 换成弹层里的明文；官方 Demo **不能当 PAT**）：
 
-[![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&config=eyJjb21tYW5kIjoibnB4IiwiYXJncyI6WyIteSIsIi0tcGFja2FnZSIsImh0dHBzOi8vZ2l0aHViLmNvbS9lcmRvbmxpbmUvZXJkb25saW5lL3JlbGVhc2VzL2Rvd25sb2FkL21jcC12MC4xLjAvZXJkb25saW5lLW1jcC0wLjEuMC50Z3oiLCJlcmQtbWNwIl0sImVudiI6eyJFUkRfQVBJX1VSTCI6Imh0dHBzOi8vZXJkb25saW5lLXByb2R1Y3Rpb24udXAucmFpbHdheS5hcHAiLCJFUkRfUEFUIjoiZXJkX3BhdF%2FigKYifX0%3D)
+[![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
 或把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`。`npx` 会拉 GitHub Release 包，不必 clone：
 
