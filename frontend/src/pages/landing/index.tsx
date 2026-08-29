@@ -89,16 +89,29 @@ const LandingPage: React.FC = () => {
               )}
             </div>
           </div>
-          <img
-            className="landingHeroShot"
-            src="/landing-hero.webp"
-            alt=""
-            width={960}
-            height={600}
-            loading="eager"
-            decoding="async"
-            fetchpriority="high"
-          />
+          <div className="landingHeroShotWrap">
+            <div className="landingHeroShotBlend">
+              <picture>
+                <source
+                  srcSet="/landing-hero-400.webp?v=20260828a 400w, /landing-hero-800.webp?v=20260828a 800w, /landing-hero-1600.webp?v=20260828a 1600w, /landing-hero.webp?v=20260828a 2100w"
+                  sizes="(max-width: 996px) 100vw, 640px"
+                  type="image/webp"
+                />
+                <img
+                  className="landingHeroShot"
+                  src="/landing-hero-800.jpg?v=20260828a"
+                  srcSet="/landing-hero-400.jpg?v=20260828a 400w, /landing-hero-800.jpg?v=20260828a 800w, /landing-hero-1600.jpg?v=20260828a 1600w, /landing-hero.jpg?v=20260828a 2100w"
+                  sizes="(max-width: 996px) 100vw, 640px"
+                  alt={t('landing.hero.imageAlt')}
+                  width={960}
+                  height={600}
+                  loading="eager"
+                  decoding="async"
+                  {...{fetchpriority: 'high' as const}}
+                />
+              </picture>
+            </div>
+          </div>
         </div>
       </section>
 

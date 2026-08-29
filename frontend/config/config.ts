@@ -74,7 +74,7 @@ export default defineConfig({
       href: '/landing-hero-800.webp?v=20260828a',
       imagesrcset:
         '/landing-hero-400.webp?v=20260828a 400w, /landing-hero-800.webp?v=20260828a 800w, /landing-hero-1600.webp?v=20260828a 1600w, /landing-hero.webp?v=20260828a 2100w',
-      imagesizes: '100vw',
+      imagesizes: '(max-width: 996px) 100vw, 640px',
     },
     { rel: 'preconnect', href: 'https://fonts.bunny.net' },
     { rel: 'preconnect', href: 'https://static.cloudflareinsights.com' },

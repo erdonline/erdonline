@@ -304,6 +304,84 @@ html:has(.landing) {
   gap: 2.5rem;
   align-items: center;
   animation: landingRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  min-width: 0;
+}
+
+/* Grid 子项须 min-width:0，否则大图 intrinsic 宽会撑破列并溢出视口 */
+.landingHeroStage > * {
+  min-width: 0;
+  max-width: 100%;
+}
+
+.landingHeroShotWrap {
+  --landing-hero-shot-radius: 14px;
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: var(--landing-hero-shot-radius);
+  /* 横向仍裁切防 bleed；纵向留伪元素光晕 */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+/* 图内纯黑底经 screen 溶入 #070d14；mask 消矩形硬边 */
+.landingHeroShotBlend {
+  position: relative;
+  min-width: 0;
+  max-width: 100%;
+  border-radius: var(--landing-hero-shot-radius, 14px);
+  overflow: hidden;
+  isolation: isolate;
+
+  /* 与 .landingHeroGrid 同格，叠在图面淡化透视网格错位 */
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 8% 4% 14%;
+    z-index: 1;
+    pointer-events: none;
+    background-image:
+      linear-gradient(rgba(158, 176, 192, 0.14) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(158, 176, 192, 0.14) 1px, transparent 1px);
+    background-size: 48px 48px;
+    opacity: 0.22;
+    mix-blend-mode: soft-light;
+    -webkit-mask-image: radial-gradient(ellipse 78% 72% at 50% 42%, #000 35%, transparent 100%);
+    mask-image: radial-gradient(ellipse 78% 72% at 50% 42%, #000 35%, transparent 100%);
+  }
+}
+
+/* 补图底被裁切的红霓虹，溶入 hero 背景 */
+.landingHeroShotWrap::after {
+  content: '';
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -4%;
+  height: 42%;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 85% 100% at 50% 0%, rgba(222, 41, 16, 0.34), transparent 68%);
+  filter: blur(14px);
+  opacity: 0.85;
+}
+
+.landingHeroShot {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  object-fit: contain;
+  object-position: 50% 42%;
+  border-radius: inherit;
+  mix-blend-mode: screen;
+  filter: contrast(1.05) saturate(1.04);
+  -webkit-mask-image:
+    radial-gradient(ellipse 86% 82% at 50% 38%, #000 40%, transparent 92%);
+  mask-image:
+    radial-gradient(ellipse 86% 82% at 50% 38%, #000 40%, transparent 92%);
+  /* 外缘再叠 void 色晕，与 .landingHero / --erd-void 对齐 */
+  box-shadow: inset 0 0 80px 40px var(--erd-void);
 }
 
 .landingHeroCopy {
@@ -756,6 +834,12 @@ html:has(.landing) {
   .landingHeroStage {
     grid-template-columns: 1fr;
     gap: 2rem;
+  }
+
+  .landingHeroShotWrap {
+    order: -1;
+    width: 100%;
+    margin: 0 auto;
   }
 
   .landingHeroFrame {
