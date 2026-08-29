@@ -1,12 +1,12 @@
 ---
-description: MCP 旅程文章与标题公式：四条冻结旅程、爆款标题公式、场景先行结构、MCP 建设顺序与禁止项（写 MCP/Agent/增长文章前必读）
+description: MCP 旅程文章与标题公式：四个冻结旅程（非四篇配额）、标题 AI 领域词、爆款标题公式、场景先行结构、MCP 建设顺序与禁止项（写 MCP/Agent/增长文章前必读）
 alwaysApply: true
 ---
 
 # MCP 旅程文章（定位 · 旅程 · 标题 · 结构 · 禁止项）
 
 > 写任何 MCP / Agent 相关文章、狗食旅程、增长内容前必读。
-> 语气、术语、CTA 纪律遵守 `copywriting-style.mdc`；本规则只管：**定位、旅程队列、标题公式、文章结构、MCP 缺口与「不建什么」**。
+> 语气、术语、CTA 纪律遵守 `copywriting-style.mdc`；本规则只管：**定位、四个旅程框架、标题约束与公式、文章结构、MCP 缺口与「不建什么」**。
 > 标题公式来自 2026-08 近 30 天语料（last30days 调研，raw: `~/Documents/Last30Days/viral-developer-and-ai-tool-article-titles-and-writing-formulas-that-got-traction-raw-v3.md`）。
 
 ## 战略定位（冻结结论，不得重开）
@@ -23,32 +23,45 @@ alwaysApply: true
 | 审批 | **API 200 ≠ 人批准**；文案里的写路径只有 `create_version`，**永不**把 `put_project_json` 当教程路径 |
 | 北极星 | 每周非空版本保存数；不是 MCP `list_projects` 演示数 |
 
-## 四条旅程（唯一的文章 / MCP 狗食队列）
+## 四个旅程（不是四篇文章配额）
 
-一旅程一文章；**场景在前，MCP 在后**。禁止先写 BA/产品向文章（近 30 天语料中缺席）；语义/FK 叙事是旅程 A 的附加层，不独立成第一篇。
+A–D 是四条**用户旅程**（场景、痛点、成功标准），不是「只准写四篇文章」的上限。**一旅程可写多篇**——不同平台、跟进稿、不同切角都可以，只要仍在该旅程的场景 / 痛点 / 成功标准内。禁止把 A–D 理解成「只准四篇」；禁止在本框架之外臆造第五条旅程。
 
-### 旅程 A：别把 Agent 指向生产库，指向你批准的那个版本
+**场景在前，MCP 在后**。禁止先写 BA/产品向文章（近 30 天语料中缺席）；语义/FK 叙事是旅程 A 的附加层，不独立成第一篇。
+
+下文「文章结构」适用于**每一条** MCP/Agent 旅程文章，不限篇数。MCP 能力建设顺序仍按旅程 A→B→C→D 狗食所需能力推进，与发文篇数无关。
+
+### 旅程 A：别把 Agent 指向生产库
 - 内容：契约的渐进式披露（`list_tables` / `describe_table`，`found:false` + suggestions）。成功标准 = JOIN 全对且**零数据库凭证**。
 - 标题（锁定）：**Don't give your agent the production database**
   - 中文：**别再让 AI Agent 直连生产库了**
   - 备选 EN：`Cursor invented a column. The fix wasn't a better prompt.`
   - 备选中文：Cursor 凭空造了一个列。解法不是更好的 prompt。
 
-### 旅程 B：Agent 用 create_version 声明意图，人审语义 diff
+### 旅程 B：Agent 声明意图，人审 diff
 - 成功标准 = 产生一个**命名的契约版本**；200 不是批准。
 - 标题（锁定）：**The agent wrote the migration. Are you really going to Approve it?**
   - 中文：**Agent 写的改表，你真敢点 Approve？**
   - 备选：别把 Agent 写的 Approve 点在你没看懂的 ALTER 上
 
-### 旅程 C：审 3 处语义变更，而不是 80 行 ALTER
+### 旅程 C：三句幻觉，不是 80 行 ALTER
 - 内容：`diff_versions` + 可选 DDL 草稿（从已批准版本生成，仍不执行）。
 - 标题（锁定）：**Which three lines in this migration are hallucinated?**
   - 中文：**这 80 行 ALTER 里，哪三句是幻觉？**
 
-### 旅程 D：值班溯源——这个列是哪个批准版本引入的
+### 旅程 D：告警溯源——哪次 Agent 改表引入了这列
 - 内容：按表切片的版本溯源。
 - 标题（锁定）：**The pager went off. Nobody knows which agent change added this column.**
   - 中文：**告警响了，没人知道这列是 Agent 哪次改进来的**
+
+## 标题 AI 领域词（必守）
+
+适用于 A–D 旅程下**每一条**标题：锁定标题、备选标题、未来新稿（中文与英文均适用）。
+
+- 每条标题必须**含且只突出一个** AI 领域高频词；人话 + 痛点优先，词要嵌进去，不像贴标签。
+- 可用示例（非穷举）：Agent / AI Agent、幻觉 / hallucinate(d)、prompt、Cursor、Copilot、MCP、LLM、context。
+- **不算** AI 领域词：Approve、ALTER、migration、pager、生产库、version。
+- 草稿标题若零 AI 领域词 → **无效**，发布前重写。
 
 ## 标题公式（近 30 天验证过的，各配真实例子）
 
@@ -90,11 +103,11 @@ HN 硬机制（hn-virality-predictor + 1,200 次 Show HN 的 NLP 分析）：标
 - **禁止克隆 `content/articles/cursor-mcp-read-and-suggest-version.md` 的工具手册结构**（铸 PAT → 粘 mcp.json → 调工具三步）：它可当文档伴侣，不是旅程文章。新旅程文章一律场景先行。
 - 禁止工具盘点文（「10 个最好用的 MCP server」）。
 
-### MCP 建设顺序（禁止实现 leftover REST 凑数）
-1. 契约读：`list_tables` / `describe_table` / FK 邻域（**不是**第一步就全量 `get_project_schema`）。
-2. `diff_versions`。
-3. `create_version` = 文案里唯一的写。
-4. 后续：按表版本溯源；从已批准版本生成 DDL 草稿；把实体注释暴露为语义层。
+### MCP 建设顺序（按旅程狗食，非按发文篇数；禁止实现 leftover REST 凑数）
+1. 旅程 A 所需 — 契约读：`list_tables` / `describe_table` / FK 邻域（**不是**第一步就全量 `get_project_schema`）。
+2. 旅程 C 所需 — `diff_versions`。
+3. 旅程 B 所需 — `create_version` = 文案里唯一的写。
+4. 旅程 D 及后续 — 按表版本溯源；从已批准版本生成 DDL 草稿；把实体注释暴露为语义层。
 
 ## 平台差异（仅写有证据的，不杜撰）
 

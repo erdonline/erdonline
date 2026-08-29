@@ -8,6 +8,11 @@
 
 ### 2026-08-29
 
+#### docs(rules): journeys are not a four-article cap; require AI keywords in titles
+
+- **改动**：`.cursor/rules/mcp-journey-articles.mdc` 将 A–D 从「四篇文章配额」改述为四个用户旅程（**一旅程可写多篇**）；新增独立小节「标题 AI 领域词（必守）」——每条标题含且只突出一个 AI 高频词；旅程 H3 改短口语标签；MCP 建设顺序标注为按旅程狗食而非发文篇数。
+- **验证点**：`grep -E '不是四篇文章配额|一旅程可写多篇|标题 AI 领域词' .cursor/rules/mcp-journey-articles.mdc` 三处均命中。
+
 #### docs(rules): require an AI-domain keyword in each MCP journey title
 
 - **改动**：`.cursor/rules/mcp-journey-articles.mdc` 四条旅程锁定标题（中英）各含一个 AI 领域高频词（Agent / AI Agent / 幻觉 / hallucinated / prompt / Cursor）；B 中文 `AI 写的`→`Agent 写的`，C 锁定「哪三句是幻觉」/ `hallucinated`，D 锁定「Agent 哪次改进」/ `agent change`；备选 B 补 Agent 关键词。
