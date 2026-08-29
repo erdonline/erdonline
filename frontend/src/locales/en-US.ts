@@ -284,15 +284,20 @@ export default {
   'landing.hero.cta.registerAria': 'Register',
   'landing.hero.cta.loginExisting': 'Already have an account? Sign in',
   'landing.hero.cta.loginExistingAria': 'Sign in',
+  'landing.pillars.kicker': 'Core advantages',
   'landing.pillars.title': 'Three pillars, one moat',
   'landing.pillars.lead':
     'No chat black-box gimmicks—versioning, collaboration, and an open fact source agents can consume.',
   'landing.pillars.version.title': 'Versioning',
   'landing.pillars.version.body':
     'Every save creates a version with visible diff and rollback—treat schema like Git treats code.',
+  'landing.pillars.version.link': 'See versioning in action',
+  'landing.pillars.version.linkAria': 'See versioning in action',
   'landing.pillars.collab.title': 'Collaboration',
   'landing.pillars.collab.body':
     'Multiplayer editing with presence; reviews and approvals land in auditable versions.',
+  'landing.pillars.collab.link': 'See collaboration flow',
+  'landing.pillars.collab.linkAria': 'See collaboration flow',
   'landing.pillars.open.title': 'Open',
   'landing.pillars.open.body':
     'Public projectJSON; agents read the same model via MCP, then create_version so a human can diff. Do not generate an ER diagram from a sentence.',
@@ -304,6 +309,9 @@ export default {
     'Open the online demo, see a real diagram, then decide whether to register or self-host.',
   'landing.demo.cta.selfHost': 'Self-host guide',
   'landing.demo.cta.selfHostAria': 'Self-host guide',
+  'landing.compareTeaser.title': 'Honest comparison',
+  'landing.compareTeaser.lead':
+    'If a minimal diagram tool (including draw.io) is enough, stay there; come here when you need versions, collaboration, foreign-key semantics, and an open source of truth.',
   'landing.compare.title': 'Honest comparison',
   'landing.compare.lead':
     'If a minimal diagram tool (including draw.io) is enough, stay there; come here when you need versions, collaboration, foreign-key semantics, and an open source of truth.',
@@ -345,6 +353,8 @@ export default {
   'landing.compare.cell.drawioXml': 'Drawing XML, no FK semantics',
   'landing.compare.cell.fkNative': 'FK as first-class',
   'landing.compare.cell.linesNotFk': 'Lines ≠ FKs',
+  'landing.compare.cta.primary': 'See full comparison',
+  'landing.compare.cta.primaryAria': 'See full comparison',
   'landing.compare.cta.full': 'Full comparison',
   'landing.compare.cta.fullAria': 'Full comparison',
   'landing.comparePage.lead':
