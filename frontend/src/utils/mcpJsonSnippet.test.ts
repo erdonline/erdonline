@@ -6,15 +6,12 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {fileURLToPath} from 'node:url';
 import {
-  LOCAL_MCP_API_URL,
-  MCP_NPX_ARGS,
-  MCP_NPX_PACKAGE,
-  MCP_PAT_PLACEHOLDER,
-  PRODUCTION_MCP_API_URL,
+  LOCAL_MCP_URL,
+  PRODUCTION_MCP_URL,
   buildCursorMcpJson,
   cursorMcpInstallConfig,
   cursorMcpInstallDeeplink,
-  resolveMcpApiUrl,
+  resolveMcpUrl,
 } from './mcpJsonSnippet';
 
 function run(name: string, fn: () => void) {
@@ -27,61 +24,52 @@ function run(name: string, fn: () => void) {
   }
 }
 
-run('empty or relative API URL becomes local MCP host', () => {
-  assert.equal(resolveMcpApiUrl(''), LOCAL_MCP_API_URL);
-  assert.equal(resolveMcpApiUrl('   '), LOCAL_MCP_API_URL);
-  assert.equal(resolveMcpApiUrl('/'), LOCAL_MCP_API_URL);
-  assert.equal(resolveMcpApiUrl(undefined), LOCAL_MCP_API_URL);
+run('empty or relative API URL becomes local MCP endpoint', () => {
+  assert.equal(resolveMcpUrl(''), LOCAL_MCP_URL);
+  assert.equal(resolveMcpUrl('   '), LOCAL_MCP_URL);
+  assert.equal(resolveMcpUrl('/'), LOCAL_MCP_URL);
+  assert.equal(resolveMcpUrl(undefined), LOCAL_MCP_URL);
 });
 
-run('strips trailing slash from absolute API URL', () => {
+run('normalizes API roots to Streamable HTTP endpoint', () => {
   assert.equal(
-    resolveMcpApiUrl('https://erdonline-production.up.railway.app/'),
-    'https://erdonline-production.up.railway.app',
+    resolveMcpUrl('https://self-host.example.com/'),
+    'https://self-host.example.com/mcp',
   );
+  assert.equal(resolveMcpUrl('https://self-host.example.com/mcp'), 'https://self-host.example.com/mcp');
+  assert.equal(resolveMcpUrl('https://erdonline-production.up.railway.app'), PRODUCTION_MCP_URL);
 });
 
-run('snippet fills PAT and uses npx tarball (no local clone path)', () => {
+run('snippet fills PAT in remote HTTP headers', () => {
   const json = buildCursorMcpJson(
     'erd_pat_secret',
     'https://erdonline-production.up.railway.app/',
   );
   const parsed = JSON.parse(json) as {
     mcpServers: {
-      erdonline: {command: string; args: string[]; env: Record<string, string>};
+      erdonline: {url: string; headers: Record<string, string>};
     };
   };
   assert.equal(
-    parsed.mcpServers.erdonline.env.ERD_PAT,
-    'erd_pat_secret',
+    parsed.mcpServers.erdonline.headers.Authorization,
+    'Bearer erd_pat_secret',
   );
-  assert.equal(
-    parsed.mcpServers.erdonline.env.ERD_API_URL,
-    'https://erdonline-production.up.railway.app',
-  );
-  assert.equal(parsed.mcpServers.erdonline.command, 'npx');
-  assert.deepEqual(parsed.mcpServers.erdonline.args, [...MCP_NPX_ARGS]);
-  assert.match(MCP_NPX_PACKAGE, /erdonline-mcp-0\.1\.0\.tgz$/);
-  assert.equal(MCP_NPX_ARGS[1], '--package');
-  assert.equal(MCP_NPX_ARGS[3], 'erd-mcp');
-  assert.doesNotMatch(json, /ABS\/PATH/);
+  assert.equal(parsed.mcpServers.erdonline.url, PRODUCTION_MCP_URL);
+  assert.doesNotMatch(json, /command|args|tgz|ERD_PAT|ERD_API_URL/);
   assert.match(json, /"mcpServers"/);
 });
 
 run('dev empty API_URL uses 127.0.0.1:9502', () => {
   const json = buildCursorMcpJson('erd_pat_dev', '');
   const parsed = JSON.parse(json) as {
-    mcpServers: {erdonline: {env: Record<string, string>}};
+    mcpServers: {erdonline: {url: string}};
   };
-  assert.equal(parsed.mcpServers.erdonline.env.ERD_API_URL, LOCAL_MCP_API_URL);
+  assert.equal(parsed.mcpServers.erdonline.url, LOCAL_MCP_URL);
 });
 
-run('Cursor install-link config is shipped npx tarball + PAT placeholder', () => {
+run('Cursor install-link config contains only canonical URL', () => {
   const cfg = cursorMcpInstallConfig();
-  assert.equal(cfg.command, 'npx');
-  assert.deepEqual(cfg.args, [...MCP_NPX_ARGS]);
-  assert.equal(cfg.env.ERD_API_URL, PRODUCTION_MCP_API_URL);
-  assert.equal(cfg.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
+  assert.deepEqual(cfg, {url: PRODUCTION_MCP_URL});
   const href = cursorMcpInstallDeeplink();
   assert.match(href, /^cursor:\/\/anysphere\.cursor-deeplink\/mcp\/install\?name=erdonline&config=/);
   const u = new URL(href.replace(/^cursor:/, 'http:'));
@@ -89,13 +77,13 @@ run('Cursor install-link config is shipped npx tarball + PAT placeholder', () =>
   assert.ok(q);
   const decoded = JSON.parse(
     Buffer.from(q, 'base64').toString('utf8'),
-  ) as {command: string; args: string[]};
-  assert.deepEqual(decoded.args, [...MCP_NPX_ARGS]);
+  ) as {url: string};
+  assert.deepEqual(decoded, {url: PRODUCTION_MCP_URL});
 });
 
 run('install-link href never contains a minted PAT secret', () => {
   const secret = 'erd_pat_minted_secret';
-  const json = buildCursorMcpJson(secret, PRODUCTION_MCP_API_URL);
+  const json = buildCursorMcpJson(secret, PRODUCTION_MCP_URL);
   assert.match(json, new RegExp(secret));
   const href = cursorMcpInstallDeeplink();
   assert.ok(!href.includes(secret));
@@ -105,9 +93,9 @@ run('install-link href never contains a minted PAT secret', () => {
   assert.ok(q);
   const raw = Buffer.from(q, 'base64').toString('utf8');
   assert.ok(!raw.includes(secret));
-  const decoded = JSON.parse(raw) as {env: {ERD_PAT: string}};
-  assert.equal(decoded.env.ERD_PAT, MCP_PAT_PLACEHOLDER);
-  assert.ok(!decoded.env.ERD_PAT.startsWith('erd_pat_m'));
+  const decoded = JSON.parse(raw) as {url: string; headers?: unknown};
+  assert.equal(decoded.url, PRODUCTION_MCP_URL);
+  assert.equal(decoded.headers, undefined);
 });
 
 run('README and MCP guide link to the cursor-mcp bridge page', () => {

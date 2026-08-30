@@ -1,68 +1,95 @@
 ---
-title: Let Cursor / Claude / Cline read your ER diagram via MCP
-description: Copy-paste the MCP config and a PAT so Cursor, Claude, Cline, Windsurf and other MCP clients read the same ERD projectJSON. Humans still diff and approve versions. No one-shot AI diagram generator.
+title: Connect your agent to ERD Online with one URL
+description: Connect Cursor, Claude Desktop, Claude Code, Cline, Windsurf, or VS Code Copilot to ERD Online over remote Streamable HTTP.
 ---
 
-Want Cursor or Claude to read the ER diagram you are editing? Use authenticated REST / MCP to read/write the **same** projectJSON the designer uses. A share-link token is not an API key.
+Six MCP clients start with the same remote Streamable HTTP endpoint:
 
-> **30-second goal**: mint a PAT → paste MCP config → pick prompt `suggest-erd-version` in Cursor (or have the agent call `create_version`).  
-> **Prereq**: a signed-in instance ([self-host](./quick-self-host.md) or [www.erdonline.com](https://www.erdonline.com/)); format in [data-format](/docs/data-format).  
-> **Not this**: one-shot “generate an ERD”, ChatSQL; writes must be reviewed in a version diff. `create_version` API 200 is not human approval.
+```text
+https://api.erdonline.com/mcp
+```
 
-## Supported MCP clients
+> **30-second goal**: paste the URL → discover MCP tools → let the agent read the approved model contract.
+> **Authentication transition**: OAuth is the next slice. Until then, clients with custom header support can use `Authorization: Bearer erd_pat_…` for account data. Keep plaintext PATs in local secret config—never in a deeplink or commit.
+> **Not this**: one-shot “generate an ERD”, ChatSQL; writes still require human review in the version diff.
 
-Any client that supports the Model Context Protocol can use the same `mcpServers.erdonline` block to read and write ERD projectJSON. Common clients and their config locations:
+## Six client cards
 
-| Client | Config location | Notes |
-|---|---|---|
-| **Cursor** | `~/.cursor/mcp.json` | [Official install-links](https://cursor.com/docs/mcp/install-links); one-click page: [erdonline.com/cursor-mcp](https://www.erdonline.com/cursor-mcp/) |
-| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) / `%APPDATA%/Claude/claude_desktop_config.json` (Windows) | Same JSON shape as Cursor |
-| **Claude Code** | `claude config set mcpServers '{...}'` or `~/.claude/config.json` | Terminal agent; set `ERD_PAT` in env or file |
-| **Cline** | VS Code settings `mcp.marketplace` or `cline.mcp.json` | Paste the `mcpServers` JSON into the client |
-| **Roo Code** | VS Code settings `roo.mcpServers` | Same shape as Cline |
-| **Windsurf** | `~/.windsurf/mcp.json` (or Cascade Settings MCP panel) | Codeium; same fields as Cursor |
-| **Glama** | Hosted registry [glama.ai/mcp/servers](https://glama.ai/mcp/servers) | `tools/list` introspection works without PAT; writes still need PAT |
-| **5ire / Smithery / others** | Paste `command` / `args` / `env` into their MCP settings | Any stdio MCP client works |
+### Cursor
 
-**Same `mcp.json` everywhere**: the Cursor example below is also the snippet to paste into the other clients above.
-
-## Connect Cursor in 30 seconds
-
-1. After sign-in, open **Account settings → Personal access tokens**: [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens). Read-only is enough to start; the plaintext is shown once, **and the success dialog includes a PAT-filled `mcp.json` you can copy**. The public Demo is a read-only share—**not** a PAT. You need your own project.
-
-<img src="/img/guide/mcp-pat-reveal.webp" alt="PAT plaintext is shown once; the dialog also copies mcp.json" width="464" height="336" loading="eager" fetchpriority="high" />
-
-2. After minting a PAT, [Add to Cursor](https://www.erdonline.com/cursor-mcp/) (official [install-links](https://cursor.com/docs/mcp/install-links); protocol `cursor://anysphere.cursor-deeplink/mcp/install`). One-click install does **not** embed the PAT; paste the filled `mcp.json` from the copy box, or replace the placeholder after install.
-
-Or paste this into Cursor user-level `~/.cursor/mcp.json` (Claude Desktop is the same shape). Replace `erd_pat_…` with your PAT (the dialog already fills it). `npx -y --package … erd-mcp` fetches the MCP tarball from GitHub Releases — **no** local clone.
+1. Open the [one-click page](https://www.erdonline.com/cursor-mcp/) and click “Open in Cursor”.
+2. Confirm `https://api.erdonline.com/mcp`.
+3. For account data during the PAT transition, add the header locally in `~/.cursor/mcp.json`:
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json snippet (npx tarball; replace the PAT)" width="512" height="196" loading="lazy" />
+The deeplink contains only the URL, never a PAT.
 
-For local self-host, set `ERD_API_URL` to `http://127.0.0.1:9502`. MCP is **not** in the Docker image.
+### Claude Desktop
 
-3. Reload Cursor MCP and ask: `List my ERD projects`. You should see `list_projects`. Then: `Read projectJSON for project X`. If the list is empty, create **your own** project in the designer first (the official Demo is not a PAT). To change the model, pick prompt **`suggest-erd-version`** in Cursor, or have the agent call `create_version`. If the agent still says `erd_pat_…`, paste the minted token into `mcp.json` — the one-click install link never embeds a live PAT. Do not ask the agent to generate a new ER diagram from a sentence.
+1. Open **Settings → Connectors**.
+2. Add a custom connector and paste the endpoint URL.
+3. Save and reconnect.
 
-To run from source: `cd mcp && yarn install && yarn build`, then `node /ABS/PATH/to/erdonline/mcp/dist/index.js`. During development you can use `npx tsx mcp/src/index.ts`.
+Anthropic’s cloud connector cannot reach localhost. Account authentication awaits the next OAuth slice.
+
+### Claude Code
+
+1. Run:
+
+```bash
+claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp
+```
+
+2. Confirm user scope.
+3. A manual JSON entry must include `"type": "http"`:
+
+```json
+{"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}
+```
+
+### Cline
+
+1. Open Cline MCP Servers.
+2. Add a remote server with `"type": "streamableHttp"`.
+3. Save and inspect the tool list:
+
+```json
+{"mcpServers":{"erdonline":{"type":"streamableHttp","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}}
+```
+
+### Windsurf
+
+1. Open `~/.codeium/windsurf/mcp_config.json`.
+2. Add the remote using the `serverUrl` field.
+3. Reload Windsurf:
+
+```json
+{"mcpServers":{"erdonline":{"serverUrl":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}}
+```
+
+### VS Code Copilot
+
+1. Open workspace `.vscode/mcp.json`.
+2. Add the server under top-level `servers`.
+3. Start it:
+
+```json
+{"servers":{"erdonline":{"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}
+```
+
+## First call
+
+Ask: `List my ERD projects`, then `Read projectJSON for project X`. Use `create_version` for a proposed change and review its diff in the designer. Mint a PAT in [Account settings](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens); add `versions:write` only when needed.
 
 ## What you get
 
@@ -95,14 +122,18 @@ When minting the PAT, include `versions:write`. Pick prompt **`suggest-erd-versi
 
 `create_version` returning **API 200 is not human approval**. You must open the designer version diff and accept or roll back. Do not let the agent silently `put_project_json` over the workspace.
 
-## Streamable HTTP (optional)
+## Self-host / run from source
+
+`@erdonline/mcp` is currently `private: true` and unpublished, so this guide does not advertise `npx @erdonline/mcp`. Build the in-repo server:
 
 ```bash
 export ERD_API_URL=http://127.0.0.1:9502
 export ERD_PAT=erd_pat_…
-cd mcp && yarn start -- --http
-# → http://127.0.0.1:3920/mcp
+cd mcp && yarn install && yarn build
+node dist/index.js
 ```
+
+That is the stdio fallback. For self-hosted Streamable HTTP, use `yarn start -- --http` (`http://127.0.0.1:3920/mcp`); the Docker/Railway image exposes `/mcp` through Spring on the backend port.
 
 ## What success looks like
 
@@ -115,13 +146,13 @@ cd mcp && yarn start -- --http
 | Symptom | Try |
 |---|---|
 | 401 / 403 | Expired PAT, insufficient scope, or wrong environment; remint at [Personal access tokens](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) |
-| Agent says Missing ERD_PAT / still `erd_pat_…` | The placeholder is not a token. Paste the minted plaintext into `mcp.json` `ERD_PAT`. The one-click install link **never** puts a PAT in the URL |
+| Agent says PAT is missing / still `erd_pat_…` | The placeholder is not a token. Put the plaintext in a local `Authorization: Bearer …` header. The one-click link never includes a PAT |
 | `list_projects` is empty | Create your own project in the designer, then ask again. The official Demo share is **not** a PAT |
 | Agent drew a new ER diagram | Tell it to `list_projects` then `get_project_schema` — read/write your existing projectJSON; do not generate a diagram from natural language |
 | `create_version` already 200 | Still open the version diff and confirm or roll back. **API 200 is not human approval** |
 | Share link works but API fails | Share read-only tokens are **not** API credentials |
-| MCP won’t connect | MCP process must be started separately; token/path must match docs |
-| Compose is up but no MCP | Expected; start MCP from `mcp/` |
+| Hosted MCP won’t connect | Confirm `https://api.erdonline.com/mcp`; a 404 means production has not yet redeployed from repository root |
+| Self-hosted MCP won’t connect | In the image, check backend `/mcp`; for stdio fallback, check `node mcp/dist/index.js` |
 | Changing model schema meaning | Additive-only rules; see [data-format](/docs/data-format) |
 | Lint the model in CI | Do **not** start MCP on the runner. Fetch `projectJson` over REST, then `node scripts/validate-projectjson.mjs`; see [data-format · Fetch from the public API](/docs/data-format#ci-fetch-then-lint) |
 

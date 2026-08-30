@@ -56,13 +56,13 @@ test.describe('访问令牌设置', () => {
     const mcp = reveal.getByTestId('pat-mcp-json');
     await expect(mcp).toBeVisible();
     await expect(mcp).toContainText('"mcpServers"');
-    await expect(mcp).toContainText('"command": "npx"');
-    await expect(mcp).toContainText('--package');
-    await expect(mcp).toContainText('erdonline-mcp-0.1.0.tgz');
-    await expect(mcp).toContainText('erd-mcp');
+    await expect(mcp).toContainText('"url":');
+    await expect(mcp).toContainText('/mcp');
+    await expect(mcp).toContainText('"Authorization": "Bearer erd_pat_');
     const tokenText = (await reveal.locator('code').first().innerText()).trim();
     await expect(mcp).toContainText(tokenText);
-    await expect(mcp).toContainText('127.0.0.1:9502');
+    await expect(mcp).toContainText('127.0.0.1:9502/mcp');
+    await expect(mcp).not.toContainText('.tgz');
     await expect(page.getByTestId('pat-mcp-docs')).toHaveAttribute(
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
@@ -183,12 +183,12 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     const mcp = reveal.getByTestId('pat-mcp-json');
     await expect(mcp).toBeVisible();
     await expect(mcp).toContainText('"mcpServers"');
-    await expect(mcp).toContainText('"command": "npx"');
-    await expect(mcp).toContainText('--package');
-    await expect(mcp).toContainText('erdonline-mcp-0.1.0.tgz');
-    await expect(mcp).toContainText('erd-mcp');
+    await expect(mcp).toContainText('"url":');
+    await expect(mcp).toContainText('/mcp');
+    await expect(mcp).toContainText('"Authorization": "Bearer erd_pat_');
     await expect(mcp).toContainText(token);
-    await expect(mcp).toContainText('127.0.0.1:9502');
+    await expect(mcp).toContainText('127.0.0.1:9502/mcp');
+    await expect(mcp).not.toContainText('.tgz');
     await expect(page.getByTestId('pat-mcp-docs')).toHaveAttribute(
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
@@ -208,13 +208,9 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     expect(cfgB64).toBeTruthy();
     const cfgRaw = Buffer.from(cfgB64!, 'base64').toString('utf8');
     expect(cfgRaw).not.toContain(token);
-    const cfg = JSON.parse(cfgRaw) as {args: string[]; env: {ERD_PAT: string}};
-    expect(cfg.env.ERD_PAT).not.toBe(token);
-    expect(cfg.env.ERD_PAT).toBe('erd_pat_…');
-    expect(cfg.args).toContain('--package');
-    expect(cfg.args.some((a) => a.endsWith('erdonline-mcp-0.1.0.tgz'))).toBe(
-      true,
-    );
+    const cfg = JSON.parse(cfgRaw) as {url: string; headers?: unknown};
+    expect(cfg.url).toBe('https://api.erdonline.com/mcp');
+    expect(cfg.headers).toBeUndefined();
     await page.getByTestId('pat-copy-mcp-json').click();
     await expectToast(page, /mcp\.json/);
   });

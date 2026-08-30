@@ -2,7 +2,7 @@
 
 品牌是**数据库设计的 Git + Figma**。本 server 让 Cursor / Claude **读写设计器同一份 versioned `projectJSON`**，不是 ChatSQL，也不是一句话生成 ER 图。
 
-ADR-0013：本地 MCP server，经 **Personal Access Token** 调用公开 REST `/api/v1/**`。文档：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+ADR-0013：官方远程 Streamable HTTP 端点为 **`https://api.erdonline.com/mcp`**；本地 server 经 Personal Access Token 调用公开 REST `/api/v1/**`。文档：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
 官方 MCP Registry 登记见仓库 [`docs/mcp-registry.md`](../docs/mcp-registry.md)（📋 待 `NPM_TOKEN` + org Owner device 登录）。
 
@@ -10,20 +10,9 @@ Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list
 
 ## 支持的 MCP 客户端 / Supported clients
 
-只要支持 stdio MCP 即可接入。常用客户端配置位置：
+主路径是远程 Streamable HTTP。Cursor / Claude Desktop / Claude Code / Cline / Windsurf / VS Code Copilot 的字段并不相同，必须按[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)填写；不要复制一份通用 stdio JSON。
 
-| 客户端 / Client | 配置文件 / Config location | 备注 / Notes |
-|---|---|---|
-| **Cursor** | `~/.cursor/mcp.json` | [一键安装页](https://www.erdonline.com/cursor-mcp/) / [Cursor install-links](https://cursor.com/docs/mcp/install-links) |
-| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS） / `%APPDATA%/Claude/claude_desktop_config.json`（Windows） | 与 Cursor 同配置结构 |
-| **Claude Code** | `~/.claude/config.json` 或环境变量 | 终端 Agent |
-| **Cline** | `cline.mcp.json` 或 VS Code `mcp.marketplace` | 粘贴 `mcpServers` 块 |
-| **Roo Code** | `roo.mcpServers` | 与 Cline 同格式 |
-| **Windsurf** | `~/.windsurf/mcp.json` 或 Cascade MCP panel | Codeium |
-| **Glama** | [glama.ai/mcp/servers](https://glama.ai/mcp/servers) | 无 PAT 可内省；读写仍需 PAT |
-| **5ire / Smithery / 其它** | 按各自 MCP 设置填入 `command`/`args`/`env` | 支持 stdio 即可 |
-
-完整步骤见 [doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+OAuth 在下一切片实现。过渡期支持 custom headers 的客户端可本机配置 `Authorization: Bearer erd_pat_…`；deeplink 只含 URL，绝不含 PAT。
 
 ## 工具
 
@@ -59,33 +48,24 @@ ADR-0028：**无** `publish_template`；**无** PAT 评分/评论。
 
 铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含对应 scope（`versions:write` / `projects:write`）。
 
-## 安装与 stdio
+## 远程接入与 stdio fallback
 
-30 秒路径用 GitHub Release tarball（不必 clone 全仓）：
+30 秒路径：
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-官方 Demo 不能当 PAT。自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。接通后在 Cursor 选 prompt **`suggest-erd-version`**，或让 Agent 调 `create_version`。API 200 **不是**人批准。不要凭一句话生成新图。完整步骤：[doc.erdonline.com/docs/guide/api-and-mcp/](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+`@erdonline/mcp` 当前 `private: true`、未发布 npm，因此不宣传 `npx @erdonline/mcp`。官方 Demo 不能当 PAT。接通后让 Agent 调 `create_version`，再由人审 diff；API 200 **不是**人批准。
 
-从源码跑：
+自托管从源码跑：
 
 ```bash
 cd mcp

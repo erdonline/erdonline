@@ -550,15 +550,15 @@ export default {
   'accountSettings.pat.copiedSuccess': 'Token copied',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    'Paste into ~/.cursor/mcp.json. npx fetches the MCP package — no local clone. The public Demo is not a PAT. After connect, run prompt suggest-erd-version or have the agent call create_version; you open the version diff. Do not generate a new ER diagram from a sentence. Self-host: set ERD_API_URL to http://127.0.0.1:9502.',
+    'Paste into ~/.cursor/mcp.json; the remote URL needs no local Node process. Keep the PAT in local config—never a deeplink or commit. After connect, run prompt suggest-erd-version or have the agent call create_version, then review the diff. Self-host with your own backend /mcp.',
   'accountSettings.pat.copyMcpJsonAria': 'Copy Cursor mcp.json config',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
   'accountSettings.pat.mcpDocsLink': '30-second setup docs',
   'accountSettings.pat.mcpDocsAria': 'Open docs: let Cursor read your ER diagram via MCP',
   'accountSettings.pat.mcpCursorInstallLink':
-    'Add to Cursor (placeholder in the link — paste the token from the copy box after install)',
+    'Add to Cursor (the link contains only the remote URL, never a PAT)',
   'accountSettings.pat.mcpCursorInstallAria':
-    'Open the official Cursor install link (placeholder in the URL; paste the minted PAT from the copy box after install)',
+    'Open the official Cursor install link (the URL contains no access token)',
 
   'accountSettings.oauthClient.loadFailed': 'Failed to load OAuth clients',
   'accountSettings.oauthClient.registerSuccess': 'OAuth client registered',

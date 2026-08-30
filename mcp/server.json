@@ -10,30 +10,10 @@
     "subfolder": "mcp"
   },
   "version": "0.1.0",
-  "packages": [
+  "remotes": [
     {
-      "registryType": "npm",
-      "identifier": "@erdonline/mcp",
-      "version": "0.1.0",
-      "transport": {
-        "type": "stdio"
-      },
-      "runtimeHint": "npx",
-      "environmentVariables": [
-        {
-          "name": "ERD_PAT",
-          "description": "Personal access token (erd_pat_…). Mint in account settings; never put the live token in a URL.",
-          "isRequired": true,
-          "isSecret": true,
-          "format": "string"
-        },
-        {
-          "name": "ERD_API_URL",
-          "description": "API root. Cloud: https://erdonline-production.up.railway.app; self-host: http://127.0.0.1:9502",
-          "isRequired": false,
-          "format": "string"
-        }
-      ]
+      "type": "streamable-http",
+      "url": "https://api.erdonline.com/mcp"
     }
   ]
 }

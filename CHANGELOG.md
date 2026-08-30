@@ -8,6 +8,21 @@
 
 ### 2026-08-30
 
+#### feat(mcp): 一个远程 URL + 六客户端接入卡
+
+- **主入口**：官方 MCP 统一为 `https://api.erdonline.com/mcp`；`/cursor-mcp/` 中英页改为 URL hero + Cursor / Claude Desktop / Claude Code / Cline / Windsurf / VS Code Copilot 六张独立配置卡，不再把 GitHub Release tgz 或一份通用 stdio JSON 当主路径。
+- **客户端契约**：锁定 Cursor `url`、Claude Desktop Connectors、Claude Code `type: "http"`、Cline `type: "streamableHttp"`、Windsurf `~/.codeium/windsurf/mcp_config.json` + `serverUrl`、VS Code `.vscode/mcp.json` 顶层 `servers`；Cursor deeplink 只编码 canonical URL，不含 PAT。
+- **鉴权边界**：本切片不实现 OAuth；过渡配置把 Bearer PAT 作为次级 header，并明确禁止把明文 PAT 放进 deeplink 或提交仓库。`@erdonline/mcp` 仍为 `private: true`，自托管只写从源码 `node mcp/dist/index.js`，不宣传 npm。
+- **Registry / 部署**：`mcp/server.json` 移除未发布 npm package 声明，增加 `remotes[].type=streamable-http`；Railway Root Directory 改为仓库根 `.`，由 `backend/railway.toml` 构建 `backend/Dockerfile`，使镜像可同时复制 `backend/` 与 `mcp/`。
+- **验证点**：
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → 7 项通过；锁定 canonical URL、Bearer header、deeplink 解码后仅含 `url` 且无 PAT。
+  - `cd frontend && yarn build` → Webpack 编译与 SEO 静态产物生成通过。
+  - `cd frontend && yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` → 1 passed；PAT 揭示框已从 tgz stdio 改为远程 HTTP 配置。
+  - Playwright 走查 `/cursor-mcp/` 中英切换 → 六张卡齐全；deeplink 解码为 `{"url":"https://api.erdonline.com/mcp"}`，`hasPat=false`。
+  - `cd mcp && yarn test:unit && yarn smoke:introspect` → API / version tools 测试通过，`INTROSPECT OK 16 tools; 1 resources; 2 prompts`；resource guide 含 canonical URL 与六客户端卡。
+  - `mcp/server.json` JSON parse + remote 断言通过；当前生产 `POST https://api.erdonline.com/mcp initialize` 在推送前返回 **HTTP 401 通用会话鉴权 JSON**，并非 MCP initialize 响应，说明线上仍是旧镜像；须 push 后把 Railway Root Directory 设为 `.` 并 redeploy，再复验。
+  - 非本切片阻断：`yarn tsc` 卡在既有 `node_modules/@types/d3-dispatch` 与旧 TypeScript 语法不兼容；`cd website && yarn build` 卡在既有 `docs/growth-content/2026-08-29-seo-essay{.en,.zh}.md` 的字符串 `tags` front matter。
+
 #### feat(mcp): Job 2/4 版本语义审查与 DDL 草稿
 
 - **`diff_versions`**：并行读取两个命名版本快照，返回 `fromVersion` / `toVersion`、表/列增删改摘要、表备注与字段备注，以及基于结构指纹的保守 `renameCandidates`；ALTER 文本不是主要结果，候选改名必须由人确认。

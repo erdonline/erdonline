@@ -15,7 +15,9 @@
              env-config.js ← Variables: DEMO_API_URL
                   └─► 指向 Railway 公网后端（ADR-0019）
 
-官方 demo API ─► Railway（App + MySQL 8 插件 + Redis 插件）
+官方 API + MCP ─► Railway（App + Node MCP sidecar + MySQL 8 + Redis）
+  https://api.erdonline.com       → REST
+  https://api.erdonline.com/mcp   → Streamable HTTP MCP
   镜像：ghcr.io/erdonline/erdonline-backend:latest
   备选（CN）：Zeabur，同镜像思路
 
@@ -133,18 +135,18 @@ docker compose up -d
 
 ### Dashboard 五步（最短路径）
 
-> **构建失败先看这里**：仓库是 monorepo。若 Root Directory 留空（`/`），Railway 会按仓库根做 Railpack/Nixpacks（常误检前端）或用错 Docker context（`COPY pom.xml` 找不到）。**必须**把后端服务指到 `backend/`。另：`ghcr.io/erdonline/erdonline-backend` 在首次打 `v*` tag 跑 `release.yml` 之前**不存在**（404）——在此之前请用 **Dockerfile 从 GitHub 构建**，不要选 Docker Image。
+> **构建失败先看这里**：MCP sidecar 加入镜像后，Docker build context 必须同时看见 `backend/` 与 `mcp/`。Railway 的 **Root Directory 必须是仓库根 `.`**，再由 `backend/railway.toml` 指向 `backend/Dockerfile`；继续用旧值 `backend` 会在 `COPY mcp/...` 时失败。另：`ghcr.io/erdonline/erdonline-backend` 在首次打 `v*` tag 跑 `release.yml` 之前**不存在**（404）——在此之前请用 **Dockerfile 从 GitHub 构建**，不要选 Docker Image。
 
 1. **New Project** → **Deploy from GitHub**（选 `erdonline/erdonline`）。**不要**先选 Docker Image（镜像尚未发布时会拉取失败）。
 2. 打开 **App 服务 → Settings**，按下面三项改（改完会触发重建）：
 
    | 设置项 | 必填值 | 说明 |
    |---|---|---|
-   | **Root Directory** | `backend` | 构建上下文 = `backend/`（与 `docker-compose` / `backend/Dockerfile` 一致） |
-   | **Config as Code** / Railway config file | `/backend/railway.toml` | 强制 `DOCKERFILE` builder；config **不**跟随 Root Directory，须写绝对路径 |
-   | **Watch Paths**（可选） | `/backend/**` | 仅后端变更触发部署；toml 里已有同款 |
+   | **Root Directory** | `.` | 构建上下文 = 仓库根，供 Dockerfile 同时 `COPY backend/` 与 `mcp/` |
+   | **Config as Code** / Railway config file | `backend/railway.toml` | 强制 `DOCKERFILE` builder，并指向 `backend/Dockerfile` |
+   | **Watch Paths**（可选） | `/backend/**`, `/mcp/**` | 后端或 MCP sidecar 变更都触发部署；toml 已声明 |
 
-   确认 Builder 为 **Dockerfile**、`Dockerfile` 路径为 `Dockerfile`（相对 Root Directory）。
+   确认 Builder 为 **Dockerfile**、`Dockerfile` 路径为 `backend/Dockerfile`（相对仓库根）。
 3. **Add Plugin → MySQL**（MySQL 8）与 **Add Plugin → Redis**；等插件 Ready。
 4. 在 MySQL 上建业务库 `erd` 并导入 schema（见下方「Railway MySQL 正确接法」；插件默认库常名 `railway`，**不够**）。
 5. 在 **App 服务 → Variables** 按「MySQL / Redis 正确接法」写入变量（Variable Reference，勿手抄密码）。
@@ -154,6 +156,11 @@ docker compose up -d
    # 期望 {"status":"UP"}  （部署门禁；railway.toml 也指向此路径）
    curl -sS https://YOUR-APP.up.railway.app/actuator/health
    # 期望 {"status":"UP"}  （含 db/redis；未接线时 503，业务未就绪）
+   curl -sS -X POST https://api.erdonline.com/mcp \
+     -H 'Content-Type: application/json' \
+     -H 'Accept: application/json, text/event-stream' \
+     -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
+   # 期望响应 serverInfo.name = erdonline
    ```
    随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://erdonline-production.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
 
@@ -177,7 +184,7 @@ docker compose up -d
 | `Could not resolve placeholder 'MYSQLUSER'` / `REDISPASSWORD` / `JWT_SECRET` / `ERD_UI_URL` | `prod` fail-fast 缺变量 | Link 插件或手填；compose 无 Redis 密码时 `REDISPASSWORD=`（空）；`JWT_SECRET` 见 `.env.example`；UI/CORS/SocketIO 设 `ERD_UI_URL` |
 | `OIDC RSA private key missing in prod` / `ERD_OIDC_RSA_*` | 未配置 RSA PEM/路径/keystore | 设 `ERD_OIDC_RSA_PRIVATE_KEY` 或 `ERD_OIDC_RSA_PRIVATE_KEY_PATH`（compose：`.secrets/oidc-rsa-private.pem`）；与会话 `JWT_SECRET` 分离 |
 | `martin.socketio.origin is blank or *` / `must not be * in prod` | SocketIO/CORS 通配或空 | 设明确 `ERD_UI_URL`；勿 `*` / 空串 |
-| 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`backend`、Builder=Dockerfile |
+| 完全没有 Java/`Tomcat started` | 镜像未真正跑起来 / 入口错 | 确认 Root Directory=`.`、Config file=`backend/railway.toml`、Builder=Dockerfile |
 
 容器内（Railway Shell）：
 
@@ -341,7 +348,7 @@ chmod 600 ~/.erdonline/oidc-rsa-private.pem
 
 > **MySQL / Redis**：详见上两节。Link 插件后用原生 `MYSQL*` / `REDIS*`；`MYSQL_URL` / `REDIS_URL` / `SPRING_DATASOURCE_URL` / `SPRING_DATA_REDIS_URL` **不是**本应用主接线路径。
 
-本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 仍须设 **Root Directory = `backend`** 与 **Config file = `/backend/railway.toml`**（Root Directory 无法写进 toml）。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
+本地 / compose 默认监听 **9502**。Railway 会注入 `PORT`：`backend/Dockerfile` 入口为 `java … --server.port=${PORT:-9502}`，与公网代理对齐。仓库提交了 `backend/railway.toml`（Dockerfile builder + `/actuator/health/liveness`）；Dashboard 须设 **Root Directory = `.`** 与 **Config file = `backend/railway.toml`**，让镜像同时构建 `backend/` 与 `mcp/`。**Docker / Railway 构建走 Maven Central**（不 COPY `.mvn/settings.xml` 阿里云镜像；国内本机仍可用该 settings）。
 
 ### 接 CF Pages / 自定义域名
 
@@ -415,8 +422,8 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
 仓库根有 `frontend/`、**无**根级 Dockerfile。Root Directory 留空时 Zeabur 常按 Node 前端构建 → Dashboard「运行中」但 API 全 404。
 
 1. Deploy from GitHub（`erdonline/erdonline`）
-2. **设置 → Root Directory** = `backend`（与 `backend/Dockerfile` / compose 一致）；改完会重建
-3. 确认走 **Dockerfile**；若仍误检，环境变量加 `ZBPACK_DOCKERFILE_PATH=Dockerfile`
+2. **设置 → Root Directory** = `.`（仓库根，供镜像同时读取 `backend/` 与 `mcp/`）；改完会重建
+3. 确认走 **Dockerfile**，路径为 `backend/Dockerfile`；若仍误检，环境变量加 `ZBPACK_DOCKERFILE_PATH=backend/Dockerfile`
 4. **网络**绑定公网域名。入口已读平台 `PORT`（`--server.port=${PORT:-9502}`），不必手填 9502
 5. 首个 `v*` 且 GHCR 有包后，也可改用镜像 `ghcr.io/erdonline/erdonline-backend:latest`
 
@@ -436,7 +443,7 @@ curl -sS https://YOUR.zeabur.app/actuator/health               # 期望 {"status
 
 #### 最短路径
 
-1. Root Directory=`backend` + MySQL + Redis + 上表变量 → 域名 PROVISIONED  
+1. Root Directory=`.` + Dockerfile=`backend/Dockerfile` + MySQL + Redis + 上表变量 → 域名 PROVISIONED
 2. `curl …/actuator/health` 见 `UP`（预览窗打开 `/` 的 404 可忽略）  
 3. `DEMO_API_URL` → 打开 CF Pages demo 试用  
 
@@ -718,15 +725,17 @@ node scripts/seo-index-health.mjs
 
 ## MCP（agent / CLI，ADR-0013）
 
-只读 MCP 进程在仓库 `mcp/`（非 Docker 镜像内置）。自托管后端起好后：
+官方远程 Streamable HTTP 入口是 `https://api.erdonline.com/mcp`。当前 Railway / Docker 后端镜像已内置 Node sidecar，由 Spring 在同一公网端口反代 `/mcp`；PAT 按请求放在 `Authorization: Bearer …`，不写入镜像。
+
+从源码使用 stdio fallback：
 
 ```bash
 cd mcp && yarn install && yarn build
 export ERD_API_URL=https://your-api.example.com   # 或 http://127.0.0.1:9502
 export ERD_PAT=erd_pat_…                          # POST /auth/personal-access-tokens 铸造
-node dist/index.js                                # stdio
+node dist/index.js                                # stdio fallback
 # 可选 Streamable HTTP：
 # yarn start -- --http   # 默认 http://127.0.0.1:3920/mcp
 ```
 
-Cursor / Claude Desktop 配置见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。**不要**把 PAT 写进镜像或 compose 默认值。写版本需铸造含 `versions:write` 的 PAT。
+`@erdonline/mcp` 当前 `private: true`、未发布 npm，不要宣传 `npx @erdonline/mcp`。六种客户端的远程配置见 [API / MCP 指南](./guide/api-and-mcp.md)。**不要**把 PAT 写进镜像、compose 默认值、deeplink 或仓库配置。写版本需铸造含 `versions:write` 的 PAT。
