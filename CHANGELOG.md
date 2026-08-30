@@ -8,6 +8,20 @@
 
 ### 2026-08-30
 
+#### publish(growth): Job1 补发 OSChina + Hashnode — dont-give-agent-prod-db
+
+- **OSChina 已发**：https://my.oschina.net/u/3339242/blog/19750774 — `post-seo-essay.mjs oschina --submit`；修复 OSChina swap（`.editor-switch-btn` / `[aria-label="swap"]`，2026-08 UI 已无 `img[alt="swap"]`）；公网 articleLen≈5709 / 生产库 / Friday ✓
+- **Hashnode 已发**：https://erdonline.hashnode.dev/don-t-give-your-agent-the-production-database — Home → Write → ERD Online publication；公网 articleLen≈6903 / production database / Friday night ✓
+- **Medium blocked**：`medium.com/p/import` Cloudflare Turnstile captcha — HARD STOP
+- **台账补全**：`docs/growth-data/2026-08-30.md` 写入掘金/CSDN/知乎/Dev.to/X 已有 permalink + 本轮 OSChina/Hashnode
+- **脚本**：`post-seo-essay.mjs` — OSChina swap 选择器、Hashnode 入口改 `hashnode.com/`+Write、`readback()` 补 `return`、Hashnode fill bodyLen 门禁
+- **验证点**：
+  ```text
+  chrome-devtools 公网 OSChina 19750774 → articleLen≈5709 hasProd=true hasFriday=true
+  chrome-devtools 公网 erdonline.hashnode.dev/don-t-give-your-agent-the-production-database → articleLen≈6903 hasProd=true hasFriday=true
+  medium.com/p/import reload → Cloudflare Turnstile → STOP
+  ```
+
 #### publish(growth): Job1 X Article live — dont-give-agent-prod-db
 
 - **操作**：复用 `edit/2093874865606709248` preflight（title+body 齐）→ 工具栏 **Publish** → 对话框 **Publish**；chrome-devtools CLI（page 17），未走 `--submit` spawn block。

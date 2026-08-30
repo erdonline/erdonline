@@ -318,7 +318,7 @@ node scripts/post-all-browser.mjs --platform hackernews \
 | **语言** | 英文 |
 | **稿件路径** | `docs/growth-content/2026-08-29-blog-post.md`（Body 段） |
 | **登录检查** | 侧边栏见 `erdonline`；**若** **Sign in** → **HARD STOP** |
-| **compose/edit URL** | `https://hashnode.com/new` → **Write** → `hashnode.com/draft/<id>`（首次需 Create publication：Name `ERD Online` / Subdomain `erdonline`） |
+| **compose/edit URL** | **`https://hashnode.com/`** → sidebar **Write** → `hashnode.com/draft/<id>`（**勿**用 `/new` — 2026-08 会误跳 `@new` profile） |
 | **编辑器模式** | **Markdown** tab（`tab "Markdown"`；非 Rich） |
 | **填目标** | 标题 `textarea[placeholder*="Article Title"]`；正文 `textarea[placeholder*="markdown"]` |
 | **填法** | native setter + `input`/`change`；UTF-8 base64 注入；**一次** |
@@ -435,7 +435,7 @@ node scripts/zhihu-patch-draft.mjs <pageId>
 | **稿件路径** | MCP 帖：`content/articles/cursor-mcp-read-and-suggest-version.juejin.md`；SEO essay：`docs/growth-content/2026-08-29-seo-essay.zh.md` |
 | **登录检查** | uid `3339242` 已登录；**若** 见 **登录** → **HARD STOP** |
 | **compose/edit URL** | **`https://my.oschina.net/u/3339242/blog/ai-write`**（**无 `?id=`**；**勿**用 `/blog/write` — 404） |
-| **正向路径（强制三步）** | ① 检测编辑器：若非 MD → `img[alt="swap"]`（或最近可点父级）→ **确定切换**（每步 sleep 1–3s）→ ② 找可见正文 `textarea`（`offsetWidth>100` 且 placeholder 非「标题」）→ **`setNative(ta, body)` 一次**（value setter + `input`/`change`）；**禁止** `pre.textContent` → ③ 读回 `textareaLen`≥1000 且含中文，否则 **abort submit** |
+| **正向路径（强制三步）** | ① 检测编辑器：若非 MD → `.editor-switch-btn` 或 `[aria-label="swap"]`（2026-08 起 Ant icon，**非** `img[alt="swap"]`）→ **确定切换**（每步 sleep 1–3s）→ ② 找可见正文 `textarea`（`offsetWidth>100` 且 placeholder 非「标题」）→ **`setNative(ta, body)` 一次**（value setter + `input`/`change`）；**禁止** `pre.textContent` → ③ 读回 `textareaLen`≥1000 且含中文，否则 **abort submit** |
 | **填目标** | 标题 `input[placeholder*="标题"]`；正文**可见 `textarea`**（MD 模式） |
 | **提交按钮** | **发布文章** → 弹窗 **确定并发布** |
 | **公网验正文** | 提交后 **必须** 打开 `my.oschina.net/u/3339242/blog/<id>`；`articleLen`≥1000 + 中文≥100；编辑器读回 **不算成功** |

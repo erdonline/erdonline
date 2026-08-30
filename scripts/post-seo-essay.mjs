@@ -203,7 +203,9 @@ function ensureOschinaMarkdown(pageId) {
     pageId,
     `() => {
       const swap =
-        document.querySelector('img[alt="swap"]')?.closest('div,span,button,a')
+        document.querySelector('.editor-switch-btn')
+        || document.querySelector('[aria-label="swap"]')?.closest('.editor-switch-btn,div,span,button,a')
+        || document.querySelector('img[alt="swap"]')?.closest('div,span,button,a')
         || document.querySelector('img[alt="swap"]');
       swap?.click();
       return { clickedSwap: !!swap };
@@ -282,7 +284,7 @@ const setNative = (el, value) => {
 `;
 
 function readback(title, bodyEl) {
-  return `{ titleLen: ${title}?.value?.length ?? 0, bodyLen: ${bodyEl}?.value?.length ?? ${bodyEl}?.innerText?.length ?? 0, newlineCount: ((${bodyEl}?.value || ${bodyEl}?.innerText || '').match(/\\n/g) || []).length, possibleDuplicate: (() => { const v = ${bodyEl}?.value || ${bodyEl}?.innerText || ''; const h = Math.floor(v.length/2); return v.length > 100 && v.slice(0,h) === v.slice(h); })(), preview: (${bodyEl}?.value || ${bodyEl}?.innerText || '').slice(0,100), href: location.href }`;
+  return `return { titleLen: ${title}?.value?.length ?? 0, bodyLen: ${bodyEl}?.value?.length ?? ${bodyEl}?.innerText?.length ?? 0, newlineCount: ((${bodyEl}?.value || ${bodyEl}?.innerText || '').match(/\\n/g) || []).length, possibleDuplicate: (() => { const v = ${bodyEl}?.value || ${bodyEl}?.innerText || ''; const h = Math.floor(v.length/2); return v.length > 100 && v.slice(0,h) === v.slice(h); })(), preview: (${bodyEl}?.value || ${bodyEl}?.innerText || '').slice(0,100), href: location.href }`;
 }
 
 function verifyPublic(url, checks = {}) {
@@ -311,10 +313,20 @@ function verifyPublic(url, checks = {}) {
 
 async function hashnode(submit) {
   const { title: enTitle, body } = getEnContent();
-  const pid = openUrl('https://hashnode.com/new');
+  const pid = openUrl('https://hashnode.com/');
   // Check login
-  const loginCheck = evaluate(pid, `() => ({ href: location.href, hasSignIn: !!document.body?.innerText?.includes('Sign in') })`);
-  if (loginCheck.hasSignIn) throw new Error('Hashnode not logged in — HARD STOP');
+  const loginCheck = evaluate(pid, `() => ({ href: location.href, hasSignIn: !!document.body?.innerText?.includes('Sign in'), hasErd: !!document.body?.innerText?.includes('erdonline') })`);
+  if (loginCheck.hasSignIn || !loginCheck.hasErd) throw new Error('Hashnode not logged in as erdonline — HARD STOP');
+
+  // Write → draft editor (hashnode.com/new redirects to wrong profile)
+  evaluate(pid, `() => {
+    const write = [...document.querySelectorAll('button')].find((b) => /^Write$/i.test(b.innerText?.trim()));
+    write?.click();
+    return { clickedWrite: !!write };
+  }`);
+  spawnSync('sleep', ['4']);
+  const draftCheck = evaluate(pid, `() => ({ href: location.href, onDraft: location.href.includes('/draft/') })`);
+  if (!draftCheck.onDraft) throw new Error(`Hashnode Write did not open draft editor (${draftCheck.href}) — HARD STOP`);
 
   // Click Markdown tab
   evaluate(pid, `() => {
@@ -340,6 +352,9 @@ async function hashnode(submit) {
     }`,
   );
   console.log('hashnode fill:', JSON.stringify(fill, null, 2));
+  if (!fill.bodyLen || fill.bodyLen < 500) {
+    throw new Error(`Hashnode fill FAILED: bodyLen=${fill.bodyLen} — HARD STOP`);
+  }
   if (!submit) return { fill, pid };
 
   // Publish flow
