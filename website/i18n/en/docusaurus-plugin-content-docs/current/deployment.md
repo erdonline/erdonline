@@ -580,7 +580,7 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # artifact: dist/
 
 | Scenario | Approach |
 |---|---|
-| Local `yarn start` | `env.local.sh` → `public/env-config.js` (dev proxy) |
+| Local `yarn start` | `env.local.sh` → `public/env-config.js` (dev proxy by default; optional gitignored `frontend/.env`; CI does not read it) |
 | Static CDN / CF Pages | CI sets `API_URL`/`ERD_API_URL` (or `DEMO_API_URL`) then `yarn build:prod`, config baked into `dist/env-config.js` |
 | Docker / Nginx same-origin | image may be empty; container start `docker-entrypoint.sh` rewrites `env-config.js` from env vars |
 

@@ -90,6 +90,11 @@ jobs:
 
       - name: Start frontend dev server（等待 8000 就绪）
         working-directory: frontend
+        env:
+          # Force proxy → local :9502. Do not inherit a host/API_URL or a stray .env.
+          API_URL: ''
+          ERD_API_URL: ''
+          CI: 'true'
         run: |
           nohup yarn start > frontend.log 2>&1 &
           for i in $(seq 1 90); do

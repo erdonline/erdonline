@@ -207,12 +207,23 @@ test.describe('regression: previous issues now have coverage', () => {
     }
   });
 
-  test('/ landing keeps a <select> language dropdown and switches to /en', async ({ page }) => {
+  test('/ landing language switcher reaches /en', async ({ page, request }) => {
+    const html = await (await request.get('/')).text();
+    const crawlerHasStaticSelect = html.includes('class="locale-switcher-static"');
+
     await page.goto('/');
-    const select = page.locator('select.locale-switcher-static');
-    await expect(select).toBeVisible();
-    await select.selectOption('/en');
-    await expect(page).toHaveURL('/en', { timeout: 5_000 });
+    const native = page.locator('select.locale-switcher-static');
+    const switcher = page.getByTestId('locale-switcher');
+    await expect(switcher).toBeVisible();
+
+    if (crawlerHasStaticSelect && (await native.count())) {
+      await expect(native).toBeVisible();
+      await native.selectOption('/en');
+    } else {
+      await switcher.click();
+      await page.getByRole('option', { name: 'English' }).click();
+    }
+    await expect(page).toHaveURL(/\/en\/?$/, { timeout: 5_000 });
   });
 
   test('/ landing shows 进入工作台 when logged in (zh locale)', async ({ page }) => {

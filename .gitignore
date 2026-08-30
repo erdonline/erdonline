@@ -43,6 +43,7 @@ db/data/
 
 # ===== Env =====
 /.env
+frontend/.env
 .env.local
 *.local.env
 
