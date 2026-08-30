@@ -635,39 +635,61 @@ async function hashnode(submit) {
 
 async function mediumImport(hashnodeUrl, submit) {
   const pid = acquirePlatformPage(/medium\.com/, 'https://medium.com/p/import');
-  const loginCheck = evaluate(pid, `() => ({ href: location.href, isSignIn: location.href.includes('signin') })`);
+  const loginCheck = evaluate(pid, `() => ({
+    href: location.href,
+    isSignIn: location.href.includes('signin'),
+    hasTurnstile: !!document.querySelector('[class*="turnstile"], iframe[src*="challenges.cloudflare"], #cf-turnstile')
+      || /security verification|Just a moment/i.test(document.body?.innerText || ''),
+  })`);
   if (loginCheck.isSignIn) throw new Error('Medium not logged in — HARD STOP');
+  if (loginCheck.hasTurnstile) throw new Error('Medium Cloudflare Turnstile — HARD STOP');
 
-  evaluate(
+  const fill = evaluate(
     pid,
     `() => {
       const url = ${esc(hashnodeUrl)};
-      const el = document.querySelector('[contenteditable="true"], textarea, input[type="url"], input');
-      if (el?.getAttribute('contenteditable') === 'true') {
-        el.focus();
-        document.execCommand('selectAll', false, null);
-        document.execCommand('insertText', false, url);
-      } else if (el) {
-        const proto = HTMLInputElement.prototype;
-        Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, url);
-        el.dispatchEvent(new Event('input', { bubbles: true }));
-      }
-      return { filled: !!el, href: location.href };
+      const el = document.querySelector('.js-importUrl[contenteditable="true"]')
+        || document.querySelector('[role="textbox"][data-default-value]');
+      if (!el) return { error: 'no .js-importUrl field' };
+      el.focus();
+      const placeholder = el.querySelector('.defaultValue, .defaultValue--root');
+      if (placeholder) placeholder.remove();
+      const sel = window.getSelection();
+      const range = document.createRange();
+      range.selectNodeContents(el);
+      sel.removeAllRanges();
+      sel.addRange(range);
+      document.execCommand('delete', false, null);
+      document.execCommand('insertText', false, url);
+      const text = el.innerText?.replace(/\\n/g, '').trim();
+      return { filled: text === url, text };
     }`,
   );
+  console.log('medium import fill:', fill);
+  if (!fill.filled) throw new Error(`Medium import URL fill FAILED: ${JSON.stringify(fill)}`);
+
   evaluate(pid, `() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /Import/i.test(b.innerText));
+    const btn = document.querySelector('button[data-action="import-url"]');
     btn?.click();
     return { clickedImport: !!btn };
   }`);
-  spawnSync('sleep', ['15']);
+  spawnSync('sleep', ['20']);
+  evaluate(pid, `() => {
+    const btn = document.querySelector('button[data-action="overlay-close"]')
+      || [...document.querySelectorAll('button[data-action="overlay-close"]')].find(b => /See your story/i.test(b.innerText));
+    btn?.click();
+    return { clickedSeeStory: !!btn, href: location.href };
+  }`);
+  spawnSync('sleep', ['5']);
   const state = evaluate(pid, `() => ({
     href: location.href,
     saveError: !!document.body?.innerText?.includes('Something is wrong'),
-    saved: document.body?.innerText?.includes('Saved') || document.querySelector('[data-testid="editorPublishButton"]'),
-    bodyLen: document.querySelector('main')?.innerText?.length ?? 0
+    importFailed: !!document.body?.innerText?.includes('Import failed'),
+    saved: document.body?.innerText?.includes('Saved') || !!document.querySelector('[data-testid="editorPublishButton"]'),
+    bodyLen: document.querySelector('main')?.innerText?.length ?? 0,
   })`);
   console.log('medium import state:', state);
+  if (state.importFailed) throw new Error('Medium import failed — check Hashnode URL is live (not 404) — HARD STOP');
   if (state.saveError) throw new Error('Medium save error — HARD STOP');
   if (!submit) return { state, pid };
 
