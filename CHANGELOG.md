@@ -6,6 +6,122 @@
 
 ## [Unreleased]
 
+### 2026-08-30
+
+#### fix(growth): X Article H2 repair after paste — fiber header-two + strict audit
+
+- **根因**：rich paste + table insert 后首段 H2 与 table 后 H2 落成 `DIV`（`h2Count=5/7`）；键盘 `##` 前缀无法 retro-fix 已有块。
+- **改动**：`x-article-draftjs.mjs` — `repairHeadingsAtomic()` 经 Draft.js fiber 将匹配文本的 unstyled 块升为 `header-two`；`x-article-play.mjs` insert 后自动 repair；`x-article-audit.mjs` — `h2Count` 须等于源稿全部 H2（不再 warning-only）；`x-article-md-map.mjs` — `text` fence markdown 显示为 `sql`（ERROR 块语言一致）。
+- **测试**：audit 用例 h2 不足改 error；md-map/compile/insert-menu 断言 ERROR fence 为 ` ```sql`。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-audit.test.mjs scripts/growth/lib/x-article-md-map.test.mjs scripts/growth/lib/x-article-compile.test.mjs scripts/growth/lib/x-article-insert-menu.test.mjs scripts/fill-x-article-shortcuts.test.mjs → 41 pass
+  node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --pageId=17 --audit → audit.ok h2Count=7 codeBlockCount=3 tableCount=1 inventedBold=true
+  sandbox https://x.com/compose/articles/edit/2093874865606709248 仍为草稿（未 Publish）
+  ```
+
+#### fix(growth): X Article bold — paste strips `<strong>`, S7b ⌘B fallback
+
+- **根因**：compile 已输出 `<strong>invented column</strong>`（mapper 无缺口）；X paste 不落 `<strong>` 标签（`strongCount` 恒 0），Draft.js 用 `span[style=font-weight:bold]`；play 无 S7b postPaste bold，audit 也只数 `strong`。
+- **改动**：`x-article-bold.mjs` — `shouldApplyBoldChords`（paste 保留 bold 则跳过 ⌘B，剥掉则 `selectPhrase`+⌘B 一次）；`x-article-play.mjs` S7b；`observe()` 增 `boldSpanCount`/`boldCount`；`x-article-md-map.mjs` 先剥 `` ` `` 再抽 `**`（修复 backtick 短语选不中）。
+- **测试**：`x-article-bold.test.mjs`；compile 断言 `<strong>invented column</strong>`；audit `boldCount=0` 报错。
+- **文档**：`x-article-playbook.md`、`publish-article/SKILL.md` — paste 保留 strong 不 ⌘B，剥掉则 S7b。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-bold.test.mjs scripts/growth/lib/x-article-audit.test.mjs scripts/growth/lib/x-article-compile.test.mjs → pass
+  sandbox edit/2093874865606709248 --audit fill → audit.ok；inventedBold=true；strongCount=0 boldCount=17
+  ```
+
+#### feat(growth): X Article code insert via Draft.js fiber MARKDOWN
+
+- **根因**：Insert→Code overlay 语言 picker（ArrowDown+Enter）脆；paste 后 caret 锚点易把 code 拉到文末。
+- **改动**：`x-article-draftjs.mjs` — `probeDraftJs()` + `insertCodeAtomic()`：`__reactFiber$` → `EditorState.set` + `onChange`；entityType **MARKDOWN** · `data.markdown = "\`\`\`sql\\n…\\n\`\`\`"`；锚 `afterText`（Friday hook 后）；先删旧 fenced code 块。
+- **改动**：`x-article-play.mjs` — `kind===code` 走 fiber；跳过 caret+newParagraph；overlay `insertCode` 仅 probe 失败 fallback；table 仍 overlay **Update**。
+- **测试**：`x-article-draftjs.test.mjs` — `buildMarkdownFence('SQL', …)` → ` ```sql` fence。
+- **文档**：`x-article-playbook.md`、`publish-article/SKILL.md` — code = fiber MARKDOWN；table = Update；无 ⌘K。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-draftjs.test.mjs scripts/growth/lib/x-article-compile.test.mjs scripts/growth/lib/x-article-insert-menu.test.mjs → 15 pass
+  sandbox edit/2093874865606709248：--audit fill → pasteClass=strong codeMethod=fiber-markdown audit.ok；code DOM idx 1（Friday 后）domSql=sql；table DOM idx 11（LIVE CATALOG 后）tableRows=3；无 link dialog
+  ```
+
+#### fix(growth): X Article code overlay language picker (SQL)
+
+- **根因**：`insertCode` 跳过 **Search programming language**，Job1 ERROR 块留在 **Plaintext**。
+- **改动**：`x-article-insert-menu.mjs` — `selectCodeLanguage()`：`type_text` 搜 `sql` → 等 dropdown → **ArrowDown 直到 `aria-selected=SQL` → Enter**（纯 click 不生效）→ `fillCodeBodyTextarea` 填 body（避免 type 进 language 框）。
+- **改动**：`x-article-block-ir.mjs` / `compile` — code 块可选 `language`；Job1 ERROR → `SQL`。
+- **文档**：`x-article-playbook.md`、`publish-article/SKILL.md` — code overlay = language + body + Insert/Update。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-insert-menu.test.mjs scripts/growth/lib/x-article-compile.test.mjs → pass
+  sandbox edit/2093874865606709248：Edit block → SQL 非 Plaintext；codeBlockCount=1
+  ```
+
+#### fix(growth): X Article table Update + insert anchor caret
+
+- **根因**：`insertTable` 填完 markdown 只找 overlay **Insert**，表格 Edit block 实际提交钮为 **Update**；`newParagraph()` 误调 `caretToEnd()` 把 caret 拉到文末，code/table 都插到文档尾部。
+- **改动**：`x-article-insert-menu.mjs` — `commitOverlayAction()` + `OVERLAY_COMMIT_LABELS`；table 优先 `Update`，code 优先 `Insert`。
+- **改动**：`x-article-typer.mjs` — `newParagraph()` 保留 `caretAfterBlockMatching` 位置，仅 End→Enter 开新段。
+- **文档**：`x-article-playbook.md`、`publish-article/SKILL.md` — table overlay 必须点 **Update**。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-insert-menu.test.mjs scripts/growth/lib/x-article-compile.test.mjs → 11 pass
+  sandbox edit/2093874865606709248：Delete block 清错位 insert → --inserts-only → code block 1（Friday night 后）、table block 11（LIVE CATALOG H2 后）；tableCount=1 codeBlockCount=1 audit.ok
+  ```
+
+#### refactor(growth): X Article fill stack clean rewrite (locked spec)
+
+- **架构**：写路径 ONLY compile → 一次 paste → insertPlan 按 playOrder → 一次 audit；`runFill()` 为唯一 Chrome 执行器。
+- **新增**：`x-article-audit.mjs` — `classifyPaste()` + `auditSnapshot()`（阈值仅在此）；`x-article-compile.test.mjs` + `x-article-audit.test.mjs`。
+- **重写**：`x-article-cdp-guarded.mjs` — 合并 URL guard；`observe()` v2 字段唯一；`markEditorAttached`；删除 typer 函数。
+- **重写**：`x-article-typer.mjs` — 仅 primitives（`pasteRich` / `clearBody` ⌘A+Delete / `setTitleOnce` 等）；bold 仅 compile HTML `<strong>`。
+- **重写**：`x-article-play.mjs` — `runFill(payload, { pageId, auditStrict })` 状态机 S0–S11；weak/empty paste 全量 replay 一次。
+- **重写**：`x-article-open-editor.mjs` — `GOLD_DRAFT_ID` / `DENY_DRAFT_IDS` / `attachEditor`；禁止 Create。
+- **删除**：`fill-x-article-rich.mjs`、`fill-x-article-wysiwyg.mjs`、`fix-x-article-spacing.mjs`、`cdp-type-if-article.mjs`、`x-article-publish.mjs`、`x-article-perceive.mjs`、`chrome-devtools-type-guard.mjs`、`x-article-smoke.test.mjs`。
+- **CLI**：`fill-x-article-shortcuts.mjs` 薄入口；未知 flag → exit 1；`--submit` spawn 前 exit 1；删除 `--preview` / Save draft click。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-compile.test.mjs scripts/growth/lib/x-article-audit.test.mjs scripts/fill-x-article-shortcuts.test.mjs → 27 pass
+  运行时修复：clearBody DOM 全选（231 块重填）；evaluate args 内联（chrome-devtools --args 仅 UID）；applyLinkChord 改 toolbar btn-link（⌘K 会跳 /explore）
+  node scripts/fill-x-article-shortcuts.mjs --submit → exit 1 HARD STOP（无 npx chrome-devtools）
+  node scripts/fill-x-article-shortcuts.mjs --bogus → exit 1 Unknown flag
+  node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --compile-only --dump-payload=/tmp/x.json → exit 0 insertPlan=2 无 Chrome
+  新增回归：classifyPaste weak @ bodyLength=floor(plain*0.85)-1；riday 首字母丢失；Job1 playOrder [0,1]+anchors；trailing batch 降序 irIndex；auditSnapshot paste not strong + h2-stripped/glued-paragraph warnings；Job1 HTML 恰 6×`<h2>`；garbage T/mixed stutter（删死分支 T-stutter-before-word）；CLI --submit/--compile-only
+  node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --compile-only → html_len≈5974 insertPlan=code+table playOrder 稳定
+  rg -i 'publish.*click|save draft' scripts/growth/lib/x-article-play.mjs scripts/fill-x-article-shortcuts.mjs → 无 Publish/Save draft 点击
+  ```
+
+#### feat(growth): X Article compile-once / batch-emit fill
+
+- **决策**：写路径 Markdown→IR→HTML+insertPlan 离线编译；Chrome 只播放 payload；感知改 `--audit` 收尾一次，非逐块 typer 环。
+- **新增**：`x-article-compile.mjs` — `compileArticle(slug)` → `{ title, html, plain, insertPlan, postPasteActions }`；连续 text 合并一份 HTML；Code/Table 锚点 `afterText`/`afterHeading`/`trailing`。
+- **新增**：`x-article-play.mjs` — `playCompiledPayload()`：一次 paste → insertPlan → 可选 postPaste ⌘B/⌘K；`auditPayload()` 供 `--audit`。
+- **改动**：`fill-x-article-shortcuts.mjs` — 移除逐块 `emitBlock`+`assertPerceiveAfterEmitBlock`；新增 `--compile-only` / `--dump-payload=` / `--audit`。
+- **改动**：`x-article-smoke.test.mjs` — compile Job1 快照；`publish-article/SKILL.md`、`x-article-playbook.md` § compile-once。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-smoke.test.mjs → 9 pass
+  node scripts/fill-x-article-shortcuts.mjs --slug=dont-give-agent-prod-db --compile-only → html_len≈5974 insertPlan=code+table
+  node --check scripts/fill-x-article-shortcuts.mjs scripts/growth/lib/x-article-compile.mjs scripts/growth/lib/x-article-play.mjs → 绿
+  node scripts/fill-x-article-shortcuts.mjs --submit → exit 1 HARD STOP
+  ```
+
+#### feat(growth): X Article Draft.js-safe paste typer + preflight
+
+- **根因**：last30days xPoster / wshuyi 调研结论 — Draft.js 独立 `editorState`；`setNative` / DOM 赋值 / 裸 `type_text` dump 常留空或垃圾前缀；须走 paste / insertText / 分段键盘 + `innerText` 读回。
+- **改动**：`x-article-typer.mjs` — `pasteIntoEditor`（ClipboardEvent + text/plain + text/html）、`beforeInputInsertText`、`typeBodyParagraph` 级联 fallback；`markdownInlineToHtml`；`focusBlockAtIndex` 供 anchor insert；禁止正文 DOM 写值。
+- **改动**：`x-article-cdp-guarded.mjs` — `preflightArticleEditor()`（Check-article 类比：锁定 `edit/{id}`、title textarea、body focus、非 `compose/post`）。
+- **改动**：`fill-x-article-shortcuts.mjs` — preflight + gold draft 硬拒；每块 `assertPerceiveAfterEmitBlock` 恢复；IR 尾部多 object 块 → `sortInsertAnchorsReverse`；Job1 穿插 insert 仍顺序 cursor。
+- **改动**：`x-article-block-ir.mjs` — 导出 `INSERT_KINDS` / `getInsertBlockIndices` / `sortInsertAnchorsReverse`。
+- **改动**：`x-article-smoke.test.mjs`（node:test）；`publish-article/SKILL.md`、`x-article-playbook.md` § Draft.js 输入精度。
+- **验证点**：
+  ```text
+  node --test scripts/growth/lib/x-article-smoke.test.mjs → 6 pass
+  node --check scripts/fill-x-article-shortcuts.mjs scripts/growth/lib/x-article-typer.mjs → 绿
+  node scripts/fill-x-article-shortcuts.mjs --submit → exit 1 HARD STOP
+  node scripts/growth/x-article-control-drills.mjs --drill=2 --pageId=<sandbox>（Chrome 可用且非 2093880046998130688 时）
+  ```
+
 ### 2026-08-29
 
 #### fix(growth): type only on X Article edit URL

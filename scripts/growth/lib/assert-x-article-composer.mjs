@@ -23,7 +23,7 @@ export function xLongformBlockedMessage() {
     `Use scripts/${ARTICLE_PATH} + docs/growth-templates/x-article-playbook.md`,
     '',
     `  1. Open ${ARTICLE_URL}`,
-    `  2. node scripts/${ARTICLE_PATH} [--pageId=N] [--preview] [--submit]`,
+    `  2. node scripts/${ARTICLE_PATH} [--slug=<slug>] [--pageId=N] [--compile-only] [--audit]`,
   ].join('\n');
 }
 
@@ -56,7 +56,7 @@ function postAllBrowserBlockedMessage(detail) {
     detail,
     `Use X Articles (${ARTICLE_URL}), never compose/post:`,
     '  docs/growth-templates/x-article-playbook.md',
-    `  node scripts/${ARTICLE_PATH} [--pageId=N] [--preview] [--submit]`,
+    `  node scripts/${ARTICLE_PATH} [--slug=<slug>] [--pageId=N] [--compile-only] [--audit]`,
     '',
     'post-all-browser.mjs --platform x is for ≤280-char short posts only.',
   ].join('\n');

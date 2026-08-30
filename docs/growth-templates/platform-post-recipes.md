@@ -144,14 +144,48 @@ SEO essay / 博客稿 **禁止** `x.com/compose/post` 或 280 字 composer；公
 | **登录检查** | @BuilderLiang 已登录 |
 | **compose/edit URL** | 新建：`https://x.com/compose/articles` → **`button[aria-label="create"]`** → 等 URL **`compose/articles/edit/{id}`**（例 `…/edit/2093728235884605440`）；续编：已在 edit URL；Preview：`…/edit/<id>/preview` |
 | **Create 控件** | `button[aria-label="create"][role="button"]` — 点 Create 后 **必须**等到 edit URL 再 type；hub-only 或 `compose/post` → throw |
-| **编辑器** | 富文本 WYSIWYG（`#toolbar-styling-buttons`）；字号 **Heading / Subheading / Body**（正文默认 Body）；title 在标题框，正文勿重复大标题 |
-| **填法** | 按 block + 官方快捷键（`# ` / `## ` / `> ` / `- ` / ⌘B / ⌘K / ⌘⇧, 降至 Body）；段间 Enter 一次；详见 playbook § 填稿步骤 |
-| **脚本（唯一入口）** | `node scripts/fill-x-article-shortcuts.mjs --slug=<slug> [--pageId=N] [--preview] [--submit]` 或 `node scripts/x-article-publish.mjs <slug> …` — 脚本内自动 navigate + click Create；**禁止** `fill-x-article-dont-give-agent-prod-db.mjs`（已删） |
+| **标题框** | `textarea[name="Article Title"]`（`placeholder="Add a title"` · `maxlength="100"`）— **只填标题**；禁止把 title 打进 body |
+| **编辑器** | 富文本 WYSIWYG（`#toolbar-styling-buttons`）；Style dropdown **Heading / Subheading / Body**；正文默认 Body |
+| **Toolbar testid** | `btn-bold` `btn-italic` `btn-strikethrough` `btn-blockquote` `btn-ul` `btn-ol` `btn-link` `btn-emoji`；Insert = `button[aria-label="Add Media"]`；Style = 含 **Body** 文案的下拉；**禁止** `css-*` 哈希类 |
+| **填法** | title → `textarea[name="Article Title"]`；正文 → 读者扫读表 + **Insert 纪律**（链接 `btn-link`/⌘K、媒体 Insert→Media；**禁止** markdown `[text](url)` / `![]()`）；详见 playbook § 插入走编辑器 Insert |
+| **脚本（唯一入口）** | `node scripts/fill-x-article-shortcuts.mjs --slug=<slug> [--pageId=N] [--compile-only] [--audit] [--dump-payload=path.json]` — **复用已有 edit tab，Never Create**；`--submit` spawn 前 exit 1 |
 | **Preview** | **强制**；字号像杂志、无 `\n{3,}`、Heading 层级 OK → 才 Publish |
 | **提交** | 工具栏 **Publish** → 对话框 **Publish** |
 | **公网验正文** | `https://x.com/BuilderLiang/article/<id>`（**必须** `/article/`）；articleLen≈12000+ |
 | **SEO essay live URL** | https://x.com/BuilderLiang/article/2093670417458491425 |
 | **硬停** | Playwright；整篇 md paste；Preview 未过就发；误开 `compose/post` → 关闭改 Article |
+
+**读者扫读（冻结 · 见 playbook § 按读者扫读选格式）：**
+
+| 读者要干什么 | 写在哪 | 快捷键 |
+|---|---|---|
+| 认出文章 | Title 框 | 只打 `textarea[name="Article Title"]`；正文不要再 `#` 一遍标题 |
+| 扫下一节 | 小节标题 | 行首 `##` + 空格；一节一个，不要每段当标题；**打完 Enter → Style dropdown 点 Body** |
+| 读故事/论证 | 普通段 | 纯正文，不加 `#`/`##`/`-`/`>`，不要整段 ⌘B |
+| 抓住短标签 | 短语 | 只选那几个词 ⌘B → 收拢选区 |
+| 并列/步骤 | 列表 | `-` + 空格 或 `1.` + 空格 → 退出后 **点 Body** |
+| 报错原话 | 引用 | `>` + 空格 → 退出后 **点 Body** |
+| 可点 URL | 链接 | 选中锚文本 → `btn-link` 或 ⌘K → 对话框 URL；**禁止** `[text](url)` |
+| Insert 块 | Insert | `button[aria-label="Add Media"]` → 冻结 7 项 menuitem（见 playbook § Insert）；`insertMenu(pageId, itemName)` |
+| 段与段 | | **一个** Enter，禁止空多行 |
+
+**Insert 菜单（7 项冻结 · IR → menuitem）：**
+
+| IR kind / need | Menu |
+|---|---|
+| `image` / photo / video | **Media** |
+| `gif` | **GIF** |
+| `posts` | **Posts** |
+| `divider` | **Divider** |
+| `code` | **Code** |
+| `latex` | **LaTeX** |
+| `table` | **Table** |
+
+**插入纪律：** 链接 → `btn-link`/⌘K；Insert → `insertMenu()` 按名点 menuitem（缺项 throw 列 7 名）；Code 块禁止 markdown fence；CTA URL 走 IR `links[]`；关后 **`assertBodyPlain`**。**Insert 七项按需一条，禁止连续堆叠、禁止节前默认 Divider。**
+
+**开/关：** 默认 Body；命中上表才开；开完立刻关（playbook § 开/关）。
+
+IR：`x-article-block-ir.mjs` → `compileArticle()`（text → HTML；links → postPaste ⌘K；objects → `insertPlan[]`）。
 
 CLI（短讯 Post ≤280 字）：`node scripts/post-all-browser.mjs --platform x --body-file … [--submit]` — **长文 / growth-content / content/articles 会 throw**；长文走 `fill-x-article-shortcuts.mjs`
 
