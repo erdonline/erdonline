@@ -360,7 +360,7 @@ node scripts/validate-projectjson.mjs
 
 JWT 含全量权限时 `Authorization` 头可达 8KB+；Boot 3 须配置 `server.max-http-request-header-size`（本仓 64KB，见 ADR-0015）。若写接口返回 **HTML 400**，先查该配置是否生效（`./backend/dev-ensure.sh --restart`），再查代理是否把 SPA HTML 误回给 `/ncnb/*`。
 后端 `GatewayPrefixStripFilter` 剥离 `/ncnb`|`/auth`|`/syst` 前缀后再进 Controller。
-生产环境通过 `public/env-config.js`（由 `.env` / `env.sh` 生成）注入 `window._env_.API_URL` 等。
+开发态 `yarn start` 会先跑 `env.local.sh` → `public/env-config.js`：默认 `API_URL` 空（走 `proxy.ts` → `localhost:9502`）；若 `frontend/.env` 设 `API_URL=https://api.erdonline.com` 则本地 UI 直连公网 API（改 `.env` 后重跑 `env.local.sh && cp env-config.js ./public/` 即可，**勿**重启 `yarn start`）。生产构建经 `env.sh` 注入 `window._env_.API_URL` 等。
 
 可选 `LOCALE`（默认空 = 不覆盖，走 umi **baseNavigator** + `umi_locale` localStorage）：非空时经 `getAntdLocale()` 强制注入 antd `ConfigProvider`；奠基切片支持 `zh-CN` / `en-US`。例：`LOCALE=en-US ./env.sh && cp env-config.js ./public/`（本地验证 antd 英文 Modal 按钮）。
 

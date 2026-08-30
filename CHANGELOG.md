@@ -8,15 +8,14 @@
 
 ### 2026-08-30
 
-#### fix(config): 公网 API 切到 api.erdonline.com，弃用 Railway 默认域
+#### fix(config): env.local.sh 读 `.env`；DEMO_API_URL 切 api.erdonline.com
 
-- **背景**：Railway Custom Domain `https://api.erdonline.com`（Cloudflare 反代 :8080）已 live；仓库内仍有多处默认 `erdonline-production.up.railway.app`。
-- **改动**：`config.prod.ts` / `frontend/.env` / `DEMO_API_URL` 文档与 CI 示例 / MCP onboarding 示例 / `llms.txt` / 增长文章 → `https://api.erdonline.com`；`scripts/erdonline-mcp.sh` 默认公网 API 同步；独立 `mcp/Dockerfile` 与 introspect 冒烟默认回 `http://127.0.0.1:9502`；生产 sidecar 仍经 `backend/docker-entrypoint.sh` → `http://127.0.0.1:${PORT}`（Railway 上即 :8080 loopback，避免 hairpin）。
-- **Socket.IO**：`config.prod.ts` 不再默认把 `SOCKETIO_URL` 指到 API 域——进程内仍 :9092，公网 :8080 未多路复用；Presence 公网端点待 `socket.erdonline.com` 或 8080 多路复用后再设 `SOCKETIO_URL`。
+- **根因**：`www.erdonline.com` / `erdonline-demo.pages.dev` 的 `env-config.js` 仍由 GitHub Variable `DEMO_API_URL=https://erdonline-production.up.railway.app` 烘焙；本地 `env.local.sh` 硬编码空串，改 `frontend/.env` 不生效。
+- **改动**：`env.local.sh` 加载同目录 `.env`（默认仍空 = dev proxy）；`docs/deployment.md` / `docs/development.md` 补说明；GitHub `DEMO_API_URL` → `https://api.erdonline.com`。
 - **验证点**：
-  - `rg 'erdonline-production\.up\.railway\.app' --glob '!CHANGELOG.md'` → 仅历史 CHANGELOG 条目保留旧域（新 docs/示例为 0）
-  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → 全绿
-  - `grep -E 'api\.erdonline\.com' frontend/config/config.prod.ts frontend/public/llms.txt docs/deployment.md` → 命中新域
+  - `cd frontend && ./env.local.sh && cat public/env-config.js` → `API_URL: "https://api.erdonline.com"`
+  - `curl -s https://www.erdonline.com/env-config.js` → 待 `frontend-demo-site` workflow 重跑后为新域
+  - `rg 'erdonline-production\.up\.railway\.app' --glob '!CHANGELOG.md'` → 0（docs 示例已清）
 
 #### fix(docker): Railway 构建去掉未提交的 mcp/guide COPY
 
