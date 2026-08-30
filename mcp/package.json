@@ -27,7 +27,8 @@
     "dev": "tsx src/index.ts",
     "dogfood": "tsx scripts/dogfood.ts",
     "smoke:npx": "node scripts/smoke-npx-pack.mjs",
-    "smoke:introspect": "yarn build && node scripts/smoke-introspect.mjs"
+    "smoke:introspect": "yarn build && node scripts/smoke-introspect.mjs",
+    "test:unit": "yarn build && node scripts/test-erd-api.mjs"
   },
   "engines": {
     "node": ">=18"

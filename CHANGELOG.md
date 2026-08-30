@@ -8,6 +8,16 @@
 
 ### 2026-08-30
 
+#### test(mcp): 前后端与 sidecar 契约回归
+
+- **后端**：新增 `McpHttpProxyControllerTest`，用进程内假 sidecar + MockMvc 覆盖 GET `/mcp` 405、POST `initialize`、`tools/list` 14 项，以及 `Authorization: Bearer erd_pat_…` 原样转发；同时锁定 MCP Security 链 `@Order(0)`，避免 PAT 被会话 JWT 链解析。
+- **Node sidecar**：新增无数据库 `test-erd-api.mjs`，mock `fetch` 验证 HTTP Authorization 提取的 PAT 会传到 `/api/v1/projects`；introspection 锁定 14 tools、兼容工具 `put_project_json` 存在、尚未实现的 `diff_versions` 不得暴露。
+- **前端**：复验现有 `mcpJsonSnippet.test.ts` 7 项，覆盖 PAT 写入本地配置、Cursor install-link 只含占位符且不泄露已铸 PAT；未虚构浏览器侧 MCP SDK。
+- **验证点**：
+  - `cd backend && JAVA_HOME=$(/usr/libexec/java_home -v 17) mvn -q test -Dtest=McpHttpProxyControllerTest -Djacoco.skip=true` → 4 tests，0 failures / 0 errors（定向测试跳过只适用于全套测试的 JaCoCo bundle 门禁）。
+  - `cd mcp && yarn test:unit && yarn smoke:introspect` → 2 unit tests 通过；introspection 为 14 tools / 1 resource / 2 prompts。
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → 7 tests 通过。
+
 #### feat(mcp): Streamable HTTP on backend `/mcp` (Railway :8080)
 
 - **架构（5 行）**：否决 A「第二 Railway 公网 Node 服务」与 B「Java 重写 14 tools」；选 **同容器 co-process + Spring 薄反代**（A′）：Docker entrypoint 起 Node `@erdonline/mcp` loopback `:3920`，Boot `McpHttpProxyController` 暴露公网 `POST /mcp`；PAT 经 `Authorization: Bearer erd_pat_…` 逐请求注入 sidecar→`/api/v1`（不写 `ERD_PAT` 进镜像）；独立 `@Order(0)` Security 链避免 JWT 误解析 PAT。
