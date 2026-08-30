@@ -37,6 +37,81 @@ export function buildCursorMcpJson(
   )}\n`;
 }
 
+export function buildClineMcpJson(
+  pat: string,
+  apiUrl?: string | null,
+): string {
+  return `${JSON.stringify(
+    {
+      mcpServers: {
+        erdonline: {
+          type: 'streamableHttp',
+          url: resolveMcpUrl(apiUrl),
+          headers: {
+            Authorization: `Bearer ${pat}`,
+          },
+        },
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+export function buildDevinMcpJson(
+  pat: string,
+  apiUrl?: string | null,
+): string {
+  return `${JSON.stringify(
+    {
+      mcpServers: {
+        erdonline: {
+          serverUrl: resolveMcpUrl(apiUrl),
+          headers: {
+            Authorization: `Bearer ${pat}`,
+          },
+        },
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+export function buildVsCodeMcpJson(
+  pat: string,
+  apiUrl?: string | null,
+): string {
+  return `${JSON.stringify(
+    {
+      servers: {
+        erdonline: {
+          type: 'http',
+          url: resolveMcpUrl(apiUrl),
+          headers: {
+            Authorization: `Bearer ${pat}`,
+          },
+        },
+      },
+    },
+    null,
+    2,
+  )}\n`;
+}
+
+function shellSingleQuote(value: string): string {
+  return `'${value.replace(/'/g, `'\\''`)}'`;
+}
+
+export function buildClaudeCodeCommand(
+  pat: string,
+  apiUrl?: string | null,
+): string {
+  return `claude mcp add --transport http --scope user erdonline ${resolveMcpUrl(
+    apiUrl,
+  )} -H ${shellSingleQuote(`Authorization: Bearer ${pat}`)}`;
+}
+
 export type CursorMcpInstallOpts = {
   mcpUrl?: string | null;
 };
@@ -75,4 +150,18 @@ function cursorInstallQuery(opts?: CursorMcpInstallOpts): string {
 /** https://cursor.com/docs/mcp/install-links — opens the Cursor app. */
 export function cursorMcpInstallDeeplink(opts?: CursorMcpInstallOpts): string {
   return `cursor://anysphere.cursor-deeplink/mcp/install?${cursorInstallQuery(opts)}`;
+}
+
+/** VS Code install URI contains only the public endpoint, never a PAT. */
+export function vsCodeMcpInstallDeeplink(opts?: CursorMcpInstallOpts): string {
+  const url =
+    opts?.mcpUrl === undefined
+      ? PRODUCTION_MCP_URL
+      : resolveMcpUrl(opts.mcpUrl);
+  const config = {
+    name: 'erdonline',
+    type: 'http',
+    url,
+  };
+  return `vscode:mcp/install?${encodeURIComponent(JSON.stringify(config))}`;
 }

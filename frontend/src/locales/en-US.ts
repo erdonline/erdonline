@@ -549,10 +549,24 @@ export default {
   'accountSettings.pat.copyButtonAria': 'Copy new personal access token',
   'accountSettings.pat.copiedSuccess': 'Token copied',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
+  'accountSettings.pat.installNowTitle':
+    'Install it now while the plaintext is visible',
   'accountSettings.pat.mcpSnippetHint':
-    'Paste into ~/.cursor/mcp.json; the remote URL needs no local Node process. Keep the PAT in local config—never a deeplink or commit. After connect, run prompt suggest-erd-version or have the agent call create_version, then review the diff. Self-host with your own backend /mcp.',
+    'Every copy action below is prefilled with this one-time PAT. Cursor and VS Code launch links contain only the URL, never the PAT, so copy the adjacent filled config too. Claude Desktop remote connectors do not accept static Bearer headers; that path awaits OAuth.',
   'accountSettings.pat.copyMcpJsonAria': 'Copy Cursor mcp.json config',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json copied',
+  'accountSettings.pat.urlCopiedSuccess': 'MCP URL copied',
+  'accountSettings.pat.commandCopiedSuccess': 'Install command copied',
+  'accountSettings.pat.openApp': 'Open app (no PAT)',
+  'accountSettings.pat.copyFilledConfig': 'Copy PAT-filled config',
+  'accountSettings.pat.copyFilledCommand': 'Copy PAT-filled command',
+  'accountSettings.pat.copyUrl': 'Copy URL',
+  'accountSettings.pat.claudeDesktopLimitation':
+    'Open App → Customize → Connectors → + → Add custom connector. Static PAT injection is unavailable; OAuth comes next.',
+  'accountSettings.pat.clineOpenPath':
+    'No official install URI: open Cline → MCP Servers → Remote Servers, then paste the filled config.',
+  'accountSettings.pat.devinConfigPath':
+    'Devin Desktop (formerly Windsurf): write ~/.codeium/mcp_config.json using serverUrl.',
   'accountSettings.pat.mcpDocsLink': '30-second setup docs',
   'accountSettings.pat.mcpDocsAria': 'Open docs: let Cursor read your ER diagram via MCP',
   'accountSettings.pat.mcpCursorInstallLink':

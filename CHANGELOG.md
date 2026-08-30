@@ -8,6 +8,18 @@
 
 ### 2026-08-30
 
+#### fix(mcp): PAT 铸造成功即给客户端安装动作
+
+- **闭环**：PAT 明文一次性弹层扩为六客户端安装区；Cursor / Cline / Devin / VS Code 复制项与 Claude Code CLI 均已填入本次 PAT，不再让用户从公开接入页跳回账户设置后自行拼 header。Cursor / VS Code 打开程序的 install URI 仍只含 URL，PAT 只存在于同屏一次性复制动作。
+- **真实入口**：Cursor 使用 `cursor://anysphere.cursor-deeplink/mcp/install`；VS Code 使用 `vscode:mcp/install?{URL_ENCODED_JSON}`；Claude Code 使用 `claude mcp add --transport http --scope user … -H …`。Cline 无官方自定义安装 URI，走 MCP Servers → Remote Servers；Claude Desktop 走 Customize → Connectors，因不接受静态 Bearer header，本切片如实等待 OAuth。
+- **Devin 更名**：原 Windsurf 卡改为 **Devin Desktop（formerly Windsurf）**；按 Devin 2026 一手文档使用用户级 `~/.codeium/mcp_config.json` 与 `serverUrl`。`windsurf://windsurf-mcp-registry` 只打开 Marketplace，不冒充自定义配置一键安装。
+- **验证点**：
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → 10 项通过；覆盖五类 PAT-filled artifact、Cursor / VS Code install URI 无 PAT、Devin 名称 / 路径与公开页入口。
+  - `cd frontend && yarn check:i18n` → 中英各 2260 keys 对齐，硬编码 CJK 门禁通过。
+  - `cd frontend && yarn build` → Webpack 编译与 SEO 静态产物生成通过。
+  - `cd frontend && yarn test:e2e --project=chromium tests/e2e/personal-access-tokens.spec.ts --grep '铸造后可见可复制 mcp.json'` → 1 passed；断言六客户端安装区、Claude Code/Cline/Devin/VS Code 剪贴板内容含本次 PAT，两个 install URI 不含 PAT。
+  - Playwright 走查 `/cursor-mcp/` 与 PAT 成功弹层；公开页只放占位符，铸造弹层才出现本次明文；Devin / VS Code 打开入口与无协议说明可见。
+
 #### feat(mcp): 一个远程 URL + 六客户端接入卡
 
 - **主入口**：官方 MCP 统一为 `https://api.erdonline.com/mcp`；`/cursor-mcp/` 中英页改为 URL hero + Cursor / Claude Desktop / Claude Code / Cline / Windsurf / VS Code Copilot 六张独立配置卡，不再把 GitHub Release tgz 或一份通用 stdio JSON 当主路径。

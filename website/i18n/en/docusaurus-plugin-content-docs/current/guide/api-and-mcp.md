@@ -1,6 +1,6 @@
 ---
 title: Connect your agent to ERD Online with one URL
-description: Connect Cursor, Claude Desktop, Claude Code, Cline, Windsurf, or VS Code Copilot to ERD Online over remote Streamable HTTP.
+description: Mint a PAT and immediately get prefilled installers for Cursor, Claude Code, Cline, Devin, and VS Code Copilot over remote Streamable HTTP.
 ---
 
 Six MCP clients start with the same remote Streamable HTTP endpoint:
@@ -9,17 +9,19 @@ Six MCP clients start with the same remote Streamable HTTP endpoint:
 https://api.erdonline.com/mcp
 ```
 
-> **30-second goal**: paste the URL → discover MCP tools → let the agent read the approved model contract.
-> **Authentication transition**: OAuth is the next slice. Until then, clients with custom header support can use `Authorization: Bearer erd_pat_…` for account data. Keep plaintext PATs in local secret config—never in a deeplink or commit.
+The [public six-client page](https://www.erdonline.com/cursor-mcp/) shows the URL and evidenced app-opening actions. PAT-filled installers appear only in the signed-in mint-success dialog.
+
+> **30-second goal**: [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) → keep the success dialog open → use its client-specific PAT-filled copy/install actions. Minting and installing are one flow.
+> **Authentication transition**: OAuth is the next slice. The plaintext PAT appears once. The dialog may inject it into copied JSON/CLI, but Cursor and VS Code install URIs contain only the public URL. Never commit a filled config.
 > **Not this**: one-shot “generate an ERD”, ChatSQL; writes still require human review in the version diff.
 
 ## Six client cards
 
 ### Cursor
 
-1. Open the [one-click page](https://www.erdonline.com/cursor-mcp/) and click “Open in Cursor”.
-2. Confirm `https://api.erdonline.com/mcp`.
-3. For account data during the PAT transition, add the header locally in `~/.cursor/mcp.json`:
+1. Click “Open app (no PAT)” in the PAT success dialog.
+2. Click “Copy PAT-filled config” in the same dialog.
+3. Save it to user-level `~/.cursor/mcp.json`:
 
 ```json
 {
@@ -36,18 +38,21 @@ The deeplink contains only the URL, never a PAT.
 
 ### Claude Desktop
 
-1. Open **Settings → Connectors**.
-2. Add a custom connector and paste the endpoint URL.
-3. Save and reconnect.
+1. Open App → **Customize → Connectors**.
+2. Click **+ → Add custom connector**.
+3. Copy the URL from the PAT dialog; connect account data after OAuth ships.
 
-Anthropic’s cloud connector cannot reach localhost. Account authentication awaits the next OAuth slice.
+Anthropic documents no custom connector install URI and its UI does not accept a static Bearer header, so PAT injection is unavailable for this client. Its cloud connector also cannot reach localhost.
 
 ### Claude Code
 
-1. Run:
+1. Mint a PAT and keep the success dialog open.
+2. Click “Copy PAT-filled command”.
+3. Run it:
 
 ```bash
-claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp
+claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp \
+  -H 'Authorization: Bearer erd_pat_…'
 ```
 
 2. Confirm user scope.
@@ -59,29 +64,33 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
 
 ### Cline
 
-1. Open Cline MCP Servers.
-2. Add a remote server with `"type": "streamableHttp"`.
-3. Save and inspect the tool list:
+1. Open Cline → **MCP Servers → Remote Servers**.
+2. Copy the PAT-filled Cline config from the mint dialog.
+3. Paste it and choose Streamable HTTP:
 
 ```json
 {"mcpServers":{"erdonline":{"type":"streamableHttp","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}}
 ```
 
-### Windsurf
+No official custom MCP install URI is documented for Cline.
 
-1. Open `~/.codeium/windsurf/mcp_config.json`.
-2. Add the remote using the `serverUrl` field.
-3. Reload Windsurf:
+### Devin Desktop (formerly Windsurf)
+
+1. Open Devin Desktop → **MCPs / Add Server**.
+2. Copy the PAT-filled Devin config from the mint dialog.
+3. Write `~/.codeium/mcp_config.json` using `serverUrl`, then refresh:
 
 ```json
 {"mcpServers":{"erdonline":{"serverUrl":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}}
 ```
 
+Devin’s 2026 FAQ confirms `~/.codeium/mcp_config.json` as the primary user MCP path. `windsurf://windsurf-mcp-registry` opens Marketplace only; it cannot carry an arbitrary ERD Online config.
+
 ### VS Code Copilot
 
-1. Open workspace `.vscode/mcp.json`.
-2. Add the server under top-level `servers`.
-3. Start it:
+1. Click the `vscode:mcp/install?...` “Open app (no PAT)” action.
+2. Copy the PAT-filled VS Code config from the same dialog.
+3. Save it to `.vscode/mcp.json` under top-level `servers`:
 
 ```json
 {"servers":{"erdonline":{"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}}

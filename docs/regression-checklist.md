@@ -8,7 +8,8 @@
 
 ## MCP / Agent 增长楔子（2026-08-28）
 
-- [x] [远程 MCP 一 URL 六客户端] `/cursor-mcp/` 中英切换后 URL 均为 `https://api.erdonline.com/mcp`；Cursor deeplink 解码后仅含 `url`、不含 PAT；六张卡分别锁定 Cursor `url`、Claude Desktop Connectors、Claude Code `type:http`、Cline `streamableHttp`、Windsurf `serverUrl`、VS Code 顶层 `servers` ✅ Playwright 2026-08-30
+- [x] [PAT 铸造即安装闭环] 铸造成功弹层同屏显示六客户端；Cursor / VS Code install URI 不含本次 PAT；Cursor/Cline/Devin/VS Code 已填 JSON 与 Claude Code 已填命令均含本次 PAT；Claude Desktop 明示静态 Bearer 不可用、OAuth 待后续 ✅ E2E + Playwright 2026-08-30
+- [x] [远程 MCP 一 URL 六客户端] `/cursor-mcp/` 中英切换后 URL 均为 `https://api.erdonline.com/mcp`；Cursor deeplink 解码后仅含 `url`、不含 PAT；六张卡分别锁定 Cursor `url`、Claude Desktop Connectors、Claude Code `type:http`、Cline `streamableHttp`、Devin `~/.codeium/mcp_config.json` + `serverUrl`、VS Code 顶层 `servers` ✅ Playwright 2026-08-30
 - [x] [文档 MCP 页 SEO] `cd website && yarn build && yarn test:seo` → 中/英 `/docs/guide/api-and-mcp/` title 含 MCP，正文含 `mcpServers` ✅ 2026-08-28
 - [x] [落地页 MCP 链] `yarn test:e2e --project=chromium tests/e2e/landing.spec.ts --grep "顶栏与 Hero"` → `landing-mcp-docs` 指向 `https://doc.erdonline.com/docs/guide/api-and-mcp/`；对照表 Agent 格不再是「路线图中」 ✅ 2026-08-28
 - [x] [稿 #13 打包] `node scripts/growth/build-package.mjs cursor-mcp-read-and-suggest-version` 产出掘金 + 小红书包 ✅ 2026-08-28

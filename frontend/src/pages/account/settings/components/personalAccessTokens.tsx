@@ -14,8 +14,14 @@ import { confirmDestructive } from '@/utils/destructiveConfirm';
 import { useIntl } from '@umijs/max';
 import { docsUrl } from '@/utils/docsUrl';
 import {
+  buildClaudeCodeCommand,
+  buildClineMcpJson,
   buildCursorMcpJson,
+  buildDevinMcpJson,
+  buildVsCodeMcpJson,
   cursorMcpInstallDeeplink,
+  resolveMcpUrl,
+  vsCodeMcpInstallDeeplink,
 } from '@/utils/mcpJsonSnippet';
 import styles from './personalAccessTokens.less';
 
@@ -94,8 +100,24 @@ const PersonalAccessTokensView: React.FC = () => {
   const mcpJson = tokenReveal
     ? buildCursorMcpJson(tokenReveal.token, mcpApiUrl)
     : '';
-  /** Placeholder PAT only — minted token stays in mcp.json, never in this URL. */
-  const mcpInstallHref = cursorMcpInstallDeeplink();
+  const clineMcpJson = tokenReveal
+    ? buildClineMcpJson(tokenReveal.token, mcpApiUrl)
+    : '';
+  const devinMcpJson = tokenReveal
+    ? buildDevinMcpJson(tokenReveal.token, mcpApiUrl)
+    : '';
+  const vsCodeMcpJson = tokenReveal
+    ? buildVsCodeMcpJson(tokenReveal.token, mcpApiUrl)
+    : '';
+  const claudeCodeCommand = tokenReveal
+    ? buildClaudeCodeCommand(tokenReveal.token, mcpApiUrl)
+    : '';
+  const remoteMcpUrl = resolveMcpUrl(mcpApiUrl);
+  /** Install URIs are safe to share: the one-time PAT stays in copy actions only. */
+  const mcpInstallHref = cursorMcpInstallDeeplink({ mcpUrl: remoteMcpUrl });
+  const vsCodeInstallHref = vsCodeMcpInstallDeeplink({
+    mcpUrl: remoteMcpUrl,
+  });
 
   const load = useCallback(async () => {
     setLoading(true);
@@ -344,7 +366,7 @@ const PersonalAccessTokensView: React.FC = () => {
         okText={t('accountSettings.common.saved')}
         cancelButtonProps={{ style: { display: 'none' } }}
         className="pat-token-reveal-dialog"
-        width={560}
+        width={760}
         destroyOnClose
         okButtonProps={{ 'aria-label': t('accountSettings.pat.revealOkAria') }}
         data-testid="pat-reveal-modal"
@@ -374,25 +396,9 @@ const PersonalAccessTokensView: React.FC = () => {
               </div>
             </div>
             <div className={styles.mcpBlock}>
-              <div className={styles.mcpHead}>
-                <p className={styles.secretLabel}>
-                  {t('accountSettings.pat.mcpSnippetLabel')}
-                </p>
-                <Button
-                  type="link"
-                  size="small"
-                  data-testid="pat-copy-mcp-json"
-                  aria-label={t('accountSettings.pat.copyMcpJsonAria')}
-                  onClick={() =>
-                    void copyText(mcpJson, t('accountSettings.pat.mcpCopiedSuccess'))
-                  }
-                >
-                  {t('accountSettings.common.copy')}
-                </Button>
-              </div>
-              <pre className={styles.mcpJson} data-testid="pat-mcp-json">
-                <code>{mcpJson}</code>
-              </pre>
+              <h3 className={styles.installTitle}>
+                {t('accountSettings.pat.installNowTitle')}
+              </h3>
               <p className={styles.mcpHint} data-testid="pat-mcp-snippet-hint">
                 {t('accountSettings.pat.mcpSnippetHint')}{' '}
                 <a
@@ -405,17 +411,147 @@ const PersonalAccessTokensView: React.FC = () => {
                   {t('accountSettings.pat.mcpDocsLink')}
                 </a>
               </p>
-              <p className={styles.mcpHint}>
-                <a
-                  href={mcpInstallHref}
-                  target="_blank"
-                  rel="noreferrer"
-                  data-testid="pat-cursor-install-link"
-                  aria-label={t('accountSettings.pat.mcpCursorInstallAria')}
-                >
-                  {t('accountSettings.pat.mcpCursorInstallLink')}
-                </a>
-              </p>
+              <div
+                className={styles.installGrid}
+                data-testid="pat-mcp-client-installers"
+              >
+                <section className={styles.installCard}>
+                  <strong>Cursor</strong>
+                  <div className={styles.installActions}>
+                    <Button
+                      type="link"
+                      size="small"
+                      href={mcpInstallHref}
+                      data-testid="pat-cursor-install-link"
+                    >
+                      {t('accountSettings.pat.openApp')}
+                    </Button>
+                    <Button
+                      type="link"
+                      size="small"
+                      data-testid="pat-copy-mcp-json"
+                      onClick={() =>
+                        void copyText(
+                          mcpJson,
+                          t('accountSettings.pat.mcpCopiedSuccess'),
+                        )
+                      }
+                    >
+                      {t('accountSettings.pat.copyFilledConfig')}
+                    </Button>
+                  </div>
+                  <pre className={styles.mcpJson} data-testid="pat-mcp-json">
+                    <code>{mcpJson}</code>
+                  </pre>
+                </section>
+
+                <section className={styles.installCard}>
+                  <strong>Claude Desktop</strong>
+                  <p className={styles.installNote}>
+                    {t('accountSettings.pat.claudeDesktopLimitation')}
+                  </p>
+                  <Button
+                    type="link"
+                    size="small"
+                    data-testid="pat-copy-claude-desktop-url"
+                    onClick={() =>
+                      void copyText(
+                        remoteMcpUrl,
+                        t('accountSettings.pat.urlCopiedSuccess'),
+                      )
+                    }
+                  >
+                    {t('accountSettings.pat.copyUrl')}
+                  </Button>
+                </section>
+
+                <section className={styles.installCard}>
+                  <strong>Claude Code</strong>
+                  <Button
+                    type="link"
+                    size="small"
+                    data-testid="pat-copy-claude-code-command"
+                    onClick={() =>
+                      void copyText(
+                        claudeCodeCommand,
+                        t('accountSettings.pat.commandCopiedSuccess'),
+                      )
+                    }
+                  >
+                    {t('accountSettings.pat.copyFilledCommand')}
+                  </Button>
+                  <pre className={styles.mcpJson}>
+                    <code>{claudeCodeCommand}</code>
+                  </pre>
+                </section>
+
+                <section className={styles.installCard}>
+                  <strong>Cline</strong>
+                  <p className={styles.installNote}>
+                    {t('accountSettings.pat.clineOpenPath')}
+                  </p>
+                  <Button
+                    type="link"
+                    size="small"
+                    data-testid="pat-copy-cline-json"
+                    onClick={() =>
+                      void copyText(
+                        clineMcpJson,
+                        t('accountSettings.pat.mcpCopiedSuccess'),
+                      )
+                    }
+                  >
+                    {t('accountSettings.pat.copyFilledConfig')}
+                  </Button>
+                </section>
+
+                <section className={styles.installCard}>
+                  <strong>Devin Desktop</strong>
+                  <p className={styles.installNote}>
+                    {t('accountSettings.pat.devinConfigPath')}
+                  </p>
+                  <Button
+                    type="link"
+                    size="small"
+                    data-testid="pat-copy-devin-json"
+                    onClick={() =>
+                      void copyText(
+                        devinMcpJson,
+                        t('accountSettings.pat.mcpCopiedSuccess'),
+                      )
+                    }
+                  >
+                    {t('accountSettings.pat.copyFilledConfig')}
+                  </Button>
+                </section>
+
+                <section className={styles.installCard}>
+                  <strong>VS Code Copilot</strong>
+                  <div className={styles.installActions}>
+                    <Button
+                      type="link"
+                      size="small"
+                      href={vsCodeInstallHref}
+                      data-testid="pat-vscode-install-link"
+                    >
+                      {t('accountSettings.pat.openApp')}
+                    </Button>
+                    <Button
+                      type="link"
+                      size="small"
+                      data-testid="pat-copy-vscode-json"
+                      onClick={() =>
+                        void copyText(
+                          vsCodeMcpJson,
+                          t('accountSettings.pat.mcpCopiedSuccess'),
+                        )
+                      }
+                    >
+                      {t('accountSettings.pat.copyFilledConfig')}
+                    </Button>
+                  </div>
+                </section>
+              </div>
             </div>
           </div>
         )}
