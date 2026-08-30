@@ -8,6 +8,30 @@
 
 ### 2026-08-30
 
+#### content(growth): Job 2 旅程文起草 — agent-wrote-migration-approve
+
+- **选题**：Job 2「改表必须可审、有人批」；MCP 建设顺序 Job 1 已发 → Job 2（`diff_versions` + `create_version` 人审）→ Job 4 → Job 3
+- **稿**：`content/articles/agent-wrote-migration-approve.md`（ZH 锁定标题）+ `.en.md`（EN 锁定标题）；七步结构、status `ready`；CTA=存版/demo，非装 MCP
+- **打包**：`node scripts/growth/build-package.mjs agent-wrote-migration-approve` → `content/dist/agent-wrote-migration-approve/`
+- **验证点**：
+  ```text
+  node -e '…' → 汉字+英文词合计 2141 (≥2000)
+  rg '安装我们的 MCP|立即体验|我们很高兴|MCP 使用教程' content/articles/agent-wrote-migration-approve.md → 无命中
+  put_project_json 仅作「禁止写路径」反例出现；写路径仅 create_version
+  node scripts/growth/build-package.mjs agent-wrote-migration-approve → 1/1 成功
+  ```
+
+#### fix(growth): 掘金标签 click-to-select + 上限 2 + 复用 tab
+
+- **问题**：仅 `fill` 搜索框不会留下 chip；误点「你还能添加 N 个」；`new_page` 狂开 tab；尝试加第 3 标签
+- **修复**：`post-seo-essay.mjs` — `JUEJIN_MAX_TAGS=2`；`fill` → sleep → 点 header 后 `button "<tag>"` → 验 `.byte-select__tag`；`acquireJuejinEditor`/`reusePage` 禁止 new_page；`platform-post-recipes.md` 掘金路径卡同步
+- **验证点**：pageId=50 live — chip **数据库**（click `87_4`）+ **MCP**（click `88_3`）→ 确定并发布 → 发布成功页 ✓
+
+#### publish(growth): Job2 掘金首发 — agent-wrote-migration-approve
+
+- **稿**：Job 2 · `agent-wrote-migration-approve` · 中文 dist pack
+- **验证点**：同上 tag click 序列；permalink 待公网 curl 确认
+
 #### publish(growth): Job1 补发 OSChina + Hashnode — dont-give-agent-prod-db
 
 - **OSChina 已发**：https://my.oschina.net/u/3339242/blog/19750774 — `post-seo-essay.mjs oschina --submit`；修复 OSChina swap（`.editor-switch-btn` / `[aria-label="swap"]`，2026-08 UI 已无 `img[alt="swap"]`）；公网 articleLen≈5709 / 生产库 / Friday ✓

@@ -147,7 +147,7 @@ export function buildBlocks(slug) {
   const pack = resolvePack(slug);
   /** @type {Block[]} */
   let blocks;
-  if (slug === 'dont-give-agent-prod-db') {
+  if (slug === 'dont-give-agent-prod-db' || slug === 'agent-wrote-migration-approve') {
     blocks = parseMarkdownToBlocks(readPackBodyMarkdown(pack));
   } else if (slug === 'seo-essay') {
     blocks = buildSeoEssayBlocks(pack);
