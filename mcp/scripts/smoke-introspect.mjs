@@ -23,7 +23,7 @@ function rpc(id, method, params) {
 const env = {...process.env};
 delete env.ERD_PAT;
 delete env.ERD_API_TOKEN;
-env.ERD_API_URL = env.ERD_API_URL || 'https://erdonline-production.up.railway.app';
+env.ERD_API_URL = env.ERD_API_URL || 'http://127.0.0.1:9502';
 
 const child = spawn(process.execPath, ['dist/index.js'], {
   cwd: mcpRoot,

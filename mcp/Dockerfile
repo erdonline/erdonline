@@ -19,7 +19,7 @@ FROM node:20-alpine AS runtime
 WORKDIR /app
 ENV NODE_ENV=production
 # No ERD_PAT: process must boot and answer tools/list (Glama check).
-ENV ERD_API_URL=https://erdonline-production.up.railway.app
+ENV ERD_API_URL=http://127.0.0.1:9502
 RUN npm install -g yarn@1.22.22
 COPY package.json yarn.lock ./
 RUN yarn install --frozen-lockfile --production=true && yarn cache clean

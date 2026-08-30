@@ -42,13 +42,14 @@ run('normalizes API roots to Streamable HTTP endpoint', () => {
     'https://self-host.example.com/mcp',
   );
   assert.equal(resolveMcpUrl('https://self-host.example.com/mcp'), 'https://self-host.example.com/mcp');
-  assert.equal(resolveMcpUrl('https://erdonline-production.up.railway.app'), PRODUCTION_MCP_URL);
+  assert.equal(resolveMcpUrl('https://api.erdonline.com'), PRODUCTION_MCP_URL);
+  assert.equal(resolveMcpUrl('https://api.erdonline.com/'), PRODUCTION_MCP_URL);
 });
 
 run('snippet fills PAT in remote HTTP headers', () => {
   const json = buildCursorMcpJson(
     'erd_pat_secret',
-    'https://erdonline-production.up.railway.app/',
+    'https://api.erdonline.com/',
   );
   const parsed = JSON.parse(json) as {
     mcpServers: {

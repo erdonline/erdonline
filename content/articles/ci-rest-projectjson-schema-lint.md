@@ -46,7 +46,7 @@ CI 要的是另一件事：
 自检：
 
 ```bash
-export ERD_API_URL=https://erdonline-production.up.railway.app
+export ERD_API_URL=https://api.erdonline.com
 export ERD_PAT=erd_pat_…   # 只在本机 shell，勿入库
 
 curl -fsS -H "Authorization: Bearer $ERD_PAT" \
@@ -98,7 +98,7 @@ jobs:
           node-version: "20"
       - name: Fetch projectJSON
         env:
-          ERD_API_URL: https://erdonline-production.up.railway.app
+          ERD_API_URL: https://api.erdonline.com
           ERD_PAT: ${{ secrets.ERD_PAT }}
           ERD_PROJECT_ID: ${{ vars.ERD_PROJECT_ID }}
         run: |

@@ -68,7 +68,7 @@ Repo **Settings → Secrets and variables → Actions**:
 | `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true` (gate; without it **docs are not deployed**) |
 | `CLOUDFLARE_API_TOKEN` | **Secret** | Token from step 1 |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | Account ID from step 2 |
-| `DEMO_API_URL` | Variable (optional) | Public API root URL (official demo: `https://erdonline-production.up.railway.app`); **if unset `env-config.js` API is empty** (landing works, full trial waits for backend) |
+| `DEMO_API_URL` | Variable (optional) | Public API root URL (official demo: `https://api.erdonline.com`); **if unset `env-config.js` API is empty** (landing works, full trial waits for backend) |
 
 #### 5. Do not enable GitHub Pages
 
@@ -155,7 +155,7 @@ Cost: Hobby tier roughly **$5–10/month** (App + MySQL + Redis, per [Railway pr
    curl -sS https://YOUR-APP.up.railway.app/actuator/health
    # expect {"status":"UP"}  (includes db/redis; 503 if not wired, business not ready)
    ```
-   Then set GitHub Actions Variable `DEMO_API_URL=https://erdonline-production.up.railway.app` (no trailing slash), rerun `frontend-demo-site.yml`, CF Pages static demo points to that API.
+   Then set GitHub Actions Variable `DEMO_API_URL=https://api.erdonline.com` (no trailing slash), rerun `frontend-demo-site.yml`, CF Pages static demo points to that API.
 
 Optional (after first `v*` release and GHCR has packages): empty project → **Add service → Docker Image** → `ghcr.io/erdonline/erdonline-backend:latest`, skip local Dockerfile build.
 
@@ -348,7 +348,7 @@ Local / compose default listens **9502**. Railway injects `PORT`: `backend/Docke
 | Side | Variable | Value |
 |---|---|---|
 | Railway (backend) | `ERD_UI_URL` | Browser frontend Origin; **production + CF Pages demo sharing same API** use comma dual source (below) |
-| CF Pages / custom domain frontend | `API_URL` + `ERD_API_URL` (demo workflow Variable `DEMO_API_URL` writes both) | Railway **public** root: `https://erdonline-production.up.railway.app` (no trailing slash) |
+| CF Pages / custom domain frontend | `API_URL` + `ERD_API_URL` (demo workflow Variable `DEMO_API_URL` writes both) | Public API root: `https://api.erdonline.com` (no trailing slash) |
 
 Do not set `API_URL` to UI domain (e.g. mistakenly `https://app.erdonline.com`)—that makes frontend point API back to itself.
 
@@ -364,7 +364,7 @@ After change **Redeploy** (Variable changes do not hot-reload). Acceptance:
 
 ```bash
 # expect HTTP 200 + Access-Control-Allow-Origin: https://www.erdonline.com
-curl -sI -X OPTIONS 'https://erdonline-production.up.railway.app/auth/federate/providers' \
+curl -sI -X OPTIONS 'https://api.erdonline.com/auth/federate/providers' \
   -H 'Origin: https://www.erdonline.com' \
   -H 'Access-Control-Request-Method: GET'
 ```
@@ -385,7 +385,7 @@ railway up   # or Dashboard → Redeploy
 - Debug order: `./backend/dev-ensure.sh --logs` (local repro) or Railway Deploy Logs find `Error creating bean with name` first `Caused by:`; contains `ERD_OIDC_RSA_PRIVATE_KEY` → case 1; contains `malformed origin` → case 2
 
 1. Railway liveness green, and `actuator/health` UP (or at least can login/register)
-2. Repo **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app` (or Pages project Variables directly `API_URL`/`ERD_API_URL`)
+2. Repo **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://api.erdonline.com` (or Pages project Variables directly `API_URL`/`ERD_API_URL`)
 3. Run `frontend-demo-site.yml` (`workflow_dispatch` or push); after custom domain `app.erdonline.com` bound to Pages project, same API injection applies
 4. Open production UI (`https://app.erdonline.com/auth/login`) or demo (https://www.erdonline.com), Network confirms requests hit Railway, not UI itself
 

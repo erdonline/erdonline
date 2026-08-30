@@ -270,7 +270,7 @@ cd frontend && yarn validate:projectjson
 GitHub Actions 等 runner **不要**起 MCP。用只读 PAT（`projects:read`）拉详情，取出内层模型后再喂脚本。响应包装是 `{ code, data: { projectJson } }`（Jackson 字段名 `projectJson`，不是 `projectJSON`）：
 
 ```bash
-export ERD_API_URL=https://erdonline-production.up.railway.app   # 自托管改成你的 API 根
+export ERD_API_URL=https://api.erdonline.com   # 自托管改成你的 API 根
 curl -fsS -H "Authorization: Bearer $ERD_PAT" \
   "$ERD_API_URL/api/v1/projects/$ERD_PROJECT_ID" \
   | jq '.data.projectJson' > /tmp/ci-project.json

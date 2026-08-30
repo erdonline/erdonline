@@ -49,7 +49,7 @@ if (!tarNames.some((l) => l === 'package/guide/api-and-mcp.md')) {
 const env = {
   ...process.env,
   ERD_PAT: 'erd_pat_ci_dead',
-  ERD_API_URL: 'https://erdonline-production.up.railway.app',
+  ERD_API_URL: 'https://api.erdonline.com',
 };
 const child = spawn('npx', ['-y', '--package', tgz, 'erd-mcp'], {
   cwd: mcpRoot,

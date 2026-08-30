@@ -42,7 +42,7 @@
         "erd-mcp"
       ],
       "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
+        "ERD_API_URL": "https://api.erdonline.com",
         "ERD_PAT": "erd_pat_…"
       }
     }

@@ -8,7 +8,22 @@
 
 ### 2026-08-30
 
-#### fix(mcp): PAT 铸造成功即给客户端安装动作
+#### fix(config): 公网 API 切到 api.erdonline.com，弃用 Railway 默认域
+
+- **背景**：Railway Custom Domain `https://api.erdonline.com`（Cloudflare 反代 :8080）已 live；仓库内仍有多处默认 `erdonline-production.up.railway.app`。
+- **改动**：`config.prod.ts` / `frontend/.env` / `DEMO_API_URL` 文档与 CI 示例 / MCP onboarding 示例 / `llms.txt` / 增长文章 → `https://api.erdonline.com`；`scripts/erdonline-mcp.sh` 默认公网 API 同步；独立 `mcp/Dockerfile` 与 introspect 冒烟默认回 `http://127.0.0.1:9502`；生产 sidecar 仍经 `backend/docker-entrypoint.sh` → `http://127.0.0.1:${PORT}`（Railway 上即 :8080 loopback，避免 hairpin）。
+- **Socket.IO**：`config.prod.ts` 不再默认把 `SOCKETIO_URL` 指到 API 域——进程内仍 :9092，公网 :8080 未多路复用；Presence 公网端点待 `socket.erdonline.com` 或 8080 多路复用后再设 `SOCKETIO_URL`。
+- **验证点**：
+  - `rg 'erdonline-production\.up\.railway\.app' --glob '!CHANGELOG.md'` → 仅历史 CHANGELOG 条目保留旧域（新 docs/示例为 0）
+  - `cd frontend && npx tsx src/utils/mcpJsonSnippet.test.ts` → 全绿
+  - `grep -E 'api\.erdonline\.com' frontend/config/config.prod.ts frontend/public/llms.txt docs/deployment.md` → 命中新域
+
+#### fix(docker): Railway 构建去掉未提交的 mcp/guide COPY
+
+- **问题**：`backend/Dockerfile` 在 `yarn build` 前 `COPY mcp/guide`，该目录由 `sync-guide.mjs` 生成且已 gitignore，Railway 克隆后不存在 → `failed to calculate checksum … "/mcp/guide": not found`。
+- **修复**：删除 `COPY mcp/guide`；改为 `COPY docs/guide/api-and-mcp.md` 供 `yarn build` 内 `sync-guide` 生成 `guide/`；runtime 仍 `COPY --from=mcp-build /mcp/guide`（build 阶段产物）。
+- **验证点**：`ls mcp/` 无 committed `guide/`（仅 `.gitignore` 条目）；`docs/guide/api-and-mcp.md` 存在；`mcp/package.json`、`yarn.lock`、`tsconfig.json`、`scripts/`、`src/` 均存在；`docker build -f backend/Dockerfile --target mcp-build .` 通过。
+
 
 - **闭环**：PAT 明文一次性弹层扩为六客户端安装区；Cursor / Cline / Devin / VS Code 复制项与 Claude Code CLI 均已填入本次 PAT，不再让用户从公开接入页跳回账户设置后自行拼 header。Cursor / VS Code 打开程序的 install URI 仍只含 URL，PAT 只存在于同屏一次性复制动作。
 - **真实入口**：Cursor 使用 `cursor://anysphere.cursor-deeplink/mcp/install`；VS Code 使用 `vscode:mcp/install?{URL_ENCODED_JSON}`；Claude Code 使用 `claude mcp add --transport http --scope user … -H …`。Cline 无官方自定义安装 URI，走 MCP Servers → Remote Servers；Claude Desktop 走 Customize → Connectors，因不接受静态 Bearer header，本切片如实等待 OAuth。
