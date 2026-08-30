@@ -8,10 +8,7 @@ export function resolveMcpUrl(apiUrl?: string | null): string {
   if (!raw || raw.startsWith('/')) {
     return LOCAL_MCP_URL;
   }
-  if (
-    raw === 'https://api.erdonline.com' ||
-    raw === 'https://erdonline-production.up.railway.app'
-  ) {
+  if (raw === 'https://api.erdonline.com') {
     return PRODUCTION_MCP_URL;
   }
   return raw.endsWith('/mcp') ? raw : `${raw}/mcp`;

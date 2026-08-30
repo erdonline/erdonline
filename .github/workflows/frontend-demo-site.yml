@@ -55,7 +55,7 @@ jobs:
           DEMO_API_URL: ${{ vars.DEMO_API_URL }}
         run: |
           if [ -z "$DEMO_API_URL" ]; then
-            echo "::error::DEMO_API_URL repository variable is empty. Set it in Settings → Secrets and variables → Actions → Variables (e.g. https://erdonline-production.up.railway.app)."
+            echo "::error::DEMO_API_URL repository variable is empty. Set it in Settings → Secrets and variables → Actions → Variables (e.g. https://api.erdonline.com)."
             exit 1
           fi
           host=$(printf '%s' "$DEMO_API_URL" | sed -E 's|^https?://([^/@?#]+).*|\1|')

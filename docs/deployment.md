@@ -70,7 +70,7 @@ Workers & Pages → **Create** → **Pages** → **Upload assets** / Direct Uplo
 | `CLOUDFLARE_PAGES_DEPLOY` | **Variable** | `true`（门闸；未设则**不部署文档站**） |
 | `CLOUDFLARE_API_TOKEN` | **Secret** | 步骤 1 的 Token |
 | `CLOUDFLARE_ACCOUNT_ID` | **Secret** | 步骤 2 的 Account ID |
-| `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://erdonline-production.up.railway.app`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
+| `DEMO_API_URL` | Variable（可选） | 公网 API 根 URL（官方 demo：`https://api.erdonline.com`）；**未设则 `env-config.js` API 为空**（落地页可访问，完整试用待后端） |
 
 #### 5. 不要启用 GitHub Pages
 
@@ -162,7 +162,7 @@ docker compose up -d
      -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"1"}}}'
    # 期望响应 serverInfo.name = erdonline
    ```
-   随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://erdonline-production.up.railway.app`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
+   随后在 GitHub Actions Variables 设 `DEMO_API_URL=https://api.erdonline.com`（无尾斜杠），重跑 `frontend-demo-site.yml`，CF Pages 静态 demo 即指向该 API。
 
 可选（首个 `v*` release 且 GHCR 已有包之后）：空项目 → **Add service → Docker Image** → `ghcr.io/erdonline/erdonline-backend:latest`，跳过本地 Dockerfile 构建。
 
@@ -357,7 +357,7 @@ chmod 600 ~/.erdonline/oidc-rsa-private.pem
 | 侧 | 变量 | 值 |
 |---|---|---|
 | Railway（后端） | `ERD_UI_URL` | 浏览器打开的前端 Origin；**生产 + CF Pages demo 共用同一 API** 时用逗号双源（见下） |
-| CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | Railway **公网**根：`https://erdonline-production.up.railway.app`（无尾斜杠） |
+| CF Pages / 自定义域前端 | `API_URL` + `ERD_API_URL`（demo workflow 用 Variable `DEMO_API_URL` 写入二者） | 公网 API 根：`https://api.erdonline.com`（无尾斜杠） |
 
 勿把 `API_URL` 设成 UI 域名（如误设 `https://app.erdonline.com`）——那会让前端把 API 指回自己。
 
@@ -373,7 +373,7 @@ ERD_UI_URL=https://app.erdonline.com,https://www.erdonline.com
 
 ```bash
 # 期望 HTTP 200 + Access-Control-Allow-Origin: https://www.erdonline.com
-curl -sI -X OPTIONS 'https://erdonline-production.up.railway.app/auth/federate/providers' \
+curl -sI -X OPTIONS 'https://api.erdonline.com/auth/federate/providers' \
   -H 'Origin: https://www.erdonline.com' \
   -H 'Access-Control-Request-Method: GET'
 ```
@@ -394,7 +394,7 @@ railway up   # 或 Dashboard → Redeploy
 - 排查顺序：`./backend/dev-ensure.sh --logs`（本地复现）或 Railway Deploy Logs 找 `Error creating bean with name` 后第一行 `Caused by:`；含 `ERD_OIDC_RSA_PRIVATE_KEY` → 走情形 1；含 `malformed origin` → 走情形 2
 
 1. Railway liveness 绿，且 `actuator/health` 为 UP（或至少能登录/注册）
-2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://erdonline-production.up.railway.app`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
+2. 仓库 **Settings → Secrets and variables → Actions** → Variable `DEMO_API_URL` = `https://api.erdonline.com`（或 Pages 项目 Variables 直接写 `API_URL`/`ERD_API_URL`）
 3. 跑 `frontend-demo-site.yml`（`workflow_dispatch` 或 push）；自定义域 `app.erdonline.com` 绑到对应 Pages 项目后同样依赖上述 API 注入
 4. 打开正式 UI（`https://app.erdonline.com/auth/login`）或 demo（https://www.erdonline.com），Network 确认请求打到 Railway，而非 UI 自身
 

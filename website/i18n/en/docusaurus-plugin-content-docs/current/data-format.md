@@ -269,7 +269,7 @@ First run installs `ajv@8` under `schema/` (see `schema/package.json`). Re-run a
 Do **not** start MCP on GitHub Actions runners. Use a read-only PAT (`projects:read`), extract the inner model, then run the script. The envelope is `{ code, data: { projectJson } }` (Jackson field `projectJson`, not `projectJSON`):
 
 ```bash
-export ERD_API_URL=https://erdonline-production.up.railway.app   # self-host: your API root
+export ERD_API_URL=https://api.erdonline.com   # self-host: your API root
 curl -fsS -H "Authorization: Bearer $ERD_PAT" \
   "$ERD_API_URL/api/v1/projects/$ERD_PROJECT_ID" \
   | jq '.data.projectJson' > /tmp/ci-project.json
