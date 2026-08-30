@@ -11,17 +11,8 @@ export const PACKS = {
   'dont-give-agent-prod-db': {
     file: path.join(ROOT, 'docs/growth-content/dont-give-agent-prod-db-x.md'),
     title: "Don't give your agent the production database",
-    headings: new Set([
-      'THIS FAILURE HAS A NAME: INVENTED COLUMN',
-      'THREE THINGS YOU ALREADY TRIED',
-      'LIVE CATALOG ONLY GETS YOU HALWAY',
-      'LIVE CATALOG ONLY GETS YOU HALFWAY',
-      'SWAP THE FACT SOURCE: READ THE CONTRACT, NOT PRODUCTION',
-      'PROGRESSIVE DISCLOSURE, NOT A FULL DUMP',
-      'THE CTA IS NOT "INSTALL OUR MCP"',
-    ]),
     preview: {
-      minLen: 2500,
+      minLen: 5000,
       spacingMaxTriple: 2,
       checks: {
         hasInventedColumn: (t) => t.toLowerCase().includes('invented column'),
