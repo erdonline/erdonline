@@ -36,7 +36,7 @@ export async function login(
   await page.goto('/login');
   await page.getByRole('textbox', { name: '用户名' }).fill(account.name);
   await page.getByRole('textbox', { name: '密码' }).fill(account.pass);
-  await page.getByRole('button', { name: /登\s*录/ }).click();
+  await page.getByTestId('login-submit').click();
   await expect(page).not.toHaveURL(/\/login/, { timeout: 15_000 });
 }
 

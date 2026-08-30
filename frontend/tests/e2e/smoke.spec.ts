@@ -111,13 +111,13 @@ test.describe('冒烟：核心旅程', () => {
     expect(brandMetrics.thumbPad).toBeLessThanOrEqual(14);
     // ADR-0026：精密营销壳 — kicker + landing hero 窗（非剪影 SVG）
     expect(brandMetrics.kickerVisible).toBe(true);
-    expect(brandMetrics.heroSrc).toMatch(/landing-hero\.jpg/);
+    expect(brandMetrics.heroSrc).toMatch(/landing-hero/);
     expect(brandMetrics.heroW, `hero 窗宽应 ≤280，得 ${brandMetrics.heroW}`).toBeLessThanOrEqual(280);
     expect(brandMetrics.heroW).toBeGreaterThan(200);
 
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');
-    await page.getByRole('button', { name: /登\s*录/ }).click();
+    await page.getByTestId('login-submit').click();
 
     await page.waitForTimeout(3_000);
     await expect(page).toHaveURL(/\/login/);
@@ -127,7 +127,7 @@ test.describe('冒烟：核心旅程', () => {
     await page.goto('/login');
     await page.getByRole('textbox', { name: '用户名' }).fill('nobody');
     await page.getByRole('textbox', { name: '密码' }).fill('wrong-pass');
-    await page.getByRole('button', { name: /登\s*录/ }).click();
+    await page.getByTestId('login-submit').click();
     await expectToast(page, '查无此用户');
     await expect(page.getByText('查无此用户')).toHaveCount(1);
   });

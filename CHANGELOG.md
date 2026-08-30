@@ -8,6 +8,20 @@
 
 ### 2026-08-30
 
+#### fix(ci): e2e-smoke 登录打到公网、Frontend CI 用错构建
+
+- **e2e-smoke**：`dfdcf987` 起 hero `src` 是 `/landing-hero-800.jpg`，断言仍写 `landing-hero.jpg`（首条红）；`bd44a339` 起 `env.local.sh` 读取已入库的 `frontend/.env`（Railway 公网 API），登录不再走本机 9502 → 查无此用户 / e2e 账号全红。
+- **Frontend CI prod-smoke**：`yarn build` 是 `UMI_ENV=dev`，不跑落地页 SSG；水合后是 antd `Select`，找不到 prerender 注入的 `select.locale-switcher-static`。
+- **改动**：
+  1. `frontend/.env` 移出版本库（gitignore + `.env.example`）；`env.local.sh` 在 `CI=true` 时不读 `.env`，也不继承父 shell `API_URL`。
+  2. e2e-smoke 启动前端时显式 `API_URL=` / `CI=true`；hero 断言改为 `/landing-hero/`；登录点 `login-submit`。
+  3. Frontend CI 改为 `yarn build:prod`（与 demo-site / SEO 断言同一套 SSG）；prod-smoke 语言切换同时覆盖静态 `<select>` 与水合后 antd `Select`。
+- **验证点**：
+  - `CI=true ./env.local.sh && grep API_URL env-config.js` → `API_URL: ""`（即使本机 `.env` 指向公网）
+  - `git ls-files frontend/.env` → 空
+  - `npx playwright test tests/e2e/smoke.spec.ts --project=chromium --grep '登录页渲染'`（需本机 8000+9502）
+  - push 后 `e2e-smoke` + `Frontend CI` 绿
+
 #### docs(mcp): 指南去掉截图，只留可复制 JSON
 
 - **原因**：PAT / mcp.json / 工具表截图拖慢文档页 LCP；配置本身就是 JSON，截图不能复制。

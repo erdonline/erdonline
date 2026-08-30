@@ -3,6 +3,10 @@
 - [x] [落地页 a11y] `PROD_SMOKE_SKIP_BUILD=1 yarn check:prod-smoke` 中 `/ landing a11y: has main landmark and high-contrast red links` 通过；Lighthouse 不再报对比度与 main landmark ✅ 2026-08-29
 - [x] [llms.txt 规范] `npx @dualnova/llms-txt validate` 对 `website/static/llms.txt` 与 `frontend/public/llms.txt` 均通过；`_headers` 中 `/llms.txt` 返回 `text/plain; charset=utf-8`；`website` 构建后所有页面 head 含 `rel="describedby"` ✅ 2026-08-29
 
+- [x] [CI e2e 不打公网 API] `frontend/.env` 不在 `git ls-files`；`CI=true ./env.local.sh` 写出的 `API_URL` 为空；e2e-smoke job 显式 `API_URL=` ✅ 2026-08-30
+- [x] [登录页 hero src] smoke 断言 `/landing-hero/`（含 `-800.jpg` 响应式 src）✅ 2026-08-30
+- [x] [Frontend CI SSG] `frontend-ci.yml` Build 步为 `yarn build:prod`；prod-smoke 语言切换覆盖静态 `<select>` 与 antd `Select` ✅ 2026-08-30
+
 > 规则来源：`.cursor/rules/change-points-as-tests.mdc` —— 每个改动点必须登记为可验证的检查点。
 > 自动化覆盖的标注 ✅自动；其余为手工项，涉及对应模块时必查。
 

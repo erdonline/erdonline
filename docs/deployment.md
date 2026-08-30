@@ -603,7 +603,7 @@ cd frontend && yarn && API_URL= ERD_API_URL= yarn build:prod   # 产物：dist/
 
 | 场景 | 做法 |
 |---|---|
-| 本地 `yarn start` | `env.local.sh` → `public/env-config.js`（开发代理） |
+| 本地 `yarn start` | `env.local.sh` → `public/env-config.js`（默认开发代理；可选 gitignored `frontend/.env`；CI 不读） |
 | 静态 CDN / CF Pages | CI 设 `API_URL`/`ERD_API_URL`（或 `DEMO_API_URL`）后 `yarn build:prod`，配置打进 `dist/env-config.js` |
 | Docker / Nginx 同源 | 镜像内可空；容器启动 `docker-entrypoint.sh` 按环境变量重写 `env-config.js` |
 

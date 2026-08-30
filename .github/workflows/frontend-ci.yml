@@ -66,9 +66,7 @@ jobs:
 
       - name: Build
         working-directory: frontend
-        run: |
-          chmod +x ./env.sh && ./env.sh && cp env-config.js ./public/
-          yarn build
+        run: yarn build:prod
 
       - name: Production boot smoke (built dist)
         working-directory: frontend
