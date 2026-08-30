@@ -67,11 +67,11 @@ test.describe('访问令牌设置', () => {
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
+    await expect(
+      page.getByTestId('pat-mcp-client-installers'),
+    ).toContainText('Devin Desktop');
     await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
-      'suggest-erd-version',
-    );
-    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
-      'create_version',
+      /已填|prefill/i,
     );
 
     await page.getByRole('button', { name: '复制新建访问令牌' }).click();
@@ -127,6 +127,7 @@ test.describe('访问令牌设置', () => {
 test.describe('PAT 揭示 mcp.json（假会话）', () => {
   test('铸造后可见可复制 mcp.json', async ({ page }) => {
     const token = 'erd_pat_e2e_mcp_secret';
+    const expectedMcpUrl = 'http://127.0.0.1:9502/mcp';
     const created = {
       id: 'pat-e2e-1',
       name: 'e2e-mcp',
@@ -193,11 +194,12 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
       'href',
       'https://doc.erdonline.com/docs/guide/api-and-mcp/',
     );
+    const installers = page.getByTestId('pat-mcp-client-installers');
+    await expect(installers.locator('section')).toHaveCount(6);
+    await expect(installers).toContainText('Devin Desktop');
+    await expect(installers).not.toContainText(/^Windsurf$/);
     await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
-      'suggest-erd-version',
-    );
-    await expect(page.getByTestId('pat-mcp-snippet-hint')).toContainText(
-      'create_version',
+      /已填|prefill/i,
     );
     const install = reveal.getByTestId('pat-cursor-install-link');
     await expect(install).toBeVisible();
@@ -209,9 +211,59 @@ test.describe('PAT 揭示 mcp.json（假会话）', () => {
     const cfgRaw = Buffer.from(cfgB64!, 'base64').toString('utf8');
     expect(cfgRaw).not.toContain(token);
     const cfg = JSON.parse(cfgRaw) as {url: string; headers?: unknown};
-    expect(cfg.url).toBe('https://api.erdonline.com/mcp');
+    expect(cfg.url).toBe(expectedMcpUrl);
     expect(cfg.headers).toBeUndefined();
+
+    const vsCodeInstall = page.getByTestId('pat-vscode-install-link');
+    const vsCodeHref = await vsCodeInstall.getAttribute('href');
+    expect(vsCodeHref).toContain('vscode:mcp/install?');
+    expect(vsCodeHref).not.toContain(token);
+    const vsCodeRaw = decodeURIComponent(vsCodeHref!.split('?')[1]);
+    expect(JSON.parse(vsCodeRaw)).toEqual({
+      name: 'erdonline',
+      type: 'http',
+      url: expectedMcpUrl,
+    });
+
+    await page.getByTestId('pat-copy-claude-code-command').click();
+    await expectToast(page, /命令|command/i);
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toContain(
+      `-H 'Authorization: Bearer ${token}'`,
+    );
+
+    await page.getByTestId('pat-copy-cline-json').click();
+    const cline = JSON.parse(
+      await page.evaluate(() => navigator.clipboard.readText()),
+    );
+    expect(cline.mcpServers.erdonline.type).toBe('streamableHttp');
+    expect(cline.mcpServers.erdonline.headers.Authorization).toBe(
+      `Bearer ${token}`,
+    );
+
+    await page.getByTestId('pat-copy-devin-json').click();
+    const devin = JSON.parse(
+      await page.evaluate(() => navigator.clipboard.readText()),
+    );
+    expect(devin.mcpServers.erdonline.serverUrl).toBe(
+      expectedMcpUrl,
+    );
+    expect(devin.mcpServers.erdonline.headers.Authorization).toBe(
+      `Bearer ${token}`,
+    );
+
+    await page.getByTestId('pat-copy-vscode-json').click();
+    const vsCode = JSON.parse(
+      await page.evaluate(() => navigator.clipboard.readText()),
+    );
+    expect(vsCode.servers.erdonline.type).toBe('http');
+    expect(vsCode.servers.erdonline.headers.Authorization).toBe(
+      `Bearer ${token}`,
+    );
     await page.getByTestId('pat-copy-mcp-json').click();
     await expectToast(page, /mcp\.json/);
+    await page.screenshot({
+      path: 'test-results/ux-walkthrough/pat-mcp-client-installers.png',
+      fullPage: false,
+    });
   });
 });

@@ -8,10 +8,15 @@ import {fileURLToPath} from 'node:url';
 import {
   LOCAL_MCP_URL,
   PRODUCTION_MCP_URL,
+  buildClaudeCodeCommand,
+  buildClineMcpJson,
   buildCursorMcpJson,
+  buildDevinMcpJson,
+  buildVsCodeMcpJson,
   cursorMcpInstallConfig,
   cursorMcpInstallDeeplink,
   resolveMcpUrl,
+  vsCodeMcpInstallDeeplink,
 } from './mcpJsonSnippet';
 
 function run(name: string, fn: () => void) {
@@ -96,6 +101,60 @@ run('install-link href never contains a minted PAT secret', () => {
   const decoded = JSON.parse(raw) as {url: string; headers?: unknown};
   assert.equal(decoded.url, PRODUCTION_MCP_URL);
   assert.equal(decoded.headers, undefined);
+});
+
+run('PAT reveal produces client-specific filled artifacts', () => {
+  const pat = 'erd_pat_one_time_secret';
+  const cline = JSON.parse(buildClineMcpJson(pat, PRODUCTION_MCP_URL));
+  assert.equal(cline.mcpServers.erdonline.type, 'streamableHttp');
+  assert.equal(
+    cline.mcpServers.erdonline.headers.Authorization,
+    `Bearer ${pat}`,
+  );
+
+  const devin = JSON.parse(buildDevinMcpJson(pat, PRODUCTION_MCP_URL));
+  assert.equal(devin.mcpServers.erdonline.serverUrl, PRODUCTION_MCP_URL);
+  assert.equal(devin.mcpServers.erdonline.url, undefined);
+
+  const vscode = JSON.parse(buildVsCodeMcpJson(pat, PRODUCTION_MCP_URL));
+  assert.equal(vscode.servers.erdonline.type, 'http');
+  assert.equal(vscode.servers.erdonline.headers.Authorization, `Bearer ${pat}`);
+
+  const claude = buildClaudeCodeCommand(pat, PRODUCTION_MCP_URL);
+  assert.match(claude, /^claude mcp add --transport http --scope user/);
+  assert.match(claude, new RegExp(pat));
+  assert.match(claude, /-H 'Authorization: Bearer/);
+});
+
+run('VS Code install URI contains URL but never PAT', () => {
+  const href = vsCodeMcpInstallDeeplink();
+  assert.match(href, /^vscode:mcp\/install\?/);
+  const raw = decodeURIComponent(href.slice(href.indexOf('?') + 1));
+  const config = JSON.parse(raw);
+  assert.deepEqual(config, {
+    name: 'erdonline',
+    type: 'http',
+    url: PRODUCTION_MCP_URL,
+  });
+  assert.doesNotMatch(raw, /erd_pat|Authorization/i);
+});
+
+run('onboarding page names Devin and exposes only evidenced launch paths', () => {
+  const root = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../..',
+  );
+  const html = fs.readFileSync(
+    path.join(root, 'frontend/public/cursor-mcp/index.html'),
+    'utf8',
+  );
+  assert.match(html, /Devin Desktop/);
+  assert.doesNotMatch(html, /<h2>Windsurf<\/h2>/);
+  assert.match(html, /~\/\.codeium\/mcp_config\.json/);
+  assert.match(html, /windsurf:\/\/windsurf-mcp-registry/);
+  assert.match(html, /vscode:mcp\/install/);
+  assert.match(html, /cursor:\/\/anysphere\.cursor-deeplink\/mcp\/install/);
+  assert.match(html, /account\/settings\?selectKey=personalAccessTokens/);
 });
 
 run('README and MCP guide link to the cursor-mcp bridge page', () => {

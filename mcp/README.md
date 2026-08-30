@@ -10,7 +10,7 @@ Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list
 
 ## 支持的 MCP 客户端 / Supported clients
 
-主路径是远程 Streamable HTTP。Cursor / Claude Desktop / Claude Code / Cline / Windsurf / VS Code Copilot 的字段并不相同，必须按[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)填写；不要复制一份通用 stdio JSON。
+主路径是远程 Streamable HTTP。Cursor / Claude Desktop / Claude Code / Cline / Devin Desktop（formerly Windsurf）/ VS Code Copilot 的字段并不相同，必须按[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)填写；不要复制一份通用 stdio JSON。
 
 OAuth 在下一切片实现。过渡期支持 custom headers 的客户端可本机配置 `Authorization: Bearer erd_pat_…`；deeplink 只含 URL，绝不含 PAT。
 

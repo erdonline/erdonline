@@ -525,10 +525,24 @@ export default {
   'accountSettings.pat.copyButtonAria': '复制新建访问令牌',
   'accountSettings.pat.copiedSuccess': '访问令牌已复制',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
+  'accountSettings.pat.installNowTitle':
+    '趁明文仍可见，现在就装进客户端',
   'accountSettings.pat.mcpSnippetHint':
-    '粘进 ~/.cursor/mcp.json，远程 URL 无需本机 Node。PAT 只留在本机配置，不要放进 deeplink 或提交仓库。接通后可选 prompt suggest-erd-version，或让 Agent 调 create_version，你再打开版本 diff。自托管使用自己的后端 /mcp。',
+    '下面的复制动作已填入本次 PAT；关闭弹层后无法恢复。Cursor / VS Code 的打开链接只含 URL，不含 PAT，仍需复制旁边的已填配置。Claude Desktop 的远程 Connector 不接受静态 Bearer header，本切片需等待 OAuth。',
   'accountSettings.pat.copyMcpJsonAria': '复制 Cursor mcp.json 配置',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
+  'accountSettings.pat.urlCopiedSuccess': 'MCP URL 已复制',
+  'accountSettings.pat.commandCopiedSuccess': '安装命令已复制',
+  'accountSettings.pat.openApp': '打开程序（无 PAT）',
+  'accountSettings.pat.copyFilledConfig': '复制已填 PAT 配置',
+  'accountSettings.pat.copyFilledCommand': '复制已填 PAT 命令',
+  'accountSettings.pat.copyUrl': '复制 URL',
+  'accountSettings.pat.claudeDesktopLimitation':
+    '打开 App → Customize → Connectors → + → Add custom connector。当前不能注入静态 PAT，OAuth 下一切片补齐。',
+  'accountSettings.pat.clineOpenPath':
+    '无官方安装协议：打开 Cline → MCP Servers → Remote Servers，再粘贴已填配置。',
+  'accountSettings.pat.devinConfigPath':
+    'Devin Desktop（formerly Windsurf）：写入 ~/.codeium/mcp_config.json，字段为 serverUrl。',
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
   'accountSettings.pat.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
   'accountSettings.pat.mcpCursorInstallLink':

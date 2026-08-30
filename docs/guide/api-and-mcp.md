@@ -1,6 +1,6 @@
 ---
 title: 用一个 URL 把 Agent 接到 ERD Online
-description: 把远程 Streamable HTTP URL 接入 Cursor、Claude Desktop、Claude Code、Cline、Windsurf 或 VS Code Copilot；Agent 读取契约，人审版本 diff。
+description: 铸造 PAT 后在同一弹层获得已填配置，把远程 Streamable HTTP 接入 Cursor、Claude Desktop、Claude Code、Cline、Devin 或 VS Code Copilot。
 ---
 
 想把正在画的 ER 图交给 Cursor 或 Claude？六类客户端都从同一个远程 Streamable HTTP 地址开始：
@@ -9,17 +9,19 @@ description: 把远程 Streamable HTTP URL 接入 Cursor、Claude Desktop、Clau
 https://api.erdonline.com/mcp
 ```
 
-> **30 秒目标**：粘贴 URL → 客户端发现 MCP 工具 → Agent 读取已批准的模型契约。
-> **鉴权过渡**：OAuth 在下一切片实现。当前需要读取账户数据时，支持自定义 header 的客户端可加 `Authorization: Bearer erd_pat_…`。明文 PAT 只放本机密钥配置，绝不能写进 deeplink 或提交仓库。
+[公开六客户端接入页](https://www.erdonline.com/cursor-mcp/)用于查看 URL 与打开程序入口；真正带 PAT 的安装动作只在登录后铸造成功弹层中出现。
+
+> **30 秒目标**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) → **不要关成功弹层** → 直接点击/复制该弹层中已填入本次 PAT 的客户端动作。铸令牌与安装不是两段教程。
+> **鉴权过渡**：OAuth 在下一切片实现。明文 PAT 只显示一次；成功弹层可把它注入复制出的 JSON / CLI，但 Cursor / VS Code install URI 永远只含公开 URL，不含 PAT。不要把已填配置提交仓库。
 > **不做**：一句话生成 ERD、ChatSQL；写操作必须人在版本 diff 里审批。`create_version` 的 API 200 不是人批准。
 
 ## 六种客户端，六张配置卡
 
 ### Cursor
 
-1. 打开[一键安装页](https://www.erdonline.com/cursor-mcp/)，点击「在 Cursor 打开」。
-2. 确认 URL 为 `https://api.erdonline.com/mcp` 后安装。
-3. 过渡期需要账户数据时，在用户级 `~/.cursor/mcp.json` 本机补 PAT header：
+1. 在 PAT 成功弹层点击「打开程序（无 PAT）」。
+2. 在同一弹层点「复制已填 PAT 配置」。
+3. 把它保存到用户级 `~/.cursor/mcp.json`：
 
 ```json
 {
@@ -32,26 +34,28 @@ https://api.erdonline.com/mcp
 }
 ```
 
-deeplink 使用 Cursor 官方格式 `cursor://anysphere.cursor-deeplink/mcp/install?...`，只编码 `{"url":"https://api.erdonline.com/mcp"}`，**不含 PAT**。
+deeplink 使用 Cursor 官方格式 `cursor://anysphere.cursor-deeplink/mcp/install?...`，只编码 `{"url":"https://api.erdonline.com/mcp"}`，**不含 PAT**；带 PAT 的只有一次性弹层复制内容。
 
 ### Claude Desktop
 
-1. 打开 **Settings → Connectors**。
-2. 添加自定义 Connector，粘贴 `https://api.erdonline.com/mcp`。
-3. 保存并重新连接。
+1. 打开 App → **Customize → Connectors**。
+2. 点 **+ → Add custom connector**。
+3. 从 PAT 成功弹层复制 URL；OAuth 上线后再连接账户。
 
-Anthropic 云端 Connector 无法访问 `localhost`。本切片尚未实现远程 OAuth，因此需要账户鉴权的完整旅程要等下一切片；不要退回 stdio tgz 当主路径。
+[Anthropic 一手文档](https://support.anthropic.com/en/articles/11175166-getting-started-with-custom-connectors-using-remote-mcp)未提供自定义 Connector install URI，UI 也不接受静态 Bearer header，所以这个客户端本切片**无法注入 PAT**；必须如实等待 OAuth。远程 Connector 从 Anthropic 云发起，无法访问 `localhost`。
 
 ### Claude Code
 
-1. 运行：
+1. 铸造 PAT 后不要关闭成功弹层。
+2. 点击「复制已填 PAT 命令」。
+3. 粘到终端运行（`-H` 已注入本次 PAT）：
 
 ```bash
-claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp
+claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp \
+  -H 'Authorization: Bearer erd_pat_…'
 ```
 
-2. 确认服务保存到 user scope。
-3. 过渡期若改 JSON，远程项必须显式写 `"type": "http"`：
+手工 JSON 远程项必须显式写 `"type": "http"`：
 
 ```json
 {"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}
@@ -59,9 +63,9 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
 
 ### Cline
 
-1. 打开 Cline 的 MCP Servers。
-2. 添加远程服务；transport 字段必须是 `"type": "streamableHttp"`。
-3. 保存后检查工具列表：
+1. 打开 Cline → **MCP Servers → Remote Servers**。
+2. 在 PAT 成功弹层复制 Cline 已填配置。
+3. 粘贴并选 Streamable HTTP；字段必须是 `"type": "streamableHttp"`：
 
 ```json
 {
@@ -75,11 +79,13 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
 }
 ```
 
-### Windsurf
+[Cline 一手文档](https://docs.cline.bot/mcp/mcp-overview)只给出 App 面板 / Remote Servers / `cline mcp`，没有自定义 MCP install URI，不杜撰 scheme。
 
-1. 打开 `~/.codeium/windsurf/mcp_config.json`。
-2. 加入远程服务；URL 字段必须是 `serverUrl`。
-3. 重载 Windsurf：
+### Devin Desktop（formerly Windsurf）
+
+1. 打开 Devin Desktop → **MCPs / Add Server**。
+2. 在 PAT 成功弹层复制 Devin 已填配置。
+3. 写入 `~/.codeium/mcp_config.json` 后刷新；URL 字段必须是 `serverUrl`：
 
 ```json
 {
@@ -92,11 +98,13 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
 }
 ```
 
+[Devin Desktop 一手文档](https://docs.devin.ai/desktop/cascade/mcp)与 [2026 FAQ](https://docs.devin.ai/desktop/devin-desktop-faq)明确主用户级 MCP 路径仍是 `~/.codeium/mcp_config.json`，远程字段为 `serverUrl`。官方 `windsurf://windsurf-mcp-registry` deeplink 只能打开 Marketplace；ERD Online 尚未成为其 registry 条目，因此不能把它冒充一键安装自定义配置。
+
 ### VS Code Copilot
 
-1. 打开工作区 `.vscode/mcp.json`。
-2. 在顶层 `servers` 加入 HTTP 服务。
-3. 启动该 MCP 服务：
+1. 在 PAT 成功弹层点击 `vscode:mcp/install?...`「打开程序（无 PAT）」。
+2. 在同一弹层点击「复制已填 PAT 配置」。
+3. 保存到 `.vscode/mcp.json`；顶层必须是 `servers`：
 
 ```json
 {
@@ -109,6 +117,8 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
   }
 }
 ```
+
+[VS Code 一手文档](https://code.visualstudio.com/api/extension-guides/ai/mcp)定义了 `vscode:mcp/install?{URL_ENCODED_JSON}`；本项目 install URI 只带 name/type/url，PAT 仍由成功弹层的独立复制动作写入。
 
 ## 第一次调用
 

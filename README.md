@@ -48,7 +48,7 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
-> 也支持 **Claude Desktop、Claude Code、Cline、Windsurf、VS Code Copilot**。各客户端字段不同（如 `type: http`、`streamableHttp`、`serverUrl`），见[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+> 也支持 **Claude Desktop、Claude Code、Cline、Devin Desktop（formerly Windsurf）、VS Code Copilot**。各客户端字段不同（如 `type: http`、`streamableHttp`、`serverUrl`），见[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
 过渡期需要读取账户数据时，可在 Cursor 用户级 `~/.cursor/mcp.json` 本机补 Bearer PAT；OAuth 在下一切片加入：
 

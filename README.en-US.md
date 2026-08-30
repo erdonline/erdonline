@@ -46,7 +46,7 @@ Secondary path — the product is still **Git + Figma for database design**, not
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
-> Also works with **Claude Desktop, Claude Code, Cline, Windsurf, and VS Code Copilot**. Their fields differ (`type: http`, `streamableHttp`, `serverUrl`), so use the [six client cards](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
+> Also works with **Claude Desktop, Claude Code, Cline, Devin Desktop (formerly Windsurf), and VS Code Copilot**. Their fields differ (`type: http`, `streamableHttp`, `serverUrl`), so use the [six client cards](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
 
 For account data during the PAT transition, add the Bearer header locally in Cursor user-level `~/.cursor/mcp.json`. OAuth is the next slice:
 

@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="robots" content="noindex" />
-  <meta name="description" content="Connect Cursor, Claude Desktop, Claude Code, Cline, Windsurf, or VS Code Copilot to ERD Online with one Streamable HTTP URL." />
+  <meta name="description" content="Connect Cursor, Claude Desktop, Claude Code, Cline, Devin Desktop, or VS Code Copilot to ERD Online with one Streamable HTTP URL." />
   <title>ERD Online MCP · One URL</title>
   <style>
     :root { color-scheme: dark; --bg:#070d14; --card:#0f1720; --text:#f4f6f9; --muted:#9eb0c0; --brand:#ff7a6c; --line:rgba(158,176,192,.2); }
@@ -28,6 +28,9 @@
     .card h2 { margin:0 0 10px; font-size:20px; }
     .card ol { margin:0 0 14px; padding-left:20px; color:#c8d2db; }
     .card li { margin:5px 0; }
+    .actions { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+    .actions .button { font-size:13px; padding:7px 10px; }
+    .hero .actions { justify-content:center; }
     pre { margin:10px 0 0; padding:13px; border:1px solid var(--line); border-radius:8px; background:#05080c; overflow:auto; font-size:12px; white-space:pre-wrap; }
     .secondary { color:var(--muted); font-size:13px; margin:10px 0 0; }
     details { border:1px solid var(--line); border-radius:12px; padding:16px 18px; background:var(--card); }
@@ -54,18 +57,21 @@
       <div class="endpoint">
         <code id="endpoint">https://api.erdonline.com/mcp</code>
         <button data-copy="endpoint"><span data-lang="zh">复制 URL</span><span data-lang="en">Copy URL</span></button>
-        <a id="cursor-install" class="button primary" href="#"><span data-lang="zh">在 Cursor 打开</span><span data-lang="en">Open in Cursor</span></a>
       </div>
-      <p class="notice" data-lang="zh">OAuth 将在下一切片加入。过渡期内，需要读取账户数据的客户端可在配置中加 <code>Authorization: Bearer erd_pat_…</code>；不要把明文 PAT 放进 deeplink 或提交到仓库。</p>
-      <p class="notice" data-lang="en">OAuth comes in the next slice. During the transition, clients that support custom headers can use <code>Authorization: Bearer erd_pat_…</code>. Never put a plaintext PAT in a deeplink or commit it.</p>
+      <div class="actions">
+        <a class="button primary" href="https://www.erdonline.com/account/settings?selectKey=personalAccessTokens"><span data-lang="zh">铸造 PAT → 立即获得已填配置</span><span data-lang="en">Mint PAT → get prefilled installers</span></a>
+        <a id="cursor-install" class="button" href="#"><span data-lang="zh">先在 Cursor 打开（无 PAT）</span><span data-lang="en">Open Cursor first (no PAT)</span></a>
+      </div>
+      <p class="notice" data-lang="zh">闭环在铸造成功弹层：同一屏只显示一次明文，并给出已填 PAT 的 Cursor / Claude Code / Cline / Devin / VS Code 配置或命令。OAuth 下一切片；明文 PAT 不进 deeplink、不进仓库。</p>
+      <p class="notice" data-lang="en">The mint-success dialog closes the loop: while plaintext is visible once, it provides PAT-filled Cursor, Claude Code, Cline, Devin, and VS Code artifacts. OAuth comes next; PATs never enter deeplinks or the repository.</p>
     </header>
 
     <section class="grid" aria-label="MCP client setup cards">
       <article class="card">
         <h2>Cursor</h2>
-        <ol data-lang="zh"><li>点击上方「在 Cursor 打开」。</li><li>确认服务 URL 后安装。</li><li>需要账户数据时，在本机配置补 Bearer PAT。</li></ol>
-        <ol data-lang="en"><li>Click “Open in Cursor” above.</li><li>Confirm the server URL and install.</li><li>For account data, add a Bearer PAT locally.</li></ol>
-        <pre>{
+        <ol data-lang="zh"><li>点「打开 Cursor」安装 URL。</li><li>去上方铸造 PAT。</li><li>在成功弹层复制已填 PAT 配置。</li></ol>
+        <ol data-lang="en"><li>Open Cursor and install the URL.</li><li>Mint a PAT above.</li><li>Copy the filled config from the success dialog.</li></ol>
+        <pre id="cursor-config">{
   "mcpServers": {
     "erdonline": {
       "url": "https://api.erdonline.com/mcp",
@@ -73,33 +79,34 @@
     }
   }
 }</pre>
+        <div class="actions">
+          <a class="button" href="#" data-cursor-install><span data-lang="zh">打开 Cursor（无 PAT）</span><span data-lang="en">Open Cursor (no PAT)</span></a>
+          <button data-copy-target="cursor-config"><span data-lang="zh">复制示例</span><span data-lang="en">Copy example</span></button>
+        </div>
       </article>
 
       <article class="card">
         <h2>Claude Desktop</h2>
-        <ol data-lang="zh"><li>打开 Settings → Connectors。</li><li>添加自定义 Connector，粘贴上方 URL。</li><li>保存并重新连接。</li></ol>
-        <ol data-lang="en"><li>Open Settings → Connectors.</li><li>Add a custom connector and paste the URL.</li><li>Save and reconnect.</li></ol>
-        <p class="secondary" data-lang="zh">Anthropic 云端 Connector 无法访问 <code>localhost</code>。当前远程账户鉴权仍需下一切片的 OAuth。</p>
-        <p class="secondary" data-lang="en">Anthropic’s cloud connector cannot reach <code>localhost</code>. Remote account authentication awaits the next OAuth slice.</p>
+        <ol data-lang="zh"><li>打开 App → Customize → Connectors。</li><li>点 + → Add custom connector。</li><li>粘贴 URL；等待下一切片 OAuth 后连接账户。</li></ol>
+        <ol data-lang="en"><li>Open App → Customize → Connectors.</li><li>Click + → Add custom connector.</li><li>Paste the URL; account auth awaits OAuth.</li></ol>
+        <p class="secondary" data-lang="zh">没有已证实的自定义安装 URI，也不能注入静态 Bearer header；Anthropic 云端 Connector 不能访问 localhost。</p>
+        <p class="secondary" data-lang="en">No evidenced custom install URI and no static Bearer-header injection. Anthropic’s cloud connector cannot reach localhost.</p>
+        <div class="actions"><button data-copy="endpoint"><span data-lang="zh">复制 URL</span><span data-lang="en">Copy URL</span></button></div>
       </article>
 
       <article class="card">
         <h2>Claude Code</h2>
-        <ol data-lang="zh"><li>在终端运行下面命令。</li><li>确认 scope 为 user。</li><li>需要 PAT 时改用下方 HTTP JSON 配置。</li></ol>
-        <ol data-lang="en"><li>Run the command below.</li><li>Confirm the user scope.</li><li>Use the HTTP JSON below when a PAT is needed.</li></ol>
-        <pre>claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp</pre>
-        <pre>{
-  "type": "http",
-  "url": "https://api.erdonline.com/mcp",
-  "headers": { "Authorization": "Bearer erd_pat_…" }
-}</pre>
+        <ol data-lang="zh"><li>去上方铸造 PAT。</li><li>在成功弹层复制已填 PAT 命令。</li><li>粘到终端运行，直接写入 user scope。</li></ol>
+        <ol data-lang="en"><li>Mint a PAT above.</li><li>Copy the PAT-filled command from the dialog.</li><li>Run it to write user scope directly.</li></ol>
+        <pre id="claude-code-command">claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp -H 'Authorization: Bearer erd_pat_…'</pre>
+        <div class="actions"><button data-copy-target="claude-code-command"><span data-lang="zh">复制命令示例</span><span data-lang="en">Copy command example</span></button></div>
       </article>
 
       <article class="card">
         <h2>Cline</h2>
-        <ol data-lang="zh"><li>打开 Cline MCP Servers。</li><li>添加远程服务并粘贴配置。</li><li>保存后检查工具列表。</li></ol>
-        <ol data-lang="en"><li>Open Cline MCP Servers.</li><li>Add a remote server and paste the config.</li><li>Save, then check the tool list.</li></ol>
-        <pre>{
+        <ol data-lang="zh"><li>打开 Cline → MCP Servers → Remote Servers。</li><li>去上方铸造 PAT，复制已填配置。</li><li>粘贴并选择 Streamable HTTP。</li></ol>
+        <ol data-lang="en"><li>Open Cline → MCP Servers → Remote Servers.</li><li>Mint a PAT and copy the filled config.</li><li>Paste it and choose Streamable HTTP.</li></ol>
+        <pre id="cline-config">{
   "mcpServers": {
     "erdonline": {
       "type": "streamableHttp",
@@ -108,13 +115,16 @@
     }
   }
 }</pre>
+        <p class="secondary" data-lang="zh">Cline 官方文档未提供 MCP 自定义安装 URI。</p>
+        <p class="secondary" data-lang="en">Cline documents no custom MCP install URI.</p>
+        <div class="actions"><button data-copy-target="cline-config"><span data-lang="zh">复制示例</span><span data-lang="en">Copy example</span></button></div>
       </article>
 
       <article class="card">
-        <h2>Windsurf</h2>
-        <ol data-lang="zh"><li>打开 <code>~/.codeium/windsurf/mcp_config.json</code>。</li><li>加入下面的服务配置。</li><li>重载 Windsurf。</li></ol>
-        <ol data-lang="en"><li>Open <code>~/.codeium/windsurf/mcp_config.json</code>.</li><li>Add the server config below.</li><li>Reload Windsurf.</li></ol>
-        <pre>{
+        <h2>Devin Desktop <small>(formerly Windsurf)</small></h2>
+        <ol data-lang="zh"><li>打开 Devin Desktop → MCPs / Add Server。</li><li>去上方铸造 PAT，复制已填配置。</li><li>写入 <code>~/.codeium/mcp_config.json</code> 后刷新。</li></ol>
+        <ol data-lang="en"><li>Open Devin Desktop → MCPs / Add Server.</li><li>Mint a PAT and copy the filled config.</li><li>Write <code>~/.codeium/mcp_config.json</code>, then refresh.</li></ol>
+        <pre id="devin-config">{
   "mcpServers": {
     "erdonline": {
       "serverUrl": "https://api.erdonline.com/mcp",
@@ -122,13 +132,19 @@
     }
   }
 }</pre>
+        <p class="secondary" data-lang="zh">官方 <code>windsurf://windsurf-mcp-registry</code> 只能打开 Marketplace，不会携带这份自定义配置。</p>
+        <p class="secondary" data-lang="en">The official <code>windsurf://windsurf-mcp-registry</code> opens Marketplace only; it does not carry this custom config.</p>
+        <div class="actions">
+          <a class="button" href="windsurf://windsurf-mcp-registry"><span data-lang="zh">打开 Devin MCP Marketplace</span><span data-lang="en">Open Devin MCP Marketplace</span></a>
+          <button data-copy-target="devin-config"><span data-lang="zh">复制示例</span><span data-lang="en">Copy example</span></button>
+        </div>
       </article>
 
       <article class="card">
         <h2>VS Code Copilot</h2>
-        <ol data-lang="zh"><li>打开工作区 <code>.vscode/mcp.json</code>。</li><li>在顶层 <code>servers</code> 加入配置。</li><li>启动该 MCP 服务。</li></ol>
-        <ol data-lang="en"><li>Open workspace <code>.vscode/mcp.json</code>.</li><li>Add the config under top-level <code>servers</code>.</li><li>Start the MCP server.</li></ol>
-        <pre>{
+        <ol data-lang="zh"><li>点击「打开 VS Code」安装 URL。</li><li>去上方铸造 PAT。</li><li>在成功弹层复制已填 PAT 配置。</li></ol>
+        <ol data-lang="en"><li>Open VS Code and install the URL.</li><li>Mint a PAT above.</li><li>Copy the PAT-filled config from the dialog.</li></ol>
+        <pre id="vscode-config">{
   "servers": {
     "erdonline": {
       "type": "http",
@@ -137,6 +153,10 @@
     }
   }
 }</pre>
+        <div class="actions">
+          <a id="vscode-install" class="button" href="#"><span data-lang="zh">打开 VS Code（无 PAT）</span><span data-lang="en">Open VS Code (no PAT)</span></a>
+          <button data-copy-target="vscode-config"><span data-lang="zh">复制示例</span><span data-lang="en">Copy example</span></button>
+        </div>
       </article>
     </section>
 
@@ -156,8 +176,14 @@ ERD_API_URL=http://127.0.0.1:9502 ERD_PAT=erd_pat_… node dist/index.js</pre>
   <script>
     const url = 'https://api.erdonline.com/mcp';
     const config = btoa(JSON.stringify({ url }));
-    document.getElementById('cursor-install').href =
+    const cursorHref =
       `cursor://anysphere.cursor-deeplink/mcp/install?name=erdonline&config=${encodeURIComponent(config)}`;
+    document.querySelectorAll('#cursor-install,[data-cursor-install]').forEach((link) => {
+      link.href = cursorHref;
+    });
+    const vsCodeConfig = { name: 'erdonline', type: 'http', url };
+    document.getElementById('vscode-install').href =
+      `vscode:mcp/install?${encodeURIComponent(JSON.stringify(vsCodeConfig))}`;
     const setLang = (lang) => {
       document.documentElement.lang = lang;
       document.querySelectorAll('[data-set-lang]').forEach((button) => {
@@ -172,12 +198,16 @@ ERD_API_URL=http://127.0.0.1:9502 ERD_PAT=erd_pat_… node dist/index.js</pre>
     let saved = '';
     try { saved = localStorage.getItem('erd-mcp-lang') || ''; } catch {}
     setLang(saved || (navigator.language.toLowerCase().startsWith('zh') ? 'zh-CN' : 'en'));
-    document.querySelector('[data-copy="endpoint"]').addEventListener('click', async (event) => {
-      await navigator.clipboard.writeText(url);
-      const button = event.currentTarget;
-      const old = button.innerHTML;
-      button.textContent = document.documentElement.lang === 'en' ? 'Copied' : '已复制';
-      setTimeout(() => { button.innerHTML = old; }, 1200);
+    document.querySelectorAll('[data-copy="endpoint"],[data-copy-target]').forEach((button) => {
+      button.addEventListener('click', async (event) => {
+        const target = button.dataset.copyTarget;
+        const text = target ? document.getElementById(target).textContent.trim() : url;
+        await navigator.clipboard.writeText(text);
+        const current = event.currentTarget;
+        const old = current.innerHTML;
+        current.textContent = document.documentElement.lang === 'en' ? 'Copied' : '已复制';
+        setTimeout(() => { current.innerHTML = old; }, 1200);
+      });
     });
   </script>
 </body>
