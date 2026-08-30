@@ -8,6 +8,18 @@
 
 ### 2026-08-30
 
+#### docs(mcp): HTTP 截图 + README PAT 入口；解开 docs-site 构建
+
+- **问题**：`doc.erdonline.com/docs/guide/api-and-mcp/` 仍是 npx tgz / stdio 截图，因为 docs-site 被 `docs/growth-content` 的字符串 `tags` 卡住连续失败；仓根 README 有 MCP URL，但没有铸造 PAT 的入口。
+- **改动**：
+  1. 三张指南图改为 Streamable HTTP：`url: https://api.erdonline.com/mcp` + `Authorization: Bearer`；工具表补 `list_tables` / `describe_table` / `diff_versions` / `preview_ddl`。
+  2. 中/英指南把 PAT 揭示图收回首屏；仓根 README / README.en-US / `mcp/README` / `llms.txt` 增加 [铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) 为第一步。
+  3. Docusaurus 只发布侧栏文档：`exclude` 增长草稿 / SOP / 内部清单，避免 MDX 与字符串 `tags` 阻断 CF Pages。
+- **验证点**：
+  - `cd website && yarn build && yarn test:seo` → 中英 MCP 页含 `api.erdonline.com/mcp`、`mcp-pat-reveal`、无 `erdonline-mcp-0.1.0.tgz` 主路径
+  - README 含 `selectKey=personalAccessTokens` 与 Bearer JSON
+  - 截图由 `frontend/scripts/capture-mcp-guide-shots.mjs` 重拍（fixture PAT `erd_pat_e2e_mcp_secret`，无生产密钥）
+
 #### fix(config): env.local.sh 读 `.env`；DEMO_API_URL 切 api.erdonline.com
 
 - **根因**：`www.erdonline.com` / `erdonline-demo.pages.dev` 的 `env-config.js` 仍由 GitHub Variable `DEMO_API_URL=https://erdonline-production.up.railway.app` 烘焙；本地 `env.local.sh` 硬编码空串，改 `frontend/.env` 不生效。

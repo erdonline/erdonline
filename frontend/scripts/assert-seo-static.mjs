@@ -319,11 +319,17 @@ export function assertSeoStatic(distDir, siteUrl = resolveSiteUrl()) {
     if (!llms.includes("https://doc.erdonline.com/docs/guide/api-and-mcp/")) {
       fail("llms.txt must link MCP guide with trailing slash");
     }
-    if (!llms.includes("npx") || !llms.includes("--package")) {
-      fail("llms.txt must mention npx --package mcp.json shape");
+    if (!llms.includes("https://api.erdonline.com/mcp")) {
+      fail("llms.txt must name the Streamable HTTP MCP URL");
     }
-    if (!llms.includes("erdonline-mcp-0.1.0.tgz")) {
-      fail("llms.txt must name the erdonline-mcp-0.1.0.tgz release tarball");
+    if (!llms.includes("Authorization") || !llms.includes("Bearer erd_pat_")) {
+      fail("llms.txt must show Bearer PAT header, not npx tarball");
+    }
+    if (llms.includes("erdonline-mcp-0.1.0.tgz") || llms.includes("--package")) {
+      fail("llms.txt must not advertise the stdio tarball as the primary path");
+    }
+    if (!llms.includes("selectKey=personalAccessTokens")) {
+      fail("llms.txt must link the PAT minting page");
     }
     if (!llms.includes("suggest-erd-version")) {
       fail("llms.txt must name the suggest-erd-version prompt");

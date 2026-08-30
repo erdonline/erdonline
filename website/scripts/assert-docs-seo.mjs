@@ -52,8 +52,17 @@ if (!llms.includes('https://doc.erdonline.com/docs/guide/api-and-mcp/')) {
 if (!llms.includes('https://doc.erdonline.com/en/docs/guide/api-and-mcp/')) {
   fail('static/llms.txt must link English MCP guide with trailing slash');
 }
-if (!llms.includes('--package') || !llms.includes('erdonline-mcp-0.1.0.tgz')) {
-  fail('static/llms.txt must include npx --package Release tarball mcp.json');
+if (!llms.includes('https://api.erdonline.com/mcp')) {
+  fail('static/llms.txt must name the Streamable HTTP MCP URL');
+}
+if (!llms.includes('Authorization') || !llms.includes('Bearer erd_pat_')) {
+  fail('static/llms.txt must show Bearer PAT header, not npx tarball');
+}
+if (llms.includes('erdonline-mcp-0.1.0.tgz') || llms.includes('--package')) {
+  fail('static/llms.txt must not advertise the stdio tarball as the primary path');
+}
+if (!llms.includes('selectKey=personalAccessTokens')) {
+  fail('static/llms.txt must link the PAT minting page');
 }
 if (!llms.includes('suggest-erd-version')) {
   fail('static/llms.txt must name prompt suggest-erd-version');
@@ -81,6 +90,18 @@ for (const [label, text] of [
   }
   if (!text.includes('API 200')) {
     fail(`${label} must say API 200 is not human approval`);
+  }
+  if (!text.includes('https://api.erdonline.com/mcp')) {
+    fail(`${label} must name the Streamable HTTP MCP URL`);
+  }
+  if (!text.includes('selectKey=personalAccessTokens')) {
+    fail(`${label} must link the PAT minting page`);
+  }
+  if (!text.includes('mcp-pat-reveal.webp')) {
+    fail(`${label} must embed the PAT reveal screenshot`);
+  }
+  if (text.includes('erdonline-mcp-0.1.0.tgz')) {
+    fail(`${label} must not use the stdio tarball as the primary install`);
   }
 }
 const zhWhat = fs.readFileSync(
@@ -229,6 +250,12 @@ if (sitemapExists) {
       fail('zh MCP page description must mention projectJSON');
     }
     if (!/mcpServers/.test(html)) fail('zh MCP page must include copy-paste mcpServers JSON');
+    if (!/api\.erdonline\.com\/mcp/.test(html)) {
+      fail('zh MCP page must name https://api.erdonline.com/mcp');
+    }
+    if (!/mcp-pat-reveal/.test(html)) {
+      fail('zh MCP page must embed the PAT reveal screenshot');
+    }
   }
   if (!fs.existsSync(mcpEn)) fail('build/en/docs/guide/api-and-mcp/index.html missing');
   else {
@@ -237,6 +264,9 @@ if (sitemapExists) {
       fail('en MCP page <title> must contain MCP');
     }
     if (!/mcpServers/.test(html)) fail('en MCP page must include copy-paste mcpServers JSON');
+    if (!/api\.erdonline\.com\/mcp/.test(html)) {
+      fail('en MCP page must name https://api.erdonline.com/mcp');
+    }
   }
 }
 

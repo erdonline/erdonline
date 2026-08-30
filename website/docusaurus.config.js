@@ -74,7 +74,17 @@ const config = {
           routeBasePath: 'docs',
           sidebarPath: require.resolve('./sidebars.js'),
           editUrl: 'https://github.com/erdonline/erdonline/tree/main/docs/',
-          exclude: ['**/releases/**'],
+          // Public sidebar still builds; exclude internal growth/ops drafts that
+          // fail MDX (string `tags`, `---` tables, links into gitignored skills).
+          exclude: [
+            '**/releases/**',
+            '**/growth-content/**',
+            '**/growth-templates/**',
+            '**/growth-data/**',
+            'growth.md',
+            'growth-sop.md',
+            'growth-platform-automation-research.md',
+          ],
         },
         blog: {
           path: 'blog',

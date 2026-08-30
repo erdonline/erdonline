@@ -46,7 +46,7 @@ Proceed in order; one thing at a time. After all three ✅, **no idle**: Vision 
 
 ### MCP / Agent growth wedge (from 2026-08-28, two weeks) 🚧
 
-> Calendar and verify points: [`growth.md`](/docs/growth). Vision lock: AI is an option; H1 stays Git + Figma; www SERP title stays draw-ERD; public docs only `https://doc.erdonline.com`.
+> Calendar and verify points: [`growth.md`](https://github.com/erdonline/erdonline/blob/main/docs/growth.md). Vision lock: AI is an option; H1 stays Git + Figma; www SERP title stays draw-ERD; public docs only `https://doc.erdonline.com`.
 
 | Slice | Status | Ships |
 |---|---|---|

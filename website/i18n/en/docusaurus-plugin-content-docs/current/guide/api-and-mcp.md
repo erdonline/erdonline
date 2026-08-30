@@ -1,9 +1,9 @@
 ---
-title: Connect your agent to ERD Online with one URL
-description: Mint a PAT and immediately get prefilled installers for Cursor, Claude Code, Cline, Devin, and VS Code Copilot over remote Streamable HTTP.
+title: Connect your agent to ERD Online MCP with one URL
+description: Mint a PAT, copy the prefilled Streamable HTTP config, and let Cursor read the same projectJSON over https://api.erdonline.com/mcp.
 ---
 
-Six MCP clients start with the same remote Streamable HTTP endpoint:
+[Mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) first. Six MCP clients start with the same remote Streamable HTTP endpoint:
 
 ```text
 https://api.erdonline.com/mcp
@@ -34,6 +34,10 @@ The [public six-client page](https://www.erdonline.com/cursor-mcp/) shows the UR
 }
 ```
 
+<img src="/img/guide/mcp-pat-reveal.webp" alt="PAT success dialog: Cursor card already filled with https://api.erdonline.com/mcp and an Authorization Bearer header" width="720" height="458" loading="eager" fetchpriority="high" />
+
+<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json: Streamable HTTP url plus Authorization header" width="868" height="232" loading="lazy" />
+
 The deeplink contains only the URL, never a PAT.
 
 ### Claude Desktop
@@ -55,8 +59,7 @@ claude mcp add --transport http --scope user erdonline https://api.erdonline.com
   -H 'Authorization: Bearer erd_pat_…'
 ```
 
-2. Confirm user scope.
-3. A manual JSON entry must include `"type": "http"`:
+A manual JSON entry must include `"type": "http"`:
 
 ```json
 {"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}
@@ -121,7 +124,7 @@ Ask: `List my ERD projects`, then `Read projectJSON for project X`. Use `create_
 
 `preview_ddl` requires a `versionId` and never reads the unsaved workspace. The version API does not currently store a separate approval state, so your merge gate must still verify human approval.
 
-<img src="/img/guide/mcp-agent-tools.webp" alt="MCP tools the agent can call" width="703" height="393" loading="lazy" />
+<img src="/img/guide/mcp-agent-tools.webp" alt="MCP tools the agent can call" width="868" height="403" loading="lazy" />
 
 No `publish_template`, no PAT ratings. See [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md).
 
