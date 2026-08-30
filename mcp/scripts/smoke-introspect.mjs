@@ -107,8 +107,17 @@ clearTimeout(timer);
 child.kill('SIGTERM');
 
 const names = (listed.result?.tools ?? []).map((t) => t.name);
+if (names.length !== 14) {
+  fail(`tools/list expected 14 tools, got ${names.length}: ${names.join(',')}`);
+}
 if (!names.includes('list_projects') || !names.includes('get_project_schema')) {
   fail(`tools/list missing schema tools: ${names.join(',')}`);
+}
+if (!names.includes('put_project_json')) {
+  fail(`tools/list missing compatibility tool put_project_json: ${names.join(',')}`);
+}
+if (names.includes('diff_versions')) {
+  fail('diff_versions is not implemented and must not be advertised');
 }
 const byName = Object.fromEntries(
   (listed.result?.tools ?? []).map((t) => [t.name, t]),
