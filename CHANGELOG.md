@@ -8,6 +8,16 @@
 
 ### 2026-08-30
 
+#### publish(growth): Job1 X Article live — dont-give-agent-prod-db
+
+- **操作**：复用 `edit/2093874865606709248` preflight（title+body 齐）→ 工具栏 **Publish** → 对话框 **Publish**；chrome-devtools CLI（page 17），未走 `--submit` spawn block。
+- **公网**：https://x.com/BuilderLiang/article/2093932783538225599（announcement status 同 id：`/status/2093932783538225599`）；articleLen≈5914 / hasProduction / hasGithub / hasDemo / hasError / hasTable ✓
+- **台账**：`docs/growth-data/2026-08-30.md`
+- **验证点**：
+  ```text
+  chrome-devtools evaluate 公网 /article/2093932783538225599 → articleLen≈5914 hasProduction=true hasGithub=true
+  ```
+
 #### fix(growth): X Article H2 repair after paste — fiber header-two + strict audit
 
 - **根因**：rich paste + table insert 后首段 H2 与 table 后 H2 落成 `DIV`（`h2Count=5/7`）；键盘 `##` 前缀无法 retro-fix 已有块。
