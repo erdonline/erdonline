@@ -22,7 +22,7 @@
 
 - **问题**：`backend/Dockerfile` 在 `yarn build` 前 `COPY mcp/guide`，该目录由 `sync-guide.mjs` 生成且已 gitignore，Railway 克隆后不存在 → `failed to calculate checksum … "/mcp/guide": not found`。
 - **修复**：删除 `COPY mcp/guide`；改为 `COPY docs/guide/api-and-mcp.md` 供 `yarn build` 内 `sync-guide` 生成 `guide/`；runtime 仍 `COPY --from=mcp-build /mcp/guide`（build 阶段产物）。
-- **验证点**：`ls mcp/` 无 committed `guide/`（仅 `.gitignore` 条目）；`docs/guide/api-and-mcp.md` 存在；`mcp/package.json`、`yarn.lock`、`tsconfig.json`、`scripts/`、`src/` 均存在；`docker build -f backend/Dockerfile --target mcp-build .` 通过。
+- **验证点**：`ls mcp/` 无 committed `guide/`（`.gitignore` 仅 `guide/api-and-mcp.md`）；`docs/guide/api-and-mcp.md`、`mcp/{package.json,yarn.lock,tsconfig.json,scripts,src}` 均存在；同文件其余 `COPY` 路径（`backend/pom.xml`、`backend/src`、`backend/docker-entrypoint.sh`）已核对；runtime `COPY --from=mcp-build /mcp/guide` 保留（build 阶段 `yarn build` 产物）。
 
 
 - **闭环**：PAT 明文一次性弹层扩为六客户端安装区；Cursor / Cline / Devin / VS Code 复制项与 Claude Code CLI 均已填入本次 PAT，不再让用户从公开接入页跳回账户设置后自行拼 header。Cursor / VS Code 打开程序的 install URI 仍只含 URL，PAT 只存在于同屏一次性复制动作。
