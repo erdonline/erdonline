@@ -138,8 +138,8 @@
 - [x] [OAuth client 管理 UI] `/account/settings?selectKey=oauthClients` 注册→secret 揭示→复制 ID→吊销 ✅`oauth-clients.spec.ts`
 - [x] [PAT 管理 UI] `/account/settings?selectKey=personalAccessTokens` 铸造→明文揭示→复制→吊销 ✅`personal-access-tokens.spec.ts`
 - [x] [PAT 揭示弹层 mcp.json] 铸造后见 `pat-mcp-json`（含 `mcpServers` + 明文 PAT）+ 复制按钮 ✅`personal-access-tokens.spec.ts` 2026-08-28
-- [x] [文档 MCP 三截图] 指南含 `/img/guide/mcp-pat-reveal.webp` `/img/guide/mcp-json.webp` `/img/guide/mcp-agent-tools.webp`（HTTP `url` + `Authorization: Bearer`，含 `list_tables` / `diff_versions` / `preview_ddl`）；XHS 封面副本在 `content/articles/assets/` ✅ 2026-08-30 重拍
-- [ ] [文档站 HTTP MCP] `https://doc.erdonline.com/docs/guide/api-and-mcp/` 标题含 MCP、正文含 `https://api.erdonline.com/mcp`、无 `erdonline-mcp-0.1.0.tgz` 主路径 → 待 push 后 docs-site 部署复验
+- [x] [文档 MCP 无截图] 中/英 `guide/api-and-mcp` 用可复制 JSON，不含 `mcp-pat-reveal` / `mcp-json` / `mcp-agent-tools` 图 ✅ 2026-08-30
+- [ ] [文档站 HTTP MCP] `https://doc.erdonline.com/docs/guide/api-and-mcp/` 标题含 MCP、正文含 `https://api.erdonline.com/mcp` 与 `mcpServers` JSON、无截图、无 `erdonline-mcp-0.1.0.tgz` 主路径 → 待 push 后 docs-site 部署复验
 
 ## 图本身可读可分享 / ADR-0016（续）
 

@@ -34,10 +34,6 @@ https://api.erdonline.com/mcp
 }
 ```
 
-<img src="/img/guide/mcp-pat-reveal.webp" alt="铸造 PAT 成功弹层：Cursor 卡已填入 https://api.erdonline.com/mcp 与 Authorization Bearer" width="720" height="458" loading="eager" fetchpriority="high" />
-
-<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json：url 指向 Streamable HTTP，PAT 写在 Authorization header" width="868" height="232" loading="lazy" />
-
 deeplink 使用 Cursor 官方格式 `cursor://anysphere.cursor-deeplink/mcp/install?...`，只编码 `{"url":"https://api.erdonline.com/mcp"}`，**不含 PAT**；带 PAT 的只有一次性弹层复制内容。
 
 ### Claude Desktop
@@ -148,8 +144,6 @@ PAT 可在[账户设置](https://www.erdonline.com/account/settings?selectKey=pe
 | `create_version` | 提交一版（人再 diff） | `versions:write` |
 | `update_project` / `put_project_json` | 改项目元数据 / 整份 JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | 模板广场 | read / `projects:write` |
-
-<img src="/img/guide/mcp-agent-tools.webp" alt="Agent 可调用的 MCP 工具清单" width="868" height="403" loading="lazy" />
 
 `preview_ddl` 只接受 `versionId`，不会读取未存版的工作区；当前版本 API 不记录独立的「已批准」状态，因此团队仍须在 merge 门禁中确认批准。没有 `publish_template`，也没有 PAT 评分。仓库说明见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
