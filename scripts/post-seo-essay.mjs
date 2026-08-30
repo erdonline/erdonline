@@ -69,19 +69,144 @@ function selectedPageId() {
   return sel.id;
 }
 
-function openUrl(url) {
-  cdt(['new_page', url, '--timeout=45000']);
+function pageEntries() {
+  const raw = listPages();
+  return raw?.pages || raw || [];
+}
+
+function findPageId(urlRe) {
+  const pages = pageEntries();
+  const matches = pages.filter((p) => urlRe.test(p.url || ''));
+  const selected = matches.find((p) => p.selected);
+  return (selected || matches[matches.length - 1])?.id ?? null;
+}
+
+function navigatePage(pageId, url) {
+  cdt(['navigate_page', String(pageId), '--type=url', `--url=${url}`]);
   spawnSync('sleep', ['3']);
-  return selectedPageId();
+  return pageId;
+}
+
+/** Reuse an open tab matching urlRe — navigate in-place; never new_page when a match exists. */
+function reusePage(urlRe, targetUrl = null) {
+  const pid = findPageId(urlRe);
+  if (pid) {
+    if (targetUrl) {
+      const cur = evaluate(pid, `() => location.href`);
+      if (cur !== targetUrl) navigatePage(pid, targetUrl);
+    } else {
+      spawnSync('sleep', ['1']);
+    }
+    console.log(`reusePage: pageId=${pid} (matched ${urlRe})`);
+    return pid;
+  }
+  const sel = selectedPageId();
+  if (targetUrl) navigatePage(sel, targetUrl);
+  console.log(`reusePage: no match — navigate selected pageId=${sel} → ${targetUrl || '(stay)'}`);
+  return sel;
+}
+
+function acquireJuejinEditor() {
+  const draftPid = findPageId(/juejin\.cn\/editor\/drafts\//);
+  if (draftPid) {
+    console.log(`juejin: reuse open draft tab pageId=${draftPid}`);
+    return draftPid;
+  }
+  return reusePage(/juejin\.cn/, 'https://juejin.cn/editor/drafts/new');
+}
+
+function acquirePlatformPage(urlRe, targetUrl) {
+  const pid = findPageId(urlRe);
+  if (pid) {
+    if (targetUrl) {
+      const cur = evaluate(pid, `() => location.href`);
+      if (cur !== targetUrl) navigatePage(pid, targetUrl);
+    }
+    console.log(`reuse platform tab pageId=${pid}`);
+    return pid;
+  }
+  return reusePage(urlRe, targetUrl);
+}
+
+function openUrl(url) {
+  try {
+    const u = new URL(url);
+    const hostRe = new RegExp(u.hostname.replace(/\./g, '\\.'));
+    const pid = findPageId(hostRe);
+    if (pid) return navigatePage(pid, url);
+  } catch {
+    /* fall through */
+  }
+  const sel = selectedPageId();
+  return navigatePage(sel, url);
 }
 
 function click(pageId, uid) {
-  return cdt(['click', uid, `--pageId=${pageId}`]);
+  return cdt(['click', String(pageId), uid]);
+}
+
+function fillField(pageId, uid, value) {
+  cdt(['fill', String(pageId), uid, value]);
 }
 
 function snapshot(pageId) {
   return cdt(['take_snapshot', String(pageId)]);
 }
+
+/** Tag search box in publish dialog (after 「添加标签」 label). */
+function findJuejinTagInputUid(snap) {
+  const lines = snap.split('\n');
+  let seenTagLabel = false;
+  for (const line of lines) {
+    if (/添加标签/.test(line)) seenTagLabel = true;
+    if (seenTagLabel && /uid=(\S+)\s+textbox/.test(line) && !/multiline|标题/.test(line)) {
+      return line.match(/uid=(\S+)/)[1];
+    }
+  }
+  return null;
+}
+
+const JUEJIN_MAX_TAGS = 2;
+
+/** Dropdown list item after 「你还能添加 N 个标签」header — button or StaticText, never the header. */
+function findJuejinSuggestUid(snap, tag) {
+  const escaped = tag.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  const lines = snap.split('\n');
+  let passedHeader = false;
+  for (const line of lines) {
+    if (/你还能添加/.test(line)) passedHeader = true;
+    if (!passedHeader) continue;
+    const m = line.match(new RegExp(`uid=(\\S+)\\s+(button|StaticText|listitem|option)\\s+"${escaped}"`));
+    if (m) return m[1];
+  }
+  const re = new RegExp(`uid=(\\S+)\\s+button\\s+"${escaped}"`, 'g');
+  let last = null;
+  let m;
+  while ((m = re.exec(snap)) !== null) last = m[1];
+  return last;
+}
+
+const JUEJIN_CLICK_SUGGEST = `
+function clickJuejinTagSuggestion(tag) {
+  const skip = new Set(['确定并发布', '取消', '发布', '草稿箱']);
+  const headerIdx = [...document.body.querySelectorAll('*')].findIndex((el) => /还能添加/.test(el.innerText || ''));
+  const afterHeader = (el) => {
+    if (headerIdx < 0) return true;
+    const idx = [...document.body.querySelectorAll('*')].indexOf(el);
+    return idx > headerIdx;
+  };
+  const buttons = [...document.querySelectorAll('button')].filter((el) => {
+    const t = el.innerText?.trim();
+    if (t !== tag || skip.has(t)) return false;
+    if (el.closest('.byte-select__tag') || el.closest('.bytemd')) return false;
+    if (!el.offsetParent) return false;
+    return afterHeader(el);
+  });
+  const pick = buttons[0];
+  pick?.click();
+  return { clicked: !!pick, tagName: pick?.tagName, via: 'button-after-header', candidates: buttons.length };
+}
+`;
 
 function stripFrontmatter(text) {
   if (text.startsWith('---')) {
@@ -145,12 +270,131 @@ function getZhContent(platform) {
 }
 
 function juejinTags() {
-  if (slugArg === 'dont-give-agent-prod-db') return { category: '后端', tags: ['数据库', 'MCP', 'AI', '开源'] };
-  return { category: '前端', tags: ['SEO', '前端', 'Cloudflare', '开源'] };
+  if (slugArg === 'dont-give-agent-prod-db' || slugArg === 'agent-wrote-migration-approve') {
+    return { category: '后端', tags: ['数据库', 'MCP'] };
+  }
+  return { category: '前端', tags: ['SEO', '前端'] };
+}
+
+const JUEJIN_TAG_HELPERS = `
+function juejinPublishModal() {
+  const confirmBtn = [...document.querySelectorAll('button')].find((b) => b.innerText?.trim() === '确定并发布');
+  if (!confirmBtn) return null;
+  let el = confirmBtn;
+  for (let i = 0; i < 12 && el; i++) {
+    if (el.innerText?.includes('添加标签') && el.querySelector('input')) return el;
+    el = el.parentElement;
+  }
+  return confirmBtn.parentElement?.parentElement?.parentElement;
+}
+
+function juejinTagInput(modal) {
+  if (!modal) return null;
+  const inputs = [...modal.querySelectorAll('input')].filter((i) => i.offsetParent);
+  return (
+    inputs.find((i) => {
+      const row = i.closest('div')?.innerText || '';
+      return row.includes('添加标签') || row.includes('请搜索添加标签');
+    }) ||
+    inputs.find((i) => !/专栏|话题|封面/.test(i.placeholder || ''))
+  );
+}
+
+function juejinTagChips(modal) {
+  if (!modal) return [];
+  return [...new Set(
+    [...modal.querySelectorAll('.byte-select__tag, .byte-tag--checked')]
+      .map((el) => el.innerText?.replace(/×/g, '').trim())
+      .filter(Boolean),
+  )];
+}
+`;
+
+/**
+ * Juejin tags (max 2): fill search → click dropdown list item (not 「还能添加 N 个」header) → verify chip.
+ */
+function juejinSelectTags(pageId, tags) {
+  const toAdd = tags.slice(0, JUEJIN_MAX_TAGS);
+  const results = [];
+  for (const tag of toAdd) {
+    const before = evaluate(
+      pageId,
+      `() => {
+        ${JUEJIN_TAG_HELPERS}
+        return { chips: juejinTagChips(juejinPublishModal()) };
+      }`,
+    );
+    if ((before.chips || []).length >= JUEJIN_MAX_TAGS) {
+      console.log(`juejin tags: cap ${JUEJIN_MAX_TAGS} reached — skip remaining`);
+      break;
+    }
+    const snap1 = snapshot(pageId);
+    const inputUid = findJuejinTagInputUid(snap1);
+    if (!inputUid) throw new Error('Juejin: tag search input uid not found — open 发布 dialog first');
+    fillField(pageId, inputUid, tag);
+    spawnSync('sleep', ['1']);
+    let picked = evaluate(
+      pageId,
+      `() => {
+        ${JUEJIN_CLICK_SUGGEST}
+        ${JUEJIN_TAG_HELPERS}
+        const tag = ${esc(tag)};
+        const clickResult = clickJuejinTagSuggestion(tag);
+        const chips = juejinTagChips(juejinPublishModal());
+        return { tag, inputUid: ${esc(inputUid)}, ...clickResult, chips, hasChip: chips.includes(tag) };
+      }`,
+    );
+    if (!picked.clicked || !picked.hasChip) {
+      const snap2 = snapshot(pageId);
+      const suggestUid = findJuejinSuggestUid(snap2, tag);
+      if (suggestUid) {
+        click(pageId, suggestUid);
+        spawnSync('sleep', ['0.8']);
+        picked = evaluate(
+          pageId,
+          `() => {
+            ${JUEJIN_TAG_HELPERS}
+            const tag = ${esc(tag)};
+            const chips = juejinTagChips(juejinPublishModal());
+            return { tag, suggestUid: ${esc(suggestUid)}, clicked: true, chips, hasChip: chips.includes(tag) };
+          }`,
+        );
+      }
+    }
+    results.push(picked);
+    if (!picked.hasChip) {
+      throw new Error(`Juejin: chip "${tag}" missing after click — abort submit`);
+    }
+    spawnSync('sleep', ['0.5']);
+  }
+  const chips = evaluate(
+    pageId,
+    `() => {
+      ${JUEJIN_TAG_HELPERS}
+      return { chips: juejinTagChips(juejinPublishModal()) };
+    }`,
+  );
+  return { results, chips: chips.chips ?? [] };
+}
+
+function waitJuejinPublishDialog(pageId, maxSec = 12) {
+  for (let i = 0; i < maxSec; i++) {
+    const ok = evaluate(
+      pageId,
+      `() => ({
+        open: /确定并发布/.test(document.body.innerText) && /添加标签/.test(document.body.innerText),
+      })`,
+    );
+    if (ok.open) return true;
+    spawnSync('sleep', ['1']);
+  }
+  return false;
 }
 
 function csdnTags() {
-  if (slugArg === 'dont-give-agent-prod-db') return ['数据库', '开源', '架构', 'MCP'];
+  if (slugArg === 'dont-give-agent-prod-db' || slugArg === 'agent-wrote-migration-approve') {
+    return ['数据库', '开源', '架构', 'MCP'];
+  }
   return ['SEO', '前端', 'Cloudflare', '开源', '数据库'];
 }
 
@@ -291,7 +535,8 @@ function verifyPublic(url, checks = {}) {
   const pid = openUrl(url);
   return evaluate(
     pid,
-    `(checks) => {
+    `() => {
+      const checks = ${JSON.stringify(checks)};
       const text = document.body?.innerText || '';
       const article = document.querySelector('article, main, .blog-content, .Post-RichText, .article-content, .detail-body')?.innerText || text;
       return {
@@ -307,13 +552,12 @@ function verifyPublic(url, checks = {}) {
         ...checks
       };
     }`,
-    [checks],
   );
 }
 
 async function hashnode(submit) {
   const { title: enTitle, body } = getEnContent();
-  const pid = openUrl('https://hashnode.com/');
+  const pid = acquirePlatformPage(/hashnode\.com/, 'https://hashnode.com/');
   // Check login
   const loginCheck = evaluate(pid, `() => ({ href: location.href, hasSignIn: !!document.body?.innerText?.includes('Sign in'), hasErd: !!document.body?.innerText?.includes('erdonline') })`);
   if (loginCheck.hasSignIn || !loginCheck.hasErd) throw new Error('Hashnode not logged in as erdonline — HARD STOP');
@@ -344,7 +588,7 @@ async function hashnode(submit) {
       const title = decodeUtf8B64(${esc(b64(enTitle))});
       const body = decodeUtf8B64(${esc(b64(body))});
       const titleEl = document.querySelector('textarea[placeholder*="Article Title" i], textarea[placeholder*="title" i]');
-      const bodyEl = document.querySelector('textarea[placeholder*="markdown" i], textarea[placeholder*="Write" i]') 
+      const bodyEl = document.querySelector('textarea[placeholder*="Start writing markdown" i], textarea[placeholder*="markdown" i], textarea[placeholder*="Write" i]')
         || [...document.querySelectorAll('textarea')].find(t => t !== titleEl && t.offsetHeight > 100);
       setNative(titleEl, title);
       setNative(bodyEl, body);
@@ -390,7 +634,7 @@ async function hashnode(submit) {
 }
 
 async function mediumImport(hashnodeUrl, submit) {
-  const pid = openUrl('https://medium.com/p/import');
+  const pid = acquirePlatformPage(/medium\.com/, 'https://medium.com/p/import');
   const loginCheck = evaluate(pid, `() => ({ href: location.href, isSignIn: location.href.includes('signin') })`);
   if (loginCheck.isSignIn) throw new Error('Medium not logged in — HARD STOP');
 
@@ -446,7 +690,7 @@ async function mediumImport(hashnodeUrl, submit) {
 
 async function devto(submit) {
   const { title: enTitle, body } = getEnContent();
-  const pid = openUrl('https://dev.to/new');
+  const pid = acquirePlatformPage(/dev\.to/, 'https://dev.to/new');
   evaluate(pid, `() => {
     const skip = [...document.querySelectorAll('a, button')].find(el => /Skip for now/i.test(el.innerText));
     skip?.click();
@@ -524,8 +768,8 @@ async function juejin(submit) {
   const { title: zhTitle, body } = getZhContent('juejin');
   const minBodyLen = Math.max(500, Math.floor(body.length * 0.5));
   const minNewlines = Math.max(10, Math.floor((body.match(/\n/g) || []).length * 0.5));
-  const pid = openUrl('https://juejin.cn/editor/drafts/new');
-  spawnSync('sleep', ['3']);
+  const pid = acquireJuejinEditor();
+  spawnSync('sleep', ['2']);
   const fill = evaluate(
     pid,
     `() => {
@@ -570,21 +814,28 @@ async function juejin(submit) {
   if (!submit) return { fill, pid };
 
   evaluate(pid, `() => {
+    const alreadyOpen = /确定并发布/.test(document.body.innerText) && /添加标签/.test(document.body.innerText);
+    if (alreadyOpen) return { clickedPublish: false, alreadyOpen: true };
     const btn = [...document.querySelectorAll('button')].find(b => b.innerText?.trim() === '发布');
     btn?.click();
-    return { clickedPublish: !!btn };
+    return { clickedPublish: !!btn, alreadyOpen: false };
   }`);
-  spawnSync('sleep', ['2']);
+  if (!waitJuejinPublishDialog(pid)) {
+    throw new Error('Juejin: 发布 dialog did not open — HARD STOP');
+  }
   const { category, tags } = juejinTags();
   evaluate(pid, `() => {
     const cat = [...document.querySelectorAll('label, span, div, li')].find(el => el.innerText?.trim() === ${esc(category)});
     cat?.click();
-    for (const tag of ${JSON.stringify(tags)}) {
-      const t = [...document.querySelectorAll('label, span, div, li, button')].find(el => el.innerText?.trim() === tag);
-      t?.click();
-    }
-    return { href: location.href };
+    return { category: ${esc(category)}, clicked: !!cat };
   }`);
+  spawnSync('sleep', ['1']);
+  const tagPick = juejinSelectTags(pid, tags);
+  console.log('juejin tags:', JSON.stringify(tagPick, null, 2));
+  const missingTags = tags.filter((t) => !(tagPick.chips || []).includes(t));
+  if (missingTags.length) {
+    throw new Error(`Juejin: tags not stuck after select — missing [${missingTags.join(', ')}]; chips=[${(tagPick.chips || []).join(', ')}] — abort submit`);
+  }
   spawnSync('sleep', ['1']);
   evaluate(pid, `() => {
     const btn = [...document.querySelectorAll('button')].find(b => /确定并发布|发布/.test(b.innerText));
@@ -606,7 +857,7 @@ async function juejin(submit) {
 
 async function csdn(submit) {
   const { title: zhTitle, body } = getZhContent('csdn');
-  const pid = openUrl('https://editor.csdn.net/md');
+  const pid = acquirePlatformPage(/editor\.csdn\.net/, 'https://editor.csdn.net/md');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
@@ -663,7 +914,7 @@ async function csdn(submit) {
 async function oschina(submit) {
   const { title: zhTitle, body } = getZhContent('oschina');
   const minFillLen = Math.max(1000, Math.floor(body.length * 0.5));
-  const pid = openUrl('https://my.oschina.net/u/3339242/blog/ai-write');
+  const pid = acquirePlatformPage(/my\.oschina\.net/, 'https://my.oschina.net/u/3339242/blog/ai-write');
   sleepJitter(1, 3);
 
   const mode = ensureOschinaMarkdown(pid);
@@ -750,7 +1001,9 @@ async function zhihuPatchDraft(pageId, articleId, body) {
   const html = mdToZhihuHtml(body);
   return evaluate(
     pageId,
-    `async (articleId, html) => {
+    `async () => {
+      const articleId = ${esc(String(articleId))};
+      const html = ${esc(html)};
       const xsrf = document.cookie.match(/_xsrf=([^;]+)/)?.[1];
       const res = await fetch('/api/articles/' + articleId + '/draft', {
         method: 'PATCH',
@@ -760,13 +1013,12 @@ async function zhihuPatchDraft(pageId, articleId, body) {
       });
       return { status: res.status, htmlLen: html.length, chinese: (html.match(/[\\u4e00-\\u9fff]/g) || []).length, ok: res.ok };
     }`,
-    [articleId, html],
   );
 }
 
 async function zhihu(submit) {
   const { title: zhTitle, body } = getZhContent('zhihu');
-  const pid = openUrl('https://zhuanlan.zhihu.com/write');
+  const pid = acquirePlatformPage(/zhuanlan\.zhihu\.com/, 'https://zhuanlan.zhihu.com/write');
   spawnSync('sleep', ['3']);
   const fill = evaluate(
     pid,
@@ -774,7 +1026,8 @@ async function zhihu(submit) {
       ${SET_NATIVE}
       const title = ${esc(zhTitle)};
       const body = ${esc(body)};
-      const titleEl = document.querySelector('textarea[placeholder*="标题"], input[placeholder*="标题"]');
+      const titleEl = document.querySelector('textarea[placeholder*="标题"], input[placeholder*="标题"]')
+        || [...document.querySelectorAll('textarea')].find(t => /标题/.test(t.placeholder || ''));
       if (titleEl) setNative(titleEl, title);
       const ce = document.querySelector('[contenteditable="true"].public-DraftEditor-content, [contenteditable="true"]');
       if (ce) {
@@ -793,9 +1046,9 @@ async function zhihu(submit) {
   console.log('zhihu fill:', JSON.stringify(fill, null, 2));
   if (!submit) return { fill, pid };
 
-  // Save draft first to get article id, then PATCH body (reliable path per recipes)
+  // 草稿备份 → /p/{id}/edit → PATCH body → reload → 发布
   evaluate(pid, `() => {
-    const btn = [...document.querySelectorAll('button')].find(b => /保存草稿|暂存|保存/.test(b.innerText) && !b.disabled);
+    const btn = [...document.querySelectorAll('button')].find(b => /草稿备份|保存草稿|暂存/.test(b.innerText) && !b.disabled);
     btn?.click();
     return { clickedSave: !!btn, href: location.href };
   }`);

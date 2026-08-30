@@ -21,6 +21,20 @@ export const PACKS = {
       },
     },
   },
+  'agent-wrote-migration-approve': {
+    file: path.join(ROOT, 'docs/growth-content/agent-wrote-migration-approve-x.md'),
+    title: 'The agent wrote the migration. Are you really going to Approve it?',
+    preview: {
+      minLen: 4500,
+      spacingMaxTriple: 2,
+      checks: {
+        hasApprove: (t) => t.includes('Approve'),
+        hasMigration: (t) => t.toLowerCase().includes('migration') || t.includes('ALTER'),
+        hasGithub: (t) => t.includes('github.com/erd-online') || t.includes('github.com/erdonline'),
+        hasDemo: (t) => t.includes('erdonline.com/demo'),
+      },
+    },
+  },
   'seo-essay': {
     file: path.join(ROOT, 'docs/growth-content/2026-08-29-seo-essay-x.md'),
     title: 'Average position 1. Zero clicks. Our site had eight URLs and one identity.',
