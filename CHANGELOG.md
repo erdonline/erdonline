@@ -24,6 +24,8 @@
 - **修复**：删除 `COPY mcp/guide`；改为 `COPY docs/guide/api-and-mcp.md` 供 `yarn build` 内 `sync-guide` 生成 `guide/`；runtime 仍 `COPY --from=mcp-build /mcp/guide`（build 阶段产物）。
 - **验证点**：`ls mcp/` 无 committed `guide/`（`.gitignore` 仅 `guide/api-and-mcp.md`）；`docs/guide/api-and-mcp.md`、`mcp/{package.json,yarn.lock,tsconfig.json,scripts,src}` 均存在；同文件其余 `COPY` 路径（`backend/pom.xml`、`backend/src`、`backend/docker-entrypoint.sh`）已核对；runtime `COPY --from=mcp-build /mcp/guide` 保留（build 阶段 `yarn build` 产物）。
 
+#### fix(docker): mcp-build `COPY mcp/scripts ./scripts` 修复 Railway `sync-guide.mjs` not found（原 flatten 到 `/mcp`）
+
 
 - **闭环**：PAT 明文一次性弹层扩为六客户端安装区；Cursor / Cline / Devin / VS Code 复制项与 Claude Code CLI 均已填入本次 PAT，不再让用户从公开接入页跳回账户设置后自行拼 header。Cursor / VS Code 打开程序的 install URI 仍只含 URL，PAT 只存在于同屏一次性复制动作。
 - **真实入口**：Cursor 使用 `cursor://anysphere.cursor-deeplink/mcp/install`；VS Code 使用 `vscode:mcp/install?{URL_ENCODED_JSON}`；Claude Code 使用 `claude mcp add --transport http --scope user … -H …`。Cline 无官方自定义安装 URI，走 MCP Servers → Remote Servers；Claude Desktop 走 Customize → Connectors，因不接受静态 Bearer header，本切片如实等待 OAuth。
