@@ -34,10 +34,6 @@ The [public six-client page](https://www.erdonline.com/cursor-mcp/) shows the UR
 }
 ```
 
-<img src="/img/guide/mcp-pat-reveal.webp" alt="PAT success dialog: Cursor card already filled with https://api.erdonline.com/mcp and an Authorization Bearer header" width="720" height="458" loading="eager" fetchpriority="high" />
-
-<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json: Streamable HTTP url plus Authorization header" width="868" height="232" loading="lazy" />
-
 The deeplink contains only the URL, never a PAT.
 
 ### Claude Desktop
@@ -123,8 +119,6 @@ Ask: `List my ERD projects`, then `Read projectJSON for project X`. Use `create_
 | `list_templates` / `get_template` / `install_template` | Template catalog | read / `projects:write` |
 
 `preview_ddl` requires a `versionId` and never reads the unsaved workspace. The version API does not currently store a separate approval state, so your merge gate must still verify human approval.
-
-<img src="/img/guide/mcp-agent-tools.webp" alt="MCP tools the agent can call" width="868" height="403" loading="lazy" />
 
 No `publish_template`, no PAT ratings. See [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md).
 

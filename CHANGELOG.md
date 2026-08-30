@@ -8,6 +8,12 @@
 
 ### 2026-08-30
 
+#### docs(mcp): 指南去掉截图，只留可复制 JSON
+
+- **原因**：PAT / mcp.json / 工具表截图拖慢文档页 LCP；配置本身就是 JSON，截图不能复制。
+- **改动**：中/英 `guide/api-and-mcp` 删除三张 `<img>`；SEO 断言改为禁止 `mcp-pat-reveal`；删除 `website/static/img/guide/mcp-*`、`content/articles/assets/mcp-*` 与截图脚本。
+- **验证点**：`cd website && yarn build && yarn test:seo` → 中英页含 `mcpServers` + `api.erdonline.com/mcp`，HTML 无 `mcp-pat-reveal`
+
 #### docs(mcp): HTTP 截图 + README PAT 入口；解开 docs-site 构建
 
 - **问题**：`doc.erdonline.com/docs/guide/api-and-mcp/` 仍是 npx tgz / stdio 截图，因为 docs-site 被 `docs/growth-content` 的字符串 `tags` 卡住连续失败；仓根 README 有 MCP URL，但没有铸造 PAT 的入口。

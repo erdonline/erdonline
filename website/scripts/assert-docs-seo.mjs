@@ -97,8 +97,11 @@ for (const [label, text] of [
   if (!text.includes('selectKey=personalAccessTokens')) {
     fail(`${label} must link the PAT minting page`);
   }
-  if (!text.includes('mcp-pat-reveal.webp')) {
-    fail(`${label} must embed the PAT reveal screenshot`);
+  if (!text.includes('"mcpServers"') || !text.includes('Authorization')) {
+    fail(`${label} must include copy-paste Streamable HTTP JSON`);
+  }
+  if (/<img[\s\S]*mcp-(pat-reveal|json|agent-tools)/.test(text)) {
+    fail(`${label} must not embed MCP screenshots (JSON only)`);
   }
   if (text.includes('erdonline-mcp-0.1.0.tgz')) {
     fail(`${label} must not use the stdio tarball as the primary install`);
@@ -253,8 +256,8 @@ if (sitemapExists) {
     if (!/api\.erdonline\.com\/mcp/.test(html)) {
       fail('zh MCP page must name https://api.erdonline.com/mcp');
     }
-    if (!/mcp-pat-reveal/.test(html)) {
-      fail('zh MCP page must embed the PAT reveal screenshot');
+    if (/mcp-pat-reveal|mcp-agent-tools\.webp/.test(html)) {
+      fail('zh MCP page must not embed MCP screenshots');
     }
   }
   if (!fs.existsSync(mcpEn)) fail('build/en/docs/guide/api-and-mcp/index.html missing');
@@ -266,6 +269,9 @@ if (sitemapExists) {
     if (!/mcpServers/.test(html)) fail('en MCP page must include copy-paste mcpServers JSON');
     if (!/api\.erdonline\.com\/mcp/.test(html)) {
       fail('en MCP page must name https://api.erdonline.com/mcp');
+    }
+    if (/mcp-pat-reveal|mcp-agent-tools\.webp/.test(html)) {
+      fail('en MCP page must not embed MCP screenshots');
     }
   }
 }
