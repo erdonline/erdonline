@@ -354,7 +354,7 @@ Do not set `API_URL` to UI domain (e.g. mistakenly `https://app.erdonline.com`)â
 
 **CORS (Railway backend required)**: when browser calls Railway API cross-origin from Cloudflare Pages / custom domain frontend, backend **`ERD_UI_URL` must be frontend Origin** (no trailing slash; **not** Railway API domain). Repo `config.prod.ts` / `.env` `API_URL` only points to backend; CORS configured only in Railway App Variables, missing â†’ prod startup fail-fast or browser preflight 403 (`Invalid CORS request`, no `Access-Control-Allow-Origin`).
 
-**Production UI + official demo sharing Railway API** (current `erdonline-production` recommended value):
+**Production UI + official demo sharing Railway API** (public API root: `https://api.erdonline.com`):
 
 ```text
 ERD_UI_URL=https://app.erdonline.com,https://www.erdonline.com

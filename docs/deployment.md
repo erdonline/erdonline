@@ -363,7 +363,7 @@ chmod 600 ~/.erdonline/oidc-rsa-private.pem
 
 **CORS（Railway 后端必配）**：浏览器从 Cloudflare Pages / 自定义域前端跨域调用 Railway API 时，后端 **`ERD_UI_URL` 须设为前端 Origin**（无尾斜杠；**不是** Railway API 域名）。仓库内 `config.prod.ts` / `.env` 的 `API_URL` 只指后端；CORS 仅在 Railway App Variables 配置，缺则 prod 启动 fail-fast 或浏览器预检 403（`Invalid CORS request`、无 `Access-Control-Allow-Origin`）。
 
-**生产 UI + 官方 demo 共用 Railway API**（当前 `erdonline-production` 推荐值）：
+**生产 UI + 官方 demo 共用 Railway API**（公网 API 根：`https://api.erdonline.com`）：
 
 ```text
 ERD_UI_URL=https://app.erdonline.com,https://www.erdonline.com
