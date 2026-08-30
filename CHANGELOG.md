@@ -8,6 +8,16 @@
 
 ### 2026-08-30
 
+#### feat(mcp): Job 2/4 版本语义审查与 DDL 草稿
+
+- **`diff_versions`**：并行读取两个命名版本快照，返回 `fromVersion` / `toVersion`、表/列增删改摘要、表备注与字段备注，以及基于结构指纹的保守 `renameCandidates`；ALTER 文本不是主要结果，候选改名必须由人确认。
+- **`preview_ddl`**：只从指定的命名版本快照生成 MySQL / PostgreSQL / SQL Server / Oracle `CREATE TABLE` 草稿，可按表过滤；返回 `previewOnly: true`、`executed: false` 与安全警告。未新增 connector、未连接数据库、未执行 SQL，也未扩展 `put_project_json`。
+- **文档**：MCP 工具清单与 roadmap 同步；明确当前版本 API 不存独立批准状态，merge 门禁仍须由团队确认。
+- **验证点**：
+  - `cd mcp && yarn test:unit` → TypeScript build 通过；既有 2 项 API 测试通过；新增 mock-fetch 版本测试覆盖表/列语义 diff、改名候选、命名版本约束与 preview-only DDL。
+  - `cd mcp && yarn smoke:introspect` → `INTROSPECT OK 16 tools; 1 resources; 2 prompts`，锁定 `diff_versions` / `preview_ddl` schemas 与只读注解。
+  - IDE diagnostics：`mcp/src/version-tools.ts`、`mcp/src/create-server.ts` 无错误。
+
 #### test(mcp): 前后端与 sidecar 契约回归
 
 - **后端**：新增 `McpHttpProxyControllerTest`，用进程内假 sidecar + MockMvc 覆盖 GET `/mcp` 405、POST `initialize`、`tools/list` 14 项，以及 `Authorization: Bearer erd_pat_…` 原样转发；同时锁定 MCP Security 链 `@Order(0)`，避免 PAT 被会话 JWT 链解析。

@@ -69,6 +69,7 @@
 | 从这里开始点名 prompt | ✅ 2026-08-28 | `guide/intro` 路径三：`suggest-erd-version` |
 | 存版指南接到 prompt | ✅ 2026-08-28 | `save-version-and-diff` FAQ/下一步：`suggest-erd-version` |
 | MCP README 点名 prompt | ✅ 2026-08-28 | `mcp/README` 30 秒路径：`suggest-erd-version`；tarball 11785 B 已 clobber |
+| Job 2/4 MCP 审查工具 | ✅ 2026-08-30 | `diff_versions` 语义差异 + `preview_ddl` 命名版本 DDL 草稿；均只读、不连接数据库、不执行 SQL |
 | 根 README API 200 | ✅ 2026-08-28 | 仓根中/英 README：`create_version` API 200 不是人批准 |
 | 自托管指南接到 prompt | ✅ 2026-08-28 | `quick-self-host`：`suggest-erd-version` + `ERD_API_URL=127.0.0.1:9502` |
 | 逆向指南接到 prompt | ✅ 2026-08-28 | `reverse-engineer` FAQ/下一步：`suggest-erd-version`；人 diff；Demo 不能当 PAT |

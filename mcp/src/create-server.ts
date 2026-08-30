@@ -13,6 +13,10 @@ import {
   extractProjectJson,
   listContractTables,
 } from './contract-schema.js';
+import {
+  diffVersionDetails,
+  draftDdlFromVersion,
+} from './version-tools.js';
 
 function textResult(payload: unknown, isError = false) {
   return {
@@ -245,6 +249,66 @@ export function createErdMcpServer(config: ErdApiConfig): McpServer {
     },
     async ({ projectId, versionId }) =>
       wrapTool(() => api.getVersion(projectId, versionId))(),
+  );
+
+  server.registerTool(
+    'diff_versions',
+    {
+      description:
+        'Review-oriented semantic diff between two named version snapshots. Returns tables and columns added, removed, modified, plus conservative rename candidates — not an ALTER dump. API data is evidence for human review, not approval.',
+      annotations: readAnno,
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        fromVersionId: z.string().min(1).describe('Baseline version id'),
+        toVersionId: z.string().min(1).describe('Proposed version id'),
+      },
+    },
+    async ({ projectId, fromVersionId, toVersionId }) =>
+      wrapTool(async () => {
+        const [fromVersion, toVersion] = await Promise.all([
+          api.getVersion(projectId, fromVersionId),
+          api.getVersion(projectId, toVersionId),
+        ]);
+        return diffVersionDetails(
+          fromVersion,
+          toVersion,
+          fromVersionId,
+          toVersionId,
+        );
+      })(),
+  );
+
+  server.registerTool(
+    'preview_ddl',
+    {
+      description:
+        'Generate a conservative CREATE TABLE draft from one named saved version snapshot. Preview only: never connects to a database and never executes SQL. Review dialect details and approval status before use.',
+      annotations: readAnno,
+      inputSchema: {
+        projectId: z.string().min(1).describe('Project id'),
+        versionId: z
+          .string()
+          .min(1)
+          .describe('Named saved version id; workspace projectJSON is not accepted'),
+        dialect: z
+          .enum(['mysql', 'postgresql', 'sqlserver', 'oracle'])
+          .describe('Target SQL dialect'),
+        table: z
+          .string()
+          .min(1)
+          .optional()
+          .describe('Optional exact table name; omit to preview all tables'),
+      },
+    },
+    async ({ projectId, versionId, dialect, table }) =>
+      wrapTool(async () =>
+        draftDdlFromVersion(
+          await api.getVersion(projectId, versionId),
+          versionId,
+          dialect,
+          table,
+        ),
+      )(),
   );
 
   server.registerTool(

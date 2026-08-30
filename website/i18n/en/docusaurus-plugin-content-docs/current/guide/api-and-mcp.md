@@ -75,10 +75,15 @@ To run from source: `cd mcp && yarn install && yarn build`, then `node /ABS/PATH
 | Tool | Role | Scope |
 |---|---|---|
 | `list_projects` / `get_project` / `get_project_schema` | List projects, read projectJSON | `projects:read` |
+| `list_tables` / `describe_table` | Progressive contract read: table list, then one table with fields, comments, and FK neighborhood | `projects:read` |
 | `list_versions` / `get_version` | Version history | `versions:read` |
+| `diff_versions` | Semantic table/column diff between two named versions, including conservative rename candidates | `versions:read` |
+| `preview_ddl` | Preview-only `CREATE TABLE` draft from a named version; never connects to a database or executes SQL | `versions:read` |
 | `create_version` | Submit a version (human diffs next) | `versions:write` |
 | `update_project` / `put_project_json` | Patch metadata / replace JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | Template catalog | read / `projects:write` |
+
+`preview_ddl` requires a `versionId` and never reads the unsaved workspace. The version API does not currently store a separate approval state, so your merge gate must still verify human approval.
 
 <img src="/img/guide/mcp-agent-tools.webp" alt="MCP tools the agent can call" width="703" height="393" loading="lazy" />
 

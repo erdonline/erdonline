@@ -77,13 +77,15 @@ description: 复制 mcp.json 配置，用 PAT 让 Cursor、Claude、Cline、Wind
 | `list_projects` / `get_project` / `get_project_schema` | 列项目、读 projectJSON | `projects:read` |
 | `list_tables` / `describe_table` | 契约渐进披露：先列表、再按需读单表字段 + FK 邻域；表名写错返回 `found:false` + suggestions；可选 `versionId` 读已批准版本 | `projects:read` |
 | `list_versions` / `get_version` | 读版本历史 | `versions:read` |
+| `diff_versions` | 对比两个命名版本的语义差异：表/列增删改与保守的改名候选；不把 ALTER 文本当主要审查界面 | `versions:read` |
+| `preview_ddl` | 从一个命名版本快照生成 MySQL / PostgreSQL / SQL Server / Oracle `CREATE TABLE` 草稿；只预览，MCP 永不连接数据库、永不执行 SQL | `versions:read` |
 | `create_version` | 提交一版（人再 diff） | `versions:write` |
 | `update_project` / `put_project_json` | 改项目元数据 / 整份 JSON | `projects:write` |
 | `list_templates` / `get_template` / `install_template` | 模板广场 | read / `projects:write` |
 
 <img src="/img/guide/mcp-agent-tools.webp" alt="Agent 可调用的 MCP 工具清单" width="703" height="393" loading="lazy" />
 
-没有 `publish_template`，也没有 PAT 评分。仓库说明见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
+`preview_ddl` 只接受 `versionId`，不会读取未存版的工作区；当前版本 API 不记录独立的「已批准」状态，因此团队仍须在 merge 门禁中确认批准。没有 `publish_template`，也没有 PAT 评分。仓库说明见 [`mcp/README.md`](https://github.com/erdonline/erdonline/blob/main/mcp/README.md)。
 
 ## 让 Agent 提交一版建议
 
