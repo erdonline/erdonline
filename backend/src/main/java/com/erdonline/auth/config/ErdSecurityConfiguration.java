@@ -43,7 +43,8 @@ public class ErdSecurityConfiguration {
         ignore.addAll(List.of(
                 "/login", "/auth/login",
                 "/actuator/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html",
-                "/error", "/**/*.js", "/**/*.css", "/**/*.html", "/favicon.ico"
+                "/error", "/**/*.js", "/**/*.css", "/**/*.html", "/favicon.ico",
+                "/mcp", "/mcp/**"
         ));
 
         http.csrf(AbstractHttpConfigurer::disable)

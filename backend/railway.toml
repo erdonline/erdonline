@@ -1,13 +1,13 @@
 # Railway official demo backend (ADR-0019).
 # Dashboard MUST set:
-#   Root Directory     = backend
-#   Config as Code     = /backend/railway.toml
-# Build context is then ./backend (matches this Dockerfile + docker-compose).
+#   Root Directory     = .  (repo root — Dockerfile COPY mcp/ + backend/)
+#   Config as Code     = backend/railway.toml
+# Build context is repo root; dockerfilePath points at backend/Dockerfile.
 
 [build]
 builder = "DOCKERFILE"
-dockerfilePath = "Dockerfile"
-watchPatterns = ["/backend/**"]
+dockerfilePath = "backend/Dockerfile"
+watchPatterns = ["/backend/**", "/mcp/**"]
 
 [deploy]
 # Liveness only（Boot probes）：进程已监听即绿。勿用聚合 /actuator/health——

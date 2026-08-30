@@ -12,7 +12,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { StreamableHTTPServerTransport } from '@modelcontextprotocol/sdk/server/streamableHttp.js';
 import { createMcpExpressApp } from '@modelcontextprotocol/sdk/server/express.js';
 import { createErdMcpServer } from './create-server.js';
-import { loadConfigFromEnv } from './erd-api.js';
+import { loadConfigFromEnv, patFromAuthorizationHeader } from './erd-api.js';
 
 async function runStdio() {
   const config = loadConfigFromEnv();
@@ -31,11 +31,16 @@ async function runStdio() {
 }
 
 async function runHttp() {
-  const config = loadConfigFromEnv();
+  const baseConfig = loadConfigFromEnv();
   const port = Number(process.env.ERD_MCP_PORT ?? 3920);
   const app = createMcpExpressApp();
 
   app.post('/mcp', async (req: Request, res: Response) => {
+    const requestPat = patFromAuthorizationHeader(req.headers.authorization);
+    const config = {
+      baseUrl: baseConfig.baseUrl,
+      pat: requestPat ?? baseConfig.pat,
+    };
     const server = createErdMcpServer(config);
     try {
       const transport = new StreamableHTTPServerTransport({
@@ -69,7 +74,7 @@ async function runHttp() {
 
   app.listen(port, () => {
     console.error(
-      `erd-mcp Streamable HTTP on http://127.0.0.1:${port}/mcp → ${config.baseUrl}`,
+      `erd-mcp Streamable HTTP on http://127.0.0.1:${port}/mcp → ${baseConfig.baseUrl}`,
     );
   });
 }
