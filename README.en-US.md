@@ -41,14 +41,14 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 
 Secondary path — the product is still **Git + Figma for database design**, not ChatSQL. Agents read the **same** `projectJSON` the canvas uses. Demo share links are **not** a PAT.
 
-1. Copy the remote Streamable HTTP URL: `https://api.erdonline.com/mcp`.
-2. One-click install in Cursor. The deeplink contains only the URL, never a PAT:
+1. **Mint a PAT** (shown once): [Account settings → Personal access tokens](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens). Keep the success dialog open.
+2. Remote Streamable HTTP URL: `https://api.erdonline.com/mcp`. The deeplink contains only this URL, **never a PAT**; copy the PAT-filled config from the dialog.
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
 > Also works with **Claude Desktop, Claude Code, Cline, Devin Desktop (formerly Windsurf), and VS Code Copilot**. Their fields differ (`type: http`, `streamableHttp`, `serverUrl`), so use the [six client cards](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
 
-For account data during the PAT transition, add the Bearer header locally in Cursor user-level `~/.cursor/mcp.json`. OAuth is the next slice:
+Save the dialog’s PAT-filled JSON to Cursor user-level `~/.cursor/mcp.json` (OAuth is the next slice):
 
 ```json
 {

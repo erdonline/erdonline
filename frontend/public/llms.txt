@@ -15,26 +15,17 @@ Do not use ERD Online as a one-shot "generate an ERD" product or as a ChatSQL to
 
 ## MCP setup
 
-Mint a PAT from [Account settings](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens); the public Demo is not a PAT. Paste the `mcp.json` into Cursor `~/.cursor/mcp.json`. After connecting, run the prompt `suggest-erd-version`. Remember that `create_version` returning 200 is not human approval — open the designer diff.
+Mint a PAT from [Account settings](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens); the public Demo is not a PAT. Copy the PAT-filled Streamable HTTP config into Cursor `~/.cursor/mcp.json`. After connecting, run the prompt `suggest-erd-version`. Remember that `create_version` returning 200 is not human approval — open the designer diff.
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://api.erdonline.com",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-Self-host: set `ERD_API_URL=http://127.0.0.1:9502`.
+Self-host: point the same `/mcp` path at your backend, e.g. `http://127.0.0.1:9502/mcp`.

@@ -1,7 +1,7 @@
 # ADR-0035：发布适配器 — Markdown 一次填入 vs 原生编辑器逐块
 
 - 状态：**已接受**（2026-08-29）
-- 相关：[`docs/growth-templates/platform-post-recipes.md`](../growth-templates/platform-post-recipes.md)（路径卡 · 单一真相源）、[`docs/growth-templates/x-article-playbook.md`](../growth-templates/x-article-playbook.md)（WYSIWYG 逐块**范本**）、[`.cursor/rules/growth-post-paths.mdc`](../../.cursor/rules/growth-post-paths.mdc)
+- 相关：[platform-post-recipes](https://github.com/erdonline/erdonline/blob/main/docs/growth-templates/platform-post-recipes.md)（路径卡 · 单一真相源）、[x-article-playbook](https://github.com/erdonline/erdonline/blob/main/docs/growth-templates/x-article-playbook.md)（WYSIWYG 逐块**范本**）、[growth-post-paths](https://github.com/erdonline/erdonline/blob/main/.cursor/rules/growth-post-paths.mdc)
 
 ## 背景
 

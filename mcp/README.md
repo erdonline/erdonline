@@ -46,7 +46,7 @@ ADR-0028：**无** `publish_template`；**无** PAT 评分/评论。
 | `ERD_MCP_PORT` | HTTP 模式端口，默认 `3920` |
 | `ERD_MCP_TRANSPORT=http` | 等价于 `--http` |
 
-铸造 PAT 见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含对应 scope（`versions:write` / `projects:write`）。
+铸造 PAT：[账户设置 → 访问令牌](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)（明文只显示一次）。自托管铸造见仓库 [`docs/development.md`](../docs/development.md)「公开 API PAT」。写工具须铸造时显式包含对应 scope（`versions:write` / `projects:write`）。
 
 ## 远程接入与 stdio fallback
 

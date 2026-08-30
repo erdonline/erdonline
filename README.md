@@ -43,14 +43,14 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 次路径：品牌仍是**数据库设计的 Git + Figma**，不是 ChatSQL。Agent 读写的是设计器同一份 `projectJSON`。官方 Demo 是只读分享，**不能当 PAT**。
 
-1. 复制远程 Streamable HTTP URL：`https://api.erdonline.com/mcp`。
-2. 一键装进 Cursor；deeplink 只含 URL，不含 PAT：
+1. **铸造 PAT**（明文只显示一次）：打开 [账户设置 → 访问令牌](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。不要关成功弹层。
+2. 远程 Streamable HTTP URL：`https://api.erdonline.com/mcp`。deeplink 只含这个 URL，**不含 PAT**；带 PAT 的配置只在弹层里复制。
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
 > 也支持 **Claude Desktop、Claude Code、Cline、Devin Desktop（formerly Windsurf）、VS Code Copilot**。各客户端字段不同（如 `type: http`、`streamableHttp`、`serverUrl`），见[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
-过渡期需要读取账户数据时，可在 Cursor 用户级 `~/.cursor/mcp.json` 本机补 Bearer PAT；OAuth 在下一切片加入：
+把弹层里已填 PAT 的 JSON 存进 Cursor 用户级 `~/.cursor/mcp.json`（OAuth 在下一切片加入）：
 
 ```json
 {
