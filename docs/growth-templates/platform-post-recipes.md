@@ -340,22 +340,27 @@ node scripts/post-all-browser.mjs --platform hackernews \
 | **登录检查** | @Builderliang 已登录；**若** `medium.com/m/signin` → **HARD STOP** |
 | **compose/edit URL** | **Import（推荐）：** `https://medium.com/p/import` → Hashnode live URL → `medium.com/p/<id>/edit`；**手动：** `https://medium.com/new-story` |
 | **编辑器模式** | 富文本（import 后 `main h3` + `main p`；**无** Markdown 切换） |
-| **填法（推荐 · import）** | `medium.com/p/import` → contenteditable 填 Hashnode URL → **Import** → 等 **Saved**（无 save error banner）→ **Publish** → submission 页 **Publish** |
+| **填法（推荐 · import）** | `medium.com/p/import` → `.js-importUrl[contenteditable="true"]`（`#editor_7` / `role=textbox`）清 placeholder `http://www.yoursite.org/your-post` → 填 **live** Hashnode URL → `button[data-action="import-url"]` **Import** → `button[data-action="overlay-close"]` **See your story** → 等 **Saved**（无 save error / Import failed）→ **Publish** → submission 页 **Publish** |
 | **填法（手动 · 易 blocked）** | 标题 `execCommand('insertText')`；正文 **`type_text`** — native setter / paste / beforeinput **均失败**；易触发 save error |
 | **提交按钮** | 编辑器 **Publish** → `/submission` 页 **Publish**（非 Schedule） |
 | **公网验正文** | `@builderliang/...` 文章页 articleLen≈4000+、`hasMcp=true` |
 | **本次 live URL** | https://medium.com/@builderliang/how-to-let-ai-agents-manage-your-database-schema-with-mcp-5c850646273f |
 | **硬停** | save error banner **「Something is wrong…」** → **HARD STOP**（勿重试 storms）；Cloudflare Turnstile（`me/stories`）→ STOP |
 
-Import 命令序列（2026-08-29 成功）：
+Import 命令序列（2026-08-30 live · Job2）：
 
 ```bash
 export PATH="$HOME/.nvm/versions/node/v22.22.0/bin:$PATH"
-# new_page https://medium.com/p/import → 填 Hashnode URL → click Import
-# 等 Saved → Publish → submission Publish → 验公网 URL
+# reuse medium.com tab → navigate https://medium.com/p/import
+# 1. focus `.js-importUrl[contenteditable="true"]` — 删 `.defaultValue` placeholder
+# 2. insertText live Hashnode URL（**禁止** 404 / 猜测 `-ck8` slug）
+# 3. click `button[data-action="import-url"]`
+# 4. click `button[data-action="overlay-close"]` See your story
+# 5. 等 Saved → Publish → submission Publish → 验公网 URL
+node scripts/post-seo-essay.mjs medium-import --slug=agent-wrote-migration-approve --hashnode-url=<live-url> --submit
 ```
 
-读回基准（import）：editor bodyLen≈4285 / 公网 articleLen≈4218 / hasMcp=true
+读回基准（import Job2）：editor bodyLen≈8009 / 公网 articleLen≈8067 / hasApprove=true
 
 ---
 

@@ -8,6 +8,18 @@
 
 ### 2026-08-30
 
+#### publish(growth): Job2 Medium import — agent-wrote-migration-approve
+
+- **Hashnode 真 permalink**：`https://erdonline.hashnode.dev/the-agent-wrote-the-migration-are-you-really-going-to-approve-it`（旧 `-ck8` URL 404；从 `erdonline.hashnode.dev` 首页读真实 slug）
+- **Medium import 选择器冻结**：`.js-importUrl[contenteditable="true"]` → `button[data-action="import-url"]` → `button[data-action="overlay-close"]` See your story
+- **脚本**：`post-seo-essay.mjs` `mediumImport()` 对齐上述三步 + importFailed/saveError 硬停
+- **验证点**：
+  ```text
+  Hashnode 公网 articleLen≈8346 / hasApprove ✓（浏览器 pageId=55）
+  Medium import editor bodyLen≈8009 / Saved ✓
+  Medium 公网 @builderliang/...-40fdf409ab4f articleLen≈8067 / hasApprove ✓
+  ```
+
 #### content(growth): Job 2 旅程文起草 — agent-wrote-migration-approve
 
 - **选题**：Job 2「改表必须可审、有人批」；MCP 建设顺序 Job 1 已发 → Job 2（`diff_versions` + `create_version` 人审）→ Job 4 → Job 3
@@ -20,6 +32,20 @@
   put_project_json 仅作「禁止写路径」反例出现；写路径仅 create_version
   node scripts/growth/build-package.mjs agent-wrote-migration-approve → 1/1 成功
   ```
+
+#### fix(growth): post-seo-essay 公网验 + 知乎 PATCH + Hashnode fill + tab 复用
+
+- **verifyPublic / zhihuPatchDraft**：禁止 `--args` 传大对象（chrome-devtools 误当 uid）；改脚本内嵌
+- **hashnode**：`textarea[placeholder*="Start writing markdown"]` 读回 bodyLen
+- **zhihu**：标题 placeholder 选择器 + **草稿备份** → PATCH → reload → 发布
+- **全平台**：`reusePage` / `acquirePlatformPage` — 仅 `navigate_page`，禁止 `new_page`
+- **验证点**：Job2 OSChina `19750787` articleLen≈7010 ✓；Dev.to `4l6d` articleLen≈8410 ✓
+
+#### publish(growth): Job2 全渠道首发 — agent-wrote-migration-approve
+
+- **已发**：掘金 / CSDN / OSChina / 知乎 / Hashnode / Dev.to / X Article（见 `docs/growth-data/2026-08-30.md`）
+- **失败**：Medium import（import URL 未成功填入）
+- **验证点**：各平台公网 URL 含 Approve / migration hook；X audit bodyLength≈7926
 
 #### fix(growth): 掘金标签 click-to-select + 上限 2 + 复用 tab
 
