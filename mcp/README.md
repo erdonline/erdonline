@@ -36,6 +36,8 @@ Glama 内省用 [`Dockerfile`](./Dockerfile)（stdio，**无** PAT；`tools/list
 | `describe_table` | 契约渐进披露②：单表字段 + FK 邻域；表不存在返回 `found:false` + suggestions | `projects:read` |
 | `list_versions` | `GET /api/v1/projects/{id}/versions` | `versions:read` |
 | `get_version` | `GET /api/v1/projects/{id}/versions/{versionId}` | `versions:read` |
+| `diff_versions` | 两个命名版本的表/列语义 diff + 保守改名候选（非 ALTER dump） | `versions:read` |
+| `preview_ddl` | 指定命名版本的四方言 `CREATE TABLE` 草稿；只预览，永不执行 SQL | `versions:read` |
 | `create_version` | `POST /api/v1/projects/{id}/versions` | `versions:write` |
 | `update_project` | `PATCH /api/v1/projects/{id}` | `projects:write` |
 | `put_project_json` | `PUT /api/v1/projects/{id}/projectJSON` | `projects:write` |

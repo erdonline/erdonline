@@ -107,8 +107,8 @@ clearTimeout(timer);
 child.kill('SIGTERM');
 
 const names = (listed.result?.tools ?? []).map((t) => t.name);
-if (names.length !== 14) {
-  fail(`tools/list expected 14 tools, got ${names.length}: ${names.join(',')}`);
+if (names.length !== 16) {
+  fail(`tools/list expected 16 tools, got ${names.length}: ${names.join(',')}`);
 }
 if (!names.includes('list_projects') || !names.includes('get_project_schema')) {
   fail(`tools/list missing schema tools: ${names.join(',')}`);
@@ -116,8 +116,8 @@ if (!names.includes('list_projects') || !names.includes('get_project_schema')) {
 if (!names.includes('put_project_json')) {
   fail(`tools/list missing compatibility tool put_project_json: ${names.join(',')}`);
 }
-if (names.includes('diff_versions')) {
-  fail('diff_versions is not implemented and must not be advertised');
+if (!names.includes('diff_versions') || !names.includes('preview_ddl')) {
+  fail(`tools/list missing version review tools: ${names.join(',')}`);
 }
 const byName = Object.fromEntries(
   (listed.result?.tools ?? []).map((t) => [t.name, t]),
@@ -130,6 +130,21 @@ if (byName.put_project_json?.annotations?.destructiveHint !== true) {
 }
 if (byName.create_version?.annotations?.readOnlyHint !== false) {
   fail('create_version must set annotations.readOnlyHint=false');
+}
+if (byName.diff_versions?.annotations?.readOnlyHint !== true) {
+  fail('diff_versions must be read-only');
+}
+if (
+  !byName.diff_versions?.inputSchema?.properties?.fromVersionId
+  || !byName.diff_versions?.inputSchema?.properties?.toVersionId
+) {
+  fail('diff_versions must expose fromVersionId/toVersionId');
+}
+if (byName.preview_ddl?.annotations?.readOnlyHint !== true) {
+  fail('preview_ddl must be read-only');
+}
+if (!String(byName.preview_ddl?.description ?? '').includes('never executes SQL')) {
+  fail('preview_ddl must explicitly say it never executes SQL');
 }
 if (!String(byName.create_version?.description ?? '').includes('MUST ask the human')) {
   fail('create_version description must require asking the human to confirm the diff');
