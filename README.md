@@ -43,36 +43,27 @@ ERD Online 定位为**数据库设计的 Git + Figma**：版本与协作是壁�
 
 次路径：品牌仍是**数据库设计的 Git + Figma**，不是 ChatSQL。Agent 读写的是设计器同一份 `projectJSON`。官方 Demo 是只读分享，**不能当 PAT**。
 
-1. 登录后 [铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)（默认只读即可）。铸造成功弹层会给出已填 PAT 的 `mcp.json`，可直接复制。
-2. 先铸造 PAT，再一键装进 Cursor（装好后把 `ERD_PAT` 换成弹层里的明文；官方 Demo **不能当 PAT**）：
+1. 复制远程 Streamable HTTP URL：`https://api.erdonline.com/mcp`。
+2. 一键装进 Cursor；deeplink 只含 URL，不含 PAT：
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
-> 也支持 **Claude Desktop、Claude Code、Cline、Roo Code、Windsurf、Glama** 等 stdio MCP 客户端。把同一 JSON 粘到对应配置位置即可；[完整客户端列表与接入位置](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
+> 也支持 **Claude Desktop、Claude Code、Cline、Windsurf、VS Code Copilot**。各客户端字段不同（如 `type: http`、`streamableHttp`、`serverUrl`），见[六张配置卡](https://doc.erdonline.com/docs/guide/api-and-mcp/)。
 
-或把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`。`npx` 会拉 GitHub Release 包，不必 clone：
+过渡期需要读取账户数据时，可在 Cursor 用户级 `~/.cursor/mcp.json` 本机补 Bearer PAT；OAuth 在下一切片加入：
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。完整步骤：[中文](https://doc.erdonline.com/docs/guide/api-and-mcp/) · [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)。重载后对 Agent 说：`列出我的 ERD 项目`。列表为空就先在设计器建**自己的**项目；要改模型用 `create_version`（人再 diff），不要凭一句话生成新图。Cursor 也可选 prompt `suggest-erd-version`。`create_version` 的 API 200 **不是**人批准。
+明文 PAT 不得放进 deeplink 或提交仓库。自托管源码 fallback 使用 `node mcp/dist/index.js`（npm 包尚未发布）。完整步骤：[中文](https://doc.erdonline.com/docs/guide/api-and-mcp/) · [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/)。重载后对 Agent 说：`列出我的 ERD 项目`；要改模型用 `create_version`（人再 diff）。`create_version` 的 API 200 **不是**人批准。
 
 ## 🆚 为什么选它
 

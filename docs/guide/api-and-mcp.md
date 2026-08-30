@@ -1,68 +1,120 @@
 ---
-title: 用 MCP 让 Cursor / Claude / Cline 等读取 ER 图
-description: 复制 mcp.json 配置，用 PAT 让 Cursor、Claude、Cline、Windsurf 等 Agent 读写同一份 ERD projectJSON。人再 diff 审批版本。不做一句话生成 ER 图。
+title: 用一个 URL 把 Agent 接到 ERD Online
+description: 把远程 Streamable HTTP URL 接入 Cursor、Claude Desktop、Claude Code、Cline、Windsurf 或 VS Code Copilot；Agent 读取契约，人审版本 diff。
 ---
 
-想把正在画的 ER 图交给 Cursor 或 Claude？走鉴权后的 REST / MCP，读写**同一份** projectJSON（和设计器里看到的模型一致）。分享链接不是 API 密钥。
+想把正在画的 ER 图交给 Cursor 或 Claude？六类客户端都从同一个远程 Streamable HTTP 地址开始：
 
-> **30 秒目标**：铸造 PAT → 粘贴 MCP 配置 → 在 Cursor 选 prompt `suggest-erd-version`（或让 Agent 调 `create_version`）。  
-> **前置**：可登录实例（[自托管](./quick-self-host.md) 或 [www.erdonline.com](https://www.erdonline.com/)）；格式见 [data-format](../data-format.md)。  
+```text
+https://api.erdonline.com/mcp
+```
+
+> **30 秒目标**：粘贴 URL → 客户端发现 MCP 工具 → Agent 读取已批准的模型契约。
+> **鉴权过渡**：OAuth 在下一切片实现。当前需要读取账户数据时，支持自定义 header 的客户端可加 `Authorization: Bearer erd_pat_…`。明文 PAT 只放本机密钥配置，绝不能写进 deeplink 或提交仓库。
 > **不做**：一句话生成 ERD、ChatSQL；写操作必须人在版本 diff 里审批。`create_version` 的 API 200 不是人批准。
 
-## 支持哪些 AI 客户端
+## 六种客户端，六张配置卡
 
-只要客户端支持 MCP（Model Context Protocol），就可以用同样的 `mcpServers.erdonline` 配置读写 ERD projectJSON。下面是常见客户端的接入位置：
+### Cursor
 
-| 客户端 | 配置文件位置 | 备注 |
-|---|---|---|
-| **Cursor** | `~/.cursor/mcp.json` | [官网 install-links](https://cursor.com/docs/mcp/install-links)；可用 [一键安装页](https://www.erdonline.com/cursor-mcp/) |
-| **Claude Desktop** | `~/Library/Application Support/Claude/claude_desktop_config.json`（macOS） / `%APPDATA%/Claude/claude_desktop_config.json`（Windows） | Anthropic 官方，配置与 Cursor 同结构 |
-| **Claude Code** | 命令行 `claude config set mcpServers '{...}'` 或写入 `~/.claude/config.json` | 终端 Agent；`ERD_PAT` 可在环境变量或文件里 |
-| **Cline** | VS Code 设置 → `mcp.marketplace` 或 `cline.mcp.json` | 支持自定义 MCP server；把 JSON 粘进 `mcpServers` |
-| **Roo Code** | VS Code 设置 → `roo.mcpServers` | 与 Cline 同格式 |
-| **Windsurf** | `~/.windsurf/mcp.json`（或 Cascade Settings 中的 MCP 面板） | Codeium；配置字段与 Cursor 一致 |
-| **Glama** | 托管市场 [glama.ai/mcp/servers](https://glama.ai/mcp/servers) | 无需 PAT 即可做 `tools/list` 内省；读写仍需 PAT |
-| **5ire / Smithery / 其他** | 按各自 MCP 设置填入 `command`/`args`/`env` | 只要支持 stdio MCP 就能用 |
-
-**同一套 `mcp.json`**：下面是 Cursor 示例，其它客户端把同一 JSON 粘到对应位置即可。
-
-## 30 秒接到 Cursor
-
-1. 登录后打开 **账户设置 → 访问令牌**：[铸造 PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)。默认只读即可；明文只显示一次，**铸造成功弹层会给出已填入 PAT 的 `mcp.json`，可直接复制**。官方 Demo 是只读分享，**不能**当 PAT——需要你自己的项目。
-
-<img src="/img/guide/mcp-pat-reveal.webp" alt="铸造 PAT 后明文只显示一次，弹层可复制 mcp.json" width="464" height="336" loading="eager" fetchpriority="high" />
-
-2. 铸造 PAT 后可 [一键加入 Cursor](https://www.erdonline.com/cursor-mcp/)（官方 [install-links](https://cursor.com/docs/mcp/install-links)；协议 `cursor://anysphere.cursor-deeplink/mcp/install`）。**一键链接不会把 PAT 编进 URL**；请从弹层复制框粘贴已填好的 `mcp.json`，或装好后把占位符换成明文。
-
-或把下面 JSON 粘进 Cursor 用户级 `~/.cursor/mcp.json`（Claude Desktop 同结构）。把 `erd_pat_…` 换成你的 PAT（弹层已填好）。`npx -y --package … erd-mcp` 会拉取 GitHub Release 里的 MCP 包，**不必**本机 clone。
+1. 打开[一键安装页](https://www.erdonline.com/cursor-mcp/)，点击「在 Cursor 打开」。
+2. 确认 URL 为 `https://api.erdonline.com/mcp` 后安装。
+3. 过渡期需要账户数据时，在用户级 `~/.cursor/mcp.json` 本机补 PAT header：
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-<img src="/img/guide/mcp-json.webp" alt="Cursor mcp.json 配置片段（npx tarball；PAT 换成你的）" width="512" height="196" loading="lazy" />
+deeplink 使用 Cursor 官方格式 `cursor://anysphere.cursor-deeplink/mcp/install?...`，只编码 `{"url":"https://api.erdonline.com/mcp"}`，**不含 PAT**。
 
-本地自托管把 `ERD_API_URL` 改成 `http://127.0.0.1:9502`。MCP **不在** Docker 镜像内。
+### Claude Desktop
 
-3. 重载 Cursor MCP 后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再：`读取项目 X 的 projectJSON`。列表为空时，先在设计器里建一个**自己的**项目（官方 Demo 不能当 PAT）。要改模型：在 Cursor 选 prompt **`suggest-erd-version`**，或让 Agent 调 `create_version`。Agent 若仍提示 `erd_pat_…`：把弹层明文粘进 `mcp.json`——一键链接不会带 PAT。不要让 Agent 凭一句话生成一张新 ER 图。
+1. 打开 **Settings → Connectors**。
+2. 添加自定义 Connector，粘贴 `https://api.erdonline.com/mcp`。
+3. 保存并重新连接。
 
-贡献者若要从源码跑：`cd mcp && yarn install && yarn build`，再用 `node /ABS/PATH/to/erdonline/mcp/dist/index.js`。开发免编译可用 `npx tsx mcp/src/index.ts`。
+Anthropic 云端 Connector 无法访问 `localhost`。本切片尚未实现远程 OAuth，因此需要账户鉴权的完整旅程要等下一切片；不要退回 stdio tgz 当主路径。
+
+### Claude Code
+
+1. 运行：
+
+```bash
+claude mcp add --transport http --scope user erdonline https://api.erdonline.com/mcp
+```
+
+2. 确认服务保存到 user scope。
+3. 过渡期若改 JSON，远程项必须显式写 `"type": "http"`：
+
+```json
+{"type":"http","url":"https://api.erdonline.com/mcp","headers":{"Authorization":"Bearer erd_pat_…"}}
+```
+
+### Cline
+
+1. 打开 Cline 的 MCP Servers。
+2. 添加远程服务；transport 字段必须是 `"type": "streamableHttp"`。
+3. 保存后检查工具列表：
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "type": "streamableHttp",
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
+    }
+  }
+}
+```
+
+### Windsurf
+
+1. 打开 `~/.codeium/windsurf/mcp_config.json`。
+2. 加入远程服务；URL 字段必须是 `serverUrl`。
+3. 重载 Windsurf：
+
+```json
+{
+  "mcpServers": {
+    "erdonline": {
+      "serverUrl": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
+    }
+  }
+}
+```
+
+### VS Code Copilot
+
+1. 打开工作区 `.vscode/mcp.json`。
+2. 在顶层 `servers` 加入 HTTP 服务。
+3. 启动该 MCP 服务：
+
+```json
+{
+  "servers": {
+    "erdonline": {
+      "type": "http",
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
+    }
+  }
+}
+```
+
+## 第一次调用
+
+重载客户端后对 Agent 说：`列出我的 ERD 项目`。应出现 `list_projects`。再说：`读取项目 X 的 projectJSON`。列表为空时，先在设计器里建一个自己的项目。要改模型，让 Agent 调 `create_version`，再由人在设计器版本 diff 中审批。
+
+PAT 可在[账户设置](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens)铸造；默认只读，写版本需 `versions:write`。明文只显示一次。
 
 ## 你会得到什么
 
@@ -93,14 +145,18 @@ description: 复制 mcp.json 配置，用 PAT 让 Cursor、Claude、Cline、Wind
 
 `create_version` 返回 **API 200 不是人批准**。你必须打开设计器版本 diff，通过或回滚。不要让 Agent 静默 `put_project_json` 覆盖工作区。
 
-## Streamable HTTP（可选）
+## 自托管 / 从源码运行
+
+`@erdonline/mcp` 当前仍是 `private: true`，尚不可从 npm 安装，因此不宣传 `npx -y @erdonline/mcp`。从仓库源码构建：
 
 ```bash
 export ERD_API_URL=http://127.0.0.1:9502
 export ERD_PAT=erd_pat_…
-cd mcp && yarn start -- --http
-# → http://127.0.0.1:3920/mcp
+cd mcp && yarn install && yarn build
+node dist/index.js
 ```
+
+上面是 stdio fallback。若要自托管 Streamable HTTP，运行 `yarn start -- --http`，端点为 `http://127.0.0.1:3920/mcp`；Docker / Railway 镜像则由 Spring 在后端端口暴露 `/mcp`。
 
 ## 成功时你会看到什么
 
@@ -113,13 +169,13 @@ cd mcp && yarn start -- --http
 | 现象 | 可尝试 |
 |---|---|
 | 401 / 403 | 检查 PAT 是否过期、scope 是否足够、是否打到正确环境；过期则重新[铸造](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) |
-| Agent 说 Missing ERD_PAT / 仍是 `erd_pat_…` | 占位符不是令牌。把铸造弹层里的明文粘进 `mcp.json` 的 `ERD_PAT`。一键安装链接**不会**把 PAT 编进 URL |
+| Agent 说 Missing PAT / 仍是 `erd_pat_…` | 占位符不是令牌。把铸造弹层里的明文填到本机配置的 `Authorization: Bearer …` header；一键安装链接**不会**把 PAT 编进 URL |
 | `list_projects` 为空 | 先在设计器新建自己的项目，再说「列出我的 ERD 项目」。官方 Demo 分享链接**不能**当 PAT |
 | Agent 画了一张新 ER 图 | 叫它 `list_projects` 再 `get_project_schema`，读写你已有的 projectJSON，不要从自然语言生成图 |
 | `create_version` 已 200 | 还要打开版本 diff 确认或回滚。**API 200 不是人批准** |
 | 分享链接能看图但 API 失败 | 分享只读 token **不能**当 API 凭证 |
-| MCP 连不上 | 确认 MCP 进程已单独启动；Token / 路径与文档一致 |
-| compose 起来了但没有 MCP | 预期行为；MCP 在 `mcp/` 目录另启 |
+| 官方 MCP 连不上 | 确认 URL 是 `https://api.erdonline.com/mcp`；若返回 404，说明生产镜像尚未按仓库根目录重部署 |
+| 自托管 MCP 连不上 | 镜像部署确认后端 `/mcp`；源码 stdio fallback 则确认 `node mcp/dist/index.js` 已启动 |
 | 想改模型 schema 含义 | 遵守「仅加法」；见 [data-format](../data-format.md) |
 | 想在 CI 里校验模型 | **不要**在 runner 上起 MCP。用 REST 拉 `projectJson` 再跑 `node scripts/validate-projectjson.mjs`；见 [data-format · 从公开 API 拉再校验](../data-format.md#ci-fetch-then-lint) |
 

@@ -161,7 +161,10 @@ if (!promptNames.includes('suggest-erd-version')) {
   fail(`prompts/list missing suggest-erd-version: ${JSON.stringify(prompts)}`);
 }
 const guideText = guide.result?.contents?.[0]?.text ?? '';
-if (!guideText.includes('projectJSON') || !guideText.includes('30 秒接到 Cursor')) {
+if (
+  !guideText.includes('https://api.erdonline.com/mcp') ||
+  !guideText.includes('六种客户端，六张配置卡')
+) {
   fail(`resources/read must serve api-and-mcp markdown: ${guideText.slice(0, 200)}`);
 }
 if (called.result?.isError !== true) {

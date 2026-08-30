@@ -526,15 +526,15 @@ export default {
   'accountSettings.pat.copiedSuccess': '访问令牌已复制',
   'accountSettings.pat.mcpSnippetLabel': 'Cursor mcp.json',
   'accountSettings.pat.mcpSnippetHint':
-    '粘进 ~/.cursor/mcp.json。npx 会拉取 MCP 包，不必本机 clone。官方 Demo 不能当 PAT。接通后在 Cursor 选 prompt suggest-erd-version，或让 Agent 调 create_version，你再打开版本 diff；不要凭一句话生成新图。自托管把 ERD_API_URL 改成 http://127.0.0.1:9502。',
+    '粘进 ~/.cursor/mcp.json，远程 URL 无需本机 Node。PAT 只留在本机配置，不要放进 deeplink 或提交仓库。接通后可选 prompt suggest-erd-version，或让 Agent 调 create_version，你再打开版本 diff。自托管使用自己的后端 /mcp。',
   'accountSettings.pat.copyMcpJsonAria': '复制 Cursor mcp.json 配置',
   'accountSettings.pat.mcpCopiedSuccess': 'mcp.json 已复制',
   'accountSettings.pat.mcpDocsLink': '30 秒接入文档',
   'accountSettings.pat.mcpDocsAria': '打开文档：用 MCP 让 Cursor 读取 ER 图',
   'accountSettings.pat.mcpCursorInstallLink':
-    '一键加入 Cursor（链接是占位符；装好后把上方复制框里的明文 PAT 贴进去）',
+    '一键加入 Cursor（链接只含远程 URL，不含 PAT）',
   'accountSettings.pat.mcpCursorInstallAria':
-    '打开官方 Cursor 安装链接（URL 里是占位符，装好后把复制框里的明文 PAT 贴进去）',
+    '打开官方 Cursor 安装链接（URL 不含访问令牌）',
 
   'accountSettings.oauthClient.loadFailed': '加载 OAuth 客户端失败',
   'accountSettings.oauthClient.registerSuccess': 'OAuth 客户端已注册',

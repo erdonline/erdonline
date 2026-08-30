@@ -41,36 +41,27 @@ Most database design tools force a trade-off: **dbdiagram** is pretty but closed
 
 Secondary path — the product is still **Git + Figma for database design**, not ChatSQL. Agents read the **same** `projectJSON` the canvas uses. Demo share links are **not** a PAT.
 
-1. Sign in → [mint a PAT](https://www.erdonline.com/account/settings?selectKey=personalAccessTokens) (read-only is enough). The success dialog copies a PAT-filled `mcp.json`.
-2. After minting a PAT, one-click install in Cursor (then replace `ERD_PAT` with the plaintext; the public Demo is **not** a PAT):
+1. Copy the remote Streamable HTTP URL: `https://api.erdonline.com/mcp`.
+2. One-click install in Cursor. The deeplink contains only the URL, never a PAT:
 
 [![Add ERD Online MCP to Cursor](https://cursor.com/deeplink/mcp-install-dark.svg)](https://www.erdonline.com/cursor-mcp/)
 
-> Also works with **Claude Desktop, Claude Code, Cline, Roo Code, Windsurf, Glama** and any stdio MCP client. Paste the same JSON into the matching config. [Full client list](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
+> Also works with **Claude Desktop, Claude Code, Cline, Windsurf, and VS Code Copilot**. Their fields differ (`type: http`, `streamableHttp`, `serverUrl`), so use the [six client cards](https://doc.erdonline.com/en/docs/guide/api-and-mcp/).
 
-Or paste this into Cursor user-level `~/.cursor/mcp.json`. `npx` fetches the GitHub Release package — no clone:
+For account data during the PAT transition, add the Bearer header locally in Cursor user-level `~/.cursor/mcp.json`. OAuth is the next slice:
 
 ```json
 {
   "mcpServers": {
     "erdonline": {
-      "command": "npx",
-      "args": [
-        "-y",
-        "--package",
-        "https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz",
-        "erd-mcp"
-      ],
-      "env": {
-        "ERD_API_URL": "https://erdonline-production.up.railway.app",
-        "ERD_PAT": "erd_pat_…"
-      }
+      "url": "https://api.erdonline.com/mcp",
+      "headers": {"Authorization": "Bearer erd_pat_…"}
     }
   }
 }
 ```
 
-Self-host: set `ERD_API_URL` to `http://127.0.0.1:9502`. Full steps: [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/) · [中文](https://doc.erdonline.com/docs/guide/api-and-mcp/). Reload MCP and ask: `List my ERD projects`. If the list is empty, create **your own** project in the designer first. Propose model changes with `create_version` (you still open the diff). Do not generate a new ER diagram from a sentence. Cursor can also run the `suggest-erd-version` prompt. `create_version` API 200 is **not** human approval.
+Never put a plaintext PAT in a deeplink or commit. Self-host fallback runs `node mcp/dist/index.js` from source (the npm package is not published). Full steps: [English](https://doc.erdonline.com/en/docs/guide/api-and-mcp/) · [中文](https://doc.erdonline.com/docs/guide/api-and-mcp/). Reload MCP and ask: `List my ERD projects`. Propose changes with `create_version`, then review the diff. API 200 is **not** human approval.
 
 ## Why ERD Online
 

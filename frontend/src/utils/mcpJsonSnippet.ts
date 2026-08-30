@@ -1,25 +1,20 @@
-/** Cursor / Claude Desktop mcp.json fragment after PAT mint. */
+/** Remote Streamable HTTP endpoint shared by supported MCP clients. */
+export const PRODUCTION_MCP_URL = 'https://api.erdonline.com/mcp';
 
-/** GitHub Release tarball of in-repo `@erdonline/mcp` (no clone + yarn build). */
-export const MCP_NPX_PACKAGE =
-  'https://github.com/erdonline/erdonline/releases/download/mcp-v0.1.0/erdonline-mcp-0.1.0.tgz';
+export const LOCAL_MCP_URL = 'http://127.0.0.1:9502/mcp';
 
-export const MCP_NPX_ARGS = ['-y', '--package', MCP_NPX_PACKAGE, 'erd-mcp'];
-
-export const PRODUCTION_MCP_API_URL =
-  'https://erdonline-production.up.railway.app';
-
-export const MCP_PAT_PLACEHOLDER = 'erd_pat_…';
-
-/** MCP is a Node process; empty SPA API_URL cannot be same-origin. */
-export const LOCAL_MCP_API_URL = 'http://127.0.0.1:9502';
-
-export function resolveMcpApiUrl(apiUrl?: string | null): string {
+export function resolveMcpUrl(apiUrl?: string | null): string {
   const raw = (apiUrl ?? '').trim().replace(/\/+$/, '');
   if (!raw || raw.startsWith('/')) {
-    return LOCAL_MCP_API_URL;
+    return LOCAL_MCP_URL;
   }
-  return raw;
+  if (
+    raw === 'https://api.erdonline.com' ||
+    raw === 'https://erdonline-production.up.railway.app'
+  ) {
+    return PRODUCTION_MCP_URL;
+  }
+  return raw.endsWith('/mcp') ? raw : `${raw}/mcp`;
 }
 
 export function buildCursorMcpJson(
@@ -30,11 +25,9 @@ export function buildCursorMcpJson(
     {
       mcpServers: {
         erdonline: {
-          command: 'npx',
-          args: [...MCP_NPX_ARGS],
-          env: {
-            ERD_API_URL: resolveMcpApiUrl(apiUrl),
-            ERD_PAT: pat,
+          url: resolveMcpUrl(apiUrl),
+          headers: {
+            Authorization: `Bearer ${pat}`,
           },
         },
       },
@@ -45,29 +38,23 @@ export function buildCursorMcpJson(
 }
 
 export type CursorMcpInstallOpts = {
-  apiUrl?: string | null;
+  mcpUrl?: string | null;
 };
 
 /**
  * Inner server object Cursor encodes in install-link `config`.
- * ERD_PAT is always the placeholder — never a minted secret (URL leaks).
+ * Never add authorization headers here: deeplink URLs leak into history/logs.
  */
 export function cursorMcpInstallConfig(
   opts?: CursorMcpInstallOpts,
 ): {
-  command: 'npx';
-  args: string[];
-  env: {ERD_API_URL: string; ERD_PAT: string};
+  url: string;
 } {
   return {
-    command: 'npx',
-    args: [...MCP_NPX_ARGS],
-    env: {
-      ERD_API_URL: resolveMcpApiUrl(
-        opts?.apiUrl === undefined ? PRODUCTION_MCP_API_URL : opts.apiUrl,
-      ),
-      ERD_PAT: MCP_PAT_PLACEHOLDER,
-    },
+    url:
+      opts?.mcpUrl === undefined
+        ? PRODUCTION_MCP_URL
+        : resolveMcpUrl(opts.mcpUrl),
   };
 }
 
