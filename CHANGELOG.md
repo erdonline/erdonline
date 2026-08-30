@@ -8,6 +8,36 @@
 
 ### 2026-08-30
 
+#### feat(mcp): Streamable HTTP on backend `/mcp` (Railway :8080)
+
+- **架构（5 行）**：否决 A「第二 Railway 公网 Node 服务」与 B「Java 重写 14 tools」；选 **同容器 co-process + Spring 薄反代**（A′）：Docker entrypoint 起 Node `@erdonline/mcp` loopback `:3920`，Boot `McpHttpProxyController` 暴露公网 `POST /mcp`；PAT 经 `Authorization: Bearer erd_pat_…` 逐请求注入 sidecar→`/api/v1`（不写 `ERD_PAT` 进镜像）；独立 `@Order(0)` Security 链避免 JWT 误解析 PAT。
+- **改动**：`mcp/src/index.ts` HTTP 模式读请求 Bearer；`backend/.../mcp/*` 代理 + 配置 `erd.mcp.*`；`backend/Dockerfile` 多阶段含 mcp build；`docker-entrypoint.sh`；`dev-restart.sh` 本地 sidecar；Security `/mcp` permitAll + 专用 filter chain
+- **域名规划（代码后冻结）**：REST `api.erdonline.com:8080`（已 live）；MCP 本切片 `https://api.erdonline.com/mcp`（8080→loopback 3920）；Socket.IO 仍进程内 `9092`，Railway 单公网口无法直达——后续 `socket.erdonline.com` TCP 代理或 8080 多路复用；`mcp.` 子域留作将来拆 sidecar 时用
+- **验证点**：
+  ```bash
+  cd mcp && yarn build
+  cd backend && mvn -q compile && ./dev-ensure.sh --restart
+  curl -s -o /dev/null -w '%{http_code}\n' http://localhost:9502/mcp          # → 405
+  curl -s -X POST http://localhost:9502/mcp -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' \
+    -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2024-11-05","capabilities":{},"clientInfo":{"name":"curl","version":"0"}}}' \
+    | grep -q '"name":"erdonline"'
+  curl -s -X POST http://localhost:9502/mcp -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' \
+    -d '{"jsonrpc":"2.0","id":2,"method":"tools/list","params":{}}' \
+    | grep -o '"name":"[^"]*"' | wc -l   # → 14
+  # tools/call list_projects + Bearer PAT：代理链通（本地 PAT 须对 dev DB 有效）
+  PAT=erd_pat_… curl -s -X POST http://localhost:9502/mcp \
+    -H 'Authorization: Bearer '"$PAT" -H 'Content-Type: application/json' \
+    -H 'Accept: application/json, text/event-stream' \
+    -d '{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"list_projects","arguments":{"page":1,"size":3}}}'
+  ```
+
+#### chore(mcp): project-level erdonline MCP → Railway API
+
+- **改动**：`.cursor/mcp.json` 保留 `chrome-devtools`；`erdonline` 改经 `/bin/bash` + 绝对路径 `scripts/erdonline-mcp.sh` 启动（Cursor GUI 不传 `envFile`/`${env:ERD_PAT}`）；wrapper 从 repo 根 `.env`/`.env.local` 安全加载 `ERD_PAT`（含引号值）、固定 `ERD_API_URL` Railway、`exec` 绝对路径 nvm node + `mcp/dist/index.js`，无 `npx`
+- **验证点**：`scripts/erdonline-mcp.sh --check-env` → `ERD_API_URL` 为 Railway、`ERD_PAT_nonempty` 仅 true/false；wrapper stdio `initialize` + `tools/list` → 14 tools；Reload MCP 后 `list_projects` → `list_tables` → `describe_table`（需 `.env` 内非空 `ERD_PAT=erd_pat_…`）
+
 #### publish(growth): Job2 Medium import — agent-wrote-migration-approve
 
 - **Hashnode 真 permalink**：`https://erdonline.hashnode.dev/the-agent-wrote-the-migration-are-you-really-going-to-approve-it`（旧 `-ck8` URL 404；从 `erdonline.hashnode.dev` 首页读真实 slug）

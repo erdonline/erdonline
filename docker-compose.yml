@@ -43,7 +43,8 @@ services:
     # Prefer prebuilt GHCR image; `docker compose build backend` still builds from ./backend
     image: ghcr.io/erdonline/erdonline-backend:${ERD_IMAGE_TAG:-latest}
     build:
-      context: ./backend
+      context: .
+      dockerfile: backend/Dockerfile
     container_name: erd-backend
     restart: unless-stopped
     depends_on:

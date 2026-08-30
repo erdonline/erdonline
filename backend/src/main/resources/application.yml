@@ -180,6 +180,10 @@ erd:
     oauth-auth-code-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_CODE_TTL:120}
     # refresh_token TTL（秒），默认 30 天；仅 authorization_code 换票签发；轮换复用检测
     oauth-refresh-token-ttl-seconds: ${ERD_PUBLIC_API_OAUTH_REFRESH_TTL:2592000}
+  # Streamable HTTP MCP：Spring {@code /mcp} → Node sidecar（复用 mcp/ 14 tools）
+  mcp:
+    enabled: ${ERD_MCP_HTTP_ENABLED:true}
+    internal-base-url: http://127.0.0.1:${ERD_MCP_INTERNAL_PORT:3920}
   # ADR-0028 模板广场（Open VSX：空 api-url = 仅本地种子）
   catalog:
     api-url: ${ERD_CATALOG_API_URL:}
@@ -267,4 +271,7 @@ security:
         - /ncnb/catalog/v1/templates
         - /ncnb/catalog/v1/templates/**
         - /ncnb/catalog/v1/creators/**
+        # Streamable HTTP MCP（PAT 在 sidecar 内校验，不经会话 JWT）
+        - /mcp
+        - /mcp/**
         # R-DEAD-03：勿加 /endpoint/**（无控制器；匿名误挂面）

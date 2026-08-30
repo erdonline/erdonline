@@ -8,10 +8,43 @@
 # 依赖变更（pom.xml）后需先 mvn dependency:build-classpath 刷新 target/cp.txt。
 set -e
 cd "$(dirname "$0")"
+REPO_ROOT="$(cd .. && pwd)"
+MCP_PORT="${ERD_MCP_INTERNAL_PORT:-3920}"
+MCP_LOG="/tmp/erd-mcp.log"
 
 # Boot 3 需要 JDK 17+
 JAVA_HOME=$(/usr/libexec/java_home -v 17)
 export JAVA_HOME
+
+resolve_node() {
+  if [ -x "${HOME}/.nvm/versions/node/v22.22.0/bin/node" ]; then
+    echo "${HOME}/.nvm/versions/node/v22.22.0/bin/node"
+  elif [ -x /opt/homebrew/opt/node@22/bin/node ]; then
+    echo /opt/homebrew/opt/node@22/bin/node
+  elif command -v node >/dev/null 2>&1; then
+    command -v node
+  else
+    echo ""
+  fi
+}
+
+start_mcp_sidecar() {
+  NODE_BIN="$(resolve_node)"
+  MCP_ENTRY="${REPO_ROOT}/mcp/dist/index.js"
+  if [ -z "$NODE_BIN" ] || [ ! -f "$MCP_ENTRY" ]; then
+    echo "跳过 MCP sidecar（缺 node 或 ${MCP_ENTRY}；cd mcp && yarn build）" >&2
+    return 0
+  fi
+  lsof -ti:"$MCP_PORT" | xargs kill -9 2>/dev/null || true
+  sleep 0.5
+  ERD_API_URL=http://127.0.0.1:9502 ERD_MCP_TRANSPORT=http ERD_MCP_PORT="$MCP_PORT" \
+    "$NODE_BIN" "$MCP_ENTRY" >>"$MCP_LOG" 2>&1 &
+  echo "MCP sidecar → http://127.0.0.1:${MCP_PORT}/mcp (log: ${MCP_LOG})"
+}
+
+if [ "${ERD_MCP_HTTP_ENABLED:-true}" != "false" ]; then
+  start_mcp_sidecar
+fi
 
 if [ ! -f target/cp.txt ]; then
   echo "首次运行：导出依赖 classpath（后续复用）"

@@ -88,6 +88,17 @@ export function attachCreateVersionHint(data: unknown): unknown {
   return { ...(data as Record<string, unknown>), hint: CREATE_VERSION_HUMAN_HINT };
 }
 
+/** Per-request PAT from Streamable HTTP `Authorization: Bearer erd_pat_…`. */
+export function patFromAuthorizationHeader(
+  authorization: string | undefined,
+): string | undefined {
+  if (!authorization?.startsWith('Bearer ')) return undefined;
+  const token = authorization.slice('Bearer '.length).trim();
+  if (!token.startsWith('erd_pat_')) return undefined;
+  if (isUnusablePat(token)) return undefined;
+  return token;
+}
+
 export function loadConfigFromEnv(
   env: NodeJS.ProcessEnv = process.env,
 ): ErdApiConfig {
